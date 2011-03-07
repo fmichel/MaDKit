@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<!-- 
+  Copyright 1998-2011 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+  
+  This file is part of MadKit.
+  
+  MadKit is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Lesser General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+  
+  MadKit is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU Lesser General Public License for more details.
+  
+  You should have received a copy of the GNU Lesser General Public License
+  along with MadKit. If not, see <http://www.gnu.org/licenses/>.
+ -->
+ 
+<!-- 
+ This is ant MK_Targets.xml file. It contains targets for building MadKit projects:
+ 	- executable jar
+ 	- jnlp file
+ 	
+ Author: Fabien Michel
+ Version: 5.0
+-->
+
+<project name="madkitAntTargets" default="create-executable-jar">
+
+	<property name="build.dir" value="build"/>
+	<property name="executable.name" value="${ant.project.name}"/>
+    <property name="kernel.jar.name" value="madkitkernel-${madkit.version}.jar"/>
+    <property name="kernel.location" value="${madkit.install.dir}/lib/${kernel.jar.name}"/>
+
+ 	<!-- ================================= 
+          target: create-executable-jar              
+         ================================= -->
+    <target name="create-executable-jar" description="Creates an executable jar of your project and a jnlp file if possible">
+        <available file="${kernel.location}" property="madkit.lib.present"/>
+    	<fail 
+        	message="${line.separator}!! ${kernel.jar.name} not found !!${line.separator}
+        		Tried url was : ${basedir}/${kernel.location}" 
+    		unless="madkit.lib.present"/>
+    	<mkdir dir="${build.dir}"/>
+    	<unzip src="${kernel.location}" dest="${build.dir}">
+    	  <patternset>
+    	    <include name="madkitAntTargets.xml"/>
+    	  </patternset>
+    	</unzip>
+		  <path id="mk.classpath">
+		    <fileset dir="${madkit.install.dir}/lib/" includes="${kernel.jar.name}"/>
+		  </path>
+		<whichresource property="madkit.properties"
+		                 resource="madkitKernel.properties"
+		                 classpathref="mk.classpath"/>
+		<property url="${madkit.properties}"/>
+    	
+    	<ant antfile="${build.dir}/madkitAntTargets.xml" target="create-executable-jar" inheritrefs="true" inheritall="true" />
+    </target>
+    	
+    <!-- - - - - - - - - - - - - - - - - - 
+          target: init                      
+    <target name="init">
+    </target>
+         - - - - - - - - - - - - - - - - - -->
+</project>

@@ -1,0 +1,92 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+  <title>MadKit ${madkit.version} general documentation</title>
+</head>
+<body style="background-color: white;">
+<h1>MadKit ${madkit.version}</h1>
+<h3>the<i> Multi Agent Development Kit</i></h3>
+by Fabien Michel, Jacques Ferber, and Olivier Gutknecht.<br>
+<br>
+<a href="http://www.madkit.org/">www.madkit.org</a><br>
+<hr>
+<span style="font-style: italic;">March 1 2011</span><br>
+<br>
+MadKit is an open source modular and scalable multiagent platform
+written in Java and built upon the AGR (Agent/Group/Role)
+organizational model: MadKit agents play roles in groups and thus
+create artificial societies.&nbsp; <br>
+MadKit does not enforce any consideration about the internal structure
+of agents, thus allowing a developer to freely implements its own
+agent architectures. <br>
+<br>
+MadKit is free software, based on the LGPL license, featuring:<br>
+<ul>
+  <li>Artificial agents creation and life cycle management.</li>
+  <li>An organizational infrastructure for communication between agents.</li>
+  <li>High heterogeneity in agent architectures: No predefined agent
+model.</li>
+  <li>Multi-Agent based simulation and simulator authoring tools.</li>
+  <li>Multi-agent based distributed application authoring facilities.<br>
+  </li>
+</ul>
+<h2><br>
+</h2>
+<hr><span style="font-style: italic;"></span>
+<h2>Installing and using MadKit ${madkit.version}<br>
+</h2>
+<ol>
+  <li>unzip the MadKit-${madkit.version}.zip file somewhere in your
+file system.</li>
+  <li>In a new Java project, add the <span style="font-weight: bold;">lib/${madkit.jar.name}</span>
+to the build path (e.g. in your Eclipse project).</li>
+  <li>start programming agents.<br>
+  </li>
+</ol>
+<br>
+To launch your MadKit agents, simply either<br>
+&nbsp;<br>
+(1) use, anywhere, a main method with something like&nbsp; :<br>
+<br>
+&nbsp;&nbsp;&nbsp; public static void main(String[] args) {<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; String[] argss =
+{"--launchAgents","mypackage.myagentClass;mypackage.myOtherAgentClass"};<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; Madkit.main(argss);<br>
+&nbsp;&nbsp;&nbsp; }<br>
+<br>
+(2) use a command line such as <br>
+<br>
+java -cp pathTo-${madkit.jar.name}:yourClassPath madkit.kernel.Madkit
+--launchAgents mypackage.myagentClass;mypackage.myOtherAgentClass<br>
+<br>
+Other command line options are described in the API of the
+madkit.kernel.Madkit class<br>
+<br>
+<hr><span style="font-style: italic;"></span>
+<h2>Documentation</h2>
+As an alpha release, MadKit ${madkit.version} is not well documented
+yet. <br>
+But it already contains a javadoc which should help people who are
+already a bit used to the MadKit API, and even the others: <a
+ href="docs/api">MadKit API</a><br>
+Demos source codes are also a good starting point.<br>
+<br>
+<h2></h2>
+<hr>
+<h2>Online help<br>
+</h2>
+<h3>
+</h3>
+<ul>
+  <li><a href="http://www.madkit.org/forum">MadKit forum</a></li>
+</ul>
+<hr>
+<h2>Licenses</h2>
+<p>The MadKit kernel version ${madkit.version} is licensed under the <a
+ href="COPYING.LESSER">LGPL
+license</a>. </p>
+<br>
+<hr size="2">
+</body>
+</html>

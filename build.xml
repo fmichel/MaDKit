@@ -37,6 +37,7 @@
          ================================= -->
 	<target name="buildResources">
 		<mkdir dir="${build.dir}"/>
+		<mkdir dir="${release.dir}"/>
     	<native2ascii src="${src.dir}" dest="${build.dir}" includes="*.properties" ext=".properties"/>
 		  <copy todir="${build.dir}">
 		    <fileset dir="${src.dir}" excludes="**/*.java"/>
@@ -63,8 +64,8 @@
 				<attribute name="Sealed" value="true"/>
     			<include name="${mk.properties.file}"/>
          ================================= -->
-	<target name="jar" depends="clean,build-properties" description="Jars the plugin ">
-		<jar destfile="${jar.file}" compress="false" duplicate="preserve" update="true">
+	<target name="jar" depends="clean,compile,build-properties" description="Jars the plugin ">
+		<jar destfile="${jar.file}" compress="false" duplicate="preserve">
 
 			<fileset dir="${build.dir}"/>
 		
@@ -208,14 +209,20 @@
    <target name="release" depends="clean,jar,javadoc" description="build MadKit release">
    		<echo> --- Build Release : MadKit ${madkit.version}${line.separator}</echo>
 		<mkdir dir="${release.dir}"/>
-   		<copy todir="${build.dir}" file="README.html">
-   		  <filterchain>
-   		    <expandproperties/>
-   		  </filterchain>
-   		</copy>	
+		<copy todir="${build.dir}" file="README.html">
+		  <filterchain>
+		    <expandproperties/>
+		  </filterchain>
+		</copy>	
+		<copy todir="${build.dir}" file="VERSION">
+		  <filterchain>
+		    <expandproperties/>
+		  </filterchain>
+		</copy>	
 		<zip destfile="${release.dir}/MadKit-${madkit.version}.zip">
 			<zipfileset dir="${docs.api.dir}" prefix="${docs.api.dir}"/>
 			<zipfileset dir="${build.dir}" includes="README.html"/>
+			<zipfileset dir="${build.dir}" includes="VERSION"/>
 			<zipfileset file="${jar.file}" prefix="${lib.dir}"/>
 			<zipfileset file="COPYING.LESSER"/>
 			<zipfileset file="${madkit.project.ant.file}" prefix="${lib.dir}"/>

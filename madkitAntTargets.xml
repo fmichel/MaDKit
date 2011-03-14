@@ -75,6 +75,9 @@
     <target name="compile">
 		 <echo>	Compiling using ${kernel.location}</echo>
     		<mkdir dir="${build.dir}"/>
+		    <copy todir="${build.dir}">
+		    	<fileset dir="${src.dir}" excludes="**/*.java"/><!-- getting icons or sound files -->
+		  	</copy>
     		<javac
     			includeantruntime="false"
 				classpath="${kernel.location}"
@@ -89,6 +92,7 @@
          - - - - - - - - - - - - - - - - - -->
     <target name="clean">
 		<delete dir="${build.dir}"/>
+    	<delete file="README"/>
     </target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
@@ -104,7 +108,7 @@
 			<filter token="TIMESTAMP" value="${timestamp.isoformat}"/>
 		</filterset>
 
-    	<copy todir="${build.dir}">
+    	<copy todir="${build.dir}" failonerror="false">
     		<fileset refid="resource.files"/>    		
     	</copy>
 

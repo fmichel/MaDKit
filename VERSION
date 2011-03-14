@@ -1,0 +1,106 @@
+----------------------------------------------------------------------------------
+------------------------------- MadKit ${madkit.version} -----------------------------------
+------------------------------- Build ID ${build.id} ---------------------------
+----------------------------------------------------------------------------------
+
+- Short description:
+MadKit is mainly a MAS library which relies on organizational concepts so 
+that you could easily design artificial societies using groups and roles
+
+- Available documentation:
+For now, all the existing documentation on MadKit 5 is in the javadoc (docs directory) 
+
+----------------------------------------------------------------------------------
+------------------------------- Using MadKit ${madkit.version} -----------------------------
+----------------------------------------------------------------------------------
+
+
+Put lib/${madkit.jar.name} in your build path (e.g. in your Eclipse project) and
+start programming agents.
+
+To launch your MadKit agents, simply either
+ 
+(1) use, anywhere, a main method with something like  :
+
+	public static void main(String[] args) {
+		String[] argss = {"--launchAgents","mypackage.myagentClass;mypackage.myOtherAgentClass"};
+		Madkit.main(argss);
+	}
+
+(2) use a command line such as 
+
+java -cp pathTo-${madkit.jar.name}:yourClassPath madkit.kernel.Madkit --launchAgents mypackage.myagentClass;mypackage.myOtherAgentClass
+
+Other command line options are described in the API of the madkit.kernel.Madkit class
+
+----------------------------------------------------------------------------------
+------------------------------- Release notes ------------------------------------
+----------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------------
+------------------------------- MadKit 5.0.0.8 (alpha-8)--------------------------
+----------------------------------------------------------------------------------
+
+1. madkit.kernel.AgentAddress.getKernelAddress() has been reintroduced
+
+----------------------------------------------------------------------------------
+------------------------------- MadKit 5.0.0.7 (alpha-7)--------------------------
+----------------------------------------------------------------------------------
+
+New features :
+
+1. MadKit options for creating log files and directory have been reworked :
+	- a boolean option named "createLogFiles" could now be used :
+	public static void main(String[] args) {
+		String[] argss = {"--createLogFiles","--launchAgents","mypackage.myagentClass;mypackage.myOtherAgentClass"};
+		Madkit.main(argss);
+	}
+	This will produce log files, for each session, in the "logs" directory.
+	
+	This directory could be changed using the parameterized option "logDirectory" : 
+	public static void main(String[] args) {
+		String[] argss = {"--logDirectory","myLogDir",--createLogFiles","--launchAgents","mypackage.myagentClass;mypackage.myOtherAgentClass"};
+		Madkit.main(argss);
+	}
+
+2. Agent default GUI now has various menus (log level, launching).
+	These menus can be obtained for any GUI using the madkit.kernel.gui.Utils API
+
+3. The scheduler agent now has a default GUI which could be used to do basic simulation
+	controls (run, stop, speed, etc.). So, this GUI is started when using a code such as 
+	launchAgent(new myScheduler(),true); 
+	
+----------------------------------------------------------------------------------
+------------------------------- MadKit 5.0.0.6 (alpha-6)--------------------------
+----------------------------------------------------------------------------------
+
+New features :
+
+1. The archive file of the distribution has been reworked so that it includes more
+material to begin with MadKit
+
+2. The build.xml file now also produces a jnlp file if possible so that project
+can be ran online with Java Web Start
+
+----------------------------------------------------------------------------------
+------------------------------- MadKit 5.0.0.5 (alpha-5)--------------------------
+----------------------------------------------------------------------------------
+
+New features :
+
+1. There is a new class : madkit.kernel.AgentLogger
+It extends java.util.logging.Logger in order to define a new log level, namely TALK: This
+one is intended to be use when you want that the message does not contain any formatting.
+
+2. More internationalized messages.
+
+3. The kernel jar file is now tagged with its corresponding version so that it will
+be more easy to test different versions of the kernel.
+
+----------------------------------------------------------------------------------
+------------------------------- MadKit 5 alpha-4 ---------------------------------
+----------------------------------------------------------------------------------
+
+first version 5 distributed online on October 2010.
+New features are detailed in the javadoc in the Madkit class 
+

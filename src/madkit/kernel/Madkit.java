@@ -428,7 +428,7 @@ final public class Madkit {
 	 * 
 	 */
 	private void initMadkitLogging() {
-		logger = Logger.getLogger("[*MK_"+platformID.getID()+"*]");
+		logger = Logger.getLogger("[*MK_"+platformID.hashCode()+"*]");
 		logger.setUseParentHandlers(false);
 		logger.setLevel(Level.parse(madkitConfig.getProperty("platformLogLevel")));
 		ConsoleHandler cs = new ConsoleHandler();
@@ -599,7 +599,7 @@ final public class Madkit {
 	 * @return
 	 */
 	String getMadkitLoggerName() {
-		return "[*"+platformID.getID()+"*]";
+		return "[*"+platformID.hashCode()+"*]";
 	}
 
 	/**

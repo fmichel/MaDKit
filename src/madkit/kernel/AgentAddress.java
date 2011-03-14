@@ -97,9 +97,9 @@ public class AgentAddress implements java.io.Serializable{
 	}
 
 	/**
-	 * @return the kernelAddress
+	 * @return the platform's kernelAddress to which this agent address comes from
 	 */
-	KernelAddress getKernelAddress() {
+	public KernelAddress getKernelAddress() {
 		return kernelAddress;
 	}
 

@@ -25,16 +25,13 @@ import java.net.UnknownHostException;
 /**
  * @author Oliver Gutknecht
  * @author Fabien Michel since v.3
- * @version 5.0
+ * @version 5.1
  * @since MadKit 1.0
  *
  */
 final class KernelAddress implements java.io.Serializable{
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -4480144911992293474L;
+	private static final long serialVersionUID = 6895837581447431330L;
 	private String host;
 	private final int ID;
 	
@@ -58,13 +55,6 @@ final class KernelAddress implements java.io.Serializable{
 	}
 	
 	public int hashCode() {
-		return ID;
-	}
-
-	/**
-	 * @return the iD
-	 */
-	int getID() {
 		return ID;
 	}
 

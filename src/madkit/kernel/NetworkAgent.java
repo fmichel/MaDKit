@@ -75,7 +75,7 @@ final public class NetworkAgent extends Agent {
 	 */
 	@Override
 	protected void activate() {
-		setName(super.getName()+"@"+kernel.getKernelAddress(this).getID());
+		setName(super.getName()+"@"+kernel.getKernelAddress(this).hashCode());
 		//		setLogLevel(Level.FINE);
 		setLogLevel(Level.FINER);
 		createGroup(NETWORK_COMMUNITY, NETWORK_GROUP, true, null);

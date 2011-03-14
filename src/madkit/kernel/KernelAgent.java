@@ -66,7 +66,7 @@ final class KernelAgent extends Agent {
 		setKernel(k);
 		operatingKernel = k;
 		k.setKernelAgent(this);
-		setName(getClass().getSimpleName()+k.getKernelAddress().getID());
+		setName(getClass().getSimpleName()+k.getKernelAddress().hashCode());
 		state.set(INITIALIZING);
 		getAlive().set(true);
 		setLogLevel(Level.INFO,Level.INFO);

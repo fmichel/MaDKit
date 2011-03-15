@@ -43,6 +43,11 @@ Other command line options are described in the API of the madkit.kernel.Madkit 
 
 1. madkit.kernel.AgentAddress.getKernelAddress() has been reintroduced
 
+2. GUI tools :
+	- package madkit.kernel.gui has been renamed madkit.gui
+	- default GUI mechanism has been completely reworked and  
+		is more flexible now. See the MadKit GUI tutorial for more information
+
 ----------------------------------------------------------------------------------
 ------------------------------- MadKit 5.0.0.7 (alpha-7)--------------------------
 ----------------------------------------------------------------------------------

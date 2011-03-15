@@ -271,6 +271,11 @@ final public class Madkit {
 		 */
 		public static final String KERNEL_ROLE = "kernel";
 
+		/**
+		 * The value of this constant is {@value}.
+		 */
+		public static final String GUI_MANAGER_ROLE = "gui manager";
+
 	}
 
 

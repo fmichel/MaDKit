@@ -19,6 +19,7 @@
 package madkit.kernel;
 
 import static madkit.kernel.AbstractAgent.State.INITIALIZING;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -29,7 +30,6 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 
 import madkit.kernel.Madkit.Roles;
-import madkit.kernel.gui.MadKitGUIsManager;
 
 /**
  * @author Oliver Gutknecht
@@ -185,11 +185,11 @@ final class KernelAgent extends Agent {
 			logger.fine("** Booter agent off: --booterAgent property is null**\n");
 			return;
 		}
-		if(booter != null && booter instanceof MadKitGUIsManager){
-			if(logger != null)
-				logger.fine("** Setting "+booter.getName()+" as AgentsGUIManager **\n");
-			operatingKernel.setGuiManager((MadKitGUIsManager) booter);
-		}
+//		if(booter != null && booter instanceof MadKitGUIsManager){
+//			if(logger != null)
+//				logger.fine("** Setting "+booter.getName()+" as AgentsGUIManager **\n");
+//			operatingKernel.setGuiManager((MadKitGUIsManager) booter);
+//		}
 	}
 
 	private AbstractAgent launchPlatformAgent(String mkProperty,String userMessage){

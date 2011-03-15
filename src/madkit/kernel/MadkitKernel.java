@@ -63,11 +63,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+import madkit.gui.DefaultGUIsManagerAgent;
+import madkit.gui.GUIsManagerAgent;
+import madkit.gui.MadKitGUIsManager;
 import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.Madkit.Roles;
-import madkit.kernel.gui.MadKitGUIsManager;
 
 /**
  * The brand new madkit kernel
@@ -101,7 +104,7 @@ final class MadkitKernel extends RootKernel{
 	final private Madkit platform;
 	private KernelAddress kernelAddress;
 	private AbstractAgent netAgent;
-	private MadKitGUIsManager guiManager;
+//	private MadKitGUIsManager guiManager;
 	private Level defaultAgentLogLevel;
 	private Level defaultWarningLogLvl;
 
@@ -533,11 +536,10 @@ final class MadkitKernel extends RootKernel{
 			}
 		}
 
-		if (defaultGUI && guiManager != null) {
-			guiManager.setupGUIOf(agent);//TODO catch possible failure here : I cannot be sure of that call because of delegation
-			if(agent.getLogger() != null){
-				agent.getLogger().addGUIHandlerFor(agent);
-			}
+		if (defaultGUI){
+			GUIsManagerAgent guiManagerAgent = getGUIManager();
+			if(guiManagerAgent != null)
+				guiManagerAgent.setupGUIOf(agent);
 		}
 
 		if(! agent.getAlive().compareAndSet(false, true)){//TODO remove that
@@ -706,7 +708,7 @@ final class MadkitKernel extends RootKernel{
 	}
 
 	private Role getRole(final String community, final String group, final String role) throws CGRNotAvailable{
-		Group g = getGroup(community,group);
+		Group g = getGroup(community,group);// get group before for warning coherency
 		if(role == null)
 			throw new CGRNotAvailable(NOT_ROLE);
 		Role r = g.get(role);
@@ -892,10 +894,10 @@ final class MadkitKernel extends RootKernel{
 	 * @param abstractAgent
 	 */
 	@Override
-	void disposeGUIOf(AbstractAgent abstractAgent) {
-		if (guiManager != null) {
-			guiManager.disposeGUIOf(abstractAgent);
-		}
+	void disposeGUIOf(AbstractAgent agent) {
+		GUIsManagerAgent guiManager = getGUIManager();
+		if(guiManager != null)
+			guiManager.disposeGUIOf(agent);
 	}
 
 	/**
@@ -923,20 +925,17 @@ final class MadkitKernel extends RootKernel{
 		platform.checkAndValidateOption(key, value);//TODO update agent logging on or off
 	}
 
-	@Override
-	Component getGUIComponentOf(AbstractAgent abstractAgent) {
-		if(guiManager != null)
-			return guiManager.getGUIComponentOf(abstractAgent);
+	private GUIsManagerAgent getGUIManager() {
+		try {
+			return (GUIsManagerAgent) getRole(Madkit.Roles.LOCAL_COMMUNITY,
+					Madkit.Roles.SYSTEM_GROUP,
+					Madkit.Roles.GUI_MANAGER_ROLE).getAgentAddresses().get(0).getAgent();
+		} catch (CGRNotAvailable e) {
+			// no gui manager //TODO log this
+		} catch (ClassCastException e) {
+			// TODO: handle exception
+		}		
 		return null;
-	}
-
-	/**
-	 * @param abstractAgent
-	 * @param location
-	 */
-	@Override
-	void setGUILocationOf(AbstractAgent abstractAgent, Point location) {
-		guiManager.setGUILocationOf(abstractAgent, location);
 	}
 
 	/**
@@ -996,12 +995,12 @@ final class MadkitKernel extends RootKernel{
 		netAgent = a;
 	}
 
-	/**
-	 * @param booter
-	 */
-	void setGuiManager(MadKitGUIsManager booter) {
-		guiManager = booter;		
-	}
+//	/**
+//	 * @param booter
+//	 */
+//	void setGuiManager(MadKitGUIsManager booter) {
+//		guiManager = booter;		
+//	}
 
 	/**
 	 * @param l

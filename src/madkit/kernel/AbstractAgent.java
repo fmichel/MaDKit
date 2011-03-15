@@ -44,8 +44,9 @@ import java.util.logging.Level;
 
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
+import javax.swing.JPanel;
 
-import madkit.kernel.gui.IOPanel;
+import madkit.gui.OutputPanel;
 
 /**
  * The super class of all MadKit agents, v 5.
@@ -344,7 +345,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * This has the same effect as <code>launchAgent(agent,Integer.MAX_VALUE,withGUIManagedByTheBooter)</code>
 	 * 
 	 * @param agent the agent to launch.
-	 * @param defaultGUI if <code>true</code>, the kernel will launch a JFrame for this agent.
+	 * @param createFrame if <code>true</code>, the kernel will launch a JFrame for this agent.
 	 * @return <ul>
 	 *         <li><code> {@link ReturnCode#SUCCESS} </code>: The launch has succeeded. This also means that the agent has successfully completed its <code>activate</code> method</li>
 	 *         <li><code> {@link ReturnCode#ALREADY_LAUNCHED} </code>: If this agent has been already launched</li>
@@ -355,8 +356,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @see AbstractAgent#launchAgent(AbstractAgent)
 	 * @since MadKit 5.0
 	 */
-	public ReturnCode launchAgent(final AbstractAgent agent, final boolean defaultGUI) {
-		return launchAgent(agent, Integer.MAX_VALUE, defaultGUI);
+	public ReturnCode launchAgent(final AbstractAgent agent, final boolean createFrame) {
+		return launchAgent(agent, Integer.MAX_VALUE, createFrame);
 	}
 
 	/**
@@ -369,14 +370,13 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * a JFrame to the agent and to manage its life cycle (e.g. if the agent ends or is killed then the JFrame is closed)
 	 * Using this feature there are two possibilities:
 	 * <ul>
-	 * <li>1. the agent overrides the method {@link AbstractAgent#getGUIComponent()} and so tells the kernel that the graphical component returned by this method should be used to setup the JFrame
-	 * which will be displayed</li>
-	 * <li>2. the agent does not define any component and the kernel will setup the JFrame with the default Graphical component delivered by the MadKit platform: {@link IOPanel}
+	 * <li>1. the agent overrides the method {@link AbstractAgent#setupFrame(JFrame)} and so setup the default JFrame as will</li>
+	 * <li>2. the agent does not override it so that MadKit will setup the JFrame with the default Graphical component delivered by the MadKit platform: {@link OutputPanel}
 	 * </ul>
 	 * 
 	 * @param agent the agent to launch.
 	 * @param timeOutSeconds time to wait for the end of the agent's activation until returning a LAUNCH_TIME_OUT.
-	 * @param defaultGUI if <code>true</code>, the kernel will launch a JFrame for this agent.
+	 * @param createFrame if <code>true</code>, the kernel will launch a JFrame for this agent.
 	 * @return <ul>
 	 *         <li><code> {@link ReturnCode#SUCCESS} </code>: The launch has succeeded. This also means that the agent has successfully completed its <code>activate</code> method</li>
 	 *         <li><code> {@link ReturnCode#ALREADY_LAUNCHED} </code>: If this agent has been already launched</li>
@@ -386,8 +386,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         </ul>
 	 * @since MadKit 5.0
 	 */
-	public ReturnCode launchAgent(final AbstractAgent agent, final int timeOutSeconds, final boolean defaultGUI) {
-		return kernel.launchAgent(this, agent, timeOutSeconds, defaultGUI);
+	public ReturnCode launchAgent(final AbstractAgent agent, final int timeOutSeconds, final boolean createFrame) {
+		return kernel.launchAgent(this, agent, timeOutSeconds, createFrame);
 	}
 
 	/**
@@ -417,12 +417,12 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * Launches a new agent using its full class name. <br>
 	 * This has the same effect as <code>launchAgent(agentClass, Integer.MAX_VALUE, defaultGUI)</code>.
 	 * 
-	 * @param defaultGUI if <code>true</code> a default GUI will be associated with the launched agent
+	 * @param createFrame if <code>true</code> a default GUI will be associated with the launched agent
 	 * @param agentClass the full class name of the agent to launch
 	 * @return the instance of the launched agent or <code>null</code> if the operation times out or failed.
 	 */
-	public AbstractAgent launchAgent(String agentClass, final boolean defaultGUI) {
-		return launchAgent(agentClass, Integer.MAX_VALUE, defaultGUI);
+	public AbstractAgent launchAgent(String agentClass, final boolean createFrame) {
+		return launchAgent(agentClass, Integer.MAX_VALUE, createFrame);
 	}
 
 	/**
@@ -437,12 +437,12 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * created agent.
 	 * 
 	 * @param timeOutSeconds time to wait the end of the agent's activation until returning <code>null</code>
-	 * @param defaultGUI if <code>true</code> a default GUI will be associated with the launched agent
+	 * @param createFrame if <code>true</code> a default GUI will be associated with the launched agent
 	 * @param agentClass the full class name of the agent to launch
 	 * @return the instance of the launched agent or <code>null</code> if the operation times out or failed.
 	 */
-	public AbstractAgent launchAgent(String agentClass, int timeOutSeconds, final boolean defaultGUI) {
-		return kernel.launchAgent(this, agentClass, timeOutSeconds, defaultGUI);
+	public AbstractAgent launchAgent(String agentClass, int timeOutSeconds, final boolean createFrame) {
+		return kernel.launchAgent(this, agentClass, timeOutSeconds, createFrame);
 	}
 
 	/**
@@ -588,7 +588,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 */
 	public synchronized void setLogLevel(final Level newLevel, final Level warningLogLevel) {
 		kernel.setLogLevel(this, getLoggingName(), newLevel,warningLogLevel);
-		madkit.kernel.gui.Utils.updateAgentUI(this);
+		madkit.gui.Utils.updateAgentUI(this);
 	}
 
 	/**
@@ -1007,6 +1007,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @param group the group name
 	 * @param role the role name
 	 * @param message the message to send
+	 * @param senderRole the agent's role with which the message has to be sent
 	 * @return <ul>
 	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the send has succeeded.</li>
 	 *         <li><code>{@link ReturnCode#NOT_COMMUNITY}</code>: If the community does not exist.</li>
@@ -1020,8 +1021,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @see ReturnCode
 	 * 
 	 */
-	public ReturnCode sendMessageWithRole(final String community, final String group, final String role, final Message messageToSend, final String senderRole) {
-		return kernel.sendMessage(this, community, group, role, messageToSend, senderRole);
+	public ReturnCode sendMessageWithRole(final String community, final String group, final String role, final Message message, final String senderRole) {
+		return kernel.sendMessage(this, community, group, role, message, senderRole);
 	}
 
 	/**
@@ -1030,7 +1031,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @param community the community name
 	 * @param group the group name
 	 * @param role the role name
-	 * @param messageToSend
+	 * @param message
 	 * @return <ul>
 	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the send has succeeded.</li>
 	 *         <li><code>{@link ReturnCode#NOT_COMMUNITY}</code>: If the community does not exist.</li>
@@ -1042,8 +1043,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @see ReturnCode
 	 * 
 	 */
-	public ReturnCode broadcastMessage(final String community, final String group, final String role, final Message messageToSend) {
-		return broadcastMessageWithRole(community, group, role, messageToSend, null);
+	public ReturnCode broadcastMessage(final String community, final String group, final String role, final Message message) {
+		return broadcastMessageWithRole(community, group, role, message, null);
 	}
 
 	/**
@@ -1170,13 +1171,20 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	public void setMadkitProperty(String key, String value) {
 		kernel.setMadkitProperty(this, key, value);
 	}
-
-	public Component getGUIComponent() {
-		return kernel.getGUIComponentOf(this);
-	}
-
-	public void setGUILocation(Point location) {
-		kernel.setGUILocationOf(this, location);
+	
+	/**
+	 * Called when the default GUI mechanism is used upon agent creation. 
+	 * The life cycle of the frame is automatically managed (i.e. disposed 
+	 * when the agent is terminated) and some menus
+	 * are available by default.
+	 * Default code is only one line: frame.add(new IOPanel(this));
+	 * 
+	 * @param frame the default frame which has been created by MadKit for this agent.
+	 * @since MadKit 5.0.0.8
+	 * @see madkit.gui.OutputPanel
+	 */
+	public void setupFrame(final JFrame frame){
+		frame.add(new OutputPanel(this));
 	}
 
 	// /////////////////////////////////////////////// UTILITIES /////////////////////////////////

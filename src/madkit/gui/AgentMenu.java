@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
  */
-package madkit.kernel.gui;
+package madkit.gui;
 
 import java.awt.Component;
 import java.awt.MenuItem;
@@ -170,7 +170,7 @@ public class AgentMenu extends JMenu implements AgentUIComponent{//TODO i18n
 	}
 
 	/**
-	 * @see madkit.kernel.gui.AgentUIComponent#updateAgentUI()
+	 * @see madkit.gui.AgentUIComponent#updateAgentUI()
 	 */
 	@Override
 	public void updateAgentUI() {

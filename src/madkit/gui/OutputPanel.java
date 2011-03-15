@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
  */
-package madkit.kernel.gui;
+package madkit.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -26,6 +26,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
+import java.util.logging.StreamHandler;
+
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -33,6 +39,7 @@ import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
 import madkit.kernel.AbstractAgent;
+import madkit.kernel.AgentLogger;
 
 
 /**
@@ -42,9 +49,9 @@ import madkit.kernel.AbstractAgent;
  * 
  * @author Fabien Michel
  * @since MadKit 5.0.0.2
- * @version 0.9
+ * @version 0.91
  */
-public class IOPanel extends JPanel implements AgentGUIModel {
+public class OutputPanel extends JPanel {
 	/**
 	 * 
 	 */
@@ -63,15 +70,14 @@ public class IOPanel extends JPanel implements AgentGUIModel {
 		return out;
 	}
 
-	public IOPanel()
+	public OutputPanel(AbstractAgent agent)
 	{
-		setPreferredSize(new Dimension(-1, -1));
 		outField = new JTextArea(5,32);
 		setLayout(new BorderLayout());
 		//		new OutputStreamWriter
 
 		outField.setEditable(false);
-		setSize(250,100);
+		setPreferredSize(new Dimension(250,100));
 		out = new OutputStream() {
 			private void updateText(final String txt) {
 				 SwingUtilities.invokeLater(new Runnable() {  
@@ -94,7 +100,24 @@ public class IOPanel extends JPanel implements AgentGUIModel {
 				write(b, 0, b.length);  
 		}  
 
-		}; 
+		};
+		
+		Handler handler = new StreamHandler(out, AgentLogger.agentFileFormatter){
+			@Override
+			public synchronized void publish(LogRecord record) {
+				super.publish(record);
+				flush();
+			}
+		};
+		Logger logger = agent.getLogger();
+		if (logger != null && logger.getLevel() != Level.OFF) {
+			agent.setLogLevel(logger.getLevel());
+		}
+		else{
+			agent.setLogLevel(Level.INFO);
+		}
+		handler.setLevel(agent.getLogger().getLevel());
+		agent.getLogger().addHandler(handler);
 
 		add("Center",new JScrollPane(outField));
 
@@ -105,14 +128,6 @@ public class IOPanel extends JPanel implements AgentGUIModel {
 			}
 		});
 		add("South",b);
-
-	}
-
-	public IOPanel(Point screenLocation, Dimension frameSize)
-	{
-		this();
-		setGUIPreferredlocation(screenLocation);
-		setPreferredSize(frameSize);
 	}
 
 	public void clearOutput()
@@ -148,7 +163,6 @@ public class IOPanel extends JPanel implements AgentGUIModel {
 	/**
 	 * @see madkit.kernel.gui.AgentGUIModel#print(java.lang.String)
 	 */
-	@Override
 	public void print(final String aMessage) {
 		 SwingUtilities.invokeLater(new Runnable() {  
 		     public void run() {

@@ -19,7 +19,6 @@
 package madkit.kernel;
 
 import java.io.File;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.logging.ConsoleHandler;
@@ -29,9 +28,6 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
-import java.util.logging.StreamHandler;
-
-import madkit.kernel.gui.AgentGUIModel;
 
 /**
  * This class defines a logger specialized for MadKit agents.
@@ -58,7 +54,7 @@ public class AgentLogger extends Logger {
 		}
 	};
 
-	final static Formatter agentFileFormatter = new Formatter(){
+	public final static Formatter agentFileFormatter = new Formatter(){
 		@Override
 		final public String format(final LogRecord record) {
 			final Level lvl = record.getLevel();
@@ -122,22 +118,22 @@ public class AgentLogger extends Logger {
 //		super.log(level, msg);
 //	}
 
-	void addGUIHandlerFor(AbstractAgent agent){
-		if(agent.getGUIComponent() != null && agent.getGUIComponent() instanceof AgentGUIModel){
-			OutputStream os = ((AgentGUIModel) agent.getGUIComponent()).getOutputStream();
-			if(os != null){
-				Handler h = new StreamHandler(os, AgentLogger.agentFileFormatter){
-					@Override
-					public synchronized void publish(LogRecord record) {
-						super.publish(record);
-						flush();
-					}
-				};
-				h.setLevel(getLevel());
-				addHandler(h);
-			}
-		}
-	}
+//	void addGUIHandlerFor(AbstractAgent agent){
+//		if(agent.getGUIComponent() != null && agent.getGUIComponent() instanceof AgentGUIModel){
+//			OutputStream os = ((AgentGUIModel) agent.getGUIComponent()).getOutputStream();
+//			if(os != null){
+//				Handler h = new StreamHandler(os, AgentLogger.agentFileFormatter){
+//					@Override
+//					public synchronized void publish(LogRecord record) {
+//						super.publish(record);
+//						flush();
+//					}
+//				};
+//				h.setLevel(getLevel());
+//				addHandler(h);
+//			}
+//		}
+//	}
 
 	/**
 	 * @see java.util.logging.Logger#setLevel(java.util.logging.Level)

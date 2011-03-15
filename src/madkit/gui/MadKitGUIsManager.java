@@ -17,7 +17,7 @@
  * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package madkit.kernel.gui;
+package madkit.gui;
 
 import java.awt.Component;
 import java.awt.Point;

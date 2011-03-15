@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
  */
-package madkit.kernel.gui;
+package madkit.gui;
 
 import java.awt.Component;
 import java.awt.MenuItem;
@@ -62,11 +62,11 @@ public class LogLevelMenu extends JMenu implements AgentUIComponent{
 		myAgent = agent;
 		
 		JMenu logLevelMenu = new JMenu("Log level");
-		logLevelMenu.setIcon(madkit.kernel.gui.Utils.getMadkitImageIcon("agent.logLevel.s"));
+		logLevelMenu.setIcon(madkit.gui.Utils.getMadkitImageIcon("agent.logLevel.s"));
 		logLevelMenu.setToolTipText("the agents's current log level");
 		
 		JMenu warningLogLevelMenu = new JMenu("Warning log level");
-		warningLogLevelMenu.setIcon(madkit.kernel.gui.Utils.getMadkitImageIcon("agent.warningLogLevel.s"));
+		warningLogLevelMenu.setIcon(madkit.gui.Utils.getMadkitImageIcon("agent.warningLogLevel.s"));
 		warningLogLevelMenu.setToolTipText("the agent's log level above which warnings are displayed");
 		
 		logGroup = new ButtonGroup();
@@ -98,7 +98,7 @@ public class LogLevelMenu extends JMenu implements AgentUIComponent{
 	}
 	
 	/**
-	 * @see madkit.kernel.gui.AgentUIComponent#updateAgentUI()
+	 * @see madkit.gui.AgentUIComponent#updateAgentUI()
 	 */
 	@Override
 	public void updateAgentUI() {

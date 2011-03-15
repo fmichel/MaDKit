@@ -68,7 +68,7 @@ public class LaunchAbstractAgentTest  extends JunitMadKit{
 		launchTest(new AbstractAgent(){
 			protected void activate() {
 				assertEquals(SUCCESS,launchAgent(target));
-				assertNull(target.getGUIComponent());
+//				assertNull(target.getGUIComponent());
 				assertEquals(ALREADY_LAUNCHED,launchAgent(target));
 			}
 		});
@@ -80,7 +80,7 @@ public class LaunchAbstractAgentTest  extends JunitMadKit{
 			protected void activate() {
 				assertEquals(SUCCESS,launchAgent(target,true));
 				assertEquals(ALREADY_LAUNCHED,launchAgent(target,true));
-				assertNotNull(target.getGUIComponent());
+//				assertNotNull(target.getGUIComponent());
 			}
 		});
 	}

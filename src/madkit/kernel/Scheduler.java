@@ -50,6 +50,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import madkit.gui.OutputPanel;
 import madkit.messages.ObjectMessage;
 
 /**
@@ -170,23 +171,24 @@ public class Scheduler extends Agent
 		this.setStartTime(startTime);
 	}
 
+	/**
+	 * Setup the default Scheduler GUI when launched with the default gui mechanism.
+	 * 
+	 * @see madkit.kernel.AbstractAgent#setupFrame(javax.swing.JFrame)
+	 * @since MadKit 5.0.0.8
+	 */
 	@Override
-	protected void activate() {
-		Component c = getGUIComponent();
-		if (c != null) {//I have been launched with graphic mode on
-			c.getParent().add(getSchedulerToolBar(),BorderLayout.PAGE_START);
-			c.getParent().add(getSchedulerStatusLabel(), BorderLayout.SOUTH);
-			updateStatusDisplay();
-			c.validate();
-			while(c.getParent() != null){
-				c = c.getParent();
-			}
-			JFrame f = (JFrame) c;
-			JMenuBar menubar = f.getJMenuBar();
-			menubar.add(getSchedulerMenu());
-		}
+	public void setupFrame(JFrame frame) {
+		super.setupFrame(frame);
+		frame.add(getSchedulerToolBar(),BorderLayout.PAGE_START);
+		frame.add(getSchedulerStatusLabel(), BorderLayout.PAGE_END);
+		updateStatusDisplay();
+		frame.validate();
+		JMenuBar menubar = frame.getJMenuBar();
+		menubar.add(getSchedulerMenu());
 	}
-
+	
+	
 	private void updateStatusDisplay(){
 		if(timer != null)
 			timer.setText("Simulation "+getSimulationState()+", time is "+getGVT());
@@ -386,7 +388,7 @@ public class Scheduler extends Agent
 				setSimulationState(RUNNING);
 			}
 		};
-		madkit.kernel.gui.Utils.initAction(run,
+		madkit.gui.Utils.initAction(run,
 				"run the simulation",
 				"run the simulation",
 				"run",
@@ -403,7 +405,7 @@ public class Scheduler extends Agent
 				setSimulationState(STEP);
 			}
 		};
-		madkit.kernel.gui.Utils.initAction(step,
+		madkit.gui.Utils.initAction(step,
 				"does one step and pauses the simulation",
 				"does one step and pauses the simulation",
 				"step",
@@ -421,7 +423,7 @@ public class Scheduler extends Agent
 				speedSlider.setValue(speedSlider.getValue()-50);
 			}
 		};
-		madkit.kernel.gui.Utils.initAction(speedUp,
+		madkit.gui.Utils.initAction(speedUp,
 				"speed up the simulation",
 				"speed up the simulation",
 				"speedUp",
@@ -438,7 +440,7 @@ public class Scheduler extends Agent
 				speedSlider.setValue(speedSlider.getValue()+50);
 			}
 		};
-		madkit.kernel.gui.Utils.initAction(speedDown,
+		madkit.gui.Utils.initAction(speedDown,
 				"speed down the simulation",
 				"speed down the simulation",
 				"speedDown",

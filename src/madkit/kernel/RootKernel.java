@@ -30,6 +30,8 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
+import javax.swing.JFrame;
+
 import madkit.kernel.AbstractAgent.ReturnCode;
 
 /**
@@ -226,7 +228,7 @@ class RootKernel {
 	/**
 	 * @param abstractAgent
 	 */
-	void disposeGUIOf(AbstractAgent abstractAgent) {
+	void disposeGUIOf(AbstractAgent abstractAgent) {//move that in madkit kernel
 		fakeKernelWarning(abstractAgent);
 		throw new AssertionError("This sould not be possible");
 	}
@@ -247,22 +249,22 @@ class RootKernel {
 		fakeKernelWarning(requester);
 	}
 
-	/**
-	 * @param abstractAgent
-	 * @return
-	 */
-	Component getGUIComponentOf(AbstractAgent requester) {
-//		fakeKernelWarning(requester);
-		return null;
-	}
-
-	/**
-	 * @param abstractAgent
-	 * @param location
-	 */
-	void setGUILocationOf(AbstractAgent abstractAgent, Point location) {
-		fakeKernelWarning(abstractAgent);
-	}
+//	/**
+//	 * @param abstractAgent
+//	 * @return
+//	 */
+//	Component getGUIComponentOf(AbstractAgent requester) {
+////		fakeKernelWarning(requester);
+//		return null;
+//	}
+//
+//	/**
+//	 * @param abstractAgent
+//	 * @param location
+//	 */
+//	void setGUILocationOf(AbstractAgent abstractAgent, Point location) {
+//		fakeKernelWarning(abstractAgent);
+//	}
 
 	/**
 	 * @param abstractAgent

@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.swing.JFrame;
+
 import madkit.kernel.AbstractAgent.ReturnCode;
 import static madkit.kernel.AbstractAgent.ReturnCode.*;
 import static madkit.kernel.Utils.getI18N;
@@ -427,21 +429,7 @@ final class LoggedKernel extends RootKernel {
 	void setMadkitProperty(final AbstractAgent requester, String key, String value) {
 		madkitKernel.setMadkitProperty(requester, key, value);// TODO update agent logging on or off
 	}
-
-	@Override
-	Component getGUIComponentOf(AbstractAgent abstractAgent) {
-		return madkitKernel.getGUIComponentOf(abstractAgent);
-	}
-
-	/**
-	 * @param abstractAgent
-	 * @param location
-	 */
-	@Override
-	void setGUILocationOf(AbstractAgent abstractAgent, Point location) {
-		madkitKernel.setGUILocationOf(abstractAgent, location);
-	}
-
+	
 	/*
 	 * (non-Javadoc)
 	 * 

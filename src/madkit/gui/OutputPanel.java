@@ -43,13 +43,13 @@ import madkit.kernel.AgentLogger;
 
 
 /**
- * This component is the default component which is assigned to 
- * agent that do not define their own GUI and which are launched using <code>true</code> as GUI option.
- * Agents can get it using {@link AbstractAgent#getGUIComponent()}.
+ * This component is the default panel which is used for the frames assigned to 
+ * agents that do not define their own GUI and which are launched using <code>true</code> for the <code>createFrame</code> parameter.
  * 
  * @author Fabien Michel
  * @since MadKit 5.0.0.2
  * @version 0.91
+ * @see AbstractAgent#setupFrame(javax.swing.JFrame)
  */
 public class OutputPanel extends JPanel {
 	/**
@@ -161,12 +161,14 @@ public class OutputPanel extends JPanel {
 	}
 
 	/**
-	 * @see madkit.kernel.gui.AgentGUIModel#print(java.lang.String)
+	 * This one could be used to directly print in this component.
+	 * 
+	 * @param message the string to display
 	 */
-	public void print(final String aMessage) {
+	public void print(final String message) {
 		 SwingUtilities.invokeLater(new Runnable() {  
 		     public void run() {
-		     outField.append(aMessage);
+		     outField.append(message);
 		     outField.setCaretPosition(outField.getDocument().getLength());
 		     }  
 		   });

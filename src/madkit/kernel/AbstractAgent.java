@@ -929,6 +929,11 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		return messageBox.poll();
 	}
 
+	public boolean isMessageBoxEmpty(){
+		return messageBox.isEmpty();
+	}
+	
+	
 	/**
 	 * Sends a message to an agent using an agent address.
 	 * This has the same effect as <code>sendMessageWithRole(receiver, messageToSend, null)</code>.

@@ -56,10 +56,10 @@ import madkit.messages.ObjectMessage;
 /**
  * This class defines a generic threaded scheduler agent. It holds a collection of activators.
  * 
- * @author Fabien Michel since V.2
+ * @author Fabien Michel
  * @author Olivier Gutknecht 
  * @since MadKit 2.0
- * @version 5.0
+ * @version 5.1
  */
 public class Scheduler extends Agent
 {
@@ -243,7 +243,10 @@ public class Scheduler extends Agent
 	}
 
 	/**
-	 * @param agentState the agentState to set
+	 * Asks the scheduler to change its simulation state.
+	 * 
+	 * @param newState the scheduling state to set
+	 * @see State
 	 */
 	synchronized public void setSimulationState(final State newState) {
 		switch (newState) {
@@ -452,7 +455,8 @@ public class Scheduler extends Agent
 	}
 
 	/**
-	 * @return
+	 * Returns a toolbar which could be used in any GUI.
+	 * @return a toolBar controlling the scheduler's action
 	 */
 	public JToolBar getSchedulerToolBar(){
 		final JToolBar toolBar = new JToolBar("scheduler toolbar");

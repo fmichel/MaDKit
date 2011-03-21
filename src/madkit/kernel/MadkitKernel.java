@@ -45,6 +45,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -314,7 +315,7 @@ final class MadkitKernel extends RootKernel{
 
 	@Override
 	final ReturnCode sendReplyWithRole(final AbstractAgent requester, final Message messageToReplyTo, final Message reply, String senderRole) {
-		if(messageToReplyTo == null){
+		if(messageToReplyTo == null || reply == null){
 			return INVALID_ARG;
 		}
 		reply.setID(messageToReplyTo.getID());
@@ -336,6 +337,25 @@ final class MadkitKernel extends RootKernel{
 			return e.getCode();
 		}
 	}
+	
+	@Override
+	List<Message> broadcastMessageWithRoleAndWaitForReplies(final Agent requester,  final String community, final String group, final String role, 
+			Message message,
+			final String senderRole, 
+			final Integer timeOutMilliSeconds){
+		try {
+			final List<AgentAddress> receivers = getOtherRolePlayers(requester,community, group, role);
+			if(message == null || receivers == null)
+				return null; // the requester is the only agent in this group
+			message.setSender(getSenderAgentAddress(requester, receivers.get(0), senderRole));
+			broadcasting(receivers, message);
+			return requester.waitAnswers(message,receivers.size(),timeOutMilliSeconds);
+		} catch (CGRNotAvailable e) {
+			return null;
+		}
+	}
+
+
 
 	void broadcasting(final List<AgentAddress> receivers, Message m){
 		for (final AgentAddress agentAddress : receivers) {

@@ -335,4 +335,18 @@ class RootKernel {
 		throw new AssertionError("This sould not be possible");
 	}
 
+	List<Message> broadcastMessageWithRoleAndWaitForReplies(Agent requester,
+			String community, String group, String role, Message message,
+			String senderRole, Integer timeOutMilliSeconds) {
+		// TODO Auto-generated method stub
+		fakeKernelWarning(requester);
+		return null;
+	}
+
+	public boolean createGroupIfAbsent(AbstractAgent abstractAgent,
+			String community, String group, String group2,
+			GroupIdentifier theIdentifier, boolean isDistributed) {
+		return createGroup(abstractAgent, community, group, group2, theIdentifier, isDistributed) == ReturnCode.SUCCESS;
+	}
+
 }

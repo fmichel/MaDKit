@@ -26,6 +26,7 @@ import static madkit.kernel.AbstractAgent.ReturnCode.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -355,6 +356,13 @@ public class Agent extends AbstractAgent{
 		}
 		return waitAnswer(reply,TimeUnit.MILLISECONDS.toNanos(timeOutMilliSeconds));
 	}
+	
+	public List<Message> broadcastMessageWithRoleAndWaitForReplies(final String community, final String group, final String role, 
+			Message message,
+			final String senderRole, 
+			final Integer timeOutMilliSeconds){
+		return kernel.broadcastMessageWithRoleAndWaitForReplies(this, community, group, role, message, senderRole, timeOutMilliSeconds);
+	}
 
 	/**
 	 * This method is the blocking version of nextMessage(). If there is no
@@ -645,6 +653,34 @@ public class Agent extends AbstractAgent{
 		return answer;
 	}
 	
+	List<Message> waitAnswers(Message message, int size, Integer timeOutMilliSeconds) {
+		final long endTime = System.nanoTime()+TimeUnit.MILLISECONDS.toNanos(timeOutMilliSeconds);
+		final long conversationID = message.getID();
+		int missing = size;
+		final LinkedList<Message> receptions = new LinkedList<Message>();
+		final LinkedList<Message> answers = new LinkedList<Message>();
+		while(missing > 0 && System.nanoTime() < endTime){
+			Message answer = waitingNextMessage(endTime - System.nanoTime(),TimeUnit.NANOSECONDS);
+			if(answer == null)
+				break;
+			if(answer.getID() == conversationID){
+				answers.add(answer);
+				missing--;
+			}
+			else
+				receptions.add(answer);
+		}
+		if (! receptions.isEmpty()) {
+			Collections.reverse(receptions);
+			for (final Message m : receptions) {
+				messageBox.addFirst(m);
+			}
+		}
+		if(! answers.isEmpty())
+			return answers;
+		return null;
+	}
+
 	void checkAliveness(){
 		if(isAgentThread() && Thread.interrupted()){
 			throw new KilledException();

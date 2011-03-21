@@ -86,14 +86,12 @@ public class Message implements Cloneable,java.io.Serializable{
 		return sender;
 	}
 	
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
 	@Override
 	public String toString() {
 		if(sender == null || receiver == null)
 			return getClass().getSimpleName();
-		return getClass().getSimpleName()+" from "+sender+" to "+receiver;
+		return "\n\t"+getClass().getSimpleName()+" "+getID()+
+				"\n\tfrom: "+sender+"\n\tto: "+receiver;
 		}
 
 	/**

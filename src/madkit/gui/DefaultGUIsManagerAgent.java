@@ -27,18 +27,18 @@ public class DefaultGUIsManagerAgent extends AbstractAgent implements GUIsManage
 		setLogLevel(Level.INFO);
 		guis = new ConcurrentHashMap<AbstractAgent, JFrame>();
 	}
-	
+
 	@Override
 	protected void activate() {
 		requestRole(Madkit.Roles.LOCAL_COMMUNITY, Madkit.Roles.SYSTEM_GROUP, Madkit.Roles.GUI_MANAGER_ROLE);
 	}
-	
+
 	@Override
 	public void setupGUIOf(final AbstractAgent agent) {
 		JFrame f = new JFrame(agent.getName());
 
 		f.setJMenuBar(createMenuBarFor(agent));
-		
+
 		f.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		f.addWindowListener(new WindowAdapter() {
 			public void windowClosed(java.awt.event.WindowEvent e) {
@@ -48,19 +48,12 @@ public class DefaultGUIsManagerAgent extends AbstractAgent implements GUIsManage
 			}
 		}); 
 
-		f.setSize(-1,-1);
-		f.setLocation(-1,-1);
-		
+		f.setSize(400,300);
+		f.setLocationRelativeTo(null);
+
 		agent.setupFrame(f);//TODO catch failures because of delegation
-		
-		if(f.getSize().equals(new Dimension(-1,-1))){
-			f.setSize(400,300);
-		}
-		
-		if(f.getLocation().equals(new Point(-1,-1))){
-			f.setLocationRelativeTo(null);
-			checkLocation(f);
-		}
+
+		checkLocation(f);
 		guis.put(agent, f);
 
 		f.setVisible(true);
@@ -105,7 +98,7 @@ public class DefaultGUIsManagerAgent extends AbstractAgent implements GUIsManage
 				}
 			}
 		}
-	f.setLocation(location);
+		f.setLocation(location);
 	}
 
 }

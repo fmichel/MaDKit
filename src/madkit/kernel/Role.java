@@ -321,7 +321,7 @@ class Role implements Serializable{//TODO test with arraylist
 				final AgentAddress aa = iterator.next();
 				if (aa.getAgent() == requester) {//TODO test speed with hashcode test
 					iterator.remove();
-					return aa;		//optimize test by setting roleObject to null
+					return aa;		
 				}
 			} catch (NullPointerException e) {
 				//TODO this should not happen : some AA are null !!!!!

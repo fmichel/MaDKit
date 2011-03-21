@@ -187,6 +187,16 @@ public class AgentAddress implements java.io.Serializable{
 		return _hashCode;
 	}
 
+	/**
+	 * Tells if this agent address is still valid. I.e. the corresponding agent is 
+	 * still playing this role.
+	 * 
+	 * @return <code>true</code> if the address still exists in the organization, <code>false</code> otherwise.
+	 */
+	public boolean exists() {
+		return roleObject != null;
+	}
+
 
 }
 

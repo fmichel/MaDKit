@@ -95,7 +95,7 @@ public class AgentMenu extends JMenu implements AgentUIComponent{//TODO i18n
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
-						a.launchAgent(a.getClass().getName(),true);
+						a.launchAgent(a.getClass().getName(),0,true);
 					}
 				});
 			}

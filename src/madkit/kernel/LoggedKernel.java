@@ -75,6 +75,14 @@ final class LoggedKernel extends RootKernel {
 			return requester.handleException(new RequestRoleWarning(SEVERE, "result not handled"));
 		}
 	}
+	
+	@Override
+	public boolean createGroupIfAbsent(AbstractAgent requester,String community, String group, String desc, GroupIdentifier theIdentifier, boolean isDistributed) {
+		logMessage(requester, "createGroupIfAbsent" + printCGR(community, group) + "distribution " + (isDistributed ? "ON" : "OFF") + " with "
+				+ (theIdentifier == null ? "no access control" : theIdentifier.toString() + " for access control"));
+		return madkitKernel.createGroup(requester, community, group, desc,theIdentifier, isDistributed) == SUCCESS;
+	}
+	
 
 	/**
 	 * @see madkit.kernel.MadkitKernel#requestRole(madkit.kernel.AbstractAgent, java.lang.String, java.lang.String, java.lang.String, java.lang.Object)
@@ -281,6 +289,8 @@ final class LoggedKernel extends RootKernel {
 		switch (madkitKernel.sendReplyWithRole(requester, messageToReplyTo, reply, senderRole)) {
 		case SUCCESS:
 			return SUCCESS;
+		case INVALID_ARG:
+			return requester.handleException(new sendMessageWarning(NULL_MSG, messageToReplyTo != null ? " Cannot reply with a null message" : "Cannot reply to a null message"));
 		case NULL_MSG:
 			return requester.handleException(new sendMessageWarning(NULL_MSG, messageToReplyTo != null ? " Cannot reply with a null message" : "Cannot reply to a null message"));
 		case ROLE_NOT_HANDLED:
@@ -290,10 +300,19 @@ final class LoggedKernel extends RootKernel {
 		case INVALID_AA:
 			return requester.handleException(new sendMessageWarning(INVALID_AA, " null sender address from original message : this seems to not be a previously received message " + messageToReplyTo));
 		case NOT_IN_GROUP:
-			return requester.handleException(new sendMessageWarning(NOT_IN_GROUP, printCGR(reply.getReceiver().getCommunity(), reply.getReceiver().getGroup())));
+			return requester.handleException(new sendMessageWarning(NOT_IN_GROUP, printCGR(
+					messageToReplyTo.getReceiver().getCommunity(), 
+					messageToReplyTo.getReceiver().getGroup())));
 		default:
 			return requester.handleException(new sendMessageWarning(SEVERE, "result not handled"));
 		}
+	}
+
+	@Override
+	List<Message> broadcastMessageWithRoleAndWaitForReplies(Agent requester,
+			String community, String group, String role, Message message,
+			String senderRole, Integer timeOutMilliSeconds) {
+		return madkitKernel.broadcastMessageWithRoleAndWaitForReplies(requester, community, group, role, message, senderRole, timeOutMilliSeconds);//TODO logging
 	}
 
 	/**

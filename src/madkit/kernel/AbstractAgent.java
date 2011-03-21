@@ -85,11 +85,12 @@ import madkit.gui.OutputPanel;
  * 
  * @author Olivier Gutknecht
  * @author Fabien Michel (since v.3)
- * @version 5.0
+ * @version 5.1
  */
 public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 
-	private static final long serialVersionUID = -2564870316780957603L;
+	private static final long serialVersionUID = 1431823907218926925L;
+
 	private static final RootKernel fakeKernel = new RootKernel();
 
 	final static AgentLogger defaultLogger = AgentLogger.getDefaultAgentLogger();
@@ -739,11 +740,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @since MadKit 5.0
 	 */
 	public boolean createGroupIfAbsent(final String community, final String group, boolean isDistributed, final GroupIdentifier theIdentifier) {
-		if (logger != null) {
-			logger.finest("createGroupIfAbsent" + printCGR(community, group) + "distribution " + (isDistributed ? "ON" : "OFF") + " with "
-					+ (theIdentifier == null ? "no access control" : theIdentifier.toString() + " for access control"));
-		}
-		return kernel.createGroup(this, community, group, group, theIdentifier, isDistributed) == SUCCESS;
+		return kernel.createGroupIfAbsent(this, community, group, group, theIdentifier, isDistributed);
 	}
 
 	/**

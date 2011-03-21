@@ -66,7 +66,6 @@ public class JunitMadKit {
 		System.err.println("\n\n------------------------ "+name.getMethodName()+" TEST START ---------------------");
 		try {
 			m = new Madkit((String[]) mkArgs.toArray(new String[mkArgs.size()]));
-			MadkitKernel kernel = m.getKernel();
 			assertEquals(expected, m.getKernel().getKernelAgent().launchAgent(a));
 		} catch (Throwable e) {
 			System.err.println("\n\n\n------------------------------------");

@@ -140,7 +140,7 @@ final public class Madkit {
 	/**
 	 * Parameterizable option defining the default warning log level for newly
 	 * launched agents. Key value is {@value}.
-	 * Default value is "INFO". This value could be overridden
+	 * Default value is "FINE". This value could be overridden
 	 * individually by agents using {@link AbstractAgent#setLogLevel(Level, Level)}. 
 	 * <p>Example:
 	 * <ul>

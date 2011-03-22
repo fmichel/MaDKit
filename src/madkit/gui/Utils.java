@@ -75,6 +75,7 @@ public class Utils {
 		madkitIcons.put("scheduler.speedUp.s",new ImageIcon(Utils.class.getResource("images/scheduling/speedUp16.png")));
 		madkitIcons.put("scheduler.speedDown.s",new ImageIcon(Utils.class.getResource("images/scheduling/speedDown16.png")));
 		madkitIcons.put("scheduler.step",new ImageIcon(Utils.class.getResource("images/agent/warningLogLevel16.gif")));
+		madkitIcons.put("madkit.exit.s",new ImageIcon(Utils.class.getResource("images/agent/exitMadKit16.png")));
 	}
 	
 	static public void updateAgentUI(AbstractAgent a){

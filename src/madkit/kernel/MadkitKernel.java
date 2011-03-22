@@ -63,6 +63,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
+import java.util.logging.LogManager;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -111,6 +112,7 @@ final class MadkitKernel extends RootKernel{
 
 	private LoggedKernel loggedKernel;
 	private KernelAgent kernelAgent;
+	private boolean shuttedDown = false;
 
 	/**
 	 * 
@@ -541,7 +543,7 @@ final class MadkitKernel extends RootKernel{
 	}
 
 	private ReturnCode launchingAgent(AbstractAgent requester,final AbstractAgent agent, boolean defaultGUI) {
-		if(! agent.state.compareAndSet(NOT_LAUNCHED, INITIALIZING)){// this has to be done by a system thread
+		if(! agent.state.compareAndSet(NOT_LAUNCHED, INITIALIZING) || shuttedDown ){// this has to be done by a system thread
 			return ALREADY_LAUNCHED;			
 		}
 		final ExecutorService agentExecutor = agent.getAgentExecutor();
@@ -1171,6 +1173,13 @@ final class MadkitKernel extends RootKernel{
 	@Override
 	final void kernelLog(String message, Level logLvl, Throwable e) {
 		platform.kernelLog(message, logLvl, e);
+	}
+
+	synchronized void shutdown() {
+		shuttedDown = true;
+		AbstractAgent.normalAgentThreadFactory.getThreadGroup().interrupt();
+		LogManager.getLogManager().reset();
+		platform.printFareWellString();
 	}
 
 }

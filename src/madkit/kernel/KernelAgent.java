@@ -66,7 +66,7 @@ final class KernelAgent extends Agent {
 		setKernel(k);
 		operatingKernel = k;
 		k.setKernelAgent(this);
-		setName(getClass().getSimpleName()+k.getKernelAddress(null).hashCode());
+		setName(getClass().getSimpleName()+getKernelAddress().hashCode());
 		state.set(INITIALIZING);
 		getAlive().set(true);
 		setLogLevel(Level.INFO,Level.INFO);
@@ -114,6 +114,9 @@ final class KernelAgent extends Agent {
 					operation = launchAgent(arguments);
 					break;
 				case SHUTDOWN_NOW:
+					operatingKernel.shutdown();
+					pause(10000);
+					//TODO hard exit if infinite agents loops
 					return;
 				default:
 					break;
@@ -163,20 +166,6 @@ final class KernelAgent extends Agent {
 		return null;
 	}
 
-	/**
-	 * @see madkit.kernel.AbstractAgent#end()
-	 */
-	@Override
-	synchronized protected void end() {//TODO this should be the last call
-		super.end();
-//		shutdownNow();
-		if(logger != null)
-			logger.info("Madkit is ending");
-		LogManager.getLogManager().reset();
-	}
-
-	
-	
 	private void launchBooterAgent(){ //TODO put a no booter option
 		AbstractAgent booter=null;
 		if(! getMadkitProperty(Madkit.booterAgentKey).toLowerCase().equals("null"))

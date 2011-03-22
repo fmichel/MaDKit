@@ -94,7 +94,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	private static final RootKernel fakeKernel = new RootKernel();
 
 	final static AgentLogger defaultLogger = AgentLogger.getDefaultAgentLogger();
-	final static AgentThreadFactory normalAgentThreadFactory = new AgentThreadFactory("MKRA", false);
+	final static AgentThreadFactory normalAgentThreadFactory = new AgentThreadFactory("MKRA", false);//TODO move that into the kernel ensuring same JVM functioning
 	final static AgentThreadFactory daemonAgentThreadFactory = new AgentThreadFactory("MKDA", true);
 
 	private final static AtomicInteger agentCounter = new AtomicInteger(1);

@@ -40,7 +40,10 @@ import javax.swing.SwingUtilities;
 
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AgentLogger;
+import madkit.kernel.KernelMessage;
 import madkit.kernel.Madkit;
+import madkit.kernel.KernelMessage.OperationCode;
+import static madkit.kernel.Madkit.Roles.*;
 
 /**
  * @author Fabien Michel
@@ -60,6 +63,33 @@ public class AgentMenu extends JMenu implements AgentUIComponent{//TODO i18n
 		add(getLaunchAnotherAction(agent));
 //		add(getReloadAndRelaunchAction(agent));
 		add(getKillAction(agent));
+		add(getExitMadkitAction(agent));
+	}
+	
+	public static Action getExitMadkitAction(final AbstractAgent a){
+		AbstractAction action = new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				this.setEnabled(false);
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						a.requestRole(LOCAL_COMMUNITY, SYSTEM_GROUP, a.getName());
+						a.sendMessage(LOCAL_COMMUNITY, SYSTEM_GROUP, KERNEL_ROLE, new KernelMessage(OperationCode.SHUTDOWN_NOW, null));
+					}
+				});
+			}
+		};
+		Utils.initAction(action, 
+				"Kill all agents and exit MadKit", 
+				"Kill all agents and exit MadKit",
+				"ExitMadKit",
+				"ExitMadKit",
+				KeyEvent.VK_E,
+				"madkit.exit",
+				KeyStroke.getKeyStroke(KeyEvent.VK_E,KeyEvent.CTRL_MASK),
+				true);
+		return action;
 	}
 	
 	public static Action getRelaunchAction(final AbstractAgent a){

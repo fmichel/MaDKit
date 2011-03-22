@@ -621,6 +621,15 @@ final public class Madkit {
 		}
 	}
 
+	void printFareWellString() {
+		if(! (madkitConfig.getProperty(Madkit.noMadkitConsoleLog).equals("true")
+				|| Level.parse(madkitConfig.getProperty(Madkit.MadkitLogLevel)).equals(Level.OFF))){
+			System.err.println("\n\t-----------------------------------------------------");
+			System.err.println("\n\t\t\t   MadKit is shutting down, Bye !");
+			System.err.println("\n\t-----------------------------------------------------\n");			
+		}
+	}
+
 	private String misuseOptionMessage(String option,String value) {
 		return "\n\n-------------MadKit WARNING------------------\n" +
 		"Misuse of --"+option+" option\nincorrect value : "+value+

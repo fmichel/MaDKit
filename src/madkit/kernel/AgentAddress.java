@@ -144,7 +144,7 @@ public class AgentAddress implements java.io.Serializable{
 	 */
 	@Override
 	public String toString() {
-		if (getRoleObject() != null) {
+		if (roleObject != null) {
 			return "(" + getCommunity() + "," + getGroup() + "," +(getRole()==null ? "" : getRole() + ",") + _hashCode
 			+ ")" + kernelAddress;
 		}
@@ -156,7 +156,7 @@ public class AgentAddress implements java.io.Serializable{
 	 */
 	@Override
 	public boolean equals(final Object o) {//TODO program the offline mode
-		if(kernelAddress == null){// no network -> oofline mode
+		if(kernelAddress == null){// no network -> offline mode
 			if(o != null){ // for offline mode
 				return _hashCode == o.hashCode();
 			}

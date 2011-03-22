@@ -127,10 +127,14 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		kernel = fakeKernel;
 	}
 
-	// * The ID of an agent (i.e. its hashCode() value) is unique.
-	// * This also holds when multiple MadKit kernels are launched within the same JVM.
-	// * @return the agent unique ID
 	/**
+	 * The ID of an agent (i.e. its hashCode() value). All the agents have different 
+	 * hashCode value and it can be used to identify one agent.
+	 * In a networked environment this value should be used in combination with
+	 * the kernelAddress of the agent for identifying it 
+	 * This also holds when multiple MadKit kernels are launched within the same JVM.
+	 * 
+	 * @return the agent's unique ID
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -925,6 +929,16 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		}
 		return messageBox.poll();
 	}
+	
+	/**
+	 * Returns the message which has been received the most recently and 
+	 * removes it from the mailbox.
+	 * 
+	 * @return the message which has been received the most recently.
+	 */
+	public Message getMostRecentMessage(){
+		return messageBox.pollLast();
+	}
 
 	public boolean isMessageBoxEmpty(){
 		return messageBox.isEmpty();
@@ -1251,6 +1265,16 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		// break;
 		// }
 		return getName();
+	}
+	
+	/**
+	 * Returns the kernel address on which the agent is running.
+	 * 
+	 * @return the kernel address representing the MadKit kernel
+	 * on which the agent is running
+	 */
+	public KernelAddress getKernelAddress(){
+		return kernel.getKernelAddress(this);
 	}
 
 	// //////////////////////////////////////////////////////////////////////////////

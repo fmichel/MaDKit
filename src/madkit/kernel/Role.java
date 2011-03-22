@@ -77,7 +77,7 @@ class Role implements Serializable{//TODO test with arraylist
 		final MadkitKernel k = groupObject.getMyCommunity().getMyKernel();
 		logger = groupObject.getMyCommunity().getLogger();
 		myGroup = groupObject;
-		kernelAddress = k.getKernelAddress();
+		kernelAddress = k.getKernelAddress(null);
 		if(logger != null){
 			logger.finer(toString()+" created");
 		}

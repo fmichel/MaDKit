@@ -470,14 +470,8 @@ final class LoggedKernel extends RootKernel {
 		return madkitKernel.addOverlooker(requester, o);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see madkit.kernel.RootKernel#getKernelAddress(madkit.kernel.AbstractAgent)
-	 */
 	@Override
 	KernelAddress getKernelAddress(AbstractAgent requester) {
-		// TODO Auto-generated method stub
 		return madkitKernel.getKernelAddress(requester);
 	}
 

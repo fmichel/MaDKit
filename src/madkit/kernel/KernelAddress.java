@@ -29,7 +29,7 @@ import java.net.UnknownHostException;
  * @since MadKit 1.0
  *
  */
-final class KernelAddress implements java.io.Serializable{
+final public class KernelAddress implements java.io.Serializable{
 
 	private static final long serialVersionUID = 6895837581447431330L;
 	private String host;
@@ -46,19 +46,21 @@ final class KernelAddress implements java.io.Serializable{
 		}
 	}
 
-//	one kerneladdress by kernel so need to overwrite this
 	@Override
 	public boolean equals(Object obj) {
-//		KernelAddress other = (KernelAddress) obj;
-//		return host.equals(other.host) && ID == other.ID;//TODO Maybe compare only IDs
 		return obj.hashCode() == ID;
 	}
 	
+	@Override
 	public int hashCode() {
 		return ID;
 	}
 
-	/** Returns the canonical string representation for this platform address */
+	/** 
+	 * Returns the canonical string representation for this platform address 
+	 * 
+	 * @return a string representation for this platform address 
+	 */
 	@Override
 	public String toString()
 	{

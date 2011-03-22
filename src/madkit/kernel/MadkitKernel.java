@@ -891,15 +891,8 @@ final class MadkitKernel extends RootKernel{
 		//		}
 	}
 
-	/**
-	 * @see madkit.kernel.RootKernel#getKernelAddress(madkit.kernel.AbstractAgent)
-	 */
 	@Override
 	KernelAddress getKernelAddress(AbstractAgent requester) {
-		return kernelAddress;
-	}
-
-	KernelAddress getKernelAddress() {
 		return kernelAddress;
 	}
 

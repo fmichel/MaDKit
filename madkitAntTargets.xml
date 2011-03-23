@@ -98,6 +98,9 @@
 	<!-- - - - - - - - - - - - - - - - - - 
           target: prepare-jar                      
 			<attribute name="Sealed" value="true"/>
+    	<copy todir="${build.dir}" failonerror="false">
+    		<fileset refid="resource.files"/>    		
+    	</copy>
          - - - - - - - - - - - - - - - - - -->
 	<target name="prepare-jar" depends="compile,build-propertiesFile" >
 		<tstamp>
@@ -108,9 +111,6 @@
 			<filter token="TIMESTAMP" value="${timestamp.isoformat}"/>
 		</filterset>
 
-    	<copy todir="${build.dir}" failonerror="false">
-    		<fileset refid="resource.files"/>    		
-    	</copy>
 
 		<manifest file="${build.dir}/MANIFEST.MF">
 			<section name="MadKit-Project-Info">

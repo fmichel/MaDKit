@@ -27,8 +27,10 @@
  Version: 5.0
 -->
 
-<project name="madkitAntTargets" default="create-executable-jar">
+<antlib>
 
+<macrodef name="create-executable-jar">
+	<sequential>
 	<property name="build.dir" value="build"/>
 	<property name="executable.name" value="${ant.project.name}"/>
     <property name="kernel.jar.name" value="madkitkernel-${madkit.version}.jar"/>
@@ -37,7 +39,6 @@
  	<!-- ================================= 
           target: create-executable-jar              
          ================================= -->
-    <target name="create-executable-jar" description="Creates an executable jar of your project and a jnlp file if possible">
         <available file="${kernel.location}" property="madkit.lib.present"/>
     	<fail 
         	message="${line.separator}!! ${kernel.jar.name} not found !!${line.separator}
@@ -58,11 +59,8 @@
 		<property url="${madkit.properties}"/>
     	
     	<ant antfile="${build.dir}/madkitAntTargets.xml" target="create-executable-jar" inheritrefs="true" inheritall="true" />
-    </target>
-    	
-    <!-- - - - - - - - - - - - - - - - - - 
-          target: init                      
-    <target name="init">
-    </target>
-         - - - - - - - - - - - - - - - - - -->
-</project>
+
+	</sequential>
+</macrodef>
+
+</antlib>

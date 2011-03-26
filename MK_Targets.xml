@@ -34,16 +34,11 @@
 	<property name="build.dir" value="build"/>
 	<property name="executable.name" value="${ant.project.name}"/>
     <property name="kernel.jar.name" value="madkitkernel-${madkit.version}.jar"/>
-    <property name="kernel.location" value="${madkit.install.dir}/lib/${kernel.jar.name}"/>
+    <property name="kernel.location" value="${madkit.lib.dir}/${kernel.jar.name}"/>
 
  	<!-- ================================= 
           target: create-executable-jar              
          ================================= -->
-        <available file="${kernel.location}" property="madkit.lib.present"/>
-    	<fail 
-        	message="${line.separator}!! ${kernel.jar.name} not found !!${line.separator}
-        		Tried url was : ${basedir}/${kernel.location}" 
-    		unless="madkit.lib.present"/>
     	<mkdir dir="${build.dir}"/>
     	<unzip src="${kernel.location}" dest="${build.dir}">
     	  <patternset>
@@ -51,7 +46,7 @@
     	  </patternset>
     	</unzip>
 		  <path id="mk.classpath">
-		    <fileset dir="${madkit.install.dir}/lib/" includes="${kernel.jar.name}"/>
+		    <fileset dir="${madkit.lib.dir}" includes="${kernel.jar.name}"/>
 		  </path>
 		<whichresource property="madkit.properties"
 		                 resource="madkitKernel.properties"
@@ -60,6 +55,18 @@
     	
     	<ant antfile="${build.dir}/madkitAntTargets.xml" target="create-executable-jar" inheritrefs="true" inheritall="true" />
 
+	</sequential>
+</macrodef>
+
+
+	<!-- ================================= 
+          target: clean              
+         ================================= -->
+ <macrodef name="clean">
+ 	<sequential>
+        <delete file="README"/>
+        <delete file="${ant.project.name}.jnlp"/>
+        <delete file="${ant.project.name}-${version}.jar"/>
 	</sequential>
 </macrodef>
 

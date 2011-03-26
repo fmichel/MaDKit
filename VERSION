@@ -41,7 +41,10 @@ Other command line options are described in the API of the madkit.kernel.Madkit 
 ------------------------------- MadKit 5.0.0.8 (alpha-8)--------------------------
 ----------------------------------------------------------------------------------
 
-1. madkit.kernel.AgentAddress.getKernelAddress() has been reintroduced
+1. API :
+	- madkit.kernel.AgentAddress.getKernelAddress() has been reintroduced
+	- madkit.kernel.AbstractAgent.getKernelAddress() has been created
+	- madkit.kernel.Agent.broadcastMessageWithRoleAndWaitForReplies() has been created
 
 2. GUI tools :
 	- package madkit.kernel.gui has been renamed madkit.gui
@@ -50,6 +53,9 @@ Other command line options are described in the API of the madkit.kernel.Madkit 
 
 3. Logging :
 	- Default warning log level value is now "FINE" instead of "INFO"
+	
+4. Building executable jar file :
+	- project ant build files now only need the madkitkernel jar file to work
 	
 ----------------------------------------------------------------------------------
 ------------------------------- MadKit 5.0.0.7 (alpha-7)--------------------------

@@ -72,7 +72,7 @@
 			<fileset dir="${lib.dir}" includes="jar-in-jar-loader.zip"/>
 			<fileset dir="." includes="${jnlp.template}"/> <!-- jnlp file -->
 			<fileset dir="." includes="${madkit.ant.targets.file}"/> <!-- MK ant targets -->
-			<fileset dir="." includes="MK_Ant_Target_Macros.xml"/> <!-- MK ant targets -->
+			<fileset dir="." includes="${madkit.project.ant.file}"/> <!-- MK ant targets -->
 			
 			<manifest>
 				<attribute name="Description" value="${description}"/>

@@ -38,7 +38,6 @@ final public class KernelAddress implements java.io.Serializable{
 	KernelAddress()
 	{
 		ID = Integer.parseInt(Long.toString(System.currentTimeMillis()).substring(9));//TODO use hashcode of Long
-		host = null;
 		try {
 			host = InetAddress.getLocalHost().getHostName();
 		} catch (UnknownHostException e) {
@@ -54,6 +53,10 @@ final public class KernelAddress implements java.io.Serializable{
 	@Override
 	public int hashCode() {
 		return ID;
+	}
+	
+	public String getHost(){
+		return host;
 	}
 
 	/** 

@@ -189,7 +189,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 				logger.finer("** entering ACTIVATE **");
 			}
 			activate();
-		} catch (KilledException e) {
+		} catch (KilledException e) {//TODO this part is useless: check that
 			if (logger != null) {
 				logger.warning("-*-GET KILLED in ACTIVATE-*- by killedException: " + getI18N("terminated"));
 				logger.finer("** exiting ACTIVATE **");
@@ -209,7 +209,10 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			}
 			// no more ending if activate failed
 			// ending();
-			terminate();
+			if (alive.get()) {
+				ending();
+				terminate();
+			}
 			return false;
 		}
 		if (logger != null) {

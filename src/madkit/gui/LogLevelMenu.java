@@ -62,11 +62,11 @@ public class LogLevelMenu extends JMenu implements AgentUIComponent{
 		myAgent = agent;
 		
 		JMenu logLevelMenu = new JMenu("Log level");
-		logLevelMenu.setIcon(madkit.gui.Utils.getMadkitImageIcon("agent.logLevel.s"));
+		logLevelMenu.setIcon(madkit.gui.Utils.getMadkitImageIcon("agent.logLevel"));
 		logLevelMenu.setToolTipText("the agents's current log level");
 		
 		JMenu warningLogLevelMenu = new JMenu("Warning log level");
-		warningLogLevelMenu.setIcon(madkit.gui.Utils.getMadkitImageIcon("agent.warningLogLevel.s"));
+		warningLogLevelMenu.setIcon(madkit.gui.Utils.getMadkitImageIcon("agent.warningLogLevel"));
 		warningLogLevelMenu.setToolTipText("the agent's log level above which warnings are displayed");
 		
 		logGroup = new ButtonGroup();

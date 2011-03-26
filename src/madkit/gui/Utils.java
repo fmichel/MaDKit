@@ -54,28 +54,25 @@ import madkit.kernel.Madkit.Roles;
  * 
  * @author Fabien Michel
  * @since MadKit 5.0.0.7
- * @version 0.9
+ * @version 0.9.1
  * 
  */
-public class Utils {
+final public class Utils {
 	
 	//TODO every actions static. So avoiding useless instances
 	static ConcurrentMap<AbstractAgent,List<AgentUIComponent>> agentUIListeners = new ConcurrentHashMap<AbstractAgent, List<AgentUIComponent>>();
 	
-	static Map<String,ImageIcon> madkitIcons = new HashMap<String,ImageIcon>();
+	final static Map<String,ImageIcon> madkitIcons = new HashMap<String,ImageIcon>();
 	
 	static{
-		madkitIcons.put("agent.logLevel.s",new ImageIcon(Utils.class.getResource("images/agent/logs16.png")));
-		madkitIcons.put("agent.warningLogLevel.s",new ImageIcon(Utils.class.getResource("images/agent/warningLogLevel16.gif")));
+		madkitIcons.put("agent.logLevel",new ImageIcon(Utils.class.getResource("images/agent/logs.png")));
+		madkitIcons.put("agent.warningLogLevel",new ImageIcon(Utils.class.getResource("images/agent/warningLogLevel.gif")));
 
-		madkitIcons.put("scheduler.run.s",new ImageIcon(Utils.class.getResource("images/scheduling/run16.png")));
-		madkitIcons.put("scheduler.run.b",new ImageIcon(Utils.class.getResource("images/scheduling/run32.png")));
-		madkitIcons.put("scheduler.step.s",new ImageIcon(Utils.class.getResource("images/scheduling/step16.png")));
-		madkitIcons.put("scheduler.step.b",new ImageIcon(Utils.class.getResource("images/scheduling/step32.png")));
-		madkitIcons.put("scheduler.speedUp.s",new ImageIcon(Utils.class.getResource("images/scheduling/speedUp16.png")));
-		madkitIcons.put("scheduler.speedDown.s",new ImageIcon(Utils.class.getResource("images/scheduling/speedDown16.png")));
-		madkitIcons.put("scheduler.step",new ImageIcon(Utils.class.getResource("images/agent/warningLogLevel16.gif")));
-		madkitIcons.put("madkit.exit.s",new ImageIcon(Utils.class.getResource("images/agent/exitMadKit16.png")));
+		madkitIcons.put("scheduler.run",new ImageIcon(Utils.class.getResource("images/scheduling/run.png")));
+		madkitIcons.put("scheduler.step",new ImageIcon(Utils.class.getResource("images/scheduling/step.png")));
+		madkitIcons.put("scheduler.speedUp",new ImageIcon(Utils.class.getResource("images/scheduling/speedUp.png")));
+		madkitIcons.put("scheduler.speedDown",new ImageIcon(Utils.class.getResource("images/scheduling/speedDown.png")));
+		madkitIcons.put("madkit.exit",new ImageIcon(Utils.class.getResource("images/agent/exitMadKit.png")));
 	}
 	
 	static public void updateAgentUI(AbstractAgent a){
@@ -103,22 +100,28 @@ public class Utils {
 	
 	
 public static void initAction(AbstractAction a, 
-		String ShortDescription, 
-		String LongDescription, 
+		String shortDescription, 
+		String longDescription, 
 		String actionCommand, 
 		String name, 
 		int mnemonic, 
 		String inconCode,
 		KeyStroke accelerator,
 		boolean selected){
-	a.putValue(AbstractAction.SHORT_DESCRIPTION, ShortDescription);
-	a.putValue(AbstractAction.LONG_DESCRIPTION, LongDescription);
-	ImageIcon bigIcon = getMadkitImageIcon(inconCode+".b");
-	if(bigIcon != null)
+	a.putValue(AbstractAction.SHORT_DESCRIPTION, shortDescription);
+	a.putValue(AbstractAction.LONG_DESCRIPTION, longDescription);
+	ImageIcon bigIcon = getMadkitImageIcon(inconCode);
+	if(bigIcon != null){
 		a.putValue(AbstractAction.LARGE_ICON_KEY, bigIcon);
-	bigIcon = getMadkitImageIcon(inconCode+".s");
-	if (bigIcon != null) {
-		a.putValue(AbstractAction.SMALL_ICON, bigIcon);
+		if (bigIcon.getIconWidth() > 16) {
+			a.putValue(
+					AbstractAction.SMALL_ICON,
+					new ImageIcon(bigIcon.getImage().getScaledInstance(16, 16,
+							java.awt.Image.SCALE_SMOOTH)));
+		}
+		else{
+			a.putValue(AbstractAction.SMALL_ICON, bigIcon);
+		}
 	}
 	a.putValue(Action.ACCELERATOR_KEY, accelerator);
 	a.putValue(Action.MNEMONIC_KEY, mnemonic);

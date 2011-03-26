@@ -158,7 +158,7 @@ public class LaunchAbstractAgentTest  extends JunitMadKit{
 	public void returnAgentCrash(){
 		launchTest(new AbstractAgent(){
 			protected void activate() {
-				assertEquals(AGENT_CRASH,launchAgent(faulty,1));
+				assertEquals(AGENT_CRASH,launchAgent(faulty));
 				assertEquals(ALREADY_LAUNCHED,launchAgent(faulty));
 			}
 		});

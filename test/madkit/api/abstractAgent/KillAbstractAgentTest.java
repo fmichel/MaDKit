@@ -24,7 +24,7 @@ import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_LAUNCHED;
 import static madkit.kernel.AbstractAgent.ReturnCode.LAUNCH_TIME_OUT;
 import static madkit.kernel.AbstractAgent.ReturnCode.NOT_YET_LAUNCHED;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 
@@ -198,7 +198,8 @@ public class KillAbstractAgentTest  extends JunitMadKit{
 				
 				assertEquals(LAUNCH_TIME_OUT,launchAgent(a = new FaultyAA(true, false),0));
 				pause(10);
-				assertEquals(SUCCESS,killAgent(a));
+				ReturnCode r = killAgent(a);
+				assertTrue(r == SUCCESS || r == ALREADY_KILLED);
 				
 				assertEquals(LAUNCH_TIME_OUT,launchAgent(a = new FaultyAA(true, false),0));
 				pause(200);

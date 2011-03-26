@@ -184,8 +184,7 @@ public class Scheduler extends Agent
 		frame.add(getSchedulerStatusLabel(), BorderLayout.PAGE_END);
 		updateStatusDisplay();
 		frame.validate();
-		JMenuBar menubar = frame.getJMenuBar();
-		menubar.add(getSchedulerMenu());
+		frame.getJMenuBar().add(getSchedulerMenu());
 	}
 	
 	

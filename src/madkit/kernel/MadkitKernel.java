@@ -67,6 +67,7 @@ import java.util.logging.LogManager;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 import madkit.gui.DefaultGUIsManagerAgent;
 import madkit.gui.GUIsManagerAgent;
@@ -478,30 +479,10 @@ final class MadkitKernel extends RootKernel{
 
 
 	@Override
-	AbstractAgent launchAgent(AbstractAgent requester, String agentClass, int timeOutSeconds,  boolean defaultGUI){
+	AbstractAgent launchAgent(AbstractAgent requester, final String agentClass, int timeOutSeconds,  boolean defaultGUI){
 		final Class<? extends AbstractAgent> aClass = getPlatform().loadClass(requester, agentClass);
 		if(aClass == null)
 			return null;
-		//		Future<AbstractAgent> createInstance = serviceExecutor.submit(new Callable<AbstractAgent>() {
-		//			public AbstractAgent call() throws Exception {
-		//				return (AbstractAgent) aClass.newInstance();
-		//			};
-		//		});
-		//		AbstractAgent agent;
-		//		try {
-		//			agent = createInstance.get();
-		//		} catch (InterruptedException e) {// requester has been killed or something
-		//			throw new KilledException(e);
-		//		} catch (ExecutionException e) {// target has crashed !
-		//			kernelLog("Launch failed on "+agentClass, Level.FINE, e);
-		//			if(e.getCause() instanceof AssertionError)
-		//				throw new AssertionError(e);
-		//			return null;
-		//		}
-		//		if (launchAgent(requester, agent, timeOutSeconds,defaultGUI) == AGENT_CRASH) {
-		//			return null; //TODO when time out ?
-		//		}
-		//		return agent;
 		try {
 			final AbstractAgent agent = aClass.newInstance();
 			if (launchAgent(requester, agent, timeOutSeconds,defaultGUI) == AGENT_CRASH) {
@@ -509,7 +490,16 @@ final class MadkitKernel extends RootKernel{
 			}
 			return agent;
 		} catch (InstantiationException e) {
-			e.printStackTrace();
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					JOptionPane.showMessageDialog(null, "Cannot launch "
+							+ agentClass
+							+ " because it has no default constructor",
+							"Launch failed", JOptionPane.WARNING_MESSAGE);
+				}
+			});
+			if(requester.getLogger() != null)
+				requester.getLogger().warning("Cannot launch "+agentClass+" because it has no default constructor");
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
 		}

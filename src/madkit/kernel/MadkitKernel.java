@@ -18,34 +18,33 @@
  */
 package madkit.kernel;
 
-import static madkit.kernel.AbstractAgent.ReturnCode.*;
+import static madkit.kernel.AbstractAgent.ReturnCode.AGENT_CRASH;
 import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_GROUP;
 import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_KILLED;
 import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_LAUNCHED;
 import static madkit.kernel.AbstractAgent.ReturnCode.INVALID_AA;
+import static madkit.kernel.AbstractAgent.ReturnCode.INVALID_ARG;
 import static madkit.kernel.AbstractAgent.ReturnCode.LAUNCH_TIME_OUT;
 import static madkit.kernel.AbstractAgent.ReturnCode.NETWORK_DOWN;
 import static madkit.kernel.AbstractAgent.ReturnCode.NOT_COMMUNITY;
 import static madkit.kernel.AbstractAgent.ReturnCode.NOT_GROUP;
 import static madkit.kernel.AbstractAgent.ReturnCode.NOT_IN_GROUP;
 import static madkit.kernel.AbstractAgent.ReturnCode.NOT_ROLE;
+import static madkit.kernel.AbstractAgent.ReturnCode.NOT_YET_LAUNCHED;
 import static madkit.kernel.AbstractAgent.ReturnCode.NO_RECIPIENT_FOUND;
-import static madkit.kernel.AbstractAgent.ReturnCode.NULL_AA;
-import static madkit.kernel.AbstractAgent.ReturnCode.NULL_MSG;
+import static madkit.kernel.AbstractAgent.ReturnCode.NULL_STRING;
 import static madkit.kernel.AbstractAgent.ReturnCode.ROLE_NOT_HANDLED;
 import static madkit.kernel.AbstractAgent.ReturnCode.SEVERE;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static madkit.kernel.AbstractAgent.State.ACTIVATED;
 import static madkit.kernel.AbstractAgent.State.INITIALIZING;
 import static madkit.kernel.AbstractAgent.State.NOT_LAUNCHED;
-import java.awt.Component;
-import java.awt.Point;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -65,13 +64,10 @@ import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
-import madkit.gui.DefaultGUIsManagerAgent;
 import madkit.gui.GUIsManagerAgent;
-import madkit.gui.MadKitGUIsManager;
 import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.Madkit.Roles;
 
@@ -101,7 +97,7 @@ final class MadkitKernel extends RootKernel{
 	}
 
 	final private ConcurrentHashMap<String, Organization> organizations;
-	final private List<AbstractAgent> activeThreadedAgents;
+//	final private List<AbstractAgent> activeThreadedAgents;
 	final private Set<Overlooker<? extends AbstractAgent>> operatingOverlookers;
 
 	final private Madkit platform;
@@ -125,7 +121,7 @@ final class MadkitKernel extends RootKernel{
 				Level.parse(platform.getConfigOption().getProperty(Madkit.warningLogLevel)));
 		organizations = new ConcurrentHashMap<String, Organization>();
 		operatingOverlookers = new LinkedHashSet<Overlooker<? extends AbstractAgent>>();
-		activeThreadedAgents = Collections.synchronizedList(new ArrayList<AbstractAgent>());//TODO useless
+//		activeThreadedAgents = Collections.synchronizedList(new ArrayList<AbstractAgent>());//TODO useless
 	}
 
 	/**
@@ -385,11 +381,21 @@ final class MadkitKernel extends RootKernel{
 	//////////////////////////////////////////////////////////////
 	////////////////////////// Launching and Killing
 	//////////////////////////////////////////////////////////////
+	@SuppressWarnings("unchecked")
 	@Override
 	synchronized List<AbstractAgent> launchAgentBucketWithRoles(final AbstractAgent requester, String agentClassName,int bucketSize,Collection<String> CGRLocations){
-		final Class<? extends AbstractAgent> agentClass = getPlatform().loadClass(requester, agentClassName);
-		if(agentClass == null)
+		Class<? extends AbstractAgent> agentClass = null;
+		try {
+			agentClass = (Class<? extends AbstractAgent>) getPlatform().getMadkitClassLoader().loadClass(agentClassName);
+		} catch (ClassCastException e) {
+			if(requester.getLogger() != null)
+				requester.getLogger().severe("Cannot launch "+agentClassName+" because it is not an agent class");
 			return null;
+		} catch (ClassNotFoundException e) {
+			if(requester.getLogger() != null)
+				requester.getLogger().severe("Cannot launch "+agentClassName+" because the class has not been found");
+			return null;
+		}
 		final ArrayList<AbstractAgent> bucket = createBucket(agentClass, bucketSize);
 		if (CGRLocations != null) {
 			for (final String cgrLocation : CGRLocations) {
@@ -480,9 +486,18 @@ final class MadkitKernel extends RootKernel{
 
 	@Override
 	AbstractAgent launchAgent(AbstractAgent requester, final String agentClass, int timeOutSeconds,  boolean defaultGUI){
-		final Class<? extends AbstractAgent> aClass = getPlatform().loadClass(requester, agentClass);
-		if(aClass == null)
+		Class<? extends AbstractAgent> aClass = null;
+		try {
+			aClass = (Class<? extends AbstractAgent>) getPlatform().getMadkitClassLoader().loadClass(agentClass);
+		} catch (ClassCastException e) {
+			if(requester.getLogger() != null)
+				requester.getLogger().severe("Cannot launch "+agentClass+" because it is not an agent class");
 			return null;
+		} catch (ClassNotFoundException e) {
+			if(requester.getLogger() != null)
+				requester.getLogger().severe("Cannot launch "+agentClass+" because the class has not been found");
+			return null;
+		}
 		try {
 			final AbstractAgent agent = aClass.newInstance();
 			if (launchAgent(requester, agent, timeOutSeconds,defaultGUI) == AGENT_CRASH) {
@@ -589,9 +604,9 @@ final class MadkitKernel extends RootKernel{
 			@Override
 			public Boolean call(){
 				final Thread currentThread = Thread.currentThread();
-				if (! currentThread.isDaemon()) {
-					activeThreadedAgents.add(agent);
-				}
+//				if (! currentThread.isDaemon()) {
+//					activeThreadedAgents.add(agent);
+//				}
 				agent.setMyThread(currentThread);
 				if(! agent.activation()){
 					agent.getMyLifeCycle().get(1).cancel(true);//no activation no living
@@ -875,12 +890,17 @@ final class MadkitKernel extends RootKernel{
 		organizations.remove(community);
 	}
 
+//	@Override
+//	void removeThreadedAgent(Agent a){
+//		activeThreadedAgents.remove(a);
+//		//		if(activeThreadedAgents.isEmpty()){
+//		//			kernelAgent.receiveMessage(new KernelMessage(OperationCode.SHUTDOWN_NOW,(Object[])null));
+//		//		}
+//	}
+	
 	@Override
-	void removeThreadedAgent(Agent a){
-		activeThreadedAgents.remove(a);
-		//		if(activeThreadedAgents.isEmpty()){
-		//			kernelAgent.receiveMessage(new KernelMessage(OperationCode.SHUTDOWN_NOW,(Object[])null));
-		//		}
+	Class<?> getNewestClassVersion(AbstractAgent requester, String className) throws ClassNotFoundException {
+		return getPlatform().getMadkitClassLoader().loadClass(className);
 	}
 
 	@Override
@@ -944,17 +964,24 @@ final class MadkitKernel extends RootKernel{
 	}
 
 	/**
-	 * @param abstractAgent
-	 * @param agentClass
+	 * Asks MasKit to reload the class byte code so that new instances, 
+	 * created using {@link Class#newInstance()} on a class object obtained with
+	 * {@link #getNewestClassVersion(AbstractAgent, String)}, will reflect compilation changes
+	 * during run time. 
+	 * 
+	 * @param requester
+	 * @param name The fully qualified class name of the top-level class
 	 */
 	@Override
-	ReturnCode reloadClass(AbstractAgent abstractAgent, String agentClass) {
-		try {
-			getPlatform().reloadClass(agentClass);
-		} catch (ClassNotFoundException e) {
-			return ReturnCode.CLASS_NOT_FOUND;
-		}
-		return SUCCESS;
+	ReturnCode reloadClass(AbstractAgent requester, String name) {
+			if(name != null 
+					&& ! name.contains("madkit.kernel")
+					&& ! name.contains("madkit.gui")
+					&& ! name.contains("madkit.messages")
+					&& ! name.contains("madkit.simulation")
+					&& getPlatform().getMadkitClassLoader().reloadClass(name))
+				return SUCCESS;
+			return ReturnCode.CLASS_NOT_FOUND;//TODO not the right code here
 	}
 
 	/**

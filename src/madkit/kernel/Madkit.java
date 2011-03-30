@@ -32,6 +32,7 @@ import java.net.URLClassLoader;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -300,6 +301,11 @@ final public class Madkit {
 	private KernelAgent kernelAgent;
 	private Logger logger;
 	private MadkitClassLoader madkitClassLoader;
+	
+	MadkitClassLoader getMadkitClassLoader() {
+		return madkitClassLoader;
+	}
+
 	private static Madkit currentInstance;
 
 	
@@ -416,16 +422,19 @@ final public class Madkit {
 	private void buildMadkitClassLoader() {
 		logger.finer("** BUILDING MADKIT CLASS LOADER **");
 		final ClassLoader systemCL = getClass().getClassLoader();
-		if(systemCL instanceof URLClassLoader){
-			madkitClassLoader = new MadkitClassLoader(((URLClassLoader) systemCL).getURLs(),systemCL);			
-		}
-		else{
-			madkitClassLoader = new MadkitClassLoader(new URL[0],systemCL);
-		}
-		logger.finest("ClassPath is: ");
-		for (URL url : madkitClassLoader.getURLs()) {
-			logger.finest(" "+url);
-		}
+//		madkitClassLoader = new MadkitClassLoader(this, new URL[0], systemCL);
+		madkitClassLoader = new MadkitClassLoader(this, systemCL, null);
+//		if(systemCL instanceof URLClassLoader){
+//			madkitClassLoader = new MadkitClassLoader(this,((URLClassLoader) systemCL).getURLs(),systemCL);			
+//		}
+//		else{
+//			madkitClassLoader = new MadkitClassLoader(this, new URL[0],systemCL);
+//		}
+//		logger.finest("ClassPath is:\n");
+//		for (URL url : madkitClassLoader.getURLs()) {
+//			logger.finest(" "+url);
+//		}
+		logger.finest("ClassPath is:\n"+madkitClassLoader);
 		logger.fine("** MADKIT CLASS LOADER INITIALIZED **");
 	}
 
@@ -790,46 +799,28 @@ final public class Madkit {
 		return aaLogFile;
 	}
 
-	/**
-	 * @param requester 
-	 * @param agentClassName
-	 * @return
-	 * @throws ClassNotFoundException 
-	 */
-	@SuppressWarnings("unchecked")
-	Class<? extends AbstractAgent> loadClass(AbstractAgent requester, String agentClassName){
-		try {
-			return (Class<? extends AbstractAgent>) madkitClassLoader.loadClass(agentClassName);
-		} catch (ClassNotFoundException e) {//TODO log severe
-			logWarningException(requester.getLogger(), e, "Unable to load class: "+agentClassName);//TODO think about that
-		} catch (ClassCastException e) {
-			logWarningException(requester.getLogger(), e, "Unable to launch "+agentClassName+": Not a MadKit agent class");//TODO think about that
-		}
-		return null;
-	}
+//	/**
+//	 * @param requester 
+//	 * @param agentClassName
+//	 * @return
+//	 * @throws ClassNotFoundException 
+//	 */
+//	@SuppressWarnings("unchecked")
+//	Class<?> loadClass(AbstractAgent requester, String agentClassName){
+//			return madkitClassLoader.loadClass(agentClassName);
+//	}
 
 	/**
 	 * @param className
 	 * @return
 	 * @throws ClassNotFoundException 
 	 */
-	void reloadClass(String name) throws ClassNotFoundException {
-		madkitClassLoader.reloadClass(this, name);
-//		//if class has been already loaded -> need new class loader
-//		Class<?> c = madkitClassLoader.reloadClass(this, name);
-//		try {
-//			c.newInstance();
-//		} catch (InstantiationException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (IllegalAccessException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
+//	boolean reloadClass(String name) {
+//		if (name != null) {
+//			return madkitClassLoader.reloadClass(name);
 //		}
-////		if (! madkitClassLoader.isNewClassToReload(className)) {
-////			madkitClassLoader = new MadkitClassLoader(madkitClassLoader);
-////		}
-	}
+//		return false;
+//	}
 
 	/**
 	 * @param option

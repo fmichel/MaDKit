@@ -61,7 +61,10 @@ public class AgentMenu extends JMenu implements AgentUIComponent{//TODO i18n
 		myAgent = agent;
 		add(getRelaunchAction(agent));
 		add(getLaunchAnotherAction(agent));
-//		add(getReloadAndRelaunchAction(agent));
+		Action a = getReloadAndRelaunchAction(agent);
+		if (a != null) {
+			add(getReloadAndRelaunchAction(agent));
+		}
 		add(getKillAction(agent));
 		add(getExitMadkitAction(agent));
 	}
@@ -143,6 +146,9 @@ public class AgentMenu extends JMenu implements AgentUIComponent{//TODO i18n
 	}
 
 	public static Action getReloadAndRelaunchAction(final AbstractAgent a){
+		String className = a.getClass().getName();
+		if(className.contains("madkit.kernel") || className.contains("madkit.gui"))
+			return null;
 		AbstractAction action = new AbstractAction("Reload") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -150,14 +156,15 @@ public class AgentMenu extends JMenu implements AgentUIComponent{//TODO i18n
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
-						try {
 							a.reloadAgentClass(a.getClass().getName());
 							a.launchAgent(a.getClass().getName(), true);
-							a.killAgent(a);
-						} catch (IllegalAccessError e) {
-							e.printStackTrace();
-							JOptionPane.showMessageDialog(null, "Reload is for now not functionnal on this agent (probably embedding inner classes) Sorry...", "MadKit apologies", JOptionPane.WARNING_MESSAGE);
-						}
+							if (a.getState() != AbstractAgent.State.TERMINATED) {
+								a.killAgent(a);
+								//						} catch (IllegalAccessError e) {
+								//							e.printStackTrace();
+								//							JOptionPane.showMessageDialog(null, "Reload is for now not functionnal on this agent (probably embedding inner classes) Sorry...", "MadKit apologies", JOptionPane.WARNING_MESSAGE);
+								//						}
+							}
 					}
 				});
 			}

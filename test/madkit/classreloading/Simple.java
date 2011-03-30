@@ -28,13 +28,13 @@ public class Simple extends Agent {
 	public void activate() {
 		while (true) {
 			reloadAgentClass("madkit.classreloading.TestAgent");
-			launchAgent("madkit.classreloading.TestAgent");
-			pause(3000);
+			launchAgent("madkit.classreloading.TestAgent",true);
+			pause(2000);
 		}
 	}
 	
 	public static void main(String[] argss) {
-		String[] args = {"--agentLogLevel","OFF","--MadkitLogLevel","OFF","--orgLogLevel","OFF","--launchAgents",Simple.class.getName()};
+		String[] args = {"--agentLogLevel","ALL","--MadkitLogLevel","OFF","--orgLogLevel","OFF","--launchAgents",Simple.class.getName()};
 		Madkit.main(args);
 	}
 }

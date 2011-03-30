@@ -482,15 +482,15 @@ public class Agent extends AbstractAgent{
 		return true;
 	}
 
-	/**
-	 * @see madkit.kernel.AbstractAgent#terminate()
-	 * @since MadKit 5
-	 */
-	@Override
-	void terminate() {
-		kernel.removeThreadedAgent(this);//TODO this should be the last call
-		super.terminate();
-	}
+//	/**
+//	 * @see madkit.kernel.AbstractAgent#terminate()
+//	 * @since MadKit 5
+//	 */
+//	@Override
+//	void terminate() {
+//		kernel.removeThreadedAgent(this);//TODO this should be the last call
+//		super.terminate();
+//	}
 
 	/**
 	 * @param myLifeCycle the myLifeCycle to set

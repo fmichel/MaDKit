@@ -279,7 +279,7 @@ class RootKernel {
 	 * @param key
 	 * @return
 	 */
-	String getMadkitProperty(AbstractAgent abstractAgent, String key) {
+	String getMadkitProperty(AbstractAgent abstractAgent, String key) {//TODO this could have some wired side effects
 		Madkit m = Madkit.getCurrentInstance();
 		if (m != null) {
 			return m.getConfigOption().getProperty(key);
@@ -327,13 +327,13 @@ class RootKernel {
 		requester.getLogger().setWarningLogLevel(warningLogLevel);
 	}
 
-	/**
-	 * @param agent
-	 */
-	void removeThreadedAgent(Agent agent) {
-		fakeKernelWarning(agent);
-		throw new AssertionError("This sould not be possible");
-	}
+//	/**
+//	 * @param agent
+//	 */
+//	void removeThreadedAgent(Agent agent) {
+//		fakeKernelWarning(agent);
+//		throw new AssertionError("This sould not be possible");
+//	}
 
 	List<Message> broadcastMessageWithRoleAndWaitForReplies(Agent requester,
 			String community, String group, String role, Message message,
@@ -347,6 +347,11 @@ class RootKernel {
 			String community, String group, String group2,
 			GroupIdentifier theIdentifier, boolean isDistributed) {
 		return createGroup(abstractAgent, community, group, group2, theIdentifier, isDistributed) == ReturnCode.SUCCESS;
+	}
+
+	Class<?> getNewestClassVersion(AbstractAgent requester, String className) throws ClassNotFoundException {
+		fakeKernelWarning(requester);
+		return null;
 	}
 
 }

@@ -19,16 +19,11 @@
 
 package madkit.kernel;
 
-import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static madkit.kernel.AbstractAgent.State.ACTIVATED;
 import static madkit.kernel.AbstractAgent.State.ENDING;
 import static madkit.kernel.AbstractAgent.State.INITIALIZING;
 import static madkit.kernel.AbstractAgent.State.TERMINATED;
 import static madkit.kernel.Utils.getI18N;
-import static madkit.kernel.Utils.printCGR;
-
-import java.awt.Component;
-import java.awt.Point;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,9 +38,6 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 
 import javax.swing.JFrame;
-import javax.swing.JMenuBar;
-import javax.swing.JPanel;
-
 import madkit.gui.OutputPanel;
 
 /**
@@ -1208,15 +1200,43 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 
 	// /////////////////////////////////////////////// UTILITIES /////////////////////////////////
 
-	/**
-	 * Reloads the class of the agent in the class loader.
-	 * So that {@link #launchAgent(AbstractAgent, int, boolean)} will
-	 * use the most recent compiled code for this class without requiring a MadKit restart.
+	/**	 * Asks MasKit to reload class byte code so that new instances reflect compilation changes
+	 * during run time. This reloads the class byte code so that new instances, 
+	 * created using {@link Class#newInstance()} on a class object obtained with
+	 * {@link #getNewestClassVersion(AbstractAgent, String)}, will reflect compilation changes
+	 * during run time. 
 	 * 
-	 * @param agentClass the name of the class to reload.
+	 * Especially, using
+	 * {@link #launchAgent(AbstractAgent, int, boolean)} always uses
+	 * the most recent byte code for the targeted agent without requiring a MadKit restart.
+	 * 
+	 * @param name the fully qualified name of the desired class.
+	 * @return <ul>
+	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the reload can be done.</li>
+	 *         <li><code>{@link ReturnCode#CLASS_NOT_FOUND}</code>: If no class file can be found
+	 *         </ul>
+	 * @since MadKit 5.0.0.3
 	 */
-	public void reloadAgentClass(String agentClass) {
-		kernel.reloadClass(this, agentClass);
+	public ReturnCode reloadAgentClass(String name) {
+		return kernel.reloadClass(this, name);
+	}
+	
+	/**
+	 * returns the newest version of a class object given its name. If {@link #reloadAgentClass(String)} has been used this
+	 * returns the class object corresponding to the last compilation of the java code. Especially, in such a case, this 
+	 * returns a different version than {@link Class#forName(String)} 
+	 * if the agent that uses it has not been reloaded at the same time. This is because {@link Class#forName(String)} 
+	 * uses the {@link ClassLoader} of the current class while this method uses the last class loader which is used by
+	 * MadKit, i.e. the one created for loading classes on which {@link #reloadAgentClass(String)} has been invoked.
+	 * Especially, {@link #launchAgent(String, int, boolean)} always uses the newest version of the agent class.
+	 * 
+	 * @param name the fully qualified name of the desired class.
+	 * @return the newest version of a class object given its name.
+	 * @throws ClassNotFoundException 
+	 * @since MadKit 5.0.0.8
+	 */
+	public Class<?> getNewestClassVersion(String name) throws ClassNotFoundException{
+		return kernel.getNewestClassVersion(this, name);
 	}
 	
 	/**

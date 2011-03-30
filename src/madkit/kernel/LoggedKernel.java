@@ -427,16 +427,19 @@ final class LoggedKernel extends RootKernel {
 	}
 
 	@Override
-	ReturnCode reloadClass(AbstractAgent requester, String agentClass) {
-		logMessage(requester, getI18N("reload") + agentClass);
-		switch(madkitKernel.reloadClass(requester, agentClass)){
-		case SUCCESS:
+	ReturnCode reloadClass(AbstractAgent requester, String name) {
+		logMessage(requester, getI18N("reload") + name);
+		if(madkitKernel.reloadClass(requester, name) == SUCCESS)
 			return SUCCESS;
-		case CLASS_NOT_FOUND://TODO exception for this
-			return requester.handleException(new killedAgentWarning(CLASS_NOT_FOUND, " Class not found "+agentClass));			
-		default:
-			return requester.handleException(new killedAgentWarning(SEVERE, "result not handled"));
-		}
+		return requester.handleException(new killedAgentWarning(CLASS_NOT_FOUND, "Cannot find a class file for reloading <"+name+">"));
+//		switch(madkitKernel.reloadClass(requester, name)){//TODO if else if ok
+//		case SUCCESS:
+//			return SUCCESS;
+//		case CLASS_NOT_FOUND://TODO exception for this
+//			return requester.handleException(new killedAgentWarning(CLASS_NOT_FOUND, "Cannot reload "+name));			
+//		default:
+//			return requester.handleException(new killedAgentWarning(SEVERE, "result not handled"));
+//		}
 	}
 
 	@Override
@@ -466,7 +469,6 @@ final class LoggedKernel extends RootKernel {
 	 */
 	@Override
 	boolean addOverlooker(AbstractAgent requester, Overlooker<? extends AbstractAgent> o) {
-		// TODO Auto-generated method stub
 		return madkitKernel.addOverlooker(requester, o);
 	}
 
@@ -554,15 +556,14 @@ final class LoggedKernel extends RootKernel {
 	 * @see madkit.kernel.RootKernel#removeAgentFromOrganizations(madkit.kernel.AbstractAgent)
 	 */
 	@Override
-	void removeAgentFromOrganizations(AbstractAgent theAgent) {
-		// TODO Auto-generated method stub
+	void removeAgentFromOrganizations(AbstractAgent theAgent) {//TODO this only in madkitkernel
 		madkitKernel.removeAgentFromOrganizations(theAgent);
 	}
 
-	@Override
-	void removeThreadedAgent(Agent a) {
-		madkitKernel.removeThreadedAgent(a);
-	}
+//	@Override
+//	void removeThreadedAgent(Agent a) {
+//		madkitKernel.removeThreadedAgent(a);
+//	}
 
 	boolean logMessage(final AbstractAgent requester, final String m) {
 		// just in case the user sets logger to null manually :( but protected is so convenient...
@@ -580,6 +581,11 @@ final class LoggedKernel extends RootKernel {
 	@Override
 	final void kernelLog(String message, Level logLvl, Throwable e) {
 		madkitKernel.kernelLog(message,logLvl,e);
+	}
+	
+	@Override
+	Class<?> getNewestClassVersion(AbstractAgent requester, String className) throws ClassNotFoundException {
+		return madkitKernel.getNewestClassVersion(requester, className);
 	}
 
 }

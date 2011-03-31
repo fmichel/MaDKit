@@ -46,12 +46,17 @@ public class TestAgent extends Agent{
 		setLogLevel(Level.ALL);
 		super.activate();
 		if(logger != null){
-			logger.info("\n\ndS aaaaaaaaaaaaaaaaaaaaaaaaaa d\n\n");
+			logger.info("\n\ndS zz d\n\n");
 			FakeObject o = new FakeObject();
 			logger.info("fake is "+o);
 			logger.info("fake2 is "+(new Fake().toString()));
 			pause(4000);
-			reloadAgentClass("madkit.classreloading.anotherPackage.Fake");
+			try {
+				reloadAgentClass("madkit.classreloading.anotherPackage.Fake");
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			logger.info("fake3 is "+(new Fake().toString()));
 		}
 	}

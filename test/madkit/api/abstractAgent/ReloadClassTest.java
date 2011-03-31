@@ -42,9 +42,24 @@ public class ReloadClassTest  extends JunitMadKit{
 	public void nullArgs(){
 		launchTest(new AbstractAgent(){
 			protected void activate() {
-				assertEquals(CLASS_NOT_FOUND, reloadAgentClass(null));
-				assertEquals(CLASS_NOT_FOUND, reloadAgentClass(aa()));
-				assertEquals(CLASS_NOT_FOUND, reloadAgentClass(aa()+"."+aa()));
+				try {
+					assertEquals(CLASS_NOT_FOUND, reloadAgentClass(null));
+					fail("exception not thrown");
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				}
+				try {
+					assertEquals(CLASS_NOT_FOUND, reloadAgentClass(aa()));
+					fail("exception not thrown");
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				}
+				try {
+					assertEquals(CLASS_NOT_FOUND, reloadAgentClass(aa()+"."+aa()));
+					fail("exception not thrown");
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				}
 			}
 		});
 	}
@@ -53,7 +68,12 @@ public class ReloadClassTest  extends JunitMadKit{
 	public void success(){
 		launchTest(new AbstractAgent(){
 			protected void activate() {
-				assertEquals(SUCCESS, reloadAgentClass(getClass().getName()));
+				try {
+					assertEquals(SUCCESS, reloadAgentClass(getClass().getName()));
+				} catch (ClassNotFoundException e) {
+					fail("exception thrown");
+					e.printStackTrace();
+				}
 			}
 		});
 	}

@@ -426,8 +426,8 @@ final class LoggedKernel extends RootKernel {
 		}
 	}
 
-	@Override
-	ReturnCode reloadClass(AbstractAgent requester, String name) {
+	@Override //TODO think about this log
+	ReturnCode reloadClass(AbstractAgent requester, String name) throws ClassNotFoundException {
 		logMessage(requester, getI18N("reload") + name);
 		if(madkitKernel.reloadClass(requester, name) == SUCCESS)
 			return SUCCESS;

@@ -27,7 +27,12 @@ public class Simple extends Agent {
 	@Override
 	public void activate() {
 		while (true) {
-			reloadAgentClass("madkit.classreloading.TestAgent");
+			try {
+				reloadAgentClass("madkit.classreloading.TestAgent");
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			launchAgent("madkit.classreloading.TestAgent",true);
 			pause(2000);
 		}

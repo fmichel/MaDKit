@@ -505,26 +505,26 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		if(target == this)
 			return kernel.killAgent(this, target, Integer.MAX_VALUE);
 		return kernel.killAgent(this, target, timeOutSeconds);
-//		if (target.getState().compareTo(ACTIVATED) < 0) {
-//			return NOT_YET_LAUNCHED;
-//		}
-//		if (target.getState().equals(TERMINATED) || !target.alive.get()) {
-//			return ALREADY_KILLED;
-//		}
-//		final Future<ReturnCode> killAttempt = MadkitKernel.serviceExecutor.submit(new Callable<ReturnCode>() {
-//			public ReturnCode call() {
-//				return kernel.killAgent(AbstractAgent.this, target, timeoutSeconds);
-//			}
-//		});
-//		try {
-//			return killAttempt.get();
-//		} catch (InterruptedException e) {
-//			// get killed myself !!
-//			throw (new KilledException());
-//		} catch (ExecutionException e) {
-//			// logSevereException(logger, e, "during killing of "+target.getName()+" *********please bug report !!");
-//			throw (new KilledException());
-//		}
+		//		if (target.getState().compareTo(ACTIVATED) < 0) {
+		//			return NOT_YET_LAUNCHED;
+		//		}
+		//		if (target.getState().equals(TERMINATED) || !target.alive.get()) {
+		//			return ALREADY_KILLED;
+		//		}
+		//		final Future<ReturnCode> killAttempt = MadkitKernel.serviceExecutor.submit(new Callable<ReturnCode>() {
+		//			public ReturnCode call() {
+		//				return kernel.killAgent(AbstractAgent.this, target, timeoutSeconds);
+		//			}
+		//		});
+		//		try {
+		//			return killAttempt.get();
+		//		} catch (InterruptedException e) {
+		//			// get killed myself !!
+		//			throw (new KilledException());
+		//		} catch (ExecutionException e) {
+		//			// logSevereException(logger, e, "during killing of "+target.getName()+" *********please bug report !!");
+		//			throw (new KilledException());
+		//		}
 	}
 
 	/**
@@ -924,7 +924,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		}
 		return messageBox.poll();
 	}
-	
+
 	/**
 	 * Returns the message which has been received the most recently and 
 	 * removes it from the mailbox.
@@ -938,8 +938,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	public boolean isMessageBoxEmpty(){
 		return messageBox.isEmpty();
 	}
-	
-	
+
+
 	/**
 	 * Sends a message to an agent using an agent address.
 	 * This has the same effect as <code>sendMessageWithRole(receiver, messageToSend, null)</code>.
@@ -1154,9 +1154,9 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 */
 	public void receiveMessage(Message m) {
 		messageBox.offer(m); // TODO test vs. arraylist and synchronized
-//		if(messageBox == null)
-//			messageBox = new LinkedBlockingDeque<Message>();
-//		messageBox.offer(m); // TODO test vs. arraylist and synchronized
+		//		if(messageBox == null)
+		//			messageBox = new LinkedBlockingDeque<Message>();
+		//		messageBox.offer(m); // TODO test vs. arraylist and synchronized
 	}
 
 	/**
@@ -1182,7 +1182,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	public void setMadkitProperty(String key, String value) {
 		kernel.setMadkitProperty(this, key, value);
 	}
-	
+
 	/**
 	 * Called when the default GUI mechanism is used upon agent creation. 
 	 * The life cycle of the frame is automatically managed (i.e. disposed 
@@ -1199,6 +1199,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	// /////////////////////////////////////////////// UTILITIES /////////////////////////////////
+//	 *         <li><code>{@link ReturnCode#CLASS_NOT_FOUND}</code>: If the reload failed
 
 	/**	 * Asks MasKit to reload class byte code so that new instances reflect compilation changes
 	 * during run time. This reloads the class byte code so that new instances, 
@@ -1210,17 +1211,21 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * {@link #launchAgent(AbstractAgent, int, boolean)} always uses
 	 * the most recent byte code for the targeted agent without requiring a MadKit restart.
 	 * 
-	 * @param name the fully qualified name of the desired class.
+	 * @param className the fully qualified name of the desired class.
 	 * @return <ul>
 	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the reload can be done.</li>
-	 *         <li><code>{@link ReturnCode#CLASS_NOT_FOUND}</code>: If no class file can be found
 	 *         </ul>
+	 * @throws ClassNotFoundException 
 	 * @since MadKit 5.0.0.3
 	 */
-	public ReturnCode reloadAgentClass(String name) {
-		return kernel.reloadClass(this, name);
+	public ReturnCode reloadAgentClass(String className) throws ClassNotFoundException {
+		try {
+			return kernel.reloadClass(this, className);
+		} catch (ClassNotFoundException e) {
+			throw new ClassNotFoundException(ReturnCode.CLASS_NOT_FOUND.getMessage()+" "+className);
+		}
 	}
-	
+
 	/**
 	 * returns the newest version of a class object given its name. If {@link #reloadAgentClass(String)} has been used this
 	 * returns the class object corresponding to the last compilation of the java code. Especially, in such a case, this 
@@ -1238,7 +1243,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	public Class<?> getNewestClassVersion(String name) throws ClassNotFoundException{
 		return kernel.getNewestClassVersion(this, name);
 	}
-	
+
 	/**
 	 * Tells if a community exists in the artificial society.
 	 * 
@@ -1289,7 +1294,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		// }
 		return getName();
 	}
-	
+
 	/**
 	 * Returns the kernel address on which the agent is running.
 	 * 

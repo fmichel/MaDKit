@@ -269,8 +269,9 @@ class RootKernel {
 	/**
 	 * @param abstractAgent
 	 * @param agentClass
+	 * @throws ClassNotFoundException 
 	 */
-	ReturnCode reloadClass(AbstractAgent abstractAgent, String agentClass) {
+	ReturnCode reloadClass(AbstractAgent abstractAgent, String agentClass) throws ClassNotFoundException {
 		return fakeKernelWarning(abstractAgent);
 	}
 

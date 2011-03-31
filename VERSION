@@ -57,6 +57,10 @@ Other command line options are described in the API of the madkit.kernel.Madkit 
 4. Building executable jar file :
 	- project ant build files now only need the madkitkernel jar file to work
 	
+5. Class reloading :
+	- It is now possible to reload a class, programmatically, so that new instances reflect compilation changes.
+		This is convenient when designing an agent with Eclipse for instance. Just use the reload action in the agent menu. 
+	
 ----------------------------------------------------------------------------------
 ------------------------------- MadKit 5.0.0.7 (alpha-7)--------------------------
 ----------------------------------------------------------------------------------

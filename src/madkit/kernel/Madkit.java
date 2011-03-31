@@ -423,13 +423,12 @@ final public class Madkit {
 		logger.finer("** BUILDING MADKIT CLASS LOADER **");
 		final ClassLoader systemCL = getClass().getClassLoader();
 //		madkitClassLoader = new MadkitClassLoader(this, new URL[0], systemCL);
-		madkitClassLoader = new MadkitClassLoader(this, systemCL, null);
-//		if(systemCL instanceof URLClassLoader){
-//			madkitClassLoader = new MadkitClassLoader(this,((URLClassLoader) systemCL).getURLs(),systemCL);			
-//		}
-//		else{
-//			madkitClassLoader = new MadkitClassLoader(this, new URL[0],systemCL);
-//		}
+		if(systemCL instanceof URLClassLoader){
+			madkitClassLoader = new MadkitClassLoader(this,((URLClassLoader) systemCL).getURLs(),systemCL,null);			
+		}
+		else{
+			madkitClassLoader = new MadkitClassLoader(this, new URL[0],systemCL,null);
+		}
 //		logger.finest("ClassPath is:\n");
 //		for (URL url : madkitClassLoader.getURLs()) {
 //			logger.finest(" "+url);

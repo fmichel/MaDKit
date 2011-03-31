@@ -37,6 +37,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.logging.Level;
 
+import madkit.kernel.AbstractAgent.ReturnCode;
+
 /**
  * @author Fabien Michel
  * @author Jacques Ferber
@@ -54,8 +56,8 @@ final class MadkitClassLoader extends URLClassLoader {
 	 * @param parent
 	 * @throws ClassNotFoundException 
 	 */
-	MadkitClassLoader(Madkit m, ClassLoader parent, Collection<String> toReload){
-		super(new URL[0], parent);
+	MadkitClassLoader(Madkit m, URL[] urls, ClassLoader parent, Collection<String> toReload){
+		super(urls, parent);
 		if(toReload != null)
 			classesToReload = new HashSet<String>(toReload);
 		madkit = m;
@@ -68,7 +70,7 @@ final class MadkitClassLoader extends URLClassLoader {
 			c = findLoadedClass(name);
 			if(c != null){
 				madkit.kernelLog("Already defined "+name+" : NEED NEW MCL", Level.FINE, null);
-				MadkitClassLoader mcl = new MadkitClassLoader(madkit,this,classesToReload);
+				MadkitClassLoader mcl = new MadkitClassLoader(madkit,getURLs(),this, classesToReload);
 				classesToReload.remove(name);
 				madkit.setMadkitClassLoader(mcl);
 				c = mcl.loadClass(name, resolve);
@@ -103,15 +105,15 @@ private void addUrlAndloadClasses(String name) {
 		for (int i = 0; i < deepness; i++) {
 			cpDir = cpDir.getParentFile();
 		}
-		try {
-			addURL(cpDir.toURI().toURL());
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try {
+//			addURL(cpDir.toURI().toURL());
+//		} catch (MalformedURLException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		for(String fileName : packageDir.list()){
 			if(fileName.endsWith(".class")){
-//				System.err.println("\nt"+this+" trying to define "+fileName);
+				System.err.println("\nt"+this+" trying to define "+fileName+" time stamp "+new File(packageDir+"/"+fileName).lastModified());
 				try {
 					findClass(packageName+fileName.substring(0, fileName.length()-6));
 				} catch (ClassNotFoundException e) {
@@ -146,7 +148,10 @@ private URL getclassPathUrl(String name) {
 }
 
 
-boolean reloadClass(String name){//TODO if name is null
+boolean reloadClass(String name) throws ClassNotFoundException{//TODO return false and return code
+//	System.err.println(name.replace('.', '/')+".class");
+	if(name == null || getResource(name.replace('.', '/')+".class") == null)
+		throw new ClassNotFoundException();
 	if (classesToReload == null) {
 		classesToReload = new HashSet<String>();
 	}
@@ -164,7 +169,10 @@ public String toString() {
 		tab+=tab;
 		parent = parent.getParent();
 	}
-	return cp+=getURLs();
+	for (URL url : getURLs()) {
+		cp+="\n"+url;
+	}
+	return cp;
 }
 
 }

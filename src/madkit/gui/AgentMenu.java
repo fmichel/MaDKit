@@ -156,7 +156,11 @@ public class AgentMenu extends JMenu implements AgentUIComponent{//TODO i18n
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
-							a.reloadAgentClass(a.getClass().getName());
+							try {
+								a.reloadAgentClass(a.getClass().getName());
+							} catch (ClassNotFoundException e) {
+								e.printStackTrace();//TODO log this but should not happen
+							}
 							a.launchAgent(a.getClass().getName(), true);
 							if (a.getState() != AbstractAgent.State.TERMINATED) {
 								a.killAgent(a);

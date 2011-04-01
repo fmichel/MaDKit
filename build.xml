@@ -220,7 +220,7 @@
 		    <expandproperties/>
 		  </filterchain>
 		</copy>	
-		<zip destfile="${release.dir}/MadKit-${madkit.version}.zip">
+		<zip destfile="${release.dir}/MadKit-${madkit.version}.zip" level="9">
 			<zipfileset dir="${docs.api.dir}" prefix="${docs.api.dir}"/>
 			<zipfileset dir="${build.dir}" includes="README.html"/>
 			<zipfileset dir="${build.dir}" includes="VERSION"/>

@@ -222,11 +222,13 @@
 		  <filterchain>
 		    <expandproperties/>
 		  </filterchain>
-		</copy>	
+		</copy>
+   		<echo>Building MadKit HowTo</echo>
+   		<ant dir="../MadKit_HowTo"/>
 		<zip destfile="${release.dir}/MadKit-${madkit.version}.zip" level="9">
 			<zipfileset dir="${docs.dir}" prefix="${docs.dir}"/>
 			<zipfileset dir="${build.dir}" includes="README.html"/>
-			<zipfileset dir="${build.dir}" includes="VERSION"/>
+			<zipfileset dir="${build.dir}" includes="VERSION" prefix="${docs.dir}"/>
 			<zipfileset file="${jar.file}"/>
 			<zipfileset file="COPYING.LESSER"/>
 			<zipfileset dir="${demo.dir}" prefix="${demo.dir}" filemode="755"/>

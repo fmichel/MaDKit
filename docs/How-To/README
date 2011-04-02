@@ -1,8 +1,8 @@
 - Description  MadKit How-To -----
+
+- This archive contains an Eclipse project containing source codes illustrating MadKit with one simple class per example
+
+- It can be easily loaded ans tested in Eclipse using 
+	
+	------------- Import > Existing project > Select Archive File > MadKit-HowTo.zip > finish ------------------
 			
-- Using        
-	These jar files are runnable: Double click them (file execution permission is required) or use java -jar  demo-name.jar
-
-
-- Source 
-	Illustrating MadKit with one simple class per example		

@@ -1,0 +1,8 @@
+- Description  MadKit How-To -----
+			
+- Using        
+	These jar files are runnable: Double click them (file execution permission is required) or use java -jar  demo-name.jar
+
+
+- Source 
+	Illustrating MadKit with one simple class per example		

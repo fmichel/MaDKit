@@ -25,7 +25,7 @@ import java.util.Set;
 /** 
  * This class defines a generic watcher agent. It holds a collection of probes to explore agents' internal properties.
  * 
- * @author Fabien Michel since V.2
+ * @author Fabien Michel
  * @author Olivier Gutknecht 
  * @since MadKit 2.0
  * @version 5.0

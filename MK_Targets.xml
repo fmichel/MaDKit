@@ -64,6 +64,7 @@
          ================================= -->
  <macrodef name="clean">
  	<sequential>
+	   	<echo>Cleaning ${ant.project.name}</echo>
         <delete file="README"/>
         <delete file="${ant.project.name}.jnlp"/>
         <delete file="${ant.project.name}-${version}.jar"/>

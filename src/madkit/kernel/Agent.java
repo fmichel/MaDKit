@@ -45,9 +45,9 @@ import java.util.logging.Level;
  * </ul>
 
  * @author Olivier Gutknecht
- * @author Fabien Michel (since v.3)
+ * @author Fabien Michel
  * @since MadKit 1.0
- * @version 5.0	
+ * @version 5.1
  */
 public class Agent extends AbstractAgent{
 

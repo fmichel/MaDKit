@@ -22,7 +22,7 @@ package madkit.kernel;
  * This class defines a generic watcher probe. 
  * A probe is configured according to a community, a group and a role.
  * 
- * @author Fabien Michel since V.2
+ * @author Fabien Michel
  * @author Olivier Gutknecht 
  * @since MadKit 2.0
  * @version 5.0

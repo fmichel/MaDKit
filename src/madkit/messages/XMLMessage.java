@@ -49,7 +49,7 @@ import org.xml.sax.SAXException;
 
 * @author Oliver Gutknecht
 * @author Jacques Ferber
-* @author Fabien Michel since v.3
+* @author Fabien Michel
 * @version 5.0
 * @since MadKit 1.0
 *

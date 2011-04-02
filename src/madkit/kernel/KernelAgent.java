@@ -33,7 +33,7 @@ import madkit.kernel.Madkit.Roles;
 
 /**
  * @author Oliver Gutknecht
- * @author Fabien Michel since v.3
+ * @author Fabien Michel
  * @version 5.0
  * @since MadKit 1.0
  *

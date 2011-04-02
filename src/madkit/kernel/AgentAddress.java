@@ -36,9 +36,9 @@ import madkit.kernel.Madkit.Roles;
  * will not be delivered if the agent has leaved the related CGR location.
  * 
  * @author Olivier Gutknecht 
- * @author Fabien Michel since v.3
+ * @author Fabien Michel
  * @since MadKit 1.0
- * @version 5.0
+ * @version 5.1
  */
 public class AgentAddress implements java.io.Serializable{
 

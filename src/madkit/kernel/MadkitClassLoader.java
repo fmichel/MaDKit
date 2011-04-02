@@ -113,7 +113,7 @@ private void addUrlAndloadClasses(String name) {
 //		}
 		for(String fileName : packageDir.list()){
 			if(fileName.endsWith(".class")){
-				System.err.println("\nt"+this+" trying to define "+fileName+" time stamp "+new File(packageDir+"/"+fileName).lastModified());
+//				System.err.println("\nt"+this+" trying to define "+fileName+" time stamp "+new File(packageDir+"/"+fileName).lastModified());
 				try {
 					findClass(packageName+fileName.substring(0, fileName.length()-6));
 				} catch (ClassNotFoundException e) {

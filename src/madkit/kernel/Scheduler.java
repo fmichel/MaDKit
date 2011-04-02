@@ -228,7 +228,8 @@ public class Scheduler extends Agent
 		pause(300);
 	}
 
-	public void end() {
+	@Override
+	protected void end() {
 		simulationState=PAUSED;
 		if(logger != null)
 			logger.info("Simulation stopped !");

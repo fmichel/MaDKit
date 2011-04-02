@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * and receivers (expressed with AgentAddress class). 
  * 
  * @version 5
- * @author Fabien Michel since v.3
+ * @author Fabien Michel
  * @author Olivier Gutknecht
  * @see AgentAddress
  * 

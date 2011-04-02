@@ -24,7 +24,7 @@ import java.net.UnknownHostException;
 
 /**
  * @author Oliver Gutknecht
- * @author Fabien Michel since v.3
+ * @author Fabien Michel
  * @version 5.1
  * @since MadKit 1.0
  *

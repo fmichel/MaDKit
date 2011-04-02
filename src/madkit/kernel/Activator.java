@@ -23,7 +23,7 @@ package madkit.kernel;
  * An activator is configured according to a community, a group and a role.
  * It could be used to activate a group of agent on a particular behavior (a method of the agent's class)
  * 
- * @author Fabien Michel since V.2
+ * @author Fabien Michel
  * @author Olivier Gutknecht 
  * @since MadKit 2.0
  * @version 5.0

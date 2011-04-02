@@ -75,8 +75,8 @@ import madkit.gui.OutputPanel;
  * <li>One of the most convenient improvement of v.5 is the logging mechanism which is provided. See the {@link #logger} attribute for more details.</li>
  * <p>
  * 
+ * @author Fabien Michel
  * @author Olivier Gutknecht
- * @author Fabien Michel (since v.3)
  * @version 5.1
  */
 public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {

@@ -378,6 +378,13 @@ final class MadkitKernel extends RootKernel{
 		}
 		return SUCCESS;
 	}
+	
+//	private boolean updateNetAgent(){//TODO 
+//		if(netAgent == null){
+//			netAgent = getAgentWithRole(requester, community, group, role);
+//		}
+//	}
+	
 	//////////////////////////////////////////////////////////////
 	////////////////////////// Launching and Killing
 	//////////////////////////////////////////////////////////////

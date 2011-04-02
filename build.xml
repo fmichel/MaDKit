@@ -199,6 +199,7 @@
 		<delete dir="${build.dir}"/>
 		<delete dir="${release.dir}"/>
 		<delete dir="${docs.api.dir}"/>
+		<delete dir="${tuto.dir}" includes="**/*.zip,**/*.jar"/>
 		<delete file="${jar.file}" failonerror="false"/>
 	</target>
 
@@ -206,6 +207,8 @@
 	
 	<!-- ================================= 
           target: release              
+	<chmod dir="${demo.dir}" perm="u+x" includes="**/*.jar"/>
+	<chmod dir="${tuto.dir}" perm="u+x" includes="**/*.jar"/>
          ================================= -->
    <target name="release" depends="clean,jar,javadoc" description="build MadKit release">
    		<echo> --- Build Release : MadKit ${madkit.version}${line.separator}</echo>
@@ -221,13 +224,12 @@
 		  </filterchain>
 		</copy>	
 		<zip destfile="${release.dir}/MadKit-${madkit.version}.zip" level="9">
-			<zipfileset dir="${docs.api.dir}" prefix="${docs.api.dir}"/>
+			<zipfileset dir="${docs.dir}" prefix="${docs.dir}"/>
 			<zipfileset dir="${build.dir}" includes="README.html"/>
 			<zipfileset dir="${build.dir}" includes="VERSION"/>
-			<zipfileset file="${jar.file}" prefix="${lib.dir}"/>
+			<zipfileset file="${jar.file}"/>
 			<zipfileset file="COPYING.LESSER"/>
-			<zipfileset file="${madkit.project.ant.file}" prefix="${lib.dir}"/>
-			<zipfileset dir="${demo.dir}" prefix="${demo.dir}"/>
+			<zipfileset dir="${demo.dir}" prefix="${demo.dir}" filemode="755"/>
 		</zip>
     </target>
 	

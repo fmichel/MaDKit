@@ -25,7 +25,7 @@ import madkit.messages.ObjectMessage;
  * For now its purpose is to allow agents to send to the kernel agent
  * some madkit commands such launchAgent.
  * 
- * @author Fabien Michel since v.3
+ * @author Fabien Michel
  * @author Olivier Gutknecht
  * @version 5.0
  * @since MadKit 1.0

@@ -41,6 +41,7 @@ public class AgentLogger extends Logger {
 
 	final static String madkitMessageBundleFile = "madkitMessageBundle";
 	final static Level talkLevel = Level.parse("1100");
+	private Level warningLogLevel = Level.INFO;
 	
 
 	final static Formatter agentFormatter = new Formatter(){//TODO create Formatter hierarchy
@@ -65,7 +66,6 @@ public class AgentLogger extends Logger {
 		}
 	};
 
-	private Level warningLogLevel = Level.INFO;
 
 	final static AgentLogger getDefaultAgentLogger(){
 		return new AgentLogger("MK Agent");

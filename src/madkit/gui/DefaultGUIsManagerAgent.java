@@ -17,13 +17,18 @@ import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
 import madkit.kernel.AbstractAgent;
+import madkit.kernel.Agent;
+import madkit.kernel.KernelMessage;
 import madkit.kernel.Madkit;
+import madkit.kernel.Message;
 
-public class DefaultGUIsManagerAgent extends AbstractAgent implements GUIsManagerAgent {
+public class DefaultGUIsManagerAgent extends Agent  {
 
 	final private ConcurrentMap<AbstractAgent, JFrame> guis;
+	private boolean shuttedDown = false;
 
 	public DefaultGUIsManagerAgent(){
+		super(true);
 		setLogLevel(Level.INFO);
 		guis = new ConcurrentHashMap<AbstractAgent, JFrame>();
 	}
@@ -31,10 +36,48 @@ public class DefaultGUIsManagerAgent extends AbstractAgent implements GUIsManage
 	@Override
 	protected void activate() {
 		requestRole(Madkit.Roles.LOCAL_COMMUNITY, Madkit.Roles.SYSTEM_GROUP, Madkit.Roles.GUI_MANAGER_ROLE);
+		setLogLevel(Level.INFO);
 	}
 
 	@Override
-	public void setupGUIOf(final AbstractAgent agent) {
+	protected void live() {
+		while (! shuttedDown) {
+			Message m = waitNextMessage();
+			if(m instanceof GUIMessage){
+				handleGUIMessage((GUIMessage) m);
+			}
+			else{
+				if(logger != null)
+					logger.warning("I received a message that I do not understang. Discarding "+m);
+			}
+		}
+	}
+
+	private void handleGUIMessage(GUIMessage m) {
+		switch (m.getCode()) {
+		case SETUP_GUI:
+			if(logger != null)
+				logger.fine("Setting up GUI of"+m.getContent());
+			setupGUIOf(m.getContent());
+			sendReply(m, new Message());
+			break;
+		case DISPOSE_GUI:
+			disposeGUIOf(m.getContent());
+			break;
+		case SHUTDOWN:
+			shuttedDown = true;
+			for (final JFrame f : guis.values()) {
+				f.dispose();
+			}
+			guis.clear();
+			sendReply(m, new Message());
+		default:
+			break;
+		}
+
+	}
+
+	private void setupGUIOf(final AbstractAgent agent) {
 		JFrame f = new JFrame(agent.getName());
 
 		f.setJMenuBar(createMenuBarFor(agent));
@@ -42,9 +85,10 @@ public class DefaultGUIsManagerAgent extends AbstractAgent implements GUIsManage
 		f.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		f.addWindowListener(new WindowAdapter() {
 			public void windowClosed(java.awt.event.WindowEvent e) {
-				guis.remove(agent);
-				if (agent != null)
+				if (guis.containsKey(agent)){
+					guis.remove(agent);
 					killAgent(agent); //TODO !!
+				}
 			}
 		}); 
 
@@ -55,7 +99,6 @@ public class DefaultGUIsManagerAgent extends AbstractAgent implements GUIsManage
 
 		checkLocation(f);
 		guis.put(agent, f);
-
 		f.setVisible(true);
 	}
 
@@ -66,8 +109,7 @@ public class DefaultGUIsManagerAgent extends AbstractAgent implements GUIsManage
 		return menuBar;
 	}
 
-	@Override
-	public void disposeGUIOf(AbstractAgent agent) {
+	private void disposeGUIOf(AbstractAgent agent) {
 		final JFrame f = guis.remove(agent);
 		if(f != null){
 			SwingUtilities.invokeLater(new Runnable() {

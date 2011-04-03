@@ -40,9 +40,11 @@ import madkit.kernel.AbstractAgent.ReturnCode;
  * @version 0.9
  * 
  */
-class RootKernel {
+final class RootKernel extends MadkitKernel{
 
-	void kernelLog(String message, Level logLvl, Throwable e){};
+	RootKernel(Madkit m) {
+		super(m);
+	}
 
 	final ReturnCode fakeKernelWarning(final AbstractAgent requester) {
 		//		new Exception().printStackTrace();
@@ -165,86 +167,15 @@ class RootKernel {
 	/**
 	 * @return
 	 */
-	KernelAddress getKernelAddress(AbstractAgent requester) {
-		fakeKernelWarning(requester);
+	public KernelAddress getKernelAddress() {
 		return null;
-	}
-
-	/**
-	 * @param networkAgent
-	 * @param org
-	 */
-	synchronized void importDistantOrg(
-			NetworkAgent networkAgent,
-			HashMap<String, HashMap<String, HashMap<String, List<AgentAddress>>>> org) {
-		fakeKernelWarning(networkAgent);
-	}
-
-	/**
-	 * @param logger
-	 * @param finer
-	 */
-	void logCurrentOrganization(AbstractAgent requester, Level finer) {
-		fakeKernelWarning(requester);
-	}
-
-	/**
-	 * @param networkAgent
-	 * @return
-	 */
-	HashMap<String, HashMap<String, HashMap<String, List<AgentAddress>>>> getLocalOrg(
-			NetworkAgent networkAgent) {
-		fakeKernelWarning(networkAgent);
-		return null;
-	}
-
-	/**
-	 * @param networkAgent
-	 * @param operation
-	 * @param content
-	 */
-	void injectOperation(NetworkAgent networkAgent, int operation,
-			AgentAddress content) {
-		fakeKernelWarning(networkAgent);
-	}
-
-	/**
-	 * @param networkAgent
-	 * @param content
-	 */
-	void injectMessage(NetworkAgent networkAgent, Message content) {
-		fakeKernelWarning(networkAgent);
-	}
-
-	/**
-	 * @param networkAgent
-	 * @param kernelAddress
-	 */
-	void removeAgentsFromDistantKernel(NetworkAgent networkAgent,
-			KernelAddress kernelAddress) {
-
-	}
-
-	/**
-	 * @param abstractAgent
-	 */
-	void disposeGUIOf(AbstractAgent abstractAgent) {//move that in madkit kernel
-		fakeKernelWarning(abstractAgent);
-		throw new AssertionError("This sould not be possible");
-	}
-
-	/**
-	 * @param theAgent
-	 */
-	void removeAgentFromOrganizations(AbstractAgent theAgent) {
-		fakeKernelWarning(theAgent);
-		throw new AssertionError("This sould not be possible");
 	}
 
 	/**
 	 * @param key
 	 * @param value
 	 */
+	@Override
 	void setMadkitProperty(final AbstractAgent requester, String key, String value) {
 		fakeKernelWarning(requester);
 	}
@@ -290,53 +221,9 @@ class RootKernel {
 		}
 	}
 
-	/**
-	 * @param abstractAgent
-	 * @param logger 
-	 * @param newLevel
-	 * @param warningLogLevel 
-	 */
-	void setLogLevel(AbstractAgent requester, String loggerName, Level newLevel, Level warningLogLevel) {
-		if(requester.logger == AbstractAgent.defaultLogger){
-			requester.logger = null;
-		}
-		final AgentLogger currentLogger = requester.getLogger();
-		if(currentLogger != null){
-			currentLogger.setWarningLogLevel(warningLogLevel);
-			currentLogger.setLevel(newLevel);
-		}
-		if (newLevel.equals(Level.OFF)) {
-			requester.logger = null;
-			return;
-		}
-		//the logger is null or has not the right name: find if the right one was already created
-		if (currentLogger == null || ! currentLogger.getName().equals(loggerName)) {
-			AgentLogger newLogger = new AgentLogger(loggerName);
-			if (LogManager.getLogManager().addLogger(newLogger)) {// This is a new logger
-				newLogger.init(requester, currentLogger, 
-						!parseBoolean(getMadkitProperty(requester, Madkit.noAgentConsoleLog)), 
-						parseBoolean(getMadkitProperty(requester, Madkit.createLogFiles)) ?
-								getMadkitProperty(requester, Madkit.logDirectory)
-								: null,
-						getMadkitProperty(requester, Madkit.agentsLogFile));
-				requester.logger = newLogger;
-			} else { // if it already exists : get it !
-				requester.logger = (AgentLogger) Logger.getLogger(loggerName);
-			}
-		}
-		requester.getLogger().setLevel(newLevel);
-		requester.getLogger().setWarningLogLevel(warningLogLevel);
-	}
 
-//	/**
-//	 * @param agent
-//	 */
-//	void removeThreadedAgent(Agent agent) {
-//		fakeKernelWarning(agent);
-//		throw new AssertionError("This sould not be possible");
-//	}
-
-	List<Message> broadcastMessageWithRoleAndWaitForReplies(Agent requester,
+	@Override
+	List<Message> broadcastMessageWithRoleAndWaitForReplies(AbstractAgent requester,
 			String community, String group, String role, Message message,
 			String senderRole, Integer timeOutMilliSeconds) {
 		// TODO Auto-generated method stub
@@ -344,7 +231,7 @@ class RootKernel {
 		return null;
 	}
 
-	public boolean createGroupIfAbsent(AbstractAgent abstractAgent,
+	boolean createGroupIfAbsent(AbstractAgent abstractAgent,
 			String community, String group, String group2,
 			GroupIdentifier theIdentifier, boolean isDistributed) {
 		return createGroup(abstractAgent, community, group, group2, theIdentifier, isDistributed) == ReturnCode.SUCCESS;

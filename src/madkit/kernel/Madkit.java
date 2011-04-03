@@ -60,6 +60,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import madkit.kernel.KernelMessage.OperationCode;
 /**
  * The brand new version of the starter class of MadKit.
  * <p>
@@ -298,7 +299,6 @@ final public class Madkit {
 	private FileHandler aaLogFile;
 	private FileHandler madkitLogFileHandler;
 	private MadkitKernel myKernel;
-	private KernelAgent kernelAgent;
 	private Logger logger;
 	private MadkitClassLoader madkitClassLoader;
 	
@@ -342,6 +342,7 @@ final public class Madkit {
 		buildKernel();
 		printWelcomeString();
 		launchConfigAgents();
+		myKernel.launchingAgent(myKernel, myKernel, false);//starting the kernel agent
 	}
 	
 	/**
@@ -582,8 +583,8 @@ final public class Madkit {
 		myKernel = new MadkitKernel(this);
 		LoggedKernel lk = new LoggedKernel(myKernel);
 		myKernel.setLoggedKernel(lk);
-		kernelAgent = new KernelAgent(myKernel);
-		kernelAgent.start();
+//		kernelAgent = new KernelAgent(myKernel);
+//		kernelAgent.start();
 		logger.fine("** KERNEL AGENT LAUNCHED **");
 	}
 
@@ -596,14 +597,12 @@ final public class Madkit {
 				final String[] classAndOptions = classNameAndOption.split(",");
 				final String className = classAndOptions[0].trim();//TODO should test if these classes exist
 				final boolean withGUI = (classAndOptions.length > 1 ? Boolean.parseBoolean(classAndOptions[1].trim()) : false);
-				int nbumber = 1;
+				int number = 1;
 				if(classAndOptions.length > 2) {
-					nbumber = Integer.parseInt(classAndOptions[2].trim());
+					number = Integer.parseInt(classAndOptions[2].trim());
 				}
-				logger.finer("Launching "+nbumber+ " instance(s) of "+className+" with GUI = "+withGUI);
-				for (int i = 0; i < nbumber; i++) {
-					kernelAgent.launchAgent(className, 1, withGUI); //time out -> MK not blocked//could be optimize especially bucket
-				}
+				logger.finer("Launching "+number+ " instance(s) of "+className+" with GUI = "+withGUI);
+				myKernel.receiveMessage(new KernelMessage(OperationCode.LAUNCH_AGENT, className,number,withGUI));
 			}
 		}
 	}
@@ -629,13 +628,14 @@ final public class Madkit {
 		}
 	}
 
-	void printFareWellString() {
+	String printFareWellString() {
 		if(! (madkitConfig.getProperty(Madkit.noMadkitConsoleLog).equals("true")
 				|| Level.parse(madkitConfig.getProperty(Madkit.MadkitLogLevel)).equals(Level.OFF))){
-			System.err.println("\n\t-----------------------------------------------------");
-			System.err.println("\n\t\t\t   MadKit is shutting down, Bye !");
-			System.err.println("\n\t-----------------------------------------------------\n");			
+			return("\n\t-----------------------------------------------------")+
+			("\n\t\t\t   MadKit is shutting down, Bye !")+
+			("\n\t-----------------------------------------------------\n");			
 		}
+		return "";
 	}
 
 	private String misuseOptionMessage(String option,String value) {

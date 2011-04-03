@@ -18,6 +18,9 @@
  */
 package madkit.kernel;
 
+import static madkit.kernel.Madkit.Roles.GUI_MANAGER_ROLE;
+import static madkit.kernel.Madkit.Roles.LOCAL_COMMUNITY;
+import static madkit.kernel.Madkit.Roles.SYSTEM_GROUP;
 import static madkit.kernel.Utils.getI18N;
 import static madkit.kernel.Utils.printCGR;
 import static madkit.kernel.AbstractAgent.State.*;
@@ -32,6 +35,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
+
+import madkit.gui.GUIMessage;
 
 /**
  * The super class of all MadKit threaded agents, v 5. 
@@ -69,12 +74,17 @@ public class Agent extends AbstractAgent{
 	/**
 	 * 
 	 */
-	public Agent() {
-		agentExecutor = Executors.newSingleThreadScheduledExecutor(normalAgentThreadFactory);
+	public Agent(boolean isDaemon) {
+		if (isDaemon) {
+			agentExecutor = Executors.newSingleThreadScheduledExecutor(daemonAgentThreadFactory);
+		}
+		else{
+			agentExecutor = Executors.newSingleThreadScheduledExecutor(normalAgentThreadFactory);
+		}
 	}
 
-	Agent(ExecutorService es){
-		agentExecutor = es;
+	public Agent(){
+		this(false);
 	}
 
 	/**
@@ -453,8 +463,23 @@ public class Agent extends AbstractAgent{
 		}
 	}
 
-	boolean activation() {
-		//kernel.get().agentCounter++; //TODO useless !!
+	@Override
+	boolean activation(boolean gui) {
+		if(gui){
+			if(logger != null){
+				logger.finer("** setting up GUI **");
+			}
+			requestRole(LOCAL_COMMUNITY, SYSTEM_GROUP, "default");
+			kernel.broadcastMessageWithRoleAndWaitForReplies(
+					this,
+					LOCAL_COMMUNITY, 
+					SYSTEM_GROUP, 
+					GUI_MANAGER_ROLE, 
+					new GUIMessage(GUIMessage.GuiCode.SETUP_GUI,this), 
+					null, 
+					10000);//How much and why ?
+			
+		}
 		if(logger != null){
 			logger.finer("** entering ACTIVATE **");
 		}
@@ -601,9 +626,9 @@ public class Agent extends AbstractAgent{
 	private Message waitAnswer(final Message m) {
 		Message answer;
 		final LinkedList<Message> receptions = new LinkedList<Message>();
-		final long conversationID = m.getID();
+		final long conversationID = m.getConversationID();
 		answer = waitingNextMessageForEver();
-		while(answer.getID() != conversationID){
+		while(answer.getConversationID() != conversationID){
 			receptions.add(answer);
 			answer = waitingNextMessageForEver();
 		}
@@ -630,9 +655,9 @@ public class Agent extends AbstractAgent{
 		final LinkedList<Message> receptions = new LinkedList<Message>();
 		//conversion
 		final long endTime = System.nanoTime()+timeOutNanos;
-		final long conversationID = theMessageToReplyTo.getID();
+		final long conversationID = theMessageToReplyTo.getConversationID();
 		answer = waitingNextMessage(timeOutNanos, TimeUnit.NANOSECONDS);
-		while (answer != null && answer.getID() != conversationID) {
+		while (answer != null && answer.getConversationID() != conversationID) {
 			//			System.err.println(getName()+"\n\n\n-------------------- ID = "+answer.getID()+"\n\n\n");
 			receptions.add(answer);
 			answer = waitingNextMessage(endTime - System.nanoTime(),TimeUnit.NANOSECONDS);
@@ -655,7 +680,7 @@ public class Agent extends AbstractAgent{
 	
 	List<Message> waitAnswers(Message message, int size, Integer timeOutMilliSeconds) {
 		final long endTime = System.nanoTime()+TimeUnit.MILLISECONDS.toNanos(timeOutMilliSeconds);
-		final long conversationID = message.getID();
+		final long conversationID = message.getConversationID();
 		int missing = size;
 		final LinkedList<Message> receptions = new LinkedList<Message>();
 		final LinkedList<Message> answers = new LinkedList<Message>();
@@ -663,7 +688,7 @@ public class Agent extends AbstractAgent{
 			Message answer = waitingNextMessage(endTime - System.nanoTime(),TimeUnit.NANOSECONDS);
 			if(answer == null)
 				break;
-			if(answer.getID() == conversationID){
+			if(answer.getConversationID() == conversationID){
 				answers.add(answer);
 				missing--;
 			}

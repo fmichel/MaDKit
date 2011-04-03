@@ -77,7 +77,7 @@ class Role implements Serializable{//TODO test with arraylist
 		final MadkitKernel k = groupObject.getMyCommunity().getMyKernel();
 		logger = groupObject.getMyCommunity().getLogger();
 		myGroup = groupObject;
-		kernelAddress = k.getKernelAddress(null);
+		kernelAddress = k.getKernelAddress();
 		if(logger != null){
 			logger.finer(toString()+" created");
 		}
@@ -87,6 +87,16 @@ class Role implements Serializable{//TODO test with arraylist
 				overlookers.add(o);
 		}
 		initializeOverlookers();
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(this == obj)
+			return true;
+		Role other = (Role) obj;
+		return communityName.equals(other.communityName) &&
+		groupName.equals(other.groupName) &&
+		roleName.equals(other.roleName);
 	}
 
 	private synchronized void initializeOverlookers() {//TODO init process
@@ -334,7 +344,7 @@ class Role implements Serializable{//TODO test with arraylist
 		synchronized (players) {
 			buildAgentAddressesList();
 			for (final AgentAddress aa : agentAddresses) {//TODO when offline second part is useless
-				if (aa.hashCode() == a.hashCode() && a.getKernel().getKernelAddress(a).equals(aa.getKernelAddress()))
+				if (aa.hashCode() == a.hashCode() && a.getKernelAddress().equals(aa.getKernelAddress()))
 					return aa;
 			}
 		}

@@ -29,27 +29,29 @@ import java.net.UnknownHostException;
  * @since MadKit 1.0
  *
  */
-final public class KernelAddress implements java.io.Serializable{
+public class KernelAddress implements java.io.Serializable{
 
 	private static final long serialVersionUID = 6895837581447431330L;
 	private String host;
 	private final int ID;
+	private final String name;
 	
 	KernelAddress()
 	{
-		ID = Integer.parseInt(Long.toString(System.currentTimeMillis()).substring(9));//TODO use hashcode of Long
+		ID = Long.valueOf(System.nanoTime()).hashCode();
 		try {
 			host = InetAddress.getLocalHost().getHostName();
 		} catch (UnknownHostException e) {
 			host = "local";
 		}
+		name = "@"+host+":MK-"+(""+Integer.toString(ID,24).substring(0, 3));
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		return obj.hashCode() == ID;
+		return this == obj || obj.hashCode() == ID;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return ID;
@@ -60,15 +62,20 @@ final public class KernelAddress implements java.io.Serializable{
 	}
 
 	/** 
-	 * Returns the canonical string representation for this platform address 
+	 * Returns a string representation for this platform address 
 	 * 
 	 * @return a string representation for this platform address 
 	 */
 	@Override
-	public String toString()
-	{
-		return ("@"+host+":MK"+ID);
+	public String toString(){
+		return name;
 	}
 
+}
 
+final class OfflineModeKernelAddress extends KernelAddress{
+	@Override
+	public boolean equals(Object obj) {
+		return true;
+	}
 }

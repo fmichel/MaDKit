@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /** 
  * The generic MadKit message class. Create Subclasses to adapt it to
  * your needs. This class is quite lightweight, it just defines sender
- * and receivers (expressed with AgentAddress class). 
+ * and receivers (expressed with {@link AgentAddress} class). 
  * 
  * @version 5
  * @author Fabien Michel
@@ -90,8 +90,11 @@ public class Message implements Cloneable,java.io.Serializable{
 	public String toString() {
 		if(sender == null || receiver == null)
 			return getClass().getSimpleName();
-		return "\n\t"+getClass().getSimpleName()+" "+getID()+
-				"\n\tfrom: "+sender+"\n\tto: "+receiver;
+//		return "\n\t"+getClass().getSimpleName()+"."+getConversationID()+
+//				"\n\t\tfrom: "+sender+
+//				"\n\t\tto  : "+receiver;
+		return "\n\t"+getClass().getSimpleName()+"."+getConversationID()+
+		" : "+sender+" -> "+receiver;
 		}
 
 	/**
@@ -116,9 +119,10 @@ public class Message implements Cloneable,java.io.Serializable{
 	}
 
 	/**
-	 * @return the iD
+	 * returns the conversation ID.
+	 * @return the ID of the conversation to which this message belongs to.
 	 */
-	final public int getID() {
+	final public int getConversationID() {
 		return conversationID;
 	}
 	

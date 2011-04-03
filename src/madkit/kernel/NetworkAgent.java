@@ -19,8 +19,7 @@
 package madkit.kernel;
 
 import static madkit.kernel.NetworkMessage.*;
-import static madkit.kernel.NetworkMessage.TO_INJECT;
-import static madkit.kernel.NetworkMessage.TO_SEND;
+import static madkit.kernel.NetworkMessage.NetworkCode.*;
 import static madkit.kernel.AbstractAgent.State.*;
 
 import java.io.IOException;
@@ -54,6 +53,8 @@ final public class NetworkAgent extends Agent {
 	private KernelServer myServer;
 	private MultiCastListener multicastListener;
 	private boolean alive = true;
+	
+	private AgentAddress kernelAgent;
 
 	/**
 	 * 
@@ -75,9 +76,10 @@ final public class NetworkAgent extends Agent {
 	 */
 	@Override
 	protected void activate() {
-		setName(super.getName()+"@"+kernel.getKernelAddress(this).hashCode());
+		setName(super.getName()+getKernelAddress());
 		//		setLogLevel(Level.FINE);
 		setLogLevel(Level.FINER);
+		requestRole(NETWORK_COMMUNITY, NETWORK_GROUP, NETWORK_ROLE);
 		createGroup(NETWORK_COMMUNITY, NETWORK_GROUP, true, null);
 		requestRole(NETWORK_COMMUNITY, NETWORK_GROUP, NETWORK_ROLE, null);
 		//requestRole(NetworkConfig.NETWORK_COMMUNITY, NetworkConfig.NETWORK_GROUP, )
@@ -191,7 +193,7 @@ final public class NetworkAgent extends Agent {
 	private void addConnection(KernelAddress ka, KernelConnection kc, boolean startConnection) {
 		peers.put(ka,kc);
 		if(logger != null)
-			logger.info("\n\t\t\t\t----- "+kernel.getKernelAddress(this)+" now connected with MadKit kernel "+kc.getKernelAddress()+"------\n");
+			logger.info("\n\t\t\t\t----- "+getKernelAddress()+" now connected with MadKit kernel "+kc.getKernelAddress()+"------\n");
 		if (startConnection) {
 			kc.start();
 		}
@@ -278,10 +280,10 @@ final public class NetworkAgent extends Agent {
 	private boolean sendingConnectionInfo(KernelConnection kc){
 		if(logger != null){
 			logger.fine("Sending connection info to "+(kc.getKernelAddress() == null ? kc.getDistantKernelSocket() : kc.getKernelAddress()));
-			logger.finer("Local org is\n\n"+getLocalOrg()+"\n");
+			logger.finer("Local org is\n\n"+getOrganizationSnapShot(false)+"\n");
 		}
 		try {
-			kc.sendConnectionInfo(kernel.getKernelAddress(this), getLocalOrg());
+			kc.sendConnectionInfo(getKernelAddress(), getOrganizationSnapShot(false));
 		} catch (IOException e) {
 			if(logger != null)
 				logger.warning("I give up: Unable to send connection info to "+(kc.getKernelAddress() == null ? kc.getDistantKernelSocket() : kc.getKernelAddress())+" because "+e.getMessage());
@@ -296,7 +298,7 @@ final public class NetworkAgent extends Agent {
 	private void broadcastUpdate(NetworkMessage<?> message) {
 		if(logger != null && ! peers.isEmpty()){
 			logger.finer("Broadcasting "+message+" to "+peers.values());
-			logger.finer("Local org is\n\n"+getLocalOrg()+"\n");
+			logger.finer("Local org is\n\n"+getOrganizationSnapShot(false)+"\n");
 		}
 		for (KernelConnection kc : peers.values()) {
 			kc.sendMessage(message);
@@ -311,16 +313,13 @@ final public class NetworkAgent extends Agent {
 			logger.finer("receiving a non network message "+message);
 	}
 
-	synchronized HashMap<String, HashMap<String, HashMap<String, List<AgentAddress>>>> getLocalOrg(){
-		return kernel.getLocalOrg(this);
-	}
-
 	/**
 	 * @param org
 	 */
 	synchronized void importDistantOrg(HashMap<String, HashMap<String, HashMap<String, List<AgentAddress>>>> org) {
 		if(logger != null){
 			logger.finer("Importing distant org "+org);
+			sendMes
 			kernel.importDistantOrg(this, org);
 			logger.finer("Local org is now ");
 //			kernel.logCurrentOrganization(this.getLogger(),Level.FINER);
@@ -371,7 +370,7 @@ final public class NetworkAgent extends Agent {
 			return;
 		if(logger != null)
 			logger.finer("deconnected from "+kernelAddress);
-		kernel.removeAgentsFromDistantKernel(this,kernelAddress);
+		kernel.removeAgentsFromDistantKernel(kernelAddress);
 		System.err.println(kernel.getLocalOrg(this));
 	}
 

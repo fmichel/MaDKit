@@ -16,61 +16,40 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
  */
-package madkit.kernel;
+package madkit.gui;
 
+import madkit.kernel.AbstractAgent;
 import madkit.messages.ObjectMessage;
 
 /**
- * The brand new version of KernelMessage.
- * For now its purpose is to allow agents to send to the kernel agent
- * some madkit commands such launchAgent.
- * 
  * @author Fabien Michel
- * @author Olivier Gutknecht
- * @version 5.0
- * @since MadKit 1.0
- *
+ * @since MadKit 5.0.0.9
+ * @version 0.9
+ * 
  */
-public class KernelMessage extends ObjectMessage<Object[]> {
+public class GUIMessage extends ObjectMessage<AbstractAgent> {
 	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -8752564850733075719L;
+	private static final long serialVersionUID = 4586925325007253999L;
+	final private GuiCode code;
 
-	private OperationCode code;
-
-	/**
-	 * @param code
-	 * @param commandOptions
-	 */
-	public KernelMessage(OperationCode code, Object... commandOptions) {
-		super(commandOptions);
+	public GUIMessage(GuiCode code, AbstractAgent content) {
+		super(content);
 		this.code = code;
 	}
 
-	/**
-	 * @return the code
-	 */
-	public OperationCode getCode() {
+
+	public GuiCode getCode() {
 		return code;
 	}
 	
-	public enum OperationCode {
-		SHUTDOWN_NOW,
+	public enum GuiCode {
+		SETUP_GUI,
 		
-		LAUNCH_AGENT,
+		DISPOSE_GUI, 
+		
+		SHUTDOWN,
 		
 //		KILL_AGENT,
-	}
-	
-	@Override
-	public String toString() {
-		String content="";
-		for (Object o : getContent()) {
-			content+=o+",";
-		}
-		return super.toString()+" : "+content;
 	}
 
 }

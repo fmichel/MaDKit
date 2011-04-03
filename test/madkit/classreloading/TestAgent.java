@@ -24,6 +24,7 @@ public class TestAgent extends Agent{
 	 * 
 	 */
 	public TestAgent() {
+		setLogLevel(Level.ALL);
 		Activator<AbstractAgent> a = new Activator<AbstractAgent>("test", "r", "r"){
 			public void adding(AbstractAgent theAgent) {
 				ActionListener al = new ActionListener() {

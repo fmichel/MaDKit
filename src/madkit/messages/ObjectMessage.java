@@ -55,6 +55,6 @@ public class ObjectMessage<T> extends Message {
 	 */
 	@Override
 	public String toString() {
-		return super.toString()+"{"+content+"}";
+		return super.toString()+"\n\tcontent : {"+content+"}";
 	}
 }

@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -61,12 +63,13 @@ final class Organization extends ConcurrentHashMap <String, Group>{
 	Organization(final String string, final MadkitKernel madkitKernel) {
 		communityName = string;
 		myKernel = madkitKernel;
-		Madkit platform = myKernel.getPlatform();
-		logger = platform.setLogging("[*"+platform.getPlatformID()+" "+communityName+"_OrgLogger*]",
-				! parseBoolean(platform.getConfigOption().getProperty(Madkit.noOrgConsoleLog)),
-				Level.parse(platform.getConfigOption().getProperty(Madkit.orgLogLevel)),
-				Arrays.asList(platform.getMadkitLogFileHandler()),
-				AgentLogger.agentFormatter);
+//		Madkit platform = myKernel.getPlatform();
+//		logger = platform.setLogging("[*"+platform.getPlatformID()+" "+communityName+"_OrgLogger*]",
+//				! parseBoolean(platform.getConfigOption().getProperty(Madkit.noOrgConsoleLog)),
+//				Level.parse(platform.getConfigOption().getProperty(Madkit.orgLogLevel)),
+//				Arrays.asList(platform.getMadkitLogFileHandler()),
+//				AgentLogger.agentFormatter);
+		logger = null;
 		if(logger != null)
 			logger.finer(printCGR(communityName)+"created");
 	}
@@ -132,30 +135,30 @@ final class Organization extends ConcurrentHashMap <String, Group>{
 	}
 
 	/**
+	 * @param b
 	 * @return
 	 */
-	HashMap<String, HashMap<String, List<AgentAddress>>> getLocalOrg() {
-		HashMap<String,HashMap<String,List<AgentAddress>>> export = new HashMap<String,HashMap<String,List<AgentAddress>>>();
+	SortedMap<String, SortedMap<String, List<AgentAddress>>> getOrgMap(boolean global) {
+		SortedMap<String,SortedMap<String,List<AgentAddress>>> export = new TreeMap<String,SortedMap<String,List<AgentAddress>>>();
 		for (Map.Entry<String, Group> org : entrySet()) {
-			if (org.getValue().isDistributed()) {
-				export.put(org.getKey(), org.getValue().getLocalOrg());
+			if (global || org.getValue().isDistributed()) {
+				export.put(org.getKey(), org.getValue().getGroupMap());
 			}
 		}
 		return export;
-
 	}
 
 	/**
 	 * @param hashMap
 	 */
-	void importDistantOrg(HashMap<String, HashMap<String, List<AgentAddress>>> distantOrg) {
-		for (String groupName : distantOrg.keySet()) {
+	void importDistantOrg(SortedMap<String, SortedMap<String, List<AgentAddress>>> sortedMap) {
+		for (String groupName : sortedMap.keySet()) {
 			Group group = get(groupName);
 			if(group == null){
 				group = new Group(communityName, groupName,(AgentAddress)null, null, this);//TODO have to get the groupManager
 				put(groupName, group);
 			}
-			group.importDistantOrg(distantOrg.get(groupName));
+			group.importDistantOrg(sortedMap.get(groupName));
 		}		
 	}
 

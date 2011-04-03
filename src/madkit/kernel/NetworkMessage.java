@@ -30,7 +30,7 @@ import madkit.messages.ObjectMessage;
 /**
  * @author Fabien Michel
  * @since MadKit 5
- * @version 0.9
+ * @version 0.91
  * @param <T> a code or a message to convey
  *
  */
@@ -39,14 +39,8 @@ class NetworkMessage<T> extends ObjectMessage<T> {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -3146557063162460766L;
-	final static int TO_SEND = 1;
-	final static int TO_INJECT = 2;
-	final static int STOP_NETWORK = 3;
-	final static int NEW_PEER_DETECTED = 4;
-	static final int NEW_PEER_REQUEST = 5;
-	
-	private int code = TO_SEND;
+	private static final long serialVersionUID = -1224668391237720602L;
+	private NetworkCode code = NetworkCode.TO_SEND;
 
 	/**
 	 * 
@@ -58,15 +52,24 @@ class NetworkMessage<T> extends ObjectMessage<T> {
 	/**
 	 * @param code the code to set
 	 */
-	public void setCode(int code) {
+	public void setCode(NetworkCode code) {
 		this.code = code;
 	}
 
 	/**
 	 * @return the code
 	 */
-	public int getCode() {
+	public NetworkCode getCode() {
 		return code;
+	}
+	
+	public enum NetworkCode {
+		TO_SEND,
+		TO_INJECT,
+		STOP_NETWORK,
+		NEW_PEER_DETECTED,
+		PEER_DECONNECTED,
+		NEW_PEER_REQUEST
 	}
 }
 
@@ -75,7 +78,7 @@ class MessageConveyor extends NetworkMessage<Message> {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 6494081559780926565L;
+	private static final long serialVersionUID = -2189510308916348927L;
 
 	/**
 	 * @param content
@@ -83,16 +86,6 @@ class MessageConveyor extends NetworkMessage<Message> {
 	MessageConveyor(Message content) {
 		super(content);
 	}
-	
-	/* (non-Javadoc)
-	 * @see madkit.messages.ObjectMessage#toString()
-	 */
-	@Override
-	public String toString() {
-		// TODO Auto-generated method stub
-		return getContent().getID()+"-"+super.toString();
-	}
-	
 }
 
 class NewPeerMessage extends NetworkMessage<DatagramPacket>{
@@ -106,7 +99,7 @@ class NewPeerMessage extends NetworkMessage<DatagramPacket>{
 	 */
 	public NewPeerMessage(DatagramPacket content) {
 		super(content);
-		setCode(NEW_PEER_DETECTED);
+		setCode(NetworkCode.NEW_PEER_DETECTED);
 	}
 	
 }
@@ -123,7 +116,7 @@ class NewPeerConnectionRequest extends NetworkMessage<Socket>{
 	 */
 	public NewPeerConnectionRequest(Socket content) {
 		super(content);
-		setCode(NEW_PEER_REQUEST);
+		setCode(NetworkCode.NEW_PEER_REQUEST);
 	}
 	
 }

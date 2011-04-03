@@ -23,14 +23,22 @@ import static madkit.kernel.AbstractAgent.State.ACTIVATED;
 import static madkit.kernel.AbstractAgent.State.ENDING;
 import static madkit.kernel.AbstractAgent.State.INITIALIZING;
 import static madkit.kernel.AbstractAgent.State.TERMINATED;
+import static madkit.kernel.Madkit.Roles.GUI_MANAGER_ROLE;
+import static madkit.kernel.Madkit.Roles.LOCAL_COMMUNITY;
+import static madkit.kernel.Madkit.Roles.SYSTEM_GROUP;
 import static madkit.kernel.Utils.getI18N;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -38,6 +46,8 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 
 import javax.swing.JFrame;
+
+import madkit.gui.GUIMessage;
 import madkit.gui.OutputPanel;
 
 /**
@@ -83,16 +93,18 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 
 	private static final long serialVersionUID = 1431823907218926925L;
 
-	private static final RootKernel fakeKernel = new RootKernel();
+	private final static AtomicInteger agentCounter = new AtomicInteger(-1);
 
-	final static AgentLogger defaultLogger = AgentLogger.getDefaultAgentLogger();
 	final static AgentThreadFactory normalAgentThreadFactory = new AgentThreadFactory("MKRA", false);//TODO move that into the kernel ensuring same JVM functioning
 	final static AgentThreadFactory daemonAgentThreadFactory = new AgentThreadFactory("MKDA", true);
 
-	private final static AtomicInteger agentCounter = new AtomicInteger(1);
+	private static final MadkitKernel fakeKernel = new RootKernel(null);
+
+	final static AgentLogger defaultLogger = AgentLogger.getDefaultAgentLogger();
+
 
 	final AtomicReference<State> state = new AtomicReference<AbstractAgent.State>(AbstractAgent.State.NOT_LAUNCHED);
-	RootKernel kernel;
+	MadkitKernel kernel;
 
 	final private int _hashCode;
 	/**
@@ -172,16 +184,31 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	// //////////////////////////////////////////// LIFE CYCLE
-	boolean activation() {
-		// kernel.agentCounter++; //TODO useless !! + I18N
+	boolean activation(boolean gui) {
+		//TODO I18N
 		try {
 			if (!state.compareAndSet(INITIALIZING, ACTIVATED))// TODO remove it when OK
 				throw new AssertionError("not init in activation");
+			if(gui){
+				if(logger != null){
+					logger.finer("** setting up  GUI **");
+				}
+				requestRole(LOCAL_COMMUNITY, SYSTEM_GROUP, "default");//TODO think about that
+				kernel.getMadkitKernel().broadcastMessageWithRoleAndWaitForReplies(
+						this,
+						LOCAL_COMMUNITY, 
+						SYSTEM_GROUP, 
+						GUI_MANAGER_ROLE, 
+						new GUIMessage(GUIMessage.GuiCode.SETUP_GUI,this), 
+						null, 
+						10000);
+			}
 			if (logger != null) {
 				logger.finer("** entering ACTIVATE **");
 			}
 			activate();
-		} catch (KilledException e) {//TODO this part is useless: check that
+		} 
+		catch (KilledException e) {//should not happen during activation
 			if (logger != null) {
 				logger.warning("-*-GET KILLED in ACTIVATE-*- by killedException: " + getI18N("terminated"));
 				logger.finer("** exiting ACTIVATE **");
@@ -194,7 +221,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			}
 			return false;
 		} catch (Exception e) {
-			kernel.kernelLog("Problem for "+this+" in ACTIVATE ", Level.FINER, e);
+			kernel.getMadkitKernel().kernelLog("Problem for "+this+" in ACTIVATE ", Level.FINER, e);
 			logSevereException(e);
 			if (logger != null) {
 				logger.finer("** exiting ACTIVATE **");
@@ -539,14 +566,14 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	/**
 	 * @return the kernel
 	 */
-	final RootKernel getKernel() {
+	final MadkitKernel getKernel() {
 		return kernel;
 	}
 
 	/**
 	 * @param kernel the kernel to set
 	 */
-	final void setKernel(RootKernel kernel) {
+	final void setKernel(MadkitKernel kernel) {
 		if (kernel != null) {
 			this.kernel = kernel;
 		}
@@ -829,8 +856,10 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		return kernel.leaveRole(this, community, group, role);
 	}
 
-	final ReturnCode handleException(final MadkitWarning e) {
-		if (logger != null && logger.getWarningLogLevel().intValue() >= logger.getLevel().intValue()) {
+	final synchronized ReturnCode handleException(final MadkitWarning e) {
+		if (logger != null && 
+				logger.getWarningLogLevel().intValue() >= 
+					logger.getLevel().intValue()) {
 			setAgentStackTrace(e);
 			logger.log(Level.WARNING, e.getMessage(), e);
 		}
@@ -857,14 +886,20 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 */
 	void terminate() {// TODO should be in mk
 		alive.set(false);
+		kernel.getMadkitKernel().broadcastMessageWithRole(
+				this,
+				LOCAL_COMMUNITY, 
+				SYSTEM_GROUP, 
+				GUI_MANAGER_ROLE, 
+				new GUIMessage(GUIMessage.GuiCode.DISPOSE_GUI,this), 
+				null); 
 		if (getState().equals(TERMINATED))// TODO remove that
 			throw new AssertionError("terminating twice " + getName());
 		state.set(TERMINATED);
 		try {
-			kernel.disposeGUIOf(this);
-			kernel.removeAgentFromOrganizations(this);// TODO catch because of probe/activator
+			kernel.getMadkitKernel().removeAgentFromOrganizations(this);// TODO catch because of probe/activator
 		} catch (Exception e) {
-			kernel.kernelLog("Problem for "+this+" in TERMINATE ", Level.FINER, e);
+			kernel.getMadkitKernel().kernelLog("Problem for "+this+" in TERMINATE ", Level.FINER, e);
 			logSevereException(e);
 		}
 		messageBox.clear(); // TODO test speed and no need for that
@@ -1135,10 +1170,10 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @return a reply to the <i>originalMessage</i> or <code>null</code> if no reply to this message has been received.
 	 */
 	public Message getReplyTo(final Message originalMessage) {
-		final long searchID = originalMessage.getID();
+		final long searchID = originalMessage.getConversationID();
 		for (final Iterator<Message> it = messageBox.iterator(); it.hasNext();) {
 			final Message m = it.next();
-			if (m.getID() == searchID) {
+			if (m.getConversationID() == searchID) {
 				it.remove();
 				return m;
 			}
@@ -1244,6 +1279,12 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		return kernel.getNewestClassVersion(this, name);
 	}
 
+	
+	public SortedMap<String, SortedMap<String, SortedMap<String, List<AgentAddress>>>> getOrganizationSnapShot(boolean global){
+		return kernel.getOrganizationSnapShot(this,global);
+	}
+	
+	
 	/**
 	 * Tells if a community exists in the artificial society.
 	 * 
@@ -1302,7 +1343,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * on which the agent is running
 	 */
 	public KernelAddress getKernelAddress(){
-		return kernel.getKernelAddress(this);
+		return kernel.getKernelAddress();
 	}
 
 	// //////////////////////////////////////////////////////////////////////////////
@@ -1338,6 +1379,73 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		return "[" + loggingName+"-" + getName() + "]";
 	}
 
+	// //////////////////////////////////////////////////////////////////////////////
+	// /////////////////////////////////// Synchronization //////////////////////////
+	// /////////////////////////////////////////////////////////////////////////////
+	/**
+	 * @param timeout
+	 * @param unit
+	 * @return
+	 * @throws InterruptedException 
+	 * @since MadKit 5.0.0.9
+	 */
+	private Message waitingNextMessageForEver() {
+		try {
+			return messageBox.takeFirst();
+		} catch (InterruptedException e) {
+			throw new KilledException();
+		} catch (IllegalMonitorStateException e) {
+			throw new KilledException();
+		}
+	}
+
+	/**
+	 * @throws InterruptedException 
+	 * @since MadKit 5.0.0.9
+	 */
+	private Message waitingNextMessage(final long timeout, final TimeUnit unit) {
+		try {
+			return messageBox.pollFirst(timeout, unit);
+		} catch (InterruptedException e) {
+			throw new KilledException();
+		} catch (IllegalMonitorStateException e) {
+			throw new KilledException();
+		}
+	}
+
+	/**
+	 * @throws InterruptedException 
+	 * @since MadKit 5.0.0.9
+	 */
+	List<Message> waitAnswers(Message message, int size, Integer timeOutMilliSeconds){
+		final long endTime = System.nanoTime()+TimeUnit.MILLISECONDS.toNanos(timeOutMilliSeconds);
+		final long conversationID = message.getConversationID();
+		int missing = size;
+		final LinkedList<Message> receptions = new LinkedList<Message>();
+		final LinkedList<Message> answers = new LinkedList<Message>();
+		while(missing > 0 && System.nanoTime() < endTime){
+			Message answer = waitingNextMessage(endTime - System.nanoTime(),TimeUnit.NANOSECONDS);
+			if(answer == null)
+				break;
+			if(answer.getConversationID() == conversationID){
+				answers.add(answer);
+				missing--;
+			}
+			else
+				receptions.add(answer);
+		}
+		if (! receptions.isEmpty()) {
+			Collections.reverse(receptions);
+			for (final Message m : receptions) {
+				messageBox.addFirst(m);
+			}
+		}
+		if(! answers.isEmpty())
+			return answers;
+		return null;
+	}
+
+	
 	// //////////////////////////////////////////////////////////////////////////////
 	// /////////////////////////////////// Agent State //////////////////////////////
 	// /////////////////////////////////////////////////////////////////////////////

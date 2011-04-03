@@ -75,7 +75,7 @@ public class BroadcastMessageTest  extends JunitMadKit{
 				assertNotNull(m);
 				Message m2 = target2.nextMessage();
 				assertEquals(ROLE, m2.getReceiver().getRole());
-				assertEquals(m.getID(), m2.getID());
+				assertEquals(m.getConversationID(), m2.getConversationID());
 				assertNotSame(m2, m);
 			}});
 	}

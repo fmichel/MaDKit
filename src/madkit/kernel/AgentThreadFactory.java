@@ -29,7 +29,7 @@ import java.util.concurrent.ThreadFactory;
 final class AgentThreadFactory extends Object implements ThreadFactory {
 
 	final private static int MKRA_PRIORITY = Thread.NORM_PRIORITY-1;
-	final private static int MKDA_PRIORITY = Thread.NORM_PRIORITY+1;
+	final private static int MKDA_PRIORITY = Thread.MAX_PRIORITY;
 	final private boolean daemonThreads;
     final private ThreadGroup group;
 //	static private int nbthread=0;

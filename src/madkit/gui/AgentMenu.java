@@ -79,6 +79,7 @@ public class AgentMenu extends JMenu implements AgentUIComponent{//TODO i18n
 					public void run() {
 						a.requestRole(LOCAL_COMMUNITY, SYSTEM_GROUP, a.getName());
 						a.sendMessage(LOCAL_COMMUNITY, SYSTEM_GROUP, KERNEL_ROLE, new KernelMessage(OperationCode.SHUTDOWN_NOW, (Object)null));
+						a.killAgent(a);
 					}
 				});
 			}

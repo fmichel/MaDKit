@@ -18,6 +18,8 @@
  */
 package madkit.kernel;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import madkit.kernel.Madkit.Roles;
 
 
@@ -42,17 +44,20 @@ import madkit.kernel.Madkit.Roles;
  */
 public class AgentAddress implements java.io.Serializable{
 
-	private static final long serialVersionUID = -1375093777512820025L;
+	private final static AtomicInteger addressCount = new AtomicInteger();
+	
+	private static final long serialVersionUID = -5109274890965282440L;
 
-	//transient because they are here to speed up offline mode
+	//not transmitted 
 	final transient private AbstractAgent agent;
-
-	private Role roleObject;
 
 	//these are the identifying parts over the net
 	final private KernelAddress kernelAddress;
-
 	final private int _hashCode;
+	final private int agentCode;
+
+	private Role roleObject;
+
 
 	/**
 	 * @param agt the agent represented by this AA
@@ -61,9 +66,10 @@ public class AgentAddress implements java.io.Serializable{
 	 */
 	AgentAddress(final AbstractAgent agt, final Role role, final KernelAddress ka) {
 		agent = agt;
+		agentCode = agt.hashCode();
 		roleObject = role;
 		kernelAddress = ka;
-		_hashCode = agent.hashCode();
+		_hashCode = addressCount.getAndIncrement();
 	}
 
 	//	/** 
@@ -144,30 +150,28 @@ public class AgentAddress implements java.io.Serializable{
 	 */
 	@Override
 	public String toString() {
-		if (roleObject != null) {
-			return "(" + getCommunity() + "," + getGroup() + "," +(getRole()==null ? "" : getRole() + ",") + _hashCode
-			+ ")" + kernelAddress;
-		}
-		return "("+_hashCode+ ")" + kernelAddress;
+		if(roleObject == null)
+			return Utils.getI18N("unregisteredAgentAddress");
+		return agentCode+"@("+getCommunity()+"."+getGroup()+"."+getRole()+(isLocal() ? ")" : ")@"+getKernelAddress());
 	}
 
 	/**
-	 * @see java.lang.Object#equals(java.lang.Object)
+	 * Tells if another address is the same.
+	 * If <code>true</code>, this means that both addresses are
+	 * identical.
+	 * 
+	 * @param agentAddress the address to compare.
+	 * @throws ClassCastException On purpose, 
+	 * if the address is compared with another object type.
 	 */
 	@Override
-	public boolean equals(final Object o) {//TODO program the offline mode
-		if(kernelAddress == null){// no network -> offline mode
-			if(o != null){ // for offline mode
-				return _hashCode == o.hashCode();
-			}
-		}
-		else{
-			if(o instanceof AgentAddress){
-				final AgentAddress other = (AgentAddress) o;
-				return other._hashCode == _hashCode && kernelAddress.equals(other.kernelAddress); //one kerneladdress by kernel, reason of this optimization
-			}
-		}
-		return false;
+	public boolean equals(final Object agentAddress) throws ClassCastException{//TODO program the offline mode
+		if(this == agentAddress)
+			return true;
+		if(!(agentAddress.hashCode() == _hashCode))
+			return false;
+		AgentAddress otherAA = (AgentAddress) agentAddress;
+		return kernelAddress.equals(otherAA.getKernelAddress());
 	}
 
 	//	/** 
@@ -191,10 +195,24 @@ public class AgentAddress implements java.io.Serializable{
 	 * Tells if this agent address is still valid. I.e. the corresponding agent is 
 	 * still playing this role.
 	 * 
-	 * @return <code>true</code> if the address still exists in the organization, <code>false</code> otherwise.
+	 * @return <code>true</code> if the address still exists in the organization.
+	 * @since MadKit 5.0.0.9
 	 */
 	public boolean exists() {
 		return roleObject != null;
+	}
+	
+	/**
+	 * Tells if this address belongs to a local agent.
+	 * 
+	 * @return <code>true</code> if this address corresponds to an agent which is running
+	 * on the same kernel.
+	 * @since MadKit 1
+	 */
+	public boolean isLocal(){
+		if(roleObject != null)
+			return kernelAddress.equals(roleObject.getKernelAddress());
+		return false;
 	}
 
 

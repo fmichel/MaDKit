@@ -18,10 +18,13 @@
  */
 package madkit.kernel;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
@@ -204,8 +207,8 @@ final class Group extends ConcurrentHashMap<String,Role> {
 	/**
 	 * @return
 	 */
-	HashMap<String, List<AgentAddress>> getLocalOrg() {
-		HashMap<String,List<AgentAddress>> export = new HashMap<String,List<AgentAddress>>();
+	SortedMap<String, List<AgentAddress>> getGroupMap() {
+		SortedMap<String,List<AgentAddress>> export = new TreeMap<String,List<AgentAddress>>();
 		for (Map.Entry<String, Role> org : entrySet()) {
 			export.put(org.getKey(),org.getValue().getAgentAddresses());
 		}
@@ -215,9 +218,9 @@ final class Group extends ConcurrentHashMap<String,Role> {
 	/**
 	 * @param hashMap
 	 */
-	void importDistantOrg(HashMap<String, List<AgentAddress>> distantOrg) {
-		for (String roleName : distantOrg.keySet()) {
-			List<AgentAddress> list = distantOrg.get(roleName);
+	void importDistantOrg(SortedMap<String, List<AgentAddress>> sortedMap) {
+		for (String roleName : sortedMap.keySet()) {
+			List<AgentAddress> list = sortedMap.get(roleName);
 			if(list == null)
 				continue;
 			Role role = get(roleName);

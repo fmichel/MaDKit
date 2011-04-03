@@ -35,16 +35,17 @@ import static madkit.kernel.Utils.printCGR;
 
 /**
  * @author Fabien Michel
- * @version 0.9
+ * @version 0.91
  * @since MadKit 5.0.0.7
  *
  */
 // TODO logger from agent should never be null
-final class LoggedKernel extends RootKernel {
+final class LoggedKernel extends MadkitKernel {
 
 	final private MadkitKernel madkitKernel;
 
 	LoggedKernel(MadkitKernel k) {
+		super(null);
 		madkitKernel = k;
 	}
 
@@ -309,9 +310,10 @@ final class LoggedKernel extends RootKernel {
 	}
 
 	@Override
-	List<Message> broadcastMessageWithRoleAndWaitForReplies(Agent requester,
+	List<Message> broadcastMessageWithRoleAndWaitForReplies(AbstractAgent requester,
 			String community, String group, String role, Message message,
 			String senderRole, Integer timeOutMilliSeconds) {
+		logMessage(requester, "broadcastMessageWithRoleAndWaitForReplies");
 		return madkitKernel.broadcastMessageWithRoleAndWaitForReplies(requester, community, group, role, message, senderRole, timeOutMilliSeconds);//TODO logging
 	}
 
@@ -407,7 +409,12 @@ final class LoggedKernel extends RootKernel {
 		logMessage(requester, "isRole ? "+printCGR(community, group, role)+" NO");
 		return false;
 	}
-
+	
+	@Override
+	MadkitKernel getMadkitKernel() {
+		return madkitKernel;
+	}
+	
 	@Override
 	final ReturnCode killAgent(final AbstractAgent requester, final AbstractAgent target, int timeOutSeconds) {
 		logMessage(requester, "Killing " + target.getName() + " and waiting its termination for " + timeOutSeconds + " s...");
@@ -472,39 +479,6 @@ final class LoggedKernel extends RootKernel {
 		return madkitKernel.addOverlooker(requester, o);
 	}
 
-	@Override
-	KernelAddress getKernelAddress(AbstractAgent requester) {
-		return madkitKernel.getKernelAddress(requester);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see madkit.kernel.RootKernel#importDistantOrg(madkit.kernel.NetworkAgent, java.util.HashMap)
-	 */
-	@Override
-	void importDistantOrg(NetworkAgent networkAgent, HashMap<String, HashMap<String, HashMap<String, List<AgentAddress>>>> org) {
-		madkitKernel.importDistantOrg(networkAgent, org);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see madkit.kernel.RootKernel#logCurrentOrganization(madkit.kernel.AbstractAgent, java.util.logging.Level)
-	 */
-	@Override
-	void logCurrentOrganization(AbstractAgent requester, Level finer) {
-		madkitKernel.logCurrentOrganization(requester, finer);
-	}
-
-	/**
-	 * @see madkit.kernel.RootKernel#getLocalOrg(madkit.kernel.NetworkAgent)
-	 */
-	@Override
-	HashMap<String, HashMap<String, HashMap<String, List<AgentAddress>>>> getLocalOrg(NetworkAgent networkAgent) {
-		return madkitKernel.getLocalOrg(networkAgent);
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -528,44 +502,7 @@ final class LoggedKernel extends RootKernel {
 		madkitKernel.injectMessage(networkAgent,content);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see madkit.kernel.RootKernel#removeAgentsFromDistantKernel(madkit.kernel.NetworkAgent, madkit.kernel.KernelAddress)
-	 */
-	@Override
-	void removeAgentsFromDistantKernel(NetworkAgent networkAgent, KernelAddress kernelAddress) {
-		// TODO Auto-generated method stub
-		madkitKernel.removeAgentsFromDistantKernel(networkAgent, kernelAddress);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see madkit.kernel.RootKernel#disposeGUIOf(madkit.kernel.AbstractAgent)
-	 */
-	@Override
-	void disposeGUIOf(AbstractAgent abstractAgent) {
-		// TODO Auto-generated method stub
-		madkitKernel.disposeGUIOf(abstractAgent);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see madkit.kernel.RootKernel#removeAgentFromOrganizations(madkit.kernel.AbstractAgent)
-	 */
-	@Override
-	void removeAgentFromOrganizations(AbstractAgent theAgent) {//TODO this only in madkitkernel
-		madkitKernel.removeAgentFromOrganizations(theAgent);
-	}
-
-//	@Override
-//	void removeThreadedAgent(Agent a) {
-//		madkitKernel.removeThreadedAgent(a);
-//	}
-
-	boolean logMessage(final AbstractAgent requester, final String m) {
+	final boolean logMessage(final AbstractAgent requester, final String m) {
 		// just in case the user sets logger to null manually :( but protected is so convenient...
 		final Logger logger = requester.getLogger();
 		if (logger == null)
@@ -575,16 +512,8 @@ final class LoggedKernel extends RootKernel {
 		return true;
 	}
 
-	/* (non-Javadoc)
-	 * @see madkit.kernel.RootKernel#kernelLog(java.lang.String)
-	 */
 	@Override
-	final void kernelLog(String message, Level logLvl, Throwable e) {
-		madkitKernel.kernelLog(message,logLvl,e);
-	}
-	
-	@Override
-	Class<?> getNewestClassVersion(AbstractAgent requester, String className) throws ClassNotFoundException {
+	Class<?> getNewestClassVersion(AbstractAgent requester, String className) throws ClassNotFoundException {//TODO log 
 		return madkitKernel.getNewestClassVersion(requester, className);
 	}
 

@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import madkit.kernel.AbstractAgent.ReturnCode;
+import madkit.kernel.Madkit.Roles;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -66,7 +67,8 @@ public class JunitMadKit {
 		System.err.println("\n\n------------------------ "+name.getMethodName()+" TEST START ---------------------");
 		try {
 			m = new Madkit((String[]) mkArgs.toArray(new String[mkArgs.size()]));
-			assertEquals(expected, m.getKernel().getKernelAgent().launchAgent(a));
+			AbstractAgent kernelAgent = m.getKernel().getAgentWithRole(null,Roles.LOCAL_COMMUNITY, Roles.SYSTEM_GROUP, Roles.KERNEL_ROLE).getAgent();
+			assertEquals(expected, kernelAgent.launchAgent(a));
 		} catch (Throwable e) {
 			System.err.println("\n\n\n------------------------------------");
 			while(e.getCause() != null)

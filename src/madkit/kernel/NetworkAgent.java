@@ -19,7 +19,6 @@
 package madkit.kernel;
 
 import static madkit.kernel.NetworkMessage.*;
-import static madkit.kernel.NetworkMessage.NetworkCode.*;
 import static madkit.kernel.AbstractAgent.State.*;
 
 import java.io.IOException;
@@ -29,8 +28,13 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
+import java.util.SortedMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
+
+import madkit.kernel.Madkit.Roles;
+import madkit.messages.ObjectMessage;
 
 /**
  * @author Fabien Michel
@@ -44,9 +48,6 @@ final public class NetworkAgent extends Agent {
 	 * 
 	 */
 	private static final long serialVersionUID = 6961163274458902519L;
-	final public static String NETWORK_COMMUNITY = "system";
-	final public static String NETWORK_GROUP = "kernels";
-	final public static String NETWORK_ROLE = "net agent";
 
 	final private ConcurrentHashMap<KernelAddress, KernelConnection> peers;
 
@@ -54,7 +55,7 @@ final public class NetworkAgent extends Agent {
 	private MultiCastListener multicastListener;
 	private boolean alive = true;
 	
-	private AgentAddress kernelAgent;
+	private AgentAddress kernelAgent,netInjecter,netUpdater;
 
 	/**
 	 * 
@@ -77,14 +78,24 @@ final public class NetworkAgent extends Agent {
 	@Override
 	protected void activate() {
 		setName(super.getName()+getKernelAddress());
+
+		requestRole(Roles.LOCAL_COMMUNITY, Roles.NETWORK_GROUP, Roles.NETWORK_ROLE);
+		requestRole(Roles.LOCAL_COMMUNITY, Roles.NETWORK_GROUP, "updater",null);
+
+		kernelAgent = getAgentWithRole(Roles.LOCAL_COMMUNITY, Roles.NETWORK_GROUP, Roles.GROUP_MANAGER_ROLE);
+		//black magic here
+		myThread.setPriority(Thread.MAX_PRIORITY-3);
+		if(kernelAgent == null)
+			throw new AssertionError(this+" no kernel agent to with... Please bug report");
+		try {
+			netUpdater = kernel.getRole(Roles.LOCAL_COMMUNITY, Roles.NETWORK_GROUP, "updater").getAgentAddressOf(this);
+		} catch (CGRNotAvailable e) {
+			throw new AssertionError("Kernel Agent initialization problem");
+		}
 		//		setLogLevel(Level.FINE);
 		setLogLevel(Level.FINER);
-		requestRole(NETWORK_COMMUNITY, NETWORK_GROUP, NETWORK_ROLE);
-		createGroup(NETWORK_COMMUNITY, NETWORK_GROUP, true, null);
-		requestRole(NETWORK_COMMUNITY, NETWORK_GROUP, NETWORK_ROLE, null);
 		//requestRole(NetworkConfig.NETWORK_COMMUNITY, NetworkConfig.NETWORK_GROUP, )
-
-
+		
 
 		//build server
 		myServer = KernelServer.getNewKernelServer();
@@ -111,9 +122,6 @@ final public class NetworkAgent extends Agent {
 				logger.finest("Broadcasting existence");
 			}			
 		}
-
-
-
 		Message m = null;
 		final ArrayList<Message> toDoList = new ArrayList<Message>();
 
@@ -122,8 +130,8 @@ final public class NetworkAgent extends Agent {
 				logger.finest("Waiting for some connections first");
 			m = waitNextMessage(500);
 			if (m != null) {
-				if(m instanceof NetworkMessage<?> && (((NetworkMessage<?>)m).getCode() == NEW_PEER_DETECTED || ((NetworkMessage<?>)m).getCode() == NEW_PEER_REQUEST) )
-					handleNetworkMessage((NetworkMessage<?>) m);
+				if(m.getSender() != null)
+					handlePrivateMessage(m);
 				else
 					toDoList.add(m);
 			}
@@ -154,18 +162,77 @@ final public class NetworkAgent extends Agent {
 		}
 	}
 
-	private void handleMessage(Message m){
-		if(m instanceof NetworkMessage<?>)
-			handleNetworkMessage((NetworkMessage<?>) m);
-		else
-			handleNormalMessage(m);
+	@SuppressWarnings("unchecked")
+	private void handleMessage(Message m) throws ClassCastException{
+		AgentAddress sender = m.getSender();
+		if(sender == null){//contacted by my private objects
+			handlePrivateMessage(m);
+		}
+		else if(isLocal(sender)){//contacted locally
+			if(sender.getRole().equals("updater")){//It is a CGR update
+				if(logger != null)
+					logger.finer("Local CGR update");
+				broadcastUpdate(m);
+			}
+			else{//It is a message to send elsewhere role is "emmiter"
+				if(logger != null)
+					logger.finer("Local message to send "+m);
+				sendDistantMessage((ObjectMessage<Message>) m);
+			}
+		}
+		else{//distant message
+			if(sender.getRole().equals("updater")){//It is a distant CGR update
+				if(logger != null)
+					logger.finer("distant CGR update");
+				kernel.injectOperation((CGRSynchro) m);
+			}
+			else{//It is a distant message to inject : role is "emmiter"
+				if(logger != null)
+					logger.finer("Injecting distant message "+getState()+" : "+m);
+				kernel.injectMessage((ObjectMessage<Message>) m);
+			}
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private void handlePrivateMessage(Message m) {
+		if(m instanceof NetworkMessage<?>){
+			switch (((NetworkMessage<?>)m).getCode()) {
+			case NEW_PEER_DETECTED:
+				contactPeer(((NetworkMessage<DatagramPacket>) m).getContent());
+				break;
+			case NEW_PEER_REQUEST:
+				addPeer(((NetworkMessage<Socket>) m).getContent());
+				break;
+			case PEER_DECONNECTED:
+				deconnectFromPeer(((NetworkMessage<KernelAddress>) m).getContent());
+				break;
+			default:
+				if(logger != null)
+					logger.info("I did not understand this private message "+m);
+				break;
+			}
+		}
+		else{
+			if(logger != null)
+				logger.fine("Stopping network ");
+			alive = false;
+		}
+	}
+
+	private void deconnectFromPeer(KernelAddress ka) {
+		if(peers.remove(ka) == null)
+			return;
+		if(logger != null)
+			logger.info("\n\t\t\t\t----- "+getKernelAddress()+" deconnected from MadKit kernel "+ka+"------\n");
+		kernel.removeAgentsFromDistantKernel(ka);
+		System.err.println(getOrganizationSnapShot(false));
 	}
 
 	/**
 	 * @param s
-	 * @param startConnection start to receive message if living 
 	 */
-	synchronized private void addPeer(Socket s, boolean startConnection) {
+	synchronized private void addPeer(Socket s) {
 		if(logger != null)
 			logger.fine("Contacted by peer "+s+" -> sending connection message");
 		KernelConnection kc = null;
@@ -183,12 +250,12 @@ final public class NetworkAgent extends Agent {
 		KernelAddress dka = gettingConnectionInfo(kc);
 		if(dka == null)
 			return;
-		addConnection(dka,kc, startConnection);		
+		addConnection(dka,kc, getState().equals(LIVING));		
 	}
 
 	/**
 	 * @param kc
-	 * @param startConnection
+	 * @param startConnection start to receive message if living 
 	 */
 	private void addConnection(KernelAddress ka, KernelConnection kc, boolean startConnection) {
 		peers.put(ka,kc);
@@ -203,7 +270,7 @@ final public class NetworkAgent extends Agent {
 	 * @param packet
 	 * @param startConnection start to receive message if living 
 	 */
-	private void contactPeer(DatagramPacket packet, boolean startConnection) {
+	private void contactPeer(DatagramPacket packet) {
 		if(logger != null)
 			logger.fine("New peer detected on "+packet.getAddress()+" port = "+packet.getPort()+" -> sending connection message");
 		KernelConnection kc = null;
@@ -227,7 +294,7 @@ final public class NetworkAgent extends Agent {
 		}
 		if(! sendingConnectionInfo(kc))
 			return;
-		addConnection(dka,kc, startConnection);		
+		addConnection(dka,kc, getState().equals(LIVING));		
 	}
 
 	/**
@@ -254,7 +321,7 @@ final public class NetworkAgent extends Agent {
 			logger.finest("Waiting for distant organization info...");
 		}
 		kc.setKernelAddress(dka);
-		HashMap<String,HashMap<String,HashMap<String,List<AgentAddress>>>> org;
+		SortedMap<String, SortedMap<String, SortedMap<String, Set<AgentAddress>>>> org;
 		try {
 			org = kc.waitForDistantOrg();
 		} catch (IOException e) {
@@ -295,9 +362,9 @@ final public class NetworkAgent extends Agent {
 	/**
 	 * @param message
 	 */
-	private void broadcastUpdate(NetworkMessage<?> message) {
+	private void broadcastUpdate(Message message) {
 		if(logger != null && ! peers.isEmpty()){
-			logger.finer("Broadcasting "+message+" to "+peers.values());
+			logger.finer("Broadcasting "+" to "+peers.values()+message);
 			logger.finer("Local org is\n\n"+getOrganizationSnapShot(false)+"\n");
 		}
 		for (KernelConnection kc : peers.values()) {
@@ -312,25 +379,30 @@ final public class NetworkAgent extends Agent {
 		if(logger != null)
 			logger.finer("receiving a non network message "+message);
 	}
+	
+//	@Override
+//	void terminate() {
+//		new Exception().printStackTrace();
+//		super.terminate();
+//	}
 
 	/**
 	 * @param org
 	 */
-	synchronized void importDistantOrg(HashMap<String, HashMap<String, HashMap<String, List<AgentAddress>>>> org) {
+	synchronized void importDistantOrg(SortedMap<String, SortedMap<String, SortedMap<String, Set<AgentAddress>>>> org) {
 		if(logger != null){
 			logger.finer("Importing distant org "+org);
-			sendMes
-			kernel.importDistantOrg(this, org);
+			kernel.importDistantOrg(org);
 			logger.finer("Local org is now ");
 //			kernel.logCurrentOrganization(this.getLogger(),Level.FINER);
 		}
 		else
-			kernel.importDistantOrg(this, org);
+			kernel.importDistantOrg(org);
 	}
 
-	private synchronized boolean sendDistantMessage(MessageConveyor m){
+	private synchronized boolean sendDistantMessage(ObjectMessage<Message> m){
 		if(logger != null)
-			logger.finer("sending "+m+" to "+m.getContent().getReceiver().getKernelAddress());
+			logger.finer("sending to "+m.getContent().getReceiver().getKernelAddress()+m);
 		//		System.err.println("\n\n\n"+peers+"\n\n\n");
 		KernelConnection kc = peers.get(m.getContent().getReceiver().getKernelAddress());
 		if(kc == null){
@@ -347,7 +419,8 @@ final public class NetworkAgent extends Agent {
 	@Override
 	synchronized protected void end() {
 		if(logger != null)
-			logger.info("\n\t\t\t\t----- Network is being closed on "+myServer.getIp()+" port "+myServer.getPort()+" ------\n");
+			logger.info("\n\t\t\t\t----- Network is being closed on "+getKernelAddress()+" ------\n");
+//		logger.info("\n\t\t\t\t----- Network is being closed on "+myServer.getIp()+" port "+myServer.getPort()+" ------\n");
 		if(logger != null)
 			logger.finer("Closing all connections : "+peers.values());
 		for (KernelConnection kc : peers.values()) {
@@ -362,75 +435,4 @@ final public class NetworkAgent extends Agent {
 		super.end();
 	}
 
-	/**
-	 * @param kernelAddress
-	 */
-	synchronized void deconnectWith(KernelAddress kernelAddress) {
-		if(! alive || peers.remove(kernelAddress) == null)
-			return;
-		if(logger != null)
-			logger.finer("deconnected from "+kernelAddress);
-		kernel.removeAgentsFromDistantKernel(kernelAddress);
-		System.err.println(kernel.getLocalOrg(this));
-	}
-
-	/**
-	 * @param waitNextMessage
-	 */
-	private synchronized void handleNetworkMessage(NetworkMessage<?> message) {
-		switch (message.getCode()) {
-		case TO_SEND:
-			if(logger != null)
-				logger.finer("Receiving message to send: "+message);
-			message.setCode(TO_INJECT);
-			//			message.setSender(new AgentAddress(this, role, ka)); //TODO would be nice to set it !
-			if(message instanceof MessageConveyor)
-				sendDistantMessage((MessageConveyor) message);
-			else
-				broadcastUpdate(message); // it is a cgr update
-			break;
-		case TO_INJECT:
-			if(message instanceof MessageConveyor){
-				if(logger != null)
-					logger.finer("Receiving message to inject: "+message);
-//				if (((MessageConveyor)message).getContent() != null) {
-//					System.err.println(getName() + "\n\n\n\n-------------------- ID = "
-//							+ ((MessageConveyor)message).getContent().getID() + "\n\n\n");
-//				}
-				kernel.injectMessage(this, ((MessageConveyor)message).getContent());
-			}
-			else {
-				final CGRSynchroMessage m = (CGRSynchroMessage) message;
-				if(logger != null){
-					logger.finer("Receiving message to inject: "+m);
-					logger.finer("Local org before update:\n");
-//					kernel.logCurrentOrganization(this,Level.FINER);
-					kernel.injectOperation(this, m.getOperation(),m.getContent());
-					logger.finer("Local org after update:\n");
-//					kernel.logCurrentOrganization(this,Level.FINER);
-				}
-				else
-					kernel.injectOperation(this, m.getOperation(),m.getContent());
-			}
-			break;
-		case STOP_NETWORK:
-			if(logger != null)
-				logger.fine("Stopping network ");
-			alive = false;
-			break;
-		case NEW_PEER_DETECTED:
-			contactPeer(((NewPeerMessage) message).getContent(),getState().equals(LIVING));
-			break;
-		case NEW_PEER_REQUEST:
-			addPeer(((NewPeerConnectionRequest) message).getContent(),getState().equals(LIVING));
-			break;
-		default:
-			break;
-		}
-	}
-	//
-	//	private void PrintLocalOrg(){
-	//		if(logger != null)
-	//			logger.finest("local org : "+kernel.getLocalOrg().toString());
-	//	}
 }

@@ -21,10 +21,13 @@ package madkit.kernel;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import madkit.kernel.AbstractAgent.ReturnCode;
@@ -47,7 +50,7 @@ class Role implements Serializable{//TODO test with arraylist
 	//	private transient List<AbstractAgent> referenceableAgents; //TODO test copyonarraylist and linkedhashset
 	final protected transient ArrayList<AbstractAgent> players;
 	private transient ArrayList<AbstractAgent> tmpReferenceableAgents;
-	private transient ArrayList<AgentAddress> agentAddresses;
+	private transient Set<AgentAddress> agentAddresses;
 
 	private transient boolean modified=true;
 	final transient private Logger logger;
@@ -210,11 +213,11 @@ class Role implements Serializable{//TODO test with arraylist
 		synchronized (players) {
 			players.addAll(bucket);
 			if (agentAddresses != null) {
-				final ArrayList<AgentAddress> addresses = new ArrayList<AgentAddress>(bucket.size());
+				final Set<AgentAddress> addresses = new HashSet<AgentAddress>(bucket.size()+agentAddresses.size(),0.9f);//TODO try load factor
 				for (final AbstractAgent a : bucket) {
 					addresses.add(new AgentAddress(a, this, kernelAddress));
 				}
-				addresses.addAll(agentAddresses);//TODO test vs assignment
+				addresses.addAll(agentAddresses);//TODO test vs assignment : this because knowing the size 
 				agentAddresses = addresses;
 			}
 			modified = true;
@@ -231,22 +234,32 @@ class Role implements Serializable{//TODO test with arraylist
 	 * @param content
 	 */
 	final void addDistantMember(final AgentAddress content) {
-		buildAgentAddressesList();
-		if(! agentAddresses.contains(content)){
+		if(buildAndGetAddresses().add(content)){
 			content.setRoleObject(this);
-			agentAddresses.add(content);
 		}
 	}
 
 	private void buildAgentAddressesList(){
 		if(agentAddresses == null){
-			agentAddresses = new ArrayList<AgentAddress>(players.size());
+			agentAddresses = new HashSet<AgentAddress>(players.size(),0.9f);
 			synchronized (players) {
 				for (final AbstractAgent a : players) {
 					agentAddresses.add(new AgentAddress(a, this, kernelAddress));
 				}
 			}
 		}
+	}
+	
+	private Set<AgentAddress> buildAndGetAddresses(){
+		if(agentAddresses == null){
+			agentAddresses = new HashSet<AgentAddress>(players.size(),0.8f);
+			synchronized (players) {
+				for (final AbstractAgent a : players) {
+					agentAddresses.add(new AgentAddress(a, this, kernelAddress));
+				}
+			}
+		}
+		return agentAddresses;
 	}
 
 
@@ -320,13 +333,24 @@ class Role implements Serializable{//TODO test with arraylist
 			deleteMySelfFromOrg(null);
 		}
 	}
+	
+	final Set<AgentAddress> getAgentAddressesCopy(){
+		buildAndGetAddresses();
+		final Set<AgentAddress> result = new HashSet<AgentAddress>(agentAddresses.size(), 1.0f);
+		synchronized (players) {
+			result.addAll(agentAddresses);
+		}
+		return result;
+	}
 
 
 	/**
 	 * @param requester
 	 */
-	static AgentAddress removeAgentAddressOf(final AbstractAgent requester,final List<AgentAddress> list) {
-		for (final Iterator<AgentAddress> iterator = list.iterator();iterator.hasNext();){
+	static AgentAddress removeAgentAddressOf(final AbstractAgent requester,final Set<AgentAddress> agentAddresses2) {
+//		if(requester == null)
+//			throw new AssertionError("Wrong use ^^");
+		for (final Iterator<AgentAddress> iterator = agentAddresses2.iterator();iterator.hasNext();){
 			try {
 				final AgentAddress aa = iterator.next();
 				if (aa.getAgent() == requester) {//TODO test speed with hashcode test
@@ -334,7 +358,7 @@ class Role implements Serializable{//TODO test with arraylist
 					return aa;		
 				}
 			} catch (NullPointerException e) {
-				//TODO this should not happen : some AA are null !!!!!
+				e.printStackTrace();
 			}
 		}
 		return null;
@@ -342,9 +366,8 @@ class Role implements Serializable{//TODO test with arraylist
 
 	AgentAddress getAgentAddressOf(final AbstractAgent a){
 		synchronized (players) {
-			buildAgentAddressesList();
-			for (final AgentAddress aa : agentAddresses) {//TODO when offline second part is useless
-				if (aa.hashCode() == a.hashCode() && a.getKernelAddress().equals(aa.getKernelAddress()))
+			for (final AgentAddress aa : buildAndGetAddresses()) {//TODO when offline second part is useless
+				if (aa.getAgentCode() == a.hashCode() && a.getKernelAddress().equals(aa.getKernelAddress()))
 					return aa;
 			}
 		}
@@ -360,9 +383,7 @@ class Role implements Serializable{//TODO test with arraylist
 	/**
 	 * @return all the agent addresses: This list is never null because an empty role does not exist
 	 */
-	List<AgentAddress> getAgentAddresses() {//Lazy creation //TODO this has to be done more wisely
-		//		if(empty())//TODO this is not possible
-		//			return null;
+	Set<AgentAddress> getAgentAddresses() {
 		buildAgentAddressesList();
 		return agentAddresses;
 	}
@@ -378,23 +399,23 @@ class Role implements Serializable{//TODO test with arraylist
 		return myGroup.getAgentAddressOf(abstractAgent);
 	}
 
-	/**
-	 * @param receiver
-	 * @return
-	 */
-	boolean containsAddress(final AgentAddress receiver) {
-		if(getAgentAddresses().contains(receiver))
-			return true;
-		else{
-			final Collection<Role> roles = new ArrayList<Role>(myGroup.values());
-			roles.remove(this);
-			for(final Role r : roles){
-				if(r.getAgentAddresses().contains(receiver))
-					return true;
-			}
-		}
-		return false;
-	}
+//	/**
+//	 * @param receiver
+//	 * @return
+//	 */
+//	boolean containsAddress(final AgentAddress receiver) {
+//		if(getAgentAddresses().contains(receiver))
+//			return true;
+//		else{
+//			final Collection<Role> roles = new ArrayList<Role>(myGroup.values());
+//			roles.remove(this);
+//			for(final Role r : roles){
+//				if(r.getAgentAddresses().contains(receiver))
+//					return true;
+//			}
+//		}
+//		return false;
+//	}
 
 	final boolean isPlayingRole(final AgentAddress agent){
 		return getAgentAddresses().contains(agent);
@@ -435,13 +456,15 @@ class Role implements Serializable{//TODO test with arraylist
 	 * importation when connecting to other kernel
 	 * @param list
 	 */
-	void importDistantOrg(List<AgentAddress> list) {
+	void importDistantOrg(Set<AgentAddress> list) {
 		buildAgentAddressesList();
 		synchronized (players) {
 			for (final AgentAddress aa : list) {
-				if (! agentAddresses.contains(aa)) {
+				if (agentAddresses.add(aa)) {
 					aa.setRoleObject(this);
-					agentAddresses.add(aa); //TODO overlookers in distributed mode
+				}
+				else{
+					myGroup.getMyCommunity().getMyKernel().kernelLog("Already have this address ", Level.FINER, null);					
 				}
 			}
 		}
@@ -456,7 +479,7 @@ class Role implements Serializable{//TODO test with arraylist
 	AbstractAgent getAbstractAgentWithAddress(AgentAddress aa) {
 		synchronized (players) {
 			for (final AbstractAgent agent : players) {
-				if (agent.hashCode() == aa.hashCode())
+				if (agent.hashCode() == aa.getAgentCode())
 					return agent;
 			}
 		}

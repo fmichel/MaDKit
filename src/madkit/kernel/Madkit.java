@@ -277,6 +277,10 @@ final public class Madkit {
 		 * The value of this constant is {@value}.
 		 */
 		public static final String GUI_MANAGER_ROLE = "gui manager";
+		
+		public static final String NETWORK_GROUP = "network";
+
+		public static final String NETWORK_ROLE = "net agent";
 
 	}
 
@@ -342,7 +346,7 @@ final public class Madkit {
 		buildKernel();
 		printWelcomeString();
 		launchConfigAgents();
-		myKernel.launchingAgent(myKernel, myKernel, false);//starting the kernel agent
+		myKernel.launchAgent(myKernel, myKernel, 20, false);//starting the kernel agent
 	}
 	
 	/**
@@ -442,7 +446,7 @@ final public class Madkit {
 	 * 
 	 */
 	private void initMadkitLogging() {
-		logger = Logger.getLogger("[*MK_"+platformID.hashCode()+"*]");
+		logger = Logger.getLogger("["+platformID.toString()+"]");
 		logger.setUseParentHandlers(false);
 		logger.setLevel(Level.parse(madkitConfig.getProperty("platformLogLevel")));
 		ConsoleHandler cs = new ConsoleHandler();

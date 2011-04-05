@@ -35,6 +35,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -595,7 +596,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	/**
 	 * @param name the name to display in logger info, GUI title and so on, default is "class name + internal ID"
 	 */
-	public void setName(final String name) {// TODO trigger gui changes and son on
+	public void setName(final String name) {// TODO trigger gui changes and so on
 		if (! getName().equals(name)) {
 			this.name = name;
 			if (logger != null)
@@ -897,9 +898,9 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			throw new AssertionError("terminating twice " + getName());
 		state.set(TERMINATED);
 		try {
-			kernel.getMadkitKernel().removeAgentFromOrganizations(this);// TODO catch because of probe/activator
+			kernel.removeAgentFromOrganizations(this);// TODO catch because of probe/activator
 		} catch (Exception e) {
-			kernel.getMadkitKernel().kernelLog("Problem for "+this+" in TERMINATE ", Level.FINER, e);
+			kernel.kernelLog("Problem for "+this+" in TERMINATE ", Level.FINER, e);
 			logSevereException(e);
 		}
 		messageBox.clear(); // TODO test speed and no need for that
@@ -1280,8 +1281,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	
-	public SortedMap<String, SortedMap<String, SortedMap<String, List<AgentAddress>>>> getOrganizationSnapShot(boolean global){
-		return kernel.getOrganizationSnapShot(this,global);
+	public SortedMap<String, SortedMap<String, SortedMap<String, Set<AgentAddress>>>> getOrganizationSnapShot(boolean global){
+		return kernel.getOrganizationSnapShot(global);
 	}
 	
 	
@@ -1372,11 +1373,14 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	final String getLoggingName() {
-		String loggingName = getClass().getSimpleName() + "-" + _hashCode;
-		if (name == null || name.equals(loggingName)) {
-			return "[" + loggingName + "]";
-		}
-		return "[" + loggingName+"-" + getName() + "]";
+		if(name != null)
+			return "[" + name + "]";
+		return "["+getClass().getSimpleName()+ "-" + _hashCode+ "]";
+//		String loggingName = getClass().getSimpleName() + "-" + _hashCode;
+//		if (name == null || name.equals(loggingName)) {
+//			return "[" + loggingName + "]";
+//		}
+//		return "[" + loggingName+"-" + getName() + "]";
 	}
 
 	// //////////////////////////////////////////////////////////////////////////////
@@ -1443,6 +1447,21 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		if(! answers.isEmpty())
 			return answers;
 		return null;
+	}
+	
+	// //////////////////////////////////////////////////////////////////////////////
+	// /////////////////////////////////// Using Agent Address /////////////////////
+	// /////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Tells if the address belongs to a local agent.
+	 * 
+	 * @return <code>true</code> if this address corresponds to an agent which is running
+	 * on the same kernel as this one.
+	 * @since MadKit 5.0.0.9
+	 */
+	public boolean isLocal(AgentAddress address){
+		return getKernelAddress().equals(address.getKernelAddress());
 	}
 
 	

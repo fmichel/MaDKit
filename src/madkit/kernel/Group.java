@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -207,8 +208,8 @@ final class Group extends ConcurrentHashMap<String,Role> {
 	/**
 	 * @return
 	 */
-	SortedMap<String, List<AgentAddress>> getGroupMap() {
-		SortedMap<String,List<AgentAddress>> export = new TreeMap<String,List<AgentAddress>>();
+	SortedMap<String, Set<AgentAddress>> getGroupMap() {
+		TreeMap<String, Set<AgentAddress>> export = new TreeMap<String,Set<AgentAddress>>();
 		for (Map.Entry<String, Role> org : entrySet()) {
 			export.put(org.getKey(),org.getValue().getAgentAddresses());
 		}
@@ -218,9 +219,9 @@ final class Group extends ConcurrentHashMap<String,Role> {
 	/**
 	 * @param hashMap
 	 */
-	void importDistantOrg(SortedMap<String, List<AgentAddress>> sortedMap) {
+	void importDistantOrg(SortedMap<String, Set<AgentAddress>> sortedMap) {
 		for (String roleName : sortedMap.keySet()) {
-			List<AgentAddress> list = sortedMap.get(roleName);
+			Set<AgentAddress> list = sortedMap.get(roleName);
 			if(list == null)
 				continue;
 			Role role = get(roleName);
@@ -239,10 +240,13 @@ final class Group extends ConcurrentHashMap<String,Role> {
 	 */
 	void addDistantMember(AgentAddress content) {
 		final String roleName = content.getRole(); 
-		Role r = get(roleName);
-		if(r == null){
-			r = createRole(roleName);
-			put(roleName,r);
+		Role r;
+		synchronized (this) {
+			r = get(roleName);
+			if (r == null) {
+				r = createRole(roleName);
+				put(roleName, r);
+			}
 		}
 		r.addDistantMember(content);
 	}

@@ -18,17 +18,18 @@
  */
 package madkit.kernel;
 
-import static madkit.kernel.NetworkMessage.STOP_NETWORK;
-
 import java.io.IOException;
 import java.net.BindException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
+import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
+
+import madkit.kernel.NetworkMessage.NetCode;
 
 /**
  * @author Fabien Michel
@@ -57,11 +58,11 @@ class KernelServer {
 			public void run() {
 				while(true){
 					try {
-						netAgent.receiveMessage(new NewPeerConnectionRequest(serverSocket.accept()));
+						netAgent.receiveMessage(new NetworkMessage<Socket>(NetCode.NEW_PEER_REQUEST, serverSocket.accept()));
 					} catch (IOException e) {
-						NetworkMessage<String> stopMessage = new NetworkMessage<String>(e.getMessage());
-						stopMessage.setCode(STOP_NETWORK);
-						netAgent.receiveMessage(stopMessage);
+//						NetworkMessage<String> stopMessage = new NetworkMessage<String>(e.getMessage());
+//						stopMessage.setCode(STOP_NETWORK);
+						netAgent.receiveMessage(new Message());//shutdown !
 					}
 				}
 			}

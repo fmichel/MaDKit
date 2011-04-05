@@ -8,6 +8,7 @@ import madkit.kernel.Agent;
 import madkit.kernel.Madkit;
 import madkit.kernel.Message;
 import madkit.kernel.NetworkAgent;
+import madkit.kernel.Madkit.Roles;
 
 import org.junit.Test;
 
@@ -26,7 +27,7 @@ public class NetworkStartTest extends JUnitBooterAgent{
 	@Override
 	public void activate() {
 		super.activate();
-		assertTrue(isRole(NetworkAgent.NETWORK_COMMUNITY, NetworkAgent.NETWORK_GROUP, NetworkAgent.NETWORK_ROLE));
+		assertTrue(isRole(Roles.LOCAL_COMMUNITY, Roles.NETWORK_GROUP,Roles.NETWORK_ROLE));
 		assertTrue(isRole(COMMUNITY, GROUP, ROLE));
 		Agent a = new Agent(){
 			/**

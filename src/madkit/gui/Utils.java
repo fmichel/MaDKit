@@ -59,7 +59,7 @@ import madkit.kernel.Madkit.Roles;
  */
 final public class Utils {
 	
-	//TODO every actions static. So avoiding useless instances
+	//TODO every Icon static. So avoiding useless instances //TODO create this only if required
 	static ConcurrentMap<AbstractAgent,List<AgentUIComponent>> agentUIListeners = new ConcurrentHashMap<AbstractAgent, List<AgentUIComponent>>();
 	
 	final static Map<String,ImageIcon> madkitIcons = new HashMap<String,ImageIcon>();

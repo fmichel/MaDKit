@@ -282,7 +282,7 @@ public class ACLMessage extends ActMessage
     setField(ENVELOPE_KEY,s);
   }
 
-public String getConversationID()
+public String getConversationIDentifier()
   {
     return (String)getFieldValue(CONVERSATION_ID_KEY);
   }

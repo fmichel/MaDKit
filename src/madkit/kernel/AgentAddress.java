@@ -152,7 +152,12 @@ public class AgentAddress implements java.io.Serializable{
 	public String toString() {
 		if(roleObject == null)
 			return Utils.getI18N("unregisteredAgentAddress");
-		return agentCode+"@("+getCommunity()+"."+getGroup()+"."+getRole()+(isLocal() ? ")" : ")@"+getKernelAddress());
+//		return agentCode+"@("+getCommunity()+"."+getGroup()+"."+getRole()+(isLocal() ? ")" : ")@"+getKernelAddress());
+		return agentCode+"@("+getCommunity()+","+getGroup()+","+getRole()+getKernelAddress();
+	}
+
+	final int getAgentCode() {
+		return agentCode;
 	}
 
 	/**
@@ -168,7 +173,7 @@ public class AgentAddress implements java.io.Serializable{
 	public boolean equals(final Object agentAddress) throws ClassCastException{//TODO program the offline mode
 		if(this == agentAddress)
 			return true;
-		if(!(agentAddress.hashCode() == _hashCode))
+		if(agentAddress == null || !(agentAddress.hashCode() == _hashCode))
 			return false;
 		AgentAddress otherAA = (AgentAddress) agentAddress;
 		return kernelAddress.equals(otherAA.getKernelAddress());
@@ -201,21 +206,6 @@ public class AgentAddress implements java.io.Serializable{
 	public boolean exists() {
 		return roleObject != null;
 	}
-	
-	/**
-	 * Tells if this address belongs to a local agent.
-	 * 
-	 * @return <code>true</code> if this address corresponds to an agent which is running
-	 * on the same kernel.
-	 * @since MadKit 1
-	 */
-	public boolean isLocal(){
-		if(roleObject != null)
-			return kernelAddress.equals(roleObject.getKernelAddress());
-		return false;
-	}
-
-
 }
 
 final class CandidateAgentAddress extends AgentAddress{

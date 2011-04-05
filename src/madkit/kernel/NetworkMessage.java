@@ -16,76 +16,45 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
  */
-
-/**
- * 
- */
 package madkit.kernel;
 
 import java.net.DatagramPacket;
 import java.net.Socket;
 
+import madkit.kernel.AbstractAgent;
 import madkit.messages.ObjectMessage;
 
 /**
  * @author Fabien Michel
  * @since MadKit 5
- * @version 0.91
- * @param <T> a code or a message to convey
- *
+ * @version 0.9
+ * 
  */
-class NetworkMessage<T> extends ObjectMessage<T> {
+public class NetworkMessage<T> extends ObjectMessage<T> {
 	
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -1224668391237720602L;
-	private NetworkCode code = NetworkCode.TO_SEND;
+	private static final long serialVersionUID = -4678830796112377348L;
+	final private NetCode code;
 
-	/**
-	 * 
-	 */
-	public NetworkMessage(T content) {
+	public NetworkMessage(NetCode code, T content) {
 		super(content);
-	}
-
-	/**
-	 * @param code the code to set
-	 */
-	public void setCode(NetworkCode code) {
 		this.code = code;
 	}
 
-	/**
-	 * @return the code
-	 */
-	public NetworkCode getCode() {
+
+	public NetCode getCode() {
 		return code;
 	}
 	
-	public enum NetworkCode {
-		TO_SEND,
-		TO_INJECT,
+	public enum NetCode {
 		STOP_NETWORK,
 		NEW_PEER_DETECTED,
 		PEER_DECONNECTED,
 		NEW_PEER_REQUEST
 	}
-}
 
-class MessageConveyor extends NetworkMessage<Message> {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -2189510308916348927L;
-
-	/**
-	 * @param content
-	 */
-	MessageConveyor(Message content) {
-		super(content);
-	}
 }
 
 class NewPeerMessage extends NetworkMessage<DatagramPacket>{
@@ -98,25 +67,19 @@ class NewPeerMessage extends NetworkMessage<DatagramPacket>{
 	 * @param content
 	 */
 	public NewPeerMessage(DatagramPacket content) {
-		super(content);
-		setCode(NetworkCode.NEW_PEER_DETECTED);
+		super(NetCode.NEW_PEER_DETECTED, content);
 	}
-	
 }
 
 class NewPeerConnectionRequest extends NetworkMessage<Socket>{
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 6092436677566809561L;
 
 	/**
 	 * @param content
 	 */
 	public NewPeerConnectionRequest(Socket content) {
-		super(content);
-		setCode(NetworkCode.NEW_PEER_REQUEST);
+		super(NetCode.NEW_PEER_REQUEST,content);
 	}
 	
 }

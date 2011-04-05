@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -138,8 +139,8 @@ final class Organization extends ConcurrentHashMap <String, Group>{
 	 * @param b
 	 * @return
 	 */
-	SortedMap<String, SortedMap<String, List<AgentAddress>>> getOrgMap(boolean global) {
-		SortedMap<String,SortedMap<String,List<AgentAddress>>> export = new TreeMap<String,SortedMap<String,List<AgentAddress>>>();
+	SortedMap<String, SortedMap<String, Set<AgentAddress>>> getOrgMap(boolean global) {
+		TreeMap<String, SortedMap<String, Set<AgentAddress>>> export = new TreeMap<String,SortedMap<String,Set<AgentAddress>>>();
 		for (Map.Entry<String, Group> org : entrySet()) {
 			if (global || org.getValue().isDistributed()) {
 				export.put(org.getKey(), org.getValue().getGroupMap());
@@ -151,7 +152,7 @@ final class Organization extends ConcurrentHashMap <String, Group>{
 	/**
 	 * @param hashMap
 	 */
-	void importDistantOrg(SortedMap<String, SortedMap<String, List<AgentAddress>>> sortedMap) {
+	void importDistantOrg(SortedMap<String, SortedMap<String, Set<AgentAddress>>> sortedMap) {
 		for (String groupName : sortedMap.keySet()) {
 			Group group = get(groupName);
 			if(group == null){
@@ -167,7 +168,9 @@ final class Organization extends ConcurrentHashMap <String, Group>{
 	 */
 	void removeAgentsFromDistantKernel(KernelAddress kernelAddress2) {
 		for (Group group : values()) {
-			group.removeAgentsFromDistantKernel(kernelAddress2);
+			if (group.isDistributed()) {
+				group.removeAgentsFromDistantKernel(kernelAddress2);
+			}
 		}
 	}
 	

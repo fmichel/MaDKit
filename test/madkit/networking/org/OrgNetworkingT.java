@@ -7,6 +7,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import madkit.kernel.Madkit;
+import madkit.kernel.Madkit.Roles;
 import madkit.kernel.NetworkAgent;
 
 import org.junit.Test;
@@ -23,8 +24,8 @@ public class OrgNetworkingT extends JUnitBooterAgent{
 	 * 
 	 */
 	private static final long serialVersionUID = -4991355687268788558L;
-	String communityName = NetworkAgent.NETWORK_COMMUNITY;
-	String groupName = NetworkAgent.NETWORK_GROUP;
+	String communityName = Roles.LOCAL_COMMUNITY;
+	String groupName = Roles.NETWORK_GROUP;
 	String roleName = "net agent";
 	
 	

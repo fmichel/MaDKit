@@ -26,7 +26,10 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.SortedMap;
+
+import madkit.kernel.NetworkMessage.NetCode;
 
 /**
  * @author Fabien Michel
@@ -38,19 +41,14 @@ class KernelConnection extends Thread{
 
 	Socket distantKernelSocket = null;
 	boolean activated = false;
-	/**
-	 * @return the activated
-	 */
+
 	boolean isActivated() {
 		return activated;
 	}
 
-	/**
-	 * @param activated the activated to set
-	 */
-	void setActivated(boolean activated) {
-		this.activated = activated;
-	}
+//	void setActivated(boolean activated) {
+//		this.activated = activated;
+//	}
 
 	/**
 	 * @return the distantKernelSocket
@@ -95,10 +93,6 @@ class KernelConnection extends Thread{
 		initStreams();
 	}
 	
-	/**
-	 * @throws IOException 
-	 * 
-	 */
 	private void initStreams() throws IOException {
 			oos = new ObjectOutputStream(distantKernelSocket.getOutputStream());
 			ois = new ObjectInputStream(distantKernelSocket.getInputStream());
@@ -110,8 +104,8 @@ class KernelConnection extends Thread{
 	 * @throws IOException 
 	 */
 	@SuppressWarnings("unchecked")
-	HashMap<String,HashMap<String,HashMap<String,List<AgentAddress>>>> waitForDistantOrg() throws IOException, ClassNotFoundException {
-			return (HashMap<String,HashMap<String,HashMap<String,List<AgentAddress>>>>) ois.readObject();
+	SortedMap<String, SortedMap<String, SortedMap<String, Set<AgentAddress>>>> waitForDistantOrg() throws IOException, ClassNotFoundException {
+			return (SortedMap<String, SortedMap<String, SortedMap<String, Set<AgentAddress>>>>) ois.readObject();
 	}
 	
 	KernelAddress waitForDistantKernelAddress() throws IOException, ClassNotFoundException{
@@ -123,7 +117,7 @@ class KernelConnection extends Thread{
 	 * @param sortedMap
 	 * @throws IOException 
 	 */
-	void sendConnectionInfo(KernelAddress myKA, SortedMap<String, SortedMap<String, SortedMap<String, List<AgentAddress>>>> sortedMap) throws IOException {
+	void sendConnectionInfo(KernelAddress myKA, SortedMap<String, SortedMap<String, SortedMap<String, Set<AgentAddress>>>> sortedMap) throws IOException {
 			oos.writeObject(myKA);
 			oos.writeObject(sortedMap);
 	}
@@ -138,14 +132,15 @@ class KernelConnection extends Thread{
 		activated = true;
 		while(distantKernelSocket.isConnected()){
 			try {
-				NetworkMessage<?> m = (NetworkMessage<?>) ois.readObject();
-				myNetAgent.receiveMessage(m);
+//				NetworkMessage<?> m = (NetworkMessage<?>) ois.readObject();
+				myNetAgent.receiveMessage((Message) ois.readObject());
 //				myNetAgent.receiveMessage((NetworkMessage) ois.readObject());
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
+				myNetAgent.receiveMessage(new NetworkMessage<KernelAddress>(NetCode.PEER_DECONNECTED, kernelAddress));
 				closeConnection();
-				myNetAgent.deconnectWith(kernelAddress);
+//				myNetAgent.deconnectWith(kernelAddress);//TODO
 				return;
 			}		
 		}

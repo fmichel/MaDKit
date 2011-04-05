@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import madkit.kernel.NetworkAgent;
 import madkit.kernel.Madkit;
+import madkit.kernel.Madkit.Roles;
 import test.util.JUnitBooterAgent;
 /**
  * @author fab
@@ -32,8 +33,8 @@ public class DiscoverTest extends JUnitBooterAgent{
 		launchMKNetworkInstance();	
 		pause(10000);
 		if(logger != null)
-			logger.info(""+getAgentsWithRole(NetworkAgent.NETWORK_COMMUNITY, NetworkAgent.NETWORK_GROUP, NetworkAgent.NETWORK_ROLE));
-		assertEquals(6, getAgentsWithRole(NetworkAgent.NETWORK_COMMUNITY, NetworkAgent.NETWORK_GROUP, NetworkAgent.NETWORK_ROLE).size());
+			logger.info(""+getAgentsWithRole(Roles.LOCAL_COMMUNITY, Roles.NETWORK_GROUP,Roles.NETWORK_ROLE));
+		assertEquals(6, getAgentsWithRole(Roles.LOCAL_COMMUNITY, Roles.NETWORK_GROUP,Roles.NETWORK_ROLE).size());
 	}
 	
 	public void launchMKNetworkInstance() {

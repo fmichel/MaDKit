@@ -39,7 +39,7 @@ public class autoAgentLogDirOptionTest {
 	public void missingSlash() throws IOException, InterruptedException{
 		//		String[] argss = {"--autoAgentLogDirectory","bin","--launchAgents","madkit.kernel.AbstractAgent","--agentLogLevel","FINEST"};
 		//		Madkit.main(argss);
-		String option = "--autoAgentLogDirectory bin"+endOfCommandLine;
+		String option = "--createLogFiles bin"+endOfCommandLine;
 		System.err.println("testing "+option+"\n");
 		Process p = Runtime.getRuntime().exec("java -cp bin madkit.kernel.Madkit "+option);
 		p.waitFor();

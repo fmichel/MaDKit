@@ -45,7 +45,8 @@ final class LoggedKernel extends MadkitKernel {
 	final private MadkitKernel madkitKernel;
 
 	LoggedKernel(MadkitKernel k) {
-		super(null);
+		super(k);
+		setLoggedKernel(this);
 		madkitKernel = k;
 	}
 
@@ -417,6 +418,7 @@ final class LoggedKernel extends MadkitKernel {
 	
 	@Override
 	final ReturnCode killAgent(final AbstractAgent requester, final AbstractAgent target, int timeOutSeconds) {
+		kernelLog("Killing " + target.getName() + " and waiting its termination for " + timeOutSeconds + " s...", Level.FINER, null);
 		logMessage(requester, "Killing " + target.getName() + " and waiting its termination for " + timeOutSeconds + " s...");
 		switch (madkitKernel.killAgent(requester, target, timeOutSeconds)) {
 		case SUCCESS:
@@ -449,16 +451,6 @@ final class LoggedKernel extends MadkitKernel {
 //		}
 	}
 
-	@Override
-	String getMadkitProperty(AbstractAgent abstractAgent, String key) {
-		return madkitKernel.getMadkitProperty(abstractAgent, key);
-	}
-
-	@Override
-	void setMadkitProperty(final AbstractAgent requester, String key, String value) {
-		madkitKernel.setMadkitProperty(requester, key, value);// TODO update agent logging on or off
-	}
-	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -477,29 +469,6 @@ final class LoggedKernel extends MadkitKernel {
 	@Override
 	boolean addOverlooker(AbstractAgent requester, Overlooker<? extends AbstractAgent> o) {
 		return madkitKernel.addOverlooker(requester, o);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see madkit.kernel.RootKernel#injectOperation(madkit.kernel.NetworkAgent, int, madkit.kernel.AgentAddress)
-	 */
-	@Override
-	void injectOperation(NetworkAgent networkAgent, int operation, AgentAddress content) {
-		// TODO Auto-generated method stub
-		madkitKernel.injectOperation(networkAgent, operation, content);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see madkit.kernel.RootKernel#injectMessage(madkit.kernel.NetworkAgent, madkit.kernel.Message)
-	 */
-	@Override
-	void injectMessage(NetworkAgent networkAgent, Message content) {
-		if(networkAgent.getLogger() != null)
-			networkAgent.getLogger().finest("Injecting message = "+content);
-		madkitKernel.injectMessage(networkAgent,content);
 	}
 
 	final boolean logMessage(final AbstractAgent requester, final String m) {

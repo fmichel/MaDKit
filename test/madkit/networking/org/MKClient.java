@@ -9,6 +9,7 @@ import madkit.kernel.Agent;
 import madkit.kernel.AgentAddress;
 import madkit.kernel.Message;
 import madkit.kernel.NetworkAgent;
+import madkit.kernel.Madkit.Roles;
 import static madkit.kernel.AbstractAgent.ReturnCode.*;
 /**
  * @author fab
@@ -20,8 +21,8 @@ public class MKClient extends Agent{
 	 * 
 	 */
 	private static final long serialVersionUID = -371337965704044173L;
-	String communityName = NetworkAgent.NETWORK_COMMUNITY;
-	String groupName = NetworkAgent.NETWORK_GROUP;
+	String communityName = Roles.LOCAL_COMMUNITY;
+	String groupName = Roles.NETWORK_GROUP;
 	String roleName = "net agent";
 	private AgentAddress other;
 	

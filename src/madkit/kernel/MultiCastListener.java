@@ -18,8 +18,6 @@
  */
 package madkit.kernel;
 
-import static madkit.kernel.NetworkMessage.STOP_NETWORK;
-
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -27,6 +25,8 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+
+import madkit.kernel.NetworkMessage.NetCode;
 
 /**
  * @author Fabien Michel
@@ -70,11 +70,9 @@ final class MultiCastListener {
 						if(localIP.equals(packet.getAddress()) && localPort == packet.getPort()){
 							continue;
 						}
-						networkAgent.receiveMessage(new NewPeerMessage(packet));
+						networkAgent.receiveMessage(new NetworkMessage<DatagramPacket>(NetCode.NEW_PEER_DETECTED,packet));
 					} catch (IOException e) {
-						NetworkMessage<String> stopMessage = new NetworkMessage<String>(e.getMessage());
-						stopMessage.setCode(STOP_NETWORK);
-						networkAgent.receiveMessage(stopMessage);
+						networkAgent.receiveMessage(new Message());//Means Shutdown
 					}
 				}
 			}

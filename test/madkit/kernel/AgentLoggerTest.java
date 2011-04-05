@@ -1,5 +1,20 @@
-/**
+/*
+ * Copyright 1997-2011 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
+ * This file is part of MadKit.
+ * 
+ * MadKit is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ * 
+ * MadKit is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
  */
 package madkit.kernel;
 
@@ -19,8 +34,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
- * @author fab
- *
+ * @author Fabien Michel
+ * @since MadKit 5.0.0.5
+ * @version 0.9
+ * 
  */
 public class AgentLoggerTest {
 
@@ -63,15 +80,15 @@ public class AgentLoggerTest {
 	}
 	
 	@Test public void testNoLogger(){
-		assertNull(a.getLogger());
+		assertNotNull(a.getLogger());
 		a.setLogLevel(Level.OFF);
 		assertNull(a.getLogger());
 	}
 	
 	@Test public void testNoKernelChangeName() throws SecurityException, IOException{
-		assertNull(a.getLogger());
+		assertNotNull(a.getLogger());
 		a.setName("TEST");
-		assertNull(a.getLogger());
+		assertNotNull(a.getLogger());
 		a.setLogLevel(Level.INFO);
 		assertNotNull(a.getLogger());
 		a.getLogger().info(ReturnCode.ALREADY_GROUP.getMessage());
@@ -102,6 +119,7 @@ public class AgentLoggerTest {
 
 	@Test
 	public final void testCSAgentLogger() {
+		fail("Not yet implemented"); // TODO
 //		logger = new AgentLogger(a);
 //		logger.init(a, true, "null", null);
 //		logger.info("test");
@@ -111,6 +129,7 @@ public class AgentLoggerTest {
 
 	@Test
 	public final void testCSAndAutoLogDirLogger() {
+		fail("Not yet implemented"); // TODO
 //		a.setLogLevel(Level.INFO);
 //		AgentLogger logger = new AgentLogger(a);
 //		logger.init(a, true, "bin/", null);
@@ -122,6 +141,7 @@ public class AgentLoggerTest {
 	
 	@Test
 	public final void testInitFromOtherLogger(){
+		fail("Not yet implemented"); // TODO
 //		AgentLogger logger = new AgentLogger(a);
 //		logger.init(a, true, "bin/", null);
 //		logger.setLevel(Level.ALL);
@@ -133,13 +153,13 @@ public class AgentLoggerTest {
 //		logger2.fine("notExist");
 		
 	}
-
-	/**
-	 * Test method for {@link java.util.logging.Logger#log(java.util.logging.LogRecord)}.
-	 */
-	@Test
-	public final void testLogLogRecord() {
-		fail("Not yet implemented"); // TODO
-	}
+//
+//	/**
+//	 * Test method for {@link java.util.logging.Logger#log(java.util.logging.LogRecord)}.
+//	 */
+//	@Test
+//	public final void testLogLogRecord() {
+//		fail("Not yet implemented"); // TODO
+//	}
 
 }

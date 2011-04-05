@@ -30,10 +30,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 
 import madkit.gui.GUIMessage;
@@ -59,10 +63,9 @@ public class Agent extends AbstractAgent{
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -2333640522509416129L;
-	final ExecutorService agentExecutor;
+	private static final long serialVersionUID = 8564494100061187968L;
 	Thread myThread;
-	ArrayList<Future<Boolean>> myLifeCycle;
+	ArrayList<Future<Boolean>> myLifeCycle = new ArrayList<Future<Boolean>>();
 
 	//	/**
 	//	 * @return the myThread
@@ -75,13 +78,13 @@ public class Agent extends AbstractAgent{
 	 * 
 	 */
 	public Agent(boolean isDaemon) {
-		if (isDaemon) {
-			agentExecutor = Executors.newSingleThreadScheduledExecutor(daemonAgentThreadFactory);
+		if (isDaemon)
+			myLifeCycle.add(new FutureTask<Boolean>(new Callable<Boolean>() {
+				public Boolean call() throws Exception {
+					return null;
+				}
+			}));
 		}
-		else{
-			agentExecutor = Executors.newSingleThreadScheduledExecutor(normalAgentThreadFactory);
-		}
-	}
 
 	public Agent(){
 		this(false);
@@ -575,16 +578,9 @@ public class Agent extends AbstractAgent{
 	 * @return the myLifeCycle
 	 * @since MadKit 5
 	 */
+	@Override
 	final ArrayList<Future<Boolean>> getMyLifeCycle() {
 		return myLifeCycle;
-	}
-
-	/**
-	 * @return the agentExecutor
-	 */
-	@Override
-	final ExecutorService getAgentExecutor() {
-		return agentExecutor;
 	}
 
 	/**

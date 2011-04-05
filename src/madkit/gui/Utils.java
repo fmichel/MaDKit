@@ -72,7 +72,8 @@ final public class Utils {
 		madkitIcons.put("scheduler.step",new ImageIcon(Utils.class.getResource("images/scheduling/step.png")));
 		madkitIcons.put("scheduler.speedUp",new ImageIcon(Utils.class.getResource("images/scheduling/speedUp.png")));
 		madkitIcons.put("scheduler.speedDown",new ImageIcon(Utils.class.getResource("images/scheduling/speedDown.png")));
-		madkitIcons.put("madkit.exit",new ImageIcon(Utils.class.getResource("images/agent/exitMadKit.png")));
+		madkitIcons.put("madkit.exit",new ImageIcon(Utils.class.getResource("images/madkit/exitMadKit.png")));
+		madkitIcons.put("madkit.network",new ImageIcon(Utils.class.getResource("images/madkit/network_local.png")));
 	}
 	
 	static public void updateAgentUI(AbstractAgent a){

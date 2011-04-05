@@ -83,6 +83,7 @@ final class RootKernel extends MadkitKernel{
 	}
 
 	AgentAddress getAgentWithRole(final AbstractAgent requester, final String community, final String group, final String role){ 
+		new Exception().printStackTrace();
 		fakeKernelWarning(requester);
 		return null;
 	}

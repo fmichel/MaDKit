@@ -606,7 +606,10 @@ final public class Madkit {
 					number = Integer.parseInt(classAndOptions[2].trim());
 				}
 				logger.finer("Launching "+number+ " instance(s) of "+className+" with GUI = "+withGUI);
-				myKernel.receiveMessage(new KernelMessage(OperationCode.LAUNCH_AGENT, className,number,withGUI));
+				for (int i = 0; i < number; i++) {
+					myKernel.receiveMessage(new KernelMessage(
+							OperationCode.LAUNCH_AGENT, className, withGUI));
+				}
 			}
 		}
 	}

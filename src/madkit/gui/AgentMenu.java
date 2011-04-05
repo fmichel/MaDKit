@@ -66,18 +66,18 @@ public class AgentMenu extends JMenu implements AgentUIComponent{//TODO i18n
 			add(getReloadAndRelaunchAction(agent));
 		}
 		add(getKillAction(agent));
-		add(getExitMadkitAction(agent));
 	}
 	
 	public static Action getExitMadkitAction(final AbstractAgent a){
 		AbstractAction action = new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				
 				this.setEnabled(false);
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
-						a.requestRole(LOCAL_COMMUNITY, SYSTEM_GROUP, a.getName());
+//						a.requestRole(LOCAL_COMMUNITY, SYSTEM_GROUP, a.getName());
 						a.sendMessage(LOCAL_COMMUNITY, SYSTEM_GROUP, KERNEL_ROLE, new KernelMessage(OperationCode.SHUTDOWN_NOW, (Object)null));
 						a.killAgent(a);
 					}

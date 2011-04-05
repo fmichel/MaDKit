@@ -1,65 +1,80 @@
-/**
+/*
+ * Copyright 1997-2011 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
+ * This file is part of MadKit.
+ * 
+ * MadKit is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ * 
+ * MadKit is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
  */
 package madkit.gui;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static madkit.kernel.AbstractAgent.ReturnCode.*;
+import java.awt.Color;
+import java.util.logging.Level;
 
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+import madkit.gui.OutputPanel;
 import madkit.kernel.Agent;
-import test.util.JUnitBooterAgent;
+import madkit.kernel.AgentAddress;
+import madkit.kernel.Madkit;
+import madkit.messages.ObjectMessage;
+
 /**
- * @author fab
- *
+ * @author Fabien Michel
+ * @since MadKit 5.0.0.9
+ * @version 0.9
+ * 
  */
-@SuppressWarnings("serial")
-public class GUITest extends JUnitBooterAgent{
+public class GUITest extends Agent
+{
+	private AgentAddress currentPartner = null;
+	private String message="yes";
 
 
-
-	Agent other = new Agent(){protected void live() {
-		requestRole("public", "system", "other",null);
-		waitNextMessage();
+	@Override
+	public void activate()
+	{
+//		setLogLevel(Level.OFF);
+		createGroupIfAbsent("ping-pong","room",true, null);
+		requestRole("ping-pong","room","player",null);
 	}
-	};
-	Agent other2 = new Agent(){protected void activate() {
-		pause(100);
-		requestRole("public", "system", "other",null);
-		
-		for (int i = 0; i < 10; i++) {
-			//assert does not work in anonymous class
-			//		ObjectMessage<String> m = (ObjectMessage<String>) sendMessageAndWaitForReply(getAgentWithRole("public", "system", "other"), new Message());
-			//		assertEquals("reply1",m.getContent());
-			//		assertTrue("hello".equals(((ObjectMessage<String>) waitNextMessage()).getContent()));
-			//		assertEquals("hello2",((ObjectMessage<String>) waitNextMessage()).getContent());
-			//		m = (ObjectMessage<String>) sendMessageAndWaitForReply("public", "system", "other", new Message());
-			//		assertEquals("reply2",m.getContent());
-			//		assertEquals("hello3",((ObjectMessage<String>) waitNextMessage()).getContent());
-			//		assertEquals("hello4",((ObjectMessage<String>) waitNextMessage()).getContent());
-			pause(1000);
-			if (logger != null)
-				logger.info("living");
+
+	@Override
+	public void live()
+	{
+		while(true){
+			playing();
 		}
 	}
-	};
-	/* (non-Javadoc)
-	 * @see madkit.kernel.AbstractMadkitBooter#activate()
-	 */
+
+	private void playing() {
+		while (true) {
+			pause(1000);
+			getLogger().fine("infoying");
+			setLogLevel(Level.INFO);
+		}
+	}
+	
 	@Override
-	public void activate() {
-		testAgent = launchAgent("madkit.kernel.AbstractAgent",true);
-		assertNotNull(testAgent);
-		ReturnCode code;
-		code = testAgent.createGroup("public", "system", false,null);
-		assertEquals(SUCCESS,code);
-		code = testAgent.requestRole("public", "system", "site",null);
-		assertEquals(SUCCESS,code);
-		assertEquals(SUCCESS,testAgent.launchAgent(other,true));
-		assertEquals(SUCCESS,launchAgent(other2,true));// will end automatically when launch finished
-		
-//		while(getAgentState(other2) != 4)
-//			pause(10);
+	protected void end() {
+		if(logger != null)
+			logger.info("bye");
+	}
+	
+	public static void main(String[] args) {
+		String[] argss = {"--agentLogLevel","ALL","--launchAgents",GUITest.class.getName(),",true"};
+		Madkit.main(argss);		
 	}
 
 }

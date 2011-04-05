@@ -152,7 +152,7 @@ public class AbstractAgentTest {
 	 */
 	@Test
 	public final void testGetAgentExecutor() {
-		assertNull(a.getAgentExecutor());
+		assertNull(a.getMyLifeCycle());
 	}
 
 	/**

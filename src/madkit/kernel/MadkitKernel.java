@@ -129,11 +129,14 @@ class MadkitKernel extends Agent{
 
 	private AgentAddress netAgent;
 	//	private MadKitGUIsManager guiManager;
-	private Level defaultAgentLogLevel;
-	private Level defaultWarningLogLvl;
-
 	private LoggedKernel loggedKernel;
 	private boolean shuttedDown = false;
+	private Level defaultAgentLogLevel;
+	private Level defaultWarningLogLvl;
+	final AgentThreadFactory normalAgentThreadFactory;
+	final AgentThreadFactory daemonAgentThreadFactory;
+
+
 
 	//my private addresses for optimizing the message building
 	private AgentAddress netUpdater,netEmmiter,kernelRole;
@@ -150,6 +153,8 @@ class MadkitKernel extends Agent{
 									Madkit.warningLogLevel)));
 			organizations = new ConcurrentHashMap<String, Organization>();
 			operatingOverlookers = new LinkedHashSet<Overlooker<? extends AbstractAgent>>();
+			normalAgentThreadFactory = new AgentThreadFactory("MKRA"+kernelAddress, false);
+			daemonAgentThreadFactory = new AgentThreadFactory("MKDA"+kernelAddress, true);
 			setLogLevel(Level.ALL,Level.INFO);
 			//			launchingAgent(this, this, false);
 		}
@@ -157,6 +162,8 @@ class MadkitKernel extends Agent{
 			kernelAddress = null;
 			organizations = null;
 			operatingOverlookers = null;
+			normalAgentThreadFactory = null;
+			daemonAgentThreadFactory = null;
 		}
 	}
 
@@ -165,6 +172,8 @@ class MadkitKernel extends Agent{
 		kernelAddress = k.kernelAddress;
 		operatingOverlookers = k.operatingOverlookers;
 		platform = k.platform;
+		normalAgentThreadFactory = k.normalAgentThreadFactory;
+		daemonAgentThreadFactory = k.daemonAgentThreadFactory;
 	}
 
 	@Override
@@ -199,7 +208,7 @@ class MadkitKernel extends Agent{
 		Method operation = null;
 		final Object[] arguments = km.getContent();
 		switch (km.getCode()) {
-		case LAUNCH_AGENT:
+		case LAUNCH_AGENT://TODO semantic
 			operation = launchAgent(arguments);
 			break;
 		case SHUTDOWN_NOW:
@@ -765,25 +774,23 @@ class MadkitKernel extends Agent{
 		if(! agent.state.compareAndSet(NOT_LAUNCHED, INITIALIZING) || shuttedDown ){// this has to be done by a system thread
 			return ALREADY_LAUNCHED;			
 		}
-		final ExecutorService agentExecutor = agent.getAgentExecutor();
+		final ArrayList<Future<Boolean>> lifeCycle = agent.getMyLifeCycle();
 		agent.setKernel(this);
 
-		if (agent.getLogger() == AbstractAgent.defaultLogger) {
-			if(defaultAgentLogLevel == Level.OFF){
-				agent.logger = null;
-			}
-			else{
-				agent.setLogLevel(defaultAgentLogLevel, defaultWarningLogLvl);
-			}
+		if (defaultAgentLogLevel == Level.OFF && agent.logger == AbstractAgent.defaultLogger){
+			agent.logger = null;
+		}
+		else if (defaultAgentLogLevel != Level.OFF && agent.logger == AbstractAgent.defaultLogger) {
+			agent.setLogLevel(defaultAgentLogLevel, defaultWarningLogLvl);
 		}
 		if(! agent.getAlive().compareAndSet(false, true)){//TODO remove that
 			throw new AssertionError("already alive in launch");
 		}
-		if(agentExecutor == null){
+		if(lifeCycle == null){
 			return agent.activation(defaultGUI) ? SUCCESS : AGENT_CRASH;
 		}
 		try {
-			return startAgentLifeCycle((Agent)agent,agentExecutor,defaultGUI).get() ? SUCCESS : AGENT_CRASH;
+			return startAgentLifeCycle((Agent)agent,defaultGUI).get() ? SUCCESS : AGENT_CRASH;
 		} catch (InterruptedException e) {
 			if (! shuttedDown) {
 				kernelLog("KERNEL PROBLEM, please bug report", Level.SEVERE, e); //Kernel cannot be interrupted !!
@@ -798,8 +805,15 @@ class MadkitKernel extends Agent{
 		return LAUNCH_TIME_OUT;
 	}
 
-	Future<Boolean> startAgentLifeCycle(final Agent agent, final ExecutorService agentExecutor,final boolean gui) {
+	Future<Boolean> startAgentLifeCycle(final Agent agent, final boolean gui) {
 		final ArrayList<Future<Boolean>> lifeCycle = new ArrayList<Future<Boolean>>(4);
+		final ExecutorService agentExecutor;
+		if(agent.getMyLifeCycle().isEmpty()){
+			agentExecutor = Executors.newSingleThreadScheduledExecutor(normalAgentThreadFactory);
+		}
+		else{
+			agentExecutor = Executors.newSingleThreadScheduledExecutor(daemonAgentThreadFactory);
+		}
 		final Future<Boolean> activation = agentExecutor.submit(new Callable<Boolean>() {
 
 			public Boolean call(){
@@ -867,9 +881,9 @@ class MadkitKernel extends Agent{
 		if(! target.getAlive().compareAndSet(true,false)){// this has to be done by a system thread
 			return ALREADY_KILLED;
 		}
-		final ExecutorService agentExecutor = target.getAgentExecutor();
-		if(agentExecutor != null){
-			killThreadedAgent((Agent) target, agentExecutor);
+		final ArrayList<Future<Boolean>> lifeCycle = target.getMyLifeCycle();
+		if(lifeCycle != null){
+			killThreadedAgent((Agent) target);
 			return SUCCESS;
 		}
 		target.ending();
@@ -877,7 +891,7 @@ class MadkitKernel extends Agent{
 		return SUCCESS;
 	}
 
-	private void killThreadedAgent(final Agent target, ExecutorService agentExecutor){
+	private void killThreadedAgent(final Agent target){
 		target.myThread.setPriority(Thread.MIN_PRIORITY);
 		final ArrayList<Future<Boolean>> lifeCycle = target.getMyLifeCycle();
 		lifeCycle.get(1).cancel(true);
@@ -900,45 +914,6 @@ class MadkitKernel extends Agent{
 			kernelLog("wired bug report", Level.SEVERE, e);
 		}
 	}
-
-	/**
-	 * @see madkit.kernel.RootKernel#setLogLevel(madkit.kernel.AbstractAgent, java.lang.String, madkit.kernel.AgentLogger, java.util.logging.Level, java.util.logging.Level)
-	 */
-
-	void setLogLevel(AbstractAgent requester, String loggerName, Level newLevel, Level warningLogLevel) {
-		if(requester.logger == AbstractAgent.defaultLogger){
-			requester.logger = null;
-		}
-		final AgentLogger currentLogger = requester.getLogger();
-		if(currentLogger != null){
-			currentLogger.setWarningLogLevel(warningLogLevel);
-			currentLogger.setLevel(newLevel);
-		}
-		if (newLevel.equals(Level.OFF)) {
-			requester.logger = null;
-			return;
-		}
-		//the logger is null or has not the right name: find if the right one was already created
-		if (currentLogger == null || ! currentLogger.getName().equals(loggerName)) {
-			AgentLogger newLogger = new AgentLogger(loggerName);
-			if (LogManager.getLogManager().addLogger(newLogger)) {// This is a new logger
-				newLogger.init(requester, currentLogger, 
-						!parseBoolean(getMadkitProperty(requester, Madkit.noAgentConsoleLog)), 
-						parseBoolean(getMadkitProperty(requester, Madkit.createLogFiles)) ?
-								getMadkitProperty(requester, Madkit.logDirectory)
-								: null,
-								getMadkitProperty(requester, Madkit.agentsLogFile));
-				requester.logger = newLogger;
-			} else { // if it already exists : get it !
-				requester.logger = (AgentLogger) Logger.getLogger(loggerName);
-			}
-		}
-		requester.getLogger().setLevel(newLevel);
-		requester.getLogger().setWarningLogLevel(warningLogLevel);
-		requester.setKernel(loggedKernel);
-	}
-
-
 
 	///////////////////////////////////////////////////////////////////////////
 	////////////////////////// Organization access
@@ -1288,7 +1263,7 @@ class MadkitKernel extends Agent{
 			if (receiverRole != null) {
 				target = receiverRole.getAbstractAgentWithAddress(receiver);
 				if (target != null) {
-					target.receiveMessage(m);
+					target.receiveMessage(toInject);
 				}
 			}
 			if(target == null && logger != null)
@@ -1366,9 +1341,9 @@ class MadkitKernel extends Agent{
 		if(logger != null){
 			logger.talk(platform.printFareWellString());
 		}
-		AbstractAgent.normalAgentThreadFactory.getThreadGroup().interrupt();
+		normalAgentThreadFactory.getThreadGroup().interrupt();
 		pause(100);
-		AbstractAgent.normalAgentThreadFactory.getThreadGroup().interrupt();
+		normalAgentThreadFactory.getThreadGroup().interrupt();
 		MadkitKernel.this.getMadkitKernel().broadcastMessageWithRoleAndWaitForReplies(
 				MadkitKernel.this,
 				LOCAL_COMMUNITY, 
@@ -1379,7 +1354,7 @@ class MadkitKernel extends Agent{
 				1000);//TODO if it takes too long
 		//		if(logger != null)
 		//			logger.fine("Shutting down now !!");
-		AbstractAgent.normalAgentThreadFactory.getThreadGroup().stop();
+		normalAgentThreadFactory.getThreadGroup().stop();
 		LogManager.getLogManager().reset();
 		//			}
 		//		});

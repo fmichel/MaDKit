@@ -50,15 +50,6 @@ final class LoggedKernel extends MadkitKernel {
 		madkitKernel = k;
 	}
 
-	@Override
-	void setLogLevel(AbstractAgent requester, String loggerName, Level newLevel, Level warningLogLevel) {
-		logMessage(requester, "Changing log level from " + (requester.getLogger() == null ? "OFF" : requester.getLogger().getLevel()) + " to " + newLevel);
-		super.setLogLevel(requester, loggerName, newLevel, warningLogLevel);
-		if (requester.getLogger() == null) {
-			requester.setKernel(madkitKernel);
-		}
-	}
-
 	/**
 	 * @see madkit.kernel.MadkitKernel#createGroup(madkit.kernel.AbstractAgent, java.lang.String, java.lang.String, java.lang.String, madkit.kernel.GroupIdentifier, boolean)
 	 */

@@ -102,10 +102,11 @@ public class DefaultGUIsManagerAgent extends Agent  {
 		f.setVisible(true);
 	}
 
-	private JMenuBar createMenuBarFor(AbstractAgent a) {
+	private JMenuBar createMenuBarFor(AbstractAgent agent) {
 		JMenuBar menuBar = new JMenuBar();
-		menuBar.add(madkit.gui.Utils.createLaunchingMenu(a));
-		menuBar.add(madkit.gui.Utils.createLogLevelMenu(a));
+		menuBar.add(new MadkitMenu(agent));
+		menuBar.add(madkit.gui.Utils.createLaunchingMenu(agent));
+		menuBar.add(madkit.gui.Utils.createLogLevelMenu(agent));
 		return menuBar;
 	}
 

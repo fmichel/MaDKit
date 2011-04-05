@@ -19,13 +19,20 @@
 package madkit.kernel;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
 import java.util.logging.Handler;
 import java.util.logging.Level;
+import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
@@ -39,12 +46,11 @@ import java.util.logging.Logger;
  */
 public class AgentLogger extends Logger {
 
+	final static private Map<AbstractAgent,AgentLogger> agentLoggers = new HashMap<AbstractAgent,AgentLogger>();//TODO evaluate foot print
 	final static String madkitMessageBundleFile = "madkitMessageBundle";
 	final static Level talkLevel = Level.parse("1100");
-	private Level warningLogLevel = Level.INFO;
-	
 
-	final static Formatter agentFormatter = new Formatter(){//TODO create Formatter hierarchy
+	final public static Formatter agentFormatter = new Formatter(){//TODO create Formatter hierarchy
 		@Override
 		final public String format(final LogRecord record) {
 			final Level lvl = record.getLevel();
@@ -55,7 +61,7 @@ public class AgentLogger extends Logger {
 		}
 	};
 
-	public final static Formatter agentFileFormatter = new Formatter(){
+	final public static Formatter agentFileFormatter = new Formatter(){
 		@Override
 		final public String format(final LogRecord record) {
 			final Level lvl = record.getLevel();
@@ -66,11 +72,50 @@ public class AgentLogger extends Logger {
 		}
 	};
 
+//	final static Formatter unregisteredAgentFormatter = new Formatter(){
+//		@Override
+//		final public String format(final LogRecord record) {
+//			final Level lvl = record.getLevel();
+//			if(lvl.equals(talkLevel)){
+//				return record.getMessage();
+//			}
+//			new Exception().printStackTrace();
+//			return record.getSourceMethodName() + lvl.getLocalizedName()+" : "+formatMessage(record)+"\n";
+//		}
+//	};
 
-	final static AgentLogger getDefaultAgentLogger(){
-		return new AgentLogger("MK Agent");
-	}
+	final static AgentLogger defaultAgentLogger = new AgentLogger();
 	
+	private Level warningLogLevel = Level.parse(Madkit.defaultConfig.getProperty(Madkit.warningLogLevel));
+	final private AbstractAgent myAgent;
+
+
+	
+	public static AgentLogger getLogger(AbstractAgent agent) {
+		AgentLogger al = agentLoggers.get(agent);
+		if(al == null){
+			al = new AgentLogger(agent);
+			agentLoggers.put(agent, al);
+//			LogManager.getLogManager().addLogger(al);
+		}
+		return al;
+	}
+
+//	public static void renameLogger(AbstractAgent agent) {
+//		AgentLogger al = agentLoggers.get(agent);
+//		if(! al.getName().equals(agent.getName())){
+//			
+//		}
+//		if(al == null){
+//			al = new AgentLogger(agent);
+//			agentLoggers.put(agent, al);
+//			LogManager.getLogManager().addLogger(al);
+//		}
+//		return al;
+//	}
+
+
+
 	/**
 	 * @return the warningLogLevel
 	 */
@@ -83,14 +128,48 @@ public class AgentLogger extends Logger {
 	 */
 	public void setWarningLogLevel(Level warningLogLevel) {
 		this.warningLogLevel = warningLogLevel;
+		updateAgentUi();
 	}
 
-	/**
-	 * @param simpleName
-	 */
-	AgentLogger(String simpleName) {
-		super(simpleName, madkitMessageBundleFile);
-		setLevel(Level.INFO);
+	private void updateAgentUi() {
+		if (myAgent != null) {
+			madkit.gui.Utils.updateAgentUI(myAgent);
+		}
+	}
+	
+	AgentLogger(){
+		super("[UNREGISTERED AGENT]", madkitMessageBundleFile);
+		myAgent = null;
+		setUseParentHandlers(false);
+		super.setLevel(Level.parse(Madkit.defaultConfig.getProperty(Madkit.agentLogLevel)));
+		setWarningLogLevel(Level.parse(Madkit.defaultConfig.getProperty(Madkit.warningLogLevel)));
+		if(! Boolean.parseBoolean(Madkit.defaultConfig.getProperty(Madkit.noAgentConsoleLog))){
+			addHandler(new ConsoleHandler());
+		}
+	}
+
+	AgentLogger(AbstractAgent agent){
+		super("["+agent.getName()+"]", madkitMessageBundleFile);
+		myAgent = agent;
+		setUseParentHandlers(false);
+		super.setLevel(Level.parse(agent.getMadkitProperty(Madkit.agentLogLevel)));
+		setWarningLogLevel(Level.parse(agent.getMadkitProperty(Madkit.warningLogLevel)));
+		if(! Boolean.parseBoolean(agent.getMadkitProperty(Madkit.noAgentConsoleLog))){
+			addHandler(new ConsoleHandler());
+		}
+		if(Boolean.parseBoolean(agent.getMadkitProperty(Madkit.createLogFiles))){
+			addHandler(Utils.getFileHandler(agent.getMadkitProperty(Madkit.logDirectory)+getName()));
+		}
+	}
+
+	@Override
+	public synchronized void addHandler(Handler handler) throws SecurityException {
+		super.addHandler(handler);
+		if (handler instanceof FileHandler)
+			handler.setFormatter(agentFileFormatter);
+		else
+			handler.setFormatter(agentFormatter);
+		handler.setLevel(getLevel());
 	}
 
 	/**
@@ -108,96 +187,48 @@ public class AgentLogger extends Logger {
 		log(talkLevel,msg);
 	}
 	
-//	/**
-//	 * @see java.util.logging.Logger#log(java.util.logging.Level, java.lang.String)
-//	 */
-//	@Override
-//	public void log(Level level, String msg) {
-//		if(level == talkLevel)
-//			
-//		super.log(level, msg);
-//	}
+	//	/**
+	//	 * @see java.util.logging.Logger#log(java.util.logging.Level, java.lang.String)
+	//	 */
+	//	@Override
+	//	public void log(Level level, String msg) {
+	//		if(level == talkLevel)
+	//			
+	//		super.log(level, msg);
+	//	}
 
-//	void addGUIHandlerFor(AbstractAgent agent){
-//		if(agent.getGUIComponent() != null && agent.getGUIComponent() instanceof AgentGUIModel){
-//			OutputStream os = ((AgentGUIModel) agent.getGUIComponent()).getOutputStream();
-//			if(os != null){
-//				Handler h = new StreamHandler(os, AgentLogger.agentFileFormatter){
-//					@Override
-//					public synchronized void publish(LogRecord record) {
-//						super.publish(record);
-//						flush();
-//					}
-//				};
-//				h.setLevel(getLevel());
-//				addHandler(h);
-//			}
-//		}
-//	}
+	//	void addGUIHandlerFor(AbstractAgent agent){
+	//		if(agent.getGUIComponent() != null && agent.getGUIComponent() instanceof AgentGUIModel){
+	//			OutputStream os = ((AgentGUIModel) agent.getGUIComponent()).getOutputStream();
+	//			if(os != null){
+	//				Handler h = new StreamHandler(os, AgentLogger.agentFileFormatter){
+	//					@Override
+	//					public synchronized void publish(LogRecord record) {
+	//						super.publish(record);
+	//						flush();
+	//					}
+	//				};
+	//				h.setLevel(getLevel());
+	//				addHandler(h);
+	//			}
+	//		}
+	//	}
 
 	/**
 	 * @see java.util.logging.Logger#setLevel(java.util.logging.Level)
 	 */
 	@Override
 	public void setLevel(Level newLevel) throws SecurityException {
-		super.setLevel(newLevel);//TODO if OFF set agent's logger to null
+		//		super.setLevel(newLevel);//TODO if OFF set agent's logger to null
 		for(Handler h : getHandlers()){
 			h.setLevel(newLevel);
 		}
+		updateAgentUi();
 	}
-
-	/**
-	 * @param oldLogger
-	 * @param autoLogDir 
-	 */
-	private void initFromOldLogger(Logger oldLogger, String autoLogDir) {
-		for(Handler h : oldLogger.getHandlers()){
-			if(h instanceof FileHandler){
-				FileHandler fh = (FileHandler) h;
-				fh.flush();
-				fh.close();
-				File fhFile = new File(autoLogDir+oldLogger.getName());
-				if (! new File(autoLogDir+getName()).exists())
-					fhFile.renameTo(new File(autoLogDir+getName()));
-				try {
-					addHandler(Utils.createFileHandler(autoLogDir+getName(), this));
-				} catch (SecurityException e) {
-					e.printStackTrace();
-				}
-			}
-			else{
-				addHandler(h);
-			}
-		}
-	}
-
-	/**
-	 * @param abstractAgent
-	 * @param oldLogger
-	 * @param consoleOn
-	 * @param autoLogDir
-	 * @param agentsLogFile
-	 */
-	void init(AbstractAgent abstractAgent, Logger oldLogger, boolean consoleOn, String autoLogDir, String agentsLogFile) {
-		if(oldLogger != null){
-			initFromOldLogger(oldLogger,autoLogDir);
-		}
-		else{
-			setUseParentHandlers(false);
-			if(consoleOn){
-				addHandler(new ConsoleHandler());
-			}
-			if (autoLogDir != null) {
-				addHandler(Utils.getFileHandler(autoLogDir+getName()));
-			}			
-			for(Handler h : getHandlers()){
-				if (h instanceof FileHandler)
-					h.setFormatter(agentFileFormatter);
-				else
-					h.setFormatter(agentFormatter);
-			}
-		}
-		setLevel(getLevel());
+	
+	@Override
+	public String toString() {
+		return "Agent Logger"+ getName();
 	}
 
 	/**
@@ -218,4 +249,5 @@ public class AgentLogger extends Logger {
 		}
 		super.log(record);
 	}
+
 }

@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -45,6 +46,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Handler;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.JFrame;
 
@@ -96,12 +98,9 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 
 	private final static AtomicInteger agentCounter = new AtomicInteger(-1);
 
-	final static AgentThreadFactory normalAgentThreadFactory = new AgentThreadFactory("MKRA", false);//TODO move that into the kernel ensuring same JVM functioning
-	final static AgentThreadFactory daemonAgentThreadFactory = new AgentThreadFactory("MKDA", true);
-
 	private static final MadkitKernel fakeKernel = new RootKernel(null);
 
-	final static AgentLogger defaultLogger = AgentLogger.getDefaultAgentLogger();
+	final static AgentLogger defaultLogger = AgentLogger.defaultAgentLogger;
 
 
 	final AtomicReference<State> state = new AtomicReference<AbstractAgent.State>(AbstractAgent.State.NOT_LAUNCHED);
@@ -556,15 +555,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	/**
-	 * Returns the agent's logger.
-	 * 
-	 * @return the agent's logger. It may be <code>null</code> if the log level of this agent has been set to {@link Level#OFF}.
-	 */
-	public AgentLogger getLogger() {
-		return logger;
-	}
-
-	/**
 	 * @return the kernel
 	 */
 	final MadkitKernel getKernel() {
@@ -599,24 +589,49 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	public void setName(final String name) {// TODO trigger gui changes and so on
 		if (! getName().equals(name)) {
 			this.name = name;
-			if (logger != null)
-				setLogLevel(logger.getLevel());
 		}
 	}
 
 	/**
-	 * 
+	 * Sets the agent's log level
 	 */
 	public synchronized void setLogLevel(final Level newLevel) {
-		setLogLevel(newLevel, logger == null ? Level.parse(getMadkitProperty(Madkit.warningLogLevel)) : logger.getWarningLogLevel());
+		Logger tmp = logger;
+		if(Level.OFF == newLevel){
+			logger = null;
+			if(tmp != null){
+				tmp.setLevel(newLevel);
+				setKernel(kernel.getMadkitKernel());
+			}
+		}
+		else{
+			getLogger().setLevel(newLevel);
+			setKernel(kernel.getLoggedKernel());
+		}
+	}
+	
+	/**
+	 * Returns the agent's logger.
+	 * 
+	 * @return the agent's logger. It cannot be <code>null</code> as it will be created
+	 * if necessary. But you can still put {@link #logger} to <code>null</code>
+	 * for optimizing your code by using {@link #setLogLevel(Level)} with {@link Level#OFF}.
+	 * 
+	 * @since MadKit 5.0.0.6
+	 */
+	public AgentLogger getLogger(){
+		if(logger == defaultLogger || logger == null){
+			logger = AgentLogger.getLogger(this);
+		}
+		return logger;
 	}
 
 	/**
 	 * 
 	 */
 	public synchronized void setLogLevel(final Level newLevel, final Level warningLogLevel) {
-		kernel.setLogLevel(this, getLoggingName(), newLevel,warningLogLevel);
-		madkit.gui.Utils.updateAgentUI(this);
+		setLogLevel(newLevel);
+		AgentLogger.getLogger(this).setWarningLogLevel(warningLogLevel);
 	}
 
 	/**
@@ -887,7 +902,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 */
 	void terminate() {// TODO should be in mk
 		alive.set(false);
-		kernel.getMadkitKernel().broadcastMessageWithRole(
+		setKernel(kernel.getMadkitKernel());
+		kernel.broadcastMessageWithRole(
 				this,
 				LOCAL_COMMUNITY, 
 				SYSTEM_GROUP, 
@@ -914,9 +930,10 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	/**
-	 * @return
+	 * @return the myLifeCycle
+	 * @since MadKit 5.0.0.9
 	 */
-	ExecutorService getAgentExecutor() {
+	ArrayList<Future<Boolean>> getMyLifeCycle() {
 		return null;
 	}
 

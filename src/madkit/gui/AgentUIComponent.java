@@ -28,7 +28,7 @@ import madkit.kernel.AbstractAgent;
  */
 public interface AgentUIComponent {
 
-	public AbstractAgent getAgent();
+//	public AbstractAgent getAgent();
 	
 	public void updateAgentUI();
 }

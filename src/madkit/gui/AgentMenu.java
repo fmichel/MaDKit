@@ -54,7 +54,7 @@ import static madkit.kernel.Madkit.Roles.*;
 public class AgentMenu extends JMenu implements AgentUIComponent{//TODO i18n
 
 	final private AbstractAgent myAgent;
-	
+
 	AgentMenu(final AbstractAgent agent){
 		super("Agent");
 		setMnemonic(KeyEvent.VK_A);
@@ -67,47 +67,14 @@ public class AgentMenu extends JMenu implements AgentUIComponent{//TODO i18n
 		}
 		add(getKillAction(agent));
 	}
-	
-	public static Action getExitMadkitAction(final AbstractAgent a){
-		AbstractAction action = new AbstractAction() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				
-				this.setEnabled(false);
-				SwingUtilities.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-//						a.requestRole(LOCAL_COMMUNITY, SYSTEM_GROUP, a.getName());
-						a.sendMessage(LOCAL_COMMUNITY, SYSTEM_GROUP, KERNEL_ROLE, new KernelMessage(OperationCode.SHUTDOWN_NOW, (Object)null));
-						a.killAgent(a);
-					}
-				});
-			}
-		};
-		Utils.initAction(action, 
-				"Kill all agents and exit MadKit", 
-				"Kill all agents and exit MadKit",
-				"ExitMadKit",
-				"ExitMadKit",
-				KeyEvent.VK_E,
-				"madkit.exit",
-				KeyStroke.getKeyStroke(KeyEvent.VK_E,KeyEvent.CTRL_MASK),
-				true);
-		return action;
-	}
-	
+
 	public static Action getRelaunchAction(final AbstractAgent a){
 		AbstractAction action = new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				this.setEnabled(false);
-				SwingUtilities.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-						a.launchAgent(a.getClass().getName(),true);
-						a.killAgent(a);
-					}
-				});
+				a.launchAgent(a.getClass().getName(),true);
+				a.killAgent(a);
 			}
 		};
 		Utils.initAction(action, 
@@ -157,19 +124,19 @@ public class AgentMenu extends JMenu implements AgentUIComponent{//TODO i18n
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
-							try {
-								a.reloadAgentClass(a.getClass().getName());
-							} catch (ClassNotFoundException e) {
-								e.printStackTrace();//TODO log this but should not happen
-							}
-							a.launchAgent(a.getClass().getName(), true);
-							if (a.getState() != AbstractAgent.State.TERMINATED) {
-								a.killAgent(a);
-								//						} catch (IllegalAccessError e) {
-								//							e.printStackTrace();
-								//							JOptionPane.showMessageDialog(null, "Reload is for now not functionnal on this agent (probably embedding inner classes) Sorry...", "MadKit apologies", JOptionPane.WARNING_MESSAGE);
-								//						}
-							}
+						try {
+							a.reloadAgentClass(a.getClass().getName());
+						} catch (ClassNotFoundException e) {
+							e.printStackTrace();//TODO log this but should not happen
+						}
+						a.launchAgent(a.getClass().getName(), true);
+						if (a.getState() != AbstractAgent.State.TERMINATED) {
+							a.killAgent(a);
+							//						} catch (IllegalAccessError e) {
+							//							e.printStackTrace();
+							//							JOptionPane.showMessageDialog(null, "Reload is for now not functionnal on this agent (probably embedding inner classes) Sorry...", "MadKit apologies", JOptionPane.WARNING_MESSAGE);
+							//						}
+						}
 					}
 				});
 			}
@@ -185,7 +152,7 @@ public class AgentMenu extends JMenu implements AgentUIComponent{//TODO i18n
 				true);
 		return action;
 	}
-	
+
 	public static Action getKillAction(final AbstractAgent a){
 		AbstractAction action = new AbstractAction() {
 			@Override
@@ -194,7 +161,7 @@ public class AgentMenu extends JMenu implements AgentUIComponent{//TODO i18n
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
-							a.killAgent(a);
+						a.killAgent(a);
 					}
 				});
 			}
@@ -218,9 +185,9 @@ public class AgentMenu extends JMenu implements AgentUIComponent{//TODO i18n
 	public void updateAgentUI() {
 	}
 
-	@Override
-	public AbstractAgent getAgent() {
-		return myAgent;
-	}
+	//	@Override
+	//	public AbstractAgent getAgent() {
+	//		return myAgent;
+	//	}
 
 }

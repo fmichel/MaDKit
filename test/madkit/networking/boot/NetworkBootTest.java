@@ -5,7 +5,6 @@ package madkit.networking.boot;
 
 import static org.junit.Assert.assertEquals;
 import madkit.kernel.Madkit;
-import madkit.kernel.NetworkAgent;
 import madkit.kernel.Madkit.Roles;
 import test.util.JUnitBooterAgent;
 /**

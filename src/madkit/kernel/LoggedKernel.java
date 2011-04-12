@@ -238,7 +238,12 @@ final class LoggedKernel extends MadkitKernel {
 		case NOT_IN_GROUP:
 			return requester.handleException(new sendMessageWarning(NOT_IN_GROUP, printCGR(receiver.getCommunity(), receiver.getGroup())));
 		case INVALID_AA:
-			return requester.handleException(new sendMessageWarning(INVALID_AA, printCGR(receiver.getCommunity(), receiver.getGroup(), receiver.getRole())));
+			if (receiver.isLocal()) {
+				return requester.handleException(new sendMessageWarning(
+						INVALID_AA));//, printCGR(receiver.getCommunity(), receiver.getGroup(), receiver.getRole())));
+			}
+		case NETWORK_DOWN:
+			return requester.handleException(new sendMessageWarning(NETWORK_DOWN));//, printCGR(receiver.getCommunity(), receiver.getGroup(), receiver.getRole())));
 		default:
 			return requester.handleException(new sendMessageWarning(SEVERE, "result not handled"));
 		}

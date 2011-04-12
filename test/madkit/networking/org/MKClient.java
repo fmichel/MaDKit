@@ -3,14 +3,13 @@
  */
 package madkit.networking.org;
 
+import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import madkit.kernel.Agent;
 import madkit.kernel.AgentAddress;
-import madkit.kernel.Message;
-import madkit.kernel.NetworkAgent;
 import madkit.kernel.Madkit.Roles;
-import static madkit.kernel.AbstractAgent.ReturnCode.*;
+import madkit.kernel.Message;
 /**
  * @author fab
  *

@@ -1,22 +1,42 @@
-/**
+/*
+ * Copyright 1997-2011 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
+ * This file is part of MadKit.
+ * 
+ * MadKit is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ * 
+ * MadKit is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
  */
 package madkit.api.abstractAgent;
 
-import madkit.kernel.*;
-import static org.junit.Assert.*;
+import static madkit.kernel.AbstractAgent.ReturnCode.AGENT_CRASH;
+import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_LAUNCHED;
+import static madkit.kernel.AbstractAgent.ReturnCode.INVALID_ARG;
+import static madkit.kernel.AbstractAgent.ReturnCode.LAUNCH_TIME_OUT;
+import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
+import static org.junit.Assert.assertEquals;
+import madkit.kernel.AbstractAgent;
+import madkit.kernel.Agent;
+import madkit.kernel.JunitMadKit;
 
-import org.junit.Assert;
 import org.junit.Test;
-import static madkit.kernel.AbstractAgent.ReturnCode.*;
-import static madkit.kernel.Madkit.Roles.*;
-
-import test.util.JUnitBooterAgent;
 
 /**
- * @author fab
- *
+ * @author Fabien Michel
+ * @since MadKit 5.0.0.5
+ * @version 0.9
+ * 
  */
+@SuppressWarnings("serial")
 public class LaunchAgentTest  extends JunitMadKit{
 
 	final AbstractAgent target = new Agent(){
@@ -34,6 +54,7 @@ public class LaunchAgentTest  extends JunitMadKit{
 	};
 
 	final AbstractAgent faulty = new Agent(){
+		@SuppressWarnings("null")
 		protected void activate() {
 			Object o = null;
 			o.toString();

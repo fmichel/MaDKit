@@ -151,7 +151,7 @@ public class AgentAddress implements java.io.Serializable{
 	@Override
 	public String toString() {
 		if(roleObject == null)
-			return Utils.getI18N("unregisteredAgentAddress");
+			return Utils.getI18N("unregisteredAA");
 //		return agentCode+"@("+getCommunity()+"."+getGroup()+"."+getRole()+(isLocal() ? ")" : ")@"+getKernelAddress());
 		return agentCode+"@("+getCommunity()+","+getGroup()+","+getRole()+getKernelAddress();
 	}
@@ -206,6 +206,20 @@ public class AgentAddress implements java.io.Serializable{
 	public boolean exists() {
 		return roleObject != null;
 	}
+
+	/**
+	 * Tells if the address belongs to a local agent. This does not imply that the address 
+	 * is still valid and exists in the artificial society. This only tells if the agent
+	 * for which this address has been created was running on the local kernel.
+	 *  
+	 * @return <code>true</code> if this address corresponds to an agent which is running
+	 * on the same kernel.
+	 * @since MadKit 1
+	 * @see #exists()
+	 */
+	public boolean isLocal() {
+		return agent != null;///*exists() && */kernelAddress.equals(roleObject.getKernelAddress());//will crash if used inside the network agent
+	}
 }
 
 final class CandidateAgentAddress extends AgentAddress{
@@ -227,6 +241,11 @@ final class CandidateAgentAddress extends AgentAddress{
 	@Override
 	final public String getRole() {
 		return Roles.GROUP_CANDIDATE_ROLE;
+	}
+	
+	@Override
+	public boolean exists() {
+		return true;
 	}
 
 }

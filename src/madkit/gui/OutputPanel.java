@@ -109,14 +109,6 @@ public class OutputPanel extends JPanel {
 				flush();
 			}
 		};
-		Logger logger = agent.getLogger();
-		if (logger != null && logger.getLevel() != Level.OFF) {
-			agent.setLogLevel(logger.getLevel());
-		}
-		else{
-			agent.setLogLevel(Level.INFO);
-		}
-		handler.setLevel(agent.getLogger().getLevel());
 		agent.getLogger().addHandler(handler);
 
 		add("Center",new JScrollPane(outField));

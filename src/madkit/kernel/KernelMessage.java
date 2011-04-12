@@ -61,6 +61,10 @@ public class KernelMessage extends ObjectMessage<Object[]> {
 		
 		LAUNCH_AGENT,
 		
+		LAUNCH_NETWORK,
+		
+		STOP_NETWORK,
+		
 //		KILL_AGENT,
 	}
 	

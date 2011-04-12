@@ -3,17 +3,17 @@
  */
 package madkit.networking.org;
 
+import static madkit.kernel.AbstractAgent.ReturnCode.ROLE_ALREADY_HANDLED;
+import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.Roles;
-import madkit.kernel.NetworkAgent;
 
 import org.junit.Test;
 
 import test.util.JUnitBooterAgent;
-import static madkit.kernel.AbstractAgent.ReturnCode.*;
 /**
  * @author fab
  *

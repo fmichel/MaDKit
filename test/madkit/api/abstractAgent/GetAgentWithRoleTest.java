@@ -18,17 +18,15 @@
  */
 package madkit.api.abstractAgent;
 
+import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.GroupIdentifier;
 import madkit.kernel.JunitMadKit;
 import madkit.kernel.Madkit.Roles;
-import static org.junit.Assert.*;
 
-import org.junit.Assert;
 import org.junit.Test;
-import static madkit.kernel.AbstractAgent.ReturnCode.*;
-
-import test.util.JUnitBooterAgent;
 
 /**
  * @author Fabien Michel
@@ -36,6 +34,7 @@ import test.util.JUnitBooterAgent;
  * @version 0.9
  * 
  */
+@SuppressWarnings("serial")
 public class GetAgentWithRoleTest  extends JunitMadKit{
 	
 	final AbstractAgent target = new AbstractAgent(){

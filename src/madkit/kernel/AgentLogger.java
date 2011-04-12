@@ -72,47 +72,47 @@ public class AgentLogger extends Logger {
 		}
 	};
 
-//	final static Formatter unregisteredAgentFormatter = new Formatter(){
-//		@Override
-//		final public String format(final LogRecord record) {
-//			final Level lvl = record.getLevel();
-//			if(lvl.equals(talkLevel)){
-//				return record.getMessage();
-//			}
-//			new Exception().printStackTrace();
-//			return record.getSourceMethodName() + lvl.getLocalizedName()+" : "+formatMessage(record)+"\n";
-//		}
-//	};
+	//	final static Formatter unregisteredAgentFormatter = new Formatter(){
+	//		@Override
+	//		final public String format(final LogRecord record) {
+	//			final Level lvl = record.getLevel();
+	//			if(lvl.equals(talkLevel)){
+	//				return record.getMessage();
+	//			}
+	//			new Exception().printStackTrace();
+	//			return record.getSourceMethodName() + lvl.getLocalizedName()+" : "+formatMessage(record)+"\n";
+	//		}
+	//	};
 
 	final static AgentLogger defaultAgentLogger = new AgentLogger();
-	
+
 	private Level warningLogLevel = Level.parse(Madkit.defaultConfig.getProperty(Madkit.warningLogLevel));
 	final private AbstractAgent myAgent;
 
 
-	
-	public static AgentLogger getLogger(AbstractAgent agent) {
+
+	static AgentLogger getLogger(AbstractAgent agent) {
 		AgentLogger al = agentLoggers.get(agent);
 		if(al == null){
 			al = new AgentLogger(agent);
 			agentLoggers.put(agent, al);
-//			LogManager.getLogManager().addLogger(al);
+			//			LogManager.getLogManager().addLogger(al);
 		}
 		return al;
 	}
 
-//	public static void renameLogger(AbstractAgent agent) {
-//		AgentLogger al = agentLoggers.get(agent);
-//		if(! al.getName().equals(agent.getName())){
-//			
-//		}
-//		if(al == null){
-//			al = new AgentLogger(agent);
-//			agentLoggers.put(agent, al);
-//			LogManager.getLogManager().addLogger(al);
-//		}
-//		return al;
-//	}
+	//	public static void renameLogger(AbstractAgent agent) {
+	//		AgentLogger al = agentLoggers.get(agent);
+	//		if(! al.getName().equals(agent.getName())){
+	//			
+	//		}
+	//		if(al == null){
+	//			al = new AgentLogger(agent);
+	//			agentLoggers.put(agent, al);
+	//			LogManager.getLogManager().addLogger(al);
+	//		}
+	//		return al;
+	//	}
 
 
 
@@ -123,8 +123,10 @@ public class AgentLogger extends Logger {
 		return warningLogLevel;
 	}
 
-	/**
-	 * @param warningLogLevel the warningLogLevel to set
+	/** 
+	 * Sets the agent's log level above which MadKit warnings are displayed
+	 * 
+	 * @param warningLogLevel the log level to set
 	 */
 	public void setWarningLogLevel(Level warningLogLevel) {
 		this.warningLogLevel = warningLogLevel;
@@ -136,7 +138,7 @@ public class AgentLogger extends Logger {
 			madkit.gui.Utils.updateAgentUI(myAgent);
 		}
 	}
-	
+
 	AgentLogger(){
 		super("[UNREGISTERED AGENT]", madkitMessageBundleFile);
 		myAgent = null;
@@ -177,16 +179,21 @@ public class AgentLogger extends Logger {
 	 * to produce messages that will be rendered as they are, without any 
 	 * formatting work nor end-of-line character.
 	 * <p>
-	 * If the logger is currently not <code>null</code>, 
+	 * If the logger's level is not {@link Level#OFF} 
 	 * then the given message is forwarded to all the
 	 * registered output Handler objects.
 	 * <p>
-	 * @param   msg	The string message (or a key in the message catalog)
+	 * If the logger's level is {@link Level#OFF} 
+	 * then the message is only printed to {@link System#err}
+	 * @param   msg	The string message 
 	 */
 	public void talk(String msg){
-		log(talkLevel,msg);
+		if(getLevel() == Level.OFF)
+			System.err.print(msg);
+		else
+			log(talkLevel,msg);
 	}
-	
+
 	//	/**
 	//	 * @see java.util.logging.Logger#log(java.util.logging.Level, java.lang.String)
 	//	 */
@@ -219,13 +226,13 @@ public class AgentLogger extends Logger {
 	 */
 	@Override
 	public void setLevel(Level newLevel) throws SecurityException {
-		//		super.setLevel(newLevel);//TODO if OFF set agent's logger to null
+		super.setLevel(newLevel);
 		for(Handler h : getHandlers()){
 			h.setLevel(newLevel);
 		}
 		updateAgentUi();
 	}
-	
+
 	@Override
 	public String toString() {
 		return "Agent Logger"+ getName();

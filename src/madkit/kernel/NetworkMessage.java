@@ -18,10 +18,6 @@
  */
 package madkit.kernel;
 
-import java.net.DatagramPacket;
-import java.net.Socket;
-
-import madkit.kernel.AbstractAgent;
 import madkit.messages.ObjectMessage;
 
 /**
@@ -30,12 +26,12 @@ import madkit.messages.ObjectMessage;
  * @version 0.9
  * 
  */
-public class NetworkMessage<T> extends ObjectMessage<T> {
+class NetworkMessage<T> extends ObjectMessage<T> {
 	
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -4678830796112377348L;
+	private static final long serialVersionUID = -7003030390114277088L;
 	final private NetCode code;
 
 	public NetworkMessage(NetCode code, T content) {
@@ -52,34 +48,35 @@ public class NetworkMessage<T> extends ObjectMessage<T> {
 		STOP_NETWORK,
 		NEW_PEER_DETECTED,
 		PEER_DECONNECTED,
-		NEW_PEER_REQUEST
+		NEW_PEER_REQUEST,
+		FAILURE
 	}
 
 }
 
-class NewPeerMessage extends NetworkMessage<DatagramPacket>{
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -1804809279823744173L;
-
-	/**
-	 * @param content
-	 */
-	public NewPeerMessage(DatagramPacket content) {
-		super(NetCode.NEW_PEER_DETECTED, content);
-	}
-}
-
-class NewPeerConnectionRequest extends NetworkMessage<Socket>{
-
-	private static final long serialVersionUID = 6092436677566809561L;
-
-	/**
-	 * @param content
-	 */
-	public NewPeerConnectionRequest(Socket content) {
-		super(NetCode.NEW_PEER_REQUEST,content);
-	}
-	
-}
+//class NewPeerMessage extends NetworkMessage<DatagramPacket>{
+//	/**
+//	 * 
+//	 */
+//	private static final long serialVersionUID = -1804809279823744173L;
+//
+//	/**
+//	 * @param content
+//	 */
+//	public NewPeerMessage(DatagramPacket content) {
+//		super(NetCode.NEW_PEER_DETECTED, content);
+//	}
+//}
+//
+//class NewPeerConnectionRequest extends NetworkMessage<Socket>{
+//
+//	private static final long serialVersionUID = 6092436677566809561L;
+//
+//	/**
+//	 * @param content
+//	 */
+//	public NewPeerConnectionRequest(Socket content) {
+//		super(NetCode.NEW_PEER_REQUEST,content);
+//	}
+//	
+//}

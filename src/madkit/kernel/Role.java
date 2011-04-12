@@ -269,7 +269,7 @@ class Role implements Serializable{//TODO test with arraylist
 				return ROLE_NOT_HANDLED;
 			}
 			if (agentAddresses != null) {
-				removeAgentAddressOf(requester, agentAddresses);
+				removeAgentAddressOf(requester, agentAddresses).setRoleObject(null);
 			}
 			//		referenceableAgents.remove(requester.getAgent());
 			if (logger != null) {
@@ -364,16 +364,6 @@ class Role implements Serializable{//TODO test with arraylist
 		return null;
 	}
 
-	AgentAddress getAgentAddressOf(final AbstractAgent a){
-		synchronized (players) {
-			for (final AgentAddress aa : buildAndGetAddresses()) {//TODO when offline second part is useless
-				if (aa.getAgentCode() == a.hashCode() && a.getKernelAddress().equals(aa.getKernelAddress()))
-					return aa;
-			}
-		}
-		return null;
-	}
-
 	boolean empty() {
 		//players == null is not possible TODO
 		return ( (players == null || players.isEmpty()) && (agentAddresses == null || agentAddresses.isEmpty()) );//simply not possible if not following remove A
@@ -417,9 +407,9 @@ class Role implements Serializable{//TODO test with arraylist
 //		return false;
 //	}
 
-	final boolean isPlayingRole(final AgentAddress agent){
-		return getAgentAddresses().contains(agent);
-	}
+//	final boolean isPlayingRole(final AgentAddress agent){
+//		return getAgentAddresses().contains(agent);
+//	}
 
 	final List<AbstractAgent> getAgentsList()
 	{
@@ -472,14 +462,28 @@ class Role implements Serializable{//TODO test with arraylist
 
 	}
 
+	AgentAddress getAgentAddressOf(final AbstractAgent a){
+		final int hash = a.hashCode();
+		final KernelAddress ka = a.getKernelAddress();
+		synchronized (players) {
+			for (final AgentAddress aa : buildAndGetAddresses()) {//TODO when offline second part is useless
+				if (aa.getAgentCode() == hash && ka.equals(aa.getKernelAddress()))
+					return aa;
+			}
+		}
+		return null;
+	}
+
+
 	/**
 	 * @param aa
 	 * @return the AbstractAgent corresponding to the aa agentAddress in this role, null if it does no longer play this role
 	 */
 	AbstractAgent getAbstractAgentWithAddress(AgentAddress aa) {
+		final int hash = aa.getAgentCode();
 		synchronized (players) {
 			for (final AbstractAgent agent : players) {
-				if (agent.hashCode() == aa.getAgentCode())
+				if (agent.hashCode() == hash)
 					return agent;
 			}
 		}

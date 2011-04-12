@@ -18,21 +18,21 @@
  */
 package madkit.api.abstractAgent;
 
+import static madkit.kernel.AbstractAgent.ReturnCode.NOT_COMMUNITY;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import java.util.logging.ConsoleHandler;
-import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.GroupIdentifier;
 import madkit.kernel.JunitMadKit;
-import static org.junit.Assert.*;
 
-import org.junit.Assert;
 import org.junit.Test;
-import static madkit.kernel.AbstractAgent.ReturnCode.*;
-
-import test.util.JUnitBooterAgent;
 
 /**
  * @author Fabien Michel
@@ -40,6 +40,7 @@ import test.util.JUnitBooterAgent;
  * @version 0.9
  * 
  */
+@SuppressWarnings("serial")
 public class DefaultLoggingLevelTest  extends JunitMadKit{
 		
 	@Test
@@ -47,19 +48,19 @@ public class DefaultLoggingLevelTest  extends JunitMadKit{
 		addMadkitArgs("--agentLogLevel","OFF","--warningLogLevel","OFF");
 		launchTest(new AbstractAgent(){
 			protected void activate() {
-				assertNull(getLogger());
+				assertNull(logger);
 			assertEquals(NOT_COMMUNITY, requestRole(COMMUNITY,GROUP,ROLE));
 		}});
 		addMadkitArgs("--agentLogLevel","OFF","--warningLogLevel","INFO");
 		launchTest(new AbstractAgent(){
 			protected void activate() {
-				assertNull(getLogger());
+				assertNull(logger);
 			assertEquals(NOT_COMMUNITY, requestRole(COMMUNITY,GROUP,ROLE));
 		}});
 		addMadkitArgs("--agentLogLevel","OFF","--warningLogLevel","ALL");
 		launchTest(new AbstractAgent(){
 			protected void activate() {
-				assertNull(getLogger());
+				assertNull(logger);
 			assertEquals(NOT_COMMUNITY, requestRole(COMMUNITY,GROUP,ROLE));
 		}});
 	}

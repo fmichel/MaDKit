@@ -42,7 +42,7 @@ import org.junit.Test;
  * @version 0.9
  * 
  */
-@SuppressWarnings("serial")
+@SuppressWarnings("all")
 public class sendMessageAndWaitForReplyWithAATest  extends JunitMadKit{
 
 	final Agent target = new Agent(){
@@ -64,7 +64,6 @@ public class sendMessageAndWaitForReplyWithAATest  extends JunitMadKit{
 	};
 	
 	final Agent target2 = new Agent(){
-		AgentAddress aa;
 		protected void activate() {
 			assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP));
 		}
@@ -110,6 +109,7 @@ public class sendMessageAndWaitForReplyWithAATest  extends JunitMadKit{
 				assertNotNull(nextMessage());
 				assertNull(nextMessage());
 				pause(100);
+				assertEquals(INVALID_AA, sendMessage(aa, new Message()));//the target has gone: AgentAddress no longer valid
 				assertNull(sendMessageAndWaitForReply(aa, new Message()));//the target has gone: AgentAddress no longer valid
 			}});
 	}

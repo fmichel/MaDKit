@@ -1,5 +1,20 @@
-/**
+/*
+ * Copyright 1997-2011 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
+ * This file is part of MadKit.
+ * 
+ * MadKit is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ * 
+ * MadKit is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
  */
 package madkit.kernel;
 
@@ -12,8 +27,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * @author fab
- *
+ * @author Fabien Michel
+ * @since MadKit 5.0.0.5
+ * @version 0.9
+ * 
  */
 public class AbstractAgentTest {
 	
@@ -24,14 +41,6 @@ public class AbstractAgentTest {
 		a = new AbstractAgent();
 		b = new AbstractAgent();
 		a.kernel = new MadkitKernel(new Madkit(null));
-	}
-	/**
-	 * Test method for {@link madkit.kernel.AbstractAgent#hashCode()}.
-	 */
-	@Test
-	public final void testHashCode() {
-		assertEquals(a.hashCode(), 1);
-		assertEquals(5, new AbstractAgent().hashCode());//1+kernel+booter+junit+new = 5
 	}
 	
 	@Test
@@ -89,7 +98,7 @@ public class AbstractAgentTest {
 	 */
 	@Test
 	public final void testGetLogger() {
-		assertEquals(a.getLogger(),AbstractAgent.defaultLogger);
+		assertNotSame(a.getLogger(),AbstractAgent.defaultLogger);
 	}
 
 	/**
@@ -116,14 +125,14 @@ public class AbstractAgentTest {
 	 */
 	@Test
 	public final void testSetLogLevel() {
-		assertEquals(a.getLogger(),AbstractAgent.defaultLogger);
+		assertEquals(a.logger,AbstractAgent.defaultLogger);
 		a.setLogLevel(Level.OFF);
 		assertNull(a.logger);
 		a.setLogLevel(Level.INFO);
 		assertNotNull(a.logger);
 		a.setName("new");
 		System.err.println(a.getLogger().getName());
-		assertTrue(a.getLogger().getName().equals(a.getLoggingName()));//one space for no concatenation of string
+		assertTrue(a.getLogger().getName().equals(a.getName()));//one space for no concatenation of string
 		assertTrue(a.getLoggingName().endsWith("new]"));
 		a.setLogLevel(Level.OFF);
 		assertNull(a.logger);

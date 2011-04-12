@@ -18,7 +18,6 @@
  */
 package madkit.kernel;
 
-import static java.lang.Boolean.parseBoolean;
 import static madkit.kernel.Utils.createFileHandler;
 import static madkit.kernel.Utils.logSevereException;
 import static madkit.kernel.Utils.logWarningException;
@@ -30,9 +29,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -57,10 +54,11 @@ import java.util.logging.Logger;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import madkit.kernel.KernelMessage.OperationCode;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-import madkit.kernel.KernelMessage.OperationCode;
 /**
  * The brand new version of the starter class of MadKit.
  * <p>
@@ -142,8 +140,9 @@ final public class Madkit {
 	/**
 	 * Parameterizable option defining the default warning log level for newly
 	 * launched agents. Key value is {@value}.
-	 * Default value is "FINE". This value could be overridden
-	 * individually by agents using {@link AbstractAgent#setLogLevel(Level, Level)}. 
+	 * Default value is "FINE". This value could be changed
+	 * individually by the agents using {@link AgentLogger#setWarningLogLevel(Level)} 
+	 * on their personnal logger. 
 	 * <p>Example:
 	 * <ul>
 	 * <li> : --{@value} OFF</li> 
@@ -402,24 +401,24 @@ final public class Madkit {
 		}
 	}
 
-	private void start() {
-		//setting up default configuration
-		//		madkitConfig.putAll(defaultConfig);
-		//
-		//		//		madkitConfig.put(MADKIT_LOG_LEVEL, Level.FINEST.toString()); // if I want to debug starting phase
-		//
-		//		logger = Logger.getLogger(mkLoggerName);
-		//		logger.setLevel(Level.parse(madkitConfig.getProperty(Madkit.MadkitLogLevel)));
-		//		logger.setUseParentHandlers(false);
-		//		final ConsoleHandler cs = new ConsoleHandler();
-		//		cs.setLevel(logger.getLevel());
-		//		cs.setFormatter(new MadkitFormatter());
-		//		logger.addHandler(cs);
-		//		logger.fine("****** MadKit is starting ******\n"); //TODO i18n
-		//		logger.fine("****** MadKit kernel address is "+platformID+" ******\n"); //TODO i18n
-
-
-	}
+//	private void start() {
+//		//setting up default configuration
+//		//		madkitConfig.putAll(defaultConfig);
+//		//
+//		//		//		madkitConfig.put(MADKIT_LOG_LEVEL, Level.FINEST.toString()); // if I want to debug starting phase
+//		//
+//		//		logger = Logger.getLogger(mkLoggerName);
+//		//		logger.setLevel(Level.parse(madkitConfig.getProperty(Madkit.MadkitLogLevel)));
+//		//		logger.setUseParentHandlers(false);
+//		//		final ConsoleHandler cs = new ConsoleHandler();
+//		//		cs.setLevel(logger.getLevel());
+//		//		cs.setFormatter(new MadkitFormatter());
+//		//		logger.addHandler(cs);
+//		//		logger.fine("****** MadKit is starting ******\n"); //TODO i18n
+//		//		logger.fine("****** MadKit kernel address is "+platformID+" ******\n"); //TODO i18n
+//
+//
+//	}
 
 	/**
 	 * 

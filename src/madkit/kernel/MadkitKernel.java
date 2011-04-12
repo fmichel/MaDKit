@@ -70,14 +70,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
-import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
 
 import madkit.gui.GUIMessage;
-import madkit.gui.GUIsManagerAgent;
 import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.Madkit.Roles;
 import madkit.messages.ObjectMessage;
@@ -127,7 +124,6 @@ class MadkitKernel extends Agent{
 	final private KernelAddress kernelAddress;
 
 
-	private AgentAddress netAgent;
 	//	private MadKitGUIsManager guiManager;
 	private LoggedKernel loggedKernel;
 	private boolean shuttedDown = false;
@@ -138,6 +134,7 @@ class MadkitKernel extends Agent{
 
 
 
+	private AgentAddress netAgent;
 	//my private addresses for optimizing the message building
 	private AgentAddress netUpdater,netEmmiter,kernelRole;
 
@@ -155,7 +152,7 @@ class MadkitKernel extends Agent{
 			operatingOverlookers = new LinkedHashSet<Overlooker<? extends AbstractAgent>>();
 			normalAgentThreadFactory = new AgentThreadFactory("MKRA"+kernelAddress, false);
 			daemonAgentThreadFactory = new AgentThreadFactory("MKDA"+kernelAddress, true);
-			setLogLevel(Level.ALL,Level.INFO);
+			setLogLevel(Level.ALL);
 			//			launchingAgent(this, this, false);
 		}
 		else{
@@ -211,13 +208,46 @@ class MadkitKernel extends Agent{
 		case LAUNCH_AGENT://TODO semantic
 			operation = launchAgent(arguments);
 			break;
+		case LAUNCH_NETWORK://TODO semantic
+			startNetwork();
+			return;
+		case STOP_NETWORK://TODO semantic
+			stopNetwork();
+			return;
 		case SHUTDOWN_NOW:
 			shutdown();
 			return;
 		default:
-			break;
+			getLogger().warning("I received a kernel message that I do not understand. Discarding "+km);
+			return;
 		}
 		doOperation(operation,arguments);
+	}
+
+	private void stopNetwork() {
+		ReturnCode r = sendNetworkMessageWithRole(new Message(), kernelRole);
+		if (r == SUCCESS) {
+			getLogger().fine("\n\t****** Network agent stopped ******\n");
+		}//TODO i18n
+		else{
+			getLogger().severe("\n\t****** Problem stopping network agent ******\n");
+		}
+	}
+
+	private void startNetwork() {
+		updateNetworkAgent();
+		if(netAgent == null){
+			ReturnCode r = launchAgent(new NetworkAgent());
+			if (r == SUCCESS) {
+				getLogger().fine("\n\t****** Network agent launched ******\n");
+			}//TODO i18n
+			else{
+				getLogger().severe("\n\t****** Problem launching network agent ******\n");
+			}
+		}
+		else{
+			getLogger().fine("\n\t****** Network agent already launched ******\n");
+		}
 	}
 
 	/**
@@ -234,8 +264,7 @@ class MadkitKernel extends Agent{
 			handleKernelMessage((KernelMessage) m);
 		}
 		else{
-			if(logger != null)
-				logger.warning("I received a message that I do not understang. Discarding "+m);
+			getLogger().warning("I received a message that I do not understand. Discarding "+m);
 		}
 	}
 
@@ -282,18 +311,13 @@ class MadkitKernel extends Agent{
 	}
 
 	private void launchBooterAgent(){ //TODO put that into MadKit
-		AbstractAgent booter=null;
-		if(! getMadkitProperty(Madkit.booterAgentKey).toLowerCase().equals("null"))
-			booter=launchPlatformAgent(Madkit.booterAgentKey, "Boot Agent");
-		else if(logger != null){
-			logger.fine("** Booter agent off: --booterAgent property is null**\n");
-			return;
+		if(getMadkitProperty(Madkit.booterAgentKey).toLowerCase().equals("null")){
+			getLogger().fine("** Booter agent off: --booterAgent property is null**\n");
 		}
-		//		if(booter != null && booter instanceof MadKitGUIsManager){
-		//			if(logger != null)
-		//				logger.fine("** Setting "+booter.getName()+" as AgentsGUIManager **\n");
-		//			operatingKernel.setGuiManager((MadKitGUIsManager) booter);
-		//		}
+		else{
+			getLogger().fine("\n\t****** Booter agent launched ******\n");
+			launchPlatformAgent(Madkit.booterAgentKey, "Boot Agent");
+		}
 	}
 
 	private AbstractAgent launchPlatformAgent(String mkProperty,String userMessage){
@@ -310,15 +334,12 @@ class MadkitKernel extends Agent{
 		}
 		return targetAgent;
 	}
-
 	private void launchNetworkAgent() {
-		if(! Boolean.parseBoolean(getMadkitProperty(Madkit.network))){
-			if(logger != null){
-				logger.fine("** Networking is off: No Net Agent **\n");
-			}
+		if(Boolean.parseBoolean(getMadkitProperty(Madkit.network))){
+			startNetwork();
 		}
 		else{
-			launchPlatformAgent("networkAgent",  "Net Agent");
+			getLogger().fine("** Networking is off: No Net Agent **\n");
 		}
 	}
 
@@ -327,7 +348,7 @@ class MadkitKernel extends Agent{
 	/**
 	 * @return the loggedKernel
 	 */
-	LoggedKernel getLoggedKernel() {
+	final LoggedKernel getLoggedKernel() {
 		return loggedKernel;
 	}
 
@@ -503,16 +524,16 @@ class MadkitKernel extends Agent{
 		if(receiver == null || message == null){
 			return INVALID_ARG;
 		}
+		// check that the AA is valid : the targeted agent is still playing the corresponding role or it was a candidate request
+		if(! receiver.exists()){// && ! receiver.getRole().equals(Roles.GROUP_CANDIDATE_ROLE)){
+			return INVALID_AA;
+		}
 		//get the role for the sender
 		AgentAddress sender;
 		try {
 			sender = getSenderAgentAddress(requester,receiver,senderRole);
 		} catch (CGRNotAvailable e) {
 			return e.getCode();
-		}
-		// check that the AA is valid : the targeted agent is still playing the corresponding role or it was a candidate request
-		if(! receiver.getRoleObject().isPlayingRole(receiver) && ! receiver.getRole().equals(Roles.GROUP_CANDIDATE_ROLE)){
-			return INVALID_AA;
 		}
 		return buildAndSendMessage(sender,receiver,message);
 	}
@@ -583,9 +604,7 @@ class MadkitKernel extends Agent{
 	}
 
 	ReturnCode sendNetworkMessageWithRole(Message m, AgentAddress role){
-		if(netAgent == null || ! netAgent.exists()){//Is it still playing the role ?
-			netAgent = getAgentWithRole(LOCAL_COMMUNITY, NETWORK_GROUP, NETWORK_ROLE);
-		}
+		updateNetworkAgent();
 		if(netAgent != null){
 			m.setSender(role);
 			m.setReceiver(netAgent);
@@ -593,6 +612,12 @@ class MadkitKernel extends Agent{
 			return SUCCESS;
 		}
 		return NETWORK_DOWN;
+	}
+
+	private void updateNetworkAgent(){
+		if(netAgent == null || ! netAgent.exists()){//Is it still playing the role ?
+			netAgent = getAgentWithRole(LOCAL_COMMUNITY, NETWORK_GROUP, NETWORK_ROLE);
+		}
 	}
 
 	//	private boolean updateNetAgent(){//TODO 
@@ -708,6 +733,7 @@ class MadkitKernel extends Agent{
 
 
 
+	@SuppressWarnings("unchecked")
 	AbstractAgent launchAgent(AbstractAgent requester, final String agentClass, int timeOutSeconds,  boolean defaultGUI){
 		Class<? extends AbstractAgent> aClass = null;
 		try {
@@ -781,7 +807,8 @@ class MadkitKernel extends Agent{
 			agent.logger = null;
 		}
 		else if (defaultAgentLogLevel != Level.OFF && agent.logger == AbstractAgent.defaultLogger) {
-			agent.setLogLevel(defaultAgentLogLevel, defaultWarningLogLvl);
+			agent.setLogLevel(defaultAgentLogLevel);
+			agent.getLogger().setWarningLogLevel(defaultWarningLogLvl);
 		}
 		if(! agent.getAlive().compareAndSet(false, true)){//TODO remove that
 			throw new AssertionError("already alive in launch");

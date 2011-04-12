@@ -132,14 +132,13 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	/**
-	 * The ID of an agent (i.e. its hashCode() value). All the agents have different 
-	 * hashCode value and it can be used to identify one agent.
-	 * In a networked environment this value should be used in combination with
-	 * the kernelAddress of the agent for identifying it 
+	 * Returns the ID of an agent. All the agents have different 
+	 * hashCode value in one kernel. Thus it can be used to identify one agent.
+	 * In a networked environment, this value should be used in combination with
+	 * the kernelAddress of the agent for unique identification it 
 	 * This also holds when multiple MadKit kernels are launched within the same JVM.
 	 * 
-	 * @return the agent's unique ID
-	 * @see java.lang.Object#hashCode()
+	 * @return the agent's unique ID in the MadKit kernel
 	 */
 	@Override
 	final public int hashCode() {// TODO should be regenerated if agent are sent through the network
@@ -627,14 +626,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	/**
-	 * 
-	 */
-	public synchronized void setLogLevel(final Level newLevel, final Level warningLogLevel) {
-		setLogLevel(newLevel);
-		AgentLogger.getLogger(this).setWarningLogLevel(warningLogLevel);
-	}
-
-	/**
 	 * Compares this agent with the specified agent for order with respect to instantiation time.
 	 * 
 	 * @param other the agent to be compared.
@@ -1027,6 +1018,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         <li><code>{@link ReturnCode#INVALID_AA}</code>: If the receiver address is no longer valid. This is the case when the corresponding agent has leaved the role corresponding to the
 	 *         receiver agent address.</li>
 	 *         <li><code>{@link ReturnCode#INVALID_ARG}</code>: If <code>messageToSend</code> is <code>null</code>.</li>
+	 *         <li><code>{@link ReturnCode#NETWORK_DOWN}</code>: If the <code>receiver</code> is running 
+	 *         on another kernel but the network agent is down.</li>
 	 *         </ul>
 	 * @see ReturnCode
 	 * @see AgentAddress
@@ -1257,7 +1250,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	/**	 * Asks MasKit to reload class byte code so that new instances reflect compilation changes
 	 * during run time. This reloads the class byte code so that new instances, 
 	 * created using {@link Class#newInstance()} on a class object obtained with
-	 * {@link #getNewestClassVersion(AbstractAgent, String)}, will reflect compilation changes
+	 * {@link #getNewestClassVersion(String)}, will reflect compilation changes
 	 * during run time. 
 	 * 
 	 * Especially, using
@@ -1288,13 +1281,13 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * MadKit, i.e. the one created for loading classes on which {@link #reloadAgentClass(String)} has been invoked.
 	 * Especially, {@link #launchAgent(String, int, boolean)} always uses the newest version of the agent class.
 	 * 
-	 * @param name the fully qualified name of the desired class.
+	 * @param className the fully qualified name of the desired class.
 	 * @return the newest version of a class object given its name.
 	 * @throws ClassNotFoundException 
 	 * @since MadKit 5.0.0.8
 	 */
-	public Class<?> getNewestClassVersion(String name) throws ClassNotFoundException{
-		return kernel.getNewestClassVersion(this, name);
+	public Class<?> getNewestClassVersion(String className) throws ClassNotFoundException{
+		return kernel.getNewestClassVersion(this, className);
 	}
 
 	
@@ -1383,8 +1376,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		default:
 			m += "TERMINATE BUG-*- :";
 		}
-		if (logger == null)
-			setLogLevel(Level.INFO);
+		setLogLevel(Level.INFO);
 		setAgentStackTrace(e);
 		logger.log(Level.SEVERE, m, e);
 	}
@@ -1469,17 +1461,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	// //////////////////////////////////////////////////////////////////////////////
 	// /////////////////////////////////// Using Agent Address /////////////////////
 	// /////////////////////////////////////////////////////////////////////////////
-
-	/**
-	 * Tells if the address belongs to a local agent.
-	 * 
-	 * @return <code>true</code> if this address corresponds to an agent which is running
-	 * on the same kernel as this one.
-	 * @since MadKit 5.0.0.9
-	 */
-	public boolean isLocal(AgentAddress address){
-		return getKernelAddress().equals(address.getKernelAddress());
-	}
 
 	
 	// //////////////////////////////////////////////////////////////////////////////

@@ -18,25 +18,19 @@
  */
 package madkit.gui;
 
-import java.awt.Component;
-import java.awt.MenuItem;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.logging.Level;
 
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
-import javax.swing.Action;
 import javax.swing.ButtonGroup;
-import javax.swing.ImageIcon;
 import javax.swing.JMenu;
 import javax.swing.JRadioButtonMenuItem;
 
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AgentLogger;
-import madkit.kernel.Madkit;
 
 /**
  * @author Fabien Michel
@@ -84,7 +78,7 @@ public class LogLevelMenu extends JMenu implements AgentUIComponent{
 		ActionListener setWarningLogLevelListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				agent.setLogLevel((agent.getLogger() != null) ? Level.INFO : agent.getLogger().getLevel(),Level.parse( ((AbstractButton)e.getSource()).getActionCommand()));
+				agent.getLogger().setWarningLogLevel(Level.parse( ((AbstractButton)e.getSource()).getActionCommand()));
 			}
 		};
 		for(final Level l : logLevels){
@@ -103,8 +97,8 @@ public class LogLevelMenu extends JMenu implements AgentUIComponent{
 	@Override
 	public void updateAgentUI() {
 		AgentLogger logger = myAgent.getLogger();
-		Level currentLogLevel = logger == null ? Level.OFF : logger.getLevel();
-		Level currentWarningLogLevel = logger == null ? Level.parse(myAgent.getMadkitProperty(Madkit.warningLogLevel)) : logger.getWarningLogLevel();
+		Level currentLogLevel = logger.getLevel();
+		Level currentWarningLogLevel = logger.getWarningLogLevel();
 		updateButtonGroup(logGroup, currentLogLevel);
 		updateButtonGroup(warningGroup, currentWarningLogLevel);
 	}
@@ -118,6 +112,7 @@ public class LogLevelMenu extends JMenu implements AgentUIComponent{
 			AbstractButton button = buttons.nextElement();
 			if(button.getActionCommand().equals(logLevel.toString())){
 				button.setSelected(true);
+				return;
 			}
 		}
 	}
@@ -133,27 +128,27 @@ public class LogLevelMenu extends JMenu implements AgentUIComponent{
 		group.add(logItem);
 	}
 
-	@Override
-	public AbstractAgent getAgent() {
-		return myAgent;
-	}
+//	@Override
+//	public AbstractAgent getAgent() {
+//		return myAgent;
+//	}
 
-	public static Action getSetLogLevelAction(){
-		if(setLogLevelAction == null){
-		setLogLevelAction = new AbstractAction("SetLogLevelAction") {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				Component c = (Component) e.getSource();
-				JRadioButtonMenuItem item = (JRadioButtonMenuItem) c;
-				while(! (c instanceof AgentUIComponent) && c != null){
-					c = c.getParent();
-				}
-				((AgentUIComponent)c).getAgent().setLogLevel(Level.parse(item.getActionCommand()));
-			}
-		};
-		}
-//		ImageIcon logIcon = new ImageIcon(setLogLevelAction.getClass().getResource("/images/agent/warningLogLevel16.gif"));
-		return setLogLevelAction;
-	}
+//	public static Action getSetLogLevelAction(){
+//		if(setLogLevelAction == null){
+//		setLogLevelAction = new AbstractAction("SetLogLevelAction") {
+//			@Override
+//			public void actionPerformed(ActionEvent e) {
+//				Component c = (Component) e.getSource();
+//				JRadioButtonMenuItem item = (JRadioButtonMenuItem) c;
+//				while(! (c instanceof AgentUIComponent) && c != null){
+//					c = c.getParent();
+//				}
+//				((AgentUIComponent)c).getAgent().setLogLevel(Level.parse(item.getActionCommand()));
+//			}
+//		};
+//		}
+////		ImageIcon logIcon = new ImageIcon(setLogLevelAction.getClass().getResource("/images/agent/warningLogLevel16.gif"));
+//		return setLogLevelAction;
+//	}
 
 }

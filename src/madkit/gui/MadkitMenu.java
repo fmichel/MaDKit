@@ -47,16 +47,22 @@ import static madkit.kernel.Madkit.Roles.*;
 
 /**
  * @author Fabien Michel
- * @since MadKit 5.0.0.7
+ * @since MadKit 5.0.0.9
  * @version 0.9
  * 
  */
 public class MadkitMenu extends JMenu {//TODO i18n
 
 	private static final long serialVersionUID = 6177193453649323680L;
+	
 
 	static Action getExitMadkitAction(final AbstractAgent a){
 		AbstractAction action = new AbstractAction() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = -2000846686913194841L;
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				this.setEnabled(false);
@@ -64,7 +70,7 @@ public class MadkitMenu extends JMenu {//TODO i18n
 					@Override
 					public void run() {
 						a.sendMessage(LOCAL_COMMUNITY, SYSTEM_GROUP, KERNEL_ROLE, new KernelMessage(OperationCode.SHUTDOWN_NOW, (Object)null));
-						a.killAgent(a);
+//						a.killAgent(a);
 					}
 				});
 			}
@@ -83,17 +89,21 @@ public class MadkitMenu extends JMenu {//TODO i18n
 
 	static Action getLaunchNetworkAction(final AbstractAgent a){
 		AbstractAction action = new AbstractAction() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = -2304281615542088282L;
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				this.setEnabled(false);
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
-						if(a.getAgentsWithRole(LOCAL_COMMUNITY, NETWORK_GROUP, NETWORK_ROLE) == null){
-							a.launchAgent(a.getMadkitProperty("networkAgent"));
-//							this.setEnabled(false);
-						}
+							a.sendMessage(LOCAL_COMMUNITY, SYSTEM_GROUP, KERNEL_ROLE, new KernelMessage(OperationCode.LAUNCH_NETWORK, (Object)null));
 					}
 				});
+				this.setEnabled(true);
 			}
 		};
 		Utils.initAction(action, 
@@ -105,23 +115,28 @@ public class MadkitMenu extends JMenu {//TODO i18n
 				"madkit.network",
 				KeyStroke.getKeyStroke(KeyEvent.VK_N,KeyEvent.CTRL_MASK),
 				true);
-		if(a.getAgentsWithRole(LOCAL_COMMUNITY, NETWORK_GROUP, NETWORK_ROLE) == null)
-			action.setEnabled(false);
+//		if(a.getAgentsWithRole(LOCAL_COMMUNITY, NETWORK_GROUP, NETWORK_ROLE) == null)
+//			action.setEnabled(true);
 		return action;
 	}
 
 	static Action getStopNetworkAction(final AbstractAgent a){
 		AbstractAction action = new AbstractAction() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 8036411939915143681L;
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				this.setEnabled(false);
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
-//						if(a.getAgentsWithRole(LOCAL_COMMUNITY, NETWORK_GROUP, NETWORK_ROLE) == null)
-//							a.launchAgent(a.getMadkitProperty("networkAgent"));
+						a.sendMessage(LOCAL_COMMUNITY, SYSTEM_GROUP, KERNEL_ROLE, new KernelMessage(OperationCode.STOP_NETWORK, (Object)null));
 					}
 				});
+				this.setEnabled(true);
 			}
 		};
 		Utils.initAction(action, 
@@ -133,17 +148,21 @@ public class MadkitMenu extends JMenu {//TODO i18n
 				"madkit.network",//TODO icon
 				KeyStroke.getKeyStroke(KeyEvent.VK_N,KeyEvent.ALT_MASK),
 				true);
-		if(a.getAgentsWithRole(LOCAL_COMMUNITY, NETWORK_GROUP, NETWORK_ROLE) == null)
-			action.setEnabled(false);
+//		if(a.getAgentsWithRole(LOCAL_COMMUNITY, NETWORK_GROUP, NETWORK_ROLE) == null)
+//			action.setEnabled(false);
 		return action;
 	}
 
 
 	public MadkitMenu(final AbstractAgent agent){
 		super("MadKit");
+		final Action exit,networkOn, networkOff;
 		setMnemonic(KeyEvent.VK_M);
-		add(getLaunchNetworkAction(agent));
-		add(getStopNetworkAction(agent));
-		add(getExitMadkitAction(agent));
+		exit = getExitMadkitAction(agent);
+		networkOn = getLaunchNetworkAction(agent);
+		networkOff = getStopNetworkAction(agent);
+		add(networkOn);
+		add(networkOff);
+		add(exit);
 	}
 }

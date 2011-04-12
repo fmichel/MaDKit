@@ -37,15 +37,6 @@ final class ManagerRole extends Role {
 	 */
 	private static final long serialVersionUID = 1919401829672949296L;
 
-	/**
-	 * @param log
-	 * @param community
-	 * @param group
-	 * @param role
-	 * @param groupObject
-	 * @param ka
-	 * @param overlookers2
-	 */
 	ManagerRole(final Group groupObject, AbstractAgent creator) {
 		super(groupObject, Roles.GROUP_MANAGER_ROLE);
 		super.addMember(creator);

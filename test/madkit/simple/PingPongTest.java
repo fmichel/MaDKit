@@ -60,12 +60,12 @@ public class PingPongTest extends Agent
 
 	private void playing() {
 		while (true) {
-			pause(4000);
+			pause(2000);
 			currentPartner = getAgentWithRole("ping-pong","room","player");
 			if(currentPartner != null)
 				sendMessage(currentPartner, new ObjectMessage<String>(message));
 			if(logger != null)
-				logger.talk("received "+nextMessage());
+				logger.talk("\nreceived: "+nextMessage());
 		}
 	}
 	
@@ -76,9 +76,9 @@ public class PingPongTest extends Agent
 	}
 	
 	public static void main(String[] args) {
-		String[] argss = {"--network","--agentLogLevel","ALL","--launchAgents",PingPongTest.class.getName(),",true"};
+		String[] argss = {"--network","--agentLogLevel","OFF","--launchAgents",PingPongTest.class.getName(),",false"};
 		Madkit.main(argss);		
-		String[] argsss = {"--network","--agentLogLevel","ALL","--launchAgents",PingPongTest.class.getName(),",true"};
+		String[] argsss = {"--network","--agentLogLevel","OFF","--launchAgents",PingPongTest.class.getName(),",true"};
 		Madkit.main(argsss);		
 	}
 

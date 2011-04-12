@@ -120,6 +120,8 @@ final class sendMessageWarning extends MadkitWarning {
 		case NOT_GROUP:
 		case NOT_ROLE:
 			return baseMessage+message+Utils.getI18N("notExist");
+		case NETWORK_DOWN:
+			return baseMessage+" "+Utils.getI18N("notExist");
 		default:
 			return " something is wrong : "+code;
 		}

@@ -37,67 +37,72 @@ import madkit.kernel.NetworkMessage.NetCode;
 final class MultiCastListener {
 
 
-	final static int multiCastPort = 9999;
-	final static String MC_IP = "224.2.2.3";
+	static InetAddress ipAddress;
 
 	final private MulticastSocket ms;
+	final private DatagramSocket ds;
+	private boolean running = true;
 
-	static MultiCastListener getNewMultiCastListener(){
-		MulticastSocket ms = null;
-		try {
-			ms = new MulticastSocket(multiCastPort);
-			ms.joinGroup(InetAddress.getByName(MC_IP));
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-			return null;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
-		return new MultiCastListener(ms);
-	}
-
-	void activate(final NetworkAgent networkAgent, final InetAddress localIP,final int localPort) {
-		new Thread(new Runnable() { //TODO problem if two arrive at the time
-			@Override
-			public void run() {
-				while(true){
-					try {
-						final DatagramPacket packet = new DatagramPacket(new byte[0], 0);
-						ms.receive(packet);
-//						final KernelServer netConfig = networkAgent.getNetConfig();
-						//						if(packet.getAddress().getCanonicalHostName().contains(".local")) //TODO find another way for the ips this is dirty
-						if(localIP.equals(packet.getAddress()) && localPort == packet.getPort()){
-							continue;
-						}
-						networkAgent.receiveMessage(new NetworkMessage<DatagramPacket>(NetCode.NEW_PEER_DETECTED,packet));
-					} catch (IOException e) {
-						networkAgent.receiveMessage(new Message());//Means Shutdown
-					}
-				}
-			}
-		}).start();
-
-		try {
-			DatagramPacket packet = new DatagramPacket(new byte[0], 0, InetAddress.getByName(MultiCastListener.MC_IP), MultiCastListener.multiCastPort);
-			new DatagramSocket(localPort).send(packet);
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		} catch (SocketException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-}
 	/**
 	 * @param ms2
 	 */
-	private MultiCastListener(MulticastSocket ms2) {
+	private MultiCastListener(MulticastSocket ms2, DatagramSocket ds2) {
 		ms = ms2;
+		ds = ds2;
 	}
 
-	public void stop() {
+	static MultiCastListener getNewMultiCastListener(final int localPort){
+		MulticastSocket ms = null;
+		DatagramSocket ds = null;
+		final int multiCastPort = 9999;
+		try {
+			if (ipAddress == null) {
+				ipAddress = InetAddress.getByName("224.2.2.3");
+			}
+			ms = new MulticastSocket(multiCastPort);
+			ms.joinGroup(ipAddress);
+			ds = new DatagramSocket(localPort);
+			ds.send(new DatagramPacket(new byte[0], 0, ipAddress, 9999));
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+			return null;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+		return new MultiCastListener(ms,ds);
+	}
+
+	void activate(final NetworkAgent networkAgent, final InetAddress localIP,final int localPort) {
+		final Thread t = new Thread(new Runnable() { //TODO problem if two arrive at the time
+			@Override
+			public void run() {
+				while(running){
+					try {
+						final DatagramPacket peerRequest = new DatagramPacket(new byte[0], 0);
+						ms.receive(peerRequest);
+						if(localIP.equals(peerRequest.getAddress()) && localPort == peerRequest.getPort()){
+							continue;
+						}
+						networkAgent.receiveMessage(new NetworkMessage<DatagramPacket>(NetCode.NEW_PEER_DETECTED,peerRequest));
+					} catch (IOException e) {
+						if (running) {//socket failure
+							networkAgent.receiveMessage(new NetworkMessage<Object>(NetCode.FAILURE, null));
+						}
+						break;
+					}
+				}
+				stop();
+			}
+		});
+		t.setName("MCL "+networkAgent.getName());
+		t.start();
+	}
+	
+	void stop() {
+		running = false;
 		ms.close();
+		ds.close();
 	}
 
 }

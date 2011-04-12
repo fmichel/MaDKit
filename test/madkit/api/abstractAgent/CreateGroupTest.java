@@ -35,6 +35,7 @@ import test.util.JUnitBooterAgent;
  * @version 0.9
  * 
  */
+@SuppressWarnings("all")
 public class CreateGroupTest  extends JunitMadKit{
 	
 	final GroupIdentifier gi = new GroupIdentifier() {

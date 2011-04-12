@@ -184,7 +184,6 @@
 		<javadoc destdir="${docs.api.dir}" access="protected" author="true" version="true" use="true" linksource="no" windowtitle="${project.label}">
 			<fileset dir="${src.dir}">
 			  <include name="**/*.java"/>
-			  <exclude name="**/NetworkAgent.java"/>
 			</fileset>
 		    <doctitle><![CDATA[<h1>${project.label}</h1>]]></doctitle>
 		    <bottom><![CDATA[<i>${author.name}</i>]]></bottom>

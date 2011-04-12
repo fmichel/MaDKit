@@ -37,11 +37,13 @@ import madkit.kernel.NetworkMessage.NetCode;
  * @since MadKit 5.0.0.2
  *
  */
-class KernelServer {
+final class KernelServer {
 
 	final static private int startingPort = 4444;
 
 	final private ServerSocket serverSocket;
+
+	private boolean running = true;
 
 	/**
 	 * @param serverSocket2
@@ -53,20 +55,24 @@ class KernelServer {
 
 
 	void activate(final NetworkAgent netAgent){
-		new Thread(new Runnable() {
+		final Thread t = new Thread(new Runnable() {
 			@Override
 			public void run() {
-				while(true){
+				while(running){
 					try {
 						netAgent.receiveMessage(new NetworkMessage<Socket>(NetCode.NEW_PEER_REQUEST, serverSocket.accept()));
 					} catch (IOException e) {
-//						NetworkMessage<String> stopMessage = new NetworkMessage<String>(e.getMessage());
-//						stopMessage.setCode(STOP_NETWORK);
-						netAgent.receiveMessage(new Message());//shutdown !
+						if (running) {//socket failure
+							netAgent.receiveMessage(new NetworkMessage<Object>(NetCode.FAILURE,null));
+						}
+						break;
 					}
 				}
+				stop();
 			}
-		}).start();
+		});
+		t.setName("MK Server "+netAgent.getName());
+		t.start();
 	}
 
 
@@ -74,8 +80,6 @@ class KernelServer {
 	int getPort() {
 		return serverSocket.getLocalPort();
 	}
-
-
 
 	/**
 	 * @return the ip
@@ -85,9 +89,11 @@ class KernelServer {
 	}
 
 	void stop(){
+		running = false;
 		try {
 			serverSocket.close();
 		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -126,7 +132,7 @@ class KernelServer {
 			//		    find:
 			while (en.hasMoreElements()) {
 				NetworkInterface ni = en.nextElement();
-//				printParameter(ni);
+				//				printParameter(ni);
 				if (! ni.isLoopback()) {
 					final Enumeration<InetAddress> e = ni.getInetAddresses();
 					while (e.hasMoreElements()) {
@@ -143,33 +149,5 @@ class KernelServer {
 		return null;	
 	}
 
-
-
-	//TODO remove after test
-//	private static void printParameter(NetworkInterface ni) throws SocketException {
-//		System.out.println(" Name = " + ni.getName());
-//		System.out.println(" Display Name = " + ni.getDisplayName());
-//		System.out.println(" Is up = " + ni.isUp());
-//		System.out.println(" Support multicast = " + ni.supportsMulticast());
-//		System.out.println(" Is loopback = " + ni.isLoopback());
-//		System.out.println(" Is virtual = " + ni.isVirtual());
-//		System.out.println(" Is point to point = " + ni.isPointToPoint());
-//		System.out.println(" Hardware address = " + ni.getHardwareAddress());
-//		System.out.println(" MTU = " + ni.getMTU());
-//
-//		System.out.println("\nList of Interface Addresses:");
-//		List<InterfaceAddress> list = ni.getInterfaceAddresses();
-//		Iterator<InterfaceAddress> it = list.iterator();
-//
-//		while (it.hasNext()) {
-//			InterfaceAddress ia = it.next();
-//			System.out.println(" Address = " + ia.getAddress());
-//			System.out.println(" Broadcast = " + ia.getBroadcast());
-//			System.out.println(" Network prefix length = " + ia.getNetworkPrefixLength());
-//			InetAddress ineta = ia.getAddress();
-//			System.err.println(ineta.getCanonicalHostName());
-//			System.out.println("");
-//		}
-//	}
 
 }

@@ -3,12 +3,10 @@
  */
 package madkit.networking.boot;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 import madkit.kernel.Agent;
-import madkit.kernel.Madkit;
-import madkit.kernel.Message;
-import madkit.kernel.NetworkAgent;
 import madkit.kernel.Madkit.Roles;
+import madkit.kernel.Message;
 
 import org.junit.Test;
 

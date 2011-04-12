@@ -37,7 +37,7 @@ import madkit.kernel.NetworkMessage.NetCode;
  * @since MadKit 5.0
  *
  */
-class KernelConnection extends Thread{
+final class KernelConnection extends Thread{
 
 	Socket distantKernelSocket = null;
 	boolean activated = false;
@@ -45,10 +45,6 @@ class KernelConnection extends Thread{
 	boolean isActivated() {
 		return activated;
 	}
-
-//	void setActivated(boolean activated) {
-//		this.activated = activated;
-//	}
 
 	/**
 	 * @return the distantKernelSocket
@@ -61,7 +57,7 @@ class KernelConnection extends Thread{
 	 * @param address
 	 * @param port
 	 */
-	private NetworkAgent myNetAgent;
+	final private NetworkAgent myNetAgent;
 	private KernelAddress kernelAddress;
 	/**
 	 * @param kernelAddress the kernelAddress to set
@@ -81,10 +77,7 @@ class KernelConnection extends Thread{
 	}
 
 	public KernelConnection(NetworkAgent netAgent, InetAddress address, int port) throws UnknownHostException,IOException {
-		myNetAgent = netAgent;
-		distantKernelSocket = new Socket(address, port);
-		initStreams();
-
+		this(netAgent,new Socket(address, port));
 	}
 
 	public KernelConnection(NetworkAgent netAgent, Socket kernelClient) throws IOException{
@@ -132,18 +125,16 @@ class KernelConnection extends Thread{
 		activated = true;
 		while(distantKernelSocket.isConnected()){
 			try {
-//				NetworkMessage<?> m = (NetworkMessage<?>) ois.readObject();
 				myNetAgent.receiveMessage((Message) ois.readObject());
-//				myNetAgent.receiveMessage((NetworkMessage) ois.readObject());
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
+				break;
 			} catch (IOException e) {
 				myNetAgent.receiveMessage(new NetworkMessage<KernelAddress>(NetCode.PEER_DECONNECTED, kernelAddress));
-				closeConnection();
-//				myNetAgent.deconnectWith(kernelAddress);//TODO
-				return;
+				break;
 			}		
 		}
+		closeConnection();
 	}
 
 	/**

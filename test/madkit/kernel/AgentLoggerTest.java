@@ -55,10 +55,20 @@ public class AgentLoggerTest {
 	public void logLevelALL() {
 		AgentLog a = new AgentLog(Level.ALL);
 		assertNotNull(a.logger);
-		assertEquals(AbstractAgent.ReturnCode.NOT_YET_LAUNCHED, a.createGroup("test", "test"));
+		try {
+			a.createGroup("test", "test");
+			fail();
+		} catch (KernelException e) {
+			e.printStackTrace();
+		}
 		a.setLogLevel(Level.OFF);
 		assertNull(a.logger);
-		assertEquals(AbstractAgent.ReturnCode.NOT_YET_LAUNCHED, a.createGroup("test", "test"));
+		try {
+			a.createGroup("test", "test");
+			fail();
+		} catch (KernelException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	@Test

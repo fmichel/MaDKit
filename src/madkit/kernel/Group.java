@@ -298,14 +298,9 @@ final class Group extends ConcurrentHashMap<String,Role> {
 		}
 	}
 
-	//no public methods !!!
-	//	/* (non-Javadoc)
-	//	 * @see java.util.AbstractMap#toString()
-	//	 */
-	//	@Override
-	//	public String toString() {
-	//		// TODO Auto-generated method stub
-	//		return printCGR(communityName, groupName);
-	//	}
+		@Override
+		public String toString() {
+			return printCGR(communityName, groupName)+values();
+		}
 
 }

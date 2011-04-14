@@ -23,6 +23,7 @@ import static madkit.kernel.AbstractAgent.ReturnCode.NOT_YET_LAUNCHED;
 import static madkit.kernel.AbstractAgent.ReturnCode.TERMINATED_AGENT;
 import java.awt.Component;
 import java.awt.Point;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -46,14 +47,8 @@ final class RootKernel extends MadkitKernel{
 		super(m);
 	}
 
-	final ReturnCode fakeKernelWarning(final AbstractAgent requester) {
-		//		new Exception().printStackTrace();
-		switch (requester.getState()) {
-		case TERMINATED:
-			return requester.getLogger() == null ? TERMINATED_AGENT : requester.handleException(new NotAvailableActionWarning(TERMINATED_AGENT," agent already terminated"));
-		default:
-			return requester.getLogger()== null ? NOT_YET_LAUNCHED : requester.handleException(new NotAvailableActionWarning(NOT_YET_LAUNCHED," agent not launched"));
-		}
+	final static ReturnCode fakeKernelWarning(final AbstractAgent agent) {
+			throw new KernelException(agent);
 	}
 
 	///////////////////////////////////////////////////////////////////////////
@@ -64,112 +59,109 @@ final class RootKernel extends MadkitKernel{
 	////////////////////////// Organization interface
 	//////////////////////////////////////////////////////////////
 
-	ReturnCode createGroup(final AbstractAgent creator, final String community, final String group, final String description, final GroupIdentifier theIdentifier, final boolean isDistributed) {
-		return fakeKernelWarning(creator);
+	ReturnCode createGroup(final AbstractAgent agent, final String community, final String group, final String description, final GroupIdentifier theIdentifier, final boolean isDistributed) {
+		throw new KernelException(agent);
 	}
 
 
-	ReturnCode requestRole(AbstractAgent requester, String community, String group, String role, Object memberCard) {
-		return fakeKernelWarning(requester);
+	ReturnCode requestRole(AbstractAgent agent, String community, String group, String role, Object memberCard) {
+		throw new KernelException(agent);
 	}
 
 
-	ReturnCode leaveGroup(final AbstractAgent requester, final String community, final String group) {
-		return fakeKernelWarning(requester);
+	ReturnCode leaveGroup(final AbstractAgent agent, final String community, final String group) {
+		throw new KernelException(agent);
 	}
 
-	ReturnCode leaveRole(AbstractAgent requester, String community,String group, String role) {
-		return fakeKernelWarning(requester);
+	ReturnCode leaveRole(AbstractAgent agent, String community,String group, String role) {
+		throw new KernelException(agent);
 	}
 
-	AgentAddress getAgentWithRole(final AbstractAgent requester, final String community, final String group, final String role){ 
+	AgentAddress getAgentWithRole(final AbstractAgent agent, final String community, final String group, final String role){ 
 		new Exception().printStackTrace();
-		fakeKernelWarning(requester);
-		return null;
+		throw new KernelException(agent);
 	}
 
-	List<AgentAddress> getAgentsWithRole(AbstractAgent requester, String community, String group, String role){
-		fakeKernelWarning(requester);
-		return null;
+	List<AgentAddress> getAgentsWithRole(AbstractAgent agent, String community, String group, String role){
+		throw new KernelException(agent);
 	}
 
-	boolean isCommunity(AbstractAgent requester,String community){
-		fakeKernelWarning(requester);
-		return false;
+	boolean isCommunity(AbstractAgent agent,String community){
+		throw new KernelException(agent);
 	}
 
-	boolean isGroup(AbstractAgent requester, String community, String group){
-		fakeKernelWarning(requester);
-		return false;
+	boolean isGroup(AbstractAgent agent, String community, String group){
+		throw new KernelException(agent);
 	}
 
-	boolean isRole(AbstractAgent requester, String community, String group, String role){
-		fakeKernelWarning(requester);
-		return false;
+	boolean isRole(AbstractAgent agent, String community, String group, String role){
+		throw new KernelException(agent);
 	}
+	
+	@Override
+	public boolean isKernelConnected() {
+		throw new KernelException(null);
+	}
+	
 	//////////////////////////////////////////////////////////////
 	////////////////////////// Messaging interface
 	//////////////////////////////////////////////////////////////
-	ReturnCode sendMessage(final AbstractAgent requester, final String community, final String group, final String role, final Message messageToSend, final String senderRole) {
-		return fakeKernelWarning(requester);
+	ReturnCode sendMessage(final AbstractAgent agent, final String community, final String group, final String role, final Message messageToSend, final String senderRole) {
+		throw new KernelException(agent);
 	}
 
-	ReturnCode sendMessage(AbstractAgent requester, AgentAddress receiver, final Message messageToSend, final String senderRole){
-		return fakeKernelWarning(requester);
+	ReturnCode sendMessage(AbstractAgent agent, AgentAddress receiver, final Message messageToSend, final String senderRole){
+		throw new KernelException(agent);
 	}
 
-	ReturnCode broadcastMessageWithRole(final AbstractAgent requester, final String community, final String group, final String role, final Message messageToSend, String senderRole){
-		return fakeKernelWarning(requester);
+	ReturnCode broadcastMessageWithRole(final AbstractAgent agent, final String community, final String group, final String role, final Message messageToSend, String senderRole){
+		throw new KernelException(agent);
 	}
 
-	ReturnCode sendReplyWithRole(final AbstractAgent requester, final Message messageToReplyTo,final Message reply, String senderRole) {
-		return fakeKernelWarning(requester);
+	ReturnCode sendReplyWithRole(final AbstractAgent agent, final Message messageToReplyTo,final Message reply, String senderRole) {
+		throw new KernelException(agent);
 	}
 	//////////////////////////////////////////////////////////////
 	////////////////////////// Launching and Killing
 	//////////////////////////////////////////////////////////////
-	AbstractAgent launchAgent(AbstractAgent requester, String agentClass, int timeOutSeconds,  boolean defaultGUI){
-		fakeKernelWarning(requester);
-		return null;
+	AbstractAgent launchAgent(AbstractAgent agent, String agentClass, int timeOutSeconds,  boolean defaultGUI){
+		throw new KernelException(agent);
 	}
 
-	ReturnCode launchAgent(final AbstractAgent requester, final AbstractAgent agent, final int timeOutSeconds, final boolean defaultGUI){
-		return fakeKernelWarning(requester);
+	ReturnCode launchAgent(final AbstractAgent agent, final AbstractAgent agent2, final int timeOutSeconds, final boolean defaultGUI){
+		throw new KernelException(agent);
 	}
 
-	List<AbstractAgent> launchAgentBucketWithRoles(final AbstractAgent requester, String agentClassName,int bucketSize,Collection<String> rolesName){
-		fakeKernelWarning(requester);
-		return null;
+	List<AbstractAgent> launchAgentBucketWithRoles(final AbstractAgent agent, String agentClassName,int bucketSize,Collection<String> rolesName){
+		throw new KernelException(agent);
 	}
 
-	ReturnCode killAgent(final AbstractAgent requester,final AbstractAgent target, int timeOutSeconds){
-		return fakeKernelWarning(requester);
+	ReturnCode killAgent(final AbstractAgent agent,final AbstractAgent target, int timeOutSeconds){
+		throw new KernelException(agent);
 	}
 
 	/**
 	 * @param scheduler
 	 * @param activator
 	 */
-	boolean removeOverlooker(final AbstractAgent requester, Overlooker<? extends AbstractAgent> o) {
-		fakeKernelWarning(requester);
-		return false;
+	boolean removeOverlooker(final AbstractAgent agent, Overlooker<? extends AbstractAgent> o) {
+		throw new KernelException(agent);
 	}
 
 	/**
-	 * @param requester
+	 * @param agent
 	 * @param o
 	 * @return
 	 */
-	boolean addOverlooker(AbstractAgent requester, Overlooker<? extends AbstractAgent> o) {
-		fakeKernelWarning(requester);
-		return false;
+	boolean addOverlooker(AbstractAgent agent, Overlooker<? extends AbstractAgent> o) {
+		throw new KernelException(agent);
 	}
 
 	/**
 	 * @return
 	 */
 	public KernelAddress getKernelAddress() {
-		return null;
+		throw new KernelException(null);
 	}
 
 	/**
@@ -177,16 +169,16 @@ final class RootKernel extends MadkitKernel{
 	 * @param value
 	 */
 	@Override
-	void setMadkitProperty(final AbstractAgent requester, String key, String value) {
-		fakeKernelWarning(requester);
+	void setMadkitProperty(final AbstractAgent agent, String key, String value) {
+		throw new KernelException(agent);
 	}
 
 //	/**
 //	 * @param abstractAgent
 //	 * @return
 //	 */
-//	Component getGUIComponentOf(AbstractAgent requester) {
-////		fakeKernelWarning(requester);
+//	Component getGUIComponentOf(AbstractAgent agent) {
+////		throw new KernelException(agent);
 //		return null;
 //	}
 //
@@ -204,7 +196,7 @@ final class RootKernel extends MadkitKernel{
 	 * @throws ClassNotFoundException 
 	 */
 	ReturnCode reloadClass(AbstractAgent abstractAgent, String agentClass) throws ClassNotFoundException {
-		return fakeKernelWarning(abstractAgent);
+		throw new KernelException(null);
 	}
 
 	/**
@@ -224,23 +216,21 @@ final class RootKernel extends MadkitKernel{
 
 
 	@Override
-	List<Message> broadcastMessageWithRoleAndWaitForReplies(AbstractAgent requester,
+	List<Message> broadcastMessageWithRoleAndWaitForReplies(AbstractAgent agent,
 			String community, String group, String role, Message message,
 			String senderRole, Integer timeOutMilliSeconds) {
 		// TODO Auto-generated method stub
-		fakeKernelWarning(requester);
-		return null;
+		throw new KernelException(agent);
 	}
 
-	boolean createGroupIfAbsent(AbstractAgent abstractAgent,
+	boolean createGroupIfAbsent(AbstractAgent agent,
 			String community, String group, String group2,
 			GroupIdentifier theIdentifier, boolean isDistributed) {
-		return createGroup(abstractAgent, community, group, group2, theIdentifier, isDistributed) == ReturnCode.SUCCESS;
+		throw new KernelException(agent);
 	}
 
-	Class<?> getNewestClassVersion(AbstractAgent requester, String className) throws ClassNotFoundException {
-		fakeKernelWarning(requester);
-		return null;
+	Class<?> getNewestClassVersion(AbstractAgent agent, String className) throws ClassNotFoundException {
+		throw new KernelException(agent);
 	}
 
 }

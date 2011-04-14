@@ -172,12 +172,12 @@ public class KillAbstractAgentTest  extends JunitMadKit{
 			protected void activate() {
 				//the time out should not change anything because target == this
 				assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP));
-				assertEquals(SUCCESS,launchAgent(new SelfAbstractKill(true, false, 0)));
-				assertEquals(SUCCESS,launchAgent(new SelfAbstractKill(true, false, 1)));
-				assertEquals(SUCCESS,launchAgent(new SelfAbstractKill(true, false, Integer.MAX_VALUE)));
-				assertEquals(SUCCESS,launchAgent(new SelfAbstractKill(true, true, 0)));
-				assertEquals(SUCCESS,launchAgent(new SelfAbstractKill(true, true, 1)));
-				assertEquals(SUCCESS,launchAgent(new SelfAbstractKill(true, true, Integer.MAX_VALUE)));
+				assertEquals(AGENT_CRASH,launchAgent(new SelfAbstractKill(true, false, 0)));
+				assertEquals(AGENT_CRASH,launchAgent(new SelfAbstractKill(true, false, 1)));
+				assertEquals(AGENT_CRASH,launchAgent(new SelfAbstractKill(true, false, Integer.MAX_VALUE)));
+				assertEquals(AGENT_CRASH,launchAgent(new SelfAbstractKill(true, true, 0)));
+				assertEquals(AGENT_CRASH,launchAgent(new SelfAbstractKill(true, true, 1)));
+				assertEquals(AGENT_CRASH,launchAgent(new SelfAbstractKill(true, true, Integer.MAX_VALUE)));
 				assertEquals(SUCCESS,launchAgent(new SelfAbstractKill(false, true, 0)));
 				assertEquals(SUCCESS,launchAgent(new SelfAbstractKill(false, true, 1)));
 				assertEquals(SUCCESS,launchAgent(new SelfAbstractKill(false, true, Integer.MAX_VALUE)));
@@ -229,8 +229,8 @@ public class KillAbstractAgentTest  extends JunitMadKit{
 	public void testAlone(){
 		launchTest(new AbstractAgent(){
 			protected void activate() {
-				assertEquals(SUCCESS,launchAgent(new SelfAbstractKill(true, true, 0)));
-				assertEquals(SUCCESS,launchAgent(new SelfAbstractKill(true, false, 1)));
+				assertEquals(AGENT_CRASH,launchAgent(new SelfAbstractKill(true, true, 0)));
+				assertEquals(AGENT_CRASH,launchAgent(new SelfAbstractKill(true, false, 1)));
 				assertEquals(SUCCESS,launchAgent(new SelfAbstractKill(false, true, Integer.MAX_VALUE)));
 			}
 		});

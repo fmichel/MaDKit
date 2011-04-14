@@ -76,7 +76,7 @@ public class PingPongTest extends Agent
 	}
 	
 	public static void main(String[] args) {
-		String[] argss = {"--network","--agentLogLevel","OFF","--launchAgents",PingPongTest.class.getName(),",false"};
+		String[] argss = {"--network","--agentLogLevel","OFF","--launchAgents",PingPongTest.class.getName(),",true"};
 		Madkit.main(argss);		
 		String[] argsss = {"--network","--agentLogLevel","OFF","--launchAgents",PingPongTest.class.getName(),",true"};
 		Madkit.main(argsss);		

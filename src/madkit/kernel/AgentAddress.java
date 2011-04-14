@@ -57,6 +57,7 @@ public class AgentAddress implements java.io.Serializable{
 	final private int agentCode;
 
 	private Role roleObject;
+	private transient String cgr;//This is necessary to keep info in agent addresses that do not exist anymore
 
 
 	/**
@@ -68,18 +69,9 @@ public class AgentAddress implements java.io.Serializable{
 		agent = agt;
 		agentCode = agt.hashCode();
 		roleObject = role;
-		kernelAddress = ka;
+		kernelAddress = ka;//could have been computed from agt but this is serious optimization for mass launching
 		_hashCode = addressCount.getAndIncrement();
 	}
-
-	//	/** 
-	//	 * Tells if an {@link AgentAddress} belongs to the same kernel
-	//	 * 
-	//	 * @return <code>true</code> if this address belongs to an agent running on the same kernel, <code>false</code> otherwise
-	//	 */
-	//	public boolean isLocal(){//TODO just verify that
-	//		return kernelAddress == roleObject.getKernelAddress();
-	//	}
 
 	/**
 	 * @return
@@ -91,8 +83,11 @@ public class AgentAddress implements java.io.Serializable{
 	/**
 	 * @param roleObject the roleObject to set
 	 */
-	final void setRoleObject(Role roleObject) {
-		this.roleObject = roleObject;
+	final void setRoleObject(Role newRole) {
+		if (newRole == null) {
+			cgr=roleObject.getCommunityName()+";;"+roleObject.getGroupName()+";;"+roleObject.getRoleName();
+		}
+		roleObject = newRole;
 	}
 
 	/**
@@ -115,7 +110,10 @@ public class AgentAddress implements java.io.Serializable{
 	 * @since MadKit 5
 	 */
 	public String getCommunity() {
-		return roleObject.getCommunityName();
+		if (roleObject != null) {
+			return roleObject.getCommunityName();
+		}
+		return cgr.split(";;")[0];
 	}
 
 	/**
@@ -124,7 +122,10 @@ public class AgentAddress implements java.io.Serializable{
 	 * @since MadKit 5
 	 */
 	public String getGroup() {
-		return roleObject.getGroupName();
+		if (roleObject != null) {
+			return roleObject.getGroupName();
+		}
+		return cgr.split(";;")[1];
 	}
 
 	/**
@@ -133,7 +134,10 @@ public class AgentAddress implements java.io.Serializable{
 	 * @since MadKit 5
 	 */
 	public String getRole() {
-		return roleObject.getRoleName();
+		if (roleObject != null) {
+			return roleObject.getRoleName();
+		}
+		return cgr.split(";;")[2];
 	}
 
 	//	/** 
@@ -153,7 +157,7 @@ public class AgentAddress implements java.io.Serializable{
 		if(roleObject == null)
 			return Utils.getI18N("unregisteredAA");
 //		return agentCode+"@("+getCommunity()+"."+getGroup()+"."+getRole()+(isLocal() ? ")" : ")@"+getKernelAddress());
-		return agentCode+"@("+getCommunity()+","+getGroup()+","+getRole()+getKernelAddress();
+		return agentCode+"@("+getCommunity()+","+getGroup()+","+getRole()+")"+getKernelAddress();
 	}
 
 	final int getAgentCode() {

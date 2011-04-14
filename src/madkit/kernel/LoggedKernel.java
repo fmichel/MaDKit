@@ -18,20 +18,35 @@
  */
 package madkit.kernel;
 
-import java.awt.Component;
-import java.awt.Point;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.swing.JFrame;
-
-import madkit.kernel.AbstractAgent.ReturnCode;
-import static madkit.kernel.AbstractAgent.ReturnCode.*;
+import static madkit.kernel.AbstractAgent.ReturnCode.ACCESS_DENIED;
+import static madkit.kernel.AbstractAgent.ReturnCode.AGENT_CRASH;
+import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_GROUP;
+import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_KILLED;
+import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_LAUNCHED;
+import static madkit.kernel.AbstractAgent.ReturnCode.CLASS_NOT_FOUND;
+import static madkit.kernel.AbstractAgent.ReturnCode.INVALID_AA;
+import static madkit.kernel.AbstractAgent.ReturnCode.INVALID_ARG;
+import static madkit.kernel.AbstractAgent.ReturnCode.LAUNCH_TIME_OUT;
+import static madkit.kernel.AbstractAgent.ReturnCode.NETWORK_DOWN;
+import static madkit.kernel.AbstractAgent.ReturnCode.NOT_COMMUNITY;
+import static madkit.kernel.AbstractAgent.ReturnCode.NOT_GROUP;
+import static madkit.kernel.AbstractAgent.ReturnCode.NOT_IN_GROUP;
+import static madkit.kernel.AbstractAgent.ReturnCode.NOT_ROLE;
+import static madkit.kernel.AbstractAgent.ReturnCode.NOT_YET_LAUNCHED;
+import static madkit.kernel.AbstractAgent.ReturnCode.NO_RECIPIENT_FOUND;
+import static madkit.kernel.AbstractAgent.ReturnCode.NULL_AA;
+import static madkit.kernel.AbstractAgent.ReturnCode.NULL_MSG;
+import static madkit.kernel.AbstractAgent.ReturnCode.NULL_STRING;
+import static madkit.kernel.AbstractAgent.ReturnCode.ROLE_ALREADY_HANDLED;
+import static madkit.kernel.AbstractAgent.ReturnCode.ROLE_NOT_HANDLED;
+import static madkit.kernel.AbstractAgent.ReturnCode.SEVERE;
+import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static madkit.kernel.Utils.getI18N;
 import static madkit.kernel.Utils.printCGR;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.logging.Level;
 
 /**
  * @author Fabien Michel
@@ -39,15 +54,17 @@ import static madkit.kernel.Utils.printCGR;
  * @since MadKit 5.0.0.7
  *
  */
-// TODO logger from agent should never be null
 final class LoggedKernel extends MadkitKernel {
 
-	final private MadkitKernel madkitKernel;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7327012859170685445L;
 
 	LoggedKernel(MadkitKernel k) {
 		super(k);
 		setLoggedKernel(this);
-		madkitKernel = k;
+		setKernel(k);
 	}
 
 	/**
@@ -57,7 +74,7 @@ final class LoggedKernel extends MadkitKernel {
 	ReturnCode createGroup(AbstractAgent requester, String community, String group, String description, GroupIdentifier theIdentifier, boolean isDistributed) {
 		logMessage(requester, "createGroup" + printCGR(community, group) + "distribution " + (isDistributed ? "ON" : "OFF") + " with "
 				+ (theIdentifier == null ? "no access control" : theIdentifier.toString() + " for access control"));
-		switch (madkitKernel.createGroup(requester, community, group, group, theIdentifier, isDistributed)) {
+		switch (kernel.createGroup(requester, community, group, group, theIdentifier, isDistributed)) {
 		case SUCCESS:
 			return SUCCESS;
 		case ALREADY_GROUP:
@@ -70,10 +87,10 @@ final class LoggedKernel extends MadkitKernel {
 	}
 	
 	@Override
-	public boolean createGroupIfAbsent(AbstractAgent requester,String community, String group, String desc, GroupIdentifier theIdentifier, boolean isDistributed) {
+	boolean createGroupIfAbsent(AbstractAgent requester,String community, String group, String desc, GroupIdentifier theIdentifier, boolean isDistributed) {
 		logMessage(requester, "createGroupIfAbsent" + printCGR(community, group) + "distribution " + (isDistributed ? "ON" : "OFF") + " with "
 				+ (theIdentifier == null ? "no access control" : theIdentifier.toString() + " for access control"));
-		return madkitKernel.createGroup(requester, community, group, desc,theIdentifier, isDistributed) == SUCCESS;
+		return kernel.createGroup(requester, community, group, desc,theIdentifier, isDistributed) == SUCCESS;
 	}
 	
 
@@ -83,7 +100,7 @@ final class LoggedKernel extends MadkitKernel {
 	@Override
 	ReturnCode requestRole(AbstractAgent requester, String community, String group, String role, Object memberCard) {
 		logMessage(requester, "requestRole" + printCGR(community, group, role) + "using " + memberCard + " as passKey");
-		switch (madkitKernel.requestRole(requester, community, group, role, memberCard)) {
+		switch (kernel.requestRole(requester, community, group, role, memberCard)) {
 		case SUCCESS:
 			return SUCCESS;
 		case NOT_COMMUNITY:
@@ -107,7 +124,7 @@ final class LoggedKernel extends MadkitKernel {
 	@Override
 	ReturnCode leaveGroup(AbstractAgent requester, String community, String group) {
 		logMessage(requester, "leaveGroup" + printCGR(community, group));
-		switch (madkitKernel.leaveGroup(requester, community, group)) {
+		switch (kernel.leaveGroup(requester, community, group)) {
 		case SUCCESS:
 			return SUCCESS;
 		case NOT_COMMUNITY:
@@ -127,7 +144,7 @@ final class LoggedKernel extends MadkitKernel {
 	@Override
 	ReturnCode leaveRole(AbstractAgent requester, String community, String group, String role) {
 		logMessage(requester, "leaveRole" + printCGR(community, group, role));
-		switch (madkitKernel.leaveRole(requester, community, group, role)) {
+		switch (kernel.leaveRole(requester, community, group, role)) {
 		case SUCCESS:
 			return SUCCESS;
 		case NOT_COMMUNITY:
@@ -138,7 +155,7 @@ final class LoggedKernel extends MadkitKernel {
 		case NOT_GROUP:
 			return requester.handleException(new RequestRoleWarning(NOT_GROUP, printCGR(community, group)));
 		default:
-			return requester.handleException(new RequestRoleWarning(SEVERE, "result not handled "+madkitKernel.leaveRole(requester, community, group, role)));
+			return requester.handleException(new RequestRoleWarning(SEVERE, "result not handled "+kernel.leaveRole(requester, community, group, role)));
 		}
 	}
 
@@ -149,7 +166,7 @@ final class LoggedKernel extends MadkitKernel {
 	List<AgentAddress> getAgentsWithRole(AbstractAgent requester, String community, String group, String role) {
 		logMessage(requester, "getAgentsWithRole" + printCGR(community, group, role));
 		try {
-			return madkitKernel.getOtherRolePlayers(requester, community, group, role);
+			return kernel.getOtherRolePlayers(requester, community, group, role);
 		} catch (CGRNotAvailable e) {
 			switch (e.getCode()) {
 			case NOT_COMMUNITY:
@@ -175,7 +192,7 @@ final class LoggedKernel extends MadkitKernel {
 	AgentAddress getAgentWithRole(AbstractAgent requester, String community, String group, String role) {
 		logMessage(requester, "getAgentWithRole" + printCGR(community, group, role));
 		try {
-			return madkitKernel.getAnotherRolePlayer(requester, community, group, role);
+			return kernel.getAnotherRolePlayer(requester, community, group, role);
 		} catch (CGRNotAvailable e) {
 			switch (e.getCode()) {
 			case NOT_COMMUNITY:
@@ -194,13 +211,10 @@ final class LoggedKernel extends MadkitKernel {
 		}
 	}
 
-	/**
-	 * @see madkit.kernel.MadkitKernel#broadcastMessageWithRole(madkit.kernel.AbstractAgent, java.lang.String, java.lang.String, java.lang.String, madkit.kernel.Message, java.lang.String)
-	 */
 	@Override
 	ReturnCode broadcastMessageWithRole(AbstractAgent requester, String community, String group, String role, Message messageToSend, String senderRole) {
 		logMessage(requester, "broadcastMessage to <" + community + "," + group + "," + role + ">");
-		switch (madkitKernel.broadcastMessageWithRole(requester, community, group, role, messageToSend, senderRole)) {
+		switch (kernel.broadcastMessageWithRole(requester, community, group, role, messageToSend, senderRole)) {
 		case SUCCESS:
 			return SUCCESS;
 		case INVALID_ARG:
@@ -222,13 +236,10 @@ final class LoggedKernel extends MadkitKernel {
 		}
 	}
 
-	/**
-	 * @see madkit.kernel.RootKernel#sendMessage(madkit.kernel.AbstractAgent, madkit.kernel.AgentAddress, madkit.kernel.Message, java.lang.String)
-	 */
 	@Override
 	ReturnCode sendMessage(AbstractAgent requester, AgentAddress receiver, Message messageToSend, String senderRole) {
 		logMessage(requester, "sendMessage to " + receiver);
-		switch (madkitKernel.sendMessage(requester, receiver, messageToSend, senderRole)) {
+		switch (kernel.sendMessage(requester, receiver, messageToSend, senderRole)) {
 		case SUCCESS:
 			return SUCCESS;
 		case INVALID_ARG:
@@ -249,13 +260,10 @@ final class LoggedKernel extends MadkitKernel {
 		}
 	}
 
-	/**
-	 * @see madkit.kernel.RootKernel#sendMessage(madkit.kernel.AbstractAgent, java.lang.String, java.lang.String, java.lang.String, madkit.kernel.Message, java.lang.String)
-	 */
 	@Override
 	ReturnCode sendMessage(AbstractAgent requester, String community, String group, String role, Message messageToSend, String senderRole) {
 		logMessage(requester, "sendMessage to " + printCGR(community,group,role));
-		switch (madkitKernel.sendMessage(requester, community, group, role, messageToSend, senderRole)) {
+		switch (kernel.sendMessage(requester, community, group, role, messageToSend, senderRole)) {
 		case SUCCESS:
 			return SUCCESS;
 		case INVALID_ARG:
@@ -277,14 +285,11 @@ final class LoggedKernel extends MadkitKernel {
 		}
 	}
 
-	/**
-	 * @see madkit.kernel.RootKernel#sendReplyWithRole(madkit.kernel.AbstractAgent, madkit.kernel.Message, madkit.kernel.Message, java.lang.String)
-	 */
 	@Override
 	ReturnCode sendReplyWithRole(AbstractAgent requester, Message messageToReplyTo, Message reply, String senderRole) {
 		logMessage(requester, "sending " + reply + " as reply to " + messageToReplyTo);
 		// TODO Auto-generated method stub
-		switch (madkitKernel.sendReplyWithRole(requester, messageToReplyTo, reply, senderRole)) {
+		switch (kernel.sendReplyWithRole(requester, messageToReplyTo, reply, senderRole)) {
 		case SUCCESS:
 			return SUCCESS;
 		case INVALID_ARG:
@@ -311,7 +316,7 @@ final class LoggedKernel extends MadkitKernel {
 			String community, String group, String role, Message message,
 			String senderRole, Integer timeOutMilliSeconds) {
 		logMessage(requester, "broadcastMessageWithRoleAndWaitForReplies");
-		return madkitKernel.broadcastMessageWithRoleAndWaitForReplies(requester, community, group, role, message, senderRole, timeOutMilliSeconds);//TODO logging
+		return kernel.broadcastMessageWithRoleAndWaitForReplies(requester, community, group, role, message, senderRole, timeOutMilliSeconds);//TODO logging
 	}
 
 	/**
@@ -320,7 +325,7 @@ final class LoggedKernel extends MadkitKernel {
 	@Override
 	List<AbstractAgent> launchAgentBucketWithRoles(AbstractAgent requester, String agentClassName, int bucketSize, Collection<String> CGRLocations) {
 		logMessage(requester, "launchAgentBucketWithRoles  <" + agentClassName + "," + bucketSize + "," + CGRLocations + ">");
-		final List<AbstractAgent> l = madkitKernel.launchAgentBucketWithRoles(requester, agentClassName, bucketSize, CGRLocations);
+		final List<AbstractAgent> l = kernel.launchAgentBucketWithRoles(requester, agentClassName, bucketSize, CGRLocations);
 		logMessage(requester, "launchAgentBucketWithRoles  done !");
 		return l;
 	}
@@ -331,7 +336,7 @@ final class LoggedKernel extends MadkitKernel {
 	@Override
 	AbstractAgent launchAgent(AbstractAgent requester, String agentClass, int timeOutSeconds, boolean defaultGUI) {
 		logMessage(requester, getI18N("launchA") + agentClass);
-		final AbstractAgent a = madkitKernel.launchAgent(requester, agentClass, timeOutSeconds, defaultGUI);
+		final AbstractAgent a = kernel.launchAgent(requester, agentClass, timeOutSeconds, defaultGUI);
 		if (a == null) {
 			logMessage(requester, getI18N("launchA") + agentClass + " time out or crash");
 			return null;
@@ -346,7 +351,7 @@ final class LoggedKernel extends MadkitKernel {
 	@Override
 	ReturnCode launchAgent(AbstractAgent requester, AbstractAgent agent, int timeOutSeconds, boolean defaultGUI) {
 		logMessage(requester, getI18N("launchA") + agent);
-		switch (madkitKernel.launchAgent(requester, agent, timeOutSeconds, defaultGUI)) {
+		switch (kernel.launchAgent(requester, agent, timeOutSeconds, defaultGUI)) {
 		case INVALID_ARG:
 			requester.handleException(new LaunchAgentWarning(INVALID_ARG, " launch failed "+INVALID_ARG));
 			logMessage(requester, getI18N("launchA") + agent + " not done : null arg");
@@ -368,12 +373,9 @@ final class LoggedKernel extends MadkitKernel {
 		}
 	}
 
-	/**
-	 * @see madkit.kernel.RootKernel#isCommunity(madkit.kernel.AbstractAgent, java.lang.String)
-	 */
 	@Override
 	boolean isCommunity(AbstractAgent requester, String community) {
-		if(madkitKernel.isCommunity(requester, community)){
+		if(kernel.isCommunity(requester, community)){
 			logMessage(requester, "isCommunity ? "+printCGR(community)+" YES");
 			return true;
 		}
@@ -381,12 +383,9 @@ final class LoggedKernel extends MadkitKernel {
 		return false;
 	}
 
-	/**
-	 * @see madkit.kernel.RootKernel#isGroup(madkit.kernel.AbstractAgent, java.lang.String, java.lang.String)
-	 */
 	@Override
 	boolean isGroup(AbstractAgent requester, String community, String group) {
-		if(madkitKernel.isGroup(requester, community, group)){
+		if(kernel.isGroup(requester, community, group)){
 			logMessage(requester, "isGroup ? "+printCGR(community, group)+" YES");
 			return true;
 		}
@@ -394,12 +393,9 @@ final class LoggedKernel extends MadkitKernel {
 		return false;
 	}
 
-	/**
-	 * @see madkit.kernel.RootKernel#isRole(madkit.kernel.AbstractAgent, java.lang.String, java.lang.String, java.lang.String)
-	 */
 	@Override
 	boolean isRole(AbstractAgent requester, String community, String group, String role) {
-		if(madkitKernel.isRole(requester, community, group, role)){
+		if(kernel.isRole(requester, community, group, role)){
 			logMessage(requester, "isRole ? "+printCGR(community, group, role)+" YES");
 			return true;
 		}
@@ -409,14 +405,14 @@ final class LoggedKernel extends MadkitKernel {
 	
 	@Override
 	MadkitKernel getMadkitKernel() {
-		return madkitKernel;
+		return kernel;
 	}
 	
 	@Override
 	final ReturnCode killAgent(final AbstractAgent requester, final AbstractAgent target, int timeOutSeconds) {
 		kernelLog("Killing " + target.getName() + " and waiting its termination for " + timeOutSeconds + " s...", Level.FINER, null);
 		logMessage(requester, "Killing " + target.getName() + " and waiting its termination for " + timeOutSeconds + " s...");
-		switch (madkitKernel.killAgent(requester, target, timeOutSeconds)) {
+		switch (kernel.killAgent(requester, target, timeOutSeconds)) {
 		case SUCCESS:
 			logMessage(requester, "... Done: [" + target.getName() + "] succesfully killed !");
 			return SUCCESS;
@@ -434,10 +430,10 @@ final class LoggedKernel extends MadkitKernel {
 	@Override //TODO think about this log
 	ReturnCode reloadClass(AbstractAgent requester, String name) throws ClassNotFoundException {
 		logMessage(requester, getI18N("reload") + name);
-		if(madkitKernel.reloadClass(requester, name) == SUCCESS)
+		if(kernel.reloadClass(requester, name) == SUCCESS)
 			return SUCCESS;
 		return requester.handleException(new killedAgentWarning(CLASS_NOT_FOUND, "Cannot find a class file for reloading <"+name+">"));
-//		switch(madkitKernel.reloadClass(requester, name)){//TODO if else if ok
+//		switch(kernel.reloadClass(requester, name)){//TODO if else if ok
 //		case SUCCESS:
 //			return SUCCESS;
 //		case CLASS_NOT_FOUND://TODO exception for this
@@ -454,32 +450,24 @@ final class LoggedKernel extends MadkitKernel {
 	 */
 	@Override
 	boolean removeOverlooker(AbstractAgent requester, Overlooker<? extends AbstractAgent> o) {
-		boolean added = madkitKernel.removeOverlooker(requester, o);
+		boolean added = kernel.removeOverlooker(requester, o);
 		logMessage(requester, (o instanceof Activator<?> ?"Activator":"Probe")+"added:"+o);
 		return added;
 	}
 
-	/**
-	 * @see madkit.kernel.RootKernel#addOverlooker(madkit.kernel.AbstractAgent, madkit.kernel.Overlooker)
-	 */
 	@Override
 	boolean addOverlooker(AbstractAgent requester, Overlooker<? extends AbstractAgent> o) {
-		return madkitKernel.addOverlooker(requester, o);
+		return kernel.addOverlooker(requester, o);
 	}
 
-	final boolean logMessage(final AbstractAgent requester, final String m) {
-		// just in case the user sets logger to null manually :( but protected is so convenient...
-		final Logger logger = requester.getLogger();
-		if (logger == null)
-			return false;
-		else
-			logger.finest(m);
-		return true;
+	final void logMessage(final AbstractAgent requester, final String m) {
+		if (requester.logger != null)
+			requester.logger.finest(m);
 	}
 
 	@Override
 	Class<?> getNewestClassVersion(AbstractAgent requester, String className) throws ClassNotFoundException {//TODO log 
-		return madkitKernel.getNewestClassVersion(requester, className);
+		return kernel.getNewestClassVersion(requester, className);
 	}
 
 }

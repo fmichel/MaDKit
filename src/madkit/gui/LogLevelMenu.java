@@ -96,11 +96,13 @@ public class LogLevelMenu extends JMenu implements AgentUIComponent{
 	 */
 	@Override
 	public void updateAgentUI() {
-		AgentLogger logger = myAgent.getLogger();
-		Level currentLogLevel = logger.getLevel();
-		Level currentWarningLogLevel = logger.getWarningLogLevel();
-		updateButtonGroup(logGroup, currentLogLevel);
-		updateButtonGroup(warningGroup, currentWarningLogLevel);
+//		if (myAgent.isAlive()) {
+			AgentLogger logger = myAgent.getLogger();
+			Level currentLogLevel = logger.getLevel();
+			Level currentWarningLogLevel = logger.getWarningLogLevel();
+			updateButtonGroup(logGroup, currentLogLevel);
+			updateButtonGroup(warningGroup, currentWarningLogLevel);
+//		}
 	}
 
 	/**

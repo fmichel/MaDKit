@@ -366,7 +366,7 @@ class MadkitKernel extends Agent{
 		if(community == null || group == null){
 			return NULL_STRING;
 		}
-		Organization organization = new Organization(community,this);//TODO optimize , no need to remove org never failed if not present
+		Organization organization = new Organization(community,this);// no need to remove org never failed if not present
 		final Organization tmpOrg = organizations.putIfAbsent(community, organization);
 		if(tmpOrg != null){
 			organization = tmpOrg;
@@ -476,10 +476,6 @@ class MadkitKernel extends Agent{
 		//		return result;
 	}
 
-
-	/**
-	 * @see madkit.kernel.RootKernel#getAgentsWithRole(madkit.kernel.AbstractAgent, java.lang.String, java.lang.String, java.lang.String)
-	 */
 
 	//Warning never touch this without looking at the logged kernel
 	List<AgentAddress> getAgentsWithRole(AbstractAgent requester, String community, String group, String role){
@@ -619,12 +615,11 @@ class MadkitKernel extends Agent{
 			netAgent = getAgentWithRole(LOCAL_COMMUNITY, NETWORK_GROUP, NETWORK_ROLE);
 		}
 	}
-
-	//	private boolean updateNetAgent(){//TODO 
-	//		if(netAgent == null){
-	//			netAgent = getAgentWithRole(requester, community, group, role);
-	//		}
-	//	}
+	
+	boolean isOnline(){
+		getMadkitKernel().updateNetworkAgent();
+		return getMadkitKernel().netAgent != null;
+	}
 
 	//////////////////////////////////////////////////////////////
 	////////////////////////// Launching and Killing
@@ -1179,10 +1174,6 @@ class MadkitKernel extends Agent{
 		return ReturnCode.CLASS_NOT_FOUND;//TODO not the right code here
 	}
 
-	/**
-	 * @see madkit.kernel.RootKernel#isCommunity(madkit.kernel.AbstractAgent, java.lang.String)
-	 */
-
 	boolean isCommunity(AbstractAgent requester, String community) {
 		try {
 			return getCommunity(community) != null;
@@ -1190,10 +1181,6 @@ class MadkitKernel extends Agent{
 			return false;
 		}
 	}
-
-	/**
-	 * @see madkit.kernel.RootKernel#isGroup(madkit.kernel.AbstractAgent, java.lang.String, java.lang.String)
-	 */
 
 	boolean isGroup(AbstractAgent requester, String community, String group) {
 		try {
@@ -1203,9 +1190,6 @@ class MadkitKernel extends Agent{
 		}
 	}
 
-	/**
-	 * @see madkit.kernel.RootKernel#isGroup(madkit.kernel.AbstractAgent, java.lang.String, java.lang.String)
-	 */
 
 	boolean isRole(AbstractAgent requester, String community, String group, String role) {
 		try {
@@ -1301,7 +1285,7 @@ class MadkitKernel extends Agent{
 	}
 
 
-	void injectOperation(CGRSynchro m) {
+	final void injectOperation(CGRSynchro m) {
 		final Role r = m.getContent().getRoleObject();
 		final String communityName = r.getCommunityName();
 		final String groupName = r.getGroupName();
@@ -1311,7 +1295,7 @@ class MadkitKernel extends Agent{
 		try {
 			switch (m.getCode()) {
 			case CREATE_GROUP:
-				Organization organization = new Organization(communityName,this);//TODO optimize , no need to remove org never failed if not present
+				Organization organization = new Organization(communityName,this);//no need to remove org never failed if not present
 				final Organization tmpOrg = organizations.putIfAbsent(communityName, organization);
 				if(tmpOrg != null){
 					if(isGroup(communityName, groupName)){
@@ -1361,15 +1345,15 @@ class MadkitKernel extends Agent{
 	synchronized void shutdown() {
 		if(logger != null)
 			logger.finer("***** SHUTINGDOWN MADKIT ********\n");
-		normalAgentThreadFactory.getThreadGroup().list();
 		shuttedDown = true;
+		normalAgentThreadFactory.getThreadGroup().list();
 		//		Thread t = new Thread(new Runnable() {
 		//			public void run() {
 		if(logger != null){
 			logger.talk(platform.printFareWellString());
 		}
 		normalAgentThreadFactory.getThreadGroup().interrupt();
-		pause(100);
+		pause(1000);
 		normalAgentThreadFactory.getThreadGroup().interrupt();
 		MadkitKernel.this.getMadkitKernel().broadcastMessageWithRoleAndWaitForReplies(
 				MadkitKernel.this,

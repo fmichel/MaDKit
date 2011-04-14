@@ -18,36 +18,23 @@
  */
 package madkit.gui;
 
-import static madkit.kernel.Scheduler.State.RUNNING;
-
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.logging.Level;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JRadioButtonMenuItem;
 import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
 
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.KernelMessage;
-import madkit.kernel.Madkit;
-import madkit.kernel.Scheduler;
-import madkit.kernel.Madkit.Roles;
+import madkit.kernel.KernelAddress;
 
 /**
  * Class containing static which could used to build agent GUI
@@ -61,6 +48,7 @@ final public class Utils {
 	
 	//TODO every Icon static. So avoiding useless instances //TODO create this only if required
 	static ConcurrentMap<AbstractAgent,List<AgentUIComponent>> agentUIListeners = new ConcurrentHashMap<AbstractAgent, List<AgentUIComponent>>();
+	static ConcurrentMap<KernelAddress,JLabel> networkLabel = new ConcurrentHashMap<KernelAddress,JLabel>();
 	
 	final static Map<String,ImageIcon> madkitIcons = new HashMap<String,ImageIcon>();
 	
@@ -85,16 +73,39 @@ final public class Utils {
 		}
 	}
 
+	static public void updateAgentsUI(){
+		for (List<AgentUIComponent> list : agentUIListeners.values()) {
+			for(AgentUIComponent ui : list){
+				ui.updateAgentUI();
+			}
+		}
+	}
+
 	static public JMenu createLogLevelMenu(final AbstractAgent agent){
 		LogLevelMenu menu = new LogLevelMenu(agent);
 		menu.setMnemonic(KeyEvent.VK_L);
-		agentUIListeners.putIfAbsent(agent, new ArrayList<AgentUIComponent>());
-		agentUIListeners.get(agent).add(menu);
+		addUIListenerFor(agent, menu);
 		return menu;
+	}
+	
+	
+	
+	static void addUIListenerFor(final AbstractAgent agent, AgentUIComponent component){
+		agentUIListeners.putIfAbsent(agent, new ArrayList<AgentUIComponent>());
+		agentUIListeners.get(agent).add(component);
 	}
 	
 	static public JMenu createLaunchingMenu(final AbstractAgent agent){
 		return new AgentMenu(agent);
+	}
+	
+	public static JLabel getNetworkStatusLabel(KernelAddress ka){
+		JLabel label = networkLabel.get(ka);
+		if(label == null){
+			label = new JLabel();
+			networkLabel.put(ka, label);
+		}
+		return label;
 	}
 	
 	
@@ -131,7 +142,7 @@ public static void initAction(AbstractAction a,
 	a.putValue(Action.SELECTED_KEY, selected);
 }
 
-public static ImageIcon getMadkitImageIcon(String fileCode){
+ public static ImageIcon getMadkitImageIcon(String fileCode){
 	return madkitIcons.get(fileCode);
 }
 

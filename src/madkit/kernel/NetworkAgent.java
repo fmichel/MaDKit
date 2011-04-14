@@ -30,6 +30,7 @@ import java.util.SortedMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
+import madkit.gui.Utils;
 import madkit.kernel.Madkit.Roles;
 import madkit.messages.ObjectMessage;
 
@@ -77,7 +78,7 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 		setName(super.getName()+getKernelAddress());
 
 		requestRole(Roles.LOCAL_COMMUNITY, Roles.NETWORK_GROUP, Roles.NETWORK_ROLE);
-		requestRole(Roles.LOCAL_COMMUNITY, Roles.NETWORK_GROUP, "updater",null);
+//		requestRole(Roles.LOCAL_COMMUNITY, Roles.NETWORK_GROUP, "updater",null);
 
 		kernelAgent = getAgentWithRole(Roles.LOCAL_COMMUNITY, Roles.NETWORK_GROUP, Roles.GROUP_MANAGER_ROLE);
 		//black magic here
@@ -114,6 +115,7 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 			getLogger().info("\n\t\t\t\t----- MadKit MulticastListener activated on "+MultiCastListener.ipAddress+" ------\n");
 			getLogger().finest("Broadcasting existence");
 		}
+		Utils.updateAgentsUI();
 		Message m = null;
 		final ArrayList<Message> toDoList = new ArrayList<Message>();
 
@@ -151,6 +153,22 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 			handleMessage(waitNextMessage());
 		}
 	}
+
+		@Override
+		protected void end() {
+			leaveGroup(Roles.LOCAL_COMMUNITY, Roles.NETWORK_GROUP);
+			Utils.updateAgentsUI();
+			getLogger().info("\n\t\t\t\t----- Network is being closed on "+getKernelAddress()+" ------\n");
+	//		logger.info("\n\t\t\t\t----- Network is being closed on "+myServer.getIp()+" port "+myServer.getPort()+" ------\n");
+			getLogger().finer("Closing all connections : "+peers.values());
+			for (KernelConnection kc : peers.values()) {
+				kc.closeConnection();
+			}
+			getLogger().finer("Closing multicast listener");
+			multicastListener.stop();
+			getLogger().finer("Closing kernel server: ");
+			myServer.stop();
+		}
 
 	@SuppressWarnings("unchecked")
 	private void handleMessage(Message m) throws ClassCastException{
@@ -336,23 +354,6 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 		}
 		kc.sendMessage(m);
 		return true;
-	}
-
-	/* (non-Javadoc)
-	 * @see madkit.kernel.AbstractAgent#end()
-	 */
-	@Override
-	protected void end() {
-		getLogger().info("\n\t\t\t\t----- Network is being closed on "+getKernelAddress()+" ------\n");
-//		logger.info("\n\t\t\t\t----- Network is being closed on "+myServer.getIp()+" port "+myServer.getPort()+" ------\n");
-		getLogger().finer("Closing all connections : "+peers.values());
-		for (KernelConnection kc : peers.values()) {
-			kc.closeConnection();
-		}
-		getLogger().finer("Closing multicast listener");
-		multicastListener.stop();
-		getLogger().finer("Closing kernel server: ");
-		myServer.stop();
 	}
 
 }

@@ -46,7 +46,12 @@ public class AbstractAgentTest {
 	@Test
 	public void testKernelNull(){
 		b.setLogLevel(Level.INFO);
-		b.launchAgent(new AbstractAgent());
+		try {
+			b.launchAgent(new AbstractAgent(),0,true);
+			fail("exception not thrown");
+		} catch (KernelException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -132,8 +137,8 @@ public class AbstractAgentTest {
 		assertNotNull(a.logger);
 		a.setName("new");
 		System.err.println(a.getLogger().getName());
-		assertTrue(a.getLogger().getName().equals(a.getName()));//one space for no concatenation of string
-		assertTrue(a.getLoggingName().endsWith("new]"));
+		System.err.println(a.getName());
+		assertTrue(a.getLogger().getName().equals("["+a.getName()+"]"));//one space for no concatenation of string
 		a.setLogLevel(Level.OFF);
 		assertNull(a.logger);
 	}

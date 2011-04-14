@@ -1,5 +1,6 @@
 package madkit.gui;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
@@ -10,7 +11,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Level;
 
+import javax.swing.Box;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -81,13 +84,13 @@ public class DefaultGUIsManagerAgent extends Agent  {
 		JFrame f = new JFrame(agent.getName());
 
 		f.setJMenuBar(createMenuBarFor(agent));
-
+		
 		f.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		f.addWindowListener(new WindowAdapter() {
 			public void windowClosed(java.awt.event.WindowEvent e) {
 				if (guis.containsKey(agent)){
 					guis.remove(agent);
-					killAgent(agent); //TODO !!
+					agent.killAgent(agent);
 				}
 			}
 		}); 
@@ -107,18 +110,21 @@ public class DefaultGUIsManagerAgent extends Agent  {
 		menuBar.add(new MadkitMenu(agent));
 		menuBar.add(madkit.gui.Utils.createLaunchingMenu(agent));
 		menuBar.add(madkit.gui.Utils.createLogLevelMenu(agent));
+		menuBar.add(Box.createHorizontalGlue());
+		menuBar.add(new AgentStatusPanel(agent));
 		return menuBar;
 	}
 
 	private void disposeGUIOf(AbstractAgent agent) {
 		final JFrame f = guis.remove(agent);
 		if(f != null){
-			SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					f.dispose();
-				}
-			});
+			Utils.agentUIListeners.remove(agent);
+			f.dispose();
+//			SwingUtilities.invokeLater(new Runnable() {
+//				@Override
+//				public void run() {
+//				}
+//			});
 		}
 	}
 

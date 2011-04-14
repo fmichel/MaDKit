@@ -19,6 +19,10 @@
 
 package madkit.kernel;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import madkit.kernel.AbstractAgent.ReturnCode;
 
 /**
@@ -86,6 +90,16 @@ final class NotAvailableActionWarning extends MadkitWarning {
 
 	NotAvailableActionWarning(ReturnCode code, String printCGR) {
 		super(code,printCGR);	
+	}
+}
+
+final class KernelException extends RuntimeException {
+	
+	private static final long serialVersionUID = -4549760236073524549L;
+
+	KernelException(AbstractAgent agent ){
+		super( (agent == null ? "" : agent.toString()) + " Cannot use this method as this agent has not been launched or is already ended or killed");
+		setStackTrace(Arrays.asList(getStackTrace()).subList(2, getStackTrace().length-1).toArray(new StackTraceElement[0]));
 	}
 }
 
@@ -221,9 +235,16 @@ final class KilledException extends RuntimeException {
 	 */
 	private static final long serialVersionUID = -8695603147644262321L;
 
-	KilledException(){}
+	KilledException(String msg){
+		super(msg);
+	}
 	
 	KilledException(Throwable cause){
 		super(cause);
+	}
+	
+	@Override
+	public synchronized Throwable fillInStackTrace() {
+		return null;
 	}
 }//TODO get the cause of the kill

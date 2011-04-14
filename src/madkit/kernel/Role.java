@@ -46,22 +46,20 @@ import static madkit.kernel.AbstractAgent.ReturnCode.*;
 class Role implements Serializable{//TODO test with arraylist
 
 	private static final long serialVersionUID = 4447153943733812916L;
-	//	private transient HashSet<Overlooker<? extends AbstractAgent>> overlookers;
-	//	private transient List<AbstractAgent> referenceableAgents; //TODO test copyonarraylist and linkedhashset
-	final protected transient ArrayList<AbstractAgent> players;
-	private transient ArrayList<AbstractAgent> tmpReferenceableAgents;
+
+	final protected transient List<AbstractAgent> players;//TODO test copyonarraylist and linkedhashset
+	private transient List<AbstractAgent> tmpReferenceableAgents;
 	private transient Set<AgentAddress> agentAddresses;
-
 	private transient boolean modified=true;
-	final transient private Logger logger;
-
 	final private transient Set<Overlooker<? extends AbstractAgent>> overlookers;
 	protected final transient Group myGroup;
+	final transient private Logger logger;
+	private final transient KernelAddress kernelAddress;
+
 
 	private final String communityName;
 	private final String groupName;
 	private final String roleName;
-	private final KernelAddress kernelAddress;
 
 
 	/**
@@ -82,16 +80,17 @@ class Role implements Serializable{//TODO test with arraylist
 		myGroup = groupObject;
 		kernelAddress = k.getKernelAddress();
 		if(logger != null){
+//			logger.setLevel(Level.ALL);
 			logger.finer(toString()+" created");
 		}
 		overlookers = new LinkedHashSet<Overlooker<? extends AbstractAgent>>();
 		for(final Overlooker<? extends AbstractAgent> o : k.getOperatingOverlookers()){
-			if(o.getCommunity().equals(communityName) && o.getGroup().equals(groupName) && o.getRole().equals(roleName))
+			if(o.getRole().equals(roleName) && o.getGroup().equals(groupName) && o.getCommunity().equals(communityName) )
 				overlookers.add(o);
 		}
 		initializeOverlookers();
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if(this == obj)
@@ -129,7 +128,7 @@ class Role implements Serializable{//TODO test with arraylist
 	/**
 	 * @return the players
 	 */
-	ArrayList<AbstractAgent> getPlayers() {
+	List<AbstractAgent> getPlayers() {
 		return players;
 	}
 
@@ -211,7 +210,7 @@ class Role implements Serializable{//TODO test with arraylist
 
 	final void addMembers(final ArrayList<AbstractAgent> bucket, final boolean roleJustCreated){
 		synchronized (players) {
-			players.addAll(bucket);
+			players.addAll(bucket);//is optimized
 			if (agentAddresses != null) {
 				final Set<AgentAddress> addresses = new HashSet<AgentAddress>(bucket.size()+agentAddresses.size(),0.9f);//TODO try load factor
 				for (final AbstractAgent a : bucket) {
@@ -249,7 +248,7 @@ class Role implements Serializable{//TODO test with arraylist
 			}
 		}
 	}
-	
+
 	private Set<AgentAddress> buildAndGetAddresses(){
 		if(agentAddresses == null){
 			agentAddresses = new HashSet<AgentAddress>(players.size(),0.8f);
@@ -271,16 +270,13 @@ class Role implements Serializable{//TODO test with arraylist
 			if (agentAddresses != null) {
 				removeAgentAddressOf(requester, agentAddresses).setRoleObject(null);
 			}
-			//		referenceableAgents.remove(requester.getAgent());
 			if (logger != null) {
 				logger.finest(requester.getName() + " has leaved role " + printCGR(communityName, groupName, roleName) + "\n");
 			}
 			modified = true;
 		}
-		updateOverlookers(requester,false);
-		if(empty()){
-			deleteMySelfFromOrg(requester);
-		}
+		updateOverlookers(requester,false);//TODO put that in the synchronized ?
+		checkEmptyness();
 		return SUCCESS;
 	}
 
@@ -289,31 +285,39 @@ class Role implements Serializable{//TODO test with arraylist
 	 * @param kernelAddress2
 	 */
 	void removeAgentsFromDistantKernel(final KernelAddress kernelAddress2) {
-		if(logger != null)
-			logger.finest("Removing all agents from distant kernel "+kernelAddress2+" in"+this);
-		if (agentAddresses != null)
+		if (agentAddresses != null){
+			if(logger != null)
+				logger.finest("Removing all agents from distant kernel "+kernelAddress2+" in"+this);
 			synchronized (players) {
 				for (Iterator<AgentAddress> iterator = getAgentAddresses().iterator(); iterator.hasNext();) {//TODO return if no agent addresses
 					if (iterator.next().getKernelAddress().equals(kernelAddress2))
 						iterator.remove();
 				}
+				checkEmptyness();
 			}
-		if(empty()){
-			deleteMySelfFromOrg(null);
+		}
+	}
+
+	private final void checkEmptyness(){
+		if( (players == null || players.isEmpty()) && (agentAddresses == null || agentAddresses.isEmpty()) ){
+			for (final Overlooker<? extends AbstractAgent> o : overlookers) {
+				o.setOverlookedRole(null);
+			}
+			myGroup.removeRole(roleName);
 		}
 	}
 
 
-	/**
-	 * @param requester the agent by which I am now empty
-	 * 
-	 */
-	private void deleteMySelfFromOrg(AbstractAgent requester) {
-		for (final Overlooker<? extends AbstractAgent> o : overlookers) {
-			o.setOverlookedRole(null);
-		}
-		myGroup.removeRole(roleName);
-	}
+//	/**
+//	 * @param requester the agent by which I am now empty
+//	 * 
+//	 */
+//	private void deleteMySelfFromOrg(AbstractAgent requester) {
+//		for (final Overlooker<? extends AbstractAgent> o : overlookers) {
+//			o.setOverlookedRole(null);
+//		}
+//		myGroup.removeRole(roleName);
+//	}
 
 
 	/**
@@ -327,13 +331,11 @@ class Role implements Serializable{//TODO test with arraylist
 						logger.finest(content + " has leaved role " + printCGR(communityName, groupName, roleName) + "\n");
 					}
 				}
+				checkEmptyness();
 			}
 		}
-		if(empty()){
-			deleteMySelfFromOrg(null);
-		}
 	}
-	
+
 	final Set<AgentAddress> getAgentAddressesCopy(){
 		buildAndGetAddresses();
 		final Set<AgentAddress> result = new HashSet<AgentAddress>(agentAddresses.size(), 1.0f);
@@ -348,8 +350,8 @@ class Role implements Serializable{//TODO test with arraylist
 	 * @param requester
 	 */
 	static AgentAddress removeAgentAddressOf(final AbstractAgent requester,final Set<AgentAddress> agentAddresses2) {
-//		if(requester == null)
-//			throw new AssertionError("Wrong use ^^");
+		//		if(requester == null)
+		//			throw new AssertionError("Wrong use ^^");
 		for (final Iterator<AgentAddress> iterator = agentAddresses2.iterator();iterator.hasNext();){
 			try {
 				final AgentAddress aa = iterator.next();
@@ -364,10 +366,9 @@ class Role implements Serializable{//TODO test with arraylist
 		return null;
 	}
 
-	boolean empty() {
-		//players == null is not possible TODO
-		return ( (players == null || players.isEmpty()) && (agentAddresses == null || agentAddresses.isEmpty()) );//simply not possible if not following remove A
-	}
+//	boolean empty() {
+//		return ( (players == null || players.isEmpty()) && (agentAddresses == null || agentAddresses.isEmpty()) );//simply not possible if not following remove A
+//	}
 
 
 	/**
@@ -389,27 +390,27 @@ class Role implements Serializable{//TODO test with arraylist
 		return myGroup.getAgentAddressOf(abstractAgent);
 	}
 
-//	/**
-//	 * @param receiver
-//	 * @return
-//	 */
-//	boolean containsAddress(final AgentAddress receiver) {
-//		if(getAgentAddresses().contains(receiver))
-//			return true;
-//		else{
-//			final Collection<Role> roles = new ArrayList<Role>(myGroup.values());
-//			roles.remove(this);
-//			for(final Role r : roles){
-//				if(r.getAgentAddresses().contains(receiver))
-//					return true;
-//			}
-//		}
-//		return false;
-//	}
+	//	/**
+	//	 * @param receiver
+	//	 * @return
+	//	 */
+	//	boolean containsAddress(final AgentAddress receiver) {
+	//		if(getAgentAddresses().contains(receiver))
+	//			return true;
+	//		else{
+	//			final Collection<Role> roles = new ArrayList<Role>(myGroup.values());
+	//			roles.remove(this);
+	//			for(final Role r : roles){
+	//				if(r.getAgentAddresses().contains(receiver))
+	//					return true;
+	//			}
+	//		}
+	//		return false;
+	//	}
 
-//	final boolean isPlayingRole(final AgentAddress agent){
-//		return getAgentAddresses().contains(agent);
-//	}
+	//	final boolean isPlayingRole(final AgentAddress agent){
+	//		return getAgentAddresses().contains(agent);
+	//	}
 
 	final List<AbstractAgent> getAgentsList()
 	{

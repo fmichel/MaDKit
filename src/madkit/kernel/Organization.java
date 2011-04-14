@@ -64,12 +64,7 @@ final class Organization extends ConcurrentHashMap <String, Group>{
 	Organization(final String string, final MadkitKernel madkitKernel) {
 		communityName = string;
 		myKernel = madkitKernel;
-//		Madkit platform = myKernel.getPlatform();
-//		logger = platform.setLogging("[*"+platform.getPlatformID()+" "+communityName+"_OrgLogger*]",
-//				! parseBoolean(platform.getConfigOption().getProperty(Madkit.noOrgConsoleLog)),
-//				Level.parse(platform.getConfigOption().getProperty(Madkit.orgLogLevel)),
-//				Arrays.asList(platform.getMadkitLogFileHandler()),
-//				AgentLogger.agentFormatter);
+//		logger = madkitKernel.getLogger();
 		logger = null;
 		if(logger != null)
 			logger.finer(printCGR(communityName)+"created");

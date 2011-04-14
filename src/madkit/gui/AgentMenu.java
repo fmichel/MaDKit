@@ -93,12 +93,12 @@ public class AgentMenu extends JMenu implements AgentUIComponent{//TODO i18n
 		AbstractAction action = new AbstractAction("launchAnother") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				SwingUtilities.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-						a.launchAgent(a.getClass().getName(),0,true);
-					}
-				});
+				a.launchAgent(a.getClass().getName(),0,true);
+//				SwingUtilities.invokeLater(new Runnable() {
+//					@Override
+//					public void run() {
+//					}
+//				});
 			}
 		};
 		Utils.initAction(action, 
@@ -121,24 +121,20 @@ public class AgentMenu extends JMenu implements AgentUIComponent{//TODO i18n
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				this.setEnabled(false);
-				SwingUtilities.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							a.reloadAgentClass(a.getClass().getName());
-						} catch (ClassNotFoundException e) {
-							e.printStackTrace();//TODO log this but should not happen
-						}
-						a.launchAgent(a.getClass().getName(), true);
-						if (a.getState() != AbstractAgent.State.TERMINATED) {
-							a.killAgent(a);
-							//						} catch (IllegalAccessError e) {
-							//							e.printStackTrace();
-							//							JOptionPane.showMessageDialog(null, "Reload is for now not functionnal on this agent (probably embedding inner classes) Sorry...", "MadKit apologies", JOptionPane.WARNING_MESSAGE);
-							//						}
-						}
-					}
-				});
+				try {
+					a.reloadAgentClass(a.getClass().getName());
+				} catch (ClassNotFoundException ex) {
+					ex.printStackTrace();//TODO log this but should not happen
+				}
+				a.launchAgent(a.getClass().getName(), true);
+				if (a.getState() != AbstractAgent.State.TERMINATED) {
+					a.killAgent(a);
+				}
+//				SwingUtilities.invokeLater(new Runnable() {
+//					@Override
+//					public void run() {
+//					}
+//				});
 			}
 		};
 		Utils.initAction(action, 
@@ -158,12 +154,12 @@ public class AgentMenu extends JMenu implements AgentUIComponent{//TODO i18n
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				this.setEnabled(false);
-				SwingUtilities.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-						a.killAgent(a);
-					}
-				});
+				a.killAgent(a);
+//				SwingUtilities.invokeLater(new Runnable() {
+//					@Override
+//					public void run() {
+//					}
+//				});
 			}
 		};
 		Utils.initAction(action, 

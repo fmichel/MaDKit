@@ -72,6 +72,7 @@ class Role implements Serializable{//TODO test with arraylist
 
 	Role(final Group groupObject,final String roleName){
 		players = new ArrayList<AbstractAgent>();
+		tmpReferenceableAgents = new ArrayList<AbstractAgent>();//should not be necessary but ...
 		communityName = groupObject.getMyCommunity().getName();
 		groupName = groupObject.getName();
 		this.roleName = roleName;
@@ -84,26 +85,23 @@ class Role implements Serializable{//TODO test with arraylist
 			logger.finer(toString()+" created");
 		}
 		overlookers = new LinkedHashSet<Overlooker<? extends AbstractAgent>>();
-		for(final Overlooker<? extends AbstractAgent> o : k.getOperatingOverlookers()){
-			if(o.getRole().equals(roleName) && o.getGroup().equals(groupName) && o.getCommunity().equals(communityName) )
-				overlookers.add(o);
-		}
 		initializeOverlookers();
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if(this == obj)
-			return true;
-		Role other = (Role) obj;
-		return communityName.equals(other.communityName) &&
-		groupName.equals(other.groupName) &&
-		roleName.equals(other.roleName);
-	}
+//	@Override
+//	public boolean equals(Object obj) { //override should not be required
+//		if(this == obj)
+//			return true;
+//		Role other = (Role) obj;
+//		return communityName.equals(other.communityName) &&
+//		groupName.equals(other.groupName) &&
+//		roleName.equals(other.roleName);
+//	}
 
 	private synchronized void initializeOverlookers() {//TODO init process
-		for (final Overlooker<? extends AbstractAgent> o : overlookers) {
-			o.setOverlookedRole(this);
+		for(final Overlooker<? extends AbstractAgent> o : myGroup.getMyCommunity().getMyKernel().getOperatingOverlookers()){
+			if(o.getRole().equals(roleName) && o.getGroup().equals(groupName) && o.getCommunity().equals(communityName) )
+				addOverlooker(o);
 		}
 	}
 
@@ -163,6 +161,7 @@ class Role implements Serializable{//TODO test with arraylist
 
 	final void removeOverlooker(final Overlooker<? extends AbstractAgent> o)
 	{
+		overlookers.remove(o);
 		o.setOverlookedRole(null);
 	}
 	/**
@@ -202,13 +201,13 @@ class Role implements Serializable{//TODO test with arraylist
 			}
 			modified = true;
 		}
-		updateOverlookers(requester,true);
+		addToOverlookers(requester);
 		return true;
 		//		requester.setRoleObject(this);
 		//		referenceableAgents.add(requester.getAgent());
 	}
 
-	final void addMembers(final ArrayList<AbstractAgent> bucket, final boolean roleJustCreated){
+	final void addMembers(final List<AbstractAgent> bucket, final boolean roleJustCreated){
 		synchronized (players) {
 			players.addAll(bucket);//is optimized
 			if (agentAddresses != null) {
@@ -225,7 +224,7 @@ class Role implements Serializable{//TODO test with arraylist
 			initializeOverlookers();
 		}
 		else{
-			updateOverlookers(bucket,true);
+			addToOverlookers(bucket);
 		}
 	}
 
@@ -275,7 +274,7 @@ class Role implements Serializable{//TODO test with arraylist
 			}
 			modified = true;
 		}
-		updateOverlookers(requester,false);//TODO put that in the synchronized ?
+		removeFromOverlookers(requester);//TODO put that in the synchronized ?
 		checkEmptyness();
 		return SUCCESS;
 	}
@@ -301,7 +300,7 @@ class Role implements Serializable{//TODO test with arraylist
 	private final void checkEmptyness(){
 		if( (players == null || players.isEmpty()) && (agentAddresses == null || agentAddresses.isEmpty()) ){
 			for (final Overlooker<? extends AbstractAgent> o : overlookers) {
-				o.setOverlookedRole(null);
+				removeOverlooker(o);
 			}
 			myGroup.removeRole(roleName);
 		}
@@ -390,28 +389,6 @@ class Role implements Serializable{//TODO test with arraylist
 		return myGroup.getAgentAddressOf(abstractAgent);
 	}
 
-	//	/**
-	//	 * @param receiver
-	//	 * @return
-	//	 */
-	//	boolean containsAddress(final AgentAddress receiver) {
-	//		if(getAgentAddresses().contains(receiver))
-	//			return true;
-	//		else{
-	//			final Collection<Role> roles = new ArrayList<Role>(myGroup.values());
-	//			roles.remove(this);
-	//			for(final Role r : roles){
-	//				if(r.getAgentAddresses().contains(receiver))
-	//					return true;
-	//			}
-	//		}
-	//		return false;
-	//	}
-
-	//	final boolean isPlayingRole(final AgentAddress agent){
-	//		return getAgentAddresses().contains(agent);
-	//	}
-
 	final List<AbstractAgent> getAgentsList()
 	{
 		if(modified){
@@ -427,18 +404,42 @@ class Role implements Serializable{//TODO test with arraylist
 	}
 
 
-	final private void updateOverlookers(final AbstractAgent theReference,final boolean added) {
+//	final private void updateOverlookers(final AbstractAgent theReference,final boolean added) {
+//		for (final Overlooker<? extends AbstractAgent> o : overlookers){
+//			o.update(theReference,added);// TODO choose solution on updateAgent
+//		}
+//	}
+
+//	/**
+//	 * @param bucket
+//	 */
+//	final private void updateOverlookers(final ArrayList<AbstractAgent> bucket,final boolean added) {
+//		for (final AbstractAgent abstractAgent : bucket) {
+//			updateOverlookers(abstractAgent, added);
+//		}
+//	}
+	
+	final private void addToOverlookers(AbstractAgent a){
 		for (final Overlooker<? extends AbstractAgent> o : overlookers){
-			o.update(theReference,added);// TODO choose solution on updateAgent
+			o.addAgent(a);
 		}
 	}
 
-	/**
-	 * @param bucket
-	 */
-	final private void updateOverlookers(final ArrayList<AbstractAgent> bucket,final boolean added) {
-		for (final AbstractAgent abstractAgent : bucket) {
-			updateOverlookers(abstractAgent, added);
+	final private void addToOverlookers(List<AbstractAgent> l){
+		for (final Overlooker<? extends AbstractAgent> o : overlookers){
+			o.addAgents(l);
+		}
+	}
+
+	final private void removeFromOverlookers(AbstractAgent a){
+		for (final Overlooker<? extends AbstractAgent> o : overlookers){
+			o.removeAgent(a);
+		}
+	}
+
+	final private void removeFromOverlookers(List<AbstractAgent> l){
+		for (final Overlooker<? extends AbstractAgent> o : overlookers){
+			o.removeAgents(l);
 		}
 	}
 

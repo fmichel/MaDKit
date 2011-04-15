@@ -18,22 +18,30 @@
  */
 package madkit.kernel;
 
+import madkit.simulation.PropertyProbe;
+
 /**
- * This class defines a generic watcher probe. 
+ * This class defines a watcher's generic probe. 
  * A probe is configured according to a community, a group and a role.
  * 
  * @author Fabien Michel
  * @author Olivier Gutknecht 
  * @since MadKit 2.0
  * @version 5.0
+ * @see Watcher
+ * @see PropertyProbe
  * 
  */
 public class Probe<A extends AbstractAgent> extends Overlooker<A>{
 
 	/**
+	 * Builds a new Probe on the given CGR location of the
+	 * artificial society. Once created, it has to be added by a {@link Watcher} 
+	 * agent using the {@link Watcher#addProbe(Probe)} method.
 	 * @param communityName
 	 * @param groupName
 	 * @param roleName
+	 * @see Watcher
 	 */
 	public Probe(final String communityName, final String groupName, final String roleName) {
 		super(communityName, groupName, roleName);

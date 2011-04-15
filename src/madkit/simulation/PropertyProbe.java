@@ -18,7 +18,10 @@
  */
 package madkit.simulation;
 
+import java.lang.reflect.Field;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
@@ -38,7 +41,7 @@ import madkit.kernel.Probe;
  */
 public class PropertyProbe<A extends AbstractAgent,P> extends Probe<A>
 { 
-	private ConcurrentHashMap<A, P> properties = new ConcurrentHashMap<A, P>();
+	private Map<A, P> properties;// = new ConcurrentHashMap<A, P>();
 	private String fieldName;
 
 	public PropertyProbe(String community, String group, String role,String propertyName)
@@ -50,7 +53,7 @@ public class PropertyProbe<A extends AbstractAgent,P> extends Probe<A>
 	@Override
 	public void initialize()
 	{
-		properties = new ConcurrentHashMap<A, P>(size());
+		properties = new ConcurrentHashMap<A, P>(size());//TODO load factor
 		super.initialize();//will call adding on all agents
 	}
 	
@@ -58,7 +61,7 @@ public class PropertyProbe<A extends AbstractAgent,P> extends Probe<A>
 	 * @see madkit.kernel.Probe#adding(AbstractAgent)
 	 */
 	@Override
-	public void adding(final A theAgent) {
+	protected void adding(final A theAgent) {
 		findFieldOfAgent(theAgent);
 	}
 	
@@ -66,8 +69,36 @@ public class PropertyProbe<A extends AbstractAgent,P> extends Probe<A>
 	 * @see madkit.kernel.Probe#removing(AbstractAgent)
 	 */
 	@Override
-	public void removing(final A theAgent) {
+	protected void removing(final A theAgent) {
 		properties.remove(theAgent);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	protected void adding(List<A> agents) {//bench that : it shoud be faster
+		try {
+			if (! agents.isEmpty()) {
+				final Map<A, P> newP = new ConcurrentHashMap<A, P>(agents.size()+properties.size(),.9f); 
+				final Field f = agents.get(0).getClass().getField(fieldName);
+				for (A a : agents) {
+					newP.put(a, (P) f.get(a));
+				}
+				newP.putAll(properties);
+				properties = newP;
+			}
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchFieldException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**

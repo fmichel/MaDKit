@@ -54,8 +54,8 @@ import madkit.gui.MadkitActions;
  * <li> Minimal graphical interface management.
  * </ul>
 
- * @author Olivier Gutknecht
  * @author Fabien Michel
+ * @author Olivier Gutknecht
  * @since MadKit 1.0
  * @version 5.1
  */
@@ -66,7 +66,7 @@ public class Agent extends AbstractAgent{
 	 */
 	private static final long serialVersionUID = 8564494100061187968L;
 	Thread myThread;
-	ArrayList<Future<Boolean>> myLifeCycle = new ArrayList<Future<Boolean>>();
+	List<Future<Boolean>> lifeCycle = new ArrayList<Future<Boolean>>(1);//has to be not null for distinguishing agent from aa
 	final private static FutureTask<Boolean> fakeTask = new FutureTask<Boolean>(new Callable<Boolean>() {
 		public Boolean call() throws Exception {return null;}
 	});
@@ -83,12 +83,55 @@ public class Agent extends AbstractAgent{
 	 */
 	public Agent(boolean isDaemon) {
 		if (isDaemon)
-			myLifeCycle.add(fakeTask);
+			lifeCycle.add(fakeTask);
 		}
 
 	public Agent(){
 		this(false);
 	}
+
+	@Override
+		boolean activation(boolean gui) {
+			if(gui){
+				if(logger != null){
+					logger.finer("** setting up GUI **");
+				}
+				requestRole(LOCAL_COMMUNITY, SYSTEM_GROUP, "default");
+				kernel.broadcastMessageWithRoleAndWaitForReplies(
+						this,
+						LOCAL_COMMUNITY, 
+						SYSTEM_GROUP, 
+						GUI_MANAGER_ROLE, 
+						new GUIMessage(MadkitActions.AGENT_SETUP_GUI,this), 
+						null, 
+						10000);//How much and why ?
+			}
+			if(logger != null){
+				logger.finer("** entering ACTIVATE **");
+			}
+			if(! state.compareAndSet(INITIALIZING, ACTIVATED))
+				throw new AssertionError("not init in activation");
+	//		synchronized (getAlive()) {
+	//			getAlive().notify();
+	//		}
+			try {
+				activate();
+			} catch (KilledException e) {
+	//			e.printStackTrace();
+				if(logger != null){
+					logger.warning("-*-GET KILLED in ACTIVATE-*- : "+e.getMessage());
+				}
+				return false;
+			} catch (Throwable e) {
+				kernel.kernelLog("Problem for "+this+" in ACTIVATE ", Level.FINER, e);
+				logSevereException(e);
+				return false;
+			} finally {
+				if(logger != null)
+					logger.finer("** exiting ACTIVATE **");
+			}
+			return true;
+		}
 
 	final boolean living() {
 		if(! state.compareAndSet(ACTIVATED, LIVING))
@@ -101,7 +144,7 @@ public class Agent extends AbstractAgent{
 		} catch (KilledException e) {
 			if(logger != null){
 				logger.warning("-*-GET KILLED in LIVE-*- : "+e.getMessage());
-				//				logger.warning("my tasks "+myLifeCycle);//TODO remove that
+				//				logger.warning("my tasks "+lifeCycle);//TODO remove that
 			}
 			return false;
 		} catch (Throwable e) {
@@ -153,9 +196,9 @@ public class Agent extends AbstractAgent{
 			}
 			getAlive().set(false);
 			if(timeoutSeconds == 0){
-				myLifeCycle.get(2).cancel(true);
+				lifeCycle.get(2).cancel(true);
 			}
-			myLifeCycle.get(1).cancel(true);
+			lifeCycle.get(1).cancel(true);
 			throw new KilledException(" by "+this);
 		}
 		else{
@@ -518,66 +561,12 @@ public class Agent extends AbstractAgent{
 		}
 	}
 
-	@Override
-	boolean activation(boolean gui) {
-		if(gui){
-			if(logger != null){
-				logger.finer("** setting up GUI **");
-			}
-			requestRole(LOCAL_COMMUNITY, SYSTEM_GROUP, "default");
-			kernel.broadcastMessageWithRoleAndWaitForReplies(
-					this,
-					LOCAL_COMMUNITY, 
-					SYSTEM_GROUP, 
-					GUI_MANAGER_ROLE, 
-					new GUIMessage(MadkitActions.AGENT_SETUP_GUI,this), 
-					null, 
-					10000);//How much and why ?
-			
-		}
-		if(logger != null){
-			logger.finer("** entering ACTIVATE **");
-		}
-		if(! state.compareAndSet(INITIALIZING, ACTIVATED))
-			throw new AssertionError("not init in activation");
-//		synchronized (getAlive()) {
-//			getAlive().notify();
-//		}
-		try {
-			activate();
-		} catch (KilledException e) {
-//			e.printStackTrace();
-			if(logger != null){
-				logger.warning("-*-GET KILLED in ACTIVATE-*- : "+e.getMessage());
-			}
-			return false;
-		} catch (Throwable e) {
-			kernel.kernelLog("Problem for "+this+" in ACTIVATE ", Level.FINER, e);
-			logSevereException(e);
-			return false;
-		} finally {
-			if(logger != null)
-				logger.finer("** exiting ACTIVATE **");
-		}
-		return true;
-	}
-
-//	/**
-//	 * @see madkit.kernel.AbstractAgent#terminate()
-//	 * @since MadKit 5
-//	 */
-//	@Override
-//	void terminate() {
-//		kernel.removeThreadedAgent(this);//TODO this should be the last call
-//		super.terminate();
-//	}
-
 	/**
-	 * @param myLifeCycle the myLifeCycle to set
+	 * @param lifeCycle the lifeCycle to set
 	 * @since MadKit 5
 	 */
-	void setMyLifeCycle(ArrayList<Future<Boolean>> myLifeCycle) {
-		this.myLifeCycle = myLifeCycle;
+	void setMyLifeCycle(List<Future<Boolean>> lifeCycle) {
+		this.lifeCycle = lifeCycle;
 	}
 
 	/**
@@ -601,12 +590,12 @@ public class Agent extends AbstractAgent{
 	}
 
 	/**
-	 * @return the myLifeCycle
+	 * @return the lifeCycle
 	 * @since MadKit 5
 	 */
 	@Override
-	final ArrayList<Future<Boolean>> getMyLifeCycle() {
-		return myLifeCycle;
+	final List<Future<Boolean>> getMyLifeCycle() {
+		return lifeCycle;
 	}
 
 	/**

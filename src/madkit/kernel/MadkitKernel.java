@@ -75,6 +75,8 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Map.Entry;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletionService;
@@ -900,7 +902,7 @@ class MadkitKernel extends Agent {
 		if (!agent.state.compareAndSet(NOT_LAUNCHED, INITIALIZING) || shuttedDown) {
 			return ALREADY_LAUNCHED;
 		}
-		final ArrayList<Future<Boolean>> lifeCycle = agent.getMyLifeCycle();
+		final List<Future<Boolean>> lifeCycle = agent.getMyLifeCycle();
 		agent.setKernel(this);
 
 		if (defaultAgentLogLevel == Level.OFF && agent.logger == AbstractAgent.defaultLogger) {
@@ -916,7 +918,9 @@ class MadkitKernel extends Agent {
 			return agent.activation(defaultGUI) ? SUCCESS : AGENT_CRASH;
 		}
 		try {
-			boolean success = startAgentLifeCycle((Agent) agent, defaultGUI).get();
+			
+//			boolean success = startAgentLifeCycle((Agent) agent, defaultGUI).get();
+			boolean success = new AgentExecutor((Agent) agent, agent.getMyLifeCycle().isEmpty() ? normalAgentThreadFactory : daemonAgentThreadFactory).start(defaultGUI).get();
 			if(success)
 				threadedAgents.add(agent);
 			return success ? SUCCESS : AGENT_CRASH;
@@ -939,26 +943,14 @@ class MadkitKernel extends Agent {
 	}
 
 	Future<Boolean> startAgentLifeCycle(final Agent agent, final boolean gui) {
-		final ArrayList<Future<Boolean>> lifeCycle = new ArrayList<Future<Boolean>>(4);
-		final ExecutorService agentExecutor;
-		if (agent.getMyLifeCycle().isEmpty()) {
-			agentExecutor = Executors.newSingleThreadScheduledExecutor(normalAgentThreadFactory);
-		} else {
-			agentExecutor = Executors.newSingleThreadScheduledExecutor(daemonAgentThreadFactory);
-		}
+		final List<Future<Boolean>> lifeCycle = new ArrayList<Future<Boolean>>(4);
+		final ExecutorService agentExecutor = 
+			new AgentExecutor(agent, agent.getMyLifeCycle().isEmpty() ? normalAgentThreadFactory : daemonAgentThreadFactory);
 		final Future<Boolean> activation = agentExecutor.submit(new Callable<Boolean>() {
-
 			public Boolean call() {
-				final Thread currentThread = Thread.currentThread();
-				// if (! currentThread.isDaemon()) {
-				// activeThreadedAgents.add(agent);
-				// }
-				agent.setMyThread(currentThread);
-				if (!agent.activation(gui)) {
-					agent.getMyLifeCycle().get(1).cancel(true);// no
-					// activation
-					// no
-					// living
+				agent.setMyThread(Thread.currentThread());
+				if (! agent.activation(gui)) {
+					agent.getMyLifeCycle().get(1).cancel(true);// TODO This has to be done in the system thread
 					return false;
 				}
 				return true;
@@ -977,7 +969,7 @@ class MadkitKernel extends Agent {
 		}));
 		lifeCycle.add(agentExecutor.submit(new Callable<Boolean>() {
 			public Boolean call() {
-				agent.terminate();
+//				agent.terminate();
 				agentExecutor.shutdown();
 				return true;
 			}
@@ -1017,7 +1009,7 @@ class MadkitKernel extends Agent {
 		if (!target.getAlive().compareAndSet(true, false)) {
 			return ALREADY_KILLED;
 		}
-		final ArrayList<Future<Boolean>> lifeCycle = target.getMyLifeCycle();
+		final List<Future<Boolean>> lifeCycle = target.getMyLifeCycle();
 		if (lifeCycle != null) {
 			killThreadedAgent((Agent) target);
 			return SUCCESS;
@@ -1029,7 +1021,7 @@ class MadkitKernel extends Agent {
 
 	private void killThreadedAgent(final Agent target) {
 		target.myThread.setPriority(Thread.MIN_PRIORITY);
-		final ArrayList<Future<Boolean>> lifeCycle = target.getMyLifeCycle();
+		final List<Future<Boolean>> lifeCycle = target.getMyLifeCycle();
 		lifeCycle.get(1).cancel(true);
 		lifeCycle.get(0).cancel(true);
 		try {

@@ -100,7 +100,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 
 	private final static transient AtomicInteger agentCounter = new AtomicInteger(-1);
 
-	private static final transient MadkitKernel fakeKernel = new RootKernel(null);
+	static final transient MadkitKernel FAKE_KERNEL = new RootKernel(null);
 
 	final static transient AgentLogger defaultLogger = AgentLogger.defaultAgentLogger;
 
@@ -129,7 +129,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 
 	public AbstractAgent() {
 		_hashCode = agentCounter.getAndIncrement();
-		kernel = fakeKernel;
+		kernel = FAKE_KERNEL;
 	}
 
 	/**
@@ -180,7 +180,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @return true if the agent has been launched and not yet terminated, false otherwise
 	 */
 	public boolean isAlive() {
-		return alive.get();
+		return getAlive().get();
 	}
 
 	// //////////////////////////////////////////// LIFE CYCLE
@@ -209,7 +209,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			activate();
 		} 
 		catch (KilledException e) {//self kill
-			alive.set(false);
+			getAlive().set(false);
 			if (logger != null) {
 				logger.finest("-*-GET KILLED in ACTIVATE-*- "+e.getMessage());
 				logger.finer("** exiting ACTIVATE **");
@@ -225,7 +225,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			}
 			// no more ending if activate failed
 			// ending();
-			if (alive.get()) {
+			if (getAlive().get()) {
 				ending();
 				terminate();
 			}
@@ -275,16 +275,16 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		try {
 			end();
 		} catch (KilledException e) {
-			if (logger != null && alive.get()) {//not killed before
+			if (logger != null && getAlive().get()) {//not killed before
 				logger.finest("-*-GET KILLED in END-*- " + e.getMessage());
 			}
 			return false;
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			kernel.kernelLog("Problem for "+this+" in END ", Level.FINER, e);
 			logSevereException(e);
 			return false;
 		} finally {
-			alive.set(false);
+			getAlive().set(false);
 			if (logger != null) {
 				logger.finer("** exiting END **");// TODO display it or not in case of kill ?
 			}
@@ -296,7 +296,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * 
 	 */
 	void terminate() {// TODO should be in mk
-		alive.set(false);
+		getAlive().set(false);
 		setKernel(kernel.getMadkitKernel());
 		kernel.broadcastMessageWithRole(
 				this,
@@ -310,7 +310,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		state.set(TERMINATED);
 		try {
 			kernel.removeAgentFromOrganizations(this);// TODO catch because of probe/activator
-		} catch (Exception e) {
+		} catch (Throwable e) {
+			e.printStackTrace();
 			kernel.kernelLog("Problem for "+this+" in TERMINATE ", Level.FINER, e);
 			logSevereException(e);
 		}
@@ -321,7 +322,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 				h.close();
 			}
 		}
-		kernel = fakeKernel;
+		kernel = FAKE_KERNEL;
 	}
 
 	/**
@@ -949,10 +950,10 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	/**
 	 * This makes the distinction between AA and Agent
 	 * 
-	 * @return the myLifeCycle
+	 * @return the lifeCycle
 	 * @since MadKit 5.0.0.9
 	 */
-	ArrayList<Future<Boolean>> getMyLifeCycle() {
+	List<Future<Boolean>> getMyLifeCycle() {
 		return null;
 	}
 

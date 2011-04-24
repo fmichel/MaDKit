@@ -94,7 +94,7 @@ public class KillAbstractAgentTest  extends JunitMadKit{
 			protected void activate() {
 				assertEquals(NOT_YET_LAUNCHED,killAgent(timeOutAgent));
 				assertEquals(LAUNCH_TIME_OUT,launchAgent(timeOutAgent,0));
-				pause(10);
+				pause(100);
 				assertEquals(SUCCESS,killAgent(timeOutAgent));
 				assertEquals(ALREADY_KILLED,killAgent(timeOutAgent));				
 			}

@@ -21,7 +21,7 @@
 * This package contains classes for Agent GUI authoring in MadKit.
 * Especially, the {@link madkit.gui.OutputPanel} class is the component which are
 * given to agents when they are launched with a default GUI.
-* Also the {@link madkit.gui.Utils} could be used to easily build agent GUI.
+* Also the {@link madkit.gui.MKToolkit} could be used to easily build agent GUI.
 * 
 * @author Fabien Michel
 * @since MadKit 5.0.0.2

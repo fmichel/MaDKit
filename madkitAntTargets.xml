@@ -28,10 +28,27 @@
 	<property name="build.dir" value="build"/>
 	<property name="madkit.args" value=""/>
 	<property name="jnlp.template" value="jnlp.template"/>
-	<property name="jar.file" value="${executable.name}-${version}.jar"/>
+
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: create-lib-jar                      
+         - - - - - - - - - - - - - - - - - -->
+    <target name="create-lib-jar" depends="prepare-jar">
+		<property name="jar.file" value="${executable.name}-lib-${version}.jar"/>
+		<mkdir dir="${build.dir}"/>
+		<concat destfile="${build.dir}/README" >--- This is ${project.label} MadKit library version ${version} by ${author} -----
+			${line.separator}- Description  ${description}  -----
+			${line.separator}- Using        This jar file is MadKit lib file: It can be used in MadKit using load jar or by putting it in the classpath of your MadKit application  -----
+			${line.separator}- Technology   It runs using the MadKit multi agent kernel : http://www.madkit.org A platform for building Multi-Agent Systems Application -----
+		</concat>
+ 		<jar destfile="${jar.file}" manifest="${build.dir}/MANIFEST.MF" compress="false" >
+            <fileset dir="${build.dir}" excludes="${jar.file},mk.certif,MANIFEST.MF,madkitAntTargets.xml"/>
+ 		</jar>
+    	<antcall target="sign-jar"/>
+    </target>
 
 	
  	<target name="create-executable-jar" depends="prepare-jar" description="Creates an executable jar of your project">
+		<property name="jar.file" value="${executable.name}-${version}.jar"/>
  		<unzip src="${kernel.location}" dest="${build.dir}">
     	  <patternset>
     	    <include name="jar-in-jar-loader.zip"/>
@@ -135,6 +152,7 @@
 		<jar destfile="${build.dir}/${jar.file}" manifest="${build.dir}/MANIFEST.MF"
 			basedir="${build.dir}"
 			update="false"
+			index="true" 
 			duplicate="preserve"
 			compress="false">
 		</jar>

@@ -28,6 +28,7 @@ import static madkit.kernel.Madkit.Roles.LOCAL_COMMUNITY;
 import static madkit.kernel.Madkit.Roles.SYSTEM_GROUP;
 import static madkit.kernel.Utils.getI18N;
 import java.io.Serializable;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -51,6 +52,7 @@ import java.util.logging.Logger;
 import javax.swing.JFrame;
 
 import madkit.gui.GUIMessage;
+import madkit.gui.MadkitActions;
 import madkit.gui.OutputPanel;
 
 /**
@@ -101,7 +103,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	private static final transient MadkitKernel fakeKernel = new RootKernel(null);
 
 	final static transient AgentLogger defaultLogger = AgentLogger.defaultAgentLogger;
-
 
 	final AtomicReference<State> state = new AtomicReference<AbstractAgent.State>(AbstractAgent.State.NOT_LAUNCHED);
 	transient MadkitKernel kernel;
@@ -185,9 +186,9 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	// //////////////////////////////////////////// LIFE CYCLE
 	boolean activation(boolean gui) {
 		//TODO I18N
+		if (!state.compareAndSet(INITIALIZING, ACTIVATED))// TODO remove it when OK
+			throw new AssertionError("not init in activation");
 		try {
-			if (!state.compareAndSet(INITIALIZING, ACTIVATED))// TODO remove it when OK
-				throw new AssertionError("not init in activation");
 			if(gui){
 				if(logger != null){
 					logger.finer("** setting up  GUI **");
@@ -198,7 +199,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 						LOCAL_COMMUNITY, 
 						SYSTEM_GROUP, 
 						GUI_MANAGER_ROLE, 
-						new GUIMessage(GUIMessage.GuiCode.SETUP_GUI,this), 
+						new GUIMessage(MadkitActions.AGENT_SETUP_GUI,this), 
 						null, 
 						10000);
 			}
@@ -210,13 +211,13 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		catch (KilledException e) {//self kill
 			alive.set(false);
 			if (logger != null) {
-				logger.warning("-*-GET KILLED in ACTIVATE-*- "+e.getMessage());
+				logger.finest("-*-GET KILLED in ACTIVATE-*- "+e.getMessage());
 				logger.finer("** exiting ACTIVATE **");
 			}
 			ending();
 			terminate();
 			return false;
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			kernel.kernelLog("Problem for "+this+" in ACTIVATE ", Level.FINER, e);
 			logSevereException(e);
 			if (logger != null) {
@@ -275,7 +276,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			end();
 		} catch (KilledException e) {
 			if (logger != null && alive.get()) {//not killed before
-				logger.warning("-*-GET KILLED in END-*- " + e.getMessage());
+				logger.finest("-*-GET KILLED in END-*- " + e.getMessage());
 			}
 			return false;
 		} catch (Exception e) {
@@ -302,7 +303,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 				LOCAL_COMMUNITY, 
 				SYSTEM_GROUP, 
 				GUI_MANAGER_ROLE, 
-				new GUIMessage(GUIMessage.GuiCode.DISPOSE_GUI,this), 
+				new GUIMessage(MadkitActions.AGENT_DISPOSE_GUI,this), 
 				null); 
 		if (getState().equals(TERMINATED))// TODO remove that
 			throw new AssertionError("terminating twice " + getName());
@@ -655,7 +656,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			setKernel(kernel.getLoggedKernel());
 		}
 	}
-	
+
 	/**
 	 * Returns the agent's logger.
 	 * 
@@ -1282,7 +1283,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	// /////////////////////////////////////////////// UTILITIES /////////////////////////////////
-//	 *         <li><code>{@link ReturnCode#CLASS_NOT_FOUND}</code>: If the reload failed
+	//	 *         <li><code>{@link ReturnCode#CLASS_NOT_FOUND}</code>: If the reload failed
 
 	/**	 * Asks MasKit to reload class byte code so that new instances reflect compilation changes
 	 * during run time. This reloads the class byte code so that new instances, 
@@ -1329,12 +1330,12 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		return kernel.getNewestClassVersion(this, className);
 	}
 
-	
+
 	public SortedMap<String, SortedMap<String, SortedMap<String, Set<AgentAddress>>>> getOrganizationSnapShot(boolean global){
 		return kernel.getOrganizationSnapShot(global);
 	}
-	
-	
+
+
 	/**
 	 * Tells if a community exists in the artificial society.
 	 * 
@@ -1421,11 +1422,11 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		if(name != null)
 			return "[" + name + "]";
 		return "["+getClass().getSimpleName()+ "-" + _hashCode+ "]";
-//		String loggingName = getClass().getSimpleName() + "-" + _hashCode;
-//		if (name == null || name.equals(loggingName)) {
-//			return "[" + loggingName + "]";
-//		}
-//		return "[" + loggingName+"-" + getName() + "]";
+		//		String loggingName = getClass().getSimpleName() + "-" + _hashCode;
+		//		if (name == null || name.equals(loggingName)) {
+		//			return "[" + loggingName + "]";
+		//		}
+		//		return "[" + loggingName+"-" + getName() + "]";
 	}
 
 	// //////////////////////////////////////////////////////////////////////////////
@@ -1493,12 +1494,12 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			return answers;
 		return null;
 	}
-	
+
 	// //////////////////////////////////////////////////////////////////////////////
 	// /////////////////////////////////// Using Agent Address /////////////////////
 	// /////////////////////////////////////////////////////////////////////////////
 
-	
+
 	// //////////////////////////////////////////////////////////////////////////////
 	// /////////////////////////////////// Agent State //////////////////////////////
 	// /////////////////////////////////////////////////////////////////////////////
@@ -1594,6 +1595,10 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 */
 	public State getState() {
 		return state.get();
+	}
+	
+	public URLClassLoader getMadkitClassLoader(){
+		return kernel.getMadkitKernel().getMadkitClassLoader();
 	}
 
 	// //////////////////////////////////////////////////////////////////////////////

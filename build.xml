@@ -64,8 +64,8 @@
 				<attribute name="Sealed" value="true"/>
     			<include name="${mk.properties.file}"/>
          ================================= -->
-	<target name="jar" depends="clean,compile,build-properties" description="Jars the plugin ">
-		<jar destfile="${jar.file}" compress="false" duplicate="preserve">
+	<target name="jar" depends="clean,compile,build-properties,desktop-jnlp" description="Jars the plugin ">
+		<jar destfile="${jar.file}" index="true" compress="false" duplicate="preserve">
 
 			<fileset dir="${build.dir}"/>
 		
@@ -233,6 +233,18 @@
 			<zipfileset dir="${demo.dir}" prefix="${demo.dir}" filemode="755"/>
 		</zip>
     </target>
+	
+	<!-- ================================= 
+          target: desktop-knlp              
+         ================================= -->
+    <target name="desktop-jnlp" description="build the desktop jnlp file">
+		<copy todir="${release.dir}" file="MadKit-5-Desktop.jnlp">
+		  <filterchain>
+		    <expandproperties/>
+		  </filterchain>
+		</copy>
+    </target>
+
 	
 
 </project>

@@ -19,6 +19,7 @@
 package madkit.gui;
 
 import madkit.kernel.AbstractAgent;
+import madkit.messages.CodeMessage;
 import madkit.messages.ObjectMessage;
 
 /**
@@ -27,29 +28,9 @@ import madkit.messages.ObjectMessage;
  * @version 0.9
  * 
  */
-public class GUIMessage extends ObjectMessage<AbstractAgent> {
+public class GUIMessage extends CodeMessage<MadkitActions, Object> {
 	
-	private static final long serialVersionUID = 4586925325007253999L;
-	final private GuiCode code;
-
-	public GUIMessage(GuiCode code, AbstractAgent content) {
-		super(content);
-		this.code = code;
+	public GUIMessage(MadkitActions code, Object object) {
+		super(code,object);
 	}
-
-
-	public GuiCode getCode() {
-		return code;
-	}
-	
-	public enum GuiCode {
-		SETUP_GUI,
-		
-		DISPOSE_GUI, 
-		
-		SHUTDOWN,
-		
-//		KILL_AGENT,
-	}
-
 }

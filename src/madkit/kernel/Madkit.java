@@ -28,6 +28,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.security.AllPermission;
+import java.security.CodeSource;
+import java.security.PermissionCollection;
+import java.security.Policy;
+import java.security.ProtectionDomain;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -35,9 +40,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -54,7 +57,7 @@ import java.util.logging.Logger;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import madkit.kernel.KernelMessage.OperationCode;
+import madkit.gui.MadkitActions;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -230,6 +233,8 @@ final public class Madkit {
 	 * @since Madkit 5 
 	 */
 	public final static String noMadkitConsoleLog = "noMadkitConsoleLog";
+
+	public static final String noGUIManager = "noGUIManager";
 	/**
 	 * Parameterizable option defining the default MadKit log level. 
 	 * Key value is {@value}.
@@ -285,15 +290,20 @@ final public class Madkit {
 
 
 	final static Properties defaultConfig = new Properties();
+	final static private ResourceBundle messages;
 	static{
+		ResourceBundle rb = null;
 		try {
 			defaultConfig.load(Madkit.class.getResourceAsStream("/madkitKernel.properties"));
+			rb = ResourceBundle.getBundle(defaultConfig.getProperty("madkit.resourceBundle.file"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		messages = rb;
 	}
 
 	static final String booterAgentKey = "booterAgent";
+	public static final String desktop = "desktop";
 
 	final private Properties madkitConfig;
 	final private KernelAddress platformID;
@@ -304,6 +314,8 @@ final public class Madkit {
 	private MadkitKernel myKernel;
 	private Logger logger;
 	private MadkitClassLoader madkitClassLoader;
+	String cmdLine;
+	String[] args = {"--"+desktop};//default mode
 	
 	MadkitClassLoader getMadkitClassLoader() {
 		return madkitClassLoader;
@@ -330,8 +342,16 @@ final public class Madkit {
 		this.madkitLogFileHandler = madkitLogFileHandler;
 	}
 
-	Madkit(String[] args){
+	Madkit(String[] argss){
+		Policy.setPolicy(getAllPermissionPolicy());
 		currentInstance = this;
+		if (argss.length != 0) {
+			this.args = argss;
+		}
+		this.cmdLine = System.getProperty("java.home")+File.separatorChar+"bin"+File.separatorChar+"java -cp "+System.getProperty("java.class.path")+" madkit.kernel.Madkit ";
+		for (String s : args) {
+			this.cmdLine += " "+s;
+		}
 		platformID = new KernelAddress();
 		madkitConfig = new Properties(defaultConfig);
 		initMadkitLogging();
@@ -344,10 +364,43 @@ final public class Madkit {
 		createLogDirectory();
 		buildKernel();
 		printWelcomeString();
-		launchConfigAgents();
+		prepareConfigAgents();
 		myKernel.launchAgent(myKernel, myKernel, 20, false);//starting the kernel agent
 	}
 	
+   private Policy getAllPermissionPolicy()//TODO super bourrin : mais fait marcher le jnlp pour l'instant...
+   {
+      Policy policy = new Policy() {
+ 
+         private PermissionCollection m_permissionCollection;
+ 
+         @Override
+         public PermissionCollection getPermissions(CodeSource p_codesource)
+         {
+            return getAllPermissionCollection();
+         }
+ 
+         @Override
+         public PermissionCollection getPermissions(ProtectionDomain p_domain)
+         {
+            return getAllPermissionCollection();
+         }
+ 
+         /**
+          * @return an AllPermissionCollection
+          */
+         private PermissionCollection getAllPermissionCollection()
+         {
+            if (m_permissionCollection == null)
+            {
+               m_permissionCollection = new AllPermission().newPermissionCollection();
+               m_permissionCollection.add(new AllPermission());
+            }
+            return m_permissionCollection;
+         }
+      };
+      return policy;
+   }
 	/**
 	 * 
 	 */
@@ -433,11 +486,7 @@ final public class Madkit {
 		else{
 			madkitClassLoader = new MadkitClassLoader(this, new URL[0],systemCL,null);
 		}
-//		logger.finest("ClassPath is:\n");
-//		for (URL url : madkitClassLoader.getURLs()) {
-//			logger.finest(" "+url);
-//		}
-		logger.finest("ClassPath is:\n"+madkitClassLoader);
+		logger.finer("ClassPath is:\n"+madkitClassLoader);
 		logger.fine("** MADKIT CLASS LOADER INITIALIZED **");
 	}
 
@@ -456,15 +505,20 @@ final public class Madkit {
 	}
 
 	private void checkI18NFiles() {
-		logger.finer("** LOADING I18N FILES **");
-		logger.finest("Current Locale is "+Locale.getDefault().getCountry()+" : "+Locale.getDefault().getDisplayCountry());
-		try {
-			ResourceBundle.getBundle(madkitConfig.getProperty("madkit.resourceBundle.file"));
-		} catch (MissingResourceException e) {
-			logSevereException(logger,e, "i18n default files not found: Loading failed");
+		logger.finer("** CHECKING I18N FILES **");
+		if (messages != null) {
+			logger.fine("** I18N FILES SUCCESSFULLY LOADED **");
 		}
-		logger.fine("** I18N FILES SUCCESSFULLY LOADED **");
+		else{
+			logSevereException(logger,new AssertionError(), "i18n default files not found: Loading failed");
+		}
 	}
+
+	public static String getI18N(final String message){
+		return messages.getString(message);
+	}
+
+
 
 	//	/**
 	//	 * @returns the default madkit configuration from the madkitkernel jar file or from the classpath (an IDE is used)
@@ -537,7 +591,7 @@ final public class Madkit {
 		logger.fine("** Loading config file "+fileName+" **");
 
 		URL url = getClass().getClassLoader().getResource(fileName);
-		//		URL url = Utils.getFileURLResource(fileName);
+		//		URL url = MKToolkit.getFileURLResource(fileName);
 		if(url == null){
 			if(logger != null){
 				logger.warning("Config file not found : "+fileName);
@@ -584,15 +638,11 @@ final public class Madkit {
 	private void buildKernel() {
 		logger.finer("** INITIALIZING MADKIT KERNEL **");
 		myKernel = new MadkitKernel(this);
-		LoggedKernel lk = new LoggedKernel(myKernel);
-		myKernel.setLoggedKernel(lk);
-//		kernelAgent = new KernelAgent(myKernel);
-//		kernelAgent.start();
 		logger.fine("** KERNEL AGENT LAUNCHED **");
 	}
 
-	private void launchConfigAgents(){
-		logger.fine("** LAUNCHING CONFIG AGENTS **");
+	private void prepareConfigAgents(){
+		logger.fine("** INITIALIAZING CONFIG AGENTS **");
 		final String agentsTolaunch =madkitConfig.getProperty(Madkit.launchAgents);
 		if(! agentsTolaunch.equals("null")){
 			final String[] agentsClasses = agentsTolaunch.split(";");
@@ -606,8 +656,7 @@ final public class Madkit {
 				}
 				logger.finer("Launching "+number+ " instance(s) of "+className+" with GUI = "+withGUI);
 				for (int i = 0; i < number; i++) {
-					myKernel.receiveMessage(new KernelMessage(
-							OperationCode.LAUNCH_AGENT, className, withGUI));
+					myKernel.receiveMessage(new KernelMessage(MadkitActions.AGENT_LAUNCH_AGENT, className, withGUI));
 				}
 			}
 		}
@@ -637,17 +686,17 @@ final public class Madkit {
 	String printFareWellString() {
 		if(! (madkitConfig.getProperty(Madkit.noMadkitConsoleLog).equals("true")
 				|| Level.parse(madkitConfig.getProperty(Madkit.MadkitLogLevel)).equals(Level.OFF))){
-			return("\n\t-----------------------------------------------------")+
-			("\n\t\t\t   MadKit is shutting down, Bye !")+
-			("\n\t-----------------------------------------------------\n");			
+			return("\n\t-------------------------------------------------------------")+
+			("\n\t   MadKit Kernel "+platformID+" is shutting down, Bye !")+
+			("\n\t-------------------------------------------------------------\n");			
 		}
 		return "";
 	}
 
 	private String misuseOptionMessage(String option,String value) {
-		return "\n\n-------------MadKit WARNING------------------\n" +
+		return "\n\n-------------MadKit WARNING----------------------------\n" +
 		"Misuse of --"+option+" option\nincorrect value : "+value+
-		"\n--------------------------------------------\n";
+		"\n------------------------------------------------------\n";
 	}
 
 	/**
@@ -914,6 +963,7 @@ final public class Madkit {
 		//parse boolean options with no immediate updates
 		if(isOptionWithDifferentValue(Madkit.createLogFiles, option, value)
 				|| isOptionWithDifferentValue(Madkit.noAgentConsoleLog, option, value)
+				|| isOptionWithDifferentValue(Madkit.desktop, option, value)
 				|| isOptionWithDifferentValue(Madkit.network, option, value)){
 			value = value.trim().toLowerCase();
 			if((value.equals("true") || value.equals("false"))){
@@ -957,11 +1007,14 @@ final public class Madkit {
 
 
 	public static void main(String[] args) {
-		new Madkit(args);
+			new Madkit(args);
 	}
 	
 	final void kernelLog(String message, Level logLvl, Throwable e) {
 			logger.log(logLvl, message, e);
+			if (e != null) {
+				e.printStackTrace();
+			}
 	}
 
 	/**

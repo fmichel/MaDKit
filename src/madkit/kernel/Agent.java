@@ -41,6 +41,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 
 import madkit.gui.GUIMessage;
+import madkit.gui.MadkitActions;
 
 /**
  * The super class of all MadKit threaded agents, v 5. 
@@ -66,6 +67,9 @@ public class Agent extends AbstractAgent{
 	private static final long serialVersionUID = 8564494100061187968L;
 	Thread myThread;
 	ArrayList<Future<Boolean>> myLifeCycle = new ArrayList<Future<Boolean>>();
+	final private static FutureTask<Boolean> fakeTask = new FutureTask<Boolean>(new Callable<Boolean>() {
+		public Boolean call() throws Exception {return null;}
+	});
 
 	//	/**
 	//	 * @return the myThread
@@ -79,15 +83,38 @@ public class Agent extends AbstractAgent{
 	 */
 	public Agent(boolean isDaemon) {
 		if (isDaemon)
-			myLifeCycle.add(new FutureTask<Boolean>(new Callable<Boolean>() {
-				public Boolean call() throws Exception {
-					return null;
-				}
-			}));
+			myLifeCycle.add(fakeTask);
 		}
 
 	public Agent(){
 		this(false);
+	}
+
+	final boolean living() {
+		if(! state.compareAndSet(ACTIVATED, LIVING))
+			throw new AssertionError("not activated in live");//TODO remove test
+		if(logger != null){
+			logger.finer("** entering LIVE **");
+		}
+		try {
+			live();
+		} catch (KilledException e) {
+			if(logger != null){
+				logger.warning("-*-GET KILLED in LIVE-*- : "+e.getMessage());
+				//				logger.warning("my tasks "+myLifeCycle);//TODO remove that
+			}
+			return false;
+		} catch (Throwable e) {
+			e.printStackTrace();
+			kernel.kernelLog("Problem for "+this+" in LIVE ", Level.FINER, e);
+			logSevereException(e);
+			return false;
+		} finally {
+			//			getRunState().set(ENDING);
+			if(logger != null)
+				logger.finer("** exiting LIVE **");
+		}
+		return true;
 	}
 
 	/**
@@ -461,17 +488,17 @@ public class Agent extends AbstractAgent{
 		return waitingNextMessage(timeOut, unit);
 	}
 
-	/**
-	 * @see madkit.kernel.AbstractAgent#nextMessage()
-	 */
-	@Override
-	public Message nextMessage() {
-		checkAliveness();
-//		//no checkAliveness : this could be done in the constructor.
-//		if (myThread.isInterrupted())
-//			throw new KilledException(); //This is nawak if another thread call this
-		return super.nextMessage();
-	}
+//	/**
+//	 * @see madkit.kernel.AbstractAgent#nextMessage()
+//	 */
+//	@Override
+//	public Message nextMessage() {
+//		checkAliveness();
+////		//no checkAliveness : this could be done in the constructor.
+////		if (myThread.isInterrupted())
+////			throw new KilledException(); //This is nawak if another thread call this
+//		return super.nextMessage();
+//	}
 
 	/**
 	 * Stops the agent's process for a while.
@@ -485,7 +512,7 @@ public class Agent extends AbstractAgent{
 		try {
 			Thread.sleep(milliSeconds);
 		} catch (InterruptedException e) {
-			if (isAgentThread()) {
+			if (Thread.currentThread() == myThread) {
 				throw new KilledException(e);
 			}
 		}
@@ -503,7 +530,7 @@ public class Agent extends AbstractAgent{
 					LOCAL_COMMUNITY, 
 					SYSTEM_GROUP, 
 					GUI_MANAGER_ROLE, 
-					new GUIMessage(GUIMessage.GuiCode.SETUP_GUI,this), 
+					new GUIMessage(MadkitActions.AGENT_SETUP_GUI,this), 
 					null, 
 					10000);//How much and why ?
 			
@@ -524,7 +551,7 @@ public class Agent extends AbstractAgent{
 				logger.warning("-*-GET KILLED in ACTIVATE-*- : "+e.getMessage());
 			}
 			return false;
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			kernel.kernelLog("Problem for "+this+" in ACTIVATE ", Level.FINER, e);
 			logSevereException(e);
 			return false;
@@ -551,32 +578,6 @@ public class Agent extends AbstractAgent{
 	 */
 	void setMyLifeCycle(ArrayList<Future<Boolean>> myLifeCycle) {
 		this.myLifeCycle = myLifeCycle;
-	}
-
-	final boolean living() {
-		if(! state.compareAndSet(ACTIVATED, LIVING))
-			throw new AssertionError("not activated in live");//TODO remove test
-		if(logger != null){
-			logger.finer("** entering LIVE **");
-		}
-		try {
-			live();
-		} catch (KilledException e) {
-			if(logger != null){
-				logger.warning("-*-GET KILLED in LIVE-*- : "+e.getMessage());
-				//				logger.warning("my tasks "+myLifeCycle);//TODO remove that
-			}
-			return false;
-		} catch (Exception e) {
-			kernel.kernelLog("Problem for "+this+" in LIVE ", Level.FINER, e);
-			logSevereException(e);
-			return false;
-		} finally {
-			//			getRunState().set(ENDING);
-			if(logger != null)
-				logger.finer("** exiting LIVE **");
-		}
-		return true;
 	}
 
 	/**
@@ -727,13 +728,13 @@ public class Agent extends AbstractAgent{
 		return null;
 	}
 
-	void checkAliveness(){
-		if(isAgentThread() && Thread.interrupted()){
-			throw new KilledException(" get interrupted ");
-		}
-	}
+//	void checkAliveness(){
+//		if(isAgentThread() && Thread.interrupted()){
+//			throw new KilledException(" get interrupted ");
+//		}
+//	}
 	
-	private boolean isAgentThread(){
-		return Thread.currentThread() == myThread;
-	}
+//	private boolean isAgentThread(){
+//		return Thread.currentThread() == myThread;
+//	}
 }

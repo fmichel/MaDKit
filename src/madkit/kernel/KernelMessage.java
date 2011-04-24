@@ -18,12 +18,14 @@
  */
 package madkit.kernel;
 
+import madkit.gui.MadkitActions;
+import madkit.messages.CodeMessage;
 import madkit.messages.ObjectMessage;
 
 /**
  * The brand new version of KernelMessage.
  * For now its purpose is to allow agents to send to the kernel agent
- * some madkit commands such launchAgent.
+ * some MadKit commands such as launchAgent.
  * 
  * @author Fabien Michel
  * @author Olivier Gutknecht
@@ -31,50 +33,9 @@ import madkit.messages.ObjectMessage;
  * @since MadKit 1.0
  *
  */
-public class KernelMessage extends ObjectMessage<Object[]> {
+public class KernelMessage extends CodeMessage<MadkitActions,Object[]> {
 	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -8752564850733075719L;
-
-	private OperationCode code;
-
-	/**
-	 * @param code
-	 * @param commandOptions
-	 */
-	public KernelMessage(OperationCode code, Object... commandOptions) {
-		super(commandOptions);
-		this.code = code;
+	public KernelMessage(MadkitActions code, Object... commandOptions) {
+		super(code, commandOptions);
 	}
-
-	/**
-	 * @return the code
-	 */
-	public OperationCode getCode() {
-		return code;
-	}
-	
-	public enum OperationCode {
-		SHUTDOWN_NOW,
-		
-		LAUNCH_AGENT,
-		
-		LAUNCH_NETWORK,
-		
-		STOP_NETWORK,
-		
-//		KILL_AGENT,
-	}
-	
-	@Override
-	public String toString() {
-		String content="";
-		for (Object o : getContent()) {
-			content+=o+",";
-		}
-		return super.toString()+" : "+content;
-	}
-
 }

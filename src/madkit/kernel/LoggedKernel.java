@@ -63,7 +63,7 @@ final class LoggedKernel extends MadkitKernel {
 
 	LoggedKernel(MadkitKernel k) {
 		super(k);
-		setLoggedKernel(this);
+		loggedKernel = this;
 		setKernel(k);
 	}
 

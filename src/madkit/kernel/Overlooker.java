@@ -56,7 +56,7 @@ abstract class Overlooker <A extends AbstractAgent>
 		if(theRole != null)
 			try {
 				initialize();
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				System.err.println("\n-----MADKIT WARNING : problem during initialize()-----\n-----Problem on "+this.getClass().getSimpleName()+" on <"+community+";"+group+";"+role+">-----\n-----Method call is at:");
 				e.printStackTrace(); //TODO find another way
 			}

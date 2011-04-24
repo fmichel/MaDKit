@@ -35,6 +35,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.jar.JarFile;
 import java.util.logging.Level;
 
 import madkit.kernel.AbstractAgent.ReturnCode;
@@ -83,15 +84,16 @@ final class MadkitClassLoader extends URLClassLoader {
 		}else{
 			c = findLoadedClass(name);
 		}
-		if(c == null)
+		if(c == null){
 			return super.loadClass(name, resolve);
+		}
 		if(resolve)
 			resolveClass(c);
 		return c;
 	}
 
 private void addUrlAndloadClasses(String name) {
-	URL url = getClass().getResource("/"+name.replace('.', '/')+".class");
+	URL url = this.getResource("/"+name.replace('.', '/')+".class");
 	if(url != null){//TODO if url is null return warning
 		String packageName = "";
 		if (name.contains(".")) {
@@ -105,12 +107,6 @@ private void addUrlAndloadClasses(String name) {
 		for (int i = 0; i < deepness; i++) {
 			cpDir = cpDir.getParentFile();
 		}
-//		try {
-//			addURL(cpDir.toURI().toURL());
-//		} catch (MalformedURLException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
 		for(String fileName : packageDir.list()){
 			if(fileName.endsWith(".class")){
 //				System.err.println("\nt"+this+" trying to define "+fileName+" time stamp "+new File(packageDir+"/"+fileName).lastModified());
@@ -125,7 +121,7 @@ private void addUrlAndloadClasses(String name) {
 }
 
 private URL getclassPathUrl(String name) {
-	URL url = getClass().getResource("/"+name.replace('.', '/')+".class");
+	URL url = this.getResource("/"+name.replace('.', '/')+".class");
 	if(url != null){//TODO if url is null return warning
 		String packageName = "";
 		if (name.contains(".")) {
@@ -173,6 +169,10 @@ public String toString() {
 		cp+="\n"+url;
 	}
 	return cp;
+}
+
+protected void addJar(URL url) {
+	addURL(url);
 }
 
 }

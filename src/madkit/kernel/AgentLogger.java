@@ -135,7 +135,7 @@ public class AgentLogger extends Logger {
 
 	private void updateAgentUi() {
 		if (myAgent != null) {
-			madkit.gui.Utils.updateAgentUI(myAgent);
+			madkit.gui.MKToolkit.updateAgentUI(myAgent);
 		}
 	}
 

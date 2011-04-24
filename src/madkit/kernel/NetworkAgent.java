@@ -30,7 +30,7 @@ import java.util.SortedMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
-import madkit.gui.Utils;
+import madkit.gui.MKToolkit;
 import madkit.kernel.Madkit.Roles;
 import madkit.messages.ObjectMessage;
 
@@ -115,7 +115,7 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 			getLogger().info("\n\t\t\t\t----- MadKit MulticastListener activated on "+MultiCastListener.ipAddress+" ------\n");
 			getLogger().finest("Broadcasting existence");
 		}
-		Utils.updateAgentsUI();
+		MKToolkit.updateAgentsUI();
 		Message m = null;
 		final ArrayList<Message> toDoList = new ArrayList<Message>();
 
@@ -157,7 +157,7 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 		@Override
 		protected void end() {
 			leaveGroup(Roles.LOCAL_COMMUNITY, Roles.NETWORK_GROUP);
-			Utils.updateAgentsUI();
+			MKToolkit.updateAgentsUI();
 			getLogger().info("\n\t\t\t\t----- Network is being closed on "+getKernelAddress()+" ------\n");
 	//		logger.info("\n\t\t\t\t----- Network is being closed on "+myServer.getIp()+" port "+myServer.getPort()+" ------\n");
 			getLogger().finer("Closing all connections : "+peers.values());

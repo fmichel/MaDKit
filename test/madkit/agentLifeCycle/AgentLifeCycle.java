@@ -149,7 +149,7 @@ public class  AgentLifeCycle extends JUnitBooterAgent{
 	 */
 	private void immediateKillWithTimeOut() {
 		if(logger != null){
-			logger.info("******************* STARTING IMMEDIATE KILL WITH TIME OUT *******************\n");
+			logger.info("******************* STARTING IMMEDIATE AGENT_KILL WITH TIME OUT *******************\n");
 		}
 		a = (Agent) launchAgent("madkit.agentLifeCycle.NormalLife",0);
 		assertNotNull(a);
@@ -163,7 +163,7 @@ public class  AgentLifeCycle extends JUnitBooterAgent{
 
 	private void immediateKill() {
 		if(logger != null){
-			logger.info("******************* STARTING IMMEDIATE KILL WITH NO TIME OUT *******************\n");
+			logger.info("******************* STARTING IMMEDIATE AGENT_KILL WITH NO TIME OUT *******************\n");
 		}
 		a = (Agent) launchAgent("madkit.agentLifeCycle.NormalLife",0);
 		assertNotNull(a);
@@ -281,7 +281,7 @@ public class  AgentLifeCycle extends JUnitBooterAgent{
 
 	public void killTimeOut(){
 		if(logger != null){
-			logger.info("******************* STARTING KILL TIMEOUT *******************\n");
+			logger.info("******************* STARTING AGENT_KILL TIMEOUT *******************\n");
 		}
 		a = (Agent) launchAgent("madkit.agentLifeCycle.NormalLife",2);
 		assertNotNull(a);

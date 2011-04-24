@@ -23,7 +23,6 @@ import java.awt.event.ActionListener;
 import java.util.Enumeration;
 import java.util.logging.Level;
 
-import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
 import javax.swing.JMenu;
@@ -31,6 +30,7 @@ import javax.swing.JRadioButtonMenuItem;
 
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AgentLogger;
+import madkit.kernel.Madkit;
 
 /**
  * @author Fabien Michel
@@ -44,24 +44,26 @@ public class LogLevelMenu extends JMenu implements AgentUIComponent{
 	 * 
 	 */
 	private static final long serialVersionUID = -5402608797586593530L;
-	static AbstractAction setLogLevelAction;
-	static AbstractAction setWarningLogLevelAction;
-	static Level[] logLevels = {Level.OFF,Level.SEVERE,Level.WARNING,Level.INFO,Level.CONFIG,Level.FINE,Level.FINER,Level.FINEST, Level.ALL};
-	private AbstractAgent myAgent;
-	private ButtonGroup logGroup;
-	private ButtonGroup warningGroup;
+	final private static Level[] logLevels = {Level.OFF,Level.SEVERE,Level.WARNING,Level.INFO,Level.CONFIG,Level.FINE,Level.FINER,Level.FINEST, Level.ALL};
+	final private AbstractAgent myAgent;
+	final private ButtonGroup logGroup;
+	final private ButtonGroup warningGroup;
+	final private static String[] lvlCodes = Madkit.getI18N(AgentAction.AGENT_LOG_LEVEL.toString()).split(";");
+	final private static String[] warningCodes = Madkit.getI18N(AgentAction.AGENT_WARNING_LOG_LEVEL.toString()).split(";");
+//	final private static ImageIcon logIcon = MadkitActions.AGENT_LOG_LEVEL);
+//	final private static ImageIcon wIcon = madkit.gui.MKToolkit.getMadkitImageIcon(MadkitActions.AGENT_WARNING_LOG_LEVEL);
 	
 	LogLevelMenu(final AbstractAgent agent){
 		super("Logging");
 		myAgent = agent;
 		
-		JMenu logLevelMenu = new JMenu("Log level");
-		logLevelMenu.setIcon(madkit.gui.Utils.getMadkitImageIcon("agent.logLevel"));
-		logLevelMenu.setToolTipText("the agents's current log level");
+		JMenu logLevelMenu = new JMenu(lvlCodes[0]);
+		logLevelMenu.setIcon(AgentAction.AGENT_LOG_LEVEL.getImageIcon());
+		logLevelMenu.setToolTipText(lvlCodes[1]);
 		
-		JMenu warningLogLevelMenu = new JMenu("Warning log level");
-		warningLogLevelMenu.setIcon(madkit.gui.Utils.getMadkitImageIcon("agent.warningLogLevel"));
-		warningLogLevelMenu.setToolTipText("the agent's log level above which warnings are displayed");
+		JMenu warningLogLevelMenu = new JMenu(warningCodes[0]);
+		warningLogLevelMenu.setIcon(AgentAction.AGENT_WARNING_LOG_LEVEL.getImageIcon());
+		warningLogLevelMenu.setToolTipText(warningCodes[1]);
 		
 		logGroup = new ButtonGroup();
 		warningGroup = new ButtonGroup();
@@ -72,13 +74,13 @@ public class LogLevelMenu extends JMenu implements AgentUIComponent{
 		ActionListener setLogLevelListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				agent.setLogLevel(Level.parse( ((AbstractButton)e.getSource()).getActionCommand()));
+				myAgent.setLogLevel(Level.parse( e.getActionCommand()));
 			}
 		};
 		ActionListener setWarningLogLevelListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				agent.getLogger().setWarningLogLevel(Level.parse( ((AbstractButton)e.getSource()).getActionCommand()));
+				myAgent.getLogger().setWarningLogLevel(Level.parse( e.getActionCommand()));
 			}
 		};
 		for(final Level l : logLevels){
@@ -129,28 +131,5 @@ public class LogLevelMenu extends JMenu implements AgentUIComponent{
 		logItem.addActionListener(listener);
 		group.add(logItem);
 	}
-
-//	@Override
-//	public AbstractAgent getAgent() {
-//		return myAgent;
-//	}
-
-//	public static Action getSetLogLevelAction(){
-//		if(setLogLevelAction == null){
-//		setLogLevelAction = new AbstractAction("SetLogLevelAction") {
-//			@Override
-//			public void actionPerformed(ActionEvent e) {
-//				Component c = (Component) e.getSource();
-//				JRadioButtonMenuItem item = (JRadioButtonMenuItem) c;
-//				while(! (c instanceof AgentUIComponent) && c != null){
-//					c = c.getParent();
-//				}
-//				((AgentUIComponent)c).getAgent().setLogLevel(Level.parse(item.getActionCommand()));
-//			}
-//		};
-//		}
-////		ImageIcon logIcon = new ImageIcon(setLogLevelAction.getClass().getResource("/images/agent/warningLogLevel16.gif"));
-//		return setLogLevelAction;
-//	}
 
 }

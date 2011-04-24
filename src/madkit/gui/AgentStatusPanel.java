@@ -20,7 +20,6 @@ package madkit.gui;
 
 import java.awt.FlowLayout;
 import java.awt.Image;
-import java.awt.LayoutManager;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -41,7 +40,7 @@ public class AgentStatusPanel extends JPanel implements AgentUIComponent {
 	 */
 	private static final long serialVersionUID = -5745998699827681837L;
 	
-	final static private ImageIcon image = new ImageIcon(Utils.getMadkitImageIcon("madkit.network").getImage().getScaledInstance(10, 10, Image.SCALE_SMOOTH));
+	final static private ImageIcon image = new ImageIcon(MadkitActions.MADKIT_LAUNCH_NETWORK.getImageIcon().getImage().getScaledInstance(10, 10, Image.SCALE_SMOOTH));
 	final private AbstractAgent myAgent;
 	final private JLabel network;
 	
@@ -51,7 +50,7 @@ public class AgentStatusPanel extends JPanel implements AgentUIComponent {
 		network = new JLabel();
 		updateAgentUI();
 		add(network);
-		Utils.addUIListenerFor(a, this);
+		MKToolkit.addUIListenerFor(a, this);
 	}
 
 	/* (non-Javadoc)

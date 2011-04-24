@@ -18,9 +18,12 @@
  */
 package madkit.gui;
 
-import java.awt.event.KeyEvent;
+import java.awt.Component;
+import java.awt.Image;
 
-import javax.swing.JMenu;
+import javax.swing.AbstractButton;
+import javax.swing.ImageIcon;
+import javax.swing.JToolBar;
 
 import madkit.kernel.AbstractAgent;
 
@@ -30,17 +33,26 @@ import madkit.kernel.AbstractAgent;
  * @version 0.9
  * 
  */
-public class MadkitMenu extends JMenu {//TODO i18n
+public class MadkitToolBar extends JToolBar {// TODO i18n
 
-	private static final long serialVersionUID = 6177193453649323680L;
-
-	public MadkitMenu(final AbstractAgent agent){
+	public MadkitToolBar(final AbstractAgent agent) {
 		super("MadKit");
-		setMnemonic(KeyEvent.VK_M);
 		add(MadkitActions.MADKIT_LAUNCH_NETWORK.getAction(agent));
 		add(MadkitActions.MADKIT_STOP_NETWORK.getAction(agent));
 		add(MadkitActions.MADKIT_EXIT_ACTION.getAction(agent));
-		add(MadkitActions.MADKIT_KILL_AGENTS.getAction(agent));
-		add(MadkitActions.MADKIT_LOAD_JAR_FILE.getAction(agent));
+		addSeparator();
+		add(MadkitActions.MADKIT_ICONIFY_ALL.getAction(agent));
+		add(MadkitActions.MADKIT_DEICONIFY_ALL.getAction(agent));
+		add(MadkitActions.MADKIT_RESTART.getAction(agent));
+		add(MadkitActions.MADKIT_CLONE.getAction(agent));
+		add(MadkitActions.CONNECT_WEB_REPO.getAction(agent));
+		for (Component c : getComponents()) {
+			if (c instanceof AbstractButton) {
+				ImageIcon i = (ImageIcon) ((AbstractButton) c).getIcon();
+				if (i != null) {
+					i.setImage(i.getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH));
+				}
+			}
+		}
 	}
 }

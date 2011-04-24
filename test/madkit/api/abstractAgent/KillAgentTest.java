@@ -164,7 +164,7 @@ public class KillAgentTest  extends JunitMadKit{
 		launchTest(new AbstractAgent(){
 			protected void activate() {
 				if(logger != null){
-					logger.info("******************* STARTING RANDOM LAUNCH & KILL *******************\n");
+					logger.info("******************* STARTING RANDOM LAUNCH & AGENT_KILL *******************\n");
 				}
 				Runnable r = new Runnable() {
 					@Override

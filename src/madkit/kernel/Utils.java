@@ -49,7 +49,7 @@ final class Utils {
 	}
 
 //	static URL getFileURLResource(String fileName){
-//		URL url = Utils.class.getResource("/"+fileName);
+//		URL url = MKToolkit.class.getResource("/"+fileName);
 //		//looking in the file system
 //		if(url == null){
 //			File f = new File(fileName);

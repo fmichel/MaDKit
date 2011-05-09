@@ -19,32 +19,20 @@
 
 package madkit.kernel;
 
-import java.awt.image.Kernel;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.FileFilter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.security.AccessController;
-import java.security.PrivilegedExceptionAction;
-import java.security.ProtectionDomain;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.jar.JarFile;
 import java.util.logging.Level;
-
-import madkit.kernel.AbstractAgent.ReturnCode;
 
 /**
  * @author Fabien Michel
  * @author Jacques Ferber
  * @since MadKit 4.0
- * @version 5.0
+ * @version 5.1
  * 
  */
 final class MadkitClassLoader extends URLClassLoader {
@@ -120,28 +108,28 @@ private void addUrlAndloadClasses(String name) {
 	}
 }
 
-private URL getclassPathUrl(String name) {
-	URL url = this.getResource("/"+name.replace('.', '/')+".class");
-	if(url != null){//TODO if url is null return warning
-		String packageName = "";
-		if (name.contains(".")) {
-			packageName = name.substring(0, name.lastIndexOf('.')+1);
-		}
-		//		for(String s : packageName.split("\\."))
-		//			System.err.println("\nsplit"+s);
-		int deepness = packageName.split("\\.").length;
-		String urlPath = url.getPath();
-		File resourceDir = new File(urlPath.substring(0, urlPath.lastIndexOf('/')));
-		for (int i = 0; i < deepness; i++) {
-			resourceDir = resourceDir.getParentFile();
-		}
-		try {
-			return resourceDir.toURI().toURL();
-		} catch (MalformedURLException e) {
-		}
-	}
-	return null;
-}
+//private URL getclassPathUrl(String name) {
+//	URL url = this.getResource("/"+name.replace('.', '/')+".class");
+//	if(url != null){//TODO if url is null return warning
+//		String packageName = "";
+//		if (name.contains(".")) {
+//			packageName = name.substring(0, name.lastIndexOf('.')+1);
+//		}
+//		//		for(String s : packageName.split("\\."))
+//		//			System.err.println("\nsplit"+s);
+//		int deepness = packageName.split("\\.").length;
+//		String urlPath = url.getPath();
+//		File resourceDir = new File(urlPath.substring(0, urlPath.lastIndexOf('/')));
+//		for (int i = 0; i < deepness; i++) {
+//			resourceDir = resourceDir.getParentFile();
+//		}
+//		try {
+//			return resourceDir.toURI().toURL();
+//		} catch (MalformedURLException e) {
+//		}
+//	}
+//	return null;
+//}
 
 
 boolean reloadClass(String name) throws ClassNotFoundException{//TODO return false and return code
@@ -153,6 +141,23 @@ boolean reloadClass(String name) throws ClassNotFoundException{//TODO return fal
 	}
 	classesToReload.add(name);
 	return true;
+}
+
+void loadJarsFromPath(String path){
+	File demoDir = new File(path);
+	if(demoDir.isDirectory()){
+		for (File f : demoDir.listFiles(new FileFilter() {
+			public boolean accept(File pathname) {
+				return pathname.getName().endsWith(".jar");
+			}
+		})) {
+			try {
+				addURL(f.toURI().toURL());
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			}
+		}
+}
 }
 
 @Override

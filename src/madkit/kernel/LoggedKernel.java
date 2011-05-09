@@ -46,7 +46,6 @@ import static madkit.kernel.Utils.printCGR;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.logging.Level;
 
 /**
  * @author Fabien Michel
@@ -410,7 +409,7 @@ final class LoggedKernel extends MadkitKernel {
 	
 	@Override
 	final ReturnCode killAgent(final AbstractAgent requester, final AbstractAgent target, int timeOutSeconds) {
-		kernelLog("Killing " + target.getName() + " and waiting its termination for " + timeOutSeconds + " s...", Level.FINER, null);
+//		kernelLog("Killing " + target.getName() + " and waiting its termination for " + timeOutSeconds + " s...", Level.FINER, null);
 		logMessage(requester, "Killing " + target.getName() + " and waiting its termination for " + timeOutSeconds + " s...");
 		switch (kernel.killAgent(requester, target, timeOutSeconds)) {
 		case SUCCESS:
@@ -446,7 +445,7 @@ final class LoggedKernel extends MadkitKernel {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see madkit.kernel.RootKernel#removeOverlooker(madkit.kernel.AbstractAgent, madkit.kernel.Overlooker)
+	 * @see madkit.kernel.FakeKernel#removeOverlooker(madkit.kernel.AbstractAgent, madkit.kernel.Overlooker)
 	 */
 	@Override
 	boolean removeOverlooker(AbstractAgent requester, Overlooker<? extends AbstractAgent> o) {

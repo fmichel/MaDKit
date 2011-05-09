@@ -19,6 +19,7 @@
 
 package madkit.kernel;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,6 +30,7 @@ import java.util.List;
  * @param <A> The agent most generic type for this Overlooker
  * 
  */
+@SuppressWarnings("unchecked")
 abstract class Overlooker <A extends AbstractAgent>
 { 
 	private Role overlookedRole;
@@ -167,7 +169,6 @@ abstract class Overlooker <A extends AbstractAgent>
 		 * @return a list view (a snapshot at moment t) of the agents that handle the group/role couple (in proper sequence)
 		 * @since MadKit 3.0
 		 */
-		@SuppressWarnings("unchecked")
 		final public List<A> getCurrentAgentsList()//TODO log if not already added !
 		{
 			if (overlookedRole != null) {
@@ -197,26 +198,41 @@ abstract class Overlooker <A extends AbstractAgent>
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName()+" on <"+community+";"+group+";"+role+"> ("+size()+" agents)";
+		try {
+			return getClass().getSimpleName() + " on <" + community + ";" + group + ";" + role + "> "+ size() + " agents)";
+		} catch (NullPointerException e) {
+			return getClass().getSimpleName() + " on <" + community + ";" + group + ";" + role + "> not currently added";
+		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	final void addAgent(AbstractAgent a) {
 		adding((A) a);
 	}
 	
-	@SuppressWarnings("unchecked")
 	final void removeAgent(AbstractAgent a) {
 		removing((A) a);
 	}
 	
-	@SuppressWarnings("unchecked")
 	final void addAgents(List<AbstractAgent> l) {
 		adding((List<A>) l);
 	}
 	
-	@SuppressWarnings("unchecked")
 	final void removeAgents(List<AbstractAgent> l) {
 		removing((List<A>) l);
+	}
+	
+	public final void killAgents(){
+		List<A> l = new ArrayList<A>(getCurrentAgentsList());
+		allAgentsLeaveRole();
+		for (A agent : l) {
+			System.err.println("killing ALLL "+agent);
+			agent.killAgent(agent,0);
+		}
+	}
+	
+	public void allAgentsLeaveRole(){
+		if(overlookedRole != null){
+			overlookedRole.removeMembers((List<AbstractAgent>) getCurrentAgentsList());
+		}
 	}
 }

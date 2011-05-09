@@ -18,30 +18,23 @@
  */
 package madkit.kernel;
 
+import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
+import static madkit.kernel.AbstractAgent.State.ACTIVATED;
+import static madkit.kernel.AbstractAgent.State.INITIALIZING;
+import static madkit.kernel.AbstractAgent.State.LIVING;
 import static madkit.kernel.Madkit.Roles.GUI_MANAGER_ROLE;
 import static madkit.kernel.Madkit.Roles.LOCAL_COMMUNITY;
 import static madkit.kernel.Madkit.Roles.SYSTEM_GROUP;
-import static madkit.kernel.Utils.getI18N;
 import static madkit.kernel.Utils.printCGR;
-import static madkit.kernel.AbstractAgent.State.*;
-import static madkit.kernel.AbstractAgent.ReturnCode.*;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 
-import madkit.gui.GUIMessage;
-import madkit.gui.MadkitActions;
+import madkit.gui.actions.MadkitActions;
+import madkit.gui.messages.GUIMessage;
 
 /**
  * The super class of all MadKit threaded agents, v 5. 
@@ -66,10 +59,9 @@ public class Agent extends AbstractAgent{
 	 */
 	private static final long serialVersionUID = 8564494100061187968L;
 	Thread myThread;
-	List<Future<Boolean>> lifeCycle = new ArrayList<Future<Boolean>>(1);//has to be not null for distinguishing agent from aa
-	final private static FutureTask<Boolean> fakeTask = new FutureTask<Boolean>(new Callable<Boolean>() {
-		public Boolean call() throws Exception {return null;}
-	});
+	
+	final private AgentExecutor agentExecutor;
+	final private boolean isDaemon;
 
 	//	/**
 	//	 * @return the myThread
@@ -82,17 +74,42 @@ public class Agent extends AbstractAgent{
 	 * 
 	 */
 	public Agent(boolean isDaemon) {
-		if (isDaemon)
-			lifeCycle.add(fakeTask);
-		}
+		this.isDaemon= isDaemon;
+		agentExecutor = new AgentExecutor(this);
+	}
 
 	public Agent(){
 		this(false);
 	}
+	
+	/**
+	 * Tells if the agent is a daemon.
+	 * 
+	 * @return <code>true</code> if the agent is a Daemon
+	 * @since MadKit 5.0.0.9
+	 */
+	public boolean isDaemon() {
+		return isDaemon;
+	}
+
+//	/**
+//	 * @param agentExecutor the agentExecutor to set
+//	 */
+//	void setAgentExecutor(AgentExecutor ae) {
+//		this.agentExecutor = ae;
+//	}
+
+	/**
+	 * @return the agentExecutor
+	 */
+	@Override
+	AgentExecutor getAgentExecutor() {
+		return agentExecutor;
+	}
 
 	@Override
-		boolean activation(boolean gui) {
-			if(gui){
+		boolean activation() {
+			if(hasGUI){
 				if(logger != null){
 					logger.finer("** setting up GUI **");
 				}
@@ -111,13 +128,9 @@ public class Agent extends AbstractAgent{
 			}
 			if(! state.compareAndSet(INITIALIZING, ACTIVATED))
 				throw new AssertionError("not init in activation");
-	//		synchronized (getAlive()) {
-	//			getAlive().notify();
-	//		}
 			try {
 				activate();
 			} catch (KilledException e) {
-	//			e.printStackTrace();
 				if(logger != null){
 					logger.warning("-*-GET KILLED in ACTIVATE-*- : "+e.getMessage());
 				}
@@ -143,7 +156,7 @@ public class Agent extends AbstractAgent{
 			live();
 		} catch (KilledException e) {
 			if(logger != null){
-				logger.warning("-*-GET KILLED in LIVE-*- : "+e.getMessage());
+				logger.finer("-*-GET KILLED in LIVE-*- : "+e.getMessage());
 				//				logger.warning("my tasks "+lifeCycle);//TODO remove that
 			}
 			return false;
@@ -181,6 +194,12 @@ public class Agent extends AbstractAgent{
 	 * </pre>
 	 */
 	protected void live() {
+		setLogLevel(Level.INFO);
+		logger.talk("\tHello World !\n\n\tI am the simpliest agent ever\n\tbecause I simply do nothing at all :)\n\n");
+		pause(2000);
+		int i = (int) (Math.random()*2000+2500);
+		logger.info("I will quit in "+i+" milliseconds... Bye !");
+		pause(i);
 	}
 
 	/** Kills a targeted agent
@@ -189,21 +208,16 @@ public class Agent extends AbstractAgent{
 	 * @throws KernelException if this agent has not been launched or is already terminated
 	 */
 	@Override
-	public ReturnCode killAgent(AbstractAgent target, int timeoutSeconds) {//TODO fins something else
-		if(target == this && myThread == Thread.currentThread()){
-			if(logger != null){
-				logger.fine("Killing myself !!! ");
+	public ReturnCode killAgent(AbstractAgent target, int timeOutSeconds) {//TODO fins something else
+		if(target == this){
+			if(myThread != Thread.currentThread()){
+				return kernel.getMadkitKernel().killAgent(this, target, timeOutSeconds);
 			}
-			getAlive().set(false);
-			if(timeoutSeconds == 0){
-				lifeCycle.get(2).cancel(true);
+			else{
+				throw new KilledException("by ["+getName()+"]");
 			}
-			lifeCycle.get(1).cancel(true);
-			throw new KilledException(" by "+this);
 		}
-		else{
-			return super.killAgent(target, timeoutSeconds);
-		}
+		return super.killAgent(target, timeOutSeconds);
 	}
 
 	/**
@@ -562,14 +576,6 @@ public class Agent extends AbstractAgent{
 	}
 
 	/**
-	 * @param lifeCycle the lifeCycle to set
-	 * @since MadKit 5
-	 */
-	void setMyLifeCycle(List<Future<Boolean>> lifeCycle) {
-		this.lifeCycle = lifeCycle;
-	}
-
-	/**
 	 * @param myThread the myThread to set
 	 * @since MadKit 5
 	 */
@@ -587,15 +593,6 @@ public class Agent extends AbstractAgent{
 		if (myThread != null) {
 			myThread.setName(name);
 		}
-	}
-
-	/**
-	 * @return the lifeCycle
-	 * @since MadKit 5
-	 */
-	@Override
-	final List<Future<Boolean>> getMyLifeCycle() {
-		return lifeCycle;
 	}
 
 	/**

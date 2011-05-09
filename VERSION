@@ -38,6 +38,37 @@ Other command line options are described in the API of the madkit.kernel.Madkit 
 ----------------------------------------------------------------------------------
 
 ----------------------------------------------------------------------------------
+------------------------------- MadKit 5.0.0.9 (alpha-9)--------------------------
+----------------------------------------------------------------------------------
+
+1. Desktop mode available using --desktop
+	- Offers a GUI front end with various features for the agents 
+
+2. the log system has been fixed and works better
+	- Especially, it could be used in the Agent's constructor
+
+3. GUI tools (madkit.gui) :
+	- class Utils renamed GUIToolKit
+	- Actions are encapsulated in enumerations and are more easy to create and use.
+	- The MKToolKit class could be used to create personalized GUI easily. 
+	- New UI components: 
+		- MadkitMenu (exit, restart, etc.), MadkitToolbar (used in desktop mode)
+
+4. Building lib jar file :
+	- project ant build files can now use a target named create-lib-jar which creates light jar which
+	could be used with the MadKit desktop for instance. 
+	
+5. jar file could be loaded programmatically or using the Desktop.
+
+6. API :
+	- new packages under madkit.gui : actions, toolbars, menus.
+	- madkit.kernel.Agent.isDaemon() has been reintroduced
+	- madkit.gui.MadkitToolBar class added
+	- madkit.gui.menus.MadkitMenu class added
+	
+
+
+----------------------------------------------------------------------------------
 ------------------------------- MadKit 5.0.0.8 (alpha-8)--------------------------
 ----------------------------------------------------------------------------------
 

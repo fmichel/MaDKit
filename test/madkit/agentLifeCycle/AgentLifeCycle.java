@@ -118,23 +118,23 @@ public class  AgentLifeCycle extends JUnitBooterAgent{
 
 
 //	private void selfKillingNoTimeOut() {
-//		SelfKill.immediateKill=true;
-//		SelfKill a = new SelfKill(true);
+//		SelfKillAgent.immediateKill=true;
+//		SelfKillAgent a = new SelfKillAgent(true);
 //		assertEquals(AGENT_CRASH,launchAgent(a,1));
 //		pause(100);
 //		assertAgentIsTerminated(a);
 //		assertFalse(((LifeCycleTestAgent)a).endDone);
-//		a = new SelfKill(false,true);
+//		a = new SelfKillAgent(false,true);
 //		assertEquals(SUCCESS,launchAgent(a,1));		
 //		pause(100);
 //		assertAgentIsTerminated(a);
 //		assertFalse(((LifeCycleTestAgent)a).endDone);
-//		a = new SelfKill(false,false,true);
+//		a = new SelfKillAgent(false,false,true);
 //		assertEquals(SUCCESS,launchAgent(a,1));		
 //		pause(100);
 //		assertAgentIsTerminated(a);
 //		assertTrue(((LifeCycleTestAgent)a).endDone);
-//		a = new SelfKill(true,false,true);
+//		a = new SelfKillAgent(true,false,true);
 //		assertEquals(AGENT_CRASH,launchAgent(a,1));		
 //		pause(100);
 //		assertAgentIsTerminated(a);
@@ -187,17 +187,17 @@ public class  AgentLifeCycle extends JUnitBooterAgent{
 		pause(100);
 		assertAgentIsTerminated(a);
 //		assertTrue(((LifeCycleTestAgent)a).endDone);
-//		a = new SelfKill(false,true);
+//		a = new SelfKillAgent(false,true);
 //		assertEquals(SUCCESS,launchAgent(a,1));		
 //		pause(1000);
 //		assertAgentIsTerminated(a);
 //		assertTrue(((LifeCycleTestAgent)a).endDone);
-//		a = new SelfKill(false,false,true);
+//		a = new SelfKillAgent(false,false,true);
 //		assertEquals(SUCCESS,launchAgent(a,1));		
 //		pause(1000);
 //		assertAgentIsTerminated(a);
 //		assertTrue(((LifeCycleTestAgent)a).endDone);
-//		a = new SelfKill(true,false,true);
+//		a = new SelfKillAgent(true,false,true);
 //		assertEquals(AGENT_CRASH,launchAgent(a,1));		
 //		pause(1000);
 //		assertAgentIsTerminated(a);

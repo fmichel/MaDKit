@@ -32,6 +32,7 @@
 <macrodef name="create-executable-jar">
 	<sequential>
 	<echo>Building ${ant.project.name} executable jar</echo>	
+
 	<property name="build.dir" value="build"/>
 	<property name="executable.name" value="${ant.project.name}"/>
     <property name="kernel.jar.name" value="madkitkernel-${madkit.version}.jar"/>
@@ -91,15 +92,18 @@
 
 
 	<!-- ================================= 
-          target: clean              
+          target: clean          
+          TODO externalize properties in a property file in the mk.jar
          ================================= -->
  <macrodef name="clean">
  	<sequential>
 	   	<echo>Cleaning ${ant.project.name}</echo>
-        <delete dir="${build.dir}" failonerror="true"/>
+		<property name="build.dir" value="build"/>
+        <delete dir="${build.dir}"/>
         <delete file="README"/>
          <delete file="${ant.project.name}.jnlp"/>
         <delete file="${ant.project.name}-${version}.jar"/>
+        <delete file="${ant.project.name}-lib-${version}.jar"/>
 	</sequential>
 </macrodef>
 

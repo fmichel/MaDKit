@@ -1,8 +1,0 @@
-- Description  MadKit demonstrations -----
-			
-- Using        
-	These jar files are runnable: Double click them (file execution permission is required) or use java -jar  demo-name.jar
-
-
-- Source 
-	can be tested in Eclipse with Import > Existing project > Select Archive File > demo-name.-src.zip > finish		

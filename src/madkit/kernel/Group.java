@@ -18,10 +18,14 @@
  */
 package madkit.kernel;
 
-import java.util.Collections;
-import java.util.HashMap;
+import static madkit.kernel.AbstractAgent.ReturnCode.ACCESS_DENIED;
+import static madkit.kernel.AbstractAgent.ReturnCode.NOT_IN_GROUP;
+import static madkit.kernel.AbstractAgent.ReturnCode.NULL_STRING;
+import static madkit.kernel.AbstractAgent.ReturnCode.ROLE_ALREADY_HANDLED;
+import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
+import static madkit.kernel.Utils.printCGR;
+
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
@@ -31,9 +35,6 @@ import java.util.logging.Logger;
 
 import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.Madkit.Roles;
-
-import static madkit.kernel.AbstractAgent.ReturnCode.*;
-import static madkit.kernel.Utils.*;
 
 /**
  * @author Oliver Gutknecht
@@ -147,6 +148,12 @@ final class Group extends ConcurrentHashMap<String,Role> {
 		remove(roleName);
 		if(logger != null)
 			logger.finer("Removing"+printCGR(communityName, groupName, roleName));
+		checkEmptyness();
+	}
+
+
+
+	private void checkEmptyness() {
 		if(isEmpty()){
 			myCommunity.removeGroup(groupName);
 		}
@@ -301,6 +308,15 @@ final class Group extends ConcurrentHashMap<String,Role> {
 		@Override
 		public String toString() {
 			return printCGR(communityName, groupName)+values();
+		}
+
+
+
+		void destroy() {
+			for(Role r : values()){
+				r.destroy();
+			}
+			clear();
 		}
 
 }

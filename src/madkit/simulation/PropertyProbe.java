@@ -20,7 +20,6 @@ package madkit.simulation;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -41,7 +40,7 @@ import madkit.kernel.Probe;
  */
 public class PropertyProbe<A extends AbstractAgent,P> extends Probe<A>
 { 
-	private Map<A, P> properties;// = new ConcurrentHashMap<A, P>();
+	private Map<A, P> properties = new ConcurrentHashMap<A, P>();
 	private String fieldName;
 
 	public PropertyProbe(String community, String group, String role,String propertyName)

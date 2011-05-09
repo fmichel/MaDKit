@@ -18,7 +18,6 @@
  */
 package madkit.messages;
 
-import madkit.kernel.Message;
 
 /**
  * This parameterizable class could be used to code a message

@@ -18,22 +18,21 @@
  */
 package madkit.kernel;
 
+import static madkit.kernel.AbstractAgent.ReturnCode.ROLE_NOT_HANDLED;
+import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
+import static madkit.kernel.Utils.printCGR;
+
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.SortedSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import madkit.kernel.AbstractAgent.ReturnCode;
-
-import static madkit.kernel.Utils.*;
-import static madkit.kernel.AbstractAgent.ReturnCode.*;
 
 /**
 /** Reifying the notion of Role in AGR
@@ -227,6 +226,23 @@ class Role implements Serializable{//TODO test with arraylist
 			addToOverlookers(bucket);
 		}
 	}
+	
+	final void removeMembers(final List<AbstractAgent> bucket){
+		synchronized (players) {
+			players.removeAll(bucket);//is optimized
+			if (agentAddresses != null) {
+				final Set<AgentAddress> addresses = new HashSet<AgentAddress>(bucket.size()+agentAddresses.size(),0.9f);//TODO try load factor
+				for (final AbstractAgent a : bucket) {
+					addresses.remove(new AgentAddress(a, this, kernelAddress));
+				}
+				addresses.removeAll(agentAddresses);//TODO test vs assignment : this because knowing the size 
+				agentAddresses = addresses;
+			}
+			modified = true;
+		}
+			removeFromOverlookers(bucket);
+	}
+	
 
 	/**
 	 * @param content
@@ -490,6 +506,17 @@ class Role implements Serializable{//TODO test with arraylist
 			}
 		}
 		return null;
+	}
+
+
+	void destroy() {
+		for (Overlooker<? extends AbstractAgent> o : overlookers) {
+			o.setOverlookedRole(null);
+		}
+		players.clear();
+		overlookers.clear();
+		tmpReferenceableAgents = null;
+		agentAddresses = null;
 	}
 
 

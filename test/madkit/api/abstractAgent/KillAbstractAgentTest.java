@@ -32,6 +32,7 @@ import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
 import madkit.kernel.JunitMadKit;
 import madkit.kernel.Madkit;
+import madkit.testing.util.agent.DoItDuringLifeCycleAbstractAgent;
 import madkit.testing.util.agent.FaultyAA;
 import madkit.testing.util.agent.SelfAbstractKill;
 
@@ -43,6 +44,7 @@ import org.junit.Test;
  * @version 0.9
  * 
  */
+@SuppressWarnings("serial")
 public class KillAbstractAgentTest  extends JunitMadKit{
 
 	final AbstractAgent target = new AbstractAgent(){
@@ -62,6 +64,7 @@ public class KillAbstractAgentTest  extends JunitMadKit{
 	};
 
 	final AbstractAgent faulty = new AbstractAgent(){
+		@SuppressWarnings("null")
 		protected void activate() {
 			Object o = null;
 			o.toString();
@@ -167,6 +170,19 @@ public class KillAbstractAgentTest  extends JunitMadKit{
 	}
 	
 	@Test
+	public void selfKill(){
+		launchTest(new AbstractAgent(){
+			protected void activate() {
+				assertEquals(AGENT_CRASH,launchAgent(new SelfKillAA(true),1));
+				assertEquals(SUCCESS,launchAgent(new SelfKillAA(false,true),1));
+				assertEquals(AGENT_CRASH,launchAgent(new SelfKillAA(true,true),1));
+			}
+		});
+	}
+
+
+	
+	@Test
 	public void selfKilling(){
 		launchTest(new AbstractAgent(){
 			protected void activate() {
@@ -234,5 +250,30 @@ public class KillAbstractAgentTest  extends JunitMadKit{
 				assertEquals(SUCCESS,launchAgent(new SelfAbstractKill(false, true, Integer.MAX_VALUE)));
 			}
 		});
+	}
+}
+
+
+class SelfKillAA extends DoItDuringLifeCycleAbstractAgent{
+
+	public SelfKillAA() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public SelfKillAA(boolean inActivate, boolean inEnd) {
+		super(inActivate, inEnd);
+		// TODO Auto-generated constructor stub
+	}
+
+	public SelfKillAA(boolean inActivate) {
+		super(inActivate);
+		// TODO Auto-generated constructor stub
+	}
+	
+	@Override
+	public void doIt() {
+		super.doIt();
+		killAgent(this);
 	}
 }

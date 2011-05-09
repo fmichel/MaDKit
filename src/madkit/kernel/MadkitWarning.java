@@ -19,9 +19,7 @@
 
 package madkit.kernel;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import madkit.kernel.AbstractAgent.ReturnCode;
 
@@ -244,8 +242,8 @@ final class KilledException extends RuntimeException {
 		super(cause);
 	}
 	
-	@Override
-	public synchronized Throwable fillInStackTrace() {
-		return null;
-	}
+//	@Override
+//	public synchronized Throwable fillInStackTrace() {
+//		return null;
+//	}
 }//TODO get the cause of the kill

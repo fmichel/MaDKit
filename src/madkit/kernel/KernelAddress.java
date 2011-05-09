@@ -25,13 +25,16 @@ import java.net.UnknownHostException;
 /**
  * @author Oliver Gutknecht
  * @author Fabien Michel
- * @version 5.1
+ * @version 5.2
  * @since MadKit 1.0
  *
  */
 public class KernelAddress implements java.io.Serializable{
 
-	private static final long serialVersionUID = 6895837581447431330L;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5186608439436729434L;
 	private String host;
 	private final int ID;
 	private final String name;
@@ -73,9 +76,10 @@ public class KernelAddress implements java.io.Serializable{
 
 }
 
-final class OfflineModeKernelAddress extends KernelAddress{
-	@Override
-	public boolean equals(Object obj) {
-		return true;
-	}
-}
+//TODO 
+//final class OfflineModeKernelAddress extends KernelAddress{
+//	@Override
+//	public boolean equals(Object obj) {
+//		return true;
+//	}
+//}

@@ -18,21 +18,15 @@
  */
 package madkit.kernel;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Properties;
+import java.util.ResourceBundle;
 import java.util.logging.ConsoleHandler;
-import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
 import java.util.logging.Handler;
 import java.util.logging.Level;
-import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
@@ -47,7 +41,6 @@ import java.util.logging.Logger;
 public class AgentLogger extends Logger {
 
 	final static private Map<AbstractAgent,AgentLogger> agentLoggers = new HashMap<AbstractAgent,AgentLogger>();//TODO evaluate foot print
-	final static String madkitMessageBundleFile = "madkitMessageBundle";
 	final static Level talkLevel = Level.parse("1100");
 
 	final public static Formatter agentFormatter = new Formatter(){//TODO create Formatter hierarchy
@@ -101,6 +94,10 @@ public class AgentLogger extends Logger {
 		return al;
 	}
 
+	static void removeLogger(AbstractAgent agent) {
+		agentLoggers.remove(agent);
+	}
+
 	//	public static void renameLogger(AbstractAgent agent) {
 	//		AgentLogger al = agentLoggers.get(agent);
 	//		if(! al.getName().equals(agent.getName())){
@@ -122,6 +119,11 @@ public class AgentLogger extends Logger {
 	public Level getWarningLogLevel() {
 		return warningLogLevel;
 	}
+	
+	@Override
+	public ResourceBundle getResourceBundle() {
+		return Madkit.getResourceBundle();
+	}
 
 	/** 
 	 * Sets the agent's log level above which MadKit warnings are displayed
@@ -135,12 +137,12 @@ public class AgentLogger extends Logger {
 
 	private void updateAgentUi() {
 		if (myAgent != null) {
-			madkit.gui.MKToolkit.updateAgentUI(myAgent);
+			madkit.gui.GUIToolkit.updateAgentUI(myAgent);
 		}
 	}
 
 	AgentLogger(){
-		super("[UNREGISTERED AGENT]", madkitMessageBundleFile);
+		super("[UNREGISTERED AGENT]", null);
 		myAgent = null;
 		setUseParentHandlers(false);
 		super.setLevel(Level.parse(Madkit.defaultConfig.getProperty(Madkit.agentLogLevel)));
@@ -151,13 +153,15 @@ public class AgentLogger extends Logger {
 	}
 
 	AgentLogger(AbstractAgent agent){
-		super("["+agent.getName()+"]", madkitMessageBundleFile);
+		super("["+agent.getName()+"]", null);
 		myAgent = agent;
 		setUseParentHandlers(false);
 		super.setLevel(Level.parse(agent.getMadkitProperty(Madkit.agentLogLevel)));
 		setWarningLogLevel(Level.parse(agent.getMadkitProperty(Madkit.warningLogLevel)));
 		if(! Boolean.parseBoolean(agent.getMadkitProperty(Madkit.noAgentConsoleLog))){
-			addHandler(new ConsoleHandler());
+			ConsoleHandler ch = new ConsoleHandler();
+			addHandler(ch);
+			ch.setFormatter(agentFormatter);
 		}
 		if(Boolean.parseBoolean(agent.getMadkitProperty(Madkit.createLogFiles))){
 			addHandler(Utils.getFileHandler(agent.getMadkitProperty(Madkit.logDirectory)+getName()));
@@ -167,11 +171,21 @@ public class AgentLogger extends Logger {
 	@Override
 	public synchronized void addHandler(Handler handler) throws SecurityException {
 		super.addHandler(handler);
-		if (handler instanceof FileHandler)
-			handler.setFormatter(agentFileFormatter);
-		else
-			handler.setFormatter(agentFormatter);
 		handler.setLevel(getLevel());
+	}
+	
+	static void resetLoggers(){
+		for (Logger l : agentLoggers.values()) {
+			for(Handler h : l.getHandlers()){
+				l.removeHandler(h);
+				try {
+					h.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+//			l.setLevel(null);
+		}
 	}
 
 	/**

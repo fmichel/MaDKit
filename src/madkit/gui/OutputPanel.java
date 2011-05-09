@@ -26,10 +26,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.logging.Handler;
-import java.util.logging.Level;
 import java.util.logging.LogRecord;
-import java.util.logging.Logger;
 import java.util.logging.StreamHandler;
 
 import javax.swing.JButton;
@@ -78,6 +75,14 @@ public class OutputPanel extends JPanel {
 
 		outField.setEditable(false);
 		setPreferredSize(new Dimension(250,100));
+//		final Runnable r = new Runnable() {  
+//		     public void run() {
+//			     outField.append(txt);
+//			     outField.setCaretPosition(outField.getDocument().getLength());
+//			     }  
+//			   };
+
+		
 		out = new OutputStream() {
 			private void updateText(final String txt) {
 				 SwingUtilities.invokeLater(new Runnable() {  
@@ -101,8 +106,8 @@ public class OutputPanel extends JPanel {
 		}  
 
 		};
-		
-		Handler handler = new StreamHandler(out, AgentLogger.agentFileFormatter){
+
+		StreamHandler handler = new StreamHandler(out, AgentLogger.agentFileFormatter){
 			@Override
 			public synchronized void publish(LogRecord record) {
 				super.publish(record);

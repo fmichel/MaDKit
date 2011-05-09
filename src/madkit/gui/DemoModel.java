@@ -24,20 +24,20 @@ package madkit.gui;
  * @version 0.9
  * 
  */
-final class DemoModel {
+final public class DemoModel implements Comparable<DemoModel> {
 	
-	final private String launchAgent;
+	final private String[] sessionCfg;
 	final private String description;
 	final private String name;
 
-	public DemoModel(String demoName, String launchAgent, String description) {
+	public DemoModel(String demoName, String[] args, String description) {
 		this.description = description;
-		this.launchAgent = launchAgent;
+		this.sessionCfg = args;
 		name = demoName;
 	}
 
-	public String getLaunchAgent() {
-		return launchAgent;
+	public String[] getSessionArgs() {
+		return sessionCfg;
 	}
 
 	public String getDescription() {
@@ -49,7 +49,26 @@ final class DemoModel {
 	}
 	
 	@Override
+	public boolean equals(Object obj) {
+		return name.equals(((DemoModel) obj).getName());
+	}
+	
+	@Override
+	public int hashCode() {
+		return name.hashCode();
+	}
+	
+	@Override
 	public String toString() {
-		return "MK demo "+name+";"+launchAgent;
+		String args = "args = ";
+		for(String s : sessionCfg){
+			args+=s+" ";
+		}
+		return "MK demo "+name+" : "+description+" ;"+args;
+	}
+
+	@Override
+	public int compareTo(DemoModel o) {
+		return name.compareTo(o.getName());
 	}
 }

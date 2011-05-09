@@ -18,18 +18,28 @@
  */
 package madkit.api.abstractAgent;
 
+import static madkit.kernel.AbstractAgent.ReturnCode.AGENT_CRASH;
+import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_KILLED;
+import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_LAUNCHED;
+import static madkit.kernel.AbstractAgent.ReturnCode.LAUNCH_TIME_OUT;
+import static madkit.kernel.AbstractAgent.ReturnCode.NOT_YET_LAUNCHED;
+import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
 import javax.swing.SwingUtilities;
 
-import madkit.kernel.*;
-import static org.junit.Assert.*;
+import madkit.kernel.AbstractAgent;
+import madkit.kernel.Agent;
+import madkit.kernel.JunitMadKit;
+import madkit.kernel.Madkit;
+import madkit.testing.util.agent.DoItDuringLifeCycleAgent;
 
-import org.junit.Assert;
 import org.junit.Test;
-import static madkit.kernel.AbstractAgent.ReturnCode.*;
-import static madkit.kernel.Madkit.Roles.*;
 
 /**
  * @author Fabien Michel
@@ -40,13 +50,15 @@ import static madkit.kernel.Madkit.Roles.*;
 @SuppressWarnings("serial")
 public class KillAgentTest  extends JunitMadKit{
 
-	final AbstractAgent target = new AbstractAgent(){
+	final Agent target = new Agent(){
 		protected void activate() {
 			assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP));
 			assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,ROLE));
 		}
+		
+		protected void live() {pause(1000);}
 	};
-
+	
 	final AbstractAgent timeOutAgent = new AbstractAgent(){
 		protected void activate() {
 			try {
@@ -80,6 +92,18 @@ public class KillAgentTest  extends JunitMadKit{
 			protected void activate() {
 				assertEquals(LAUNCH_TIME_OUT,launchAgent(timeOutAgent,1));
 				assertEquals(SUCCESS,killAgent(timeOutAgent));
+			}
+		});
+	}
+
+	@Test
+	public void selfKill(){
+		launchTest(new AbstractAgent(){
+			protected void activate() {
+				assertEquals(AGENT_CRASH,launchAgent(new SelfKillAgent(true),1));
+				assertEquals(SUCCESS,launchAgent(new SelfKillAgent(false,true),1));
+				assertEquals(SUCCESS,launchAgent(new SelfKillAgent(false,false,true),1));
+				assertEquals(AGENT_CRASH,launchAgent(new SelfKillAgent(true,false,true),1));
 			}
 		});
 	}
@@ -169,7 +193,7 @@ public class KillAgentTest  extends JunitMadKit{
 				Runnable r = new Runnable() {
 					@Override
 					public void run() {
-						for (int i = 0; i < 50; i++) {
+						for (int i = 0; i < 20; i++) {
 							Agent a = (Agent) launchAgent("madkit.testing.util.agent.NormalLife", (int)(Math.random()*3),Math.random()<.5 ?true : false);
 							assertNotNull(a);
 							pause((int)(Math.random()*25));
@@ -200,4 +224,34 @@ class TimeOutAgent extends Agent{
 	}
 	protected void end() {
 	}
+}
+
+class SelfKillAgent extends DoItDuringLifeCycleAgent{
+
+	public SelfKillAgent() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public SelfKillAgent(boolean inActivate, boolean inLive, boolean inEnd) {
+		super(inActivate, inLive, inEnd);
+		// TODO Auto-generated constructor stub
+	}
+
+	public SelfKillAgent(boolean inActivate, boolean inLive) {
+		super(inActivate, inLive);
+		// TODO Auto-generated constructor stub
+	}
+
+	public SelfKillAgent(boolean inActivate) {
+		super(inActivate);
+		// TODO Auto-generated constructor stub
+	}
+	
+	@Override
+	public void doIt() {
+		super.doIt();
+		killAgent(this);
+	}
+	
 }

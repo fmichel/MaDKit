@@ -18,18 +18,11 @@
  */
 package madkit.kernel;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-
-import madkit.gui.GUIMessage;
-import madkit.gui.MadkitActions;
 
 /**
  * @author Fabien Michel
@@ -41,95 +34,120 @@ final class AgentExecutor extends ThreadPoolExecutor {
 
 	//	private boolean started = false;
 	final private Agent myAgent;
+	private Future<Boolean> activate;
+	private Future<?> live;
+	private Future<?> end;
 
-	public AgentExecutor(Agent a, ThreadFactory threadFactory) {
-		super(1, Integer.MAX_VALUE, 0, TimeUnit.NANOSECONDS, new ArrayBlockingQueue<Runnable>(4, false), threadFactory);
+//	public AgentExecutor(Agent a, ThreadFactory threadFactory) {
+//		super(1, Integer.MAX_VALUE, 0, TimeUnit.NANOSECONDS, new ArrayBlockingQueue<Runnable>(4, false), threadFactory);
+//		myAgent = a;
+////		myAgent.setAgentExecutor(this);
+//		setThreadFactory(threadFactory);
+//	}
+	
+	public AgentExecutor(Agent a) {
+		super(1, Integer.MAX_VALUE, 0, TimeUnit.NANOSECONDS, new ArrayBlockingQueue<Runnable>(4, false));
 		myAgent = a;
 	}
-
-	Future<Boolean> start(final boolean gui){
-		final List<Future<Boolean>> lifeCycle = new ArrayList<Future<Boolean>>(4);
-		final Future<Boolean> activation = submit(new Callable<Boolean>() {
+	
+	Future<Boolean> start(){
+		activate = submit(new Callable<Boolean>() {
 			public Boolean call() {
 				myAgent.setMyThread(Thread.currentThread());
-				if (! myAgent.activation(gui)) {
-					myAgent.getMyLifeCycle().get(1).cancel(true);// TODO This can be null
+				if (! myAgent.activation()) {
+					myAgent.getAlive().set(false);// TODO This can be null : out of bound
 					return false;
 				}
 				return true;
 			}
 		});
-		lifeCycle.add(activation);
-		lifeCycle.add(submit(new Callable<Boolean>() {
-			public Boolean call() {
-				return myAgent.living();
+		live = submit(new Runnable() {
+			@Override
+			public void run() {
+				if(myAgent.getAlive().get()){
+					myAgent.living();
+				}
+			}});
+		end = submit(new Runnable() {
+			public void run() {
+				myAgent.ending();
 			}
-		}));
-		lifeCycle.add(submit(new Callable<Boolean>() {
-			public Boolean call() {
-				return myAgent.ending();
-			}
-		}));
-		lifeCycle.add(submit(new Callable<Boolean>() {
-			public Boolean call() {
+		});
+		submit(new Runnable() {
+			@Override
+			public void run() {
 				shutdown();
-				return true;
 			}
-		}));
-		myAgent.setMyLifeCycle(lifeCycle);
-		return activation;
+		});
+		return activate;
 	}
 
+	//
+	//	private String printLog() {
+	//		switch (myAgent.state.get()) {
+	//		case INITIALIZING:
+	//			return "ACTIVATE";
+	//		case ACTIVATED:
+	//			return "LIVE";
+	//		case ACTIVATED:
+	//			return "LIVE";
+	//		default:
+	//			break;
+	//		}
+	//	}
+
 //	@Override
-//	protected void beforeExecute(Thread t, Runnable r) {
-//		String lifeLog = "** entering ";
-//		lifeLog += printAgentMethod()+" **";
+//	protected void afterExecute(Runnable r, Throwable t) {
+////		if(t != null){
+////			myAgent.getAlive().set(false);
+////			if(t instanceof KilledException){
+////				if(myAgent.logger != null){
+////					myAgent.logger.finer( "-*-GET KILLED in "+methodName()+"-*- : "+t.getMessage());
+////				}
+////			}
+////			else{
+////				myAgent.kernel.logSevereException(t);
+////				myAgent.kernel.getMadkitKernel().kernelLog("Problem for "+this+" in "+methodName(), Level.FINER, t);
+////			}
+////		}
+//		if(! isTerminating() && myAgent.logger != null){
+//			myAgent.logger.finer("** exiting "+methodName()+" **");
+//		}
 //	}
 //
-//	private String printLog() {
-//		switch (myAgent.state.get()) {
-//		case INITIALIZING:
+//	String methodName(){
+//		switch (myAgent.getState()) {
+//		case ACTIVATED:
 //			return "ACTIVATE";
-//		case ACTIVATED:
-//			return "LIVE";
-//		case ACTIVATED:
+//		case LIVING:
 //			return "LIVE";
 //		default:
-//			break;
+//			return "END";
 //		}
 //	}
 
 	@Override
-	protected void afterExecute(Runnable r, Throwable t) {
-
+	protected void terminated() {
+		//this is always done, even if the AE has not been started !
+		if (myAgent.getKernel() != AbstractAgent.FAKE_KERNEL) {
+			MadkitKernel k = myAgent.getKernel().getMadkitKernel();
+			myAgent.terminate();
+			k.removeThreadedAgent(myAgent);
+		}
+	}
+	
+	Future<?> getEndProcess() {
+		return end;
+	}
+	Future<?> getLiveProcess() {
+		return live;
 	}
 
-	@Override
-	protected void terminated() {
-		myAgent.getAlive().set(false);
-		MadkitKernel kernel = myAgent.getKernel().getMadkitKernel();
-		//		setKernel(kernel);
-		kernel.broadcastMessageWithRole(
-				myAgent,
-				Madkit.Roles.LOCAL_COMMUNITY, 
-				Madkit.Roles.SYSTEM_GROUP, 
-				Madkit.Roles.GUI_MANAGER_ROLE, 
-				new GUIMessage(MadkitActions.AGENT_DISPOSE_GUI,myAgent), 
-				null); 
-		if (myAgent.getState().equals(AbstractAgent.State.TERMINATED))// TODO remove that
-			throw new AssertionError("terminating twice " + myAgent);
-		myAgent.state.set(AbstractAgent.State.TERMINATED);
-		try {
-			kernel.removeAgentFromOrganizations(myAgent);// TODO catch because of probe/activator
-		} catch (Throwable e) {
-			e.printStackTrace();
-			kernel.kernelLog("Problem for "+this+" in TERMINATE ", Level.FINER, e);
-			kernel.logSevereException(e);
-		}
-		//		messageBox.clear(); // TODO test speed and no need for that
-		if (myAgent.logger != null) {
-			myAgent.logger.finest("** TERMINATED **");
-		}
-		myAgent.kernel = AbstractAgent.FAKE_KERNEL;
+	/**
+	 * @return the activate
+	 */
+	Future<Boolean> getActivate() {
+		return activate;
 	}
 }
+

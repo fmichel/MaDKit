@@ -7,11 +7,11 @@ import org.junit.Test;
 
 public class RootKernelTest {
 	
-	static RootKernel fakeKernel;
+	static FakeKernel fakeKernel;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		fakeKernel = new RootKernel(null);
+		fakeKernel = new FakeKernel(null);
 	}
 
 	@Test

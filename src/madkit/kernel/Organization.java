@@ -18,22 +18,17 @@
  */
 package madkit.kernel;
 
+import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
+import static madkit.kernel.Utils.printCGR;
+
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static java.lang.Boolean.parseBoolean;
-import static madkit.kernel.AbstractAgent.ReturnCode.*;
-import static madkit.kernel.Utils.*;
 
 /**
  * @author Fabien Michel
@@ -102,6 +97,10 @@ final class Organization extends ConcurrentHashMap <String, Group>{
 		if(logger != null)
 			logger.finer("Removing"+printCGR(communityName, group));
 		remove(group);
+		checkEmptyness();
+	}
+
+	private void checkEmptyness() {
 		if(isEmpty()){
 			if(logger != null)
 				logger.finer("Removing"+printCGR(communityName));
@@ -172,6 +171,14 @@ final class Organization extends ConcurrentHashMap <String, Group>{
 	
 	Logger getLogger(){
 		return logger;
+	}
+
+	void destroy() {
+		for(Group g : values()){
+			g.destroy();
+		}
+		clear();
+		checkEmptyness();
 	}
 	
 

@@ -49,7 +49,7 @@ final class Utils {
 	}
 
 //	static URL getFileURLResource(String fileName){
-//		URL url = MKToolkit.class.getResource("/"+fileName);
+//		URL url = GUIToolkit.class.getResource("/"+fileName);
 //		//looking in the file system
 //		if(url == null){
 //			File f = new File(fileName);
@@ -132,6 +132,7 @@ final class Utils {
 			});
 			fh.publish(new LogRecord(Level.ALL, null));
 			fh.flush();
+			fh.setFormatter(AgentLogger.agentFileFormatter);
 		} catch (SecurityException e) {
 			logWarningException(tmpLogger, e, "Permission denied !");
 		} catch (IOException e) {

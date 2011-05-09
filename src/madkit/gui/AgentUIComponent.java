@@ -18,7 +18,6 @@
  */
 package madkit.gui;
 
-import madkit.kernel.AbstractAgent;
 
 /**
  * @author Fabien Michel

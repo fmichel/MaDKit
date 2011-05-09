@@ -57,8 +57,6 @@ import java.util.logging.Logger;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import madkit.gui.MadkitActions;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -249,6 +247,16 @@ final public class Madkit {
 	 */
 	public final static String MadkitLogLevel = "MadkitLogLevel";
 
+	static final String kernelLogLevel = "kernelLogLevel";
+	static final String guiLogLevel = "guiLogLevel";
+	static final String platformLogLevel = "platformLogLevel";
+	static final String booterAgentKey = "booterAgent";
+	/**
+	 * Launches the MadKit desktop
+	 */
+	public static final String desktop = "desktop";
+	public static final String autoConnectMadkitWebsite = "autoConnectMadkitWebsite";
+	public static final String loadLocalDemos = "loadLocalDemos";
 
 	/**
 	 * Default roles within a MadKit organization.
@@ -281,7 +289,7 @@ final public class Madkit {
 		 * The value of this constant is {@value}.
 		 */
 		public static final String GUI_MANAGER_ROLE = "gui manager";
-		
+
 		public static final String NETWORK_GROUP = "network";
 
 		public static final String NETWORK_ROLE = "net agent";
@@ -290,7 +298,8 @@ final public class Madkit {
 
 
 	final static Properties defaultConfig = new Properties();
-	final static private ResourceBundle messages;
+	final static private ResourceBundle resourceBundle;
+	
 	static{
 		ResourceBundle rb = null;
 		try {
@@ -299,11 +308,9 @@ final public class Madkit {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		messages = rb;
+		resourceBundle = rb;
 	}
 
-	static final String booterAgentKey = "booterAgent";
-	public static final String desktop = "desktop";
 
 	final private Properties madkitConfig;
 	final private KernelAddress platformID;
@@ -315,15 +322,15 @@ final public class Madkit {
 	private Logger logger;
 	private MadkitClassLoader madkitClassLoader;
 	String cmdLine;
-	String[] args = {"--"+desktop};//default mode
-	
+	String[] args;
+
 	MadkitClassLoader getMadkitClassLoader() {
 		return madkitClassLoader;
 	}
 
 	private static Madkit currentInstance;
 
-	
+
 	static Madkit getCurrentInstance(){
 		return currentInstance;
 	}
@@ -342,70 +349,108 @@ final public class Madkit {
 		this.madkitLogFileHandler = madkitLogFileHandler;
 	}
 
+	//	/**
+	//	 * @param value
+	//	 * @return
+	//	 */
+	//	private boolean launchAgentsOptionValidate(String agentsTolaunch) {
+	//		if(! agentsTolaunch.equals("null")){
+	//			final String[] agentsClasses = agentsTolaunch.split(";");
+	//			for(final String classNameAndOption : agentsClasses){
+	//				final String[] classAndOptions = classNameAndOption.split(",");
+	//				final String className = classAndOptions[0].trim();//TODO should test if these classes exist
+	//				try {
+	//					Class<? extends AbstractAgent> c = (Class<? extends AbstractAgent>) getMadkitClassLoader().loadClass(className);
+	//					if(classAndOptions.length > 2) {
+	//						Integer.parseInt(classAndOptions[2].trim());
+	//					}
+	//				} catch (ClassNotFoundException e1) {
+	//					return false;
+	//				} catch (ClassCastException e) {
+	//					return false;
+	//				} catch (NumberFormatException e) {
+	//					return false;
+	//				}
+	//			}
+	//		}
+	//		return true;
+	//	}
+	
+	
+		public static void main(String[] args) {
+			new Madkit(args);
+		}
+
 	Madkit(String[] argss){
 		Policy.setPolicy(getAllPermissionPolicy());
 		currentInstance = this;
-		if (argss.length != 0) {
 			this.args = argss;
+		if(args.length == 1 && args[0].contains(" ")){//jnlp arg in here
+			args = args[0].split(" ");
 		}
 		this.cmdLine = System.getProperty("java.home")+File.separatorChar+"bin"+File.separatorChar+"java -cp "+System.getProperty("java.class.path")+" madkit.kernel.Madkit ";
 		for (String s : args) {
 			this.cmdLine += " "+s;
 		}
 		platformID = new KernelAddress();
-		madkitConfig = new Properties(defaultConfig);
+		madkitConfig = new Properties();
+		madkitConfig.putAll(defaultConfig);
+		Properties fromArgs = buildSession(args);
+		madkitConfig.putAll(fromArgs);
 		initMadkitLogging();
-		checkI18NFiles();
-		loadJarFileArguments();
-		logger.fine("** PARSING COMMAND LINE ARGUMENTS **");
-		parseArguments(args);
-		logCurrentMadkitConfig(Level.FINER);
-		buildMadkitClassLoader();
-		createLogDirectory();
-		buildKernel();
 		printWelcomeString();
-		prepareConfigAgents();
-		myKernel.launchAgent(myKernel, myKernel, 20, false);//starting the kernel agent
+//		checkI18NFiles();
+		buildMadkitClassLoader();
+		madkitConfig.putAll(loadJarFileArguments());
+		logSessionConfig(madkitConfig, Level.FINER);
+		logger.fine("** OVERRIDING WITH COMMAND LINE ARGUMENTS **");
+		madkitConfig.putAll(fromArgs);
+		logSessionConfig(madkitConfig, Level.FINER);
+		createLogDirectory();
+		if(madkitConfig.getProperty(Madkit.launchAgents).equals("null")){
+			madkitConfig.setProperty(Madkit.desktop, "true");
+		}
+		buildKernel();
 	}
-	
-   private Policy getAllPermissionPolicy()//TODO super bourrin : mais fait marcher le jnlp pour l'instant...
-   {
-      Policy policy = new Policy() {
- 
-         private PermissionCollection m_permissionCollection;
- 
-         @Override
-         public PermissionCollection getPermissions(CodeSource p_codesource)
-         {
-            return getAllPermissionCollection();
-         }
- 
-         @Override
-         public PermissionCollection getPermissions(ProtectionDomain p_domain)
-         {
-            return getAllPermissionCollection();
-         }
- 
-         /**
-          * @return an AllPermissionCollection
-          */
-         private PermissionCollection getAllPermissionCollection()
-         {
-            if (m_permissionCollection == null)
-            {
-               m_permissionCollection = new AllPermission().newPermissionCollection();
-               m_permissionCollection.add(new AllPermission());
-            }
-            return m_permissionCollection;
-         }
-      };
-      return policy;
-   }
+
+	private Policy getAllPermissionPolicy()//TODO super bourrin : mais fait marcher le jnlp pour l'instant...
+	{
+		Policy policy = new Policy() {
+
+			private PermissionCollection m_permissionCollection;
+
+			@Override
+			public PermissionCollection getPermissions(CodeSource p_codesource)
+			{
+				return getAllPermissionCollection();
+			}
+
+			@Override
+			public PermissionCollection getPermissions(ProtectionDomain p_domain)
+			{
+				return getAllPermissionCollection();
+			}
+
+			/**
+			 * @return an AllPermissionCollection
+			 */
+			private PermissionCollection getAllPermissionCollection()
+			{
+				if (m_permissionCollection == null)
+				{
+					m_permissionCollection = new AllPermission().newPermissionCollection();
+					m_permissionCollection.add(new AllPermission());
+				}
+				return m_permissionCollection;
+			}
+		};
+		return policy;
+	}
 	/**
 	 * 
 	 */
 	private void createLogDirectory() {
-		if (Boolean.parseBoolean(madkitConfig.getProperty(createLogFiles))) {
+		if (isOptionActivated(createLogFiles)) {
 			SimpleDateFormat simpleFormat = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
 			String logDir = madkitConfig.getProperty(logDirectory) + simpleFormat.format(new Date());
 			new File(logDir).mkdirs();
@@ -417,7 +462,7 @@ final public class Madkit {
 	/**
 	 * 
 	 */
-	private void loadJarFileArguments() {
+	private Properties loadJarFileArguments() {
 		String [] args = null;
 		logger.fine("** LOADING JAR FILE ARGUMENTS **");
 		try{
@@ -431,47 +476,53 @@ final public class Madkit {
 				if(projectInfo != null){
 					logger.finest("found project info"+projectInfo);
 					args = projectInfo.getValue("MadKit-Args").split(" ");
-					break;
+					Map<String,String> projectInfos = new HashMap<String, String>();
+					projectInfos.put("Project-Code-Name",projectInfo.getValue("Project-Code-Name"));
+					projectInfos.put("Project-Version",projectInfo.getValue("Project-Version"));
+					Properties p = buildSession(args);
+					p.putAll(projectInfos);
+					return p;
 				}
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		if(args==null){//TODO tell me why I do that ;)
-			logger.finest("No arguments found in the manifest files");
-			Properties project = new Properties();
-			try {
-				project.load(Madkit.class.getClassLoader().getResourceAsStream("project.properties"));
-				args = project.getProperty("MadKit-Args").split(" ");
-			} catch (IOException e) {
-				e.printStackTrace();
-			} catch (NullPointerException e) {
-				// no file (IDE mode)
-			}
-		}
-		if (args != null) {
-			parseArguments(args);
-		}
+		return new Properties();
+		//		if(args==null){//TODO tell me why I do that ;)
+		//			logger.finest("No arguments found in the manifest files");
+		//			Properties project = new Properties();
+		//			try {
+		//				project.load(Madkit.class.getClassLoader().getResourceAsStream("project.properties"));
+		//				args = project.getProperty("MadKit-Args").split(" ");
+		//			} catch (IOException e) {
+		//				e.printStackTrace();
+		//			} catch (NullPointerException e) {
+		//				// no file (IDE mode)
+		//			}
+		//		}
+		//		if (args != null) {
+		//			buildSession(args);
+		//		}
 	}
 
-//	private void start() {
-//		//setting up default configuration
-//		//		madkitConfig.putAll(defaultConfig);
-//		//
-//		//		//		madkitConfig.put(MADKIT_LOG_LEVEL, Level.FINEST.toString()); // if I want to debug starting phase
-//		//
-//		//		logger = Logger.getLogger(mkLoggerName);
-//		//		logger.setLevel(Level.parse(madkitConfig.getProperty(Madkit.MadkitLogLevel)));
-//		//		logger.setUseParentHandlers(false);
-//		//		final ConsoleHandler cs = new ConsoleHandler();
-//		//		cs.setLevel(logger.getLevel());
-//		//		cs.setFormatter(new MadkitFormatter());
-//		//		logger.addHandler(cs);
-//		//		logger.fine("****** MadKit is starting ******\n"); //TODO i18n
-//		//		logger.fine("****** MadKit kernel address is "+platformID+" ******\n"); //TODO i18n
-//
-//
-//	}
+	//	private void start() {
+	//		//setting up default configuration
+	//		//		madkitConfig.putAll(defaultConfig);
+	//		//
+	//		//		//		madkitConfig.put(MADKIT_LOG_LEVEL, Level.FINEST.toString()); // if I want to debug starting phase
+	//		//
+	//		//		logger = Logger.getLogger(mkLoggerName);
+	//		//		logger.setLevel(Level.parse(madkitConfig.getProperty(Madkit.MadkitLogLevel)));
+	//		//		logger.setUseParentHandlers(false);
+	//		//		final ConsoleHandler cs = new ConsoleHandler();
+	//		//		cs.setLevel(logger.getLevel());
+	//		//		cs.setFormatter(new MadkitFormatter());
+	//		//		logger.addHandler(cs);
+	//		//		logger.fine("****** MadKit is starting ******\n"); //TODO i18n
+	//		//		logger.fine("****** MadKit kernel address is "+platformID+" ******\n"); //TODO i18n
+	//
+	//
+	//	}
 
 	/**
 	 * 
@@ -479,7 +530,7 @@ final public class Madkit {
 	private void buildMadkitClassLoader() {
 		logger.finer("** BUILDING MADKIT CLASS LOADER **");
 		final ClassLoader systemCL = getClass().getClassLoader();
-//		madkitClassLoader = new MadkitClassLoader(this, new URL[0], systemCL);
+		//		madkitClassLoader = new MadkitClassLoader(this, new URL[0], systemCL);
 		if(systemCL instanceof URLClassLoader){
 			madkitClassLoader = new MadkitClassLoader(this,((URLClassLoader) systemCL).getURLs(),systemCL,null);			
 		}
@@ -496,7 +547,7 @@ final public class Madkit {
 	private void initMadkitLogging() {
 		logger = Logger.getLogger("["+platformID.toString()+"]");
 		logger.setUseParentHandlers(false);
-		logger.setLevel(Level.parse(madkitConfig.getProperty("platformLogLevel")));
+		logger.setLevel(Level.parse(madkitConfig.getProperty(platformLogLevel)));
 		ConsoleHandler cs = new ConsoleHandler();
 		cs.setFormatter(new MadkitFormatter());
 		cs.setLevel(logger.getLevel());
@@ -504,18 +555,18 @@ final public class Madkit {
 		logger.fine("** LOGGING INITIALIZED **");
 	}
 
-	private void checkI18NFiles() {
-		logger.finer("** CHECKING I18N FILES **");
-		if (messages != null) {
-			logger.fine("** I18N FILES SUCCESSFULLY LOADED **");
-		}
-		else{
-			logSevereException(logger,new AssertionError(), "i18n default files not found: Loading failed");
-		}
-	}
+//	private void checkI18NFiles() {
+//		logger.finer("** CHECKING I18N FILES **");
+//		if (resourceBundle != null) {
+//			logger.fine("** I18N FILES SUCCESSFULLY LOADED **");
+//		}
+//		else{
+//			logSevereException(logger,new AssertionError(), "i18n default files not found: Loading failed");
+//		}
+//	}
 
 	public static String getI18N(final String message){
-		return messages.getString(message);
+		return resourceBundle.getString(message);
 	}
 
 
@@ -564,34 +615,40 @@ final public class Madkit {
 	//			logger.warning("* MadKit internal config file loading failed ! *\n");	
 	//	}
 
-	private void parseArguments(String[] args) {
+	Properties buildSession(String[] args) {//TODO use maps
 		if(args == null){
+			if (logger != null) {
 			logger.finer("** No command line arguments found**\n");
-			return;
+			}
+			return new Properties();
 		}
+		Properties session = new Properties();
 		Map<String,String> argumentsMap2 = new HashMap<String, String>();
 		parseArgumentsIntoMap(args,argumentsMap2);
 		if(argumentsMap2.containsKey(Madkit.configFile)){
 			logger.finest("Config file option activated");
-			if(checkAndValidateOption(Madkit.configFile, argumentsMap2.get(Madkit.configFile))){
-				loadConfigFile(madkitConfig.getProperty(Madkit.configFile), argumentsMap2);
+			if(checkAndValidateOption(session,Madkit.configFile, argumentsMap2.get(Madkit.configFile))){
+				loadConfigFile(session.getProperty(Madkit.configFile), argumentsMap2);
 			}
 			logger.finest("Overriding any option with command line arguments");
 			parseArgumentsIntoMap(args,argumentsMap2);
 		}
 		//overriding options with command line options
 		for (Map.Entry<String, String> e : argumentsMap2.entrySet()) {
-			checkAndValidateOption(e.getKey(),e.getValue());
+			checkAndValidateOption(session,e.getKey(),e.getValue());
 		}
-		logger.finer("** arguments parsing finished **\n");
-		logCurrentMadkitConfig(Level.FINEST);
+		if (logger != null) {
+			logger.finer("** arguments parsing finished **\n");
+		}
+		logSessionConfig(session, Level.FINEST);
+		return session;
 	}
 
 	private void loadConfigFile(String fileName, Map<String, String> argumentsMap2) {
 		logger.fine("** Loading config file "+fileName+" **");
 
 		URL url = getClass().getClassLoader().getResource(fileName);
-		//		URL url = MKToolkit.getFileURLResource(fileName);
+		//		URL url = GUIToolkit.getFileURLResource(fileName);
 		if(url == null){
 			if(logger != null){
 				logger.warning("Config file not found : "+fileName);
@@ -629,7 +686,6 @@ final public class Madkit {
 			return;
 		}
 		logger.fine("** Config file "+fileName+" successfully loaded **\n");
-		logCurrentMadkitConfig(Level.FINEST);
 	}
 
 	/**
@@ -638,29 +694,30 @@ final public class Madkit {
 	private void buildKernel() {
 		logger.finer("** INITIALIZING MADKIT KERNEL **");
 		myKernel = new MadkitKernel(this);
+		myKernel.launchAgent(myKernel, myKernel, 20, false);//starting the kernel agent
 		logger.fine("** KERNEL AGENT LAUNCHED **");
 	}
 
-	private void prepareConfigAgents(){
-		logger.fine("** INITIALIAZING CONFIG AGENTS **");
-		final String agentsTolaunch =madkitConfig.getProperty(Madkit.launchAgents);
-		if(! agentsTolaunch.equals("null")){
-			final String[] agentsClasses = agentsTolaunch.split(";");
-			for(final String classNameAndOption : agentsClasses){
-				final String[] classAndOptions = classNameAndOption.split(",");
-				final String className = classAndOptions[0].trim();//TODO should test if these classes exist
-				final boolean withGUI = (classAndOptions.length > 1 ? Boolean.parseBoolean(classAndOptions[1].trim()) : false);
-				int number = 1;
-				if(classAndOptions.length > 2) {
-					number = Integer.parseInt(classAndOptions[2].trim());
-				}
-				logger.finer("Launching "+number+ " instance(s) of "+className+" with GUI = "+withGUI);
-				for (int i = 0; i < number; i++) {
-					myKernel.receiveMessage(new KernelMessage(MadkitActions.AGENT_LAUNCH_AGENT, className, withGUI));
-				}
-			}
-		}
-	}
+	//	private void prepareConfigAgents(){
+	//		logger.fine("** INITIALIAZING CONFIG AGENTS **");
+	//		final String agentsTolaunch =madkitConfig.getProperty(Madkit.launchAgents);
+	//		if(! agentsTolaunch.equals("null")){
+	//			final String[] agentsClasses = agentsTolaunch.split(";");
+	//			for(final String classNameAndOption : agentsClasses){
+	//				final String[] classAndOptions = classNameAndOption.split(",");
+	//				final String className = classAndOptions[0].trim();//TODO should test if these classes exist
+	//				final boolean withGUI = (classAndOptions.length > 1 ? Boolean.parseBoolean(classAndOptions[1].trim()) : false);
+	//				int number = 1;
+	//				if(classAndOptions.length > 2) {
+	//					number = Integer.parseInt(classAndOptions[2].trim());
+	//				}
+	//				logger.finer("Launching "+number+ " instance(s) of "+className+" with GUI = "+withGUI);
+	//				for (int i = 0; i < number; i++) {
+	//					myKernel.receiveMessage(new KernelMessage(MadkitActions.AGENT_LAUNCH_AGENT, className, withGUI));
+	//				}
+	//			}
+	//		}
+	//	}
 
 	/**
 	 * @return
@@ -717,15 +774,15 @@ final public class Madkit {
 		return platformID;
 	}
 
-	/**
-	 * @param option
-	 * @param value
-	 * @return 
-	 */
-	private void modifyMadkitOption(String option, String value) { 
-		logger.finest("Modifying MadKit option "+option+" from "+madkitConfig.getProperty(option)+" to "+value);
-		madkitConfig.put(option,value);
-	}
+	//	/**
+	//	 * @param option
+	//	 * @param value
+	//	 * @return 
+	//	 */
+	//	private void modifyMadkitOption(String option, String value) { 
+	//		logger.finest("Modifying MadKit option "+option+" from "+madkitConfig.getProperty(option)+" to "+value);
+	//		madkitConfig.put(option,value);
+	//	}
 
 	Logger setLogging(String loggerName, boolean csLoggingOn, Level logLevel,List<FileHandler> fhs, Formatter f) {
 		if(logger != null){
@@ -746,19 +803,19 @@ final public class Madkit {
 
 
 
-	void logCurrentMadkitConfig(Level lvl){
+	void logSessionConfig(Properties session, Level lvl){
 		if(logger != null){
 			String message = "MadKit current configuration is\n\n";
 			message+="\t--- MadKit regular options ---\n";
 			for (String option : defaultConfig.stringPropertyNames()) {
-				message+="\t"+String.format("%-" + 30 + "s", option)+madkitConfig.getProperty(option)+"\n";					
+				message+="\t"+String.format("%-" + 30 + "s", option)+session.getProperty(option)+"\n";					
 			}
-			Set<Object> tmp = new HashSet<Object>(madkitConfig.keySet());
+			Set<Object> tmp = new HashSet<Object>(session.keySet());
 			tmp.removeAll(defaultConfig.keySet());
 			if(tmp.size()>0){
 				message+="\n\t--- Additional non MadKit options ---\n";
 				for(Object o : tmp)
-					message+="\t"+String.format("%-" + 25 + "s", o)+madkitConfig.get(o)+"\n";
+					message+="\t"+String.format("%-" + 25 + "s", o)+session.get(o)+"\n";
 			}
 			logger.log(lvl, message);
 		}
@@ -853,55 +910,59 @@ final public class Madkit {
 		return aaLogFile;
 	}
 
-//	/**
-//	 * @param requester 
-//	 * @param agentClassName
-//	 * @return
-//	 * @throws ClassNotFoundException 
-//	 */
-//	@SuppressWarnings("unchecked")
-//	Class<?> loadClass(AbstractAgent requester, String agentClassName){
-//			return madkitClassLoader.loadClass(agentClassName);
-//	}
+	//	/**
+	//	 * @param requester 
+	//	 * @param agentClassName
+	//	 * @return
+	//	 * @throws ClassNotFoundException 
+	//	 */
+	//	@SuppressWarnings("unchecked")
+	//	Class<?> loadClass(AbstractAgent requester, String agentClassName){
+	//			return madkitClassLoader.loadClass(agentClassName);
+	//	}
 
 	/**
 	 * @param className
 	 * @return
 	 * @throws ClassNotFoundException 
 	 */
-//	boolean reloadClass(String name) {
-//		if (name != null) {
-//			return madkitClassLoader.reloadClass(name);
-//		}
-//		return false;
-//	}
+	//	boolean reloadClass(String name) {
+	//		if (name != null) {
+	//			return madkitClassLoader.reloadClass(name);
+	//		}
+	//		return false;
+	//	}
 
+	boolean checkAndValidateOption(String option, String value){
+		return checkAndValidateOption(madkitConfig, option, value);
+	}
 	/**
 	 * @param option
 	 * @param value
 	 * @return true if something has been changed, false otherwise
 	 */
 	@SuppressWarnings("unchecked")
-	boolean checkAndValidateOption(String option, String value){//TODO check all the options + update on what has to be !!
+	//TODO use enum for option
+	boolean checkAndValidateOption(Properties session, String option, String value){//TODO check all the options + update on what has to be !!
 		if(option == null || value == null)
 			return false; //TODO log error
 		if(! defaultConfig.containsKey(option)){
 			if(logger != null){
 				logger.finer("Adding a non MadKit option: "+option+", value is "+value);
 			}
-			madkitConfig.put(option,value);
+			session.put(option,value);
 			return true;
 		}
 		if(isOptionWithDifferentValue(agentLogLevel, option, value) || 
 				isOptionWithDifferentValue(MadkitLogLevel, option, value) || 
+				isOptionWithDifferentValue(platformLogLevel, option, value) || 
+				isOptionWithDifferentValue(kernelLogLevel, option, value) || 
+				isOptionWithDifferentValue(guiLogLevel, option, value) || 
 				isOptionWithDifferentValue(orgLogLevel, option, value) || 
 				isOptionWithDifferentValue(warningLogLevel, option, value)){
 			try {
 				final Level l = Level.parse(value);
-				modifyMadkitOption(option, l.getName());
-				if(myKernel != null){
-					myKernel.setDefaultAgentLogLevel(Level.parse(madkitConfig.getProperty(agentLogLevel)),Level.parse(madkitConfig.getProperty(warningLogLevel)));
-				}
+				session.put(option, l.getName());
 				return true;
 			} catch (IllegalArgumentException e1) {
 				System.err.println(misuseOptionMessage(option,value));
@@ -909,16 +970,16 @@ final public class Madkit {
 		}
 		if(option.equals(Madkit.configFile)){
 			if(! (value.equals("true") || value.equals("null") || value.equals(""))){
-				modifyMadkitOption(option, value);
+				session.put(option, value);
 				return true;
 			}
 		}
 		if(option.equals(Madkit.launchAgents)){
 			if(! (value.equals("true") || value.equals("null") || value.equals(""))){
-				if (launchAgentsOptionValidate(value)) {
-					modifyMadkitOption(option, value);
+//				if (launchAgentsOptionValidate(value)) {
+					session.put(option, value);
 					return true;
-				}
+//				}
 			}
 		}
 		if(option.equals(Madkit.booterAgentKey)){
@@ -932,7 +993,7 @@ final public class Madkit {
 				@SuppressWarnings("unused")
 				//the following line is only a check !
 				final Class<? extends AbstractAgent> booterAgent = (Class<? extends AbstractAgent>) madkitClassLoader.loadClass(value);
-				modifyMadkitOption(option, value);
+				session.put(option, value);
 				return true;
 			} catch (ClassNotFoundException e) {
 				logSevereException(logger,e, "Cannot find the booter agent class -- "+value+" -- in the classpath");
@@ -944,12 +1005,12 @@ final public class Madkit {
 			}
 		}
 		if(isOptionWithDifferentValue(Madkit.agentsLogFile, option, value)){
-			modifyMadkitOption(option, value);
+			session.put(option, value);
 			setAgentsLogFile(createFileHandler(value,logger));
 			return true;
 		}
 		if(isOptionWithDifferentValue(Madkit.MadkitLogFile, option, value)){
-			modifyMadkitOption(option, value);
+			session.put(option, value);
 			setMadkitLogFileHandler(createFileHandler(value, logger));
 			return true;
 		}
@@ -957,64 +1018,65 @@ final public class Madkit {
 			if(! value.endsWith(File.separator)){
 				value += File.separator;
 			}
-			modifyMadkitOption(option, value);
+			session.put(option, value);
 			return true;
 		}
 		//parse boolean options with no immediate updates
 		if(isOptionWithDifferentValue(Madkit.createLogFiles, option, value)
 				|| isOptionWithDifferentValue(Madkit.noAgentConsoleLog, option, value)
 				|| isOptionWithDifferentValue(Madkit.desktop, option, value)
+				|| isOptionWithDifferentValue(Madkit.autoConnectMadkitWebsite, option, value)
+				|| isOptionWithDifferentValue(Madkit.loadLocalDemos, option, value)
 				|| isOptionWithDifferentValue(Madkit.network, option, value)){
 			value = value.trim().toLowerCase();
 			if((value.equals("true") || value.equals("false"))){
-				modifyMadkitOption(option, value);
+				session.put(option, value);
 				return true;
 			}
 		}
 		if(isOptionWithDifferentValue(Madkit.noMadkitConsoleLog, option, value)){ //TODO tolowercase always
 			value = value.trim().toLowerCase();
 			if((value.equals("true") || value.equals("false"))){
-				modifyMadkitOption(option, value);
+				session.put(option, value);
 				return true;
 			}
 		}
 		return false;
 	}
 
-	/**
-	 * @param value
-	 * @return
-	 */
-	private boolean launchAgentsOptionValidate(String agentsTolaunch) {
-		if(! agentsTolaunch.equals("null")){
-			final String[] agentsClasses = agentsTolaunch.split(";");
-			for(final String classNameAndOption : agentsClasses){
-				final String[] classAndOptions = classNameAndOption.split(",");
-				//				final String className = classAndOptions[0].trim();//TODO should test if these classes exist
-				//				final boolean withGUI = (classAndOptions.length > 1 ? Boolean.parseBoolean(classAndOptions[1].trim()) : false);
-				//				int nbumber = 1;
-				if(classAndOptions.length > 2) {
-					try {
-						Integer.parseInt(classAndOptions[2].trim());
-					} catch (NumberFormatException e) {
-						return false;
-					}
-				}
-			}
-		}
-		return true;
-	}
+//	/**
+//	 * @param value
+//	 * @return
+//	 */
+//	private boolean launchAgentsOptionValidate(String agentsTolaunch) {
+//		if(! agentsTolaunch.equals("null")){
+//			final String[] agentsClasses = agentsTolaunch.split(";");
+//			for(final String classNameAndOption : agentsClasses){
+//				final String[] classAndOptions = classNameAndOption.split(",");
+//				final String className = classAndOptions[0].trim();//TODO should test if these classes exist
+//				try {
+//					Class<? extends AbstractAgent> c = (Class<? extends AbstractAgent>) getMadkitClassLoader().loadClass(className);
+//					if(classAndOptions.length > 2) {
+//						Integer.parseInt(classAndOptions[2].trim());
+//					}
+//				} catch (ClassNotFoundException e1) {
+//					return false;
+//				} catch (ClassCastException e) {
+//					return false;
+//				} catch (NumberFormatException e) {
+//					return false;
+//				}
+//			}
+//		}
+//		return true;
+//	}
 
 
-	public static void main(String[] args) {
-			new Madkit(args);
-	}
-	
 	final void kernelLog(String message, Level logLvl, Throwable e) {
-			logger.log(logLvl, message, e);
-			if (e != null) {
-				e.printStackTrace();
-			}
+		logger.log(logLvl, message, e);
+		if (e != null) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -1031,6 +1093,24 @@ final public class Madkit {
 		this.madkitClassLoader = madkitClassLoader;
 	}
 
+	/**
+	 * @return the resourceBundle
+	 */
+	public static ResourceBundle getResourceBundle() {
+		return resourceBundle;
+	}
+
+	boolean isOptionActivated(String madkitOptionName) {
+		return Boolean.parseBoolean(madkitConfig.getProperty(madkitOptionName));
+	}
+
+	static enum BooleanOptions{
+		desktop;
+		boolean isActivated(Properties session){
+			return Boolean.parseBoolean(session.getProperty(this.name()));
+		}
+	}
+	
 }
 
 final class MadkitFormatter extends Formatter {

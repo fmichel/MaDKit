@@ -49,8 +49,8 @@ final class AgentThreadFactory extends Object implements ThreadFactory {
 	 */
 	@Override
     public Thread newThread(final Runnable r) {
-//    	System.err.println("\n\n\new thread "+(++nbthread));
         final Thread t = new Thread(group, r, group.getName());
+//        System.err.println("\n\n\n new thread "+t);
         t.setDaemon(daemonThreads);
         t.setPriority(t.getThreadGroup().getMaxPriority());
         return t;

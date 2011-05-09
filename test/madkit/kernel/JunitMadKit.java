@@ -57,7 +57,7 @@ public class JunitMadKit {
 	public static String testTitle;
 	private Madkit m;
 
-	private List<String> mkArgs = new ArrayList<String>(Arrays.asList(
+	protected List<String> mkArgs = new ArrayList<String>(Arrays.asList(
 			"--"+Madkit.warningLogLevel,"INFO",
 			"--"+Madkit.logDirectory,getBinTestDir(),
 			"--"+Madkit.agentLogLevel,"ALL",

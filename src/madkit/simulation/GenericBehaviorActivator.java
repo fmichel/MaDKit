@@ -18,7 +18,6 @@
  */
 package madkit.simulation;
 
-import java.util.List;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Activator;
 

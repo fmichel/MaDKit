@@ -19,9 +19,10 @@
 
 package madkit.kernel;
 
+import static madkit.kernel.AbstractAgent.ReturnCode.ROLE_NOT_HANDLED;
+import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.Madkit.Roles;
-import static madkit.kernel.AbstractAgent.ReturnCode.*;
 
 
 /**

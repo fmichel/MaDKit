@@ -25,6 +25,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import madkit.gui.actions.MadkitActions;
 import madkit.kernel.AbstractAgent;
 
 /**
@@ -50,7 +51,7 @@ public class AgentStatusPanel extends JPanel implements AgentUIComponent {
 		network = new JLabel();
 		updateAgentUI();
 		add(network);
-		MKToolkit.addUIListenerFor(a, this);
+		GUIToolkit.addUIListenerFor(a, this);
 	}
 
 	/* (non-Javadoc)

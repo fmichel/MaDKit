@@ -59,6 +59,7 @@ public class JunitMadKit {
 
 	protected List<String> mkArgs = new ArrayList<String>(Arrays.asList(
 			"--"+Madkit.warningLogLevel,"INFO",
+			"--"+Madkit.launchAgents,"madkit.kernel.AbstractAgent",
 			"--"+Madkit.logDirectory,getBinTestDir(),
 			"--"+Madkit.agentLogLevel,"ALL",
 			"--"+Madkit.MadkitLogLevel,"INFO"));

@@ -173,9 +173,9 @@ public class KillAbstractAgentTest  extends JunitMadKit{
 	public void selfKill(){
 		launchTest(new AbstractAgent(){
 			protected void activate() {
-				assertEquals(AGENT_CRASH,launchAgent(new SelfKillAA(true),1));
+				assertEquals(SUCCESS,launchAgent(new SelfKillAA(true),1));
 				assertEquals(SUCCESS,launchAgent(new SelfKillAA(false,true),1));
-				assertEquals(AGENT_CRASH,launchAgent(new SelfKillAA(true,true),1));
+				assertEquals(SUCCESS,launchAgent(new SelfKillAA(true,true),1));
 			}
 		});
 	}
@@ -245,8 +245,8 @@ public class KillAbstractAgentTest  extends JunitMadKit{
 	public void testAlone(){
 		launchTest(new AbstractAgent(){
 			protected void activate() {
-				assertEquals(AGENT_CRASH,launchAgent(new SelfAbstractKill(true, true, 0)));
-				assertEquals(AGENT_CRASH,launchAgent(new SelfAbstractKill(true, false, 1)));
+				assertEquals(SUCCESS,launchAgent(new SelfAbstractKill(true, true, 0)));
+				assertEquals(SUCCESS,launchAgent(new SelfAbstractKill(true, false, 1)));
 				assertEquals(SUCCESS,launchAgent(new SelfAbstractKill(false, true, Integer.MAX_VALUE)));
 			}
 		});

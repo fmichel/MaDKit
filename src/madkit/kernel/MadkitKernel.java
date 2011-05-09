@@ -1502,7 +1502,9 @@ class MadkitKernel extends Agent {
 	 */
 
 	void kernelLog(String message, Level logLvl, Throwable e) {
-		platform.kernelLog(message, logLvl, e);
+		if (platform != null) {
+			platform.kernelLog(message, logLvl, e);
+		}
 	}
 
 	synchronized void shutdown() {

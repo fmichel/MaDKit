@@ -14,7 +14,7 @@
   </security>
   <resources>
     <j2se version="1.5+" java-vm-args="-Xnoclassgc"/>
-    <jar href="Madotchi-1.0.2.jar"/>
+    <jar href="Madotchi-1.0.1.jar"/>
   </resources>
   <application-desc>
 <argument>--launchAgents sma_launcher.Launcher_Agent,false,1 --agentLogLevel OFF</argument>

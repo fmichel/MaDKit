@@ -17,7 +17,7 @@
     <jar href="MadKitPingPong-2.0.jar"/>
   </resources>
   <application-desc>
-<argument>--agentLogLevel ALL --defaultWarningLogLevel INFO --launchAgents madkit.pingpong.PingPongDemoLauncherAgent</argument>
+<argument>--launchAgents madkit.pingpong.PingPongDemoLauncherAgent</argument>
   </application-desc>
 </jnlp> 
 

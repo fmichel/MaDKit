@@ -371,9 +371,32 @@ class MadkitKernel extends Agent {
 	 * 
 	 */
 	private void loadLocalDemos() {
-		if(logger != null)
-			logger.fine("** LOADING DEMO DIRECTORY **");
-		platform.getMadkitClassLoader().loadJarsFromPath(System.getProperty("user.dir") + File.separatorChar + "demos");
+		File f = lookForMadkitDemoHome();
+		if(f != null && f.isDirectory()){
+			if(logger != null)
+				logger.fine("** LOADING DEMO DIRECTORY **");
+			platform.getMadkitClassLoader().loadJarsFromPath(f.getAbsolutePath());
+		}
+		else{
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					JOptionPane.showMessageDialog(null, 
+							"Cannot find the local demo directory...",
+							"Load failed",
+							JOptionPane.WARNING_MESSAGE);
+				}
+			});
+		}
+	}
+
+	private File lookForMadkitDemoHome() {
+		for(URL url : getMadkitClassLoader().getURLs()){
+			if(url.getProtocol().equals("file") && url.getPath().contains(platform.getConfigOption().getProperty("madkit.jar.name"))){
+				return new File(new File(url.getFile()).getParentFile().getAbsolutePath()+File.separatorChar+"demos");
+			}
+		}
+		return null;
 	}
 
 	private void launchSession(String[] arguments) {
@@ -1373,10 +1396,10 @@ class MadkitKernel extends Agent {
 	}
 
 	@Override
-	public SortedMap<String, SortedMap<String, SortedMap<String, Set<AgentAddress>>>> getOrganizationSnapShot(boolean global) {
-		SortedMap<String, SortedMap<String, SortedMap<String, Set<AgentAddress>>>> export = new TreeMap<String, SortedMap<String, SortedMap<String, Set<AgentAddress>>>>();
+	public Map<String, Map<String, Map<String, Set<AgentAddress>>>> getOrganizationSnapShot(boolean global) {
+		Map<String, Map<String, Map<String, Set<AgentAddress>>>> export = new TreeMap<String, Map<String, Map<String, Set<AgentAddress>>>>();
 		for (Map.Entry<String, Organization> org : organizations.entrySet()) {
-			SortedMap<String, SortedMap<String, Set<AgentAddress>>> currentOrg = org.getValue().getOrgMap(global);
+			Map<String, Map<String, Set<AgentAddress>>> currentOrg = org.getValue().getOrgMap(global);
 			if (!currentOrg.isEmpty())
 				export.put(org.getKey(), org.getValue().getOrgMap(global));
 		}

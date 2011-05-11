@@ -235,6 +235,7 @@
 			<zipfileset dir="${build.dir}" includes="VERSION" prefix="${docs.dir}"/>
 			<zipfileset file="${jar.file}"/>
 			<zipfileset file="COPYING.LESSER"/>
+			<zipfileset file="MadKit-5-Desktop.jnlp"/>
 			<zipfileset dir="${demo.dir}" prefix="${demo.dir}" filemode="755"/>
 		</zip>
     </target>

@@ -24,6 +24,7 @@ import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 
@@ -105,12 +106,12 @@ final class KernelConnection extends Thread{
 
 
 	/**
-	 * @param sortedMap
+	 * @param map
 	 * @throws IOException 
 	 */
-	void sendConnectionInfo(KernelAddress myKA, SortedMap<String, SortedMap<String, SortedMap<String, Set<AgentAddress>>>> sortedMap) throws IOException {
+	void sendConnectionInfo(KernelAddress myKA, Map<String, Map<String, Map<String, Set<AgentAddress>>>> map) throws IOException {
 			oos.writeObject(myKA);
-			oos.writeObject(sortedMap);
+			oos.writeObject(map);
 	}
 
 

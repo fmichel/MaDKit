@@ -133,8 +133,8 @@ final class Organization extends ConcurrentHashMap <String, Group>{
 	 * @param b
 	 * @return
 	 */
-	SortedMap<String, SortedMap<String, Set<AgentAddress>>> getOrgMap(boolean global) {
-		TreeMap<String, SortedMap<String, Set<AgentAddress>>> export = new TreeMap<String,SortedMap<String,Set<AgentAddress>>>();
+	Map<String, Map<String, Set<AgentAddress>>> getOrgMap(boolean global) {
+		Map<String, Map<String, Set<AgentAddress>>> export = new TreeMap<String,Map<String,Set<AgentAddress>>>();
 		for (Map.Entry<String, Group> org : entrySet()) {
 			if (global || org.getValue().isDistributed()) {
 				export.put(org.getKey(), org.getValue().getGroupMap());

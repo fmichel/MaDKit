@@ -27,6 +27,7 @@ import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author Fabien Michel
@@ -58,7 +59,10 @@ final class MadkitClassLoader extends URLClassLoader {
 		if(classesToReload != null && classesToReload.contains(name)){
 			c = findLoadedClass(name);
 			if(c != null){
-				madkit.kernelLog("Already defined "+name+" : NEED NEW MCL", Level.FINE, null);
+				Logger l = madkit.getKernel().logger;
+				if (l != null) {
+					l.log(Level.FINE, "Already defined " + name + " : NEED NEW MCL");
+				}
 				MadkitClassLoader mcl = new MadkitClassLoader(madkit,getURLs(),this, classesToReload);
 				classesToReload.remove(name);
 				madkit.setMadkitClassLoader(mcl);
@@ -79,6 +83,10 @@ final class MadkitClassLoader extends URLClassLoader {
 			resolveClass(c);
 		return c;
 	}
+	
+//	Class<? extends AbstractAgent> loadAgentClass(String name) throws ClassNotFoundException{
+//		return (Class<? extends AbstractAgent>) loadClass(name);
+//	}
 
 private void addUrlAndloadClasses(String name) {
 	URL url = this.getResource("/"+name.replace('.', '/')+".class");

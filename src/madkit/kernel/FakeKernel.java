@@ -114,9 +114,9 @@ final class FakeKernel extends MadkitKernel{
 	//////////////////////////////////////////////////////////////
 	////////////////////////// Launching and Killing
 	//////////////////////////////////////////////////////////////
-	AbstractAgent launchAgent(AbstractAgent agent, String agentClass, int timeOutSeconds,  boolean defaultGUI){
-		throw new KernelException(agent);
-	}
+//	AbstractAgent launchAgent(AbstractAgent agent, String agentClass, int timeOutSeconds,  boolean defaultGUI){
+//		throw new KernelException(agent);
+//	}
 
 	ReturnCode launchAgent(final AbstractAgent agent, final AbstractAgent agent2, final int timeOutSeconds, final boolean defaultGUI){
 		throw new KernelException(agent);
@@ -162,6 +162,10 @@ final class FakeKernel extends MadkitKernel{
 	void setMadkitProperty(final AbstractAgent agent, String key, String value) {
 		throw new KernelException(agent);
 	}
+	
+	public java.net.URLClassLoader getMadkitClassLoader() {
+		throw new KernelException(null);
+	};
 
 //	/**
 //	 * @param abstractAgent

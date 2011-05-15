@@ -472,7 +472,10 @@ class Role implements Serializable{//TODO test with arraylist
 					aa.setRoleObject(this);
 				}
 				else{
-					myGroup.getMyCommunity().getMyKernel().kernelLog("Already have this address ", Level.FINER, null);					
+					Logger l = myGroup.getMyCommunity().getMyKernel().logger;
+					if (l != null) {
+						l.log(Level.FINER, "Already have this address ");
+					}					
 				}
 			}
 		}

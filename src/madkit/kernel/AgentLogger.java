@@ -40,8 +40,11 @@ import java.util.logging.Logger;
  */
 public class AgentLogger extends Logger {
 
+	final static AgentLogger defaultAgentLogger = new AgentLogger();
 	final static private Map<AbstractAgent,AgentLogger> agentLoggers = new HashMap<AbstractAgent,AgentLogger>();//TODO evaluate foot print
 	final static Level talkLevel = Level.parse("1100");
+	private Level warningLogLevel = Level.parse(Madkit.defaultConfig.getProperty(Madkit.warningLogLevel));
+	final private AbstractAgent myAgent;
 
 	final public static Formatter agentFormatter = new Formatter(){//TODO create Formatter hierarchy
 		@Override
@@ -77,10 +80,7 @@ public class AgentLogger extends Logger {
 	//		}
 	//	};
 
-	final static AgentLogger defaultAgentLogger = new AgentLogger();
 
-	private Level warningLogLevel = Level.parse(Madkit.defaultConfig.getProperty(Madkit.warningLogLevel));
-	final private AbstractAgent myAgent;
 
 
 
@@ -244,7 +244,7 @@ public class AgentLogger extends Logger {
 		for(Handler h : getHandlers()){
 			h.setLevel(newLevel);
 		}
-		updateAgentUi();
+		updateAgentUi();//TODO level model
 	}
 
 	@Override
@@ -259,16 +259,35 @@ public class AgentLogger extends Logger {
 	public void log(final LogRecord record) {
 		Throwable t = record.getThrown();
 		if(t != null){
-			//			if(record.getLevel() == Level.WARNING && getLevel().intValue() > warningLogLevel.intValue()){
-			//				return;
-			//			}
 			final StringWriter sw = new StringWriter();
 			final PrintWriter pw = new PrintWriter(sw);
 			t.printStackTrace(pw);
 			pw.close();
-			record.setMessage("\n ** "+sw);
+			record.setMessage(record.getMessage()+"\n ** "+sw);
 		}
 		super.log(record);
 	}
-
+	
+	/**
+	 * This call bypasses any settings and always produces severe log
+	 * messages which display the stack trace of the throwable if it is 
+	 * not <code>null</code>
+	 * 
+	 * @param msg the message to display
+	 * @param t the exception raised
+	 */
+	public void severeLog(String msg, Throwable t) {
+		myAgent.getKernel().getMadkitKernel().getLogger().log(Level.FINEST,"log for "+myAgent+"\n"+msg,t);
+		myAgent.setAgentStackTrace(t);
+		final Level l = getLevel();
+		if (l != Level.ALL) {
+			setLevel(Level.ALL);
+			log(Level.SEVERE, msg, t);
+			setLevel(l);
+		}
+		else{
+			log(Level.SEVERE, msg, t);
+		}
+	}
+	
 }

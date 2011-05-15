@@ -136,8 +136,7 @@ public class Agent extends AbstractAgent{
 				}
 				return false;
 			} catch (Throwable e) {
-				kernel.kernelLog("Problem for "+this+" in ACTIVATE ", Level.FINER, e);
-				logSevereException(e);
+				logLifeException(e);
 				return false;
 			} finally {
 				if(logger != null)
@@ -157,13 +156,10 @@ public class Agent extends AbstractAgent{
 		} catch (KilledException e) {
 			if(logger != null){
 				logger.finer("-*-GET KILLED in LIVE-*- : "+e.getMessage());
-				//				logger.warning("my tasks "+lifeCycle);//TODO remove that
 			}
 			return false;
 		} catch (Throwable e) {
-			e.printStackTrace();
-			kernel.kernelLog("Problem for "+this+" in LIVE ", Level.FINER, e);
-			logSevereException(e);
+			logLifeException(e);
 			return false;
 		} finally {
 			//			getRunState().set(ENDING);

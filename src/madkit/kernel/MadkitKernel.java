@@ -425,7 +425,7 @@ class MadkitKernel extends Agent {
 				}
 				logger.finer("Launching "+number+ " instance(s) of "+className+" with GUI = "+withGUI);
 				for (int i = 0; i < number; i++) {
-					kernel.launchAgent(this, className, 0, withGUI);
+						launchAgent(className, 0, withGUI);
 				}
 			}
 			Thread.yield();//sufficient for threads to take place, may quit otherwise
@@ -601,8 +601,7 @@ class MadkitKernel extends Agent {
 				sendNetworkMessageWithRole(new CGRSynchro(CREATE_GROUP, getRole(community, group, Roles.GROUP_MANAGER_ROLE)
 						.getAgentAddressOf(creator)), netUpdater);
 			} catch (CGRNotAvailable e) {
-				e.printStackTrace();
-				kernelLog("Please bug report", Level.SEVERE, e);
+				getLogger().severeLog("Please bug report", e);
 			}
 		}
 		return SUCCESS;
@@ -952,34 +951,39 @@ class MadkitKernel extends Agent {
 		return a;
 	}
 
-	AbstractAgent launchAgent(AbstractAgent requester, final String agentClass, int timeOutSeconds, boolean defaultGUI) {
-		try {
-			final AbstractAgent agent = (AbstractAgent) getMadkitClassLoader().loadClass(agentClass).newInstance();
-			if (launchAgent(requester, agent, timeOutSeconds, defaultGUI) == AGENT_CRASH) {
-				return null; // TODO when time out ?
-			}
-			return agent;
-		} catch (ClassNotFoundException e) {
-			if(logger != null)
-				logger.severe("Cannot launch " + agentClass + " "+e.getMessage());
-		} catch (ClassCastException e) {
-			if(logger != null)
-				logger.severe("Cannot launch "+ agentClass + " : not an agent class");
-		} catch (InstantiationException e) {
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					JOptionPane.showMessageDialog(null, "Cannot launch " + agentClass + " because it has no default constructor",
-							"Launch failed", JOptionPane.WARNING_MESSAGE);
-				}
-			});
-			if (requester.logger != null)
-				requester.logger.warning("Cannot launch " + agentClass + " because it has no default constructor");
-		} catch (IllegalAccessException e) {
-			if(logger != null)
-				logger.severe("Cannot launch "+ agentClass + " : not an agent class");
-		}
-		return null;
-	}
+//	AbstractAgent launchAgent(AbstractAgent requester, final String agentClass, int timeOutSeconds, boolean defaultGUI) throws ClassNotFoundException {
+//		try {
+//			final AbstractAgent agent = getAgentClass(requester, agentClass).newInstance();
+//			if (launchAgent(requester, agent, timeOutSeconds, defaultGUI) == AGENT_CRASH) {
+//				return null; // TODO when time out ?
+//			}
+//			return agent;
+////		} catch (ClassNotFoundException e) {
+////				requester.getLogger().severe("Cannot launch " + agentClass + " "+e.getMessage());
+//		} catch (InstantiationException e) {
+//			final String msg = "Cannot launch " + agentClass + " because it has no default constructor";
+//			SwingUtilities.invokeLater(new Runnable() {
+//				public void run() {
+//					JOptionPane.showMessageDialog(null, msg,
+//							"Launch failed", JOptionPane.WARNING_MESSAGE);
+//				}
+//			});
+//			requester.getLogger().severe(msg);
+//		} catch (IllegalAccessException e) {
+//			requester.getLogger().severe("Cannot launch " + agentClass + " "+e.getMessage());
+//		}
+//		return null;
+//	}
+//	
+//	@SuppressWarnings("unchecked")
+//	Class<? extends AbstractAgent> getAgentClass(AbstractAgent requester, String className) throws ClassNotFoundException{
+//		try {
+//			return (Class<? extends AbstractAgent>) platform.getMadkitClassLoader().loadClass(className);
+//		} catch (ClassCastException e) {
+//			requester.getLogger().severe("Cannot launch " + className + " : not an agent class");
+//			return null;
+//		}
+//	}
 
 	ReturnCode launchAgent(final AbstractAgent requester, final AbstractAgent agent, final int timeOutSeconds,
 			final boolean defaultGUI) {
@@ -995,7 +999,8 @@ class MadkitKernel extends Agent {
 		} catch (InterruptedException e) {// requester has been killed or something
 			throw new KilledException(e);
 		} catch (ExecutionException e) {// target has crashed !
-			kernelLog("Launch failed on " + agent, Level.FINE, e);
+			if(logger != null)
+				logger.log(Level.FINEST, "Launch failed on " + agent, e);
 			if (e.getCause() instanceof AssertionError)// convenient for Junit
 				throw new AssertionError(e);
 			return AGENT_CRASH;
@@ -1038,16 +1043,14 @@ class MadkitKernel extends Agent {
 			}
 		} catch (InterruptedException e) {
 			if (!shuttedDown) {
-				e.printStackTrace();
 				// Kernel cannot be interrupted !!
-				kernelLog("KERNEL PROBLEM, please bug report", Level.SEVERE, e); // Kernel
+				bugReport(e); 
 				return SEVERE;
 			}
 		} catch (ExecutionException e) {
 			if (!shuttedDown) {
-				e.printStackTrace();
-				kernelLog("KERNEL PROBLEM, please bug report", Level.SEVERE, e); // Kernel
 				// Kernel cannot be interrupted !!
+				bugReport(e); 
 				return SEVERE;
 			}
 		}  catch (CancellationException e) {
@@ -1074,7 +1077,8 @@ class MadkitKernel extends Agent {
 			// something
 			throw new KilledException(e);
 		} catch (ExecutionException e) {// target has crashed in end !
-			kernelLog("kill failed on " + target, Level.FINE, e);
+			if(logger != null)
+				logger.log(Level.FINE, "kill failed on " + target, e);
 			if (e.getCause() instanceof AssertionError)
 				throw new AssertionError(e);
 			return AGENT_CRASH;
@@ -1108,8 +1112,7 @@ class MadkitKernel extends Agent {
 			ae.awaitTermination(1, TimeUnit.SECONDS);
 		} catch (Throwable e) {
 			if (!shuttedDown) {
-				kernelLog("wired", Level.SEVERE, e);
-				e.printStackTrace();
+				bugReport(e);
 			}
 		}
 		// final List<Future<Boolean>> lifeCycle = target.getMyLifeCycle();
@@ -1506,27 +1509,8 @@ class MadkitKernel extends Agent {
 				break;
 			}
 		} catch (CGRNotAvailable e) {
-			kernelLog("distant CGR " + m.getCode() + " update failed on " + m.getContent(), Level.FINE, e);
-			e.printStackTrace();
-		}
-	}
-
-	// /**
-	// * @param lk
-	// */
-	// void setLoggedKernel(LoggedKernel lk) {
-	// loggedKernel = lk;
-	// }
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see madkit.kernel.FakeKernel#kernelLog(java.lang.String)
-	 */
-
-	void kernelLog(String message, Level logLvl, Throwable e) {
-		if (platform != null) {
-			platform.kernelLog(message, logLvl, e);
+			if(logger != null)
+				logger.log(Level.FINE, "distant CGR " + m.getCode() + " update failed on " + m.getContent(), e);
 		}
 	}
 
@@ -1569,34 +1553,6 @@ class MadkitKernel extends Agent {
 		// t.start();
 	}
 
-	//	/**
-	//	 * 
-	//	 */
-	//	@SuppressWarnings("deprecation")
-	//	private void stopThreadedAgents(boolean hardKill) {
-	//		ThreadGroup tg = normalAgentThreadFactory.getThreadGroup();
-	//		Thread[] agents = new Thread[tg.activeCount()];
-	//		tg.enumerate(agents);
-	//		for(final Thread t : agents){
-	//			if(t != null && ! t.getName().contains("AWT")){
-	//				t.setPriority(Thread.MIN_PRIORITY);
-	//				t.interrupt();
-	//				if(hardKill && t.isAlive()){
-	//					pause(500);
-	//					if (t.isAlive()) {
-	//						int stop = JOptionPane.showConfirmDialog(null, "force exit ?", t.getName() + " is not responding",
-	//								JOptionPane.YES_NO_OPTION);
-	//						if (stop == JOptionPane.OK_OPTION) {
-	//							t.interrupt();
-	//							pause(1000);
-	//							t.stop();
-	//						}
-	//					}
-	//				}
-	//			}
-	//		}
-	//	}
-
 	@SuppressWarnings("deprecation")
 	private void killAgents(boolean oneShot) {
 		threadedAgents.remove(this);
@@ -1631,8 +1587,7 @@ class MadkitKernel extends Agent {
 	}
 
 	void bugReport(Throwable e) {
-		e.printStackTrace();
-		kernelLog("**** Please bug report", Level.SEVERE, e);
+		getLogger().severeLog("********************** KERNEL PROBLEM, please bug report", e); // Kernel
 	}
 
 	final synchronized void removeAgentsFromDistantKernel(KernelAddress kernelAddress2) {

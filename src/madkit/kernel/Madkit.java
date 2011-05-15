@@ -1073,12 +1073,12 @@ final public class Madkit {
 //	}
 
 
-	final void kernelLog(String message, Level logLvl, Throwable e) {
-		logger.log(logLvl, message, e);
-		if (e != null) {
-			e.printStackTrace();
-		}
-	}
+//	final void kernelLog(String message, Level logLvl, Throwable e) {
+//		logger.log(logLvl, message, e);
+//		if (e != null) {
+//			e.printStackTrace();
+//		}
+//	}
 
 	/**
 	 * @return

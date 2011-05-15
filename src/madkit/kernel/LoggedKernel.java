@@ -330,21 +330,6 @@ final class LoggedKernel extends MadkitKernel {
 	}
 
 	/**
-	 * @see madkit.kernel.MadkitKernel#launchAgent(madkit.kernel.AbstractAgent, java.lang.String, int, boolean)
-	 */
-	@Override
-	AbstractAgent launchAgent(AbstractAgent requester, String agentClass, int timeOutSeconds, boolean defaultGUI) {
-		logMessage(requester, getI18N("launchA") + agentClass);
-		final AbstractAgent a = kernel.launchAgent(requester, agentClass, timeOutSeconds, defaultGUI);
-		if (a == null) {
-			logMessage(requester, getI18N("launchA") + agentClass + " time out or crash");
-			return null;
-		}
-		logMessage(requester, getI18N("launchA") + agentClass + " OK");
-		return a;
-	}
-
-	/**
 	 * @see madkit.kernel.MadkitKernel#launchAgent(madkit.kernel.AbstractAgent, madkit.kernel.AbstractAgent, int, boolean)
 	 */
 	@Override

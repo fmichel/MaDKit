@@ -156,6 +156,7 @@ public class LaunchAbstractAgentTest  extends JunitMadKit{
 	
 	@Test
 	public void returnAgentCrash(){
+		addMadkitArgs("--kernelLogLevel","ALL");
 		launchTest(new AbstractAgent(){
 			protected void activate() {
 				assertEquals(AGENT_CRASH,launchAgent(faulty));

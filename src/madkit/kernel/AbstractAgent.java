@@ -48,6 +48,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+
+import org.omg.PortableInterceptor.SUCCESSFUL;
 
 import madkit.gui.OutputPanel;
 import madkit.gui.actions.MadkitActions;
@@ -231,13 +235,10 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			terminate();
 			return false;
 		} catch (Throwable e) {
-			kernel.kernelLog("Problem for "+this+" in ACTIVATE ", Level.FINER, e);
-			logSevereException(e);
-			if (logger != null) {
-				logger.finer("** exiting ACTIVATE **");
-			}
-			// no more ending if activate failed
-			// ending();
+//			kernel.kernelLog("Problem for "+this+" in ACTIVATE ", Level.FINER, e);
+			logLifeException(e);
+			logger.finer("** exiting ACTIVATE **");//logger cannot be null here
+			// TODO no more ending if activate failed ???
 			if (getAlive().get()) {
 				ending();
 				terminate();
@@ -295,8 +296,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			}
 			return false;
 		} catch (Throwable e) {
-			kernel.kernelLog("Problem for "+this+" in END ", Level.FINER, e);
-			logSevereException(e);
+//			kernel.kernelLog("Problem for "+this+" in END ", Level.FINER, e);
+			logLifeException(e);
 			return false;
 		} finally {
 			getAlive().set(false);
@@ -322,21 +323,14 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		try {
 			kernel.removeAgentFromOrganizations(this);// TODO catch because of probe/activator
 		} catch (Throwable e) {
-			e.printStackTrace();
-			kernel.kernelLog("Problem for "+this+" in TERMINATE ", Level.SEVERE, e);
-			logSevereException(e);
+			logLifeException(e);
 		}
 		state.set(TERMINATED);
 		messageBox.clear(); // TODO test speed and no need for that
 		if (logger != null) {
 			logger.finest("** TERMINATED **");
-//			for (Handler h : logger.getHandlers()) {
-//				h.close();
-//			}
 		}
-//		AgentLogger.removeLogger(this);
-//		logger = null;
-		kernel = FAKE_KERNEL;
+		kernel = FAKE_KERNEL;//TODO kernel for terminated agent
 	}
 
 	/**
@@ -499,7 +493,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @return the instance of the launched agent or <code>null</code> if the operation times out or failed.
 	 * @throws KernelException if this agent has not been launched or is already terminated
 	 */
-	public AbstractAgent launchAgent(String agentClass, final boolean createFrame) {
+	public AbstractAgent launchAgent(String agentClass, final boolean createFrame){
 		return launchAgent(agentClass, Integer.MAX_VALUE, createFrame);
 	}
 
@@ -520,7 +514,29 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @return the instance of the launched agent or <code>null</code> if the operation times out or failed.
 	 */
 	public AbstractAgent launchAgent(String agentClass, int timeOutSeconds, final boolean createFrame) {
-		return kernel.launchAgent(this, agentClass, timeOutSeconds, createFrame);
+		if(logger != null)
+			logger.finest(getI18N("launchA") + agentClass);
+		try {
+			AbstractAgent a = (AbstractAgent) getMadkitClassLoader().loadClass(agentClass).newInstance();
+			if(ReturnCode.SUCCESS == launchAgent(a, timeOutSeconds, createFrame))
+				return a;
+		} catch (InstantiationException e) {
+			final String msg = "Cannot launch " + agentClass + " because it has no default constructor ";
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					JOptionPane.showMessageDialog(null, msg,
+							"Launch failed", JOptionPane.WARNING_MESSAGE);
+				}
+			});
+			getLogger().severeLog("Cannot launch " + agentClass + " because it has no default constructor "+e.getMessage(),e);
+		} catch (IllegalAccessException e) {
+			getLogger().severeLog("Cannot launch " + agentClass, e);
+		} catch (ClassCastException e) {
+			getLogger().severeLog("Cannot launch " + agentClass + " : not an agent class", e);
+		} catch (ClassNotFoundException e) {
+			getLogger().severeLog("Launch failed "+agentClass+" : ", e);
+		}
+		return null;
 	}
 
 	/**
@@ -937,7 +953,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		return kernel.leaveRole(this, community, group, role);
 	}
 
-	final synchronized ReturnCode handleException(final MadkitWarning e) {
+	final ReturnCode handleException(final MadkitWarning e) {
 		if (logger != null && 
 				logger.getWarningLogLevel().intValue() >= 
 					logger.getLevel().intValue()) {
@@ -947,7 +963,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		return e.getCode();
 	}
 
-	private void setAgentStackTrace(final Throwable e) {
+	void setAgentStackTrace(final Throwable e) {
 		final List<StackTraceElement> stack = new ArrayList<StackTraceElement>();
 		// boolean notFound = true;
 		StackTraceElement[] stackTrace = e.getStackTrace();
@@ -1415,14 +1431,14 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	// /////////////////////////////////// Utilities //////////////////////////////
 	// /////////////////////////////////////////////////////////////////////////////
 
-	final void logSevereException(final Throwable e) {
+	final void logLifeException(final Throwable e) {
 		String m = "-*-";
 		switch (getState()) {
 		case ACTIVATED:
-			m += "ACTIVATE BUG-*- : " + getI18N("terminated");
+			m += "ACTIVATE BUG-*- :";// " + getI18N("terminated");
 			break;
 		case LIVING:
-			m += "LIVE BUG-*- : " + getI18N("terminated");
+			m += "LIVE BUG-*- :";// + getI18N("terminated");
 			break;
 		case ENDING:
 			m += "END BUG-*- :";
@@ -1430,9 +1446,18 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		default:
 			m += "TERMINATE BUG-*- :";
 		}
-		setAgentStackTrace(e);
-		logger.log(Level.SEVERE, m, e);
+		getLogger().severeLog(m, e);
 	}
+
+//	/**
+//	 * @param e
+//	 * @param m
+//	 */
+//	private void severeLog(Throwable e, String m) {
+//		kernel.getMadkitKernel().getLogger().log(Level.FINEST,m,e);
+//		setAgentStackTrace(e);
+//		getLogger().severeLog(m, e);
+//	}
 
 	final String getLoggingName() {
 		if(name != null)

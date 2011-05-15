@@ -61,7 +61,7 @@ public class JunitMadKit {
 			"--"+Madkit.warningLogLevel,"INFO",
 			"--"+Madkit.launchAgents,"madkit.kernel.AbstractAgent",
 			"--"+Madkit.logDirectory,getBinTestDir(),
-			"--"+Madkit.agentLogLevel,"ALL",
+			"--"+Madkit.agentLogLevel,"INFO",
 			"--"+Madkit.MadkitLogLevel,"INFO"));
 
 	public void launchTest(AbstractAgent a, ReturnCode expected){

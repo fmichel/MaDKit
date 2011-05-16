@@ -135,6 +135,7 @@ final class sendMessageWarning extends MadkitWarning {
 		case NETWORK_DOWN:
 			return baseMessage+" "+Utils.getI18N("notExist");
 		default:
+			System.err.println(" something is wrong : "+code);
 			new Throwable().printStackTrace();
 			return " something is wrong : "+code;//TODO now
 		}

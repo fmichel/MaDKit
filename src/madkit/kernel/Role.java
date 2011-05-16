@@ -24,6 +24,7 @@ import static madkit.kernel.Utils.printCGR;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -80,22 +81,22 @@ class Role implements Serializable{//TODO test with arraylist
 		myGroup = groupObject;
 		kernelAddress = k.getKernelAddress();
 		if(logger != null){
-//			logger.setLevel(Level.ALL);
+			//			logger.setLevel(Level.ALL);
 			logger.finer(toString()+" created");
 		}
 		overlookers = new LinkedHashSet<Overlooker<? extends AbstractAgent>>();
 		initializeOverlookers();
 	}
 
-//	@Override
-//	public boolean equals(Object obj) { //override should not be required
-//		if(this == obj)
-//			return true;
-//		Role other = (Role) obj;
-//		return communityName.equals(other.communityName) &&
-//		groupName.equals(other.groupName) &&
-//		roleName.equals(other.roleName);
-//	}
+	//	@Override
+	//	public boolean equals(Object obj) { //override should not be required
+	//		if(this == obj)
+	//			return true;
+	//		Role other = (Role) obj;
+	//		return communityName.equals(other.communityName) &&
+	//		groupName.equals(other.groupName) &&
+	//		roleName.equals(other.roleName);
+	//	}
 
 	private synchronized void initializeOverlookers() {//TODO init process
 		for(final Overlooker<? extends AbstractAgent> o : myGroup.getMyCommunity().getMyKernel().getOperatingOverlookers()){
@@ -226,54 +227,16 @@ class Role implements Serializable{//TODO test with arraylist
 			addToOverlookers(bucket);
 		}
 	}
-	
-	final void removeMembers(final List<AbstractAgent> bucket){
-		synchronized (players) {
-			players.removeAll(bucket);//is optimized
-			if (agentAddresses != null) {
-				final Set<AgentAddress> addresses = new HashSet<AgentAddress>(bucket.size()+agentAddresses.size(),0.9f);//TODO try load factor
-				for (final AbstractAgent a : bucket) {
-					addresses.remove(new AgentAddress(a, this, kernelAddress));
-				}
-				addresses.removeAll(agentAddresses);//TODO test vs assignment : this because knowing the size 
-				agentAddresses = addresses;
-			}
-			modified = true;
-		}
-			removeFromOverlookers(bucket);
-	}
-	
 
 	/**
 	 * @param content
 	 */
 	final void addDistantMember(final AgentAddress content) {
-		if(buildAndGetAddresses().add(content)){
-			content.setRoleObject(this);
-		}
-	}
-
-	private void buildAgentAddressesList(){
-		if(agentAddresses == null){
-			agentAddresses = new HashSet<AgentAddress>(players.size(),0.9f);
-			synchronized (players) {
-				for (final AbstractAgent a : players) {
-					agentAddresses.add(new AgentAddress(a, this, kernelAddress));
-				}
+		synchronized (players) {
+			if (buildAndGetAddresses().add(content)) {
+				content.setRoleObject(this);
 			}
 		}
-	}
-
-	private Set<AgentAddress> buildAndGetAddresses(){
-		if(agentAddresses == null){
-			agentAddresses = new HashSet<AgentAddress>(players.size(),0.8f);
-			synchronized (players) {
-				for (final AbstractAgent a : players) {
-					agentAddresses.add(new AgentAddress(a, this, kernelAddress));
-				}
-			}
-		}
-		return agentAddresses;
 	}
 
 
@@ -296,6 +259,72 @@ class Role implements Serializable{//TODO test with arraylist
 	}
 
 
+	final void removeMembers(final List<AbstractAgent> bucket){
+		synchronized (players) {
+			players.removeAll(bucket);//is optimized
+			if(agentAddresses != null){
+				for (Iterator<AgentAddress> i = agentAddresses.iterator();i.hasNext();) {
+					AgentAddress aa = i.next();
+					AbstractAgent agent = aa.getAgent();
+					if(agent != null && bucket.contains(agent)){
+						i.remove();
+						aa.setRoleObject(null);//cost is high because of string creation...
+					}
+				}
+			}
+			modified = true;
+		}
+		removeFromOverlookers(bucket);
+	}
+
+
+	//	/**
+	//	 * @param requester the agent by which I am now empty
+	//	 * 
+	//	 */
+	//	private void deleteMySelfFromOrg(AbstractAgent requester) {
+	//		for (final Overlooker<? extends AbstractAgent> o : overlookers) {
+	//			o.setOverlookedRole(null);
+	//		}
+	//		myGroup.removeRole(roleName);
+	//	}
+	
+	
+	/**
+	 * @param content
+	 */
+	void removeDistantMember(final AgentAddress content) {
+		if (agentAddresses != null) {
+			synchronized (players) {
+				removeAgentAddress(content);
+				checkEmptyness();
+			}
+		}
+	}
+
+
+	final Set<AgentAddress> buildAndGetAddresses(){
+		if(agentAddresses == null){
+			agentAddresses = new HashSet<AgentAddress>(players.size(),0.8f);
+			synchronized (players) {
+				for (final AbstractAgent a : players) {
+					agentAddresses.add(new AgentAddress(a, this, kernelAddress));
+				}
+			}
+		}
+		return agentAddresses;
+	}
+	
+	final private void removeAgentAddress(AgentAddress aa){
+		if (agentAddresses.remove(aa)) {
+			if (logger != null) {
+				logger.finest(aa + " has leaved role " + printCGR(communityName, groupName, roleName) + "\n");
+			}
+			aa.setRoleObject(null);
+		}
+	}
+
+
 	/**
 	 * @param kernelAddress2
 	 */
@@ -304,9 +333,12 @@ class Role implements Serializable{//TODO test with arraylist
 			if(logger != null)
 				logger.finest("Removing all agents from distant kernel "+kernelAddress2+" in"+this);
 			synchronized (players) {
-				for (Iterator<AgentAddress> iterator = getAgentAddresses().iterator(); iterator.hasNext();) {//TODO return if no agent addresses
-					if (iterator.next().getKernelAddress().equals(kernelAddress2))
+				for (Iterator<AgentAddress> iterator = buildAndGetAddresses().iterator(); iterator.hasNext();) {//TODO return if no agent addresses
+					AgentAddress aa = iterator.next();
+					if (aa.getKernelAddress().equals(kernelAddress2)){
 						iterator.remove();
+						aa.setRoleObject(null);
+					}
 				}
 				checkEmptyness();
 			}
@@ -323,48 +355,29 @@ class Role implements Serializable{//TODO test with arraylist
 	}
 
 
-//	/**
-//	 * @param requester the agent by which I am now empty
-//	 * 
-//	 */
-//	private void deleteMySelfFromOrg(AbstractAgent requester) {
-//		for (final Overlooker<? extends AbstractAgent> o : overlookers) {
-//			o.setOverlookedRole(null);
-//		}
-//		myGroup.removeRole(roleName);
-//	}
+	//	/**
+	//	 * @param requester the agent by which I am now empty
+	//	 * 
+	//	 */
+	//	private void deleteMySelfFromOrg(AbstractAgent requester) {
+	//		for (final Overlooker<? extends AbstractAgent> o : overlookers) {
+	//			o.setOverlookedRole(null);
+	//		}
+	//		myGroup.removeRole(roleName);
+	//	}
 
 
-	/**
-	 * @param content
-	 */
-	void removeDistantMember(final AgentAddress content) {
-		if (agentAddresses != null) {
-			synchronized (players) {
-				if (agentAddresses.remove(content)) {
-					if (logger != null) {
-						logger.finest(content + " has leaved role " + printCGR(communityName, groupName, roleName) + "\n");
-					}
-				}
-				checkEmptyness();
-			}
-		}
-	}
-
-	final Set<AgentAddress> getAgentAddressesCopy(){
-		buildAndGetAddresses();
-		final Set<AgentAddress> result = new HashSet<AgentAddress>(agentAddresses.size(), 1.0f);
+	final List<AgentAddress> getAgentAddressesCopy(){
 		synchronized (players) {
-			result.addAll(agentAddresses);
+			return new ArrayList<AgentAddress>(buildAndGetAddresses());
 		}
-		return result;
 	}
 
 
 	/**
 	 * @param requester
 	 */
-	static AgentAddress removeAgentAddressOf(final AbstractAgent requester,final Set<AgentAddress> agentAddresses2) {
+	static AgentAddress removeAgentAddressOf(final AbstractAgent requester,final Collection<AgentAddress> agentAddresses2) {
 		//		if(requester == null)
 		//			throw new AssertionError("Wrong use ^^");
 		for (final Iterator<AgentAddress> iterator = agentAddresses2.iterator();iterator.hasNext();){
@@ -381,18 +394,18 @@ class Role implements Serializable{//TODO test with arraylist
 		return null;
 	}
 
-//	boolean empty() {
-//		return ( (players == null || players.isEmpty()) && (agentAddresses == null || agentAddresses.isEmpty()) );//simply not possible if not following remove A
-//	}
+	//	boolean empty() {
+	//		return ( (players == null || players.isEmpty()) && (agentAddresses == null || agentAddresses.isEmpty()) );//simply not possible if not following remove A
+	//	}
 
 
-	/**
-	 * @return all the agent addresses: This list is never null because an empty role does not exist
-	 */
-	Set<AgentAddress> getAgentAddresses() {
-		buildAgentAddressesList();
-		return agentAddresses;
-	}
+	//	/**
+	//	 * @return all the agent addresses: This list is never null because an empty role does not exist
+	//	 */
+	//	Set<AgentAddress> getAgentAddresses() {
+	//		buildAgentAddressesList();
+	//		return agentAddresses;
+	//	}
 
 	/**
 	 * @param abstractAgent
@@ -420,21 +433,21 @@ class Role implements Serializable{//TODO test with arraylist
 	}
 
 
-//	final private void updateOverlookers(final AbstractAgent theReference,final boolean added) {
-//		for (final Overlooker<? extends AbstractAgent> o : overlookers){
-//			o.update(theReference,added);// TODO choose solution on updateAgent
-//		}
-//	}
+	//	final private void updateOverlookers(final AbstractAgent theReference,final boolean added) {
+	//		for (final Overlooker<? extends AbstractAgent> o : overlookers){
+	//			o.update(theReference,added);// TODO choose solution on updateAgent
+	//		}
+	//	}
 
-//	/**
-//	 * @param bucket
-//	 */
-//	final private void updateOverlookers(final ArrayList<AbstractAgent> bucket,final boolean added) {
-//		for (final AbstractAgent abstractAgent : bucket) {
-//			updateOverlookers(abstractAgent, added);
-//		}
-//	}
-	
+	//	/**
+	//	 * @param bucket
+	//	 */
+	//	final private void updateOverlookers(final ArrayList<AbstractAgent> bucket,final boolean added) {
+	//		for (final AbstractAgent abstractAgent : bucket) {
+	//			updateOverlookers(abstractAgent, added);
+	//		}
+	//	}
+
 	final private void addToOverlookers(AbstractAgent a){
 		for (final Overlooker<? extends AbstractAgent> o : overlookers){
 			o.addAgent(a);
@@ -465,8 +478,8 @@ class Role implements Serializable{//TODO test with arraylist
 	 * @param list
 	 */
 	void importDistantOrg(Set<AgentAddress> list) {
-		buildAgentAddressesList();
 		synchronized (players) {
+			buildAndGetAddresses();
 			for (final AgentAddress aa : list) {
 				if (agentAddresses.add(aa)) {
 					aa.setRoleObject(this);

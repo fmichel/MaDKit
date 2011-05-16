@@ -55,8 +55,8 @@ public class AgentAddress implements java.io.Serializable{
 	final private KernelAddress kernelAddress;
 	final private int _hashCode;
 	final private int agentCode;
-
 	private Role roleObject;
+
 	private transient String cgr;//This is necessary to keep info in agent addresses that do not exist anymore
 
 
@@ -84,8 +84,8 @@ public class AgentAddress implements java.io.Serializable{
 	 * @param roleObject the roleObject to set
 	 */
 	final void setRoleObject(Role newRole) {
-		if (newRole == null) {
-			cgr=roleObject.getCommunityName()+";;"+roleObject.getGroupName()+";;"+roleObject.getRoleName();
+		if (newRole == null && cgr == null) {
+				cgr = roleObject.getCommunityName() + ";;" + roleObject.getGroupName() + ";;" + roleObject.getRoleName();
 		}
 		roleObject = newRole;
 	}
@@ -110,10 +110,7 @@ public class AgentAddress implements java.io.Serializable{
 	 * @since MadKit 5
 	 */
 	public String getCommunity() {
-		if (roleObject != null) {
-			return roleObject.getCommunityName();
-		}
-		return cgr.split(";;")[0];
+		return roleObject != null ? roleObject.getCommunityName() : cgr.split(";;")[0];
 	}
 
 	/**
@@ -122,10 +119,7 @@ public class AgentAddress implements java.io.Serializable{
 	 * @since MadKit 5
 	 */
 	public String getGroup() {
-		if (roleObject != null) {
-			return roleObject.getGroupName();
-		}
-		return cgr.split(";;")[1];
+		return roleObject != null ? roleObject.getGroupName() : cgr.split(";;")[1];
 	}
 
 	/**
@@ -134,10 +128,7 @@ public class AgentAddress implements java.io.Serializable{
 	 * @since MadKit 5
 	 */
 	public String getRole() {
-		if (roleObject != null) {
-			return roleObject.getRoleName();
-		}
-		return cgr.split(";;")[2];
+		return roleObject != null ? roleObject.getRoleName() : cgr.split(";;")[2];
 	}
 
 	//	/** 
@@ -171,7 +162,8 @@ public class AgentAddress implements java.io.Serializable{
 	 * 
 	 * @param agentAddress the address to compare.
 	 * @throws ClassCastException On purpose, 
-	 * if the address is compared with another object type.
+	 * if the address is compared to an object with another type 
+	 * which is considered as a programming error.
 	 */
 	@Override
 	public boolean equals(final Object agentAddress) throws ClassCastException{//TODO program the offline mode
@@ -179,8 +171,7 @@ public class AgentAddress implements java.io.Serializable{
 			return true;
 		if(agentAddress == null || !(agentAddress.hashCode() == _hashCode))
 			return false;
-		AgentAddress otherAA = (AgentAddress) agentAddress;
-		return kernelAddress.equals(otherAA.getKernelAddress());
+		return kernelAddress.equals(((AgentAddress) agentAddress).getKernelAddress());
 	}
 
 	//	/** 
@@ -222,7 +213,7 @@ public class AgentAddress implements java.io.Serializable{
 	 * @see #exists()
 	 */
 	public boolean isLocal() {
-		return agent != null;///*exists() && */kernelAddress.equals(roleObject.getKernelAddress());//will crash if used inside the network agent
+		return agent != null;
 	}
 }
 

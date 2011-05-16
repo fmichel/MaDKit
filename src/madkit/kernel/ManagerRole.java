@@ -27,7 +27,7 @@ import madkit.kernel.Madkit.Roles;
 
 /**
  * @author Fabien Michel
- * @version 0.9
+ * @version 0.91
  * @since MadKit 5.0.0.2
  *
  */
@@ -41,6 +41,11 @@ final class ManagerRole extends Role {
 	ManagerRole(final Group groupObject, AbstractAgent creator) {
 		super(groupObject, Roles.GROUP_MANAGER_ROLE);
 		super.addMember(creator);
+	}
+	
+	ManagerRole(final Group groupObject, AgentAddress creator) {
+		super(groupObject, Roles.GROUP_MANAGER_ROLE);
+		super.addDistantMember(creator);
 	}
 	
 	/* (non-Javadoc)

@@ -96,6 +96,7 @@ final class Group extends ConcurrentHashMap<String,Role> {
 		groupGate = theIdentifier;
 		communityName = community;
 		groupName = group;
+		put(Roles.GROUP_MANAGER_ROLE, new ManagerRole(this,creator));
 		//		manager = new AtomicReference<AgentAddress>(creator);
 	}
 
@@ -218,7 +219,7 @@ final class Group extends ConcurrentHashMap<String,Role> {
 	SortedMap<String, Set<AgentAddress>> getGroupMap() {
 		TreeMap<String, Set<AgentAddress>> export = new TreeMap<String,Set<AgentAddress>>();
 		for (Map.Entry<String, Role> org : entrySet()) {
-			export.put(org.getKey(),org.getValue().getAgentAddresses());
+			export.put(org.getKey(),org.getValue().buildAndGetAddresses());
 		}
 		return export;
 	}

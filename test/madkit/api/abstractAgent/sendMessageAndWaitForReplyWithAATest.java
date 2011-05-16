@@ -27,6 +27,9 @@ import static madkit.kernel.Madkit.Roles.GROUP_CANDIDATE_ROLE;
 import static madkit.kernel.Madkit.Roles.GROUP_MANAGER_ROLE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.*;
+
+import java.util.logging.Level;
+
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
 import madkit.kernel.AgentAddress;
@@ -62,7 +65,19 @@ public class sendMessageAndWaitForReplyWithAATest  extends JunitMadKit{
 			sendReply(waitNextMessage(), new ObjectMessage<String>("reply2"));
 		}
 	};
-	
+
+	//sends the same message as reply 
+	final Agent target3 = new Agent(){
+		protected void activate() {
+			assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,ROLE));
+		}
+		protected void live() {
+			Message m = waitNextMessage();
+			sendReply(m,m);
+			waitNextMessage();//do not die !
+		}
+	};
+
 	final Agent target2 = new Agent(){
 		protected void activate() {
 			assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP));
@@ -72,6 +87,20 @@ public class sendMessageAndWaitForReplyWithAATest  extends JunitMadKit{
 			sendReply(waitNextMessage(), new ObjectMessage<String>("reply2"));
 		}
 	};
+	
+	@Test
+	public void replyWithSameMessage(){
+		launchTest(new Agent(){
+			protected void activate() {
+				setLogLevel(Level.ALL);
+				assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP));
+//				assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,ROLE));
+				assertEquals(SUCCESS,launchAgent(target3));
+				
+				assertEquals(SUCCESS, sendMessage(COMMUNITY, GROUP, ROLE, new Message()));
+				assertNotNull(waitNextMessage(100));
+			}});
+	}
 	
 
 	@Test

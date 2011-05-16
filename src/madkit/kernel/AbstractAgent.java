@@ -964,18 +964,19 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	void setAgentStackTrace(final Throwable e) {
-		final List<StackTraceElement> stack = new ArrayList<StackTraceElement>();
-		// boolean notFound = true;
 		StackTraceElement[] stackTrace = e.getStackTrace();
-		stack.add(stackTrace[1]);
-		String agentClassName = getClass().getName();
-		for (int i = 2; i < stackTrace.length ; i++){
-			final String trace = stackTrace[i].getClassName();
-			if (! (trace.contains("madkit.kernel") || trace.contains("java.")) || trace.contains(agentClassName)) {
-				stack.add(stackTrace[i]);
+		if (stackTrace.length > 0) {
+			final List<StackTraceElement> stack = new ArrayList<StackTraceElement>();
+			stack.add(stackTrace[1]);
+			String agentClassName = getClass().getName();
+			for (int i = 2; i < stackTrace.length; i++) {
+				final String trace = stackTrace[i].getClassName();
+				if (!(trace.contains("madkit.kernel") || trace.contains("java.")) || trace.contains(agentClassName)) {
+					stack.add(stackTrace[i]);
+				}
 			}
+			e.setStackTrace(stack.toArray(new StackTraceElement[0]));
 		}
-		e.setStackTrace(stack.toArray(new StackTraceElement[0]));
 	}
 
 	/**
@@ -1013,7 +1014,21 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @return a {@link java.util.List} containing agents that handle this role or <code>null</code> if no agent has been found.
 	 */
 	public List<AgentAddress> getAgentsWithRole(final String community, final String group, final String role) {
-		return kernel.getAgentsWithRole(this, community, group, role);
+		return getAgentsWithRole(community, group, role, false);
+	}
+
+	/**
+	 * Returns an {@link java.util.List} containing all the agents that handle this role in the organization.
+	 * 
+	 * @param community the community name
+	 * @param group the group name
+	 * @param role the role name
+	 * @param callerIncluded if <code>false</code>, this excludes the caller from the list if it is in.
+	 * @throws KernelException if this agent has not been launched or is already terminated
+	 * @return a {@link java.util.List} containing agents that handle this role or <code>null</code> if no agent has been found.
+	 */
+	public List<AgentAddress> getAgentsWithRole(final String community, final String group, final String role, boolean callerIncluded) {
+		return kernel.getAgentsWithRole(this, community, group, role, callerIncluded);
 	}
 
 	/**

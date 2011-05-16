@@ -164,7 +164,6 @@ class MadkitKernel extends Agent {
 	final private Madkit platform;
 	final private KernelAddress kernelAddress;
 
-	// private MadKitGUIsManager guiManager;
 	protected LoggedKernel loggedKernel;
 	private boolean shuttedDown = false;
 	final AgentThreadFactory normalAgentThreadFactory;
@@ -173,9 +172,7 @@ class MadkitKernel extends Agent {
 	private AgentAddress netAgent;
 	// my private addresses for optimizing the message building
 	private AgentAddress netUpdater, netEmmiter, kernelRole;
-	//not a good idea because of concurrent modifications
 	private Set<Agent> threadedAgents = new HashSet<Agent>(20); 
-
 
 
 
@@ -274,7 +271,6 @@ class MadkitKernel extends Agent {
 	@Override
 	protected void end() {
 		platform.printFareWellString();
-		// serviceExecutor.shutdownNow();
 	}
 
 	final private void launchGuiManagerAgent() {
@@ -667,37 +663,28 @@ class MadkitKernel extends Agent {
 		} catch (CGRNotAvailable e) {
 			return e.getCode();
 		}
+		//this is apart because I need the address before the leave
 		if (r.getMyGroup().isDistributed()) {
 			AgentAddress leaver = r.getAgentAddressOf(requester);
 			if (leaver == null)
 				return ReturnCode.ROLE_NOT_HANDLED;
 			if (r.removeMember(requester) != SUCCESS)
-				throw new AssertionError("cannot remove " + requester + " from " + r.getAgentAddresses());
-			return sendNetworkMessageWithRole(new CGRSynchro(LEAVE_ROLE, leaver), netUpdater);
+				throw new AssertionError("cannot remove " + requester + " from " + r.buildAndGetAddresses());
+			sendNetworkMessageWithRole(new CGRSynchro(LEAVE_ROLE, leaver), netUpdater);
+			return SUCCESS;
 		}
 		return r.removeMember(requester);
-		// final Role r;
-		// try {
-		// // g = getGroup(community, group);
-		// r = getRole(community,group,role);
-		// } catch (CGRNotAvailable e) {
-		// return e.getCode();
-		// }
-		// Group g = r.getMyGroup();
-		// //must do that before remove, in case the group disappears
-		// boolean distributed = netAgent != null && g.isDistributed();
-		// final ReturnCode result = r.removeMember(requester);
-		// if(distributed && result == SUCCESS) {
-		// sendNetworkMessage(new CGRSynchro(CGRSynchro.LEAVE_ROLE,
-		// r.getAgentAddressOf(requester)));
-		// }
-		// return result;
 	}
 
 	// Warning never touch this without looking at the logged kernel
-	List<AgentAddress> getAgentsWithRole(AbstractAgent requester, String community, String group, String role) {
+	List<AgentAddress> getAgentsWithRole(AbstractAgent requester, String community, String group, String role, boolean callerIncluded) {
 		try {
-			return getOtherRolePlayers(requester, community, group, role);
+			if (callerIncluded) {
+				return getOtherRolePlayers(requester, community, group, role);
+			}
+			else{
+				return getRole(community, group, role).getAgentAddressesCopy();
+			}
 		} catch (CGRNotAvailable e) {
 			return null;
 		}
@@ -754,13 +741,6 @@ class MadkitKernel extends Agent {
 	}
 
 	ReturnCode sendReplyWithRole(final AbstractAgent requester, final Message messageToReplyTo, final Message reply,// TODO
-			// the
-			// reply
-			// should
-			// not
-			// be
-			// the
-			// same
 			String senderRole) {
 		if (messageToReplyTo == null || reply == null) {
 			return INVALID_ARG;
@@ -1169,11 +1149,6 @@ class MadkitKernel extends Agent {
 		return r;
 	}
 
-	// List<AgentAddress> getRolePlayers(String community,String group, String
-	// role) throws CGRNotAvailable{
-	// return getRole(community, group, role).getAgentAddresses();
-	// }
-
 	/**
 	 * @param abstractAgent
 	 * @param community
@@ -1186,7 +1161,7 @@ class MadkitKernel extends Agent {
 	List<AgentAddress> getOtherRolePlayers(AbstractAgent abstractAgent, String community, String group, String role)
 	throws CGRNotAvailable {
 		// never null without throwing Ex
-		final Set<AgentAddress> result = getRole(community, group, role).getAgentAddressesCopy();
+		final List<AgentAddress> result = getRole(community, group, role).getAgentAddressesCopy();
 		Role.removeAgentAddressOf(abstractAgent, result);
 		if (!result.isEmpty()) {
 			return new ArrayList<AgentAddress>(result);
@@ -1440,26 +1415,25 @@ class MadkitKernel extends Agent {
 	// }
 
 	final void injectMessage(final ObjectMessage<Message> m) {
-		Message toInject = m.getContent();
+		final Message toInject = m.getContent();
 		final AgentAddress receiver = toInject.getReceiver();
 		final AgentAddress sender = toInject.getSender();
 		try {
-			Role receiverRole = getRole(receiver.getCommunity(), receiver.getGroup(), receiver.getRole());
+			final Role receiverRole = kernel.getRole(receiver.getCommunity(), receiver.getGroup(), receiver.getRole());
 			receiver.setRoleObject(receiverRole);
-			Role senderRole = getRole(sender.getCommunity(), sender.getGroup(), sender.getRole());
-			sender.setRoleObject(senderRole);
-			AbstractAgent target = null;
 			if (receiverRole != null) {
-				target = receiverRole.getAbstractAgentWithAddress(receiver);
+				final AbstractAgent target = receiverRole.getAbstractAgentWithAddress(receiver);
 				if (target != null) {
+					//updating sender address
+					sender.setRoleObject(kernel.getRole(sender.getCommunity(), sender.getGroup(), sender.getRole()));
 					target.receiveMessage(toInject);
 				}
+				else if (logger != null)
+					logger.finer(m+" received but the agent address is no longer valid !! Current distributed org is "
+							+ getOrganizationSnapShot(false));
 			}
-			if (target == null && logger != null)
-				logger.finer("message received but the agent address is no longer valid !! Current distributed org is "
-						+ getOrganizationSnapShot(false));
 		} catch (CGRNotAvailable e) {
-			bugReport(e);
+			kernel.bugReport("Cannot inject "+m+"\n"+getOrganizationSnapShot(false),e);
 		}
 	}
 
@@ -1473,16 +1447,8 @@ class MadkitKernel extends Agent {
 		try {
 			switch (m.getCode()) {
 			case CREATE_GROUP:
+				//nerver fails : no need to remove org
 				Organization organization = new Organization(communityName, this);// no
-				// need
-				// to
-				// remove
-				// org
-				// never
-				// failed
-				// if
-				// not
-				// present
 				final Organization tmpOrg = organizations.putIfAbsent(communityName, organization);
 				if (tmpOrg != null) {
 					if (isGroup(communityName, groupName)) {
@@ -1534,23 +1500,6 @@ class MadkitKernel extends Agent {
 		killAgents(false);
 		if (logger != null)
 			logger.talk(platform.printFareWellString());
-		//		MadkitKernel.this.getMadkitKernel().broadcastMessageWithRoleAndWaitForReplies(MadkitKernel.this, LOCAL_COMMUNITY,
-		//				SYSTEM_GROUP, GUI_MANAGER_ROLE, new GUIMessage(MadkitActions.MADKIT_EXIT_ACTION, MadkitKernel.this), null, 5000);// TODO
-		//TODO if it takes too long ?
-		//		normalAgentThreadFactory.getThreadGroup().interrupt();
-		//		if (normalAgentThreadFactory.getThreadGroup().activeCount() != 0) {
-		//			normalAgentThreadFactory.getThreadGroup().interrupt();
-		//		}
-		//		if (logger != null) {
-		//			if (logger.getLevel().intValue() <= Level.FINER.intValue()) {
-		//				System.err.println("---------remaining---------");
-		//				normalAgentThreadFactory.getThreadGroup().list();
-		//			}
-		//		}
-		// normalAgentThreadFactory.getThreadGroup().stop();
-		// }
-		// });
-		// t.start();
 	}
 
 	@SuppressWarnings("deprecation")
@@ -1576,9 +1525,6 @@ class MadkitKernel extends Agent {
 				}
 			}
 		}
-		//		stopThreadedAgents(false);
-		//		pause(600);
-		//		stopThreadedAgents(true);
 	}
 
 	boolean createGroupIfAbsent(AbstractAgent abstractAgent, String community, String group, String group2,
@@ -1587,7 +1533,11 @@ class MadkitKernel extends Agent {
 	}
 
 	void bugReport(Throwable e) {
-		getLogger().severeLog("********************** KERNEL PROBLEM, please bug report", e); // Kernel
+		bugReport("", e);
+	}
+
+	void bugReport(String m, Throwable e) {
+		getLogger().severeLog("********************** KERNEL PROBLEM, please bug report "+m, e); // Kernel
 	}
 
 	final synchronized void removeAgentsFromDistantKernel(KernelAddress kernelAddress2) {
@@ -1640,9 +1590,9 @@ final class CGRNotAvailable extends Exception {
 		this.code = code;
 	}
 
-	@Override
-	public synchronized Throwable fillInStackTrace() {
-		return null;
-	}
+//	@Override
+//	public synchronized Throwable fillInStackTrace() {
+//		return null;
+//	}
 
 }

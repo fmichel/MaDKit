@@ -162,10 +162,15 @@ final class LoggedKernel extends MadkitKernel {
 	 * @see madkit.kernel.MadkitKernel#getAgentsWithRole(madkit.kernel.AbstractAgent, java.lang.String, java.lang.String, java.lang.String)
 	 */
 	@Override
-	List<AgentAddress> getAgentsWithRole(AbstractAgent requester, String community, String group, String role) {
+	List<AgentAddress> getAgentsWithRole(AbstractAgent requester, String community, String group, String role, boolean callerIncluded) {
 		logMessage(requester, "getAgentsWithRole" + printCGR(community, group, role));
 		try {
-			return kernel.getOtherRolePlayers(requester, community, group, role);
+			if (callerIncluded) {
+				return kernel.getRole(community, group, role).getAgentAddressesCopy();
+			}
+			else{
+				return kernel.getOtherRolePlayers(requester, community, group, role);
+			}
 		} catch (CGRNotAvailable e) {
 			switch (e.getCode()) {
 			case NOT_COMMUNITY:
@@ -231,7 +236,8 @@ final class LoggedKernel extends MadkitKernel {
 		case NOT_IN_GROUP:
 			return requester.handleException(new sendMessageWarning(NOT_IN_GROUP, printCGR(community, group)));
 		default:
-			return requester.handleException(new sendMessageWarning(SEVERE, "result not handled"));
+			bugReport("result not handled", new Exception());
+			return SEVERE;
 		}
 	}
 
@@ -255,7 +261,8 @@ final class LoggedKernel extends MadkitKernel {
 		case NETWORK_DOWN:
 			return requester.handleException(new sendMessageWarning(NETWORK_DOWN));//, printCGR(receiver.getCommunity(), receiver.getGroup(), receiver.getRole())));
 		default:
-			return requester.handleException(new sendMessageWarning(SEVERE, "result not handled"));
+			bugReport("result not handled", new Exception());
+			return SEVERE;
 		}
 	}
 
@@ -280,7 +287,8 @@ final class LoggedKernel extends MadkitKernel {
 		case NO_RECIPIENT_FOUND:
 			return requester.handleException(new sendMessageWarning(NO_RECIPIENT_FOUND, "nobody found in "+printCGR(community,group,role)));
 		default:
-			return requester.handleException(new sendMessageWarning(SEVERE, "result not handled"));
+			bugReport("result not handled", new Exception());
+			return SEVERE;
 		}
 	}
 
@@ -306,7 +314,8 @@ final class LoggedKernel extends MadkitKernel {
 					messageToReplyTo.getReceiver().getCommunity(), 
 					messageToReplyTo.getReceiver().getGroup())));
 		default:
-			return requester.handleException(new sendMessageWarning(SEVERE, "result not handled"));
+			bugReport("result not handled", new Exception());
+			return SEVERE;
 		}
 	}
 

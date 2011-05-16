@@ -122,12 +122,12 @@ public class RoleTest {
 		AbstractAgent b = new AbstractAgent();
 		b.setKernel(mk);
 		assertTrue(r.addMember(b));
-		assertEquals(2, r.getAgentAddresses().size());
+		assertEquals(2, r.buildAndGetAddresses().size());
 		assertEquals(AbstractAgent.ReturnCode.SUCCESS, a.leaveGroup("c", "g"));
 		assertNull(r.getAgentAddressOf(a));
-		assertEquals(1, r.getAgentAddresses().size());
+		assertEquals(1, r.buildAndGetAddresses().size());
 		assertEquals(AbstractAgent.ReturnCode.SUCCESS, b.leaveGroup("c", "g"));
-		assertEquals(0, r.getAgentAddresses().size());
+		assertEquals(0, r.buildAndGetAddresses().size());
 		assertNull(r.getAgentAddressOf(b));
 	}
 	

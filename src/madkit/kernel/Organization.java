@@ -57,6 +57,8 @@ final class Organization extends ConcurrentHashMap <String, Group>{
 	 * @param string 
 	 */
 	Organization(final String string, final MadkitKernel madkitKernel) {
+		if(string == null)
+			throw new NullPointerException("Community's name is null");
 		communityName = string;
 		myKernel = madkitKernel;
 //		logger = madkitKernel.getLogger();
@@ -71,22 +73,23 @@ final class Organization extends ConcurrentHashMap <String, Group>{
 
 	/**
 	 * @param creator
+	 * @param isDistributed 
+	 * @param theIdentifier 
+	 * @param group 
 	 * @param groupName
 	 * @param theIdentifier
 	 * @param isDistributed 
 	 * @return true if the group has been created
 	 */
-	boolean createGroup(final AbstractAgent creator, final String groupName, final GroupIdentifier theIdentifier, final boolean isDistributed) {
-		
-		final Group g = new Group(communityName,groupName,creator,theIdentifier,isDistributed, this);
-//		g.getManager().compareAndSet(null, new AgentAddress(creator, null, getMyKernel().getKernelAddress()));
-		if (putIfAbsent(groupName,g) == null) {// There was no such group
+	boolean addGroup(final AbstractAgent creator, String group, GroupIdentifier theIdentifier, boolean isDistributed) {
+		final Group g = new Group(communityName,group,creator,theIdentifier,isDistributed,this);
+		if (putIfAbsent(group,g) == null) {// There was no such group
 			if(logger != null)
-				logger.fine(printCGR(communityName, groupName)+"created by "+creator.getName()+"\n");
+				logger.fine(printCGR(communityName, group)+"created by "+creator.getName()+"\n");
 			return true;
 		}
 		if(logger != null)
-			logger.finer(printCGR(communityName, groupName)+"already exists: Creation aborted"+"\n");
+			logger.finer(printCGR(communityName, group)+"already exists: Creation aborted"+"\n");
 		return false;
 	}
 

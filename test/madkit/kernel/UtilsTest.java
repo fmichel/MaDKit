@@ -52,7 +52,7 @@ public class UtilsTest {
 	 */
 	@Test
 	public final void testGetI18N() {
-		assertEquals(ReturnCode.ALREADY_GROUP.getMessage(), " already exists");
+		assertEquals(ReturnCode.ALREADY_GROUP.toString(), " already exists");
 	}
 
 	/**

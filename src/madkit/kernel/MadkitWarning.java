@@ -171,7 +171,7 @@ final class LeaveRoleWarning extends MadkitWarning {
 	private static final long serialVersionUID = 365477089361530831L;
 
 	LeaveRoleWarning(ReturnCode code, String printCGR) {
-		super(code,printCGR+code.getMessage());	
+		super(code,printCGR+code);	
 	}
 }
 

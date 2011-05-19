@@ -18,7 +18,6 @@
  */
 package madkit.kernel;
 
-import static madkit.kernel.Utils.createFileHandler;
 import static madkit.kernel.Utils.logSevereException;
 import static madkit.kernel.Utils.logWarningException;
 
@@ -258,6 +257,7 @@ final public class Madkit {
 	public static final String desktop = "desktop";
 	public static final String autoConnectMadkitWebsite = "autoConnectMadkitWebsite";
 	public static final String loadLocalDemos = "loadLocalDemos";
+	static final String networkLogLevel = "networkLogLevel";
 
 	/**
 	 * Default roles within a MadKit organization.
@@ -317,7 +317,7 @@ final public class Madkit {
 	final private KernelAddress platformID;
 
 	private Element madkitXMLConfigFile=null;
-	private FileHandler aaLogFile;
+//	private FileHandler aaLogFile;
 	private FileHandler madkitLogFileHandler;
 	private MadkitKernel myKernel;
 	private Logger logger;
@@ -751,18 +751,18 @@ final public class Madkit {
 		return "";
 	}
 
-	private String misuseOptionMessage(String option,String value) {
-		return "\n\n-------------MadKit WARNING----------------------------\n" +
+	private void misuseOptionMessage(String option,String value) {
+		System.err.println("\n\n-------------MadKit WARNING----------------------------\n" +
 		"Misuse of --"+option+" option\nincorrect value : "+value+
-		"\n------------------------------------------------------\n";
+		"\n------------------------------------------------------\n");
 	}
 
-	/**
-	 * @param agentsLogFile the agentsLogFile to set
-	 */
-	private final void setAgentsLogFile(FileHandler agentsLogFile) {
-		this.aaLogFile = agentsLogFile;
-	}
+//	/**
+//	 * @param agentsLogFile the agentsLogFile to set
+//	 */
+//	private final void setAgentsLogFile(FileHandler agentsLogFile) {
+//		this.aaLogFile = agentsLogFile;
+//	}
 
 	private boolean isOptionWithDifferentValue(String optionName,String option, String value) {
 		return option.equals(optionName) && ! madkitConfig.getProperty(optionName).equals(value);
@@ -904,12 +904,12 @@ final public class Madkit {
 		return newLogger;
 	}
 
-	/**
-	 * @return the agentsLogFile
-	 */
-	FileHandler getAgentsLogFile() {
-		return aaLogFile;
-	}
+//	/**
+//	 * @return the agentsLogFile
+//	 */
+//	FileHandler getAgentsLogFile() {
+//		return aaLogFile;
+//	}
 
 	//	/**
 	//	 * @param requester 
@@ -959,6 +959,7 @@ final public class Madkit {
 				isOptionWithDifferentValue(platformLogLevel, option, value) || 
 				isOptionWithDifferentValue(kernelLogLevel, option, value) || 
 				isOptionWithDifferentValue(guiLogLevel, option, value) || 
+				isOptionWithDifferentValue(kernelLogLevel, option, value) || 
 				isOptionWithDifferentValue(orgLogLevel, option, value) || 
 				isOptionWithDifferentValue(warningLogLevel, option, value)){
 			try {
@@ -966,7 +967,7 @@ final public class Madkit {
 				session.put(option, l.getName());
 				return true;
 			} catch (IllegalArgumentException e1) {
-				System.err.println(misuseOptionMessage(option,value));
+				misuseOptionMessage(option,value);
 			}
 		}
 		if(option.equals(Madkit.configFile)){
@@ -1007,12 +1008,12 @@ final public class Madkit {
 		}
 		if(isOptionWithDifferentValue(Madkit.agentsLogFile, option, value)){
 			session.put(option, value);
-			setAgentsLogFile(createFileHandler(value,logger));
+//			setAgentsLogFile(createFileHandler(value,logger));
 			return true;
 		}
 		if(isOptionWithDifferentValue(Madkit.MadkitLogFile, option, value)){
 			session.put(option, value);
-			setMadkitLogFileHandler(createFileHandler(value, logger));
+//			setMadkitLogFileHandler(createFileHandler(value, logger));
 			return true;
 		}
 		if(isOptionWithDifferentValue(Madkit.logDirectory, option, value)){

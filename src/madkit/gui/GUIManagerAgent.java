@@ -101,9 +101,9 @@ public class GUIManagerAgent extends Agent  {
 	protected void activate() {
 		setLogLevel(Level.parse(getMadkitProperty("guiLogLevel")));//TODO
 		GUIToolkit.buildGlobalActions(this);
-		if(Boolean.parseBoolean(getMadkitProperty(Madkit.autoConnectMadkitWebsite)) || Boolean.parseBoolean(getMadkitProperty(Madkit.loadLocalDemos))){
+//		if(Boolean.parseBoolean(getMadkitProperty(Madkit.autoConnectMadkitWebsite)) || Boolean.parseBoolean(getMadkitProperty(Madkit.loadLocalDemos))){
 			scanClassPathForAgentClasses();
-		}
+//		}
 		kernelAddress = getAgentWithRole(LOCAL_COMMUNITY, SYSTEM_GROUP, KERNEL_ROLE);
 		if(kernelAddress == null)//TODO remove that
 			throw new AssertionError();
@@ -531,3 +531,27 @@ public class GUIManagerAgent extends Agent  {
 	}
 
 }
+
+//class FrameLauncher implements Runnable{
+//	
+//	private final GUIManagerAgent guiManager;
+//	private AbstractAgent agent;
+//
+//	public FrameLauncher(GUIManagerAgent manager) {
+//		guiManager = manager;
+//	}
+//	
+//	public void run() {
+//	AgentFrame f = new AgentFrame(agent, agent.getName());
+//	agent.setupFrame(f);//TODO catch failures because of delegation
+//	if (manager.getDesktop() != null) {
+//		JInternalFrame jf = new AgentInternalFrame(f, manager);
+//		desktop.addInternalFrame(jf);
+//		internalFrames.put(agent, jf);
+//		jf.setVisible(true);
+//	} else {
+//		f.setLocation(checkLocation(f));
+//		guis.put(agent, f);
+//		f.setVisible(true);
+//	}
+//}

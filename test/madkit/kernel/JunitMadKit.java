@@ -82,7 +82,9 @@ public class JunitMadKit {
 			System.err.println("\n\n------------------------ "+name.getMethodName()+" TEST FINISHED ---------------------\n\n");
 		}
 	}
-	
+	public void noExceptionFailure(){
+		fail("Exception not thrown");
+	}
 	public void launchTest(AbstractAgent a){
 		launchTest(a, SUCCESS);
 }

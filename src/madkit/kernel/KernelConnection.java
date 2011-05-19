@@ -40,6 +40,8 @@ final class KernelConnection extends Thread{
 
 	Socket distantKernelSocket = null;
 	boolean activated = false;
+	final private NetworkAgent myNetAgent;
+	private KernelAddress kernelAddress;
 
 	boolean isActivated() {
 		return activated;
@@ -56,15 +58,6 @@ final class KernelConnection extends Thread{
 	 * @param address
 	 * @param port
 	 */
-	final private NetworkAgent myNetAgent;
-	private KernelAddress kernelAddress;
-	/**
-	 * @param kernelAddress the kernelAddress to set
-	 */
-	void setKernelAddress(KernelAddress kernelAddress) {
-		this.kernelAddress = kernelAddress;
-	}
-
 	private ObjectOutputStream oos;
 	private ObjectInputStream ois;
 
@@ -100,8 +93,14 @@ final class KernelConnection extends Thread{
 			return (SortedMap<String, SortedMap<String, SortedMap<String, Set<AgentAddress>>>>) ois.readObject();
 	}
 	
+	/**
+	 * Reads the kernel address from the input stream, sets it and returns it.
+	 * @return the kernel address of the foreign kernel.
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
 	KernelAddress waitForDistantKernelAddress() throws IOException, ClassNotFoundException{
-		return (KernelAddress) ois.readObject();
+		return kernelAddress = (KernelAddress) ois.readObject();
 	}
 
 

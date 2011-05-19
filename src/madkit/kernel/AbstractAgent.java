@@ -56,6 +56,7 @@ import org.omg.PortableInterceptor.SUCCESSFUL;
 import madkit.gui.OutputPanel;
 import madkit.gui.actions.MadkitActions;
 import madkit.gui.messages.GUIMessage;
+import madkit.i18n.ReturnCodeMessages;
 
 /**
  * The super class of all MadKit agents, v 5.
@@ -1354,7 +1355,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		try {
 			return kernel.reloadClass(this, className);
 		} catch (ClassNotFoundException e) {
-			throw new ClassNotFoundException(ReturnCode.CLASS_NOT_FOUND.getMessage()+" "+className);
+			throw new ClassNotFoundException(ReturnCode.CLASS_NOT_FOUND+" "+className);
 		}
 	}
 
@@ -1681,66 +1682,59 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 */
 	public enum ReturnCode {
 
-		SUCCESS(Utils.getI18N("success")),
+		SUCCESS,
 
-		NOT_COMMUNITY(Utils.getI18N("notExist")),
+		NOT_COMMUNITY,
 
-		NOT_GROUP(Utils.getI18N("notExist")),
+		NOT_GROUP,
 
-		NOT_ROLE(Utils.getI18N("notExist")),
+		NOT_ROLE,
 
-		TERMINATED_AGENT(Utils.getI18N("terminated_agent")),
+		TERMINATED_AGENT,
 
-		ROLE_ALREADY_HANDLED(Utils.getI18N("alreadyHandled")),
+		ROLE_ALREADY_HANDLED,
 
-		ACCESS_DENIED(Utils.getI18N("denied")),
+		ACCESS_DENIED,
 
-		ROLE_NOT_HANDLED(Utils.getI18N("notHandled")),
+		ROLE_NOT_HANDLED,
 
-		NOT_IN_GROUP(Utils.getI18N("notInGroup")),
+		NOT_IN_GROUP,
 
-		ALREADY_GROUP(Utils.getI18N("alreadyExists")),
+		ALREADY_GROUP,
 
-		ALREADY_LAUNCHED(Utils.getI18N("alreadyLaunched")),
+		ALREADY_LAUNCHED,
 
-		INVALID_ARG(Utils.getI18N("nullS")),
+		INVALID_ARG,
 
-		LAUNCH_TIME_OUT(Utils.getI18N("timeOut")),
+		LAUNCH_TIME_OUT,
 
-		AGENT_CRASH(Utils.getI18N("agentCrash")),
+		AGENT_CRASH,
 
-		CLASS_NOT_FOUND(Utils.getI18N("classNotFound")),
+		CLASS_NOT_FOUND,
 
-		NOT_AN_AGENT_CLASS(Utils.getI18N("notAgentClass")),
+		NOT_AN_AGENT_CLASS,
 
-		NOT_YET_LAUNCHED(Utils.getI18N("notYetLaunched")),
+		NOT_YET_LAUNCHED,
 
-		ALREADY_KILLED(Utils.getI18N("alreadyKilled")),
+		ALREADY_KILLED,
 
-		NULL_MSG(Utils.getI18N("notYetLaunched")),
+		NULL_MSG,
 
-		NULL_STRING(Utils.getI18N("nullS")),
+		NULL_STRING,
 
-		NULL_AA(Utils.getI18N("nullAA")),
+		NULL_AA,
 
-		INVALID_AA(Utils.getI18N("invAA")),
+		INVALID_AA,
 
-		NO_RECIPIENT_FOUND(Utils.getI18N("noRecepient")),
+		NO_RECIPIENT_FOUND,
 
-		SEVERE(Utils.getI18N("invAA")),
+		SEVERE,
 
-		NETWORK_DOWN(Utils.getI18N("invAA"));
-
-		final private String message;
-
-		private ReturnCode(String i18nMessage) {
-			message = i18nMessage;
-		}
-
-		final String getMessage() {//TODO i18n at runtime on put get18n in getmessage
-			return message;
-		}
-
+		NETWORK_DOWN;
+		
+		public String toString() {
+			return ReturnCodeMessages.getString(this);
+		};
 	}
 
 	public boolean isKernelConnected() {

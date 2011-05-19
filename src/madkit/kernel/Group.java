@@ -52,7 +52,9 @@ final class Group extends ConcurrentHashMap<String,Role> {
 	private final Logger logger;
 	private final String communityName;
 	private final String groupName;
-	private final Organization myCommunity;
+	private final Organization communityObject;
+
+
 	private final boolean distributed;
 
 	/**
@@ -60,27 +62,29 @@ final class Group extends ConcurrentHashMap<String,Role> {
 	 * @param creator
 	 * @param theIdentifier
 	 * @param isDistributed 
+	 * @param organization 
 	 */
-	Group(String community,String group,AbstractAgent creator, GroupIdentifier theIdentifier,boolean isDistributed, Organization communityObject) {
-		//		manager = creator;
-		//		manager = null;
+	Group(String community,String group,AbstractAgent creator, GroupIdentifier theIdentifier,boolean isDistributed, Organization organization) {
 		distributed = isDistributed;
-		myCommunity = communityObject;
-		logger = myCommunity.getLogger();
 		groupGate = theIdentifier;
 		communityName = community;
 		groupName = group;
-		if(logger != null){
-			logger.finer(printCGR(communityName,groupName)+"created");
-		}
-		//		manager = new AtomicReference<AgentAddress>(new AgentAddress(creator, new Role(community, group), myCommunity.getMyKernel().getKernelAddress()));
+		communityObject = organization;
+		logger = communityObject.getLogger();
+		//		manager = new AtomicReference<AgentAddress>(new AgentAddress(creator, new Role(community, group), communityObject.getMyKernel().getKernelAddress()));
 		put(Roles.GROUP_MANAGER_ROLE, new ManagerRole(this,creator));
 	}
 
-
-
+	/**
+	 * @return the communityObject
+	 */
+	final Organization getCommunityObject() {
+		return communityObject;
+	}
+	
 	/**
 	 * for distant creation
+	 * 
 	 * @param log
 	 * @param community
 	 * @param group
@@ -91,8 +95,8 @@ final class Group extends ConcurrentHashMap<String,Role> {
 	Group(String community,String group,AgentAddress creator, GroupIdentifier theIdentifier,Organization communityObject) {
 		//		manager = creator;
 		distributed = true;
-		myCommunity = communityObject;
-		logger = myCommunity.getLogger();
+		this.communityObject = communityObject;
+		logger = communityObject.getLogger();
 		groupGate = theIdentifier;
 		communityName = community;
 		groupName = group;
@@ -133,15 +137,6 @@ final class Group extends ConcurrentHashMap<String,Role> {
 		return new Role(this, roleName);
 	}
 
-
-
-	/**
-	 * @return the myCommunity
-	 */
-	final Organization getMyCommunity() {
-		return myCommunity;
-	}
-
 	/**
 	 * @param roleName
 	 */
@@ -156,7 +151,7 @@ final class Group extends ConcurrentHashMap<String,Role> {
 
 	private void checkEmptyness() {
 		if(isEmpty()){
-			myCommunity.removeGroup(groupName);
+			communityObject.removeGroup(groupName);
 		}
 	}
 
@@ -275,7 +270,7 @@ final class Group extends ConcurrentHashMap<String,Role> {
 		//		}
 		//		if(in){
 		//			if(isEmpty()){
-		//				myCommunity.removeGroup(groupName);
+		//				communityObject.removeGroup(groupName);
 		//			}
 		//		}
 	}

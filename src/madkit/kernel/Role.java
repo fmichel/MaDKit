@@ -73,11 +73,11 @@ class Role implements Serializable{//TODO test with arraylist
 	Role(final Group groupObject,final String roleName){
 		players = new ArrayList<AbstractAgent>();
 		tmpReferenceableAgents = new ArrayList<AbstractAgent>();//should not be necessary but ...
-		communityName = groupObject.getMyCommunity().getName();
+		communityName = groupObject.getCommunityObject().getName();
 		groupName = groupObject.getName();
 		this.roleName = roleName;
-		final MadkitKernel k = groupObject.getMyCommunity().getMyKernel();
-		logger = groupObject.getMyCommunity().getLogger();
+		final MadkitKernel k = groupObject.getCommunityObject().getMyKernel();
+		logger = groupObject.getCommunityObject().getLogger();
 		myGroup = groupObject;
 		kernelAddress = k.getKernelAddress();
 		if(logger != null){
@@ -99,7 +99,7 @@ class Role implements Serializable{//TODO test with arraylist
 	//	}
 
 	private synchronized void initializeOverlookers() {//TODO init process
-		for(final Overlooker<? extends AbstractAgent> o : myGroup.getMyCommunity().getMyKernel().getOperatingOverlookers()){
+		for(final Overlooker<? extends AbstractAgent> o : myGroup.getCommunityObject().getMyKernel().getOperatingOverlookers()){
 			if(o.getRole().equals(roleName) && o.getGroup().equals(groupName) && o.getCommunity().equals(communityName) )
 				addOverlooker(o);
 		}
@@ -485,7 +485,7 @@ class Role implements Serializable{//TODO test with arraylist
 					aa.setRoleObject(this);
 				}
 				else{
-					Logger l = myGroup.getMyCommunity().getMyKernel().logger;
+					Logger l = myGroup.getCommunityObject().getMyKernel().logger;
 					if (l != null) {
 						l.log(Level.FINER, "Already have this address ");
 					}					

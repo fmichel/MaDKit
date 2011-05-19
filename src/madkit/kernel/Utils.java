@@ -75,71 +75,71 @@ final class Utils {
 //						
 //	}
 	
-	static FileHandler getFileHandler(final String logFileName){
-		FileHandler fh = null;
-		try {
-			fh = new FileHandler(logFileName);
-			fh.setFormatter(new Formatter() {
-				@Override
-				public String format(LogRecord record) {
-					//TODO good format
-//				DateFormat df = DateFormat.getDateInstance(DateFormat.FULL, Locale.getDefault());
-//				final Date date = new Date(record.getMillis());
-					final SimpleDateFormat simpleFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss",Locale.getDefault());//TODO i18n + formatting
-					return "\n----------------------------------------------------------------------------\n-- Log session for "+logFileName.substring(logFileName.lastIndexOf(File.separator)+1)+" started on "+simpleFormat.format(new Date(record.getMillis()))+" --\n----------------------------------------------------------------------------\n\n";
-				}
-			});
-			fh.publish(new LogRecord(Level.ALL, null));
-			fh.flush();
-		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return fh;
-	}
+//	static FileHandler getFileHandler(final String logFileName){
+//		FileHandler fh = null;
+//		try {
+//			fh = new FileHandler(logFileName);
+//			fh.setFormatter(new Formatter() {
+//				@Override
+//				public String format(LogRecord record) {
+//					//TODO good format
+////				DateFormat df = DateFormat.getDateInstance(DateFormat.FULL, Locale.getDefault());
+////				final Date date = new Date(record.getMillis());
+//					final SimpleDateFormat simpleFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss",Locale.getDefault());//TODO i18n + formatting
+//					return "\n----------------------------------------------------------------------------\n-- Log session for "+logFileName.substring(logFileName.lastIndexOf(File.separator)+1)+" started on "+simpleFormat.format(new Date(record.getMillis()))+" --\n----------------------------------------------------------------------------\n\n";
+//				}
+//			});
+//			fh.publish(new LogRecord(Level.ALL, null));
+//			fh.flush();
+//		} catch (SecurityException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		return fh;
+//	}
 
-	static FileHandler createFileHandler(final String logFileNameAndOptions,final Logger tmpLogger){
-//		System.err.println("file is "+logFileNameAndOptions);
-		if(logFileNameAndOptions.equals("null"))
-			return null;
-		FileHandler fh = null;
-		boolean append = false;
-		String[] parameters = logFileNameAndOptions.split(";");
-		final String pattern = parameters[0];
-		try{
-			if(tmpLogger != null)
-				tmpLogger.finer("Log file is "+pattern);
-			append = Boolean.parseBoolean(parameters[1]);
-		}
-		catch(ArrayIndexOutOfBoundsException e){ }
-		if(tmpLogger != null)
-			tmpLogger.finer("append option is "+append);
-		try {
-//			final boolean firstLine = //TODO if it does not exist no need for \n
-			fh = new FileHandler(pattern,append);
-			fh.setFormatter(new Formatter() {
-				@Override
-				public String format(LogRecord record) {
-					//TODO good format
-//					DateFormat df = DateFormat.getDateInstance(DateFormat.FULL, Locale.getDefault());
-//					final Date date = new Date(record.getMillis());
-					final SimpleDateFormat simpleFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss",Locale.getDefault());//TODO i18n + formatting
-					return "\n----------------------------------------------------------------------------\n-- Log session for "+pattern.substring(pattern.lastIndexOf(File.separator)+1)+" started on "+simpleFormat.format(new Date(record.getMillis()))+" --\n----------------------------------------------------------------------------\n\n";
-				}
-			});
-			fh.publish(new LogRecord(Level.ALL, null));
-			fh.flush();
-			fh.setFormatter(AgentLogger.agentFileFormatter);
-		} catch (SecurityException e) {
-			logWarningException(tmpLogger, e, "Permission denied !");
-		} catch (IOException e) {
-			logWarningException(tmpLogger, e, "Error accessing file system !");
-		}
-		return fh;
-	}
+//	static FileHandler createFileHandler(final String logFileNameAndOptions,final Logger tmpLogger){
+////		System.err.println("file is "+logFileNameAndOptions);
+//		if(logFileNameAndOptions.equals("null"))
+//			return null;
+//		FileHandler fh = null;
+//		boolean append = false;
+//		String[] parameters = logFileNameAndOptions.split(";");
+//		final String pattern = parameters[0];
+//		try{
+//			if(tmpLogger != null)
+//				tmpLogger.finer("Log file is "+pattern);
+//			append = Boolean.parseBoolean(parameters[1]);
+//		}
+//		catch(ArrayIndexOutOfBoundsException e){ }
+//		if(tmpLogger != null)
+//			tmpLogger.finer("append option is "+append);
+//		try {
+////			final boolean firstLine = //TODO if it does not exist no need for \n
+//			fh = new FileHandler(pattern,append);
+//			fh.setFormatter(new Formatter() {
+//				@Override
+//				public String format(LogRecord record) {
+//					//TODO good format
+////					DateFormat df = DateFormat.getDateInstance(DateFormat.FULL, Locale.getDefault());
+////					final Date date = new Date(record.getMillis());
+//					final SimpleDateFormat simpleFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss",Locale.getDefault());//TODO i18n + formatting
+//					return "\n----------------------------------------------------------------------------\n-- Log session for "+pattern.substring(pattern.lastIndexOf(File.separator)+1)+" started on "+simpleFormat.format(new Date(record.getMillis()))+" --\n----------------------------------------------------------------------------\n\n";
+//				}
+//			});
+//			fh.publish(new LogRecord(Level.ALL, null));
+//			fh.flush();
+//			fh.setFormatter(AgentLogger.agentFileFormatter);
+//		} catch (SecurityException e) {
+//			logWarningException(tmpLogger, e, "Permission denied !");
+//		} catch (IOException e) {
+//			logWarningException(tmpLogger, e, "Error accessing file system !");
+//		}
+//		return fh;
+//	}
 
 	static void logWarningException(final Logger logger,final  Exception e,final String message, final Level logLevelForTrace){
 		logException(logger, e, message, Level.WARNING, logLevelForTrace);

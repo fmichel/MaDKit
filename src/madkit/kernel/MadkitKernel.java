@@ -204,8 +204,10 @@ class MadkitKernel extends Agent {
 		kernelAddress = k.kernelAddress;
 		operatingOverlookers = k.operatingOverlookers;
 		platform = k.platform;
-		normalAgentThreadFactory = k.normalAgentThreadFactory;
-		daemonAgentThreadFactory = k.daemonAgentThreadFactory;
+//		normalAgentThreadFactory = k.normalAgentThreadFactory;//no need
+//		daemonAgentThreadFactory = k.daemonAgentThreadFactory;//TODO no need
+		normalAgentThreadFactory = null;
+		daemonAgentThreadFactory = null;
 	}
 
 	@Override
@@ -328,7 +330,7 @@ class MadkitKernel extends Agent {
 			shutdown();
 			return;
 		default:
-			getLogger().warning("I received a kernel message that I do not understand. Discarding " + km);
+			if (logger != null) logger.warning("I received a kernel message that I do not understand. Discarding " + km);
 			return;
 		}
 		doOperation(operation, arguments);
@@ -446,10 +448,10 @@ class MadkitKernel extends Agent {
 	private void stopNetwork() {
 		ReturnCode r = sendNetworkMessageWithRole(new Message(), kernelRole);
 		if (r == SUCCESS) {
-			getLogger().fine("\n\t****** Network agent stopped ******\n");
+			if (logger != null) logger.fine("\n\t****** Network agent stopped ******\n");
 		}// TODO i18n
 		else {
-			getLogger().fine("\n\t****** Network already down ******\n");
+			if (logger != null) logger.fine("\n\t****** Network already down ******\n");
 		}
 	}
 
@@ -458,13 +460,13 @@ class MadkitKernel extends Agent {
 		if (netAgent == null) {
 			ReturnCode r = launchAgent(new NetworkAgent());
 			if (r == SUCCESS) {
-				getLogger().fine("\n\t****** Network agent launched ******\n");
+				if (logger != null) logger.fine("\n\t****** Network agent launched ******\n");
 			}// TODO i18n
 			else {
-				getLogger().severe("\n\t****** Problem launching network agent ******\n");
+				if (logger != null) logger.severe("\n\t****** Problem launching network agent ******\n");
 			}
 		} else {
-			getLogger().fine("\n\t****** Network agent already up ******\n");
+			if (logger != null) logger.fine("\n\t****** Network agent already up ******\n");
 		}
 	}
 
@@ -490,7 +492,7 @@ class MadkitKernel extends Agent {
 		if (m instanceof KernelMessage) {
 			handleKernelMessage((KernelMessage) m);
 		} else {
-			getLogger().warning("I received a message that I do not understand. Discarding " + m);
+			if (logger != null) logger.warning("I received a message that I do not understand. Discarding " + m);
 		}
 	}
 
@@ -580,16 +582,16 @@ class MadkitKernel extends Agent {
 
 	ReturnCode createGroup(final AbstractAgent creator, final String community, final String group, final String description,
 			final GroupIdentifier theIdentifier, final boolean isDistributed) {
-		if (community == null || group == null) {
-			return NULL_STRING;
-		}
 		// no need to remove org: never failed
+		//will throw null pointer if community is null
 		Organization organization = new Organization(community, this);
+		if(group == null)
+			throw new NullPointerException("group's name is null");
 		final Organization tmpOrg = organizations.putIfAbsent(community, organization);
 		if (tmpOrg != null) {
 			organization = tmpOrg;
 		}
-		if (!organization.createGroup(creator, group, theIdentifier, isDistributed)) {
+		if (!organization.addGroup(creator, group,theIdentifier,isDistributed)) {
 			return ALREADY_GROUP;
 		}
 		if (isDistributed) {
@@ -833,11 +835,9 @@ class MadkitKernel extends Agent {
 		try {//TODO put that in the cl
 			agentClass = (Class<? extends AbstractAgent>) platform.getMadkitClassLoader().loadClass(agentClassName);
 		} catch (ClassCastException e) {
-			if (requester.getLogger() != null)
 				requester.getLogger().severe("Cannot launch " + agentClassName + " because it is not an agent class");
 			return null;
 		} catch (ClassNotFoundException e) {
-			if (requester.getLogger() != null)
 				requester.getLogger().severe("Cannot launch " + agentClassName + " because the class has not been found");
 			return null;
 		}
@@ -1331,7 +1331,7 @@ class MadkitKernel extends Agent {
 
 	ReturnCode reloadClass(AbstractAgent requester, String name) throws ClassNotFoundException {
 		if (name == null)
-			throw new ClassNotFoundException(ReturnCode.CLASS_NOT_FOUND.getMessage() + " " + name);
+			throw new ClassNotFoundException(ReturnCode.CLASS_NOT_FOUND + " " + name);
 		if (!name.contains("madkit.kernel") && !name.contains("madkit.gui") && !name.contains("madkit.messages")
 				&& !name.contains("madkit.simulation") && platform.getMadkitClassLoader().reloadClass(name))
 			return SUCCESS;
@@ -1453,7 +1453,7 @@ class MadkitKernel extends Agent {
 				if (tmpOrg != null) {
 					if (isGroup(communityName, groupName)) {
 						if (logger != null)
-							logger.finer("distant group creation by " + m.getContent() + " aborted : already exists locally");
+							logger.finer("distant group creation by " + m.getContent() + " aborted : already exists locally");//TODO what about the manager
 						break;
 					}
 					organization = tmpOrg;
@@ -1537,7 +1537,7 @@ class MadkitKernel extends Agent {
 	}
 
 	void bugReport(String m, Throwable e) {
-		getLogger().severeLog("********************** KERNEL PROBLEM, please bug report "+m, e); // Kernel
+		kernel.getLogger().severeLog("********************** KERNEL PROBLEM, please bug report "+m, e); // Kernel
 	}
 
 	final synchronized void removeAgentsFromDistantKernel(KernelAddress kernelAddress2) {

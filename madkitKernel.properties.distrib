@@ -9,8 +9,9 @@ madkit.repository.url=http://www.madkit.net/repository/MadKit-${madkit.version}/
 madkit.resourceBundle.file=madkitMessageBundle
 madkit.user.properties.file=madkitUserConfig.properties
 kernelLogLevel=INFO
-desktop=false
+networkLogLevel=INFO
 guiLogLevel=INFO
+desktop=false
 
 booterAgent=madkit.gui.GUIManagerAgent
 networkAgent=madkit.kernel.NetworkAgent

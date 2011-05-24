@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import madkit.kernel.JunitMadKit;
+import madkit.kernel.Madkit.BooleanOptions;
 import static org.junit.Assert.*;
 
 import org.junit.Assert;
@@ -41,7 +42,7 @@ public class OptionTesting  extends JunitMadKit{
 	@Test
 	public void correctness(){
 		mkArgs = new ArrayList<String>(Arrays.asList(
-				"--"+Madkit.autoConnectMadkitWebsite,
+				BooleanOptions.autoConnectMadkitWebsite.commandLineString(),
 				"--"+Madkit.platformLogLevel,"ALL",
 //				"--"+Madkit.logDirectory,getBinTestDir(),
 //				"--"+Madkit.agentLogLevel,"ALL",
@@ -50,7 +51,7 @@ public class OptionTesting  extends JunitMadKit{
 		launchTest(new AbstractAgent(){
 			protected void activate() {
 				assertEquals("ALL",getMadkitProperty(Madkit.platformLogLevel));
-				assertEquals("true",getMadkitProperty(Madkit.autoConnectMadkitWebsite));
+				assertEquals("true",getMadkitProperty(BooleanOptions.autoConnectMadkitWebsite.name()));
 			}
 		});
 	}

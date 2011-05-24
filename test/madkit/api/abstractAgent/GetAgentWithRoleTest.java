@@ -47,12 +47,43 @@ public class GetAgentWithRoleTest  extends JunitMadKit{
 	public void nullArgs(){
 		launchTest(new AbstractAgent(){
 			protected void activate() {
-				assertNull(getAgentWithRole(null,null,null));
-				assertNull(getAgentWithRole(COMMUNITY,null,null));
-				assertNull(getAgentWithRole(COMMUNITY,GROUP,null));
-				assertNull(getAgentWithRole(null,GROUP,ROLE));
-				assertNull(getAgentWithRole(null,null,ROLE));
-				assertNull(getAgentWithRole(COMMUNITY,null,ROLE));
+				try {
+					getAgentWithRole(null,null,null);
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+				try {
+					assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP));
+					assertNull(getAgentWithRole(COMMUNITY,null,null));
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+				try {
+					assertNull(getAgentWithRole(COMMUNITY,GROUP,null));
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+				try {
+					assertNull(getAgentWithRole(null,GROUP,ROLE));
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+				try {
+					assertNull(getAgentWithRole(null,null,ROLE));
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+				try {
+					assertNull(getAgentWithRole(COMMUNITY,null,ROLE));
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
 			}
 		});
 	}

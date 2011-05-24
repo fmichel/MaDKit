@@ -20,7 +20,6 @@ package madkit.kernel;
 
 import static madkit.kernel.AbstractAgent.ReturnCode.ACCESS_DENIED;
 import static madkit.kernel.AbstractAgent.ReturnCode.NOT_IN_GROUP;
-import static madkit.kernel.AbstractAgent.ReturnCode.NULL_STRING;
 import static madkit.kernel.AbstractAgent.ReturnCode.ROLE_ALREADY_HANDLED;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static madkit.kernel.Utils.printCGR;
@@ -33,6 +32,7 @@ import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
+import madkit.i18n.ErrorMessages;
 import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.Madkit.Roles;
 
@@ -116,7 +116,7 @@ final class Group extends ConcurrentHashMap<String,Role> {
 	 */
 	ReturnCode requestRole(AbstractAgent requester, String roleName, Object memberCard) {
 		if(roleName == null)
-			return NULL_STRING;
+			throw new NullPointerException(ErrorMessages.R_NULL.toString());
 		if(groupGate != null && ! groupGate.allowAgentToTakeRole(roleName, memberCard))
 			return ACCESS_DENIED;
 		Role theRole = get(roleName);
@@ -167,6 +167,14 @@ final class Group extends ConcurrentHashMap<String,Role> {
 			}
 		}
 		return in ? SUCCESS : NOT_IN_GROUP;
+	}
+	
+	boolean isIn(AbstractAgent agent){
+		for (Role r : values()) {
+			if(r.contains(agent))
+				return true;
+		}
+		return false;
 	}
 
 //	/**

@@ -27,7 +27,7 @@ public class  KillingWorkingThreadedAgentsTest extends JUnitBooterAgent{
 		super.activate();
 		Agent a;
 		a = new WorkingAgent(true,false,false);
-		assertEquals(LAUNCH_TIME_OUT, launchAgent(a,0));
+		assertEquals(TIME_OUT, launchAgent(a,0));
 		assertEquals(SUCCESS, killAgent(a,1));
 		assertAgentIsTerminated(a);
 
@@ -42,12 +42,12 @@ public class  KillingWorkingThreadedAgentsTest extends JUnitBooterAgent{
 		assertAgentIsTerminated(a);
 
 		a = new WorkingAgent(true,false,true);
-		assertEquals(LAUNCH_TIME_OUT, launchAgent(a,1));
+		assertEquals(TIME_OUT, launchAgent(a,1));
 		assertEquals(SUCCESS, killAgent(a,1));
 		assertAgentIsTerminated(a);
 
 		a = new WorkingAgent(true,true,true);
-		assertEquals(LAUNCH_TIME_OUT, launchAgent(a,1));
+		assertEquals(TIME_OUT, launchAgent(a,1));
 		assertEquals(SUCCESS, killAgent(a,1));
 		assertAgentIsTerminated(a);
 
@@ -55,7 +55,7 @@ public class  KillingWorkingThreadedAgentsTest extends JUnitBooterAgent{
 		if(logger != null)
 			logger.info("\n\n\n/////////////////// Starting BRUTAL KILLS ////////////////////////////////");
 		a = new WorkingAgent(true,false,false);
-		assertEquals(LAUNCH_TIME_OUT, launchAgent(a,1));
+		assertEquals(TIME_OUT, launchAgent(a,1));
 		assertEquals(SUCCESS, killAgent(a,0));
 		assertAgentIsTerminated(a);
 
@@ -72,12 +72,12 @@ public class  KillingWorkingThreadedAgentsTest extends JUnitBooterAgent{
 		assertAgentIsTerminated(a);
 
 		a = new WorkingAgent(true,false,true);
-		assertEquals(LAUNCH_TIME_OUT, launchAgent(a,1));
+		assertEquals(TIME_OUT, launchAgent(a,1));
 		assertEquals(SUCCESS, killAgent(a,0));
 		assertAgentIsTerminated(a);
 
 		a = new WorkingAgent(true,true,true);
-		assertEquals(LAUNCH_TIME_OUT, launchAgent(a,1));
+		assertEquals(TIME_OUT, launchAgent(a,1));
 		assertEquals(SUCCESS, killAgent(a,0));
 		assertAgentIsTerminated(a);
 

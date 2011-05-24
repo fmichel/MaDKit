@@ -101,9 +101,7 @@ public class GUIManagerAgent extends Agent  {
 	protected void activate() {
 		setLogLevel(Level.parse(getMadkitProperty("guiLogLevel")));//TODO
 		GUIToolkit.buildGlobalActions(this);
-//		if(Boolean.parseBoolean(getMadkitProperty(Madkit.autoConnectMadkitWebsite)) || Boolean.parseBoolean(getMadkitProperty(Madkit.loadLocalDemos))){
 			scanClassPathForAgentClasses();
-//		}
 		kernelAddress = getAgentWithRole(LOCAL_COMMUNITY, SYSTEM_GROUP, KERNEL_ROLE);
 		if(kernelAddress == null)//TODO remove that
 			throw new AssertionError();
@@ -115,12 +113,6 @@ public class GUIManagerAgent extends Agent  {
 
 	@Override
 	protected void live() {
-//		if(Boolean.parseBoolean(getMadkitProperty(Madkit.autoConnectMadkitWebsite))){
-//			if(logger != null)
-//				logger.fine("Connecting to madkit.net");
-//			scanMadkitRepo();
-//		}
-//		scanClassPathForAgentClasses();//here so that kernel does not wait
 		while (! shuttedDown) {
 			Message m = waitNextMessage();
 			if(m.getSender() == null){

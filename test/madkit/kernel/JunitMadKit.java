@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import madkit.kernel.AbstractAgent.ReturnCode;
+import madkit.kernel.Madkit.BooleanOptions;
 import madkit.kernel.Madkit.Roles;
 
 import org.junit.Rule;
@@ -59,9 +60,10 @@ public class JunitMadKit {
 
 	protected List<String> mkArgs = new ArrayList<String>(Arrays.asList(
 			"--"+Madkit.warningLogLevel,"INFO",
+			BooleanOptions.desktop.commandLineString(),"false",
 			"--"+Madkit.launchAgents,"madkit.kernel.AbstractAgent",
 			"--"+Madkit.logDirectory,getBinTestDir(),
-			"--"+Madkit.agentLogLevel,"INFO",
+			"--"+Madkit.agentLogLevel,"ALL",
 			"--"+Madkit.MadkitLogLevel,"INFO"));
 
 	public void launchTest(AbstractAgent a, ReturnCode expected){

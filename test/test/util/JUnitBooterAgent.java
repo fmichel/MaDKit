@@ -12,6 +12,7 @@ import java.util.logging.Level;
 
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Madkit;
+import madkit.kernel.Madkit.BooleanOptions;
 import static madkit.kernel.AbstractAgent.ReturnCode.*;
 import static madkit.kernel.AbstractAgent.State.*;
 
@@ -114,8 +115,8 @@ public class JUnitBooterAgent extends AbstractAgent {
 	 */
 
 	protected void noAgentConsoleLog(){
-		setMadkitProperty(Madkit.noAgentConsoleLog, "true");
-		assertEquals("true",getMadkitProperty(Madkit.noAgentConsoleLog));
+		setMadkitProperty(BooleanOptions.noAgentConsoleLog.name(), "true");
+		assertEquals("true",getMadkitProperty(BooleanOptions.noAgentConsoleLog.name()));
 	}
 
 	protected void setAgentLogLevel(Level level){

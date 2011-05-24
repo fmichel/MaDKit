@@ -71,27 +71,25 @@ public class CreateGroupTest  extends JunitMadKit{
 	}
 	
 	@Test
+	public void communityIsNull(){
+		addMadkitArgs("--kernelLogLevel","ALL");
+		launchTest(new AbstractAgent(){
+			protected void activate() {
+				try {
+					createGroup(null,null);
+					noExceptionFailure();
+			} catch (NullPointerException e) {
+				e.printStackTrace();
+			}}});
+		} 
+
+	@Test
 	public void nullArgs(){
 		addMadkitArgs("--kernelLogLevel","ALL");
 		launchTest(new AbstractAgent(){
 			protected void activate() {
-				assertFalse(isCommunity(null));
-				assertFalse(isGroup(null,null));
 				try {
 					createGroup(null,null);
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					e.printStackTrace();
-					assertEquals(Utils.geti, createGroup(COMMUNITY,GROUP));
-				}
-				try {
-					createGroup(null,null,true);
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					e.printStackTrace();
-				}
-				try {
-					createGroup(null,null,true,null);
 					noExceptionFailure();
 				} catch (NullPointerException e) {
 					e.printStackTrace();
@@ -100,14 +98,8 @@ public class CreateGroupTest  extends JunitMadKit{
 					createGroup(aa(),null,false,null);
 					noExceptionFailure();
 				} catch (NullPointerException e) {
-					e.printStackTrace();//TODO assert equals right message
+					e.printStackTrace();
 				}
-
-				assertEquals(NULL_STRING, createGroup(null,null,false));
-				assertEquals(NULL_STRING, createGroup(null,null,true,null));
-				assertEquals(NULL_STRING, createGroup(aa(),null,false,null));
-				assertEquals(NULL_STRING, createGroup(null,null,false,null));
-				assertEquals(NULL_STRING, createGroup(null,null,false,gi));
 			}
 		});
 	}

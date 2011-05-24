@@ -37,6 +37,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -51,12 +53,12 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
-import org.omg.PortableInterceptor.SUCCESSFUL;
-
 import madkit.gui.OutputPanel;
 import madkit.gui.actions.MadkitActions;
 import madkit.gui.messages.GUIMessage;
-import madkit.i18n.ReturnCodeMessages;
+import madkit.i18n.ErrorMessages;
+import madkit.i18n.I18nMadkitClass;
+import madkit.i18n.Words;
 
 /**
  * The super class of all MadKit agents, v 5.
@@ -377,7 +379,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @return <ul>
 	 *         <li><code> {@link ReturnCode#SUCCESS} </code>: The launch has succeeded. This also means that the agent has successfully completed its <code>activate</code> method</li>
 	 *         <li><code> {@link ReturnCode#ALREADY_LAUNCHED} </code>: If this agent has been already launched</li>
-	 *         <li><code> {@link ReturnCode#LAUNCH_TIME_OUT} </code>: If your agent is activating for more than 68 years Oo !</li>
+	 *         <li><code> {@link ReturnCode#TIME_OUT} </code>: If your agent is activating for more than 68 years Oo !</li>
 	 *         <li><code> {@link ReturnCode#AGENT_CRASH} </code>: If the agent crashed during its <code>activate</code> method</li>
 	 *         <li><code> {@link ReturnCode#INVALID_ARG} </code>: If <code>agent</code> is <code>null</code>.</li>
 	 *         </ul>
@@ -394,11 +396,11 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * This has the same effect as <code>launchAgent(agent,timeOutSeconds,false)</code>
 	 * 
 	 * @param agent the agent to launch.
-	 * @param timeOutSeconds time to wait the end of the agent's activation until returning a LAUNCH_TIME_OUT.
+	 * @param timeOutSeconds time to wait the end of the agent's activation until returning a TIME_OUT.
 	 * @return <ul>
 	 *         <li><code> {@link ReturnCode#SUCCESS} </code>: The launch has succeeded. This also means that the agent has successfully completed its <code>activate</code> method</li>
 	 *         <li><code> {@link ReturnCode#ALREADY_LAUNCHED} </code>: If this agent has been already launched</li>
-	 *         <li><code> {@link ReturnCode#LAUNCH_TIME_OUT} </code>: If the activation time of the agent is greater than <code>timeOutSeconds</code> seconds</li>
+	 *         <li><code> {@link ReturnCode#TIME_OUT} </code>: If the activation time of the agent is greater than <code>timeOutSeconds</code> seconds</li>
 	 *         <li><code>{@link ReturnCode#AGENT_CRASH}</code>: If the agent crashed during its <code>activate</code> method</li>
 	 *         <li><code> {@link ReturnCode#INVALID_ARG} </code>: If <code>agent</code> is <code>null</code>.</li>
 	 *         </ul>
@@ -417,7 +419,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @return <ul>
 	 *         <li><code> {@link ReturnCode#SUCCESS} </code>: The launch has succeeded. This also means that the agent has successfully completed its <code>activate</code> method</li>
 	 *         <li><code> {@link ReturnCode#ALREADY_LAUNCHED} </code>: If this agent has been already launched</li>
-	 *         <li><code> {@link ReturnCode#LAUNCH_TIME_OUT} </code>: If your agent is activating for more than 68 years Oo !</li>
+	 *         <li><code> {@link ReturnCode#TIME_OUT} </code>: If your agent is activating for more than 68 years Oo !</li>
 	 *         <li><code> {@link ReturnCode#AGENT_CRASH} </code>: If the agent crashed during its <code>activate</code> method</li>
 	 *         <li><code> {@link ReturnCode#INVALID_ARG} </code>: If <code>agent</code> is <code>null</code>.</li>
 	 *         </ul>
@@ -444,12 +446,12 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * </ul>
 	 * 
 	 * @param agent the agent to launch.
-	 * @param timeOutSeconds time to wait for the end of the agent's activation until returning a LAUNCH_TIME_OUT.
+	 * @param timeOutSeconds time to wait for the end of the agent's activation until returning a TIME_OUT.
 	 * @param createFrame if <code>true</code>, the kernel will launch a JFrame for this agent.
 	 * @return <ul>
 	 *         <li><code> {@link ReturnCode#SUCCESS} </code>: The launch has succeeded. This also means that the agent has successfully completed its <code>activate</code> method</li>
 	 *         <li><code> {@link ReturnCode#ALREADY_LAUNCHED} </code>: If this agent has been already launched</li>
-	 *         <li><code> {@link ReturnCode#LAUNCH_TIME_OUT} </code>: If the activation time of the agent is greater than <code>timeOutSeconds</code> seconds</li>
+	 *         <li><code> {@link ReturnCode#TIME_OUT} </code>: If the activation time of the agent is greater than <code>timeOutSeconds</code> seconds</li>
 	 *         <li><code> {@link ReturnCode#AGENT_CRASH} </code>: If the agent crashed during its <code>activate</code> method</li>
 	 *         <li><code> {@link ReturnCode#INVALID_ARG} </code>: If <code>agent</code> is <code>null</code>.</li>
 	 *         </ul>
@@ -457,6 +459,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @since MadKit 5.0
 	 */
 	public ReturnCode launchAgent(final AbstractAgent agent, final int timeOutSeconds, final boolean createFrame) {
+		if(agent == null)
+			throw new NullPointerException("agent");
 		return kernel.launchAgent(this, agent, timeOutSeconds, createFrame);
 	}
 
@@ -522,20 +526,20 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			if(ReturnCode.SUCCESS == launchAgent(a, timeOutSeconds, createFrame))
 				return a;
 		} catch (InstantiationException e) {
-			final String msg = "Cannot launch " + agentClass + " because it has no default constructor ";
+			final String msg = ErrorMessages.CANT_LAUNCH + agentClass + " because it has no default constructor ";
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
 					JOptionPane.showMessageDialog(null, msg,
 							"Launch failed", JOptionPane.WARNING_MESSAGE);
 				}
 			});
-			getLogger().severeLog("Cannot launch " + agentClass + " because it has no default constructor "+e.getMessage(),e);
+			getLogger().severeLog(ErrorMessages.CANT_LAUNCH + agentClass + " because it has no default constructor "+e.getMessage(),e);
 		} catch (IllegalAccessException e) {
-			getLogger().severeLog("Cannot launch " + agentClass, e);
+			getLogger().severeLog(ErrorMessages.CANT_LAUNCH + agentClass, e);
 		} catch (ClassCastException e) {
-			getLogger().severeLog("Cannot launch " + agentClass + " : not an agent class", e);
+			getLogger().severeLog(ErrorMessages.CANT_LAUNCH + agentClass + " : not an agent class", e);
 		} catch (ClassNotFoundException e) {
-			getLogger().severeLog("Launch failed "+agentClass+" : ", e);
+			getLogger().severeLog(ErrorMessages.CANT_LAUNCH +" "+agentClass+" : ", e);
 		}
 		return null;
 	}
@@ -964,13 +968,22 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		return e.getCode();
 	}
 
+	final ReturnCode handleException(final Influence i, final MadkitWarning e) {
+		if (logger != null && 
+				logger.getWarningLogLevel().intValue() >=	logger.getLevel().intValue()) {
+			setAgentStackTrace(e);
+			logger.log(Level.WARNING, i+" "+Words.FAILED, e);
+		}
+		return e.getCode();
+	}
+
 	void setAgentStackTrace(final Throwable e) {
 		StackTraceElement[] stackTrace = e.getStackTrace();
 		if (stackTrace.length > 0) {
 			final List<StackTraceElement> stack = new ArrayList<StackTraceElement>();
-			stack.add(stackTrace[1]);
+//			stack.add(stackTrace[1]);
 			String agentClassName = getClass().getName();
-			for (int i = 2; i < stackTrace.length; i++) {
+			for (int i = 0; i < stackTrace.length; i++) {
 				final String trace = stackTrace[i].getClassName();
 				if (!(trace.contains("madkit.kernel") || trace.contains("java.")) || trace.contains(agentClassName)) {
 					stack.add(stackTrace[i]);
@@ -1230,15 +1243,16 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @param reply the reply itself.
 	 * @return <ul>
 	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the send has succeeded.</li>
-	 *         <li><code>{@link ReturnCode#NULL_MSG}</code>: If the <code>reply</code> or the <code>messageToReplyTo</code> is <code>null</code>.</li>
 	 *         <li><code>{@link ReturnCode#NO_RECIPIENT_FOUND}</code>: If no agent was found as recipient, i.e. the sender was the only agent having this role.</li>
 	 *         </ul>
 	 * @throws KernelException if this agent has not been launched or is already terminated
+	 * @throws NullPointerException if <code>reply</code> or <code>messageToReplyTo</code> is <code>null</code>
 	 * @see ReturnCode
 	 * 
 	 */
 	public ReturnCode sendReplyWithRole(final Message messageToReplyTo, final Message reply, String senderRole) {
-		return kernel.sendReplyWithRole(this, messageToReplyTo, reply, senderRole);
+		reply.setID(messageToReplyTo.getConversationID());
+		return kernel.sendMessage(this,messageToReplyTo.getSender(), reply, senderRole);
 	}
 
 	/**
@@ -1331,7 +1345,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	// /////////////////////////////////////////////// UTILITIES /////////////////////////////////
-	//	 *         <li><code>{@link ReturnCode#CLASS_NOT_FOUND}</code>: If the reload failed
 
 	/**	 * Asks MasKit to reload class byte code so that new instances reflect compilation changes
 	 * during run time. This reloads the class byte code so that new instances, 
@@ -1347,16 +1360,17 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @return <ul>
 	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the reload can be done.</li>
 	 *         </ul>
-	 * @throws ClassNotFoundException 
+	 * @throws ClassNotFoundException if the class cannot be found
+	 * @throws NullPointerException if <code>className</code> is <code>null</code> 
 	 * @throws KernelException if this agent has not been launched or is already terminated
 	 * @since MadKit 5.0.0.3
 	 */
 	public ReturnCode reloadAgentClass(String className) throws ClassNotFoundException {
-		try {
+//		try {
 			return kernel.reloadClass(this, className);
-		} catch (ClassNotFoundException e) {
-			throw new ClassNotFoundException(ReturnCode.CLASS_NOT_FOUND+" "+className);
-		}
+//		} catch (ClassNotFoundException e) {
+//			throw new ClassNotFoundException(className);
+//		}
 	}
 
 	/**
@@ -1426,10 +1440,32 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 */
 	@Override
 	public String toString() {
-		if(getState() == State.NOT_LAUNCHED || getState() == TERMINATED)
-			return getName();//+" *"+getState()+"*";
-//		return getName()+" *"+getState()+"* running on "+getKernelAddress();
-		return getName()+" running on "+getKernelAddress();
+		return getName();
+//		if(getState() == State.NOT_LAUNCHED || getState() == TERMINATED)
+//			return getName();//+" *"+getState()+"*";
+////		return getName()+" *"+getState()+"* running on "+getKernelAddress();
+//		return getName()+" running on "+getKernelAddress();
+	}
+	
+	public Properties getMadkitConfig(){
+		return kernel.getMadkitConfig();
+	}
+	
+	/**
+	 * Called by the logged kernel to see if it is worth to
+	 * build the log message
+	 * 
+	 * @return if it is is worth to build the log message
+	 */
+	final boolean isFinestLogOn(){
+		if(logger != null){
+			return ! (Level.FINEST.intValue() < logger.getLevel().intValue());
+		}
+		else{
+			//updating the level accordingly -> the user has set logger to null himself
+			setLogLevel(Level.OFF);
+			return false;
+		}
 	}
 
 	/**
@@ -1683,58 +1719,54 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	public enum ReturnCode {
 
 		SUCCESS,
-
 		NOT_COMMUNITY,
-
 		NOT_GROUP,
-
-		NOT_ROLE,
-
-		TERMINATED_AGENT,
-
-		ROLE_ALREADY_HANDLED,
-
-		ACCESS_DENIED,
-
-		ROLE_NOT_HANDLED,
-
 		NOT_IN_GROUP,
-
+		NOT_ROLE,
+		TERMINATED_AGENT,
+		ROLE_ALREADY_HANDLED,
+		ACCESS_DENIED,
+		ROLE_NOT_HANDLED,
 		ALREADY_GROUP,
-
 		ALREADY_LAUNCHED,
-
 		INVALID_ARG,
-
-		LAUNCH_TIME_OUT,
-
+		TIME_OUT,
 		AGENT_CRASH,
-
 		CLASS_NOT_FOUND,
-
 		NOT_AN_AGENT_CLASS,
-
 		NOT_YET_LAUNCHED,
-
 		ALREADY_KILLED,
-
 		NULL_MSG,
-
-		NULL_STRING,
-
 		NULL_AA,
-
 		INVALID_AA,
-
 		NO_RECIPIENT_FOUND,
-
 		SEVERE,
-
 		NETWORK_DOWN;
 		
+		final static ResourceBundle messages = I18nMadkitClass.getResourceBundle(ReturnCode.class.getSimpleName());
+//		static ResourceBundle messages = I18nMadkitClass.getResourceBundle(ReturnCode.class);
+		
 		public String toString() {
-			return ReturnCodeMessages.getString(this);
-		};
+			return name()+messages.getString(name());
+		}
+	}
+	
+	enum Influence{
+		CREATE_GROUP, 
+		REQUEST_ROLE, 
+		LEAVE_ROLE, 
+		LEAVE_GROUP,
+		GET_AGENTS_WITH_ROLE,
+		GET_AGENT_WITH_ROLE,
+		SEND_MESSAGE,
+		BROADCAST_MESSAGE,
+		LAUNCH_AGENT, 
+		KILL_AGENT, 
+		RELOAD_CLASS;
+//		final static ResourceBundle messages = I18nMadkitClass.getResourceBundle(ReturnCode.class.getSimpleName());
+//		public String toString() {
+//			return messages.getString(name());
+//		}
 	}
 
 	public boolean isKernelConnected() {

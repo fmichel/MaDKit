@@ -39,12 +39,45 @@ import test.util.JUnitBooterAgent;
 public class isCGRTest  extends JunitMadKit{
 	
 	@Test
-	public void nullArgs(){
+	public void nullCommunity(){
 		launchTest(new AbstractAgent(){
 			protected void activate() {
-				assertFalse(isCommunity(null));
-				assertFalse(isGroup(null,null));
-				assertFalse(isRole(null,null,null));
+				try {
+					assertFalse(isCommunity(null));
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+	
+	@Test
+	public void nullGroup(){
+		launchTest(new AbstractAgent(){
+			protected void activate() {
+				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
+				try {
+					assertFalse(isGroup(COMMUNITY,null));
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+	
+	@Test
+	public void nullRole(){
+		launchTest(new AbstractAgent(){
+			protected void activate() {
+				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
+				try {
+					assertFalse(isRole(COMMUNITY,GROUP,null));
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
 			}
 		});
 	}

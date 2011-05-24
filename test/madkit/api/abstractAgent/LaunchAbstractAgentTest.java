@@ -75,6 +75,21 @@ public class LaunchAbstractAgentTest  extends JunitMadKit{
 	}
 
 	@Test
+	public void nullArgs(){
+		launchTest(new AbstractAgent(){
+			protected void activate() {
+				try {
+					assertEquals(SUCCESS,launchAgent((AbstractAgent)null));
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					assertEquals(e.getMessage(),"agent");
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	@Test
 	public void returnSuccessAndAlreadyLaunchWithGUI(){
 		launchTest(new AbstractAgent(){
 			protected void activate() {
@@ -89,7 +104,7 @@ public class LaunchAbstractAgentTest  extends JunitMadKit{
 	public void returnTimeOut(){
 		launchTest(new AbstractAgent(){
 			protected void activate() {
-				assertEquals(LAUNCH_TIME_OUT,launchAgent(timeOutAgent,1));
+				assertEquals(TIME_OUT,launchAgent(timeOutAgent,1));
 				assertEquals(ALREADY_LAUNCHED,launchAgent(timeOutAgent));
 			}
 		});
@@ -99,7 +114,7 @@ public class LaunchAbstractAgentTest  extends JunitMadKit{
 	public void massLaunch(){
 		addMadkitArgs("--"+Madkit.agentLogLevel,"OFF");
 		launchTest(new AbstractAgent(){
-			int number = 1000000;
+			int number = 1000;
 			protected void activate() {
 				assertEquals(SUCCESS, createGroup(JunitMadKit.COMMUNITY,JunitMadKit.GROUP));
 				startTimer();
@@ -110,7 +125,7 @@ public class LaunchAbstractAgentTest  extends JunitMadKit{
 				startTimer();
 				for (int i = 0; i < number;i++) {
 					ReturnCode r = launchAgent(new AbstractAgent(),0);
-					assertTrue(LAUNCH_TIME_OUT == r || SUCCESS == r);
+					assertTrue(TIME_OUT == r || SUCCESS == r);
 				}
 				stopTimer("launch time ");
 			}
@@ -121,7 +136,7 @@ public class LaunchAbstractAgentTest  extends JunitMadKit{
 	public void massLaunchWithGUI(){
 		addMadkitArgs("--"+Madkit.agentLogLevel,"OFF");
 		launchTest(new AbstractAgent(){
-			int number = 100;
+			int number = 50;
 			protected void activate() {
 				assertEquals(SUCCESS, createGroup(JunitMadKit.COMMUNITY,JunitMadKit.GROUP));
 				startTimer();
@@ -132,7 +147,7 @@ public class LaunchAbstractAgentTest  extends JunitMadKit{
 				startTimer();
 				for (int i = 0; i < number;i++) {
 					ReturnCode r = launchAgent(new AbstractAgent(),0,true);
-					assertTrue(LAUNCH_TIME_OUT == r || SUCCESS == r);
+					assertTrue(TIME_OUT == r || SUCCESS == r);
 				}
 				stopTimer("launch time ");
 			}
@@ -147,7 +162,7 @@ public class LaunchAbstractAgentTest  extends JunitMadKit{
 				assertEquals(ALREADY_LAUNCHED,launchAgent(target));
 				
 				ReturnCode r = launchAgent(timeOutAgent,0,true);
-				assertTrue(LAUNCH_TIME_OUT == r || SUCCESS == r);
+				assertTrue(TIME_OUT == r || SUCCESS == r);
 				r = launchAgent(timeOutAgent,true);
 				assertTrue(ALREADY_LAUNCHED == r || SUCCESS == r);
 			}

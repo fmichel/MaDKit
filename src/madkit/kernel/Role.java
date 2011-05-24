@@ -243,7 +243,10 @@ class Role implements Serializable{//TODO test with arraylist
 	ReturnCode removeMember(final AbstractAgent requester){
 		synchronized (players) {
 			if (!players.remove(requester)) {
-				return ROLE_NOT_HANDLED;
+				if (myGroup.isIn(requester)) {
+					return ROLE_NOT_HANDLED;
+				}
+				return ReturnCode.NOT_IN_GROUP;
 			}
 			if (agentAddresses != null) {
 				removeAgentAddressOf(requester, agentAddresses).setRoleObject(null);
@@ -533,6 +536,11 @@ class Role implements Serializable{//TODO test with arraylist
 		overlookers.clear();
 		tmpReferenceableAgents = null;
 		agentAddresses = null;
+	}
+
+
+	final boolean contains(AbstractAgent agent) {
+		return players.contains(agent);
 	}
 
 

@@ -457,7 +457,7 @@ public class Agent extends AbstractAgent{
 	public Message sendReplyWithRoleAndWaitForReply(final Message messageToReplyTo, final Message reply, String senderRole, Integer timeOutMilliSeconds){
 		if(logger != null)
 			logger.finest("sendReplyAndWaitForReply : sending "+reply+" as reply to "+messageToReplyTo+", and waiting reply...");
-		if(kernel.sendReplyWithRole(this,messageToReplyTo, reply,senderRole) != SUCCESS){
+		if(sendReplyWithRole(messageToReplyTo, reply,senderRole) != SUCCESS){
 			return null;
 		}
 		return waitAnswer(reply,TimeUnit.MILLISECONDS.toNanos(timeOutMilliSeconds));

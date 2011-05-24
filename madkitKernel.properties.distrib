@@ -23,6 +23,7 @@ loadLocalDemos=false
 MadkitLogLevel=INFO
 noMadkitConsoleLog=false
 MadkitLogFile=null
+configFile=null
 
 orgLogLevel=OFF
 noOrgConsoleLog=false

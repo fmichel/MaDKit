@@ -21,6 +21,7 @@ package madkit.kernel;
 
 import java.util.Arrays;
 
+import madkit.kernel.AbstractAgent.Influence;
 import madkit.kernel.AbstractAgent.ReturnCode;
 
 /**
@@ -31,68 +32,73 @@ import madkit.kernel.AbstractAgent.ReturnCode;
  */
 class MadkitWarning extends Exception {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -1769706904251720012L;
-	private final ReturnCode code;
-	private final String cgrLocalization;
-	/**
-	 * @return the cgrLocalization
-	 */
-	final String getCgrLocalization() {
-		return cgrLocalization;
+	protected final ReturnCode code;
+
+	MadkitWarning(String message, ReturnCode code){
+		super(message);
+		this.code = code;
 	}
 
-	/**
-	 * @param message
-	 */
-	MadkitWarning(ReturnCode result, String message) {
-		super(message);
-//		cgrLocalization = cgrPb == null ? "" : cgrPb;
-		cgrLocalization = message;
-		code = result;
+	MadkitWarning(ReturnCode code){
+		this.code = code;
+	}
+	
+	@Override
+	public String getMessage() {
+		return code.toString();
 	}
 
 	final ReturnCode getCode(){
 		return code;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see java.lang.Throwable#toString()
 	 */
+//	@Override
+//	public String toString() {
+//		final String s = getClass().getSimpleName();
+//		final String message = getLocalizedMessage();
+//		return (message != null) ? (s + ": " + message) : s;
+//	}
+}
+
+final class OrganizationWarning extends MadkitWarning{
+	
+	final private String community,group,role;
+
+	public OrganizationWarning(ReturnCode code, String community,String group, String role) {
+		super(code);
+		this.community = community;
+		this.group = group;
+			this.role = role;
+	}
+	
 	@Override
-	public String toString() {
-        final String s = getClass().getSimpleName();
-        final String message = getLocalizedMessage();
-        return (message != null) ? (s + ": " + message) : s;
-	}
-}
-
-final class CreateGroupWarning extends MadkitWarning {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 3413823353563538173L;
-	final static String noCreation = Utils.getI18N("notCreated");
-	CreateGroupWarning(ReturnCode code, String printCGR) {
-		super(code,printCGR + noCreation +" **");	
-	}
-}
-
-final class NotAvailableActionWarning extends MadkitWarning {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -198059762126069336L;
-
-	NotAvailableActionWarning(ReturnCode code, String printCGR) {
-		super(code,printCGR);	
+	public String getMessage() {
+		String msg = code+" : ";
+		switch (code) {
+		case NOT_GROUP:
+		case NOT_IN_GROUP:
+		case ALREADY_GROUP:
+		case ACCESS_DENIED:
+			return msg+Utils.getCGRString(community,group, null);
+		case NOT_COMMUNITY:
+			return msg+Utils.getCGRString(community, null, null);
+		case ROLE_NOT_HANDLED:
+		case NOT_ROLE:
+		case ROLE_ALREADY_HANDLED:
+			return msg+Utils.getCGRString(community, group, role);
+		default:
+			System.err.println("\n\n************** "+code.name()+" result not handled ");
+			new Exception().printStackTrace();
+			return null;
+		}
 	}
 }
 
 final class KernelException extends RuntimeException {
-	
+
 	private static final long serialVersionUID = -4549760236073524549L;
 
 	KernelException(AbstractAgent agent ){
@@ -101,133 +107,6 @@ final class KernelException extends RuntimeException {
 	}
 }
 
-final class sendMessageWarning extends MadkitWarning {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3877584720927435349L;
-	final static String baseMessage = Utils.getI18N("cantSend");
-	final static String notInGroupMsg = baseMessage+" "+Utils.getI18N("notInTargetedGroup");
-	final static String roleNotHandled = baseMessage+" "+Utils.getI18N("notHandled");
-	final static String nullArgMsg = baseMessage+" "+Utils.getI18N("nullAA");
-	final static String invAAMsg = baseMessage+" "+Utils.getI18N("invAA");
-
-	sendMessageWarning(ReturnCode code, String message) {
-		super(code,buildMessage(code,message));
-	}
-	sendMessageWarning(ReturnCode code) {
-		super(code,buildMessage(code,""));
-	}
-	static String buildMessage(ReturnCode code, String message){
-		switch (code) {
-		case NOT_IN_GROUP:
-			return notInGroupMsg+message;
-		case ROLE_NOT_HANDLED:
-			return roleNotHandled+message;
-		case INVALID_ARG:
-			return baseMessage+message;
-		case INVALID_AA:
-			return invAAMsg;
-		case NOT_COMMUNITY:
-		case NOT_GROUP:
-		case NOT_ROLE:
-			return baseMessage+message+Utils.getI18N("notExist");
-		case NETWORK_DOWN:
-			return baseMessage+" "+Utils.getI18N("notExist");
-		default:
-			System.err.println(" something is wrong : "+code);
-			new Throwable().printStackTrace();
-			return " something is wrong : "+code;//TODO now
-		}
-	}
-}
-
-final class broadcastMessageWarning extends MadkitWarning {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -6824429451036897060L;
-
-	broadcastMessageWarning(ReturnCode code, String message) {
-		super(code,message);	
-	}
-}
-
-final class RequestRoleWarning extends MadkitWarning {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -4736663895867738174L;
-
-	RequestRoleWarning(ReturnCode code, String printCGR) {
-		super(code,printCGR);	
-	}
-}
-
-final class LeaveRoleWarning extends MadkitWarning {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 365477089361530831L;
-
-	LeaveRoleWarning(ReturnCode code, String printCGR) {
-		super(code,printCGR+code);	
-	}
-}
-
-final class LeaveGroupWarning extends MadkitWarning {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1941486014374980711L;
-
-	LeaveGroupWarning(ReturnCode code, String printCGR) {
-		super(code,printCGR);	
-	}
-}
-
-final class getAgentWithRoleWarning extends MadkitWarning {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -703865110702187520L;
-
-	getAgentWithRoleWarning(ReturnCode code, String printCGR) {
-		super(code,printCGR);	
-	}
-}
-
-final class getAgentsWithRoleWarning extends MadkitWarning {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 426725091307658380L;
-
-	getAgentsWithRoleWarning(ReturnCode code, String printCGR) {
-		super(code,printCGR);	
-	}
-}
-
-final class LaunchAgentWarning extends MadkitWarning {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -1466401740783355792L;
-
-	LaunchAgentWarning(ReturnCode code, String printCGR) {
-		super(code,printCGR);	
-	}
-}
-final class killedAgentWarning extends MadkitWarning {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -6472468632387543451L;
-
-	killedAgentWarning(ReturnCode code, String printCGR) {
-		super(code,printCGR);	
-	}
-}
 
 final class KilledException extends RuntimeException {
 	/**
@@ -238,13 +117,13 @@ final class KilledException extends RuntimeException {
 	KilledException(String msg){
 		super(msg);
 	}
-	
+
 	KilledException(Throwable cause){
 		super(cause);
 	}
-	
-//	@Override
-//	public synchronized Throwable fillInStackTrace() {
-//		return null;
-//	}
+
+	//	@Override
+	//	public synchronized Throwable fillInStackTrace() {
+	//		return null;
+	//	}
 }//TODO get the cause of the kill

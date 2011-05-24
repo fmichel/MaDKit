@@ -30,6 +30,8 @@ import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
+import madkit.i18n.ErrorMessages;
+
 /**
  * @author Fabien Michel
  * @since MadKit 3.0
@@ -58,7 +60,7 @@ final class Organization extends ConcurrentHashMap <String, Group>{
 	 */
 	Organization(final String string, final MadkitKernel madkitKernel) {
 		if(string == null)
-			throw new NullPointerException("Community's name is null");
+			throw new NullPointerException(ErrorMessages.C_NULL.toString());
 		communityName = string;
 		myKernel = madkitKernel;
 //		logger = madkitKernel.getLogger();

@@ -30,6 +30,7 @@ import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static madkit.kernel.Madkit.Roles.GROUP_CANDIDATE_ROLE;
 import static madkit.kernel.Madkit.Roles.GROUP_MANAGER_ROLE;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AgentAddress;
@@ -106,7 +107,6 @@ public class SendMessageWithCGRTest  extends JunitMadKit{
 				AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, ROLE);
 				assertEquals(SUCCESS, target.leaveRole(COMMUNITY, GROUP, ROLE));
 				assertEquals(INVALID_AA, sendMessage(aa, new Message()));
-
 				//With role
 				assertEquals(INVALID_AA, sendMessageWithRole(aa, new Message(), ROLE));
 			}});
@@ -118,7 +118,6 @@ public class SendMessageWithCGRTest  extends JunitMadKit{
 			protected void activate() {
 				assertEquals(SUCCESS,launchAgent(target));
 				assertEquals(NOT_IN_GROUP, sendMessage(COMMUNITY,GROUP,ROLE, new Message()));
-
 				//With role
 				assertEquals(NOT_IN_GROUP, sendMessageWithRole(COMMUNITY,GROUP,ROLE, new Message(), ROLE));
 			}});
@@ -163,19 +162,66 @@ public class SendMessageWithCGRTest  extends JunitMadKit{
 	}
 	
 	@Test
-	public void nullArgs(){
+	public void nullCommunity(){
 		launchTest(new AbstractAgent(){
 			protected void activate() {
 				assertEquals(SUCCESS,launchAgent(target));
-				assertEquals(INVALID_ARG, sendMessage(null, null, null, null));
-				assertEquals(INVALID_ARG, sendMessage(null, GROUP, null, null));
-				assertEquals(INVALID_ARG, sendMessage(null, null, ROLE, null));
-				assertEquals(NOT_COMMUNITY, sendMessage(aa(), null, null, new Message()));
-				assertEquals(NOT_GROUP, sendMessage(COMMUNITY, null, null, new Message()));
-				assertEquals(NOT_ROLE, sendMessage(COMMUNITY, GROUP, aa(), new Message()));
-				//withRole is called with null by default
+				try {
+					sendMessage(null, aa(), aa(), new Message());
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
 			}
 		});
 	}
+	
+	@Test
+	public void nullGroup(){
+		launchTest(new AbstractAgent(){
+				protected void activate() {
+					assertEquals(SUCCESS,launchAgent(target));
+					try {
+						sendMessage(COMMUNITY, null, aa(), new Message());
+						noExceptionFailure();
+					} catch (NullPointerException e) {
+						e.printStackTrace();
+					}
+			}
+		});
+	}
+	
+	@Test
+	public void nullRole(){
+		launchTest(new AbstractAgent(){
+			protected void activate() {
+				assertEquals(SUCCESS,launchAgent(target));
+				try {
+					sendMessage(COMMUNITY, GROUP, null, new Message());
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+	
+	@Test
+	public void nullMessage(){
+		launchTest(new AbstractAgent(){
+			protected void activate() {
+				assertEquals(SUCCESS,launchAgent(target));
+				assertEquals(SUCCESS,requestRole(COMMUNITY,GROUP,ROLE));
+				try {
+					sendMessage(COMMUNITY, GROUP, ROLE, null);
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+	
+
 
 }

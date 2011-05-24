@@ -1,5 +1,20 @@
-/**
+/*
+ * Copyright 1997-2011 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
+ * This file is part of MadKit.
+ * 
+ * MadKit is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ * 
+ * MadKit is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
  */
 package madkit.boot.process;
 
@@ -13,8 +28,10 @@ import org.junit.AfterClass;
 import org.junit.Test;
 
 /**
- * @author fab
- *
+ * @author Fabien Michel
+ * @since MadKit 5.0.0.6
+ * @version 0.9
+ * 
  */
 public class autoAgentLogDirOptionTest {
 
@@ -28,7 +45,7 @@ public class autoAgentLogDirOptionTest {
 
 	@Test
 	public void noOptionTest() throws IOException, InterruptedException{
-		String option = "--autoAgentLogDirectory ";
+		String option = "--autoAgentLogDirectory --desktop false --launchAgents madkit.kernel.AbstractAgent";
 		System.err.println("testing "+option+"\n");
 		Process p = Runtime.getRuntime().exec("java -cp bin madkit.kernel.Madkit "+option);
 		p.waitFor();

@@ -18,17 +18,14 @@
  */
 package madkit.api.abstractAgent;
 
-import java.util.ArrayList;
-
-import madkit.kernel.*;
+import static madkit.kernel.AbstractAgent.ReturnCode.AGENT_CRASH;
+import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_LAUNCHED;
+import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static org.junit.Assert.*;
+import madkit.kernel.AbstractAgent;
+import madkit.kernel.JunitMadKit;
 
-import org.junit.Assert;
 import org.junit.Test;
-import static madkit.kernel.AbstractAgent.ReturnCode.*;
-import static madkit.kernel.Madkit.Roles.*;
-
-import test.util.JUnitBooterAgent;
 
 /**
  * @author Fabien Michel
@@ -36,6 +33,7 @@ import test.util.JUnitBooterAgent;
  * @version 0.9
  * 
  */
+@SuppressWarnings("serial")
 public class LaunchAgentClassTest  extends JunitMadKit{
 
 	final AbstractAgent target = new AbstractAgent(){
@@ -67,7 +65,12 @@ public class LaunchAgentClassTest  extends JunitMadKit{
 	public void launchFailed(){
 		launchTest(new AbstractAgent(){
 			protected void activate() {
-				launchAgent((String) null);
+				try {
+					launchAgent((String) null);
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					throw e;
+				}
 			}
 		},AGENT_CRASH);
 	}
@@ -76,9 +79,9 @@ public class LaunchAgentClassTest  extends JunitMadKit{
 	public void launchNotFound(){
 		launchTest(new AbstractAgent(){
 			protected void activate() {
-				launchAgent("a");
+				assertNull(launchAgent("a"));
 			}
-		},AGENT_CRASH);
+		});
 	}
 
 }

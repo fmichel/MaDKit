@@ -33,6 +33,8 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
+import madkit.i18n.Words;
+
 /**
  * This class is designed to help logging and i18n in MadKit
  * @author Fabien Michel
@@ -190,8 +192,16 @@ final class Utils {
 		return getI18N("Role")+" <"+community+","+group+","+role+"> ";
 	}
 	
-//	public static void main(String[] args) {
-//		System.err.println(ReturnCode.NOT_COMMUNITY.getMessage());
-//	}
+	static String getCGRString(final String community, final String group, final String role){
+		if(role != null)
+			return Words.ROLE+" <"+community+","+group+","+role+"> ";
+		if(group != null)
+			return Words.GROUP+" <"+community+","+group+"> ";
+		return Words.COMMUNITY+" <"+community+"> ";
+	}
+	
+	public static void main(String[] args) {
+		System.err.println(getCGRString("aa", null, null));
+	}
 
 }

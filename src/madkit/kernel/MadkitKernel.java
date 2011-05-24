@@ -24,7 +24,6 @@ import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_KILLED;
 import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_LAUNCHED;
 import static madkit.kernel.AbstractAgent.ReturnCode.INVALID_AA;
 import static madkit.kernel.AbstractAgent.ReturnCode.INVALID_ARG;
-import static madkit.kernel.AbstractAgent.ReturnCode.LAUNCH_TIME_OUT;
 import static madkit.kernel.AbstractAgent.ReturnCode.NETWORK_DOWN;
 import static madkit.kernel.AbstractAgent.ReturnCode.NOT_COMMUNITY;
 import static madkit.kernel.AbstractAgent.ReturnCode.NOT_GROUP;
@@ -32,10 +31,10 @@ import static madkit.kernel.AbstractAgent.ReturnCode.NOT_IN_GROUP;
 import static madkit.kernel.AbstractAgent.ReturnCode.NOT_ROLE;
 import static madkit.kernel.AbstractAgent.ReturnCode.NOT_YET_LAUNCHED;
 import static madkit.kernel.AbstractAgent.ReturnCode.NO_RECIPIENT_FOUND;
-import static madkit.kernel.AbstractAgent.ReturnCode.NULL_STRING;
 import static madkit.kernel.AbstractAgent.ReturnCode.ROLE_NOT_HANDLED;
 import static madkit.kernel.AbstractAgent.ReturnCode.SEVERE;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
+import static madkit.kernel.AbstractAgent.ReturnCode.TIME_OUT;
 import static madkit.kernel.AbstractAgent.State.ACTIVATED;
 import static madkit.kernel.AbstractAgent.State.INITIALIZING;
 import static madkit.kernel.AbstractAgent.State.NOT_LAUNCHED;
@@ -43,6 +42,10 @@ import static madkit.kernel.CGRSynchro.Code.CREATE_GROUP;
 import static madkit.kernel.CGRSynchro.Code.LEAVE_GROUP;
 import static madkit.kernel.CGRSynchro.Code.LEAVE_ROLE;
 import static madkit.kernel.CGRSynchro.Code.REQUEST_ROLE;
+import static madkit.kernel.Madkit.BooleanOptions.autoConnectMadkitWebsite;
+import static madkit.kernel.Madkit.BooleanOptions.loadLocalDemos;
+import static madkit.kernel.Madkit.BooleanOptions.network;
+import static madkit.kernel.Madkit.BooleanOptions.noGUIManager;
 import static madkit.kernel.Madkit.Roles.GUI_MANAGER_ROLE;
 import static madkit.kernel.Madkit.Roles.KERNEL_ROLE;
 import static madkit.kernel.Madkit.Roles.LOCAL_COMMUNITY;
@@ -91,6 +94,7 @@ import madkit.gui.GUIManagerAgent;
 import madkit.gui.actions.MadkitActions;
 import madkit.gui.messages.GUIMessage;
 import madkit.kernel.AbstractAgent.ReturnCode;
+import madkit.kernel.Madkit.BooleanOptions;
 import madkit.kernel.Madkit.Roles;
 import madkit.messages.KernelMessage;
 import madkit.messages.ObjectMessage;
@@ -181,7 +185,7 @@ class MadkitKernel extends Agent {
 		platform = m;
 		if (m != null) {
 			setLogLevel(Level.parse(platform.getConfigOption().getProperty(Madkit.kernelLogLevel)));
-			kernelAddress = platform.getPlatformID();
+			kernelAddress = new KernelAddress();
 			organizations = new ConcurrentHashMap<String, Organization>();
 			operatingOverlookers = new LinkedHashSet<Overlooker<? extends AbstractAgent>>();
 			normalAgentThreadFactory = new AgentThreadFactory("MKRA" + kernelAddress, false);
@@ -229,10 +233,10 @@ class MadkitKernel extends Agent {
 		}
 
 		//		platform.logSessionConfig(platform.getConfigOption(), Level.FINER);
-		if (platform.isOptionActivated(Madkit.loadLocalDemos)) {
+		if (loadLocalDemos.isActivated(getMadkitConfig())) {
 			loadLocalDemos();
 		}
-		if (platform.isOptionActivated(Madkit.autoConnectMadkitWebsite)) {
+		if (autoConnectMadkitWebsite.isActivated(getMadkitConfig())) {
 			addWebRepository();
 		}
 		launchGuiManagerAgent();
@@ -276,11 +280,11 @@ class MadkitKernel extends Agent {
 	}
 
 	final private void launchGuiManagerAgent() {
-		if (platform.isOptionActivated(Madkit.noGUIManager)) {
+		if (noGUIManager.isActivated(getMadkitConfig())) {
 			if (logger != null)
-				logger.fine("** No GUI Manager: " + Madkit.noGUIManager + " option is true**\n");
+				logger.fine("** No GUI Manager: " + noGUIManager + " option is true**\n");
 		} else {
-			Agent a = new GUIManagerAgent(! platform.isOptionActivated(Madkit.desktop));
+			Agent a = new GUIManagerAgent(! BooleanOptions.desktop.isActivated(getMadkitConfig()));
 			launchAgent(a);
 			threadedAgents.remove(a);
 			if (logger != null)
@@ -403,7 +407,7 @@ class MadkitKernel extends Agent {
 		Properties mkCfg = platform.getConfigOption();
 		Properties currentConfig = new Properties();
 		currentConfig.putAll(mkCfg);
-		mkCfg.putAll(platform.buildSession(arguments));
+		mkCfg.putAll(platform.buildConfigFromArgs(arguments));
 		startSession();
 		mkCfg.putAll(currentConfig);
 	}
@@ -555,7 +559,7 @@ class MadkitKernel extends Agent {
 	//	}
 
 	private void launchNetworkAgent() {
-		if (platform.isOptionActivated(Madkit.network)) {
+		if (network.isActivated(getMadkitConfig())) {
 			startNetwork();
 		} else {
 			if(logger != null)
@@ -706,55 +710,43 @@ class MadkitKernel extends Agent {
 
 	ReturnCode sendMessage(final AbstractAgent requester, final String community, final String group, final String role,
 			final Message message, final String senderRole) {
-		if (message == null) {
-			return INVALID_ARG;
-		}
-		AgentAddress receiver, sender;
 		try {
-			receiver = getAnotherRolePlayer(requester, community, group, role);
+			AgentAddress receiver = getAnotherRolePlayer(requester, community, group, role);
 			if (receiver == null) {
 				return NO_RECIPIENT_FOUND;
 			}
-			sender = getSenderAgentAddress(requester, receiver, senderRole);
+			return buildAndSendMessage(getSenderAgentAddress(requester, receiver, senderRole), receiver, message);
 		} catch (CGRNotAvailable e) {
 			return e.getCode();
 		}
-		return buildAndSendMessage(sender, receiver, message);
 	}
 
 	ReturnCode sendMessage(AbstractAgent requester, AgentAddress receiver, final Message message, final String senderRole) {
-		if (receiver == null || message == null) {
-			return INVALID_ARG;
-		}
 		// check that the AA is valid : the targeted agent is still playing the
 		// corresponding role or it was a candidate request
 		if (!receiver.exists()) {// && !
 			// receiver.getRole().equals(Roles.GROUP_CANDIDATE_ROLE)){
 			return INVALID_AA;
 		}
-		// get the role for the sender
-		AgentAddress sender;
 		try {
-			sender = getSenderAgentAddress(requester, receiver, senderRole);
+			// get the role for the sender and then send
+			return buildAndSendMessage(getSenderAgentAddress(requester, receiver, senderRole), receiver, message);
 		} catch (CGRNotAvailable e) {
 			return e.getCode();
 		}
-		return buildAndSendMessage(sender, receiver, message);
 	}
 
-	ReturnCode sendReplyWithRole(final AbstractAgent requester, final Message messageToReplyTo, final Message reply,// TODO
-			String senderRole) {
-		if (messageToReplyTo == null || reply == null) {
-			return INVALID_ARG;
-		}
-		reply.setID(messageToReplyTo.getConversationID());
-		return sendMessage(requester, messageToReplyTo.getSender(), reply, senderRole);
-	}
+//	ReturnCode sendReplyWithRole(final AbstractAgent requester, final Message messageToReplyTo, final Message reply,// TODO
+//			String senderRole) {
+//		if (messageToReplyTo == null || reply == null) {
+//			return INVALID_ARG;
+//		}
+//		reply.setID(messageToReplyTo.getConversationID());
+//		return sendMessage(requester, messageToReplyTo.getSender(), reply, senderRole);
+//	}
 
 	ReturnCode broadcastMessageWithRole(final AbstractAgent requester, final String community, final String group,
 			final String role, final Message messageToSend, String senderRole) {
-		if (messageToSend == null)
-			return INVALID_ARG;
 		try {
 			final List<AgentAddress> receivers = getOtherRolePlayers(requester, community, group, role);
 			if (receivers == null)
@@ -967,7 +959,7 @@ class MadkitKernel extends Agent {
 
 	ReturnCode launchAgent(final AbstractAgent requester, final AbstractAgent agent, final int timeOutSeconds,
 			final boolean defaultGUI) {
-		if (agent == null || timeOutSeconds < 0)
+		if (timeOutSeconds < 0)
 			return INVALID_ARG;
 		try {
 			// if to == 0, this is still quicker than treating the case, this also holds for Integer.MAX_VALUE
@@ -985,7 +977,7 @@ class MadkitKernel extends Agent {
 				throw new AssertionError(e);
 			return AGENT_CRASH;
 		} catch (TimeoutException e) {// launch task time out
-			return LAUNCH_TIME_OUT;
+			return TIME_OUT;
 		}
 	}
 
@@ -1037,7 +1029,7 @@ class MadkitKernel extends Agent {
 			//This is the case when the agent is killed during activation
 			return AGENT_CRASH;
 		}
-		return LAUNCH_TIME_OUT;
+		return TIME_OUT;
 	}
 
 	ReturnCode killAgent(final AbstractAgent requester, final AbstractAgent target, final int timeOutSeconds) {
@@ -1063,7 +1055,7 @@ class MadkitKernel extends Agent {
 				throw new AssertionError(e);
 			return AGENT_CRASH;
 		} catch (TimeoutException e) {// kill task time out
-			return LAUNCH_TIME_OUT;
+			return TIME_OUT;
 		}
 	}
 
@@ -1120,8 +1112,6 @@ class MadkitKernel extends Agent {
 	// //////////////////////// Organization access
 	// /////////////////////////////////////////////////////////////////////////
 	Organization getCommunity(final String community) throws CGRNotAvailable {
-		if (community == null)
-			throw new CGRNotAvailable(NOT_COMMUNITY);
 		Organization org = organizations.get(community);
 		if (org == null)
 			throw new CGRNotAvailable(NOT_COMMUNITY);
@@ -1129,21 +1119,14 @@ class MadkitKernel extends Agent {
 	}
 
 	Group getGroup(final String community, final String group) throws CGRNotAvailable {
-		Organization o = getCommunity(community);
-		if (group == null)
-			throw new CGRNotAvailable(NOT_GROUP);
-		Group g = o.get(group);
+		Group g = getCommunity(community).get(group);
 		if (g == null)
 			throw new CGRNotAvailable(NOT_GROUP);
 		return g;
 	}
 
 	Role getRole(final String community, final String group, final String role) throws CGRNotAvailable {
-		Group g = getGroup(community, group);// get group before for warning
-		// coherency
-		if (role == null)
-			throw new CGRNotAvailable(NOT_ROLE);
-		Role r = g.get(role);
+		Role r = getGroup(community, group).get(role);
 		if (r == null)
 			throw new CGRNotAvailable(NOT_ROLE);
 		return r;
@@ -1309,8 +1292,16 @@ class MadkitKernel extends Agent {
 	}
 
 	void setMadkitProperty(final AbstractAgent requester, String key, String value) {
-		platform.checkAndValidateOption(key, value);// TODO update agent logging
+		platform.getConfigOption().setProperty(key, value);// TODO update agent logging
 		// on or off
+	}
+	
+	@Override
+	final public Properties getMadkitConfig(){
+		if (platform != null) {
+			return platform.getConfigOption();
+		}
+		return Madkit.defaultConfig;
 	}
 
 	MadkitKernel getMadkitKernel() {
@@ -1330,12 +1321,12 @@ class MadkitKernel extends Agent {
 	 */
 
 	ReturnCode reloadClass(AbstractAgent requester, String name) throws ClassNotFoundException {
-		if (name == null)
-			throw new ClassNotFoundException(ReturnCode.CLASS_NOT_FOUND + " " + name);
+//		if (name == null)
+//			throw new ClassNotFoundException(ReturnCode.CLASS_NOT_FOUND + " " + name);
 		if (!name.contains("madkit.kernel") && !name.contains("madkit.gui") && !name.contains("madkit.messages")
 				&& !name.contains("madkit.simulation") && platform.getMadkitClassLoader().reloadClass(name))
 			return SUCCESS;
-		return ReturnCode.CLASS_NOT_FOUND;// TODO not the right code here
+		return SEVERE;// TODO not the right code here
 	}
 
 	boolean isCommunity(AbstractAgent requester, String community) {

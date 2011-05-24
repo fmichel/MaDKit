@@ -18,7 +18,11 @@
  */
 package madkit.kernel;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import madkit.kernel.Madkit.BooleanOptions;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -38,7 +42,8 @@ public class AgentAddressTest {
 	
 	@Before
 	public void before(){
-		mk = new MadkitKernel(new Madkit(null));
+		String[] args = {BooleanOptions.desktop.commandLineString(),"false"};
+		mk = new MadkitKernel(new Madkit(args));
 		a = new AbstractAgent();
 		a.setKernel(mk);
 		mk.createGroup(a, "c", "g", null, null, false);
@@ -109,7 +114,7 @@ public class AgentAddressTest {
 	@Test
 	public void testToString() {
 		System.err.println(aa);
-		assertTrue(aa.toString().contains("@(c,g,r)@"));
+		assertTrue(aa.toString().contains("@(c,g,r)"));
 	}
 
 	/**

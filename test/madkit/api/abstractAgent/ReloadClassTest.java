@@ -18,17 +18,13 @@
  */
 package madkit.api.abstractAgent;
 
+import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.GroupIdentifier;
 import madkit.kernel.JunitMadKit;
-import madkit.kernel.Madkit;
-import static org.junit.Assert.*;
 
-import org.junit.Assert;
 import org.junit.Test;
-import static madkit.kernel.AbstractAgent.ReturnCode.*;
-
-import test.util.JUnitBooterAgent;
 
 /**
  * @author Fabien Michel
@@ -36,6 +32,7 @@ import test.util.JUnitBooterAgent;
  * @version 0.9
  * 
  */
+@SuppressWarnings("serial")
 public class ReloadClassTest  extends JunitMadKit{
 	
 	@Test
@@ -43,20 +40,25 @@ public class ReloadClassTest  extends JunitMadKit{
 		launchTest(new AbstractAgent(){
 			protected void activate() {
 				try {
-					assertEquals(CLASS_NOT_FOUND, reloadAgentClass(null));
-					fail("exception not thrown");
+					try {
+						reloadAgentClass(null);
+						noExceptionFailure();
+					} catch (ClassNotFoundException e) {
+						fail("wrong exception");
+						e.printStackTrace();
+					}
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+				try {
+					reloadAgentClass(aa());
+					noExceptionFailure();
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}
 				try {
-					assertEquals(CLASS_NOT_FOUND, reloadAgentClass(aa()));
-					fail("exception not thrown");
-				} catch (ClassNotFoundException e) {
-					e.printStackTrace();
-				}
-				try {
-					assertEquals(CLASS_NOT_FOUND, reloadAgentClass(aa()+"."+aa()));
-					fail("exception not thrown");
+					reloadAgentClass(aa()+"."+aa());
+					noExceptionFailure();
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}

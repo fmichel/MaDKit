@@ -21,7 +21,7 @@ package madkit.api.abstractAgent;
 import static madkit.kernel.AbstractAgent.ReturnCode.AGENT_CRASH;
 import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_KILLED;
 import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_LAUNCHED;
-import static madkit.kernel.AbstractAgent.ReturnCode.LAUNCH_TIME_OUT;
+import static madkit.kernel.AbstractAgent.ReturnCode.TIME_OUT;
 import static madkit.kernel.AbstractAgent.ReturnCode.NOT_YET_LAUNCHED;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static org.junit.Assert.*;
@@ -85,7 +85,7 @@ public class KillAbstractAgentTest  extends JunitMadKit{
 	public void returnSuccessAfterLaunchTimeOut(){
 		launchTest(new AbstractAgent(){
 			protected void activate() {
-				assertEquals(LAUNCH_TIME_OUT,launchAgent(timeOutAgent,1));
+				assertEquals(TIME_OUT,launchAgent(timeOutAgent,1));
 				assertEquals(SUCCESS,killAgent(timeOutAgent));
 			}
 		});
@@ -96,7 +96,7 @@ public class KillAbstractAgentTest  extends JunitMadKit{
 		launchTest(new AbstractAgent(){
 			protected void activate() {
 				assertEquals(NOT_YET_LAUNCHED,killAgent(timeOutAgent));
-				assertEquals(LAUNCH_TIME_OUT,launchAgent(timeOutAgent,0));
+				assertEquals(TIME_OUT,launchAgent(timeOutAgent,0));
 				pause(100);
 				assertEquals(SUCCESS,killAgent(timeOutAgent));
 				assertEquals(ALREADY_KILLED,killAgent(timeOutAgent));				
@@ -140,8 +140,8 @@ public class KillAbstractAgentTest  extends JunitMadKit{
 	public void returnTimeOut(){
 		launchTest(new AbstractAgent(){
 			protected void activate() {
-				assertEquals(LAUNCH_TIME_OUT,launchAgent(timeOutAgent,1));
-				assertEquals(LAUNCH_TIME_OUT,killAgent(timeOutAgent,1));
+				assertEquals(TIME_OUT,launchAgent(timeOutAgent,1));
+				assertEquals(TIME_OUT,killAgent(timeOutAgent,1));
 				assertEquals(ALREADY_KILLED,killAgent(timeOutAgent));
 				assertEquals(ALREADY_LAUNCHED,launchAgent(timeOutAgent));
 			}
@@ -212,12 +212,12 @@ public class KillAbstractAgentTest  extends JunitMadKit{
 				assertEquals(AGENT_CRASH,launchAgent(a = new FaultyAA(true, false)));
 				assertEquals(ALREADY_KILLED,killAgent(a));
 				
-				assertEquals(LAUNCH_TIME_OUT,launchAgent(a = new FaultyAA(true, false),0));
+				assertEquals(TIME_OUT,launchAgent(a = new FaultyAA(true, false),0));
 				pause(10);
 				ReturnCode r = killAgent(a);
 				assertTrue(r == SUCCESS || r == ALREADY_KILLED);
 				
-				assertEquals(LAUNCH_TIME_OUT,launchAgent(a = new FaultyAA(true, false),0));
+				assertEquals(TIME_OUT,launchAgent(a = new FaultyAA(true, false),0));
 				pause(200);
 				assertEquals(ALREADY_KILLED,killAgent(a));
 				
@@ -232,7 +232,7 @@ public class KillAbstractAgentTest  extends JunitMadKit{
 				assertEquals(SUCCESS,killAgent(a));
 				
 				assertEquals(SUCCESS,launchAgent(a = new FaultyAA(false, true)));
-				assertEquals(LAUNCH_TIME_OUT,killAgent(a,0));
+				assertEquals(TIME_OUT,killAgent(a,0));
 				pause(10);//avoid interleaving
 				assertEquals(ALREADY_KILLED,killAgent(a));
 				
@@ -242,11 +242,11 @@ public class KillAbstractAgentTest  extends JunitMadKit{
 	
 	
 	@Test
-	public void testAlone(){
+	public void selfKills(){
 		launchTest(new AbstractAgent(){
 			protected void activate() {
 				assertEquals(SUCCESS,launchAgent(new SelfAbstractKill(true, true, 0)));
-				assertEquals(SUCCESS,launchAgent(new SelfAbstractKill(true, false, 1)));
+				assertEquals(AGENT_CRASH,launchAgent(new SelfAbstractKill(true, false, 1)));
 				assertEquals(SUCCESS,launchAgent(new SelfAbstractKill(false, true, Integer.MAX_VALUE)));
 			}
 		});

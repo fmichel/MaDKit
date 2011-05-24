@@ -36,6 +36,8 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
+import madkit.kernel.Madkit.BooleanOptions;
+
 /**
  * This class defines a logger specialized for MadKit agents.
  * 
@@ -153,7 +155,7 @@ public class AgentLogger extends Logger {
 		setUseParentHandlers(false);
 		super.setLevel(Level.parse(Madkit.defaultConfig.getProperty(Madkit.agentLogLevel)));
 		setWarningLogLevel(Level.parse(Madkit.defaultConfig.getProperty(Madkit.warningLogLevel)));
-		if(! Boolean.parseBoolean(Madkit.defaultConfig.getProperty(Madkit.noAgentConsoleLog))){
+		if(! BooleanOptions.noAgentConsoleLog.isActivated(Madkit.defaultConfig)){
 			addHandler(new ConsoleHandler());
 		}
 	}
@@ -164,12 +166,12 @@ public class AgentLogger extends Logger {
 		setUseParentHandlers(false);
 		super.setLevel(Level.parse(agent.getMadkitProperty(Madkit.agentLogLevel)));
 		setWarningLogLevel(Level.parse(agent.getMadkitProperty(Madkit.warningLogLevel)));
-		if(! Boolean.parseBoolean(agent.getMadkitProperty(Madkit.noAgentConsoleLog))){
+		if(! BooleanOptions.noAgentConsoleLog.isActivated(agent.getMadkitConfig())){
 			ConsoleHandler ch = new ConsoleHandler();
 			addHandler(ch);
 			ch.setFormatter(agentFormatter);
 		}
-		if(Boolean.parseBoolean(agent.getMadkitProperty(Madkit.createLogFiles))){
+		if(Boolean.parseBoolean(agent.getMadkitProperty(BooleanOptions.createLogFiles.name()))){
 			addHandler(getFileHandler(agent.getMadkitProperty(Madkit.logDirectory)+getName()));
 		}
 	}

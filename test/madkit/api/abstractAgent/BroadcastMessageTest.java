@@ -34,6 +34,7 @@ import test.util.JUnitBooterAgent;
  * @version 0.9
  * 
  */
+@SuppressWarnings("serial")
 public class BroadcastMessageTest  extends JunitMadKit{
 
 	final AbstractAgent target = new AbstractAgent(){
@@ -136,13 +137,37 @@ public class BroadcastMessageTest  extends JunitMadKit{
 		launchTest(new AbstractAgent(){
 			protected void activate() {
 				assertEquals(SUCCESS,launchAgent(target));
-				assertEquals(INVALID_ARG, broadcastMessage(null, null, null, null));
-				assertEquals(INVALID_ARG, broadcastMessage(null, GROUP, null, null));
-				assertEquals(INVALID_ARG, broadcastMessage(null, null, ROLE, null));
-				assertEquals(NOT_COMMUNITY, broadcastMessage(aa(), null, null, new Message()));
-				assertEquals(NOT_GROUP, broadcastMessage(COMMUNITY, null, null, new Message()));
-				assertEquals(NOT_ROLE, broadcastMessage(COMMUNITY, GROUP, aa(), new Message()));
-				//withRole is called with null by default
+				try {
+					broadcastMessage(null, null, null, null);
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+				try {
+					broadcastMessage(COMMUNITY, null, null, null);
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+				try {
+					broadcastMessage(COMMUNITY, GROUP, null, null);
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+				try {
+					assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,ROLE));
+					broadcastMessage(COMMUNITY, GROUP, ROLE, null);
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+				try {
+					broadcastMessage(null, GROUP, ROLE, null);
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
 			}
 		});
 	}

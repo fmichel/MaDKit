@@ -22,7 +22,6 @@ import static madkit.kernel.AbstractAgent.ReturnCode.ACCESS_DENIED;
 import static madkit.kernel.AbstractAgent.ReturnCode.AGENT_CRASH;
 import static madkit.kernel.AbstractAgent.ReturnCode.NOT_COMMUNITY;
 import static madkit.kernel.AbstractAgent.ReturnCode.NOT_GROUP;
-import static madkit.kernel.AbstractAgent.ReturnCode.NULL_STRING;
 import static madkit.kernel.AbstractAgent.ReturnCode.ROLE_ALREADY_HANDLED;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static madkit.kernel.Madkit.Roles.GROUP_MANAGER_ROLE;
@@ -96,6 +95,10 @@ public class RequestRoleTest  extends JunitMadKit{
 
 	@Test
 	public void returnNotCgr(){
+		addMadkitArgs(
+//				"--"+Madkit.warningLogLevel,"SEVERE",
+				"--"+Madkit.agentLogLevel,"ALL"
+				);
 		launchTest(new AbstractAgent(){
 			protected void activate() {
 				assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP));
@@ -149,7 +152,6 @@ public class RequestRoleTest  extends JunitMadKit{
 		launchTest(new AbstractAgent(){
 			protected void activate() {
 				assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP,false,alwaysDeny));
-				assertEquals(NULL_STRING, requestRole(COMMUNITY,GROUP,null));
 			}});
 	}
 
@@ -169,18 +171,56 @@ public class RequestRoleTest  extends JunitMadKit{
 	public void nullArgs(){
 		launchTest(new AbstractAgent(){
 			protected void activate() {
-				assertFalse(isCommunity(null));
-				assertFalse(isGroup(null,null));
-				assertEquals(NOT_COMMUNITY, requestRole(null,null,null));
-				assertEquals(NOT_COMMUNITY, requestRole(null,null,null,null));
+				try {
+					assertEquals(NOT_COMMUNITY, requestRole(null,null,null));
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+				try {
+					assertEquals(NOT_COMMUNITY, requestRole(null,null,null,null));
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
 
 				assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP));
-				assertEquals(NOT_GROUP, requestRole(COMMUNITY,null,null));
-				assertEquals(NULL_STRING, requestRole(COMMUNITY,GROUP,null,null));
-				assertEquals(NOT_COMMUNITY, requestRole(null,GROUP,null));
-				assertEquals(NOT_COMMUNITY, requestRole(null,GROUP,ROLE));
-				assertEquals(NOT_COMMUNITY, requestRole(null,null,ROLE));
-				assertEquals(NULL_STRING, requestRole(COMMUNITY,GROUP,null,new Object()));
+				try {
+					assertEquals(NOT_GROUP, requestRole(COMMUNITY,null,null));
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+				try {
+					assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,null,null));
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+				try {
+					assertEquals(NOT_COMMUNITY, requestRole(null,GROUP,null));
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+				try {
+					assertEquals(NOT_COMMUNITY, requestRole(null,GROUP,ROLE));
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+				try {
+					assertEquals(NOT_COMMUNITY, requestRole(null,null,ROLE));
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+				try {
+					assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,null,new Object()));
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
 			}
 		});
 	}

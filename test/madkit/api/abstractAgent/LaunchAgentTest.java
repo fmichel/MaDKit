@@ -21,7 +21,7 @@ package madkit.api.abstractAgent;
 import static madkit.kernel.AbstractAgent.ReturnCode.AGENT_CRASH;
 import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_LAUNCHED;
 import static madkit.kernel.AbstractAgent.ReturnCode.INVALID_ARG;
-import static madkit.kernel.AbstractAgent.ReturnCode.LAUNCH_TIME_OUT;
+import static madkit.kernel.AbstractAgent.ReturnCode.TIME_OUT;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static org.junit.Assert.assertEquals;
 import madkit.kernel.AbstractAgent;
@@ -76,7 +76,7 @@ public class LaunchAgentTest  extends JunitMadKit{
 	public void returnTimeOut(){
 		launchTest(new AbstractAgent(){
 			protected void activate() {
-				assertEquals(LAUNCH_TIME_OUT,launchAgent(timeOutAgent,1));
+				assertEquals(TIME_OUT,launchAgent(timeOutAgent,1));
 				assertEquals(ALREADY_LAUNCHED,launchAgent(timeOutAgent));
 			}
 		});
@@ -86,7 +86,7 @@ public class LaunchAgentTest  extends JunitMadKit{
 	public void returnAleradyLaunch(){
 		launchTest(new AbstractAgent(){
 			protected void activate() {
-				assertEquals(LAUNCH_TIME_OUT,launchAgent(timeOutAgent,0));
+				assertEquals(TIME_OUT,launchAgent(timeOutAgent,0));
 				assertEquals(ALREADY_LAUNCHED,launchAgent(timeOutAgent));
 			}
 		});

@@ -20,6 +20,7 @@ package madkit.kernel;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * @author Fabien Michel
@@ -50,40 +51,49 @@ final class FakeKernel extends MadkitKernel{
 	////////////////////////// Organization interface
 	//////////////////////////////////////////////////////////////
 
+	@Override
 	ReturnCode createGroup(final AbstractAgent agent, final String community, final String group, final String description, final GroupIdentifier theIdentifier, final boolean isDistributed) {
 		throw new KernelException(agent);
 	}
 
 
+	@Override
 	ReturnCode requestRole(AbstractAgent agent, String community, String group, String role, Object memberCard) {
 		throw new KernelException(agent);
 	}
 
 
+	@Override
 	ReturnCode leaveGroup(final AbstractAgent agent, final String community, final String group) {
 		throw new KernelException(agent);
 	}
 
+	@Override
 	ReturnCode leaveRole(AbstractAgent agent, String community,String group, String role) {
 		throw new KernelException(agent);
 	}
 
+	@Override
 	AgentAddress getAgentWithRole(final AbstractAgent agent, final String community, final String group, final String role){ 
 		throw new KernelException(agent);
 	}
 
-	List<AgentAddress> getAgentsWithRole(AbstractAgent agent, String community, String group, String role){
+	@Override
+	List<AgentAddress> getAgentsWithRole(AbstractAgent agent, String community, String group, String role,boolean callerIncluded){
 		throw new KernelException(agent);
 	}
 
+	@Override
 	boolean isCommunity(AbstractAgent agent,String community){
 		throw new KernelException(agent);
 	}
 
+	@Override
 	boolean isGroup(AbstractAgent agent, String community, String group){
 		throw new KernelException(agent);
 	}
 
+	@Override
 	boolean isRole(AbstractAgent agent, String community, String group, String role){
 		throw new KernelException(agent);
 	}
@@ -96,21 +106,21 @@ final class FakeKernel extends MadkitKernel{
 	//////////////////////////////////////////////////////////////
 	////////////////////////// Messaging interface
 	//////////////////////////////////////////////////////////////
+	@Override
 	ReturnCode sendMessage(final AbstractAgent agent, final String community, final String group, final String role, final Message messageToSend, final String senderRole) {
 		throw new KernelException(agent);
 	}
 
+	@Override
 	ReturnCode sendMessage(AbstractAgent agent, AgentAddress receiver, final Message messageToSend, final String senderRole){
 		throw new KernelException(agent);
 	}
 
+	@Override
 	ReturnCode broadcastMessageWithRole(final AbstractAgent agent, final String community, final String group, final String role, final Message messageToSend, String senderRole){
 		throw new KernelException(agent);
 	}
 
-	ReturnCode sendReplyWithRole(final AbstractAgent agent, final Message messageToReplyTo,final Message reply, String senderRole) {
-		throw new KernelException(agent);
-	}
 	//////////////////////////////////////////////////////////////
 	////////////////////////// Launching and Killing
 	//////////////////////////////////////////////////////////////
@@ -118,14 +128,17 @@ final class FakeKernel extends MadkitKernel{
 //		throw new KernelException(agent);
 //	}
 
+	@Override
 	ReturnCode launchAgent(final AbstractAgent agent, final AbstractAgent agent2, final int timeOutSeconds, final boolean defaultGUI){
 		throw new KernelException(agent);
 	}
 
+	@Override
 	List<AbstractAgent> launchAgentBucketWithRoles(final AbstractAgent agent, String agentClassName,int bucketSize,Collection<String> rolesName){
 		throw new KernelException(agent);
 	}
 
+	@Override
 	ReturnCode killAgent(final AbstractAgent agent,final AbstractAgent target, int timeOutSeconds){
 		throw new KernelException(agent);
 	}
@@ -134,6 +147,7 @@ final class FakeKernel extends MadkitKernel{
 	 * @param scheduler
 	 * @param activator
 	 */
+	@Override
 	boolean removeOverlooker(final AbstractAgent agent, Overlooker<? extends AbstractAgent> o) {
 		throw new KernelException(agent);
 	}
@@ -143,6 +157,7 @@ final class FakeKernel extends MadkitKernel{
 	 * @param o
 	 * @return
 	 */
+	@Override
 	boolean addOverlooker(AbstractAgent agent, Overlooker<? extends AbstractAgent> o) {
 		throw new KernelException(agent);
 	}
@@ -150,6 +165,7 @@ final class FakeKernel extends MadkitKernel{
 	/**
 	 * @return
 	 */
+	@Override
 	public KernelAddress getKernelAddress() {
 		throw new KernelException(null);
 	}
@@ -163,10 +179,11 @@ final class FakeKernel extends MadkitKernel{
 		throw new KernelException(agent);
 	}
 	
+	@Override
 	public java.net.URLClassLoader getMadkitClassLoader() {
 		throw new KernelException(null);
-	};
-
+	}
+	
 //	/**
 //	 * @param abstractAgent
 //	 * @return
@@ -189,6 +206,7 @@ final class FakeKernel extends MadkitKernel{
 	 * @param agentClass
 	 * @throws ClassNotFoundException 
 	 */
+	@Override
 	ReturnCode reloadClass(AbstractAgent abstractAgent, String agentClass) throws ClassNotFoundException {
 		throw new KernelException(null);
 	}
@@ -198,6 +216,7 @@ final class FakeKernel extends MadkitKernel{
 	 * @param key
 	 * @return
 	 */
+	@Override
 	String getMadkitProperty(AbstractAgent abstractAgent, String key) {//TODO this could have some wired side effects
 		Madkit m = Madkit.getCurrentInstance();
 		if (m != null) {
@@ -217,12 +236,14 @@ final class FakeKernel extends MadkitKernel{
 		throw new KernelException(agent);
 	}
 
+	@Override
 	boolean createGroupIfAbsent(AbstractAgent agent,
 			String community, String group, String group2,
 			GroupIdentifier theIdentifier, boolean isDistributed) {
 		throw new KernelException(agent);
 	}
 
+	@Override
 	Class<?> getNewestClassVersion(AbstractAgent agent, String className) throws ClassNotFoundException {
 		throw new KernelException(agent);
 	}

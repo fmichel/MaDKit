@@ -149,11 +149,43 @@ public class sendMessageWithAATest  extends JunitMadKit{
 	public void nullArgs(){
 		launchTest(new AbstractAgent(){
 			protected void activate() {
+				try {
+					sendMessage(null, null);
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	@Test
+	public void nullAA(){
+		launchTest(new AbstractAgent(){
+			protected void activate() {
+				try {
+					sendMessage(null, new Message());
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	@Test
+	public void nullMessage(){
+		launchTest(new AbstractAgent(){
+			protected void activate() {
 				assertEquals(SUCCESS,launchAgent(target));
+				assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,ROLE));
 				AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, ROLE);
-				assertEquals(INVALID_ARG, sendMessage(null, null));
-				assertEquals(INVALID_ARG, sendMessage(aa, null));
-				assertEquals(INVALID_ARG, sendMessage(null, new Message()));
+				try {
+					sendMessage(aa, null);
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
 			}
 		});
 	}

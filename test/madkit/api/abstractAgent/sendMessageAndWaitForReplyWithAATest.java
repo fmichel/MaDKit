@@ -87,21 +87,21 @@ public class sendMessageAndWaitForReplyWithAATest  extends JunitMadKit{
 			sendReply(waitNextMessage(), new ObjectMessage<String>("reply2"));
 		}
 	};
-	
+
 	@Test
 	public void replyWithSameMessage(){
 		launchTest(new Agent(){
 			protected void activate() {
 				setLogLevel(Level.ALL);
 				assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP));
-//				assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,ROLE));
+				//				assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,ROLE));
 				assertEquals(SUCCESS,launchAgent(target3));
-				
+
 				assertEquals(SUCCESS, sendMessage(COMMUNITY, GROUP, ROLE, new Message()));
 				assertNotNull(waitNextMessage(100));
 			}});
 	}
-	
+
 
 	@Test
 	public void returnSuccess(){
@@ -110,14 +110,14 @@ public class sendMessageAndWaitForReplyWithAATest  extends JunitMadKit{
 				assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP));
 				assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,ROLE));
 				assertEquals(SUCCESS,launchAgent(target));
-				
+
 				assertFalse(this.isMessageBoxEmpty());
 				AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, ROLE);
 				assertNotNull(aa);
-				
+
 				//time out but gives the start signal
 				assertNull(sendMessageAndWaitForReply(aa, new Message(),100));
-				
+
 				//Without role
 				Message m = sendMessageAndWaitForReply(aa, new Message());
 				assertNotNull(m);
@@ -131,7 +131,7 @@ public class sendMessageAndWaitForReplyWithAATest  extends JunitMadKit{
 				assertNotNull(m);
 				assertEquals("reply2", ((ObjectMessage<String>)m).getContent());
 				assertEquals(ROLE, m.getReceiver().getRole());
-				
+
 				assertNotNull(nextMessage());
 				assertNotNull(nextMessage());
 				assertNotNull(nextMessage());
@@ -157,7 +157,7 @@ public class sendMessageAndWaitForReplyWithAATest  extends JunitMadKit{
 				assertEquals("reply", ((ObjectMessage<String>)m).getContent());
 				assertEquals(GROUP_CANDIDATE_ROLE, m.getReceiver().getRole());
 				assertEquals(GROUP_MANAGER_ROLE, m.getSender().getRole());
-				
+
 				//With role
 				m = sendMessageWithRoleAndWaitForReply(aa, new Message(), GROUP_CANDIDATE_ROLE);
 				assertNotNull(m);
@@ -199,8 +199,8 @@ public class sendMessageAndWaitForReplyWithAATest  extends JunitMadKit{
 
 			}});
 	}
-	
-	
+
+
 
 	@Test
 	public void nullArgs(){
@@ -210,9 +210,24 @@ public class sendMessageAndWaitForReplyWithAATest  extends JunitMadKit{
 				assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,ROLE));
 				assertEquals(SUCCESS,launchAgent(target));
 				AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, ROLE);
-				assertNull(sendMessageAndWaitForReply(null, null));
-				assertNull(sendMessageAndWaitForReply(aa, null));
-				assertNull(sendMessageAndWaitForReply(null, new Message()));
+				try {
+					sendMessageAndWaitForReply(null, null);
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+				try {
+					sendMessageAndWaitForReply(aa, null);
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+				try {
+					sendMessageAndWaitForReply(null, new Message());
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
 			}
 		});
 	}

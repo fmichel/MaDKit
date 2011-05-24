@@ -20,6 +20,7 @@ package madkit.kernel;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.Madkit.Roles;
 
 
@@ -145,12 +146,15 @@ public class AgentAddress implements java.io.Serializable{
 	 */
 	@Override
 	public String toString() {
-		if(roleObject == null)
-			return Utils.getI18N("unregisteredAA");
-//		return agentCode+"@("+getCommunity()+"."+getGroup()+"."+getRole()+(isLocal() ? ")" : ")@"+getKernelAddress());
-		return agentCode+"@("+getCommunity()+","+getGroup()+","+getRole()+")"+getKernelAddress();
+		String format = agentCode+"@("+getCommunity()+","+getGroup()+","+getRole()+")";
+		if(! isLocal()){
+			format+=getKernelAddress();
+		}
+		if(! exists())
+			return format + " "+ReturnCode.INVALID_AA;
+		return format;
 	}
-
+	
 	final int getAgentCode() {
 		return agentCode;
 	}

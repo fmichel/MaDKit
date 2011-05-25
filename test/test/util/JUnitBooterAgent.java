@@ -12,7 +12,7 @@ import java.util.logging.Level;
 
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Madkit;
-import madkit.kernel.Madkit.BooleanOptions;
+import madkit.kernel.Madkit.BooleanOption;
 import static madkit.kernel.AbstractAgent.ReturnCode.*;
 import static madkit.kernel.AbstractAgent.State.*;
 
@@ -42,10 +42,7 @@ public class JUnitBooterAgent extends AbstractAgent {
 	public static String testTitle;
 
 	private List<String> mkArgs = Arrays.asList(
-			"--"+Madkit.warningLogLevel,"INFO",
 			"--"+Madkit.logDirectory,getBinTestDir(),
-			"--"+Madkit.agentLogLevel,"ALL",
-			"--"+Madkit.MadkitLogLevel,"INFO",
 			"--"+Madkit.launchAgents,getClass().getName());
 
 	public JUnitBooterAgent(){
@@ -115,19 +112,10 @@ public class JUnitBooterAgent extends AbstractAgent {
 	 */
 
 	protected void noAgentConsoleLog(){
-		setMadkitProperty(BooleanOptions.noAgentConsoleLog.name(), "true");
-		assertEquals("true",getMadkitProperty(BooleanOptions.noAgentConsoleLog.name()));
+		setMadkitProperty(BooleanOption.noAgentConsoleLog.name(), "true");
+		assertEquals("true",getMadkitProperty(BooleanOption.noAgentConsoleLog.name()));
 	}
 
-	protected void setAgentLogLevel(Level level){
-		setMadkitProperty(Madkit.agentLogLevel, level.toString());
-		assertEquals(level.toString(),getMadkitProperty(Madkit.agentLogLevel));
-	}
-
-	protected void setMadkitLogLevel(Level level){
-		setMadkitProperty(Madkit.MadkitLogLevel, level.toString());
-		assertEquals(level.toString(),getMadkitProperty(Madkit.MadkitLogLevel));
-	}
 
 	//	protected void setOrgLogLevel(Level level){
 	//		setMadkitProperty(Madkit.orgLogLevel, level.toString());

@@ -5,6 +5,7 @@ package madkit.boot.process;
 
 import static org.junit.Assert.fail;
 import madkit.kernel.Madkit;
+import madkit.kernel.Madkit.LevelOption;
 
 import test.util.JUnitBooterAgent;
 
@@ -21,9 +22,9 @@ public class LaunchAgentsOptionTest extends JUnitBooterAgent{
 
 	@Override
 	public void madkitInit() {
-		String[] args = {"--"+Madkit.warningLogLevel,"INFO",
-				"--"+Madkit.agentLogLevel,"INFO",
-				"--"+Madkit.MadkitLogLevel,"INFO",
+		String[] args = {"--"+LevelOption.warningLogLevel,"INFO",
+				"--"+LevelOption.agentLogLevel,"INFO",
+				"--"+LevelOption.madkitLogLevel,"INFO",
 				"--"+Madkit.launchAgents,getClass().getName()+",false,2;madkit.kernel.AbstractAgent,true,a"
 		};
 		try {

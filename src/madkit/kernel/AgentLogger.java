@@ -36,7 +36,8 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
-import madkit.kernel.Madkit.BooleanOptions;
+import madkit.kernel.Madkit.BooleanOption;
+import madkit.kernel.Madkit.LevelOption;
 
 /**
  * This class defines a logger specialized for MadKit agents.
@@ -51,7 +52,7 @@ public class AgentLogger extends Logger {
 	final static AgentLogger defaultAgentLogger = new AgentLogger();
 	final static private Map<AbstractAgent,AgentLogger> agentLoggers = new HashMap<AbstractAgent,AgentLogger>();//TODO evaluate foot print
 	final static Level talkLevel = Level.parse("1100");
-	private Level warningLogLevel = Level.parse(Madkit.defaultConfig.getProperty(Madkit.warningLogLevel));
+	private Level warningLogLevel = LevelOption.warningLogLevel.getValue(Madkit.defaultConfig);
 	final private AbstractAgent myAgent;
 
 	final public static Formatter agentFormatter = new Formatter(){//TODO create Formatter hierarchy
@@ -153,9 +154,8 @@ public class AgentLogger extends Logger {
 		super("[UNREGISTERED AGENT]", null);
 		myAgent = null;
 		setUseParentHandlers(false);
-		super.setLevel(Level.parse(Madkit.defaultConfig.getProperty(Madkit.agentLogLevel)));
-		setWarningLogLevel(Level.parse(Madkit.defaultConfig.getProperty(Madkit.warningLogLevel)));
-		if(! BooleanOptions.noAgentConsoleLog.isActivated(Madkit.defaultConfig)){
+		super.setLevel(LevelOption.agentLogLevel.getValue(Madkit.defaultConfig));
+		if(! BooleanOption.noAgentConsoleLog.isActivated(Madkit.defaultConfig)){
 			addHandler(new ConsoleHandler());
 		}
 	}
@@ -164,14 +164,14 @@ public class AgentLogger extends Logger {
 		super("["+agent.getName()+"]", null);
 		myAgent = agent;
 		setUseParentHandlers(false);
-		super.setLevel(Level.parse(agent.getMadkitProperty(Madkit.agentLogLevel)));
-		setWarningLogLevel(Level.parse(agent.getMadkitProperty(Madkit.warningLogLevel)));
-		if(! BooleanOptions.noAgentConsoleLog.isActivated(agent.getMadkitConfig())){
+		super.setLevel(LevelOption.agentLogLevel.getValue(agent.getMadkitConfig()));
+		setWarningLogLevel(LevelOption.warningLogLevel.getValue(agent.getMadkitConfig()));
+		if(! BooleanOption.noAgentConsoleLog.isActivated(agent.getMadkitConfig())){
 			ConsoleHandler ch = new ConsoleHandler();
 			addHandler(ch);
 			ch.setFormatter(agentFormatter);
 		}
-		if(Boolean.parseBoolean(agent.getMadkitProperty(BooleanOptions.createLogFiles.name()))){
+		if(Boolean.parseBoolean(agent.getMadkitProperty(BooleanOption.createLogFiles.name()))){
 			addHandler(getFileHandler(agent.getMadkitProperty(Madkit.logDirectory)+getName()));
 		}
 	}

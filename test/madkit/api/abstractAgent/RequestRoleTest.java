@@ -32,6 +32,7 @@ import madkit.kernel.AbstractAgent;
 import madkit.kernel.GroupIdentifier;
 import madkit.kernel.JunitMadKit;
 import madkit.kernel.Madkit;
+import madkit.kernel.Madkit.LevelOption;
 
 import org.junit.Test;
 
@@ -97,7 +98,7 @@ public class RequestRoleTest  extends JunitMadKit{
 	public void returnNotCgr(){
 		addMadkitArgs(
 //				"--"+Madkit.warningLogLevel,"SEVERE",
-				"--"+Madkit.agentLogLevel,"ALL"
+				"--"+LevelOption.agentLogLevel,"ALL"
 				);
 		launchTest(new AbstractAgent(){
 			protected void activate() {

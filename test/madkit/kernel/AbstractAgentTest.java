@@ -23,7 +23,7 @@ import static org.junit.Assert.*;
 import java.util.Arrays;
 import java.util.logging.Level;
 import madkit.kernel.AbstractAgent.ReturnCode;
-import madkit.kernel.Madkit.BooleanOptions;
+import madkit.kernel.Madkit.BooleanOption;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -42,7 +42,7 @@ public class AbstractAgentTest {
 	public void setup(){
 		a = new AbstractAgent();
 		b = new AbstractAgent();
-		String[] args = {BooleanOptions.desktop.commandLineString(),"false"};
+		String[] args = {BooleanOption.desktop.commandLineString(),"false"};
 		a.kernel = new MadkitKernel(new Madkit(args));
 	}
 	

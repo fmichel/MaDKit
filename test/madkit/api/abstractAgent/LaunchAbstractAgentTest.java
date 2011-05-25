@@ -21,6 +21,7 @@ package madkit.api.abstractAgent;
 import java.util.ArrayList;
 
 import madkit.kernel.*;
+import madkit.kernel.Madkit.LevelOption;
 import static org.junit.Assert.*;
 
 import org.junit.Assert;
@@ -112,7 +113,7 @@ public class LaunchAbstractAgentTest  extends JunitMadKit{
 	
 	@Test
 	public void massLaunch(){
-		addMadkitArgs("--"+Madkit.agentLogLevel,"OFF");
+		addMadkitArgs("--"+LevelOption.agentLogLevel,"OFF");
 		launchTest(new AbstractAgent(){
 			int number = 1000;
 			protected void activate() {
@@ -134,7 +135,7 @@ public class LaunchAbstractAgentTest  extends JunitMadKit{
 
 	@Test
 	public void massLaunchWithGUI(){
-		addMadkitArgs("--"+Madkit.agentLogLevel,"OFF");
+		addMadkitArgs("--"+LevelOption.agentLogLevel,"OFF");
 		launchTest(new AbstractAgent(){
 			int number = 50;
 			protected void activate() {

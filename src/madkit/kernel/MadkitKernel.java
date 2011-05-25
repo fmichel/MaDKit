@@ -42,10 +42,10 @@ import static madkit.kernel.CGRSynchro.Code.CREATE_GROUP;
 import static madkit.kernel.CGRSynchro.Code.LEAVE_GROUP;
 import static madkit.kernel.CGRSynchro.Code.LEAVE_ROLE;
 import static madkit.kernel.CGRSynchro.Code.REQUEST_ROLE;
-import static madkit.kernel.Madkit.BooleanOptions.autoConnectMadkitWebsite;
-import static madkit.kernel.Madkit.BooleanOptions.loadLocalDemos;
-import static madkit.kernel.Madkit.BooleanOptions.network;
-import static madkit.kernel.Madkit.BooleanOptions.noGUIManager;
+import static madkit.kernel.Madkit.BooleanOption.autoConnectMadkitWebsite;
+import static madkit.kernel.Madkit.BooleanOption.loadLocalDemos;
+import static madkit.kernel.Madkit.BooleanOption.network;
+import static madkit.kernel.Madkit.BooleanOption.noGUIManager;
 import static madkit.kernel.Madkit.Roles.GUI_MANAGER_ROLE;
 import static madkit.kernel.Madkit.Roles.KERNEL_ROLE;
 import static madkit.kernel.Madkit.Roles.LOCAL_COMMUNITY;
@@ -94,7 +94,8 @@ import madkit.gui.GUIManagerAgent;
 import madkit.gui.actions.MadkitActions;
 import madkit.gui.messages.GUIMessage;
 import madkit.kernel.AbstractAgent.ReturnCode;
-import madkit.kernel.Madkit.BooleanOptions;
+import madkit.kernel.Madkit.BooleanOption;
+import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Madkit.Roles;
 import madkit.messages.KernelMessage;
 import madkit.messages.ObjectMessage;
@@ -183,8 +184,7 @@ class MadkitKernel extends Agent {
 	MadkitKernel(Madkit m) {
 		super(true);
 		platform = m;
-		if (m != null) {
-			setLogLevel(Level.parse(platform.getConfigOption().getProperty(Madkit.kernelLogLevel)));
+		if (platform != null) {
 			kernelAddress = new KernelAddress();
 			organizations = new ConcurrentHashMap<String, Organization>();
 			operatingOverlookers = new LinkedHashSet<Overlooker<? extends AbstractAgent>>();
@@ -216,6 +216,7 @@ class MadkitKernel extends Agent {
 
 	@Override
 	protected void activate() {
+		setLogLevel(LevelOption.kernelLogLevel.getValue(getMadkitConfig()));
 		createGroup(Roles.LOCAL_COMMUNITY, Roles.SYSTEM_GROUP, false);
 		createGroup(Roles.LOCAL_COMMUNITY, Roles.NETWORK_GROUP, false);
 		requestRole(Roles.LOCAL_COMMUNITY, Roles.SYSTEM_GROUP, Roles.KERNEL_ROLE, null);
@@ -284,7 +285,7 @@ class MadkitKernel extends Agent {
 			if (logger != null)
 				logger.fine("** No GUI Manager: " + noGUIManager + " option is true**\n");
 		} else {
-			Agent a = new GUIManagerAgent(! BooleanOptions.desktop.isActivated(getMadkitConfig()));
+			Agent a = new GUIManagerAgent(! BooleanOption.desktop.isActivated(getMadkitConfig()));
 			launchAgent(a);
 			threadedAgents.remove(a);
 			if (logger != null)
@@ -989,12 +990,12 @@ class MadkitKernel extends Agent {
 		if(defaultGUI)
 			agent.activateGUI();
 		agent.setKernel(this);
-		Level defaultLevel = Level.parse(getMadkitProperty(this, Madkit.agentLogLevel));
+		Level defaultLevel = LevelOption.agentLogLevel.getValue(getMadkitConfig());
 		if (defaultLevel == Level.OFF && agent.logger == AbstractAgent.defaultLogger) {
 			agent.logger = null;
 		} else if (defaultLevel != Level.OFF && agent.logger == AbstractAgent.defaultLogger) {
 			agent.setLogLevel(defaultLevel);
-			agent.getLogger().setWarningLogLevel(Level.parse(getMadkitProperty(this, Madkit.warningLogLevel)));
+			agent.getLogger().setWarningLogLevel(LevelOption.warningLogLevel.getValue(getMadkitConfig()));
 		}
 		if (!agent.getAlive().compareAndSet(false, true)) {// TODO remove that
 			throw new AssertionError("already alive in launch");

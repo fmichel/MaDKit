@@ -29,6 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
 import madkit.gui.GUIToolkit;
+import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Madkit.Roles;
 import madkit.messages.ObjectMessage;
 
@@ -73,7 +74,7 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 	@Override
 	protected void activate() {
 		setName(super.getName()+getKernelAddress());
-		setLogLevel(Level.parse(Madkit.networkLogLevel));
+		setLogLevel(LevelOption.networkLogLevel.getValue(getMadkitConfig()));
 
 		requestRole(Roles.LOCAL_COMMUNITY, Roles.NETWORK_GROUP, Roles.NETWORK_ROLE);
 //		requestRole(Roles.LOCAL_COMMUNITY, Roles.NETWORK_GROUP, "updater",null);

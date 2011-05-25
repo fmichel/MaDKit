@@ -18,18 +18,15 @@
  */
 package madkit.kernel;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import madkit.kernel.JunitMadKit;
-import madkit.kernel.Madkit.BooleanOptions;
-import static org.junit.Assert.*;
+import madkit.kernel.Madkit.BooleanOption;
+import madkit.kernel.Madkit.LevelOption;
 
-import org.junit.Assert;
 import org.junit.Test;
-import static madkit.kernel.AbstractAgent.ReturnCode.*;
-
-import test.util.JUnitBooterAgent;
 
 /**
  * @author Fabien Michel
@@ -37,21 +34,21 @@ import test.util.JUnitBooterAgent;
  * @version 0.9
  * 
  */
+@SuppressWarnings("serial")
 public class OptionTesting  extends JunitMadKit{
 	
 	@Test
 	public void correctness(){
 		mkArgs = new ArrayList<String>(Arrays.asList(
-				BooleanOptions.autoConnectMadkitWebsite.commandLineString(),
-				"--"+Madkit.platformLogLevel,"ALL",
+				BooleanOption.autoConnectMadkitWebsite.commandLineString(),
 //				"--"+Madkit.logDirectory,getBinTestDir(),
 //				"--"+Madkit.agentLogLevel,"ALL",
-				"--"+Madkit.kernelLogLevel,"INFO"
+				LevelOption.kernelLogLevel.commandLineString(),"INFO"
 				));
 		launchTest(new AbstractAgent(){
 			protected void activate() {
-				assertEquals("ALL",getMadkitProperty(Madkit.platformLogLevel));
-				assertEquals("true",getMadkitProperty(BooleanOptions.autoConnectMadkitWebsite.name()));
+				assertEquals("INFO",getMadkitProperty(LevelOption.kernelLogLevel.name()));
+				assertEquals("true",getMadkitProperty(BooleanOption.autoConnectMadkitWebsite.name()));
 			}
 		});
 	}

@@ -32,6 +32,7 @@ import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
 import madkit.kernel.JunitMadKit;
 import madkit.kernel.Madkit;
+import madkit.kernel.Madkit.LevelOption;
 import madkit.testing.util.agent.DoItDuringLifeCycleAbstractAgent;
 import madkit.testing.util.agent.FaultyAA;
 import madkit.testing.util.agent.SelfAbstractKill;
@@ -116,7 +117,7 @@ public class KillAbstractAgentTest  extends JunitMadKit{
 	
 	@Test
 	public void massKill(){
-		addMadkitArgs("--"+Madkit.agentLogLevel,"OFF");
+		addMadkitArgs("--"+LevelOption.agentLogLevel,"OFF");
 		launchTest(new AbstractAgent(){
 			ArrayList<AbstractAgent> list = new ArrayList<AbstractAgent>(100);
 			protected void activate() {

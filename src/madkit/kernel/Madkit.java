@@ -60,6 +60,8 @@ import javax.swing.JOptionPane;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import madkit.i18n.ErrorMessages;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -159,22 +161,10 @@ final public class Madkit {
 	 * @see AbstractAgent#setMadkitProperty(String, String)
 	 * @since Madkit 5 
 	 */
-	public static final String warningLogLevel = "warningLogLevel";
+//	public static final String warningLogLevel = "warningLogLevel";
 	//	public static final String createLogFiles = "createLogFiles";
 	public static final String logDirectory = "logDirectory";
 	public static final String agentsLogFile = "agentsLogFile";
-	/**
-	 * Boolean option defining if agent logging should be quiet in the
-	 * default console.
-	 * Key value is {@value}.
-	 * Default value is "false". 
-	 * <p>Usage example:
-	 * <ul>
-	 * <li> : --{@value} (is equivalent to) --{@value} true</li> 
-	 * <li> : --{@value} false (useless as this is the default value)</li>
-	 * </ul>
-	 * @since Madkit 5 
-	 */
 //	public static final String noAgentConsoleLog = "noAgentConsoleLog";
 	/**
 	 * Parameterizable option defining the default agent log level for newly
@@ -193,20 +183,19 @@ final public class Madkit {
 	 * @see AbstractAgent#setMadkitProperty(String, String)
 	 * @since Madkit 5 
 	 */
-	public final static String agentLogLevel = "agentLogLevel";
-	/**
-	 * Boolean option defining if organization logging should be quiet in the
-	 * default console.
-	 * Key value is {@value}.
-	 * Default value is "false". 
-	 * <p>Usage example:
-	 * <ul>
-	 * <li> : --{@value} (is equivalent to) --{@value} true</li> 
-	 * <li> : --{@value} false (useless as this is the default value)</li>
-	 * </ul>
-	 * @since Madkit 5 
-	 */
-	public final static String noOrgConsoleLog = "noOrgConsoleLog";
+//	/**
+//	 * Boolean option defining if organization logging should be quiet in the
+//	 * default console.
+//	 * Key value is {@value}.
+//	 * Default value is "false". 
+//	 * <p>Usage example:
+//	 * <ul>
+//	 * <li> : --{@value} (is equivalent to) --{@value} true</li> 
+//	 * <li> : --{@value} false (useless as this is the default value)</li>
+//	 * </ul>
+//	 * @since Madkit 5 
+//	 */
+//	public final static String noOrgConsoleLog = "noOrgConsoleLog";
 	/**
 	 * Parameterizable option defining the default organization log level. 
 	 * Key value is {@value}.
@@ -248,19 +237,12 @@ final public class Madkit {
 	 * </ul>
 	 * @since Madkit 5 
 	 */
-	public final static String MadkitLogLevel = "MadkitLogLevel";
-
-	static final String kernelLogLevel = "kernelLogLevel";
-	static final String guiLogLevel = "guiLogLevel";
-	static final String platformLogLevel = "platformLogLevel";
-	static final String booterAgentKey = "booterAgent";
 	/**
 	 * Launches the MadKit desktop
 	 */
 	//	public static final String desktop = "desktop";
 	//	public static final String autoConnectMadkitWebsite = "autoConnectMadkitWebsite";
 //	public static final String loadLocalDemos = "loadLocalDemos";
-	static final String networkLogLevel = "networkLogLevel";
 
 	/**
 	 * Default roles within a MadKit organization.
@@ -360,7 +342,7 @@ final public class Madkit {
 		madkitConfig.putAll(fromArgs);
 		//desktop on if no agents : could be overriden later
 		if(madkitConfig.getProperty(Madkit.launchAgents).equals("null")){
-			BooleanOptions.desktop.setProperty(madkitConfig, true);
+			BooleanOption.desktop.setProperty(madkitConfig, true);
 		}
 		myKernel = new MadkitKernel(this);
 		logger = myKernel.logger;
@@ -423,7 +405,7 @@ final public class Madkit {
 	 * 
 	 */
 	private void createLogDirectory() {
-		if (BooleanOptions.createLogFiles.isActivated(madkitConfig)) {
+		if (BooleanOption.createLogFiles.isActivated(madkitConfig)) {
 			SimpleDateFormat simpleFormat = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
 			String logDir = madkitConfig.getProperty(logDirectory) + simpleFormat.format(new Date());
 			new File(logDir).mkdirs();
@@ -572,8 +554,7 @@ final public class Madkit {
 	 * 
 	 */
 	private void printWelcomeString() {
-		if(! (madkitConfig.getProperty(Madkit.noMadkitConsoleLog).equals("true")
-				|| Level.parse(madkitConfig.getProperty(Madkit.MadkitLogLevel)).equals(Level.OFF))){
+		if(!(LevelOption.madkitLogLevel.getValue(madkitConfig) == Level.OFF)){
 			System.err.println("\n\t-----------------------------------------------------");
 			System.err.println("\n\t\t\t   MadKit");
 			System.err.println("\n\t\t   version: "+defaultConfig.getProperty("madkit.version")+"\n\t\t  build: "+defaultConfig.getProperty("build.id"));
@@ -583,8 +564,8 @@ final public class Madkit {
 	}
 
 	String printFareWellString() {
-		if(! (madkitConfig.getProperty(Madkit.noMadkitConsoleLog).equals("true")
-				|| Level.parse(madkitConfig.getProperty(Madkit.MadkitLogLevel)).equals(Level.OFF))){
+		if(!(LevelOption.madkitLogLevel.getValue(madkitConfig) == Level.OFF)){
+//				|| Level.parse(madkitConfig.getProperty(Madkit.MadkitLogLevel)).equals(Level.OFF))){
 			return("\n\t-------------------------------------------------------------")+
 			("\n\t   MadKit Kernel "+myKernel.getKernelAddress()+" is shutting down, Bye !")+
 			("\n\t-------------------------------------------------------------\n");			
@@ -592,11 +573,11 @@ final public class Madkit {
 		return "";
 	}
 
-	private void misuseOptionMessage(String option,String value) {
-		System.err.println("\n\n-------------MadKit WARNING----------------------------\n" +
-				"Misuse of --"+option+" option\nincorrect value : "+value+
-		"\n------------------------------------------------------\n");
-	}
+//	private void misuseOptionMessage(String option,String value) {
+//		System.err.println("\n\n-------------MadKit WARNING----------------------------\n" +
+//				"Misuse of --"+option+" option\nincorrect value : "+value+
+//		"\n------------------------------------------------------\n");
+//	}
 
 	//	/**
 	//	 * @param agentsLogFile the agentsLogFile to set
@@ -913,12 +894,24 @@ final public class Madkit {
 		return Boolean.parseBoolean(madkitConfig.getProperty(madkitOptionName));
 	}
 
-	public static enum BooleanOptions{
+	public static enum BooleanOption{
 		desktop,
 		autoConnectMadkitWebsite,
 		network,
 		createLogFiles,
 		noGUIManager,
+		/**
+		 * Boolean option defining if agent logging should be quiet in the
+		 * default console.
+		 * Key value is {@value}.
+		 * Default value is "false". 
+		 * <p>Usage example:
+		 * <ul>
+		 * <li> : --{@value} (is equivalent to) --{@value} true</li> 
+		 * <li> : --{@value} false (useless as this is the default value)</li>
+		 * </ul>
+		 * @since MadKit 5.0.0.10
+		 */
 		noAgentConsoleLog,
 		loadLocalDemos;
 		boolean isActivated(Properties session){
@@ -927,6 +920,35 @@ final public class Madkit {
 
 		void setProperty(Properties session, Boolean activated){
 			session.setProperty(name(), activated.toString());
+		}
+
+		/**
+		 * @return the command line form for this option, i.e. "--optionName activated" 
+		 */
+		String commandLineString(){
+			return "--"+name();
+		}
+	}
+
+	public static enum LevelOption{
+		agentLogLevel,
+		kernelLogLevel,
+		guiLogLevel,
+		madkitLogLevel,
+		warningLogLevel,
+		networkLogLevel;
+		
+		Level getValue(Properties session){
+			try {
+				return Level.parse(session.getProperty(name()));
+			} catch (IllegalArgumentException e) {
+				currentInstance.myKernel.getLogger().severeLog(ErrorMessages.OPTION_MISUSED.toString()+" "+name()+" : "+session.getProperty(name()), e);
+			}
+			return Level.ALL;
+		}
+
+		void setProperty(Properties session, Level lvl){
+			session.setProperty(name(), lvl.toString());
 		}
 
 		/**

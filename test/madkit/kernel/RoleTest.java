@@ -20,7 +20,7 @@ package madkit.kernel;
 
 import static org.junit.Assert.*;
 
-import madkit.kernel.Madkit.BooleanOptions;
+import madkit.kernel.Madkit.BooleanOption;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -40,7 +40,7 @@ public class RoleTest {
 	
 	@Before
 	public void before(){
-		String[] args = {"--"+BooleanOptions.desktop,"false",
+		String[] args = {"--"+BooleanOption.desktop,"false",
 				"--platformLogLevel","ALL"
 				};
 		mk = new MadkitKernel(new Madkit(args));

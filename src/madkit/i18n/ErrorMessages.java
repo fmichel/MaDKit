@@ -10,7 +10,8 @@ public enum ErrorMessages {
 	C_NULL,
 	G_NULL,
 	R_NULL,
-	CANT_LAUNCH;
+	CANT_LAUNCH, 
+	OPTION_MISUSED;
 	
 	final static ResourceBundle messages = I18nMadkitClass.getResourceBundle(ErrorMessages.class.getSimpleName());
 //	static ResourceBundle messages = I18nMadkitClass.getResourceBundle(ReturnCode.class);

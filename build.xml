@@ -27,6 +27,9 @@
 <project name="madkitkernel" default="jar" basedir=".">
 	
 	<!-- using madkit kernel building properties file -->
+	<tstamp prefix="time"/>
+	<property name="build.id" value="${time.DSTAMP}-${time.TSTAMP}"/>
+	<property file="src/madkit/kernel/madkitKernel.properties"/>
 	<property file="madkitKernelBuild.properties"/>
 	
 	<import file="${madkit.ant.targets.file}"/>
@@ -46,10 +49,10 @@
 
 	<!-- ================================= 
           target: compile           TODO check javac task   
-         ================================= -->
-	<target name="compile" depends="buildResources">
 		<tstamp prefix="time"/>
 		<property name="build.id" value="${time.DSTAMP}-${time.TSTAMP}"/>
+         ================================= -->
+	<target name="compile" depends="buildResources">
 		<javac
 			includeAntRuntime="false"
 			srcdir="${src.dir}"
@@ -92,6 +95,12 @@
 	
 	<!-- - - - - - - - - - - - - - - - - - 
           target: build-properties                      
+   		<copy todir="bin" file="${src.dir}/${madkitKernel.properties}" overwrite="true">
+   		  <filterchain>
+   		    <expandproperties/>
+   		  </filterchain>
+   		</copy>	
+		<propertyfile file="${build.dir}/${madkitKernel.properties}" comment="MadKit 5 default properties"/>
          - - - - - - - - - - - - - - - - - -->
     <target name="build-properties" depends="compile">
 		<tstamp>
@@ -101,17 +110,11 @@
 		<filterset begintoken="[[" endtoken ="]]">
 			<filter token="TIMESTAMP" value="${timestamp.isoformat}"/>
 		</filterset>
-   		<copy tofile="${build.dir}/${madkitKernel.properties}" file="${madkitKernel.properties}.distrib" overwrite="true">
+   		<copy todir="${build.dir}" file="${madkitKernel.properties}" overwrite="true">
    		  <filterchain>
    		    <expandproperties/>
    		  </filterchain>
    		</copy>	
-   		<copy todir="bin" file="${src.dir}/${madkitKernel.properties}" overwrite="true">
-   		  <filterchain>
-   		    <expandproperties/>
-   		  </filterchain>
-   		</copy>	
-		<propertyfile file="${build.dir}/${madkitKernel.properties}" comment="MadKit 5 default properties"/>
     </target>
 	
 	

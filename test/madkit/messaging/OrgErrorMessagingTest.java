@@ -31,8 +31,6 @@ public class OrgErrorMessagingTest extends JUnitBooterAgent{
 	
 	public void activate() {
 		super.activate();
-		setMadkitLogLevel(Level.OFF);
-		
 		sendMessageTesting();
 		
 		setLogLevel(Level.OFF);

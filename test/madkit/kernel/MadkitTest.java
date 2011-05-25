@@ -22,7 +22,8 @@ package madkit.kernel;
 
 import java.util.Properties;
 
-import madkit.kernel.Madkit.BooleanOptions;
+import madkit.kernel.Madkit.BooleanOption;
+import madkit.kernel.Madkit.LevelOption;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -51,7 +52,7 @@ public class MadkitTest {
 	 */
 	private void testMKlogLevelBoot(String MKLogLevel) {
 		System.err.println("\n\n\n\n\n--------------------MK log level = "+MKLogLevel+"-------------------");
-		String[] args = {"--"+Madkit.MadkitLogLevel,MKLogLevel};
+		String[] args = {LevelOption.madkitLogLevel.commandLineString(),MKLogLevel};
 		Madkit m = new Madkit(args);
 		System.err.println("\n\n--------------------MK log level = "+MKLogLevel+"-------------------\n\n\n\n\n");
 	}
@@ -85,7 +86,7 @@ public class MadkitTest {
 	
 	@Test
 	public void buildSessionTest(){
-		String[] args = {BooleanOptions.desktop.commandLineString(),"false",
+		String[] args = {BooleanOption.desktop.commandLineString(),"false",
 		"--kernelLogLevel","ALL"		
 		};
 		Madkit mk = new Madkit(args);

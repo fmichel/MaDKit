@@ -7,6 +7,7 @@ import java.util.logging.Level;
 import org.junit.Test;
 
 import madkit.kernel.Madkit;
+import madkit.kernel.Madkit.LevelOption;
 
 /**
  * @author fab
@@ -20,7 +21,7 @@ public class TestArguments{
 	 */
 	private void testMKlogLevelBoot(String MKLogLevel) throws InterruptedException {
 		System.err.println("\n\n\n\n\n--------------------MK log level = "+MKLogLevel+"-------------------");
-		String[] args = {"--"+Madkit.MadkitLogLevel,MKLogLevel};
+		String[] args = {"--"+LevelOption.madkitLogLevel,MKLogLevel};
 		Madkit.main(args);
 //		Thread.sleep(1000);
 		System.err.println("\n\n--------------------MK log level = "+MKLogLevel+"-------------------\n\n\n\n\n");

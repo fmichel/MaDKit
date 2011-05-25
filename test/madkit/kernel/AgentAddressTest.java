@@ -22,7 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import madkit.kernel.Madkit.BooleanOptions;
+import madkit.kernel.Madkit.BooleanOption;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -42,7 +42,7 @@ public class AgentAddressTest {
 	
 	@Before
 	public void before(){
-		String[] args = {BooleanOptions.desktop.commandLineString(),"false"};
+		String[] args = {BooleanOption.desktop.commandLineString(),"false"};
 		mk = new MadkitKernel(new Madkit(args));
 		a = new AbstractAgent();
 		a.setKernel(mk);

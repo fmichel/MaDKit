@@ -7,6 +7,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import madkit.kernel.Madkit;
+import madkit.kernel.Madkit.LevelOption;
 import test.util.JUnitBooterAgent;
 
 /**
@@ -28,8 +29,8 @@ public class TestArg extends  JUnitBooterAgent{
 	
 	@Override
 	public void activate() {
-		assertEquals("ALL",getMadkitProperty(Madkit.agentLogLevel));
+		assertEquals("ALL",getMadkitProperty(LevelOption.agentLogLevel.toString()));
 		assertEquals("bin/mkLogFile",getMadkitProperty(Madkit.MadkitLogFile));
-		assertEquals("ALL",getMadkitProperty(Madkit.MadkitLogLevel));
+		assertEquals("ALL",getMadkitProperty(LevelOption.madkitLogLevel.toString()));
 	}
 }

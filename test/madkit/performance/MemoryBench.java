@@ -22,6 +22,7 @@ import java.util.Arrays;
 
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Madkit;
+import madkit.kernel.Madkit.LevelOption;
 
 /**
  * @author Fabien Michel
@@ -51,7 +52,7 @@ public class MemoryBench extends AbstractAgent {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		String[] argss = {"--agentLogLevel","OFF","--"+Madkit.MadkitLogLevel,"OFF","--orgLogLevel","OFF","--launchAgents",MemoryBench.class.getName(),",false"};
+		String[] argss = {"--agentLogLevel","OFF","--"+LevelOption.madkitLogLevel,"OFF","--orgLogLevel","OFF","--launchAgents",MemoryBench.class.getName(),",false"};
 		Madkit.main(argss);		
 	}
 

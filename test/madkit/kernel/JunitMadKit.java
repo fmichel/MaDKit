@@ -18,22 +18,21 @@
  */
 package madkit.kernel;
 
+import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import madkit.kernel.AbstractAgent.ReturnCode;
-import madkit.kernel.Madkit.BooleanOptions;
+import madkit.kernel.Madkit.BooleanOption;
+import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Madkit.Roles;
 
 import org.junit.Rule;
-import org.junit.Test;
 import org.junit.rules.TestName;
-import static org.junit.Assert.*;
-import static madkit.kernel.AbstractAgent.ReturnCode.*;
 
 /**
  * @author Fabien Michel
@@ -59,12 +58,12 @@ public class JunitMadKit {
 	private Madkit m;
 
 	protected List<String> mkArgs = new ArrayList<String>(Arrays.asList(
-			"--"+Madkit.warningLogLevel,"INFO",
-			BooleanOptions.desktop.commandLineString(),"false",
+//			"--"+Madkit.warningLogLevel,"INFO",
+			BooleanOption.desktop.commandLineString(),"false",
 			"--"+Madkit.launchAgents,"madkit.kernel.AbstractAgent",
 			"--"+Madkit.logDirectory,getBinTestDir(),
-			"--"+Madkit.agentLogLevel,"ALL",
-			"--"+Madkit.MadkitLogLevel,"INFO"));
+			LevelOption.agentLogLevel.commandLineString(),"ALL",
+			LevelOption.madkitLogLevel.commandLineString(),"INFO"));
 
 	public void launchTest(AbstractAgent a, ReturnCode expected){
 		System.err.println("\n\n------------------------ "+name.getMethodName()+" TEST START ---------------------");

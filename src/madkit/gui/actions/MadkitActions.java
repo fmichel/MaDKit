@@ -35,6 +35,7 @@ import java.net.MalformedURLException;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -44,8 +45,10 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import madkit.gui.GUIManagerAgent;
 import madkit.gui.messages.GUIMessage;
+import madkit.i18n.I18nMadkitClass;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.KernelAddress;
+import madkit.kernel.AbstractAgent.ReturnCode;
 
 /**
  * @author Fabien Michel
@@ -54,7 +57,7 @@ import madkit.kernel.KernelAddress;
  * 
  */
 @SuppressWarnings("serial")
-public enum MadkitActions implements MadKitGUIAction {
+public enum MadkitActions implements MadkitGUIAction {
 
 	MADKIT_EXIT_ACTION(new ImageIcon(MadkitActions.class.getResource("images/madkit/exitMadKit.png")),VK_E),
 	MADKIT_LAUNCH_NETWORK(new ImageIcon(MadkitActions.class.getResource("images/madkit/network_local.png")),VK_N),
@@ -152,7 +155,11 @@ public enum MadkitActions implements MadKitGUIAction {
 			return null;
 		return AgentAction.initAction(this, a);
 	}
-
+	
+	@Override
+	public String toString() {
+		return AgentAction.getDescription(this);
+	}
 
 	private Action getLaunchAgentAction(final GUIManagerAgent agent) {
 		return new AbstractAction() {
@@ -183,6 +190,7 @@ public enum MadkitActions implements MadKitGUIAction {
 			}
 		};
 	}
+	
 }
 
 	

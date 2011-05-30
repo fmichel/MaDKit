@@ -26,7 +26,6 @@ import static madkit.kernel.AbstractAgent.State.TERMINATED;
 import static madkit.kernel.Madkit.Roles.GUI_MANAGER_ROLE;
 import static madkit.kernel.Madkit.Roles.LOCAL_COMMUNITY;
 import static madkit.kernel.Madkit.Roles.SYSTEM_GROUP;
-import static madkit.kernel.Utils.getI18N;
 
 import java.io.Serializable;
 import java.net.URLClassLoader;
@@ -520,7 +519,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 */
 	public AbstractAgent launchAgent(String agentClass, int timeOutSeconds, final boolean createFrame) {
 		if(logger != null)
-			logger.finest(getI18N("launchA") + agentClass);
+			logger.finest(Words.LAUNCH+" " + agentClass);
 		try {
 			AbstractAgent a = (AbstractAgent) getMadkitClassLoader().loadClass(agentClass).newInstance();
 			if(ReturnCode.SUCCESS == launchAgent(a, timeOutSeconds, createFrame))

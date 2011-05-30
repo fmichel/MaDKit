@@ -23,12 +23,13 @@ import static madkit.kernel.AbstractAgent.ReturnCode.NO_RECIPIENT_FOUND;
 import static madkit.kernel.AbstractAgent.ReturnCode.ROLE_NOT_HANDLED;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static madkit.kernel.AbstractAgent.ReturnCode.TIME_OUT;
-import static madkit.kernel.Utils.getI18N;
-import static madkit.kernel.Utils.printCGR;
+import static madkit.i18n.I18nMadkitClass.*;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
+
+import madkit.i18n.Words;
 
 /**
  * @author Fabien Michel
@@ -56,7 +57,7 @@ final class LoggedKernel extends MadkitKernel {
 	ReturnCode createGroup(AbstractAgent requester, String community, String group, String description, GroupIdentifier theIdentifier, boolean isDistributed) {
 		if(requester.isFinestLogOn())
 			requester.logger.log(Level.FINEST,
-					"createGroup" + printCGR(community, group) + "distribution " + (isDistributed ? "ON" : "OFF") + " with "
+					"createGroup" + getCGRString(community, group) + "distribution " + (isDistributed ? "ON" : "OFF") + " with "
 				+ (theIdentifier == null ? "no access control" : theIdentifier.toString() + " for access control"));
 		ReturnCode r = kernel.createGroup(requester, community, group, group, theIdentifier, isDistributed);
 		return r == SUCCESS ? SUCCESS : requester.handleException(Influence.CREATE_GROUP, new OrganizationWarning(r, community, group, null));
@@ -65,7 +66,7 @@ final class LoggedKernel extends MadkitKernel {
 	@Override
 	boolean createGroupIfAbsent(AbstractAgent requester,String community, String group, String desc, GroupIdentifier theIdentifier, boolean isDistributed) {
 		if(requester.isFinestLogOn())
-			requester.logger.log(Level.FINEST,"createGroupIfAbsent" + printCGR(community, group) + "distribution " + (isDistributed ? "ON" : "OFF") + " with "
+			requester.logger.log(Level.FINEST,"createGroupIfAbsent" + getCGRString(community, group) + "distribution " + (isDistributed ? "ON" : "OFF") + " with "
 				+ (theIdentifier == null ? "no access control" : theIdentifier.toString() + " for access control"));
 		return kernel.createGroup(requester, community, group, desc,theIdentifier, isDistributed) == SUCCESS;
 	}
@@ -77,7 +78,7 @@ final class LoggedKernel extends MadkitKernel {
 	@Override
 	ReturnCode requestRole(AbstractAgent requester, String community, String group, String role, Object memberCard) {
 		if(requester.isFinestLogOn())
-			requester.logger.log(Level.FINEST,"requestRole" + printCGR(community, group, role) + "using " + memberCard + " as passKey");
+			requester.logger.log(Level.FINEST,"requestRole" + getCGRString(community, group, role) + "using " + memberCard + " as passKey");
 		ReturnCode r = kernel.requestRole(requester, community, group, role, memberCard);
 		return r == SUCCESS ? SUCCESS : requester.handleException(Influence.REQUEST_ROLE, new OrganizationWarning(r, community, group, role));
 	}
@@ -88,7 +89,7 @@ final class LoggedKernel extends MadkitKernel {
 	@Override
 	ReturnCode leaveGroup(AbstractAgent requester, String community, String group) {
 		if(requester.isFinestLogOn())
-			requester.logger.log(Level.FINEST,"leaveGroup" + printCGR(community, group));
+			requester.logger.log(Level.FINEST,"leaveGroup" + getCGRString(community, group));
 		ReturnCode r = kernel.leaveGroup(requester, community, group);
 		return r == SUCCESS ? SUCCESS : requester.handleException(Influence.LEAVE_GROUP, new OrganizationWarning(r, community, group, null));
 	}
@@ -99,7 +100,7 @@ final class LoggedKernel extends MadkitKernel {
 	@Override
 	ReturnCode leaveRole(AbstractAgent requester, String community, String group, String role) {
 		if(requester.isFinestLogOn())
-			requester.logger.log(Level.FINEST,"leaveRole" + printCGR(community, group, role));
+			requester.logger.log(Level.FINEST,"leaveRole" + getCGRString(community, group, role));
 		ReturnCode r = kernel.leaveRole(requester, community, group, role);
 		return r == SUCCESS ? SUCCESS : requester.handleException(Influence.LEAVE_ROLE, new OrganizationWarning(r, community, group, role));
 	}
@@ -110,7 +111,7 @@ final class LoggedKernel extends MadkitKernel {
 	@Override
 	List<AgentAddress> getAgentsWithRole(AbstractAgent requester, String community, String group, String role, boolean callerIncluded) {
 		if(requester.isFinestLogOn())
-			requester.logger.log(Level.FINEST,"getAgentsWithRole" + printCGR(community, group, role));
+			requester.logger.log(Level.FINEST,"getAgentsWithRole" + getCGRString(community, group, role));
 		try {
 			if (callerIncluded) {
 				return kernel.getRole(community, group, role).getAgentAddressesCopy();
@@ -130,7 +131,7 @@ final class LoggedKernel extends MadkitKernel {
 	@Override
 	AgentAddress getAgentWithRole(AbstractAgent requester, String community, String group, String role) {
 		if(requester.isFinestLogOn())
-			requester.logger.log(Level.FINEST,"getAgentWithRole" + printCGR(community, group, role));
+			requester.logger.log(Level.FINEST,"getAgentWithRole" + getCGRString(community, group, role));
 		try {
 			return kernel.getAnotherRolePlayer(requester, community, group, role);
 		} catch (CGRNotAvailable e) {
@@ -168,7 +169,7 @@ final class LoggedKernel extends MadkitKernel {
 	@Override
 	ReturnCode sendMessage(AbstractAgent requester, String community, String group, String role, Message messageToSend, String senderRole) {
 		if(requester.isFinestLogOn())
-			requester.logger.log(Level.FINEST,"sendMessage "+messageToSend+" to" + printCGR(community,group,role));
+			requester.logger.log(Level.FINEST,"sendMessage "+messageToSend+" to" + getCGRString(community,group,role));
 		ReturnCode r = kernel.sendMessage(requester, community, group, role, messageToSend, senderRole);
 		if(r == SUCCESS)
 			return SUCCESS;
@@ -232,11 +233,11 @@ final class LoggedKernel extends MadkitKernel {
 	boolean isCommunity(AbstractAgent requester, String community) {
 		if(kernel.isCommunity(requester, community)){
 			if(requester.isFinestLogOn())
-			requester.logger.log(Level.FINEST,"isCommunity ? "+printCGR(community)+" YES");
+			requester.logger.log(Level.FINEST,"isCommunity ? "+getCGRString(community)+" YES");
 			return true;
 		}
 		if(requester.isFinestLogOn())
-			requester.logger.log(Level.FINEST,"isCommunity ? "+printCGR(community)+" NO");
+			requester.logger.log(Level.FINEST,"isCommunity ? "+getCGRString(community)+" NO");
 		return false;
 	}
 
@@ -244,11 +245,11 @@ final class LoggedKernel extends MadkitKernel {
 	boolean isGroup(AbstractAgent requester, String community, String group) {
 		if(kernel.isGroup(requester, community, group)){
 			if(requester.isFinestLogOn())
-			requester.logger.log(Level.FINEST,"isGroup ? "+printCGR(community, group)+" YES");
+			requester.logger.log(Level.FINEST,"isGroup ? "+getCGRString(community, group)+" YES");
 			return true;
 		}
 		if(requester.isFinestLogOn())
-			requester.logger.log(Level.FINEST,"isGroup ? "+printCGR(community, group)+" NO");
+			requester.logger.log(Level.FINEST,"isGroup ? "+getCGRString(community, group)+" NO");
 		return false;
 	}
 
@@ -256,11 +257,11 @@ final class LoggedKernel extends MadkitKernel {
 	boolean isRole(AbstractAgent requester, String community, String group, String role) {
 		if(kernel.isRole(requester, community, group, role)){
 			if(requester.isFinestLogOn())
-			requester.logger.log(Level.FINEST,"isRole ? "+printCGR(community, group, role)+" YES");
+			requester.logger.log(Level.FINEST,"isRole ? "+getCGRString(community, group, role)+" YES");
 			return true;
 		}
 		if(requester.isFinestLogOn())
-			requester.logger.log(Level.FINEST,"isRole ? "+printCGR(community, group, role)+" NO");
+			requester.logger.log(Level.FINEST,"isRole ? "+getCGRString(community, group, role)+" NO");
 		return false;
 	}
 	
@@ -272,7 +273,7 @@ final class LoggedKernel extends MadkitKernel {
 	@Override //TODO think about this log
 	ReturnCode reloadClass(AbstractAgent requester, String name) throws ClassNotFoundException {
 		if(requester.isFinestLogOn())
-			requester.logger.log(Level.FINEST,getI18N("reload") + name);
+			requester.logger.log(Level.FINEST,Words.RELOAD.toString() + name);
 		ReturnCode r = kernel.reloadClass(requester, name);
 		if(r == SUCCESS)
 			return SUCCESS;

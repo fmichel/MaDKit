@@ -44,11 +44,11 @@ import madkit.i18n.Words;
  */
 final class Utils {
 
-	final static ResourceBundle messages = ResourceBundle.getBundle(Madkit.defaultConfig.getProperty("madkit.resourceBundle.file"));
+//	final static ResourceBundle messages = ResourceBundle.getBundle(Madkit.defaultConfig.getProperty("madkit.resourceBundle.file"));
 
-	static String getI18N(final String message){
-		return messages.getString(message);
-	}
+//	static String getI18N(final String message){
+//		return messages.getString(message);
+//	}
 
 //	static URL getFileURLResource(String fileName){
 //		URL url = GUIToolkit.class.getResource("/"+fileName);
@@ -182,16 +182,14 @@ final class Utils {
 		}
 	}
 
-	static String printCGR(final String community){
-		return getI18N("Community")+" <"+community+"> ";
-	}
-	static String printCGR(final String community, final String group){
-		return getI18N("Group")+" <"+community+","+group+"> ";
-	}
-	static String printCGR(final String community, final String group, final String role){
-		return getI18N("Role")+" <"+community+","+group+","+role+"> ";
+	static String getCGRString(final String community){
+		return getCGRString(community,null,null);
 	}
 	
+	static String getCGRString(final String community, final String group){
+		return getCGRString(community,group,null);
+	}
+
 	static String getCGRString(final String community, final String group, final String role){
 		if(role != null)
 			return Words.ROLE+" <"+community+","+group+","+role+"> ";
@@ -200,8 +198,8 @@ final class Utils {
 		return Words.COMMUNITY+" <"+community+"> ";
 	}
 	
-	public static void main(String[] args) {
-		System.err.println(getCGRString("aa", null, null));
-	}
+//	public static void main(String[] args) {
+//		System.err.println(getCGRString("aa", null, null));
+//	}
 
 }

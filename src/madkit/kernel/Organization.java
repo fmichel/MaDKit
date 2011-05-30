@@ -19,7 +19,7 @@
 package madkit.kernel;
 
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
-import static madkit.kernel.Utils.printCGR;
+import static madkit.i18n.I18nMadkitClass.*;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -66,7 +66,7 @@ final class Organization extends ConcurrentHashMap <String, Group>{
 //		logger = madkitKernel.getLogger();
 		logger = null;
 		if(logger != null)
-			logger.finer(printCGR(communityName)+"created");
+			logger.finer(getCGRString(communityName)+"created");
 	}
 
 	String getName(){
@@ -87,11 +87,11 @@ final class Organization extends ConcurrentHashMap <String, Group>{
 		final Group g = new Group(communityName,group,creator,theIdentifier,isDistributed,this);
 		if (putIfAbsent(group,g) == null) {// There was no such group
 			if(logger != null)
-				logger.fine(printCGR(communityName, group)+"created by "+creator.getName()+"\n");
+				logger.fine(getCGRString(communityName, group)+"created by "+creator.getName()+"\n");
 			return true;
 		}
 		if(logger != null)
-			logger.finer(printCGR(communityName, group)+"already exists: Creation aborted"+"\n");
+			logger.finer(getCGRString(communityName, group)+"already exists: Creation aborted"+"\n");
 		return false;
 	}
 
@@ -100,7 +100,7 @@ final class Organization extends ConcurrentHashMap <String, Group>{
 	 */
 	void removeGroup(final String group) {
 		if(logger != null)
-			logger.finer("Removing"+printCGR(communityName, group));
+			logger.finer("Removing"+getCGRString(communityName, group));
 		remove(group);
 		checkEmptyness();
 	}
@@ -108,7 +108,7 @@ final class Organization extends ConcurrentHashMap <String, Group>{
 	private void checkEmptyness() {
 		if(isEmpty()){
 			if(logger != null)
-				logger.finer("Removing"+printCGR(communityName));
+				logger.finer("Removing"+getCGRString(communityName));
 			myKernel.removeCommunity(communityName);
 		}
 	}

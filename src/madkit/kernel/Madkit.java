@@ -290,7 +290,7 @@ final public class Madkit {
 		ResourceBundle rb = null;
 		try {
 			defaultConfig.load(Madkit.class.getResourceAsStream("madkitKernel.properties"));
-			rb = ResourceBundle.getBundle(defaultConfig.getProperty("madkit.resourceBundle.file"));
+//			rb = ResourceBundle.getBundle(defaultConfig.getProperty("madkit.resourceBundle.file"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -476,9 +476,9 @@ final public class Madkit {
 	//		}
 	//	}
 
-	public static String getI18N(final String message){
-		return resourceBundle.getString(message);
-	}
+//	public static String getI18N(final String message){
+//		return resourceBundle.getString(message);
+//	}
 
 	private void loadConfigFile() {
 		final String fileName = madkitConfig.getProperty(Madkit.configFile);

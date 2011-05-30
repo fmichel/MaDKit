@@ -25,7 +25,6 @@ import static madkit.kernel.AbstractAgent.State.LIVING;
 import static madkit.kernel.Madkit.Roles.GUI_MANAGER_ROLE;
 import static madkit.kernel.Madkit.Roles.LOCAL_COMMUNITY;
 import static madkit.kernel.Madkit.Roles.SYSTEM_GROUP;
-import static madkit.kernel.Utils.printCGR;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -35,6 +34,7 @@ import java.util.logging.Level;
 
 import madkit.gui.actions.MadkitActions;
 import madkit.gui.messages.GUIMessage;
+import madkit.i18n.I18nMadkitClass;
 
 /**
  * The super class of all MadKit threaded agents, v 5. 
@@ -382,7 +382,7 @@ public class Agent extends AbstractAgent{
 			final String senderRole, 
 			final Integer timeOutMilliSeconds){
 		if(logger != null)
-			logger.finest("sendMessageAndWaitForReply : sending "+messageToSend+" to any "+printCGR(community, group, role)+
+			logger.finest("sendMessageAndWaitForReply : sending "+messageToSend+" to any "+I18nMadkitClass.getCGRString(community, group, role)+
 					(timeOutMilliSeconds == null ? "":", and waiting reply for "+TimeUnit.MILLISECONDS.toSeconds(timeOutMilliSeconds)+" s..."));
 		if(kernel.sendMessage(this,community,group,role, messageToSend,senderRole) != SUCCESS){
 			return null;

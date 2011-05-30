@@ -41,7 +41,7 @@ import madkit.messages.ObjectMessage;
  * 
  */
 @SuppressWarnings("serial")
-public enum SchedulerAction implements MadKitGUIAction{
+public enum SchedulerAction implements MadkitGUIAction{
 
 	SCHEDULER_RUN(new ImageIcon(SchedulerAction.class.getResource("images/scheduling/run.png")),VK_Q),
 	SCHEDULER_STEP(new ImageIcon(SchedulerAction.class.getResource("images/scheduling/step.png")),VK_S),
@@ -60,6 +60,11 @@ public enum SchedulerAction implements MadKitGUIAction{
 
 	final private int keyEvent;
 	
+	@Override
+	public String toString() {
+		return AgentAction.getDescription(this);
+	}
+
 	private SchedulerAction(ImageIcon ii, int keyEvent){
 		imageIcon = ii;
 		this.keyEvent = keyEvent;

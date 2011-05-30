@@ -50,8 +50,8 @@ public class AgentLogLevelMenu extends JMenu implements AgentUIComponent{
 	final private AbstractAgent myAgent;
 	final private ButtonGroup logGroup;
 	final private ButtonGroup warningGroup;
-	final private static String[] lvlCodes = Madkit.getI18N(AgentAction.AGENT_LOG_LEVEL.toString()).split(";");
-	final private static String[] warningCodes = Madkit.getI18N(AgentAction.AGENT_WARNING_LOG_LEVEL.toString()).split(";");
+	final private static String[] lvlCodes = AgentAction.AGENT_LOG_LEVEL.toString().split(";");
+	final private static String[] warningCodes = AgentAction.AGENT_WARNING_LOG_LEVEL.toString().split(";");
 //	final private static ImageIcon logIcon = MadkitActions.AGENT_LOG_LEVEL);
 //	final private static ImageIcon wIcon = madkit.gui.GUIToolkit.getMadkitImageIcon(MadkitActions.AGENT_WARNING_LOG_LEVEL);
 	

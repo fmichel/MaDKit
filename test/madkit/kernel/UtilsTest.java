@@ -96,7 +96,7 @@ public class UtilsTest {
 	}
 
 	/**
-	 * Test method for {@link madkit.kernel.Utils#printCGR(java.lang.String)}.
+	 * Test method for {@link madkit.kernel.Utils#getCGRString(java.lang.String)}.
 	 */
 	@Test
 	public final void testPrintCGRString() {
@@ -104,7 +104,7 @@ public class UtilsTest {
 	}
 
 	/**
-	 * Test method for {@link madkit.kernel.Utils#printCGR(java.lang.String, java.lang.String)}.
+	 * Test method for {@link madkit.kernel.Utils#getCGRString(java.lang.String, java.lang.String)}.
 	 */
 	@Test
 	public final void testPrintCGRStringString() {

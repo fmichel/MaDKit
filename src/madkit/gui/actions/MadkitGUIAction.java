@@ -26,10 +26,15 @@ import javax.swing.ImageIcon;
  * @version 0.9
  * 
  */
-interface MadKitGUIAction {
+interface MadkitGUIAction {
 
 	public ImageIcon getImageIcon();
 	
 	public int getKeyEvent();
-
+	
+	/**
+	 * @return the name of the action which is also the name of the corresponding enumeration
+	 */
+	public String name();
+	
 }

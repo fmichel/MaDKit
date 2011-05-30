@@ -20,7 +20,7 @@ package madkit.kernel;
 
 import static madkit.kernel.AbstractAgent.ReturnCode.ROLE_NOT_HANDLED;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
-import static madkit.kernel.Utils.printCGR;
+import static madkit.i18n.I18nMadkitClass.*;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -173,7 +173,7 @@ class Role implements Serializable{//TODO test with arraylist
 
 	@Override
 	public String toString() {
-		return printCGR(communityName, groupName, roleName);
+		return getCGRString(communityName, groupName, roleName);
 	}
 
 	/**
@@ -194,7 +194,7 @@ class Role implements Serializable{//TODO test with arraylist
 			}
 			players.add(requester);
 			if (logger != null) {
-				logger.finest(requester.getName() + " is now playing " + printCGR(communityName, groupName, roleName));
+				logger.finest(requester.getName() + " is now playing " + getCGRString(communityName, groupName, roleName));
 			}
 			if (agentAddresses != null) {
 				agentAddresses.add(new AgentAddress(requester, this, kernelAddress));
@@ -252,7 +252,7 @@ class Role implements Serializable{//TODO test with arraylist
 				removeAgentAddressOf(requester, agentAddresses).setRoleObject(null);
 			}
 			if (logger != null) {
-				logger.finest(requester.getName() + " has leaved role " + printCGR(communityName, groupName, roleName) + "\n");
+				logger.finest(requester.getName() + " has leaved role " + getCGRString(communityName, groupName, roleName) + "\n");
 			}
 			modified = true;
 		}
@@ -321,7 +321,7 @@ class Role implements Serializable{//TODO test with arraylist
 	final private void removeAgentAddress(AgentAddress aa){
 		if (agentAddresses.remove(aa)) {
 			if (logger != null) {
-				logger.finest(aa + " has leaved role " + printCGR(communityName, groupName, roleName) + "\n");
+				logger.finest(aa + " has leaved role " + getCGRString(communityName, groupName, roleName) + "\n");
 			}
 			aa.setRoleObject(null);
 		}

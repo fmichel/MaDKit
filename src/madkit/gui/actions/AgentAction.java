@@ -26,12 +26,14 @@ import static java.awt.event.KeyEvent.VK_Z;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.util.ResourceBundle;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.KeyStroke;
 
+import madkit.i18n.I18nMadkitClass;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Madkit;
 
@@ -42,7 +44,7 @@ import madkit.kernel.Madkit;
  * 
  */
 @SuppressWarnings("serial")
-public enum AgentAction implements MadKitGUIAction{
+public enum AgentAction implements MadkitGUIAction{
 
 	AGENT_RELOAD(null,VK_H),
 	AGENT_KILL(null,VK_Z),
@@ -53,7 +55,9 @@ public enum AgentAction implements MadKitGUIAction{
 	AGENT_LAUNCH_AGENT(null,VK_E);
 	
 	final private ImageIcon imageIcon;
-	
+
+	final static ResourceBundle messages = I18nMadkitClass.getResourceBundle(MadkitGUIAction.class.getSimpleName());
+
 	public ImageIcon getImageIcon() {
 		return imageIcon;
 	}
@@ -144,9 +148,18 @@ public enum AgentAction implements MadKitGUIAction{
 			}
 		};
 	}
+	
+	@Override
+	public String toString() {
+		return getDescription(this);
+	}
+	
+	static String getDescription(MadkitGUIAction mka){
+		return messages.getString(mka.name());
+	}
 
-	static Action initAction(MadKitGUIAction mka, Action a) {//this is for global use
-		String[] codes = Madkit.getI18N(mka.toString()).split(";");
+	static Action initAction(MadkitGUIAction mka, Action a) {//TODO this is for global use: put that elsewhere
+		String[] codes = mka.toString().split(";");
 		a.putValue(Action.NAME, codes[0]);
 		a.putValue(Action.SHORT_DESCRIPTION, codes.length > 1 ? codes[1] : codes[0]);
 		a.putValue(Action.LONG_DESCRIPTION, codes.length > 2 ? codes[2] : a.getValue(Action.SHORT_DESCRIPTION));
@@ -166,4 +179,5 @@ public enum AgentAction implements MadKitGUIAction{
 		a.putValue(Action.SELECTED_KEY, false);
 		return a;
 	}
+	
 }

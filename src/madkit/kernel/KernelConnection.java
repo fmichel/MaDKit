@@ -89,8 +89,8 @@ final class KernelConnection extends Thread{
 	 * @throws IOException 
 	 */
 	@SuppressWarnings("unchecked")
-	SortedMap<String, SortedMap<String, SortedMap<String, Set<AgentAddress>>>> waitForDistantOrg() throws IOException, ClassNotFoundException {
-			return (SortedMap<String, SortedMap<String, SortedMap<String, Set<AgentAddress>>>>) ois.readObject();
+	Map<String, Map<String, Map<String, Set<AgentAddress>>>> waitForDistantOrg() throws IOException, ClassNotFoundException {
+			return (Map<String, Map<String, Map<String, Set<AgentAddress>>>>) ois.readObject();
 	}
 	
 	/**

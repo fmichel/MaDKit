@@ -18,18 +18,18 @@
  */
 package madkit.api.abstractAgent;
 
-import java.util.ArrayList;
-
-import madkit.kernel.*;
+import static madkit.kernel.AbstractAgent.ReturnCode.AGENT_CRASH;
+import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_LAUNCHED;
+import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
+import static madkit.kernel.AbstractAgent.ReturnCode.TIME_OUT;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import madkit.kernel.AbstractAgent;
+import madkit.kernel.JunitMadKit;
 import madkit.kernel.Madkit.LevelOption;
-import static org.junit.Assert.*;
+import madkit.testing.util.agent.SelfLaunchAA;
 
-import org.junit.Assert;
 import org.junit.Test;
-import static madkit.kernel.AbstractAgent.ReturnCode.*;
-import static madkit.kernel.Madkit.Roles.*;
-
-import test.util.JUnitBooterAgent;
 
 /**
  * @author Fabien Michel
@@ -37,6 +37,7 @@ import test.util.JUnitBooterAgent;
  * @version 0.9
  * 
  */
+@SuppressWarnings("serial")
 public class LaunchAbstractAgentTest  extends JunitMadKit{
 
 	final AbstractAgent target = new AbstractAgent(){
@@ -58,6 +59,7 @@ public class LaunchAbstractAgentTest  extends JunitMadKit{
 	};
 
 	final AbstractAgent faulty = new AbstractAgent(){
+		@SuppressWarnings("null")
 		protected void activate() {
 			Object o = null;
 			o.toString();
@@ -86,6 +88,27 @@ public class LaunchAbstractAgentTest  extends JunitMadKit{
 					assertEquals(e.getMessage(),"agent");
 					e.printStackTrace();
 				}
+				try {
+					assertEquals(SUCCESS,launchAgent((AbstractAgent)null,true));
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					assertEquals(e.getMessage(),"agent");
+					e.printStackTrace();
+				}
+				try {
+					assertEquals(SUCCESS,launchAgent((AbstractAgent)null,1));
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					assertEquals(e.getMessage(),"agent");
+					e.printStackTrace();
+				}
+				try {
+					assertEquals(SUCCESS,launchAgent((AbstractAgent)null,1,true));
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					assertEquals(e.getMessage(),"agent");
+					e.printStackTrace();
+				}
 			}
 		});
 	}
@@ -106,6 +129,8 @@ public class LaunchAbstractAgentTest  extends JunitMadKit{
 		launchTest(new AbstractAgent(){
 			protected void activate() {
 				assertEquals(TIME_OUT,launchAgent(timeOutAgent,1));
+				assertEquals(TIME_OUT,launchAgent(new AbstractAgent(),0));
+				assertEquals(TIME_OUT,launchAgent(new AbstractAgent(),-1));
 				assertEquals(ALREADY_LAUNCHED,launchAgent(timeOutAgent));
 			}
 		});
@@ -180,5 +205,20 @@ public class LaunchAbstractAgentTest  extends JunitMadKit{
 			}
 		});
 	}
+	
+	@Test
+	public void SelfLaunching(){
+		addMadkitArgs("--kernelLogLevel","ALL");
+		launchTest(new AbstractAgent(){
+			protected void activate() {
+		SelfLaunchAA a = new SelfLaunchAA(true);
+		assertEquals(SUCCESS,launchAgent(a,1));
+		a = new SelfLaunchAA(false,true);
+		assertEquals(SUCCESS,launchAgent(a,1));		
+			}
+		});
+	}
+
+	
 
 }

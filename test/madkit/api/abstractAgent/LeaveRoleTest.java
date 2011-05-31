@@ -18,8 +18,10 @@
  */
 package madkit.api.abstractAgent;
 
-import static madkit.kernel.AbstractAgent.ReturnCode.*;
+import static madkit.kernel.AbstractAgent.ReturnCode.NOT_COMMUNITY;
 import static madkit.kernel.AbstractAgent.ReturnCode.NOT_GROUP;
+import static madkit.kernel.AbstractAgent.ReturnCode.NOT_IN_GROUP;
+import static madkit.kernel.AbstractAgent.ReturnCode.NOT_ROLE;
 import static madkit.kernel.AbstractAgent.ReturnCode.ROLE_NOT_HANDLED;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static madkit.kernel.Madkit.Roles.GROUP_MANAGER_ROLE;

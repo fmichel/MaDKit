@@ -31,6 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 import madkit.i18n.ErrorMessages;
+import madkit.kernel.Madkit.Roles;
 
 /**
  * @author Fabien Michel
@@ -151,14 +152,15 @@ final class Organization extends ConcurrentHashMap <String, Group>{
 	/**
 	 * @param hashMap
 	 */
-	void importDistantOrg(SortedMap<String, SortedMap<String, Set<AgentAddress>>> sortedMap) {
-		for (String groupName : sortedMap.keySet()) {
+	void importDistantOrg(Map<String, Map<String, Set<AgentAddress>>> map) {
+		for (String groupName : map.keySet()) {
 			Group group = get(groupName);
 			if(group == null){
-				group = new Group(communityName, groupName,(AgentAddress)null, null, this);//TODO have to get the groupManager
+				AgentAddress manager = map.get(groupName).get(Roles.GROUP_MANAGER_ROLE).iterator().next();
+				group = new Group(communityName, groupName,manager, null, this);//TODO have to get the groupManager
 				put(groupName, group);
 			}
-			group.importDistantOrg(sortedMap.get(groupName));
+			group.importDistantOrg(map.get(groupName));
 		}		
 	}
 

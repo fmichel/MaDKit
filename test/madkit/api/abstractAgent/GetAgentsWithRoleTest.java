@@ -18,17 +18,15 @@
  */
 package madkit.api.abstractAgent;
 
+import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.GroupIdentifier;
 import madkit.kernel.JunitMadKit;
 import madkit.kernel.Madkit.Roles;
-import static org.junit.Assert.*;
 
-import org.junit.Assert;
 import org.junit.Test;
-import static madkit.kernel.AbstractAgent.ReturnCode.*;
-
-import test.util.JUnitBooterAgent;
 
 /**
  * @author Fabien Michel

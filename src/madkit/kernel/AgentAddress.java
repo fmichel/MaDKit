@@ -58,7 +58,7 @@ public class AgentAddress implements java.io.Serializable{
 	final private int agentCode;
 	private Role roleObject;
 
-	private transient String cgr;//This is necessary to keep info in agent addresses that do not exist anymore
+	private String cgr;//This is necessary to keep info in agent addresses that do not exist anymore
 
 
 	/**
@@ -111,7 +111,9 @@ public class AgentAddress implements java.io.Serializable{
 	 * @since MadKit 5
 	 */
 	public String getCommunity() {
-		return roleObject != null ? roleObject.getCommunityName() : cgr.split(";;")[0];
+		return roleObject != null ? 
+				roleObject.getCommunityName() : 
+					cgr.split(";;")[0];
 	}
 
 	/**

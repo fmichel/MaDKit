@@ -3,13 +3,19 @@
  */
 package madkit.organization.createGroup;
 
-import static org.junit.Assert.*;
-import static madkit.kernel.AbstractAgent.ReturnCode.*;
+import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_GROUP;
+import static madkit.kernel.AbstractAgent.ReturnCode.NOT_COMMUNITY;
+import static madkit.kernel.AbstractAgent.ReturnCode.NOT_GROUP;
+import static madkit.kernel.AbstractAgent.ReturnCode.ROLE_ALREADY_HANDLED;
+import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import madkit.kernel.Madkit;
+import madkit.kernel.Madkit.Roles;
 
 import org.junit.Test;
 
-import madkit.kernel.Madkit;
-import madkit.kernel.Madkit.Roles;
 import test.util.JUnitBooterAgent;
 /**
  * @author fab

@@ -237,7 +237,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			terminate();
 			return false;
 		} catch (Throwable e) {
-//			kernel.kernelLog("Problem for "+this+" in ACTIVATE ", Level.FINER, e);
 			logLifeException(e);
 			logger.finer("** exiting ACTIVATE **");//logger cannot be null here
 			// TODO no more ending if activate failed ???
@@ -298,7 +297,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			}
 			return false;
 		} catch (Throwable e) {
-//			kernel.kernelLog("Problem for "+this+" in END ", Level.FINER, e);
 			logLifeException(e);
 			return false;
 		} finally {
@@ -1728,15 +1726,11 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		ROLE_NOT_HANDLED,
 		ALREADY_GROUP,
 		ALREADY_LAUNCHED,
-		INVALID_ARG,
 		TIME_OUT,
 		AGENT_CRASH,
-		CLASS_NOT_FOUND,
 		NOT_AN_AGENT_CLASS,
 		NOT_YET_LAUNCHED,
 		ALREADY_KILLED,
-		NULL_MSG,
-		NULL_AA,
 		INVALID_AA,
 		NO_RECIPIENT_FOUND,
 		SEVERE,
@@ -1746,7 +1740,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 //		static ResourceBundle messages = I18nMadkitClass.getResourceBundle(ReturnCode.class);
 		
 		public String toString() {
-			return name()+messages.getString(name());
+			return messages.getString(name());
 		}
 	}
 	

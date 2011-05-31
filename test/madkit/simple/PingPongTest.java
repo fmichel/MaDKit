@@ -18,13 +18,6 @@
  */
 package madkit.simple;
 
-import java.awt.Color;
-import java.util.logging.Level;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-
-import madkit.gui.OutputPanel;
 import madkit.kernel.Agent;
 import madkit.kernel.AgentAddress;
 import madkit.kernel.Madkit;

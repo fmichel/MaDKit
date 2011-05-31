@@ -21,7 +21,8 @@ package madkit.api.abstractAgent;
 import static madkit.kernel.AbstractAgent.ReturnCode.AGENT_CRASH;
 import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_LAUNCHED;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadKit;
 

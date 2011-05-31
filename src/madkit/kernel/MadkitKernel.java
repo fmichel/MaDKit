@@ -23,7 +23,6 @@ import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_GROUP;
 import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_KILLED;
 import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_LAUNCHED;
 import static madkit.kernel.AbstractAgent.ReturnCode.INVALID_AA;
-import static madkit.kernel.AbstractAgent.ReturnCode.INVALID_ARG;
 import static madkit.kernel.AbstractAgent.ReturnCode.NETWORK_DOWN;
 import static madkit.kernel.AbstractAgent.ReturnCode.NOT_COMMUNITY;
 import static madkit.kernel.AbstractAgent.ReturnCode.NOT_GROUP;
@@ -70,7 +69,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
@@ -780,13 +778,12 @@ class MadkitKernel extends Agent {
 			if (agentAddress != null) {// TODO this should not be possible
 				m = m.clone();
 				m.setReceiver(agentAddress);
-				sendMessage(m);
+				sendMessage(m, agentAddress.getAgent());
 			}
 		}
 	}
 
-	ReturnCode sendMessage(Message m) {
-		final AbstractAgent target = m.getReceiver().getAgent();
+	final ReturnCode sendMessage(Message m, AbstractAgent target) {
 		if (target == null) {
 			return sendNetworkMessageWithRole(new ObjectMessage<Message>(m), netEmmiter);
 		} else {
@@ -795,7 +792,7 @@ class MadkitKernel extends Agent {
 		return SUCCESS;
 	}
 
-	ReturnCode sendNetworkMessageWithRole(Message m, AgentAddress role) {
+	final ReturnCode sendNetworkMessageWithRole(Message m, AgentAddress role) {
 		updateNetworkAgent();
 		if (netAgent != null) {
 			m.setSender(role);
@@ -924,44 +921,8 @@ class MadkitKernel extends Agent {
 		return a;
 	}
 
-//	AbstractAgent launchAgent(AbstractAgent requester, final String agentClass, int timeOutSeconds, boolean defaultGUI) throws ClassNotFoundException {
-//		try {
-//			final AbstractAgent agent = getAgentClass(requester, agentClass).newInstance();
-//			if (launchAgent(requester, agent, timeOutSeconds, defaultGUI) == AGENT_CRASH) {
-//				return null; // TODO when time out ?
-//			}
-//			return agent;
-////		} catch (ClassNotFoundException e) {
-////				requester.getLogger().severe("Cannot launch " + agentClass + " "+e.getMessage());
-//		} catch (InstantiationException e) {
-//			final String msg = "Cannot launch " + agentClass + " because it has no default constructor";
-//			SwingUtilities.invokeLater(new Runnable() {
-//				public void run() {
-//					JOptionPane.showMessageDialog(null, msg,
-//							"Launch failed", JOptionPane.WARNING_MESSAGE);
-//				}
-//			});
-//			requester.getLogger().severe(msg);
-//		} catch (IllegalAccessException e) {
-//			requester.getLogger().severe("Cannot launch " + agentClass + " "+e.getMessage());
-//		}
-//		return null;
-//	}
-//	
-//	@SuppressWarnings("unchecked")
-//	Class<? extends AbstractAgent> getAgentClass(AbstractAgent requester, String className) throws ClassNotFoundException{
-//		try {
-//			return (Class<? extends AbstractAgent>) platform.getMadkitClassLoader().loadClass(className);
-//		} catch (ClassCastException e) {
-//			requester.getLogger().severe("Cannot launch " + className + " : not an agent class");
-//			return null;
-//		}
-//	}
-
 	ReturnCode launchAgent(final AbstractAgent requester, final AbstractAgent agent, final int timeOutSeconds,
 			final boolean defaultGUI) {
-		if (timeOutSeconds < 0)
-			return INVALID_ARG;
 		try {
 			// if to == 0, this is still quicker than treating the case, this also holds for Integer.MAX_VALUE
 			return serviceExecutor.submit(new Callable<ReturnCode>() {
@@ -971,12 +932,9 @@ class MadkitKernel extends Agent {
 			}).get(timeOutSeconds, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {// requester has been killed or something
 			throw new KilledException(e);
-		} catch (ExecutionException e) {// target has crashed !
-			if(logger != null)
-				logger.log(Level.FINEST, "Launch failed on " + agent, e);
-			if (e.getCause() instanceof AssertionError)// convenient for Junit
-				throw new AssertionError(e);
-			return AGENT_CRASH;
+		} catch (ExecutionException e) {// BUG on launching agent
+			bugReport("Launching task failed on " + agent, e);
+			return SEVERE;
 		} catch (TimeoutException e) {// launch task time out
 			return TIME_OUT;
 		}
@@ -984,7 +942,7 @@ class MadkitKernel extends Agent {
 
 	private ReturnCode launchingAgent(final AbstractAgent agent, boolean defaultGUI) {
 		// this has to be done by a system thread
-		if (!agent.state.compareAndSet(NOT_LAUNCHED, INITIALIZING) || shuttedDown) {
+		if (! agent.state.compareAndSet(NOT_LAUNCHED, INITIALIZING) || shuttedDown) {
 			return ALREADY_LAUNCHED;
 		}
 		if(defaultGUI)
@@ -1034,8 +992,6 @@ class MadkitKernel extends Agent {
 	}
 
 	ReturnCode killAgent(final AbstractAgent requester, final AbstractAgent target, final int timeOutSeconds) {
-		if (target == null || timeOutSeconds < 0)
-			return INVALID_ARG;
 		if (target.getState().compareTo(ACTIVATED) < 0) {
 			return NOT_YET_LAUNCHED;
 		}
@@ -1049,12 +1005,9 @@ class MadkitKernel extends Agent {
 		} catch (InterruptedException e) {// requester has been killed or
 			// something
 			throw new KilledException(e);
-		} catch (ExecutionException e) {// target has crashed in end !
-			if(logger != null)
-				logger.log(Level.FINE, "kill failed on " + target, e);
-			if (e.getCause() instanceof AssertionError)
-				throw new AssertionError(e);
-			return AGENT_CRASH;
+		} catch (ExecutionException e) {// BUG kill failed
+			bugReport("Killing task failed on " + target, e);
+			return SEVERE;
 		} catch (TimeoutException e) {// kill task time out
 			return TIME_OUT;
 		}
@@ -1066,8 +1019,10 @@ class MadkitKernel extends Agent {
 		if (!target.getAlive().compareAndSet(true, false)) {
 			return ALREADY_KILLED;
 		}
-		if (target.getAgentExecutor() != null) {
-			killThreadedAgent((Agent) target);
+		final AgentExecutor ae = target.getAgentExecutor();
+		if (ae != null) {
+			((Agent)target).myThread.setPriority(Thread.MIN_PRIORITY);//TODO bench
+			killThreadedAgent(ae);
 			return SUCCESS;
 		}
 		target.ending();
@@ -1075,9 +1030,8 @@ class MadkitKernel extends Agent {
 		return SUCCESS;
 	}
 
-	private void killThreadedAgent(final Agent target) {
-		target.myThread.setPriority(Thread.MIN_PRIORITY);
-		AgentExecutor ae = target.getAgentExecutor();
+	private void killThreadedAgent(final AgentExecutor ae) {
+//		ae.myThread.setPriority(Thread.MIN_PRIORITY);
 		ae.getLiveProcess().cancel(true);
 		ae.getActivate().cancel(true);
 		try {
@@ -1169,7 +1123,7 @@ class MadkitKernel extends Agent {
 	private ReturnCode buildAndSendMessage(final AgentAddress sender, final AgentAddress receiver, final Message m) {
 		m.setSender(sender);
 		m.setReceiver(receiver);
-		return sendMessage(m);
+		return sendMessage(m,receiver.getAgent());
 		// final AbstractAgent target = receiver.getAgent();
 		// if(target == null){
 		// if(netAgent != null)
@@ -1354,7 +1308,7 @@ class MadkitKernel extends Agent {
 		}
 	}
 
-	synchronized void importDistantOrg(SortedMap<String, SortedMap<String, SortedMap<String, Set<AgentAddress>>>> distantOrg) {
+	synchronized void importDistantOrg(Map<String, Map<String, Map<String, Set<AgentAddress>>>> distantOrg) {
 		for (String communityName : distantOrg.keySet()) {
 			Organization org = new Organization(communityName, this);
 			Organization previous = organizations.putIfAbsent(communityName, org);
@@ -1431,11 +1385,14 @@ class MadkitKernel extends Agent {
 
 	final void injectOperation(CGRSynchro m) {
 		final Role r = m.getContent().getRoleObject();
+		if(r == null){
+			if(logger != null)
+				logger.log(Level.FINE, "distant CGR " + m.getCode() + " update failed on " + m.getContent());
+			return;
+		}
 		final String communityName = r.getCommunityName();
 		final String groupName = r.getGroupName();
 		final String roleName = r.getRoleName();
-		if (logger != null)
-			logger.finer("distant CGR " + m.getCode() + " on " + m.getContent());
 		try {
 			switch (m.getCode()) {
 			case CREATE_GROUP:

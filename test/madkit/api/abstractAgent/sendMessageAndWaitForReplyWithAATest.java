@@ -19,18 +19,16 @@
 package madkit.api.abstractAgent;
 
 import static madkit.kernel.AbstractAgent.ReturnCode.INVALID_AA;
-import static madkit.kernel.AbstractAgent.ReturnCode.INVALID_ARG;
-import static madkit.kernel.AbstractAgent.ReturnCode.NOT_IN_GROUP;
-import static madkit.kernel.AbstractAgent.ReturnCode.ROLE_NOT_HANDLED;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static madkit.kernel.Madkit.Roles.GROUP_CANDIDATE_ROLE;
 import static madkit.kernel.Madkit.Roles.GROUP_MANAGER_ROLE;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.util.logging.Level;
 
-import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
 import madkit.kernel.AgentAddress;
 import madkit.kernel.JunitMadKit;

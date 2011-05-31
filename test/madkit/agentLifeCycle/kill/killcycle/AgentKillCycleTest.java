@@ -3,8 +3,9 @@
  */
 package madkit.agentLifeCycle.kill.killcycle;
 
+import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_KILLED;
+import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static org.junit.Assert.assertEquals;
-import static madkit.kernel.AbstractAgent.ReturnCode.*;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
 import test.util.JUnitBooterAgent;

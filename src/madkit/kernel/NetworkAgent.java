@@ -181,7 +181,10 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 		}
 		else{//distant message
 			if(sender.getRole().equals("updater")){//It is a distant CGR update
-				if (logger != null) logger.finer("distant CGR update");
+				if (logger != null){
+					CGRSynchro synchro = (CGRSynchro) m;
+					logger.finer("Injecting distant CGR " + synchro.getCode() + " on " + synchro.getContent());
+				}
 				kernel.injectOperation((CGRSynchro) m);
 			}
 			else{//It is a distant message to inject : role is "emmiter"

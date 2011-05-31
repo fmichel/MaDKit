@@ -230,9 +230,9 @@ final class Group extends ConcurrentHashMap<String,Role> {
 	/**
 	 * @param hashMap
 	 */
-	void importDistantOrg(SortedMap<String, Set<AgentAddress>> sortedMap) {
-		for (String roleName : sortedMap.keySet()) {
-			Set<AgentAddress> list = sortedMap.get(roleName);
+	void importDistantOrg(Map<String, Set<AgentAddress>> map) {
+		for (String roleName : map.keySet()) {
+			Set<AgentAddress> list = map.get(roleName);
 			if(list == null)
 				continue;
 			Role role = get(roleName);

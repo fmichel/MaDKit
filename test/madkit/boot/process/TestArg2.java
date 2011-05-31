@@ -4,9 +4,6 @@
 package madkit.boot.process;
 
 import static org.junit.Assert.assertEquals;
-
-import java.io.File;
-
 import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.LevelOption;
 import test.util.JUnitBooterAgent;

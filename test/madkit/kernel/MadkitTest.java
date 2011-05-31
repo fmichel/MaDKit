@@ -20,16 +20,9 @@ package madkit.kernel;
 
 
 
-import java.util.Properties;
-
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
-
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**

@@ -6,7 +6,6 @@ package madkit.boot.process;
 import static org.junit.Assert.fail;
 import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.LevelOption;
-
 import test.util.JUnitBooterAgent;
 
 /**

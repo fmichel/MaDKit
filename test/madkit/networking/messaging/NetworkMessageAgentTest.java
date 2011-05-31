@@ -16,37 +16,38 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
  */
-package madkit.api.abstractAgent;
+package madkit.networking.messaging;
 
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
-import madkit.kernel.AbstractAgent;
+import static madkit.kernel.AbstractAgent.ReturnCode.*;
+import static org.junit.Assert.assertEquals;
 
-import org.junit.Test;
+import java.util.logging.Level;
 
+import madkit.kernel.Agent;
+import madkit.kernel.AgentAddress;
+import madkit.kernel.JunitMadKit;
+import static madkit.kernel.JunitMadKit.*;
+import madkit.kernel.Message;
 
 /**
  * @author Fabien Michel
- * @since MadKit 5.0.0.9
+ * @since MadKit 5.0.0.6
  * @version 0.9
  * 
  */
 @SuppressWarnings("serial")
-public class setLogLevelTest extends madkit.kernel.JunitMadKit {
+public class NetworkMessageAgentTest extends Agent{
+	
 
-	@Test
-	public void nullArgs(){
-		addMadkitArgs("--agentLogLevel","OFF");
-		launchTest(new AbstractAgent(){
-			protected void activate() {
-				assertNull(logger);
-				try {
-					setLogLevel(null);
-					fail("execption not launched");
-				} catch (NullPointerException e) {
-				}
-			}
-		});
+	/* (non-Javadoc)
+	 * @see test.util.OrgTestAgent#activate()
+	 */
+	@Override
+	protected void live() {
+		setLogLevel(Level.ALL);
+		assertEquals(ALREADY_GROUP, createGroup(JunitMadKit.COMMUNITY,JunitMadKit.GROUP,true));
+		assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,ROLE));
+		AgentAddress aa = getAgentWithRole(JunitMadKit.COMMUNITY,JunitMadKit.GROUP,JunitMadKit.ROLE);
+		sendMessage(aa, new Message());
 	}
-
 }

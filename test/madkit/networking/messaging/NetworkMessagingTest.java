@@ -18,12 +18,20 @@
  */
 package madkit.networking.messaging;
 
-import madkit.kernel.AgentAddress;
+import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.util.logging.Level;
+
+import madkit.kernel.Agent;
+import madkit.kernel.JunitMadKit;
 import madkit.kernel.Madkit;
-import madkit.kernel.Message;
+import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
-import test.util.JUnitBooterAgent;
-import test.util.OrgTestAgent;
+
+import org.junit.Test;
+
 
 /**
  * @author Fabien Michel
@@ -31,47 +39,28 @@ import test.util.OrgTestAgent;
  * @version 0.9
  * 
  */
-public class NetworkMessagingTest extends JUnitBooterAgent{
+@SuppressWarnings("serial")
+public class NetworkMessagingTest extends JunitMadKit{
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -2226317432181332931L;
 
-
-	@Override
-	public void activate() {
-		launchAgent(new NetworkMessageAgentTest());
-	}
-	
-	
-	/* (non-Javadoc)
-	 * @see test.utils.JUnitBooterAgent#madkitInit()
-	 */
-	@Override
-	public void madkitInit() {
-		String[] args = {"--network","--agentLogLevel","ALL","--"+LevelOption.madkitLogLevel,"ALL","--orgLogLevel","ALL","--launchAgents",getClass().getName()};
-		Madkit.main(args);
-	}
-}
-
-
-class NetworkMessageAgentTest extends OrgTestAgent{
-	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -8456452767330561605L;
-
-	/* (non-Javadoc)
-	 * @see test.util.OrgTestAgent#activate()
-	 */
-	@Override
-	protected void live() {
-		AgentAddress aa = getAgentWithRole("test", "test", "test");
-		if(aa == null)
-			waitNextMessage();
-		else
-			sendMessage(aa, new Message());
+	@Test
+	public void ping(){
+		addMadkitArgs(BooleanOption.network.commandLineString(),
+				LevelOption.kernelLogLevel.commandLineString(),"ALL",
+		LevelOption.networkLogLevel.commandLineString(),"FINE");
+		launchTest(new Agent(){
+			protected void activate() {
+				setLogLevel(Level.FINE);
+				assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP,true));
+				assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,ROLE));
+				String[] args = {"--network","--launchAgents",NetworkMessageAgentTest.class.getName(),LevelOption.kernelLogLevel.commandLineString(),"ALL"};
+				Madkit.main(args);
+				assertNotNull(waitNextMessage());
+			}
+		});
 	}
 }

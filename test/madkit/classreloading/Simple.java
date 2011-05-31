@@ -6,12 +6,9 @@ package madkit.classreloading;
 
 import java.util.logging.Level;
 
-import org.junit.Test;
-
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
 import madkit.kernel.Madkit;
-import test.util.JUnitBooterAgent;
 
 /**
  * @author fab

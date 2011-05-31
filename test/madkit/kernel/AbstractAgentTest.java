@@ -18,10 +18,16 @@
  */
 package madkit.kernel;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-import java.util.Arrays;
 import java.util.logging.Level;
+
 import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.Madkit.BooleanOption;
 
@@ -138,7 +144,7 @@ public class AbstractAgentTest {
 		assertNull(a.logger);
 		a.setLogLevel(Level.INFO);
 		assertNotNull(a.logger);
-		a.setName("new");
+		a.setName("new");//TODO
 		System.err.println(a.getLogger().getName());
 		System.err.println(a.getName());
 		assertTrue(a.getLogger().getName().equals("["+a.getName()+"]"));//one space for no concatenation of string

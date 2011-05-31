@@ -3,12 +3,6 @@
  */
 package madkit.api.abstractAgent;
 
-import junit.framework.JUnit4TestAdapter;
-import junit.framework.TestResult;
-import junit.framework.TestSuite;
-import madkit.kernel.JunitMadKit;
-
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;

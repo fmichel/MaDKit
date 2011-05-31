@@ -3,13 +3,14 @@
  */
 package madkit.organization;
 
+import static madkit.kernel.AbstractAgent.ReturnCode.NOT_COMMUNITY;
+import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AgentAddress;
 import test.util.JUnitBooterAgent;
-import static madkit.kernel.AbstractAgent.ReturnCode.*;
 /**
  * @author fab
  *

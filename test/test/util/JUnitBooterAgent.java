@@ -3,18 +3,18 @@
  */
 package test.util;
 
-import static org.junit.Assert.*;
+import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
+import static madkit.kernel.AbstractAgent.State.TERMINATED;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
 
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.BooleanOption;
-import static madkit.kernel.AbstractAgent.ReturnCode.*;
-import static madkit.kernel.AbstractAgent.State.*;
 
 import org.junit.Rule;
 import org.junit.Test;

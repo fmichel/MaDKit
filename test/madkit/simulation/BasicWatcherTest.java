@@ -22,8 +22,8 @@ import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_GROUP;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static org.junit.Assert.assertEquals;
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.Probe;
 import madkit.kernel.JunitMadKit;
+import madkit.kernel.Probe;
 import madkit.kernel.Watcher;
 
 import org.junit.Test;

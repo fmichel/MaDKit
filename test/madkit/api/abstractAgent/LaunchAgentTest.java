@@ -20,13 +20,13 @@ package madkit.api.abstractAgent;
 
 import static madkit.kernel.AbstractAgent.ReturnCode.AGENT_CRASH;
 import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_LAUNCHED;
-import static madkit.kernel.AbstractAgent.ReturnCode.INVALID_ARG;
-import static madkit.kernel.AbstractAgent.ReturnCode.TIME_OUT;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
+import static madkit.kernel.AbstractAgent.ReturnCode.TIME_OUT;
 import static org.junit.Assert.assertEquals;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
 import madkit.kernel.JunitMadKit;
+import madkit.testing.util.agent.SelfLaunch;
 
 import org.junit.Test;
 
@@ -103,20 +103,35 @@ public class LaunchAgentTest  extends JunitMadKit{
 	}
 
 	@Test
-	public void nullArgs(){
+	public void selfLaunching(){
+		addMadkitArgs("--kernelLogLevel","ALL");
 		launchTest(new AbstractAgent(){
 			protected void activate() {
-				assertEquals(INVALID_ARG,launchAgent((AbstractAgent)null));
-				assertEquals(INVALID_ARG,launchAgent((AbstractAgent)null,1,true));
-				assertEquals(INVALID_ARG,launchAgent((AbstractAgent)null,-1,true));
-				assertEquals(INVALID_ARG,launchAgent((AbstractAgent)null,0,false));
-				assertEquals(INVALID_ARG,launchAgent((AbstractAgent)null,0,true));
-				assertEquals(INVALID_ARG,launchAgent((AbstractAgent)null,1,true));
-				assertEquals(INVALID_ARG,launchAgent((AbstractAgent)null,1,false));
-				assertEquals(INVALID_ARG,launchAgent(target,-10));
-				assertEquals(INVALID_ARG,launchAgent(target,-10,true));
+		SelfLaunch a = new SelfLaunch(true);
+		assertEquals(SUCCESS,launchAgent(a,1));
+		a = new SelfLaunch(false,true);
+		assertEquals(SUCCESS,launchAgent(a,1));		
+		a = new SelfLaunch(false,false,true);
+		assertEquals(SUCCESS,launchAgent(a,1));		
 			}
 		});
 	}
 
+	@Test
+	public void nullArgs(){
+		addMadkitArgs("--kernelLogLevel","ALL");
+	launchTest(new AbstractAgent(){
+			protected void activate() {
+				assertEquals(TIME_OUT,launchAgent(new AbstractAgent(),-1,true));
+//				assertEquals(INVALID_ARG,launchAgent((AbstractAgent)null,1,true));
+//				assertEquals(INVALID_ARG,launchAgent((AbstractAgent)null,0,false));
+//				assertEquals(INVALID_ARG,launchAgent((AbstractAgent)null,0,true));
+//				assertEquals(INVALID_ARG,launchAgent((AbstractAgent)null,1,true));
+//				assertEquals(INVALID_ARG,launchAgent((AbstractAgent)null,1,false));
+//				assertEquals(INVALID_ARG,launchAgent(target,-10));
+//				assertEquals(INVALID_ARG,launchAgent(target,-10,true));
+			}
+		});
+	}
+	
 }

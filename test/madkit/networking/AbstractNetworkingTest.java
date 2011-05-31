@@ -3,7 +3,7 @@
  */
 package madkit.networking;
 
-import static madkit.kernel.AbstractAgent.ReturnCode.*;
+import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static org.junit.Assert.assertEquals;
 import madkit.kernel.Madkit;
 import test.util.JUnitBooterAgent;

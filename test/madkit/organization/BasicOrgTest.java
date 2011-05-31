@@ -3,10 +3,16 @@
  */
 package madkit.organization;
 
+import static madkit.kernel.AbstractAgent.ReturnCode.ACCESS_DENIED;
+import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_GROUP;
+import static madkit.kernel.AbstractAgent.ReturnCode.NOT_COMMUNITY;
+import static madkit.kernel.AbstractAgent.ReturnCode.NOT_GROUP;
+import static madkit.kernel.AbstractAgent.ReturnCode.ROLE_ALREADY_HANDLED;
+import static madkit.kernel.AbstractAgent.ReturnCode.ROLE_NOT_HANDLED;
+import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import madkit.kernel.GroupIdentifier;
-import static madkit.kernel.AbstractAgent.ReturnCode.*;
 import test.util.JUnitBooterAgent;
 /**
  * @author fab

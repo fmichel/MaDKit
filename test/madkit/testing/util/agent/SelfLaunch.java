@@ -16,37 +16,47 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
  */
-package madkit.api.abstractAgent;
+package madkit.testing.util.agent;
 
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
-import madkit.kernel.AbstractAgent;
-
-import org.junit.Test;
-
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Fabien Michel
- * @since MadKit 5.0.0.9
+ * @since MadKit 5.0.0.10
  * @version 0.9
  * 
  */
 @SuppressWarnings("serial")
-public class setLogLevelTest extends madkit.kernel.JunitMadKit {
+public class SelfLaunch extends DoItDuringLifeCycleAgent{
 
-	@Test
-	public void nullArgs(){
-		addMadkitArgs("--agentLogLevel","OFF");
-		launchTest(new AbstractAgent(){
-			protected void activate() {
-				assertNull(logger);
-				try {
-					setLogLevel(null);
-					fail("execption not launched");
-				} catch (NullPointerException e) {
-				}
-			}
-		});
+	/**
+	 * @param inActivate
+	 * @param inLive
+	 * @param inEnd
+	 */
+	public SelfLaunch(boolean inActivate, boolean inLive, boolean inEnd) {
+		super(inActivate, inLive, inEnd);
+		// TODO Auto-generated constructor stub
 	}
 
+	public SelfLaunch(boolean inActivate, boolean inLive) {
+		super(inActivate, inLive, false);
+	}
+
+	public SelfLaunch(boolean inActivate) {
+		super(inActivate, false, false);
+	}
+
+
+	/* (non-Javadoc)
+	 * @see test.madkit.agentLifeCycle.DoItDuringLifeCycleAgent#doIt()
+	 */
+	@Override
+	public void doIt() {
+		assertEquals(ReturnCode.ALREADY_LAUNCHED,launchAgent(this));
+	}
+
+	
 }
+
+

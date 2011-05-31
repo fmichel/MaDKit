@@ -4,7 +4,6 @@
 package madkit.boot.process;
 
 import madkit.kernel.Madkit;
-
 import test.util.JUnitBooterAgent;
 
 /**

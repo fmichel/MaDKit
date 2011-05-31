@@ -18,15 +18,21 @@
  */
 package madkit.api.abstractAgent;
 
-import madkit.kernel.*;
-import static org.junit.Assert.*;
+import static madkit.kernel.AbstractAgent.ReturnCode.NOT_COMMUNITY;
+import static madkit.kernel.AbstractAgent.ReturnCode.NOT_GROUP;
+import static madkit.kernel.AbstractAgent.ReturnCode.NOT_IN_GROUP;
+import static madkit.kernel.AbstractAgent.ReturnCode.NOT_ROLE;
+import static madkit.kernel.AbstractAgent.ReturnCode.NO_RECIPIENT_FOUND;
+import static madkit.kernel.AbstractAgent.ReturnCode.ROLE_NOT_HANDLED;
+import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import madkit.kernel.AbstractAgent;
+import madkit.kernel.JunitMadKit;
+import madkit.kernel.Message;
 
-import org.junit.Assert;
 import org.junit.Test;
-import static madkit.kernel.AbstractAgent.ReturnCode.*;
-import static madkit.kernel.Madkit.Roles.*;
-
-import test.util.JUnitBooterAgent;
 
 /**
  * @author Fabien Michel

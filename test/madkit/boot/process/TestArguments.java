@@ -4,10 +4,11 @@
 package madkit.boot.process;
 
 import java.util.logging.Level;
-import org.junit.Test;
 
 import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.LevelOption;
+
+import org.junit.Test;
 
 /**
  * @author fab

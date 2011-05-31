@@ -925,7 +925,7 @@ final public class Madkit {
 		/**
 		 * @return the command line form for this option, i.e. "--optionName activated" 
 		 */
-		String commandLineString(){
+		public String commandLineString(){
 			return "--"+name();
 		}
 	}
@@ -954,7 +954,7 @@ final public class Madkit {
 		/**
 		 * @return the command line form for this option, i.e. "--optionName activated" 
 		 */
-		String commandLineString(){
+		public String commandLineString(){
 			return "--"+name();
 		}
 	}

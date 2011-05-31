@@ -18,9 +18,9 @@
  */
 package madkit.api.abstractAgent;
 
-import static madkit.kernel.AbstractAgent.ReturnCode.*;
-import static madkit.kernel.AbstractAgent.ReturnCode.INVALID_ARG;
+import static madkit.kernel.AbstractAgent.ReturnCode.INVALID_AA;
 import static madkit.kernel.AbstractAgent.ReturnCode.NOT_IN_GROUP;
+import static madkit.kernel.AbstractAgent.ReturnCode.NOT_ROLE;
 import static madkit.kernel.AbstractAgent.ReturnCode.ROLE_NOT_HANDLED;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static madkit.kernel.Madkit.Roles.GROUP_CANDIDATE_ROLE;

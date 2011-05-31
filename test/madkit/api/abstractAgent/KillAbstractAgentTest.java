@@ -21,17 +21,16 @@ package madkit.api.abstractAgent;
 import static madkit.kernel.AbstractAgent.ReturnCode.AGENT_CRASH;
 import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_KILLED;
 import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_LAUNCHED;
-import static madkit.kernel.AbstractAgent.ReturnCode.TIME_OUT;
 import static madkit.kernel.AbstractAgent.ReturnCode.NOT_YET_LAUNCHED;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
-import static org.junit.Assert.*;
+import static madkit.kernel.AbstractAgent.ReturnCode.TIME_OUT;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.Agent;
 import madkit.kernel.JunitMadKit;
-import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.testing.util.agent.DoItDuringLifeCycleAbstractAgent;
 import madkit.testing.util.agent.FaultyAA;

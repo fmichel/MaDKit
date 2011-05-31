@@ -3,7 +3,7 @@
  */
 package madkit.messaging;
 
-import static madkit.kernel.AbstractAgent.ReturnCode.*;
+import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import madkit.kernel.Agent;

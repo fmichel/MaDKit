@@ -181,7 +181,7 @@ final class LoggedKernel extends MadkitKernel {
 	}
 
 	@Override
-	List<Message> broadcastMessageWithRoleAndWaitForReplies(AbstractAgent requester,
+	List<Message> broadcastMessageWithRoleAndWaitForReplies(AbstractAgent requester,//TODO log
 			String community, String group, String role, Message message,
 			String senderRole, Integer timeOutMilliSeconds) {
 		if(requester.isFinestLogOn())
@@ -213,7 +213,7 @@ final class LoggedKernel extends MadkitKernel {
 			requester.logger.log(Level.FINEST,Influence.LAUNCH_AGENT +" "+ agent+" "+r);
 			return r;
 		}
-		return requester.handleException(Influence.LAUNCH_AGENT, new MadkitWarning(r));
+		return requester.handleException(Influence.LAUNCH_AGENT, new MadkitWarning(agent.toString(),r));
 	}
 
 	@Override
@@ -226,7 +226,7 @@ final class LoggedKernel extends MadkitKernel {
 					requester.logger.log(Level.FINEST, Influence.KILL_AGENT + " " + target.getName() + r);
 				return r;
 			}
-			return requester.handleException(Influence.KILL_AGENT, new MadkitWarning(r));
+			return requester.handleException(Influence.KILL_AGENT, new MadkitWarning(target.toString(),r));
 		}
 
 	@Override

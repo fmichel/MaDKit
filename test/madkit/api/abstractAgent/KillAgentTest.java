@@ -21,9 +21,9 @@ package madkit.api.abstractAgent;
 import static madkit.kernel.AbstractAgent.ReturnCode.AGENT_CRASH;
 import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_KILLED;
 import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_LAUNCHED;
-import static madkit.kernel.AbstractAgent.ReturnCode.TIME_OUT;
 import static madkit.kernel.AbstractAgent.ReturnCode.NOT_YET_LAUNCHED;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
+import static madkit.kernel.AbstractAgent.ReturnCode.TIME_OUT;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -36,9 +36,12 @@ import javax.swing.SwingUtilities;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
 import madkit.kernel.JunitMadKit;
-import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.testing.util.agent.DoItDuringLifeCycleAgent;
+import madkit.testing.util.agent.FaultyAgent;
+import madkit.testing.util.agent.KillTargetAgent;
+import madkit.testing.util.agent.NormalLife;
+import madkit.testing.util.agent.RandomT;
 
 import org.junit.Test;
 
@@ -56,10 +59,10 @@ public class KillAgentTest  extends JunitMadKit{
 			assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP));
 			assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,ROLE));
 		}
-		
+
 		protected void live() {pause(1000);}
 	};
-	
+
 	final AbstractAgent timeOutAgent = new AbstractAgent(){
 		protected void activate() {
 			try {
@@ -67,13 +70,6 @@ public class KillAgentTest  extends JunitMadKit{
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-		}
-	};
-
-	final AbstractAgent faulty = new AbstractAgent(){
-		protected void activate() {
-			Object o = null;
-			o.toString();
 		}
 	};
 
@@ -128,12 +124,17 @@ public class KillAgentTest  extends JunitMadKit{
 	public void returnAlreadyKilled(){
 		launchTest(new AbstractAgent(){
 			protected void activate() {
-				assertEquals(AGENT_CRASH,launchAgent(faulty));
-				assertEquals(ALREADY_KILLED,killAgent(faulty));
+				AbstractAgent a = new FaultyAgent(true);
+				assertEquals(AGENT_CRASH,launchAgent(a));
+				assertEquals(ALREADY_KILLED,killAgent(a));
+				a = new FaultyAgent(false,true);
+				assertEquals(SUCCESS,launchAgent(a));
+				pause(100);
+				assertEquals(ALREADY_KILLED,killAgent(a));
 			}
 		});
 	}
-	
+
 	@Test
 	public void massKill(){
 		addMadkitArgs("--"+LevelOption.agentLogLevel,"OFF");
@@ -153,33 +154,25 @@ public class KillAgentTest  extends JunitMadKit{
 			}
 		});
 	}
-	
+
 	@Test
 	public void returnTimeOut(){
 		launchTest(new AbstractAgent(){
 			protected void activate() {
 				assertEquals(TIME_OUT,launchAgent(timeOutAgent,1));
 				assertEquals(ALREADY_LAUNCHED,launchAgent(timeOutAgent));
+				assertEquals(SUCCESS,killAgent(timeOutAgent));
+				assertAgentIsTerminated(timeOutAgent);
 			}
 		});
 	}
-	
+
 	@Test
 	public void returnAleradyLaunch(){
 		launchTest(new AbstractAgent(){
 			protected void activate() {
 				assertEquals(TIME_OUT,launchAgent(timeOutAgent,1));
 				assertEquals(ALREADY_LAUNCHED,launchAgent(timeOutAgent));
-			}
-		});
-	}
-	
-	@Test
-	public void returnAgentCrash(){
-		launchTest(new AbstractAgent(){
-			protected void activate() {
-				assertEquals(AGENT_CRASH,launchAgent(faulty,1));
-				assertEquals(ALREADY_LAUNCHED,launchAgent(faulty));
 			}
 		});
 	}
@@ -215,6 +208,128 @@ public class KillAgentTest  extends JunitMadKit{
 			}
 		});
 	}
+
+	@Test
+	public void cascadeKills() {//TODO more cases
+		launchTest(new AbstractAgent(){
+			protected void activate() {
+				Agent a = new NormalLife(false,true);
+				assertEquals(SUCCESS,launchAgent(a,1));
+				assertNotNull(a);
+				KillTargetAgent ka = new KillTargetAgent(a);
+				assertEquals(SUCCESS,launchAgent(ka,1));
+				pause(100);
+				assertEquals(TIME_OUT,killAgent(ka, 0));
+				pause(100);
+				assertAgentIsTerminated(ka);
+				assertAgentIsTerminated(a);
+			}
+		});
+	}
+	
+	@Test
+	public void immediateKillWithTimeOut() {
+		launchTest(new AbstractAgent(){
+			protected void activate() {
+				Agent a = new NormalLife(false,true);
+				assertEquals(SUCCESS,launchAgent(a));
+				assertNotNull(a);
+				assertEquals(SUCCESS, killAgent(a,1));
+				ReturnCode res = killAgent(a,2);
+				assertTrue(ALREADY_KILLED == res);
+				pause(1500);
+				assertAgentIsTerminated(a);
+			}
+		});
+	}
+
+	@Test
+	public void immediateKill() {
+		launchTest(new AbstractAgent(){
+			protected void activate() {
+				Agent a = new NormalLife(false,true);
+				assertEquals(SUCCESS,launchAgent(a));
+				pause(1000);
+				assertEquals(SUCCESS, killAgent(a));
+				pause(100);
+				assertAgentIsTerminated(a);
+				Agent b = (Agent) launchAgent("madkit.kernel.Agent",10);
+				killAgent(b,0);
+				pause(100);
+				assertAgentIsTerminated(b);
+			}
+		});
+	}
+	
+	
+
+
+	@Test
+	public void randomTesting() {
+		RandomT.killingOn = false;
+		launchTest(new AbstractAgent(){
+			protected void activate() {
+				ArrayList<AbstractAgent> agents = new ArrayList<AbstractAgent>();
+				for (int i = 0; i < 50; i++) {
+					agents.add(new RandomT());
+				}
+				RandomT.agents=agents;
+				assertEquals(SUCCESS,launchAgent(agents.get(0),1));
+				boolean notFinished = true;
+				while(notFinished){
+					if(logger != null){
+						logger.info("waiting for the end of the test");
+					}
+					pause(3000);
+					notFinished = false;
+					for (AbstractAgent randomTest : agents) {
+						try {
+							if(randomTest.getState() != State.TERMINATED && randomTest.getState() != State.NOT_LAUNCHED){
+								notFinished = true;
+								if(logger != null){
+									logger.info("Waiting termination of "+randomTest.getName()+" state is "+randomTest.getState());
+								}
+							}
+						} catch (IllegalArgumentException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			}
+		});
+	RandomT.killingOn = true;
+	launchTest(new AbstractAgent(){
+		protected void activate() {
+			ArrayList<AbstractAgent> agents = new ArrayList<AbstractAgent>();
+			for (int i = 0; i < 50; i++) {
+				agents.add(new RandomT());
+			}
+			RandomT.agents=agents;
+			assertEquals(SUCCESS,launchAgent(agents.get(0),1));
+			boolean notFinished = true;
+			while(notFinished){
+				if(logger != null){
+					logger.info("waiting for the end of the test");
+				}
+				pause(3000);
+				notFinished = false;
+				for (AbstractAgent randomTest : agents) {
+					try {
+						if(randomTest.getState() != State.TERMINATED && randomTest.getState() != State.NOT_LAUNCHED){
+							notFinished = true;
+							if(logger != null){
+								logger.info("Waiting termination of "+randomTest.getName()+" state is "+randomTest.getState());
+							}
+						}
+					} catch (IllegalArgumentException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+	});
+}
+
 }
 
 class TimeOutAgent extends Agent{
@@ -248,11 +363,11 @@ class SelfKillAgent extends DoItDuringLifeCycleAgent{
 		super(inActivate);
 		// TODO Auto-generated constructor stub
 	}
-	
+
 	@Override
 	public void doIt() {
 		super.doIt();
 		killAgent(this);
 	}
-	
+
 }

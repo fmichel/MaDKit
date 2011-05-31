@@ -21,7 +21,6 @@ package madkit.kernel;
 
 import java.util.Arrays;
 
-import madkit.kernel.AbstractAgent.Influence;
 import madkit.kernel.AbstractAgent.ReturnCode;
 
 /**
@@ -32,6 +31,10 @@ import madkit.kernel.AbstractAgent.ReturnCode;
  */
 class MadkitWarning extends Exception {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5977801961418382065L;
 	protected final ReturnCode code;
 
 	MadkitWarning(String message, ReturnCode code){
@@ -45,7 +48,7 @@ class MadkitWarning extends Exception {
 	
 	@Override
 	public String getMessage() {
-		return code.toString();
+		return code.name()+": "+super.getMessage()+code.toString();
 	}
 
 	final ReturnCode getCode(){
@@ -65,6 +68,10 @@ class MadkitWarning extends Exception {
 
 final class OrganizationWarning extends MadkitWarning{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1096664441558015062L;
 	final private String community,group,role;
 
 	public OrganizationWarning(ReturnCode code, String community,String group, String role) {

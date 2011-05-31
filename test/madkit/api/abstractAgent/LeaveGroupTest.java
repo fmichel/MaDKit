@@ -18,16 +18,18 @@
  */
 package madkit.api.abstractAgent;
 
+import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_GROUP;
+import static madkit.kernel.AbstractAgent.ReturnCode.NOT_COMMUNITY;
+import static madkit.kernel.AbstractAgent.ReturnCode.NOT_GROUP;
+import static madkit.kernel.AbstractAgent.ReturnCode.NOT_IN_GROUP;
+import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.GroupIdentifier;
 import madkit.kernel.JunitMadKit;
-import static org.junit.Assert.*;
 
-import org.junit.Assert;
 import org.junit.Test;
-import static madkit.kernel.AbstractAgent.ReturnCode.*;
-
-import test.util.JUnitBooterAgent;
 
 /**
  * @author Fabien Michel
@@ -48,11 +50,27 @@ public class LeaveGroupTest  extends JunitMadKit{
 	public void nullArgs(){
 		launchTest(new AbstractAgent(){
 			protected void activate() {
-				assertFalse(isCommunity(null));
-				assertFalse(isGroup(null,null));
-				assertEquals(NOT_COMMUNITY, leaveGroup(null,null));
-				assertEquals(NOT_COMMUNITY, leaveGroup(COMMUNITY,null));
-				assertEquals(NOT_COMMUNITY, leaveGroup(null,GROUP));
+				assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP));
+				try {
+					assertEquals(NOT_COMMUNITY, leaveGroup(null,null));
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+				try {
+					assertEquals(NOT_COMMUNITY, leaveGroup(COMMUNITY,null));
+					noExceptionFailure();
+			} catch (NullPointerException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				try {
+					assertEquals(NOT_COMMUNITY, leaveGroup(null,GROUP));
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				assertEquals(NOT_COMMUNITY, leaveGroup(aa(),aa()));
 			}
 		});

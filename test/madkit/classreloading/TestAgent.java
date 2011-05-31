@@ -12,7 +12,6 @@ import madkit.kernel.AbstractAgent;
 import madkit.kernel.Activator;
 import madkit.kernel.Agent;
 import madkit.kernel.Madkit;
-import madkit.kernel.Scheduler;
 
 public class TestAgent extends Agent{
 	/**

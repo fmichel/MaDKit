@@ -3,11 +3,24 @@
  */
 package madkit.messaging;
 
-import static madkit.kernel.AbstractAgent.ReturnCode.*;
+import static madkit.kernel.AbstractAgent.ReturnCode.INVALID_AA;
+import static madkit.kernel.AbstractAgent.ReturnCode.NOT_COMMUNITY;
+import static madkit.kernel.AbstractAgent.ReturnCode.NOT_GROUP;
+import static madkit.kernel.AbstractAgent.ReturnCode.NOT_IN_GROUP;
+import static madkit.kernel.AbstractAgent.ReturnCode.NOT_ROLE;
+import static madkit.kernel.AbstractAgent.ReturnCode.NO_RECIPIENT_FOUND;
+import static madkit.kernel.AbstractAgent.ReturnCode.ROLE_NOT_HANDLED;
+import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
+import static madkit.messaging.OrgErrorMessagingTest.OTHER;
+import static madkit.messaging.OrgErrorMessagingTest.UNKNOWN;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.*;
-import static test.util.JUnitBooterAgent.*;
-import static madkit.messaging.OrgErrorMessagingTest.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static test.util.JUnitBooterAgent.COMMUNITY;
+import static test.util.JUnitBooterAgent.GROUP;
+import static test.util.JUnitBooterAgent.ROLE;
+import static test.util.JUnitBooterAgent.testAgent;
 
 import java.util.logging.Level;
 

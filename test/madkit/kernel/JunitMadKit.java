@@ -19,6 +19,7 @@
 package madkit.kernel;
 
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
+import static madkit.kernel.AbstractAgent.State.TERMINATED;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -121,6 +122,10 @@ public class JunitMadKit {
 		long t = System.nanoTime()-time;
 		System.err.println(message+(t/1000000)+" ms");
 		return t;
+	}
+
+	protected void assertAgentIsTerminated(AbstractAgent a) {
+		assertEquals(TERMINATED,a.getState());
 	}
 
 

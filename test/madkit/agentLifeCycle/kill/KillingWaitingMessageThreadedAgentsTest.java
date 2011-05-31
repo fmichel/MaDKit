@@ -3,14 +3,11 @@
  */
 package madkit.agentLifeCycle.kill;
 
+import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
+import static madkit.kernel.AbstractAgent.ReturnCode.TIME_OUT;
 import static org.junit.Assert.assertEquals;
-import static madkit.kernel.AbstractAgent.ReturnCode.*;
 import madkit.kernel.Agent;
-import madkit.kernel.Madkit;
 import madkit.testing.util.agent.DoItDuringLifeCycleAgent;
-
-import org.junit.Test;
-
 import test.util.JUnitBooterAgent;
 
 /**

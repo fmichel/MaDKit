@@ -24,11 +24,8 @@ package madkit.testing.util.agent;
  * @version 0.9
  * 
  */
+@SuppressWarnings("serial")
 public class FaultyAgent extends DoItDuringLifeCycleAgent{
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -1630224242827578180L;
 
 	/**
 	 * @param inActivate
@@ -47,6 +44,7 @@ public class FaultyAgent extends DoItDuringLifeCycleAgent{
 		super(inActivate);
 	}
 
+	@SuppressWarnings("null")
 	@Override
 	public void doIt() {
 		Object o = null;

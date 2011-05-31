@@ -3,15 +3,17 @@
  */
 package madkit.messaging;
 
-import static madkit.kernel.AbstractAgent.ReturnCode.*;
+import static madkit.kernel.AbstractAgent.ReturnCode.NOT_IN_GROUP;
+import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.*;
-import org.junit.Test;
-
+import static org.junit.Assert.assertTrue;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.Roles;
 import madkit.kernel.Message;
+
+import org.junit.Test;
+
 import test.util.JUnitBooterAgent;
 /**
  * @author fab

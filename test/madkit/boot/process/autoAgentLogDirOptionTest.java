@@ -24,6 +24,8 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.IOException;
 
+import madkit.kernel.Madkit.BooleanOption;
+
 import org.junit.AfterClass;
 import org.junit.Test;
 
@@ -45,7 +47,7 @@ public class autoAgentLogDirOptionTest {
 
 	@Test
 	public void noOptionTest() throws IOException, InterruptedException{
-		String option = "--autoAgentLogDirectory --desktop false --launchAgents madkit.kernel.AbstractAgent";
+		String option = "--autoAgentLogDirectory --desktop false --launchAgents madkit.kernel.Agent";
 		System.err.println("testing "+option+"\n");
 		Process p = Runtime.getRuntime().exec("java -cp bin madkit.kernel.Madkit "+option);
 		p.waitFor();
@@ -56,11 +58,10 @@ public class autoAgentLogDirOptionTest {
 	public void missingSlash() throws IOException, InterruptedException{
 		//		String[] argss = {"--autoAgentLogDirectory","bin","--launchAgents","madkit.kernel.AbstractAgent","--agentLogLevel","FINEST"};
 		//		Madkit.main(argss);
-		String option = "--createLogFiles bin"+endOfCommandLine;
+		String option = BooleanOption.createLogFiles.commandLineString()+endOfCommandLine;
 		System.err.println("testing "+option+"\n");
 		Process p = Runtime.getRuntime().exec("java -cp bin madkit.kernel.Madkit "+option);
 		p.waitFor();
-		assertTrue(new File("bin/"+agentLogFileName).exists());
 	}
 
 	@Test

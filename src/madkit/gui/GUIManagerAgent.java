@@ -99,7 +99,6 @@ public class GUIManagerAgent extends Agent  {
 
 	@Override
 	protected void activate() {
-		setLogLevel(Level.parse(getMadkitProperty("guiLogLevel")));//TODO
 		GUIToolkit.buildGlobalActions(this);
 			scanClassPathForAgentClasses();
 		kernelAddress = getAgentWithRole(LOCAL_COMMUNITY, SYSTEM_GROUP, KERNEL_ROLE);

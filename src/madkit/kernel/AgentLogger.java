@@ -19,6 +19,7 @@
 package madkit.kernel;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -35,6 +36,8 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
+
+import javax.swing.JOptionPane;
 
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
@@ -172,26 +175,60 @@ public class AgentLogger extends Logger {
 			ch.setFormatter(agentFormatter);
 		}
 		if(Boolean.parseBoolean(agent.getMadkitProperty(BooleanOption.createLogFiles.name()))){
-			addHandler(getFileHandler(agent.getMadkitProperty(Madkit.logDirectory)+getName()));
+			addHandler(getFileHandler(agent.getMadkitProperty(Madkit.logDirectory)+File.separator+getName()));
 		}
 	}
 	
 	static private FileHandler getFileHandler(final String logFileName){
 		FileHandler fh = null;
-		try {
-			fh = new FileHandler(logFileName);
-			fh.setFormatter(new Formatter() {
-				@Override
-				public String format(LogRecord record) {
-					//TODO good format
-//				DateFormat df = DateFormat.getDateInstance(DateFormat.FULL, Locale.getDefault());
-//				final Date date = new Date(record.getMillis());
-					final SimpleDateFormat simpleFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss",Locale.getDefault());//TODO i18n + formatting
-					return "\n----------------------------------------------------------------------------\n-- Log session for "+logFileName.substring(logFileName.lastIndexOf(File.separator)+1)+" started on "+simpleFormat.format(new Date(record.getMillis()))+" --\n----------------------------------------------------------------------------\n\n";
-				}
-			});
-			fh.publish(new LogRecord(Level.ALL, null));
-			fh.flush();
+		final SimpleDateFormat simpleFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss",Locale.getDefault());//TODO i18n + formatting
+			try {
+				FileWriter fw = new FileWriter(new File(logFileName), true);
+				fw.write("\n----------------------------------------------------------------------------\n" +
+						"-- Log session for "+logFileName.substring(logFileName.lastIndexOf(File.separator)+1)
+						+" started on "+simpleFormat.format(new Date(System.currentTimeMillis()))+
+				" --\n----------------------------------------------------------------------------\n\n");
+				fw.close();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+			try {
+			fh = new FileHandler(logFileName,true){
+				public synchronized void close() throws SecurityException {
+//					setFormatter(new Formatter() {
+//						@Override
+//						public String format(LogRecord record) {
+//							return "\n----------------------------------------------------------------------------\n-- Log session for "+logFileName.substring(logFileName.lastIndexOf(File.separator)+1)+" closed on "+simpleFormat.format(new Date(record.getMillis()))+" --\n----------------------------------------------------------------------------\n\n";
+//						}
+//					});
+//					publish(new LogRecord(Level.ALL, ""));
+//					flush();
+//					JOptionPane.showConfirmDialog(null, "c");
+					super.close();
+					FileWriter fw2;
+					try {
+						fw2 = new FileWriter(new File(logFileName), true);
+						fw2.write("\n----------------------------------------------------------------------------\n" +
+						"-- Log session for "+logFileName.substring(logFileName.lastIndexOf(File.separator)+1)
+						+" closed on "+simpleFormat.format(new Date(System.currentTimeMillis()))+
+						" --\n----------------------------------------------------------------------------\n\n");
+						fw2.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				};
+			};
+//			fh.setFormatter(new Formatter() {
+//				@Override
+//				public String format(LogRecord record) {
+//					//TODO good format
+////				DateFormat df = DateFormat.getDateInstance(DateFormat.FULL, Locale.getDefault());
+////				final Date date = new Date(record.getMillis());
+//					return "\n----------------------------------------------------------------------------\n-- Log session for "+logFileName.substring(logFileName.lastIndexOf(File.separator)+1)+" started on "+simpleFormat.format(new Date(record.getMillis()))+" --\n----------------------------------------------------------------------------\n\n";
+//				}
+//			});
+//			fh.publish(new LogRecord(Level.ALL, null));
+//			fh.flush();
 		} catch (SecurityException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -199,6 +236,7 @@ public class AgentLogger extends Logger {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		fh.setFormatter(agentFileFormatter);
 		return fh;
 	}
 

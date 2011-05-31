@@ -183,6 +183,7 @@ class MadkitKernel extends Agent {
 		super(true);
 		platform = m;
 		if (platform != null) {
+			setLogLevel(LevelOption.kernelLogLevel.getValue(getMadkitConfig()));
 			kernelAddress = new KernelAddress();
 			organizations = new ConcurrentHashMap<String, Organization>();
 			operatingOverlookers = new LinkedHashSet<Overlooker<? extends AbstractAgent>>();
@@ -214,7 +215,6 @@ class MadkitKernel extends Agent {
 
 	@Override
 	protected void activate() {
-		setLogLevel(LevelOption.kernelLogLevel.getValue(getMadkitConfig()));
 		createGroup(Roles.LOCAL_COMMUNITY, Roles.SYSTEM_GROUP, false);
 		createGroup(Roles.LOCAL_COMMUNITY, Roles.NETWORK_GROUP, false);
 		requestRole(Roles.LOCAL_COMMUNITY, Roles.SYSTEM_GROUP, Roles.KERNEL_ROLE, null);
@@ -284,6 +284,7 @@ class MadkitKernel extends Agent {
 				logger.fine("** No GUI Manager: " + noGUIManager + " option is true**\n");
 		} else {
 			Agent a = new GUIManagerAgent(! BooleanOption.desktop.isActivated(getMadkitConfig()));
+			a.setLogLevel(LevelOption.guiLogLevel.getValue(getMadkitConfig()));//TODO
 			launchAgent(a);
 			threadedAgents.remove(a);
 			if (logger != null)
@@ -412,7 +413,8 @@ class MadkitKernel extends Agent {
 	}
 
 	private void launchConfigAgents(){
-		logger.fine("** LAUNCHING CONFIG AGENTS **");
+		if(logger != null)
+			logger.fine("** LAUNCHING CONFIG AGENTS **");
 		final String agentsTolaunch =platform.getConfigOption().getProperty(Madkit.launchAgents);
 		if(! agentsTolaunch.equals("null")){
 			final String[] agentsClasses = agentsTolaunch.split(";");
@@ -424,7 +426,8 @@ class MadkitKernel extends Agent {
 				if(classAndOptions.length > 2) {
 					number = Integer.parseInt(classAndOptions[2].trim());
 				}
-				logger.finer("Launching "+number+ " instance(s) of "+className+" with GUI = "+withGUI);
+				if(logger != null)
+					logger.finer("Launching "+number+ " instance(s) of "+className+" with GUI = "+withGUI);
 				for (int i = 0; i < number; i++) {
 						launchAgent(className, 0, withGUI);
 				}

@@ -348,7 +348,8 @@ final public class Madkit {
 		logger = myKernel.logger;
 		loadJarFileArguments();
 		loadConfigFile();
-		logger.fine("** OVERRIDING WITH COMMAND LINE ARGUMENTS **");
+		if(logger != null)
+			logger.fine("** OVERRIDING WITH COMMAND LINE ARGUMENTS **");
 		madkitConfig.putAll(fromArgs);
 		printWelcomeString();
 		buildMadkitClassLoader();
@@ -407,11 +408,11 @@ final public class Madkit {
 	private void createLogDirectory() {
 		if (BooleanOption.createLogFiles.isActivated(madkitConfig)) {
 			SimpleDateFormat simpleFormat = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
-			String logDir = madkitConfig.getProperty(logDirectory) + simpleFormat.format(new Date());
+			String logDir = madkitConfig.getProperty(logDirectory) +File.separator+ simpleFormat.format(new Date());
 			new File(logDir).mkdirs();
 			if(logger != null)
 				logger.fine("** CREATE LOG DIRECTORY "+logDir+" **");
-			madkitConfig.setProperty(logDirectory, logDir+File.separator);
+			madkitConfig.setProperty(logDirectory, logDir);
 		}
 	}
 

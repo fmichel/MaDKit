@@ -174,9 +174,15 @@ public class AgentLogger extends Logger {
 			addHandler(ch);
 			ch.setFormatter(agentFormatter);
 		}
-		if(Boolean.parseBoolean(agent.getMadkitProperty(BooleanOption.createLogFiles.name()))){
-			addHandler(getFileHandler(agent.getMadkitProperty(Madkit.logDirectory)+File.separator+getName()));
+		if (Boolean.parseBoolean(myAgent.getMadkitProperty(BooleanOption.createLogFiles.name()))) {
+			createLogFile();
 		}
+	}
+
+	/**
+	 */
+	void createLogFile() {
+			addHandler(getFileHandler(myAgent.getMadkitProperty(Madkit.logDirectory)+File.separator+getName()));
 	}
 	
 	static private FileHandler getFileHandler(final String logFileName){

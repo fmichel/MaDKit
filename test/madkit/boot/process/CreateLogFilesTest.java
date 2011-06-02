@@ -18,6 +18,7 @@
  */
 package madkit.boot.process;
 
+import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
 import madkit.kernel.JunitMadKit;
 import madkit.kernel.Madkit.BooleanOption;
@@ -40,7 +41,7 @@ public class CreateLogFilesTest extends  JunitMadKit{
 		addMadkitArgs(BooleanOption.createLogFiles.commandLineString(),
 				LevelOption.kernelLogLevel.commandLineString(),"OFF"
 );
-		launchTest(new Agent(){
+		launchTest(new AbstractAgent(){
 			@Override
 			protected void activate() {
 				super.activate();

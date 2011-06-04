@@ -930,6 +930,11 @@ final public class Madkit {
 			return "--"+name();
 		}
 	}
+	
+	public static enum Option{
+		launchAgents,
+		logDirectory,
+	}
 
 	public static enum LevelOption{
 		agentLogLevel,
@@ -958,18 +963,5 @@ final public class Madkit {
 		public String commandLineString(){
 			return "--"+name();
 		}
-	}
-}
-
-final class MadkitFormatter extends Formatter {
-	@Override
-	public String format(LogRecord record) {
-		if(record.getThrown() != null){
-			String logHeader = "\n\n---KERNEL LOG--\n\n";
-			System.err.print(logHeader);
-			record.getThrown().printStackTrace(System.err);
-			return record.getLoggerName()+" "+record.getLevel().getLocalizedName()+" : "+formatMessage(record)+logHeader;
-		}
-		return record.getLoggerName()+" "+record.getLevel().getLocalizedName()+" : "+formatMessage(record)+"\n";
 	}
 }

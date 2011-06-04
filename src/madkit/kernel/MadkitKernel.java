@@ -1252,10 +1252,6 @@ class MadkitKernel extends Agent {
 		}
 	}
 
-	String getMadkitProperty(AbstractAgent abstractAgent, String key) {
-		return platform.getConfigOption().getProperty(key);
-	}
-
 	void setMadkitProperty(final AbstractAgent requester, String key, String value) {
 		platform.getConfigOption().setProperty(key, value);// TODO update agent logging
 		// on or off
@@ -1265,6 +1261,10 @@ class MadkitKernel extends Agent {
 	final public Properties getMadkitConfig(){
 		if (platform != null) {
 			return platform.getConfigOption();
+		}
+		final Madkit m = Madkit.getCurrentInstance();
+		if (m != null) {
+			return m.getConfigOption();
 		}
 		return Madkit.defaultConfig;
 	}

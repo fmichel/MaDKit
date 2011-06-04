@@ -211,23 +211,6 @@ final class FakeKernel extends MadkitKernel{
 		throw new KernelException(null);
 	}
 
-	/**
-	 * @param abstractAgent
-	 * @param key
-	 * @return
-	 */
-	@Override
-	String getMadkitProperty(AbstractAgent abstractAgent, String key) {//TODO this could have some wired side effects
-		Madkit m = Madkit.getCurrentInstance();
-		if (m != null) {
-			return m.getConfigOption().getProperty(key);
-		}
-		else{
-			return Madkit.defaultConfig.getProperty(key);
-		}
-	}
-
-
 	@Override
 	List<Message> broadcastMessageWithRoleAndWaitForReplies(AbstractAgent agent,
 			String community, String group, String role, Message message,

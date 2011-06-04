@@ -1311,8 +1311,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @see #setMadkitProperty(String, String)
 	 * @see Madkit
 	 */
-	public String getMadkitProperty(String key) {
-		return kernel.getMadkitProperty(this, key);
+	final public String getMadkitProperty(String key) {
+		return getMadkitConfig().getProperty(key);
 	}
 
 	/**

@@ -38,6 +38,18 @@ Other command line options are described in the API of the madkit.kernel.Madkit 
 ----------------------------------------------------------------------------------
 
 ----------------------------------------------------------------------------------
+------------------------------- MadKit 5.0.0.10 (alpha-10)--------------------------
+----------------------------------------------------------------------------------
+
+1. API Refactoring:
+	- madkit.kernel.GroupIdentifier has changed to madkit.kernel.Gatekeeper
+	
+1. API :
+	- madkit.kernel.Madkit .Option .LevelOption .BooleanOption enumerations have been created
+	- the madkit.i18n package has been added
+	
+
+----------------------------------------------------------------------------------
 ------------------------------- MadKit 5.0.0.9 (alpha-9)--------------------------
 ----------------------------------------------------------------------------------
 

@@ -24,10 +24,10 @@ import static madkit.kernel.AbstractAgent.ReturnCode.NOT_IN_GROUP;
 import static madkit.kernel.AbstractAgent.ReturnCode.NOT_ROLE;
 import static madkit.kernel.AbstractAgent.ReturnCode.ROLE_NOT_HANDLED;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
-import static madkit.kernel.Madkit.Roles.GROUP_MANAGER_ROLE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import madkit.agr.Organization;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadKit;
 
@@ -50,7 +50,7 @@ public class LeaveRoleTest  extends JunitMadKit{
 				assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,ROLE));
 				assertEquals(SUCCESS, leaveRole(COMMUNITY,GROUP,ROLE));
 				assertTrue(isGroup(COMMUNITY,GROUP));
-				assertEquals(SUCCESS, leaveRole(COMMUNITY,GROUP,GROUP_MANAGER_ROLE));
+				assertEquals(SUCCESS, leaveRole(COMMUNITY,GROUP,Organization.GROUP_MANAGER_ROLE));
 				//leaveGroup by leaving roles
 				assertFalse(isCommunity(COMMUNITY));
 				assertFalse(isGroup(COMMUNITY,GROUP));

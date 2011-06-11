@@ -18,11 +18,17 @@
  */
 package madkit.boot.process;
 
+import java.io.File;
+import java.io.FilenameFilter;
+
+import javax.swing.filechooser.FileFilter;
+
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.Agent;
 import madkit.kernel.JunitMadKit;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
+import madkit.kernel.Madkit.Option;
+import static org.junit.Assert.*;
 
 import org.junit.Test;
 
@@ -35,17 +41,105 @@ import org.junit.Test;
 @SuppressWarnings("serial")
 public class CreateLogFilesTest extends  JunitMadKit{
 
+	File f;
+	FilenameFilter filter = new FilenameFilter() {
+		@Override
+		public boolean accept(File dir, String name) {
+			return ! name.contains(".lck");
+		}
+	};
 	
 	@Test
-	public void noKernelTest() {
-		addMadkitArgs(BooleanOption.createLogFiles.commandLineString(),
-				LevelOption.kernelLogLevel.commandLineString(),"OFF"
-);
+	public void defaultLogDirectory() {
+		addMadkitArgs(
+				BooleanOption.createLogFiles.toString(),
+				LevelOption.kernelLogLevel.toString(),"INFO"
+		);
 		launchTest(new AbstractAgent(){
 			@Override
 			protected void activate() {
-				super.activate();
+				System.err.println(getMadkitProperty(Option.logDirectory.name()));
+				f = new File(getMadkitProperty(Option.logDirectory.name()));
+				assertTrue(f.exists());
+				assertTrue(f.isDirectory());
+				assertSame(3,f.listFiles(filter).length);
 			}
 		});
 	}
+
+	@Test
+	public void noLogDirectory() {
+		addMadkitArgs(
+				BooleanOption.createLogFiles.toString(),"false"
+				,LevelOption.kernelLogLevel.toString(),"INFO"
+		);
+		launchTest(new AbstractAgent(){
+			@Override
+			protected void activate() {
+				System.err.println(getMadkitProperty(Option.logDirectory.name()));
+				assertFalse(getMadkitProperty(Option.logDirectory.name()).contains("."));
+			}
+		});
+	}
+
+	@Test
+	public void absoluteLogDirectory() {
+		addMadkitArgs(
+				BooleanOption.createLogFiles.toString(),
+				Option.logDirectory.toString(),System.getProperty("java.io.tmpdir")
+				,LevelOption.kernelLogLevel.toString(),"ALL"
+				,LevelOption.madkitLogLevel.toString(),"OFF"
+		);
+		launchTest(new AbstractAgent(){
+			@Override
+			protected void activate() {
+				System.err.println(getMadkitProperty(Option.logDirectory.name()));
+				f = new File(getMadkitProperty(Option.logDirectory.name()));
+				assertTrue(f.exists());
+				assertTrue(f.isDirectory());
+				assertSame(3,f.listFiles(filter).length);
+			}
+		});
+	}
+	
+	@Test
+	public void noFilesOnLogOFF() {
+		addMadkitArgs(
+				BooleanOption.createLogFiles.toString()
+				,LevelOption.kernelLogLevel.toString(),"OFF"
+				,LevelOption.agentLogLevel.toString(),"OFF"
+				,LevelOption.madkitLogLevel.toString(),"ALL"
+		);
+		launchTest(new AbstractAgent(){
+			@Override
+			protected void activate() {
+				System.err.println(getMadkitProperty(Option.logDirectory.name()));
+				f = new File(getMadkitProperty(Option.logDirectory.name()));
+				assertTrue(f.exists());
+				assertTrue(f.isDirectory());
+				assertSame(0,f.listFiles(filter).length);
+			}
+		});
+	}
+	
+	@Test
+	public void noKernelFile() {
+		addMadkitArgs(
+				BooleanOption.createLogFiles.toString(),
+				LevelOption.kernelLogLevel.toString(),"OFF"
+		);
+		launchTest(new AbstractAgent(){
+			@Override
+			protected void activate() {
+				System.err.println(getMadkitProperty(Option.logDirectory.name()));
+				f = new File(getMadkitProperty(Option.logDirectory.name()));
+				assertTrue(f.exists());
+				assertTrue(f.isDirectory());
+			}
+		});
+		pause(200);
+		assertSame(2,f.listFiles(filter).length);
+	}
+
+
 }

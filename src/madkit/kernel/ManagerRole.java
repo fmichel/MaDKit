@@ -21,8 +21,8 @@ package madkit.kernel;
 
 import static madkit.kernel.AbstractAgent.ReturnCode.ROLE_NOT_HANDLED;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
+import madkit.agr.Organization;
 import madkit.kernel.AbstractAgent.ReturnCode;
-import madkit.kernel.Madkit.Roles;
 
 
 /**
@@ -39,12 +39,12 @@ final class ManagerRole extends Role {
 	private static final long serialVersionUID = 1919401829672949296L;
 
 	ManagerRole(final Group groupObject, AbstractAgent creator) {
-		super(groupObject, Roles.GROUP_MANAGER_ROLE);
+		super(groupObject, Organization.GROUP_MANAGER_ROLE);
 		super.addMember(creator);
 	}
 	
 	ManagerRole(final Group groupObject, AgentAddress creator) {
-		super(groupObject, Roles.GROUP_MANAGER_ROLE);
+		super(groupObject, Organization.GROUP_MANAGER_ROLE);
 		super.addDistantMember(creator);
 	}
 	

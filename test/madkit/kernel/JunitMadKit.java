@@ -27,10 +27,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import madkit.agr.LocalCommunity;
+import madkit.agr.LocalCommunity.Groups;
 import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
-import madkit.kernel.Madkit.Roles;
+import madkit.kernel.Madkit.Option;
+import madkit.testing.util.agent.ForEverAgent;
 
 import org.junit.Rule;
 import org.junit.rules.TestName;
@@ -56,21 +59,25 @@ public class JunitMadKit {
 	public static final String ROLE = "Trole";
 
 	public static String testTitle;
-	private Madkit m;
+	protected Madkit madkit;
 
 	protected List<String> mkArgs = new ArrayList<String>(Arrays.asList(
 //			"--"+Madkit.warningLogLevel,"INFO",
-			BooleanOption.desktop.commandLineString(),"false",
-			"--"+Madkit.launchAgents,"madkit.kernel.AbstractAgent",
-			"--"+Madkit.logDirectory,getBinTestDir(),
-			LevelOption.agentLogLevel.commandLineString(),"ALL",
-			LevelOption.madkitLogLevel.commandLineString(),"INFO"));
+			BooleanOption.desktop.toString(),"false",
+			Option.launchAgents.toString(),"madkit.kernel.AbstractAgent",
+			Option.logDirectory.toString(),getBinTestDir(),
+			LevelOption.agentLogLevel.toString(),"ALL",
+			LevelOption.madkitLogLevel.toString(),"INFO"));
 
 	public void launchTest(AbstractAgent a, ReturnCode expected){
 		System.err.println("\n\n------------------------ "+name.getMethodName()+" TEST START ---------------------");
 		try {
-			m = new Madkit((String[]) mkArgs.toArray(new String[mkArgs.size()]));
-			AbstractAgent kernelAgent = m.getKernel().getAgentWithRole(null,Roles.LOCAL_COMMUNITY, Roles.SYSTEM_GROUP, Roles.KERNEL_ROLE).getAgent();
+			String[] args = null;
+			if (mkArgs != null) {
+				args = (String[]) mkArgs.toArray(new String[mkArgs.size()]);
+			}
+			madkit = new Madkit(args);
+			AbstractAgent kernelAgent = madkit.getKernel().getAgentWithRole(null,LocalCommunity.NAME, Groups.SYSTEM, LocalCommunity.Roles.KERNEL).getAgent();
 			assertEquals(expected, kernelAgent.launchAgent(a));
 		} catch (Throwable e) {
 			System.err.println("\n\n\n------------------------------------");
@@ -92,7 +99,7 @@ public class JunitMadKit {
 }
 	
 	public MadkitKernel getKernel(){
-		return m.getKernel();
+		return madkit.getKernel();
 	}
 	
 	public void addMadkitArgs(String... string){
@@ -145,6 +152,23 @@ public class JunitMadKit {
 			e.printStackTrace();
 		}
 
+	}
+
+	
+	public void launchThreadedMKNetworkInstance() {
+		new Thread(new Runnable() {			
+			@Override
+			public void run() {
+		String[] args = {BooleanOption.network.toString(),Option.launchAgents.toString(),ForEverAgent.class.getName()};
+		Madkit.main(args);
+		}
+	}).start();
+
+	}
+
+	public void launchMKNetworkInstance() {
+		String[] args = {BooleanOption.network.toString(),Option.launchAgents.toString(),ForEverAgent.class.getName()};
+		Madkit.main(args);
 	}
 
 

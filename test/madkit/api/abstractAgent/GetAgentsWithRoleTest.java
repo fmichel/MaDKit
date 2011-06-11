@@ -22,9 +22,9 @@ import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import madkit.agr.Organization;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadKit;
-import madkit.kernel.Madkit.Roles;
 
 import org.junit.Test;
 
@@ -34,6 +34,7 @@ import org.junit.Test;
  * @version 0.9
  * 
  */
+@SuppressWarnings("serial")
 public class GetAgentsWithRoleTest  extends JunitMadKit{
 
 	final AbstractAgent target = new AbstractAgent(){
@@ -50,38 +51,38 @@ public class GetAgentsWithRoleTest  extends JunitMadKit{
 					getAgentsWithRole(null,null,null);
 					noExceptionFailure();
 				} catch (NullPointerException e) {
-					e.printStackTrace();
+//					e.printStackTrace();
 				}
 				try {
 					assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP));
 					assertNull(getAgentsWithRole(COMMUNITY,null,null));
 					noExceptionFailure();
 				} catch (NullPointerException e) {
-					e.printStackTrace();
+//					e.printStackTrace();
 				}
 				try {
 					assertNull(getAgentsWithRole(COMMUNITY,GROUP,null));
 					noExceptionFailure();
 				} catch (NullPointerException e) {
-					e.printStackTrace();
+//					e.printStackTrace();
 				}
 				try {
 					assertNull(getAgentsWithRole(null,GROUP,ROLE));
 					noExceptionFailure();
 				} catch (NullPointerException e) {
-					e.printStackTrace();
+//					e.printStackTrace();
 				}
 				try {
 					assertNull(getAgentsWithRole(null,null,ROLE));
 					noExceptionFailure();
 				} catch (NullPointerException e) {
-					e.printStackTrace();
+//					e.printStackTrace();
 				}
 				try {
 					assertNull(getAgentsWithRole(COMMUNITY,null,ROLE));
 					noExceptionFailure();
 				} catch (NullPointerException e) {
-					e.printStackTrace();
+//					e.printStackTrace();
 				}
 			}
 		});
@@ -128,8 +129,8 @@ public class GetAgentsWithRoleTest  extends JunitMadKit{
 		launchTest(new AbstractAgent(){
 			protected void activate() {
 				launchAgent(target);
-				assertNotNull(getAgentsWithRole(COMMUNITY,GROUP,Roles.GROUP_MANAGER_ROLE));
-				assertEquals(1, getAgentsWithRole(COMMUNITY,GROUP,Roles.GROUP_MANAGER_ROLE).size());
+				assertNotNull(getAgentsWithRole(COMMUNITY,GROUP,Organization.GROUP_MANAGER_ROLE));
+				assertEquals(1, getAgentsWithRole(COMMUNITY,GROUP,Organization.GROUP_MANAGER_ROLE).size());
 			}
 		});
 	}
@@ -139,7 +140,7 @@ public class GetAgentsWithRoleTest  extends JunitMadKit{
 		launchTest(new AbstractAgent(){
 			protected void activate() {
 				assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP));
-				assertNull(getAgentsWithRole(COMMUNITY,GROUP,Roles.GROUP_MANAGER_ROLE));
+				assertNull(getAgentsWithRole(COMMUNITY,GROUP,Organization.GROUP_MANAGER_ROLE));
 			}
 		});
 	}

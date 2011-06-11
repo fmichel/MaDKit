@@ -226,7 +226,7 @@ public class KillAgentTest  extends JunitMadKit{
 			}
 		});
 	}
-	
+
 	@Test
 	public void immediateKillWithTimeOut() {
 		launchTest(new AbstractAgent(){

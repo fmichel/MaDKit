@@ -18,7 +18,7 @@
  */
 package madkit.api.abstractAgent;
 
-import static madkit.kernel.AbstractAgent.ReturnCode.INVALID_AA;
+import static madkit.kernel.AbstractAgent.ReturnCode.*;
 import static madkit.kernel.AbstractAgent.ReturnCode.NOT_COMMUNITY;
 import static madkit.kernel.AbstractAgent.ReturnCode.NOT_GROUP;
 import static madkit.kernel.AbstractAgent.ReturnCode.NOT_IN_GROUP;
@@ -26,10 +26,9 @@ import static madkit.kernel.AbstractAgent.ReturnCode.NOT_ROLE;
 import static madkit.kernel.AbstractAgent.ReturnCode.NO_RECIPIENT_FOUND;
 import static madkit.kernel.AbstractAgent.ReturnCode.ROLE_NOT_HANDLED;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
-import static madkit.kernel.Madkit.Roles.GROUP_CANDIDATE_ROLE;
-import static madkit.kernel.Madkit.Roles.GROUP_MANAGER_ROLE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import madkit.agr.Organization;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AgentAddress;
 import madkit.kernel.JunitMadKit;
@@ -81,18 +80,18 @@ public class SendMessageWithCGRTest  extends JunitMadKit{
 				assertEquals(SUCCESS,launchAgent(target));
 
 				//Without role
-				assertEquals(SUCCESS, sendMessage(COMMUNITY,GROUP,GROUP_MANAGER_ROLE, new Message()));
+				assertEquals(SUCCESS, sendMessage(COMMUNITY,GROUP,Organization.GROUP_MANAGER_ROLE, new Message()));
 				Message m = target.nextMessage();
 				assertNotNull(m);
-				assertEquals(GROUP_MANAGER_ROLE, m.getReceiver().getRole());
-				assertEquals(GROUP_CANDIDATE_ROLE, m.getSender().getRole());
+				assertEquals(Organization.GROUP_MANAGER_ROLE, m.getReceiver().getRole());
+				assertEquals(Organization.GROUP_CANDIDATE_ROLE, m.getSender().getRole());
 
 				//With role
-				assertEquals(SUCCESS, sendMessageWithRole(COMMUNITY,GROUP,GROUP_MANAGER_ROLE, new Message(), GROUP_CANDIDATE_ROLE));
+				assertEquals(SUCCESS, sendMessageWithRole(COMMUNITY,GROUP,Organization.GROUP_MANAGER_ROLE, new Message(), Organization.GROUP_CANDIDATE_ROLE));
 				m = target.nextMessage();
 				assertNotNull(m);
-				assertEquals(GROUP_MANAGER_ROLE, m.getReceiver().getRole());
-				assertEquals(GROUP_CANDIDATE_ROLE, m.getSender().getRole());
+				assertEquals(Organization.GROUP_MANAGER_ROLE, m.getReceiver().getRole());
+				assertEquals(Organization.GROUP_CANDIDATE_ROLE, m.getSender().getRole());
 			}});
 	}
 
@@ -168,10 +167,10 @@ public class SendMessageWithCGRTest  extends JunitMadKit{
 					sendMessage(null, aa(), aa(), new Message());
 					noExceptionFailure();
 				} catch (NullPointerException e) {
-					e.printStackTrace();
+					throw e;
 				}
 			}
-		});
+		},AGENT_CRASH);
 	}
 	
 	@Test
@@ -183,10 +182,10 @@ public class SendMessageWithCGRTest  extends JunitMadKit{
 						sendMessage(COMMUNITY, null, aa(), new Message());
 						noExceptionFailure();
 					} catch (NullPointerException e) {
-						e.printStackTrace();
+						throw e;
 					}
 			}
-		});
+		},AGENT_CRASH);
 	}
 	
 	@Test
@@ -198,10 +197,10 @@ public class SendMessageWithCGRTest  extends JunitMadKit{
 					sendMessage(COMMUNITY, GROUP, null, new Message());
 					noExceptionFailure();
 				} catch (NullPointerException e) {
-					e.printStackTrace();
+					throw e;
 				}
 			}
-		});
+		},AGENT_CRASH);
 	}
 	
 	@Test
@@ -214,10 +213,10 @@ public class SendMessageWithCGRTest  extends JunitMadKit{
 					sendMessage(COMMUNITY, GROUP, ROLE, null);
 					noExceptionFailure();
 				} catch (NullPointerException e) {
-					e.printStackTrace();
+					throw e;
 				}
 			}
-		});
+		},AGENT_CRASH);
 	}
 	
 

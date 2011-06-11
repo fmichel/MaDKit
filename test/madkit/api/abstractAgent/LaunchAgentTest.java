@@ -123,13 +123,6 @@ public class LaunchAgentTest  extends JunitMadKit{
 	launchTest(new AbstractAgent(){
 			protected void activate() {
 				assertEquals(TIME_OUT,launchAgent(new AbstractAgent(),-1,true));
-//				assertEquals(INVALID_ARG,launchAgent((AbstractAgent)null,1,true));
-//				assertEquals(INVALID_ARG,launchAgent((AbstractAgent)null,0,false));
-//				assertEquals(INVALID_ARG,launchAgent((AbstractAgent)null,0,true));
-//				assertEquals(INVALID_ARG,launchAgent((AbstractAgent)null,1,true));
-//				assertEquals(INVALID_ARG,launchAgent((AbstractAgent)null,1,false));
-//				assertEquals(INVALID_ARG,launchAgent(target,-10));
-//				assertEquals(INVALID_ARG,launchAgent(target,-10,true));
 			}
 		});
 	}

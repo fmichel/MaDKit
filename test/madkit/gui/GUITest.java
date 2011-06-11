@@ -18,11 +18,12 @@
  */
 package madkit.gui;
 
-import java.util.logging.Level;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import madkit.kernel.AbstractAgent;
+import madkit.kernel.JunitMadKit;
 
-import madkit.kernel.Agent;
-import madkit.kernel.AgentAddress;
-import madkit.kernel.Madkit;
+import org.junit.Test;
 
 /**
  * @author Fabien Michel
@@ -30,45 +31,22 @@ import madkit.kernel.Madkit;
  * @version 0.9
  * 
  */
-public class GUITest extends Agent
+@SuppressWarnings("serial")
+public class GUITest extends JunitMadKit
 {
-	private AgentAddress currentPartner = null;
-	private String message="yes";
 
-
-	@Override
-	public void activate()
-	{
-//		setLogLevel(Level.OFF);
-		createGroupIfAbsent("ping-pong","room",true, null);
-		requestRole("ping-pong","room","player",null);
-	}
-
-	@Override
-	public void live()
-	{
-		while(true){
-			playing();
-		}
-	}
-
-	private void playing() {
-		while (true) {
-			pause(1000);
-			getLogger().fine("infoying");
-			setLogLevel(Level.INFO);
-		}
-	}
 	
-	@Override
-	protected void end() {
-		if(logger != null)
-			logger.info("bye");
-	}
-	
-	public static void main(String[] args) {
-		String[] argss = {"--agentLogLevel","ALL","--launchAgents",GUITest.class.getName(),",true"};
-		Madkit.main(argss);		
+	@Test
+	public void hasGUITest()
+	{
+		launchTest(new AbstractAgent(){
+			@Override
+			protected void activate() {
+				AbstractAgent name = new AbstractAgent();
+				assertEquals(ReturnCode.SUCCESS, launchAgent(name,true));
+				assertTrue(name.hasGUI());
+			}
+		});
 	}
 
 }

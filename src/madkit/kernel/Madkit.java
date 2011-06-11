@@ -18,12 +18,7 @@
  */
 package madkit.kernel;
 
-import static madkit.kernel.Utils.logSevereException;
-import static madkit.kernel.Utils.logWarningException;
-
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -35,28 +30,21 @@ import java.security.Policy;
 import java.security.ProtectionDomain;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
-import java.util.logging.Formatter;
-import java.util.logging.Handler;
 import java.util.logging.Level;
-import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
-import javax.swing.JOptionPane;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -104,207 +92,24 @@ import org.xml.sax.SAXException;
 
 final public class Madkit {
 
-//	public static final String network = "network";
-	/**
-	 * Parameterizable option used to launch agents at start up.
-	 * This option can be used to launch agents 
-	 * from the command line or using the main method of MadKit.
-	 * Parameters could be added to (1) launch several different types
-	 * of agents, (2) launch the agents with a default GUI and (3) 
-	 * specifying the number of desired instances of each type.
-	 * <p>
-	 * Key value is {@value}.<p>
-	 * Default value is <i>"null"</i>, meaning that no agent has to be launched.
-	 * <p>
-	 * Option parameters :<p> 
-	 * --{@value}
-	 * <ul>
-	 * <li><i>agentClassName</i>,</li> 
-	 * <li><i>withDefaultGUI</i>(boolean optional),</li>
-	 * <li><i>numberOfdesiredInstances</i>(int optional),</li>
-	 * </ul> 
-	 * <p>Default values for the optional parameters are
-	 * <ul>
-	 * <li><i>withDefaultGUI</i> = false</li>
-	 * <li><i>numberOfdesiredInstances</i> = 1</li> 
-	 * </ul>
-	 * <p>Examples:
-	 * <ul>
-	 * <li> : --{@value} myPackage.MyAgent</li> 
-	 * <li> : --{@value} myPackage.MyAgent,true</li>
-	 * <li> : --{@value} myPackage.MyAgent,false,3</li> 
-	 * <li> : --{@value} myPackage.MyAgent;other.OtherAgent</li> 
-	 * <li> : --{@value} myPackage.MyAgent,true;other.OtherAgent,true</li>
-	 * <li> : --{@value} myPackage.MyAgent;other.OtherAgent,true,3</li>
-	 * </ul>
-	 * @see AbstractAgent#getMadkitProperty(String)
-	 * @see AbstractAgent#setMadkitProperty(String, String)
-	 * @since Madkit 5 
-	 */
-	public static final String launchAgents = "launchAgents";
-	public static final String configFile = "configFile";
-	/**
-	 * Parameterizable option defining the default warning log level for newly
-	 * launched agents. Key value is {@value}.
-	 * Default value is "FINE". This value could be changed
-	 * individually by the agents using {@link AgentLogger#setWarningLogLevel(Level)} 
-	 * on their personnal logger. 
-	 * <p>Example:
-	 * <ul>
-	 * <li> : --{@value} OFF</li> 
-	 * <li> : --{@value} ALL</li> 
-	 * <li> : --{@value} FINE</li> 
-	 * </ul>
-	 * @see AbstractAgent#logger
-	 * @see java.util.logging.Logger
-	 * @see AbstractAgent#getMadkitProperty(String)
-	 * @see AbstractAgent#setMadkitProperty(String, String)
-	 * @since Madkit 5 
-	 */
-//	public static final String warningLogLevel = "warningLogLevel";
-	//	public static final String createLogFiles = "createLogFiles";
-	public static final String logDirectory = "logDirectory";
-	public static final String agentsLogFile = "agentsLogFile";
-//	public static final String noAgentConsoleLog = "noAgentConsoleLog";
-	/**
-	 * Parameterizable option defining the default agent log level for newly
-	 * launched agents. Key value is {@value}.
-	 * Default value is "INFO". This value could be overridden
-	 * individually by agents using {@link AbstractAgent#setLogLevel(Level)}. 
-	 * <p>Example:
-	 * <ul>
-	 * <li> : --{@value} OFF</li> 
-	 * <li> : --{@value} ALL</li> 
-	 * <li> : --{@value} FINE</li> 
-	 * </ul>
-	 * @see AbstractAgent#logger
-	 * @see java.util.logging.Logger
-	 * @see AbstractAgent#getMadkitProperty(String)
-	 * @see AbstractAgent#setMadkitProperty(String, String)
-	 * @since Madkit 5 
-	 */
-//	/**
-//	 * Boolean option defining if organization logging should be quiet in the
-//	 * default console.
-//	 * Key value is {@value}.
-//	 * Default value is "false". 
-//	 * <p>Usage example:
-//	 * <ul>
-//	 * <li> : --{@value} (is equivalent to) --{@value} true</li> 
-//	 * <li> : --{@value} false (useless as this is the default value)</li>
-//	 * </ul>
-//	 * @since Madkit 5 
-//	 */
-//	public final static String noOrgConsoleLog = "noOrgConsoleLog";
-	/**
-	 * Parameterizable option defining the default organization log level. 
-	 * Key value is {@value}.
-	 * Default value is "OFF". 
-	 * <p>Example:
-	 * <ul>
-	 * <li> : --{@value} OFF</li> 
-	 * <li> : --{@value} ALL</li> 
-	 * <li> : --{@value} FINE</li> 
-	 * </ul>
-	 * @since Madkit 5 
-	 */
-	final static String orgLogLevel = "orgLogLevel";
-	public final static String MadkitLogFile = "MadkitLogFile";
-	/**
-	 * Boolean option defining if MadKit logging should be quiet in the
-	 * default console.
-	 * Key value is {@value}.
-	 * Default value is "false". 
-	 * <p>Usage example:
-	 * <ul>
-	 * <li> : --{@value} (is equivalent to) --{@value} true</li> 
-	 * <li> : --{@value} false (useless as this is the default value)</li>
-	 * </ul>
-	 * @since Madkit 5 
-	 */
-	public final static String noMadkitConsoleLog = "noMadkitConsoleLog";
-
-//	public static final String noGUIManager = "noGUIManager";
-	/**
-	 * Parameterizable option defining the default MadKit log level. 
-	 * Key value is {@value}.
-	 * Default value is "INFO". 
-	 * <p>Example:
-	 * <ul>
-	 * <li> : --{@value} OFF</li> 
-	 * <li> : --{@value} ALL</li> 
-	 * <li> : --{@value} FINE</li> 
-	 * </ul>
-	 * @since Madkit 5 
-	 */
-	/**
-	 * Launches the MadKit desktop
-	 */
-	//	public static final String desktop = "desktop";
-	//	public static final String autoConnectMadkitWebsite = "autoConnectMadkitWebsite";
-//	public static final String loadLocalDemos = "loadLocalDemos";
-
-	/**
-	 * Default roles within a MadKit organization.
-	 */
-	final public static class Roles{
-		private Roles(){}
-		/**
-		 * The value of this constant is {@value}.
-		 */
-		public static final String GROUP_MANAGER_ROLE = "manager";
-		/**
-		 * The value of this constant is {@value}.
-		 */
-		public static final String GROUP_CANDIDATE_ROLE = "candidate";
-		/**
-		 * The value of this constant is {@value}.
-		 */
-		public static final String LOCAL_COMMUNITY = "local";
-		/**
-		 * The value of this constant is {@value}.
-		 */
-		public static final String SYSTEM_GROUP = "system";
-		//	public static final String SYSTEM_GROUP = "system";
-		/**
-		 * The value of this constant is {@value}.
-		 */
-		public static final String KERNEL_ROLE = "kernel";
-
-		/**
-		 * The value of this constant is {@value}.
-		 */
-		public static final String GUI_MANAGER_ROLE = "gui manager";
-
-		public static final String NETWORK_GROUP = "network";
-
-		public static final String NETWORK_ROLE = "net agent";
-
-	}
-
-
 	final static Properties defaultConfig = new Properties();
 	final static private ResourceBundle resourceBundle;
+	final private Properties madkitConfig = new Properties();
 
 	static{
 		ResourceBundle rb = null;
 		try {
 			defaultConfig.load(Madkit.class.getResourceAsStream("madkitKernel.properties"));
-//			rb = ResourceBundle.getBundle(defaultConfig.getProperty("madkit.resourceBundle.file"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		resourceBundle = rb;
 	}
 
-
-	final private Properties madkitConfig;
-
 	private Element madkitXMLConfigFile=null;
-	//	private FileHandler aaLogFile;
 	private FileHandler madkitLogFileHandler;
 	final private MadkitKernel myKernel;
-	final private Logger logger;
+	private Logger logger;
 	private MadkitClassLoader madkitClassLoader;
 	String cmdLine;
 	String[] args;
@@ -337,24 +142,26 @@ final public class Madkit {
 		//installing config
 		//		this.args = argss != null ? argss : new String[0];
 		this.args = argss;
-		madkitConfig = new Properties(defaultConfig);
+		madkitConfig.putAll(defaultConfig);
 		Properties fromArgs = buildConfigFromArgs(args);
 		madkitConfig.putAll(fromArgs);
+		initMadkitLogging();
 		//desktop on if no agents : could be overriden later
-		if(madkitConfig.getProperty(Madkit.launchAgents).equals("null")){
+		if(madkitConfig.get(Option.launchAgents.name()).equals("null")){
 			BooleanOption.desktop.setProperty(madkitConfig, true);
 		}
-		myKernel = new MadkitKernel(this);
-		logger = myKernel.logger;
+		if(logger != null)
+			logger.finer("**  MADKIT KERNEL CREATED **");
 		loadJarFileArguments();
 		loadConfigFile();
 		if(logger != null)
 			logger.fine("** OVERRIDING WITH COMMAND LINE ARGUMENTS **");
 		madkitConfig.putAll(fromArgs);
+		createLogDirectory();
+		myKernel = new MadkitKernel(this);
 		printWelcomeString();
 		buildMadkitClassLoader();
 		logSessionConfig(madkitConfig, Level.FINER);
-		createLogDirectory();
 
 		this.cmdLine = System.getProperty("java.home")+File.separatorChar+"bin"+File.separatorChar+"java -cp "+System.getProperty("java.class.path")+" madkit.kernel.Madkit ";
 		if(args != null && args.length == 1 && args[0].contains(" ")){//jnlp arg in here
@@ -369,7 +176,7 @@ final public class Madkit {
 		startKernel();
 	}
 
-	private Policy getAllPermissionPolicy()//TODO super bourrin : mais fait marcher le jnlp pour l'instant...
+	private Policy getAllPermissionPolicy()//TODO super bourrin, mais fait marcher le jnlp pour l'instant...
 	{
 		Policy policy = new Policy() {
 
@@ -408,11 +215,11 @@ final public class Madkit {
 	private void createLogDirectory() {
 		if (BooleanOption.createLogFiles.isActivated(madkitConfig)) {
 			SimpleDateFormat simpleFormat = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
-			String logDir = madkitConfig.getProperty(logDirectory) +File.separator+ simpleFormat.format(new Date());
+			String logDir = madkitConfig.get(Option.logDirectory.name()) + File.separator+ simpleFormat.format(new Date());
 			new File(logDir).mkdirs();
 			if(logger != null)
 				logger.fine("** CREATE LOG DIRECTORY "+logDir+" **");
-			madkitConfig.setProperty(logDirectory, logDir);
+			madkitConfig.put(Option.logDirectory.name(), logDir);
 		}
 	}
 
@@ -467,22 +274,22 @@ final public class Madkit {
 		}
 	}
 
-	//	private void checkI18NFiles() {
-	//		logger.finer("** CHECKING I18N FILES **");
-	//		if (resourceBundle != null) {
-	//			logger.fine("** I18N FILES SUCCESSFULLY LOADED **");
-	//		}
-	//		else{
-	//			logSevereException(logger,new AssertionError(), "i18n default files not found: Loading failed");
-	//		}
-	//	}
-
-//	public static String getI18N(final String message){
-//		return resourceBundle.getString(message);
-//	}
+	private void initMadkitLogging() {
+		Level l = LevelOption.madkitLogLevel.getValue(madkitConfig);
+		if(l != Level.OFF){
+			logger = Logger.getLogger("[*MADKIT*]");
+			logger.setUseParentHandlers(false);
+			logger.setLevel(l);
+			ConsoleHandler cs = new ConsoleHandler();
+			cs.setLevel(logger.getLevel());
+			cs.setFormatter(AgentLogger.agentFormatter);
+			logger.addHandler(cs);
+			logger.fine("** LOGGING INITIALIZED **");
+		}
+	}
 
 	private void loadConfigFile() {
-		final String fileName = madkitConfig.getProperty(Madkit.configFile);
+		final String fileName = madkitConfig.getProperty(Option.configFile.name());
 		if(fileName.equals("null")){
 			return;
 		}
@@ -502,32 +309,29 @@ final public class Madkit {
 				if(logger != null)
 					logger.fine("** Config file "+fileName+" successfully loaded **\n");
 			} catch (SAXException e) {
-				logWarningException(logger,e, "XML error");
+				if(logger != null)
+					logger.log(Level.WARNING,ErrorMessages.CANT_LOAD+" configuration "+fileName,e);
 			} catch (IOException e) {
-				logSevereException(logger, e,  "IO error");
+				if(logger != null)
+					logger.log(Level.WARNING,ErrorMessages.CANT_LOAD+" configuration "+fileName,e);
 			} catch (ParserConfigurationException e) {
-				logSevereException(logger, e,  "XML parser error");
+				if(logger != null)
+					logger.log(Level.WARNING,ErrorMessages.CANT_LOAD+" configuration "+fileName,e);
 			}
 		}
-		if(logger != null){
-			logger.warning("Config file not found : "+fileName);
+		else if(logger != null){
+				logger.warning(ErrorMessages.CANT_FIND+" configuration "+fileName);
 		}
-		//		if(madkitXMLConfigFile == null){
-		//			logger.warning("** Config file -- "+fileName+" -- not properly loaded !!**");
-		//			return;
-		//		}
 	}
 
 	/**
 	 * 
 	 */
 	private void startKernel() {
-		if(logger != null)
-			logger.finer("** INITIALIZING MADKIT KERNEL **");
 		//starting the kernel agent and waiting the end of its activation
-		myKernel.launchAgent(myKernel, myKernel, 20, false);
 		if(logger != null)
-			logger.fine("** KERNEL AGENT LAUNCHED **");
+			logger.fine("** LAUNCHING KERNEL AGENT **");
+		myKernel.launchAgent(myKernel, myKernel, 20, false);
 	}
 
 	//	private void prepareConfigAgents(){
@@ -566,7 +370,7 @@ final public class Madkit {
 
 	String printFareWellString() {
 		if(!(LevelOption.madkitLogLevel.getValue(madkitConfig) == Level.OFF)){
-//				|| Level.parse(madkitConfig.getProperty(Madkit.MadkitLogLevel)).equals(Level.OFF))){
+			//				|| Level.parse(madkitConfig.getProperty(Madkit.MadkitLogLevel)).equals(Level.OFF))){
 			return("\n\t-------------------------------------------------------------")+
 			("\n\t   MadKit Kernel "+myKernel.getKernelAddress()+" is shutting down, Bye !")+
 			("\n\t-------------------------------------------------------------\n");			
@@ -574,11 +378,11 @@ final public class Madkit {
 		return "";
 	}
 
-//	private void misuseOptionMessage(String option,String value) {
-//		System.err.println("\n\n-------------MadKit WARNING----------------------------\n" +
-//				"Misuse of --"+option+" option\nincorrect value : "+value+
-//		"\n------------------------------------------------------\n");
-//	}
+	//	private void misuseOptionMessage(String option,String value) {
+	//		System.err.println("\n\n-------------MadKit WARNING----------------------------\n" +
+	//				"Misuse of --"+option+" option\nincorrect value : "+value+
+	//		"\n------------------------------------------------------\n");
+	//	}
 
 	//	/**
 	//	 * @param agentsLogFile the agentsLogFile to set
@@ -587,9 +391,9 @@ final public class Madkit {
 	//		this.aaLogFile = agentsLogFile;
 	//	}
 
-//	private boolean isOptionWithDifferentValue(String optionName,String option, String value) {
-//		return option.equals(optionName) && ! madkitConfig.getProperty(optionName).equals(value);
-//	}
+	//	private boolean isOptionWithDifferentValue(String optionName,String option, String value) {
+	//		return option.equals(optionName) && ! madkitConfig.getProperty(optionName).equals(value);
+	//	}
 
 	void logSessionConfig(Properties session, Level lvl){
 		if(logger != null){
@@ -645,52 +449,52 @@ final public class Madkit {
 		return madkitConfig;
 	}
 
-//	Logger initLogger(String loggerName, Level lvl, boolean consoleOn, List<FileHandler> fhs, Formatter formatter) {
-//		Logger newLogger = Logger.getLogger(loggerName);
-//		Logger tmpLogger = logger;
-//		if(logger == newLogger){// in case this is the MK logger
-//			tmpLogger = Logger.getLogger("[TMP]",defaultConfig.getProperty("madkit.resourceBundle.file"));
-//			tmpLogger.setUseParentHandlers(false);
-//			tmpLogger.setLevel(logger.getLevel());
-//			for(Handler h : tmpLogger.getHandlers()){
-//				tmpLogger.removeHandler(h);
-//			}
-//			for(Handler h : logger.getHandlers()){
-//				tmpLogger.addHandler(h);
-//			}
-//		}
-//		if(tmpLogger != null){
-//			tmpLogger.finest("Removing all previous handlers of "+newLogger.getName());
-//			tmpLogger.finest(newLogger.getName()+" log level changed from "+newLogger.getLevel()+" to "+lvl);
-//		}
-//		for(Handler h : newLogger.getHandlers())
-//			newLogger.removeHandler(h);
-//		newLogger.setLevel(lvl);
-//		newLogger.setUseParentHandlers(false);
-//		if(consoleOn){
-//			newLogger.addHandler(new ConsoleHandler());
-//			if(tmpLogger != null){
-//				tmpLogger.finest("Console handling is on");
-//			}
-//		}
-//		for (FileHandler fh : fhs) {
-//			if (fh != null) {
-//				if (logger != null)
-//					tmpLogger.finest("Creating a log file for logger "+ newLogger.getName());
-//				fh.setLevel(newLogger.getLevel());
-//				newLogger.addHandler(fh);
-//			}
-//		}
-//		for(Handler h : newLogger.getHandlers()){
-//			h.setLevel(newLogger.getLevel());
-//			if(formatter != null)
-//				h.setFormatter(formatter);
-//		}
-//		if(newLogger.getHandlers().length == 0){
-//			newLogger = null;
-//		}
-//		return newLogger;
-//	}
+	//	Logger initLogger(String loggerName, Level lvl, boolean consoleOn, List<FileHandler> fhs, Formatter formatter) {
+	//		Logger newLogger = Logger.getLogger(loggerName);
+	//		Logger tmpLogger = logger;
+	//		if(logger == newLogger){// in case this is the MK logger
+	//			tmpLogger = Logger.getLogger("[TMP]",defaultConfig.getProperty("madkit.resourceBundle.file"));
+	//			tmpLogger.setUseParentHandlers(false);
+	//			tmpLogger.setLevel(logger.getLevel());
+	//			for(Handler h : tmpLogger.getHandlers()){
+	//				tmpLogger.removeHandler(h);
+	//			}
+	//			for(Handler h : logger.getHandlers()){
+	//				tmpLogger.addHandler(h);
+	//			}
+	//		}
+	//		if(tmpLogger != null){
+	//			tmpLogger.finest("Removing all previous handlers of "+newLogger.getName());
+	//			tmpLogger.finest(newLogger.getName()+" log level changed from "+newLogger.getLevel()+" to "+lvl);
+	//		}
+	//		for(Handler h : newLogger.getHandlers())
+	//			newLogger.removeHandler(h);
+	//		newLogger.setLevel(lvl);
+	//		newLogger.setUseParentHandlers(false);
+	//		if(consoleOn){
+	//			newLogger.addHandler(new ConsoleHandler());
+	//			if(tmpLogger != null){
+	//				tmpLogger.finest("Console handling is on");
+	//			}
+	//		}
+	//		for (FileHandler fh : fhs) {
+	//			if (fh != null) {
+	//				if (logger != null)
+	//					tmpLogger.finest("Creating a log file for logger "+ newLogger.getName());
+	//				fh.setLevel(newLogger.getLevel());
+	//				newLogger.addHandler(fh);
+	//			}
+	//		}
+	//		for(Handler h : newLogger.getHandlers()){
+	//			h.setLevel(newLogger.getLevel());
+	//			if(formatter != null)
+	//				h.setFormatter(formatter);
+	//		}
+	//		if(newLogger.getHandlers().length == 0){
+	//			newLogger = null;
+	//		}
+	//		return newLogger;
+	//	}
 
 	//	/**
 	//	 * @return the agentsLogFile
@@ -895,55 +699,199 @@ final public class Madkit {
 		return Boolean.parseBoolean(madkitConfig.getProperty(madkitOptionName));
 	}
 
-	public static enum BooleanOption{
+	/**
+	 * Option used to activate or disable features on startup.
+	 * These options can be used 
+	 * from the command line or using the main method of MadKit.
+	 * 
+	 * <pre>SYNOPSIS</pre>
+	 * <code><b>--optionName</b></code> [true|false]
+	 * <pre>DESCRIPTION</pre>
+	 * If no boolean value is specified, 
+	 * the option is considered as set to true.
+	 * <pre>EXAMPLES</pre>
+	 * <ul>
+	 * <li>--optionName false</li> 
+	 * <li>--optionName (equivalent to)</li>
+	 * <li>--optionName true</li>
+	 */
+	public static enum BooleanOption implements MadkitOption{
+		/**
+		 * Starts the desktop mode.
+		 * Default value is "false". 
+		 */
 		desktop,
+		/**
+		 * Connect to the MadKit repository on startup.
+		 * Default value is "false". 
+		 */
 		autoConnectMadkitWebsite,
+		/**
+		 * Starts the network on startup.
+		 * Default value is "false". 
+		 */
 		network,
+		/**
+		 * If activated, MadKit will create a log file for every agent which has 
+		 * a log level greater that {@link Level#OFF}.
+		 * Default value is "false". 
+		 */
 		createLogFiles,
 		noGUIManager,
 		/**
-		 * Boolean option defining if agent logging should be quiet in the
+		 * Defines if agent logging should be quiet in the
 		 * default console.
-		 * Key value is {@value}.
 		 * Default value is "false". 
-		 * <p>Usage example:
-		 * <ul>
-		 * <li> : --{@value} (is equivalent to) --{@value} true</li> 
-		 * <li> : --{@value} false (useless as this is the default value)</li>
-		 * </ul>
-		 * @since MadKit 5.0.0.10
 		 */
 		noAgentConsoleLog,
+		/**
+		 * Loads all the jar files which are in the demos directory on startup.
+		 * Default value is "false". 
+		 */
 		loadLocalDemos;
-		boolean isActivated(Properties session){
+		public boolean isActivated(Properties session){
 			return Boolean.parseBoolean(session.getProperty(this.name()));
 		}
 
-		void setProperty(Properties session, Boolean activated){
+		public void setProperty(Properties session, Boolean activated){
 			session.setProperty(name(), activated.toString());
 		}
 
-		/**
-		 * @return the command line form for this option, i.e. "--optionName activated" 
-		 */
-		public String commandLineString(){
+		@Override
+		public String toString() {
 			return "--"+name();
 		}
-	}
-	
-	public static enum Option{
-		launchAgents,
-		logDirectory,
+
 	}
 
-	public static enum LevelOption{
+	/**
+	 * MadKit options valued with a string representing parameters.
+	 * These options could be used from the command line or using the main method of MadKit.
+	 * 
+	 * @author Fabien Michel
+	 * @since MadKit 5.0.0.10
+	 * @version 0.9
+	 * 
+	 */
+	public static enum Option implements MadkitOption{
+		/**
+		 * Used to launch agents at start up.
+		 * This option can be used 
+		 * from the command line or using the main method of MadKit.
+		 * 
+		 * <pre>SYNOPSIS</pre>
+		 * <code><b>--launchAgents</b></code> AGENT_CLASS_NAME[,GUI][,NB][;OTHERS]
+		 * <p>
+		 * <ul>
+		 * <li><i>AGENT_CLASS_NAME</i>: the agent class to launch</li> 
+		 * <li><i>GUI</i> (boolean optional): with a default GUI if <code>true</code></li>
+		 * <li><i>NB</i> (integer optional): number of desired instances</li>
+		 * </ul>
+		 *  
+		 * <pre>DESCRIPTION</pre>
+		 * The optional parameters could be used to (1) launch several different types
+		 * of agents, (2) launch the agents with a default GUI and/or (3) 
+		 * specify the number of desired instances of each type.
+		 * <pre>DEFAULT VALUE</pre>
+		 * Default value is <i>"null"</i>, meaning that no agent has to be launched.
+		 * <p>Default values for the optional parameters are
+		 * <ul>
+		 * <li><i>GUI</i> : <code>false</code></li>
+		 * <li><i>NB</i> : 1</li> 
+		 * </ul>
+		 * 
+		 * <pre>EXAMPLES</pre>
+		 * <ul>
+		 * <li> --launchAgents myPackage.MyAgent</li> 
+		 * <li> --launchAgents myPackage.MyAgent,true</li>
+		 * <li> --launchAgents myPackage.MyAgent,false,3</li> 
+		 * <li> --launchAgents myPackage.MyAgent;other.OtherAgent</li> 
+		 * <li> --launchAgents myPackage.MyAgent,true;other.OtherAgent,true</li>
+		 * <li> --launchAgents myPackage.MyAgent;other.OtherAgent,true,3;madkit.kernel.Agent</li>
+		 * </ul>
+		 */
+		launchAgents,
+		//TODO jdoc
+		/**
+		 * Used to specify the directory wherein the logs should be done.
+		 * 
+		 * <pre>SYNOPSIS</pre>
+		 * <code><b>--logDirectory</b></code> DIRECTORY_NAME
+		 * <pre>DESCRIPTION</pre>
+		 * Specify the desired directory. It could be an absolute 
+		 * or a relative path. At runtime, a log directory named with
+		 * the current date will be created for the MadKit session.
+		 * <pre>DEFAULT VALUE</pre>
+		 * Default value is <i>"logs"</i>, so that a directory named
+		 * "logs" will be created in the application working directory.
+		 * 
+		 * <pre>EXAMPLES</pre>
+		 * <ul>
+		 * <li> --logDirectory bin</li> 
+		 * <li> --logDirectory /home/neo/madkit_logs</li> 
+		 * </ul>
+		 */
+		logDirectory,
+		configFile;
+
+		@Override
+		public String toString() {
+			return "--"+name();
+		}
+
+	}
+
+	/**
+	 * MadKit options valued with a string representing a {@link Level}.
+	 * These options could be used from the command line or using the main method of MadKit.
+	 * 
+	 * @author Fabien Michel
+	 * @since MadKit 5.0.0.10
+	 * @version 0.9
+	 * 
+	 */
+	public static enum LevelOption implements MadkitOption{
+		/**
+		 * Option defining the default agent log level for newly
+		 * launched agents. 
+		 * Default value is "INFO". This value could be overridden
+		 * individually by agents using {@link AbstractAgent#setLogLevel(Level)}. 
+		 * <p>Example:
+		 * <ul>
+		 * <li> --agentLogLevel OFF</li> 
+		 * <li> --agentLogLevel ALL</li> 
+		 * <li> --agentLogLevel FINE</li> 
+		 * </ul>
+		 * @see AbstractAgent#logger
+		 * @see java.util.logging.Logger
+		 * @see AbstractAgent#getMadkitProperty(String)
+		 * @see AbstractAgent#setMadkitProperty(String, String)
+		 */
 		agentLogLevel,
 		kernelLogLevel,
 		guiLogLevel,
 		madkitLogLevel,
+		/**
+		 * Option defining the default warning log level for newly
+		 * launched agents.
+		 * Default value is "FINE". This value could be changed
+		 * individually by the agents using {@link AgentLogger#setWarningLogLevel(Level)} 
+		 * on their personal logger. 
+		 * <p>Example:
+		 * <ul>
+		 * <li> --warningLogLevel OFF</li> 
+		 * <li> --warningLogLevel ALL</li> 
+		 * <li> --warningLogLevel FINE</li> 
+		 * </ul>
+		 * @see AbstractAgent#logger
+		 * @see java.util.logging.Logger
+		 * @see AbstractAgent#getMadkitProperty(String)
+		 * @see AbstractAgent#setMadkitProperty(String, String)
+		 * @since MadKit 5 
+		 */
 		warningLogLevel,
 		networkLogLevel;
-		
+
 		Level getValue(Properties session){
 			try {
 				return Level.parse(session.getProperty(name()));
@@ -953,15 +901,14 @@ final public class Madkit {
 			return Level.ALL;
 		}
 
-		void setProperty(Properties session, Level lvl){
-			session.setProperty(name(), lvl.toString());
-		}
-
-		/**
-		 * @return the command line form for this option, i.e. "--optionName activated" 
-		 */
-		public String commandLineString(){
+		@Override
+		public String toString() {
 			return "--"+name();
 		}
+
+		void setProperty(Properties session, Level lvl){
+			session.put(name(), lvl.toString());
+		}
 	}
+
 }

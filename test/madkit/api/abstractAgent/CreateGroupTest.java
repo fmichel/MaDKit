@@ -24,7 +24,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.GroupIdentifier;
+import madkit.kernel.Gatekeeper;
 import madkit.kernel.JunitMadKit;
 
 import org.junit.Test;
@@ -38,7 +38,7 @@ import org.junit.Test;
 @SuppressWarnings("all")
 public class CreateGroupTest  extends JunitMadKit{
 	
-	final GroupIdentifier gi = new GroupIdentifier() {
+	final Gatekeeper gi = new Gatekeeper() {
 		@Override
 		public boolean allowAgentToTakeRole(String roleName, Object memberCard) {
 			return false;
@@ -61,7 +61,8 @@ public class CreateGroupTest  extends JunitMadKit{
 
 	@Test
 	public void createGroupAlreadyDone(){
-		launchTest(new AbstractAgent(){
+		addMadkitArgs("--kernelLogLevel","ALL");
+	launchTest(new AbstractAgent(){
 			protected void activate() {
 				assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP));
 				assertEquals(ALREADY_GROUP, createGroup(COMMUNITY,GROUP));

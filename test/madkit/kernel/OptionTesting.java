@@ -40,10 +40,10 @@ public class OptionTesting  extends JunitMadKit{
 	@Test
 	public void correctness(){
 		mkArgs = new ArrayList<String>(Arrays.asList(
-				BooleanOption.autoConnectMadkitWebsite.commandLineString(),
+				BooleanOption.autoConnectMadkitWebsite.toString(),
 //				"--"+Madkit.logDirectory,getBinTestDir(),
 //				"--"+Madkit.agentLogLevel,"ALL",
-				LevelOption.kernelLogLevel.commandLineString(),"INFO"
+				LevelOption.kernelLogLevel.toString(),"INFO"
 				));
 		launchTest(new AbstractAgent(){
 			protected void activate() {

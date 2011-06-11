@@ -1,0 +1,12 @@
+- Description  MadKit demonstrations -----
+			
+- Using the jar files        
+	These jar files are runnable: Double click them (file execution permission is required) or use java -jar  demo-name.jar
+	They are also used to build the demo menu of the MadKit 5 desktop which could be launch by running the kernel jar file.
+
+- Using the jnlp files        
+	These files could be used to launch the last version of a demo using java web start.
+	You can also distribute these files so that one can see the demos without installing anything
+
+- Source codes
+	can be tested in Eclipse with Import > Existing project > Select Archive File > demo-name.-src.zip > finish		

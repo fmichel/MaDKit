@@ -49,15 +49,15 @@ public class NetworkMessagingTest extends JunitMadKit{
 
 	@Test
 	public void ping(){
-		addMadkitArgs(BooleanOption.network.commandLineString(),
-				LevelOption.kernelLogLevel.commandLineString(),"ALL",
-		LevelOption.networkLogLevel.commandLineString(),"FINE");
+		addMadkitArgs(BooleanOption.network.toString(),
+				LevelOption.kernelLogLevel.toString(),"ALL",
+		LevelOption.networkLogLevel.toString(),"FINE");
 		launchTest(new Agent(){
 			protected void activate() {
 				setLogLevel(Level.FINE);
 				assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP,true));
 				assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,ROLE));
-				String[] args = {"--network","--launchAgents",NetworkMessageAgentTest.class.getName(),LevelOption.kernelLogLevel.commandLineString(),"ALL"};
+				String[] args = {"--network","--launchAgents",NetworkMessageAgent.class.getName(),LevelOption.kernelLogLevel.toString(),"ALL"};
 				Madkit.main(args);
 				assertNotNull(waitNextMessage());
 			}

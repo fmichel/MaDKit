@@ -23,6 +23,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 
 import madkit.kernel.NetworkMessage.NetCode;
@@ -50,11 +51,10 @@ final class MultiCastListener {
 		ds = ds2;
 	}
 
-	static MultiCastListener getNewMultiCastListener(final int localPort){
+	static MultiCastListener getNewMultiCastListener(final int localPort) throws IOException, UnknownHostException{
 		MulticastSocket ms = null;
 		DatagramSocket ds = null;
 		final int multiCastPort = 9999;
-		try {
 			if (ipAddress == null) {
 				ipAddress = InetAddress.getByName("224.2.2.3");
 			}
@@ -62,14 +62,7 @@ final class MultiCastListener {
 			ms.joinGroup(ipAddress);
 			ds = new DatagramSocket(localPort);
 			ds.send(new DatagramPacket(new byte[0], 0, ipAddress, 9999));
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-			return null;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
-		return new MultiCastListener(ms,ds);
+			return new MultiCastListener(ms,ds);
 	}
 
 	void activate(final NetworkAgent networkAgent, final InetAddress localIP,final int localPort) {

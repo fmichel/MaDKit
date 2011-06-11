@@ -42,7 +42,7 @@ public class AgentAddressTest {
 	
 	@Before
 	public void before(){
-		String[] args = {BooleanOption.desktop.commandLineString(),"false"};
+		String[] args = {BooleanOption.desktop.toString(),"false"};
 		mk = new MadkitKernel(new Madkit(args));
 		a = new AbstractAgent();
 		a.setKernel(mk);

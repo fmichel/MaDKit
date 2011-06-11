@@ -20,8 +20,8 @@ package madkit.kernel;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import madkit.agr.Organization;
 import madkit.kernel.AbstractAgent.ReturnCode;
-import madkit.kernel.Madkit.Roles;
 
 
 /**
@@ -241,7 +241,7 @@ final class CandidateAgentAddress extends AgentAddress{
 	 */
 	@Override
 	final public String getRole() {
-		return Roles.GROUP_CANDIDATE_ROLE;
+		return Organization.GROUP_CANDIDATE_ROLE;
 	}
 	
 	@Override

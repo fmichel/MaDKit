@@ -37,10 +37,9 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
-import javax.swing.JOptionPane;
-
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
+import madkit.kernel.Madkit.Option;
 
 /**
  * This class defines a logger specialized for MadKit agents.
@@ -65,7 +64,7 @@ public class AgentLogger extends Logger {
 			if(lvl.equals(talkLevel)){
 				return record.getMessage();
 			}
-			return record.getLoggerName()+" "+lvl.getLocalizedName()+" : "+formatMessage(record)+"\n";
+			return record.getLoggerName()+" "+lvl.getLocalizedName()+" : "+record.getMessage()+"\n";
 		}
 	};
 
@@ -76,7 +75,7 @@ public class AgentLogger extends Logger {
 			if(lvl.equals(talkLevel)){
 				return record.getMessage();
 			}
-			return lvl.getLocalizedName()+" : "+formatMessage(record)+"\n";
+			return lvl.getLocalizedName()+" : "+record.getMessage()+"\n";
 		}
 	};
 
@@ -182,7 +181,7 @@ public class AgentLogger extends Logger {
 	/**
 	 */
 	void createLogFile() {
-			addHandler(getFileHandler(myAgent.getMadkitProperty(Madkit.logDirectory)+File.separator+getName()));
+			addHandler(getFileHandler(myAgent.getMadkitProperty(Option.logDirectory.name())+File.separator+getName()));
 	}
 	
 	static private FileHandler getFileHandler(final String logFileName){
@@ -224,6 +223,7 @@ public class AgentLogger extends Logger {
 					}
 				};
 			};
+			fh.setFormatter(agentFileFormatter);
 //			fh.setFormatter(new Formatter() {
 //				@Override
 //				public String format(LogRecord record) {
@@ -242,7 +242,6 @@ public class AgentLogger extends Logger {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		fh.setFormatter(agentFileFormatter);
 		return fh;
 	}
 
@@ -359,7 +358,7 @@ public class AgentLogger extends Logger {
 		myAgent.getKernel().getMadkitKernel().getLogger().log(Level.FINEST,"log for "+myAgent+"\n"+msg,t);
 		myAgent.setAgentStackTrace(t);
 		final Level l = getLevel();
-		if (l != Level.ALL) {
+		if (l == Level.OFF) {
 			setLevel(Level.ALL);
 			log(Level.SEVERE, msg, t);
 			setLevel(l);

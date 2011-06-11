@@ -22,9 +22,6 @@ import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static madkit.kernel.AbstractAgent.State.ACTIVATED;
 import static madkit.kernel.AbstractAgent.State.INITIALIZING;
 import static madkit.kernel.AbstractAgent.State.LIVING;
-import static madkit.kernel.Madkit.Roles.GUI_MANAGER_ROLE;
-import static madkit.kernel.Madkit.Roles.LOCAL_COMMUNITY;
-import static madkit.kernel.Madkit.Roles.SYSTEM_GROUP;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -32,9 +29,12 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
+import madkit.agr.LocalCommunity;
+import madkit.agr.LocalCommunity.Groups;
+import madkit.agr.LocalCommunity.Roles;
+import madkit.gui.GUIMessage;
 import madkit.gui.actions.MadkitActions;
-import madkit.gui.messages.GUIMessage;
-import madkit.i18n.I18nMadkitClass;
+import madkit.i18n.I18nUtilities;
 
 /**
  * The super class of all MadKit threaded agents, v 5. 
@@ -113,12 +113,12 @@ public class Agent extends AbstractAgent{
 				if(logger != null){
 					logger.finer("** setting up GUI **");
 				}
-				requestRole(LOCAL_COMMUNITY, SYSTEM_GROUP, "default");
+				requestRole(LocalCommunity.NAME, Groups.SYSTEM, "default");
 				kernel.broadcastMessageWithRoleAndWaitForReplies(
 						this,
-						LOCAL_COMMUNITY, 
-						SYSTEM_GROUP, 
-						GUI_MANAGER_ROLE, 
+						LocalCommunity.NAME, 
+						Groups.SYSTEM, 
+						Roles.GUI_MANAGER, 
 						new GUIMessage(MadkitActions.AGENT_SETUP_GUI,this), 
 						null, 
 						10000);//How much and why ?
@@ -382,7 +382,7 @@ public class Agent extends AbstractAgent{
 			final String senderRole, 
 			final Integer timeOutMilliSeconds){
 		if(logger != null)
-			logger.finest("sendMessageAndWaitForReply : sending "+messageToSend+" to any "+I18nMadkitClass.getCGRString(community, group, role)+
+			logger.finest("sendMessageAndWaitForReply : sending "+messageToSend+" to any "+I18nUtilities.getCGRString(community, group, role)+
 					(timeOutMilliSeconds == null ? "":", and waiting reply for "+TimeUnit.MILLISECONDS.toSeconds(timeOutMilliSeconds)+" s..."));
 		if(kernel.sendMessage(this,community,group,role, messageToSend,senderRole) != SUCCESS){
 			return null;

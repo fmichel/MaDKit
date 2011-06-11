@@ -1,9 +1,5 @@
 package madkit.gui;
 
-import static madkit.kernel.Madkit.Roles.KERNEL_ROLE;
-import static madkit.kernel.Madkit.Roles.LOCAL_COMMUNITY;
-import static madkit.kernel.Madkit.Roles.SYSTEM_GROUP;
-
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Point;
@@ -29,21 +25,21 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.logging.Level;
 
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.SwingUtilities;
 
+import madkit.agr.LocalCommunity;
+import madkit.agr.LocalCommunity.Groups;
+import madkit.agr.LocalCommunity.Roles;
 import madkit.gui.actions.MadkitActions;
 import madkit.gui.menus.AgentsMenu;
 import madkit.gui.menus.DemosMenu;
-import madkit.gui.messages.GUIMessage;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
 import madkit.kernel.AgentAddress;
-import madkit.kernel.Madkit;
 import madkit.kernel.Message;
 import madkit.messages.KernelMessage;
 
@@ -101,10 +97,10 @@ public class GUIManagerAgent extends Agent  {
 	protected void activate() {
 		GUIToolkit.buildGlobalActions(this);
 			scanClassPathForAgentClasses();
-		kernelAddress = getAgentWithRole(LOCAL_COMMUNITY, SYSTEM_GROUP, KERNEL_ROLE);
+		kernelAddress = getAgentWithRole(LocalCommunity.NAME, Groups.SYSTEM, Roles.KERNEL);
 		if(kernelAddress == null)//TODO remove that
 			throw new AssertionError();
-		requestRole(Madkit.Roles.LOCAL_COMMUNITY, Madkit.Roles.SYSTEM_GROUP, Madkit.Roles.GUI_MANAGER_ROLE);
+		requestRole(LocalCommunity.NAME, Groups.SYSTEM, Roles.GUI_MANAGER);
 		if (! isDaemon()) {//use to detect desktop mode
 			desktop = new Desktop(this);
 		}

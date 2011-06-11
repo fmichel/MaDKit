@@ -22,9 +22,9 @@ import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import madkit.agr.Organization;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadKit;
-import madkit.kernel.Madkit;
 
 import org.junit.Test;
 
@@ -87,7 +87,7 @@ public class isCGRTest  extends JunitMadKit{
 				assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP));
 				assertTrue(isCommunity(COMMUNITY));
 				assertTrue(isGroup(COMMUNITY,GROUP));
-				assertTrue(isRole(COMMUNITY,GROUP,Madkit.Roles.GROUP_MANAGER_ROLE));
+				assertTrue(isRole(COMMUNITY,GROUP,Organization.GROUP_MANAGER_ROLE));
 			}
 		});
 	}

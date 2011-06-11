@@ -67,7 +67,7 @@
 				<attribute name="Sealed" value="true"/>
     			<include name="${mk.properties.file}"/>
          ================================= -->
-	<target name="jar" depends="compile,build-properties,desktop-jnlp" description="Jars the plugin ">
+	<target name="jar" depends="compile,build-properties,desktop-jnlp" description="Jars MadKit kernel ">
 		<jar destfile="${jar.file}" index="true" compress="false">
 
 			<fileset dir="${build.dir}"/>
@@ -110,7 +110,7 @@
 		<filterset begintoken="[[" endtoken ="]]">
 			<filter token="TIMESTAMP" value="${timestamp.isoformat}"/>
 		</filterset>
-   		<copy todir="${build.dir}" file="${madkitKernel.properties}" overwrite="true">
+   		<copy tofile="${build.dir}/${madkitKernel.properties}" file="${src.dir}/${madkitKernel.properties}" overwrite="true">
    		  <filterchain>
    		    <expandproperties/>
    		  </filterchain>
@@ -161,8 +161,8 @@
 	<!-- ================================= 
           target: junit              
          ================================= -->
-    <target name="junit" depends="test-compile" description="description">
-    	<junit printsummary="false" haltonfailure="false" >
+    <target name="junit" depends="clean,test-compile" description="description">
+    	<junit printsummary="false" haltonfailure="false" maxmemory="512m">
 	    	<classpath refid="test.classpath"/>
 			<formatter type="brief" usefile="false"/>
 			<formatter type="xml"/>

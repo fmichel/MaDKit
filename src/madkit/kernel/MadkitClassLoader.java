@@ -143,7 +143,7 @@ private void addUrlAndloadClasses(String name) {
 boolean reloadClass(String name) throws ClassNotFoundException{//TODO return false and return code
 //	System.err.println(name.replace('.', '/')+".class");
 	if(name == null || getResource(name.replace('.', '/')+".class") == null)
-		throw new ClassNotFoundException();
+		throw new ClassNotFoundException(name);
 	if (classesToReload == null) {
 		classesToReload = new HashSet<String>();
 	}

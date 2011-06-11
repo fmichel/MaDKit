@@ -18,20 +18,18 @@
  */
 package madkit.kernel;
 
+import static madkit.i18n.I18nUtilities.getCGRString;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
-import static madkit.i18n.I18nMadkitClass.*;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 import madkit.i18n.ErrorMessages;
-import madkit.kernel.Madkit.Roles;
 
 /**
  * @author Fabien Michel
@@ -77,15 +75,15 @@ final class Organization extends ConcurrentHashMap <String, Group>{
 	/**
 	 * @param creator
 	 * @param isDistributed 
-	 * @param theIdentifier 
+	 * @param gatekeeper 
 	 * @param group 
 	 * @param groupName
-	 * @param theIdentifier
+	 * @param gatekeeper
 	 * @param isDistributed 
 	 * @return true if the group has been created
 	 */
-	boolean addGroup(final AbstractAgent creator, String group, GroupIdentifier theIdentifier, boolean isDistributed) {
-		final Group g = new Group(communityName,group,creator,theIdentifier,isDistributed,this);
+	boolean addGroup(final AbstractAgent creator, String group, Gatekeeper gatekeeper, boolean isDistributed) {
+		final Group g = new Group(communityName,group,creator,gatekeeper,isDistributed,this);
 		if (putIfAbsent(group,g) == null) {// There was no such group
 			if(logger != null)
 				logger.fine(getCGRString(communityName, group)+"created by "+creator.getName()+"\n");
@@ -156,7 +154,7 @@ final class Organization extends ConcurrentHashMap <String, Group>{
 		for (String groupName : map.keySet()) {
 			Group group = get(groupName);
 			if(group == null){
-				AgentAddress manager = map.get(groupName).get(Roles.GROUP_MANAGER_ROLE).iterator().next();
+				AgentAddress manager = map.get(groupName).get(madkit.agr.Organization.GROUP_MANAGER_ROLE).iterator().next();
 				group = new Group(communityName, groupName,manager, null, this);//TODO have to get the groupManager
 				put(groupName, group);
 			}

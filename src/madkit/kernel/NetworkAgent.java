@@ -25,12 +25,16 @@ import java.net.DatagramPacket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
 
+import madkit.agr.CloudCommunity;
+import madkit.agr.LocalCommunity;
+import madkit.agr.LocalCommunity.Groups;
+import madkit.agr.LocalCommunity.Roles;
+import madkit.agr.Organization;
 import madkit.gui.GUIToolkit;
 import madkit.kernel.Madkit.LevelOption;
-import madkit.kernel.Madkit.Roles;
 import madkit.messages.ObjectMessage;
 
 /**
@@ -76,35 +80,44 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 		setName(super.getName()+getKernelAddress());
 		setLogLevel(LevelOption.networkLogLevel.getValue(getMadkitConfig()));
 
-		requestRole(Roles.LOCAL_COMMUNITY, Roles.NETWORK_GROUP, Roles.NETWORK_ROLE);
-//		requestRole(Roles.LOCAL_COMMUNITY, Roles.NETWORK_GROUP, "updater",null);
+		createGroup(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS,true);
+		requestRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT);
+		requestRole(LocalCommunity.NAME, Groups.NETWORK, madkit.agr.LocalCommunity.Roles.NET_AGENT);
 
-		kernelAgent = getAgentWithRole(Roles.LOCAL_COMMUNITY, Roles.NETWORK_GROUP, Roles.GROUP_MANAGER_ROLE);
+		kernelAgent = getAgentWithRole(LocalCommunity.NAME, Groups.NETWORK, Organization.GROUP_MANAGER_ROLE);
 		//black magic here
 		myThread.setPriority(Thread.MAX_PRIORITY-3);
 		if(kernelAgent == null)
 			throw new AssertionError(this+" no kernel agent to work with... Please bug report");
 		
 		//build server
-		myServer = KernelServer.getNewKernelServer();
-		if(myServer == null){
-			if (logger != null) logger.warning("\n\t\t\t\t---- Unable to start the Madkit kernel server: No network will be available ------\n");
+		try {
+			myServer = KernelServer.getNewKernelServer();
+		} catch (IOException e) {
+			if (logger != null) 
+				logger.warning("\n\t\t\t\t---- Unable to start the Madkit kernel server"+e.getClass().getName()+" "+e.getMessage()+" ------\n");
 			alive = false;
 			return;
 		}
+
 		myServer.activate(this);
-		if (logger != null) logger.info("\n\t\t\t\t----- MadKit server activated on "+myServer.getIp()+" port "+myServer.getPort()+" ------\n");
+		if (logger != null) 
+			logger.info("\n\t\t\t\t----- MadKit server activated on "+myServer.getIp()+" port "+myServer.getPort()+" ------\n");
 
 		//build multicast listener
-		multicastListener = MultiCastListener.getNewMultiCastListener(myServer.getPort());
-		if(multicastListener == null){
-			if (logger != null) logger.warning("\n\t\t\t\t---- Unable to start a Multicast Listener... ------\n");
-		}
-		else{
+		try {
+			multicastListener = MultiCastListener.getNewMultiCastListener(myServer.getPort());
 			multicastListener.activate(this, myServer.getIp(), myServer.getPort());
-			if (logger != null) logger.info("\n\t\t\t\t----- MadKit MulticastListener activated on "+MultiCastListener.ipAddress+" ------\n");
-			if (logger != null) logger.finest("Broadcasting existence");
+			if (logger != null){
+				logger.info("\n\t\t\t\t----- MadKit MulticastListener activated on "+MultiCastListener.ipAddress+" ------\n");
+				logger.finest("Broadcasting existence");
+			}
+		} catch (IOException e) {
+			if (logger != null){
+				logger.warning("\n\t\t\t\t---- Unable to start a Multicast Listener "+e.getClass().getName()+" "+e.getMessage()+" ------\n");
+			}
 		}
+		
 		GUIToolkit.updateAgentsUI();
 		Message m = null;
 		final ArrayList<Message> toDoList = new ArrayList<Message>();
@@ -121,13 +134,16 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 		} 
 		while (m != null);
 
-		if (logger != null) logger.finest("Now purge mailbox");
+		if (logger != null) 
+			logger.finest("Now purge mailbox");
 		
-		for (Message message : toDoList) {
+		for (final Message message : toDoList) {
 			handleMessage(message);
 		} 
-		if (logger != null) logger.finest("Now activating all connections");
-		for (KernelConnection kc : peers.values()) {
+		
+		if (logger != null) 
+			logger.finest("Now activating all connections");
+		for (final KernelConnection kc : peers.values()) {
 			if (! kc.isActivated()) {
 				kc.start();
 			}
@@ -146,14 +162,15 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 
 		@Override
 		protected void end() {
-			leaveGroup(Roles.LOCAL_COMMUNITY, Roles.NETWORK_GROUP);
+			leaveGroup(LocalCommunity.NAME, Groups.NETWORK);
 			GUIToolkit.updateAgentsUI();
 			if (logger != null){
 				logger.info("\n\t\t\t\t----- Network is being closed on "+getKernelAddress()+" ------\n");
 				logger.finer("Closing all connections : "+peers.values());
 			}
-			for (KernelConnection kc : peers.values()) {
-				kc.closeConnection();
+			for(Map.Entry<KernelAddress, KernelConnection> entry : peers.entrySet()){
+				deconnectFromPeer(entry.getKey());
+				entry.getValue().closeConnection();
 			}
 			if (logger != null){
 				logger.finer("Closing multicast listener and kernel server");
@@ -169,25 +186,25 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 			handlePrivateMessage((NetworkMessage<?>) m);
 		}
 		else if(sender.isLocal()){//contacted locally
-			if(sender.getRole().equals("updater")){//It is a CGR update
+			if(sender.getRole().equals(Roles.UPDATER)){//It is a CGR update
 				broadcastUpdate(m);
 			}
-			else if(sender.getRole().equals("emmiter")){//It is a message to send elsewhere role is "emmiter"
+			else if(sender.getRole().equals(Roles.EMMITER)){//It is a message to send elsewhere role is Roles.EMMITER
 				sendDistantMessage((ObjectMessage<Message>) m);
 			}
-			else{
+			else{//just an empty message from the kernel
 				alive = false;
 			}
 		}
 		else{//distant message
-			if(sender.getRole().equals("updater")){//It is a distant CGR update
+			if(sender.getRole().equals(Roles.UPDATER)){//It is a distant CGR update
 				if (logger != null){
 					CGRSynchro synchro = (CGRSynchro) m;
 					logger.finer("Injecting distant CGR " + synchro.getCode() + " on " + synchro.getContent());
 				}
 				kernel.injectOperation((CGRSynchro) m);
 			}
-			else{//It is a distant message to inject : role is "emmiter"
+			else{//It is a distant message to inject : role is Roles.EMMITER
 				if (logger != null) logger.finer("Injecting distant message "+getState()+" : "+m);
 				kernel.injectMessage((ObjectMessage<Message>) m);
 			}
@@ -210,7 +227,8 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 				alive = false;
 				break;
 			default:
-				if (logger != null) logger.info("I did not understand this private message "+m);
+				if (logger != null) 
+					logger.info("I did not understand this private message "+m);
 				break;
 			}
 	}
@@ -221,9 +239,9 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 		if(logger != null)
 			logger.info("\n\t\t\t\t----- "+getKernelAddress()+" deconnected from MadKit kernel "+ka+"------\n");
 		kernel.removeAgentsFromDistantKernel(ka);
-		System.err.println(getOrganizationSnapShot(false));
+//		System.err.println(getOrganizationSnapShot(false));
 	}
-
+	
 	/**
 	 * @param s
 	 */

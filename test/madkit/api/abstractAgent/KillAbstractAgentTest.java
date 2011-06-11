@@ -116,7 +116,7 @@ public class KillAbstractAgentTest  extends JunitMadKit{
 	
 	@Test
 	public void massKill(){
-		addMadkitArgs("--"+LevelOption.agentLogLevel,"OFF");
+		addMadkitArgs(LevelOption.agentLogLevel.toString(),"OFF");
 		launchTest(new AbstractAgent(){
 			ArrayList<AbstractAgent> list = new ArrayList<AbstractAgent>(100);
 			protected void activate() {
@@ -251,9 +251,25 @@ public class KillAbstractAgentTest  extends JunitMadKit{
 			}
 		});
 	}
+	
+	@Test
+	public void cascadeKills(){
+		launchTest(new AbstractAgent(){
+			protected void activate() {
+			Killer a = new Killer();
+			Killer b = new Killer();
+			a.setTarget(b);
+			b.setTarget(a);
+			launchAgent(a);
+			launchAgent(b);
+			assertEquals(SUCCESS,killAgent(a));
+			assertEquals(ALREADY_KILLED,killAgent(a));
+		}});
+	}
+	
 }
 
-
+@SuppressWarnings("serial")
 class SelfKillAA extends DoItDuringLifeCycleAbstractAgent{
 
 	public SelfKillAA() {
@@ -276,4 +292,23 @@ class SelfKillAA extends DoItDuringLifeCycleAbstractAgent{
 		super.doIt();
 		killAgent(this);
 	}
+}
+
+
+@SuppressWarnings("serial")
+class Killer extends AbstractAgent{
+	AbstractAgent target;
+	/**
+	 * @param target the target to set
+	 */
+	final void setTarget(AbstractAgent target) {
+		this.target = target;
+	}
+	
+	@Override
+	protected void end() {
+		killAgent(target);
+		killAgent(target);
+	}
+	
 }

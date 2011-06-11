@@ -26,7 +26,6 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedMap;
 
 import madkit.kernel.NetworkMessage.NetCode;
 

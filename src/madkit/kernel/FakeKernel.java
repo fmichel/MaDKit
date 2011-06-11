@@ -52,7 +52,7 @@ final class FakeKernel extends MadkitKernel{
 	//////////////////////////////////////////////////////////////
 
 	@Override
-	ReturnCode createGroup(final AbstractAgent agent, final String community, final String group, final String description, final GroupIdentifier theIdentifier, final boolean isDistributed) {
+	ReturnCode createGroup(final AbstractAgent agent, final String community, final String group, final String description, final Gatekeeper gatekeeper, final boolean isDistributed) {
 		throw new KernelException(agent);
 	}
 
@@ -210,6 +210,15 @@ final class FakeKernel extends MadkitKernel{
 	ReturnCode reloadClass(AbstractAgent abstractAgent, String agentClass) throws ClassNotFoundException {
 		throw new KernelException(null);
 	}
+	
+	@Override
+	public Properties getMadkitConfig() {
+		final Madkit m = Madkit.getCurrentInstance();
+		if (m != null) {
+			return m.getConfigOption();
+		}
+		return Madkit.defaultConfig;
+	}
 
 	@Override
 	List<Message> broadcastMessageWithRoleAndWaitForReplies(AbstractAgent agent,
@@ -222,7 +231,7 @@ final class FakeKernel extends MadkitKernel{
 	@Override
 	boolean createGroupIfAbsent(AbstractAgent agent,
 			String community, String group, String group2,
-			GroupIdentifier theIdentifier, boolean isDistributed) {
+			Gatekeeper gatekeeper, boolean isDistributed) {
 		throw new KernelException(agent);
 	}
 

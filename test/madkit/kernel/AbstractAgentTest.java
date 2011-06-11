@@ -28,7 +28,7 @@ import static org.junit.Assert.fail;
 
 import java.util.logging.Level;
 
-import madkit.kernel.AbstractAgent.ReturnCode;
+import madkit.kernel.AbstractAgent.State;
 import madkit.kernel.Madkit.BooleanOption;
 
 import org.junit.Before;
@@ -48,8 +48,8 @@ public class AbstractAgentTest {
 	public void setup(){
 		a = new AbstractAgent();
 		b = new AbstractAgent();
-		String[] args = {BooleanOption.desktop.commandLineString(),"false"};
-		a.kernel = new MadkitKernel(new Madkit(args));
+		String[] args = {BooleanOption.desktop.toString(),"false"};
+		new Madkit(args);
 	}
 	
 	@Test
@@ -159,7 +159,6 @@ public class AbstractAgentTest {
 	@Test
 	public final void testGetRunState() {
 		assertTrue(a.getState() == AbstractAgent.State.NOT_LAUNCHED);
-		assertEquals(ReturnCode.SUCCESS, a.launchAgent(a));
 	}
 
 	/**
@@ -167,7 +166,7 @@ public class AbstractAgentTest {
 	 */
 	@Test
 	public final void testGetAgentState() {
-		a.getState();
+		assertEquals(State.NOT_LAUNCHED,a.getState());
 	}
 
 	/**

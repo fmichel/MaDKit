@@ -33,9 +33,8 @@ import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.KeyStroke;
 
-import madkit.i18n.I18nMadkitClass;
+import madkit.i18n.I18nUtilities;
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.Madkit;
 
 /**
  * @author Fabien Michel
@@ -56,7 +55,7 @@ public enum AgentAction implements MadkitGUIAction{
 	
 	final private ImageIcon imageIcon;
 
-	final static ResourceBundle messages = I18nMadkitClass.getResourceBundle(MadkitGUIAction.class.getSimpleName());
+	final static ResourceBundle messages = I18nUtilities.getResourceBundle(MadkitGUIAction.class.getSimpleName());
 
 	public ImageIcon getImageIcon() {
 		return imageIcon;
@@ -104,7 +103,7 @@ public enum AgentAction implements MadkitGUIAction{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				this.setEnabled(false);
-				agent.launchAgent(agent.getClass().getName(), true);
+				agent.launchAgent(agent.getClass().getName(), 0, true);
 				agent.killAgent(agent);
 			}
 		};
@@ -141,7 +140,7 @@ public enum AgentAction implements MadkitGUIAction{
 				} catch (ClassNotFoundException ex) {
 					ex.printStackTrace();// TODO log this but should not happen
 				}
-				agent.launchAgent(agent.getClass().getName(), true);
+				agent.launchAgent(agent.getClass().getName(),0, true);
 				if (agent.getState() != AbstractAgent.State.TERMINATED) {
 					agent.killAgent(agent);
 				}

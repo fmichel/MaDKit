@@ -45,11 +45,18 @@ public class ReloadClassTest  extends JunitMadKit{
 						noExceptionFailure();
 					} catch (ClassNotFoundException e) {
 						fail("wrong exception");
-						e.printStackTrace();
 					}
 				} catch (NullPointerException e) {
 					e.printStackTrace();
 				}
+			}
+		});
+	}
+	
+	@Test
+	public void classNotFound(){
+		launchTest(new AbstractAgent(){
+			protected void activate() {
 				try {
 					reloadAgentClass(aa());
 					noExceptionFailure();

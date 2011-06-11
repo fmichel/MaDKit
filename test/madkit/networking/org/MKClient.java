@@ -6,9 +6,10 @@ package madkit.networking.org;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import madkit.agr.LocalCommunity;
+import madkit.agr.LocalCommunity.Groups;
 import madkit.kernel.Agent;
 import madkit.kernel.AgentAddress;
-import madkit.kernel.Madkit.Roles;
 import madkit.kernel.Message;
 /**
  * @author fab
@@ -20,8 +21,8 @@ public class MKClient extends Agent{
 	 * 
 	 */
 	private static final long serialVersionUID = -371337965704044173L;
-	String communityName = Roles.LOCAL_COMMUNITY;
-	String groupName = Roles.NETWORK_GROUP;
+	String communityName = LocalCommunity.NAME;
+	String groupName = Groups.NETWORK;
 	String roleName = "net agent";
 	private AgentAddress other;
 	

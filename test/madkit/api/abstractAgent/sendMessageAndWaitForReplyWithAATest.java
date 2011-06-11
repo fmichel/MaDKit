@@ -20,8 +20,6 @@ package madkit.api.abstractAgent;
 
 import static madkit.kernel.AbstractAgent.ReturnCode.INVALID_AA;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
-import static madkit.kernel.Madkit.Roles.GROUP_CANDIDATE_ROLE;
-import static madkit.kernel.Madkit.Roles.GROUP_MANAGER_ROLE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -29,6 +27,7 @@ import static org.junit.Assert.assertNull;
 
 import java.util.logging.Level;
 
+import madkit.agr.Organization;
 import madkit.kernel.Agent;
 import madkit.kernel.AgentAddress;
 import madkit.kernel.JunitMadKit;
@@ -148,20 +147,20 @@ public class sendMessageAndWaitForReplyWithAATest  extends JunitMadKit{
 				assertEquals(SUCCESS,launchAgent(target2));
 
 				//Without role
-				AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, GROUP_MANAGER_ROLE);
+				AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE);
 				assertNotNull(aa);
 				Message m = sendMessageAndWaitForReply(aa, new Message());
 				assertNotNull(m);
 				assertEquals("reply", ((ObjectMessage<String>)m).getContent());
-				assertEquals(GROUP_CANDIDATE_ROLE, m.getReceiver().getRole());
-				assertEquals(GROUP_MANAGER_ROLE, m.getSender().getRole());
+				assertEquals(Organization.GROUP_CANDIDATE_ROLE, m.getReceiver().getRole());
+				assertEquals(Organization.GROUP_MANAGER_ROLE, m.getSender().getRole());
 
 				//With role
-				m = sendMessageWithRoleAndWaitForReply(aa, new Message(), GROUP_CANDIDATE_ROLE);
+				m = sendMessageWithRoleAndWaitForReply(aa, new Message(), Organization.GROUP_CANDIDATE_ROLE);
 				assertNotNull(m);
 				assertEquals("reply2", ((ObjectMessage<String>)m).getContent());
-				assertEquals(GROUP_CANDIDATE_ROLE, m.getReceiver().getRole());
-				assertEquals(GROUP_MANAGER_ROLE, m.getSender().getRole());
+				assertEquals(Organization.GROUP_CANDIDATE_ROLE, m.getReceiver().getRole());
+				assertEquals(Organization.GROUP_MANAGER_ROLE, m.getSender().getRole());
 			}});
 	}
 

@@ -35,7 +35,6 @@ import java.net.MalformedURLException;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.ResourceBundle;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -44,11 +43,9 @@ import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import madkit.gui.GUIManagerAgent;
-import madkit.gui.messages.GUIMessage;
-import madkit.i18n.I18nMadkitClass;
+import madkit.gui.GUIMessage;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.KernelAddress;
-import madkit.kernel.AbstractAgent.ReturnCode;
 
 /**
  * @author Fabien Michel
@@ -86,7 +83,7 @@ public enum MadkitActions implements MadkitGUIAction {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				this.setEnabled(false);
-				guiManager.receiveMessage(new madkit.gui.messages.GUIMessage(MadkitActions.this, e.getActionCommand()));
+				guiManager.receiveMessage(new madkit.gui.GUIMessage(MadkitActions.this, name()));//name rather than actionCommand
 				this.setEnabled(true);
 			}
 		};

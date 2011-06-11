@@ -32,9 +32,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 import madkit.i18n.ErrorMessages;
-import madkit.i18n.I18nMadkitClass;
+import madkit.i18n.I18nUtilities;
 import madkit.kernel.AbstractAgent.ReturnCode;
-import madkit.kernel.Madkit.Roles;
 
 /**
  * @author Oliver Gutknecht
@@ -48,7 +47,7 @@ final class Group extends ConcurrentHashMap<String,Role> {
 	private static final long serialVersionUID = 498214902172237862L;
 	//	private AbstractAgent manager;
 	//	private final AtomicReference<AgentAddress> manager;
-	private final GroupIdentifier groupGate;
+	private final Gatekeeper gatekeeper;
 	private final Logger logger;
 	private final String communityName;
 	private final String groupName;
@@ -60,19 +59,19 @@ final class Group extends ConcurrentHashMap<String,Role> {
 	/**
 	 * @param logger 
 	 * @param creator
-	 * @param theIdentifier
+	 * @param gatekeeper
 	 * @param isDistributed 
 	 * @param organization 
 	 */
-	Group(String community,String group,AbstractAgent creator, GroupIdentifier theIdentifier,boolean isDistributed, Organization organization) {
+	Group(String community,String group,AbstractAgent creator, Gatekeeper gatekeeper,boolean isDistributed, Organization organization) {
 		distributed = isDistributed;
-		groupGate = theIdentifier;
+		this.gatekeeper = gatekeeper;
 		communityName = community;
 		groupName = group;
 		communityObject = organization;
 		logger = communityObject.getLogger();
 		//		manager = new AtomicReference<AgentAddress>(new AgentAddress(creator, new Role(community, group), communityObject.getMyKernel().getKernelAddress()));
-		put(Roles.GROUP_MANAGER_ROLE, new ManagerRole(this,creator));
+		put(madkit.agr.Organization.GROUP_MANAGER_ROLE, new ManagerRole(this,creator));
 	}
 
 	/**
@@ -89,18 +88,18 @@ final class Group extends ConcurrentHashMap<String,Role> {
 	 * @param community
 	 * @param group
 	 * @param creator
-	 * @param theIdentifier
+	 * @param gatekeeper
 	 * @param communityObject
 	 */
-	Group(String community,String group,AgentAddress creator, GroupIdentifier theIdentifier,Organization communityObject) {
+	Group(String community,String group,AgentAddress creator, Gatekeeper gatekeeper,Organization communityObject) {
 		//		manager = creator;
 		distributed = true;
 		this.communityObject = communityObject;
 		logger = communityObject.getLogger();
-		groupGate = theIdentifier;
+		this.gatekeeper = gatekeeper;
 		communityName = community;
 		groupName = group;
-		put(Roles.GROUP_MANAGER_ROLE, new ManagerRole(this,creator));
+		put(madkit.agr.Organization.GROUP_MANAGER_ROLE, new ManagerRole(this,creator));
 		//		manager = new AtomicReference<AgentAddress>(creator);
 	}
 
@@ -117,7 +116,7 @@ final class Group extends ConcurrentHashMap<String,Role> {
 	ReturnCode requestRole(AbstractAgent requester, String roleName, Object memberCard) {
 		if(roleName == null)
 			throw new NullPointerException(ErrorMessages.R_NULL.toString());
-		if(groupGate != null && ! groupGate.allowAgentToTakeRole(roleName, memberCard))
+		if(gatekeeper != null && ! gatekeeper.allowAgentToTakeRole(roleName, memberCard))
 			return ACCESS_DENIED;
 		Role theRole = get(roleName);
 		if(theRole == null){
@@ -143,7 +142,7 @@ final class Group extends ConcurrentHashMap<String,Role> {
 	void removeRole(String roleName) {
 		remove(roleName);
 		if(logger != null)
-			logger.finer("Removing"+I18nMadkitClass.getCGRString(communityName, groupName, roleName));
+			logger.finer("Removing"+I18nUtilities.getCGRString(communityName, groupName, roleName));
 		checkEmptyness();
 	}
 
@@ -301,7 +300,7 @@ final class Group extends ConcurrentHashMap<String,Role> {
 				for (Iterator<AbstractAgent> iterator = r.getPlayers().iterator(); iterator.hasNext();) {
 					AbstractAgent a = iterator.next();
 					if(a != oldManager){
-						put(Roles.GROUP_MANAGER_ROLE, new ManagerRole(this,a));
+						put(madkit.agr.Organization.GROUP_MANAGER_ROLE, new ManagerRole(this,a));
 						return;
 					}
 				}
@@ -311,7 +310,7 @@ final class Group extends ConcurrentHashMap<String,Role> {
 
 		@Override
 		public String toString() {
-			return I18nMadkitClass.getCGRString(communityName, groupName)+values();
+			return I18nUtilities.getCGRString(communityName, groupName)+values();
 		}
 
 

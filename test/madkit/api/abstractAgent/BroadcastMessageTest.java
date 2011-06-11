@@ -31,6 +31,7 @@ import static org.junit.Assert.assertNotSame;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadKit;
 import madkit.kernel.Message;
+import madkit.messages.ObjectMessage;
 
 import org.junit.Test;
 
@@ -66,7 +67,8 @@ public class BroadcastMessageTest  extends JunitMadKit{
 				//Without role
 				assertEquals(SUCCESS, broadcastMessage(COMMUNITY,GROUP,ROLE, new Message()));
 				Message m = target.nextMessage();
-				assertNotNull(m);
+				assertEquals(SUCCESS, broadcastMessage(COMMUNITY,GROUP,ROLE, new ObjectMessage<String>("test")));
+				assertNotNull(target.nextMessage());
 				assertEquals(ROLE, m.getReceiver().getRole());
 
 				//With role
@@ -147,32 +149,32 @@ public class BroadcastMessageTest  extends JunitMadKit{
 					broadcastMessage(null, null, null, null);
 					noExceptionFailure();
 				} catch (NullPointerException e) {
-					e.printStackTrace();
+					//e.printStackTrace();
 				}
 				try {
 					broadcastMessage(COMMUNITY, null, null, null);
 					noExceptionFailure();
 				} catch (NullPointerException e) {
-					e.printStackTrace();
+					//e.printStackTrace();
 				}
 				try {
 					broadcastMessage(COMMUNITY, GROUP, null, null);
 					noExceptionFailure();
 				} catch (NullPointerException e) {
-					e.printStackTrace();
+					//e.printStackTrace();
 				}
 				try {
 					assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,ROLE));
 					broadcastMessage(COMMUNITY, GROUP, ROLE, null);
 					noExceptionFailure();
 				} catch (NullPointerException e) {
-					e.printStackTrace();
+					//e.printStackTrace();
 				}
 				try {
 					broadcastMessage(null, GROUP, ROLE, null);
 					noExceptionFailure();
 				} catch (NullPointerException e) {
-					e.printStackTrace();
+					//e.printStackTrace();
 				}
 			}
 		});

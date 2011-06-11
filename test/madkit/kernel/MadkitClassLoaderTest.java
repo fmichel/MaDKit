@@ -20,6 +20,9 @@ package madkit.kernel;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
+
+import java.io.File;
+
 import madkit.kernel.AbstractAgent.ReturnCode;
 
 import org.junit.Test;
@@ -30,6 +33,7 @@ import org.junit.Test;
  * @version 0.9
  * 
  */
+@SuppressWarnings("serial")
 public class MadkitClassLoaderTest extends JunitMadKit{
 
 	@Test
@@ -39,7 +43,25 @@ public class MadkitClassLoaderTest extends JunitMadKit{
 
 	@Test
 	public void testLoadJarsFromPath() {
-		fail("Not yet implemented"); // TODO
+		launchTest(new AbstractAgent(){
+			@Override
+			protected void activate() {
+				try {
+					getMadkitClassLoader().loadClass("madkit.pingpong.PingPong");
+					fail("Not thrown"); // TODO
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				}
+				MadkitClassLoader mcl = (MadkitClassLoader) getMadkitClassLoader();
+				System.err.println(System.getProperty("user.dir"));
+				mcl.loadJarsFromPath(System.getProperty("user.dir")+File.separator+"demos");
+				try {
+					assertNotNull(getMadkitClassLoader().loadClass("madkit.pingpong.PingPong"));
+				} catch (ClassNotFoundException e) {
+					fail(e.getMessage()); // TODO
+				} 
+			}
+		});
 	}
 
 	@Test
@@ -53,6 +75,11 @@ public class MadkitClassLoaderTest extends JunitMadKit{
 			@Override
 			protected void activate() {
 				try {
+					assertNotNull(getMadkitClassLoader().loadClass("madkit.kernel.AbstractAgent"));
+				} catch (ClassNotFoundException e) {
+					fail(e.getMessage()); // TODO
+				} 
+				try {
 					getMadkitClassLoader().loadClass(null);
 					fail("Not thrown"); // TODO
 				} catch (ClassNotFoundException e) {
@@ -60,11 +87,6 @@ public class MadkitClassLoaderTest extends JunitMadKit{
 				} catch (NullPointerException e) {
 					throw e;
 				}
-				try {
-					assertNotNull(getMadkitClassLoader().loadClass("madkit.kernel.AbstractAgent"));
-				} catch (ClassNotFoundException e) {
-					fail(e.getMessage()); // TODO
-				} 
 			}
 		},ReturnCode.AGENT_CRASH);
 	}

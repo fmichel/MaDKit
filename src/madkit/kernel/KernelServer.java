@@ -97,7 +97,7 @@ final class KernelServer {
 		}
 	}
 
-	final static KernelServer getNewKernelServer(){
+	final static KernelServer getNewKernelServer() throws IOException{
 		InetAddress ip = findInetAddress();
 		if(ip == null){
 			try {
@@ -117,9 +117,6 @@ final class KernelServer {
 				inUse = false;
 			} catch (BindException e) {
 				port++;
-			} catch (IOException e) {
-				e.printStackTrace();
-				return null;
 			}
 		}
 		return new KernelServer(serverSocket);

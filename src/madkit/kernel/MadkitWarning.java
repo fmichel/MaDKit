@@ -21,6 +21,7 @@ package madkit.kernel;
 
 import java.util.Arrays;
 
+import madkit.i18n.I18nUtilities;
 import madkit.kernel.AbstractAgent.ReturnCode;
 
 /**
@@ -48,7 +49,8 @@ class MadkitWarning extends Exception {
 	
 	@Override
 	public String getMessage() {
-		return code.name()+": "+super.getMessage()+code.toString();
+		String msg = super.getMessage();
+		return code.name()+": "+(msg == null ? "":msg+" ")+code.toString();
 	}
 
 	final ReturnCode getCode(){
@@ -89,13 +91,13 @@ final class OrganizationWarning extends MadkitWarning{
 		case NOT_IN_GROUP:
 		case ALREADY_GROUP:
 		case ACCESS_DENIED:
-			return msg+Utils.getCGRString(community,group, null);
+			return msg+I18nUtilities.getCGRString(community,group, null);
 		case NOT_COMMUNITY:
-			return msg+Utils.getCGRString(community, null, null);
+			return msg+I18nUtilities.getCGRString(community, null, null);
 		case ROLE_NOT_HANDLED:
 		case NOT_ROLE:
 		case ROLE_ALREADY_HANDLED:
-			return msg+Utils.getCGRString(community, group, role);
+			return msg+I18nUtilities.getCGRString(community, group, role);
 		default:
 			System.err.println("\n\n************** "+code.name()+" result not handled ");
 			new Exception().printStackTrace();

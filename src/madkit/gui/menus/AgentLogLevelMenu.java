@@ -32,7 +32,6 @@ import madkit.gui.AgentUIComponent;
 import madkit.gui.actions.AgentAction;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AgentLogger;
-import madkit.kernel.Madkit;
 
 /**
  * @author Fabien Michel

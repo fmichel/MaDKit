@@ -47,11 +47,11 @@ class Role implements Serializable{//TODO test with arraylist
 
 	private static final long serialVersionUID = 4447153943733812916L;
 
-	final protected transient List<AbstractAgent> players;//TODO test copyonarraylist and linkedhashset
+	protected transient List<AbstractAgent> players;//TODO test copyonarraylist and linkedhashset
 	private transient List<AbstractAgent> tmpReferenceableAgents;
 	private transient Set<AgentAddress> agentAddresses;
 	private transient boolean modified=true;
-	final private transient Set<Overlooker<? extends AbstractAgent>> overlookers;
+	private transient Set<Overlooker<? extends AbstractAgent>> overlookers;
 	protected final transient Group myGroup;
 	final transient private Logger logger;
 	private final transient KernelAddress kernelAddress;
@@ -350,11 +350,23 @@ class Role implements Serializable{//TODO test with arraylist
 
 	private final void checkEmptyness(){
 		if( (players == null || players.isEmpty()) && (agentAddresses == null || agentAddresses.isEmpty()) ){
-			for (final Overlooker<? extends AbstractAgent> o : overlookers) {
-				removeOverlooker(o);
-			}
-			myGroup.removeRole(roleName);
+			cleanAndRemove();
 		}
+	}
+
+
+	/**
+	 * 
+	 */
+	private void cleanAndRemove() {
+		for (final Overlooker<? extends AbstractAgent> o : overlookers) {
+			o.setOverlookedRole(null);
+		}
+		myGroup.removeRole(roleName);
+		players = null;
+		overlookers = null;
+		tmpReferenceableAgents = null;
+		agentAddresses = null;
 	}
 
 
@@ -368,6 +380,16 @@ class Role implements Serializable{//TODO test with arraylist
 	//		}
 	//		myGroup.removeRole(roleName);
 	//	}
+
+
+	final void destroy() {
+		if (agentAddresses != null) {
+			for (AgentAddress aa : agentAddresses) {
+				aa.setRoleObject(null);//TODO optimize
+			}
+		}
+		cleanAndRemove();
+	}
 
 
 	final List<AgentAddress> getAgentAddressesCopy(){
@@ -525,17 +547,6 @@ class Role implements Serializable{//TODO test with arraylist
 			}
 		}
 		return null;
-	}
-
-
-	void destroy() {
-		for (Overlooker<? extends AbstractAgent> o : overlookers) {
-			o.setOverlookedRole(null);
-		}
-		players.clear();
-		overlookers.clear();
-		tmpReferenceableAgents = null;
-		agentAddresses = null;
 	}
 
 

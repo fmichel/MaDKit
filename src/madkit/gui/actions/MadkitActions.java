@@ -83,7 +83,7 @@ public enum MadkitActions implements MadkitGUIAction {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				this.setEnabled(false);
-				guiManager.receiveMessage(new madkit.gui.GUIMessage(MadkitActions.this, name()));//name rather than actionCommand
+				guiManager.receiveMessage(new madkit.gui.GUIMessage(MadkitActions.this, e.getActionCommand()));//name rather than actionCommand
 				this.setEnabled(true);
 			}
 		};

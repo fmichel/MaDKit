@@ -23,7 +23,7 @@ import static madkit.kernel.AbstractAgent.ReturnCode.NOT_IN_GROUP;
 import static madkit.kernel.AbstractAgent.ReturnCode.NO_RECIPIENT_FOUND;
 import static madkit.kernel.AbstractAgent.ReturnCode.ROLE_NOT_HANDLED;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
-import static madkit.kernel.AbstractAgent.ReturnCode.TIME_OUT;
+import static madkit.kernel.AbstractAgent.ReturnCode.TIMEOUT;
 
 import java.util.Collection;
 import java.util.List;
@@ -275,7 +275,7 @@ final class LoggedKernel extends MadkitKernel {
 	@Override
 	ReturnCode launchAgent(AbstractAgent requester, AbstractAgent agent, int timeOutSeconds, boolean defaultGUI) {
 		ReturnCode r = kernel.launchAgent(requester, agent, timeOutSeconds, defaultGUI);
-		if(r == SUCCESS || r == TIME_OUT){
+		if(r == SUCCESS || r == TIMEOUT){
 			if(requester.isFinestLogOn())
 				requester.logger.log(Level.FINEST,Influence.LAUNCH_AGENT.toString()+ agent+" "+r);
 		}
@@ -288,7 +288,7 @@ final class LoggedKernel extends MadkitKernel {
 	@Override
 	final ReturnCode killAgent(final AbstractAgent requester, final AbstractAgent target, int timeOutSeconds) {
 		final ReturnCode r = kernel.killAgent(requester, target, timeOutSeconds);
-		if(r == SUCCESS || r == TIME_OUT){
+		if(r == SUCCESS || r == TIMEOUT){
 			if(requester.isFinestLogOn())
 				requester.logger.log(Level.FINEST, Influence.KILL_AGENT+ target.getName() + r);
 		}

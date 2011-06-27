@@ -34,6 +34,7 @@
 	
 	<import file="${madkit.ant.targets.file}"/>
 
+	
 
 	<!-- ================================= 
           target: buildResources              
@@ -67,7 +68,7 @@
 				<attribute name="Sealed" value="true"/>
     			<include name="${mk.properties.file}"/>
          ================================= -->
-	<target name="jar" depends="compile,build-properties,desktop-jnlp" description="Jars MadKit kernel ">
+	<target name="jar" depends="clean,compile,build-properties,desktop-jnlp" description="Jars MadKit kernel ">
 		<jar destfile="${jar.file}" index="true" compress="false">
 
 			<fileset dir="${build.dir}"/>
@@ -245,10 +246,58 @@
     </target>
 	
 	<!-- ================================= 
+          target: push              
+         ================================= -->
+    <target name="push" depends="" description="description">
+        
+    </target>
+
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: update-to-last-kernel                      
+    	<ftp server="${ftp.server}" 
+    		userid="${ftp.user}"
+			password="${ftp.password}"
+    		action="mkdir"
+    		remotedir="${ftp.dir}"/>
+         - - - - - - - - - - - - - - - - - -->
+    <target name="publish-kernel" depends="ftp-init">
+    	<fileset id="ftp.upload.fileset"
+	    	dir="${release.dir}">
+	    	<include name="${madkit.jar.name}"/>
+    	</fileset>
+    	<echo>FTP target is ${ftp.server}</echo>
+   	<ftp server="${ftp.server}"
+    		userid="${ftp.user}"
+    		password="${ftp.password}"
+    		action="put"
+    		remotedir="${ftp.dir}/MadKit-${madkit.version}">
+    	<fileset refid="ftp.upload.fileset"/>
+    	</ftp>
+    	<fileset id="ftp.upload.fileset"
+	    	dir="${release.dir}">
+	    	<include name="${desktop.jnlp.file}"/>
+    	</fileset>
+    	<echo>FTP target is ${ftp.server}</echo>
+   	<ftp server="${ftp.server}"
+    		userid="${ftp.user}"
+    		password="${ftp.password}"
+    		action="put"
+    		remotedir="${ftp.dir}/jnlps">
+    	<fileset refid="ftp.upload.fileset"/>
+    	</ftp>
+    </target>
+	
+	<target name="ftp-init">
+		<fail unless="server">Set the "server" property!</fail>
+		<property name="ftp.propfile" location="${user.home}/.mk_pass/${server}" />
+		<loadproperties srcFile="${ftp.propfile}" />
+	</target>
+	
+	<!-- ================================= 
           target: desktop-knlp              
          ================================= -->
     <target name="desktop-jnlp" description="build the desktop jnlp file">
-		<copy todir="${release.dir}" file="MadKit-5-Desktop.jnlp">
+		<copy todir="${release.dir}" file="${desktop.jnlp.file}">
 		  <filterchain>
 		    <expandproperties/>
 		  </filterchain>

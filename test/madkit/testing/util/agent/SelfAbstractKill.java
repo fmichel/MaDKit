@@ -21,7 +21,7 @@ package madkit.testing.util.agent;
 
 import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_KILLED;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
-import static madkit.kernel.AbstractAgent.ReturnCode.TIME_OUT;
+import static madkit.kernel.AbstractAgent.ReturnCode.TIMEOUT;
 import static madkit.kernel.JunitMadKit.COMMUNITY;
 import static madkit.kernel.JunitMadKit.GROUP;
 import static madkit.kernel.JunitMadKit.aa;
@@ -54,13 +54,13 @@ public class SelfAbstractKill extends DoItDuringLifeCycleAbstractAgent{
 			logger.info("killing myself");
 		if(inActivate){
 			if(timeOut == 0){
-				assertEquals(timeOut == 0 ? TIME_OUT : SUCCESS, killAgent(this,timeOut));
+				assertEquals(timeOut == 0 ? TIMEOUT : SUCCESS, killAgent(this,timeOut));
 			}
 			else
 				assertEquals(getState() == State.ACTIVATED ? SUCCESS :  ALREADY_KILLED, killAgent(this,timeOut));
 		}
 		else
-			assertEquals(timeOut == 0 ? TIME_OUT : SUCCESS, killAgent(this,timeOut));
+			assertEquals(timeOut == 0 ? TIMEOUT : SUCCESS, killAgent(this,timeOut));
 		for (int i = 0; i < 5; i++) {
 			requestRole(COMMUNITY, GROUP, aa(), null);
 			System.err.println("doing in "+getState()+" "+i);

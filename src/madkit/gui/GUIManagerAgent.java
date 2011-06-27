@@ -211,7 +211,9 @@ public class GUIManagerAgent extends Agent  {
 	
 	}
 
-	private void launchDemo(String content) {
+	private void launchDemo(final String content) {
+		if(logger != null)
+			logger.fine("Launching demo "+content);
 		for (DemoModel demo : demos) {
 			if(demo.getName().equals(content)){
 				launchDemo(demo);

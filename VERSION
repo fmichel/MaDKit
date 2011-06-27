@@ -7,8 +7,10 @@
 MadKit is mainly a MAS library which relies on organizational concepts so 
 that you could easily design artificial societies using groups and roles
 
-- Available documentation:
-For now, all the existing documentation on MadKit 5 is in the javadoc (docs directory) 
+- Available documentation (docs directory):
+	- javadoc API  
+	- several how-to with commented source codes 
+	- A french tutorial
 
 ----------------------------------------------------------------------------------
 ------------------------------- Using MadKit ${madkit.version} -----------------------------
@@ -41,13 +43,23 @@ Other command line options are described in the API of the madkit.kernel.Madkit 
 ------------------------------- MadKit 5.0.0.10 (alpha-10)--------------------------
 ----------------------------------------------------------------------------------
 
-1. API Refactoring:
-	- madkit.kernel.GroupIdentifier has changed to madkit.kernel.Gatekeeper
+1. Improvements:	
+	- The log system has been improved again
+	- The i18n system has been reworked
+
+2. API Refactoring:
+	- madkit.kernel.GroupIdentifier has been changed to madkit.kernel.Gatekeeper
+	- madkit.kernel.AbstractAgent.ReturnCode.TIME_OUT is now TIMEOUT
 	
-1. API :
+3. API new features:
 	- madkit.kernel.Madkit .Option .LevelOption .BooleanOption enumerations have been created
 	- the madkit.i18n package has been added
-	
+	- the madkit.agr package has been added: It defines the default communities, groups and
+	roles of MadKit 5.
+
+4. bug fixes :
+	- a network bug which happened on group creation
+	- log file creation has been fixed
 
 ----------------------------------------------------------------------------------
 ------------------------------- MadKit 5.0.0.9 (alpha-9)--------------------------

@@ -37,6 +37,7 @@
 	<property name="executable.name" value="${ant.project.name}"/>
     <property name="kernel.jar.name" value="madkitkernel-${madkit.version}.jar"/>
     <property name="kernel.location" value="${madkit.lib.dir}/${kernel.jar.name}"/>
+    <property name="kernel.properties.location" value="madkit/kernel/madkitKernel.properties"/>
 
  	<!-- ================================= 
           target: create-executable-jar              
@@ -51,8 +52,9 @@
 		    <fileset dir="${madkit.lib.dir}" includes="${kernel.jar.name}"/>
 		  </path>
 		<whichresource property="madkit.properties"
-		                 resource="madkitKernel.properties"
+		                 resource="${kernel.properties.location}"
 		                 classpathref="mk.classpath"/>
+		                 
 		<property url="${madkit.properties}"/>
     	
     	<ant antfile="${build.dir}/madkitAntTargets.xml" target="create-executable-jar" inheritrefs="true" inheritall="true" />
@@ -67,6 +69,7 @@
     <property name="kernel.jar.name" value="madkitkernel-${madkit.version}.jar"/>
     <property name="kernel.location" value="${madkit.lib.dir}/${kernel.jar.name}"/>
 	<property name="executable.name" value="${ant.project.name}"/>
+    <property name="kernel.properties.location" value="madkit/kernel/madkitKernel.properties"/>
 
  	<!-- ================================= 
           target: create-lib-jar              
@@ -81,8 +84,9 @@
 		    <fileset dir="${madkit.lib.dir}" includes="${kernel.jar.name}"/>
 		  </path>
 		<whichresource property="madkit.properties"
-		                 resource="madkitKernel.properties"
+		                 resource="${kernel.properties.location}"
 		                 classpathref="mk.classpath"/>
+		                 
 		<property url="${madkit.properties}"/>
     	
     	<ant antfile="${build.dir}/madkitAntTargets.xml" target="create-lib-jar" inheritrefs="true" inheritall="true" />

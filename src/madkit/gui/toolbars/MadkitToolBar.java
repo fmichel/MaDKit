@@ -52,7 +52,7 @@ public class MadkitToolBar extends JToolBar {// TODO i18n
 	 * {@link MadkitActions#MADKIT_ICONIFY_ALL}, 
 	 * {@link MadkitActions#MADKIT_DEICONIFY_ALL}, 
 	 * {@link MadkitActions#MADKIT_RESTART}, 
-	 * {@link AgentAction#LOAD_LOCAL_DEMOS}, 
+	 * {@link MadkitActions#LOAD_LOCAL_DEMOS}, 
 	 * 
 	 * @param agent the agent for which this menu is created
 	 */

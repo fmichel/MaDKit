@@ -137,6 +137,12 @@ final public class Madkit {
 	}
 
 	Madkit(String[] argss){
+		if(argss != null && argss.length == 1 && argss[0].contains(" ")){//jnlp arg in here
+			argss = argss[0].split(" ");
+			for (String s : argss) {
+				this.cmdLine += " "+s;
+			}
+		}
 		currentInstance = this;
 		Policy.setPolicy(getAllPermissionPolicy());
 		//installing config
@@ -164,12 +170,6 @@ final public class Madkit {
 		logSessionConfig(madkitConfig, Level.FINER);
 
 		this.cmdLine = System.getProperty("java.home")+File.separatorChar+"bin"+File.separatorChar+"java -cp "+System.getProperty("java.class.path")+" madkit.kernel.Madkit ";
-		if(args != null && args.length == 1 && args[0].contains(" ")){//jnlp arg in here
-			args = args[0].split(" ");
-			for (String s : args) {
-				this.cmdLine += " "+s;
-			}
-		}
 		//		for (String s : args) {
 		//			System.err.println(s);
 		//		}
@@ -733,10 +733,14 @@ final public class Madkit {
 		network,
 		/**
 		 * If activated, MadKit will create a log file for every agent which has 
-		 * a log level greater that {@link Level#OFF}.
+		 * a log level greater than {@link Level#OFF}.
 		 * Default value is "false". 
+		 * @see Madkit.Option#logDirectory
 		 */
 		createLogFiles,
+		/**
+		 * not functional yet
+		 */
 		noGUIManager,
 		/**
 		 * Defines if agent logging should be quiet in the
@@ -765,7 +769,7 @@ final public class Madkit {
 	}
 
 	/**
-	 * MadKit options valued with a string representing parameters.
+	 * MadKit options which are valued with a string representing parameters.
 	 * These options could be used from the command line or using the main method of MadKit.
 	 * 
 	 * @author Fabien Michel
@@ -811,16 +815,17 @@ final public class Madkit {
 		 * </ul>
 		 */
 		launchAgents,
-		//TODO jdoc
 		/**
-		 * Used to specify the directory wherein the logs should be done.
+		 * Used to specify the directory wherein the logs should be done 
+		 * when the {@link BooleanOption#createLogFiles} is activated.
 		 * 
 		 * <pre>SYNOPSIS</pre>
 		 * <code><b>--logDirectory</b></code> DIRECTORY_NAME
 		 * <pre>DESCRIPTION</pre>
 		 * Specify the desired directory. It could be an absolute 
 		 * or a relative path. At runtime, a log directory named with
-		 * the current date will be created for the MadKit session.
+		 * the current date (second precision) will be created in the log directory for each MadKit session. 
+		 * E.g. /home/neo/madkit_5/logs/2011.06.23.16.23.53
 		 * <pre>DEFAULT VALUE</pre>
 		 * Default value is <i>"logs"</i>, so that a directory named
 		 * "logs" will be created in the application working directory.
@@ -830,8 +835,13 @@ final public class Madkit {
 		 * <li> --logDirectory bin</li> 
 		 * <li> --logDirectory /home/neo/madkit_logs</li> 
 		 * </ul>
+		 * @see BooleanOption#createLogFiles
 		 */
 		logDirectory,
+		
+		/**
+		 * TODO
+		 */
 		configFile;
 
 		@Override
@@ -842,7 +852,7 @@ final public class Madkit {
 	}
 
 	/**
-	 * MadKit options valued with a string representing a {@link Level}.
+	 * MadKit options valued with a string representing a {@link Level} value.
 	 * These options could be used from the command line or using the main method of MadKit.
 	 * 
 	 * @author Fabien Michel
@@ -868,8 +878,17 @@ final public class Madkit {
 		 * @see AbstractAgent#setMadkitProperty(String, String)
 		 */
 		agentLogLevel,
+		/**
+		 * Only useful for kernel developers
+		 */
 		kernelLogLevel,
+		/**
+		 * Only useful for kernel developers
+		 */
 		guiLogLevel,
+		/**
+		 * Can be used to make MadKit quiet
+		 */
 		madkitLogLevel,
 		/**
 		 * Option defining the default warning log level for newly

@@ -14,7 +14,7 @@
   </security>
   <resources>
     <j2se version="1.5+" java-vm-args="-Xnoclassgc"/>
-    <jar href="MadKitBees-2.0.0.3.jar"/>
+    <jar href="MadKitBees-2.0.0.4.jar"/>
   </resources>
   <application-desc>
 <argument>--launchAgents madkit.bees.BeeLauncher --agentLogLevel OFF</argument>

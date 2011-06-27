@@ -179,11 +179,10 @@ final class Organization extends ConcurrentHashMap <String, Group>{
 	}
 
 	void destroy() {
-		for(Group g : values()){
+		for(final Group g : values()){
 			g.destroy();
 		}
-		clear();
-		checkEmptyness();
+		myKernel.removeCommunity(communityName);
 	}
 	
 

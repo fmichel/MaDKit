@@ -33,7 +33,7 @@ import static madkit.kernel.AbstractAgent.ReturnCode.NO_RECIPIENT_FOUND;
 import static madkit.kernel.AbstractAgent.ReturnCode.ROLE_NOT_HANDLED;
 import static madkit.kernel.AbstractAgent.ReturnCode.SEVERE;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
-import static madkit.kernel.AbstractAgent.ReturnCode.TIME_OUT;
+import static madkit.kernel.AbstractAgent.ReturnCode.TIMEOUT;
 import static madkit.kernel.AbstractAgent.State.ACTIVATED;
 import static madkit.kernel.AbstractAgent.State.INITIALIZING;
 import static madkit.kernel.AbstractAgent.State.NOT_LAUNCHED;
@@ -928,7 +928,7 @@ class MadkitKernel extends Agent {
 			bugReport("Launching task failed on " + agent, e);
 			return SEVERE;
 		} catch (TimeoutException e) {// launch task time out
-			return TIME_OUT;
+			return TIMEOUT;
 		}
 	}
 
@@ -981,7 +981,7 @@ class MadkitKernel extends Agent {
 			//This is the case when the agent is killed during activation
 			return AGENT_CRASH;
 		}
-		return TIME_OUT;
+		return TIMEOUT;
 	}
 
 	ReturnCode killAgent(final AbstractAgent requester, final AbstractAgent target, final int timeOutSeconds) {
@@ -1002,7 +1002,7 @@ class MadkitKernel extends Agent {
 			bugReport("Killing task failed on " + target, e);
 			return SEVERE;
 		} catch (TimeoutException e) {// kill task time out
-			return TIME_OUT;
+			return TIMEOUT;
 		}
 	}
 
@@ -1487,14 +1487,31 @@ class MadkitKernel extends Agent {
 	//		}
 	//	}
 
-	synchronized void destroyCommunity(AbstractAgent abstractAgent, String community) {
-		if(isCommunity(community)){
-			organizations.get(community).destroy();
+	synchronized ReturnCode destroyCommunity(AbstractAgent abstractAgent, String community) {
+		try {
+			getCommunity(community).destroy();
+			return SUCCESS;
+		} catch (CGRNotAvailable e) {
+			return e.getCode();
 		}
 	}
 
-	@Override
-	final void terminate() {
+	synchronized ReturnCode destroyGroup(AbstractAgent abstractAgent, String community, String group) {
+		try {
+			getGroup(community,group).destroy();
+			return SUCCESS;
+		} catch (CGRNotAvailable e) {
+			return e.getCode();
+		}
+	}
+
+	synchronized ReturnCode destroyRole(AbstractAgent abstractAgent, String community, String group, String role) {
+		try {
+			getRole(community,group,role).destroy();
+			return SUCCESS;
+		} catch (CGRNotAvailable e) {
+			return e.getCode();
+		}
 	}
 
 	void removeThreadedAgent(Agent myAgent) {

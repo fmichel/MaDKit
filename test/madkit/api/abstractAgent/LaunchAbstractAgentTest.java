@@ -21,7 +21,7 @@ package madkit.api.abstractAgent;
 import static madkit.kernel.AbstractAgent.ReturnCode.AGENT_CRASH;
 import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_LAUNCHED;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
-import static madkit.kernel.AbstractAgent.ReturnCode.TIME_OUT;
+import static madkit.kernel.AbstractAgent.ReturnCode.TIMEOUT;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import madkit.kernel.AbstractAgent;
@@ -128,9 +128,9 @@ public class LaunchAbstractAgentTest  extends JunitMadKit{
 	public void returnTimeOut(){
 		launchTest(new AbstractAgent(){
 			protected void activate() {
-				assertEquals(TIME_OUT,launchAgent(timeOutAgent,1));
-				assertEquals(TIME_OUT,launchAgent(new AbstractAgent(),0));
-				assertEquals(TIME_OUT,launchAgent(new AbstractAgent(),-1));
+				assertEquals(TIMEOUT,launchAgent(timeOutAgent,1));
+				assertEquals(TIMEOUT,launchAgent(new AbstractAgent(),0));
+				assertEquals(TIMEOUT,launchAgent(new AbstractAgent(),-1));
 				assertEquals(ALREADY_LAUNCHED,launchAgent(timeOutAgent));
 			}
 		});
@@ -151,7 +151,7 @@ public class LaunchAbstractAgentTest  extends JunitMadKit{
 				startTimer();
 				for (int i = 0; i < number;i++) {
 					ReturnCode r = launchAgent(new AbstractAgent(),0);
-					assertTrue(TIME_OUT == r || SUCCESS == r);
+					assertTrue(TIMEOUT == r || SUCCESS == r);
 				}
 				stopTimer("launch time ");
 			}
@@ -173,7 +173,7 @@ public class LaunchAbstractAgentTest  extends JunitMadKit{
 				startTimer();
 				for (int i = 0; i < number;i++) {
 					ReturnCode r = launchAgent(new AbstractAgent(),0,true);
-					assertTrue(TIME_OUT == r || SUCCESS == r);
+					assertTrue(TIMEOUT == r || SUCCESS == r);
 				}
 				stopTimer("launch time ");
 			}
@@ -188,7 +188,7 @@ public class LaunchAbstractAgentTest  extends JunitMadKit{
 				assertEquals(ALREADY_LAUNCHED,launchAgent(target));
 				
 				ReturnCode r = launchAgent(timeOutAgent,0,true);
-				assertTrue(TIME_OUT == r || SUCCESS == r);
+				assertTrue(TIMEOUT == r || SUCCESS == r);
 				r = launchAgent(timeOutAgent,true);
 				assertTrue(ALREADY_LAUNCHED == r || SUCCESS == r);
 			}

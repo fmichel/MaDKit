@@ -315,11 +315,11 @@ final class Group extends ConcurrentHashMap<String,Role> {
 
 
 
-		void destroy() {
+		final void destroy() {
 			for(Role r : values()){
 				r.destroy();
 			}
-			clear();
+			communityObject.removeGroup(groupName);
 		}
 
 }

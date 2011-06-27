@@ -19,7 +19,7 @@
 package madkit.scenari.kill;
 
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
-import static madkit.kernel.AbstractAgent.ReturnCode.TIME_OUT;
+import static madkit.kernel.AbstractAgent.ReturnCode.TIMEOUT;
 import static org.junit.Assert.assertEquals;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
@@ -43,7 +43,7 @@ public class  KillingWorkingThreadedAgentsTest extends JunitMadKit{
 			public void activate() {
 				Agent a;
 				a = new WorkingAgent(true,false,false);
-				assertEquals(TIME_OUT, launchAgent(a,1));
+				assertEquals(TIMEOUT, launchAgent(a,1));
 				assertEquals(SUCCESS, killAgent(a,-1));
 				assertAgentIsTerminated(a);
 
@@ -60,12 +60,12 @@ public class  KillingWorkingThreadedAgentsTest extends JunitMadKit{
 				assertAgentIsTerminated(a);
 
 				a = new WorkingAgent(true,false,true);
-				assertEquals(TIME_OUT, launchAgent(a,1));
+				assertEquals(TIMEOUT, launchAgent(a,1));
 				assertEquals(SUCCESS, killAgent(a,-1));
 				assertAgentIsTerminated(a);
 
 				a = new WorkingAgent(true,true,true);
-				assertEquals(TIME_OUT, launchAgent(a,1));
+				assertEquals(TIMEOUT, launchAgent(a,1));
 				assertEquals(SUCCESS, killAgent(a,-1));
 				assertAgentIsTerminated(a);
 			}});
@@ -81,7 +81,7 @@ public class  KillingWorkingThreadedAgentsTest extends JunitMadKit{
 				super.activate();
 				Agent a;
 				a = new WorkingAgent(true,false,false);
-				assertEquals(TIME_OUT, launchAgent(a,1));
+				assertEquals(TIMEOUT, launchAgent(a,1));
 				assertEquals(SUCCESS, killAgent(a));
 				assertAgentIsTerminated(a);
 
@@ -94,17 +94,17 @@ public class  KillingWorkingThreadedAgentsTest extends JunitMadKit{
 				a = new WorkingAgent(false,false,true);
 				assertEquals(SUCCESS, launchAgent(a));
 				pause(100);
-				assertEquals(TIME_OUT, killAgent(a,1));
+				assertEquals(TIMEOUT, killAgent(a,1));
 				assertEquals(State.ENDING, a.getState());
 
 				a = new WorkingAgent(true,false,true);
-				assertEquals(TIME_OUT, launchAgent(a,1));
-				assertEquals(TIME_OUT, killAgent(a,1));
+				assertEquals(TIMEOUT, launchAgent(a,1));
+				assertEquals(TIMEOUT, killAgent(a,1));
 				assertEquals(State.ENDING, a.getState());
 
 				a = new WorkingAgent(true,true,true);
-				assertEquals(TIME_OUT, launchAgent(a,1));
-				assertEquals(TIME_OUT, killAgent(a,1));
+				assertEquals(TIMEOUT, launchAgent(a,1));
+				assertEquals(TIMEOUT, killAgent(a,1));
 				assertEquals(State.ENDING, a.getState());
 			}});
 	}

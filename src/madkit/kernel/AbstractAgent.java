@@ -104,11 +104,10 @@ import madkit.i18n.Words;
  */
 public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 
-
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 6373616452993017553L;
+	private static final long serialVersionUID = 5267125141901955998L;
 
 	private final static transient AtomicInteger agentCounter = new AtomicInteger(-1);
 
@@ -380,7 +379,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @return <ul>
 	 *         <li><code> {@link ReturnCode#SUCCESS} </code>: The launch has succeeded. This also means that the agent has successfully completed its <code>activate</code> method</li>
 	 *         <li><code> {@link ReturnCode#ALREADY_LAUNCHED} </code>: If this agent has been already launched</li>
-	 *         <li><code> {@link ReturnCode#TIME_OUT} </code>: If your agent is activating for more than 68 years Oo !</li>
+	 *         <li><code> {@link ReturnCode#TIMEOUT} </code>: If your agent is activating for more than 68 years Oo !</li>
 	 *         <li><code> {@link ReturnCode#AGENT_CRASH} </code>: If the agent crashed during its <code>activate</code> method</li>
 	 *         </ul>
 	 * @see AbstractAgent#launchAgent(AbstractAgent)
@@ -397,11 +396,11 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * This has the same effect as <code>launchAgent(agent,timeOutSeconds,false)</code>
 	 * 
 	 * @param agent the agent to launch.
-	 * @param timeOutSeconds time to wait the end of the agent's activation until returning a TIME_OUT.
+	 * @param timeOutSeconds time to wait the end of the agent's activation until returning a TIMEOUT.
 	 * @return <ul>
 	 *         <li><code> {@link ReturnCode#SUCCESS} </code>: The launch has succeeded. This also means that the agent has successfully completed its <code>activate</code> method</li>
 	 *         <li><code> {@link ReturnCode#ALREADY_LAUNCHED} </code>: If this agent has been already launched</li>
-	 *         <li><code> {@link ReturnCode#TIME_OUT} </code>: If the activation time of the agent is greater than <code>timeOutSeconds</code> seconds</li>
+	 *         <li><code> {@link ReturnCode#TIMEOUT} </code>: If the activation time of the agent is greater than <code>timeOutSeconds</code> seconds</li>
 	 *         <li><code>{@link ReturnCode#AGENT_CRASH}</code>: If the agent crashed during its <code>activate</code> method</li>
 	 *         </ul>
 	 * @throws KernelException if this agent has not been launched or is already terminated
@@ -420,7 +419,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @return <ul>
 	 *         <li><code> {@link ReturnCode#SUCCESS} </code>: The launch has succeeded. This also means that the agent has successfully completed its <code>activate</code> method</li>
 	 *         <li><code> {@link ReturnCode#ALREADY_LAUNCHED} </code>: If this agent has been already launched</li>
-	 *         <li><code> {@link ReturnCode#TIME_OUT} </code>: If your agent is activating for more than 68 years Oo !</li>
+	 *         <li><code> {@link ReturnCode#TIMEOUT} </code>: If your agent is activating for more than 68 years Oo !</li>
 	 *         <li><code> {@link ReturnCode#AGENT_CRASH} </code>: If the agent crashed during its <code>activate</code> method</li>
 	 *         </ul>
 	 * @see AbstractAgent#launchAgent(AbstractAgent)
@@ -447,12 +446,12 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * </ul>
 	 * 
 	 * @param agent the agent to launch.
-	 * @param timeOutSeconds time to wait for the end of the agent's activation until returning a TIME_OUT.
+	 * @param timeOutSeconds time to wait for the end of the agent's activation until returning a TIMEOUT.
 	 * @param createFrame if <code>true</code>, the kernel will launch a JFrame for this agent.
 	 * @return <ul>
 	 *         <li><code> {@link ReturnCode#SUCCESS} </code>: The launch has succeeded. This also means that the agent has successfully completed its <code>activate</code> method</li>
 	 *         <li><code> {@link ReturnCode#ALREADY_LAUNCHED} </code>: If this agent has been already launched</li>
-	 *         <li><code> {@link ReturnCode#TIME_OUT} </code>: If the activation time of the agent is greater than <code>timeOutSeconds</code> seconds</li>
+	 *         <li><code> {@link ReturnCode#TIMEOUT} </code>: If the activation time of the agent is greater than <code>timeOutSeconds</code> seconds</li>
 	 *         <li><code> {@link ReturnCode#AGENT_CRASH} </code>: If the agent crashed during its <code>activate</code> method</li>
 	 *         </ul>
 	 * @throws NullPointerException if <code>agent</code> is <code>null</code>
@@ -740,7 +739,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @return <ul>
 	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the group has been successfully created.</li>
 	 *         <li><code>{@link ReturnCode#ALREADY_GROUP}</code>: If the operation failed because such a group already exists.</li>
-	 *         <li><code>{@link ReturnCode#NULL_STRING}</code>: If <code>community</code> or <code>group</code> is <code>null</code>.</li> 
 	 *         </ul>
 	 *         </ul>
 	 * 
@@ -763,7 +761,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @return <ul>
 	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the group has been successfully created.</li>
 	 *         <li><code>{@link ReturnCode#ALREADY_GROUP}</code>: If the operation failed because such a group already exists.</li>
-	 *         <li><code>{@link ReturnCode#NULL_STRING}</code>: If <code>community</code> or <code>group</code> is <code>null</code>.</li> 
 	 *         </ul>
 	 *         </ul>
 	 * 
@@ -797,12 +794,10 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the group has been successfully created.</li> 
 	 *         <li><code>{@link ReturnCode#ALREADY_GROUP}</code>: If the operation failed because such a
 	 *         group already exists.</li>
-	 *         <li><code>{@link ReturnCode#NULL_STRING}</code>: If <code>community</code> or <code>group</code> is <code>null</code>.</li> 
 	 *         </ul>
 	 * 
 	 * @see Gatekeeper
 	 * @see ReturnCode
-	 * @see Madkit.Roles
 	 * @throws KernelException if this agent has not been launched or is already terminated
 	 * @since MadKit 5.0
 	 */
@@ -902,7 +897,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         <li><code>{@link ReturnCode#NOT_GROUP}</code>: If the group does not exist.</li>
 	 *         <li><code>{@link ReturnCode#ROLE_ALREADY_HANDLED}</code>: If this role is already handled by this agent.</li>
 	 *         <li><code>{@link ReturnCode#ACCESS_DENIED}</code>: If the access denied by the manager of that secured group.</li>
-	 *         <li><code>{@link ReturnCode#NULL_STRING}</code>: If <code>role</code> is <code>null</code>.</li>
 	 *         </ul>
 	 * @param community the group's community.
 	 * @param group the desired group.
@@ -930,7 +924,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         <li><code>{@link ReturnCode#NOT_GROUP}</code>: If the group does not exist.</li>
 	 *         <li><code>{@link ReturnCode#ROLE_ALREADY_HANDLED}</code>: If this role is already handled by this agent.</li>
 	 *         <li><code>{@link ReturnCode#ACCESS_DENIED}</code>: If the access denied by the manager of that secured group.</li>
-	 *         <li><code>{@link ReturnCode#NULL_STRING}</code>: If <code>role</code> is <code>null</code>.</li>
 	 *         </ul>
 	 * @see AbstractAgent.ReturnCode
 	 * @see Gatekeeper
@@ -1181,7 +1174,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         <li><code>{@link ReturnCode#NOT_COMMUNITY}</code>: If the community does not exist.</li>
 	 *         <li><code>{@link ReturnCode#NOT_GROUP}</code>: If the group does not exist.</li>
 	 *         <li><code>{@link ReturnCode#NOT_ROLE}</code>: If the role does not exist.</li>
-	 *         <li><code>{@link ReturnCode#NULL_MSG}</code>: If the <code>messageToSend</code> is <code>null</code>.</li>
 	 *         <li><code>{@link ReturnCode#NO_RECIPIENT_FOUND}</code>: If no agent was found as recipient, i.e. the sender was the only agent having this role.</li>
 	 *         </ul>
 	 * @see ReturnCode
@@ -1206,7 +1198,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         <li><code>{@link ReturnCode#NOT_COMMUNITY}</code>: If the community does not exist.</li>
 	 *         <li><code>{@link ReturnCode#NOT_GROUP}</code>: If the group does not exist.</li>
 	 *         <li><code>{@link ReturnCode#NOT_ROLE}</code>: If the role does not exist.</li>
-	 *         <li><code>{@link ReturnCode#NULL_MSG}</code>: If the <code>messageToSend</code> is <code>null</code>.</li>
 	 *         <li><code>{@link ReturnCode#NO_RECIPIENT_FOUND}</code>: If no agent was found as recipient, i.e. the sender was the only agent having this role.</li>
 	 *         </ul>
 	 * @see ReturnCode
@@ -1255,7 +1246,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @param reply the reply itself.
 	 * @return <ul>
 	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the send has succeeded.</li>
-	 *         <li><code>{@link ReturnCode#NULL_MSG}</code>: If the <code>reply</code> or the <code>messageToReplyTo</code> is <code>null</code>.</li>
 	 *         <li><code>{@link ReturnCode#NO_RECIPIENT_FOUND}</code>: If no agent was found as recipient, i.e. the sender was the only agent having this role.</li>
 	 *         </ul>
 	 * @see ReturnCode
@@ -1560,8 +1550,46 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		}
 	}
 
+	/**
+	 * Wipes out an entire community at once. 
+	 * Mostly useful when doing simulated systems.
+	 * This greatly optimizes the time 
+	 * required to make all the agents leave a community.
+	 * 
+	 * @since MadKit 5.0.0.9
+	 * @param community the community to destroy
+	 */
 	public void destroyCommunity(String community) {
 		kernel.destroyCommunity(this,community);
+	}
+
+	/**
+	 * Wipes out an entire group at once. 
+	 * Mostly useful when doing simulated systems.
+	 * This greatly optimizes the time 
+	 * required to make all the agents leave a group.
+	 * 
+	 * @since MadKit 5.0.0.10
+	 * @param community the community
+	 * @param group the group to destroy
+	 */
+	public void destroyGroup(String community, String group) {
+		kernel.destroyGroup(this, community, group);
+	}
+
+	/**
+	 * Wipes out an entire role at once. 
+	 * Mostly useful when doing simulated systems.
+	 * This greatly optimizes the time 
+	 * required to make all the agents leave a role.
+	 * 
+	 * @since MadKit 5.0.0.10
+	 * @param community the community
+	 * @param group the group
+	 * @param role the group to destroy
+	 */
+	public void destroyRole(String community, String group, String role) {
+		kernel.destroyRole(this, community, group, role);
 	}
 
 	/**
@@ -1733,7 +1761,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		ROLE_NOT_HANDLED,
 		ALREADY_GROUP,
 		ALREADY_LAUNCHED,
-		TIME_OUT,
+		TIMEOUT,
 		AGENT_CRASH,
 		NOT_AN_AGENT_CLASS,
 		NOT_YET_LAUNCHED,

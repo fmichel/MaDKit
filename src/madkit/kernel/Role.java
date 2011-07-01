@@ -47,11 +47,11 @@ class Role implements Serializable{//TODO test with arraylist
 
 	private static final long serialVersionUID = 4447153943733812916L;
 
-	protected transient List<AbstractAgent> players;//TODO test copyonarraylist and linkedhashset
+	protected final transient List<AbstractAgent> players;//TODO test copyonarraylist and linkedhashset
 	private transient List<AbstractAgent> tmpReferenceableAgents;
 	private transient Set<AgentAddress> agentAddresses;
 	private transient boolean modified=true;
-	private transient Set<Overlooker<? extends AbstractAgent>> overlookers;
+	private final transient Set<Overlooker<? extends AbstractAgent>> overlookers;
 	protected final transient Group myGroup;
 	final transient private Logger logger;
 	private final transient KernelAddress kernelAddress;
@@ -363,9 +363,9 @@ class Role implements Serializable{//TODO test with arraylist
 			o.setOverlookedRole(null);
 		}
 		myGroup.removeRole(roleName);
-		players = null;
-		overlookers = null;
+//		overlookers = null;
 		tmpReferenceableAgents = null;
+//		players = null;
 		agentAddresses = null;
 	}
 

@@ -151,20 +151,29 @@ final public class Madkit {
 		madkitConfig.putAll(defaultConfig);
 		Properties fromArgs = buildConfigFromArgs(args);
 		madkitConfig.putAll(fromArgs);
-		initMadkitLogging();
-		//desktop on if no agents : could be overriden later
-		if(madkitConfig.get(Option.launchAgents.name()).equals("null")){
-			BooleanOption.desktop.setProperty(madkitConfig, true);
-		}
 		if(logger != null)
-			logger.finer("**  MADKIT KERNEL CREATED **");
+			logger.finer("command line args : "+fromArgs);
+		initMadkitLogging();
+		loadJarFileArguments();
+		loadConfigFile();
+		if(logger != null)
+			logger.fine("** OVERRIDING WITH COMMAND LINE ARGUMENTS **");
 		loadJarFileArguments();
 		loadConfigFile();
 		if(logger != null)
 			logger.fine("** OVERRIDING WITH COMMAND LINE ARGUMENTS **");
 		madkitConfig.putAll(fromArgs);
+		//desktop on if no agents at this point
+		if(madkitConfig.get(Option.launchAgents.name()).equals("null")){
+			if(logger != null)
+				logger.fine(Option.launchAgents.name()+" null : Activating desktop");
+			BooleanOption.desktop.setProperty(madkitConfig, true);
+		}
 		createLogDirectory();
 		myKernel = new MadkitKernel(this);
+		if(logger != null)
+			logger.finer("**  MADKIT KERNEL CREATED **");
+		logSessionConfig(madkitConfig, Level.FINER);
 		printWelcomeString();
 		buildMadkitClassLoader();
 		logSessionConfig(madkitConfig, Level.FINER);
@@ -428,7 +437,7 @@ final public class Madkit {
 				} else {
 					parameters += args[i] + " ";
 					if (i + 1 == args.length || args[i + 1].startsWith("--")) {
-						currentMap.put(currentOption, parameters.trim());
+						currentMap.put(currentOption, parameters.trim());//TODO bug on "-" use
 						if (logger != null)
 							logger.finest("found option -- " + currentOption + " -- value -- " + parameters.trim());
 					}

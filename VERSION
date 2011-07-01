@@ -44,7 +44,7 @@ Other command line options are described in the API of the madkit.kernel.Madkit 
 ----------------------------------------------------------------------------------
 
 1. Improvements:	
-	- The log system has been improved again
+	- The log system has been improved again (log files, message formatting, etc.)
 	- The i18n system has been reworked
 
 2. API Refactoring:
@@ -54,8 +54,8 @@ Other command line options are described in the API of the madkit.kernel.Madkit 
 3. API new features:
 	- madkit.kernel.Madkit .Option .LevelOption .BooleanOption enumerations have been created
 	- the madkit.i18n package has been added
-	- the madkit.agr package has been added: It defines the default communities, groups and
-	roles of MadKit 5.
+	- madkit.kernel.AbstractAgent.destroyCommunity .destroyGroup .destroyRole mesthods added
+	- the madkit.agr package has been added: It defines the default communities, groups and roles of MadKit 5.
 
 4. bug fixes :
 	- a network bug which happened on group creation
@@ -79,8 +79,7 @@ Other command line options are described in the API of the madkit.kernel.Madkit 
 		- MadkitMenu (exit, restart, etc.), MadkitToolbar (used in desktop mode)
 
 4. Building lib jar file :
-	- project ant build files can now use a target named create-lib-jar which creates light jar which
-	could be used with the MadKit desktop for instance. 
+	- project ant build files can now use a target named create-lib-jar which creates light jar which could be used with the MadKit desktop for instance. 
 	
 5. jar file could be loaded programmatically or using the Desktop.
 

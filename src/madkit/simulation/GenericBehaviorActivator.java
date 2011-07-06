@@ -18,6 +18,10 @@
  */
 package madkit.simulation;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Activator;
 
@@ -55,6 +59,34 @@ public class GenericBehaviorActivator<A extends AbstractAgent> extends Activator
 //				System.err.println(l);
 //			}
 			agentBehaviors.executeBehaviorOf(a);
+		}
+	}
+
+	public void multicoreExecute() {
+		int cpuCoreNb = 10;
+		final ArrayList<Callable<Void>> workers = new ArrayList<Callable<Void>>(cpuCoreNb);
+		List<A> list = getCurrentAgentsList();
+		int bucketSize = list.size();
+		final int nbOfAgentsPerTask = bucketSize / (cpuCoreNb);
+		final A[] agents = (A[]) list.toArray((A[]) new AbstractAgent[0]);
+		for (int i = 0; i < cpuCoreNb; i++) {
+			final int index = i;
+			workers.add(new Callable<Void>() {
+				public Void call() throws Exception {
+					int maxIndex = nbOfAgentsPerTask*(index+1);
+					for (int j = nbOfAgentsPerTask*index; j < maxIndex; j++) {
+						
+						agentBehaviors.executeBehavior((A) agents[j]);
+					}
+					return null;
+				}
+			});
+		}
+		try {
+			getMadkitServiceExecutor().invokeAll(workers);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 

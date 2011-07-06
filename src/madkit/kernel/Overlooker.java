@@ -22,6 +22,7 @@ package madkit.kernel;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 /**
  * @author Fabien Michel
@@ -235,4 +236,10 @@ abstract class Overlooker <A extends AbstractAgent>
 			overlookedRole.removeMembers((List<AbstractAgent>) getCurrentAgentsList());
 		}
 	}
+	
+	final public ExecutorService getMadkitServiceExecutor() {
+		return MadkitKernel.getMadkitServiceExecutor();
+	}
+
+
 }

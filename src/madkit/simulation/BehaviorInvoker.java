@@ -124,5 +124,45 @@ public class BehaviorInvoker<A extends AbstractAgent> {//TODO bench that with ge
 		}
 	}
 
+	public void executeBehavior(final A agent)
+	{
+		final Class<? extends AbstractAgent> agentClass = (Class<? extends AbstractAgent>) agent.getClass();
+		Method m = methods.get(agentClass);
+		if(m == null){
+			try {
+				m = agentClass.getMethod(methodName);
+				methods.put(agentClass, m);
+			} catch (SecurityException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NoSuchMethodException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		try {
+			if (agent.isAlive()) {
+				m.invoke(agent);
+			}
+		} catch (IllegalArgumentException e) {//TODO redirect logging
+			Logger.getLogger("[TMP]").severe("\nCan't invoke method: " + methodName + " on "+ agent + " " + e.getMessage());
+			if (e.getCause() == null) 
+				e.printStackTrace(); 
+			else
+				e.getCause().printStackTrace();
+		} catch (IllegalAccessException e) {
+			Logger.getLogger("[TMP]").severe("\nCan't access method: " + methodName + " on "+ agent + " " + e.getMessage());
+			if (e.getCause() == null) 
+				e.printStackTrace(); 
+			else
+				e.getCause().printStackTrace();
+		} catch (InvocationTargetException e) {
+			Logger.getLogger("[TMP]").severe("\nCan't invoke method: " + methodName + " on "+ agent + " " + e.getMessage());
+			if (e.getCause() == null) 
+				e.printStackTrace(); 
+			else
+				e.getCause().printStackTrace();
+		}
+	}
 
 }

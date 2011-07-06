@@ -71,6 +71,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
@@ -134,7 +135,7 @@ class MadkitKernel extends Agent {
 				}
 			});
 
-	public final Executor getMadkitExecutor() {
+	final static ExecutorService getMadkitServiceExecutor() {
 		return serviceExecutor;
 	}
 
@@ -874,6 +875,10 @@ class MadkitKernel extends Agent {
 		for (final Callable<ArrayList<AbstractAgent>> w : workers)
 			ecs.submit(w);
 		int n = workers.size();
+		for (int i = bucketSize - nbOfAgentsPerTask * cpuCoreNb; i > 0; i--) {
+			// System.err.println("adding aone");
+			result.add(initAbstractAgent(agentClass));
+		}
 		for (int i = 0; i < n; ++i) {
 			try {
 				result.addAll(ecs.take().get());
@@ -882,10 +887,6 @@ class MadkitKernel extends Agent {
 			} catch (ExecutionException e) {
 				e.printStackTrace();
 			}
-		}
-		for (int i = bucketSize - nbOfAgentsPerTask * cpuCoreNb; i > 0; i--) {
-			// System.err.println("adding aone");
-			result.add(initAbstractAgent(agentClass));
 		}
 		// System.err.println(result.size());
 		return result;

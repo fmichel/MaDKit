@@ -52,9 +52,13 @@
           target: compile           TODO check javac task   
 		<tstamp prefix="time"/>
 		<property name="build.id" value="${time.DSTAMP}-${time.TSTAMP}"/>
+			debuglevel="source"
+			debuglevel="lines"
          ================================= -->
 	<target name="compile" depends="buildResources">
 		<javac
+			debug="true"
+			debuglevel="vars"
 			includeAntRuntime="false"
 			srcdir="${src.dir}"
 			destdir="${build.dir}"

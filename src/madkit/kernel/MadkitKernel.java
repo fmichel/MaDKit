@@ -403,21 +403,44 @@ class MadkitKernel extends Agent {
 		final String agentsTolaunch = platform.getConfigOption().getProperty(Option.launchAgents.name());
 		if(! agentsTolaunch.equals("null")){
 			final String[] agentsClasses = agentsTolaunch.split(";");
-			for(final String classNameAndOption : agentsClasses){
-				final String[] classAndOptions = classNameAndOption.split(",");
-				final String className = classAndOptions[0].trim();//TODO should test if these classes exist
-				final boolean withGUI = (classAndOptions.length > 1 ? Boolean.parseBoolean(classAndOptions[1].trim()) : false);
-				int number = 1;
-				if(classAndOptions.length > 2) {
-					number = Integer.parseInt(classAndOptions[2].trim());
+			final Thread t = new Thread(new Runnable() {//for threads to take place, may quit otherwise
+				public void run() {
+					for (final String classNameAndOption : agentsClasses) {
+						final String[] classAndOptions = classNameAndOption.split(",");
+						final String className = classAndOptions[0].trim();//TODO should test if these classes exist
+						final boolean withGUI = (classAndOptions.length > 1 ? Boolean.parseBoolean(classAndOptions[1].trim()) : false);
+						int number = 1;
+						if (classAndOptions.length > 2) {
+							number = Integer.parseInt(classAndOptions[2].trim());
+						}
+						if (logger != null)
+							logger.finer("Launching " + number + " instance(s) of " + className + " with GUI = " + withGUI);
+						try {
+							Class<? extends AbstractAgent> c = (Class<? extends AbstractAgent>) AbstractAgent.class.forName(className);
+							if(Agent.class.isAssignableFrom(c)){
+								for (int i = 0; i < number; i++) {
+									launchAgent(className, 0, withGUI);
+								}
+							}
+							else{
+								for (int i = 0; i < number; i++) {
+									new Thread(new Runnable() {
+										public void run() {
+											launchAgent(className, withGUI);
+										}
+									}).start();
+								}
+							}
+						} catch (ClassNotFoundException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
 				}
-				if(logger != null)
-					logger.finer("Launching "+number+ " instance(s) of "+className+" with GUI = "+withGUI);
-				for (int i = 0; i < number; i++) {
-					launchAgent(className, 0, withGUI);
-				}
-			}
-			Thread.yield();//sufficient for threads to take place, may quit otherwise
+			});
+			t.setDaemon(false);
+			t.start();
+			Thread.yield();
 		}
 	}
 

@@ -63,7 +63,7 @@ public class GenericBehaviorActivator<A extends AbstractAgent> extends Activator
 	}
 
 	public void multicoreExecute() {
-		int cpuCoreNb = 10;
+		int cpuCoreNb = 20;
 		final ArrayList<Callable<Void>> workers = new ArrayList<Callable<Void>>(cpuCoreNb);
 		List<A> list = getCurrentAgentsList();
 		int bucketSize = list.size();

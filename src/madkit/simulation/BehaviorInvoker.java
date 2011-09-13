@@ -24,14 +24,21 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import javax.sound.sampled.Line;
+
 import madkit.kernel.AbstractAgent;
+import madkit.kernel.Activator;
 
 /**
  * Class encapsulating behavior invocation on MadKit agents.
+ * A BehaviorInvoker allows to call a particular Java method on agents regardless of their actual class type as long
+ * as they extend {@link AbstractAgent}. A BehaviorInvoker is especially used by {@link Activator} subclasses to 
+ * create simulation applications.
  * 
  * @author Fabien Michel
  * @since MadKit 5
- * @version 0.9
+ * @see GenericBehaviorActivator
+ * @version 0.91
  * 
  */
 public class BehaviorInvoker<A extends AbstractAgent> {//TODO bench that with generic of type A extends AA
@@ -43,7 +50,8 @@ public class BehaviorInvoker<A extends AbstractAgent> {//TODO bench that with ge
 	private Method cachedMethod = null;
 
 	/**
-	 * @param behaviorName 
+	 * Constructs a new BehaviorInvoker that will activate the Java method of the agent which has this name.
+	 * @param behaviorName the method's name
 	 * 
 	 */
 	public BehaviorInvoker(final String behaviorName) {
@@ -53,7 +61,8 @@ public class BehaviorInvoker<A extends AbstractAgent> {//TODO bench that with ge
 
 
 	/**
-	 * @return the methodName
+	 * Returns the method's name corresponding to the behavior activated by this behaviorInvoker.
+	 * @return the method's name.
 	 */
 	public String getBehaviorName() {
 		return methodName;
@@ -61,7 +70,8 @@ public class BehaviorInvoker<A extends AbstractAgent> {//TODO bench that with ge
 
 
 	/**
-	 * @param methodName the methodName to set
+	 * Sets the behavior activated by this behaviorInvoker.
+	 * @param methodName the methodName corresponding to the behavior to triggered
 	 */
 	public void setMethodName(final String methodName) {
 		if (! this.methodName.equals(methodName)) {
@@ -76,7 +86,7 @@ public class BehaviorInvoker<A extends AbstractAgent> {//TODO bench that with ge
 	/**
 	 * Executes the behavior on a particular agent instance.
 	 * 
-	 * @param agent the targeted instance
+	 * @param agent the agent on which the behavior will be triggered
 	 */
 	public void executeBehaviorOf(final A agent)
 	{
@@ -124,14 +134,23 @@ public class BehaviorInvoker<A extends AbstractAgent> {//TODO bench that with ge
 		}
 	}
 
-	public void executeBehavior(final A agent)
+	/**
+	 * Thread safe version of {@link #executeBehaviorOf(AbstractAgent)}. 
+	 * This is used by {@link GenericBehaviorActivator#multicoreExecute()}.
+	 * 
+	 * @param agent the agent on which the behavior will be triggered
+	 * @since MadKit 5.0.0.11
+	 */
+	public void concurrentExecuteBehavior(final A agent)
 	{
 		final Class<? extends AbstractAgent> agentClass = (Class<? extends AbstractAgent>) agent.getClass();
 		Method m = methods.get(agentClass);
 		if(m == null){
 			try {
 				m = agentClass.getMethod(methodName);
-				methods.put(agentClass, m);
+				synchronized (methods) {
+					methods.put(agentClass, m);
+				}
 			} catch (SecurityException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

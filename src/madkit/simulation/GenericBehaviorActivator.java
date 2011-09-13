@@ -24,9 +24,10 @@ import java.util.concurrent.Callable;
 
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Activator;
+import madkit.kernel.Scheduler;
 
 /**
- * An activator that invoke a simple method with no parameters
+ * An activator that invokes a single method with no parameters on a group of agents.
  * 
  * @author Fabien Michel
  * @since MadKit 5.0.0.1
@@ -35,11 +36,22 @@ import madkit.kernel.Activator;
  */
 public class GenericBehaviorActivator<A extends AbstractAgent> extends Activator<A>
 {     
-	final BehaviorInvoker<A> agentBehaviors;
+	final private BehaviorInvoker<A> agentBehaviors;
 
-	public GenericBehaviorActivator(final String communityName, final String groupName, final String roleName,final String theBehaviorToActivate)
+	/**
+	 * Builds a new GenericBehaviorActivator on the given CGR location of the
+	 * artificial society. Once created, it has to be added by a {@link Scheduler} 
+	 * agent using the {@link Scheduler#addActivator(Activator)} method.
+	 * Once added, it could be used to trigger the behavior on all the agents which are at this CGR location, regardless
+	 * of their class type as long as they extend {@link AbstractAgent}
+	 * @param community
+	 * @param group
+	 * @param role
+	 * @param theBehaviorToActivate name of the Java method which will be invoked
+	 */
+	public GenericBehaviorActivator(final String community, final String group, final String role,final String theBehaviorToActivate)
 	{
-		super(communityName, groupName, roleName);
+		super(community, group, role);
 		agentBehaviors = new BehaviorInvoker<A>(theBehaviorToActivate);
 	}
 
@@ -51,6 +63,11 @@ public class GenericBehaviorActivator<A extends AbstractAgent> extends Activator
 		agentBehaviors.setMethodName(theBehaviorToActivate);
 	}
 
+	@Override
+	/**
+	 * Triggers the corresponding behavior on all the agents which are at the CGR location defined by this activator.
+	 * 
+	 */
 	public void execute() {
 //		List<A> l = getCurrentAgentsList();
 		for (A a : getCurrentAgentsList()) {
@@ -62,8 +79,9 @@ public class GenericBehaviorActivator<A extends AbstractAgent> extends Activator
 		}
 	}
 
+	@Override
 	public void multicoreExecute() {
-		int cpuCoreNb = 20;
+		int cpuCoreNb = Runtime.getRuntime().availableProcessors();
 		final ArrayList<Callable<Void>> workers = new ArrayList<Callable<Void>>(cpuCoreNb);
 		List<A> list = getCurrentAgentsList();
 		int bucketSize = list.size();
@@ -76,7 +94,7 @@ public class GenericBehaviorActivator<A extends AbstractAgent> extends Activator
 					int maxIndex = nbOfAgentsPerTask*(index+1);
 					for (int j = nbOfAgentsPerTask*index; j < maxIndex; j++) {
 						
-						agentBehaviors.executeBehavior((A) agents[j]);
+						agentBehaviors.concurrentExecuteBehavior((A) agents[j]);
 					}
 					return null;
 				}
@@ -85,8 +103,8 @@ public class GenericBehaviorActivator<A extends AbstractAgent> extends Activator
 		try {
 			getMadkitServiceExecutor().invokeAll(workers);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			Thread.currentThread().interrupt();//do not swallow it !
 		}
 	}
 

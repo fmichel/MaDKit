@@ -403,44 +403,26 @@ class MadkitKernel extends Agent {
 		final String agentsTolaunch = platform.getConfigOption().getProperty(Option.launchAgents.name());
 		if(! agentsTolaunch.equals("null")){
 			final String[] agentsClasses = agentsTolaunch.split(";");
-			final Thread t = new Thread(new Runnable() {//for threads to take place, may quit otherwise
-				public void run() {
-					for (final String classNameAndOption : agentsClasses) {
-						final String[] classAndOptions = classNameAndOption.split(",");
-						final String className = classAndOptions[0].trim();//TODO should test if these classes exist
-						final boolean withGUI = (classAndOptions.length > 1 ? Boolean.parseBoolean(classAndOptions[1].trim()) : false);
-						int number = 1;
-						if (classAndOptions.length > 2) {
-							number = Integer.parseInt(classAndOptions[2].trim());
-						}
-						if (logger != null)
-							logger.finer("Launching " + number + " instance(s) of " + className + " with GUI = " + withGUI);
-						try {
-							Class<? extends AbstractAgent> c = (Class<? extends AbstractAgent>) AbstractAgent.class.forName(className);
-							if(Agent.class.isAssignableFrom(c)){
-								for (int i = 0; i < number; i++) {
-									launchAgent(className, 0, withGUI);
-								}
-							}
-							else{
-								for (int i = 0; i < number; i++) {
-									new Thread(new Runnable() {
-										public void run() {
-											launchAgent(className, withGUI);
-										}
-									}).start();
-								}
-							}
-						} catch (ClassNotFoundException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
+			for (final String classNameAndOption : agentsClasses) {
+				final String[] classAndOptions = classNameAndOption.split(",");
+				final String className = classAndOptions[0].trim();//TODO should test if these classes exist
+				final boolean withGUI = (classAndOptions.length > 1 ? Boolean.parseBoolean(classAndOptions[1].trim()) : false);
+				int number = 1;
+				if (classAndOptions.length > 2) {
+					number = Integer.parseInt(classAndOptions[2].trim());
 				}
-			});
-			t.setDaemon(false);
-			t.start();
-			Thread.yield();
+				if (logger != null)
+					logger.finer("Launching " + number + " instance(s) of " + className + " with GUI = " + withGUI);
+				for (int i = 0; i < number; i++) {
+					final Thread t = new Thread(new Runnable() {
+						public void run() {//TODO log failures here ?
+							launchAgent(className, withGUI);
+						}
+					});
+					t.setDaemon(false);
+					t.start();
+				}
+			}
 		}
 	}
 
@@ -897,22 +879,22 @@ class MadkitKernel extends Agent {
 		}
 		for (final Callable<ArrayList<AbstractAgent>> w : workers)
 			ecs.submit(w);
-		int n = workers.size();
-		for (int i = bucketSize - nbOfAgentsPerTask * cpuCoreNb; i > 0; i--) {
-			// System.err.println("adding aone");
-			result.add(initAbstractAgent(agentClass));
-		}
-		for (int i = 0; i < n; ++i) {
-			try {
-				result.addAll(ecs.take().get());
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			} catch (ExecutionException e) {
-				e.printStackTrace();
-			}
-		}
-		// System.err.println(result.size());
-		return result;
+				int n = workers.size();
+				for (int i = bucketSize - nbOfAgentsPerTask * cpuCoreNb; i > 0; i--) {
+					// System.err.println("adding aone");
+					result.add(initAbstractAgent(agentClass));
+				}
+				for (int i = 0; i < n; ++i) {
+					try {
+						result.addAll(ecs.take().get());
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					} catch (ExecutionException e) {
+						e.printStackTrace();
+					}
+				}
+				// System.err.println(result.size());
+				return result;
 	}
 
 	private AbstractAgent initAbstractAgent(final Class<? extends AbstractAgent> agentClass) {
@@ -1114,7 +1096,7 @@ class MadkitKernel extends Agent {
 	 *            if one of community, group or role does not exist
 	 */
 	List<AgentAddress> getOtherRolePlayers(AbstractAgent abstractAgent, String community, String group, String role)
-	throws CGRNotAvailable {
+			throws CGRNotAvailable {
 		// never null without throwing Ex
 		final List<AgentAddress> result = getRole(community, group, role).getAgentAddressesCopy();
 		Role.removeAgentAddressOf(abstractAgent, result);
@@ -1125,7 +1107,7 @@ class MadkitKernel extends Agent {
 	}
 
 	AgentAddress getAnotherRolePlayer(AbstractAgent abstractAgent, String community, String group, String role)
-	throws CGRNotAvailable {
+			throws CGRNotAvailable {
 		List<AgentAddress> others = getOtherRolePlayers(abstractAgent, community, group, role);
 		if (others != null) {
 			return others.get((int) (Math.random() * others.size()));
@@ -1155,7 +1137,7 @@ class MadkitKernel extends Agent {
 	}
 
 	final AgentAddress getSenderAgentAddress(final AbstractAgent sender, final AgentAddress receiver, String senderRole)
-	throws CGRNotAvailable {
+			throws CGRNotAvailable {
 		AgentAddress senderAA = null;
 		final Role targetedRole = receiver.getRoleObject();
 		if (senderRole == null) {// looking for any role in this group, starting

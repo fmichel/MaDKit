@@ -155,7 +155,7 @@ public class Agent extends AbstractAgent{
 			live();
 		} catch (KilledException e) {
 			if(logger != null){
-				logger.finer("-*-GET KILLED in LIVE-*- : "+e.getMessage());
+				logger.warning("-*-GET KILLED in LIVE-*- : "+e.getMessage());
 			}
 			return false;
 		} catch (Throwable e) {

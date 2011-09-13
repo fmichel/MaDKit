@@ -233,7 +233,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		catch (KilledException e) {//self kill
 			getAlive().set(false);
 			if (logger != null) {
-				logger.finest("-*-GET KILLED in ACTIVATE-*- "+e.getMessage());
+				logger.warning("-*-GET KILLED in ACTIVATE-*- "+e.getMessage());
 				logger.finer("** exiting ACTIVATE **");
 			}
 			ending();
@@ -296,7 +296,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			end();
 		} catch (KilledException e) {
 			if (logger != null && getAlive().get()) {//not killed before
-				logger.finest("-*-GET KILLED in END-*- " + e.getMessage());
+				logger.warning("-*-GET KILLED in END-*- " + e.getMessage());
 			}
 			return false;
 		} catch (Throwable e) {
@@ -526,7 +526,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		if(logger != null)
 			logger.finest(Words.LAUNCH+" " + agentClass);
 		try {
-			AbstractAgent a = (AbstractAgent) getMadkitClassLoader().loadClass(agentClass).newInstance();
+			final AbstractAgent a = (AbstractAgent) getMadkitClassLoader().loadClass(agentClass).newInstance();
 			if(ReturnCode.SUCCESS == launchAgent(a, timeOutSeconds, createFrame))
 				return a;
 		} catch (InstantiationException e) {

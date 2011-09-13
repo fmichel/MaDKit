@@ -40,6 +40,19 @@ Other command line options are described in the API of the madkit.kernel.Madkit 
 ----------------------------------------------------------------------------------
 
 ----------------------------------------------------------------------------------
+------------------------------- MadKit 5.0.0.11 (alpha-11)--------------------------
+----------------------------------------------------------------------------------
+
+1. Improvements:	
+	- The jar file now correctly displays the name of the parameters when using an IDE.
+	- more javadoc (feedback welcome on that subject)
+
+2. API new features:
+	- madkit.simulation.GenericBehaviorActivator.multicoreExecute() has been introduced.
+	  and provides an easy way of using multicore architectures when simulating.
+	  Basically it does distribute all the calls on the available processors. 
+
+----------------------------------------------------------------------------------
 ------------------------------- MadKit 5.0.0.10 (alpha-10)--------------------------
 ----------------------------------------------------------------------------------
 

@@ -49,8 +49,7 @@ import madkit.messages.ObjectMessage;
 
 /**
  * This class defines a generic threaded scheduler agent. It holds a collection
- * of activators.
- * 
+ * of activators.  
  * @author Fabien Michel
  * @author Olivier Gutknecht
  * @since MadKit 2.0
@@ -155,9 +154,19 @@ public class Scheduler extends Agent {
 		this(0, Double.MAX_VALUE);
 	}
 
+//	public Scheduler(boolean multicore) {
+//		this(0, Double.MAX_VALUE);
+//	}
+
 	public Scheduler(final double endTime) {
 		this(0, endTime);
 	}
+
+//	public Scheduler(final double startTime, final double endTime) {
+//		buildActions();
+//		setSimulationDuration(endTime);
+//		this.setStartTime(startTime);
+//	}
 
 	public Scheduler(final double startTime, final double endTime) {
 		buildActions();
@@ -205,14 +214,29 @@ public class Scheduler extends Agent {
 			for (final Activator<? extends AbstractAgent> activator : activators) {
 				if (logger != null)
 					logger.finest("Activating " + activator);
-				activator.execute();
+				triggerActivator(activator);
 			}
 		} else {
 			for (final Activator<? extends AbstractAgent> activator : activators) {
-				activator.execute();
+				triggerActivator(activator);
 			}
 		}
 		setGVT(GVT + 1);
+	}
+	
+	/**
+	 * Triggers the activator's execution process. This process automatically
+	 * calls the multicore mode of the activator if it is set so.
+	 * 
+	 * @param activator the activator to execute.
+	 */
+	public void triggerActivator(final Activator<? extends AbstractAgent> activator){
+		if(activator.isMulticoreModeOn()){
+			activator.multicoreExecute();
+		}
+		else{
+			activator.execute();
+		}
 	}
 
 	public void stoped() {
@@ -306,7 +330,7 @@ public class Scheduler extends Agent {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void checkMail(final Message m) {
+	protected void checkMail(final Message m) {
 		if (m != null) {
 			try {
 				changeState(((ObjectMessage<State>) m).getContent());

@@ -24,6 +24,12 @@ import madkit.simulation.GenericBehaviorActivator;
  * This class defines a tool for scheduling mechanism.
  * An activator is configured according to a community, a group and a role.
  * It could be used to activate a group of agents on a particular behavior (a method of the agent's class)
+ * Subclasses should override {@link #execute()} for defining how 
+ * a sequential execution of the agents take place or {@link #multicoreExecute()} for 
+ * defining a concurrent execution process of group of agents. By default these methods
+ * do nothing. To set the mode that will be used by the scheduler, 
+ * to use multicore execution on activators having internal concurrent mechanism.
+ * The multicore is set to <code>false</code> by default.
  * 
  * @author Fabien Michel
  * @author Olivier Gutknecht 
@@ -35,24 +41,80 @@ import madkit.simulation.GenericBehaviorActivator;
  */
 public class Activator<A extends AbstractAgent> extends Overlooker<A>{
 
+	private boolean multicore = false;
+	/**
+	 * Builds a new Activator on the given CGR location of the
+	 * artificial society with multicore mode set to <code>false</code>.
+	 * This has the same effect as 
+	 * <code>Activator(community, group, role, false)</code>.
+	 * @param community
+	 * @param group
+	 * @param role
+	 * @see Scheduler
+	 */
+	public Activator(String community, String group, String role) {
+		super(community, group, role);
+	}
+
 	/**
 	 * Builds a new Activator on the given CGR location of the
 	 * artificial society. Once created, it has to be added by a {@link Scheduler} 
 	 * agent using the {@link Scheduler#addActivator(Activator)} method.
-	 * @param communityName
-	 * @param groupName
-	 * @param roleName
+	 * @param community
+	 * @param group
+	 * @param role
+	 * @param multicore if <code>true</code> {@link #multicoreExecute()} is used 
+	 * when the activator is triggered by a scheduler agent 
+	 * that uses {@link Scheduler#triggerActivator(Activator)}
 	 * @see Scheduler
 	 */
-	public Activator(String communityName, String groupName, String roleName) {
-		super(communityName, groupName, roleName);
+	public Activator(String community, String group, String role, boolean multicore) {
+		super(community, group, role);
+		this.multicore = multicore;
 	}
 
 	/**
-	 * Called by a scheduler when this activator is activated.
+	 * Subclasses should override this to define how 
+	 * the agents which are at the CGR location are executed.
+	 * 
+	 * By default, this is automatically called by the default scheduler's 
+	 * loop when this activator has been added.
 	 * @see Scheduler#doSimulationStep()
 	 */
 	public void execute() {
+		//TODO warning
 	}
+
+	/**
+	 * Executes the behavior on all the agents in a concurrent way, using several processor cores if available.
+	 * This call uses 2 processors, or n-1 when n > 2. 
+	 * Beware that using this call will produce different outputs for each run unless a concurrent simulation
+	 * model is used. That is to say, a model supporting concurrent phases in the simulation execution such as the
+	 * <a href="http://www.aamas-conference.org/Proceedings/aamas07/html/pdf/AAMAS07_0179_07a7765250ef7c3551a9eb0f13b75a58.pdf">IRM4S model<a/>
+	 * 
+	 */
+	public void multicoreExecute() {
+		
+	}
+	
+	@Override
+	public String toString() {
+		return super.toString()+" multicore mode "+multicore;
+	}
+
+	/**
+	 * @return <code>true</code> if the multi core mode is on
+	 */
+	public boolean isMulticoreModeOn() {
+		return multicore;
+	}
+
+	/**
+	 * @param multicore <code>true</code> for activating the multicore mode
+	 */
+	public void setMulticore(boolean multicore) {
+		this.multicore = multicore;
+	}
+
 
 }

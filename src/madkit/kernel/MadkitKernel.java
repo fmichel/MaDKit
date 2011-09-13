@@ -50,6 +50,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -380,7 +381,11 @@ class MadkitKernel extends Agent {
 	private File lookForMadkitDemoHome() {
 		for(URL url : getMadkitClassLoader().getURLs()){
 			if(url.getProtocol().equals("file") && url.getPath().contains(platform.getConfigOption().getProperty("madkit.jar.name"))){
-				return new File(new File(url.getFile()).getParentFile().getAbsolutePath()+File.separatorChar+"demos");
+				try {
+					return new File(new File(url.toURI()).getParentFile(),"demos");//URI prevents error from character encoding
+				} catch (URISyntaxException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 		return null;

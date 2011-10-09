@@ -71,6 +71,7 @@ public enum MadkitActions implements MadkitGUIAction {
 	AGENT_SETUP_GUI(null,VK_J), 
 	AGENT_DISPOSE_GUI(null,VK_J), 
 	MADKIT_LAUNCH_SESSION(null,VK_J), 
+	MADKIT_KILL_AGENT(null,VK_J), 
 	AGENT_LAUNCH_AGENT(null,VK_J);
 	
 	final private ImageIcon imageIcon;
@@ -128,6 +129,7 @@ public enum MadkitActions implements MadkitGUIAction {
 		case MADKIT_RESTART:
 		case CONNECT_WEB_REPO:
 		case MADKIT_KILL_AGENTS:
+		case MADKIT_KILL_AGENT:
 		case MADKIT_LAUNCH_SESSION:
 		case MADKIT_CLONE:
 		case LOAD_LOCAL_DEMOS:

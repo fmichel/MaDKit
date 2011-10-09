@@ -34,10 +34,23 @@ final class AgentThreadFactory extends Object implements ThreadFactory {
     final private ThreadGroup group;
 //	static private int nbthread=0;
     
-    AgentThreadFactory(final String name, final boolean isDaemonThreadFactory) {
-    	daemonThreads = isDaemonThreadFactory;
-    	group = new ThreadGroup(name);
-    	if (isDaemonThreadFactory) {
+    AgentThreadFactory(final KernelAddress kernelAddress, final boolean daemonThreadFactory) {
+    	daemonThreads = daemonThreadFactory;
+    	group = new ThreadGroup(daemonThreads ? "DAEMON" : "LIFE"+kernelAddress){
+			public void uncaughtException(Thread t, Throwable e) {
+				System.err.println("\n-----------------uncaught exception on "+t);
+				if(e instanceof KilledException){
+					e.printStackTrace();
+				}
+				else{
+					System.err.println("--------------internal BUG--------------------");
+					System.err.println(t);
+					e.printStackTrace();
+				};
+			}
+		};
+
+    	if (daemonThreadFactory) {
 			group.setMaxPriority(MKDA_PRIORITY);
 		}
     	else{
@@ -49,10 +62,10 @@ final class AgentThreadFactory extends Object implements ThreadFactory {
 	 */
 	@Override
     public Thread newThread(final Runnable r) {
-        final Thread t = new Thread(group, r, group.getName());
+        final Thread t = new Thread(group, r);
 //        System.err.println("\n\n\n new thread "+t);
         t.setDaemon(daemonThreads);
-        t.setPriority(t.getThreadGroup().getMaxPriority());
+//        t.setPriority(t.getThreadGroup().getMaxPriority());
         return t;
     }
 	

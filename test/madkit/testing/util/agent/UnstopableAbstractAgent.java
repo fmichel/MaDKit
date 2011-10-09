@@ -18,43 +18,48 @@
  */
 package madkit.testing.util.agent;
 
+import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
+import madkit.kernel.AgentAddress;
+import madkit.kernel.Madkit;
+import madkit.kernel.Madkit.LevelOption;
 
 /**
  * @author Fabien Michel
- * @since MadKit 5.0.0.6
+ * @since MadKit 5.0.0.9
  * @version 0.9
  * 
  */
-public class KillTargetAgent extends DoItDuringLifeCycleAgent {
-
+public class UnstopableAbstractAgent extends AbstractAgent
+{
+	protected void activate() {
+		int i = 0;
+		while(i<990000000){
+			i++;
+			if(i%10000000 == 0)
+				if(logger != null)
+					logger.info("activate "+getState()+" "+i);
+		}
+	}
+	
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -5186267329069400681L;
-	Agent toKill;
-	/**
-	 * @param a
-	 */
-	public KillTargetAgent(Agent a) {
-		this(a,false,false,false);
+	protected void end() {
+		int i = 0;
+		while(true){
+			i++;
+			if(i%10000000 == 0){
+				if(logger != null)
+					logger.info("end "+getState()+" "+i);
+			}
+		}
 	}
 
-	public KillTargetAgent(Agent a,boolean inActivate, boolean inLive, boolean inEnd) {
-		super(inActivate, inLive, inEnd);
-		toKill = a;
+
+	public static void main(String[] args) {
+		String[] argss = {LevelOption.agentLogLevel.toString(),"ALL",LevelOption.kernelLogLevel.toString(),"ALL","--launchAgents",UnstopableAbstractAgent.class.getName(),",true"};
+		Madkit.main(argss);		
 	}
 
-	public KillTargetAgent(Agent a,boolean inActivate, boolean inLive) {
-		this(a,inActivate, inLive,false);
-	}
-
-	public KillTargetAgent(Agent a,boolean inActivate) {
-		this(a,inActivate,false,false);
-	}
-
-	@Override
-	public void live() {
-		killAgent(toKill, 4);
-	}
 }

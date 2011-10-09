@@ -340,7 +340,7 @@ final public class Madkit {
 		//starting the kernel agent and waiting the end of its activation
 		if(logger != null)
 			logger.fine("** LAUNCHING KERNEL AGENT **");
-		myKernel.launchAgent(myKernel, myKernel, 20, false);
+		myKernel.launchAgent(myKernel, myKernel, Integer.MAX_VALUE, false);
 	}
 
 	//	private void prepareConfigAgents(){

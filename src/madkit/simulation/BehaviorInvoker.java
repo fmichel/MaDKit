@@ -24,8 +24,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import javax.sound.sampled.Line;
-
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Activator;
 
@@ -143,7 +141,8 @@ public class BehaviorInvoker<A extends AbstractAgent> {//TODO bench that with ge
 	 */
 	public void concurrentExecuteBehavior(final A agent)
 	{
-		final Class<? extends AbstractAgent> agentClass = (Class<? extends AbstractAgent>) agent.getClass();
+		@SuppressWarnings("unchecked")
+		final Class<A> agentClass = (Class<A>) agent.getClass();
 		Method m = methods.get(agentClass);
 		if(m == null){
 			try {

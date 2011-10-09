@@ -48,7 +48,6 @@ final class LoggedKernel extends MadkitKernel {
 	LoggedKernel(MadkitKernel k) {
 		super(k);
 		loggedKernel = this;
-		setKernel(k);
 	}
 
 	/**
@@ -273,8 +272,10 @@ final class LoggedKernel extends MadkitKernel {
 	 * @see madkit.kernel.MadkitKernel#launchAgent(madkit.kernel.AbstractAgent, madkit.kernel.AbstractAgent, int, boolean)
 	 */
 	@Override
-	ReturnCode launchAgent(AbstractAgent requester, AbstractAgent agent, int timeOutSeconds, boolean defaultGUI) {
-		ReturnCode r = kernel.launchAgent(requester, agent, timeOutSeconds, defaultGUI);
+	final ReturnCode launchAgent(AbstractAgent requester, AbstractAgent agent, int timeOutSeconds, boolean defaultGUI) {
+		if(requester.isFinestLogOn())
+			requester.logger.log(Level.FINEST, Influence.LAUNCH_AGENT+" ("+timeOutSeconds+")"+ agent.getLoggingName()+"...");
+		final ReturnCode r = kernel.launchAgent(requester, agent, timeOutSeconds, defaultGUI);
 		if(r == SUCCESS || r == TIMEOUT){
 			if(requester.isFinestLogOn())
 				requester.logger.log(Level.FINEST,Influence.LAUNCH_AGENT.toString()+ agent+" "+r);
@@ -287,10 +288,12 @@ final class LoggedKernel extends MadkitKernel {
 
 	@Override
 	final ReturnCode killAgent(final AbstractAgent requester, final AbstractAgent target, int timeOutSeconds) {
+		if(requester.isFinestLogOn())
+			requester.logger.log(Level.FINEST, Influence.KILL_AGENT+" ("+timeOutSeconds+")"+ target +"...");
 		final ReturnCode r = kernel.killAgent(requester, target, timeOutSeconds);
 		if(r == SUCCESS || r == TIMEOUT){
 			if(requester.isFinestLogOn())
-				requester.logger.log(Level.FINEST, Influence.KILL_AGENT+ target.getName() + r);
+				requester.logger.log(Level.FINEST, Influence.KILL_AGENT+ target.getLoggingName()+" "+r);
 		}
 		else if (requester.isWarningOn()) {
 				requester.handleException(Influence.KILL_AGENT, new MadkitWarning(target.toString(),r));

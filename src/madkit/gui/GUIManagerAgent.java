@@ -193,10 +193,7 @@ public class GUIManagerAgent extends Agent  {
 	private void handleGUIMessage(GUIMessage m) {
 		switch (m.getCode()) {
 		case AGENT_SETUP_GUI:
-			if(logger != null)
-				logger.fine("Setting up GUI of"+m.getContent());
-			setupGUIOf((AbstractAgent) m.getContent());
-			sendReply(m, new Message());
+			setupGUIOf(m);
 			break;
 		case AGENT_DISPOSE_GUI:
 			disposeGUIOf((AbstractAgent) m.getContent());
@@ -263,31 +260,53 @@ public class GUIManagerAgent extends Agent  {
 		}
 	}
 
-	private void setupGUIOf(final AbstractAgent agent) {
-		try {
-			SwingUtilities.invokeAndWait(new Runnable() {
-				public void run() {
-					AgentFrame f = new AgentFrame(agent, agent.getName());
-					agent.setupFrame(f);//TODO catch failures because of delegation
-					if (desktop != null) {
-						JInternalFrame jf = new AgentInternalFrame(f, GUIManagerAgent.this);
-						desktop.addInternalFrame(jf);
-						internalFrames.put(agent, jf);
-						jf.setVisible(true);
-					} else {
-						f.setLocation(checkLocation(f));
-						guis.put(agent, f);
-						f.setVisible(true);
-					}
+	private void setupGUIOf(final GUIMessage m) {
+		final AbstractAgent agent = (AbstractAgent) m.getContent();
+		if(logger != null)
+			logger.fine("Setting up GUI for "+agent);
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				AgentFrame f = new AgentFrame(agent, agent.getName());
+				agent.setupFrame(f);//TODO catch failures because of delegation
+				if (desktop != null) {
+					JInternalFrame jf = new AgentInternalFrame(f, GUIManagerAgent.this);
+					desktop.addInternalFrame(jf);
+					internalFrames.put(agent, jf);
+					jf.setVisible(true);
+				} else {
+					f.setLocation(checkLocation(f));
+					guis.put(agent, f);
+					f.setVisible(true);
 				}
-			});
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+				sendReply(m, new Message());
+			}
+		});
+
+		//TODO choose one !!
+//		try {
+//			SwingUtilities.invokeAndWait(new Runnable() {
+//				public void run() {
+//					AgentFrame f = new AgentFrame(agent, agent.getName());
+//					agent.setupFrame(f);//TODO catch failures because of delegation
+//					if (desktop != null) {
+//						JInternalFrame jf = new AgentInternalFrame(f, GUIManagerAgent.this);
+//						desktop.addInternalFrame(jf);
+//						internalFrames.put(agent, jf);
+//						jf.setVisible(true);
+//					} else {
+//						f.setLocation(checkLocation(f));
+//						guis.put(agent, f);
+//						f.setVisible(true);
+//					}
+//					sendReply(m, new Message());
+//				}
+//			});
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//			Thread.currentThread().interrupt();
+//		} catch (InvocationTargetException e) {
+//			e.printStackTrace();
+//		}
 	}
 
 	private void disposeGUIOf(AbstractAgent agent) {//event dispatch thread ?

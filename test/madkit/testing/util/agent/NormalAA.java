@@ -18,35 +18,30 @@
  */
 package madkit.testing.util.agent;
 
-import madkit.kernel.JunitMadKit;
+import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
+import static org.junit.Assert.assertEquals;
+import madkit.kernel.AbstractAgent;
+import static madkit.kernel.JunitMadKit.*;
 
 /**
  * @author Fabien Michel
- * @since MadKit 5.0.0.7
+ * @since MadKit 5.0.0.12
  * @version 0.9
  * 
  */
-public class FaultyAA extends DoItDuringLifeCycleAbstractAgent{
-
-	/**
-	 * @param inActivate
-	 * @param inEnd
-	 */
-	public FaultyAA(boolean inActivate, boolean inEnd) {
-		super(inActivate, inEnd);
+public class NormalAA extends AbstractAgent{
+	
+	public NormalAA(){
+		setName(getLogger().getName());
 	}
 
-	public FaultyAA(boolean inActivate) {
-		super(inActivate);
-	}
-
-	@SuppressWarnings("null")
 	@Override
-	public void doIt() {
-		if(logger != null)
-			logger.info("crashing myself");
-		Object o = null;
-		o.toString();	
+	protected void activate() {
+		assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP));
+		assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,ROLE));
 	}
+
 
 }
+
+

@@ -18,35 +18,42 @@
  */
 package madkit.testing.util.agent;
 
+import java.util.logging.Level;
+
 import madkit.kernel.JunitMadKit;
 
 /**
  * @author Fabien Michel
- * @since MadKit 5.0.0.7
- * @version 0.9
+ * @since MadKit 5.0.0.12
+ * @version 1
  * 
  */
-public class FaultyAA extends DoItDuringLifeCycleAbstractAgent{
+public class TimeOutAA extends DoItDuringLifeCycleAbstractAgent{
 
 	/**
 	 * @param inActivate
 	 * @param inEnd
 	 */
-	public FaultyAA(boolean inActivate, boolean inEnd) {
+	public TimeOutAA(boolean inActivate, boolean inEnd) {
 		super(inActivate, inEnd);
+		setLogLevel(Level.ALL);
 	}
 
-	public FaultyAA(boolean inActivate) {
-		super(inActivate);
+	public TimeOutAA(boolean inActivate) {
+		this(inActivate,false);
 	}
 
 	@SuppressWarnings("null")
 	@Override
 	public void doIt() {
 		if(logger != null)
-			logger.info("crashing myself");
-		Object o = null;
-		o.toString();	
+			logger.info("waiting 1.5s");
+		try {
+			Thread.sleep(1500);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }

@@ -11,7 +11,7 @@ public class RootKernelTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		fakeKernel = new FakeKernel(null);
+		fakeKernel = new FakeKernel();
 	}
 
 	@Test

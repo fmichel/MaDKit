@@ -33,8 +33,12 @@ import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.KeyStroke;
 
+import madkit.agr.LocalCommunity;
+import madkit.agr.LocalCommunity.Groups;
+import madkit.agr.LocalCommunity.Roles;
 import madkit.i18n.I18nUtilities;
 import madkit.kernel.AbstractAgent;
+import madkit.messages.KernelMessage;
 
 /**
  * @author Fabien Michel
@@ -104,7 +108,7 @@ public enum AgentAction implements MadkitGUIAction{
 			public void actionPerformed(ActionEvent e) {
 				this.setEnabled(false);
 				agent.launchAgent(agent.getClass().getName(), 0, true);
-				agent.killAgent(agent);
+				selfKill(agent);
 			}
 		};
 	}
@@ -122,7 +126,7 @@ public enum AgentAction implements MadkitGUIAction{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				this.setEnabled(false);
-				a.killAgent(a);
+				selfKill(a);
 			}
 		};
 	}
@@ -142,7 +146,7 @@ public enum AgentAction implements MadkitGUIAction{
 				}
 				agent.launchAgent(agent.getClass().getName(),0, true);
 				if (agent.getState() != AbstractAgent.State.TERMINATED) {
-					agent.killAgent(agent);
+					selfKill(agent);
 				}
 			}
 		};
@@ -155,6 +159,13 @@ public enum AgentAction implements MadkitGUIAction{
 	
 	static String getDescription(MadkitGUIAction mka){
 		return messages.getString(mka.name());
+	}
+	
+	static void selfKill(AbstractAgent agent){
+		if (agent.isAlive()) {
+			agent.sendMessage(LocalCommunity.NAME, Groups.SYSTEM, Roles.KERNEL, new KernelMessage(MadkitActions.MADKIT_KILL_AGENT,
+					agent, 2));
+		}
 	}
 
 	static Action initAction(MadkitGUIAction mka, Action a) {//TODO this is for global use: put that elsewhere

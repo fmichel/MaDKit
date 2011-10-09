@@ -50,7 +50,7 @@ public abstract class DoItDuringLifeCycleAgent extends Agent{
 	}
 	
 	public DoItDuringLifeCycleAgent(){
-		this(true, false, false);
+		this(false, true, false);
 	}
 	
 	@Override
@@ -62,7 +62,7 @@ public abstract class DoItDuringLifeCycleAgent extends Agent{
 	public void activate() {
 		if (inActivate) {
 			if(logger != null)
-				logger.info("Doing It !!");
+				logger.info("Doing It in activate!!");
  			doIt();
 		}
 	}
@@ -70,7 +70,7 @@ public abstract class DoItDuringLifeCycleAgent extends Agent{
 	public void live() {
 		if (inLive) {
 			if(logger != null)
-				logger.info("Doing It !!");
+				logger.info("Doing It in live!!");
 			doIt();
 		}
 	}
@@ -79,7 +79,7 @@ public abstract class DoItDuringLifeCycleAgent extends Agent{
 		super.end();
 		if (inEnd) {
 			if(logger != null)
-				logger.info("Doing It !!");
+				logger.info("Doing It in end!!");
 			doIt();
 		}
 	}

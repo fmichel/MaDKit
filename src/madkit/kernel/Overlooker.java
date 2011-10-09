@@ -226,7 +226,7 @@ abstract class Overlooker <A extends AbstractAgent>
 		List<A> l = new ArrayList<A>(getCurrentAgentsList());
 		allAgentsLeaveRole();
 		for (A agent : l) {
-			System.err.println("killing ALLL "+agent);
+			System.err.println("killing ALL "+agent);
 			agent.killAgent(agent,0);
 		}
 	}

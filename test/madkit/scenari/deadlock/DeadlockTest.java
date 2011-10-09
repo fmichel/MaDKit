@@ -16,45 +16,37 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
  */
-package madkit.testing.util.agent;
+package madkit.scenari.deadlock;
 
+import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
+import madkit.kernel.JunitMadKit;
+
+import org.junit.Test;
 
 /**
  * @author Fabien Michel
- * @since MadKit 5.0.0.6
+ * @since MadKit 5.0.0.10
  * @version 0.9
  * 
  */
-public class KillTargetAgent extends DoItDuringLifeCycleAgent {
+@SuppressWarnings("serial")
+public class DeadlockTest extends JunitMadKit{
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -5186267329069400681L;
-	Agent toKill;
-	/**
-	 * @param a
-	 */
-	public KillTargetAgent(Agent a) {
-		this(a,false,false,false);
+	@Test
+	public void multipleWaits() {
+		launchTest(new AbstractAgent(){
+			@Override
+			protected void activate() {
+				Agent a = new Agent(){
+					protected void live() {
+						waitNextMessage();
+					}
+				};
+				launchAgent(a);
+				a.waitNextMessage(10);
+			}
+		});
 	}
 
-	public KillTargetAgent(Agent a,boolean inActivate, boolean inLive, boolean inEnd) {
-		super(inActivate, inLive, inEnd);
-		toKill = a;
-	}
-
-	public KillTargetAgent(Agent a,boolean inActivate, boolean inLive) {
-		this(a,inActivate, inLive,false);
-	}
-
-	public KillTargetAgent(Agent a,boolean inActivate) {
-		this(a,inActivate,false,false);
-	}
-
-	@Override
-	public void live() {
-		killAgent(toKill, 4);
-	}
 }

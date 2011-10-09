@@ -21,9 +21,13 @@ package madkit.scenari.kill;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static madkit.kernel.AbstractAgent.ReturnCode.TIMEOUT;
 import static org.junit.Assert.assertEquals;
+
+import java.util.logging.Level;
+
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
 import madkit.kernel.JunitMadKit;
+import madkit.kernel.Madkit.LevelOption;
 import madkit.testing.util.agent.DoItDuringLifeCycleAgent;
 
 import org.junit.Test;
@@ -39,34 +43,61 @@ public class  KillingWaitingMessageThreadedAgentsTest extends JunitMadKit{
 
 	@Test
 	public void brutalKills() {//TODO brutal kill with to < 0
+		addMadkitArgs(LevelOption.agentLogLevel.toString(),"ALL");
+		addMadkitArgs(LevelOption.kernelLogLevel.toString(),"FINEST");
 		launchTest(new AbstractAgent(){
 			public void activate() {
+				setLogLevel(Level.ALL);
 				Agent a;
-				a = new WaitingMessageAgent(true,false,false);
-				assertEquals(TIMEOUT, launchAgent(a,1));
-				assertEquals(SUCCESS, killAgent(a,-1));
-				assertAgentIsTerminated(a);
-
-				a = new WaitingMessageAgent(false,true,false);
-				assertEquals(SUCCESS, launchAgent(a));
-				pause(100);
-				assertEquals(SUCCESS, killAgent(a,-1));
-				assertAgentIsTerminated(a);
-
-				a = new WaitingMessageAgent(false,false,true);
-				assertEquals(SUCCESS, launchAgent(a));
-				pause(100);
-				assertEquals(SUCCESS, killAgent(a,-1));
-				assertAgentIsTerminated(a);
 
 				a = new WaitingMessageAgent(true,false,true);
 				assertEquals(TIMEOUT, launchAgent(a,1));
-				assertEquals(SUCCESS, killAgent(a,-1));
+				assertEquals(TIMEOUT, killAgent(a,1));
 				assertAgentIsTerminated(a);
 
 				a = new WaitingMessageAgent(true,true,true);
 				assertEquals(TIMEOUT, launchAgent(a,1));
-				assertEquals(SUCCESS, killAgent(a,-1));
+				assertEquals(TIMEOUT, killAgent(a,1));
+				assertAgentIsTerminated(a);
+			}});
+	}
+
+	@Test
+	public void brutalKillOnWaitInActivate() {//TODO brutal kill with to < 0
+		addMadkitArgs(LevelOption.agentLogLevel.toString(),"ALL");
+		addMadkitArgs(LevelOption.kernelLogLevel.toString(),"FINEST");
+		launchTest(new AbstractAgent(){
+			public void activate() {
+				setLogLevel(Level.ALL);
+				WaitingMessageAgent a = new WaitingMessageAgent(true,false,false);
+				assertEquals(TIMEOUT, launchAgent(a,1));
+				assertEquals(SUCCESS, killAgent(a,1));
+				assertAgentIsTerminated(a);
+			}});
+	}
+	
+	@Test
+	public void brutalKillOnWaitInLive() {//TODO brutal kill with to < 0
+		launchTest(new AbstractAgent(){
+			public void activate() {
+				setLogLevel(Level.ALL);
+				WaitingMessageAgent a = new WaitingMessageAgent(false,true,false);
+				assertEquals(SUCCESS, launchAgent(a));
+				pause(100);
+				assertEquals(SUCCESS, killAgent(a,1));
+				assertAgentIsTerminated(a);
+			}});
+	}
+	
+	@Test
+	public void brutalKillOnWaitInEnd() {//TODO brutal kill with to < 0
+		launchTest(new AbstractAgent(){
+			public void activate() {
+				setLogLevel(Level.ALL);
+				WaitingMessageAgent a = new WaitingMessageAgent(false,false,true);
+				assertEquals(SUCCESS, launchAgent(a));
+				pause(100);
+				assertEquals(TIMEOUT, killAgent(a,1));
 				assertAgentIsTerminated(a);
 			}});
 	}
@@ -95,17 +126,17 @@ public class  KillingWaitingMessageThreadedAgentsTest extends JunitMadKit{
 				assertEquals(SUCCESS, launchAgent(a));
 				pause(100);
 				assertEquals(TIMEOUT, killAgent(a,1));
-				assertEquals(State.ENDING, a.getState());
+				assertAgentIsTerminated(a);
 
 				a = new WaitingMessageAgent(true,false,true);
 				assertEquals(TIMEOUT, launchAgent(a,1));
 				assertEquals(TIMEOUT, killAgent(a,1));
-				assertEquals(State.ENDING, a.getState());
+				assertAgentIsTerminated(a);
 
 				a = new WaitingMessageAgent(true,true,true);
 				assertEquals(TIMEOUT, launchAgent(a,1));
 				assertEquals(TIMEOUT, killAgent(a,1));
-				assertEquals(State.ENDING, a.getState());
+				assertAgentIsTerminated(a);
 			}});
 	}
 }

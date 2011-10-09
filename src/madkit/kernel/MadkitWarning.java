@@ -22,7 +22,9 @@ package madkit.kernel;
 import java.util.Arrays;
 
 import madkit.i18n.I18nUtilities;
+import madkit.i18n.Words;
 import madkit.kernel.AbstractAgent.ReturnCode;
+import madkit.kernel.AbstractAgent.State;
 
 /**
  * @author Fabien Michel
@@ -106,33 +108,55 @@ final class OrganizationWarning extends MadkitWarning{
 	}
 }
 
-final class KernelException extends RuntimeException {
-
-	private static final long serialVersionUID = -4549760236073524549L;
-
-	KernelException(AbstractAgent agent ){
-		super( (agent == null ? "" : agent.toString()) + " Cannot use this method as this agent has not been launched or is already ended or killed");
-		setStackTrace(Arrays.asList(getStackTrace()).subList(2, getStackTrace().length-1).toArray(new StackTraceElement[0]));
-	}
-}
-
-
-final class KilledException extends RuntimeException {
+class KilledException extends RuntimeException {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -8695603147644262321L;
 
-	KilledException(String msg){
+	public KilledException(String msg){
 		super(msg);
 	}
 
-	KilledException(Throwable cause){
+	public KilledException(Throwable cause){
 		super(cause);
 	}
 
-	//	@Override
-	//	public synchronized Throwable fillInStackTrace() {
-	//		return null;
-	//	}
-}//TODO get the cause of the kill
+		@Override
+	public synchronized Throwable fillInStackTrace() {
+		return null;
+	}
+}
+
+class SelfKillException extends KilledException{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6883135491234461609L;
+
+	public SelfKillException(String msg) {
+		super(msg);
+	}
+	
+}
+//TODO get the cause of the kill
+
+//final class AgentLifeException extends RuntimeException{
+//
+//	AgentLifeException(Exception e) {
+//		super(e.getMessage(),e);
+////		setStackTrace(Arrays.asList(getStackTrace()).subList(2, getStackTrace().length-1).toArray(new StackTraceElement[0]));
+//	}
+//	
+//}
+
+final class KernelException extends RuntimeException {
+
+	private static final long serialVersionUID = -4549760236073524549L;
+
+	KernelException(String m){
+		super(m);
+		setStackTrace(Arrays.asList(getStackTrace()).subList(2, getStackTrace().length-1).toArray(new StackTraceElement[0]));
+	}
+}

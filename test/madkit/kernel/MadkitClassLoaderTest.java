@@ -37,11 +37,6 @@ import org.junit.Test;
 public class MadkitClassLoaderTest extends JunitMadKit{
 
 	@Test
-	public void testReloadClass() {
-		fail("Not yet implemented"); // TODO
-	}
-
-	@Test
 	public void testLoadJarsFromPath() {
 		launchTest(new AbstractAgent(){
 			@Override
@@ -62,11 +57,6 @@ public class MadkitClassLoaderTest extends JunitMadKit{
 				} 
 			}
 		});
-	}
-
-	@Test
-	public void testAddJar() {
-		fail("Not yet implemented"); // TODO
 	}
 
 	@Test

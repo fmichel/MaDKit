@@ -20,12 +20,14 @@ package madkit.kernel;
 
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static madkit.kernel.AbstractAgent.State.TERMINATED;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
@@ -64,7 +66,7 @@ public class JunitMadKit {
 	protected List<String> mkArgs = new ArrayList<String>(Arrays.asList(
 //			"--"+Madkit.warningLogLevel,"INFO",
 			BooleanOption.desktop.toString(),"false",
-			Option.launchAgents.toString(),"madkit.kernel.AbstractAgent",
+			Option.launchAgents.toString(),"madkit.kernel.AbstractAgent",//to not have the desktop mode by default
 			Option.logDirectory.toString(),getBinTestDir(),
 			LevelOption.agentLogLevel.toString(),"ALL",
 			LevelOption.madkitLogLevel.toString(),"INFO"));
@@ -78,6 +80,8 @@ public class JunitMadKit {
 			}
 			madkit = new Madkit(args);
 			AbstractAgent kernelAgent = madkit.getKernel().getAgentWithRole(null,LocalCommunity.NAME, Groups.SYSTEM, LocalCommunity.Roles.KERNEL).getAgent();
+//			kernelAgent.receiveMessage(new KernelMessage(MadkitActions.AGENT_LAUNCH_AGENT, a, false));
+			a.setName(name.getMethodName());
 			assertEquals(expected, kernelAgent.launchAgent(a));
 		} catch (Throwable e) {
 			System.err.println("\n\n\n------------------------------------");
@@ -91,6 +95,11 @@ public class JunitMadKit {
 			System.err.println("\n\n------------------------ "+name.getMethodName()+" TEST FINISHED ---------------------\n\n");
 		}
 	}
+	
+	public void lineBreak(){
+		System.err.println("---------------------------------");
+	}
+	
 	public void noExceptionFailure(){
 		fail("Exception not thrown");
 	}
@@ -133,6 +142,7 @@ public class JunitMadKit {
 
 	protected void assertAgentIsTerminated(AbstractAgent a) {
 		assertEquals(TERMINATED,a.getState());
+		assertFalse(a.isAlive());
 	}
 
 
@@ -149,9 +159,18 @@ public class JunitMadKit {
 		try {
 			Thread.sleep(millis);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			
 		}
 
+	}
+	
+	public static void printAllStacks(){
+		for (Map.Entry<Thread, StackTraceElement[]> t : Thread.getAllStackTraces().entrySet()) {
+			System.err.println("------------- "+t.getKey());
+			for(StackTraceElement ste : t.getValue()){
+				System.err.println(ste);
+			}
+		}
 	}
 
 	

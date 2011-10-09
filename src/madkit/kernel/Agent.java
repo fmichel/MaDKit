@@ -19,9 +19,6 @@
 package madkit.kernel;
 
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
-import static madkit.kernel.AbstractAgent.State.ACTIVATED;
-import static madkit.kernel.AbstractAgent.State.INITIALIZING;
-import static madkit.kernel.AbstractAgent.State.LIVING;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -29,11 +26,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
-import madkit.agr.LocalCommunity;
-import madkit.agr.LocalCommunity.Groups;
-import madkit.agr.LocalCommunity.Roles;
-import madkit.gui.GUIMessage;
-import madkit.gui.actions.MadkitActions;
 import madkit.i18n.I18nUtilities;
 
 /**
@@ -59,7 +51,7 @@ public class Agent extends AbstractAgent{
 	 */
 	private static final long serialVersionUID = 8564494100061187968L;
 	Thread myThread;
-	
+
 	final private AgentExecutor agentExecutor;
 	final private boolean isDaemon;
 
@@ -81,7 +73,17 @@ public class Agent extends AbstractAgent{
 	public Agent(){
 		this(false);
 	}
-	
+
+	/**
+	 * pretty dirty solution for fake and terminated kernel
+	 * @param o
+	 */
+	Agent(Object o) {
+		super(o);
+		isDaemon = false;
+		agentExecutor = null;
+	}
+
 	/**
 	 * Tells if the agent is a daemon.
 	 * 
@@ -92,79 +94,51 @@ public class Agent extends AbstractAgent{
 		return isDaemon;
 	}
 
-//	/**
-//	 * @param agentExecutor the agentExecutor to set
-//	 */
-//	void setAgentExecutor(AgentExecutor ae) {
-//		this.agentExecutor = ae;
-//	}
-
 	/**
 	 * @return the agentExecutor
 	 */
 	@Override
-	AgentExecutor getAgentExecutor() {
+	final AgentExecutor getAgentExecutor() {
 		return agentExecutor;
 	}
 
-	@Override
-		boolean activation() {
-			if(hasGUI){
-				if(logger != null){
-					logger.finer("** setting up GUI **");
-				}
-				requestRole(LocalCommunity.NAME, Groups.SYSTEM, "default");
-				kernel.broadcastMessageWithRoleAndWaitForReplies(
-						this,
-						LocalCommunity.NAME, 
-						Groups.SYSTEM, 
-						Roles.GUI_MANAGER, 
-						new GUIMessage(MadkitActions.AGENT_SETUP_GUI,this), 
-						null, 
-						10000);//How much and why ?
-			}
-			if(logger != null){
-				logger.finer("** entering ACTIVATE **");
-			}
-			if(! state.compareAndSet(INITIALIZING, ACTIVATED))
-				throw new AssertionError("not init in activation");
-			try {
-				activate();
-			} catch (KilledException e) {
-				if(logger != null){
-					logger.warning("-*-GET KILLED in ACTIVATE-*- : "+e.getMessage());
-				}
-				return false;
-			} catch (Throwable e) {
-				logLifeException(e);
-				return false;
-			} finally {
-				if(logger != null)
-					logger.finer("** exiting ACTIVATE **");
-			}
-			return true;
-		}
+	//	@Override
+	//	final boolean activation() {
+	//		activationFirstStage();
+	//		boolean result = true;
+	//		try {
+	//			activate();
+	//		} catch (Throwable e) {
+	//			result = false;
+	//			handleLifeException(e);
+	//		} 
+	//		if(logger != null)
+	//			logger.finer("** exiting ACTIVATE **");
+	//		unsetMyThread(Thread.currentThread());//normal exit
+	//		return result;
+	//	}
 
 	final boolean living() {
-		if(! state.compareAndSet(ACTIVATED, LIVING))
-			throw new AssertionError("not activated in live");//TODO remove test
+		//		if(! state.compareAndSet(ACTIVATED, LIVING))
+		//			throw new AssertionError("not activated in live");//TODO remove test
+		setMyThread(Thread.currentThread());
 		if(logger != null){
 			logger.finer("** entering LIVE **");
 		}
 		try {
 			live();
-		} catch (KilledException e) {
-			if(logger != null){
-				logger.warning("-*-GET KILLED in LIVE-*- : "+e.getMessage());
-			}
-			return false;
+			changeState(State.ENDING);
 		} catch (Throwable e) {
-			logLifeException(e);
-			return false;
-		} finally {
-			//			getRunState().set(ENDING);
-			if(logger != null)
-				logger.finer("** exiting LIVE **");
+			synchronized (state) {//TODO factoriser
+				logLifeException(e);
+				state.set(State.ENDING);//thread death cannot be called from now on
+			}
+		}
+		if(logger != null)
+			logger.finer("** exiting LIVE **");
+		synchronized (state) {
+//			System.err.println("notifying in living");
+			state.notify();
 		}
 		return true;
 	}
@@ -204,14 +178,10 @@ public class Agent extends AbstractAgent{
 	 * @throws KernelException if this agent has not been launched or is already terminated
 	 */
 	@Override
-	public ReturnCode killAgent(AbstractAgent target, int timeOutSeconds) {//TODO fins something else
-		if(target == this){
-			if(myThread != Thread.currentThread()){
-				return kernel.getMadkitKernel().killAgent(this, target, timeOutSeconds);
-			}
-			else{
-				throw new KilledException("by ["+getName()+"]");
-			}
+	public ReturnCode killAgent(AbstractAgent target, int timeOutSeconds) {
+		//if this is a self kill done by the agent itself, not an object which has access to the agent
+		if(target == this && myThread == Thread.currentThread()){
+			throw new KilledException("self kill");
 		}
 		return super.killAgent(target, timeOutSeconds);
 	}
@@ -290,7 +260,7 @@ public class Agent extends AbstractAgent{
 		//no need to checkAliveness : this is done in noLogSendingMessage
 		if(logger != null)
 			logger.finest("sendMessageAndWaitForReply : sending "+messageToSend+" to "+receiver+", and waiting reply...");
-		if(kernel.sendMessage(this, receiver, messageToSend,senderRole) != SUCCESS){
+		if(getKernel().sendMessage(this, receiver, messageToSend,senderRole) != SUCCESS){
 			return null;
 		}
 		return waitAnswer(messageToSend, timeOutMilliSeconds == null ? null : TimeUnit.MILLISECONDS.toNanos(timeOutMilliSeconds));
@@ -384,7 +354,7 @@ public class Agent extends AbstractAgent{
 		if(logger != null)
 			logger.finest("sendMessageAndWaitForReply : sending "+messageToSend+" to any "+I18nUtilities.getCGRString(community, group, role)+
 					(timeOutMilliSeconds == null ? "":", and waiting reply for "+TimeUnit.MILLISECONDS.toSeconds(timeOutMilliSeconds)+" s..."));
-		if(kernel.sendMessage(this,community,group,role, messageToSend,senderRole) != SUCCESS){
+		if(getKernel().sendMessage(this,community,group,role, messageToSend,senderRole) != SUCCESS){
 			return null;
 		}
 		return waitAnswer(messageToSend,timeOutMilliSeconds == null ? null : TimeUnit.MILLISECONDS.toNanos(timeOutMilliSeconds) );
@@ -462,7 +432,7 @@ public class Agent extends AbstractAgent{
 		}
 		return waitAnswer(reply,TimeUnit.MILLISECONDS.toNanos(timeOutMilliSeconds));
 	}
-	
+
 	/**
 	 * Broadcasts a message and wait for answers considering a time out duration.
 	 * 
@@ -479,7 +449,7 @@ public class Agent extends AbstractAgent{
 			Message message,
 			final String senderRole, 
 			final Integer timeOutMilliSeconds){
-		return kernel.broadcastMessageWithRoleAndWaitForReplies(this, community, group, role, message, senderRole, timeOutMilliSeconds);
+		return getKernel().broadcastMessageWithRoleAndWaitForReplies(this, community, group, role, message, senderRole, timeOutMilliSeconds);
 	}
 
 	/**
@@ -541,23 +511,24 @@ public class Agent extends AbstractAgent{
 		return waitingNextMessage(timeOut, unit);
 	}
 
-//	/**
-//	 * @see madkit.kernel.AbstractAgent#nextMessage()
-//	 */
-//	@Override
-//	public Message nextMessage() {
-//		checkAliveness();
-////		//no checkAliveness : this could be done in the constructor.
-////		if (myThread.isInterrupted())
-////			throw new KilledException(); //This is nawak if another thread call this
-//		return super.nextMessage();
-//	}
+	//	/**
+	//	 * @see madkit.kernel.AbstractAgent#nextMessage()
+	//	 */
+	//	@Override
+	//	public Message nextMessage() {
+	//		checkAliveness();
+	////		//no checkAliveness : this could be done in the constructor.
+	////		if (myThread.isInterrupted())
+	////			throw new KilledException(); //This is nawak if another thread call this
+	//		return super.nextMessage();
+	//	}
 
 	/**
 	 * Stops the agent's process for a while.
 	 * @param milliSeconds the number of milliseconds for which the agent should pause.
 	 */
 	protected void pause(final int milliSeconds) {
+		//		checkAliveness();
 		if(logger != null)
 			logger.finest("Making a pause during "+milliSeconds+ " milliseconds");
 		if(milliSeconds <0)
@@ -565,31 +536,40 @@ public class Agent extends AbstractAgent{
 		try {
 			Thread.sleep(milliSeconds);
 		} catch (InterruptedException e) {
-			if (Thread.currentThread() == myThread) {
-				throw new KilledException(e);
-			}
+			handleInterruptedException();
 		}
 	}
 
-	/**
-	 * @param myThread the myThread to set
-	 * @since MadKit 5
-	 */
-	final void setMyThread(final Thread thread) {
-		thread.setName(getName());
-		this.myThread = thread;
-	}
-	
-	/**
-	 * @see madkit.kernel.AbstractAgent#setName(java.lang.String)
-	 */
 	@Override
-	public void setName(String name) {
-		super.setName(name);
-		if (myThread != null) {
-			myThread.setName(name);
-		}
+	void handleInterruptedException() {
+		Thread t = Thread.currentThread();
+		if(t == myThread)
+			throw new KilledException("brutal kill");
+		else
+			super.handleInterruptedException();
+		//		checkAliveness();
 	}
+
+	//	/**
+	//	 * @param myThread the myThread to set
+	//	 * @since MadKit 5
+	//	 */
+	//	@Override
+	//	final void setMyThread(final Thread thread) {
+	////		super.setMyThread(thread);
+	//		this.myThread = thread;
+	//	}
+
+	//	/**
+	//	 * @see madkit.kernel.AbstractAgent#setName(java.lang.String)
+	//	 */
+	//	@Override
+	//	public void setName(String name) {
+	//		super.setName(name);
+	//		if (myThread != null) {
+	//			myThread.setName(name);
+	//		}
+	//	}
 
 	/**
 	 * @param timeout
@@ -598,13 +578,15 @@ public class Agent extends AbstractAgent{
 	 * @since MadKit 5
 	 */
 	private Message waitingNextMessageForEver() {
+		//		checkAliveness();
 		try {
 			return messageBox.takeFirst();
 		} catch (InterruptedException e) {
-			throw new KilledException(e);
-		} catch (IllegalMonitorStateException e) {
-			throw new KilledException(e);
+			handleInterruptedException();
+			//		} catch (IllegalMonitorStateException e) {
+			//			throw e;
 		}
+		return null;
 	}
 
 	/**
@@ -614,14 +596,16 @@ public class Agent extends AbstractAgent{
 	 * @since MadKit 5
 	 */
 	private Message waitingNextMessage(final long timeout, final TimeUnit unit) {
+		//		checkAliveness();
 		try {
 			return messageBox.pollFirst(timeout, unit);
 		} catch (InterruptedException e) {
-			throw new KilledException(e);
-		} catch (IllegalMonitorStateException e) {
-			throw new KilledException(e);
+			handleInterruptedException();
+			return null;
 		}
 	}
+
+
 
 	/**
 	 * @param m
@@ -681,7 +665,7 @@ public class Agent extends AbstractAgent{
 			logger.finest("...a reply has arrived : "+answer);
 		return answer;
 	}
-	
+
 	List<Message> waitAnswers(Message message, int size, Integer timeOutMilliSeconds) {
 		final long endTime = System.nanoTime()+TimeUnit.MILLISECONDS.toNanos(timeOutMilliSeconds);
 		final long conversationID = message.getConversationID();
@@ -710,13 +694,38 @@ public class Agent extends AbstractAgent{
 		return null;
 	}
 
-//	void checkAliveness(){
-//		if(isAgentThread() && Thread.interrupted()){
-//			throw new KilledException(" get interrupted ");
-//		}
-//	}
-	
-//	private boolean isAgentThread(){
-//		return Thread.currentThread() == myThread;
-//	}
+	//	@Override
+	//	void checkAliveness() {
+	//		//TODO I do not need that : I manage interruption myself
+	//		//threads will get a kernelException if killed
+	//		if(Thread.interrupted()){
+	//			if(myThread == Thread.currentThread()){
+	//				throw new KilledException(" interrupted ");
+	//			}
+	//			else{
+	//				Thread.currentThread().interrupt();
+	//			}
+	//		}
+	//	}
+
+	//	private void checkAliveness() {
+	//		if(Thread.interrupted()){
+	//			if(myThread == Thread.currentThread()){
+	//				throw new KilledException("Killed");
+	//			}
+	//			else{
+	//				Thread.currentThread().interrupt();
+	//			}
+	//		}
+	//	}
+
+	//	void checkAliveness(){
+	//		if(isAgentThread() && Thread.interrupted()){
+	//			throw new KilledException(" get interrupted ");
+	//		}
+	//	}
+
+	//	private boolean isAgentThread(){
+	//		return Thread.currentThread() == myThread;
+	//	}
 }

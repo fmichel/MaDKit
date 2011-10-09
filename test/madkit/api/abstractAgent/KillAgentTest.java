@@ -60,7 +60,11 @@ public class KillAgentTest  extends JunitMadKit{
 			assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,ROLE));
 		}
 
-		protected void live() {pause(1000);}
+		protected void live() {
+			pause(10000);
+			if(logger != null)
+				logger.info("finishing live");
+		}
 	};
 
 	final AbstractAgent timeOutAgent = new AbstractAgent(){
@@ -136,11 +140,22 @@ public class KillAgentTest  extends JunitMadKit{
 	}
 
 	@Test
-	public void massKill(){
-		addMadkitArgs("--"+LevelOption.agentLogLevel,"OFF");
+	public void agentCrash(){
 		launchTest(new AbstractAgent(){
 			protected void activate() {
-				int number = 5000;
+				AbstractAgent a = new FaultyAgent(true);
+				assertEquals(AGENT_CRASH,launchAgent(a));
+				pause(100);
+			}
+		});
+	}
+
+	@Test
+	public void massKill(){
+		addMadkitArgs(LevelOption.agentLogLevel.toString(),"OFF");
+		launchTest(new AbstractAgent(){
+			protected void activate() {
+				int number = 1000;
 				ArrayList<AbstractAgent> list = new ArrayList<AbstractAgent>(number);
 				for (int i = 0; i < number;i++) {
 					TimeOutAgent t = new TimeOutAgent();
@@ -179,30 +194,39 @@ public class KillAgentTest  extends JunitMadKit{
 
 	@Test
 	public void randomLaunchAndKill() {
+		addMadkitArgs(
+				LevelOption.agentLogLevel.toString(),"ALL",
+				LevelOption.guiLogLevel.toString(),"ALL"
+				);
 		launchTest(new AbstractAgent(){
 			protected void activate() {
 				if(logger != null){
 					logger.info("******************* STARTING RANDOM LAUNCH & AGENT_KILL *******************\n");
 				}
-				Runnable r = new Runnable() {
+				Agent a = (Agent) launchAgent("madkit.testing.util.agent.NormalLife", Math.random()<.5 ? true : false);
+				assertNotNull(a);
+				ReturnCode r = killAgent(a,(int)(Math.random()*2));
+				assertTrue(SUCCESS == r || TIMEOUT == r);
+				Runnable job = new Runnable() {
 					@Override
 					public void run() {
 						for (int i = 0; i < 20; i++) {
-							Agent a = (Agent) launchAgent("madkit.testing.util.agent.NormalLife", (int)(Math.random()*3),Math.random()<.5 ?true : false);
+							Agent a = (Agent) launchAgent("madkit.testing.util.agent.NormalLife", Math.random()<.5 ? true : false);
 							assertNotNull(a);
-							pause((int)(Math.random()*25));
-							ReturnCode r = killAgent(a,(int)(Math.random()*3));
-							assertTrue(NOT_YET_LAUNCHED == r || ALREADY_KILLED == r || SUCCESS == r || TIMEOUT == r);
+							pause((int)(Math.random()*1000));
+							ReturnCode r = killAgent(a,(int)(Math.random()*2));
+							assertTrue(SUCCESS == r || TIMEOUT == r);
 						}
 					}
 				};
-				SwingUtilities.invokeLater(r);
-				pause(400);
+				Thread t = new Thread(job);
+				t.start();
+				pause(1000);
+				t = new Thread(job);
+				t.start();
 				try {
-					SwingUtilities.invokeAndWait(r);
+					t.join();
 				} catch (InterruptedException e) {
-					e.printStackTrace();
-				} catch (InvocationTargetException e) {
 					e.printStackTrace();
 				}
 			}
@@ -211,6 +235,7 @@ public class KillAgentTest  extends JunitMadKit{
 
 	@Test
 	public void cascadeKills() {//TODO more cases
+		addMadkitArgs(LevelOption.agentLogLevel.toString(),"ALL");
 		launchTest(new AbstractAgent(){
 			protected void activate() {
 				Agent a = new NormalLife(false,true);
@@ -218,8 +243,7 @@ public class KillAgentTest  extends JunitMadKit{
 				assertNotNull(a);
 				KillTargetAgent ka = new KillTargetAgent(a);
 				assertEquals(SUCCESS,launchAgent(ka,1));
-				pause(100);
-				assertEquals(TIMEOUT,killAgent(ka, 0));
+				assertEquals(SUCCESS,killAgent(ka, 0));
 				pause(100);
 				assertAgentIsTerminated(ka);
 				assertAgentIsTerminated(a);
@@ -260,8 +284,8 @@ public class KillAgentTest  extends JunitMadKit{
 			}
 		});
 	}
-	
-	
+
+
 
 
 	@Test
@@ -280,7 +304,7 @@ public class KillAgentTest  extends JunitMadKit{
 					if(logger != null){
 						logger.info("waiting for the end of the test");
 					}
-					pause(3000);
+					pause(1000);
 					notFinished = false;
 					for (AbstractAgent randomTest : agents) {
 						try {
@@ -297,38 +321,38 @@ public class KillAgentTest  extends JunitMadKit{
 				}
 			}
 		});
-	RandomT.killingOn = true;
-	launchTest(new AbstractAgent(){
-		protected void activate() {
-			ArrayList<AbstractAgent> agents = new ArrayList<AbstractAgent>();
-			for (int i = 0; i < 50; i++) {
-				agents.add(new RandomT());
-			}
-			RandomT.agents=agents;
-			assertEquals(SUCCESS,launchAgent(agents.get(0),1));
-			boolean notFinished = true;
-			while(notFinished){
-				if(logger != null){
-					logger.info("waiting for the end of the test");
+		RandomT.killingOn = true;
+		launchTest(new AbstractAgent(){
+			protected void activate() {
+				ArrayList<AbstractAgent> agents = new ArrayList<AbstractAgent>();
+				for (int i = 0; i < 50; i++) {
+					agents.add(new RandomT());
 				}
-				pause(3000);
-				notFinished = false;
-				for (AbstractAgent randomTest : agents) {
-					try {
-						if(randomTest.getState() != State.TERMINATED && randomTest.getState() != State.NOT_LAUNCHED){
-							notFinished = true;
-							if(logger != null){
-								logger.info("Waiting termination of "+randomTest.getName()+" state is "+randomTest.getState());
+				RandomT.agents=agents;
+				assertEquals(SUCCESS,launchAgent(agents.get(0),1));
+				boolean notFinished = true;
+				while(notFinished){
+					if(logger != null){
+						logger.info("waiting for the end of the test");
+					}
+					pause(1000);
+					notFinished = false;
+					for (AbstractAgent randomTest : agents) {
+						try {
+							if(randomTest.getState() != State.TERMINATED && randomTest.getState() != State.NOT_LAUNCHED){
+								notFinished = true;
+								if(logger != null){
+									logger.info("Waiting termination of "+randomTest.getName()+" state is "+randomTest.getState());
+								}
 							}
+						} catch (IllegalArgumentException e) {
+							e.printStackTrace();
 						}
-					} catch (IllegalArgumentException e) {
-						e.printStackTrace();
 					}
 				}
 			}
-		}
-	});
-}
+		});
+	}
 
 }
 

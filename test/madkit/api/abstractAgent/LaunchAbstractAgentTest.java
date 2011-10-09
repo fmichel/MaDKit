@@ -71,7 +71,7 @@ public class LaunchAbstractAgentTest  extends JunitMadKit{
 		launchTest(new AbstractAgent(){
 			protected void activate() {
 				assertEquals(SUCCESS,launchAgent(target));
-//				assertNull(target.getGUIComponent());
+				//				assertNull(target.getGUIComponent());
 				assertEquals(ALREADY_LAUNCHED,launchAgent(target));
 			}
 		});
@@ -119,7 +119,7 @@ public class LaunchAbstractAgentTest  extends JunitMadKit{
 			protected void activate() {
 				assertEquals(SUCCESS,launchAgent(target,true));
 				assertEquals(ALREADY_LAUNCHED,launchAgent(target,true));
-//				assertNotNull(target.getGUIComponent());
+				//				assertNotNull(target.getGUIComponent());
 			}
 		});
 	}
@@ -135,7 +135,7 @@ public class LaunchAbstractAgentTest  extends JunitMadKit{
 			}
 		});
 	}
-	
+
 	@Test
 	public void massLaunch(){
 		addMadkitArgs("--"+LevelOption.agentLogLevel,"OFF");
@@ -186,7 +186,7 @@ public class LaunchAbstractAgentTest  extends JunitMadKit{
 			protected void activate() {
 				assertEquals(SUCCESS,launchAgent(target));
 				assertEquals(ALREADY_LAUNCHED,launchAgent(target));
-				
+
 				ReturnCode r = launchAgent(timeOutAgent,0,true);
 				assertTrue(TIMEOUT == r || SUCCESS == r);
 				r = launchAgent(timeOutAgent,true);
@@ -194,7 +194,7 @@ public class LaunchAbstractAgentTest  extends JunitMadKit{
 			}
 		});
 	}
-	
+
 	@Test
 	public void returnAgentCrash(){
 		addMadkitArgs("--kernelLogLevel","ALL");
@@ -205,20 +205,36 @@ public class LaunchAbstractAgentTest  extends JunitMadKit{
 			}
 		});
 	}
-	
+
 	@Test
 	public void SelfLaunching(){
 		addMadkitArgs("--kernelLogLevel","ALL");
 		launchTest(new AbstractAgent(){
 			protected void activate() {
-		SelfLaunchAA a = new SelfLaunchAA(true);
-		assertEquals(SUCCESS,launchAgent(a,1));
-		a = new SelfLaunchAA(false,true);
-		assertEquals(SUCCESS,launchAgent(a,1));		
+				SelfLaunchAA a = new SelfLaunchAA(true);
+				assertEquals(SUCCESS,launchAgent(a,1));
+				a = new SelfLaunchAA(false,true);
+				assertEquals(SUCCESS,launchAgent(a,1));		
 			}
 		});
 	}
 
-	
-
+	@Test
+	public void chainLaunching(){
+		launchTest(new AbstractAgent(){
+			protected void activate() {
+				for (int i = 0; i < 100; i++) {
+					launchAgent(new AbstractAgent() {
+						protected void activate() {
+							launchAgent(new AbstractAgent() {
+								protected void activate() {
+									launchAgent(new AbstractAgent());
+								}
+							});
+						}
+					});
+				}
+			}
+		});
+	}
 }

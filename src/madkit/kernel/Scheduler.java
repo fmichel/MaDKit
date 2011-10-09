@@ -98,7 +98,12 @@ public class Scheduler extends Agent {
 		/**
 		 * The simulation is paused.
 		 */
-		PAUSED
+		PAUSED, 
+		
+		/**
+		 * The simulation is ending
+		 */
+		SHUTDOWN
 	}
 
 	private State simulationState = State.PAUSED;
@@ -257,44 +262,46 @@ public class Scheduler extends Agent {
 		return simulationState;
 	}
 
-	/**
-	 * Asks the scheduler to change its simulation state.
-	 * 
-	 * @param newState
-	 *           the scheduling state to set
-	 * @see State
-	 */
-	public void setSimulationState(final State newState) {
-		switch (newState) {
-		case RUNNING:
-			receiveMessage(new ObjectMessage<State>(RUNNING));
-			break;
-		case STEP:
-			receiveMessage(new ObjectMessage<State>(STEP));
-			break;
-		case PAUSED:
-			receiveMessage(new ObjectMessage<State>(PAUSED));
-			break;
-		default:
-			break;
-		}
-	}
+//	/**
+//	 * Asks the scheduler to change its simulation state. 
+//	 * It is a shortcut for
+//	 * 
+//	 * @param newState
+//	 *           the scheduling state to set
+//	 * @see State
+//	 */
+//	public void setSimulationState(final State newState) {
+//		switch (newState) {
+//		case RUNNING:
+//			receiveMessage(new ObjectMessage<State>(RUNNING));
+//			break;
+//		case STEP:
+//			receiveMessage(new ObjectMessage<State>(STEP));
+//			break;
+//		case PAUSED:
+//			receiveMessage(new ObjectMessage<State>(PAUSED));
+//			break;
+//		default:
+//			break;
+//		}
+//	}
 
 	private void changeState(final State newState) {
 		if (simulationState != newState) {
 			simulationState = newState;
 			switch (simulationState) {
-			case RUNNING:
-				run.setEnabled(false);
-				break;
 			case STEP:
 				run.setEnabled(true);
 				break;
 			case PAUSED:
 				run.setEnabled(true);
 				break;
-			default:
+			case RUNNING:
+			case SHUTDOWN:
+				run.setEnabled(false);
 				break;
+			default://impossible
+				logLifeException(new Exception("state not handle : "+newState.toString()));
 			}
 		}
 	}

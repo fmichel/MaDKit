@@ -21,6 +21,7 @@ package madkit.kernel;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -46,55 +47,73 @@ final class AgentExecutor extends ThreadPoolExecutor {
 //	}
 	
 	public AgentExecutor(Agent a) {
-		super(1, Integer.MAX_VALUE, 0, TimeUnit.NANOSECONDS, new ArrayBlockingQueue<Runnable>(4, false));
+		super(1, 1, 0, TimeUnit.NANOSECONDS, new ArrayBlockingQueue<Runnable>(4, false));
 		myAgent = a;
-	}
-	
-	Future<Boolean> start(){
-		activate = submit(new Callable<Boolean>() {
+		activate = new FutureTask<Boolean>(new Callable<Boolean>() {
 			public Boolean call() {
-				myAgent.setMyThread(Thread.currentThread());
+				myAgent.myThread = Thread.currentThread();
 				if (! myAgent.activation()) {
-					myAgent.getAlive().set(false);// TODO This can be null : out of bound
+//					myAgent.getAlive().set(false);
+					live.cancel(false);
 					return false;
 				}
 				return true;
 			}
 		});
-		live = submit(new Runnable() {
-			@Override
+		live = new FutureTask<Object>(new Runnable() {
 			public void run() {
-				if(myAgent.getAlive().get()){
+				if(myAgent.getAlive().get()){//TODO
 					myAgent.living();
 				}
-			}});
-		end = submit(new Runnable() {
+			}},null);
+		end = new FutureTask<Object>(new Runnable() {
 			public void run() {
-				myAgent.ending();
-			}
-		});
-		submit(new Runnable() {
+					myAgent.ending();
+			}},null);
+	}
+	
+	Future<Boolean> start(){//TODO transform to futuretask and execute
+		execute((Runnable) activate);
+		execute((Runnable) live);
+		execute((Runnable) end);
+		execute(new Runnable() {
 			@Override
 			public void run() {
+//				System.err.println(activate.isDone());
 				shutdown();
 			}
 		});
+//		activate = submit(new Callable<Boolean>() {
+//			public Boolean call() {
+//				if (! myAgent.activation()) {
+//					myAgent.getAlive().set(false);// TODO This can be null : out of bound
+//					live.cancel(false);
+//					return false;
+//				}
+//				return true;
+//			}
+//		});
+//		live = submit(new Runnable() {
+//			@Override
+//			public void run() {
+//				if(myAgent.getAlive().get()){//TODO
+//					myAgent.living();
+//				}
+//				
+//			}});
+//		end = submit(new Runnable() {
+//			public void run() {
+//				myAgent.ending();
+//			}
+//		});
+//		submit(new Runnable() {
+//			@Override
+//			public void run() {
+//				shutdown();
+//			}
+//		});
 		return activate;
 	}
-
-	//
-	//	private String printLog() {
-	//		switch (myAgent.state.get()) {
-	//		case INITIALIZING:
-	//			return "ACTIVATE";
-	//		case ACTIVATED:
-	//			return "LIVE";
-	//		case ACTIVATED:
-	//			return "LIVE";
-	//		default:
-	//			break;
-	//		}
-	//	}
 
 //	@Override
 //	protected void afterExecute(Runnable r, Throwable t) {

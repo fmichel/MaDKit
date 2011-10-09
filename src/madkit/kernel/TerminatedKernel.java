@@ -16,37 +16,26 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
  */
-package madkit.testing.util.agent;
+package madkit.kernel;
 
-import madkit.kernel.JunitMadKit;
 
 /**
  * @author Fabien Michel
- * @since MadKit 5.0.0.7
- * @version 0.9
+ * @since MadKit 5.0.0.12
+ * @version 1.0
  * 
  */
-public class FaultyAA extends DoItDuringLifeCycleAbstractAgent{
+final class TerminatedKernel extends FakeKernel{
 
 	/**
-	 * @param inActivate
-	 * @param inEnd
+	 * 
 	 */
-	public FaultyAA(boolean inActivate, boolean inEnd) {
-		super(inActivate, inEnd);
-	}
+	private static final long serialVersionUID = 6872641432509497194L;
 
-	public FaultyAA(boolean inActivate) {
-		super(inActivate);
+	final String buildFailString(final AbstractAgent agent){
+//		if(agent instanceof AbstractAgent && Thread.currentThread().getThreadGroup() == MadkitKernel.A_LIFE){
+//			throw new KilledException((String)null);//TODO something else
+//		}
+		return agent != null ? agent.getLoggingName() : ""+AbstractAgent.State.TERMINATED;
 	}
-
-	@SuppressWarnings("null")
-	@Override
-	public void doIt() {
-		if(logger != null)
-			logger.info("crashing myself");
-		Object o = null;
-		o.toString();	
-	}
-
 }

@@ -35,23 +35,18 @@ public class KernelAddress implements java.io.Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = 5186608439436729434L;
-	private String host;
-	private final int ID;
-	private final String name;
+	private final int ID = Long.valueOf(System.nanoTime()).hashCode();
+	private final String name = "@MK-"+(Integer.toString(ID,24).substring(0, 3));
 	
-	KernelAddress()
-	{
-		ID = Long.valueOf(System.nanoTime()).hashCode();
-		try {
-			host = InetAddress.getLocalHost().getHostName();
-		} catch (UnknownHostException e) {
-			host = "local";
-		}
-		name = "@"+host+":MK-"+(""+Integer.toString(ID,24).substring(0, 3));
-	}
+//	KernelAddress()
+//	{
+//		ID = Long.valueOf(System.nanoTime()).hashCode();
+//		name = "@MK-"+Integer.toString(ID,24).substring(0, 3);
+//	}
 
 	@Override
 	public boolean equals(Object obj) {
+		//needed for networking mode
 		return this == obj || obj.hashCode() == ID;
 	}
 
@@ -60,10 +55,6 @@ public class KernelAddress implements java.io.Serializable{
 		return ID;
 	}
 	
-	public String getHost(){
-		return host;
-	}
-
 	/** 
 	 * Returns a string representation for this platform address 
 	 * 

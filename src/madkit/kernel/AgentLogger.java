@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
@@ -52,7 +53,7 @@ import madkit.kernel.Madkit.Option;
 public class AgentLogger extends Logger {
 
 	final static AgentLogger defaultAgentLogger = new AgentLogger();
-	final static private Map<AbstractAgent,AgentLogger> agentLoggers = new HashMap<AbstractAgent,AgentLogger>();//TODO evaluate foot print
+	final static private Map<AbstractAgent,AgentLogger> agentLoggers = new ConcurrentHashMap<AbstractAgent,AgentLogger>();//TODO evaluate foot print
 	final static Level talkLevel = Level.parse("1100");
 	private Level warningLogLevel = LevelOption.warningLogLevel.getValue(Madkit.defaultConfig);
 	final private AbstractAgent myAgent;
@@ -97,7 +98,12 @@ public class AgentLogger extends Logger {
 
 	static AgentLogger getLogger(AbstractAgent agent) {
 		AgentLogger al = agentLoggers.get(agent);
-		if(al == null){
+		if(al == null || ! al.getName().equals(agent.getLoggingName())){
+			if(al != null){
+				for (Handler h : al.getHandlers()) {
+					h.close();
+				}
+			}
 			al = new AgentLogger(agent);
 			agentLoggers.put(agent, al);
 			//			LogManager.getLogManager().addLogger(al);
@@ -163,7 +169,7 @@ public class AgentLogger extends Logger {
 	}
 
 	AgentLogger(AbstractAgent agent){
-		super("["+agent.getName()+"]", null);
+		super(agent.getLoggingName(), null);
 		myAgent = agent;
 		setUseParentHandlers(false);
 		super.setLevel(LevelOption.agentLogLevel.getValue(agent.getMadkitConfig()));

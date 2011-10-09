@@ -34,6 +34,7 @@ public abstract class DoItDuringLifeCycleAbstractAgent extends AbstractAgent{
 	public DoItDuringLifeCycleAbstractAgent(boolean inActivate, boolean inEnd){
 		this.inActivate = inActivate;
 		this.inEnd = inEnd;
+		setName(getClass().getSimpleName()+(inActivate?"-inActivate-":"")+(inEnd?"-inEnd-":""));
 	}
 	
 	public DoItDuringLifeCycleAbstractAgent(boolean inActivate){
@@ -42,11 +43,6 @@ public abstract class DoItDuringLifeCycleAbstractAgent extends AbstractAgent{
 	
 	public DoItDuringLifeCycleAbstractAgent(){
 		this(true, false);
-	}
-
-	@Override
-	public String getName() {
-		return super.getName()+(inActivate?"-inActivate-":"")+(inEnd?"-inEnd-":"");
 	}
 	
 	public void activate() {

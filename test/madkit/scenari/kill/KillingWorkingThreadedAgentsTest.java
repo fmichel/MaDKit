@@ -20,11 +20,17 @@ package madkit.scenari.kill;
 
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static madkit.kernel.AbstractAgent.ReturnCode.TIMEOUT;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
+
+import java.util.logging.Level;
+
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
 import madkit.kernel.JunitMadKit;
+import madkit.kernel.Madkit.LevelOption;
 import madkit.testing.util.agent.DoItDuringLifeCycleAgent;
+import madkit.testing.util.agent.UnstopableAbstractAgent;
+import madkit.testing.util.agent.UnstopableAgent;
 
 import org.junit.Test;
 
@@ -37,36 +43,93 @@ import org.junit.Test;
 @SuppressWarnings("serial")
 public class  KillingWorkingThreadedAgentsTest extends JunitMadKit{
 
+	
+	@Test
+	public void killUnstopable(){
+		launchTest(new AbstractAgent(){
+			protected void activate() {
+				AbstractAgent unstopableAgent = new UnstopableAgent();
+				unstopableAgent.setLogLevel(Level.FINER);
+				startTimer();
+				assertEquals(TIMEOUT,launchAgent(unstopableAgent,1));
+				stopTimer("launch time out ");
+				assertEquals(TIMEOUT,killAgent(unstopableAgent,1));
+				assertAgentIsTerminated(unstopableAgent);
+			}
+		});
+	}
+	
+
 	@Test
 	public void brutalKills() {//TODO brutal kill with to < 0
+		addMadkitArgs(LevelOption.agentLogLevel.toString(),"ALL");
+		addMadkitArgs(LevelOption.kernelLogLevel.toString(),"FINEST");
 		launchTest(new AbstractAgent(){
 			public void activate() {
 				Agent a;
 				a = new WorkingAgent(true,false,false);
-				assertEquals(TIMEOUT, launchAgent(a,1));
-				assertEquals(SUCCESS, killAgent(a,-1));
+				ReturnCode r = launchAgent(a,1);
+				assertTrue(TIMEOUT == r || r == SUCCESS);
+				killAgent(a,1);
 				assertAgentIsTerminated(a);
 
 				a = new WorkingAgent(false,true,false);
 				assertEquals(SUCCESS, launchAgent(a));
 				pause(100);
-				assertEquals(SUCCESS, killAgent(a,-1));
+				assertEquals(SUCCESS, killAgent(a,0));
 				assertAgentIsTerminated(a);
 
 				a = new WorkingAgent(false,false,true);
 				assertEquals(SUCCESS, launchAgent(a));
 				pause(100);
-				assertEquals(SUCCESS, killAgent(a,-1));
+				assertEquals(SUCCESS, killAgent(a,0));
 				assertAgentIsTerminated(a);
 
 				a = new WorkingAgent(true,false,true);
-				assertEquals(TIMEOUT, launchAgent(a,1));
-				assertEquals(SUCCESS, killAgent(a,-1));
+				launchAgent(a,1);
+				assertEquals(SUCCESS, killAgent(a,0));
 				assertAgentIsTerminated(a);
+				pause(1000);
+			}});
+	}
 
+	@Test
+	public void brutalKillOnEnd() {//TODO brutal kill with to < 0
+		addMadkitArgs(LevelOption.agentLogLevel.toString(),"ALL");
+		addMadkitArgs(LevelOption.kernelLogLevel.toString(),"FINEST");
+		launchTest(new AbstractAgent(){
+			public void activate() {
+				Agent a;
+				a = new WorkingAgent(false,false,true);
+				assertEquals(SUCCESS, launchAgent(a));
+				assertEquals(SUCCESS, killAgent(a,0));
+				assertAgentIsTerminated(a);
+			}});
+	}
+
+	@Test
+	public void brutalKillOnActivate() {//TODO brutal kill with to < 0
+		addMadkitArgs(LevelOption.agentLogLevel.toString(),"ALL");
+		addMadkitArgs(LevelOption.kernelLogLevel.toString(),"FINEST");
+		launchTest(new AbstractAgent(){
+			public void activate() {
+				Agent a;
+				a = new WorkingAgent(true,false,false);
+				ReturnCode r = launchAgent(a,1);
+				assertTrue(TIMEOUT == r || r == SUCCESS);
+				killAgent(a,1);
+				assertAgentIsTerminated(a);
+			}});
+	}
+
+	@Test
+	public void brutalKillonAll() {//TODO brutal kill with to < 0
+		launchTest(new AbstractAgent(){
+			public void activate() {
+				Agent a;
 				a = new WorkingAgent(true,true,true);
 				assertEquals(TIMEOUT, launchAgent(a,1));
-				assertEquals(SUCCESS, killAgent(a,-1));
+				assertEquals(SUCCESS, killAgent(a,0));
 				assertAgentIsTerminated(a);
 			}});
 	}
@@ -81,31 +144,33 @@ public class  KillingWorkingThreadedAgentsTest extends JunitMadKit{
 				super.activate();
 				Agent a;
 				a = new WorkingAgent(true,false,false);
-				assertEquals(TIMEOUT, launchAgent(a,1));
-				assertEquals(SUCCESS, killAgent(a));
+				ReturnCode r = launchAgent(a,1);
+				assertTrue(TIMEOUT == r || r == SUCCESS);
+				killAgent(a);
 				assertAgentIsTerminated(a);
 
 				a = new WorkingAgent(false,true,false);
 				assertEquals(SUCCESS, launchAgent(a));
-				pause(100);
-				assertEquals(SUCCESS, killAgent(a));
+				killAgent(a);
 				assertAgentIsTerminated(a);
 
 				a = new WorkingAgent(false,false,true);
 				assertEquals(SUCCESS, launchAgent(a));
 				pause(100);
-				assertEquals(TIMEOUT, killAgent(a,1));
-				assertEquals(State.ENDING, a.getState());
+				killAgent(a,1);
+				assertEquals(State.TERMINATED, a.getState());
 
 				a = new WorkingAgent(true,false,true);
-				assertEquals(TIMEOUT, launchAgent(a,1));
+				r = launchAgent(a,1);
+				assertTrue(TIMEOUT == r || r == SUCCESS);
 				assertEquals(TIMEOUT, killAgent(a,1));
-				assertEquals(State.ENDING, a.getState());
+				assertEquals(State.TERMINATED, a.getState());
 
 				a = new WorkingAgent(true,true,true);
-				assertEquals(TIMEOUT, launchAgent(a,1));
+				r = launchAgent(a,1);
+				assertTrue(TIMEOUT == r || r == SUCCESS);
 				assertEquals(TIMEOUT, killAgent(a,1));
-				assertEquals(State.ENDING, a.getState());
+				assertEquals(State.TERMINATED, a.getState());
 			}});
 	}
 }
@@ -125,9 +190,13 @@ class WorkingAgent extends DoItDuringLifeCycleAgent{
 	@Override
 	public void doIt() {		
 		for (int i =0; i < 100000000;i++) {
-			pause(1);
 			double d = Math.random()*2;
 			d*=Math.PI*100;
+//			if(i % 10000000 == 0)
+//				if(logger != null)
+//					logger.info("yo");
 		}
+		if(logger != null)
+			logger.info("\n\n\tJOB DONE !!!!!!\n\n");
 	}
 }

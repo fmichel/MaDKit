@@ -23,26 +23,29 @@ import java.net.UnknownHostException;
 
 
 /**
+ * This class represents a unique identifier for MadKit kernel.
+ * Uniqueness is guaranteed even when different kernels run on the same JVM.
+ * 
  * @author Oliver Gutknecht
  * @author Fabien Michel
  * @version 5.2
  * @since MadKit 1.0
  *
  */
-public class KernelAddress implements java.io.Serializable{
+public class KernelAddress implements java.io.Serializable{//TODO local kernel address
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 5186608439436729434L;
+	private static final long serialVersionUID = 9180630068132973855L;
+
+	
 	private final int ID = Long.valueOf(System.nanoTime()).hashCode();
 	private final String name = "@MK-"+(Integer.toString(ID,24).substring(0, 3));
 	
-//	KernelAddress()
-//	{
-//		ID = Long.valueOf(System.nanoTime()).hashCode();
-//		name = "@MK-"+Integer.toString(ID,24).substring(0, 3);
-//	}
+	/**
+	 * Avoid the default public visibility for denying usage.
+	 */
+	KernelAddress()
+	{
+	}
 
 	@Override
 	public boolean equals(Object obj) {

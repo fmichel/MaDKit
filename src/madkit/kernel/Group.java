@@ -53,7 +53,6 @@ final class Group extends ConcurrentHashMap<String,Role> {
 	private final String groupName;
 	private final Organization communityObject;
 
-
 	private final boolean distributed;
 
 	/**

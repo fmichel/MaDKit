@@ -43,8 +43,6 @@ public class  KillingWaitingMessageThreadedAgentsTest extends JunitMadKit{
 
 	@Test
 	public void brutalKills() {//TODO brutal kill with to < 0
-		addMadkitArgs(LevelOption.agentLogLevel.toString(),"ALL");
-		addMadkitArgs(LevelOption.kernelLogLevel.toString(),"FINEST");
 		launchTest(new AbstractAgent(){
 			public void activate() {
 				setLogLevel(Level.ALL);
@@ -59,13 +57,11 @@ public class  KillingWaitingMessageThreadedAgentsTest extends JunitMadKit{
 				assertEquals(TIMEOUT, launchAgent(a,1));
 				assertEquals(TIMEOUT, killAgent(a,1));
 				assertAgentIsTerminated(a);
-			}});
+			}},true);
 	}
 
 	@Test
 	public void brutalKillOnWaitInActivate() {//TODO brutal kill with to < 0
-		addMadkitArgs(LevelOption.agentLogLevel.toString(),"ALL");
-		addMadkitArgs(LevelOption.kernelLogLevel.toString(),"FINEST");
 		launchTest(new AbstractAgent(){
 			public void activate() {
 				setLogLevel(Level.ALL);
@@ -73,7 +69,7 @@ public class  KillingWaitingMessageThreadedAgentsTest extends JunitMadKit{
 				assertEquals(TIMEOUT, launchAgent(a,1));
 				assertEquals(SUCCESS, killAgent(a,1));
 				assertAgentIsTerminated(a);
-			}});
+			}},true);
 	}
 	
 	@Test
@@ -86,7 +82,7 @@ public class  KillingWaitingMessageThreadedAgentsTest extends JunitMadKit{
 				pause(100);
 				assertEquals(SUCCESS, killAgent(a,1));
 				assertAgentIsTerminated(a);
-			}});
+			}},true);
 	}
 	
 	@Test
@@ -99,7 +95,7 @@ public class  KillingWaitingMessageThreadedAgentsTest extends JunitMadKit{
 				pause(100);
 				assertEquals(TIMEOUT, killAgent(a,1));
 				assertAgentIsTerminated(a);
-			}});
+			}},true);
 	}
 
 
@@ -137,7 +133,7 @@ public class  KillingWaitingMessageThreadedAgentsTest extends JunitMadKit{
 				assertEquals(TIMEOUT, launchAgent(a,1));
 				assertEquals(TIMEOUT, killAgent(a,1));
 				assertAgentIsTerminated(a);
-			}});
+			}},true);
 	}
 }
 
@@ -160,7 +156,7 @@ class WaitingMessageAgent extends DoItDuringLifeCycleAgent{
 	}
 
 	@Override
-	public void doIt() {		waitNextMessage();	}
+	public void doIt() {		waitNextMessage();	waitNextMessage();	}
 
 }
 

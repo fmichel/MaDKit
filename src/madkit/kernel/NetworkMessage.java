@@ -45,7 +45,6 @@ class NetworkMessage<T> extends ObjectMessage<T> {
 	}
 	
 	public enum NetCode {
-		STOP_NETWORK,
 		NEW_PEER_DETECTED,
 		PEER_DECONNECTED,
 		NEW_PEER_REQUEST,

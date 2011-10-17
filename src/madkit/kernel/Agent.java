@@ -102,44 +102,113 @@ public class Agent extends AbstractAgent{
 		return agentExecutor;
 	}
 
-	//	@Override
-	//	final boolean activation() {
-	//		activationFirstStage();
-	//		boolean result = true;
-	//		try {
-	//			activate();
-	//		} catch (Throwable e) {
-	//			result = false;
-	//			handleLifeException(e);
-	//		} 
-	//		if(logger != null)
-	//			logger.finer("** exiting ACTIVATE **");
-	//		unsetMyThread(Thread.currentThread());//normal exit
-	//		return result;
-	//	}
+	/**
+	 * This is only called by MK threads and cannot be interrupted
+	 * @return
+	 */
+//	boolean activation() {
+//		boolean result = false;
+//		try {
+//			try {
+//				activationFirstStage();//the activated flag must be in the try
+//				activate();
+//				synchronized (state) {
+//					myThread.setName(getAgentThreadName(State.LIVING));
+//				}//cannot be hard killed after that
+//				result = true;
+//			}
+//			catch (SelfKillException e) {//no hard kill possible here ; managing death myself
+//				logLifeException(e);
+//				logMethod(false);
+//				suicide(e);
+//				return true;
+//			}
+//			catch (Exception e) {
+//				validateDeathOnException(e, State.LIVING);
+//			}
+//		} catch (KilledException e) {
+//			logLifeException(e);
+//		}
+//		if (logger != null) {
+//			logger.finer("** exiting ACTIVATE **");
+//		}
+//		return result;
+//	}
+
+	//100%
+//	/**
+//	 * This is only called by MK threads and cannot be interrupted
+//	 * @return
+//	 */
+//	boolean activation() {
+//		boolean result = false;
+//		try {
+//			try {
+//				activationFirstStage();//the activated flag must be in the try
+//				activate();
+//				result = true;
+//				synchronized (state) {
+//					myThread.setName(getAgentThreadName(State.LIVING));
+//				}//cannot be hard killed after that
+//			}
+//			catch (SelfKillException e) {//no hard kill possible here ; managing death myself
+//				logLifeException(e);
+//				if (logger != null) {
+//					logger.finer("** exiting ACTIVATE **");
+//				}
+//				suicide(e);
+//				return true;
+//			}
+//			catch (Exception e) {
+//				validateDeathOnException(e, State.LIVING);
+//			}
+//		} catch (KilledException e) {
+//			logLifeException(e);
+//		}
+//		if (logger != null) {
+//			logger.finer("** exiting ACTIVATE **");
+//		}
+//		return result;
+//	}
+	
+	/**
+	 * @param e
+	 */
+	final void suicide(SelfKillException e) {
+		getAgentExecutor().getLiveProcess().cancel(false);
+		getAgentExecutor().getEndProcess().cancel(false);
+		super.suicide(e);
+		terminate(); //the ae's terminate will not be executed because it will be on fake kernel
+	}
+
 
 	final boolean living() {
 		//		if(! state.compareAndSet(ACTIVATED, LIVING))
 		//			throw new AssertionError("not activated in live");//TODO remove test
-		setMyThread(Thread.currentThread());
-		if(logger != null){
-			logger.finer("** entering LIVE **");
-		}
 		try {
-			live();
-			changeState(State.ENDING);
-		} catch (Throwable e) {
-			synchronized (state) {//TODO factoriser
-				logLifeException(e);
-				state.set(State.ENDING);//thread death cannot be called from now on
+			state.set(State.LIVING);
+			setMyThread(Thread.currentThread());
+			logMethod(true);
+			try {
+				live();
+			} catch (SelfKillException e) {
+				suicide(e);
+			} catch (Exception e) {
+				synchronized (state) {//TODO factoriser
+					alive.set(false);
+					logLifeException(e);
+				}
 			}
+			if(! alive.get()){
+				try {
+					Thread.sleep(1);
+				} catch (InterruptedException e) {
+				}//answer the kill
+			}
+		} catch (KilledException e) {
+			logLifeException(e);
 		}
-		if(logger != null)
-			logger.finer("** exiting LIVE **");
-		synchronized (state) {
-//			System.err.println("notifying in living");
-			state.notify();
-		}
+		logMethod(false);
 		return true;
 	}
 
@@ -172,16 +241,11 @@ public class Agent extends AbstractAgent{
 		pause(i);
 	}
 
-	/** Kills a targeted agent
-	 * @see madkit.kernel.AbstractAgent#killAgent(madkit.kernel.AbstractAgent, int)
-	 * @since MadKit 5
-	 * @throws KernelException if this agent has not been launched or is already terminated
-	 */
 	@Override
 	public ReturnCode killAgent(AbstractAgent target, int timeOutSeconds) {
 		//if this is a self kill done by the agent itself, not an object which has access to the agent
-		if(target == this && myThread == Thread.currentThread()){
-			throw new KilledException("self kill");
+		if(target == this && myThread == Thread.currentThread() && alive.compareAndSet(true, false)){
+			throw new SelfKillException(""+timeOutSeconds);
 		}
 		return super.killAgent(target, timeOutSeconds);
 	}
@@ -196,7 +260,6 @@ public class Agent extends AbstractAgent{
 	 * if there was an error when sending the message.
 	 * @see #sendMessageWithRoleAndWaitForReply(AgentAddress, Message, String, Integer)
 	 * @since MadKit 5
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 */
 	public Message sendMessageAndWaitForReply(final AgentAddress receiver, Message messageToSend){
 		return sendMessageWithRoleAndWaitForReply(receiver, messageToSend, null, null);
@@ -213,7 +276,6 @@ public class Agent extends AbstractAgent{
 	 * @return the reply received as soon as available, or <code>null</code> if the time out has elapsed 
 	 * or if there was an error when sending the message.
 	 * @see #sendMessageWithRoleAndWaitForReply(AgentAddress, Message, String, Integer)
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 * @since MadKit 5
 	 */
 	public Message sendMessageAndWaitForReply(final AgentAddress receiver, Message messageToSend,final int timeOutMilliSeconds){
@@ -230,7 +292,6 @@ public class Agent extends AbstractAgent{
 	 * @return the reply received as soon as available, or <code>null</code> if the time out has elapsed 
 	 * or if there was an error when sending the message.
 	 * @see #sendMessageWithRoleAndWaitForReply(AgentAddress, Message, String, Integer)
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 * @since MadKit 5
 	 */
 	public Message sendMessageWithRoleAndWaitForReply(final AgentAddress receiver, Message messageToSend, String senderRole){
@@ -253,7 +314,6 @@ public class Agent extends AbstractAgent{
 	 * 
 	 * @see #sendMessageWithRole(AgentAddress, Message, String)
 	 * @see AbstractAgent.ReturnCode
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 * @since MadKit 5
 	 */
 	public Message sendMessageWithRoleAndWaitForReply(final AgentAddress receiver, Message messageToSend, String senderRole, Integer timeOutMilliSeconds ){
@@ -279,7 +339,6 @@ public class Agent extends AbstractAgent{
 	 * @return the reply received as soon as available, or <code>null</code> 
 	 * if there was an error when sending the message.
 	 * @see #sendMessageWithRoleAndWaitForReply(String, String, String, Message, String, Integer)
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 * @since MadKit 5
 	 */
 	public Message sendMessageAndWaitForReply(final String community, final String group, final String role, Message messageToSend){
@@ -301,7 +360,6 @@ public class Agent extends AbstractAgent{
 	 * if there was an error when sending the message.
 	 * @see #sendMessageWithRoleAndWaitForReply(String, String, String, Message, String, Integer)
 	 * @since MadKit 5
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 */
 	public Message sendMessageWithRoleAndWaitForReply(final String community, final String group, final String role, 
 			Message messageToSend,
@@ -323,7 +381,6 @@ public class Agent extends AbstractAgent{
 	 * @return the reply received as soon as available, or <code>null</code> if the time out has elapsed 
 	 * or if there was an error when sending the message.
 	 * @see #sendMessageWithRoleAndWaitForReply(String, String, String, Message, String, Integer)
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 * @since MadKit 5
 	 */
 	public Message sendMessageAndWaitForReply(final String community, final String group, final String role, Message messageToSend, final int timeOutMilliSeconds){
@@ -345,7 +402,6 @@ public class Agent extends AbstractAgent{
 	 * @return the reply received as soon as available, or <code>null</code> if the time out has elapsed 
 	 * or if there was an error when sending the message.
 	 * @since MadKit 5
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 */
 	public Message sendMessageWithRoleAndWaitForReply(final String community, final String group, final String role, 
 			Message messageToSend,
@@ -369,7 +425,6 @@ public class Agent extends AbstractAgent{
 	 * @return the reply received as soon as available.
 	 * @see #sendReplyWithRoleAndWaitForReply(Message, Message, String, Integer)
 	 * @since MadKit 5
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 */
 	public Message sendReplyAndWaitForReply(final Message messageToReplyTo, final Message reply){
 		return sendReplyWithRoleAndWaitForReply(messageToReplyTo, reply, null, null);
@@ -385,7 +440,6 @@ public class Agent extends AbstractAgent{
 	 * @return the reply received as soon as available
 	 * @see #sendReplyWithRoleAndWaitForReply(Message, Message, String, Integer)
 	 * @since MadKit 5
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 */
 	public Message sendReplyAndWaitForReply(final Message messageToReplyTo, final Message reply,int timeOutMilliSeconds){
 		return sendReplyWithRoleAndWaitForReply(messageToReplyTo, reply, null, timeOutMilliSeconds);
@@ -399,7 +453,6 @@ public class Agent extends AbstractAgent{
 	 * @return the reply received as soon as available
 	 * @see #sendReplyWithRoleAndWaitForReply(Message, Message, String, Integer)
 	 * @since MadKit 5
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 */
 	public Message sendReplyWithRoleAndWaitForReply(final Message messageToReplyTo, final Message reply,String senderRole){
 		return sendReplyWithRoleAndWaitForReply(messageToReplyTo, reply, senderRole, null);
@@ -422,7 +475,6 @@ public class Agent extends AbstractAgent{
 	 * @see #sendReplyWithRole(Message, Message, String)
 	 * @see AbstractAgent.ReturnCode
 	 * @since MadKit 5
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 */
 	public Message sendReplyWithRoleAndWaitForReply(final Message messageToReplyTo, final Message reply, String senderRole, Integer timeOutMilliSeconds){
 		if(logger != null)
@@ -434,7 +486,7 @@ public class Agent extends AbstractAgent{
 	}
 
 	/**
-	 * Broadcasts a message and wait for answers considering a time out duration.
+	 * Broadcasts a message and wait for answers considering a timeout duration.
 	 * 
 	 * @param community
 	 * @param group
@@ -443,7 +495,6 @@ public class Agent extends AbstractAgent{
 	 * @param senderRole
 	 * @param timeOutMilliSeconds
 	 * @return a list of messages which are answers to the <code>message</code> which has been broadcasted.
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 */
 	public List<Message> broadcastMessageWithRoleAndWaitForReplies(final String community, final String group, final String role, 
 			Message message,
@@ -540,15 +591,15 @@ public class Agent extends AbstractAgent{
 		}
 	}
 
-	@Override
-	void handleInterruptedException() {
-		Thread t = Thread.currentThread();
-		if(t == myThread)
-			throw new KilledException("brutal kill");
-		else
-			super.handleInterruptedException();
-		//		checkAliveness();
-	}
+	//	@Override
+	//	void handleInterruptedException() {
+	//		Thread t = Thread.currentThread();
+	//		if(t == myThread)
+	//			throw new KilledException("brutal kill");
+	//		else
+	//			super.handleInterruptedException();
+	//		//		checkAliveness();
+	//	}
 
 	//	/**
 	//	 * @param myThread the myThread to set

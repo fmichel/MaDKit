@@ -19,9 +19,11 @@
 package madkit.performance;
 
 import java.util.ArrayList;
+import java.util.logging.Level;
 
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadKit;
+import madkit.kernel.Madkit.LevelOption;
 
 import org.junit.Test;
 
@@ -35,7 +37,7 @@ import org.junit.Test;
 public class  MassLaunchBench extends JunitMadKit{
 
 	@Test
-	public void massAALaunch() {//TODO more cases
+	public void massAALaunchWithBucket() {//TODO more cases
 		launchTest(new AbstractAgent(){
 			protected void activate() {
 				createGroup("test", "group", false, null);
@@ -58,6 +60,28 @@ public class  MassLaunchBench extends JunitMadKit{
 //					agents.add(new AbstractAgent());
 //				}
 //				stopTimer("old launch time = ");
+			}
+		});
+	}
+	
+	@Test
+	public void massAALaunch() {//TODO more cases
+		addMadkitArgs(LevelOption.agentLogLevel.toString(),"OFF");
+		launchTest(new AbstractAgent(){
+			protected void activate() {
+				setLogLevel(Level.OFF);
+				createGroup("test", "group", false, null);
+				System.err.println("begin");
+				long total = 0;
+				int j =0;
+				for (j = 0; j < 4; j++) {
+					startTimer();
+					for (int i = 0; i < 100000; i++) {
+						launchAgent(new AbstractAgent());
+					}
+					total += stopTimer("launch time = ");
+				}
+				System.err.println("done\n\naverage time is "+(total/(j*1000000))+" ms");
 			}
 		});
 	}

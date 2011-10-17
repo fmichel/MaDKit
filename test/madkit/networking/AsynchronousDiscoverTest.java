@@ -20,14 +20,19 @@ package madkit.networking;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+
+import java.util.List;
+
 import madkit.agr.CloudCommunity;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.gui.actions.MadkitActions;
 import madkit.kernel.AbstractAgent;
+import madkit.kernel.AgentAddress;
 import madkit.kernel.JunitMadKit;
 import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.BooleanOption;
+import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Madkit.Option;
 import madkit.testing.util.agent.ForEverAgent;
 
@@ -46,6 +51,7 @@ public class AsynchronousDiscoverTest extends JunitMadKit{
 	@Test
 	public void multipleAsynchroneConnectionTest() {
 		addMadkitArgs(BooleanOption.network.toString());
+//		addMadkitArgs(LevelOption.networkLogLevel.toString(),"ALL");
 		launchTest(new AbstractAgent(){
 			@Override
 			protected void activate() {
@@ -54,20 +60,34 @@ public class AsynchronousDiscoverTest extends JunitMadKit{
 				launchThreadedMKNetworkInstance();	
 				launchThreadedMKNetworkInstance();	
 				launchThreadedMKNetworkInstance();	
-				pause(4000);
+				int i = 0;
+				while (getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT).size() != 6) {
+					pause(2000);
+					if(i++ == 100)
+						break;
+				}
 				if(logger != null)
 					logger.info(""+getAgentsWithRole(LocalCommunity.NAME, Groups.NETWORK,LocalCommunity.Roles.NET_AGENT));
 				assertEquals(6, getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT).size());
 				MadkitActions.MADKIT_STOP_NETWORK.getAction(this).actionPerformed(null);
-				pause(100);
+				pause(1000);
 				
 				//not connected 
 				assertFalse(isCommunity(CloudCommunity.NAME));
 
 				//second round
 				MadkitActions.MADKIT_LAUNCH_NETWORK.getAction(this).actionPerformed(null);
-				pause(1000);
-				assertEquals(6, getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT).size());
+				List<AgentAddress> l = getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT);
+				while (l == null || l.size() != 6) {
+					pause(2000);
+					l = getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT);
+					if(i++ == 100)
+						break;
+				}
+				for (AgentAddress agentAddress : l) {
+					System.err.println(agentAddress);
+				}
+				assertEquals(6, l.size());
 			}
 		});
 	}

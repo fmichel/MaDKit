@@ -163,8 +163,8 @@ public class AgentAddress implements java.io.Serializable{
 
 	/**
 	 * Tells if another address is the same.
-	 * If <code>true</code>, this means that both addresses are
-	 * identical.
+	 * If <code>true</code>, this means that both addresses refer to
+	 * the same agent considering the same position in the artificial society.
 	 * 
 	 * @param agentAddress the address to compare.
 	 * @throws ClassCastException On purpose, 
@@ -179,15 +179,6 @@ public class AgentAddress implements java.io.Serializable{
 			return false;
 		return kernelAddress.equals(((AgentAddress) agentAddress).getKernelAddress());
 	}
-
-	//	/** 
-	//	 * Tells if an {@link AgentAddress} belongs to the same kernel
-	//	 * 
-	//	 * @return <code>true</code> if this address belongs to an agent running on the same kernel, <code>false</code> otherwise
-	//	 */
-	//	public boolean isLocal(){//TODO just verify that
-	//		return kernelAddress == roleObject.getKernelAddress();
-	//	}
 
 	/**
 	 * @see java.lang.Object#hashCode()
@@ -209,7 +200,7 @@ public class AgentAddress implements java.io.Serializable{
 	}
 
 	/**
-	 * Tells if the address belongs to a local agent. This does not imply that the address 
+	 * Tells if the address belongs to a local agent running on the same kernel. This does not imply that the address 
 	 * is still valid and exists in the artificial society. This only tells if the agent
 	 * for which this address has been created was running on the local kernel.
 	 *  
@@ -245,7 +236,7 @@ final class CandidateAgentAddress extends AgentAddress{
 	}
 	
 	@Override
-	public boolean exists() {
+	public boolean exists() {//really ? Yes it is, because it does not exist at all ;)... Unsure !!!
 		return true;
 	}
 

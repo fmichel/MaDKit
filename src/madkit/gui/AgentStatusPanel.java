@@ -59,7 +59,7 @@ public class AgentStatusPanel extends JPanel implements AgentUIComponent {
 	 */
 	@Override
 	public void updateAgentUI() {
-		if(myAgent.isAlive() && myAgent.isKernelConnected()){
+		if(myAgent.isAlive() && myAgent.isKernelOnline()){
 			network.setIcon(image);
 			network.setToolTipText("Kernel "+myAgent.getKernelAddress()+" is online");
 		}

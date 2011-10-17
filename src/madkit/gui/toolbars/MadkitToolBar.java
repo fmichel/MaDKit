@@ -64,7 +64,7 @@ public class MadkitToolBar extends JToolBar {// TODO i18n
 		addSeparator();
 		add(MadkitActions.MADKIT_ICONIFY_ALL.getAction(agent));
 		add(MadkitActions.MADKIT_DEICONIFY_ALL.getAction(agent));
-		add(MadkitActions.MADKIT_RESTART.getAction(agent));
+//		add(MadkitActions.MADKIT_RESTART.getAction(agent));t
 //		add(MadkitActions.MADKIT_CLONE.getAction(agent));
 //		add(MadkitActions.CONNECT_WEB_REPO.getAction(agent));
 		add(MadkitActions.LOAD_LOCAL_DEMOS.getAction(agent));

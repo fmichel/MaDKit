@@ -54,13 +54,13 @@ public class SelfAbstractKill extends DoItDuringLifeCycleAbstractAgent{
 			logger.info("killing myself");
 		if(inActivate){
 			if(timeOut == 0){
-				assertEquals(timeOut == 0 ? TIMEOUT : SUCCESS, killAgent(this,timeOut));
+				assertEquals(timeOut == 0 ? SUCCESS : TIMEOUT, killAgent(this,timeOut));
 			}
 			else
 				assertEquals(getState() == State.ACTIVATED ? SUCCESS :  ALREADY_KILLED, killAgent(this,timeOut));
 		}
 		else
-			assertEquals(timeOut == 0 ? TIMEOUT : SUCCESS, killAgent(this,timeOut));
+			assertEquals(timeOut == 0 ? SUCCESS : TIMEOUT, killAgent(this,timeOut));
 		for (int i = 0; i < 5; i++) {
 			requestRole(COMMUNITY, GROUP, aa(), null);
 			System.err.println("doing in "+getState()+" "+i);

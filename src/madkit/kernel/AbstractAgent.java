@@ -50,12 +50,14 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 
+import madkit.agr.CloudCommunity;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.agr.LocalCommunity.Roles;
 import madkit.agr.Organization;
 import madkit.gui.GUIMessage;
 import madkit.gui.OutputPanel;
+import madkit.gui.actions.AgentAction;
 import madkit.gui.actions.MadkitActions;
 import madkit.i18n.ErrorMessages;
 import madkit.i18n.I18nUtilities;
@@ -122,7 +124,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * name is lazy created to save memory
 	 */
 	private String name;
-	final private AtomicBoolean alive = new AtomicBoolean();// TODO tranform to deaddefault is false
+	final AtomicBoolean alive = new AtomicBoolean();// TODO tranform to deaddefault is false
 	final LinkedBlockingDeque<Message> messageBox = new LinkedBlockingDeque<Message>();// TODO lazy creation
 
 	/**
@@ -158,7 +160,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * Returns the ID of an agent. All the agents have different 
 	 * hashCode value in one kernel. Thus it can be used to identify one agent.
 	 * In a networked environment, this value should be used in combination with
-	 * the kernelAddress of the agent for unique identification it 
+	 * the kernelAddress of the agent for unique identification.
 	 * This also holds when multiple MadKit kernels are launched within the same JVM.
 	 * 
 	 * @return the agent's unique ID in the MadKit kernel
@@ -197,7 +199,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	/**
-	 * Returns <code>true</code> once the agent is started until it normally ends or get killed.
+	 * Returns <code>true</code> once the agent is started 
+	 * until it normally ends or get killed.
 	 * 
 	 * @return <code>true</code> if the agent has been started and
 	 * not yet terminated, <code>false</code> otherwise
@@ -222,7 +225,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		//that only when state is set to ACTIVATED
 		setMyThread(Thread.currentThread());
 		//can be killed from now on
-		if (! alive.compareAndSet(false, true)) {// TODO remove that
+		if (! alive.compareAndSet(false, true)) {// can be killed from now on
 			throw new AssertionError("already alive in launch");
 		}
 		if(hasGUI){
@@ -242,9 +245,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 					null, 
 					10000);
 		}
-		if (logger != null) {
-			logger.finer("** entering ACTIVATE **");
-		}
+		logMethod(true);
 	}
 
 	/**
@@ -253,63 +254,103 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 */
 	void setMyThread(final Thread thread) {
 		thread.setName(getState()+"-"+hashCode());
-		//		if(! ((AgentThread) thread).getProcessingAgent().compareAndSet(false, true)){
-		//			throw new AssertionError("thread already flagged as treating agent");
-		//		}
 	}
 
-	//	void unsetMyThread(final Thread thread){
-	//		thread.setName("live");
-	//		((AgentThread) thread).getProcessingAgent().set(false);
-	//	}
+	final String getAgentThreadName(final State s){
+		return s+"-"+hashCode();
+	}
 
 
+//	private void suicide(){
+//		MadkitKernel.getMadkitServiceExecutor().execute(new Runnable(){
+//			@Override
+//			public void run() {
+//				kernel.getMadkitKernel().killAbstractAgent(AbstractAgent.this, 1);
+//			}
+//		});
+//	}
 	/**
 	 * This is only called by MK threads and cannot be interrupted
 	 * @return
 	 */
 	boolean activation() {
-		//TODO I18N
-
-		boolean result = true;
-		boolean selfKill = false;
+		boolean result = false;
 		try {
-			activationFirstStage();//the activated flag must be in the try
-			activate();
-			if(logger != null)
-				logger.info("acticvate finish");
-			synchronized (state) {
-				state.set(LIVING);//thread death cannot be called from now on
+			try {
+				activationFirstStage();//the activated flag must be in the try
+				activate();
+				synchronized (state) {
+					Thread.currentThread().setName(getAgentThreadName(State.LIVING));
+				}//cannot be hard killed after that
+//				state.set(LIVING);
+				result = true;
 			}
-		} 
-		catch (Throwable e) {
-			synchronized (state) {//TODO factoriser
+			catch (SelfKillException e) {
 				logLifeException(e);
-				state.set(LIVING);//thread death cannot be called from now on
-				selfKill = e instanceof SelfKillException;
-				alive.set(false);
+				logMethod(false);
+				state.set(LIVING);//for the following kill to work
+				suicide(e);
+				return true;
 			}
-			result = false;
+			catch (Exception e) {
+				validateDeathOnException(e, LIVING);
+			}
+		} catch (KilledException e) {
+			logLifeException(e);
 		}
-		if (logger != null) {
-			logger.finer("** exiting ACTIVATE **");
-		}
-		//		unsetMyThread(Thread.currentThread());//normal exit TODO useless
-		if (selfKill && ! (this instanceof Agent)) {
-			MadkitKernel.getMadkitServiceExecutor().execute(new Runnable(){
-				@Override
-				public void run() {
-					kernel.getMadkitKernel().killAbstractAgent(AbstractAgent.this, 1);
-				}
-			});
-			//					kernel.getMadkitKernel().receiveMessage(new KernelMessage(MadkitActions.MADKIT_KILL_AGENT, this, 2));
-		}
-		synchronized (state) {
-//			System.err.println("\n!!!!!!!!!!!!!!!!!!!!!!!!! notifying !!!!!!!!!!! "+this);
-			state.notify();//notify the waiting thread killer
-		}
+		logMethod(false);
+//		state.set(LIVING);
 		return result;
 	}
+	
+	//100%
+//	/**
+//	 * This is only called by MK threads and cannot be interrupted
+//	 * @return
+//	 */
+//	boolean activation() {
+//		boolean result = false;
+//		try {
+//			try {
+//				activationFirstStage();//the activated flag must be in the try
+//				activate();
+//				state.set(LIVING);
+//				result = true;
+//			}
+//			catch (SelfKillException e) {
+//				logLifeException(e);
+//				logActivate(false);
+//				state.set(LIVING);//for the following kill to work
+//				kernel.getMadkitKernel().killAbstractAgent(AbstractAgent.this, Integer.parseInt(e.getMessage()));
+//				return true;
+//			}
+//			catch (Exception e) {
+//				synchronized (state) {
+//					alive.set(false);
+//					logLifeException(e);
+//					state.set(LIVING);
+//				}
+//				logActivate(false);
+//			}
+//		} catch (KilledException e) {
+//			logLifeException(e);
+//		}
+//		logActivate(false);
+//		return result;
+//	}
+	
+	final void logMethod(final boolean entering){
+		if(logger != null)
+			logger.finer("** "+ (entering ? "entering" : "exiting") +" "+ getState().lifeCycleMethod() +" **");
+	}
+
+	/**
+	 * @param e
+	 */
+	void suicide(SelfKillException e) {
+		kernel.getMadkitKernel().startEndBehavior(this, Integer.parseInt(e.getMessage()),true);
+	}
+
 
 	/**
 	 * This method corresponds to the first behavior which is called by the MadKit kernel when an agent is launched.
@@ -342,37 +383,42 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	final boolean ending() { // TODO boolean need ? NO
-		//		if (state.get() == ENDING)// TODO remove that
-		//			throw new AssertionError("ENDING twice " + getName());
 		state.set(ENDING);
-		setMyThread(Thread.currentThread());
-		if (logger != null) {
-			logger.finer("** entering END **");
-		}
+		Thread.currentThread().setName(getAgentThreadName(ENDING));
+		logMethod(true);
 		try {
-			end();
-			changeState(TERMINATED);//TODO replace
-		} catch (Throwable e) {
-			synchronized (state) {
-				logLifeException(e);
-				state.set(TERMINATED);
+			synchronized (state) {//can be hard killed from now on
+				state.notify();
 			}
+			try {
+				end();
+			} catch (Exception e) {
+				validateDeathOnException(e, TERMINATED);
+			}
+			synchronized (state) {
+				alive.set(false);
+				Thread.currentThread().setName(getAgentThreadName(TERMINATED));
+			}
+		} catch (KilledException e) {
+			logLifeException(e);
 		}
-		alive.set(false);
-		if (logger != null) {
-			logger.finer("** exiting END **");// TODO display it or not in case of kill ?
-		}
-		//		unsetMyThread(Thread.currentThread());//normal exit
-		synchronized (state) {
-//			System.err.println("notifying in end");
+		logMethod(false);
+		synchronized (state) {//notifying for AA
 			state.notify();
 		}
 		return true;
 	}
-
-	final void changeState(State newState){//TODO
+	
+	void validateDeathOnException(Exception e, State threadNewState){
 		synchronized (state) {
-			state.set(newState);
+			logLifeException(e);
+			Thread.currentThread().setName(getAgentThreadName(threadNewState));
+			if(! alive.compareAndSet(true,false)){
+				try {
+					Thread.sleep(1);
+				} catch (InterruptedException e1) {
+				}//answer the kill
+			}
 		}
 	}
 
@@ -381,7 +427,11 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 */
 	//not final because of Scheduler and Watcher
 	void terminate() {
-		state.set(TERMINATED);
+		Thread.currentThread().setName(getAgentThreadName(TERMINATED));
+		synchronized (state) {
+			state.set(TERMINATED);
+			state.notify();
+		}
 		kernel = kernel.getMadkitKernel();
 		if (hasGUI) {
 			kernel.broadcastMessageWithRole(this, LocalCommunity.NAME, Groups.SYSTEM, Roles.GUI_MANAGER, new GUIMessage(
@@ -448,11 +498,9 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         <li><code> {@link ReturnCode#AGENT_CRASH} </code>: If the agent crashed during its <code>activate</code> method</li>
 	 *         </ul>
 	 * @see AbstractAgent#launchAgent(AbstractAgent)
-	 * @throws KernelException if this agent has not been launched or is already terminated
-	 * @throws NullPointerException if <code>agent</code> is <code>null</code>
 	 * @since MadKit 5.0
 	 */
-	public ReturnCode launchAgent(final AbstractAgent agent) throws KernelException{
+	public ReturnCode launchAgent(final AbstractAgent agent){
 		return launchAgent(agent, Integer.MAX_VALUE, false);
 	}
 
@@ -468,8 +516,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         <li><code> {@link ReturnCode#TIMEOUT} </code>: If the activation time of the agent is greater than <code>timeOutSeconds</code> seconds</li>
 	 *         <li><code>{@link ReturnCode#AGENT_CRASH}</code>: If the agent crashed during its <code>activate</code> method</li>
 	 *         </ul>
-	 * @throws KernelException if this agent has not been launched or is already terminated
-	 * @throws NullPointerException if <code>agent</code> is <code>null</code>
 	 */
 	public ReturnCode launchAgent(final AbstractAgent agent, final int timeOutSeconds) {
 		return launchAgent(agent, timeOutSeconds, false);
@@ -488,8 +534,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         <li><code> {@link ReturnCode#AGENT_CRASH} </code>: If the agent crashed during its <code>activate</code> method</li>
 	 *         </ul>
 	 * @see AbstractAgent#launchAgent(AbstractAgent)
-	 * @throws NullPointerException if <code>agent</code> is <code>null</code>
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 * @since MadKit 5.0
 	 */
 	public ReturnCode launchAgent(final AbstractAgent agent, final boolean createFrame) {
@@ -519,8 +563,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         <li><code> {@link ReturnCode#TIMEOUT} </code>: If the activation time of the agent is greater than <code>timeOutSeconds</code> seconds</li>
 	 *         <li><code> {@link ReturnCode#AGENT_CRASH} </code>: If the agent crashed during its <code>activate</code> method</li>
 	 *         </ul>
-	 * @throws NullPointerException if <code>agent</code> is <code>null</code>
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 * @since MadKit 5.0
 	 */
 	public ReturnCode launchAgent(final AbstractAgent agent, final int timeOutSeconds, final boolean createFrame) {
@@ -535,8 +577,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * 
 	 * @param agentClass the full class name of the agent to launch
 	 * @return the instance of the launched agent or <code>null</code> if the operation times out or failed.
-	 * @throws NullPointerException if <code>agentClass</code> is <code>null</code>
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 */
 	public AbstractAgent launchAgent(String agentClass) {
 		return launchAgent(agentClass, Integer.MAX_VALUE, false);
@@ -549,8 +589,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @param timeOutSeconds time to wait the end of the agent's activation until returning <code>null</code>
 	 * @param agentClass the full class name of the agent to launch
 	 * @return the instance of the launched agent or <code>null</code> if the operation times out or failed.
-	 * @throws NullPointerException if <code>agentClass</code> is <code>null</code>
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 */
 	public AbstractAgent launchAgent(String agentClass, int timeOutSeconds) {
 		return launchAgent(agentClass, timeOutSeconds, false);
@@ -563,8 +601,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @param createFrame if <code>true</code> a default GUI will be associated with the launched agent
 	 * @param agentClass the full class name of the agent to launch
 	 * @return the instance of the launched agent or <code>null</code> if the operation times out or failed.
-	 * @throws NullPointerException if <code>agentClass</code> is <code>null</code>
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 */
 	public AbstractAgent launchAgent(String agentClass, final boolean createFrame){
 		return launchAgent(agentClass, Integer.MAX_VALUE, createFrame);
@@ -595,18 +631,19 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			if(ReturnCode.SUCCESS == launchAgent(a, timeOutSeconds, createFrame))
 				return a;
 		} catch (InstantiationException e) {
-			final String msg = ErrorMessages.CANT_LAUNCH + agentClass + " because it has no default constructor ";
+			final String msg = ErrorMessages.CANT_LAUNCH + agentClass + " : it has no default constructor\n"+e.getMessage();
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
 					JOptionPane.showMessageDialog(null, msg,
 							"Launch failed", JOptionPane.WARNING_MESSAGE);
 				}
 			});
-			getLogger().severeLog(ErrorMessages.CANT_LAUNCH + agentClass + " because it has no default constructor "+e.getMessage(),e);
+			getLogger().severeLog(msg,e);
 		} catch (IllegalAccessException e) {
-			getLogger().severeLog(ErrorMessages.CANT_LAUNCH + agentClass, e);
+			//			setAgentStackTrace(e);
+			getLogger().severeLog(ErrorMessages.CANT_LAUNCH + agentClass + " : its constructor is not public :\n"+e.getMessage(),e);
 		} catch (ClassCastException e) {
-			getLogger().severeLog(ErrorMessages.CANT_LAUNCH + agentClass + " : not an agent class", e);
+			getLogger().severeLog(ErrorMessages.CANT_LAUNCH + agentClass + " : Not an agent class", e);
 		} catch (ClassNotFoundException e) {
 			getLogger().severeLog(ErrorMessages.CANT_LAUNCH +" "+agentClass+" : ", e);
 		}
@@ -621,7 +658,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @param bucketSize the desired number of agents.
 	 * @return a list containing all the agents which have been launched,
 	 *         or <code>null</code> if the operation failed
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 * @see #launchAgentBucketWithRoles(String, int, Collection)
 	 * @since MadKit 5.0.0.6
 	 */
@@ -662,7 +698,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * C, G and R with semicolon as follows: <code>"community;group;role"</code>
 	 * @return a list containing all the agents which have been launched,
 	 *         or <code>null</code> if the operation has failed
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 * @since MadKit 5.0.0.6
 	 */
 	public List<AbstractAgent> launchAgentBucketWithRoles(String agentClassName, int bucketSize, Collection<String> cgrLocations) {
@@ -675,13 +710,14 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * the targeted agent has a lot of time to complete its {@link #end()} method.
 	 * 
 	 * @return <ul>
-	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the send has succeeded.</li>
-	 *         <li><code>{@link ReturnCode#ALREADY_KILLED}</code>: If the community does not exist.</li>
-	 *         <li><code>{@link ReturnCode#NOT_YET_LAUNCHED}</code>: If the group does not exist.</li>
+	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the target's end method has completed normally.</li>
+	 *         <li><code>{@link ReturnCode#ALREADY_KILLED}</code>: If the target has been already killed.</li>
+	 *         <li><code>{@link ReturnCode#NOT_YET_LAUNCHED}</code>: If the target has not been launched.</li>
+	 *         <li><code>{@link ReturnCode#TIMEOUT}</code>: If the target's end method took more than 2e31 seconds
+	 *         and has been brutally stopped: This unlikely happens ;).</li>
 	 *         </ul>
 	 * @since MadKit 5.0
 	 * @see #killAgent(AbstractAgent, int)
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 */
 	public ReturnCode killAgent(final AbstractAgent target) {
 		return killAgent(target, Integer.MAX_VALUE);
@@ -689,22 +725,36 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 
 	/**
 	 * Kills the targeted agent. The kill process stops the agent's life cycle but allows it to
-	 * process its {@link #end()} method until the time out elapsed.
-	 * This has the same effect as <code>requestRole(community, group, role, null)</code>
+	 * process its {@link #end()} method until the time out elapsed. 
+	 * <p>
+	 * If the target is in the activate or live method (Agent subclasses), it will be brutally stop
+	 * and then proceed its end method.
+	 * 
+	 * <p>
+	 * 
+	 * The method returns only
+	 * when the targeted agent actually ends its life. So if the target contains a infinite loop,
+	 * the caller can be blocked. Using a timeout thus ensures that the caller will be blocked only
+	 * a certain amount of time. Using 0 as timeout will stop the target as soon as possible, eventually 
+	 * brutally stop the its life cycle. In such a case, if its end method has not been started, 
+	 * it will never run.
 	 * 
 	 * @return <ul>
-	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the send has succeeded.</li>
-	 *         <li><code>{@link ReturnCode#ALREADY_KILLED}</code>: If the community does not exist.</li>
-	 *         <li><code>{@link ReturnCode#NOT_YET_LAUNCHED}</code>: If the group does not exist.</li>
+	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the target's end method has completed normally.</li>
+	 *         <li><code>{@link ReturnCode#ALREADY_KILLED}</code>: If the target has been already killed.</li>
+	 *         <li><code>{@link ReturnCode#NOT_YET_LAUNCHED}</code>: If the target has not been launched.</li>
+	 *         <li><code>{@link ReturnCode#TIMEOUT}</code>: If the target's end method took too much
+	 *         time and has been brutally stopped.</li>
 	 *         </ul>
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 * @since MadKit 5.0
 	 */
 	public ReturnCode killAgent(final AbstractAgent target, final int timeOutSeconds) {
-		if(target == this && Thread.currentThread().getName().equals(getState()+"-"+hashCode())){
+		if(target == this && Thread.currentThread().getName().equals(getAgentThreadName(getState()))){
 			if(isFinestLogOn())
 				logger.log(Level.FINEST, Influence.KILL_AGENT+" ("+timeOutSeconds+")"+ target.getLoggingName()+"...");
-			throw new SelfKillException(""+timeOutSeconds);
+			if(alive.compareAndSet(true, false)){
+				throw new SelfKillException(""+timeOutSeconds);
+			}
 		}
 		return getKernel().killAgent(this, target, timeOutSeconds);
 	}
@@ -744,7 +794,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	/**
-	 * @param name the name to display in logger info, GUI title and so on, default is "class name + internal ID"
+	 * @param name the name to display in logger info, 
+	 * GUI title and so on, default is "class name + internal ID"
 	 */
 	public void setName(final String name) {// TODO trigger gui changes and so on
 		if (! getName().equals(name)) {
@@ -822,7 +873,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * 
 	 * @see AbstractAgent#createGroup(String, String, boolean, Gatekeeper)
 	 * @since MadKit 5.0
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 */
 	public ReturnCode createGroup(final String community, final String group) {
 		return createGroup(community, group, false, null);
@@ -843,7 +893,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         </ul>
 	 * 
 	 * @see AbstractAgent#createGroup(String, String, boolean, Gatekeeper)
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 * @since MadKit 5.0
 	 */
 	public ReturnCode createGroup(final String community, final String group, boolean isDistributed) {
@@ -876,7 +925,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * 
 	 * @see Gatekeeper
 	 * @see ReturnCode
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 * @since MadKit 5.0
 	 */
 	public ReturnCode createGroup(final String community, final String group, boolean isDistributed, final Gatekeeper keyMaster) {
@@ -894,7 +942,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         </ul>
 	 * 
 	 * @see AbstractAgent#createGroupIfAbsent(String, String, boolean, Gatekeeper)
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 * @since MadKit 5.0
 	 */
 	public boolean createGroupIfAbsent(final String community, final String group) {
@@ -913,7 +960,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         </ul>
 	 * 
 	 * @see AbstractAgent#createGroupIfAbsent(String, String, boolean, Gatekeeper)
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 * @since MadKit 5.0
 	 */
 	public boolean createGroupIfAbsent(final String community, final String group, boolean isDistributed) {
@@ -937,7 +983,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * 
 	 * @see Gatekeeper
 	 * @see ReturnCode
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 * @since MadKit 5.0
 	 */
 	public boolean createGroupIfAbsent(final String community, final String group, boolean isDistributed, final Gatekeeper keyMaster) {
@@ -957,7 +1002,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         <li><code>{@link ReturnCode#NOT_IN_GROUP}</code>: If this agent is not a member of this group.</li>
 	 *         </ul>
 	 * 
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 * @since MadKit 5.0
 	 * @see ReturnCode
 	 */
@@ -979,7 +1023,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @param community the group's community.
 	 * @param group the desired group.
 	 * @param role the desired role.
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 * @see #requestRole(String, String, String, Object)
 	 * @since MadKit 5.0
 	 */
@@ -1005,7 +1048,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         </ul>
 	 * @see AbstractAgent.ReturnCode
 	 * @see Gatekeeper
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 * 
 	 * @since MadKit 5.0
 	 */
@@ -1026,7 +1068,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         <li><code>{@link ReturnCode#ROLE_NOT_HANDLED}</code>: If this role is not handled by this agent.</li>
 	 *         </ul>
 	 * @see AbstractAgent.ReturnCode
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 * @since MadKit 5.0
 	 */
 	public ReturnCode leaveRole(final String community, final String group, final String role) {
@@ -1051,7 +1092,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		if (stackTrace.length > 0) {
 			final List<StackTraceElement> stack = new ArrayList<StackTraceElement>();
 			//			stack.add(stackTrace[1]);
-			String agentClassName = getClass().getName();
+			final String agentClassName = getClass().getName();
 			for (int i = 0; i < stackTrace.length; i++) {
 				final String trace = stackTrace[i].getClassName();
 				if (! (trace.contains("madkit.kernel") || trace.contains("java.")) || trace.contains(agentClassName)) {
@@ -1079,7 +1120,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @param community the community name
 	 * @param group the group name
 	 * @param role the role name
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 * @return an {@link AgentAddress} corresponding to an agent handling this role or <code>null</code> if such an agent does not exist.
 	 */
 	public AgentAddress getAgentWithRole(final String community, final String group, final String role) {
@@ -1093,7 +1133,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @param community the community name
 	 * @param group the group name
 	 * @param role the role name
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 * @return a {@link java.util.List} containing agents that handle this role or <code>null</code> if no agent has been found.
 	 */
 	public List<AgentAddress> getAgentsWithRole(final String community, final String group, final String role) {
@@ -1107,7 +1146,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @param group the group name
 	 * @param role the role name
 	 * @param callerIncluded if <code>false</code>, the caller is removed from the list if it is in.
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 * @return a {@link java.util.List} containing agents that handle this role or <code>null</code> if no agent has been found.
 	 */
 	public List<AgentAddress> getAgentsWithRole(final String community, final String group, final String role, boolean callerIncluded) {
@@ -1115,7 +1153,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	/**
-	 * Returns the next message contained in the message box.
+	 * Retrieves and removes the oldest received message contained
+	 * in the mailbox.
 	 * 
 	 * @return The next message or <code>null</code> if the message box is empty.
 	 */
@@ -1159,7 +1198,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         receiver agent address.</li>
 	 *         </ul>
 	 * @see ReturnCode
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 * @see AgentAddress
 	 */
 	public ReturnCode sendMessage(final AgentAddress receiver, final Message messageToSend) {
@@ -1178,10 +1216,9 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         <li><code>{@link ReturnCode#INVALID_AA}</code>: If the receiver address is no longer valid. This is the case when the corresponding agent has leaved the role corresponding to the
 	 *         receiver agent address.</li>
 	 *         <li><code>{@link ReturnCode#NETWORK_DOWN}</code>: If the <code>receiver</code> is running 
-	 *         on another kernel but the network agent is down.</li>
+	 *         on another kernel but the network is down.</li>
 	 *         </ul>
 	 * @see ReturnCode
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 * @see AgentAddress
 	 */
 	public ReturnCode sendMessageWithRole(final AgentAddress receiver, final Message message, final String senderRole) {
@@ -1207,7 +1244,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         <li><code>{@link ReturnCode#NO_RECIPIENT_FOUND}</code>: If no agent was found as recipient, i.e. the sender was the only agent having this role.</li>
 	 *         </ul>
 	 * @see ReturnCode
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 * 
 	 */
 	public ReturnCode sendMessage(final String community, final String group, final String role, final Message message) {
@@ -1216,7 +1252,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 
 	/**
 	 * Sends a message to an agent having this position in the organization.
-	 * This has the same effect as sendMessageWithRole(community, group, role, messageToSend,null).
+	 * This has the same effect as <code>sendMessageWithRole(community, group, role, messageToSend,null)</code>.
 	 * If several agents match, the target is chosen randomly.
 	 * The sender is excluded from this search.
 	 * 
@@ -1235,7 +1271,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         <li><code>{@link ReturnCode#NO_RECIPIENT_FOUND}</code>: If no agent was found as recipient, i.e. the sender was the only agent having this role.</li>
 	 *         </ul>
 	 * @see ReturnCode
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 * 
 	 */
 	public ReturnCode sendMessageWithRole(final String community, final String group, final String role, final Message message, final String senderRole) {
@@ -1257,7 +1292,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         <li><code>{@link ReturnCode#NO_RECIPIENT_FOUND}</code>: If no agent was found as recipient, i.e. the sender was the only agent having this role.</li>
 	 *         </ul>
 	 * @see ReturnCode
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 * 
 	 */
 	public ReturnCode broadcastMessage(final String community, final String group, final String role, final Message message) {
@@ -1281,7 +1315,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         <li><code>{@link ReturnCode#NO_RECIPIENT_FOUND}</code>: If no agent was found as recipient, i.e. the sender was the only agent having this role.</li>
 	 *         </ul>
 	 * @see ReturnCode
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 * 
 	 */
 	public ReturnCode broadcastMessageWithRole(final String community, final String group, final String role, final Message messageToSend, String senderRole) {
@@ -1308,8 +1341,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the send has succeeded.</li>
 	 *         <li><code>{@link ReturnCode#NO_RECIPIENT_FOUND}</code>: If no agent was found as recipient, i.e. the sender was the only agent having this role.</li>
 	 *         </ul>
-	 * @throws KernelException if this agent has not been launched or is already terminated
-	 * @throws NullPointerException if <code>reply</code> or <code>messageToReplyTo</code> is <code>null</code>
 	 * @see ReturnCode
 	 * 
 	 */
@@ -1329,7 +1360,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         <li><code>{@link ReturnCode#NO_RECIPIENT_FOUND}</code>: If no agent was found as recipient, i.e. the sender was the only agent having this role.</li>
 	 *         </ul>
 	 * @see ReturnCode
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 * 
 	 */
 	public ReturnCode sendReply(final Message messageToReplyTo, final Message reply) {
@@ -1355,12 +1385,14 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	/**
-	 * This method offers a convenient way for "non Agent modules" to send messages to Agent, especially threaded agents.
-	 * For instance when a GUI wants to discuss with its linked agent: This allows to enqueue work to do in their life cycle
+	 * This method offers a convenient way for regular object to send 
+	 * messages to Agents, especially threaded agents.
+	 * For instance when a GUI wants to discuss with its linked agent: 
+	 * This allows to enqueue work to do in their life cycle
 	 * 
 	 * @param m
 	 */
-	public void receiveMessage(Message m) {
+	public void receiveMessage(final Message m) {
 		messageBox.offer(m); // TODO test vs. arraylist and synchronized
 		//		if(messageBox == null)
 		//			messageBox = new LinkedBlockingDeque<Message>();
@@ -1423,11 +1455,11 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @return <ul>
 	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the reload can be done.</li>
 	 *         </ul>
-	 * @throws ClassNotFoundException if the class cannot be found
-	 * @throws NullPointerException if <code>className</code> is <code>null</code> 
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 * @since MadKit 5.0.0.3
 	 */
+//	* @throws ClassNotFoundException if the class cannot be found
+//	* @throws NullPointerException if <code>className</code> is <code>null</code> 
+//	* @throws KernelException if this agent has not been launched or is already terminated
 	public ReturnCode reloadAgentClass(String className) throws ClassNotFoundException {
 		//		try {
 		return getKernel().reloadClass(this, className);
@@ -1448,7 +1480,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @param className the fully qualified name of the desired class.
 	 * @return the newest version of a class object given its name.
 	 * @throws ClassNotFoundException 
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 * @since MadKit 5.0.0.8
 	 */
 	public Class<?> getNewestClassVersion(String className) throws ClassNotFoundException{
@@ -1466,7 +1497,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * 
 	 * @param community the name of the community
 	 * @return <code>true</code> If a community with this name exists, <code>false</code> otherwise.
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 */
 	public boolean isCommunity(final String community) {
 		return getKernel().isCommunity(this, community);
@@ -1478,7 +1508,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @param community the name of the community the group is in
 	 * @param group the name of the group
 	 * @return <code>true</code> If a group with this name exists in this community, <code>false</code> otherwise.
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 */
 	public boolean isGroup(final String community, final String group) {
 		return getKernel().isGroup(this, community, group);
@@ -1491,7 +1520,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @param group the name of the group
 	 * @param role the name of the role
 	 * @return <code>true</code> If a role with this name exists in this <community;group> couple, <code>false</code> otherwise.
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 */
 	public boolean isRole(final String community, final String group, final String role) {
 		return getKernel().isRole(this, community, group, role);
@@ -1536,6 +1564,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			return ! (Level.FINEST.intValue() < logger.getLevel().intValue());
 		}
 		else{
+			//As it is called by the logged kernel 
 			//updating the level accordingly -> the user has set logger to null himself
 			setLogLevel(Level.OFF);
 			return false;
@@ -1547,7 +1576,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * 
 	 * @return the kernel address representing the MadKit kernel
 	 * on which the agent is running
-	 * @throws KernelException if this agent has not been launched or is already terminated
 	 */
 	public KernelAddress getKernelAddress(){
 		return getKernel().getKernelAddress();
@@ -1560,27 +1588,27 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	final boolean logLifeException(final Throwable e) {
 		if(e instanceof KilledException || e instanceof IllegalMonitorStateException){
 			if(logger != null)
-				logger.warning("-*-GET KILLED in "+getInMethodName()+"-*-");
+				logger.warning("-*-GET KILLED in "+getState().lifeCycleMethod()+"-*-");
 		}
 		else{
-			getLogger().severeLog("-*-"+getInMethodName()+" BUG*-*", e);
+			getLogger().severeLog("-*-"+getState().lifeCycleMethod()+" BUG*-*", e);
 			//		getLogger().severeLog(m, e instanceof AgentLifeException ? e.getCause() : e);
 		}
 		return false;
 	}
 
-	private String getInMethodName(){
-		switch (getState()) {
-		case ACTIVATED:
-			return "ACTIVATE";// " + getI18N("terminated");
-		case LIVING:
-			return "LIVE";// + getI18N("terminated");
-		case ENDING:
-			return "END";
-		default:
-			return "TERMINATE";
-		}
-	}
+//	private String getInMethodName(){
+//		switch (getState()) {
+//		case ACTIVATED:
+//			return "ACTIVATE";// " + getI18N("terminated");
+//		case LIVING:
+//			return "LIVE";// + getI18N("terminated");
+//		case ENDING:
+//			return "END";
+//		default:
+//			return "TERMINATE";
+//		}
+//	}
 
 	//	/**
 	//	 * @param e
@@ -1629,7 +1657,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	private Message waitingNextMessage(final long timeout, final TimeUnit unit) {
 		try {
 			return messageBox.pollFirst(timeout, unit);
-		} catch (InterruptedException e) {//TODO
+		} catch (InterruptedException e) {
 			handleInterruptedException();
 			return null;
 		} 
@@ -1741,11 +1769,14 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @param e the InterruptedException which has to be propagated
 	 * @since MadKit 5.0.0.12
 	 */
-	void handleInterruptedException(){
+	final void handleInterruptedException(){//TODO 
+		if(Thread.currentThread().getName().equals(getAgentThreadName(getState())) && alive.compareAndSet(true, false))
+			throw new SelfKillException(""+0);//TODO why 0 ?
+		else
+			Thread.currentThread().interrupt();
 		//		if(logger != null){
 		//			logger.log(Level.WARNING," Interrupted (killed) by ",e);
 		//		}
-		Thread.currentThread().interrupt();
 	}
 
 
@@ -1820,6 +1851,21 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		 * The agent has finished its life cycle in the MadKit platform.
 		 */
 		TERMINATED;
+		
+		final String lifeCycleMethod() {
+			switch (this) {
+			case ACTIVATED:
+				return "ACTIVATE";
+			case LIVING:
+				return "LIVE";
+			case TERMINATED:
+				return "TERMINATE";
+			case ENDING:
+				return "END";
+			default:
+				return name();
+			}
+		}
 	}
 
 	/**
@@ -1945,12 +1991,11 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 
 
 	/**
-	 * Tells if a network agent is running.
-	 * @return <code>true</code> if the network agent is
-	 * alive.
+	 * Tells if the kernel on which this agent is running is online.
+	 * @return <code>true</code> if the kernel is online.
 	 */
-	public boolean isKernelConnected() {
-		return getKernel().isOnline();
+	public boolean isKernelOnline() {
+		return isRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT);
 	}
 
 	AgentExecutor getAgentExecutor() {

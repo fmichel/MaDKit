@@ -39,6 +39,7 @@ public abstract class DoItDuringLifeCycleAgent extends Agent{
 		this.inActivate = inActivate;
 		this.inLive = inLive;
 		this.inEnd = inEnd;
+		setName(getName());
 	}
 	
 	public DoItDuringLifeCycleAgent(boolean inActivate, boolean inLive){
@@ -56,7 +57,7 @@ public abstract class DoItDuringLifeCycleAgent extends Agent{
 	@Override
 	public String getName() {
 		// TODO Auto-generated method stub
-		return super.getName()+(inActivate?"-inActivate-":"")+(inLive?"-inLive-":"")+(inEnd?"-inEnd-":"");
+		return super.getName()+(inActivate?"-inActivate-":"")+(inLive?"-inLive-":"")+(inEnd?"-inEnd-":"")+hashCode();
 	}
 	
 	public void activate() {
@@ -86,7 +87,7 @@ public abstract class DoItDuringLifeCycleAgent extends Agent{
 
 	public void doIt(){
 		if(logger != null)
-			logger.info("I am in "+getState());
+			logger.info("\n\n\tDo it JOB DONE !!!!!! in "+getState()+"\n\n");
 	}
 }
 

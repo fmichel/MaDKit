@@ -18,7 +18,7 @@
  */
 package madkit.kernel;
 
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,10 +35,12 @@ import org.junit.Test;
 public class KernelAddressTest {
 
 	private static List<KernelAddress> kas;
+	private static List<KernelAddress> simultaneous;
 
 	@BeforeClass 
 	public static void createNewAddresses(){
 		kas = new ArrayList<KernelAddress>();
+		simultaneous = new ArrayList<KernelAddress>();
 		for (int i = 0; i < 2000; i++) {
 			try {
 				Thread.sleep((long) (Math.random()*2));
@@ -47,6 +49,9 @@ public class KernelAddressTest {
 			}
 			kas.add(new KernelAddress());
 		}
+		for (int i = 0; i < 2000; i++) {
+			simultaneous.add(new KernelAddress());
+		}
 	}
 	
 	@Test
@@ -54,7 +59,25 @@ public class KernelAddressTest {
 		for (KernelAddress ka : kas) {
 			for (KernelAddress other : kas) {
 				if(ka != other && other.hashCode() == ka.hashCode()){
-					fail("two addresses withidentical hashCode");
+					fail("two addresses with identical hashCode");
+				}
+			}
+		}
+		for (KernelAddress ka : simultaneous) {
+			for (KernelAddress other : simultaneous) {
+				if(ka != other && other.hashCode() == ka.hashCode()){
+					fail("two addresses with identical hashCode");
+				}
+			}
+		}
+	}
+
+	@Test
+	public void testUniqueness() {
+		for (KernelAddress ka : kas) {
+			for (KernelAddress other : simultaneous) {
+				if(other.hashCode() == ka.hashCode()){
+					fail("two addresses with identical hashCode");
 				}
 			}
 		}
@@ -69,11 +92,25 @@ public class KernelAddressTest {
 				}
 			}
 		}
+		for (KernelAddress ka : simultaneous) {
+			for (KernelAddress other : simultaneous) {
+				if(ka != other && other.equals(ka)){
+					fail("two addresses equals");
+				}
+			}
+		}
+		for (KernelAddress ka : kas) {
+			for (KernelAddress other : simultaneous) {
+				if(ka != other && other.equals(ka)){
+					fail("two addresses equals");
+				}
+			}
+		}
 	}
 
 	@Test
 	public void testToString() {
-		for (KernelAddress ka : kas) {
+		for (KernelAddress ka : simultaneous) {
 			System.err.println(ka);
 		}
 	}

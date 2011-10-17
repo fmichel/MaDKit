@@ -54,7 +54,7 @@ public class KillTargetAgent extends DoItDuringLifeCycleAgent {
 	}
 
 	@Override
-	public void live() {
+	public void activate() {
 		killAgent(toKill, 4);
 	}
 }

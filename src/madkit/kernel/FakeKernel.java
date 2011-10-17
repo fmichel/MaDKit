@@ -46,6 +46,12 @@ class FakeKernel extends MadkitKernel{
 	//////////////////////////////////////////////////////////////
 
 	String buildFailString(final AbstractAgent agent){
+//		if (agent != null) {
+//			final AgentExecutor ae = agent.getAgentExecutor();
+//			if(ae != null){
+//				ae.shutdownNow();
+//			}
+//		}
 		return agent != null ? agent.toString() : "";
 	}
 	
@@ -96,7 +102,7 @@ class FakeKernel extends MadkitKernel{
 	}
 	
 	@Override
-	final public boolean isKernelConnected() {
+	final public boolean isKernelOnline() {
 		throw new KernelException(buildFailString(null));
 	}
 	
@@ -221,7 +227,6 @@ class FakeKernel extends MadkitKernel{
 	final List<Message> broadcastMessageWithRoleAndWaitForReplies(AbstractAgent agent,
 			String community, String group, String role, Message message,
 			String senderRole, Integer timeOutMilliSeconds) {
-		// TODO Auto-generated method stub
 		throw new KernelException(buildFailString(agent));
 	}
 

@@ -30,6 +30,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Fabien Michel
  * @author Olivier Gutknecht
  * @see AgentAddress
+ * @see AbstractAgent#sendMessage(AgentAddress, Message)
+ * @see AbstractAgent#sendMessage(String, String, String, Message)
  * 
 */
 
@@ -73,6 +75,7 @@ public class Message implements Cloneable,java.io.Serializable{
 	}
 
 	/**
+	 * 
 	 * @return the receiver
 	 */
 	public AgentAddress getReceiver() {
@@ -80,7 +83,11 @@ public class Message implements Cloneable,java.io.Serializable{
 	}
 
 	/**
-	 * @return the sender
+	 * Returns the agent address corresponding to the agent that sends this message.
+	 * 
+	 * @return the message's sender or <code>null</code> if the message has not been sent by an agent.
+	 * @see AbstractAgent#sendMessage(AgentAddress, Message)
+	 * @see AbstractAgent#sendMessage(String, String, String, Message)
 	 */
 	public AgentAddress getSender() {
 		return sender;
@@ -98,15 +105,20 @@ public class Message implements Cloneable,java.io.Serializable{
 		}
 
 	/**
-	 * @return a copy of the message.
+	 * Returns a shadow copy of the message.
+	 * Message subclasses requiring
+	 * deep copies of their object fields should override this method. Especially,
+	 * message cloning is used by {@link AbstractAgent#broadcastMessage(String, String, String, Message)}
+	 * and the like to set different receivers for each cloned message.
+	 * 
+	 * @return a shadow copy of the message.
 	 */
 	@Override
-	public Message clone() {//TODO logging and warning and how clone
+	protected Message clone() {//TODO logging and warning and how clone
 		try	{
 			return (Message) super.clone();
 		}
 		catch (CloneNotSupportedException e) { 
-			e.printStackTrace();
 			throw new InternalError(); 
 		}
 	}
@@ -119,7 +131,8 @@ public class Message implements Cloneable,java.io.Serializable{
 	}
 
 	/**
-	 * returns the conversation ID.
+	 * returns the conversation ID of this message.
+	 * 
 	 * @return the ID of the conversation to which this message belongs to.
 	 */
 	final public int getConversationID() {

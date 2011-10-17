@@ -117,15 +117,17 @@ public class Scheduler extends Agent {
 	private JSlider speedSlider;
 
 	/**
-	 * @return the delay
+	 * Returns the delay between two simulation steps
+	 * @return the delay between two simulation steps.
 	 */
 	public int getDelay() {
 		return delay;
 	}
 
 	/**
-	 * @param delay
-	 *           the delay to set
+	 * Sets the delay between two simulation steps. That is the pause time between to call to {@link #doSimulationStep()}
+	 * 
+	 * @param delay the delay to set
 	 */
 	public void setDelay(final int delay) {
 		this.delay = delay;
@@ -137,6 +139,7 @@ public class Scheduler extends Agent {
 	private double GVT = 0; // simulation global virtual time
 
 	/**
+	 * Returns the simulation global virtual time.
 	 * @return the gVT
 	 */
 	public double getGVT() {
@@ -144,8 +147,9 @@ public class Scheduler extends Agent {
 	}
 
 	/**
-	 * @param gVT
-	 *           the gVT to set
+	 * Sets the simulation global virtual time.
+	 * 
+	 * @param gVT the gVT to set
 	 */
 	public void setGVT(final double gVT) {
 		GVT = gVT;
@@ -155,6 +159,10 @@ public class Scheduler extends Agent {
 	private double simulationDuration;
 	private double startTime;
 
+	/**
+	 * This constructor is equivalent to 
+	 * <code>Scheduler(0, Double.MAX_VALUE)</code>
+	 */
 	public Scheduler() {
 		this(0, Double.MAX_VALUE);
 	}
@@ -163,6 +171,10 @@ public class Scheduler extends Agent {
 //		this(0, Double.MAX_VALUE);
 //	}
 
+	/**
+	 * This constructor is equivalent to 
+	 * <code>Scheduler(0, endTime)</code>
+	 */
 	public Scheduler(final double endTime) {
 		this(0, endTime);
 	}
@@ -173,6 +185,12 @@ public class Scheduler extends Agent {
 //		this.setStartTime(startTime);
 //	}
 
+	/**
+	 * Constructor specifying the global times at which the simulation starts and ends.
+	 * 
+	 * @param startTime the first step global virtual time
+	 * @param endTime the time at which the simualtion will automatically stop
+	 */
 	public Scheduler(final double startTime, final double endTime) {
 		buildActions();
 		setSimulationDuration(endTime);
@@ -180,8 +198,8 @@ public class Scheduler extends Agent {
 	}
 
 	/**
-	 * Setup the default Scheduler GUI when launched with the default gui
-	 * mechanism.
+	 * Setup the default Scheduler GUI when launched with the default MadKit
+	 * GUI mechanism.
 	 * 
 	 * @see madkit.kernel.AbstractAgent#setupFrame(javax.swing.JFrame)
 	 * @since MadKit 5.0.0.8
@@ -244,10 +262,6 @@ public class Scheduler extends Agent {
 		}
 	}
 
-	public void stoped() {
-		pause(300);
-	}
-
 	@Override
 	protected void end() {
 		simulationState = PAUSED;
@@ -256,35 +270,14 @@ public class Scheduler extends Agent {
 	}
 
 	/**
-	 * @return the agentState
+	 * The state of the simualtion.
+	 * 
+	 * @return the state in which the simulation is.
+	 * @see State
 	 */
 	public State getSimulationState() {
 		return simulationState;
 	}
-
-//	/**
-//	 * Asks the scheduler to change its simulation state. 
-//	 * It is a shortcut for
-//	 * 
-//	 * @param newState
-//	 *           the scheduling state to set
-//	 * @see State
-//	 */
-//	public void setSimulationState(final State newState) {
-//		switch (newState) {
-//		case RUNNING:
-//			receiveMessage(new ObjectMessage<State>(RUNNING));
-//			break;
-//		case STEP:
-//			receiveMessage(new ObjectMessage<State>(STEP));
-//			break;
-//		case PAUSED:
-//			receiveMessage(new ObjectMessage<State>(PAUSED));
-//			break;
-//		default:
-//			break;
-//		}
-//	}
 
 	private void changeState(final State newState) {
 		if (simulationState != newState) {
@@ -352,11 +345,7 @@ public class Scheduler extends Agent {
 	}
 
 	private void paused() {
-		checkMail(waitNextMessage());
-		// if(defaultPattern){
-		// displayAllWorld.execute();
-		// viewersDoIt.execute();
-		// }
+		checkMail(waitNextMessage(1000));
 	}
 
 	/**
@@ -465,6 +454,11 @@ public class Scheduler extends Agent {
 		return toolBar;
 	}
 
+	/**
+	 * Returns a menu which could be used in any GUI.
+	 * 
+	 * @return a  menu controlling the scheduler's actions
+	 */
 	public JMenu getSchedulerMenu() {
 		JMenu myMenu = new JMenu("Scheduling");
 		myMenu.setMnemonic(KeyEvent.VK_S);
@@ -475,6 +469,10 @@ public class Scheduler extends Agent {
 		return myMenu;
 	}
 
+	/**
+	 * Returns a label giving some information on the simulation process
+	 * @return a label giving some information on the simulation process
+	 */
 	public JLabel getSchedulerStatusLabel() {
 		timer = new JLabel();
 		timer.setBorder(new EmptyBorder(4, 4, 4, 4));
@@ -485,7 +483,7 @@ public class Scheduler extends Agent {
 	/**
 	 * @param speedSlider the speedSlider to set
 	 */
-	public void setSpeedSlider(JSlider speedSlider) {
+	private void setSpeedSlider(JSlider speedSlider) {
 		this.speedSlider = speedSlider;
 	}
 

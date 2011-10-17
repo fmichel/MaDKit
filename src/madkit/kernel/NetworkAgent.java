@@ -28,13 +28,18 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.omg.PortableInterceptor.SUCCESSFUL;
+
 import madkit.agr.CloudCommunity;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.agr.LocalCommunity.Roles;
 import madkit.agr.Organization;
 import madkit.gui.GUIToolkit;
+import madkit.gui.actions.MadkitActions;
 import madkit.kernel.Madkit.LevelOption;
+import madkit.messages.CodeMessage;
+import madkit.messages.KernelMessage;
 import madkit.messages.ObjectMessage;
 
 /**
@@ -80,8 +85,6 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 		setName(super.getName()+getKernelAddress());
 		setLogLevel(LevelOption.networkLogLevel.getValue(getMadkitConfig()));
 
-		createGroup(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS,true);
-		requestRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT);
 		requestRole(LocalCommunity.NAME, Groups.NETWORK, madkit.agr.LocalCommunity.Roles.NET_AGENT);
 
 		kernelAgent = getAgentWithRole(LocalCommunity.NAME, Groups.NETWORK, Organization.GROUP_MANAGER_ROLE);
@@ -90,14 +93,25 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 		if(kernelAgent == null)
 			throw new AssertionError(this+" no kernel agent to work with... Please bug report");
 		
-		//build server
+		//build servers
+		alive = goOnline();
+	}
+
+	/**
+	 * @return true if servers are launched
+	 */
+	private boolean goOnline() {
+		if(ReturnCode.SUCCESS != createGroup(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS,true)){
+			return false;
+		}
+		requestRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT);
 		try {
 			myServer = KernelServer.getNewKernelServer();
 		} catch (IOException e) {
 			if (logger != null) 
 				logger.warning("\n\t\t\t\t---- Unable to start the Madkit kernel server"+e.getClass().getName()+" "+e.getMessage()+" ------\n");
-			alive = false;
-			return;
+			goOffline();
+			return false;
 		}
 
 		myServer.activate(this);
@@ -116,9 +130,10 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 			if (logger != null){
 				logger.warning("\n\t\t\t\t---- Unable to start a Multicast Listener "+e.getClass().getName()+" "+e.getMessage()+" ------\n");
 			}
+			goOffline();
+			return false;
 		}
-		
-		GUIToolkit.updateAgentsUI();
+
 		Message m = null;
 		final ArrayList<Message> toDoList = new ArrayList<Message>();
 
@@ -148,6 +163,8 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 				kc.start();
 			}
 		}
+		GUIToolkit.updateAgentsUI();
+		return true;
 	}
 
 	/* (non-Javadoc)
@@ -162,8 +179,13 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 
 		@Override
 		protected void end() {
-			leaveGroup(LocalCommunity.NAME, Groups.NETWORK);
-			GUIToolkit.updateAgentsUI();
+			goOffline();
+		}
+
+		/**
+		 * 
+		 */
+		private void goOffline() {
 			if (logger != null){
 				logger.info("\n\t\t\t\t----- Network is being closed on "+getKernelAddress()+" ------\n");
 				logger.finer("Closing all connections : "+peers.values());
@@ -172,28 +194,36 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 				deconnectFromPeer(entry.getKey());
 				entry.getValue().closeConnection();
 			}
+			peers.clear();
 			if (logger != null){
 				logger.finer("Closing multicast listener and kernel server");
 			}
-			multicastListener.stop();
-			myServer.stop();
+			if (multicastListener != null) {
+				multicastListener.stop();
+			}
+			if (myServer != null) {
+				myServer.stop();
+			}
+			leaveGroup(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS);
+			GUIToolkit.updateAgentsUI();
 		}
 
 	@SuppressWarnings("unchecked")
 	private void handleMessage(Message m) throws ClassCastException{
 		AgentAddress sender = m.getSender();
-		if(sender == null){//contacted by my private objects
+		if(sender == null){//contacted by my private objects or by the kernel
 			handlePrivateMessage((NetworkMessage<?>) m);
 		}
 		else if(sender.isLocal()){//contacted locally
-			if(sender.getRole().equals(Roles.UPDATER)){//It is a CGR update
+			final String senderRole = sender.getRole();
+			if(senderRole.equals(Roles.UPDATER)){//It is a CGR update
 				broadcastUpdate(m);
 			}
-			else if(sender.getRole().equals(Roles.EMMITER)){//It is a message to send elsewhere role is Roles.EMMITER
+			else if(senderRole.equals(Roles.EMMITER)){//It is a message to send elsewhere role is Roles.EMMITER
 				sendDistantMessage((ObjectMessage<Message>) m);
 			}
-			else{//just an empty message from the kernel
-				alive = false;
+			else if(senderRole.equals(Roles.KERNEL)){//message from the kernel
+				handlePrivateMessage((KernelMessage) m);
 			}
 		}
 		else{//distant message
@@ -233,6 +263,29 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 			}
 	}
 
+	@SuppressWarnings("unchecked")
+	private void handlePrivateMessage(KernelMessage m) {
+			switch (m.getCode()) {
+			case MADKIT_STOP_NETWORK:
+				goOffline();
+				break;
+			case MADKIT_LAUNCH_NETWORK:
+				goOnline();
+				break;
+			case MADKIT_EXIT_ACTION:
+				alive = false;
+				break;
+			default:
+				if (logger != null) 
+					logger.info("I did not understand this private message "+m);
+				break;
+			}
+	}
+
+	/**
+	 * Removes ka from peers and clean organization accordingly
+	 * @param ka
+	 */
 	private void deconnectFromPeer(KernelAddress ka) {
 		if(peers.remove(ka) == null)//TODO log
 			return;

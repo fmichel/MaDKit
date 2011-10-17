@@ -147,7 +147,7 @@ public class AbstractAgentTest {
 		a.setLogLevel(Level.INFO);
 		assertNotNull(a.logger);
 		System.err.println(a.getLogger().getName());
-		a.setName("new");//TODO
+		a.setName("new");
 		System.err.println(a.getName());
 		System.err.println(a.getLogger().getName());
 		assertEquals(a.getLogger().getName(),a.getLoggingName());

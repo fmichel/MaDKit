@@ -54,7 +54,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 /**
- * The brand new version of the starter class of MadKit.
+ * The brand new version of the starter class of MadKit. 
  * <p>
  * <h2>MadKit v.5 new features</h2>
  * <p>
@@ -132,6 +132,42 @@ final public class Madkit {
 		return madkitLogFileHandler;
 	}
 
+	/**
+	 * This main should be used to
+	 * launch application booter agents using predefined options.
+	 * It can be used in two ways :
+	 * <p>
+	 * (1) From the command line:
+	 * <p>
+	 * For instance, assuming that your classpath is already set correctly:
+	 * <p>
+	 * <tt>>java madkit.kernel.Madkit agentLogLevel INFO --launchAgents
+	 * madkit.marketorg.Client,20,true;madkit.marketorg.Broker,10,true;madkit.marketorg.Provider,20,true;</tt>
+	 * <p> 
+	 * (2) It can be used programmatically anywhere, especially
+	 * within main method of agent classes to ease their launch within an IDE.
+	 * <p>
+	 * Here is an example of how it can be used in this way:
+	 * <p>
+	 * 
+	 * <pre>
+	 *	public static void main(String[] args) {
+	*	String[] argss = {
+	*		LevelOption.agentLogLevel.toString(),"FINE",
+	*		Option.launchAgents.toString(),//gets the -- launchAgents string
+	*		Client.class.getName()+",true,20;"+
+	*		Broker.class.getName()+",true,10;"+
+	*		Provider.class.getName()+",false,20"
+	*	};
+	*	Madkit.main(argss);//launching the application
+*	}
+	 * </pre>
+	 * 
+	 * 	 
+	 * 
+	 * @param args the options which should be used to launch Madkit:
+	 * see {@link LevelOption}, {@link BooleanOption} and {@link Option}
+	 */
 	public static void main(String[] args) {
 		new Madkit(args);
 	}
@@ -329,7 +365,7 @@ final public class Madkit {
 			}
 		}
 		else if(logger != null){
-				logger.warning(ErrorMessages.CANT_FIND+" configuration "+fileName);
+			logger.warning(ErrorMessages.CANT_FIND+" configuration "+fileName);
 		}
 	}
 
@@ -381,8 +417,8 @@ final public class Madkit {
 		if(!(LevelOption.madkitLogLevel.getValue(madkitConfig) == Level.OFF)){
 			//				|| Level.parse(madkitConfig.getProperty(Madkit.MadkitLogLevel)).equals(Level.OFF))){
 			return("\n\t-------------------------------------------------------------")+
-			("\n\t   MadKit Kernel "+myKernel.getKernelAddress()+" is shutting down, Bye !")+
-			("\n\t-------------------------------------------------------------\n");			
+					("\n\t   MadKit Kernel "+myKernel.getKernelAddress()+" is shutting down, Bye !")+
+					("\n\t-------------------------------------------------------------\n");			
 		}
 		return "";
 	}
@@ -700,7 +736,7 @@ final public class Madkit {
 	/**
 	 * @return the resourceBundle
 	 */
-	public static ResourceBundle getResourceBundle() {
+	static ResourceBundle getResourceBundle() {
 		return resourceBundle;
 	}
 
@@ -847,7 +883,7 @@ final public class Madkit {
 		 * @see BooleanOption#createLogFiles
 		 */
 		logDirectory,
-		
+
 		/**
 		 * TODO
 		 */

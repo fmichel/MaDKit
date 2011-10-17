@@ -18,7 +18,7 @@
  */
 
 /**
-* This package contains subclasses of {@link madkit.kernel.Message}.
+* This package contains subclasses of {@link madkit.kernel.Message} which could be easily reused.
 * This classes could be use at will by MadKit agents to communicate.
 * The simplest one is the {@link madkit.messages.ObjectMessage} class which 
 * can convey any kind of Object. 

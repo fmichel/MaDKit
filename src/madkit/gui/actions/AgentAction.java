@@ -26,6 +26,7 @@ import static java.awt.event.KeyEvent.VK_Z;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.lang.reflect.Constructor;
 import java.util.ResourceBundle;
 
 import javax.swing.AbstractAction;
@@ -103,6 +104,8 @@ public enum AgentAction implements MadkitGUIAction{
 	}
 
 	private Action getRelaunchAction(final AbstractAgent agent) {
+		if (! hasDefaultConstructor(agent))
+			return null;
 		return new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -113,6 +116,8 @@ public enum AgentAction implements MadkitGUIAction{
 		};
 	}
 	private Action getLaunchAnotherAction(final AbstractAgent agent) {
+		if (! hasDefaultConstructor(agent))
+			return null;
 		return new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -133,7 +138,7 @@ public enum AgentAction implements MadkitGUIAction{
 
 	private Action getReloadAndRelaunchAction(final AbstractAgent agent) {
 		String className = agent.getClass().getName();
-		if (className.contains("madkit.kernel") || className.contains("madkit.gui"))
+		if (! hasDefaultConstructor(agent) || className.contains("madkit.kernel") || className.contains("madkit.gui"))
 			return null;
 		return new AbstractAction() {
 			@Override
@@ -150,6 +155,17 @@ public enum AgentAction implements MadkitGUIAction{
 				}
 			}
 		};
+	}
+	
+	static boolean hasDefaultConstructor(AbstractAgent agent){
+		try {
+			for (Constructor<?> c : agent.getClass().getConstructors()) {
+				if(c.getParameterTypes().length == 0)
+					return true;
+			}
+		} catch (SecurityException e) {
+		}
+		return false;
 	}
 	
 	@Override

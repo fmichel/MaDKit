@@ -7,6 +7,7 @@ import java.awt.Window;
 import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.net.JarURLConnection;
@@ -98,7 +99,7 @@ public class GUIManagerAgent extends Agent  {
 		GUIToolkit.buildGlobalActions(this);
 			scanClassPathForAgentClasses();
 		kernelAddress = getAgentWithRole(LocalCommunity.NAME, Groups.SYSTEM, Roles.KERNEL);
-		if(kernelAddress == null)//TODO remove that
+		if(kernelAddress == null)//TODO remove that when OK
 			throw new AssertionError();
 		requestRole(LocalCommunity.NAME, Groups.SYSTEM, Roles.GUI_MANAGER);
 		if (! isDaemon()) {//use to detect desktop mode
@@ -109,7 +110,7 @@ public class GUIManagerAgent extends Agent  {
 	@Override
 	protected void live() {
 		while (! shuttedDown) {
-			Message m = waitNextMessage();
+			final Message m = waitNextMessage();
 			if(m.getSender() == null){
 				handlePrivateMessage((GUIMessage) m);
 			}
@@ -118,7 +119,7 @@ public class GUIManagerAgent extends Agent  {
 			}
 			else{
 				if(logger != null)
-					logger.warning("I received a message that I do not understang. Discarding "+m);
+					logger.warning("I received a message that I do not understand. Discarding "+m);
 			}
 		}
 	}
@@ -127,11 +128,10 @@ public class GUIManagerAgent extends Agent  {
 	protected void end() {
 		if(logger != null)
 			logger.finer("Disposing frames");
-		SwingUtilities.invokeLater(new Runnable() {
+//		final Thread t = new Thread(//not necessary just do not do interrupt
+		SwingUtilities.invokeLater(
+				new Runnable() {
 			public void run() {
-				if (desktop != null) {//TODO swing thread or cleaner shutdown
-					desktop.dispose();
-				}
 				for (final JFrame f : guis.values()) {
 					if (f.isVisible() && f.isShowing()) {
 						f.dispose();
@@ -144,7 +144,17 @@ public class GUIManagerAgent extends Agent  {
 				}
 				guis.clear();
 				internalFrames.clear();
+				if (desktop != null) {//TODO swing thread or cleaner shutdown
+					desktop.dispose();
+				}
 			}});
+//		t.start();
+//		try {
+//			t.join();
+//		} catch (InterruptedException e) {
+//			if(logger != null)
+//				logger.finer("interrupted by auto shutdown");
+//		}
 	}
 
 	private void handlePrivateMessage(GUIMessage m) {
@@ -165,8 +175,8 @@ public class GUIManagerAgent extends Agent  {
 			launchAgent((String) m.getContent(),0,true);
 			break;
 		case MADKIT_EXIT_ACTION://forward the shutdown
-			sendMessage(kernelAddress, new KernelMessage(code, (Object) null));
 			shuttedDown = true;
+			sendMessage(kernelAddress, new KernelMessage(code, (Object) null));
 			return;
 		case LOAD_LOCAL_DEMOS:
 		case MADKIT_KILL_AGENTS:
@@ -266,19 +276,23 @@ public class GUIManagerAgent extends Agent  {
 			logger.fine("Setting up GUI for "+agent);
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				AgentFrame f = new AgentFrame(agent, agent.getName());
-				agent.setupFrame(f);//TODO catch failures because of delegation
-				if (desktop != null) {
-					JInternalFrame jf = new AgentInternalFrame(f, GUIManagerAgent.this);
-					desktop.addInternalFrame(jf);
-					internalFrames.put(agent, jf);
-					jf.setVisible(true);
-				} else {
-					f.setLocation(checkLocation(f));
-					guis.put(agent, f);
-					f.setVisible(true);
+				if (! shuttedDown && agent.isAlive()) {
+					AgentFrame f = new AgentFrame(agent, agent.getName());
+					agent.setupFrame(f);//TODO catch failures because of delegation
+					if (desktop != null) {
+						JInternalFrame jf = new AgentInternalFrame(f, GUIManagerAgent.this);
+						desktop.addInternalFrame(jf);
+						internalFrames.put(agent, jf);
+						jf.setVisible(true);
+					} else {
+						f.setLocation(checkLocation(f));
+						guis.put(agent, f);
+						f.setVisible(true);
+					}
 				}
-				sendReply(m, new Message());
+				if (isAlive()) {
+					sendReply(m, new Message());
+				}
 			}
 		});
 
@@ -468,16 +482,28 @@ public class GUIManagerAgent extends Agent  {
 	}
 
 	private boolean isAgentClass(String className) {
+		Class<?> cl = null;
 		try {
-			Class<?> cl = getMadkitClassLoader().loadClass(className);
-			return supertype.isAssignableFrom(cl) && ! Modifier.isAbstract(cl.getModifiers()) && cl.getConstructor((Class<?>[])null) != null;
+			cl = getMadkitClassLoader().loadClass(className);
+			if(! (supertype.isAssignableFrom(cl) && ! Modifier.isAbstract(cl.getModifiers()) && Modifier.isPublic(cl.getModifiers())))
+				return false;
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} catch (SecurityException e) {
 			e.printStackTrace();
-		} catch (NoSuchMethodException e) {//No default constructor
 		} catch (NoClassDefFoundError e) {
 			// TODO: the jar file is not on the MK path (IDE JUnit for instance)
+//		} catch (IllegalAccessException e) {
+//			//not public
+		}
+		if (cl != null) {
+			try {
+				for (final Constructor<?> c : cl.getConstructors()) {
+					if (c.getParameterTypes().length == 0)
+						return true;
+				}
+			} catch (SecurityException e) {
+			}
 		}
 		return false;
 	}

@@ -107,6 +107,18 @@ public class JunitMadKit {
 		launchTest(a, SUCCESS);
 }
 	
+	public void launchTest(AbstractAgent a, boolean all){
+		if (all) {
+			addMadkitArgs(LevelOption.agentLogLevel.toString(), "ALL");
+			addMadkitArgs(LevelOption.kernelLogLevel.toString(), "FINEST");
+		}
+		else{
+			addMadkitArgs(LevelOption.agentLogLevel.toString(), "INFO");
+			addMadkitArgs(LevelOption.kernelLogLevel.toString(), "OFF");
+		}
+		launchTest(a, SUCCESS);
+}
+	
 	public MadkitKernel getKernel(){
 		return madkit.getKernel();
 	}
@@ -135,7 +147,7 @@ public class JunitMadKit {
 	}
 
 	public static long stopTimer(String message){
-		long t = System.nanoTime()-time;
+		final long t = System.nanoTime()-time;
 		System.err.println(message+(t/1000000)+" ms");
 		return t;
 	}

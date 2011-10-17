@@ -20,11 +20,15 @@ package madkit.networking;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+
+import java.util.List;
+
 import madkit.agr.CloudCommunity;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.gui.actions.MadkitActions;
 import madkit.kernel.AbstractAgent;
+import madkit.kernel.AgentAddress;
 import madkit.kernel.JunitMadKit;
 import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.BooleanOption;
@@ -55,9 +59,11 @@ public class DiscoverTest extends JunitMadKit{
 				launchMKNetworkInstance();	
 				launchMKNetworkInstance();	
 				pause(2000);
-				if(logger != null)
-					logger.info(""+getAgentsWithRole(LocalCommunity.NAME, Groups.NETWORK,LocalCommunity.Roles.NET_AGENT));
-				assertEquals(6, getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT).size());
+				List<AgentAddress> l = getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT);
+				for (AgentAddress agentAddress : l) {
+					System.err.println(agentAddress);
+				}
+				assertEquals(6, l.size());
 				MadkitActions.MADKIT_STOP_NETWORK.getAction(this).actionPerformed(null);
 				pause(100);
 				
@@ -67,7 +73,11 @@ public class DiscoverTest extends JunitMadKit{
 				//second round
 				MadkitActions.MADKIT_LAUNCH_NETWORK.getAction(this).actionPerformed(null);
 				pause(1000);
-				assertEquals(6, getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT).size());
+				l = getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT);
+				for (AgentAddress agentAddress : l) {
+					System.err.println(agentAddress);
+				}
+				assertEquals(6, l.size());
 			}
 		});
 	}	

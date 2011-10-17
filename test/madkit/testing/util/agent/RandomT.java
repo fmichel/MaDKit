@@ -19,9 +19,11 @@
 package madkit.testing.util.agent;
 
 import java.util.ArrayList;
+import java.util.logging.Level;
 
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
+import madkit.kernel.KernelException;
 
 /**
  * @author Fabien Michel
@@ -43,14 +45,16 @@ public class RandomT extends Agent{
 	 */
 	@Override
 	public void live() {
+		setLogLevel(Level.OFF);
+		getLogger().setWarningLogLevel(Level.FINE);
 		for (int i = 0; i < 100; i++) {
 			if(logger != null){
-				logger.info("living");
+				logger.fine("living");
 			}
 			pause((int)(Math.random()*100));
 			ReturnCode res = launchAgent(agents.get((int) (Math.random()*agents.size())),Math.random()>.5?0:1);
 //			launchAgent(agents.get((int) (Math.random()*agents.size())),Math.random()>.5?0:1);
-			if(logger != null)				logger.info("launching result is : "+res);
+			if(logger != null)				logger.fine("launching result is : "+res);
 			killSomebody();
 		}
 	}
@@ -60,7 +64,7 @@ public class RandomT extends Agent{
 		if (killingOn) {
 			AbstractAgent a = agents.get((int) (Math.random() * agents.size()));
 			res = killAgent(a, Math.random() > .5 ? 0 : 1);
-			if(logger != null)				logger.info("kill on "+a.getName()+" result is : "+res);
+			if(logger != null)				logger.fine("kill on "+a.getName()+" result is : "+res);
 		}
 	}
 	
@@ -70,15 +74,21 @@ public class RandomT extends Agent{
 	@Override
 	public void end() {
 		super.end();
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < 10; i++) {
 			if(logger != null){
-				logger.info("dying");
+				logger.fine("dying");
 			}
-			pause((int)(Math.random()*100));
-			ReturnCode res = launchAgent(agents.get((int) (Math.random()*agents.size())),Math.random()>.5?0:1);
+			try {
+				pause((int)(Math.random()*100));
+				ReturnCode res = launchAgent(agents.get((int) (Math.random()*agents.size())),Math.random()>.5?0:1);
 //			launchAgent(agents.get((int) (Math.random()*agents.size())),Math.random()>.5?0:1);
-			if(logger != null)				logger.info("launching result is : "+res);
-			killSomebody();
+				if(logger != null)				logger.fine("launching result is : "+res);
+				killSomebody();
+			} catch (KernelException e) {
+				System.err.println("kernel ex : "+getState()+" alive "+isAlive());
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 }

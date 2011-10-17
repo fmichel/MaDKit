@@ -86,10 +86,28 @@ public class LaunchAgentTest  extends JunitMadKit{
 	public void returnAleradyLaunch(){
 		launchTest(new AbstractAgent(){
 			protected void activate() {
-				assertEquals(TIMEOUT,launchAgent(timeOutAgent,0));
+				assertEquals(TIMEOUT,launchAgent(timeOutAgent,1));
 				assertEquals(ALREADY_LAUNCHED,launchAgent(timeOutAgent));
 			}
 		});
+	}
+	
+	@Test
+	public void killLauncher(){
+		launchTest(new AbstractAgent(){
+			protected void activate() {
+				AbstractAgent a;
+				launchAgent(a = new AbstractAgent(){
+					@Override
+					protected void activate() {
+						assertEquals(TIMEOUT, launchAgent(timeOutAgent,1));
+					}
+				},1);
+				killAgent(a);
+				assertAgentIsTerminated(a);
+			}
+		},true);
+		pause(1000);
 	}
 	
 	@Test

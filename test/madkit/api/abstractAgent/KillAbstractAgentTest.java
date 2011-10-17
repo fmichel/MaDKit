@@ -67,8 +67,6 @@ public class KillAbstractAgentTest  extends JunitMadKit{
 
 	@Test
 	public void returnNOT_YET_LAUNCHEDAfterImmediateLaunch(){
-		addMadkitArgs(LevelOption.agentLogLevel.toString(),"ALL");
-		addMadkitArgs(LevelOption.kernelLogLevel.toString(),"FINEST");
 		launchTest(new AbstractAgent(){
 			protected void activate() {
 				setLogLevel(Level.ALL);
@@ -77,7 +75,7 @@ public class KillAbstractAgentTest  extends JunitMadKit{
 				ReturnCode r = killAgent(to);
 				assertTrue(r == NOT_YET_LAUNCHED || r == SUCCESS);				
 			}
-		});
+		},true);
 	}
 
 	@Test
@@ -98,7 +96,6 @@ public class KillAbstractAgentTest  extends JunitMadKit{
 	
 	@Test
 	public void massKill(){
-		printAllStacks();
 		addMadkitArgs(LevelOption.agentLogLevel.toString(),"FINEST");
 		addMadkitArgs(LevelOption.kernelLogLevel.toString(),"ALL");
 		launchTest(new AbstractAgent(){
@@ -124,7 +121,6 @@ public class KillAbstractAgentTest  extends JunitMadKit{
 	
 	@Test
 	public void returnTimeOut(){
-		addMadkitArgs(LevelOption.agentLogLevel.toString(),"FINEST");
 		launchTest(new AbstractAgent(){
 			protected void activate() {
 				setLogLevel(Level.ALL);
@@ -138,7 +134,7 @@ public class KillAbstractAgentTest  extends JunitMadKit{
 				assertEquals(ALREADY_LAUNCHED,launchAgent(to));
 				pause(1000);
 			}
-		});
+		},true);
 	}
 	
 	
@@ -202,9 +198,21 @@ public class KillAbstractAgentTest  extends JunitMadKit{
 		launchTest(new AbstractAgent(){
 			protected void activate() {
 				setLogLevel(Level.OFF);
-				assertEquals(TIMEOUT,launchAgent(new SelfKillAA(true,true),0));
-				assertEquals(AGENT_CRASH,launchAgent(new SelfKillAA(true,true),1));
-				assertEquals(AGENT_CRASH,launchAgent(new SelfKillAA(true,true)));
+				assertEquals(SUCCESS,launchAgent(new SelfKillAA(true,true)));
+				assertEquals(SUCCESS,launchAgent(new SelfKillAA(true,false)));
+			}
+		});
+	}
+	
+	@Test
+	public void selfKillInActivateWTO(){
+		launchTest(new AbstractAgent(){
+			protected void activate() {
+				setLogLevel(Level.OFF);
+				assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP));
+				assertEquals(SUCCESS,launchAgent(new SelfAbstractKill(true, false, 0)));
+				assertEquals(SUCCESS,launchAgent(new SelfAbstractKill(true, false, 1)));
+				assertEquals(SUCCESS,launchAgent(new SelfAbstractKill(true, true, 1)));
 			}
 		});
 	}
@@ -215,12 +223,12 @@ public class KillAbstractAgentTest  extends JunitMadKit{
 			protected void activate() {
 				//the time out should not change anything because target == this
 				assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP));
-				assertEquals(AGENT_CRASH,launchAgent(new SelfAbstractKill(true, false, 0)));
-				assertEquals(AGENT_CRASH,launchAgent(new SelfAbstractKill(true, false, 1)));
-				assertEquals(AGENT_CRASH,launchAgent(new SelfAbstractKill(true, false, Integer.MAX_VALUE)));
-				assertEquals(AGENT_CRASH,launchAgent(new SelfAbstractKill(true, true, 0)));
-				assertEquals(AGENT_CRASH,launchAgent(new SelfAbstractKill(true, true, 1)));
-				assertEquals(AGENT_CRASH,launchAgent(new SelfAbstractKill(true, true, Integer.MAX_VALUE)));
+				assertEquals(SUCCESS,launchAgent(new SelfAbstractKill(true, false, 0)));
+				assertEquals(SUCCESS,launchAgent(new SelfAbstractKill(true, false, 1)));
+				assertEquals(SUCCESS,launchAgent(new SelfAbstractKill(true, false, Integer.MAX_VALUE)));
+				assertEquals(SUCCESS,launchAgent(new SelfAbstractKill(true, true, 0)));
+				assertEquals(SUCCESS,launchAgent(new SelfAbstractKill(true, true, 1)));
+				assertEquals(SUCCESS,launchAgent(new SelfAbstractKill(true, true, Integer.MAX_VALUE)));
 				assertEquals(SUCCESS,launchAgent(new SelfAbstractKill(false, true, 0)));
 				assertEquals(SUCCESS,launchAgent(new SelfAbstractKill(false, true, 1)));
 				assertEquals(SUCCESS,launchAgent(new SelfAbstractKill(false, true, Integer.MAX_VALUE)));
@@ -274,20 +282,18 @@ public class KillAbstractAgentTest  extends JunitMadKit{
 		launchTest(new AbstractAgent(){
 			protected void activate() {
 				SelfAbstractKill a = new SelfAbstractKill(true, true, 0);
-				assertEquals(AGENT_CRASH,launchAgent(a));
-				pause(1000);
+				assertEquals(SUCCESS,launchAgent(a));
 				assertAgentIsTerminated(a);
 			}
 		});
 	}
 	
 	@Test
-	public void selfKillinActivate(){
+	public void selfKillinActivateWithTimeout(){
 		launchTest(new AbstractAgent(){
 			protected void activate() {
 				SelfAbstractKill a = new SelfAbstractKill(true, false, 1);
-				assertEquals(AGENT_CRASH,launchAgent(a));
-				pause(100);
+				assertEquals(SUCCESS,launchAgent(a));
 				assertEquals(ALREADY_KILLED,killAgent(a));
 				assertAgentIsTerminated(a);
 			}
@@ -354,7 +360,6 @@ public class KillAbstractAgentTest  extends JunitMadKit{
 					logger.info(unstopableAgent.getState().toString());
 				assertEquals(SUCCESS,killAgent(unstopableAgent,0));
 				assertAgentIsTerminated(unstopableAgent);
-				pause(1000);
 			}
 		});
 	}
@@ -367,7 +372,6 @@ public class KillAbstractAgentTest  extends JunitMadKit{
 				assertEquals(TIMEOUT,launchAgent(unstopableAgent,2));
 				assertEquals(SUCCESS,unstopableAgent.killAgent(unstopableAgent,0));
 				assertAgentIsTerminated(unstopableAgent);
-				pause(1000);
 			}
 		});
 	}
@@ -380,10 +384,9 @@ public class KillAbstractAgentTest  extends JunitMadKit{
 				assertEquals(TIMEOUT,launchAgent(unstopableAgent,2));
 				assertEquals(TIMEOUT,unstopableAgent.killAgent(unstopableAgent,2));
 				assertAgentIsTerminated(unstopableAgent);
-				pause(1000);
 			}
 		});
-		printAllStacks();
+//		printAllStacks();
 	}
 	
 }

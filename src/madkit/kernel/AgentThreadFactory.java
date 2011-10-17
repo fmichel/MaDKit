@@ -38,14 +38,16 @@ final class AgentThreadFactory extends Object implements ThreadFactory {
     	daemonThreads = daemonThreadFactory;
     	group = new ThreadGroup(daemonThreads ? "DAEMON" : "LIFE"+kernelAddress){
 			public void uncaughtException(Thread t, Throwable e) {
-				System.err.println("\n-----------------uncaught exception on "+t);
+				System.err.println("\n-----------------uncaught exception on "+t);//TODO
 				if(e instanceof KilledException){
 					e.printStackTrace();
+					throw new AssertionError("killedException uncaught");
 				}
 				else{
 					System.err.println("--------------internal BUG--------------------");
 					System.err.println(t);
 					e.printStackTrace();
+					System.err.println(e.getCause());
 				};
 			}
 		};

@@ -108,7 +108,7 @@ final class OrganizationWarning extends MadkitWarning{
 	}
 }
 
-class KilledException extends RuntimeException {
+class KilledException extends Error {
 	/**
 	 * 
 	 */
@@ -122,10 +122,10 @@ class KilledException extends RuntimeException {
 		super(cause);
 	}
 
-		@Override
-	public synchronized Throwable fillInStackTrace() {
-		return null;
-	}
+//		@Override
+//	public synchronized Throwable fillInStackTrace() {
+//		return null;
+//	}
 }
 
 class SelfKillException extends KilledException{
@@ -150,13 +150,3 @@ class SelfKillException extends KilledException{
 //	}
 //	
 //}
-
-final class KernelException extends RuntimeException {
-
-	private static final long serialVersionUID = -4549760236073524549L;
-
-	KernelException(String m){
-		super(m);
-		setStackTrace(Arrays.asList(getStackTrace()).subList(2, getStackTrace().length-1).toArray(new StackTraceElement[0]));
-	}
-}

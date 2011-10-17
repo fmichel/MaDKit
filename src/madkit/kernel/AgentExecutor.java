@@ -25,6 +25,8 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import madkit.kernel.AbstractAgent.State;
+
 /**
  * @author Fabien Michel
  * @since MadKit 5.0.0.9
@@ -35,9 +37,9 @@ final class AgentExecutor extends ThreadPoolExecutor {
 
 	//	private boolean started = false;
 	final private Agent myAgent;
-	private Future<Boolean> activate;
-	private Future<?> live;
-	private Future<?> end;
+	final private Future<Boolean> activate;
+	final private Future<?> live;
+	final private Future<?> end;
 
 //	public AgentExecutor(Agent a, ThreadFactory threadFactory) {
 //		super(1, Integer.MAX_VALUE, 0, TimeUnit.NANOSECONDS, new ArrayBlockingQueue<Runnable>(4, false), threadFactory);
@@ -52,9 +54,12 @@ final class AgentExecutor extends ThreadPoolExecutor {
 		activate = new FutureTask<Boolean>(new Callable<Boolean>() {
 			public Boolean call() {
 				myAgent.myThread = Thread.currentThread();
-				if (! myAgent.activation()) {
-//					myAgent.getAlive().set(false);
+				if (! myAgent.activation()) {//alive is false && not a suicide
 					live.cancel(false);
+					if(end.isCancelled())//TO was 0 in the MK
+						synchronized (myAgent.state) {
+							myAgent.state.notify();
+						}
 					return false;
 				}
 				return true;
@@ -62,13 +67,19 @@ final class AgentExecutor extends ThreadPoolExecutor {
 		});
 		live = new FutureTask<Object>(new Runnable() {
 			public void run() {
-				if(myAgent.getAlive().get()){//TODO
+				if(myAgent.getAlive().get()){
 					myAgent.living();
+				}
+				if(end.isCancelled()){//it is a kill with to == 0
+					synchronized (myAgent.state) {
+						myAgent.state.notify();
+					}
 				}
 			}},null);
 		end = new FutureTask<Object>(new Runnable() {
 			public void run() {
 					myAgent.ending();
+					
 			}},null);
 	}
 	
@@ -83,37 +94,41 @@ final class AgentExecutor extends ThreadPoolExecutor {
 				shutdown();
 			}
 		});
-//		activate = submit(new Callable<Boolean>() {
-//			public Boolean call() {
-//				if (! myAgent.activation()) {
-//					myAgent.getAlive().set(false);// TODO This can be null : out of bound
-//					live.cancel(false);
-//					return false;
-//				}
-//				return true;
-//			}
-//		});
-//		live = submit(new Runnable() {
-//			@Override
-//			public void run() {
-//				if(myAgent.getAlive().get()){//TODO
-//					myAgent.living();
-//				}
-//				
-//			}});
-//		end = submit(new Runnable() {
-//			public void run() {
-//				myAgent.ending();
-//			}
-//		});
-//		submit(new Runnable() {
-//			@Override
-//			public void run() {
-//				shutdown();
-//			}
-//		});
 		return activate;
 	}
+
+	@Override
+	protected void terminated() {
+		myAgent.state.set(State.TERMINATED);
+		//this is always done, even if the AE has not been started !
+		if (! (myAgent.getKernel() instanceof FakeKernel)) {
+			try {
+				MadkitKernel k = myAgent.getKernel().getMadkitKernel();
+				myAgent.terminate();
+				k.removeThreadedAgent(myAgent);
+			} catch (KernelException e) {
+				System.err.println(myAgent.getKernel());
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	Future<?> getEndProcess() {
+		return end;
+	}
+	Future<?> getLiveProcess() {
+		return live;
+	}
+
+	/**
+	 * @return the activate
+	 */
+	Future<Boolean> getActivate() {
+		return activate;
+	}
+}
+
+
 
 //	@Override
 //	protected void afterExecute(Runnable r, Throwable t) {
@@ -144,29 +159,3 @@ final class AgentExecutor extends ThreadPoolExecutor {
 //			return "END";
 //		}
 //	}
-
-	@Override
-	protected void terminated() {
-		//this is always done, even if the AE has not been started !
-		if (myAgent.getKernel() != AbstractAgent.FAKE_KERNEL) {
-			MadkitKernel k = myAgent.getKernel().getMadkitKernel();
-			myAgent.terminate();
-			k.removeThreadedAgent(myAgent);
-		}
-	}
-	
-	Future<?> getEndProcess() {
-		return end;
-	}
-	Future<?> getLiveProcess() {
-		return live;
-	}
-
-	/**
-	 * @return the activate
-	 */
-	Future<Boolean> getActivate() {
-		return activate;
-	}
-}
-

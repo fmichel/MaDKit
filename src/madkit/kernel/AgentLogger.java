@@ -242,10 +242,8 @@ public class AgentLogger extends Logger {
 //			fh.publish(new LogRecord(Level.ALL, null));
 //			fh.flush();
 		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return fh;

@@ -60,11 +60,13 @@ public class CreateLogFilesTest extends  JunitMadKit{
 			protected void activate() {
 				System.err.println(getMadkitProperty(Option.logDirectory.name()));
 				f = new File(getMadkitProperty(Option.logDirectory.name()));
-				assertTrue(f.exists());
-				assertTrue(f.isDirectory());
-				assertSame(3,f.listFiles(filter).length);
 			}
 		});
+		pause(100);
+		System.err.println(f);
+		assertTrue(f.exists());
+		assertTrue(f.isDirectory());
+		assertSame(3,f.listFiles(filter).length);
 	}
 
 	@Test
@@ -80,6 +82,7 @@ public class CreateLogFilesTest extends  JunitMadKit{
 				assertFalse(getMadkitProperty(Option.logDirectory.name()).contains("."));
 			}
 		});
+		pause(100);
 	}
 
 	@Test
@@ -95,11 +98,12 @@ public class CreateLogFilesTest extends  JunitMadKit{
 			protected void activate() {
 				System.err.println(getMadkitProperty(Option.logDirectory.name()));
 				f = new File(getMadkitProperty(Option.logDirectory.name()));
-				assertTrue(f.exists());
-				assertTrue(f.isDirectory());
-				assertSame(3,f.listFiles(filter).length);
 			}
 		});
+		assertTrue(f.exists());
+		assertTrue(f.isDirectory());
+		pause(500);
+		assertSame(3,f.listFiles(filter).length);
 	}
 	
 	@Test
@@ -115,11 +119,12 @@ public class CreateLogFilesTest extends  JunitMadKit{
 			protected void activate() {
 				System.err.println(getMadkitProperty(Option.logDirectory.name()));
 				f = new File(getMadkitProperty(Option.logDirectory.name()));
-				assertTrue(f.exists());
-				assertTrue(f.isDirectory());
-				assertSame(0,f.listFiles(filter).length);
 			}
 		});
+		assertTrue(f.exists());
+		assertTrue(f.isDirectory());
+		pause(500);
+		assertSame(0,f.listFiles(filter).length);
 	}
 	
 	@Test
@@ -137,7 +142,7 @@ public class CreateLogFilesTest extends  JunitMadKit{
 				assertTrue(f.isDirectory());
 			}
 		});
-		pause(200);
+		pause(500);
 		assertSame(2,f.listFiles(filter).length);
 	}
 

@@ -19,7 +19,7 @@
 
 /**
 * This package defines the default communities, groups and
-*	roles of MadKit 5.
+*	roles constants in MadKit 5.
 * @since MadKit 5.0.0.10
 * @author Fabien Michel
 * @version 1.0

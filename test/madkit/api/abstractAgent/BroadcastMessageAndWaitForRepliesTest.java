@@ -1,17 +1,17 @@
 package madkit.api.abstractAgent;
 
+import static madkit.kernel.AbstractAgent.ReturnCode.AGENT_CRASH;
+import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
 import java.util.logging.Level;
 
-import madkit.agr.Organization;
-import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
 import madkit.kernel.AgentAddress;
 import madkit.kernel.JunitMadKit;
 import madkit.kernel.Message;
 import madkit.messages.ObjectMessage;
-import static madkit.kernel.AbstractAgent.ReturnCode.*;
-import static org.junit.Assert.*;
-
 
 import org.junit.Test;
 
@@ -134,6 +134,7 @@ public class BroadcastMessageAndWaitForRepliesTest extends JunitMadKit {
 				assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,ROLE));
 				assertEquals(SUCCESS,launchAgent(target));
 
+				@SuppressWarnings("unused")
 				AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, ROLE);
 				assertNull(broadcastMessageWithRoleAndWaitForReplies(COMMUNITY, GROUP, ROLE, new Message(),aa(),100));//not role warning
 				assertEquals(SUCCESS, leaveGroup(COMMUNITY,GROUP));
@@ -150,6 +151,7 @@ public class BroadcastMessageAndWaitForRepliesTest extends JunitMadKit {
 				assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,ROLE));
 				assertEquals(SUCCESS,launchAgent(target));
 
+				@SuppressWarnings("unused")
 				AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, ROLE);
 				assertNull(broadcastMessageWithRoleAndWaitForReplies(aa(), GROUP, ROLE, new Message(),null,100));
 				assertEquals(SUCCESS, leaveGroup(COMMUNITY,GROUP));
@@ -230,6 +232,10 @@ public class BroadcastMessageAndWaitForRepliesTest extends JunitMadKit {
 }
 
 class sendReplyInLiveAgent extends Agent{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private int time;
 	public sendReplyInLiveAgent(int timeToReply) {
 		time = timeToReply;

@@ -54,15 +54,15 @@ import madkit.kernel.KernelAddress;
  * 
  */
 @SuppressWarnings("serial")
-public enum MadkitActions implements MadkitGUIAction {
+public enum MadkitAction implements MadkitGUIAction {
 
-	MADKIT_EXIT_ACTION(new ImageIcon(MadkitActions.class.getResource("images/madkit/exitMadKit.png")),VK_E),
-	MADKIT_LAUNCH_NETWORK(new ImageIcon(MadkitActions.class.getResource("images/madkit/network_local.png")),VK_N),
-	MADKIT_STOP_NETWORK(new ImageIcon(MadkitActions.class.getResource("images/madkit/network_local.png")),VK_T),
-	MADKIT_ICONIFY_ALL(new ImageIcon(MadkitActions.class.getResource("images/madkit/iconify.png")),VK_U),
-	MADKIT_DEICONIFY_ALL(new ImageIcon(MadkitActions.class.getResource("images/madkit/iconify.png")),VK_I),
-	MADKIT_RESTART(new ImageIcon(MadkitActions.class.getResource("images/madkit/restart.png")),VK_R),
-	MADKIT_CLONE(new ImageIcon(MadkitActions.class.getResource("images/madkit/restart.png")),VK_Y),
+	MADKIT_EXIT_ACTION(new ImageIcon(MadkitAction.class.getResource("images/madkit/exitMadKit.png")),VK_E),
+	MADKIT_LAUNCH_NETWORK(new ImageIcon(MadkitAction.class.getResource("images/madkit/network_local.png")),VK_N),
+	MADKIT_STOP_NETWORK(new ImageIcon(MadkitAction.class.getResource("images/madkit/network_local.png")),VK_T),
+	MADKIT_ICONIFY_ALL(new ImageIcon(MadkitAction.class.getResource("images/madkit/iconify.png")),VK_U),
+	MADKIT_DEICONIFY_ALL(new ImageIcon(MadkitAction.class.getResource("images/madkit/iconify.png")),VK_I),
+	MADKIT_RESTART(new ImageIcon(MadkitAction.class.getResource("images/madkit/restart.png")),VK_R),
+	MADKIT_CLONE(new ImageIcon(MadkitAction.class.getResource("images/madkit/restart.png")),VK_Y),
 	MADKIT_KILL_AGENTS(null,VK_K),
 	CONNECT_WEB_REPO(null,VK_W),
 	LOAD_LOCAL_DEMOS(null,VK_D),
@@ -76,7 +76,7 @@ public enum MadkitActions implements MadkitGUIAction {
 	
 	final private ImageIcon imageIcon;
 	final private int keyEvent;
-	private static HashMap<KernelAddress,Map<MadkitActions,Action>> globalActions;
+	private static HashMap<KernelAddress,Map<MadkitAction,Action>> globalActions;
 	
 	
 	final Action getStandardAction(final AbstractAgent guiManager){
@@ -84,7 +84,7 @@ public enum MadkitActions implements MadkitGUIAction {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				this.setEnabled(false);
-				guiManager.receiveMessage(new madkit.gui.GUIMessage(MadkitActions.this, e == null ? name() : e.getActionCommand()));//useful to call global actions
+				guiManager.receiveMessage(new madkit.gui.GUIMessage(MadkitAction.this, e == null ? name() : e.getActionCommand()));//useful to call global actions
 				this.setEnabled(true);
 			}
 		};
@@ -98,16 +98,16 @@ public enum MadkitActions implements MadkitGUIAction {
 		return keyEvent;
 	}
 
-	private MadkitActions(ImageIcon ii, int keyEvent){
+	private MadkitAction(ImageIcon ii, int keyEvent){
 		imageIcon = ii;
 		this.keyEvent = keyEvent;
 	}
 	
 	public static void registerGlobalActions(GUIManagerAgent guiManager){
 		if (globalActions == null)
-			globalActions = new HashMap<KernelAddress, Map<MadkitActions, Action>>();
-		Map<MadkitActions, Action> actions = new HashMap<MadkitActions, Action>();
-		for(MadkitActions mkA : EnumSet.allOf(MadkitActions.class)){
+			globalActions = new HashMap<KernelAddress, Map<MadkitAction, Action>>();
+		Map<MadkitAction, Action> actions = new HashMap<MadkitAction, Action>();
+		for(MadkitAction mkA : EnumSet.allOf(MadkitAction.class)){
 			actions.put(mkA, mkA.buildAction(guiManager));
 		}
 		globalActions.put(guiManager.getKernelAddress(), actions);
@@ -165,7 +165,7 @@ public enum MadkitActions implements MadkitGUIAction {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				setEnabled(false);
-				agent.receiveMessage(new GUIMessage(MadkitActions.this, e.getActionCommand()));
+				agent.receiveMessage(new GUIMessage(MadkitAction.this, e.getActionCommand()));
 				setEnabled(true);
 			}
 		};

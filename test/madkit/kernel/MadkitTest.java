@@ -46,7 +46,7 @@ public class MadkitTest {
 	private void testMKlogLevelBoot(String MKLogLevel) {
 		System.err.println("\n\n\n\n\n--------------------MK log level = "+MKLogLevel+"-------------------");
 		String[] args = {LevelOption.madkitLogLevel.toString(),MKLogLevel};
-		Madkit m = new Madkit(args);
+		new Madkit(args);
 		System.err.println("\n\n--------------------MK log level = "+MKLogLevel+"-------------------\n\n\n\n\n");
 	}
 	
@@ -82,7 +82,7 @@ public class MadkitTest {
 		String[] args = {BooleanOption.desktop.toString(),"false",
 		"--kernelLogLevel","ALL"		
 		};
-		Madkit mk = new Madkit(args);
+		new Madkit(args);
 	}
 
 }

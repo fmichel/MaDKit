@@ -6,18 +6,22 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.logging.Level;
 
-import org.junit.Test;
-
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadKit;
-import madkit.testing.util.agent.UnstopableAbstractAgent;
 import madkit.testing.util.agent.UnstopableAgent;
+
+import org.junit.Test;
 
 public class KillUnstoppableAgent extends JunitMadKit {
 
 	@Test
 	public void killUnstoppableInActivate(){
 		launchTest(new AbstractAgent(){
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
 			protected void activate() {
 				AbstractAgent unstopableAgent = new UnstopableAgent(true);
 				unstopableAgent.setLogLevel(Level.ALL);
@@ -33,6 +37,11 @@ public class KillUnstoppableAgent extends JunitMadKit {
 	@Test
 	public void brutalKillUnstoppableInActivateAndLive(){
 		launchTest(new AbstractAgent(){
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
 			protected void activate() {
 				AbstractAgent unstopableAgent = new UnstopableAgent(true,true,false);
 				assertEquals(TIMEOUT,launchAgent(unstopableAgent,1));
@@ -48,6 +57,11 @@ public class KillUnstoppableAgent extends JunitMadKit {
 	@Test
 	public void brutalKillUnstoppableInActivateAndLiveAndEnd(){
 		launchTest(new AbstractAgent(){
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
 			protected void activate() {
 				AbstractAgent unstopableAgent = new UnstopableAgent(true,true,true);
 				assertEquals(TIMEOUT,launchAgent(unstopableAgent,1));
@@ -63,6 +77,11 @@ public class KillUnstoppableAgent extends JunitMadKit {
 	@Test
 	public void brutalKillUnstoppableUsingSelfRef(){
 		launchTest(new AbstractAgent(){
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
 			protected void activate() {
 				AbstractAgent unstopableAgent = new UnstopableAgent(true);
 				assertEquals(TIMEOUT,launchAgent(unstopableAgent,1));

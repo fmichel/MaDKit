@@ -18,8 +18,6 @@
  */
 package madkit.kernel;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 
 /**
@@ -46,7 +44,7 @@ public class KernelAddress implements java.io.Serializable{//TODO local kernel a
 	KernelAddress()
 	{
 	}
-
+	
 	@Override
 	public boolean equals(Object obj) {
 		//needed for networking mode
@@ -69,11 +67,3 @@ public class KernelAddress implements java.io.Serializable{//TODO local kernel a
 	}
 
 }
-
-//TODO 
-//final class OfflineModeKernelAddress extends KernelAddress{
-//	@Override
-//	public boolean equals(Object obj) {
-//		return true;
-//	}
-//}

@@ -1,3 +1,21 @@
+/*
+ * Copyright 1997-2011 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * 
+ * This file is part of MadKit.
+ * 
+ * MadKit is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ * 
+ * MadKit is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
+ */
 package madkit.gui;
 
 import java.awt.Container;
@@ -8,7 +26,6 @@ import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
@@ -35,22 +52,36 @@ import javax.swing.SwingUtilities;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.agr.LocalCommunity.Roles;
-import madkit.gui.actions.MadkitActions;
+import madkit.gui.actions.MadkitAction;
 import madkit.gui.menus.AgentsMenu;
 import madkit.gui.menus.DemosMenu;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
 import madkit.kernel.AgentAddress;
+import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Message;
 import madkit.messages.KernelMessage;
 
+/**
+ * The GUI manager agent is responsible for setting and managing
+ * agents UI which are created by the default mechanism of MadKit.
+ * By default the kernel always launch this agent. Although, this agent is
+ * extremely light weight, it is possible to tell the kernel to not launch it
+ * by using the {@link BooleanOption#noGUIManager} option when launching MadKit.
+ * 
+ * @author Fabien Michel
+ * @since MadKit 5.0.0.6
+ * @version 0.9
+ * 
+ */
 @SuppressWarnings("unchecked")
 public class GUIManagerAgent extends Agent  {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -7824150780644081206L;
+	private static final long serialVersionUID = -5249615481398560277L;
+	
 	final private ConcurrentMap<AbstractAgent, JFrame> guis;
 	final private List<AgentsMenu> agentsMenus;
 	final private List<DemosMenu> demosMenus;
@@ -73,7 +104,7 @@ public class GUIManagerAgent extends Agent  {
 		supertype = c;
 	}
 
-	public GUIManagerAgent(boolean asDaemon){
+	GUIManagerAgent(boolean asDaemon){
 		super(asDaemon);
 		guis = new ConcurrentHashMap<AbstractAgent, JFrame>();
 		if (asDaemon) {
@@ -90,9 +121,9 @@ public class GUIManagerAgent extends Agent  {
 		knownUrls = new HashSet<URL>();
 	}
 
-	public GUIManagerAgent(){
-		this(true);
-	}
+//	GUIManagerAgent(){
+//		this(true);
+//	}
 
 	@Override
 	protected void activate() {
@@ -158,7 +189,7 @@ public class GUIManagerAgent extends Agent  {
 	}
 
 	private void handlePrivateMessage(GUIMessage m) {
-		MadkitActions code = m.getCode();
+		MadkitAction code = m.getCode();
 		switch (code) {
 		case MADKIT_LAUNCH_NETWORK://forward the request
 		case MADKIT_STOP_NETWORK://forward the request
@@ -166,7 +197,7 @@ public class GUIManagerAgent extends Agent  {
 			break;
 		case MADKIT_ICONIFY_ALL:
 		case MADKIT_DEICONIFY_ALL:
-			iconifyAll(code == MadkitActions.MADKIT_ICONIFY_ALL);
+			iconifyAll(code == MadkitAction.MADKIT_ICONIFY_ALL);
 			break;
 		case CONNECT_WEB_REPO:
 			scanMadkitRepo();
@@ -182,12 +213,12 @@ public class GUIManagerAgent extends Agent  {
 		case MADKIT_KILL_AGENTS:
 		case MADKIT_RESTART://forward the request
 			sendMessageAndWaitForReply(kernelAddress, new KernelMessage(code, (Object) null),1000);
-			if (code == MadkitActions.LOAD_LOCAL_DEMOS) {
+			if (code == MadkitAction.LOAD_LOCAL_DEMOS) {
 				scanClassPathForAgentClasses();
 			}
 			break;
 		case MADKIT_CLONE://forward the request
-			sendMessage(kernelAddress, new KernelMessage(MadkitActions.MADKIT_CLONE, m.getContent()));
+			sendMessage(kernelAddress, new KernelMessage(MadkitAction.MADKIT_CLONE, m.getContent()));
 			break;
 		case MADKIT_LOAD_JAR_FILE:
 			loadingJarFile((URL) m.getContent());
@@ -231,7 +262,7 @@ public class GUIManagerAgent extends Agent  {
 	private void launchDemo(DemoModel demo) {
 		if(logger != null)
 			logger.finer("Launching demo "+demo);
-		sendMessage(kernelAddress, new KernelMessage(MadkitActions.MADKIT_LAUNCH_SESSION, (Object[]) demo.getSessionArgs()));
+		sendMessage(kernelAddress, new KernelMessage(MadkitAction.MADKIT_LAUNCH_SESSION, (Object[]) demo.getSessionArgs()));
 		//		final String[] agentsClasses = demo.getLaunchAgent().split(";");
 		//		for(final String classNameAndOption : agentsClasses){
 		//			final String[] classAndOptions = classNameAndOption.split(",");
@@ -252,7 +283,7 @@ public class GUIManagerAgent extends Agent  {
 	}
 
 	private void loadingJarFile(URL url) {
-		sendMessageAndWaitForReply(kernelAddress, new KernelMessage(MadkitActions.MADKIT_LOAD_JAR_FILE, url), 1000);
+		sendMessageAndWaitForReply(kernelAddress, new KernelMessage(MadkitAction.MADKIT_LOAD_JAR_FILE, url), 1000);
 		scanClassPathForAgentClasses();
 	}
 
@@ -463,7 +494,7 @@ public class GUIManagerAgent extends Agent  {
 
 	private void scanMadkitRepo() {
 		URL[] urls = getMadkitClassLoader().getURLs();
-		sendMessageAndWaitForReply(kernelAddress, new KernelMessage(MadkitActions.CONNECT_WEB_REPO, (Object) null), 1000);
+		sendMessageAndWaitForReply(kernelAddress, new KernelMessage(MadkitAction.CONNECT_WEB_REPO, (Object) null), 1000);
 		if (getMadkitClassLoader().getURLs().length != urls.length) {//more than before ?
 			scanClassPathForAgentClasses();
 		}
@@ -524,9 +555,9 @@ public class GUIManagerAgent extends Agent  {
 		for(File f : files){
 			if(f.isDirectory()){
 				String pck = pckName == null ? f.getName() : pckName+"."+f.getName();
-				if(! isKernelDirectory(pck)){
+//				if(! isKernelDirectory(pck)){
 					l.addAll(scanFolderForAgentClasses(f,pck));
-				}
+//				}
 			}
 			else if(f.getName().endsWith(".class")){
 				String className = pckName+"."+f.getName().replace(".class", "");
@@ -549,13 +580,13 @@ public class GUIManagerAgent extends Agent  {
 	}
 
 	JMenu createAgentsMenu() {
-		AgentsMenu m = new AgentsMenu(MadkitActions.AGENT_LAUNCH_AGENT.getAction(this),agentClasses);
+		AgentsMenu m = new AgentsMenu(MadkitAction.AGENT_LAUNCH_AGENT.getAction(this),agentClasses);
 		agentsMenus.add(m);
 		return m;
 	}
 
 	JMenu createDemosMenu() {
-		DemosMenu m = new DemosMenu(MadkitActions.MADKIT_LAUNCH_SESSION.getAction(this),demos);
+		DemosMenu m = new DemosMenu(MadkitAction.MADKIT_LAUNCH_SESSION.getAction(this),demos);
 		demosMenus.add(m);
 		return m;
 	}

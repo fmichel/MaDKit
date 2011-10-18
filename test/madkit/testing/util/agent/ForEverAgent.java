@@ -19,12 +19,14 @@
 package madkit.testing.util.agent;
 
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
+import static madkit.kernel.JunitMadKit.COMMUNITY;
+import static madkit.kernel.JunitMadKit.GROUP;
+import static madkit.kernel.JunitMadKit.ROLE;
 import static org.junit.Assert.assertEquals;
 import madkit.kernel.Agent;
 import madkit.kernel.JunitMadKit;
 import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.LevelOption;
-import static madkit.kernel.JunitMadKit.*;
 
 /**
  * @author Fabien Michel

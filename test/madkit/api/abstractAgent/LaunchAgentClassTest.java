@@ -56,6 +56,7 @@ public class LaunchAgentClassTest  extends JunitMadKit{
 	};
 
 	final AbstractAgent faulty = new AbstractAgent(){
+		@SuppressWarnings("null")
 		protected void activate() {
 			Object o = null;
 			o.toString();

@@ -13,6 +13,10 @@ import madkit.messages.ObjectMessage;
 
 public class PongAgent extends Agent {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	protected void activate() {
 				createGroupIfAbsent(JunitMadKit.COMMUNITY,GROUP,true, null);
 				requestRole(COMMUNITY,GROUP,ROLE,null);

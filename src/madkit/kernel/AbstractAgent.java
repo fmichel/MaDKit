@@ -20,9 +20,10 @@
 package madkit.kernel;
 
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
-import static madkit.kernel.AbstractAgent.State.*;
+import static madkit.kernel.AbstractAgent.State.ACTIVATED;
 import static madkit.kernel.AbstractAgent.State.ENDING;
 import static madkit.kernel.AbstractAgent.State.INITIALIZING;
+import static madkit.kernel.AbstractAgent.State.LIVING;
 import static madkit.kernel.AbstractAgent.State.TERMINATED;
 
 import java.io.Serializable;
@@ -49,7 +50,6 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
-
 import madkit.agr.CloudCommunity;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
@@ -57,12 +57,10 @@ import madkit.agr.LocalCommunity.Roles;
 import madkit.agr.Organization;
 import madkit.gui.GUIMessage;
 import madkit.gui.OutputPanel;
-import madkit.gui.actions.AgentAction;
-import madkit.gui.actions.MadkitActions;
+import madkit.gui.actions.MadkitAction;
 import madkit.i18n.ErrorMessages;
 import madkit.i18n.I18nUtilities;
 import madkit.i18n.Words;
-import madkit.messages.KernelMessage;
 
 /**
  * The super class of all MadKit agents, v 5.
@@ -241,7 +239,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 					LocalCommunity.NAME, 
 					Groups.SYSTEM, 
 					Roles.GUI_MANAGER, 
-					new GUIMessage(MadkitActions.AGENT_SETUP_GUI,this), 
+					new GUIMessage(MadkitAction.AGENT_SETUP_GUI,this), 
 					null, 
 					10000);
 		}
@@ -378,8 +376,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * 
 	 */
 	protected void activate() {
-		//		if(logger != null)
-		//			logger.talk("\n\tHello World !!\n\n\tI am a MadKit abstract agent\n\tand I am not threaded.\n\tYou can extend me to do large scale simulation");
+//				if(logger != null)
+//					logger.talk("\n\tHi human and hello World !!\n\n I am an instance of the madkit.kernel.AbstractAgent class:\n I am not threaded and very lightweighted.\n You can extend me to do large scale simulations !");
 	}
 
 	final boolean ending() { // TODO boolean need ? NO
@@ -435,7 +433,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		kernel = kernel.getMadkitKernel();
 		if (hasGUI) {
 			kernel.broadcastMessageWithRole(this, LocalCommunity.NAME, Groups.SYSTEM, Roles.GUI_MANAGER, new GUIMessage(
-					MadkitActions.AGENT_DISPOSE_GUI, this), null);
+					MadkitAction.AGENT_DISPOSE_GUI, this), null);
 		}
 		//		if (getState().equals(TERMINATED))// TODO remove that
 		//			throw new AssertionError("terminating twice " + getName());

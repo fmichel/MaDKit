@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.logging.Level;
 
 import madkit.i18n.Words;
-import madkit.kernel.AbstractAgent.Influence;
 
 /**
  * @author Fabien Michel

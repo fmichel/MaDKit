@@ -394,7 +394,7 @@ final public class Madkit {
 	//				}
 	//				logger.finer("Launching "+number+ " instance(s) of "+className+" with GUI = "+withGUI);
 	//				for (int i = 0; i < number; i++) {
-	//					myKernel.receiveMessage(new KernelMessage(MadkitActions.AGENT_LAUNCH_AGENT, className, withGUI));
+	//					myKernel.receiveMessage(new KernelMessage(MadkitAction.AGENT_LAUNCH_AGENT, className, withGUI));
 	//				}
 	//			}
 	//		}
@@ -416,9 +416,9 @@ final public class Madkit {
 	String printFareWellString() {
 		if(!(LevelOption.madkitLogLevel.getValue(madkitConfig) == Level.OFF)){
 			//				|| Level.parse(madkitConfig.getProperty(Madkit.MadkitLogLevel)).equals(Level.OFF))){
-			return("\n\t-------------------------------------------------------------")+
+			return("\n\t-----------------------------------------------------")+
 					("\n\t   MadKit Kernel "+myKernel.getKernelAddress()+" is shutting down, Bye !")+
-					("\n\t-------------------------------------------------------------\n");			
+					("\n\t-----------------------------------------------------\n");			
 		}
 		return "";
 	}

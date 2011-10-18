@@ -20,8 +20,6 @@ package madkit.testing.util.agent;
 
 import java.util.logging.Level;
 
-import madkit.kernel.JunitMadKit;
-
 /**
  * @author Fabien Michel
  * @since MadKit 5.0.0.12
@@ -29,6 +27,11 @@ import madkit.kernel.JunitMadKit;
  * 
  */
 public class TimeOutAA extends DoItDuringLifeCycleAbstractAgent{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * @param inActivate
@@ -43,7 +46,6 @@ public class TimeOutAA extends DoItDuringLifeCycleAbstractAgent{
 		this(inActivate,false);
 	}
 
-	@SuppressWarnings("null")
 	@Override
 	public void doIt() {
 		if(logger != null)

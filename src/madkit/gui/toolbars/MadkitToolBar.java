@@ -25,8 +25,7 @@ import javax.swing.AbstractButton;
 import javax.swing.ImageIcon;
 import javax.swing.JToolBar;
 
-import madkit.gui.actions.AgentAction;
-import madkit.gui.actions.MadkitActions;
+import madkit.gui.actions.MadkitAction;
 import madkit.kernel.AbstractAgent;
 
 /**
@@ -46,28 +45,28 @@ public class MadkitToolBar extends JToolBar {// TODO i18n
 
 	/**
 	 * Creates a toolbar featuring: 
-	 * {@link MadkitActions#MADKIT_LAUNCH_NETWORK}, 
-	 * {@link MadkitActions#MADKIT_STOP_NETWORK}, 
-	 * {@link MadkitActions#MADKIT_EXIT_ACTION}, 
-	 * {@link MadkitActions#MADKIT_ICONIFY_ALL}, 
-	 * {@link MadkitActions#MADKIT_DEICONIFY_ALL}, 
-	 * {@link MadkitActions#MADKIT_RESTART}, 
-	 * {@link MadkitActions#LOAD_LOCAL_DEMOS}, 
+	 * {@link MadkitAction#MADKIT_LAUNCH_NETWORK}, 
+	 * {@link MadkitAction#MADKIT_STOP_NETWORK}, 
+	 * {@link MadkitAction#MADKIT_EXIT_ACTION}, 
+	 * {@link MadkitAction#MADKIT_ICONIFY_ALL}, 
+	 * {@link MadkitAction#MADKIT_DEICONIFY_ALL}, 
+	 * {@link MadkitAction#MADKIT_RESTART}, 
+	 * {@link MadkitAction#LOAD_LOCAL_DEMOS}, 
 	 * 
 	 * @param agent the agent for which this menu is created
 	 */
 	public MadkitToolBar(final AbstractAgent agent) {
 		super("MadKit");
-		add(MadkitActions.MADKIT_LAUNCH_NETWORK.getAction(agent));
-		add(MadkitActions.MADKIT_STOP_NETWORK.getAction(agent));
-		add(MadkitActions.MADKIT_EXIT_ACTION.getAction(agent));
+		add(MadkitAction.MADKIT_LAUNCH_NETWORK.getAction(agent));
+		add(MadkitAction.MADKIT_STOP_NETWORK.getAction(agent));
+		add(MadkitAction.MADKIT_EXIT_ACTION.getAction(agent));
 		addSeparator();
-		add(MadkitActions.MADKIT_ICONIFY_ALL.getAction(agent));
-		add(MadkitActions.MADKIT_DEICONIFY_ALL.getAction(agent));
-//		add(MadkitActions.MADKIT_RESTART.getAction(agent));t
-//		add(MadkitActions.MADKIT_CLONE.getAction(agent));
-//		add(MadkitActions.CONNECT_WEB_REPO.getAction(agent));
-		add(MadkitActions.LOAD_LOCAL_DEMOS.getAction(agent));
+		add(MadkitAction.MADKIT_ICONIFY_ALL.getAction(agent));
+		add(MadkitAction.MADKIT_DEICONIFY_ALL.getAction(agent));
+//		add(MadkitAction.MADKIT_RESTART.getAction(agent));t
+//		add(MadkitAction.MADKIT_CLONE.getAction(agent));
+//		add(MadkitAction.CONNECT_WEB_REPO.getAction(agent));
+		add(MadkitAction.LOAD_LOCAL_DEMOS.getAction(agent));
 		for (Component c : getComponents()) {
 			if (c instanceof AbstractButton) {
 				ImageIcon i = (ImageIcon) ((AbstractButton) c).getIcon();

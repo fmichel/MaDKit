@@ -39,6 +39,11 @@ public class isCGRTest  extends JunitMadKit{
 	@Test
 	public void nullCommunity(){
 		launchTest(new AbstractAgent(){
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
 			protected void activate() {
 				try {
 					assertFalse(isCommunity(null));
@@ -53,6 +58,11 @@ public class isCGRTest  extends JunitMadKit{
 	@Test
 	public void nullGroup(){
 		launchTest(new AbstractAgent(){
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
 			protected void activate() {
 				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
 				try {
@@ -68,6 +78,11 @@ public class isCGRTest  extends JunitMadKit{
 	@Test
 	public void nullRole(){
 		launchTest(new AbstractAgent(){
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
 			protected void activate() {
 				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
 				try {
@@ -83,6 +98,11 @@ public class isCGRTest  extends JunitMadKit{
 	@Test
 	public void existTrue(){
 		launchTest(new AbstractAgent(){
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
 			protected void activate() {
 				assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP));
 				assertTrue(isCommunity(COMMUNITY));
@@ -95,6 +115,11 @@ public class isCGRTest  extends JunitMadKit{
 	@Test
 	public void notExist(){
 		launchTest(new AbstractAgent(){
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
 			protected void activate() {
 				assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP));
 				assertFalse(isCommunity(aa()));

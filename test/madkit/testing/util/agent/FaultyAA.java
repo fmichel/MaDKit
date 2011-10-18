@@ -18,7 +18,6 @@
  */
 package madkit.testing.util.agent;
 
-import madkit.kernel.JunitMadKit;
 
 /**
  * @author Fabien Michel
@@ -27,6 +26,11 @@ import madkit.kernel.JunitMadKit;
  * 
  */
 public class FaultyAA extends DoItDuringLifeCycleAbstractAgent{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * @param inActivate

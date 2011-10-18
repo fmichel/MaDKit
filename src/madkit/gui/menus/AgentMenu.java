@@ -22,7 +22,6 @@ import java.awt.event.KeyEvent;
 
 import javax.swing.Action;
 import javax.swing.JMenu;
-import javax.swing.JMenuItem;
 
 import madkit.gui.actions.AgentAction;
 import madkit.kernel.AbstractAgent;

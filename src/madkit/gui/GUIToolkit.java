@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentMap;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 
-import madkit.gui.actions.MadkitActions;
+import madkit.gui.actions.MadkitAction;
 import madkit.gui.menus.AgentLogLevelMenu;
 import madkit.gui.menus.AgentMenu;
 import madkit.kernel.AbstractAgent;
@@ -48,11 +48,11 @@ final public class GUIToolkit {
 	// only if required
 	static ConcurrentMap<AbstractAgent, List<AgentUIComponent>> agentUIListeners = new ConcurrentHashMap<AbstractAgent, List<AgentUIComponent>>();
 	static ConcurrentMap<KernelAddress, JLabel> networkLabel = new ConcurrentHashMap<KernelAddress, JLabel>();
-//	private static HashMap<KernelAddress,Map<MadkitActions,Action>> globalActions;
+//	private static HashMap<KernelAddress,Map<MadkitAction,Action>> globalActions;
 	static Map<KernelAddress, GUIManagerAgent> guiManagers = new ConcurrentHashMap<KernelAddress, GUIManagerAgent>();
 
 	static void buildGlobalActions(GUIManagerAgent guiManager) {
-		MadkitActions.registerGlobalActions(guiManager);
+		MadkitAction.registerGlobalActions(guiManager);
 		guiManagers.put(guiManager.getKernelAddress(), guiManager);
 	}
 

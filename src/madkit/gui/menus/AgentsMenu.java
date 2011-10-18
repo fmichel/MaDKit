@@ -19,7 +19,7 @@
 package madkit.gui.menus;
 
 import java.awt.event.KeyEvent;
-import java.util.Set;
+import java.util.Collection;
 
 import javax.swing.Action;
 import javax.swing.JMenu;
@@ -38,10 +38,10 @@ public class AgentsMenu extends JMenu {
 	 * 
 	 */
 	private static final long serialVersionUID = -395609483373286462L;
-	final private Set<String> classesToLaunch;
+	final private Collection<String> classesToLaunch;
 	final private Action launchAction;
 	
-	public AgentsMenu(final Action action, Set<String> classesToLaunch) {
+	public AgentsMenu(final Action action, Collection<String> classesToLaunch) {
 		super("Agents");
 		this.classesToLaunch = classesToLaunch;
 		launchAction = action;

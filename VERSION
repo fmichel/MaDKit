@@ -40,6 +40,21 @@ Other command line options are described in the API of the madkit.kernel.Madkit 
 ----------------------------------------------------------------------------------
 
 ----------------------------------------------------------------------------------
+------------------------------- MadKit 5.0.0.12 (alpha-12)--------------------------
+----------------------------------------------------------------------------------
+
+1. Improvements:	
+	- Desktop has been slightly reworked
+	- more javadoc on the kill/launch methods and other previously uncommented methods
+	- the agent's menu does not propose unachievable launch operations (agents with no default constructor)
+	- The life cycle management of Agents has been reworked
+
+2. API Refactoring:
+	- madkit.gui.actions.MadkitActions has been changed to madkit.gui.actions.MadkitAction
+	- the API related to multicore features has been a bit refactored
+	
+
+----------------------------------------------------------------------------------
 ------------------------------- MadKit 5.0.0.11 (alpha-11)--------------------------
 ----------------------------------------------------------------------------------
 
@@ -51,6 +66,7 @@ Other command line options are described in the API of the madkit.kernel.Madkit 
 	- madkit.simulation.GenericBehaviorActivator.multicoreExecute() has been introduced.
 	  and provides an easy way of using multicore architectures when simulating.
 	  Basically it does distribute all the calls on the available processors. 
+
 
 ----------------------------------------------------------------------------------
 ------------------------------- MadKit 5.0.0.10 (alpha-10)--------------------------

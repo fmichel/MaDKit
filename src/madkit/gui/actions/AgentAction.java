@@ -179,7 +179,7 @@ public enum AgentAction implements MadkitGUIAction{
 	
 	static void selfKill(AbstractAgent agent){
 		if (agent.isAlive()) {
-			agent.sendMessage(LocalCommunity.NAME, Groups.SYSTEM, Roles.KERNEL, new KernelMessage(MadkitActions.MADKIT_KILL_AGENT,
+			agent.sendMessage(LocalCommunity.NAME, Groups.SYSTEM, Roles.KERNEL, new KernelMessage(MadkitAction.MADKIT_KILL_AGENT,
 					agent, 2));
 		}
 	}

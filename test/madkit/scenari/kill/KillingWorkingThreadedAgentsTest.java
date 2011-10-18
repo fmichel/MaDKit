@@ -18,19 +18,19 @@
  */
 package madkit.scenari.kill;
 
-import static madkit.kernel.AbstractAgent.ReturnCode.*;
+import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_KILLED;
+import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static madkit.kernel.AbstractAgent.ReturnCode.TIMEOUT;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.logging.Level;
 
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.Agent;
 import madkit.kernel.JUnitAgent;
 import madkit.kernel.JunitMadKit;
 import madkit.kernel.Madkit.LevelOption;
-import madkit.testing.util.agent.UnstopableAbstractAgent;
 import madkit.testing.util.agent.UnstopableAgent;
 import madkit.testing.util.agent.WorkingAgent;
 

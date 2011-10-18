@@ -19,8 +19,6 @@
 package madkit.kernel;
 
 import static madkit.kernel.Scheduler.State.PAUSED;
-import static madkit.kernel.Scheduler.State.RUNNING;
-import static madkit.kernel.Scheduler.State.STEP;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -185,6 +183,12 @@ public class Scheduler extends Agent {
 //		this.setStartTime(startTime);
 //	}
 
+	@Override
+	protected void activate() {
+		if(logger != null)
+			logger.talk("\n\tHi human !\n\n I am an instance of the madkit.kernel.Scheduler class.\n I am specialized in simulation scheduling.\n I use activators on the artificial society\n to trigger agents' behaviors and simulate artificial worlds.\n You can extend me to create your own simulations !");
+	}
+	
 	/**
 	 * Constructor specifying the global times at which the simulation starts and ends.
 	 * 

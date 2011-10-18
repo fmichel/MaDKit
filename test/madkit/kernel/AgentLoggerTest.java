@@ -76,7 +76,6 @@ public class AgentLoggerTest {
 	@Test
 	public void setNameAndThenLog() {
 		AgentLog a = new AgentLog(Level.OFF);
-		String defaultName = a.getName();
 		a.setName("TEST");
 		assertNull(a.logger);
 		a.setLogLevel(Level.ALL);
@@ -110,6 +109,11 @@ public class AgentLoggerTest {
 }
 
 class AgentLog extends AbstractAgent{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	AgentLog(Level lvl){
 		setLogLevel(lvl);
 	}

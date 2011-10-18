@@ -22,6 +22,7 @@ public class WorkingAgent extends DoItDuringLifeCycleAgent{
 
 	public void doIt() {		
 		for (int i =0; i < 100000000;i++) {
+			@SuppressWarnings("unused")
 			double d = Math.random()*2;
 			d*=Math.PI*100;
 //			if(i % 10000000 == 0)
@@ -33,6 +34,7 @@ public class WorkingAgent extends DoItDuringLifeCycleAgent{
 
 	public void doIta() {		
 		for (long i =0; i < Long.MAX_VALUE;i++) {
+			@SuppressWarnings("unused")
 			double d = Math.random()*2;
 			d*=Math.PI*100;
 //			if(i % 10000000 == 0)

@@ -19,12 +19,8 @@
 
 package madkit.kernel;
 
-import java.util.Arrays;
-
 import madkit.i18n.I18nUtilities;
-import madkit.i18n.Words;
 import madkit.kernel.AbstractAgent.ReturnCode;
-import madkit.kernel.AbstractAgent.State;
 
 /**
  * @author Fabien Michel

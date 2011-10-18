@@ -25,7 +25,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import madkit.gui.actions.MadkitActions;
+import madkit.gui.actions.MadkitAction;
 import madkit.kernel.AbstractAgent;
 
 /**
@@ -41,7 +41,7 @@ public class AgentStatusPanel extends JPanel implements AgentUIComponent {
 	 */
 	private static final long serialVersionUID = -5745998699827681837L;
 	
-	final static private ImageIcon image = new ImageIcon(MadkitActions.MADKIT_LAUNCH_NETWORK.getImageIcon().getImage().getScaledInstance(10, 10, Image.SCALE_SMOOTH));
+	final static private ImageIcon image = new ImageIcon(MadkitAction.MADKIT_LAUNCH_NETWORK.getImageIcon().getImage().getScaledInstance(10, 10, Image.SCALE_SMOOTH));
 	final private AbstractAgent myAgent;
 	final private JLabel network;
 	

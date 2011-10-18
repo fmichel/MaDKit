@@ -18,7 +18,7 @@
  */
 package madkit.kernel;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -82,6 +82,14 @@ public class KernelAddressTest {
 			}
 		}
 	}
+
+//	@Test
+//	public void testLocalKernelAddress() {
+//		KernelAddress ka = new KernelAddress();
+//		System.err.println(ka);
+//		KernelAddress lka = new LocalKernelAddress();
+//		System.err.println(lka);
+//	}
 
 	@Test
 	public void testEqualsObject() {

@@ -19,8 +19,6 @@
 package madkit.testing.util.agent;
 
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.Agent;
-import madkit.kernel.AgentAddress;
 import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.LevelOption;
 
@@ -32,6 +30,12 @@ import madkit.kernel.Madkit.LevelOption;
  */
 public class UnstopableAbstractAgent extends AbstractAgent
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+
 	protected void activate() {
 		int i = 0;
 		while(i<990000000){

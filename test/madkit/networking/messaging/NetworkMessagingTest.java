@@ -42,11 +42,6 @@ import org.junit.Test;
 @SuppressWarnings("serial")
 public class NetworkMessagingTest extends JunitMadKit{
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -2226317432181332931L;
-
 	@Test
 	public void ping(){
 		addMadkitArgs(BooleanOption.network.toString(),

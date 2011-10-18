@@ -82,19 +82,18 @@ public class GenericBehaviorActivator<A extends AbstractAgent> extends Activator
 	@SuppressWarnings("unchecked")
 	@Override
 	public void multicoreExecute() {
-		int cpuCoreNb = Runtime.getRuntime().availableProcessors();
+		int cpuCoreNb = nbOfSimultaneousTasks();
 		final ArrayList<Callable<Void>> workers = new ArrayList<Callable<Void>>(cpuCoreNb);
 		List<A> list = getCurrentAgentsList();
 		int bucketSize = list.size();
 		final int nbOfAgentsPerTask = bucketSize / (cpuCoreNb);
-		final A[] agents = (A[]) list.toArray((A[]) new AbstractAgent[0]);
+		final A[] agents = list.toArray((A[]) new AbstractAgent[0]);
 		for (int i = 0; i < cpuCoreNb; i++) {
 			final int index = i;
 			workers.add(new Callable<Void>() {
 				public Void call() throws Exception {
 					int maxIndex = nbOfAgentsPerTask*(index+1);
 					for (int j = nbOfAgentsPerTask*index; j < maxIndex; j++) {
-						
 						agentBehaviors.concurrentExecuteBehavior(agents[j]);
 					}
 					return null;
@@ -103,6 +102,10 @@ public class GenericBehaviorActivator<A extends AbstractAgent> extends Activator
 		}
 		try {
 			getMadkitServiceExecutor().invokeAll(workers);
+			int maxIndex = nbOfAgentsPerTask*cpuCoreNb;
+			for (int i = agents.length-1; i >= maxIndex; i--) {
+				agentBehaviors.concurrentExecuteBehavior(agents[i]);
+			}
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();//do not swallow it !
 		}

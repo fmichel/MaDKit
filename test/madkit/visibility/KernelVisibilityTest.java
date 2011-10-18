@@ -18,18 +18,13 @@
  */
 package madkit.visibility;
 
-import static org.junit.Assert.*;
-
-import java.util.ArrayList;
-import java.util.List;
-
+import static org.junit.Assert.assertSame;
 import madkit.kernel.AgentAddress;
 import madkit.kernel.AgentLogger;
 import madkit.kernel.KernelAddress;
 import madkit.kernel.Madkit;
 import madkit.kernel.Message;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**

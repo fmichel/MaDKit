@@ -18,20 +18,13 @@
  */
 package madkit.networking;
 
-import org.junit.Test;
-
-import madkit.kernel.AbstractAgent;
+import static org.junit.Assert.assertNotNull;
 import madkit.kernel.Agent;
-import madkit.kernel.AgentAddress;
 import madkit.kernel.JunitMadKit;
-import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.BooleanOption;
-import madkit.messages.ObjectMessage;
 import madkit.testing.util.agent.PongAgent;
-import static madkit.kernel.JunitMadKit.COMMUNITY;
-import static madkit.kernel.JunitMadKit.GROUP;
-import static madkit.kernel.JunitMadKit.ROLE;
-import static org.junit.Assert.*;
+
+import org.junit.Test;
 
 /**
  * @author Fabien Michel

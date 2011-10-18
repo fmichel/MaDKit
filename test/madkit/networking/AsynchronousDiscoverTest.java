@@ -26,15 +26,11 @@ import java.util.List;
 import madkit.agr.CloudCommunity;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
-import madkit.gui.actions.MadkitActions;
+import madkit.gui.actions.MadkitAction;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AgentAddress;
 import madkit.kernel.JunitMadKit;
-import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.BooleanOption;
-import madkit.kernel.Madkit.LevelOption;
-import madkit.kernel.Madkit.Option;
-import madkit.testing.util.agent.ForEverAgent;
 
 import org.junit.Test;
 
@@ -69,14 +65,14 @@ public class AsynchronousDiscoverTest extends JunitMadKit{
 				if(logger != null)
 					logger.info(""+getAgentsWithRole(LocalCommunity.NAME, Groups.NETWORK,LocalCommunity.Roles.NET_AGENT));
 				assertEquals(6, getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT).size());
-				MadkitActions.MADKIT_STOP_NETWORK.getAction(this).actionPerformed(null);
+				MadkitAction.MADKIT_STOP_NETWORK.getAction(this).actionPerformed(null);
 				pause(1000);
 				
 				//not connected 
 				assertFalse(isCommunity(CloudCommunity.NAME));
 
 				//second round
-				MadkitActions.MADKIT_LAUNCH_NETWORK.getAction(this).actionPerformed(null);
+				MadkitAction.MADKIT_LAUNCH_NETWORK.getAction(this).actionPerformed(null);
 				List<AgentAddress> l = getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT);
 				while (l == null || l.size() != 6) {
 					pause(2000);

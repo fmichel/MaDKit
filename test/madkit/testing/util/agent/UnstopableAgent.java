@@ -18,9 +18,6 @@
  */
 package madkit.testing.util.agent;
 
-import madkit.kernel.AbstractAgent;
-import madkit.kernel.Agent;
-import madkit.kernel.AgentAddress;
 import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.LevelOption;
 
@@ -33,6 +30,11 @@ import madkit.kernel.Madkit.LevelOption;
 public class UnstopableAgent extends DoItDuringLifeCycleAgent
 {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public UnstopableAgent(boolean inActivate, boolean inLive, boolean inEnd) {
 		super(inActivate, inLive, inEnd);
 	}

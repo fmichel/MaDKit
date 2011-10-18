@@ -20,7 +20,6 @@ package madkit.gui;
 
 import java.awt.Point;
 import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
 import javax.swing.Box;
@@ -34,7 +33,7 @@ import javax.swing.event.InternalFrameEvent;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.agr.LocalCommunity.Roles;
-import madkit.gui.actions.MadkitActions;
+import madkit.gui.actions.MadkitAction;
 import madkit.gui.menus.MadkitMenu;
 import madkit.kernel.AbstractAgent;
 import madkit.messages.KernelMessage;
@@ -61,7 +60,7 @@ final class AgentFrame extends JFrame {
 		addWindowListener(new WindowAdapter() {
 			public void windowClosing(java.awt.event.WindowEvent e) {
 				setTitle("Closing "+agent.getName());
-				agent.sendMessage(LocalCommunity.NAME, Groups.SYSTEM, Roles.KERNEL, new KernelMessage(MadkitActions.MADKIT_KILL_AGENT, agent, 2));
+				agent.sendMessage(LocalCommunity.NAME, Groups.SYSTEM, Roles.KERNEL, new KernelMessage(MadkitAction.MADKIT_KILL_AGENT, agent, 2));
 			}
 		});
 //		addWindowListener(new WindowAdapter() {
@@ -69,7 +68,7 @@ final class AgentFrame extends JFrame {
 //			public void windowClosing(WindowEvent e) {
 //				setTitle(getTitle()+ " closing...");
 //				if (agent.isAlive()) {
-////					agent.sendMessage(LocalCommunity.NAME, Groups.SYSTEM, Roles.KERNEL, new KernelMessage(MadkitActions.MADKIT_KILL_AGENT, agent, 2));
+////					agent.sendMessage(LocalCommunity.NAME, Groups.SYSTEM, Roles.KERNEL, new KernelMessage(MadkitAction.MADKIT_KILL_AGENT, agent, 2));
 //					agent.killAgent(agent,1);
 //				}
 ////				dispose();

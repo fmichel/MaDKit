@@ -22,7 +22,6 @@ import static org.junit.Assert.assertTrue;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadKit;
 import madkit.kernel.Madkit.BooleanOption;
-import madkit.kernel.Madkit.LevelOption;
 
 import org.junit.Test;
 
@@ -38,6 +37,11 @@ public class NullArgTest extends  JunitMadKit{
 	public void desktopOn() {
 		mkArgs = null;
 		launchTest(new AbstractAgent(){
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			protected void activate() {
 				assertTrue(BooleanOption.desktop.isActivated(getMadkitConfig()));

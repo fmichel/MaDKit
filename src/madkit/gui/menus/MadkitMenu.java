@@ -22,7 +22,7 @@ import java.awt.event.KeyEvent;
 
 import javax.swing.JMenu;
 
-import madkit.gui.actions.MadkitActions;
+import madkit.gui.actions.MadkitAction;
 import madkit.kernel.AbstractAgent;
 
 /**
@@ -38,10 +38,10 @@ public class MadkitMenu extends JMenu {//TODO i18n
 	public MadkitMenu(final AbstractAgent agent){
 		super("MadKit");
 		setMnemonic(KeyEvent.VK_M);
-		add(MadkitActions.MADKIT_LAUNCH_NETWORK.getAction(agent));
-		add(MadkitActions.MADKIT_STOP_NETWORK.getAction(agent));
-		add(MadkitActions.MADKIT_EXIT_ACTION.getAction(agent));
-		add(MadkitActions.MADKIT_KILL_AGENTS.getAction(agent));
-		add(MadkitActions.MADKIT_LOAD_JAR_FILE.getAction(agent));
+		add(MadkitAction.MADKIT_LAUNCH_NETWORK.getAction(agent));
+		add(MadkitAction.MADKIT_STOP_NETWORK.getAction(agent));
+		add(MadkitAction.MADKIT_EXIT_ACTION.getAction(agent));
+		add(MadkitAction.MADKIT_KILL_AGENTS.getAction(agent));
+		add(MadkitAction.MADKIT_LOAD_JAR_FILE.getAction(agent));
 	}
 }

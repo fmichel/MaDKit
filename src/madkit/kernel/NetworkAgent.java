@@ -28,17 +28,13 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.omg.PortableInterceptor.SUCCESSFUL;
-
 import madkit.agr.CloudCommunity;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.agr.LocalCommunity.Roles;
 import madkit.agr.Organization;
 import madkit.gui.GUIToolkit;
-import madkit.gui.actions.MadkitActions;
 import madkit.kernel.Madkit.LevelOption;
-import madkit.messages.CodeMessage;
 import madkit.messages.KernelMessage;
 import madkit.messages.ObjectMessage;
 
@@ -263,7 +259,6 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 			}
 	}
 
-	@SuppressWarnings("unchecked")
 	private void handlePrivateMessage(KernelMessage m) {
 			switch (m.getCode()) {
 			case MADKIT_STOP_NETWORK:

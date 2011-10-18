@@ -20,14 +20,14 @@ package madkit.kernel;
 
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static madkit.kernel.AbstractAgent.State.TERMINATED;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
@@ -55,7 +55,6 @@ public class JunitMadKit {
 	 * 
 	 */
 	public static String aString = "a";
-	private static final long serialVersionUID = -2081776239604083402L;
 	public static final String COMMUNITY = "Tcommunity";
 	public static final String GROUP = "Tgroup";
 	public static final String ROLE = "Trole";
@@ -80,7 +79,7 @@ public class JunitMadKit {
 			}
 			madkit = new Madkit(args);
 			AbstractAgent kernelAgent = madkit.getKernel().getAgentWithRole(null,LocalCommunity.NAME, Groups.SYSTEM, LocalCommunity.Roles.KERNEL).getAgent();
-//			kernelAgent.receiveMessage(new KernelMessage(MadkitActions.AGENT_LAUNCH_AGENT, a, false));
+//			kernelAgent.receiveMessage(new KernelMessage(MadkitAction.AGENT_LAUNCH_AGENT, a, false));
 			a.setName(name.getMethodName());
 			assertEquals(expected, kernelAgent.launchAgent(a));
 		} catch (Throwable e) {

@@ -19,9 +19,11 @@
 package madkit.testing.util.agent;
 
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
+import static madkit.kernel.JunitMadKit.COMMUNITY;
+import static madkit.kernel.JunitMadKit.GROUP;
+import static madkit.kernel.JunitMadKit.ROLE;
 import static org.junit.Assert.assertEquals;
 import madkit.kernel.AbstractAgent;
-import static madkit.kernel.JunitMadKit.*;
 
 /**
  * @author Fabien Michel
@@ -31,6 +33,11 @@ import static madkit.kernel.JunitMadKit.*;
  */
 public class NormalAA extends AbstractAgent{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public NormalAA(){
 		setName(getLogger().getName());
 	}

@@ -18,7 +18,7 @@
  */
 package madkit.kernel;
 
-import static madkit.kernel.AbstractAgent.ReturnCode.*;
+import static madkit.kernel.AbstractAgent.ReturnCode.AGENT_CRASH;
 import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_GROUP;
 import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_KILLED;
 import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_LAUNCHED;
@@ -34,8 +34,9 @@ import static madkit.kernel.AbstractAgent.ReturnCode.ROLE_NOT_HANDLED;
 import static madkit.kernel.AbstractAgent.ReturnCode.SEVERE;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static madkit.kernel.AbstractAgent.ReturnCode.TIMEOUT;
-import static madkit.kernel.AbstractAgent.State.*;
+import static madkit.kernel.AbstractAgent.State.ACTIVATED;
 import static madkit.kernel.AbstractAgent.State.INITIALIZING;
+import static madkit.kernel.AbstractAgent.State.LIVING;
 import static madkit.kernel.AbstractAgent.State.NOT_LAUNCHED;
 import static madkit.kernel.CGRSynchro.Code.CREATE_GROUP;
 import static madkit.kernel.CGRSynchro.Code.LEAVE_GROUP;
@@ -48,7 +49,7 @@ import static madkit.kernel.Madkit.BooleanOption.noGUIManager;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.Thread.UncaughtExceptionHandler;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URISyntaxException;
@@ -71,39 +72,28 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.ThreadPoolExecutor.AbortPolicy;
 import java.util.logging.Level;
-
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
 
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.agr.LocalCommunity.Roles;
-import madkit.gui.GUIManagerAgent;
 import madkit.gui.GUIMessage;
-import madkit.gui.actions.MadkitActions;
+import madkit.gui.actions.MadkitAction;
 import madkit.i18n.ErrorMessages;
 import madkit.i18n.Words;
-import madkit.kernel.AbstractAgent.Influence;
 import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Madkit.Option;
-import madkit.kernel.NetworkMessage.NetCode;
 import madkit.messages.KernelMessage;
 import madkit.messages.ObjectMessage;
 
@@ -120,7 +110,7 @@ class MadkitKernel extends Agent {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 3181382740286439342L;
+	private static final long serialVersionUID = -5870076996141195039L;
 
 	final static ThreadGroup SYSTEM = new ThreadGroup("MK_SYSTEM"){
 		public void uncaughtException(Thread t, Throwable e) {
@@ -357,12 +347,33 @@ class MadkitKernel extends Agent {
 			if (logger != null)
 				logger.fine("** No GUI Manager: " + noGUIManager + " option is true**\n");
 		} else {
-			Agent a = new GUIManagerAgent(! BooleanOption.desktop.isActivated(getMadkitConfig()));
-			a.setLogLevel(LevelOption.guiLogLevel.getValue(getMadkitConfig()));
-			launchAgent(a);
-			threadedAgents.remove(a);
-			if (logger != null)
-				logger.fine("\n\t****** GUI Manager launched ******\n");
+			AbstractAgent a = null;
+			try {
+				final Constructor<?> c = getMadkitClassLoader().loadClass(getMadkitProperty("booterAgent")).getDeclaredConstructor(boolean.class);
+				c.setAccessible(true);
+				a = (AbstractAgent) c.newInstance(! BooleanOption.desktop.isActivated(getMadkitConfig()));
+				c.setAccessible(false);
+//			Agent a = new GUIManagerAgent(! BooleanOption.desktop.isActivated(getMadkitConfig()));
+				a.setLogLevel(LevelOption.guiLogLevel.getValue(getMadkitConfig()));
+				launchAgent(a);
+				threadedAgents.remove(a);
+				if (logger != null)
+					logger.fine("\n\t****** GUI Manager launched ******\n");
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			} catch (SecurityException e) {
+				e.printStackTrace();
+			} catch (NoSuchMethodException e) {
+				e.printStackTrace();
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+			} catch (InstantiationException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -558,7 +569,7 @@ class MadkitKernel extends Agent {
 	}
 	
 	private ReturnCode updateNetworkStatus(boolean start){
-		return sendNetworkMessageWithRole(new KernelMessage(start ? MadkitActions.MADKIT_LAUNCH_NETWORK : MadkitActions.MADKIT_STOP_NETWORK), kernelRole);
+		return sendNetworkMessageWithRole(new KernelMessage(start ? MadkitAction.MADKIT_LAUNCH_NETWORK : MadkitAction.MADKIT_STOP_NETWORK), kernelRole);
 	}
 
 	private void restartSession(final int time) {
@@ -607,6 +618,7 @@ class MadkitKernel extends Agent {
 	 * @param content
 	 * @return
 	 */
+	@SuppressWarnings("unused")// used by reflection
 	private Method launchAgent(Object[] content) {
 		return checkValidity("launchAgent", content);
 	}
@@ -1199,6 +1211,7 @@ class MadkitKernel extends Agent {
 	 * @param t
 	 * @return <code>true</code> if a hard kill has been done
 	 */
+	@SuppressWarnings("deprecation")
 	private boolean stopAgentProcess(State s, AbstractAgent target, Thread t){
 		//soft kill	
 		//		synchronized (target.state) {
@@ -1268,7 +1281,6 @@ class MadkitKernel extends Agent {
 	//		}
 	//	}
 
-	@SuppressWarnings("deprecation")
 	final ReturnCode killAbstractAgent(final AbstractAgent target, int timeOutSeconds){
 		//still activating
 		stopAbstractAgentProcess(ACTIVATED, target);
@@ -1709,9 +1721,9 @@ class MadkitKernel extends Agent {
 			System.exit(0);
 		}
 		shuttedDown = true;
-		sendNetworkMessageWithRole(new KernelMessage(MadkitActions.MADKIT_EXIT_ACTION), kernelRole);
+		sendNetworkMessageWithRole(new KernelMessage(MadkitAction.MADKIT_EXIT_ACTION), kernelRole);
 		broadcastMessageWithRole(MadkitKernel.this, LocalCommunity.NAME,
-				Groups.SYSTEM, madkit.agr.LocalCommunity.Roles.GUI_MANAGER, new GUIMessage(MadkitActions.MADKIT_EXIT_ACTION, MadkitKernel.this), null);
+				Groups.SYSTEM, madkit.agr.LocalCommunity.Roles.GUI_MANAGER, new GUIMessage(MadkitAction.MADKIT_EXIT_ACTION, MadkitKernel.this), null);
 		//		pause(10);//be sure that last executors have started
 		if (logger != null)
 			logger.finer("***** SHUTINGDOWN MADKIT ********\n");

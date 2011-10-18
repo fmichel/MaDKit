@@ -28,11 +28,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.logging.Level;
-
-import javax.swing.SwingUtilities;
 
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
@@ -398,6 +395,10 @@ public class KillAgentTest  extends JunitMadKit{
 }
 
 class TimeOutAgent extends Agent{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	@Override
 	protected void live() {
 		while(true)
@@ -408,6 +409,11 @@ class TimeOutAgent extends Agent{
 }
 
 class SelfKillAgent extends DoItDuringLifeCycleAgent{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	public SelfKillAgent() {
 		super();

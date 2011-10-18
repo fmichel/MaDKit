@@ -18,7 +18,7 @@
  */
 package madkit.messages;
 
-import madkit.gui.actions.MadkitActions;
+import madkit.gui.actions.MadkitAction;
 
 /**
  * The brand new version of KernelMessage.
@@ -31,14 +31,14 @@ import madkit.gui.actions.MadkitActions;
  * @since MadKit 1.0
  *
  */
-public class KernelMessage extends CodeMessage<MadkitActions,Object[]> {
+public class KernelMessage extends CodeMessage<MadkitAction,Object[]> {
 	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 7786756984291853285L;
 
-	public KernelMessage(MadkitActions code, Object... commandOptions) {
+	public KernelMessage(MadkitAction code, Object... commandOptions) {
 		super(code, commandOptions);
 	}
 }

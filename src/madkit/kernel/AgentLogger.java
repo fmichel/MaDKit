@@ -330,7 +330,7 @@ public class AgentLogger extends Logger {
 
 	@Override
 	public String toString() {
-		return "Agent Logger"+ getName();
+		return getName()+"'s AgentLogger "+ getLevel();
 	}
 
 	/**

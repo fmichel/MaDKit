@@ -114,15 +114,7 @@ class MadkitKernel extends Agent {
 
 	final static ThreadGroup SYSTEM = new ThreadGroup("MK_SYSTEM"){
 		public void uncaughtException(Thread t, Throwable e) {
-			System.err.println(t);
-			if(e instanceof KilledException){
-				e.printStackTrace();
-			}
-			else{
-				System.err.println("--------------internal BUG--------------------");
-				System.err.println(t);
-				e.printStackTrace();
-			};
+			System.err.println("\n------------uncaught exception on "+t);
 		}
 	};
 	//	final static ThreadGroup A_LIFE = new ThreadGroup("A_LIFE"){//TODO duplicate
@@ -240,7 +232,6 @@ class MadkitKernel extends Agent {
 				});
 		lifeExecutor.prestartAllCoreThreads();
 		lifeExecutor.allowCoreThreadTimeOut(true);
-		// launchingAgent(this, this, false);
 	}
 
 	MadkitKernel(){
@@ -250,7 +241,6 @@ class MadkitKernel extends Agent {
 		threadedAgents = null;
 		loggedKernel = this;
 		platform = null;
-		logger = null;
 		kernelAddress = null;
 		organizations = null;
 		operatingOverlookers = null;
@@ -261,7 +251,6 @@ class MadkitKernel extends Agent {
 
 	MadkitKernel(MadkitKernel k) {
 		super(null);
-		logger = null;
 		threadedAgents = null;
 		platform = k.platform;
 		kernelAddress = k.kernelAddress;
@@ -1083,7 +1072,7 @@ class MadkitKernel extends Agent {
 			agent.activateGUI();
 		Level defaultLevel = LevelOption.agentLogLevel.getValue(getMadkitConfig());
 		final AgentLogger agentLogger = agent.logger;
-		if(agentLogger == AbstractAgent.defaultLogger){//not changed in the constructor
+		if(agentLogger == AgentLogger.defaultAgentLogger){//not changed in the constructor
 			if(defaultLevel == Level.OFF) {//default not changed and global is OFF
 				agent.logger = null;
 			}

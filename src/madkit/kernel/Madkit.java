@@ -172,12 +172,12 @@ final public class Madkit {
 	Madkit(String[] argss){
 		if(argss != null && argss.length == 1 && argss[0].contains(" ")){//jnlp arg in here
 			argss = argss[0].split(" ");
-			for (String s : argss) {
+			for (final String s : argss) {
 				this.cmdLine += " "+s;
 			}
 		}
 		currentInstance = this;
-		Policy.setPolicy(getAllPermissionPolicy());
+		Policy.setPolicy(getAllPermissionPolicy());//TODO this is for jws
 		//installing config
 		//		this.args = argss != null ? argss : new String[0];
 		this.args = argss;

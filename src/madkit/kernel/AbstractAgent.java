@@ -110,8 +110,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	static final transient MadkitKernel FAKE_KERNEL = new FakeKernel();
 	static final transient MadkitKernel TERMINATED_KERNEL = new TerminatedKernel();
 
-	final static transient AgentLogger defaultLogger = AgentLogger.defaultAgentLogger;
-
 	final AtomicReference<State> state = new AtomicReference<AbstractAgent.State>(AbstractAgent.State.NOT_LAUNCHED);
 	transient MadkitKernel kernel = FAKE_KERNEL;
 
@@ -135,10 +133,11 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * 
 	 * @see java.util.logging.Logger
 	 */
-	protected AgentLogger logger = defaultLogger;
+	protected AgentLogger logger;
 
 	public AbstractAgent() {
 		_hashCode = agentCounter.getAndIncrement();//TODO bench outside
+		logger = AgentLogger.defaultAgentLogger;
 	}
 
 	AbstractAgent(Object fake){
@@ -798,7 +797,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	public void setName(final String name) {// TODO trigger gui changes and so on
 		if (! getName().equals(name)) {
 			this.name = name;
-			if(logger != null && logger != defaultLogger){
+			if(logger != null && logger != AgentLogger.defaultAgentLogger){
 				logger = null;
 				getLogger();
 			}
@@ -810,7 +809,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 */
 	public synchronized void setLogLevel(final Level newLevel) {
 		if(Level.OFF == newLevel){
-			if (logger != null && logger != defaultLogger) {
+			if (logger != null && logger != AgentLogger.defaultAgentLogger) {
 				logger.setLevel(newLevel);
 			}
 			logger = null;
@@ -832,7 +831,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @since MadKit 5.0.0.6
 	 */
 	public AgentLogger getLogger(){
-		if(logger == defaultLogger || logger == null){
+		if(logger == AgentLogger.defaultAgentLogger || logger == null){
 			synchronized (this) {
 				logger = AgentLogger.getLogger(this);
 			}

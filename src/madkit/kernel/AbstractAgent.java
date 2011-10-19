@@ -826,7 +826,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * Returns the agent's logger.
 	 * 
 	 * @return the agent's logger. It cannot be <code>null</code> as it will be created
-	 * if necessary. But you can still put {@link #logger} to <code>null</code>
+	 * if necessary. But you can then still put {@link #logger} to <code>null</code>
 	 * for optimizing your code by using {@link #setLogLevel(Level)} with {@link Level#OFF}.
 	 * 
 	 * @since MadKit 5.0.0.6

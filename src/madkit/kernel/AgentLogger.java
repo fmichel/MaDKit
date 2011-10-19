@@ -136,10 +136,10 @@ public class AgentLogger extends Logger {
 		return warningLogLevel;
 	}
 	
-	@Override
-	public ResourceBundle getResourceBundle() {
-		return Madkit.getResourceBundle();
-	}
+//	@Override
+//	public ResourceBundle getResourceBundle() {
+//		return Madkit.getResourceBundle();
+//	}
 
 	/** 
 	 * Sets the agent's log level above which MadKit warnings are displayed

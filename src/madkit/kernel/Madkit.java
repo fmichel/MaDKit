@@ -36,7 +36,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
-import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
@@ -93,17 +92,15 @@ import org.xml.sax.SAXException;
 final public class Madkit {
 
 	final static Properties defaultConfig = new Properties();
-	final static private ResourceBundle resourceBundle;
 	final private Properties madkitConfig = new Properties();
 
 	static{
-		ResourceBundle rb = null;
 		try {
+			// no need to externalize because it is used only here
 			defaultConfig.load(Madkit.class.getResourceAsStream("madkitKernel.properties"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		resourceBundle = rb;
 	}
 
 	private Element madkitXMLConfigFile=null;
@@ -405,22 +402,12 @@ final public class Madkit {
 	 */
 	private void printWelcomeString() {
 		if(!(LevelOption.madkitLogLevel.getValue(madkitConfig) == Level.OFF)){
-			System.err.println("\n\t-----------------------------------------------------");
-			System.err.println("\n\t\t\t   MadKit");
-			System.err.println("\n\t\t   version: "+defaultConfig.getProperty("madkit.version")+"\n\t\t  build: "+defaultConfig.getProperty("build.id"));
-			System.err.println("\n\t\tby MadKit Team (c) 1997-"+Calendar.getInstance().get(Calendar.YEAR));
-			System.err.println("\n\t-----------------------------------------------------\n");			
+			System.err.println("\n\t-----------------------------------------------------"+
+									 "\n\t\t\t   MadKit"+
+									 "\n\t\t   version: "+defaultConfig.getProperty("madkit.version")+"\n\t\t  build: "+defaultConfig.getProperty("build.id")+
+									 "\n\t\tby MadKit Team (c) 1997-"+Calendar.getInstance().get(Calendar.YEAR)+
+									 "\n\t-----------------------------------------------------\n");			
 		}
-	}
-
-	String printFareWellString() {
-		if(!(LevelOption.madkitLogLevel.getValue(madkitConfig) == Level.OFF)){
-			//				|| Level.parse(madkitConfig.getProperty(Madkit.MadkitLogLevel)).equals(Level.OFF))){
-			return("\n\t-----------------------------------------------------")+
-					("\n\t   MadKit Kernel "+myKernel.getKernelAddress()+" is shutting down, Bye !")+
-					("\n\t-----------------------------------------------------\n");			
-		}
-		return "";
 	}
 
 	//	private void misuseOptionMessage(String option,String value) {
@@ -731,13 +718,6 @@ final public class Madkit {
 	 */
 	final void setMadkitClassLoader(MadkitClassLoader madkitClassLoader) {
 		this.madkitClassLoader = madkitClassLoader;
-	}
-
-	/**
-	 * @return the resourceBundle
-	 */
-	static ResourceBundle getResourceBundle() {
-		return resourceBundle;
 	}
 
 	boolean isOptionActivated(String madkitOptionName) {

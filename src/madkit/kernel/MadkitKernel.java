@@ -340,7 +340,12 @@ class MadkitKernel extends Agent {
 
 	@Override
 	protected void end() {
-		platform.printFareWellString();
+		if(LevelOption.madkitLogLevel.getValue(platform.getConfigOption()) != Level.OFF){
+			System.err.println(
+					"\n\t-----------------------------------------------------"+
+					"\n\t   MadKit Kernel "+kernelAddress+" is shutting down, Bye !"+
+					"\n\t-----------------------------------------------------\n");			
+		}
 	}
 
 	final private void launchGuiManagerAgent() {
@@ -1728,15 +1733,7 @@ class MadkitKernel extends Agent {
 		//		pause(10);//be sure that last executors have started
 		if (logger != null)
 			logger.finer("***** SHUTINGDOWN MADKIT ********\n");
-		//		if (logger != null) {
-		//			if (logger.getLevel().intValue() <= Level.FINER.intValue()) {
-		//				normalAgentThreadFactory.getThreadGroup().list();
-		//			}
-		//		}
-
 		killAgents(true);
-		if (logger != null)
-			logger.talk(platform.printFareWellString());
 	}
 	
 	

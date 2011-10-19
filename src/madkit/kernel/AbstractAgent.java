@@ -339,7 +339,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	
 	final void logMethod(final boolean entering){
 		if(logger != null)
-			logger.finer("** "+ (entering ? "entering" : "exiting") +" "+ getState().lifeCycleMethod() +" **");
+			logger.finer("** "+ (entering ? Words.ENTERING : Words.EXITING) +" "+ getState().lifeCycleMethod() +" **");
 	}
 
 	/**
@@ -444,7 +444,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		}
 		//		messageBox.clear(); // TODO test speed and no need for that
 		if (logger != null) {
-			logger.finer("** TERMINATED **");
+			logger.finest("** TERMINATED **");
 		}
 		kernel = TERMINATED_KERNEL;
 	}

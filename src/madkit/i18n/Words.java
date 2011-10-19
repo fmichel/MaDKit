@@ -6,6 +6,9 @@ public enum Words {
 	
 	FAILED,COMMUNITY,GROUP,ROLE,
 	LAUNCH,
+	ENTERING,
+	EXITING,
+	TERMINATED,
 	RELOAD, DIRECTORY;
 	
 	final static ResourceBundle messages = I18nUtilities.getResourceBundle(Words.class.getSimpleName());

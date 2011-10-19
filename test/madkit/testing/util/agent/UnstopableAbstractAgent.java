@@ -20,6 +20,7 @@ package madkit.testing.util.agent;
 
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Madkit;
+import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
 
 /**
@@ -62,7 +63,10 @@ public class UnstopableAbstractAgent extends AbstractAgent
 
 
 	public static void main(String[] args) {
-		String[] argss = {LevelOption.agentLogLevel.toString(),"ALL",LevelOption.kernelLogLevel.toString(),"ALL","--launchAgents",UnstopableAbstractAgent.class.getName(),",true"};
+		String[] argss = {LevelOption.agentLogLevel.toString(),"ALL",
+				LevelOption.kernelLogLevel.toString(),"ALL",
+//				BooleanOption.noGUIManager.toString(),
+				"--launchAgents",UnstopableAbstractAgent.class.getName(),",true"};
 		Madkit.main(argss);		
 	}
 

@@ -333,6 +333,7 @@ class MadkitKernel extends Agent {
 	@Override
 	protected void live() {
 		while (! shuttedDown) {
+			System.err.println(logger);
 			handleMessage(waitNextMessage());
 		}
 	}
@@ -1765,12 +1766,6 @@ class MadkitKernel extends Agent {
 		do {
 			for (final Agent a : l) {
 				killAgent(this, a, 0);
-				//				if (logger != null) {
-				//					dumpThreadStack(a.myThread);
-				//					getLoggedKernel().killAgent(this, a, 0);
-				//				}
-				//				else{
-				//				}
 			}
 		} while (untilEmpty && ! threadedAgents.isEmpty());
 	}

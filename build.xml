@@ -107,7 +107,7 @@
    		</copy>	
 		<propertyfile file="${build.dir}/${madkitKernel.properties}" comment="MadKit 5 default properties"/>
          - - - - - - - - - - - - - - - - - -->
-    <target name="build-properties" depends="compile">
+    <target name="build-properties">
 		<tstamp>
 			<format property="timestamp.isoformat"
 		    pattern="yyyy-mm-dd HH:mm:ss" locale="en"/>

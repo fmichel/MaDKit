@@ -545,18 +545,18 @@ public class GUIManagerAgent extends Agent  {
 		return file.substring(0, file.length()-6).replace(File.separatorChar, '.');
 	}
 
-	private List<String> scanFolderForAgentClasses(File file, String pckName) {
+	private List<String> scanFolderForAgentClasses(final File file, final String pckName) {
 		if(logger != null)
 			logger.finest("Scanning dir :"+file.getName());
-		File[] files = file.listFiles();
+		final File[] files = file.listFiles();
 		if(files == null)
 			return Collections.emptyList();
-		List<String> l = new ArrayList<String>();
+		final List<String> l = new ArrayList<String>();
 		for(File f : files){
 			if(f.isDirectory()){
-				String pck = pckName == null ? f.getName() : pckName+"."+f.getName();
+//				String pck = pckName == null ? f.getName() : pckName+"."+f.getName();
 //				if(! isKernelDirectory(pck)){
-					l.addAll(scanFolderForAgentClasses(f,pck));
+					l.addAll(scanFolderForAgentClasses(f, pckName == null ? f.getName() : pckName+"."+f.getName()));
 //				}
 			}
 			else if(f.getName().endsWith(".class")){
@@ -569,11 +569,11 @@ public class GUIManagerAgent extends Agent  {
 		return l;
 	}
 
-	private boolean isKernelDirectory(String name) {
-		if(name == null)
-			return false;
-		return name.equals("madkit.kernel") || name.equals("madkit.gui") || name.equals("madkit.messages") || name.equals("madkit.simulation");
-	}
+//	private boolean isKernelDirectory(String name) {
+//		if(name == null)
+//			return false;
+//		return name.equals("madkit.kernel") || name.equals("madkit.gui") || name.equals("madkit.messages") || name.equals("madkit.simulation");
+//	}
 
 	Set<String> getLoadedClasses() {
 		return agentClasses;

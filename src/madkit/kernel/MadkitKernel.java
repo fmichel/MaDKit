@@ -322,8 +322,7 @@ class MadkitKernel extends Agent {
 	@Override
 	protected void live() {
 		while (! shuttedDown) {
-			System.err.println(logger);
-			handleMessage(waitNextMessage());
+			handleMessage(waitNextMessage());//As a daemon, a timeout is not required
 		}
 	}
 
@@ -1702,7 +1701,7 @@ class MadkitKernel extends Agent {
 				// case CGRSynchro.LEAVE_ORG://TODO to implement
 				// break;
 			default:
-				bugReport("case not treated in injectOperation", new KernelException(""));
+				bugReport(new UnsupportedOperationException("case not treated in injectOperation"));
 				break;
 			}
 		} catch (CGRNotAvailable e) {

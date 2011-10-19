@@ -84,7 +84,6 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 		requestRole(LocalCommunity.NAME, Groups.NETWORK, madkit.agr.LocalCommunity.Roles.NET_AGENT);
 
 		kernelAgent = getAgentWithRole(LocalCommunity.NAME, Groups.NETWORK, Organization.GROUP_MANAGER_ROLE);
-		//black magic here
 		myThread.setPriority(Thread.MAX_PRIORITY-3);
 		if(kernelAgent == null)
 			throw new AssertionError(this+" no kernel agent to work with... Please bug report");
@@ -112,14 +111,14 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 
 		myServer.activate(this);
 		if (logger != null) 
-			logger.info("\n\t\t\t\t----- MadKit server activated on "+myServer.getIp()+" port "+myServer.getPort()+" ------\n");
+			logger.config("\n\t\t\t\t----- MadKit server activated on "+myServer.getIp()+" port "+myServer.getPort()+" ------\n");
 
 		//build multicast listener
 		try {
 			multicastListener = MultiCastListener.getNewMultiCastListener(myServer.getPort());
 			multicastListener.activate(this, myServer.getIp(), myServer.getPort());
 			if (logger != null){
-				logger.info("\n\t\t\t\t----- MadKit MulticastListener activated on "+MultiCastListener.ipAddress+" ------\n");
+				logger.config("\n\t\t\t\t----- MadKit MulticastListener activated on "+MultiCastListener.ipAddress+" ------\n");
 				logger.finest("Broadcasting existence");
 			}
 		} catch (IOException e) {
@@ -160,6 +159,9 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 			}
 		}
 		GUIToolkit.updateAgentsUI();
+		if (logger != null){
+			logger.info("\n\t\t\t\t----- Network has been started on "+getKernelAddress()+" ------\n");
+		}
 		return true;
 	}
 

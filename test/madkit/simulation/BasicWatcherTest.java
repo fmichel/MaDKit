@@ -38,31 +38,75 @@ import org.junit.Test;
 public class BasicWatcherTest extends JunitMadKit{
 
 
+	@Test
+	public void addingNullProbe(){
+			launchTest(new AbstractAgent(){
+				protected void activate() {
+					createDefaultCGR(this);
+					Watcher s = new Watcher();
+					assertEquals(SUCCESS,launchAgent(s));
+					try {
+						Probe<AbstractAgent> a = new Probe<AbstractAgent>(null, null, null);
+						s.addProbe(a);
+						noExceptionFailure();
+					} catch (NullPointerException e) {
+						e.printStackTrace();
+					}
+					try {
+						Probe<AbstractAgent> a = new Probe<AbstractAgent>(COMMUNITY, null, null);
+						s.addProbe(a);
+						noExceptionFailure();
+					} catch (NullPointerException e) {
+						e.printStackTrace();
+					}
+					try {
+						Probe<AbstractAgent> a = new Probe<AbstractAgent>(COMMUNITY, GROUP, null);
+						s.addProbe(a);
+						noExceptionFailure();
+					} catch (NullPointerException e) {
+						e.printStackTrace();
+					}
+					try {
+						Probe<AbstractAgent> a = new Probe<AbstractAgent>(null, GROUP, null);
+						s.addProbe(a);
+						noExceptionFailure();
+					} catch (NullPointerException e) {
+						e.printStackTrace();
+					}
+					try {
+						Probe<AbstractAgent> a = new Probe<AbstractAgent>(null, null, ROLE);
+						s.addProbe(a);
+						noExceptionFailure();
+					} catch (NullPointerException e) {
+						e.printStackTrace();
+					}
+				}
+			});
+	}
 
 	@Test
 	public void addingAndRemovingProbes(){
 		launchTest(new AbstractAgent(){
 			protected void activate() {
-				assertEquals(SUCCESS, createGroup("public", "system", false,null));
-				assertEquals(SUCCESS, requestRole("public", "system", "site",null));
+				createDefaultCGR(this);
 				Watcher s = new Watcher();
 				assertEquals(SUCCESS,launchAgent(s));
 				ReturnCode code;
 				/////////////////////////// REQUEST ROLE ////////////////////////
-				Probe<AbstractAgent> a = new Probe<AbstractAgent>("public", "system", "site");
+				Probe<AbstractAgent> a = new Probe<AbstractAgent>(COMMUNITY,GROUP,ROLE);
 				s.addProbe(a);
 				assertEquals(1,a.size());
 
-				code = leaveRole("public", "system", "site");
+				code = leaveRole(COMMUNITY,GROUP,ROLE);
 				assertEquals(SUCCESS,code);
 				assertEquals(0,a.size());
 				
-				assertEquals(ALREADY_GROUP,createGroup("public", "system", false,null));
-				assertEquals(SUCCESS,requestRole("public", "system", "site",null));
+				assertEquals(ALREADY_GROUP,createGroup(COMMUNITY,GROUP, false,null));
+				assertEquals(SUCCESS,requestRole(COMMUNITY,GROUP,ROLE,null));
 
 				assertEquals(1,a.size());
 
-				assertEquals(SUCCESS,leaveGroup("public", "system"));		
+				assertEquals(SUCCESS,leaveGroup(COMMUNITY,GROUP));		
 				assertEquals(0,a.size());
 
 				// Adding and removing while group does not exist
@@ -71,11 +115,11 @@ public class BasicWatcherTest extends JunitMadKit{
 				s.addProbe(a);
 				assertEquals(0,a.size());
 
-				assertEquals(SUCCESS,createGroup("public", "system", false,null));
-				assertEquals(SUCCESS,requestRole("public", "system", "site",null));
+				assertEquals(SUCCESS,createGroup(COMMUNITY,GROUP, false,null));
+				assertEquals(SUCCESS,requestRole(COMMUNITY,GROUP,ROLE,null));
 				AbstractAgent other = new AbstractAgent(){
 					protected void activate() {
-						assertEquals(SUCCESS,requestRole("public", "system", "site",null));
+						assertEquals(SUCCESS,requestRole(COMMUNITY,GROUP,ROLE,null));
 					}
 				};
 				assertEquals(SUCCESS, launchAgent(other));
@@ -87,14 +131,14 @@ public class BasicWatcherTest extends JunitMadKit{
 				s.addProbe(a);
 				assertEquals(2,a.size());
 
-				assertEquals(SUCCESS, leaveGroup("public", "system"));		
+				assertEquals(SUCCESS, leaveGroup(COMMUNITY,GROUP));		
 				assertEquals(1,a.size());
-				assertEquals(SUCCESS,other.leaveGroup("public", "system"));		
+				assertEquals(SUCCESS,other.leaveGroup(COMMUNITY,GROUP));		
 				assertEquals(0,a.size());
 
-				assertEquals(SUCCESS,createGroup("public", "system", false,null));
-				assertEquals(SUCCESS,requestRole("public", "system", "site",null));
-				assertEquals(SUCCESS,other.requestRole("public", "system", "site",null));
+				assertEquals(SUCCESS,createGroup(COMMUNITY,GROUP, false,null));
+				assertEquals(SUCCESS,requestRole(COMMUNITY,GROUP,ROLE,null));
+				assertEquals(SUCCESS,other.requestRole(COMMUNITY,GROUP,ROLE,null));
 				assertEquals(2,a.size());
 
 				killAgent(s);

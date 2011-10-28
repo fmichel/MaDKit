@@ -18,6 +18,8 @@
  */
 package madkit.kernel;
 
+import java.lang.reflect.Method;
+
 import madkit.simulation.GenericBehaviorActivator;
 
 /**
@@ -79,10 +81,14 @@ public class Activator<A extends AbstractAgent> extends Overlooker<A>{
 	 * 
 	 * By default, this is automatically called by the default scheduler's 
 	 * loop when this activator has been added.
+	 * 
+	 * @throws UnsupportedOperationException if this operation is not supported 
+	 * by the activator, i.e. not implemented.
+	 * 
 	 * @see Scheduler#doSimulationStep()
 	 */
 	public void execute() {
-		//TODO warning
+		throw new UnsupportedOperationException();
 	}
 
 	/**
@@ -95,7 +101,8 @@ public class Activator<A extends AbstractAgent> extends Overlooker<A>{
 	 * model is used. That is to say, a model supporting concurrent phases in the simulation execution such as the
 	 * <a href="http://www.aamas-conference.org/Proceedings/aamas07/html/pdf/AAMAS07_0179_07a7765250ef7c3551a9eb0f13b75a58.pdf">IRM4S model<a/>
 	 * 
-	 * @throws UnsupportedOperationException if this operation is not supported by the activator
+	 * @throws UnsupportedOperationException if this operation is not supported 
+	 * by the activator, i.e. not implemented.
 	 */
 	public void multicoreExecute() {
 		throw new UnsupportedOperationException();
@@ -123,7 +130,12 @@ public class Activator<A extends AbstractAgent> extends Overlooker<A>{
 	 * {@link #isMulticoreModeOn()} returns <code>false</code>.
 	 */
 	public void setMulticore(int nbOfsimultaneousTasks) {
-		this.nbOfsimultaneousTasks = nbOfsimultaneousTasks;
+		if (nbOfsimultaneousTasks < 2) {
+			this.nbOfsimultaneousTasks = 1;
+		}
+		else{
+			this.nbOfsimultaneousTasks = nbOfsimultaneousTasks;
+		}
 	}
 
 	/**
@@ -135,6 +147,60 @@ public class Activator<A extends AbstractAgent> extends Overlooker<A>{
 	public int nbOfSimultaneousTasks() {
 		return nbOfsimultaneousTasks;
 	}
+	
+	@SuppressWarnings("unchecked")
+	public Method findBehaviorOn(Class<A> agentType, final String behavior) throws NoSuchMethodException{
+		Method m = null;
+		while(true) {
+			try {
+				m = agentType.getDeclaredMethod(behavior, (Class<?>[]) null);
+				if(m != null){
+					if (! m.isAccessible()) {//TODO seems to be always the case the first time
+						m.setAccessible(true);
+					}
+					return m;
+				}
+			} catch (SecurityException e) {
+				e.printStackTrace();
+			} catch (NoSuchMethodException e) {
+				try {
+					agentType = (Class<A>) agentType.getSuperclass();
+					if (agentType == null) {
+						throw e;
+					}
+				} catch (ClassCastException e2) {//strange but I do not get  this when casting Object //TODO remove it
+					throw e;
+				}
+			}
+		} 
+	}
+
+//	@SuppressWarnings("unchecked")
+//	public Method findBehaviorOn(Class<A> agentType, final String behavior) throws NoSuchMethodException{
+//		Method m = null;
+//		while(true) {
+//			try {
+//				m = agentType.getDeclaredMethod(behavior, (Class<?>[]) null);
+//				if(m != null){
+//					if (! m.isAccessible()) {//TODO seems to be always the case the first time
+//						m.setAccessible(true);
+//					}
+//					return m;
+//				}
+//			} catch (SecurityException e) {
+//				e.printStackTrace();
+//			} catch (NoSuchMethodException e) {
+//				try {
+//					agentType = (Class<A>) agentType.getSuperclass();
+//					if (agentType == null) {
+//						throw e;
+//					}
+//				} catch (ClassCastException e2) {//strange but I do not get  this when casting Object //TODO remove it
+//					throw e;
+//				}
+//			}
+//		} 
+//	}
 
 
 }

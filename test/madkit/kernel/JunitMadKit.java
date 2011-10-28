@@ -39,6 +39,7 @@ import madkit.testing.util.agent.ForEverAgent;
 
 import org.junit.Rule;
 import org.junit.rules.TestName;
+import org.omg.CORBA.TCKind;
 
 /**
  * @author Fabien Michel
@@ -99,7 +100,7 @@ public class JunitMadKit {
 		System.err.println("---------------------------------");
 	}
 	
-	public void noExceptionFailure(){
+	public static void noExceptionFailure(){
 		fail("Exception not thrown");
 	}
 	public void launchTest(AbstractAgent a){
@@ -182,6 +183,11 @@ public class JunitMadKit {
 				System.err.println(ste);
 			}
 		}
+	}
+	
+	public void createDefaultCGR(AbstractAgent a){
+		assertEquals(SUCCESS, a.createGroup(COMMUNITY,GROUP, false,null));
+		assertEquals(SUCCESS, a.requestRole(COMMUNITY,GROUP,ROLE,null));
 	}
 
 	

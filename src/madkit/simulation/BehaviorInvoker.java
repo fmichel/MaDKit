@@ -112,23 +112,15 @@ public class BehaviorInvoker<A extends AbstractAgent> {//TODO bench that with ge
 				}
 //			}
 		} catch (IllegalArgumentException e) {//TODO redirect logging
-			Logger.getLogger("[TMP]").severe("\nCan't invoke method: " + methodName + " on "+ agent + " " + e.getMessage());
-			if (e.getCause() == null) 
-				e.printStackTrace(); 
-			else
-				e.getCause().printStackTrace();
+			agent.getLogger().severeLog("Can't invoke method: " + methodName + " on "+ agent, e);
+//			if (e.getCause() == null) 
+//				e.printStackTrace(); 
+//			else
+//				e.getCause().printStackTrace();
 		} catch (IllegalAccessException e) {
-			Logger.getLogger("[TMP]").severe("\nCan't access method: " + methodName + " on "+ agent + " " + e.getMessage());
-			if (e.getCause() == null) 
-				e.printStackTrace(); 
-			else
-				e.getCause().printStackTrace();
+			agent.getLogger().severeLog("Can't invoke method: " + methodName + " on "+ agent, e);
 		} catch (InvocationTargetException e) {
-			Logger.getLogger("[TMP]").severe("\nCan't invoke method: " + methodName + " on "+ agent + " " + e.getMessage());
-			if (e.getCause() == null) 
-				e.printStackTrace(); 
-			else
-				e.getCause().printStackTrace();
+			agent.getLogger().severeLog("Can't invoke method: " + methodName + " on "+ agent, e);
 		}
 	}
 
@@ -163,23 +155,15 @@ public class BehaviorInvoker<A extends AbstractAgent> {//TODO bench that with ge
 				m.invoke(agent);
 			}
 		} catch (IllegalArgumentException e) {//TODO redirect logging
-			Logger.getLogger("[TMP]").severe("\nCan't invoke method: " + methodName + " on "+ agent + " " + e.getMessage());
-			if (e.getCause() == null) 
-				e.printStackTrace(); 
-			else
-				e.getCause().printStackTrace();
+			agent.getLogger().severeLog("Can't invoke method: " + methodName + " on "+ agent, e);
+//			if (e.getCause() == null) 
+//				e.printStackTrace(); 
+//			else
+//				e.getCause().printStackTrace();
 		} catch (IllegalAccessException e) {
-			Logger.getLogger("[TMP]").severe("\nCan't access method: " + methodName + " on "+ agent + " " + e.getMessage());
-			if (e.getCause() == null) 
-				e.printStackTrace(); 
-			else
-				e.getCause().printStackTrace();
+			agent.getLogger().severeLog("Can't invoke method: " + methodName + " on "+ agent, e);
 		} catch (InvocationTargetException e) {
-			Logger.getLogger("[TMP]").severe("\nCan't invoke method: " + methodName + " on "+ agent + " " + e.getMessage());
-			if (e.getCause() == null) 
-				e.printStackTrace(); 
-			else
-				e.getCause().printStackTrace();
+			agent.getLogger().severeLog("Can't invoke method: " + methodName + " on "+ agent, e);
 		}
 	}
 

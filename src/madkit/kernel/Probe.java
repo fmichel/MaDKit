@@ -18,6 +18,9 @@
  */
 package madkit.kernel;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+
 import madkit.simulation.PropertyProbe;
 
 /**
@@ -46,4 +49,29 @@ public class Probe<A extends AbstractAgent> extends Overlooker<A>{
 	public Probe(final String communityName, final String groupName, final String roleName) {
 		super(communityName, groupName, roleName);
 	}
+
+	@SuppressWarnings("unchecked")
+	public Field findFieldOn(Class<? extends AbstractAgent> agentType, final String field) throws NoSuchFieldException{
+		Field f = null;
+		while(true) {
+			try {
+				f = agentType.getDeclaredField(field);
+				if(f != null){
+					if (! f.isAccessible()) {//TODO seems to be always the case the first time
+						f.setAccessible(true);
+					}
+					return f;
+				}
+			} catch (SecurityException e) {
+				e.printStackTrace();
+			} catch (NoSuchFieldException e) {
+				agentType = (Class<A>) agentType.getSuperclass();
+				if (agentType == AbstractAgent.class) {//TODO bench vs local variable
+					throw e;
+				}
+			}
+		} 
+	}
+
+
 }

@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Logger;
 
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Probe;
@@ -35,7 +34,7 @@ import madkit.kernel.Probe;
  * @param <P> the type of the property (i.e. Integer)
  * @author Fabien Michel
  * @since MadKit 4.0
- * @version 5.0
+ * @version 5.1
  * 
  */
 public class PropertyProbe<A extends AbstractAgent,P> extends Probe<A>
@@ -56,12 +55,16 @@ public class PropertyProbe<A extends AbstractAgent,P> extends Probe<A>
 		super.initialize();//will call adding on all agents
 	}
 	
-	/**
-	 * @see madkit.kernel.Probe#adding(AbstractAgent)
-	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	protected void adding(final A theAgent) {
-		findFieldOfAgent(theAgent);
+		try {
+			properties.put(theAgent, (P) findFieldOn(theAgent.getClass(),fieldName));
+		} catch(NoSuchFieldException e) {
+			theAgent.getLogger().severeLog("\nCan't find property: "+fieldName+" on "+ theAgent,e);
+		} catch (ClassCastException e) {
+			theAgent.getLogger().severeLog("\nProperty: "+fieldName+" is not of declared type",e);
+		}
 	}
 	
 	/**
@@ -78,43 +81,23 @@ public class PropertyProbe<A extends AbstractAgent,P> extends Probe<A>
 		try {
 			if (! agents.isEmpty()) {
 				final Map<A, P> newP = new ConcurrentHashMap<A, P>(agents.size()+properties.size(),.9f); 
-				final Field f = agents.get(0).getClass().getField(fieldName);
+				final Field f = findFieldOn(agents.get(0).getClass(),fieldName);
 				for (A a : agents) {
-					newP.put(a, (P) f.get(a));
+					newP.put(a, (P) f.get(a));//TODO will fail if all the agents are not of the same type
 				}
 				newP.putAll(properties);
 				properties = newP;
 			}
-		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} catch (NoSuchFieldException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (ClassCastException e) {
+			agents.get(0).getLogger().severeLog("\nProperty: "+fieldName+" is not of declared type",e);
 		}
 	}
 
-	/**
-	 * @param theAgent
-	 */
-	@SuppressWarnings("unchecked")
-	private void findFieldOfAgent(final A theAgent) {
-		try {
-			properties.put(theAgent, (P) theAgent.getClass().getField(fieldName).get(theAgent));
-		}
-		catch(NoSuchFieldException e) {
-			Logger.getLogger("[TMP]").severe("\nCan't find property: "+fieldName+" on "+ theAgent +" "+e.getMessage());
-		}catch (IllegalAccessException e) {
-			Logger.getLogger("[TMP]").severe("\nCan't access property: "+fieldName+" on "+ theAgent +" "+e.getMessage());
-		}
-	}
-	
+
 	public Map<A, P> getAgentToPropertyMap() {
 		return properties;
 	}

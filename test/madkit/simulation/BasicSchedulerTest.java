@@ -22,8 +22,10 @@ import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_GROUP;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static org.junit.Assert.assertEquals;
 import madkit.kernel.AbstractAgent;
+import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.Activator;
 import madkit.kernel.JunitMadKit;
+import madkit.kernel.Activator;
 import madkit.kernel.Scheduler;
 
 import org.junit.Test;
@@ -37,6 +39,66 @@ import org.junit.Test;
 @SuppressWarnings("serial")
 public class BasicSchedulerTest extends JunitMadKit{
 
+
+	@Test
+	public void addingNullActivator(){
+			launchTest(new AbstractAgent(){
+				protected void activate() {
+					createDefaultCGR(this);
+					Scheduler s = new Scheduler();
+					assertEquals(SUCCESS,launchAgent(s));
+					try {
+						Activator<AbstractAgent> a = new Activator<AbstractAgent>(null, null, null);
+						s.addActivator(a);
+						noExceptionFailure();
+					} catch (NullPointerException e) {
+						e.printStackTrace();
+					}
+					try {
+						Activator<AbstractAgent> a = new Activator<AbstractAgent>(COMMUNITY, null, null);
+						s.addActivator(a);
+						noExceptionFailure();
+					} catch (NullPointerException e) {
+						e.printStackTrace();
+					}
+					try {
+						Activator<AbstractAgent> a = new Activator<AbstractAgent>(COMMUNITY, GROUP, null);
+						s.addActivator(a);
+						noExceptionFailure();
+					} catch (NullPointerException e) {
+						e.printStackTrace();
+					}
+					try {
+						Activator<AbstractAgent> a = new Activator<AbstractAgent>(null, GROUP, null);
+						s.addActivator(a);
+						noExceptionFailure();
+					} catch (NullPointerException e) {
+						e.printStackTrace();
+					}
+					try {
+						Activator<AbstractAgent> a = new Activator<AbstractAgent>(null, null, ROLE);
+						s.addActivator(a);
+						noExceptionFailure();
+					} catch (NullPointerException e) {
+						e.printStackTrace();
+					}
+				}
+			});
+	}
+
+
+	@Test
+	public void addingNullActivatorExceptionPrint(){
+			launchTest(new AbstractAgent(){
+				protected void activate() {
+					createDefaultCGR(this);
+					Scheduler s = new Scheduler();
+					assertEquals(SUCCESS,launchAgent(s));
+						Activator<AbstractAgent> a = new Activator<AbstractAgent>(null, null, null);
+						s.addActivator(a);
+					}
+			},ReturnCode.AGENT_CRASH);
+	}
 
 
 	@Test

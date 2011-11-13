@@ -65,14 +65,14 @@ public class AsynchronousDiscoverTest extends JunitMadKit{
 				if(logger != null)
 					logger.info(""+getAgentsWithRole(LocalCommunity.NAME, Groups.NETWORK,LocalCommunity.Roles.NET_AGENT));
 				assertEquals(6, getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT).size());
-				MadkitAction.MADKIT_STOP_NETWORK.getAction(this).actionPerformed(null);
+				MadkitAction.STOP_NETWORK.getAction(this).actionPerformed(null);
 				pause(1000);
 				
 				//not connected 
 				assertFalse(isCommunity(CloudCommunity.NAME));
 
 				//second round
-				MadkitAction.MADKIT_LAUNCH_NETWORK.getAction(this).actionPerformed(null);
+				MadkitAction.LAUNCH_NETWORK.getAction(this).actionPerformed(null);
 				List<AgentAddress> l = getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT);
 				while (l == null || l.size() != 6) {
 					pause(2000);

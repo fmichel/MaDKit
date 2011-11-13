@@ -18,11 +18,9 @@
  */
 package madkit.simulation;
 
-import static org.junit.Assert.*;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import madkit.kernel.Activator;
 import madkit.kernel.Agent;
 import madkit.kernel.JunitMadKit;
@@ -52,11 +50,6 @@ public class ActivatorTest {
 	@Test
 	public void testToString() {
 		System.err.println(a);
-	}
-
-	@Test
-	public void testActivator() {
-		fail("Not yet implemented"); // TODO
 	}
 
 	@Test
@@ -96,37 +89,6 @@ public class ActivatorTest {
 		assertEquals(1, a.nbOfSimultaneousTasks());
 		a.setMulticore(2);
 		assertEquals(2, a.nbOfSimultaneousTasks());
-	}
-
-	@Test
-	public void testFindBehaviorOnInheritedPublic() throws IllegalArgumentException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-			Method m = a.findBehaviorOn(Agent.class, "getClass");
-			assertNotNull(m);
-			System.err.println(m.invoke(agt));
-	}
-
-	@Test
-	public void testFindBehaviorOnPublic() throws IllegalArgumentException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-			Method m = a.findBehaviorOn(Agent.class, "isDaemon");
-			assertNotNull(m);
-			assertFalse((Boolean)m.invoke(agt));
-	}
-
-	@Test
-	public void testFindBehaviorOnNotExist() {
-			try {
-				Method m = a.findBehaviorOn(Agent.class, "notExist");
-				JunitMadKit.noExceptionFailure();
-			} catch (NoSuchMethodException e) {
-				e.printStackTrace();
-			}
-	}
-
-	@Test
-	public void testFindBehaviorOnProtectedAndInvoke() throws NoSuchMethodException, IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-			Method m = a.findBehaviorOn(Agent.class, "live");
-			assertNotNull(m);
-			m.invoke(agt);
 	}
 
 }

@@ -14,7 +14,7 @@
   </security>
   <resources>
     <j2se version="1.5+" java-vm-args="-Xnoclassgc"/>
-    <jar href="${jar.file}"/>
+    <jar href="${jnlp.jar}"/>
   </resources>
   <application-desc>
 <argument>${madkit.args}</argument>

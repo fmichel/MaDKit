@@ -163,18 +163,7 @@ public class GUIManagerAgent extends Agent  {
 		SwingUtilities.invokeLater(
 				new Runnable() {
 			public void run() {
-				for (final JFrame f : guis.values()) {
-					if (f.isVisible() && f.isShowing()) {
-						f.dispose();
-					}
-				}
-				for (final JInternalFrame jf : internalFrames.values()) {
-					if (jf.isVisible() && jf.isShowing()) {
-						jf.dispose();
-					}
-				}
-				guis.clear();
-				internalFrames.clear();
+				disposeAllAgents();
 				if (desktop != null) {//TODO swing thread or cleaner shutdown
 					desktop.dispose();
 				}
@@ -191,36 +180,40 @@ public class GUIManagerAgent extends Agent  {
 	private void handlePrivateMessage(GUIMessage m) {
 		MadkitAction code = m.getCode();
 		switch (code) {
-		case MADKIT_LAUNCH_NETWORK://forward the request
-		case MADKIT_STOP_NETWORK://forward the request
+		case LAUNCH_NETWORK://forward the request
+		case STOP_NETWORK://forward the request
 			sendMessage(kernelAddress, new KernelMessage(code, (Object) null));
 			break;
-		case MADKIT_ICONIFY_ALL:
-		case MADKIT_DEICONIFY_ALL:
-			iconifyAll(code == MadkitAction.MADKIT_ICONIFY_ALL);
+		case ICONIFY_ALL:
+		case DEICONIFY_ALL:
+			iconifyAll(code == MadkitAction.ICONIFY_ALL);
 			break;
 		case CONNECT_WEB_REPO:
 			scanMadkitRepo();
 			break;
-		case AGENT_LAUNCH_AGENT:
+		case LAUNCH_AGENT:
 			launchAgent((String) m.getContent(),0,true);
 			break;
-		case MADKIT_EXIT_ACTION://forward the shutdown
+		case EXIT://forward the shutdown
 			shuttedDown = true;
 			sendMessage(kernelAddress, new KernelMessage(code, (Object) null));
 			return;
 		case LOAD_LOCAL_DEMOS:
-		case MADKIT_KILL_AGENTS:
-		case MADKIT_RESTART://forward the request
+		case RESTART://forward the request
 			sendMessageAndWaitForReply(kernelAddress, new KernelMessage(code, (Object) null),1000);
 			if (code == MadkitAction.LOAD_LOCAL_DEMOS) {
 				scanClassPathForAgentClasses();
 			}
 			break;
-		case MADKIT_CLONE://forward the request
-			sendMessage(kernelAddress, new KernelMessage(MadkitAction.MADKIT_CLONE, m.getContent()));
+		case CLONE://forward the request
+			sendMessage(kernelAddress, new KernelMessage(MadkitAction.CLONE, m.getContent()));
 			break;
-		case MADKIT_LOAD_JAR_FILE:
+		case KILL_AGENTS:
+			killAllAgents();
+//			sendMessage(kernelAddress, new KernelMessage(code, (Object) null));
+//			disposeAllAgents();
+			break;
+		case LOAD_JAR_FILE:
 			loadingJarFile((URL) m.getContent());
 			break;
 		case MADKIT_LAUNCH_SESSION:
@@ -239,7 +232,7 @@ public class GUIManagerAgent extends Agent  {
 		case AGENT_DISPOSE_GUI:
 			disposeGUIOf((AbstractAgent) m.getContent());
 			break;
-		case MADKIT_EXIT_ACTION:
+		case EXIT:
 			shuttedDown = true;
 			//		end();
 			//		sendReply(m, new Message());
@@ -283,7 +276,7 @@ public class GUIManagerAgent extends Agent  {
 	}
 
 	private void loadingJarFile(URL url) {
-		sendMessageAndWaitForReply(kernelAddress, new KernelMessage(MadkitAction.MADKIT_LOAD_JAR_FILE, url), 1000);
+		sendMessageAndWaitForReply(kernelAddress, new KernelMessage(MadkitAction.LOAD_JAR_FILE, url), 1000);
 		scanClassPathForAgentClasses();
 	}
 
@@ -309,7 +302,12 @@ public class GUIManagerAgent extends Agent  {
 			public void run() {
 				if (! shuttedDown && agent.isAlive()) {
 					AgentFrame f = new AgentFrame(agent, agent.getName());
-					agent.setupFrame(f);//TODO catch failures because of delegation
+					try {
+						agent.setupFrame(f);//TODO catch failures because of delegation
+					} catch (Exception e) {
+						agent.getLogger().severeLog("Cannot initialize frame -> default GUI", e);
+						f = new AgentFrame(agent, agent.getName());
+					}
 					if (desktop != null) {
 						JInternalFrame jf = new AgentInternalFrame(f, GUIManagerAgent.this);
 						desktop.addInternalFrame(jf);
@@ -580,7 +578,7 @@ public class GUIManagerAgent extends Agent  {
 	}
 
 	JMenu createAgentsMenu() {
-		AgentsMenu m = new AgentsMenu(MadkitAction.AGENT_LAUNCH_AGENT.getAction(this),agentClasses);
+		AgentsMenu m = new AgentsMenu(MadkitAction.LAUNCH_AGENT.getAction(this),agentClasses);
 		agentsMenus.add(m);
 		return m;
 	}
@@ -593,6 +591,36 @@ public class GUIManagerAgent extends Agent  {
 
 	Set<DemoModel> getDemos() {
 		return demos;
+	}
+
+	/**
+	 * Kills all the agents that have a GUI
+	 */
+	private void disposeAllAgents() {
+		for (final JFrame f : guis.values()) {
+			if (f.isVisible() && f.isShowing()) {
+				f.dispose();
+			}
+		}
+		for (final JInternalFrame jf : internalFrames.values()) {
+			if (jf.isVisible() && jf.isShowing()) {
+				jf.dispose();
+			}
+		}
+		guis.clear();
+		internalFrames.clear();
+	}
+
+	/**
+	 * Kills all the agents that have a GUI
+	 */
+	private void killAllAgents() {
+		for (final AbstractAgent a : guis.keySet()) {
+			AgentFrame.killAgent(a, 0);
+		}
+		for (final AbstractAgent a : internalFrames.keySet()) {
+			AgentFrame.killAgent(a, 0);
+		}
 	}
 
 }

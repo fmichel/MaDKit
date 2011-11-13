@@ -38,10 +38,6 @@ public class MadkitMenu extends JMenu {//TODO i18n
 	public MadkitMenu(final AbstractAgent agent){
 		super("MadKit");
 		setMnemonic(KeyEvent.VK_M);
-		add(MadkitAction.MADKIT_LAUNCH_NETWORK.getAction(agent));
-		add(MadkitAction.MADKIT_STOP_NETWORK.getAction(agent));
-		add(MadkitAction.MADKIT_EXIT_ACTION.getAction(agent));
-		add(MadkitAction.MADKIT_KILL_AGENTS.getAction(agent));
-		add(MadkitAction.MADKIT_LOAD_JAR_FILE.getAction(agent));
+		MadkitAction.addAllActionsTo(this, agent);
 	}
 }

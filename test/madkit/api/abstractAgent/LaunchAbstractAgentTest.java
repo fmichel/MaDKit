@@ -27,6 +27,8 @@ import static org.junit.Assert.assertTrue;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadKit;
 import madkit.kernel.Madkit.LevelOption;
+import madkit.testing.util.agent.BuggedConstructorAgent;
+import madkit.testing.util.agent.BuggedFrameAgent;
 import madkit.testing.util.agent.SelfLaunchAA;
 
 import org.junit.Test;
@@ -75,6 +77,24 @@ public class LaunchAbstractAgentTest  extends JunitMadKit{
 				assertEquals(ALREADY_LAUNCHED,launchAgent(target));
 			}
 		});
+	}
+	
+	@Test
+	public void launchBuggedFrameAgent(){
+		launchTest(new AbstractAgent(){
+			protected void activate() {
+				launchAgent(new BuggedFrameAgent(),true);
+			}
+		});
+	}
+
+	@Test
+	public void launchBuggedConstructorAgent(){
+		launchTest(new AbstractAgent(){
+			protected void activate() {
+				launchAgent(new BuggedConstructorAgent());
+			}
+		},AGENT_CRASH);
 	}
 
 	@Test

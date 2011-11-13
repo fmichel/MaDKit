@@ -20,6 +20,7 @@ package madkit.gui;
 
 import java.awt.Point;
 import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
 import javax.swing.Box;
@@ -60,8 +61,12 @@ final class AgentFrame extends JFrame {
 		addWindowListener(new WindowAdapter() {
 			public void windowClosing(java.awt.event.WindowEvent e) {
 				setTitle("Closing "+agent.getName());
-				agent.sendMessage(LocalCommunity.NAME, Groups.SYSTEM, Roles.KERNEL, new KernelMessage(MadkitAction.MADKIT_KILL_AGENT, agent, 2));
+				killAgent(agent,2);
 			}
+//			@Override
+//			public void windowClosed(WindowEvent e) {
+//				killAgent(agent,0);
+//			}
 		});
 //		addWindowListener(new WindowAdapter() {
 //			@Override
@@ -107,6 +112,16 @@ final class AgentFrame extends JFrame {
 		super.setLocation(x, y);
 		if(internalFrame != null){
 			internalFrame.setLocation(x, y);
+		}
+	}
+
+	/**
+	 * @param agent
+	 */
+	static void killAgent(final AbstractAgent agent,int timeOutSeconds) {//TODO move that
+		if (agent.isAlive()) {
+			agent.sendMessage(LocalCommunity.NAME, Groups.SYSTEM, Roles.KERNEL, new KernelMessage(
+					MadkitAction.MADKIT_KILL_AGENT, agent, timeOutSeconds));
 		}
 	}
 }

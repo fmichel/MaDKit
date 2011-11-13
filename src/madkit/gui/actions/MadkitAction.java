@@ -31,6 +31,8 @@ import static java.awt.event.KeyEvent.VK_W;
 import static java.awt.event.KeyEvent.VK_Y;
 
 import java.awt.event.ActionEvent;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -39,7 +41,10 @@ import java.util.Map;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
+import javax.swing.JMenu;
+import javax.swing.JToolBar;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import madkit.gui.GUIManagerAgent;
@@ -55,29 +60,41 @@ import madkit.kernel.KernelAddress;
  */
 @SuppressWarnings("serial")
 public enum MadkitAction implements MadkitGUIAction {
+	
 
-	MADKIT_EXIT_ACTION(new ImageIcon(MadkitAction.class.getResource("images/madkit/exitMadKit.png")),VK_E),
-	MADKIT_LAUNCH_NETWORK(new ImageIcon(MadkitAction.class.getResource("images/madkit/network_local.png")),VK_N),
-	MADKIT_STOP_NETWORK(new ImageIcon(MadkitAction.class.getResource("images/madkit/network_local.png")),VK_T),
-	MADKIT_ICONIFY_ALL(new ImageIcon(MadkitAction.class.getResource("images/madkit/iconify.png")),VK_U),
-	MADKIT_DEICONIFY_ALL(new ImageIcon(MadkitAction.class.getResource("images/madkit/iconify.png")),VK_I),
-	MADKIT_RESTART(new ImageIcon(MadkitAction.class.getResource("images/madkit/restart.png")),VK_R),
-	MADKIT_CLONE(new ImageIcon(MadkitAction.class.getResource("images/madkit/restart.png")),VK_Y),
-	MADKIT_KILL_AGENTS(null,VK_K),
-	CONNECT_WEB_REPO(null,VK_W),
-	LOAD_LOCAL_DEMOS(null,VK_D),
+	EXIT(VK_E),
+	RESTART(VK_R),
+	CLONE(VK_Y),
+	LOAD_LOCAL_DEMOS(VK_D),
+	LOAD_JAR_FILE(VK_J), 
+	LAUNCH_NETWORK(VK_N),
+	STOP_NETWORK(VK_T),
+	ICONIFY_ALL(VK_U),
+	DEICONIFY_ALL(VK_I),
+	KILL_AGENTS(VK_K),
+	CONNECT_WEB_REPO(VK_W),
 	
-	MADKIT_LOAD_JAR_FILE(null,VK_J), 
-	AGENT_SETUP_GUI(null,VK_J), 
-	AGENT_DISPOSE_GUI(null,VK_J), 
-	MADKIT_LAUNCH_SESSION(null,VK_J), 
-	MADKIT_KILL_AGENT(null,VK_J), 
-	AGENT_LAUNCH_AGENT(null,VK_J);
+	AGENT_SETUP_GUI(Integer.MAX_VALUE), 
+	AGENT_DISPOSE_GUI(Integer.MAX_VALUE), 
+	MADKIT_LAUNCH_SESSION(Integer.MAX_VALUE), 
+	MADKIT_KILL_AGENT(Integer.MAX_VALUE), 
+	LAUNCH_AGENT(VK_J);
 	
-	final private ImageIcon imageIcon;
+	private ImageIcon imageIcon;
 	final private int keyEvent;
+	final static private String imageDir = "images/madkit/";
 	private static HashMap<KernelAddress,Map<MadkitAction,Action>> globalActions;
 	
+	private MadkitAction(int keyEvent){
+		if (keyEvent != Integer.MAX_VALUE) {
+			try {
+				imageIcon = new ImageIcon(MadkitAction.class.getResource(imageDir + name() + ".png"));
+			} catch (NullPointerException e) {
+				System.err.println(name() + "----------------------------icon TODO");
+			}
+		}
+		this.keyEvent = keyEvent;
+	}
 	
 	final Action getStandardAction(final AbstractAgent guiManager){
 		return new AbstractAction() {
@@ -94,15 +111,14 @@ public enum MadkitAction implements MadkitGUIAction {
 		return imageIcon;
 	}
 
+	public void setImageIcon(ImageIcon icon) {
+		imageIcon = icon;
+	}
+
 	public int getKeyEvent() {
 		return keyEvent;
 	}
 
-	private MadkitAction(ImageIcon ii, int keyEvent){
-		imageIcon = ii;
-		this.keyEvent = keyEvent;
-	}
-	
 	public static void registerGlobalActions(GUIManagerAgent guiManager){
 		if (globalActions == null)
 			globalActions = new HashMap<KernelAddress, Map<MadkitAction, Action>>();
@@ -117,47 +133,75 @@ public enum MadkitAction implements MadkitGUIAction {
 		return globalActions.get(agent.getKernelAddress()).get(this);
 	}
 	
+	public static void addAllActionsTo(JComponent menuOrToolBar, AbstractAgent agent){
+		try {//this bypasses class incompatibility
+			final Method add = menuOrToolBar.getClass().getMethod("add", Action.class);
+			final Method addSeparator = menuOrToolBar.getClass().getMethod("addSeparator");
+			for (MadkitAction mkA : EnumSet.allOf(MadkitAction.class)) {
+				add.invoke(menuOrToolBar, mkA.getAction(agent));
+				switch (mkA) {
+				case LOAD_JAR_FILE:
+				case STOP_NETWORK:
+				case DEICONIFY_ALL:
+				case KILL_AGENTS:
+					addSeparator.invoke(menuOrToolBar);
+				default:
+					break;
+				}
+				if(mkA == KILL_AGENTS)
+					return;
+			}
+		} catch (InvocationTargetException e) {
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (SecurityException e) {
+		} catch (NoSuchMethodException e) {
+		}
+	}
+	
 	private Action buildAction(final GUIManagerAgent agent){
 		Action a;
 		switch (this) {
 			case AGENT_SETUP_GUI:
 		case AGENT_DISPOSE_GUI:
 			return null;
-		case MADKIT_EXIT_ACTION:
-		case MADKIT_ICONIFY_ALL:
-		case MADKIT_DEICONIFY_ALL:
-		case MADKIT_RESTART:
+		case EXIT:
+		case ICONIFY_ALL:
+		case DEICONIFY_ALL:
+		case RESTART:
 		case CONNECT_WEB_REPO:
-		case MADKIT_KILL_AGENTS:
+		case KILL_AGENTS:
 		case MADKIT_KILL_AGENT:
 		case MADKIT_LAUNCH_SESSION:
-		case MADKIT_CLONE:
+		case CLONE:
 		case LOAD_LOCAL_DEMOS:
 			a = getStandardAction(agent); 
 			break;
-		case MADKIT_LAUNCH_NETWORK:
-		case MADKIT_STOP_NETWORK:
+		case LAUNCH_NETWORK:
+		case STOP_NETWORK:
 			a = getStandardAction(agent); 
-			a = AgentAction.initAction(this, a);
+			a = Actions.initAction(this, a);
 			a.putValue(Action.SHORT_DESCRIPTION, a.getValue(Action.SHORT_DESCRIPTION)
 					+ agent.getKernelAddress().toString());
 			return a;
-		case MADKIT_LOAD_JAR_FILE:
+		case LOAD_JAR_FILE:
 			a = getLoadJarAction(agent);
 			break;
-		case AGENT_LAUNCH_AGENT:
-			return AgentAction.initAction(this, getLaunchAgentAction(agent));
+		case LAUNCH_AGENT:
+			return Actions.initAction(this, getLaunchAgentAction(agent));
 		default:
 			throw new AssertionError(this);
 		}
 		if(a == null)
 			return null;
-		return AgentAction.initAction(this, a);
+		return Actions.initAction(this, a);
 	}
 	
 	@Override
 	public String toString() {
-		return AgentAction.getDescription(this);
+		return Actions.getDescription(this);
 	}
 
 	private Action getLaunchAgentAction(final GUIManagerAgent agent) {
@@ -180,7 +224,7 @@ public enum MadkitAction implements MadkitGUIAction {
 			    int returnVal = chooser.showOpenDialog(null);
 			    if(returnVal == JFileChooser.APPROVE_OPTION) {
 			   	 try {
-			   		 agent.receiveMessage(new GUIMessage(MADKIT_LOAD_JAR_FILE, chooser.getSelectedFile().toURI().toURL()));
+			   		 agent.receiveMessage(new GUIMessage(LOAD_JAR_FILE, chooser.getSelectedFile().toURI().toURL()));
 					} catch (MalformedURLException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();

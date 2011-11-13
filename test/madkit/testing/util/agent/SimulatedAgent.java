@@ -19,54 +19,35 @@
 package madkit.testing.util.agent;
 
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.Madkit;
-import madkit.kernel.Madkit.LevelOption;
+import madkit.kernel.JunitMadKit;
 
 /**
  * @author Fabien Michel
- * @since MadKit 5.0.0.9
+ * @since MadKit 5.0.0.13
  * @version 0.9
  * 
  */
-public class UnstopableAbstractAgent extends AbstractAgent
-{
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+public class SimulatedAgent extends AbstractAgent {
 
-
-	protected void activate() {
-		int i = 0;
-		while(i<990000000){
-			i++;
-			if(i%10000000 == 0)
-				if(logger != null)
-					logger.info("activate "+getState()+" "+i);
-		}
-	}
+	private int privatePrimitiveField = 1;
+	public double publicPrimitiveField = 2;
 	
+	@Override
+	protected void activate() {
+		JunitMadKit.createDefaultCGR(this);
+	}
+
 	/**
-	 * 
+	 * @return the privatePrimitiveField
 	 */
-	protected void end() {
-		int i = 0;
-		while(true){
-			i++;
-			if(i%10000000 == 0){
-				if(logger != null)
-					logger.info("end "+getState()+" "+i);
-			}
-		}
+	public int getPrivatePrimitiveField() {
+		return privatePrimitiveField;
 	}
 
-
-	public static void main(String[] args) {
-		String[] argss = {LevelOption.agentLogLevel.toString(),"ALL",
-				LevelOption.kernelLogLevel.toString(),"ALL",
-//				BooleanOption.noGUIManager.toString(),
-				"--launchAgents",UnstopableAbstractAgent.class.getName(),",true"};
-		Madkit.main(argss);		
+	/**
+	 * @param privatePrimitiveField the privatePrimitiveField to set
+	 */
+	public void setPrivatePrimitiveField(int privatePrimitiveField) {
+		this.privatePrimitiveField = privatePrimitiveField;
 	}
-
 }

@@ -391,7 +391,7 @@ final public class Madkit {
 	//				}
 	//				logger.finer("Launching "+number+ " instance(s) of "+className+" with GUI = "+withGUI);
 	//				for (int i = 0; i < number; i++) {
-	//					myKernel.receiveMessage(new KernelMessage(MadkitAction.AGENT_LAUNCH_AGENT, className, withGUI));
+	//					myKernel.receiveMessage(new KernelMessage(MadkitAction.LAUNCH_AGENT, className, withGUI));
 	//				}
 	//			}
 	//		}
@@ -402,11 +402,11 @@ final public class Madkit {
 	 */
 	private void printWelcomeString() {
 		if(!(LevelOption.madkitLogLevel.getValue(madkitConfig) == Level.OFF)){
-			System.err.println("\n\t-----------------------------------------------------"+
-									 "\n\t\t\t   MadKit"+
-									 "\n\t\t   version: "+defaultConfig.getProperty("madkit.version")+"\n\t\t  build: "+defaultConfig.getProperty("build.id")+
-									 "\n\t\tby MadKit Team (c) 1997-"+Calendar.getInstance().get(Calendar.YEAR)+
-									 "\n\t-----------------------------------------------------\n");			
+			System.err.println("\n\t---------------------------------------"+
+									 "\n\t                MadKit"+
+									 "\n\t           version: "+defaultConfig.getProperty("madkit.version")+"\n\t\tbuild-id: "+defaultConfig.getProperty("build.id")+
+									 "\n\t       MadKit Team (c) 1997-"+Calendar.getInstance().get(Calendar.YEAR)+
+									 "\n\t---------------------------------------\n");			
 		}
 	}
 
@@ -763,10 +763,10 @@ final public class Madkit {
 		 * @see Madkit.Option#logDirectory
 		 */
 		createLogFiles,
-		/**
-		 * not functional yet
-		 */
-		noGUIManager,
+//		/**
+//		 * not functional yet
+//		 */
+//		noGUIManager,
 		/**
 		 * Defines if agent logging should be quiet in the
 		 * default console.

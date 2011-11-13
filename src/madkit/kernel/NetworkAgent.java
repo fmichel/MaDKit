@@ -263,13 +263,13 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 
 	private void handlePrivateMessage(KernelMessage m) {
 			switch (m.getCode()) {
-			case MADKIT_STOP_NETWORK:
+			case STOP_NETWORK:
 				goOffline();
 				break;
-			case MADKIT_LAUNCH_NETWORK:
+			case LAUNCH_NETWORK:
 				goOnline();
 				break;
-			case MADKIT_EXIT_ACTION:
+			case EXIT:
 				alive = false;
 				break;
 			default:

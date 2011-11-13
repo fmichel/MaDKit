@@ -55,7 +55,7 @@ public class Watcher extends AbstractAgent
 	@Override
 	protected void activate() {
 		if(logger != null)
-			logger.talk("\n\tHi human !\n\n I am an instance of the madkit.kernel.Watcher class.\n I am specialized in simulation probing.\n I use probes on the artificial society to analyze and\n visualize what is going on in a simulation.\n You can extend me to create your own\n simulation analyzing and visualizing tools !");
+			logger.talk("\n\tHi human !\n\n I am an instance of the madkit.kernel.Watcher class.\n I am specialized in simulation probing.\n I use probes on the artificial society to analyze and\n visualize what is going on in a simulation.\n You can extend me to create your own\n simulation analyzing and visualizing tools !\n");
 	}
 	
 	/**

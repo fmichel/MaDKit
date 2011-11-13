@@ -62,7 +62,7 @@ public enum SchedulerAction implements MadkitGUIAction{
 	
 	@Override
 	public String toString() {
-		return AgentAction.getDescription(this);
+		return Actions.getDescription(this);
 	}
 
 	private SchedulerAction(ImageIcon ii, int keyEvent){
@@ -73,20 +73,20 @@ public enum SchedulerAction implements MadkitGUIAction{
 	public Action getAction(final Scheduler agent){
 		switch (this) {
 		case SCHEDULER_RUN:
-			return AgentAction.initAction(this, new AbstractAction("run") {
+			return Actions.initAction(this, new AbstractAction("run") {
 				public void actionPerformed(ActionEvent e) {
 					agent.receiveMessage(new ObjectMessage<Scheduler.State>(State.RUNNING));
 				}
 			});
 		case SCHEDULER_STEP:
-			return AgentAction.initAction(this,new AbstractAction("run") {
+			return Actions.initAction(this,new AbstractAction("run") {
 				public void actionPerformed(ActionEvent e) {
 					agent.receiveMessage(new ObjectMessage<Scheduler.State>(State.STEP));
 				}
 			});
 		case SCHEDULER_SPEEDDOWN:
 		case SCHEDULER_SPEEDUP:
-			return AgentAction.initAction(this,new AbstractAction() {
+			return Actions.initAction(this,new AbstractAction() {
 				public void actionPerformed(ActionEvent e) {
 					JSlider s = ((Scheduler) agent).getSpeedSlider();
 					s.setValue(s.getValue() + (SchedulerAction.this == SCHEDULER_SPEEDUP ? -50 : 50));

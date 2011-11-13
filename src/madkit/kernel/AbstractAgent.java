@@ -643,6 +643,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			getLogger().severeLog(ErrorMessages.CANT_LAUNCH + agentClass + " : Not an agent class", e);
 		} catch (ClassNotFoundException e) {
 			getLogger().severeLog(ErrorMessages.CANT_LAUNCH +" "+agentClass+" : ", e);
+		} catch (KernelException e) {
+			getLogger().severeLog(ErrorMessages.CANT_LAUNCH +" "+agentClass+" : ", e);
 		}
 		return null;
 	}

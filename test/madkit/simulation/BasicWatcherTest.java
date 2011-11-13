@@ -83,6 +83,8 @@ public class BasicWatcherTest extends JunitMadKit{
 				}
 			});
 	}
+	
+	
 
 	@Test
 	public void addingAndRemovingProbes(){

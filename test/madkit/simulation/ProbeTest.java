@@ -22,14 +22,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
 import madkit.kernel.Probe;
 
 import org.junit.Before;
-
 import org.junit.Test;
 
 /**

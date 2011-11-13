@@ -18,55 +18,31 @@
  */
 package madkit.testing.util.agent;
 
+import javax.swing.JFrame;
+
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.LevelOption;
 
 /**
  * @author Fabien Michel
- * @since MadKit 5.0.0.9
+ * @since MadKit 5.0.0.13
  * @version 0.9
  * 
  */
-public class UnstopableAbstractAgent extends AbstractAgent
-{
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
-
-	protected void activate() {
-		int i = 0;
-		while(i<990000000){
-			i++;
-			if(i%10000000 == 0)
-				if(logger != null)
-					logger.info("activate "+getState()+" "+i);
-		}
+@SuppressWarnings("serial")
+public class BuggedFrameAgent extends AbstractAgent {
+	
+	@SuppressWarnings("null")
+	@Override
+	public void setupFrame(JFrame frame) {
+		Object o = null;
+		o.toString();
 	}
 	
-	/**
-	 * 
-	 */
-	protected void end() {
-		int i = 0;
-		while(true){
-			i++;
-			if(i%10000000 == 0){
-				if(logger != null)
-					logger.info("end "+getState()+" "+i);
-			}
-		}
-	}
-
-
 	public static void main(String[] args) {
-		String[] argss = {LevelOption.agentLogLevel.toString(),"ALL",
-				LevelOption.kernelLogLevel.toString(),"ALL",
-//				BooleanOption.noGUIManager.toString(),
-				"--launchAgents",UnstopableAbstractAgent.class.getName(),",true"};
+		String[] argss = {LevelOption.agentLogLevel.toString(),"ALL",LevelOption.kernelLogLevel.toString(),"INFO","--launchAgents",BuggedFrameAgent.class.getName(),",true"};
 		Madkit.main(argss);		
 	}
-
+	
 }

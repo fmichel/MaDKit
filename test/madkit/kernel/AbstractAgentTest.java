@@ -28,8 +28,10 @@ import static org.junit.Assert.fail;
 
 import java.util.logging.Level;
 
+import madkit.gui.actions.MadkitAction;
 import madkit.kernel.AbstractAgent.State;
 import madkit.kernel.Madkit.BooleanOption;
+import madkit.testing.util.agent.NormalLife;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -61,7 +63,11 @@ public class AbstractAgentTest {
 			b.launchAgent(new AbstractAgent(),0,true);
 			fail("exception not thrown");
 		} catch (KernelException e) {
-			e.printStackTrace();
+		}
+		try {
+			MadkitAction.LOAD_JAR_FILE.getAction(b);
+			fail("exception not thrown");
+		} catch (KernelException e) {
 		}
 	}
 	
@@ -71,6 +77,10 @@ public class AbstractAgentTest {
 	@Test
 	public final void testToString() {
 		System.err.println(a);
+	}
+
+	@Test
+	public final void actionCreation() {
 	}
 
 	@Test

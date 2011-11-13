@@ -25,7 +25,6 @@ import madkit.kernel.AbstractAgent;
 import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.Activator;
 import madkit.kernel.JunitMadKit;
-import madkit.kernel.Activator;
 import madkit.kernel.Scheduler;
 
 import org.junit.Test;

@@ -28,6 +28,7 @@
 	<property name="build.dir" value="build"/>
 	<property name="madkit.args" value=""/>
 	<property name="jnlp.template" value="jnlp.template"/>
+	<property name="jnlp.jar" value="${executable.name}.jnlp.jar"/>
 
 	<!-- - - - - - - - - - - - - - - - - - 
           target: create-lib-jar                      
@@ -77,10 +78,14 @@
 		<chmod file="${jar.file}" perm="ugo+x"/>
 		<delete dir="${build.dir}"/>
         <echo>
-	Your project could now be ran by either${line.separator} 
+        	${line.separator} 
+     Your project could now be ran by either${line.separator} 
     (1) double clicking the jar file !${line.separator}
     (2) using a commandline such as:	   	
 		java -jar ${jar.file} [additional Madkit options and arguments]
+        	${line.separator} 
+    The jnlp jar file is the target of the jnlp file : it has no vesion number so that 
+    the jnlp will always run the latest version without requiring any change
         </echo>
 	    </target>
 	
@@ -236,10 +241,11 @@
 	</target>
 	
 	<!-- - - - - - - - - - - - - - - - - - 
-          target: sign-jar                      
+          target: sign-jar         signedjar="${jnlp.jar}"              
          - - - - - - - - - - - - - - - - - -->
     <target name="sign-jar" depends="probe-for-jarsigner,jarsigner-message,get-password" if="jarsigner.present">
-		<signjar jar="${jar.file}" alias="${keystore.alias}" storepass="${keystore.password}" keystore="${keystore}"/>   	
+    	<echo>${jnlp.jar}</echo>
+		<signjar jar="${jar.file}" signedjar="${jnlp.jar}" alias="${keystore.alias}" storepass="${keystore.password}" keystore="${keystore}"/>
     </target>
 
 	<!-- - - - - - - - - - - - - - - - - - 

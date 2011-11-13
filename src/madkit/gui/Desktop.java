@@ -22,7 +22,7 @@ final class Desktop extends JFrame {
 	final private JDesktopPane desktopPane;
 
 	Desktop(GUIManagerAgent guiManager){
-		super("MadKit "+guiManager.getMadkitProperty("madkit.version")+" "+guiManager.getKernelAddress());
+		super("MadKit "+guiManager.getMadkitProperty("madkit.version")+" Desktop running on kernel "+guiManager.getKernelAddress());
 //		setLocationRelativeTo(null);
 		setSize(800,600);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

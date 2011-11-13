@@ -79,26 +79,26 @@ abstract class Overlooker <A extends AbstractAgent>
 	//		final List<A> l = getCurrentAgentsList();
 	//		return l.get(nb);
 	//	}
-	
-		public String getCommunity()  {	return community;   }
+
+	public String getCommunity()  {	return community;   }
 
 	//	@SuppressWarnings("unchecked")
-		//	final public A getAgentNb(final int nb)
-		//	{
-		//		final List<A> l = getCurrentAgentsList();
-		//		return l.get(nb);
-		//	}
-		
-			public String getGroup()  {	return group;   }
+	//	final public A getAgentNb(final int nb)
+	//	{
+	//		final List<A> l = getCurrentAgentsList();
+	//		return l.get(nb);
+	//	}
+
+	public String getGroup()  {	return group;   }
 
 	//	@SuppressWarnings("unchecked")
-			//	final public A getAgentNb(final int nb)
-			//	{
-			//		final List<A> l = getCurrentAgentsList();
-			//		return l.get(nb);
-			//	}
-			
-				public String getRole()   {	return role;    }
+	//	final public A getAgentNb(final int nb)
+	//	{
+	//		final List<A> l = getCurrentAgentsList();
+	//		return l.get(nb);
+	//	}
+
+	public String getRole()   {	return role;    }
 
 	/**
 	 * Called by the MadKit kernel when the Activator or Probe is
@@ -107,16 +107,17 @@ abstract class Overlooker <A extends AbstractAgent>
 	public void initialize(){
 		adding(getCurrentAgentsList());
 	}
-	
+
 	/**
 	 * Called when a list of agents have joined the corresponding group and role.
 	 * This method is protected because it is automatically called
 	 * by the MadKit kernel. Override this method when you want
 	 * to do some initialization on the agents that enter the group/role.
-	 * @param agents the list of agents which have been added to this group/role
+	 * 
+	 * @param agents the list of agents which have been added to this group/role at once.
 	 */
 	protected void adding(final List<A> agents){
-		for(A agent : agents){
+		for(final A agent : agents){
 			adding(agent);
 		}
 	}
@@ -156,29 +157,29 @@ abstract class Overlooker <A extends AbstractAgent>
 	//		System.err.println("\n-----WARNING : probes and activators should not be used before being added-----\n-----Problem on "+this.getClass().getSimpleName()+" on <"+community+";"+group+";"+role+"> using "+using+"-----\n-----Method call is at:");
 	//		e.printStackTrace();
 	//	}
-	
-		/** 
-		 * Returns the number of the agents handling the group/role couple
-		 * @return the number of the agents that handle the group/role couple
-		 */
-		public int size() {
-				return getCurrentAgentsList().size();
-		}
 
 	/** 
-		 * Returns a snapshot at moment t of the agents handling the group/role couple
-		 * @return a list view (a snapshot at moment t) of the agents that handle the group/role couple (in proper sequence)
-		 * @since MadKit 3.0
-		 */
-		public List<A> getCurrentAgentsList()//TODO log if not already added !
-		{
-			if (overlookedRole != null) {
-				return (List<A>) overlookedRole.getAgentsList();
-			}
-			else{
-				return Collections.emptyList();
-			}
+	 * Returns the number of the agents handling the group/role couple
+	 * @return the number of the agents that handle the group/role couple
+	 */
+	public int size() {
+		return getCurrentAgentsList().size();
+	}
+
+	/** 
+	 * Returns a snapshot at moment t of the agents handling the group/role couple
+	 * @return a list view (a snapshot at moment t) of the agents that handle the group/role couple (in proper sequence)
+	 * @since MadKit 3.0
+	 */
+	public List<A> getCurrentAgentsList()//TODO log if not already added !
+	{
+		if (overlookedRole != null) {
+			return (List<A>) overlookedRole.getAgentsList();
 		}
+		else{
+			return Collections.emptyList();
+		}
+	}
 
 	/** 
 	 * Returns a ListIterator over the agents which is shuffled
@@ -201,23 +202,23 @@ abstract class Overlooker <A extends AbstractAgent>
 	public String toString() {
 		return getClass().getSimpleName() + " on <" + community + ";" + group + ";" + role + "> "+(overlookedRole == null ? "not currently added" : ": "+size() + " agents");
 	}
-	
+
 	final void addAgent(AbstractAgent a) {
 		adding((A) a);
 	}
-	
+
 	final void removeAgent(AbstractAgent a) {
 		removing((A) a);
 	}
-	
+
 	final void addAgents(List<AbstractAgent> l) {
 		adding((List<A>) l);
 	}
-	
+
 	final void removeAgents(List<AbstractAgent> l) {
 		removing((List<A>) l);
 	}
-	
+
 	public void killAgents(){
 		List<A> l = new ArrayList<A>(getCurrentAgentsList());
 		allAgentsLeaveRole();
@@ -226,13 +227,13 @@ abstract class Overlooker <A extends AbstractAgent>
 			agent.killAgent(agent,0);
 		}
 	}
-	
+
 	public void allAgentsLeaveRole(){
 		if(overlookedRole != null){
 			overlookedRole.removeMembers((List<AbstractAgent>) getCurrentAgentsList());
 		}
 	}
-	
+
 	public ExecutorService getMadkitServiceExecutor() {
 		return MadkitKernel.getMadkitServiceExecutor();
 	}

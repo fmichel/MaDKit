@@ -31,6 +31,7 @@
 	<property name="build.id" value="${time.DSTAMP}-${time.TSTAMP}"/>
 	<property file="src/madkit/kernel/madkitKernel.properties"/>
 	<property file="madkitKernelBuild.properties"/>
+	<property name="executable.name" value="${desktop.name}"/>
 	
 	<import file="${madkit.ant.targets.file}"/>
 
@@ -72,7 +73,7 @@
 				<attribute name="Sealed" value="true"/>
     			<include name="${mk.properties.file}"/>
          ================================= -->
-	<target name="jar" depends="clean,compile,build-properties,desktop-jnlp" description="Jars MadKit kernel ">
+	<target name="jar" depends="clean,compile,build-properties" description="Jars MadKit kernel ">
 		<jar destfile="${jar.file}" index="true" compress="false">
 
 			<fileset dir="${build.dir}"/>
@@ -93,12 +94,13 @@
 			</manifest>
 		</jar>
 		
-		<antcall target="sign-jar"/>
 		<chmod file="${jar.file}" perm="ugo+x"/>
-        <echo>${jar.file} created and signed !${line.separator}</echo>
+        <echo>${jar.file} created !${line.separator}</echo>
 	</target>
 	
 	<!-- - - - - - - - - - - - - - - - - - 
+		<antcall target="sign-jar"/>
+		<antcall target="desktop-jnlp"/>
           target: build-properties                      
    		<copy todir="bin" file="${src.dir}/${madkitKernel.properties}" overwrite="true">
    		  <filterchain>
@@ -223,7 +225,7 @@
 	<chmod dir="${demo.dir}" perm="u+x" includes="**/*.jar"/>
 	<chmod dir="${tuto.dir}" perm="u+x" includes="**/*.jar"/>
          ================================= -->
-   <target name="release" depends="clean,jar,javadoc" description="build MadKit release">
+   <target name="release" depends="clean,jar,sign-jar,javadoc" description="build MadKit release">
    		<echo> --- Build Release : MadKit ${madkit.version}${line.separator}</echo>
 		<mkdir dir="${release.dir}"/>
 		<copy todir="${build.dir}" file="README.html">
@@ -244,7 +246,7 @@
 			<zipfileset dir="${build.dir}" includes="VERSION" prefix="${docs.dir}"/>
 			<zipfileset file="${jar.file}"/>
 			<zipfileset file="COPYING.LESSER"/>
-			<zipfileset file="MadKit-5-Desktop.jnlp"/>
+			<zipfileset dir="${release.dir}" includes="MadKit-5-Desktop.jnlp"/>
 			<zipfileset dir="${demo.dir}" prefix="${demo.dir}" filemode="755"/>
 		</zip>
     </target>
@@ -299,15 +301,22 @@
 	
 	<!-- ================================= 
           target: desktop-knlp              
-         ================================= -->
-    <target name="desktop-jnlp" description="build the desktop jnlp file">
-		<copy todir="${release.dir}" file="${desktop.jnlp.file}">
-		  <filterchain>
-		    <expandproperties/>
-		  </filterchain>
-		</copy>
+		<delete file="${jnlp.jar}"/>
+        <exec executable="pack200" dir="${release.dir}">
+            <arg value="- -repack"/>
+            <arg value="${madkit.jar.name}"/>
+        </exec>
+        <echo>Creating ${jnlp.jar}.pack.gz !${line.separator}</echo>
+	    <exec executable="pack200" dir="${release.dir}">
+	        <arg value="- -modification-time=latest"/>
+	        <arg value="- -deflate-hint=true"/>
+            <arg value="${jnlp.jar.file}.pack.gz"/>
+            <arg value="${jnlp.jar.file}"/>
+	    </exec>
+    <target name="desktop-jnlp" depends="jar" description="build the desktop deploying jar file">
+		<antcall target="sign-jar"/>
+        <echo>${jnlp.jar} created and signed !${line.separator}</echo>
     </target>
-
-	
+         ================================= -->
 
 </project>

@@ -25,21 +25,14 @@ import static java.awt.event.KeyEvent.VK_O;
 import static java.awt.event.KeyEvent.VK_Z;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-import java.lang.reflect.Constructor;
 import java.util.ResourceBundle;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
-import javax.swing.KeyStroke;
 
-import madkit.agr.LocalCommunity;
-import madkit.agr.LocalCommunity.Groups;
-import madkit.agr.LocalCommunity.Roles;
 import madkit.i18n.I18nUtilities;
 import madkit.kernel.AbstractAgent;
-import madkit.messages.KernelMessage;
 
 /**
  * @author Fabien Michel
@@ -100,23 +93,23 @@ public enum AgentAction implements MadkitGUIAction{
 		}
 		if(a == null)
 			return null;
-		return initAction(this, a);
+		return Actions.initAction(this, a);
 	}
 
 	private Action getRelaunchAction(final AbstractAgent agent) {
-		if (! hasDefaultConstructor(agent))
+		if (! Actions.hasDefaultConstructor(agent))
 			return null;
 		return new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				this.setEnabled(false);
 				agent.launchAgent(agent.getClass().getName(), 0, true);
-				selfKill(agent);
+				Actions.selfKill(agent);
 			}
 		};
 	}
 	private Action getLaunchAnotherAction(final AbstractAgent agent) {
-		if (! hasDefaultConstructor(agent))
+		if (! Actions.hasDefaultConstructor(agent))
 			return null;
 		return new AbstractAction() {
 			@Override
@@ -131,14 +124,14 @@ public enum AgentAction implements MadkitGUIAction{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				this.setEnabled(false);
-				selfKill(a);
+				Actions.selfKill(a);
 			}
 		};
 	}
 
 	private Action getReloadAndRelaunchAction(final AbstractAgent agent) {
 		String className = agent.getClass().getName();
-		if (! hasDefaultConstructor(agent) || className.contains("madkit.kernel") || className.contains("madkit.gui"))
+		if (! Actions.hasDefaultConstructor(agent) || className.contains("madkit.kernel") || className.contains("madkit.gui"))
 			return null;
 		return new AbstractAction() {
 			@Override
@@ -151,59 +144,15 @@ public enum AgentAction implements MadkitGUIAction{
 				}
 				agent.launchAgent(agent.getClass().getName(),0, true);
 				if (agent.getState() != AbstractAgent.State.TERMINATED) {
-					selfKill(agent);
+					Actions.selfKill(agent);
 				}
 			}
 		};
 	}
 	
-	static boolean hasDefaultConstructor(AbstractAgent agent){
-		try {
-			for (Constructor<?> c : agent.getClass().getConstructors()) {
-				if(c.getParameterTypes().length == 0)
-					return true;
-			}
-		} catch (SecurityException e) {
-		}
-		return false;
-	}
-	
 	@Override
 	public String toString() {
-		return getDescription(this);
-	}
-	
-	static String getDescription(MadkitGUIAction mka){
-		return messages.getString(mka.name());
-	}
-	
-	static void selfKill(AbstractAgent agent){
-		if (agent.isAlive()) {
-			agent.sendMessage(LocalCommunity.NAME, Groups.SYSTEM, Roles.KERNEL, new KernelMessage(MadkitAction.MADKIT_KILL_AGENT,
-					agent, 2));
-		}
-	}
-
-	static Action initAction(MadkitGUIAction mka, Action a) {//TODO this is for global use: put that elsewhere
-		String[] codes = mka.toString().split(";");
-		a.putValue(Action.NAME, codes[0]);
-		a.putValue(Action.SHORT_DESCRIPTION, codes.length > 1 ? codes[1] : codes[0]);
-		a.putValue(Action.LONG_DESCRIPTION, codes.length > 2 ? codes[2] : a.getValue(Action.SHORT_DESCRIPTION));
-		ImageIcon bigIcon = mka.getImageIcon();
-		if (bigIcon != null) {
-			a.putValue(AbstractAction.LARGE_ICON_KEY, bigIcon);
-			if (bigIcon.getIconWidth() > 16) {
-				a.putValue(AbstractAction.SMALL_ICON,
-						new ImageIcon(bigIcon.getImage().getScaledInstance(16, 16, java.awt.Image.SCALE_SMOOTH)));
-			} else {
-				a.putValue(AbstractAction.SMALL_ICON, bigIcon);
-			}
-		}
-		a.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(mka.getKeyEvent(), KeyEvent.CTRL_MASK));
-		a.putValue(Action.MNEMONIC_KEY, mka.getKeyEvent());
-		a.putValue(Action.ACTION_COMMAND_KEY, mka.toString());
-		a.putValue(Action.SELECTED_KEY, false);
-		return a;
+		return Actions.getDescription(this);
 	}
 	
 }

@@ -59,14 +59,14 @@ public class DiscoverTest extends JunitMadKit{
 					System.err.println(agentAddress);
 				}
 				assertEquals(6, l.size());
-				MadkitAction.MADKIT_STOP_NETWORK.getAction(this).actionPerformed(null);
+				MadkitAction.STOP_NETWORK.getAction(this).actionPerformed(null);
 				pause(100);
 				
 				//not connected 
 				assertFalse(isCommunity(CloudCommunity.NAME));
 
 				//second round
-				MadkitAction.MADKIT_LAUNCH_NETWORK.getAction(this).actionPerformed(null);
+				MadkitAction.LAUNCH_NETWORK.getAction(this).actionPerformed(null);
 				pause(1000);
 				l = getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT);
 				for (AgentAddress agentAddress : l) {

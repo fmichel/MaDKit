@@ -39,7 +39,6 @@ import madkit.testing.util.agent.ForEverAgent;
 
 import org.junit.Rule;
 import org.junit.rules.TestName;
-import org.omg.CORBA.TCKind;
 
 /**
  * @author Fabien Michel
@@ -53,8 +52,7 @@ public class JunitMadKit {
 	public TestName name = new TestName();
 
 	/**
-	 * 
-	 */
+	 * 	 */
 	public static String aString = "a";
 	public static final String COMMUNITY = "Tcommunity";
 	public static final String GROUP = "Tgroup";
@@ -80,7 +78,7 @@ public class JunitMadKit {
 			}
 			madkit = new Madkit(args);
 			AbstractAgent kernelAgent = madkit.getKernel().getAgentWithRole(null,LocalCommunity.NAME, Groups.SYSTEM, LocalCommunity.Roles.KERNEL).getAgent();
-//			kernelAgent.receiveMessage(new KernelMessage(MadkitAction.AGENT_LAUNCH_AGENT, a, false));
+//			kernelAgent.receiveMessage(new KernelMessage(MadkitAction.LAUNCH_AGENT, a, false));
 			a.setName(name.getMethodName());
 			assertEquals(expected, kernelAgent.launchAgent(a));
 		} catch (Throwable e) {
@@ -185,8 +183,8 @@ public class JunitMadKit {
 		}
 	}
 	
-	public void createDefaultCGR(AbstractAgent a){
-		assertEquals(SUCCESS, a.createGroup(COMMUNITY,GROUP, false,null));
+	public static void createDefaultCGR(AbstractAgent a){
+		a.createGroup(COMMUNITY,GROUP, false,null);
 		assertEquals(SUCCESS, a.requestRole(COMMUNITY,GROUP,ROLE,null));
 	}
 

@@ -18,6 +18,9 @@
  */
 package madkit.testing.util.agent;
 
+import madkit.kernel.Madkit;
+import madkit.kernel.Madkit.LevelOption;
+
 /**
  * @author Fabien Michel
  * @since MadKit 5.0.0.7
@@ -54,6 +57,11 @@ public class NormalLife extends DoItDuringLifeCycleAgent{
 			System.err.println(getName()+" "+getState());
 			pause((int)(Math.random()*1000));
 		}
+	}
+	
+	public static void main(String[] args) {
+		String[] argss = {LevelOption.agentLogLevel.toString(),"ALL",LevelOption.kernelLogLevel.toString(),"ALL","--launchAgents",NormalLife.class.getName(),",true;madkit.kernel.Agent"};
+		Madkit.main(argss);		
 	}
 	
 }

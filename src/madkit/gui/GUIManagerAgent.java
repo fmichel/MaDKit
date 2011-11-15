@@ -58,22 +58,21 @@ import madkit.gui.menus.DemosMenu;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
 import madkit.kernel.AgentAddress;
-import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Message;
 import madkit.messages.KernelMessage;
 
 /**
  * The GUI manager agent is responsible for setting and managing
  * agents UI which are created by the default mechanism of MadKit.
- * By default the kernel always launch this agent. Although, this agent is
- * extremely light weight, it is possible to tell the kernel to not launch it
- * by using the {@link BooleanOption#noGUIManager} option when launching MadKit.
  * 
  * @author Fabien Michel
  * @since MadKit 5.0.0.6
  * @version 0.9
  * 
  */
+//* By default the kernel always launch this agent. Although, this agent is
+//* extremely light weight, it is possible to tell the kernel to not launch it
+//* by using the {@link BooleanOption#noGUIManager} option when launching MadKit.
 @SuppressWarnings("unchecked")
 public class GUIManagerAgent extends Agent  {
 
@@ -81,7 +80,7 @@ public class GUIManagerAgent extends Agent  {
 	 * 
 	 */
 	private static final long serialVersionUID = -5249615481398560277L;
-	
+
 	final private ConcurrentMap<AbstractAgent, JFrame> guis;
 	final private List<AgentsMenu> agentsMenus;
 	final private List<DemosMenu> demosMenus;
@@ -92,17 +91,17 @@ public class GUIManagerAgent extends Agent  {
 	private Set<String> agentClasses;
 	private Set<DemoModel> demos;
 	private Set<URL> knownUrls;
-	final private static Class<AbstractAgent> supertype;
 
-	static{
-		Class<AbstractAgent> c = null;
-		try {
-			c = (Class<AbstractAgent>) GUIManagerAgent.class.getClassLoader().loadClass("madkit.kernel.AbstractAgent");
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();//impossible
-		}
-		supertype = c;
-	}
+//	final private static Class<AbstractAgent> supertype;
+//	static{//need that because not always on initial class path
+//		Class<AbstractAgent> c = null;
+//		try {
+//			c = (Class<AbstractAgent>) GUIManagerAgent.class.getClassLoader().loadClass("madkit.kernel.AbstractAgent");
+//		} catch (ClassNotFoundException e) {
+//			e.printStackTrace();//impossible
+//		}
+//		supertype = c;
+//	}
 
 	GUIManagerAgent(boolean asDaemon){
 		super(asDaemon);
@@ -121,14 +120,14 @@ public class GUIManagerAgent extends Agent  {
 		knownUrls = new HashSet<URL>();
 	}
 
-//	GUIManagerAgent(){
-//		this(true);
-//	}
+	//	GUIManagerAgent(){
+	//		this(true);
+	//	}
 
 	@Override
-	protected void activate() {
+	protected void activate() {//TODO parallelize that
 		GUIToolkit.buildGlobalActions(this);
-			scanClassPathForAgentClasses();
+		scanClassPathForAgentClasses();
 		kernelAddress = getAgentWithRole(LocalCommunity.NAME, Groups.SYSTEM, Roles.KERNEL);
 		if(kernelAddress == null)//TODO remove that when OK
 			throw new AssertionError();
@@ -159,22 +158,22 @@ public class GUIManagerAgent extends Agent  {
 	protected void end() {
 		if(logger != null)
 			logger.finer("Disposing frames");
-//		final Thread t = new Thread(//not necessary just do not do interrupt
+		//		final Thread t = new Thread(//not necessary just do not do interrupt
 		SwingUtilities.invokeLater(
 				new Runnable() {
-			public void run() {
-				disposeAllAgents();
-				if (desktop != null) {//TODO swing thread or cleaner shutdown
-					desktop.dispose();
-				}
-			}});
-//		t.start();
-//		try {
-//			t.join();
-//		} catch (InterruptedException e) {
-//			if(logger != null)
-//				logger.finer("interrupted by auto shutdown");
-//		}
+					public void run() {
+						disposeAllAgents();
+						if (desktop != null) {//TODO swing thread or cleaner shutdown
+							desktop.dispose();
+						}
+					}});
+		//		t.start();
+		//		try {
+		//			t.join();
+		//		} catch (InterruptedException e) {
+		//			if(logger != null)
+		//				logger.finer("interrupted by auto shutdown");
+		//		}
 	}
 
 	private void handlePrivateMessage(GUIMessage m) {
@@ -210,8 +209,8 @@ public class GUIManagerAgent extends Agent  {
 			break;
 		case KILL_AGENTS:
 			killAllAgents();
-//			sendMessage(kernelAddress, new KernelMessage(code, (Object) null));
-//			disposeAllAgents();
+			//			sendMessage(kernelAddress, new KernelMessage(code, (Object) null));
+			//			disposeAllAgents();
 			break;
 		case LOAD_JAR_FILE:
 			loadingJarFile((URL) m.getContent());
@@ -239,7 +238,7 @@ public class GUIManagerAgent extends Agent  {
 		default:
 			break;
 		}
-	
+
 	}
 
 	private void launchDemo(final String content) {
@@ -326,30 +325,30 @@ public class GUIManagerAgent extends Agent  {
 		});
 
 		//TODO choose one !!
-//		try {
-//			SwingUtilities.invokeAndWait(new Runnable() {
-//				public void run() {
-//					AgentFrame f = new AgentFrame(agent, agent.getName());
-//					agent.setupFrame(f);//TODO catch failures because of delegation
-//					if (desktop != null) {
-//						JInternalFrame jf = new AgentInternalFrame(f, GUIManagerAgent.this);
-//						desktop.addInternalFrame(jf);
-//						internalFrames.put(agent, jf);
-//						jf.setVisible(true);
-//					} else {
-//						f.setLocation(checkLocation(f));
-//						guis.put(agent, f);
-//						f.setVisible(true);
-//					}
-//					sendReply(m, new Message());
-//				}
-//			});
-//		} catch (InterruptedException e) {
-//			e.printStackTrace();
-//			Thread.currentThread().interrupt();
-//		} catch (InvocationTargetException e) {
-//			e.printStackTrace();
-//		}
+		//		try {
+		//			SwingUtilities.invokeAndWait(new Runnable() {
+		//				public void run() {
+		//					AgentFrame f = new AgentFrame(agent, agent.getName());
+		//					agent.setupFrame(f);//TODO catch failures because of delegation
+		//					if (desktop != null) {
+		//						JInternalFrame jf = new AgentInternalFrame(f, GUIManagerAgent.this);
+		//						desktop.addInternalFrame(jf);
+		//						internalFrames.put(agent, jf);
+		//						jf.setVisible(true);
+		//					} else {
+		//						f.setLocation(checkLocation(f));
+		//						guis.put(agent, f);
+		//						f.setVisible(true);
+		//					}
+		//					sendReply(m, new Message());
+		//				}
+		//			});
+		//		} catch (InterruptedException e) {
+		//			e.printStackTrace();
+		//			Thread.currentThread().interrupt();
+		//		} catch (InvocationTargetException e) {
+		//			e.printStackTrace();
+		//		}
 	}
 
 	private void disposeGUIOf(AbstractAgent agent) {//event dispatch thread ?
@@ -398,8 +397,8 @@ public class GUIManagerAgent extends Agent  {
 		Point location = c.getLocation();
 		location.x = location.x > 0 ? location.x : 0;
 		location.y = location.y > 0 ? location.y : 0;
-		location.x = location.x < dim.width ? location.x : location.x % dim.width;
-		location.y = location.y < dim.height ? location.y : location.y % dim.height;
+		location.x = location.x <= dim.width ? location.x : location.x % dim.width;
+		location.y = location.y <= dim.height ? location.y : location.y % dim.height;
 		while(notGood){
 			notGood = false;
 			for (Container cs : l) {
@@ -445,7 +444,7 @@ public class GUIManagerAgent extends Agent  {
 					scanJarFileForLaunchConfig(jarFile);
 					agentClasses.addAll(scanJarFileForAgentClasses(jarFile));
 				} catch (IOException e) {
-					e.printStackTrace();
+					getLogger().severeLog("web repo conf is not valid", e);
 				}
 			}
 			else{
@@ -510,141 +509,136 @@ public class GUIManagerAgent extends Agent  {
 		}
 	}
 
-	private boolean isAgentClass(String className) {
-		Class<?> cl = null;
+	private boolean isAgentClass(final String className) {
 		try {
-			cl = getMadkitClassLoader().loadClass(className);
-			if(! (supertype.isAssignableFrom(cl) && ! Modifier.isAbstract(cl.getModifiers()) && Modifier.isPublic(cl.getModifiers())))
-				return false;
+			final Class<?> cl = getMadkitClassLoader().loadClass(className);
+			if(cl != null && AbstractAgent.class.isAssignableFrom(cl) && cl.getConstructor((Class<?>[]) null) != null && (! Modifier.isAbstract(cl.getModifiers())) && Modifier.isPublic(cl.getModifiers())){
+//				for (final Constructor<?> c : cl.getConstructors()) {
+//					if (c.getParameterTypes().length == 0)
+//						return true;
+//				}
+				return true;
+			}
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (SecurityException e) {
 			e.printStackTrace();
 		} catch (NoClassDefFoundError e) {
 			// TODO: the jar file is not on the MK path (IDE JUnit for instance)
-//		} catch (IllegalAccessException e) {
-//			//not public
+			//		} catch (IllegalAccessException e) {
+			//			//not public
+		} catch (SecurityException e) {
+		} catch (NoSuchMethodException e) {
 		}
-		if (cl != null) {
-			try {
-				for (final Constructor<?> c : cl.getConstructors()) {
-					if (c.getParameterTypes().length == 0)
-						return true;
-				}
-			} catch (SecurityException e) {
-			}
+			return false;
 		}
-		return false;
-	}
 
-	private String fileNameToClassName(String file, String classPathRoot){
-		if(classPathRoot != null)
-			file = file.replace(classPathRoot, "");
-		return file.substring(0, file.length()-6).replace(File.separatorChar, '.');
-	}
+		private String fileNameToClassName(String file, String classPathRoot){
+			if(classPathRoot != null)
+				file = file.replace(classPathRoot, "");
+			return file.substring(0, file.length()-6).replace(File.separatorChar, '.');
+		}
 
-	private List<String> scanFolderForAgentClasses(final File file, final String pckName) {
-		if(logger != null)
-			logger.finest("Scanning dir :"+file.getName());
-		final File[] files = file.listFiles();
-		if(files == null)
-			return Collections.emptyList();
-		final List<String> l = new ArrayList<String>();
-		for(File f : files){
-			if(f.isDirectory()){
-//				String pck = pckName == null ? f.getName() : pckName+"."+f.getName();
-//				if(! isKernelDirectory(pck)){
+		private List<String> scanFolderForAgentClasses(final File file, final String pckName) {
+			if(logger != null)
+				logger.finest("Scanning dir :"+file.getName());
+			final File[] files = file.listFiles();
+			if(files == null)
+				return Collections.emptyList();
+			final List<String> l = new ArrayList<String>();
+			for(File f : files){
+				if(f.isDirectory()){
+					//				String pck = pckName == null ? f.getName() : pckName+"."+f.getName();
+					//				if(! isKernelDirectory(pck)){
 					l.addAll(scanFolderForAgentClasses(f, pckName == null ? f.getName() : pckName+"."+f.getName()));
-//				}
-			}
-			else if(f.getName().endsWith(".class")){
-				String className = pckName+"."+f.getName().replace(".class", "");
-				if (isAgentClass(className)) {
-					l.add(className);
+					//				}
+				}
+				else if(f.getName().endsWith(".class")){
+					String className = pckName+"."+f.getName().replace(".class", "");
+					if (isAgentClass(className)) {
+						l.add(className);
+					}
 				}
 			}
+			return l;
 		}
-		return l;
-	}
 
-//	private boolean isKernelDirectory(String name) {
-//		if(name == null)
-//			return false;
-//		return name.equals("madkit.kernel") || name.equals("madkit.gui") || name.equals("madkit.messages") || name.equals("madkit.simulation");
-//	}
+		//	private boolean isKernelDirectory(String name) {
+		//		if(name == null)
+		//			return false;
+		//		return name.equals("madkit.kernel") || name.equals("madkit.gui") || name.equals("madkit.messages") || name.equals("madkit.simulation");
+		//	}
 
-	Set<String> getLoadedClasses() {
-		return agentClasses;
-	}
+		Set<String> getLoadedClasses() {
+			return agentClasses;
+		}
 
-	JMenu createAgentsMenu() {
-		AgentsMenu m = new AgentsMenu(MadkitAction.LAUNCH_AGENT.getAction(this),agentClasses);
-		agentsMenus.add(m);
-		return m;
-	}
+		JMenu createAgentsMenu() {
+			AgentsMenu m = new AgentsMenu(MadkitAction.LAUNCH_AGENT.getAction(this),agentClasses);
+			agentsMenus.add(m);
+			return m;
+		}
 
-	JMenu createDemosMenu() {
-		DemosMenu m = new DemosMenu(MadkitAction.MADKIT_LAUNCH_SESSION.getAction(this),demos);
-		demosMenus.add(m);
-		return m;
-	}
+		JMenu createDemosMenu() {
+			DemosMenu m = new DemosMenu(MadkitAction.MADKIT_LAUNCH_SESSION.getAction(this),demos);
+			demosMenus.add(m);
+			return m;
+		}
 
-	Set<DemoModel> getDemos() {
-		return demos;
-	}
+		Set<DemoModel> getDemos() {
+			return demos;
+		}
 
-	/**
-	 * Kills all the agents that have a GUI
-	 */
-	private void disposeAllAgents() {
-		for (final JFrame f : guis.values()) {
-			if (f.isVisible() && f.isShowing()) {
-				f.dispose();
+		/**
+		 * Kills all the agents that have a GUI
+		 */
+		private void disposeAllAgents() {
+			for (final JFrame f : guis.values()) {
+				if (f.isVisible() && f.isShowing()) {
+					f.dispose();
+				}
+			}
+			for (final JInternalFrame jf : internalFrames.values()) {
+				if (jf.isVisible() && jf.isShowing()) {
+					jf.dispose();
+				}
+			}
+			guis.clear();
+			internalFrames.clear();
+		}
+
+		/**
+		 * Kills all the agents that have a GUI
+		 */
+		private void killAllAgents() {
+			for (final AbstractAgent a : guis.keySet()) {
+				AgentFrame.killAgent(a, 0);
+			}
+			for (final AbstractAgent a : internalFrames.keySet()) {
+				AgentFrame.killAgent(a, 0);
 			}
 		}
-		for (final JInternalFrame jf : internalFrames.values()) {
-			if (jf.isVisible() && jf.isShowing()) {
-				jf.dispose();
-			}
-		}
-		guis.clear();
-		internalFrames.clear();
+
 	}
 
-	/**
-	 * Kills all the agents that have a GUI
-	 */
-	private void killAllAgents() {
-		for (final AbstractAgent a : guis.keySet()) {
-			AgentFrame.killAgent(a, 0);
-		}
-		for (final AbstractAgent a : internalFrames.keySet()) {
-			AgentFrame.killAgent(a, 0);
-		}
-	}
-
-}
-
-//class FrameLauncher implements Runnable{
-//	
-//	private final GUIManagerAgent guiManager;
-//	private AbstractAgent agent;
-//
-//	public FrameLauncher(GUIManagerAgent manager) {
-//		guiManager = manager;
-//	}
-//	
-//	public void run() {
-//	AgentFrame f = new AgentFrame(agent, agent.getName());
-//	agent.setupFrame(f);//TODO catch failures because of delegation
-//	if (manager.getDesktop() != null) {
-//		JInternalFrame jf = new AgentInternalFrame(f, manager);
-//		desktop.addInternalFrame(jf);
-//		internalFrames.put(agent, jf);
-//		jf.setVisible(true);
-//	} else {
-//		f.setLocation(checkLocation(f));
-//		guis.put(agent, f);
-//		f.setVisible(true);
-//	}
-//}
+	//class FrameLauncher implements Runnable{
+	//	
+	//	private final GUIManagerAgent guiManager;
+	//	private AbstractAgent agent;
+	//
+	//	public FrameLauncher(GUIManagerAgent manager) {
+	//		guiManager = manager;
+	//	}
+	//	
+	//	public void run() {
+	//	AgentFrame f = new AgentFrame(agent, agent.getName());
+	//	agent.setupFrame(f);//TODO catch failures because of delegation
+	//	if (manager.getDesktop() != null) {
+	//		JInternalFrame jf = new AgentInternalFrame(f, manager);
+	//		desktop.addInternalFrame(jf);
+	//		internalFrames.put(agent, jf);
+	//		jf.setVisible(true);
+	//	} else {
+	//		f.setLocation(checkLocation(f));
+	//		guis.put(agent, f);
+	//		f.setVisible(true);
+	//	}
+	//}

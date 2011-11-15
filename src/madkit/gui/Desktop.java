@@ -24,14 +24,17 @@ final class Desktop extends JFrame {
 	Desktop(GUIManagerAgent guiManager){
 		super("MadKit "+guiManager.getMadkitProperty("madkit.version")+" Desktop running on kernel "+guiManager.getKernelAddress());
 //		setLocationRelativeTo(null);
-		setSize(800,600);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		buildMenuAndToolbar(guiManager);
 		desktopPane = new JDesktopPane();
 		desktopPane.setBackground(Color.BLACK);
+		desktopPane.setPreferredSize(new Dimension(800,600));
+		setPreferredSize(new Dimension(800,600));
+//		setSize(800,600);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		add(desktopPane);
-		setVisible(true);
+		pack();
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
+		setVisible(true);
 	}
 	
 	@Override

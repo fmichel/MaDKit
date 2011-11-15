@@ -19,7 +19,6 @@
 package madkit.kernel;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 
 import madkit.simulation.PropertyProbe;
 

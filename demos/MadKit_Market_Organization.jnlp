@@ -14,7 +14,8 @@
   </security>
   <resources>
     <j2se version="1.5+" java-vm-args="-Xnoclassgc"/>
-    <jar href="MadKit_Market_Organization-2.0.jar"/>
+    <jar href="MadKit_Market_Organization.jnlp.jar"/>
+    <property name="jnlp.packEnabled" value="true"/> 
   </resources>
   <application-desc>
 <argument>--launchAgents madkit.marketorg.Client,true,2;madkit.marketorg.Broker,true,3;madkit.marketorg.Provider,true,7;</argument>

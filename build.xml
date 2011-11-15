@@ -239,7 +239,8 @@
 		  </filterchain>
 		</copy>
    		<echo>Building MadKit HowTo</echo>
-   		<ant dir="../MadKit_HowTo"/>
+		<ant dir="../MadKit_HowTo" inheritall="false"/>
+		<ant dir="../MadKit_Demos" inheritall="false"/>
 		<zip destfile="${release.dir}/MadKit-${madkit.version}.zip" level="9">
 			<zipfileset dir="${docs.dir}" prefix="${docs.dir}"/>
 			<zipfileset dir="${build.dir}" includes="README.html"/>

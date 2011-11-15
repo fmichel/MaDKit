@@ -177,7 +177,9 @@ final public class Madkit {
 			}
 		}
 		currentInstance = this;
-		Policy.setPolicy(getAllPermissionPolicy());//TODO this is for jws
+//		if (System.getProperty("javawebstart.version") != null) {
+			Policy.setPolicy(getAllPermissionPolicy());//TODO this is for jws
+//		}
 		//installing config
 		//		this.args = argss != null ? argss : new String[0];
 		this.args = argss;

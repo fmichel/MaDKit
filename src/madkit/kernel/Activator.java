@@ -18,8 +18,6 @@
  */
 package madkit.kernel;
 
-import java.lang.reflect.Method;
-
 import madkit.simulation.GenericBehaviorActivator;
 
 /**

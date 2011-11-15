@@ -29,6 +29,7 @@
 	<property name="madkit.args" value=""/>
 	<property name="jnlp.template" value="jnlp.template"/>
 	<property name="jnlp.jar" value="${executable.name}.jnlp.jar"/>
+	<property name="jnlp.jar.gz" value="${jnlp.jar}.pack.gz"/>
 
 	<!-- - - - - - - - - - - - - - - - - - 
           target: create-lib-jar                      
@@ -44,7 +45,6 @@
  		<jar destfile="${jar.file}" manifest="${build.dir}/MANIFEST.MF" compress="false" >
             <fileset dir="${build.dir}" excludes="${jar.file},mk.certif,MANIFEST.MF,madkitAntTargets.xml"/>
  		</jar>
-    	<antcall target="sign-jar"/>
     </target>
 
 	
@@ -78,20 +78,17 @@
 		<chmod file="${jar.file}" perm="ugo+x"/>
 		<delete dir="${build.dir}"/>
         <echo>
+        	--- Running your project :
         	${line.separator} 
      Your project could now be ran by either${line.separator} 
     (1) double clicking the jar file !${line.separator}
     (2) using a commandline such as:	   	
 		java -jar ${jar.file} [additional Madkit options and arguments]
-        	${line.separator} 
-    The jnlp jar file is the target of the jnlp file : it has no vesion number so that 
-    the jnlp will always run the latest version without requiring any change
+        	${line.separator}
         </echo>
 	    </target>
 	
 	<!-- - - - - - - - - - - - - - - - - - 
-		    <concat destfile="${build.dir}/onejar.mf" append="true">One-Jar-Main-Args: ${madkit.args}</concat>
-		<delete dir="${build.dir}" failonerror="false"/>           
           target: compile                      
          - - - - - - - - - - - - - - - - - -->
     <target name="compile">
@@ -109,14 +106,6 @@
     		</javac>
     </target>
 	
-	<!-- - - - - - - - - - - - - - - - - - 
-          target: clean                      
-         - - - - - - - - - - - - - - - - - -->
-    <target name="clean">
-		<delete dir="${build.dir}"/>
-    	<delete file="README"/>
-    </target>
-
 	<!-- - - - - - - - - - - - - - - - - - 
           target: prepare-jar                      
 			<attribute name="Sealed" value="true"/>
@@ -164,15 +153,6 @@
     </target>
 	
 	<!-- - - - - - - - - - - - - - - - - - 
-          target: signjar                      
-    <target name="signjar" depends="probe-for-jarsigner,jarsigner-message" if="jarsigner.present">
-    	<delete file="${build.dir}/mk.certif"/>
-    	<genkey keystore="${build.dir}/mk.certif" alias="${author}" storepass="mkPowa" validity="3650" dname="CN=MadKit Team, OU=MAS application, O=${author}, C=${user.country}"/>
-		<signjar jar="${jar.file}" alias="${author}" storepass="mkPowa" keystore="${build.dir}/mk.certif" />           
-    </target>
-         - - - - - - - - - - - - - - - - - -->
-	
-	<!-- - - - - - - - - - - - - - - - - - 
           target: no-jarsigner-message                      
          - - - - - - - - - - - - - - - - - -->
     <target name="jarsigner-message" unless="jarsigner.present">
@@ -197,6 +177,13 @@
    		    <expandproperties/>
    		  </filterchain>
    		</copy>	
+        <echo>
+        	--- For java web start use :
+        	${line.separator} 
+    The ${jnlp.jar.gz} file is the target of the jnlp file : it has no vesion number so that 
+    the jnlp will always run the latest version without requiring any change
+        	${line.separator} 
+       </echo>
 	</target>
 	
 	<target name="build-propertiesFile">
@@ -244,8 +231,20 @@
           target: sign-jar         signedjar="${jnlp.jar}"              
          - - - - - - - - - - - - - - - - - -->
     <target name="sign-jar" depends="probe-for-jarsigner,jarsigner-message,get-password" if="jarsigner.present">
-    	<echo>${jnlp.jar}</echo>
-		<signjar jar="${jar.file}" signedjar="${jnlp.jar}" alias="${keystore.alias}" storepass="${keystore.password}" keystore="${keystore}"/>
+    	<echo>Creating ${jnlp.jar}${line.separator}</echo>
+        <exec executable="pack200" dir=".">
+            <arg value="--repack"/>
+            <arg value="${jar.file}"/>
+        </exec>
+		<signjar jar="${jar.file}" signedjar="${jnlp.jar}"  preservelastmodified="true" alias="${keystore.alias}" storepass="${keystore.password}" keystore="${keystore}"/>
+        <echo>Creating ${jnlp.jar}.pack.gz !${line.separator}</echo>
+	    <exec executable="pack200" dir=".">
+	        <arg value="--modification-time=latest"/>
+	        <arg value="--deflate-hint=true"/>
+            <arg value="${jnlp.jar.gz}"/>
+            <arg value="${jnlp.jar}"/>
+	    </exec>
+    	<delete file="${jnlp.jar}"/>
     </target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
@@ -288,18 +287,4 @@
 		</condition>
     </target>
 
-	<!-- - - - - - - - - - - - - - - - - - 
-          target: probe-for-keystore   
-    <target name="probe-for-keystore">
-		<condition property="keystore.present">
-		    <available file="${keystore}" />
-		</condition>
-    </target>
-         - - - - - - - - - - - - - - - - - -->
-
-	
-
-	
-	
-	
 </project>

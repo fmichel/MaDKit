@@ -425,6 +425,8 @@ class MadkitKernel extends Agent {
 	 */
 	private void addWebRepository() {
 		final String repoLocation = getMadkitProperty("madkit.repository.url");
+		if(logger != null)
+			logger.fine("** CONNECTING WEB REPO **"+repoLocation);
 		try {
 			Properties p = new Properties();
 			p.load(new URL(repoLocation+ "repo.properties").openStream());
@@ -436,7 +438,7 @@ class MadkitKernel extends Agent {
 			}
 		} catch (final IOException e) {
 			if(logger != null)
-				logger.log(Level.WARNING,ErrorMessages.CANT_CONNECT+": madkit.net "+repoLocation+"\n");
+				logger.log(Level.WARNING,ErrorMessages.CANT_CONNECT+": madkit.net "+repoLocation+"\n"+e.getMessage());
 		}
 	}
 
@@ -444,10 +446,10 @@ class MadkitKernel extends Agent {
 	 * 
 	 */
 	private void loadLocalDemos() {
+		if(logger != null)
+			logger.fine("** LOADING DEMO DIRECTORY **");
 		File f = lookForMadkitDemoHome();
 		if(f != null && f.isDirectory()){
-			if(logger != null)
-				logger.fine("** LOADING DEMO DIRECTORY **");
 			platform.getMadkitClassLoader().loadJarsFromPath(f.getAbsolutePath());
 		}
 		else if(logger != null)

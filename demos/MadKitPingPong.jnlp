@@ -14,7 +14,8 @@
   </security>
   <resources>
     <j2se version="1.5+" java-vm-args="-Xnoclassgc"/>
-    <jar href="MadKitPingPong-2.0.jar"/>
+    <jar href="MadKitPingPong.jnlp.jar"/>
+    <property name="jnlp.packEnabled" value="true"/> 
   </resources>
   <application-desc>
 <argument>--launchAgents madkit.pingpong.PingPongDemoLauncherAgent</argument>

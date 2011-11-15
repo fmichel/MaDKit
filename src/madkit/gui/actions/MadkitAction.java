@@ -43,8 +43,6 @@ import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
-import javax.swing.JMenu;
-import javax.swing.JToolBar;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import madkit.gui.GUIManagerAgent;
@@ -143,7 +141,7 @@ public enum MadkitAction implements MadkitGUIAction {
 				case LOAD_JAR_FILE:
 				case STOP_NETWORK:
 				case DEICONIFY_ALL:
-				case KILL_AGENTS:
+//				case KILL_AGENTS:
 					addSeparator.invoke(menuOrToolBar);
 				default:
 					break;

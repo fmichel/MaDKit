@@ -107,6 +107,7 @@
         <delete file="README"/>
          <delete file="${ant.project.name}.jnlp"/>
         <delete file="${ant.project.name}-${version}.jar"/>
+         <delete file="${ant.project.name}.jnlp.jar.pack.gz"/>
         <delete file="${ant.project.name}-lib-${version}.jar"/>
 	</sequential>
 </macrodef>

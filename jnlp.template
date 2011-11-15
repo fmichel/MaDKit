@@ -15,6 +15,7 @@
   <resources>
     <j2se version="1.5+" java-vm-args="-Xnoclassgc"/>
     <jar href="${jnlp.jar}"/>
+    <property name="jnlp.packEnabled" value="true"/> 
   </resources>
   <application-desc>
 <argument>${madkit.args}</argument>

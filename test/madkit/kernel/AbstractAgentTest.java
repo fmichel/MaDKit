@@ -31,7 +31,6 @@ import java.util.logging.Level;
 import madkit.gui.actions.MadkitAction;
 import madkit.kernel.AbstractAgent.State;
 import madkit.kernel.Madkit.BooleanOption;
-import madkit.testing.util.agent.NormalLife;
 
 import org.junit.Before;
 import org.junit.Test;

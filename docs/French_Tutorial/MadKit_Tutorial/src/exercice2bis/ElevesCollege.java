@@ -1,7 +1,7 @@
 package exercice2bis;
 
 import madkit.kernel.Agent;
-import madkit.messages.ObjectMessage;
+import madkit.messages.StringMessage;
 
 public class ElevesCollege extends Agent {
 	/**
@@ -24,7 +24,7 @@ public class ElevesCollege extends Agent {
 	public void live() {
 		pause(5000);
 		while (true) {
-			ObjectMessage<String> m = (ObjectMessage<String>) waitNextMessage(1000);// l'agent
+			StringMessage m = (StringMessage) waitNextMessage(1000);// l'agent
 																					// attend
 																					// 1000
 																					// millisecondes
@@ -51,7 +51,7 @@ public class ElevesCollege extends Agent {
 			}
 			if (Math.random() < 0.70)
 				sendMessageWithRole("personne", "lycee", "prof",
-						new ObjectMessage<String>("4"), "eleve");// envoi de
+						new StringMessage("4"), "eleve");// envoi de
 																	// maniere
 																	// al�atoire
 																	// un
@@ -61,7 +61,7 @@ public class ElevesCollege extends Agent {
 			// prof
 			else
 				sendMessageWithRole("personne", "lycee", "prof",
-						new ObjectMessage<String>("2"), "eleve");// envoi de
+						new StringMessage("2"), "eleve");// envoi de
 																	// maniere
 																	// al�atoire
 																	// un

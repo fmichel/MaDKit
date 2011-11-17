@@ -1,7 +1,7 @@
 package exercice2;
 
 import madkit.kernel.Agent;
-import madkit.messages.ObjectMessage;
+import madkit.messages.StringMessage;
 
 @SuppressWarnings("serial")
 public class Eleves extends Agent {
@@ -17,7 +17,7 @@ public class Eleves extends Agent {
 	public void live() {
 		pause(5000);
 		while (true) {
-			ObjectMessage<String> m = (ObjectMessage<String>) waitNextMessage(1000); // l'agent attend 1000 millisecondes un message
+			StringMessage m = (StringMessage) waitNextMessage(1000); // l'agent attend 1000 millisecondes un message
 			if (m != null) {
 				if (m.getContent().equals("Perdu"))// si le message est "perdu" il s'est tromp� et met fin a son cycle de vie
 				{
@@ -35,10 +35,10 @@ public class Eleves extends Agent {
 			}
 			if (Math.random() < 0.70)
 				sendMessageWithRole("salle K029", "lycee", "prof", 
-						new ObjectMessage<String>("4"), "eleve");// envoi de maniere al�atoire un message " 4" 
+						new StringMessage("4"), "eleve");// envoi de maniere al�atoire un message " 4" 
 			//aux agents de la communaute salle K029 du groupe lycee et de role prof
 				sendMessageWithRole("salle K029", "lycee", "prof",
-						new ObjectMessage<String>("2"), "eleve");// envoi de maniere al�atoire un message " 2" 
+						new StringMessage("2"), "eleve");// envoi de maniere al�atoire un message " 2" 
 				//aux agents de la communaute salle K029 du groupe lycee et de role prof
 		}
 	}

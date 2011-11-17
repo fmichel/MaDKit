@@ -18,7 +18,8 @@
  */
 package madkit.boot.process;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadKit;
 import madkit.kernel.Madkit.BooleanOption;

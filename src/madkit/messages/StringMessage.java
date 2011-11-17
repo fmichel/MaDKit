@@ -16,26 +16,29 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
  */
-package madkit.boot.process;
-
-import madkit.kernel.AbstractAgent;
-import madkit.kernel.Agent;
-import madkit.kernel.Madkit;
-import madkit.kernel.Madkit.Option;
+package madkit.messages;
 
 /**
+ * A message class that conveys a string.
+ * 
  * @author Fabien Michel
  * @since MadKit 5.0.0.14
  * @version 0.9
  * 
  */
-@SuppressWarnings("serial")
-public class LaunchAgentArgTest extends AbstractAgent{
+public class StringMessage extends ObjectMessage<String> {
 
-	public static void main(String[] args) {
-		String[] argss = {Option.launchAgents.toString(),Agent.class.getName()};
-		Madkit.main(argss);
-		String[] argsss = {Option.launchAgents.toString(),Agent.class.getName()+",true,2"};
-		Madkit.main(argsss);
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3111467569749360801L;
+
+	/**
+	 * Builds a new message containing the string s
+	 * @param s the string
+	 */
+	public StringMessage(String s) {
+		super(s);
 	}
+
 }

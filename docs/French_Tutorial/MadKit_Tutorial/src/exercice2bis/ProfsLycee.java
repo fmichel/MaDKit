@@ -1,7 +1,7 @@
 package exercice2bis;
 
 import madkit.kernel.Agent;
-import madkit.messages.ObjectMessage;
+import madkit.messages.StringMessage;
 
 public class ProfsLycee extends Agent {
 	/**
@@ -31,23 +31,23 @@ public class ProfsLycee extends Agent {
 					if (logger != null)
 						logger.info("Je pose une question");
 					sendMessageWithRole("personne", "lycee", "eleve",
-							new ObjectMessage<String>("2+2"), "prof");
+							new StringMessage("2+2"), "prof");
 				}
 			}
 
-			ObjectMessage<String> m = (ObjectMessage<String>) waitNextMessage(1000);//l'agent attend 1000 millisecondes la r�ception d'un message
+			StringMessage m = (StringMessage) waitNextMessage(1000);//l'agent attend 1000 millisecondes la r�ception d'un message
 			if (m != null) {
 				if (m.getContent().equals("2")) // si il re�oit un message "2" il incr�mente le nombre d'erreur 
 					//et indique a l'expediteur qu'il s'est tromp�
 				{
 					this.nbreErreurs++;
-					sendMessage(m.getSender(), new ObjectMessage<String>(
+					sendMessage(m.getSender(), new StringMessage(
 							"Perdu"));
 				}
 
 				if (m.getContent().equals("4"))// si il re�oit un message "4" et indique a l'expediteur qu'il a trouv� la bonne r�ponse
 				{
-					sendMessage(m.getSender(), new ObjectMessage<String>(
+					sendMessage(m.getSender(), new StringMessage(
 							"Bravo"));
 					waitNextMessage(1000);
 					if (logger != null)

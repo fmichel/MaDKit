@@ -32,7 +32,7 @@ import madkit.kernel.Agent;
 import madkit.kernel.AgentAddress;
 import madkit.kernel.JunitMadKit;
 import madkit.kernel.Message;
-import madkit.messages.ObjectMessage;
+import madkit.messages.StringMessage;
 
 import org.junit.Test;
 
@@ -58,10 +58,10 @@ public class sendMessageAndWaitForReplyWithAATest extends JunitMadKit {
 
 		protected void live() {
 			waitNextMessage();// waiting the start signal
-			sendReply(waitNextMessage(), new ObjectMessage<String>("reply"));
+			sendReply(waitNextMessage(), new StringMessage("reply"));
 			assertEquals(SUCCESS, sendMessage(aa, new Message()));
 			assertEquals(SUCCESS, sendMessage(aa, new Message()));
-			sendReply(waitNextMessage(), new ObjectMessage<String>("reply2"));
+			sendReply(waitNextMessage(), new StringMessage("reply2"));
 		}
 	};
 
@@ -84,8 +84,8 @@ public class sendMessageAndWaitForReplyWithAATest extends JunitMadKit {
 		}
 
 		protected void live() {
-			sendReply(waitNextMessage(), new ObjectMessage<String>("reply"));
-			sendReply(waitNextMessage(), new ObjectMessage<String>("reply2"));
+			sendReply(waitNextMessage(), new StringMessage("reply"));
+			sendReply(waitNextMessage(), new StringMessage("reply2"));
 		}
 	};
 
@@ -122,7 +122,7 @@ public class sendMessageAndWaitForReplyWithAATest extends JunitMadKit {
 				// Without role
 				Message m = sendMessageAndWaitForReply(aa, new Message());
 				assertNotNull(m);
-				assertEquals("reply", ((ObjectMessage<String>) m).getContent());
+				assertEquals("reply", ((StringMessage) m).getContent());
 				assertEquals(ROLE, m.getReceiver().getRole());
 
 				assertFalse(this.isMessageBoxEmpty());
@@ -130,7 +130,7 @@ public class sendMessageAndWaitForReplyWithAATest extends JunitMadKit {
 				// With role
 				m = sendMessageAndWaitForReply(aa, new Message());
 				assertNotNull(m);
-				assertEquals("reply2", ((ObjectMessage<String>) m).getContent());
+				assertEquals("reply2", ((StringMessage) m).getContent());
 				assertEquals(ROLE, m.getReceiver().getRole());
 
 				assertNotNull(nextMessage());
@@ -170,14 +170,14 @@ public class sendMessageAndWaitForReplyWithAATest extends JunitMadKit {
 				assertNotNull(aa);
 				Message m = sendMessageAndWaitForReply(aa, new Message());
 				assertNotNull(m);
-				assertEquals("reply", ((ObjectMessage<String>) m).getContent());
+				assertEquals("reply", ((StringMessage) m).getContent());
 				assertEquals(Organization.GROUP_CANDIDATE_ROLE, m.getReceiver().getRole());
 				assertEquals(Organization.GROUP_MANAGER_ROLE, m.getSender().getRole());
 
 				// With role
 				m = sendMessageWithRoleAndWaitForReply(aa, new Message(), Organization.GROUP_CANDIDATE_ROLE);
 				assertNotNull(m);
-				assertEquals("reply2", ((ObjectMessage<String>) m).getContent());
+				assertEquals("reply2", ((StringMessage) m).getContent());
 				assertEquals(Organization.GROUP_CANDIDATE_ROLE, m.getReceiver().getRole());
 				assertEquals(Organization.GROUP_MANAGER_ROLE, m.getSender().getRole());
 			}

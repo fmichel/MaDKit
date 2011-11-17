@@ -21,8 +21,6 @@ package madkit.testing.util.agent;
 import java.util.logging.Level;
 
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.Madkit;
-import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
 
 /**

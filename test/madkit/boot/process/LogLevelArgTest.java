@@ -18,13 +18,12 @@
  */
 package madkit.boot.process;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.util.logging.Level;
 
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadKit;
-import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
 
 import org.junit.Test;

@@ -11,7 +11,7 @@ import madkit.kernel.Agent;
 import madkit.kernel.AgentAddress;
 import madkit.kernel.JunitMadKit;
 import madkit.kernel.Message;
-import madkit.messages.ObjectMessage;
+import madkit.messages.StringMessage;
 
 import org.junit.Test;
 
@@ -24,8 +24,8 @@ public class BroadcastMessageAndWaitForRepliesTest extends JunitMadKit {
 		}
 
 		protected void live() {
-			sendReply(waitNextMessage(), new ObjectMessage<String>("reply"));
-			sendReply(waitNextMessage(), new ObjectMessage<String>("reply2"));
+			sendReply(waitNextMessage(), new StringMessage("reply"));
+			sendReply(waitNextMessage(), new StringMessage("reply2"));
 		}
 	};
 
@@ -48,8 +48,8 @@ public class BroadcastMessageAndWaitForRepliesTest extends JunitMadKit {
 		}
 
 		protected void live() {
-			sendReply(waitNextMessage(), new ObjectMessage<String>("reply"));
-			sendReply(waitNextMessage(), new ObjectMessage<String>("reply2"));
+			sendReply(waitNextMessage(), new StringMessage("reply"));
+			sendReply(waitNextMessage(), new StringMessage("reply2"));
 		}
 	};
 
@@ -120,7 +120,7 @@ public class BroadcastMessageAndWaitForRepliesTest extends JunitMadKit {
 	// assertNotNull(aa);
 	// Message m = sendMessageAndWaitForReply(aa, new Message());
 	// assertNotNull(m);
-	// assertEquals("reply", ((ObjectMessage<String>)m).getContent());
+	// assertEquals("reply", ((StringMessage)m).getContent());
 	// assertEquals(Organization.GROUP_CANDIDATE_ROLE,
 	// m.getReceiver().getRole());
 	// assertEquals(Organization.GROUP_MANAGER_ROLE, m.getSender().getRole());
@@ -129,7 +129,7 @@ public class BroadcastMessageAndWaitForRepliesTest extends JunitMadKit {
 	// m = sendMessageWithRoleAndWaitForReply(aa, new Message(),
 	// Organization.GROUP_CANDIDATE_ROLE);
 	// assertNotNull(m);
-	// assertEquals("reply2", ((ObjectMessage<String>)m).getContent());
+	// assertEquals("reply2", ((StringMessage)m).getContent());
 	// assertEquals(Organization.GROUP_CANDIDATE_ROLE,
 	// m.getReceiver().getRole());
 	// assertEquals(Organization.GROUP_MANAGER_ROLE, m.getSender().getRole());
@@ -267,8 +267,8 @@ class sendReplyInLiveAgent extends Agent {
 
 	protected void live() {
 		pause(time);
-		sendReply(waitNextMessage(), new ObjectMessage<String>("reply " + hashCode()));
+		sendReply(waitNextMessage(), new StringMessage("reply " + hashCode()));
 		pause(time);
-		sendReply(waitNextMessage(), new ObjectMessage<String>("reply " + hashCode()));
+		sendReply(waitNextMessage(), new StringMessage("reply " + hashCode()));
 	}
 }

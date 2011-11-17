@@ -1,9 +1,7 @@
 package madkit.testing.util.agent;
 
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.BooleanOption;
-import madkit.kernel.Madkit.LevelOption;
 
 public class WorkingAgent extends DoItDuringLifeCycleAgent {
 

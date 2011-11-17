@@ -18,8 +18,6 @@
  */
 package madkit.testing.util.agent;
 
-import madkit.kernel.Madkit;
-import madkit.kernel.Madkit.LevelOption;
 
 /**
  * @author Fabien Michel

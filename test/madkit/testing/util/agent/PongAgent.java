@@ -9,7 +9,7 @@ import java.util.Arrays;
 import madkit.kernel.Agent;
 import madkit.kernel.JunitMadKit;
 import madkit.kernel.Madkit;
-import madkit.messages.ObjectMessage;
+import madkit.messages.StringMessage;
 
 public class PongAgent extends Agent {
 
@@ -27,7 +27,7 @@ public class PongAgent extends Agent {
 	public void live() {
 		while (true) {
 			pause(500);
-			sendMessage(COMMUNITY, GROUP, ROLE, new ObjectMessage<String>("test"));
+			sendMessage(COMMUNITY, GROUP, ROLE, new StringMessage("test"));
 			if (logger != null)
 				logger.talk("\nreceived: " + nextMessage());
 		}

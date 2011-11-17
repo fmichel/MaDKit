@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import madkit.kernel.Agent;
 import madkit.kernel.AgentAddress;
-import madkit.messages.ObjectMessage;
+import madkit.messages.StringMessage;
 
 @SuppressWarnings("serial")
 public class AgentAmis extends Agent {
@@ -24,7 +24,7 @@ public class AgentAmis extends Agent {
 	public void live() {
 		pause(5000);
 		while (true) {
-			ObjectMessage<String> m = (ObjectMessage<String>) waitNextMessage(1000);
+			StringMessage m = (StringMessage) waitNextMessage(1000);
 			if (m != null) {
 				if (m.getContent().equals("ami?")){
 					this.listeAmis.add(m.getSender());
@@ -32,7 +32,7 @@ public class AgentAmis extends Agent {
 						logger.info("Je suis amis avec " + m.getSender());
 				}
 				if (m.getContent().equals("partir?")) {
-					sendMessage(m.getSender(), new ObjectMessage<String>(
+					sendMessage(m.getSender(), new StringMessage(
 							"on y va"));
 					if (logger != null)
 						logger.info("Je part avec " + m.getSender());
@@ -43,10 +43,10 @@ public class AgentAmis extends Agent {
 			}
 			if (Math.random() < 0.95)
 				sendMessageWithRole("amis", "piece", "personne",
-						new ObjectMessage<String>("ami?"), "personne");
+						new StringMessage("ami?"), "personne");
 			else
 				sendMessageWithRole("amis", "piece", "personne",
-						new ObjectMessage<String>("partir?"), "personne");
+						new StringMessage("partir?"), "personne");
 		}
 	}
 

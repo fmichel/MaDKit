@@ -34,7 +34,7 @@ import org.junit.Test;
 
 /**
  * @author Fabien Michel
- * @since MadKit 5.0.0.10
+ * @since MadKit 5.0.0.14
  * @version 0.9
  * 
  */

@@ -2016,9 +2016,9 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *	}
 	 * </code></pre>
 	 * Still, the agent must have a default constructor for that to work.
-	 * @param args optional MadKit options. For example, this will launch
+	 * @param args MadKit options. For example, this will launch
 	 * the agent in desktop mode :
-	 * 
+	 * @param nbOfInstances specify how many of this kind should be launched
 	 * <pre><code>
 	 *	public static void main(String[] args) {
 	 *		String[] myArgs = {BooleanOption.desktop.toString()};
@@ -2027,14 +2027,26 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * </code></pre>
 	 * 
 	 * @see {@link Option}, {@link BooleanOption}, {@link LevelOption}
+	 * @since MadKit 5.0.0.14
 	 */
 	public static void executeThisAgent(String[] args,int nbOfInstances) {
 		final StackTraceElement[] trace = new Throwable().getStackTrace();
 		final ArrayList<String> arguments = new ArrayList<String>(Arrays.asList(Madkit.Option.launchAgents.toString(),trace[trace.length-1].getClassName()+",true,"+nbOfInstances));
-		arguments.addAll(Arrays.asList(args));
+		if (args != null) {
+			arguments.addAll(Arrays.asList(args));
+		}
 		Madkit.main(arguments.toArray(new String[0]));
 	}
 
+	/**
+	 * This offers a convenient way to create main method that launch
+	 * the agent class under development.
+	 * This call is equivalent to <code>executeThisAgent(args, 1)</code>
+	 * 
+	 * @param args MadKit options
+	 * @see #executeThisAgent(String[], int)
+	 * @since MadKit 5.0.0.14
+	 */
 	public static void executeThisAgent(String[] args) {
 		executeThisAgent(args, 1);
 	}

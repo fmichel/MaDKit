@@ -59,7 +59,7 @@ public class UnstopableAbstractAgent extends AbstractAgent {
 	}
 
 	public static void main(String[] args) {
-		AbstractAgent.executeThisAgent(args);
+		AbstractAgent.executeThisAgent(args,2);
 	}
 
 }

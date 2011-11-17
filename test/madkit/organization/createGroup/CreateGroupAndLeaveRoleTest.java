@@ -39,46 +39,46 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class CreateGroupAndLeaveRoleTest extends JunitMadKit{
+public class CreateGroupAndLeaveRoleTest extends JunitMadKit {
 
 	@Test
 	public void testCreateGroupAndLeaveRole() {
-		launchTest(new AbstractAgent(){
+		launchTest(new AbstractAgent() {
 			@Override
 			protected void activate() {
-				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP,true,null));
-				assertEquals(ALREADY_GROUP, createGroup(COMMUNITY, GROUP,true,null));
-				assertEquals(false, createGroupIfAbsent(COMMUNITY, GROUP,true,null));
-				
+				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP, true, null));
+				assertEquals(ALREADY_GROUP, createGroup(COMMUNITY, GROUP, true, null));
+				assertEquals(false, createGroupIfAbsent(COMMUNITY, GROUP, true, null));
+
 				assertTrue(isGroup(COMMUNITY, GROUP));
-				assertTrue(isRole(COMMUNITY, GROUP,Organization.GROUP_MANAGER_ROLE));
+				assertTrue(isRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE));
 				assertTrue(isCommunity(COMMUNITY));
-				
-				assertEquals(NOT_COMMUNITY, leaveGroup(COMMUNITY+"d", GROUP));
-				assertEquals(NOT_GROUP, leaveGroup(COMMUNITY, GROUP+"d"));
-				
-				
-				//Manager role cannot be requested
-				assertEquals(ROLE_ALREADY_HANDLED, requestRole(COMMUNITY, GROUP,Organization.GROUP_MANAGER_ROLE));
-				
-				assertEquals(SUCCESS, leaveRole(COMMUNITY, GROUP,Organization.GROUP_MANAGER_ROLE));
-				
-				assertFalse(isRole(COMMUNITY, GROUP,Organization.GROUP_MANAGER_ROLE));
+
+				assertEquals(NOT_COMMUNITY, leaveGroup(COMMUNITY + "d", GROUP));
+				assertEquals(NOT_GROUP, leaveGroup(COMMUNITY, GROUP + "d"));
+
+				// Manager role cannot be requested
+				assertEquals(ROLE_ALREADY_HANDLED, requestRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE));
+
+				assertEquals(SUCCESS, leaveRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE));
+
+				assertFalse(isRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE));
 				assertFalse(isGroup(COMMUNITY, GROUP));
 				assertFalse(isCommunity(COMMUNITY));
-				
-				//Rerun to test with another agent inside the group
-				
+
+				// Rerun to test with another agent inside the group
+
 				AbstractAgent testAgent = new AbstractAgent();
 				launchAgent(testAgent);
-			
-				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP,true,null));
-				assertEquals(ROLE_ALREADY_HANDLED, testAgent.requestRole(COMMUNITY, GROUP,Organization.GROUP_MANAGER_ROLE));
-				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP,ROLE));
-				assertEquals(SUCCESS, testAgent.requestRole(COMMUNITY, GROUP,ROLE));
-				assertEquals(SUCCESS, leaveRole(COMMUNITY, GROUP,Organization.GROUP_MANAGER_ROLE));
+
+				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP, true, null));
+				assertEquals(ROLE_ALREADY_HANDLED, testAgent.requestRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE));
+				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
+				assertEquals(SUCCESS, testAgent.requestRole(COMMUNITY, GROUP, ROLE));
+				assertEquals(SUCCESS, leaveRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE));
 				assertTrue(isCommunity(COMMUNITY));
 				assertTrue(isGroup(COMMUNITY, GROUP));
-			}});
-		}
+			}
+		});
+	}
 }

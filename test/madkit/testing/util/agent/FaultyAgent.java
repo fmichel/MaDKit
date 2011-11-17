@@ -18,6 +18,13 @@
  */
 package madkit.testing.util.agent;
 
+import java.util.logging.Level;
+
+import madkit.kernel.AbstractAgent;
+import madkit.kernel.Madkit;
+import madkit.kernel.Madkit.BooleanOption;
+import madkit.kernel.Madkit.LevelOption;
+
 /**
  * @author Fabien Michel
  * @since MadKit 5.0.0.5
@@ -25,7 +32,7 @@ package madkit.testing.util.agent;
  * 
  */
 @SuppressWarnings("serial")
-public class FaultyAgent extends DoItDuringLifeCycleAgent{
+public class FaultyAgent extends DoItDuringLifeCycleAgent {
 
 	/**
 	 * @param inActivate
@@ -44,11 +51,18 @@ public class FaultyAgent extends DoItDuringLifeCycleAgent{
 		super(inActivate);
 	}
 
+	public FaultyAgent() {
+	}
+
 	@SuppressWarnings("null")
 	@Override
 	public void doIt() {
 		Object o = null;
-		o.toString();	
+		o.toString();
 	}
-
+	
+	public static void main(String[] args) {
+		String[] myArgs = {LevelOption.agentLogLevel.toString(),Level.ALL.toString()};
+		AbstractAgent.executeThisAgent(myArgs);
+	}
 }

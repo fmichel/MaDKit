@@ -28,8 +28,8 @@ import madkit.kernel.AbstractAgent;
  */
 @SuppressWarnings("serial")
 public class BuggedConstructorAgent extends AbstractAgent {
-	
-	public BuggedConstructorAgent(){
+
+	public BuggedConstructorAgent() {
 		getKernelAddress();
 	}
 

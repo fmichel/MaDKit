@@ -26,13 +26,13 @@ import madkit.kernel.AbstractAgent;
  * @version 0.9
  * 
  */
-public class MiniAgent extends AbstractAgent{
+public class MiniAgent extends AbstractAgent {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -1905625922120769289L;
 
 	protected void activate() {
-		requestRole("comm", "group","role");
+		requestRole("comm", "group", "role");
 	}
 }

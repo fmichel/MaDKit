@@ -34,7 +34,6 @@ import madkit.kernel.Madkit.BooleanOption;
 
 import org.junit.Test;
 
-
 /**
  * @author Fabien Michel
  * @since MadKit 5.0.0.10
@@ -42,42 +41,46 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class AsynchronousDiscoverTest extends JunitMadKit{
+public class AsynchronousDiscoverTest extends JunitMadKit {
 
 	@Test
 	public void multipleAsynchroneConnectionTest() {
 		addMadkitArgs(BooleanOption.network.toString());
-//		addMadkitArgs(LevelOption.networkLogLevel.toString(),"ALL");
-		launchTest(new AbstractAgent(){
+		// addMadkitArgs(LevelOption.networkLogLevel.toString(),"ALL");
+		launchTest(new AbstractAgent() {
 			@Override
 			protected void activate() {
-				launchThreadedMKNetworkInstance();		
-				launchThreadedMKNetworkInstance();		
-				launchThreadedMKNetworkInstance();	
-				launchThreadedMKNetworkInstance();	
-				launchThreadedMKNetworkInstance();	
+				launchThreadedMKNetworkInstance();
+				launchThreadedMKNetworkInstance();
+				launchThreadedMKNetworkInstance();
+				launchThreadedMKNetworkInstance();
+				launchThreadedMKNetworkInstance();
 				int i = 0;
-				while (getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT).size() != 6) {
+				while (getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT)
+						.size() != 6) {
 					pause(2000);
-					if(i++ == 100)
+					if (i++ == 100)
 						break;
 				}
-				if(logger != null)
-					logger.info(""+getAgentsWithRole(LocalCommunity.NAME, Groups.NETWORK,LocalCommunity.Roles.NET_AGENT));
-				assertEquals(6, getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT).size());
+				if (logger != null)
+					logger.info("" + getAgentsWithRole(LocalCommunity.NAME, Groups.NETWORK, LocalCommunity.Roles.NET_AGENT));
+				assertEquals(6,
+						getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT)
+								.size());
 				MadkitAction.STOP_NETWORK.getAction(this).actionPerformed(null);
 				pause(1000);
-				
-				//not connected 
+
+				// not connected
 				assertFalse(isCommunity(CloudCommunity.NAME));
 
-				//second round
+				// second round
 				MadkitAction.LAUNCH_NETWORK.getAction(this).actionPerformed(null);
-				List<AgentAddress> l = getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT);
+				List<AgentAddress> l = getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS,
+						CloudCommunity.Roles.NET_AGENT);
 				while (l == null || l.size() != 6) {
 					pause(2000);
 					l = getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT);
-					if(i++ == 100)
+					if (i++ == 100)
 						break;
 				}
 				for (AgentAddress agentAddress : l) {
@@ -87,6 +90,5 @@ public class AsynchronousDiscoverTest extends JunitMadKit{
 			}
 		});
 	}
-	
-	
+
 }

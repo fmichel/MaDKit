@@ -33,11 +33,11 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class ReloadClassTest  extends JunitMadKit{
-	
+public class ReloadClassTest extends JunitMadKit {
+
 	@Test
-	public void nullArgs(){
-		launchTest(new AbstractAgent(){
+	public void nullArgs() {
+		launchTest(new AbstractAgent() {
 			protected void activate() {
 				try {
 					try {
@@ -52,10 +52,10 @@ public class ReloadClassTest  extends JunitMadKit{
 			}
 		});
 	}
-	
+
 	@Test
-	public void classNotFound(){
-		launchTest(new AbstractAgent(){
+	public void classNotFound() {
+		launchTest(new AbstractAgent() {
 			protected void activate() {
 				try {
 					reloadAgentClass(aa());
@@ -64,7 +64,7 @@ public class ReloadClassTest  extends JunitMadKit{
 					e.printStackTrace();
 				}
 				try {
-					reloadAgentClass(aa()+"."+aa());
+					reloadAgentClass(aa() + "." + aa());
 					noExceptionFailure();
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
@@ -72,10 +72,10 @@ public class ReloadClassTest  extends JunitMadKit{
 			}
 		});
 	}
-	
+
 	@Test
-	public void success(){
-		launchTest(new AbstractAgent(){
+	public void success() {
+		launchTest(new AbstractAgent() {
 			protected void activate() {
 				try {
 					assertEquals(SUCCESS, reloadAgentClass(getClass().getName()));

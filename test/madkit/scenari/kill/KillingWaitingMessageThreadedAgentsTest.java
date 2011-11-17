@@ -38,106 +38,108 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class  KillingWaitingMessageThreadedAgentsTest extends JunitMadKit{
+public class KillingWaitingMessageThreadedAgentsTest extends JunitMadKit {
 
 	@Test
-	public void brutalKills() {//TODO brutal kill with to < 0
-		launchTest(new AbstractAgent(){
+	public void brutalKills() {// TODO brutal kill with to < 0
+		launchTest(new AbstractAgent() {
 			public void activate() {
 				setLogLevel(Level.ALL);
 				Agent a;
 
-				a = new WaitingMessageAgent(true,false,true);
-				assertEquals(TIMEOUT, launchAgent(a,1));
-				assertEquals(TIMEOUT, killAgent(a,1));
+				a = new WaitingMessageAgent(true, false, true);
+				assertEquals(TIMEOUT, launchAgent(a, 1));
+				assertEquals(TIMEOUT, killAgent(a, 1));
 				assertAgentIsTerminated(a);
 
-				a = new WaitingMessageAgent(true,true,true);
-				assertEquals(TIMEOUT, launchAgent(a,1));
-				assertEquals(TIMEOUT, killAgent(a,1));
+				a = new WaitingMessageAgent(true, true, true);
+				assertEquals(TIMEOUT, launchAgent(a, 1));
+				assertEquals(TIMEOUT, killAgent(a, 1));
 				assertAgentIsTerminated(a);
-			}},true);
+			}
+		}, true);
 	}
 
 	@Test
-	public void brutalKillOnWaitInActivate() {//TODO brutal kill with to < 0
-		launchTest(new AbstractAgent(){
+	public void brutalKillOnWaitInActivate() {// TODO brutal kill with to < 0
+		launchTest(new AbstractAgent() {
 			public void activate() {
 				setLogLevel(Level.ALL);
-				WaitingMessageAgent a = new WaitingMessageAgent(true,false,false);
-				assertEquals(TIMEOUT, launchAgent(a,1));
-				assertEquals(SUCCESS, killAgent(a,1));
+				WaitingMessageAgent a = new WaitingMessageAgent(true, false, false);
+				assertEquals(TIMEOUT, launchAgent(a, 1));
+				assertEquals(SUCCESS, killAgent(a, 1));
 				assertAgentIsTerminated(a);
-			}},true);
+			}
+		}, true);
 	}
-	
+
 	@Test
-	public void brutalKillOnWaitInLive() {//TODO brutal kill with to < 0
-		launchTest(new AbstractAgent(){
+	public void brutalKillOnWaitInLive() {// TODO brutal kill with to < 0
+		launchTest(new AbstractAgent() {
 			public void activate() {
 				setLogLevel(Level.ALL);
-				WaitingMessageAgent a = new WaitingMessageAgent(false,true,false);
+				WaitingMessageAgent a = new WaitingMessageAgent(false, true, false);
 				assertEquals(SUCCESS, launchAgent(a));
 				pause(100);
-				assertEquals(SUCCESS, killAgent(a,1));
+				assertEquals(SUCCESS, killAgent(a, 1));
 				assertAgentIsTerminated(a);
-			}},true);
+			}
+		}, true);
 	}
-	
+
 	@Test
-	public void brutalKillOnWaitInEnd() {//TODO brutal kill with to < 0
-		launchTest(new AbstractAgent(){
+	public void brutalKillOnWaitInEnd() {// TODO brutal kill with to < 0
+		launchTest(new AbstractAgent() {
 			public void activate() {
 				setLogLevel(Level.ALL);
-				WaitingMessageAgent a = new WaitingMessageAgent(false,false,true);
+				WaitingMessageAgent a = new WaitingMessageAgent(false, false, true);
 				assertEquals(SUCCESS, launchAgent(a));
 				pause(100);
-				assertEquals(TIMEOUT, killAgent(a,1));
+				assertEquals(TIMEOUT, killAgent(a, 1));
 				assertAgentIsTerminated(a);
-			}},true);
+			}
+		}, true);
 	}
 
-
-
 	@Test
-	public void normalKills() {//TODO more cases
-		launchTest(new AbstractAgent(){
+	public void normalKills() {// TODO more cases
+		launchTest(new AbstractAgent() {
 			public void activate() {
 				// TODO Auto-generated method stub
 				super.activate();
 				Agent a;
-				a = new WaitingMessageAgent(true,false,false);
-				assertEquals(TIMEOUT, launchAgent(a,1));
+				a = new WaitingMessageAgent(true, false, false);
+				assertEquals(TIMEOUT, launchAgent(a, 1));
 				assertEquals(SUCCESS, killAgent(a));
 				assertAgentIsTerminated(a);
 
-				a = new WaitingMessageAgent(false,true,false);
+				a = new WaitingMessageAgent(false, true, false);
 				assertEquals(SUCCESS, launchAgent(a));
 				pause(100);
 				assertEquals(SUCCESS, killAgent(a));
 				assertAgentIsTerminated(a);
 
-				a = new WaitingMessageAgent(false,false,true);
+				a = new WaitingMessageAgent(false, false, true);
 				assertEquals(SUCCESS, launchAgent(a));
 				pause(100);
-				assertEquals(TIMEOUT, killAgent(a,1));
+				assertEquals(TIMEOUT, killAgent(a, 1));
 				assertAgentIsTerminated(a);
 
-				a = new WaitingMessageAgent(true,false,true);
-				assertEquals(TIMEOUT, launchAgent(a,1));
-				assertEquals(TIMEOUT, killAgent(a,1));
+				a = new WaitingMessageAgent(true, false, true);
+				assertEquals(TIMEOUT, launchAgent(a, 1));
+				assertEquals(TIMEOUT, killAgent(a, 1));
 				assertAgentIsTerminated(a);
 
-				a = new WaitingMessageAgent(true,true,true);
-				assertEquals(TIMEOUT, launchAgent(a,1));
-				assertEquals(TIMEOUT, killAgent(a,1));
+				a = new WaitingMessageAgent(true, true, true);
+				assertEquals(TIMEOUT, launchAgent(a, 1));
+				assertEquals(TIMEOUT, killAgent(a, 1));
 				assertAgentIsTerminated(a);
-			}},true);
+			}
+		}, true);
 	}
 }
 
-
-class WaitingMessageAgent extends DoItDuringLifeCycleAgent{
+class WaitingMessageAgent extends DoItDuringLifeCycleAgent {
 
 	/**
 	 * 
@@ -155,7 +157,9 @@ class WaitingMessageAgent extends DoItDuringLifeCycleAgent{
 	}
 
 	@Override
-	public void doIt() {		waitNextMessage();	waitNextMessage();	}
+	public void doIt() {
+		waitNextMessage();
+		waitNextMessage();
+	}
 
 }
-

@@ -60,7 +60,7 @@ final class AgentFrame extends JFrame {
 		addWindowListener(new WindowAdapter() {
 			public void windowClosing(java.awt.event.WindowEvent e) {
 				setTitle("Closing "+agent.getName());
-				killAgent(agent,2);
+				killAgent(agent,2);//TODO this does not close the window if already killed !!
 			}
 //			@Override
 //			public void windowClosed(WindowEvent e) {

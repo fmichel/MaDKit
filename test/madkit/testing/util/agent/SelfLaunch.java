@@ -27,7 +27,7 @@ import static org.junit.Assert.assertEquals;
  * 
  */
 @SuppressWarnings("serial")
-public class SelfLaunch extends DoItDuringLifeCycleAgent{
+public class SelfLaunch extends DoItDuringLifeCycleAgent {
 
 	/**
 	 * @param inActivate
@@ -47,16 +47,14 @@ public class SelfLaunch extends DoItDuringLifeCycleAgent{
 		super(inActivate, false, false);
 	}
 
-
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see test.madkit.agentLifeCycle.DoItDuringLifeCycleAgent#doIt()
 	 */
 	@Override
 	public void doIt() {
-		assertEquals(ReturnCode.ALREADY_LAUNCHED,launchAgent(this));
+		assertEquals(ReturnCode.ALREADY_LAUNCHED, launchAgent(this));
 	}
 
-	
 }
-
-

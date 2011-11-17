@@ -18,6 +18,9 @@
  */
 package madkit.testing.util.agent;
 
+import java.util.logging.Level;
+
+import madkit.kernel.Madkit.LevelOption;
 
 /**
  * @author Fabien Michel
@@ -25,7 +28,7 @@ package madkit.testing.util.agent;
  * @version 0.9
  * 
  */
-public class FaultyAA extends DoItDuringLifeCycleAbstractAgent{
+public class FaultyAA extends DoItDuringLifeCycleAbstractAgent {
 
 	/**
 	 * 
@@ -44,13 +47,23 @@ public class FaultyAA extends DoItDuringLifeCycleAbstractAgent{
 		super(inActivate);
 	}
 
+	public FaultyAA() {
+		super();
+	}
+
 	@SuppressWarnings("null")
 	@Override
 	public void doIt() {
-		if(logger != null)
+		if (logger != null)
 			logger.info("crashing myself");
 		Object o = null;
-		o.toString();	
+		o.toString();
 	}
+
+	public static void main(String[] args) {
+		String[] myArgs = {LevelOption.agentLogLevel.toString(),Level.ALL.toString()};
+		executeThisAgent(myArgs);
+	}
+
 
 }

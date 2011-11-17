@@ -18,8 +18,6 @@
  */
 package madkit.kernel;
 
-
-
 import static org.junit.Assert.assertNull;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
@@ -33,71 +31,67 @@ import org.junit.Test;
  * 
  */
 public class MadkitTest {
-	
+
 	static Madkit mk;
-	
-//	@Before
-//	public void before() {
-//		mk = new Madkit(null);
-//	}
+
+	// @Before
+	// public void before() {
+	// mk = new Madkit(null);
+	// }
 
 	/**
 	 * 
 	 */
 	private void testMKlogLevelBoot(String MKLogLevel) {
-		System.err.println("\n\n\n\n\n--------------------MK log level = "+MKLogLevel+"-------------------");
-		String[] args = {LevelOption.madkitLogLevel.toString(),MKLogLevel};
+		System.err.println("\n\n\n\n\n--------------------MK log level = " + MKLogLevel + "-------------------");
+		String[] args = { LevelOption.madkitLogLevel.toString(), MKLogLevel };
 		new Madkit(args);
-		System.err.println("\n\n--------------------MK log level = "+MKLogLevel+"-------------------\n\n\n\n\n");
+		System.err.println("\n\n--------------------MK log level = " + MKLogLevel + "-------------------\n\n\n\n\n");
 	}
-	
+
 	@Test
-	public void nullArgs(){
+	public void nullArgs() {
 		Madkit.main(null);
 	}
 
 	@Test
-	public void mkLogLevelALL(){
+	public void mkLogLevelALL() {
 		testMKlogLevelBoot("ALL");
 	}
 
 	@Test
-	public void mkLogLevelFINEST(){
+	public void mkLogLevelFINEST() {
 		testMKlogLevelBoot("FINEST");
 	}
 
 	@Test
-	public void mkLogLevelOFF(){
+	public void mkLogLevelOFF() {
 		testMKlogLevelBoot("OFF");
 	}
-	
+
 	@Test
-	public void testOptionAutoLogDir(){
-		//TODO
+	public void testOptionAutoLogDir() {
+		// TODO
 	}
-	
+
 	@Test
-	public void defaultAgentLogging() throws InterruptedException{
+	public void defaultAgentLogging() throws InterruptedException {
 		Madkit m = new Madkit(null);
 		Thread.sleep(100);
 		assertNull(m.getKernel().logger);
-		String[] args = {BooleanOption.desktop.toString(),"false"};
+		String[] args = { BooleanOption.desktop.toString(), "false" };
 		m = new Madkit(args);
 		Thread.sleep(100);
 		assertNull(m.getKernel().logger);
-		String[] argss = {Madkit.Option.launchAgents.toString(),"madkit.kernel.Agent"};
+		String[] argss = { Madkit.Option.launchAgents.toString(), "madkit.kernel.Agent" };
 		m = new Madkit(argss);
 		Thread.sleep(100);
 		assertNull(m.getKernel().logger);
 	}
-	
-	
-	
+
 	@Test
-	public void buildSessionTest(){
-		String[] args = {BooleanOption.desktop.toString(),"false",
-		"--kernelLogLevel","ALL"		
-		};
+	public void buildSessionTest() {
+		String[] args = { BooleanOption.desktop.toString(), "false", "--kernelLogLevel", "ALL" };
 		new Madkit(args);
 	}
 

@@ -3,7 +3,6 @@
  */
 package madkit.networking.org;
 
-
 import madkit.kernel.Madkit;
 
 import org.junit.Test;
@@ -11,8 +10,8 @@ import org.junit.Test;
 public class NetworkingConnectionT {
 
 	@Test
-	public void connectionTest(){
-				launchMKNetworkInstance();
+	public void connectionTest() {
+		launchMKNetworkInstance();
 
 		try {
 			Thread.sleep(1000);
@@ -21,7 +20,7 @@ public class NetworkingConnectionT {
 			e.printStackTrace();
 		}
 
-//				launchMKNetworkInstance();
+		// launchMKNetworkInstance();
 
 		while (true) {
 			try {
@@ -32,15 +31,15 @@ public class NetworkingConnectionT {
 			}
 		}
 	}
-	
+
 	public void launchMKNetworkInstance() {
-		new Thread(new Runnable() {			
+		new Thread(new Runnable() {
 			@Override
 			public void run() {
-		String[] args = {"--agentLogLevel","ALL","--MadkitLogLevel","ALL","--orgLogLevel","ALL","--network"};
-		Madkit.main(args);
-		}
-	}).start();
+				String[] args = { "--agentLogLevel", "ALL", "--MadkitLogLevel", "ALL", "--orgLogLevel", "ALL", "--network" };
+				Madkit.main(args);
+			}
+		}).start();
 
 	}
 }

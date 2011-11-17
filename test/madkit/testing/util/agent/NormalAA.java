@@ -31,24 +31,21 @@ import madkit.kernel.AbstractAgent;
  * @version 0.9
  * 
  */
-public class NormalAA extends AbstractAgent{
-	
+public class NormalAA extends AbstractAgent {
+
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public NormalAA(){
+	public NormalAA() {
 		setName(getLogger().getName());
 	}
 
 	@Override
 	protected void activate() {
-		assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP));
-		assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,ROLE));
+		assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
+		assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
 	}
 
-
 }
-
-

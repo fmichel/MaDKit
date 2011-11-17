@@ -34,11 +34,11 @@ import org.junit.Test;
  * @version 0.9
  * 
  */
-public class isCGRTest  extends JunitMadKit{
-	
+public class isCGRTest extends JunitMadKit {
+
 	@Test
-	public void nullCommunity(){
-		launchTest(new AbstractAgent(){
+	public void nullCommunity() {
+		launchTest(new AbstractAgent() {
 			/**
 			 * 
 			 */
@@ -54,10 +54,10 @@ public class isCGRTest  extends JunitMadKit{
 			}
 		});
 	}
-	
+
 	@Test
-	public void nullGroup(){
-		launchTest(new AbstractAgent(){
+	public void nullGroup() {
+		launchTest(new AbstractAgent() {
 			/**
 			 * 
 			 */
@@ -66,7 +66,7 @@ public class isCGRTest  extends JunitMadKit{
 			protected void activate() {
 				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
 				try {
-					assertFalse(isGroup(COMMUNITY,null));
+					assertFalse(isGroup(COMMUNITY, null));
 					noExceptionFailure();
 				} catch (NullPointerException e) {
 					e.printStackTrace();
@@ -74,10 +74,10 @@ public class isCGRTest  extends JunitMadKit{
 			}
 		});
 	}
-	
+
 	@Test
-	public void nullRole(){
-		launchTest(new AbstractAgent(){
+	public void nullRole() {
+		launchTest(new AbstractAgent() {
 			/**
 			 * 
 			 */
@@ -86,7 +86,7 @@ public class isCGRTest  extends JunitMadKit{
 			protected void activate() {
 				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
 				try {
-					assertFalse(isRole(COMMUNITY,GROUP,null));
+					assertFalse(isRole(COMMUNITY, GROUP, null));
 					noExceptionFailure();
 				} catch (NullPointerException e) {
 					e.printStackTrace();
@@ -94,39 +94,39 @@ public class isCGRTest  extends JunitMadKit{
 			}
 		});
 	}
-	
+
 	@Test
-	public void existTrue(){
-		launchTest(new AbstractAgent(){
+	public void existTrue() {
+		launchTest(new AbstractAgent() {
 			/**
 			 * 
 			 */
 			private static final long serialVersionUID = 1L;
 
 			protected void activate() {
-				assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP));
+				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
 				assertTrue(isCommunity(COMMUNITY));
-				assertTrue(isGroup(COMMUNITY,GROUP));
-				assertTrue(isRole(COMMUNITY,GROUP,Organization.GROUP_MANAGER_ROLE));
+				assertTrue(isGroup(COMMUNITY, GROUP));
+				assertTrue(isRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE));
 			}
 		});
 	}
-	
+
 	@Test
-	public void notExist(){
-		launchTest(new AbstractAgent(){
+	public void notExist() {
+		launchTest(new AbstractAgent() {
 			/**
 			 * 
 			 */
 			private static final long serialVersionUID = 1L;
 
 			protected void activate() {
-				assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP));
+				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
 				assertFalse(isCommunity(aa()));
-				assertFalse(isGroup(COMMUNITY,aa()));
-				assertFalse(isRole(COMMUNITY,GROUP,aa()));
+				assertFalse(isGroup(COMMUNITY, aa()));
+				assertFalse(isRole(COMMUNITY, GROUP, aa()));
 			}
 		});
 	}
-	
+
 }

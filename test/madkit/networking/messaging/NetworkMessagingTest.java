@@ -32,7 +32,6 @@ import madkit.kernel.Madkit.LevelOption;
 
 import org.junit.Test;
 
-
 /**
  * @author Fabien Michel
  * @since MadKit 5.0.0.6
@@ -40,19 +39,19 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class NetworkMessagingTest extends JunitMadKit{
+public class NetworkMessagingTest extends JunitMadKit {
 
 	@Test
-	public void ping(){
-		addMadkitArgs(BooleanOption.network.toString(),
-				LevelOption.kernelLogLevel.toString(),"ALL",
-		LevelOption.networkLogLevel.toString(),"FINE");
-		launchTest(new Agent(){
+	public void ping() {
+		addMadkitArgs(BooleanOption.network.toString(), LevelOption.kernelLogLevel.toString(), "ALL",
+				LevelOption.networkLogLevel.toString(), "FINE");
+		launchTest(new Agent() {
 			protected void activate() {
 				setLogLevel(Level.FINE);
-				assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP,true));
-				assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,ROLE));
-				String[] args = {"--network","--launchAgents",NetworkMessageAgent.class.getName(),LevelOption.kernelLogLevel.toString(),"ALL"};
+				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP, true));
+				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
+				String[] args = { "--network", "--launchAgents", NetworkMessageAgent.class.getName(),
+						LevelOption.kernelLogLevel.toString(), "ALL" };
 				Madkit.main(args);
 				assertNotNull(waitNextMessage());
 			}

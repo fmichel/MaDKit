@@ -16,11 +16,19 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
  */
-package madkit.scenari.deadlock;
+package madkit.boot.process;
+
+import static org.junit.Assert.*;
+
+import java.util.logging.Level;
 
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
 import madkit.kernel.JunitMadKit;
+import madkit.kernel.Madkit;
+import madkit.kernel.Madkit.BooleanOption;
+import madkit.kernel.Madkit.LevelOption;
+import madkit.kernel.Madkit.Option;
 
 import org.junit.Test;
 
@@ -31,22 +39,12 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class DeadlockTest extends JunitMadKit {
+public class LaunchAgentArgTest extends AbstractAgent{
 
-	@Test
-	public void multipleWaits() {
-		launchTest(new AbstractAgent() {
-			@Override
-			protected void activate() {
-				Agent a = new Agent() {
-					protected void live() {
-						waitNextMessage();
-					}
-				};
-				launchAgent(a);
-				a.waitNextMessage(10);
-			}
-		});
+	public static void main(String[] args) {
+		String[] argss = {Option.launchAgents.toString(),Agent.class.getName()};
+		Madkit.main(argss);
+		String[] argsss = {Option.launchAgents.toString(),Agent.class.getName()+",true,2"};
+		Madkit.main(argsss);
 	}
-
 }

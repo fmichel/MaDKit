@@ -24,7 +24,6 @@ import madkit.kernel.AbstractAgent;
 
 import org.junit.Test;
 
-
 /**
  * @author Fabien Michel
  * @since MadKit 5.0.0.9
@@ -35,9 +34,9 @@ import org.junit.Test;
 public class setLogLevelTest extends madkit.kernel.JunitMadKit {
 
 	@Test
-	public void nullArgs(){
-		addMadkitArgs("--agentLogLevel","OFF");
-		launchTest(new AbstractAgent(){
+	public void nullArgs() {
+		addMadkitArgs("--agentLogLevel", "OFF");
+		launchTest(new AbstractAgent() {
 			protected void activate() {
 				assertNull(logger);
 				try {

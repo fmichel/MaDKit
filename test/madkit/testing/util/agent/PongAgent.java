@@ -17,32 +17,35 @@ public class PongAgent extends Agent {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+
 	protected void activate() {
-				createGroupIfAbsent(JunitMadKit.COMMUNITY,GROUP,true, null);
-				requestRole(COMMUNITY,GROUP,ROLE,null);
-			}
+		createGroupIfAbsent(JunitMadKit.COMMUNITY, GROUP, true, null);
+		requestRole(COMMUNITY, GROUP, ROLE, null);
+	}
+
 	@Override
-	public void live()
-	{
-		while(true){
-				pause(500);
-				sendMessage(COMMUNITY,GROUP,ROLE, new ObjectMessage<String>("test"));
-				if(logger != null)
-					logger.talk("\nreceived: "+nextMessage());
+	public void live() {
+		while (true) {
+			pause(500);
+			sendMessage(COMMUNITY, GROUP, ROLE, new ObjectMessage<String>("test"));
+			if (logger != null)
+				logger.talk("\nreceived: " + nextMessage());
 		}
 	}
 
 	@Override
 	protected void end() {
-		if(logger != null)
+		if (logger != null)
 			logger.info("bye");
 	}
+
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		if (args == null) {
-			args = Arrays.asList("--network","--agentLogLevel","ALL","--launchAgents",PongAgent.class.getName(),",true").toArray(new String[0]);
+			args = Arrays.asList("--network", "--agentLogLevel", "ALL", "--launchAgents", PongAgent.class.getName(), ",true")
+					.toArray(new String[0]);
 		}
 		Madkit.main(args);
 	}

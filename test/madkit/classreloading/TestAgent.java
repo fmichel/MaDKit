@@ -7,13 +7,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.logging.Level;
 
-import madkit.classreloading.anotherPackage.Fake;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Activator;
 import madkit.kernel.Agent;
 import madkit.kernel.Madkit;
 
-public class TestAgent extends Agent{
+public class TestAgent extends Agent {
 	/**
 	 * 
 	 */
@@ -24,7 +23,7 @@ public class TestAgent extends Agent{
 	 */
 	public TestAgent() {
 		setLogLevel(Level.ALL);
-		Activator<AbstractAgent> a = new Activator<AbstractAgent>("test", "r", "r"){
+		Activator<AbstractAgent> a = new Activator<AbstractAgent>("test", "r", "r") {
 			public void adding(AbstractAgent theAgent) {
 				ActionListener al = new ActionListener() {
 					@Override
@@ -37,19 +36,21 @@ public class TestAgent extends Agent{
 		};
 		a.execute();
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see madkit.kernel.AbstractAgent#activate()
 	 */
 	@Override
 	protected void activate() {
 		setLogLevel(Level.ALL);
 		super.activate();
-		if(logger != null){
+		if (logger != null) {
 			logger.info("\n\ndS zz d\n\n");
 			FakeObject o = new FakeObject();
-			logger.info("fake is "+o);
-			logger.info("fake2 is "+(new Fake().toString()));
+			logger.info("fake is " + o);
+			logger.info("fake2 is " + (new  madkit.classreloading.anotherPackage.Fake().toString()));
 			pause(4000);
 			try {
 				reloadAgentClass("madkit.classreloading.anotherPackage.Fake");
@@ -57,28 +58,29 @@ public class TestAgent extends Agent{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			logger.info("fake3 is "+(new Fake().toString()));
+			logger.info("fake3 is " + (new madkit.classreloading.anotherPackage.Fake().toString()));
 		}
 	}
-	
+
 	/**
 	 * 
 	 */
 	@Override
 	protected void live() {
-			if(logger != null)
-				logger.info("b");
-			pause(1000);
+		if (logger != null)
+			logger.info("b");
+		pause(1000);
 	}
-	
+
 	public static void main(String[] argss) {
-		String[] args = {"--agentLogLevel","INFO","--MadkitLogLevel","OFF","--orgLogLevel","OFF","--launchAgents",TestAgent.class.getName()+",true"};
+		String[] args = { "--agentLogLevel", "INFO", "--MadkitLogLevel", "OFF", "--orgLogLevel", "OFF", "--launchAgents",
+				TestAgent.class.getName() + ",true" };
 		Madkit.main(args);
 	}
-	
+
 }
 
-class FakeObject{
+class FakeObject {
 	@Override
 	public String toString() {
 		return "dddddddddddddddddddddddd";

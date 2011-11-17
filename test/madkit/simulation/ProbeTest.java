@@ -40,14 +40,14 @@ import org.junit.Test;
  */
 @SuppressWarnings("all")
 public class ProbeTest {
-	
-	Probe<Agent> a ;
+
+	Probe<Agent> a;
 	TestAgent agt;
 
 	@Before
 	public void setUp() throws Exception {
 		a = new Probe<Agent>("t", "t", "t");
-		agt = new TestAgent(){
+		agt = new TestAgent() {
 			public boolean bool2 = false;
 		};
 	}
@@ -57,51 +57,49 @@ public class ProbeTest {
 		a = new Probe<Agent>(null, null, null);
 	}
 
-
 	@Test
 	public void testFindFieldOnInheritedPublic() throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
-			Field m = a.findFieldOn(agt.getClass(), "bool");
-			assertNotNull(m);
-			System.err.println(m.get(agt));
+		Field m = a.findFieldOn(agt, "bool");
+		assertNotNull(m);
+		System.err.println(m.get(agt));
 	}
 
 	@Test
 	public void testFindFieldOnPublic() throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
-			Field m = a.findFieldOn(agt.getClass(), "bool2");
-			assertNotNull(m);
-			System.err.println(m.get(agt));
+		Field m = a.findFieldOn(agt, "bool2");
+		assertNotNull(m);
+		System.err.println(m.get(agt));
 	}
 
 	@Test
 	public void testFindFieldOnNotExist() {
-			try {
-				Field m = a.findFieldOn(agt.getClass(), "notExist");
-				fail("ex not thrown");
-			} catch (NoSuchFieldException e) {
-				e.printStackTrace();
-			}
+		try {
+			Field m = a.findFieldOn(agt, "notExist");
+			fail("ex not thrown");
+		} catch (NoSuchFieldException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Test
 	public void testFindFieldOnProtected() throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
-			Field m = a.findFieldOn(agt.getClass(), "value");
-			assertNotNull(m);
-			System.err.println(m.get(agt));
+		Field m = a.findFieldOn(agt, "value");
+		assertNotNull(m);
+		System.err.println(m.get(agt));
 	}
 
 	@Test
 	public void testFindFieldOnPrivate() throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
-			Field m = a.findFieldOn(agt.getClass(), "something");
-			assertNotNull(m);
-			System.err.println(m.get(agt));
+		Field m = a.findFieldOn(agt, "something");
+		assertNotNull(m);
+		System.err.println(m.get(agt));
 	}
 
 }
 
 @SuppressWarnings("all")
-class TestAgent extends AbstractAgent{
+class TestAgent extends AbstractAgent {
 	public boolean bool = false;
 	protected int value = 2;
 	private double something = 3.0;
 }
-

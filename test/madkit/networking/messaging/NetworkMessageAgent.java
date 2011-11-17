@@ -39,18 +39,19 @@ import madkit.kernel.Message;
  * 
  */
 @SuppressWarnings("serial")
-public class NetworkMessageAgent extends Agent{
-	
+public class NetworkMessageAgent extends Agent {
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see test.util.OrgTestAgent#activate()
 	 */
 	@Override
 	protected void live() {
 		setLogLevel(Level.ALL);
-		assertEquals(ALREADY_GROUP, createGroup(JunitMadKit.COMMUNITY,JunitMadKit.GROUP,true));
-		assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,ROLE));
-		AgentAddress aa = getAgentWithRole(JunitMadKit.COMMUNITY,JunitMadKit.GROUP,JunitMadKit.ROLE);
+		assertEquals(ALREADY_GROUP, createGroup(JunitMadKit.COMMUNITY, JunitMadKit.GROUP, true));
+		assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
+		AgentAddress aa = getAgentWithRole(JunitMadKit.COMMUNITY, JunitMadKit.GROUP, JunitMadKit.ROLE);
 		sendMessage(aa, new Message());
 	}
 }

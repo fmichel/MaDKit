@@ -40,80 +40,82 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class LeaveRoleTest  extends JunitMadKit{
+public class LeaveRoleTest extends JunitMadKit {
 
 	@Test
-	public void returnSuccess(){
-		launchTest(new AbstractAgent(){
+	public void returnSuccess() {
+		launchTest(new AbstractAgent() {
 			protected void activate() {
-				assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP));
-				assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,ROLE));
-				assertEquals(SUCCESS, leaveRole(COMMUNITY,GROUP,ROLE));
-				assertTrue(isGroup(COMMUNITY,GROUP));
-				assertEquals(SUCCESS, leaveRole(COMMUNITY,GROUP,Organization.GROUP_MANAGER_ROLE));
-				//leaveGroup by leaving roles
+				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
+				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
+				assertEquals(SUCCESS, leaveRole(COMMUNITY, GROUP, ROLE));
+				assertTrue(isGroup(COMMUNITY, GROUP));
+				assertEquals(SUCCESS, leaveRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE));
+				// leaveGroup by leaving roles
 				assertFalse(isCommunity(COMMUNITY));
-				assertFalse(isGroup(COMMUNITY,GROUP));
-			}});
+				assertFalse(isGroup(COMMUNITY, GROUP));
+			}
+		});
 	}
 
 	@Test
-	public void returnNotCgr(){
-		launchTest(new AbstractAgent(){
+	public void returnNotCgr() {
+		launchTest(new AbstractAgent() {
 			protected void activate() {
-				assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP));
-				assertEquals(NOT_COMMUNITY, leaveRole(aa(),GROUP,ROLE));
-				assertEquals(NOT_GROUP, leaveRole(COMMUNITY,aa(),ROLE));
-				assertEquals(NOT_ROLE, leaveRole(COMMUNITY,GROUP,aa()));
-				assertEquals(SUCCESS, launchAgent(new AbstractAgent(){
+				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
+				assertEquals(NOT_COMMUNITY, leaveRole(aa(), GROUP, ROLE));
+				assertEquals(NOT_GROUP, leaveRole(COMMUNITY, aa(), ROLE));
+				assertEquals(NOT_ROLE, leaveRole(COMMUNITY, GROUP, aa()));
+				assertEquals(SUCCESS, launchAgent(new AbstractAgent() {
 					@Override
 					protected void activate() {
 						requestRole(COMMUNITY, GROUP, ROLE);
 					}
 				}));
-				assertEquals(ROLE_NOT_HANDLED, leaveRole(COMMUNITY,GROUP,ROLE));				
-				assertEquals(SUCCESS, leaveGroup(COMMUNITY,GROUP));
-				assertEquals(NOT_IN_GROUP, leaveRole(COMMUNITY,GROUP,ROLE));				
-			}});
+				assertEquals(ROLE_NOT_HANDLED, leaveRole(COMMUNITY, GROUP, ROLE));
+				assertEquals(SUCCESS, leaveGroup(COMMUNITY, GROUP));
+				assertEquals(NOT_IN_GROUP, leaveRole(COMMUNITY, GROUP, ROLE));
+			}
+		});
 	}
 
 	@Test
-	public void nullArgs(){
-		launchTest(new AbstractAgent(){
+	public void nullArgs() {
+		launchTest(new AbstractAgent() {
 			protected void activate() {
-				assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP));
+				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
 				try {
-					assertEquals(NOT_COMMUNITY, leaveRole(null,null,null));
+					assertEquals(NOT_COMMUNITY, leaveRole(null, null, null));
 					noExceptionFailure();
 				} catch (NullPointerException e) {
 					e.printStackTrace();
 				}
 				try {
-					assertEquals(NOT_GROUP, leaveRole(COMMUNITY,null,null));
+					assertEquals(NOT_GROUP, leaveRole(COMMUNITY, null, null));
 					noExceptionFailure();
 				} catch (NullPointerException e) {
 					e.printStackTrace();
 				}
 				try {
-					assertEquals(ROLE_NOT_HANDLED, leaveRole(COMMUNITY,GROUP,null));
+					assertEquals(ROLE_NOT_HANDLED, leaveRole(COMMUNITY, GROUP, null));
 					noExceptionFailure();
 				} catch (NullPointerException e) {
 					e.printStackTrace();
 				}
 				try {
-					assertEquals(NOT_COMMUNITY, leaveRole(null,GROUP,null));
+					assertEquals(NOT_COMMUNITY, leaveRole(null, GROUP, null));
 					noExceptionFailure();
 				} catch (NullPointerException e) {
 					e.printStackTrace();
 				}
 				try {
-					assertEquals(NOT_COMMUNITY, leaveRole(null,GROUP,ROLE));
+					assertEquals(NOT_COMMUNITY, leaveRole(null, GROUP, ROLE));
 					noExceptionFailure();
 				} catch (NullPointerException e) {
 					e.printStackTrace();
 				}
 				try {
-					assertEquals(NOT_COMMUNITY, leaveRole(null,null,ROLE));
+					assertEquals(NOT_COMMUNITY, leaveRole(null, null, ROLE));
 					noExceptionFailure();
 				} catch (NullPointerException e) {
 					e.printStackTrace();

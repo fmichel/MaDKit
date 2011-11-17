@@ -28,8 +28,7 @@ import madkit.kernel.Madkit;
  * @version 0.9
  * 
  */
-public class NeverStopAgent extends Agent
-{
+public class NeverStopAgent extends Agent {
 	/**
 	 * 
 	 */
@@ -37,37 +36,34 @@ public class NeverStopAgent extends Agent
 	@SuppressWarnings("unused")
 	private AgentAddress currentPartner = null;
 
-
 	@Override
-	public void activate()
-	{
-		createGroupIfAbsent("ping-pong","room",true, null);
-		requestRole("ping-pong","room","player",null);
+	public void activate() {
+		createGroupIfAbsent("ping-pong", "room", true, null);
+		requestRole("ping-pong", "room", "player", null);
 	}
 
 	@Override
-	public void live()
-	{
-		while(true){
+	public void live() {
+		while (true) {
 			playing();
 		}
 	}
 
 	private void playing() {
 		while (true) {
-			currentPartner = getAgentWithRole("ping-pong","room","player");
+			currentPartner = getAgentWithRole("ping-pong", "room", "player");
 		}
 	}
-	
+
 	@Override
 	protected void end() {
-		if(logger != null)
+		if (logger != null)
 			logger.info("bye");
 	}
-	
+
 	public static void main(String[] args) {
-		String[] argss = {"--agentLogLevel","INFO","--launchAgents",NeverStopAgent.class.getName(),",true"};
-		Madkit.main(argss);		
+		String[] argss = { "--agentLogLevel", "INFO", "--launchAgents", NeverStopAgent.class.getName(), ",true" };
+		Madkit.main(argss);
 	}
 
 }

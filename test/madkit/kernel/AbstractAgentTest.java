@@ -43,24 +43,24 @@ import org.junit.Test;
  * 
  */
 public class AbstractAgentTest {
-	
-	AbstractAgent a,b;
-	
+
+	AbstractAgent a, b;
+
 	@Before
-	public void setup(){
+	public void setup() {
 		a = new AbstractAgent();
 		b = new AbstractAgent();
-		String[] args = {BooleanOption.desktop.toString(),"false"};
+		String[] args = { BooleanOption.desktop.toString(), "false" };
 		new Madkit(args);
 	}
-	
+
 	@Test
-	public void testKernelNull(){
+	public void testKernelNull() {
 		b.setLogLevel(Level.INFO);
-		if(b.logger != null)
-			b.logger.info(""+b.getKernel());
+		if (b.logger != null)
+			b.logger.info("" + b.getKernel());
 		try {
-			b.launchAgent(new AbstractAgent(),0,true);
+			b.launchAgent(new AbstractAgent(), 0, true);
 			fail("exception not thrown");
 		} catch (KernelException e) {
 		}
@@ -70,7 +70,7 @@ public class AbstractAgentTest {
 		} catch (KernelException e) {
 		}
 	}
-	
+
 	/**
 	 * Test method for {@link java.lang.Object#toString()}.
 	 */
@@ -84,7 +84,7 @@ public class AbstractAgentTest {
 	}
 
 	@Test
-	public final void testCompareTo(){
+	public final void testCompareTo() {
 		AbstractAgent b = new AbstractAgent();
 		assertTrue(a.compareTo(b) < 0);
 		assertTrue(b.compareTo(a) > 0);
@@ -92,7 +92,8 @@ public class AbstractAgentTest {
 	}
 
 	/**
-	 * Test method for {@link madkit.kernel.AbstractAgent#equals(java.lang.Object)}.
+	 * Test method for
+	 * {@link madkit.kernel.AbstractAgent#equals(java.lang.Object)}.
 	 */
 	@Test
 	public final void testEqualsObject() {
@@ -124,7 +125,7 @@ public class AbstractAgentTest {
 	 */
 	@Test
 	public final void testGetLogger() {
-		assertNotSame(a.getLogger(),AgentLogger.defaultAgentLogger);
+		assertNotSame(a.getLogger(), AgentLogger.defaultAgentLogger);
 	}
 
 	/**
@@ -136,22 +137,24 @@ public class AbstractAgentTest {
 	}
 
 	/**
-	 * Test method for {@link madkit.kernel.AbstractAgent#setName(java.lang.String)}.
+	 * Test method for
+	 * {@link madkit.kernel.AbstractAgent#setName(java.lang.String)}.
 	 */
 	@Test
 	public final void testSetName() {
 		assertNotNull(a.getName());
 		a.setName("test");
 		assertTrue(a.getName().equals("test"));
-//		assertNull
+		// assertNull
 	}
 
 	/**
-	 * Test method for {@link madkit.kernel.AbstractAgent#setLogLevel(java.util.logging.Level)}.
+	 * Test method for
+	 * {@link madkit.kernel.AbstractAgent#setLogLevel(java.util.logging.Level)}.
 	 */
 	@Test
 	public final void testSetLogLevel() {
-		assertEquals(a.logger,AgentLogger.defaultAgentLogger);
+		assertEquals(a.logger, AgentLogger.defaultAgentLogger);
 		a.setLogLevel(Level.OFF);
 		assertNull(a.logger);
 		a.setLogLevel(Level.INFO);
@@ -160,11 +163,10 @@ public class AbstractAgentTest {
 		a.setName("new");
 		System.err.println(a.getName());
 		System.err.println(a.getLogger().getName());
-		assertEquals(a.getLogger().getName(),a.getLoggingName());
+		assertEquals(a.getLogger().getName(), a.getLoggingName());
 		a.setLogLevel(Level.OFF);
 		assertNull(a.logger);
 	}
-
 
 	/**
 	 * Test method for {@link madkit.kernel.AbstractAgent#getRunState()}.
@@ -179,7 +181,7 @@ public class AbstractAgentTest {
 	 */
 	@Test
 	public final void testGetAgentState() {
-		assertEquals(State.NOT_LAUNCHED,a.getState());
+		assertEquals(State.NOT_LAUNCHED, a.getState());
 	}
 
 	/**
@@ -199,6 +201,5 @@ public class AbstractAgentTest {
 		assertFalse(b.equals(a));
 		assertTrue(a.equals(a));
 	}
-
 
 }

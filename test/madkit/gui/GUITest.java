@@ -32,18 +32,15 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class GUITest extends JunitMadKit
-{
+public class GUITest extends JunitMadKit {
 
-	
 	@Test
-	public void hasGUITest()
-	{
-		launchTest(new AbstractAgent(){
+	public void hasGUITest() {
+		launchTest(new AbstractAgent() {
 			@Override
 			protected void activate() {
 				AbstractAgent name = new AbstractAgent();
-				assertEquals(ReturnCode.SUCCESS, launchAgent(name,true));
+				assertEquals(ReturnCode.SUCCESS, launchAgent(name, true));
 				assertTrue(name.hasGUI());
 			}
 		});

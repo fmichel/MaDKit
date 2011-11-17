@@ -37,8 +37,8 @@ import org.junit.Test;
  * 
  */
 public class ActivatorTest {
-	
-	Activator<Agent> a ;
+
+	Activator<Agent> a;
 	Agent agt;
 
 	@Before

@@ -35,22 +35,20 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class OptionTesting  extends JunitMadKit{
-	
+public class OptionTesting extends JunitMadKit {
+
 	@Test
-	public void correctness(){
-		mkArgs = new ArrayList<String>(Arrays.asList(
-				BooleanOption.autoConnectMadkitWebsite.toString(),
-//				"--"+Madkit.logDirectory,getBinTestDir(),
-//				"--"+Madkit.agentLogLevel,"ALL",
-				LevelOption.kernelLogLevel.toString(),"INFO"
-				));
-		launchTest(new AbstractAgent(){
+	public void correctness() {
+		mkArgs = new ArrayList<String>(Arrays.asList(BooleanOption.autoConnectMadkitWebsite.toString(),
+		// "--"+Madkit.logDirectory,getBinTestDir(),
+		// "--"+Madkit.agentLogLevel,"ALL",
+				LevelOption.kernelLogLevel.toString(), "INFO"));
+		launchTest(new AbstractAgent() {
 			protected void activate() {
-				assertEquals("INFO",getMadkitProperty(LevelOption.kernelLogLevel.name()));
-				assertEquals("true",getMadkitProperty(BooleanOption.autoConnectMadkitWebsite.name()));
+				assertEquals("INFO", getMadkitProperty(LevelOption.kernelLogLevel.name()));
+				assertEquals("true", getMadkitProperty(BooleanOption.autoConnectMadkitWebsite.name()));
 			}
 		});
 	}
-	
+
 }

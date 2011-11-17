@@ -34,46 +34,49 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class  MassLaunchBench extends JunitMadKit{
+public class MassLaunchBench extends JunitMadKit {
 
 	@Test
-	public void massAALaunchWithBucket() {//TODO more cases
-		launchTest(new AbstractAgent(){
+	public void massAALaunchWithBucket() {// TODO more cases
+		launchTest(new AbstractAgent() {
 			protected void activate() {
 				createGroup("test", "group", false, null);
 				System.err.println("begin");
 				startTimer();
-//				launchAgentBucket("madkit.agentLifeCycle.NormalAbstractLife", 3000100);
-				launchAgentBucketWithRoles("madkit.kernel.AbstractAgent", 1000000,new ArrayList<String>());
+				// launchAgentBucket("madkit.agentLifeCycle.NormalAbstractLife",
+				// 3000100);
+				launchAgentBucketWithRoles("madkit.kernel.AbstractAgent", 1000000, new ArrayList<String>());
 				stopTimer("bucket launch time = ");
 				System.err.println("done\n\n");
-//				JUnitBooter.stopTimer("old launch time = "); // 6000000 min = 7s
-//				startTimer();
-//				ArrayList<AbstractAgent> agents = new ArrayList<AbstractAgent>(6000000);
-//				for (int i = 6000000-1; i >=0 ; i--) {
-//					if(i%1000000==0)
-//						System.err.println("launched "+i);
-//					agents.add(new AbstractAgent());
-//				}
-//				ArrayList<AbstractAgent> agents = new ArrayList<AbstractAgent>(6000000);
-//				for (int i = 6000000-1; i >=0 ; i--) {
-//					agents.add(new AbstractAgent());
-//				}
-//				stopTimer("old launch time = ");
+				// JUnitBooter.stopTimer("old launch time = "); // 6000000 min = 7s
+				// startTimer();
+				// ArrayList<AbstractAgent> agents = new
+				// ArrayList<AbstractAgent>(6000000);
+				// for (int i = 6000000-1; i >=0 ; i--) {
+				// if(i%1000000==0)
+				// System.err.println("launched "+i);
+				// agents.add(new AbstractAgent());
+				// }
+				// ArrayList<AbstractAgent> agents = new
+				// ArrayList<AbstractAgent>(6000000);
+				// for (int i = 6000000-1; i >=0 ; i--) {
+				// agents.add(new AbstractAgent());
+				// }
+				// stopTimer("old launch time = ");
 			}
 		});
 	}
-	
+
 	@Test
-	public void massAALaunch() {//TODO more cases
-		addMadkitArgs(LevelOption.agentLogLevel.toString(),"OFF");
-		launchTest(new AbstractAgent(){
+	public void massAALaunch() {// TODO more cases
+		addMadkitArgs(LevelOption.agentLogLevel.toString(), "OFF");
+		launchTest(new AbstractAgent() {
 			protected void activate() {
 				setLogLevel(Level.OFF);
 				createGroup("test", "group", false, null);
 				System.err.println("begin");
 				long total = 0;
-				int j =0;
+				int j = 0;
 				for (j = 0; j < 4; j++) {
 					startTimer();
 					for (int i = 0; i < 100000; i++) {
@@ -81,37 +84,38 @@ public class  MassLaunchBench extends JunitMadKit{
 					}
 					total += stopTimer("launch time = ");
 				}
-				System.err.println("done\n\naverage time is "+(total/(j*1000000))+" ms");
+				System.err.println("done\n\naverage time is " + (total / (j * 1000000)) + " ms");
 			}
 		});
 	}
-	
+
 	@Test
-	public void massNormalLifeLaunch() {//TODO more cases
-		launchTest(new AbstractAgent(){
+	public void massNormalLifeLaunch() {// TODO more cases
+		launchTest(new AbstractAgent() {
 			protected void activate() {
 				AbstractAgent a;
-				if(logger != null){
+				if (logger != null) {
 					logger.info("\n******************* STARTING MASS LAUNCH *******************\n");
 				}
 				a = launchAgent("madkit.kernel.AbstractAgent");
 				a.createGroup("test", "group", false, null);
-//				System.err.println("begin");
-//				for (int i = 0; i < 2000000; i++) {
-//					if(i%100000==0){
-//						System.err.println("launched "+i);
-//						if (logger != null) {
-//							logger.info("nb of launched agents " + i);
-//						}
-//					}
-//					launchAgent(new test.madkit.agentLifeCycle.NormalAbstractLife());
-//				}
-//				System.err.println("done\n\n");
+				// System.err.println("begin");
+				// for (int i = 0; i < 2000000; i++) {
+				// if(i%100000==0){
+				// System.err.println("launched "+i);
+				// if (logger != null) {
+				// logger.info("nb of launched agents " + i);
+				// }
+				// }
+				// launchAgent(new test.madkit.agentLifeCycle.NormalAbstractLife());
+				// }
+				// System.err.println("done\n\n");
 				startTimer();
 				System.err.println("begin");
 				launchAgentBucket("madkit.agentLifeCycle.NormalAbstractLife", 30100);
-//				launchAgentBucket("madkit.kernel.AbstractAgent", 6000100);
+				// launchAgentBucket("madkit.kernel.AbstractAgent", 6000100);
 				stopTimer("done");
-		}});
+			}
+		});
 	}
 }

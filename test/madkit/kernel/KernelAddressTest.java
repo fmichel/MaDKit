@@ -37,13 +37,13 @@ public class KernelAddressTest {
 	private static List<KernelAddress> kas;
 	private static List<KernelAddress> simultaneous;
 
-	@BeforeClass 
-	public static void createNewAddresses(){
+	@BeforeClass
+	public static void createNewAddresses() {
 		kas = new ArrayList<KernelAddress>();
 		simultaneous = new ArrayList<KernelAddress>();
 		for (int i = 0; i < 2000; i++) {
 			try {
-				Thread.sleep((long) (Math.random()*2));
+				Thread.sleep((long) (Math.random() * 2));
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -53,19 +53,19 @@ public class KernelAddressTest {
 			simultaneous.add(new KernelAddress());
 		}
 	}
-	
+
 	@Test
 	public void testHashCode() {
 		for (KernelAddress ka : kas) {
 			for (KernelAddress other : kas) {
-				if(ka != other && other.hashCode() == ka.hashCode()){
+				if (ka != other && other.hashCode() == ka.hashCode()) {
 					fail("two addresses with identical hashCode");
 				}
 			}
 		}
 		for (KernelAddress ka : simultaneous) {
 			for (KernelAddress other : simultaneous) {
-				if(ka != other && other.hashCode() == ka.hashCode()){
+				if (ka != other && other.hashCode() == ka.hashCode()) {
 					fail("two addresses with identical hashCode");
 				}
 			}
@@ -76,40 +76,40 @@ public class KernelAddressTest {
 	public void testUniqueness() {
 		for (KernelAddress ka : kas) {
 			for (KernelAddress other : simultaneous) {
-				if(other.hashCode() == ka.hashCode()){
+				if (other.hashCode() == ka.hashCode()) {
 					fail("two addresses with identical hashCode");
 				}
 			}
 		}
 	}
 
-//	@Test
-//	public void testLocalKernelAddress() {
-//		KernelAddress ka = new KernelAddress();
-//		System.err.println(ka);
-//		KernelAddress lka = new LocalKernelAddress();
-//		System.err.println(lka);
-//	}
+	// @Test
+	// public void testLocalKernelAddress() {
+	// KernelAddress ka = new KernelAddress();
+	// System.err.println(ka);
+	// KernelAddress lka = new LocalKernelAddress();
+	// System.err.println(lka);
+	// }
 
 	@Test
 	public void testEqualsObject() {
 		for (KernelAddress ka : kas) {
 			for (KernelAddress other : kas) {
-				if(ka != other && other.equals(ka)){
+				if (ka != other && other.equals(ka)) {
 					fail("two addresses equals");
 				}
 			}
 		}
 		for (KernelAddress ka : simultaneous) {
 			for (KernelAddress other : simultaneous) {
-				if(ka != other && other.equals(ka)){
+				if (ka != other && other.equals(ka)) {
 					fail("two addresses equals");
 				}
 			}
 		}
 		for (KernelAddress ka : kas) {
 			for (KernelAddress other : simultaneous) {
-				if(ka != other && other.equals(ka)){
+				if (ka != other && other.equals(ka)) {
 					fail("two addresses equals");
 				}
 			}

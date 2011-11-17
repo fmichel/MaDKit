@@ -35,17 +35,17 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class LaunchAgentClassTest  extends JunitMadKit{
+public class LaunchAgentClassTest extends JunitMadKit {
 
-	final AbstractAgent target = new AbstractAgent(){
+	final AbstractAgent target = new AbstractAgent() {
 		protected void activate() {
-			assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP));
-			assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,ROLE));
-			assertEquals(ALREADY_LAUNCHED,launchAgent(this));
+			assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
+			assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
+			assertEquals(ALREADY_LAUNCHED, launchAgent(this));
 		}
 	};
 
-	final AbstractAgent timeOutAgent = new AbstractAgent(){
+	final AbstractAgent timeOutAgent = new AbstractAgent() {
 		protected void activate() {
 			try {
 				Thread.sleep(2000);
@@ -55,7 +55,7 @@ public class LaunchAgentClassTest  extends JunitMadKit{
 		}
 	};
 
-	final AbstractAgent faulty = new AbstractAgent(){
+	final AbstractAgent faulty = new AbstractAgent() {
 		@SuppressWarnings("null")
 		protected void activate() {
 			Object o = null;
@@ -64,8 +64,8 @@ public class LaunchAgentClassTest  extends JunitMadKit{
 	};
 
 	@Test
-	public void launchFailed(){
-		launchTest(new AbstractAgent(){
+	public void launchFailed() {
+		launchTest(new AbstractAgent() {
 			protected void activate() {
 				try {
 					launchAgent((String) null);
@@ -74,12 +74,12 @@ public class LaunchAgentClassTest  extends JunitMadKit{
 					throw e;
 				}
 			}
-		},AGENT_CRASH);
+		}, AGENT_CRASH);
 	}
 
 	@Test
-	public void launchNotFound(){
-		launchTest(new AbstractAgent(){
+	public void launchNotFound() {
+		launchTest(new AbstractAgent() {
 			protected void activate() {
 				assertNull(launchAgent("a"));
 			}

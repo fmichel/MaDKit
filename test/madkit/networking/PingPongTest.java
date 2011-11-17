@@ -33,18 +33,16 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class PingPongTest extends JunitMadKit
-{
+public class PingPongTest extends JunitMadKit {
 	@Test
-	public void networkPingPong()
-	{
+	public void networkPingPong() {
 		addMadkitArgs(BooleanOption.network.toString());
-		launchTest(new Agent(){
+		launchTest(new Agent() {
 			@Override
 			protected void activate() {
-//		setLogLevel(Level.OFF);
-				createGroupIfAbsent(COMMUNITY,GROUP,true, null);
-				requestRole(COMMUNITY,GROUP,ROLE,null);
+				// setLogLevel(Level.OFF);
+				createGroupIfAbsent(COMMUNITY, GROUP, true, null);
+				requestRole(COMMUNITY, GROUP, ROLE, null);
 				PongAgent.main(null);
 				assertNotNull(waitNextMessage(10000));
 			}

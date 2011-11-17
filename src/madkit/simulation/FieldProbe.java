@@ -59,7 +59,7 @@ public class FieldProbe<A extends AbstractAgent,T> extends Probe<A>
 		try {
 			final Class<? extends A> cl = (Class<? extends A>) theAgent.getClass();
 			if(properties.get(cl) == null)
-				properties.put(cl, findFieldOn(cl,fieldName));
+				properties.put(cl, findFieldOn(theAgent,fieldName));
 		} catch(NoSuchFieldException e) {
 			theAgent.getLogger().severeLog("\nCan't find property: "+fieldName+" on "+ theAgent,e);
 		}

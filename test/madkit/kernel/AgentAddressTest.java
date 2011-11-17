@@ -39,16 +39,16 @@ public class AgentAddressTest {
 	static AbstractAgent a;
 	static MadkitKernel mk;
 	static AgentAddress aa;
-	
+
 	@Before
-	public void before(){
-		String[] args = {BooleanOption.desktop.toString(),"false"};
+	public void before() {
+		String[] args = { BooleanOption.desktop.toString(), "false" };
 		mk = new MadkitKernel(new Madkit(args));
 		a = new AbstractAgent();
 		a.setKernel(mk);
 		mk.createGroup(a, "c", "g", null, null, false);
 		try {
-			mk.getGroup("c", "g").put("r",mk.getGroup("c", "g").createRole("r"));
+			mk.getGroup("c", "g").put("r", mk.getGroup("c", "g").createRole("r"));
 			r = mk.getRole("c", "g", "r");
 		} catch (CGRNotAvailable e) {
 			// TODO Auto-generated catch block
@@ -60,7 +60,9 @@ public class AgentAddressTest {
 	}
 
 	/**
-	 * Test method for {@link madkit.kernel.AgentAddress#AgentAddress(madkit.kernel.AbstractAgent, madkit.kernel.Role, madkit.kernel.KernelAddress)}.
+	 * Test method for
+	 * {@link madkit.kernel.AgentAddress#AgentAddress(madkit.kernel.AbstractAgent, madkit.kernel.Role, madkit.kernel.KernelAddress)}
+	 * .
 	 */
 	@Test
 	public void testAgentAddress() {
@@ -77,7 +79,8 @@ public class AgentAddressTest {
 	}
 
 	/**
-	 * Test method for {@link madkit.kernel.AgentAddress#setRoleObject(madkit.kernel.Role)}.
+	 * Test method for
+	 * {@link madkit.kernel.AgentAddress#setRoleObject(madkit.kernel.Role)}.
 	 */
 	@Test
 	public void testCGRNames() {
@@ -105,7 +108,7 @@ public class AgentAddressTest {
 	 */
 	@Test
 	public void testGetKernelAddress() {
-		assertEquals(aa.getKernelAddress(),mk.getKernelAddress());
+		assertEquals(aa.getKernelAddress(), mk.getKernelAddress());
 	}
 
 	/**
@@ -122,11 +125,12 @@ public class AgentAddressTest {
 	 */
 	@Test
 	public void testGetAgentCode() {
-		assertEquals(a.hashCode(),aa.getAgentCode());
+		assertEquals(a.hashCode(), aa.getAgentCode());
 	}
 
 	/**
-	 * Test method for {@link madkit.kernel.AgentAddress#equals(java.lang.Object)}.
+	 * Test method for
+	 * {@link madkit.kernel.AgentAddress#equals(java.lang.Object)}.
 	 */
 	@Test
 	public void testEqualsObject() {
@@ -149,7 +153,8 @@ public class AgentAddressTest {
 	 */
 	@Test
 	public void testIsLocal() {
-//		AgentAddress other = new AgentAddress(new AbstractAgent(), r, r.getKernelAddress());
+		// AgentAddress other = new AgentAddress(new AbstractAgent(), r,
+		// r.getKernelAddress());
 		assertTrue(aa.isLocal());
 		assertEquals(AbstractAgent.ReturnCode.SUCCESS, r.removeMember(a));
 		assertTrue(aa.isLocal());

@@ -29,6 +29,7 @@ import static madkit.kernel.AbstractAgent.State.TERMINATED;
 import java.io.Serializable;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -61,6 +62,9 @@ import madkit.gui.actions.MadkitAction;
 import madkit.i18n.ErrorMessages;
 import madkit.i18n.I18nUtilities;
 import madkit.i18n.Words;
+import madkit.kernel.Madkit.BooleanOption;
+import madkit.kernel.Madkit.LevelOption;
+import madkit.kernel.Madkit.Option;
 
 /**
  * The super class of all MadKit agents, v 5.
@@ -258,14 +262,14 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 
-//	private void suicide(){
-//		MadkitKernel.getMadkitServiceExecutor().execute(new Runnable(){
-//			@Override
-//			public void run() {
-//				kernel.getMadkitKernel().killAbstractAgent(AbstractAgent.this, 1);
-//			}
-//		});
-//	}
+	//	private void suicide(){
+	//		MadkitKernel.getMadkitServiceExecutor().execute(new Runnable(){
+	//			@Override
+	//			public void run() {
+	//				kernel.getMadkitKernel().killAbstractAgent(AbstractAgent.this, 1);
+	//			}
+	//		});
+	//	}
 	/**
 	 * This is only called by MK threads and cannot be interrupted
 	 * @return
@@ -279,7 +283,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 				synchronized (state) {
 					Thread.currentThread().setName(getAgentThreadName(State.LIVING));
 				}//cannot be hard killed after that
-//				state.set(LIVING);
+				//				state.set(LIVING);
 				result = true;
 			}
 			catch (SelfKillException e) {
@@ -296,46 +300,46 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			logLifeException(e);
 		}
 		logMethod(false);
-//		state.set(LIVING);
+		//		state.set(LIVING);
 		return result;
 	}
-	
+
 	//100%
-//	/**
-//	 * This is only called by MK threads and cannot be interrupted
-//	 * @return
-//	 */
-//	boolean activation() {
-//		boolean result = false;
-//		try {
-//			try {
-//				activationFirstStage();//the activated flag must be in the try
-//				activate();
-//				state.set(LIVING);
-//				result = true;
-//			}
-//			catch (SelfKillException e) {
-//				logLifeException(e);
-//				logActivate(false);
-//				state.set(LIVING);//for the following kill to work
-//				kernel.getMadkitKernel().killAbstractAgent(AbstractAgent.this, Integer.parseInt(e.getMessage()));
-//				return true;
-//			}
-//			catch (Exception e) {
-//				synchronized (state) {
-//					alive.set(false);
-//					logLifeException(e);
-//					state.set(LIVING);
-//				}
-//				logActivate(false);
-//			}
-//		} catch (KilledException e) {
-//			logLifeException(e);
-//		}
-//		logActivate(false);
-//		return result;
-//	}
-	
+	//	/**
+	//	 * This is only called by MK threads and cannot be interrupted
+	//	 * @return
+	//	 */
+	//	boolean activation() {
+	//		boolean result = false;
+	//		try {
+	//			try {
+	//				activationFirstStage();//the activated flag must be in the try
+	//				activate();
+	//				state.set(LIVING);
+	//				result = true;
+	//			}
+	//			catch (SelfKillException e) {
+	//				logLifeException(e);
+	//				logActivate(false);
+	//				state.set(LIVING);//for the following kill to work
+	//				kernel.getMadkitKernel().killAbstractAgent(AbstractAgent.this, Integer.parseInt(e.getMessage()));
+	//				return true;
+	//			}
+	//			catch (Exception e) {
+	//				synchronized (state) {
+	//					alive.set(false);
+	//					logLifeException(e);
+	//					state.set(LIVING);
+	//				}
+	//				logActivate(false);
+	//			}
+	//		} catch (KilledException e) {
+	//			logLifeException(e);
+	//		}
+	//		logActivate(false);
+	//		return result;
+	//	}
+
 	final void logMethod(final boolean entering){
 		if(logger != null)
 			logger.finer("** "+ (entering ? Words.ENTERING : Words.EXITING) +" "+ getState().lifeCycleMethod() +" **");
@@ -375,8 +379,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * 
 	 */
 	protected void activate() {
-//				if(logger != null)
-//					logger.talk("\n\tHi human and hello World !!\n\n I am an instance of the madkit.kernel.AbstractAgent class:\n I am not threaded and very lightweighted.\n You can extend me to do large scale simulations !");
+		//				if(logger != null)
+		//					logger.talk("\n\tHi human and hello World !!\n\n I am an instance of the madkit.kernel.AbstractAgent class:\n I am not threaded and very lightweighted.\n You can extend me to do large scale simulations !");
 	}
 
 	final boolean ending() { // TODO boolean need ? NO
@@ -405,7 +409,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		}
 		return true;
 	}
-	
+
 	void validateDeathOnException(Exception e, State threadNewState){
 		synchronized (state) {
 			logLifeException(e);
@@ -1456,9 +1460,9 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         </ul>
 	 * @since MadKit 5.0.0.3
 	 */
-//	* @throws ClassNotFoundException if the class cannot be found
-//	* @throws NullPointerException if <code>className</code> is <code>null</code> 
-//	* @throws KernelException if this agent has not been launched or is already terminated
+	//	* @throws ClassNotFoundException if the class cannot be found
+	//	* @throws NullPointerException if <code>className</code> is <code>null</code> 
+	//	* @throws KernelException if this agent has not been launched or is already terminated
 	public ReturnCode reloadAgentClass(String className) throws ClassNotFoundException {
 		//		try {
 		return getKernel().reloadClass(this, className);
@@ -1596,18 +1600,18 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		return false;
 	}
 
-//	private String getInMethodName(){
-//		switch (getState()) {
-//		case ACTIVATED:
-//			return "ACTIVATE";// " + getI18N("terminated");
-//		case LIVING:
-//			return "LIVE";// + getI18N("terminated");
-//		case ENDING:
-//			return "END";
-//		default:
-//			return "TERMINATE";
-//		}
-//	}
+	//	private String getInMethodName(){
+	//		switch (getState()) {
+	//		case ACTIVATED:
+	//			return "ACTIVATE";// " + getI18N("terminated");
+	//		case LIVING:
+	//			return "LIVE";// + getI18N("terminated");
+	//		case ENDING:
+	//			return "END";
+	//		default:
+	//			return "TERMINATE";
+	//		}
+	//	}
 
 	//	/**
 	//	 * @param e
@@ -1850,7 +1854,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		 * The agent has finished its life cycle in the MadKit platform.
 		 */
 		TERMINATED;
-		
+
 		final String lifeCycleMethod() {
 			switch (this) {
 			case ACTIVATED:
@@ -1999,6 +2003,40 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 
 	AgentExecutor getAgentExecutor() {
 		return null;
+	}
+
+	/**
+	 * This offers a convenient way to create main method that launch
+	 * the agent class under development.
+	 * so that it will be launched alone in a new MadKit.
+	 * Here is an example of use that will work in any subclass of {@link AbstractAgent}:
+	 * <pre><code>
+	 *	public static void main(String[] args) {
+	 *		AbstractAgent.executeThisAgent(args);
+	 *	}
+	 * </code></pre>
+	 * Still, the agent must have a default constructor for that to work.
+	 * @param args optional MadKit options. For example, this will launch
+	 * the agent in desktop mode :
+	 * 
+	 * <pre><code>
+	 *	public static void main(String[] args) {
+	 *		String[] myArgs = {BooleanOption.desktop.toString()};
+	 *		AbstractAgent.executeThisAgent(myArgs);
+	 *	}
+	 * </code></pre>
+	 * 
+	 * @see {@link Option}, {@link BooleanOption}, {@link LevelOption}
+	 */
+	public static void executeThisAgent(String[] args,int nbOfInstances) {
+		final StackTraceElement[] trace = new Throwable().getStackTrace();
+		final ArrayList<String> arguments = new ArrayList<String>(Arrays.asList(Madkit.Option.launchAgents.toString(),trace[trace.length-1].getClassName()+",true,"+nbOfInstances));
+		arguments.addAll(Arrays.asList(args));
+		Madkit.main(arguments.toArray(new String[0]));
+	}
+
+	public static void executeThisAgent(String[] args) {
+		executeThisAgent(args, 1);
 	}
 
 	//	@Override

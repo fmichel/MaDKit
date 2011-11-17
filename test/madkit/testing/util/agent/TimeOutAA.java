@@ -26,7 +26,7 @@ import java.util.logging.Level;
  * @version 1
  * 
  */
-public class TimeOutAA extends DoItDuringLifeCycleAbstractAgent{
+public class TimeOutAA extends DoItDuringLifeCycleAbstractAgent {
 
 	/**
 	 * 
@@ -43,12 +43,12 @@ public class TimeOutAA extends DoItDuringLifeCycleAbstractAgent{
 	}
 
 	public TimeOutAA(boolean inActivate) {
-		this(inActivate,false);
+		this(inActivate, false);
 	}
 
 	@Override
 	public void doIt() {
-		if(logger != null)
+		if (logger != null)
 			logger.info("waiting 1.5s");
 		try {
 			Thread.sleep(1500);

@@ -47,8 +47,8 @@ import org.junit.rules.TestName;
  * 
  */
 public class JunitMadKit {
-	
-	@Rule 
+
+	@Rule
 	public TestName name = new TestName();
 
 	/**
@@ -62,104 +62,103 @@ public class JunitMadKit {
 	protected Madkit madkit;
 
 	protected List<String> mkArgs = new ArrayList<String>(Arrays.asList(
-//			"--"+Madkit.warningLogLevel,"INFO",
-			BooleanOption.desktop.toString(),"false",
-			Option.launchAgents.toString(),"madkit.kernel.AbstractAgent",//to not have the desktop mode by default
-			Option.logDirectory.toString(),getBinTestDir(),
-			LevelOption.agentLogLevel.toString(),"ALL",
-			LevelOption.madkitLogLevel.toString(),"INFO"));
+			// "--"+Madkit.warningLogLevel,"INFO",
+			BooleanOption.desktop.toString(), "false", Option.launchAgents.toString(),
+			"madkit.kernel.AbstractAgent",// to not have the desktop mode by
+													// default
+			Option.logDirectory.toString(), getBinTestDir(), LevelOption.agentLogLevel.toString(), "ALL",
+			LevelOption.madkitLogLevel.toString(), "INFO"));
 
-	public void launchTest(AbstractAgent a, ReturnCode expected){
-		System.err.println("\n\n------------------------ "+name.getMethodName()+" TEST START ---------------------");
+	public void launchTest(AbstractAgent a, ReturnCode expected) {
+		System.err.println("\n\n------------------------ " + name.getMethodName() + " TEST START ---------------------");
 		try {
 			String[] args = null;
 			if (mkArgs != null) {
 				args = (String[]) mkArgs.toArray(new String[mkArgs.size()]);
 			}
 			madkit = new Madkit(args);
-			AbstractAgent kernelAgent = madkit.getKernel().getAgentWithRole(null,LocalCommunity.NAME, Groups.SYSTEM, LocalCommunity.Roles.KERNEL).getAgent();
-//			kernelAgent.receiveMessage(new KernelMessage(MadkitAction.LAUNCH_AGENT, a, false));
+			AbstractAgent kernelAgent = madkit.getKernel()
+					.getAgentWithRole(null, LocalCommunity.NAME, Groups.SYSTEM, LocalCommunity.Roles.KERNEL).getAgent();
+			// kernelAgent.receiveMessage(new
+			// KernelMessage(MadkitAction.LAUNCH_AGENT, a, false));
 			a.setName(name.getMethodName());
 			assertEquals(expected, kernelAgent.launchAgent(a));
 		} catch (Throwable e) {
 			System.err.println("\n\n\n------------------------------------");
-			while(e.getCause() != null)
+			while (e.getCause() != null)
 				e = e.getCause();
 			e.printStackTrace();
 			System.err.println("------------------------------------\n\n\n");
 			fail(JunitMadKit.class.getSimpleName());
-		}
-		finally{
-			System.err.println("\n\n------------------------ "+name.getMethodName()+" TEST FINISHED ---------------------\n\n");
+		} finally {
+			System.err.println("\n\n------------------------ " + name.getMethodName() + " TEST FINISHED ---------------------\n\n");
 		}
 	}
-	
-	public void lineBreak(){
+
+	public void lineBreak() {
 		System.err.println("---------------------------------");
 	}
-	
-	public static void noExceptionFailure(){
+
+	public static void noExceptionFailure() {
 		fail("Exception not thrown");
 	}
-	public void launchTest(AbstractAgent a){
+
+	public void launchTest(AbstractAgent a) {
 		launchTest(a, SUCCESS);
-}
-	
-	public void launchTest(AbstractAgent a, boolean all){
+	}
+
+	public void launchTest(AbstractAgent a, boolean all) {
 		if (all) {
 			addMadkitArgs(LevelOption.agentLogLevel.toString(), "ALL");
 			addMadkitArgs(LevelOption.kernelLogLevel.toString(), "FINEST");
-		}
-		else{
+		} else {
 			addMadkitArgs(LevelOption.agentLogLevel.toString(), "INFO");
 			addMadkitArgs(LevelOption.kernelLogLevel.toString(), "OFF");
 		}
 		launchTest(a, SUCCESS);
-}
-	
-	public MadkitKernel getKernel(){
+	}
+
+	public MadkitKernel getKernel() {
 		return madkit.getKernel();
 	}
-	
-	public void addMadkitArgs(String... string){
+
+	public void addMadkitArgs(String... string) {
 		mkArgs.addAll(Arrays.asList(string));
 	}
 
-	public static String getBinTestDir(){
+	public static String getBinTestDir() {
 		return "bin";
 	}
 
 	public void test() {
 		launchTest(new AbstractAgent());
 	}
-	
-	public static String aa(){
-		return aString+="a";
+
+	public static String aa() {
+		return aString += "a";
 	}
 
-	
 	static long time;
 
-	public static void startTimer(){
+	public static void startTimer() {
 		time = System.nanoTime();
 	}
 
-	public static long stopTimer(String message){
-		final long t = System.nanoTime()-time;
-		System.err.println(message+(t/1000000)+" ms");
+	public static long stopTimer(String message) {
+		final long t = System.nanoTime() - time;
+		System.err.println(message + (t / 1000000) + " ms");
 		return t;
 	}
 
 	protected void assertAgentIsTerminated(AbstractAgent a) {
-		assertEquals(TERMINATED,a.getState());
+		assertEquals(TERMINATED, a.getState());
 		assertFalse(a.isAlive());
 	}
 
-
-	static public void printMemoryUsage(){
-		//System.gc();
-		Long mem = (Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory());
-		System.err.println("\n----used memory: "+mem.toString().substring(0, 3)+" Mo\n");			
+	static public void printMemoryUsage() {
+		// System.gc();
+		Long mem = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory());
+		System.err.println("\n----used memory: " + mem.toString().substring(0, 3) + " Mo\n");
 	}
 
 	/**
@@ -169,41 +168,39 @@ public class JunitMadKit {
 		try {
 			Thread.sleep(millis);
 		} catch (InterruptedException e) {
-			
+
 		}
 
 	}
-	
-	public static void printAllStacks(){
+
+	public static void printAllStacks() {
 		for (Map.Entry<Thread, StackTraceElement[]> t : Thread.getAllStackTraces().entrySet()) {
-			System.err.println("------------- "+t.getKey());
-			for(StackTraceElement ste : t.getValue()){
+			System.err.println("------------- " + t.getKey());
+			for (StackTraceElement ste : t.getValue()) {
 				System.err.println(ste);
 			}
 		}
 	}
-	
-	public static void createDefaultCGR(AbstractAgent a){
-		a.createGroup(COMMUNITY,GROUP, false,null);
-		assertEquals(SUCCESS, a.requestRole(COMMUNITY,GROUP,ROLE,null));
+
+	public static void createDefaultCGR(AbstractAgent a) {
+		a.createGroup(COMMUNITY, GROUP, false, null);
+		assertEquals(SUCCESS, a.requestRole(COMMUNITY, GROUP, ROLE, null));
 	}
 
-	
 	public void launchThreadedMKNetworkInstance() {
-		new Thread(new Runnable() {			
+		new Thread(new Runnable() {
 			@Override
 			public void run() {
-		String[] args = {BooleanOption.network.toString(),Option.launchAgents.toString(),ForEverAgent.class.getName()};
-		Madkit.main(args);
-		}
-	}).start();
+				String[] args = { BooleanOption.network.toString(), Option.launchAgents.toString(), ForEverAgent.class.getName() };
+				Madkit.main(args);
+			}
+		}).start();
 
 	}
 
 	public void launchMKNetworkInstance() {
-		String[] args = {BooleanOption.network.toString(),Option.launchAgents.toString(),ForEverAgent.class.getName()};
+		String[] args = { BooleanOption.network.toString(), Option.launchAgents.toString(), ForEverAgent.class.getName() };
 		Madkit.main(args);
 	}
-
 
 }

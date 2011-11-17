@@ -41,69 +41,74 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class DefaultLoggingLevelTest  extends JunitMadKit{
-		
+public class DefaultLoggingLevelTest extends JunitMadKit {
+
 	@Test
-	public void noLog(){
-		addMadkitArgs("--agentLogLevel","OFF","--warningLogLevel","OFF");
-		launchTest(new AbstractAgent(){
+	public void noLog() {
+		addMadkitArgs("--agentLogLevel", "OFF", "--warningLogLevel", "OFF");
+		launchTest(new AbstractAgent() {
 			protected void activate() {
 				assertNull(logger);
-			assertEquals(NOT_COMMUNITY, requestRole(COMMUNITY,GROUP,ROLE));
-		}});
-		addMadkitArgs("--agentLogLevel","OFF","--warningLogLevel","INFO");
-		launchTest(new AbstractAgent(){
+				assertEquals(NOT_COMMUNITY, requestRole(COMMUNITY, GROUP, ROLE));
+			}
+		});
+		addMadkitArgs("--agentLogLevel", "OFF", "--warningLogLevel", "INFO");
+		launchTest(new AbstractAgent() {
 			protected void activate() {
 				assertNull(logger);
-			assertEquals(NOT_COMMUNITY, requestRole(COMMUNITY,GROUP,ROLE));
-		}});
-		addMadkitArgs("--agentLogLevel","OFF","--warningLogLevel","ALL");
-		launchTest(new AbstractAgent(){
+				assertEquals(NOT_COMMUNITY, requestRole(COMMUNITY, GROUP, ROLE));
+			}
+		});
+		addMadkitArgs("--agentLogLevel", "OFF", "--warningLogLevel", "ALL");
+		launchTest(new AbstractAgent() {
 			protected void activate() {
 				assertNull(logger);
-			assertEquals(NOT_COMMUNITY, requestRole(COMMUNITY,GROUP,ROLE));
-		}});
+				assertEquals(NOT_COMMUNITY, requestRole(COMMUNITY, GROUP, ROLE));
+			}
+		});
 	}
 
 	@Test
-	public void warningLogs(){
-		addMadkitArgs("--agentLogLevel","INFO","--warningLogLevel","OFF");
-		launchTest(new AbstractAgent(){
+	public void warningLogs() {
+		addMadkitArgs("--agentLogLevel", "INFO", "--warningLogLevel", "OFF");
+		launchTest(new AbstractAgent() {
 			protected void activate() {
 				assertNotNull(getLogger());
 				TestHandler h = new TestHandler();
 				getLogger().addHandler(h);
-			assertEquals(NOT_COMMUNITY, requestRole(COMMUNITY,GROUP,ROLE));
-			assertTrue(h.hasBeenUsed());
-		}});
+				assertEquals(NOT_COMMUNITY, requestRole(COMMUNITY, GROUP, ROLE));
+				assertTrue(h.hasBeenUsed());
+			}
+		});
 	}
 
 	@Test
-	public void noWarningLogs(){
-		addMadkitArgs("--agentLogLevel","INFO","--warningLogLevel","FINE");
-		launchTest(new AbstractAgent(){
+	public void noWarningLogs() {
+		addMadkitArgs("--agentLogLevel", "INFO", "--warningLogLevel", "FINE");
+		launchTest(new AbstractAgent() {
 			protected void activate() {
 				assertNotNull(getLogger());
 				assertEquals(Level.FINE, getLogger().getWarningLogLevel());
 				TestHandler h = new TestHandler();
 				getLogger().addHandler(h);
-			assertEquals(NOT_COMMUNITY, requestRole(COMMUNITY,GROUP,ROLE));
-			assertFalse(h.hasBeenUsed());
-		}});
+				assertEquals(NOT_COMMUNITY, requestRole(COMMUNITY, GROUP, ROLE));
+				assertFalse(h.hasBeenUsed());
+			}
+		});
 	}
 
 }
 
-class TestHandler extends ConsoleHandler{
-	
+class TestHandler extends ConsoleHandler {
+
 	private boolean logReceived = false;
-	
+
 	@Override
 	public void publish(LogRecord record) {
 		logReceived = true;
 	}
-	
-	public boolean hasBeenUsed(){
+
+	public boolean hasBeenUsed() {
 		return logReceived;
 	}
 }

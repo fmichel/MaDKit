@@ -59,7 +59,7 @@ public class PropertyProbe<A extends AbstractAgent,P> extends Probe<A>
 	@Override
 	protected void adding(final A theAgent) {
 		try {
-			properties.put(theAgent, (P) findFieldOn(theAgent.getClass(),fieldName));
+			properties.put(theAgent, (P) findFieldOn(theAgent,fieldName));
 		} catch(NoSuchFieldException e) {
 			theAgent.getLogger().severeLog("\nCan't find property: "+fieldName+" on "+ theAgent,e);
 		} catch (ClassCastException e) {
@@ -77,11 +77,11 @@ public class PropertyProbe<A extends AbstractAgent,P> extends Probe<A>
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	protected void adding(List<A> agents) {//bench that : it shoud be faster
+	protected void adding(List<A> agents) {//bench that : it can be faster
 		try {
 			if (! agents.isEmpty()) {
 				final Map<A, P> newP = new ConcurrentHashMap<A, P>(agents.size()+properties.size(),.9f); 
-				final Field f = findFieldOn(agents.get(0).getClass(),fieldName);
+				final Field f = findFieldOn(agents.get(0),fieldName);
 				for (A a : agents) {
 					newP.put(a, (P) f.get(a));//TODO will fail if all the agents are not of the same type
 				}

@@ -28,45 +28,38 @@ import madkit.kernel.Madkit.LevelOption;
  * @version 0.9
  * 
  */
-public class UnstopableAbstractAgent extends AbstractAgent
-{
+public class UnstopableAbstractAgent extends AbstractAgent {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-
 	protected void activate() {
 		int i = 0;
-		while(i<990000000){
+		while (i < 990000000) {
 			i++;
-			if(i%10000000 == 0)
-				if(logger != null)
-					logger.info("activate "+getState()+" "+i);
+			if (i % 10000000 == 0)
+				if (logger != null)
+					logger.info("activate " + getState() + " " + i);
 		}
 	}
-	
+
 	/**
 	 * 
 	 */
 	protected void end() {
 		int i = 0;
-		while(true){
+		while (true) {
 			i++;
-			if(i%10000000 == 0){
-				if(logger != null)
-					logger.info("end "+getState()+" "+i);
+			if (i % 10000000 == 0) {
+				if (logger != null)
+					logger.info("end " + getState() + " " + i);
 			}
 		}
 	}
 
-
 	public static void main(String[] args) {
-		String[] argss = {LevelOption.agentLogLevel.toString(),"ALL",
-				LevelOption.kernelLogLevel.toString(),"ALL",
-//				BooleanOption.noGUIManager.toString(),
-				"--launchAgents",UnstopableAbstractAgent.class.getName(),",true"};
-		Madkit.main(argss);		
+		AbstractAgent.executeThisAgent(args);
 	}
 
 }

@@ -18,10 +18,11 @@
  */
 package madkit.boot.process;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadKit;
 import madkit.kernel.Madkit.BooleanOption;
+import madkit.kernel.Madkit.LevelOption;
 
 import org.junit.Test;
 
@@ -31,23 +32,34 @@ import org.junit.Test;
  * @version 0.9
  * 
  */
-public class NullArgTest extends  JunitMadKit{
+@SuppressWarnings("serial")
+public class NullArgTest extends JunitMadKit {
 
 	@Test
 	public void desktopOn() {
 		mkArgs = null;
-		launchTest(new AbstractAgent(){
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
-
+		launchTest(new AbstractAgent() {
 			@Override
 			protected void activate() {
 				assertTrue(BooleanOption.desktop.isActivated(getMadkitConfig()));
 			}
 		});
 	}
+
+	@Test
+	public void LogLevels() {
+		mkArgs = null;
+		launchTest(new AbstractAgent() {
+			@Override
+			protected void activate() {
+				assertEquals("OFF", getMadkitProperty(LevelOption.kernelLogLevel.name()));
+				assertEquals("OFF", getMadkitProperty(LevelOption.guiLogLevel.name()));
+				assertEquals("INFO", getMadkitProperty(LevelOption.networkLogLevel.name()));
+				assertEquals("INFO", getMadkitProperty(LevelOption.madkitLogLevel.name()));
+				assertEquals("INFO", getMadkitProperty(LevelOption.agentLogLevel.name()));
+				assertEquals("FINE", getMadkitProperty(LevelOption.warningLogLevel.name()));
+				assertEquals("INFO", getMadkitProperty(LevelOption.madkitLogLevel.name()));
+			}
+		});
+	}
 }
-
-

@@ -18,7 +18,6 @@
  */
 package madkit.testing.util.agent;
 
-
 import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_KILLED;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static madkit.kernel.AbstractAgent.ReturnCode.TIMEOUT;
@@ -33,43 +32,38 @@ import static org.junit.Assert.assertEquals;
  * @version 0.9
  * 
  */
-public class SelfAbstractKill extends DoItDuringLifeCycleAbstractAgent{
+public class SelfAbstractKill extends DoItDuringLifeCycleAbstractAgent {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private int timeOut=0;
+	private int timeOut = 0;
 
 	public SelfAbstractKill(boolean inActivate, boolean inEnd, int noTimeOut) {
 		super(inActivate, inEnd);
 		timeOut = noTimeOut;
 	}
 
-	
 	@Override
 	public String getName() {
-		return super.getName()+(timeOut == Integer.MAX_VALUE ?"-NoTimeOut-":"-WithTimeOut "+timeOut);
+		return super.getName() + (timeOut == Integer.MAX_VALUE ? "-NoTimeOut-" : "-WithTimeOut " + timeOut);
 	}
 
 	@Override
 	public void doIt() {
-		if(logger != null)
+		if (logger != null)
 			logger.info("killing myself");
-		if(inActivate){
-			if(timeOut == 0){
-				assertEquals(timeOut == 0 ? SUCCESS : TIMEOUT, killAgent(this,timeOut));
-			}
-			else
-				assertEquals(getState() == State.ACTIVATED ? SUCCESS :  ALREADY_KILLED, killAgent(this,timeOut));
-		}
-		else
-			assertEquals(timeOut == 0 ? SUCCESS : TIMEOUT, killAgent(this,timeOut));
+		if (inActivate) {
+			if (timeOut == 0) {
+				assertEquals(timeOut == 0 ? SUCCESS : TIMEOUT, killAgent(this, timeOut));
+			} else
+				assertEquals(getState() == State.ACTIVATED ? SUCCESS : ALREADY_KILLED, killAgent(this, timeOut));
+		} else
+			assertEquals(timeOut == 0 ? SUCCESS : TIMEOUT, killAgent(this, timeOut));
 		for (int i = 0; i < 5; i++) {
 			requestRole(COMMUNITY, GROUP, aa(), null);
-			System.err.println("doing in "+getState()+" "+i);
-		}		
+			System.err.println("doing in " + getState() + " " + i);
+		}
 	}
 }
-
-

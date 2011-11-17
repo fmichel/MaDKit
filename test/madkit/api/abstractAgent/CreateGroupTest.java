@@ -36,8 +36,8 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("all")
-public class CreateGroupTest  extends JunitMadKit{
-	
+public class CreateGroupTest extends JunitMadKit {
+
 	final Gatekeeper gi = new Gatekeeper() {
 		@Override
 		public boolean allowAgentToTakeRole(String roleName, Object memberCard) {
@@ -46,82 +46,84 @@ public class CreateGroupTest  extends JunitMadKit{
 	};
 
 	@Test
-	public void createGroup(){
-		launchTest(new AbstractAgent(){
+	public void createGroup() {
+		launchTest(new AbstractAgent() {
 			protected void activate() {
-			assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP));
-			assertTrue(isCommunity(COMMUNITY));
-			assertTrue(isGroup(COMMUNITY,GROUP));
-			assertEquals(SUCCESS, createGroup(aa(),aa(),true));
-			assertEquals(SUCCESS, createGroup(aa(),aa(),false));
-			assertEquals(SUCCESS, createGroup(aa(),aa(),true,gi));
-			assertEquals(SUCCESS, createGroup(aa(),aa(),false,gi));
-		}});
-	}
-
-	@Test
-	public void createGroupAlreadyDone(){
-		addMadkitArgs("--kernelLogLevel","ALL");
-	launchTest(new AbstractAgent(){
-			protected void activate() {
-				assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP));
-				assertEquals(ALREADY_GROUP, createGroup(COMMUNITY,GROUP));
-				assertTrue(isGroup(COMMUNITY,GROUP));
-			}
-		});
-	}
-	
-	@Test
-	public void communityIsNull(){
-		addMadkitArgs("--kernelLogLevel","ALL");
-		launchTest(new AbstractAgent(){
-			protected void activate() {
-				try {
-					createGroup(null,null);
-					noExceptionFailure();
-			} catch (NullPointerException e) {
-				e.printStackTrace();
-			}}});
-		} 
-
-	@Test
-	public void nullArgs(){
-		addMadkitArgs("--kernelLogLevel","ALL");
-		launchTest(new AbstractAgent(){
-			protected void activate() {
-				try {
-					createGroup(null,null);
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					e.printStackTrace();
-				}
-				try {
-					createGroup(aa(),null,false,null);
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
-	
-	@Test
-	public void createGroupAndLeaveAndCreate(){
-		launchTest(new AbstractAgent(){
-			protected void activate() {
-				assertFalse(isCommunity(COMMUNITY));
-				assertFalse(isGroup(COMMUNITY,GROUP));
-				assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP));
+				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
 				assertTrue(isCommunity(COMMUNITY));
-				assertTrue(isGroup(COMMUNITY,GROUP));
-				assertEquals(SUCCESS, leaveGroup(COMMUNITY,GROUP));
-				assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP));
-				assertEquals(SUCCESS, leaveGroup(COMMUNITY,GROUP));
-				assertFalse(isCommunity(COMMUNITY));
-				assertFalse(isGroup(COMMUNITY,GROUP));
+				assertTrue(isGroup(COMMUNITY, GROUP));
+				assertEquals(SUCCESS, createGroup(aa(), aa(), true));
+				assertEquals(SUCCESS, createGroup(aa(), aa(), false));
+				assertEquals(SUCCESS, createGroup(aa(), aa(), true, gi));
+				assertEquals(SUCCESS, createGroup(aa(), aa(), false, gi));
 			}
 		});
 	}
-	
-	
+
+	@Test
+	public void createGroupAlreadyDone() {
+		addMadkitArgs("--kernelLogLevel", "ALL");
+		launchTest(new AbstractAgent() {
+			protected void activate() {
+				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
+				assertEquals(ALREADY_GROUP, createGroup(COMMUNITY, GROUP));
+				assertTrue(isGroup(COMMUNITY, GROUP));
+			}
+		});
+	}
+
+	@Test
+	public void communityIsNull() {
+		addMadkitArgs("--kernelLogLevel", "ALL");
+		launchTest(new AbstractAgent() {
+			protected void activate() {
+				try {
+					createGroup(null, null);
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	@Test
+	public void nullArgs() {
+		addMadkitArgs("--kernelLogLevel", "ALL");
+		launchTest(new AbstractAgent() {
+			protected void activate() {
+				try {
+					createGroup(null, null);
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+				try {
+					createGroup(aa(), null, false, null);
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	@Test
+	public void createGroupAndLeaveAndCreate() {
+		launchTest(new AbstractAgent() {
+			protected void activate() {
+				assertFalse(isCommunity(COMMUNITY));
+				assertFalse(isGroup(COMMUNITY, GROUP));
+				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
+				assertTrue(isCommunity(COMMUNITY));
+				assertTrue(isGroup(COMMUNITY, GROUP));
+				assertEquals(SUCCESS, leaveGroup(COMMUNITY, GROUP));
+				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
+				assertEquals(SUCCESS, leaveGroup(COMMUNITY, GROUP));
+				assertFalse(isCommunity(COMMUNITY));
+				assertFalse(isGroup(COMMUNITY, GROUP));
+			}
+		});
+	}
+
 }

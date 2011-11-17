@@ -42,19 +42,19 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class RequestRoleTest  extends JunitMadKit{
+public class RequestRoleTest extends JunitMadKit {
 
-	final AbstractAgent helper = new AbstractAgent(){
+	final AbstractAgent helper = new AbstractAgent() {
 		protected void activate() {
-			assertEquals(ROLE_ALREADY_HANDLED, requestRole(COMMUNITY,GROUP,Organization.GROUP_MANAGER_ROLE));
-			assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,ROLE));
+			assertEquals(ROLE_ALREADY_HANDLED, requestRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE));
+			assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
 		}
 	};
 
-	final AbstractAgent helper2 = new AbstractAgent(){
+	final AbstractAgent helper2 = new AbstractAgent() {
 		protected void activate() {
-			assertEquals(ROLE_ALREADY_HANDLED, requestRole(COMMUNITY,GROUP,Organization.GROUP_MANAGER_ROLE));
-			assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,ROLE));
+			assertEquals(ROLE_ALREADY_HANDLED, requestRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE));
+			assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
 		}
 	};
 
@@ -64,14 +64,14 @@ public class RequestRoleTest  extends JunitMadKit{
 			return false;
 		}
 	};
-	
+
 	final Gatekeeper alwaysAccept = new Gatekeeper() {
 		@Override
 		public boolean allowAgentToTakeRole(String roleName, Object memberCard) {
 			return true;
 		}
 	};
-	
+
 	final Gatekeeper buggyIdentifier = new Gatekeeper() {
 		@SuppressWarnings("null")
 		@Override
@@ -81,142 +81,153 @@ public class RequestRoleTest  extends JunitMadKit{
 			return true;
 		}
 	};
-	
+
 	@Test
-	public void returnSuccess(){
-		launchTest(new AbstractAgent(){
+	public void returnSuccess() {
+		launchTest(new AbstractAgent() {
 			protected void activate() {
-				assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP));
-				assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,ROLE));
-				assertTrue(isRole(COMMUNITY,GROUP,Organization.GROUP_MANAGER_ROLE));
-				assertTrue(isRole(COMMUNITY,GROUP,ROLE));
-			}});
+				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
+				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
+				assertTrue(isRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE));
+				assertTrue(isRole(COMMUNITY, GROUP, ROLE));
+			}
+		});
 	}
 
 	@Test
-	public void returnNotCgr(){
+	public void returnNotCgr() {
 		addMadkitArgs(
-//				"--"+Madkit.warningLogLevel,"SEVERE",
-				"--"+LevelOption.agentLogLevel,"ALL"
-				);
-		launchTest(new AbstractAgent(){
+		// "--"+Madkit.warningLogLevel,"SEVERE",
+				"--" + LevelOption.agentLogLevel, "ALL");
+		launchTest(new AbstractAgent() {
 			protected void activate() {
-				assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP));
-				assertEquals(NOT_COMMUNITY, requestRole(aa(),GROUP,ROLE));
-				assertEquals(NOT_GROUP, requestRole(COMMUNITY,aa(),ROLE));
-			}});
+				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
+				assertEquals(NOT_COMMUNITY, requestRole(aa(), GROUP, ROLE));
+				assertEquals(NOT_GROUP, requestRole(COMMUNITY, aa(), ROLE));
+			}
+		});
 	}
 
 	@Test
-	public void returnAlreadyHandled(){
-		launchTest(new AbstractAgent(){
+	public void returnAlreadyHandled() {
+		launchTest(new AbstractAgent() {
 			protected void activate() {
-				assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP));
-				assertEquals(ROLE_ALREADY_HANDLED, requestRole(COMMUNITY,GROUP,Organization.GROUP_MANAGER_ROLE));
-				assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,ROLE));
-				assertEquals(ROLE_ALREADY_HANDLED, requestRole(COMMUNITY,GROUP,ROLE));
-			}});
+				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
+				assertEquals(ROLE_ALREADY_HANDLED, requestRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE));
+				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
+				assertEquals(ROLE_ALREADY_HANDLED, requestRole(COMMUNITY, GROUP, ROLE));
+			}
+		});
 	}
 
 	@Test
-	public void returnAccessDenied(){
-		launchTest(new AbstractAgent(){
+	public void returnAccessDenied() {
+		launchTest(new AbstractAgent() {
 			protected void activate() {
-				assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP,false,alwaysDeny));
-				assertEquals(ACCESS_DENIED, requestRole(COMMUNITY,GROUP,ROLE));
-				assertEquals(ACCESS_DENIED, requestRole(COMMUNITY,GROUP,ROLE,null));
-			}});
+				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP, false, alwaysDeny));
+				assertEquals(ACCESS_DENIED, requestRole(COMMUNITY, GROUP, ROLE));
+				assertEquals(ACCESS_DENIED, requestRole(COMMUNITY, GROUP, ROLE, null));
+			}
+		});
 	}
 
 	@Test
-	public void returnAccessGranted(){
-		launchTest(new AbstractAgent(){
+	public void returnAccessGranted() {
+		launchTest(new AbstractAgent() {
 			protected void activate() {
-				assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP,false,alwaysAccept));
-				assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,ROLE));
-				assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,aa(),null));
-			}});
+				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP, false, alwaysAccept));
+				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
+				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, aa(), null));
+			}
+		});
 	}
 
 	@Test
-	public void buggyIdentifier(){
-		launchTest(new AbstractAgent(){
+	public void buggyIdentifier() {
+		launchTest(new AbstractAgent() {
 			protected void activate() {
-				assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP,false,buggyIdentifier));//TODO think about that issue
-				assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,aa(),null));
-			}},AGENT_CRASH);
+				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP, false, buggyIdentifier));// TODO
+																														// think
+																														// about
+																														// that
+																														// issue
+				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, aa(), null));
+			}
+		}, AGENT_CRASH);
 	}
 
 	@Test
-	public void returnNullRole(){
-		launchTest(new AbstractAgent(){
+	public void returnNullRole() {
+		launchTest(new AbstractAgent() {
 			protected void activate() {
-				assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP,false,alwaysDeny));
-			}});
+				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP, false, alwaysDeny));
+			}
+		});
 	}
 
 	@Test
-	public void defaultRole(){
-		launchTest(new AbstractAgent(){
+	public void defaultRole() {
+		launchTest(new AbstractAgent() {
 			protected void activate() {
-				assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP));
-				assertTrue(isGroup(COMMUNITY,GROUP));
-				assertTrue(isRole(COMMUNITY,GROUP,Organization.GROUP_MANAGER_ROLE));
-				assertEquals(SUCCESS, leaveGroup(COMMUNITY,GROUP));
-				assertFalse(isGroup(COMMUNITY,GROUP));
-			}});
+				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
+				assertTrue(isGroup(COMMUNITY, GROUP));
+				assertTrue(isRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE));
+				assertEquals(SUCCESS, leaveGroup(COMMUNITY, GROUP));
+				assertFalse(isGroup(COMMUNITY, GROUP));
+			}
+		});
 	}
 
 	@Test
-	public void nullArgs(){
-		launchTest(new AbstractAgent(){
+	public void nullArgs() {
+		launchTest(new AbstractAgent() {
 			protected void activate() {
 				try {
-					assertEquals(NOT_COMMUNITY, requestRole(null,null,null));
+					assertEquals(NOT_COMMUNITY, requestRole(null, null, null));
 					noExceptionFailure();
 				} catch (NullPointerException e) {
 					e.printStackTrace();
 				}
 				try {
-					assertEquals(NOT_COMMUNITY, requestRole(null,null,null,null));
+					assertEquals(NOT_COMMUNITY, requestRole(null, null, null, null));
 					noExceptionFailure();
 				} catch (NullPointerException e) {
 					e.printStackTrace();
 				}
 
-				assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP));
+				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
 				try {
-					assertEquals(NOT_GROUP, requestRole(COMMUNITY,null,null));
+					assertEquals(NOT_GROUP, requestRole(COMMUNITY, null, null));
 					noExceptionFailure();
 				} catch (NullPointerException e) {
 					e.printStackTrace();
 				}
 				try {
-					assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,null,null));
+					assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, null, null));
 					noExceptionFailure();
 				} catch (NullPointerException e) {
 					e.printStackTrace();
 				}
 				try {
-					assertEquals(NOT_COMMUNITY, requestRole(null,GROUP,null));
+					assertEquals(NOT_COMMUNITY, requestRole(null, GROUP, null));
 					noExceptionFailure();
 				} catch (NullPointerException e) {
 					e.printStackTrace();
 				}
 				try {
-					assertEquals(NOT_COMMUNITY, requestRole(null,GROUP,ROLE));
+					assertEquals(NOT_COMMUNITY, requestRole(null, GROUP, ROLE));
 					noExceptionFailure();
 				} catch (NullPointerException e) {
 					e.printStackTrace();
 				}
 				try {
-					assertEquals(NOT_COMMUNITY, requestRole(null,null,ROLE));
+					assertEquals(NOT_COMMUNITY, requestRole(null, null, ROLE));
 					noExceptionFailure();
 				} catch (NullPointerException e) {
 					e.printStackTrace();
 				}
 				try {
-					assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,null,new Object()));
+					assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, null, new Object()));
 					noExceptionFailure();
 				} catch (NullPointerException e) {
 					e.printStackTrace();
@@ -226,12 +237,12 @@ public class RequestRoleTest  extends JunitMadKit{
 	}
 
 	@Test
-	public void onlyOneManager(){
-		launchTest(new AbstractAgent(){
+	public void onlyOneManager() {
+		launchTest(new AbstractAgent() {
 			protected void activate() {
-				assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP));
-				assertEquals(ROLE_ALREADY_HANDLED, requestRole(COMMUNITY,GROUP,Organization.GROUP_MANAGER_ROLE));
-				assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,ROLE));
+				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
+				assertEquals(ROLE_ALREADY_HANDLED, requestRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE));
+				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
 				assertEquals(SUCCESS, launchAgent(helper));
 				assertEquals(SUCCESS, launchAgent(helper2));
 			}
@@ -239,16 +250,15 @@ public class RequestRoleTest  extends JunitMadKit{
 	}
 
 	@Test
-	public void leaveGroupByLeavingRoles(){
-		launchTest(new AbstractAgent(){
+	public void leaveGroupByLeavingRoles() {
+		launchTest(new AbstractAgent() {
 			protected void activate() {
 				assertFalse(isCommunity(COMMUNITY));
-				assertFalse(isGroup(COMMUNITY,GROUP));
-				assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP));
-				assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,ROLE));
+				assertFalse(isGroup(COMMUNITY, GROUP));
+				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
+				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
 			}
 		});
 	}
-
 
 }

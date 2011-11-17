@@ -32,17 +32,18 @@ import madkit.kernel.Madkit.LevelOption;
  */
 @SuppressWarnings("serial")
 public class BuggedFrameAgent extends AbstractAgent {
-	
+
 	@SuppressWarnings("null")
 	@Override
 	public void setupFrame(JFrame frame) {
 		Object o = null;
 		o.toString();
 	}
-	
+
 	public static void main(String[] args) {
-		String[] argss = {LevelOption.agentLogLevel.toString(),"ALL",LevelOption.kernelLogLevel.toString(),"INFO","--launchAgents",BuggedFrameAgent.class.getName(),",true"};
-		Madkit.main(argss);		
+		String[] argss = { LevelOption.agentLogLevel.toString(), "ALL", LevelOption.kernelLogLevel.toString(), "INFO",
+				"--launchAgents", BuggedFrameAgent.class.getName(), ",true" };
+		Madkit.main(argss);
 	}
-	
+
 }

@@ -35,117 +35,115 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class BasicWatcherTest extends JunitMadKit{
-
-
-	@Test
-	public void addingNullProbe(){
-			launchTest(new AbstractAgent(){
-				protected void activate() {
-					createDefaultCGR(this);
-					Watcher s = new Watcher();
-					assertEquals(SUCCESS,launchAgent(s));
-					try {
-						Probe<AbstractAgent> a = new Probe<AbstractAgent>(null, null, null);
-						s.addProbe(a);
-						noExceptionFailure();
-					} catch (NullPointerException e) {
-						e.printStackTrace();
-					}
-					try {
-						Probe<AbstractAgent> a = new Probe<AbstractAgent>(COMMUNITY, null, null);
-						s.addProbe(a);
-						noExceptionFailure();
-					} catch (NullPointerException e) {
-						e.printStackTrace();
-					}
-					try {
-						Probe<AbstractAgent> a = new Probe<AbstractAgent>(COMMUNITY, GROUP, null);
-						s.addProbe(a);
-						noExceptionFailure();
-					} catch (NullPointerException e) {
-						e.printStackTrace();
-					}
-					try {
-						Probe<AbstractAgent> a = new Probe<AbstractAgent>(null, GROUP, null);
-						s.addProbe(a);
-						noExceptionFailure();
-					} catch (NullPointerException e) {
-						e.printStackTrace();
-					}
-					try {
-						Probe<AbstractAgent> a = new Probe<AbstractAgent>(null, null, ROLE);
-						s.addProbe(a);
-						noExceptionFailure();
-					} catch (NullPointerException e) {
-						e.printStackTrace();
-					}
-				}
-			});
-	}
-	
-	
+public class BasicWatcherTest extends JunitMadKit {
 
 	@Test
-	public void addingAndRemovingProbes(){
-		launchTest(new AbstractAgent(){
+	public void addingNullProbe() {
+		launchTest(new AbstractAgent() {
 			protected void activate() {
 				createDefaultCGR(this);
 				Watcher s = new Watcher();
-				assertEquals(SUCCESS,launchAgent(s));
+				assertEquals(SUCCESS, launchAgent(s));
+				try {
+					Probe<AbstractAgent> a = new Probe<AbstractAgent>(null, null, null);
+					s.addProbe(a);
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+				try {
+					Probe<AbstractAgent> a = new Probe<AbstractAgent>(COMMUNITY, null, null);
+					s.addProbe(a);
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+				try {
+					Probe<AbstractAgent> a = new Probe<AbstractAgent>(COMMUNITY, GROUP, null);
+					s.addProbe(a);
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+				try {
+					Probe<AbstractAgent> a = new Probe<AbstractAgent>(null, GROUP, null);
+					s.addProbe(a);
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+				try {
+					Probe<AbstractAgent> a = new Probe<AbstractAgent>(null, null, ROLE);
+					s.addProbe(a);
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	@Test
+	public void addingAndRemovingProbes() {
+		launchTest(new AbstractAgent() {
+			protected void activate() {
+				createDefaultCGR(this);
+				Watcher s = new Watcher();
+				assertEquals(SUCCESS, launchAgent(s));
 				ReturnCode code;
-				/////////////////////////// REQUEST ROLE ////////////////////////
-				Probe<AbstractAgent> a = new Probe<AbstractAgent>(COMMUNITY,GROUP,ROLE);
+				// ///////////////////////// REQUEST ROLE ////////////////////////
+				Probe<AbstractAgent> a = new Probe<AbstractAgent>(COMMUNITY, GROUP, ROLE);
 				s.addProbe(a);
-				assertEquals(1,a.size());
+				assertEquals(1, a.size());
 
-				code = leaveRole(COMMUNITY,GROUP,ROLE);
-				assertEquals(SUCCESS,code);
-				assertEquals(0,a.size());
-				
-				assertEquals(ALREADY_GROUP,createGroup(COMMUNITY,GROUP, false,null));
-				assertEquals(SUCCESS,requestRole(COMMUNITY,GROUP,ROLE,null));
+				code = leaveRole(COMMUNITY, GROUP, ROLE);
+				assertEquals(SUCCESS, code);
+				assertEquals(0, a.size());
 
-				assertEquals(1,a.size());
+				assertEquals(ALREADY_GROUP, createGroup(COMMUNITY, GROUP, false, null));
+				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE, null));
 
-				assertEquals(SUCCESS,leaveGroup(COMMUNITY,GROUP));		
-				assertEquals(0,a.size());
+				assertEquals(1, a.size());
+
+				assertEquals(SUCCESS, leaveGroup(COMMUNITY, GROUP));
+				assertEquals(0, a.size());
 
 				// Adding and removing while group does not exist
 				s.removeProbe(a);
-				assertEquals(0,a.size());
+				assertEquals(0, a.size());
 				s.addProbe(a);
-				assertEquals(0,a.size());
+				assertEquals(0, a.size());
 
-				assertEquals(SUCCESS,createGroup(COMMUNITY,GROUP, false,null));
-				assertEquals(SUCCESS,requestRole(COMMUNITY,GROUP,ROLE,null));
-				AbstractAgent other = new AbstractAgent(){
+				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP, false, null));
+				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE, null));
+				AbstractAgent other = new AbstractAgent() {
 					protected void activate() {
-						assertEquals(SUCCESS,requestRole(COMMUNITY,GROUP,ROLE,null));
+						assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE, null));
 					}
 				};
 				assertEquals(SUCCESS, launchAgent(other));
 
-				assertEquals(2,a.size());
+				assertEquals(2, a.size());
 				s.removeProbe(a);
-				assertEquals(0,a.size());
+				assertEquals(0, a.size());
 
 				s.addProbe(a);
-				assertEquals(2,a.size());
+				assertEquals(2, a.size());
 
-				assertEquals(SUCCESS, leaveGroup(COMMUNITY,GROUP));		
-				assertEquals(1,a.size());
-				assertEquals(SUCCESS,other.leaveGroup(COMMUNITY,GROUP));		
-				assertEquals(0,a.size());
+				assertEquals(SUCCESS, leaveGroup(COMMUNITY, GROUP));
+				assertEquals(1, a.size());
+				assertEquals(SUCCESS, other.leaveGroup(COMMUNITY, GROUP));
+				assertEquals(0, a.size());
 
-				assertEquals(SUCCESS,createGroup(COMMUNITY,GROUP, false,null));
-				assertEquals(SUCCESS,requestRole(COMMUNITY,GROUP,ROLE,null));
-				assertEquals(SUCCESS,other.requestRole(COMMUNITY,GROUP,ROLE,null));
-				assertEquals(2,a.size());
+				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP, false, null));
+				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE, null));
+				assertEquals(SUCCESS, other.requestRole(COMMUNITY, GROUP, ROLE, null));
+				assertEquals(2, a.size());
 
 				killAgent(s);
-				assertEquals(0,a.size());
-			}});
+				assertEquals(0, a.size());
+			}
+		});
 	}
 
 }

@@ -27,8 +27,7 @@ import madkit.kernel.Madkit.LevelOption;
  * @version 0.9
  * 
  */
-public class NormalLife extends DoItDuringLifeCycleAgent{
-
+public class NormalLife extends DoItDuringLifeCycleAgent {
 
 	/**
 	 * 
@@ -54,16 +53,15 @@ public class NormalLife extends DoItDuringLifeCycleAgent{
 	@Override
 	public void doIt() {
 		for (int i = 0; i < 100; i++) {
-			System.err.println(getName()+" "+getState());
-			pause((int)(Math.random()*1000));
+			System.err.println(getName() + " " + getState());
+			pause((int) (Math.random() * 1000));
 		}
 	}
-	
+
 	public static void main(String[] args) {
-		String[] argss = {LevelOption.agentLogLevel.toString(),"ALL",LevelOption.kernelLogLevel.toString(),"ALL","--launchAgents",NormalLife.class.getName(),",true;madkit.kernel.Agent"};
-		Madkit.main(argss);		
+		String[] argss = { LevelOption.agentLogLevel.toString(), "ALL", LevelOption.kernelLogLevel.toString(), "ALL",
+				"--launchAgents", NormalLife.class.getName(), ",true;madkit.kernel.Agent" };
+		Madkit.main(argss);
 	}
-	
+
 }
-
-

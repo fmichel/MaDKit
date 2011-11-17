@@ -3,7 +3,6 @@
  */
 package madkit.classreloading;
 
-
 import java.util.logging.Level;
 
 import madkit.kernel.AbstractAgent;
@@ -12,7 +11,7 @@ import madkit.kernel.Madkit;
 
 /**
  * @author fab
- *
+ * 
  */
 public class Simple extends Agent {
 
@@ -20,14 +19,16 @@ public class Simple extends Agent {
 	 * 
 	 */
 	private static final long serialVersionUID = 6296623449623724485L;
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see test.util.JUnitBooterAgent#activate()
 	 */
 	@Override
 	public void activate() {
 		setLogLevel(Level.ALL);
-		launchAgent("madkit.kernel.AbstractAgent",true);
+		launchAgent("madkit.kernel.AbstractAgent", true);
 		while (true) {
 			try {
 				reloadAgentClass("madkit.classreloading.TestAgent");
@@ -35,14 +36,15 @@ public class Simple extends Agent {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			AbstractAgent a = launchAgent("madkit.kernel.AbstractAgent",true);
+			AbstractAgent a = launchAgent("madkit.kernel.AbstractAgent", true);
 			pause(2000);
-				killAgent(a);
+			killAgent(a);
 		}
 	}
-	
+
 	public static void main(String[] argss) {
-		String[] args = {"--agentLogLevel","ALL","--MadkitLogLevel","OFF","--orgLogLevel","OFF","--launchAgents",Simple.class.getName()};
+		String[] args = { "--agentLogLevel", "ALL", "--MadkitLogLevel", "OFF", "--orgLogLevel", "OFF", "--launchAgents",
+				Simple.class.getName() };
 		Madkit.main(args);
 	}
 }

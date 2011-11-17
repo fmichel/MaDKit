@@ -26,35 +26,34 @@ import madkit.kernel.AbstractAgent;
  * @version 0.9
  * 
  */
-public abstract class DoItDuringLifeCycleAbstractAgent extends AbstractAgent{
-
+public abstract class DoItDuringLifeCycleAbstractAgent extends AbstractAgent {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	protected boolean inActivate=false,inEnd=false;
-	
-	public DoItDuringLifeCycleAbstractAgent(boolean inActivate, boolean inEnd){
+	protected boolean inActivate = false, inEnd = false;
+
+	public DoItDuringLifeCycleAbstractAgent(boolean inActivate, boolean inEnd) {
 		this.inActivate = inActivate;
 		this.inEnd = inEnd;
-		setName(getClass().getSimpleName()+(inActivate?"-inActivate-":"")+(inEnd?"-inEnd-":"")+hashCode());
+		setName(getClass().getSimpleName() + (inActivate ? "-inActivate-" : "") + (inEnd ? "-inEnd-" : "") + hashCode());
 	}
-	
-	public DoItDuringLifeCycleAbstractAgent(boolean inActivate){
+
+	public DoItDuringLifeCycleAbstractAgent(boolean inActivate) {
 		this(inActivate, false);
 	}
-	
-	public DoItDuringLifeCycleAbstractAgent(){
+
+	public DoItDuringLifeCycleAbstractAgent() {
 		this(true, false);
 	}
-	
+
 	public void activate() {
 		if (inActivate) {
 			doIt();
 		}
 	}
-	
+
 	public void end() {
 		super.end();
 		if (inEnd) {
@@ -62,10 +61,8 @@ public abstract class DoItDuringLifeCycleAbstractAgent extends AbstractAgent{
 		}
 	}
 
-	public void doIt(){
-		if(logger != null)
-			logger.info("I am in "+getState());
+	public void doIt() {
+		if (logger != null)
+			logger.info("I am in " + getState());
 	}
 }
-
-

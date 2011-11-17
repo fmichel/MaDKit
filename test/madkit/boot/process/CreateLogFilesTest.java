@@ -40,23 +40,20 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class CreateLogFilesTest extends  JunitMadKit{
+public class CreateLogFilesTest extends JunitMadKit {
 
 	File f;
 	FilenameFilter filter = new FilenameFilter() {
 		@Override
 		public boolean accept(File dir, String name) {
-			return ! name.contains(".lck");
+			return !name.contains(".lck");
 		}
 	};
-	
+
 	@Test
 	public void defaultLogDirectory() {
-		addMadkitArgs(
-				BooleanOption.createLogFiles.toString(),
-				LevelOption.kernelLogLevel.toString(),"INFO"
-		);
-		launchTest(new AbstractAgent(){
+		addMadkitArgs(BooleanOption.createLogFiles.toString(), LevelOption.kernelLogLevel.toString(), "INFO");
+		launchTest(new AbstractAgent() {
 			@Override
 			protected void activate() {
 				System.err.println(getMadkitProperty(Option.logDirectory.name()));
@@ -67,16 +64,13 @@ public class CreateLogFilesTest extends  JunitMadKit{
 		System.err.println(f);
 		assertTrue(f.exists());
 		assertTrue(f.isDirectory());
-		assertSame(3,f.listFiles(filter).length);
+		assertSame(3, f.listFiles(filter).length);
 	}
 
 	@Test
 	public void noLogDirectory() {
-		addMadkitArgs(
-				BooleanOption.createLogFiles.toString(),"false"
-				,LevelOption.kernelLogLevel.toString(),"INFO"
-		);
-		launchTest(new AbstractAgent(){
+		addMadkitArgs(BooleanOption.createLogFiles.toString(), "false", LevelOption.kernelLogLevel.toString(), "INFO");
+		launchTest(new AbstractAgent() {
 			@Override
 			protected void activate() {
 				System.err.println(getMadkitProperty(Option.logDirectory.name()));
@@ -88,13 +82,10 @@ public class CreateLogFilesTest extends  JunitMadKit{
 
 	@Test
 	public void absoluteLogDirectory() {
-		addMadkitArgs(
-				BooleanOption.createLogFiles.toString(),
-				Option.logDirectory.toString(),System.getProperty("java.io.tmpdir")
-				,LevelOption.kernelLogLevel.toString(),"ALL"
-				,LevelOption.madkitLogLevel.toString(),"OFF"
-		);
-		launchTest(new AbstractAgent(){
+		addMadkitArgs(BooleanOption.createLogFiles.toString(), Option.logDirectory.toString(),
+				System.getProperty("java.io.tmpdir"), LevelOption.kernelLogLevel.toString(), "ALL",
+				LevelOption.madkitLogLevel.toString(), "OFF");
+		launchTest(new AbstractAgent() {
 			@Override
 			protected void activate() {
 				System.err.println(getMadkitProperty(Option.logDirectory.name()));
@@ -104,18 +95,14 @@ public class CreateLogFilesTest extends  JunitMadKit{
 		assertTrue(f.exists());
 		assertTrue(f.isDirectory());
 		pause(500);
-		assertSame(3,f.listFiles(filter).length);
+		assertSame(3, f.listFiles(filter).length);
 	}
-	
+
 	@Test
 	public void noFilesOnLogOFF() {
-		addMadkitArgs(
-				BooleanOption.createLogFiles.toString()
-				,LevelOption.kernelLogLevel.toString(),"OFF"
-				,LevelOption.agentLogLevel.toString(),"OFF"
-				,LevelOption.madkitLogLevel.toString(),"ALL"
-		);
-		launchTest(new AbstractAgent(){
+		addMadkitArgs(BooleanOption.createLogFiles.toString(), LevelOption.kernelLogLevel.toString(), "OFF",
+				LevelOption.agentLogLevel.toString(), "OFF", LevelOption.madkitLogLevel.toString(), "ALL");
+		launchTest(new AbstractAgent() {
 			@Override
 			protected void activate() {
 				System.err.println(getMadkitProperty(Option.logDirectory.name()));
@@ -125,16 +112,13 @@ public class CreateLogFilesTest extends  JunitMadKit{
 		assertTrue(f.exists());
 		assertTrue(f.isDirectory());
 		pause(500);
-		assertSame(0,f.listFiles(filter).length);
+		assertSame(0, f.listFiles(filter).length);
 	}
-	
+
 	@Test
 	public void noKernelFile() {
-		addMadkitArgs(
-				BooleanOption.createLogFiles.toString(),
-				LevelOption.kernelLogLevel.toString(),"OFF"
-		);
-		launchTest(new AbstractAgent(){
+		addMadkitArgs(BooleanOption.createLogFiles.toString(), LevelOption.kernelLogLevel.toString(), "OFF");
+		launchTest(new AbstractAgent() {
 			@Override
 			protected void activate() {
 				System.err.println(getMadkitProperty(Option.logDirectory.name()));
@@ -144,8 +128,7 @@ public class CreateLogFilesTest extends  JunitMadKit{
 			}
 		});
 		pause(500);
-		assertSame(2,f.listFiles(filter).length);
+		assertSame(2, f.listFiles(filter).length);
 	}
-
 
 }

@@ -39,8 +39,8 @@ public class ForEverAgent extends Agent {
 
 	@Override
 	protected void activate() {
-		createGroupIfAbsent(JunitMadKit.COMMUNITY,GROUP);
-		assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,ROLE));
+		createGroupIfAbsent(JunitMadKit.COMMUNITY, GROUP);
+		assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
 	}
 
 	@Override
@@ -51,9 +51,9 @@ public class ForEverAgent extends Agent {
 	}
 
 	public static void main(String[] args) {
-		String[] argss = {LevelOption.agentLogLevel.toString(),"ALL",LevelOption.kernelLogLevel.toString(),"ALL","--launchAgents",ForEverAgent.class.getName(),",true"};
-		Madkit.main(argss);		
+		String[] argss = { LevelOption.agentLogLevel.toString(), "ALL", LevelOption.kernelLogLevel.toString(), "ALL",
+				"--launchAgents", ForEverAgent.class.getName(), ",true" };
+		Madkit.main(argss);
 	}
-
 
 }

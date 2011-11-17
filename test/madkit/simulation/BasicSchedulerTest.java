@@ -36,135 +36,133 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class BasicSchedulerTest extends JunitMadKit{
-
-
-	@Test
-	public void addingNullActivator(){
-			launchTest(new AbstractAgent(){
-				protected void activate() {
-					createDefaultCGR(this);
-					Scheduler s = new Scheduler();
-					assertEquals(SUCCESS,launchAgent(s));
-					try {
-						Activator<AbstractAgent> a = new Activator<AbstractAgent>(null, null, null);
-						s.addActivator(a);
-						noExceptionFailure();
-					} catch (NullPointerException e) {
-						e.printStackTrace();
-					}
-					try {
-						Activator<AbstractAgent> a = new Activator<AbstractAgent>(COMMUNITY, null, null);
-						s.addActivator(a);
-						noExceptionFailure();
-					} catch (NullPointerException e) {
-						e.printStackTrace();
-					}
-					try {
-						Activator<AbstractAgent> a = new Activator<AbstractAgent>(COMMUNITY, GROUP, null);
-						s.addActivator(a);
-						noExceptionFailure();
-					} catch (NullPointerException e) {
-						e.printStackTrace();
-					}
-					try {
-						Activator<AbstractAgent> a = new Activator<AbstractAgent>(null, GROUP, null);
-						s.addActivator(a);
-						noExceptionFailure();
-					} catch (NullPointerException e) {
-						e.printStackTrace();
-					}
-					try {
-						Activator<AbstractAgent> a = new Activator<AbstractAgent>(null, null, ROLE);
-						s.addActivator(a);
-						noExceptionFailure();
-					} catch (NullPointerException e) {
-						e.printStackTrace();
-					}
-				}
-			});
-	}
-
+public class BasicSchedulerTest extends JunitMadKit {
 
 	@Test
-	public void addingNullActivatorExceptionPrint(){
-			launchTest(new AbstractAgent(){
-				protected void activate() {
-					createDefaultCGR(this);
-					Scheduler s = new Scheduler();
-					assertEquals(SUCCESS,launchAgent(s));
-						Activator<AbstractAgent> a = new Activator<AbstractAgent>(null, null, null);
-						s.addActivator(a);
-					}
-			},ReturnCode.AGENT_CRASH);
-	}
-
-
-	@Test
-	public void addingAndRemovingActivators(){
-		launchTest(new AbstractAgent(){
+	public void addingNullActivator() {
+		launchTest(new AbstractAgent() {
 			protected void activate() {
-				assertEquals(SUCCESS, createGroup("public", "system", false,null));
-				assertEquals(SUCCESS, requestRole("public", "system", "site",null));
-				Scheduler s = new Scheduler(){
+				createDefaultCGR(this);
+				Scheduler s = new Scheduler();
+				assertEquals(SUCCESS, launchAgent(s));
+				try {
+					Activator<AbstractAgent> a = new Activator<AbstractAgent>(null, null, null);
+					s.addActivator(a);
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+				try {
+					Activator<AbstractAgent> a = new Activator<AbstractAgent>(COMMUNITY, null, null);
+					s.addActivator(a);
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+				try {
+					Activator<AbstractAgent> a = new Activator<AbstractAgent>(COMMUNITY, GROUP, null);
+					s.addActivator(a);
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+				try {
+					Activator<AbstractAgent> a = new Activator<AbstractAgent>(null, GROUP, null);
+					s.addActivator(a);
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+				try {
+					Activator<AbstractAgent> a = new Activator<AbstractAgent>(null, null, ROLE);
+					s.addActivator(a);
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	@Test
+	public void addingNullActivatorExceptionPrint() {
+		launchTest(new AbstractAgent() {
+			protected void activate() {
+				createDefaultCGR(this);
+				Scheduler s = new Scheduler();
+				assertEquals(SUCCESS, launchAgent(s));
+				Activator<AbstractAgent> a = new Activator<AbstractAgent>(null, null, null);
+				s.addActivator(a);
+			}
+		}, ReturnCode.AGENT_CRASH);
+	}
+
+	@Test
+	public void addingAndRemovingActivators() {
+		launchTest(new AbstractAgent() {
+			protected void activate() {
+				assertEquals(SUCCESS, createGroup("public", "system", false, null));
+				assertEquals(SUCCESS, requestRole("public", "system", "site", null));
+				Scheduler s = new Scheduler() {
 					public void live() {
 						pause(10000);
 					}
 				};
-				assertEquals(SUCCESS,launchAgent(s));
+				assertEquals(SUCCESS, launchAgent(s));
 				ReturnCode code;
-				/////////////////////////// REQUEST ROLE ////////////////////////
+				// ///////////////////////// REQUEST ROLE ////////////////////////
 				Activator<AbstractAgent> a = new Activator<AbstractAgent>("public", "system", "site");
 				s.addActivator(a);
-				assertEquals(1,a.size());
+				assertEquals(1, a.size());
 
 				code = leaveRole("public", "system", "site");
-				assertEquals(SUCCESS,code);
-				assertEquals(0,a.size());
-				
-				assertEquals(ALREADY_GROUP,createGroup("public", "system", false,null));
-				assertEquals(SUCCESS,requestRole("public", "system", "site",null));
+				assertEquals(SUCCESS, code);
+				assertEquals(0, a.size());
 
-				assertEquals(1,a.size());
+				assertEquals(ALREADY_GROUP, createGroup("public", "system", false, null));
+				assertEquals(SUCCESS, requestRole("public", "system", "site", null));
 
-				assertEquals(SUCCESS,leaveGroup("public", "system"));		
-				assertEquals(0,a.size());
+				assertEquals(1, a.size());
+
+				assertEquals(SUCCESS, leaveGroup("public", "system"));
+				assertEquals(0, a.size());
 
 				// Adding and removing while group does not exist
 				s.removeActivator(a);
-				assertEquals(0,a.size());
+				assertEquals(0, a.size());
 				s.addActivator(a);
-				assertEquals(0,a.size());
+				assertEquals(0, a.size());
 
-				assertEquals(SUCCESS,createGroup("public", "system", false,null));
-				assertEquals(SUCCESS,requestRole("public", "system", "site",null));
-				AbstractAgent other = new AbstractAgent(){
+				assertEquals(SUCCESS, createGroup("public", "system", false, null));
+				assertEquals(SUCCESS, requestRole("public", "system", "site", null));
+				AbstractAgent other = new AbstractAgent() {
 					protected void activate() {
-						assertEquals(SUCCESS,requestRole("public", "system", "site",null));
+						assertEquals(SUCCESS, requestRole("public", "system", "site", null));
 					}
 				};
 				assertEquals(SUCCESS, launchAgent(other));
 
-				assertEquals(2,a.size());
+				assertEquals(2, a.size());
 				s.removeActivator(a);
-				assertEquals(0,a.size());
+				assertEquals(0, a.size());
 
 				s.addActivator(a);
-				assertEquals(2,a.size());
+				assertEquals(2, a.size());
 
-				assertEquals(SUCCESS, leaveGroup("public", "system"));		
-				assertEquals(1,a.size());
-				assertEquals(SUCCESS,other.leaveGroup("public", "system"));		
-				assertEquals(0,a.size());
+				assertEquals(SUCCESS, leaveGroup("public", "system"));
+				assertEquals(1, a.size());
+				assertEquals(SUCCESS, other.leaveGroup("public", "system"));
+				assertEquals(0, a.size());
 
-				assertEquals(SUCCESS,createGroup("public", "system", false,null));
-				assertEquals(SUCCESS,requestRole("public", "system", "site",null));
-				assertEquals(SUCCESS,other.requestRole("public", "system", "site",null));
-				assertEquals(2,a.size());
+				assertEquals(SUCCESS, createGroup("public", "system", false, null));
+				assertEquals(SUCCESS, requestRole("public", "system", "site", null));
+				assertEquals(SUCCESS, other.requestRole("public", "system", "site", null));
+				assertEquals(2, a.size());
 
 				killAgent(s);
-				assertEquals(0,a.size());
-			}});
+				assertEquals(0, a.size());
+			}
+		});
 	}
 
 }

@@ -26,69 +26,67 @@ import madkit.kernel.Agent;
  * @version 0.9
  * 
  */
-public abstract class DoItDuringLifeCycleAgent extends Agent{
-
+public abstract class DoItDuringLifeCycleAgent extends Agent {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 6981758600598841907L;
-	private boolean inActivate=false,inLive=false,inEnd=false;
-	
-	public DoItDuringLifeCycleAgent(boolean inActivate, boolean inLive, boolean inEnd){
+	private boolean inActivate = false, inLive = false, inEnd = false;
+
+	public DoItDuringLifeCycleAgent(boolean inActivate, boolean inLive, boolean inEnd) {
 		this.inActivate = inActivate;
 		this.inLive = inLive;
 		this.inEnd = inEnd;
 		setName(getName());
 	}
-	
-	public DoItDuringLifeCycleAgent(boolean inActivate, boolean inLive){
-		this(inActivate, inLive,false);
+
+	public DoItDuringLifeCycleAgent(boolean inActivate, boolean inLive) {
+		this(inActivate, inLive, false);
 	}
-	
-	public DoItDuringLifeCycleAgent(boolean inActivate){
+
+	public DoItDuringLifeCycleAgent(boolean inActivate) {
 		this(inActivate, false, false);
 	}
-	
-	public DoItDuringLifeCycleAgent(){
+
+	public DoItDuringLifeCycleAgent() {
 		this(false, true, false);
 	}
-	
+
 	@Override
 	public String getName() {
 		// TODO Auto-generated method stub
-		return super.getName()+(inActivate?"-inActivate-":"")+(inLive?"-inLive-":"")+(inEnd?"-inEnd-":"")+hashCode();
+		return super.getName() + (inActivate ? "-inActivate-" : "") + (inLive ? "-inLive-" : "") + (inEnd ? "-inEnd-" : "")
+				+ hashCode();
 	}
-	
+
 	public void activate() {
 		if (inActivate) {
-			if(logger != null)
+			if (logger != null)
 				logger.info("Doing It in activate!!");
- 			doIt();
+			doIt();
 		}
 	}
-	
+
 	public void live() {
 		if (inLive) {
-			if(logger != null)
+			if (logger != null)
 				logger.info("Doing It in live!!");
 			doIt();
 		}
 	}
-	
+
 	public void end() {
 		super.end();
 		if (inEnd) {
-			if(logger != null)
+			if (logger != null)
 				logger.info("Doing It in end!!");
 			doIt();
 		}
 	}
 
-	public void doIt(){
-		if(logger != null)
-			logger.info("\n\n\tDo it JOB DONE !!!!!! in "+getState()+"\n\n");
+	public void doIt() {
+		if (logger != null)
+			logger.info("\n\n\tDo it JOB DONE !!!!!! in " + getState() + "\n\n");
 	}
 }
-
-

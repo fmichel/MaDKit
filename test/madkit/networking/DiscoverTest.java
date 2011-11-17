@@ -32,7 +32,6 @@ import madkit.kernel.Madkit.BooleanOption;
 
 import org.junit.Test;
 
-
 /**
  * @author Fabien Michel
  * @since MadKit 5.0.0.10
@@ -40,32 +39,33 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class DiscoverTest extends JunitMadKit{
+public class DiscoverTest extends JunitMadKit {
 
 	@Test
 	public void multipleConnectionTest() {
 		addMadkitArgs(BooleanOption.network.toString());
-		launchTest(new AbstractAgent(){
+		launchTest(new AbstractAgent() {
 			@Override
 			protected void activate() {
-				launchMKNetworkInstance();		
-				launchMKNetworkInstance();		
-				launchMKNetworkInstance();	
-				launchMKNetworkInstance();	
-				launchMKNetworkInstance();	
+				launchMKNetworkInstance();
+				launchMKNetworkInstance();
+				launchMKNetworkInstance();
+				launchMKNetworkInstance();
+				launchMKNetworkInstance();
 				pause(2000);
-				List<AgentAddress> l = getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT);
+				List<AgentAddress> l = getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS,
+						CloudCommunity.Roles.NET_AGENT);
 				for (AgentAddress agentAddress : l) {
 					System.err.println(agentAddress);
 				}
 				assertEquals(6, l.size());
 				MadkitAction.STOP_NETWORK.getAction(this).actionPerformed(null);
 				pause(100);
-				
-				//not connected 
+
+				// not connected
 				assertFalse(isCommunity(CloudCommunity.NAME));
 
-				//second round
+				// second round
 				MadkitAction.LAUNCH_NETWORK.getAction(this).actionPerformed(null);
 				pause(1000);
 				l = getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT);
@@ -75,5 +75,5 @@ public class DiscoverTest extends JunitMadKit{
 				assertEquals(6, l.size());
 			}
 		});
-	}	
+	}
 }

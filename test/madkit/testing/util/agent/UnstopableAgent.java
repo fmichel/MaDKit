@@ -27,9 +27,8 @@ import madkit.kernel.Madkit.LevelOption;
  * @version 0.9
  * 
  */
-public class UnstopableAgent extends DoItDuringLifeCycleAgent
-{
-	
+public class UnstopableAgent extends DoItDuringLifeCycleAgent {
+
 	/**
 	 * 
 	 */
@@ -48,26 +47,26 @@ public class UnstopableAgent extends DoItDuringLifeCycleAgent
 	}
 
 	public UnstopableAgent() {
-		super(true,true,true);
+		super(true, true, true);
 	}
-
-
 
 	public void doIt() {
 		super.doIt();
 		int i = 0;
-		while(true){
+		while (true) {
 			i++;
-			if(i%10000000 == 0){
-				if(logger != null)
-					logger.info(getState()+" "+i);
+			if (i % 10000000 == 0) {
+				if (logger != null)
+					logger.info(getState() + " " + i);
 			}
 		}
 	}
 
 	public static void main(String[] args) {
-		String[] argss = {LevelOption.agentLogLevel.toString(),"ALL",LevelOption.kernelLogLevel.toString(),"ALL","--launchAgents",UnstopableAgent.class.getName(),",true"};
-		Madkit.main(argss);		
+		executeThisAgent(args);
+//		String[] argss = { LevelOption.agentLogLevel.toString(), "ALL", LevelOption.kernelLogLevel.toString(), "ALL",
+//				"--launchAgents", UnstopableAgent.class.getName(), ",true" };
+//		Madkit.main(argss);
 	}
 
 }

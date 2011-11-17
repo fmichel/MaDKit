@@ -6,7 +6,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class RootKernelTest {
-	
+
 	static FakeKernel fakeKernel;
 
 	@BeforeClass
@@ -36,7 +36,7 @@ public class RootKernelTest {
 
 	@Test
 	public void testCreateGroupAbstractAgentStringStringStringGroupIdentifierBoolean() {
-				try {
+		try {
 			fakeKernel.getKernelAddress();
 			fail("kernel exepction not thrown");
 		} catch (KernelException e) {
@@ -47,7 +47,7 @@ public class RootKernelTest {
 
 	@Test
 	public void testRequestRoleAbstractAgentStringStringStringObject() {
-				try {
+		try {
 			fakeKernel.getKernelAddress();
 			fail("kernel exepction not thrown");
 		} catch (KernelException e) {
@@ -58,7 +58,7 @@ public class RootKernelTest {
 
 	@Test
 	public void testLeaveGroupAbstractAgentStringString() {
-				try {
+		try {
 			fakeKernel.getKernelAddress();
 			fail("kernel exepction not thrown");
 		} catch (KernelException e) {
@@ -69,7 +69,7 @@ public class RootKernelTest {
 
 	@Test
 	public void testLeaveRoleAbstractAgentStringStringString() {
-				try {
+		try {
 			fakeKernel.getKernelAddress();
 			fail("kernel exepction not thrown");
 		} catch (KernelException e) {
@@ -80,7 +80,7 @@ public class RootKernelTest {
 
 	@Test
 	public void testGetAgentsWithRoleAbstractAgentStringStringString() {
-				try {
+		try {
 			fakeKernel.getKernelAddress();
 			fail("kernel exepction not thrown");
 		} catch (KernelException e) {
@@ -91,7 +91,7 @@ public class RootKernelTest {
 
 	@Test
 	public void testGetAgentWithRoleAbstractAgentStringStringString() {
-				try {
+		try {
 			fakeKernel.getKernelAddress();
 			fail("kernel exepction not thrown");
 		} catch (KernelException e) {
@@ -102,7 +102,7 @@ public class RootKernelTest {
 
 	@Test
 	public void testSendMessageAbstractAgentStringStringStringMessageString() {
-				try {
+		try {
 			fakeKernel.getKernelAddress();
 			fail("kernel exepction not thrown");
 		} catch (KernelException e) {
@@ -113,7 +113,7 @@ public class RootKernelTest {
 
 	@Test
 	public void testSendMessageAbstractAgentAgentAddressMessageString() {
-				try {
+		try {
 			fakeKernel.getKernelAddress();
 			fail("kernel exepction not thrown");
 		} catch (KernelException e) {
@@ -124,7 +124,7 @@ public class RootKernelTest {
 
 	@Test
 	public void testSendReplyWithRoleAbstractAgentMessageMessageString() {
-				try {
+		try {
 			fakeKernel.getKernelAddress();
 			fail("kernel exepction not thrown");
 		} catch (KernelException e) {
@@ -135,7 +135,7 @@ public class RootKernelTest {
 
 	@Test
 	public void testBroadcastMessageWithRoleAbstractAgentStringStringStringMessageString() {
-				try {
+		try {
 			fakeKernel.getKernelAddress();
 			fail("kernel exepction not thrown");
 		} catch (KernelException e) {
@@ -146,7 +146,7 @@ public class RootKernelTest {
 
 	@Test
 	public void testBroadcastMessageWithRoleAndWaitForRepliesAbstractAgentStringStringStringMessageStringInteger() {
-				try {
+		try {
 			fakeKernel.getKernelAddress();
 			fail("kernel exepction not thrown");
 		} catch (KernelException e) {
@@ -157,7 +157,7 @@ public class RootKernelTest {
 
 	@Test
 	public void testLaunchAgentBucketWithRolesAbstractAgentStringIntCollectionOfString() {
-				try {
+		try {
 			fakeKernel.getKernelAddress();
 			fail("kernel exepction not thrown");
 		} catch (KernelException e) {
@@ -168,7 +168,7 @@ public class RootKernelTest {
 
 	@Test
 	public void testLaunchAgentAbstractAgentStringIntBoolean() {
-				try {
+		try {
 			fakeKernel.getKernelAddress();
 			fail("kernel exepction not thrown");
 		} catch (KernelException e) {
@@ -179,7 +179,7 @@ public class RootKernelTest {
 
 	@Test
 	public void testLaunchAgentAbstractAgentAbstractAgentIntBoolean() {
-				try {
+		try {
 			fakeKernel.getKernelAddress();
 			fail("kernel exepction not thrown");
 		} catch (KernelException e) {
@@ -190,7 +190,7 @@ public class RootKernelTest {
 
 	@Test
 	public void testKillAgentAbstractAgentAbstractAgentInt() {
-				try {
+		try {
 			fakeKernel.getKernelAddress();
 			fail("kernel exepction not thrown");
 		} catch (KernelException e) {
@@ -201,7 +201,7 @@ public class RootKernelTest {
 
 	@Test
 	public void testAddOverlooker() {
-				try {
+		try {
 			fakeKernel.getKernelAddress();
 			fail("kernel exepction not thrown");
 		} catch (KernelException e) {
@@ -212,7 +212,7 @@ public class RootKernelTest {
 
 	@Test
 	public void testRemoveOverlooker() {
-				try {
+		try {
 			fakeKernel.getKernelAddress();
 			fail("kernel exepction not thrown");
 		} catch (KernelException e) {
@@ -223,7 +223,7 @@ public class RootKernelTest {
 
 	@Test
 	public void testGetNewestClassVersionAbstractAgentString() {
-				try {
+		try {
 			fakeKernel.getKernelAddress();
 			fail("kernel exepction not thrown");
 		} catch (KernelException e) {
@@ -234,7 +234,7 @@ public class RootKernelTest {
 
 	@Test
 	public void testGetMadkitPropertyAbstractAgentString() {
-				try {
+		try {
 			fakeKernel.getKernelAddress();
 			fail("kernel exepction not thrown");
 		} catch (KernelException e) {
@@ -245,7 +245,7 @@ public class RootKernelTest {
 
 	@Test
 	public void testSetMadkitPropertyAbstractAgentStringString() {
-				try {
+		try {
 			fakeKernel.getKernelAddress();
 			fail("kernel exepction not thrown");
 		} catch (KernelException e) {
@@ -256,7 +256,7 @@ public class RootKernelTest {
 
 	@Test
 	public void testReloadClass() {
-				try {
+		try {
 			fakeKernel.reloadClass(null, null);
 			fail("kernel exepction not thrown");
 		} catch (KernelException e) {
@@ -269,7 +269,7 @@ public class RootKernelTest {
 
 	@Test
 	public void testIsCommunityAbstractAgentString() {
-				try {
+		try {
 			fakeKernel.isCommunity(null, null);
 			fail("kernel exepction not thrown");
 		} catch (KernelException e) {
@@ -280,7 +280,7 @@ public class RootKernelTest {
 
 	@Test
 	public void testIsGroupAbstractAgentStringString() {
-				try {
+		try {
 			fakeKernel.isGroup(null, null, null);
 			fail("kernel exepction not thrown");
 		} catch (KernelException e) {
@@ -291,7 +291,7 @@ public class RootKernelTest {
 
 	@Test
 	public void testIsRoleAbstractAgentStringStringString() {
-				try {
+		try {
 			fakeKernel.isRole(null, null, null, null);
 			fail("kernel exepction not thrown");
 		} catch (KernelException e) {
@@ -302,8 +302,8 @@ public class RootKernelTest {
 
 	@Test
 	public void testCreateGroupIfAbsentAbstractAgentStringStringStringGroupIdentifierBoolean() {
-				try {
-			fakeKernel.createGroupIfAbsent(null,null,null,null, null, false);
+		try {
+			fakeKernel.createGroupIfAbsent(null, null, null, null, null, false);
 			fail("kernel exepction not thrown");
 		} catch (KernelException e) {
 			e.printStackTrace();
@@ -313,7 +313,7 @@ public class RootKernelTest {
 
 	@Test
 	public void testRootKernel() {
-				try {
+		try {
 			fakeKernel.getKernelAddress();
 			fail("kernel exepction not thrown");
 		} catch (KernelException e) {
@@ -324,7 +324,7 @@ public class RootKernelTest {
 
 	@Test
 	public void testFakeKernelWarningAbstractAgent() {
-				try {
+		try {
 			fakeKernel.getKernelAddress();
 			fail("kernel exepction not thrown");
 		} catch (KernelException e) {
@@ -335,7 +335,7 @@ public class RootKernelTest {
 
 	@Test
 	public void testFakeKernelWarning() {
-				try {
+		try {
 			fakeKernel.getKernelAddress();
 			fail("kernel exepction not thrown");
 		} catch (KernelException e) {

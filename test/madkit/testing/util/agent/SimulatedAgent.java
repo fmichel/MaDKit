@@ -31,7 +31,7 @@ public class SimulatedAgent extends AbstractAgent {
 
 	private int privatePrimitiveField = 1;
 	public double publicPrimitiveField = 2;
-	
+
 	@Override
 	protected void activate() {
 		JunitMadKit.createDefaultCGR(this);
@@ -45,7 +45,8 @@ public class SimulatedAgent extends AbstractAgent {
 	}
 
 	/**
-	 * @param privatePrimitiveField the privatePrimitiveField to set
+	 * @param privatePrimitiveField
+	 *           the privatePrimitiveField to set
 	 */
 	public void setPrivatePrimitiveField(int privatePrimitiveField) {
 		this.privatePrimitiveField = privatePrimitiveField;

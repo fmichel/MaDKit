@@ -46,116 +46,125 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class OrgErrorMessagingTest extends JunitMadKit{
+public class OrgErrorMessagingTest extends JunitMadKit {
 
 	final static String OTHER = "other";
 	final static String UNKNOWN = "unknown";
 
 	@Test
 	public void sendMessageTesting() {
-		launchTest(new AbstractAgent(){
+		launchTest(new AbstractAgent() {
 			protected void activate() {
-				assertEquals(SUCCESS,createGroup(COMMUNITY, GROUP, false,null));
+				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP, false, null));
 
-				assertEquals(SUCCESS,requestRole(COMMUNITY, GROUP, ROLE));
+				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
 
 				AbstractAgent testAgent = launchAgent(AbstractAgent.class.getName());
 				testAgent.createGroup(COMMUNITY, OTHER);
 				testAgent.requestRole(COMMUNITY, OTHER, OTHER);
 
-				assertEquals(NOT_COMMUNITY,sendMessage("unknown",GROUP,ROLE,new Message()));
-				assertEquals(NOT_GROUP,sendMessage(COMMUNITY,"unknown",ROLE,new Message()));
-				assertEquals(NOT_ROLE,sendMessage(COMMUNITY,GROUP,"unknown",new Message()));
-				assertEquals(NOT_COMMUNITY,sendMessageWithRole("unknown",GROUP,ROLE,new Message(),"any"));
-				assertEquals(NOT_GROUP,sendMessageWithRole(COMMUNITY,"unknown",ROLE,new Message(),"any"));
-				assertEquals(NOT_ROLE,sendMessageWithRole(COMMUNITY,GROUP,"unknown",new Message(),"any"));
+				assertEquals(NOT_COMMUNITY, sendMessage("unknown", GROUP, ROLE, new Message()));
+				assertEquals(NOT_GROUP, sendMessage(COMMUNITY, "unknown", ROLE, new Message()));
+				assertEquals(NOT_ROLE, sendMessage(COMMUNITY, GROUP, "unknown", new Message()));
+				assertEquals(NOT_COMMUNITY, sendMessageWithRole("unknown", GROUP, ROLE, new Message(), "any"));
+				assertEquals(NOT_GROUP, sendMessageWithRole(COMMUNITY, "unknown", ROLE, new Message(), "any"));
+				assertEquals(NOT_ROLE, sendMessageWithRole(COMMUNITY, GROUP, "unknown", new Message(), "any"));
 
-				//try in the group OTHER
-				assertEquals(NOT_ROLE,sendMessage(COMMUNITY,OTHER,UNKNOWN,new Message()));
-				assertEquals(NOT_IN_GROUP,sendMessage(COMMUNITY,OTHER,OTHER,new Message()));
-				assertEquals(NOT_IN_GROUP,sendMessageWithRole(COMMUNITY,OTHER,OTHER,new Message(),OTHER));
+				// try in the group OTHER
+				assertEquals(NOT_ROLE, sendMessage(COMMUNITY, OTHER, UNKNOWN, new Message()));
+				assertEquals(NOT_IN_GROUP, sendMessage(COMMUNITY, OTHER, OTHER, new Message()));
+				assertEquals(NOT_IN_GROUP, sendMessageWithRole(COMMUNITY, OTHER, OTHER, new Message(), OTHER));
 
-				//the candidate role should be used to send message to the manager
-				assertEquals(NOT_IN_GROUP,sendMessageWithRole(COMMUNITY,OTHER,OTHER,new Message(),Organization.GROUP_CANDIDATE_ROLE));
-				assertEquals(NOT_IN_GROUP,sendMessageWithRole(COMMUNITY,OTHER,Organization.GROUP_MANAGER_ROLE,new Message(),OTHER));
-				assertEquals(SUCCESS,sendMessageWithRole(COMMUNITY,OTHER,Organization.GROUP_MANAGER_ROLE,new Message(),Organization.GROUP_CANDIDATE_ROLE));
-				//check reception
+				// the candidate role should be used to send message to the manager
+				assertEquals(NOT_IN_GROUP,
+						sendMessageWithRole(COMMUNITY, OTHER, OTHER, new Message(), Organization.GROUP_CANDIDATE_ROLE));
+				assertEquals(NOT_IN_GROUP,
+						sendMessageWithRole(COMMUNITY, OTHER, Organization.GROUP_MANAGER_ROLE, new Message(), OTHER));
+				assertEquals(
+						SUCCESS,
+						sendMessageWithRole(COMMUNITY, OTHER, Organization.GROUP_MANAGER_ROLE, new Message(),
+								Organization.GROUP_CANDIDATE_ROLE));
+				// check reception
 				Message m = testAgent.nextMessage();
 				assertNotNull(m);
 				assertNull(testAgent.nextMessage());
-				assertEquals(Organization.GROUP_CANDIDATE_ROLE,m.getSender().getRole());
-				assertEquals(Organization.GROUP_MANAGER_ROLE,m.getReceiver().getRole());
-				//fake agent is replying
-				assertEquals(SUCCESS,testAgent.sendMessage(m.getSender(),new Message()));
+				assertEquals(Organization.GROUP_CANDIDATE_ROLE, m.getSender().getRole());
+				assertEquals(Organization.GROUP_MANAGER_ROLE, m.getReceiver().getRole());
+				// fake agent is replying
+				assertEquals(SUCCESS, testAgent.sendMessage(m.getSender(), new Message()));
 
 				m = nextMessage();
 				assertNotNull(m);
-				assertEquals(Organization.GROUP_MANAGER_ROLE,m.getSender().getRole());
-				assertEquals(Organization.GROUP_CANDIDATE_ROLE,m.getReceiver().getRole());
-				assertEquals(SUCCESS,sendMessage(m.getSender(),new Message()));
+				assertEquals(Organization.GROUP_MANAGER_ROLE, m.getSender().getRole());
+				assertEquals(Organization.GROUP_CANDIDATE_ROLE, m.getReceiver().getRole());
+				assertEquals(SUCCESS, sendMessage(m.getSender(), new Message()));
 
-				//trash fake agent mailbox
+				// trash fake agent mailbox
 				assertNotNull(testAgent.nextMessage());
 
-				//this agent is the only one there
-				assertEquals(NO_RECIPIENT_FOUND,sendMessageWithRole(COMMUNITY,GROUP,ROLE,new Message(),"any"));
+				// this agent is the only one there
+				assertEquals(NO_RECIPIENT_FOUND, sendMessageWithRole(COMMUNITY, GROUP, ROLE, new Message(), "any"));
 
-				//this agent is now not alone
+				// this agent is now not alone
 				testAgent.requestRole(COMMUNITY, GROUP, ROLE);
 
-				//this agent has not this role
-				assertEquals(ROLE_NOT_HANDLED,sendMessageWithRole(COMMUNITY,GROUP,ROLE,new Message(),"any"));
+				// this agent has not this role
+				assertEquals(ROLE_NOT_HANDLED, sendMessageWithRole(COMMUNITY, GROUP, ROLE, new Message(), "any"));
 
-				//this agent has this role
-				assertEquals(SUCCESS,sendMessageWithRole(COMMUNITY,GROUP,ROLE,new Message(),ROLE));
-				//trash fake agent mailbox
+				// this agent has this role
+				assertEquals(SUCCESS, sendMessageWithRole(COMMUNITY, GROUP, ROLE, new Message(), ROLE));
+				// trash fake agent mailbox
 				assertNotNull(testAgent.nextMessage());
 
+				// now take some roles to test some other properties
+				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, "r1"));
+				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, "r2"));
+				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, "r3"));
 
-				//now take some roles to test some other properties
-				assertEquals(SUCCESS,requestRole(COMMUNITY, GROUP, "r1"));
-				assertEquals(SUCCESS,requestRole(COMMUNITY, GROUP, "r2"));
-				assertEquals(SUCCESS,requestRole(COMMUNITY, GROUP, "r3"));
-
-				//if I send a message without saying about the role : the receiver role is selected if I have it
-				assertEquals(SUCCESS,sendMessage(COMMUNITY,GROUP,ROLE,new Message()));
-				//check reception
+				// if I send a message without saying about the role : the receiver
+				// role is selected if I have it
+				assertEquals(SUCCESS, sendMessage(COMMUNITY, GROUP, ROLE, new Message()));
+				// check reception
 				Message m2 = testAgent.nextMessage();
 				assertNotNull(m2);
 				assertNull(testAgent.nextMessage());
-				assertEquals(ROLE,m2.getSender().getRole());
-				assertEquals(ROLE,m2.getReceiver().getRole());
+				assertEquals(ROLE, m2.getSender().getRole());
+				assertEquals(ROLE, m2.getReceiver().getRole());
 
-				//if I send a message with saying the role
-				assertEquals(SUCCESS,sendMessageWithRole(COMMUNITY,GROUP,ROLE,new Message(),"r2"));
-				//check reception
+				// if I send a message with saying the role
+				assertEquals(SUCCESS, sendMessageWithRole(COMMUNITY, GROUP, ROLE, new Message(), "r2"));
+				// check reception
 				Message m3 = testAgent.nextMessage();
 				assertNotNull(m3);
 				assertNull(testAgent.nextMessage());
-				assertEquals("r2",m3.getSender().getRole());
-				assertEquals(ROLE,m3.getReceiver().getRole());
+				assertEquals("r2", m3.getSender().getRole());
+				assertEquals(ROLE, m3.getReceiver().getRole());
 
-				assertEquals(SUCCESS,leaveGroup(COMMUNITY, GROUP));
+				assertEquals(SUCCESS, leaveGroup(COMMUNITY, GROUP));
 
-				//I am not in this group anymore
-				assertEquals(NOT_IN_GROUP,sendMessageWithRole(COMMUNITY,GROUP,ROLE,new Message(),"any"));
-				assertEquals(NOT_IN_GROUP,sendMessageWithRole(COMMUNITY,GROUP,ROLE,new Message(),Organization.GROUP_CANDIDATE_ROLE));
-				assertEquals(NOT_IN_GROUP,sendMessage(COMMUNITY,GROUP,ROLE,new Message()));
-				assertEquals(NOT_IN_GROUP,sendMessage(COMMUNITY,GROUP,ROLE,new Message()));
-				//TODO what if no manager left
-				assertEquals(SUCCESS,sendMessageWithRole(COMMUNITY,GROUP,Organization.GROUP_MANAGER_ROLE,new Message(),Organization.GROUP_CANDIDATE_ROLE));
+				// I am not in this group anymore
+				assertEquals(NOT_IN_GROUP, sendMessageWithRole(COMMUNITY, GROUP, ROLE, new Message(), "any"));
+				assertEquals(NOT_IN_GROUP,
+						sendMessageWithRole(COMMUNITY, GROUP, ROLE, new Message(), Organization.GROUP_CANDIDATE_ROLE));
+				assertEquals(NOT_IN_GROUP, sendMessage(COMMUNITY, GROUP, ROLE, new Message()));
+				assertEquals(NOT_IN_GROUP, sendMessage(COMMUNITY, GROUP, ROLE, new Message()));
+				// TODO what if no manager left
+				assertEquals(
+						SUCCESS,
+						sendMessageWithRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE, new Message(),
+								Organization.GROUP_CANDIDATE_ROLE));
 
-				//this agent has leaved the group so m2.getSender() is invalid
+				// this agent has leaved the group so m2.getSender() is invalid
 				assertEquals(INVALID_AA, testAgent.sendMessage(m2.getSender(), new Message()));
 
 				m3 = testAgent.nextMessage();
 				assertNotNull(m3);
 				assertNull(testAgent.nextMessage());
 
-				//testAgent can reply as group manager
+				// testAgent can reply as group manager
 				assertEquals(SUCCESS, testAgent.sendMessage(m3.getSender(), new Message()));
 
-				//empty mailbox
+				// empty mailbox
 				m3 = nextMessage();
 				assertNotNull(m3);
 				assertEquals(Organization.GROUP_MANAGER_ROLE, m3.getSender().getRole());
@@ -164,113 +173,119 @@ public class OrgErrorMessagingTest extends JunitMadKit{
 				assertNull(nextMessage());
 				assertNull(testAgent.nextMessage());
 
-				//		testThreadedAgent(new ErrorAgent());
+				// testThreadedAgent(new ErrorAgent());
 
-				//cleaning up
-				assertEquals(SUCCESS,testAgent.leaveGroup(COMMUNITY, GROUP));
-				assertEquals(SUCCESS,testAgent.leaveGroup(COMMUNITY, OTHER));
+				// cleaning up
+				assertEquals(SUCCESS, testAgent.leaveGroup(COMMUNITY, GROUP));
+				assertEquals(SUCCESS, testAgent.leaveGroup(COMMUNITY, OTHER));
 				assertFalse(isCommunity(COMMUNITY));
 				assertFalse(isGroup(COMMUNITY, GROUP));
 				assertNull(testAgent.nextMessage());
 				assertNull(nextMessage());
-			}});
+			}
+		});
 	}
 
 	@Test
 	public void testingSendMessage() {
-		launchTest(new Agent(){
+		launchTest(new Agent() {
 			protected void activate() {
-				assertEquals(SUCCESS,createGroup(COMMUNITY, GROUP, false,null));
-				assertEquals(SUCCESS,requestRole(COMMUNITY, GROUP, ROLE));
+				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP, false, null));
+				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
 
-				assertEquals(NOT_COMMUNITY,sendMessage("unknown",GROUP,ROLE,new Message()));
-				assertEquals(NOT_GROUP,sendMessage(COMMUNITY,"unknown",ROLE,new Message()));
-				assertEquals(NOT_ROLE,sendMessage(COMMUNITY,GROUP,"unknown",new Message()));
+				assertEquals(NOT_COMMUNITY, sendMessage("unknown", GROUP, ROLE, new Message()));
+				assertEquals(NOT_GROUP, sendMessage(COMMUNITY, "unknown", ROLE, new Message()));
+				assertEquals(NOT_ROLE, sendMessage(COMMUNITY, GROUP, "unknown", new Message()));
 
-				assertEquals(NOT_COMMUNITY,sendMessageWithRole("unknown",GROUP,ROLE,new Message(),"any"));
-				assertEquals(NOT_GROUP,sendMessageWithRole(COMMUNITY,"unknown",ROLE,new Message(),"any"));
-				assertEquals(NOT_ROLE,sendMessageWithRole(COMMUNITY,GROUP,"unknown",new Message(),"any"));
+				assertEquals(NOT_COMMUNITY, sendMessageWithRole("unknown", GROUP, ROLE, new Message(), "any"));
+				assertEquals(NOT_GROUP, sendMessageWithRole(COMMUNITY, "unknown", ROLE, new Message(), "any"));
+				assertEquals(NOT_ROLE, sendMessageWithRole(COMMUNITY, GROUP, "unknown", new Message(), "any"));
 
-				assertNull(sendMessageAndWaitForReply("unknown",GROUP,ROLE,new Message()));
-				assertNull(sendMessageAndWaitForReply(COMMUNITY,"unknown",ROLE,new Message()));
-				assertNull(sendMessageAndWaitForReply(COMMUNITY,GROUP,"unknown",new Message()));
+				assertNull(sendMessageAndWaitForReply("unknown", GROUP, ROLE, new Message()));
+				assertNull(sendMessageAndWaitForReply(COMMUNITY, "unknown", ROLE, new Message()));
+				assertNull(sendMessageAndWaitForReply(COMMUNITY, GROUP, "unknown", new Message()));
 
-				assertNull(sendMessageWithRoleAndWaitForReply("unknown",GROUP,ROLE,new Message(),"any"));
-				assertNull(sendMessageWithRoleAndWaitForReply(COMMUNITY,"unknown",ROLE,new Message(),"any"));
-				assertNull(sendMessageWithRoleAndWaitForReply(COMMUNITY,GROUP,"unknown",new Message(),"any"));
-
+				assertNull(sendMessageWithRoleAndWaitForReply("unknown", GROUP, ROLE, new Message(), "any"));
+				assertNull(sendMessageWithRoleAndWaitForReply(COMMUNITY, "unknown", ROLE, new Message(), "any"));
+				assertNull(sendMessageWithRoleAndWaitForReply(COMMUNITY, GROUP, "unknown", new Message(), "any"));
 
 				AbstractAgent testAgent = launchAgent(AbstractAgent.class.getName());
 				testAgent.createGroup(COMMUNITY, OTHER);
 				testAgent.requestRole(COMMUNITY, OTHER, OTHER);
 
-				assertEquals(ROLE_ALREADY_HANDLED,requestRole(COMMUNITY, GROUP, ROLE));
-				//try in the group OTHER
-				assertEquals(NOT_ROLE,sendMessage(COMMUNITY,OTHER,UNKNOWN,new Message()));
-				assertEquals(NOT_IN_GROUP,sendMessage(COMMUNITY,OTHER,OTHER,new Message()));
-				assertEquals(NOT_IN_GROUP,sendMessageWithRole(COMMUNITY,OTHER,OTHER,new Message(),OTHER));
+				assertEquals(ROLE_ALREADY_HANDLED, requestRole(COMMUNITY, GROUP, ROLE));
+				// try in the group OTHER
+				assertEquals(NOT_ROLE, sendMessage(COMMUNITY, OTHER, UNKNOWN, new Message()));
+				assertEquals(NOT_IN_GROUP, sendMessage(COMMUNITY, OTHER, OTHER, new Message()));
+				assertEquals(NOT_IN_GROUP, sendMessageWithRole(COMMUNITY, OTHER, OTHER, new Message(), OTHER));
 
-				//the candidate role should be used to send message to the manager
-				assertEquals(NOT_IN_GROUP,sendMessageWithRole(COMMUNITY,OTHER,OTHER,new Message(),Organization.GROUP_CANDIDATE_ROLE));
-				assertEquals(NOT_IN_GROUP,sendMessageWithRole(COMMUNITY,OTHER,Organization.GROUP_MANAGER_ROLE,new Message(),OTHER));
-				assertEquals(SUCCESS,sendMessageWithRole(COMMUNITY,OTHER,Organization.GROUP_MANAGER_ROLE,new Message(),Organization.GROUP_CANDIDATE_ROLE));
-				//check reception
+				// the candidate role should be used to send message to the manager
+				assertEquals(NOT_IN_GROUP,
+						sendMessageWithRole(COMMUNITY, OTHER, OTHER, new Message(), Organization.GROUP_CANDIDATE_ROLE));
+				assertEquals(NOT_IN_GROUP,
+						sendMessageWithRole(COMMUNITY, OTHER, Organization.GROUP_MANAGER_ROLE, new Message(), OTHER));
+				assertEquals(
+						SUCCESS,
+						sendMessageWithRole(COMMUNITY, OTHER, Organization.GROUP_MANAGER_ROLE, new Message(),
+								Organization.GROUP_CANDIDATE_ROLE));
+				// check reception
 				Message m = testAgent.nextMessage();
 				assertNotNull(m);
 				assertNull(testAgent.nextMessage());
-				assertEquals(Organization.GROUP_CANDIDATE_ROLE,m.getSender().getRole());
-				assertEquals(Organization.GROUP_MANAGER_ROLE,m.getReceiver().getRole());
-				//fake agent is replying
-				assertEquals(SUCCESS,testAgent.sendMessage(m.getSender(),new Message()));
+				assertEquals(Organization.GROUP_CANDIDATE_ROLE, m.getSender().getRole());
+				assertEquals(Organization.GROUP_MANAGER_ROLE, m.getReceiver().getRole());
+				// fake agent is replying
+				assertEquals(SUCCESS, testAgent.sendMessage(m.getSender(), new Message()));
 
 				m = nextMessage();
 				assertNotNull(m);
-				assertEquals(Organization.GROUP_MANAGER_ROLE,m.getSender().getRole());
-				assertEquals(Organization.GROUP_CANDIDATE_ROLE,m.getReceiver().getRole());
-				assertEquals(SUCCESS,sendMessage(m.getSender(),new Message()));
+				assertEquals(Organization.GROUP_MANAGER_ROLE, m.getSender().getRole());
+				assertEquals(Organization.GROUP_CANDIDATE_ROLE, m.getReceiver().getRole());
+				assertEquals(SUCCESS, sendMessage(m.getSender(), new Message()));
 
-				//trash fake agent mailbox
+				// trash fake agent mailbox
 				assertNotNull(testAgent.nextMessage());
 
-				//this agent is the only one there
-				assertEquals(NO_RECIPIENT_FOUND,sendMessageWithRole(COMMUNITY,GROUP,ROLE,new Message(),"any"));
+				// this agent is the only one there
+				assertEquals(NO_RECIPIENT_FOUND, sendMessageWithRole(COMMUNITY, GROUP, ROLE, new Message(), "any"));
 
-				//this agent is now not alone
+				// this agent is now not alone
 				testAgent.requestRole(COMMUNITY, GROUP, ROLE);
 
-				//this agent has not this role
-				assertEquals(ROLE_NOT_HANDLED,sendMessageWithRole(COMMUNITY,GROUP,ROLE,new Message(),"any"));
+				// this agent has not this role
+				assertEquals(ROLE_NOT_HANDLED, sendMessageWithRole(COMMUNITY, GROUP, ROLE, new Message(), "any"));
 
-				//this agent has this role
-				assertEquals(SUCCESS,sendMessageWithRole(COMMUNITY,GROUP,ROLE,new Message(),ROLE));
-				//trash fake agent mailbox
+				// this agent has this role
+				assertEquals(SUCCESS, sendMessageWithRole(COMMUNITY, GROUP, ROLE, new Message(), ROLE));
+				// trash fake agent mailbox
 				assertNotNull(testAgent.nextMessage());
 
+				// now take some roles to test some other properties
+				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, "r1"));
+				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, "r2"));
+				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, "r3"));
 
-				//now take some roles to test some other properties
-				assertEquals(SUCCESS,requestRole(COMMUNITY, GROUP, "r1"));
-				assertEquals(SUCCESS,requestRole(COMMUNITY, GROUP, "r2"));
-				assertEquals(SUCCESS,requestRole(COMMUNITY, GROUP, "r3"));
-
-				//if I send a message without saying about the role : the receiver role is selected if I have it
-				assertEquals(SUCCESS,sendMessage(COMMUNITY,GROUP,ROLE,new Message()));
-				//check reception
+				// if I send a message without saying about the role : the receiver
+				// role is selected if I have it
+				assertEquals(SUCCESS, sendMessage(COMMUNITY, GROUP, ROLE, new Message()));
+				// check reception
 				Message m2 = testAgent.nextMessage();
 				assertNotNull(m2);
 				assertNull(testAgent.nextMessage());
-				assertEquals(ROLE,m2.getSender().getRole());
-				assertEquals(ROLE,m2.getReceiver().getRole());
+				assertEquals(ROLE, m2.getSender().getRole());
+				assertEquals(ROLE, m2.getReceiver().getRole());
 
-				//if I send a message with saying the role
-				assertEquals(SUCCESS,sendMessageWithRole(COMMUNITY,GROUP,ROLE,new Message(),"r2"));
-				//check reception
+				// if I send a message with saying the role
+				assertEquals(SUCCESS, sendMessageWithRole(COMMUNITY, GROUP, ROLE, new Message(), "r2"));
+				// check reception
 				Message m3 = testAgent.nextMessage();
 				assertNotNull(m3);
 				assertNull(testAgent.nextMessage());
-				assertEquals("r2",m3.getSender().getRole());
-				assertEquals(ROLE,m3.getReceiver().getRole());
+				assertEquals("r2", m3.getSender().getRole());
+				assertEquals(ROLE, m3.getReceiver().getRole());
 
-				assertEquals(SUCCESS,leaveGroup(COMMUNITY, GROUP));
-			}});
+				assertEquals(SUCCESS, leaveGroup(COMMUNITY, GROUP));
+			}
+		});
 	}
 }

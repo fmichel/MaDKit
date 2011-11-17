@@ -41,46 +41,47 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class sendMessageWithAATest  extends JunitMadKit{
+public class sendMessageWithAATest extends JunitMadKit {
 
-	final AbstractAgent target = new AbstractAgent(){
+	final AbstractAgent target = new AbstractAgent() {
 		protected void activate() {
-			assertEquals(SUCCESS, createGroup(COMMUNITY,GROUP));
-			assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,ROLE));
+			assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
+			assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
 		}
 	};
 
 	@Test
-	public void returnSuccess(){
-		launchTest(new AbstractAgent(){
+	public void returnSuccess() {
+		launchTest(new AbstractAgent() {
 			protected void activate() {
-				assertEquals(SUCCESS,launchAgent(target));
-				assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,ROLE));
-				
+				assertEquals(SUCCESS, launchAgent(target));
+				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
+
 				AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, ROLE);
 				assertNotNull(aa);
-				
-				//Without role
+
+				// Without role
 				assertEquals(SUCCESS, sendMessage(aa, new Message()));
 				Message m = target.nextMessage();
 				assertNotNull(m);
 				assertEquals(ROLE, m.getReceiver().getRole());
 
-				//With role
-				assertEquals(SUCCESS, sendMessageWithRole(aa, new Message(),ROLE));
+				// With role
+				assertEquals(SUCCESS, sendMessageWithRole(aa, new Message(), ROLE));
 				m = target.nextMessage();
 				assertNotNull(m);
 				assertEquals(ROLE, m.getReceiver().getRole());
-			}});
+			}
+		});
 	}
 
 	@Test
-	public void returnSuccessOnCandidateRole(){
-		launchTest(new AbstractAgent(){
+	public void returnSuccessOnCandidateRole() {
+		launchTest(new AbstractAgent() {
 			protected void activate() {
-				assertEquals(SUCCESS,launchAgent(target));
+				assertEquals(SUCCESS, launchAgent(target));
 
-				//Without role
+				// Without role
 				AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE);
 				assertNotNull(aa);
 				assertEquals(SUCCESS, sendMessage(aa, new Message()));
@@ -89,7 +90,7 @@ public class sendMessageWithAATest  extends JunitMadKit{
 				assertEquals(Organization.GROUP_MANAGER_ROLE, m.getReceiver().getRole());
 				assertEquals(Organization.GROUP_CANDIDATE_ROLE, m.getSender().getRole());
 
-				//With role
+				// With role
 				aa = getAgentWithRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE);
 				assertNotNull(aa);
 				assertEquals(SUCCESS, sendMessageWithRole(aa, new Message(), Organization.GROUP_CANDIDATE_ROLE));
@@ -97,57 +98,59 @@ public class sendMessageWithAATest  extends JunitMadKit{
 				assertNotNull(m);
 				assertEquals(Organization.GROUP_MANAGER_ROLE, m.getReceiver().getRole());
 				assertEquals(Organization.GROUP_CANDIDATE_ROLE, m.getSender().getRole());
-			}});
+			}
+		});
 	}
 
 	@Test
-	public void returnInvalidAA(){
-		launchTest(new AbstractAgent(){
+	public void returnInvalidAA() {
+		launchTest(new AbstractAgent() {
 			protected void activate() {
-				assertEquals(SUCCESS,launchAgent(target));
-				assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,ROLE));
+				assertEquals(SUCCESS, launchAgent(target));
+				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
 				AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, ROLE);
 				assertEquals(SUCCESS, target.leaveRole(COMMUNITY, GROUP, ROLE));
 				assertEquals(INVALID_AA, sendMessage(aa, new Message()));
 
-				//With role
+				// With role
 				assertEquals(INVALID_AA, sendMessageWithRole(aa, new Message(), ROLE));
-			}});
+			}
+		});
 	}
 
 	@Test
-	public void returnNotInGroup(){
-		launchTest(new AbstractAgent(){
+	public void returnNotInGroup() {
+		launchTest(new AbstractAgent() {
 			protected void activate() {
-				assertEquals(SUCCESS,launchAgent(target));
+				assertEquals(SUCCESS, launchAgent(target));
 				AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, ROLE);
 				assertEquals(NOT_IN_GROUP, sendMessageWithRole(aa, new Message(), ROLE));
 				assertEquals(SUCCESS, target.leaveRole(COMMUNITY, GROUP, ROLE));
 				assertEquals(INVALID_AA, sendMessage(aa, new Message()));
 				assertEquals(NOT_ROLE, sendMessage(COMMUNITY, GROUP, ROLE, new Message()));
 
-				//With role
-			}});
+				// With role
+			}
+		});
 	}
-	
+
 	@Test
-	public void returnRoleNotHandled(){
-		launchTest(new AbstractAgent(){
+	public void returnRoleNotHandled() {
+		launchTest(new AbstractAgent() {
 			protected void activate() {
-				assertEquals(SUCCESS,launchAgent(target));
-				assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,ROLE));
+				assertEquals(SUCCESS, launchAgent(target));
+				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
 
 				AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, ROLE);
-				assertEquals(ROLE_NOT_HANDLED, sendMessageWithRole(aa, new Message(),aa()));
+				assertEquals(ROLE_NOT_HANDLED, sendMessageWithRole(aa, new Message(), aa()));
 
-			}});
+			}
+		});
 	}
-	
-	
 
 	@Test
-	public void nullArgs(){
-		launchTest(new AbstractAgent(){
+	public void nullArgs() {
+		launchTest(new AbstractAgent() {
 			protected void activate() {
 				try {
 					sendMessage(null, null);
@@ -156,12 +159,12 @@ public class sendMessageWithAATest  extends JunitMadKit{
 					throw e;
 				}
 			}
-		},ReturnCode.AGENT_CRASH);
+		}, ReturnCode.AGENT_CRASH);
 	}
 
 	@Test
-	public void nullAA(){
-		launchTest(new AbstractAgent(){
+	public void nullAA() {
+		launchTest(new AbstractAgent() {
 			protected void activate() {
 				try {
 					sendMessage(null, new Message());
@@ -170,15 +173,15 @@ public class sendMessageWithAATest  extends JunitMadKit{
 					throw e;
 				}
 			}
-		},ReturnCode.AGENT_CRASH);
+		}, ReturnCode.AGENT_CRASH);
 	}
 
 	@Test
-	public void nullMessage(){
-		launchTest(new AbstractAgent(){
+	public void nullMessage() {
+		launchTest(new AbstractAgent() {
 			protected void activate() {
-				assertEquals(SUCCESS,launchAgent(target));
-				assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,ROLE));
+				assertEquals(SUCCESS, launchAgent(target));
+				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
 				AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, ROLE);
 				try {
 					sendMessage(aa, null);
@@ -187,7 +190,7 @@ public class sendMessageWithAATest  extends JunitMadKit{
 					throw e;
 				}
 			}
-		},ReturnCode.AGENT_CRASH);
+		}, ReturnCode.AGENT_CRASH);
 	}
 
 }

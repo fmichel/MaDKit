@@ -36,22 +36,20 @@ import org.junit.Test;
  * 
  */
 public class RoleTest {
-	
+
 	static Role r;
 	static AbstractAgent a;
 	static MadkitKernel mk;
-	
+
 	@Before
-	public void before(){
-		String[] args = {"--"+BooleanOption.desktop,"false",
-				"--platformLogLevel","ALL"
-				};
+	public void before() {
+		String[] args = { "--" + BooleanOption.desktop, "false", "--platformLogLevel", "ALL" };
 		mk = new MadkitKernel(new Madkit(args));
 		a = new AbstractAgent();
 		a.setKernel(mk);
 		mk.createGroup(a, "c", "g", null, null, false);
 		try {
-			mk.getGroup("c", "g").put("r",mk.getGroup("c", "g").createRole("r"));
+			mk.getGroup("c", "g").put("r", mk.getGroup("c", "g").createRole("r"));
 			r = mk.getRole("c", "g", "r");
 		} catch (CGRNotAvailable e) {
 			// TODO Auto-generated catch block
@@ -93,27 +91,29 @@ public class RoleTest {
 	}
 
 	/**
-	 * Test method for {@link madkit.kernel.Role#addMember(madkit.kernel.AbstractAgent)}.
+	 * Test method for
+	 * {@link madkit.kernel.Role#addMember(madkit.kernel.AbstractAgent)}.
 	 */
 	@Test
 	public final void testAddMember() {
 		assertTrue(r.addMember(a));
 		assertFalse(r.addMember(a));
 	}
-	
+
 	/**
-	 * Test method for {@link madkit.kernel.Role#removeMember(madkit.kernel.AbstractAgent)}.
+	 * Test method for
+	 * {@link madkit.kernel.Role#removeMember(madkit.kernel.AbstractAgent)}.
 	 */
 	@Test
 	public final void testRemoveMember() {
-		assertTrue(mk.isGroup(null,"c", "g"));
+		assertTrue(mk.isGroup(null, "c", "g"));
 		assertTrue(r.addMember(a));
 		assertEquals(AbstractAgent.ReturnCode.SUCCESS, r.removeMember(a));
 		assertEquals(AbstractAgent.ReturnCode.SUCCESS, a.leaveGroup("c", "g"));
 		assertNull(r.getAgentAddressOf(a));
-		assertFalse(mk.isGroup(null,"c", "g"));
+		assertFalse(mk.isGroup(null, "c", "g"));
 	}
-	
+
 	@Test
 	public final void testGetAgentAddressInGroup() {
 		assertTrue(r.addMember(a));
@@ -138,9 +138,9 @@ public class RoleTest {
 		assertEquals(0, r.buildAndGetAddresses().size());
 		assertNull(r.getAgentAddressOf(b));
 	}
-	
+
 	@Test
-	public void testCGRNames(){
+	public void testCGRNames() {
 		assertEquals("c", r.getCommunityName());
 		assertEquals("g", r.getGroupName());
 		assertEquals("r", r.getRoleName());

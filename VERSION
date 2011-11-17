@@ -40,6 +40,19 @@ Other command line options are described in the API of the madkit.kernel.Madkit 
 ----------------------------------------------------------------------------------
 
 ----------------------------------------------------------------------------------
+------------------------------- MadKit 5.0.0.13 (alpha-13)--------------------------
+----------------------------------------------------------------------------------
+
+1. Improvements:	
+	- Desktop reworked (icons)
+	- Java web start handling reworked
+	- Probes now work on private fields 
+
+2. API Refactoring:
+	- The madkit.kernel.Probe.findFieldOn(AbstractAgent, String) method has been added
+	
+
+----------------------------------------------------------------------------------
 ------------------------------- MadKit 5.0.0.12 (alpha-12)--------------------------
 ----------------------------------------------------------------------------------
 

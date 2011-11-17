@@ -16,11 +16,16 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
  */
-package madkit.scenari.deadlock;
+package madkit.boot.process;
+
+import static org.junit.Assert.*;
+
+import java.util.logging.Level;
 
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.Agent;
 import madkit.kernel.JunitMadKit;
+import madkit.kernel.Madkit.BooleanOption;
+import madkit.kernel.Madkit.LevelOption;
 
 import org.junit.Test;
 
@@ -31,22 +36,23 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class DeadlockTest extends JunitMadKit {
+public class LogLevelArgTest extends JunitMadKit {
 
 	@Test
-	public void multipleWaits() {
+	public void AgentLogLevelIsAll() {
+		mkArgs.clear();
+		addMadkitArgs(LevelOption.agentLogLevel.toString(), Level.ALL.toString());
 		launchTest(new AbstractAgent() {
 			@Override
 			protected void activate() {
-				Agent a = new Agent() {
-					protected void live() {
-						waitNextMessage();
-					}
-				};
-				launchAgent(a);
-				a.waitNextMessage(10);
+				assertEquals("OFF", getMadkitProperty(LevelOption.kernelLogLevel.name()));
+				assertEquals("OFF", getMadkitProperty(LevelOption.guiLogLevel.name()));
+				assertEquals("INFO", getMadkitProperty(LevelOption.networkLogLevel.name()));
+				assertEquals("INFO", getMadkitProperty(LevelOption.madkitLogLevel.name()));
+				assertEquals("ALL", getMadkitProperty(LevelOption.agentLogLevel.name()));
+				assertEquals("FINE", getMadkitProperty(LevelOption.warningLogLevel.name()));
+				assertEquals("INFO", getMadkitProperty(LevelOption.madkitLogLevel.name()));
 			}
 		});
 	}
-
 }

@@ -36,14 +36,14 @@ import org.junit.Test;
  * 
  */
 public class AgentLoggerTest {
-	
+
 	@Test
-	public void noLogger(){
+	public void noLogger() {
 		AbstractAgent a = new AbstractAgent();
 		a.logger.info("testing");
 		assertSame(AgentLogger.defaultAgentLogger, a.logger);
 	}
-	
+
 	@Test
 	public void logLevelOFF() {
 		AgentLog a = new AgentLog(Level.OFF);
@@ -72,7 +72,7 @@ public class AgentLoggerTest {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Test
 	public void setNameAndThenLog() {
 		AgentLog a = new AgentLog(Level.OFF);
@@ -80,18 +80,18 @@ public class AgentLoggerTest {
 		assertNull(a.logger);
 		a.setLogLevel(Level.ALL);
 		assertNotNull(a.logger);
-		assertEquals("["+a.getName()+"]",a.logger.getName());
+		assertEquals("[" + a.getName() + "]", a.logger.getName());
 	}
 
 	@Test
 	public void logAndThenSetName() {
 		AgentLog a = new AgentLog(Level.ALL);
 		assertNotNull(a.logger);
-		String defaultName = "["+a.getClass().getSimpleName()+"-"+a.hashCode()+"]";
-		assertEquals(defaultName,a.logger.getName());
+		String defaultName = "[" + a.getClass().getSimpleName() + "-" + a.hashCode() + "]";
+		assertEquals(defaultName, a.logger.getName());
 		a.setName("TEST");
 		assertNotNull(a.logger);
-		assertEquals("[TEST]",a.logger.getName());
+		assertEquals("[TEST]", a.logger.getName());
 	}
 
 	@Test
@@ -103,18 +103,18 @@ public class AgentLoggerTest {
 		assertNull(a.logger);
 		a.setLogLevel(Level.ALL);
 		assertNotNull(a.logger);
-		assertEquals(l,a.logger);
+		assertEquals(l, a.logger);
 	}
 
 }
 
-class AgentLog extends AbstractAgent{
+class AgentLog extends AbstractAgent {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	AgentLog(Level lvl){
+	AgentLog(Level lvl) {
 		setLogLevel(lvl);
 	}
 }

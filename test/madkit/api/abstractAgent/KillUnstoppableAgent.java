@@ -15,8 +15,8 @@ import org.junit.Test;
 public class KillUnstoppableAgent extends JunitMadKit {
 
 	@Test
-	public void killUnstoppableInActivate(){
-		launchTest(new AbstractAgent(){
+	public void killUnstoppableInActivate() {
+		launchTest(new AbstractAgent() {
 			/**
 			 * 
 			 */
@@ -26,57 +26,57 @@ public class KillUnstoppableAgent extends JunitMadKit {
 				AbstractAgent unstopableAgent = new UnstopableAgent(true);
 				unstopableAgent.setLogLevel(Level.ALL);
 				startTimer();
-				assertEquals(TIMEOUT,launchAgent(unstopableAgent,1));
+				assertEquals(TIMEOUT, launchAgent(unstopableAgent, 1));
 				stopTimer("launch time out ");
-				assertEquals(SUCCESS,killAgent(unstopableAgent,1));
+				assertEquals(SUCCESS, killAgent(unstopableAgent, 1));
 				assertAgentIsTerminated(unstopableAgent);
 			}
 		});
 	}
-	
+
 	@Test
-	public void brutalKillUnstoppableInActivateAndLive(){
-		launchTest(new AbstractAgent(){
+	public void brutalKillUnstoppableInActivateAndLive() {
+		launchTest(new AbstractAgent() {
 			/**
 			 * 
 			 */
 			private static final long serialVersionUID = 1L;
 
 			protected void activate() {
-				AbstractAgent unstopableAgent = new UnstopableAgent(true,true,false);
-				assertEquals(TIMEOUT,launchAgent(unstopableAgent,1));
-				if(logger != null)
+				AbstractAgent unstopableAgent = new UnstopableAgent(true, true, false);
+				assertEquals(TIMEOUT, launchAgent(unstopableAgent, 1));
+				if (logger != null)
 					logger.info(unstopableAgent.getState().toString());
-				assertEquals(SUCCESS,killAgent(unstopableAgent,0));
+				assertEquals(SUCCESS, killAgent(unstopableAgent, 0));
 				assertAgentIsTerminated(unstopableAgent);
 				pause(1000);
 			}
 		});
 	}
-	
+
 	@Test
-	public void brutalKillUnstoppableInActivateAndLiveAndEnd(){
-		launchTest(new AbstractAgent(){
+	public void brutalKillUnstoppableInActivateAndLiveAndEnd() {
+		launchTest(new AbstractAgent() {
 			/**
 			 * 
 			 */
 			private static final long serialVersionUID = 1L;
 
 			protected void activate() {
-				AbstractAgent unstopableAgent = new UnstopableAgent(true,true,true);
-				assertEquals(TIMEOUT,launchAgent(unstopableAgent,1));
-				if(logger != null)
+				AbstractAgent unstopableAgent = new UnstopableAgent(true, true, true);
+				assertEquals(TIMEOUT, launchAgent(unstopableAgent, 1));
+				if (logger != null)
 					logger.info(unstopableAgent.getState().toString());
-				assertEquals(TIMEOUT,killAgent(unstopableAgent,1));
+				assertEquals(TIMEOUT, killAgent(unstopableAgent, 1));
 				assertAgentIsTerminated(unstopableAgent);
 				pause(1000);
 			}
 		});
 	}
-	
+
 	@Test
-	public void brutalKillUnstoppableUsingSelfRef(){
-		launchTest(new AbstractAgent(){
+	public void brutalKillUnstoppableUsingSelfRef() {
+		launchTest(new AbstractAgent() {
 			/**
 			 * 
 			 */
@@ -84,17 +84,17 @@ public class KillUnstoppableAgent extends JunitMadKit {
 
 			protected void activate() {
 				AbstractAgent unstopableAgent = new UnstopableAgent(true);
-				assertEquals(TIMEOUT,launchAgent(unstopableAgent,1));
-				assertEquals(SUCCESS,unstopableAgent.killAgent(unstopableAgent,1));
+				assertEquals(TIMEOUT, launchAgent(unstopableAgent, 1));
+				assertEquals(SUCCESS, unstopableAgent.killAgent(unstopableAgent, 1));
 				assertAgentIsTerminated(unstopableAgent);
 				pause(1000);
-				unstopableAgent = new UnstopableAgent(true,false,true);
-				assertEquals(TIMEOUT,launchAgent(unstopableAgent,1));
-				assertEquals(TIMEOUT,unstopableAgent.killAgent(unstopableAgent,1));
+				unstopableAgent = new UnstopableAgent(true, false, true);
+				assertEquals(TIMEOUT, launchAgent(unstopableAgent, 1));
+				assertEquals(TIMEOUT, unstopableAgent.killAgent(unstopableAgent, 1));
 				assertAgentIsTerminated(unstopableAgent);
 				pause(1000);
 			}
 		});
 	}
-	
+
 }

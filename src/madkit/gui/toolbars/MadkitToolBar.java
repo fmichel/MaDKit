@@ -25,8 +25,10 @@ import javax.swing.AbstractButton;
 import javax.swing.ImageIcon;
 import javax.swing.JToolBar;
 
+import madkit.gui.actions.GUIManagerAction;
 import madkit.gui.actions.MadkitAction;
 import madkit.kernel.AbstractAgent;
+import madkit.kernel.KernelAction;
 
 /**
  * An out of the box toolbar for MadKit based applications.
@@ -57,7 +59,9 @@ public class MadkitToolBar extends JToolBar {// TODO i18n
 	 */
 	public MadkitToolBar(final AbstractAgent agent) {
 		super("MadKit");
-		MadkitAction.addAllActionsTo(this, agent);
+//		MadkitAction.addAllActionsTo(this, agent);
+		KernelAction.addAllActionsTo(this, agent);
+		GUIManagerAction.addAllActionsTo(this, agent);
 		for (final Component c : getComponents()) {
 			if (c instanceof AbstractButton) {
 				final ImageIcon i = (ImageIcon) ((AbstractButton) c).getIcon();

@@ -25,7 +25,7 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 
-import madkit.kernel.NetworkMessage.NetCode;
+import madkit.messages.KernelMessage;
 
 /**
  * @author Fabien Michel
@@ -75,10 +75,10 @@ final class MultiCastListener {
 						if(localIP.equals(peerRequest.getAddress()) && localPort == peerRequest.getPort()){
 							continue;
 						}
-						networkAgent.receiveMessage(new NetworkMessage<DatagramPacket>(NetCode.NEW_PEER_DETECTED,peerRequest));
+						networkAgent.receiveMessage(new NetworkMessage(NetCode.NEW_PEER_DETECTED,peerRequest));
 					} catch (IOException e) {
 						if (running) {//socket failure
-							networkAgent.receiveMessage(new NetworkMessage<Object>(NetCode.FAILURE, null));
+							networkAgent.receiveMessage(new KernelMessage(KernelAction.EXIT));
 						}
 						break;
 					}

@@ -151,20 +151,11 @@ class FakeKernel extends MadkitKernel{
 		return ke;
 	}
 
-	/**
-	 * @param scheduler
-	 * @param activator
-	 */
 	@Override
 	final boolean removeOverlooker(final AbstractAgent agent, Overlooker<? extends AbstractAgent> o) {
 		throw buildKernelException(agent);
 	}
 
-	/**
-	 * @param agent
-	 * @param o
-	 * @return
-	 */
 	@Override
 	final boolean addOverlooker(AbstractAgent agent, Overlooker<? extends AbstractAgent> o) {
 		throw buildKernelException(agent);
@@ -178,17 +169,13 @@ class FakeKernel extends MadkitKernel{
 		throw buildKernelException(null);
 	}
 
-	/**
-	 * @param key
-	 * @param value
-	 */
 	@Override
 	final void setMadkitProperty(final AbstractAgent agent, String key, String value) {
 		throw buildKernelException(agent);
 	}
 	
 	@Override
-	final public java.net.URLClassLoader getMadkitClassLoader() {
+	final public MadkitClassLoader getMadkitClassLoader() {
 		throw buildKernelException(null);
 	}
 	

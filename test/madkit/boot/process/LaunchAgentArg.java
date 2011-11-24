@@ -30,7 +30,7 @@ import madkit.kernel.Madkit.Option;
  * 
  */
 @SuppressWarnings("serial")
-public class LaunchAgentArgTest extends AbstractAgent{
+public class LaunchAgentArg extends AbstractAgent{
 
 	public static void main(String[] args) {
 		String[] argss = {Option.launchAgents.toString(),Agent.class.getName()};

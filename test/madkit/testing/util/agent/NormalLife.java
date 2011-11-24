@@ -18,6 +18,10 @@
  */
 package madkit.testing.util.agent;
 
+import javax.swing.AbstractAction;
+
+import madkit.kernel.AbstractAgent;
+import madkit.kernel.KernelAction;
 import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.LevelOption;
 
@@ -48,6 +52,7 @@ public class NormalLife extends DoItDuringLifeCycleAgent {
 
 	public NormalLife() {
 		super();
+//		KernelAction.LAUNCH_AGENT.getAction(this,"t");
 	}
 
 	@Override
@@ -58,10 +63,8 @@ public class NormalLife extends DoItDuringLifeCycleAgent {
 		}
 	}
 
-	public static void main(String[] args) {
-		String[] argss = { LevelOption.agentLogLevel.toString(), "ALL", LevelOption.kernelLogLevel.toString(), "ALL",
-				"--launchAgents", NormalLife.class.getName(), ",true;madkit.kernel.Agent" };
-		Madkit.main(argss);
-	}
+public static void main(String[] args) {
+	AbstractAgent.executeThisAgent(args);
+}
 
 }

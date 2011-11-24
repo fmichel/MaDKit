@@ -26,7 +26,7 @@ import javax.swing.ImageIcon;
  * @version 0.9
  * 
  */
-interface MadkitGUIAction {
+public interface MadkitGUIAction {
 
 	public ImageIcon getImageIcon();
 	

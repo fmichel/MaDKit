@@ -27,6 +27,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 
 import madkit.agr.CloudCommunity;
 import madkit.agr.LocalCommunity;
@@ -35,6 +36,7 @@ import madkit.agr.LocalCommunity.Roles;
 import madkit.agr.Organization;
 import madkit.gui.GUIToolkit;
 import madkit.kernel.Madkit.LevelOption;
+import madkit.messages.CommandMessage;
 import madkit.messages.KernelMessage;
 import madkit.messages.ObjectMessage;
 
@@ -80,7 +82,7 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 	protected void activate() {
 		setName(super.getName()+getKernelAddress());
 		setLogLevel(LevelOption.networkLogLevel.getValue(getMadkitConfig()));
-
+		setLogLevel(Level.ALL);
 		requestRole(LocalCommunity.NAME, Groups.NETWORK, madkit.agr.LocalCommunity.Roles.NET_AGENT);
 
 		kernelAgent = getAgentWithRole(LocalCommunity.NAME, Groups.NETWORK, Organization.GROUP_MANAGER_ROLE);
@@ -89,13 +91,13 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 			throw new AssertionError(this+" no kernel agent to work with... Please bug report");
 		
 		//build servers
-		alive = goOnline();
+		alive = launchNetwork();
 	}
 
 	/**
 	 * @return true if servers are launched
 	 */
-	private boolean goOnline() {
+	private boolean launchNetwork() {
 		if(ReturnCode.SUCCESS != createGroup(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS,true)){
 			return false;
 		}
@@ -105,7 +107,7 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 		} catch (IOException e) {
 			if (logger != null) 
 				logger.warning("\n\t\t\t\t---- Unable to start the Madkit kernel server"+e.getClass().getName()+" "+e.getMessage()+" ------\n");
-			goOffline();
+			stopNetwork();
 			return false;
 		}
 
@@ -125,7 +127,7 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 			if (logger != null){
 				logger.warning("\n\t\t\t\t---- Unable to start a Multicast Listener "+e.getClass().getName()+" "+e.getMessage()+" ------\n");
 			}
-			goOffline();
+			stopNetwork();
 			return false;
 		}
 
@@ -137,7 +139,7 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 			m = waitNextMessage(400);
 			if (m != null) {
 				if(m.getSender() == null)
-					handlePrivateMessage((NetworkMessage<?>) m);
+					proceedCommandMessage((CommandMessage<?>) m);//FIXME verify that this is ok
 				else
 					toDoList.add(m);
 			}
@@ -177,19 +179,19 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 
 		@Override
 		protected void end() {
-			goOffline();
+			stopNetwork();
 		}
 
 		/**
 		 * 
 		 */
-		private void goOffline() {
+		private void stopNetwork() {
 			if (logger != null){
 				logger.info("\n\t\t\t\t----- Network is being closed on "+getKernelAddress()+" ------\n");
 				logger.finer("Closing all connections : "+peers.values());
 			}
 			for(Map.Entry<KernelAddress, KernelConnection> entry : peers.entrySet()){
-				deconnectFromPeer(entry.getKey());
+				peerDeconnected(entry.getKey());
 				entry.getValue().closeConnection();
 			}
 			peers.clear();
@@ -207,10 +209,10 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 		}
 
 	@SuppressWarnings("unchecked")
-	private void handleMessage(Message m) throws ClassCastException{
-		AgentAddress sender = m.getSender();
-		if(sender == null){//contacted by my private objects or by the kernel
-			handlePrivateMessage((NetworkMessage<?>) m);
+	private void handleMessage(final Message m) throws ClassCastException{
+		final AgentAddress sender = m.getSender();
+		if(sender == null){//contacted by my private objects (or by the kernel ? no)
+			proceedCommandMessage((CommandMessage<?>) m);
 		}
 		else if(sender.isLocal()){//contacted locally
 			final String senderRole = sender.getRole();
@@ -221,7 +223,8 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 				sendDistantMessage((ObjectMessage<Message>) m);
 			}
 			else if(senderRole.equals(Roles.KERNEL)){//message from the kernel
-				handlePrivateMessage((KernelMessage) m);
+				proceedCommandMessage((CommandMessage<?>) m);
+//				handlePrivateMessage((KernelMessage) m);
 			}
 		}
 		else{//distant message
@@ -238,52 +241,62 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 			}
 		}
 	}
-
-	@SuppressWarnings("unchecked")
-	private void handlePrivateMessage(NetworkMessage<?> m) {
-			switch (m.getCode()) {
-			case NEW_PEER_DETECTED:
-				contactPeer(((NetworkMessage<DatagramPacket>) m).getContent());
-				break;
-			case NEW_PEER_REQUEST:
-				addPeer(((NetworkMessage<Socket>) m).getContent());
-				break;
-			case PEER_DECONNECTED:
-				deconnectFromPeer(((NetworkMessage<KernelAddress>) m).getContent());
-				break;
-			case FAILURE:
-				alive = false;
-				break;
-			default:
-				if (logger != null) 
-					logger.info("I did not understand this private message "+m);
-				break;
-			}
+	
+//	private void launchNetwork(boolean on){
+//		if(on){
+//			launchNetwork();
+//		}
+//		else{
+//			stopNetwork();
+//		}
+//	}
+//	
+//	@SuppressWarnings("unchecked")
+//	private void handlePrivateMessage(NetworkMessage m) {
+//			switch (m.getCode()) {
+//			case NEW_PEER_DETECTED:
+//				contactPeer(((NetCode<DatagramPacket>) m).getContent());
+//				break;
+//			case NEW_PEER_REQUEST:
+//				addPeer(((NetCode<Socket>) m).getContent());
+//				break;
+//			case PEER_DECONNECTED:
+//				deconnectFromPeer(((NetCode<KernelAddress>) m).getContent());
+//				break;
+//			default:
+//				if (logger != null) 
+//					logger.info("I did not understand this private message "+m);
+//				break;
+//			}
+//	}
+	
+	private void exit(){
+		alive = false;
 	}
 
-	private void handlePrivateMessage(KernelMessage m) {
-			switch (m.getCode()) {
-			case STOP_NETWORK:
-				goOffline();
-				break;
-			case LAUNCH_NETWORK:
-				goOnline();
-				break;
-			case EXIT:
-				alive = false;
-				break;
-			default:
-				if (logger != null) 
-					logger.info("I did not understand this private message "+m);
-				break;
-			}
-	}
+//	private void handlePrivateMessage(KernelMessage m) {
+//			switch (m.getCode()) {
+//			case STOP_NETWORK:
+//				goOffline();
+//				break;
+//			case LAUNCH_NETWORK:
+//				goOnline();
+//				break;
+//			case EXIT:
+//				alive = false;
+//				break;
+//			default:
+//				if (logger != null) 
+//					logger.info("I did not understand this private message "+m);
+//				break;
+//			}
+//	}
 
 	/**
 	 * Removes ka from peers and clean organization accordingly
 	 * @param ka
 	 */
-	private void deconnectFromPeer(KernelAddress ka) {
+	private void peerDeconnected(KernelAddress ka) {
 		if(peers.remove(ka) == null)//TODO log
 			return;
 		if(logger != null)
@@ -295,7 +308,7 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 	/**
 	 * @param s
 	 */
-	private void addPeer(Socket s) {
+	private void newPeerRequest(Socket s) {
 		if (logger != null) logger.fine("Contacted by peer "+s+" -> sending connection message");
 		KernelConnection kc = null;
 		try {
@@ -329,7 +342,7 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 	 * @param packet
 	 * @param startConnection start to receive message if living 
 	 */
-	private void contactPeer(DatagramPacket packet) {
+	private void newPeerDetected(DatagramPacket packet) {
 		if (logger != null) logger.fine("New peer detected on "+packet.getAddress()+" port = "+packet.getPort()+" -> sending connection message");
 		KernelConnection kc = null;
 		try {

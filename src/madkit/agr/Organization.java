@@ -31,6 +31,9 @@ public interface Organization {
 	 */
 	public static final String GROUP_MANAGER_ROLE = "manager";
 
+	/**
+	 * The value of this constant is {@value}.
+	 */
 	public static final String GROUP_CANDIDATE_ROLE = "candidate";
 
 }

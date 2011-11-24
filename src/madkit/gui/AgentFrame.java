@@ -36,6 +36,7 @@ import madkit.agr.LocalCommunity.Roles;
 import madkit.gui.actions.MadkitAction;
 import madkit.gui.menus.MadkitMenu;
 import madkit.kernel.AbstractAgent;
+import madkit.kernel.KernelAction;
 import madkit.messages.KernelMessage;
 
 /**
@@ -125,7 +126,7 @@ final class AgentFrame extends JFrame {
 	static void killAgent(final AbstractAgent agent,int timeOutSeconds) {//TODO move that
 		if (agent.isAlive()) {
 			agent.sendMessage(LocalCommunity.NAME, Groups.SYSTEM, Roles.KERNEL, new KernelMessage(
-					MadkitAction.MADKIT_KILL_AGENT, agent, timeOutSeconds));
+					KernelAction.KILL_AGENT, agent, timeOutSeconds));
 		}
 	}
 }

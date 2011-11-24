@@ -28,6 +28,7 @@ import madkit.gui.actions.MadkitAction;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AgentAddress;
 import madkit.kernel.JunitMadKit;
+import madkit.kernel.KernelAction;
 import madkit.kernel.Madkit.BooleanOption;
 
 import org.junit.Test;
@@ -59,14 +60,14 @@ public class DiscoverTest extends JunitMadKit {
 					System.err.println(agentAddress);
 				}
 				assertEquals(6, l.size());
-				MadkitAction.STOP_NETWORK.getAction(this).actionPerformed(null);
+				KernelAction.STOP_NETWORK.getActionFor(this).actionPerformed(null);
 				pause(100);
 
 				// not connected
 				assertFalse(isCommunity(CloudCommunity.NAME));
 
 				// second round
-				MadkitAction.LAUNCH_NETWORK.getAction(this).actionPerformed(null);
+				KernelAction.LAUNCH_NETWORK.getActionFor(this).actionPerformed(null);
 				pause(1000);
 				l = getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT);
 				for (AgentAddress agentAddress : l) {

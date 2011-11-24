@@ -27,11 +27,14 @@ import static madkit.kernel.AbstractAgent.State.LIVING;
 import static madkit.kernel.AbstractAgent.State.TERMINATED;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -57,7 +60,10 @@ import madkit.agr.LocalCommunity.Groups;
 import madkit.agr.LocalCommunity.Roles;
 import madkit.agr.Organization;
 import madkit.gui.GUIMessage;
+import madkit.gui.GUIMessage;
 import madkit.gui.OutputPanel;
+import madkit.gui.actions.Actions;
+import madkit.gui.actions.GUIManagerAction;
 import madkit.gui.actions.MadkitAction;
 import madkit.i18n.ErrorMessages;
 import madkit.i18n.I18nUtilities;
@@ -65,6 +71,7 @@ import madkit.i18n.Words;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Madkit.Option;
+import madkit.messages.CommandMessage;
 
 /**
  * The super class of all MadKit agents, v 5.
@@ -242,7 +249,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 					LocalCommunity.NAME, 
 					Groups.SYSTEM, 
 					Roles.GUI_MANAGER, 
-					new GUIMessage(MadkitAction.AGENT_SETUP_GUI,this), 
+					new GUIMessage(GUIManagerAction.SETUP_AGENT_GUI,this), 
 					null, 
 					10000);
 		}
@@ -435,8 +442,9 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		}
 		kernel = kernel.getMadkitKernel();
 		if (hasGUI) {
-			kernel.broadcastMessageWithRole(this, LocalCommunity.NAME, Groups.SYSTEM, Roles.GUI_MANAGER, new GUIMessage(
-					MadkitAction.AGENT_DISPOSE_GUI, this), null);
+			kernel.broadcastMessageWithRole(this, 
+					LocalCommunity.NAME, Groups.SYSTEM, Roles.GUI_MANAGER, 
+					new GUIMessage(GUIManagerAction.DISPOSE_AGENT_GUI, this), null);
 		}
 		//		if (getState().equals(TERMINATED))// TODO remove that
 		//			throw new AssertionError("terminating twice " + getName());
@@ -751,7 +759,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         </ul>
 	 * @since MadKit 5.0
 	 */
-	public ReturnCode killAgent(final AbstractAgent target, final int timeOutSeconds) {
+	public ReturnCode killAgent(final AbstractAgent target, final int timeOutSeconds) {//TODO check threads origin
 		if(target == this && Thread.currentThread().getName().equals(getAgentThreadName(getState()))){
 			if(isFinestLogOn())
 				logger.log(Level.FINEST, Influence.KILL_AGENT+" ("+timeOutSeconds+")"+ target.getLoggingName()+"...");
@@ -1901,10 +1909,134 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		return state.get();
 	}
 
-	public URLClassLoader getMadkitClassLoader(){
-		return getKernel().getMadkitKernel().getMadkitClassLoader();
+	public void reload(){
+		launchAgent(getClass().getName(),0, true);
+		killAgent(this);
 	}
 
+	private <E extends Enum<E>> String enumToMethodName(E mka){
+		final String[] tab = mka.name().split("_");
+		String methodName = tab[0].toLowerCase();
+		for (int i = 1; i < tab.length; i++) {
+			String s = tab[i];
+			methodName += s.charAt(0) + s.substring(1).toLowerCase();
+		}
+		return methodName;
+	}
+
+	protected <E extends Enum<E>> void proceedCommandMessage(CommandMessage<E> cm){
+		if(logger != null)
+			logger.finest("proceeding command message "+cm);
+		Object[] parameters = cm.getContent();
+		Method m = null;;
+		try {
+			m = findMethodFromParameters(enumToMethodName(cm.getCode()),parameters);
+			m.invoke(this, parameters);
+		} catch (Error e) {
+			throw e;
+		} catch (NoSuchMethodException e) {
+			if(logger != null)
+				logger.warning("I do not know how to "+enumToMethodName(cm.getCode())+Arrays.deepToString(parameters));
+			logForSender("I have sent a message which has not been understood", cm);
+		} catch (IllegalArgumentException e) {
+			if(logger != null)
+				logger.warning("Cannot proceed message : wrong argument "+m);
+			logForSender("I have sent an incorrect command message ", cm);
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {//TODO dirty : think about that
+			Throwable t = e.getCause();
+			if(t instanceof SelfKillException){
+				throw (SelfKillException) t;
+			}
+		}
+		System.err.println(cm.getCode().name());
+	}
+
+	private void logForSender(String msg, CommandMessage<?> cm){
+		try {
+			cm.getSender().getAgent().logger.warning(msg+cm);
+		} catch (NullPointerException e1) {
+			//logger is off
+		}
+	}
+
+	private Method findMethodFromParameters(String name2, Object[] parameters) throws NoSuchMethodException {
+		Method m;
+		final Class<?>[] types = convertToObjectTypes(convertToTypes(parameters));
+		m = findMethodIn(name2, getClass().getMethods(), types);
+		if(m == null){
+			m = findMethodIn(name2, getClass().getDeclaredMethods(), types);
+			if(m != null)
+				m.setAccessible(true);
+		}
+		if(m == null)
+			throw new NoSuchMethodException();
+		return m;
+	}
+
+	private Class<?>[] convertToObjectTypes(final Class<?>[] parameters){
+		for (int i = 0;i < parameters.length;i++) {
+			final Class<?> paramCl = parameters[i];
+			if(paramCl != null && paramCl.isPrimitive()){
+				parameters[i] = primitiveTypes.get(paramCl);
+			}
+		}
+		return parameters;
+	}
+
+	private Class<?>[] convertToTypes(final Object[] parameters){
+		final Class<?>[] paramClasses = new Class<?>[parameters.length];
+		for (int i = 0;i < paramClasses.length;i++) {
+			if (parameters[i] != null) {
+				paramClasses[i] = parameters[i].getClass();
+			}
+		}
+		return paramClasses;
+	}
+
+	private Method findMethodIn(String name2, Method[] methods, Class<?>[] parameters) {
+		for (Method method : methods) {
+			if(method.getName().equals(name2) && checkArgumentTypes(convertToObjectTypes(method.getParameterTypes()), parameters)){
+				return method;
+			}
+		}
+		return null;
+	}
+
+	private boolean checkArgumentTypes(Class<?>[] types, Class<?>[] parameters){
+		if(parameters.length == types.length){
+			for (int i = 0; i < types.length; i++) {
+				if(parameters[i] != null && ! types[i].isAssignableFrom(parameters[i])){
+					//					System.err.println("\nNot equals "+types[i]+" against "+parameters[i]+"\n");
+					return false;
+				}
+			}
+			return true;
+		}
+		return false;
+	}
+
+	final private static Map<Class<?>, Class<?>> primitiveTypes = new HashMap<Class<?>, Class<?>>();
+	static {
+		primitiveTypes.put(int.class,Integer.class);
+		primitiveTypes.put(boolean.class,Boolean.class);
+		primitiveTypes.put(byte.class,Byte.class);
+		primitiveTypes.put(char.class,Character.class);
+		primitiveTypes.put(float.class, Float.class);
+		primitiveTypes.put(void.class,Void.class);
+		primitiveTypes.put(short.class,Short.class);
+		primitiveTypes.put(double.class,Double.class);
+		primitiveTypes.put(long.class,Long.class);
+	}
+
+
+
+	public MadkitClassLoader getMadkitClassLoader(){//TODO log if no kernel
+		return getKernel().getMadkitKernel().getMadkitClassLoader();
+	}
+	
 	//	/**
 	//	 * @return an Executor which could be used to do tasks asynchronously
 	//	 */
@@ -2049,6 +2181,15 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 */
 	public static void executeThisAgent(String[] args) {
 		executeThisAgent(args, 1);
+	}
+
+	public boolean hasDefaultConstructor() {
+		try {
+			return getClass().getConstructor((Class<?>[]) null) != null;
+		} catch (SecurityException e) {
+		} catch (NoSuchMethodException e) {
+		}
+		return false;
 	}
 
 	//	@Override

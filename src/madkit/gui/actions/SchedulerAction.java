@@ -30,9 +30,12 @@ import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JSlider;
 
+import madkit.kernel.ActionInfo;
+import madkit.kernel.MKAbstractAction;
 import madkit.kernel.Scheduler;
 import madkit.kernel.Scheduler.State;
 import madkit.messages.ObjectMessage;
+import madkit.messages.SchedulingMessage;
 
 /**
  * @author Fabien Michel
@@ -41,57 +44,65 @@ import madkit.messages.ObjectMessage;
  * 
  */
 @SuppressWarnings("serial")
-public enum SchedulerAction implements MadkitGUIAction{
+public enum SchedulerAction {
 
-	SCHEDULER_RUN(new ImageIcon(SchedulerAction.class.getResource("images/scheduling/run.png")),VK_Q),
-	SCHEDULER_STEP(new ImageIcon(SchedulerAction.class.getResource("images/scheduling/step.png")),VK_S),
-	SCHEDULER_SPEEDUP(new ImageIcon(SchedulerAction.class.getResource("images/scheduling/speedUp.png")),VK_F),
-	SCHEDULER_SPEEDDOWN(new ImageIcon(SchedulerAction.class.getResource("images/scheduling/speedDown.png")),VK_G);
+	RUN(VK_Q),
+	STEP(VK_S),
+	SPEED_UP(VK_F),
+	SPEED_DOWN(VK_G);
 	
-	final private ImageIcon imageIcon;
-	
-	public ImageIcon getImageIcon() {
-		return imageIcon;
-	}
-
-	public int getKeyEvent() {
-		return keyEvent;
-	}
-
+	private ActionInfo actionInfo;
 	final private int keyEvent;
-	
+
 	@Override
 	public String toString() {
-		return Actions.getDescription(this);
+		return MKAbstractAction.enumToMethodName(this);
 	}
 
-	private SchedulerAction(ImageIcon ii, int keyEvent){
-		imageIcon = ii;
+	private SchedulerAction(int keyEvent){
 		this.keyEvent = keyEvent;
+	}
+	
+	/**
+	 * @return the actionInfo
+	 */
+	public ActionInfo getActionInfo() {
+		if(actionInfo == null)
+			actionInfo = new ActionInfo(this,keyEvent);
+		return actionInfo;
+	}
+
+	public Action getActionFor(final Scheduler agent, final Object... info){
+		return new MKAbstractAction(getActionInfo()){
+			@Override
+			public void actionPerformed(ActionEvent e) {//TODO I could do the check validity here for logging purpose
+				agent.receiveMessage(new SchedulingMessage(SchedulerAction.this,info));//TODO work with AA but this is probably worthless	
+			}
+	};
 	}
 	
 	public Action getAction(final Scheduler agent){
 		switch (this) {
-		case SCHEDULER_RUN:
-			return Actions.initAction(this, new AbstractAction("run") {
+		case RUN:
+			return new MKAbstractAction(getActionInfo()) {
 				public void actionPerformed(ActionEvent e) {
 					agent.receiveMessage(new ObjectMessage<Scheduler.State>(State.RUNNING));
 				}
-			});
-		case SCHEDULER_STEP:
-			return Actions.initAction(this,new AbstractAction("run") {
+			};
+		case STEP:
+			return new MKAbstractAction(getActionInfo()) {
 				public void actionPerformed(ActionEvent e) {
 					agent.receiveMessage(new ObjectMessage<Scheduler.State>(State.STEP));
 				}
-			});
-		case SCHEDULER_SPEEDDOWN:
-		case SCHEDULER_SPEEDUP:
-			return Actions.initAction(this,new AbstractAction() {
+			};
+		case SPEED_DOWN:
+		case SPEED_UP:
+			return new MKAbstractAction(getActionInfo()) {
 				public void actionPerformed(ActionEvent e) {
 					JSlider s = ((Scheduler) agent).getSpeedSlider();
-					s.setValue(s.getValue() + (SchedulerAction.this == SCHEDULER_SPEEDUP ? -50 : 50));
+					s.setValue(s.getValue() + (SchedulerAction.this == SPEED_UP ? -50 : 50));
 				}
-			});
+			};
 		default:
 			throw new AssertionError(this);
 		}

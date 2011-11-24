@@ -43,6 +43,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.logging.Level;
 
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
@@ -52,13 +53,17 @@ import javax.swing.SwingUtilities;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.agr.LocalCommunity.Roles;
+import madkit.gui.actions.GUIManagerAction;
 import madkit.gui.actions.MadkitAction;
 import madkit.gui.menus.AgentsMenu;
 import madkit.gui.menus.DemosMenu;
+import madkit.kernel.AAAction;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
 import madkit.kernel.AgentAddress;
+import madkit.kernel.KernelAction;
 import madkit.kernel.Message;
+import madkit.messages.CommandMessage;
 import madkit.messages.KernelMessage;
 
 /**
@@ -126,8 +131,9 @@ public class GUIManagerAgent extends Agent  {
 
 	@Override
 	protected void activate() {//TODO parallelize that
-		GUIToolkit.buildGlobalActions(this);
-		scanClassPathForAgentClasses();
+//		GUIToolkit.buildGlobalActions(this);
+//		scanClassPathForAgentClasses();
+//		setLogLevel(Level.ALL);
 		kernelAddress = getAgentWithRole(LocalCommunity.NAME, Groups.SYSTEM, Roles.KERNEL);
 		if(kernelAddress == null)//TODO remove that when OK
 			throw new AssertionError();
@@ -141,15 +147,27 @@ public class GUIManagerAgent extends Agent  {
 	protected void live() {
 		while (! shuttedDown) {
 			final Message m = waitNextMessage();
-			if(m.getSender() == null){
-				handlePrivateMessage((GUIMessage) m);
+			if(m instanceof GUIMessage){
+				proceedCommandMessage((GUIMessage) m);
 			}
-			else if(m instanceof GUIMessage){
-				handleGUIMessage((GUIMessage) m);
+			else if(m instanceof KernelMessage){
+				proceedCommandMessage((KernelMessage) m);
 			}
+//			else if(m instanceof GUIMessage){
+//				handleGUIMessage((GUIMessage) m);
+//			}
 			else{
 				if(logger != null)
 					logger.warning("I received a message that I do not understand. Discarding "+m);
+			}
+		}
+	}
+	
+	protected void proceedCommandMessage(GUIMessage cm) {
+		super.proceedCommandMessage(cm);
+		if(cm.getCode() == GUIManagerAction.SETUP_AGENT_GUI){
+			if(isAlive()){
+				sendReply(cm, cm);
 			}
 		}
 	}
@@ -176,125 +194,76 @@ public class GUIManagerAgent extends Agent  {
 		//		}
 	}
 
-	private void handlePrivateMessage(GUIMessage m) {
-		MadkitAction code = m.getCode();
-		switch (code) {
-		case LAUNCH_NETWORK://forward the request
-		case STOP_NETWORK://forward the request
-			sendMessage(kernelAddress, new KernelMessage(code, (Object) null));
-			break;
-		case ICONIFY_ALL:
-		case DEICONIFY_ALL:
-			iconifyAll(code == MadkitAction.ICONIFY_ALL);
-			break;
-		case CONNECT_WEB_REPO:
-			scanMadkitRepo();
-			break;
-		case LAUNCH_AGENT:
-			launchAgent((String) m.getContent(),0,true);
-			break;
-		case EXIT://forward the shutdown
-			shuttedDown = true;
-			sendMessage(kernelAddress, new KernelMessage(code, (Object) null));
-			return;
-		case LOAD_LOCAL_DEMOS:
-		case RESTART://forward the request
-			sendMessageAndWaitForReply(kernelAddress, new KernelMessage(code, (Object) null),1000);
-			if (code == MadkitAction.LOAD_LOCAL_DEMOS) {
-				scanClassPathForAgentClasses();
-			}
-			break;
-		case CLONE://forward the request
-			sendMessage(kernelAddress, new KernelMessage(MadkitAction.CLONE, m.getContent()));
-			break;
-		case KILL_AGENTS:
-			killAllAgents();
-			//			sendMessage(kernelAddress, new KernelMessage(code, (Object) null));
-			//			disposeAllAgents();
-			break;
-		case LOAD_JAR_FILE:
-			loadingJarFile((URL) m.getContent());
-			break;
-		case MADKIT_LAUNCH_SESSION:
-			launchDemo((String) m.getContent());
-			break;
-		default:
-			break;
-		}
+//	private void handlePrivateMessage(GUIMessage m) {
+//		MadkitAction code = m.getCode();
+//		switch (code) {
+//		case LAUNCH_NETWORK://forward the request
+//		case STOP_NETWORK://forward the request
+//			sendMessage(kernelAddress, new KernelMessage(code, (Object) null));
+//			break;
+//		case ICONIFY_ALL:
+//		case DEICONIFY_ALL:
+//			iconifyAll(code == MadkitAction.ICONIFY_ALL);
+//			break;
+//		case CONNECT_WEB_REPO:
+//			scanMadkitRepo();
+//			break;
+//		case LAUNCH_AGENT:
+//			launchAgent((String) m.getContent(),0,true);
+//			break;
+//		case EXIT://forward the shutdown
+//			shuttedDown = true;
+//			sendMessage(kernelAddress, new KernelMessage(code, (Object) null));
+//			return;
+//		case LOAD_LOCAL_DEMOS:
+//		case RESTART://forward the request
+//			sendMessageAndWaitForReply(kernelAddress, new KernelMessage(code, (Object) null),1000);
+//			if (code == MadkitAction.LOAD_LOCAL_DEMOS) {
+//				scanClassPathForAgentClasses();
+//			}
+//			break;
+//		case CLONE://forward the request
+//			sendMessage(kernelAddress, new KernelMessage(MadkitAction.CLONE, m.getContent()));
+//			break;
+//		case KILL_AGENTS:
+//			killAgents();
+//			//			sendMessage(kernelAddress, new KernelMessage(code, (Object) null));
+//			//			disposeAllAgents();
+//			break;
+//		case LOAD_JAR_FILE:
+//			loadingJarFile((URL) m.getContent());
+//			break;
+//		case MADKIT_LAUNCH_SESSION:
+//			launchDemo((String) m.getContent());
+//			break;
+//		default:
+//			break;
+//		}
+//	}
+	
+	private void exit(){
+		shuttedDown = true;
 	}
 
-	private void handleGUIMessage(GUIMessage m) {
-		switch (m.getCode()) {
-		case AGENT_SETUP_GUI:
-			setupGUIOf(m);
-			break;
-		case AGENT_DISPOSE_GUI:
-			disposeGUIOf((AbstractAgent) m.getContent());
-			break;
-		case EXIT:
-			shuttedDown = true;
-			//		end();
-			//		sendReply(m, new Message());
-		default:
-			break;
-		}
+//	private void handleGUIMessage(GUIMessage m) {
+//		switch (m.getCode()) {
+//		case AGENT_SETUP_GUI:
+//			setupGUIOf(m);
+//			break;
+//		case AGENT_DISPOSE_GUI:
+//			disposeGUIOf((AbstractAgent) m.getContent());
+//			break;
+//		case EXIT:
+//			shuttedDown = true;
+//			//		end();
+//			//		sendReply(m, new Message());
+//		default:
+//			break;
+//		}
 
-	}
-
-	private void launchDemo(final String content) {
-		if(logger != null)
-			logger.fine("Launching demo "+content);
-		for (DemoModel demo : demos) {
-			if(demo.getName().equals(content)){
-				launchDemo(demo);
-			}
-		}
-	}
-
-	private void launchDemo(DemoModel demo) {
-		if(logger != null)
-			logger.finer("Launching demo "+demo);
-		sendMessage(kernelAddress, new KernelMessage(MadkitAction.MADKIT_LAUNCH_SESSION, (Object[]) demo.getSessionArgs()));
-		//		final String[] agentsClasses = demo.getLaunchAgent().split(";");
-		//		for(final String classNameAndOption : agentsClasses){
-		//			final String[] classAndOptions = classNameAndOption.split(",");
-		//			final String className = classAndOptions[0].trim();//TODO should test if these classes exist
-		//			final boolean withGUI = (classAndOptions.length > 1 ? Boolean.parseBoolean(classAndOptions[1].trim()) : false);
-		//			int number = 1;
-		//			if(classAndOptions.length > 2) {
-		//				try {
-		//					number = Integer.parseInt(classAndOptions[2].trim());
-		//				} catch (NumberFormatException e) {
-		//					//TODO log that
-		//				}
-		//			}
-		//			for (int i = 0; i < number; i++) {
-		//				launchAgent(className, 0, withGUI);
-		//			}
-		//		}
-	}
-
-	private void loadingJarFile(URL url) {
-		sendMessageAndWaitForReply(kernelAddress, new KernelMessage(MadkitAction.LOAD_JAR_FILE, url), 1000);
-		scanClassPathForAgentClasses();
-	}
-
-	private void iconifyAll(boolean iconify) {
-		final int code = iconify ? JFrame.ICONIFIED : JFrame.NORMAL;
-		for (final JFrame f : guis.values()){
-			f.setExtendedState(code);
-		}
-		for (final JInternalFrame jf : internalFrames.values()) {
-			try {
-				jf.setIcon(iconify);
-			} catch (PropertyVetoException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
-	private void setupGUIOf(final GUIMessage m) {
-		final AbstractAgent agent = (AbstractAgent) m.getContent();
+//	}
+	
+	private void setupAgentGui(final AbstractAgent agent){
 		if(logger != null)
 			logger.fine("Setting up GUI for "+agent);
 		SwingUtilities.invokeLater(new Runnable() {
@@ -318,11 +287,102 @@ public class GUIManagerAgent extends Agent  {
 						f.setVisible(true);
 					}
 				}
-				if (isAlive()) {
-					sendReply(m, new Message());
-				}
-			}
+	}
 		});
+	}
+
+	private void launchDemo(final String content) {
+		if(logger != null)
+			logger.fine("Launching demo "+content);
+		for (DemoModel demo : demos) {
+			if(demo.getName().equals(content)){
+				launchDemo(demo);
+			}
+		}
+	}
+
+	private void launchDemo(DemoModel demo) {
+		if(logger != null)
+			logger.finer("Launching demo "+demo);
+//		sendMessage(kernelAddress, new KernelMessage(MadkitAction.MADKIT_LAUNCH_SESSION, (Object[]) demo.getSessionArgs()));
+		//		final String[] agentsClasses = demo.getLaunchAgent().split(";");
+		//		for(final String classNameAndOption : agentsClasses){
+		//			final String[] classAndOptions = classNameAndOption.split(",");
+		//			final String className = classAndOptions[0].trim();//TODO should test if these classes exist
+		//			final boolean withGUI = (classAndOptions.length > 1 ? Boolean.parseBoolean(classAndOptions[1].trim()) : false);
+		//			int number = 1;
+		//			if(classAndOptions.length > 2) {
+		//				try {
+		//					number = Integer.parseInt(classAndOptions[2].trim());
+		//				} catch (NumberFormatException e) {
+		//					//TODO log that
+		//				}
+		//			}
+		//			for (int i = 0; i < number; i++) {
+		//				launchAgent(className, 0, withGUI);
+		//			}
+		//		}
+	}
+
+//	private void loadingJarFile(URL url) {
+//		Message m = sendMessageAndWaitForReply(kernelAddress, new KernelMessage(KernelAction.LOAD_JAR_FILE, url), 1000);
+//		if(logger != null)
+//			logger.info(url+" loaded\n\n");
+//		scanClassPathForAgentClasses();
+//	}
+//
+	private void iconifyAll(boolean iconify) {
+		final int code = iconify ? JFrame.ICONIFIED : JFrame.NORMAL;
+		for (final JFrame f : guis.values()){
+			f.setExtendedState(code);
+		}
+		for (final JInternalFrame jf : internalFrames.values()) {
+			try {
+				jf.setIcon(iconify);
+			} catch (PropertyVetoException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private void iconifyAll() {
+		iconifyAll(true);
+	}
+	
+	private void deiconifyAll(){
+		iconifyAll(false);
+	}
+
+//	private void setupGUIOf(final GUIMessage m) {
+//		final AbstractAgent agent = (AbstractAgent) m.getContent();
+//		if(logger != null)
+//			logger.fine("Setting up GUI for "+agent);
+//		SwingUtilities.invokeLater(new Runnable() {
+//			public void run() {
+//				if (! shuttedDown && agent.isAlive()) {
+//					AgentFrame f = new AgentFrame(agent, agent.getName());
+//					try {
+//						agent.setupFrame(f);//TODO catch failures because of delegation
+//					} catch (Exception e) {
+//						agent.getLogger().severeLog("Cannot initialize frame -> default GUI", e);
+//						f = new AgentFrame(agent, agent.getName());
+//					}
+//					if (desktop != null) {
+//						JInternalFrame jf = new AgentInternalFrame(f, GUIManagerAgent.this);
+//						desktop.addInternalFrame(jf);
+//						internalFrames.put(agent, jf);
+//						jf.setVisible(true);
+//					} else {
+//						f.setLocation(checkLocation(f));
+//						guis.put(agent, f);
+//						f.setVisible(true);
+//					}
+//				}
+//				if (isAlive()) {
+//					sendReply(m, new Message());
+//				}
+//			}
+//		});
 
 		//TODO choose one !!
 		//		try {
@@ -349,9 +409,9 @@ public class GUIManagerAgent extends Agent  {
 		//		} catch (InvocationTargetException e) {
 		//			e.printStackTrace();
 		//		}
-	}
+//	}
 
-	private void disposeGUIOf(AbstractAgent agent) {//event dispatch thread ?
+	private void disposeAgentGui(AbstractAgent agent) {//event dispatch thread ?
 		closeFrame(guis.remove(agent));
 		closeFrame(internalFrames.remove(agent));
 		GUIToolkit.agentUIListeners.remove(agent);
@@ -491,7 +551,7 @@ public class GUIManagerAgent extends Agent  {
 
 	private void scanMadkitRepo() {
 		URL[] urls = getMadkitClassLoader().getURLs();
-		sendMessageAndWaitForReply(kernelAddress, new KernelMessage(MadkitAction.CONNECT_WEB_REPO, (Object) null), 1000);
+//		sendMessageAndWaitForReply(kernelAddress, new KernelMessage(MadkitAction.CONNECT_WEB_REPO, (Object) null), 1000);
 		if (getMadkitClassLoader().getURLs().length != urls.length) {//more than before ?
 			scanClassPathForAgentClasses();
 		}
@@ -572,9 +632,10 @@ public class GUIManagerAgent extends Agent  {
 		}
 
 		JMenu createAgentsMenu() {
+			LaunchAgentsMenu am = new LaunchAgentsMenu(this);
 			AgentsMenu m = new AgentsMenu(MadkitAction.LAUNCH_AGENT.getAction(this),agentClasses);
 			agentsMenus.add(m);
-			return m;
+			return am;
 		}
 
 		JMenu createDemosMenu() {
@@ -608,9 +669,9 @@ public class GUIManagerAgent extends Agent  {
 		/**
 		 * Kills all the agents that have a GUI
 		 */
-		private void killAllAgents() {
+		private void killAgents() {
 			for (final AbstractAgent a : guis.keySet()) {
-				AgentFrame.killAgent(a, 0);
+				AgentFrame.killAgent(a, 0);//TODO should be something else
 			}
 			for (final AbstractAgent a : internalFrames.keySet()) {
 				AgentFrame.killAgent(a, 0);

@@ -20,6 +20,8 @@ package madkit.gui.actions;
 
 import java.awt.event.KeyEvent;
 import java.lang.reflect.Constructor;
+import java.util.EnumMap;
+import java.util.EnumSet;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -30,6 +32,7 @@ import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.agr.LocalCommunity.Roles;
 import madkit.kernel.AbstractAgent;
+import madkit.kernel.KernelAction;
 import madkit.messages.KernelMessage;
 
 /**
@@ -38,9 +41,9 @@ import madkit.messages.KernelMessage;
  * @version 0.9
  * 
  */
-final class Actions {
+final public class Actions {
 
-	static Action initAction(MadkitGUIAction mka, Action a) {
+	public static Action initAction(MadkitGUIAction mka, Action a) {
 		String[] codes = mka.toString().split(";");
 		a.putValue(Action.NAME, codes[0]);
 		a.putValue(Action.SHORT_DESCRIPTION, codes.length > 1 ? codes[1] : codes[0]);
@@ -62,6 +65,28 @@ final class Actions {
 		return a;
 	}
 
+//	public static <E extends Enum<E>> MKAction createAbstractAction(E mka, ImageIcon bigIcon, int keyEvent) {
+//		MKAction a = new MKAction(mka, bigIcon, keyEvent);
+//		String[] codes = mka.toString().split(";");
+//		a.putValue(Action.NAME, codes[0]);
+//		a.putValue(Action.SHORT_DESCRIPTION, codes.length > 1 ? codes[1] : codes[0]);
+//		a.putValue(Action.LONG_DESCRIPTION, codes.length > 2 ? codes[2] : a.getValue(Action.SHORT_DESCRIPTION));
+//		if (bigIcon != null) {
+//			a.putValue(AbstractAction.LARGE_ICON_KEY, bigIcon);
+//			if (bigIcon.getIconWidth() > 16) {
+//				a.putValue(AbstractAction.SMALL_ICON,
+//						new ImageIcon(bigIcon.getImage().getScaledInstance(16, 16, java.awt.Image.SCALE_SMOOTH)));
+//			} else {
+//				a.putValue(AbstractAction.SMALL_ICON, bigIcon);
+//			}
+//		}
+//		a.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(keyEvent, KeyEvent.CTRL_MASK));
+//		a.putValue(Action.MNEMONIC_KEY, keyEvent);
+//		a.putValue(Action.ACTION_COMMAND_KEY, mka.toString());
+//		a.putValue(Action.SELECTED_KEY, false);
+//		return a;
+//	}
+
 	static boolean hasDefaultConstructor(AbstractAgent agent){
 		try {
 			for (Constructor<?> c : agent.getClass().getConstructors()) {
@@ -73,13 +98,13 @@ final class Actions {
 		return false;
 	}
 
-	static String getDescription(MadkitGUIAction mka){
+	public static String getDescription(MadkitGUIAction mka){
 		return AgentAction.messages.getString(mka.name());
 	}
 
 	static void selfKill(AbstractAgent agent){
 		if (agent.isAlive()) {
-			agent.sendMessage(LocalCommunity.NAME, Groups.SYSTEM, Roles.KERNEL, new KernelMessage(MadkitAction.MADKIT_KILL_AGENT,
+			agent.sendMessage(LocalCommunity.NAME, Groups.SYSTEM, Roles.KERNEL, new KernelMessage(KernelAction.KILL_AGENT,
 					agent, 2));
 		}
 	}

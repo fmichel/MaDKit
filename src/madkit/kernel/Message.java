@@ -46,7 +46,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 //* to do a copy of the message for each receiver, ensuring the data security of the original object/content used to build a message.
 //* @see SecuredMessage
 
-public class Message implements Cloneable,java.io.Serializable{
+public class Message implements Cloneable,java.io.Serializable{//TODO message already sent warning !!!
 
 	/**
 	 * 

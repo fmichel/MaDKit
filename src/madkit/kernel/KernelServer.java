@@ -24,12 +24,11 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
 
-import madkit.kernel.NetworkMessage.NetCode;
+import madkit.messages.KernelMessage;
 
 /**
  * @author Fabien Michel
@@ -60,10 +59,10 @@ final class KernelServer {
 			public void run() {
 				while(running){
 					try {
-						netAgent.receiveMessage(new NetworkMessage<Socket>(NetCode.NEW_PEER_REQUEST, serverSocket.accept()));
+						netAgent.receiveMessage(new NetworkMessage(NetCode.NEW_PEER_REQUEST, serverSocket.accept()));
 					} catch (IOException e) {
 						if (running) {//socket failure
-							netAgent.receiveMessage(new NetworkMessage<Object>(NetCode.FAILURE,null));
+							netAgent.receiveMessage(new KernelMessage(KernelAction.EXIT));
 						}
 						break;
 					}

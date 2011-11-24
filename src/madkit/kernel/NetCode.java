@@ -18,42 +18,30 @@
  */
 package madkit.kernel;
 
+import madkit.messages.CommandMessage;
 import madkit.messages.ObjectMessage;
 
 /**
  * @author Fabien Michel
  * @since MadKit 5
- * @version 0.9
+ * @version 1.1
  * 
  */
-class NetworkMessage<T> extends ObjectMessage<T> {
-	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -7003030390114277088L;
-	final private NetCode code;
-
-	public NetworkMessage(NetCode code, T content) {
-		super(content);
-		this.code = code;
-	}
-
-
-	public NetCode getCode() {
-		return code;
-	}
-	
-	public enum NetCode {
-		NEW_PEER_DETECTED,
-		PEER_DECONNECTED,
-		NEW_PEER_REQUEST,
-		FAILURE
-	}
-
+enum NetCode {
+	NEW_PEER_DETECTED,
+	PEER_DECONNECTED,
+	NEW_PEER_REQUEST;
 }
 
-//class NewPeerMessage extends NetworkMessage<DatagramPacket>{
+class NetworkMessage extends CommandMessage<NetCode> {
+	
+	public NetworkMessage(NetCode code, Object... commandOptions) {
+		super(code,commandOptions);
+	}
+
+
+}
+//class NewPeerMessage extends NetCode<DatagramPacket>{
 //	/**
 //	 * 
 //	 */
@@ -67,7 +55,7 @@ class NetworkMessage<T> extends ObjectMessage<T> {
 //	}
 //}
 //
-//class NewPeerConnectionRequest extends NetworkMessage<Socket>{
+//class NewPeerConnectionRequest extends NetCode<Socket>{
 //
 //	private static final long serialVersionUID = 6092436677566809561L;
 //

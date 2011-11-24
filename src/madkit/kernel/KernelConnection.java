@@ -27,8 +27,6 @@ import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.Set;
 
-import madkit.kernel.NetworkMessage.NetCode;
-
 /**
  * @author Fabien Michel
  * @version 0.9
@@ -127,7 +125,7 @@ final class KernelConnection extends Thread{
 				e.printStackTrace();
 				break;
 			} catch (IOException e) {
-				myNetAgent.receiveMessage(new NetworkMessage<KernelAddress>(NetCode.PEER_DECONNECTED, kernelAddress));
+				myNetAgent.receiveMessage(new NetworkMessage(NetCode.PEER_DECONNECTED, kernelAddress));
 				break;
 			}		
 		}

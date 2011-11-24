@@ -104,7 +104,7 @@ final class OrganizationWarning extends MadkitWarning{
 	}
 }
 
-class KilledException extends Error {
+class KilledException extends Error {//TODO should be runtime exception
 	/**
 	 * 
 	 */
@@ -118,10 +118,10 @@ class KilledException extends Error {
 		super(cause);
 	}
 
-//		@Override
-//	public synchronized Throwable fillInStackTrace() {
-//		return null;
-//	}
+		@Override
+	public synchronized Throwable fillInStackTrace() {
+		return null;
+	}
 }
 
 class SelfKillException extends KilledException{

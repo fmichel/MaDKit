@@ -23,7 +23,9 @@ import java.awt.event.KeyEvent;
 import javax.swing.Action;
 import javax.swing.JMenu;
 
+import madkit.gui.actions.Actions;
 import madkit.gui.actions.AgentAction;
+import madkit.kernel.AAAction;
 import madkit.kernel.AbstractAgent;
 
 /**
@@ -53,21 +55,11 @@ public class AgentMenu extends JMenu {// TODO i18n
 	public AgentMenu(final AbstractAgent agent) {
 		super(agent.getClass().getSimpleName());
 		setMnemonic(KeyEvent.VK_A);
-//		myAgent = agent;
-		Action a;
-		a = AgentAction.AGENT_RELAUNCH.getAction(agent);
-		if (a != null) {
-			add(a);
+		if(agent.hasDefaultConstructor()){
+			add(AAAction.RELOAD.getActionFor(agent));
+			add(AAAction.LAUNCH_AGENT.getActionFor(agent,agent.getClass().getName(),0,true));
 		}
-		a = AgentAction.AGENT_LAUNCH_ANOTHER.getAction(agent);
-		if (a != null) {
-			add(a);
-		}
-		a = AgentAction.AGENT_RELOAD.getAction(agent);
-		if (a != null) {
-			add(a);
-		}
-		add(AgentAction.AGENT_KILL.getAction(agent));
+		add(AAAction.KILL_AGENT.getActionFor(agent,agent));
 	}
 	
 }

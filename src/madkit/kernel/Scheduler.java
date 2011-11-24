@@ -183,11 +183,11 @@ public class Scheduler extends Agent {
 //		this.setStartTime(startTime);
 //	}
 
-	@Override
-	protected void activate() {
-		if(logger != null)
-			logger.talk("\n\tHi human !\n\n I am an instance of the madkit.kernel.Scheduler class.\n I am specialized in simulation scheduling.\n I use activators on the artificial society\n to trigger agents' behaviors and simulate artificial worlds.\n You can extend me to create your own simulations !");
-	}
+//	@Override
+//	protected void activate() {
+//		if(logger != null)
+//			logger.talk("\n\tHi human !\n\n I am an instance of the madkit.kernel.Scheduler class.\n I am specialized in simulation scheduling.\n I use activators on the artificial society\n to trigger agents' behaviors and simulate artificial worlds.\n You can extend me to create your own simulations !");
+//	}
 	
 	/**
 	 * Constructor specifying the global times at which the simulation starts and ends.
@@ -304,7 +304,7 @@ public class Scheduler extends Agent {
 	}
 
 	public void live() {
-		while (true) {
+		while (isAlive()) {
 			if (GVT > simulationDuration) {
 				if (logger != null)
 					logger.fine("Quitting: Simulation has reached end time " + getGVT());
@@ -403,10 +403,10 @@ public class Scheduler extends Agent {
 
 	private void buildActions() {
 
-		run = SchedulerAction.SCHEDULER_RUN.getAction(this);
-		step = SchedulerAction.SCHEDULER_STEP.getAction(this);
-		speedUp = SchedulerAction.SCHEDULER_SPEEDUP.getAction(this);
-		speedDown = SchedulerAction.SCHEDULER_SPEEDDOWN.getAction(this);
+		run = SchedulerAction.RUN.getAction(this);
+		step = SchedulerAction.STEP.getAction(this);
+		speedUp = SchedulerAction.SPEED_UP.getAction(this);
+		speedDown = SchedulerAction.SPEED_DOWN.getAction(this);
 }
 
 	/**

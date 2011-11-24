@@ -21,13 +21,29 @@ package madkit.kernel;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
+import java.lang.reflect.Modifier;
+import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.jar.Attributes;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import madkit.gui.DemoModel;
+import madkit.gui.LaunchAgentsMenu;
+import madkit.gui.LaunchSessionsMenu;
 
 /**
  * @author Fabien Michel
@@ -36,10 +52,13 @@ import java.util.logging.Logger;
  * @version 5.1
  * 
  */
-final class MadkitClassLoader extends URLClassLoader {
+public class MadkitClassLoader extends URLClassLoader {
 
 	private Collection<String> classesToReload;
 	final private Madkit madkit;
+	private Set<String> agentClasses = new TreeSet<String>();
+	private Set<DemoModel> demos = new HashSet<DemoModel>();
+	private Set<URL> knownUrls = new HashSet<URL>();
 
 	/**
 	 * @param urls
@@ -64,11 +83,14 @@ final class MadkitClassLoader extends URLClassLoader {
 					l.log(Level.FINE, "Already defined " + name + " : NEED NEW MCL");
 				}
 				MadkitClassLoader mcl = new MadkitClassLoader(madkit,getURLs(),this, classesToReload);
+				mcl.knownUrls = knownUrls;
+				mcl.agentClasses = agentClasses;
+				mcl.demos = demos;
 				classesToReload.remove(name);
 				madkit.setMadkitClassLoader(mcl);
 				c = mcl.loadClass(name, resolve);
 			}
-			else{// Never defined nor reload : go for defining
+			else{// Never defined nor reloaded : go for defining
 				addUrlAndloadClasses(name);
 				classesToReload = null;
 				return loadClass(name, resolve);// I should now find it on this next try
@@ -184,8 +206,161 @@ public String toString() {
 	return cp;
 }
 
-protected void addJar(URL url) {
+void addJar(URL url) {
 	addURL(url);
+	LaunchAgentsMenu.updateAllMenus();
+	LaunchSessionsMenu.updateAllMenus();
+}
+
+/**
+ * Returns all the session configurations available on the class path
+ * @return a set of session configurations available on the 
+ * class path
+ */
+public Set<DemoModel> getAvailableConfigurations(){
+	scanClassPathForAgentClasses();
+	if(demos != null){
+		return new HashSet<DemoModel>(demos);
+	}
+	return Collections.emptySet();
+}
+
+/**
+ * Returns the names of all the available agent classes
+ * @return All the agent classes available on the 
+ * class path
+ */
+public Set<String> getAllAgentClasses(){
+	scanClassPathForAgentClasses();
+	if(agentClasses != null){
+		return new TreeSet<String>(agentClasses);
+	}
+	return Collections.emptySet();
+}
+
+private void scanClassPathForAgentClasses() {
+	boolean changed = false;
+	if(knownUrls == null)
+		knownUrls = new HashSet<URL>();
+	if(agentClasses == null)
+		agentClasses = new TreeSet<String>();
+	for(URL dir : getURLs()){
+		if(knownUrls.add(dir))
+			changed = true;
+		else
+			continue;
+		if(dir.toString().contains("rsrc")){
+			if(dir.toString().contains("jar:rsrc:")){//TODO externalize 
+				File f = new File(madkit.getConfigOption().getProperty("Project-Code-Name")+"-"+madkit.getConfigOption().getProperty("Project-Version")+".jar");
+				if (f.exists()) {
+					try {
+						dir = new URL(f.toURI().toURL().toString());
+					} catch (MalformedURLException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+			else{//this is the "." dir : not interested !
+				continue;
+			}
+		}
+		if (dir.toString().endsWith(".jar")) {
+			try {
+				JarFile jarFile = ((JarURLConnection) new URL("jar:"+dir+"!/").openConnection()).getJarFile();
+				scanJarFileForLaunchConfig(jarFile);
+				agentClasses.addAll(scanJarFileForAgentClasses(jarFile));
+			} catch (IOException e) {
+//				getLogger().severeLog("web repo conf is not valid", e);
+			}
+		}
+		else{
+			agentClasses.addAll(scanFolderForAgentClasses(new File(dir.getFile()), null));
+		}
+	}
+}
+
+private void scanJarFileForLaunchConfig(JarFile jarFile) {
+	Attributes projectInfo = null;
+	try {
+		projectInfo = jarFile.getManifest().getAttributes("MadKit-Project-Info");
+	} catch (IOException e) {
+		return;
+	}
+	if(projectInfo != null){
+		DemoModel demo = new DemoModel(projectInfo.getValue("Project-Name").trim(),
+				projectInfo.getValue("MadKit-Args").split(" "),
+				projectInfo.getValue("Description").trim());
+		if(demos == null){
+			demos = new HashSet<DemoModel>();
+		}
+		demos.add(demo);
+//		if (logger != null) {
+//			logger.finest("found demo config info " + demo);
+		}
+	}
+
+private List<String> scanJarFileForAgentClasses(JarFile jarFile) {
+	List<String> l = new ArrayList<String>(50);
+	for (Enumeration<JarEntry> e = jarFile.entries(); e.hasMoreElements();){
+		JarEntry entry = e.nextElement();
+		if (! entry.isDirectory() && entry.getName().endsWith(".class")) {
+			String className = fileNameToClassName(entry.getName(), null);
+			if (isAgentClass(className)) {
+				l.add(fileNameToClassName(entry.getName(), null));
+			}
+		}
+	}
+	return l;
+}
+
+private List<String> scanFolderForAgentClasses(final File file, final String pckName) {
+	final File[] files = file.listFiles();
+	if(files == null)
+		return Collections.emptyList();
+	final List<String> l = new ArrayList<String>();
+	for(File f : files){
+		if(f.isDirectory()){
+			//				String pck = pckName == null ? f.getName() : pckName+"."+f.getName();
+			//				if(! isKernelDirectory(pck)){
+			l.addAll(scanFolderForAgentClasses(f, pckName == null ? f.getName() : pckName+"."+f.getName()));
+			//				}
+		}
+		else if(f.getName().endsWith(".class")){
+			String className = pckName+"."+f.getName().replace(".class", "");
+			if (isAgentClass(className)) {
+				l.add(className);
+			}
+		}
+	}
+	return l;
+}
+
+private boolean isAgentClass(final String className) {
+	try {
+		final Class<?> cl = loadClass(className);
+		if(cl != null && AbstractAgent.class.isAssignableFrom(cl) && cl.getConstructor((Class<?>[]) null) != null && (! Modifier.isAbstract(cl.getModifiers())) && Modifier.isPublic(cl.getModifiers())){
+//			for (final Constructor<?> c : cl.getConstructors()) {
+//				if (c.getParameterTypes().length == 0)
+//					return true;
+//			}
+			return true;
+		}
+	} catch (ClassNotFoundException e) {
+		e.printStackTrace();
+	} catch (NoClassDefFoundError e) {
+		// TODO: the jar file is not on the MK path (IDE JUnit for instance)
+		//		} catch (IllegalAccessException e) {
+		//			//not public
+	} catch (SecurityException e) {
+	} catch (NoSuchMethodException e) {
+	}
+		return false;
+	}
+
+private String fileNameToClassName(String file, String classPathRoot){
+	if(classPathRoot != null)
+		file = file.replace(classPathRoot, "");
+	return file.substring(0, file.length()-6).replace(File.separatorChar, '.');
 }
 
 }

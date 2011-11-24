@@ -55,6 +55,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -85,7 +86,9 @@ import java.util.logging.Level;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.agr.LocalCommunity.Roles;
+import madkit.gui.DemoModel;
 import madkit.gui.GUIMessage;
+import madkit.gui.LaunchAgentsMenu;
 import madkit.gui.actions.MadkitAction;
 import madkit.i18n.ErrorMessages;
 import madkit.i18n.Words;
@@ -330,94 +333,124 @@ class MadkitKernel extends Agent {
 		if(LevelOption.madkitLogLevel.getValue(platform.getConfigOption()) != Level.OFF){
 			System.err.println(
 					"\n\t---------------------------------------------------"+
-					"\n\t   MadKit Kernel "+kernelAddress+" is shutting down, Bye !"+
+							"\n\t   MadKit Kernel "+kernelAddress+" is shutting down, Bye !"+
 					"\n\t---------------------------------------------------\n");			
 		}
 	}
 
 	final private void launchGuiManagerAgent() {
-//		if (noGUIManager.isActivated(getMadkitConfig())) {
-//			if (logger != null)
-//				logger.fine("** No GUI Manager: " + noGUIManager + " option is true**\n");
-//		} else {
-			try {
-				//no need to externalize : it is the only use of that string
-				final Constructor<?> c = getMadkitClassLoader().loadClass("madkit.gui.GUIManagerAgent").getDeclaredConstructor(boolean.class);
-				c.setAccessible(true);
-				final AbstractAgent a = (AbstractAgent) c.newInstance(! BooleanOption.desktop.isActivated(getMadkitConfig()));
-//				c.setAccessible(false); //useless
-				a.setLogLevel(LevelOption.guiLogLevel.getValue(getMadkitConfig()));
-				launchAgent(a);
-				threadedAgents.remove(a);
-				if (logger != null)
-					logger.fine("\n\t****** GUI Manager launched ******\n");
-			} catch (ClassNotFoundException e) {
-				bugReport(e);
-			} catch (SecurityException e) {
-				bugReport(e);
-			} catch (NoSuchMethodException e) {
-				bugReport(e);
-			} catch (IllegalArgumentException e) {
-				bugReport(e);
-			} catch (InstantiationException e) {
-				bugReport(e);
-			} catch (IllegalAccessException e) {
-				bugReport(e);
-			} catch (InvocationTargetException e) {
-				bugReport(e);
-			}
-//		}
+		//		if (noGUIManager.isActivated(getMadkitConfig())) {
+		//			if (logger != null)
+		//				logger.fine("** No GUI Manager: " + noGUIManager + " option is true**\n");
+		//		} else {
+		try {
+			//no need to externalize : it is the only use of that string
+			final Constructor<?> c = getMadkitClassLoader().loadClass("madkit.gui.GUIManagerAgent").getDeclaredConstructor(boolean.class);
+			c.setAccessible(true);
+			final AbstractAgent a = (AbstractAgent) c.newInstance(! BooleanOption.desktop.isActivated(getMadkitConfig()));
+			//				c.setAccessible(false); //useless
+			a.setLogLevel(LevelOption.guiLogLevel.getValue(getMadkitConfig()));
+			launchAgent(a);
+			threadedAgents.remove(a);
+			if (logger != null)
+				logger.fine("\n\t****** GUI Manager launched ******\n");
+		} catch (ClassNotFoundException e) {
+			bugReport(e);
+		} catch (SecurityException e) {
+			bugReport(e);
+		} catch (NoSuchMethodException e) {
+			bugReport(e);
+		} catch (IllegalArgumentException e) {
+			bugReport(e);
+		} catch (InstantiationException e) {
+			bugReport(e);
+		} catch (IllegalAccessException e) {
+			bugReport(e);
+		} catch (InvocationTargetException e) {
+			bugReport(e);
+		}
+		//		}
 	}
 
-	final private void handleKernelMessage(KernelMessage km) {
-		Method operation = null;
-		final Object[] arguments = km.getContent();
-		switch (km.getCode()) {
-		case LAUNCH_AGENT:// TODO semantic
-			operation = checkValidity("launchAgent",arguments);
-			break;
-		case MADKIT_KILL_AGENT:// TODO log errors
-			operation = checkValidity("killAgent",arguments);
-			break;
-		case KILL_AGENTS:// TODO semantic
-			killAgents(false);
-			return;
-		case LOAD_LOCAL_DEMOS:// TODO semantic
-			loadLocalDemos();
-			sendReply(km, new Message());
-			return;
-		case MADKIT_LAUNCH_SESSION:// TODO semantic
-			launchSession((String[]) arguments);
-			return;
-		case CONNECT_WEB_REPO:
-			addWebRepository();
-			sendReply(km, new Message());
-			return;
-		case LOAD_JAR_FILE:// TODO semantic
-			//			System.err.println((URL) km.getContent()[0]);
-			platform.getMadkitClassLoader().addJar((URL) km.getContent()[0]);
-			sendReply(km, new Message());
-			return;
-		case LAUNCH_NETWORK:
-			startNetwork();
-			return;
-		case STOP_NETWORK:
-			stopNetwork();
-			return;
-		case CLONE:// TODO semantic
-			startSession(false);
-//			startSession((Boolean) km.getContent()[0]);
-			return;
-		case RESTART:
-			startSession(false);
-		case EXIT:
-			shutdown();
-			return;
-		default:
-			if (logger != null) logger.warning("I received a kernel message that I do not understand. Discarding " + km);
-			return;
-		}
-		doOperation(operation, arguments);
+	final private void handleNewKernelMessage(KernelMessage km) {
+		proceedCommandMessage(km);
+//		sendReply(km, new Message());
+//		switch (km.getCode()) {
+//		case EXIT:
+//			sendNetworkMessageWithRole(km, kernelRole);
+//			broadcastMessageWithRole(this, LocalCommunity.NAME,
+//					Groups.SYSTEM, madkit.agr.LocalCommunity.Roles.GUI_MANAGER, 
+//					, null);
+//			break;
+//		default:
+//			break;
+//		}
+	}
+	
+//	final private void handleKernelMessage(KernelMessage km) {
+//		Method operation = null;
+//		final Object[] arguments = km.getContent();
+//		switch (km.getCode()) {
+//		case LAUNCH_AGENT:// TODO semantic
+//			operation = checkValidity("launchAgent",arguments);
+//			break;
+//		case MADKIT_KILL_AGENT:// TODO log errors
+//			operation = checkValidity("killAgent",arguments);
+//			break;
+//		case KILL_AGENTS:// TODO semantic
+//			killAgents(false);
+//			return;
+//		case LOAD_LOCAL_DEMOS:// TODO semantic
+//			loadLocalDemos();
+//			sendReply(km, new Message());
+//			return;
+//		case MADKIT_LAUNCH_SESSION:// TODO semantic
+//			launchSession((String[]) arguments);
+//			return;
+//		case CONNECT_WEB_REPO:
+//			addWebRepository();
+//			sendReply(km, new Message());
+//			return;
+//		case LOAD_JAR_FILE:// TODO semantic
+//			//			System.err.println((URL) km.getContent()[0]);
+//			platform.getMadkitClassLoader().addJar((URL) km.getContent()[0]);
+//			sendReply(km, new Message());
+//			return;
+//		case LAUNCH_NETWORK:
+//			launchNetwork();
+//			return;
+//		case STOP_NETWORK:
+//			stopNetwork();
+//			return;
+//		case CLONE:// TODO semantic
+//			startSession(false);
+//			//			startSession((Boolean) km.getContent()[0]);
+//			return;
+//		case RESTART:
+//			startSession(false);
+//		case EXIT:
+//			exit();
+//			return;
+//		default:
+//			if (logger != null) logger.warning("I received a kernel message that I do not understand. Discarding " + km);
+//			return;
+//		}
+//		doOperation(operation, arguments);
+//	}
+	
+	private void loadJarFile(URL url){
+		platform.getMadkitClassLoader().addJar(url);
+		//TODO do that only if there is some to update
+//		LaunchAgentsMenu.updateAllMenus(platform.getMadkitClassLoader().scanClassPathForAgentClasses());
+	}
+	private void copy() {
+		startSession(false);
+	}
+
+	@SuppressWarnings("unused")
+	private void restart() {
+		copy();
+		exit();
 	}
 
 	/**
@@ -469,13 +502,13 @@ class MadkitKernel extends Agent {
 		return null;
 	}
 
-	private void launchSession(String[] arguments) {
+	private void launchSession(DemoModel dm) {
 		if(logger != null)
-			logger.finer("** LAUNCHING SESSION "+arguments);
+			logger.finer("** LAUNCHING SESSION "+ dm.getName());
 		Properties mkCfg = platform.getConfigOption();
 		Properties currentConfig = new Properties();
 		currentConfig.putAll(mkCfg);
-		mkCfg.putAll(platform.buildConfigFromArgs(arguments));
+		mkCfg.putAll(platform.buildConfigFromArgs(dm.getSessionArgs()));
 		startSession();
 		mkCfg.putAll(currentConfig);
 	}
@@ -534,8 +567,8 @@ class MadkitKernel extends Agent {
 	}
 
 	private void stopNetwork() {
-//		ReturnCode r = sendNetworkMessageWithRole(new Message(), kernelRole);
-		if (updateNetworkStatus(false) == SUCCESS) {
+		//		ReturnCode r = sendNetworkMessageWithRole(new Message(), kernelRole);
+		if (sendNetworkMessageWithRole(new KernelMessage(KernelAction.STOP_NETWORK), kernelRole) == SUCCESS) {
 			if (logger != null) logger.fine("\n\t****** Network stopped ******\n");
 		}// TODO i18n
 		else {
@@ -543,37 +576,15 @@ class MadkitKernel extends Agent {
 		}
 	}
 
-	private void startNetwork() {
-		updateNetworkAgent();
-		if (netAgent == null) {
-			NetworkAgent na = new NetworkAgent();
-			ReturnCode r = launchAgent(na);
-			threadedAgents.remove(na);
-			if (r == SUCCESS) {
-				if (logger != null) logger.fine("\n\t****** Network agent launched ******\n");
-			}// TODO i18n
-			else {
-				if (logger != null) logger.severe("\n\t****** Problem launching network agent ******\n");
-			}
-		} else {
-			if(updateNetworkStatus(true) == SUCCESS){
-				if (logger != null) logger.fine("\n\t****** Network agent up ******\n");
-			}
-			else{
-				if (logger != null) logger.fine("\n\t****** Problem relaunching network agent  ******\n");
-			}
-					
-		}
-	}
-	
-	private ReturnCode updateNetworkStatus(boolean start){
-		return sendNetworkMessageWithRole(new KernelMessage(start ? MadkitAction.LAUNCH_NETWORK : MadkitAction.STOP_NETWORK), kernelRole);
-	}
-
+//	private ReturnCode updateNetworkStatus(boolean start){
+//		return sendNetworkMessageWithRole(new KernelMessage(KernelAction.LAUNCH_NETWORK,start), kernelRole);
+//	}
+//
 	private void handleMessage(Message m) {
 		if (m instanceof KernelMessage) {
-			handleKernelMessage((KernelMessage) m);
-		} else {
+			handleNewKernelMessage((KernelMessage) m);
+		} 
+		else {
 			if (logger != null) logger.warning("I received a message that I do not understand. Discarding " + m);
 		}
 	}
@@ -644,7 +655,7 @@ class MadkitKernel extends Agent {
 
 	private void launchNetworkAgent() {
 		if (network.isActivated(getMadkitConfig())) {
-			startNetwork();
+			launchNetwork();
 		} else {
 			if(logger != null)
 				logger.fine("** Networking is off: No Net Agent **\n");
@@ -995,20 +1006,20 @@ class MadkitKernel extends Agent {
 		}
 		for (final Callable<ArrayList<AbstractAgent>> w : workers)
 			ecs.submit(w);
-				int n = workers.size();
-				// adding the missing one when the division results as a real number
-				for (int i = bucketSize - nbOfAgentsPerTask * cpuCoreNb; i > 0; i--) {
-					result.add(initAbstractAgent(agentClass));
-				}
-				for (int i = 0; i < n; ++i) {
-					try {
-						result.addAll(ecs.take().get());
-					} catch (ExecutionException e) {
-						e.printStackTrace();
-					}
-				}
-				// System.err.println(result.size());
-				return result;
+		int n = workers.size();
+		// adding the missing one when the division results as a real number
+		for (int i = bucketSize - nbOfAgentsPerTask * cpuCoreNb; i > 0; i--) {
+			result.add(initAbstractAgent(agentClass));
+		}
+		for (int i = 0; i < n; ++i) {
+			try {
+				result.addAll(ecs.take().get());
+			} catch (ExecutionException e) {
+				e.printStackTrace();
+			}
+		}
+		// System.err.println(result.size());
+		return result;
 	}
 
 	private AbstractAgent initAbstractAgent(final Class<? extends AbstractAgent> agentClass) throws InstantiationException, IllegalAccessException {
@@ -1172,7 +1183,7 @@ class MadkitKernel extends Agent {
 		group.enumerate(list);
 		final String threadName = target.getAgentThreadName(s);
 		for(final Thread t : list){
-			if(t.getName().equals(threadName)){
+			if(t != null && t.getName().equals(threadName)){
 				stopAgentProcess(s, target, t);
 				break;
 			}
@@ -1597,7 +1608,7 @@ class MadkitKernel extends Agent {
 	}
 
 	@Override
-	public URLClassLoader getMadkitClassLoader() {
+	public MadkitClassLoader getMadkitClassLoader() {
 		return platform.getMadkitClassLoader();
 	}
 
@@ -1696,40 +1707,64 @@ class MadkitKernel extends Agent {
 		}
 	}
 
-	void shutdown() {
-		if(System.getProperty("javawebstart.version") != null){
+	private void exit() {
+		if(System.getProperty("javawebstart.version") != null){//TODO no need for that now that all exit normally
 			System.exit(0);
 		}
 		shuttedDown = true;
-		sendNetworkMessageWithRole(new KernelMessage(MadkitAction.EXIT), kernelRole);
+		sendNetworkMessageWithRole(new KernelMessage(KernelAction.EXIT), kernelRole);
 		broadcastMessageWithRole(MadkitKernel.this, LocalCommunity.NAME,
-				Groups.SYSTEM, madkit.agr.LocalCommunity.Roles.GUI_MANAGER, new GUIMessage(MadkitAction.EXIT, MadkitKernel.this), null);
+				Groups.SYSTEM, madkit.agr.LocalCommunity.Roles.GUI_MANAGER, 
+				new KernelMessage(KernelAction.EXIT), null);
 		//		pause(10);//be sure that last executors have started
 		if (logger != null)
 			logger.finer("***** SHUTINGDOWN MADKIT ********\n");
 		killAgents(true);
 	}
 	
-	
-	
+	private void launchNetwork() {
+		updateNetworkAgent();
+		if (netAgent == null) {
+			NetworkAgent na = new NetworkAgent();
+			ReturnCode r = launchAgent(na);
+			threadedAgents.remove(na);
+			if (r == SUCCESS) {
+				if (logger != null) logger.fine("\n\t****** Network agent launched ******\n");
+			}// TODO i18n
+			else {
+				if (logger != null) logger.severe("\n\t****** Problem launching network agent ******\n");
+			}
+		} else {
+			if(sendNetworkMessageWithRole(new KernelMessage(KernelAction.LAUNCH_NETWORK), kernelRole) == SUCCESS){
+				if (logger != null) logger.fine("\n\t****** Network agent up ******\n");
+			}
+			else{
+				if (logger != null) logger.fine("\n\t****** Problem relaunching network agent  ******\n");
+			}
+
+		}
+	}
+
+
+
 	// BAD IDEA AS IT ALLOWS CONFIG AGENT ZOMBIES TO RUN 
-//	/**
-//	 * This allows to not have dirty stack traces when ending and config agents are not all launched
-//	 * 
-//	 * @see madkit.kernel.AbstractAgent#terminate()
-//	 */
-//	@Override
-//	final void terminate() {
-//		if (logger != null) {
-//			logger.finer("** TERMINATED **");
-//		}
-//	}
+	//	/**
+	//	 * This allows to not have dirty stack traces when ending and config agents are not all launched
+	//	 * 
+	//	 * @see madkit.kernel.AbstractAgent#terminate()
+	//	 */
+	//	@Override
+	//	final void terminate() {
+	//		if (logger != null) {
+	//			logger.finer("** TERMINATED **");
+	//		}
+	//	}
 
 	private void killAgents(boolean untilEmpty) {
 		threadedAgents.remove(this);
 		//Do not do what follows because it throws interruption on awt threads ! //TODO why ?
-//		if(untilEmpty)
-//			normalAgentThreadFactory.getThreadGroup().interrupt();
+		//		if(untilEmpty)
+		//			normalAgentThreadFactory.getThreadGroup().interrupt();
 		ArrayList<Agent> l;
 		synchronized (threadedAgents) {
 			l = new ArrayList<Agent>(threadedAgents);

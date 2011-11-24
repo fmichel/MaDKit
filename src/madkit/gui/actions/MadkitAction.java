@@ -99,7 +99,7 @@ public enum MadkitAction implements MadkitGUIAction {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				this.setEnabled(false);
-				guiManager.receiveMessage(new madkit.gui.GUIMessage(MadkitAction.this, e == null ? name() : e.getActionCommand()));//useful to call global actions
+//				guiManager.receiveMessage(new madkit.gui.GUIMessage(MadkitAction.this, e == null ? name() : e.getActionCommand()));//useful to call global actions
 				this.setEnabled(true);
 			}
 		};
@@ -160,7 +160,7 @@ public enum MadkitAction implements MadkitGUIAction {
 	}
 	
 	private Action buildAction(final GUIManagerAgent agent){
-		Action a;
+		Action a = null;
 		switch (this) {
 			case AGENT_SETUP_GUI:
 		case AGENT_DISPOSE_GUI:
@@ -185,7 +185,7 @@ public enum MadkitAction implements MadkitGUIAction {
 					+ agent.getKernelAddress().toString());
 			return a;
 		case LOAD_JAR_FILE:
-			a = getLoadJarAction(agent);
+//			a = getLoadJarAction(agent);
 			break;
 		case LAUNCH_AGENT:
 			return Actions.initAction(this, getLaunchAgentAction(agent));
@@ -207,31 +207,31 @@ public enum MadkitAction implements MadkitGUIAction {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				setEnabled(false);
-				agent.receiveMessage(new GUIMessage(MadkitAction.this, e.getActionCommand()));
+//				agent.receiveMessage(new GUIMessage(MadkitAction.this, e.getActionCommand()));
 				setEnabled(true);
 			}
 		};
 	}
-
-	private Action getLoadJarAction(final AbstractAgent agent) {
-		return new AbstractAction() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-			    JFileChooser chooser = new JFileChooser(System.getProperty("user.dir"));
-			    chooser.setFileFilter(new FileNameExtensionFilter("Jar file", "jar"));
-			    int returnVal = chooser.showOpenDialog(null);
-			    if(returnVal == JFileChooser.APPROVE_OPTION) {
-			   	 try {
-			   		 agent.receiveMessage(new GUIMessage(LOAD_JAR_FILE, chooser.getSelectedFile().toURI().toURL()));
-					} catch (MalformedURLException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-			    }
-			}
-		};
-	}
-	
+//
+//	private Action getLoadJarAction(final AbstractAgent agent) {
+//		return new AbstractAction() {
+//			@Override
+//			public void actionPerformed(ActionEvent e) {
+//			    JFileChooser chooser = new JFileChooser(System.getProperty("user.dir"));
+//			    chooser.setFileFilter(new FileNameExtensionFilter("Jar file", "jar"));
+//			    int returnVal = chooser.showOpenDialog(null);
+//			    if(returnVal == JFileChooser.APPROVE_OPTION) {
+//			   	 try {
+//			   		 agent.receiveMessage(new GUIMessage(LOAD_JAR_FILE, chooser.getSelectedFile().toURI().toURL()));
+//					} catch (MalformedURLException e1) {
+//						// TODO Auto-generated catch block
+//						e1.printStackTrace();
+//					}
+//			    }
+//			}
+//		};
+//	}
+//	
 }
 
 	

@@ -27,8 +27,8 @@ final class Desktop extends JFrame {
 		buildMenuAndToolbar(guiManager);
 		desktopPane = new JDesktopPane();
 		desktopPane.setBackground(Color.BLACK);
-		desktopPane.setPreferredSize(new Dimension(800,600));
 		setPreferredSize(new Dimension(800,600));
+		desktopPane.setPreferredSize(new Dimension(800,600));
 //		setSize(800,600);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		add(desktopPane);
@@ -49,8 +49,8 @@ final class Desktop extends JFrame {
 	private void buildMenuAndToolbar(GUIManagerAgent guiManager) {
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.add(new MadkitMenu(guiManager));
-		menuBar.add(GUIToolkit.createAgentsMenu(guiManager));
-		menuBar.add(GUIToolkit.createDemosMenu(guiManager));
+		menuBar.add(new LaunchAgentsMenu(guiManager));
+		menuBar.add(new LaunchSessionsMenu(guiManager));
 		JToolBar tb = new MadkitToolBar(guiManager);
 		setJMenuBar(menuBar);
 		tb.setRollover(true);

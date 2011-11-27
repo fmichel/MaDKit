@@ -36,6 +36,7 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
+import madkit.gui.menus.AgentLogLevelMenu;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Madkit.Option;
@@ -147,13 +148,7 @@ public class AgentLogger extends Logger {
 	 */
 	public void setWarningLogLevel(Level warningLogLevel) {
 		this.warningLogLevel = warningLogLevel;
-		updateAgentUi();
-	}
-
-	private void updateAgentUi() {
-		if (myAgent != null) {
-			madkit.gui.GUIToolkit.updateAgentUI(myAgent);
-		}
+		AgentLogLevelMenu.update(myAgent);
 	}
 
 	AgentLogger(){
@@ -324,7 +319,8 @@ public class AgentLogger extends Logger {
 		for(Handler h : getHandlers()){
 			h.setLevel(newLevel);
 		}
-		updateAgentUi();//TODO level model
+		AgentLogLevelMenu.update(myAgent);
+//		updateAgentUi();//TODO level model
 	}
 
 	@Override

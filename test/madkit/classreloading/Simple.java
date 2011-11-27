@@ -31,7 +31,7 @@ public class Simple extends Agent {
 		launchAgent("madkit.kernel.AbstractAgent", true);
 		while (true) {
 			try {
-				reloadAgentClass("madkit.classreloading.TestAgent");
+				getMadkitClassLoader().reloadClass("madkit.classreloading.TestAgent");
 			} catch (ClassNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

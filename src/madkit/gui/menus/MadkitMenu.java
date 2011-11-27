@@ -22,10 +22,9 @@ import java.awt.event.KeyEvent;
 
 import javax.swing.JMenu;
 
-import madkit.gui.actions.GUIManagerAction;
-import madkit.gui.actions.MadkitAction;
+import madkit.action.GUIManagerAction;
+import madkit.action.KernelAction;
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.KernelAction;
 
 /**
  * @author Fabien Michel

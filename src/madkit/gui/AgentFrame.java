@@ -30,13 +30,14 @@ import javax.swing.WindowConstants;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 
+import madkit.action.KernelAction;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.agr.LocalCommunity.Roles;
-import madkit.gui.actions.MadkitAction;
+import madkit.gui.menus.AgentLogLevelMenu;
+import madkit.gui.menus.AgentMenu;
 import madkit.gui.menus.MadkitMenu;
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.KernelAction;
 import madkit.messages.KernelMessage;
 
 /**
@@ -65,7 +66,7 @@ final class AgentFrame extends JFrame {
 					killAgent(agent, 2);
 				}
 				else{
-					dispose();
+					AgentFrame.super.dispose();
 				}
 			}
 //			@Override
@@ -87,12 +88,20 @@ final class AgentFrame extends JFrame {
 		setSize(400,300);
 		setLocationRelativeTo(null);
 	}
+	
+	@Override
+	public void dispose() {
+		if(internalFrame != null){
+			internalFrame.dispose();
+		}
+		super.dispose();
+	}
 
 	private JMenuBar createMenuBarFor(AbstractAgent agent) {
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.add(new MadkitMenu(agent));
-		menuBar.add(madkit.gui.GUIToolkit.createLaunchingMenu(agent));
-		menuBar.add(madkit.gui.GUIToolkit.createLogLevelMenu(agent));
+		menuBar.add(new AgentMenu(agent));
+		menuBar.add(new AgentLogLevelMenu(agent));
 		menuBar.add(Box.createHorizontalGlue());
 		menuBar.add(new AgentStatusPanel(agent));
 		return menuBar;
@@ -145,12 +154,12 @@ final class AgentInternalFrame extends JInternalFrame{
 		setLocation(f.getLocation());
 		setContentPane(f.getContentPane());
 		setJMenuBar(f.getJMenuBar());
-		f.setInternalFrame(this);
+		f.setInternalFrame(this);//TODO ??
 		addInternalFrameListener(new InternalFrameAdapter() {
 			@Override
 			public void internalFrameClosed(InternalFrameEvent e) {
 				for (WindowListener wl : f.getWindowListeners()) {
-					wl.windowClosed(null);
+					wl.windowClosing(null);
 				}
 			}
 		});

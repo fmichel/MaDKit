@@ -19,7 +19,6 @@
 package madkit.kernel;
 
 import madkit.messages.CommandMessage;
-import madkit.messages.ObjectMessage;
 
 /**
  * @author Fabien Michel
@@ -35,6 +34,11 @@ enum NetCode {
 
 class NetworkMessage extends CommandMessage<NetCode> {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4557829864923968452L;
+
 	public NetworkMessage(NetCode code, Object... commandOptions) {
 		super(code,commandOptions);
 	}

@@ -2,24 +2,23 @@ package madkit.gui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.swing.Action;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
-import madkit.kernel.AAAction;
+import madkit.action.AgentAction;
+import madkit.action.MKAbstractAction;
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.KernelAddress;
-import madkit.kernel.MKAbstractAction;
 
 public class LaunchAgentsMenu extends JMenu {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 634377755586801986L;
 	final static private Set<LaunchAgentsMenu> menus = new HashSet<LaunchAgentsMenu>(); 
 	final private Action myAction;
 	final private AbstractAgent myAgent;
@@ -28,7 +27,12 @@ public class LaunchAgentsMenu extends JMenu {
 		super("Agents");
 		setMnemonic(KeyEvent.VK_G);
 		myAgent = agent;
-		myAction = new  MKAbstractAction(AAAction.LAUNCH_AGENT.getActionInfo()){
+		myAction = new  MKAbstractAction(AgentAction.LAUNCH_AGENT.getActionInfo()){
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 6530886642947530268L;
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				agent.launchAgent(e.getActionCommand(),0,true);

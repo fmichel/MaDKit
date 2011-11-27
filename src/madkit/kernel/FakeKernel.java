@@ -196,16 +196,6 @@ class FakeKernel extends MadkitKernel{
 //		fakeKernelWarning(abstractAgent);
 //	}
 
-	/**
-	 * @param abstractAgent
-	 * @param agentClass
-	 * @throws ClassNotFoundException 
-	 */
-	@Override
-	final ReturnCode reloadClass(AbstractAgent abstractAgent, String agentClass) throws ClassNotFoundException {
-		throw buildKernelException(null);
-	}
-	
 	@Override
 	final public Properties getMadkitConfig() {
 		final Madkit m = Madkit.getCurrentInstance();
@@ -226,11 +216,6 @@ class FakeKernel extends MadkitKernel{
 	final boolean createGroupIfAbsent(AbstractAgent agent,
 			String community, String group, String group2,
 			Gatekeeper gatekeeper, boolean isDistributed) {
-		throw buildKernelException(agent);
-	}
-
-	@Override
-	final Class<?> getNewestClassVersion(AbstractAgent agent, String className) throws ClassNotFoundException {
 		throw buildKernelException(agent);
 	}
 

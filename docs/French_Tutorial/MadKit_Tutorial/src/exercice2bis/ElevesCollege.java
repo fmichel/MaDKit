@@ -20,7 +20,6 @@ public class ElevesCollege extends Agent {
 		// au groupe college et ont le role d'eleve
 	}
 
-	@SuppressWarnings("unchecked")
 	public void live() {
 		pause(5000);
 		while (true) {

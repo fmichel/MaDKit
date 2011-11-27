@@ -23,12 +23,11 @@ import static org.junit.Assert.assertFalse;
 
 import java.util.List;
 
+import madkit.action.KernelAction;
 import madkit.agr.CloudCommunity;
-import madkit.gui.actions.MadkitAction;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AgentAddress;
 import madkit.kernel.JunitMadKit;
-import madkit.kernel.KernelAction;
 import madkit.kernel.Madkit.BooleanOption;
 
 import org.junit.Test;

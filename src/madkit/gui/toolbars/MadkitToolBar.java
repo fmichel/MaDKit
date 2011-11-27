@@ -25,10 +25,9 @@ import javax.swing.AbstractButton;
 import javax.swing.ImageIcon;
 import javax.swing.JToolBar;
 
-import madkit.gui.actions.GUIManagerAction;
-import madkit.gui.actions.MadkitAction;
+import madkit.action.GUIManagerAction;
+import madkit.action.KernelAction;
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.KernelAction;
 
 /**
  * An out of the box toolbar for MadKit based applications.

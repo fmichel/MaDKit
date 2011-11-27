@@ -19,7 +19,6 @@ public class AgentAmis extends Agent {
 		requestRole("amis", "piece", "personne", null);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void live() {
 		pause(5000);

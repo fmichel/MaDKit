@@ -20,12 +20,14 @@ package madkit.gui;
 
 import java.awt.FlowLayout;
 import java.awt.Image;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import madkit.gui.actions.MadkitAction;
+import madkit.action.KernelAction;
 import madkit.kernel.AbstractAgent;
 
 /**
@@ -34,14 +36,17 @@ import madkit.kernel.AbstractAgent;
  * @version 0.9
  * 
  */
-public class AgentStatusPanel extends JPanel implements AgentUIComponent {
+public class AgentStatusPanel extends JPanel {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -5745998699827681837L;
 	
-	final static private ImageIcon image = new ImageIcon(MadkitAction.LAUNCH_NETWORK.getImageIcon().getImage().getScaledInstance(10, 10, Image.SCALE_SMOOTH));
+	final private static Map<AbstractAgent,AgentStatusPanel> panels = new HashMap<AbstractAgent, AgentStatusPanel>(); 
+	
+	
+	final static private ImageIcon image = new ImageIcon(KernelAction.LAUNCH_NETWORK.getActionInfo().getBigIcon().getImage().getScaledInstance(10, 10, Image.SCALE_SMOOTH));
 	final private AbstractAgent myAgent;
 	final private JLabel network;
 	
@@ -49,16 +54,19 @@ public class AgentStatusPanel extends JPanel implements AgentUIComponent {
 		super(new FlowLayout(FlowLayout.RIGHT));
 		myAgent = a;
 		network = new JLabel();
-		updateAgentUI();
 		add(network);
-		GUIToolkit.addUIListenerFor(a, this);
+		update();
+		panels.put(myAgent,this);
+//		GUIToolkit.addUIListenerFor(a, this);
+	}
+	
+	public static void updateAll(){
+		for (AgentStatusPanel panel : panels.values()) {
+			panel.update();
+		}
 	}
 
-	/* (non-Javadoc)
-	 * @see madkit.gui.AgentUIComponent#updateAgentUI()
-	 */
-	@Override
-	public void updateAgentUI() {
+	public void update() {
 		if(myAgent.isAlive() && myAgent.isKernelOnline()){
 			network.setIcon(image);
 			network.setToolTipText("Kernel "+myAgent.getKernelAddress()+" is online");
@@ -68,5 +76,7 @@ public class AgentStatusPanel extends JPanel implements AgentUIComponent {
 //			network.setToolTipText("Kernel "+myAgent.getKernelAddress()+" is offline");
 		}
 	}
-
+	
+	//TODO remove agent on dispose
+	
 }

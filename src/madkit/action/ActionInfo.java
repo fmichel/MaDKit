@@ -1,10 +1,8 @@
-package madkit.kernel;
+package madkit.action;
 
 import java.net.URL;
 import java.util.MissingResourceException;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.ImageIcon;
 
 import madkit.i18n.I18nUtilities;
@@ -26,11 +24,9 @@ public class ActionInfo {
 	final private String longDescription;
 	
 	public <E extends Enum<E>> ActionInfo(E enumAction, int keyEvent) {
-		System.err.println("----------------------\n"+enumAction);
 		this.keyEvent = keyEvent;
 		final String enumClassName = enumAction.getClass().getSimpleName();
 		name = enumAction.name();
-		System.err.println(imageDir + name + ".png");
 		final URL imageUrl = enumAction.getClass().getResource(imageDir + name + ".png");
 		if (imageUrl != null) {
 			bigIcon = new ImageIcon(imageUrl);
@@ -99,5 +95,6 @@ public class ActionInfo {
 	public String getLongDescription() {
 		return longDescription;
 	}
+	
 
 }

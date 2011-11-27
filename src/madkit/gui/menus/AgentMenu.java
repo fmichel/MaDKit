@@ -20,12 +20,9 @@ package madkit.gui.menus;
 
 import java.awt.event.KeyEvent;
 
-import javax.swing.Action;
 import javax.swing.JMenu;
 
-import madkit.gui.actions.Actions;
-import madkit.gui.actions.AgentAction;
-import madkit.kernel.AAAction;
+import madkit.action.AgentAction;
 import madkit.kernel.AbstractAgent;
 
 /**
@@ -45,10 +42,9 @@ public class AgentMenu extends JMenu {// TODO i18n
 
 	/**
 	 * Creates a menu which features: 
-	 * {@link AgentAction#AGENT_RELAUNCH}, 
-	 * {@link AgentAction#AGENT_LAUNCH_ANOTHER}, 
-	 * {@link AgentAction#AGENT_RELOAD},
-	 * {@link AgentAction#AGENT_KILL},
+	 * {@link AgentAction#RELOAD}, 
+	 * {@link AgentAction#LAUNCH_AGENT}, 
+	 * {@link AgentAction#KILL_AGENT}
 	 * 
 	 * @param agent the agent for which this menu is created
 	 */
@@ -56,10 +52,10 @@ public class AgentMenu extends JMenu {// TODO i18n
 		super(agent.getClass().getSimpleName());
 		setMnemonic(KeyEvent.VK_A);
 		if(agent.hasDefaultConstructor()){
-			add(AAAction.RELOAD.getActionFor(agent));
-			add(AAAction.LAUNCH_AGENT.getActionFor(agent,agent.getClass().getName(),0,true));
+			add(AgentAction.RELOAD.getActionFor(agent));
+			add(AgentAction.LAUNCH_AGENT.getActionFor(agent,agent.getClass().getName(),0,true));
 		}
-		add(AAAction.KILL_AGENT.getActionFor(agent,agent));
+		add(AgentAction.KILL_AGENT.getActionFor(agent,agent));
 	}
 	
 }

@@ -50,15 +50,11 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -83,13 +79,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 
+import madkit.action.KernelAction;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.agr.LocalCommunity.Roles;
 import madkit.gui.DemoModel;
-import madkit.gui.GUIMessage;
-import madkit.gui.LaunchAgentsMenu;
-import madkit.gui.actions.MadkitAction;
 import madkit.i18n.ErrorMessages;
 import madkit.i18n.Words;
 import madkit.kernel.AbstractAgent.ReturnCode;
@@ -161,18 +155,6 @@ class MadkitKernel extends Agent {
 	}
 
 	// ;// = Executors.newCachedThreadPool();
-	final private static Map<String, Class<?>> primitiveTypes = new HashMap<String, Class<?>>();
-	static {
-		primitiveTypes.put("java.lang.Integer", int.class);
-		primitiveTypes.put("java.lang.Boolean", boolean.class);
-		primitiveTypes.put("java.lang.Byte", byte.class);
-		primitiveTypes.put("java.lang.Character", char.class);
-		primitiveTypes.put("java.lang.Float", float.class);
-		primitiveTypes.put("java.lang.Void", void.class);
-		primitiveTypes.put("java.lang.Short", short.class);
-		primitiveTypes.put("java.lang.Double", double.class);
-		primitiveTypes.put("java.lang.Long", long.class);
-	}
 
 	static {
 		serviceExecutor.prestartAllCoreThreads();
@@ -372,77 +354,15 @@ class MadkitKernel extends Agent {
 		//		}
 	}
 
-	final private void handleNewKernelMessage(KernelMessage km) {
+	final private void handleKernelMessage(KernelMessage km) {
 		proceedCommandMessage(km);
-//		sendReply(km, new Message());
-//		switch (km.getCode()) {
-//		case EXIT:
-//			sendNetworkMessageWithRole(km, kernelRole);
-//			broadcastMessageWithRole(this, LocalCommunity.NAME,
-//					Groups.SYSTEM, madkit.agr.LocalCommunity.Roles.GUI_MANAGER, 
-//					, null);
-//			break;
-//		default:
-//			break;
-//		}
 	}
 	
-//	final private void handleKernelMessage(KernelMessage km) {
-//		Method operation = null;
-//		final Object[] arguments = km.getContent();
-//		switch (km.getCode()) {
-//		case LAUNCH_AGENT:// TODO semantic
-//			operation = checkValidity("launchAgent",arguments);
-//			break;
-//		case MADKIT_KILL_AGENT:// TODO log errors
-//			operation = checkValidity("killAgent",arguments);
-//			break;
-//		case KILL_AGENTS:// TODO semantic
-//			killAgents(false);
-//			return;
-//		case LOAD_LOCAL_DEMOS:// TODO semantic
-//			loadLocalDemos();
-//			sendReply(km, new Message());
-//			return;
-//		case MADKIT_LAUNCH_SESSION:// TODO semantic
-//			launchSession((String[]) arguments);
-//			return;
-//		case CONNECT_WEB_REPO:
-//			addWebRepository();
-//			sendReply(km, new Message());
-//			return;
-//		case LOAD_JAR_FILE:// TODO semantic
-//			//			System.err.println((URL) km.getContent()[0]);
-//			platform.getMadkitClassLoader().addJar((URL) km.getContent()[0]);
-//			sendReply(km, new Message());
-//			return;
-//		case LAUNCH_NETWORK:
-//			launchNetwork();
-//			return;
-//		case STOP_NETWORK:
-//			stopNetwork();
-//			return;
-//		case CLONE:// TODO semantic
-//			startSession(false);
-//			//			startSession((Boolean) km.getContent()[0]);
-//			return;
-//		case RESTART:
-//			startSession(false);
-//		case EXIT:
-//			exit();
-//			return;
-//		default:
-//			if (logger != null) logger.warning("I received a kernel message that I do not understand. Discarding " + km);
-//			return;
-//		}
-//		doOperation(operation, arguments);
-//	}
-	
+	@SuppressWarnings("unused")
 	private void loadJarFile(URL url){
-		platform.getMadkitClassLoader().addJar(url);
-		//TODO do that only if there is some to update
-//		LaunchAgentsMenu.updateAllMenus(platform.getMadkitClassLoader().scanClassPathForAgentClasses());
+		platform.getMadkitClassLoader().addToClasspath(url);
 	}
+	
 	private void copy() {
 		startSession(false);
 	}
@@ -467,7 +387,7 @@ class MadkitKernel extends Agent {
 			for (Entry<Object, Object> object : p.entrySet()) {
 				// platform.getMadkitClassLoader().addJar(new
 				// URL(repoLocation+object.getKey()+".jar"));
-				platform.getMadkitClassLoader().addJar(new URL(repoLocation + object.getValue() + "/" + object.getKey() + ".jar"));
+				platform.getMadkitClassLoader().addToClasspath(new URL(repoLocation + object.getValue() + "/" + object.getKey() + ".jar"));
 			}
 		} catch (final IOException e) {
 			if(logger != null)
@@ -502,6 +422,7 @@ class MadkitKernel extends Agent {
 		return null;
 	}
 
+	@SuppressWarnings("unused")
 	private void launchSession(DemoModel dm) {
 		if(logger != null)
 			logger.finer("** LAUNCHING SESSION "+ dm.getName());
@@ -566,6 +487,7 @@ class MadkitKernel extends Agent {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private void stopNetwork() {
 		//		ReturnCode r = sendNetworkMessageWithRole(new Message(), kernelRole);
 		if (sendNetworkMessageWithRole(new KernelMessage(KernelAction.STOP_NETWORK), kernelRole) == SUCCESS) {
@@ -582,76 +504,13 @@ class MadkitKernel extends Agent {
 //
 	private void handleMessage(Message m) {
 		if (m instanceof KernelMessage) {
-			handleNewKernelMessage((KernelMessage) m);
+			handleKernelMessage((KernelMessage) m);
 		} 
 		else {
-			if (logger != null) logger.warning("I received a message that I do not understand. Discarding " + m);
+			if (logger != null) 
+				logger.warning("I received a message that I do not understand. Discarding " + m);
 		}
 	}
-
-	/**
-	 * @param operation
-	 * @param arguments
-	 */
-	private void doOperation(Method operation, Object[] arguments) {
-		try {// TODO log failures
-			operation.invoke(this, arguments);
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * @param content
-	 * @return
-	 */
-	@SuppressWarnings("unused")// used by reflection
-	private Method launchAgent(Object[] content) {
-		return checkValidity("launchAgent", content);
-	}
-
-	private Method checkValidity(String method, Object[] content) {
-		Class<?>[] parameters = new Class<?>[content.length];
-		for (int i = 0; i < content.length; i++) {
-			parameters[i] = content[i].getClass();
-			//			System.err.println(parameters[i].getName());
-			if(AbstractAgent.class.isAssignableFrom(parameters[i])){
-				parameters[i] = AbstractAgent.class;
-			}
-			final Class<?> primitive = primitiveTypes.get(parameters[i].getName());
-			//			System.err.println(primitive);
-			if (primitive != null)
-				parameters[i] = primitive;
-		}
-		try {// TODO log failures
-			return getClass().getMethod(method, parameters);
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	//	private AbstractAgent launchPlatformAgent(String mkProperty, String userMessage) {
-	//		final String agentClassName = getMadkitProperty(mkProperty);
-	//		if (logger != null) {
-	//			logger.fine("** Launching " + userMessage + ": " + agentClassName + " **");
-	//		}
-	//		AbstractAgent targetAgent = launchAgent(agentClassName);
-	//		if (targetAgent == null) {
-	//			if (logger != null) {
-	//				logger.warning("Problem building " + userMessage + " " + agentClassName + " -> Using MK default " + userMessage
-	//						+ " : " + Madkit.defaultConfig.get(mkProperty));
-	//			}
-	//			return launchAgent(Madkit.defaultConfig.getProperty(mkProperty));
-	//		}
-	//		return targetAgent;
-	//	}
 
 	private void launchNetworkAgent() {
 		if (network.isActivated(getMadkitConfig())) {
@@ -1496,10 +1355,6 @@ class MadkitKernel extends Agent {
 		organizations.remove(community);
 	}
 
-	Class<?> getNewestClassVersion(AbstractAgent requester, String className) throws ClassNotFoundException {
-		return platform.getMadkitClassLoader().loadClass(className);
-	}
-
 	@Override
 	public KernelAddress getKernelAddress() {
 		return kernelAddress;
@@ -1540,26 +1395,26 @@ class MadkitKernel extends Agent {
 		return this;
 	}
 
-	/**
-	 * Asks MasKit to reload the class byte code so that new instances, created
-	 * using {@link Class#newInstance()} on a class object obtained with
-	 * {@link #getNewestClassVersion(AbstractAgent, String)}, will reflect
-	 * compilation changes during run time.
-	 * 
-	 * @param requester
-	 * @param name
-	 *           The fully qualified class name of the class
-	 * @throws ClassNotFoundException
-	 */
-
-	ReturnCode reloadClass(AbstractAgent requester, String name) throws ClassNotFoundException {
-		//		if (name == null)
-		//			throw new ClassNotFoundException(ReturnCode.CLASS_NOT_FOUND + " " + name);
-		if (!name.contains("madkit.kernel") && !name.contains("madkit.gui") && !name.contains("madkit.messages")
-				&& !name.contains("madkit.simulation") && platform.getMadkitClassLoader().reloadClass(name))
-			return SUCCESS;
-		return SEVERE;// TODO not the right code here
-	}
+//	/**
+//	 * Asks MasKit to reload the class byte code so that new instances, created
+//	 * using {@link Class#newInstance()} on a class object obtained with
+//	 * {@link #getNewestClassVersion(AbstractAgent, String)}, will reflect
+//	 * compilation changes during run time.
+//	 * 
+//	 * @param requester
+//	 * @param name
+//	 *           The fully qualified class name of the class
+//	 * @throws ClassNotFoundException
+//	 */
+//
+//	ReturnCode reloadClass(AbstractAgent requester, String name) throws ClassNotFoundException {
+//		//		if (name == null)
+//		//			throw new ClassNotFoundException(ReturnCode.CLASS_NOT_FOUND + " " + name);
+//		if (!name.contains("madkit.kernel") && !name.contains("madkit.gui") && !name.contains("madkit.messages")
+//				&& !name.contains("madkit.simulation") && platform.getMadkitClassLoader().reloadClass(name))
+//			return SUCCESS;
+//		return SEVERE;// TODO not the right code here
+//	}
 
 	boolean isCommunity(AbstractAgent requester, String community) {
 		try {

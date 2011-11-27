@@ -31,6 +31,10 @@ import java.util.Arrays;
  */
 public class CommandMessage<E extends Enum<E>> extends ObjectMessage<Object[]> {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5507449004378611176L;
 	private final E code;
 
 	/**
@@ -50,25 +54,4 @@ public class CommandMessage<E extends Enum<E>> extends ObjectMessage<Object[]> {
 	public E getCode() {
 		return code;
 	}
-	
-	public static <E extends Enum<E>> void proceedMessage(CommandMessage<E> cm){
-		cm.getCode().name();
-		System.err.println(cm.getCode().name());
-	}
-	
-	public static void main(String[] args) {
-		CommandMessage<Test> name = new CommandMessage<Test>(Test.TT,"a",2);
-		if(name instanceof CommandMessage<?>){
-			if(name.getCode().getClass() == Test.class){
-				System.err.println("yes");
-			}
-		}
-		proceedMessage(name);
-	}
-}
-enum Test2 {
-	TT;
-}
-enum Test {
-	TT;
 }

@@ -18,13 +18,12 @@
  */
 package madkit.kernel;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
 
 import madkit.kernel.AbstractAgent.ReturnCode;
@@ -70,9 +69,9 @@ public class MadkitClassLoaderTest extends JunitMadKit {
 			protected void activate() {
 					MadkitClassLoader mcl = (MadkitClassLoader) getMadkitClassLoader();
 					try {
-						mcl.addJar(new File(".").toURL());
+						mcl.addToClasspath(new File(".").toURL());
 						int n = mcl.getURLs().length;
-						mcl.addJar(new File(".").toURL());
+						mcl.addToClasspath(new File(".").toURL());
 						assertEquals(n,mcl.getURLs().length);
 						System.err.println(Arrays.deepToString(mcl.getURLs()));
 					} catch (MalformedURLException e) {

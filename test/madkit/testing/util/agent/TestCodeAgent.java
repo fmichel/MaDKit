@@ -16,18 +16,24 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
  */
-package madkit.gui;
+package madkit.testing.util.agent;
 
+import madkit.kernel.Agent;
+import madkit.kernel.Madkit.BooleanOption;
 
 /**
  * @author Fabien Michel
- * @since MadKit 5.0.0.7
+ * @since MadKit 5.0.0.14
  * @version 0.9
  * 
  */
-public interface AgentUIComponent {
+@SuppressWarnings("serial")
+public class TestCodeAgent extends Agent {
 
-//	public AbstractAgent getAgent();
-	
-	public void updateAgentUI();
+
+	public static void main(String[] args) {
+		String[] argss = {BooleanOption.desktop.toString()};
+		executeThisAgent(argss);
+	}
+
 }

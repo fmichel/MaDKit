@@ -1,10 +1,15 @@
 package madkit.messages;
 
-import madkit.gui.actions.SchedulerAction;
+import madkit.action.SchedulingAction;
 
-public class SchedulingMessage extends CommandMessage<SchedulerAction> {
+public class SchedulingMessage extends CommandMessage<SchedulingAction> {
 
-	public SchedulingMessage(SchedulerAction schedulerAction, Object[] info) {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1433336977900865385L;
+
+	public SchedulingMessage(SchedulingAction schedulerAction, Object... info) {
 		super(schedulerAction,info);
 	}
 

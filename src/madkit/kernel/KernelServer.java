@@ -28,6 +28,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
 
+import madkit.action.KernelAction;
 import madkit.messages.KernelMessage;
 
 /**

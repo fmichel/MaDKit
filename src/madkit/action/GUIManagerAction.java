@@ -16,14 +16,12 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
  */
-package madkit.gui.actions;
+package madkit.action;
 
-import static java.awt.event.KeyEvent.VK_D;
 import static java.awt.event.KeyEvent.VK_I;
 import static java.awt.event.KeyEvent.VK_J;
 import static java.awt.event.KeyEvent.VK_K;
 import static java.awt.event.KeyEvent.VK_U;
-import static java.awt.event.KeyEvent.VK_W;
 
 import java.awt.event.ActionEvent;
 import java.lang.reflect.InvocationTargetException;
@@ -32,7 +30,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.EnumSet;
 
-import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
@@ -42,11 +39,7 @@ import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.agr.LocalCommunity.Roles;
 import madkit.gui.GUIMessage;
-import madkit.gui.GUIMessage;
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.ActionInfo;
-import madkit.kernel.KernelAction;
-import madkit.kernel.MKAbstractAction;
 import madkit.messages.KernelMessage;
 
 /**
@@ -63,12 +56,10 @@ public enum GUIManagerAction {
 	ICONIFY_ALL(VK_U),
 	DEICONIFY_ALL(VK_I),
 	KILL_AGENTS(VK_K),
-	CONNECT_WEB_REPO(VK_W),
+//	CONNECT_WEB_REPO(VK_W),
 
 	SETUP_AGENT_GUI(Integer.MAX_VALUE), 
-	DISPOSE_AGENT_GUI(Integer.MAX_VALUE), 
-	MADKIT_LAUNCH_SESSION(Integer.MAX_VALUE), 
-	MADKIT_KILL_AGENT(Integer.MAX_VALUE);
+	DISPOSE_AGENT_GUI(Integer.MAX_VALUE);
 
 	private ActionInfo actionInfo;
 	final private int keyEvent;
@@ -94,7 +85,7 @@ public enum GUIManagerAction {
 			final Method add = menuOrToolBar.getClass().getMethod("add", Action.class);
 			final Method addSeparator = menuOrToolBar.getClass().getMethod("addSeparator");
 			for (final GUIManagerAction mkA : EnumSet.allOf(GUIManagerAction.class)) {
-				if(mkA == CONNECT_WEB_REPO)
+				if(mkA == SETUP_AGENT_GUI)
 					return;
 				Action a = mkA.getActionFor(guiManager);
 				if (mkA == LOAD_JAR_FILE) {//TODO move that code in manager

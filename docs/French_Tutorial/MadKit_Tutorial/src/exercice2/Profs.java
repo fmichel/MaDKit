@@ -14,7 +14,6 @@ public class Profs extends Agent {
 		//au groupe lycee et ont le role de prof
 	}
 
-	@SuppressWarnings("unchecked")
 	public void live() {
 		pause(5000);
 		while (true) {

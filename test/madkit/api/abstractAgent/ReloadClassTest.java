@@ -18,8 +18,7 @@
  */
 package madkit.api.abstractAgent;
 
-import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadKit;
@@ -41,7 +40,7 @@ public class ReloadClassTest extends JunitMadKit {
 			protected void activate() {
 				try {
 					try {
-						reloadAgentClass(null);
+						getMadkitClassLoader().reloadClass(null);
 						noExceptionFailure();
 					} catch (ClassNotFoundException e) {
 						fail("wrong exception");
@@ -58,13 +57,13 @@ public class ReloadClassTest extends JunitMadKit {
 		launchTest(new AbstractAgent() {
 			protected void activate() {
 				try {
-					reloadAgentClass(aa());
+					getMadkitClassLoader().reloadClass(aa());
 					noExceptionFailure();
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}
 				try {
-					reloadAgentClass(aa() + "." + aa());
+					getMadkitClassLoader().reloadClass(aa() + "." + aa());
 					noExceptionFailure();
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
@@ -78,7 +77,7 @@ public class ReloadClassTest extends JunitMadKit {
 		launchTest(new AbstractAgent() {
 			protected void activate() {
 				try {
-					assertEquals(SUCCESS, reloadAgentClass(getClass().getName()));
+					assertTrue(getMadkitClassLoader().reloadClass(getClass().getName()));
 				} catch (ClassNotFoundException e) {
 					fail("exception thrown");
 					e.printStackTrace();

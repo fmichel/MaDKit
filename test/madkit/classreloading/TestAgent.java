@@ -53,7 +53,7 @@ public class TestAgent extends Agent {
 			logger.info("fake2 is " + (new  madkit.classreloading.anotherPackage.Fake().toString()));
 			pause(4000);
 			try {
-				reloadAgentClass("madkit.classreloading.anotherPackage.Fake");
+				getMadkitClassLoader().reloadClass("madkit.classreloading.anotherPackage.Fake");
 			} catch (ClassNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

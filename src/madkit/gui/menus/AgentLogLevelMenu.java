@@ -20,51 +20,75 @@ package madkit.gui.menus;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
 import javax.swing.JMenu;
 import javax.swing.JRadioButtonMenuItem;
 
-import madkit.gui.AgentUIComponent;
-import madkit.gui.actions.AgentAction;
+import madkit.action.ActionInfo;
+import madkit.action.AgentAction;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AgentLogger;
 
 /**
  * @author Fabien Michel
  * @since MadKit 5.0.0.7
- * @version 0.9
+ * @version 0.91
  * 
  */
-public class AgentLogLevelMenu extends JMenu implements AgentUIComponent{
+public class AgentLogLevelMenu extends JMenu{
+	
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -5402608797586593530L;
+
+	final private static Map<AbstractAgent,AgentLogLevelMenu> menus = new HashMap<AbstractAgent, AgentLogLevelMenu>(); 
+	
 	final private static Level[] logLevels = {Level.OFF,Level.SEVERE,Level.WARNING,Level.INFO,Level.CONFIG,Level.FINE,Level.FINER,Level.FINEST, Level.ALL};
+
+	final private static String lvlShortDesc;
+	final private static String lvlLonDesc;
+	final private static String warningShortDesc;
+	final private static String warningLonDesc;
+	final private static ImageIcon lvlIcon;
+	final private static ImageIcon wIcon;
+	
+	static{
+		ActionInfo info = AgentAction.LOG_LEVEL.getActionInfo();
+		lvlShortDesc = info.getName();
+		lvlLonDesc = info.getShortDescription();
+		lvlIcon = info.getSmallIcon();
+		info = AgentAction.WARNING_LOG_LEVEL.getActionInfo();
+		warningShortDesc = info.getName();
+		warningLonDesc = info.getShortDescription();
+		wIcon = info.getSmallIcon();
+	}
+
 	final private AbstractAgent myAgent;
 	final private ButtonGroup logGroup;
 	final private ButtonGroup warningGroup;
-	final private static String[] lvlCodes = AgentAction.AGENT_LOG_LEVEL.toString().split(";");
-	final private static String[] warningCodes = AgentAction.AGENT_WARNING_LOG_LEVEL.toString().split(";");
 //	final private static ImageIcon logIcon = MadkitAction.AGENT_LOG_LEVEL);
 //	final private static ImageIcon wIcon = madkit.gui.GUIToolkit.getMadkitImageIcon(MadkitAction.AGENT_WARNING_LOG_LEVEL);
 	
 	public AgentLogLevelMenu(final AbstractAgent agent){
 		super("Logging");
+		setMnemonic(KeyEvent.VK_L);
+
 		myAgent = agent;
 		
-		JMenu logLevelMenu = new JMenu(lvlCodes[0]);
-		logLevelMenu.setIcon(AgentAction.AGENT_LOG_LEVEL.getImageIcon());
-		logLevelMenu.setToolTipText(lvlCodes[1]);
+		JMenu logLevelMenu = new JMenu(lvlShortDesc);
+		logLevelMenu.setIcon(lvlIcon);
+		logLevelMenu.setToolTipText(lvlLonDesc);
 		
-		JMenu warningLogLevelMenu = new JMenu(warningCodes[0]);
-		warningLogLevelMenu.setIcon(AgentAction.AGENT_WARNING_LOG_LEVEL.getImageIcon());
-		warningLogLevelMenu.setToolTipText(warningCodes[1]);
+		JMenu warningLogLevelMenu = new JMenu(warningShortDesc);
+		warningLogLevelMenu.setIcon(wIcon);
+		warningLogLevelMenu.setToolTipText(warningLonDesc);
 		
 		logGroup = new ButtonGroup();
 		warningGroup = new ButtonGroup();
@@ -90,31 +114,33 @@ public class AgentLogLevelMenu extends JMenu implements AgentUIComponent{
 			initMenuItem(logItem,setLogLevelListener,l.toString(),logGroup,logLevelMenu);
 			initMenuItem(warningItem,setWarningLogLevelListener,l.toString(),warningGroup,warningLogLevelMenu);
 		}
-		updateAgentUI();
+		update();
+		menus.put(myAgent, this);
 		
 	}
 	
-	/**
-	 * @see madkit.gui.AgentUIComponent#updateAgentUI()
-	 */
-	@Override
-	public void updateAgentUI() {
+	public void update() {
 //		if (myAgent.isAlive()) {
-			AgentLogger logger = myAgent.getLogger();
-			Level currentLogLevel = logger.getLevel();
-			Level currentWarningLogLevel = logger.getWarningLogLevel();
-			updateButtonGroup(logGroup, currentLogLevel);
-			updateButtonGroup(warningGroup, currentWarningLogLevel);
+			final AgentLogger logger = myAgent.getLogger();
+			updateButtonGroup(logGroup, logger.getLevel());
+			updateButtonGroup(warningGroup, logger.getWarningLogLevel());
 //		}
 	}
-
+	
+	public static void update(AbstractAgent agent){
+		AgentLogLevelMenu menu = menus.get(agent);
+		if(menu != null){
+			menu.update();
+		}
+	}
+	
 	/**
 	 * @param logGroup 
 	 * @param logLevel
 	 */
 	private void updateButtonGroup(ButtonGroup logGroup, Level logLevel) {
 		for (Enumeration<AbstractButton> buttons = logGroup.getElements();buttons.hasMoreElements();) {
-			AbstractButton button = buttons.nextElement();
+			final AbstractButton button = buttons.nextElement();
 			if(button.getActionCommand().equals(logLevel.toString())){
 				button.setSelected(true);
 				return;
@@ -132,5 +158,8 @@ public class AgentLogLevelMenu extends JMenu implements AgentUIComponent{
 		logItem.addActionListener(listener);
 		group.add(logItem);
 	}
+	
+	//TODO remove agent on dispose
+
 
 }

@@ -29,8 +29,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 
-import madkit.i18n.Words;
-
 /**
  * @author Fabien Michel
  * @version 0.92
@@ -329,18 +327,18 @@ final class LoggedKernel extends MadkitKernel {
 		return kernel;
 	}
 
-	@Override //TODO think about this log
-	ReturnCode reloadClass(AbstractAgent requester, String name) throws ClassNotFoundException {
-		final ReturnCode r = kernel.reloadClass(requester, name);
-		if(requester.isFinestLogOn())
-			requester.logger.log(Level.FINEST,Words.RELOAD.toString() + name);
-		if(r == SUCCESS)
-			return SUCCESS;
-		else if(requester.isWarningOn()){
-				requester.handleException(Influence.RELOAD_CLASS, new MadkitWarning(name, r));
-		}
-		return r;
-	}
+//	@Override //TODO think about this log
+//	ReturnCode reloadClass(AbstractAgent requester, String name) throws ClassNotFoundException {
+//		final ReturnCode r = kernel.reloadClass(requester, name);
+//		if(requester.isFinestLogOn())
+//			requester.logger.log(Level.FINEST,Words.RELOAD.toString() + name);
+//		if(r == SUCCESS)
+//			return SUCCESS;
+//		else if(requester.isWarningOn()){
+//				requester.handleException(Influence.RELOAD_CLASS, new MadkitWarning(name, r));
+//		}
+//		return r;
+//	}
 
 	@Override
 	boolean removeOverlooker(AbstractAgent requester, Overlooker<? extends AbstractAgent> o) {
@@ -353,11 +351,6 @@ final class LoggedKernel extends MadkitKernel {
 	@Override
 	boolean addOverlooker(AbstractAgent requester, Overlooker<? extends AbstractAgent> o) {
 		return kernel.addOverlooker(requester, o);
-	}
-
-	@Override
-	Class<?> getNewestClassVersion(AbstractAgent requester, String className) throws ClassNotFoundException {//TODO log 
-		return kernel.getNewestClassVersion(requester, className);
 	}
 
 }

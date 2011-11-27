@@ -18,21 +18,6 @@
  */
 package madkit.gui;
 
-import java.awt.event.KeyEvent;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-
-import madkit.gui.actions.MadkitAction;
-import madkit.gui.menus.AgentLogLevelMenu;
-import madkit.gui.menus.AgentMenu;
-import madkit.kernel.AbstractAgent;
-import madkit.kernel.KernelAddress;
 
 /**
  * Class containing static which could used to build agent GUI
@@ -46,54 +31,53 @@ final public class GUIToolkit {
 	
 	// TODO every Icon static. So avoiding useless instances //TODO create this
 	// only if required
-	static ConcurrentMap<AbstractAgent, List<AgentUIComponent>> agentUIListeners = new ConcurrentHashMap<AbstractAgent, List<AgentUIComponent>>();
-	static ConcurrentMap<KernelAddress, JLabel> networkLabel = new ConcurrentHashMap<KernelAddress, JLabel>();
-//	private static HashMap<KernelAddress,Map<MadkitAction,Action>> globalActions;
-	static Map<KernelAddress, GUIManagerAgent> guiManagers = new ConcurrentHashMap<KernelAddress, GUIManagerAgent>();
-
-	static void buildGlobalActions(GUIManagerAgent guiManager) {
-		MadkitAction.registerGlobalActions(guiManager);
-		guiManagers.put(guiManager.getKernelAddress(), guiManager);
-	}
-
-	static public void updateAgentUI(AbstractAgent a) {
-		List<AgentUIComponent> l = agentUIListeners.get(a);
-		if (l != null) {
-			for (AgentUIComponent ui : l) {
-				ui.updateAgentUI();
-			}
-		}
-	}
-
-	static public void updateAgentsUI() {
-		for (List<AgentUIComponent> list : agentUIListeners.values()) {
-			for (AgentUIComponent ui : list) {
-				ui.updateAgentUI();
-			}
-		}
-	}
-
-	static public JMenu createLogLevelMenu(final AbstractAgent agent) {
-		AgentLogLevelMenu menu = new AgentLogLevelMenu(agent);
-		menu.setMnemonic(KeyEvent.VK_L);
-		addUIListenerFor(agent, menu);
-		return menu;
-	}
-
-	static void addUIListenerFor(final AbstractAgent agent, AgentUIComponent component) {
-		agentUIListeners.putIfAbsent(agent, new ArrayList<AgentUIComponent>());
-		agentUIListeners.get(agent).add(component);
-	}
-
-	static public JMenu createLaunchingMenu(final AbstractAgent agent) {
-		return new AgentMenu(agent);
-	}
-	
-	static public JMenu createAgentsMenu(final AbstractAgent agent) {
-		return guiManagers.get(agent.getKernelAddress()).createAgentsMenu();
-	}
-
-	static public JMenu createDemosMenu(final AbstractAgent agent) {
-		return guiManagers.get(agent.getKernelAddress()).createDemosMenu();
-	}
+//	static ConcurrentMap<AbstractAgent, List<AgentUIComponent>> agentUIListeners = new ConcurrentHashMap<AbstractAgent, List<AgentUIComponent>>();
+//	static ConcurrentMap<KernelAddress, JLabel> networkLabel = new ConcurrentHashMap<KernelAddress, JLabel>();
+////	private static HashMap<KernelAddress,Map<MadkitAction,Action>> globalActions;
+//	static Map<KernelAddress, GUIManagerAgent> guiManagers = new ConcurrentHashMap<KernelAddress, GUIManagerAgent>();
+//
+//	static void buildGlobalActions(GUIManagerAgent guiManager) {
+//		MadkitAction.registerGlobalActions(guiManager);
+//		guiManagers.put(guiManager.getKernelAddress(), guiManager);
+//	}
+//
+//	static public void updateAgentUI(AbstractAgent a) {
+//		List<AgentUIComponent> l = agentUIListeners.get(a);
+//		if (l != null) {
+//			for (AgentUIComponent ui : l) {
+//				ui.updateAgentUI();
+//			}
+//		}
+//	}
+//
+//	static public void updateAgentsUI() {
+//		for (List<AgentUIComponent> list : agentUIListeners.values()) {
+//			for (AgentUIComponent ui : list) {
+//				ui.updateAgentUI();
+//			}
+//		}
+//	}
+//
+//	static public JMenu createLogLevelMenu(final AbstractAgent agent) {
+//		AgentLogLevelMenu menu = new AgentLogLevelMenu(agent);
+//		menu.setMnemonic(KeyEvent.VK_L);
+//		return menu;
+//	}
+//
+//	static void addUIListenerFor(final AbstractAgent agent, AgentUIComponent component) {
+//		agentUIListeners.putIfAbsent(agent, new ArrayList<AgentUIComponent>());
+//		agentUIListeners.get(agent).add(component);
+//	}
+//
+//	static public JMenu createLaunchingMenu(final AbstractAgent agent) {
+//		return new AgentMenu(agent);
+//	}
+//	
+//	static public JMenu createAgentsMenu(final AbstractAgent agent) {
+//		return guiManagers.get(agent.getKernelAddress()).createAgentsMenu();
+//	}
+//
+//	static public JMenu createDemosMenu(final AbstractAgent agent) {
+//		return guiManagers.get(agent.getKernelAddress()).createDemosMenu();
+//	}
 }

@@ -16,35 +16,16 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
  */
-package madkit.kernel;
+package madkit.action;
+
+import static java.awt.event.KeyEvent.VK_E;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.ResourceBundle;
 
-import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.ImageIcon;
-import javax.swing.JComponent;
-import javax.swing.KeyStroke;
 
-import static java.awt.event.KeyEvent.*;
-
-import madkit.agr.LocalCommunity;
-import madkit.agr.LocalCommunity.Groups;
-import madkit.agr.LocalCommunity.Roles;
-import madkit.gui.actions.Actions;
-import madkit.gui.actions.AgentAction;
-import madkit.gui.actions.MadkitAction;
-import madkit.gui.actions.MadkitGUIAction;
-import madkit.i18n.I18nUtilities;
+import madkit.kernel.AbstractAgent;
 import madkit.messages.CommandMessage;
 
 /**
@@ -53,11 +34,24 @@ import madkit.messages.CommandMessage;
  * @version 0.9
  * 
  */
-public enum AAAction {
+public enum AgentAction {
 
 	LAUNCH_AGENT(KeyEvent.VK_DOLLAR),
 	RELOAD(VK_E), 
+	LOG_LEVEL(KeyEvent.VK_DOLLAR),
+	WARNING_LOG_LEVEL(KeyEvent.VK_DOLLAR),
 	KILL_AGENT(KeyEvent.VK_DOLLAR);
+//	final private static Method doIt;
+//	static{
+//		final Class<?>[] paramTypes = {CommandMessage.class};
+//		Method m = null;
+//		try {
+//			m = AbstractAgent.class.getDeclaredMethod("proceedCommandMessage", paramTypes);
+//		} catch (SecurityException e) {
+//		} catch (NoSuchMethodException e) {
+//		}
+//		doIt = m;
+//	}
 
 	private ActionInfo actionInfo;
 	/**
@@ -71,15 +65,20 @@ public enum AAAction {
 
 	final private int keyEvent;
 
-	private AAAction(int keyEvent){
+	private AgentAction(int keyEvent){
 		this.keyEvent = keyEvent;
 	}
 
 	public Action getActionFor(final AbstractAgent agent, final Object... commandOptions){
 		return new MKAbstractAction(getActionInfo()){
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = -3078505474395164899L;
+
 			@Override
 			public void actionPerformed(ActionEvent e) {//TODO I could do the check validity here for logging purpose
-				agent.proceedCommandMessage(new CommandMessage<AAAction>(AAAction.this, commandOptions));
+				agent.proceedCommandMessage(new CommandMessage<AgentAction>(AgentAction.this, commandOptions));
 			}
 	};
 	//		return getMKAction().getNewInstanceFor(agent,info);
@@ -90,7 +89,7 @@ public enum AAAction {
 //	try {//this bypasses class incompatibility
 //		final Method add = menuOrToolBar.getClass().getMethod("add", Action.class);
 //		final Method addSeparator = menuOrToolBar.getClass().getMethod("addSeparator");
-//		for (AAAction mkA : EnumSet.allOf(AAAction.class)) {
+//		for (AgentAction mkA : EnumSet.allOf(AgentAction.class)) {
 //			add.invoke(menuOrToolBar, mkA.getActionFor(agent));
 //			switch (mkA) {
 //			case EXIT:

@@ -58,8 +58,12 @@ public class MadkitClassLoader extends URLClassLoader {
 	final private Madkit madkit;
 	private Set<String> agentClasses = new TreeSet<String>();
 	private Set<DemoModel> demos = new HashSet<DemoModel>();
-	private Set<URL> knownUrls = new HashSet<URL>();
+	private Set<URL> scannedURLs = new HashSet<URL>();
 
+	//	Class<? extends AbstractAgent> loadAgentClass(String name) throws ClassNotFoundException{
+	//		return (Class<? extends AbstractAgent>) loadClass(name);
+	//	}
+	
 	/**
 	 * @param urls
 	 * @param parent
@@ -83,7 +87,7 @@ public class MadkitClassLoader extends URLClassLoader {
 					l.log(Level.FINE, "Already defined " + name + " : NEED NEW MCL");
 				}
 				MadkitClassLoader mcl = new MadkitClassLoader(madkit,getURLs(),this, classesToReload);
-				mcl.knownUrls = knownUrls;
+				mcl.scannedURLs = scannedURLs;
 				mcl.agentClasses = agentClasses;
 				mcl.demos = demos;
 				classesToReload.remove(name);
@@ -106,6 +110,95 @@ public class MadkitClassLoader extends URLClassLoader {
 		return c;
 	}
 	
+//	Class<? extends AbstractAgent> loadAgentClass(String name) throws ClassNotFoundException{
+//		return (Class<? extends AbstractAgent>) loadClass(name);
+//	}
+
+
+
+//private URL getclassPathUrl(String name) {
+//	URL url = this.getResource("/"+name.replace('.', '/')+".class");
+//	if(url != null){//TODO if url is null return warning
+//		String packageName = "";
+//		if (name.contains(".")) {
+//			packageName = name.substring(0, name.lastIndexOf('.')+1);
+//		}
+//		//		for(String s : packageName.split("\\."))
+//		//			System.err.println("\nsplit"+s);
+//		int deepness = packageName.split("\\.").length;
+//		String urlPath = url.getPath();
+//		File resourceDir = new File(urlPath.substring(0, urlPath.lastIndexOf('/')));
+//		for (int i = 0; i < deepness; i++) {
+//			resourceDir = resourceDir.getParentFile();
+//		}
+//		try {
+//			return resourceDir.toURI().toURL();
+//		} catch (MalformedURLException e) {
+//		}
+//	}
+//	return null;
+//}
+
+
+	/**
+	 * Asks the MadKit class loader to reload the class 
+	 * byte code so that new instances, created
+	 * using {@link Class#newInstance()} on a class object obtained with
+	 * {@link AbstractAgent#getNewestClassVersion(AbstractAgent, String)}, will reflect
+	 * compilation changes during run time.
+	 * 
+	 * @param name The fully qualified class name of the class
+	 * @return <code>true</code> if the class has been successfully 
+	 * @throws ClassNotFoundException if the class cannot be found on the class path
+	 */
+public boolean reloadClass(String name) throws ClassNotFoundException{//TODO return false and return code
+//	System.err.println(name.replace('.', '/')+".class");
+	if(getResource(name.replace('.', '/')+".class") == null)
+		throw new ClassNotFoundException(name);
+	if (classesToReload == null) {
+		classesToReload = new HashSet<String>();
+	}
+	classesToReload.add(name);
+	return true;
+}
+
+/**
+ * returns the newest version of a class object given its name. If {@link #reloadClass(String)} has been used this
+ * returns the class object corresponding to the last compilation of the java code. Especially, in such a case, this 
+ * returns a different version than {@link Class#forName(String)} 
+ * if the caller using it has not been reloaded at the same time. This is because {@link Class#forName(String)} 
+ * uses the {@link ClassLoader} of the current class while this method uses the last class loader which is used by
+ * MadKit, i.e. the one created for loading classes on which {@link #reloadAgentClass(String)} has been invoked.
+ * Especially, {@link AbstractAgent#launchAgent(String, int, boolean)} always uses the newest version of the agent class.
+ * 
+ * @param className the fully qualified name of the desired class.
+ * @return the newest version of a class object given its name.
+ * @throws ClassNotFoundException 
+ * @since MadKit 5.0.0.8
+ */
+public Class<?> getNewestClassVersion(final String className) throws ClassNotFoundException {
+	return loadClass(className);
+}
+
+
+
+void loadJarsFromPath(String path){
+	File demoDir = new File(path);
+	if(demoDir.isDirectory()){
+		for (File f : demoDir.listFiles(new FileFilter() {
+			public boolean accept(File pathname) {
+				return pathname.getName().endsWith(".jar");
+			}
+		})) {
+			try {
+				addURL(f.toURI().toURL());
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			}
+		}
+}
+}
+
 //	Class<? extends AbstractAgent> loadAgentClass(String name) throws ClassNotFoundException{
 //		return (Class<? extends AbstractAgent>) loadClass(name);
 //	}
@@ -138,116 +231,13 @@ private void addUrlAndloadClasses(String name) {
 	}
 }
 
-//private URL getclassPathUrl(String name) {
-//	URL url = this.getResource("/"+name.replace('.', '/')+".class");
-//	if(url != null){//TODO if url is null return warning
-//		String packageName = "";
-//		if (name.contains(".")) {
-//			packageName = name.substring(0, name.lastIndexOf('.')+1);
-//		}
-//		//		for(String s : packageName.split("\\."))
-//		//			System.err.println("\nsplit"+s);
-//		int deepness = packageName.split("\\.").length;
-//		String urlPath = url.getPath();
-//		File resourceDir = new File(urlPath.substring(0, urlPath.lastIndexOf('/')));
-//		for (int i = 0; i < deepness; i++) {
-//			resourceDir = resourceDir.getParentFile();
-//		}
-//		try {
-//			return resourceDir.toURI().toURL();
-//		} catch (MalformedURLException e) {
-//		}
-//	}
-//	return null;
-//}
-
-
-boolean reloadClass(String name) throws ClassNotFoundException{//TODO return false and return code
-//	System.err.println(name.replace('.', '/')+".class");
-	if(name == null || getResource(name.replace('.', '/')+".class") == null)
-		throw new ClassNotFoundException(name);
-	if (classesToReload == null) {
-		classesToReload = new HashSet<String>();
-	}
-	classesToReload.add(name);
-	return true;
-}
-
-void loadJarsFromPath(String path){
-	File demoDir = new File(path);
-	if(demoDir.isDirectory()){
-		for (File f : demoDir.listFiles(new FileFilter() {
-			public boolean accept(File pathname) {
-				return pathname.getName().endsWith(".jar");
-			}
-		})) {
-			try {
-				addURL(f.toURI().toURL());
-			} catch (MalformedURLException e) {
-				e.printStackTrace();
-			}
-		}
-}
-}
-
-@Override
-public String toString() {
-	ClassLoader parent = getParent();
-	String cp =super.toString()+" : ";
-	String tab="\t";
-	while(parent != null){
-		cp+=tab+parent.getClass();
-		tab+=tab;
-		parent = parent.getParent();
-	}
-	for (URL url : getURLs()) {
-		cp+="\n"+url;
-	}
-	return cp;
-}
-
-void addJar(URL url) {
-	addURL(url);
-	LaunchAgentsMenu.updateAllMenus();
-	LaunchSessionsMenu.updateAllMenus();
-}
-
-/**
- * Returns all the session configurations available on the class path
- * @return a set of session configurations available on the 
- * class path
- */
-public Set<DemoModel> getAvailableConfigurations(){
-	scanClassPathForAgentClasses();
-	if(demos != null){
-		return new HashSet<DemoModel>(demos);
-	}
-	return Collections.emptySet();
-}
-
-/**
- * Returns the names of all the available agent classes
- * @return All the agent classes available on the 
- * class path
- */
-public Set<String> getAllAgentClasses(){
-	scanClassPathForAgentClasses();
-	if(agentClasses != null){
-		return new TreeSet<String>(agentClasses);
-	}
-	return Collections.emptySet();
-}
-
 private void scanClassPathForAgentClasses() {
-	boolean changed = false;
-	if(knownUrls == null)
-		knownUrls = new HashSet<URL>();
-	if(agentClasses == null)
+	if(scannedURLs == null){
+		scannedURLs = new HashSet<URL>();
 		agentClasses = new TreeSet<String>();
+	}
 	for(URL dir : getURLs()){
-		if(knownUrls.add(dir))
-			changed = true;
-		else
+		if(! scannedURLs.add(dir))
 			continue;
 		if(dir.toString().contains("rsrc")){
 			if(dir.toString().contains("jar:rsrc:")){//TODO externalize 
@@ -278,6 +268,61 @@ private void scanClassPathForAgentClasses() {
 		}
 	}
 }
+
+@Override
+public String toString() {
+	ClassLoader parent = getParent();
+	String cp =super.toString()+" : ";
+	String tab="\t";
+	while(parent != null){
+		cp+=tab+parent.getClass();
+		tab+=tab;
+		parent = parent.getParent();
+	}
+	for (URL url : getURLs()) {
+		cp+="\n"+url;
+	}
+	return cp;
+}
+
+/**
+ * Adds a directory or a jar file to the class path.
+ * @param url the resource to add
+ */
+public void addToClasspath(URL url) {
+	addURL(url);
+	LaunchAgentsMenu.updateAllMenus();
+	LaunchSessionsMenu.updateAllMenus();
+}
+
+/**
+ * Returns all the session configurations available on the class path
+ * @return a set of session configurations available on the 
+ * class path
+ */
+public Set<DemoModel> getAvailableConfigurations(){
+	scanClassPathForAgentClasses();
+	if(demos != null){
+		return new HashSet<DemoModel>(demos);
+	}
+	return Collections.emptySet();
+}
+
+/**
+ * Returns the names of all the available agent classes
+ * @return All the agent classes available on the 
+ * class path
+ */
+public Set<String> getAllAgentClasses(){
+	scanClassPathForAgentClasses();
+		return new TreeSet<String>(agentClasses);
+}
+
+
+
+
+
+
 
 private void scanJarFileForLaunchConfig(JarFile jarFile) {
 	Attributes projectInfo = null;

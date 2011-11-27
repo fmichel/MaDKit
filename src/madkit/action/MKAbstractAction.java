@@ -16,18 +16,15 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
  */
-package madkit.kernel;
+package madkit.action;
 
-import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.util.EnumMap;
-import java.util.EnumSet;
-import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.KeyStroke;
+
 
 /**
  * @author Fabien Michel
@@ -37,6 +34,11 @@ import javax.swing.KeyStroke;
  */
 public abstract class MKAbstractAction extends AbstractAction {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 9062133992028327542L;
+
 	public MKAbstractAction(int keyEvent, ImageIcon bigIcon, ImageIcon smallIcon, String[] codes) {
 		putValue(Action.NAME, codes[0]);
 		putValue(Action.SHORT_DESCRIPTION, codes.length > 1 ? codes[1] : codes[0]);

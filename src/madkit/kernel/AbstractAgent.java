@@ -29,7 +29,6 @@ import static madkit.kernel.AbstractAgent.State.TERMINATED;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -54,17 +53,14 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
+import madkit.action.GUIManagerAction;
 import madkit.agr.CloudCommunity;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.agr.LocalCommunity.Roles;
 import madkit.agr.Organization;
 import madkit.gui.GUIMessage;
-import madkit.gui.GUIMessage;
 import madkit.gui.OutputPanel;
-import madkit.gui.actions.Actions;
-import madkit.gui.actions.GUIManagerAction;
-import madkit.gui.actions.MadkitAction;
 import madkit.i18n.ErrorMessages;
 import madkit.i18n.I18nUtilities;
 import madkit.i18n.Words;
@@ -244,7 +240,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			//hint : put the guiManager as a manager in a separated group
 			requestRole(LocalCommunity.NAME, Groups.SYSTEM, "default");
 			//to avoid the log of logged kernel
-			getKernel().getMadkitKernel().broadcastMessageWithRoleAndWaitForReplies(
+			getKernel().getMadkitKernel().broadcastMessageWithRoleAndWaitForReplies(//TODO
 					this,
 					LocalCommunity.NAME, 
 					Groups.SYSTEM, 
@@ -1452,52 +1448,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 
 	// /////////////////////////////////////////////// UTILITIES /////////////////////////////////
 
-	/**	 * Asks MasKit to reload class byte code so that new instances reflect compilation changes
-	 * during run time. This reloads the class byte code so that new instances, 
-	 * created using {@link Class#newInstance()} on a class object obtained with
-	 * {@link #getNewestClassVersion(String)}, will reflect compilation changes
-	 * during run time. 
-	 * 
-	 * Especially, using
-	 * {@link #launchAgent(AbstractAgent, int, boolean)} always uses
-	 * the most recent byte code for the targeted agent without requiring a MadKit restart.
-	 * 
-	 * @param className the fully qualified name of the desired class.
-	 * @return <ul>
-	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the reload can be done.</li>
-	 *         </ul>
-	 * @since MadKit 5.0.0.3
-	 */
-	//	* @throws ClassNotFoundException if the class cannot be found
-	//	* @throws NullPointerException if <code>className</code> is <code>null</code> 
-	//	* @throws KernelException if this agent has not been launched or is already terminated
-	public ReturnCode reloadAgentClass(String className) throws ClassNotFoundException {
-		//		try {
-		return getKernel().reloadClass(this, className);
-		//		} catch (ClassNotFoundException e) {
-		//			throw new ClassNotFoundException(className);
-		//		}
-	}
-
-	/**
-	 * returns the newest version of a class object given its name. If {@link #reloadAgentClass(String)} has been used this
-	 * returns the class object corresponding to the last compilation of the java code. Especially, in such a case, this 
-	 * returns a different version than {@link Class#forName(String)} 
-	 * if the agent that uses it has not been reloaded at the same time. This is because {@link Class#forName(String)} 
-	 * uses the {@link ClassLoader} of the current class while this method uses the last class loader which is used by
-	 * MadKit, i.e. the one created for loading classes on which {@link #reloadAgentClass(String)} has been invoked.
-	 * Especially, {@link #launchAgent(String, int, boolean)} always uses the newest version of the agent class.
-	 * 
-	 * @param className the fully qualified name of the desired class.
-	 * @return the newest version of a class object given its name.
-	 * @throws ClassNotFoundException 
-	 * @since MadKit 5.0.0.8
-	 */
-	public Class<?> getNewestClassVersion(String className) throws ClassNotFoundException{
-		return getKernel().getNewestClassVersion(this, className);
-	}
-
-
 	public Map<String, Map<String, Map<String, Set<AgentAddress>>>> getOrganizationSnapShot(boolean global){
 		return getKernel().getOrganizationSnapShot(global);
 	}
@@ -1924,7 +1874,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		return methodName;
 	}
 
-	protected <E extends Enum<E>> void proceedCommandMessage(CommandMessage<E> cm){
+	//TODO javadoc
+	public <E extends Enum<E>> void proceedCommandMessage(CommandMessage<E> cm){
 		if(logger != null)
 			logger.finest("proceeding command message "+cm);
 		Object[] parameters = cm.getContent();
@@ -1951,7 +1902,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 				throw (SelfKillException) t;
 			}
 		}
-		System.err.println(cm.getCode().name());
 	}
 
 	private void logForSender(String msg, CommandMessage<?> cm){

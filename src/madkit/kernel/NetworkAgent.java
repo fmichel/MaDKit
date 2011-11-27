@@ -27,17 +27,15 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
 
 import madkit.agr.CloudCommunity;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.agr.LocalCommunity.Roles;
 import madkit.agr.Organization;
-import madkit.gui.GUIToolkit;
+import madkit.gui.AgentStatusPanel;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.messages.CommandMessage;
-import madkit.messages.KernelMessage;
 import madkit.messages.ObjectMessage;
 
 /**
@@ -82,7 +80,7 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 	protected void activate() {
 		setName(super.getName()+getKernelAddress());
 		setLogLevel(LevelOption.networkLogLevel.getValue(getMadkitConfig()));
-		setLogLevel(Level.ALL);
+//		setLogLevel(Level.ALL);
 		requestRole(LocalCommunity.NAME, Groups.NETWORK, madkit.agr.LocalCommunity.Roles.NET_AGENT);
 
 		kernelAgent = getAgentWithRole(LocalCommunity.NAME, Groups.NETWORK, Organization.GROUP_MANAGER_ROLE);
@@ -160,7 +158,7 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 				kc.start();
 			}
 		}
-		GUIToolkit.updateAgentsUI();
+		AgentStatusPanel.updateAll();
 		if (logger != null){
 			logger.info("\n\t\t\t\t----- Network has been started on "+getKernelAddress()+" ------\n");
 		}
@@ -205,7 +203,7 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 				myServer.stop();
 			}
 			leaveGroup(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS);
-			GUIToolkit.updateAgentsUI();
+			AgentStatusPanel.updateAll();
 		}
 
 	@SuppressWarnings("unchecked")
@@ -270,6 +268,7 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 //			}
 //	}
 	
+	@SuppressWarnings("unused")
 	private void exit(){
 		alive = false;
 	}
@@ -308,6 +307,7 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 	/**
 	 * @param s
 	 */
+	@SuppressWarnings("unused")
 	private void newPeerRequest(Socket s) {
 		if (logger != null) logger.fine("Contacted by peer "+s+" -> sending connection message");
 		KernelConnection kc = null;
@@ -342,6 +342,7 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 	 * @param packet
 	 * @param startConnection start to receive message if living 
 	 */
+	@SuppressWarnings("unused")
 	private void newPeerDetected(DatagramPacket packet) {
 		if (logger != null) logger.fine("New peer detected on "+packet.getAddress()+" port = "+packet.getPort()+" -> sending connection message");
 		KernelConnection kc = null;

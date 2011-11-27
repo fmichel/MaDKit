@@ -229,33 +229,9 @@ public class FakeKernelTest {
 	}
 
 	@Test
-	public final void testGetNewestClassVersionAbstractAgentString() throws ClassNotFoundException {
-		try {
-			a.getNewestClassVersion("t");
-			fail("exception not thrown");
-		} catch (KernelException e) {
-			assertEquals(a.getKernel(), AbstractAgent.FAKE_KERNEL);
-
-		}
-
-	}
-
-	@Test
 	public final void testSetMadkitPropertyAbstractAgentStringString() {
 		try {
 			a.setMadkitProperty("t", "t");
-			fail("exception not thrown");
-		} catch (KernelException e) {
-			assertEquals(a.getKernel(), AbstractAgent.FAKE_KERNEL);
-
-		}
-
-	}
-
-	@Test
-	public final void testReloadClass() throws ClassNotFoundException {
-		try {
-			a.reloadAgentClass("t");
 			fail("exception not thrown");
 		} catch (KernelException e) {
 			assertEquals(a.getKernel(), AbstractAgent.FAKE_KERNEL);

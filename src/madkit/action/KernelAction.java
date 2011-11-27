@@ -16,9 +16,10 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
  */
-package madkit.kernel;
+package madkit.action;
 
-import static java.awt.event.KeyEvent.*;
+import static java.awt.event.KeyEvent.VK_D;
+import static java.awt.event.KeyEvent.VK_DOLLAR;
 import static java.awt.event.KeyEvent.VK_E;
 import static java.awt.event.KeyEvent.VK_J;
 import static java.awt.event.KeyEvent.VK_N;
@@ -36,8 +37,8 @@ import javax.swing.JComponent;
 
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
-import madkit.agr.LocalCommunity.Roles;
 import madkit.agr.Organization;
+import madkit.kernel.AbstractAgent;
 import madkit.messages.KernelMessage;
 
 /**
@@ -59,6 +60,7 @@ public enum KernelAction {
 	LAUNCH_AGENT(VK_J),
 	LAUNCH_SESSION(VK_DOLLAR),
 	KILL_AGENT(VK_J),
+	CONNECT_WEB_REPO(VK_DOLLAR),
 	LOAD_JAR_FILE(VK_J); 
 
 
@@ -80,6 +82,11 @@ public enum KernelAction {
 
 	public Action getActionFor(final AbstractAgent agent, final Object... info){
 		return new MKAbstractAction(getActionInfo()){
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = -8907472475007112860L;
+
 			@Override
 			public void actionPerformed(ActionEvent e) {//TODO I could do the check validity here for logging purpose
 				agent.sendMessage(LocalCommunity.NAME, Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE, new KernelMessage(KernelAction.this, info));//TODO work with AA but this is probably worthless	

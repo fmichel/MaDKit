@@ -18,8 +18,7 @@
  */
 package madkit.messages;
 
-import madkit.gui.actions.MadkitAction;
-import madkit.kernel.KernelAction;
+import madkit.action.KernelAction;
 
 /**
  * The brand new version of KernelMessage.

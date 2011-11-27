@@ -255,19 +255,6 @@ public class RootKernelTest {
 	}
 
 	@Test
-	public void testReloadClass() {
-		try {
-			fakeKernel.reloadClass(null, null);
-			fail("kernel exepction not thrown");
-		} catch (KernelException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-
-	}
-
-	@Test
 	public void testIsCommunityAbstractAgentString() {
 		try {
 			fakeKernel.isCommunity(null, null);

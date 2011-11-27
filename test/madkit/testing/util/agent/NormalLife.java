@@ -18,12 +18,7 @@
  */
 package madkit.testing.util.agent;
 
-import javax.swing.AbstractAction;
-
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.KernelAction;
-import madkit.kernel.Madkit;
-import madkit.kernel.Madkit.LevelOption;
 
 /**
  * @author Fabien Michel

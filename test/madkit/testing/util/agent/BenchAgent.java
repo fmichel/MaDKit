@@ -20,7 +20,7 @@ package madkit.testing.util.agent;
 
 import javax.swing.JMenu;
 
-import madkit.kernel.KernelAction;
+import madkit.action.KernelAction;
 
 
 /**

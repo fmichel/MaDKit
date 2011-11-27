@@ -18,9 +18,7 @@
  */
 package madkit.gui;
 
-import madkit.gui.actions.GUIManagerAction;
-import madkit.gui.actions.MadkitAction;
-import madkit.messages.CodeMessage;
+import madkit.action.GUIManagerAction;
 import madkit.messages.CommandMessage;
 
 /**
@@ -31,6 +29,11 @@ import madkit.messages.CommandMessage;
  */
 public class GUIMessage extends CommandMessage<GUIManagerAction> {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 670313757537790225L;
+
 	public GUIMessage(GUIManagerAction code, Object... object) {
 		super(code,object);
 	}

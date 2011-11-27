@@ -18,21 +18,9 @@
  */
 package madkit.testing.util.agent;
 
-import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
-import static madkit.kernel.JunitMadKit.COMMUNITY;
-import static madkit.kernel.JunitMadKit.GROUP;
-import static madkit.kernel.JunitMadKit.ROLE;
-import static org.junit.Assert.assertEquals;
-
-import java.util.Arrays;
-
-import madkit.gui.actions.AgentAction;
-import madkit.kernel.AAAction;
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.Agent;
-import madkit.kernel.KernelAction;
-import madkit.kernel.Madkit.LevelOption;
-import madkit.messages.CommandMessage;
+import madkit.kernel.Madkit;
+import madkit.kernel.Madkit.Option;
 
 /**
  * @author Fabien Michel
@@ -42,6 +30,11 @@ import madkit.messages.CommandMessage;
  */
 public class TestCodeAA extends AbstractAgent {
 
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	public void reload(){
 		launchAgent(getClass().getName(),0, true);
@@ -63,13 +56,13 @@ public class TestCodeAA extends AbstractAgent {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-//		proceedCommandMessage(new CommandMessage<AAAction>(AAAction.RELOAD));
-//		proceedCommandMessage(new CommandMessage<AAAction>(AAAction.LAUNCH_AGENT,"madkit.testing.util.agent.SelfLaunch"));
+//		proceedCommandMessage(new CommandMessage<AgentAction>(AgentAction.RELOAD));
+//		proceedCommandMessage(new CommandMessage<AgentAction>(AgentAction.LAUNCH_AGENT,"madkit.testing.util.agent.SelfLaunch"));
 	}
 	
 	public static void main(String[] args) {
-		String[] argss = {LevelOption.kernelLogLevel.toString(),"ALL",LevelOption.agentLogLevel.toString(),"ALL"};
-		executeThisAgent(argss);
+		String[] argss = {Option.launchAgents.toString(),"madkit.kernel.AbstractAgent"};
+		Madkit.main(argss);
 	}
 
 }

@@ -22,7 +22,6 @@ public class AgentsQuiParle extends Agent {
 		requestRole("amis", "piece", "personne", null); // les agents appartient a la communaut� amis ,
 		//au groupe piece et ont le role de personne
 	}
-	@SuppressWarnings("unchecked")
 	@Override
 	public void live() {
 		pause(5000);

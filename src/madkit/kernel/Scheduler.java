@@ -42,8 +42,8 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import madkit.gui.actions.SchedulerAction;
-import madkit.messages.ObjectMessage;
+import madkit.action.SchedulingAction;
+import madkit.messages.SchedulingMessage;
 
 /**
  * This class defines a generic threaded scheduler agent. It holds a collection
@@ -333,11 +333,20 @@ public class Scheduler extends Agent {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	protected void checkMail(final Message m) {
 		if (m != null) {
 			try {
-				changeState(((ObjectMessage<State>) m).getContent());
+				switch (((SchedulingMessage) m).getCode()) {
+				case RUN:
+					changeState(State.RUNNING);
+					break;
+				case STEP:
+					changeState(State.STEP);
+					break;
+				case SHUTDOWN:
+					changeState(State.SHUTDOWN);
+					break;
+				}
 				if (m.getSender() != null) {
 					sendReply(m, m);
 				}
@@ -403,10 +412,10 @@ public class Scheduler extends Agent {
 
 	private void buildActions() {
 
-		run = SchedulerAction.RUN.getAction(this);
-		step = SchedulerAction.STEP.getAction(this);
-		speedUp = SchedulerAction.SPEED_UP.getAction(this);
-		speedDown = SchedulerAction.SPEED_DOWN.getAction(this);
+		run = SchedulingAction.RUN.getActionFor(this);
+		step = SchedulingAction.STEP.getActionFor(this);
+		speedUp = SchedulingAction.SPEED_UP.getActionFor(this);
+		speedDown = SchedulingAction.SPEED_DOWN.getActionFor(this);
 }
 
 	/**
@@ -497,5 +506,5 @@ public class Scheduler extends Agent {
 	public JSlider getSpeedSlider() {
 		return speedSlider;
 	}
-
+	
 }

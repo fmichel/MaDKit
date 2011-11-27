@@ -1,30 +1,22 @@
 package madkit.gui;
 
-import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.swing.Action;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
-import madkit.agr.LocalCommunity;
-import madkit.agr.LocalCommunity.Groups;
-import madkit.agr.LocalCommunity.Roles;
-import madkit.kernel.AAAction;
+import madkit.action.KernelAction;
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.KernelAction;
-import madkit.kernel.KernelAddress;
-import madkit.kernel.MKAbstractAction;
-import madkit.messages.KernelMessage;
 
 public class LaunchSessionsMenu extends JMenu {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6721458300016754609L;
 	final static private Set<LaunchSessionsMenu> menus = new HashSet<LaunchSessionsMenu>(); 
 	final private AbstractAgent myAgent;
 

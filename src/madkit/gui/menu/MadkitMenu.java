@@ -16,45 +16,34 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
  */
-package madkit.messages;
+package madkit.gui.menu;
 
-import madkit.kernel.Message;
+import java.awt.event.KeyEvent;
+
+import javax.swing.JMenu;
+
+import madkit.action.GUIManagerAction;
+import madkit.action.KernelAction;
+import madkit.kernel.AbstractAgent;
 
 /**
- * This parameterizable class could be used to convey 
- * any Java Object between MadKit agents.
- * 
  * @author Fabien Michel
- * @since MadKit 5.0.0.1
+ * @since MadKit 5.0.0.9
  * @version 0.9
- *
+ * 
  */
-public class ObjectMessage<T> extends Message {
+public class MadkitMenu extends JMenu {//TODO i18n
 
-	private static final long serialVersionUID = 2061462024105569662L;
-	private final T content;
-	
-	/**
-	 * Builds a message with the specified content
-	 * @param content
-	 */
-	public ObjectMessage(final T content) {
-		this.content = content;
-	}
+	private static final long serialVersionUID = 6177193453649323680L;
 
-	/**
-	 * Gets the content of this message
-	 * @return the object of type T contained in the message
-	 */
-	public T getContent() {
-		return content;
-	}
-	
-	/**
-	 * @see madkit.kernel.Message#toString()
-	 */
-	@Override
-	public String toString() {
-		return super.toString()+"\n\tcontent : {"+content+"}";
+	public MadkitMenu(final AbstractAgent agent){
+		super("MadKit");
+		setMnemonic(KeyEvent.VK_M);
+//		MadkitAction.addAllActionsTo(this, agent);
+//		add(GUIManagerAction.ICONIFY_ALL.getActionFor(agent));
+//		add(GUIManagerAction.DEICONIFY_ALL.getActionFor(agent));
+		KernelAction.addAllActionsTo(this,agent);
+		GUIManagerAction.addAllActionsTo(this, agent);
+//		add(KernelAction.EXIT.getActionFor(agent));
 	}
 }

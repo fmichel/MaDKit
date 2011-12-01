@@ -1,15 +1,43 @@
+/*
+ * Copyright 1997-2011 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * 
+ * This file is part of MadKit.
+ * 
+ * MadKit is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ * 
+ * MadKit is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
+ */
 package madkit.action;
 
 import java.net.URL;
 import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 
 import javax.swing.ImageIcon;
 
-import madkit.i18n.I18nUtilities;
+import madkit.kernel.AbstractAgent;
 
+/**
+ * This class encapsulates action information which could be used
+ * to easily create {@link MKAbstractAction}.
+ * 
+ * @author Fabien Michel
+ * @since MadKit 5.0.0.14
+ * @version 1
+ * 
+ */
 public class ActionInfo {
 
-	final static private String imageDir = "/madkit/gui/images/";
+	final static private String imageDir = "images/";
 	
 	final private int keyEvent;
 
@@ -23,7 +51,15 @@ public class ActionInfo {
 
 	final private String longDescription;
 	
-	public <E extends Enum<E>> ActionInfo(E enumAction, int keyEvent) {
+	/**
+	 * Builds a new ActionInfo considering an {@link Enum}.
+	 * If the considered enum is from this package, it will be
+	 * built automatically with values contained in the madkit.i18n directory
+	 * 
+	 * @param enumAction
+	 * @param keyEvent
+	 */
+	<E extends Enum<E>> ActionInfo(E enumAction, int keyEvent, ResourceBundle resource) {
 		this.keyEvent = keyEvent;
 		final String enumClassName = enumAction.getClass().getSimpleName();
 		name = enumAction.name();
@@ -41,7 +77,7 @@ public class ActionInfo {
 		}
 		String[] codes = null;
 		try {
-			codes = I18nUtilities.getResourceBundle(enumClassName).getString(name).split(";");
+			codes = resource.getString(name).split(";");
 		} catch (MissingResourceException e) {
 		}
 		if (codes != null) {
@@ -94,6 +130,29 @@ public class ActionInfo {
 	 */
 	public String getLongDescription() {
 		return longDescription;
+	}
+
+	/**
+	 * Converts the name of an enum object to a java
+	 * standardized method name. For instance, using this on
+	 * {@link AgentAction#LAUNCH_AGENT}
+	 * will return <code>launchAgent</code>. This is especially used by 
+	 * {@link AbstractAgent#proceedEnumMessage(madkit.message.EnumMessage)}
+	 * to reflexively call the method of an agent which corresponds 
+	 * to the code of such messages.
+	 * 
+	 * @param e the enum object to convert
+	 * @return a string having a java
+	 * standardized method name form.
+	 */
+	public static <E extends Enum<E>> String enumToMethodName(E e){
+		final String[] tab = e.name().split("_");
+		String methodName = tab[0].toLowerCase();
+		for (int i = 1; i < tab.length; i++) {
+			String s = tab[i];
+			methodName += s.charAt(0) + s.substring(1).toLowerCase();
+		}
+		return methodName;
 	}
 	
 

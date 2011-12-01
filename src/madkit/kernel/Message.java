@@ -95,13 +95,10 @@ public class Message implements Cloneable,java.io.Serializable{//TODO message al
 	
 	@Override
 	public String toString() {
+		String s = getClass().getSimpleName()+"."+getConversationID();
 		if(sender == null || receiver == null)
-			return getClass().getSimpleName();
-//		return "\n\t"+getClass().getSimpleName()+"."+getConversationID()+
-//				"\n\t\tfrom: "+sender+
-//				"\n\t\tto  : "+receiver;
-		return "\n\t"+getClass().getSimpleName()+"."+getConversationID()+
-		" : "+sender+" -> "+receiver;
+			return s;
+		return s + ": "+sender+" -> "+receiver;
 		}
 
 	/**

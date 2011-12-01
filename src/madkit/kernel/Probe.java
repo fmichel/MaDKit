@@ -53,18 +53,17 @@ public class Probe<A extends AbstractAgent> extends Overlooker<A>{
 	 * Returns the agent's field named <code>fieldName</code>.
 	 * This also works on <code>private</code> field.
 	 * 
-	 * @param agent the targeted agent 
+	 * @param agentClass the targeted agent 
 	 * @param fieldName the name of the field
 	 * @return the agent's field named <code>fieldName</code>
 	 * @throws NoSuchFieldException
 	 */
 	@SuppressWarnings("unchecked")
-	public Field findFieldOn(AbstractAgent agent, final String fieldName) throws NoSuchFieldException{
+	public Field findFieldOn(Class<? extends A> agentClass, final String fieldName) throws NoSuchFieldException{
 		Field f = null;
-		Class<? extends A> cl = (Class<? extends A>) agent.getClass();
 		while(true) {
 			try {
-				f = cl.getDeclaredField(fieldName);
+				f = agentClass.getDeclaredField(fieldName);
 				if(f != null){
 					if (! f.isAccessible()) {//TODO seems to be always the case the first time
 						f.setAccessible(true);
@@ -74,8 +73,8 @@ public class Probe<A extends AbstractAgent> extends Overlooker<A>{
 			} catch (SecurityException e) {
 				e.printStackTrace();
 			} catch (NoSuchFieldException e) {
-				cl = (Class<A>) cl.getSuperclass();//TODO not go further than A
-				if (cl == AbstractAgent.class) {//TODO bench vs local variable
+				agentClass = (Class<? extends A>) agentClass.getSuperclass();//TODO not go further than A
+				if (agentClass == AbstractAgent.class) {//TODO bench vs local variable
 					throw e;
 				}
 			}

@@ -22,13 +22,16 @@ import static java.awt.event.KeyEvent.VK_E;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.util.ResourceBundle;
 
 import javax.swing.Action;
 
+import madkit.i18n.I18nUtilities;
 import madkit.kernel.AbstractAgent;
-import madkit.messages.CommandMessage;
+import madkit.message.EnumMessage;
 
 /**
+ * Enum representing agent actions
  * @author Fabien Michel
  * @since MadKit 5.0.0.14
  * @version 0.9
@@ -36,30 +39,20 @@ import madkit.messages.CommandMessage;
  */
 public enum AgentAction {
 
-	LAUNCH_AGENT(KeyEvent.VK_DOLLAR),
+	LAUNCH_AGENT(KeyEvent.VK_L),
 	RELOAD(VK_E), 
 	LOG_LEVEL(KeyEvent.VK_DOLLAR),
 	WARNING_LOG_LEVEL(KeyEvent.VK_DOLLAR),
-	KILL_AGENT(KeyEvent.VK_DOLLAR);
-//	final private static Method doIt;
-//	static{
-//		final Class<?>[] paramTypes = {CommandMessage.class};
-//		Method m = null;
-//		try {
-//			m = AbstractAgent.class.getDeclaredMethod("proceedCommandMessage", paramTypes);
-//		} catch (SecurityException e) {
-//		} catch (NoSuchMethodException e) {
-//		}
-//		doIt = m;
-//	}
+	KILL_AGENT(KeyEvent.VK_K);
 
+	final static private ResourceBundle messages = I18nUtilities.getResourceBundle(AgentAction.class.getSimpleName());
 	private ActionInfo actionInfo;
 	/**
-	 * @return the actionInfo
+	 * @return the actionInfo corresponding to this constant
 	 */
 	public ActionInfo getActionInfo() {
 		if(actionInfo == null)
-			actionInfo = new ActionInfo(this,keyEvent);
+			actionInfo = new ActionInfo(this,keyEvent,messages);
 		return actionInfo;
 	}
 
@@ -69,7 +62,16 @@ public enum AgentAction {
 		this.keyEvent = keyEvent;
 	}
 
-	public Action getActionFor(final AbstractAgent agent, final Object... commandOptions){
+	/**
+	 * Builds an action that will make the agent do the
+	 * corresponding behavior
+	 * 
+	 * @param agent the agent on which this action 
+	 * will operate
+	 * @param parameters the info to be used
+	 * @return the action corresponding to the enum
+	 */
+	public Action getActionFor(final AbstractAgent agent, final Object... parameters){
 		return new MKAbstractAction(getActionInfo()){
 			/**
 			 * 
@@ -78,37 +80,11 @@ public enum AgentAction {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {//TODO I could do the check validity here for logging purpose
-				agent.proceedCommandMessage(new CommandMessage<AgentAction>(AgentAction.this, commandOptions));
+				if (agent.isAlive()) {
+					agent.proceedEnumMessage(new EnumMessage<AgentAction>(AgentAction.this, parameters));
+				}
 			}
 	};
-	//		return getMKAction().getNewInstanceFor(agent,info);
 }
 	
-
-//public static void addAllGlobalActionsTo(JComponent menuOrToolBar, AbstractAgent agent){
-//	try {//this bypasses class incompatibility
-//		final Method add = menuOrToolBar.getClass().getMethod("add", Action.class);
-//		final Method addSeparator = menuOrToolBar.getClass().getMethod("addSeparator");
-//		for (AgentAction mkA : EnumSet.allOf(AgentAction.class)) {
-//			add.invoke(menuOrToolBar, mkA.getActionFor(agent));
-//			switch (mkA) {
-//			case EXIT:
-//				addSeparator.invoke(menuOrToolBar);
-//			default:
-//				break;
-//			}
-//			if(mkA == LAUNCH_AGENT)
-//				return;
-//		}
-//	} catch (InvocationTargetException e) {
-//	} catch (IllegalArgumentException e) {
-//		e.printStackTrace();
-//	} catch (IllegalAccessException e) {
-//		e.printStackTrace();
-//	} catch (SecurityException e) {
-//	} catch (NoSuchMethodException e) {
-//	}
-//}
-
-
 }

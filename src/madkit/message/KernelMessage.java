@@ -16,14 +16,29 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
  */
+package madkit.message;
+
+import madkit.action.KernelAction;
 
 /**
-* This package contains classes for building MadKit GUI toolbars.
-* @since MadKit 5.0.0.10
-* @author Fabien Michel
-* @version 1.0
-* 
-*/ 
-package madkit.gui.toolbars;
+ * The brand new version of KernelMessage.
+ * For now its purpose is to allow agents to send to the kernel agent
+ * some MadKit commands such as launchAgent.
+ * 
+ * @author Olivier Gutknecht
+ * @author Fabien Michel
+ * @version 5.2
+ * @since MadKit 1.0
+ *
+ */
+public class KernelMessage extends EnumMessage<KernelAction> {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4125669035665965672L;
 
-
+	public KernelMessage(KernelAction code, Object... commandOptions) {
+		super(code, commandOptions);
+	}
+}

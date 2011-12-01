@@ -31,7 +31,7 @@ import static org.junit.Assert.assertNotSame;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadKit;
 import madkit.kernel.Message;
-import madkit.messages.StringMessage;
+import madkit.message.StringMessage;
 
 import org.junit.Test;
 

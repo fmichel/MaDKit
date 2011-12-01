@@ -1,11 +1,11 @@
 package PingPongMultiAgent.src;
 
 import madkit.kernel.Agent;
-import madkit.messages.ObjectMessage;
+import madkit.message.ObjectMessage;
 
 @SuppressWarnings("serial")
 public class Arbitre extends Agent {
-	// codes réalisés par PRADEILLES Vincent et HISLER Gaelle
+	// codes rï¿½alisï¿½s par PRADEILLES Vincent et HISLER Gaelle
 	/**
 	 * tableau ou les scores sont affiches
 	 */

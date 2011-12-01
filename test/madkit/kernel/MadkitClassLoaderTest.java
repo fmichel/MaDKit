@@ -65,6 +65,7 @@ public class MadkitClassLoaderTest extends JunitMadKit {
 	@Test
 	public void testURLs() {
 		launchTest(new AbstractAgent() {
+			@SuppressWarnings("deprecation")
 			@Override
 			protected void activate() {
 					MadkitClassLoader mcl = (MadkitClassLoader) getMadkitClassLoader();

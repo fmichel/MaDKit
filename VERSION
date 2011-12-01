@@ -4,13 +4,16 @@
 ----------------------------------------------------------------------------------
 
 - Short description:
+
 MadKit is mainly a MAS library which relies on organizational concepts so 
-that you could easily design artificial societies using groups and roles
+that you could easily design artificial societies wherein autonomous agents 
+interact using messages. It also contains MAS simulation authoring tools.
 
 - Available documentation (docs directory):
+
 	- javadoc API  
 	- several how-to with commented source codes 
-	- A french tutorial
+	- A French tutorial
 
 ----------------------------------------------------------------------------------
 ------------------------------- Using MadKit ${madkit.version} -----------------------------
@@ -45,10 +48,19 @@ Other command line options are described in the API of the madkit.kernel.Madkit 
 1. Improvements:	
 	- fix kernel logs on Agents' exceptions
 	- add an easy way to launch one agent class with a main (see 2.)
+	- Action building and related enum have been reworked and refactored
+	- starting time improved
+	- basic activators and probes are faster
 
 2. API Refactoring:
+	- madkit.simulation.PropertyProbe has been refactored
+	- madkit.messages package renamed to madkit.message
+	- madkit.gui.action package moved to madkit.action
+	- madkit.gui.menus package renamed to madkit.menu
+	- madkit.gui.toolbars package renamed to madkit.toolbar
+	- madkit.kernel.MadkitClassLoader is now visible
 	- The madkit.kernel.AbstractAgent.executeThisAgent(String[], int) method has been added
-	
+	To do your refactoring work at once, right click your project and select source->Organize imports
 
 ----------------------------------------------------------------------------------
 ------------------------------- MadKit 5.0.0.13 (alpha-13)--------------------------

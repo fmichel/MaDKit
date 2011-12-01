@@ -19,18 +19,20 @@
 package madkit.action;
 
 import static java.awt.event.KeyEvent.VK_DOLLAR;
-import static java.awt.event.KeyEvent.VK_F;
-import static java.awt.event.KeyEvent.VK_G;
-import static java.awt.event.KeyEvent.VK_Q;
-import static java.awt.event.KeyEvent.VK_S;
+import static java.awt.event.KeyEvent.VK_LEFT;
+import static java.awt.event.KeyEvent.VK_O;
+import static java.awt.event.KeyEvent.VK_P;
+import static java.awt.event.KeyEvent.VK_RIGHT;
 
 import java.awt.event.ActionEvent;
+import java.util.ResourceBundle;
 
 import javax.swing.Action;
 import javax.swing.JSlider;
 
+import madkit.i18n.I18nUtilities;
 import madkit.kernel.Scheduler;
-import madkit.messages.SchedulingMessage;
+import madkit.message.SchedulingMessage;
 
 /**
  * @author Fabien Michel
@@ -41,18 +43,20 @@ import madkit.messages.SchedulingMessage;
 @SuppressWarnings("serial")
 public enum SchedulingAction {
 
-	RUN(VK_Q),
-	STEP(VK_S),
-	SPEED_UP(VK_F),
-	SPEED_DOWN(VK_G),
+	RUN(VK_O),
+	STEP(VK_P),
+	SPEED_UP(VK_RIGHT),
+	SPEED_DOWN(VK_LEFT),
 	SHUTDOWN(VK_DOLLAR);
 	
+	final static private ResourceBundle messages = I18nUtilities.getResourceBundle(SchedulingAction.class.getSimpleName());
+
 	private ActionInfo actionInfo;
 	final private int keyEvent;
 
 	@Override
 	public String toString() {
-		return MKAbstractAction.enumToMethodName(this);
+		return ActionInfo.enumToMethodName(this);
 	}
 
 	private SchedulingAction(int keyEvent){
@@ -64,7 +68,7 @@ public enum SchedulingAction {
 	 */
 	public ActionInfo getActionInfo() {
 		if(actionInfo == null)
-			actionInfo = new ActionInfo(this,keyEvent);
+			actionInfo = new ActionInfo(this,keyEvent, messages);
 		return actionInfo;
 	}
 

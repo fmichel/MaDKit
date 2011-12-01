@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import madkit.kernel.Agent;
 import madkit.kernel.AgentAddress;
-import madkit.messages.StringMessage;
+import madkit.message.StringMessage;
 
 @SuppressWarnings("serial")
 public class AgentsQuiParle extends Agent {

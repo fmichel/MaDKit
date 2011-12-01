@@ -18,6 +18,8 @@
  */
 package madkit.kernel;
 
+import java.lang.reflect.Method;
+
 import madkit.simulation.GenericBehaviorActivator;
 
 /**
@@ -56,22 +58,22 @@ public class Activator<A extends AbstractAgent> extends Overlooker<A>{
 		super(community, group, role);
 	}
 
-//	/**
-//	 * Builds a new Activator on the given CGR location of the
-//	 * artificial society. Once created, it has to be added by a {@link Scheduler} 
-//	 * agent using the {@link Scheduler#addActivator(Activator)} method.
-//	 * @param community
-//	 * @param group
-//	 * @param role
-//	 * @param multicore if <code>true</code> {@link #multicoreExecute()} is used 
-//	 * when the activator is triggered by a scheduler agent 
-//	 * that uses {@link Scheduler#triggerActivator(Activator)}
-//	 * @see Scheduler
-//	 */
-//	public Activator(String community, String group, String role, boolean multicore) {
-//		super(community, group, role);
-//		this.multicore = multicore;
-//	}
+	//	/**
+	//	 * Builds a new Activator on the given CGR location of the
+	//	 * artificial society. Once created, it has to be added by a {@link Scheduler} 
+	//	 * agent using the {@link Scheduler#addActivator(Activator)} method.
+	//	 * @param community
+	//	 * @param group
+	//	 * @param role
+	//	 * @param multicore if <code>true</code> {@link #multicoreExecute()} is used 
+	//	 * when the activator is triggered by a scheduler agent 
+	//	 * that uses {@link Scheduler#triggerActivator(Activator)}
+	//	 * @see Scheduler
+	//	 */
+	//	public Activator(String community, String group, String role, boolean multicore) {
+	//		super(community, group, role);
+	//		this.multicore = multicore;
+	//	}
 
 	/**
 	 * Subclasses should override this to define how 
@@ -145,9 +147,36 @@ public class Activator<A extends AbstractAgent> extends Overlooker<A>{
 	public int nbOfSimultaneousTasks() {
 		return nbOfsimultaneousTasks;
 	}
-	
-//	static Method findMethodOn(String name, Class<?> cl, String...parameters){
-//		Method[] methods = cl.getMethod(name, parameterTypes);
-//	}
-	
+
+	/**
+	 * Returns the agent's method named <code>methodName</code>.
+	 * 
+	 * @param agentClass the targeted agent 
+	 * @param methodName the name of the method
+	 * @return the agent's field named <code>methodName</code>
+	 * @throws NoSuchMethodException 
+	 */
+	//	* This also works on <code>private</code> field.
+	public Method findMethodOn(Class<? extends A> agentClass, final String methodName) throws NoSuchMethodException {
+		try {
+			return agentClass.getMethod(methodName);
+		} catch (NoSuchMethodException e) {
+		}
+		Method f = null;
+		try {
+			f = agentClass.getDeclaredMethod(methodName);
+			if(f != null && ! f.isAccessible()) {//TODO seems to be always the case the first time
+				f.setAccessible(true);
+			}
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		}
+		return f;
+	} 
+
+
+	//	static Method findMethodOn(String name, Class<?> cl, String...parameters){
+	//		Method[] methods = cl.getMethod(name, parameterTypes);
+	//	}
+
 }

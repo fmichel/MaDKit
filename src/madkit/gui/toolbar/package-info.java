@@ -16,25 +16,14 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
  */
-package madkit.gui;
-
-import madkit.action.GUIManagerAction;
-import madkit.messages.CommandMessage;
 
 /**
- * @author Fabien Michel
- * @since MadKit 5.0.0.9
- * @version 0.9
- * 
- */
-public class GUIMessage extends CommandMessage<GUIManagerAction> {
-	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 670313757537790225L;
+* This package contains classes for building MadKit GUI toolbars.
+* @since MadKit 5.0.0.10
+* @author Fabien Michel
+* @version 1.0
+* 
+*/ 
+package madkit.gui.toolbar;
 
-	public GUIMessage(GUIManagerAction code, Object... object) {
-		super(code,object);
-	}
-}
+

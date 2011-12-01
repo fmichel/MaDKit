@@ -1,7 +1,7 @@
 package exercice2bis;
 
 import madkit.kernel.Agent;
-import madkit.messages.StringMessage;
+import madkit.message.StringMessage;
 
 public class ProfsLycee extends Agent {
 	/**

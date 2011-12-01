@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
  */
-package madkit.messages;
+package madkit.message;
 
 import java.util.Enumeration;
 
@@ -114,21 +114,6 @@ public class KQMLMessage extends ActMessage
     return new String(buffer);
   }
 
-  static public void main (String[] args)
-  {
-    KQMLMessage m = new KQMLMessage("tell");
-    m.setLanguage("KIF");
-    m.setOntology("cook");
-    m.setForce("permanent");
-    m.setReplyWith("q2");
-    m.setInReplyTo("q4");
-    m.setInReplyTo("carottes-sont-cuites");
-    // setSender(...) isn't public anymore
-    // m.setSender(new AgentAddress("foobar",new KernelAddress(true)));
-    
-    System.out.println(m);
-  }
-  
 }
 
 

@@ -56,7 +56,7 @@ public class AsynchronousDiscoverTest extends JunitMadKit {
 				launchThreadedMKNetworkInstance();
 				launchThreadedMKNetworkInstance();
 				int i = 0;
-				while (getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT)
+				while (getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT) == null || getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT)
 						.size() != 6) {
 					pause(2000);
 					if (i++ == 100)

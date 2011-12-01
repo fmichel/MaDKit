@@ -42,8 +42,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import madkit.gui.DemoModel;
-import madkit.gui.LaunchAgentsMenu;
-import madkit.gui.LaunchSessionsMenu;
+import madkit.gui.menu.LaunchAgentsMenu;
+import madkit.gui.menu.LaunchSessionMenu;
 
 /**
  * @author Fabien Michel
@@ -144,7 +144,7 @@ public class MadkitClassLoader extends URLClassLoader {
 	 * Asks the MadKit class loader to reload the class 
 	 * byte code so that new instances, created
 	 * using {@link Class#newInstance()} on a class object obtained with
-	 * {@link AbstractAgent#getNewestClassVersion(AbstractAgent, String)}, will reflect
+	 * {@link #getNewestClassVersion(String)}, will reflect
 	 * compilation changes during run time.
 	 * 
 	 * @param name The fully qualified class name of the class
@@ -168,7 +168,7 @@ public boolean reloadClass(String name) throws ClassNotFoundException{//TODO ret
  * returns a different version than {@link Class#forName(String)} 
  * if the caller using it has not been reloaded at the same time. This is because {@link Class#forName(String)} 
  * uses the {@link ClassLoader} of the current class while this method uses the last class loader which is used by
- * MadKit, i.e. the one created for loading classes on which {@link #reloadAgentClass(String)} has been invoked.
+ * MadKit, i.e. the one created for loading classes on which {@link #reloadClass(String)} has been invoked.
  * Especially, {@link AbstractAgent#launchAgent(String, int, boolean)} always uses the newest version of the agent class.
  * 
  * @param className the fully qualified name of the desired class.
@@ -292,7 +292,7 @@ public String toString() {
 public void addToClasspath(URL url) {
 	addURL(url);
 	LaunchAgentsMenu.updateAllMenus();
-	LaunchSessionsMenu.updateAllMenus();
+	LaunchSessionMenu.updateAllMenus();
 }
 
 /**

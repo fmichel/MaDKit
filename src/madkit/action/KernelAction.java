@@ -18,30 +18,37 @@
  */
 package madkit.action;
 
+import static java.awt.event.KeyEvent.VK_C;
 import static java.awt.event.KeyEvent.VK_D;
 import static java.awt.event.KeyEvent.VK_DOLLAR;
-import static java.awt.event.KeyEvent.VK_E;
-import static java.awt.event.KeyEvent.VK_J;
 import static java.awt.event.KeyEvent.VK_N;
+import static java.awt.event.KeyEvent.VK_Q;
 import static java.awt.event.KeyEvent.VK_R;
 import static java.awt.event.KeyEvent.VK_T;
-import static java.awt.event.KeyEvent.VK_Y;
 
 import java.awt.event.ActionEvent;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.EnumSet;
+import java.util.ResourceBundle;
 
 import javax.swing.Action;
 import javax.swing.JComponent;
+import javax.swing.JMenu;
+import javax.swing.JToolBar;
 
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.agr.Organization;
+import madkit.i18n.I18nUtilities;
 import madkit.kernel.AbstractAgent;
-import madkit.messages.KernelMessage;
+import madkit.message.KernelMessage;
 
 /**
+ * Enum representing kernel actions. This especially could
+ * be used to communicate with the kernel in order to
+ * trigger kernel's actions
+ * 
  * @author Fabien Michel
  * @since MadKit 5.0.0.14
  * @version 0.9
@@ -49,19 +56,19 @@ import madkit.messages.KernelMessage;
  */
 public enum KernelAction {
 
-	EXIT(VK_E),
-	COPY(VK_Y),
+	EXIT(VK_Q),
+	COPY(VK_C),
 	RESTART(VK_R),
 	LAUNCH_NETWORK(VK_N),
 	STOP_NETWORK(VK_T),
-//
-//	//Actions that need parameters, i.e. not global
+	//
+	//	//Actions that need parameters, i.e. not global
 	LOAD_LOCAL_DEMOS(VK_D),
-	LAUNCH_AGENT(VK_J),
+	LAUNCH_AGENT(VK_DOLLAR),
 	LAUNCH_SESSION(VK_DOLLAR),
-	KILL_AGENT(VK_J),
+	KILL_AGENT(VK_DOLLAR),
 	CONNECT_WEB_REPO(VK_DOLLAR),
-	LOAD_JAR_FILE(VK_J); 
+	LOAD_JAR_FILE(VK_DOLLAR); 
 
 
 	//	final private MKAction mkAction;
@@ -69,18 +76,27 @@ public enum KernelAction {
 	private ActionInfo actionInfo;
 	final private int keyEvent;
 
-//	final static ResourceBundle messages = I18nUtilities.getResourceBundle(KernelAction.class.getSimpleName());
+	final static private ResourceBundle messages = I18nUtilities.getResourceBundle(KernelAction.class.getSimpleName());
 
 	private KernelAction(int keyEvent){
 		this.keyEvent = keyEvent;
 	}
-	
+
 	@Override
 	public String toString() {
-		return MKAbstractAction.enumToMethodName(this);
+		return ActionInfo.enumToMethodName(this);
 	}
 
-	public Action getActionFor(final AbstractAgent agent, final Object... info){
+	/**
+	 * Builds an action that will make the agent do the
+	 * corresponding behavior
+	 * 
+	 * @param agent the agent that will send the message
+	 * to the kernel
+	 * @param parameters the info 
+	 * @return the corresponding action 
+	 */
+	public Action getActionFor(final AbstractAgent agent, final Object... parameters){
 		return new MKAbstractAction(getActionInfo()){
 			/**
 			 * 
@@ -88,47 +104,57 @@ public enum KernelAction {
 			private static final long serialVersionUID = -8907472475007112860L;
 
 			@Override
-			public void actionPerformed(ActionEvent e) {//TODO I could do the check validity here for logging purpose
-				agent.sendMessage(LocalCommunity.NAME, Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE, new KernelMessage(KernelAction.this, info));//TODO work with AA but this is probably worthless	
+			public void actionPerformed(ActionEvent e) {
+				if(agent.isAlive()){
+				agent.sendMessage(LocalCommunity.NAME, Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE, new KernelMessage(KernelAction.this, parameters));//TODO work with AA but this is probably worthless	
+				}
 			}
-	};
-	//		return getMKAction().getNewInstanceFor(agent,info);
-}
+		};
+	}
 
 	/**
 	 * @return the actionInfo
 	 */
 	public ActionInfo getActionInfo() {
 		if(actionInfo == null)
-			actionInfo = new ActionInfo(this,keyEvent);
+			actionInfo = new ActionInfo(this,keyEvent,messages);
 		return actionInfo;
 	}
 
-public static void addAllActionsTo(JComponent menuOrToolBar, AbstractAgent agent){
-	try {//this bypasses class incompatibility
-		final Method add = menuOrToolBar.getClass().getMethod("add", Action.class);
-		final Method addSeparator = menuOrToolBar.getClass().getMethod("addSeparator");
-		for (KernelAction mkA : EnumSet.allOf(KernelAction.class)) {
-			if(mkA == LAUNCH_AGENT)
-				return;
-			add.invoke(menuOrToolBar, mkA.getActionFor(agent));
-			switch (mkA) {
-			case EXIT:
-			case RESTART:
-			case STOP_NETWORK:
-				addSeparator.invoke(menuOrToolBar);
-			default:
-				break;
+	/**
+	 * Could be used to add all global actions 
+	 * to a menu or a toolbar
+	 * 
+	 * @param menuOrToolBar a {@link JMenu} or {@link JToolBar} for instance
+	 * @param agent the agent that will send the message
+	 */
+	public static void addAllActionsTo(JComponent menuOrToolBar, AbstractAgent agent){
+		try {//this bypasses class incompatibility
+			final Method add = menuOrToolBar.getClass().getMethod("add", Action.class);
+			final Method addSeparator = menuOrToolBar.getClass().getMethod("addSeparator");
+			for (KernelAction ka : EnumSet.allOf(KernelAction.class)) {
+				if(ka == LOAD_LOCAL_DEMOS && System.getProperty("javawebstart.version") != null)
+					continue;
+				if(ka == LAUNCH_AGENT)
+					return;
+				add.invoke(menuOrToolBar, ka.getActionFor(agent));
+				switch (ka) {
+				case EXIT:
+				case RESTART:
+				case STOP_NETWORK:
+					addSeparator.invoke(menuOrToolBar);
+				default:
+					break;
+				}
 			}
+		} catch (InvocationTargetException e) {
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (SecurityException e) {
+		} catch (NoSuchMethodException e) {
 		}
-	} catch (InvocationTargetException e) {
-	} catch (IllegalArgumentException e) {
-		e.printStackTrace();
-	} catch (IllegalAccessException e) {
-		e.printStackTrace();
-	} catch (SecurityException e) {
-	} catch (NoSuchMethodException e) {
 	}
-}
 
 }

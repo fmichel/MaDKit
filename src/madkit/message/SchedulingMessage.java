@@ -1,8 +1,8 @@
-package madkit.messages;
+package madkit.message;
 
 import madkit.action.SchedulingAction;
 
-public class SchedulingMessage extends CommandMessage<SchedulingAction> {
+public class SchedulingMessage extends EnumMessage<SchedulingAction> {
 
 	/**
 	 * 

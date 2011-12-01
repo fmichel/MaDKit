@@ -29,7 +29,7 @@ import java.net.UnknownHostException;
 import java.util.Enumeration;
 
 import madkit.action.KernelAction;
-import madkit.messages.KernelMessage;
+import madkit.message.KernelMessage;
 
 /**
  * @author Fabien Michel

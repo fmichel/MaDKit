@@ -26,7 +26,7 @@ import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 
 import madkit.action.KernelAction;
-import madkit.messages.KernelMessage;
+import madkit.message.KernelMessage;
 
 /**
  * @author Fabien Michel

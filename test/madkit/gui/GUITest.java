@@ -20,6 +20,9 @@ package madkit.gui;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+
+import javax.swing.JFrame;
+
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadKit;
 
@@ -42,6 +45,29 @@ public class GUITest extends JunitMadKit {
 				AbstractAgent name = new AbstractAgent();
 				assertEquals(ReturnCode.SUCCESS, launchAgent(name, true));
 				assertTrue(name.hasGUI());
+			}
+		});
+	}
+
+	@Test
+	public void setupFrameTest() {
+		launchTest(new AbstractAgent() {
+			@Override
+			protected void activate() {
+				assertEquals(ReturnCode.SUCCESS, launchAgent(new AbstractAgent(){
+					private boolean ok = false;
+					private JFrame f;
+					@Override
+					public void setupFrame(JFrame frame) {
+						ok = true;
+						f = frame;
+					}
+					@Override
+					protected void activate() {
+						assertTrue(ok);
+						f.dispose();
+					}
+				}, true));
 			}
 		});
 	}

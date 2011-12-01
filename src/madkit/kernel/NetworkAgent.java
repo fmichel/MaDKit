@@ -35,8 +35,8 @@ import madkit.agr.LocalCommunity.Roles;
 import madkit.agr.Organization;
 import madkit.gui.AgentStatusPanel;
 import madkit.kernel.Madkit.LevelOption;
-import madkit.messages.CommandMessage;
-import madkit.messages.ObjectMessage;
+import madkit.message.EnumMessage;
+import madkit.message.ObjectMessage;
 
 /**
  * @author Fabien Michel
@@ -137,7 +137,7 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 			m = waitNextMessage(400);
 			if (m != null) {
 				if(m.getSender() == null)
-					proceedCommandMessage((CommandMessage<?>) m);//FIXME verify that this is ok
+					proceedEnumMessage((EnumMessage<?>) m);//FIXME verify that this is ok
 				else
 					toDoList.add(m);
 			}
@@ -210,7 +210,7 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 	private void handleMessage(final Message m) throws ClassCastException{
 		final AgentAddress sender = m.getSender();
 		if(sender == null){//contacted by my private objects (or by the kernel ? no)
-			proceedCommandMessage((CommandMessage<?>) m);
+			proceedEnumMessage((EnumMessage<?>) m);
 		}
 		else if(sender.isLocal()){//contacted locally
 			final String senderRole = sender.getRole();
@@ -221,7 +221,7 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 				sendDistantMessage((ObjectMessage<Message>) m);
 			}
 			else if(senderRole.equals(Roles.KERNEL)){//message from the kernel
-				proceedCommandMessage((CommandMessage<?>) m);
+				proceedEnumMessage((EnumMessage<?>) m);
 //				handlePrivateMessage((KernelMessage) m);
 			}
 		}

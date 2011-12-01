@@ -19,95 +19,109 @@
 package madkit.simulation;
 
 import java.lang.reflect.Field;
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Probe;
 
 /**
- * This probe inspects properties of type P on type A agents or subclasses.
+ * This probe inspects fields of type T on agents of type A and its subclasses.
  * 
- * @param <A> the group's agent most common type (i.e. AbstractAgent)
- * @param <P> the type of the property (i.e. Integer)
+ * @param <A> the group's agent most common class type (i.e. AbstractAgent)
+ * @param <T> the type of the property, i.e. Integer (this works if the field is an int, i.e. a primitive type)
  * @author Fabien Michel
- * @since MadKit 4.0
+ * @since MadKit 5.0.0.13
  * @version 5.1
  * 
  */
-public class PropertyProbe<A extends AbstractAgent,P> extends Probe<A>
+public class PropertyProbe<A extends AbstractAgent,T> extends Probe<A>//TODO make a thread safe version
 { 
-	private Map<A, P> properties = new ConcurrentHashMap<A, P>();
-	private String fieldName;
+	final private Map<Class<? extends A>, Field> fields = new HashMap<Class<? extends A>, Field>();
+	final private String fieldName;
+	private Field cachedFiled;
+	private Class<? extends A> cachedClass;
 
-	public PropertyProbe(String community, String group, String role,String propertyName)
+	public PropertyProbe(String community, String group, String role,String fieldName)
 	{
 		super(community, group, role);
-		fieldName = propertyName;
+		this.fieldName = fieldName;
 	}
 
-	@Override
-	public void initialize()
-	{
-		properties = new ConcurrentHashMap<A, P>(size());//TODO load factor
-		super.initialize();//will call adding on all agents
-	}
-	
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void adding(final A theAgent) {
-		try {
-			properties.put(theAgent, (P) findFieldOn(theAgent,fieldName));
-		} catch(NoSuchFieldException e) {
-			theAgent.getLogger().severeLog("\nCan't find property: "+fieldName+" on "+ theAgent,e);
-		} catch (ClassCastException e) {
-			theAgent.getLogger().severeLog("\nProperty: "+fieldName+" is not of declared type",e);
+		updateCache((Class<? extends A>) theAgent.getClass());
+		if(cachedFiled == null){
+			try {
+				cachedFiled = findFieldOn(cachedClass,fieldName);
+				fields.put(cachedClass, cachedFiled);
+			} catch(NoSuchFieldException e) {
+				logFailureOn(theAgent, e);
+			}
 		}
+	}
+
+	/**
+	 * @param agentClass
+	 */
+	private void updateCache(final Class<? extends A> agentClass) {
+		if(agentClass != cachedClass){
+			cachedClass = agentClass;
+			cachedFiled = fields.get(cachedClass);
+		}
+	}
+
+	/**
+	 * Returns the current value of the agent's field 
+	 * 
+	 * @param agent the agent to probe
+	 * @return the actual value of the agent's field 
+	 */
+	@SuppressWarnings("unchecked")
+	public T getPropertyValue(final A agent) {
+		updateCache((Class<? extends A>) agent.getClass());
+		try {
+			return (T) cachedFiled.get(agent);
+		} catch (IllegalArgumentException e) {
+			logFailureOn(agent, e);
+		} catch (IllegalAccessException e) {
+			logFailureOn(agent, e);
+		}
+		return null;
 	}
 	
 	/**
-	 * @see madkit.kernel.Probe#removing(AbstractAgent)
+	 * Should be used to work with primitive types
+	 * or fields which are initially <code>null</code>
+	 * @param agent
+	 * @param value
 	 */
-	@Override
-	protected void removing(final A theAgent) {
-		properties.remove(theAgent);
-	}
-	
 	@SuppressWarnings("unchecked")
-	@Override
-	protected void adding(List<A> agents) {//bench that : it can be faster
+	public void setPropertyValue(final A agent, final T value){
+		updateCache((Class<? extends A>) agent.getClass());
 		try {
-			if (! agents.isEmpty()) {
-				final Map<A, P> newP = new ConcurrentHashMap<A, P>(agents.size()+properties.size(),.9f); 
-				final Field f = findFieldOn(agents.get(0),fieldName);
-				for (A a : agents) {
-					newP.put(a, (P) f.get(a));//TODO will fail if all the agents are not of the same type
-				}
-				newP.putAll(properties);
-				properties = newP;
-			}
-		} catch (NoSuchFieldException e) {
+			cachedFiled.set(agent, value);
+		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
-		} catch (ClassCastException e) {
-			agents.get(0).getLogger().severeLog("\nProperty: "+fieldName+" is not of declared type",e);
 		}
 	}
 
+	final public List<T> getAllProperties(){
+		final ArrayList<T> list = new ArrayList<T>();
+		for (A agent : getCurrentAgentsList()) {
+			list.add(getPropertyValue(agent));
+		}
+		return list;
+	}
 
-	public Map<A, P> getAgentToPropertyMap() {
-		return properties;
+	private void logFailureOn(AbstractAgent a, Throwable t){
+		a.getLogger().severeLog("Can't work on field: " + fieldName + " on "+ a, t);
 	}
 	
-	public P getPropertyOf(final A theAgent){
-		return properties.get(theAgent);
-	}
-	
-	public Collection<P> getAllProperties() {
-		return properties.values();
-	}
 
 }

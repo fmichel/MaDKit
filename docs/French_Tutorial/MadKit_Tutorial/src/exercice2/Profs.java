@@ -1,7 +1,7 @@
 package exercice2;
 
 import madkit.kernel.Agent;
-import madkit.messages.StringMessage;
+import madkit.message.StringMessage;
 
 @SuppressWarnings("serial")
 public class Profs extends Agent {

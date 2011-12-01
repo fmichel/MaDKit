@@ -65,8 +65,8 @@ public class AbstractAgentTest {
 		}
 		try {
 			KernelAction.LOAD_JAR_FILE.getActionFor(b).actionPerformed(null);
-			fail("exception not thrown");
 		} catch (KernelException e) {
+			fail("exception thrown");
 		}
 	}
 

@@ -18,7 +18,11 @@
  */
 package madkit.gui;
 
+import java.util.Arrays;
+
 /**
+ * This represents a MadKit session
+ * 
  * @author Fabien Michel
  * @since MadKit 5.0.0.9
  * @version 0.9
@@ -54,17 +58,8 @@ final public class DemoModel implements Comparable<DemoModel> {
 	}
 	
 	@Override
-	public int hashCode() {
-		return name.hashCode();
-	}
-	
-	@Override
 	public String toString() {
-		String args = "args = ";
-		for(String s : sessionCfg){
-			args+=s+" ";
-		}
-		return "MK demo "+name+" : "+description+" ;"+args;
+		return "MK demo "+name+" : "+description+" ;"+"args = "+Arrays.deepToString(sessionCfg);
 	}
 
 	@Override

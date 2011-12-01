@@ -16,48 +16,29 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
  */
-package madkit.testing.util.agent;
-
-import madkit.kernel.AbstractAgent;
+package madkit.message;
 
 /**
+ * A message class that conveys a string.
+ * 
  * @author Fabien Michel
- * @since MadKit 5.0.0.9
+ * @since MadKit 5.0.0.14
  * @version 0.9
  * 
  */
-public class UnstopableAbstractAgent extends AbstractAgent {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
-	protected void activate() {
-		int i = 0;
-		while (i < 990000000) {
-			i++;
-			if (i % 10000000 == 0)
-				if (logger != null)
-					logger.info("activate " + getState() + " " + i);
-		}
-	}
+public class StringMessage extends ObjectMessage<String> {
 
 	/**
 	 * 
 	 */
-	protected void end() {
-		int i = 0;
-		while (true) {
-			i++;
-			if (i % 10000000 == 0) {
-				if (logger != null)
-					logger.info("end " + getState() + " " + i);
-			}
-		}
-	}
+	private static final long serialVersionUID = 3111467569749360801L;
 
-	public static void main(String[] args) {
-		AbstractAgent.executeThisAgent(args,2,true);
+	/**
+	 * Builds a new message containing the string s
+	 * @param s the string
+	 */
+	public StringMessage(String s) {
+		super(s);
 	}
 
 }

@@ -18,17 +18,14 @@
  */
 package madkit.action;
 
-import static java.awt.event.KeyEvent.VK_I;
-import static java.awt.event.KeyEvent.VK_J;
-import static java.awt.event.KeyEvent.VK_K;
-import static java.awt.event.KeyEvent.VK_U;
-
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.EnumSet;
+import java.util.ResourceBundle;
 
 import javax.swing.Action;
 import javax.swing.JComponent;
@@ -37,14 +34,17 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
-import madkit.agr.LocalCommunity.Roles;
-import madkit.gui.GUIMessage;
+import madkit.agr.Organization;
+import madkit.i18n.I18nUtilities;
 import madkit.kernel.AbstractAgent;
-import madkit.messages.KernelMessage;
+import madkit.kernel.AgentAddress;
+import madkit.kernel.Message;
+import madkit.message.GUIMessage;
+import madkit.message.KernelMessage;
 
 /**
  * @author Fabien Michel
- * @since MadKit 5.0.0.9
+ * @since MadKit 5.0.0.14
  * @version 0.9
  * 
  */
@@ -52,49 +52,67 @@ import madkit.messages.KernelMessage;
 public enum GUIManagerAction {
 
 
-	LOAD_JAR_FILE(VK_J), 
-	ICONIFY_ALL(VK_U),
-	DEICONIFY_ALL(VK_I),
-	KILL_AGENTS(VK_K),
-//	CONNECT_WEB_REPO(VK_W),
+	LOAD_JAR_FILE(KeyEvent.VK_J), 
+	ICONIFY_ALL(KeyEvent.VK_U),
+	DEICONIFY_ALL(KeyEvent.VK_I),
+	KILL_AGENTS(KeyEvent.VK_A),
+	//	CONNECT_WEB_REPO(VK_W),
 
-	SETUP_AGENT_GUI(Integer.MAX_VALUE), 
-	DISPOSE_AGENT_GUI(Integer.MAX_VALUE);
+	SETUP_AGENT_GUI(KeyEvent.VK_DOLLAR), 
+	DISPOSE_AGENT_GUI(KeyEvent.VK_DOLLAR);
 
 	private ActionInfo actionInfo;
 	final private int keyEvent;
+
+	final static private ResourceBundle messages = I18nUtilities.getResourceBundle(GUIManagerAction.class.getSimpleName());
 
 	private GUIManagerAction(int keyEvent){
 		this.keyEvent = keyEvent;
 	}
 
 
-	public Action getActionFor(final AbstractAgent guiManager, final Object... commandOptions){
-		if(actionInfo == null)
-			actionInfo = new ActionInfo(this,keyEvent);
-		return new MKAbstractAction(actionInfo){
+	public Action getActionFor(final AbstractAgent agent, final Object... commandOptions){
+		return new MKAbstractAction(getActionInfo()){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				guiManager.receiveMessage(new GUIMessage(GUIManagerAction.this, commandOptions));
-			}
-		};
+				if (agent.isAlive()) {
+					final Message m = new GUIMessage(GUIManagerAction.this, commandOptions);
+					final AgentAddress guiManager = agent.getAgentWithRole(LocalCommunity.NAME, Groups.GUI, Organization.GROUP_MANAGER_ROLE);
+					if(guiManager != null){
+						agent.sendMessage(guiManager, m);
+					}
+					else{//this is the gui manager itself
+						agent.receiveMessage(m);
+					}
+				}
+			}};
 	}
 
-	public static void addAllActionsTo(JComponent menuOrToolBar, final AbstractAgent guiManager){
+	/**
+	 * @return the actionInfo
+	 */
+	public ActionInfo getActionInfo() {
+		if(actionInfo == null)
+			actionInfo = new ActionInfo(this,keyEvent,messages);
+		return actionInfo;
+	}
+
+	public static void addAllActionsTo(JComponent menuOrToolBar, final AbstractAgent agent){
 		try {//this bypasses class incompatibility
 			final Method add = menuOrToolBar.getClass().getMethod("add", Action.class);
 			final Method addSeparator = menuOrToolBar.getClass().getMethod("addSeparator");
 			for (final GUIManagerAction mkA : EnumSet.allOf(GUIManagerAction.class)) {
 				if(mkA == SETUP_AGENT_GUI)
 					return;
-				Action a = mkA.getActionFor(guiManager);
+				Action a = mkA.getActionFor(agent);
 				if (mkA == LOAD_JAR_FILE) {//TODO move that code in manager
 					a = new MKAbstractAction(mkA.actionInfo){
 						@Override
 						public void actionPerformed(ActionEvent e) {
-							guiManager.sendMessage(LocalCommunity.NAME, Groups.SYSTEM, Roles.KERNEL, 
-									new KernelMessage(KernelAction.LOAD_JAR_FILE, mkA.getJarUrl()));
-							
+							if (agent.isAlive()) {
+								agent.sendMessage(LocalCommunity.NAME, Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE, new KernelMessage(
+										KernelAction.LOAD_JAR_FILE, mkA.getJarUrl()));
+							}
 						}
 					};
 				}
@@ -120,7 +138,7 @@ public enum GUIManagerAction {
 
 	@Override
 	public String toString() {
-		return MKAbstractAction.enumToMethodName(this);
+		return ActionInfo.enumToMethodName(this);
 	}
 
 	private URL getJarUrl() {

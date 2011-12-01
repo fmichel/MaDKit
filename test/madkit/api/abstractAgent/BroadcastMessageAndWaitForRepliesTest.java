@@ -11,7 +11,7 @@ import madkit.kernel.Agent;
 import madkit.kernel.AgentAddress;
 import madkit.kernel.JunitMadKit;
 import madkit.kernel.Message;
-import madkit.messages.StringMessage;
+import madkit.message.StringMessage;
 
 import org.junit.Test;
 

@@ -229,22 +229,24 @@
 	
 	<!-- - - - - - - - - - - - - - - - - - 
           target: sign-jar         signedjar="${jnlp.jar}"              
+	        <arg value="- -modification-time=latest"/>
+    	<delete file="${jnlp.jar}"/>
          - - - - - - - - - - - - - - - - - -->
     <target name="sign-jar" depends="probe-for-jarsigner,jarsigner-message,get-password" if="jarsigner.present">
     	<echo>Creating ${jnlp.jar}${line.separator}</echo>
         <exec executable="pack200" dir=".">
-            <arg value="--repack"/>
+            <arg value="-r"/>
             <arg value="${jar.file}"/>
         </exec>
 		<signjar jar="${jar.file}" signedjar="${jnlp.jar}"  preservelastmodified="true" alias="${keystore.alias}" storepass="${keystore.password}" keystore="${keystore}"/>
         <echo>Creating ${jnlp.jar}.pack.gz !${line.separator}</echo>
 	    <exec executable="pack200" dir=".">
-	        <arg value="--modification-time=latest"/>
+	        <arg value="-Pfile=madkit/action/images"/>
 	        <arg value="--deflate-hint=true"/>
+	        <arg value="--effort=1"/>
             <arg value="${jnlp.jar.gz}"/>
             <arg value="${jnlp.jar}"/>
 	    </exec>
-    	<delete file="${jnlp.jar}"/>
     </target>
 
 	<!-- - - - - - - - - - - - - - - - - - 

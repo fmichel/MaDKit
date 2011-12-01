@@ -36,7 +36,7 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
-import madkit.gui.menus.AgentLogLevelMenu;
+import madkit.gui.menu.AgentLogLevelMenu;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Madkit.Option;

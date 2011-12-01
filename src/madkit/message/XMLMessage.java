@@ -16,10 +16,8 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
  */
-package madkit.messages;
+package madkit.message;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -59,7 +57,7 @@ public class XMLMessage extends Message
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 8124791578542632173L;
+	private static final long serialVersionUID = 1266801281341621595L;
 	/** The xml content as a Document (null if the content is defined as a string) */
 	protected Document doccontent = null;
 	/** The xml content as a String (null if the content is defined as a Document) */
@@ -145,12 +143,5 @@ public class XMLMessage extends Message
 			return strcontent;
 		else
 			return doccontent.toString();
-	}
-
-	public static void main(String[] args) throws SAXException, IOException, ParserConfigurationException {
-		FileInputStream from = new FileInputStream(new File("/home/fab/MadKit/MadKit/plugins/demos/demos.cfg"));
-		Document doc =  DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(from);
-		XMLMessage m = new XMLMessage(doc);
-		System.err.println(m.getString());
 	}
 }

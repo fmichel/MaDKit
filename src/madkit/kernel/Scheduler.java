@@ -43,7 +43,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import madkit.action.SchedulingAction;
-import madkit.messages.SchedulingMessage;
+import madkit.message.SchedulingMessage;
 
 /**
  * This class defines a generic threaded scheduler agent. It holds a collection
@@ -294,6 +294,8 @@ public class Scheduler extends Agent {
 				run.setEnabled(true);
 				break;
 			case RUNNING:
+				run.setEnabled(false);
+				break;
 			case SHUTDOWN:
 				run.setEnabled(false);
 				break;
@@ -327,8 +329,10 @@ public class Scheduler extends Agent {
 				simulationState = PAUSED;
 				doSimulationStep();
 				break;
-			default:
+			case SHUTDOWN:
 				return; // shutdown
+			default:
+				getLogger().severe("state not handled "+simulationState);
 			}
 		}
 	}

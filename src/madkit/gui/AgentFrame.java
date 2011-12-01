@@ -18,27 +18,24 @@
  */
 package madkit.gui;
 
-import java.awt.Point;
 import java.awt.event.WindowAdapter;
-import java.awt.event.WindowListener;
+import java.awt.event.WindowEvent;
 
 import javax.swing.Box;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JMenuBar;
 import javax.swing.WindowConstants;
-import javax.swing.event.InternalFrameAdapter;
-import javax.swing.event.InternalFrameEvent;
 
 import madkit.action.KernelAction;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
-import madkit.agr.LocalCommunity.Roles;
-import madkit.gui.menus.AgentLogLevelMenu;
-import madkit.gui.menus.AgentMenu;
-import madkit.gui.menus.MadkitMenu;
+import madkit.agr.Organization;
+import madkit.gui.menu.AgentLogLevelMenu;
+import madkit.gui.menu.AgentMenu;
+import madkit.gui.menu.MadkitMenu;
 import madkit.kernel.AbstractAgent;
-import madkit.messages.KernelMessage;
+import madkit.message.KernelMessage;
 
 /**
  * @author Fabien Michel
@@ -60,14 +57,19 @@ final class AgentFrame extends JFrame {
 
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
-			public void windowClosing(java.awt.event.WindowEvent e) {
+			
+			@Override
+			public void windowClosed(WindowEvent e) {
+				closeProcess(agent);
+			}
+			private void closeProcess(final AbstractAgent agent) {
 				if (agent.isAlive()) {
 					setTitle("Closing " + agent.getName());
 					killAgent(agent, 2);
 				}
-				else{
-					AgentFrame.super.dispose();
-				}
+			}
+			public void windowClosing(java.awt.event.WindowEvent e) {
+				closeProcess(agent);
 			}
 //			@Override
 //			public void windowClosed(WindowEvent e) {
@@ -134,43 +136,46 @@ final class AgentFrame extends JFrame {
 	 */
 	static void killAgent(final AbstractAgent agent,int timeOutSeconds) {//TODO move that
 		if (agent.isAlive()) {
-			agent.sendMessage(LocalCommunity.NAME, Groups.SYSTEM, Roles.KERNEL, new KernelMessage(
-					KernelAction.KILL_AGENT, agent, timeOutSeconds));
+			agent.sendMessage(
+					LocalCommunity.NAME, 
+					Groups.SYSTEM, 
+					Organization.GROUP_MANAGER_ROLE, 
+					new KernelMessage(KernelAction.KILL_AGENT, agent, timeOutSeconds));
 		}
 	}
 }
 
-final class AgentInternalFrame extends JInternalFrame{
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -7697151858719380860L;
-	final private GUIManagerAgent desk;
-	
-	AgentInternalFrame(final AgentFrame f, GUIManagerAgent desk){
-		super(f.getTitle(),true,true,true,true);
-		this.desk = desk;
-		setSize(f.getSize());
-		setLocation(f.getLocation());
-		setContentPane(f.getContentPane());
-		setJMenuBar(f.getJMenuBar());
-		f.setInternalFrame(this);//TODO ??
-		addInternalFrameListener(new InternalFrameAdapter() {
-			@Override
-			public void internalFrameClosed(InternalFrameEvent e) {
-				for (WindowListener wl : f.getWindowListeners()) {
-					wl.windowClosing(null);
-				}
-			}
-		});
-	}
-	
-	@Override
-	public void setLocation(int x, int y) {
-		super.setLocation(x, y);
-		final Point loc = desk.checkLocation(this);
-		super.setLocation(loc.x,loc.y);
-	}
-	
-	
-}
+//final class AgentInternalFrame extends JInternalFrame{
+//	/**
+//	 * 
+//	 */
+//	private static final long serialVersionUID = -7697151858719380860L;
+//	final private GUIManagerAgent desk;
+//	
+//	AgentInternalFrame(final AgentFrame f, GUIManagerAgent desk){
+//		super(f.getTitle(),true,true,true,true);
+//		this.desk = desk;
+//		setSize(f.getSize());
+////		setLocation(f.getLocation());
+//		setContentPane(f.getContentPane());
+//		setJMenuBar(f.getJMenuBar());
+//		f.setInternalFrame(this);//TODO ??
+//		addInternalFrameListener(new InternalFrameAdapter() {
+//			@Override
+//			public void internalFrameClosed(InternalFrameEvent e) {
+//				for (WindowListener wl : f.getWindowListeners()) {
+//					wl.windowClosing(null);
+//				}
+//			}
+//		});
+//	}
+//	
+////	@Override
+////	public void setLocation(int x, int y) {
+////		super.setLocation(x, y);
+////		final Point loc = desk.checkLocation(this);
+////		super.setLocation(loc.x,loc.y);
+////	}
+//	
+//	
+//}

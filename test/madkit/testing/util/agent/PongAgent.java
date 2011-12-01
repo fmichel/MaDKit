@@ -9,7 +9,7 @@ import java.util.Arrays;
 import madkit.kernel.Agent;
 import madkit.kernel.JunitMadKit;
 import madkit.kernel.Madkit;
-import madkit.messages.StringMessage;
+import madkit.message.StringMessage;
 
 public class PongAgent extends Agent {
 

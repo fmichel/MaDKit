@@ -16,29 +16,43 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
  */
-package madkit.messages;
+package madkit.testing.util.agent;
+
+import madkit.kernel.AbstractAgent;
+import madkit.kernel.JunitMadKit;
 
 /**
- * A message class that conveys a string.
- * 
  * @author Fabien Michel
- * @since MadKit 5.0.0.14
+ * @since MadKit 5.0.0.13
  * @version 0.9
  * 
  */
-public class StringMessage extends ObjectMessage<String> {
+public class SimulatedAgentBis extends AbstractAgent {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 3111467569749360801L;
+	private static final long serialVersionUID = 1L;
+	private int privatePrimitiveField = 1;
+	public double publicPrimitiveField = 2;
 
-	/**
-	 * Builds a new message containing the string s
-	 * @param s the string
-	 */
-	public StringMessage(String s) {
-		super(s);
+	@Override
+	protected void activate() {
+		JunitMadKit.createDefaultCGR(this);
 	}
 
+	/**
+	 * @return the privatePrimitiveField
+	 */
+	public int getPrivatePrimitiveField() {
+		return privatePrimitiveField;
+	}
+
+	/**
+	 * @param privatePrimitiveField
+	 *           the privatePrimitiveField to set
+	 */
+	public void setPrivatePrimitiveField(int privatePrimitiveField) {
+		this.privatePrimitiveField = privatePrimitiveField;
+	}
 }

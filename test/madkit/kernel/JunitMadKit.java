@@ -106,6 +106,21 @@ public class JunitMadKit {
 	public void launchTest(AbstractAgent a) {
 		launchTest(a, SUCCESS);
 	}
+	
+	public void launchDefaultAgent(AbstractAgent a){
+		a.launchAgent(new AbstractAgent(){
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1287673873282151865L;
+
+			@Override
+			protected void activate() {
+				createGroup(COMMUNITY, GROUP);
+				requestRole(COMMUNITY, GROUP, ROLE);
+			}
+		});
+	}
 
 	public void launchTest(AbstractAgent a, boolean all) {
 		if (all) {

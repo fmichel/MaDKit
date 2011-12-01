@@ -16,42 +16,47 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
  */
-package madkit.messages;
+package madkit.message;
 
-import java.util.Arrays;
+import madkit.kernel.Message;
 
 /**
- * For now its purpose is to allow agents to send to the kernel agent
- * some MadKit commands such as launchAgent.
+ * This parameterizable class could be used to convey 
+ * any Java Object between MadKit agents.
  * 
  * @author Fabien Michel
- * @version 5.0
- * @since MadKit 5.0.0.14
+ * @since MadKit 5.0.0.1
+ * @version 0.9
  *
  */
-public class CommandMessage<E extends Enum<E>> extends ObjectMessage<Object[]> {
-	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 5507449004378611176L;
-	private final E code;
+public class ObjectMessage<T> extends Message {
 
+	private static final long serialVersionUID = 2061462024105569662L;
+	private final T content;
+	
 	/**
 	 * Builds a message with the specified content
 	 * @param content
 	 */
-	public CommandMessage(E code, final Object... commandOptions) {
-		super(commandOptions);
-		this.code = code;
+	public ObjectMessage(final T content) {
+		this.content = content;
 	}
 
+	/**
+	 * Gets the content of this message
+	 * @return the object of type T contained in the message
+	 */
+	public T getContent() {
+		return content;
+	}
+	
+	/**
+	 * @see madkit.kernel.Message#toString()
+	 */
 	@Override
 	public String toString() {
-		return super.toString()+"\n\tcommand : "+code.name()+" "+Arrays.deepToString(getContent());
-	}
-
-	public E getCode() {
-		return code;
+		String s = super.toString();
+		s += "\n"+(getClass().getSimpleName()+getConversationID()).replaceAll(".", " ");
+		return s+"    content: {"+content+"}";
 	}
 }

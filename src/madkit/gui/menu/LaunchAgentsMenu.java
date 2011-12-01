@@ -1,4 +1,22 @@
-package madkit.gui;
+/*
+ * Copyright 1997-2011 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * 
+ * This file is part of MadKit.
+ * 
+ * MadKit is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ * 
+ * MadKit is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
+ */
+package madkit.gui.menu;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -12,7 +30,17 @@ import javax.swing.JMenuItem;
 import madkit.action.AgentAction;
 import madkit.action.MKAbstractAction;
 import madkit.kernel.AbstractAgent;
+import madkit.kernel.MadkitClassLoader;
 
+/**
+ * This class builds a {@link JMenu} containing all the 
+ * agents which are on the class path, so that they can be
+ * individually launched.
+ * @author Fabien Michel
+ * @since MadKit 5.0.0.14
+ * @version 0.9
+ * 
+ */
 public class LaunchAgentsMenu extends JMenu {
 
 	/**
@@ -23,6 +51,12 @@ public class LaunchAgentsMenu extends JMenu {
 	final private Action myAction;
 	final private AbstractAgent myAgent;
 
+	/**
+	 * Builds a new menu.
+	 * @param agent the agent according 
+	 * to which this menu should be created, i.e. the
+	 * agent that will be responsible of the launch.
+	 */
 	public LaunchAgentsMenu(final AbstractAgent agent) {
 		super("Agents");
 		setMnemonic(KeyEvent.VK_G);
@@ -42,6 +76,12 @@ public class LaunchAgentsMenu extends JMenu {
 		update();
 	}
 
+	/**
+	 * Called by the kernel when the class path is modified.
+	 * This is for instance the case when the 
+	 * {@link MadkitClassLoader#addToClasspath(java.net.URL)}
+	 * is used.
+	 */
 	public static void updateAllMenus() {
 		for (LaunchAgentsMenu menu : menus) {
 			menu.update();

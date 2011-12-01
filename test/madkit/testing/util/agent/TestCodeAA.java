@@ -18,9 +18,15 @@
  */
 package madkit.testing.util.agent;
 
+import madkit.action.KernelAction;
+import madkit.agr.LocalCommunity;
+import madkit.agr.LocalCommunity.Groups;
+import madkit.agr.Organization;
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.Madkit;
-import madkit.kernel.Madkit.Option;
+import madkit.kernel.Message;
+import madkit.message.EnumMessage;
+import madkit.message.ObjectMessage;
+import madkit.message.StringMessage;
 
 /**
  * @author Fabien Michel
@@ -47,6 +53,26 @@ public class TestCodeAA extends AbstractAgent {
 
 	@Override
 	protected void activate() {
+		Message m = new Message();
+		System.err.println(m);
+		sendMessage(LocalCommunity.NAME, Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE, m);
+		System.err.println(m);
+
+		m = new ObjectMessage<String>("zd");
+		System.err.println(m);
+		sendMessage(LocalCommunity.NAME, Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE, m);
+		System.err.println(m);
+
+		m = new StringMessage("zd");
+		System.err.println(m);
+		sendMessage(LocalCommunity.NAME, Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE, m);
+		System.err.println(m);
+
+		m = new EnumMessage<KernelAction>(KernelAction.COPY, "kj",3);
+		System.err.println(m);
+		sendMessage(LocalCommunity.NAME, Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE, m);
+		System.err.println(m);
+
 		try {
 			System.err.println(this.getClass().getConstructor((Class<?>[])null));
 		} catch (SecurityException e) {
@@ -56,13 +82,14 @@ public class TestCodeAA extends AbstractAgent {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-//		proceedCommandMessage(new CommandMessage<AgentAction>(AgentAction.RELOAD));
-//		proceedCommandMessage(new CommandMessage<AgentAction>(AgentAction.LAUNCH_AGENT,"madkit.testing.util.agent.SelfLaunch"));
+//		proceedCommandMessage(new EnumMessage<AgentAction>(AgentAction.RELOAD));
+//		proceedCommandMessage(new EnumMessage<AgentAction>(AgentAction.LAUNCH_AGENT,"madkit.testing.util.agent.SelfLaunch"));
 	}
 	
 	public static void main(String[] args) {
-		String[] argss = {Option.launchAgents.toString(),"madkit.kernel.AbstractAgent"};
-		Madkit.main(argss);
+		executeThisAgent(args);
+//		String[] argss = {Option.launchAgents.toString(),"madkit.kernel.AbstractAgent"};
+//		Madkit.main(argss);
 	}
 
 }

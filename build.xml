@@ -32,7 +32,7 @@
 	<property file="src/madkit/kernel/madkitKernel.properties"/>
 	<property file="madkitKernelBuild.properties"/>
 	<property name="executable.name" value="${desktop.name}"/>
-	
+	<property name="madkit.old.version" value="5.0.0.13"/>	<!-- for tuto-->
 	<import file="${madkit.ant.targets.file}"/>
 
 	
@@ -238,6 +238,12 @@
 		    <expandproperties/>
 		  </filterchain>
 		</copy>
+
+   		<echo>Updating MadKit Tutorial</echo>   		
+		<copy todir="${docs.dir}/French_Tutorial/MadKit_Tutorial/${lib.dir}" file="${jar.file}"/>
+		<replace file="${docs.dir}/French_Tutorial/MadKit_Tutorial/.classpath" token="${madkit.old.version}" value="${madkit.version}"/>
+   		<delete file="${docs.dir}/French_Tutorial/MadKit_Tutorial/${lib.dir}/madkitkernel-${madkit.old.version}"/>
+   		
    		<echo>Building MadKit HowTo</echo>
 		<ant dir="../MadKit_HowTo" inheritall="false"/>
 		<ant dir="../MadKit_Demos" inheritall="false"/>

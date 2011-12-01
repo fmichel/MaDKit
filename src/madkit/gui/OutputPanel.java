@@ -21,7 +21,6 @@ package madkit.gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -49,14 +48,13 @@ import madkit.kernel.AgentLogger;
  * @see AbstractAgent#setupFrame(javax.swing.JFrame)
  */
 public class OutputPanel extends JPanel {
+
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 7020387969711622732L;
-	private OutputStream out;
+	private static final long serialVersionUID = -6469676627523956244L;
+	final private OutputStream out;
 	final private JTextArea outField;
-	private Point GUIlocation = new Point(-1,-1);
-	
 	
 	/**
 	 * returns the output stream to which log messages will
@@ -71,17 +69,9 @@ public class OutputPanel extends JPanel {
 	{
 		outField = new JTextArea(5,32);
 		setLayout(new BorderLayout());
-		//		new OutputStreamWriter
 
 		outField.setEditable(false);
 		setPreferredSize(new Dimension(250,100));
-//		final Runnable r = new Runnable() {  
-//		     public void run() {
-//			     outField.append(txt);
-//			     outField.setCaretPosition(outField.getDocument().getLength());
-//			     }  
-//			   };
-
 		
 		out = new OutputStream() {
 			private void updateText(final String txt) {
@@ -96,7 +86,7 @@ public class OutputPanel extends JPanel {
 			public void write(int b) throws IOException {
 				updateText(String.valueOf((char) b));
 			}
-			@Override  
+			@Override  //TODO check utility
 			public void write(byte[] b, int off, int len) throws IOException {  
 				updateText(new String(b, off, len));  
 		}  
@@ -116,15 +106,15 @@ public class OutputPanel extends JPanel {
 		};
 		agent.getLogger().addHandler(handler);
 
-		add("Center",new JScrollPane(outField));
+		add(BorderLayout.CENTER,new JScrollPane(outField));
 
-		final JButton b = new JButton("clear");
+		final JButton b = new JButton("clear");//TODO i18n
 		b.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				outField.setText(null);
 			}
 		});
-		add("South",b);
+		add(BorderLayout.SOUTH,b);
 	}
 
 	public void clearOutput()
@@ -132,20 +122,6 @@ public class OutputPanel extends JPanel {
 		outField.setText(null);
 	}
 
-	/**
-	 * @param gUIlocation the gUIlocation to set
-	 */
-	public void setGUIPreferredlocation(Point gUIlocation) {
-		GUIlocation = gUIlocation;
-	}
-
-	/**
-	 * @return the gUIlocation
-	 */
-	public Point getGUIPreferredlocation() {
-		return GUIlocation;
-	}
-	
 	/**
 	 * @see javax.swing.JComponent#setBackground(java.awt.Color)
 	 */

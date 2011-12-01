@@ -20,8 +20,8 @@ package madkit.gui;
 
 import java.awt.FlowLayout;
 import java.awt.Image;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -43,25 +43,24 @@ public class AgentStatusPanel extends JPanel {
 	 */
 	private static final long serialVersionUID = -5745998699827681837L;
 	
-	final private static Map<AbstractAgent,AgentStatusPanel> panels = new HashMap<AbstractAgent, AgentStatusPanel>(); 
+	final private static Set<AgentStatusPanel> panels = new HashSet<AgentStatusPanel>(); 
 	
 	
 	final static private ImageIcon image = new ImageIcon(KernelAction.LAUNCH_NETWORK.getActionInfo().getBigIcon().getImage().getScaledInstance(10, 10, Image.SCALE_SMOOTH));
 	final private AbstractAgent myAgent;
 	final private JLabel network;
 	
-	AgentStatusPanel(AbstractAgent a){
+	public AgentStatusPanel(AbstractAgent a){
 		super(new FlowLayout(FlowLayout.RIGHT));
 		myAgent = a;
 		network = new JLabel();
 		add(network);
 		update();
-		panels.put(myAgent,this);
-//		GUIToolkit.addUIListenerFor(a, this);
+		panels.add(this);
 	}
 	
 	public static void updateAll(){
-		for (AgentStatusPanel panel : panels.values()) {
+		for (AgentStatusPanel panel : panels) {
 			panel.update();
 		}
 	}
@@ -77,6 +76,6 @@ public class AgentStatusPanel extends JPanel {
 		}
 	}
 	
-	//TODO remove agent on dispose
+	//TODO remove agent on dispose, but it may be worthless 
 	
 }

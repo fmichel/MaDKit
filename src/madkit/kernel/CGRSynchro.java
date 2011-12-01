@@ -18,7 +18,7 @@
  */
 package madkit.kernel;
 
-import madkit.messages.ObjectMessage;
+import madkit.message.ObjectMessage;
 
 /**
  * @author Fabien Michel

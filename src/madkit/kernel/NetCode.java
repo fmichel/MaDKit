@@ -18,7 +18,7 @@
  */
 package madkit.kernel;
 
-import madkit.messages.CommandMessage;
+import madkit.message.EnumMessage;
 
 /**
  * @author Fabien Michel
@@ -32,7 +32,7 @@ enum NetCode {
 	NEW_PEER_REQUEST;
 }
 
-class NetworkMessage extends CommandMessage<NetCode> {
+class NetworkMessage extends EnumMessage<NetCode> {
 	
 	/**
 	 * 

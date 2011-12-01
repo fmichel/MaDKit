@@ -53,21 +53,19 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
+import madkit.action.ActionInfo;
 import madkit.action.GUIManagerAction;
 import madkit.agr.CloudCommunity;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
-import madkit.agr.LocalCommunity.Roles;
 import madkit.agr.Organization;
-import madkit.gui.GUIMessage;
 import madkit.gui.OutputPanel;
 import madkit.i18n.ErrorMessages;
 import madkit.i18n.I18nUtilities;
 import madkit.i18n.Words;
-import madkit.kernel.Madkit.BooleanOption;
-import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Madkit.Option;
-import madkit.messages.CommandMessage;
+import madkit.message.EnumMessage;
+import madkit.message.GUIMessage;
 
 /**
  * The super class of all MadKit agents, v 5.
@@ -236,18 +234,21 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			if(logger != null){
 				logger.finer("** setting up  GUI **");
 			}
-			//TODO think about that 
-			//hint : put the guiManager as a manager in a separated group
-			requestRole(LocalCommunity.NAME, Groups.SYSTEM, "default");
 			//to avoid the log of logged kernel
-			getKernel().getMadkitKernel().broadcastMessageWithRoleAndWaitForReplies(//TODO
+			getKernel().getMadkitKernel().broadcastMessageWithRoleAndWaitForReplies(
 					this,
 					LocalCommunity.NAME, 
-					Groups.SYSTEM, 
-					Roles.GUI_MANAGER, 
+					Groups.GUI, 
+					Organization.GROUP_MANAGER_ROLE, 
 					new GUIMessage(GUIManagerAction.SETUP_AGENT_GUI,this), 
 					null, 
 					10000);
+//			getKernel().getMadkitKernel().sendMessageAndWaitForReply(//TODO
+//					LocalCommunity.NAME, 
+//					Groups.SYSTEM, 
+//					Roles.GUI_MANAGER, 
+//					new GUIMessage(GUIManagerAction.SETUP_AGENT_GUI,this), 
+//					10000);
 		}
 		logMethod(true);
 	}
@@ -439,7 +440,9 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		kernel = kernel.getMadkitKernel();
 		if (hasGUI) {
 			kernel.broadcastMessageWithRole(this, 
-					LocalCommunity.NAME, Groups.SYSTEM, Roles.GUI_MANAGER, 
+					LocalCommunity.NAME, 
+					Groups.GUI, 
+					Organization.GROUP_MANAGER_ROLE, 
 					new GUIMessage(GUIManagerAction.DISPOSE_AGENT_GUI, this), null);
 		}
 		//		if (getState().equals(TERMINATED))// TODO remove that
@@ -617,18 +620,17 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * or when the time out is elapsed.
 	 * This has the same effect as {@link #launchAgent(AbstractAgent, int, boolean)} but
 	 * allows to launch agent using a class name found reflexively for instance.
-	 * Additionally, this method will launch the last compilation of the corresponding
-	 * class if it has been reloaded using {@link AbstractAgent#reloadAgentClass(String)}.
+	 * Additionally, this method will launch the last compiled byte code of the corresponding
+	 * class if it has been reloaded using {@link MadkitClassLoader#reloadClass(String)}.
 	 * Finally, if the launch timely succeeded, this method returns the instance of the
 	 * created agent.
 	 * 
 	 * @param timeOutSeconds time to wait the end of the agent's activation until returning <code>null</code>
 	 * @param createFrame if <code>true</code> a default GUI will be associated with the launched agent
 	 * @param agentClass the full class name of the agent to launch
-	 * @throws NullPointerException if <code>agentClass</code> is <code>null</code>
 	 * @return the instance of the launched agent or <code>null</code> if the operation times out or failed.
 	 */
-	public AbstractAgent launchAgent(String agentClass, int timeOutSeconds, final boolean createFrame) {
+	public AbstractAgent launchAgent(String agentClass, int timeOutSeconds, final boolean createFrame) {//TODO with args
 		if(logger != null)
 			logger.finest(Words.LAUNCH+" " + agentClass+" GUI "+createFrame);
 		try {
@@ -1859,40 +1861,40 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		return state.get();
 	}
 
+	/**
+	 * Kills the caller and launch a new instance of this 
+	 * agent using the latest byte code available
+	 * for the corresponding class. 
+	 */
 	public void reload(){
 		launchAgent(getClass().getName(),0, true);
 		killAgent(this);
 	}
 
-	private <E extends Enum<E>> String enumToMethodName(E mka){
-		final String[] tab = mka.name().split("_");
-		String methodName = tab[0].toLowerCase();
-		for (int i = 1; i < tab.length; i++) {
-			String s = tab[i];
-			methodName += s.charAt(0) + s.substring(1).toLowerCase();
-		}
-		return methodName;
-	}
-
-	//TODO javadoc
-	public <E extends Enum<E>> void proceedCommandMessage(CommandMessage<E> cm){
+	/**
+	 * Proceeds an {@link EnumMessage} so that if it is correctly
+	 * built, the agent will trigger its corresponding behavior
+	 * using the parameters of the message.
+	 * @param message the message to proceed
+	 */
+	public <E extends Enum<E>> void proceedEnumMessage(EnumMessage<E> message){
 		if(logger != null)
-			logger.finest("proceeding command message "+cm);
-		Object[] parameters = cm.getContent();
+			logger.finest("proceeding command message "+message);
+		Object[] parameters = message.getContent();
 		Method m = null;;
 		try {
-			m = findMethodFromParameters(enumToMethodName(cm.getCode()),parameters);
+			m = findMethodFromParameters(ActionInfo.enumToMethodName(message.getCode()),parameters);
 			m.invoke(this, parameters);
 		} catch (Error e) {
 			throw e;
 		} catch (NoSuchMethodException e) {
 			if(logger != null)
-				logger.warning("I do not know how to "+enumToMethodName(cm.getCode())+Arrays.deepToString(parameters));
-			logForSender("I have sent a message which has not been understood", cm);
+				logger.warning("I do not know how to "+ActionInfo.enumToMethodName(message.getCode())+Arrays.deepToString(parameters));
+			logForSender("I have sent a message which has not been understood", message);
 		} catch (IllegalArgumentException e) {
 			if(logger != null)
 				logger.warning("Cannot proceed message : wrong argument "+m);
-			logForSender("I have sent an incorrect command message ", cm);
+			logForSender("I have sent an incorrect command message ", message);
 		} catch (IllegalAccessException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -1904,7 +1906,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		}
 	}
 
-	private void logForSender(String msg, CommandMessage<?> cm){
+	private void logForSender(String msg, EnumMessage<?> cm){
 		try {
 			cm.getSender().getAgent().logger.warning(msg+cm);
 		} catch (NullPointerException e1) {
@@ -2080,7 +2082,11 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @return <code>true</code> if the kernel is online.
 	 */
 	public boolean isKernelOnline() {
-		return isRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT);
+		//bypassing logging
+		return getKernel().getMadkitKernel().isRole(this,
+				CloudCommunity.NAME, 
+				CloudCommunity.Groups.NETWORK_AGENTS, 
+				CloudCommunity.Roles.NET_AGENT);
 	}
 
 	AgentExecutor getAgentExecutor() {
@@ -2107,13 +2113,14 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *		AbstractAgent.executeThisAgent(myArgs);
 	 *	}
 	 * </code></pre>
+	 * @param createFrame 
 	 * 
-	 * @see {@link Option}, {@link BooleanOption}, {@link LevelOption}
+	 * @see Option BooleanOption LevelOption
 	 * @since MadKit 5.0.0.14
 	 */
-	public static void executeThisAgent(String[] args,int nbOfInstances) {
+	public static void executeThisAgent(String[] args,int nbOfInstances, boolean createFrame) {
 		final StackTraceElement[] trace = new Throwable().getStackTrace();
-		final ArrayList<String> arguments = new ArrayList<String>(Arrays.asList(Madkit.Option.launchAgents.toString(),trace[trace.length-1].getClassName()+",true,"+nbOfInstances));
+		final ArrayList<String> arguments = new ArrayList<String>(Arrays.asList(Madkit.Option.launchAgents.toString(),trace[trace.length-1].getClassName()+","+(createFrame ? "true" : "false")+","+nbOfInstances));
 		if (args != null) {
 			arguments.addAll(Arrays.asList(args));
 		}
@@ -2130,7 +2137,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @since MadKit 5.0.0.14
 	 */
 	public static void executeThisAgent(String[] args) {
-		executeThisAgent(args, 1);
+		executeThisAgent(args, 1, true);
 	}
 
 	public boolean hasDefaultConstructor() {

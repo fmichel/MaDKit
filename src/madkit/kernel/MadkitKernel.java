@@ -90,14 +90,14 @@ import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Madkit.Option;
-import madkit.messages.KernelMessage;
-import madkit.messages.ObjectMessage;
+import madkit.message.KernelMessage;
+import madkit.message.ObjectMessage;
 
 /**
  * The brand new MadKit kernel and it is now a real Agent :)
  * 
  * @author Fabien Michel
- * @version 1.0
+ * @version 1.3
  * @since MadKit 5.0
  * 
  */
@@ -106,7 +106,7 @@ class MadkitKernel extends Agent {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -5870076996141195039L;
+	private static final long serialVersionUID = 3999398692543480834L;
 
 	final static ThreadGroup SYSTEM = new ThreadGroup("MK_SYSTEM"){
 		public void uncaughtException(Thread t, Throwable e) {
@@ -265,31 +265,15 @@ class MadkitKernel extends Agent {
 			netEmmiter = getRole(LocalCommunity.NAME, Groups.NETWORK, Roles.EMMITER).getAgentAddressOf(this);
 			kernelRole = getRole(LocalCommunity.NAME, Groups.SYSTEM, madkit.agr.LocalCommunity.Roles.KERNEL).getAgentAddressOf(this);
 		} catch (CGRNotAvailable e) {
-			throw new AssertionError("Kernel Agent initialization problem");
+			bugReport(e);//TODO no need
 		}
 
 		//		platform.logSessionConfig(platform.getConfigOption(), Level.FINER);
 		if (loadLocalDemos.isActivated(getMadkitConfig())) {
 			loadLocalDemos();
 		}
-		if (autoConnectMadkitWebsite.isActivated(getMadkitConfig())) {
-			addWebRepository();
-		}
 		launchGuiManagerAgent();
-		startSession();
-		//		Message m = nextMessage();// In activate only MadKit can feed my mailbox
-		//		while (m != null) {
-		//			handleMessage(m);
-		//			m = waitNextMessage(100);
-		//		}
-		// logCurrentOrganization(logger,Level.FINEST);
-		// try {
-		// platform.getMadkitClassLoader().addJar(new
-		// URL("http://www.madkit.net/demonstration/repo/market.jar"));
-		// } catch (MalformedURLException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
+//		 logCurrentOrganization(logger,Level.FINEST);
 	}
 
 	/**
@@ -305,6 +289,10 @@ class MadkitKernel extends Agent {
 	 */
 	@Override
 	protected void live() {
+		if (autoConnectMadkitWebsite.isActivated(getMadkitConfig()) || System.getProperty("javawebstart.version") != null) {
+			addWebRepository();
+		}
+		startSession();
 		while (! shuttedDown) {
 			handleMessage(waitNextMessage());//As a daemon, a timeout is not required
 		}
@@ -321,6 +309,8 @@ class MadkitKernel extends Agent {
 	}
 
 	final private void launchGuiManagerAgent() {
+		if (logger != null)
+			logger.fine("\n\t****** Launching GUI Manager ******\n");
 		//		if (noGUIManager.isActivated(getMadkitConfig())) {
 		//			if (logger != null)
 		//				logger.fine("** No GUI Manager: " + noGUIManager + " option is true**\n");
@@ -355,7 +345,7 @@ class MadkitKernel extends Agent {
 	}
 
 	final private void handleKernelMessage(KernelMessage km) {
-		proceedCommandMessage(km);
+		proceedEnumMessage(km);
 	}
 	
 	@SuppressWarnings("unused")
@@ -378,6 +368,7 @@ class MadkitKernel extends Agent {
 	 */
 	private void addWebRepository() {
 		final String repoLocation = getMadkitProperty("madkit.repository.url");
+		System.err.println(repoLocation);
 		if(logger != null)
 			logger.fine("** CONNECTING WEB REPO **"+repoLocation);
 		try {
@@ -1410,7 +1401,7 @@ class MadkitKernel extends Agent {
 //	ReturnCode reloadClass(AbstractAgent requester, String name) throws ClassNotFoundException {
 //		//		if (name == null)
 //		//			throw new ClassNotFoundException(ReturnCode.CLASS_NOT_FOUND + " " + name);
-//		if (!name.contains("madkit.kernel") && !name.contains("madkit.gui") && !name.contains("madkit.messages")
+//		if (!name.contains("madkit.kernel") && !name.contains("madkit.gui") && !name.contains("madkit.message")
 //				&& !name.contains("madkit.simulation") && platform.getMadkitClassLoader().reloadClass(name))
 //			return SUCCESS;
 //		return SEVERE;// TODO not the right code here
@@ -1568,8 +1559,10 @@ class MadkitKernel extends Agent {
 		}
 		shuttedDown = true;
 		sendNetworkMessageWithRole(new KernelMessage(KernelAction.EXIT), kernelRole);
-		broadcastMessageWithRole(MadkitKernel.this, LocalCommunity.NAME,
-				Groups.SYSTEM, madkit.agr.LocalCommunity.Roles.GUI_MANAGER, 
+		broadcastMessageWithRole(MadkitKernel.this, 
+				LocalCommunity.NAME,
+				Groups.GUI, 
+				madkit.agr.Organization.GROUP_MANAGER_ROLE, 
 				new KernelMessage(KernelAction.EXIT), null);
 		//		pause(10);//be sure that last executors have started
 		if (logger != null)
@@ -1594,7 +1587,7 @@ class MadkitKernel extends Agent {
 				if (logger != null) logger.fine("\n\t****** Network agent up ******\n");
 			}
 			else{
-				if (logger != null) logger.fine("\n\t****** Problem relaunching network agent  ******\n");
+				if (logger != null) logger.fine("\n\t****** Problem relaunching network ******\n");
 			}
 
 		}

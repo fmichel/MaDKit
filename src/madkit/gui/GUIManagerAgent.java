@@ -36,17 +36,21 @@ import javax.swing.JInternalFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
+import javax.swing.event.InternalFrameAdapter;
+import javax.swing.event.InternalFrameEvent;
 
 import madkit.action.GUIManagerAction;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
-import madkit.agr.LocalCommunity.Roles;
-import madkit.gui.menus.MadkitMenu;
-import madkit.gui.toolbars.MadkitToolBar;
+import madkit.gui.menu.LaunchAgentsMenu;
+import madkit.gui.menu.LaunchSessionMenu;
+import madkit.gui.menu.MadkitMenu;
+import madkit.gui.toolbar.MadkitToolBar;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
 import madkit.kernel.Message;
-import madkit.messages.KernelMessage;
+import madkit.message.GUIMessage;
+import madkit.message.KernelMessage;
 
 /**
  * The GUI manager agent is responsible for setting and managing
@@ -60,19 +64,14 @@ import madkit.messages.KernelMessage;
 //* By default the kernel always launch this agent. Although, this agent is
 //* extremely light weight, it is possible to tell the kernel to not launch it
 //* by using the {@link BooleanOption#noGUIManager} option when launching MadKit.
-public class GUIManagerAgent extends Agent  {
+class GUIManagerAgent extends Agent  {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -5249615481398560277L;
-
+	private static final long serialVersionUID = 8026421822077510523L;
 	final private ConcurrentMap<AbstractAgent, JFrame> guis;
-	//	final private List<AgentsMenu> agentsMenus;
-	//	final private List<DemosMenu> demosMenus;
-	//	final private Map<AbstractAgent, JInternalFrame> internalFrames;
 	private boolean shuttedDown = false;
-	//	private AgentAddress kernelAddress;
 
 	private JDesktopPane desktopPane;
 
@@ -81,33 +80,15 @@ public class GUIManagerAgent extends Agent  {
 	GUIManagerAgent(boolean asDaemon){
 		super(asDaemon);
 		guis = new ConcurrentHashMap<AbstractAgent, JFrame>();
-		//		if (asDaemon) {
-		//			internalFrames = Collections.emptyMap();
-		//		}
-		//		else{
-		//			internalFrames = new ConcurrentHashMap<AbstractAgent, JInternalFrame>();
-		//		}
-		//		agentsMenus = new ArrayList<AgentsMenu>(20);
-		//		demosMenus = new ArrayList<DemosMenu>(10);
-		//		demos = new TreeSet<DemoModel>();
-		//		agentClasses = new TreeSet<String>();
-		//		agentClasses.add("madkit.kernel.Agent");
-		//		knownUrls = new HashSet<URL>();
 	}
 
-	//	GUIManagerAgent(){
-	//		this(true);
-	//	}
 
 	@Override
 	protected void activate() {//TODO parallelize that
-		//		GUIToolkit.buildGlobalActions(this);
-		//		scanClassPathForAgentClasses();
-		//		setLogLevel(Level.ALL);
-		//		kernelAddress = getAgentWithRole(LocalCommunity.NAME, Groups.SYSTEM, Roles.KERNEL);
-		requestRole(LocalCommunity.NAME, Groups.SYSTEM, Roles.GUI_MANAGER);
+//		setLogLevel(Level.ALL);
+		createGroup(LocalCommunity.NAME, Groups.GUI);
+//		requestRole(LocalCommunity.NAME, Groups.SYSTEM, Roles.GUI_MANAGER);//no need: I am a manager
 		if (! isDaemon()) {//use to detect desktop mode
-			//			desktop = new Desktop(this);
 			buildUI();
 		}
 	}
@@ -120,51 +101,39 @@ public class GUIManagerAgent extends Agent  {
 				proceedCommandMessage((GUIMessage) m);
 			}
 			else if(m instanceof KernelMessage){
-				proceedCommandMessage((KernelMessage) m);
+				proceedEnumMessage((KernelMessage) m);
 			}
-			//			else if(m instanceof GUIMessage){
-			//				handleGUIMessage((GUIMessage) m);
-			//			}
-			else{
-				if(logger != null)
+			else if(logger != null)
 					logger.warning("I received a message that I do not understand. Discarding "+m);
-			}
 		}
 	}
 
 	protected void proceedCommandMessage(GUIMessage cm) {
-		if(isAlive() && cm.getCode() == GUIManagerAction.SETUP_AGENT_GUI){
+		if(isAlive()){
+			if(cm.getCode() == GUIManagerAction.SETUP_AGENT_GUI){//because it needs a reply
 			setupAgentGui((AbstractAgent) cm.getContent()[0]);
 			sendReply(cm, cm);
 		}
 		else{
-			super.proceedCommandMessage(cm);
+			super.proceedEnumMessage(cm);
+		}
 		}
 	}
 
 	@Override
 	protected void end() {
 		if(logger != null)
-			logger.finer("Disposing frames");
-		//		final Thread t = new Thread(//not necessary just do not do interrupt
-		SwingUtilities.invokeLater(
-				new Runnable() {
-					public void run() {
-						killAgents();
+			logger.finer("Ending: Disposing frames");
+//		SwingUtilities.invokeLater(
+//				new Runnable() {
+//					public void run() {
+						killAgents(); //no need because it closes internal frames too
 						if (desktopPane != null) {//TODO swing thread or cleaner shutdown
-							//							desktop.dispose();
 							myFrame.dispose();
 						}
-					}});
-		//		t.start();
-		//		try {
-		//			t.join();
-		//		} catch (InterruptedException e) {
-		//			if(logger != null)
-		//				logger.finer("interrupted by auto shutdown");
-		//		}
+//					}});
 	}
-
+	
 	@SuppressWarnings("unused")
 	private void exit(){
 		shuttedDown = true;
@@ -186,8 +155,23 @@ public class GUIManagerAgent extends Agent  {
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
 					if (desktopPane != null) {
-						JInternalFrame jf = new AgentInternalFrame(af, GUIManagerAgent.this);
+//						JInternalFrame jf = new AgentInternalFrame(af, GUIManagerAgent.this);
+						final JInternalFrame jf = buildInternalFrame(af);
 						desktopPane.add(jf);
+						jf.setDefaultCloseOperation(JInternalFrame.DO_NOTHING_ON_CLOSE);
+						jf.addInternalFrameListener(new InternalFrameAdapter() {
+							@Override
+							public void internalFrameClosing(InternalFrameEvent e) {
+									if (agent.isAlive()) {
+										jf.setTitle("Closing " + agent.getName());
+										AgentFrame.killAgent(agent, 2);
+									}
+									else{
+										jf.dispose();
+									}
+							}
+						});
+						jf.setLocation(checkLocation(jf));
 						jf.setVisible(true);
 					} else {
 						af.setLocation(checkLocation(af));
@@ -197,6 +181,16 @@ public class GUIManagerAgent extends Agent  {
 			});
 		}
 	}
+
+	private JInternalFrame buildInternalFrame(final AgentFrame af) {
+		final JInternalFrame ijf = new JInternalFrame(af.getTitle(), true, true, true, true);
+		ijf.setSize(af.getSize());
+		ijf.setContentPane(af.getContentPane());
+		ijf.setJMenuBar(af.getJMenuBar());
+		af.setInternalFrame(ijf);
+		return ijf;
+	}
+
 
 	private void iconifyAll(boolean iconify) {
 		final int code = iconify ? JFrame.ICONIFIED : JFrame.NORMAL;
@@ -228,26 +222,10 @@ public class GUIManagerAgent extends Agent  {
 		if (f != null) {
 			f.dispose();
 		}
-		//		closeFrame(guis.remove(agent));
-		//		closeFrame(internalFrames.remove(agent));
-		//making the javaws jvm quits
+		//making the javaws jvm quits //TODO
 		if(isDaemon() && guis.isEmpty() && System.getProperty("javawebstart.version") != null)
 			System.exit(0);
 	}
-
-	//	private void closeFrame(final Container frame){
-	//		if(frame != null && frame.isVisible() && frame.isShowing()){
-	//			SwingUtilities.invokeLater(new Runnable() {
-	//				public void run() {
-	//					if (frame instanceof JFrame) {
-	//						((Window) frame).dispose();
-	//					} else {
-	//						((JInternalFrame) frame).dispose();
-	//					}
-	//				}
-	//			});
-	//		}
-	//	}
 
 	Point checkLocation(Container c) {
 		Dimension dim;
@@ -302,35 +280,10 @@ public class GUIManagerAgent extends Agent  {
 	 */
 	private void killAgents() {
 		for (final JFrame f : guis.values()) {
-			//			if (f.isVisible() && f.isShowing()) {
 			f.dispose();
-			//			}
 		}
-		//		if (desktopPane != null) {
-		//			for (final JInternalFrame jf : desktopPane.getAllFrames()) {
-		//				jf.dispose();
-		//			}
-		//		}
-		//			for (final JInternalFrame jf : internalFrames.values()) {
-		//				if (jf.isVisible() && jf.isShowing()) {
-		//					jf.dispose();
-		//				}
-		//			}
 		guis.clear();
-		//			internalFrames.clear();
 	}
-
-	//		/**
-	//		 * Kills all the agents that have a GUI
-	//		 */
-	//		private void killAgents() {
-	//			for (final AbstractAgent a : guis.keySet()) {
-	//				AgentFrame.killAgent(a, 0);//TODO should be something else
-	//			}
-	//			for (final AbstractAgent a : internalFrames.keySet()) {
-	//				AgentFrame.killAgent(a, 0);
-	//			}
-	//		}
 
 	private void buildUI() {
 		desktopPane = new JDesktopPane();
@@ -339,7 +292,7 @@ public class GUIManagerAgent extends Agent  {
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.add(new MadkitMenu(this));
 		menuBar.add(new LaunchAgentsMenu(this));
-		menuBar.add(new LaunchSessionsMenu(this));
+		menuBar.add(new LaunchSessionMenu(this));
 		JToolBar tb = new MadkitToolBar(this);
 		myFrame.setJMenuBar(menuBar);
 		tb.setRollover(true);

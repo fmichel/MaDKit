@@ -8,7 +8,7 @@ import javax.swing.JPanel;
 import madkit.gui.OutputPanel;
 import madkit.kernel.Agent;
 import madkit.kernel.AgentAddress;
-import madkit.messages.ObjectMessage;
+import madkit.message.ObjectMessage;
 
 @SuppressWarnings("serial")
 public class PingPong extends Agent {

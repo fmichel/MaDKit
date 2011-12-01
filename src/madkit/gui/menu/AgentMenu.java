@@ -16,34 +16,46 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
  */
-package madkit.gui.menus;
+package madkit.gui.menu;
 
 import java.awt.event.KeyEvent;
 
 import javax.swing.JMenu;
 
-import madkit.action.GUIManagerAction;
-import madkit.action.KernelAction;
+import madkit.action.AgentAction;
 import madkit.kernel.AbstractAgent;
 
 /**
+ * An out of the box menu called <i>Agent</i> for Madkit Agent GUI.
+ * 
  * @author Fabien Michel
- * @since MadKit 5.0.0.9
+ * @since MadKit 5.0.0.7
  * @version 0.9
  * 
  */
-public class MadkitMenu extends JMenu {//TODO i18n
+public class AgentMenu extends JMenu {// TODO i18n
 
-	private static final long serialVersionUID = 6177193453649323680L;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7141072399712971987L;
 
-	public MadkitMenu(final AbstractAgent agent){
-		super("MadKit");
-		setMnemonic(KeyEvent.VK_M);
-//		MadkitAction.addAllActionsTo(this, agent);
-//		add(GUIManagerAction.ICONIFY_ALL.getActionFor(agent));
-//		add(GUIManagerAction.DEICONIFY_ALL.getActionFor(agent));
-		KernelAction.addAllActionsTo(this,agent);
-		GUIManagerAction.addAllActionsTo(this, agent);
-//		add(KernelAction.EXIT.getActionFor(agent));
+	/**
+	 * Creates a menu which features: 
+	 * {@link AgentAction#RELOAD}, 
+	 * {@link AgentAction#LAUNCH_AGENT}, 
+	 * {@link AgentAction#KILL_AGENT}
+	 * 
+	 * @param agent the agent for which this menu is created
+	 */
+	public AgentMenu(final AbstractAgent agent) {
+		super(agent.getClass().getSimpleName());
+		setMnemonic(KeyEvent.VK_A);
+		if(agent.hasDefaultConstructor()){
+			add(AgentAction.RELOAD.getActionFor(agent));
+			add(AgentAction.LAUNCH_AGENT.getActionFor(agent,agent.getClass().getName(),0,true));
+		}
+		add(AgentAction.KILL_AGENT.getActionFor(agent,agent));
 	}
+	
 }

@@ -24,6 +24,6 @@
 * @version 1.0
 * 
 */ 
-package madkit.gui.menus;
+package madkit.gui.menu;
 
 

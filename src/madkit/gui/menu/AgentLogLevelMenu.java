@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
  */
-package madkit.gui.menus;
+package madkit.gui.menu;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

@@ -201,6 +201,8 @@ class Role implements Serializable{//TODO test with arraylist
 			}
 			modified = true;
 		}
+		//not sure ->
+		//needs to be synchronized so that adding occurs prior to getAgentList
 		addToOverlookers(requester);
 		return true;
 		//		requester.setRoleObject(this);

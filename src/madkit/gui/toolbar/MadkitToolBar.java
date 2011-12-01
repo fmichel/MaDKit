@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
  */
-package madkit.gui.toolbars;
+package madkit.gui.toolbar;
 
 import java.awt.Component;
 import java.awt.Image;
@@ -45,14 +45,15 @@ public class MadkitToolBar extends JToolBar {// TODO i18n
 	private static final long serialVersionUID = -700298646422969523L;
 
 	/**
-	 * Creates a toolbar featuring: 
-	 * {@link MadkitAction#LAUNCH_NETWORK}, 
-	 * {@link MadkitAction#STOP_NETWORK}, 
-	 * {@link MadkitAction#EXIT}, 
-	 * {@link MadkitAction#ICONIFY_ALL}, 
-	 * {@link MadkitAction#DEICONIFY_ALL}, 
-	 * {@link MadkitAction#RESTART}, 
-	 * {@link MadkitAction#LOAD_LOCAL_DEMOS}, 
+	 * Creates a {@link JToolBar} featuring: 
+	 * {@link KernelAction#EXIT}, 
+	 * {@link KernelAction#COPY}, 
+	 * {@link KernelAction#RESTART}, 
+	 * {@link KernelAction#LAUNCH_NETWORK}, 
+	 * {@link KernelAction#STOP_NETWORK}, 
+	 * {@link GUIManagerAction#ICONIFY_ALL}, 
+	 * {@link GUIManagerAction#DEICONIFY_ALL}, 
+	 * {@link KernelAction#LOAD_LOCAL_DEMOS}, 
 	 * 
 	 * @param agent the agent for which this menu is created
 	 */

@@ -34,6 +34,7 @@ import javax.swing.JRadioButtonMenuItem;
 
 import madkit.action.ActionInfo;
 import madkit.action.AgentAction;
+import madkit.action.GUIManagerAction;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AgentLogger;
 
@@ -60,11 +61,11 @@ public class AgentLogLevelMenu extends JMenu{
 	final private static ImageIcon wIcon;
 	
 	static{
-		ActionInfo info = AgentAction.LOG_LEVEL.getActionInfo();
+		ActionInfo info = GUIManagerAction.LOG_LEVEL.getActionInfo();
 		lvlShortDesc = info.getName();
 		lvlLonDesc = info.getShortDescription();
 		lvlIcon = info.getSmallIcon();
-		info = AgentAction.WARNING_LOG_LEVEL.getActionInfo();
+		info = GUIManagerAction.WARNING_LOG_LEVEL.getActionInfo();
 		warningShortDesc = info.getName();
 		warningLonDesc = info.getShortDescription();
 		wIcon = info.getSmallIcon();

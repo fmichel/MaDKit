@@ -117,6 +117,8 @@ final class KernelServer {
 				inUse = false;
 			} catch (BindException e) {
 				port++;
+			} catch (SocketException e) {
+				port++;
 			}
 		}
 		return new KernelServer(serverSocket);

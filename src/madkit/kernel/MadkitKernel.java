@@ -55,6 +55,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -79,6 +80,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 
+import madkit.action.AgentAction;
 import madkit.action.KernelAction;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
@@ -90,6 +92,7 @@ import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Madkit.Option;
+import madkit.message.AgentHookRequestMessage;
 import madkit.message.KernelMessage;
 import madkit.message.ObjectMessage;
 
@@ -187,6 +190,8 @@ class MadkitKernel extends Agent {
 	 */
 	private boolean bucketMode = false;
 
+	private EnumMap<AgentAction, Set<AbstractAgent>> hooks;
+
 	/**
 	 * Constructing the real one.
 	 * @param m
@@ -273,7 +278,7 @@ class MadkitKernel extends Agent {
 			loadLocalDemos();
 		}
 		launchGuiManagerAgent();
-//		 logCurrentOrganization(logger,Level.FINEST);
+		//		 logCurrentOrganization(logger,Level.FINEST);
 	}
 
 	/**
@@ -347,12 +352,12 @@ class MadkitKernel extends Agent {
 	final private void handleKernelMessage(KernelMessage km) {
 		proceedEnumMessage(km);
 	}
-	
+
 	@SuppressWarnings("unused")
 	private void loadJarFile(URL url){
 		platform.getMadkitClassLoader().addToClasspath(url);
 	}
-	
+
 	private void copy() {
 		startSession(false);
 	}
@@ -489,17 +494,37 @@ class MadkitKernel extends Agent {
 		}
 	}
 
-//	private ReturnCode updateNetworkStatus(boolean start){
-//		return sendNetworkMessageWithRole(new KernelMessage(KernelAction.LAUNCH_NETWORK,start), kernelRole);
-//	}
-//
+	//	private ReturnCode updateNetworkStatus(boolean start){
+	//		return sendNetworkMessageWithRole(new KernelMessage(KernelAction.LAUNCH_NETWORK,start), kernelRole);
+	//	}
+	//
 	private void handleMessage(Message m) {
 		if (m instanceof KernelMessage) {
 			handleKernelMessage((KernelMessage) m);
-		} 
+		}
+		else if(m instanceof AgentHookRequestMessage){
+			handleHookRequest((AgentHookRequestMessage) m);
+		}
 		else {
 			if (logger != null) 
 				logger.warning("I received a message that I do not understand. Discarding " + m);
+		}
+	}
+
+	private void handleHookRequest(AgentHookRequestMessage m) {
+		if(hooks == null){
+			hooks = new EnumMap<AgentAction, Set<AbstractAgent>>(AgentAction.class);
+		}
+		Set<AbstractAgent> l = hooks.get(m.getCode());
+		if(l == null){
+			l = new HashSet<AbstractAgent>();
+			hooks.put(m.getCode(), l);
+		}
+		final AbstractAgent requester = m.getSender().getAgent();
+		//for speeding up if there is no hook, i.e. logger == null is default
+		getLogger().setLevel(Level.INFO);
+		if(! l.add(requester)){
+			l.remove(requester);
 		}
 	}
 
@@ -531,7 +556,7 @@ class MadkitKernel extends Agent {
 
 	ReturnCode createGroup(final AbstractAgent creator, final String community, final String group, final String description,
 			final Gatekeeper gatekeeper, final boolean isDistributed) {
-		if(bucketMode)
+		if(bucketMode)//TODO
 			return SUCCESS;
 		// no need to remove org: never failed
 		//will throw null pointer if community is null
@@ -553,7 +578,21 @@ class MadkitKernel extends Agent {
 				getLogger().severeLog("Please bug report", e);
 			}
 		}
+		if (logger != null) {
+			informHooks(AgentAction.CREATE_GROUP, creator.getName(), community, group, isDistributed);
+		}
 		return SUCCESS;
+	}
+
+	private void informHooks(AgentAction action, Object... parameters) {
+		if(hooks != null){
+			final Set<AbstractAgent> l = hooks.get(action);
+			if(l != null){
+				for (final AbstractAgent a : l) {
+					a.receiveMessage(new AgentHookRequestMessage(action, parameters));
+				}
+			}
+		}
 	}
 
 	/**
@@ -575,8 +614,12 @@ class MadkitKernel extends Agent {
 			return e.getCode();
 		}
 		final ReturnCode result = g.requestRole(requester, role, memberCard);
-		if (g.isDistributed() && result == SUCCESS) {
-			sendNetworkMessageWithRole(new CGRSynchro(REQUEST_ROLE, g.get(role).getAgentAddressOf(requester)), netUpdater);
+		if(result == SUCCESS){
+			if (g.isDistributed()) {
+				sendNetworkMessageWithRole(new CGRSynchro(REQUEST_ROLE, g.get(role).getAgentAddressOf(requester)), netUpdater);
+			}
+			if(logger != null)
+				informHooks(AgentAction.REQUEST_ROLE, requester.getName(), community, group, role);
 		}
 		return result;
 	}
@@ -598,9 +641,13 @@ class MadkitKernel extends Agent {
 			return e.getCode();
 		}
 		final ReturnCode result = g.leaveGroup(requester);
-		if (g.isDistributed() && result == SUCCESS) {
-			sendNetworkMessageWithRole(new CGRSynchro(LEAVE_GROUP, new AgentAddress(requester, new Role(community, group),
-					kernelAddress)), netUpdater);
+		if(result == SUCCESS){
+			if (g.isDistributed()) {
+				sendNetworkMessageWithRole(new CGRSynchro(LEAVE_GROUP, new AgentAddress(requester, new Role(community, group),
+						kernelAddress)), netUpdater);
+			}
+			if(logger != null)
+				informHooks(AgentAction.LEAVE_GROUP, community,group);
 		}
 		return result;
 	}
@@ -627,9 +674,11 @@ class MadkitKernel extends Agent {
 			AgentAddress leaver = r.getAgentAddressOf(requester);
 			if (leaver == null)
 				return ReturnCode.ROLE_NOT_HANDLED;
-			if (r.removeMember(requester) != SUCCESS)
+			if (r.removeMember(requester) != SUCCESS)//TODO
 				throw new AssertionError("cannot remove " + requester + " from " + r.buildAndGetAddresses());
 			sendNetworkMessageWithRole(new CGRSynchro(LEAVE_ROLE, leaver), netUpdater);
+			if(logger != null)
+				informHooks(AgentAction.LEAVE_ROLE, community, group, role);
 			return SUCCESS;
 		}
 		return r.removeMember(requester);
@@ -1257,7 +1306,11 @@ class MadkitKernel extends Agent {
 	private ReturnCode buildAndSendMessage(final AgentAddress sender, final AgentAddress receiver, final Message m) {
 		m.setSender(sender);
 		m.setReceiver(receiver);
-		return sendMessage(m,receiver.getAgent());
+		final ReturnCode r = sendMessage(m,receiver.getAgent());
+		if(logger != null && r == SUCCESS){
+			informHooks(AgentAction.SEND_MESSAGE, m);
+		}
+		return r;
 		// final AbstractAgent target = receiver.getAgent();
 		// if(target == null){
 		// if(netAgent != null)
@@ -1386,26 +1439,26 @@ class MadkitKernel extends Agent {
 		return this;
 	}
 
-//	/**
-//	 * Asks MasKit to reload the class byte code so that new instances, created
-//	 * using {@link Class#newInstance()} on a class object obtained with
-//	 * {@link #getNewestClassVersion(AbstractAgent, String)}, will reflect
-//	 * compilation changes during run time.
-//	 * 
-//	 * @param requester
-//	 * @param name
-//	 *           The fully qualified class name of the class
-//	 * @throws ClassNotFoundException
-//	 */
-//
-//	ReturnCode reloadClass(AbstractAgent requester, String name) throws ClassNotFoundException {
-//		//		if (name == null)
-//		//			throw new ClassNotFoundException(ReturnCode.CLASS_NOT_FOUND + " " + name);
-//		if (!name.contains("madkit.kernel") && !name.contains("madkit.gui") && !name.contains("madkit.message")
-//				&& !name.contains("madkit.simulation") && platform.getMadkitClassLoader().reloadClass(name))
-//			return SUCCESS;
-//		return SEVERE;// TODO not the right code here
-//	}
+	//	/**
+	//	 * Asks MasKit to reload the class byte code so that new instances, created
+	//	 * using {@link Class#newInstance()} on a class object obtained with
+	//	 * {@link #getNewestClassVersion(AbstractAgent, String)}, will reflect
+	//	 * compilation changes during run time.
+	//	 * 
+	//	 * @param requester
+	//	 * @param name
+	//	 *           The fully qualified class name of the class
+	//	 * @throws ClassNotFoundException
+	//	 */
+	//
+	//	ReturnCode reloadClass(AbstractAgent requester, String name) throws ClassNotFoundException {
+	//		//		if (name == null)
+	//		//			throw new ClassNotFoundException(ReturnCode.CLASS_NOT_FOUND + " " + name);
+	//		if (!name.contains("madkit.kernel") && !name.contains("madkit.gui") && !name.contains("madkit.message")
+	//				&& !name.contains("madkit.simulation") && platform.getMadkitClassLoader().reloadClass(name))
+	//			return SUCCESS;
+	//		return SEVERE;// TODO not the right code here
+	//	}
 
 	boolean isCommunity(AbstractAgent requester, String community) {
 		try {
@@ -1569,7 +1622,7 @@ class MadkitKernel extends Agent {
 			logger.finer("***** SHUTINGDOWN MADKIT ********\n");
 		killAgents(true);
 	}
-	
+
 	private void launchNetwork() {
 		updateNetworkAgent();
 		if (netAgent == null) {

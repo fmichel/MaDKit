@@ -165,7 +165,8 @@ public class AgentLogger extends Logger {
 		super(agent.getLoggingName(), null);
 		myAgent = agent;
 		setUseParentHandlers(false);
-		super.setLevel(LevelOption.agentLogLevel.getValue(agent.getMadkitConfig()));
+		final Level l = agent.logger == null ? Level.OFF : LevelOption.agentLogLevel.getValue(agent.getMadkitConfig());
+		super.setLevel(l);
 		setWarningLogLevel(LevelOption.warningLogLevel.getValue(agent.getMadkitConfig()));
 		if(! BooleanOption.noAgentConsoleLog.isActivated(agent.getMadkitConfig())){
 			ConsoleHandler ch = new ConsoleHandler();

@@ -40,7 +40,6 @@ public class I18nFileTest {
 		EnumSet<E> set = EnumSet.allOf(e);
 		testKeys(e, set,"");
 		for (String lang : languages) {
-			System.err.println("\n----------------testing "+lang);
 			testKeys(e, set, "_"+lang);
 		}
 	}
@@ -51,6 +50,7 @@ public class I18nFileTest {
 	 * @throws IOException
 	 */
 	private <E extends Enum<E>> void testKeys(Class<E> e, EnumSet<E> set,String lang) throws IOException {
+		System.err.println("\n----------------testing "+e+lang);
 		Properties defaultConfig = new Properties();
 		defaultConfig.load(getClass().getResourceAsStream("/madkit/i18n/"+e.getSimpleName()+lang+".properties"));
 		assertNotNull(defaultConfig);

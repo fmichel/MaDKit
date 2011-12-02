@@ -18,7 +18,7 @@
  */
 package madkit.action;
 
-import static java.awt.event.KeyEvent.VK_E;
+import static java.awt.event.KeyEvent.*;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -41,9 +41,14 @@ public enum AgentAction {
 
 	LAUNCH_AGENT(KeyEvent.VK_L),
 	RELOAD(VK_E), 
-	LOG_LEVEL(KeyEvent.VK_DOLLAR),
-	WARNING_LOG_LEVEL(KeyEvent.VK_DOLLAR),
-	KILL_AGENT(KeyEvent.VK_K);
+	CREATE_GROUP(VK_DOLLAR),
+	REQUEST_ROLE(VK_DOLLAR),
+	LEAVE_ROLE(VK_DOLLAR),
+	LEAVE_GROUP(VK_DOLLAR),
+	SEND_MESSAGE(VK_DOLLAR),
+	KILL_AGENT(KeyEvent.VK_K), 
+	
+	;
 
 	final static private ResourceBundle messages = I18nUtilities.getResourceBundle(AgentAction.class.getSimpleName());
 	private ActionInfo actionInfo;

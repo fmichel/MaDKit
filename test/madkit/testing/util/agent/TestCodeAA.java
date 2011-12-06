@@ -18,6 +18,13 @@
  */
 package madkit.testing.util.agent;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.Arrays;
+
 import madkit.action.KernelAction;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
@@ -53,6 +60,24 @@ public class TestCodeAA extends AbstractAgent {
 
 	@Override
 	protected void activate() {
+		long onlineTime = System.nanoTime();
+	    ByteArrayOutputStream bos = new ByteArrayOutputStream();  
+	    DataOutputStream dos = new DataOutputStream(bos);  
+	    try {
+	   	 System.err.println(onlineTime);
+			dos.writeLong(onlineTime);
+			dos.close();  
+			byte[] data = bos.toByteArray();  		
+			System.err.println(Arrays.toString(data));
+			DataInputStream dis = new DataInputStream(new ByteArrayInputStream(data));
+			
+			long l = dis.readLong();
+			System.err.println(l);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}  
+		
 		Message m = new Message();
 		System.err.println(m);
 		sendMessage(LocalCommunity.NAME, Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE, m);

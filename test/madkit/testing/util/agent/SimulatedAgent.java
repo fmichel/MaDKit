@@ -35,10 +35,16 @@ public class SimulatedAgent extends AbstractAgent {
 	private static final long serialVersionUID = 1L;
 	private int privatePrimitiveField = 1;
 	public double publicPrimitiveField = 2;
+	private boolean activated = false;
 
 	@Override
 	protected void activate() {
 		JunitMadKit.createDefaultCGR(this);
+		activated  = true;
+	}
+	
+	public boolean goneThroughActivate(){
+		return activated;
 	}
 
 	/**

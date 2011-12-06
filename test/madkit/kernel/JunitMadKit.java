@@ -206,7 +206,9 @@ public class JunitMadKit {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				String[] args = { BooleanOption.network.toString(), Option.launchAgents.toString(), ForEverAgent.class.getName() };
+				String[] args = { BooleanOption.network.toString(), 
+//						LevelOption.networkLogLevel.toString(), Level.FINE.toString(), 
+						Option.launchAgents.toString(), ForEverAgent.class.getName() };
 				Madkit.main(args);
 			}
 		}).start();

@@ -24,6 +24,7 @@ import java.util.logging.Level;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadKit;
 import madkit.kernel.Madkit.LevelOption;
+import madkit.testing.util.agent.NormalAA;
 
 import org.junit.Test;
 
@@ -112,9 +113,9 @@ public class MassLaunchBench extends JunitMadKit {
 				// System.err.println("done\n\n");
 				startTimer();
 				System.err.println("begin");
-				launchAgentBucket("madkit.agentLifeCycle.NormalAbstractLife", 30100);
+				launchAgentBucket(NormalAA.class.getName(), 30100);
 				// launchAgentBucket("madkit.kernel.AbstractAgent", 6000100);
-				stopTimer("done");
+				stopTimer("done ");
 			}
 		});
 	}

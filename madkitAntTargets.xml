@@ -230,7 +230,6 @@
 	<!-- - - - - - - - - - - - - - - - - - 
           target: sign-jar         signedjar="${jnlp.jar}"              
 	        <arg value="- -modification-time=latest"/>
-    	<delete file="${jnlp.jar}"/>
          - - - - - - - - - - - - - - - - - -->
     <target name="sign-jar" depends="probe-for-jarsigner,jarsigner-message,get-password" if="jarsigner.present">
     	<echo>Creating ${jnlp.jar}${line.separator}</echo>
@@ -247,6 +246,7 @@
             <arg value="${jnlp.jar.gz}"/>
             <arg value="${jnlp.jar}"/>
 	    </exec>
+    	<delete file="${jnlp.jar}"/>
     </target>
 
 	<!-- - - - - - - - - - - - - - - - - - 

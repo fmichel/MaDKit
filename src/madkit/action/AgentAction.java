@@ -18,7 +18,8 @@
  */
 package madkit.action;
 
-import static java.awt.event.KeyEvent.*;
+import static java.awt.event.KeyEvent.VK_DOLLAR;
+import static java.awt.event.KeyEvent.VK_E;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -46,7 +47,8 @@ public enum AgentAction {
 	LEAVE_ROLE(VK_DOLLAR),
 	LEAVE_GROUP(VK_DOLLAR),
 	SEND_MESSAGE(VK_DOLLAR),
-	KILL_AGENT(KeyEvent.VK_K), 
+	BROADCAST_MESSAGE(VK_DOLLAR),
+	KILL_AGENT(KeyEvent.VK_K)
 	
 	;
 

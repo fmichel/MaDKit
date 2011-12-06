@@ -18,6 +18,10 @@
  */
 package madkit.kernel;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -55,28 +59,42 @@ final class MultiCastListener {
 		MulticastSocket ms = null;
 		DatagramSocket ds = null;
 		final int multiCastPort = 9999;
-			if (ipAddress == null) {
-				ipAddress = InetAddress.getByName("224.2.2.3");
-			}
-			ms = new MulticastSocket(multiCastPort);
-			ms.joinGroup(ipAddress);
-			ds = new DatagramSocket(localPort);
-			ds.send(new DatagramPacket(new byte[0], 0, ipAddress, 9999));
-			return new MultiCastListener(ms,ds);
+		if (ipAddress == null) {
+			ipAddress = InetAddress.getByName("224.2.2.3");
+		}
+		ms = new MulticastSocket(multiCastPort);
+		ms.joinGroup(ipAddress);
+		ms.setLoopbackMode(true);
+		ds = new DatagramSocket(localPort);
+		return new MultiCastListener(ms,ds);
 	}
 
-	void activate(final NetworkAgent networkAgent, final InetAddress localIP,final int localPort) {
+	/**
+	 * Activate the listener and broadcast existence
+	 * 
+	 * @param networkAgent
+	 * @param localIP
+	 * @param localPort
+	 * @throws IOException 
+	 */
+	void activate(final NetworkAgent networkAgent) throws IOException {
+		final ByteArrayOutputStream bos = new ByteArrayOutputStream();  
+		final DataOutputStream dos = new DataOutputStream(bos);  
+		final long onlineTime = System.nanoTime();
+		dos.writeLong(onlineTime);
+		dos.close();  
+		final byte[] data = bos.toByteArray();  		
+		ds.send(new DatagramPacket(data, 8, ipAddress, 9999));
 		final Thread t = new Thread(new Runnable() { //TODO problem if two arrive at the time
 			@Override
 			public void run() {
 				while(running){
 					try {
-						final DatagramPacket peerRequest = new DatagramPacket(new byte[0], 0);
+						final DatagramPacket peerRequest = new DatagramPacket(data, 8);
 						ms.receive(peerRequest);
-						if(localIP.equals(peerRequest.getAddress()) && localPort == peerRequest.getPort()){
-							continue;
-						}
-						networkAgent.receiveMessage(new NetworkMessage(NetCode.NEW_PEER_DETECTED,peerRequest));
+						final DataInputStream dis = new DataInputStream(new ByteArrayInputStream(data));
+						if(onlineTime < dis.readLong())
+							networkAgent.receiveMessage(new NetworkMessage(NetCode.NEW_PEER_DETECTED,peerRequest));
 					} catch (IOException e) {
 						if (running) {//socket failure
 							networkAgent.receiveMessage(new KernelMessage(KernelAction.EXIT));
@@ -90,7 +108,7 @@ final class MultiCastListener {
 		t.setName("MCL "+networkAgent.getName());
 		t.start();
 	}
-	
+
 	void stop() {
 		running = false;
 		ms.close();

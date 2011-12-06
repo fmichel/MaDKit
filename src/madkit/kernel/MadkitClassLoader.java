@@ -308,6 +308,10 @@ public Set<DemoModel> getAvailableConfigurations(){
 	return Collections.emptySet();
 }
 
+//List<AbstractAgent> createBucket(final String agentClass, int bucketSize){
+//	
+//}
+
 /**
  * Returns the names of all the available agent classes
  * @return All the agent classes available on the 

@@ -46,7 +46,7 @@ public class AsynchronousDiscoverTest extends JunitMadKit {
 	@Test
 	public void multipleAsynchroneConnectionTest() {
 		addMadkitArgs(BooleanOption.network.toString());
-		// addMadkitArgs(LevelOption.networkLogLevel.toString(),"ALL");
+//		 addMadkitArgs(LevelOption.networkLogLevel.toString(),"FINER");
 		launchTest(new AbstractAgent() {
 			@Override
 			protected void activate() {
@@ -55,6 +55,7 @@ public class AsynchronousDiscoverTest extends JunitMadKit {
 				launchThreadedMKNetworkInstance();
 				launchThreadedMKNetworkInstance();
 				launchThreadedMKNetworkInstance();
+				pause(10);
 				int i = 0;
 				while (getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT) == null || getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT)
 						.size() != 6) {

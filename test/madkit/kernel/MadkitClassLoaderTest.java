@@ -54,7 +54,7 @@ public class MadkitClassLoaderTest extends JunitMadKit {
 				System.err.println(System.getProperty("user.dir"));
 				mcl.loadJarsFromPath(System.getProperty("user.dir") + File.separator + "demos");
 				try {
-					assertNotNull(getMadkitClassLoader().loadClass("madkit.pingpong.PingPong"));
+					assertNotNull(getMadkitClassLoader().loadClass("rendezVous.Repartisseur"));
 				} catch (ClassNotFoundException e) {
 					fail(e.getMessage()); // TODO
 				}
@@ -98,6 +98,7 @@ public class MadkitClassLoaderTest extends JunitMadKit {
 					getMadkitClassLoader().loadClass(null);
 					fail("Not thrown"); // TODO
 				} catch (ClassNotFoundException e) {
+					fail("Not the one"); // TODO
 					e.printStackTrace();
 				} catch (NullPointerException e) {
 					throw e;

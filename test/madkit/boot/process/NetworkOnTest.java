@@ -16,18 +16,15 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
  */
-package madkit.networking.messaging;
+package madkit.boot.process;
 
-import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.logging.Level;
 
-import madkit.kernel.Agent;
+import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadKit;
-import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
 
@@ -35,31 +32,37 @@ import org.junit.Test;
 
 /**
  * @author Fabien Michel
- * @since MadKit 5.0.0.6
+ * @since MadKit 5.0.0.14
  * @version 0.9
  * 
  */
 @SuppressWarnings("serial")
-public class NetworkMessagingTest extends JunitMadKit {
+public class NetworkOnTest extends JunitMadKit {
 
 	@Test
-	public void ping() {
-		addMadkitArgs(BooleanOption.network.toString(), LevelOption.kernelLogLevel.toString(), "ALL"
-				,LevelOption.networkLogLevel.toString(), "FINE"
+	public void networkOn() {
+		addMadkitArgs(BooleanOption.network.toString()
+				,LevelOption.kernelLogLevel.toString(),Level.ALL.toString()
 				);
-		launchTest(new Agent() {
+		launchTest(new AbstractAgent() {
+			@Override
 			protected void activate() {
-				setLogLevel(Level.FINE);
 				assertTrue(isKernelOnline());
-				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP, true));
-				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
-				String[] args = { "--network", "--launchAgents", NetworkMessageAgent.class.getName()
-//						,LevelOption.networkLogLevel.toString(),Level.FINE.toString(),
-//						LevelOption.kernelLogLevel.toString(), "ALL" 
-						};
-				Madkit.main(args);
-				assertNotNull(waitNextMessage());
 			}
 		});
 	}
+
+	@Test
+	public void networkOff() {
+		addMadkitArgs(
+				LevelOption.kernelLogLevel.toString(),Level.ALL.toString()
+				);
+		launchTest(new AbstractAgent() {
+			@Override
+			protected void activate() {
+				assertFalse(isKernelOnline());
+			}
+		});
+	}
+
 }

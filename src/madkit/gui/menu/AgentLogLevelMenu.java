@@ -33,7 +33,6 @@ import javax.swing.JMenu;
 import javax.swing.JRadioButtonMenuItem;
 
 import madkit.action.ActionInfo;
-import madkit.action.AgentAction;
 import madkit.action.GUIManagerAction;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AgentLogger;

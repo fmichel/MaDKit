@@ -69,6 +69,7 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -92,7 +93,7 @@ import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Madkit.Option;
-import madkit.message.AgentHookRequestMessage;
+import madkit.message.AgentHookMessage;
 import madkit.message.KernelMessage;
 import madkit.message.ObjectMessage;
 
@@ -278,6 +279,7 @@ class MadkitKernel extends Agent {
 			loadLocalDemos();
 		}
 		launchGuiManagerAgent();
+		launchNetworkAgent();
 		//		 logCurrentOrganization(logger,Level.FINEST);
 	}
 
@@ -285,7 +287,6 @@ class MadkitKernel extends Agent {
 	 * Starts a session considering the current MadKit configuration
 	 */
 	private void startSession() {
-		launchNetworkAgent();
 		launchConfigAgents();
 	}
 
@@ -502,8 +503,8 @@ class MadkitKernel extends Agent {
 		if (m instanceof KernelMessage) {
 			handleKernelMessage((KernelMessage) m);
 		}
-		else if(m instanceof AgentHookRequestMessage){
-			handleHookRequest((AgentHookRequestMessage) m);
+		else if(m instanceof AgentHookMessage){
+			handleHookRequest((AgentHookMessage) m);
 		}
 		else {
 			if (logger != null) 
@@ -511,7 +512,7 @@ class MadkitKernel extends Agent {
 		}
 	}
 
-	private void handleHookRequest(AgentHookRequestMessage m) {
+	private void handleHookRequest(AgentHookMessage m) {
 		if(hooks == null){
 			hooks = new EnumMap<AgentAction, Set<AbstractAgent>>(AgentAction.class);
 		}
@@ -528,7 +529,7 @@ class MadkitKernel extends Agent {
 		}
 	}
 
-	private void launchNetworkAgent() {
+	private void launchNetworkAgent() {//FIXME cannot be in start session
 		if (network.isActivated(getMadkitConfig())) {
 			launchNetwork();
 		} else {
@@ -589,7 +590,7 @@ class MadkitKernel extends Agent {
 			final Set<AbstractAgent> l = hooks.get(action);
 			if(l != null){
 				for (final AbstractAgent a : l) {
-					a.receiveMessage(new AgentHookRequestMessage(action, parameters));
+					a.receiveMessage(new AgentHookMessage(action, parameters));
 				}
 			}
 		}
@@ -743,10 +744,14 @@ class MadkitKernel extends Agent {
 		try {
 			final List<AgentAddress> receivers = getOtherRolePlayers(requester, community, group, role);
 			if (receivers == null)
-				return NO_RECIPIENT_FOUND; // the requester is the only agent in
-			// this group
+				// the requester is the only agent in this group
+				return NO_RECIPIENT_FOUND; 
 			messageToSend.setSender(getSenderAgentAddress(requester, receivers.get(0), senderRole));
+			//TODO consistency on senderRole 
 			broadcasting(receivers, messageToSend);
+			if(logger != null){
+				informHooks(AgentAction.BROADCAST_MESSAGE, community, group, role, messageToSend, senderRole);
+			}
 			return SUCCESS;
 		} catch (CGRNotAvailable e) {
 			return e.getCode();
@@ -823,35 +828,41 @@ class MadkitKernel extends Agent {
 	// ////////////////////////////////////////////////////////////
 	// //////////////////////// Launching and Killing
 	// ////////////////////////////////////////////////////////////
-	@SuppressWarnings("unchecked")
+
 	synchronized List<AbstractAgent> launchAgentBucketWithRoles(final AbstractAgent requester, String agentClassName,
 			int bucketSize, Collection<String> CGRLocations) {
 		if(shuttedDown)
 			return null;
-		bucketMode  = CGRLocations != null;
-		Class<? extends AbstractAgent> agentClass = null;
-		try {//TODO put that in the cl
-			agentClass = (Class<? extends AbstractAgent>) platform.getMadkitClassLoader().loadClass(agentClassName);
-		} catch (ClassCastException e) {
-			requester.getLogger().severe("Cannot launch " + agentClassName + " because it is not an agent class");
-			return null;
-		} catch (ClassNotFoundException e) {
-			requester.getLogger().severe("Cannot launch " + agentClassName + " because the class has not been found");
-			return null;
-		}
-		ArrayList<AbstractAgent> bucket = null;
-		try {
-			bucket = createBucket(agentClass, bucketSize);
-		} catch (InterruptedException e) {//forward the interruption
-			requester.handleInterruptedException();
-			return null;
-		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		List<AbstractAgent> bucket = null;
+			try {
+				bucket = createBucket(agentClassName, bucketSize);
+			} catch (InstantiationException e1) {
+				bugReport(e1);
+			} catch (IllegalAccessException e1) {
+				bugReport(e1);
+			} catch (ClassNotFoundException e1) {
+				bugReport(e1);
+			}
+		AgentsJob aj = new AgentsJob() {
+			@Override
+			void proceedAgent(AbstractAgent a) {
+			// no need to test : I created these instances
+				a.state.set(ACTIVATED); 
+				a.setKernel(MadkitKernel.this);
+				a.getAlive().set(true);
+				a.logger = null;
+			}
+		};
+		
+		//initialization
+		doMulticore(serviceExecutor, aj.getJobs(bucket));
+
+		aj = new AgentsJob() {
+			@Override
+			void proceedAgent(AbstractAgent a) {
+				a.activate();
+			}
+		};
 		if (CGRLocations != null) {
 			for (final String cgrLocation : CGRLocations) {
 				final String[] cgr = cgrLocation.split(";");
@@ -876,61 +887,66 @@ class MadkitKernel extends Agent {
 				// test vs assignement ? -> No: cannot touch the organizational
 				// structure !!
 			}
+			synchronized (this) {
+				bucketMode  = true;
+				doMulticore(serviceExecutor, aj.getJobs(bucket));
+				bucketMode = false;
+			}
 		}
-		//		for (final AbstractAgent a : bucket) {
-		//			a.activation();
-		//		}
-		bucketMode = false;
+		else{
+			doMulticore(serviceExecutor, aj.getJobs(bucket));
+		}
 		return bucket;
 	}
 
-	private ArrayList<AbstractAgent> createBucket(final Class<? extends AbstractAgent> agentClass, int bucketSize) throws InterruptedException, InstantiationException, IllegalAccessException {
-		final int cpuCoreNb = Runtime.getRuntime().availableProcessors();
-		final ArrayList<AbstractAgent> result = new ArrayList<AbstractAgent>(bucketSize);
+	private List<AbstractAgent> createBucket(final String agentClass, int bucketSize) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+		@SuppressWarnings("unchecked")
+		final Class<? extends AbstractAgent> constructor = (Class<? extends AbstractAgent>) getMadkitClassLoader().loadClass(agentClass);
+		final int cpuCoreNb = Runtime.getRuntime().availableProcessors()-1;
+		final List<AbstractAgent> result = new ArrayList<AbstractAgent>(bucketSize);
 		final int nbOfAgentsPerTask = bucketSize / (cpuCoreNb);
-		// System.err.println("nb of ag per task "+nbOfAgentsPerTask);
-		CompletionService<ArrayList<AbstractAgent>> ecs = new ExecutorCompletionService<ArrayList<AbstractAgent>>(serviceExecutor);
-		final ArrayList<Callable<ArrayList<AbstractAgent>>> workers = new ArrayList<Callable<ArrayList<AbstractAgent>>>(cpuCoreNb);
-		for (int i = 0; i < cpuCoreNb; i++) {
-			workers.add(new Callable<ArrayList<AbstractAgent>>() {
-
-				public ArrayList<AbstractAgent> call() throws InstantiationException, IllegalAccessException{
-					final ArrayList<AbstractAgent> list = new ArrayList<AbstractAgent>(nbOfAgentsPerTask);
-					for (int i = nbOfAgentsPerTask; i > 0; i--) {
-						list.add(initAbstractAgent(agentClass));
+		final CompletionService<List<AbstractAgent>> ecs = new ExecutorCompletionService<List<AbstractAgent>>(serviceExecutor);
+			for (int i = 0; i < cpuCoreNb; i++) {
+				ecs.submit(new Callable<List<AbstractAgent>>() {
+					public List<AbstractAgent> call() throws InvocationTargetException, InstantiationException, IllegalAccessException{
+						final List<AbstractAgent> list = new ArrayList<AbstractAgent>(nbOfAgentsPerTask);
+						for (int i = nbOfAgentsPerTask; i > 0; i--) {
+								list.add(constructor.newInstance());
+						}
+						return list;
 					}
-					return list;
-				}
-			});
-		}
-		for (final Callable<ArrayList<AbstractAgent>> w : workers)
-			ecs.submit(w);
-		int n = workers.size();
-		// adding the missing one when the division results as a real number
-		for (int i = bucketSize - nbOfAgentsPerTask * cpuCoreNb; i > 0; i--) {
-			result.add(initAbstractAgent(agentClass));
-		}
-		for (int i = 0; i < n; ++i) {
-			try {
-				result.addAll(ecs.take().get());
-			} catch (ExecutionException e) {
-				e.printStackTrace();
+				});
 			}
-		}
-		// System.err.println(result.size());
+			// adding the missing one when the division results as a real number
+			for (int i = bucketSize - nbOfAgentsPerTask * cpuCoreNb; i > 0; i--) {
+					result.add(constructor.newInstance());
+			}
+			for (int i = 0; i < cpuCoreNb; ++i) {
+					try {
+						result.addAll(ecs.take().get());
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					} catch (ExecutionException e) {
+						e.printStackTrace();
+					}
+			}
 		return result;
 	}
-
-	private AbstractAgent initAbstractAgent(final Class<? extends AbstractAgent> agentClass) throws InstantiationException, IllegalAccessException {
-		final AbstractAgent a = agentClass.newInstance();
-		a.state.set(ACTIVATED); // no need to test : I created these
-		// instances
-		a.setKernel(this);
-		a.getAlive().set(true);
-		a.logger = null;
-		return a;
+	
+	private void doMulticore(Executor e, ArrayList<AgentsJob> arrayList){
+      final CompletionService<Void> ecs = new ExecutorCompletionService<Void>(e);
+      for (final Callable<Void> s : arrayList)
+          ecs.submit(s);
+      for (int i = arrayList.size(); i > 0; i--) {
+          try {
+              ecs.take();
+          }
+          catch (InterruptedException ignore) {
+         	 ignore.printStackTrace();
+			}
+      }
 	}
-
+	
 	ReturnCode launchAgent(final AbstractAgent requester, final AbstractAgent agent, final int timeOutSeconds,
 			final boolean defaultGUI) {
 		try {
@@ -1764,4 +1780,49 @@ final class CGRNotAvailable extends Exception {
 	//		return null;
 	//	}
 
+}
+
+
+abstract class AgentsJob implements Callable<Void>,Cloneable{
+	List<AbstractAgent> list;
+	
+	@Override
+	public Void call() throws Exception {
+		for (final AbstractAgent a : list) {
+			proceedAgent(a);
+		}
+		return null;
+	}
+	
+	ArrayList<AgentsJob> getJobs(List<AbstractAgent> l){
+		final int cpuCoreNb = Runtime.getRuntime().availableProcessors();
+		final ArrayList<AgentsJob> workers = new ArrayList<AgentsJob>(cpuCoreNb);
+		int bucketSize = l.size();
+		final int nbOfAgentsPerTask = bucketSize / cpuCoreNb;
+		if(nbOfAgentsPerTask == 0){
+			setList(l);
+			workers.add(this);
+			return workers;
+		}
+		for (int i = 0; i < cpuCoreNb; i++) {
+			final int index = i;
+			AgentsJob aj = null;
+			try {
+				aj = (AgentsJob) this.clone();
+			} catch (CloneNotSupportedException e) {
+				e.printStackTrace();
+			}
+			int firstIndex = nbOfAgentsPerTask*index;//TODO check that using junit
+			aj.setList(l.subList(firstIndex, firstIndex+nbOfAgentsPerTask));
+			workers.add(aj);
+		}
+		return workers;
+	}
+
+	private void setList(List<AbstractAgent> subList) {
+		list = subList;
+	}
+
+
+	abstract void proceedAgent(AbstractAgent a);
 }

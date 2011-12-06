@@ -58,9 +58,9 @@ public enum GUIManagerAction {
 	KILL_AGENTS(KeyEvent.VK_A),
 	//	CONNECT_WEB_REPO(VK_W),
 
+	SETUP_AGENT_GUI(KeyEvent.VK_DOLLAR), 
 	LOG_LEVEL(KeyEvent.VK_DOLLAR),
 	WARNING_LOG_LEVEL(KeyEvent.VK_DOLLAR),
-	SETUP_AGENT_GUI(KeyEvent.VK_DOLLAR), 
 	DISPOSE_AGENT_GUI(KeyEvent.VK_DOLLAR);
 
 	private ActionInfo actionInfo;

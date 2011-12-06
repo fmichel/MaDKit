@@ -185,6 +185,7 @@
 	    	<report format="frames"
 	    	todir="${test.reports.dir}"/>
     	</junitreport>
+    	<replace dir="${test.reports.dir}" token="Unit Test Result" value="MadKit ${madkit.version} Unit Test Result"/>    	
     </target>
 
 	
@@ -216,6 +217,8 @@
 		<delete dir="${docs.api.dir}"/>
 		<delete dir="${tuto.dir}" includes="**/*.zip,**/*.jar"/>
 		<delete file="${jar.file}" failonerror="false"/>
+		<delete file="${docs.dir}/French_Tutorial/MadKit_Tutorial/${lib.dir}/${madkit.jar.name}"/>
+		<ant dir="../MadKit_Demos" target="clean" inheritall="false"/>
 	</target>
 
 	
@@ -242,7 +245,6 @@
    		<echo>Updating MadKit Tutorial</echo>   		
 		<copy todir="${docs.dir}/French_Tutorial/MadKit_Tutorial/${lib.dir}" file="${jar.file}"/>
 		<replace file="${docs.dir}/French_Tutorial/MadKit_Tutorial/.classpath" token="${madkit.old.version}" value="${madkit.version}"/>
-   		<delete file="${docs.dir}/French_Tutorial/MadKit_Tutorial/${lib.dir}/madkitkernel-${madkit.old.version}"/>
    		
    		<echo>Building MadKit HowTo</echo>
 		<ant dir="../MadKit_HowTo" inheritall="false"/>

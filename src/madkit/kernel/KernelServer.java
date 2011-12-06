@@ -19,7 +19,6 @@
 package madkit.kernel;
 
 import java.io.IOException;
-import java.net.BindException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -97,7 +96,7 @@ final class KernelServer {
 		}
 	}
 
-	final static KernelServer getNewKernelServer() throws IOException{
+	final static KernelServer getNewKernelServer() {
 		InetAddress ip = findInetAddress();
 		if(ip == null){
 			try {
@@ -115,9 +114,7 @@ final class KernelServer {
 			try {
 				serverSocket = new ServerSocket(port,50,ip);
 				inUse = false;
-			} catch (BindException e) {
-				port++;
-			} catch (SocketException e) {
+			} catch (IOException e) {
 				port++;
 			}
 		}

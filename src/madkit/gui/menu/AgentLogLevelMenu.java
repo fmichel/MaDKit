@@ -38,8 +38,12 @@ import madkit.kernel.AbstractAgent;
 import madkit.kernel.AgentLogger;
 
 /**
+ * An out of the box menu for manipulating the
+ * log level of an agent.
+ * 
  * @author Fabien Michel
  * @since MadKit 5.0.0.7
+ * @see AgentLogger
  * @version 0.91
  * 
  */
@@ -76,6 +80,10 @@ public class AgentLogLevelMenu extends JMenu{
 //	final private static ImageIcon logIcon = MadkitAction.AGENT_LOG_LEVEL);
 //	final private static ImageIcon wIcon = madkit.gui.GUIToolkit.getMadkitImageIcon(MadkitAction.AGENT_WARNING_LOG_LEVEL);
 	
+	/**
+	 * Builds a menu containing all the log levels which
+	 * could be set on an agent. 
+	 */
 	public AgentLogLevelMenu(final AbstractAgent agent){
 		super("Logging");
 		setMnemonic(KeyEvent.VK_L);
@@ -127,8 +135,8 @@ public class AgentLogLevelMenu extends JMenu{
 //		}
 	}
 	
-	public static void update(AbstractAgent agent){
-		AgentLogLevelMenu menu = menus.get(agent);
+	public static void update(final AbstractAgent agent){
+		final AgentLogLevelMenu menu = menus.get(agent);
 		if(menu != null){
 			menu.update();
 		}
@@ -138,7 +146,7 @@ public class AgentLogLevelMenu extends JMenu{
 	 * @param logGroup 
 	 * @param logLevel
 	 */
-	private void updateButtonGroup(ButtonGroup logGroup, Level logLevel) {
+	private void updateButtonGroup(final ButtonGroup logGroup, final Level logLevel) {
 		for (Enumeration<AbstractButton> buttons = logGroup.getElements();buttons.hasMoreElements();) {
 			final AbstractButton button = buttons.nextElement();
 			if(button.getActionCommand().equals(logLevel.toString())){

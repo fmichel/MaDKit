@@ -47,7 +47,10 @@ import madkit.message.KernelMessage;
 /**
  * Enum representing kernel actions. This especially could
  * be used to communicate with the kernel in order to
- * trigger kernel's actions
+ * trigger kernel's actions.
+ * It could be used by an agent to interact with the kernel
+ * by creating {@link Action} using {@link #getActionFor(AbstractAgent, Object...)}.
+ * 
  * 
  * @author Fabien Michel
  * @since MadKit 5.0.0.14
@@ -82,14 +85,9 @@ public enum KernelAction {
 		this.keyEvent = keyEvent;
 	}
 
-	@Override
-	public String toString() {
-		return ActionInfo.enumToMethodName(this);
-	}
-
 	/**
-	 * Builds an action that will make the agent do the
-	 * corresponding behavior
+	 * Builds an action that will make the kernel do the
+	 * corresponding operation if possible.
 	 * 
 	 * @param agent the agent that will send the message
 	 * to the kernel

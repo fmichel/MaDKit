@@ -38,8 +38,38 @@ public class AgentHookMessage extends EnumMessage<AgentAction> {
 	 */
 	private static final long serialVersionUID = 6079684550233257149L;
 
-	public AgentHookMessage(AgentAction code, Object... commandOptions) {
-		super(code, commandOptions);
+	/**
+	 * This message should be used to request or release a hook on
+	 * an agent action. The message should be sent to the kernel 
+	 * (which is the manager of the SYSTEM group in the local
+	 * community), here is
+	 * an example :
+	 * <pre><code>
+	 * sendMessage(
+	 * 	LocalCommunity.NAME,
+	 * 	LocalCommunity.Groups.SYSTEM, 
+	 * 	Organization.GROUP_MANAGER_ROLE,
+	 * 	new AgentHookMessage(AgentAction.REQUEST_ROLE));
+	 * </code></pre>
+	 * In this example, the sender will be informed by the 
+	 * kernel of all successful requestRole operation 
+	 * made by the agents. This information is also transmitted 
+	 * using this message class. {@link #getContent()} should be used
+	 * to access this information. This information is coded as
+	 * an array of Object. The first object is the performer's name and
+	 * the next objects are the parameters which have been used to perform
+	 * the action.
+	 * <p>
+	 * To give up the hook, just send to the kernel another message built with
+	 * the same action and it will remove the sender from the subscriber list.
+	 * 
+	 * @param agentAction the action to monitor
+	 * @param infos used by the kernel to transmit action information as 
+	 * an array of Object
+	 * @see AgentAction
+	 */
+	public AgentHookMessage(AgentAction agentAction, Object... infos) {
+		super(agentAction, infos);
 	}
 	
 	

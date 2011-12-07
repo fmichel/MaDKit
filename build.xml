@@ -75,9 +75,10 @@
          ================================= -->
 	<target name="jar" depends="clean,compile,build-properties" description="Jars MadKit kernel ">
 		<jar destfile="${jar.file}" index="true" compress="false">
-
-			<fileset dir="${build.dir}"/>
-		
+			<fileset dir="${build.dir}">
+				<exclude name="**/package-info.class"/>
+				<exclude name="**/doc-files"/>
+			</fileset>
 			<fileset dir="${lib.dir}" includes="jar-in-jar-loader.zip"/>
 			<fileset dir="." includes="${jnlp.template}"/> <!-- jnlp file -->
 			<fileset dir="." includes="${madkit.ant.targets.file}"/> <!-- MK ant targets -->
@@ -195,12 +196,12 @@
 			<packageset dir="${src.dir}" defaultexcludes="yes">
 			      <exclude name="NetworkAgent.java"/>
 			</packageset>
-         ================================= -->
-	<target name="javadoc" description="build the javadoc">
-		<javadoc destdir="${docs.api.dir}" access="protected" author="true" version="true" use="true" linksource="no" windowtitle="${project.label}">
 			<fileset dir="${src.dir}">
 			  <include name="**/*.java"/>
 			</fileset>
+         ================================= -->
+	<target name="javadoc" description="build the javadoc">
+		<javadoc sourcepath="${src.dir}" destdir="${docs.api.dir}" access="protected" docfilessubdirs="true" author="true" version="true" use="true" linksource="no" windowtitle="${project.label}">
 		    <doctitle><![CDATA[<h1>${project.label}</h1>]]></doctitle>
 		    <bottom><![CDATA[<i>${author.name}</i>]]></bottom>
 			<link href="${sun.api.url}"/>

@@ -51,16 +51,20 @@ Other command line options are described in the API of the madkit.kernel.Madkit 
 	- Action building and related enum have been reworked and refactored
 	- starting time improved
 	- basic activators and probes are faster
+	- madkit.action.* can be used to easily build GUI
 
-2. API Refactoring:
+2. API new features:
+	- madkit.message. StringMessage, AgentHookMessage, EnumMessage, KernelMessage classes have been added.
+	- The madkit.kernel.AbstractAgent.executeThisAgent(String[], int) method has been added
+
+3. API Refactoring:
 	- madkit.simulation.PropertyProbe has been refactored
 	- madkit.messages package renamed to madkit.message
 	- madkit.gui.action package moved to madkit.action
 	- madkit.gui.menus package renamed to madkit.menu
 	- madkit.gui.toolbars package renamed to madkit.toolbar
 	- madkit.kernel.MadkitClassLoader is now visible
-	- The madkit.kernel.AbstractAgent.executeThisAgent(String[], int) method has been added
-	To do your refactoring work at once, right click your project and select source->Organize imports
+	Tip: To do your refactoring work at once, right click your project and select source->Organize imports
 
 ----------------------------------------------------------------------------------
 ------------------------------- MadKit 5.0.0.13 (alpha-13)--------------------------

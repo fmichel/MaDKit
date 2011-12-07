@@ -18,7 +18,13 @@
  */
 
 /**
-* This package is the heart of MadKit. It contains the agent main classes
+ * Provides classes that are fundamental to the design of MadKit applications.
+ * This package is the heart of MadKit. Especially, it contains the agent main classes:
+ * {@link madkit.kernel.AbstractAgent} and {@link madkit.kernel.Agent}.
+ * {@link madkit.kernel.AbstractAgent} is not threaded while {@link madkit.kernel.Agent}
+ * is. The former is useful to develop simulation applications and the later
+ * could be used where you need autonomy of execution.
+ * 
 * @since MadKit 1.0
 * @author Fabien Michel, Olivier Gutknecht, Jacques Ferber
 * @version 5.0

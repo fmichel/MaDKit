@@ -67,6 +67,7 @@ import madkit.kernel.Madkit.Option;
 import madkit.message.EnumMessage;
 import madkit.message.GUIMessage;
 
+//* <img src="doc-files/Capture.png" alt=""/>
 /**
  * The super class of all MadKit agents, v 5.
  * It provides support for
@@ -2130,10 +2131,10 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	/**
 	 * This offers a convenient way to create main method that launch
 	 * the agent class under development.
-	 * This call is equivalent to <code>executeThisAgent(args, 1)</code>
+	 * This call is equivalent to <code>executeThisAgent(args, 1, true)</code>
 	 * 
 	 * @param args MadKit options
-	 * @see #executeThisAgent(String[], int)
+	 * @see #executeThisAgent(String[], int, boolean)
 	 * @since MadKit 5.0.0.14
 	 */
 	public static void executeThisAgent(String[] args) {

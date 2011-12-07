@@ -30,6 +30,8 @@ import java.util.ResourceBundle;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
+import javax.swing.JMenu;
+import javax.swing.JToolBar;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import madkit.agr.LocalCommunity;
@@ -43,24 +45,61 @@ import madkit.message.GUIMessage;
 import madkit.message.KernelMessage;
 
 /**
+ * Enum representing operations which 
+ * could be done by the default GUI manager of MadKit.
+ * It could be used by an agent to interact with the GUI manager
+ * by creating {@link Action} using {@link #getActionFor(AbstractAgent, Object...)}.
+ * 
  * @author Fabien Michel
  * @since MadKit 5.0.0.14
+ * @see Action
  * @version 0.9
  * 
  */
-@SuppressWarnings("serial")
 public enum GUIManagerAction {
 
 
+	/**
+	 * Opens a dialog for selecting the jar file to add.
+	 */
 	LOAD_JAR_FILE(KeyEvent.VK_J), 
+	/**
+	 * Iconify all the agent frames
+	 */
 	ICONIFY_ALL(KeyEvent.VK_U),
+	/**
+	 * Deiconify all the agent frames
+	 */
 	DEICONIFY_ALL(KeyEvent.VK_I),
+	/**
+	 * Kills all the agents having a GUI
+	 */
 	KILL_AGENTS(KeyEvent.VK_A),
 	//	CONNECT_WEB_REPO(VK_W),
 
+	/**
+	 * Requests an agent frame creation.
+	 * The corresponding action should be created
+	 * by specify the targeted agent:
+	 * <pre><code>
+	 * SETUP_AGENT_GUI.getActionFor(anAgent, targetedAgent);
+	 * </code></pre>
+	 * They could be identical.
+	 * @see AbstractAgent#setupFrame(javax.swing.JFrame)
+	 */
 	SETUP_AGENT_GUI(KeyEvent.VK_DOLLAR), 
 	LOG_LEVEL(KeyEvent.VK_DOLLAR),
 	WARNING_LOG_LEVEL(KeyEvent.VK_DOLLAR),
+	/**
+	 * Requests an agent frame disposal: This will
+	 * kill the agent.
+	 * The corresponding action should be created
+	 * by specify the targeted agent:
+	 * <pre><code>
+	 * SETUP_AGENT_GUI.getActionFor(anAgent, targetedAgent);
+	 * </code></pre>
+	 * They could be identical.
+	 */
 	DISPOSE_AGENT_GUI(KeyEvent.VK_DOLLAR);
 
 	private ActionInfo actionInfo;
@@ -73,6 +112,14 @@ public enum GUIManagerAction {
 	}
 
 
+	/**
+	 * Returns an Action that will send to the GUI manager
+	 * the corresponding request. 
+	 * @param agent the agent for which this Action will be created
+	 * @param commandOptions optional information related to the action
+	 * itself
+	 * @return an Action that could be used in an GUI for instance
+	 */
 	public Action getActionFor(final AbstractAgent agent, final Object... commandOptions){
 		return new MKAbstractAction(getActionInfo()){
 			@Override
@@ -99,6 +146,12 @@ public enum GUIManagerAction {
 		return actionInfo;
 	}
 
+	/**
+	 * Adds all the possible actions to {@link JComponent} such as
+	 * a {@link JMenu} or a {@link JToolBar}.
+	 * @param menuOrToolBar
+	 * @param agent
+	 */
 	public static void addAllActionsTo(JComponent menuOrToolBar, final AbstractAgent agent){
 		try {//this bypasses class incompatibility
 			final Method add = menuOrToolBar.getClass().getMethod("add", Action.class);
@@ -122,8 +175,6 @@ public enum GUIManagerAction {
 				switch (mkA) {
 				case LOAD_JAR_FILE:
 					addSeparator.invoke(menuOrToolBar);
-				case DEICONIFY_ALL:
-					//				case KILL_AGENTS:
 				default:
 					break;
 				}
@@ -136,11 +187,6 @@ public enum GUIManagerAction {
 		} catch (SecurityException e) {
 		} catch (NoSuchMethodException e) {
 		}
-	}
-
-	@Override
-	public String toString() {
-		return ActionInfo.enumToMethodName(this);
 	}
 
 	private URL getJarUrl() {

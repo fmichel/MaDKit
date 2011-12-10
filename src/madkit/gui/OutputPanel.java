@@ -40,7 +40,8 @@ import madkit.kernel.AgentLogger;
 
 /**
  * This component is the default panel which is used for the frames assigned to 
- * agents that do not define their own GUI and which are launched using <code>true</code> for the <code>createFrame</code> parameter.
+ * agents that do not define their own GUI and which are launched using <code>true</code>
+ * for the <code>createFrame</code> parameter.
  * 
  * @author Fabien Michel
  * @since MadKit 5.0.0.2
@@ -65,7 +66,7 @@ public class OutputPanel extends JPanel {
 		return out;
 	}
 
-	public OutputPanel(AbstractAgent agent)
+	public OutputPanel(final AbstractAgent agent)
 	{
 		outField = new JTextArea(5,32);
 		setLayout(new BorderLayout());

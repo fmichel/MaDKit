@@ -31,7 +31,6 @@ import javax.swing.Action;
 import javax.swing.JSlider;
 
 import madkit.i18n.I18nUtilities;
-import madkit.kernel.AbstractAgent;
 import madkit.kernel.Scheduler;
 import madkit.message.SchedulingMessage;
 
@@ -42,7 +41,7 @@ import madkit.message.SchedulingMessage;
  * by creating {@link Action} using {@link #getActionFor(Scheduler, Object...)}.
  * 
  * @author Fabien Michel
- * @since MadKit 5.0.0.9
+ * @since MadKit 5.0.0.14
  * @version 0.9
  * 
  */
@@ -78,24 +77,27 @@ public enum SchedulingAction {
 	 * 
 	 * @param theScheduler the scheduler on which the
 	 * action will be triggered if possible
-	 * 
 	 * @param parameters the info 
 	 * @return the corresponding action 
 	 */
-	public Action getActionFor(final Scheduler theScheduler, final Object... info){
+	public Action getActionFor(final Scheduler theScheduler, final Object... parameters){
 		switch (this) {
 		case RUN:
 		case STEP:
 		case SHUTDOWN:
 		return new MKAbstractAction(getActionInfo()){
+			private static final long serialVersionUID = 5434867603425806658L;
+
 			@Override
 			public void actionPerformed(ActionEvent e) {//TODO I could do the check validity here for logging purpose
-				theScheduler.receiveMessage(new SchedulingMessage(SchedulingAction.this,info));//TODO work with AA but this is probably worthless	
+				theScheduler.receiveMessage(new SchedulingMessage(SchedulingAction.this,parameters));//TODO work with AA but this is probably worthless	
 			}
 		};
 		case SPEED_DOWN:
 		case SPEED_UP:
 			return new MKAbstractAction(getActionInfo()) {
+				private static final long serialVersionUID = -4856695289354657928L;
+
 				public void actionPerformed(ActionEvent e) {
 					JSlider s = theScheduler.getSpeedSlider();
 					s.setValue(s.getValue() + (SchedulingAction.this == SPEED_UP ? -50 : 50));

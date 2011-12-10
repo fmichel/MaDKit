@@ -269,21 +269,21 @@ private void scanClassPathForAgentClasses() {
 	}
 }
 
-@Override
-public String toString() {
-	ClassLoader parent = getParent();
-	String cp =super.toString()+" : ";
-	String tab="\t";
-	while(parent != null){
-		cp+=tab+parent.getClass();
-		tab+=tab;
-		parent = parent.getParent();
-	}
-	for (URL url : getURLs()) {
-		cp+="\n"+url;
-	}
-	return cp;
-}
+//@Override
+//public String toString() {
+//	ClassLoader parent = getParent();
+//	String cp =super.toString()+" : ";
+//	String tab="\t";
+//	while(parent != null){
+//		cp+=tab+parent.getClass();
+//		tab+=tab;
+//		parent = parent.getParent();
+//	}
+//	for (URL url : getURLs()) {
+//		cp+="\n"+url;
+//	}
+//	return cp;
+//}
 
 /**
  * Adds a directory or a jar file to the class path.

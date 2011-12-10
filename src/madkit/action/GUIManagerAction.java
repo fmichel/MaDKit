@@ -64,6 +64,11 @@ public enum GUIManagerAction {
 	 */
 	LOAD_JAR_FILE(KeyEvent.VK_J), 
 	/**
+	 * Makes a redirection of the out and err 
+	 * to a MadKit agent.
+	 */
+	CONSOLE(KeyEvent.VK_O), 
+	/**
 	 * Iconify all the agent frames
 	 */
 	ICONIFY_ALL(KeyEvent.VK_U),
@@ -80,7 +85,7 @@ public enum GUIManagerAction {
 	/**
 	 * Requests an agent frame creation.
 	 * The corresponding action should be created
-	 * by specify the targeted agent:
+	 * by specifying the targeted agent:
 	 * <pre><code>
 	 * SETUP_AGENT_GUI.getActionFor(anAgent, targetedAgent);
 	 * </code></pre>
@@ -115,13 +120,39 @@ public enum GUIManagerAction {
 	/**
 	 * Returns an Action that will send to the GUI manager
 	 * the corresponding request. 
+	 * The corresponding action should be created
+	 * by specifying the agent for which this action is created.
+	 * Here is an example :
+	 * <pre><code>
+	 * KILL_AGENTS.getActionFor(anAgent);
+	 * </code></pre>
+	 * This will create an agent that will make <code>anAgent</code>
+	 * send a message to the gui manager asking the kill of all GUI
+	 * agents.
 	 * @param agent the agent for which this Action will be created
 	 * @param commandOptions optional information related to the action
 	 * itself
 	 * @return an Action that could be used in an GUI for instance
 	 */
 	public Action getActionFor(final AbstractAgent agent, final Object... commandOptions){
+		if(this == CONSOLE){
+			return new MKAbstractAction(getActionInfo()) {
+				private static final long serialVersionUID = -3628118195822063331L;
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if(agent.isAlive()){
+						agent.launchAgent("madkit.gui.ConsoleAgent",0,true);
+					}
+				}
+			};
+		}
 		return new MKAbstractAction(getActionInfo()){
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 2231685794614332333L;
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (agent.isAlive()) {
@@ -162,6 +193,7 @@ public enum GUIManagerAction {
 				Action a = mkA.getActionFor(agent);
 				if (mkA == LOAD_JAR_FILE) {//TODO move that code in manager
 					a = new MKAbstractAction(mkA.actionInfo){
+						private static final long serialVersionUID = -7758727130858069498L;
 						@Override
 						public void actionPerformed(ActionEvent e) {
 							if (agent.isAlive()) {
@@ -174,6 +206,7 @@ public enum GUIManagerAction {
 				add.invoke(menuOrToolBar, a);
 				switch (mkA) {
 				case LOAD_JAR_FILE:
+				case CONSOLE:
 					addSeparator.invoke(menuOrToolBar);
 				default:
 					break;

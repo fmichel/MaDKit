@@ -23,12 +23,16 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.Arrays;
+
+import javax.swing.JFrame;
 
 import madkit.action.KernelAction;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.agr.Organization;
+import madkit.gui.OutputPanel;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Message;
 import madkit.message.EnumMessage;
@@ -57,9 +61,19 @@ public class TestCodeAA extends AbstractAgent {
 //	public TestCodeAA() {
 //		// TODO Auto-generated constructor stub
 //	}
+	
+	@Override
+	public void setupFrame(JFrame frame) {
+		OutputPanel outP;
+		frame.add(outP = new OutputPanel(this));
+		System.setErr(new PrintStream(outP.getOutputStream()));
+		System.setOut(new PrintStream(outP.getOutputStream()));
+	}
 
 	@Override
 	protected void activate() {
+		if(logger != null)
+			logger.info("coucou");
 		long onlineTime = System.nanoTime();
 	    ByteArrayOutputStream bos = new ByteArrayOutputStream();  
 	    DataOutputStream dos = new DataOutputStream(bos);  

@@ -77,7 +77,7 @@
 		<jar destfile="${jar.file}" index="true" compress="false">
 			<fileset dir="${build.dir}">
 				<exclude name="**/package-info.class"/>
-				<exclude name="**/doc-files"/>
+				<exclude name="**/doc-files/**"/>
 			</fileset>
 			<fileset dir="${lib.dir}" includes="jar-in-jar-loader.zip"/>
 			<fileset dir="." includes="${jnlp.template}"/> <!-- jnlp file -->

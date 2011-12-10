@@ -49,7 +49,7 @@ public class AgentMenu extends JMenu {// TODO i18n
 	 * @param agent the agent for which this menu is created
 	 */
 	public AgentMenu(final AbstractAgent agent) {
-		super(agent.getClass().getSimpleName());
+		super("Agent");
 		setMnemonic(KeyEvent.VK_A);
 		if(agent.hasDefaultConstructor()){
 			add(AgentAction.RELOAD.getActionFor(agent));

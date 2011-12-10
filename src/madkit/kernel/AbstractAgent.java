@@ -1439,7 +1439,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * The life cycle of the frame is automatically managed (i.e. disposed 
 	 * when the agent is terminated) and some menus
 	 * are available by default.
-	 * Default code is only one line: frame.add(new IOPanel(this));
+	 * Default code is only one line: <code>frame.add(new IOPanel(this));</code>
 	 * 
 	 * @param frame the default frame which has been created by MadKit for this agent.
 	 * @since MadKit 5.0.0.8

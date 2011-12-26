@@ -57,7 +57,7 @@ public class Message implements Cloneable,java.io.Serializable{//TODO message al
 	private static AtomicInteger cID = new AtomicInteger();//TODO if many many ??
 
 	
-	public Message(){
+	public Message(){//TODO id when sending ?
 		conversationID = cID.getAndIncrement();
 	}
 	/**

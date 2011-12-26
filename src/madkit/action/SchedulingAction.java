@@ -18,10 +18,9 @@
  */
 package madkit.action;
 
-import static java.awt.event.KeyEvent.VK_DOLLAR;
+import static java.awt.event.KeyEvent.*;
 import static java.awt.event.KeyEvent.VK_LEFT;
 import static java.awt.event.KeyEvent.VK_O;
-import static java.awt.event.KeyEvent.VK_P;
 import static java.awt.event.KeyEvent.VK_RIGHT;
 
 import java.awt.event.ActionEvent;
@@ -48,7 +47,7 @@ import madkit.message.SchedulingMessage;
 public enum SchedulingAction {
 
 	RUN(VK_O),
-	STEP(VK_P),
+	STEP(VK_M),
 	SPEED_UP(VK_RIGHT),
 	SPEED_DOWN(VK_LEFT),
 	SHUTDOWN(VK_DOLLAR);

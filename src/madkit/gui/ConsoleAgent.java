@@ -25,6 +25,11 @@ import javax.swing.JFrame;
 import madkit.kernel.AbstractAgent;
 
 /**
+ * This agent displays standard out and err
+ * prints in its GUI. This agent is useful
+ * when the application is not launched from
+ * a command line or an IDE
+ * 
  * @author Fabien Michel
  * @since MadKit 5.0.0.14
  * @version 0.9
@@ -32,15 +37,21 @@ import madkit.kernel.AbstractAgent;
  */
 public class ConsoleAgent extends AbstractAgent {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6101789640805528218L;
+	
 	final static private PrintStream systemOut = System.out;
 	final static private PrintStream systemErr = System.err;
 	
 	@Override
 	public void setupFrame(final JFrame frame) {
-		OutputPanel outP;
-		frame.add(outP = new OutputPanel(this));
-		System.setErr(new PrintStream(outP.getOutputStream()));
-		System.setOut(new PrintStream(outP.getOutputStream()));
+		final OutputPanel outP = new OutputPanel(this);
+		final PrintStream ps = new PrintStream(outP.getOutputStream());
+		frame.add(outP);
+		System.setErr(ps);
+		System.setOut(ps);
 		frame.setSize(800, 500);
 	}
 	

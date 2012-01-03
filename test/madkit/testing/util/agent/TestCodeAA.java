@@ -72,26 +72,21 @@ public class TestCodeAA extends AbstractAgent {
 
 	@Override
 	protected void activate() {
-		if(logger != null)
-			logger.info("coucou");
-		long onlineTime = System.nanoTime();
-	    ByteArrayOutputStream bos = new ByteArrayOutputStream();  
-	    DataOutputStream dos = new DataOutputStream(bos);  
-	    try {
-	   	 System.err.println(onlineTime);
-			dos.writeLong(onlineTime);
-			dos.close();  
-			byte[] data = bos.toByteArray();  		
-			System.err.println(Arrays.toString(data));
-			DataInputStream dis = new DataInputStream(new ByteArrayInputStream(data));
-			
-			long l = dis.readLong();
-			System.err.println(l);
-		} catch (IOException e1) {
+		try {
+			Class<?> cl = Class.forName("java.lang.Thread");
+			Object o = cl.newInstance();
+			o.toString();
+		} catch (InstantiationException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
-		}  
-		
+		} catch (IllegalAccessException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		Message m = new Message();
 		System.err.println(m);
 		sendMessage(LocalCommunity.NAME, Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE, m);

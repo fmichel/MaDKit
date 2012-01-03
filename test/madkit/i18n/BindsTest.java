@@ -16,13 +16,15 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
  */
-package madkit.gui;
+package madkit.i18n;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.awt.event.KeyEvent;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import madkit.action.AgentAction;
@@ -34,40 +36,46 @@ import org.junit.Test;
 
 /**
  * @author Fabien Michel
- * @since MadKit 5.0.0.9
+ * @since MadKit 5.0.0.14
  * @version 0.9
  * 
  */
 public class BindsTest {
 
-	static Set<Integer> keys = new HashSet<Integer>();;
+	static Map<Integer,Enum<?>> keys = new HashMap<Integer,Enum<?>>();
 	
 	@Test
 	public void KernelActionConflicts() {
 		for (KernelAction ka : EnumSet.allOf(KernelAction.class)) {
-			int i = ka.getActionInfo().getKeyEvent();
-			if(i != KeyEvent.VK_DOLLAR){
-				assertTrue(keys.add(i));
-			}
+			testKey(ka.getActionInfo().getKeyEvent(), ka);
 		}
 	}
 
 	@Test
 	public void AgentActionConflicts() {
 		for (AgentAction ka : EnumSet.allOf(AgentAction.class)) {
-			int i = ka.getActionInfo().getKeyEvent();
-			if(i != KeyEvent.VK_DOLLAR){
-				assertTrue(keys.add(i));
-			}
+			testKey(ka.getActionInfo().getKeyEvent(),ka);
 		}
 	}
 
 	@Test
 	public void GUIManagerActionConflicts() {
 		for (GUIManagerAction ka : EnumSet.allOf(GUIManagerAction.class)) {
-			int i = ka.getActionInfo().getKeyEvent();
-			if(i != KeyEvent.VK_DOLLAR){
-				assertTrue(keys.add(i));
+			testKey(ka.getActionInfo().getKeyEvent(), ka);
+		}
+	}
+
+	/**
+	 * @param i
+	 * @param ka 
+	 */
+	private void testKey(int i, Enum<?> ka) {
+		if(i != KeyEvent.VK_DOLLAR){
+			Enum<?> e = keys.put(i, ka);
+			if(e != null){
+				String s = ka.getClass()+"."+ka+" same key as "+e.getClass()+"."+e;
+				System.err.println(s);
+				fail(s);
 			}
 		}
 	}
@@ -75,10 +83,7 @@ public class BindsTest {
 	@Test
 	public void SchedulingActionConflicts() {
 		for (SchedulingAction ka : EnumSet.allOf(SchedulingAction.class)) {
-			int i = ka.getActionInfo().getKeyEvent();
-			if(i != KeyEvent.VK_DOLLAR){
-				assertTrue(keys.add(i));
-			}
+			testKey(ka.getActionInfo().getKeyEvent(),ka);
 		}
 	}
 

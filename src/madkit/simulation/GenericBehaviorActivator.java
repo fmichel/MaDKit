@@ -49,7 +49,7 @@ public class GenericBehaviorActivator<A extends AbstractAgent> extends Activator
 	/** methods maps an agent class to its corresponding Method object for runtime invocation*/
 	private final Map<Class<? extends A>,Method> methods;
 	private String methodName;
-	private Class<? extends A> cachedClass = null;
+//	private Class<? extends A> cachedClass = null;
 
 	/**
 	 * Builds a new GenericBehaviorActivator on the given CGR location of the
@@ -73,35 +73,45 @@ public class GenericBehaviorActivator<A extends AbstractAgent> extends Activator
 		return methodName;
 	}
 	
-	@SuppressWarnings("unchecked")
-	@Override
-	protected void adding(final A theAgent) {
-		final Class<? extends A> agentClass = (Class<? extends A>) theAgent.getClass();
-		if(agentClass != cachedClass && ! methods.containsKey(agentClass)){
-//			Method m;
-			try {
-//				m = findMethodOn(agentClass,methodName);
-//				synchronized (methods) {//TODO maybe useless as overwriting maybe ok here
-					methods.put(agentClass,findMethodOn(agentClass,methodName));
-//				}
-				cachedClass = agentClass;
-			} catch (NoSuchMethodException e) {
-				logFailureOn(theAgent, e);
-			}
-		}
-	}
+//	@SuppressWarnings("unchecked")
+//	@Override
+//	protected void adding(final A theAgent) {
+//		final Class<? extends A> agentClass = (Class<? extends A>) theAgent.getClass();
+//		if(agentClass != cachedClass && ! methods.containsKey(agentClass)){
+////			Method m;
+//			try {
+////				m = findMethodOn(agentClass,methodName);
+////				synchronized (methods) {//TODO maybe useless as overwriting maybe ok here
+//					methods.put(agentClass,findMethodOn(agentClass,methodName));
+////				}
+//				cachedClass = agentClass;
+//			} catch (NoSuchMethodException e) {
+//				logFailureOn(theAgent, e);
+//			}
+//		}
+//	}
 	
-	private void execute(List<A> agents){
+	private void execute(final List<A> agents){
 		//local cache for multicore execute and adding collision
 		Method cachedM = null;
 		Class<? extends A> cachedC = null;
-		for (A a : agents) {
+		for (final A a : agents) {
 			if (a.isAlive()) {
 				@SuppressWarnings("unchecked")
 				final Class<? extends A> agentClass = (Class<? extends A>) a.getClass();
 				if (agentClass != cachedC) {
 					cachedC = agentClass;
 					cachedM = methods.get(agentClass);
+					if(cachedM == null){
+						try {
+							cachedM = findMethodOn(agentClass,methodName);
+						} catch (NoSuchMethodException e) {
+							logFailureOn(a, e);
+						}
+						synchronized (methods) {
+							methods.put(agentClass, cachedM);
+						}
+					}
 				}
 				try {
 					cachedM.invoke(a);
@@ -112,6 +122,9 @@ public class GenericBehaviorActivator<A extends AbstractAgent> extends Activator
 				} catch (InvocationTargetException e) {
 					logFailureOn(a, e);
 				}
+			}
+			else{
+				System.err.println("-------------------------\n"+a.hashCode()+" "+a.getState());
 			}
 		}
 	}

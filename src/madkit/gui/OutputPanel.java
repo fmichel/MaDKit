@@ -98,7 +98,7 @@ public class OutputPanel extends JPanel {
 
 		};
 
-		StreamHandler handler = new StreamHandler(out, AgentLogger.agentFileFormatter){
+		final StreamHandler handler = new StreamHandler(out, AgentLogger.agentFileFormatter){
 			@Override
 			public synchronized void publish(LogRecord record) {
 				super.publish(record);

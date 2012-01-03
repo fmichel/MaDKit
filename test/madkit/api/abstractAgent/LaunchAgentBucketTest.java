@@ -26,6 +26,8 @@ import java.util.List;
 
 import madkit.agr.Organization;
 import madkit.kernel.AbstractAgent;
+import madkit.kernel.AbstractAgent.State;
+import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.JunitMadKit;
 import madkit.testing.util.agent.SimulatedAgent;
 
@@ -39,16 +41,30 @@ import org.junit.Test;
  */
 @SuppressWarnings("serial")
 public class LaunchAgentBucketTest extends JunitMadKit {
+	
+	static int size = 14;
 
 	@Test
 	public void returnSuccess() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				List<AbstractAgent> l = launchAgentBucket(SimulatedAgent.class.getName(), 10);
-				assertEquals(10, l.size());
-				assertEquals(10, getAgentsWithRole(COMMUNITY, GROUP, ROLE).size());
-			}
-		});
+		for (int i = 0; i < 500; i++) {
+			launchTest(new AbstractAgent() {
+				protected void activate() {
+					List<AbstractAgent> l = launchAgentBucket(SimulatedAgent.class.getName(), size);
+					assertEquals(size, l.size());
+					testAgents(l);
+					assertEquals(size, getAgentsWithRole(COMMUNITY, GROUP, ROLE).size());
+				}
+
+			});
+		}
+	}
+
+	private void testAgents(List<AbstractAgent> l) {
+		for (AbstractAgent abstractAgent : l) {
+			assertTrue(abstractAgent.isAlive());
+			assertEquals(State.ACTIVATED,abstractAgent.getState());
+			assertTrue(((SimulatedAgent) abstractAgent).goneThroughActivate());
+		}
 	}
 
 	@Test
@@ -58,6 +74,7 @@ public class LaunchAgentBucketTest extends JunitMadKit {
 				List<AbstractAgent> l = launchAgentBucket(SimulatedAgent.class.getName(), 0);
 				assertEquals(0, l.size());
 				assertEquals(null, getAgentsWithRole(COMMUNITY, GROUP, ROLE));
+				testAgents(l);
 			}
 		});
 	}
@@ -69,6 +86,7 @@ public class LaunchAgentBucketTest extends JunitMadKit {
 				List<AbstractAgent> l = launchAgentBucket(SimulatedAgent.class.getName(), 1);
 				assertEquals(1, l.size());
 				assertEquals(1, getAgentsWithRole(COMMUNITY, GROUP, ROLE).size());
+				testAgents(l);
 			}
 		});
 	}
@@ -77,14 +95,12 @@ public class LaunchAgentBucketTest extends JunitMadKit {
 	public void returnSuccessWithName() {
 		launchTest(new AbstractAgent() {
 			protected void activate() {
-				List<AbstractAgent> l = launchAgentBucketWithRoles(SimulatedAgent.class.getName(), 10,Arrays.asList(COMMUNITY+";"+GROUP+";"+ROLE));
-				assertEquals(10, l.size());
-				assertEquals(10, getAgentsWithRole(COMMUNITY, GROUP, ROLE).size());
+				List<AbstractAgent> l = launchAgentBucketWithRoles(SimulatedAgent.class.getName(), size,Arrays.asList(COMMUNITY+";"+GROUP+";"+ROLE));
+				assertEquals(size, l.size());
+				assertEquals(size, getAgentsWithRole(COMMUNITY, GROUP, ROLE).size());
 				//I am the manager
 				assertEquals(null, getAgentsWithRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE));
-				for (AbstractAgent a : l) {
-					assertTrue(((SimulatedAgent) a).goneThroughActivate());
-				}
+				testAgents(l);
 			}
 		});
 	}

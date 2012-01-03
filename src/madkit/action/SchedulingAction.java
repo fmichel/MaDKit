@@ -46,8 +46,8 @@ import madkit.message.SchedulingMessage;
  */
 public enum SchedulingAction {
 
-	RUN(VK_O),
-	STEP(VK_M),
+	RUN(VK_P),
+	STEP(VK_SPACE),
 	SPEED_UP(VK_RIGHT),
 	SPEED_DOWN(VK_LEFT),
 	SHUTDOWN(VK_DOLLAR);

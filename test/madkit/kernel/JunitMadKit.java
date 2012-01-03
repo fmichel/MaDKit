@@ -199,7 +199,11 @@ public class JunitMadKit {
 
 	public static void createDefaultCGR(AbstractAgent a) {
 		a.createGroup(COMMUNITY, GROUP, false, null);
-		assertEquals(SUCCESS, a.requestRole(COMMUNITY, GROUP, ROLE, null));
+		try {
+			assertEquals(SUCCESS, a.requestRole(COMMUNITY, GROUP, ROLE, null));
+		} catch (AssertionError e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void launchThreadedMKNetworkInstance() {

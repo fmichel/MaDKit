@@ -50,27 +50,37 @@ public class PropertyProbe<A extends AbstractAgent,T> extends Probe<A>//TODO mak
 		this.fieldName = fieldName;
 	}
 
-	@SuppressWarnings("unchecked")
-	@Override
-	protected void adding(final A theAgent) {
-		updateCache((Class<? extends A>) theAgent.getClass());
-		if(cachedFiled == null){
-			try {
-				cachedFiled = findFieldOn(cachedClass,fieldName);
-				fields.put(cachedClass, cachedFiled);
-			} catch(NoSuchFieldException e) {
-				logFailureOn(theAgent, e);
-			}
-		}
-	}
+//	@SuppressWarnings("unchecked")
+//	@Override
+//	protected void adding(final A theAgent) {
+//		updateCache((Class<? extends A>) theAgent.getClass());
+//		if(cachedFiled == null){
+//			try {
+//				cachedFiled = findFieldOn(cachedClass,fieldName);
+//				fields.put(cachedClass, cachedFiled);
+//			} catch(NoSuchFieldException e) {
+//				logFailureOn(theAgent, e);
+//			}
+//		}
+//	}
 
 	/**
 	 * @param agentClass
 	 */
-	private void updateCache(final Class<? extends A> agentClass) {
+	private void updateCache(A agent) {
+		@SuppressWarnings("unchecked")
+		final Class<? extends A> agentClass = (Class<? extends A>) agent.getClass();
 		if(agentClass != cachedClass){
 			cachedClass = agentClass;
 			cachedFiled = fields.get(cachedClass);
+			if(cachedFiled == null){
+				try {
+					cachedFiled = findFieldOn(cachedClass,fieldName);
+					fields.put(cachedClass,cachedFiled);
+				} catch (NoSuchFieldException e) {
+					logFailureOn(agent, e);
+				}
+			}
 		}
 	}
 
@@ -82,7 +92,7 @@ public class PropertyProbe<A extends AbstractAgent,T> extends Probe<A>//TODO mak
 	 */
 	@SuppressWarnings("unchecked")
 	public T getPropertyValue(final A agent) {
-		updateCache((Class<? extends A>) agent.getClass());
+		updateCache(agent);
 		try {
 			return (T) cachedFiled.get(agent);
 		} catch (IllegalArgumentException e) {
@@ -99,9 +109,8 @@ public class PropertyProbe<A extends AbstractAgent,T> extends Probe<A>//TODO mak
 	 * @param agent
 	 * @param value
 	 */
-	@SuppressWarnings("unchecked")
 	public void setPropertyValue(final A agent, final T value){
-		updateCache((Class<? extends A>) agent.getClass());
+		updateCache(agent);
 		try {
 			cachedFiled.set(agent, value);
 		} catch (IllegalArgumentException e) {
@@ -112,8 +121,8 @@ public class PropertyProbe<A extends AbstractAgent,T> extends Probe<A>//TODO mak
 	}
 
 	final public List<T> getAllProperties(){
-		final ArrayList<T> list = new ArrayList<T>();
-		for (A agent : getCurrentAgentsList()) {
+		final ArrayList<T> list = new ArrayList<T>(size());
+		for (final A agent : getCurrentAgentsList()) {
 			list.add(getPropertyValue(agent));
 		}
 		return list;

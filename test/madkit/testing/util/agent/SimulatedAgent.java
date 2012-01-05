@@ -41,7 +41,6 @@ public class SimulatedAgent extends AbstractAgent {
 	protected void activate() {
 		JunitMadKit.createDefaultCGR(this);
 		activated  = true;
-		System.err.println(this);
 	}
 	
 	public boolean goneThroughActivate(){

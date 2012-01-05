@@ -196,8 +196,8 @@ class Role implements Serializable{//TODO test with arraylist
 			if (logger != null) {
 				logger.finest(requester.getName() + " is now playing " + getCGRString(communityName, groupName, roleName));
 			}
-			System.err.println(requester.getName() + " is now playing " + getCGRString(communityName, groupName, roleName));
-			System.err.println(this+" current players---\n"+players+"\n\n");
+//			System.err.println(requester.getName() + " is now playing " + getCGRString(communityName, groupName, roleName));
+//			System.err.println(this+" current players---\n"+players+"\n\n");
 			if (agentAddresses != null) {
 				agentAddresses.add(new AgentAddress(requester, this, kernelAddress));
 			}
@@ -320,8 +320,6 @@ class Role implements Serializable{//TODO test with arraylist
 				}
 			}
 		}
-		System.err.println("players "+players.size());
-		System.err.println("addresses "+agentAddresses.size());
 		return agentAddresses;
 	}
 	

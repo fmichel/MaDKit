@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!-- 
   Copyright 1998-2011 Fabien Michel, Olivier Gutknecht, Jacques Ferber
   
@@ -17,19 +17,16 @@
   You should have received a copy of the GNU Lesser General Public License
   along with MadKit. If not, see <http://www.gnu.org/licenses/>.
  -->
- 
 <!-- 
  This is ant MK_Targets.xml file. It contains targets for building MadKit projects:
- 	- executable jar
- 	- jnlp file
+ 	executable jar
+ 	jnlp file
  	
  Author: Fabien Michel
  Version: 5.0
 -->
-
 <antlib>
-
-<macrodef name="create-executable-jar">
+	<macrodef name="create-executable-jar">
 	<sequential>
 	<echo>Building ${ant.project.name} executable jar</echo>	
 
@@ -94,7 +91,6 @@
 	</sequential>
 </macrodef>
 
-
 	<!-- ================================= 
           target: clean          
           TODO externalize properties in a property file in the mk.jar
@@ -105,9 +101,9 @@
 		<property name="build.dir" value="build"/>
         <delete dir="${build.dir}"/>
         <delete file="README"/>
-         <delete file="${ant.project.name}.jnlp"/>
+        <delete file="${ant.project.name}.jnlp"/>
         <delete file="${ant.project.name}-${version}.jar"/>
-         <delete file="${ant.project.name}.jnlp.jar.pack.gz"/>
+        <delete file="${ant.project.name}.jnlp.jar.pack.gz"/>
         <delete file="${ant.project.name}-lib-${version}.jar"/>
 	</sequential>
 </macrodef>
@@ -115,7 +111,7 @@
 	<!-- ================================= 
           target: zip-project              
          ================================= -->
- <macrodef name="zip-project">
+<macrodef name="zip-project">
  	<sequential>
  		<clean/>
 		<zip destfile="${ant.project.name}-${version}.zip">
@@ -123,5 +119,4 @@
 		</zip>
 	</sequential>
 </macrodef>
-
 </antlib>

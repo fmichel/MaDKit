@@ -50,20 +50,6 @@ public class PropertyProbe<A extends AbstractAgent,T> extends Probe<A>//TODO mak
 		this.fieldName = fieldName;
 	}
 
-//	@SuppressWarnings("unchecked")
-//	@Override
-//	protected void adding(final A theAgent) {
-//		updateCache((Class<? extends A>) theAgent.getClass());
-//		if(cachedFiled == null){
-//			try {
-//				cachedFiled = findFieldOn(cachedClass,fieldName);
-//				fields.put(cachedClass, cachedFiled);
-//			} catch(NoSuchFieldException e) {
-//				logFailureOn(theAgent, e);
-//			}
-//		}
-//	}
-
 	/**
 	 * @param agentClass
 	 */
@@ -120,13 +106,13 @@ public class PropertyProbe<A extends AbstractAgent,T> extends Probe<A>//TODO mak
 		}
 	}
 
-	final public List<T> getAllProperties(){
-		final ArrayList<T> list = new ArrayList<T>(size());
-		for (final A agent : getCurrentAgentsList()) {
-			list.add(getPropertyValue(agent));
-		}
-		return list;
-	}
+//	final public List<T> getAllProperties(){
+//		final ArrayList<T> list = new ArrayList<T>(size());
+//		for (final A agent : getCurrentAgentsList()) {
+//			list.add(getPropertyValue(agent));
+//		}
+//		return list;
+//	}
 
 	private void logFailureOn(AbstractAgent a, Throwable t){
 		a.getLogger().severeLog("Can't work on field: " + fieldName + " on "+ a, t);

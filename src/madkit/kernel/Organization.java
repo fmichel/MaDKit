@@ -19,6 +19,7 @@
 package madkit.kernel;
 
 import static madkit.i18n.I18nUtilities.getCGRString;
+import static madkit.kernel.AbstractAgent.ReturnCode.NOT_GROUP;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 import madkit.i18n.ErrorMessages;
+import madkit.kernel.AbstractAgent.ReturnCode;
 
 /**
  * @author Fabien Michel
@@ -73,8 +75,9 @@ final class Organization extends ConcurrentHashMap <String, Group>{
 	}
 
 	/**
+	 * Group adding. Guarded by this in {@link MadkitKernel#createGroup(AbstractAgent, String, String, String, Gatekeeper, boolean)}
+	 * 
 	 * @param creator
-	 * @param isDistributed 
 	 * @param gatekeeper 
 	 * @param group 
 	 * @param groupName
@@ -83,8 +86,10 @@ final class Organization extends ConcurrentHashMap <String, Group>{
 	 * @return true if the group has been created
 	 */
 	boolean addGroup(final AbstractAgent creator, String group, Gatekeeper gatekeeper, boolean isDistributed) {
-		final Group g = new Group(communityName,group,creator,gatekeeper,isDistributed,this);
-		if (putIfAbsent(group,g) == null) {// There was no such group
+		Group g = get(group);
+		if(g == null){// There was no such group
+			g = new Group(communityName,group,creator,gatekeeper,isDistributed,this);
+			put(group,g);
 			if(logger != null)
 				logger.fine(getCGRString(communityName, group)+"created by "+creator.getName()+"\n");
 			return true;
@@ -98,10 +103,12 @@ final class Organization extends ConcurrentHashMap <String, Group>{
 	 * @param group
 	 */
 	void removeGroup(final String group) {
-		if(logger != null)
-			logger.finer("Removing"+getCGRString(communityName, group));
-		remove(group);
-		checkEmptyness();
+		synchronized (this) {
+			if (logger != null)
+				logger.finer("Removing" + getCGRString(communityName, group));
+			remove(group);
+			checkEmptyness();
+		}
 	}
 
 	private void checkEmptyness() {
@@ -183,6 +190,16 @@ final class Organization extends ConcurrentHashMap <String, Group>{
 			g.destroy();
 		}
 		myKernel.removeCommunity(communityName);
+	}
+
+	
+	ReturnCode requestRole(AbstractAgent requester, String group, String role, Object memberCard) {
+		final Group g = get(group);
+		if(g == null)
+			return NOT_GROUP;
+		synchronized (g) {
+			return g.requestRole(requester, role, memberCard);
+		}
 	}
 	
 

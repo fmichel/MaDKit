@@ -73,24 +73,6 @@ public class GenericBehaviorActivator<A extends AbstractAgent> extends Activator
 		return methodName;
 	}
 	
-//	@SuppressWarnings("unchecked")
-//	@Override
-//	protected void adding(final A theAgent) {
-//		final Class<? extends A> agentClass = (Class<? extends A>) theAgent.getClass();
-//		if(agentClass != cachedClass && ! methods.containsKey(agentClass)){
-////			Method m;
-//			try {
-////				m = findMethodOn(agentClass,methodName);
-////				synchronized (methods) {//TODO maybe useless as overwriting maybe ok here
-//					methods.put(agentClass,findMethodOn(agentClass,methodName));
-////				}
-//				cachedClass = agentClass;
-//			} catch (NoSuchMethodException e) {
-//				logFailureOn(theAgent, e);
-//			}
-//		}
-//	}
-	
 	private void execute(final List<A> agents){
 		//local cache for multicore execute and adding collision
 		Method cachedM = null;
@@ -122,9 +104,6 @@ public class GenericBehaviorActivator<A extends AbstractAgent> extends Activator
 				} catch (InvocationTargetException e) {
 					logFailureOn(a, e);
 				}
-			}
-			else{
-				System.err.println("-------------------------\n"+a.hashCode()+" "+a.getState());
 			}
 		}
 	}
@@ -177,38 +156,6 @@ public class GenericBehaviorActivator<A extends AbstractAgent> extends Activator
 	public void execute() {
 		execute(getCurrentAgentsList());
 	}
-
-//	@SuppressWarnings("unchecked")
-//	@Override
-//	public void multicoreExecute() {
-//		int cpuCoreNb = nbOfSimultaneousTasks();
-//		final ArrayList<Callable<Void>> workers = new ArrayList<Callable<Void>>(cpuCoreNb);
-//		List<A> list = getCurrentAgentsList();
-//		int bucketSize = list.size();
-//		final int nbOfAgentsPerTask = bucketSize / (cpuCoreNb);
-//		final A[] agents = list.toArray((A[]) new AbstractAgent[0]);
-//		for (int i = 0; i < cpuCoreNb; i++) {
-//			final int index = i;
-//			workers.add(new Callable<Void>() {
-//				public Void call() throws Exception {
-//					int maxIndex = nbOfAgentsPerTask*(index+1);
-//					for (int j = nbOfAgentsPerTask*index; j < maxIndex; j++) {
-//						agentBehaviors.concurrentExecuteBehavior(agents[j]);
-//					}
-//					return null;
-//				}
-//			});
-//		}
-//		try {
-//			getMadkitServiceExecutor().invokeAll(workers);
-//			int maxIndex = nbOfAgentsPerTask*cpuCoreNb;
-//			for (int i = agents.length-1; i >= maxIndex; i--) {
-//				agentBehaviors.concurrentExecuteBehavior(agents[i]);
-//			}
-//		} catch (InterruptedException e) {
-//			Thread.currentThread().interrupt();//do not swallow it !
-//		}
-//	}
 
 }
 

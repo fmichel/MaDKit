@@ -185,6 +185,7 @@ class GUIManagerAgent extends Agent  {
 	private JInternalFrame buildInternalFrame(final AgentFrame af) {
 		final JInternalFrame ijf = new JInternalFrame(af.getTitle(), true, true, true, true);
 		ijf.setSize(af.getSize());
+		ijf.setLocation(af.getLocation());
 		ijf.setContentPane(af.getContentPane());
 		ijf.setJMenuBar(af.getJMenuBar());
 		af.setInternalFrame(ijf);
@@ -255,7 +256,7 @@ class GUIManagerAgent extends Agent  {
 		while(notGood){
 			notGood = false;
 			for (Container cs : l) {
-				if(location.equals(cs.getLocation())){
+				if(cs != c && location.equals(cs.getLocation())){
 					notGood = true;
 					location.x += 20;
 					location.x %= dim.width;

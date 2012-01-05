@@ -85,10 +85,18 @@ To launch your MadKit agents, simply either<br>
 &nbsp;&nbsp;&nbsp; public static void main(String[] args) {<br>
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; String[] argss =
 {"--launchAgents","mypackage.myagentClass;mypackage.myOtherAgentClass"};<br>
-&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; Madkit.main(argss);<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; Madkit.main(argss); //or args
+with you specify them using an IDE <br>
 &nbsp;&nbsp;&nbsp; }<br>
 <br>
-(2) use a command line such as <br>
+(2) use, in an agent class, a main method with&nbsp; :<br>
+<br>
+&nbsp;&nbsp;&nbsp; public static void main(String[] args) {<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+executeThisAgent(args) // This will execute one of this agent with a GUI<br>
+&nbsp;&nbsp;&nbsp; }<br>
+<br>
+(3) use a command line such as <br>
 <br>
 java -cp pathTo-${madkit.jar.name}:yourClassPath madkit.kernel.Madkit
 --launchAgents mypackage.myagentClass;mypackage.myOtherAgentClass<br>
@@ -104,7 +112,8 @@ madkit.kernel.Madkit class<br>
   <li>A <a href="docs/French_Tutorial/Rapport_Madkit_Tutoriels.pdf">french
 tutorial</a> realized by second year students at the IUT of
 Montpellier, and its <a href="docs/French_Tutorial/">source codes</a>.</li>
-  <li><a href="docs/How-To">How-To</a> several how to about illustrating MadKit features<br>
+  <li><a href="docs/How-To">How-To</a> several how to about
+illustrating MadKit features<br>
   </li>
   <li><a href="demos">Demos</a> source codes are also a good starting
 point ;)<br>

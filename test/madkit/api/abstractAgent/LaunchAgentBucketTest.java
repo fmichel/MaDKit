@@ -23,6 +23,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
 
 import madkit.agr.Organization;
 import madkit.kernel.AbstractAgent;
@@ -42,11 +43,12 @@ import org.junit.Test;
 @SuppressWarnings("serial")
 public class LaunchAgentBucketTest extends JunitMadKit {
 	
-	static int size = 14;
+	static int size = 1001;
 
 	@Test
 	public void returnSuccess() {
-		for (int i = 0; i < 500; i++) {
+		for (int i = 0; i < 100; i++) {
+			addMadkitArgs(LevelOption.kernelLogLevel.toString(),Level.ALL.toString());
 			launchTest(new AbstractAgent() {
 				protected void activate() {
 					List<AbstractAgent> l = launchAgentBucket(SimulatedAgent.class.getName(), size);

@@ -115,20 +115,18 @@ final class Group extends ConcurrentHashMap<String,Role> {
 	ReturnCode requestRole(AbstractAgent requester, String roleName, Object memberCard) {
 		if(roleName == null)
 			throw new NullPointerException(ErrorMessages.R_NULL.toString());
-		if(gatekeeper != null && ! gatekeeper.allowAgentToTakeRole(roleName, memberCard))
-			return ACCESS_DENIED;
-		Role theRole = get(roleName);
-		if(theRole == null){
-			theRole = createRole(roleName);
-			put(roleName,theRole);
-			theRole.addMember(requester);
-			return SUCCESS;
+		synchronized (this) {
+			if (gatekeeper != null && !gatekeeper.allowAgentToTakeRole(roleName, memberCard))
+				return ACCESS_DENIED;
+			Role theRole = get(roleName);
+			if (theRole == null) {
+				theRole = createRole(roleName);
+				put(roleName, theRole);
+				theRole.addMember(requester);
+				return SUCCESS;
+			}
+			return theRole.addMember(requester) ? SUCCESS : ROLE_ALREADY_HANDLED;
 		}
-		if (theRole.addMember(requester)) {
-			return SUCCESS;
-		}
-		else
-			return ROLE_ALREADY_HANDLED;
 	}
 
 	Role createRole(final String roleName) {
@@ -139,10 +137,12 @@ final class Group extends ConcurrentHashMap<String,Role> {
 	 * @param roleName
 	 */
 	void removeRole(String roleName) {
-		remove(roleName);
-		if(logger != null)
-			logger.finer("Removing"+I18nUtilities.getCGRString(communityName, groupName, roleName));
-		checkEmptyness();
+		synchronized (this) {
+			remove(roleName);
+			if (logger != null)
+				logger.finer("Removing" + I18nUtilities.getCGRString(communityName, groupName, roleName));
+			checkEmptyness();
+		}
 	}
 
 
@@ -159,9 +159,11 @@ final class Group extends ConcurrentHashMap<String,Role> {
 	 */
 	ReturnCode leaveGroup(final AbstractAgent requester) {
 		boolean in = false;
-		for(final Role r : values()){
-			if(r.removeMember(requester) == SUCCESS){
-				in = true;
+		synchronized (this) {
+			for (final Role r : values()) {
+				if (r.removeMember(requester) == SUCCESS) {
+					in = true;
+				}
 			}
 		}
 		return in ? SUCCESS : NOT_IN_GROUP;
@@ -294,13 +296,15 @@ final class Group extends ConcurrentHashMap<String,Role> {
 	 * 
 	 */
 	void chooseNewManager(AbstractAgent oldManager) {
-		if(! isEmpty()){
-			for (final Role r : values()) {
-				for (Iterator<AbstractAgent> iterator = r.getPlayers().iterator(); iterator.hasNext();) {
-					AbstractAgent a = iterator.next();
-					if(a != oldManager){
-						put(madkit.agr.Organization.GROUP_MANAGER_ROLE, new ManagerRole(this,a));
-						return;
+		synchronized (this) {
+			if (!isEmpty()) {
+				for (final Role r : values()) {
+					for (Iterator<AbstractAgent> iterator = r.getPlayers().iterator(); iterator.hasNext();) {
+						AbstractAgent a = iterator.next();
+						if (a != oldManager) {
+							put(madkit.agr.Organization.GROUP_MANAGER_ROLE, new ManagerRole(this, a));
+							return;
+						}
 					}
 				}
 			}

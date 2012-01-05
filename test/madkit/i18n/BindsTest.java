@@ -18,14 +18,12 @@
  */
 package madkit.i18n;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 import java.awt.event.KeyEvent;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import madkit.action.AgentAction;
 import madkit.action.GUIManagerAction;

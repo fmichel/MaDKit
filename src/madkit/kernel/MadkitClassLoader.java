@@ -191,7 +191,7 @@ void loadJarsFromPath(String path){
 			}
 		})) {
 			try {
-				addURL(f.toURI().toURL());
+				addToClasspath(f.toURI().toURL());
 			} catch (MalformedURLException e) {
 				e.printStackTrace();
 			}

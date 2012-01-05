@@ -83,6 +83,10 @@ public class JunitMadKit {
 			// KernelMessage(MadkitAction.LAUNCH_AGENT, a, false));
 			a.setName(name.getMethodName());
 			assertEquals(expected, kernelAgent.launchAgent(a));
+			if(testFailed){
+				testException.printStackTrace();
+				fail();
+			}
 		} catch (Throwable e) {
 			System.err.println("\n\n\n------------------------------------");
 			while (e.getCause() != null)
@@ -155,6 +159,10 @@ public class JunitMadKit {
 
 	static long time;
 
+	private static boolean testFailed = false;
+
+	private static Throwable testException = null;
+
 	public static void startTimer() {
 		time = System.nanoTime();
 	}
@@ -204,6 +212,11 @@ public class JunitMadKit {
 		} catch (AssertionError e) {
 			e.printStackTrace();
 		}
+	}
+
+	public static void testFails(Throwable a) {
+		testFailed = true;
+		testException = a;
 	}
 
 	public void launchThreadedMKNetworkInstance() {

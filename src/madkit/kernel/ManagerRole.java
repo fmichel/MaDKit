@@ -52,7 +52,7 @@ final class ManagerRole extends Role {
 	 * @see madkit.kernel.Role#addMember(madkit.kernel.AbstractAgent)
 	 */
 	@Override
-	boolean addMember(AbstractAgent requester) {// manage is never changed from outside
+	boolean addMember(AbstractAgent requester) {// manager is never changed from outside
 		return false;
 	}
 	

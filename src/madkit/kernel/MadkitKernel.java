@@ -194,7 +194,7 @@ class MadkitKernel extends Agent {
 
 	private EnumMap<AgentAction, Set<AbstractAgent>> hooks;
 
-	private AtomicInteger proceed = new AtomicInteger(0);
+//	private AtomicInteger proceed = new AtomicInteger(0);
 
 	/**
 	 * Constructing the real one.
@@ -562,17 +562,19 @@ class MadkitKernel extends Agent {
 			final Gatekeeper gatekeeper, final boolean isDistributed) {
 		if(bucketMode)//TODO
 			return SUCCESS;
+		if(group == null)
+			throw new NullPointerException(ErrorMessages.G_NULL.toString());
+		Organization organization = new Organization(community, this);
 		// no need to remove org: never failed
 		//will throw null pointer if community is null
-		Organization organization = new Organization(community, this);
-		if(group == null)
-			throw new NullPointerException("group's name is null");
 		final Organization tmpOrg = organizations.putIfAbsent(community, organization);
 		if (tmpOrg != null) {
 			organization = tmpOrg;
 		}
-		if (!organization.addGroup(creator, group,gatekeeper,isDistributed)) {
-			return ALREADY_GROUP;
+		synchronized (organization) {
+			if (! organization.addGroup(creator, group,gatekeeper,isDistributed)) {
+				return ALREADY_GROUP;
+			}
 		}
 		if (isDistributed) {
 			try {
@@ -611,6 +613,11 @@ class MadkitKernel extends Agent {
 	ReturnCode requestRole(AbstractAgent requester, String community, String group, String role, Object memberCard) {
 		if(bucketMode)
 			return SUCCESS;
+//		final Organization org = organizations.get(community);
+//		if(org == null)
+//			return NOT_COMMUNITY;
+//		final ReturnCode result = org.requestRole(requester, group, role, memberCard);
+		
 		final Group g;
 		try {
 			g = getGroup(community, group);
@@ -639,12 +646,15 @@ class MadkitKernel extends Agent {
 		if(bucketMode)
 			return SUCCESS;
 		final Group g;
-		try {
-			g = getGroup(community, group);
-		} catch (CGRNotAvailable e) {
-			return e.getCode();
+		final ReturnCode result;
+		synchronized (organizations) {
+			try {
+				g = getGroup(community, group);
+			} catch (CGRNotAvailable e) {
+				return e.getCode();
+			}
+			result = g.leaveGroup(requester);
 		}
-		final ReturnCode result = g.leaveGroup(requester);
 		if(result == SUCCESS){
 			if (g.isDistributed()) {
 				sendNetworkMessageWithRole(new CGRSynchro(LEAVE_GROUP, new AgentAddress(requester, new Role(community, group),
@@ -668,24 +678,26 @@ class MadkitKernel extends Agent {
 		if(bucketMode)
 			return SUCCESS;
 		final Role r;
-		try {
-			r = getRole(community, group, role);
-		} catch (CGRNotAvailable e) {
-			return e.getCode();
+		synchronized (organizations) {
+			try {
+				r = getRole(community, group, role);
+			} catch (CGRNotAvailable e) {
+				return e.getCode();
+			}
+			//this is apart because I need the address before the leave
+			if (r.getMyGroup().isDistributed()) {
+				AgentAddress leaver = r.getAgentAddressOf(requester);
+				if (leaver == null)
+					return ReturnCode.ROLE_NOT_HANDLED;
+				if (r.removeMember(requester) != SUCCESS)//TODO
+					throw new AssertionError("cannot remove " + requester + " from " + r.buildAndGetAddresses());
+				sendNetworkMessageWithRole(new CGRSynchro(LEAVE_ROLE, leaver), netUpdater);
+				if (logger != null)
+					informHooks(AgentAction.LEAVE_ROLE, community, group, role);
+				return SUCCESS;
+			}
+			return r.removeMember(requester);
 		}
-		//this is apart because I need the address before the leave
-		if (r.getMyGroup().isDistributed()) {
-			AgentAddress leaver = r.getAgentAddressOf(requester);
-			if (leaver == null)
-				return ReturnCode.ROLE_NOT_HANDLED;
-			if (r.removeMember(requester) != SUCCESS)//TODO
-				throw new AssertionError("cannot remove " + requester + " from " + r.buildAndGetAddresses());
-			sendNetworkMessageWithRole(new CGRSynchro(LEAVE_ROLE, leaver), netUpdater);
-			if(logger != null)
-				informHooks(AgentAction.LEAVE_ROLE, community, group, role);
-			return SUCCESS;
-		}
-		return r.removeMember(requester);
 	}
 
 	// Warning never touch this without looking at the logged kernel
@@ -847,11 +859,8 @@ class MadkitKernel extends Agent {
 			bugReport(e1);
 		}
 		
-		System.err.println("bucket size "+bucket.size());
-		if(bucket.size() != bucketSize){
-			bugReport("\n\n\ndddddddddd", null);
-		}
-		proceed = new AtomicInteger(0);
+//		System.err.println("bucket size "+bucket.size());
+//		proceed = new AtomicInteger(0);
 
 		AgentsJob aj = new AgentsJob() {
 			@Override
@@ -861,7 +870,7 @@ class MadkitKernel extends Agent {
 				a.setKernel(MadkitKernel.this);
 				a.getAlive().set(true);
 				a.logger = null;
-				proceed.incrementAndGet();
+//				proceed.incrementAndGet();
 			}
 		};
 		
@@ -869,16 +878,16 @@ class MadkitKernel extends Agent {
 		//initialization
 		doMulticore(serviceExecutor, aj.getJobs(bucket));
 		
-		System.err.println("proceeded 1 "+proceed);
+//		System.err.println("proceeded 1 "+proceed);
 		
-		proceed.set(0);
+//		proceed.set(0);
 
 		aj = new AgentsJob() {
 			@Override
 			void proceedAgent(AbstractAgent a) {
 				try {
 					a.activate();
-					proceed.incrementAndGet();
+//					proceed.incrementAndGet();
 				} catch (Throwable e) {
 					e.printStackTrace();
 				}
@@ -905,9 +914,6 @@ class MadkitKernel extends Agent {
 					roleCreated = true;
 				}
 				r.addMembers(bucket, roleCreated);
-				if(r.players.size() != bucketSize){
-					bugReport("dddddddddd", null);
-				}
 				// test vs assignement ? -> No: cannot touch the organizational
 				// structure !!
 			}
@@ -920,24 +926,24 @@ class MadkitKernel extends Agent {
 		else{
 			doMulticore(serviceExecutor, aj.getJobs(bucket));
 		}
-		System.err.println("proceeded "+proceed);
-		try {
-			Role r = getRole("Tcommunity","Tgroup","Trole");
-			System.err.println("roles "+r.players.size());
-			ArrayList<AbstractAgent> ll = new ArrayList<AbstractAgent>(bucket);
-			ll.removeAll(r.players);
-			System.err.println("missing "+ll);
-		} catch (CGRNotAvailable e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		System.err.println("proceeded "+proceed);
+//		try {
+//			Role r = getRole("Tcommunity","Tgroup","Trole");
+//			System.err.println("roles "+r.players.size());
+//			ArrayList<AbstractAgent> ll = new ArrayList<AbstractAgent>(bucket);
+//			ll.removeAll(r.players);
+//			System.err.println("missing "+ll);
+//		} catch (CGRNotAvailable e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		return bucket;
 	}
 
 	private List<AbstractAgent> createBucket(final String agentClass, int bucketSize) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 		@SuppressWarnings("unchecked")
 		final Class<? extends AbstractAgent> constructor = (Class<? extends AbstractAgent>) getMadkitClassLoader().loadClass(agentClass);
-		final int cpuCoreNb = Runtime.getRuntime().availableProcessors()-1;
+		final int cpuCoreNb = Runtime.getRuntime().availableProcessors();
 		final List<AbstractAgent> result = new ArrayList<AbstractAgent>(bucketSize);
 		final int nbOfAgentsPerTask = bucketSize / (cpuCoreNb);
 		final CompletionService<List<AbstractAgent>> ecs = new ExecutorCompletionService<List<AbstractAgent>>(serviceExecutor);
@@ -1527,7 +1533,7 @@ class MadkitKernel extends Agent {
 		}
 	}
 
-	boolean isRole(AbstractAgent requester, String community, String group, String role) {
+	boolean isRole(final AbstractAgent requester, final String community, String group, String role) {
 		try {
 			return getRole(community, group, role) != null;
 		} catch (CGRNotAvailable e) {
@@ -1535,24 +1541,28 @@ class MadkitKernel extends Agent {
 		}
 	}
 
-	synchronized void importDistantOrg(Map<String, Map<String, Map<String, Set<AgentAddress>>>> distantOrg) {
-		for (String communityName : distantOrg.keySet()) {
-			Organization org = new Organization(communityName, this);
-			Organization previous = organizations.putIfAbsent(communityName, org);
-			if (previous != null) {
-				org = previous;
+	final void importDistantOrg(final Map<String, Map<String, Map<String, Set<AgentAddress>>>> distantOrg) {
+		synchronized (organizations) {
+			for (final String communityName : distantOrg.keySet()) {
+				Organization org = new Organization(communityName, this);
+				Organization previous = organizations.putIfAbsent(communityName, org);
+				if (previous != null) {
+					org = previous;
+				}
+				org.importDistantOrg(distantOrg.get(communityName));
 			}
-			org.importDistantOrg(distantOrg.get(communityName));
 		}
 	}
 
 	@Override
-	public Map<String, Map<String, Map<String, Set<AgentAddress>>>> getOrganizationSnapShot(boolean global) {
+	final public Map<String, Map<String, Map<String, Set<AgentAddress>>>> getOrganizationSnapShot(boolean global) {
 		Map<String, Map<String, Map<String, Set<AgentAddress>>>> export = new TreeMap<String, Map<String, Map<String, Set<AgentAddress>>>>();
-		for (Map.Entry<String, Organization> org : organizations.entrySet()) {
-			Map<String, Map<String, Set<AgentAddress>>> currentOrg = org.getValue().getOrgMap(global);
-			if (!currentOrg.isEmpty())
-				export.put(org.getKey(), org.getValue().getOrgMap(global));
+		synchronized (organizations) {
+			for (Map.Entry<String, Organization> org : organizations.entrySet()) {
+				Map<String, Map<String, Set<AgentAddress>>> currentOrg = org.getValue().getOrgMap(global);
+				if (!currentOrg.isEmpty())
+					export.put(org.getKey(), org.getValue().getOrgMap(global));
+			}
 		}
 		return export;
 	}
@@ -1621,35 +1631,52 @@ class MadkitKernel extends Agent {
 		final String groupName = r.getGroupName();
 		final String roleName = r.getRoleName();
 		try {
-			switch (m.getCode()) {
-			case CREATE_GROUP:
-				//nerver fails : no need to remove org
-				Organization organization = new Organization(communityName, this);// no
-				final Organization tmpOrg = organizations.putIfAbsent(communityName, organization);
-				if (tmpOrg != null) {
-					if (isGroup(communityName, groupName)) {
-						if (logger != null)
-							logger.finer("distant group creation by " + m.getContent() + " aborted : already exists locally");//TODO what about the manager
-						break;
+			synchronized (organizations) {
+				switch (m.getCode()) {
+				case CREATE_GROUP:
+					Organization organization = getCommunity(communityName);
+					if (organization == null) {
+						organization = new Organization(communityName, this);
+						organizations.put(communityName, organization);
+					}//TODO what about the manager
+					if (organization.putIfAbsent(groupName, new Group(communityName, groupName, m.getContent(), null, organization)) == null
+							&& logger != null) {
+						informHooks(AgentAction.CREATE_GROUP, communityName, groupName, m.getContent());
 					}
-					organization = tmpOrg;
-				}
-				organization.put(groupName, new Group(communityName, groupName, m.getContent(), null, organization));
-				break;
-			case REQUEST_ROLE:
-				getGroup(communityName, groupName).addDistantMember(m.getContent());
-				break;
-			case LEAVE_ROLE:
-				getRole(communityName, groupName, roleName).removeDistantMember(m.getContent());
-				break;
-			case LEAVE_GROUP:
-				getGroup(communityName, groupName).removeDistantMember(m.getContent());
-				break;
+					//				//nerver fails : no need to remove org
+					//				Organization organization = new Organization(communityName, this);// no
+					//				final Organization tmpOrg = organizations.putIfAbsent(communityName, organization);
+					//				if (tmpOrg != null) {
+					//					if (isGroup(communityName, groupName)) {
+					//						if (logger != null)
+					//							logger.finer("distant group creation by " + m.getContent() + " aborted : already exists locally");//TODO what about the manager
+					//						break;
+					//					}
+					//					organization = tmpOrg;
+					//				}
+					//				organization.put(groupName, new Group(communityName, groupName, m.getContent(), null, organization));
+					break;
+				case REQUEST_ROLE:
+					getGroup(communityName, groupName).addDistantMember(m.getContent());
+					if (logger != null)
+						informHooks(AgentAction.REQUEST_ROLE, communityName, groupName, roleName, m.getContent());
+					break;
+				case LEAVE_ROLE:
+					getRole(communityName, groupName, roleName).removeDistantMember(m.getContent());
+					if (logger != null)
+						informHooks(AgentAction.LEAVE_ROLE, communityName, groupName, roleName, m.getContent());
+					break;
+				case LEAVE_GROUP:
+					getGroup(communityName, groupName).removeDistantMember(m.getContent());
+					if (logger != null)
+						informHooks(AgentAction.LEAVE_GROUP, communityName, groupName, m.getContent());
+					break;
 				// case CGRSynchro.LEAVE_ORG://TODO to implement
 				// break;
-			default:
-				bugReport(new UnsupportedOperationException("case not treated in injectOperation"));
-				break;
+				default:
+					bugReport(new UnsupportedOperationException("case not treated in injectOperation"));
+					break;
+				}
 			}
 		} catch (CGRNotAvailable e) {
 			if(logger != null)

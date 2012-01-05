@@ -18,13 +18,7 @@
  */
 package madkit.testing.util.agent;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.io.PrintStream;
-import java.util.Arrays;
 
 import javax.swing.JFrame;
 

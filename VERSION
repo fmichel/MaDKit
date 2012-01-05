@@ -20,7 +20,7 @@ interact using messages. It also contains MAS simulation authoring tools.
 ----------------------------------------------------------------------------------
 
 
-Put lib/${madkit.jar.name} in your build path (e.g. in your Eclipse project) and
+Put ${madkit.jar.name} in your build path (e.g. in your Eclipse project) and
 start programming agents.
 
 To launch your MadKit agents, simply either
@@ -52,6 +52,8 @@ Other command line options are described in the API of the madkit.kernel.Madkit 
 	- starting time improved
 	- basic activators and probes are faster
 	- madkit.action.* can be used to easily build GUI
+	- a hook system has been added like in MadKit 4
+	- A console agent redirecting console messages has been added (displaying message from System.out and .err)
 
 2. API new features:
 	- madkit.message. StringMessage, AgentHookMessage, EnumMessage, KernelMessage classes have been added.

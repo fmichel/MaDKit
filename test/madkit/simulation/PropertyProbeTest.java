@@ -137,7 +137,7 @@ public class PropertyProbeTest extends JunitMadKit {
 				assertEquals(SUCCESS, launchAgent(s));
 				s.addProbe(fp);
 				try {
-					System.err.println(fp.getAllProperties());
+					System.err.println(fp.getPropertyValue(fp.getCurrentAgentsList().get(0)));
 					noExceptionFailure();
 				} catch (NullPointerException e) {
 					e.printStackTrace();

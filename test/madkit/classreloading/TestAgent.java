@@ -7,6 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.logging.Level;
 
+import madkit.classreloading.anotherPackage.Fake;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Activator;
 import madkit.kernel.Agent;
@@ -50,7 +51,7 @@ public class TestAgent extends Agent {
 			logger.info("\n\ndS zz d\n\n");
 			FakeObject o = new FakeObject();
 			logger.info("fake is " + o);
-			logger.info("fake2 is " + (new  madkit.classreloading.anotherPackage.Fake().toString()));
+			logger.info("fake2 is " + (new  Fake().toString()));
 			pause(4000);
 			try {
 				getMadkitClassLoader().reloadClass("madkit.classreloading.anotherPackage.Fake");
@@ -58,7 +59,7 @@ public class TestAgent extends Agent {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			logger.info("fake3 is " + (new madkit.classreloading.anotherPackage.Fake().toString()));
+			logger.info("fake3 is " + (new Fake().toString()));
 		}
 	}
 

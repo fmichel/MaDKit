@@ -47,7 +47,7 @@ import madkit.message.SchedulingMessage;
 
 /**
  * This class defines a generic threaded scheduler agent. It holds a collection
- * of activators.  
+ * of activators. The default state of a scheduler is {@link State#PAUSED}.
  * @author Fabien Michel
  * @author Olivier Gutknecht
  * @since MadKit 2.0
@@ -69,11 +69,8 @@ public class Scheduler extends Agent {
 	 * The scheduler will process one simulation step and then will be in the
 	 * {@link #PAUSED} state.</li>
 	 * <li>{@link #PAUSED}<br>
-	 * The simulation is paused.</li>
+	 * The simulation is paused. This is the default state.</li>
 	 * </ul>
-	 * 
-	 * <p>
-	 * An agent can be in only one state at a given point in time.
 	 * 
 	 * @author Fabien Michel
 	 * @since MadKit 5.0
@@ -283,7 +280,11 @@ public class Scheduler extends Agent {
 		return simulationState;
 	}
 
-	private void changeState(final State newState) {
+	/**
+	 * Changes the state of the scheduler accordingly
+	 * @param newState the new state
+	 */
+	protected void setState(final State newState) {
 		if (simulationState != newState) {
 			simulationState = newState;
 			switch (simulationState) {
@@ -342,13 +343,13 @@ public class Scheduler extends Agent {
 			try {
 				switch (((SchedulingMessage) m).getCode()) {
 				case RUN:
-					changeState(State.RUNNING);
+					setState(State.RUNNING);
 					break;
 				case STEP:
-					changeState(State.STEP);
+					setState(State.STEP);
 					break;
 				case SHUTDOWN:
-					changeState(State.SHUTDOWN);
+					setState(State.SHUTDOWN);
 					break;
 				}
 				if (m.getSender() != null) {

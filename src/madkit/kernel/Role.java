@@ -528,10 +528,10 @@ class Role implements Serializable{//TODO test with arraylist
 
 	AgentAddress getAgentAddressOf(final AbstractAgent a){
 		final int hash = a.hashCode();
-		final KernelAddress ka = a.getKernelAddress();
+//		final KernelAddress ka = a.getKernelAddress();
 		synchronized (players) {
 			for (final AgentAddress aa : buildAndGetAddresses()) {//TODO when offline second part is useless
-				if (aa.getAgentCode() == hash && ka.equals(aa.getKernelAddress()))
+				if (aa.getAgentCode() == hash && aa.getAgent() != null)// && ka.equals(aa.getKernelAddress()))
 					return aa;
 			}
 		}

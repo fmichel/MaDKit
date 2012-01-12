@@ -66,6 +66,7 @@ final class LoggedKernel extends MadkitKernel {
 		}
 		return r;
 	}
+	
 
 	@Override
 	boolean createGroupIfAbsent(AbstractAgent requester,String community, String group, String desc, Gatekeeper gatekeeper, boolean isDistributed) {
@@ -171,6 +172,15 @@ final class LoggedKernel extends MadkitKernel {
 			}
 			return null;
 		}
+	}
+	
+	@Override
+	AgentAddress getAgentAddressIn(AbstractAgent agent, String community, String group, String role) {
+		final AgentAddress aa = kernel.getAgentAddressIn(agent, community, group, role);
+		if(aa == null && agent.isWarningOn() && isRole(community, group, role)){
+			agent.handleException(Influence.GET_AGENT_ADDRESS_IN, new OrganizationWarning(ReturnCode.ROLE_NOT_HANDLED, community, group, role));
+		}
+		return aa;
 	}
 
 	@Override

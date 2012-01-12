@@ -48,6 +48,7 @@ import madkit.message.SchedulingMessage;
 /**
  * This class defines a generic threaded scheduler agent. It holds a collection
  * of activators. The default state of a scheduler is {@link State#PAUSED}.
+ * 
  * @author Fabien Michel
  * @author Olivier Gutknecht
  * @since MadKit 2.0
@@ -93,8 +94,8 @@ public class Scheduler extends Agent {
 		/**
 		 * The simulation is paused.
 		 */
-		PAUSED, 
-		
+		PAUSED,
+
 		/**
 		 * The simulation is ending
 		 */
@@ -106,13 +107,14 @@ public class Scheduler extends Agent {
 	final private Set<Activator<? extends AbstractAgent>> activators = new LinkedHashSet<Activator<? extends AbstractAgent>>();
 	private int delay = 20;
 
-	Action run,step,speedUp,speedDown;
+	Action run, step, speedUp, speedDown;
 
 	JLabel timer;
 	private JSlider speedSlider;
 
 	/**
 	 * Returns the delay between two simulation steps
+	 * 
 	 * @return the delay between two simulation steps.
 	 */
 	public int getDelay() {
@@ -120,9 +122,11 @@ public class Scheduler extends Agent {
 	}
 
 	/**
-	 * Sets the delay between two simulation steps. That is the pause time between to call to {@link #doSimulationStep()}
+	 * Sets the delay between two simulation steps. That is the pause time
+	 * between to call to {@link #doSimulationStep()}
 	 * 
-	 * @param delay the delay to set
+	 * @param delay
+	 *           the delay to set
 	 */
 	public void setDelay(final int delay) {
 		this.delay = delay;
@@ -135,6 +139,7 @@ public class Scheduler extends Agent {
 
 	/**
 	 * Returns the simulation global virtual time.
+	 * 
 	 * @return the gVT
 	 */
 	public double getGVT() {
@@ -144,7 +149,8 @@ public class Scheduler extends Agent {
 	/**
 	 * Sets the simulation global virtual time.
 	 * 
-	 * @param gVT the gVT to set
+	 * @param gVT
+	 *           the gVT to set
 	 */
 	public void setGVT(final double gVT) {
 		GVT = gVT;
@@ -155,42 +161,44 @@ public class Scheduler extends Agent {
 	private double startTime;
 
 	/**
-	 * This constructor is equivalent to 
+	 * This constructor is equivalent to
 	 * <code>Scheduler(0, Double.MAX_VALUE)</code>
 	 */
 	public Scheduler() {
 		this(0, Double.MAX_VALUE);
 	}
 
-//	public Scheduler(boolean multicore) {
-//		this(0, Double.MAX_VALUE);
-//	}
+	// public Scheduler(boolean multicore) {
+	// this(0, Double.MAX_VALUE);
+	// }
 
 	/**
-	 * This constructor is equivalent to 
-	 * <code>Scheduler(0, endTime)</code>
+	 * This constructor is equivalent to <code>Scheduler(0, endTime)</code>
 	 */
 	public Scheduler(final double endTime) {
 		this(0, endTime);
 	}
 
-//	public Scheduler(final double startTime, final double endTime) {
-//		buildActions();
-//		setSimulationDuration(endTime);
-//		this.setStartTime(startTime);
-//	}
+	// public Scheduler(final double startTime, final double endTime) {
+	// buildActions();
+	// setSimulationDuration(endTime);
+	// this.setStartTime(startTime);
+	// }
 
-//	@Override
-//	protected void activate() {
-//		if(logger != null)
-//			logger.talk("\n\tHi human !\n\n I am an instance of the madkit.kernel.Scheduler class.\n I am specialized in simulation scheduling.\n I use activators on the artificial society\n to trigger agents' behaviors and simulate artificial worlds.\n You can extend me to create your own simulations !");
-//	}
-	
+	// @Override
+	// protected void activate() {
+	// if(logger != null)
+	// logger.talk("\n\tHi human !\n\n I am an instance of the madkit.kernel.Scheduler class.\n I am specialized in simulation scheduling.\n I use activators on the artificial society\n to trigger agents' behaviors and simulate artificial worlds.\n You can extend me to create your own simulations !");
+	// }
+
 	/**
-	 * Constructor specifying the global times at which the simulation starts and ends.
+	 * Constructor specifying the global times at which the simulation starts and
+	 * ends.
 	 * 
-	 * @param startTime the first step global virtual time
-	 * @param endTime the time at which the simualtion will automatically stop
+	 * @param startTime
+	 *           the first step global virtual time
+	 * @param endTime
+	 *           the time at which the simualtion will automatically stop
 	 */
 	public Scheduler(final double startTime, final double endTime) {
 		buildActions();
@@ -199,8 +207,8 @@ public class Scheduler extends Agent {
 	}
 
 	/**
-	 * Setup the default Scheduler GUI when launched with the default MadKit
-	 * GUI mechanism.
+	 * Setup the default Scheduler GUI when launched with the default MadKit GUI
+	 * mechanism.
 	 * 
 	 * @see madkit.kernel.AbstractAgent#setupFrame(javax.swing.JFrame)
 	 * @since MadKit 5.0.0.8
@@ -232,33 +240,48 @@ public class Scheduler extends Agent {
 		activators.remove(activator);
 	}
 
+	/**
+	 * Executes all the activators in the order they have been added, using the
+	 * and increment the global virtual time of this scheduler by one unit. This
+	 * method should be overridden to define customized scheduling policy. So
+	 * default implementation is :
+	 * 
+	 * <pre>
+	 * <tt>@Override</tt>
+	 * public void doSimulationStep() {
+	 * 	if (logger != null) {
+	 * 		logger.finer("Doing simulation step "+GVT);
+	 * 	}
+	 * 	for (final Activator<? extends AbstractAgent> activator : activators) {
+	 * 		if (logger != null)
+	 * 			logger.finest("Activating " + activator);
+	 * 		triggerActivator(activator);
+	 * 	}
+	 * 	setGVT(GVT + 1);
+	 * }
+	 */
 	public void doSimulationStep() {
 		if (logger != null) {
-			logger.finer("Doing a simulation step");
-			for (final Activator<? extends AbstractAgent> activator : activators) {
-				if (logger != null)
-					logger.finest("Activating " + activator);
-				triggerActivator(activator);
-			}
-		} else {
-			for (final Activator<? extends AbstractAgent> activator : activators) {
-				triggerActivator(activator);
-			}
+			logger.finer("Doing simulation step " + GVT);
+		}
+		for (final Activator<? extends AbstractAgent> activator : activators) {
+			if (logger != null)
+				logger.finest("Activating " + activator);
+			triggerActivator(activator);
 		}
 		setGVT(GVT + 1);
 	}
-	
+
 	/**
 	 * Triggers the activator's execution process. This process automatically
 	 * calls the multicore mode of the activator if it is set so.
 	 * 
-	 * @param activator the activator to execute.
+	 * @param activator  the activator to execute.
 	 */
-	public void triggerActivator(final Activator<? extends AbstractAgent> activator){
-		if(activator.isMulticoreModeOn()){
+	public void triggerActivator(final Activator<? extends AbstractAgent> activator) {
+		if (activator.isMulticoreModeOn()) {
 			activator.multicoreExecute();
-		}
-		else{
+		} else {
 			activator.execute();
 		}
 	}
@@ -281,8 +304,10 @@ public class Scheduler extends Agent {
 	}
 
 	/**
-	 * Changes the state of the scheduler accordingly
-	 * @param newState the new state
+	 * Changes the state of the scheduler
+	 * 
+	 * @param newState
+	 *           the new state
 	 */
 	protected void setState(final State newState) {
 		if (simulationState != newState) {
@@ -300,8 +325,8 @@ public class Scheduler extends Agent {
 			case SHUTDOWN:
 				run.setEnabled(false);
 				break;
-			default://impossible
-				logLifeException(new Exception("state not handle : "+newState.toString()));
+			default:// impossible
+				logLifeException(new Exception("state not handle : " + newState.toString()));
 			}
 		}
 	}
@@ -333,7 +358,7 @@ public class Scheduler extends Agent {
 			case SHUTDOWN:
 				return; // shutdown
 			default:
-				getLogger().severe("state not handled "+simulationState);
+				getLogger().severe("state not handled " + simulationState);
 			}
 		}
 	}
@@ -421,7 +446,7 @@ public class Scheduler extends Agent {
 		step = SchedulingAction.STEP.getActionFor(this);
 		speedUp = SchedulingAction.SPEED_UP.getActionFor(this);
 		speedDown = SchedulingAction.SPEED_DOWN.getActionFor(this);
-}
+	}
 
 	/**
 	 * Returns a toolbar which could be used in any GUI.
@@ -475,7 +500,7 @@ public class Scheduler extends Agent {
 	/**
 	 * Returns a menu which could be used in any GUI.
 	 * 
-	 * @return a  menu controlling the scheduler's actions
+	 * @return a menu controlling the scheduler's actions
 	 */
 	public JMenu getSchedulerMenu() {
 		JMenu myMenu = new JMenu("Scheduling");
@@ -489,6 +514,7 @@ public class Scheduler extends Agent {
 
 	/**
 	 * Returns a label giving some information on the simulation process
+	 * 
 	 * @return a label giving some information on the simulation process
 	 */
 	public JLabel getSchedulerStatusLabel() {
@@ -499,7 +525,8 @@ public class Scheduler extends Agent {
 	}
 
 	/**
-	 * @param speedSlider the speedSlider to set
+	 * @param speedSlider
+	 *           the speedSlider to set
 	 */
 	private void setSpeedSlider(JSlider speedSlider) {
 		this.speedSlider = speedSlider;
@@ -511,5 +538,5 @@ public class Scheduler extends Agent {
 	public JSlider getSpeedSlider() {
 		return speedSlider;
 	}
-	
+
 }

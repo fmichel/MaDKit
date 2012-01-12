@@ -124,6 +124,9 @@ public class Activator<A extends AbstractAgent> extends Overlooker<A>{
 	}
 
 	/**
+	 * Sets the number of core which will be used. If set to a number greater
+	 * than 1, the scheduler will automatically call {@link #multicoreExecute()}
+	 * on this activator.
 	 * @param nbOfsimultaneousTasks the number of simultaneous tasks
 	 * that this activator will use to make a step. Default is 1 upon
 	 * creation, so that 

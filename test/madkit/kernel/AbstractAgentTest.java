@@ -18,7 +18,7 @@
  */
 package madkit.kernel;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
@@ -68,6 +68,20 @@ public class AbstractAgentTest {
 		} catch (KernelException e) {
 			fail("exception thrown");
 		}
+	}
+	
+	@Test
+	public void purgeMailbox(){
+		assertNull(a.purgeMailbox());
+		Message m;
+		a.receiveMessage(new Message());
+		a.receiveMessage(m = new Message());
+		assertEquals(m, a.purgeMailbox());
+		assertNull(a.purgeMailbox());
+		a.receiveMessage(m = new Message());
+		a.receiveMessage(new Message());
+		assertNotSame(m, a.purgeMailbox());
+		assertNull(a.purgeMailbox());
 	}
 
 	/**

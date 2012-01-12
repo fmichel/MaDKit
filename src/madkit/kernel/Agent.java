@@ -20,6 +20,7 @@ package madkit.kernel;
 
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -636,7 +637,7 @@ public class Agent extends AbstractAgent{
 	private Message waitingNextMessageForEver() {
 		//		checkAliveness();
 		try {
-			return messageBox.takeFirst();
+			return messageBox.take();
 		} catch (InterruptedException e) {
 			handleInterruptedException();
 			//		} catch (IllegalMonitorStateException e) {
@@ -654,7 +655,7 @@ public class Agent extends AbstractAgent{
 	private Message waitingNextMessage(final long timeout, final TimeUnit unit) {
 		//		checkAliveness();
 		try {
-			return messageBox.pollFirst(timeout, unit);
+			return messageBox.poll(timeout, unit);
 		} catch (InterruptedException e) {
 			handleInterruptedException();
 			return null;
@@ -669,17 +670,16 @@ public class Agent extends AbstractAgent{
 	 */
 	private Message waitAnswer(final Message m) {
 		Message answer;
-		final LinkedList<Message> receptions = new LinkedList<Message>();
+		final List<Message> receptions = new ArrayList<Message>(messageBox.size());
 		final long conversationID = m.getConversationID();
 		answer = waitingNextMessageForEver();
 		while(answer.getConversationID() != conversationID){
 			receptions.add(answer);
 			answer = waitingNextMessageForEver();
 		}
-		if (! receptions.isEmpty()) {
-			Collections.reverse(receptions);
-			for (final Message message : receptions) {
-				messageBox.addFirst(message);
+		if (!receptions.isEmpty()) {
+			synchronized (messageBox) {
+					messageBox.addAll(receptions);
 			}
 		}
 		if(logger != null)
@@ -696,7 +696,7 @@ public class Agent extends AbstractAgent{
 		if(timeOutNanos == null)
 			return waitAnswer(theMessageToReplyTo);
 		Message answer;
-		final LinkedList<Message> receptions = new LinkedList<Message>();
+		final List<Message> receptions = new ArrayList<Message>(messageBox.size());
 		//conversion
 		final long endTime = System.nanoTime()+timeOutNanos;
 		final long conversationID = theMessageToReplyTo.getConversationID();
@@ -706,10 +706,9 @@ public class Agent extends AbstractAgent{
 			receptions.add(answer);
 			answer = waitingNextMessage(endTime - System.nanoTime(),TimeUnit.NANOSECONDS);
 		}
-		if (! receptions.isEmpty()) {
-			Collections.reverse(receptions);
-			for (final Message message : receptions) {
-				messageBox.addFirst(message);
+		if (!receptions.isEmpty()) {
+			synchronized (messageBox) {
+					messageBox.addAll(receptions);
 			}
 		}
 		if(answer == null){
@@ -722,33 +721,33 @@ public class Agent extends AbstractAgent{
 		return answer;
 	}
 
-	List<Message> waitAnswers(Message message, int size, Integer timeOutMilliSeconds) {
-		final long endTime = System.nanoTime()+TimeUnit.MILLISECONDS.toNanos(timeOutMilliSeconds);
-		final long conversationID = message.getConversationID();
-		int missing = size;
-		final LinkedList<Message> receptions = new LinkedList<Message>();
-		final LinkedList<Message> answers = new LinkedList<Message>();
-		while(missing > 0 && System.nanoTime() < endTime){
-			Message answer = waitingNextMessage(endTime - System.nanoTime(),TimeUnit.NANOSECONDS);
-			if(answer == null)
-				break;
-			if(answer.getConversationID() == conversationID){
-				answers.add(answer);
-				missing--;
-			}
-			else
-				receptions.add(answer);
-		}
-		if (! receptions.isEmpty()) {
-			Collections.reverse(receptions);
-			for (final Message m : receptions) {
-				messageBox.addFirst(m);
-			}
-		}
-		if(! answers.isEmpty())
-			return answers;
-		return null;
-	}
+//	List<Message> waitAnswers(Message message, int size, Integer timeOutMilliSeconds) {
+//		final long endTime = System.nanoTime()+TimeUnit.MILLISECONDS.toNanos(timeOutMilliSeconds);
+//		final long conversationID = message.getConversationID();
+//		int missing = size;
+//		final LinkedList<Message> receptions = new LinkedList<Message>();
+//		final LinkedList<Message> answers = new LinkedList<Message>();
+//		while(missing > 0 && System.nanoTime() < endTime){
+//			Message answer = waitingNextMessage(endTime - System.nanoTime(),TimeUnit.NANOSECONDS);
+//			if(answer == null)
+//				break;
+//			if(answer.getConversationID() == conversationID){
+//				answers.add(answer);
+//				missing--;
+//			}
+//			else
+//				receptions.add(answer);
+//		}
+//		if (! receptions.isEmpty()) {
+//			Collections.reverse(receptions);
+//			for (final Message m : receptions) {
+//				messageBox.addFirst(m);
+//			}
+//		}
+//		if(! answers.isEmpty())
+//			return answers;
+//		return null;
+//	}
 
 	//	@Override
 	//	void checkAliveness() {

@@ -38,11 +38,16 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -143,7 +148,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	private String name;
 	final AtomicBoolean alive = new AtomicBoolean();// TODO tranform to
 																	// deaddefault is false
-	final LinkedBlockingDeque<Message> messageBox = new LinkedBlockingDeque<Message>();// TODO
+	final BlockingQueue<Message> messageBox = new LinkedBlockingQueue<Message>();// TODO
+//	final ArrayBlockingQueue<Message> messageBox = new ArrayBlockingQueue<Message>(Integer.MAX_VALUE);// TODO
 																													// lazy
 																													// creation
 
@@ -1380,17 +1386,40 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		return messageBox.poll();
 	}
 
+//	/**
+//	 * Returns the message which has been received the most recently and removes
+//	 * it from the mailbox.
+//	 * 
+//	 * @return the message which has been received the most recently.
+//	 */
+//	public Message getMostRecentMessage() {
+//		// checkAliveness();
+//		return messageBox.pollLast();
+//	}
+	
 	/**
-	 * Returns the message which has been received the most recently and removes
-	 * it from the mailbox.
-	 * 
-	 * @return the message which has been received the most recently.
+	 * Purges the mailbox and returns the most 
+	 * recent received message at that time.
+	 * @return the most recent received message or <code>null</code>
+	 * if the mailbox is already empty.
 	 */
-	public Message getMostRecentMessage() {
-		// checkAliveness();
-		return messageBox.pollLast();
+	public Message purgeMailbox(){
+		Message m = null;
+		synchronized (messageBox) {
+			try {
+				while (true) {
+					m = messageBox.remove();
+				}
+			} catch (NoSuchElementException e) {
+			}
+		}
+		return m;
 	}
 
+	/**
+	 * @return <code>true</code> if there is no message in
+	 * the mailbox.
+	 */
 	public boolean isMessageBoxEmpty() {
 		// checkAliveness();
 		return messageBox.isEmpty();
@@ -1906,7 +1935,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 */
 	private Message waitingNextMessage(final long timeout, final TimeUnit unit) {
 		try {
-			return messageBox.pollFirst(timeout, unit);
+			return messageBox.poll(timeout, unit);
 		} catch (InterruptedException e) {
 			handleInterruptedException();
 			return null;
@@ -1961,7 +1990,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	/**
 	 * @since MadKit 5.0.0.9
 	 */
-	List<Message> waitAnswers(Message message, int size, Integer timeOutMilliSeconds) {
+	List<Message> waitAnswers(final Message message, final int size, final Integer timeOutMilliSeconds) {
 		final long endTime = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(timeOutMilliSeconds);
 		final long conversationID = message.getConversationID();
 		int missing = size;
@@ -1978,9 +2007,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 				receptions.add(answer);
 		}
 		if (!receptions.isEmpty()) {
-			Collections.reverse(receptions);
-			for (final Message m : receptions) {
-				messageBox.addFirst(m);
+			synchronized (messageBox) {
+					messageBox.addAll(receptions);
 			}
 		}
 		if (!answers.isEmpty())

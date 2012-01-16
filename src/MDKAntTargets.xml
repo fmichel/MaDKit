@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+  Copyright 1998-2011 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+  
+  This file is part of MadKit.
+  
+  MadKit is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Lesser General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+  
+  MadKit is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU Lesser General Public License for more details.
+  
+  You should have received a copy of the GNU Lesser General Public License
+  along with MadKit. If not, see <http://www.gnu.org/licenses/>.
+ -->
+
+<!-- 
+ This is ant build.xml file for helping building MadKit 5 projects
+ Author: Fabien Michel
+ Version: 1.0
+-->
+
+<project name="MDKAntTargets" default="compile">
+
+	<property name="madkit.args" value="" description="for the null case" />
+	<property name="jnlp.template" value="jnlp.template" />
+	<property name="jnlp.jar" value="${ant.project.name}.jnlp.jar" />
+	<property name="jnlp.jar.gz" value="${jnlp.jar}.pack.gz" />
+
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: compile                      
+			debug="false" this is default
+         - - - - - - - - - - - - - - - - - -->
+	<target name="compile">
+		<echo>	Compiling using ${kernel.location}</echo>
+		<mkdir dir="${build.dir}" />
+		<filterset begintoken="[[" endtoken="]]">
+			<filter token="TIMESTAMP" value="${timestamp.isoformat}" />
+		</filterset>
+		<copy todir="${build.dir}">
+			<fileset dir="${src.dir}" excludes="**/*.java" />
+		</copy>
+		<javac classpath="${kernel.location}" includeAntRuntime="false" srcdir="${src.dir}" destdir="${build.dir}" deprecation="on">
+		</javac>
+	</target>
+
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: build-manifest                      
+         - - - - - - - - - - - - - - - - - -->
+	<target name="build-manifest">
+		<manifest file="${manifest.location}">
+			<section name="MadKit-Project-Info">
+				<attribute name="Project-Name" value="${project.label}" />
+				<attribute name="Project-Code-Name" value="${ant.project.name}" />
+				<attribute name="Project-Version" value="${version}" />
+				<attribute name="Description" value="${description}" />
+				<attribute name="Author" value="${author}" />
+				<attribute name="Built-By" value="${user.name}" />
+				<attribute name="Built-On" value="${timestamp.isoformat}" />
+				<attribute name="Built-With" value="MadKit ${madkit.version}" />
+				<attribute name="MadKit-Args" value="${madkit.args}" />
+			</section>
+		</manifest>
+	</target>
+
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: no-jarsigner-message                      
+         - - - - - - - - - - - - - - - - - -->
+	<target name="jarsigner-message" unless="jarsigner.present">
+		<echo>
+	Build warning:
+	Cannot find the jarsigner tool so that the jar could not be signed.
+	This is a problem only if you want your jar to be executed online using java web start
+	You can fix that by downloading and installing the JDK from Oracle
+		</echo>
+	</target>
+
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: init-security               
+         - - - - - - - - - - - - - - - - - -->
+	<target name="init-security">
+		<property name="keystore.dir" location="${user.home}/.mk_pass" />
+		<mkdir dir="${keystore.dir}" />
+		<chmod file="${keystore.dir}" perm="700" />
+		<property name="keystore" location="${keystore.dir}/local.keystore" />
+		<property file="${keystore.dir}/keystore.properties" />
+		<property name="keystore.alias" value="MadKit-Application" />
+	</target>
+
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: get-password          
+         - - - - - - - - - - - - - - - - - -->
+	<target name="get-password" depends="init-security" if="jarsigner.present" unless="keystore.password">
+		<input addproperty="keystore.password">${line.separator}	First build: Please enter a password for signing MadKit jars, this will be stored in a keystore in ${keystore.dir}:</input>
+		<propertyfile file="${keystore.dir}/keystore.properties" comment="${ant.project.name} signing password">
+			<entry key="keystore.password" value="${keystore.password}" />
+		</propertyfile>
+		<antcall target="init-security" />
+		<antcall target="create-signing-key" />
+	</target>
+
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: sign-jar
+         - - - - - - - - - - - - - - - - - -->
+	<target name="sign-jar" depends="probe-for-jarsigner,jarsigner-message,get-password" if="jarsigner.present">
+		<exec executable="pack200" dir=".">
+			<arg value="-r" />
+			<arg value="${jar.file}" />
+		</exec>
+		<signjar jar="${jar.file}" signedjar="${jnlp.jar}" preservelastmodified="true" alias="${keystore.alias}" storepass="${keystore.password}" keystore="${keystore}" />
+		<echo>Creating ${jnlp.jar}.pack.gz !${line.separator}</echo>
+		<exec executable="pack200" dir=".">
+			<arg value="-Pfile=madkit/action/images" />
+			<arg value="--deflate-hint=true" />
+			<arg value="--effort=1" />
+			<arg value="${jnlp.jar.gz}" />
+			<arg value="${jnlp.jar}" />
+		</exec>
+	</target>
+
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: delete-keystore                      
+         - - - - - - - - - - - - - - - - - -->
+	<target name="delete-keystore" depends="init-security">
+		<delete file="${keystore}" />
+	</target>
+
+
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: create-signing-key
+         - - - - - - - - - - - - - - - - - -->
+	<target name="create-signing-key">
+		<genkey alias="${keystore.alias}" keystore="${keystore}" storepass="${keystore.password}" validity="3660">
+			<dname>
+				<param name="CN" value="${common.name}" />
+				<!--commonName - common name of a person-->
+				<param name="OU" value="${organization.unit}" />
+				<!--organizationUnit - small organization (e.g, department or division) name, e.g., "Purchasing"-->
+				<param name="O" value="${organization}" />
+				<!--organizationName - large organization name, e.g., "ABCSystems, Inc."-->
+				<param name="C" value="${user.country}" />
+			</dname>
+		</genkey>
+	</target>
+
+
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: probe-for-jarsigner                      
+         - - - - - - - - - - - - - - - - - -->
+	<target name="probe-for-jarsigner">
+		<property environment="env" />
+		<condition property="jarsigner.present">
+			<or>
+				<available file="jarsigner" filepath="${env.PATH}" />
+				<available file="jarsigner.exe" filepath="${env.Path}" />
+			</or>
+		</condition>
+	</target>
+
+</project>

@@ -51,7 +51,10 @@ Other command line options are described in the API of the madkit.kernel.Madkit 
 
 2. API changes:
 	+ madkit.kernel.AbstractAgent.getAgentAddressIn(String, String, String)
+	+ madkit.kernel.AbstractAgent.proceedEnumMessage(EnumMessage<E>)
 	+ madkit.kernel.AbstractAgent.purgeMailbox()
+	+ madkit.kernel.Scheduler.setState(State)
+	+ madkit.action.SchedulingAction.PAUSE
 	
 	- madkit.kernel.AbstractAgent.getMostRecentMessage()
 

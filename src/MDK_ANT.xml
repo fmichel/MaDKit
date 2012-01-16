@@ -1,0 +1,163 @@
+<?xml version="1.0"?>
+<!-- 
+  Copyright 1998-2011 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+  
+  This file is part of MadKit.
+  
+  MadKit is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Lesser General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+  
+  MadKit is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU Lesser General Public License for more details.
+  
+  You should have received a copy of the GNU Lesser General Public License
+  along with MadKit. If not, see <http://www.gnu.org/licenses/>.
+ -->
+
+<!-- 
+ This is ant build.xml file for building the MadKit kernel jar file MadKit V.5
+ Author: Fabien Michel
+ Version: 5.0
+-->
+
+<project name="MDK_targets" default="build-executable-jar" basedir=".">
+
+	<property name="build.dir" value="build" />
+	<property name="manifest.location" value="${java.io.tmpdir}/MANIFEST.MF" />
+	<property name="kernel.location" location="${madkit.lib.dir}/madkitkernel-${madkit.version}.jar" />
+	<property name="jnlp.template.file" value="jar:file://${kernel.location}!/jnlp.template.xml" />
+	<property name="jnlp.jar" value="${ant.project.name}.jnlp.jar"/>
+	<property name="jnlp.jar.gz" value="${jnlp.jar}.pack.gz"/>
+	<property name="jnlp.file" value="${ant.project.name}.jnlp"/>
+	<property name="src.zip.file" value="${ant.project.name}-${version}-src.zip"/>
+   	<property name="jar.file" value="${ant.project.name}-${version}.jar"/>
+   	<property name="agent.lib.file" value="${ant.project.name}-lib-${version}.jar"/>
+
+	<property url="jar:file://${kernel.location}!/madkit/kernel/madkitKernel.properties" />
+
+	<tstamp prefix="time" />
+
+	<tstamp>
+		<format property="timestamp.isoformat" pattern="yyyy-mm-dd HH:mm:ss" locale="en" />
+	</tstamp>
+
+	<include as="MDK">
+		<javaresource name="MDKAntTargets.xml">
+			<classpath location="${kernel.location}" />
+		</javaresource>
+	</include>
+
+	<!-- ================================= 
+          target: build-agent-jar              
+         ================================= -->
+	<target name="build-agent-jar" description="">
+		<echo>Creating ${ant.project.name} MDK agent library jar file</echo>
+		<antcall target="MDK.compile" />
+		<concat destfile="${build.dir}/README">--- This is ${project.label} MadKit library version ${version} by ${author} -----
+    			${line.separator}- Description  ${description}  -----
+    			${line.separator}- Using        This jar file is MadKit lib file: It can be used in MadKit using load jar or by putting it in the classpath of your MadKit application  -----
+    			${line.separator}- Technology   It runs using the MadKit multi agent kernel : http://www.madkit.org A platform for building Multi-Agent Systems Application -----
+    		</concat>
+		<antcall target="MDK.build-manifest" />
+			<jar destfile="${agent.lib.file}" 
+				manifest="${manifest.location}"
+				index="true" 
+				duplicate="preserve"
+				compress="false">
+	            <fileset dir="${build.dir}" />
+			</jar>
+		<delete dir="${build.dir}" />
+	</target>
+
+	<!-- ================================= 
+          target: clean              
+         ================================= -->
+	<target name="clean" description="clean generated files">
+		<delete file="${jar.file}" />
+		<delete file="${jnlp.jar.gz}" />
+		<delete file="${ant.project.name}.jnlp" />
+		<delete file="${agent.lib.file}" />
+		<delete file="${src.zip.file}" />
+	</target>
+
+
+	<!-- ================================= 
+          target: build-executable-jar              
+         ================================= -->
+    <target name="build-executable-jar" description="executable jar">
+    	<property name="jar.file" value="${ant.project.name}-${version}.jar"/>
+		<echo>Creating executable jar file : ${jar.file}</echo>
+		<antcall target="MDK.compile" />
+		<antcall target="MDK.build-manifest" />
+ 		<unzip src="${kernel.location}" dest="${java.io.tmpdir}">
+    	  <patternset>
+    	    <include name="jar-in-jar-loader.zip"/>
+    	  </patternset>
+    	</unzip>
+		<concat destfile="${build.dir}/README" >--- This is ${project.label} version ${version} by ${author} -----
+			${line.separator}- Description  ${description}  -----
+			${line.separator}- Using        This jar file is runnable: Double click it (file execution permission is required) or use java -jar  -----
+			${line.separator}- Technology   It is develloped using MadKit : A Multiagent Development Kit http://www.madkit.org  -----
+		</concat>
+		<manifest file="${manifest.location}" mode="update">
+            <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
+            <attribute name="Rsrc-Main-Class" value="madkit.kernel.Madkit"/>
+            <attribute name="Class-Path" value="."/>
+            <attribute name="Rsrc-Class-Path" value="./ ${madkit.jar.name}"/>
+		</manifest>
+ 		<jar destfile="${jar.file}" manifest="${manifest.location}" index="true" compress="false" >
+            <zipfileset src="${java.io.tmpdir}/jar-in-jar-loader.zip"/>
+            <fileset dir="${build.dir}"/>
+            <zipfileset file="${kernel.location}"/>
+ 		</jar>
+		<delete dir="${build.dir}" />
+        <echo>
+        	
+        	--- Running your project :
+        	${line.separator} 
+     Your project could now be ran by either${line.separator} 
+    (1) double clicking the jar file !${line.separator}
+    (2) using a commandline such as:	   	
+		java -jar ${jar.file} [additional Madkit options and arguments]
+        	${line.separator}
+        </echo>
+    </target>
+	
+	<!-- ================================= 
+          target: Java-Web-Start            
+         ================================= -->
+    <target name="Java-Web-Start" depends="build-executable-jar" description="builds jws files">
+		<antcall target="MDK.sign-jar" />
+   		<copy tofile="${ant.project.name}.jnlp" overwrite="true">
+   		    <resources>
+   		      <url url="${jnlp.template.file}"/>
+   		    </resources>
+   		  <filterchain>
+   		    <expandproperties/>
+   		  </filterchain>
+   		</copy>	
+        <echo>${line.separator}
+        	--- For Java Web Start :
+        	${line.separator} 
+    The ${jnlp.jar.gz} file is the target of the jnlp file : it has no vesion number so that 
+    the jnlp will always run the latest version without requiring any change
+        	${line.separator} 
+       </echo>
+		<delete file="${jnlp.jar}" />
+    </target>
+	
+	<!-- ================================= 
+          target: src-dist-zip              
+         ================================= -->
+    <target name="zip-project-src" depends="clean" description="create a src zip file">
+		<zip destfile="${src.zip.file}" level="9">
+			<zipfileset dir="${basedir}" excludes="bin/**,.settings" prefix="${ant.project.name}"/>
+		</zip>
+    </target>
+
+
+</project>

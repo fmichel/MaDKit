@@ -32,18 +32,21 @@
 	<property file="src/madkit/kernel/madkitKernel.properties"/>
 	<property file="madkitKernelBuild.properties"/>
 	<property name="executable.name" value="${desktop.name}"/>
-	<property name="madkit.old.version" value="5.0.0.13"/>	<!-- for tuto-->
+	<property name="i18n.build.dir" value="${build.dir}/madkit/i18n"/>
+	<property name="madkit.old.version" value="5.0.0.14"/>	<!-- for tuto-->
+
 	<import file="${madkit.ant.targets.file}"/>
 
 	
 
 	<!-- ================================= 
-          target: buildResources              
+          target: buildResources         
+          //TODO seems to be useless...
+    	<native2ascii src="${i18n.build.dir}" dest="${i18n.build.dir}" includes="*.properties" ext=".properties"/>
          ================================= -->
 	<target name="buildResources">
 		<mkdir dir="${build.dir}"/>
 		<mkdir dir="${release.dir}"/>
-    	<native2ascii src="${src.dir}" dest="${build.dir}" includes="*.properties" ext=".properties"/>
 		  <copy todir="${build.dir}">
 		    <fileset dir="${src.dir}" excludes="**/*.java"/>
 		  </copy>
@@ -73,17 +76,14 @@
 				<attribute name="Sealed" value="true"/>
     			<include name="${mk.properties.file}"/>
          ================================= -->
-	<target name="jar" depends="compile,build-properties" description="Jars MadKit kernel ">
+	<target name="jar" depends="clean,compile,build-properties" description="Jars MadKit kernel ">
 		<jar destfile="${jar.file}" index="true" compress="false">
 			<fileset dir="${build.dir}">
 				<exclude name="**/package-info.class"/>
 				<exclude name="**/doc-files/**"/>
 			</fileset>
 			<fileset dir="${lib.dir}" includes="jar-in-jar-loader.zip"/>
-			<fileset dir="." includes="${jnlp.template}"/> <!-- jnlp file -->
-			<fileset dir="." includes="${madkit.ant.targets.file}"/> <!-- MK ant targets -->
-			<fileset dir="." includes="${madkit.project.ant.file}"/> <!-- MK ant targets -->
-			
+
 			<manifest>
 				<attribute name="Description" value="${description}"/>
 				<attribute name="Version" value="${madkit.version}"/>
@@ -98,17 +98,9 @@
 		<chmod file="${jar.file}" perm="ugo+x"/>
         <echo>${jar.file} created !${line.separator}</echo>
 	</target>
-	
+
 	<!-- - - - - - - - - - - - - - - - - - 
-		<antcall target="sign-jar"/>
-		<antcall target="desktop-jnlp"/>
           target: build-properties                      
-   		<copy todir="bin" file="${src.dir}/${madkitKernel.properties}" overwrite="true">
-   		  <filterchain>
-   		    <expandproperties/>
-   		  </filterchain>
-   		</copy>	
-		<propertyfile file="${build.dir}/${madkitKernel.properties}" comment="MadKit 5 default properties"/>
          - - - - - - - - - - - - - - - - - -->
     <target name="build-properties">
 		<tstamp>
@@ -213,14 +205,27 @@
          ================================= -->
 	<target name="clean" description="cleanup build directories">
 		<delete dir="${build.dir}"/>
-		<ant dir="../MadKit_Demos" target="clean" inheritall="false"/>
 		<delete dir="${release.dir}"/>
-		<delete dir="${logDirectory}"/>
+		<delete file="${jar.file}" failonerror="false"/>
 		<delete dir="${docs.api.dir}"/>
 		<delete dir="${tuto.dir}" includes="**/*.zip,**/*.jar"/>
-		<delete file="${jar.file}" failonerror="false"/>
 		<delete file="${docs.dir}/French_Tutorial/MadKit_Tutorial/${lib.dir}/${madkit.jar.name}"/>
+		<delete>
+			<fileset dir="${demo.dir}">
+				<include name="**/*MadKit-Bees*"/>
+			    <include name="**/*MadKit-Market*"/>
+			    <include name="**/*MadKit-Ping*"/>
+			</fileset>
+		</delete>
 	</target>
+	
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: clean-demos-tutos                      
+         - - - - - - - - - - - - - - - - - -->
+    <target name="clean-demos-tutos">
+		<ant dir="../MadKit_Demos" target="clean" inheritall="false"/>
+    </target>
+
 
 	
 	
@@ -229,7 +234,7 @@
 	<chmod dir="${demo.dir}" perm="u+x" includes="**/*.jar"/>
 	<chmod dir="${tuto.dir}" perm="u+x" includes="**/*.jar"/>
          ================================= -->
-   <target name="release" depends="clean,jar,sign-jar,javadoc" description="build MadKit release">
+   <target name="release" depends="clean-demos-tutos,jar,sign-jar,javadoc" description="build MadKit release">
    		<echo> --- Build Release : MadKit ${madkit.version}${line.separator}</echo>
 		<mkdir dir="${release.dir}"/>
 		<copy todir="${build.dir}" file="README.html">

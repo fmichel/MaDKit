@@ -1994,8 +1994,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		final long endTime = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(timeOutMilliSeconds);
 		final long conversationID = message.getConversationID();
 		int missing = size;
-		final LinkedList<Message> receptions = new LinkedList<Message>();
-		final LinkedList<Message> answers = new LinkedList<Message>();
+		final List<Message> receptions = new ArrayList<Message>(messageBox.size());
+		final List<Message> answers = new ArrayList<Message>(size);
 		while (missing > 0 && System.nanoTime() < endTime) {
 			Message answer = waitingNextMessage(endTime - System.nanoTime(), TimeUnit.NANOSECONDS);
 			if (answer == null)
@@ -2220,6 +2220,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * 
 	 * @param message
 	 *           the message to proceed
+	 * @since MadKit 5.0.0.14
+	 * @see EnumMessage
 	 */
 	public <E extends Enum<E>> void proceedEnumMessage(EnumMessage<E> message) {
 		if (logger != null)

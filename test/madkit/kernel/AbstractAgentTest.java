@@ -84,6 +84,25 @@ public class AbstractAgentTest {
 		assertNull(a.purgeMailbox());
 	}
 
+	@Test
+	public void nextMessageTest(){
+		assertNull(a.nextMessage());
+		Message m;
+		a.receiveMessage(new Message());
+		a.receiveMessage(m = new Message());
+		assertNotSame(m, a.nextMessage());
+		assertSame(m, a.nextMessage());
+		assertNull(a.nextMessage());
+	}
+	
+	public void waitingAnswersTest(){
+		fail("not implemented");
+//		Message m;
+//		a.receiveMessage(new Message());
+//		a.receiveMessage(m = new Message());
+//		l = a.waitAnswers(m, size, timeOutMilliSeconds)
+	}
+ 
 	/**
 	 * Test method for {@link java.lang.Object#toString()}.
 	 */

@@ -31,6 +31,7 @@ import java.util.Set;
 import javax.swing.Action;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -43,6 +44,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import madkit.action.SchedulingAction;
+import madkit.message.EnumMessage;
 import madkit.message.SchedulingMessage;
 
 /**
@@ -105,12 +107,16 @@ public class Scheduler extends Agent {
 	private State simulationState = State.PAUSED;
 
 	final private Set<Activator<? extends AbstractAgent>> activators = new LinkedHashSet<Activator<? extends AbstractAgent>>();
-	private int delay = 20;
 
 	Action run, step, speedUp, speedDown;
 
 	JLabel timer;
 	private JSlider speedSlider;
+	
+	/**
+	 * specify the delay between 2 steps
+	 */
+	private DefaultBoundedRangeModel speedModel = new DefaultBoundedRangeModel(20, 10, 0, 1000);
 
 	/**
 	 * Returns the delay between two simulation steps
@@ -118,7 +124,7 @@ public class Scheduler extends Agent {
 	 * @return the delay between two simulation steps.
 	 */
 	public int getDelay() {
-		return delay;
+		return speedModel.getValue();
 	}
 
 	/**
@@ -126,13 +132,10 @@ public class Scheduler extends Agent {
 	 * between to call to {@link #doSimulationStep()}
 	 * 
 	 * @param delay
-	 *           the delay to set
+	 *           the delay to set, an integer between 0 and 1000 (ms)
 	 */
 	public void setDelay(final int delay) {
-		this.delay = delay;
-		if (getSpeedSlider() != null) {
-			getSpeedSlider().setValue(delay);
-		}
+		speedModel.setValue(delay);
 	}
 
 	private double GVT = 0; // simulation global virtual time
@@ -338,10 +341,10 @@ public class Scheduler extends Agent {
 					logger.fine("Quitting: Simulation has reached end time " + getGVT());
 				return; // TODO logging
 			}
-			if (delay == 0)
+			if (speedModel.getValue() == 0)
 				Thread.yield();
 			else
-				pause(delay);
+				pause(speedModel.getValue());
 			checkMail(nextMessage());
 			switch (simulationState) {
 			case RUNNING:
@@ -366,15 +369,25 @@ public class Scheduler extends Agent {
 	protected void checkMail(final Message m) {
 		if (m != null) {
 			try {
-				switch (((SchedulingMessage) m).getCode()) {
+				final SchedulingMessage sm = (SchedulingMessage) m;
+				switch (sm.getCode()) {
 				case RUN:
 					setState(State.RUNNING);
 					break;
 				case STEP:
 					setState(State.STEP);
 					break;
+				case PAUSE:
+					setState(State.PAUSED);
+					break;
 				case SHUTDOWN:
 					setState(State.SHUTDOWN);
+					break;
+				case SPEED_UP:
+					speedModel.setValue(speedModel.getValue()-50);
+					break;
+				case SPEED_DOWN:
+					speedModel.setValue(speedModel.getValue()+50);
 					break;
 				}
 				if (m.getSender() != null) {
@@ -461,31 +474,24 @@ public class Scheduler extends Agent {
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		p.setBorder(new TitledBorder("speed"));
-		setSpeedSlider(new JSlider(0, 1000, 20));
+		
+
+		setSpeedSlider(new JSlider(speedModel));
+
 		getSpeedSlider().setPaintTicks(true);
 		getSpeedSlider().setPaintLabels(false);
-		getSpeedSlider().setMajorTickSpacing(500);
+		getSpeedSlider().setMajorTickSpacing(speedModel.getMaximum()/2);
 		getSpeedSlider().setMinorTickSpacing(100);
 		getSpeedSlider().setInverted(true);
 		getSpeedSlider().setSnapToTicks(false);
-		getSpeedSlider().addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				if (!getSpeedSlider().getValueIsAdjusting()) {
-					setDelay(getSpeedSlider().getValue());
-				}
-			}
-		});
+		
 		getSpeedSlider().addMouseWheelListener(new MouseWheelListener() {
 			@Override
 			public void mouseWheelMoved(MouseWheelEvent e) {
 				getSpeedSlider().setValue(e.getWheelRotation() * 50 + getSpeedSlider().getValue());
 			}
 		});
-		// s.getAccessibleContext().setAccessibleName(resourceManager.getString("SliderDemo.plain"));
-		// s.getAccessibleContext().setAccessibleDescription(resourceManager.getString("SliderDemo.a_plain_slider"));
 
-		// p.add(Box.createRigidArea(new Dimension(5,5)));
 		p.setPreferredSize(new Dimension(150, 50));
 		p.add(getSpeedSlider());
 		toolBar.addSeparator();

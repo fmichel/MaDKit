@@ -51,6 +51,7 @@ public enum SchedulingAction {
 	STEP(VK_SPACE),
 	SPEED_UP(VK_RIGHT),
 	SPEED_DOWN(VK_LEFT),
+	PAUSE(VK_DOLLAR),
 	SHUTDOWN(VK_DOLLAR);
 	
 	final static private ResourceBundle messages = I18nUtilities.getResourceBundle(SchedulingAction.class.getSimpleName());
@@ -81,10 +82,6 @@ public enum SchedulingAction {
 	 * @return the corresponding action 
 	 */
 	public Action getActionFor(final Scheduler theScheduler, final Object... parameters){
-		switch (this) {
-		case RUN:
-		case STEP:
-		case SHUTDOWN:
 		return new MKAbstractAction(getActionInfo()){
 			private static final long serialVersionUID = 5434867603425806658L;
 
@@ -93,45 +90,5 @@ public enum SchedulingAction {
 				theScheduler.receiveMessage(new SchedulingMessage(SchedulingAction.this,parameters));//TODO work with AA but this is probably worthless	
 			}
 		};
-		case SPEED_DOWN:
-		case SPEED_UP:
-			return new MKAbstractAction(getActionInfo()) {
-				private static final long serialVersionUID = -4856695289354657928L;
-
-				public void actionPerformed(ActionEvent e) {
-					JSlider s = theScheduler.getSpeedSlider();
-					s.setValue(s.getValue() + (SchedulingAction.this == SPEED_UP ? -50 : 50));
-				}
-			};
-		default:
-			throw new AssertionError(this);
-		}
 	}
-	
-//	public Action getAction(final Scheduler agent){
-//		switch (this) {
-//		case RUN:
-//			return new MKAbstractAction(getActionInfo()) {
-//				public void actionPerformed(ActionEvent e) {
-//					agent.receiveMessage(new ObjectMessage<Scheduler.State>(State.RUNNING));
-//				}
-//			};
-//		case STEP:
-//			return new MKAbstractAction(getActionInfo()) {
-//				public void actionPerformed(ActionEvent e) {
-//					agent.receiveMessage(new ObjectMessage<Scheduler.State>(State.STEP));
-//				}
-//			};
-//		case SPEED_DOWN:
-//		case SPEED_UP:
-//			return new MKAbstractAction(getActionInfo()) {
-//				public void actionPerformed(ActionEvent e) {
-//					JSlider s = agent.getSpeedSlider();
-//					s.setValue(s.getValue() + (SchedulingAction.this == SPEED_UP ? -50 : 50));
-//				}
-//			};
-//		default:
-//			throw new AssertionError(this);
-//		}
-//	}
 }

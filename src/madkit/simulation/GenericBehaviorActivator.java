@@ -88,7 +88,7 @@ public class GenericBehaviorActivator<A extends AbstractAgent> extends Activator
 						try {
 							cachedM = findMethodOn(agentClass,methodName);
 						} catch (NoSuchMethodException e) {
-							logFailureOn(a, e);
+							throw new SimulationException(toString(),e);
 						}
 						synchronized (methods) {
 							methods.put(agentClass, cachedM);
@@ -97,19 +97,13 @@ public class GenericBehaviorActivator<A extends AbstractAgent> extends Activator
 				}
 				try {
 					cachedM.invoke(a);
-				} catch (IllegalArgumentException e) {
-					logFailureOn(a, e);
 				} catch (IllegalAccessException e) {
-					logFailureOn(a, e);
+					throw new SimulationException(toString(),e);
 				} catch (InvocationTargetException e) {
-					logFailureOn(a, e);
+					throw new SimulationException(toString()+" on "+a,e.getCause());
 				}
 			}
 		}
-	}
-	
-	private void logFailureOn(AbstractAgent a, Throwable t){
-		a.getLogger().severeLog("Can't work on method: " + methodName + " on "+ a, t);
 	}
 	
 	@Override

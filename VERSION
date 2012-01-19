@@ -55,6 +55,7 @@ Other command line options are described in the API of the madkit.kernel.Madkit 
 	+ madkit.kernel.AbstractAgent.purgeMailbox()
 	+ madkit.kernel.Scheduler.setState(State)
 	+ madkit.action.SchedulingAction.PAUSE
+	+ madkit.simulation.SimulationException
 	
 	- madkit.kernel.AbstractAgent.getMostRecentMessage()
 

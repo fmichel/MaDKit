@@ -64,7 +64,7 @@ public class PropertyProbe<A extends AbstractAgent,T> extends Probe<A>//TODO mak
 					cachedFiled = findFieldOn(cachedClass,fieldName);
 					fields.put(cachedClass,cachedFiled);
 				} catch (NoSuchFieldException e) {
-					logFailureOn(agent, e);
+					throw new SimulationException(toString()+" on "+agent,e);
 				}
 			}
 		}
@@ -81,8 +81,6 @@ public class PropertyProbe<A extends AbstractAgent,T> extends Probe<A>//TODO mak
 		updateCache(agent);
 		try {
 			return (T) cachedFiled.get(agent);
-		} catch (IllegalArgumentException e) {
-			logFailureOn(agent, e);
 		} catch (IllegalAccessException e) {
 			logFailureOn(agent, e);
 		}
@@ -100,9 +98,9 @@ public class PropertyProbe<A extends AbstractAgent,T> extends Probe<A>//TODO mak
 		try {
 			cachedFiled.set(agent, value);
 		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
+			throw new SimulationException(toString()+" on "+agent,e);
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+			throw new SimulationException(toString()+" on "+agent,e);
 		}
 	}
 

@@ -233,6 +233,7 @@
           target: release              
 	<chmod dir="${demo.dir}" perm="u+x" includes="**/*.jar"/>
 	<chmod dir="${tuto.dir}" perm="u+x" includes="**/*.jar"/>
+			<zipfileset dir="${release.dir}" includes="MadKit-5-Desktop.jnlp"/>
          ================================= -->
    <target name="release" depends="clean-demos-tutos,jar,sign-jar,javadoc" description="build MadKit release">
    		<echo> --- Build Release : MadKit ${madkit.version}${line.separator}</echo>
@@ -255,13 +256,13 @@
    		<echo>Building MadKit HowTo</echo>
 		<ant dir="../MadKit_HowTo" inheritall="false"/>
 		<ant dir="../MadKit_Demos" inheritall="false"/>
-		<zip destfile="${release.dir}/MadKit-${madkit.version}.zip" level="9">
+
+   		<zip destfile="${release.dir}/MadKit-${madkit.version}.zip" level="9">
 			<zipfileset dir="${docs.dir}" prefix="${docs.dir}"/>
 			<zipfileset dir="${build.dir}" includes="README.html"/>
 			<zipfileset dir="${build.dir}" includes="VERSION" prefix="${docs.dir}"/>
 			<zipfileset file="${jar.file}"/>
 			<zipfileset file="COPYING.LESSER"/>
-			<zipfileset dir="${release.dir}" includes="MadKit-5-Desktop.jnlp"/>
 			<zipfileset dir="${demo.dir}" prefix="${demo.dir}" filemode="755"/>
 		</zip>
     </target>

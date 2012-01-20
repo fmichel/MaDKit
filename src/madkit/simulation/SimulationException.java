@@ -27,9 +27,9 @@ import madkit.kernel.Watcher;
  * This unchecked exception could be used by activators and probes to
  * indicate and propagate the exception thrown by an agent
  * during the use of an {@link Activator} or a {@link Probe}.
- * Doing so, this will always display the stack trace of 
- * this exception and interrupt the life cycle of the related
- * {@link Scheduler} or {@link Watcher}.
+ * Doing so, this exception will interrupt the life cycle of the related
+ * {@link Scheduler} or {@link Watcher} if not caught, displaying
+ * the corresponding stack traces.
  * 
  * @author Fabien Michel
  * @since MadKit 5.0.0.15

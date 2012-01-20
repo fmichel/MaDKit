@@ -82,9 +82,8 @@ public class PropertyProbe<A extends AbstractAgent,T> extends Probe<A>//TODO mak
 		try {
 			return (T) cachedFiled.get(agent);
 		} catch (IllegalAccessException e) {
-			logFailureOn(agent, e);
+			throw new SimulationException(toString()+" on "+agent,e);
 		}
-		return null;
 	}
 	
 	/**

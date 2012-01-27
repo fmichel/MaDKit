@@ -54,6 +54,10 @@ class FakeKernel extends MadkitKernel{
 		throw buildKernelException(agent);
 	}
 	
+	AgentAddress getAgentAddressIn(AbstractAgent agent, String community, String group, String role) {
+		throw buildKernelException(agent);
+	}
+	
 	@Override
 	final ReturnCode requestRole(AbstractAgent agent, String community, String group, String role, Object memberCard) {
 		throw buildKernelException(agent);

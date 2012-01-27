@@ -36,6 +36,18 @@ public class FakeKernelTest {
 	}
 
 	@Test
+	public final void testGetAgentAddressIn() {
+		try {
+			a.getAgentAddressIn("t","t","t");
+			fail("exception not thrown");
+		} catch (KernelException e) {
+			assertEquals(a.getKernel(), AbstractAgent.FAKE_KERNEL);
+
+		}
+
+	}
+
+	@Test
 	public final void testIsKernelOnline() {
 		try {
 			a.isKernelOnline();

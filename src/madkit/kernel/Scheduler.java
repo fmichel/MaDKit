@@ -55,6 +55,7 @@ import madkit.message.SchedulingMessage;
  * @author Olivier Gutknecht
  * @since MadKit 2.0
  * @version 5.1
+ * @see Activator
  */
 public class Scheduler extends Agent {
 	/**
@@ -112,7 +113,7 @@ public class Scheduler extends Agent {
 
 	JLabel timer;
 	private JSlider speedSlider;
-	
+
 	/**
 	 * specify the delay between 2 steps
 	 */
@@ -132,7 +133,7 @@ public class Scheduler extends Agent {
 	 * between to call to {@link #doSimulationStep()}
 	 * 
 	 * @param delay
-	 *           the delay to set, an integer between 0 and 1000 (ms)
+	 *           the delay to set, an integer between 0 and 1000 (ms): O is max speed
 	 */
 	public void setDelay(final int delay) {
 		speedModel.setValue(delay);
@@ -152,23 +153,23 @@ public class Scheduler extends Agent {
 	/**
 	 * Sets the simulation global virtual time.
 	 * 
-	 * @param gVT
-	 *           the gVT to set
+	 * @param GVT
+	 *           the actual simulation time
 	 */
-	public void setGVT(final double gVT) {
-		GVT = gVT;
-		updateStatusDisplay();
+	public void setGVT(final double GVT) {
+		this.GVT = GVT;
+		if (timer != null)
+			timer.setText("Simulation " + simulationState + ", time is " + GVT);
 	}
 
 	private double simulationDuration;
-	private double startTime;
 
 	/**
 	 * This constructor is equivalent to
-	 * <code>Scheduler(0, Double.MAX_VALUE)</code>
+	 * <code>Scheduler(Double.MAX_VALUE)</code>
 	 */
 	public Scheduler() {
-		this(0, Double.MAX_VALUE);
+		this(Double.MAX_VALUE);
 	}
 
 	// public Scheduler(boolean multicore) {
@@ -176,38 +177,20 @@ public class Scheduler extends Agent {
 	// }
 
 	/**
-	 * This constructor is equivalent to <code>Scheduler(0, endTime)</code>
+	 * Constructor specifying the time at which the simulation ends.
+	 * @param endTime
+	 *           the GVT at which the simulation will automatically stop
 	 */
 	public Scheduler(final double endTime) {
-		this(0, endTime);
+		buildActions();
+		setSimulationDuration(endTime);
 	}
-
-	// public Scheduler(final double startTime, final double endTime) {
-	// buildActions();
-	// setSimulationDuration(endTime);
-	// this.setStartTime(startTime);
-	// }
 
 	// @Override
 	// protected void activate() {
 	// if(logger != null)
 	// logger.talk("\n\tHi human !\n\n I am an instance of the madkit.kernel.Scheduler class.\n I am specialized in simulation scheduling.\n I use activators on the artificial society\n to trigger agents' behaviors and simulate artificial worlds.\n You can extend me to create your own simulations !");
 	// }
-
-	/**
-	 * Constructor specifying the global times at which the simulation starts and
-	 * ends.
-	 * 
-	 * @param startTime
-	 *           the first step global virtual time
-	 * @param endTime
-	 *           the time at which the simualtion will automatically stop
-	 */
-	public Scheduler(final double startTime, final double endTime) {
-		buildActions();
-		setSimulationDuration(endTime);
-		this.setStartTime(startTime);
-	}
 
 	/**
 	 * Setup the default Scheduler GUI when launched with the default MadKit GUI
@@ -221,16 +204,17 @@ public class Scheduler extends Agent {
 		super.setupFrame(frame);
 		frame.add(getSchedulerToolBar(), BorderLayout.PAGE_START);
 		frame.add(getSchedulerStatusLabel(), BorderLayout.PAGE_END);
-		updateStatusDisplay();
+		setGVT(GVT);
 		frame.validate();
 		frame.getJMenuBar().add(getSchedulerMenu());
 	}
 
-	private void updateStatusDisplay() {
-		if (timer != null)
-			timer.setText("Simulation " + getSimulationState() + ", time is " + getGVT());
-	}
-
+	/**
+	 * Adds an activator to the kernel engine. This has to be done
+	 * to make an activator work properly
+	 * 
+	 * @param activator an activator.
+	 */
 	public void addActivator(final Activator<? extends AbstractAgent> activator) {
 		if (kernel.addOverlooker(this, activator))
 			activators.add(activator);
@@ -238,9 +222,16 @@ public class Scheduler extends Agent {
 			logger.fine("Activator added: " + activator);
 	}
 
+	/**
+	 * Removes an activator from the kernel engine.
+	 * 
+	 * @param activator an activator.
+	 */
 	public void removeActivator(final Activator<? extends AbstractAgent> activator) {
 		kernel.removeOverlooker(this, activator);
 		activators.remove(activator);
+		if (logger != null)
+			logger.fine("Activator removed: " + activator);
 	}
 
 	/**
@@ -256,20 +247,17 @@ public class Scheduler extends Agent {
 	 * 		logger.finer("Doing simulation step "+GVT);
 	 * 	}
 	 * 	for (final Activator<? extends AbstractAgent> activator : activators) {
-	 * 		if (logger != null)
-	 * 			logger.finest("Activating " + activator);
 	 * 		triggerActivator(activator);
 	 * 	}
-	 * 	setGVT(GVT + 1);
+	 * 	setGVT(getGVT() + 1);
 	 * }
+	 * </pre>
 	 */
 	public void doSimulationStep() {
 		if (logger != null) {
 			logger.finer("Doing simulation step " + GVT);
 		}
 		for (final Activator<? extends AbstractAgent> activator : activators) {
-			if (logger != null)
-				logger.finest("Activating " + activator);
 			triggerActivator(activator);
 		}
 		setGVT(GVT + 1);
@@ -277,11 +265,24 @@ public class Scheduler extends Agent {
 
 	/**
 	 * Triggers the activator's execution process. This process automatically
-	 * calls the multicore mode of the activator if it is set so.
+	 * calls the multicore mode of the activator if it is set so. That is:
 	 * 
-	 * @param activator  the activator to execute.
+	 * <pre>
+	 * if (logger != null)
+	 * 	logger.finer("Activating\n-------->  " + activator);
+	 * if (activator.isMulticoreModeOn()) {
+	 * 	activator.multicoreExecute();
+	 * } else {
+	 * 	activator.execute();
+	 * }
+	 * </pre>
+	 * 
+	 * @param activator
+	 *           the activator to execute.
 	 */
 	public void triggerActivator(final Activator<? extends AbstractAgent> activator) {
+		if (logger != null)
+			logger.finer("Activating\n--------> " + activator);
 		if (activator.isMulticoreModeOn()) {
 			activator.multicoreExecute();
 		} else {
@@ -338,8 +339,8 @@ public class Scheduler extends Agent {
 		while (isAlive()) {
 			if (GVT > simulationDuration) {
 				if (logger != null)
-					logger.fine("Quitting: Simulation has reached end time " + getGVT());
-				return; // TODO logging
+					logger.info("Quitting: Simulation has reached end time " + simulationDuration);
+				return;
 			}
 			if (speedModel.getValue() == 0)
 				Thread.yield();
@@ -351,7 +352,7 @@ public class Scheduler extends Agent {
 				doSimulationStep();
 				break;
 			case PAUSED:
-				updateStatusDisplay();
+//				updateStatusDisplay();
 				paused();
 				break;
 			case STEP:
@@ -384,10 +385,10 @@ public class Scheduler extends Agent {
 					setState(State.SHUTDOWN);
 					break;
 				case SPEED_UP:
-					speedModel.setValue(speedModel.getValue()-50);
+					speedModel.setValue(speedModel.getValue() - 50);
 					break;
 				case SPEED_DOWN:
-					speedModel.setValue(speedModel.getValue()+50);
+					speedModel.setValue(speedModel.getValue() + 50);
 					break;
 				}
 				if (m.getSender() != null) {
@@ -438,21 +439,6 @@ public class Scheduler extends Agent {
 		return simulationDuration;
 	}
 
-	/**
-	 * @param startTime
-	 *           the startTime to set
-	 */
-	public void setStartTime(final double startTime) {
-		this.startTime = startTime;
-	}
-
-	/**
-	 * @return the startTime
-	 */
-	public double getStartTime() {
-		return startTime;
-	}
-
 	private void buildActions() {
 
 		run = SchedulingAction.RUN.getActionFor(this);
@@ -474,17 +460,16 @@ public class Scheduler extends Agent {
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		p.setBorder(new TitledBorder("speed"));
-		
 
 		setSpeedSlider(new JSlider(speedModel));
 
 		getSpeedSlider().setPaintTicks(true);
 		getSpeedSlider().setPaintLabels(false);
-		getSpeedSlider().setMajorTickSpacing(speedModel.getMaximum()/2);
+		getSpeedSlider().setMajorTickSpacing(speedModel.getMaximum() / 2);
 		getSpeedSlider().setMinorTickSpacing(100);
 		getSpeedSlider().setInverted(true);
 		getSpeedSlider().setSnapToTicks(false);
-		
+
 		getSpeedSlider().addMouseWheelListener(new MouseWheelListener() {
 			@Override
 			public void mouseWheelMoved(MouseWheelEvent e) {

@@ -40,16 +40,14 @@ import javax.swing.JSlider;
 import javax.swing.JToolBar;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import madkit.action.SchedulingAction;
-import madkit.message.EnumMessage;
 import madkit.message.SchedulingMessage;
 
 /**
  * This class defines a generic threaded scheduler agent. It holds a collection
- * of activators. The default state of a scheduler is {@link State#PAUSED}.
+ * of activators. The default state of a scheduler is {@link State#PAUSED}. The
+ * default delay between two steps is 0 ms (max speed).
  * 
  * @author Fabien Michel
  * @author Olivier Gutknecht
@@ -117,7 +115,7 @@ public class Scheduler extends Agent {
 	/**
 	 * specify the delay between 2 steps
 	 */
-	private DefaultBoundedRangeModel speedModel = new DefaultBoundedRangeModel(20, 10, 0, 1000);
+	private DefaultBoundedRangeModel speedModel = new DefaultBoundedRangeModel(0, 10, 0, 1000);
 
 	/**
 	 * Returns the delay between two simulation steps
@@ -133,7 +131,8 @@ public class Scheduler extends Agent {
 	 * between to call to {@link #doSimulationStep()}
 	 * 
 	 * @param delay
-	 *           the delay to set, an integer between 0 and 1000 (ms): O is max speed
+	 *           the delay to set, an integer between 0 and 1000 (ms): O is max
+	 *           speed
 	 */
 	public void setDelay(final int delay) {
 		speedModel.setValue(delay);
@@ -165,8 +164,7 @@ public class Scheduler extends Agent {
 	private double simulationDuration;
 
 	/**
-	 * This constructor is equivalent to
-	 * <code>Scheduler(Double.MAX_VALUE)</code>
+	 * This constructor is equivalent to <code>Scheduler(Double.MAX_VALUE)</code>
 	 */
 	public Scheduler() {
 		this(Double.MAX_VALUE);
@@ -178,6 +176,7 @@ public class Scheduler extends Agent {
 
 	/**
 	 * Constructor specifying the time at which the simulation ends.
+	 * 
 	 * @param endTime
 	 *           the GVT at which the simulation will automatically stop
 	 */
@@ -210,10 +209,11 @@ public class Scheduler extends Agent {
 	}
 
 	/**
-	 * Adds an activator to the kernel engine. This has to be done
-	 * to make an activator work properly
+	 * Adds an activator to the kernel engine. This has to be done to make an
+	 * activator work properly
 	 * 
-	 * @param activator an activator.
+	 * @param activator
+	 *           an activator.
 	 */
 	public void addActivator(final Activator<? extends AbstractAgent> activator) {
 		if (kernel.addOverlooker(this, activator))
@@ -225,7 +225,8 @@ public class Scheduler extends Agent {
 	/**
 	 * Removes an activator from the kernel engine.
 	 * 
-	 * @param activator an activator.
+	 * @param activator
+	 *           an activator.
 	 */
 	public void removeActivator(final Activator<? extends AbstractAgent> activator) {
 		kernel.removeOverlooker(this, activator);
@@ -269,7 +270,7 @@ public class Scheduler extends Agent {
 	 * 
 	 * <pre>
 	 * if (logger != null)
-	 * 	logger.finer("Activating\n-------->  " + activator);
+	 * 	logger.finer(&quot;Activating\n--------&gt;  &quot; + activator);
 	 * if (activator.isMulticoreModeOn()) {
 	 * 	activator.multicoreExecute();
 	 * } else {
@@ -352,7 +353,7 @@ public class Scheduler extends Agent {
 				doSimulationStep();
 				break;
 			case PAUSED:
-//				updateStatusDisplay();
+				// updateStatusDisplay();
 				paused();
 				break;
 			case STEP:

@@ -32,21 +32,16 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -72,7 +67,7 @@ import madkit.kernel.Madkit.Option;
 import madkit.message.EnumMessage;
 import madkit.message.GUIMessage;
 
-//* <img src="doc-files/Capture.png" alt=""/>
+// * <img src="doc-files/Capture.png" alt=""/>
 /**
  * The super class of all MadKit agents, v 5. It provides support for
  * <ul>
@@ -110,7 +105,7 @@ import madkit.message.GUIMessage;
  * such a method.</li>
  * <br>
  * <li>A replying mechanism has been introduced through
- * <code><i>sendReply</i></code> methods. It enables the agent with the
+ * <code><i>SendReply</i></code> methods. It enables the agent with the
  * possibility of replying directly to a given message. Also, it is now possible
  * to get the reply to a message, or to wait for a reply ( for {@link Agent}
  * subclasses only as they are threaded) See
@@ -129,29 +124,40 @@ import madkit.message.GUIMessage;
  */
 public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 
-	private static final long serialVersionUID = 235703358687485948L;
+	private static final long							serialVersionUID	= 235703358687485948L;
 
-	private final static transient AtomicInteger agentCounter = new AtomicInteger(0);
+	private final static transient AtomicInteger	agentCounter		= new AtomicInteger(0);
 
-	static final transient MadkitKernel FAKE_KERNEL = new FakeKernel();
-	static final transient MadkitKernel TERMINATED_KERNEL = new TerminatedKernel();
+	static final transient MadkitKernel				FAKE_KERNEL			= new FakeKernel();
+	static final transient MadkitKernel				TERMINATED_KERNEL	= new TerminatedKernel();
 
-	final AtomicReference<State> state = new AtomicReference<AbstractAgent.State>(AbstractAgent.State.NOT_LAUNCHED);
-	transient MadkitKernel kernel = FAKE_KERNEL;
+	final AtomicReference<State>						state					= new AtomicReference<AbstractAgent.State>(
+																								AbstractAgent.State.NOT_LAUNCHED);
+	transient MadkitKernel								kernel				= FAKE_KERNEL;
 
-	final private int _hashCode;
+	final private int										_hashCode;
 
-	boolean hasGUI;
+	boolean													hasGUI;
 	/**
-	 * name is lazy created to save memory
+	 * name is lazily created to save memory
 	 */
-	private String name;
-	final AtomicBoolean alive = new AtomicBoolean();// TODO tranform to
-																	// deaddefault is false
-	final BlockingQueue<Message> messageBox = new LinkedBlockingQueue<Message>();// TODO
-//	final ArrayBlockingQueue<Message> messageBox = new ArrayBlockingQueue<Message>(Integer.MAX_VALUE);// TODO
-																													// lazy
-																													// creation
+	private String											name;
+	final AtomicBoolean									alive					= new AtomicBoolean();							// TODO
+																																				// tranform
+																																				// to
+																																				// deaddefault
+																																				// is
+																																				// false
+	final BlockingQueue<Message>						messageBox			= new LinkedBlockingQueue<Message>();		// TODO
+																																				// final
+																																				// ArrayBlockingQueue<Message>
+																																				// messageBox
+																																				// =
+																																				// new
+																																				// ArrayBlockingQueue<Message>(Integer.MAX_VALUE);//
+																																				// TODO
+																																				// lazy
+																																				// creation
 
 	/**
 	 * <code>logger</code> can be used to trace the agent's life cycle.
@@ -163,7 +169,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * 
 	 * @see java.util.logging.Logger
 	 */
-	protected AgentLogger logger;
+	protected AgentLogger								logger;
 
 	public AbstractAgent() {
 		_hashCode = agentCounter.getAndIncrement();// TODO bench outside
@@ -174,7 +180,15 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		_hashCode = -1;
 	}
 
-	final void activateGUI() {
+	/**
+	 * Activates the MadKit GUI initialization when launching the agent whatever
+	 * the launching parameters. Indeed, by default agent are launched without a GUI
+	 * but some of them always need one: This ensures that the agent will have one.
+	 * This method should be used only in the constructor of the 
+	 * agent. This specifies that this agent should always be launched with a MadKit GUI.
+	 * 
+	 */
+	public void createGUIOnStartUp() {
 		hasGUI = true;
 	}
 
@@ -722,6 +736,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		} catch (InstantiationException e) {
 			final String msg = ErrorMessages.CANT_LAUNCH + agentClass + " : it has no default constructor\n" + e.getMessage();
 			SwingUtilities.invokeLater(new Runnable() {
+
 				public void run() {
 					JOptionPane.showMessageDialog(null, msg, "Launch failed", JOptionPane.WARNING_MESSAGE);
 				}
@@ -930,7 +945,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			}
 			logger = null;
 			setKernel(getKernel().getMadkitKernel());
-		} else {
+		}
+		else {
 			getLogger().setLevel(newLevel);
 			setKernel(getKernel().getLoggedKernel());
 		}
@@ -1059,7 +1075,11 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the group has been
 	 *         successfully created.</li> <li><code>
 	 *         {@link ReturnCode#ALREADY_GROUP}</code>: If the operation failed
-	 *         because such a group already exists.</li>
+	 *         because such a group already exists.</li> <li><code>
+	 *         {@link ReturnCode#IGNORED}</code>: If this method is used in
+	 *         activate and this agent has been launched using
+	 *         {@link AbstractAgent#launchAgentBucketWithRoles(String, int, Collection)}
+	 *         </li>
 	 *         </ul>
 	 * 
 	 * @see Gatekeeper
@@ -1174,24 +1194,14 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 
 	/**
 	 * Requests a role within a group of a particular community. This has the
-	 * same effect as <code>requestRole(community, group, role, null)</code>
+	 * same effect as <code>requestRole(community, group, role, null)</code>.
+	 * So the passKey is <code>null</code> and the group must
+	 * not be secured for this to succeed.
 	 * 
-	 * @return <ul>
-	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the operation has
-	 *         succeeded.</li>
-	 *         <li><code>{@link ReturnCode#NOT_COMMUNITY}</code>: If the
-	 *         community does not exist.</li>
-	 *         <li><code>{@link ReturnCode#NOT_GROUP}</code>: If the group does
-	 *         not exist.</li>
-	 *         <li><code>{@link ReturnCode#ROLE_ALREADY_HANDLED}</code>: If this
-	 *         role is already handled by this agent.</li>
-	 *         <li><code>{@link ReturnCode#ACCESS_DENIED}</code>: If the access
-	 *         denied by the manager of that secured group.</li>
-	 *         </ul>
 	 * @param community
 	 *           the group's community.
 	 * @param group
-	 *           the desired group.
+	 *           the targeted group.
 	 * @param role
 	 *           the desired role.
 	 * @see #requestRole(String, String, String, Object)
@@ -1207,7 +1217,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @param community
 	 *           the group's community.
 	 * @param group
-	 *           the desired group.
+	 *           the targeted group.
 	 * @param role
 	 *           the desired role.
 	 * @param passKey
@@ -1228,6 +1238,10 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         role is already handled by this agent.</li>
 	 *         <li><code>{@link ReturnCode#ACCESS_DENIED}</code>: If the access
 	 *         denied by the manager of that secured group.</li>
+	 *         <li><code>{@link ReturnCode#IGNORED}</code>: If this method is
+	 *         used in activate and this agent has been launched using
+	 *         {@link AbstractAgent#launchAgentBucketWithRoles(String, int, Collection)}
+	 *         </li>
 	 *         </ul>
 	 * @see AbstractAgent.ReturnCode
 	 * @see Gatekeeper
@@ -1386,24 +1400,26 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		return messageBox.poll();
 	}
 
-//	/**
-//	 * Returns the message which has been received the most recently and removes
-//	 * it from the mailbox.
-//	 * 
-//	 * @return the message which has been received the most recently.
-//	 */
-//	public Message getMostRecentMessage() {
-//		// checkAliveness();
-//		return messageBox.pollLast();
-//	}
-	
+	// /**
+	// * Returns the message which has been received the most recently and
+	// removes
+	// * it from the mailbox.
+	// *
+	// * @return the message which has been received the most recently.
+	// */
+	// public Message getMostRecentMessage() {
+	// // checkAliveness();
+	// return messageBox.pollLast();
+	// }
+
 	/**
-	 * Purges the mailbox and returns the most 
+	 * Purges the mailbox and returns the most
 	 * recent received message at that time.
-	 * @return the most recent received message or <code>null</code>
-	 * if the mailbox is already empty.
+	 * 
+	 * @return the most recent received message or <code>null</code> if the
+	 *         mailbox is already empty.
 	 */
-	public Message purgeMailbox(){
+	public Message purgeMailbox() {
 		Message m = null;
 		synchronized (messageBox) {
 			try {
@@ -1418,7 +1434,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 
 	/**
 	 * @return <code>true</code> if there is no message in
-	 * the mailbox.
+	 *         the mailbox.
 	 */
 	public boolean isMessageBoxEmpty() {
 		// checkAliveness();
@@ -1436,8 +1452,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         succeeded.</li>
 	 *         <li><code>{@link ReturnCode#NOT_IN_GROUP}</code>: If this agent is
 	 *         not a member of the receiver's group.</li>
-	 *         <li><code>{@link ReturnCode#INVALID_AA}</code>: If the receiver
-	 *         address is no longer valid. This is the case when the
+	 *         <li><code>{@link ReturnCode#INVALID_AGENT_ADDRESS}</code>: If the
+	 *         receiver address is no longer valid. This is the case when the
 	 *         corresponding agent has leaved the role corresponding to the
 	 *         receiver agent address.</li>
 	 *         </ul>
@@ -1448,6 +1464,9 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		return sendMessageWithRole(receiver, messageToSend, null);
 	}
 
+	// * <li><code>{@link ReturnCode#NETWORK_DOWN}</code>: If the
+	// * <code>receiver</code> is running on another kernel but the network
+	// * is down.</li>
 	/**
 	 * Sends a message, using an agent address, specifying explicitly the role
 	 * used to send it.
@@ -1463,13 +1482,10 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         not a member of the receiver's group.</li>
 	 *         <li><code>{@link ReturnCode#ROLE_NOT_HANDLED}</code>: If
 	 *         <code>senderRole</code> is not handled by this agent.</li>
-	 *         <li><code>{@link ReturnCode#INVALID_AA}</code>: If the receiver
-	 *         address is no longer valid. This is the case when the
+	 *         <li><code>{@link ReturnCode#INVALID_AGENT_ADDRESS}</code>: If the
+	 *         receiver address is no longer valid. This is the case when the
 	 *         corresponding agent has leaved the role corresponding to the
 	 *         receiver agent address.</li>
-	 *         <li><code>{@link ReturnCode#NETWORK_DOWN}</code>: If the
-	 *         <code>receiver</code> is running on another kernel but the network
-	 *         is down.</li>
 	 *         </ul>
 	 * @see ReturnCode
 	 * @see AgentAddress
@@ -1580,6 +1596,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         <li><code>{@link ReturnCode#NO_RECIPIENT_FOUND}</code>: If no
 	 *         agent was found as recipient, i.e. the sender was the only agent
 	 *         having this role.</li>
+	 *         <li><code>{@link ReturnCode#NOT_IN_GROUP}</code>: If this agent is
+	 *         not a member of the targeted group.</li>
 	 *         </ul>
 	 * @see ReturnCode
 	 * 
@@ -1600,6 +1618,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @param role
 	 *           the role name
 	 * @param messageToSend
+	 * @param senderRole the agent's role with which the message should be sent
 	 * @return <ul>
 	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the send has
 	 *         succeeded.</li>
@@ -1609,6 +1628,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         not exist.</li>
 	 *         <li><code>{@link ReturnCode#NOT_ROLE}</code>: If the role does not
 	 *         exist.</li>
+	 *         <li><code>{@link ReturnCode#NOT_IN_GROUP}</code>: If this agent is
+	 *         not a member of the targeted group.</li>
 	 *         <li><code>{@link ReturnCode#NO_RECIPIENT_FOUND}</code>: If no
 	 *         agent was found as recipient, i.e. the sender was the only agent
 	 *         having this role.</li>
@@ -1617,7 +1638,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * 
 	 */
 	public ReturnCode broadcastMessageWithRole(final String community, final String group, final String role,
-			final Message messageToSend, String senderRole) {
+			final Message messageToSend, final String senderRole) {
 		return getKernel().broadcastMessageWithRole(this, community, group, role, messageToSend, senderRole);
 	}
 
@@ -1639,17 +1660,23 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *           the previously received message.
 	 * @param reply
 	 *           the reply itself.
+	 * @param senderRole the agent's role with which the message should be sent
 	 * @return <ul>
 	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the send has
 	 *         succeeded.</li>
-	 *         <li><code>{@link ReturnCode#NO_RECIPIENT_FOUND}</code>: If no
-	 *         agent was found as recipient, i.e. the sender was the only agent
-	 *         having this role.</li>
+	 *         <li><code>{@link ReturnCode#NOT_IN_GROUP}</code>: If this agent is
+	 *         no longer a member of the corresponding group.</li>
+	 *         <li><code>{@link ReturnCode#ROLE_NOT_HANDLED}</code>: If
+	 *         <code>senderRole</code> is not handled by this agent.</li>
+	 *         <li><code>{@link ReturnCode#INVALID_AGENT_ADDRESS}</code>: If the
+	 *         receiver address is no longer valid. This is the case when the
+	 *         corresponding agent has leaved the role corresponding to the
+	 *         receiver agent address.</li>
 	 *         </ul>
 	 * @see ReturnCode
 	 * 
 	 */
-	public ReturnCode sendReplyWithRole(final Message messageToReplyTo, final Message reply, String senderRole) {
+	public ReturnCode sendReplyWithRole(final Message messageToReplyTo, final Message reply, final String senderRole) {
 		reply.setID(messageToReplyTo.getConversationID());
 		return getKernel().sendMessage(this, messageToReplyTo.getSender(), reply, senderRole);
 	}
@@ -1664,13 +1691,16 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @param reply
 	 *           the reply itself.
 	 * @return <ul>
-	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the send has
+	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the reply has
 	 *         succeeded.</li>
-	 *         <li><code>{@link ReturnCode#NO_RECIPIENT_FOUND}</code>: If no
-	 *         agent was found as recipient, i.e. the sender was the only agent
-	 *         having this role.</li>
+	 *         <li><code>{@link ReturnCode#NOT_IN_GROUP}</code>: If this agent is
+	 *         no longer a member of the corresponding group.</li>
+	 *         <li><code>{@link ReturnCode#INVALID_AGENT_ADDRESS}</code>: If the
+	 *         receiver address is no longer valid. This is the case when the
+	 *         corresponding agent has leaved the role corresponding to the
+	 *         receiver agent address.</li>
 	 *         </ul>
-	 * @see ReturnCode
+	 * @see AbstractAgent#sendReplyWithRole(Message, Message, String)
 	 * 
 	 */
 	public ReturnCode sendReply(final Message messageToReplyTo, final Message reply) {
@@ -1736,7 +1766,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @see Madkit
 	 */
 	public void setMadkitProperty(String key, String value) {
-		getKernel().setMadkitProperty(this, key, value);
+		getMadkitConfig().setProperty(key, value);	
 	}
 
 	/**
@@ -1818,13 +1848,67 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	/**
-	 * Returns the MadKit session Properties object. If the agent has not been
-	 * already launched, this returns the object holds by the last MadKit
-	 * instance launched. If no MadKit instance has been created, this returns
-	 * the MadKit default configuration.
+	 * Returns the Properties object of this MadKit session. That is by default
+	 * the parameter which has been used to launch the kernel the agent
+	 * is running on. If the agent has not been launched yet, the
+	 * Properties returned is the default MadKit configuration.
+	 * It can be programmatically modified to launch a
+	 * new session with different parameters. It can also be used as a
+	 * black board shared by all the agents of a kernel by adding
+	 * new user defined properties at run time or via the command line. 
+	 * The default set of MadKit properties includes
+	 * values for the following keys:
+	 * <table summary="Shows madkit keys and associated values">
+	 * <tr>
+	 * <th>Key</th>
+	 * <th>Description of Associated Value</th>
+	 * </tr>
+	 * <tr>
+	 * <td><code>madkit.version</code></td>
+	 * <td>MadKit kernel version</td>
+	 * </tr>
+	 * <tr>
+	 * <td><code>build.id</code></td>
+	 * <td>MadKit kernel build ID</td></tr
+	 * <tr>
+	 * <td><code>madkit.repository.url</code></td>
+	 * <td>the agent repository for this version, usually http://www.madkit.net/repository/MadKit-${madkit.version}/ </td>
+	 * </tr>
+	 * <tr>
+	 * <td><code>desktop</code></td>
+	 * <td><code>true</code> or <code>false</code>: Launch the desktop during boot phase</td>
+	 * </tr>
+	 * <tr>
+	 * <td><code>launchAgents</code></td>
+	 * <td>The agents launched during the boot phase</td>
+	 * </tr>
+	 * <tr>
+	 * <td><code>createLogFiles</code></td>
+	 * <td>true</code> or <code>false</code>: Create log files automatically for the new agents</td>
+	 * </tr>
+	 * <tr>
+	 * <td><code>logDirectory</code></td>
+	 * <td>The directory used for the log files (./logs by default)</td>
+	 * </tr>
+	 * <tr>
+	 * <td><code>agentLogLevel</code></td>
+	 * <td>the default log level for the new agents</td>
+	 * </tr>
+	 * <tr>
+	 * <td><code>warningLogLevel</code></td>
+	 * <td>the default warning log level for the new agents</td>
+	 * </tr>
+	 * <tr>
+	 * <td><code>network</code></td>
+	 * <td><code>true</code> or <code>false</code>: Launch the network during boot phase</td>
+	 * </tr>
+	 * </table>
+	 * <p>
+	 * 
 	 * 
 	 * @return the Properties object defining the values of each MadKit options
 	 *         in the current session.
+	 * @see Option LevelOption BooleanOption 
 	 * @since MadKit 5.0.0.10
 	 */
 	public Properties getMadkitConfig() {
@@ -1839,7 +1923,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	final boolean isFinestLogOn() {
 		if (logger != null) {
 			return !(Level.FINEST.intValue() < logger.getLevel().intValue());
-		} else {
+		}
+		else {
 			// As it is called by the logged kernel
 			// updating the level accordingly -> the user has set logger to null
 			// himself
@@ -1867,7 +1952,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		if (e instanceof KilledException || e instanceof IllegalMonitorStateException) {
 			if (logger != null)
 				logger.warning("-*-GET KILLED in " + getState().lifeCycleMethod() + "-*-");
-		} else {
+		}
+		else {
 			getLogger().severeLog("-*-" + getState().lifeCycleMethod() + " BUG*-*", e);
 			// getLogger().severeLog(m, e instanceof AgentLifeException ?
 			// e.getCause() : e);
@@ -2003,12 +2089,13 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			if (answer.getConversationID() == conversationID) {
 				answers.add(answer);
 				missing--;
-			} else
+			}
+			else
 				receptions.add(answer);
 		}
 		if (!receptions.isEmpty()) {
 			synchronized (messageBox) {
-					messageBox.addAll(receptions);
+				messageBox.addAll(receptions);
 			}
 		}
 		if (!answers.isEmpty())
@@ -2318,7 +2405,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		return false;
 	}
 
-	final private static Map<Class<?>, Class<?>> primitiveTypes = new HashMap<Class<?>, Class<?>>();
+	final private static Map<Class<?>, Class<?>>	primitiveTypes	= new HashMap<Class<?>, Class<?>>();
 	static {
 		primitiveTypes.put(int.class, Integer.class);
 		primitiveTypes.put(boolean.class, Boolean.class);
@@ -2357,9 +2444,100 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 */
 	public enum ReturnCode {
 
-		SUCCESS, NOT_COMMUNITY, NOT_GROUP, NOT_IN_GROUP, NOT_ROLE, TERMINATED_AGENT, ROLE_ALREADY_HANDLED, ACCESS_DENIED, ROLE_NOT_HANDLED, ALREADY_GROUP, ALREADY_LAUNCHED, TIMEOUT, AGENT_CRASH, NOT_AN_AGENT_CLASS, NOT_YET_LAUNCHED, ALREADY_KILLED, INVALID_AA, NO_RECIPIENT_FOUND, SEVERE, NETWORK_DOWN;
+		SUCCESS,
+		/**
+		 * Indicates that a community does not exist
+		 */
+		NOT_COMMUNITY,
+		/**
+		 * Indicates that a group does not exist
+		 */
+		NOT_GROUP,
+		/**
+		 * Indicates that the agent is not in a group
+		 */
+		NOT_IN_GROUP,
+		/**
+		 * Indicates that the referred community does not exist
+		 */
+		NOT_ROLE,
+		// TERMINATED_AGENT,
+		/**
+		 * Returned when the agent already have the requested role
+		 */
+		ROLE_ALREADY_HANDLED,
+		/**
+		 * Returned when requesting a role in a secured group fails
+		 */
+		ACCESS_DENIED,
+		/**
+		 * Returned when the agent does not have
+		 * a role that it is supposed to have doing a
+		 * particular action, e.g.
+		 * {@link AbstractAgent#sendMessageWithRole(AgentAddress, Message, String)}
+		 */
+		ROLE_NOT_HANDLED,
+		/**
+		 * Returned when using
+		 * {@link AbstractAgent#createGroup(String, String, boolean, Gatekeeper)}
+		 * and that a group already exists
+		 */
+		ALREADY_GROUP,
+		/**
+		 * Returned when launching an agent which is already launched
+		 */
+		ALREADY_LAUNCHED,
+		/**
+		 * Returned by various timed primitives of the Agent class like
+		 * {@link Agent#sendMessageAndWaitForReply(AgentAddress, Message)} or
+		 * {@link AbstractAgent#launchAgent(AbstractAgent, int, boolean)}
+		 */
+		TIMEOUT,
+		/**
+		 * Returned by launch primitives when the launched agent
+		 * crashes in activate
+		 */
+		AGENT_CRASH,
+		// NOT_AN_AGENT_CLASS,
+		/**
+		 * Returned by kill primitives when the targeted
+		 * agent has not been launched priorly
+		 */
+		NOT_YET_LAUNCHED,
+		/**
+		 * Returned by kill primitives when the targeted
+		 * agent is already terminated
+		 */
+		ALREADY_KILLED,
+		/**
+		 * Returned by send primitives when the targeted agent address
+		 * does not exist anymore, i.e. the related agent has leaved
+		 * the corresponding role
+		 */
+		INVALID_AGENT_ADDRESS,
+		/**
+		 * Returned by send primitives when the targeted CGR location
+		 * does not exist or contain any agent
+		 */
+		NO_RECIPIENT_FOUND,
+		/**
+		 * Returned when
+		 * {@link AbstractAgent#requestRole(String, String, String, Object)} or
+		 * {@link AbstractAgent#createGroup(String, String, boolean, Gatekeeper)}
+		 * is used in activate and that the agent has been launched using
+		 * {@link AbstractAgent#launchAgentBucketWithRoles(String, int, Collection)}
+		 * </li>
+		 */
+		IGNORED,
+		/**
+		 * Returned on special errors. This should not
+		 * be encountered
+		 */
+		SEVERE;
 
-		final static ResourceBundle messages = I18nUtilities.getResourceBundle(ReturnCode.class.getSimpleName());
+		// NETWORK_DOWN;
+
+		final static ResourceBundle	messages	= I18nUtilities.getResourceBundle(ReturnCode.class.getSimpleName());
 
 		// static ResourceBundle messages =
 		// I18nUtilities.getResourceBundle(ReturnCode.class);
@@ -2370,7 +2548,20 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	enum Influence {
-		CREATE_GROUP, REQUEST_ROLE, LEAVE_ROLE, LEAVE_GROUP, GET_AGENTS_WITH_ROLE, GET_AGENT_WITH_ROLE, SEND_MESSAGE, BROADCAST_MESSAGE, BROADCAST_MESSAGE_AND_WAIT, LAUNCH_AGENT, KILL_AGENT, GET_AGENT_ADDRESS_IN, RELOAD_CLASS;
+		CREATE_GROUP,
+		REQUEST_ROLE,
+		LEAVE_ROLE,
+		LEAVE_GROUP,
+		GET_AGENTS_WITH_ROLE,
+		GET_AGENT_WITH_ROLE,
+		SEND_MESSAGE,
+		BROADCAST_MESSAGE,
+		BROADCAST_MESSAGE_AND_WAIT,
+		LAUNCH_AGENT,
+		KILL_AGENT,
+		GET_AGENT_ADDRESS_IN,
+		RELOAD_CLASS;
+
 		// final static ResourceBundle messages =
 		// I18nUtilities.getResourceBundle(ReturnCode.class.getSimpleName());
 		// /**
@@ -2448,7 +2639,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @see Option BooleanOption LevelOption
 	 * @since MadKit 5.0.0.14
 	 */
-	public static void executeThisAgent(String[] args, int nbOfInstances, boolean createFrame) {
+	protected static void executeThisAgent(String[] args, int nbOfInstances, boolean createFrame) {
 		final StackTraceElement[] trace = new Throwable().getStackTrace();
 		final ArrayList<String> arguments = new ArrayList<String>(Arrays.asList(Madkit.Option.launchAgents.toString(),
 				trace[trace.length - 1].getClassName() + "," + (createFrame ? "true" : "false") + "," + nbOfInstances));
@@ -2468,8 +2659,20 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @see #executeThisAgent(String[], int, boolean)
 	 * @since MadKit 5.0.0.14
 	 */
-	public static void executeThisAgent(String[] args) {
+	protected static void executeThisAgent(String[] args) {
 		executeThisAgent(args, 1, true);
+	}
+
+	/**
+	 * This offers a convenient way to create main method that launch the agent
+	 * class under development. This call is equivalent to
+	 * <code>executeThisAgent(null, 1, true)</code>
+	 * 
+	 * @see #executeThisAgent(String[], int, boolean)
+	 * @since MadKit 5.0.0.15
+	 */
+	protected static void executeThisAgent() {
+		executeThisAgent(null, 1, true);
 	}
 
 	public boolean hasDefaultConstructor() {

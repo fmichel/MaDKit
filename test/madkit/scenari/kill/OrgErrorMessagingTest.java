@@ -18,7 +18,7 @@
  */
 package madkit.scenari.kill;
 
-import static madkit.kernel.AbstractAgent.ReturnCode.INVALID_AA;
+import static madkit.kernel.AbstractAgent.ReturnCode.INVALID_AGENT_ADDRESS;
 import static madkit.kernel.AbstractAgent.ReturnCode.NOT_COMMUNITY;
 import static madkit.kernel.AbstractAgent.ReturnCode.NOT_GROUP;
 import static madkit.kernel.AbstractAgent.ReturnCode.NOT_IN_GROUP;
@@ -155,7 +155,7 @@ public class OrgErrorMessagingTest extends JunitMadKit {
 								Organization.GROUP_CANDIDATE_ROLE));
 
 				// this agent has leaved the group so m2.getSender() is invalid
-				assertEquals(INVALID_AA, testAgent.sendMessage(m2.getSender(), new Message()));
+				assertEquals(INVALID_AGENT_ADDRESS, testAgent.sendMessage(m2.getSender(), new Message()));
 
 				m3 = testAgent.nextMessage();
 				assertNotNull(m3);

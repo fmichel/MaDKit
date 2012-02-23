@@ -57,6 +57,7 @@ public class JunitMadKit {
 	public static final String COMMUNITY = "Tcommunity";
 	public static final String GROUP = "Tgroup";
 	public static final String ROLE = "Trole";
+	public static final String ROLE2 = "Trole2";
 
 	public static String testTitle;
 	protected Madkit madkit;

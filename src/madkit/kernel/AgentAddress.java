@@ -153,7 +153,7 @@ public class AgentAddress implements java.io.Serializable{
 			format+=getKernelAddress();
 		}
 		if(! exists())
-			return format + " "+ReturnCode.INVALID_AA;
+			return format + " "+ReturnCode.INVALID_AGENT_ADDRESS;
 		return format;
 	}
 	

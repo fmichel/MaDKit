@@ -28,7 +28,6 @@ import java.util.logging.Level;
 
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
-import javax.swing.ImageIcon;
 import javax.swing.JMenu;
 import javax.swing.JRadioButtonMenuItem;
 
@@ -56,29 +55,9 @@ public class AgentLogLevelMenu extends JMenu{
 	
 	final private static Level[] logLevels = {Level.OFF,Level.SEVERE,Level.WARNING,Level.INFO,Level.CONFIG,Level.FINE,Level.FINER,Level.FINEST, Level.ALL};
 
-	final private static String lvlShortDesc;
-	final private static String lvlLonDesc;
-	final private static String warningShortDesc;
-	final private static String warningLonDesc;
-	final private static ImageIcon lvlIcon;
-	final private static ImageIcon wIcon;
-	
-	static{
-		ActionInfo info = GUIManagerAction.LOG_LEVEL.getActionInfo();
-		lvlShortDesc = info.getName();
-		lvlLonDesc = info.getShortDescription();
-		lvlIcon = info.getSmallIcon();
-		info = GUIManagerAction.WARNING_LOG_LEVEL.getActionInfo();
-		warningShortDesc = info.getName();
-		warningLonDesc = info.getShortDescription();
-		wIcon = info.getSmallIcon();
-	}
-
 	final private AbstractAgent myAgent;
 	final private ButtonGroup logGroup;
 	final private ButtonGroup warningGroup;
-//	final private static ImageIcon logIcon = MadkitAction.AGENT_LOG_LEVEL);
-//	final private static ImageIcon wIcon = madkit.gui.GUIToolkit.getMadkitImageIcon(MadkitAction.AGENT_WARNING_LOG_LEVEL);
 	
 	/**
 	 * Builds a menu containing all the log levels which
@@ -90,13 +69,15 @@ public class AgentLogLevelMenu extends JMenu{
 
 		myAgent = agent;
 		
-		JMenu logLevelMenu = new JMenu(lvlShortDesc);
-		logLevelMenu.setIcon(lvlIcon);
-		logLevelMenu.setToolTipText(lvlLonDesc);
+		ActionInfo action = GUIManagerAction.LOG_LEVEL.getActionInfo();
+		JMenu logLevelMenu = new JMenu(action.getName());
+		logLevelMenu.setIcon(action.getSmallIcon());
+		logLevelMenu.setToolTipText(action.getShortDescription());
 		
-		JMenu warningLogLevelMenu = new JMenu(warningShortDesc);
-		warningLogLevelMenu.setIcon(wIcon);
-		warningLogLevelMenu.setToolTipText(warningLonDesc);
+		action = GUIManagerAction.WARNING_LOG_LEVEL.getActionInfo();
+		JMenu warningLogLevelMenu = new JMenu(action.getName());
+		warningLogLevelMenu.setIcon(action.getSmallIcon());
+		warningLogLevelMenu.setToolTipText(action.getShortDescription());
 		
 		logGroup = new ButtonGroup();
 		warningGroup = new ButtonGroup();
@@ -104,18 +85,20 @@ public class AgentLogLevelMenu extends JMenu{
 		add(logLevelMenu);
 		add(warningLogLevelMenu);
 		
-		ActionListener setLogLevelListener = new ActionListener() {
+		final ActionListener setLogLevelListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				myAgent.setLogLevel(Level.parse( e.getActionCommand()));
 			}
 		};
-		ActionListener setWarningLogLevelListener = new ActionListener() {
+		
+		final ActionListener setWarningLogLevelListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				myAgent.getLogger().setWarningLogLevel(Level.parse( e.getActionCommand()));
 			}
 		};
+		
 		for(final Level l : logLevels){
 			JRadioButtonMenuItem logItem = new JRadioButtonMenuItem(l.getLocalizedName());
 			JRadioButtonMenuItem warningItem = new JRadioButtonMenuItem(l.getLocalizedName());

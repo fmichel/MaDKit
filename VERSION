@@ -11,9 +11,9 @@ interact using messages. It also contains MAS simulation authoring tools.
 
 - Available documentation (docs directory):
 
-	- javadoc API  
-	- several how-to with commented source codes 
-	- A French tutorial
+	- api: Javadoc API  
+	- MadKit_Tutorials: Commented source codes on specific topics 
+	- A French tutorial: a general introduction to MadKit 5 and code examples
 
 ----------------------------------------------------------------------------------
 ------------------------------- Using MadKit ${madkit.version} -----------------------------
@@ -44,28 +44,38 @@ Other command line options are described in the API of the madkit.kernel.Madkit 
 
 
 ----------------------------------------------------------------------------------
-------------------------------- MadKit 5.0.0.15 (alpha-15)--------------------------
+------------------------------- MadKit 5.0.0.15 (alpha-15)------------------------
 ----------------------------------------------------------------------------------
 
-1. Improvements:	
+1. Improvements:
+	- add The MadKit Tutorials
+	- add docs/src.zip for easing the development under an IDE
+	- Avoid an annoying bug of the open JDK that prevents MDK executable jar files to work properly 
 
 2. API changes:
 	+ madkit.kernel.AbstractAgent.getAgentAddressIn(String, String, String)
 	+ madkit.kernel.AbstractAgent.proceedEnumMessage(EnumMessage<E>)
+	+ madkit.kernel.AbstractAgent.ReturnCode.IGNORED
+	+ madkit.kernel.AbstractAgent.createGUIOnStartUp()
 	+ madkit.kernel.AbstractAgent.purgeMailbox()
 	+ madkit.kernel.Scheduler.setState(State)
 	+ madkit.action.SchedulingAction.PAUSE
 	+ madkit.simulation.SimulationException
+	+ madkit.i18n.ErrorMessages.MUST_BE_LAUNCHED
 	
 	- madkit.kernel.AbstractAgent.getMostRecentMessage()
+	- madkit.kernel.AbstractAgent.ReturnCode.TERMINATED_AGENT
+	- madkit.kernel.AbstractAgent.ReturnCode.NOT_AN_AGENT_CLASS
+	- madkit.kernel.AbstractAgent.ReturnCode.NETWORK_DOWN
 	- madkit.kernel.Scheduler.Scheduler(double, double)
 	- madkit.kernel.Scheduler.getStartTime()
 	- madkit.kernel.Scheduler.setStartTime(double)
+	
+	~ madkit.kernel.AbstractAgent.ReturnCode.INVALID_AA -> madkit.kernel.AbstractAgent.ReturnCode.INVALID_AGENT_ADDRESS
 
-3. API Refactoring:
 
 ----------------------------------------------------------------------------------
-------------------------------- MadKit 5.0.0.14 (alpha-14)--------------------------
+------------------------------- MadKit 5.0.0.14 (alpha-14)------------------------
 ----------------------------------------------------------------------------------
 
 1. Improvements:	
@@ -92,7 +102,7 @@ Other command line options are described in the API of the madkit.kernel.Madkit 
 	Tip: To do your refactoring work at once, right click your project and select source->Organize imports
 
 ----------------------------------------------------------------------------------
-------------------------------- MadKit 5.0.0.13 (alpha-13)--------------------------
+------------------------------- MadKit 5.0.0.13 (alpha-13)------------------------
 ----------------------------------------------------------------------------------
 
 1. Improvements:	
@@ -105,7 +115,7 @@ Other command line options are described in the API of the madkit.kernel.Madkit 
 	
 
 ----------------------------------------------------------------------------------
-------------------------------- MadKit 5.0.0.12 (alpha-12)--------------------------
+------------------------------- MadKit 5.0.0.12 (alpha-12)------------------------
 ----------------------------------------------------------------------------------
 
 1. Improvements:	
@@ -120,7 +130,7 @@ Other command line options are described in the API of the madkit.kernel.Madkit 
 	
 
 ----------------------------------------------------------------------------------
-------------------------------- MadKit 5.0.0.11 (alpha-11)--------------------------
+------------------------------- MadKit 5.0.0.11 (alpha-11)------------------------
 ----------------------------------------------------------------------------------
 
 1. Improvements:	
@@ -134,7 +144,7 @@ Other command line options are described in the API of the madkit.kernel.Madkit 
 
 
 ----------------------------------------------------------------------------------
-------------------------------- MadKit 5.0.0.10 (alpha-10)--------------------------
+------------------------------- MadKit 5.0.0.10 (alpha-10)------------------------
 ----------------------------------------------------------------------------------
 
 1. Improvements:	

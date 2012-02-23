@@ -27,6 +27,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.logging.Level;
 
 import madkit.kernel.AbstractAgent;
+import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.Agent;
 import madkit.kernel.JUnitAgent;
 import madkit.kernel.JunitMadKit;
@@ -189,8 +190,9 @@ public class KillingWorkingThreadedAgentsTest extends JunitMadKit {
 			public void activate() {
 				Agent a;
 				a = new WorkingAgent(true, true, true);
-				assertEquals(TIMEOUT, launchAgent(a, 1));
-				ReturnCode r = killAgent(a, 1);
+				ReturnCode r = launchAgent(a, 1);
+				assertTrue(TIMEOUT == r || r == SUCCESS);
+				r = killAgent(a, 1);
 				assertTrue(TIMEOUT == r || r == SUCCESS || r == ALREADY_KILLED);
 				assertAgentIsTerminated(a);
 			}

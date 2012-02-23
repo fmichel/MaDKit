@@ -18,7 +18,7 @@
  */
 package madkit.api.abstractAgent;
 
-import static madkit.kernel.AbstractAgent.ReturnCode.INVALID_AA;
+import static madkit.kernel.AbstractAgent.ReturnCode.INVALID_AGENT_ADDRESS;
 import static madkit.kernel.AbstractAgent.ReturnCode.NOT_IN_GROUP;
 import static madkit.kernel.AbstractAgent.ReturnCode.NOT_ROLE;
 import static madkit.kernel.AbstractAgent.ReturnCode.ROLE_NOT_HANDLED;
@@ -110,10 +110,10 @@ public class sendMessageWithAATest extends JunitMadKit {
 				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
 				AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, ROLE);
 				assertEquals(SUCCESS, target.leaveRole(COMMUNITY, GROUP, ROLE));
-				assertEquals(INVALID_AA, sendMessage(aa, new Message()));
+				assertEquals(INVALID_AGENT_ADDRESS, sendMessage(aa, new Message()));
 
 				// With role
-				assertEquals(INVALID_AA, sendMessageWithRole(aa, new Message(), ROLE));
+				assertEquals(INVALID_AGENT_ADDRESS, sendMessageWithRole(aa, new Message(), ROLE));
 			}
 		});
 	}
@@ -126,7 +126,7 @@ public class sendMessageWithAATest extends JunitMadKit {
 				AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, ROLE);
 				assertEquals(NOT_IN_GROUP, sendMessageWithRole(aa, new Message(), ROLE));
 				assertEquals(SUCCESS, target.leaveRole(COMMUNITY, GROUP, ROLE));
-				assertEquals(INVALID_AA, sendMessage(aa, new Message()));
+				assertEquals(INVALID_AGENT_ADDRESS, sendMessage(aa, new Message()));
 				assertEquals(NOT_ROLE, sendMessage(COMMUNITY, GROUP, ROLE, new Message()));
 
 				// With role

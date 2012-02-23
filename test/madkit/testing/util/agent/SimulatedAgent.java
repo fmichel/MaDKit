@@ -43,6 +43,12 @@ public class SimulatedAgent extends AbstractAgent {
 		activated  = true;
 	}
 	
+	
+	public void doIt() {
+		if(logger != null)
+			logger.info("doing it");
+	}
+	
 	public boolean goneThroughActivate(){
 		return activated;
 	}

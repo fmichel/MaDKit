@@ -61,7 +61,6 @@ public class ActionInfo {
 	 */
 	<E extends Enum<E>> ActionInfo(E enumAction, int keyEvent, ResourceBundle resource) {
 		this.keyEvent = keyEvent;
-		final String enumClassName = enumAction.getClass().getSimpleName();
 		name = enumAction.name();
 		final URL imageUrl = enumAction.getClass().getResource(imageDir + name + ".png");
 		if (imageUrl != null) {
@@ -86,7 +85,7 @@ public class ActionInfo {
 			name = codes[0];
 		}
 		else{
-			shortDescription = longDescription = enumClassName;
+			shortDescription = longDescription = enumAction.getClass().getSimpleName();
 		}
 	}
 

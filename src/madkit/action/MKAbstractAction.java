@@ -24,22 +24,22 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.KeyStroke;
 
-
 /**
- * This class provides an easy way of building new actions
+ * This class provides an easy way of building new actions ({@link Action})
  * initialized with {@link ActionInfo} objects.
  * 
  * @author Fabien Michel
  * @since MadKit 5.0.0.14
+ * @see Action
  * @version 0.9
  * 
  */
 public abstract class MKAbstractAction extends AbstractAction {
-	
+
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -1414495456612340010L;
+	private static final long	serialVersionUID	= -1414495456612340010L;
 
 	public MKAbstractAction(ActionInfo actionInfo) {
 		putValue(Action.NAME, actionInfo.getName());
@@ -47,9 +47,10 @@ public abstract class MKAbstractAction extends AbstractAction {
 		putValue(Action.LONG_DESCRIPTION, actionInfo.getLongDescription());
 		if (actionInfo.getBigIcon() != null) {
 			putValue(AbstractAction.LARGE_ICON_KEY, actionInfo.getBigIcon());
-				putValue(AbstractAction.SMALL_ICON, actionInfo.getSmallIcon());
+			putValue(AbstractAction.SMALL_ICON, actionInfo.getSmallIcon());
 		}
-		putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(actionInfo.getKeyEvent(), KeyEvent.CTRL_MASK));//TODO facto
+		putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(actionInfo.getKeyEvent(), KeyEvent.CTRL_MASK));// TODO
+																																					// facto
 		putValue(Action.MNEMONIC_KEY, actionInfo.getKeyEvent());
 		putValue(Action.ACTION_COMMAND_KEY, actionInfo.getName());
 		putValue(Action.SELECTED_KEY, false);

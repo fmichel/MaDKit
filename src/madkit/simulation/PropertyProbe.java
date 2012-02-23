@@ -19,9 +19,7 @@
 package madkit.simulation;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import madkit.kernel.AbstractAgent;
@@ -110,10 +108,5 @@ public class PropertyProbe<A extends AbstractAgent,T> extends Probe<A>//TODO mak
 //		}
 //		return list;
 //	}
-
-	private void logFailureOn(AbstractAgent a, Throwable t){
-		a.getLogger().severeLog("Can't work on field: " + fieldName + " on "+ a, t);
-	}
-	
 
 }

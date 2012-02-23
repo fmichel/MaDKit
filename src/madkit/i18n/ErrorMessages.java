@@ -12,7 +12,8 @@ public enum ErrorMessages {
 	OPTION_MISUSED,
 	CANT_FIND,
 	CANT_LOAD,
-	CANT_CONNECT;
+	CANT_CONNECT,
+	MUST_BE_LAUNCHED;
 	
 	final static ResourceBundle messages = I18nUtilities.getResourceBundle(ErrorMessages.class.getSimpleName());
 //	static ResourceBundle messages = I18nUtilities.getResourceBundle(ReturnCode.class);

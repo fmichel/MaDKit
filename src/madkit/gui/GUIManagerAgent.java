@@ -22,6 +22,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Image;
 import java.awt.Point;
 import java.beans.PropertyVetoException;
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import javax.swing.ImageIcon;
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
@@ -72,6 +74,8 @@ class GUIManagerAgent extends Agent  {
 	private static final long serialVersionUID = 8026421822077510523L;
 	final private ConcurrentMap<AbstractAgent, JFrame> guis;
 	private boolean shuttedDown = false;
+	
+	final static Image MADKIT_LOGO = new ImageIcon(GUIManagerAgent.class.getResource("images/madkit_logo.png")).getImage();
 
 	private JDesktopPane desktopPane;
 
@@ -184,6 +188,7 @@ class GUIManagerAgent extends Agent  {
 
 	private JInternalFrame buildInternalFrame(final AgentFrame af) {
 		final JInternalFrame ijf = new JInternalFrame(af.getTitle(), true, true, true, true);
+		ijf.setFrameIcon(new ImageIcon(af.getIconImage().getScaledInstance(14, 14, java.awt.Image.SCALE_SMOOTH)));
 		ijf.setSize(af.getSize());
 		ijf.setLocation(af.getLocation());
 		ijf.setContentPane(af.getContentPane());
@@ -268,14 +273,6 @@ class GUIManagerAgent extends Agent  {
 		return location;
 	}
 
-	//	private void scanMadkitRepo() {
-	//		URL[] urls = getMadkitClassLoader().getURLs();
-	////		sendMessageAndWaitForReply(kernelAddress, new KernelMessage(MadkitAction.CONNECT_WEB_REPO, (Object) null), 1000);
-	//		if (getMadkitClassLoader().getURLs().length != urls.length) {//more than before ?
-	////			scanClassPathForAgentClasses();//TODO
-	//		}
-	//	}
-
 	/**
 	 * Kills all the agents that have a GUI
 	 */
@@ -287,9 +284,21 @@ class GUIManagerAgent extends Agent  {
 	}
 
 	private void buildUI() {
-		desktopPane = new JDesktopPane();
+		desktopPane = new JDesktopPane() 
+//		{
+//			@Override
+//			protected void paintComponent(Graphics g) {
+//				super.paintComponent(g);
+//				Graphics2D g2d = (Graphics2D) g;
+//				int x = (this.getWidth() - image.getWidth(null)) / 2;
+//				int y = (this.getHeight() - image.getHeight(null)) / 2;
+//				g2d.drawImage(image, x, y, null);
+//			}
+//		}
+		;
 		desktopPane.setBackground(Color.BLACK);
 		myFrame = new JFrame("MadKit "+getMadkitProperty("madkit.version")+" Desktop running on kernel "+getKernelAddress());
+		myFrame.setIconImage(MADKIT_LOGO);
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.add(new MadkitMenu(this));
 		menuBar.add(new LaunchAgentsMenu(this));

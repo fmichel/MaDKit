@@ -241,18 +241,6 @@ public class FakeKernelTest {
 	}
 
 	@Test
-	public final void testSetMadkitPropertyAbstractAgentStringString() {
-		try {
-			a.setMadkitProperty("t", "t");
-			fail("exception not thrown");
-		} catch (KernelException e) {
-			assertEquals(a.getKernel(), AbstractAgent.FAKE_KERNEL);
-
-		}
-
-	}
-
-	@Test
 	public final void testIsCommunityAbstractAgentString() {
 		try {
 			a.isCommunity("t");

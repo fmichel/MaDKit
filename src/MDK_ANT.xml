@@ -87,7 +87,6 @@
 
 	<!-- ================================= 
           target: build-executable-jar              
-         ================================= -->
     <target name="build-executable-jar" description="executable jar">
     	<property name="jar.file" value="${ant.project.name}-${version}.jar"/>
 		<echo>Creating executable jar file : ${jar.file}</echo>
@@ -98,10 +97,10 @@
     	    <include name="jar-in-jar-loader.zip"/>
     	  </patternset>
     	</unzip>
-		<concat destfile="${build.dir}/README" >--- This is ${project.label} version ${version} by ${author} -----
-			${line.separator}- Description  ${description}  -----
-			${line.separator}- Using        This jar file is runnable: Double click it (file execution permission is required) or use java -jar  -----
-			${line.separator}- Technology   It is develloped using MadKit : A Multiagent Development Kit http://www.madkit.org  -----
+		<concat destfile="${build.dir}/README" >- This is ${project.label} version ${version} by ${author} 
+			${line.separator}- Description  ${description}  
+			${line.separator}- Using        This jar file is runnable: Double click it (file execution permission is required) or use java -jar  
+			${line.separator}- Technology   It is develloped using MadKit : A Multiagent Development Kit http://www.madkit.org  
 		</concat>
 		<manifest file="${manifest.location}" mode="update">
             <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
@@ -114,6 +113,42 @@
             <fileset dir="${build.dir}"/>
             <zipfileset file="${kernel.location}"/>
  		</jar>
+		<chmod file="${jar.file}" perm="ugo+x"/>
+		<delete dir="${build.dir}" />
+        <echo>
+        	
+        	 Running your project :
+        	${line.separator} 
+     Your project could now be ran by either${line.separator} 
+    (1) double clicking the jar file !${line.separator}
+    (2) using a commandline such as:	   	
+		java -jar ${jar.file} [additional Madkit options and arguments]
+        	${line.separator}
+        </echo>
+    </target>
+         ================================= -->
+	
+	<!-- ================================= 
+          target: build-executable-jar  WITHOUT JARINJAR FROM ECLIPSE            
+         ================================= -->
+    <target name="build-executable-jar" description="executable jar">
+    	<property name="jar.file" value="${ant.project.name}-${version}.jar"/>
+		<echo>Creating executable jar file : ${jar.file}</echo>
+		<antcall target="MDK.compile" />
+		<antcall target="MDK.build-manifest" />
+		<concat destfile="${build.dir}/README" >--- This is ${project.label} version ${version} by ${author} -----
+			${line.separator}- Description  ${description}  -----
+			${line.separator}- Using        This jar file is runnable: Double click it (file execution permission is required) or use java -jar  -----
+			${line.separator}- Technology   It is develloped using MadKit : A Multiagent Development Kit http://www.madkit.org  -----
+		</concat>
+		<manifest file="${manifest.location}" mode="update">
+            <attribute name="Main-Class" value="madkit.kernel.Madkit"/>
+		</manifest>
+ 		<jar destfile="${jar.file}" manifest="${manifest.location}" index="true" compress="false" >
+            <fileset dir="${build.dir}"/>
+            <zipfileset src="${kernel.location}" excludes="MANIFEST.MF,jar-in-jar-loader.zip,*.xml"/>
+ 		</jar>
+		<chmod file="${jar.file}" perm="ugo+x"/>
 		<delete dir="${build.dir}" />
         <echo>
         	

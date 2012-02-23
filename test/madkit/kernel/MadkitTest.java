@@ -18,7 +18,7 @@
  */
 package madkit.kernel;
 
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
 
@@ -52,6 +52,19 @@ public class MadkitTest {
 	@Test
 	public void nullArgs() {
 		Madkit.main(null);
+	}
+
+	@Test
+	public void buildConfigFromArgsTest() {
+		Madkit m = new Madkit(null);
+		String[] args = new String[1];
+		args[0]="";
+		assertTrue(m.buildConfigFromArgs(args).isEmpty());
+		assertTrue(m.buildConfigFromArgs(null).isEmpty());
+		args = new String[2];
+		args[0]="";
+		args[1]="";
+		assertTrue(m.buildConfigFromArgs(args).isEmpty());
 	}
 
 	@Test

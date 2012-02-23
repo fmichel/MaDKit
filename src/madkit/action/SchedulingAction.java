@@ -28,7 +28,6 @@ import java.awt.event.ActionEvent;
 import java.util.ResourceBundle;
 
 import javax.swing.Action;
-import javax.swing.JSlider;
 
 import madkit.i18n.I18nUtilities;
 import madkit.kernel.Scheduler;

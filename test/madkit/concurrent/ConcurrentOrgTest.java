@@ -18,15 +18,11 @@
  */
 package madkit.concurrent;
 
-import static org.junit.Assert.assertNotNull;
-
 import java.util.logging.Level;
 
 import madkit.kernel.Agent;
 import madkit.kernel.JunitMadKit;
-import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
-import madkit.testing.util.agent.PongAgent;
 
 import org.junit.Test;
 

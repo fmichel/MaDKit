@@ -22,6 +22,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
+import madkit.i18n.ErrorMessages;
+
 /**
  * @author Fabien Michel
  * @since MadKit 5
@@ -46,7 +48,7 @@ class FakeKernel extends MadkitKernel{
 	//////////////////////////////////////////////////////////////
 
 	String buildFailString(final AbstractAgent agent){
-		return agent != null ? agent.toString() : "Agent "+AbstractAgent.State.NOT_LAUNCHED.toString()+" : must be launched to use this method";
+		return (agent != null ? agent.toString() : "Agent" + AbstractAgent.State.NOT_LAUNCHED)+ErrorMessages.MUST_BE_LAUNCHED;
 	}
 	
 	@Override
@@ -174,11 +176,6 @@ class FakeKernel extends MadkitKernel{
 	}
 
 	@Override
-	final void setMadkitProperty(final AbstractAgent agent, String key, String value) {
-		throw buildKernelException(agent);
-	}
-	
-	@Override
 	final public MadkitClassLoader getMadkitClassLoader() {
 		throw buildKernelException(null);
 	}
@@ -202,10 +199,6 @@ class FakeKernel extends MadkitKernel{
 
 	@Override
 	final public Properties getMadkitConfig() {
-		final Madkit m = Madkit.getCurrentInstance();
-		if (m != null) {
-			return m.getConfigOption();
-		}
 		return Madkit.defaultConfig;
 	}
 

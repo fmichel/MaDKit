@@ -18,7 +18,7 @@
  */
 package madkit.api.abstractAgent;
 
-import static madkit.kernel.AbstractAgent.ReturnCode.INVALID_AA;
+import static madkit.kernel.AbstractAgent.ReturnCode.INVALID_AGENT_ADDRESS;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -139,7 +139,7 @@ public class sendMessageAndWaitForReplyWithAATest extends JunitMadKit {
 				assertNotNull(nextMessage());
 				assertNull(nextMessage());
 				pause(100);
-				assertEquals(INVALID_AA, sendMessage(aa, new Message()));// the
+				assertEquals(INVALID_AGENT_ADDRESS, sendMessage(aa, new Message()));// the
 																							// target
 																							// has
 																							// gone:
@@ -193,12 +193,12 @@ public class sendMessageAndWaitForReplyWithAATest extends JunitMadKit {
 				assertEquals(SUCCESS, launchAgent(target));
 				AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, ROLE);
 				assertEquals(SUCCESS, target.leaveRole(COMMUNITY, GROUP, ROLE));
-				assertNull(sendMessageAndWaitForReply(aa, new Message()));// INVALID_AA
+				assertNull(sendMessageAndWaitForReply(aa, new Message()));// INVALID_AGENT_ADDRESS
 																								// warning
-				assertEquals(INVALID_AA, sendMessage(aa, new Message()));
+				assertEquals(INVALID_AGENT_ADDRESS, sendMessage(aa, new Message()));
 
 				// With role
-				assertNull(sendMessageWithRoleAndWaitForReply(aa, new Message(), ROLE));// INVALID_AA
+				assertNull(sendMessageWithRoleAndWaitForReply(aa, new Message(), ROLE));// INVALID_AGENT_ADDRESS
 																												// warning
 			}
 		});

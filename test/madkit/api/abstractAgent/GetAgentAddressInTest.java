@@ -18,13 +18,13 @@
  */
 package madkit.api.abstractAgent;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import madkit.kernel.AbstractAgent;
+import madkit.kernel.AbstractAgent.ReturnCode;
+import madkit.kernel.JunitMadKit;
 
 import org.junit.Test;
-
-import madkit.kernel.AbstractAgent;
-import madkit.kernel.JunitMadKit;
-import madkit.kernel.AbstractAgent.ReturnCode;
 
 /**
  * @author Fabien Michel

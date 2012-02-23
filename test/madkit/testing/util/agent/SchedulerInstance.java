@@ -9,6 +9,6 @@ public class SchedulerInstance extends Scheduler {
 		setDelay(500);
 	}
 	public static void main(String[] args) {
-		executeThisAgent(args);
+		executeThisAgent();
 	}
 }

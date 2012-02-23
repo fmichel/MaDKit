@@ -1,9 +1,10 @@
 package madkit.concurrent;
 
-import org.omg.PortableInterceptor.SUCCESSFUL;
-
+import static madkit.kernel.JunitMadKit.COMMUNITY;
+import static madkit.kernel.JunitMadKit.GROUP;
+import static madkit.kernel.JunitMadKit.ROLE;
+import static madkit.kernel.JunitMadKit.testFails;
 import madkit.kernel.Agent;
-import static madkit.kernel.JunitMadKit.*;
 
 public class ConcurrentTestAgent extends Agent {
 

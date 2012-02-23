@@ -46,7 +46,6 @@ public class LocalCommunity implements Organization{
 	 */
 	public static final class Roles {
 
-//		public static final String GUI_MANAGER = "gui manager";
 		/**
 		 * The value of this constant is {@value}.
 		 */

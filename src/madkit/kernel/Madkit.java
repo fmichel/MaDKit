@@ -29,6 +29,7 @@ import java.security.PermissionCollection;
 import java.security.Policy;
 import java.security.ProtectionDomain;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Enumeration;
@@ -53,7 +54,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 /**
- * The brand new version of the starter class of MadKit. 
+ * MadKit 5 booter class. 
  * <p>
  * <h2>MadKit v.5 new features</h2>
  * <p>
@@ -69,7 +70,7 @@ import org.xml.sax.SAXException;
  * See {@link AbstractAgent#sendMessageWithRole(AgentAddress, Message, String)} for an example
  * of such a method.</li>
  * <br><li>A replying mechanism has been introduced through 
- * <code><i>sendReply</i></code> methods. 
+ * <code><i>SendReply</i></code> methods. 
  * It enables the agent with the possibility of replying directly to a given message.
  * Also, it is now possible to get the reply to a message, or to wait for a reply 
  * ( for {@link Agent} subclasses only as they are threaded)
@@ -81,7 +82,6 @@ import org.xml.sax.SAXException;
  * See the {@link AbstractAgent#logger} attribute for more details.</li>
  * <br><li>Internationalization is being made (fr_fr and en_us for now).</li>
  * <p>
-
  * @author Fabien Michel
  * @author Jacques Ferber
  * @since MadKit 4.0
@@ -149,15 +149,15 @@ final public class Madkit {
 	 * 
 	 * <pre>
 	 *	public static void main(String[] args) {
-	*	String[] argss = {
-	*		LevelOption.agentLogLevel.toString(),"FINE",
-	*		Option.launchAgents.toString(),//gets the -- launchAgents string
-	*		Client.class.getName()+",true,20;"+
-	*		Broker.class.getName()+",true,10;"+
-	*		Provider.class.getName()+",false,20"
-	*	};
-	*	Madkit.main(argss);//launching the application
-*	}
+	 *	String[] argss = {
+	 *		LevelOption.agentLogLevel.toString(),"FINE",
+	 *		Option.launchAgents.toString(),//gets the -- launchAgents string
+	 *		Client.class.getName()+",true,20;"+
+	 *		Broker.class.getName()+",true,10;"+
+	 *		Provider.class.getName()+",false,20"
+	 *	};
+	 *	Madkit.main(argss);//launching the application
+	 *	}
 	 * </pre>
 	 * 
 	 * 	 
@@ -186,13 +186,9 @@ final public class Madkit {
 		madkitConfig.putAll(defaultConfig);
 		Properties fromArgs = buildConfigFromArgs(args);
 		madkitConfig.putAll(fromArgs);
+		initMadkitLogging();
 		if(logger != null)
 			logger.finer("command line args : "+fromArgs);
-		initMadkitLogging();
-		loadJarFileArguments();
-		loadConfigFile();
-		if(logger != null)
-			logger.fine("** OVERRIDING WITH COMMAND LINE ARGUMENTS **");
 		loadJarFileArguments();
 		loadConfigFile();
 		if(logger != null)
@@ -277,15 +273,18 @@ final public class Madkit {
 		try{
 			for (Enumeration<URL> urls = Madkit.class.getClassLoader().getResources("META-INF/MANIFEST.MF");urls.hasMoreElements();) {
 				Manifest manifest = new Manifest(urls.nextElement().openStream());
-				//				logger.info(manifest.toString());
-				//				for (Map.Entry<String, Attributes> e : manifest.getEntries().entrySet()) {
-				//					System.err.println("\n"+e.getValue().values());
-				//				}
+//				if(logger != null)
+//					logger.fine(manifest.toString());
+//				for (Map.Entry<String, Attributes> e : manifest.getEntries().entrySet()) {
+//					System.err.println("\n"+e.getValue().values());
+//				}
 				Attributes projectInfo = manifest.getAttributes("MadKit-Project-Info");
 				if(projectInfo != null){
 					if(logger != null)
-						logger.finest("found project info"+projectInfo);
+						logger.finest("found project info \n\t"+projectInfo.keySet()+"\n\t"+projectInfo.values());
 					args = projectInfo.getValue("MadKit-Args").split(" ");
+					if(logger != null)
+						logger.finer(Arrays.deepToString(args)+args.length);
 					Map<String,String> projectInfos = new HashMap<String, String>();
 					projectInfos.put("Project-Code-Name",projectInfo.getValue("Project-Code-Name"));
 					projectInfos.put("Project-Version",projectInfo.getValue("Project-Version"));
@@ -375,7 +374,7 @@ final public class Madkit {
 		//starting the kernel agent and waiting the end of its activation
 		if(logger != null)
 			logger.fine("** LAUNCHING KERNEL AGENT **");
-//		myKernel.launchAgent(myKernel, myKernel, Integer.MAX_VALUE, false);
+		//		myKernel.launchAgent(myKernel, myKernel, Integer.MAX_VALUE, false);
 		myKernel.launchAgent(myKernel, myKernel, Integer.MAX_VALUE, false);
 	}
 
@@ -406,10 +405,10 @@ final public class Madkit {
 	private void printWelcomeString() {
 		if(!(LevelOption.madkitLogLevel.getValue(madkitConfig) == Level.OFF)){
 			System.err.println("\n\t---------------------------------------"+
-									 "\n\t                MadKit"+
-									 "\n\t           version: "+defaultConfig.getProperty("madkit.version")+"\n\t\tbuild-id: "+defaultConfig.getProperty("build.id")+
-									 "\n\t       MadKit Team (c) 1997-"+Calendar.getInstance().get(Calendar.YEAR)+
-									 "\n\t---------------------------------------\n");			
+					"\n\t                MadKit"+
+					"\n\t           version: "+defaultConfig.getProperty("madkit.version")+"\n\t\tbuild-id: "+defaultConfig.getProperty("build.id")+
+					"\n\t       MadKit Team (c) 1997-"+Calendar.getInstance().get(Calendar.YEAR)+
+					"\n\t---------------------------------------\n");			
 		}
 	}
 
@@ -450,22 +449,25 @@ final public class Madkit {
 
 	Properties buildConfigFromArgs(String[] args) {
 		Properties currentMap = new Properties();
-		if (args != null) {
+		if (args != null && args.length > 0) {
 			String parameters = "";
 			String currentOption = null;
 			for (int i = 0; i < args.length; i++) {
-				if (args[i].startsWith("--")) {
-					currentOption = args[i].substring(2);
-					currentMap.put(currentOption, "true");
-					if (logger != null)
-						logger.finest("found option -- " + currentOption);
-					parameters = "";
-				} else {
-					parameters += args[i] + " ";
-					if (i + 1 == args.length || args[i + 1].startsWith("--")) {
-						currentMap.put(currentOption, parameters.trim());//TODO bug on "-" use
+				if (! args[i].trim().isEmpty()) {
+					if (args[i].startsWith("--")) {
+						currentOption = args[i].substring(2);
+						currentMap.put(currentOption, "true");
 						if (logger != null)
-							logger.finest("found option -- " + currentOption + " -- value -- " + parameters.trim());
+							logger.finest("found option -- " + currentOption);
+						parameters = "";
+					}
+					else {
+						parameters += args[i] + " ";
+						if (i + 1 == args.length || args[i + 1].startsWith("--")) {
+							currentMap.put(currentOption, parameters.trim());//TODO bug on "-" use
+							if (logger != null)
+								logger.finest("found option -- " + currentOption + " -- value -- " + parameters.trim());
+						}
 					}
 				}
 			}
@@ -766,10 +768,10 @@ final public class Madkit {
 		 * @see Madkit.Option#logDirectory
 		 */
 		createLogFiles,
-//		/**
-//		 * not functional yet
-//		 */
-//		noGUIManager,
+		//		/**
+		//		 * not functional yet
+		//		 */
+		//		noGUIManager,
 		/**
 		 * Defines if agent logging should be quiet in the
 		 * default console.

@@ -19,7 +19,7 @@
 package madkit.api.abstractAgent;
 
 import static madkit.kernel.AbstractAgent.ReturnCode.AGENT_CRASH;
-import static madkit.kernel.AbstractAgent.ReturnCode.INVALID_AA;
+import static madkit.kernel.AbstractAgent.ReturnCode.INVALID_AGENT_ADDRESS;
 import static madkit.kernel.AbstractAgent.ReturnCode.NOT_COMMUNITY;
 import static madkit.kernel.AbstractAgent.ReturnCode.NOT_GROUP;
 import static madkit.kernel.AbstractAgent.ReturnCode.NOT_IN_GROUP;
@@ -109,9 +109,9 @@ public class SendMessageWithCGRTest extends JunitMadKit {
 				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
 				AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, ROLE);
 				assertEquals(SUCCESS, target.leaveRole(COMMUNITY, GROUP, ROLE));
-				assertEquals(INVALID_AA, sendMessage(aa, new Message()));
+				assertEquals(INVALID_AGENT_ADDRESS, sendMessage(aa, new Message()));
 				// With role
-				assertEquals(INVALID_AA, sendMessageWithRole(aa, new Message(), ROLE));
+				assertEquals(INVALID_AGENT_ADDRESS, sendMessageWithRole(aa, new Message(), ROLE));
 			}
 		});
 	}

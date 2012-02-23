@@ -20,7 +20,6 @@ package madkit.kernel;
 
 import static madkit.i18n.I18nUtilities.getCGRString;
 import static madkit.kernel.AbstractAgent.ReturnCode.NOT_GROUP;
-import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -128,7 +127,7 @@ final class Organization extends ConcurrentHashMap <String, Group>{
 		for (final Iterator<Map.Entry<String, Group>> e = this.entrySet().iterator();e.hasNext();) {
 			final Map.Entry<String, Group> entry = e.next();
 			final Group g = entry.getValue();
-			if(g.leaveGroup(theAgent) == SUCCESS){
+			if(g.leaveGroup(theAgent) != null){//at least present in one group
 				if (g.isDistributed()) {
 					groups.add(entry.getKey());
 				}

@@ -22,8 +22,7 @@ import static madkit.kernel.AbstractAgent.ReturnCode.AGENT_CRASH;
 import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_GROUP;
 import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_KILLED;
 import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_LAUNCHED;
-import static madkit.kernel.AbstractAgent.ReturnCode.INVALID_AA;
-import static madkit.kernel.AbstractAgent.ReturnCode.NETWORK_DOWN;
+import static madkit.kernel.AbstractAgent.ReturnCode.INVALID_AGENT_ADDRESS;
 import static madkit.kernel.AbstractAgent.ReturnCode.NOT_COMMUNITY;
 import static madkit.kernel.AbstractAgent.ReturnCode.NOT_GROUP;
 import static madkit.kernel.AbstractAgent.ReturnCode.NOT_IN_GROUP;
@@ -79,7 +78,6 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 
 import madkit.action.AgentAction;
@@ -90,7 +88,6 @@ import madkit.agr.LocalCommunity.Roles;
 import madkit.gui.DemoModel;
 import madkit.i18n.ErrorMessages;
 import madkit.i18n.Words;
-import madkit.kernel.AbstractAgent.Influence;
 import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
@@ -382,8 +379,7 @@ class MadkitKernel extends Agent {
 	 * 
 	 */
 	private void addWebRepository() {
-		final String repoLocation = getMadkitProperty("madkit.repository.url");
-		System.err.println(repoLocation);
+		final String repoLocation = getMadkitConfig().getProperty("madkit.repository.url");
 		if (logger != null)
 			logger.fine("** CONNECTING WEB REPO **" + repoLocation);
 		try {
@@ -578,8 +574,8 @@ class MadkitKernel extends Agent {
 
 	ReturnCode createGroup(final AbstractAgent creator, final String community, final String group, final String description,
 			final Gatekeeper gatekeeper, final boolean isDistributed) {
-		if (bucketMode)// TODO
-			return SUCCESS;
+		if (bucketMode)
+			return ReturnCode.IGNORED;
 		if (group == null)
 			throw new NullPointerException(ErrorMessages.G_NULL.toString());
 		Organization organization = new Organization(community, this);
@@ -631,7 +627,7 @@ class MadkitKernel extends Agent {
 
 	ReturnCode requestRole(AbstractAgent requester, String community, String group, String role, Object memberCard) {
 		if (bucketMode)
-			return SUCCESS;
+			return ReturnCode.IGNORED;
 		// final Organization org = organizations.get(community);
 		// if(org == null)
 		// return NOT_COMMUNITY;
@@ -663,27 +659,29 @@ class MadkitKernel extends Agent {
 	 */
 
 	ReturnCode leaveGroup(final AbstractAgent requester, final String community, final String group) {
-		if (bucketMode)
-			return SUCCESS;
 		final Group g;
-		final ReturnCode result;
+		final List<Role> affectedRoles;
 		synchronized (organizations) {
 			try {
 				g = getGroup(community, group);
 			} catch (CGRNotAvailable e) {
 				return e.getCode();
 			}
-			result = g.leaveGroup(requester);
+			affectedRoles = g.leaveGroup(requester);
 		}
-		if (result == SUCCESS) {
+		if (affectedRoles != null) {//success
+			for (Role role : affectedRoles) {
+				role.removeFromOverlookers(requester);
+			}
 			if (g.isDistributed()) {
 				sendNetworkMessageWithRole(new CGRSynchro(LEAVE_GROUP, new AgentAddress(requester, new Role(community, group),
 						kernelAddress)), netUpdater);
 			}
 			if (logger != null)
 				informHooks(AgentAction.LEAVE_GROUP, community, group);
+			return SUCCESS;
 		}
-		return result;
+		return NOT_IN_GROUP;
 	}
 
 	/**
@@ -695,8 +693,6 @@ class MadkitKernel extends Agent {
 	 */
 
 	ReturnCode leaveRole(AbstractAgent requester, String community, String group, String role) {
-		if (bucketMode)
-			return SUCCESS;
 		final Role r;
 		synchronized (organizations) {
 			try {
@@ -704,19 +700,26 @@ class MadkitKernel extends Agent {
 			} catch (CGRNotAvailable e) {
 				return e.getCode();
 			}
+			ReturnCode rc;
 			// this is apart because I need the address before the leave
 			if (r.getMyGroup().isDistributed()) {
 				AgentAddress leaver = r.getAgentAddressOf(requester);
 				if (leaver == null)
 					return ReturnCode.ROLE_NOT_HANDLED;
-				if (r.removeMember(requester) != SUCCESS)// TODO
+				rc = r.removeMember(requester);
+				if (rc != SUCCESS)// TODO remove that
 					throw new AssertionError("cannot remove " + requester + " from " + r.buildAndGetAddresses());
 				sendNetworkMessageWithRole(new CGRSynchro(LEAVE_ROLE, leaver), netUpdater);
+			}
+			else{
+				rc = r.removeMember(requester);
+			}
+			if(rc == SUCCESS){
+				r.removeFromOverlookers(requester);
 				if (logger != null)
 					informHooks(AgentAction.LEAVE_ROLE, community, group, role);
-				return SUCCESS;
 			}
-			return r.removeMember(requester);
+			return rc;
 		}
 	}
 
@@ -764,7 +767,7 @@ class MadkitKernel extends Agent {
 		// corresponding role or it was a candidate request
 		if (!receiver.exists()) {// && !
 			// receiver.getRole().equals(Roles.GROUP_CANDIDATE_ROLE)){
-			return INVALID_AA;
+			return INVALID_AGENT_ADDRESS;
 		}
 		try {
 			// get the role for the sender and then send
@@ -850,7 +853,7 @@ class MadkitKernel extends Agent {
 			netAgent.getAgent().receiveMessage(m);
 			return SUCCESS;
 		}
-		return NETWORK_DOWN;
+		return SEVERE;
 	}
 
 	private void updateNetworkAgent() {
@@ -868,8 +871,71 @@ class MadkitKernel extends Agent {
 	// ////////////////////////////////////////////////////////////
 	// //////////////////////// Launching and Killing
 	// ////////////////////////////////////////////////////////////
+	
+//	ReturnCode launchAgentsWithRoles(final AbstractAgent requester, List<AbstractAgent> agents, Collection<String> CGRLocations){
+//		
+//		//initialize the agents concurrently
+//		AgentsJob aj = new AgentsJob() {
+//			@Override
+//			void proceedAgent(AbstractAgent a) {
+//				// no need to test : I created these instances
+//				a.state.set(ACTIVATED);
+//				a.setKernel(MadkitKernel.this);
+//				a.getAlive().set(true);
+//				a.logger = null;
+//			}
+//		};
+//
+//		// initialization
+//		doMulticore(serviceExecutor, aj.getJobs(agents));
+//		
+//		//preparing the activate job
+//		aj = new AgentsJob() {
+//			@Override
+//			void proceedAgent(AbstractAgent a) {
+//				try {
+//					a.activate();
+//				} catch (Throwable e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		};
+//		if (CGRLocations != null) {
+//			for (final String cgrLocation : CGRLocations) {
+//				final String[] cgr = cgrLocation.split(";");
+//				if (cgr.length != 3)
+//					return null;// TODO logging
+//				createGroup(requester, cgr[0], cgr[1], null, null, false);
+//				Group g = null;
+//				try {
+//					g = getGroup(cgr[0], cgr[1]);
+//				} catch (CGRNotAvailable e) {
+//					e.printStackTrace();
+//					return AGENT_CRASH;
+//				}
+//				boolean roleCreated = false;
+//				Role r = g.get(cgr[2]);
+//				if (r == null) {
+//					r = g.createRole(cgr[2]);
+//					g.put(r.getRoleName(), r);
+//					roleCreated = true;
+//				}
+//				r.addMembers(bucket, roleCreated);
+//				// test vs assignement ? -> No: cannot touch the organizational
+//				// structure !!
+//			}
+//			synchronized (this) {
+//				bucketMode = true;
+//				doMulticore(serviceExecutor, aj.getJobs(bucket));
+//				bucketMode = false;
+//			}
+//		} else {
+//			doMulticore(serviceExecutor, aj.getJobs(bucket));
+//		}
+//		
+//	}
 
-	synchronized List<AbstractAgent> launchAgentBucketWithRoles(final AbstractAgent requester, String agentClassName,
+	List<AbstractAgent> launchAgentBucketWithRoles(final AbstractAgent requester, String agentClassName,
 			int bucketSize, Collection<String> CGRLocations) {
 		if (shuttedDown)
 			return null;
@@ -895,7 +961,6 @@ class MadkitKernel extends Agent {
 				a.setKernel(MadkitKernel.this);
 				a.getAlive().set(true);
 				a.logger = null;
-				// proceed.incrementAndGet();
 			}
 		};
 
@@ -1048,7 +1113,7 @@ class MadkitKernel extends Agent {
 		// agent.getState());
 		agent.setKernel(this);
 		if (defaultGUI)
-			agent.activateGUI();
+			agent.createGUIOnStartUp();
 		Level defaultLevel = LevelOption.agentLogLevel.getValue(getMadkitConfig());
 		final AgentLogger agentLogger = agent.logger;
 		if (agentLogger == AgentLogger.defaultAgentLogger) {// not changed in the
@@ -1502,18 +1567,11 @@ class MadkitKernel extends Agent {
 
 	void removeAgentFromOrganizations(AbstractAgent theAgent) {
 		for (final Organization org : organizations.values()) {
-			final ArrayList<String> groups = org.removeAgentFromAllGroups(theAgent);
-			for (final String groupName : groups) {
+			for (final String groupName : org.removeAgentFromAllGroups(theAgent)) {
 				sendNetworkMessageWithRole(new CGRSynchro(LEAVE_GROUP, new AgentAddress(theAgent, new Role(org.getName(), groupName),
 						kernelAddress)), netUpdater);
 			}
 		}
-	}
-
-	void setMadkitProperty(final AbstractAgent requester, String key, String value) {
-		platform.getConfigOption().setProperty(key, value);// TODO update agent
-																			// logging
-		// on or off
 	}
 
 	@Override
@@ -1940,5 +1998,9 @@ abstract class AgentsJob implements Callable<Void>, Cloneable {
 		return aj;
 	}
 
+	/**
+	 * Is the job to do on one agent
+	 * @param a
+	 */
 	abstract void proceedAgent(AbstractAgent a);
 }

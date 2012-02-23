@@ -189,7 +189,7 @@ class Role implements Serializable{//TODO test with arraylist
 	 */
 	boolean addMember(final AbstractAgent requester) {
 		synchronized (players) {
-			if (players.contains(requester)) {
+			if (players.contains(requester)) {//TODO looks like I should use linkedhashset
 				return false;
 			}
 			players.add(requester);
@@ -205,7 +205,9 @@ class Role implements Serializable{//TODO test with arraylist
 		}
 		//not sure ->
 		//needs to be synchronized so that adding occurs prior to getAgentList
-		addToOverlookers(requester);
+
+		//		addToOverlookers(requester);
+		
 		return true;
 		//		requester.setRoleObject(this);
 		//		referenceableAgents.add(requester.getAgent());
@@ -261,7 +263,7 @@ class Role implements Serializable{//TODO test with arraylist
 			}
 			modified = true;
 		}
-		removeFromOverlookers(requester);//TODO put that in the synchronized ?
+//		removeFromOverlookers(requester);//TODO put that in the synchronized ?
 		checkEmptyness();
 		return SUCCESS;
 	}
@@ -478,7 +480,7 @@ class Role implements Serializable{//TODO test with arraylist
 	//		}
 	//	}
 
-	final private void addToOverlookers(AbstractAgent a){
+	final void addToOverlookers(AbstractAgent a){
 		for (final Overlooker<? extends AbstractAgent> o : overlookers){
 			o.addAgent(a);
 		}
@@ -490,7 +492,7 @@ class Role implements Serializable{//TODO test with arraylist
 		}
 	}
 
-	final private void removeFromOverlookers(AbstractAgent a){
+	final void removeFromOverlookers(AbstractAgent a){
 		for (final Overlooker<? extends AbstractAgent> o : overlookers){
 			o.removeAgent(a);
 		}

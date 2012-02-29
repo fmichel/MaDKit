@@ -25,6 +25,7 @@ import java.awt.Dimension;
 import java.awt.HeadlessException;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.Toolkit;
 import java.beans.PropertyVetoException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -84,6 +85,7 @@ class GUIManagerAgent extends Agent  {
 
 	GUIManagerAgent(boolean asDaemon){
 		super(asDaemon);
+		Toolkit.getDefaultToolkit();
 		guis = new ConcurrentHashMap<AbstractAgent, JFrame>();
 	}
 
@@ -91,16 +93,25 @@ class GUIManagerAgent extends Agent  {
 	@Override
 	protected void activate() {//TODO parallelize that
 //		setLogLevel(Level.ALL);
-		createGroup(LocalCommunity.NAME, Groups.GUI);
 //		requestRole(LocalCommunity.NAME, Groups.SYSTEM, Roles.GUI_MANAGER);//no need: I am a manager
 		if (! isDaemon()) {//use to detect desktop mode
 			try {
 				buildUI();
 			} catch (HeadlessException e) {
-				getLogger().warning("\t"+e.getMessage()+"\n\tNo GUI environment, quitting");
-				shuttedDown = true;
+				headlessLog(e);
+				return;
 			}
 		}
+		createGroup(LocalCommunity.NAME, Groups.GUI);
+	}
+
+
+	/**
+	 * @param e
+	 */
+	private void headlessLog(HeadlessException e) {
+		getLogger().severe("\t"+e.getMessage()+"\n\tNo graphic environment, quitting");
+		shuttedDown = true;
 	}
 
 	@Override
@@ -153,9 +164,13 @@ class GUIManagerAgent extends Agent  {
 		if (! shuttedDown && agent.isAlive()) {
 			if(logger != null)
 				logger.fine("Setting up GUI for "+agent);
-			AgentFrame f = new AgentFrame(agent, agent.getName());
+			AgentFrame f = null;
 			try {
+				f = new AgentFrame(agent, agent.getName());
 				agent.setupFrame(f);//TODO catch failures because of delegation
+			} catch (HeadlessException e) {
+				headlessLog(e);
+				return;
 			} catch (Exception e) {
 				agent.getLogger().severeLog("Frame setup problem -> default GUI settings", e);
 				f = new AgentFrame(agent, agent.getName());

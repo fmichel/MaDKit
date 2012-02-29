@@ -183,13 +183,18 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	AbstractAgent(Object fake) {
 		_hashCode = -1;
 	}
+	
+	MadkitKernel getMadkitKernel(){
+		return kernel.getMadkitKernel();
+	}
 
 	/**
 	 * Activates the MadKit GUI initialization when launching the agent whatever
-	 * the launching parameters. Indeed, by default agent are launched without a GUI
+	 * the launching parameters. By default agents are launched without a GUI
 	 * but some of them always need one: This ensures that the agent will have one.
 	 * This method should be used only in the constructor of the 
-	 * agent. This specifies that this agent should always be launched with a MadKit GUI.
+	 * agent, otherwise it will be useless as it specifies a boot 
+	 * property of the agent.
 	 * 
 	 */
 	public void createGUIOnStartUp() {
@@ -280,8 +285,15 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 				logger.finer("** setting up  GUI **");
 			}
 			// to avoid the log of logged kernel
-			getKernel().getMadkitKernel().broadcastMessageWithRoleAndWaitForReplies(this, LocalCommunity.NAME, Groups.GUI,
-					Organization.GROUP_MANAGER_ROLE, new GUIMessage(GUIManagerAction.SETUP_AGENT_GUI, this), null, 3000);
+			if(getMadkitKernel().broadcastMessageWithRoleAndWaitForReplies(
+					this, 
+					LocalCommunity.NAME, 
+					Groups.GUI,
+					Organization.GROUP_MANAGER_ROLE, 
+					new GUIMessage(GUIManagerAction.SETUP_AGENT_GUI, this), 
+					null, 
+					3000) == null)
+					hasGUI = false;
 			// getKernel().getMadkitKernel().sendMessageAndWaitForReply(//TODO
 			// LocalCommunity.NAME,
 			// Groups.SYSTEM,
@@ -392,7 +404,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @param e
 	 */
 	void suicide(SelfKillException e) {
-		kernel.getMadkitKernel().startEndBehavior(this, Integer.parseInt(e.getMessage()), true);
+		getMadkitKernel().startEndBehavior(this, Integer.parseInt(e.getMessage()), true);
 	}
 
 	/**
@@ -476,7 +488,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			state.set(TERMINATED);
 			state.notify();
 		}
-		kernel = kernel.getMadkitKernel();
+		kernel = getMadkitKernel();
 		if (hasGUI) {
 			kernel.broadcastMessageWithRole(this, LocalCommunity.NAME, Groups.GUI, Organization.GROUP_MANAGER_ROLE, new GUIMessage(
 					GUIManagerAction.DISPOSE_AGENT_GUI, this), null);
@@ -948,11 +960,11 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 				logger.setLevel(newLevel);
 			}
 			logger = null;
-			setKernel(getKernel().getMadkitKernel());
+			setKernel(getMadkitKernel());
 		}
 		else {
 			getLogger().setLevel(newLevel);
-			setKernel(getKernel().getLoggedKernel());
+			setKernel(kernel.getLoggedKernel());
 		}
 	}
 
@@ -1774,9 +1786,10 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	/**
-	 * Called when the default GUI mechanism is used upon agent creation. The
-	 * life cycle of the frame is automatically managed (i.e. disposed when the
-	 * agent is terminated) and some menus are available by default. Default code
+	 * Called when the default GUI mechanism is used upon agent creation. This
+	 * provides an empty frame which will be used as GUI for the agent. The
+	 * life cycle of the frame is automatically managed: the frame is disposed when the
+	 * agent is terminated. Some menus are available by default. Default code
 	 * is only one line: <code>frame.add(new IOPanel(this));</code>.
 	 * 
 	 * Default settings for the frame are:
@@ -2431,7 +2444,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	public MadkitClassLoader getMadkitClassLoader() {// TODO log if no kernel
-		return getKernel().getMadkitKernel().getMadkitClassLoader();
+		return getMadkitKernel().getMadkitClassLoader();
 	}
 
 	// /**
@@ -2608,7 +2621,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 */
 	public boolean isKernelOnline() {
 		// bypassing logging
-		return getKernel().getMadkitKernel().isRole(this, CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS,
+		return getMadkitKernel().isRole(this, CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS,
 				CloudCommunity.Roles.NET_AGENT);
 	}
 

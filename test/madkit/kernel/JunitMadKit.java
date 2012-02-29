@@ -70,7 +70,7 @@ public class JunitMadKit {
 			Option.logDirectory.toString(), getBinTestDir(), LevelOption.agentLogLevel.toString(), "ALL",
 			LevelOption.madkitLogLevel.toString(), "INFO"));
 
-	public void launchTest(AbstractAgent a, ReturnCode expected) {
+	public void launchTest(AbstractAgent a, ReturnCode expected, boolean gui) {
 		System.err.println("\n\n------------------------ " + name.getMethodName() + " TEST START ---------------------");
 		try {
 			String[] args = null;
@@ -83,7 +83,7 @@ public class JunitMadKit {
 			// kernelAgent.receiveMessage(new
 			// KernelMessage(MadkitAction.LAUNCH_AGENT, a, false));
 			a.setName(name.getMethodName());
-			assertEquals(expected, kernelAgent.launchAgent(a));
+			assertEquals(expected, kernelAgent.launchAgent(a,gui));
 			if(testFailed){
 				testException.printStackTrace();
 				fail();
@@ -112,6 +112,10 @@ public class JunitMadKit {
 		launchTest(a, SUCCESS);
 	}
 	
+	public void launchTest(AbstractAgent a, ReturnCode expected) {
+		launchTest(a, expected, false);
+	}
+
 	public void launchDefaultAgent(AbstractAgent a){
 		a.launchAgent(new AbstractAgent(){
 			/**

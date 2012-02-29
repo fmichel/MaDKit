@@ -355,11 +355,13 @@ public class AgentLogger extends Logger {
 	 */
 	public void severeLog(String msg, Throwable t) {
 		//This will also be logged by the kernel at FINEST 
-		final Logger l = myAgent.getKernel().getMadkitKernel().logger;
+		final Logger l = myAgent.getMadkitKernel().logger;
 		if(l != null){
 			l.log(Level.FINEST,"log for "+myAgent+"\n"+msg,t);
 		}
-		myAgent.setAgentStackTrace(t);
+		if (t != null) {
+			myAgent.setAgentStackTrace(t);
+		}
 		final Level lvl = getLevel();
 		if (lvl == Level.OFF) {
 			setLevel(Level.ALL);

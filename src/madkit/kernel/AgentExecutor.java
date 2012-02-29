@@ -103,7 +103,7 @@ final class AgentExecutor extends ThreadPoolExecutor {
 		//this is always done, even if the AE has not been started !
 		if (! (myAgent.getKernel() instanceof FakeKernel)) {
 			try {
-				MadkitKernel k = myAgent.getKernel().getMadkitKernel();
+				MadkitKernel k = myAgent.getMadkitKernel();
 				myAgent.terminate();
 				k.removeThreadedAgent(myAgent);
 			} catch (KernelException e) {

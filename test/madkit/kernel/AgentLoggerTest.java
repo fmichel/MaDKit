@@ -27,6 +27,8 @@ import static org.junit.Assert.fail;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import madkit.kernel.AbstractAgent.ReturnCode;
+
 import org.junit.Test;
 
 /**
@@ -35,7 +37,7 @@ import org.junit.Test;
  * @version 0.9
  * 
  */
-public class AgentLoggerTest {
+public class AgentLoggerTest extends JunitMadKit{
 
 	@Test
 	public void noLogger() {
@@ -104,6 +106,19 @@ public class AgentLoggerTest {
 		a.setLogLevel(Level.ALL);
 		assertNotNull(a.logger);
 		assertEquals(l, a.logger);
+	}
+	
+	@SuppressWarnings("serial")
+	@Test
+	public void severeLogTest(){
+		launchTest(new AbstractAgent(){
+			@Override
+			protected void activate() {
+				getLogger().severeLog("test", null);
+				getLogger().severeLog("test", new Exception());
+				pause(1000);
+			}
+		},ReturnCode.SUCCESS, true);
 	}
 
 }

@@ -100,6 +100,11 @@ public class Agent extends AbstractAgent{
 	final AgentExecutor getAgentExecutor() {
 		return agentExecutor;
 	}
+	
+	@Override
+	protected void end() {
+		System.err.println(hasGUI);
+	}
 
 	/**
 	 * This is only called by MK threads and cannot be interrupted

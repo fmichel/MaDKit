@@ -46,6 +46,7 @@ public class MadkitMenu extends JMenu {//TODO i18n
 	 * <li> {@link KernelAction#LAUNCH_NETWORK}
 	 * <li> {@link KernelAction#STOP_NETWORK}
 	 * <li> {@link GUIManagerAction#LOAD_JAR_FILE}
+	 * <li> {@link GUIManagerAction#CONSOLE}
 	 * <li> {@link GUIManagerAction#ICONIFY_ALL}
 	 * <li> {@link GUIManagerAction#DEICONIFY_ALL}
 	 * <li> {@link GUIManagerAction#KILL_AGENTS}

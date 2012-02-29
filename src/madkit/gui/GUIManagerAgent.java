@@ -22,6 +22,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.HeadlessException;
 import java.awt.Image;
 import java.awt.Point;
 import java.beans.PropertyVetoException;
@@ -93,7 +94,12 @@ class GUIManagerAgent extends Agent  {
 		createGroup(LocalCommunity.NAME, Groups.GUI);
 //		requestRole(LocalCommunity.NAME, Groups.SYSTEM, Roles.GUI_MANAGER);//no need: I am a manager
 		if (! isDaemon()) {//use to detect desktop mode
-			buildUI();
+			try {
+				buildUI();
+			} catch (HeadlessException e) {
+				getLogger().warning("\t"+e.getMessage()+"\n\tNo GUI environment, quitting");
+				shuttedDown = true;
+			}
 		}
 	}
 
@@ -151,7 +157,7 @@ class GUIManagerAgent extends Agent  {
 			try {
 				agent.setupFrame(f);//TODO catch failures because of delegation
 			} catch (Exception e) {
-				agent.getLogger().severeLog("Cannot initialize frame -> default GUI", e);
+				agent.getLogger().severeLog("Frame setup problem -> default GUI settings", e);
 				f = new AgentFrame(agent, agent.getName());
 			}
 			guis.put(agent, f);
@@ -284,6 +290,7 @@ class GUIManagerAgent extends Agent  {
 	}
 
 	private void buildUI() {
+		myFrame = new JFrame("MadKit "+getMadkitProperty("madkit.version")+" Desktop running on kernel "+getKernelAddress());
 		desktopPane = new JDesktopPane() 
 //		{
 //			@Override
@@ -297,7 +304,6 @@ class GUIManagerAgent extends Agent  {
 //		}
 		;
 		desktopPane.setBackground(Color.BLACK);
-		myFrame = new JFrame("MadKit "+getMadkitProperty("madkit.version")+" Desktop running on kernel "+getKernelAddress());
 		myFrame.setIconImage(MADKIT_LOGO);
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.add(new MadkitMenu(this));

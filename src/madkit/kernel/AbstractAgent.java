@@ -50,6 +50,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 
 import javax.swing.JFrame;
+import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
@@ -60,6 +61,9 @@ import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.agr.Organization;
 import madkit.gui.OutputPanel;
+import madkit.gui.menu.AgentLogLevelMenu;
+import madkit.gui.menu.AgentMenu;
+import madkit.gui.menu.MadkitMenu;
 import madkit.i18n.ErrorMessages;
 import madkit.i18n.I18nUtilities;
 import madkit.i18n.Words;
@@ -277,7 +281,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			}
 			// to avoid the log of logged kernel
 			getKernel().getMadkitKernel().broadcastMessageWithRoleAndWaitForReplies(this, LocalCommunity.NAME, Groups.GUI,
-					Organization.GROUP_MANAGER_ROLE, new GUIMessage(GUIManagerAction.SETUP_AGENT_GUI, this), null, 10000);
+					Organization.GROUP_MANAGER_ROLE, new GUIMessage(GUIManagerAction.SETUP_AGENT_GUI, this), null, 3000);
 			// getKernel().getMadkitKernel().sendMessageAndWaitForReply(//TODO
 			// LocalCommunity.NAME,
 			// Groups.SYSTEM,
@@ -1773,7 +1777,15 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * Called when the default GUI mechanism is used upon agent creation. The
 	 * life cycle of the frame is automatically managed (i.e. disposed when the
 	 * agent is terminated) and some menus are available by default. Default code
-	 * is only one line: <code>frame.add(new IOPanel(this));</code>
+	 * is only one line: <code>frame.add(new IOPanel(this));</code>.
+	 * 
+	 * Default settings for the frame are:
+	 * <ul>
+	 * <li>width = 400</li>
+	 * <li>height = 300</li>
+	 * <li>location = center of the screen</li>
+	 * <li>a JMenuBar with: {@link MadkitMenu}, {@link AgentMenu} and {@link AgentLogLevelMenu}</li> 
+	 * </ul>
 	 * 
 	 * @param frame
 	 *           the default frame which has been created by MadKit for this

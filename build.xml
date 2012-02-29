@@ -33,7 +33,7 @@
 	<property file="madkitKernelBuild.properties"/>
 	<property name="executable.name" value="${desktop.name}"/>
 	<property name="i18n.build.dir" value="${build.dir}/madkit/i18n"/>
-	<property name="madkit.old.version" value="5.0.0.14"/>	<!-- for tuto-->
+	<property name="madkit.old.version" value="5.0.0.15"/>	<!-- for french tuto-->
 
 	<import file="${madkit.ant.targets.file}"/>
 
@@ -136,7 +136,7 @@
 	
 	<path id="compile.classpath">
 		<fileset dir="lib">
-		<include name="*.jar"/>
+		<include name="junit*.jar"/>
 		</fileset>
 	</path>
 	
@@ -238,13 +238,9 @@
    		<exec executable="ant" spawn="true" dir="../MadKit_Demos" />
 		<ant dir="../MadKit_Demos" target="clean" inheritall="false"/>
          - - - - - - - - - - - - - - - - - -->
-    <target name="clean-demos-tutos">
+    <target name="clean-demos">
    		<echo>Cleaning MadKit_Demos</echo>
     	<exec executable="ant" spawn="false" dir="../MadKit_Demos">
-    		<arg value="clean"/>
-    	</exec>
-   		<echo>Cleaning MadKit HowTo</echo>
-    	<exec executable="ant" spawn="false" dir="../MadKit_HowTo">
     		<arg value="clean"/>
     	</exec>
     </target>
@@ -258,7 +254,7 @@
 	<chmod dir="${tuto.dir}" perm="u+x" includes="**/*.jar"/>
 			<zipfileset dir="${release.dir}" includes="MadKit-5-Desktop.jnlp"/>
          ================================= -->
-   <target name="release" depends="clean-demos-tutos,jar,sign-jar,javadoc,src-zip" description="build MadKit release">
+   <target name="release" depends="clean-demos,jar,sign-jar,javadoc,src-zip" description="build MadKit release">
    		<echo> --- Build Release : MadKit ${madkit.version}${line.separator}</echo>
 		<mkdir dir="${release.dir}"/>
 		<copy todir="${build.dir}" file="README.html">
@@ -276,8 +272,6 @@
 		<copy todir="${docs.dir}/French_Tutorial/MadKit_Tutorial/${lib.dir}" file="${jar.file}"/>
 		<replace file="${docs.dir}/French_Tutorial/MadKit_Tutorial/.classpath" token="${madkit.old.version}" value="${madkit.version}"/>
    		
-   		<echo>Building MadKit HowTo</echo>
-	   	<exec executable="ant" spawn="false" dir="../MadKit_HowTo" />
 		<echo>Building MadKit Demos</echo>
    		<exec executable="ant" spawn="false" dir="../MadKit_Demos" />
 
@@ -290,54 +284,6 @@
 			<zipfileset dir="${demo.dir}" prefix="${demo.dir}" filemode="755"/>
 		</zip>
     </target>
-	
-	<!-- ================================= 
-          target: push              
-         ================================= -->
-    <target name="push" depends="" description="description">
-        
-    </target>
-
-	<!-- - - - - - - - - - - - - - - - - - 
-          target: update-to-last-kernel                      
-    	<ftp server="${ftp.server}" 
-    		userid="${ftp.user}"
-			password="${ftp.password}"
-    		action="mkdir"
-    		remotedir="${ftp.dir}"/>
-         - - - - - - - - - - - - - - - - - -->
-    <target name="publish-kernel" depends="ftp-init">
-    	<fileset id="ftp.upload.fileset"
-	    	dir="${release.dir}">
-	    	<include name="${madkit.jar.name}"/>
-    	</fileset>
-    	<echo>FTP target is ${ftp.server}</echo>
-   	<ftp server="${ftp.server}"
-    		userid="${ftp.user}"
-    		password="${ftp.password}"
-    		action="put"
-    		remotedir="${ftp.dir}/MadKit-${madkit.version}">
-    	<fileset refid="ftp.upload.fileset"/>
-    	</ftp>
-    	<fileset id="ftp.upload.fileset"
-	    	dir="${release.dir}">
-	    	<include name="${desktop.jnlp.file}"/>
-    	</fileset>
-    	<echo>FTP target is ${ftp.server}</echo>
-   	<ftp server="${ftp.server}"
-    		userid="${ftp.user}"
-    		password="${ftp.password}"
-    		action="put"
-    		remotedir="${ftp.dir}/jnlps">
-    	<fileset refid="ftp.upload.fileset"/>
-    	</ftp>
-    </target>
-	
-	<target name="ftp-init">
-		<fail unless="server">Set the "server" property!</fail>
-		<property name="ftp.propfile" location="${user.home}/.mk_pass/${server}" />
-		<loadproperties srcFile="${ftp.propfile}" />
-	</target>
 	
 	<!-- ================================= 
           target: desktop-knlp              

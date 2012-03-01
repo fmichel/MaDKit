@@ -365,12 +365,9 @@ public class AgentLogger extends Logger {
 		final Level lvl = getLevel();
 		if (lvl == Level.OFF) {
 			setLevel(Level.ALL);
-			log(Level.SEVERE, msg, t);
-			setLevel(lvl);
 		}
-		else{
-			log(Level.SEVERE, msg, t);
-		}
+		log(Level.SEVERE, msg, t);
+		setLevel(lvl);
 	}
 	
 }

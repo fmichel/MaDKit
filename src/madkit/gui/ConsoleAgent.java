@@ -18,6 +18,8 @@
  */
 package madkit.gui;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintStream;
 
 import javax.swing.JFrame;
@@ -29,7 +31,8 @@ import madkit.kernel.AbstractAgent;
  * This agent displays standard out and err
  * prints in its GUI. This agent is useful
  * when the application is not launched from
- * a command line or an IDE
+ * a command line or an IDE so that the console
+ * not directly visible.
  * 
  * @author Fabien Michel
  * @since MadKit 5.0.0.14
@@ -53,11 +56,10 @@ public class ConsoleAgent extends AbstractAgent {
 	@Override
 	public void setupFrame(final JFrame frame) {
 		final OutputPanel outP = new OutputPanel(this);
-		final PrintStream ps = new PrintStream(outP.getOutputStream());
+		System.setErr(new RedirectedPrintStream(outP.getOutputStream(),systemErr));
+		System.setOut(new RedirectedPrintStream(outP.getOutputStream(),systemOut));
 		frame.setIconImage(GUIManagerAction.CONSOLE.getActionInfo().getBigIcon().getImage());
 		frame.add(outP);
-		System.setErr(ps);
-		System.setOut(ps);
 		frame.setSize(800, 500);
 	}
 	
@@ -67,5 +69,31 @@ public class ConsoleAgent extends AbstractAgent {
 		System.setOut(systemOut);
 	}
 
+}
+
+final class RedirectedPrintStream extends PrintStream{
+	
+	final private PrintStream	origin;
+
+	RedirectedPrintStream(final OutputStream origin, final PrintStream destination) {
+		super(destination);
+		this.origin = new PrintStream(origin);
+	}
+
+	@Override
+	public void write(int b) {
+		super.write(b);
+		origin.write(b);
+	}
+	@Override
+	public void write(byte[] b) throws IOException {
+		super.write(b);
+		origin.write(b);
+	}
+	@Override
+	public void write(byte[] buf, int off, int len) {
+		super.write(buf, off, len);
+		origin.write(buf, off, len);
+	}
 	
 }

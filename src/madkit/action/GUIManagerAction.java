@@ -37,6 +37,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.agr.Organization;
+import madkit.gui.ConsoleAgent;
 import madkit.i18n.I18nUtilities;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AgentAddress;
@@ -142,7 +143,7 @@ public enum GUIManagerAction {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					if(agent.isAlive()){
-						agent.launchAgent("madkit.gui.ConsoleAgent",0,true);
+						agent.launchAgent(ConsoleAgent.class.getName(),0,true);
 					}
 				}
 			};

@@ -21,7 +21,10 @@ package madkit.gui;
 import java.awt.FlowLayout;
 import java.awt.Image;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -43,7 +46,7 @@ public class AgentStatusPanel extends JPanel {
 	 */
 	private static final long serialVersionUID = -5745998699827681837L;
 	
-	final private static Set<AgentStatusPanel> panels = new HashSet<AgentStatusPanel>(); 
+	final private static Map<AbstractAgent,AgentStatusPanel> panels = new ConcurrentHashMap<AbstractAgent, AgentStatusPanel>(); 
 	
 	
 	final static private ImageIcon image = new ImageIcon(KernelAction.LAUNCH_NETWORK.getActionInfo().getBigIcon().getImage().getScaledInstance(10, 10, Image.SCALE_SMOOTH));
@@ -56,11 +59,13 @@ public class AgentStatusPanel extends JPanel {
 		network = new JLabel();
 		add(network);
 		update();
-		panels.add(this);
+			if (myAgent.hasGUI()) {
+				panels.put(myAgent, this);
+			}
 	}
 	
 	public static void updateAll(){
-		for (AgentStatusPanel panel : panels) {
+		for (AgentStatusPanel panel : panels.values()) {
 			panel.update();
 		}
 	}
@@ -75,7 +80,9 @@ public class AgentStatusPanel extends JPanel {
 //			network.setToolTipText("Kernel "+myAgent.getKernelAddress()+" is offline");
 		}
 	}
-	
-	//TODO remove agent on dispose, but it may be worthless 
+
+	public static void remove(AbstractAgent abstractAgent) {
+		panels.remove(abstractAgent);
+	}
 	
 }

@@ -239,7 +239,7 @@ private void scanClassPathForAgentClasses() {
 	for(URL dir : getURLs()){
 		if(! scannedURLs.add(dir))
 			continue;
-		if(dir.toString().contains("rsrc")){
+		if(dir.toString().contains("rsrc")){//TODO check useless now
 			if(dir.toString().contains("jar:rsrc:")){//TODO externalize 
 				File f = new File(madkit.getConfigOption().getProperty("Project-Code-Name")+"-"+madkit.getConfigOption().getProperty("Project-Version")+".jar");
 				if (f.exists()) {

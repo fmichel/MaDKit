@@ -44,6 +44,7 @@ import static madkit.kernel.CGRSynchro.Code.REQUEST_ROLE;
 import static madkit.kernel.Madkit.BooleanOption.autoConnectMadkitWebsite;
 import static madkit.kernel.Madkit.BooleanOption.loadLocalDemos;
 import static madkit.kernel.Madkit.BooleanOption.network;
+import static madkit.kernel.Madkit.BooleanOption.console;
 
 import java.io.File;
 import java.io.IOException;
@@ -85,6 +86,7 @@ import madkit.action.KernelAction;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.agr.LocalCommunity.Roles;
+import madkit.gui.ConsoleAgent;
 import madkit.gui.DemoModel;
 import madkit.i18n.ErrorMessages;
 import madkit.i18n.Words;
@@ -278,12 +280,14 @@ class MadkitKernel extends Agent {
 		// } catch (CGRNotAvailable e) {
 		// bugReport(e);//TODO no need
 		// }
-
 		// platform.logSessionConfig(platform.getConfigOption(), Level.FINER);
 		if (loadLocalDemos.isActivated(getMadkitConfig())) {
 			loadLocalDemos();
 		}
 		launchGuiManagerAgent();
+		if (console.isActivated(getMadkitConfig())) {
+			launchAgent(new ConsoleAgent());
+		}
 		launchNetworkAgent();
 		// logCurrentOrganization(logger,Level.FINEST);
 	}
@@ -1908,6 +1912,8 @@ class MadkitKernel extends Agent {
 	void removeThreadedAgent(Agent myAgent) {
 		synchronized (threadedAgents) {
 			threadedAgents.remove(myAgent);
+			if(logger != null)
+				logger.finest(threadedAgents.toString());
 		}
 	}
 

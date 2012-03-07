@@ -88,7 +88,6 @@ class GUIManagerAgent extends Agent {
 
 	GUIManagerAgent(boolean asDaemon) {
 		super(asDaemon);
-		Toolkit.getDefaultToolkit();
 		guis = new ConcurrentHashMap<AbstractAgent, JFrame>();
 	}
 

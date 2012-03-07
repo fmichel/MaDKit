@@ -36,7 +36,7 @@ import madkit.kernel.AbstractAgent;
  * 
  * @author Fabien Michel
  * @since MadKit 5.0.0.14
- * @version 0.9
+ * @version 0.91
  * 
  */
 public class ConsoleAgent extends AbstractAgent {
@@ -56,10 +56,11 @@ public class ConsoleAgent extends AbstractAgent {
 	@Override
 	public void setupFrame(final JFrame frame) {
 		final OutputPanel outP = new OutputPanel(this);
-		System.setErr(new RedirectedPrintStream(outP.getOutputStream(),systemErr));
-		System.setOut(new RedirectedPrintStream(outP.getOutputStream(),systemOut));
+		final PrintStream ps = new PrintStream(outP.getOutputStream());
 		frame.setIconImage(GUIManagerAction.CONSOLE.getActionInfo().getBigIcon().getImage());
 		frame.add(outP);
+		System.setErr(ps);
+		System.setOut(ps);
 		frame.setSize(800, 500);
 	}
 	
@@ -79,6 +80,7 @@ final class RedirectedPrintStream extends PrintStream{
 		super(destination);
 		this.origin = new PrintStream(origin);
 	}
+
 
 	@Override
 	public void write(int b) {

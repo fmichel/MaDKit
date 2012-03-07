@@ -97,6 +97,7 @@ final class AgentFrame extends JFrame {
 		if(internalFrame != null){
 			internalFrame.dispose();
 		}
+//		removeAll();
 		super.dispose();
 	}
 

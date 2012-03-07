@@ -48,6 +48,7 @@ import java.util.logging.Logger;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import madkit.gui.ConsoleAgent;
 import madkit.i18n.ErrorMessages;
 
 import org.w3c.dom.Element;
@@ -170,12 +171,14 @@ final public class Madkit {
 	}
 
 	Madkit(String[] argss){
+//		System.err.println("args = "+Arrays.deepToString(argss));
 		if(argss != null && argss.length == 1 && argss[0].contains(" ")){//jnlp arg in here
-			argss = argss[0].split(" ");
+			argss = argss[0].trim().split(" ");
 			for (final String s : argss) {
 				this.cmdLine += " "+s;
 			}
 		}
+//		System.err.println("args = "+Arrays.deepToString(argss));
 		currentInstance = this;
 		if (System.getProperty("javawebstart.version") != null) {
 			Policy.setPolicy(getAllPermissionPolicy());//TODO this is for jws
@@ -745,6 +748,10 @@ final public class Madkit {
 	 * <li>--optionName (equivalent to)</li>
 	 * <li>--optionName true</li>
 	 */
+	/**
+	 * @author fab
+	 *
+	 */
 	public static enum BooleanOption implements MadkitOption{
 		/**
 		 * Starts the desktop mode.
@@ -779,10 +786,15 @@ final public class Madkit {
 		 */
 		noAgentConsoleLog,
 		/**
+		 * Launches the {@link ConsoleAgent} before any other.
+		 */
+		console,
+		/**
 		 * Loads all the jar files which are in the demos directory on startup.
 		 * Default value is "false". 
 		 */
 		loadLocalDemos;
+		
 		public boolean isActivated(Properties session){
 			return Boolean.parseBoolean(session.getProperty(this.name()));
 		}

@@ -45,7 +45,7 @@ import madkit.kernel.AgentLogger;
  * 
  * @author Fabien Michel
  * @since MadKit 5.0.0.2
- * @version 0.91
+ * @version 0.92
  * @see AbstractAgent#setupFrame(javax.swing.JFrame)
  */
 public class OutputPanel extends JPanel {
@@ -53,7 +53,7 @@ public class OutputPanel extends JPanel {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -6469676627523956244L;
+	private static final long	serialVersionUID	= 602152712654986449L;
 	final private OutputStream out;
 	final private JTextArea outField;
 	
@@ -134,18 +134,18 @@ public class OutputPanel extends JPanel {
 		super.setBackground(bg);
 	}
 
-	/**
-	 * This one could be used to directly print in this component.
-	 * 
-	 * @param message the string to display
-	 */
-	public void print(final String message) {
-		 SwingUtilities.invokeLater(new Runnable() {  
-		     public void run() {
-		     outField.append(message);
-		     outField.setCaretPosition(outField.getDocument().getLength());
-		     }  
-		   });
-	}
+//	/**
+//	 * This one could be used to directly print in this component.
+//	 * 
+//	 * @param message the string to display
+//	 */
+//	public void print(final String message) {//TODO remove ? useless ?
+//		 SwingUtilities.invokeLater(new Runnable() {  
+//		     public void run() {
+//		     outField.append(message);
+//		     outField.setCaretPosition(outField.getDocument().getLength());
+//		     }  
+//		   });
+//	}
 }
 

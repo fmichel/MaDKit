@@ -106,7 +106,9 @@ public class AgentLogLevelMenu extends JMenu{
 			initMenuItem(warningItem,setWarningLogLevelListener,l.toString(),warningGroup,warningLogLevelMenu);
 		}
 		update();
-		menus.put(myAgent, this);
+		if (myAgent.hasGUI()) {//TODO need mvc here
+			menus.put(myAgent, this);
+		}
 		
 	}
 	
@@ -118,6 +120,11 @@ public class AgentLogLevelMenu extends JMenu{
 //		}
 	}
 	
+	/**
+	 * Update the menu of this agent
+	 * 
+	 * @param agent
+	 */
 	public static void update(final AbstractAgent agent){
 		final AgentLogLevelMenu menu = menus.get(agent);
 		if(menu != null){
@@ -148,6 +155,10 @@ public class AgentLogLevelMenu extends JMenu{
 		logItem.setActionCommand(actionCommand);
 		logItem.addActionListener(listener);
 		group.add(logItem);
+	}
+
+	public static void remove(AbstractAgent abstractAgent) {
+		menus.remove(abstractAgent);
 	}
 	
 	//TODO remove agent on dispose

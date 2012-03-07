@@ -161,7 +161,7 @@ public class AgentLogger extends Logger {
 		}
 	}
 
-	AgentLogger(AbstractAgent agent){
+	private AgentLogger(AbstractAgent agent){
 		super(agent.getLoggingName(), null);
 		myAgent = agent;
 		setUseParentHandlers(false);
@@ -320,8 +320,10 @@ public class AgentLogger extends Logger {
 		for(Handler h : getHandlers()){
 			h.setLevel(newLevel);
 		}
-		AgentLogLevelMenu.update(myAgent);
-//		updateAgentUi();//TODO level model
+		if (myAgent.hasGUI()) {
+			AgentLogLevelMenu.update(myAgent);
+			//		updateAgentUi();//TODO level model
+		}
 	}
 
 	@Override

@@ -60,6 +60,7 @@ import madkit.agr.CloudCommunity;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.agr.Organization;
+import madkit.gui.AgentStatusPanel;
 import madkit.gui.OutputPanel;
 import madkit.gui.menu.AgentLogLevelMenu;
 import madkit.gui.menu.AgentMenu;
@@ -141,7 +142,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 
 	final private int										_hashCode;
 
-	boolean													hasGUI;
+	private boolean										hasGUI;
 	/**
 	 * name is lazily created to save memory
 	 */
@@ -198,10 +199,15 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * 
 	 */
 	public void createGUIOnStartUp() {
-		hasGUI = true;
+		if (state.get().compareTo(ACTIVATED) < 0) {
+			hasGUI = true;
+		}
 	}
 
-	final public boolean hasGUI() {
+	/**
+	 * @return <code>true</code> if this agent has a GUI built by the kernel
+	 */
+	public boolean hasGUI() {
 		return hasGUI;
 	}
 
@@ -285,15 +291,16 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 				logger.finer("** setting up  GUI **");
 			}
 			// to avoid the log of logged kernel
-			if(getMadkitKernel().broadcastMessageWithRoleAndWaitForReplies(
+//			if(
+					getMadkitKernel().broadcastMessageWithRoleAndWaitForReplies(
 					this, 
 					LocalCommunity.NAME, 
 					Groups.GUI,
 					Organization.GROUP_MANAGER_ROLE, 
 					new GUIMessage(GUIManagerAction.SETUP_AGENT_GUI, this), 
 					null, 
-					3000) == null)
-					hasGUI = false;
+					3000);// == null)
+//					hasGUI = false;
 			// getKernel().getMadkitKernel().sendMessageAndWaitForReply(//TODO
 			// LocalCommunity.NAME,
 			// Groups.SYSTEM,
@@ -504,6 +511,15 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		// messageBox.clear(); // TODO test speed and no need for that
 		if (logger != null) {
 			logger.finest("** TERMINATED **");
+
+			// TODO This should be done anyway but this would slow down kills
+			// So there a risk of memory leak here because logger can be set to null after creation and still exists in AgentLogger.loggers 
+			// But that should not be a problem because such a practice is usually not used
+			AgentLogger.removeLogger(this);
+		}
+		if(hasGUI){
+			AgentLogLevelMenu.remove(this);
+			AgentStatusPanel.remove(this);
 		}
 		kernel = TERMINATED_KERNEL;
 	}

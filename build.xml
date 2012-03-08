@@ -17,7 +17,7 @@
   You should have received a copy of the GNU Lesser General Public License
   along with MadKit. If not, see <http://www.gnu.org/licenses/>.
  -->
- 
+
 <!-- 
  This is ant build.xml file for building the MadKit kernel jar file MadKit V.5
  Author: Fabien Michel
@@ -25,19 +25,20 @@
 -->
 
 <project name="madkitkernel" default="jar" basedir=".">
-	
+
 	<!-- using madkit kernel building properties file -->
-	<tstamp prefix="time"/>
-	<property name="build.id" value="${time.DSTAMP}-${time.TSTAMP}"/>
-	<property file="src/madkit/kernel/madkitKernel.properties"/>
-	<property file="madkitKernelBuild.properties"/>
-	<property name="executable.name" value="${desktop.name}"/>
-	<property name="i18n.build.dir" value="${build.dir}/madkit/i18n"/>
-	<property name="madkit.old.version" value="5.0.0.15"/>	<!-- for french tuto-->
+	<tstamp prefix="time" />
+	<property name="build.id" value="${time.DSTAMP}-${time.TSTAMP}" />
+	<property file="src/madkit/kernel/madkitKernel.properties" />
+	<property file="madkitKernelBuild.properties" />
+	<property name="executable.name" value="${desktop.name}" />
+	<property name="i18n.build.dir" value="${build.dir}/madkit/i18n" />
+	<property name="madkit.old.version" value="5.0.0.15" />
+	<!-- for french tuto-->
 
-	<import file="${madkit.ant.targets.file}"/>
+	<import file="${madkit.ant.targets.file}" />
 
-	
+
 
 	<!-- ================================= 
           target: buildResources         
@@ -45,21 +46,21 @@
     	<native2ascii src="${i18n.build.dir}" dest="${i18n.build.dir}" includes="*.properties" ext=".properties"/>
          ================================= -->
 	<target name="buildResources">
-		<mkdir dir="${build.dir}"/>
-		<mkdir dir="${release.dir}"/>
-		  <copy todir="${build.dir}">
-		    <fileset dir="${src.dir}" excludes="**/*.java"/>
-		  </copy>
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${release.dir}" />
+		<copy todir="${build.dir}">
+			<fileset dir="${src.dir}" excludes="**/*.java" />
+		</copy>
 	</target>
-	
+
 	<!-- ================================= 
           target: src-zip              
          ================================= -->
-    <target name="src-zip" description="the src zip">
-   		<zip destfile="${src.zip.location}" level="9">
-			<zipfileset dir="${src.dir}" includes="**/*.java"/>
+	<target name="src-zip" description="the src zip">
+		<zip destfile="${src.zip.location}" level="9">
+			<zipfileset dir="${src.dir}" includes="**/*.java" />
 		</zip>
-    </target>
+	</target>
 
 
 	<!-- ================================= 
@@ -70,16 +71,10 @@
 			debuglevel="lines"
          ================================= -->
 	<target name="compile" depends="buildResources">
-		<javac
-			debug="true"
-			debuglevel="vars"
-			includeAntRuntime="false"
-			srcdir="${src.dir}"
-			destdir="${build.dir}"
-			deprecation="on">
+		<javac debug="true" debuglevel="vars" includeAntRuntime="false" srcdir="${src.dir}" destdir="${build.dir}" deprecation="on">
 		</javac>
 	</target>
-	
+
 	<!-- ================================= 
           target: jar
 				<attribute name="Madkit-Args" value=""/>
@@ -87,113 +82,116 @@
     			<include name="${mk.properties.file}"/>
 
 			<fileset dir="${lib.dir}" includes="jar-in-jar-loader.zip"/>
+				<section name="MadKit-Project-Info">
+					<attribute name="Project-Name" value="${project.label}" />
+					<attribute name="Project-Code-Name" value="${ant.project.name}" />
+					<attribute name="Project-Version" value="${madkit.version}" />
+					<attribute name="Description" value="${description}" />
+					<attribute name="Author" value="${author.name}" />
+					<attribute name="MadKit-Args" value="" />
+				</section>
          ================================= -->
 	<target name="jar" depends="clean,compile,build-properties" description="Jars MadKit kernel ">
 		<jar destfile="${jar.file}" index="true" compress="false">
 			<fileset dir="${build.dir}">
-				<exclude name="**/package-info.class"/>
-				<exclude name="**/doc-files/**"/>
+				<exclude name="**/package-info.class" />
+				<exclude name="**/doc-files/**" />
 			</fileset>
 
 			<manifest>
-				<attribute name="Description" value="${description}"/>
-				<attribute name="Version" value="${madkit.version}"/>
-				<attribute name="Author" value="${author.name}"/>
-				<attribute name="Build-Id" value="${build.id}"/>
-				<attribute name="Built-On" value="${timestamp.isoformat}"/>
-				<attribute name="Built-By" value="${user.name}"/>
-				<attribute name="Main-Class" value="${madkit.main.class}"/>
+				<attribute name="Description" value="${description}" />
+				<attribute name="Version" value="${madkit.version}" />
+				<attribute name="Author" value="${author.name}" />
+				<attribute name="Build-Id" value="${build.id}" />
+				<attribute name="Built-On" value="${timestamp.isoformat}" />
+				<attribute name="Built-By" value="${user.name}" />
+				<attribute name="Main-Class" value="${madkit.main.class}" />
 			</manifest>
 		</jar>
-		
-		<chmod file="${jar.file}" perm="ugo+x"/>
-        <echo>${jar.file} created !${line.separator}</echo>
+
+		<chmod file="${jar.file}" perm="ugo+x" />
+		<echo>${jar.file} created !${line.separator}</echo>
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
           target: build-properties                      
          - - - - - - - - - - - - - - - - - -->
-    <target name="build-properties">
+	<target name="build-properties">
 		<tstamp>
-			<format property="timestamp.isoformat"
-		    pattern="yyyy-mm-dd HH:mm:ss" locale="en"/>
+			<format property="timestamp.isoformat" pattern="yyyy-mm-dd HH:mm:ss" locale="en" />
 		</tstamp>
-		<filterset begintoken="[[" endtoken ="]]">
-			<filter token="TIMESTAMP" value="${timestamp.isoformat}"/>
+		<filterset begintoken="[[" endtoken="]]">
+			<filter token="TIMESTAMP" value="${timestamp.isoformat}" />
 		</filterset>
-   		<copy tofile="${build.dir}/${madkitKernel.properties}" file="${src.dir}/${madkitKernel.properties}" overwrite="true">
-   		  <filterchain>
-   		    <expandproperties/>
-   		  </filterchain>
-   		</copy>	
-    </target>
-	
-	
+		<copy tofile="${build.dir}/${madkitKernel.properties}" file="${src.dir}/${madkitKernel.properties}" overwrite="true">
+			<filterchain>
+				<expandproperties />
+			</filterchain>
+		</copy>
+	</target>
+
+
 	<property name="test.dir" location="${build.dir}/test" />
 	<property name="test.classes.dir" location="${test.dir}/classes" />
 	<property name="test.data.dir" location="${test.dir}/data" />
 	<property name="test.reports.dir" location="${test.dir}/reports" />
-	
+
 	<path id="compile.classpath">
 		<fileset dir="lib">
-		<include name="junit*.jar"/>
+			<include name="junit*.jar" />
 		</fileset>
 	</path>
-	
+
 	<path id="test.compile.classpath">
-	<path refid="compile.classpath"/>
-	<pathelement location="${build.dir}"/>
+		<path refid="compile.classpath" />
+		<pathelement location="${build.dir}" />
 	</path>
 
 	<path id="test.classpath">
-	<path refid="test.compile.classpath"/>
-	<pathelement location="${test.classes.dir}"/>
-	<pathelement location="${basedir}"/><!--for images -->
+		<path refid="test.compile.classpath" />
+		<pathelement location="${test.classes.dir}" />
+		<pathelement location="${basedir}" />
+		<!--for images -->
 	</path>
-	
+
 	<target name="test-init">
-	<mkdir dir="${test.classes.dir}"/>
-	<delete dir="${test.data.dir}"/>
-	<delete dir="${test.reports.dir}"/>
-	<mkdir dir="${test.data.dir}"/>
-	<mkdir dir="${test.reports.dir}"/>
+		<mkdir dir="${test.classes.dir}" />
+		<delete dir="${test.data.dir}" />
+		<delete dir="${test.reports.dir}" />
+		<mkdir dir="${test.data.dir}" />
+		<mkdir dir="${test.reports.dir}" />
 	</target>
-	
+
 	<target name="test-compile" depends="compile,test-init">
-	<javac destdir="${test.classes.dir}"
-		includeAntRuntime="false"
-	debug="true"
-	srcdir="test">
-	<classpath refid="test.compile.classpath"/>
-	</javac>
+		<javac destdir="${test.classes.dir}" includeAntRuntime="false" debug="true" srcdir="test">
+			<classpath refid="test.compile.classpath" />
+		</javac>
 	</target>
 
 
 	<!-- ================================= 
           target: junit              
          ================================= -->
-    <target name="junit" depends="clean,test-compile" description="description">
-    	<junit printsummary="false" haltonfailure="false" maxmemory="512m">
-	    	<classpath refid="test.classpath"/>
-			<formatter type="brief" usefile="false"/>
-			<formatter type="xml"/>
-	    	<batchtest todir="${test.data.dir}" fork="yes">
-		    	<fileset dir="${test.classes.dir}"
-		    	includes="**/*Test.class"/>
-	    	</batchtest>
-    	</junit>
-    	<junitreport todir="${test.data.dir}">
-	    	<fileset dir="${test.data.dir}">
-	    	<include name="TEST-*.xml"/>
-	    	</fileset>
-	    	<report format="frames"
-	    	todir="${test.reports.dir}"/>
-    	</junitreport>
-    	<replace dir="${test.reports.dir}" token="Unit Test Result" value="MadKit ${madkit.version} Unit Test Result"/>    	
-    </target>
+	<target name="junit" depends="clean,test-compile" description="description">
+		<junit printsummary="false" haltonfailure="false" maxmemory="512m">
+			<classpath refid="test.classpath" />
+			<formatter type="brief" usefile="false" />
+			<formatter type="xml" />
+			<batchtest todir="${test.data.dir}" fork="yes">
+				<fileset dir="${test.classes.dir}" includes="**/*Test.class" />
+			</batchtest>
+		</junit>
+		<junitreport todir="${test.data.dir}">
+			<fileset dir="${test.data.dir}">
+				<include name="TEST-*.xml" />
+			</fileset>
+			<report format="frames" todir="${test.reports.dir}" />
+		</junitreport>
+		<replace dir="${test.reports.dir}" token="Unit Test Result" value="MadKit ${madkit.version} Unit Test Result" />
+	</target>
 
-	
-	
+
+
 	<!-- ================================= 
           target: javadoc              
 			<packageset dir="${src.dir}" defaultexcludes="yes">
@@ -205,87 +203,90 @@
          ================================= -->
 	<target name="javadoc" description="build the javadoc">
 		<javadoc sourcepath="${src.dir}" destdir="${docs.api.dir}" access="protected" docfilessubdirs="true" author="true" version="true" use="true" linksource="no" windowtitle="${project.label}">
-		    <doctitle><![CDATA[<h1>${project.label}</h1>]]></doctitle>
-			<header><![CDATA[<img src="{@docRoot}/doc-files/MaDKit.png" width="40" alt="MaDKit"/>]]></header>
-		    <bottom><![CDATA[<i>${author.name}</i>]]></bottom>
-			<link href="${sun.api.url}"/>
-		</javadoc>
-	</target>
+			<doctitle>
+				<![CDATA[<h1>${project.label}</h1>]]></doctitle>
+		<header>
+			<![CDATA[<img src="{@docRoot}/doc-files/MaDKit.png" width="40" alt="MaDKit"/>]]></header>
+		<bottom>
+			<![CDATA[<i>${author.name}</i>]]></bottom>
+	<link href="${sun.api.url}" />
+</javadoc>
+</target>
 
-	<!-- ================================= 
+<!-- ================================= 
           target: clean              
          ================================= -->
-	<target name="clean" description="cleanup build directories">
-		<delete dir="${build.dir}"/>
-		<delete dir="${release.dir}"/>
-		<delete file="${jar.file}" failonerror="false"/>
-		<delete file="${src.zip.location}" failonerror="false"/>
-		<delete dir="${docs.api.dir}"/>
-		<delete dir="${tuto.dir}"/>
-		<delete file="${docs.dir}/French_Tutorial/MadKit_Tutorial/${lib.dir}/${madkit.jar.name}"/>
-		<delete>
-			<fileset dir="${demo.dir}">
-				<include name="**/*MadKit-Bees*"/>
-			    <include name="**/*MadKit-Market*"/>
-			    <include name="**/*MadKit-Ping*"/>
-			</fileset>
-		</delete>
-	</target>
-	
-	<!-- - - - - - - - - - - - - - - - - - 
+<target name="clean" description="cleanup build directories">
+<delete dir="${build.dir}" />
+<delete dir="${release.dir}" />
+<delete file="${jar.file}" failonerror="false" />
+<delete file="${src.zip.location}" failonerror="false" />
+<delete dir="${docs.api.dir}" />
+<delete dir="${tuto.dir}" />
+<delete file="${docs.dir}/French_Tutorial/MadKit_Tutorial/${lib.dir}/${madkit.jar.name}" />
+<delete>
+	<fileset dir="${demo.dir}">
+		<include name="**/*MadKit-Bees*" />
+		<include name="**/*MadKit-Market*" />
+		<include name="**/*MadKit-Ping*" />
+	</fileset>
+</delete>
+</target>
+
+<!-- - - - - - - - - - - - - - - - - - 
           target: clean-demos-tutos                      
 		<echo>Building MadKit Demos</echo>
    		<exec executable="ant" spawn="true" dir="../MadKit_Demos" />
 		<ant dir="../MadKit_Demos" target="clean" inheritall="false"/>
          - - - - - - - - - - - - - - - - - -->
-    <target name="clean-demos">
-   		<echo>Cleaning MadKit_Demos</echo>
-    	<exec executable="ant" spawn="false" dir="../MadKit_Demos">
-    		<arg value="clean"/>
-    	</exec>
-    </target>
+<target name="clean-demos">
+<echo>Cleaning MadKit_Demos</echo>
+<exec executable="ant" spawn="false" dir="../MadKit_Demos">
+	<arg value="clean" />
+</exec>
+</target>
 
 
-	
-	
-	<!-- ================================= 
+
+
+<!-- ================================= 
           target: release              
 	<chmod dir="${demo.dir}" perm="u+x" includes="**/*.jar"/>
 	<chmod dir="${tuto.dir}" perm="u+x" includes="**/*.jar"/>
 			<zipfileset dir="${release.dir}" includes="MadKit-5-Desktop.jnlp"/>
          ================================= -->
-   <target name="release" depends="clean-demos,jar,sign-jar,javadoc,src-zip" description="build MadKit release">
-   		<echo> --- Build Release : MadKit ${madkit.version}${line.separator}</echo>
-		<mkdir dir="${release.dir}"/>
-		<copy todir="${build.dir}" file="README.html">
-		  <filterchain>
-		    <expandproperties/>
-		  </filterchain>
-		</copy>	
-		<copy todir="${build.dir}" file="VERSION">
-		  <filterchain>
-		    <expandproperties/>
-		  </filterchain>
-		</copy>
+<target name="release" depends="clean-demos,jar,sign-jar,javadoc,src-zip" description="build MadKit release">
+<echo> --- Build Release : MadKit ${madkit.version}${line.separator}</echo>
+<mkdir dir="${release.dir}" />
+<copy todir="${build.dir}" file="README.html">
+	<filterchain>
+		<expandproperties />
+	</filterchain>
+</copy>
+<copy todir="${build.dir}" file="VERSION">
+	<filterchain>
+		<expandproperties />
+	</filterchain>
+</copy>
 
-   		<echo>Updating MadKit Tutorial</echo>   		
-		<copy todir="${docs.dir}/French_Tutorial/MadKit_Tutorial/${lib.dir}" file="${jar.file}"/>
-		<replace file="${docs.dir}/French_Tutorial/MadKit_Tutorial/.classpath" token="${madkit.old.version}" value="${madkit.version}"/>
-   		
-		<echo>Building MadKit Demos</echo>
-   		<exec executable="ant" spawn="false" dir="../MadKit_Demos" />
+<echo>Updating MadKit Tutorial</echo>
+<copy todir="${docs.dir}/French_Tutorial/MadKit_Tutorial/${lib.dir}" file="${jar.file}" />
+<replace file="${docs.dir}/French_Tutorial/MadKit_Tutorial/.classpath" token="${madkit.old.version}" value="${madkit.version}" />
 
-   		<zip destfile="${release.dir}/MadKit-${madkit.version}.zip" level="9">
-			<zipfileset dir="${docs.dir}" prefix="${docs.dir}"/>
-			<zipfileset dir="${build.dir}" includes="README.html"/>
-			<zipfileset dir="${build.dir}" includes="VERSION" prefix="${docs.dir}"/>
-			<zipfileset file="${jar.file}"  filemode="755"/>
-			<zipfileset file="COPYING.LESSER"/>
-			<zipfileset dir="${demo.dir}" prefix="${demo.dir}" filemode="755"/>
-		</zip>
-    </target>
-	
-	<!-- ================================= 
+<echo>Building MadKit Demos</echo>
+<exec executable="ant" spawn="false" dir="../MadKit_Demos" />
+
+<zip destfile="${release.dir}/MadKit-${madkit.version}.zip" level="9">
+	<zipfileset dir="${docs.dir}" prefix="${docs.dir}" />
+	<zipfileset dir="${build.dir}" includes="README.html" />
+	<zipfileset dir="${build.dir}" includes="VERSION" prefix="${docs.dir}" />
+	<zipfileset file="${jar.file}" filemode="755" />
+	<zipfileset file="COPYING.LESSER" />
+	<zipfileset dir="${demo.dir}" prefix="${demo.dir}" filemode="755" />
+</zip>
+</target>
+
+<!-- ================================= 
           target: desktop-knlp              
 		<delete file="${jnlp.jar}"/>
         <exec executable="pack200" dir="${release.dir}">

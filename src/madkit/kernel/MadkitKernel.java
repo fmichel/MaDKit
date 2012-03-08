@@ -53,6 +53,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -87,7 +88,7 @@ import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.agr.LocalCommunity.Roles;
 import madkit.gui.ConsoleAgent;
-import madkit.gui.DemoModel;
+import madkit.gui.MASModel;
 import madkit.i18n.ErrorMessages;
 import madkit.i18n.Words;
 import madkit.kernel.AbstractAgent.ReturnCode;
@@ -435,7 +436,7 @@ class MadkitKernel extends Agent {
 	}
 
 	@SuppressWarnings("unused")
-	private void launchSession(DemoModel dm) {
+	private void launchMas(MASModel dm) {
 		if (logger != null)
 			logger.finer("** LAUNCHING SESSION " + dm.getName());
 		Properties mkCfg = platform.getConfigOption();
@@ -445,6 +446,15 @@ class MadkitKernel extends Agent {
 		startSession();
 		mkCfg.putAll(currentConfig);
 	}
+
+//	@SuppressWarnings("unused")
+//	private void launchSession(MASModel dm, boolean externalVM) {
+//		
+//		if (logger != null)
+//			logger.finer("** LAUNCHING SESSION " + dm.getName());
+//		startSession();
+//		mkCfg.putAll(currentConfig);
+//	}
 
 	private void launchConfigAgents() {
 		final ExecutorService startExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);// TODO
@@ -485,17 +495,19 @@ class MadkitKernel extends Agent {
 		}
 	}
 
-	private void startSession(boolean externalVM) {
+	private void startSession(final boolean externalVM) {
 		if (logger != null) {
-			String args = "";
-			for (String s : platform.args) {
-				args += s + " ";
-			}
-			logger.config("starting new MadKit session with " + args);
+			logger.config("starting new MadKit session with " + Arrays.deepToString(platform.args));
 		}
 		if (externalVM) {
 			try {
-				Runtime.getRuntime().exec(platform.cmdLine);
+				String args = "";
+				for (String s : platform.args) {
+					args += s + " ";
+				}
+				Runtime.getRuntime().exec(//TODO not used yet
+						System.getProperty("java.home")+File.separatorChar+"bin"+File.separatorChar
+						+"java -cp "+System.getProperty("java.class.path")+" "+platform.getConfigOption().getProperty("madkit.main.class")+ " "+args);
 			} catch (IOException e) {
 				bugReport(e);
 			}

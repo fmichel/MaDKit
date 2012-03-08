@@ -64,11 +64,11 @@ public enum KernelAction {
 	RESTART(VK_R),
 	LAUNCH_NETWORK(VK_N),
 	STOP_NETWORK(VK_T),
-	//
+
 	//	//Actions that need parameters, i.e. not global
 	LOAD_LOCAL_DEMOS(VK_D),
 	LAUNCH_AGENT(VK_DOLLAR),
-	LAUNCH_SESSION(VK_DOLLAR),
+	LAUNCH_MAS(VK_DOLLAR),
 	KILL_AGENT(VK_DOLLAR),
 	CONNECT_WEB_REPO(VK_DOLLAR),
 	LOAD_JAR_FILE(VK_DOLLAR); 
@@ -92,7 +92,7 @@ public enum KernelAction {
 	 * @param agent the agent that will send the message
 	 * to the kernel
 	 * @param parameters the info 
-	 * @return the corresponding action 
+	 * @return the new corresponding action 
 	 */
 	public Action getActionFor(final AbstractAgent agent, final Object... parameters){
 		return new MKAbstractAction(getActionInfo()){
@@ -123,7 +123,7 @@ public enum KernelAction {
 	 * Could be used to add all global actions 
 	 * to a menu or a toolbar
 	 * 
-	 * @param menuOrToolBar a {@link JMenu} or {@link JToolBar} for instance
+	 * @param menuOrToolBar a {@link JMenu} or a {@link JToolBar} for instance
 	 * @param agent the agent that will send the message
 	 */
 	public static void addAllActionsTo(JComponent menuOrToolBar, AbstractAgent agent){

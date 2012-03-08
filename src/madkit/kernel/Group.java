@@ -57,7 +57,6 @@ final class Group extends ConcurrentHashMap<String, Role> {
 	private final boolean		distributed;
 
 	/**
-	 * @param logger
 	 * @param creator
 	 * @param gatekeeper
 	 * @param isDistributed

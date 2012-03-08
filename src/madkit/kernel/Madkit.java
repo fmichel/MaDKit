@@ -49,7 +49,9 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import madkit.gui.ConsoleAgent;
+import madkit.gui.MASModel;
 import madkit.i18n.ErrorMessages;
+import madkit.i18n.Words;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -92,9 +94,8 @@ import org.xml.sax.SAXException;
 
 final public class Madkit {
 
+	final static String MDK_LOGGER_NAME = "[* MADKIT*] ";
 	final static Properties defaultConfig = new Properties();
-	final private Properties madkitConfig = new Properties();
-
 	static{
 		try {
 			// no need to externalize because it is used only here
@@ -103,9 +104,10 @@ final public class Madkit {
 			e.printStackTrace();
 		}
 	}
-
+	
+	final private Properties madkitConfig = new Properties();
 	private Element madkitXMLConfigFile=null;
-	private FileHandler madkitLogFileHandler;
+//	private FileHandler madkitLogFileHandler;
 	final private MadkitKernel myKernel;
 	private Logger logger;
 	private MadkitClassLoader madkitClassLoader;
@@ -116,19 +118,19 @@ final public class Madkit {
 		return madkitClassLoader;
 	}
 
-	private static Madkit currentInstance;
+//	private static Madkit currentInstance;
+//
+//
+//	static Madkit getCurrentInstance(){
+//		return currentInstance;
+//	}
 
-
-	static Madkit getCurrentInstance(){
-		return currentInstance;
-	}
-
-	/**
-	 * @return the madkitLogFileHandler
-	 */
-	final FileHandler getMadkitLogFileHandler() {
-		return madkitLogFileHandler;
-	}
+//	/**
+//	 * @return the madkitLogFileHandler
+//	 */
+//	final FileHandler getMadkitLogFileHandler() {
+//		return madkitLogFileHandler;
+//	}
 
 	/**
 	 * This main should be used to
@@ -171,23 +173,24 @@ final public class Madkit {
 	}
 
 	Madkit(String[] argss){
-//		System.err.println("args = "+Arrays.deepToString(argss));
+
+		// 1. parse args
+		//		System.err.println("args = "+Arrays.deepToString(argss));
 		if(argss != null && argss.length == 1 && argss[0].contains(" ")){//jnlp arg in here
 			argss = argss[0].trim().split(" ");
 			for (final String s : argss) {
 				this.cmdLine += " "+s;
 			}
 		}
-//		System.err.println("args = "+Arrays.deepToString(argss));
-		currentInstance = this;
+		this.args = argss;
+		
+		//		System.err.println("args = "+Arrays.deepToString(argss));
+//		currentInstance = this;
 		if (System.getProperty("javawebstart.version") != null) {
 			Policy.setPolicy(getAllPermissionPolicy());//TODO this is for jws
 		}
-		//installing config
-		//		this.args = argss != null ? argss : new String[0];
-		this.args = argss;
 		madkitConfig.putAll(defaultConfig);
-		Properties fromArgs = buildConfigFromArgs(args);
+		final Properties fromArgs = buildConfigFromArgs(args);
 		madkitConfig.putAll(fromArgs);
 		initMadkitLogging();
 		if(logger != null)
@@ -197,20 +200,27 @@ final public class Madkit {
 		if(logger != null)
 			logger.fine("** OVERRIDING WITH COMMAND LINE ARGUMENTS **");
 		madkitConfig.putAll(fromArgs);
-		//desktop on if no agents at this point
+		
+		//activating desktop if no agent at this point
 		if(madkitConfig.get(Option.launchAgents.name()).equals("null")){
 			if(logger != null)
 				logger.fine(Option.launchAgents.name()+" null : Activating desktop");
 			BooleanOption.desktop.setProperty(madkitConfig, true);
 		}
 		createLogDirectory();
+		
 		myKernel = new MadkitKernel(this);
 		if(logger != null)
 			logger.finer("**  MADKIT KERNEL CREATED **");
+		
 		logSessionConfig(madkitConfig, Level.FINER);
 		printWelcomeString();
 		buildMadkitClassLoader();
 		logSessionConfig(madkitConfig, Level.FINER);
+		if(madkitClassLoader.getAvailableConfigurations().isEmpty() 
+				&& ! madkitConfig.get(Option.launchAgents.name()).equals("null")){
+			madkitClassLoader.addMASConfig(new MASModel(Words.INITIAL_CONFIG.toString(), args, "desc"));
+		}
 
 		this.cmdLine = System.getProperty("java.home")+File.separatorChar+"bin"+File.separatorChar+"java -cp "+System.getProperty("java.class.path")+" madkit.kernel.Madkit ";
 		//		for (String s : args) {
@@ -323,7 +333,7 @@ final public class Madkit {
 	private void initMadkitLogging() {
 		Level l = LevelOption.madkitLogLevel.getValue(madkitConfig);
 		if(l != Level.OFF){
-			logger = Logger.getLogger("[*MADKIT*]");
+			logger = Logger.getLogger(MDK_LOGGER_NAME);
 			logger.setUseParentHandlers(false);
 			logger.setLevel(l);
 			ConsoleHandler cs = new ConsoleHandler();
@@ -957,7 +967,7 @@ final public class Madkit {
 			try {
 				return Level.parse(session.getProperty(name()));
 			} catch (IllegalArgumentException e) {
-				currentInstance.myKernel.getLogger().severeLog(ErrorMessages.OPTION_MISUSED.toString()+" "+name()+" : "+session.getProperty(name()), e);
+				Logger.getLogger(MDK_LOGGER_NAME).log(Level.SEVERE, ErrorMessages.OPTION_MISUSED.toString()+" "+name()+" : "+session.getProperty(name()), e);
 			}
 			return Level.ALL;
 		}

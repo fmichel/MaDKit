@@ -55,7 +55,7 @@ Other command line options are described in the API of the madkit.kernel.Madkit 
 	
 	- madkit.gui.OutputPanel.print(String)
 	
-	~ 
+	~ madkit.gui.menu.LaunchSessionMenu -> madkit.gui.menu.LaunchMAS
 
 
 

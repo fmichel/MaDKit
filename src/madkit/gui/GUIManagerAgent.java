@@ -47,7 +47,7 @@ import madkit.action.GUIManagerAction;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.gui.menu.LaunchAgentsMenu;
-import madkit.gui.menu.LaunchSessionMenu;
+import madkit.gui.menu.LaunchMAS;
 import madkit.gui.menu.MadkitMenu;
 import madkit.gui.toolbar.MadkitToolBar;
 import madkit.kernel.AbstractAgent;
@@ -336,7 +336,7 @@ class GUIManagerAgent extends Agent {
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.add(new MadkitMenu(this));
 		menuBar.add(new LaunchAgentsMenu(this));
-		menuBar.add(new LaunchSessionMenu(this));
+		menuBar.add(new LaunchMAS(this));
 		JToolBar tb = new MadkitToolBar(this);
 		myFrame.setJMenuBar(menuBar);
 		tb.setRollover(true);

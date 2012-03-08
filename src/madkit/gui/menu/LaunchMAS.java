@@ -27,24 +27,25 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
 import madkit.action.KernelAction;
-import madkit.gui.DemoModel;
+import madkit.gui.MASModel;
+import madkit.i18n.Words;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.MadkitClassLoader;
 
 /**
  * This class builds a {@link JMenu} containing all the 
- * MadKit sessions which have been found on the class path, so that they can be
- * individually launched.
+ * MAS which have been found on the class path, so that they can be
+ * individually launched according to their configuration.
  * 
  * @author Fabien Michel
- * @since MadKit 5.0.0.14
+ * @since MadKit 5.0.0.16
  * @version 0.9
  * 
  */
-public class LaunchSessionMenu extends JMenu {
+public class LaunchMAS extends JMenu {
 
 	private static final long serialVersionUID = 6721458300016754609L;
-	final static private Set<LaunchSessionMenu> menus = new HashSet<LaunchSessionMenu>(); 
+	final static private Set<LaunchMAS> menus = new HashSet<LaunchMAS>();//TODO Map 
 	final private AbstractAgent myAgent;
 
 	/**
@@ -53,9 +54,9 @@ public class LaunchSessionMenu extends JMenu {
 	 * to which this menu should be created, i.e. the
 	 * agent that will be responsible of the launch.
 	 */
-	public LaunchSessionMenu(final AbstractAgent agent) {
-		super("Demos");
-		setMnemonic(KeyEvent.VK_D);
+	public LaunchMAS(final AbstractAgent agent) {
+		super(Words.MAS.toString());
+		setMnemonic(KeyEvent.VK_S);
 		myAgent = agent;
 		menus.add(this);
 		update();
@@ -68,12 +69,12 @@ public class LaunchSessionMenu extends JMenu {
 	 * is used.
 	 */
 	public static void updateAllMenus() {//TODO facto
-		for (LaunchSessionMenu menu : menus) {
+		for (LaunchMAS menu : menus) {
 			menu.update();
 		}
 	}
 
-	private void addTomenu(Action a, JMenu subMenu, DemoModel demo) {
+	private void addTomenu(Action a, JMenu subMenu, MASModel demo) {
 		JMenuItem name = new JMenuItem(a);
 		String displayedName = demo.getName();
 		name.setText(displayedName);
@@ -85,8 +86,8 @@ public class LaunchSessionMenu extends JMenu {
 
 	private void update() {
 		removeAll();
-		for(final DemoModel dm : myAgent.getMadkitClassLoader().getAvailableConfigurations()){
-			addTomenu(KernelAction.LAUNCH_SESSION.getActionFor(myAgent, dm),this,dm);
+		for(final MASModel dm : myAgent.getMadkitClassLoader().getAvailableConfigurations()){
+			addTomenu(KernelAction.LAUNCH_MAS.getActionFor(myAgent, dm),this,dm);
 		}
 		if(getItemCount() == 0)
 			setVisible(false);

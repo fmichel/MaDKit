@@ -25,16 +25,16 @@ import java.util.Arrays;
  * 
  * @author Fabien Michel
  * @since MadKit 5.0.0.9
- * @version 0.9
+ * @version 0.91
  * 
  */
-final public class DemoModel implements Comparable<DemoModel> {
+final public class MASModel implements Comparable<MASModel> {
 	
 	final private String[] sessionCfg;
 	final private String description;
 	final private String name;
 
-	public DemoModel(String demoName, String[] args, String description) {
+	public MASModel(String demoName, String[] args, String description) {
 		this.description = description;
 		this.sessionCfg = args;
 		name = demoName;
@@ -54,16 +54,16 @@ final public class DemoModel implements Comparable<DemoModel> {
 	
 	@Override
 	public boolean equals(Object obj) {
-		return name.equals(((DemoModel) obj).getName());
+		return name.equals(((MASModel) obj).getName());
 	}
 	
 	@Override
 	public String toString() {
-		return "MK demo "+name+" : "+description+" ;"+"args = "+Arrays.deepToString(sessionCfg);
+		return name+" : "+Arrays.deepToString(sessionCfg);
 	}
 
 	@Override
-	public int compareTo(DemoModel o) {
+	public int compareTo(MASModel o) {
 		return name.compareTo(o.getName());
 	}
 }

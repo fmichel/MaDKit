@@ -129,7 +129,10 @@ import madkit.message.GUIMessage;
  */
 public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 
-	private static final long							serialVersionUID	= 235703358687485948L;
+	/**
+	 * 
+	 */
+	private static final long	serialVersionUID	= -6180517348998118712L;
 
 	private final static transient AtomicInteger	agentCounter		= new AtomicInteger(0);
 
@@ -147,20 +150,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * name is lazily created to save memory
 	 */
 	private String											name;
-	final AtomicBoolean									alive					= new AtomicBoolean();							// TODO
-																																				// tranform
-																																				// to
-																																				// deaddefault
-																																				// is
-																																				// false
+	final AtomicBoolean									alive					= new AtomicBoolean();						//default false
 	final BlockingQueue<Message>						messageBox			= new LinkedBlockingQueue<Message>();		// TODO
-																																				// final
-																																				// ArrayBlockingQueue<Message>
-																																				// messageBox
-																																				// =
-																																				// new
-																																				// ArrayBlockingQueue<Message>(Integer.MAX_VALUE);//
-																																				// TODO
 																																				// lazy
 																																				// creation
 
@@ -205,6 +196,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	/**
+	 * Tells if this agent has a GUI automatically built by the kernel
 	 * @return <code>true</code> if this agent has a GUI built by the kernel
 	 */
 	public boolean hasGUI() {
@@ -212,7 +204,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	/**
-	 * Returns the ID of an agent. All the agents have different hashCode value
+	 * The ID of an agent. All the agents have different hashCode value
 	 * in one kernel. Thus it can be used to identify one agent. In a networked
 	 * environment, this value should be used in combination with the
 	 * kernelAddress of the agent for unique identification. This also holds when
@@ -256,11 +248,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	/**
-	 * Returns <code>true</code> once the agent is started until it normally ends
-	 * or get killed.
+	 * Returns <code>true</code> if the agent has been launched and is not ended nor killed.
 	 * 
-	 * @return <code>true</code> if the agent has been started and not yet
-	 *         terminated, <code>false</code> otherwise
 	 */
 	public boolean isAlive() {
 		return alive.get();
@@ -953,11 +942,12 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	/**
+	 * Changes the agent's name
 	 * @param name
 	 *           the name to display in logger info, GUI title and so on, default
 	 *           is "class name + internal ID"
 	 */
-	public void setName(final String name) {// TODO trigger gui changes and so on
+	public void setName(final String name) {// TODO trigger gui changes and so on need AgentModel
 		if (!getName().equals(name)) {
 			this.name = name;
 			if (logger != null && logger != AgentLogger.defaultAgentLogger) {
@@ -1465,6 +1455,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	/**
+	 * Tells if there is a message in the mailbox
 	 * @return <code>true</code> if there is no message in
 	 *         the mailbox.
 	 */
@@ -2333,7 +2324,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	/**
-	 * Kills the caller and launch a new instance of this agent using the latest
+	 * Kills the caller and launches a new instance of this agent using the latest
 	 * byte code available for the corresponding class.
 	 */
 	public void reload() {

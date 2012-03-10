@@ -23,9 +23,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.sql.Date;
-import java.text.SimpleDateFormat;
-import java.util.Locale;
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.ConsoleHandler;
@@ -95,22 +93,21 @@ public class AgentLogger extends Logger {
 
 
 
-	static AgentLogger getLogger(AbstractAgent agent) {
+	static AgentLogger getLogger(final AbstractAgent agent) {
 		AgentLogger al = agentLoggers.get(agent);
 		if(al == null || ! al.getName().equals(agent.getLoggingName())){
 			if(al != null){
-				for (Handler h : al.getHandlers()) {
+				for (final Handler h : al.getHandlers()) {
 					h.close();
 				}
 			}
 			al = new AgentLogger(agent);
 			agentLoggers.put(agent, al);
-			//			LogManager.getLogManager().addLogger(al);
 		}
 		return al;
 	}
 
-	static void removeLogger(AbstractAgent agent) {
+	static void removeLogger(final AbstractAgent agent) {
 		agentLoggers.remove(agent);
 	}
 
@@ -146,7 +143,7 @@ public class AgentLogger extends Logger {
 	 * 
 	 * @param warningLogLevel the log level to set
 	 */
-	public void setWarningLogLevel(Level warningLogLevel) {
+	public void setWarningLogLevel(final Level warningLogLevel) {
 		this.warningLogLevel = warningLogLevel;
 		AgentLogLevelMenu.update(myAgent);
 	}
@@ -161,7 +158,7 @@ public class AgentLogger extends Logger {
 		}
 	}
 
-	private AgentLogger(AbstractAgent agent){
+	private AgentLogger(final AbstractAgent agent){
 		super(agent.getLoggingName(), null);
 		myAgent = agent;
 		setUseParentHandlers(false);
@@ -173,26 +170,31 @@ public class AgentLogger extends Logger {
 			addHandler(ch);
 			ch.setFormatter(agentFormatter);
 		}
-		if (Boolean.parseBoolean(myAgent.getMadkitProperty(BooleanOption.createLogFiles.name()))) {
+		if (BooleanOption.createLogFiles.isActivated(myAgent.getMadkitConfig())){
 			createLogFile();
 		}
 	}
 
 	/**
+	 * Creates a log file for this logger.
+	 * This file will be located in the directory specified by
+	 * the MadKit property {@link Option#logDirectory}
 	 */
-	void createLogFile() {
-			addHandler(getFileHandler(myAgent.getMadkitProperty(Option.logDirectory.name())+File.separator+getName()));
+	public void createLogFile() {
+		final String logDir = Option.logDirectory.getValue(myAgent.getMadkitConfig());
+		new File(logDir).mkdirs();
+		addHandler(getFileHandler(logDir+File.separator+getName()));
 	}
 	
 	static private FileHandler getFileHandler(final String logFileName){
 		FileHandler fh = null;
-		final SimpleDateFormat simpleFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss",Locale.getDefault());//TODO i18n + formatting
+		final String logSession = "\n------------------------------------------------------------------\n" +
+				"-- Log session for "+logFileName.substring(logFileName.lastIndexOf(File.separator)+1);
+		final String logEnd= " --\n------------------------------------------------------------------\n\n";
+		final Date date = new Date();
 			try {
 				FileWriter fw = new FileWriter(new File(logFileName), true);
-				fw.write("\n----------------------------------------------------------------------------\n" +
-						"-- Log session for "+logFileName.substring(logFileName.lastIndexOf(File.separator)+1)
-						+" started on "+simpleFormat.format(new Date(System.currentTimeMillis()))+
-				" --\n----------------------------------------------------------------------------\n\n");
+				fw.write(logSession+" started on "+Madkit.dateFormat.format(date)+logEnd);
 				fw.close();
 			} catch (IOException e1) {
 				e1.printStackTrace();
@@ -200,41 +202,18 @@ public class AgentLogger extends Logger {
 			try {
 			fh = new FileHandler(logFileName,true){
 				public synchronized void close() throws SecurityException {
-//					setFormatter(new Formatter() {
-//						@Override
-//						public String format(LogRecord record) {
-//							return "\n----------------------------------------------------------------------------\n-- Log session for "+logFileName.substring(logFileName.lastIndexOf(File.separator)+1)+" closed on "+simpleFormat.format(new Date(record.getMillis()))+" --\n----------------------------------------------------------------------------\n\n";
-//						}
-//					});
-//					publish(new LogRecord(Level.ALL, ""));
-//					flush();
-//					JOptionPane.showConfirmDialog(null, "c");
 					super.close();
-					FileWriter fw2;
 					try {
-						fw2 = new FileWriter(new File(logFileName), true);
-						fw2.write("\n----------------------------------------------------------------------------\n" +
-						"-- Log session for "+logFileName.substring(logFileName.lastIndexOf(File.separator)+1)
-						+" closed on "+simpleFormat.format(new Date(System.currentTimeMillis()))+
-						" --\n----------------------------------------------------------------------------\n\n");
-						fw2.close();
+						FileWriter fw = new FileWriter(new File(logFileName), true);
+						date.setTime(System.currentTimeMillis());
+						fw.write(logSession+" closed on  "+Madkit.dateFormat.format(date)+logEnd);
+						fw.close();
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
 				};
 			};
 			fh.setFormatter(agentFileFormatter);
-//			fh.setFormatter(new Formatter() {
-//				@Override
-//				public String format(LogRecord record) {
-//					//TODO good format
-////				DateFormat df = DateFormat.getDateInstance(DateFormat.FULL, Locale.getDefault());
-////				final Date date = new Date(record.getMillis());
-//					return "\n----------------------------------------------------------------------------\n-- Log session for "+logFileName.substring(logFileName.lastIndexOf(File.separator)+1)+" started on "+simpleFormat.format(new Date(record.getMillis()))+" --\n----------------------------------------------------------------------------\n\n";
-//				}
-//			});
-//			fh.publish(new LogRecord(Level.ALL, null));
-//			fh.flush();
 		} catch (SecurityException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -245,7 +224,7 @@ public class AgentLogger extends Logger {
 
 
 	@Override
-	public synchronized void addHandler(Handler handler) throws SecurityException {
+	public synchronized void addHandler(final Handler handler) throws SecurityException {
 		super.addHandler(handler);
 		handler.setLevel(getLevel());
 	}
@@ -277,7 +256,7 @@ public class AgentLogger extends Logger {
 	 * then the message is only printed to {@link System#err}
 	 * @param   msg	The string message 
 	 */
-	public void talk(String msg){
+	public void talk(final String msg){
 		if(getLevel() == Level.OFF)
 			System.err.print(msg);
 		else
@@ -315,7 +294,7 @@ public class AgentLogger extends Logger {
 	 * @see java.util.logging.Logger#setLevel(java.util.logging.Level)
 	 */
 	@Override
-	public void setLevel(Level newLevel) throws SecurityException {
+	public void setLevel(final Level newLevel) throws SecurityException {
 		super.setLevel(newLevel);
 		for(Handler h : getHandlers()){
 			h.setLevel(newLevel);
@@ -355,7 +334,7 @@ public class AgentLogger extends Logger {
 	 * @param msg the message to display
 	 * @param t the exception raised
 	 */
-	public void severeLog(String msg, Throwable t) {
+	public void severeLog(final String msg, final Throwable t) {
 		//This will also be logged by the kernel at FINEST 
 		final Logger l = myAgent.getMadkitKernel().logger;
 		if(l != null){

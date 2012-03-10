@@ -96,6 +96,7 @@ final public class Madkit {
 
 	final static String MDK_LOGGER_NAME = "[* MADKIT*] ";
 	final static Properties defaultConfig = new Properties();
+	final static SimpleDateFormat	dateFormat = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
 	static{
 		try {
 			// no need to externalize because it is used only here
@@ -190,6 +191,7 @@ final public class Madkit {
 			Policy.setPolicy(getAllPermissionPolicy());//TODO this is for jws
 		}
 		madkitConfig.putAll(defaultConfig);
+//		madkitConfig.setProperty("kernel.start.time", dateFormat.format(new Date()));
 		final Properties fromArgs = buildConfigFromArgs(args);
 		madkitConfig.putAll(fromArgs);
 		initMadkitLogging();
@@ -207,13 +209,14 @@ final public class Madkit {
 				logger.fine(Option.launchAgents.name()+" null : Activating desktop");
 			BooleanOption.desktop.setProperty(madkitConfig, true);
 		}
-		createLogDirectory();
+		final String logDirKey = Option.logDirectory.name();
+		madkitConfig.setProperty(logDirKey, madkitConfig.getProperty(logDirKey) + File.separator+ dateFormat.format(new Date()));
+//		createLogDirectory();
 		
 		myKernel = new MadkitKernel(this);
 		if(logger != null)
 			logger.finer("**  MADKIT KERNEL CREATED **");
 		
-		logSessionConfig(madkitConfig, Level.FINER);
 		printWelcomeString();
 		buildMadkitClassLoader();
 		logSessionConfig(madkitConfig, Level.FINER);
@@ -265,16 +268,15 @@ final public class Madkit {
 	/**
 	 * 
 	 */
-	private void createLogDirectory() {
-		if (BooleanOption.createLogFiles.isActivated(madkitConfig)) {
-			SimpleDateFormat simpleFormat = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
-			String logDir = madkitConfig.get(Option.logDirectory.name()) + File.separator+ simpleFormat.format(new Date());
-			new File(logDir).mkdirs();
-			if(logger != null)
-				logger.fine("** CREATE LOG DIRECTORY "+logDir+" **");
-			madkitConfig.put(Option.logDirectory.name(), logDir);
-		}
-	}
+//	private void createLogDirectory() {
+//		if (BooleanOption.createLogFiles.isActivated(madkitConfig)) {
+//			String logDir = madkitConfig.get(Option.logDirectory.name()) + File.separator+ dateFormat.format(new Date());
+//			new File(logDir).mkdirs();
+//			if(logger != null)
+//				logger.fine("** CREATE LOG DIRECTORY "+logDir+" **");
+//			madkitConfig.put(Option.logDirectory.name(), logDir);
+//		}
+//	}
 
 	/**
 	 * 
@@ -419,7 +421,7 @@ final public class Madkit {
 		if(!(LevelOption.madkitLogLevel.getValue(madkitConfig) == Level.OFF)){
 			System.err.println("\n\t---------------------------------------"+
 					"\n\t                MadKit"+
-					"\n\t           version: "+defaultConfig.getProperty("madkit.version")+"\n\t\tbuild-id: "+defaultConfig.getProperty("build.id")+
+					"\n\t           version: "+defaultConfig.getProperty("madkit.version")+"\n\t        build-id: "+defaultConfig.getProperty("build.id")+
 					"\n\t       MadKit Team (c) 1997-"+Calendar.getInstance().get(Calendar.YEAR)+
 					"\n\t---------------------------------------\n");			
 		}
@@ -498,83 +500,6 @@ final public class Madkit {
 	Properties getConfigOption() {
 		return madkitConfig;
 	}
-
-	//	Logger initLogger(String loggerName, Level lvl, boolean consoleOn, List<FileHandler> fhs, Formatter formatter) {
-	//		Logger newLogger = Logger.getLogger(loggerName);
-	//		Logger tmpLogger = logger;
-	//		if(logger == newLogger){// in case this is the MK logger
-	//			tmpLogger = Logger.getLogger("[TMP]",defaultConfig.getProperty("madkit.resourceBundle.file"));
-	//			tmpLogger.setUseParentHandlers(false);
-	//			tmpLogger.setLevel(logger.getLevel());
-	//			for(Handler h : tmpLogger.getHandlers()){
-	//				tmpLogger.removeHandler(h);
-	//			}
-	//			for(Handler h : logger.getHandlers()){
-	//				tmpLogger.addHandler(h);
-	//			}
-	//		}
-	//		if(tmpLogger != null){
-	//			tmpLogger.finest("Removing all previous handlers of "+newLogger.getName());
-	//			tmpLogger.finest(newLogger.getName()+" log level changed from "+newLogger.getLevel()+" to "+lvl);
-	//		}
-	//		for(Handler h : newLogger.getHandlers())
-	//			newLogger.removeHandler(h);
-	//		newLogger.setLevel(lvl);
-	//		newLogger.setUseParentHandlers(false);
-	//		if(consoleOn){
-	//			newLogger.addHandler(new ConsoleHandler());
-	//			if(tmpLogger != null){
-	//				tmpLogger.finest("Console handling is on");
-	//			}
-	//		}
-	//		for (FileHandler fh : fhs) {
-	//			if (fh != null) {
-	//				if (logger != null)
-	//					tmpLogger.finest("Creating a log file for logger "+ newLogger.getName());
-	//				fh.setLevel(newLogger.getLevel());
-	//				newLogger.addHandler(fh);
-	//			}
-	//		}
-	//		for(Handler h : newLogger.getHandlers()){
-	//			h.setLevel(newLogger.getLevel());
-	//			if(formatter != null)
-	//				h.setFormatter(formatter);
-	//		}
-	//		if(newLogger.getHandlers().length == 0){
-	//			newLogger = null;
-	//		}
-	//		return newLogger;
-	//	}
-
-	//	/**
-	//	 * @return the agentsLogFile
-	//	 */
-	//	FileHandler getAgentsLogFile() {
-	//		return aaLogFile;
-	//	}
-
-	//	/**
-	//	 * @param requester 
-	//	 * @param agentClassName
-	//	 * @return
-	//	 * @throws ClassNotFoundException 
-	//	 */
-	//	@SuppressWarnings("unchecked")
-	//	Class<?> loadClass(AbstractAgent requester, String agentClassName){
-	//			return madkitClassLoader.loadClass(agentClassName);
-	//	}
-
-	/**
-	 * @param className
-	 * @return
-	 * @throws ClassNotFoundException 
-	 */
-	//	boolean reloadClass(String name) {
-	//		if (name != null) {
-	//			return madkitClassLoader.reloadClass(name);
-	//		}
-	//		return false;
-	//	}
 
 	//	boolean checkAndValidateOption(String option, String value){
 	//		return checkAndValidateOption(madkitConfig, option, value);
@@ -877,7 +802,7 @@ final public class Madkit {
 		 * Specify the desired directory. It could be an absolute 
 		 * or a relative path. At runtime, a log directory named with
 		 * the current date (second precision) will be created in the log directory for each MadKit session. 
-		 * E.g. /home/neo/madkit_5/logs/2011.06.23.16.23.53
+		 * E.g. /home/neo/madkit_5/logs/2012.02.23.16.23.53
 		 * <pre>DEFAULT VALUE</pre>
 		 * Default value is <i>"logs"</i>, so that a directory named
 		 * "logs" will be created in the application working directory.
@@ -899,6 +824,10 @@ final public class Madkit {
 		@Override
 		public String toString() {
 			return "--"+name();
+		}
+		
+		public String getValue(final Properties config){
+			return config.getProperty(name());
 		}
 
 	}

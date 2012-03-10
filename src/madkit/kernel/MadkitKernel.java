@@ -318,8 +318,8 @@ class MadkitKernel extends Agent {
 	@Override
 	protected void end() {
 		if (LevelOption.madkitLogLevel.getValue(platform.getConfigOption()) != Level.OFF) {
-			System.err.println("\n\t---------------------------------------------------" + "\n\t   MadKit Kernel " + kernelAddress
-					+ " is shutting down, Bye !" + "\n\t---------------------------------------------------\n");
+			System.err.println("\n\t---------------------------------------" + "\n\t         MadKit Kernel " + kernelAddress
+					+ " \n\t        is shutting down, Bye !" + "\n\t---------------------------------------\n");
 		}
 	}
 
@@ -469,23 +469,33 @@ class MadkitKernel extends Agent {
 			final String[] agentsClasses = agentsTolaunch.split(";");
 			for (final String classNameAndOption : agentsClasses) {
 				final String[] classAndOptions = classNameAndOption.split(",");
-				final String className = classAndOptions[0].trim();// TODO should
-																					// test if these
-																					// classes exist
+				final String className = classAndOptions[0].trim();// TODO should test if these classes exist
 				final boolean withGUI = (classAndOptions.length > 1 ? Boolean.parseBoolean(classAndOptions[1].trim()) : false);
-				final int number;
+				int number = 1;
 				if (classAndOptions.length > 2) {
-					number = Integer.parseInt(classAndOptions[2].trim());
-				} else {
-					number = 1;
+					try {
+						number = Integer.parseInt(classAndOptions[2].trim());
+					} catch (NumberFormatException e) {
+						getLogger().severeLog(ErrorMessages.OPTION_MISUSED.toString() +Option.launchAgents.toString()+" "+ agentsTolaunch +" "+e.getClass().getName()+" !!!\n" , null);
+					}
 				}
 				if (logger != null)
 					logger.finer("Launching " + number + " instance(s) of " + className + " with GUI = " + withGUI);
 				for (int i = 0; i < number; i++) {
 					startExecutor.execute(new Runnable() {
-						public void run() {// TODO log failures here ?
+						public void run() {
 							if (!shuttedDown) {
-								launchAgent(className, 1, withGUI);
+									try {
+										launchAgent((AbstractAgent) getMadkitClassLoader().loadClass(className).newInstance(), 1, withGUI);
+									} catch (InstantiationException e) {
+										getLogger().severeLog(ErrorMessages.CANT_LAUNCH.toString() + className+" "+e.getClass().getName()+" !!!\n" , null);//waiting java 7
+									} catch (IllegalAccessException e) {
+										getLogger().severeLog(ErrorMessages.CANT_LAUNCH.toString() + className+" "+e.getClass().getName()+" !!!\n" , null);
+									} catch (ClassNotFoundException e) {
+										getLogger().severeLog(ErrorMessages.CANT_LAUNCH.toString() + className+" "+e.getClass().getName()+" !!!\n" , null);
+									} catch (ClassCastException e) {
+										getLogger().severeLog(ErrorMessages.CANT_LAUNCH.toString() + className+" "+e.getClass().getName()+" !!!\n" , null);
+									}
 							}
 						}
 					});

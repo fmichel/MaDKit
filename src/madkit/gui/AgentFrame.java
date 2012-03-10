@@ -146,38 +146,3 @@ final class AgentFrame extends JFrame {
 		}
 	}
 }
-
-//final class AgentInternalFrame extends JInternalFrame{
-//	/**
-//	 * 
-//	 */
-//	private static final long serialVersionUID = -7697151858719380860L;
-//	final private GUIManagerAgent desk;
-//	
-//	AgentInternalFrame(final AgentFrame f, GUIManagerAgent desk){
-//		super(f.getTitle(),true,true,true,true);
-//		this.desk = desk;
-//		setSize(f.getSize());
-////		setLocation(f.getLocation());
-//		setContentPane(f.getContentPane());
-//		setJMenuBar(f.getJMenuBar());
-//		f.setInternalFrame(this);//TODO ??
-//		addInternalFrameListener(new InternalFrameAdapter() {
-//			@Override
-//			public void internalFrameClosed(InternalFrameEvent e) {
-//				for (WindowListener wl : f.getWindowListeners()) {
-//					wl.windowClosing(null);
-//				}
-//			}
-//		});
-//	}
-//	
-////	@Override
-////	public void setLocation(int x, int y) {
-////		super.setLocation(x, y);
-////		final Point loc = desk.checkLocation(this);
-////		super.setLocation(loc.x,loc.y);
-////	}
-//	
-//	
-//}

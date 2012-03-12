@@ -251,7 +251,7 @@ final class LoggedKernel extends MadkitKernel {
 	}
 
 	@Override
-	//the log is done in madkitkernel to not deal with the catch or specify requirement in the not logged method
+	//the log is done in the kernel to not deal with the catch or specify requirement in the not logged method
 	List<Message> broadcastMessageWithRoleAndWaitForReplies(AbstractAgent requester,
 			String community, String group, String role, Message message,
 			String senderRole, Integer timeOutMilliSeconds) {
@@ -265,7 +265,6 @@ final class LoggedKernel extends MadkitKernel {
 	 * @see madkit.kernel.MadkitKernel#launchAgentBucketWithRoles(madkit.kernel.AbstractAgent, java.lang.String, int, java.util.Collection)
 	 */
 	@Override
-	//TODO log
 	List<AbstractAgent> launchAgentBucketWithRoles(AbstractAgent requester, String agentClassName, int bucketSize, Collection<String> CGRLocations) {
 		if(requester.isFinestLogOn())
 			requester.logger.log(Level.FINEST,"launchAgentBucketWithRoles  <" + agentClassName + "," + bucketSize + "," + CGRLocations + ">");
@@ -273,6 +272,12 @@ final class LoggedKernel extends MadkitKernel {
 		if(requester.isFinestLogOn())
 			requester.logger.log(Level.FINEST,"launchAgentBucketWithRoles  done !");
 		return l;
+	}
+	
+	@Override
+	void launchAgentBucketWithRoles(AbstractAgent requester,
+			Collection<String> CGRLocations, List<AbstractAgent> bucket) {
+		kernel.launchAgentBucketWithRoles(requester, CGRLocations, bucket);
 	}
 
 	/**

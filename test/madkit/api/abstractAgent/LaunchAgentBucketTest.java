@@ -29,6 +29,7 @@ import java.util.logging.Level;
 
 import madkit.agr.Organization;
 import madkit.kernel.AbstractAgent;
+import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.AbstractAgent.State;
 import madkit.kernel.JunitMadKit;
 import madkit.kernel.Madkit.LevelOption;
@@ -62,6 +63,33 @@ public class LaunchAgentBucketTest extends JunitMadKit {
 			});
 		}
 	}
+
+	@Test
+	public void nullArg() {
+		launchTest(new AbstractAgent() {
+			protected void activate() {
+				try {
+					launchAgentBucket(null, size);
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					throw e;
+				}
+			}
+
+		},ReturnCode.AGENT_CRASH);
+	}
+	
+	@Test
+	public void classNotExist() {
+		launchTest(new AbstractAgent() {
+			protected void activate() {
+					launchAgentBucket("fake.fake", 2);
+			}
+
+		},ReturnCode.AGENT_CRASH);
+	}
+	
+	
 
 	private void testAgents(List<AbstractAgent> l) {
 		for (AbstractAgent abstractAgent : l) {

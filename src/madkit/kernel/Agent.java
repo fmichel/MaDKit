@@ -23,7 +23,6 @@ import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 
 import madkit.i18n.I18nUtilities;
 

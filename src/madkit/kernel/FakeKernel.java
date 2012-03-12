@@ -140,6 +140,13 @@ class FakeKernel extends MadkitKernel{
 	final List<AbstractAgent> launchAgentBucketWithRoles(final AbstractAgent agent, String agentClassName,int bucketSize,Collection<String> rolesName){
 		throw buildKernelException(agent);
 	}
+	
+	@Override
+	void launchAgentBucketWithRoles(AbstractAgent requester,
+			Collection<String> CGRLocations, List<AbstractAgent> bucket) {
+		// TODO Auto-generated method stub
+		throw buildKernelException(requester);
+	}
 
 	@Override
 	final ReturnCode killAgent(final AbstractAgent agent,final AbstractAgent target, int timeOutSeconds){

@@ -41,7 +41,7 @@ public class AgentMenu extends JMenu {// TODO i18n
 	private static final long serialVersionUID = 7141072399712971987L;
 
 	/**
-	 * Creates a menu which features: 
+	 * Creates a menu featuring: 
 	 * {@link AgentAction#RELOAD}, 
 	 * {@link AgentAction#LAUNCH_AGENT}, 
 	 * {@link AgentAction#KILL_AGENT}

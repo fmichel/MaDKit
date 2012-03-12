@@ -1,5 +1,5 @@
 ----------------------------------------------------------------------------------
-------------------------------- MadKit ${madkit.version} -----------------------------------
+------------------------------- MadKit ${madkit.version} ----------------------------------
 ------------------------------- Build ID ${build.id} ---------------------------
 ----------------------------------------------------------------------------------
 
@@ -16,7 +16,7 @@ interact using messages. It also contains MAS simulation authoring tools.
 	- A French tutorial: a general introduction to MadKit 5 and code examples
 
 ----------------------------------------------------------------------------------
-------------------------------- Using MadKit ${madkit.version} -----------------------------
+------------------------------- Using MadKit ${madkit.version} ----------------------------
 ----------------------------------------------------------------------------------
 
 
@@ -47,11 +47,12 @@ Other command line options are described in the API of the madkit.kernel.Madkit 
 ------------------------------- MadKit 5.0.0.16 (alpha-16)------------------------
 ----------------------------------------------------------------------------------
 
-1. Improvements:
-	- 
+1. Improvements and changes:
+	- the library has been renamed for simplicity : madkitkernel -> madkit
 
 2. API changes:
 	+ madkit.kernel.AgentLogger.createLogFile()
+	+ madkit.kernel.AbstractAgent.launchAgentBucketWithRoles(List<AbstractAgent>, Collection<String>)
 	
 	- madkit.gui.OutputPanel.print(String)
 	

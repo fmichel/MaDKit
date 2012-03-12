@@ -28,7 +28,7 @@
 
 	<property name="build.dir" value="build" />
 	<property name="manifest.location" value="${java.io.tmpdir}/MANIFEST.MF" />
-	<property name="kernel.location" location="${madkit.lib.dir}/madkitkernel-${madkit.version}.jar" />
+	<property name="kernel.location" location="${madkit.lib.dir}/madkit-${madkit.version}.jar" />
 	<property name="jnlp.template.file" value="jar:file://${kernel.location}!/jnlp.template.xml" />
 	<property name="jnlp.jar" value="${ant.project.name}.jnlp.jar"/>
 	<property name="jnlp.jar.gz" value="${jnlp.jar}.pack.gz"/>

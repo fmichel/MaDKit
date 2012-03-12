@@ -84,6 +84,13 @@ public class CreateLogFilesTest extends JunitMadKit {
 				f.delete();
 			}
 		});
+	}
+
+	/**
+	 * Creates a log file in {@link Option#logDirectory}
+	 */
+	@Test
+	public void oneAgentLogInConstructor() {
 		launchTest(new LogTester() {
 
 			@Override
@@ -107,7 +114,6 @@ public class CreateLogFilesTest extends JunitMadKit {
 			protected void activate() {
 				System.err.println(getMadkitProperty(Option.logDirectory.name()));
 				assertFalse(new File(Option.logDirectory.name()).exists());
-				// assertFalse(getMadkitProperty(Option.logDirectory.name()).contains("."));
 			}
 		});
 		pause(100);

@@ -215,7 +215,7 @@ public class JunitMadKit {
 		try {
 			assertEquals(SUCCESS, a.requestRole(COMMUNITY, GROUP, ROLE, null));
 		} catch (AssertionError e) {
-			e.printStackTrace();
+			JunitMadKit.testFails(e);
 		}
 	}
 

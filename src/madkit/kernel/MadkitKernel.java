@@ -42,9 +42,9 @@ import static madkit.kernel.CGRSynchro.Code.LEAVE_GROUP;
 import static madkit.kernel.CGRSynchro.Code.LEAVE_ROLE;
 import static madkit.kernel.CGRSynchro.Code.REQUEST_ROLE;
 import static madkit.kernel.Madkit.BooleanOption.autoConnectMadkitWebsite;
+import static madkit.kernel.Madkit.BooleanOption.console;
 import static madkit.kernel.Madkit.BooleanOption.loadLocalDemos;
 import static madkit.kernel.Madkit.BooleanOption.network;
-import static madkit.kernel.Madkit.BooleanOption.console;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,7 +55,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -271,17 +270,7 @@ class MadkitKernel extends Agent {
 		netUpdater = getAgentAddressIn(LocalCommunity.NAME, Groups.NETWORK, Roles.UPDATER);
 		netEmmiter = getAgentAddressIn(LocalCommunity.NAME, Groups.NETWORK, Roles.EMMITER);
 		kernelRole = getAgentAddressIn(LocalCommunity.NAME, Groups.SYSTEM, madkit.agr.LocalCommunity.Roles.KERNEL);
-		// try {
-		// netUpdater = getRole(LocalCommunity.NAME, Groups.NETWORK,
-		// Roles.UPDATER).getAgentAddressOf(this);
-		// netEmmiter = getRole(LocalCommunity.NAME, Groups.NETWORK,
-		// Roles.EMMITER).getAgentAddressOf(this);
-		// kernelRole = getRole(LocalCommunity.NAME, Groups.SYSTEM,
-		// madkit.agr.LocalCommunity.Roles.KERNEL).getAgentAddressOf(this);
-		// } catch (CGRNotAvailable e) {
-		// bugReport(e);//TODO no need
-		// }
-		// platform.logSessionConfig(platform.getConfigOption(), Level.FINER);
+
 		if (loadLocalDemos.isActivated(getMadkitConfig())) {
 			loadLocalDemos();
 		}
@@ -488,13 +477,14 @@ class MadkitKernel extends Agent {
 									try {
 										launchAgent((AbstractAgent) getMadkitClassLoader().loadClass(className).newInstance(), 1, withGUI);
 									} catch (InstantiationException e) {
-										getLogger().severeLog(ErrorMessages.CANT_LAUNCH.toString() + className+" "+e.getClass().getName()+" !!!\n" , null);//waiting java 7
+										cannotLaunchAgent(className, e, null);
+//										getLogger().severeLog(ErrorMessages.CANT_LAUNCH.toString() + className+" "+e.getClass().getName()+" !!!\n" , null);//waiting java 7
 									} catch (IllegalAccessException e) {
-										getLogger().severeLog(ErrorMessages.CANT_LAUNCH.toString() + className+" "+e.getClass().getName()+" !!!\n" , null);
+										cannotLaunchAgent(className, e, null);
 									} catch (ClassNotFoundException e) {
-										getLogger().severeLog(ErrorMessages.CANT_LAUNCH.toString() + className+" "+e.getClass().getName()+" !!!\n" , null);
+										cannotLaunchAgent(className, e, null);
 									} catch (ClassCastException e) {
-										getLogger().severeLog(ErrorMessages.CANT_LAUNCH.toString() + className+" "+e.getClass().getName()+" !!!\n" , null);
+										cannotLaunchAgent(className, e, null);
 									}
 							}
 						}
@@ -898,87 +888,32 @@ class MadkitKernel extends Agent {
 	// //////////////////////// Launching and Killing
 	// ////////////////////////////////////////////////////////////
 	
-//	ReturnCode launchAgentsWithRoles(final AbstractAgent requester, List<AbstractAgent> agents, Collection<String> CGRLocations){
-//		
-//		//initialize the agents concurrently
-//		AgentsJob aj = new AgentsJob() {
-//			@Override
-//			void proceedAgent(AbstractAgent a) {
-//				// no need to test : I created these instances
-//				a.state.set(ACTIVATED);
-//				a.setKernel(MadkitKernel.this);
-//				a.getAlive().set(true);
-//				a.logger = null;
-//			}
-//		};
-//
-//		// initialization
-//		doMulticore(serviceExecutor, aj.getJobs(agents));
-//		
-//		//preparing the activate job
-//		aj = new AgentsJob() {
-//			@Override
-//			void proceedAgent(AbstractAgent a) {
-//				try {
-//					a.activate();
-//				} catch (Throwable e) {
-//					e.printStackTrace();
-//				}
-//			}
-//		};
-//		if (CGRLocations != null) {
-//			for (final String cgrLocation : CGRLocations) {
-//				final String[] cgr = cgrLocation.split(";");
-//				if (cgr.length != 3)
-//					return null;// TODO logging
-//				createGroup(requester, cgr[0], cgr[1], null, null, false);
-//				Group g = null;
-//				try {
-//					g = getGroup(cgr[0], cgr[1]);
-//				} catch (CGRNotAvailable e) {
-//					e.printStackTrace();
-//					return AGENT_CRASH;
-//				}
-//				boolean roleCreated = false;
-//				Role r = g.get(cgr[2]);
-//				if (r == null) {
-//					r = g.createRole(cgr[2]);
-//					g.put(r.getRoleName(), r);
-//					roleCreated = true;
-//				}
-//				r.addMembers(bucket, roleCreated);
-//				// test vs assignement ? -> No: cannot touch the organizational
-//				// structure !!
-//			}
-//			synchronized (this) {
-//				bucketMode = true;
-//				doMulticore(serviceExecutor, aj.getJobs(bucket));
-//				bucketMode = false;
-//			}
-//		} else {
-//			doMulticore(serviceExecutor, aj.getJobs(bucket));
-//		}
-//		
-//	}
-
-	List<AbstractAgent> launchAgentBucketWithRoles(final AbstractAgent requester, String agentClassName,
+	List<AbstractAgent> launchAgentBucketWithRoles(final AbstractAgent requester, String agentClass,
 			int bucketSize, Collection<String> CGRLocations) {
 		if (shuttedDown)
 			return null;
 		List<AbstractAgent> bucket = null;
 		try {
-			bucket = createBucket(agentClassName, bucketSize);
-		} catch (InstantiationException e1) {
-			bugReport(e1);
-		} catch (IllegalAccessException e1) {
-			bugReport(e1);
-		} catch (ClassNotFoundException e1) {
-			bugReport(e1);
+			bucket = createBucket(agentClass, bucketSize);
+		} catch (InstantiationException e) {
+			requester.cannotLaunchAgent(agentClass, e, null);
+		} catch (IllegalAccessException e) {
+			requester.cannotLaunchAgent(agentClass, e, null);
+		} catch (ClassNotFoundException e) {
+			requester.cannotLaunchAgent(agentClass, e, null);
 		}
 
-		// System.err.println("bucket size "+bucket.size());
-		// proceed = new AtomicInteger(0);
+		launchAgentBucketWithRoles(requester, CGRLocations, bucket);
+		return bucket;
+	}
 
+	/**
+	 * @param requester
+	 * @param CGRLocations
+	 * @param bucket
+	 */
+	void launchAgentBucketWithRoles(final AbstractAgent requester,
+			Collection<String> CGRLocations, List<AbstractAgent> bucket) {
 		AgentsJob aj = new AgentsJob() {
 			@Override
 			void proceedAgent(AbstractAgent a) {
@@ -993,33 +928,29 @@ class MadkitKernel extends Agent {
 		// initialization
 		doMulticore(serviceExecutor, aj.getJobs(bucket));
 
-		// System.err.println("proceeded 1 "+proceed);
-
-		// proceed.set(0);
-
 		aj = new AgentsJob() {
 			@Override
-			void proceedAgent(AbstractAgent a) {
+			void proceedAgent(final AbstractAgent a) {
 				try {
 					a.activate();
-					// proceed.incrementAndGet();
 				} catch (Throwable e) {
-					e.printStackTrace();
+					requester.cannotLaunchAgent(a != null ? a.getClass().getName() : "launchAgentBucketWithRoles : list contains null", e, null);
 				}
 			}
 		};
 		if (CGRLocations != null) {
 			for (final String cgrLocation : CGRLocations) {
 				final String[] cgr = cgrLocation.split(";");
-				if (cgr.length != 3)
-					return null;// TODO logging
+				if (cgr.length != 3){
+					throw new IllegalArgumentException(cgrLocation);
+				}
 				createGroup(requester, cgr[0], cgr[1], null, null, false);
 				Group g = null;
 				try {
 					g = getGroup(cgr[0], cgr[1]);
 				} catch (CGRNotAvailable e) {
-					e.printStackTrace();
-					return Collections.emptyList();
+					//not possible
+					throw new AssertionError(e);
 				}
 				boolean roleCreated = false;
 				Role r = g.get(cgr[2]);
@@ -1040,18 +971,6 @@ class MadkitKernel extends Agent {
 		} else {
 			doMulticore(serviceExecutor, aj.getJobs(bucket));
 		}
-		// System.err.println("proceeded "+proceed);
-		// try {
-		// Role r = getRole("Tcommunity","Tgroup","Trole");
-		// System.err.println("roles "+r.players.size());
-		// ArrayList<AbstractAgent> ll = new ArrayList<AbstractAgent>(bucket);
-		// ll.removeAll(r.players);
-		// System.err.println("missing "+ll);
-		// } catch (CGRNotAvailable e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
-		return bucket;
 	}
 
 	private List<AbstractAgent> createBucket(final String agentClass, int bucketSize) throws InstantiationException,
@@ -1609,31 +1528,6 @@ class MadkitKernel extends Agent {
 		return this;
 	}
 
-	// /**
-	// * Asks MasKit to reload the class byte code so that new instances, created
-	// * using {@link Class#newInstance()} on a class object obtained with
-	// * {@link #getNewestClassVersion(AbstractAgent, String)}, will reflect
-	// * compilation changes during run time.
-	// *
-	// * @param requester
-	// * @param name
-	// * The fully qualified class name of the class
-	// * @throws ClassNotFoundException
-	// */
-	//
-	// ReturnCode reloadClass(AbstractAgent requester, String name) throws
-	// ClassNotFoundException {
-	// // if (name == null)
-	// // throw new ClassNotFoundException(ReturnCode.CLASS_NOT_FOUND + " " +
-	// name);
-	// if (!name.contains("madkit.kernel") && !name.contains("madkit.gui") &&
-	// !name.contains("madkit.message")
-	// && !name.contains("madkit.simulation") &&
-	// platform.getMadkitClassLoader().reloadClass(name))
-	// return SUCCESS;
-	// return SEVERE;// TODO not the right code here
-	// }
-
 	boolean isCommunity(AbstractAgent requester, String community) {
 		try {
 			return getCommunity(community) != null;
@@ -1983,7 +1877,7 @@ final class CGRNotAvailable extends Exception {
 }
 
 abstract class AgentsJob implements Callable<Void>, Cloneable {
-	List<AbstractAgent> list;
+	private List<AbstractAgent> list;
 
 	@Override
 	public Void call() throws Exception {

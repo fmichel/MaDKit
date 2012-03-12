@@ -18,8 +18,10 @@
  */
 package madkit.testing.util.agent;
 
+import static madkit.kernel.JunitMadKit.COMMUNITY;
+import static madkit.kernel.JunitMadKit.GROUP;
+import static madkit.kernel.JunitMadKit.ROLE;
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.JunitMadKit;
 
 /**
  * @author Fabien Michel
@@ -39,7 +41,8 @@ public class SimulatedAgent extends AbstractAgent {
 
 	@Override
 	protected void activate() {
-		JunitMadKit.createDefaultCGR(this);
+		createGroup(COMMUNITY, GROUP, false, null);
+		requestRole(COMMUNITY, GROUP, ROLE, null);
 		activated  = true;
 	}
 	

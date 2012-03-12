@@ -18,8 +18,6 @@
  */
 package madkit.gui;
 
-import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintStream;
 
 import javax.swing.JFrame;
@@ -31,7 +29,7 @@ import madkit.kernel.AbstractAgent;
  * This agent displays standard out and err
  * prints in its GUI. This agent is useful
  * when the application is not launched from
- * a command line or an IDE so that the console
+ * a command line or an IDE so that the console is
  * not directly visible.
  * 
  * @author Fabien Michel
@@ -72,30 +70,32 @@ public class ConsoleAgent extends AbstractAgent {
 
 }
 
-final class RedirectedPrintStream extends PrintStream{
-	
-	final private PrintStream	origin;
+// If I want both log stream
 
-	RedirectedPrintStream(final OutputStream origin, final PrintStream destination) {
-		super(destination);
-		this.origin = new PrintStream(origin);
-	}
-
-
-	@Override
-	public void write(int b) {
-		super.write(b);
-		origin.write(b);
-	}
-	@Override
-	public void write(byte[] b) throws IOException {
-		super.write(b);
-		origin.write(b);
-	}
-	@Override
-	public void write(byte[] buf, int off, int len) {
-		super.write(buf, off, len);
-		origin.write(buf, off, len);
-	}
-	
-}
+//final class RedirectedPrintStream extends PrintStream{
+//	
+//	final private PrintStream	origin;
+//
+//	RedirectedPrintStream(final OutputStream origin, final PrintStream destination) {
+//		super(destination);
+//		this.origin = new PrintStream(origin);
+//	}
+//
+//
+//	@Override
+//	public void write(int b) {
+//		super.write(b);
+//		origin.write(b);
+//	}
+//	@Override
+//	public void write(byte[] b) throws IOException {
+//		super.write(b);
+//		origin.write(b);
+//	}
+//	@Override
+//	public void write(byte[] buf, int off, int len) {
+//		super.write(buf, off, len);
+//		origin.write(buf, off, len);
+//	}
+//	
+//}

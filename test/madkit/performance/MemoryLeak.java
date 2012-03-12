@@ -18,16 +18,8 @@
  */
 package madkit.performance;
 
-import java.util.logging.Level;
-
-import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
 import madkit.kernel.JunitMadKit;
-import madkit.kernel.Madkit.LevelOption;
-import madkit.kernel.Madkit.Option;
-import madkit.testing.util.agent.NormalAA;
-
-import org.junit.Test;
 
 /**
  * @author Fabien Michel

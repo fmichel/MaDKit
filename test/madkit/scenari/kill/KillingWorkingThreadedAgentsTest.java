@@ -27,7 +27,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.logging.Level;
 
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.Agent;
 import madkit.kernel.JUnitAgent;
 import madkit.kernel.JunitMadKit;

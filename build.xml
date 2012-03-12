@@ -24,7 +24,7 @@
  Version: 5.0
 -->
 
-<project name="madkitkernel" default="jar" basedir=".">
+<project name="madkit" default="jar" basedir=".">
 
 	<!-- using madkit kernel building properties file -->
 	<tstamp prefix="time" />

@@ -50,9 +50,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 
 import javax.swing.JFrame;
-import javax.swing.JMenuBar;
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
 
 import madkit.action.ActionInfo;
 import madkit.action.GUIManagerAction;
@@ -755,27 +752,36 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			if (ReturnCode.SUCCESS == launchAgent(a, timeOutSeconds, createFrame))
 				return a;
 		} catch (InstantiationException e) {
-			final String msg = ErrorMessages.CANT_LAUNCH + agentClass + " : it has no default constructor\n" + e.getMessage();
-			SwingUtilities.invokeLater(new Runnable() {
-
-				public void run() {
-					JOptionPane.showMessageDialog(null, msg, "Launch failed", JOptionPane.WARNING_MESSAGE);
-				}
-			});
-			getLogger().severeLog(msg, e);
+			cannotLaunchAgent(agentClass, e, " :  no default constructor");
+//			final String msg = ErrorMessages.CANT_LAUNCH + agentClass + " : no default constructor";
+//			SwingUtilities.invokeLater(new Runnable() {
+//
+//				public void run() {
+//					JOptionPane.showMessageDialog(null, msg, "Launch failed", JOptionPane.WARNING_MESSAGE);
+//				}
+//			});
+//			getLogger().severeLog(msg, e);
 		} catch (IllegalAccessException e) {
-			// setAgentStackTrace(e);
-			getLogger().severeLog(ErrorMessages.CANT_LAUNCH + agentClass + " : its constructor is not public :\n" + e.getMessage(),
-					e);
+			cannotLaunchAgent(agentClass, e, " : constructor not public");//TODO launch anyway ??
 		} catch (ClassCastException e) {
-			getLogger().severeLog(ErrorMessages.CANT_LAUNCH + agentClass + " : Not an agent class", e);
+			cannotLaunchAgent(agentClass, e, " : Not an agent class");
 		} catch (ClassNotFoundException e) {
-			getLogger().severeLog(ErrorMessages.CANT_LAUNCH + " " + agentClass + " : ", e);
+			cannotLaunchAgent(agentClass, e, null);
 		} catch (KernelException e) {
-			getLogger().severeLog(ErrorMessages.CANT_LAUNCH + " " + agentClass + " : ", e);
+			cannotLaunchAgent(agentClass, e, null);
 		}
 		return null;
 	}
+
+	/**
+	 * @param agentClass
+	 * @param e
+	 */
+	void cannotLaunchAgent(String agentClass, Throwable e, String infos) {
+		getLogger().severeLog(ErrorMessages.CANT_LAUNCH + " " + agentClass + " : "+(infos != null ? infos :""), e);
+	}
+	
+	
 
 	/**
 	 * Launches <i><code>bucketSize</code></i> agent instances of this <i>
@@ -842,6 +848,23 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 */
 	public List<AbstractAgent> launchAgentBucketWithRoles(String agentClassName, int bucketSize, Collection<String> cgrLocations) {
 		return getKernel().launchAgentBucketWithRoles(this, agentClassName, bucketSize, cgrLocations);
+	}
+	
+	/**
+	 * Similar to {@link #launchAgentBucketWithRoles(String, int, Collection)}
+	 * except that the list of agents to launch is given. Especially, this could
+	 * be used when the agents have no default constructor.
+	 * 
+	 * @param bucket the list of agents to launch
+	 * @param cgrLocations
+	 *           default locations in the artificial society for the launched
+	 *           agents. Each string of the <code>cgrLocations</code> collection
+	 *           defined a complete CGR location by separating C, G and R with
+	 *           semicolon as follows: <code>"community;group;role"</code>
+	 *          
+	 */
+	public void launchAgentBucketWithRoles(List<AbstractAgent> bucket, Collection<String> cgrLocations) {
+		getKernel().launchAgentBucketWithRoles(this, cgrLocations, bucket);
 	}
 
 	/**

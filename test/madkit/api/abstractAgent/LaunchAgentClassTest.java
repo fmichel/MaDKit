@@ -25,6 +25,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadKit;
+import madkit.testing.util.agent.NoPublicConstructorAA;
+import madkit.testing.util.agent.SelfLaunchAA;
 
 import org.junit.Test;
 
@@ -82,6 +84,33 @@ public class LaunchAgentClassTest extends JunitMadKit {
 		launchTest(new AbstractAgent() {
 			protected void activate() {
 				assertNull(launchAgent("a"));
+			}
+		});
+	}
+
+	@Test
+	public void NoDefaultConstructor() {
+		launchTest(new AbstractAgent() {
+			protected void activate() {
+				assertNull(launchAgent(SelfLaunchAA.class.getName()));
+			}
+		});
+	}
+
+	@Test
+	public void NoPublicConstructor() {
+		launchTest(new AbstractAgent() {
+			protected void activate() {
+				assertNull(launchAgent(NoPublicConstructorAA.class.getName()));
+			}
+		});
+	}
+
+	@Test
+	public void NotAnAgentClass() {
+		launchTest(new AbstractAgent() {
+			protected void activate() {
+				assertNull(launchAgent(Object.class.getName()));
 			}
 		});
 	}

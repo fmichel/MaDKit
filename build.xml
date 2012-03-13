@@ -77,19 +77,6 @@
 
 	<!-- ================================= 
           target: jar
-				<attribute name="Madkit-Args" value=""/>
-				<attribute name="Sealed" value="true"/>
-    			<include name="${mk.properties.file}"/>
-
-			<fileset dir="${lib.dir}" includes="jar-in-jar-loader.zip"/>
-				<section name="MadKit-Project-Info">
-					<attribute name="Project-Name" value="${project.label}" />
-					<attribute name="Project-Code-Name" value="${ant.project.name}" />
-					<attribute name="Project-Version" value="${madkit.version}" />
-					<attribute name="Description" value="${description}" />
-					<attribute name="Author" value="${author.name}" />
-					<attribute name="MadKit-Args" value="" />
-				</section>
          ================================= -->
 	<target name="jar" depends="clean,compile,build-properties" description="Jars MadKit kernel ">
 		<jar destfile="${jar.file}" index="true" compress="false">

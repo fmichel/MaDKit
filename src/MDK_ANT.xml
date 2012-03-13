@@ -57,10 +57,10 @@
 	<target name="build-agent-jar" description="">
 		<echo>Creating ${ant.project.name} MDK agent library jar file</echo>
 		<antcall target="MDK.compile" />
-		<concat destfile="${build.dir}/README">--- This is ${project.label} MadKit library version ${version} by ${author} -----
+		<concat destfile="${build.dir}/README">--- ${project.label} version ${version} by ${author} -----
     			${line.separator}- Description  ${description}  -----
-    			${line.separator}- Using        This jar file is MadKit lib file: It can be used in MadKit using load jar or by putting it in the classpath of your MadKit application  -----
-    			${line.separator}- Technology   It runs using the MadKit multi agent kernel : http://www.madkit.org A platform for building Multi-Agent Systems Application -----
+    			${line.separator}- Using        This jar file contains agents which can be ran using MadKit: It can be used in MadKit using load jar or by putting it in the classpath of your MadKit application  -----
+    			${line.separator}- Technology   MadKit, The Multiagent Development Kit : http://www.madkit.org A platform for building Multi-Agent Systems Application -----
     		</concat>
 		<antcall target="MDK.build-manifest" />
 			<jar destfile="${agent.lib.file}" 
@@ -84,62 +84,18 @@
 		<delete file="${src.zip.file}" />
 	</target>
 
-
 	<!-- ================================= 
-          target: build-executable-jar              
-    <target name="build-executable-jar" description="executable jar">
-    	<property name="jar.file" value="${ant.project.name}-${version}.jar"/>
-		<echo>Creating executable jar file : ${jar.file}</echo>
-		<antcall target="MDK.compile" />
-		<antcall target="MDK.build-manifest" />
- 		<unzip src="${kernel.location}" dest="${java.io.tmpdir}">
-    	  <patternset>
-    	    <include name="jar-in-jar-loader.zip"/>
-    	  </patternset>
-    	</unzip>
-		<concat destfile="${build.dir}/README" >- This is ${project.label} version ${version} by ${author} 
-			${line.separator}- Description  ${description}  
-			${line.separator}- Using        This jar file is runnable: Double click it (file execution permission is required) or use java -jar  
-			${line.separator}- Technology   It is develloped using MadKit : A Multiagent Development Kit http://www.madkit.org  
-		</concat>
-		<manifest file="${manifest.location}" mode="update">
-            <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
-            <attribute name="Rsrc-Main-Class" value="madkit.kernel.Madkit"/>
-            <attribute name="Class-Path" value="."/>
-            <attribute name="Rsrc-Class-Path" value="./ ${madkit.jar.name}"/>
-		</manifest>
- 		<jar destfile="${jar.file}" manifest="${manifest.location}" index="true" compress="false" >
-            <zipfileset src="${java.io.tmpdir}/jar-in-jar-loader.zip"/>
-            <fileset dir="${build.dir}"/>
-            <zipfileset file="${kernel.location}"/>
- 		</jar>
-		<chmod file="${jar.file}" perm="ugo+x"/>
-		<delete dir="${build.dir}" />
-        <echo>
-        	
-        	 Running your project :
-        	${line.separator} 
-     Your project could now be ran by either${line.separator} 
-    (1) double clicking the jar file !${line.separator}
-    (2) using a commandline such as:	   	
-		java -jar ${jar.file} [additional Madkit options and arguments]
-        	${line.separator}
-        </echo>
-    </target>
-         ================================= -->
-	
-	<!-- ================================= 
-          target: build-executable-jar  WITHOUT JARINJAR FROM ECLIPSE            
+          target: build-executable-jar
          ================================= -->
     <target name="build-executable-jar" description="executable jar">
     	<property name="jar.file" value="${ant.project.name}-${version}.jar"/>
 		<echo>Creating executable jar file : ${jar.file}</echo>
 		<antcall target="MDK.compile" />
 		<antcall target="MDK.build-manifest" />
-		<concat destfile="${build.dir}/README" >--- This is ${project.label} version ${version} by ${author} -----
+		<concat destfile="${build.dir}/README" >--- ${project.label} version ${version} by ${author} -----
 			${line.separator}- Description  ${description}  -----
 			${line.separator}- Using        This jar file is runnable: Double click it (file execution permission is required) or use java -jar  -----
-			${line.separator}- Technology   It is develloped using MadKit : A Multiagent Development Kit http://www.madkit.org  -----
+			${line.separator}- Technology   It has been built using MadKit: The Multiagent Development Kit http://www.madkit.org  -----
 		</concat>
 		<manifest file="${manifest.location}" mode="update">
             <attribute name="Main-Class" value="madkit.kernel.Madkit"/>

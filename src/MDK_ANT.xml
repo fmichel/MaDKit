@@ -30,12 +30,12 @@
 	<property name="manifest.location" value="${java.io.tmpdir}/MANIFEST.MF" />
 	<property name="kernel.location" location="${madkit.lib.dir}/madkit-${madkit.version}.jar" />
 	<property name="jnlp.template.file" value="jar:file://${kernel.location}!/jnlp.template.xml" />
-	<property name="jnlp.jar" value="${ant.project.name}.jnlp.jar"/>
-	<property name="jnlp.jar.gz" value="${jnlp.jar}.pack.gz"/>
-	<property name="jnlp.file" value="${ant.project.name}.jnlp"/>
-	<property name="src.zip.file" value="${ant.project.name}-${version}-src.zip"/>
-   	<property name="jar.file" value="${ant.project.name}-${version}.jar"/>
-   	<property name="agent.lib.file" value="${ant.project.name}-lib-${version}.jar"/>
+	<property name="jnlp.jar" value="${ant.project.name}.jnlp.jar" />
+	<property name="jnlp.jar.gz" value="${jnlp.jar}.pack.gz" />
+	<property name="jnlp.file" value="${ant.project.name}.jnlp" />
+	<property name="src.zip.file" value="${ant.project.name}-${version}-src.zip" />
+	<property name="jar.file" value="${ant.project.name}-${version}.jar" />
+	<property name="agent.lib.file" value="${ant.project.name}-agents-${version}.jar" />
 
 	<property url="jar:file://${kernel.location}!/madkit/kernel/madkitKernel.properties" />
 
@@ -63,13 +63,9 @@
     			${line.separator}- Technology   MadKit, The Multiagent Development Kit : http://www.madkit.org A platform for building Multi-Agent Systems Application -----
     		</concat>
 		<antcall target="MDK.build-manifest" />
-			<jar destfile="${agent.lib.file}" 
-				manifest="${manifest.location}"
-				index="true" 
-				duplicate="preserve"
-				compress="false">
-	            <fileset dir="${build.dir}" />
-			</jar>
+		<jar destfile="${agent.lib.file}" manifest="${manifest.location}" index="true" duplicate="preserve" compress="false">
+			<fileset dir="${build.dir}" />
+		</jar>
 		<delete dir="${build.dir}" />
 	</target>
 
@@ -87,26 +83,26 @@
 	<!-- ================================= 
           target: build-executable-jar
          ================================= -->
-    <target name="build-executable-jar" description="executable jar">
-    	<property name="jar.file" value="${ant.project.name}-${version}.jar"/>
+	<target name="build-executable-jar" description="executable jar">
+		<property name="jar.file" value="${ant.project.name}-${version}.jar" />
 		<echo>Creating executable jar file : ${jar.file}</echo>
 		<antcall target="MDK.compile" />
 		<antcall target="MDK.build-manifest" />
-		<concat destfile="${build.dir}/README" >--- ${project.label} version ${version} by ${author} -----
+		<concat destfile="${build.dir}/README">--- ${project.label} version ${version} by ${author} -----
 			${line.separator}- Description  ${description}  -----
 			${line.separator}- Using        This jar file is runnable: Double click it (file execution permission is required) or use java -jar  -----
 			${line.separator}- Technology   It has been built using MadKit: The Multiagent Development Kit http://www.madkit.org  -----
 		</concat>
 		<manifest file="${manifest.location}" mode="update">
-            <attribute name="Main-Class" value="madkit.kernel.Madkit"/>
+			<attribute name="Main-Class" value="madkit.kernel.Madkit" />
 		</manifest>
- 		<jar destfile="${jar.file}" manifest="${manifest.location}" index="true" compress="false" >
-            <fileset dir="${build.dir}"/>
-            <zipfileset src="${kernel.location}" excludes="MANIFEST.MF,jar-in-jar-loader.zip,*.xml"/>
- 		</jar>
-		<chmod file="${jar.file}" perm="ugo+x"/>
+		<jar destfile="${jar.file}" manifest="${manifest.location}" index="true" compress="false">
+			<fileset dir="${build.dir}" />
+			<zipfileset src="${kernel.location}" excludes="MANIFEST.MF,jar-in-jar-loader.zip,*.xml" />
+		</jar>
+		<chmod file="${jar.file}" perm="ugo+x" />
 		<delete dir="${build.dir}" />
-        <echo>
+		<echo>
         	
         	--- Running your project :
         	${line.separator} 
@@ -116,22 +112,22 @@
 		java -jar ${jar.file} [additional Madkit options and arguments]
         	${line.separator}
         </echo>
-    </target>
-	
+	</target>
+
 	<!-- ================================= 
           target: Java-Web-Start            
          ================================= -->
-    <target name="Java-Web-Start" depends="build-executable-jar" description="builds jws files">
+	<target name="Java-Web-Start" depends="build-executable-jar" description="builds jws files">
 		<antcall target="MDK.sign-jar" />
-   		<copy tofile="${ant.project.name}.jnlp" overwrite="true">
-   		    <resources>
-   		      <url url="${jnlp.template.file}"/>
-   		    </resources>
-   		  <filterchain>
-   		    <expandproperties/>
-   		  </filterchain>
-   		</copy>	
-        <echo>${line.separator}
+		<copy tofile="${ant.project.name}.jnlp" overwrite="true">
+			<resources>
+				<url url="${jnlp.template.file}" />
+			</resources>
+			<filterchain>
+				<expandproperties />
+			</filterchain>
+		</copy>
+		<echo>${line.separator}
         	--- For Java Web Start :
         	${line.separator} 
     The ${jnlp.jar.gz} file is the target of the jnlp file : it has no vesion number so that 
@@ -139,16 +135,16 @@
         	${line.separator} 
        </echo>
 		<delete file="${jnlp.jar}" />
-    </target>
-	
+	</target>
+
 	<!-- ================================= 
           target: src-dist-zip              
          ================================= -->
-    <target name="zip-project-src" depends="clean" description="create a src zip file">
+	<target name="zip-project-src" depends="clean" description="create a src zip file">
 		<zip destfile="${src.zip.file}" level="9">
-			<zipfileset dir="${basedir}" excludes="bin/**,.settings" prefix="${ant.project.name}"/>
+			<zipfileset dir="${basedir}" excludes="bin/**,.settings" prefix="${ant.project.name}" />
 		</zip>
-    </target>
+	</target>
 
 
 </project>

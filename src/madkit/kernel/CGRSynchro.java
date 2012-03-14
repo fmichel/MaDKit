@@ -37,8 +37,8 @@ class CGRSynchro extends ObjectMessage<AgentAddress> {
 		CREATE_GROUP,
 		REQUEST_ROLE,
 		LEAVE_ROLE,
-		LEAVE_GROUP,
-		LEAVE_ORG		
+		LEAVE_GROUP
+//		LEAVE_ORG		
 		}
 	
 	final private Code code;

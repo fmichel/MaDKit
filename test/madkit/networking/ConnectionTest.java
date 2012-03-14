@@ -18,45 +18,58 @@
  */
 package madkit.networking;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
 
-import java.util.Arrays;
+import java.util.List;
+import java.util.logging.Level;
 
 import madkit.action.KernelAction;
-import madkit.kernel.Agent;
+import madkit.agr.CloudCommunity;
+import madkit.kernel.AbstractAgent;
+import madkit.kernel.AgentAddress;
 import madkit.kernel.JunitMadKit;
 import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.BooleanOption;
-import madkit.testing.util.agent.PongAgent;
+import madkit.kernel.Madkit.LevelOption;
 
 import org.junit.Test;
 
 /**
  * @author Fabien Michel
- * @since MadKit 5.0.0.9
+ * @since MadKit 5.0.0.10
  * @version 0.9
  * 
  */
 @SuppressWarnings("serial")
-public class PingPongTest extends JunitMadKit {
+public class ConnectionTest extends JunitMadKit {
+
 	@Test
-	public void networkPingPong() {
-		addMadkitArgs(BooleanOption.network.toString());
-		launchTest(new Agent() {
+	public void simpleConnectionTest() {
+//		pause(5000);
+		addMadkitArgs(BooleanOption.network.toString()
+//				,
+				,LevelOption.networkLogLevel.toString(),"ALL"
+//				LevelOption.kernelLogLevel.toString(),"FINER",
+//				BooleanOption.createLogFiles.toString(),
+//				Option.launchAgents.toString(),ForEverAgent.class.getName()
+				);
+		launchTest(new AbstractAgent() {
 			@Override
 			protected void activate() {
-				// setLogLevel(Level.OFF);
-				createGroupIfAbsent(COMMUNITY, GROUP, true, null);
-				requestRole(COMMUNITY, GROUP, ROLE, null);
-				String[] args = Arrays.asList("--network", "--agentLogLevel", "ALL", "--launchAgents", PongAgent.class.getName(), ",true")
-						.toArray(new String[0]);
-				Madkit m = new Madkit(args);
-				assertNotNull(waitNextMessage(10000));
+				Madkit m = launchMKNetworkInstance(Level.OFF);
+				pause(200);
+				List<AgentAddress> l = getAgentsWithRole(
+						CloudCommunity.NAME, 
+						CloudCommunity.Groups.NETWORK_AGENTS,
+						CloudCommunity.Roles.NET_AGENT);
+				for (AgentAddress agentAddress : l) {
+					System.err.println(agentAddress);
+				}
+				assertEquals(2, l.size());
 				m.doAction(KernelAction.EXIT);
-				KernelAction.STOP_NETWORK.getActionFor(this).actionPerformed(null);
 				KernelAction.EXIT.getActionFor(this).actionPerformed(null);
+				pause(100);
 			}
 		});
 	}
-
 }

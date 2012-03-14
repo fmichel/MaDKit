@@ -53,7 +53,7 @@ abstract class Overlooker <A extends AbstractAgent>
 		role=roleName;
 	}
 
-	synchronized final void setOverlookedRole(final Role theRole)
+	final void setOverlookedRole(final Role theRole)
 	{
 		overlookedRole = theRole;
 		if(theRole != null)

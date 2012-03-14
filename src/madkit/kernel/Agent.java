@@ -23,8 +23,10 @@ import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 import madkit.i18n.I18nUtilities;
+import madkit.i18n.Words;
 
 /**
  * The super class of all MadKit threaded agents, v 5. 
@@ -40,7 +42,7 @@ import madkit.i18n.I18nUtilities;
  * @author Fabien Michel
  * @author Olivier Gutknecht
  * @since MadKit 1.0
- * @version 5.1
+ * @version 5.11
  */
 public class Agent extends AbstractAgent{
 
@@ -52,13 +54,6 @@ public class Agent extends AbstractAgent{
 
 	final private AgentExecutor agentExecutor;
 	final private boolean isDaemon;
-
-	//	/**
-	//	 * @return the myThread
-	//	 */
-	//	final Thread getMyThread() {
-	//		return myThread;
-	//	}
 
 	/**
 	 * 
@@ -101,75 +96,6 @@ public class Agent extends AbstractAgent{
 	}
 	
 	/**
-	 * This is only called by MK threads and cannot be interrupted
-	 * @return
-	 */
-//	boolean activation() {
-//		boolean result = false;
-//		try {
-//			try {
-//				activationFirstStage();//the activated flag must be in the try
-//				activate();
-//				synchronized (state) {
-//					myThread.setName(getAgentThreadName(State.LIVING));
-//				}//cannot be hard killed after that
-//				result = true;
-//			}
-//			catch (SelfKillException e) {//no hard kill possible here ; managing death myself
-//				logLifeException(e);
-//				logMethod(false);
-//				suicide(e);
-//				return true;
-//			}
-//			catch (Exception e) {
-//				validateDeathOnException(e, State.LIVING);
-//			}
-//		} catch (KilledException e) {
-//			logLifeException(e);
-//		}
-//		if (logger != null) {
-//			logger.finer("** exiting ACTIVATE **");
-//		}
-//		return result;
-//	}
-
-	//100%
-//	/**
-//	 * This is only called by MK threads and cannot be interrupted
-//	 * @return
-//	 */
-//	boolean activation() {
-//		boolean result = false;
-//		try {
-//			try {
-//				activationFirstStage();//the activated flag must be in the try
-//				activate();
-//				result = true;
-//				synchronized (state) {
-//					myThread.setName(getAgentThreadName(State.LIVING));
-//				}//cannot be hard killed after that
-//			}
-//			catch (SelfKillException e) {//no hard kill possible here ; managing death myself
-//				logLifeException(e);
-//				if (logger != null) {
-//					logger.finer("** exiting ACTIVATE **");
-//				}
-//				suicide(e);
-//				return true;
-//			}
-//			catch (Exception e) {
-//				validateDeathOnException(e, State.LIVING);
-//			}
-//		} catch (KilledException e) {
-//			logLifeException(e);
-//		}
-//		if (logger != null) {
-//			logger.finer("** exiting ACTIVATE **");
-//		}
-//		return result;
-//	}
-	
-	/**
 	 * @param e
 	 */
 	final void suicide(SelfKillException e) {
@@ -181,8 +107,6 @@ public class Agent extends AbstractAgent{
 
 
 	final boolean living() {
-		//		if(! state.compareAndSet(ACTIVATED, LIVING))
-		//			throw new AssertionError("not activated in live");//TODO remove test
 		try {
 			state.set(State.LIVING);
 			setMyThread(Thread.currentThread());
@@ -231,18 +155,17 @@ public class Agent extends AbstractAgent{
 	 * </pre>
 	 */
 	protected void live() {
-//		setLogLevel(Level.INFO);
-//		if(logger != null)
-//			logger.talk("\n\tHi human and hello World !!\n\n I am an instance of the madkit.kernel.Agent class\n As such, I am a MadKit threaded Agent\n and thus have an autonomous activity!");
-//		pause(5000);
-//		if(logger != null)
-//		logger.talk("\n\n And in fact, I am the simpliest agent ever\n because I simply do nothing at all :)\n\n");
-//		pause(4000);
-//		int i = (int) (Math.random()*3000+4500);
-//		if(logger != null)
-//		logger.info("I will quit in "+i+" milliseconds... Bye !");
-//		pause(i);
-		pause(300);
+		setLogLevel(Level.INFO);
+		if(logger != null)
+			logger.talk("\n\tHi human and hello World !!\n\n I am an instance of the madkit.kernel.Agent class\n As such, I am a MadKit threaded Agent\n and thus have an autonomous activity!");
+		pause(5000);
+		if(logger != null)
+		logger.talk("\n\n And in fact, I am the simpliest agent ever\n because I simply do nothing at all :)\n\n");
+		pause(4000);
+		int i = (int) (Math.random()*3000+4500);
+		if(logger != null)
+		logger.info("I will quit in "+i+" milliseconds... Bye !");
+		pause(i);
 	}
 
 	@Override
@@ -517,10 +440,10 @@ public class Agent extends AbstractAgent{
 	public Message waitNextMessage()
 	{
 		if(logger != null){
-			logger.finest("Waiting next message...");
+			logger.finest("waitNextMessage...");
 			final Message m = waitingNextMessageForEver();
 			if(logger != null)
-				logger.finest("... a new message has been received "+m);
+				logger.finest("..."+Words.NEW_MSG+": "+m);
 			return m;
 		}
 		return waitingNextMessageForEver();
@@ -541,9 +464,9 @@ public class Agent extends AbstractAgent{
 			logger.finest("Waiting next message during "+timeOutMilliseconds+" milliseconds...");
 			final Message m = waitingNextMessage(timeOutMilliseconds, TimeUnit.MILLISECONDS);
 			if(m != null)
-				logger.finest("... a new message has been received "+m);
+				logger.finest("..."+Words.NEW_MSG+": "+m);
 			else
-				logger.finest("... wait next message has reached time out, no message received");
+				logger.finest("...time out !");
 			return m;
 		}
 		return waitingNextMessage(timeOutMilliseconds, TimeUnit.MILLISECONDS);
@@ -583,9 +506,8 @@ public class Agent extends AbstractAgent{
 	 * @param milliSeconds the number of milliseconds for which the agent should pause.
 	 */
 	protected void pause(final int milliSeconds) {
-		//		checkAliveness();
 		if(logger != null)
-			logger.finest("Making a pause during "+milliSeconds+ " milliseconds");
+			logger.finest(Words.PAUSE+" "+milliSeconds+ " ms.");
 		if(milliSeconds <0)
 			return;
 		try {
@@ -595,37 +517,6 @@ public class Agent extends AbstractAgent{
 		}
 	}
 
-	//	@Override
-	//	void handleInterruptedException() {
-	//		Thread t = Thread.currentThread();
-	//		if(t == myThread)
-	//			throw new KilledException("brutal kill");
-	//		else
-	//			super.handleInterruptedException();
-	//		//		checkAliveness();
-	//	}
-
-	//	/**
-	//	 * @param myThread the myThread to set
-	//	 * @since MadKit 5
-	//	 */
-	//	@Override
-	//	final void setMyThread(final Thread thread) {
-	////		super.setMyThread(thread);
-	//		this.myThread = thread;
-	//	}
-
-	//	/**
-	//	 * @see madkit.kernel.AbstractAgent#setName(java.lang.String)
-	//	 */
-	//	@Override
-	//	public void setName(String name) {
-	//		super.setName(name);
-	//		if (myThread != null) {
-	//			myThread.setName(name);
-	//		}
-	//	}
-
 	/**
 	 * @param timeout
 	 * @param unit
@@ -633,7 +524,6 @@ public class Agent extends AbstractAgent{
 	 * @since MadKit 5
 	 */
 	private Message waitingNextMessageForEver() {
-		//		checkAliveness();
 		try {
 			return messageBox.take();
 		} catch (InterruptedException e) {
@@ -651,7 +541,6 @@ public class Agent extends AbstractAgent{
 	 * @since MadKit 5
 	 */
 	private Message waitingNextMessage(final long timeout, final TimeUnit unit) {
-		//		checkAliveness();
 		try {
 			return messageBox.poll(timeout, unit);
 		} catch (InterruptedException e) {
@@ -700,7 +589,6 @@ public class Agent extends AbstractAgent{
 		final long conversationID = theMessageToReplyTo.getConversationID();
 		answer = waitingNextMessage(timeOutNanos, TimeUnit.NANOSECONDS);
 		while (answer != null && answer.getConversationID() != conversationID) {
-			//			System.err.println(getName()+"\n\n\n-------------------- ID = "+answer.getID()+"\n\n\n");
 			receptions.add(answer);
 			answer = waitingNextMessage(endTime - System.nanoTime(),TimeUnit.NANOSECONDS);
 		}
@@ -719,66 +607,4 @@ public class Agent extends AbstractAgent{
 		return answer;
 	}
 
-//	List<Message> waitAnswers(Message message, int size, Integer timeOutMilliSeconds) {
-//		final long endTime = System.nanoTime()+TimeUnit.MILLISECONDS.toNanos(timeOutMilliSeconds);
-//		final long conversationID = message.getConversationID();
-//		int missing = size;
-//		final LinkedList<Message> receptions = new LinkedList<Message>();
-//		final LinkedList<Message> answers = new LinkedList<Message>();
-//		while(missing > 0 && System.nanoTime() < endTime){
-//			Message answer = waitingNextMessage(endTime - System.nanoTime(),TimeUnit.NANOSECONDS);
-//			if(answer == null)
-//				break;
-//			if(answer.getConversationID() == conversationID){
-//				answers.add(answer);
-//				missing--;
-//			}
-//			else
-//				receptions.add(answer);
-//		}
-//		if (! receptions.isEmpty()) {
-//			Collections.reverse(receptions);
-//			for (final Message m : receptions) {
-//				messageBox.addFirst(m);
-//			}
-//		}
-//		if(! answers.isEmpty())
-//			return answers;
-//		return null;
-//	}
-
-	//	@Override
-	//	void checkAliveness() {
-	//		//TODO I do not need that : I manage interruption myself
-	//		//threads will get a kernelException if killed
-	//		if(Thread.interrupted()){
-	//			if(myThread == Thread.currentThread()){
-	//				throw new KilledException(" interrupted ");
-	//			}
-	//			else{
-	//				Thread.currentThread().interrupt();
-	//			}
-	//		}
-	//	}
-
-	//	private void checkAliveness() {
-	//		if(Thread.interrupted()){
-	//			if(myThread == Thread.currentThread()){
-	//				throw new KilledException("Killed");
-	//			}
-	//			else{
-	//				Thread.currentThread().interrupt();
-	//			}
-	//		}
-	//	}
-
-	//	void checkAliveness(){
-	//		if(isAgentThread() && Thread.interrupted()){
-	//			throw new KilledException(" get interrupted ");
-	//		}
-	//	}
-
-	//	private boolean isAgentThread(){
-	//		return Thread.currentThread() == myThread;
-	//	}
 }

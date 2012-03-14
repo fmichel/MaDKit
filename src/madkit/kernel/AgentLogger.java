@@ -43,57 +43,29 @@ import madkit.kernel.Madkit.Option;
  * This class defines a logger specialized for MadKit agents.
  * 
  * @author Fabien Michel
- * @version 0.9
+ * @version 0.91
  * @since MadKit 5.0.0.5
  *
  */
 public class AgentLogger extends Logger {
 
+	final public static Formatter agentFormatter = new AgentFormatter();
+	final public static Formatter agentFileFormatter = new AgentFormatter(){
+		@Override
+		protected String getHeader(final LogRecord record){
+			return "";
+		}
+	};
 	final static AgentLogger defaultAgentLogger = new AgentLogger();
-	final static private Map<AbstractAgent,AgentLogger> agentLoggers = new ConcurrentHashMap<AbstractAgent,AgentLogger>();//TODO evaluate foot print
+
 	final static Level talkLevel = Level.parse("1100");
-	private Level warningLogLevel = LevelOption.warningLogLevel.getValue(Madkit.defaultConfig);
+	final static private Map<AbstractAgent,AgentLogger> agentLoggers = new ConcurrentHashMap<AbstractAgent,AgentLogger>();//TODO evaluate foot print
+
 	final private AbstractAgent myAgent;
 
-	final public static Formatter agentFormatter = new Formatter(){//TODO create Formatter hierarchy
-		@Override
-		final public String format(final LogRecord record) {
-			final Level lvl = record.getLevel();
-			if(lvl.equals(talkLevel)){
-				return record.getMessage();
-			}
-			return record.getLoggerName()+" "+lvl.getLocalizedName()+" : "+record.getMessage()+"\n";
-		}
-	};
+	private Level warningLogLevel = LevelOption.warningLogLevel.getValue(Madkit.defaultConfig);
 
-	final public static Formatter agentFileFormatter = new Formatter(){
-		@Override
-		final public String format(final LogRecord record) {
-			final Level lvl = record.getLevel();
-			if(lvl.equals(talkLevel)){
-				return record.getMessage();
-			}
-			return lvl.getLocalizedName()+" : "+record.getMessage()+"\n";
-		}
-	};
-
-	//	final static Formatter unregisteredAgentFormatter = new Formatter(){
-	//		@Override
-	//		final public String format(final LogRecord record) {
-	//			final Level lvl = record.getLevel();
-	//			if(lvl.equals(talkLevel)){
-	//				return record.getMessage();
-	//			}
-	//			new Exception().printStackTrace();
-	//			return record.getSourceMethodName() + lvl.getLocalizedName()+" : "+formatMessage(record)+"\n";
-	//		}
-	//	};
-
-
-
-
-
-	static AgentLogger getLogger(final AbstractAgent agent) {
+	final static AgentLogger getLogger(final AbstractAgent agent) {
 		AgentLogger al = agentLoggers.get(agent);
 		if(al == null || ! al.getName().equals(agent.getLoggingName())){
 			if(al != null){
@@ -124,8 +96,6 @@ public class AgentLogger extends Logger {
 	//		return al;
 	//	}
 
-
-
 	/**
 	 * @return the warningLogLevel
 	 */
@@ -133,11 +103,6 @@ public class AgentLogger extends Logger {
 		return warningLogLevel;
 	}
 	
-//	@Override
-//	public ResourceBundle getResourceBundle() {
-//		return Madkit.getResourceBundle();
-//	}
-
 	/** 
 	 * Sets the agent's log level above which MadKit warnings are displayed
 	 * 
@@ -148,7 +113,7 @@ public class AgentLogger extends Logger {
 		AgentLogLevelMenu.update(myAgent);
 	}
 
-	AgentLogger(){
+	private AgentLogger(){
 		super("[UNREGISTERED AGENT]", null);
 		myAgent = null;
 		setUseParentHandlers(false);
@@ -230,8 +195,8 @@ public class AgentLogger extends Logger {
 	}
 	
 	static void resetLoggers(){
-		for (Logger l : agentLoggers.values()) {
-			for(Handler h : l.getHandlers()){
+		for (final Logger l : agentLoggers.values()) {
+			for(final Handler h : l.getHandlers()){
 				l.removeHandler(h);
 				try {
 					h.close();
@@ -263,33 +228,6 @@ public class AgentLogger extends Logger {
 			log(talkLevel,msg);
 	}
 
-	//	/**
-	//	 * @see java.util.logging.Logger#log(java.util.logging.Level, java.lang.String)
-	//	 */
-	//	@Override
-	//	public void log(Level level, String msg) {
-	//		if(level == talkLevel)
-	//			
-	//		super.log(level, msg);
-	//	}
-
-	//	void addGUIHandlerFor(AbstractAgent agent){
-	//		if(agent.getGUIComponent() != null && agent.getGUIComponent() instanceof AgentGUIModel){
-	//			OutputStream os = ((AgentGUIModel) agent.getGUIComponent()).getOutputStream();
-	//			if(os != null){
-	//				Handler h = new StreamHandler(os, AgentLogger.agentFileFormatter){
-	//					@Override
-	//					public synchronized void publish(LogRecord record) {
-	//						super.publish(record);
-	//						flush();
-	//					}
-	//				};
-	//				h.setLevel(getLevel());
-	//				addHandler(h);
-	//			}
-	//		}
-	//	}
-
 	/**
 	 * @see java.util.logging.Logger#setLevel(java.util.logging.Level)
 	 */
@@ -307,7 +245,7 @@ public class AgentLogger extends Logger {
 
 	@Override
 	public String toString() {
-		return getName()+"'s AgentLogger "+ getLevel();
+		return getName()+" logger: \n\tlevel "+ getLevel() +"\n\twarningLogLevel "+getWarningLogLevel();
 	}
 
 	/**
@@ -349,6 +287,21 @@ public class AgentLogger extends Logger {
 		}
 		log(Level.SEVERE, msg, t);
 		setLevel(lvl);
+	}
+}
+
+class AgentFormatter extends Formatter{
+	@Override
+	public String format(final LogRecord record) {
+		final Level lvl = record.getLevel();
+		if(lvl.equals(AgentLogger.talkLevel)){
+			return record.getMessage();
+		}
+		return getHeader(record)+lvl.getLocalizedName()+" : "+record.getMessage()+"\n";
+	}
+	
+	protected String getHeader(final LogRecord record){
+		return record.getLoggerName()+" ";
 	}
 	
 }

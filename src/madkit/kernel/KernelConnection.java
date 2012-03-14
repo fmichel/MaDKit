@@ -23,6 +23,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.Set;
@@ -35,10 +36,10 @@ import java.util.Set;
  */
 final class KernelConnection extends Thread{
 
-	Socket distantKernelSocket = null;
+	final private Socket distantKernelSocket;
 	boolean activated = false;
 	final private NetworkAgent myNetAgent;
-	private KernelAddress kernelAddress;
+	private KernelAddress distantKernelAddress;
 
 	boolean isActivated() {
 		return activated;
@@ -51,18 +52,14 @@ final class KernelConnection extends Thread{
 		return distantKernelSocket;
 	}
 
-	/**
-	 * @param address
-	 * @param port
-	 */
 	private ObjectOutputStream oos;
 	private ObjectInputStream ois;
 
 	/**
-	 * @return the kernelAddress
+	 * @return the distantKernelAddress
 	 */
 	KernelAddress getKernelAddress() {
-		return kernelAddress;
+		return distantKernelAddress;
 	}
 
 	public KernelConnection(NetworkAgent netAgent, InetAddress address, int port) throws UnknownHostException,IOException {
@@ -97,7 +94,7 @@ final class KernelConnection extends Thread{
 	 * @throws ClassNotFoundException
 	 */
 	KernelAddress waitForDistantKernelAddress() throws IOException, ClassNotFoundException{
-		return kernelAddress = (KernelAddress) ois.readObject();
+		return distantKernelAddress = (KernelAddress) ois.readObject();
 	}
 
 
@@ -125,7 +122,7 @@ final class KernelConnection extends Thread{
 				e.printStackTrace();
 				break;
 			} catch (IOException e) {
-				myNetAgent.receiveMessage(new NetworkMessage(NetCode.PEER_DECONNECTED, kernelAddress));
+				myNetAgent.receiveMessage(new NetworkMessage(NetCode.PEER_DECONNECTED, distantKernelAddress));
 				break;
 			}		
 		}
@@ -135,11 +132,11 @@ final class KernelConnection extends Thread{
 	/**
 	 * @param m
 	 */
-	void sendMessage(Message m) {
+	synchronized void sendMessage(Message m) {
 		try {
 			oos.writeObject(m);
 		} catch (IOException e) {
-			e.printStackTrace();//log this
+//			e.printStackTrace();//log this//TODO handle broken pipe socket ex
 		}
 		
 	}
@@ -152,8 +149,7 @@ final class KernelConnection extends Thread{
 			oos.close();
 			ois.close();
 			distantKernelSocket.close();
-		} catch (IOException e) {//log this
-			e.printStackTrace();
+		} catch (IOException e) {//log this//TODO handle broken pipe
 		}
 		
 	}
@@ -163,7 +159,7 @@ final class KernelConnection extends Thread{
 	 */
 	@Override
 	public String toString() {
-		return distantKernelSocket.getInetAddress().getHostAddress()+kernelAddress.toString();
+		return distantKernelSocket.getInetAddress().getHostAddress()+" dka = "+(distantKernelAddress == null ? "NA" : distantKernelAddress);
 	}
 
 	public int getPort(){

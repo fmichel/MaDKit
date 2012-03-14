@@ -18,8 +18,6 @@
  */
 package madkit.kernel;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 import madkit.agr.Organization;
 import madkit.kernel.AbstractAgent.ReturnCode;
 
@@ -45,8 +43,6 @@ import madkit.kernel.AbstractAgent.ReturnCode;
  */
 public class AgentAddress implements java.io.Serializable{
 
-	private final static AtomicInteger addressCount = new AtomicInteger();
-	
 	private static final long serialVersionUID = -5109274890965282440L;
 
 	//not transmitted 
@@ -55,7 +51,6 @@ public class AgentAddress implements java.io.Serializable{
 	//these are the identifying parts over the net
 	final private KernelAddress kernelAddress;
 	final private int _hashCode;
-	final private int agentCode;
 	private Role roleObject;
 
 	private String cgr;//This is necessary to keep info in agent addresses that do not exist anymore
@@ -68,10 +63,9 @@ public class AgentAddress implements java.io.Serializable{
 	 */
 	AgentAddress(final AbstractAgent agt, final Role role, final KernelAddress ka) {
 		agent = agt;
-		agentCode = agt.hashCode();
 		roleObject = role;
-		kernelAddress = ka;//could have been computed from agt but this is serious optimization for mass launching
-		_hashCode = addressCount.getAndIncrement();
+		kernelAddress = ka;//could have been computed from agt but this is serious optimization for mass launching//TODO unsure
+		_hashCode = agt.hashCode();
 	}
 
 	/**
@@ -148,7 +142,7 @@ public class AgentAddress implements java.io.Serializable{
 	 */
 	@Override
 	public String toString() {
-		String format = agentCode+"@("+getCommunity()+","+getGroup()+","+getRole()+")";
+		String format = _hashCode+"@("+getCommunity()+","+getGroup()+","+getRole()+")";
 		if(! isLocal()){
 			format+=getKernelAddress();
 		}
@@ -157,10 +151,6 @@ public class AgentAddress implements java.io.Serializable{
 		return format;
 	}
 	
-	final int getAgentCode() {
-		return agentCode;
-	}
-
 	/**
 	 * Tells if another address is the same.
 	 * If <code>true</code>, this means that both addresses refer to
@@ -175,9 +165,12 @@ public class AgentAddress implements java.io.Serializable{
 	public boolean equals(final Object agentAddress) throws ClassCastException{//TODO program the offline mode
 		if(this == agentAddress)
 			return true;
-		if(agentAddress == null || !(agentAddress.hashCode() == _hashCode))
+		if(agentAddress == null || !(agentAddress.hashCode() == hashCode()))
 			return false;
-		return kernelAddress.equals(((AgentAddress) agentAddress).getKernelAddress());
+//		if(agentAddress == null || !(agentAddress.hashCode() == _hashCode))
+//			return false;
+		final AgentAddress aa = (AgentAddress) agentAddress;
+		return kernelAddress.equals(aa.kernelAddress) && aa.roleObject == roleObject;
 	}
 
 	/**

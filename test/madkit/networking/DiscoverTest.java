@@ -21,6 +21,7 @@ package madkit.networking;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import madkit.action.KernelAction;
@@ -28,7 +29,9 @@ import madkit.agr.CloudCommunity;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AgentAddress;
 import madkit.kernel.JunitMadKit;
+import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.BooleanOption;
+import madkit.kernel.Madkit.LevelOption;
 
 import org.junit.Test;
 
@@ -43,16 +46,18 @@ public class DiscoverTest extends JunitMadKit {
 
 	@Test
 	public void multipleConnectionTest() {
-		addMadkitArgs(BooleanOption.network.toString());
+//		addMadkitArgs(BooleanOption.network.toString(),LevelOption.networkLogLevel.toString(),"ALL");
 		launchTest(new AbstractAgent() {
 			@Override
 			protected void activate() {
-				launchMKNetworkInstance();
-				launchMKNetworkInstance();
-				launchMKNetworkInstance();
-				launchMKNetworkInstance();
-				launchMKNetworkInstance();
-				pause(2000);
+				ArrayList<Madkit> mdks = new ArrayList<Madkit>();
+				KernelAction.LAUNCH_NETWORK.getActionFor(this).actionPerformed(null);
+				mdks.add(launchMKNetworkInstance());
+				mdks.add(launchMKNetworkInstance());
+				mdks.add(launchMKNetworkInstance());
+				mdks.add(launchMKNetworkInstance());
+				mdks.add(launchMKNetworkInstance());
+				pause(300);
 				List<AgentAddress> l = getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS,
 						CloudCommunity.Roles.NET_AGENT);
 				for (AgentAddress agentAddress : l) {
@@ -67,12 +72,17 @@ public class DiscoverTest extends JunitMadKit {
 
 				// second round
 				KernelAction.LAUNCH_NETWORK.getActionFor(this).actionPerformed(null);
-				pause(1000);
+				pause(300);
 				l = getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT);
 				for (AgentAddress agentAddress : l) {
 					System.err.println(agentAddress);
 				}
 				assertEquals(6, l.size());
+				for (Madkit madkit : mdks) {
+					madkit.doAction(KernelAction.EXIT);
+				}
+				KernelAction.EXIT.getActionFor(this).actionPerformed(null);
+				pause(1000);
 			}
 		});
 	}

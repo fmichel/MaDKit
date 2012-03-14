@@ -21,6 +21,7 @@ package madkit.networking;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import madkit.action.KernelAction;
@@ -30,6 +31,7 @@ import madkit.agr.LocalCommunity.Groups;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AgentAddress;
 import madkit.kernel.JunitMadKit;
+import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.BooleanOption;
 
 import org.junit.Test;
@@ -53,14 +55,15 @@ public class AsynchronousDiscoverTest extends JunitMadKit {
 				launchThreadedMKNetworkInstance();
 				launchThreadedMKNetworkInstance();
 				launchThreadedMKNetworkInstance();
+				KernelAction.LAUNCH_NETWORK.getActionFor(this).actionPerformed(null);
 				launchThreadedMKNetworkInstance();
 				launchThreadedMKNetworkInstance();
-				pause(10);
+				pause(100);
 				int i = 0;
 				while (getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT) == null || getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT)
 						.size() != 6) {
-					pause(2000);
-					if (i++ == 100)
+					pause(500);
+					if (i++ == 10)
 						break;
 				}
 				if (logger != null)
@@ -68,8 +71,9 @@ public class AsynchronousDiscoverTest extends JunitMadKit {
 				assertEquals(6,
 						getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT)
 								.size());
+				pause(500);
 				KernelAction.STOP_NETWORK.getActionFor(this).actionPerformed(null);
-				pause(1000);
+				pause(500);
 
 				// not connected
 				assertFalse(isCommunity(CloudCommunity.NAME));
@@ -79,7 +83,7 @@ public class AsynchronousDiscoverTest extends JunitMadKit {
 				List<AgentAddress> l = getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS,
 						CloudCommunity.Roles.NET_AGENT);
 				while (l == null || l.size() != 6) {
-					pause(2000);
+					pause(500);
 					l = getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT);
 					if (i++ == 100)
 						break;

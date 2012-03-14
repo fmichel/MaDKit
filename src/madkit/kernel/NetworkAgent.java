@@ -26,6 +26,8 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import madkit.agr.CloudCommunity;
@@ -117,7 +119,7 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 			multicastListener.activate(this);
 			if (logger != null){
 				logger.config("\n\t\t\t\t----- MadKit MulticastListener activated on "+MultiCastListener.ipAddress+" ------\n");
-				logger.finest("Broadcasting existence");
+				logger.finest("Broadcasting existence ");
 			}
 		} catch (IOException e) {
 			if (logger != null){
@@ -238,56 +240,10 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 		}
 	}
 
-	//	private void launchNetwork(boolean on){
-	//		if(on){
-	//			launchNetwork();
-	//		}
-	//		else{
-	//			stopNetwork();
-	//		}
-	//	}
-	//	
-	//	@SuppressWarnings("unchecked")
-	//	private void handlePrivateMessage(NetworkMessage m) {
-	//			switch (m.getCode()) {
-	//			case NEW_PEER_DETECTED:
-	//				contactPeer(((NetCode<DatagramPacket>) m).getContent());
-	//				break;
-	//			case NEW_PEER_REQUEST:
-	//				addPeer(((NetCode<Socket>) m).getContent());
-	//				break;
-	//			case PEER_DECONNECTED:
-	//				deconnectFromPeer(((NetCode<KernelAddress>) m).getContent());
-	//				break;
-	//			default:
-	//				if (logger != null) 
-	//					logger.info("I did not understand this private message "+m);
-	//				break;
-	//			}
-	//	}
-
 	@SuppressWarnings("unused")
 	private void exit(){
 		alive = false;
 	}
-
-	//	private void handlePrivateMessage(KernelMessage m) {
-	//			switch (m.getCode()) {
-	//			case STOP_NETWORK:
-	//				goOffline();
-	//				break;
-	//			case LAUNCH_NETWORK:
-	//				goOnline();
-	//				break;
-	//			case EXIT:
-	//				alive = false;
-	//				break;
-	//			default:
-	//				if (logger != null) 
-	//					logger.info("I did not understand this private message "+m);
-	//				break;
-	//			}
-	//	}
 
 	/**
 	 * Removes ka from peers and clean organization accordingly
@@ -306,7 +262,8 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 	 * @param s
 	 */
 	private void newPeerRequest(Socket s) {
-		if (logger != null) logger.fine("Contacted by peer "+s+" -> sending connection message");
+		if (logger != null) 
+			logger.fine("Contacted by peer "+s+" -> opening kernel connection");
 		KernelConnection kc = null;
 		try {
 			kc = new KernelConnection(this,s);
@@ -314,9 +271,12 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 			if (logger != null) logger.warning("I give up: Unable to contact peer on "+s+" because "+e.getMessage());
 			return;
 		}
+		if(logger != null)
+			logger.finer("KC opened: "+kc+"\n\tsending connection INFO");
 		if(! sendingConnectionInfo(kc))
 			return;
-		if (logger != null) logger.fine("Connection info sent, now waiting reply from "+kc.getDistantKernelSocket()+"...");
+		if (logger != null) 
+			logger.fine("Connection info sent, now waiting reply from "+kc.getDistantKernelSocket()+"...");
 		KernelAddress dka = gettingConnectionInfo(kc);
 		if(dka == null)
 			return;
@@ -341,16 +301,20 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 	 */
 	@SuppressWarnings("unused")
 	private void newPeerDetected(DatagramPacket packet) {
-		if (logger != null) logger.fine("New peer detected on "+packet.getAddress()+" port = "+packet.getPort()+" -> sending connection message");
+		if (logger != null) 
+			logger.fine("New peer detected on "+packet.getAddress()+" port = "+packet.getPort()+"\n\t-> opening KernelConnection");
 		KernelConnection kc = null;
 		try {
 			kc = new KernelConnection(this,packet.getAddress(),packet.getPort());
-		} catch (UnknownHostException e) {
-			if (logger != null) logger.warning("I give up: Unable to contact peer on "+packet.getAddress()+" port = "+packet.getPort()+" because "+e.getMessage());
+			if(logger != null)
+				logger.finer("KC created "+kc);
+		} catch (UnknownHostException e) {//TODO java 7
+			if (logger != null) 
+				logger.warning("I give up: Unable to contact peer on "+packet.getAddress()+" port = "+packet.getPort()+" because "+e.getMessage());
 			return;
 		} catch (IOException e) {
-			if (logger != null) logger.warning("I give up: Unable to contact peer on "+packet.getAddress()+" port = "+packet.getPort()+" because "+e.getMessage());
-			//			e.printStackTrace();
+			if (logger != null) 
+				logger.warning("I give up: Unable to contact peer on "+packet.getAddress()+" port = "+packet.getPort()+" because "+e.getMessage());
 			return;
 		}
 		KernelAddress dka = gettingConnectionInfo(kc);
@@ -367,14 +331,23 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 	 * @return
 	 */
 	private KernelAddress gettingConnectionInfo(KernelConnection kc) {
-		if (logger != null) logger.finest("Waiting for distant kernel address info...");
+		if (logger != null) 
+			logger.finest("Waiting distant kernel address...");
 		KernelAddress dka = null;
 		try {
 			dka = kc.waitForDistantKernelAddress();
-			if (logger != null) logger.finest("... Distant Kernel Address is "+dka+"\nWaiting for distant organization info...");
-			if (logger != null) logger.finest("Now importing org...");
-			//			SortedMap<String, SortedMap<String, SortedMap<String, Set<AgentAddress>>>> org = kc.waitForDistantOrg();
-			//		if (logger != null) logger.finer("... Distant organization received from "+dka+" Org is\n\n"+org+"\n");
+			if (logger != null) 
+				logger.finest("... Distant Kernel Address is "+dka+"\nWaiting distant organization info...");
+//						Map<String, Map<String, Map<String, Set<AgentAddress>>>> org = null;
+//						try {
+//							org = kc.waitForDistantOrg();
+//							if (logger != null) 
+//								logger.finer("... Distant organization received from "+dka+" Org is\n\n"+org+"\n");
+//							kernel.importDistantOrg(org);
+//						} catch (Throwable e) {
+//							e.printStackTrace();
+//						}
+//						
 			kernel.importDistantOrg(kc.waitForDistantOrg());
 			return dka;
 		} catch (IOException e) {
@@ -399,7 +372,8 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 		try {
 			kc.sendConnectionInfo(getKernelAddress(), getOrganizationSnapShot(false));
 		} catch (IOException e) {
-			if (logger != null) logger.warning("I give up: Unable to send connection info to "+(kc.getKernelAddress() == null ? kc.getDistantKernelSocket() : kc.getKernelAddress())+" because "+e.getMessage());
+			if (logger != null) 
+				logger.warning("I give up: Unable to send connection info to "+(kc.getKernelAddress() == null ? kc.getDistantKernelSocket() : kc.getKernelAddress())+" because "+e.getMessage());
 			return false;
 		}
 		return true;

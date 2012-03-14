@@ -936,12 +936,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @return the current kernel
 	 */
 	final MadkitKernel getKernel() {
-		// checkAliveness();
 		return kernel;
 	}
-
-	// void checkAliveness() {
-	// }
 
 	/**
 	 * @param kernel
@@ -952,7 +948,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	/**
-	 * Returns the name of this agent.
+	 * Returns the agent's name.
 	 * 
 	 * @return the name to display in logger info, GUI title and so on. Default
 	 *         is "<i>class name + internal ID</i>"

@@ -240,8 +240,8 @@ class Role implements Serializable{//TODO test with arraylist
 	 */
 	final void addDistantMember(final AgentAddress content) {
 		synchronized (players) {
+			content.setRoleObject(this);
 			if (buildAndGetAddresses().add(content)) {
-				content.setRoleObject(this);
 			}
 		}
 	}
@@ -276,7 +276,7 @@ class Role implements Serializable{//TODO test with arraylist
 				for (Iterator<AgentAddress> i = agentAddresses.iterator();i.hasNext();) {
 					AgentAddress aa = i.next();
 					AbstractAgent agent = aa.getAgent();
-					if(agent != null && bucket.contains(agent)){
+					if(agent != null && bucket.remove(agent)){
 						i.remove();
 						aa.setRoleObject(null);//cost is high because of string creation...
 					}
@@ -513,15 +513,16 @@ class Role implements Serializable{//TODO test with arraylist
 		synchronized (players) {
 			buildAndGetAddresses();
 			for (final AgentAddress aa : list) {
-				if (agentAddresses.add(aa)) {
-					aa.setRoleObject(this);
-				}
-				else{
-					Logger l = myGroup.getCommunityObject().getMyKernel().logger;
-					if (l != null) {
-						l.log(Level.FINER, "Already have this address ");
-					}					
-				}
+				aa.setRoleObject(this);
+				agentAddresses.add(aa);
+//				if (agentAddresses.add(aa)) {
+//				}
+//				else{
+//					Logger l = myGroup.getCommunityObject().getMyKernel().logger;
+//					if (l != null) {
+//						l.log(Level.FINER, "Already have this address ");
+//					}					
+//				}
 			}
 		}
 
@@ -533,7 +534,8 @@ class Role implements Serializable{//TODO test with arraylist
 //		final KernelAddress ka = a.getKernelAddress();
 		synchronized (players) {
 			for (final AgentAddress aa : buildAndGetAddresses()) {//TODO when offline second part is useless
-				if (aa.getAgentCode() == hash && aa.getAgent() != null)// && ka.equals(aa.getKernelAddress()))
+//				if (aa.getAgentCode() == hash && aa.getAgent() != null)// && ka.equals(aa.getKernelAddress()))
+					if (aa.hashCode() == hash && aa.getAgent() != null)// && ka.equals(aa.getKernelAddress()))
 					return aa;
 			}
 		}
@@ -546,7 +548,8 @@ class Role implements Serializable{//TODO test with arraylist
 	 * @return the AbstractAgent corresponding to the aa agentAddress in this role, null if it does no longer play this role
 	 */
 	AbstractAgent getAbstractAgentWithAddress(AgentAddress aa) {
-		final int hash = aa.getAgentCode();
+//		final int hash = aa.getAgentCode();
+		final int hash = aa.hashCode();
 		synchronized (players) {
 			for (final AbstractAgent agent : players) {
 				if (agent.hashCode() == hash)

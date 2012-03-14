@@ -303,6 +303,11 @@ class MadkitKernel extends Agent {
 														// required
 		}
 	}
+	
+	@Override
+	public boolean isAlive() {
+		return super.isAlive() && ! shuttedDown;
+	}
 
 	@Override
 	protected void end() {
@@ -348,10 +353,6 @@ class MadkitKernel extends Agent {
 			bugReport(e);
 		}
 		// }
-	}
-
-	final private void handleKernelMessage(KernelMessage km) {
-		proceedEnumMessage(km);
 	}
 
 	@SuppressWarnings("unused")
@@ -536,7 +537,7 @@ class MadkitKernel extends Agent {
 	//
 	private void handleMessage(Message m) {
 		if (m instanceof KernelMessage) {
-			handleKernelMessage((KernelMessage) m);
+			proceedEnumMessage((KernelMessage) m);
 		} else if (m instanceof AgentHookMessage) {
 			handleHookRequest((AgentHookMessage) m);
 		} else {
@@ -1553,6 +1554,8 @@ class MadkitKernel extends Agent {
 	}
 
 	final void importDistantOrg(final Map<String, Map<String, Map<String, Set<AgentAddress>>>> distantOrg) {
+		if (logger != null) 
+			logger.finer("Importing org..."+distantOrg);
 		synchronized (organizations) {
 			for (final String communityName : distantOrg.keySet()) {
 				Organization org = new Organization(communityName, this);

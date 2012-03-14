@@ -124,8 +124,8 @@ public class AgentAddressTest {
 	 * Test method for {@link madkit.kernel.AgentAddress#getAgentCode()}.
 	 */
 	@Test
-	public void testGetAgentCode() {
-		assertEquals(a.hashCode(), aa.getAgentCode());
+	public void testHashCode() {
+		assertEquals(a.hashCode(), aa.hashCode());
 	}
 
 	/**
@@ -136,6 +136,10 @@ public class AgentAddressTest {
 	public void testEqualsObject() {
 		AgentAddress other = new AgentAddress(new AbstractAgent(), r, r.getKernelAddress());
 		assertFalse(other.equals(aa));
+		other = new AgentAddress(a, r, r.getKernelAddress());
+		System.err.println(aa.toString()+aa.getKernelAddress());
+		System.err.println(other.toString()+other.getKernelAddress());
+		assertTrue(other.equals(aa));
 	}
 
 	/**

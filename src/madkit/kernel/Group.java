@@ -86,11 +86,11 @@ final class Group extends ConcurrentHashMap<String, Role> {
 	 * @param log
 	 * @param community
 	 * @param group
-	 * @param creator
+	 * @param manager
 	 * @param gatekeeper
 	 * @param communityObject
 	 */
-	Group(String community, String group, AgentAddress creator, Gatekeeper gatekeeper, Organization communityObject) {
+	Group(String community, String group, AgentAddress manager, Gatekeeper gatekeeper, Organization communityObject) {
 		// manager = creator;
 		distributed = true;
 		this.communityObject = communityObject;
@@ -98,8 +98,10 @@ final class Group extends ConcurrentHashMap<String, Role> {
 		this.gatekeeper = gatekeeper;
 		communityName = community;
 		groupName = group;
-		put(madkit.agr.Organization.GROUP_MANAGER_ROLE, new ManagerRole(this, creator));
-		// manager = new AtomicReference<AgentAddress>(creator);
+		if (manager != null) {
+			put(madkit.agr.Organization.GROUP_MANAGER_ROLE, new ManagerRole(this,
+					manager));
+		}
 	}
 
 	String getName() {
@@ -277,6 +279,7 @@ final class Group extends ConcurrentHashMap<String, Role> {
 	void removeDistantMember(final AgentAddress aa) {
 		// boolean in = false;
 		for (final Role r : values()) {
+			aa.setRoleObject(r);
 			r.removeDistantMember(aa);
 		}
 		// if (manager.get().equals(aa)){

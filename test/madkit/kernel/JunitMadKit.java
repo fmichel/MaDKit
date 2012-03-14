@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
@@ -237,9 +238,19 @@ public class JunitMadKit {
 
 	}
 
-	public void launchMKNetworkInstance() {
-		String[] args = { BooleanOption.network.toString(), Option.launchAgents.toString(), ForEverAgent.class.getName() };
-		Madkit.main(args);
+	public Madkit launchMKNetworkInstance() {
+		return launchMKNetworkInstance(Level.INFO);
+	}
+
+
+	public Madkit launchMKNetworkInstance(Level l) {
+		String[] args = { 
+				BooleanOption.network.toString(), 
+				Option.launchAgents.toString(), ForEverAgent.class.getName(),
+//				LevelOption.networkLogLevel.toString(),l.toString(),
+				LevelOption.kernelLogLevel.toString(),l.toString()};
+//				BooleanOption.createLogFiles.toString()};
+		return new Madkit(args);
 	}
 
 }

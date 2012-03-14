@@ -160,7 +160,11 @@ final class Organization extends ConcurrentHashMap <String, Group>{
 		for (String groupName : map.keySet()) {
 			Group group = get(groupName);
 			if(group == null){
-				AgentAddress manager = map.get(groupName).get(madkit.agr.Organization.GROUP_MANAGER_ROLE).iterator().next();
+				AgentAddress manager = null;
+				try {
+					manager = map.get(groupName).get(madkit.agr.Organization.GROUP_MANAGER_ROLE).iterator().next();
+				} catch (NullPointerException e) {//TODO have to fix that
+				}
 				group = new Group(communityName, groupName,manager, null, this);//TODO have to get the groupManager
 				put(groupName, group);
 			}

@@ -50,8 +50,7 @@ public class AbstractAgentTest {
 	public void setup() {
 		a = new AbstractAgent();
 		b = new AbstractAgent();
-		String[] args = { BooleanOption.desktop.toString(), "false" };
-		new Madkit(args);
+		new Madkit(BooleanOption.desktop.toString(), "false");
 	}
 
 	@Test

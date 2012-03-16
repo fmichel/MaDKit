@@ -299,8 +299,7 @@ class MadkitKernel extends Agent {
 		}
 		startSession();
 		while (!shuttedDown) {
-			handleMessage(waitNextMessage());// As a daemon, a timeout is not
-														// required
+			handleMessage(waitNextMessage());// As a daemon, a timeout is not required
 		}
 	}
 	
@@ -889,32 +888,30 @@ class MadkitKernel extends Agent {
 	// //////////////////////// Launching and Killing
 	// ////////////////////////////////////////////////////////////
 	
-	List<AbstractAgent> launchAgentBucketWithRoles(final AbstractAgent requester, String agentClass,
-			int bucketSize, Collection<String> CGRLocations) {
-		if (shuttedDown)
-			return null;
-		List<AbstractAgent> bucket = null;
-		try {
-			bucket = createBucket(agentClass, bucketSize);
-		} catch (InstantiationException e) {
-			requester.cannotLaunchAgent(agentClass, e, null);
-		} catch (IllegalAccessException e) {
-			requester.cannotLaunchAgent(agentClass, e, null);
-		} catch (ClassNotFoundException e) {
-			requester.cannotLaunchAgent(agentClass, e, null);
-		}
-
-		launchAgentBucketWithRoles(requester, CGRLocations, bucket);
-		return bucket;
-	}
+//	List<AbstractAgent> launchAgentBucketWithRoles(final AbstractAgent requester, String agentClass,
+//			int bucketSize, String... cgrLocations) {
+//		List<AbstractAgent> bucket = null;
+//		try {
+//			bucket = createBucket(agentClass, bucketSize);
+//		} catch (InstantiationException e) {
+//			requester.cannotLaunchAgent(agentClass, e, null);
+//		} catch (IllegalAccessException e) {
+//			requester.cannotLaunchAgent(agentClass, e, null);
+//		} catch (ClassNotFoundException e) {
+//			requester.cannotLaunchAgent(agentClass, e, null);
+//		}
+//
+//		launchAgentBucketWithRoles(requester, bucket, cgrLocations);
+//		return bucket;
+//	}
 
 	/**
 	 * @param requester
-	 * @param CGRLocations
 	 * @param bucket
+	 * @param cgrLocations
 	 */
 	void launchAgentBucketWithRoles(final AbstractAgent requester,
-			Collection<String> CGRLocations, List<AbstractAgent> bucket) {
+			List<AbstractAgent> bucket, String... cgrLocations) {
 		AgentsJob aj = new AgentsJob() {
 			@Override
 			void proceedAgent(AbstractAgent a) {
@@ -939,8 +936,8 @@ class MadkitKernel extends Agent {
 				}
 			}
 		};
-		if (CGRLocations != null) {
-			for (final String cgrLocation : CGRLocations) {
+		if (cgrLocations != null && cgrLocations.length != 0) {
+			for (final String cgrLocation : cgrLocations) {
 				final String[] cgr = cgrLocation.split(";");
 				if (cgr.length != 3){
 					throw new IllegalArgumentException(cgrLocation);
@@ -974,8 +971,10 @@ class MadkitKernel extends Agent {
 		}
 	}
 
-	private List<AbstractAgent> createBucket(final String agentClass, int bucketSize) throws InstantiationException,
+	final List<AbstractAgent> createBucket(final String agentClass, int bucketSize) throws InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
+		if (shuttedDown)
+			return null;
 		@SuppressWarnings("unchecked")
 		final Class<? extends AbstractAgent> constructor = (Class<? extends AbstractAgent>) getMadkitClassLoader().loadClass(
 				agentClass);

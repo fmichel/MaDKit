@@ -56,6 +56,12 @@ public class MadkitTest {
 	}
 
 	@Test
+	public void noArg() {
+		Madkit m = new Madkit();
+		System.err.println(m.args);
+	}
+
+	@Test
 	public void buildConfigFromArgsTest() {
 		Madkit m = new Madkit(null);
 		String[] args = new String[1];

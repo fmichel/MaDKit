@@ -25,6 +25,7 @@ import static madkit.kernel.AbstractAgent.ReturnCode.ROLE_NOT_HANDLED;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static madkit.kernel.AbstractAgent.ReturnCode.TIMEOUT;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
@@ -261,23 +262,27 @@ final class LoggedKernel extends MadkitKernel {
 		return result;
 	}
 
-	/**
-	 * @see madkit.kernel.MadkitKernel#launchAgentBucketWithRoles(madkit.kernel.AbstractAgent, java.lang.String, int, java.util.Collection)
-	 */
-	@Override
-	List<AbstractAgent> launchAgentBucketWithRoles(AbstractAgent requester, String agentClassName, int bucketSize, Collection<String> CGRLocations) {
-		if(requester.isFinestLogOn())
-			requester.logger.log(Level.FINEST,"launchAgentBucketWithRoles  <" + agentClassName + "," + bucketSize + "," + CGRLocations + ">");
-		final List<AbstractAgent> l = kernel.launchAgentBucketWithRoles(requester, agentClassName, bucketSize, CGRLocations);
-		if(requester.isFinestLogOn())
-			requester.logger.log(Level.FINEST,"launchAgentBucketWithRoles  done !");
-		return l;
-	}
+//	/**
+//	 * @see madkit.kernel.MadkitKernel#launchAgentBucketWithRoles(madkit.kernel.AbstractAgent, java.lang.String, int, java.util.Collection)
+//	 */
+//	@Override
+//	List<AbstractAgent> launchAgentBucketWithRoles(AbstractAgent requester, String agentClassName, int bucketSize, String... CGRLocations) {
+//		if(requester.isFinestLogOn())
+//			requester.logger.log(Level.FINEST,"launchAgentBucketWithRoles  <" + agentClassName + "," + bucketSize + "," + CGRLocations + ">");
+//		final List<AbstractAgent> l = kernel.launchAgentBucketWithRoles(requester, agentClassName, bucketSize, CGRLocations);
+//		if(requester.isFinestLogOn())
+//			requester.logger.log(Level.FINEST,"launchAgentBucketWithRoles  done !");
+//		return l;
+//	}
 	
 	@Override
-	void launchAgentBucketWithRoles(AbstractAgent requester,
-			Collection<String> CGRLocations, List<AbstractAgent> bucket) {
-		kernel.launchAgentBucketWithRoles(requester, CGRLocations, bucket);
+	void launchAgentBucketWithRoles(AbstractAgent requester, List<AbstractAgent> bucket,
+			String... CGRLocations) {
+		if(requester.isFinestLogOn())
+			requester.logger.log(Level.FINEST,"launchAgentBucketWithRoles : "+bucket.size()+ " : "+Arrays.deepToString(CGRLocations));
+		kernel.launchAgentBucketWithRoles(requester, bucket, CGRLocations);
+		if(requester.isFinestLogOn())
+			requester.logger.log(Level.FINEST,"launchAgentBucketWithRoles  done !");
 	}
 
 	/**

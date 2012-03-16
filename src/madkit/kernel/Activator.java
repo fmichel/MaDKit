@@ -176,10 +176,4 @@ public class Activator<A extends AbstractAgent> extends Overlooker<A>{
 		}
 		return f;
 	} 
-
-
-	//	static Method findMethodOn(String name, Class<?> cl, String...parameters){
-	//		Method[] methods = cl.getMethod(name, parameterTypes);
-	//	}
-
 }

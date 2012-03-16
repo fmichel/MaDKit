@@ -21,6 +21,9 @@ package madkit.testing.util.agent;
 import static madkit.kernel.JunitMadKit.COMMUNITY;
 import static madkit.kernel.JunitMadKit.GROUP;
 import static madkit.kernel.JunitMadKit.ROLE;
+
+import java.util.logging.Level;
+
 import madkit.kernel.AbstractAgent;
 
 /**
@@ -41,6 +44,7 @@ public class SimulatedAgent extends AbstractAgent {
 
 	@Override
 	protected void activate() {
+//		setLogLevel(Level.ALL);
 		createGroup(COMMUNITY, GROUP, false, null);
 		requestRole(COMMUNITY, GROUP, ROLE, null);
 		activated  = true;

@@ -50,8 +50,7 @@ public class LaunchAgentBucketWithRolesWithListTest extends JunitMadKit {
 		launchTest(new AbstractAgent() {
 
 			protected void activate() {
-				launchAgentBucketWithRoles(FaultyAA.class.getName(), size,
-						Arrays.asList(COMMUNITY + ";" + GROUP + ";" + ROLE));
+				launchAgentBucketWithRoles(FaultyAA.class.getName(),size, COMMUNITY + ";" + GROUP + ";" + ROLE);
 			}
 		});
 	}
@@ -65,7 +64,7 @@ public class LaunchAgentBucketWithRolesWithListTest extends JunitMadKit {
 				for (int i = 0; i < 1; i++) {
 					l.add(null);
 				}
-				launchAgentBucketWithRoles(l,Arrays.asList(COMMUNITY + ";" + GROUP + ";" + ROLE));
+				launchAgentBucketWithRoles(l, COMMUNITY + ";" + GROUP + ";" + ROLE);
 			}
 		});
 	}
@@ -76,8 +75,7 @@ public class LaunchAgentBucketWithRolesWithListTest extends JunitMadKit {
 
 			protected void activate() {
 				try {
-					launchAgentBucketWithRoles(FaultyAA.class.getName(), size,
-							Arrays.asList(GROUP + ";" + ROLE));
+					launchAgentBucketWithRoles(FaultyAA.class.getName(),size, COMMUNITY + ";" + GROUP + ";" + ROLE);
 					JunitMadKit.noExceptionFailure();
 				} catch (IllegalArgumentException e) {
 					throw e;
@@ -95,8 +93,7 @@ public class LaunchAgentBucketWithRolesWithListTest extends JunitMadKit {
 				for (int i = 0; i < size; i++) {
 					l.add(new SimulatedAgent());
 				}
-				launchAgentBucketWithRoles(l,
-						Arrays.asList(COMMUNITY + ";" + GROUP + ";" + ROLE));
+				launchAgentBucketWithRoles(l, COMMUNITY + ";" + GROUP + ";" + ROLE);
 				testAgents(l);
 				assertEquals(size, getAgentsWithRole(COMMUNITY, GROUP, ROLE).size());
 			}

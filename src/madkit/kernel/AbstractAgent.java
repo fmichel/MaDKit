@@ -777,43 +777,42 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @param agentClass
 	 * @param e
 	 */
-	void cannotLaunchAgent(String agentClass, Throwable e, String infos) {
+	final void cannotLaunchAgent(String agentClass, Throwable e, String infos) {
 		getLogger().severeLog(ErrorMessages.CANT_LAUNCH + " " + agentClass + " : "+(infos != null ? infos :""), e);
 	}
 	
 	
 
-	/**
-	 * Launches <i><code>bucketSize</code></i> agent instances of this <i>
-	 * <code>agentClassName</code></i>. This has the same effect as
-	 * <code>launchAgentBucketWithRoles(agentClassName, bucketSize, null)</code>.
-	 * 
-	 * @param agentClassName
-	 *           the name of the class from which the agents should be built.
-	 * @param bucketSize
-	 *           the desired number of agents.
-	 * @return a list containing all the agents which have been launched, or
-	 *         <code>null</code> if the operation failed
-	 * @see #launchAgentBucketWithRoles(String, int, Collection)
-	 * @since MadKit 5.0.0.6
-	 */
-	public List<AbstractAgent> launchAgentBucket(String agentClassName, int bucketSize) {
-		return launchAgentBucketWithRoles(agentClassName, bucketSize, null);
-	}
+//	/**
+//	 * Launches <i><code>bucketSize</code></i> agent instances of this <i>
+//	 * <code>agentClassName</code></i>. This has the same effect as
+//	 * <code>launchAgentBucketWithRoles(agentClassName, bucketSize, null)</code>.
+//	 * 
+//	 * @param agentClassName
+//	 *           the name of the class from which the agents should be built.
+//	 * @param bucketSize
+//	 *           the desired number of agents.
+//	 * @return a list containing all the agents which have been launched, or
+//	 *         <code>null</code> if the operation failed
+//	 * @see #launchAgentBucketWithRoles(String, int, String...)
+//	 * @since MadKit 5.0.0.6
+//	 */
+//	public List<AbstractAgent> launchAgentBucket(String agentClassName, int bucketSize) {
+//		return launchAgentBucketWithRoles(agentClassName, bucketSize, null);
+//	}
 
 	/**
 	 * Optimizes mass agent launching. Launches <i><code>bucketSize</code></i>
 	 * agent instances of this <i><code>agentClassName</code></i> and put them in
 	 * the artificial society at the locations defined by
 	 * <code>cgrLocations</code>. Each string of the <code>cgrLocations</code>
-	 * collection defined a complete CGR location. So for example,
+	 * array defines a complete CGR location. So for example,
 	 * <code>cgrLocations</code> could be defined and used with code such as :
 	 * 
 	 * <p>
 	 * 
 	 * <pre>
-	 * Collection<String> cgrLocations = Arrays.asList("community;group;role","anotherC;anotherG;anotherR");
-	 * launchAgentBucketWithRoles("madkit.bees.Bee", 1000000, cgrLocations)
+	 * launchAgentBucketWithRoles("madkit.bees.Bee", 1000000, "community;group;role","anotherC;anotherG;anotherR")
 	 * </pre>
 	 * 
 	 * In this example all the agents created by this process will have these two
@@ -826,8 +825,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * {@link #requestRole(String, String, String, Object)},
 	 * {@link #leaveGroup(String, String)} or
 	 * {@link #leaveRole(String, String, String)} used in the {@link #activate()}
-	 * methods will be ignored, as they are contained in
-	 * <code>cgrLocations</code>.
+	 * methods will be ignored, as it is assumed that these are contained in
+	 * <code>cgrLocations</code>. It can be <code>null</code>
 	 * <p>
 	 * 
 	 * If some of the corresponding groups do not exist before this call, the
@@ -839,32 +838,45 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *           the desired number of instances.
 	 * @param cgrLocations
 	 *           default locations in the artificial society for the launched
-	 *           agents. Each string of the <code>cgrLocations</code> collection
-	 *           defined a complete CGR location by separating C, G and R with
+	 *           agents. Each string of the <code>cgrLocations</code> array
+	 *           defines a complete CGR location by separating C, G and R with
 	 *           semicolon as follows: <code>"community;group;role"</code>
 	 * @return a list containing all the agents which have been launched, or
 	 *         <code>null</code> if the operation has failed
 	 * @since MadKit 5.0.0.6
 	 */
-	public List<AbstractAgent> launchAgentBucketWithRoles(String agentClassName, int bucketSize, Collection<String> cgrLocations) {
-		return getKernel().launchAgentBucketWithRoles(this, agentClassName, bucketSize, cgrLocations);
+	public List<AbstractAgent> launchAgentBucketWithRoles(String agentClass, int bucketSize, String... cgrLocations) {
+//		return getKernel().launchAgentBucketWithRoles(this, agentClassName, bucketSize, cgrLocations);
+		List<AbstractAgent> bucket = null;
+		try {
+			bucket = getMadkitKernel().createBucket(agentClass, bucketSize);
+		} catch (InstantiationException e) {
+			cannotLaunchAgent(agentClass, e, null);
+		} catch (IllegalAccessException e) {
+			cannotLaunchAgent(agentClass, e, null);
+		} catch (ClassNotFoundException e) {
+			cannotLaunchAgent(agentClass, e, null);
+		}
+
+		launchAgentBucketWithRoles(bucket, cgrLocations);
+		return bucket;
 	}
 	
 	/**
-	 * Similar to {@link #launchAgentBucketWithRoles(String, int, Collection)}
+	 * Similar to {@link #launchAgentBucketWithRoles(String, int, String...)}
 	 * except that the list of agents to launch is given. Especially, this could
 	 * be used when the agents have no default constructor.
 	 * 
 	 * @param bucket the list of agents to launch
 	 * @param cgrLocations
 	 *           default locations in the artificial society for the launched
-	 *           agents. Each string of the <code>cgrLocations</code> collection
-	 *           defined a complete CGR location by separating C, G and R with
+	 *           agents. Each string of the <code>cgrLocations</code> array
+	 *           defines a complete CGR location by separating C, G and R with
 	 *           semicolon as follows: <code>"community;group;role"</code>
 	 *          
 	 */
-	public void launchAgentBucketWithRoles(List<AbstractAgent> bucket, Collection<String> cgrLocations) {
-		getKernel().launchAgentBucketWithRoles(this, cgrLocations, bucket);
+	public void launchAgentBucketWithRoles(List<AbstractAgent> bucket, String... cgrLocations) {
+		getKernel().launchAgentBucketWithRoles(this, bucket, cgrLocations);
 	}
 
 	/**
@@ -2658,8 +2670,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	/**
 	 * This offers a convenient way to create main method that launch the agent
 	 * class under development. so that it will be launched alone in a new
-	 * MadKit. Here is an example of use that will work in any subclass of
-	 * {@link AbstractAgent}:
+	 * MadKit. Here is an example of use that will work in any subclass of {@link AbstractAgent}:
 	 * 
 	 * <pre>
 	 * <code>
@@ -2671,47 +2682,46 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * 
 	 * Still, the agent must have a default constructor for that to work.
 	 * 
-	 * @param args
-	 *           MadKit options. For example, this will launch the agent in
-	 *           desktop mode :
 	 * @param nbOfInstances
 	 *           specify how many of this kind should be launched
 	 * 
+	 * @param createFrame
+	 * @param args
+	 *           MadKit options. For example, this will launch the agent in
+	 *           desktop mode :
 	 *           <pre>
 	 * <code>
 	 * public static void main(String[] args) {
-	 * 	String[] myArgs = {BooleanOption.desktop.toString()};
-	 * 	AbstractAgent.executeThisAgent(myArgs);
+	 * 	executeThisAgent(BooleanOption.desktop.toString());
 	 * }
 	 * </code>
 	 * </pre>
-	 * @param createFrame
 	 * 
 	 * @see Option BooleanOption LevelOption
 	 * @since MadKit 5.0.0.14
 	 */
-	protected static void executeThisAgent(String[] args, int nbOfInstances, boolean createFrame) {
+	protected static void executeThisAgent(int nbOfInstances, boolean createFrame, String... args) {
 		final StackTraceElement[] trace = new Throwable().getStackTrace();
 		final ArrayList<String> arguments = new ArrayList<String>(Arrays.asList(Madkit.Option.launchAgents.toString(),
 				trace[trace.length - 1].getClassName() + "," + (createFrame ? "true" : "false") + "," + nbOfInstances));
 		if (args != null) {
 			arguments.addAll(Arrays.asList(args));
 		}
-		Madkit.main(arguments.toArray(new String[0]));
+		new Madkit(arguments.toArray(new String[0]));
 	}
 
 	/**
 	 * This offers a convenient way to create main method that launch the agent
 	 * class under development. This call is equivalent to
-	 * <code>executeThisAgent(args, 1, true)</code>
+	 * <code>executeThisAgent(1, true, args)</code>
 	 * 
 	 * @param args
 	 *           MadKit options
-	 * @see #executeThisAgent(String[], int, boolean)
+	 * @see #executeThisAgent(int, boolean, String...)
 	 * @since MadKit 5.0.0.14
 	 */
-	protected static void executeThisAgent(String[] args) {
-		executeThisAgent(args, 1, true);
+	protected static void executeThisAgent(String... args) {
+		executeThisAgent(1, true, args);
 	}
 
 	/**
@@ -2719,11 +2729,11 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * class under development. This call is equivalent to
 	 * <code>executeThisAgent(null, 1, true)</code>
 	 * 
-	 * @see #executeThisAgent(String[], int, boolean)
+	 * @see #executeThisAgent(int, boolean, String...)
 	 * @since MadKit 5.0.0.15
 	 */
 	protected static void executeThisAgent() {
-		executeThisAgent(null, 1, true);
+		executeThisAgent(1, true);
 	}
 
 	public boolean hasDefaultConstructor() {

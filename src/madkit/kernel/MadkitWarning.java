@@ -95,6 +95,7 @@ final class OrganizationWarning extends MadkitWarning{
 		case ROLE_NOT_HANDLED:
 		case NOT_ROLE:
 		case ROLE_ALREADY_HANDLED:
+		case IGNORED:
 			return msg+I18nUtilities.getCGRString(community, group, role);
 		default:
 			System.err.println("\n\n************** "+code.name()+" result not handled ");

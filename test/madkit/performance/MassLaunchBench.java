@@ -46,7 +46,7 @@ public class MassLaunchBench extends JunitMadKit {
 				startTimer();
 				// launchAgentBucket("madkit.agentLifeCycle.NormalAbstractLife",
 				// 3000100);
-				launchAgentBucketWithRoles("madkit.kernel.AbstractAgent", 1000000, new ArrayList<String>());
+				launchAgentBucketWithRoles("madkit.kernel.AbstractAgent", 1000000);
 				stopTimer("bucket launch time = ");
 				System.err.println("done\n\n");
 				// JUnitBooter.stopTimer("old launch time = "); // 6000000 min = 7s
@@ -113,7 +113,7 @@ public class MassLaunchBench extends JunitMadKit {
 				// System.err.println("done\n\n");
 				startTimer();
 				System.err.println("begin");
-				launchAgentBucket(NormalAA.class.getName(), 30100);
+				launchAgentBucketWithRoles(NormalAA.class.getName(), 30100);
 				// launchAgentBucket("madkit.kernel.AbstractAgent", 6000100);
 				stopTimer("done ");
 			}

@@ -59,18 +59,51 @@ import madkit.message.KernelMessage;
  */
 public enum KernelAction {
 
+	/**
+	 * Close the kernel 
+	 */
 	EXIT(VK_Q),
+	/**
+	 *  Clone the kernel with its initial options
+	 */
 	COPY(VK_C),
+	/**
+	 *  Restart the kernel with its initial options
+	 */
 	RESTART(VK_R),
+	/**
+	 * Start the network
+	 */
 	LAUNCH_NETWORK(VK_N),
+	/**
+	 * Stop the network
+	 */
 	STOP_NETWORK(VK_T),
 
 	//	//Actions that need parameters, i.e. not global
+	/**
+	 * Load the jar files which are in the "demos" directory if there is one in to the working directory
+	 */
 	LOAD_LOCAL_DEMOS(VK_D),
+	/**
+	 * Launch an agent
+	 */
 	LAUNCH_AGENT(VK_DOLLAR),
+	/**
+	 * Launch a MAS configuration
+	 */
 	LAUNCH_MAS(VK_DOLLAR),
+	/**
+	 * Kill an agent
+	 */
 	KILL_AGENT(VK_DOLLAR),
+	/**
+	 * Connection to www.madkit.net repository
+	 */
 	CONNECT_WEB_REPO(VK_DOLLAR),
+	/**
+	 * Load a jar file so that its agent classes are then available
+	 */
 	LOAD_JAR_FILE(VK_DOLLAR); 
 
 

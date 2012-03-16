@@ -42,8 +42,7 @@ public class AgentAddressTest {
 
 	@Before
 	public void before() {
-		String[] args = { BooleanOption.desktop.toString(), "false" };
-		mk = new MadkitKernel(new Madkit(args));
+		mk = new MadkitKernel(new Madkit(BooleanOption.desktop.toString(), "false"));
 		a = new AbstractAgent();
 		a.setKernel(mk);
 		mk.createGroup(a, "c", "g", null, null, false);

@@ -52,11 +52,14 @@ Other command line options are described in the API of the madkit.kernel.Madkit 
 
 2. API changes:
 	+ madkit.kernel.AgentLogger.createLogFile()
-	+ madkit.kernel.AbstractAgent.launchAgentBucketWithRoles(List<AbstractAgent>, Collection<String>)
+	+ madkit.kernel.AbstractAgent.launchAgentBucketWithRoles(List<AbstractAgent>, String...)
+	+ madkit.kernel.Madkit.Madkit(String...)
+	+ madkit.kernel.Madkit.doAction(KernelAction, Object...)
 	
 	- madkit.gui.OutputPanel.print(String)
 	
 	~ madkit.gui.menu.LaunchSessionMenu -> madkit.gui.menu.LaunchMAS
+	~ madkit.kernel.AbstractAgent.executeThisAgent(String[], int, boolean) -> madkit.kernel.AbstractAgent.executeThisAgent(int, boolean, String...)
 
 
 

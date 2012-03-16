@@ -21,6 +21,7 @@ package madkit.kernel;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.management.ManagementFactory;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.AllPermission;
@@ -135,9 +136,23 @@ final public class Madkit {
 //	}
 
 	/**
-	 * This main should be used to
-	 * launch application booter agents using predefined options.
-	 * It can be used in two ways :
+	 * This main could be used to
+	 * launch a new kernel using predefined options.
+	 * The new kernel automatically ends when all
+	 * the agents living on this kernel are done.
+	 * So the JVM automatically quits if there is no
+	 * other remaining threads.
+	 * 
+	 * Basically this call just instantiates a new kernel like this:
+	 * 
+	 * <pre>
+	 * public static void main(String[] options) {
+	 * 	new Madkit(options);
+	 * }
+	 * </pre>
+	 * 
+	 * So, this main can be used as a MAS application entry point
+	 * in two ways :
 	 * <p>
 	 * (1) From the command line:
 	 * <p>
@@ -145,38 +160,57 @@ final public class Madkit {
 	 * <p>
 	 * <tt>>java madkit.kernel.Madkit agentLogLevel INFO --launchAgents
 	 * madkit.marketorg.Client,20,true;madkit.marketorg.Broker,10,true;madkit.marketorg.Provider,20,true;</tt>
-	 * <p> 
-	 * (2) It can be used programmatically anywhere, especially
-	 * within main method of agent classes to ease their launch within an IDE.
+	 * <p>
+	 * (2) It can be used programmatically anywhere, especially within main method of agent classes to ease their launch within an IDE.
 	 * <p>
 	 * Here is an example of how it can be used in this way:
 	 * <p>
 	 * 
 	 * <pre>
-	 *	public static void main(String[] args) {
-	 *	String[] argss = {
-	 *		LevelOption.agentLogLevel.toString(),"FINE",
-	 *		Option.launchAgents.toString(),//gets the -- launchAgents string
-	 *		Client.class.getName()+",true,20;"+
-	 *		Broker.class.getName()+",true,10;"+
-	 *		Provider.class.getName()+",false,20"
-	 *	};
-	 *	Madkit.main(argss);//launching the application
-	 *	}
+	 * 
+	 * public static void main(String[] args) {
+	 * 	String[] argss = { LevelOption.agentLogLevel.toString(),
+	 * 			&quot;FINE&quot;,
+	 * 			Option.launchAgents.toString(),// gets the -- launchAgents string
+	 * 			Client.class.getName() + &quot;,true,20;&quot; + Broker.class.getName()
+	 * 					+ &quot;,true,10;&quot; + Provider.class.getName() + &quot;,false,20&quot; };
+	 * 	Madkit.main(argss);// launching the application
+	 * }
 	 * </pre>
 	 * 
-	 * 	 
-	 * 
-	 * @param args the options which should be used to launch Madkit:
-	 * see {@link LevelOption}, {@link BooleanOption} and {@link Option}
+	 * @param options the options which should be used to launch Madkit:
+	 *           see {@link LevelOption}, {@link BooleanOption} and {@link Option}
 	 */
-	public static void main(String[] args) {
-		new Madkit(args);
+	public static void main(String[] options) {
+		new Madkit(options);
 	}
 	
-	public void doAction(KernelAction action,Object... paramaters){
+	/**
+	 * Makes the kernel do the corresponding action. This is done
+	 * by sending a message directly to the kernel.
+	 * This should not be used intensively since it is better to control
+	 * the execution flow of the application using the agents running in the kernel.
+	 * Still it provides a way to launch and manage a kernel from any java application as
+	 * a third party service.
+	 * 
+	 * <pre>
+	 * 
+	 * public void somewhereInYourCode() {
+	 * 				...
+	 * 				Madkit m = new Madkit(args);
+	 * 				...
+	 * 				m.doAction(KernelAction.LAUNCH_NETWORK);
+	 * 				...
+	 * }
+	 * </pre>
+	 * 
+	 * 
+	 * @param action the action to request
+	 * @param parameters the parameters of the request
+	 */
+	public void doAction(KernelAction action,Object... parameters){
 		if (myKernel.isAlive()) {
-			myKernel.receiveMessage(new KernelMessage(action, paramaters));
+			myKernel.receiveMessage(new KernelMessage(action, parameters));
 		}
 		else{
 			if(logger != null)
@@ -184,15 +218,39 @@ final public class Madkit {
 		}
 	}
 
-	public Madkit(String[] argss){
+	/**
+	 * Launch a new kernel with predefined options.
+	 * The call returns when the new kernel has finished to take
+	 * care of all options. Moreover the kernel automatically ends when all
+	 * the agents living on this kernel are done.
+	 * <p>
+	 * 
+	 * Here is an example of use:
+	 * <p>
+	 * 
+	 * <pre>
+	 * public void somewhereInYourCode() {
+	 * 	String[] options = { 
+	 * 			Option.launchAgents.toString(),// gets the --launchAgents string
+	 * 					  Client.class.getName() + &quot;,true,20;&quot; 
+	 * 					+ Broker.class.getName()+ &quot;,true,10;&quot; 
+	 * 					+ Provider.class.getName() + &quot;,false,20&quot; };
+	 * 	new Madkit(argss);// launching the application
+	 * }
+	 * </pre>
+	 * 
+	 * @param options the options which should be used to launch Madkit:
+	 *           see {@link LevelOption}, {@link BooleanOption} and {@link Option}
+	 */
+	public Madkit(String... options){
 
-		if(argss != null && argss.length == 1 && argss[0].contains(" ")){//jnlp arg in here
-			argss = argss[0].trim().split(" ");
-			for (final String s : argss) {
+		if(options != null && options.length == 1 && options[0].contains(" ")){//jnlp arg in here
+			options = options[0].trim().split(" ");
+			for (final String s : options) {
 				this.cmdLine += " "+s;
 			}
 		}
-		this.args = argss;
+		this.args = options != null && options.length != 0 ? options : null;
 		
 		if (System.getProperty("javawebstart.version") != null) {
 			Policy.setPolicy(getAllPermissionPolicy());//TODO this is for jws
@@ -218,7 +276,6 @@ final public class Madkit {
 		}
 		final String logDirKey = Option.logDirectory.name();
 		madkitConfig.setProperty(logDirKey, madkitConfig.getProperty(logDirKey) + File.separator+ dateFormat.format(new Date()));
-//		createLogDirectory();
 		
 		myKernel = new MadkitKernel(this);
 		if(logger != null)
@@ -233,6 +290,25 @@ final public class Madkit {
 		}
 
 		this.cmdLine = System.getProperty("java.home")+File.separatorChar+"bin"+File.separatorChar+"java -cp "+System.getProperty("java.class.path")+" madkit.kernel.Madkit ";
+//		String javaBin = System.getProperty("java.home")+File.separatorChar+".."+File.separatorChar+"bin"+File.separatorChar;
+//		System.err.println(("java.home"));
+//		System.err.println((javaBin));
+//		File f = new File(System.getProperty("java.home")).getParentFile();
+//		System.err.println(f);
+//		f = new File(f.getAbsolutePath()+File.separatorChar+"bin", "jconsole");
+//		System.err.println((new File(System.getProperty("java.home")).getParentFile()));
+////		for (Object string : System.getProperties().values()) {
+////			System.err.println(string);
+////		}
+////		System.err.println(java.lang.management.ManagementFactory.getRuntimeMXBean().getName());
+//		try {
+//			Runtime.getRuntime().exec("/usr/lib/jvm/jdk1.6.0_30/bin/jconsole");
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		if(f.exists()){
+//		}
 		//		for (String s : args) {
 		//			System.err.println(s);
 		//		}

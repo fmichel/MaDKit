@@ -25,7 +25,12 @@ import java.awt.Dimension;
 import java.awt.HeadlessException;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyVetoException;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -36,7 +41,9 @@ import javax.swing.ImageIcon;
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
+import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.event.InternalFrameAdapter;
@@ -85,7 +92,7 @@ class GUIManagerAgent extends Agent {
 
 	private JFrame													myFrame;
 
-	GUIManagerAgent(boolean asDaemon) {
+	GUIManagerAgent(boolean asDaemon) { // NO_UCD use by reflection
 		super(asDaemon);
 		guis = new ConcurrentHashMap<AbstractAgent, JFrame>();
 	}
@@ -132,7 +139,7 @@ class GUIManagerAgent extends Agent {
 		}
 	}
 
-	protected void proceedCommandMessage(GUIMessage cm) {
+	private void proceedCommandMessage(GUIMessage cm) {
 		if (isAlive()) {
 			if (cm.getCode() == GUIManagerAction.SETUP_AGENT_GUI) {// because it needs a reply
 				try {
@@ -263,7 +270,7 @@ class GUIManagerAgent extends Agent {
 			System.exit(0);
 	}
 
-	Point checkLocation(Container c) {
+	private Point checkLocation(Container c) {
 		Dimension dim;
 		List<? extends Container> l;
 		if (c instanceof JInternalFrame) {
@@ -332,10 +339,30 @@ class GUIManagerAgent extends Agent {
 		;
 		desktopPane.setBackground(Color.BLACK);
 		myFrame.setIconImage(MADKIT_LOGO);
-		JMenuBar menuBar = new JMenuBar();
+		final JMenuBar menuBar = new JMenuBar();
 		menuBar.add(new MadkitMenu(this));
 		menuBar.add(new LaunchAgentsMenu(this));
 		menuBar.add(new LaunchMAS(this));
+		final String jconsolePath = findJconsole();
+		if(jconsolePath != null){
+			final String pid = java.lang.management.ManagementFactory.getRuntimeMXBean().getName();
+			pid.substring(0, pid.indexOf('@'));
+			System.err.println(pid);
+			JMenu monitoring = new JMenu("Monitoring");
+			JMenuItem item = new JMenuItem("jconsole");
+			item.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					try {
+						Runtime.getRuntime().exec(jconsolePath+" "+pid.substring(0, pid.indexOf('@')));
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+				}
+			});
+			monitoring.add(item);
+			menuBar.add(monitoring);
+		}
 		JToolBar tb = new MadkitToolBar(this);
 		myFrame.setJMenuBar(menuBar);
 		tb.setRollover(true);
@@ -352,5 +379,25 @@ class GUIManagerAgent extends Agent {
 		myFrame.setVisible(true);
 		myFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		myFrame.setResizable(true);
+	}
+
+	private String findJconsole() {
+		File javaHome = new File(System.getProperty("java.home"));
+		File jconsole = new File(javaHome.getParent(), "bin" + File.separatorChar+ "jconsole");
+		if (jconsole.exists())
+			return jconsole.getAbsolutePath();
+		jconsole = javaHome.getParentFile().getParentFile();
+		for (File dir : jconsole.listFiles(new FileFilter() {
+			@Override
+			public boolean accept(File pathname) {
+				return pathname.getName().startsWith("jdk");
+			}
+		})) {
+			jconsole = new File(dir, "bin" + File.separatorChar + "jconsole");
+			if (jconsole.exists()) {
+				return jconsole.getAbsolutePath();
+			}
+		}
+		return null;
 	}
 }

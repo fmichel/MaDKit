@@ -66,4 +66,9 @@ final public class MASModel implements Comparable<MASModel> {
 	public int compareTo(MASModel o) {
 		return name.compareTo(o.getName());
 	}
+
+	@Override
+	public int hashCode() {
+		return name.hashCode();
+	}
 }

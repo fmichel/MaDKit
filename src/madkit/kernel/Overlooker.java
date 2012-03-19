@@ -176,9 +176,7 @@ abstract class Overlooker <A extends AbstractAgent>
 		if (overlookedRole != null) {
 			return (List<A>) overlookedRole.getAgentsList();
 		}
-		else{
-			return Collections.emptyList();
-		}
+		return Collections.emptyList();
 	}
 
 	/** 

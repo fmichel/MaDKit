@@ -58,8 +58,9 @@ Other command line options are described in the API of the madkit.kernel.Madkit 
 	
 	- madkit.gui.OutputPanel.print(String)
 	
-	~ madkit.gui.menu.LaunchSessionMenu -> madkit.gui.menu.LaunchMAS
 	~ madkit.kernel.AbstractAgent.executeThisAgent(String[], int, boolean) -> madkit.kernel.AbstractAgent.executeThisAgent(int, boolean, String...)
+	~ madkit.kernel.Scheduler.State -> madkit.kernel.Scheduler.SimulationState
+	~ madkit.gui.menu.LaunchSessionMenu -> madkit.gui.menu.LaunchMAS
 
 
 

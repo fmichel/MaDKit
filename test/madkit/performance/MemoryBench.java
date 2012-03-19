@@ -18,8 +18,6 @@
  */
 package madkit.performance;
 
-import java.util.Arrays;
-
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.LevelOption;

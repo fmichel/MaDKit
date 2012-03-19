@@ -113,7 +113,7 @@ class MadkitKernel extends Agent {
 	 */
 	private static final long serialVersionUID = 3999398692543480834L;
 
-	final static ThreadGroup SYSTEM = new ThreadGroup("MK_SYSTEM") {
+	private final static ThreadGroup SYSTEM = new ThreadGroup("MK_SYSTEM") {
 		public void uncaughtException(Thread t, Throwable e) {
 			System.err.println("\n------------uncaught exception on " + t);
 		}
@@ -178,8 +178,8 @@ class MadkitKernel extends Agent {
 
 	protected MadkitKernel loggedKernel;
 	private volatile boolean shuttedDown = false;
-	final AgentThreadFactory normalAgentThreadFactory;
-	final AgentThreadFactory daemonAgentThreadFactory;
+	private final AgentThreadFactory normalAgentThreadFactory;
+	private final AgentThreadFactory daemonAgentThreadFactory;
 
 	private AgentAddress netAgent;
 	// my private addresses for optimizing the message building
@@ -251,8 +251,6 @@ class MadkitKernel extends Agent {
 		daemonAgentThreadFactory = null;
 		lifeExecutor = null;
 		kernel = k;
-		// normalAgentThreadFactory = k.normalAgentThreadFactory;//no need
-		// daemonAgentThreadFactory = k.daemonAgentThreadFactory;//TODO no need
 	}
 
 	@Override
@@ -495,6 +493,7 @@ class MadkitKernel extends Agent {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private void startSession(final boolean externalVM) {
 		if (logger != null) {
 			logger.config("starting new MadKit session with " + Arrays.deepToString(platform.args));
@@ -588,8 +587,8 @@ class MadkitKernel extends Agent {
 	// //////////////////////// Organization interface
 	// ////////////////////////////////////////////////////////////
 
-	ReturnCode createGroup(final AbstractAgent creator, final String community, final String group, final String description,
-			final Gatekeeper gatekeeper, final boolean isDistributed) {
+	ReturnCode createGroup(final AbstractAgent creator, final String community, final String group, final Gatekeeper gatekeeper,
+			final boolean isDistributed) {
 		if (bucketMode)
 			return ReturnCode.IGNORED;
 		if (group == null)
@@ -745,9 +744,8 @@ class MadkitKernel extends Agent {
 		try {
 			if (callerIncluded) {
 				return getRole(community, group, role).getAgentAddressesCopy();
-			} else {
-				return getOtherRolePlayers(requester, community, group, role);
 			}
+			return getOtherRolePlayers(requester, community, group, role);
 		} catch (CGRNotAvailable e) {
 			return null;
 		}
@@ -839,7 +837,7 @@ class MadkitKernel extends Agent {
 		}
 	}
 
-	void broadcasting(final Collection<AgentAddress> receivers, Message m) {// TODO
+	private void broadcasting(final Collection<AgentAddress> receivers, Message m) {// TODO
 																									// optimize
 																									// without
 																									// cloning
@@ -852,16 +850,15 @@ class MadkitKernel extends Agent {
 		}
 	}
 
-	final ReturnCode sendMessage(Message m, AbstractAgent target) {
+	private final ReturnCode sendMessage(Message m, AbstractAgent target) {
 		if (target == null) {
 			return sendNetworkMessageWithRole(new ObjectMessage<Message>(m), netEmmiter);
-		} else {
-			target.receiveMessage(m);
 		}
+		target.receiveMessage(m);
 		return SUCCESS;
 	}
 
-	final ReturnCode sendNetworkMessageWithRole(Message m, AgentAddress role) {
+	private final ReturnCode sendNetworkMessageWithRole(Message m, AgentAddress role) {
 		updateNetworkAgent();
 		if (netAgent != null) {
 			m.setSender(role);
@@ -879,10 +876,11 @@ class MadkitKernel extends Agent {
 		}
 	}
 
-	boolean isOnline() {
-		getMadkitKernel().updateNetworkAgent();
-		return getMadkitKernel().netAgent != null;
-	}
+// TODO Remove unused code found by UCDetector
+// 	boolean isOnline() {
+// 		getMadkitKernel().updateNetworkAgent();
+// 		return getMadkitKernel().netAgent != null;
+// 	}
 
 	// ////////////////////////////////////////////////////////////
 	// //////////////////////// Launching and Killing
@@ -942,7 +940,7 @@ class MadkitKernel extends Agent {
 				if (cgr.length != 3){
 					throw new IllegalArgumentException(cgrLocation);
 				}
-				createGroup(requester, cgr[0], cgr[1], null, null, false);
+				createGroup(requester, cgr[0], cgr[1], null, false);
 				Group g = null;
 				try {
 					g = getGroup(cgr[0], cgr[1]);
@@ -986,7 +984,7 @@ class MadkitKernel extends Agent {
 			ecs.submit(new Callable<List<AbstractAgent>>() {
 				public List<AbstractAgent> call() throws InvocationTargetException, InstantiationException, IllegalAccessException {
 					final List<AbstractAgent> list = new ArrayList<AbstractAgent>(nbOfAgentsPerTask);
-					for (int i = nbOfAgentsPerTask; i > 0; i--) {
+					for (int j = nbOfAgentsPerTask; j > 0; j--) {
 						list.add(constructor.newInstance());
 					}
 					return list;
@@ -1072,6 +1070,8 @@ class MadkitKernel extends Agent {
 			}
 		}
 		final AgentExecutor ae = agent.getAgentExecutor();
+		
+		//AbstractAgent
 		if (ae == null) {
 			ReturnCode r = AGENT_CRASH;
 			final Future<Boolean> activationAttempt = lifeExecutor.submit(new Callable<Boolean>() {
@@ -1096,37 +1096,37 @@ class MadkitKernel extends Agent {
 				}
 			}
 			return r;
-		} else {
-			try {
-				final Agent a = (Agent) agent;
-				synchronized (threadedAgents) {
-					// do that even if not started for cleaning properly
-					threadedAgents.add(a);
-				}
-				ae.setThreadFactory(a.isDaemon() ? daemonAgentThreadFactory : normalAgentThreadFactory);
-				if (!shuttedDown && ae.start().get()) {
-					return SUCCESS;
-				} else {
-					return AGENT_CRASH;
-				}
-			} catch (InterruptedException e) {
-				if (!shuttedDown) {
-					// Kernel cannot be interrupted !!
-					bugReport(e);
-					return SEVERE;
-				}
-			} catch (ExecutionException e) {
-				if (!shuttedDown) {
-					// Kernel cannot be interrupted !!
-					bugReport(e);
-					return SEVERE;
-				}
-			} catch (CancellationException e) {
-				// This is the case when the agent is killed during activation
-				return AGENT_CRASH;
-			}
-			return TIMEOUT;
 		}
+		
+		//Agent
+		try {
+			final Agent a = (Agent) agent;
+			synchronized (threadedAgents) {
+				// do that even if not started for cleaning properly
+				threadedAgents.add(a);
+			}
+			ae.setThreadFactory(a.isDaemon() ? daemonAgentThreadFactory : normalAgentThreadFactory);
+			if (!shuttedDown && ae.start().get()) {
+				return SUCCESS;
+			}
+			return AGENT_CRASH;
+		} catch (InterruptedException e) {
+			if (!shuttedDown) {
+				// Kernel cannot be interrupted !!
+				bugReport(e);
+				return SEVERE;
+			}
+		} catch (ExecutionException e) {
+			if (!shuttedDown) {
+				// Kernel cannot be interrupted !!
+				bugReport(e);
+				return SEVERE;
+			}
+		} catch (CancellationException e) {
+			// This is the case when the agent is killed during activation
+			return AGENT_CRASH;
+		}
+		return TIMEOUT;
 	}
 
 	ReturnCode killAgent(final AbstractAgent requester, final AbstractAgent target, final int timeOutSeconds) {
@@ -1145,15 +1145,14 @@ class MadkitKernel extends Agent {
 			requester.handleInterruptedException();
 			return TIMEOUT;
 		} catch (ExecutionException e) {// BUG kill failed
-			bugReport("Killing task failed on " + target, e);
+			bugReport("Kill failed: " + target, e);
 			return SEVERE;
 			// } catch (TimeoutException e) {// kill task time out
 			// return TIMEOUT;
 		}
 	}
 
-	final ReturnCode killingAgent(final AbstractAgent target, int timeOutSeconds) {// TODO
-																												// avec
+	private final ReturnCode killingAgent(final AbstractAgent target, int timeOutSeconds) {
 		synchronized (target.state) {
 			// this has to be done by a system thread : the job must be done
 			if (!target.getAlive().compareAndSet(true, false)) {
@@ -1163,10 +1162,9 @@ class MadkitKernel extends Agent {
 		final AgentExecutor ae = target.getAgentExecutor();
 		if (ae != null) {
 			return killThreadedAgent((Agent) target, ae, timeOutSeconds);
-		} else {
-			stopAbstractAgentProcess(ACTIVATED, target);
-			return startEndBehavior(target, timeOutSeconds, false);
 		}
+		stopAbstractAgentProcess(ACTIVATED, target);
+		return startEndBehavior(target, timeOutSeconds, false);
 	}
 
 	private void stopAbstractAgentProcess(State s, AbstractAgent target) {
@@ -1182,12 +1180,6 @@ class MadkitKernel extends Agent {
 		}
 	}
 
-	static void dumpThreadStack(Thread t) {
-		for (StackTraceElement ste : t.getStackTrace()) {
-			System.err.println(ste);
-		}
-	}
-
 	/**
 	 * @param s
 	 * @param target
@@ -1196,15 +1188,6 @@ class MadkitKernel extends Agent {
 	 */
 	@SuppressWarnings("deprecation")
 	private boolean stopAgentProcess(State s, AbstractAgent target, Thread t) {
-		// soft kill
-		// synchronized (target.state) {
-		// if(target.getState() == s){
-		// t.interrupt();
-		// Thread.yield();
-		// // pause(5);
-		// }
-		// }
-		// hard kill
 		synchronized (target.state) {
 			if (target.getState() == s && t.getName().equals(target.getAgentThreadName(s))) {
 				if (logger != null) {
@@ -1233,43 +1216,11 @@ class MadkitKernel extends Agent {
 		return false;
 	}
 
-	//
-	//
-	//
-	//
-	// while (true) {
-	// synchronized (target) {
-	// else{
-	// break;//thread is actually quitting : state has changed
-	// }
-	// }
-	// try {
-	// Thread.sleep(100);
-	// } catch (InterruptedException e) {
-	// // TODO Auto-generated catch block
-	// e.printStackTrace();
-	// }
-	// }
-	// System.err.println(t.getState());
-	// synchronized (target.state) {
-	// try {
-	// if (target.state.get() == s) {
-	// target.state.wait();
-	// }
-	// } catch (InterruptedException e) {
-	// // TODO Auto-generated catch block
-	// e.printStackTrace();
-	// }
-	// }
-	// }
-	// }
-	// }
-
-	final ReturnCode killAbstractAgent(final AbstractAgent target, int timeOutSeconds) {
-		// still activating
-		stopAbstractAgentProcess(ACTIVATED, target);
-		return startEndBehavior(target, timeOutSeconds, false);
-	}
+//	final ReturnCode killAbstractAgent(final AbstractAgent target, int timeOutSeconds) {
+//		// still activating
+//		stopAbstractAgentProcess(ACTIVATED, target);
+//		return startEndBehavior(target, timeOutSeconds, false);
+//	}
 
 	/**
 	 * @param target
@@ -1295,17 +1246,18 @@ class MadkitKernel extends Agent {
 				bugReport("Killing task failed on " + target, e);
 			} catch (TimeoutException e) {
 				r = TIMEOUT;
-				// searchAndDestroyAgentThread(State.ENDING+"-"+target.hashCode());
+				// searchAndDestroyAgentThread(SimulationState.ENDING+"-"+target.hashCode());
 				stopAbstractAgentProcess(State.ENDING, target);
 			}
 		}
-		if (!(target instanceof Agent)) {
+//		if (!(target instanceof Agent)) {
+			if (target.getAgentExecutor() == null) {
 			target.terminate();
 		}
 		return r;
 	}
 
-	final ReturnCode killThreadedAgent(Agent target, final AgentExecutor ae, int timeOutSeconds) {
+	private final ReturnCode killThreadedAgent(Agent target, final AgentExecutor ae, int timeOutSeconds) {
 		final Future<?> end = ae.getEndProcess();
 		if (timeOutSeconds == 0) {
 			end.cancel(false);
@@ -1343,7 +1295,7 @@ class MadkitKernel extends Agent {
 	// /////////////////////////////////////////////////////////////////////////
 	// //////////////////////// Organization access
 	// /////////////////////////////////////////////////////////////////////////
-	final Organization getCommunity(final String community) throws CGRNotAvailable {
+	private final Organization getCommunity(final String community) throws CGRNotAvailable {
 		Organization org = organizations.get(community);
 		if (org == null)
 			throw new CGRNotAvailable(NOT_COMMUNITY);
@@ -1418,51 +1370,50 @@ class MadkitKernel extends Agent {
 		// return SUCCESS;
 	}
 
-	final AgentAddress getSenderAgentAddress(final AbstractAgent sender, final AgentAddress receiver, String senderRole)
+	private final AgentAddress getSenderAgentAddress(final AbstractAgent sender, final AgentAddress receiver, String senderRole)
 			throws CGRNotAvailable {
 		AgentAddress senderAA = null;
 		final Role targetedRole = receiver.getRoleObject();
-		if (senderRole == null) {// looking for any role in this group, starting
-			// with the receiver role
+
+		//no role given
+		if (senderRole == null) {
+			// looking for any role in this group, starting with the receiver role
 			senderAA = targetedRole.getAgentAddressInGroup(sender);
-			// if still null : this SHOULD be a candidate's request to the
-			// manager or it is an error
+			// if still null : this SHOULD be a candidate's request to the manager or it is an error
 			if (senderAA == null) {
 				if (targetedRole.getRoleName().equals(madkit.agr.Organization.GROUP_MANAGER_ROLE))
 					return new CandidateAgentAddress(sender, targetedRole, kernelAddress);
-				else
-					throw new CGRNotAvailable(NOT_IN_GROUP);
+				throw new CGRNotAvailable(NOT_IN_GROUP);
 			}
 			return senderAA;
 		}
-		// the sender explicitly wants to send the message with a particular
-		// role : check that
-		else {
+
+			// message sent with a particular role : check that
 			// look into the senderRole role if the agent is in
-			final Role senderRoleObject = targetedRole.getMyGroup().get(senderRole);
-			if (senderRoleObject != null) {
-				senderAA = senderRoleObject.getAgentAddressOf(sender);
-			}
-			if (senderAA == null) {// if still null : this SHOULD be a
-				// candidate's request to the manager or it
-				// is an error
-				if (senderRole.equals(madkit.agr.Organization.GROUP_CANDIDATE_ROLE)
-						&& targetedRole.getRoleName().equals(madkit.agr.Organization.GROUP_MANAGER_ROLE))
-					return new CandidateAgentAddress(sender, targetedRole, kernelAddress);
-				if (targetedRole.getAgentAddressInGroup(sender) == null)
-					throw new CGRNotAvailable(NOT_IN_GROUP);
-				else
-					throw new CGRNotAvailable(ROLE_NOT_HANDLED);
-			}
-			return senderAA;
+		final Role senderRoleObject = targetedRole.getMyGroup().get(senderRole);
+		if (senderRoleObject != null) {
+			senderAA = senderRoleObject.getAgentAddressOf(sender);
 		}
+		if (senderAA == null) {// if still null : this SHOULD be a
+			// candidate's request to the manager or it
+			// is an error
+			if (senderRole.equals(madkit.agr.Organization.GROUP_CANDIDATE_ROLE)
+					&& targetedRole.getRoleName().equals(
+							madkit.agr.Organization.GROUP_MANAGER_ROLE))
+				return new CandidateAgentAddress(sender, targetedRole,
+						kernelAddress);
+			if (targetedRole.getAgentAddressInGroup(sender) == null)
+				throw new CGRNotAvailable(NOT_IN_GROUP);
+			throw new CGRNotAvailable(ROLE_NOT_HANDLED);
+		}
+		return senderAA;
 	}
 
 	// /////////////////////////////////////////////////////////////////////////
 	// //////////////////////// Simulation
 	// /////////////////////////////////////////////////////////////////////////
 
-	boolean addOverlooker(final AbstractAgent requester, Overlooker<? extends AbstractAgent> o) {
+	synchronized boolean addOverlooker(@SuppressWarnings("unused") final AbstractAgent requester, Overlooker<? extends AbstractAgent> o) {
 		if (operatingOverlookers.add(o)) {
 			try {
 				getRole(o.getCommunity(), o.getGroup(), o.getRole()).addOverlooker(o);
@@ -1478,7 +1429,7 @@ class MadkitKernel extends Agent {
 	 * @param activator
 	 */
 
-	boolean removeOverlooker(final AbstractAgent requester, Overlooker<? extends AbstractAgent> o) {
+	synchronized boolean removeOverlooker(@SuppressWarnings("unused") final AbstractAgent requester, Overlooker<? extends AbstractAgent> o) {
 		final Role r = o.getOverlookedRole();
 		if (r != null) {
 			r.removeOverlooker(o);
@@ -1528,7 +1479,7 @@ class MadkitKernel extends Agent {
 		return this;
 	}
 
-	boolean isCommunity(AbstractAgent requester, String community) {
+	boolean isCommunity(@SuppressWarnings("unused") AbstractAgent requester, String community) {
 		try {
 			return getCommunity(community) != null;
 		} catch (CGRNotAvailable e) {
@@ -1536,7 +1487,7 @@ class MadkitKernel extends Agent {
 		}
 	}
 
-	boolean isGroup(AbstractAgent requester, String community, String group) {
+	boolean isGroup(@SuppressWarnings("unused") AbstractAgent requester, String community, String group) {
 		try {
 			return getGroup(community, group) != null;
 		} catch (CGRNotAvailable e) {
@@ -1544,7 +1495,7 @@ class MadkitKernel extends Agent {
 		}
 	}
 
-	boolean isRole(final AbstractAgent requester, final String community, String group, String role) {
+	boolean isRole(@SuppressWarnings("unused") final AbstractAgent requester, final String community, String group, String role) {
 		try {
 			return getRole(community, group, role) != null;
 		} catch (CGRNotAvailable e) {
@@ -1775,17 +1726,16 @@ class MadkitKernel extends Agent {
 		} while (untilEmpty && !threadedAgents.isEmpty());
 	}
 
-	boolean createGroupIfAbsent(AbstractAgent abstractAgent, String community, String group, String group2, Gatekeeper gatekeeper,
-			boolean isDistributed) {
-		return createGroup(abstractAgent, community, group, group, gatekeeper, isDistributed) == SUCCESS;
+	boolean createGroupIfAbsent(AbstractAgent abstractAgent, String community, String group, Gatekeeper gatekeeper, boolean isDistributed) {
+		return createGroup(abstractAgent, community, group, gatekeeper, isDistributed) == SUCCESS;
 	}
 
-	void bugReport(Throwable e) {
+	private void bugReport(Throwable e) {
 		bugReport("", e);
 	}
 
-	void bugReport(String m, Throwable e) {
-		kernel.getLogger().severeLog("********************** KERNEL PROBLEM, please bug report " + m, e); // Kernel
+	private void bugReport(String m, Throwable e) {
+		getMadkitKernel().getLogger().severeLog("********************** KERNEL PROBLEM, please bug report " + m, e); // Kernel
 	}
 
 	final synchronized void removeAgentsFromDistantKernel(KernelAddress kernelAddress2) {
@@ -1794,13 +1744,7 @@ class MadkitKernel extends Agent {
 		}
 	}
 
-	// void removeThreadedAgent(Agent myAgent) {
-	// synchronized (threadedAgents) {
-	// threadedAgents.remove(myAgent);
-	// }
-	// }
-
-	synchronized ReturnCode destroyCommunity(AbstractAgent abstractAgent, String community) {
+	synchronized ReturnCode destroyCommunity(@SuppressWarnings("unused") AbstractAgent abstractAgent, String community) {
 		try {
 			getCommunity(community).destroy();
 			return SUCCESS;
@@ -1809,7 +1753,7 @@ class MadkitKernel extends Agent {
 		}
 	}
 
-	synchronized ReturnCode destroyGroup(AbstractAgent abstractAgent, String community, String group) {
+	synchronized ReturnCode destroyGroup(@SuppressWarnings("unused") AbstractAgent abstractAgent, String community, String group) {
 		try {
 			getGroup(community, group).destroy();
 			return SUCCESS;
@@ -1818,7 +1762,7 @@ class MadkitKernel extends Agent {
 		}
 	}
 
-	synchronized ReturnCode destroyRole(AbstractAgent abstractAgent, String community, String group, String role) {
+	synchronized ReturnCode destroyRole(@SuppressWarnings("unused") AbstractAgent abstractAgent, String community, String group, String role) {
 		try {
 			getRole(community, group, role).destroy();
 			return SUCCESS;
@@ -1855,7 +1799,7 @@ final class CGRNotAvailable extends Exception {
 	 * 
 	 */
 	private static final long serialVersionUID = -375379801933609564L;
-	final ReturnCode code;
+	final private ReturnCode code;
 
 	/**
 	 * @return the code
@@ -1889,7 +1833,7 @@ abstract class AgentsJob implements Callable<Void>, Cloneable {
 		return null;
 	}
 
-	ArrayList<AgentsJob> getJobs(List<AbstractAgent> l) {
+	final ArrayList<AgentsJob> getJobs(List<AbstractAgent> l) {
 		final int cpuCoreNb = Runtime.getRuntime().availableProcessors();
 		final ArrayList<AgentsJob> workers = new ArrayList<AgentsJob>(cpuCoreNb);
 		int bucketSize = l.size();
@@ -1911,12 +1855,13 @@ abstract class AgentsJob implements Callable<Void>, Cloneable {
 		return workers;
 	}
 
+	@SuppressWarnings("null")
 	private AgentsJob createNewAgentJobWithList(List<AbstractAgent> l) {
 		AgentsJob aj = null;
 		try {
 			aj = (AgentsJob) this.clone();
 		} catch (CloneNotSupportedException e) {
-			e.printStackTrace();
+			//cannot be
 		}
 		aj.list = l;
 		return aj;

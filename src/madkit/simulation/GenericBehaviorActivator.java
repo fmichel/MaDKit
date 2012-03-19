@@ -73,6 +73,7 @@ public class GenericBehaviorActivator<A extends AbstractAgent> extends Activator
 		return methodName;
 	}
 	
+	@SuppressWarnings("null")
 	private void execute(final List<A> agents){
 		//local cache for multicore execute and avoiding adding collision
 		Method cachedM = null;

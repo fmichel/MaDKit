@@ -30,8 +30,6 @@ import madkit.kernel.AbstractAgent;
 import madkit.kernel.AgentAddress;
 import madkit.kernel.JunitMadKit;
 import madkit.kernel.Madkit;
-import madkit.kernel.Madkit.BooleanOption;
-import madkit.kernel.Madkit.LevelOption;
 
 import org.junit.Test;
 

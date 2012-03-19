@@ -112,7 +112,7 @@ public class AgentLogLevelMenu extends JMenu{
 		
 	}
 	
-	public void update() {
+	private void update() {
 //		if (myAgent.isAlive()) {
 			final AgentLogger logger = myAgent.getLogger();
 			updateButtonGroup(logGroup, logger.getLevel());
@@ -133,11 +133,11 @@ public class AgentLogLevelMenu extends JMenu{
 	}
 	
 	/**
-	 * @param logGroup 
+	 * @param group 
 	 * @param logLevel
 	 */
-	private void updateButtonGroup(final ButtonGroup logGroup, final Level logLevel) {
-		for (Enumeration<AbstractButton> buttons = logGroup.getElements();buttons.hasMoreElements();) {
+	private void updateButtonGroup(final ButtonGroup group, final Level logLevel) {
+		for (Enumeration<AbstractButton> buttons = group.getElements();buttons.hasMoreElements();) {
 			final AbstractButton button = buttons.nextElement();
 			if(button.getActionCommand().equals(logLevel.toString())){
 				button.setSelected(true);

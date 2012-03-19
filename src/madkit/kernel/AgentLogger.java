@@ -49,8 +49,8 @@ import madkit.kernel.Madkit.Option;
  */
 public class AgentLogger extends Logger {
 
-	final public static Formatter agentFormatter = new AgentFormatter();
-	final public static Formatter agentFileFormatter = new AgentFormatter(){
+	final public static Formatter AGENT_FORMATTER = new AgentFormatter();
+	final public static Formatter AGENT_FILE_FORMATTER = new AgentFormatter(){
 		@Override
 		protected String getHeader(final LogRecord record){
 			return "";
@@ -133,7 +133,7 @@ public class AgentLogger extends Logger {
 		if(! BooleanOption.noAgentConsoleLog.isActivated(agent.getMadkitConfig())){
 			ConsoleHandler ch = new ConsoleHandler();
 			addHandler(ch);
-			ch.setFormatter(agentFormatter);
+			ch.setFormatter(AGENT_FORMATTER);
 		}
 		if (BooleanOption.createLogFiles.isActivated(myAgent.getMadkitConfig())){
 			createLogFile();
@@ -146,7 +146,7 @@ public class AgentLogger extends Logger {
 	 * the MadKit property {@link Option#logDirectory}
 	 */
 	public void createLogFile() {
-		final String logDir = Option.logDirectory.getValue(myAgent.getMadkitConfig());
+		final String logDir = myAgent.getMadkitConfig().getProperty(Option.logDirectory.name());
 		new File(logDir).mkdirs();
 		addHandler(getFileHandler(logDir+File.separator+getName()));
 	}
@@ -176,9 +176,9 @@ public class AgentLogger extends Logger {
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
-				};
+				}
 			};
-			fh.setFormatter(agentFileFormatter);
+			fh.setFormatter(AGENT_FILE_FORMATTER);
 		} catch (SecurityException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

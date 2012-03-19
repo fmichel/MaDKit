@@ -18,7 +18,6 @@
  */
 package madkit.kernel;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
@@ -52,7 +51,7 @@ class FakeKernel extends MadkitKernel{
 	}
 	
 	@Override
-	final ReturnCode createGroup(final AbstractAgent agent, final String community, final String group, final String description, final Gatekeeper gatekeeper, final boolean isDistributed) {
+	final ReturnCode createGroup(final AbstractAgent agent, final String community, final String group, final Gatekeeper gatekeeper, final boolean isDistributed) {
 		throw buildKernelException(agent);
 	}
 	
@@ -218,8 +217,8 @@ class FakeKernel extends MadkitKernel{
 
 	@Override
 	final boolean createGroupIfAbsent(AbstractAgent agent,
-			String community, String group, String group2,
-			Gatekeeper gatekeeper, boolean isDistributed) {
+			String community, String group, Gatekeeper gatekeeper,
+			boolean isDistributed) {
 		throw buildKernelException(agent);
 	}
 

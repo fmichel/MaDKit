@@ -26,8 +26,6 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.Set;
-import java.util.SortedMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import madkit.agr.CloudCommunity;
@@ -57,7 +55,7 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 
 	private KernelServer myServer;
 	private MultiCastListener multicastListener;
-	private boolean alive = true;
+	private boolean running = true;
 	private AgentAddress kernelAgent;
 
 	//	/**
@@ -91,7 +89,7 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 			throw new AssertionError(this+" no kernel agent to work with... Please bug report");
 
 		//build servers
-		alive = launchNetwork();
+		running = launchNetwork();
 	}
 
 	/**
@@ -170,7 +168,7 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 	 */
 	@Override
 	protected void live() {
-		while(alive){
+		while(running){
 			handleMessage(waitNextMessage());
 		}
 	}
@@ -242,7 +240,7 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 
 	@SuppressWarnings("unused")
 	private void exit(){
-		alive = false;
+		running = false;
 	}
 
 	/**

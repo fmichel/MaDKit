@@ -18,7 +18,7 @@
  */
 package madkit.kernel;
 
-import static madkit.kernel.Scheduler.State.PAUSED;
+import static madkit.kernel.Scheduler.SimulationState.PAUSED;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -46,7 +46,7 @@ import madkit.message.SchedulingMessage;
 
 /**
  * This class defines a generic threaded scheduler agent. It holds a collection
- * of activators. The default state of a scheduler is {@link State#PAUSED}. The
+ * of activators. The default state of a scheduler is {@link SimulationState#PAUSED}. The
  * default delay between two steps is 0 ms (max speed).
  * 
  * @author Fabien Michel
@@ -78,7 +78,7 @@ public class Scheduler extends Agent {
 	 * @since MadKit 5.0
 	 * @see #getSimulationState
 	 */
-	public enum State {
+	public enum SimulationState {
 
 		/**
 		 * The simulation process is running normally.
@@ -103,13 +103,13 @@ public class Scheduler extends Agent {
 		SHUTDOWN
 	}
 
-	private State simulationState = State.PAUSED;
+	private SimulationState simulationState = SimulationState.PAUSED;
 
 	final private Set<Activator<? extends AbstractAgent>> activators = new LinkedHashSet<Activator<? extends AbstractAgent>>();
 
-	Action run, step, speedUp, speedDown;
+	private Action run, step, speedUp, speedDown;
 
-	JLabel timer;
+	private JLabel timer;
 	private JSlider speedSlider;
 
 	/**
@@ -302,9 +302,9 @@ public class Scheduler extends Agent {
 	 * The state of the simualtion.
 	 * 
 	 * @return the state in which the simulation is.
-	 * @see State
+	 * @see SimulationState
 	 */
-	public State getSimulationState() {
+	public SimulationState getSimulationState() {
 		return simulationState;
 	}
 
@@ -314,7 +314,7 @@ public class Scheduler extends Agent {
 	 * @param newState
 	 *           the new state
 	 */
-	protected void setState(final State newState) {
+	protected void setSimulationState(final SimulationState newState) {
 		if (simulationState != newState) {
 			simulationState = newState;
 			switch (simulationState) {
@@ -336,17 +336,56 @@ public class Scheduler extends Agent {
 		}
 	}
 
-	public void live() {
+	/**
+	 * Scheduler's default behavior.
+	 * 
+	 * default code is:
+	 * 
+	 * <pre>
+	 * while (isAlive()) {
+	 * 	if (GVT &gt; getSimulationDuration()) {
+	 * 		if (logger != null)
+	 * 			logger.info(&quot;Quitting: Simulation has reached end time &quot;
+	 * 					+ getSimulationDuration());
+	 * 		return;
+	 * 	}
+	 * 	if (getDelay() == 0)
+	 * 		Thread.yield();
+	 * 	else
+	 * 		pause(getDelay());
+	 * 	checkMail(nextMessage());
+	 * 	switch (getSimulationState()) {
+	 * 	case RUNNING:
+	 * 		doSimulationStep();
+	 * 		break;
+	 * 	case PAUSED:
+	 * 		paused();
+	 * 		break;
+	 * 	case STEP:
+	 * 		simulationState = PAUSED;
+	 * 		doSimulationStep();
+	 * 		break;
+	 * 	case SHUTDOWN:
+	 * 		return; // shutdown
+	 * 	default:
+	 * 		getLogger().severe(&quot;state not handled &quot; + getSimulationState);
+	 * 	}
+	 * }
+	 * </pre>
+	 * 
+	 * @see madkit.kernel.Agent#live()
+	 */
+	protected void live() {
 		while (isAlive()) {
 			if (GVT > simulationDuration) {
 				if (logger != null)
 					logger.info("Quitting: Simulation has reached end time " + simulationDuration);
 				return;
 			}
-			if (speedModel.getValue() == 0)
+			if (getDelay() == 0)
 				Thread.yield();
 			else
-				pause(speedModel.getValue());
+				pause(getDelay());
 			checkMail(nextMessage());
 			switch (simulationState) {
 			case RUNNING:
@@ -368,22 +407,28 @@ public class Scheduler extends Agent {
 		}
 	}
 
+	/**
+	 * Changes my state according to a {@link SchedulingMessage} and sends
+	 * a reply to the sender as acknowledgment.
+	 * 
+	 * @param m the received message
+	 */
 	protected void checkMail(final Message m) {
 		if (m != null) {
 			try {
-				final SchedulingMessage sm = (SchedulingMessage) m;
-				switch (sm.getCode()) {
+				SchedulingAction code = ((SchedulingMessage) m).getCode();
+				switch (code) {
 				case RUN:
-					setState(State.RUNNING);
+					setSimulationState(SimulationState.RUNNING);
 					break;
 				case STEP:
-					setState(State.STEP);
+					setSimulationState(SimulationState.STEP);
 					break;
 				case PAUSE:
-					setState(State.PAUSED);
+					setSimulationState(SimulationState.PAUSED);
 					break;
 				case SHUTDOWN:
-					setState(State.SHUTDOWN);
+					setSimulationState(SimulationState.SHUTDOWN);
 					break;
 				case SPEED_UP:
 					speedModel.setValue(speedModel.getValue() - 50);
@@ -402,7 +447,10 @@ public class Scheduler extends Agent {
 		}
 	}
 
-	private void paused() {
+	/**
+	 * Runs {@link #checkMail(Message)} every 1000 ms.
+	 */
+	protected void paused() {
 		checkMail(waitNextMessage(1000));
 	}
 

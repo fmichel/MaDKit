@@ -61,16 +61,16 @@ final class AgentFrame extends JFrame {
 			
 			@Override
 			public void windowClosed(WindowEvent e) {
-				closeProcess(agent);
+				closeProcess();
 			}
-			private void closeProcess(final AbstractAgent agent) {
+			private void closeProcess() {
 				if (agent.isAlive()) {
 					setTitle("Closing " + agent.getName());
 					killAgent(agent, 2);
 				}
 			}
 			public void windowClosing(java.awt.event.WindowEvent e) {
-				closeProcess(agent);
+				closeProcess();
 			}
 //			@Override
 //			public void windowClosed(WindowEvent e) {
@@ -118,12 +118,13 @@ final class AgentFrame extends JFrame {
 		this.internalFrame = internalFrame;
 	}
 
-	/**
-	 * @return the internalFrame
-	 */
-	JInternalFrame getInternalFrame() {
-		return internalFrame;
-	}
+// TODO Remove unused code found by UCDetector
+// 	/**
+// 	 * @return the internalFrame
+// 	 */
+// 	JInternalFrame getInternalFrame() {
+// 		return internalFrame;
+// 	}
 
 	@Override
 	public void setLocation(int x, int y) {

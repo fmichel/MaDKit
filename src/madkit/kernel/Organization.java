@@ -19,7 +19,6 @@
 package madkit.kernel;
 
 import static madkit.i18n.I18nUtilities.getCGRString;
-import static madkit.kernel.AbstractAgent.ReturnCode.NOT_GROUP;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -30,7 +29,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 import madkit.i18n.ErrorMessages;
-import madkit.kernel.AbstractAgent.ReturnCode;
 
 /**
  * @author Fabien Michel
@@ -74,7 +72,7 @@ final class Organization extends ConcurrentHashMap <String, Group>{
 	}
 
 	/**
-	 * Group adding. Guarded by this in {@link MadkitKernel#createGroup(AbstractAgent, String, String, String, Gatekeeper, boolean)}
+	 * Group adding. Guarded by this in {@link MadkitKernel#createGroup(AbstractAgent, String, String, Gatekeeper, boolean)}
 	 * 
 	 * @param creator
 	 * @param gatekeeper 
@@ -196,16 +194,6 @@ final class Organization extends ConcurrentHashMap <String, Group>{
 	}
 
 	
-	ReturnCode requestRole(AbstractAgent requester, String group, String role, Object memberCard) {
-		final Group g = get(group);
-		if(g == null)
-			return NOT_GROUP;
-		synchronized (g) {
-			return g.requestRole(requester, role, memberCard);
-		}
-	}
-	
-
 }
 
 

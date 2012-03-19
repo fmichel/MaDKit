@@ -67,7 +67,7 @@ public class AgentStatusPanel extends JPanel {
 		}
 	}
 
-	public void update() {
+	private void update() {
 		if(myAgent.isAlive() && myAgent.isKernelOnline()){
 			network.setIcon(image);
 			network.setToolTipText("Kernel "+myAgent.getKernelAddress()+" is online");

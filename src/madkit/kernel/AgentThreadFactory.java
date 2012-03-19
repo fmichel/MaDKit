@@ -42,11 +42,9 @@ final class AgentThreadFactory extends Object implements ThreadFactory {
 					e.printStackTrace();
 					throw new AssertionError("killedException uncaught");
 				}
-				else{
-					System.err.println("--------------internal BUG--------------------");
-					System.err.println("\n-----------------uncaught exception on "+t);//TODO
-					e.printStackTrace();
-				};
+				System.err.println("--------------internal BUG--------------------");
+				System.err.println("\n-----------------uncaught exception on "+t);//TODO
+				e.printStackTrace();
 			}
 		};
 

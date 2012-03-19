@@ -21,7 +21,6 @@ package madkit.kernel;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.management.ManagementFactory;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.AllPermission;
@@ -96,7 +95,7 @@ import org.xml.sax.SAXException;
 
 final public class Madkit {
 
-	final static String MDK_LOGGER_NAME = "[* MADKIT*] ";
+	private final static String MDK_LOGGER_NAME = "[* MADKIT*] ";
 	final static Properties defaultConfig = new Properties();
 	final static SimpleDateFormat	dateFormat = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
 	static{
@@ -114,7 +113,8 @@ final public class Madkit {
 	final private MadkitKernel myKernel;
 	private Logger logger;
 	private MadkitClassLoader madkitClassLoader;
-	String cmdLine;
+// TODO Remove unused code found by UCDetector
+// 	String cmdLine;
 	String[] args;
 
 	MadkitClassLoader getMadkitClassLoader() {
@@ -181,6 +181,7 @@ final public class Madkit {
 	 * @param options the options which should be used to launch Madkit:
 	 *           see {@link LevelOption}, {@link BooleanOption} and {@link Option}
 	 */
+	@SuppressWarnings("unused")
 	public static void main(String[] options) {
 		new Madkit(options);
 	}
@@ -230,25 +231,28 @@ final public class Madkit {
 	 * 
 	 * <pre>
 	 * public void somewhereInYourCode() {
-	 * 	String[] options = { 
-	 * 			Option.launchAgents.toString(),// gets the --launchAgents string
-	 * 					  Client.class.getName() + &quot;,true,20;&quot; 
-	 * 					+ Broker.class.getName()+ &quot;,true,10;&quot; 
-	 * 					+ Provider.class.getName() + &quot;,false,20&quot; };
-	 * 	new Madkit(argss);// launching the application
+	 * 	new Madkit(
+	 * 		Option.launchAgents.toString(),// gets the --launchAgents string
+	 * 		Client.class.getName() + &quot;,true,20;&quot; 
+	 * 		+ Broker.class.getName()+ &quot;,true,10;&quot; 
+	 * 		+ Provider.class.getName() + &quot;,false,20&quot;);
 	 * }
 	 * </pre>
 	 * 
-	 * @param options the options which should be used to launch Madkit:
-	 *           see {@link LevelOption}, {@link BooleanOption} and {@link Option}
+	 * @param options the options which should be used to launch Madkit. 
+	 * If <code>null</code>, the dektop mode is automatically used.
+	 *           
+	 * @see Option
+	 * @see BooleanOption
+	 * @see LevelOption
 	 */
-	public Madkit(String... options){
 
+	public Madkit(String... options){
 		if(options != null && options.length == 1 && options[0].contains(" ")){//jnlp arg in here
 			options = options[0].trim().split(" ");
-			for (final String s : options) {
-				this.cmdLine += " "+s;
-			}
+//			for (final String s : options) {
+//				this.cmdLine += " "+s;
+//			}
 		}
 		this.args = options != null && options.length != 0 ? options : null;
 		
@@ -256,7 +260,6 @@ final public class Madkit {
 			Policy.setPolicy(getAllPermissionPolicy());//TODO this is for jws
 		}
 		madkitConfig.putAll(defaultConfig);
-//		madkitConfig.setProperty("kernel.start.time", dateFormat.format(new Date()));
 		final Properties fromArgs = buildConfigFromArgs(args);
 		madkitConfig.putAll(fromArgs);
 		initMadkitLogging();
@@ -272,7 +275,7 @@ final public class Madkit {
 		if(madkitConfig.get(Option.launchAgents.name()).equals("null")){
 			if(logger != null)
 				logger.fine(Option.launchAgents.name()+" null : Activating desktop");
-			BooleanOption.desktop.setProperty(madkitConfig, true);
+			madkitConfig.setProperty(BooleanOption.desktop.name(), "true");
 		}
 		final String logDirKey = Option.logDirectory.name();
 		madkitConfig.setProperty(logDirKey, madkitConfig.getProperty(logDirKey) + File.separator+ dateFormat.format(new Date()));
@@ -289,29 +292,8 @@ final public class Madkit {
 			madkitClassLoader.addMASConfig(new MASModel(Words.INITIAL_CONFIG.toString(), args, "desc"));
 		}
 
-		this.cmdLine = System.getProperty("java.home")+File.separatorChar+"bin"+File.separatorChar+"java -cp "+System.getProperty("java.class.path")+" madkit.kernel.Madkit ";
-//		String javaBin = System.getProperty("java.home")+File.separatorChar+".."+File.separatorChar+"bin"+File.separatorChar;
-//		System.err.println(("java.home"));
-//		System.err.println((javaBin));
-//		File f = new File(System.getProperty("java.home")).getParentFile();
-//		System.err.println(f);
-//		f = new File(f.getAbsolutePath()+File.separatorChar+"bin", "jconsole");
-//		System.err.println((new File(System.getProperty("java.home")).getParentFile()));
-////		for (Object string : System.getProperties().values()) {
-////			System.err.println(string);
-////		}
-////		System.err.println(java.lang.management.ManagementFactory.getRuntimeMXBean().getName());
-//		try {
-//			Runtime.getRuntime().exec("/usr/lib/jvm/jdk1.6.0_30/bin/jconsole");
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		if(f.exists()){
-//		}
-		//		for (String s : args) {
-		//			System.err.println(s);
-		//		}
+//		this.cmdLine = System.getProperty("java.home")+File.separatorChar+"bin"+File.separatorChar+"java -cp "+System.getProperty("java.class.path")+" madkit.kernel.Madkit ";
+
 		startKernel();
 	}
 
@@ -353,7 +335,7 @@ final public class Madkit {
 	 * 
 	 */
 	private void loadJarFileArguments() {
-		String [] args = null;
+		String [] options = null;
 		if(logger != null)
 			logger.fine("** LOADING JAR FILE ARGUMENTS **");
 		try{
@@ -368,13 +350,13 @@ final public class Madkit {
 				if(projectInfo != null){
 					if(logger != null)
 						logger.finest("found project info \n\t"+projectInfo.keySet()+"\n\t"+projectInfo.values());
-					args = projectInfo.getValue("MadKit-Args").split(" ");
+					options = projectInfo.getValue("MadKit-Args").split(" ");
 					if(logger != null)
-						logger.finer(Arrays.deepToString(args)+args.length);
+						logger.finer(Arrays.deepToString(options)+options.length);
 					Map<String,String> projectInfos = new HashMap<String, String>();
 					projectInfos.put("Project-Code-Name",projectInfo.getValue("Project-Code-Name"));
 					projectInfos.put("Project-Version",projectInfo.getValue("Project-Version"));
-					madkitConfig.putAll(buildConfigFromArgs(args));
+					madkitConfig.putAll(buildConfigFromArgs(options));
 					madkitConfig.putAll(projectInfos);
 				}
 			}
@@ -390,7 +372,6 @@ final public class Madkit {
 		if(logger != null)
 			logger.finer("** BUILDING MADKIT CLASS LOADER **");
 		final ClassLoader systemCL = getClass().getClassLoader();
-		//		madkitClassLoader = new MadkitClassLoader(this, new URL[0], systemCL);
 		if(systemCL instanceof URLClassLoader){
 			madkitClassLoader = new MadkitClassLoader(this,((URLClassLoader) systemCL).getURLs(),systemCL,null);			
 		}
@@ -411,13 +392,13 @@ final public class Madkit {
 			logger.setLevel(l);
 			ConsoleHandler cs = new ConsoleHandler();
 			cs.setLevel(logger.getLevel());
-			cs.setFormatter(AgentLogger.agentFormatter);
+			cs.setFormatter(AgentLogger.AGENT_FORMATTER);
 			logger.addHandler(cs);
 			logger.fine("** LOGGING INITIALIZED **");
 		}
 	}
 
-	private void loadConfigFile() {
+	private void loadConfigFile() {//TODO
 		final String fileName = madkitConfig.getProperty(Option.configFile.name());
 		if(fileName.equals("null")){
 			return;
@@ -460,7 +441,6 @@ final public class Madkit {
 		//starting the kernel agent and waiting the end of its activation
 		if(logger != null)
 			logger.fine("** LAUNCHING KERNEL AGENT **");
-		//		myKernel.launchAgent(myKernel, myKernel, Integer.MAX_VALUE, false);
 		myKernel.launchAgent(myKernel, myKernel, Integer.MAX_VALUE, false);
 	}
 
@@ -477,7 +457,7 @@ final public class Madkit {
 		}
 	}
 
-	void logSessionConfig(Properties session, Level lvl){
+	private void logSessionConfig(Properties session, Level lvl){
 		if(logger != null){
 			String message = "MadKit current configuration is\n\n";
 			message+="\t--- MadKit regular options ---\n";
@@ -495,23 +475,23 @@ final public class Madkit {
 		}
 	}
 
-	Properties buildConfigFromArgs(String[] args) {
+	Properties buildConfigFromArgs(final String[] options) {
 		Properties currentMap = new Properties();
-		if (args != null && args.length > 0) {
+		if (options != null && options.length > 0) {
 			String parameters = "";
 			String currentOption = null;
-			for (int i = 0; i < args.length; i++) {
-				if (! args[i].trim().isEmpty()) {
-					if (args[i].startsWith("--")) {
-						currentOption = args[i].substring(2);
+			for (int i = 0; i < options.length; i++) {
+				if (! options[i].trim().isEmpty()) {
+					if (options[i].startsWith("--")) {
+						currentOption = options[i].substring(2);
 						currentMap.put(currentOption, "true");
 						if (logger != null)
 							logger.finest("found option -- " + currentOption);
 						parameters = "";
 					}
 					else {
-						parameters += args[i] + " ";
-						if (i + 1 == args.length || args[i + 1].startsWith("--")) {
+						parameters += options[i] + " ";
+						if (i + 1 == options.length || options[i + 1].startsWith("--")) {
 							currentMap.put(currentOption, parameters.trim());//TODO bug on "-" use
 							if (logger != null)
 								logger.finest("found option -- " + currentOption + " -- value -- " + parameters.trim());
@@ -548,10 +528,6 @@ final public class Madkit {
 		this.madkitClassLoader = madkitClassLoader;
 	}
 
-	boolean isOptionActivated(String madkitOptionName) {
-		return Boolean.parseBoolean(madkitConfig.getProperty(madkitOptionName));
-	}
-
 	/**
 	 * Option used to activate or disable features on startup.
 	 * These options can be used 
@@ -567,10 +543,11 @@ final public class Madkit {
 	 * <li>--optionName false</li> 
 	 * <li>--optionName (equivalent to)</li>
 	 * <li>--optionName true</li>
-	 */
-	/**
-	 * @author fab
-	 *
+	 * 
+	 * @author Fabien Michel
+	 * @since MadKit 5
+	 * @version 0.9
+	 * 
 	 */
 	public static enum BooleanOption implements MadkitOption{
 		/**
@@ -619,10 +596,11 @@ final public class Madkit {
 			return Boolean.parseBoolean(session.getProperty(this.name()));
 		}
 
-		public void setProperty(Properties session, Boolean activated){
-			session.setProperty(name(), activated.toString());
-		}
-
+		/**
+		 * Returns the constant's name prefixed by "<code>--</code>" so that
+		 * it could interpreted as an option of the command line or 
+		 * in {@link Madkit#Madkit(String...)}.
+		 */
 		@Override
 		public String toString() {
 			return "--"+name();
@@ -706,15 +684,16 @@ final public class Madkit {
 		 */
 		configFile;
 
+		/**
+		 * Returns the constant's name prefixed by "<code>--</code>" so that
+		 * it could interpreted as an option of the command line or 
+		 * in {@link Madkit#Madkit(String...)}.
+		 */
 		@Override
 		public String toString() {
 			return "--"+name();
 		}
 		
-		public String getValue(final Properties config){
-			return config.getProperty(name());
-		}
-
 	}
 
 	/**
@@ -786,14 +765,16 @@ final public class Madkit {
 			return Level.ALL;
 		}
 
+		/**
+		 * Returns the constant's name prefixed by "<code>--</code>" so that
+		 * it could interpreted as an option of the command line or 
+		 * in {@link Madkit#Madkit(String...)}.
+		 */
 		@Override
 		public String toString() {
 			return "--"+name();
 		}
 
-		void setProperty(Properties session, Level lvl){
-			session.put(name(), lvl.toString());
-		}
 	}
 
 }

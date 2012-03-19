@@ -51,9 +51,10 @@ class MadkitWarning extends Exception {
 		return code.name()+": "+(msg == null ? "":msg+" ")+code.toString();
 	}
 
-	final ReturnCode getCode(){
-		return code;
-	}
+// TODO Remove unused code found by UCDetector
+// 	final ReturnCode getCode(){
+// 		return code;
+// 	}
 
 	/* (non-Javadoc)
 	 * @see java.lang.Throwable#toString()
@@ -115,9 +116,10 @@ class KilledException extends Error {//TODO should be runtime exception
 		super(msg);
 	}
 
-	public KilledException(Throwable cause){
-		super(cause);
-	}
+// TODO Remove unused code found by UCDetector
+// 	public KilledException(Throwable cause){
+// 		super(cause);
+// 	}
 
 		@Override
 	public synchronized Throwable fillInStackTrace() {
@@ -125,18 +127,18 @@ class KilledException extends Error {//TODO should be runtime exception
 	}
 }
 
-class SelfKillException extends KilledException{
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -6883135491234461609L;
-
-	public SelfKillException(String msg) {
-		super(msg);
-	}
-	
-}
+ class SelfKillException extends KilledException{
+ 
+ 	/**
+ 	 * 
+ 	 */
+ 	private static final long serialVersionUID = -6883135491234461609L;
+ 
+ 	public SelfKillException(String msg) {
+ 		super(msg);
+ 	}
+ 	
+ }
 //TODO get the cause of the kill
 
 //final class AgentLifeException extends RuntimeException{

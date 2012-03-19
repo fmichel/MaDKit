@@ -35,7 +35,7 @@ import madkit.kernel.AgentAddress;
   @since MadKit 1.0
  */
 
-public class ACLMessage extends ActMessage
+public class ACLMessage extends ActMessage // NO_UCD
 {
 	/**
 	 * 
@@ -225,8 +225,7 @@ public class ACLMessage extends ActMessage
 	public boolean removeReceiver(AgentAddress r) {
 		if (r != null)
 			return dests.remove(r);
-		else
-			return false;
+		return false;
 	}
 
 	/**
@@ -258,8 +257,7 @@ public class ACLMessage extends ActMessage
 	public boolean removeReplyTo(AgentAddress dest) {
 		if (dest != null)
 			return reply_to.remove(dest);
-		else
-			return false;
+		return false;
 	}
 
 	/**

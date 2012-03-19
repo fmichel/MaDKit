@@ -21,9 +21,6 @@ package madkit.testing.util.agent;
 import static madkit.kernel.JunitMadKit.COMMUNITY;
 import static madkit.kernel.JunitMadKit.GROUP;
 import static madkit.kernel.JunitMadKit.ROLE;
-
-import java.util.logging.Level;
-
 import madkit.kernel.AbstractAgent;
 
 /**

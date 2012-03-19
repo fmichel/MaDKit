@@ -98,7 +98,7 @@ public class OutputPanel extends JPanel {
 
 		};
 
-		final StreamHandler handler = new StreamHandler(out, AgentLogger.agentFileFormatter){
+		final StreamHandler handler = new StreamHandler(out, AgentLogger.AGENT_FILE_FORMATTER){
 			@Override
 			public synchronized void publish(LogRecord record) {
 				super.publish(record);
@@ -112,7 +112,7 @@ public class OutputPanel extends JPanel {
 		final JButton b = new JButton("clear");//TODO i18n
 		b.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				outField.setText(null);
+				clearOutput();
 			}
 		});
 		add(BorderLayout.SOUTH,b);

@@ -31,7 +31,7 @@ import java.util.logging.Level;
 
 import madkit.action.KernelAction;
 import madkit.kernel.AbstractAgent.State;
-import madkit.kernel.Madkit.BooleanOption;
+import madkit.kernel.Madkit.Option;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -50,7 +50,7 @@ public class AbstractAgentTest {
 	public void setup() {
 		a = new AbstractAgent();
 		b = new AbstractAgent();
-		new Madkit(BooleanOption.desktop.toString(), "false");
+		new Madkit(Option.launchAgents.toString(),AbstractAgent.class.getName());
 	}
 
 	@Test
@@ -221,7 +221,7 @@ public class AbstractAgentTest {
 	 */
 	@Test
 	public final void testGetAgentExecutor() {
-		assertNull(a.getMyLifeCycle());
+		assertNull(a.getAgentExecutor());
 	}
 
 	/**

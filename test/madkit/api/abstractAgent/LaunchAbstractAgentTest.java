@@ -105,34 +105,37 @@ public class LaunchAbstractAgentTest extends JunitMadKit {
 					assertEquals(SUCCESS, launchAgent((AbstractAgent) null));
 					noExceptionFailure();
 				} catch (NullPointerException e) {
-					assertEquals(e.getMessage(), "agent");
-					e.printStackTrace();
+					throw e;
 				}
+			}},AGENT_CRASH);
+		launchTest(new AbstractAgent() {
+			protected void activate() {
 				try {
-					assertEquals(SUCCESS, launchAgent((AbstractAgent) null, true));
+					assertEquals(SUCCESS, launchAgent((AbstractAgent) null,true));
 					noExceptionFailure();
 				} catch (NullPointerException e) {
-					assertEquals(e.getMessage(), "agent");
-					e.printStackTrace();
+					throw e;
 				}
+			}},AGENT_CRASH);
+		launchTest(new AbstractAgent() {
+			protected void activate() {
 				try {
-					assertEquals(SUCCESS, launchAgent((AbstractAgent) null, 1));
+					assertEquals(SUCCESS, launchAgent((AbstractAgent) null,1));
 					noExceptionFailure();
 				} catch (NullPointerException e) {
-					assertEquals(e.getMessage(), "agent");
-					e.printStackTrace();
+					throw e;
 				}
+			}},AGENT_CRASH);
+		launchTest(new AbstractAgent() {
+			protected void activate() {
 				try {
-					assertEquals(SUCCESS, launchAgent((AbstractAgent) null, 1, true));
+					assertEquals(SUCCESS, launchAgent((AbstractAgent) null,1,true));
 					noExceptionFailure();
 				} catch (NullPointerException e) {
-					assertEquals(e.getMessage(), "agent");
-					e.printStackTrace();
+					throw e;
 				}
-			}
-		});
+			}},AGENT_CRASH);
 	}
-
 	@Test
 	public void returnSuccessAndAlreadyLaunchWithGUI() {
 		launchTest(new AbstractAgent() {

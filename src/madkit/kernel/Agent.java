@@ -188,7 +188,7 @@ public class Agent extends AbstractAgent{
 	 * @see #sendMessageWithRoleAndWaitForReply(AgentAddress, Message, String, Integer)
 	 * @since MadKit 5
 	 */
-	public Message sendMessageAndWaitForReply(final AgentAddress receiver, Message messageToSend){
+	public Message sendMessageAndWaitForReply(final AgentAddress receiver, Message messageToSend){ // NO_UCD
 		return sendMessageWithRoleAndWaitForReply(receiver, messageToSend, null, null);
 	}
 
@@ -472,34 +472,23 @@ public class Agent extends AbstractAgent{
 		return waitingNextMessage(timeOutMilliseconds, TimeUnit.MILLISECONDS);
 	}
 
-	/**
-	 * This method gets the next message of the mailbox or waits 
-	 * for a new incoming message considering a certain delay.
-	 * 
-	 * @param timeOut the maximum time to wait.
-	 * @param unit The time unit for this time out, for instance : TimeUnit.MILLISECONDS.
-	 * @return the first message in the mailbox, or <code>null</code> if no message
-	 * has been received before the time out is elapsed.
-	 * @since MadKit 5
-	 */
-	final public Message waitNextMessage(final long timeOut, final TimeUnit unit)
-	{
-		if(logger != null)
-			logger.finest("Waiting next message during "+timeOut+" "+unit);
-		return waitingNextMessage(timeOut, unit);
-	}
-
-	//	/**
-	//	 * @see madkit.kernel.AbstractAgent#nextMessage()
-	//	 */
-	//	@Override
-	//	public Message nextMessage() {
-	//		checkAliveness();
-	////		//no checkAliveness : this could be done in the constructor.
-	////		if (myThread.isInterrupted())
-	////			throw new KilledException(); //This is nawak if another thread call this
-	//		return super.nextMessage();
-	//	}
+// TODO Remove unused code found by UCDetector
+// 	/**
+// 	 * This method gets the next message of the mailbox or waits 
+// 	 * for a new incoming message considering a certain delay.
+// 	 * 
+// 	 * @param timeOut the maximum time to wait.
+// 	 * @param unit The time unit for this time out, for instance : TimeUnit.MILLISECONDS.
+// 	 * @return the first message in the mailbox, or <code>null</code> if no message
+// 	 * has been received before the time out is elapsed.
+// 	 * @since MadKit 5
+// 	 */
+// 	final public Message waitNextMessage(final long timeOut, final TimeUnit unit)
+// 	{
+// 		if(logger != null)
+// 			logger.finest("Waiting next message during "+timeOut+" "+unit);
+// 		return waitingNextMessage(timeOut, unit);
+// 	}
 
 	/**
 	 * Stops the agent's process for a while.

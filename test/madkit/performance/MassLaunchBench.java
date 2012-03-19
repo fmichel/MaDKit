@@ -18,7 +18,6 @@
  */
 package madkit.performance;
 
-import java.util.ArrayList;
 import java.util.logging.Level;
 
 import madkit.kernel.AbstractAgent;

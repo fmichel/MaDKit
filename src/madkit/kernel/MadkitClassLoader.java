@@ -52,7 +52,7 @@ import madkit.gui.menu.LaunchMAS;
  * @version 5.1
  * 
  */
-public class MadkitClassLoader extends URLClassLoader {
+public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 
 	private Collection<String>	classesToReload;
 	final private Madkit			madkit;

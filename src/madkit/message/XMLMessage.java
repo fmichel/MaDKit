@@ -90,22 +90,19 @@ public class XMLMessage extends Message
 	{
 		if (strcontent!=null)
 			return strcontent;
-		else
-		{
-			// Serialization through Transform.
-			DOMSource domSource = new DOMSource(doccontent);
-			StreamResult streamResult = new StreamResult(new StringWriter());
-			try {
-				Transformer serializer = TransformerFactory.newInstance().newTransformer();
-				serializer.setOutputProperty(OutputKeys.INDENT,"yes");
-				serializer.transform(domSource, streamResult); 		    
-			} catch (TransformerConfigurationException e) {
-				e.printStackTrace();
-			} catch (TransformerException e) {
-				e.printStackTrace();
-			}
-			return streamResult.getWriter().toString();
+		// Serialization through Transform.
+		DOMSource domSource = new DOMSource(doccontent);
+		StreamResult streamResult = new StreamResult(new StringWriter());
+		try {
+			Transformer serializer = TransformerFactory.newInstance().newTransformer();
+			serializer.setOutputProperty(OutputKeys.INDENT,"yes");
+			serializer.transform(domSource, streamResult); 		    
+		} catch (TransformerConfigurationException e) {
+			e.printStackTrace();
+		} catch (TransformerException e) {
+			e.printStackTrace();
 		}
+		return streamResult.getWriter().toString();
 	}
 
 	/** Returns the XMLMessage content as a document. If the Document

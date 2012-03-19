@@ -290,7 +290,7 @@ public class RootKernelTest {
 	@Test
 	public void testCreateGroupIfAbsentAbstractAgentStringStringStringGroupIdentifierBoolean() {
 		try {
-			fakeKernel.createGroupIfAbsent(null, null, null, null, null, false);
+			fakeKernel.createGroupIfAbsent(null, null, null, null, false);
 			fail("kernel exepction not thrown");
 		} catch (KernelException e) {
 			e.printStackTrace();

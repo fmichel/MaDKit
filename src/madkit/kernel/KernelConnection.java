@@ -23,7 +23,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.Set;
@@ -37,7 +36,7 @@ import java.util.Set;
 final class KernelConnection extends Thread{
 
 	final private Socket distantKernelSocket;
-	boolean activated = false;
+	private boolean activated = false;
 	final private NetworkAgent myNetAgent;
 	private KernelAddress distantKernelAddress;
 

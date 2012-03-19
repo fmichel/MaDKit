@@ -41,7 +41,6 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -134,7 +133,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	private final static transient AtomicInteger	agentCounter		= new AtomicInteger(0);
 
 	static final transient MadkitKernel				FAKE_KERNEL			= new FakeKernel();
-	static final transient MadkitKernel				TERMINATED_KERNEL	= new TerminatedKernel();
+	private static final transient MadkitKernel				TERMINATED_KERNEL	= new TerminatedKernel();
 
 	final AtomicReference<State>						state					= new AtomicReference<AbstractAgent.State>(
 																								AbstractAgent.State.NOT_LAUNCHED);
@@ -169,6 +168,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		logger = AgentLogger.defaultAgentLogger;
 	}
 
+	@SuppressWarnings("unused")
 	AbstractAgent(Object fake) {
 		_hashCode = -1;
 	}
@@ -262,7 +262,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	// throw new AgentLifeException(message,e);
 	// }
 
-	final void activationFirstStage() {
+	private final void activationFirstStage() {
 		if (!state.compareAndSet(INITIALIZING, ACTIVATED))// TODO remove it when
 																			// OK
 			throw new AssertionError("not init in activation");
@@ -310,14 +310,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		return s + "-" + hashCode();
 	}
 
-	// private void suicide(){
-	// MadkitKernel.getMadkitServiceExecutor().execute(new Runnable(){
-	// @Override
-	// public void run() {
-	// kernel.getMadkitKernel().killAbstractAgent(AbstractAgent.this, 1);
-	// }
-	// });
-	// }
 	/**
 	 * This is only called by MK threads and cannot be interrupted
 	 * 
@@ -332,7 +324,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 				synchronized (state) {
 					Thread.currentThread().setName(getAgentThreadName(State.LIVING));
 				}// cannot be hard killed after that
-					// state.set(LIVING);
 				result = true;
 			} catch (SelfKillException e) {
 				logLifeException(e);
@@ -347,46 +338,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			logLifeException(e);
 		}
 		logMethod(false);
-		// state.set(LIVING);
 		return result;
 	}
-
-	// 100%
-	// /**
-	// * This is only called by MK threads and cannot be interrupted
-	// * @return
-	// */
-	// boolean activation() {
-	// boolean result = false;
-	// try {
-	// try {
-	// activationFirstStage();//the activated flag must be in the try
-	// activate();
-	// state.set(LIVING);
-	// result = true;
-	// }
-	// catch (SelfKillException e) {
-	// logLifeException(e);
-	// logActivate(false);
-	// state.set(LIVING);//for the following kill to work
-	// kernel.getMadkitKernel().killAbstractAgent(AbstractAgent.this,
-	// Integer.parseInt(e.getMessage()));
-	// return true;
-	// }
-	// catch (Exception e) {
-	// synchronized (state) {
-	// alive.set(false);
-	// logLifeException(e);
-	// state.set(LIVING);
-	// }
-	// logActivate(false);
-	// }
-	// } catch (KilledException e) {
-	// logLifeException(e);
-	// }
-	// logActivate(false);
-	// return result;
-	// }
 
 	final void logMethod(final boolean entering) {
 		if (logger != null)
@@ -427,8 +380,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * 
 	 */
 	protected void activate() {
-		// if(logger != null)
-		// logger.talk("\n\tHi human and hello World !!\n\n I am an instance of the madkit.kernel.AbstractAgent class:\n I am not threaded and very lightweighted.\n You can extend me to do large scale simulations !");
 	}
 
 	final boolean ending() { // TODO boolean need ? NO
@@ -458,7 +409,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		return true;
 	}
 
-	void validateDeathOnException(Exception e, State threadNewState) {
+	private void validateDeathOnException(Exception e, State threadNewState) {
 		synchronized (state) {
 			logLifeException(e);
 			Thread.currentThread().setName(getAgentThreadName(threadNewState));
@@ -593,7 +544,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         crashed during its <code>activate</code> method</li>
 	 *         </ul>
 	 */
-	public ReturnCode launchAgent(final AbstractAgent agent, final int timeOutSeconds) {
+	public ReturnCode launchAgent(final AbstractAgent agent, final int timeOutSeconds) { 
 		return launchAgent(agent, timeOutSeconds, false);
 	}
 
@@ -620,7 +571,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @see AbstractAgent#launchAgent(AbstractAgent)
 	 * @since MadKit 5.0
 	 */
-	public ReturnCode launchAgent(final AbstractAgent agent, final boolean createFrame) {
+	public ReturnCode launchAgent(final AbstractAgent agent, final boolean createFrame) { 
 		return launchAgent(agent, Integer.MAX_VALUE, createFrame);
 	}
 
@@ -667,8 +618,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @since MadKit 5.0
 	 */
 	public ReturnCode launchAgent(final AbstractAgent agent, final int timeOutSeconds, final boolean createFrame) {
-		if (agent == null)
-			throw new NullPointerException("agent");
 		return getKernel().launchAgent(this, agent, timeOutSeconds, createFrame);
 	}
 
@@ -682,7 +631,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @return the instance of the launched agent or <code>null</code> if the
 	 *         operation times out or failed.
 	 */
-	public AbstractAgent launchAgent(String agentClass) {
+	public AbstractAgent launchAgent(String agentClass) { 
 		return launchAgent(agentClass, Integer.MAX_VALUE, false);
 	}
 
@@ -699,7 +648,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @return the instance of the launched agent or <code>null</code> if the
 	 *         operation times out or failed.
 	 */
-	public AbstractAgent launchAgent(String agentClass, int timeOutSeconds) {
+	public AbstractAgent launchAgent(String agentClass, int timeOutSeconds) { 
 		return launchAgent(agentClass, timeOutSeconds, false);
 	}
 
@@ -716,7 +665,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @return the instance of the launched agent or <code>null</code> if the
 	 *         operation times out or failed.
 	 */
-	public AbstractAgent launchAgent(String agentClass, final boolean createFrame) {
+	public AbstractAgent launchAgent(String agentClass, final boolean createFrame) { 
 		return launchAgent(agentClass, Integer.MAX_VALUE, createFrame);
 	}
 
@@ -781,26 +730,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		getLogger().severeLog(ErrorMessages.CANT_LAUNCH + " " + agentClass + " : "+(infos != null ? infos :""), e);
 	}
 	
-	
-
-//	/**
-//	 * Launches <i><code>bucketSize</code></i> agent instances of this <i>
-//	 * <code>agentClassName</code></i>. This has the same effect as
-//	 * <code>launchAgentBucketWithRoles(agentClassName, bucketSize, null)</code>.
-//	 * 
-//	 * @param agentClassName
-//	 *           the name of the class from which the agents should be built.
-//	 * @param bucketSize
-//	 *           the desired number of agents.
-//	 * @return a list containing all the agents which have been launched, or
-//	 *         <code>null</code> if the operation failed
-//	 * @see #launchAgentBucketWithRoles(String, int, String...)
-//	 * @since MadKit 5.0.0.6
-//	 */
-//	public List<AbstractAgent> launchAgentBucket(String agentClassName, int bucketSize) {
-//		return launchAgentBucketWithRoles(agentClassName, bucketSize, null);
-//	}
-
 	/**
 	 * Optimizes mass agent launching. Launches <i><code>bucketSize</code></i>
 	 * agent instances of this <i><code>agentClassName</code></i> and put them in
@@ -845,11 +774,11 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         <code>null</code> if the operation has failed
 	 * @since MadKit 5.0.0.6
 	 */
-	public List<AbstractAgent> launchAgentBucketWithRoles(String agentClass, int bucketSize, String... cgrLocations) {
-//		return getKernel().launchAgentBucketWithRoles(this, agentClassName, bucketSize, cgrLocations);
+	public List<AbstractAgent> launchAgentBucketWithRoles(String agentClass, int bucketSize, String... cgrLocations) { 
 		List<AbstractAgent> bucket = null;
 		try {
 			bucket = getMadkitKernel().createBucket(agentClass, bucketSize);
+			launchAgentBucketWithRoles(bucket, cgrLocations);
 		} catch (InstantiationException e) {
 			cannotLaunchAgent(agentClass, e, null);
 		} catch (IllegalAccessException e) {
@@ -857,8 +786,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		} catch (ClassNotFoundException e) {
 			cannotLaunchAgent(agentClass, e, null);
 		}
-
-		launchAgentBucketWithRoles(bucket, cgrLocations);
 		return bucket;
 	}
 	
@@ -875,6 +802,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *           semicolon as follows: <code>"community;group;role"</code>
 	 *          
 	 */
+	@SuppressWarnings("unchecked")
 	public void launchAgentBucketWithRoles(List<AbstractAgent> bucket, String... cgrLocations) {
 		getKernel().launchAgentBucketWithRoles(this, bucket, cgrLocations);
 	}
@@ -989,9 +917,18 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	/**
-	 * Sets the agent's log level
+	 * Sets the agent's log level. This should be
+	 * used instead of directly {@link AgentLogger#setLevel(Level)} because
+	 * this works when {@link #logger} is <code>null</code> and allows
+	 * to set it to <code>null</code> to save cpu time.
+	 * 
+	 * @param newLevel The log level under which log messages are displayed. 
+	 * If {@link Level#OFF} is used
+	 * then {@link #logger} is set to <code>null</code>
+	 * 
+	 * @see #logger
 	 */
-	public synchronized void setLogLevel(final Level newLevel) {
+	public void setLogLevel(final Level newLevel) {
 		if (Level.OFF == newLevel) {
 			if (logger != null && logger != AgentLogger.defaultAgentLogger) {
 				logger.setLevel(newLevel);
@@ -1037,7 +974,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * 
 	 */
 	@Override
-	public int compareTo(final AbstractAgent other) {
+	public int compareTo(final AbstractAgent other) { 
 		return _hashCode - other._hashCode;
 	}
 
@@ -1140,7 +1077,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @since MadKit 5.0
 	 */
 	public ReturnCode createGroup(final String community, final String group, boolean isDistributed, final Gatekeeper keyMaster) {
-		return getKernel().createGroup(this, community, group, group, keyMaster, isDistributed);
+		return getKernel().createGroup(this, community, group, keyMaster, isDistributed);
 	}
 
 	/**
@@ -1160,7 +1097,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *      Gatekeeper)
 	 * @since MadKit 5.0
 	 */
-	public boolean createGroupIfAbsent(final String community, final String group) {
+	public boolean createGroupIfAbsent(final String community, final String group) { 
 		return createGroupIfAbsent(community, group, false, null);
 	}
 
@@ -1184,7 +1121,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *      Gatekeeper)
 	 * @since MadKit 5.0
 	 */
-	public boolean createGroupIfAbsent(final String community, final String group, boolean isDistributed) {
+	public boolean createGroupIfAbsent(final String community, final String group, boolean isDistributed) { 
 		return createGroupIfAbsent(community, group, isDistributed, null);
 	}
 
@@ -1216,7 +1153,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 */
 	public boolean createGroupIfAbsent(final String community, final String group, boolean isDistributed,
 			final Gatekeeper keyMaster) {
-		return getKernel().createGroupIfAbsent(this, community, group, group, keyMaster, isDistributed);
+		return getKernel().createGroupIfAbsent(this, community, group, keyMaster, isDistributed);
 	}
 
 	/**
@@ -1327,12 +1264,12 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @see AbstractAgent.ReturnCode
 	 * @since MadKit 5.0
 	 */
-	public ReturnCode leaveRole(final String community, final String group, final String role) {
+	public ReturnCode leaveRole(final String community, final String group, final String role) { 
 		return getKernel().leaveRole(this, community, group, role);
 	}
 
 	final void handleException(final Influence i, final Throwable e) {
-		if (logger != null && logger.getWarningLogLevel().intValue() >= logger.getLevel().intValue()) {
+		if (isWarningOn()) {
 			setAgentStackTrace(e);
 			logger.log(Level.WARNING, i.failedString(), e);
 		}
@@ -1356,16 +1293,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			}
 			e.setStackTrace(stack.toArray(new StackTraceElement[0]));
 		}
-	}
-
-	/**
-	 * This makes the distinction between AA and Agent
-	 * 
-	 * @return the lifeCycle
-	 * @since MadKit 5.0.0.9
-	 */
-	List<Future<Boolean>> getMyLifeCycle() {
-		return null;
 	}
 
 	/**
@@ -1412,7 +1339,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @return a {@link java.util.List} containing agents that handle this role
 	 *         or <code>null</code> if no agent has been found.
 	 */
-	public List<AgentAddress> getAgentsWithRole(final String community, final String group, final String role) {
+	public List<AgentAddress> getAgentsWithRole(final String community, final String group, final String role) { 
 		return getAgentsWithRole(community, group, role, false);
 	}
 
@@ -1444,7 +1371,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @return The next message or <code>null</code> if the message box is empty.
 	 */
 	public Message nextMessage() {
-		// checkAliveness();
 		if (logger != null) {
 			final Message m = messageBox.poll();
 			logger.finest("getting nextMessage = " + m);
@@ -1453,18 +1379,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		return messageBox.poll();
 	}
 
-	// /**
-	// * Returns the message which has been received the most recently and
-	// removes
-	// * it from the mailbox.
-	// *
-	// * @return the message which has been received the most recently.
-	// */
-	// public Message getMostRecentMessage() {
-	// // checkAliveness();
-	// return messageBox.pollLast();
-	// }
-
 	/**
 	 * Purges the mailbox and returns the most
 	 * recent received message at that time.
@@ -1472,7 +1386,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @return the most recent received message or <code>null</code> if the
 	 *         mailbox is already empty.
 	 */
-	public Message purgeMailbox() {
+	public Message purgeMailbox() { 
 		Message m = null;
 		synchronized (messageBox) {
 			try {
@@ -1490,8 +1404,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @return <code>true</code> if there is no message in
 	 *         the mailbox.
 	 */
-	public boolean isMessageBoxEmpty() {
-		// checkAliveness();
+	public boolean isMessageBoxEmpty() { 
 		return messageBox.isEmpty();
 	}
 
@@ -1730,7 +1643,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @see ReturnCode
 	 * 
 	 */
-	public ReturnCode sendReplyWithRole(final Message messageToReplyTo, final Message reply, final String senderRole) {
+	public ReturnCode sendReplyWithRole(final Message messageToReplyTo, final Message reply, final String senderRole) { 
 		reply.setID(messageToReplyTo.getConversationID());
 		return getKernel().sendMessage(this, messageToReplyTo.getSender(), reply, senderRole);
 	}
@@ -1769,7 +1682,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @return a reply to the <i>originalMessage</i> or <code>null</code> if no
 	 *         reply to this message has been received.
 	 */
-	public Message getReplyTo(final Message originalMessage) {
+	public Message getReplyTo(final Message originalMessage) { 
 		final long searchID = originalMessage.getConversationID();
 		for (final Iterator<Message> it = messageBox.iterator(); it.hasNext();) {
 			final Message m = it.next();
@@ -1819,7 +1732,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @see #getMadkitProperty(String)
 	 * @see Madkit
 	 */
-	public void setMadkitProperty(String key, String value) {
+	public void setMadkitProperty(String key, String value) { 
 		getMadkitConfig().setProperty(key, value);	
 	}
 
@@ -1863,7 +1776,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @return <code>true</code> If a community with this name exists,
 	 *         <code>false</code> otherwise.
 	 */
-	public boolean isCommunity(final String community) {
+	public boolean isCommunity(final String community) { 
 		return getKernel().isCommunity(this, community);
 	}
 
@@ -1877,7 +1790,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @return <code>true</code> If a group with this name exists in this
 	 *         community, <code>false</code> otherwise.
 	 */
-	public boolean isGroup(final String community, final String group) {
+	public boolean isGroup(final String community, final String group) { 
 		return getKernel().isGroup(this, community, group);
 	}
 
@@ -1904,7 +1817,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	@Override
 	public String toString() {
 		return getName() + " " + getState();
-		// if(getState() == State.NOT_LAUNCHED || getState() == TERMINATED)
+		// if(getState() == SimulationState.NOT_LAUNCHED || getState() == TERMINATED)
 		// return getName();//+" *"+getState()+"*";
 		// // return getName()+" *"+getState()+"* running on "+getKernelAddress();
 		// return getName()+" running on "+getKernelAddress();
@@ -1987,13 +1900,11 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		if (logger != null) {
 			return !(Level.FINEST.intValue() < logger.getLevel().intValue());
 		}
-		else {
-			// As it is called by the logged kernel
-			// updating the level accordingly -> the user has set logger to null
-			// himself
-			setLogLevel(Level.OFF);
-			return false;
-		}
+		// As it is called by the logged kernel
+		// updating the level accordingly -> the user has set logger to null
+		// himself
+		setLogLevel(Level.OFF);
+		return false;
 	}
 
 	/**
@@ -2018,66 +1929,20 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		}
 		else {
 			getLogger().severeLog("-*-" + getState().lifeCycleMethod() + " BUG*-*", e);
-			// getLogger().severeLog(m, e instanceof AgentLifeException ?
-			// e.getCause() : e);
 		}
 		return false;
 	}
-
-	// private String getInMethodName(){
-	// switch (getState()) {
-	// case ACTIVATED:
-	// return "ACTIVATE";// " + getI18N("terminated");
-	// case LIVING:
-	// return "LIVE";// + getI18N("terminated");
-	// case ENDING:
-	// return "END";
-	// default:
-	// return "TERMINATE";
-	// }
-	// }
-
-	// /**
-	// * @param e
-	// * @param m
-	// */
-	// private void severeLog(Throwable e, String m) {
-	// kernel.getMadkitKernel().getLogger().log(Level.FINEST,m,e);
-	// setAgentStackTrace(e);
-	// getLogger().severeLog(m, e);
-	// }
 
 	final String getLoggingName() {
 		if (name != null)
 			return "[" + name + "]";
 		return "[" + getClass().getSimpleName() + "-" + _hashCode + "]";
-		// String loggingName = getClass().getSimpleName() + "-" + _hashCode;
-		// if (name == null || name.equals(loggingName)) {
-		// return "[" + loggingName + "]";
-		// }
-		// return "[" + loggingName+"-" + getName() + "]";
 	}
 
 	// //////////////////////////////////////////////////////////////////////////////
 	// /////////////////////////////////// Synchronization
 	// //////////////////////////
 	// /////////////////////////////////////////////////////////////////////////////
-	// /**
-	// * @param timeout
-	// * @param unit
-	// * @return
-	// * @throws InterruptedException
-	// * @since MadKit 5.0.0.9
-	// */
-	// private Message waitingNextMessageForEver() {
-	// try {
-	// return messageBox.takeFirst();
-	// } catch (InterruptedException e) {
-	// throw new KilledException(e);
-	// } catch (IllegalMonitorStateException e) {
-	// throw new KilledException(e);
-	// }
-	// }
 
 	/**
 	 * @since MadKit 5.0.0.9
@@ -2213,11 +2078,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	final void handleInterruptedException() {// TODO
 		if (Thread.currentThread().getName().equals(getAgentThreadName(getState())) && alive.compareAndSet(true, false))
 			throw new SelfKillException("" + 0);// TODO why 0 ?
-		else
-			Thread.currentThread().interrupt();
-		// if(logger != null){
-		// logger.log(Level.WARNING," Interrupted (killed) by ",e);
-		// }
+		Thread.currentThread().interrupt();
 	}
 
 	// //////////////////////////////////////////////////////////////////////////////
@@ -2226,7 +2087,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	// /////////////////////////////////////////////////////////////////////////////
 
 	// //////////////////////////////////////////////////////////////////////////////
-	// /////////////////////////////////// Agent State
+	// /////////////////////////////////// Agent SimulationState
 	// //////////////////////////////
 	// /////////////////////////////////////////////////////////////////////////////
 
@@ -2321,30 +2182,30 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * 
 	 * @return the current state of the agent:
 	 *         <ul>
-	 *         <li><code>{@link State#NOT_LAUNCHED}</code>: the agent has not
+	 *         <li><code>{@link SimulationState#NOT_LAUNCHED}</code>: the agent has not
 	 *         been launched yet. This especially means that most of the methods
 	 *         of this API still do not work for this agent as it has not been
 	 *         registered yet.</li>
 	 *         <br/>
-	 *         <li><code>{@link State#INITIALIZING}</code>: the agent is being
+	 *         <li><code>{@link SimulationState#INITIALIZING}</code>: the agent is being
 	 *         registered by the kernel but has not started its
 	 *         {@link #activate()} method yet.</li>
 	 *         <br/>
-	 *         <li><code>{@link State#ACTIVATED}</code>: the agent is processing
+	 *         <li><code>{@link SimulationState#ACTIVATED}</code>: the agent is processing
 	 *         its {@link #activate()} method. This state is also the "running"
 	 *         state of {@link AbstractAgent} subclasses (i.e. when they have
 	 *         finished their activation) as they do not have a
 	 *         {@link Agent#live()} managed by the kernel in their life cycle. On
 	 *         the contrary to {@link Agent} subclasses which next state is
-	 *         {@link State#LIVING}.</li>
+	 *         {@link SimulationState#LIVING}.</li>
 	 *         <br/>
-	 *         <li><code>{@link State#LIVING}</code>: returned when {@link Agent}
+	 *         <li><code>{@link SimulationState#LIVING}</code>: returned when {@link Agent}
 	 *         subclasses are processing their {@link Agent#live()} method.</li>
 	 *         <br/>
-	 *         <li><code>{@link State#ENDING}</code>: the agent is processing its
+	 *         <li><code>{@link SimulationState#ENDING}</code>: the agent is processing its
 	 *         {@link #end()} method.</li>
 	 *         <br/>
-	 *         <li><code>{@link State#TERMINATED}</code>: the agent has finished
+	 *         <li><code>{@link SimulationState#TERMINATED}</code>: the agent has finished
 	 *         its life in the MadKit platform. Especially, most of the methods
 	 *         of this API will no longer work for this agent.</li>
 	 *         </ul>
@@ -2639,7 +2500,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		// }
 
 		public String failedString() {
-			return name() + " " + Words.FAILED + " : ";
+			return toString() + Words.FAILED + " : ";
 		}
 
 		@Override
@@ -2647,8 +2508,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			return name() + " ";
 		}
 
-		public String successString() {
-			return name() + " " + SUCCESS + " : ";
+		String successString() {
+			return toString() + SUCCESS + " : ";
 		}
 	}
 
@@ -2700,6 +2561,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @see Option BooleanOption LevelOption
 	 * @since MadKit 5.0.0.14
 	 */
+	@SuppressWarnings("unused")
 	protected static void executeThisAgent(int nbOfInstances, boolean createFrame, String... args) {
 		final StackTraceElement[] trace = new Throwable().getStackTrace();
 		final ArrayList<String> arguments = new ArrayList<String>(Arrays.asList(Madkit.Option.launchAgents.toString(),
@@ -2718,7 +2580,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @param args
 	 *           MadKit options
 	 * @see #executeThisAgent(int, boolean, String...)
-	 * @since MadKit 5.0.0.14
+	 * @since MadKit 5.0.0.14 
 	 */
 	protected static void executeThisAgent(String... args) {
 		executeThisAgent(1, true, args);
@@ -2732,7 +2594,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @see #executeThisAgent(int, boolean, String...)
 	 * @since MadKit 5.0.0.15
 	 */
-	protected static void executeThisAgent() {
+	protected static void executeThisAgent() { 
 		executeThisAgent(1, true);
 	}
 

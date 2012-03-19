@@ -47,7 +47,7 @@ public class RoleTest {
 		mk = new MadkitKernel(new Madkit(args));
 		a = new AbstractAgent();
 		a.setKernel(mk);
-		mk.createGroup(a, "c", "g", null, null, false);
+		mk.createGroup(a, "c", "g", null, false);
 		try {
 			mk.getGroup("c", "g").put("r", mk.getGroup("c", "g").createRole("r"));
 			r = mk.getRole("c", "g", "r");

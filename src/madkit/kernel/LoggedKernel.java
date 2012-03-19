@@ -26,9 +26,10 @@ import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static madkit.kernel.AbstractAgent.ReturnCode.TIMEOUT;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
+
+import madkit.i18n.Words;
 
 /**
  * @author Fabien Michel
@@ -49,11 +50,11 @@ final class LoggedKernel extends MadkitKernel {
 	}
 
 	/**
-	 * @see madkit.kernel.MadkitKernel#createGroup(madkit.kernel.AbstractAgent, java.lang.String, java.lang.String, java.lang.String, madkit.kernel.Gatekeeper, boolean)
+	 * @see madkit.kernel.MadkitKernel#createGroup(madkit.kernel.AbstractAgent, java.lang.String, java.lang.String, madkit.kernel.Gatekeeper, boolean)
 	 */
 	@Override
-	ReturnCode createGroup(AbstractAgent requester, String community, String group, String description, Gatekeeper gatekeeper, boolean isDistributed) {
-		final ReturnCode r = kernel.createGroup(requester, community, group, group, gatekeeper, isDistributed);
+	ReturnCode createGroup(AbstractAgent requester, String community, String group, Gatekeeper gatekeeper, boolean isDistributed) {
+		final ReturnCode r = kernel.createGroup(requester, community, group, gatekeeper, isDistributed);
 		if(r == SUCCESS){
 			if(requester.isFinestLogOn()){
 				requester.logger.log(Level.FINEST,
@@ -70,11 +71,11 @@ final class LoggedKernel extends MadkitKernel {
 	
 
 	@Override
-	boolean createGroupIfAbsent(AbstractAgent requester,String community, String group, String desc, Gatekeeper gatekeeper, boolean isDistributed) {
+	boolean createGroupIfAbsent(AbstractAgent requester,String community, String group, Gatekeeper gatekeeper, boolean isDistributed) {
 		if(requester.isFinestLogOn())
 			requester.logger.log(Level.FINEST,"createGroupIfAbsent" + getCGRString(community, group) + "distribution " + (isDistributed ? "ON" : "OFF") + " with "
 					+ (gatekeeper == null ? "no access control" : gatekeeper.toString() + " for access control"));
-		return kernel.createGroup(requester, community, group, desc,gatekeeper, isDistributed) == SUCCESS;
+		return kernel.createGroup(requester, community, group, gatekeeper,isDistributed) == SUCCESS;
 	}
 
 
@@ -322,7 +323,7 @@ final class LoggedKernel extends MadkitKernel {
 	boolean isCommunity(AbstractAgent requester, String community) {
 		final boolean fact = kernel.isCommunity(requester, community);
 		if(requester.isFinestLogOn())
-			requester.logger.log(Level.FINEST,"isCommunity ? "+getCGRString(community)+fact);
+			requester.logger.log(Level.FINEST,Words.COMMUNITY+" ? "+getCGRString(community)+fact);
 		return fact;
 	}
 
@@ -330,7 +331,7 @@ final class LoggedKernel extends MadkitKernel {
 	boolean isGroup(AbstractAgent requester, String community, String group) {
 		final boolean fact = kernel.isGroup(requester, community, group); 
 		if(requester.isFinestLogOn())
-			requester.logger.log(Level.FINEST,"isGroup ? "+getCGRString(community, group)+fact);
+			requester.logger.log(Level.FINEST,Words.GROUP+" ? "+getCGRString(community, group)+fact);
 		return fact;
 	}
 
@@ -338,7 +339,7 @@ final class LoggedKernel extends MadkitKernel {
 	boolean isRole(AbstractAgent requester, String community, String group, String role) {
 		final boolean fact = kernel.isRole(requester, community, group, role); 
 		if(requester.isFinestLogOn())
-			requester.logger.log(Level.FINEST,"isRole ? "+getCGRString(community, group, role)+fact);
+			requester.logger.log(Level.FINEST,Words.ROLE+" ? "+getCGRString(community, group, role)+fact);
 		return fact;
 	}
 
@@ -362,15 +363,18 @@ final class LoggedKernel extends MadkitKernel {
 
 	@Override
 	boolean removeOverlooker(AbstractAgent requester, Overlooker<? extends AbstractAgent> o) {
-		boolean added = kernel.removeOverlooker(requester, o);
+		final boolean added = kernel.removeOverlooker(requester, o);
 		if(requester.isFinestLogOn())
-			requester.logger.log(Level.FINEST,(o instanceof Activator<?> ?"Activator":"Probe")+"added:"+o);
+			requester.logger.log(Level.FINEST,o.getClass().getSimpleName()+(added ? " removed":" not added")+o);
 		return added;
 	}
 
 	@Override
 	boolean addOverlooker(AbstractAgent requester, Overlooker<? extends AbstractAgent> o) {
-		return kernel.addOverlooker(requester, o);
+		final boolean added = kernel.addOverlooker(requester, o);
+		if(requester.isFinestLogOn())
+			requester.logger.log(Level.FINEST,o.getClass().getSimpleName()+(added ? " OK":" already added")+o);
+		return added;
 	}
 
 }

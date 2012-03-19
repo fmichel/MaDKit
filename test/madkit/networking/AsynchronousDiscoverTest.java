@@ -21,7 +21,6 @@ package madkit.networking;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import madkit.action.KernelAction;
@@ -31,7 +30,6 @@ import madkit.agr.LocalCommunity.Groups;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AgentAddress;
 import madkit.kernel.JunitMadKit;
-import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.BooleanOption;
 
 import org.junit.Test;

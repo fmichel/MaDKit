@@ -23,7 +23,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -51,7 +50,7 @@ public class LaunchAgentBucketTest extends JunitMadKit {
 	@Test
 	public void returnSuccess() {
 		for (int i = 0; i < 100; i++) {
-			addMadkitArgs(LevelOption.kernelLogLevel.toString(),Level.ALL.toString());
+//			addMadkitArgs(LevelOption.kernelLogLevel.toString(),Level.ALL.toString());
 			launchTest(new AbstractAgent() {
 				protected void activate() {
 					List<AbstractAgent> l = launchAgentBucketWithRoles(SimulatedAgent.class.getName(), size);
@@ -66,6 +65,7 @@ public class LaunchAgentBucketTest extends JunitMadKit {
 
 	@Test
 	public void nullArg() {
+		addMadkitArgs(LevelOption.kernelLogLevel.toString(),Level.ALL.toString());
 		launchTest(new AbstractAgent() {
 			protected void activate() {
 				try {
@@ -81,12 +81,13 @@ public class LaunchAgentBucketTest extends JunitMadKit {
 	
 	@Test
 	public void classNotExist() {
+		addMadkitArgs(LevelOption.kernelLogLevel.toString(),Level.ALL.toString());
 		launchTest(new AbstractAgent() {
 			protected void activate() {
 				launchAgentBucketWithRoles("fake.fake", 2);
 			}
 
-		},ReturnCode.AGENT_CRASH);
+		});
 	}
 	
 	

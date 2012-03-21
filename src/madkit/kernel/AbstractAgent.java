@@ -995,6 +995,10 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         successfully created.</li>
 	 *         <li><code>{@link ReturnCode#ALREADY_GROUP}</code>: If the
 	 *         operation failed because such a group already exists.</li>
+	 *         <li><code>
+	 *         {@link ReturnCode#IGNORED}</code>: If this method is used in
+	 *         activate and this agent has been launched using
+	 *         {@link AbstractAgent#launchAgentBucketWithRoles(List, String...)}
 	 *         </ul>
 	 *         </ul>
 	 * 
@@ -1022,6 +1026,10 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         successfully created.</li>
 	 *         <li><code>{@link ReturnCode#ALREADY_GROUP}</code>: If the
 	 *         operation failed because such a group already exists.</li>
+	 *         <li><code>
+	 *         {@link ReturnCode#IGNORED}</code>: If this method is used in
+	 *         activate and this agent has been launched using
+	 *         {@link AbstractAgent#launchAgentBucketWithRoles(List, String...)}
 	 *         </ul>
 	 *         </ul>
 	 * 
@@ -1065,10 +1073,11 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the group has been
 	 *         successfully created.</li> <li><code>
 	 *         {@link ReturnCode#ALREADY_GROUP}</code>: If the operation failed
-	 *         because such a group already exists.</li> <li><code>
+	 *         because such a group already exists.</li> 
+	 *         <li><code>
 	 *         {@link ReturnCode#IGNORED}</code>: If this method is used in
 	 *         activate and this agent has been launched using
-	 *         {@link AbstractAgent#launchAgentBucketWithRoles(String, int, Collection)}
+	 *         {@link AbstractAgent#launchAgentBucketWithRoles(List, String...)}
 	 *         </li>
 	 *         </ul>
 	 * 

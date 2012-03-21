@@ -42,9 +42,9 @@ public class GUITest extends JunitMadKit {
 		launchTest(new AbstractAgent() {
 			@Override
 			protected void activate() {
-				AbstractAgent name = new AbstractAgent();
-				assertEquals(ReturnCode.SUCCESS, launchAgent(name, true));
-				assertTrue(name.hasGUI());
+				AbstractAgent a = new AbstractAgent();
+				assertEquals(ReturnCode.SUCCESS, launchAgent(a, true));
+				assertTrue(a.hasGUI());
 			}
 		});
 	}

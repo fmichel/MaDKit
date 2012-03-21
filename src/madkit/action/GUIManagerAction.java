@@ -65,11 +65,6 @@ public enum GUIManagerAction {
 	 */
 	LOAD_JAR_FILE(KeyEvent.VK_J), 
 	/**
-	 * Makes a redirection of the out and err 
-	 * to a MadKit agent.
-	 */
-	CONSOLE(KeyEvent.VK_O), 
-	/**
 	 * Iconify all the agent frames
 	 */
 	ICONIFY_ALL(KeyEvent.VK_U),
@@ -136,18 +131,6 @@ public enum GUIManagerAction {
 	 * @return an Action that could be used in an GUI for instance
 	 */
 	public Action getActionFor(final AbstractAgent agent, final Object... commandOptions){
-		if(this == CONSOLE){
-			return new MKAbstractAction(getActionInfo()) {
-				private static final long serialVersionUID = -3628118195822063331L;
-
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					if(agent.isAlive()){
-						agent.launchAgent(ConsoleAgent.class.getName(),0,true);
-					}
-				}
-			};
-		}
 		return new MKAbstractAction(getActionInfo()){
 			/**
 			 * 
@@ -198,8 +181,11 @@ public enum GUIManagerAction {
 						@Override
 						public void actionPerformed(ActionEvent e) {
 							if (agent.isAlive()) {
-								agent.sendMessage(LocalCommunity.NAME, Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE, new KernelMessage(
-										KernelAction.LOAD_JAR_FILE, mkA.getJarUrl()));
+								agent.sendMessage(
+										LocalCommunity.NAME, 
+										Groups.SYSTEM, 
+										Organization.GROUP_MANAGER_ROLE, 
+										new KernelMessage(KernelAction.LOAD_JAR_FILE, mkA.getJarUrl()));
 							}
 						}
 					};
@@ -207,10 +193,7 @@ public enum GUIManagerAction {
 				add.invoke(menuOrToolBar, a);
 				switch (mkA) {
 				case LOAD_JAR_FILE:
-				case CONSOLE:
 					addSeparator.invoke(menuOrToolBar);
-				default:
-					break;
 				}
 			}
 		} catch (InvocationTargetException e) {

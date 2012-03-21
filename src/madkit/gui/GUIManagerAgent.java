@@ -343,26 +343,26 @@ class GUIManagerAgent extends Agent {
 		menuBar.add(new MadkitMenu(this));
 		menuBar.add(new LaunchAgentsMenu(this));
 		menuBar.add(new LaunchMAS(this));
-		final String jconsolePath = findJconsole();
-		if(jconsolePath != null){
-			final String pid = java.lang.management.ManagementFactory.getRuntimeMXBean().getName();
-			pid.substring(0, pid.indexOf('@'));
-			System.err.println(pid);
-			JMenu monitoring = new JMenu("Monitoring");
-			JMenuItem item = new JMenuItem("jconsole");
-			item.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					try {
-						Runtime.getRuntime().exec(jconsolePath+" "+pid.substring(0, pid.indexOf('@')));
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					}
-				}
-			});
-			monitoring.add(item);
-			menuBar.add(monitoring);
-		}
+//		final String jconsolePath = findJconsole();
+//		if(jconsolePath != null){
+//			final String pid = java.lang.management.ManagementFactory.getRuntimeMXBean().getName();
+//			pid.substring(0, pid.indexOf('@'));
+//			System.err.println(pid);
+//			JMenu monitoring = new JMenu("Monitoring");
+//			JMenuItem item = new JMenuItem("jconsole");
+//			item.addActionListener(new ActionListener() {
+//				@Override
+//				public void actionPerformed(ActionEvent e) {
+//					try {
+//						Runtime.getRuntime().exec(jconsolePath+" "+pid.substring(0, pid.indexOf('@')));
+//					} catch (IOException e1) {
+//						e1.printStackTrace();
+//					}
+//				}
+//			});
+//			monitoring.add(item);
+//			menuBar.add(monitoring);
+//		}
 		JToolBar tb = new MadkitToolBar(this);
 		myFrame.setJMenuBar(menuBar);
 		tb.setRollover(true);
@@ -381,23 +381,4 @@ class GUIManagerAgent extends Agent {
 		myFrame.setResizable(true);
 	}
 
-	private String findJconsole() {
-		File javaHome = new File(System.getProperty("java.home"));
-		File jconsole = new File(javaHome.getParent(), "bin" + File.separatorChar+ "jconsole");
-		if (jconsole.exists())
-			return jconsole.getAbsolutePath();
-		jconsole = javaHome.getParentFile().getParentFile();
-		for (File dir : jconsole.listFiles(new FileFilter() {
-			@Override
-			public boolean accept(File pathname) {
-				return pathname.getName().startsWith("jdk");
-			}
-		})) {
-			jconsole = new File(dir, "bin" + File.separatorChar + "jconsole");
-			if (jconsole.exists()) {
-				return jconsole.getAbsolutePath();
-			}
-		}
-		return null;
-	}
 }

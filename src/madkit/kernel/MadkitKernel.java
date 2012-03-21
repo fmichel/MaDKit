@@ -257,22 +257,34 @@ class MadkitKernel extends Agent {
 	protected void activate() {
 		if (logger != null)
 			logger.setWarningLogLevel(Level.INFO);
-		createGroup(LocalCommunity.NAME, Groups.SYSTEM, false);
-		createGroup(LocalCommunity.NAME, Groups.NETWORK, false);
-		requestRole(LocalCommunity.NAME, Groups.SYSTEM, Roles.KERNEL, null);
-		requestRole(LocalCommunity.NAME, Groups.NETWORK, Roles.EMMITER, null);
-		requestRole(LocalCommunity.NAME, Groups.NETWORK, Roles.UPDATER, null);
+		
+		//denying all requests for this group
+		createGroup(LocalCommunity.NAME, Groups.SYSTEM, false,new Gatekeeper() {
+			@Override
+			public boolean allowAgentToTakeRole(String roleName, Object memberCard) {
+				return false;
+			}
+		});
 
-		myThread.setPriority(Thread.NORM_PRIORITY + 1);
-		// black magic here
+		//building the network group
+		createGroup(LocalCommunity.NAME, Groups.NETWORK, false);
+		requestRole(LocalCommunity.NAME, Groups.NETWORK, Roles.KERNEL, null);
+		requestRole(LocalCommunity.NAME, Groups.NETWORK, Roles.UPDATER, null);
+		requestRole(LocalCommunity.NAME, Groups.NETWORK, Roles.EMMITER, null);
+
+		//my AAs cache
 		netUpdater = getAgentAddressIn(LocalCommunity.NAME, Groups.NETWORK, Roles.UPDATER);
 		netEmmiter = getAgentAddressIn(LocalCommunity.NAME, Groups.NETWORK, Roles.EMMITER);
-		kernelRole = getAgentAddressIn(LocalCommunity.NAME, Groups.SYSTEM, madkit.agr.LocalCommunity.Roles.KERNEL);
+		kernelRole = getAgentAddressIn(LocalCommunity.NAME, Groups.NETWORK, Roles.KERNEL);
+
+		myThread.setPriority(Thread.NORM_PRIORITY + 1);
 
 		if (loadLocalDemos.isActivated(getMadkitConfig())) {
 			loadLocalDemos();
 		}
+		
 		launchGuiManagerAgent();
+
 		if (console.isActivated(getMadkitConfig())) {
 			launchAgent(new ConsoleAgent());
 		}
@@ -433,15 +445,28 @@ class MadkitKernel extends Agent {
 		startSession();
 		mkCfg.putAll(currentConfig);
 	}
+	
+	
+	@SuppressWarnings("unused")
+	private void console() {
+		launchAgent(ConsoleAgent.class.getName());
+	}
 
-//	@SuppressWarnings("unused")
-//	private void launchSession(MASModel dm, boolean externalVM) {
-//		
-//		if (logger != null)
-//			logger.finer("** LAUNCHING SESSION " + dm.getName());
-//		startSession();
-//		mkCfg.putAll(currentConfig);
-//	}
+	@SuppressWarnings("unused")
+	private void jconsole() {
+		final String jconsolePath = KernelAction.findJconsole();
+		if(jconsolePath != null){
+			final String pid = java.lang.management.ManagementFactory.getRuntimeMXBean().getName();
+					try {
+						Runtime.getRuntime().exec(jconsolePath+" "+pid.substring(0, pid.indexOf('@')));
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+		}
+		else{
+			getLogger().severe("jconsole unavailable");
+		}
+	}
 
 	private void launchConfigAgents() {
 		final ExecutorService startExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);// TODO

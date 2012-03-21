@@ -47,8 +47,8 @@ public class CreateLogFilesTest extends JunitMadKit {
 	FilenameFilter	filter	= new FilenameFilter() {
 
 										@Override
-										public boolean accept(File dir, String name) {
-											return !name.contains(".lck");
+										public boolean accept(File dir, String s) {
+											return !s.contains(".lck");
 										}
 									};
 

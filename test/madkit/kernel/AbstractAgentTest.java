@@ -117,7 +117,6 @@ public class AbstractAgentTest {
 
 	@Test
 	public final void testCompareTo() {
-		AbstractAgent b = new AbstractAgent();
 		assertTrue(a.compareTo(b) < 0);
 		assertTrue(b.compareTo(a) > 0);
 		assertTrue(a.compareTo(a) == 0);
@@ -129,7 +128,6 @@ public class AbstractAgentTest {
 	 */
 	@Test
 	public final void testEqualsObject() {
-		AbstractAgent b = new AbstractAgent();
 		assertFalse(a.equals(b));
 		assertFalse(a.equals(null));
 		assertTrue(a.equals(a));
@@ -229,7 +227,6 @@ public class AbstractAgentTest {
 	 */
 	@Test
 	public final void testEqualsObject1() {
-		AbstractAgent b = new AbstractAgent();
 		assertFalse(b.equals(a));
 		assertTrue(a.equals(a));
 	}

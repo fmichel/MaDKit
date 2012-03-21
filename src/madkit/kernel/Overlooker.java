@@ -198,7 +198,7 @@ abstract class Overlooker <A extends AbstractAgent>
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + " on <" + community + ";" + group + ";" + role + "> "+(overlookedRole == null ? "not currently added" : ": "+size() + " agents");
+		return getClass().getSimpleName() + " <" + community + ";" + group + ";" + role + "> "+(overlookedRole == null ? "not added" : ": "+size() + " agents");
 	}
 
 	final void addAgent(AbstractAgent a) {
@@ -221,7 +221,6 @@ abstract class Overlooker <A extends AbstractAgent>
 		List<A> l = new ArrayList<A>(getCurrentAgentsList());
 		allAgentsLeaveRole();
 		for (A agent : l) {
-			System.err.println("killing ALL "+agent);
 			agent.killAgent(agent,0);
 		}
 	}

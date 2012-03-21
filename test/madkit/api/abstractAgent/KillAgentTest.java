@@ -247,11 +247,11 @@ public class KillAgentTest extends JunitMadKit {
 					@Override
 					public void run() {
 						for (int i = 0; i < 20; i++) {
-							Agent a = (Agent) launchAgent("madkit.testing.util.agent.NormalLife", Math.random() < .5 ? true : false);
-							assertNotNull(a);
+							Agent agt = (Agent) launchAgent(NormalLife.class.getName(), Math.random() < .5 ? true : false);
+							assertNotNull(agt);
 							pause((int) (Math.random() * 1000));
-							ReturnCode r = killAgent(a, (int) (Math.random() * 2));
-							assertTrue(SUCCESS == r || TIMEOUT == r);
+							ReturnCode r2 = killAgent(agt, (int) (Math.random() * 2));
+							assertTrue(SUCCESS == r2 || TIMEOUT == r2);
 						}
 					}
 				};

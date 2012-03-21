@@ -126,24 +126,15 @@ class FakeKernel extends MadkitKernel{
 	//////////////////////////////////////////////////////////////
 	////////////////////////// Launching and Killing
 	//////////////////////////////////////////////////////////////
-//	AbstractAgent launchAgent(AbstractAgent agent, String agentClass, int timeOutSeconds,  boolean defaultGUI){
-//		throw buildKernelException(agent);
-//	}
 
 	@Override
 	final ReturnCode launchAgent(final AbstractAgent agent, final AbstractAgent agent2, final int timeOutSeconds, final boolean defaultGUI){
 		throw buildKernelException(agent);
 	}
 
-//	@Override
-//	final List<AbstractAgent> launchAgentBucketWithRoles(final AbstractAgent agent, String agentClassName,int bucketSize,String... rolesName){
-//		throw buildKernelException(agent);
-//	}
-	
 	@Override
 	void launchAgentBucketWithRoles(AbstractAgent requester, List<AbstractAgent> bucket,
 			String... CGRLocations) {
-		// TODO Auto-generated method stub
 		throw buildKernelException(requester);
 	}
 
@@ -164,12 +155,12 @@ class FakeKernel extends MadkitKernel{
 	}
 
 	@Override
-	final boolean removeOverlooker(final AbstractAgent agent, Overlooker<? extends AbstractAgent> o) {
+	final synchronized boolean removeOverlooker(final AbstractAgent agent, Overlooker<? extends AbstractAgent> o) {
 		throw buildKernelException(agent);
 	}
 
 	@Override
-	final boolean addOverlooker(AbstractAgent agent, Overlooker<? extends AbstractAgent> o) {
+	final synchronized boolean addOverlooker(AbstractAgent agent, Overlooker<? extends AbstractAgent> o) {
 		throw buildKernelException(agent);
 	}
 
@@ -186,23 +177,6 @@ class FakeKernel extends MadkitKernel{
 		throw buildKernelException(null);
 	}
 	
-//	/**
-//	 * @param abstractAgent
-//	 * @return
-//	 */
-//	Component getGUIComponentOf(AbstractAgent agent) {
-////		throw buildKernelException(agent);
-//		return null;
-//	}
-//
-//	/**
-//	 * @param abstractAgent
-//	 * @param location
-//	 */
-//	void setGUILocationOf(AbstractAgent abstractAgent, Point location) {
-//		fakeKernelWarning(abstractAgent);
-//	}
-
 	@Override
 	final public Properties getMadkitConfig() {
 		return Madkit.defaultConfig;

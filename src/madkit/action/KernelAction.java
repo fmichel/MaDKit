@@ -18,7 +18,7 @@
  */
 package madkit.action;
 
-import static java.awt.event.KeyEvent.VK_C;
+import static java.awt.event.KeyEvent.*;
 import static java.awt.event.KeyEvent.VK_D;
 import static java.awt.event.KeyEvent.VK_DOLLAR;
 import static java.awt.event.KeyEvent.VK_N;
@@ -27,6 +27,8 @@ import static java.awt.event.KeyEvent.VK_R;
 import static java.awt.event.KeyEvent.VK_T;
 
 import java.awt.event.ActionEvent;
+import java.io.File;
+import java.io.FileFilter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.EnumSet;
@@ -74,17 +76,32 @@ public enum KernelAction {
 	/**
 	 * Start the network
 	 */
-	LAUNCH_NETWORK(VK_N),
+	LAUNCH_NETWORK(VK_W),
 	/**
 	 * Stop the network
 	 */
 	STOP_NETWORK(VK_T),
 
-	//	//Actions that need parameters, i.e. not global
+	/**
+	 * Launch jconsole on the kernel
+	 * if available
+	 */
+	JCONSOLE(VK_N),
+
+	/**
+	 * Makes a redirection of the out and err 
+	 * to a MadKit agent.
+	 */
+	CONSOLE(VK_O),
+
 	/**
 	 * Load the jar files which are in the "demos" directory if there is one in to the working directory
 	 */
 	LOAD_LOCAL_DEMOS(VK_D),
+	
+
+	
+	//	//Actions that need parameters, i.e. not global
 	/**
 	 * Launch an agent
 	 */
@@ -137,7 +154,11 @@ public enum KernelAction {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if(agent.isAlive()){
-				agent.sendMessage(LocalCommunity.NAME, Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE, new KernelMessage(KernelAction.this, parameters));//TODO work with AA but this is probably worthless	
+				agent.sendMessage(
+						LocalCommunity.NAME, 
+						Groups.SYSTEM, 
+						Organization.GROUP_MANAGER_ROLE, 
+						new KernelMessage(KernelAction.this, parameters));//TODO work with AA but this is probably worthless	
 				}
 			}
 		};
@@ -159,23 +180,26 @@ public enum KernelAction {
 	 * @param menuOrToolBar a {@link JMenu} or a {@link JToolBar} for instance
 	 * @param agent the agent that will send the message
 	 */
+	@SuppressWarnings("incomplete-switch")
 	public static void addAllActionsTo(JComponent menuOrToolBar, AbstractAgent agent){
 		try {//this bypasses class incompatibility
 			final Method add = menuOrToolBar.getClass().getMethod("add", Action.class);
 			final Method addSeparator = menuOrToolBar.getClass().getMethod("addSeparator");
 			for (KernelAction ka : EnumSet.allOf(KernelAction.class)) {
-				if(ka == LOAD_LOCAL_DEMOS && System.getProperty("javawebstart.version") != null)
-					continue;
 				if(ka == LAUNCH_AGENT)
 					return;
+				if(ka == LOAD_LOCAL_DEMOS && System.getProperty("javawebstart.version") != null)
+					continue;
+				if(ka == JCONSOLE && findJconsole() == null){
+					continue;
+				}
 				add.invoke(menuOrToolBar, ka.getActionFor(agent));
 				switch (ka) {
 				case EXIT:
 				case RESTART:
 				case STOP_NETWORK:
+				case CONSOLE:
 					addSeparator.invoke(menuOrToolBar);
-				default:
-					break;
 				}
 			}
 		} catch (InvocationTargetException e) {
@@ -186,6 +210,26 @@ public enum KernelAction {
 		} catch (SecurityException e) {
 		} catch (NoSuchMethodException e) {
 		}
+	}
+	
+	public static String findJconsole() {//TODO facto
+		File javaHome = new File(System.getProperty("java.home"));
+		File jconsole = new File(javaHome.getParent(), "bin" + File.separatorChar+ "jconsole");
+		if (jconsole.exists())
+			return jconsole.getAbsolutePath();
+		jconsole = javaHome.getParentFile().getParentFile();
+		for (File dir : jconsole.listFiles(new FileFilter() {
+			@Override
+			public boolean accept(File pathname) {
+				return pathname.getName().startsWith("jdk");
+			}
+		})) {
+			jconsole = new File(dir, "bin" + File.separatorChar + "jconsole");
+			if (jconsole.exists()) {
+				return jconsole.getAbsolutePath();
+			}
+		}
+		return null;
 	}
 
 }

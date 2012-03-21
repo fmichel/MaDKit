@@ -23,6 +23,7 @@ import java.io.PrintStream;
 import javax.swing.JFrame;
 
 import madkit.action.GUIManagerAction;
+import madkit.action.KernelAction;
 import madkit.kernel.AbstractAgent;
 
 /**
@@ -55,11 +56,12 @@ public class ConsoleAgent extends AbstractAgent {
 	public void setupFrame(final JFrame frame) {
 		final OutputPanel outP = new OutputPanel(this);
 		final PrintStream ps = new PrintStream(outP.getOutputStream());
-		frame.setIconImage(GUIManagerAction.CONSOLE.getActionInfo().getBigIcon().getImage());
+		frame.setIconImage(KernelAction.CONSOLE.getActionInfo().getBigIcon().getImage());
 		frame.add(outP);
 		System.setErr(ps);
 		System.setOut(ps);
 		frame.setSize(800, 500);
+		frame.setLocation(0, 0);
 	}
 	
 	@Override

@@ -49,7 +49,8 @@ Other command line options are described in the API of the madkit.kernel.Madkit 
 
 1. Improvements and changes:
 	- the library has been renamed for simplicity : madkitkernel -> madkit
-
+	- if the JDK (from Oracle) is installed, a shortcut to jconsole is provided for monitoring.
+	 
 2. API changes:
 	+ madkit.kernel.AgentLogger.createLogFile()
 	+ madkit.kernel.AbstractAgent.launchAgentBucketWithRoles(List<AbstractAgent>, String...)

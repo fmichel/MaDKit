@@ -197,7 +197,8 @@ public class HookSystemTest extends JunitMadKit {
 				launchAgent(new Agent(){
 					@Override
 					protected void activate() {
-						sendMessage(LocalCommunity.NAME, 
+						sendMessage(
+								LocalCommunity.NAME, 
 								LocalCommunity.Groups.SYSTEM, 
 								Organization.GROUP_MANAGER_ROLE, 
 								new AgentHookMessage(AgentAction.SEND_MESSAGE));
@@ -225,7 +226,8 @@ public class HookSystemTest extends JunitMadKit {
 				launchAgent(new Agent(){
 					@Override
 					protected void activate() {
-						sendMessage(LocalCommunity.NAME, 
+						sendMessage(
+								LocalCommunity.NAME, 
 								LocalCommunity.Groups.SYSTEM, 
 								Organization.GROUP_MANAGER_ROLE, 
 								new AgentHookMessage(AgentAction.BROADCAST_MESSAGE));

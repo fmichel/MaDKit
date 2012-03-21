@@ -76,11 +76,11 @@ public class JunitMadKit {
 		try {
 			String[] args = null;
 			if (mkArgs != null) {
-				args = (String[]) mkArgs.toArray(new String[mkArgs.size()]);
+				args = mkArgs.toArray(new String[mkArgs.size()]);
 			}
 			madkit = new Madkit(args);
 			AbstractAgent kernelAgent = madkit.getKernel()
-					.getAgentWithRole(null, LocalCommunity.NAME, Groups.SYSTEM, LocalCommunity.Roles.KERNEL).getAgent();
+					.getAgentWithRole(null, LocalCommunity.NAME, Groups.SYSTEM, LocalCommunity.GROUP_MANAGER_ROLE).getAgent();
 			// kernelAgent.receiveMessage(new
 			// KernelMessage(MadkitAction.LAUNCH_AGENT, a, false));
 			a.setName(name.getMethodName());
@@ -244,13 +244,12 @@ public class JunitMadKit {
 
 
 	public Madkit launchMKNetworkInstance(Level l) {
-		String[] args = { 
+		return new Madkit(
 				BooleanOption.network.toString(), 
 				Option.launchAgents.toString(), ForEverAgent.class.getName(),
 //				LevelOption.networkLogLevel.toString(),l.toString(),
-				LevelOption.kernelLogLevel.toString(),l.toString()};
+				LevelOption.kernelLogLevel.toString(),l.toString());
 //				BooleanOption.createLogFiles.toString()};
-		return new Madkit(args);
 	}
 
 }

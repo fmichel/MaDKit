@@ -86,7 +86,9 @@ public class JunitMadKit {
 			a.setName(name.getMethodName());
 			assertEquals(expected, kernelAgent.launchAgent(a,gui));
 			if(testFailed){
-				testException.printStackTrace();
+				if (testException != null) {
+					testException.printStackTrace();
+				}
 				fail();
 			}
 		} catch (Throwable e) {
@@ -165,7 +167,7 @@ public class JunitMadKit {
 
 	static long time;
 
-	private static boolean testFailed = false;
+	public static boolean testFailed = false;
 
 	private static Throwable testException = null;
 

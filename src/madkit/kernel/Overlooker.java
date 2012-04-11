@@ -104,20 +104,31 @@ abstract class Overlooker <A extends AbstractAgent>
 	 * Called by the MadKit kernel when the Activator or Probe is
 	 * first added. Default behavior is: <code>adding(getCurrentAgentsList());</code>
 	 */
-	public void initialize(){
+	protected void initialize(){
 		adding(getCurrentAgentsList());
 	}
 
 	/**
 	 * Called when a list of agents have joined the corresponding group and role.
-	 * This method is protected because it is automatically called
-	 * by the MadKit kernel. Override this method when you want
+	 * This method is automatically called
+	 * by the MadKit kernel when agents enter a role due to te use
+	 * of {@link AbstractAgent#launchAgentBucketWithRoles(String, int, String...)}.
+	 * Override this method when you want
 	 * to do some initialization on the agents that enter the group/role.
+	 * Default implementation is:
+	 * 
+	 * <pre>
+	 * protected void adding(final List&lt;A&gt; agents) {
+	 * 	for (A agent : agents) {
+	 * 		adding(agent);
+	 * 	}
+	 * }
+	 * </pre>
 	 * 
 	 * @param agents the list of agents which have been added to this group/role at once.
 	 */
-	protected void adding(final List<A> agents){
-		for(final A agent : agents){
+	protected void adding(final List<A> agents) {
+		for (final A agent : agents) {
 			adding(agent);
 		}
 	}

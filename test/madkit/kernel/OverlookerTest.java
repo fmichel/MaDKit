@@ -16,14 +16,15 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
  */
-package madkit.simulation.overlooker;
+package madkit.kernel;
 
 import static org.junit.Assert.assertEquals;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Activator;
-import madkit.kernel.JunitMadKit;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Scheduler;
+import madkit.testing.util.agent.NormalAA;
+import madkit.testing.util.agent.NormalAgent;
 import madkit.testing.util.agent.SimulatedAgent;
 
 import org.junit.Test;
@@ -34,9 +35,9 @@ import org.junit.Test;
  * @version 0.9
  * 
  */
-public class BuggyOverlooker extends JunitMadKit {
+@SuppressWarnings("serial")
+public class OverlookerTest extends JunitMadKit {
 
-	@SuppressWarnings("serial")
 	@Test
 	public void buggyActivator() {
 		String[] myArgs = { LevelOption.kernelLogLevel.toString(), "ALL" };
@@ -46,7 +47,6 @@ public class BuggyOverlooker extends JunitMadKit {
 			@Override
 			protected void activate() {
 				addActivator(new Activator<AbstractAgent>(COMMUNITY, GROUP, ROLE) {
-
 					@SuppressWarnings("null")
 					@Override
 					protected void adding(AbstractAgent theAgent) {
@@ -54,8 +54,56 @@ public class BuggyOverlooker extends JunitMadKit {
 						o.toString();
 					}
 				});
-				assertEquals(ReturnCode.AGENT_CRASH, launchAgent(new SimulatedAgent()));
+				assertEquals(ReturnCode.AGENT_CRASH,
+						launchAgent(new SimulatedAgent()));
 			}
 		});
 	}
+
+	@Test
+	public void addingTest() {
+		String[] myArgs = { LevelOption.kernelLogLevel.toString(), "ALL" };
+		addMadkitArgs(myArgs);
+
+		launchTest(new Scheduler() {
+
+			@Override
+			protected void activate() {
+				testFails(new Exception());
+				addActivator(new Activator<AbstractAgent>(COMMUNITY, GROUP, ROLE) {
+
+					@Override
+					protected void adding(AbstractAgent theAgent) {
+						testFailed = false;
+					}
+				});
+				assertEquals(ReturnCode.SUCCESS, launchAgent(new SimulatedAgent()));
+			}
+		});
+	}
+
+	@Test
+	public void removingTest() {
+		addMadkitArgs(LevelOption.kernelLogLevel.toString(), "ALL",
+				LevelOption.agentLogLevel.toString(), "ALL");
+
+		launchTest(new Scheduler() {
+
+			@Override
+			protected void activate() {
+				testFails(new Exception());
+				addActivator(new Activator<AbstractAgent>(COMMUNITY, GROUP, ROLE) {
+					protected void removing(AbstractAgent theAgent) {
+						if (logger != null)
+							logger.info("\nremoving OK " + theAgent);
+						testFailed = false;
+					}
+				});
+				NormalAgent a;
+				assertEquals(ReturnCode.SUCCESS, launchAgent(a = new NormalAgent()));
+				killAgent(a);
+			}
+		});
+	}
+
 }

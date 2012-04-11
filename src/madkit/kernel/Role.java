@@ -239,9 +239,8 @@ class Role implements Serializable{//TODO test with arraylist
 	 */
 	final void addDistantMember(final AgentAddress content) {
 		synchronized (players) {
-			content.setRoleObject(this);
-			if (buildAndGetAddresses().add(content)) {
-			}
+			content.setRoleObject(this);//required for equals to work
+			buildAndGetAddresses().add(content);
 		}
 	}
 
@@ -262,7 +261,7 @@ class Role implements Serializable{//TODO test with arraylist
 			}
 			modified = true;
 		}
-//		removeFromOverlookers(requester);//TODO put that in the synchronized ?
+		removeFromOverlookers(requester);//TODO put that in the synchronized ?
 		checkEmptyness();
 		return SUCCESS;
 	}

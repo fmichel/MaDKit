@@ -77,8 +77,9 @@ public class CreateLogFilesTest extends JunitMadKit {
 
 			@Override
 			protected void activate() {
-				getLogger().createLogFile();
 				f = new File(getMadkitProperty(Option.logDirectory.name()), getLogger().getName());
+				assertFalse(f.exists());
+				getLogger().createLogFile();
 				System.err.println(f);
 				assertTrue(f.exists());
 				f.delete();

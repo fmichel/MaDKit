@@ -186,6 +186,11 @@ public class CreateLogFilesTest extends JunitMadKit {
 
 class LogTester extends AbstractAgent {
 
+	/**
+	 * 
+	 */
+	private static final long	serialVersionUID	= 1L;
+
 	public LogTester() {
 		getLogger().createLogFile();
 	}

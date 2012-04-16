@@ -362,7 +362,7 @@ final class LoggedKernel extends MadkitKernel {
 //	}
 
 	@Override
-	boolean removeOverlooker(AbstractAgent requester, Overlooker<? extends AbstractAgent> o) {
+	synchronized boolean removeOverlooker(AbstractAgent requester, Overlooker<? extends AbstractAgent> o) {
 		final boolean added = kernel.removeOverlooker(requester, o);
 		if(requester.isFinestLogOn())
 			requester.logger.log(Level.FINEST,o.getClass().getSimpleName()+(added ? " removed":" not added")+o);
@@ -370,7 +370,7 @@ final class LoggedKernel extends MadkitKernel {
 	}
 
 	@Override
-	boolean addOverlooker(AbstractAgent requester, Overlooker<? extends AbstractAgent> o) {
+	synchronized boolean addOverlooker(AbstractAgent requester, Overlooker<? extends AbstractAgent> o) {
 		final boolean added = kernel.addOverlooker(requester, o);
 		if(requester.isFinestLogOn())
 			requester.logger.log(Level.FINEST,o.getClass().getSimpleName()+(added ? " OK":" already added")+o);

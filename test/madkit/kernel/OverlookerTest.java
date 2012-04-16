@@ -23,7 +23,6 @@ import madkit.kernel.AbstractAgent;
 import madkit.kernel.Activator;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Scheduler;
-import madkit.testing.util.agent.NormalAA;
 import madkit.testing.util.agent.NormalAgent;
 import madkit.testing.util.agent.SimulatedAgent;
 
@@ -101,7 +100,7 @@ public class OverlookerTest extends JunitMadKit {
 				});
 				NormalAgent a;
 				assertEquals(ReturnCode.SUCCESS, launchAgent(a = new NormalAgent()));
-				killAgent(a);
+				pause(10);
 			}
 		});
 	}

@@ -18,13 +18,15 @@
  */
 package madkit.action;
 
-import static java.awt.event.KeyEvent.*;
+import static java.awt.event.KeyEvent.VK_C;
 import static java.awt.event.KeyEvent.VK_D;
 import static java.awt.event.KeyEvent.VK_DOLLAR;
 import static java.awt.event.KeyEvent.VK_N;
+import static java.awt.event.KeyEvent.VK_O;
 import static java.awt.event.KeyEvent.VK_Q;
 import static java.awt.event.KeyEvent.VK_R;
 import static java.awt.event.KeyEvent.VK_T;
+import static java.awt.event.KeyEvent.VK_W;
 
 import java.awt.event.ActionEvent;
 import java.io.File;

@@ -183,7 +183,7 @@ public class FakeKernelTest {
 	@Test
 	public final void testLaunchAgentBucketWithRolesAbstractAgentStringIntCollectionOfString() {
 		try {
-			a.launchAgentBucketWithRoles("t", 20, null);
+			a.launchAgentBucket("t", 20);
 			fail("exception not thrown");
 		} catch (KernelException e) {
 			assertEquals(a.getKernel(), AbstractAgent.FAKE_KERNEL);

@@ -42,11 +42,13 @@ public class MadkitMenu extends JMenu {//TODO i18n
 	 * Builds a menu featuring the following actions:
 	 * <ul>
 	 * <li> {@link KernelAction#EXIT}
+	 * <li> {@link KernelAction#COPY}
 	 * <li> {@link KernelAction#RESTART}
 	 * <li> {@link KernelAction#LAUNCH_NETWORK}
 	 * <li> {@link KernelAction#STOP_NETWORK}
+	 * <li> {@link KernelAction#CONSOLE}
+	 * <li> {@link KernelAction#LOAD_LOCAL_DEMOS}
 	 * <li> {@link GUIManagerAction#LOAD_JAR_FILE}
-	 * <li> {@link GUIManagerAction#CONSOLE}
 	 * <li> {@link GUIManagerAction#ICONIFY_ALL}
 	 * <li> {@link GUIManagerAction#DEICONIFY_ALL}
 	 * <li> {@link GUIManagerAction#KILL_AGENTS}

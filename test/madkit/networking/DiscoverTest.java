@@ -76,8 +76,8 @@ public class DiscoverTest extends JunitMadKit {
 					System.err.println(agentAddress);
 				}
 				assertEquals(6, l.size());
-				for (Madkit madkit : mdks) {
-					madkit.doAction(KernelAction.EXIT);
+				for (Madkit m : mdks) {
+					m.doAction(KernelAction.EXIT);
 				}
 				KernelAction.EXIT.getActionFor(this).actionPerformed(null);
 				pause(1000);

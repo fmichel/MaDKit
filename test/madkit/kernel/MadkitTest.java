@@ -63,7 +63,7 @@ public class MadkitTest {
 
 	@Test
 	public void buildConfigFromArgsTest() {
-		Madkit m = new Madkit(null);
+		Madkit m = new Madkit();
 		String[] args = new String[1];
 		args[0]="";
 		assertTrue(m.buildConfigFromArgs(args).isEmpty());
@@ -96,7 +96,7 @@ public class MadkitTest {
 
 	@Test
 	public void defaultAgentLogging() throws InterruptedException {
-		Madkit m = new Madkit(null);
+		Madkit m = new Madkit();
 		Thread.sleep(100);
 		assertNull(m.getKernel().logger);
 		String[] args = { BooleanOption.desktop.toString(), "false" };
@@ -111,8 +111,7 @@ public class MadkitTest {
 
 	@Test
 	public void buildSessionTest() {
-		String[] args = { BooleanOption.desktop.toString(), "false", "--kernelLogLevel", "ALL" };
-		new Madkit(args);
+		new Madkit(BooleanOption.desktop.toString(), "false", "--kernelLogLevel", "ALL");
 	}
 
 }

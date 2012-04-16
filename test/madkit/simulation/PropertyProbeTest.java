@@ -122,12 +122,12 @@ public class PropertyProbeTest extends JunitMadKit {
 		},ReturnCode.AGENT_CRASH);
 	}
 
+	@SuppressWarnings("unused")
 	@Test
 	public void wrongSourceProbing() {
 		launchTest(new Watcher() {
 			protected void activate() {
-				SimulatedAgent agent;
-				assertEquals(SUCCESS, launchAgent(agent = new SimulatedAgent()));
+				assertEquals(SUCCESS, launchAgent(new SimulatedAgent()));
 				PropertyProbe<AbstractAgent, Integer> fp = new PropertyProbe<AbstractAgent, Integer>(COMMUNITY, GROUP, ROLE,
 						"privatePrimitiveField");
 				addProbe(fp);

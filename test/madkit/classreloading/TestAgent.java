@@ -33,7 +33,7 @@ public class TestAgent extends Agent {
 					}
 				};
 				al.actionPerformed(null);
-			};
+			}
 		};
 		a.execute();
 	}

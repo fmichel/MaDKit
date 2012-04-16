@@ -11,9 +11,19 @@ public class ManagerRoleTest extends JunitMadKit {
 	@Test
 	public void oneManager() {
 		launchTest(new AbstractAgent() {
+			/**
+			 * 
+			 */
+			private static final long	serialVersionUID	= 1L;
+
 			protected void activate() {
 				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
 				launchAgent(new AbstractAgent(){
+					/**
+					 * 
+					 */
+					private static final long	serialVersionUID	= 1L;
+
 					@Override
 					protected void activate() {
 						createDefaultCGR(this);

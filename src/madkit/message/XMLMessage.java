@@ -115,16 +115,14 @@ public class XMLMessage extends Message
 	{
 		if (doccontent!=null)
 			return doccontent;
-		else  {
-			try {
-				return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse((new InputSource(new StringReader(strcontent))));
-			} catch (SAXException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			} catch (ParserConfigurationException e) {
-				e.printStackTrace();
-			}
+		try {
+			return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse((new InputSource(new StringReader(strcontent))));
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
 		}
 		return null;
 	}
@@ -138,7 +136,6 @@ public class XMLMessage extends Message
 	{
 		if (strcontent!=null)
 			return strcontent;
-		else
-			return doccontent.toString();
+		return doccontent.toString();
 	}
 }

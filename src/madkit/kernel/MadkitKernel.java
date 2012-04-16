@@ -394,7 +394,7 @@ class MadkitKernel extends Agent {
 				// platform.getMadkitClassLoader().addJar(new
 				// URL(repoLocation+object.getKey()+".jar"));
 				platform.getMadkitClassLoader().addToClasspath(
-						new URL(repoLocation + object.getValue() + "/" + object.getKey() + ".jar"));
+						new URL(repoLocation + object.getValue() + "/" + object.getKey() + ".agents.jar"));
 			}
 		} catch (final IOException e) {
 			if (logger != null)

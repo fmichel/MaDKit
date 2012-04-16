@@ -37,7 +37,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.agr.Organization;
-import madkit.gui.ConsoleAgent;
 import madkit.i18n.I18nUtilities;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AgentAddress;
@@ -191,10 +190,8 @@ public enum GUIManagerAction {
 					};
 				}
 				add.invoke(menuOrToolBar, a);
-				switch (mkA) {
-				case LOAD_JAR_FILE:
+				if(mkA == LOAD_JAR_FILE)
 					addSeparator.invoke(menuOrToolBar);
-				}
 			}
 		} catch (InvocationTargetException e) {
 		} catch (IllegalArgumentException e) {

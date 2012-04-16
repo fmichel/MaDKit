@@ -104,15 +104,15 @@ abstract class Overlooker <A extends AbstractAgent>
 	 * Called by the MadKit kernel when the Activator or Probe is
 	 * first added. Default behavior is: <code>adding(getCurrentAgentsList());</code>
 	 */
-	protected void initialize(){
+	public void initialize(){
 		adding(getCurrentAgentsList());
 	}
 
 	/**
-	 * Called when a list of agents have joined the corresponding group and role.
+	 * Called when a list of agents joins the corresponding group and role.
 	 * This method is automatically called
-	 * by the MadKit kernel when agents enter a role due to te use
-	 * of {@link AbstractAgent#launchAgentBucketWithRoles(String, int, String...)}.
+	 * by the MadKit kernel when agents enter a role due to the use
+	 * of {@link AbstractAgent#launchAgentBucket(String, int, String...)}.
 	 * Override this method when you want
 	 * to do some initialization on the agents that enter the group/role.
 	 * Default implementation is:
@@ -134,19 +134,31 @@ abstract class Overlooker <A extends AbstractAgent>
 	}
 
 	/**
-	 * Called when an agent has joined the corresponding group and role.
-	 * This method is protected because it is automatically called
-	 * by the MadKit kernel. Override this method when you want
+	 * This method is automatically called when an agent 
+	 * joins the corresponding group and role.
+	 * This method is empty by default.
+	 * Override this method when you want
 	 * to do some initialization when an agent enters the group/role.
 	 * @param theAgent which has been added to this group/role
 	 */
 	protected void adding(final A theAgent){}
 
 	/**
-	 * Called when a list of agents have leaved the corresponding group and role.
-	 * This method is protected because it is automatically called
-	 * by the MadKit kernel. Override this method when you want
+	 * This method is automatically called when 
+	 * a list of agents has leaved the corresponding group and role.
+	 * This method is empty by default.
+	 * Override this method when you want
 	 * to do some initialization on the agents that enter the group/role.
+	 * Default implementation is:
+	 * 
+	 * <pre>
+	 * protected void removing(final List&lt;A&gt; agents) {
+	 * 	for (A agent : agents) {
+	 * 		removing(agent);
+	 * 	}
+	 * }
+	 * </pre>
+	 * 
 	 * @param agents the list of agents which have been removed from this group/role
 	 */
 	protected void removing(final List<A> agents){
@@ -156,9 +168,10 @@ abstract class Overlooker <A extends AbstractAgent>
 	}
 
 	/**
-	 * Called when an agent has leaved the corresponding group and role.
-	 * This method is protected because it is automatically called
-	 * by the MadKit kernel. Override this method when you want
+	 * This method is automatically called when an agent 
+	 * leaves the corresponding group and role.
+	 * This method is empty by default.
+	 * Override this method when you want
 	 * to do some work when an agent leaves the group/role.
 	 * @param theAgent which has been removed from this group/role
 	 */

@@ -36,6 +36,10 @@ import madkit.testing.util.agent.SimulatedAgent;
  */
 public class DeadLock extends Scheduler {
 	
+	/**
+	 * 
+	 */
+	private static final long	serialVersionUID	= 1L;
 	private GenericBehaviorActivator<AbstractAgent> simulatedAgents;
 	
 	@Override

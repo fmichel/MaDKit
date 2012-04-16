@@ -28,8 +28,8 @@ import madkit.kernel.Watcher;
  * indicate and propagate the exception thrown by an agent
  * during the use of an {@link Activator} or a {@link Probe}.
  * Doing so, this exception will interrupt the life cycle of the related
- * {@link Scheduler} or {@link Watcher} if not caught, displaying
- * the corresponding stack traces.
+ * {@link Scheduler} or {@link Watcher} if not caught before, so displaying
+ * the corresponding stack trace.
  * 
  * @author Fabien Michel
  * @since MadKit 5.0.0.15

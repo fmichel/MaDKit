@@ -44,7 +44,7 @@ public class MemoryBench extends AbstractAgent {
 	protected void activate() {
 		System.err.println(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory());
 		createGroup("comm", "group");
-		launchAgentBucketWithRoles("madkit.kernel.AbstractAgent", 4000000, "comm", "group", "role");
+		launchAgentBucket("madkit.kernel.AbstractAgent", 4000000, "comm", "group", "role");
 		System.err.println(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory());
 	}
 

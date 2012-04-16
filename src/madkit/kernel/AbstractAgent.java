@@ -31,7 +31,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -761,11 +760,11 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * If some of the corresponding groups do not exist before this call, the
 	 * caller agent will automatically become the manager of these groups.
 	 * 
-	 * @param agentClassName
+	 * @param agentClass
 	 *           the name of the class from which the agents should be built.
 	 * @param bucketSize
 	 *           the desired number of instances.
-	 * @param cgrLocations
+	 * @param roles
 	 *           default locations in the artificial society for the launched
 	 *           agents. Each string of the <code>cgrLocations</code> array
 	 *           defines a complete CGR location by separating C, G and R with
@@ -774,12 +773,12 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         <code>null</code> if the operation has failed
 	 * @since MadKit 5.0.0.6
 	 */
-	public List<AbstractAgent> launchAgentBucketWithRoles(String agentClass, int bucketSize, String... cgrLocations) { 
+	public List<AbstractAgent> launchAgentBucket(String agentClass, int bucketSize, String... roles) { 
 		List<AbstractAgent> bucket = null;
 		try {
 			bucket = getMadkitKernel().createBucket(agentClass, bucketSize);
-			launchAgentBucketWithRoles(bucket, cgrLocations);
-		} catch (InstantiationException e) {
+			launchAgentBucket(bucket, roles);
+		} catch (InstantiationException e) {//TODO waiting java 7
 			cannotLaunchAgent(agentClass, e, null);
 		} catch (IllegalAccessException e) {
 			cannotLaunchAgent(agentClass, e, null);
@@ -790,12 +789,12 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 	
 	/**
-	 * Similar to {@link #launchAgentBucketWithRoles(String, int, String...)}
+	 * Similar to {@link #launchAgentBucket(String, int, String...)}
 	 * except that the list of agents to launch is given. Especially, this could
 	 * be used when the agents have no default constructor.
 	 * 
 	 * @param bucket the list of agents to launch
-	 * @param cgrLocations
+	 * @param roles
 	 *           default locations in the artificial society for the launched
 	 *           agents. Each string of the <code>cgrLocations</code> array
 	 *           defines a complete CGR location by separating C, G and R with
@@ -803,8 +802,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *          
 	 */
 	@SuppressWarnings("unchecked")
-	public void launchAgentBucketWithRoles(List<AbstractAgent> bucket, String... cgrLocations) {
-		getKernel().launchAgentBucketWithRoles(this, bucket, cgrLocations);
+	public void launchAgentBucket(List<AbstractAgent> bucket, String... roles) {
+		getKernel().launchAgentBucketWithRoles(this, bucket, roles);
 	}
 
 	/**
@@ -998,7 +997,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         <li><code>
 	 *         {@link ReturnCode#IGNORED}</code>: If this method is used in
 	 *         activate and this agent has been launched using
-	 *         {@link AbstractAgent#launchAgentBucketWithRoles(List, String...)}
+	 *         {@link AbstractAgent#launchAgentBucket(List, String...)}
 	 *         </ul>
 	 *         </ul>
 	 * 
@@ -1029,7 +1028,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         <li><code>
 	 *         {@link ReturnCode#IGNORED}</code>: If this method is used in
 	 *         activate and this agent has been launched using
-	 *         {@link AbstractAgent#launchAgentBucketWithRoles(List, String...)}
+	 *         {@link AbstractAgent#launchAgentBucket(List, String...)}
 	 *         </ul>
 	 *         </ul>
 	 * 
@@ -1077,7 +1076,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         <li><code>
 	 *         {@link ReturnCode#IGNORED}</code>: If this method is used in
 	 *         activate and this agent has been launched using
-	 *         {@link AbstractAgent#launchAgentBucketWithRoles(List, String...)}
+	 *         {@link AbstractAgent#launchAgentBucket(List, String...)}
 	 *         </li>
 	 *         </ul>
 	 * 
@@ -1238,8 +1237,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         <li><code>{@link ReturnCode#ACCESS_DENIED}</code>: If the access
 	 *         denied by the manager of that secured group.</li>
 	 *         <li><code>{@link ReturnCode#IGNORED}</code>: If this method is
-	 *         used in activate and this agent has been launched using
-	 *         {@link AbstractAgent#launchAgentBucketWithRoles(String, int, Collection)}
+	 *         used in activate and that this agent has been launched using
+	 *         {@link AbstractAgent#launchAgentBucket(List, String...)}
 	 *         </li>
 	 *         </ul>
 	 * @see AbstractAgent.ReturnCode
@@ -2191,30 +2190,30 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * 
 	 * @return the current state of the agent:
 	 *         <ul>
-	 *         <li><code>{@link SimulationState#NOT_LAUNCHED}</code>: the agent has not
+	 *         <li><code>{@link State#NOT_LAUNCHED}</code>: the agent has not
 	 *         been launched yet. This especially means that most of the methods
 	 *         of this API still do not work for this agent as it has not been
 	 *         registered yet.</li>
 	 *         <br/>
-	 *         <li><code>{@link SimulationState#INITIALIZING}</code>: the agent is being
+	 *         <li><code>{@link State#INITIALIZING}</code>: the agent is being
 	 *         registered by the kernel but has not started its
 	 *         {@link #activate()} method yet.</li>
 	 *         <br/>
-	 *         <li><code>{@link SimulationState#ACTIVATED}</code>: the agent is processing
+	 *         <li><code>{@link State#ACTIVATED}</code>: the agent is processing
 	 *         its {@link #activate()} method. This state is also the "running"
 	 *         state of {@link AbstractAgent} subclasses (i.e. when they have
 	 *         finished their activation) as they do not have a
 	 *         {@link Agent#live()} managed by the kernel in their life cycle. On
 	 *         the contrary to {@link Agent} subclasses which next state is
-	 *         {@link SimulationState#LIVING}.</li>
+	 *         {@link State#LIVING}.</li>
 	 *         <br/>
-	 *         <li><code>{@link SimulationState#LIVING}</code>: returned when {@link Agent}
+	 *         <li><code>{@link State#LIVING}</code>: returned when {@link Agent}
 	 *         subclasses are processing their {@link Agent#live()} method.</li>
 	 *         <br/>
-	 *         <li><code>{@link SimulationState#ENDING}</code>: the agent is processing its
+	 *         <li><code>{@link State#ENDING}</code>: the agent is processing its
 	 *         {@link #end()} method.</li>
 	 *         <br/>
-	 *         <li><code>{@link SimulationState#TERMINATED}</code>: the agent has finished
+	 *         <li><code>{@link State#TERMINATED}</code>: the agent has finished
 	 *         its life in the MadKit platform. Especially, most of the methods
 	 *         of this API will no longer work for this agent.</li>
 	 *         </ul>
@@ -2248,7 +2247,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			logger.finest("proceeding command message " + message);
 		Object[] parameters = message.getContent();
 		Method m = null;
-		;
 		try {
 			m = findMethodFromParameters(ActionInfo.enumToMethodName(message.getCode()), parameters);
 			m.invoke(this, parameters);
@@ -2258,7 +2256,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			if (logger != null)
 				logger.warning("I do not know how to " + ActionInfo.enumToMethodName(message.getCode())
 						+ Arrays.deepToString(parameters));
-			logForSender("I have sent a message which has not been understood", message);
+			logForSender("I have sent a message which has not been understood", message);//TODO i18n
 		} catch (IllegalArgumentException e) {
 			if (logger != null)
 				logger.warning("Cannot proceed message : wrong argument " + m);
@@ -2458,7 +2456,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		 * {@link AbstractAgent#requestRole(String, String, String, Object)} or
 		 * {@link AbstractAgent#createGroup(String, String, boolean, Gatekeeper)}
 		 * is used in activate and that the agent has been launched using
-		 * {@link AbstractAgent#launchAgentBucketWithRoles(String, int, Collection)}
+		 * {@link AbstractAgent#launchAgentBucket(List, String...)} or
+		 * {@link AbstractAgent#launchAgentBucket(String, int, String...)} 
 		 * </li>
 		 */
 		IGNORED,

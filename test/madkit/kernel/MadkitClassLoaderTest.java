@@ -50,7 +50,7 @@ public class MadkitClassLoaderTest extends JunitMadKit {
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}
-				MadkitClassLoader mcl = (MadkitClassLoader) getMadkitClassLoader();
+				MadkitClassLoader mcl = getMadkitClassLoader();
 				System.err.println(System.getProperty("user.dir"));
 				mcl.loadJarsFromPath(System.getProperty("user.dir") + File.separator + "test");
 				try {
@@ -68,7 +68,7 @@ public class MadkitClassLoaderTest extends JunitMadKit {
 			@SuppressWarnings("deprecation")
 			@Override
 			protected void activate() {
-					MadkitClassLoader mcl = (MadkitClassLoader) getMadkitClassLoader();
+					MadkitClassLoader mcl = getMadkitClassLoader();
 					try {
 						mcl.addToClasspath(new File(".").toURL());
 						int n = mcl.getURLs().length;

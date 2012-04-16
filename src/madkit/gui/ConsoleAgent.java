@@ -22,7 +22,6 @@ import java.io.PrintStream;
 
 import javax.swing.JFrame;
 
-import madkit.action.GUIManagerAction;
 import madkit.action.KernelAction;
 import madkit.kernel.AbstractAgent;
 

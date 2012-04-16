@@ -35,7 +35,7 @@
 	<property name="jnlp.file" value="${ant.project.name}.jnlp" />
 	<property name="src.zip.file" value="${ant.project.name}-${version}-src.zip" />
 	<property name="jar.file" value="${ant.project.name}-${version}.jar" />
-	<property name="agent.lib.file" value="${ant.project.name}-agents-${version}.jar" />
+	<property name="agent.lib.file" value="${ant.project.name}-${version}.agents.jar" />
 
 	<property url="jar:file://${kernel.location}!/madkit/kernel/madkitKernel.properties" />
 
@@ -54,7 +54,7 @@
 	<!-- ================================= 
           target: build-agent-jar              
          ================================= -->
-	<target name="build-agent-jar" description="">
+	<target name="build-agent-jar" description="Creates a jar containing only the agents">
 		<echo>Creating ${ant.project.name} MDK agent library jar file</echo>
 		<antcall target="MDK.compile" />
 		<concat destfile="${build.dir}/README">--- ${project.label} version ${version} by ${author} -----

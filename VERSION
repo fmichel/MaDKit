@@ -48,18 +48,20 @@ Other command line options are described in the API of the madkit.kernel.Madkit 
 ----------------------------------------------------------------------------------
 
 1. Improvements and changes:
-	- the library has been renamed for simplicity : madkitkernel -> madkit
-	- if the JDK (from Oracle) is installed, a shortcut to jconsole is provided for monitoring.
+	- if the JDK (from Oracle) is installed, a menu shortcut to jconsole is provided for monitoring.
+	- works also when there is no graphic environment at all.
+	- the library has been renamed for simplicity and legibility : madkitkernel -> madkit
 	 
 2. API changes:
 	+ madkit.kernel.AgentLogger.createLogFile()
-	+ madkit.kernel.AbstractAgent.launchAgentBucketWithRoles(List<AbstractAgent>, String...)
+	+ madkit.kernel.AbstractAgent.launchAgentBucket(List<AbstractAgent>, String...)
 	+ madkit.kernel.Madkit.Madkit(String...)
 	+ madkit.kernel.Madkit.doAction(KernelAction, Object...)
 	
 	- madkit.gui.OutputPanel.print(String)
 	
 	~ madkit.kernel.AbstractAgent.executeThisAgent(String[], int, boolean) -> madkit.kernel.AbstractAgent.executeThisAgent(int, boolean, String...)
+	~ madkit.kernel.AbstractAgent.launchAgentBucketWithRoles(String, int, String...) -> madkit.kernel.AbstractAgent.launchAgentBucket(String, int, String...)
 	~ madkit.kernel.Scheduler.State -> madkit.kernel.Scheduler.SimulationState
 	~ madkit.gui.menu.LaunchSessionMenu -> madkit.gui.menu.LaunchMAS
 
@@ -158,7 +160,7 @@ Other command line options are described in the API of the madkit.kernel.Madkit 
 
 1. Improvements:	
 	- The jar file now correctly displays the name of the parameters when using an IDE.
-	- more javadoc (feedback welcome on that subject)
+	- more javadoc
 
 2. API new features:
 	- madkit.simulation.GenericBehaviorActivator.multicoreExecute() has been introduced.

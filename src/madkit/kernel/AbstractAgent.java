@@ -2540,8 +2540,9 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	/**
-	 * This offers a convenient way to create main method that launch the agent
-	 * class under development. so that it will be launched alone in a new
+	 * This offers a convenient way to create main a main method that launches the agent
+	 * class under development. The agent is launched in a new instance MadKit.
+	 * This call only works in the main method of the agent.
 	 * MadKit. Here is an example of use that will work in any subclass of {@link AbstractAgent}:
 	 * 
 	 * <pre>
@@ -2573,8 +2574,9 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @since MadKit 5.0.0.14
 	 */
 	@SuppressWarnings("unused")
-	protected static void executeThisAgent(int nbOfInstances, boolean createFrame, String... args) {
+	public static void executeThisAgent(int nbOfInstances, boolean createFrame, String... args) {
 		final StackTraceElement[] trace = new Throwable().getStackTrace();
+		new Throwable().printStackTrace();
 		final ArrayList<String> arguments = new ArrayList<String>(Arrays.asList(Madkit.Option.launchAgents.toString(),
 				trace[trace.length - 1].getClassName() + "," + (createFrame ? "true" : "false") + "," + nbOfInstances));
 		if (args != null) {
@@ -2584,8 +2586,11 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	/**
-	 * This offers a convenient way to create main method that launch the agent
-	 * class under development. This call is equivalent to
+	 * This offers a convenient way to create a main method 
+	 * that launches the agent
+	 * class under development. 
+	 * This call only works in the main method of the agent.
+	 * This call is equivalent to
 	 * <code>executeThisAgent(1, true, args)</code>
 	 * 
 	 * @param args
@@ -2598,8 +2603,10 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	/**
-	 * This offers a convenient way to create main method that launch the agent
-	 * class under development. This call is equivalent to
+	 * This offers a convenient way to create a main method that launches the agent
+	 * class under development. 
+	 * This call only works in the main method of the agent.
+	 * This call is equivalent to
 	 * <code>executeThisAgent(null, 1, true)</code>
 	 * 
 	 * @see #executeThisAgent(int, boolean, String...)

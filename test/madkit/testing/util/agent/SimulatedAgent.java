@@ -21,6 +21,11 @@ package madkit.testing.util.agent;
 import static madkit.kernel.JunitMadKit.COMMUNITY;
 import static madkit.kernel.JunitMadKit.GROUP;
 import static madkit.kernel.JunitMadKit.ROLE;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import madkit.api.abstractAgent.LaunchAgentBucketWithRolesWithListTest;
 import madkit.kernel.AbstractAgent;
 
 /**
@@ -45,6 +50,16 @@ public class SimulatedAgent extends AbstractAgent {
 		createGroup(COMMUNITY, GROUP, false, null);
 		requestRole(COMMUNITY, GROUP, ROLE, null);
 		activated  = true;
+	}
+	
+	
+	private void launchAgentBucketWithRoles() {
+		List<AbstractAgent> l = new ArrayList<AbstractAgent>();
+		for (int i = 0; i < 10; i++) {
+			l.add(new SimulatedAgent());
+		}
+		launchAgentBucket(l, COMMUNITY + ";" + GROUP + ";" + ROLE);
+		LaunchAgentBucketWithRolesWithListTest.testAgents(l);
 	}
 	
 	

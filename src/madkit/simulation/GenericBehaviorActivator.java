@@ -101,7 +101,7 @@ public class GenericBehaviorActivator<A extends AbstractAgent> extends Activator
 				} catch (IllegalAccessException e) {
 					throw new SimulationException(toString(),e);
 				} catch (InvocationTargetException e) {
-					throw new SimulationException(toString()+" on "+a,e.getCause());
+					throw new SimulationException(toString()+" on "+cachedM+" "+a,e.getCause());
 				}
 			}
 		}

@@ -304,7 +304,7 @@ class MadkitKernel extends Agent {
 	 */
 	@Override
 	protected void live() {
-		if (autoConnectMadkitWebsite.isActivated(getMadkitConfig()) || System.getProperty("javawebstart.version") != null) {
+		if (autoConnectMadkitWebsite.isActivated(getMadkitConfig())) {
 			addWebRepository();
 		}
 		startSession();

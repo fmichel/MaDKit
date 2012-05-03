@@ -4,6 +4,9 @@
   <meta http-equiv="content-type"
  content="text/html; charset=ISO-8859-1">
   <title>MadKit ${madkit.version} general documentation</title>
+  <meta content="Fabien Michel" name="author">
+  <meta content="MadKit ${madkit.version} general documentation"
+ name="description">
 </head>
 <body style="background-color: white;">
 <h1>MadKit ${madkit.version}</h1>
@@ -41,16 +44,15 @@ model.</li>
 <h2><span style="font-weight: bold;"></span>Documentation
 </h2>
 <ul>
-  <li><big><a style="font-weight: bold;" href="docs/api/index.html">MadKit
-API</a></big>: Javadoc detailing the MadKit programming interface<br>
+  <li><big><a style="font-weight: bold;" href="docs/api/index.html">API</a></big>:
+Javadoc detailing the MadKit programming interface<br>
     <br>
   </li>
   <li><big style="font-weight: bold;"><a
- href="http://www.madkit.net/tutorials">The
-MadKit
-tutorials</a></big>: Getting started with MadKit source
+ href="http://www.madkit.net/tutorials">Tutorials</a></big>: Getting
+started with MadKit source
 code examples
-illustrating basic features (To be continued)<br>
+illustrating basic features<br>
     <br>
   </li>
   <li>A <big style="font-weight: bold;"><a
@@ -60,7 +62,7 @@ Montpellier, and its <a href="docs/French_Tutorial/">source
 codes</a>.<br>
     <br>
   </li>
-  <li><big style="font-weight: bold;"><a href="demos">Demos</a></big>
+  <li><big style="font-weight: bold;"><a href="demos">Demo</a></big>
 source codes are also a good
 starting
 point ;)</li>
@@ -118,11 +120,10 @@ To launch your MadKit agents, simply either<br>
 (1) use, anywhere, a main method with something like&nbsp; :<br>
 <br>
 &nbsp;&nbsp;&nbsp; public static void main(String[] args) {<br>
-&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; String[] argss =
-{"--launchAgents","mypackage.myagentClass;mypackage.myOtherAgentClass"};<br>
-&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; Madkit.main(argss); //or args
-with you specify them using an IDE <br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; new
+Madkit("--launchAgents","mypackage.myagentClass;mypackage.myOtherAgentClass");<br>
 &nbsp;&nbsp;&nbsp; }<br>
+<br>
 <br>
 (2) use, in an agent class, a main method with&nbsp; :<br>
 <br>
@@ -130,6 +131,7 @@ with you specify them using an IDE <br>
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
 executeThisAgent(args) // This will execute one of this agent with a GUI<br>
 &nbsp;&nbsp;&nbsp; }<br>
+<br>
 <br>
 (3) use a command line such as <br>
 <br>
@@ -159,7 +161,7 @@ madkit.kernel.Madkit class<br>
 </ul>
 <br>
 <hr>
-<h2>Licenses</h2>
+<h2>License</h2>
 <ul>
   <li>The MadKit kernel version ${madkit.version} is 100% pure JDK and
 licensed under the <a href="COPYING.LESSER">LGPL

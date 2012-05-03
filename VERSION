@@ -5,8 +5,8 @@
 
 - Short description:
 
-MadKit is mainly a MAS library which relies on organizational concepts so 
-that you could easily design artificial societies wherein autonomous agents 
+The Multiagent Development Kit is an open source MAS library which relies on organizational concepts so 
+that one could easily design artificial societies wherein autonomous agents 
 interact using messages. It also contains MAS simulation authoring tools.
 
 - Available documentation (docs directory):
@@ -28,8 +28,7 @@ To launch your MadKit agents, simply either
 (1) use, anywhere, a main method with something like  :
 
 	public static void main(String[] args) {
-		String[] argss = {"--launchAgents","mypackage.myagentClass;mypackage.myOtherAgentClass"};
-		Madkit.main(argss);
+		new Madkit("--launchAgents","mypackage.myagentClass;mypackage.myOtherAgentClass");
 	}
 
 (2) use a command line such as 
@@ -57,6 +56,7 @@ Other command line options are described in the API of the madkit.kernel.Madkit 
 	+ madkit.kernel.AbstractAgent.launchAgentBucket(List<AbstractAgent>, String...)
 	+ madkit.kernel.Madkit.Madkit(String...)
 	+ madkit.kernel.Madkit.doAction(KernelAction, Object...)
+	+ madkit.gui.SwingUtil
 	
 	- madkit.gui.OutputPanel.print(String)
 	
@@ -64,8 +64,6 @@ Other command line options are described in the API of the madkit.kernel.Madkit 
 	~ madkit.kernel.AbstractAgent.launchAgentBucketWithRoles(String, int, String...) -> madkit.kernel.AbstractAgent.launchAgentBucket(String, int, String...)
 	~ madkit.kernel.Scheduler.State -> madkit.kernel.Scheduler.SimulationState
 	~ madkit.gui.menu.LaunchSessionMenu -> madkit.gui.menu.LaunchMAS
-
-
 
 
 ----------------------------------------------------------------------------------

@@ -25,12 +25,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import madkit.kernel.AbstractAgent;
+import madkit.kernel.Scheduler;
 import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.AbstractAgent.State;
 import madkit.kernel.JunitMadKit;
+import madkit.simulation.GenericBehaviorActivator;
+import madkit.simulation.SimulationException;
 import madkit.testing.util.agent.FaultyAA;
+import madkit.testing.util.agent.NormalAA;
 import madkit.testing.util.agent.SimulatedAgent;
 
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -42,14 +47,22 @@ import org.junit.Test;
 @SuppressWarnings("serial")
 public class LaunchAgentBucketWithRolesWithListTest extends JunitMadKit {
 
-	static int	size	= 1001;
+	GenericBehaviorActivator<AbstractAgent>	buggy;
+	static int											size	= 1001;
+
+	@Before
+	public void setUp() throws Exception {
+		buggy = new GenericBehaviorActivator<AbstractAgent>(COMMUNITY, GROUP,
+				ROLE, "doIt");
+	}
 
 	@Test
 	public void cannotLaunch() {
 		launchTest(new AbstractAgent() {
 
 			protected void activate() {
-				launchAgentBucket(FaultyAA.class.getName(),size, COMMUNITY + ";" + GROUP + ";" + ROLE);
+				launchAgentBucket(FaultyAA.class.getName(), size, COMMUNITY + ";"
+						+ GROUP + ";" + ROLE);
 			}
 		});
 	}
@@ -74,7 +87,8 @@ public class LaunchAgentBucketWithRolesWithListTest extends JunitMadKit {
 
 			protected void activate() {
 				try {
-					launchAgentBucket(FaultyAA.class.getName(),size, COMMUNITY + ";" + GROUP + ";" + ROLE);
+					launchAgentBucket(FaultyAA.class.getName(), size, COMMUNITY
+							+ ";" + GROUP + ";" + ROLE);
 					JunitMadKit.noExceptionFailure();
 				} catch (IllegalArgumentException e) {
 					throw e;
@@ -99,7 +113,26 @@ public class LaunchAgentBucketWithRolesWithListTest extends JunitMadKit {
 		});
 	}
 
-	private void testAgents(List<AbstractAgent> l) {
+	@Test
+	public void inScheduledAgent() {
+		launchTest(new Scheduler() {
+
+			protected void activate() {
+				GenericBehaviorActivator<AbstractAgent> test = new GenericBehaviorActivator<AbstractAgent>(
+						COMMUNITY, GROUP, ROLE, "launchAgentBucketWithRoles");
+				launchAgent(new SimulatedAgent());
+				addActivator(test);
+				try {
+					test.execute();
+				} catch (SimulationException e) {
+					e.printStackTrace();
+					throw e;
+				}
+			}
+		}, ReturnCode.SUCCESS);
+	}
+
+	public static void testAgents(List<AbstractAgent> l) {
 		for (AbstractAgent abstractAgent : l) {
 			assertTrue(abstractAgent.isAlive());
 			assertEquals(State.ACTIVATED, abstractAgent.getState());

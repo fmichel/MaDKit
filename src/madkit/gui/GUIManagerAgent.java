@@ -51,6 +51,7 @@ import madkit.gui.menu.MadkitMenu;
 import madkit.gui.toolbar.MadkitToolBar;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
+import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Message;
 import madkit.message.GUIMessage;
 import madkit.message.KernelMessage;
@@ -97,6 +98,8 @@ class GUIManagerAgent extends Agent {
 		if (!isDaemon()) {// use to detect desktop mode
 			try {
 				buildUI();
+				if(System.getProperty("javawebstart.version") != null)
+					setMadkitProperty(BooleanOption.autoConnectMadkitWebsite.name(), "true");
 			} catch (HeadlessException e) {
 				headlessLog(e);
 				return;

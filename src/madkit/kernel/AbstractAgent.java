@@ -1936,7 +1936,10 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 				logger.warning("-*-GET KILLED in " + getState().lifeCycleMethod() + "-*-");
 		}
 		else {
-			getLogger().severeLog("-*-" + getState().lifeCycleMethod() + " BUG*-*", e);
+			if (alive.get()) {
+				getLogger().severeLog(
+						"-*-" + getState().lifeCycleMethod() + " BUG*-*", e);
+			}
 		}
 		return false;
 	}

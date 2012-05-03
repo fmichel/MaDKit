@@ -27,6 +27,7 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.logging.Level;
 
 import javax.swing.Action;
 import javax.swing.Box;
@@ -43,6 +44,7 @@ import javax.swing.border.TitledBorder;
 
 import madkit.action.SchedulingAction;
 import madkit.message.SchedulingMessage;
+import madkit.simulation.SimulationException;
 
 /**
  * This class defines a generic threaded scheduler agent. It holds a collection
@@ -115,7 +117,7 @@ public class Scheduler extends Agent {
 	/**
 	 * specify the delay between 2 steps
 	 */
-	private DefaultBoundedRangeModel speedModel = new DefaultBoundedRangeModel(0, 10, 0, 1000);
+	private DefaultBoundedRangeModel speedModel = new DefaultBoundedRangeModel(0, 50, 0, 1001);
 
 	/**
 	 * Returns the delay between two simulation steps
@@ -284,11 +286,16 @@ public class Scheduler extends Agent {
 	public void triggerActivator(final Activator<? extends AbstractAgent> activator) {
 		if (logger != null)
 			logger.finer("Activating\n--------> " + activator);
-		if (activator.isMulticoreModeOn()) {
-			activator.multicoreExecute();
-		} else {
-			activator.execute();
-		}
+//		try {
+			if (activator.isMulticoreModeOn()) {
+				activator.multicoreExecute();
+			} else {
+				activator.execute();
+			}
+//		} catch (SimulationException e) {//TODO is it better ?
+//			setSimulationState(SimulationState.SHUTDOWN);
+//			getLogger().log(Level.SEVERE, e.getMessage(), e);
+//		}
 	}
 
 	@Override

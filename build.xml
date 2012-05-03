@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!-- 
-  Copyright 1998-2011 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+  Copyright 1998-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
   
   This file is part of MadKit.
   
@@ -33,8 +33,11 @@
 	<property file="madkitKernelBuild.properties" />
 	<property name="executable.name" value="${desktop.name}" />
 	<property name="i18n.build.dir" value="${build.dir}/madkit/i18n" />
-	<property name="madkit.old.version" value="5.0.0.15" />
+	
+	<property name="doc.html" value="documentation.html"/>
+
 	<!-- for french tuto-->
+	<property name="madkit.old.version" value="5.0.0.15" />
 
 	<import file="${madkit.ant.targets.file}" />
 
@@ -245,16 +248,21 @@
 <target name="release" depends="clean-demos,jar,sign-jar,javadoc,src-zip" description="build MadKit release">
 <echo> --- Build Release : MadKit ${madkit.version}${line.separator}</echo>
 <mkdir dir="${release.dir}" />
-<copy todir="${build.dir}" file="README.html">
+<copy todir="${build.dir}"  file="README.html">
 	<filterchain>
 		<expandproperties />
 	</filterchain>
 </copy>
-<copy todir="${build.dir}" file="VERSION">
-	<filterchain>
-		<expandproperties />
-	</filterchain>
-</copy>
+	<copy todir="${build.dir}" file="VERSION">
+		<filterchain>
+			<expandproperties />
+		</filterchain>
+	</copy>
+	<copy todir="${build.dir}" file="${doc.html}">
+		<filterchain>
+			<expandproperties />
+		</filterchain>
+	</copy>
 
 <echo>Updating MadKit Tutorial</echo>
 <copy todir="${docs.dir}/French_Tutorial/MadKit_Tutorial/${lib.dir}" file="${jar.file}" />
@@ -266,7 +274,7 @@
 <zip destfile="${release.dir}/MadKit-${madkit.version}.zip" level="9">
 	<zipfileset dir="${docs.dir}" prefix="${docs.dir}" />
 	<zipfileset dir="${build.dir}" includes="README.html" />
-	<zipfileset dir="${build.dir}" includes="VERSION" prefix="${docs.dir}" />
+	<zipfileset dir="${build.dir}" includes="VERSION,${doc.html}" prefix="${docs.dir}" />
 	<zipfileset file="${jar.file}" filemode="755" />
 	<zipfileset file="COPYING.LESSER" />
 	<zipfileset dir="${demo.dir}" prefix="${demo.dir}" filemode="755" />

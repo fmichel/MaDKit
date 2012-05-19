@@ -42,6 +42,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 
+import madkit.action.ActionInfo;
 import madkit.action.GUIManagerAction;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
@@ -70,9 +71,6 @@ import madkit.message.KernelMessage;
 // * by using the {@link BooleanOption#noGUIManager} option when launching MadKit.
 class GUIManagerAgent extends Agent {
 
-	/**
-	 * 
-	 */
 	private static final long									serialVersionUID	= 8026421822077510523L;
 	final private ConcurrentMap<AbstractAgent, JFrame>	guis;
 	private boolean												shuttedDown			= false;
@@ -98,7 +96,7 @@ class GUIManagerAgent extends Agent {
 		if (!isDaemon()) {// use to detect desktop mode
 			try {
 				buildUI();
-				if(System.getProperty("javawebstart.version") != null)
+				if(ActionInfo.javawsIsOn)
 					setMadkitProperty(BooleanOption.autoConnectMadkitWebsite.name(), "true");
 			} catch (HeadlessException e) {
 				headlessLog(e);
@@ -261,8 +259,7 @@ class GUIManagerAgent extends Agent {
 			f.dispose();
 		}
 		// making the javaws jvm quits //TODO
-		if (isDaemon() && guis.isEmpty()
-				&& System.getProperty("javawebstart.version") != null)
+		if (isDaemon() && guis.isEmpty()	&& ActionInfo.javawsIsOn)
 			System.exit(0);
 	}
 

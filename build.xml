@@ -281,24 +281,16 @@
 </zip>
 </target>
 
-<!-- ================================= 
-          target: desktop-knlp              
-		<delete file="${jnlp.jar}"/>
-        <exec executable="pack200" dir="${release.dir}">
-            <arg value="- -repack"/>
-            <arg value="${madkit.jar.name}"/>
-        </exec>
-        <echo>Creating ${jnlp.jar}.pack.gz !${line.separator}</echo>
-	    <exec executable="pack200" dir="${release.dir}">
-	        <arg value="- -modification-time=latest"/>
-	        <arg value="- -deflate-hint=true"/>
-            <arg value="${jnlp.jar.file}.pack.gz"/>
-            <arg value="${jnlp.jar.file}"/>
-	    </exec>
-    <target name="desktop-jnlp" depends="jar" description="build the desktop deploying jar file">
-		<antcall target="sign-jar"/>
-        <echo>${jnlp.jar} created and signed !${line.separator}</echo>
-    </target>
+	<!-- ================================= 
+          target:       ftp-push        
          ================================= -->
-
+	<target name="ftp-push" depends="jar,sign-jar">
+		<property name="server" value="MDK-jnlps" />
+		<property name="ftp.propfile" location="${user.home}/.mk_pass/${server}" />
+		<loadproperties srcFile="${ftp.propfile}" />
+		<echo>FTP upload of MDK JNLP : target is ${server} ${ftp.server} ${ftp.dir}</echo>
+		<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="put" remotedir="${ftp.dir}">
+			<fileset dir="${release.dir}" includes="*.gz" />
+		</ftp>
+	</target>
 </project>

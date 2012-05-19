@@ -81,6 +81,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 
+import madkit.action.ActionInfo;
 import madkit.action.AgentAction;
 import madkit.action.KernelAction;
 import madkit.agr.LocalCommunity;
@@ -1678,7 +1679,7 @@ class MadkitKernel extends Agent {
 	}
 
 	private void exit() {
-		if (System.getProperty("javawebstart.version") != null) {// TODO no need
+		if (ActionInfo.javawsIsOn) {// TODO no need
 																					// for that now
 																					// that all exit
 																					// normally

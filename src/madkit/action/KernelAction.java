@@ -190,9 +190,9 @@ public enum KernelAction {
 			for (KernelAction ka : EnumSet.allOf(KernelAction.class)) {
 				if(ka == LAUNCH_AGENT)
 					return;
-				if(ka == LOAD_LOCAL_DEMOS && System.getProperty("javawebstart.version") != null)
+				if(ka == LOAD_LOCAL_DEMOS && ActionInfo.javawsIsOn)
 					continue;
-				if(ka == JCONSOLE && findJconsole() == null){
+				if(ka == JCONSOLE && (findJconsole() == null || ActionInfo.javawsIsOn)){
 					continue;
 				}
 				add.invoke(menuOrToolBar, ka.getActionFor(agent));

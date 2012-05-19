@@ -47,6 +47,7 @@ import java.util.logging.Logger;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import madkit.action.ActionInfo;
 import madkit.action.KernelAction;
 import madkit.gui.ConsoleAgent;
 import madkit.gui.MASModel;
@@ -256,7 +257,7 @@ final public class Madkit {
 		}
 		this.args = options != null && options.length != 0 ? options : null;
 		
-		if (System.getProperty("javawebstart.version") != null) {
+		if (ActionInfo.javawsIsOn) {
 			Policy.setPolicy(getAllPermissionPolicy());//TODO this is for jws
 		}
 		madkitConfig.putAll(defaultConfig);

@@ -33,8 +33,8 @@
 	<property file="madkitKernelBuild.properties" />
 	<property name="executable.name" value="${desktop.name}" />
 	<property name="i18n.build.dir" value="${build.dir}/madkit/i18n" />
-	
-	<property name="doc.html" value="documentation.html"/>
+
+	<property name="doc.html" value="documentation.html" />
 
 	<!-- for french tuto-->
 	<property name="madkit.old.version" value="5.0.0.15" />
@@ -82,7 +82,7 @@
           target: jar
          ================================= -->
 	<target name="jar" depends="clean,compile,build-properties" description="Jars MadKit kernel ">
-		<jar destfile="${jar.file}" index="true" compress="false">
+		<jar destfile="${jar.file}" compress="false">
 			<fileset dir="${build.dir}">
 				<exclude name="**/package-info.class" />
 				<exclude name="**/doc-files/**" />
@@ -248,21 +248,21 @@
 <target name="release" depends="clean-demos,jar,sign-jar,javadoc,src-zip" description="build MadKit release">
 <echo> --- Build Release : MadKit ${madkit.version}${line.separator}</echo>
 <mkdir dir="${release.dir}" />
-<copy todir="${build.dir}"  file="README.html">
+<copy todir="${build.dir}" file="README.html">
 	<filterchain>
 		<expandproperties />
 	</filterchain>
 </copy>
-	<copy todir="${build.dir}" file="VERSION">
-		<filterchain>
-			<expandproperties />
-		</filterchain>
-	</copy>
-	<copy todir="${build.dir}" file="${doc.html}">
-		<filterchain>
-			<expandproperties />
-		</filterchain>
-	</copy>
+<copy todir="${build.dir}" file="VERSION">
+	<filterchain>
+		<expandproperties />
+	</filterchain>
+</copy>
+<copy todir="${build.dir}" file="${doc.html}">
+	<filterchain>
+		<expandproperties />
+	</filterchain>
+</copy>
 
 <echo>Updating MadKit Tutorial</echo>
 <copy todir="${docs.dir}/French_Tutorial/MadKit_Tutorial/${lib.dir}" file="${jar.file}" />

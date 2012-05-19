@@ -63,7 +63,7 @@
     			${line.separator}- Technology   MadKit, The Multiagent Development Kit : http://www.madkit.org A platform for building Multi-Agent Systems Application -----
     		</concat>
 		<antcall target="MDK.build-manifest" />
-		<jar destfile="${agent.lib.file}" manifest="${manifest.location}" index="true" duplicate="preserve" compress="false">
+		<jar destfile="${agent.lib.file}" manifest="${manifest.location}" duplicate="preserve" compress="false">
 			<fileset dir="${build.dir}" />
 		</jar>
 		<delete dir="${build.dir}" />
@@ -96,9 +96,9 @@
 		<manifest file="${manifest.location}" mode="update">
 			<attribute name="Main-Class" value="madkit.kernel.Madkit" />
 		</manifest>
-		<jar destfile="${jar.file}" manifest="${manifest.location}" index="true" compress="false">
+		<jar destfile="${jar.file}" manifest="${manifest.location}" compress="false">
 			<fileset dir="${build.dir}" />
-			<zipfileset src="${kernel.location}" excludes="MANIFEST.MF,jar-in-jar-loader.zip,*.xml" />
+			<zipfileset src="${kernel.location}" excludes="MANIFEST.MF,*.xml" />
 		</jar>
 		<chmod file="${jar.file}" perm="ugo+x" />
 		<delete dir="${build.dir}" />

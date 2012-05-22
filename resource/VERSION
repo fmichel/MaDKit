@@ -48,7 +48,7 @@ Other command line options are described in the API of the madkit.kernel.Madkit 
 
 1. Improvements and changes:
 	- if the JDK (from Oracle) is installed, a menu shortcut to jconsole is provided for monitoring.
-	- works also when there is no graphic environment at all.
+	- MaDKit works also when there is no graphic environment at all.
 	- the library has been renamed for simplicity and legibility : madkitkernel -> madkit
 	 
 2. API changes:

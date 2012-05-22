@@ -37,7 +37,7 @@
 	<property name="jar.file" value="${ant.project.name}-${version}.jar" />
 	<property name="agent.lib.file" value="${ant.project.name}-${version}.agents.jar" />
 
-	<property url="jar:file://${kernel.location}!/madkit/kernel/madkitKernel.properties" />
+	<property url="jar:file://${kernel.location}!/madkit/kernel/madkit.properties" />
 
 	<tstamp prefix="time" />
 
@@ -50,35 +50,6 @@
 			<classpath location="${kernel.location}" />
 		</javaresource>
 	</include>
-
-	<!-- ================================= 
-          target: build-agent-jar              
-         ================================= -->
-	<target name="build-agent-jar" description="Creates a jar containing only the agents">
-		<echo>Creating ${ant.project.name} MDK agent library jar file</echo>
-		<antcall target="MDK.compile" />
-		<concat destfile="${build.dir}/README">--- ${project.label} version ${version} by ${author} -----
-    			${line.separator}- Description  ${description}  -----
-    			${line.separator}- Using        This jar file contains agents which can be ran using MadKit: It can be used in MadKit using load jar or by putting it in the classpath of your MadKit application  -----
-    			${line.separator}- Technology   MadKit, The Multiagent Development Kit : http://www.madkit.org A platform for building Multi-Agent Systems Application -----
-    		</concat>
-		<antcall target="MDK.build-manifest" />
-		<jar destfile="${agent.lib.file}" manifest="${manifest.location}" duplicate="preserve" compress="false">
-			<fileset dir="${build.dir}" />
-		</jar>
-		<delete dir="${build.dir}" />
-	</target>
-
-	<!-- ================================= 
-          target: clean              
-         ================================= -->
-	<target name="clean" description="clean generated files">
-		<delete file="${jar.file}" />
-		<delete file="${jnlp.jar.gz}" />
-		<delete file="${ant.project.name}.jnlp" />
-		<delete file="${agent.lib.file}" />
-		<delete file="${src.zip.file}" />
-	</target>
 
 	<!-- ================================= 
           target: build-executable-jar
@@ -115,6 +86,24 @@
 	</target>
 
 	<!-- ================================= 
+          target: build-agent-jar              
+         ================================= -->
+	<target name="build-agent-jar" description="Creates a jar containing only the agents">
+		<echo>Creating ${ant.project.name} MDK agent library jar file</echo>
+		<antcall target="MDK.compile" />
+		<concat destfile="${build.dir}/README">--- ${project.label} version ${version} by ${author} -----
+    			${line.separator}- Description  ${description}  -----
+    			${line.separator}- Using        This jar file contains agents which can be ran using MadKit: It can be used in MadKit using load jar or by putting it in the classpath of your MadKit application  -----
+    			${line.separator}- Technology   MadKit, The Multiagent Development Kit : http://www.madkit.org A platform for building Multi-Agent Systems Application -----
+    		</concat>
+		<antcall target="MDK.build-manifest" />
+		<jar destfile="${agent.lib.file}" manifest="${manifest.location}" duplicate="preserve" compress="false">
+			<fileset dir="${build.dir}" />
+		</jar>
+		<delete dir="${build.dir}" />
+	</target>
+
+	<!-- ================================= 
           target: Java-Web-Start            
          ================================= -->
 	<target name="Java-Web-Start" depends="build-executable-jar" description="builds jws files">
@@ -146,5 +135,17 @@
 		</zip>
 	</target>
 
+	<!-- ================================= 
+          target: clean              
+         ================================= -->
+	<target name="clean" description="clean generated files">
+		<delete file="${jar.file}" />
+		<delete file="${jnlp.jar.gz}" />
+		<delete file="${ant.project.name}.jnlp" />
+		<delete file="${agent.lib.file}" />
+		<delete file="${src.zip.file}" />
+	</target>
 
 </project>
+
+

@@ -102,7 +102,7 @@ final public class Madkit {
 	static{
 		try {
 			// no need to externalize because it is used only here
-			defaultConfig.load(Madkit.class.getResourceAsStream("madkitKernel.properties"));
+			defaultConfig.load(Madkit.class.getResourceAsStream("madkit.properties"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

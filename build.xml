@@ -21,23 +21,26 @@
 <!-- 
  This is ant build.xml file for building the MadKit kernel jar file MadKit V.5
  Author: Fabien Michel
- Version: 5.0
+ Version: 5.1
 -->
 
 <project name="madkit" default="jar" basedir=".">
-
-	<!-- using madkit kernel building properties file -->
+	
+	<!-- defining project general properties -->
 	<tstamp prefix="time" />
 	<property name="build.id" value="${time.DSTAMP}-${time.TSTAMP}" />
-	<property file="src/madkit/kernel/madkitKernel.properties" />
-	<property file="madkitKernelBuild.properties" />
-	<property name="executable.name" value="${desktop.name}" />
-	<property name="i18n.build.dir" value="${build.dir}/madkit/i18n" />
+	<property name="src.dir" value="src"/>
+	<property name="madkit.properties" value="madkit/kernel/madkit.properties"/>
 
-	<property name="doc.html" value="documentation.html" />
+	<property file="${src.dir}/${madkit.properties}" />
 
+	<property name="resource.dir" value="resource"/>
+	<property name="MDK.build.properties" value="madkitKernelBuild.properties"/>
+	<property file="${resource.dir}/${MDK.build.properties}" />
+
+	
 	<!-- for french tuto-->
-	<property name="madkit.old.version" value="5.0.0.15" />
+	<property name="madkit.old.version" value="5.0.0.16" />
 
 	<import file="${madkit.ant.targets.file}" />
 
@@ -113,7 +116,7 @@
 		<filterset begintoken="[[" endtoken="]]">
 			<filter token="TIMESTAMP" value="${timestamp.isoformat}" />
 		</filterset>
-		<copy tofile="${build.dir}/${madkitKernel.properties}" file="${src.dir}/${madkitKernel.properties}" overwrite="true">
+		<copy tofile="${build.dir}/${madkit.properties}" file="${src.dir}/${madkit.properties}" overwrite="true">
 			<filterchain>
 				<expandproperties />
 			</filterchain>
@@ -248,21 +251,13 @@
 <target name="release" depends="clean-demos,jar,sign-jar,javadoc,src-zip" description="build MadKit release">
 <echo> --- Build Release : MadKit ${madkit.version}${line.separator}</echo>
 <mkdir dir="${release.dir}" />
-<copy todir="${build.dir}" file="README.html">
-	<filterchain>
-		<expandproperties />
-	</filterchain>
-</copy>
-<copy todir="${build.dir}" file="VERSION">
-	<filterchain>
-		<expandproperties />
-	</filterchain>
-</copy>
-<copy todir="${build.dir}" file="${doc.html}">
-	<filterchain>
-		<expandproperties />
-	</filterchain>
-</copy>
+
+	<copy todir="${build.dir}">
+		<fileset dir="${resource.dir}" excludes="COPYING.LESSER,${MDK.build.properties}"/>
+		<filterchain>
+			<expandproperties />
+		</filterchain>
+	</copy>
 
 <echo>Updating MadKit Tutorial</echo>
 <copy todir="${docs.dir}/French_Tutorial/MadKit_Tutorial/${lib.dir}" file="${jar.file}" />
@@ -274,12 +269,19 @@
 <zip destfile="${release.dir}/MadKit-${madkit.version}.zip" level="9">
 	<zipfileset dir="${docs.dir}" prefix="${docs.dir}" />
 	<zipfileset dir="${build.dir}" includes="README.html" />
-	<zipfileset dir="${build.dir}" includes="VERSION,${doc.html}" prefix="${docs.dir}" />
+	<zipfileset dir="${build.dir}" includes="VERSION,${doc.html},build.xml" prefix="${docs.dir}" />
 	<zipfileset file="${jar.file}" filemode="755" />
-	<zipfileset file="COPYING.LESSER" />
+	<zipfileset file="${resource.dir}/COPYING.LESSER" />
 	<zipfileset dir="${demo.dir}" prefix="${demo.dir}" filemode="755" />
 </zip>
 </target>
+
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: test                      
+         - - - - - - - - - - - - - - - - - -->
+    <target name="test">
+            
+    </target>
 
 	<!-- ================================= 
           target:       ftp-push        

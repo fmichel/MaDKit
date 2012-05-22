@@ -45,7 +45,8 @@ model.</li>
 </h2>
 <ul>
   <li><big><a style="font-weight: bold;" href="docs/api/index.html">API</a></big>:
-Javadoc detailing the MadKit programming interface<br>
+Javadoc
+detailing the MadKit programming interface<br>
     <br>
   </li>
   <li><big style="font-weight: bold;"><a
@@ -111,7 +112,11 @@ finish&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>
 file system.</li>
   <li>In a new Java project, add the <span style="font-weight: bold;">${madkit.jar.name}</span>
 to the build path (e.g. in your Eclipse project).</li>
-  <li>start programming agents.<br>
+  <li>Now, you can start using the API.<br>
+  </li>
+  <li>Optional: You can use the <a href="docs/build.xml">build.xml</a>
+file in your project to easily build library and deployment files
+(runnable jars, Java Web Start files, etc.)<br>
   </li>
 </ol>
 <br>
@@ -129,7 +134,8 @@ Madkit("--launchAgents","mypackage.myagentClass;mypackage.myOtherAgentClass");<b
 <br>
 &nbsp;&nbsp;&nbsp; public static void main(String[] args) {<br>
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
-executeThisAgent(args) // This will execute one of this agent with a GUI<br>
+executeThisAgent(args) // This will execute one agent of this kind with
+a GUI<br>
 &nbsp;&nbsp;&nbsp; }<br>
 <br>
 <br>

@@ -211,6 +211,7 @@
          ================================= -->
 <target name="clean" description="cleanup build directories">
 <delete dir="${build.dir}" />
+<delete dir="${logDirectory}" />
 <delete dir="${release.dir}" />
 <delete file="${jar.file}" failonerror="false" />
 <delete file="${src.zip.location}" failonerror="false" />

@@ -24,10 +24,13 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import madkit.kernel.AbstractAgent.ReturnCode;
+import madkit.kernel.Madkit.BooleanOption;
 
 import org.junit.Test;
 
@@ -119,6 +122,29 @@ public class AgentLoggerTest extends JunitMadKit{
 				pause(1000);
 			}
 		},ReturnCode.SUCCESS, true);
+	}
+
+	@SuppressWarnings("serial")
+	@Test
+	public void onlyOneFileTest(){
+		addMadkitArgs(BooleanOption.createLogFiles.toString());
+		launchTest(new AbstractAgent(){
+			@Override
+			protected void activate() {
+				System.err.println(getMadkitProperty(Madkit.Option.logDirectory.name()));
+				getLogger().createLogFile();
+				if(logger != null)
+					logger.fine(getName());
+				File f = new File(getMadkitProperty(Madkit.Option.logDirectory.name()));
+				assertSame(1, f.listFiles(new FilenameFilter() {
+					@Override
+					public boolean accept(File arg0, String s) {
+						return s.contains(getName()) && !s.contains(".lck");
+					}
+				}).length);				
+			}
+		},ReturnCode.SUCCESS, true);
+		
 	}
 
 }

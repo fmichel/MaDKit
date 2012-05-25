@@ -2576,7 +2576,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	@SuppressWarnings("unused")
 	public static void executeThisAgent(int nbOfInstances, boolean createFrame, String... args) {
 		final StackTraceElement[] trace = new Throwable().getStackTrace();
-		new Throwable().printStackTrace();
 		final ArrayList<String> arguments = new ArrayList<String>(Arrays.asList(Madkit.Option.launchAgents.toString(),
 				trace[trace.length - 1].getClassName() + "," + (createFrame ? "true" : "false") + "," + nbOfInstances));
 		if (args != null) {

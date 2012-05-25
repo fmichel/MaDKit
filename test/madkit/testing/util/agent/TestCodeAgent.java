@@ -20,6 +20,7 @@ package madkit.testing.util.agent;
 
 import madkit.kernel.Agent;
 import madkit.kernel.Madkit.BooleanOption;
+import madkit.kernel.Madkit.LevelOption;
 
 /**
  * @author Fabien Michel
@@ -30,10 +31,13 @@ import madkit.kernel.Madkit.BooleanOption;
 @SuppressWarnings("serial")
 public class TestCodeAgent extends Agent {
 
+	@Override
+	protected void activate() {
+		getLogger().createLogFile();
+	}
 
 	public static void main(String[] args) {
-		String[] argss = {BooleanOption.desktop.toString()};
-		executeThisAgent(argss);
+		executeThisAgent(BooleanOption.desktop.toString(),BooleanOption.createLogFiles.toString());
 	}
 
 }

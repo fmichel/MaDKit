@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
  */
-package madkit.gui;
+package madkit.gui.menu;
 
 import java.awt.BorderLayout;
 import java.awt.Desktop;
@@ -43,6 +43,7 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 
+import madkit.gui.SwingUtil;
 import madkit.i18n.Words;
 import madkit.kernel.Madkit;
 
@@ -52,7 +53,7 @@ import madkit.kernel.Madkit;
  * @version 0.9
  * 
  */
-public class AboutFrame extends JDialog {
+final class AboutFrame extends JDialog {
 
 	/**
 	 * 
@@ -63,10 +64,10 @@ public class AboutFrame extends JDialog {
 		setTitle("MaDKit");
 		setLocationRelativeTo(null);
 
-		JLabel icon = new JLabel(new ImageIcon(GUIManagerAgent.MADKIT_LOGO));
+		JLabel icon = new JLabel(SwingUtil.MADKIT_LOGO);
 		icon.setBounds(10, 10, 10, 10);
 		add(icon, BorderLayout.WEST);
-		setIconImage(GUIManagerAgent.MADKIT_LOGO);
+		setIconImage(SwingUtil.MADKIT_LOGO.getImage());
 
 		JTextPane textPanel = new JTextPane();
 		textPanel.setEditable(false);

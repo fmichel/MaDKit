@@ -249,20 +249,17 @@ public class KillAgentTest extends JunitMadKit {
 						for (int i = 0; i < 20; i++) {
 							Agent agt = (Agent) launchAgent(NormalLife.class.getName(), Math.random() < .5 ? true : false);
 							assertNotNull(agt);
-							System.err.println(agt);
 							pause((int) (Math.random() * 1000));
 							ReturnCode r2 = killAgent(agt, (int) (Math.random() * 2));
 							assertTrue(SUCCESS == r2 || TIMEOUT == r2);
 						}
 					}
 				};
-				if(logger != null)
-					logger.info("runnable created\n");
 				Thread t = new Thread(job);
 				t.start();
-//				pause(1000);
-//				t = new Thread(job);
-//				t.start();
+				pause(1000);
+				t = new Thread(job);
+				t.start();
 				try {
 					t.join();
 				} catch (InterruptedException e) {
@@ -315,7 +312,7 @@ public class KillAgentTest extends JunitMadKit {
 				assertEquals(SUCCESS, killAgent(a));
 				pause(100);
 				assertAgentIsTerminated(a);
-				Agent b = (Agent) launchAgent("madkit.kernel.Agent", 10);
+				Agent b = (Agent) launchAgent(Agent.class.getName(), 10);
 				killAgent(b, 0);
 				pause(100);
 				assertAgentIsTerminated(b);

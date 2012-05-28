@@ -23,11 +23,13 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.swing.Action;
+import javax.swing.ImageIcon;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
 import madkit.action.KernelAction;
 import madkit.gui.MASModel;
+import madkit.gui.SwingUtil;
 import madkit.i18n.Words;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.MadkitClassLoader;
@@ -78,6 +80,7 @@ public class LaunchMAS extends JMenu {
 		JMenuItem name = new JMenuItem(a);
 		String displayedName = demo.getName();
 		name.setText(displayedName);
+		name.setIcon(new ImageIcon(SwingUtil.MADKIT_LOGO.getImage().getScaledInstance(16, 16, java.awt.Image.SCALE_SMOOTH)));
 		name.setToolTipText(demo.toString());
 		name.setAccelerator(null);
 		name.setActionCommand(displayedName);

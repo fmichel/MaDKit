@@ -19,11 +19,13 @@
 package madkit.gui;
 
 import java.awt.Dimension;
+import java.awt.Image;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 
 import javax.swing.BoxLayout;
 import javax.swing.DefaultBoundedRangeModel;
+import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.border.TitledBorder;
@@ -38,8 +40,9 @@ import javax.swing.border.TitledBorder;
  * @version 0.9
  * 
  */
-public class SwingUtil {
+final public class SwingUtil {
 	
+	final public static ImageIcon MADKIT_LOGO = new ImageIcon(SwingUtil.class.getResource("images/madkit_logo.png"));
 	/**
 	 * Creates a labeled panel containing a slider 
 	 * 
@@ -92,5 +95,6 @@ public class SwingUtil {
 		slider.setSnapToTicks(true);
 		return slider;
 	}
+
 
 }

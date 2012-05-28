@@ -23,7 +23,6 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.HeadlessException;
-import java.awt.Image;
 import java.awt.Point;
 import java.beans.PropertyVetoException;
 import java.util.ArrayList;
@@ -75,11 +74,6 @@ class GUIManagerAgent extends Agent {
 	private static final long									serialVersionUID	= 8026421822077510523L;
 	final private ConcurrentMap<AbstractAgent, JFrame>	guis;
 	private boolean												shuttedDown			= false;
-
-	final static Image											MADKIT_LOGO			= new ImageIcon(
-																										GUIManagerAgent.class
-																												.getResource("images/madkit_logo.png"))
-																										.getImage();
 
 	private JDesktopPane											desktopPane;
 
@@ -332,7 +326,7 @@ class GUIManagerAgent extends Agent {
 		// }
 		;
 		desktopPane.setBackground(Color.BLACK);
-		myFrame.setIconImage(MADKIT_LOGO);
+		myFrame.setIconImage(SwingUtil.MADKIT_LOGO.getImage());
 		final JMenuBar menuBar = new JMenuBar();
 		menuBar.add(new MadkitMenu(this));
 		menuBar.add(new LaunchAgentsMenu(this));

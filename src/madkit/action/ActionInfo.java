@@ -40,7 +40,7 @@ public class ActionInfo {
 	/**
 	 * Shortcut for System.getProperty("javawebstart.version") != null;
 	 */
-	final public static boolean javawsIsOn = true;//System.getProperty("javawebstart.version") != null;
+	final public static boolean javawsIsOn = System.getProperty("javawebstart.version") != null;
 
 	final static private String imageDir = "images/";
 	

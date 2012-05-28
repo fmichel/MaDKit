@@ -54,7 +54,7 @@ final class AgentFrame extends JFrame {
 	
 	AgentFrame(final AbstractAgent agent, String name) {
 		super(name);
-		setIconImage(GUIManagerAgent.MADKIT_LOGO);
+		setIconImage(SwingUtil.MADKIT_LOGO.getImage());
 		setJMenuBar(createMenuBarFor(agent));
 
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
@@ -107,7 +107,7 @@ final class AgentFrame extends JFrame {
 		menuBar.add(new MadkitMenu(agent));
 		menuBar.add(new AgentMenu(agent));
 		menuBar.add(new AgentLogLevelMenu(agent));
-//		menuBar.add(new HelpMenu());
+		menuBar.add(new HelpMenu());
 		menuBar.add(Box.createHorizontalGlue());
 		menuBar.add(new AgentStatusPanel(agent));
 		return menuBar;

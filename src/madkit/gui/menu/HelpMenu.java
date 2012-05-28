@@ -26,10 +26,12 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import javax.swing.ImageIcon;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
-import madkit.gui.AboutFrame;
+import madkit.action.KernelAction;
+import madkit.gui.SwingUtil;
 import madkit.i18n.Words;
 
 /**
@@ -68,20 +70,21 @@ final public class HelpMenu extends JMenu {
 		setMnemonic(KeyEvent.VK_E);
 		JMenuItem mi;
 		if (Desktop.isDesktopSupported()) {
-			mi = new JMenuItem("API");
+			final ImageIcon ii = KernelAction.CONNECT_WEB_REPO.getActionInfo().getSmallIcon();
+			mi = new JMenuItem("API",ii);
 			mi.addActionListener(tuto);
 			mi.setActionCommand("api");
 			add(mi);
-			mi = new JMenuItem(Words.TUTORIALS.toString());
+			mi = new JMenuItem(Words.TUTORIALS.toString(),ii);
 			mi.addActionListener(tuto);
 			mi.setActionCommand("tutorials");
 			add(mi);
-			mi = new JMenuItem("Forum");
+			mi = new JMenuItem("Forum",ii);
 			mi.addActionListener(tuto);
 			mi.setActionCommand("forum");
 			add(mi);
 		}
-		mi = new JMenuItem(Words.ABOUT.toString());
+		mi = new JMenuItem(Words.ABOUT.toString(),new ImageIcon(SwingUtil.class.getResource("images/help.png")));
 		mi.setMnemonic(KeyEvent.VK_A);
 		mi.addActionListener(about);
 		add(mi);

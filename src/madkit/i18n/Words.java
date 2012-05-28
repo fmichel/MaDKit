@@ -28,7 +28,7 @@ public enum Words {
 	EXITING,
 	TERMINATED,
 	INITIAL_CONFIG,
-	RELOAD, DIRECTORY, MAS, PAUSE, NEW_MSG;
+	RELOAD, DIRECTORY, MAS, PAUSE, NEW_MSG, ABOUT, HELP, TUTORIALS;
 	
 	final static ResourceBundle messages = I18nUtilities.getResourceBundle(Words.class.getSimpleName());
 //	static ResourceBundle messages = I18nUtilities.getResourceBundle(ReturnCode.class);

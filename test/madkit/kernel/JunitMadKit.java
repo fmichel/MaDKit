@@ -199,7 +199,7 @@ public class JunitMadKit {
 		try {
 			Thread.sleep(millis);
 		} catch (InterruptedException e) {
-
+			e.printStackTrace();
 		}
 
 	}

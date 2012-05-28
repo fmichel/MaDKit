@@ -108,6 +108,9 @@ final public class Madkit {
 		}
 	}
 	
+	public final static String VERSION = defaultConfig.getProperty("madkit.version");
+	public final static String BUILD_ID = defaultConfig.getProperty("build.id");
+	
 	final private Properties madkitConfig = new Properties();
 	private Element madkitXMLConfigFile=null;
 //	private FileHandler madkitLogFileHandler;

@@ -33,6 +33,7 @@ import madkit.agr.LocalCommunity.Groups;
 import madkit.agr.Organization;
 import madkit.gui.menu.AgentLogLevelMenu;
 import madkit.gui.menu.AgentMenu;
+import madkit.gui.menu.HelpMenu;
 import madkit.gui.menu.MadkitMenu;
 import madkit.kernel.AbstractAgent;
 import madkit.message.KernelMessage;
@@ -106,6 +107,7 @@ final class AgentFrame extends JFrame {
 		menuBar.add(new MadkitMenu(agent));
 		menuBar.add(new AgentMenu(agent));
 		menuBar.add(new AgentLogLevelMenu(agent));
+//		menuBar.add(new HelpMenu());
 		menuBar.add(Box.createHorizontalGlue());
 		menuBar.add(new AgentStatusPanel(agent));
 		return menuBar;

@@ -329,7 +329,7 @@ class GUIManagerAgent extends Agent {
 		myFrame.setIconImage(SwingUtil.MADKIT_LOGO.getImage());
 		final JMenuBar menuBar = new JMenuBar();
 		menuBar.add(new MadkitMenu(this));
-		menuBar.add(new LaunchAgentsMenu(this));
+		menuBar.add(new LaunchAgentsMenu(this,true));
 		menuBar.add(new LaunchMAS(this));
 		menuBar.add(new HelpMenu());
 

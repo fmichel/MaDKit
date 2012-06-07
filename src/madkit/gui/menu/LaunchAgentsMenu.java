@@ -21,6 +21,7 @@ package madkit.gui.menu;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import javax.swing.Action;
@@ -50,15 +51,21 @@ public class LaunchAgentsMenu extends JMenu {
 	final static private Set<LaunchAgentsMenu> menus = new HashSet<LaunchAgentsMenu>(); 
 	final private Action myAction;
 	final private AbstractAgent myAgent;
+	final private boolean withKernelAgents;
 
 	/**
-	 * Builds a new menu.
+	 * Builds a new menu containing all the agents available on the class path.
 	 * @param agent the agent according 
 	 * to which this menu should be created, i.e. the
 	 * agent that will be responsible of the launch.
+	 * @param withKernelAgents also take the 4 agents from madkit.kernel if <code>true</code>
 	 */
-	public LaunchAgentsMenu(final AbstractAgent agent) {
+	/**
+	 * @param agent
+	 */
+	public LaunchAgentsMenu(final AbstractAgent agent, boolean withKernelAgents) {
 		super("Agents");
+		this.withKernelAgents = withKernelAgents;
 		setMnemonic(KeyEvent.VK_G);
 		myAgent = agent;
 		myAction = new  MKAbstractAction(AgentAction.LAUNCH_AGENT.getActionInfo()){
@@ -77,6 +84,17 @@ public class LaunchAgentsMenu extends JMenu {
 	}
 
 	/**
+	 * Builds a new menu containing all the agents available on the class path,
+	 * except madkit.kernel agents.
+	 * @param agent the agent according 
+	 * to which this menu should be created, i.e. the
+	 * agent that will be responsible of the launch.
+	 */
+	public LaunchAgentsMenu(final AbstractAgent agent) {
+		this(agent,false);
+	}
+
+	/**
 	 * Called by the kernel when the class path is modified.
 	 * This is for instance the case when the 
 	 * {@link MadkitClassLoader#addToClasspath(java.net.URL)}
@@ -88,9 +106,9 @@ public class LaunchAgentsMenu extends JMenu {
 		}
 	}
 
-	private void addTomenu(Action a, JMenu subMenu, String className, boolean simpleName) {
-		JMenuItem name = new JMenuItem(a);
-		String displayedName = simpleName ? className.substring(className.lastIndexOf('.')+1, className.length()) : className;
+	private void addTomenu(final Action a, final JMenu subMenu, final String className, final boolean simpleName) {
+		final JMenuItem name = new JMenuItem(a);
+		final String displayedName = simpleName ? className.substring(className.lastIndexOf('.')+1, className.length()) : className;
 		name.setText(displayedName);
 		name.setAccelerator(null);
 		name.setActionCommand(className);
@@ -100,6 +118,11 @@ public class LaunchAgentsMenu extends JMenu {
 	private void update() {
 		removeAll();
 		final Set<String> classesToLaunch = myAgent.getMadkitClassLoader().getAllAgentClasses();
+		if(! withKernelAgents)
+			for (Iterator<String> iterator = classesToLaunch.iterator(); iterator.hasNext();) {
+				if(iterator.next().contains("madkit.kernel"))
+						iterator.remove();
+			}
 		if (classesToLaunch.size() < 20) {
 			for (String string : classesToLaunch) {
 				addTomenu(myAction, this, string, false);

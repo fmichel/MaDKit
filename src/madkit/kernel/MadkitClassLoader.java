@@ -385,7 +385,7 @@ public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 			}
 			else
 				if (f.getName().endsWith(".class")) {
-					String className = pckName + "."
+					String className = (pckName == null ? "" : pckName + ".")
 							+ f.getName().replace(".class", "");
 					if (isAgentClass(className)) {
 						l.add(className);

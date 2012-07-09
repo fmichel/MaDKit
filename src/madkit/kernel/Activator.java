@@ -20,8 +20,6 @@ package madkit.kernel;
 
 import java.lang.reflect.Method;
 
-import madkit.simulation.GenericBehaviorActivator;
-
 /**
  * This class defines a tool for scheduling mechanism.
  * An activator is configured according to a community, a group and a role.
@@ -153,28 +151,36 @@ public class Activator<A extends AbstractAgent> extends Overlooker<A>{
 	}
 
 	/**
-	 * Returns the agent's method named <code>methodName</code>.
+	 * Returns the agent's method named <code>methodName</code>
+	 * considering a given agentClass. This also works 
+	 * for the private methods of the class, even inherited ones.
+	 * 
 	 * 
 	 * @param agentClass the targeted agent 
 	 * @param methodName the name of the method
-	 * @return the agent's field named <code>methodName</code>
+	 * @return the agent's method named <code>methodName</code>
 	 * @throws NoSuchMethodException 
 	 */
 	//	* This also works on <code>private</code> field.
 	public Method findMethodOn(Class<? extends A> agentClass, final String methodName) throws NoSuchMethodException {
-		try {
-			return agentClass.getMethod(methodName);
-		} catch (NoSuchMethodException e) {
-		}
-		Method f = null;
-		try {
-			f = agentClass.getDeclaredMethod(methodName);
-			if(f != null && ! f.isAccessible()) {//TODO seems to be always the case the first time
-				f.setAccessible(true);
+		Method m;
+		while(true) {
+			try {
+				m = agentClass.getDeclaredMethod(methodName);
+				if(m != null){
+					if (! m.isAccessible()) {//TODO seems to be always the case the first time
+						m.setAccessible(true);
+					}
+					return m;
+				}
+			} catch (SecurityException e) {
+				e.printStackTrace();
+			} catch (NoSuchMethodException e) {
+				agentClass = (Class<? extends A>) agentClass.getSuperclass();//TODO not go further than A
+				if (agentClass == Object.class) {//TODO bench vs local variable
+					throw e;
+				}
 			}
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		}
-		return f;
-	} 
+		} 
+	}
 }

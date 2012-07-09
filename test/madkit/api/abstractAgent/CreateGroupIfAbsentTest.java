@@ -18,15 +18,14 @@
  */
 package madkit.api.abstractAgent;
 
-import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_GROUP;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import madkit.kernel.AbstractAgent;
+import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.Gatekeeper;
 import madkit.kernel.JunitMadKit;
-import madkit.kernel.AbstractAgent.ReturnCode;
 
 import org.junit.Test;
 

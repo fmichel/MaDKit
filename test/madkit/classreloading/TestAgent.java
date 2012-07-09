@@ -3,13 +3,9 @@
  */
 package madkit.classreloading;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.logging.Level;
 
 import madkit.classreloading.anotherPackage.Fake;
-import madkit.kernel.AbstractAgent;
-import madkit.kernel.Activator;
 import madkit.kernel.Agent;
 import madkit.kernel.Madkit;
 

@@ -25,14 +25,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.Scheduler;
 import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.AbstractAgent.State;
 import madkit.kernel.JunitMadKit;
-import madkit.simulation.GenericBehaviorActivator;
+import madkit.kernel.Scheduler;
 import madkit.simulation.SimulationException;
+import madkit.simulation.activator.GenericBehaviorActivator;
 import madkit.testing.util.agent.FaultyAA;
-import madkit.testing.util.agent.NormalAA;
 import madkit.testing.util.agent.SimulatedAgent;
 
 import org.junit.Before;

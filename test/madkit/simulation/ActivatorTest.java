@@ -18,9 +18,15 @@
  */
 package madkit.simulation;
 
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+import madkit.kernel.AbstractAgent;
 import madkit.kernel.Activator;
 import madkit.kernel.Agent;
 import madkit.kernel.JunitMadKit;
@@ -38,12 +44,12 @@ import org.junit.Test;
  */
 public class ActivatorTest {
 
-	Activator<Agent> a;
+	Activator<AbstractAgent> a;
 	Agent agt;
 
 	@Before
 	public void setUp() throws Exception {
-		a = new Activator<Agent>("t", "t", "t");
+		a = new Activator<AbstractAgent>("t", "t", "t");
 		agt = new Agent();
 	}
 
@@ -67,6 +73,30 @@ public class ActivatorTest {
 			a.multicoreExecute();
 			JunitMadKit.noExceptionFailure();
 		} catch (UnsupportedOperationException e) {
+		}
+	}
+	
+	@Test
+	public void testFindMethodOn() {
+		try {
+			Method m;
+			m = a.findMethodOn(AbstractAgent.class, "activate");
+			System.err.println(m);
+			m = a.findMethodOn(Agent.class, "activate");
+			System.err.println(m);
+			m = a.findMethodOn(Agent.class, "activationFirstStage");
+			System.err.println(m);
+			m.invoke(agt);
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+			fail("Oo");
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+			fail("Oo");
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+			fail("Oo");
+		} catch (InvocationTargetException e) {
 		}
 	}
 

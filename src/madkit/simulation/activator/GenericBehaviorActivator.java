@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
  */
-package madkit.simulation;
+package madkit.simulation.activator;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -29,6 +29,7 @@ import java.util.concurrent.Callable;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Activator;
 import madkit.kernel.Scheduler;
+import madkit.simulation.SimulationException;
 
 /**
  * An activator that invokes a single method with no parameters on a group of agents.

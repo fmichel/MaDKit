@@ -149,7 +149,8 @@ Other command line options are described in the API of the madkit.kernel.Madkit 
 	- Probes now work on private fields 
 
 2. API Refactoring:
-	- The madkit.kernel.Probe.findFieldOn(AbstractAgent, String) method has been added
+	+ madkit.kernel.Activator.findMethodOn(Class<? extends A>, String)
+	+ madkit.kernel.Probe.findFieldOn(Class<? extends A>, String)
 	
 
 ----------------------------------------------------------------------------------

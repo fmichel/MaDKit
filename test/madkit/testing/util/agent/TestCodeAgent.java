@@ -20,7 +20,6 @@ package madkit.testing.util.agent;
 
 import madkit.kernel.Agent;
 import madkit.kernel.Madkit.BooleanOption;
-import madkit.kernel.Madkit.LevelOption;
 
 /**
  * @author Fabien Michel

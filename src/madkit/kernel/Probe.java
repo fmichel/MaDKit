@@ -20,8 +20,6 @@ package madkit.kernel;
 
 import java.lang.reflect.Field;
 
-import madkit.simulation.PropertyProbe;
-
 /**
  * This class defines a watcher's generic probe. 
  * A probe is configured according to a community, a group and a role.
@@ -51,7 +49,8 @@ public class Probe<A extends AbstractAgent> extends Overlooker<A>{
 
 	/**
 	 * Returns the agent's field named <code>fieldName</code>.
-	 * This also works on <code>private</code> field.
+	 * This also works on <code>private</code> fields, even
+	 * inherited ones.
 	 * 
 	 * @param agentClass the targeted agent 
 	 * @param fieldName the name of the field
@@ -74,7 +73,7 @@ public class Probe<A extends AbstractAgent> extends Overlooker<A>{
 				e.printStackTrace();
 			} catch (NoSuchFieldException e) {
 				agentClass = (Class<? extends A>) agentClass.getSuperclass();//TODO not go further than A
-				if (agentClass == AbstractAgent.class) {//TODO bench vs local variable
+				if (agentClass == Agent.class) {//TODO bench vs local variable or Object ?
 					throw e;
 				}
 			}

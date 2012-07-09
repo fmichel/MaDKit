@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
  */
-package madkit.simulation;
+package madkit.simulation.probe;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -24,6 +24,7 @@ import java.util.Map;
 
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Probe;
+import madkit.simulation.SimulationException;
 
 /**
  * This probe inspects fields of type T on agents of type A and its subclasses.

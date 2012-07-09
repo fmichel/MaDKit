@@ -25,6 +25,7 @@ import madkit.kernel.AbstractAgent;
 import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.JunitMadKit;
 import madkit.kernel.Watcher;
+import madkit.simulation.probe.PropertyProbe;
 import madkit.testing.util.agent.NormalAA;
 import madkit.testing.util.agent.SimulatedAgent;
 import madkit.testing.util.agent.SimulatedAgentBis;

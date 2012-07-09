@@ -23,7 +23,6 @@ import static madkit.kernel.JunitMadKit.COMMUNITY;
 import static madkit.kernel.JunitMadKit.GROUP;
 import static madkit.kernel.JunitMadKit.ROLE;
 import static org.junit.Assert.assertEquals;
-import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
 
 /**

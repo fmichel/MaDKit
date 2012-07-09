@@ -24,7 +24,7 @@ import static madkit.kernel.JunitMadKit.ROLE;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Scheduler;
-import madkit.simulation.GenericBehaviorActivator;
+import madkit.simulation.activator.GenericBehaviorActivator;
 import madkit.testing.util.agent.SimulatedAgent;
 
 

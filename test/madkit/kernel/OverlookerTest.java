@@ -19,10 +19,7 @@
 package madkit.kernel;
 
 import static org.junit.Assert.assertEquals;
-import madkit.kernel.AbstractAgent;
-import madkit.kernel.Activator;
 import madkit.kernel.Madkit.LevelOption;
-import madkit.kernel.Scheduler;
 import madkit.testing.util.agent.NormalAgent;
 import madkit.testing.util.agent.SimulatedAgent;
 

@@ -496,7 +496,6 @@ public class Scheduler extends Agent {
 	}
 
 	private void buildActions() {
-
 		run = SchedulingAction.RUN.getActionFor(this);
 		step = SchedulingAction.STEP.getActionFor(this);
 		speedUp = SchedulingAction.SPEED_UP.getActionFor(this);

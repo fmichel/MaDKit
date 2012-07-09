@@ -22,6 +22,7 @@ import madkit.kernel.AbstractAgent;
 import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.JunitMadKit;
 import madkit.kernel.Scheduler;
+import madkit.simulation.activator.GenericBehaviorActivator;
 import madkit.testing.util.agent.FaultyAA;
 import madkit.testing.util.agent.NormalAA;
 

@@ -30,6 +30,7 @@ import madkit.kernel.AbstractAgent;
 import madkit.kernel.Activator;
 import madkit.kernel.Agent;
 import madkit.kernel.JunitMadKit;
+import madkit.testing.util.agent.NormalLife;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -82,11 +83,11 @@ public class ActivatorTest {
 			Method m;
 			m = a.findMethodOn(AbstractAgent.class, "activate");
 			System.err.println(m);
-			m = a.findMethodOn(Agent.class, "activate");
+			m = a.findMethodOn(NormalLife.class, "live");//protected
 			System.err.println(m);
-			m = a.findMethodOn(Agent.class, "activationFirstStage");
+			m = a.findMethodOn(NormalLife.class, "privateMethod");//private
 			System.err.println(m);
-			m.invoke(agt);
+			m.invoke(new NormalLife());
 		} catch (NoSuchMethodException e) {
 			e.printStackTrace();
 			fail("Oo");

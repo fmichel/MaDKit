@@ -34,7 +34,7 @@ import org.junit.Test;
  */
 @SuppressWarnings("serial")
 public class ConcurrentOrgTest extends JunitMadKit {
-	private int testSize = 3000;
+	private int testSize = 4000;
 
 	@Test
 	public void noConflictTest() {

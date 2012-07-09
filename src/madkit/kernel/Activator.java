@@ -177,7 +177,7 @@ public class Activator<A extends AbstractAgent> extends Overlooker<A>{
 				e.printStackTrace();
 			} catch (NoSuchMethodException e) {
 				agentClass = (Class<? extends A>) agentClass.getSuperclass();//TODO not go further than A
-				if (agentClass == Object.class) {//TODO bench vs local variable
+				if (agentClass == AbstractAgent.class) {//TODO bench vs local variable
 					throw e;
 				}
 			}

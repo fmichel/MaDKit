@@ -73,7 +73,7 @@ public class Probe<A extends AbstractAgent> extends Overlooker<A>{
 				e.printStackTrace();
 			} catch (NoSuchFieldException e) {
 				agentClass = (Class<? extends A>) agentClass.getSuperclass();//TODO not go further than A
-				if (agentClass == Agent.class) {//TODO bench vs local variable or Object ?
+				if (agentClass == AbstractAgent.class) {//TODO bench vs local variable or Object ?
 					throw e;
 				}
 			}

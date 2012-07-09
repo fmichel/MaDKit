@@ -40,6 +40,10 @@ public abstract class DoItDuringLifeCycleAgent extends Agent {
 		this.inEnd = inEnd;
 		setName(getName());
 	}
+	
+	
+	private void privateMethod() {
+	}
 
 	public DoItDuringLifeCycleAgent(boolean inActivate, boolean inLive) {
 		this(inActivate, inLive, false);

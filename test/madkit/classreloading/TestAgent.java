@@ -24,18 +24,18 @@ public class TestAgent extends Agent {
 	 */
 	public TestAgent() {
 		setLogLevel(Level.ALL);
-		Activator<AbstractAgent> a = new Activator<AbstractAgent>("test", "r", "r") {
-			public void adding(AbstractAgent theAgent) {
-				ActionListener al = new ActionListener() {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						TestAgent.this.activate();
-					}
-				};
-				al.actionPerformed(null);
-			}
-		};
-		a.execute();
+//		Activator<AbstractAgent> a = new Activator<AbstractAgent>("test", "r", "r") {
+//			public void adding(AbstractAgent theAgent) {
+//				ActionListener al = new ActionListener() {
+//					@Override
+//					public void actionPerformed(ActionEvent e) {
+//						TestAgent.this.activate();
+//					}
+//				};
+//				al.actionPerformed(null);
+//			}
+//		};
+//		a.execute();
 	}
 
 	/*
@@ -50,16 +50,24 @@ public class TestAgent extends Agent {
 		if (logger != null) {
 			logger.info("\n\ndS zz d\n\n");
 			FakeObject o = new FakeObject();
-			logger.info("fake is " + o);
-			logger.info("fake2 is " + (new  Fake().toString()));
-			pause(4000);
+			logger.info("\nfake is " + o);
+			logger.info("\nfake2 is " + (new  Fake().toString()));
+			pause(8000);
 			try {
 				getMadkitClassLoader().reloadClass("madkit.classreloading.anotherPackage.Fake");
 			} catch (ClassNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			logger.info("fake3 is " + (new Fake().toString()));
+			logger.info("\nfake3 is " + (new Fake().toString()));
+			pause(8000);
+			try {
+				getMadkitClassLoader().reloadClass("madkit.classreloading.anotherPackage.Fake");
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			logger.info("\nfake4 is " + (new Fake().toString()));
 		}
 	}
 

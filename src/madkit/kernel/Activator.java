@@ -43,6 +43,7 @@ import madkit.simulation.GenericBehaviorActivator;
  */
 public class Activator<A extends AbstractAgent> extends Overlooker<A>{
 
+	private static final String	NOT_IMPLEMENTED	= "Activator not implemented";
 	private int nbOfsimultaneousTasks = 1;
 	/**
 	 * Builds a new Activator on the given CGR location of the
@@ -88,7 +89,7 @@ public class Activator<A extends AbstractAgent> extends Overlooker<A>{
 	 * @see Scheduler#doSimulationStep()
 	 */
 	public void execute() {
-		throw new UnsupportedOperationException();
+		throw new UnsupportedOperationException(NOT_IMPLEMENTED+toString());
 	}
 
 	/**
@@ -105,7 +106,7 @@ public class Activator<A extends AbstractAgent> extends Overlooker<A>{
 	 * by the activator, i.e. not implemented.
 	 */
 	public void multicoreExecute() {
-		throw new UnsupportedOperationException();
+		throw new UnsupportedOperationException(NOT_IMPLEMENTED+toString());
 	}
 
 	@Override

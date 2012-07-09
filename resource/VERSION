@@ -43,6 +43,21 @@ Other command line options are described in the API of the madkit.kernel.Madkit 
 
 
 ----------------------------------------------------------------------------------
+------------------------------- MadKit 5.0.0.17 (alpha-17)------------------------
+----------------------------------------------------------------------------------
+
+1. Improvements and changes:
+	- An ant template build.xml is now available in the distribution, allowing various deployment facilities
+	- Agents can now create their own log file as will using the AgentLogger API
+	- fix jnlp startup speed
+	 
+2. API changes:
+	+ madkit.kernel.AgentLogger.createLogFile()
+	+ madkit.kernel.MadkitClassLoader.getClassSimpleName(String)
+	+ madkit.kernel.MadkitClassLoader.getClassPackageName(String)
+	
+
+----------------------------------------------------------------------------------
 ------------------------------- MadKit 5.0.0.16 (alpha-16)------------------------
 ----------------------------------------------------------------------------------
 

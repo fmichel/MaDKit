@@ -108,8 +108,7 @@ public class LaunchAgentsMenu extends JMenu {
 
 	private void addTomenu(final Action a, final JMenu subMenu, final String className, final boolean simpleName) {
 		final JMenuItem name = new JMenuItem(a);
-		final String displayedName = simpleName ? className.substring(className.lastIndexOf('.')+1, className.length()) : className;
-		name.setText(displayedName);
+		name.setText(simpleName ? MadkitClassLoader.getClassSimpleName(className) : className);
 		name.setAccelerator(null);
 		name.setActionCommand(className);
 		subMenu.add(name);
@@ -131,16 +130,18 @@ public class LaunchAgentsMenu extends JMenu {
 		else{
 			String pckName = null;
 			JMenu subMenu = null;
-			for (String string : classesToLaunch) {
-				String pck = string.substring(0,string.lastIndexOf('.'));
-				if(pck.equals(pckName)){
-					addTomenu(myAction, subMenu, string,true);
-				}
-				else{
-					pckName = pck;
-					subMenu = new JMenu(pck);
-					add(subMenu);
-					addTomenu(myAction, subMenu, string,true);
+			for (final String string : classesToLaunch) {
+				String pck = MadkitClassLoader.getClassPackageName(string);
+				if (pck != null) {
+					if (pck.equals(pckName)) {
+						addTomenu(myAction, subMenu, string, true);
+					}
+					else {
+						pckName = pck;
+						subMenu = new JMenu(pck);
+						add(subMenu);
+						addTomenu(myAction, subMenu, string, true);
+					}
 				}
 			}
 		}

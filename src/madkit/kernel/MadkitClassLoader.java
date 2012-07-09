@@ -46,13 +46,16 @@ import madkit.gui.menu.LaunchAgentsMenu;
 import madkit.gui.menu.LaunchMAS;
 
 /**
+ * The MadkitClassLoader is the class loader used by MaDKit, enabling 
+ * some specific features such as hot class reloading.
+ * 
  * @author Fabien Michel
  * @author Jacques Ferber
  * @since MadKit 4.0
  * @version 5.1
  * 
  */
-public class MadkitClassLoader extends URLClassLoader { // NO_UCD
+final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 
 	private Collection<String>	classesToReload;
 	final private Madkit			madkit;
@@ -65,7 +68,7 @@ public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 	 * @param parent
 	 * @throws ClassNotFoundException
 	 */
-	MadkitClassLoader(Madkit m, URL[] urls, ClassLoader parent,
+	MadkitClassLoader(final Madkit m, URL[] urls, final ClassLoader parent,
 			Collection<String> toReload) {
 		super(urls, parent);
 		if (toReload != null)
@@ -74,7 +77,7 @@ public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 	}
 
 	@Override
-	protected synchronized Class<?> loadClass(String name, boolean resolve)
+	protected synchronized Class<?> loadClass(final String name, final boolean resolve)
 			throws ClassNotFoundException {
 		Class<?> c;
 		if (classesToReload != null && classesToReload.contains(name)) {
@@ -109,33 +112,6 @@ public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 			resolveClass(c);
 		return c;
 	}
-
-	// Class<? extends AbstractAgent> loadAgentClass(String name) throws ClassNotFoundException{
-	// return (Class<? extends AbstractAgent>) loadClass(name);
-	// }
-
-	// private URL getclassPathUrl(String name) {
-	// URL url = this.getResource("/"+name.replace('.', '/')+".class");
-	// if(url != null){//TODO if url is null return warning
-	// String packageName = "";
-	// if (name.contains(".")) {
-	// packageName = name.substring(0, name.lastIndexOf('.')+1);
-	// }
-	// // for(String s : packageName.split("\\."))
-	// // System.err.println("\nsplit"+s);
-	// int deepness = packageName.split("\\.").length;
-	// String urlPath = url.getPath();
-	// File resourceDir = new File(urlPath.substring(0, urlPath.lastIndexOf('/')));
-	// for (int i = 0; i < deepness; i++) {
-	// resourceDir = resourceDir.getParentFile();
-	// }
-	// try {
-	// return resourceDir.toURI().toURL();
-	// } catch (MalformedURLException e) {
-	// }
-	// }
-	// return null;
-	// }
 
 	/**
 	 * Asks the MadKit class loader to reload the class
@@ -176,12 +152,12 @@ public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 		return loadClass(className);
 	}
 
-	void loadJarsFromPath(String path) {
-		File demoDir = new File(path);
+	void loadJarsFromPath(final String path) {
+		final File demoDir = new File(path);
 		if (demoDir.isDirectory()) {
-			for (File f : demoDir.listFiles(new FileFilter() {
+			for (final File f : demoDir.listFiles(new FileFilter() {
 
-				public boolean accept(File pathname) {
+				public boolean accept(final File pathname) {
 					return pathname.getName().endsWith(".jar");
 				}
 			})) {
@@ -198,28 +174,23 @@ public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 	// return (Class<? extends AbstractAgent>) loadClass(name);
 	// }
 
-	private void addUrlAndloadClasses(String name) {
+	private void addUrlAndloadClasses(final String name) {
 		URL url = this.getResource("/" + name.replace('.', '/') + ".class");
 		if (url != null) {// TODO if url is null return warning
-			String packageName = "";
-			if (name.contains(".")) {
-				packageName = name.substring(0, name.lastIndexOf('.') + 1);
-			}
-			// for(String s : packageName.split("\\."))
+			String packageName = getClassPackageName(name);
+			packageName = packageName == null ? "" : packageName+'.';//need this to rebuild
 			int deepness = packageName.split("\\.").length;
-			String urlPath = url.getPath();
-			File packageDir = new File(urlPath.substring(0,
-					urlPath.lastIndexOf('/')));
+			final String urlPath = url.getPath();
+			final File packageDir = new File(urlPath.substring(0, urlPath.lastIndexOf('/')));
 			File cpDir = new File(urlPath.substring(0, urlPath.lastIndexOf('/')));
 			for (int i = 0; i < deepness; i++) {
 				cpDir = cpDir.getParentFile();
 			}
-			for (String fileName : packageDir.list()) {
+			for (final String fileName : packageDir.list()) {
 				if (fileName.endsWith(".class")) {
 					// System.err.println("\nt"+this+" trying to define "+fileName+" time stamp "+new File(packageDir+"/"+fileName).lastModified());
 					try {
-						findClass(packageName
-								+ fileName.substring(0, fileName.length() - 6));
+						findClass(packageName + fileName.substring(0, fileName.length() - 6));
 					} catch (ClassNotFoundException e) {
 						e.printStackTrace();// TODO log this this should not happen
 					}
@@ -227,6 +198,31 @@ public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 			}
 		}
 	}
+	
+	/**
+	 * Returns the package name for this class name, i.e. <code>java.lang.Object</code>
+	 * as input gives <code>java.lang</code> as output.
+	 * 
+	 * @param classFullName the full name of a class
+	 * @return the package name or <code>null</code> if no package is defined
+	 */
+	public static String getClassPackageName(final String classFullName){
+		final int index = classFullName.lastIndexOf('.');
+		return index > 0 ? classFullName.substring(0, index) : null;
+	}
+	
+	/**
+	 * Returns the simple name for a full class name, i.e. <code>java.lang.Object</code>
+	 * as input gives <code>Object</code> as output.
+	 * 
+	 * @param classFullName the full name of a class
+	 * @return the package name or an empty string if no package is defined
+	 */
+	public static String getClassSimpleName(final String classFullName){
+		final int index = classFullName.lastIndexOf('.');
+		return index > 0 ? classFullName.substring(index+1, classFullName.length()) : classFullName;
+	}
+	
 
 	private void scanClassPathForAgentClasses() {//TODO
 		if (scannedURLs == null) {
@@ -420,7 +416,7 @@ public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 		return false;
 	}
 
-	private String fileNameToClassName(String file, String classPathRoot) {
+	private String fileNameToClassName(String file, final String classPathRoot) {
 		if (classPathRoot != null)
 			file = file.replace(classPathRoot, "");
 		return file.substring(0, file.length() - 6).replace(File.separatorChar,

@@ -52,7 +52,7 @@ import madkit.message.KernelMessage;
  * Enum representing kernel actions. This especially could
  * be used to communicate with the kernel in order to
  * trigger kernel's actions.
- * It could be used by an agent to interact with the kernel
+ * It could be used by any agent to interact with the kernel
  * by creating {@link Action} using {@link #getActionFor(AbstractAgent, Object...)}.
  * 
  * 

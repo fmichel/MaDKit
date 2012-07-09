@@ -4,6 +4,6 @@ public class Fake {
 
 	@Override
 	public String toString() {
-		return "zzzzzzzzzzzzzzz";
+		return "a";
 	}
 }

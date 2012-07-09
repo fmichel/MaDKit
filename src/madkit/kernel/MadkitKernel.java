@@ -507,7 +507,7 @@ class MadkitKernel extends Agent {
 										cannotLaunchAgent(className, e, null);
 									} catch (ClassNotFoundException e) {
 										cannotLaunchAgent(className, e, null);
-									} catch (ClassCastException e) {
+									} catch (Exception e) {
 										cannotLaunchAgent(className, e, null);
 									}
 							}

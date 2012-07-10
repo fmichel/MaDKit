@@ -30,7 +30,7 @@ import madkit.agr.Organization;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.AbstractAgent.State;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.testing.util.agent.SimulatedAgent;
 
@@ -43,7 +43,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class LaunchAgentBucketTest extends JunitMadKit {
+public class LaunchAgentBucketTest extends JunitMadkit {
 	
 	static int size = 1001;
 

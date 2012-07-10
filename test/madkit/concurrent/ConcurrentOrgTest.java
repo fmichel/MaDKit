@@ -21,7 +21,7 @@ package madkit.concurrent;
 import java.util.logging.Level;
 
 import madkit.kernel.Agent;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit.LevelOption;
 
 import org.junit.Test;
@@ -33,7 +33,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class ConcurrentOrgTest extends JunitMadKit {
+public class ConcurrentOrgTest extends JunitMadkit {
 	private int testSize = 4000;
 
 	@Test

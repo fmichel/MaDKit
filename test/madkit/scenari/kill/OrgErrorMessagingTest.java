@@ -34,7 +34,7 @@ import static org.junit.Assert.assertNull;
 import madkit.agr.Organization;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 import madkit.kernel.Message;
 
 import org.junit.Test;
@@ -46,7 +46,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class OrgErrorMessagingTest extends JunitMadKit {
+public class OrgErrorMessagingTest extends JunitMadkit {
 
 	final static String OTHER = "other";
 	final static String UNKNOWN = "unknown";

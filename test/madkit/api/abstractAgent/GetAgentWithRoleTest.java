@@ -24,7 +24,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import madkit.agr.Organization;
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 
 import org.junit.Test;
 
@@ -35,7 +35,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class GetAgentWithRoleTest extends JunitMadKit {
+public class GetAgentWithRoleTest extends JunitMadkit {
 
 	final AbstractAgent target = new AbstractAgent() {
 		protected void activate() {

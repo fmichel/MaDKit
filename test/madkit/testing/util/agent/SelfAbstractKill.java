@@ -21,9 +21,9 @@ package madkit.testing.util.agent;
 import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_KILLED;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static madkit.kernel.AbstractAgent.ReturnCode.TIMEOUT;
-import static madkit.kernel.JunitMadKit.COMMUNITY;
-import static madkit.kernel.JunitMadKit.GROUP;
-import static madkit.kernel.JunitMadKit.aa;
+import static madkit.kernel.JunitMadkit.COMMUNITY;
+import static madkit.kernel.JunitMadkit.GROUP;
+import static madkit.kernel.JunitMadkit.aa;
 import static org.junit.Assert.assertEquals;
 
 /**

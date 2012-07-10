@@ -21,13 +21,13 @@ package madkit.api.abstractAgent;
 import static madkit.kernel.AbstractAgent.ReturnCode.INVALID_AGENT_ADDRESS;
 import static madkit.kernel.AbstractAgent.ReturnCode.NOT_IN_GROUP;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
-import static madkit.kernel.JunitMadKit.COMMUNITY;
-import static madkit.kernel.JunitMadKit.GROUP;
-import static madkit.kernel.JunitMadKit.ROLE;
+import static madkit.kernel.JunitMadkit.COMMUNITY;
+import static madkit.kernel.JunitMadkit.GROUP;
+import static madkit.kernel.JunitMadkit.ROLE;
 import static org.junit.Assert.assertEquals;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AbstractAgent.ReturnCode;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 import madkit.kernel.Message;
 import madkit.testing.util.agent.NormalAA;
 
@@ -40,7 +40,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class SendReply extends JunitMadKit {
+public class SendReply extends JunitMadkit {
 
 	@Test
 	public void returnNotInGroup() {

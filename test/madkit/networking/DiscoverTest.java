@@ -28,7 +28,7 @@ import madkit.action.KernelAction;
 import madkit.agr.CloudCommunity;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AgentAddress;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit;
 
 import org.junit.Test;
@@ -40,7 +40,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class DiscoverTest extends JunitMadKit {
+public class DiscoverTest extends JunitMadkit {
 
 	@Test
 	public void multipleConnectionTest() {

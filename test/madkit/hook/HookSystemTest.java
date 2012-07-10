@@ -29,7 +29,7 @@ import madkit.agr.LocalCommunity.Groups;
 import madkit.agr.Organization;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Message;
 import madkit.message.AgentHookMessage;
@@ -43,7 +43,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class HookSystemTest extends JunitMadKit {
+public class HookSystemTest extends JunitMadkit {
 	
 	@Test
 	public void createGroupHook() {

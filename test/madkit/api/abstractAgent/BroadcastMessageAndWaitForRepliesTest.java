@@ -9,14 +9,14 @@ import java.util.logging.Level;
 
 import madkit.kernel.Agent;
 import madkit.kernel.AgentAddress;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 import madkit.kernel.Message;
 import madkit.message.StringMessage;
 
 import org.junit.Test;
 
 @SuppressWarnings("serial")
-public class BroadcastMessageAndWaitForRepliesTest extends JunitMadKit {
+public class BroadcastMessageAndWaitForRepliesTest extends JunitMadkit {
 
 	final Agent target = new Agent() {
 		protected void activate() {
@@ -262,7 +262,7 @@ class sendReplyInLiveAgent extends Agent {
 	}
 
 	protected void activate() {
-		assertEquals(SUCCESS, requestRole(JunitMadKit.COMMUNITY, JunitMadKit.GROUP, JunitMadKit.ROLE));
+		assertEquals(SUCCESS, requestRole(JunitMadkit.COMMUNITY, JunitMadkit.GROUP, JunitMadkit.ROLE));
 	}
 
 	protected void live() {

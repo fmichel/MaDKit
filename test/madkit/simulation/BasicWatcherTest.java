@@ -22,7 +22,7 @@ import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_GROUP;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static org.junit.Assert.assertEquals;
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 import madkit.kernel.Probe;
 import madkit.kernel.Watcher;
 
@@ -35,7 +35,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class BasicWatcherTest extends JunitMadKit {
+public class BasicWatcherTest extends JunitMadkit {
 
 	@Test
 	public void addingNullProbe() {

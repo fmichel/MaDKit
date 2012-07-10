@@ -1,9 +1,9 @@
 package madkit.concurrent;
 
-import static madkit.kernel.JunitMadKit.COMMUNITY;
-import static madkit.kernel.JunitMadKit.GROUP;
-import static madkit.kernel.JunitMadKit.ROLE;
-import static madkit.kernel.JunitMadKit.testFails;
+import static madkit.kernel.JunitMadkit.COMMUNITY;
+import static madkit.kernel.JunitMadkit.GROUP;
+import static madkit.kernel.JunitMadkit.ROLE;
+import static madkit.kernel.JunitMadkit.testFails;
 import madkit.kernel.Agent;
 
 @SuppressWarnings("serial")

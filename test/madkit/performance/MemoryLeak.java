@@ -19,7 +19,7 @@
 package madkit.performance;
 
 import madkit.kernel.Agent;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 
 /**
  * @author Fabien Michel
@@ -28,7 +28,7 @@ import madkit.kernel.JunitMadKit;
  * 
  */
 @SuppressWarnings("serial")
-public class MemoryLeak extends JunitMadKit {
+public class MemoryLeak extends JunitMadkit {
 
 //	@Test
 	public void massAALaunchWithBucket() {// TODO more cases

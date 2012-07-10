@@ -27,7 +27,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 
 import org.junit.Test;
 
@@ -38,7 +38,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class LeaveGroupTest extends JunitMadKit {
+public class LeaveGroupTest extends JunitMadkit {
 
 	final AbstractAgent target = new AbstractAgent() {
 		protected void activate() {

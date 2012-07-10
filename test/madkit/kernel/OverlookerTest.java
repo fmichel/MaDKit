@@ -32,7 +32,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class OverlookerTest extends JunitMadKit {
+public class OverlookerTest extends JunitMadkit {
 
 	@Test
 	public void buggyActivator() {

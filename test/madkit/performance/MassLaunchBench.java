@@ -21,7 +21,7 @@ package madkit.performance;
 import java.util.logging.Level;
 
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.testing.util.agent.NormalAA;
 
@@ -34,7 +34,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class MassLaunchBench extends JunitMadKit {
+public class MassLaunchBench extends JunitMadkit {
 
 	@Test
 	public void massAALaunchWithBucket() {// TODO more cases

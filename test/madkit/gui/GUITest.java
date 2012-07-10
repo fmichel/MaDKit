@@ -24,7 +24,7 @@ import static org.junit.Assert.assertTrue;
 import javax.swing.JFrame;
 
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 
 import org.junit.Test;
 
@@ -35,7 +35,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class GUITest extends JunitMadKit {
+public class GUITest extends JunitMadkit {
 
 	@Test
 	public void hasGUITest() {

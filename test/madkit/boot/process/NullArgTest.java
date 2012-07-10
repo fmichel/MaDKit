@@ -21,7 +21,7 @@ package madkit.boot.process;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
 
@@ -34,7 +34,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class NullArgTest extends JunitMadKit {
+public class NullArgTest extends JunitMadkit {
 
 	@Test
 	public void desktopOn() {

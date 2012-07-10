@@ -18,10 +18,10 @@
  */
 package madkit.simulation.deadlock;
 
-import static madkit.kernel.JunitMadKit.COMMUNITY;
-import static madkit.kernel.JunitMadKit.GROUP;
-import static madkit.kernel.JunitMadKit.ROLE;
-import static madkit.kernel.JunitMadKit.ROLE2;
+import static madkit.kernel.JunitMadkit.COMMUNITY;
+import static madkit.kernel.JunitMadkit.GROUP;
+import static madkit.kernel.JunitMadkit.ROLE;
+import static madkit.kernel.JunitMadkit.ROLE2;
 import madkit.kernel.Probe;
 import madkit.kernel.Watcher;
 import madkit.testing.util.agent.SimulatedAgent;

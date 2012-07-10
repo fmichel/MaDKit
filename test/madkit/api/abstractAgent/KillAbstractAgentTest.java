@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.testing.util.agent.DoItDuringLifeCycleAbstractAgent;
 import madkit.testing.util.agent.FaultyAA;
@@ -49,7 +49,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class KillAbstractAgentTest extends JunitMadKit {
+public class KillAbstractAgentTest extends JunitMadkit {
 
 	@Test
 	public void returnSuccess() {

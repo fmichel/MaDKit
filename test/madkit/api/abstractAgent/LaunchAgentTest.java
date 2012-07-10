@@ -25,7 +25,7 @@ import static madkit.kernel.AbstractAgent.ReturnCode.TIMEOUT;
 import static org.junit.Assert.assertEquals;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 import madkit.testing.util.agent.SelfLaunch;
 
 import org.junit.Test;
@@ -37,7 +37,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class LaunchAgentTest extends JunitMadKit {
+public class LaunchAgentTest extends JunitMadkit {
 
 	final AbstractAgent target = new Agent() {
 		protected void activate() {

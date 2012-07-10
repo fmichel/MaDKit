@@ -8,7 +8,7 @@ import madkit.message.EnumMessage;
 
 import org.junit.Test;
 
-public class AgentActionTest extends JunitMadKit{
+public class AgentActionTest extends JunitMadkit{
 
 	
 	@Test

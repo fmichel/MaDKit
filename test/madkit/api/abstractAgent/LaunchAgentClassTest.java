@@ -24,7 +24,7 @@ import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 import madkit.testing.util.agent.NoPublicConstructorAA;
 import madkit.testing.util.agent.SelfLaunchAA;
 
@@ -37,7 +37,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class LaunchAgentClassTest extends JunitMadKit {
+public class LaunchAgentClassTest extends JunitMadkit {
 
 	final AbstractAgent target = new AbstractAgent() {
 		protected void activate() {

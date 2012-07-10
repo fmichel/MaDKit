@@ -24,7 +24,7 @@ import java.util.Arrays;
 
 import madkit.action.KernelAction;
 import madkit.kernel.Agent;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.testing.util.agent.PongAgent;
@@ -38,7 +38,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class PingPongTest extends JunitMadKit {
+public class PingPongTest extends JunitMadkit {
 	@Test
 	public void networkPingPong() {
 		addMadkitArgs(BooleanOption.network.toString());

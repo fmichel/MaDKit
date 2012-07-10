@@ -32,7 +32,7 @@ import static org.junit.Assert.assertNotNull;
 import madkit.agr.Organization;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AgentAddress;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 import madkit.kernel.Message;
 
 import org.junit.Test;
@@ -44,7 +44,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class SendMessageWithCGRTest extends JunitMadKit {
+public class SendMessageWithCGRTest extends JunitMadkit {
 
 	final AbstractAgent target = new AbstractAgent() {
 		protected void activate() {

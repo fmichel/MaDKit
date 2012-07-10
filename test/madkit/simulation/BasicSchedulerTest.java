@@ -24,7 +24,7 @@ import static org.junit.Assert.assertEquals;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.Activator;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 import madkit.kernel.Scheduler;
 
 import org.junit.Test;
@@ -36,7 +36,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class BasicSchedulerTest extends JunitMadKit {
+public class BasicSchedulerTest extends JunitMadkit {
 
 	@Test
 	public void addingNullActivator() {

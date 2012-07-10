@@ -26,7 +26,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Madkit.Option;
@@ -41,7 +41,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class CreateLogFilesTest extends JunitMadKit {
+public class CreateLogFilesTest extends JunitMadkit {
 
 	File				f;
 	FilenameFilter	filter	= new FilenameFilter() {

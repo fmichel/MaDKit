@@ -31,7 +31,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class setLogLevelTest extends madkit.kernel.JunitMadKit {
+public class setLogLevelTest extends madkit.kernel.JunitMadkit {
 
 	@Test
 	public void nullArgs() {

@@ -29,7 +29,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 import madkit.kernel.Message;
 import madkit.message.StringMessage;
 
@@ -42,7 +42,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class BroadcastMessageTest extends JunitMadKit {
+public class BroadcastMessageTest extends JunitMadkit {
 
 	final AbstractAgent target = new AbstractAgent() {
 		protected void activate() {

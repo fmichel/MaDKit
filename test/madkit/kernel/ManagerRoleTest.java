@@ -6,7 +6,7 @@ import madkit.agr.Organization;
 
 import org.junit.Test;
 
-public class ManagerRoleTest extends JunitMadKit {
+public class ManagerRoleTest extends JunitMadkit {
 
 	@Test
 	public void oneManager() {

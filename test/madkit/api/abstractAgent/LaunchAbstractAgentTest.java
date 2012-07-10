@@ -25,7 +25,7 @@ import static madkit.kernel.AbstractAgent.ReturnCode.TIMEOUT;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.testing.util.agent.BuggedConstructorAgent;
 import madkit.testing.util.agent.BuggedFrameAgent;
@@ -40,7 +40,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class LaunchAbstractAgentTest extends JunitMadKit {
+public class LaunchAbstractAgentTest extends JunitMadkit {
 
 	final AbstractAgent target = new AbstractAgent() {
 		protected void activate() {
@@ -166,7 +166,7 @@ public class LaunchAbstractAgentTest extends JunitMadKit {
 			int number = 1000;
 
 			protected void activate() {
-				assertEquals(SUCCESS, createGroup(JunitMadKit.COMMUNITY, JunitMadKit.GROUP));
+				assertEquals(SUCCESS, createGroup(JunitMadkit.COMMUNITY, JunitMadkit.GROUP));
 				startTimer();
 				for (int i = 0; i < number; i++) {
 					assertEquals(SUCCESS, launchAgent(new AbstractAgent()));
@@ -189,7 +189,7 @@ public class LaunchAbstractAgentTest extends JunitMadKit {
 			int number = 50;
 
 			protected void activate() {
-				assertEquals(SUCCESS, createGroup(JunitMadKit.COMMUNITY, JunitMadKit.GROUP));
+				assertEquals(SUCCESS, createGroup(JunitMadkit.COMMUNITY, JunitMadkit.GROUP));
 				startTimer();
 				for (int i = 0; i < number; i++) {
 					assertEquals(SUCCESS, launchAgent(new AbstractAgent(), true));

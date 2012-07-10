@@ -24,7 +24,7 @@ import java.util.logging.Level;
 
 import madkit.action.GUIManagerAction;
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Madkit.Option;
 
@@ -37,7 +37,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class WrongArgTest extends JunitMadKit {
+public class WrongArgTest extends JunitMadkit {
 
 	@Test
 	public void agentDoesNotExist() {

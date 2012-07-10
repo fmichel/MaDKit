@@ -24,7 +24,7 @@ import static madkit.kernel.AbstractAgent.ReturnCode.ROLE_NOT_HANDLED;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static org.junit.Assert.assertEquals;
 import madkit.kernel.AbstractAgent.ReturnCode;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 import madkit.kernel.Message;
 
 import org.junit.Test;
@@ -36,7 +36,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class SendReplyWithRole extends JunitMadKit {
+public class SendReplyWithRole extends JunitMadkit {
 
 	@Test
 	public void returnNotInGroup() {

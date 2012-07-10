@@ -33,7 +33,7 @@ import java.util.logging.Level;
 
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.testing.util.agent.DoItDuringLifeCycleAgent;
 import madkit.testing.util.agent.FaultyAgent;
@@ -50,7 +50,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class KillAgentTest extends JunitMadKit {
+public class KillAgentTest extends JunitMadkit {
 
 	final Agent target = new Agent() {
 		protected void activate() {

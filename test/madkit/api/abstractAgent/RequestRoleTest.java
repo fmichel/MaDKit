@@ -30,7 +30,7 @@ import static org.junit.Assert.assertTrue;
 import madkit.agr.Organization;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Gatekeeper;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit.LevelOption;
 
 import org.junit.Test;
@@ -42,7 +42,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class RequestRoleTest extends JunitMadKit {
+public class RequestRoleTest extends JunitMadkit {
 
 	final AbstractAgent helper = new AbstractAgent() {
 		protected void activate() {

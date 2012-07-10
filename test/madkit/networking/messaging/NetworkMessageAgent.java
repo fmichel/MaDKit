@@ -20,16 +20,16 @@ package madkit.networking.messaging;
 
 import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_GROUP;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
-import static madkit.kernel.JunitMadKit.COMMUNITY;
-import static madkit.kernel.JunitMadKit.GROUP;
-import static madkit.kernel.JunitMadKit.ROLE;
+import static madkit.kernel.JunitMadkit.COMMUNITY;
+import static madkit.kernel.JunitMadkit.GROUP;
+import static madkit.kernel.JunitMadkit.ROLE;
 import static org.junit.Assert.assertEquals;
 
 import java.util.logging.Level;
 
 import madkit.kernel.Agent;
 import madkit.kernel.AgentAddress;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 import madkit.kernel.Message;
 
 /**
@@ -49,9 +49,9 @@ public class NetworkMessageAgent extends Agent {
 	@Override
 	protected void live() {
 		setLogLevel(Level.ALL);
-		assertEquals(ALREADY_GROUP, createGroup(JunitMadKit.COMMUNITY, JunitMadKit.GROUP, true));
+		assertEquals(ALREADY_GROUP, createGroup(JunitMadkit.COMMUNITY, JunitMadkit.GROUP, true));
 		assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
-		AgentAddress aa = getAgentWithRole(JunitMadKit.COMMUNITY, JunitMadKit.GROUP, JunitMadKit.ROLE);
+		AgentAddress aa = getAgentWithRole(JunitMadkit.COMMUNITY, JunitMadkit.GROUP, JunitMadkit.ROLE);
 		sendMessage(aa, new Message());
 	}
 }

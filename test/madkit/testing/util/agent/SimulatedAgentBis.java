@@ -19,7 +19,7 @@
 package madkit.testing.util.agent;
 
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 
 /**
  * @author Fabien Michel
@@ -38,7 +38,7 @@ public class SimulatedAgentBis extends AbstractAgent {
 
 	@Override
 	protected void activate() {
-		JunitMadKit.createDefaultCGR(this);
+		JunitMadkit.createDefaultCGR(this);
 	}
 
 	/**

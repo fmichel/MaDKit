@@ -1,13 +1,13 @@
 package madkit.testing.util.agent;
 
-import static madkit.kernel.JunitMadKit.COMMUNITY;
-import static madkit.kernel.JunitMadKit.GROUP;
-import static madkit.kernel.JunitMadKit.ROLE;
+import static madkit.kernel.JunitMadkit.COMMUNITY;
+import static madkit.kernel.JunitMadkit.GROUP;
+import static madkit.kernel.JunitMadkit.ROLE;
 
 import java.util.Arrays;
 
 import madkit.kernel.Agent;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit;
 import madkit.message.StringMessage;
 
@@ -19,7 +19,7 @@ public class PongAgent extends Agent {
 	private static final long serialVersionUID = 1L;
 
 	protected void activate() {
-		createGroupIfAbsent(JunitMadKit.COMMUNITY, GROUP, true, null);
+		createGroupIfAbsent(JunitMadkit.COMMUNITY, GROUP, true, null);
 		requestRole(COMMUNITY, GROUP, ROLE, null);
 	}
 

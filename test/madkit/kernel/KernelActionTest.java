@@ -2,7 +2,7 @@ package madkit.kernel;
 
 import org.junit.Test;
 
-public class KernelActionTest extends JunitMadKit{
+public class KernelActionTest extends JunitMadkit{
 
 	@Test
 	public final void testToString() {

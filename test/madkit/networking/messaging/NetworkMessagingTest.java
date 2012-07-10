@@ -26,7 +26,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.logging.Level;
 
 import madkit.kernel.Agent;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
@@ -40,7 +40,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class NetworkMessagingTest extends JunitMadKit {
+public class NetworkMessagingTest extends JunitMadkit {
 
 	@Test
 	public void ping() {

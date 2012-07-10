@@ -20,7 +20,7 @@ package madkit.scenari.deadlock;
 
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 
 import org.junit.Test;
 
@@ -31,7 +31,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class DeadlockTest extends JunitMadKit {
+public class DeadlockTest extends JunitMadkit {
 
 	@Test
 	public void multipleWaits() {

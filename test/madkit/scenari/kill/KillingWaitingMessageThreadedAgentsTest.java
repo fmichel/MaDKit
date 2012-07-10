@@ -26,7 +26,7 @@ import java.util.logging.Level;
 
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 import madkit.testing.util.agent.DoItDuringLifeCycleAgent;
 
 import org.junit.Test;
@@ -38,7 +38,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class KillingWaitingMessageThreadedAgentsTest extends JunitMadKit {
+public class KillingWaitingMessageThreadedAgentsTest extends JunitMadkit {
 
 	@Test
 	public void brutalKills() {// TODO brutal kill with to < 0

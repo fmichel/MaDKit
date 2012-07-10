@@ -25,7 +25,7 @@ import static org.junit.Assert.assertTrue;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.Gatekeeper;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 
 import org.junit.Test;
 
@@ -36,7 +36,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("all")
-public class CreateGroupIfAbsentTest extends JunitMadKit {
+public class CreateGroupIfAbsentTest extends JunitMadkit {
 
 	final Gatekeeper gi = new Gatekeeper() {
 		@Override

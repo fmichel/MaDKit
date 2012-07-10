@@ -47,7 +47,7 @@ import org.junit.rules.TestName;
  * @version 0.9
  * 
  */
-public class JunitMadKit {
+public class JunitMadkit {
 
 	@Rule
 	public TestName name = new TestName();
@@ -97,7 +97,7 @@ public class JunitMadKit {
 				e = e.getCause();
 			e.printStackTrace();
 			System.err.println("------------------------------------\n\n\n");
-			fail(JunitMadKit.class.getSimpleName());
+			fail(JunitMadkit.class.getSimpleName());
 		} finally {
 			System.err.println("\n\n------------------------ " + name.getMethodName() + " TEST FINISHED ---------------------\n\n");
 		}
@@ -218,7 +218,7 @@ public class JunitMadKit {
 		try {
 			assertEquals(SUCCESS, a.requestRole(COMMUNITY, GROUP, ROLE, null));
 		} catch (AssertionError e) {
-			JunitMadKit.testFails(e);
+			JunitMadkit.testFails(e);
 		}
 	}
 

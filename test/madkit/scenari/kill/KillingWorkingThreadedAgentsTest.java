@@ -29,7 +29,7 @@ import java.util.logging.Level;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
 import madkit.kernel.JUnitAgent;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.testing.util.agent.UnstopableAgent;
 import madkit.testing.util.agent.WorkingAgent;
@@ -43,7 +43,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class KillingWorkingThreadedAgentsTest extends JunitMadKit {
+public class KillingWorkingThreadedAgentsTest extends JunitMadkit {
 
 	@Test
 	public void killUnstopable() {

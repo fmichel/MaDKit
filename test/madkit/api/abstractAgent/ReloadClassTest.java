@@ -21,7 +21,7 @@ package madkit.api.abstractAgent;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 
 import org.junit.Test;
 
@@ -32,7 +32,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class ReloadClassTest extends JunitMadKit {
+public class ReloadClassTest extends JunitMadkit {
 
 	@Test
 	public void nullArgs() {

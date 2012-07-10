@@ -24,7 +24,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import madkit.agr.Organization;
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 
 import org.junit.Test;
 
@@ -34,7 +34,7 @@ import org.junit.Test;
  * @version 0.9
  * 
  */
-public class isCGRTest extends JunitMadKit {
+public class isCGRTest extends JunitMadkit {
 
 	@Test
 	public void nullCommunity() {

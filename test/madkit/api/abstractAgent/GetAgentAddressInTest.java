@@ -22,7 +22,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AbstractAgent.ReturnCode;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 
 import org.junit.Test;
 
@@ -34,7 +34,7 @@ import org.junit.Test;
  */
 
 @SuppressWarnings("serial")
-public class GetAgentAddressInTest extends JunitMadKit {
+public class GetAgentAddressInTest extends JunitMadkit {
 
 	@Test
 	public void success() {

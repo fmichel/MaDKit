@@ -37,7 +37,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class MadkitClassLoaderTest extends JunitMadKit {
+public class MadkitClassLoaderTest extends JunitMadkit {
 
 	@Test
 	public void testLoadJarsFromPath() {

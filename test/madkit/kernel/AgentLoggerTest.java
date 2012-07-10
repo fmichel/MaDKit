@@ -40,7 +40,7 @@ import org.junit.Test;
  * @version 0.9
  * 
  */
-public class AgentLoggerTest extends JunitMadKit{
+public class AgentLoggerTest extends JunitMadkit{
 
 	@Test
 	public void noLogger() {

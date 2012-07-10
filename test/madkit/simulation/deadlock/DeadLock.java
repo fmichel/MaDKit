@@ -18,9 +18,9 @@
  */
 package madkit.simulation.deadlock;
 
-import static madkit.kernel.JunitMadKit.COMMUNITY;
-import static madkit.kernel.JunitMadKit.GROUP;
-import static madkit.kernel.JunitMadKit.ROLE;
+import static madkit.kernel.JunitMadkit.COMMUNITY;
+import static madkit.kernel.JunitMadkit.GROUP;
+import static madkit.kernel.JunitMadkit.ROLE;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Scheduler;

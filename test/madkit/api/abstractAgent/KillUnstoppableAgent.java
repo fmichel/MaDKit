@@ -7,12 +7,12 @@ import static org.junit.Assert.assertEquals;
 import java.util.logging.Level;
 
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 import madkit.testing.util.agent.UnstopableAgent;
 
 import org.junit.Test;
 
-public class KillUnstoppableAgent extends JunitMadKit {
+public class KillUnstoppableAgent extends JunitMadkit {
 
 	@Test
 	public void killUnstoppableInActivate() {

@@ -27,7 +27,7 @@ import java.util.List;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.AbstractAgent.State;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 import madkit.kernel.Scheduler;
 import madkit.simulation.SimulationException;
 import madkit.simulation.activator.GenericBehaviorActivator;
@@ -44,7 +44,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class LaunchAgentBucketWithRolesWithListTest extends JunitMadKit {
+public class LaunchAgentBucketWithRolesWithListTest extends JunitMadkit {
 
 	GenericBehaviorActivator<AbstractAgent>	buggy;
 	static int											size	= 1001;
@@ -88,7 +88,7 @@ public class LaunchAgentBucketWithRolesWithListTest extends JunitMadKit {
 				try {
 					launchAgentBucket(FaultyAA.class.getName(), size, COMMUNITY
 							+ ";" + GROUP + ";" + ROLE);
-					JunitMadKit.noExceptionFailure();
+					JunitMadkit.noExceptionFailure();
 				} catch (IllegalArgumentException e) {
 					throw e;
 				}

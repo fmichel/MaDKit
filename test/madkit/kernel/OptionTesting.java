@@ -35,7 +35,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class OptionTesting extends JunitMadKit {
+public class OptionTesting extends JunitMadkit {
 
 	@Test
 	public void correctness() {

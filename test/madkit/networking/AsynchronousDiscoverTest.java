@@ -29,7 +29,7 @@ import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AgentAddress;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit.BooleanOption;
 
 import org.junit.Test;
@@ -41,7 +41,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class AsynchronousDiscoverTest extends JunitMadKit {
+public class AsynchronousDiscoverTest extends JunitMadkit {
 
 	@Test
 	public void multipleAsynchroneConnectionTest() {

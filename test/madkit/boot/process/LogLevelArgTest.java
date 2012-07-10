@@ -23,7 +23,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.logging.Level;
 
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit.LevelOption;
 
 import org.junit.Test;
@@ -35,7 +35,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class LogLevelArgTest extends JunitMadKit {
+public class LogLevelArgTest extends JunitMadkit {
 
 	@Test
 	public void AgentLogLevelIsAll() {

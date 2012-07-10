@@ -29,7 +29,7 @@ import madkit.agr.Organization;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.AgentAddress;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 import madkit.kernel.Message;
 
 import org.junit.Test;
@@ -41,7 +41,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class sendMessageWithAATest extends JunitMadKit {
+public class sendMessageWithAATest extends JunitMadkit {
 
 	final AbstractAgent target = new AbstractAgent() {
 		protected void activate() {

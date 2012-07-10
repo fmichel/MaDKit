@@ -29,7 +29,7 @@ import java.lang.reflect.Method;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Activator;
 import madkit.kernel.Agent;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 import madkit.testing.util.agent.NormalLife;
 
 import org.junit.Before;
@@ -63,7 +63,7 @@ public class ActivatorTest {
 	public void testExecute() {
 		try {
 			a.execute();
-			JunitMadKit.noExceptionFailure();
+			JunitMadkit.noExceptionFailure();
 		} catch (UnsupportedOperationException e) {
 		}
 	}
@@ -72,7 +72,7 @@ public class ActivatorTest {
 	public void testMulticoreExecute() {
 		try {
 			a.multicoreExecute();
-			JunitMadKit.noExceptionFailure();
+			JunitMadkit.noExceptionFailure();
 		} catch (UnsupportedOperationException e) {
 		}
 	}

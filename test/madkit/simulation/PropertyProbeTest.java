@@ -23,7 +23,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AbstractAgent.ReturnCode;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 import madkit.kernel.Watcher;
 import madkit.simulation.probe.PropertyProbe;
 import madkit.testing.util.agent.NormalAA;
@@ -39,7 +39,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class PropertyProbeTest extends JunitMadKit {
+public class PropertyProbeTest extends JunitMadkit {
 
 	@Test
 	public void primitiveTypeProbing() {

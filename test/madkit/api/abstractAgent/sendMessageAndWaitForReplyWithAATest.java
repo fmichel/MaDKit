@@ -30,7 +30,7 @@ import java.util.logging.Level;
 import madkit.agr.Organization;
 import madkit.kernel.Agent;
 import madkit.kernel.AgentAddress;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 import madkit.kernel.Message;
 import madkit.message.StringMessage;
 
@@ -43,7 +43,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("all")
-public class sendMessageAndWaitForReplyWithAATest extends JunitMadKit {
+public class sendMessageAndWaitForReplyWithAATest extends JunitMadkit {
 
 	final Agent target = new Agent() {
 		AgentAddress aa;

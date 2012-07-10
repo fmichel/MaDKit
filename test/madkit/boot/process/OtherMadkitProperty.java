@@ -20,7 +20,7 @@ package madkit.boot.process;
 
 import static org.junit.Assert.assertEquals;
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.JunitMadKit;
+import madkit.kernel.JunitMadkit;
 
 import org.junit.Test;
 
@@ -31,7 +31,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class OtherMadkitProperty extends JunitMadKit {
+public class OtherMadkitProperty extends JunitMadkit {
 
 	@Test
 	public void undefinedProperty() {

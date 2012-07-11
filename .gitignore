@@ -3,3 +3,4 @@ build
 release
 docs/api
 *~
+.externalToolBuilders

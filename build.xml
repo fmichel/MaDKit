@@ -2,24 +2,24 @@
 <!-- 
   Copyright 1998-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
   
-  This file is part of MadKit.
+  This file is part of MaDKit.
   
-  MadKit is free software: you can redistribute it and/or modify
-  it under the terms of the GNU Lesser General Public License as published by
+  MaDKit is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
   
-  MadKit is distributed in the hope that it will be useful,
+  MaDKit is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  GNU Lesser General Public License for more details.
+  GNU General Public License for more details.
   
-  You should have received a copy of the GNU Lesser General Public License
-  along with MadKit. If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with MaDKit. If not, see <http://www.gnu.org/licenses/>.
  -->
 
 <!-- 
- This is ant build.xml file for building the MadKit kernel jar file MadKit V.5
+ This is ant build.xml file for building the MaDKit kernel jar file MaDKit V.5
  Author: Fabien Michel
  Version: 5.1
 -->
@@ -84,8 +84,8 @@
 	<!-- ================================= 
           target: jar
          ================================= -->
-	<target name="jar" depends="clean,compile,build-properties" description="Jars MadKit kernel ">
-		<jar destfile="${jar.file}" compress="false">
+	<target name="jar" depends="clean,compile,build-properties" description="Jars MaDKit kernel ">
+		<jar destfile="${jar.file}" level="1" >
 			<fileset dir="${build.dir}">
 				<exclude name="**/package-info.class" />
 				<exclude name="**/doc-files/**" />
@@ -180,7 +180,7 @@
 			</fileset>
 			<report format="frames" todir="${test.reports.dir}" />
 		</junitreport>
-		<replace dir="${test.reports.dir}" token="Unit Test Result" value="MadKit ${madkit.version} Unit Test Result" />
+		<replace dir="${test.reports.dir}" token="Unit Test Result" value="MaDKit ${madkit.version} Unit Test Result" />
 	</target>
 
 
@@ -217,62 +217,60 @@
 <delete file="${src.zip.location}" failonerror="false" />
 <delete dir="${docs.api.dir}" />
 <delete dir="${tuto.dir}" />
-<delete file="${docs.dir}/French_Tutorial/MadKit_Tutorial/${lib.dir}/${madkit.jar.name}" />
+<delete file="${docs.dir}/French_Tutorial/MaDKit_Tutorial/${lib.dir}/${madkit.jar.name}" />
 <delete>
 	<fileset dir="${demo.dir}">
-		<include name="**/*MadKit-Bees*" />
-		<include name="**/*MadKit-Market*" />
-		<include name="**/*MadKit-Ping*" />
+		<include name="**/*MaDKit-bees*" />
+		<include name="**/*MaDKit-market-organization*" />
+		<include name="**/*MaDKit-ping*" />
 	</fileset>
 </delete>
 </target>
 
 <!-- - - - - - - - - - - - - - - - - - 
           target: clean-demos-tutos                      
-		<echo>Building MadKit Demos</echo>
-   		<exec executable="ant" spawn="true" dir="../MadKit_Demos" />
-		<ant dir="../MadKit_Demos" target="clean" inheritall="false"/>
+		<echo>Building MaDKit Demos</echo>
+   		<exec executable="ant" spawn="true" dir="../MaDKit-demos" />
+		<ant dir="../MaDKit-demos" target="clean" inheritall="false"/>
          - - - - - - - - - - - - - - - - - -->
 <target name="clean-demos">
-<echo>Cleaning MadKit_Demos</echo>
-<exec executable="ant" spawn="false" dir="../MadKit_Demos">
+<echo>Cleaning MaDKit-demos</echo>
+<exec executable="ant" spawn="false" dir="../MaDKit-demos">
 	<arg value="clean" />
 </exec>
 </target>
-
-
 
 
 <!-- ================================= 
           target: release              
 	<chmod dir="${demo.dir}" perm="u+x" includes="**/*.jar"/>
 	<chmod dir="${tuto.dir}" perm="u+x" includes="**/*.jar"/>
-			<zipfileset dir="${release.dir}" includes="MadKit-5-Desktop.jnlp"/>
+			<zipfileset dir="${release.dir}" includes="MaDKit-5-Desktop.jnlp"/>
          ================================= -->
-<target name="release" depends="clean-demos,jar,sign-jar,javadoc,src-zip" description="build MadKit release">
-<echo> --- Build Release : MadKit ${madkit.version}${line.separator}</echo>
+<target name="release" depends="clean-demos,jar,sign-jar,javadoc,src-zip" description="build MaDKit release">
+<echo> --- Build Release : MaDKit ${madkit.version}${line.separator}</echo>
 <mkdir dir="${release.dir}" />
 
 	<copy todir="${build.dir}">
-		<fileset dir="${resource.dir}" excludes="COPYING.LESSER,${MDK.build.properties}"/>
+		<fileset dir="${resource.dir}" excludes="COPYING,${MDK.build.properties}"/>
 		<filterchain>
 			<expandproperties />
 		</filterchain>
 	</copy>
 
-<echo>Updating MadKit Tutorial</echo>
-<copy todir="${docs.dir}/French_Tutorial/MadKit_Tutorial/${lib.dir}" file="${jar.file}" />
-<replace file="${docs.dir}/French_Tutorial/MadKit_Tutorial/.classpath" token="${madkit.old.version}" value="${madkit.version}" />
+<echo>Updating MaDKit Tutorial</echo>
+<copy todir="${docs.dir}/French_Tutorial/MaDKit_Tutorial/${lib.dir}" file="${jar.file}" />
+<replace file="${docs.dir}/French_Tutorial/MaDKit_Tutorial/.classpath" token="${madkit.old.version}" value="${madkit.version}" />
 
-<echo>Building MadKit Demos</echo>
-<exec executable="ant" spawn="false" dir="../MadKit_Demos" />
+<echo>Building MaDKit Demos</echo>
+<exec executable="ant" spawn="false" dir="../MaDKit-demos" />
 
-<zip destfile="${release.dir}/MadKit-${madkit.version}.zip" level="9">
+<zip destfile="${release.dir}/MaDKit-${madkit.version}.zip" level="9">
 	<zipfileset dir="${docs.dir}" prefix="${docs.dir}" />
 	<zipfileset dir="${build.dir}" includes="README.html" />
 	<zipfileset dir="${build.dir}" includes="VERSION,${doc.html},build.xml" prefix="${docs.dir}" />
 	<zipfileset file="${jar.file}" filemode="755" />
-	<zipfileset file="${resource.dir}/COPYING.LESSER" />
+	<zipfileset file="${resource.dir}/COPYING" />
 	<zipfileset dir="${demo.dir}" prefix="${demo.dir}" filemode="755" />
 </zip>
 </target>

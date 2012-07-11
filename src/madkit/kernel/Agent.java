@@ -1,20 +1,20 @@
 /*
- * Copyright 1997-2011 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
- * This file is part of MadKit.
+ * This file is part of MaDKit.
  * 
- * MadKit is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
+ * MaDKit is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * MadKit is distributed in the hope that it will be useful,
+ * MaDKit is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
+ * GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with MaDKit. If not, see <http://www.gnu.org/licenses/>.
  */
 package madkit.kernel;
 
@@ -29,7 +29,7 @@ import madkit.i18n.I18nUtilities;
 import madkit.i18n.Words;
 
 /**
- * The super class of all MadKit threaded agents, v 5. 
+ * The super class of all MaDKit threaded agents, v 5. 
  * It provides support for 
  * <ul>
  * <li> Agent's Life cycle, logging, and naming.
@@ -41,7 +41,7 @@ import madkit.i18n.Words;
 
  * @author Fabien Michel
  * @author Olivier Gutknecht
- * @since MadKit 1.0
+ * @since MaDKit 1.0
  * @version 5.11
  */
 public class Agent extends AbstractAgent{
@@ -81,7 +81,7 @@ public class Agent extends AbstractAgent{
 	 * Tells if the agent is a daemon.
 	 * 
 	 * @return <code>true</code> if the agent is a Daemon
-	 * @since MadKit 5.0.0.9
+	 * @since MaDKit 5.0.0.9
 	 */
 	public boolean isDaemon() {
 		return isDaemon;
@@ -135,7 +135,7 @@ public class Agent extends AbstractAgent{
 	}
 
 	/**
-	 * This method corresponds to the second behavior which is called by the MadKit kernel 
+	 * This method corresponds to the second behavior which is called by the MaDKit kernel 
 	 * when a threaded agent is launched (i.e. an agent which subclasses this class).
 	 * Usually, this is the place where all the agent's work lies.
 	 * Most of the time, this work is about waiting for a message and thus treat it
@@ -157,7 +157,7 @@ public class Agent extends AbstractAgent{
 	protected void live() {
 		setLogLevel(Level.INFO);
 		if(logger != null)
-			logger.talk("\n\tHi human and hello World !!\n\n I am an instance of the madkit.kernel.Agent class\n As such, I am a MadKit threaded Agent\n and thus have an autonomous activity!");
+			logger.talk("\n\tHi human and hello World !!\n\n I am an instance of the madkit.kernel.Agent class\n As such, I am a MaDKit threaded Agent\n and thus have an autonomous activity!");
 		pause(5000);
 		if(logger != null)
 		logger.talk("\n\n And in fact, I am the simpliest agent ever\n because I simply do nothing at all :)\n\n");
@@ -186,7 +186,7 @@ public class Agent extends AbstractAgent{
 	 * @return the reply received as soon as available, or <code>null</code>
 	 * if there was an error when sending the message.
 	 * @see #sendMessageWithRoleAndWaitForReply(AgentAddress, Message, String, Integer)
-	 * @since MadKit 5
+	 * @since MaDKit 5
 	 */
 	public Message sendMessageAndWaitForReply(final AgentAddress receiver, Message messageToSend){ // NO_UCD
 		return sendMessageWithRoleAndWaitForReply(receiver, messageToSend, null, null);
@@ -203,7 +203,7 @@ public class Agent extends AbstractAgent{
 	 * @return the reply received as soon as available, or <code>null</code> if the time out has elapsed 
 	 * or if there was an error when sending the message.
 	 * @see #sendMessageWithRoleAndWaitForReply(AgentAddress, Message, String, Integer)
-	 * @since MadKit 5
+	 * @since MaDKit 5
 	 */
 	public Message sendMessageAndWaitForReply(final AgentAddress receiver, Message messageToSend,final int timeOutMilliSeconds){
 		return sendMessageWithRoleAndWaitForReply(receiver, messageToSend, null, timeOutMilliSeconds);
@@ -219,7 +219,7 @@ public class Agent extends AbstractAgent{
 	 * @return the reply received as soon as available, or <code>null</code> if the time out has elapsed 
 	 * or if there was an error when sending the message.
 	 * @see #sendMessageWithRoleAndWaitForReply(AgentAddress, Message, String, Integer)
-	 * @since MadKit 5
+	 * @since MaDKit 5
 	 */
 	public Message sendMessageWithRoleAndWaitForReply(final AgentAddress receiver, Message messageToSend, String senderRole){
 		return sendMessageWithRoleAndWaitForReply(receiver, messageToSend, senderRole, null);
@@ -241,7 +241,7 @@ public class Agent extends AbstractAgent{
 	 * 
 	 * @see #sendMessageWithRole(AgentAddress, Message, String)
 	 * @see AbstractAgent.ReturnCode
-	 * @since MadKit 5
+	 * @since MaDKit 5
 	 */
 	public Message sendMessageWithRoleAndWaitForReply(final AgentAddress receiver, Message messageToSend, String senderRole, Integer timeOutMilliSeconds ){
 		//no need to checkAliveness : this is done in noLogSendingMessage
@@ -266,7 +266,7 @@ public class Agent extends AbstractAgent{
 	 * @return the reply received as soon as available, or <code>null</code> 
 	 * if there was an error when sending the message.
 	 * @see #sendMessageWithRoleAndWaitForReply(String, String, String, Message, String, Integer)
-	 * @since MadKit 5
+	 * @since MaDKit 5
 	 */
 	public Message sendMessageAndWaitForReply(final String community, final String group, final String role, Message messageToSend){
 		return sendMessageWithRoleAndWaitForReply(community, group, role, messageToSend, null,null);
@@ -286,7 +286,7 @@ public class Agent extends AbstractAgent{
 	 * @return the reply received as soon as available, or <code>null</code>
 	 * if there was an error when sending the message.
 	 * @see #sendMessageWithRoleAndWaitForReply(String, String, String, Message, String, Integer)
-	 * @since MadKit 5
+	 * @since MaDKit 5
 	 */
 	public Message sendMessageWithRoleAndWaitForReply(final String community, final String group, final String role, 
 			Message messageToSend,
@@ -308,7 +308,7 @@ public class Agent extends AbstractAgent{
 	 * @return the reply received as soon as available, or <code>null</code> if the time out has elapsed 
 	 * or if there was an error when sending the message.
 	 * @see #sendMessageWithRoleAndWaitForReply(String, String, String, Message, String, Integer)
-	 * @since MadKit 5
+	 * @since MaDKit 5
 	 */
 	public Message sendMessageAndWaitForReply(final String community, final String group, final String role, Message messageToSend, final int timeOutMilliSeconds){
 		return sendMessageWithRoleAndWaitForReply(community, group, role, messageToSend, null, timeOutMilliSeconds);
@@ -328,7 +328,7 @@ public class Agent extends AbstractAgent{
 	 * If <code>null</code> the agent will wait indefinitely.
 	 * @return the reply received as soon as available, or <code>null</code> if the time out has elapsed 
 	 * or if there was an error when sending the message.
-	 * @since MadKit 5
+	 * @since MaDKit 5
 	 */
 	public Message sendMessageWithRoleAndWaitForReply(final String community, final String group, final String role, 
 			Message messageToSend,
@@ -351,7 +351,7 @@ public class Agent extends AbstractAgent{
 	 * @param reply the new message.
 	 * @return the reply received as soon as available.
 	 * @see #sendReplyWithRoleAndWaitForReply(Message, Message, String, Integer)
-	 * @since MadKit 5
+	 * @since MaDKit 5
 	 */
 	public Message sendReplyAndWaitForReply(final Message messageToReplyTo, final Message reply){
 		return sendReplyWithRoleAndWaitForReply(messageToReplyTo, reply, null, null);
@@ -366,7 +366,7 @@ public class Agent extends AbstractAgent{
 	 * @param reply the new message
 	 * @return the reply received as soon as available
 	 * @see #sendReplyWithRoleAndWaitForReply(Message, Message, String, Integer)
-	 * @since MadKit 5
+	 * @since MaDKit 5
 	 */
 	public Message sendReplyAndWaitForReply(final Message messageToReplyTo, final Message reply,int timeOutMilliSeconds){
 		return sendReplyWithRoleAndWaitForReply(messageToReplyTo, reply, null, timeOutMilliSeconds);
@@ -379,7 +379,7 @@ public class Agent extends AbstractAgent{
 	 * @param reply the new message
 	 * @return the reply received as soon as available
 	 * @see #sendReplyWithRoleAndWaitForReply(Message, Message, String, Integer)
-	 * @since MadKit 5
+	 * @since MaDKit 5
 	 */
 	public Message sendReplyWithRoleAndWaitForReply(final Message messageToReplyTo, final Message reply,String senderRole){
 		return sendReplyWithRoleAndWaitForReply(messageToReplyTo, reply, senderRole, null);
@@ -401,7 +401,7 @@ public class Agent extends AbstractAgent{
 	 * 
 	 * @see #sendReplyWithRole(Message, Message, String)
 	 * @see AbstractAgent.ReturnCode
-	 * @since MadKit 5
+	 * @since MaDKit 5
 	 */
 	public Message sendReplyWithRoleAndWaitForReply(final Message messageToReplyTo, final Message reply, String senderRole, Integer timeOutMilliSeconds){
 		if(logger != null)
@@ -481,7 +481,7 @@ public class Agent extends AbstractAgent{
 // 	 * @param unit The time unit for this time out, for instance : TimeUnit.MILLISECONDS.
 // 	 * @return the first message in the mailbox, or <code>null</code> if no message
 // 	 * has been received before the time out is elapsed.
-// 	 * @since MadKit 5
+// 	 * @since MaDKit 5
 // 	 */
 // 	final public Message waitNextMessage(final long timeOut, final TimeUnit unit)
 // 	{
@@ -510,7 +510,7 @@ public class Agent extends AbstractAgent{
 	 * @param timeout
 	 * @param unit
 	 * @return
-	 * @since MadKit 5
+	 * @since MaDKit 5
 	 */
 	private Message waitingNextMessageForEver() {
 		try {
@@ -527,7 +527,7 @@ public class Agent extends AbstractAgent{
 	 * @param timeout
 	 * @param unit
 	 * @return
-	 * @since MadKit 5
+	 * @since MaDKit 5
 	 */
 	private Message waitingNextMessage(final long timeout, final TimeUnit unit) {
 		try {

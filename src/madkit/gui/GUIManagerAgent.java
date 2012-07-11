@@ -1,20 +1,20 @@
 /*
- * Copyright 1997-2011 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
- * This file is part of MadKit.
+ * This file is part of MaDKit.
  * 
- * MadKit is free software: you can redistribute it and/or modify it under the
- * terms of the GNU Lesser General Public License as published by the Free
+ * MaDKit is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free
  * Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
  * 
- * MadKit is distributed in the hope that it will be useful, but WITHOUT ANY
+ * MaDKit is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details.
  * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with MaDKit. If not, see <http://www.gnu.org/licenses/>.
  */
 package madkit.gui;
 
@@ -59,16 +59,16 @@ import madkit.message.KernelMessage;
 
 /**
  * The GUI manager agent is responsible for setting and managing
- * agents UI which are created by the default mechanism of MadKit.
+ * agents UI which are created by the default mechanism of MaDKit.
  * 
  * @author Fabien Michel
- * @since MadKit 5.0.0.6
+ * @since MaDKit 5.0.0.6
  * @version 0.9
  * 
  */
 // * By default the kernel always launch this agent. Although, this agent is
 // * extremely light weight, it is possible to tell the kernel to not launch it
-// * by using the {@link BooleanOption#noGUIManager} option when launching MadKit.
+// * by using the {@link BooleanOption#noGUIManager} option when launching MaDKit.
 class GUIManagerAgent extends Agent {
 
 	private static final long									serialVersionUID	= 8026421822077510523L;
@@ -311,7 +311,7 @@ class GUIManagerAgent extends Agent {
 	}
 
 	private void buildUI() {
-		myFrame = new JFrame("MadKit " + getMadkitProperty("madkit.version")
+		myFrame = new JFrame("MaDKit " + getMadkitProperty("madkit.version")
 				+ " Desktop running on kernel " + getKernelAddress());
 		desktopPane = new JDesktopPane()
 		// {

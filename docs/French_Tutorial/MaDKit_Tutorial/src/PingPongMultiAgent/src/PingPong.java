@@ -62,9 +62,12 @@ public class PingPong extends Agent {
 	@SuppressWarnings("unchecked")
 	private void playing() {
 		if (ball == null) {
+			
+			ballColor = getRandomColor();
 			// On interdit le blanc comme couleur de fond
-			while ((ballColor = getRandomColor()) == Color.WHITE)
-				;
+			while (ballColor == Color.WHITE)
+				ballColor = getRandomColor();
+			
 			ballForce = Math.random();
 			ball = (ObjectMessage<Balle>) sendMessageAndWaitForReply(
 					currentPartner, new ObjectMessage<Balle>(new Balle(
@@ -129,8 +132,8 @@ public class PingPong extends Agent {
 		else
 			// l'agent reste dans la competition
 			this.handicap++;
-		while (nextMessage() != null)
-			; // purge mailBox from old playing attempts
+		
+		purgeMailbox(); // purge mailBox from old playing attempts
 	}
 
 	@Override

@@ -1,20 +1,20 @@
 /*
- * Copyright 1997-2011 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
- * This file is part of MadKit.
+ * This file is part of MaDKit.
  * 
- * MadKit is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
+ * MaDKit is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * MadKit is distributed in the hope that it will be useful,
+ * MaDKit is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
+ * GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with MaDKit. If not, see <http://www.gnu.org/licenses/>.
  */
 package madkit.kernel;
 
@@ -100,11 +100,11 @@ import madkit.message.KernelMessage;
 import madkit.message.ObjectMessage;
 
 /**
- * The brand new MadKit kernel and it is now a real Agent :)
+ * The brand new MaDKit kernel and it is now a real Agent :)
  * 
  * @author Fabien Michel
  * @version 1.3
- * @since MadKit 5.0
+ * @since MaDKit 5.0
  * 
  */
 class MadkitKernel extends Agent {
@@ -294,7 +294,7 @@ class MadkitKernel extends Agent {
 	}
 
 	/**
-	 * Starts a session considering the current MadKit configuration
+	 * Starts a session considering the current MaDKit configuration
 	 */
 	private void startSession() {
 		launchConfigAgents();
@@ -322,7 +322,7 @@ class MadkitKernel extends Agent {
 	@Override
 	protected void end() {
 		if (LevelOption.madkitLogLevel.getValue(platform.getConfigOption()) != Level.OFF) {
-			System.err.println("\n\t---------------------------------------" + "\n\t         MadKit Kernel " + kernelAddress
+			System.err.println("\n\t---------------------------------------" + "\n\t         MaDKit Kernel " + kernelAddress
 					+ " \n\t        is shutting down, Bye !" + "\n\t---------------------------------------\n");
 		}
 	}
@@ -522,7 +522,7 @@ class MadkitKernel extends Agent {
 	@SuppressWarnings("unused")
 	private void startSession(final boolean externalVM) {
 		if (logger != null) {
-			logger.config("starting new MadKit session with " + Arrays.deepToString(platform.args));
+			logger.config("starting new MaDKit session with " + Arrays.deepToString(platform.args));
 		}
 		if (externalVM) {
 			try {

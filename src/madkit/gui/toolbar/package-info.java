@@ -1,25 +1,25 @@
 /*
- * Copyright 1997-2011 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
- * This file is part of MadKit.
+ * This file is part of MaDKit.
  * 
- * MadKit is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
+ * MaDKit is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * MadKit is distributed in the hope that it will be useful,
+ * MaDKit is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
+ * GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with MaDKit. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /**
-* This package contains classes for building MadKit GUI toolbars.
-* @since MadKit 5.0.0.10
+* This package contains classes for building MaDKit GUI toolbars.
+* @since MaDKit 5.0.0.10
 * @author Fabien Michel
 * @version 1.0
 * 

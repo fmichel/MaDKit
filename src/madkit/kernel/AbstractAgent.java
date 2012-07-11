@@ -1,20 +1,20 @@
 /*
- * Copyright 1997-2011 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
- * This file is part of MadKit.
+ * This file is part of MaDKit.
  * 
- * MadKit is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
+ * MaDKit is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * MadKit is distributed in the hope that it will be useful,
+ * MaDKit is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
+ * GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with MaDKit. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package madkit.kernel;
@@ -69,7 +69,7 @@ import madkit.message.GUIMessage;
 
 // * <img src="doc-files/Capture.png" alt=""/>
 /**
- * The super class of all MadKit agents, v 5. It provides support for
+ * The super class of all MaDKit agents, v 5. It provides support for
  * <ul>
  * <li>Agent's Life cycle, logging, and naming.
  * <li>Agent launching and killing.
@@ -80,7 +80,7 @@ import madkit.message.GUIMessage;
  * <p>
  * The agent's behavior is <i>intentionally not defined</i>. It is up to the
  * agent developer to choose an agent model or to develop his specific agent
- * library on top of the facilities provided by the MadKit API. However, all the
+ * library on top of the facilities provided by the MaDKit API. However, all the
  * launched agents share the same organizational view, and the basic messaging
  * code, so integration of different agents is quite easy, even when they are
  * coming from different developers or have heterogeneous models.
@@ -90,7 +90,7 @@ import madkit.message.GUIMessage;
  * Especially, that means that most of the API has no effect in the constructor
  * method of an Agent and will only produce a warning if used.
  * <p>
- * <h2>MadKit v.5 new features</h2>
+ * <h2>MaDKit v.5 new features</h2>
  * <p>
  * <ul>
  * <li>One of the big change that comes with version 5 is how agents are
@@ -111,7 +111,7 @@ import madkit.message.GUIMessage;
  * subclasses only as they are threaded) See
  * {@link #sendReply(Message, Message)} for more details.</li>
  * <br>
- * <li>Agents now have a <i>formal</i> state during a MadKit session. See the
+ * <li>Agents now have a <i>formal</i> state during a MaDKit session. See the
  * {@link #getState()} method for detailed information.</li>
  * <br>
  * <li>One of the most convenient improvement of v.5 is the logging mechanism
@@ -177,7 +177,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	/**
-	 * Activates the MadKit GUI initialization when launching the agent whatever
+	 * Activates the MaDKit GUI initialization when launching the agent whatever
 	 * the launching parameters. By default agents are launched without a GUI
 	 * but some of them always need one: This ensures that the agent will have one.
 	 * This method should be used only in the constructor of the 
@@ -204,37 +204,15 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * in one kernel. Thus it can be used to identify one agent. In a networked
 	 * environment, this value should be used in combination with the
 	 * kernelAddress of the agent for unique identification. This also holds when
-	 * multiple MadKit kernels are launched within the same JVM.
+	 * multiple MaDKit kernels are launched within the same JVM.
 	 * 
-	 * @return the agent's unique ID in the MadKit kernel
+	 * @return the agent's unique ID in the MaDKit kernel
 	 */
 	@Override
 	final public int hashCode() {// TODO should be regenerated if agent are sent
-											// through the network
+											// through the network in next releases
 		return _hashCode;
 	}
-
-	// /**
-	// * Each agent reference has a unique ID which also corresponds to the value
-	// returned by hashCode()
-	// * So this method simply compares agents' ID.
-	// * @return true if both references target the same agent
-	// * @see java.lang.Object#equals(java.lang.Object)
-	// * @see java.lang.Object#hashCode()
-	// */
-	// @Override
-	// public boolean equals(Object obj) {
-	// if(obj instanceof AbstractAgent)
-	// return obj.hashCode() == _hashCode;
-	// return false;
-	// }
-
-	// /**
-	// * @return the kernel
-	// */
-	// final AtomicReference<Kernel> getKernel() {
-	// return kernel;
-	// }
 
 	/**
 	 * @return
@@ -299,7 +277,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	/**
 	 * @param myThread
 	 *           the myThread to set
-	 * @since MadKit 5
+	 * @since MaDKit 5
 	 */
 	void setMyThread(final Thread thread) {
 		thread.setName(getState() + "-" + hashCode());
@@ -354,7 +332,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 
 	/**
 	 * This method corresponds to the first behavior which is called by the
-	 * MadKit kernel when an agent is launched. Usually a good place to take a
+	 * MaDKit kernel when an agent is launched. Usually a good place to take a
 	 * position in the organization of the artificial society.
 	 * <p>
 	 * Here is a typical example:
@@ -461,7 +439,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	/**
-	 * This method corresponds to the last behavior which is called by the MadKit
+	 * This method corresponds to the last behavior which is called by the MaDKit
 	 * kernel. This call occurs when a threaded agent normally exits its live
 	 * method or when the agent is killed. Usually a good place to release taken
 	 * resources or log what has to be logged.
@@ -498,7 +476,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	/**
-	 * Launches a new agent in the MadKit platform. This has the same effect as
+	 * Launches a new agent in the MaDKit platform. This has the same effect as
 	 * <code>launchAgent(agent,Integer.MAX_VALUE,false)</code>
 	 * 
 	 * @param agent
@@ -515,14 +493,14 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         crashed during its <code>activate</code> method</li>
 	 *         </ul>
 	 * @see AbstractAgent#launchAgent(AbstractAgent)
-	 * @since MadKit 5.0
+	 * @since MaDKit 5.0
 	 */
 	public ReturnCode launchAgent(final AbstractAgent agent) {
 		return launchAgent(agent, Integer.MAX_VALUE, false);
 	}
 
 	/**
-	 * Launches a new agent in the MadKit platform. This has the same effect as
+	 * Launches a new agent in the MaDKit platform. This has the same effect as
 	 * <code>launchAgent(agent,timeOutSeconds,false)</code>
 	 * 
 	 * @param agent
@@ -548,7 +526,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	/**
-	 * Launches a new agent in the MadKit platform. This has the same effect as
+	 * Launches a new agent in the MaDKit platform. This has the same effect as
 	 * <code>launchAgent(agent,Integer.MAX_VALUE,withGUIManagedByTheBooter)</code>
 	 * 
 	 * @param agent
@@ -568,7 +546,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         crashed during its <code>activate</code> method</li>
 	 *         </ul>
 	 * @see AbstractAgent#launchAgent(AbstractAgent)
-	 * @since MadKit 5.0
+	 * @since MaDKit 5.0
 	 */
 	public ReturnCode launchAgent(final AbstractAgent agent, final boolean createFrame) { 
 		return launchAgent(agent, Integer.MAX_VALUE, createFrame);
@@ -580,7 +558,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * <code>timeOutSeconds</code> seconds elapsed. That is, the launched agent
 	 * has not finished its {@link AbstractAgent#activate()} before the time out
 	 * time elapsed. Additionally, if <code>createFrame</code> is
-	 * <code>true</code>, it tells to MadKit that an agent GUI should be managed
+	 * <code>true</code>, it tells to MaDKit that an agent GUI should be managed
 	 * by the Kernel. In such a case, the kernel takes the responsibility to
 	 * assign a JFrame to the agent and to manage its life cycle (e.g. if the
 	 * agent ends or is killed then the JFrame is closed) Using this feature
@@ -589,8 +567,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * <li>1. the agent overrides the method
 	 * {@link AbstractAgent#setupFrame(JFrame)} and so setup the default JFrame
 	 * as will</li>
-	 * <li>2. the agent does not override it so that MadKit will setup the JFrame
-	 * with the default Graphical component delivered by the MadKit platform:
+	 * <li>2. the agent does not override it so that MaDKit will setup the JFrame
+	 * with the default Graphical component delivered by the MaDKit platform:
 	 * {@link OutputPanel}
 	 * </ul>
 	 * 
@@ -614,7 +592,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         <li><code> {@link ReturnCode#AGENT_CRASH} </code>: If the agent
 	 *         crashed during its <code>activate</code> method</li>
 	 *         </ul>
-	 * @since MadKit 5.0
+	 * @since MaDKit 5.0
 	 */
 	public ReturnCode launchAgent(final AbstractAgent agent, final int timeOutSeconds, final boolean createFrame) {
 		return getKernel().launchAgent(this, agent, timeOutSeconds, createFrame);
@@ -771,7 +749,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *           semicolon as follows: <code>"community;group;role"</code>
 	 * @return a list containing all the agents which have been launched, or
 	 *         <code>null</code> if the operation has failed
-	 * @since MadKit 5.0.0.6
+	 * @since MaDKit 5.0.0.6
 	 */
 	public List<AbstractAgent> launchAgentBucket(String agentClass, int bucketSize, String... roles) { 
 		List<AbstractAgent> bucket = null;
@@ -802,8 +780,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *          
 	 */
 	@SuppressWarnings("unchecked")
-	public void launchAgentBucket(List<AbstractAgent> bucket, String... roles) {
-		getKernel().launchAgentBucketWithRoles(this, bucket, roles);
+	public void launchAgentBucket(List<? extends AbstractAgent> bucket, String... roles) {
+		getKernel().launchAgentBucketWithRoles(this, (List<AbstractAgent>) bucket, roles);
 	}
 
 	/**
@@ -822,7 +800,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         method took more than 2e31 seconds and has been brutally stopped:
 	 *         This unlikely happens ;).</li>
 	 *         </ul>
-	 * @since MadKit 5.0
+	 * @since MaDKit 5.0
 	 * @see #killAgent(AbstractAgent, int)
 	 */
 	public ReturnCode killAgent(final AbstractAgent target) {
@@ -855,7 +833,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         {@link ReturnCode#TIMEOUT}</code>: If the target's end method took
 	 *         too much time and has been brutally stopped.</li>
 	 *         </ul>
-	 * @since MadKit 5.0
+	 * @since MaDKit 5.0
 	 */
 	public ReturnCode killAgent(final AbstractAgent target, final int timeOutSeconds) {// TODO
 																													// check
@@ -949,7 +927,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         to <code>null</code> for optimizing your code by using
 	 *         {@link #setLogLevel(Level)} with {@link Level#OFF}.
 	 * 
-	 * @since MadKit 5.0.0.6
+	 * @since MaDKit 5.0.0.6
 	 */
 	public AgentLogger getLogger() {
 		if (logger == AgentLogger.defaultAgentLogger || logger == null) {
@@ -1002,7 +980,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         </ul>
 	 * 
 	 * @see AbstractAgent#createGroup(String, String, boolean, Gatekeeper)
-	 * @since MadKit 5.0
+	 * @since MaDKit 5.0
 	 */
 	public ReturnCode createGroup(final String community, final String group) {
 		return createGroup(community, group, false, null);
@@ -1019,7 +997,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *           the name of the new group.
 	 * @param isDistributed
 	 *           if <code>true</code> the new group will be distributed when
-	 *           multiple MadKit kernels are connected.
+	 *           multiple MaDKit kernels are connected.
 	 * @return <ul>
 	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the group has been
 	 *         successfully created.</li>
@@ -1033,7 +1011,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         </ul>
 	 * 
 	 * @see AbstractAgent#createGroup(String, String, boolean, Gatekeeper)
-	 * @since MadKit 5.0
+	 * @since MaDKit 5.0
 	 */
 	public ReturnCode createGroup(final String community, final String group, boolean isDistributed) {
 		return createGroup(community, group, isDistributed, null);
@@ -1062,7 +1040,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *           the name of the new group.
 	 * @param isDistributed
 	 *           if <code>true</code> the new group will be distributed when
-	 *           multiple MadKit kernels are connected.
+	 *           multiple MaDKit kernels are connected.
 	 * @param keyMaster
 	 *           any object that implements the {@link Gatekeeper} interface. If
 	 *           not <code>null</code>, this object will be used to check if an
@@ -1082,7 +1060,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * 
 	 * @see Gatekeeper
 	 * @see ReturnCode
-	 * @since MadKit 5.0
+	 * @since MaDKit 5.0
 	 */
 	public ReturnCode createGroup(final String community, final String group, boolean isDistributed, final Gatekeeper keyMaster) {
 		return getKernel().createGroup(this, community, group, keyMaster, isDistributed);
@@ -1103,7 +1081,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * 
 	 * @see AbstractAgent#createGroupIfAbsent(String, String, boolean,
 	 *      Gatekeeper)
-	 * @since MadKit 5.0
+	 * @since MaDKit 5.0
 	 */
 	public boolean createGroupIfAbsent(final String community, final String group) { 
 		return createGroupIfAbsent(community, group, false, null);
@@ -1121,13 +1099,13 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *           the name of the new group
 	 * @param isDistributed
 	 *           if <code>true</code> the new group will be distributed when
-	 *           multiple MadKit kernels are connected.
+	 *           multiple MaDKit kernels are connected.
 	 * @return <code>true</code> if the group has been created,
 	 *         <code>false</code> if it was already present. </ul>
 	 * 
 	 * @see AbstractAgent#createGroupIfAbsent(String, String, boolean,
 	 *      Gatekeeper)
-	 * @since MadKit 5.0
+	 * @since MaDKit 5.0
 	 */
 	public boolean createGroupIfAbsent(final String community, final String group, boolean isDistributed) { 
 		return createGroupIfAbsent(community, group, isDistributed, null);
@@ -1146,7 +1124,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *           the name of the new group
 	 * @param isDistributed
 	 *           if <code>true</code> the new group will be distributed when
-	 *           multiple MadKit kernels are connected.
+	 *           multiple MaDKit kernels are connected.
 	 * @param keyMaster
 	 *           any object that implements the {@link Gatekeeper} interface. If
 	 *           not <code>null</code>, this object will be used to check if an
@@ -1157,7 +1135,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * 
 	 * @see Gatekeeper
 	 * @see ReturnCode
-	 * @since MadKit 5.0
+	 * @since MaDKit 5.0
 	 */
 	public boolean createGroupIfAbsent(final String community, final String group, boolean isDistributed,
 			final Gatekeeper keyMaster) {
@@ -1183,7 +1161,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         not a member of this group.</li>
 	 *         </ul>
 	 * 
-	 * @since MadKit 5.0
+	 * @since MaDKit 5.0
 	 * @see ReturnCode
 	 */
 	public ReturnCode leaveGroup(final String community, final String group) {
@@ -1203,7 +1181,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @param role
 	 *           the desired role.
 	 * @see #requestRole(String, String, String, Object)
-	 * @since MadKit 5.0
+	 * @since MaDKit 5.0
 	 */
 	public ReturnCode requestRole(final String community, final String group, final String role) {
 		return requestRole(community, group, role, null);
@@ -1244,7 +1222,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @see AbstractAgent.ReturnCode
 	 * @see Gatekeeper
 	 * 
-	 * @since MadKit 5.0
+	 * @since MaDKit 5.0
 	 */
 	public ReturnCode requestRole(final String community, final String group, final String role, final Object passKey) {
 		return getKernel().requestRole(this, community, group, role, passKey);
@@ -1270,7 +1248,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         is not handled by this agent.</li>
 	 *         </ul>
 	 * @see AbstractAgent.ReturnCode
-	 * @since MadKit 5.0
+	 * @since MaDKit 5.0
 	 */
 	public ReturnCode leaveRole(final String community, final String group, final String role) { 
 		return getKernel().leaveRole(this, community, group, role);
@@ -1311,7 +1289,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @param role
 	 * @return the agent's address in this location or <code>null</code> if this
 	 *         agent does not handle this role.
-	 * @since MadKit 5.0.0.15
+	 * @since MaDKit 5.0.0.15
 	 */
 	public AgentAddress getAgentAddressIn(final String community, final String group, final String role) {
 		return kernel.getAgentAddressIn(this, community, group, role);
@@ -1718,12 +1696,12 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	/**
-	 * Gets the MadKit session property indicated by the specified key. This call
+	 * Gets the MaDKit session property indicated by the specified key. This call
 	 * is equivalent to <code>getMadkitConfig().getProperty(key)</code>
 	 * 
 	 * @param key
-	 *           the name of the MadKit property
-	 * @return the string value of the MadKit property, or <code>null</code> if
+	 *           the name of the MaDKit property
+	 * @return the string value of the MaDKit property, or <code>null</code> if
 	 *         there is no property with that key.
 	 * @see #setMadkitProperty(String, String)
 	 * @see Madkit
@@ -1733,10 +1711,10 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	/**
-	 * Sets the MadKit session property indicated by the specified key.
+	 * Sets the MaDKit session property indicated by the specified key.
 	 * 
 	 * @param key
-	 *           the name of the MadKit property
+	 *           the name of the MaDKit property
 	 * @see #getMadkitProperty(String)
 	 * @see Madkit
 	 */
@@ -1760,9 +1738,9 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * </ul>
 	 * 
 	 * @param frame
-	 *           the default frame which has been created by MadKit for this
+	 *           the default frame which has been created by MaDKit for this
 	 *           agent.
-	 * @since MadKit 5.0.0.8
+	 * @since MaDKit 5.0.0.8
 	 * @see madkit.gui.OutputPanel
 	 */
 	public void setupFrame(final JFrame frame) {
@@ -1832,15 +1810,15 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	/**
-	 * Returns the Properties object of this MadKit session. That is by default
+	 * Returns the Properties object of this MaDKit session. That is by default
 	 * the parameter which has been used to launch the kernel the agent
 	 * is running on. If the agent has not been launched yet, the
-	 * Properties returned is the default MadKit configuration.
+	 * Properties returned is the default MaDKit configuration.
 	 * It can be programmatically modified to launch a
 	 * new session with different parameters. It can also be used as a
 	 * black board shared by all the agents of a kernel by adding
 	 * new user defined properties at run time or via the command line. 
-	 * The default set of MadKit properties includes
+	 * The default set of MaDKit properties includes
 	 * values for the following keys:
 	 * <table summary="Shows madkit keys and associated values">
 	 * <tr>
@@ -1849,14 +1827,14 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * </tr>
 	 * <tr>
 	 * <td><code>madkit.version</code></td>
-	 * <td>MadKit kernel version</td>
+	 * <td>MaDKit kernel version</td>
 	 * </tr>
 	 * <tr>
 	 * <td><code>build.id</code></td>
-	 * <td>MadKit kernel build ID</td></tr
+	 * <td>MaDKit kernel build ID</td></tr
 	 * <tr>
 	 * <td><code>madkit.repository.url</code></td>
-	 * <td>the agent repository for this version, usually http://www.madkit.net/repository/MadKit-${madkit.version}/ </td>
+	 * <td>the agent repository for this version, usually http://www.madkit.net/repository/MaDKit-${madkit.version}/ </td>
 	 * </tr>
 	 * <tr>
 	 * <td><code>desktop</code></td>
@@ -1890,10 +1868,10 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * <p>
 	 * 
 	 * 
-	 * @return the Properties object defining the values of each MadKit options
+	 * @return the Properties object defining the values of each MaDKit options
 	 *         in the current session.
 	 * @see Option LevelOption BooleanOption 
-	 * @since MadKit 5.0.0.10
+	 * @since MaDKit 5.0.0.10
 	 */
 	public Properties getMadkitConfig() {
 		return getKernel().getMadkitConfig();
@@ -1918,7 +1896,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	/**
 	 * Returns the kernel address on which the agent is running.
 	 * 
-	 * @return the kernel address representing the MadKit kernel on which the
+	 * @return the kernel address representing the MaDKit kernel on which the
 	 *         agent is running
 	 */
 	public KernelAddress getKernelAddress() {
@@ -1956,7 +1934,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	// /////////////////////////////////////////////////////////////////////////////
 
 	/**
-	 * @since MadKit 5.0.0.9
+	 * @since MaDKit 5.0.0.9
 	 */
 	private Message waitingNextMessage(final long timeout, final TimeUnit unit) {
 		try {
@@ -1972,7 +1950,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * systems. This greatly optimizes the time required to make all the agents
 	 * leave a community.
 	 * 
-	 * @since MadKit 5.0.0.9
+	 * @since MaDKit 5.0.0.9
 	 * @param community
 	 *           the community to destroy
 	 */
@@ -1985,7 +1963,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * systems. This greatly optimizes the time required to make all the agents
 	 * leave a group.
 	 * 
-	 * @since MadKit 5.0.0.10
+	 * @since MaDKit 5.0.0.10
 	 * @param community
 	 *           the community
 	 * @param group
@@ -2000,7 +1978,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * systems. This greatly optimizes the time required to make all the agents
 	 * leave a role.
 	 * 
-	 * @since MadKit 5.0.0.10
+	 * @since MaDKit 5.0.0.10
 	 * @param community
 	 *           the community
 	 * @param group
@@ -2013,7 +1991,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	/**
-	 * @since MadKit 5.0.0.9
+	 * @since MaDKit 5.0.0.9
 	 */
 	List<Message> waitAnswers(final Message message, final int size, final Integer timeOutMilliSeconds) {
 		final long endTime = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(timeOutMilliSeconds);
@@ -2084,7 +2062,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * 
 	 * @param e
 	 *           the InterruptedException which has to be propagated
-	 * @since MadKit 5.0.0.12
+	 * @since MaDKit 5.0.0.12
 	 */
 	final void handleInterruptedException() {// TODO
 		if (Thread.currentThread().getName().equals(getAgentThreadName(getState())) && alive.compareAndSet(true, false))
@@ -2126,7 +2104,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * An agent can be in only one state at a given point in time.
 	 * 
 	 * @author Fabien Michel
-	 * @since MadKit 5.0
+	 * @since MaDKit 5.0
 	 * @see #getState
 	 */
 	public enum State {
@@ -2163,7 +2141,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		ENDING,
 
 		/**
-		 * The agent has finished its life cycle in the MadKit platform.
+		 * The agent has finished its life cycle in the MaDKit platform.
 		 */
 		TERMINATED;
 
@@ -2184,7 +2162,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	/**
-	 * Returns the current state of the agent in the MadKit platform.
+	 * Returns the current state of the agent in the MaDKit platform.
 	 * 
 	 * This method provides a way of knowing what is the current state of the
 	 * agent regarding its life cycle. This could be convenient when you design a
@@ -2217,7 +2195,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         {@link #end()} method.</li>
 	 *         <br/>
 	 *         <li><code>{@link State#TERMINATED}</code>: the agent has finished
-	 *         its life in the MadKit platform. Especially, most of the methods
+	 *         its life in the MaDKit platform. Especially, most of the methods
 	 *         of this API will no longer work for this agent.</li>
 	 *         </ul>
 	 * 
@@ -2242,7 +2220,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * 
 	 * @param message
 	 *           the message to proceed
-	 * @since MadKit 5.0.0.14
+	 * @since MaDKit 5.0.0.14
 	 * @see EnumMessage
 	 */
 	public <E extends Enum<E>> void proceedEnumMessage(EnumMessage<E> message) {
@@ -2279,7 +2257,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		try {
 			cm.getSender().getAgent().logger.warning(msg + cm);
 		} catch (NullPointerException e1) {
-			// logger is off
+			// logger is off or sender is null
 		}
 	}
 
@@ -2373,7 +2351,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * essential methods of the {@link AbstractAgent} and {@link Agent} classes.
 	 * 
 	 * @author Fabien Michel
-	 * @since MadKit 5.0
+	 * @since MaDKit 5.0
 	 * 
 	 */
 	public enum ReturnCode {
@@ -2497,19 +2475,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		GET_AGENT_ADDRESS_IN,
 		RELOAD_CLASS;
 
-		// final static ResourceBundle messages =
-		// I18nUtilities.getResourceBundle(ReturnCode.class.getSimpleName());
-		// /**
-		// * @param r
-		// * @return the influence name followed by the return code
-		// */
-		// public String resultString(ReturnCode r){
-		// if(r != ReturnCode.SUCCESS){
-		// return name()+" "+Words.FAILED+" "+r+" : ";
-		// }
-		// return name()+" "+r+" : ";
-		// }
-
 		public String failedString() {
 			return toString() + Words.FAILED + " : ";
 		}
@@ -2541,9 +2506,9 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 
 	/**
 	 * This offers a convenient way to create main a main method that launches the agent
-	 * class under development. The agent is launched in a new instance MadKit.
+	 * class under development. The agent is launched in a new instance MaDKit.
 	 * This call only works in the main method of the agent.
-	 * MadKit. Here is an example of use that will work in any subclass of {@link AbstractAgent}:
+	 * MaDKit. Here is an example of use that will work in any subclass of {@link AbstractAgent}:
 	 * 
 	 * <pre>
 	 * <code>
@@ -2560,7 +2525,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * 
 	 * @param createFrame
 	 * @param args
-	 *           MadKit options. For example, this will launch the agent in
+	 *           MaDKit options. For example, this will launch the agent in
 	 *           desktop mode :
 	 *           <pre>
 	 * <code>
@@ -2571,7 +2536,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * </pre>
 	 * 
 	 * @see Option BooleanOption LevelOption
-	 * @since MadKit 5.0.0.14
+	 * @since MaDKit 5.0.0.14
 	 */
 	@SuppressWarnings("unused")
 	public static void executeThisAgent(int nbOfInstances, boolean createFrame, String... args) {
@@ -2593,9 +2558,9 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * <code>executeThisAgent(1, true, args)</code>
 	 * 
 	 * @param args
-	 *           MadKit options
+	 *           MaDKit options
 	 * @see #executeThisAgent(int, boolean, String...)
-	 * @since MadKit 5.0.0.14 
+	 * @since MaDKit 5.0.0.14 
 	 */
 	protected static void executeThisAgent(String... args) {
 		executeThisAgent(1, true, args);
@@ -2609,24 +2574,10 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * <code>executeThisAgent(null, 1, true)</code>
 	 * 
 	 * @see #executeThisAgent(int, boolean, String...)
-	 * @since MadKit 5.0.0.15
+	 * @since MaDKit 5.0.0.15
 	 */
 	protected static void executeThisAgent() { 
 		executeThisAgent(1, true);
 	}
-
-	public boolean hasDefaultConstructor() {
-		try {
-			return getClass().getConstructor((Class<?>[]) null) != null;
-		} catch (SecurityException e) {
-		} catch (NoSuchMethodException e) {
-		}
-		return false;
-	}
-
-	// @Override
-	// protected void finalize() throws Throwable {
-	// System.err.println("FINALIZING "+this);
-	// }
 
 }

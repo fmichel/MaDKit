@@ -1,20 +1,20 @@
 /*
- * Copyright 1997-2011 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
- * This file is part of MadKit.
+ * This file is part of MaDKit.
  * 
- * MadKit is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
+ * MaDKit is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * MadKit is distributed in the hope that it will be useful,
+ * MaDKit is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
+ * GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with MaDKit. If not, see <http://www.gnu.org/licenses/>.
  */
 package madkit.kernel;
 
@@ -25,7 +25,7 @@ import madkit.kernel.AbstractAgent.ReturnCode;
 /**
  * Identifies an agent within the artificial society.
  * <p>
- * How this class works is very different from the previous versions of MadKit. 
+ * How this class works is very different from the previous versions of MaDKit. 
  * More precisely, it now corresponds to a CGR location (community;group;role) 
  * where the agent is in. So, an agent may have several AgentAddress
  * as it could join many CGR locations.
@@ -38,7 +38,7 @@ import madkit.kernel.AbstractAgent.ReturnCode;
  * 
  * @author Olivier Gutknecht 
  * @author Fabien Michel
- * @since MadKit 1.0
+ * @since MaDKit 1.0
  * @version 5.1
  */
 public class AgentAddress implements java.io.Serializable{
@@ -102,7 +102,7 @@ public class AgentAddress implements java.io.Serializable{
 	/**
 	 * Returns the community to which this agent address is binded to.
 	 * @return the name of the community to which this agent address belongs to
-	 * @since MadKit 5
+	 * @since MaDKit 5
 	 */
 	public String getCommunity() {
 		return roleObject != null ? 
@@ -113,7 +113,7 @@ public class AgentAddress implements java.io.Serializable{
 	/**
 	 * Returns the group to which this agent address is binded to.
 	 * @return the name of the group to which this agent address belongs to
-	 * @since MadKit 5
+	 * @since MaDKit 5
 	 */
 	public String getGroup() {
 		return roleObject != null ? roleObject.getGroupName() : cgr.split(";;")[1];
@@ -122,7 +122,7 @@ public class AgentAddress implements java.io.Serializable{
 	/**
 	 * Returns the role to which this agent address is binded to.
 	 * @return the role name to which this agent address belongs to
-	 * @since MadKit 5
+	 * @since MaDKit 5
 	 */
 	public String getRole() {
 		return roleObject != null ? roleObject.getRoleName() : cgr.split(";;")[2];
@@ -186,7 +186,7 @@ public class AgentAddress implements java.io.Serializable{
 	 * still playing this role.
 	 * 
 	 * @return <code>true</code> if the address still exists in the organization.
-	 * @since MadKit 5.0.0.9
+	 * @since MaDKit 5.0.0.9
 	 */
 	public boolean exists() {
 		return roleObject != null;
@@ -199,7 +199,7 @@ public class AgentAddress implements java.io.Serializable{
 	 *  
 	 * @return <code>true</code> if this address corresponds to an agent which is running
 	 * on the same kernel.
-	 * @since MadKit 1
+	 * @since MaDKit 1
 	 * @see #exists()
 	 */
 	public boolean isLocal() {

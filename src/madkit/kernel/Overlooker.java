@@ -1,20 +1,20 @@
 /*
- * Copyright 1997-2011 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
- * This file is part of MadKit.
+ * This file is part of MaDKit.
  * 
- * MadKit is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
+ * MaDKit is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * MadKit is distributed in the hope that it will be useful,
+ * MaDKit is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
+ * GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with MaDKit. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package madkit.kernel;
@@ -26,7 +26,7 @@ import java.util.concurrent.ExecutorService;
 
 /**
  * @author Fabien Michel
- * @since MadKit 2.1
+ * @since MaDKit 2.1
  * @version 5.0
  * @param <A> The agent most generic type for this Overlooker
  * 
@@ -101,7 +101,7 @@ abstract class Overlooker <A extends AbstractAgent>
 	public String getRole()   {	return role;    }
 
 	/**
-	 * Called by the MadKit kernel when the Activator or Probe is
+	 * Called by the MaDKit kernel when the Activator or Probe is
 	 * first added. Default behavior is: <code>adding(getCurrentAgentsList());</code>
 	 */
 	public void initialize(){
@@ -111,7 +111,7 @@ abstract class Overlooker <A extends AbstractAgent>
 	/**
 	 * Called when a list of agents joins the corresponding group and role.
 	 * This method is automatically called
-	 * by the MadKit kernel when agents enter a role due to the use
+	 * by the MaDKit kernel when agents enter a role due to the use
 	 * of {@link AbstractAgent#launchAgentBucket(String, int, String...)}.
 	 * Override this method when you want
 	 * to do some initialization on the agents that enter the group/role.
@@ -193,7 +193,7 @@ abstract class Overlooker <A extends AbstractAgent>
 	/** 
 	 * Returns a snapshot at moment t of the agents handling the group/role couple
 	 * @return a list view (a snapshot at moment t) of the agents that handle the group/role couple (in proper sequence)
-	 * @since MadKit 3.0
+	 * @since MaDKit 3.0
 	 */
 	public List<A> getCurrentAgentsList()//TODO log if not already added !
 	{
@@ -206,7 +206,7 @@ abstract class Overlooker <A extends AbstractAgent>
 	/** 
 	 * Returns a ListIterator over the agents which is shuffled
 	 * @return a ListIterator which has been previously shuffled
-	 * @since MadKit 3.0
+	 * @since MaDKit 3.0
 	 */
 	public List<A> getShuffledList()
 	{

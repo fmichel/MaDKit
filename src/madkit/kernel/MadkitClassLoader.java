@@ -1,20 +1,20 @@
 /*
- * Copyright 1997-2011 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
- * This file is part of MadKit.
+ * This file is part of MaDKit.
  * 
- * MadKit is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
+ * MaDKit is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * MadKit is distributed in the hope that it will be useful,
+ * MaDKit is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
+ * GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with MaDKit. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package madkit.kernel;
@@ -51,7 +51,7 @@ import madkit.gui.menu.LaunchMAS;
  * 
  * @author Fabien Michel
  * @author Jacques Ferber
- * @since MadKit 4.0
+ * @since MaDKit 4.0
  * @version 5.1
  * 
  */
@@ -114,7 +114,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 	}
 
 	/**
-	 * Asks the MadKit class loader to reload the class
+	 * Asks the MaDKit class loader to reload the class
 	 * byte code so that new instances, created
 	 * using {@link Class#newInstance()} on a class object obtained with {@link #getNewestClassVersion(String)}, will reflect
 	 * compilation changes during run time.
@@ -139,13 +139,13 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 	 * returns the class object corresponding to the last compilation of the java code. Especially, in such a case, this
 	 * returns a different version than {@link Class#forName(String)} if the caller using it has not been reloaded at the same time. This is because {@link Class#forName(String)} uses the
 	 * {@link ClassLoader} of the current class while this method uses the last class loader which is used by
-	 * MadKit, i.e. the one created for loading classes on which {@link #reloadClass(String)} has been invoked.
+	 * MaDKit, i.e. the one created for loading classes on which {@link #reloadClass(String)} has been invoked.
 	 * Especially, {@link AbstractAgent#launchAgent(String, int, boolean)} always uses the newest version of the agent class.
 	 * 
 	 * @param className the fully qualified name of the desired class.
 	 * @return the newest version of a class object given its name.
 	 * @throws ClassNotFoundException
-	 * @since MadKit 5.0.0.8
+	 * @since MaDKit 5.0.0.8
 	 */
 	public Class<?> getNewestClassVersion(final String className)
 			throws ClassNotFoundException {
@@ -332,13 +332,13 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 		Attributes projectInfo = null;
 		try {
 			projectInfo = jarFile.getManifest().getAttributes(
-					"MadKit-Project-Info");
+					"MaDKit-Project-Info");
 		} catch (IOException e) {
 			return;
 		}
 		if (projectInfo != null) {
 			MASModel mas = new MASModel(projectInfo.getValue("Project-Name")
-					.trim(), projectInfo.getValue("MadKit-Args").split(" "),
+					.trim(), projectInfo.getValue("MaDKit-Args").split(" "),
 					projectInfo.getValue("Description").trim());
 			if (demos == null) {
 				demos = new HashSet<MASModel>();

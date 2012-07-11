@@ -1,20 +1,20 @@
 /*
- * Copyright 1997-2011 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
- * This file is part of MadKit.
+ * This file is part of MaDKit.
  * 
- * MadKit is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
+ * MaDKit is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * MadKit is distributed in the hope that it will be useful,
+ * MaDKit is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
+ * GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with MaDKit. If not, see <http://www.gnu.org/licenses/>.
  */
 package madkit.kernel;
 
@@ -40,11 +40,11 @@ import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Madkit.Option;
 
 /**
- * This class defines a logger specialized for MadKit agents.
+ * This class defines a logger specialized for MaDKit agents.
  * 
  * @author Fabien Michel
  * @version 0.91
- * @since MadKit 5.0.0.5
+ * @since MaDKit 5.0.0.5
  * 
  */
 public class AgentLogger extends Logger {
@@ -108,7 +108,7 @@ public class AgentLogger extends Logger {
 	}
 
 	/**
-	 * Sets the agent's log level above which MadKit warnings are displayed
+	 * Sets the agent's log level above which MaDKit warnings are displayed
 	 * 
 	 * @param warningLogLevel the log level to set
 	 */
@@ -149,7 +149,7 @@ public class AgentLogger extends Logger {
 	/**
 	 * Creates a log file for this logger.
 	 * This file will be located in the directory specified by
-	 * the MadKit property {@link Option#logDirectory}
+	 * the MaDKit property {@link Option#logDirectory}
 	 */
 	public void createLogFile() {
 		final String logDir = myAgent.getMadkitConfig().getProperty(

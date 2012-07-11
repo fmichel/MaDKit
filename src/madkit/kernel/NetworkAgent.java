@@ -1,20 +1,20 @@
 /*
- * Copyright 1997-2011 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
- * This file is part of MadKit.
+ * This file is part of MaDKit.
  * 
- * MadKit is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
+ * MaDKit is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * MadKit is distributed in the hope that it will be useful,
+ * MaDKit is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
+ * GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with MaDKit. If not, see <http://www.gnu.org/licenses/>.
  */
 package madkit.kernel;
 
@@ -41,7 +41,7 @@ import madkit.message.ObjectMessage;
 /**
  * @author Fabien Michel
  * @version 0.9
- * @since MadKit 5
+ * @since MaDKit 5
  *
  */
 final class NetworkAgent extends Agent {//TODO if logger != null
@@ -109,14 +109,14 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 		}
 		myServer.activate(this);
 		if (logger != null) 
-			logger.config("\n\t\t\t\t----- MadKit server activated on "+myServer.getIp()+" port "+myServer.getPort()+" ------\n");
+			logger.config("\n\t\t\t\t----- MaDKit server activated on "+myServer.getIp()+" port "+myServer.getPort()+" ------\n");
 
 		//build multicast listener
 		try {
 			multicastListener = MultiCastListener.getNewMultiCastListener(myServer.getPort());
 			multicastListener.activate(this);
 			if (logger != null){
-				logger.config("\n\t\t\t\t----- MadKit MulticastListener activated on "+MultiCastListener.ipAddress+" ------\n");
+				logger.config("\n\t\t\t\t----- MaDKit MulticastListener activated on "+MultiCastListener.ipAddress+" ------\n");
 				logger.finest("Broadcasting existence ");
 			}
 		} catch (IOException e) {
@@ -251,7 +251,7 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 		if(peers.remove(ka) == null)//TODO log
 			return;
 		if(logger != null)
-			logger.info("\n\t\t\t\t----- "+getKernelAddress()+" deconnected from MadKit kernel "+ka+"------\n");
+			logger.info("\n\t\t\t\t----- "+getKernelAddress()+" deconnected from MaDKit kernel "+ka+"------\n");
 		kernel.removeAgentsFromDistantKernel(ka);
 		//		System.err.println(getOrganizationSnapShot(false));
 	}
@@ -287,7 +287,7 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 	 */
 	private void addConnection(KernelAddress ka, KernelConnection kc, boolean startConnection) {
 		peers.put(ka,kc);
-		if (logger != null) logger.info("\n\t\t\t\t----- "+getKernelAddress()+" now connected with MadKit kernel "+kc.getKernelAddress()+"------\n");
+		if (logger != null) logger.info("\n\t\t\t\t----- "+getKernelAddress()+" now connected with MaDKit kernel "+kc.getKernelAddress()+"------\n");
 		if (startConnection) {
 			kc.start();
 		}

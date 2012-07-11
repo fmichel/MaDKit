@@ -1,20 +1,20 @@
 /*
  * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
- * This file is part of MadKit.
+ * This file is part of MaDKit.
  * 
- * MadKit is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
+ * MaDKit is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * MadKit is distributed in the hope that it will be useful,
+ * MaDKit is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
+ * GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with MaDKit. If not, see <http://www.gnu.org/licenses/>.
  */
 package madkit.simulation.viewer;
 
@@ -35,10 +35,11 @@ import madkit.kernel.Watcher;
  * An <code>observe</code> method is already defined 
  * and is intended to be called by
  * scheduler agents to trigger the rendering.
- * This class could be thus extended
+ * This class could be thus extended to reuse
+ * the rendering call mechanism which is defined in here.
  * 
  * @author Fabien Michel
- * @since MadKit 5.0.0.17
+ * @since MaDKit 5.0.0.17
  * @version 0.9
  * 
  */

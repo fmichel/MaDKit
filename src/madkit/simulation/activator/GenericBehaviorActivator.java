@@ -1,20 +1,20 @@
 /*
- * Copyright 1997-2011 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
- * This file is part of MadKit.
+ * This file is part of MaDKit.
  * 
- * MadKit is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
+ * MaDKit is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * MadKit is distributed in the hope that it will be useful,
+ * MaDKit is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
+ * GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with MaDKit. If not, see <http://www.gnu.org/licenses/>.
  */
 package madkit.simulation.activator;
 
@@ -33,7 +33,7 @@ import madkit.simulation.SimulationException;
 
 /**
  * An activator that invokes a single method with no parameters on a group of agents.
- * This class encapsulates behavior invocation on MadKit agents for scheduler agents.
+ * This class encapsulates behavior invocation on MaDKit agents for scheduler agents.
  * This activator allows to call a particular Java method on agents 
  * regardless of their actual class type as long
  * as they extend {@link AbstractAgent}. 
@@ -41,7 +41,7 @@ import madkit.simulation.SimulationException;
  * create simulation applications.
  * 
  * @author Fabien Michel
- * @since MadKit 5.0.0.1
+ * @since MaDKit 5.0.0.1
  * @version 1.0
  * 
  */

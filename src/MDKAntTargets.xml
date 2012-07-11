@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- 
- This is ant build.xml file for helping building MadKit 5 projects
+ This is ant build.xml file for helping building MaDKit 5 projects
  Author: Fabien Michel
  Version: 1.0
 -->
@@ -34,7 +34,7 @@
          - - - - - - - - - - - - - - - - - -->
 	<target name="build-manifest">
 		<manifest file="${manifest.location}">
-			<section name="MadKit-Project-Info">
+			<section name="MaDKit-Project-Info">
 				<attribute name="Project-Name" value="${project.label}" />
 				<attribute name="Project-Code-Name" value="${ant.project.name}" />
 				<attribute name="Project-Version" value="${version}" />
@@ -42,8 +42,8 @@
 				<attribute name="Author" value="${author}" />
 				<attribute name="Built-By" value="${user.name}" />
 				<attribute name="Built-On" value="${timestamp.isoformat}" />
-				<attribute name="Built-With" value="MadKit ${madkit.version}" />
-				<attribute name="MadKit-Args" value="${madkit.args}" />
+				<attribute name="Built-With" value="MaDKit ${madkit.version}" />
+				<attribute name="MaDKit-Args" value="${madkit.args}" />
 			</section>
 		</manifest>
 	</target>
@@ -69,14 +69,14 @@
 		<chmod file="${keystore.dir}" perm="700" />
 		<property name="keystore" location="${keystore.dir}/local.keystore" />
 		<property file="${keystore.dir}/keystore.properties" />
-		<property name="keystore.alias" value="MadKit-Application" />
+		<property name="keystore.alias" value="MaDKit-Application" />
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
           target: get-password          
          - - - - - - - - - - - - - - - - - -->
 	<target name="get-password" depends="init-security" if="jarsigner.present" unless="keystore.password">
-		<input addproperty="keystore.password">${line.separator}	First build: Please enter a password for signing MadKit jars, this will be stored in a keystore in ${keystore.dir}:</input>
+		<input addproperty="keystore.password">${line.separator}	First build: Please enter a password for signing MaDKit jars, this will be stored in a keystore in ${keystore.dir}:</input>
 		<propertyfile file="${keystore.dir}/keystore.properties" comment="${ant.project.name} signing password">
 			<entry key="keystore.password" value="${keystore.password}" />
 		</propertyfile>

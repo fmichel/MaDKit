@@ -1,20 +1,20 @@
 /*
- * Copyright 1997-2011 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
- * This file is part of MadKit.
+ * This file is part of MaDKit.
  * 
- * MadKit is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
+ * MaDKit is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * MadKit is distributed in the hope that it will be useful,
+ * MaDKit is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
+ * GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with MaDKit. If not, see <http://www.gnu.org/licenses/>.
  */
 package madkit.kernel;
 
@@ -59,9 +59,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 /**
- * MadKit 5 booter class. 
+ * MaDKit 5 booter class. 
  * <p>
- * <h2>MadKit v.5 new features</h2>
+ * <h2>MaDKit v.5 new features</h2>
  * <p>
  * <ul>
  * <li>One big change that comes with version 5 is how agents
@@ -81,7 +81,7 @@ import org.xml.sax.SAXException;
  * ( for {@link Agent} subclasses only as they are threaded)
  * See {@link AbstractAgent#sendReply(Message, Message)}
  * for more details.</li>
- * <br><li>Agents now have a <i>formal</i> state during a MadKit session.
+ * <br><li>Agents now have a <i>formal</i> state during a MaDKit session.
  * See the {@link AbstractAgent#getState()} method for detailed information.</li>
  * <br><li>One of the most convenient improvement of v.5 is the logging mechanism which is provided.
  * See the {@link AbstractAgent#logger} attribute for more details.</li>
@@ -89,7 +89,7 @@ import org.xml.sax.SAXException;
  * <p>
  * @author Fabien Michel
  * @author Jacques Ferber
- * @since MadKit 4.0
+ * @since MaDKit 4.0
  * @version 5.0
  */
 
@@ -350,11 +350,11 @@ final public class Madkit {
 //				for (Map.Entry<String, Attributes> e : manifest.getEntries().entrySet()) {
 //					System.err.println("\n"+e.getValue().values());
 //				}
-				Attributes projectInfo = manifest.getAttributes("MadKit-Project-Info");
+				Attributes projectInfo = manifest.getAttributes("MaDKit-Project-Info");
 				if(projectInfo != null){
 					if(logger != null)
 						logger.finest("found project info \n\t"+projectInfo.keySet()+"\n\t"+projectInfo.values());
-					options = projectInfo.getValue("MadKit-Args").split(" ");
+					options = projectInfo.getValue("MaDKit-Args").split(" ");
 					if(logger != null)
 						logger.finer(Arrays.deepToString(options)+options.length);
 					Map<String,String> projectInfos = new HashMap<String, String>();
@@ -454,24 +454,24 @@ final public class Madkit {
 	private void printWelcomeString() {
 		if(!(LevelOption.madkitLogLevel.getValue(madkitConfig) == Level.OFF)){
 			System.err.println("\n\t---------------------------------------"+
-					"\n\t                MadKit"+
+					"\n\t                MaDKit"+
 					"\n\t           version: "+defaultConfig.getProperty("madkit.version")+"\n\t        build-id: "+defaultConfig.getProperty("build.id")+
-					"\n\t       MadKit Team (c) 1997-"+Calendar.getInstance().get(Calendar.YEAR)+
+					"\n\t       MaDKit Team (c) 1997-"+Calendar.getInstance().get(Calendar.YEAR)+
 					"\n\t---------------------------------------\n");			
 		}
 	}
 
 	private void logSessionConfig(Properties session, Level lvl){
 		if(logger != null){
-			String message = "MadKit current configuration is\n\n";
-			message+="\t--- MadKit regular options ---\n";
+			String message = "MaDKit current configuration is\n\n";
+			message+="\t--- MaDKit regular options ---\n";
 			for (String option : defaultConfig.stringPropertyNames()) {
 				message+="\t"+String.format("%-" + 30 + "s", option)+session.getProperty(option)+"\n";					
 			}
 			Set<Object> tmp = new HashSet<Object>(session.keySet());
 			tmp.removeAll(defaultConfig.keySet());
 			if(tmp.size()>0){
-				message+="\n\t--- Additional non MadKit options ---\n";
+				message+="\n\t--- Additional non MaDKit options ---\n";
 				for(Object o : tmp)
 					message+="\t"+String.format("%-" + 25 + "s", o)+session.get(o)+"\n";
 			}
@@ -535,7 +535,7 @@ final public class Madkit {
 	/**
 	 * Option used to activate or disable features on startup.
 	 * These options can be used 
-	 * from the command line or using the main method of MadKit.
+	 * from the command line or using the main method of MaDKit.
 	 * 
 	 * <pre>SYNOPSIS</pre>
 	 * <code><b>--optionName</b></code> [true|false]
@@ -549,7 +549,7 @@ final public class Madkit {
 	 * <li>--optionName true</li>
 	 * 
 	 * @author Fabien Michel
-	 * @since MadKit 5
+	 * @since MaDKit 5
 	 * @version 0.9
 	 * 
 	 */
@@ -560,7 +560,7 @@ final public class Madkit {
 		 */
 		desktop,
 		/**
-		 * Connect to the MadKit repository on startup.
+		 * Connect to the MaDKit repository on startup.
 		 * Default value is "false". 
 		 */
 		autoConnectMadkitWebsite,
@@ -570,7 +570,7 @@ final public class Madkit {
 		 */
 		network,
 		/**
-		 * If activated, MadKit will create a log file for every agent which has 
+		 * If activated, MaDKit will create a log file for every agent which has 
 		 * a log level greater than {@link Level#OFF}.
 		 * Default value is "false". 
 		 * @see Madkit.Option#logDirectory
@@ -613,11 +613,11 @@ final public class Madkit {
 	}
 
 	/**
-	 * MadKit options which are valued with a string representing parameters.
-	 * These options could be used from the command line or using the main method of MadKit.
+	 * MaDKit options which are valued with a string representing parameters.
+	 * These options could be used from the command line or using the main method of MaDKit.
 	 * 
 	 * @author Fabien Michel
-	 * @since MadKit 5.0.0.10
+	 * @since MaDKit 5.0.0.10
 	 * @version 0.9
 	 * 
 	 */
@@ -625,7 +625,7 @@ final public class Madkit {
 		/**
 		 * Used to launch agents at start up.
 		 * This option can be used 
-		 * from the command line or using the main method of MadKit.
+		 * from the command line or using the main method of MaDKit.
 		 * 
 		 * <pre>SYNOPSIS</pre>
 		 * <code><b>--launchAgents</b></code> AGENT_CLASS_NAME[,GUI][,NB][;OTHERS]
@@ -668,7 +668,7 @@ final public class Madkit {
 		 * <pre>DESCRIPTION</pre>
 		 * Specify the desired directory. It could be an absolute 
 		 * or a relative path. At runtime, a log directory named with
-		 * the current date (second precision) will be created in the log directory for each MadKit session. 
+		 * the current date (second precision) will be created in the log directory for each MaDKit session. 
 		 * E.g. /home/neo/madkit_5/logs/2012.02.23.16.23.53
 		 * <pre>DEFAULT VALUE</pre>
 		 * Default value is <i>"logs"</i>, so that a directory named
@@ -701,11 +701,11 @@ final public class Madkit {
 	}
 
 	/**
-	 * MadKit options valued with a string representing a {@link Level} value.
-	 * These options could be used from the command line or using the main method of MadKit.
+	 * MaDKit options valued with a string representing a {@link Level} value.
+	 * These options could be used from the command line or using the main method of MaDKit.
 	 * 
 	 * @author Fabien Michel
-	 * @since MadKit 5.0.0.10
+	 * @since MaDKit 5.0.0.10
 	 * @version 0.9
 	 * 
 	 */
@@ -736,7 +736,7 @@ final public class Madkit {
 		 */
 		guiLogLevel,
 		/**
-		 * Can be used to make MadKit quiet
+		 * Can be used to make MaDKit quiet
 		 */
 		madkitLogLevel,
 		/**
@@ -755,7 +755,7 @@ final public class Madkit {
 		 * @see java.util.logging.Logger
 		 * @see AbstractAgent#getMadkitProperty(String)
 		 * @see AbstractAgent#setMadkitProperty(String, String)
-		 * @since MadKit 5 
+		 * @since MaDKit 5 
 		 */
 		warningLogLevel,
 		networkLogLevel;

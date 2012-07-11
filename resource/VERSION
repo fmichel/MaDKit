@@ -1,5 +1,5 @@
 ----------------------------------------------------------------------------------
-------------------------------- MadKit ${madkit.version} ----------------------------------
+------------------------------- MaDKit ${madkit.version} ----------------------------------
 ------------------------------- Build ID ${build.id} ---------------------------
 ----------------------------------------------------------------------------------
 
@@ -9,33 +9,6 @@ The Multiagent Development Kit is an open source MAS library which relies on org
 that one could easily design artificial societies wherein autonomous agents 
 interact using messages. It also contains MAS simulation authoring tools.
 
-- Available documentation (docs directory):
-
-	- api: Javadoc API  
-	- MadKit_Tutorials: Commented source codes on specific topics 
-	- A French tutorial: a general introduction to MadKit 5 and code examples
-
-----------------------------------------------------------------------------------
-------------------------------- Using MadKit ${madkit.version} ----------------------------
-----------------------------------------------------------------------------------
-
-
-Put ${madkit.jar.name} in your build path (e.g. in your Eclipse project) and
-start programming agents.
-
-To launch your MadKit agents, simply either
- 
-(1) use, anywhere, a main method with something like  :
-
-	public static void main(String[] args) {
-		new Madkit("--launchAgents","mypackage.myagentClass;mypackage.myOtherAgentClass");
-	}
-
-(2) use a command line such as 
-
-java -cp pathTo-${madkit.jar.name}:yourClassPath madkit.kernel.Madkit --launchAgents mypackage.myagentClass;mypackage.myOtherAgentClass
-
-Other command line options are described in the API of the madkit.kernel.Madkit class
 
 ----------------------------------------------------------------------------------
 ------------------------------- Release notes ------------------------------------
@@ -43,15 +16,17 @@ Other command line options are described in the API of the madkit.kernel.Madkit 
 
 
 ----------------------------------------------------------------------------------
-------------------------------- MadKit 5.0.0.17 (alpha-17)------------------------
+------------------------------- MaDKit 5.0.0.17 (alpha-17)------------------------
 ----------------------------------------------------------------------------------
 
 1. Improvements and changes:
-	- An ant template build.xml is now available in the distribution, allowing various deployment facilities
-	- Agents can now create their own log file as will, using the AgentLogger API
-	- fix jnlp startup speed
+	- MaDKit is GPL licensed from now on.
+	- An ant build.xml template is now available in the distribution, providing various deployment facilities.
+	- Agents can now create their own log file as will, using the AgentLogger API.
+	- fix jnlp startup speed.
 	 
 2. API changes:
+	~ madkit.simulation has been split, adding madkit.simulation.activator and madkit.simulation.probe. Use organize imports in your IDE to ease the refactoring.
 	+ madkit.simulation.viewer.SwingViewer
 	+ madkit.kernel.AgentLogger.createLogFile()
 	+ madkit.kernel.MadkitClassLoader.getClassSimpleName(String)

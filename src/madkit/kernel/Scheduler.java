@@ -1,20 +1,20 @@
 /*
- * Copyright 1997-2011 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
- * This file is part of MadKit.
+ * This file is part of MaDKit.
  * 
- * MadKit is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
+ * MaDKit is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
- * MadKit is distributed in the hope that it will be useful,
+ * MaDKit is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
+ * GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with MadKit. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with MaDKit. If not, see <http://www.gnu.org/licenses/>.
  */
 package madkit.kernel;
 
@@ -53,7 +53,7 @@ import madkit.simulation.SimulationException;
  * 
  * @author Fabien Michel
  * @author Olivier Gutknecht
- * @since MadKit 2.0
+ * @since MaDKit 2.0
  * @version 5.1
  * @see Activator
  */
@@ -77,7 +77,7 @@ public class Scheduler extends Agent {
 	 * </ul>
 	 * 
 	 * @author Fabien Michel
-	 * @since MadKit 5.0
+	 * @since MaDKit 5.0
 	 * @see #getSimulationState
 	 */
 	public enum SimulationState {
@@ -194,11 +194,11 @@ public class Scheduler extends Agent {
 	// }
 
 	/**
-	 * Setup the default Scheduler GUI when launched with the default MadKit GUI
+	 * Setup the default Scheduler GUI when launched with the default MaDKit GUI
 	 * mechanism.
 	 * 
 	 * @see madkit.kernel.AbstractAgent#setupFrame(javax.swing.JFrame)
-	 * @since MadKit 5.0.0.8
+	 * @since MaDKit 5.0.0.8
 	 */
 	@Override
 	public void setupFrame(JFrame frame) {

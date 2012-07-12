@@ -52,7 +52,7 @@ public class AgentMenu extends JMenu {// TODO i18n
 		super("Agent");
 		setMnemonic(KeyEvent.VK_A);
 		try {
-			if(getClass().getConstructor((Class<?>[]) null) != null){
+			if(agent.getClass().getConstructor((Class<?>[]) null) != null){
 				add(AgentAction.RELOAD.getActionFor(agent));
 				add(AgentAction.LAUNCH_AGENT.getActionFor(agent,agent.getClass().getName(),0,true));
 			}

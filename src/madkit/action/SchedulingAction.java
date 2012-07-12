@@ -81,7 +81,7 @@ public enum SchedulingAction {
 	 * @return the corresponding action 
 	 */
 	public Action getActionFor(final Scheduler theScheduler, final Object... parameters){
-		return new MKAbstractAction(getActionInfo()){
+		return new MDKAbstractAction(getActionInfo()){
 			private static final long serialVersionUID = 5434867603425806658L;
 
 			@Override

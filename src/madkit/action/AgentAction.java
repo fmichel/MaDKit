@@ -79,7 +79,7 @@ public enum AgentAction {
 	 * @return the action corresponding to the enum
 	 */
 	public Action getActionFor(final AbstractAgent agent, final Object... parameters){
-		return new MKAbstractAction(getActionInfo()){
+		return new MDKAbstractAction(getActionInfo()){
 			/**
 			 * 
 			 */

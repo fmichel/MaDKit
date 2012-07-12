@@ -147,7 +147,7 @@ public enum KernelAction {
 	 * @return the new corresponding action 
 	 */
 	public Action getActionFor(final AbstractAgent agent, final Object... parameters){
-		return new MKAbstractAction(getActionInfo()){
+		return new MDKAbstractAction(getActionInfo()){
 			/**
 			 * 
 			 */

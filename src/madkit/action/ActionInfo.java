@@ -28,7 +28,7 @@ import madkit.kernel.AbstractAgent;
 
 /**
  * This class encapsulates action information which could be used
- * to easily create {@link MKAbstractAction}.
+ * to easily create {@link MDKAbstractAction}.
  * 
  * @author Fabien Michel
  * @since MaDKit 5.0.0.14

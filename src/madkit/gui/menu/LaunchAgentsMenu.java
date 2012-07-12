@@ -29,7 +29,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
 import madkit.action.AgentAction;
-import madkit.action.MKAbstractAction;
+import madkit.action.MDKAbstractAction;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.MadkitClassLoader;
 
@@ -68,7 +68,7 @@ public class LaunchAgentsMenu extends JMenu {
 		this.withKernelAgents = withKernelAgents;
 		setMnemonic(KeyEvent.VK_G);
 		myAgent = agent;
-		myAction = new  MKAbstractAction(AgentAction.LAUNCH_AGENT.getActionInfo()){
+		myAction = new  MDKAbstractAction(AgentAction.LAUNCH_AGENT.getActionInfo()){
 			/**
 			 * 
 			 */

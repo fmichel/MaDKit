@@ -34,14 +34,14 @@ import javax.swing.KeyStroke;
  * @version 0.9
  * 
  */
-public abstract class MKAbstractAction extends AbstractAction {
+public abstract class MDKAbstractAction extends AbstractAction {
 
 	/**
 	 * 
 	 */
 	private static final long	serialVersionUID	= -1414495456612340010L;
 
-	public MKAbstractAction(ActionInfo actionInfo) {
+	public MDKAbstractAction(ActionInfo actionInfo) {
 		putValue(Action.NAME, actionInfo.getName());
 		putValue(Action.SHORT_DESCRIPTION, actionInfo.getShortDescription());
 		putValue(Action.LONG_DESCRIPTION, actionInfo.getLongDescription());

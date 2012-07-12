@@ -130,7 +130,7 @@ public enum GUIManagerAction {
 	 * @return an Action that could be used in an GUI for instance
 	 */
 	public Action getActionFor(final AbstractAgent agent, final Object... commandOptions){
-		return new MKAbstractAction(getActionInfo()){
+		return new MDKAbstractAction(getActionInfo()){
 			/**
 			 * 
 			 */
@@ -175,7 +175,7 @@ public enum GUIManagerAction {
 					return;
 				Action a = mkA.getActionFor(agent);
 				if (mkA == LOAD_JAR_FILE) {//TODO move that code in manager
-					a = new MKAbstractAction(mkA.actionInfo){
+					a = new MDKAbstractAction(mkA.actionInfo){
 						private static final long serialVersionUID = -7758727130858069498L;
 						@Override
 						public void actionPerformed(ActionEvent e) {

@@ -15,7 +15,7 @@ MaDKit is designed to easily build distributed applications and simulations usin
 
 In contrast to conventional approaches, which are mostly agent-centered, MaDKit follows an organization-centered approach [OCMAS][1]
 so that there is no predefnied agent model in MaDKit. So, MaDKit is built upon the AGR (Agent/Group/Role) organizational model:
-MadKit agents play roles in groups and thus create artificial societies.
+MaDKit agents play roles in groups and thus create artificial societies.
  
 More information
 ------------------------------------------------

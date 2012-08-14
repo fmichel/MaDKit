@@ -16,7 +16,7 @@
           target: compile                      
 			debug="false" this is default
          - - - - - - - - - - - - - - - - - -->
-	<target name="compile">
+	<target name="compile" depends="check-lib">
 		<echo>	Compiling using ${kernel.location}</echo>
 		<mkdir dir="${build.dir}" />
 		<filterset begintoken="[[" endtoken="]]">
@@ -26,6 +26,9 @@
 			<fileset dir="${src.dir}" excludes="**/*.java" />
 		</copy>
 		<javac classpath="${kernel.location}" includeAntRuntime="false" srcdir="${src.dir}" destdir="${build.dir}" deprecation="on">
+			<classpath>
+				<fileset refid="third.party.libraries" />
+			</classpath>
 		</javac>
 	</target>
 
@@ -71,6 +74,41 @@
 		<property file="${keystore.dir}/keystore.properties" />
 		<property name="keystore.alias" value="MaDKit-Application" />
 	</target>
+	
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: init                      
+         - - - - - - - - - - - - - - - - - -->
+    <target name="init-lib">
+	  <condition property="is.fileset">
+	    <isreference refid="third.party.libraries" type="fileset"/>
+	  </condition>
+    </target>
+	
+	<target name="check-lib" depends="init-lib" unless="is.fileset">
+		<fileset id="third.party.libraries" dir="." excludes="**" />
+	</target>
+
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: jar                      
+         - - - - - - - - - - - - - - - - - -->
+    <target name="jar" depends="check-lib">
+		<jar destfile="${jar.file}" manifest="${manifest.location}" level="1" duplicate="preserve">
+			<fileset dir="${build.dir}" />
+			<zipfileset src="${kernel.location}" excludes="MANIFEST.MF,*.xml" />
+			<zipgroupfileset refid="third.party.libraries" /> 
+		</jar>
+    </target>
+	
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: agent-jar                      
+         - - - - - - - - - - - - - - - - - -->
+    <target name="agent-jar" depends="check-lib">
+		<jar destfile="${agent.lib.file}" manifest="${manifest.location}" duplicate="preserve" level="1">
+			<fileset dir="${build.dir}" />
+			<zipgroupfileset refid="third.party.libraries" /> 
+		</jar>
+    </target>
+
 
 	<!-- - - - - - - - - - - - - - - - - - 
           target: get-password          
@@ -80,7 +118,7 @@
 		<propertyfile file="${keystore.dir}/keystore.properties" comment="${ant.project.name} signing password">
 			<entry key="keystore.password" value="${keystore.password}" />
 		</propertyfile>
-		<antcall target="init-security" />
+		<antcall target="init-lib-security" />
 		<antcall target="create-signing-key" />
 	</target>
 
@@ -110,7 +148,6 @@
 		<delete file="${keystore}" />
 	</target>
 
-
 	<!-- - - - - - - - - - - - - - - - - - 
           target: create-signing-key
          - - - - - - - - - - - - - - - - - -->
@@ -127,7 +164,6 @@
 			</dname>
 		</genkey>
 	</target>
-
 
 	<!-- - - - - - - - - - - - - - - - - - 
           target: probe-for-jarsigner                      

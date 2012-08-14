@@ -34,6 +34,11 @@
 
 	<!-- ================================= 
           target: build-executable-jar
+		<jar destfile="${jar.file}" manifest="${manifest.location}" level="1" duplicate="preserve">
+			<fileset dir="${build.dir}" />
+			<zipfileset src="${kernel.location}" excludes="MANIFEST.MF,*.xml" />
+			<zipgroupfileset refid="third.party.libraries" /> 
+		</jar>
          ================================= -->
 	<target name="build-executable-jar" description="executable jar">
 		<property name="jar.file" value="${ant.project.name}-${version}.jar" />
@@ -48,10 +53,7 @@
 		<manifest file="${manifest.location}" mode="update">
 			<attribute name="Main-Class" value="madkit.kernel.Madkit" />
 		</manifest>
-		<jar destfile="${jar.file}" manifest="${manifest.location}" level="1">
-			<fileset dir="${build.dir}" />
-			<zipfileset src="${kernel.location}" excludes="MANIFEST.MF,*.xml" />
-		</jar>
+		<antcall target="MDK.jar" />
 		<chmod file="${jar.file}" perm="ugo+x" />
 		<delete dir="${build.dir}" />
 		<echo>
@@ -61,7 +63,7 @@
      Your project could now be ran by either${line.separator} 
     (1) double clicking the jar file !${line.separator}
     (2) using a commandline such as:	   	
-		java -jar ${jar.file} [additional Madkit options and arguments]
+		java -jar ${jar.file} [additional MaDKit options and arguments]
         	${line.separator}
         </echo>
 	</target>
@@ -78,9 +80,7 @@
     			${line.separator}- Technology   MaDKit, The Multiagent Development Kit : http://www.madkit.org A platform for building Multi-Agent Systems Application -----
     		</concat>
 		<antcall target="MDK.build-manifest" />
-		<jar destfile="${agent.lib.file}" manifest="${manifest.location}" duplicate="preserve" compress="false">
-			<fileset dir="${build.dir}" />
-		</jar>
+		<antcall target="MDK.agent-jar" />
 		<delete dir="${build.dir}" />
 	</target>
 

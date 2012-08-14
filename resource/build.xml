@@ -46,6 +46,7 @@
 	<property name="project.label" value="My MDK project" />
 	<property name="project.website" value="project website url" />
 
+
 	<!-- =================================
 		OPTIONAL:
 		 Here, you can specify which default options
@@ -63,6 +64,21 @@
          ================================= -->
 	<property name="web.codebase" value="http://www.mysite.org/jws_dir" />
 
+	
+	<!-- =================================
+		REQUIRED if using third party libraries
+		
+		 You can specify which third party jars by uncommenting the
+		 following fileset and modifying it (id's value must not be changed).
+		 More info on fileset definition at http://ant.apache.org/manual/Types/fileset.html 
+
+		<fileset id="third.party.libraries" dir="lib">
+			<filename name="a.library.jar" />
+			<filename name="another.library.jar" />
+		</fileset>
+
+	     ================================= -->
+	
 
 
 	<!-- =================================

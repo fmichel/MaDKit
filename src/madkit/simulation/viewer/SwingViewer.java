@@ -22,6 +22,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.lang.reflect.InvocationTargetException;
 
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
@@ -49,7 +50,9 @@ public abstract class SwingViewer extends Watcher {
 	private JPanel	displayPane;
 	private boolean synchronousPainting = false;
 	private boolean rendering = true;
+	private JFrame frame;
 
+	
 	
 	/**
 		 * Creates a new agent with a default panel 
@@ -69,17 +72,7 @@ public abstract class SwingViewer extends Watcher {
 			createGUIOnStartUp();
 		}
 		
-		/** Provides a default implementation that 
-		 * assigns the default panel to the default frame
-		 * 
-		 * @see madkit.kernel.AbstractAgent#setupFrame(javax.swing.JFrame)
-		 */
-		public void setupFrame(javax.swing.JFrame frame) {
-			displayPane.setSize(frame.getSize());
-			frame.add(displayPane);
-		}
-
-	/**
+		/**
 	 * @return <code>true</code> if the rendering 
 	 * activity is activated.
 	 */
@@ -176,9 +169,42 @@ public abstract class SwingViewer extends Watcher {
 	 * mode, the rendering is done in parallel with the simulation
 	 * steps and thus only display snapshot of the simulation's state:
 	 * 
-	 * @param synchronousPainting the synchronousPainting to set
+	 * @param synchronousPainting the synchronousPainting mode to set
 	 */
 	public void setSynchronousPainting(boolean synchronousPainting) {
 		this.synchronousPainting = synchronousPainting;
+	}
+
+	/** Provides a default implementation that 
+	 * assigns the default panel to the default frame
+	 * 
+	 * @see madkit.kernel.AbstractAgent#setupFrame(javax.swing.JFrame)
+	 */
+	public void setupFrame(javax.swing.JFrame frame) {
+		displayPane.setSize(frame.getSize());
+		frame.add(displayPane);
+		setFrame(frame);
+	}
+
+	/**
+	 * By default, get the default frame provided by MaDKit in 
+	 * {@link #setupFrame(JFrame)} and
+	 * set using {@link #setupFrame(JFrame)}.
+	 * It can be anything else if {@link #setupFrame(JFrame)} is overridden.
+	 * 
+	 * @return the working frame
+	 */
+	public JFrame getFrame() {
+		return frame;
+	}
+
+	/**
+	 * Set the frame which is used so that
+	 * subclasses can have access to it
+	 * 
+	 * @param frame the working frame
+	 */
+	public void setFrame(JFrame frame) {
+		this.frame = frame;
 	}
 }

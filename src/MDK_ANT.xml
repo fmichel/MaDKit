@@ -31,6 +31,14 @@
 			<classpath location="${kernel.location}" />
 		</javaresource>
 	</include>
+	
+	<!-- ================================= 
+          target: compile              
+         ================================= -->
+    <target name="compile" description="compile source files">
+		<antcall target="MDK.compile" />
+    </target>
+
 
 	<!-- ================================= 
           target: build-executable-jar
@@ -40,10 +48,9 @@
 			<zipgroupfileset refid="third.party.libraries" /> 
 		</jar>
          ================================= -->
-	<target name="build-executable-jar" description="executable jar">
+	<target name="build-executable-jar" depends="compile" description="executable jar">
 		<property name="jar.file" value="${ant.project.name}-${version}.jar" />
 		<echo>Creating executable jar file : ${jar.file}</echo>
-		<antcall target="MDK.compile" />
 		<antcall target="MDK.build-manifest" />
 		<concat destfile="${build.dir}/README">--- ${project.label} version ${version} by ${author} -----
 			${line.separator}- Description  ${description}  -----
@@ -55,7 +62,6 @@
 		</manifest>
 		<antcall target="MDK.jar" />
 		<chmod file="${jar.file}" perm="ugo+x" />
-		<delete dir="${build.dir}" />
 		<echo>
         	
         	--- Running your project :
@@ -71,9 +77,8 @@
 	<!-- ================================= 
           target: build-agent-jar              
          ================================= -->
-	<target name="build-agent-jar" description="Creates a jar containing only the agents">
+	<target name="build-agent-jar" depends="compile" description="Creates a jar containing only the agents">
 		<echo>Creating ${ant.project.name} MDK agent library jar file</echo>
-		<antcall target="MDK.compile" />
 		<concat destfile="${build.dir}/README">--- ${project.label} version ${version} by ${author} -----
     			${line.separator}- Description  ${description}  -----
     			${line.separator}- Using        This jar file contains agents which can be ran using MaDKit: It can be used in MaDKit using load jar or by putting it in the classpath of your MaDKit application  -----
@@ -81,7 +86,6 @@
     		</concat>
 		<antcall target="MDK.build-manifest" />
 		<antcall target="MDK.agent-jar" />
-		<delete dir="${build.dir}" />
 	</target>
 
 	<!-- ================================= 
@@ -120,6 +124,8 @@
           target: clean              
          ================================= -->
 	<target name="clean" description="clean generated files">
+        <delete dir="${build.dir}" followsymlinks="false" removeNotFollowedSymlinks="true"/>
+		<delete dir="${build.dir}" failonerror="false"/>
 		<delete file="${jar.file}" />
 		<delete file="${jnlp.jar.gz}" />
 		<delete file="${ant.project.name}.jnlp" />

@@ -93,7 +93,7 @@
          - - - - - - - - - - - - - - - - - -->
     <target name="jar" depends="check-lib">
 		<jar destfile="${jar.file}" manifest="${manifest.location}" level="1" duplicate="preserve">
-			<fileset dir="${build.dir}" />
+			<fileset dir="${build.dir}" followsymlinks="true"/>
 			<zipfileset src="${kernel.location}" excludes="MANIFEST.MF,*.xml" />
 			<zipgroupfileset refid="third.party.libraries" /> 
 		</jar>

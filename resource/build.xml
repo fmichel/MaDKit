@@ -5,7 +5,8 @@
  Especially, this file is automatically parsed by Eclipse so that it displays
  the available targets that follow:
 
- 	- build-executable-jar: Creates a runnable jar file of the application, embedding MDK
+ 	- compile: compile the project into the build directory
+ 	- build-executable-jar (default): Creates a runnable jar file of the application, embedding MDK
  	- build-agent-jar: Creates a lightweight jar file containing only the project, so that it could be loaded by a MDK kernel
  	- Java-web-start: Creates .jnlp and .gz files for Java Web Start deployment
  	- zip-project-src: Creates a zip file of the project
@@ -70,11 +71,12 @@
 		
 		 You can specify which third party jars by uncommenting the
 		 following fileset and modifying it (id's value must not be changed).
+		 This is just an example and you can freely define your own fileset (with the same id).		 
 		 More info on fileset definition at http://ant.apache.org/manual/Types/fileset.html 
 
 		<fileset id="third.party.libraries" dir="lib">
-			<filename name="a.library.jar" />
-			<filename name="another.library.jar" />
+			<include name="a.library.jar" />
+			<include name="another.library.jar" />
 		</fileset>
 
 	     ================================= -->

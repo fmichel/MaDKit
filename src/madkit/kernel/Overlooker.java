@@ -139,9 +139,9 @@ abstract class Overlooker <A extends AbstractAgent>
 	 * This method is empty by default.
 	 * Override this method when you want
 	 * to do some initialization when an agent enters the group/role.
-	 * @param theAgent which has been added to this group/role
+	 * @param agent which has been added to this group/role
 	 */
-	protected void adding(final A theAgent){}
+	protected void adding(final A agent){}
 
 	/**
 	 * This method is automatically called when 
@@ -173,9 +173,9 @@ abstract class Overlooker <A extends AbstractAgent>
 	 * This method is empty by default.
 	 * Override this method when you want
 	 * to do some work when an agent leaves the group/role.
-	 * @param theAgent which has been removed from this group/role
+	 * @param agent which has been removed from this group/role
 	 */
-	protected void removing(final A theAgent){}
+	protected void removing(final A agent){}
 
 	//	final private void nullRoleErrorMessage(final NullPointerException e,final String using) {
 	//		System.err.println("\n-----WARNING : probes and activators should not be used before being added-----\n-----Problem on "+this.getClass().getSimpleName()+" on <"+community+";"+group+";"+role+"> using "+using+"-----\n-----Method call is at:");

@@ -184,5 +184,55 @@ public class PropertyProbeTest extends JunitMadkit {
 			}
 		},ReturnCode.AGENT_CRASH);
 	}
+	
+	@Test
+	public void testGetMinAndGetMax() {
+		launchTest(new AbstractAgent() {
+
+			protected void activate() {
+				for (int i = 0; i < 10; i++) {
+					// launchDefaultAgent(this);
+					SimulatedAgent agent;
+					assertEquals(SUCCESS, launchAgent(agent = new SimulatedAgent()));
+					agent.publicPrimitiveField = i;
+				}
+				PropertyProbe<AbstractAgent, String> fp = new PropertyProbe<AbstractAgent, String>(
+						COMMUNITY, GROUP, ROLE, "publicPrimitiveField");
+				Watcher s = new Watcher();
+				assertEquals(SUCCESS, launchAgent(s));
+				s.addProbe(fp);
+				assertEquals(9d, fp.getMaxValue());
+				assertEquals(0d, fp.getMinValue());
+			}
+		}, ReturnCode.SUCCESS);
+	}
+
+	@Test
+	public void getMinAndGetMaxnotComparable(){
+		launchTest(new AbstractAgent() {
+			protected void activate() {
+//				launchDefaultAgent(this);
+				SimulatedAgent agent;
+				assertEquals(SUCCESS, launchAgent(agent = new SimulatedAgent()));
+				PropertyProbe<AbstractAgent, String> fp = new PropertyProbe<AbstractAgent, String>(COMMUNITY, GROUP, ROLE,
+						"objectField");
+				Watcher s = new Watcher();
+				assertEquals(SUCCESS, launchAgent(s));
+				s.addProbe(fp);
+				try {
+					System.err.println(fp.getMaxValue());
+					noExceptionFailure();
+				} catch (SimulationException e) {
+					e.printStackTrace();
+				}
+				try {
+					System.err.println(fp.getMinValue());
+					noExceptionFailure();
+				} catch (SimulationException e) {
+					e.printStackTrace();
+				}
+			}
+		},ReturnCode.SUCCESS);
+	}
 
 }

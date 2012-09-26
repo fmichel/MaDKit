@@ -42,6 +42,7 @@ public class SimulatedAgent extends AbstractAgent {
 	private static final long serialVersionUID = 1L;
 	private int privatePrimitiveField = 1;
 	public double publicPrimitiveField = 2;
+	private Object objectField = new Object();
 	private boolean activated = false;
 
 	@Override

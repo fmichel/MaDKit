@@ -190,7 +190,7 @@ public enum KernelAction {
 			for (KernelAction ka : EnumSet.allOf(KernelAction.class)) {
 				if(ka == LAUNCH_AGENT)
 					return;
-				if(ka == LOAD_LOCAL_DEMOS && ActionInfo.javawsIsOn)
+				if((ka == LOAD_LOCAL_DEMOS || ka == RESTART) && ActionInfo.javawsIsOn)
 					continue;
 				if(ka == JCONSOLE && (findJconsole() == null || ActionInfo.javawsIsOn)){
 					continue;

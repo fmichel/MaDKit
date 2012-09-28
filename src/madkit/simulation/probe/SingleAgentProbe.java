@@ -29,7 +29,7 @@ import madkit.simulation.SimulationException;
 /**
  * This probe inspects fields of type T on only one agent of type A and its subclasses.
  * This is designed for probing one single agent, i.e. methods are designed  
- * and optimized in this respect
+ * and optimized in this respect.
  * 
  * @param <A> the most common class type expected in this group (e.g. AbstractAgent)
  * @param <T> the type of the property, i.e. Integer (this works if the field is an int, i.e. a primitive type)
@@ -72,7 +72,7 @@ public class SingleAgentProbe<A extends AbstractAgent,T> extends Probe<A>//TODO 
 	/**
 	 * Returns the current value of the agent's field 
 	 * 
-	 * @return the actual value of the agent's field 
+	 * @return the value of the agent's field 
 	 */
 	@SuppressWarnings("unchecked")
 	public T getPropertyValue() {

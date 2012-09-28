@@ -16,6 +16,21 @@ interact using messages. It also contains MAS simulation authoring tools.
 
 
 ----------------------------------------------------------------------------------
+------------------------------- MaDKit 5.0.0.18 (alpha-18)------------------------
+----------------------------------------------------------------------------------
+
+1. Improvements and changes:
+	- Add support for third party libraries when using ant (build.xml) for producing executable jars.
+	- A new probe has been added: SingleAgentProbe which is designed for probing one agent at a time.
+	- fix a regression bug that made launch and reload to disappear from the agent's GUI menu.
+
+2. API changes:
+	~ madkit.action.MKAbstractAction has been renamed madkit.action.MDKAbstractAction
+	+ madkit.simulation.viewer.SwingViewer .getFrame() .setFrame() 
+	+ madkit.simulation.probe.SingleAgentProbe<A, T>	
+
+
+----------------------------------------------------------------------------------
 ------------------------------- MaDKit 5.0.0.17 (alpha-17)------------------------
 ----------------------------------------------------------------------------------
 

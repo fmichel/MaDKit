@@ -25,20 +25,20 @@
 -->
 
 <project name="madkit" default="jar" basedir=".">
-	
+
 	<!-- defining project general properties -->
 	<tstamp prefix="time" />
 	<property name="build.id" value="${time.DSTAMP}-${time.TSTAMP}" />
-	<property name="src.dir" value="src"/>
-	<property name="madkit.properties" value="madkit/kernel/madkit.properties"/>
+	<property name="src.dir" value="src" />
+	<property name="madkit.properties" value="madkit/kernel/madkit.properties" />
 
 	<property file="${src.dir}/${madkit.properties}" />
 
-	<property name="resource.dir" value="resource"/>
-	<property name="MDK.build.properties" value="madkitKernelBuild.properties"/>
+	<property name="resource.dir" value="resource" />
+	<property name="MDK.build.properties" value="madkitKernelBuild.properties" />
 	<property file="${resource.dir}/${MDK.build.properties}" />
 
-	
+
 	<!-- for french tuto-->
 	<property name="madkit.old.version" value="5.0.0.16" />
 
@@ -85,7 +85,7 @@
           target: jar
          ================================= -->
 	<target name="jar" depends="clean,compile,build-properties" description="Jars MaDKit kernel ">
-		<jar destfile="${jar.file}" level="1" >
+		<jar destfile="${jar.file}" level="1">
 			<fileset dir="${build.dir}">
 				<exclude name="**/package-info.class" />
 				<exclude name="**/doc-files/**" />
@@ -251,12 +251,12 @@
 <echo> --- Build Release : MaDKit ${madkit.version}${line.separator}</echo>
 <mkdir dir="${release.dir}" />
 
-	<copy todir="${build.dir}">
-		<fileset dir="${resource.dir}" excludes="COPYING,${MDK.build.properties}"/>
-		<filterchain>
-			<expandproperties />
-		</filterchain>
-	</copy>
+<copy todir="${build.dir}">
+	<fileset dir="${resource.dir}" excludes="COPYING,${MDK.build.properties}" />
+	<filterchain>
+		<expandproperties />
+	</filterchain>
+</copy>
 
 <echo>Updating MaDKit Tutorial</echo>
 <copy todir="${docs.dir}/French_Tutorial/MaDKit_Tutorial/${lib.dir}" file="${jar.file}" />
@@ -275,23 +275,40 @@
 </zip>
 </target>
 
-	<!-- - - - - - - - - - - - - - - - - - 
+<!-- - - - - - - - - - - - - - - - - - 
           target: test                      
          - - - - - - - - - - - - - - - - - -->
-    <target name="test">
-            
-    </target>
+<target name="test">
 
-	<!-- ================================= 
-          target:       ftp-push        
+</target>
+
+<!-- ================================= 
+          target:      ftp-push-javadoc        
          ================================= -->
-	<target name="ftp-push" depends="jar,sign-jar">
-		<property name="server" value="MDK-jnlps" />
-		<property name="ftp.propfile" location="${user.home}/.mk_pass/${server}" />
-		<loadproperties srcFile="${ftp.propfile}" />
-		<echo>FTP upload of MDK JNLP : target is ${server} ${ftp.server} ${ftp.dir}</echo>
-		<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="put" remotedir="${ftp.dir}">
-			<fileset dir="${release.dir}" includes="*.gz" />
-		</ftp>
-	</target>
+<target name="ftp-push-javadoc" depends="javadoc">
+<property name="server" value="MDK.api" />
+<property name="ftp.propfile" location="${user.home}/.mk_pass/${server}" />
+<loadproperties srcFile="${ftp.propfile}" />
+<echo>FTP upload of MDK JNLP : target is ${server} ${ftp.server} ${ftp.dir}</echo>
+<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="mkdir" remotedir="${ftp.dir}/MaDKit-${madkit.version}" verbose="yes">
+</ftp>
+<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="put" remotedir="${ftp.dir}/MaDKit-${madkit.version}">
+	<fileset dir="${docs.api.dir}" />
+</ftp>
+</target>
+
+<!-- ================================= 
+          target:      ftp-push-test        
+         ================================= -->
+<target name="ftp-push-test" depends="">
+<property name="server" value="MDK.test" />
+<property name="ftp.propfile" location="${user.home}/.mk_pass/${server}" />
+<loadproperties srcFile="${ftp.propfile}" />
+<echo>FTP upload of MDK JNLP : target is ${server} ${ftp.server} ${ftp.dir}</echo>
+<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="mkdir" remotedir="${ftp.dir}/MaDKit-${madkit.version}" verbose="yes">
+</ftp>
+<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="put" remotedir="${ftp.dir}/MaDKit-${madkit.version}">
+	<fileset dir="${test.reports.dir}" />
+</ftp>
+</target>
 </project>

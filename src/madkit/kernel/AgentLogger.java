@@ -49,7 +49,13 @@ import madkit.kernel.Madkit.Option;
  */
 public class AgentLogger extends Logger {
 
+	/**
+	 * Defines the default formatter as : [agent's name] LOG_LEVEL : message
+	 */
 	final public static Formatter									AGENT_FORMATTER		= new AgentFormatter();
+	/**
+	 * Defines the default file formatter as : LOG_LEVEL : message
+	 */
 	final public static Formatter									AGENT_FILE_FORMATTER	= new AgentFormatter() {
 
 																											@Override
@@ -101,7 +107,10 @@ public class AgentLogger extends Logger {
 	// }
 
 	/**
-	 * @return the warningLogLevel
+	 * Returns the log level above which MaDKit warnings are displayed 
+	 * for the corresponding agent.
+	 * 
+	 * @return the warningLogLevel of the corresponding agent
 	 */
 	public Level getWarningLogLevel() {
 		return warningLogLevel;
@@ -238,7 +247,7 @@ public class AgentLogger extends Logger {
 	}
 
 	/**
-	 * @see java.util.logging.Logger#setLevel(java.util.logging.Level)
+	 * Set the log level for the corresponding agent.
 	 */
 	@Override
 	public void setLevel(final Level newLevel) throws SecurityException {

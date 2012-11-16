@@ -46,6 +46,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.JFrame;
 
@@ -64,6 +65,7 @@ import madkit.i18n.ErrorMessages;
 import madkit.i18n.I18nUtilities;
 import madkit.i18n.Words;
 import madkit.kernel.Madkit.Option;
+import madkit.message.hook.HookMessage.AgentActionEvent;
 import madkit.message.EnumMessage;
 import madkit.message.GUIMessage;
 
@@ -151,13 +153,27 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 																																				// creation
 
 	/**
-	 * <code>logger</code> can be used to trace the agent's life cycle.
+	 * <code>logger</code> should be used to print messages and trace the agent's life cycle. 
+	 * According to a log level, the messages will be displayed in the console and/or the GUI 
+	 * and/or a file according to the settings.
+	 * 
+	 * Thanks to the logging mechanism of the SDK, various log level could be used.
+	 * 
+	 * The following idiom should be used because {@link Logger} is set to <code>null</code>
+	 * when {@link AgentLogger#setLevel(Level)} is used with {@link Level#OFF}. This allows
+	 * to efficiently optimize the runtime speed when they are a lot of agents 
+	 * (e.g. in a simulation mode). Indeed, thanks to this idiom, useless strings will not
+	 * be built, thus saving a lot of time. 
 	 * 
 	 * <pre>
 	 * if (logger != null)
 	 * 	logger.info(&quot;info message&quot;);
 	 * </pre>
 	 * 
+	 * {@link #getLogger()} should not be used here because it always returns a non <code>null</code>
+	 * logger.
+	 * 
+	 * @see java.util.logging.Level
 	 * @see java.util.logging.Logger
 	 */
 	protected AgentLogger								logger;
@@ -308,7 +324,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 				state.set(LIVING);// for the following kill to work
 				suicide(e);
 				return true;
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				validateDeathOnException(e, LIVING);
 			}
 		} catch (KilledException e) {
@@ -386,7 +402,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		return true;
 	}
 
-	private void validateDeathOnException(Exception e, State threadNewState) {
+	private void validateDeathOnException(Throwable e, State threadNewState) {
 		synchronized (state) {
 			logLifeException(e);
 			Thread.currentThread().setName(getAgentThreadName(threadNewState));
@@ -435,6 +451,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			AgentLogLevelMenu.remove(this);
 			AgentStatusPanel.remove(this);
 		}
+		if(kernel.isHooked())
+			kernel.informHooks(AgentActionEvent.AGENT_TERMINATED, getName());
 		kernel = TERMINATED_KERNEL;
 	}
 
@@ -927,6 +945,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         to <code>null</code> for optimizing your code by using
 	 *         {@link #setLogLevel(Level)} with {@link Level#OFF}.
 	 * 
+	 * @see AbstractAgent#logger
 	 * @since MaDKit 5.0.0.6
 	 */
 	public AgentLogger getLogger() {
@@ -2366,16 +2385,16 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		 */
 		NOT_GROUP,
 		/**
+		 * Indicates that a role does not exist
+		 */
+		NOT_ROLE,
+		/**
 		 * Indicates that the agent is not in a group
 		 */
 		NOT_IN_GROUP,
-		/**
-		 * Indicates that the referred community does not exist
-		 */
-		NOT_ROLE,
 		// TERMINATED_AGENT,
 		/**
-		 * Returned when the agent already have the requested role
+		 * Returned when the agent already has the requested role
 		 */
 		ROLE_ALREADY_HANDLED,
 		/**

@@ -19,10 +19,10 @@
 package madkit.gui;
 
 import java.awt.Dimension;
-import java.awt.Image;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 
+import javax.swing.BoundedRangeModel;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.ImageIcon;
@@ -43,18 +43,31 @@ import javax.swing.border.TitledBorder;
 final public class SwingUtil {
 	
 	final public static ImageIcon MADKIT_LOGO = new ImageIcon(SwingUtil.class.getResource("images/madkit_logo.png"));
+
 	/**
-	 * Creates a labeled panel containing a slider 
+	 * Creates a labeled panel containing a slider with default size.
 	 * 
 	 * @param slider
 	 * @param label
 	 * @return a panel for the slider
 	 */
 	public static JPanel createSliderPanel(final JSlider slider, String label) {
+		return createSliderPanel(slider, label, 170);
+	}
+
+	/**
+	 * Creates a labeled panel containing a slider and considering
+	 * a particular width
+	 * 
+	 * @param slider
+	 * @param label
+	 * @return a panel for the slider
+	 */
+	public static JPanel createSliderPanel(final JSlider slider, String label, int width) {
 		final JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		p.setBorder(new TitledBorder(label));
-		p.setPreferredSize(new Dimension(170, 60));
+		p.setPreferredSize(new Dimension(width, 60));
 		p.add(slider);
 		return p;
 	}
@@ -67,7 +80,7 @@ final public class SwingUtil {
 	 * @param label
 	 * @return a panel for this model
 	 */
-	public static JPanel createSliderPanel(final DefaultBoundedRangeModel model, String label) {
+	public static JPanel createSliderPanel(final BoundedRangeModel model, String label) {
 		return createSliderPanel(createJSlider(model), label);
 	}
 
@@ -80,12 +93,12 @@ final public class SwingUtil {
 	 * @param model
 	 * @return the corresponding {@link JSlider}
 	 */
-	public static JSlider createJSlider(final DefaultBoundedRangeModel model) {
+	public static JSlider createJSlider(final BoundedRangeModel model) {
 		final JSlider slider = new JSlider(model);
 		slider.addMouseWheelListener(new MouseWheelListener() {
 			@Override
 			public void mouseWheelMoved(MouseWheelEvent e) {
-				slider.setValue(-e.getWheelRotation() + slider.getValue());
+				slider.setValue(-e.getWheelRotation() * model.getExtent() + model.getValue());
 			}
 		});
 		slider.setPaintTicks(true);

@@ -21,9 +21,9 @@ package madkit.hook;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import java.util.Arrays;
 import java.util.logging.Level;
 
-import madkit.action.AgentAction;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.agr.Organization;
@@ -32,7 +32,12 @@ import madkit.kernel.Agent;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Message;
-import madkit.message.AgentHookMessage;
+import madkit.message.ObjectMessage;
+import madkit.message.hook.HookMessage;
+import madkit.message.hook.HookMessage.AgentActionEvent;
+import madkit.message.hook.AgentLifeEvent;
+import madkit.testing.util.agent.NormalAA;
+import madkit.testing.util.agent.NormalAgent;
 
 import org.junit.Test;
 
@@ -59,7 +64,7 @@ public class HookSystemTest extends JunitMadkit {
 						sendMessage(LocalCommunity.NAME, 
 								LocalCommunity.Groups.SYSTEM, 
 								Organization.GROUP_MANAGER_ROLE, 
-								new AgentHookMessage(AgentAction.CREATE_GROUP));
+								new HookMessage(AgentActionEvent.CREATE_GROUP));
 						pause(10);
 						createGroup(COMMUNITY, GROUP);
 						Message m = waitNextMessage();
@@ -86,12 +91,12 @@ public class HookSystemTest extends JunitMadkit {
 						sendMessage(LocalCommunity.NAME, 
 								LocalCommunity.Groups.SYSTEM, 
 								Organization.GROUP_MANAGER_ROLE, 
-								new AgentHookMessage(AgentAction.CREATE_GROUP));
+								new HookMessage(AgentActionEvent.CREATE_GROUP));
 						pause(10);
 						sendMessage(LocalCommunity.NAME, 
 								LocalCommunity.Groups.SYSTEM, 
 								Organization.GROUP_MANAGER_ROLE, 
-								new AgentHookMessage(AgentAction.CREATE_GROUP));
+								new HookMessage(AgentActionEvent.CREATE_GROUP));
 						createGroup(COMMUNITY, GROUP);
 						assertNull(nextMessage());
 					}
@@ -115,7 +120,7 @@ public class HookSystemTest extends JunitMadkit {
 						sendMessage(LocalCommunity.NAME, 
 								LocalCommunity.Groups.SYSTEM, 
 								Organization.GROUP_MANAGER_ROLE, 
-								new AgentHookMessage(AgentAction.REQUEST_ROLE));
+								new HookMessage(AgentActionEvent.REQUEST_ROLE));
 						pause(10);
 						createGroup(COMMUNITY, GROUP);
 						requestRole(COMMUNITY, GROUP, ROLE);
@@ -143,7 +148,7 @@ public class HookSystemTest extends JunitMadkit {
 						sendMessage(LocalCommunity.NAME, 
 								LocalCommunity.Groups.SYSTEM, 
 								Organization.GROUP_MANAGER_ROLE, 
-								new AgentHookMessage(AgentAction.LEAVE_ROLE));
+								new HookMessage(AgentActionEvent.LEAVE_ROLE));
 						pause(10);
 						createGroup(COMMUNITY, GROUP);
 						requestRole(COMMUNITY, GROUP, ROLE);
@@ -172,7 +177,7 @@ public class HookSystemTest extends JunitMadkit {
 						sendMessage(LocalCommunity.NAME, 
 								LocalCommunity.Groups.SYSTEM, 
 								Organization.GROUP_MANAGER_ROLE, 
-								new AgentHookMessage(AgentAction.LEAVE_GROUP));
+								new HookMessage(AgentActionEvent.LEAVE_GROUP));
 						pause(10);
 						createGroup(COMMUNITY, GROUP);
 						leaveGroup(COMMUNITY, GROUP);
@@ -201,12 +206,13 @@ public class HookSystemTest extends JunitMadkit {
 								LocalCommunity.NAME, 
 								LocalCommunity.Groups.SYSTEM, 
 								Organization.GROUP_MANAGER_ROLE, 
-								new AgentHookMessage(AgentAction.SEND_MESSAGE));
+								new HookMessage(AgentActionEvent.SEND_MESSAGE));
 						pause(10);
 						sendMessage(LocalCommunity.NAME, Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE, new Message());
 						Message m = waitNextMessage();
 						assertNotNull(m);
 						System.err.println(m);
+						System.err.println(Arrays.deepToString(((ObjectMessage<Object[]>) m).getContent()));
 					}
 				},0);
 			}
@@ -230,12 +236,83 @@ public class HookSystemTest extends JunitMadkit {
 								LocalCommunity.NAME, 
 								LocalCommunity.Groups.SYSTEM, 
 								Organization.GROUP_MANAGER_ROLE, 
-								new AgentHookMessage(AgentAction.BROADCAST_MESSAGE));
+								new HookMessage(AgentActionEvent.BROADCAST_MESSAGE));
 						pause(10);
 						broadcastMessage(LocalCommunity.NAME, Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE, new Message());
 						Message m = waitNextMessage();
 						assertNotNull(m);
 						System.err.println(m);
+					}
+				},0);
+			}
+		});
+		pause(100);
+	}
+
+
+	@Test
+	public void agentStarted() {
+		addMadkitArgs(LevelOption.agentLogLevel.toString(), Level.ALL.toString()
+//				,LevelOption.kernelLogLevel.toString(),Level.ALL.toString()
+				);
+		launchTest(new AbstractAgent() {
+			@Override
+			protected void activate() {
+				launchAgent(new Agent(){
+					@Override
+					protected void activate() {
+						sendMessage(
+								LocalCommunity.NAME, 
+								LocalCommunity.Groups.SYSTEM, 
+								Organization.GROUP_MANAGER_ROLE, 
+								new HookMessage(AgentActionEvent.AGENT_STARTED));
+						pause(10);
+						NormalAA a;
+						launchAgent(a = new NormalAA());
+						Message m = waitNextMessage();
+						assertNotNull(m);
+						System.err.println(m);
+						killAgent(a);
+						pause(10);
+						launchAgent(new NormalAgent());
+						m = waitNextMessage();
+						assertNotNull(m);
+						System.err.println(m);
+					}
+				},0);
+			}
+		});
+		pause(100);
+	}
+
+	@Test
+	public void agentTerminated() {
+		addMadkitArgs(LevelOption.agentLogLevel.toString(), Level.ALL.toString()
+//				,LevelOption.kernelLogLevel.toString(),Level.ALL.toString()
+				);
+		launchTest(new AbstractAgent() {
+			@Override
+			protected void activate() {
+				launchAgent(new Agent(){
+					@Override
+					protected void activate() {
+						sendMessage(
+								LocalCommunity.NAME, 
+								LocalCommunity.Groups.SYSTEM, 
+								Organization.GROUP_MANAGER_ROLE, 
+								new HookMessage(AgentActionEvent.AGENT_TERMINATED));
+						pause(10);
+						NormalAA a;
+						launchAgent(a = new NormalAA());
+						killAgent(a);
+						Message m = waitNextMessage();
+						assertNotNull(m);
+						System.err.println(m);
+						pause(10);
+						launchAgent(new NormalAgent());
+						m = waitNextMessage();
+						assertNotNull(m);
+						System.err.println(((AgentLifeEvent)m).getSourceAgent());
 					}
 				},0);
 			}

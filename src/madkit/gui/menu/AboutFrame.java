@@ -31,7 +31,6 @@ import java.net.URISyntaxException;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -44,7 +43,6 @@ import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 
 import madkit.gui.SwingUtil;
-import madkit.i18n.Words;
 import madkit.kernel.Madkit;
 
 /**

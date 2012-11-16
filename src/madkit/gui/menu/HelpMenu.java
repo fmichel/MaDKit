@@ -33,6 +33,7 @@ import javax.swing.JMenuItem;
 import madkit.action.KernelAction;
 import madkit.gui.SwingUtil;
 import madkit.i18n.Words;
+import madkit.kernel.Madkit;
 
 /**
  * 
@@ -73,7 +74,7 @@ final public class HelpMenu extends JMenu {
 			final ImageIcon ii = KernelAction.CONNECT_WEB_REPO.getActionInfo().getSmallIcon();
 			mi = new JMenuItem("API",ii);
 			mi.addActionListener(tuto);
-			mi.setActionCommand("api");
+			mi.setActionCommand("api/MaDKit-"+Madkit.VERSION);
 			add(mi);
 			mi = new JMenuItem(Words.TUTORIALS.toString(),ii);
 			mi.addActionListener(tuto);

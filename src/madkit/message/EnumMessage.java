@@ -23,7 +23,7 @@ import java.util.Arrays;
 /**
  * This parameterizable class could be used 
  * to build a message tagged with an enumeration 
- * and to convey any Java objects with it.
+ * and conveying any java objects using an array of Object.
  * 
  * @author Fabien Michel
  * @version 5.0

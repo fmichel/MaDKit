@@ -18,13 +18,13 @@
  */
 
 /**
- * Contains activators for simulation authoring.
- * 
- * @author Fabien Michel, Olivier Gutknecht
- * @version 5.0
- * @since MaDKit 1.6
- *
- */ 
-package madkit.simulation.activator;
+* Contains classes designed for encapsulating simulation models.
+* 
+* @author Fabien Michel
+* @since MaDKit 5.0.0.19
+* @version 0.9
+* 
+*/ 
+package madkit.simulation.model;
 
 

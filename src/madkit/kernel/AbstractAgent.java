@@ -65,9 +65,9 @@ import madkit.i18n.ErrorMessages;
 import madkit.i18n.I18nUtilities;
 import madkit.i18n.Words;
 import madkit.kernel.Madkit.Option;
-import madkit.message.hook.HookMessage.AgentActionEvent;
 import madkit.message.EnumMessage;
 import madkit.message.GUIMessage;
+import madkit.message.hook.HookMessage.AgentActionEvent;
 
 // * <img src="doc-files/Capture.png" alt=""/>
 /**

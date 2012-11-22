@@ -41,13 +41,14 @@ model.</li>
 <h2><br>
 </h2>
 <hr><span style="font-weight: bold;"></span>
-<h2><span style="font-weight: bold;"></span>Documentation
+<h2><span style="font-weight: bold;"></span>Documentation and resources
 </h2>
 <ul>
   <li><big><a style="font-weight: bold;" href="docs/api/index.html">API</a></big>:
 Javadoc
 detailing
-the MaDKit programming interface<br>
+the
+MaDKit programming interface<br>
     <br>
   </li>
   <li><big style="font-weight: bold;"><a
@@ -58,16 +59,33 @@ illustrating basic features<br>
     <br>
   </li>
   <li>A <big style="font-weight: bold;"><a
- href="docs/French_Tutorial/Rapport_Madkit_Tutoriels.pdf">French
+ href="http://www.madkit.net/${docs.dir}/French_Tutorial/Rapport_Madkit_Tutoriels.pdf">French
 tutorial</a></big> realized by second year students at the IUT of
-Montpellier, and its <a href="docs/French_Tutorial/">source
+Montpellier, and its <a
+ href="http://www.madkit.net/${docs.dir}/French_Tutorial/MaDKit_Tutorial.zip">source
 codes</a>.<br>
     <br>
   </li>
-  <li><big style="font-weight: bold;"><a href="demos">Demo</a></big>
-source codes are also a good
+  <li>Demo source codes are also a good
 starting
-point ;)</li>
+point. They are available in the demos directory of the <a
+ href="http://www.madkit.org/">MaDKit-${madkit.version}.zip</a> file.<br>
+  </li>
+</ul>
+<ul>
+  <li>A <big><a href="${docs.dir}/build.xml"><span style="font-weight: bold;">build.xml</span></a></big>
+ant file for easing the development and deployment of MaDKit projects.</li>
+</ul>
+<ul>
+  <li>MaDKit classes <big style="font-weight: bold;"><a
+ href="${src.zip.location}">java source
+code</a></big> as a zip file. It could be used to attach source in an
+IDE for easing the development.</li>
+</ul>
+<ul>
+  <li>The complete <big style="font-weight: bold;"><a
+ href="http://github.com/fmichel/MaDKit">MaDKit development
+tree</a></big> is available on github.</li>
 </ul>
 <br>
 <br>
@@ -106,8 +124,10 @@ finish&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>
 </div>
 <br>
 <hr><span style="font-style: italic;"></span>
-<h2>Developing with MaDKit ${madkit.version}<br>
-</h2>
+<h2>Developing with MaDKit ${madkit.version}</h2>
+<span style="font-weight: bold;">${madkit.jar.name}</span> is a regular
+Java library which could be used by simply having it on the classpath:<br>
+<br>
 <ol>
   <li>unzip the MaDKit-${madkit.version}.zip file somewhere in your
 file system.</li>
@@ -164,7 +184,7 @@ madkit.kernel.Madkit class<br>
 <h3>
 </h3>
 <ul>
-  <li><a href="docs/VERSION">VERSION</a></li>
+  <li><a href="docs/VERSION">VERSION ${madkit.version}</a></li>
 </ul>
 <br>
 <hr>
@@ -172,7 +192,8 @@ madkit.kernel.Madkit class<br>
 <ul>
   <li>MaDKit ${madkit.version} is 100% pure JDK and free software
 licensed under the&nbsp;<a href="http://www.gnu.org/licenses/gpl.html">GNU
-General Public License v3</a>. </li>
+General
+Public License v3</a>. </li>
 </ul>
 <br>
 <hr size="2">

@@ -18,10 +18,10 @@
  */
 package madkit.simulation;
 
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -29,7 +29,6 @@ import java.lang.reflect.Method;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Activator;
 import madkit.kernel.Agent;
-import madkit.kernel.JunitMadkit;
 import madkit.testing.util.agent.NormalLife;
 
 import org.junit.Before;
@@ -50,7 +49,7 @@ public class ActivatorTest {
 
 	@Before
 	public void setUp() throws Exception {
-		a = new Activator<AbstractAgent>("t", "t", "t");
+		a = new EmptyActivator("t", "t", "t");
 		agt = new Agent();
 	}
 
@@ -59,24 +58,6 @@ public class ActivatorTest {
 		System.err.println(a);
 	}
 
-	@Test
-	public void testExecute() {
-		try {
-			a.execute();
-			JunitMadkit.noExceptionFailure();
-		} catch (UnsupportedOperationException e) {
-		}
-	}
-
-	@Test
-	public void testMulticoreExecute() {
-		try {
-			a.multicoreExecute();
-			JunitMadkit.noExceptionFailure();
-		} catch (UnsupportedOperationException e) {
-		}
-	}
-	
 	@Test
 	public void testFindMethodOn() {
 		try {
@@ -104,22 +85,22 @@ public class ActivatorTest {
 	@Test
 	public void testIsMulticoreModeOn() {
 		assertFalse(a.isMulticoreModeOn());
-		a.setMulticore(1);
+		a.useMulticore(1);
 		assertFalse(a.isMulticoreModeOn());
-		a.setMulticore(2);
+		a.useMulticore(2);
 		assertTrue(a.isMulticoreModeOn());
-		a.setMulticore(1);
+		a.useMulticore(1);
 		assertFalse(a.isMulticoreModeOn());
-		a.setMulticore(-1);
+		a.useMulticore(-1);
 		assertFalse(a.isMulticoreModeOn());
 	}
 
 	@Test
 	public void testSetMulticore() {
-		a.setMulticore(-1);
-		assertEquals(1, a.nbOfSimultaneousTasks());
-		a.setMulticore(2);
-		assertEquals(2, a.nbOfSimultaneousTasks());
+		a.useMulticore(-1);
+		assertEquals(1, a.nbOfParallelTasks());
+		a.useMulticore(2);
+		assertEquals(2, a.nbOfParallelTasks());
 	}
 
 }

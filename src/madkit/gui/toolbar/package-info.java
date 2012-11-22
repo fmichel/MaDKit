@@ -18,7 +18,7 @@
  */
 
 /**
-* This package contains classes for building MaDKit GUI toolbars.
+* Contains classes for building MaDKit GUI toolbars.
 * @since MaDKit 5.0.0.10
 * @author Fabien Michel
 * @version 1.0

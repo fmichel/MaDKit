@@ -19,6 +19,10 @@
 package madkit.kernel;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
+import java.util.List;
+import java.util.concurrent.Callable;
 
 import madkit.simulation.activator.GenericBehaviorActivator;
 
@@ -26,12 +30,11 @@ import madkit.simulation.activator.GenericBehaviorActivator;
  * This class defines a tool for scheduling mechanism.
  * An activator is configured according to a community, a group and a role.
  * It could be used to activate a group of agents on a particular behavior (a method of the agent's class)
- * Subclasses should override {@link #execute()} for defining how 
- * a sequential execution of the agents take place or {@link #multicoreExecute()} for 
- * defining a concurrent execution process of group of agents. By default these methods
- * do nothing. To set the mode that will be used by the scheduler, 
- * to use multicore execution on activators having internal concurrent mechanism.
- * The multicore is set to <code>false</code> by default.
+ * Subclasses should override {@link #execute(List)} for defining how 
+ * a sequential execution of a list of agents take place. By default, this list 
+ * corresponds to all the agents in a single core mode or to partial views of
+ * the entire list when the multicore mode is used.
+ * The multicore mode is set to <code>false</code> by default.
  * 
  * @author Fabien Michel
  * @author Olivier Gutknecht 
@@ -41,9 +44,8 @@ import madkit.simulation.activator.GenericBehaviorActivator;
  * @version 5.0
  * 
  */
-public class Activator<A extends AbstractAgent> extends Overlooker<A>{
+public abstract class Activator<A extends AbstractAgent> extends Overlooker<A>{
 
-	private static final String	NOT_IMPLEMENTED	= "Activator not implemented";
 	private int nbOfsimultaneousTasks = 1;
 	/**
 	 * Builds a new Activator on the given CGR location of the
@@ -59,42 +61,42 @@ public class Activator<A extends AbstractAgent> extends Overlooker<A>{
 		super(community, group, role);
 	}
 
-	//	/**
-	//	 * Builds a new Activator on the given CGR location of the
-	//	 * artificial society. Once created, it has to be added by a {@link Scheduler} 
-	//	 * agent using the {@link Scheduler#addActivator(Activator)} method.
-	//	 * @param community
-	//	 * @param group
-	//	 * @param role
-	//	 * @param multicore if <code>true</code> {@link #multicoreExecute()} is used 
-	//	 * when the activator is triggered by a scheduler agent 
-	//	 * that uses {@link Scheduler#triggerActivator(Activator)}
-	//	 * @see Scheduler
-	//	 */
-	//	public Activator(String community, String group, String role, boolean multicore) {
-	//		super(community, group, role);
-	//		this.multicore = multicore;
-	//	}
-
 	/**
-	 * Subclasses should override this to define how 
-	 * the agents which are at the CGR location are executed.
+	 * Call #execute(List<A> agentsList) on all the agents, i.e. using 
+	 * {@link Overlooker#getCurrentAgentsList()}.
 	 * 
 	 * By default, this is automatically called by the default scheduler's 
-	 * loop when this activator has been added.
-	 * 
-	 * @throws UnsupportedOperationException if this operation is not supported 
-	 * by the activator, i.e. not implemented.
+	 * loop once the activator is added.
 	 * 
 	 * @see Scheduler#doSimulationStep()
 	 */
 	public void execute() {
-		throw new UnsupportedOperationException(NOT_IMPLEMENTED+toString());
+		if (isMulticoreModeOn()) {
+			multicoreExecute();
+		}
+		else{
+			execute(getCurrentAgentsList());
+		}
 	}
 
 	/**
+	 * This should define what has to be done on the agents
+	 * for a simulation step. By default, this calls is automatically made
+	 * using a list containing all the agents for this CGR, 
+	 * i.e. {@link Overlooker#getCurrentAgentsList()} is used by default.
+	 * 
+	 * When the multicore mode is on, the list is only a portion and
+	 * this method will automatically be distributed over several threads.
+	 * So, one has to take care about how the activator's fields are used
+	 * here to avoid a {@link ConcurrentModificationException} for instance.
+	 * 
+	 * @param agentsList
+	 */
+	public abstract void execute(List<A> agentsList);
+
+	/**
 	 * Executes the behavior on all the agents in a concurrent way, using several processor cores if available.
-	 * This call decomposes the execution of the activator in {@link #nbOfSimultaneousTasks()} tasks so that
+	 * This call decomposes the execution of the activator in {@link #nbOfParallelTasks()} tasks so that
 	 * there are independently performed by the available core of the host.
 	 * <p>
 	 * Default implementation 
@@ -102,11 +104,34 @@ public class Activator<A extends AbstractAgent> extends Overlooker<A>{
 	 * model is used. That is to say, a model supporting concurrent phases in the simulation execution such as the
 	 * <a href="http://www.aamas-conference.org/Proceedings/aamas07/html/pdf/AAMAS07_0179_07a7765250ef7c3551a9eb0f13b75a58.pdf">IRM4S model<a/>
 	 * 
-	 * @throws UnsupportedOperationException if this operation is not supported 
-	 * by the activator, i.e. not implemented.
 	 */
-	public void multicoreExecute() {
-		throw new UnsupportedOperationException(NOT_IMPLEMENTED+toString());
+	protected void multicoreExecute() {
+		final int cpuCoreNb = nbOfParallelTasks();
+		final ArrayList<Callable<Void>> workers = new ArrayList<Callable<Void>>(cpuCoreNb);
+		final List<A> list = getCurrentAgentsList();
+		int bucketSize = list.size();
+		final int nbOfAgentsPerTask = bucketSize / cpuCoreNb;
+		for (int i = 0; i < cpuCoreNb; i++) {
+			final int index = i;
+			workers.add(new Callable<Void>() {
+				public Void call() throws Exception {
+					int firstIndex = nbOfAgentsPerTask*index;//TODO check that using junit
+					execute(list.subList(firstIndex, firstIndex+nbOfAgentsPerTask));
+					return null;
+				}
+			});
+		}
+		workers.add(new Callable<Void>() {
+			public Void call() throws Exception {
+				execute(list.subList(nbOfAgentsPerTask*cpuCoreNb, list.size()));
+				return null;
+			}
+		});
+		try {
+			getMadkitServiceExecutor().invokeAll(workers);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();//do not swallow it !
+		}
 	}
 
 	@Override
@@ -115,8 +140,8 @@ public class Activator<A extends AbstractAgent> extends Overlooker<A>{
 	}
 
 	/**
-	 * @return <code>true</code> if the multi core mode is on. I.e. 
-	 * {@link #nbOfSimultaneousTasks()} > 1.
+	 * @return <code>true</code> if the multicore mode is on. I.e. 
+	 * {@link #nbOfParallelTasks()} > 1.
 	 * This method could be used by the default behavior of scheduler agents as 
 	 * they test in which mode each activator has to be used.
 	 */
@@ -125,30 +150,32 @@ public class Activator<A extends AbstractAgent> extends Overlooker<A>{
 	}
 
 	/**
-	 * Sets the number of core which will be used. If set to a number greater
-	 * than 1, the scheduler will automatically call {@link #multicoreExecute()}
-	 * on this activator.
-	 * @param nbOfsimultaneousTasks the number of simultaneous tasks
+	 * Sets the number of tasks which will be used on a multicore
+	 * architecture. If set to a number greater
+	 * than 1, the scheduler will automatically use {@link #multicoreExecute()}
+	 * on this activator when {@link Activator#execute()} is called.
+	 * If set to 1, the agents are sequentially activated. Beware
+	 * that this is the only way
+	 * to do exact replication of simulations, unless you have clear
+	 * specifications for your model, see {@link #multicoreExecute()}.
+	 * 
+	 * @param nbOfParallelTasks the number of simultaneous tasks
 	 * that this activator will use to make a step. Default is 1 upon
 	 * creation, so that 
 	 * {@link #isMulticoreModeOn()} returns <code>false</code>.
 	 */
-	public void setMulticore(int nbOfsimultaneousTasks) {
-		if (nbOfsimultaneousTasks < 2) {
-			this.nbOfsimultaneousTasks = 1;
-		}
-		else{
-			this.nbOfsimultaneousTasks = nbOfsimultaneousTasks;
-		}
+	public void useMulticore(int nbOfParallelTasks) {
+		nbOfsimultaneousTasks = nbOfParallelTasks < 2 ? 1 : nbOfParallelTasks;
 	}
 
 	/**
-	 * Returns the number tasks that will
-	 * be created by this activator when {@link #multicoreExecute()}
-	 * is used.
+	 * Returns the number of tasks that will
+	 * be created by this activator in order to
+	 * benefit from multicore platforms.
+	 * 
 	 * @return the number of tasks that will be created.
 	 */
-	public int nbOfSimultaneousTasks() {
+	public int nbOfParallelTasks() {
 		return nbOfsimultaneousTasks;
 	}
 

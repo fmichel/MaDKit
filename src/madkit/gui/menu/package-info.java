@@ -18,7 +18,7 @@
  */
 
 /**
-* This package contains classes for building MaDKit GUI menus.
+* Contains classes for building MaDKit GUI menus.
 * @since MaDKit 5.0.0.10
 * @author Fabien Michel
 * @version 1.0

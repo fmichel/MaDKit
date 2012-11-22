@@ -19,8 +19,6 @@
 package madkit.simulation.probe;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
 
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Probe;

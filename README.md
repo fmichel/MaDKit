@@ -22,7 +22,7 @@ More information
 
 * [Official Homepage](http://www.madkit.org)
 * [Getting started](http://www.madkit.net/README.html)
-* [API Reference](http://www.madkit.org/api/madkit5)
+* [API Reference](http://www.madkit.org/api)
 * [Tutorials](http://www.madkit.org/tutorials)
 * [Forum](http://www.madkit.org/forum)
 

@@ -18,7 +18,6 @@
  */
 package madkit.message.hook;
 
-import madkit.action.AgentAction;
 import madkit.message.EnumMessage;
 
 /**

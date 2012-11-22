@@ -46,35 +46,35 @@ public class BasicSchedulerTest extends JunitMadkit {
 				Scheduler s = new Scheduler();
 				assertEquals(SUCCESS, launchAgent(s));
 				try {
-					Activator<AbstractAgent> a = new Activator<AbstractAgent>(null, null, null);
+					Activator<AbstractAgent> a = new EmptyActivator(null, null, null);
 					s.addActivator(a);
 					noExceptionFailure();
 				} catch (NullPointerException e) {
 					e.printStackTrace();
 				}
 				try {
-					Activator<AbstractAgent> a = new Activator<AbstractAgent>(COMMUNITY, null, null);
+					Activator<AbstractAgent> a = new EmptyActivator(COMMUNITY, null, null);
 					s.addActivator(a);
 					noExceptionFailure();
 				} catch (NullPointerException e) {
 					e.printStackTrace();
 				}
 				try {
-					Activator<AbstractAgent> a = new Activator<AbstractAgent>(COMMUNITY, GROUP, null);
+					Activator<AbstractAgent> a = new EmptyActivator(COMMUNITY, GROUP, null);
 					s.addActivator(a);
 					noExceptionFailure();
 				} catch (NullPointerException e) {
 					e.printStackTrace();
 				}
 				try {
-					Activator<AbstractAgent> a = new Activator<AbstractAgent>(null, GROUP, null);
+					Activator<AbstractAgent> a = new EmptyActivator(null, GROUP, null);
 					s.addActivator(a);
 					noExceptionFailure();
 				} catch (NullPointerException e) {
 					e.printStackTrace();
 				}
 				try {
-					Activator<AbstractAgent> a = new Activator<AbstractAgent>(null, null, ROLE);
+					Activator<AbstractAgent> a = new EmptyActivator(null, null, ROLE);
 					s.addActivator(a);
 					noExceptionFailure();
 				} catch (NullPointerException e) {
@@ -91,7 +91,7 @@ public class BasicSchedulerTest extends JunitMadkit {
 				createDefaultCGR(this);
 				Scheduler s = new Scheduler();
 				assertEquals(SUCCESS, launchAgent(s));
-				Activator<AbstractAgent> a = new Activator<AbstractAgent>(null, null, null);
+				Activator<AbstractAgent> a = new EmptyActivator(null, null, null);
 				s.addActivator(a);
 			}
 		}, ReturnCode.AGENT_CRASH);
@@ -111,7 +111,7 @@ public class BasicSchedulerTest extends JunitMadkit {
 				assertEquals(SUCCESS, launchAgent(s));
 				ReturnCode code;
 				// ///////////////////////// REQUEST ROLE ////////////////////////
-				Activator<AbstractAgent> a = new Activator<AbstractAgent>("public", "system", "site");
+				Activator<AbstractAgent> a = new EmptyActivator("public", "system", "site");
 				s.addActivator(a);
 				assertEquals(1, a.size());
 

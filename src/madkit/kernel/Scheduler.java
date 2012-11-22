@@ -27,7 +27,6 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.logging.Level;
 
 import javax.swing.Action;
 import javax.swing.Box;
@@ -44,7 +43,6 @@ import javax.swing.border.TitledBorder;
 
 import madkit.action.SchedulingAction;
 import madkit.message.SchedulingMessage;
-import madkit.simulation.SimulationException;
 
 /**
  * This class defines a generic threaded scheduler agent. It holds a collection
@@ -238,22 +236,26 @@ public class Scheduler extends Agent {
 	}
 
 	/**
-	 * Executes all the activators in the order they have been added, using the
-	 * and increment the global virtual time of this scheduler by one unit. This
-	 * method should be overridden to define customized scheduling policy. So
-	 * default implementation is :
+	 * Executes all the activators in the order they have been added, using
+	 * {@link Activator#execute()}, and then increments the global virtual time
+	 * of this scheduler by one unit.
+	 * 
+	 * This also automatically calls the multicore mode of the activator if it
+	 * is set so. This method should be overridden to define customized
+	 * scheduling policy. So default implementation is :
 	 * 
 	 * <pre>
 	 * <tt>@Override</tt>
-	 * public void doSimulationStep() {
-	 * 	if (logger != null) {
-	 * 		logger.finer("Doing simulation step "+GVT);
-	 * 	}
-	 * 	for (final Activator<? extends AbstractAgent> activator : activators) {
-	 * 		triggerActivator(activator);
-	 * 	}
-	 * 	setGVT(getGVT() + 1);
-	 * }
+	 * 	public void doSimulationStep() {
+	 * 		if (logger != null) {
+	 * 			logger.finer("Doing simulation step " + GVT);
+	 * 		}
+	 * 		for (final Activator<? extends AbstractAgent> activator : activators) {
+	 * 			if (logger != null)
+	 * 				logger.finer("Activating\n--------> " + activator);
+	 * 			activator.execute();
+	 * 		}
+	 * 		setGVT(getGVT() + 1);
 	 * </pre>
 	 */
 	public void doSimulationStep() {
@@ -261,41 +263,16 @@ public class Scheduler extends Agent {
 			logger.finer("Doing simulation step " + GVT);
 		}
 		for (final Activator<? extends AbstractAgent> activator : activators) {
-			triggerActivator(activator);
+			if (logger != null)
+				logger.finer("Activating\n--------> " + activator);
+//			try {
+				activator.execute();
+//			} catch (SimulationException e) {//TODO is it better ?
+//				setSimulationState(SimulationState.SHUTDOWN);
+//				getLogger().log(Level.SEVERE, e.getMessage(), e);
+//			}
 		}
 		setGVT(GVT + 1);
-	}
-
-	/**
-	 * Triggers the activator's execution process. This process automatically
-	 * calls the multicore mode of the activator if it is set so. That is:
-	 * 
-	 * <pre>
-	 * if (logger != null)
-	 * 	logger.finer(&quot;Activating\n--------&gt;  &quot; + activator);
-	 * if (activator.isMulticoreModeOn()) {
-	 * 	activator.multicoreExecute();
-	 * } else {
-	 * 	activator.execute();
-	 * }
-	 * </pre>
-	 * 
-	 * @param activator
-	 *           the activator to execute.
-	 */
-	public void triggerActivator(final Activator<? extends AbstractAgent> activator) {
-		if (logger != null)
-			logger.finer("Activating\n--------> " + activator);
-//		try {
-			if (activator.isMulticoreModeOn()) {
-				activator.multicoreExecute();
-			} else {
-				activator.execute();
-			}
-//		} catch (SimulationException e) {//TODO is it better ?
-//			setSimulationState(SimulationState.SHUTDOWN);
-//			getLogger().log(Level.SEVERE, e.getMessage(), e);
-//		}
 	}
 
 	@Override

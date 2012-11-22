@@ -18,8 +18,9 @@
  */
 
 /**
-* This package contains enum classes which could be used to (1) interact with
-* the agents and (2) easily build customized GUI by getting MaDKit standardized {@link javax.swing.Action}.
+* Contains enumerations useful for (1) interacting with
+* agents and (2) building customized GUI.
+* Especially, GUI building could be easily done by getting MaDKit standardized {@link javax.swing.Action}.
 * 
 * @since MaDKit 5.0.0.14
 * @author Fabien Michel

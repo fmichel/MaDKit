@@ -33,9 +33,9 @@ import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Message;
 import madkit.message.ObjectMessage;
+import madkit.message.hook.AgentLifeEvent;
 import madkit.message.hook.HookMessage;
 import madkit.message.hook.HookMessage.AgentActionEvent;
-import madkit.message.hook.AgentLifeEvent;
 import madkit.testing.util.agent.NormalAA;
 import madkit.testing.util.agent.NormalAgent;
 

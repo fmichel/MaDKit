@@ -20,11 +20,9 @@ package madkit.simulation.activator;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Activator;
@@ -74,8 +72,15 @@ public class GenericBehaviorActivator<A extends AbstractAgent> extends Activator
 		return methodName;
 	}
 	
+	/**
+	 * Triggers the corresponding behavior on all the agents
+	 *  which are at the CGR location defined by this activator.
+	 * 
+	 * @see madkit.kernel.Activator#execute(java.util.List)
+	 */
 	@SuppressWarnings("null")
-	private void execute(final List<A> agents){
+	@Override
+	public void execute(final List<A> agents){
 		//local cache for multicore execute and avoiding adding collision
 		Method cachedM = null;
 		Class<? extends A> cachedC = null;
@@ -107,52 +112,6 @@ public class GenericBehaviorActivator<A extends AbstractAgent> extends Activator
 			}
 		}
 	}
-	
-	@Override
-	public void multicoreExecute() {
-		final int cpuCoreNb = nbOfSimultaneousTasks();
-		final ArrayList<Callable<Void>> workers = new ArrayList<Callable<Void>>(cpuCoreNb);
-		final List<A> list = getCurrentAgentsList();
-		int bucketSize = list.size();
-		final int nbOfAgentsPerTask = bucketSize / cpuCoreNb;
-		for (int i = 0; i < cpuCoreNb; i++) {
-			final int index = i;
-			workers.add(new Callable<Void>() {
-				public Void call() throws Exception {
-					int firstIndex = nbOfAgentsPerTask*index;//TODO check that using junit
-					execute(list.subList(firstIndex, firstIndex+nbOfAgentsPerTask));
-					return null;
-				}
-			});
-		}
-		workers.add(new Callable<Void>() {
-			public Void call() throws Exception {
-				execute(list.subList(nbOfAgentsPerTask*cpuCoreNb, list.size()));
-				return null;
-			}
-		});
-		try {
-			getMadkitServiceExecutor().invokeAll(workers);
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();//do not swallow it !
-		}
-	}
-	
-	//TODO should be possible and not that hard, but is there really a need ?
-//	public void setBehaviorName(final String theBehaviorToActivate){
-//		theBehaviorToActivate = theBehaviorToActivate;
-//	}
-//
-	@Override
-	/**
-	 * Triggers the corresponding behavior on all the agents
-	 *  which are at the CGR location defined by this activator.
-	 * 
-	 */
-	public void execute() {
-		execute(getCurrentAgentsList());
-	}
-
 }
 
 

@@ -38,16 +38,25 @@ public class Watcher extends AbstractAgent
 	private static final long serialVersionUID = -4999802785768614838L;
 	final private Set<Probe<? extends AbstractAgent>> probes = new LinkedHashSet<Probe<? extends AbstractAgent>> ();
 
-	public void addProbe(final Probe<? extends AbstractAgent> probe)
-	{
+	/**
+	 * Adds the probe to the artificial organization so that it starts 
+	 * to probe the agents which are at the corresponding CGR location.
+	 * 
+	 * @param probe the probe to add
+	 */
+	public void addProbe(final Probe<? extends AbstractAgent> probe){
 		if(kernel.addOverlooker(this, probe))
 			probes.add(probe);
 		if(logger != null)
 			logger.fine("Probe added: "+probe);
 	}
 	
-	public void removeProbe(final Probe<? extends AbstractAgent> probe)
-	{
+	/**
+	 * Removes the probe from the artificial organization, thus stopping the probing activity.
+	 * 
+	 * @param probe the probe to remove
+	 */
+	public void removeProbe(final Probe<? extends AbstractAgent> probe){
 		kernel.removeOverlooker(this, probe);
 		probes.remove(probe);
 	}
@@ -68,13 +77,23 @@ public class Watcher extends AbstractAgent
 	}
 
 	/**
-	 * 
+	 * Remove all probes at once.
 	 */
 	public void removeAllProbes() {
 		for(final Probe<? extends AbstractAgent> p : probes ){
 			kernel.removeOverlooker(this,p);
 		}
 		probes.clear();
+	}
+	
+	public Probe<AbstractAgent>[] allProbes(){
+		return probes.toArray(new Probe[probes.size()]);
+//		return  (Probe<AbstractAgent>[]) probes.toArray();
+	}
+	
+	@Override
+	public String toString() {
+		return getName() + " "+allProbes();
 	}
 
 }

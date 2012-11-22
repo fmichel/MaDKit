@@ -20,6 +20,7 @@ package madkit.kernel;
 
 import static org.junit.Assert.assertEquals;
 import madkit.kernel.Madkit.LevelOption;
+import madkit.simulation.EmptyActivator;
 import madkit.testing.util.agent.NormalAgent;
 import madkit.testing.util.agent.SimulatedAgent;
 
@@ -42,7 +43,7 @@ public class OverlookerTest extends JunitMadkit {
 
 			@Override
 			protected void activate() {
-				addActivator(new Activator<AbstractAgent>(COMMUNITY, GROUP, ROLE) {
+				addActivator(new EmptyActivator(COMMUNITY, GROUP, ROLE) {
 					@SuppressWarnings("null")
 					@Override
 					protected void adding(AbstractAgent theAgent) {
@@ -66,7 +67,7 @@ public class OverlookerTest extends JunitMadkit {
 			@Override
 			protected void activate() {
 				testFails(new Exception());
-				addActivator(new Activator<AbstractAgent>(COMMUNITY, GROUP, ROLE) {
+				addActivator(new EmptyActivator(COMMUNITY, GROUP, ROLE) {
 
 					@Override
 					protected void adding(AbstractAgent theAgent) {
@@ -88,7 +89,7 @@ public class OverlookerTest extends JunitMadkit {
 			@Override
 			protected void activate() {
 				testFails(new Exception());
-				addActivator(new Activator<AbstractAgent>(COMMUNITY, GROUP, ROLE) {
+				addActivator(new EmptyActivator(COMMUNITY, GROUP, ROLE) {
 					protected void removing(AbstractAgent theAgent) {
 						if (logger != null)
 							logger.info("\nremoving OK " + theAgent);

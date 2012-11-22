@@ -18,7 +18,7 @@
  */
 
 /**
- * This package contains utilities related with simulation authoring.
+ * Contains utilities related with simulation authoring.
  * 
  * @author Fabien Michel, Olivier Gutknecht
  * @version 5.0

@@ -94,13 +94,13 @@ import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Madkit.Option;
-import madkit.message.hook.HookMessage;
-import madkit.message.hook.MessageEvent;
-import madkit.message.hook.OrganizationEvent;
-import madkit.message.hook.HookMessage.AgentActionEvent;
-import madkit.message.hook.AgentLifeEvent;
 import madkit.message.KernelMessage;
 import madkit.message.ObjectMessage;
+import madkit.message.hook.AgentLifeEvent;
+import madkit.message.hook.HookMessage;
+import madkit.message.hook.HookMessage.AgentActionEvent;
+import madkit.message.hook.MessageEvent;
+import madkit.message.hook.OrganizationEvent;
 
 /**
  * The brand new MaDKit kernel and it is now a real Agent :)

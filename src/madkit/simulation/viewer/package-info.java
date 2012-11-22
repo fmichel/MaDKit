@@ -18,7 +18,7 @@
  */
 
 /**
- * This package contains default viewer classes for simulation visualization.
+ * Contains default viewer classes for simulation visualization.
  * 
  * @author Fabien Michel, Olivier Gutknecht
  * @version 5.0

@@ -47,6 +47,10 @@ import madkit.kernel.Watcher;
 public abstract class SwingViewer extends Watcher {
 
 	
+	/**
+	 * 
+	 */
+	private static final long	serialVersionUID	= -403113166858504599L;
 	private JPanel	displayPane;
 	private boolean synchronousPainting = false;
 	private boolean rendering = true;
@@ -60,6 +64,11 @@ public abstract class SwingViewer extends Watcher {
 		 */
 		public SwingViewer() {
 			displayPane = new JPanel(){
+				/**
+				 * 
+				 */
+				private static final long	serialVersionUID	= 3265429181597273604L;
+
 				@Override
 				protected void paintComponent(Graphics g) {
 	//				if (g != null) {

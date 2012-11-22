@@ -38,12 +38,10 @@
 	<property name="MDK.build.properties" value="madkitKernelBuild.properties" />
 	<property file="${resource.dir}/${MDK.build.properties}" />
 
-
-	<!-- for french tuto-->
-	<property name="madkit.old.version" value="5.0.0.16" />
+	<!-- user's specific local properties -->
+	<property name="server.info.dir" value="${user.home}/.mk_pass"/>
 
 	<import file="${madkit.ant.targets.file}" />
-
 
 
 	<!-- ================================= 
@@ -64,7 +62,7 @@
          ================================= -->
 	<target name="src-zip" description="the src zip">
 		<zip destfile="${src.zip.location}" level="9">
-			<zipfileset dir="${src.dir}" includes="**/*.java" />
+			<zipfileset dir="${src.dir}" includes="**/*.java" excludes="**/package-info.java" />
 		</zip>
 	</target>
 
@@ -215,7 +213,7 @@
 <delete dir="${release.dir}" />
 <delete file="${jar.file}" failonerror="false" />
 <delete file="${src.zip.location}" failonerror="false" />
-<delete dir="${docs.api.dir}" />
+<delete dir="${docs.dir}" />
 <delete dir="${tuto.dir}" />
 <delete file="${docs.dir}/French_Tutorial/MaDKit_Tutorial/${lib.dir}/${madkit.jar.name}" />
 <delete>
@@ -258,14 +256,10 @@
 	</filterchain>
 </copy>
 
-<echo>Updating MaDKit Tutorial</echo>
-<copy todir="${docs.dir}/French_Tutorial/MaDKit_Tutorial/${lib.dir}" file="${jar.file}" />
-<replace file="${docs.dir}/French_Tutorial/MaDKit_Tutorial/.classpath" token="${madkit.old.version}" value="${madkit.version}" />
-
 <echo>Building MaDKit Demos</echo>
 <exec executable="ant" spawn="false" dir="../MaDKit-demos" />
 
-<zip destfile="${release.dir}/MaDKit-${madkit.version}.zip" level="9">
+<zip destfile="${release.dir}/${distribution.zip.name}" level="9">
 	<zipfileset dir="${docs.dir}" prefix="${docs.dir}" />
 	<zipfileset dir="${build.dir}" includes="README.html" />
 	<zipfileset dir="${build.dir}" includes="VERSION,${doc.html},build.xml" prefix="${docs.dir}" />
@@ -276,25 +270,50 @@
 </target>
 
 <!-- - - - - - - - - - - - - - - - - - 
-          target: test                      
+          target: ftp-release                      
          - - - - - - - - - - - - - - - - - -->
-<target name="test">
+<target name="ftp-release" depends="release">
+
+	<unzip src="${release.dir}/${distribution.zip.name}" dest="${release.dir}/web"/>
+
+	<loadproperties srcFile="${server.info.dir}/MDK.net" />
+	<echo>FTP upload of Readme. Server is ${ftp.server} </echo>
+	<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="put">
+		<fileset dir="${build.dir}" includes="README.html" />
+	</ftp>
+
+	<echo>FTP upload of docs</echo>
+	<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="mkdir" remotedir="${ftp.dir}/MaDKit-${madkit.version}" verbose="yes">
+	</ftp>
+		<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="put" remotedir="${ftp.dir}/MaDKit-${madkit.version}">
+			<fileset dir="${docs.api.dir}" />
+		</ftp>
+	<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="put" remotedir="${ftp.dir}/..">
+		<fileset dir="${release.dir}/web/${docs.dir}" />
+	</ftp>
+
+	<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="put" remotedir="repository/jnlps">
+		<fileset dir="${release.dir}" includes="${jnlp.jar.file}.pack.gz" />
+	</ftp>
 
 </target>
 
 <!-- ================================= 
           target:      ftp-push-javadoc        
+	<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="put" remotedir="${ftp.dir}/MaDKit-${madkit.version}">
+		<fileset dir="${docs.api.dir}" />
+	</ftp>
          ================================= -->
 <target name="ftp-push-javadoc" depends="javadoc">
 <property name="server" value="MDK.api" />
-<property name="ftp.propfile" location="${user.home}/.mk_pass/${server}" />
+<property name="ftp.propfile" location="${user.home}/${server.info.dir}/${server}" />
 <loadproperties srcFile="${ftp.propfile}" />
 <echo>FTP upload of MDK JNLP : target is ${server} ${ftp.server} ${ftp.dir}</echo>
 <ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="mkdir" remotedir="${ftp.dir}/MaDKit-${madkit.version}" verbose="yes">
 </ftp>
-<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="put" remotedir="${ftp.dir}/MaDKit-${madkit.version}">
-	<fileset dir="${docs.api.dir}" />
-</ftp>
+	<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="put" verbose="yes" remotedir="${ftp.dir}/..">
+		<fileset dir="${docs.dir}/**" />
+	</ftp>
 </target>
 
 <!-- ================================= 
@@ -307,8 +326,11 @@
 <echo>FTP upload of MDK JNLP : target is ${server} ${ftp.server} ${ftp.dir}</echo>
 <ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="mkdir" remotedir="${ftp.dir}/MaDKit-${madkit.version}" verbose="yes">
 </ftp>
-<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="put" remotedir="${ftp.dir}/MaDKit-${madkit.version}">
-	<fileset dir="${test.reports.dir}" />
-</ftp>
+	<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="put" remotedir="${ftp.dir}/MaDKit-${madkit.version}">
+		<fileset dir="${test.reports.dir}" />
+	</ftp>
+	<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="put" remotedir="${ftp.dir}">
+		<fileset dir="${test.reports.dir}" />
+	</ftp>
 </target>
 </project>

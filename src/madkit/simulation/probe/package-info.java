@@ -18,7 +18,7 @@
  */
 
 /**
- * This package contains probes for simulation authoring.
+ * Contains probes for simulation authoring.
  * 
  * @author Fabien Michel, Olivier Gutknecht
  * @version 5.0

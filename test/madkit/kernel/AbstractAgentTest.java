@@ -46,6 +46,7 @@ public class AbstractAgentTest {
 
 	AbstractAgent a, b;
 
+	@SuppressWarnings("unused")
 	@Before
 	public void setup() {
 		a = new AbstractAgent();

@@ -18,7 +18,7 @@
  */
 
 /**
-* This package contains classes for Agent GUI authoring in MaDKit.
+* Contains classes for Agent GUI authoring in MaDKit.
 * Especially, the {@link madkit.gui.OutputPanel} class is the component which are
 * given to agents when they are launched with a default GUI.
 * 

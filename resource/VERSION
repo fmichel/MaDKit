@@ -16,6 +16,21 @@ interact using messages. It also contains MAS simulation authoring tools.
 
 
 ----------------------------------------------------------------------------------
+------------------------------- MaDKit 5.0.0.19 (alpha-19)------------------------
+----------------------------------------------------------------------------------
+
+1. Improvements and changes:
+	- The hook system has been reworked and refactored.
+	- The simulation API has been slightly reworked
+
+2. API changes:
+	+ madkit.message.hook package
+	+ madkit.simulation.model package
+	- madkit.kernel.Scheduler.triggerActivator()
+
+
+
+----------------------------------------------------------------------------------
 ------------------------------- MaDKit 5.0.0.18 (alpha-18)------------------------
 ----------------------------------------------------------------------------------
 

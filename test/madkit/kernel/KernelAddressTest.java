@@ -18,6 +18,7 @@
  */
 package madkit.kernel;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
@@ -74,6 +75,9 @@ public class KernelAddressTest {
 
 	@Test
 	public void testUniqueness() {
+		for (int i = 0; i < 10000; i++) {
+			assertFalse(new KernelAddress().hashCode() == new KernelAddress().hashCode());
+		}
 		for (KernelAddress ka : kas) {
 			for (KernelAddress other : simultaneous) {
 				if (other.hashCode() == ka.hashCode()) {

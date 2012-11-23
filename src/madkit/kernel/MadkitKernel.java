@@ -55,6 +55,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -209,8 +210,19 @@ class MadkitKernel extends Agent {
 		platform = m;
 		kernel = this;
 		threadedAgents = new HashSet<Agent>(20);
-		setLogLevel(LevelOption.kernelLogLevel.getValue(getMadkitConfig()));
+		
 		kernelAddress = new KernelAddress();
+		
+		//set the log dir name and checking uniqueness
+		final String logDirKey = Option.logDirectory.name();
+		final String logBaseDir= getMadkitConfig().getProperty(logDirKey) + File.separator;
+		String logDir = logBaseDir + Madkit.dateFormat.format(new Date())+kernelAddress;
+		while (new File(logDir).exists()) {
+			logDir = logBaseDir + Madkit.dateFormat.format(new Date())+kernelAddress;
+		}
+		getMadkitConfig().setProperty(logDirKey, logDir);
+		
+		setLogLevel(LevelOption.kernelLogLevel.getValue(getMadkitConfig()));
 		organizations = new ConcurrentHashMap<String, Organization>();
 		operatingOverlookers = new LinkedHashSet<Overlooker<? extends AbstractAgent>>();
 		loggedKernel = new LoggedKernel(this);

@@ -18,6 +18,7 @@
  */
 package madkit.kernel;
 
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -281,10 +282,10 @@ final public class Madkit {
 				logger.fine(Option.launchAgents.name()+" null : Activating desktop");
 			madkitConfig.setProperty(BooleanOption.desktop.name(), "true");
 		}
-		final String logDirKey = Option.logDirectory.name();
-		madkitConfig.setProperty(logDirKey, madkitConfig.getProperty(logDirKey) + File.separator+ dateFormat.format(new Date()));
 		
 		myKernel = new MadkitKernel(this);
+		
+		
 		if(logger != null)
 			logger.finer("**  MADKIT KERNEL CREATED **");
 		

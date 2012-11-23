@@ -18,15 +18,19 @@
  */
 package madkit.boot.process;
 
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
+import java.io.IOException;
 
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadkit;
+import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Madkit.Option;
@@ -51,6 +55,47 @@ public class CreateLogFilesTest extends JunitMadkit {
 											return !s.contains(".lck");
 										}
 									};
+
+	static void delete(File f) throws IOException {
+		if (f.isDirectory()) {
+			for (File c : f.listFiles())
+				delete(c);
+		}
+		if (!f.delete())
+			throw new FileNotFoundException("Failed to delete file: " + f);
+	}
+
+	/**
+	 * Check that there is one dir per MaDKit instance
+	 * @throws IOException
+	 */
+	@Test
+	public void logDirectoryUniqueness()  {
+		new JunitMadkit();
+		String dir = System.getProperty("java.io.tmpdir") + File.separatorChar
+				+ name.getMethodName();
+		try {
+			delete(new File(dir));
+		} catch (IOException e) {
+		}
+		String[] args = {
+				LevelOption.madkitLogLevel.toString(),
+				"OFF",
+				BooleanOption.desktop.toString(),
+				"false",
+				Option.launchAgents.toString(),
+				"madkit.kernel.AbstractAgent",// to not have the desktop mode by
+														// default
+														// Option.logDirectory.toString(), getBinTestDir(), LevelOption.agentLogLevel.toString(), "ALL",
+				BooleanOption.createLogFiles.toString(),
+				LevelOption.kernelLogLevel.toString(), "OFF",
+				Option.logDirectory.toString(), dir };
+		for (int i = 0; i < 100; i++) {
+			new Madkit(args);
+		}
+		pause(100);
+		assertEquals(100,new File(dir).listFiles().length);
+	}
 
 	@Test
 	public void defaultLogDirectory() {
@@ -77,7 +122,8 @@ public class CreateLogFilesTest extends JunitMadkit {
 
 			@Override
 			protected void activate() {
-				f = new File(getMadkitProperty(Option.logDirectory.name()), getLogger().getName());
+				f = new File(getMadkitProperty(Option.logDirectory.name()),
+						getLogger().getName());
 				assertFalse(f.exists());
 				getLogger().createLogFile();
 				System.err.println(f);
@@ -96,7 +142,7 @@ public class CreateLogFilesTest extends JunitMadkit {
 
 			@Override
 			protected void activate() {
-				f = new File("logs", "[-"+hashCode()+"]");
+				f = new File("logs", "[-" + hashCode() + "]");
 				System.err.println(f);
 				assertTrue(f.exists());
 				f.delete();
@@ -175,9 +221,9 @@ public class CreateLogFilesTest extends JunitMadkit {
 		pause(500);
 		assertSame(2, f.listFiles(filter).length);
 	}
-	
+
 	@AfterClass
-	public static void clean(){
+	public static void clean() {
 		System.err.println(new File("logs").getAbsolutePath());
 		new File("logs").delete();
 	}

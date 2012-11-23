@@ -369,7 +369,8 @@ public class KillAbstractAgentTest extends JunitMadkit {
 		launchTest(new AbstractAgent() {
 			protected void activate() {
 				AbstractAgent unstopableAgent = new UnstopableAbstractAgent();
-				assertEquals(TIMEOUT, launchAgent(unstopableAgent, 2));
+				ReturnCode r = launchAgent(unstopableAgent, 2);
+				assertTrue(TIMEOUT == r || SUCCESS == r );
 				assertEquals(SUCCESS, unstopableAgent.killAgent(unstopableAgent, 0));
 				assertAgentIsTerminated(unstopableAgent);
 			}
@@ -381,8 +382,10 @@ public class KillAbstractAgentTest extends JunitMadkit {
 		launchTest(new AbstractAgent() {
 			protected void activate() {
 				AbstractAgent unstopableAgent = new UnstopableAbstractAgent();
-				assertEquals(TIMEOUT, launchAgent(unstopableAgent, 2));
-				assertEquals(TIMEOUT, unstopableAgent.killAgent(unstopableAgent, 2));
+				ReturnCode r = launchAgent(unstopableAgent, 2);
+				assertTrue(TIMEOUT == r || SUCCESS == r );
+				r = unstopableAgent.killAgent(unstopableAgent, 2);
+				assertTrue(TIMEOUT == r || SUCCESS == r );
 				assertAgentIsTerminated(unstopableAgent);
 			}
 		});

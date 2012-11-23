@@ -299,31 +299,11 @@
 </target>
 
 <!-- ================================= 
-          target:      ftp-push-javadoc        
-	<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="put" remotedir="${ftp.dir}/MaDKit-${madkit.version}">
-		<fileset dir="${docs.api.dir}" />
-	</ftp>
-         ================================= -->
-<target name="ftp-push-javadoc" depends="javadoc">
-<property name="server" value="MDK.api" />
-<property name="ftp.propfile" location="${user.home}/${server.info.dir}/${server}" />
-<loadproperties srcFile="${ftp.propfile}" />
-<echo>FTP upload of MDK JNLP : target is ${server} ${ftp.server} ${ftp.dir}</echo>
-<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="mkdir" remotedir="${ftp.dir}/MaDKit-${madkit.version}" verbose="yes">
-</ftp>
-	<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="put" verbose="yes" remotedir="${ftp.dir}/..">
-		<fileset dir="${docs.dir}/**" />
-	</ftp>
-</target>
-
-<!-- ================================= 
           target:      ftp-push-test        
          ================================= -->
-<target name="ftp-push-test" depends="">
-<property name="server" value="MDK.test" />
-<property name="ftp.propfile" location="${user.home}/.mk_pass/${server}" />
-<loadproperties srcFile="${ftp.propfile}" />
-<echo>FTP upload of MDK JNLP : target is ${server} ${ftp.server} ${ftp.dir}</echo>
+<target name="ftp-push-test" depends="junit">
+<loadproperties srcFile="${server.info.dir}/MDK.test" />
+<echo>FTP upload of test reports : target is ${server} ${ftp.server} ${ftp.dir}</echo>
 <ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="mkdir" remotedir="${ftp.dir}/MaDKit-${madkit.version}" verbose="yes">
 </ftp>
 	<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="put" remotedir="${ftp.dir}/MaDKit-${madkit.version}">

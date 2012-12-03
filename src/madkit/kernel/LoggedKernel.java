@@ -105,7 +105,7 @@ final class LoggedKernel extends MadkitKernel {
 		final ReturnCode r = kernel.leaveGroup(requester, community, group);
 		if(r == SUCCESS){
 			if(requester.isFinestLogOn()){
-				requester.logger.log(Level.FINEST,"leaveGroup" + getCGRString(community, group));
+				requester.logger.log(Level.FINEST,Influence.LEAVE_GROUP.successString() + getCGRString(community, group));
 			}
 			return SUCCESS;
 		}
@@ -123,7 +123,7 @@ final class LoggedKernel extends MadkitKernel {
 		ReturnCode r = kernel.leaveRole(requester, community, group, role);
 		if(r == SUCCESS){
 			if(requester.isFinestLogOn()){
-				requester.logger.log(Level.FINEST,"leaveRole" + getCGRString(community, group, role));
+				requester.logger.log(Level.FINEST,Influence.LEAVE_ROLE.successString() + getCGRString(community, group, role));
 			}
 			return SUCCESS;
 		}

@@ -16,6 +16,17 @@ interact using messages. It also contains MAS simulation authoring tools.
 
 
 ----------------------------------------------------------------------------------
+------------------------------- MaDKit 5.0.0.20 (alpha-20)------------------------
+----------------------------------------------------------------------------------
+
+1. Improvements and changes:
+
+2. API changes:
+	+ madkit.kernel.AbstractAgent.getExistingCommunities()
+	+ madkit.kernel.AbstractAgent.getExistingGroups(String)
+	+ madkit.kernel.AbstractAgent.getExistingRoles(String, String)
+	
+----------------------------------------------------------------------------------
 ------------------------------- MaDKit 5.0.0.19 (alpha-19)------------------------
 ----------------------------------------------------------------------------------
 

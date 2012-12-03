@@ -31,6 +31,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -39,6 +40,7 @@ import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -1772,6 +1774,54 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	public Map<String, Map<String, Map<String, Set<AgentAddress>>>> getOrganizationSnapShot(boolean global) {
 		return getKernel().getOrganizationSnapShot(global);
 	}
+	
+
+	/**
+	 * returns the names of the communities that exist.
+	 * 
+	 * @return an alphanumerically ordered set containing the names of the communities 
+	 * which exist. 
+	 * 
+	 * @since MaDKit 5.0.0.20
+	 */
+	public TreeSet<String> getExistingCommunities()
+	{
+		return getKernel().getExistingCommunities();
+	}
+
+	/**
+	 * returns the names of the groups that exist in this community.
+	 * 
+	 * @param community the community's name
+	 * 
+	 * @return an alphanumerically ordered set containing the names of the groups 
+	 * which exist in this community, or <code>null</code> if it does not exist. 
+	 * 
+	 * @since MaDKit 5.0.0.20
+	 */
+	public TreeSet<String> getExistingGroups(final String community)
+	{
+		return getKernel().getExistingGroups(community);
+	}
+
+	/**
+	 * returns the names of the roles that exist in this group.
+	 * 
+	 * @param community the community's name
+	 * @param group the group's name
+	 * 
+	 * @return an alphanumerically ordered set containing the names of the roles 
+	 * which exist in this group, or <code>null</code> if it does not exist. 
+	 * 
+	 * @since MaDKit 5.0.0.20
+	 */
+	public TreeSet<String> getExistingRoles(final String community, final String group)
+	{
+		return getKernel().getExistingRoles(community, group);
+	}
+
+
+
 
 	/**
 	 * Tells if a community exists in the artificial society.

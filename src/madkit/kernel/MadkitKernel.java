@@ -65,6 +65,7 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletionService;
@@ -1544,6 +1545,29 @@ class MadkitKernel extends Agent {
 
 	MadkitKernel getMadkitKernel() {
 		return this;
+	}
+
+	@Override
+	public TreeSet<String> getExistingCommunities() {
+		return new TreeSet<String>(organizations.keySet());
+	}
+	
+	@Override
+	public TreeSet<String> getExistingGroups(String community) {
+		try {
+			return new TreeSet<String>(getCommunity(community).keySet());
+		} catch (CGRNotAvailable e) {
+			return null;
+		}
+	}
+	
+	@Override
+	public TreeSet<String> getExistingRoles(String community, String group) {
+		try {
+			return new TreeSet<String>(getGroup(community,group).keySet());
+		} catch (CGRNotAvailable e) {
+			return null;
+		}
 	}
 
 	boolean isCommunity(@SuppressWarnings("unused") AbstractAgent requester, String community) {

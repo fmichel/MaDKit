@@ -61,6 +61,7 @@ import madkit.message.KernelMessage;
  * @version 0.9
  * 
  */
+
 public enum KernelAction {
 
 	/**
@@ -129,6 +130,10 @@ public enum KernelAction {
 	//	final private MKAction mkAction;
 
 	private ActionInfo actionInfo;
+	/**
+	 * The path to the jconsole program if available
+	 */
+	public static String jconsolePath = findJconsole();
 	final private int keyEvent;
 
 	final static private ResourceBundle messages = I18nUtilities.getResourceBundle(KernelAction.class.getSimpleName());
@@ -192,7 +197,7 @@ public enum KernelAction {
 					return;
 				if((ka == LOAD_LOCAL_DEMOS || ka == RESTART) && ActionInfo.javawsIsOn)
 					continue;
-				if(ka == JCONSOLE && (findJconsole() == null || ActionInfo.javawsIsOn)){
+				if(ka == JCONSOLE && (jconsolePath == null || ActionInfo.javawsIsOn)){
 					continue;
 				}
 				add.invoke(menuOrToolBar, ka.getActionFor(agent));
@@ -214,22 +219,47 @@ public enum KernelAction {
 		}
 	}
 	
-	public static String findJconsole() {//TODO facto
-		File javaHome = new File(System.getProperty("java.home"));
-		File jconsole = new File(javaHome.getParent(), "bin" + File.separatorChar+ "jconsole");
-		if (jconsole.exists())
-			return jconsole.getAbsolutePath();
-		jconsole = javaHome.getParentFile().getParentFile();
-		for (File dir : jconsole.listFiles(new FileFilter() {
-			@Override
-			public boolean accept(File pathname) {
-				return pathname.getName().startsWith("jdk");
+	private static String findJconsole() {//TODO facto
+		File lookupDir = new File(System.getProperty("java.home"));
+		String exe = findJConsoleExecutable(lookupDir);
+		if(exe != null)// was jdk dir
+			return exe;
+		lookupDir = lookupDir.getParentFile();
+		exe = findJConsoleExecutable(lookupDir);
+		if(exe != null)// was jre dir in jdk
+			return exe;
+		while(lookupDir != null){
+			for (File dir : lookupDir.listFiles(new FileFilter() {
+				@Override
+				public boolean accept(File pathname) {
+					if(pathname.isDirectory()){
+						final String dirName = pathname.getName();
+						return dirName.contains("jdk") || dirName.contains("java");
+					}
+					return false;
+				}
+			})) 
+			{
+				exe = findJConsoleExecutable(dir);
+				if(exe != null)
+					return exe;
 			}
-		})) {
-			jconsole = new File(dir, "bin" + File.separatorChar + "jconsole");
-			if (jconsole.exists()) {
-				return jconsole.getAbsolutePath();
+			lookupDir = lookupDir.getParentFile();
+		}
+		return null;
+	}
+
+	/**
+	 * @param dir
+	 */
+	private static String findJConsoleExecutable(File dir) {
+		dir = new File(dir,"bin");
+		if(dir.exists()){
+		for (File candidate : dir.listFiles()) {
+			if(candidate.getName().contains("jconsole")){
+				return candidate.getAbsolutePath();
 			}
+		}
 		}
 		return null;
 	}

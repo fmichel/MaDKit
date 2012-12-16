@@ -122,7 +122,7 @@ public abstract class SwingViewer extends Watcher {
 	 * Intended to be invoke by a scheduler's activator for 
 	 * triggering the rendering. This method
 	 * activate the rendering either synchronously or 
-	 * Asynchronously depending
+	 * asynchronously depending
 	 * on {@link #isSynchronousPainting()}.
 	 * 
 	 */

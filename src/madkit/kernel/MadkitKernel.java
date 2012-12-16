@@ -471,11 +471,10 @@ class MadkitKernel extends Agent {
 
 	@SuppressWarnings("unused")
 	private void jconsole() {
-		final String jconsolePath = KernelAction.findJconsole();
-		if(jconsolePath != null){
+		if(KernelAction.jconsolePath != null){
 			final String pid = java.lang.management.ManagementFactory.getRuntimeMXBean().getName();
 					try {
-						Runtime.getRuntime().exec(jconsolePath+" "+pid.substring(0, pid.indexOf('@')));
+						Runtime.getRuntime().exec(KernelAction.jconsolePath+" "+pid.substring(0, pid.indexOf('@')));
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}

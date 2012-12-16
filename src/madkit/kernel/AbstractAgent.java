@@ -698,7 +698,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			if (ReturnCode.SUCCESS == launchAgent(a, timeOutSeconds, createFrame))
 				return a;
 		} catch (InstantiationException e) {
-			cannotLaunchAgent(agentClass, e, " :  no default constructor");
+			handleException(Influence.LAUNCH_AGENT, e);
+//			cannotLaunchAgent(agentClass, e, " :  no default constructor");
 //			final String msg = ErrorMessages.CANT_LAUNCH + agentClass + " : no default constructor";
 //			SwingUtilities.invokeLater(new Runnable() {
 //
@@ -708,13 +709,17 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 //			});
 //			getLogger().severeLog(msg, e);
 		} catch (IllegalAccessException e) {
-			cannotLaunchAgent(agentClass, e, " : constructor not public");//TODO launch anyway ??
+			handleException(Influence.LAUNCH_AGENT, e);
+//			cannotLaunchAgent(agentClass, e, " : constructor not public");//TODO launch anyway ??
 		} catch (ClassCastException e) {
-			cannotLaunchAgent(agentClass, e, " : Not an agent class");
+			handleException(Influence.LAUNCH_AGENT, e);
+//		cannotLaunchAgent(agentClass, e, " : Not an agent class");
 		} catch (ClassNotFoundException e) {
-			cannotLaunchAgent(agentClass, e, null);
+			handleException(Influence.LAUNCH_AGENT, e);
+//		cannotLaunchAgent(agentClass, e, null);
 		} catch (KernelException e) {
-			cannotLaunchAgent(agentClass, e, null);
+			handleException(Influence.LAUNCH_AGENT, e);
+//		cannotLaunchAgent(agentClass, e, null);
 		}
 		return null;
 	}
@@ -2278,6 +2283,12 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * byte code available for the corresponding class.
 	 */
 	public void reload() {
+		try {
+			getMadkitClassLoader().reloadClass(getClass().getName());
+		} catch (ClassNotFoundException e) {
+			//not possible but who knows...
+			getLogger().severeLog("",e);
+		}
 		launchAgent(getClass().getName(), 0, true);
 		killAgent(this);
 	}

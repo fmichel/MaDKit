@@ -57,7 +57,7 @@ import madkit.gui.menu.LaunchMAS;
  */
 final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 
-	private Collection<String>	classesToReload;
+	private Collection<String>	 classesToReload;
 	final private Madkit			madkit;
 	private Set<String>			agentClasses	= new TreeSet<String>();
 	private Set<MASModel>		demos				= new HashSet<MASModel>();
@@ -174,21 +174,19 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 	// return (Class<? extends AbstractAgent>) loadClass(name);
 	// }
 
+	/**
+	 * used to reload classes from the target's package, ensuring accessibility
+	 * @param name full class's name
+	 */
 	private void addUrlAndloadClasses(final String name) {
-		URL url = this.getResource("/" + name.replace('.', '/') + ".class");
+		final URL url = this.getResource(name.replace('.', '/') + ".class");
 		if (url != null) {// TODO if url is null return warning
 			String packageName = getClassPackageName(name);
 			packageName = packageName == null ? "" : packageName+'.';//need this to rebuild
-			int deepness = packageName.split("\\.").length;
 			final String urlPath = url.getPath();
 			final File packageDir = new File(urlPath.substring(0, urlPath.lastIndexOf('/')));
-			File cpDir = new File(urlPath.substring(0, urlPath.lastIndexOf('/')));
-			for (int i = 0; i < deepness; i++) {
-				cpDir = cpDir.getParentFile();
-			}
 			for (final String fileName : packageDir.list()) {
 				if (fileName.endsWith(".class")) {
-					// System.err.println("\nt"+this+" trying to define "+fileName+" time stamp "+new File(packageDir+"/"+fileName).lastModified());
 					try {
 						findClass(packageName + fileName.substring(0, fileName.length() - 6));
 					} catch (ClassNotFoundException e) {
@@ -232,33 +230,14 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 		for (URL dir : getURLs()) {
 			if (!scannedURLs.add(dir))
 				continue;
-			if (dir.toString().contains("rsrc")) {// TODO check useless now
-				if (dir.toString().contains("jar:rsrc:")) {
-					File f = new File(madkit.getConfigOption().getProperty(
-							"Project-Code-Name")
-							+ "-"
-							+ madkit.getConfigOption().getProperty("Project-Version")
-							+ ".jar");
-					if (f.exists()) {
-						try {
-							dir = new URL(f.toURI().toURL().toString());
-						} catch (MalformedURLException e) {
-							e.printStackTrace();
-						}
-					}
-				}
-				else {// this is the "." dir : not interested !
-					continue;
-				}
-			}
-			if (dir.toString().endsWith(".jar")) {
+			if (dir.getFile().endsWith(".jar")) {
 				try {
 					JarFile jarFile = ((JarURLConnection) new URL("jar:" + dir
 							+ "!/").openConnection()).getJarFile();
 					scanJarFileForLaunchConfig(jarFile);
 					agentClasses.addAll(scanJarFileForAgentClasses(jarFile));
 				} catch (IOException e) {
-					// getLogger().severeLog("web repo conf is not valid", e);
+					madkit.getLogger().log(Level.SEVERE,"web repo conf is not valid", e);
 				}
 			}
 			else {
@@ -355,8 +334,8 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 		List<String> l = new ArrayList<String>(50);
 		for (Enumeration<JarEntry> e = jarFile.entries(); e.hasMoreElements();) {
 			JarEntry entry = e.nextElement();
-			if (!entry.isDirectory() && entry.getName().endsWith(".class")) {
-				String className = fileNameToClassName(entry.getName(), null);
+			if (! entry.isDirectory() && entry.getName().endsWith(".class")) {
+				final String className = fileNameToClassName(entry.getName(), null);
 				if (isAgentClass(className)) {
 					l.add(fileNameToClassName(entry.getName(), null));
 				}
@@ -373,11 +352,8 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 		final List<String> l = new ArrayList<String>();
 		for (File f : files) {
 			if (f.isDirectory()) {
-				// String pck = pckName == null ? f.getName() : pckName+"."+f.getName();
-				// if(! isKernelDirectory(pck)){
 				l.addAll(scanFolderForAgentClasses(f, pckName == null ? f.getName()
 						: pckName + "." + f.getName()));
-				// }
 			}
 			else
 				if (f.getName().endsWith(".class")) {
@@ -398,20 +374,16 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 					&& cl.getConstructor((Class<?>[]) null) != null
 					&& (!Modifier.isAbstract(cl.getModifiers()))
 					&& Modifier.isPublic(cl.getModifiers())) {
-				// for (final Constructor<?> c : cl.getConstructors()) {
-				// if (c.getParameterTypes().length == 0)
-				// return true;
-				// }
 				return true;
 			}
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+		} catch (ClassNotFoundException e) {//no log here for junit !!
+//			e.printStackTrace();
 		} catch (NoClassDefFoundError e) {
-			// TODO: the jar file is not on the MK path (IDE JUnit for instance)
-			// } catch (IllegalAccessException e) {
-			// //not public
+//			e.printStackTrace(); 
 		} catch (SecurityException e) {
+//			e.printStackTrace();
 		} catch (NoSuchMethodException e) {
+//			e.printStackTrace();
 		}
 		return false;
 	}
@@ -419,8 +391,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 	private String fileNameToClassName(String file, final String classPathRoot) {
 		if (classPathRoot != null)
 			file = file.replace(classPathRoot, "");
-		return file.substring(0, file.length() - 6).replace(File.separatorChar,
-				'.');
+		return file.substring(0, file.length() - 6).replace('/', '.');
 	}
 
 }

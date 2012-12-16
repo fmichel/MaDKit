@@ -130,18 +130,21 @@ public class LaunchAgentsMenu extends JMenu {
 		else{
 			String pckName = null;
 			JMenu subMenu = null;
-			for (final String string : classesToLaunch) {
-				String pck = MadkitClassLoader.getClassPackageName(string);
+			for (final String cName : classesToLaunch) {
+				String pck = MadkitClassLoader.getClassPackageName(cName);
 				if (pck != null) {
 					if (pck.equals(pckName)) {
-						addTomenu(myAction, subMenu, string, true);
+						addTomenu(myAction, subMenu, cName, true);
 					}
 					else {
 						pckName = pck;
 						subMenu = new JMenu(pck);
 						add(subMenu);
-						addTomenu(myAction, subMenu, string, true);
+						addTomenu(myAction, subMenu, cName, true);
 					}
+				}
+				else{
+					addTomenu(myAction, this, cName, false);
 				}
 			}
 		}

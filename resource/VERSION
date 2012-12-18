@@ -5,9 +5,9 @@
 
 - Short description:
 
-The Multiagent Development Kit is an open source MAS library which relies on organizational concepts so 
-that one could easily design artificial societies wherein autonomous agents 
-interact using messages. It also contains MAS simulation authoring tools.
+The Multiagent Development Kit (MDK for short) is an open source MAS library which relies on organizational concepts. So 
+one can easily design artificial societies wherein autonomous agents 
+interact using messages. It also contains generic MAS simulation authoring tools.
 
 
 ----------------------------------------------------------------------------------
@@ -30,7 +30,7 @@ interact using messages. It also contains MAS simulation authoring tools.
 	+ madkit.kernel.AbstractAgent.getExistingCommunities()
 	+ madkit.kernel.AbstractAgent.getExistingGroups(String)
 	+ madkit.kernel.AbstractAgent.getExistingRoles(String, String)
-	+ 
+	+ madkit.kernel.AbstractAgent.getDistantAgentWithRole(String, String, String, KernelAddress)
 	
 ----------------------------------------------------------------------------------
 ------------------------------- MaDKit 5.0.0.19 (alpha-19)------------------------

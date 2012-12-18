@@ -46,7 +46,7 @@ public class GetExistingGroupsTest extends JunitMadkit {
 		launchTest(new AbstractAgent() {
 			protected void activate() {
 				System.err.println(getExistingGroups(LocalCommunity.NAME));
-				assertEquals(3, getExistingGroups(LocalCommunity.NAME).size());
+				assertEquals(4, getExistingGroups(LocalCommunity.NAME).size());
 				assertEquals(LocalCommunity.Groups.GUI, getExistingGroups(LocalCommunity.NAME).first());
 			}
 		});

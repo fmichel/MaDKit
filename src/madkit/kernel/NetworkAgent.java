@@ -229,11 +229,11 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 					CGRSynchro synchro = (CGRSynchro) m;
 					logger.finer("Injecting distant CGR " + synchro.getCode() + " on " + synchro.getContent());
 				}
-				kernel.injectOperation((CGRSynchro) m);
+				kernel.getMadkitKernel().injectOperation((CGRSynchro) m);
 			}
 			else{//It is a distant message to inject : role is Roles.EMMITER
 				if (logger != null) logger.finer("Injecting distant message "+getState()+" : "+m);
-				kernel.injectMessage((ObjectMessage<Message>) m);
+				kernel.getMadkitKernel().injectMessage((ObjectMessage<Message>) m);
 			}
 		}
 	}
@@ -252,7 +252,7 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 			return;
 		if(logger != null)
 			logger.info("\n\t\t\t\t----- "+getKernelAddress()+" deconnected from MaDKit kernel "+ka+"------\n");
-		kernel.removeAgentsFromDistantKernel(ka);
+		kernel.getMadkitKernel().removeAgentsFromDistantKernel(ka);
 		//		System.err.println(getOrganizationSnapShot(false));
 	}
 
@@ -346,7 +346,7 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 //							e.printStackTrace();
 //						}
 //						
-			kernel.importDistantOrg(kc.waitForDistantOrg());
+			kernel.getMadkitKernel().importDistantOrg(kc.waitForDistantOrg());
 			return dka;
 		} catch (IOException e) {
 			if(dka == null)

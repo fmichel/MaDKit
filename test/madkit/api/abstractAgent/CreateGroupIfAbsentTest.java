@@ -40,7 +40,7 @@ public class CreateGroupIfAbsentTest extends JunitMadkit {
 
 	final Gatekeeper gi = new Gatekeeper() {
 		@Override
-		public boolean allowAgentToTakeRole(String roleName, Object memberCard) {
+		public boolean allowAgentToTakeRole(String requesterID, String roleName, Object memberCard) {
 			return false;
 		}
 	};

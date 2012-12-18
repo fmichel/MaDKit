@@ -31,7 +31,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -1336,6 +1335,25 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 */
 	public AgentAddress getAgentWithRole(final String community, final String group, final String role) {
 		return getKernel().getAgentWithRole(this, community, group, role);
+	}
+
+	/**
+	 * Returns an {@link AgentAddress} corresponding to an agent having this
+	 * position in the organization on a particular kernel. The caller is excluded from the search.
+	 * 
+	 * @param community
+	 *           the community name
+	 * @param group
+	 *           the group name
+	 * @param role
+	 *           the role name
+	 * @param from
+	 *           the kernel address on which the agent is running
+	 * @return an {@link AgentAddress} corresponding to an agent handling this
+	 *         role on the targeted kernel or <code>null</code> if such an agent does not exist.
+	 */
+	public AgentAddress getDistantAgentWithRole(final String community, final String group, final String role, final KernelAddress from) {
+		return getKernel().getDistantAgentWithRole(this, community, group, role, from);
 	}
 
 	/**

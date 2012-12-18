@@ -96,6 +96,7 @@ import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Madkit.Option;
+import madkit.message.BooleanMessage;
 import madkit.message.KernelMessage;
 import madkit.message.ObjectMessage;
 import madkit.message.hook.AgentLifeEvent;
@@ -276,12 +277,14 @@ class MadkitKernel extends Agent {
 			logger.setWarningLogLevel(Level.INFO);
 		
 		//denying all requests for this group
-		createGroup(LocalCommunity.NAME, Groups.SYSTEM, false,new Gatekeeper() {
+		createGroup(LocalCommunity.NAME, Groups.SYSTEM, false, new Gatekeeper() {
 			@Override
-			public boolean allowAgentToTakeRole(String roleName, Object memberCard) {
+			public boolean allowAgentToTakeRole(String req, String roleName, Object memberCard) {
 				return false;
 			}
 		});
+		
+		createGroup(LocalCommunity.NAME,"kernels",true);//TODO
 
 		//building the network group
 		createGroup(LocalCommunity.NAME, Groups.NETWORK, false);
@@ -579,10 +582,22 @@ class MadkitKernel extends Agent {
 			proceedEnumMessage((KernelMessage) m);
 		} else if (m instanceof HookMessage) {
 			handleHookRequest((HookMessage) m);
+		} else if (m instanceof RequestRoleSecure) {
+			handleRequestRoleSecure((RequestRoleSecure) m);
 		} else {
 			if (logger != null)
 				logger.warning("I received a message that I do not understand. Discarding " + m);
 		}
+	}
+
+	private void handleRequestRoleSecure(RequestRoleSecure m) {
+		AgentAddress requesterAddress = m.getRequester();
+		Group g = null;
+		try {
+			g = getGroup(requesterAddress.getCommunity(), requesterAddress.getGroup());
+		} catch (CGRNotAvailable e) {
+		}
+		sendReply(m, new BooleanMessage(g != null && g.getGatekeeper().allowAgentToTakeRole(requesterAddress.hashCode()+"@"+requesterAddress.getKernelAddress().hashCode(), m.getRoleName(), m.getContent())));
 	}
 
 	private void handleHookRequest(HookMessage m) {
@@ -828,6 +843,21 @@ class MadkitKernel extends Agent {
 	// //////////////////////// Messaging interface
 	// ////////////////////////////////////////////////////////////
 
+	AgentAddress getDistantAgentWithRole(AbstractAgent abstractAgent,
+			String community, String group, String role, KernelAddress from) {
+		try {
+			List<AgentAddress> l = getOtherRolePlayers(abstractAgent, community, group, role);
+			if(l != null){
+				for (AgentAddress agentAddress : l) {
+					if(agentAddress.getKernelAddress().equals(from))
+						return agentAddress;
+				}
+			}
+		} catch (CGRNotAvailable e) {
+		}
+		return null;
+	}
+
 	ReturnCode sendMessage(final AbstractAgent requester, final String community, final String group, final String role,
 			final Message message, final String senderRole) {
 		try {
@@ -923,7 +953,7 @@ class MadkitKernel extends Agent {
 		return SUCCESS;
 	}
 
-	private final ReturnCode sendNetworkMessageWithRole(Message m, AgentAddress role) {
+	final ReturnCode sendNetworkMessageWithRole(Message m, AgentAddress role) {
 		updateNetworkAgent();
 		if (netAgent != null) {
 			m.setSender(role);
@@ -1437,7 +1467,7 @@ class MadkitKernel extends Agent {
 		// return SUCCESS;
 	}
 
-	private final AgentAddress getSenderAgentAddress(final AbstractAgent sender, final AgentAddress receiver, String senderRole)
+	final AgentAddress getSenderAgentAddress(final AbstractAgent sender, final AgentAddress receiver, String senderRole)
 			throws CGRNotAvailable {
 		AgentAddress senderAA = null;
 		final Role targetedRole = receiver.getRoleObject();
@@ -1662,7 +1692,11 @@ class MadkitKernel extends Agent {
 				final AbstractAgent target = receiverRole.getAbstractAgentWithAddress(receiver);
 				if (target != null) {
 					// updating sender address
-					sender.setRoleObject(kernel.getRole(sender.getCommunity(), sender.getGroup(), sender.getRole()));
+					try {
+						sender.setRoleObject(kernel.getRole(sender.getCommunity(), sender.getGroup(), sender.getRole()));
+					} catch (CGRNotAvailable e) {
+						sender.setRoleObject(null);
+					}
 					target.receiveMessage(toInject);
 				} else if (logger != null)
 					logger.finer(m + " received but the agent address is no longer valid !! Current distributed org is "
@@ -1687,32 +1721,17 @@ class MadkitKernel extends Agent {
 			synchronized (organizations) {
 				switch (m.getCode()) {
 				case CREATE_GROUP:
-					Organization organization = getCommunity(communityName);
-					if (organization == null) {
+					Organization organization = null;
+					try {
+						organization = getCommunity(communityName);
+					} catch (CGRNotAvailable e) {
 						organization = new Organization(communityName, this);
 						organizations.put(communityName, organization);
-					}// TODO what about the manager
-					if (organization.putIfAbsent(groupName, new Group(communityName, groupName, m.getContent(), null, organization)) == null
+					}
+					if (organization.putIfAbsent(groupName, new Group(communityName, groupName, m.getContent(), organization)) == null
 							&& logger != null) {
 						informHooks(AgentActionEvent.CREATE_GROUP, communityName, groupName, m.getContent());
 					}
-					// //nerver fails : no need to remove org
-					// Organization organization = new Organization(communityName,
-					// this);// no
-					// final Organization tmpOrg =
-					// organizations.putIfAbsent(communityName, organization);
-					// if (tmpOrg != null) {
-					// if (isGroup(communityName, groupName)) {
-					// if (logger != null)
-					// logger.finer("distant group creation by " + m.getContent() +
-					// " aborted : already exists locally");//TODO what about the
-					// manager
-					// break;
-					// }
-					// organization = tmpOrg;
-					// }
-					// organization.put(groupName, new Group(communityName,
-					// groupName, m.getContent(), null, organization));
 					break;
 				case REQUEST_ROLE:
 					getGroup(communityName, groupName).addDistantMember(m.getContent());
@@ -1766,6 +1785,7 @@ class MadkitKernel extends Agent {
 			ReturnCode r = launchAgent(na);
 			threadedAgents.remove(na);
 			if (r == SUCCESS) {
+//				requestRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, Roles.KERNEL);
 				if (logger != null)
 					logger.fine("\n\t****** Network agent launched ******\n");
 			}// TODO i18n

@@ -163,7 +163,7 @@ final class Organization extends ConcurrentHashMap <String, Group>{
 					manager = map.get(groupName).get(madkit.agr.Organization.GROUP_MANAGER_ROLE).iterator().next();
 				} catch (NullPointerException e) {//TODO have to fix that
 				}
-				group = new Group(communityName, groupName,manager, null, this);//TODO have to get the groupManager
+				group = new Group(communityName, groupName,manager, this);//TODO have to get the groupManager
 				put(groupName, group);
 			}
 			group.importDistantOrg(map.get(groupName));

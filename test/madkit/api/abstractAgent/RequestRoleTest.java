@@ -60,14 +60,14 @@ public class RequestRoleTest extends JunitMadkit {
 
 	final Gatekeeper alwaysDeny = new Gatekeeper() {
 		@Override
-		public boolean allowAgentToTakeRole(String roleName, Object memberCard) {
+		public boolean allowAgentToTakeRole(String requesterID, String roleName, Object memberCard) {
 			return false;
 		}
 	};
 
 	final Gatekeeper alwaysAccept = new Gatekeeper() {
 		@Override
-		public boolean allowAgentToTakeRole(String roleName, Object memberCard) {
+		public boolean allowAgentToTakeRole(String requesterID, String roleName, Object memberCard) {
 			return true;
 		}
 	};
@@ -75,7 +75,7 @@ public class RequestRoleTest extends JunitMadkit {
 	final Gatekeeper buggyIdentifier = new Gatekeeper() {
 		@SuppressWarnings("null")
 		@Override
-		public boolean allowAgentToTakeRole(String roleName, Object memberCard) {
+		public boolean allowAgentToTakeRole(String requesterID, String roleName, Object memberCard) {
 			Object o = null;
 			o.toString();
 			return true;

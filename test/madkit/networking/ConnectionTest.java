@@ -25,6 +25,7 @@ import java.util.logging.Level;
 
 import madkit.action.KernelAction;
 import madkit.agr.CloudCommunity;
+import madkit.agr.LocalCommunity.Roles;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AgentAddress;
 import madkit.kernel.JunitMadkit;
@@ -65,6 +66,9 @@ public class ConnectionTest extends JunitMadkit {
 				for (AgentAddress agentAddress : l) {
 					System.err.println(agentAddress);
 				}
+				lineBreak();
+				System.err.println(getOrganizationSnapShot(true));
+				lineBreak();
 				assertEquals(2, l.size());
 				m.doAction(KernelAction.EXIT);
 				KernelAction.EXIT.getActionFor(this).actionPerformed(null);

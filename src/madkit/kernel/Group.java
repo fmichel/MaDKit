@@ -30,11 +30,16 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import madkit.agr.CloudCommunity;
+import madkit.agr.LocalCommunity.Groups;
+import madkit.agr.LocalCommunity.Roles;
 import madkit.i18n.ErrorMessages;
 import madkit.i18n.I18nUtilities;
 import madkit.kernel.AbstractAgent.ReturnCode;
+import madkit.message.ObjectMessage;
 
 /**
  * @author Oliver Gutknecht
@@ -53,6 +58,7 @@ final class Group extends ConcurrentHashMap<String, Role> {
 	private final String			communityName;
 	private final String			groupName;
 	private final Organization	communityObject;
+	private boolean				isSecured;
 
 	private final boolean		distributed;
 
@@ -62,15 +68,17 @@ final class Group extends ConcurrentHashMap<String, Role> {
 	 * @param isDistributed
 	 * @param organization
 	 */
-	Group(String community, String group, AbstractAgent creator, Gatekeeper gatekeeper, boolean isDistributed,
-			Organization organization) {
+	Group(String community, String group, AbstractAgent creator,
+			Gatekeeper gatekeeper, boolean isDistributed, Organization organization) {
 		distributed = isDistributed;
 		this.gatekeeper = gatekeeper;
+		isSecured = gatekeeper != null;
 		communityName = community;
 		groupName = group;
 		communityObject = organization;
 		logger = communityObject.getLogger();
-		put(madkit.agr.Organization.GROUP_MANAGER_ROLE, new ManagerRole(this, creator));
+		put(madkit.agr.Organization.GROUP_MANAGER_ROLE, new ManagerRole(this,
+				creator, isSecured));
 	}
 
 	/**
@@ -90,18 +98,22 @@ final class Group extends ConcurrentHashMap<String, Role> {
 	 * @param gatekeeper
 	 * @param communityObject
 	 */
-	Group(String community, String group, AgentAddress manager, Gatekeeper gatekeeper, Organization communityObject) {
+	Group(String community, String group, AgentAddress manager,
+			Organization communityObject) {
 		// manager = creator;
 		distributed = true;
 		this.communityObject = communityObject;
 		logger = communityObject.getLogger();
-		this.gatekeeper = gatekeeper;
+		isSecured = ((GroupManagerAddress) manager).isGroupSecured();
+		gatekeeper = null;
 		communityName = community;
 		groupName = group;
-		if (manager != null) {
-			put(madkit.agr.Organization.GROUP_MANAGER_ROLE, new ManagerRole(this,
-					manager));
-		}
+		put(madkit.agr.Organization.GROUP_MANAGER_ROLE, new ManagerRole(this,
+				manager));
+	}
+
+	boolean isSecured() {
+		return isSecured;
 	}
 
 	String getName() {
@@ -114,11 +126,53 @@ final class Group extends ConcurrentHashMap<String, Role> {
 	 * @param memberCard
 	 * @return
 	 */
-	ReturnCode requestRole(AbstractAgent requester, String roleName, Object memberCard) {
+	ReturnCode requestRole(final AbstractAgent requester, final String roleName, final Object memberCard) {
 		if (roleName == null)
 			throw new NullPointerException(ErrorMessages.R_NULL.toString());
-		if (gatekeeper != null && !gatekeeper.allowAgentToTakeRole(roleName, memberCard))
-			return ACCESS_DENIED;
+		if (isSecured) {
+			final MadkitKernel myKernel = getCommunityObject().getMyKernel();
+			if (gatekeeper == null) {
+				final AgentAddress manager = myKernel.getAgentWithRole(
+						communityName, groupName,
+						madkit.agr.Organization.GROUP_MANAGER_ROLE);
+				final AgentAddress distantAgentWithRole = myKernel
+						.getDistantAgentWithRole(requester, madkit.agr.LocalCommunity.NAME,
+								"kernels", madkit.agr.Organization.GROUP_MANAGER_ROLE,
+								manager.getKernelAddress());
+				MicroAgent<Boolean> ma;
+				myKernel.launchAgent(ma = new MicroAgent<Boolean>() {
+					private static final long	serialVersionUID	= 1L;
+					protected void activate() {
+						super.activate();
+						try {
+							Message m = sendMessageAndWaitForReply(
+									distantAgentWithRole,
+									new RequestRoleSecure(myKernel
+											.getSenderAgentAddress(requester, manager,
+													null), roleName, memberCard), 100000);
+							if (m != null) {
+								setResult(((ObjectMessage<Boolean>) m).getContent());
+							}
+							else{
+								setResult(null);
+							}
+						} catch (CGRNotAvailable e) {
+							e.printStackTrace();
+						}
+					};
+				});
+				if (!ma.getResult())
+					return ACCESS_DENIED;
+			}
+			else
+				if (! gatekeeper.allowAgentToTakeRole(requester.hashCode()+"@"+myKernel.getKernelAddress().hashCode(), roleName, memberCard)) {//TODO network ID
+					return ACCESS_DENIED;
+				}
+		}
+		
+//		if (gatekeeper != null && !gatekeeper.allowAgentToTakeRole(roleName, memberCard))
+//			return ACCESS_DENIED;
+
 		ReturnCode result = SUCCESS;
 		Role theRole;
 		synchronized (this) {
@@ -142,6 +196,14 @@ final class Group extends ConcurrentHashMap<String, Role> {
 		return result;
 	}
 
+	
+	/**
+	 * @return the gatekeeper
+	 */
+	Gatekeeper getGatekeeper() {
+		return gatekeeper;
+	}
+
 	Role createRole(final String roleName) {
 		return new Role(this, roleName);
 	}
@@ -153,7 +215,9 @@ final class Group extends ConcurrentHashMap<String, Role> {
 		synchronized (this) {
 			remove(roleName);
 			if (logger != null)
-				logger.finer("Removing" + I18nUtilities.getCGRString(communityName, groupName, roleName));
+				logger.finer("Removing"
+						+ I18nUtilities.getCGRString(communityName, groupName,
+								roleName));
 			checkEmptyness();
 		}
 	}
@@ -166,14 +230,14 @@ final class Group extends ConcurrentHashMap<String, Role> {
 
 	/**
 	 * @param requester
-	 * @return a list of affected roles, or <code>null</code> if none of them are affected 
+	 * @return a list of affected roles, or <code>null</code> if none of them are affected
 	 */
 	List<Role> leaveGroup(final AbstractAgent requester) {
 		List<Role> affectedRoles = null;
 		synchronized (this) {
 			for (final Role r : values()) {
 				if (r.removeMember(requester) == SUCCESS) {
-					if(affectedRoles == null)
+					if (affectedRoles == null)
 						affectedRoles = new ArrayList<Role>();
 					affectedRoles.add(r);
 				}
@@ -295,7 +359,8 @@ final class Group extends ConcurrentHashMap<String, Role> {
 
 	void removeAgentsFromDistantKernel(final KernelAddress kernelAddress) {
 		if (logger != null)
-			logger.finest("Removing all agents from distant kernel " + kernelAddress + " in" + this);
+			logger.finest("Removing all agents from distant kernel "
+					+ kernelAddress + " in" + this);
 		for (final Role r : values()) {
 			r.removeAgentsFromDistantKernel(kernelAddress);
 		}
@@ -309,10 +374,12 @@ final class Group extends ConcurrentHashMap<String, Role> {
 		synchronized (this) {
 			if (!isEmpty()) {
 				for (final Role r : values()) {
-					for (Iterator<AbstractAgent> iterator = r.getPlayers().iterator(); iterator.hasNext();) {
+					for (Iterator<AbstractAgent> iterator = r.getPlayers()
+							.iterator(); iterator.hasNext();) {
 						AbstractAgent a = iterator.next();
 						if (a != oldManager) {
-							put(madkit.agr.Organization.GROUP_MANAGER_ROLE, new ManagerRole(this, a));
+							put(madkit.agr.Organization.GROUP_MANAGER_ROLE,
+									new ManagerRole(this, a, false));
 							return;
 						}
 					}

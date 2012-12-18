@@ -234,3 +234,22 @@ final class CandidateAgentAddress extends AgentAddress{
 	}
 
 }
+
+final class GroupManagerAddress extends AgentAddress{
+
+	/**
+	 * 
+	 */
+	private static final long	serialVersionUID	= -5757376397376189866L;
+	private boolean securedGroup;
+
+	GroupManagerAddress(AbstractAgent agt, Role role, KernelAddress ka, boolean securedGroup) {
+		super(agt, role, ka);
+		this.securedGroup = securedGroup;
+	}
+	
+	boolean isGroupSecured(){
+		return securedGroup;
+	}
+	
+}

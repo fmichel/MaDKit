@@ -23,6 +23,7 @@ import static org.junit.Assert.assertFalse;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 import madkit.action.KernelAction;
 import madkit.agr.CloudCommunity;
@@ -30,6 +31,8 @@ import madkit.kernel.AbstractAgent;
 import madkit.kernel.AgentAddress;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit;
+import madkit.kernel.Madkit.BooleanOption;
+import madkit.kernel.Madkit.LevelOption;
 
 import org.junit.Test;
 
@@ -44,7 +47,9 @@ public class DiscoverTest extends JunitMadkit {
 
 	@Test
 	public void multipleConnectionTest() {
-//		addMadkitArgs(BooleanOption.network.toString(),LevelOption.networkLogLevel.toString(),"ALL");
+		addMadkitArgs(BooleanOption.network.toString(),LevelOption.networkLogLevel.toString(),"ALL"
+				,LevelOption.madkitLogLevel.toString(),Level.ALL.toString()
+				);
 		launchTest(new AbstractAgent() {
 			@Override
 			protected void activate() {
@@ -63,8 +68,9 @@ public class DiscoverTest extends JunitMadkit {
 				}
 				assertEquals(6, l.size());
 				KernelAction.STOP_NETWORK.getActionFor(this).actionPerformed(null);
-				pause(100);
+				pause(1000);
 
+				System.err.println(getOrganizationSnapShot(true));
 				// not connected
 				assertFalse(isCommunity(CloudCommunity.NAME));
 

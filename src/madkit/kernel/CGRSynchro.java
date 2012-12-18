@@ -66,3 +66,29 @@ class CGRSynchro extends ObjectMessage<AgentAddress> {
 
 
 }
+
+class RequestRoleSecure extends ObjectMessage<Object>{
+
+	final private AgentAddress	requester;
+	final private String	roleName;
+
+	public RequestRoleSecure(AgentAddress requester, String roleName, Object key) {
+		super(key);
+		this.requester = requester;
+		this.roleName = roleName;
+	}
+
+	/**
+	 * @return the requester
+	 */
+	AgentAddress getRequester() {
+		return requester;
+	}
+
+	/**
+	 * @return the roleName
+	 */
+	public String getRoleName() {
+		return roleName;
+	}
+}

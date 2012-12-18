@@ -117,8 +117,8 @@ public class Agent extends AbstractAgent{
 				suicide(e);
 			} catch (Exception e) {
 				synchronized (state) {//TODO factoriser
-					alive.set(false);
 					logLifeException(e);
+					alive.set(false);
 				}
 			}
 			if(! alive.get()){

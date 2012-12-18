@@ -19,6 +19,7 @@ public class PongAgent extends Agent {
 	private static final long serialVersionUID = 1L;
 
 	protected void activate() {
+		System.err.println(getOrganizationSnapShot(false));
 		createGroupIfAbsent(JunitMadkit.COMMUNITY, GROUP, true, null);
 		requestRole(COMMUNITY, GROUP, ROLE, null);
 	}

@@ -19,8 +19,13 @@
 
 package madkit.kernel;
 
+import static madkit.i18n.I18nUtilities.getCGRString;
 import static madkit.kernel.AbstractAgent.ReturnCode.ROLE_NOT_HANDLED;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
+
+import java.util.Collections;
+import java.util.HashSet;
+
 import madkit.agr.Organization;
 import madkit.kernel.AbstractAgent.ReturnCode;
 
@@ -38,14 +43,25 @@ final class ManagerRole extends Role {
 	 */
 	private static final long serialVersionUID = 1919401829672949296L;
 
-	ManagerRole(final Group groupObject, AbstractAgent creator) {
+	ManagerRole(final Group groupObject, AbstractAgent requester, boolean securedGroup) {
 		super(groupObject, Organization.GROUP_MANAGER_ROLE);
-		super.addMember(creator);
+		synchronized (players) {
+			players.add(requester);
+			agentAddresses = new HashSet<AgentAddress>(1,1);
+			agentAddresses.add(new GroupManagerAddress(requester, this, getKernelAddress(), securedGroup));
+//			System.err.println(requester.getName() + " is now playing " + getCGRString(communityName, groupName, roleName));
+//			System.err.println(this+" current players---\n"+players+"\n\n");
+			modified = true;
+		}
 	}
 	
 	ManagerRole(final Group groupObject, AgentAddress creator) {
 		super(groupObject, Organization.GROUP_MANAGER_ROLE);
-		super.addDistantMember(creator);
+		synchronized (players) {
+			agentAddresses = new HashSet<AgentAddress>(1,1);
+			agentAddresses.add(creator);
+			creator.setRoleObject(this);//required for equals to work
+		}
 	}
 	
 	/* (non-Javadoc)

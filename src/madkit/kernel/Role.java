@@ -48,8 +48,8 @@ class Role implements Serializable{//TODO test with arraylist
 
 	protected final transient List<AbstractAgent> players;//TODO test copyonarraylist and linkedhashset
 	private transient List<AbstractAgent> tmpReferenceableAgents;
-	private transient Set<AgentAddress> agentAddresses;
-	private transient boolean modified=true;
+	protected transient Set<AgentAddress> agentAddresses;
+	protected transient boolean modified=true;
 	private final transient Set<Overlooker<? extends AbstractAgent>> overlookers;
 	protected final transient Group myGroup;
 	final transient private Logger logger;

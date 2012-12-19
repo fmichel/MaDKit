@@ -234,8 +234,9 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 				try {
 					JarFile jarFile = ((JarURLConnection) new URL("jar:" + dir
 							+ "!/").openConnection()).getJarFile();
-					scanJarFileForLaunchConfig(jarFile);
-					agentClasses.addAll(scanJarFileForAgentClasses(jarFile));
+					if (scanJarFileForLaunchConfig(jarFile)) {
+						agentClasses.addAll(scanJarFileForAgentClasses(jarFile));
+					}
 				} catch (IOException e) {
 					madkit.getLogger().log(Level.SEVERE,"web repo conf is not valid", e);
 				}
@@ -307,17 +308,24 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 		demos.add(session);
 	}
 
-	private void scanJarFileForLaunchConfig(final JarFile jarFile) {
+	/**
+	 * @param jarFile
+	 * @return <code>true</code> if the jar contains MDK files
+	 */
+	private boolean scanJarFileForLaunchConfig(final JarFile jarFile) {
 		Attributes projectInfo = null;
 		try {
 			projectInfo = jarFile.getManifest().getAttributes(
 					"MaDKit-Project-Info");
 		} catch (IOException e) {
-			return;
 		}
-		if (projectInfo != null) {
+		if(projectInfo == null)
+			return false;
+		
+		final String mdkArgs = projectInfo.getValue("MaDKit-Args");
+		if(mdkArgs != null && ! mdkArgs.trim().isEmpty()){
 			MASModel mas = new MASModel(projectInfo.getValue("Project-Name")
-					.trim(), projectInfo.getValue("MaDKit-Args").split(" "),
+					.trim(), mdkArgs.split(" "),
 					projectInfo.getValue("Description").trim());
 			if (demos == null) {
 				demos = new HashSet<MASModel>();
@@ -328,6 +336,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 				l.finest("found MAS config info " + mas);
 			}
 		}
+		return true;
 	}
 
 	private List<String> scanJarFileForAgentClasses(JarFile jarFile) {
@@ -384,6 +393,8 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 //			e.printStackTrace();
 		} catch (NoSuchMethodException e) {
 //			e.printStackTrace();
+		} catch (VerifyError e) {
+			e.printStackTrace();
 		}
 		return false;
 	}

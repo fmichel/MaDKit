@@ -24,7 +24,7 @@
  Version: 5.1
 -->
 
-<project name="madkit" default="jar" basedir=".">
+<project name="MaDKit" default="jar" basedir=".">
 
 	<!-- defining project general properties -->
 	<tstamp prefix="time" />
@@ -97,6 +97,14 @@
 				<attribute name="Built-On" value="${timestamp.isoformat}" />
 				<attribute name="Built-By" value="${user.name}" />
 				<attribute name="Main-Class" value="${madkit.main.class}" />
+				<section name="MaDKit-Project-Info">
+					<attribute name="Project-Name" value="${project.label}" />
+					<attribute name="Project-Code-Name" value="${ant.project.name}" />
+					<attribute name="Project-Version" value="${version}" />
+					<attribute name="Author" value="${author}" />
+					<attribute name="Built-By" value="${user.name}" />
+					<attribute name="MaDKit-Args" value="" />
+				</section>
 			</manifest>
 		</jar>
 

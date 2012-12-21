@@ -50,7 +50,7 @@
          ================================= -->
 	<target name="build-executable-jar" depends="compile" description="executable jar">
 		<property name="jar.file" value="${ant.project.name}-${version}.jar" />
-		<echo>Creating executable jar file : ${jar.file}</echo>
+		<echo>    Creating executable jar file : ${jar.file}</echo>
 		<antcall target="MDK.build-manifest" />
 		<concat destfile="${build.dir}/README">--- ${project.label} version ${version} by ${author} -----
 			${line.separator}- Description  ${description}  -----
@@ -78,7 +78,7 @@
           target: build-agent-jar              
          ================================= -->
 	<target name="build-agent-jar" depends="compile" description="Creates a jar containing only the agents">
-		<echo>Creating ${ant.project.name} MDK agent library jar file</echo>
+		<echo>	Creating ${ant.project.name} MDK agent library jar file</echo>
 		<concat destfile="${build.dir}/README">--- ${project.label} version ${version} by ${author} -----
     			${line.separator}- Description  ${description}  -----
     			${line.separator}- Using        This jar file contains agents which can be ran using MaDKit: It can be used in MaDKit using load jar or by putting it in the classpath of your MaDKit application  -----

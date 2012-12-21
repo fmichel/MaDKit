@@ -21,6 +21,8 @@ package madkit.kernel;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.net.JarURLConnection;
@@ -28,15 +30,14 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.jar.Attributes;
-import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -44,6 +45,8 @@ import java.util.logging.Logger;
 import madkit.gui.MASModel;
 import madkit.gui.menu.LaunchAgentsMenu;
 import madkit.gui.menu.LaunchMAS;
+import madkit.kernel.Madkit.LevelOption;
+import madkit.kernel.Madkit.Option;
 
 /**
  * The MadkitClassLoader is the class loader used by MaDKit, enabling 
@@ -198,7 +201,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 	}
 	
 	/**
-	 * Returns the package name for this class name, i.e. <code>java.lang.Object</code>
+	 * Returns the package name for this class name. E.g. <code>java.lang.Object</code>
 	 * as input gives <code>java.lang</code> as output.
 	 * 
 	 * @param classFullName the full name of a class
@@ -210,7 +213,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 	}
 	
 	/**
-	 * Returns the simple name for a full class name, i.e. <code>java.lang.Object</code>
+	 * Returns the simple name for a full class name. E.g.  <code>java.lang.Object</code>
 	 * as input gives <code>Object</code> as output.
 	 * 
 	 * @param classFullName the full name of a class
@@ -234,35 +237,16 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 				try {
 					JarFile jarFile = ((JarURLConnection) new URL("jar:" + dir
 							+ "!/").openConnection()).getJarFile();
-					if (scanJarFileForLaunchConfig(jarFile)) {
-						agentClasses.addAll(scanJarFileForAgentClasses(jarFile));
-					}
+					agentClasses.addAll(scanJarFileForLaunchConfig(jarFile));
 				} catch (IOException e) {
 					madkit.getLogger().log(Level.SEVERE,"web repo conf is not valid", e);
 				}
 			}
 			else {
-				agentClasses.addAll(scanFolderForAgentClasses(
-						new File(dir.getFile()), null));
+				agentClasses.addAll(scanFolderForAgentClasses(new File(dir.getFile()), null));
 			}
 		}
 	}
-
-	// @Override
-	// public String toString() {
-	// ClassLoader parent = getParent();
-	// String cp =super.toString()+" : ";
-	// String tab="\t";
-	// while(parent != null){
-	// cp+=tab+parent.getClass();
-	// tab+=tab;
-	// parent = parent.getParent();
-	// }
-	// for (URL url : getURLs()) {
-	// cp+="\n"+url;
-	// }
-	// return cp;
-	// }
 
 	/**
 	 * Adds a directory or a jar file to the class path.
@@ -312,7 +296,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 	 * @param jarFile
 	 * @return <code>true</code> if the jar contains MDK files
 	 */
-	private boolean scanJarFileForLaunchConfig(final JarFile jarFile) {
+	private List<String> scanJarFileForLaunchConfig(final JarFile jarFile) {
 		Attributes projectInfo = null;
 		try {
 			projectInfo = jarFile.getManifest().getAttributes(
@@ -320,7 +304,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 		} catch (IOException e) {
 		}
 		if(projectInfo == null)
-			return false;
+			return Collections.EMPTY_LIST;
 		
 		final String mdkArgs = projectInfo.getValue("MaDKit-Args");
 		if(mdkArgs != null && ! mdkArgs.trim().isEmpty()){
@@ -336,21 +320,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 				l.finest("found MAS config info " + mas);
 			}
 		}
-		return true;
-	}
-
-	private List<String> scanJarFileForAgentClasses(JarFile jarFile) {
-		List<String> l = new ArrayList<String>(50);
-		for (Enumeration<JarEntry> e = jarFile.entries(); e.hasMoreElements();) {
-			JarEntry entry = e.nextElement();
-			if (! entry.isDirectory() && entry.getName().endsWith(".class")) {
-				final String className = fileNameToClassName(entry.getName(), null);
-				if (isAgentClass(className)) {
-					l.add(fileNameToClassName(entry.getName(), null));
-				}
-			}
-		}
-		return l;
+		return Arrays.asList(projectInfo.getValue("Agent-Classes").split(","));
 	}
 
 	private List<String> scanFolderForAgentClasses(final File file,
@@ -385,6 +355,8 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 					&& Modifier.isPublic(cl.getModifiers())) {
 				return true;
 			}
+		} catch (VerifyError e) {//scala files raise problems
+//			e.printStackTrace();//FIXME should be logged
 		} catch (ClassNotFoundException e) {//no log here for junit !!
 //			e.printStackTrace();
 		} catch (NoClassDefFoundError e) {
@@ -393,16 +365,32 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 //			e.printStackTrace();
 		} catch (NoSuchMethodException e) {
 //			e.printStackTrace();
-		} catch (VerifyError e) {
-			e.printStackTrace();
 		}
 		return false;
 	}
 
-	private String fileNameToClassName(String file, final String classPathRoot) {
-		if (classPathRoot != null)
-			file = file.replace(classPathRoot, "");
-		return file.substring(0, file.length() - 6).replace('/', '.');
+	/**
+	 * This is only used by ant scripts for building MDK jar files.
+	 * This will create a file in java.io.tmpdir named agents.classes
+	 * containing the agent classes which are on the class path
+	 * 
+	 * @param args
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	public static void main(String[] args) throws FileNotFoundException, IOException {
+		Madkit m = new Madkit(
+				LevelOption.madkitLogLevel.toString(),Level.OFF.toString(),
+				Option.launchAgents.toString(),AbstractAgent.class.getName()
+				);
+		Set<String> s = m.getMadkitClassLoader().getAllAgentClasses();
+		int size = s.toString().length();
+		java.util.Properties p = new java.util.Properties();
+		p.setProperty("agents.classes", s.toString().substring(1,size-1).replace(", ", ","));
+		p.store(new FileOutputStream(new File(System.getProperty("java.io.tmpdir")+File.separatorChar+"agentClasses.properties")),System.getProperty("java.class.path"));
+//		for (String string : System.getProperty("java.class.path").split(File.pathSeparator)) {
+//			System.err.println(string);
+//		}
 	}
 
 }

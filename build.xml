@@ -104,6 +104,7 @@
 					<attribute name="Author" value="${author}" />
 					<attribute name="Built-By" value="${user.name}" />
 					<attribute name="MaDKit-Args" value="" />
+					<attribute name="Agent-Classes" value="madkit.gui.ConsoleAgent,madkit.kernel.AbstractAgent,madkit.kernel.Agent,madkit.kernel.Scheduler,madkit.kernel.Watcher" />
 				</section>
 			</manifest>
 		</jar>
@@ -321,4 +322,17 @@
 		<fileset dir="${test.reports.dir}" />
 	</ftp>
 </target>
+	
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: test-Java                      
+         - - - - - - - - - - - - - - - - - -->
+    <target name="test-Java" depends="compile">
+        <java classname="madkit.kernel.MadkitClassLoader" fork="true">
+          <classpath>
+            <pathelement path="${build.dir}"/>
+          </classpath>
+        </java>
+    	<property file="${java.io.tmpdir}/agentClasses.properties"></property>
+    </target>
+
 </project>

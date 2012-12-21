@@ -35,7 +35,7 @@
 	<!-- - - - - - - - - - - - - - - - - - 
           target: build-manifest                      
          - - - - - - - - - - - - - - - - - -->
-	<target name="build-manifest">
+	<target name="build-manifest" depends="scan-class-path">
 		<manifest file="${manifest.location}">
 			<section name="MaDKit-Project-Info">
 				<attribute name="Project-Name" value="${project.label}" />
@@ -47,6 +47,7 @@
 				<attribute name="Built-On" value="${timestamp.isoformat}" />
 				<attribute name="Built-With" value="MaDKit ${madkit.version}" />
 				<attribute name="MaDKit-Args" value="${madkit.args}" />
+				<attribute name="Agent-Classes" value="${agents.classes}" />
 			</section>
 		</manifest>
 	</target>
@@ -74,16 +75,16 @@
 		<property file="${keystore.dir}/keystore.properties" />
 		<property name="keystore.alias" value="MaDKit-Application" />
 	</target>
-	
+
 	<!-- - - - - - - - - - - - - - - - - - 
           target: init                      
          - - - - - - - - - - - - - - - - - -->
-    <target name="init-lib">
-	  <condition property="is.fileset">
-	    <isreference refid="third.party.libraries" type="fileset"/>
-	  </condition>
-    </target>
-	
+	<target name="init-lib">
+		<condition property="is.fileset">
+			<isreference refid="third.party.libraries" type="fileset"/>
+		</condition>
+	</target>
+
 	<target name="check-lib" depends="init-lib" unless="is.fileset">
 		<fileset id="third.party.libraries" dir="." excludes="**" />
 	</target>
@@ -91,23 +92,23 @@
 	<!-- - - - - - - - - - - - - - - - - - 
           target: jar                      
          - - - - - - - - - - - - - - - - - -->
-    <target name="jar" depends="check-lib">
+	<target name="jar" depends="check-lib">
 		<jar destfile="${jar.file}" manifest="${manifest.location}" level="1" duplicate="preserve">
 			<fileset dir="${build.dir}" followsymlinks="true"/>
 			<zipfileset src="${kernel.location}" excludes="MANIFEST.MF,*.xml" />
-			<zipgroupfileset refid="third.party.libraries" /> 
+			<zipgroupfileset refid="third.party.libraries" />
 		</jar>
-    </target>
-	
+	</target>
+
 	<!-- - - - - - - - - - - - - - - - - - 
           target: agent-jar                      
          - - - - - - - - - - - - - - - - - -->
-    <target name="agent-jar" depends="check-lib">
+	<target name="agent-jar" depends="check-lib">
 		<jar destfile="${agent.lib.file}" manifest="${manifest.location}" duplicate="preserve" level="1">
 			<fileset dir="${build.dir}" />
-			<zipgroupfileset refid="third.party.libraries" /> 
+			<zipgroupfileset refid="third.party.libraries" />
 		</jar>
-    </target>
+	</target>
 
 
 	<!-- - - - - - - - - - - - - - - - - - 
@@ -177,5 +178,21 @@
 			</or>
 		</condition>
 	</target>
+
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: test-Java                      
+         - - - - - - - - - - - - - - - - - -->
+	<target name="scan-class-path" depends="check-lib">
+		<java classname="madkit.kernel.MadkitClassLoader" fork="true">
+			<classpath>
+				<pathelement path="${build.dir}" />
+				<fileset refid="third.party.libraries" />
+				<pathelement location="${kernel.location}"/>
+			</classpath>
+		</java>
+		<property file="${java.io.tmpdir}/agentClasses.properties">
+		</property>
+	</target>
+
 
 </project>

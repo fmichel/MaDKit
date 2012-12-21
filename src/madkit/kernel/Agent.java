@@ -156,14 +156,11 @@ public class Agent extends AbstractAgent{
 	 */
 	protected void live() {
 		setLogLevel(Level.INFO);
-		if(logger != null)
-			logger.talk("\n\tHi human and hello World !!\n\n I am an instance of the madkit.kernel.Agent class\n As such, I am a MaDKit threaded Agent\n and thus have an autonomous activity!");
+		logger.talk("\n\tHi Human and hello World !!\n\n I am an instance of the madkit.kernel.Agent class\n As such, I am a MaDKit threaded Agent\n and thus have an autonomous activity!");
 		pause(5000);
-		if(logger != null)
 		logger.talk("\n\n And in fact, I am the simpliest agent ever\n because I simply do nothing at all :)\n\n");
 		pause(4000);
 		int i = (int) (Math.random()*3000+4500);
-		if(logger != null)
 		logger.info("I will quit in "+i+" milliseconds... Bye !");
 		pause(i);
 	}

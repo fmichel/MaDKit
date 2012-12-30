@@ -46,17 +46,16 @@
 
 	<!-- ================================= 
           target: buildResources         
-          //TODO seems to be useless...
-    	<native2ascii src="${i18n.build.dir}" dest="${i18n.build.dir}" includes="*.properties" ext=".properties"/>
          ================================= -->
 	<target name="buildResources">
 		<mkdir dir="${build.dir}" />
 		<mkdir dir="${release.dir}" />
-		<copy todir="${build.dir}">
+    	<native2ascii src="${i18n.src.dir}" dest="${i18n.build.dir}" encoding="iso-8859-1" includes="*FR*"/>
+		<copy todir="${build.dir}" overwrite="false">
 			<fileset dir="${src.dir}" excludes="**/*.java" />
 		</copy>
 	</target>
-
+	
 	<!-- ================================= 
           target: src-zip              
          ================================= -->

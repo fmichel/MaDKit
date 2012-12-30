@@ -20,8 +20,11 @@ interact using messages. It also contains generic MAS simulation authoring tools
 ----------------------------------------------------------------------------------
 
 1. Improvements and changes:
-	- fix a bug related to local connections under windows
-	- The hook system has been reworked and refactored.
+	- boot time reduced
+	- fix a bug related to network kernel connections under Windows
+	- fix the encoding of FR files under Windows
+	- The hook system has been reworked and refactored
+	- group security has been reworked
 
 2. API changes:
 	+ madkit.kernel.AbstractAgent.getNetworkID()

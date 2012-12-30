@@ -23,6 +23,9 @@ import static madkit.kernel.JunitMadkit.COMMUNITY;
 import static madkit.kernel.JunitMadkit.GROUP;
 import static madkit.kernel.JunitMadkit.ROLE;
 import static org.junit.Assert.assertEquals;
+
+import java.util.logging.Level;
+
 import madkit.kernel.Agent;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit;
@@ -39,7 +42,8 @@ public class ForEverAgent extends Agent {
 
 	@Override
 	protected void activate() {
-		createGroupIfAbsent(JunitMadkit.COMMUNITY, GROUP);
+		setLogLevel(Level.ALL);
+		createGroupIfAbsent(JunitMadkit.COMMUNITY, GROUP,true);
 		assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
 	}
 

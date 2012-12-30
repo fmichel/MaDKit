@@ -18,6 +18,8 @@
  */
 package madkit.message.hook;
 
+import madkit.kernel.AbstractAgent;
+
 
 /**
  * A message which is sent to agents that have requested 
@@ -28,15 +30,40 @@ package madkit.message.hook;
  * @version 0.9
  * 
  */
-public class AgentLifeEvent extends EventMessage {
+public class AgentLifeEvent extends HookMessage {
 
 	/**
 	 * 
 	 */
-	private static final long	serialVersionUID	= -6113731419331594008L;
+	private static final long	serialVersionUID	= -5737575514238878308L;
+	final private AbstractAgent	 source;
 
-	public AgentLifeEvent(AgentActionEvent agentAction, Object[] infos) {
-		super(agentAction, infos);
+	public AgentLifeEvent(AgentActionEvent agentAction, AbstractAgent agent) {
+		super(agentAction);
+		source = agent;
 	}
 
+	/**
+	 * The agent which is related to this event
+	 * 
+	 * @return the source agent of the event
+	 */
+	public AbstractAgent getSource() {
+		return source;
+	}
+	
+	/**
+	 * Return the ID of the agent, i.e. its hashCode value
+	 * 
+	 * @return the ID of the agent
+	 */
+	String getSourceAgentID(){
+		return ""+source.hashCode();
+	}
+	
+	@Override
+	public String toString() {
+		return super.toString()+" from "+source;
+	}
+	
 }

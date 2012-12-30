@@ -73,7 +73,7 @@ final class LoggedKernel extends MadkitKernel {
 	@Override
 	boolean createGroupIfAbsent(AbstractAgent requester,String community, String group, Gatekeeper gatekeeper, boolean isDistributed) {
 		if(requester.isFinestLogOn())
-			requester.logger.log(Level.FINEST,"createGroupIfAbsent" + getCGRString(community, group) + "distribution " + (isDistributed ? "ON" : "OFF") + " with "
+			requester.logger.log(Level.FINEST,"createGroupIfAbsent " + getCGRString(community, group) + "distribution " + (isDistributed ? "ON" : "OFF") + " with "
 					+ (gatekeeper == null ? "no access control" : gatekeeper.toString() + " for access control"));
 		return kernel.createGroup(requester, community, group, gatekeeper,isDistributed) == SUCCESS;
 	}

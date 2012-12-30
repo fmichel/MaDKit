@@ -18,8 +18,6 @@
  */
 package madkit.kernel;
 
-import java.awt.event.KeyEvent;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -32,7 +30,6 @@ import java.security.ProtectionDomain;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -456,7 +453,8 @@ final public class Madkit {
 		if(!(LevelOption.madkitLogLevel.getValue(madkitConfig) == Level.OFF)){
 			System.err.println("\n\t---------------------------------------"+
 					"\n\t                MaDKit"+
-					"\n\t           version: "+defaultConfig.getProperty("madkit.version")+"\n\t        build-id: "+defaultConfig.getProperty("build.id")+
+					"\n\t           version: "+defaultConfig.getProperty("madkit.version")+
+					"\n\t        build-id: "+defaultConfig.getProperty("build.id")+
 					"\n\t       MaDKit Team (c) 1997-"+Calendar.getInstance().get(Calendar.YEAR)+
 					"\n\t---------------------------------------\n");			
 		}

@@ -30,6 +30,11 @@ package madkit.message;
 public class BooleanMessage extends ObjectMessage<Boolean> {
 
 	/**
+	 * 
+	 */
+	private static final long	serialVersionUID	= 6520364212151479221L;
+
+	/**
 	 * Builds a new message containing the boolean b
 	 * @param b a boolean value
 	 */

@@ -58,13 +58,12 @@ final class MultiCastListener {
 	static MultiCastListener getNewMultiCastListener(final int localPort) throws IOException, UnknownHostException{
 		MulticastSocket ms = null;
 		DatagramSocket ds = null;
-		final int multiCastPort = 9999;
+		final int multiCastPort = 2009;
 		if (ipAddress == null) {
-			ipAddress = InetAddress.getByName("224.2.2.3");
+			ipAddress = InetAddress.getByName("239.29.08.58");
 		}
 		ms = new MulticastSocket(multiCastPort);
 		ms.joinGroup(ipAddress);
-		ms.setLoopbackMode(true);
 		ds = new DatagramSocket(localPort);
 		return new MultiCastListener(ms,ds);
 	}
@@ -84,7 +83,7 @@ final class MultiCastListener {
 		dos.writeLong(onlineTime);
 		dos.close();  
 		final byte[] data = bos.toByteArray();  		
-		ds.send(new DatagramPacket(data, 8, ipAddress, 9999));
+		ds.send(new DatagramPacket(data, 8, ipAddress, 2009));
 		final Thread t = new Thread(new Runnable() { //TODO problem if two arrive at the time
 			@Override
 			public void run() {

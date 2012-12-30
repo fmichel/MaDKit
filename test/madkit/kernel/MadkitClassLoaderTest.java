@@ -92,13 +92,13 @@ public class MadkitClassLoaderTest extends JunitMadkit {
 				try {
 					assertNotNull(getMadkitClassLoader().loadClass("madkit.kernel.AbstractAgent"));
 				} catch (ClassNotFoundException e) {
-					fail(e.getMessage()); // TODO
+					fail(e.getMessage()); 
 				}
 				try {
 					getMadkitClassLoader().loadClass(null);
-					fail("Not thrown"); // TODO
+					fail("Not thrown"); 
 				} catch (ClassNotFoundException e) {
-					fail("Not the one"); // TODO
+					fail("Not the one");
 					e.printStackTrace();
 				} catch (NullPointerException e) {
 					throw e;

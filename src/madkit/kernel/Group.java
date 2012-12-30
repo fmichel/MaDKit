@@ -30,12 +30,8 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import madkit.agr.CloudCommunity;
-import madkit.agr.LocalCommunity.Groups;
-import madkit.agr.LocalCommunity.Roles;
 import madkit.i18n.ErrorMessages;
 import madkit.i18n.I18nUtilities;
 import madkit.kernel.AbstractAgent.ReturnCode;
@@ -159,13 +155,13 @@ final class Group extends ConcurrentHashMap<String, Role> {
 						} catch (CGRNotAvailable e) {
 							e.printStackTrace();
 						}
-					};
+					}
 				});
 				if (!ma.getResult())
 					return ACCESS_DENIED;
 			}
 			else
-				if (! gatekeeper.allowAgentToTakeRole(requester.hashCode()+"@"+myKernel.getKernelAddress().hashCode(), roleName, memberCard)) {//TODO network ID
+				if (! gatekeeper.allowAgentToTakeRole(requester.getNetworkID(), roleName, memberCard)) {//TODO network ID
 					return ACCESS_DENIED;
 				}
 		}

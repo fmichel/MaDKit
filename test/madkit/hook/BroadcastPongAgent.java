@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with MaDKit. If not, see <http://www.gnu.org/licenses/>.
  */
-package madkit.testing.util.agent;
+package madkit.hook;
 
 import static madkit.kernel.JunitMadkit.COMMUNITY;
 import static madkit.kernel.JunitMadkit.GROUP;
@@ -31,11 +31,11 @@ import madkit.message.StringMessage;
 
 /**
  * @author Fabien Michel
- * @since MadKit 5.0.0.18
+ * @since MadKit 5.0.0.21
  * @version 0.9
  * 
  */
-public class PongAgent extends Agent {
+public class BroadcastPongAgent extends Agent {
 
 	/**
 	 * 
@@ -52,7 +52,7 @@ public class PongAgent extends Agent {
 	public void live() {
 		while (true) {
 			pause(500);
-			sendMessage(COMMUNITY, GROUP, ROLE, new StringMessage("test"));
+			broadcastMessage(COMMUNITY, GROUP, ROLE, new StringMessage("test"));
 			if (logger != null)
 				logger.talk("\nreceived: " + nextMessage());
 		}
@@ -69,7 +69,7 @@ public class PongAgent extends Agent {
 	 */
 	public static void main(String[] args) {
 		if (args == null) {
-			args = Arrays.asList("--network", "--agentLogLevel", "ALL", "--launchAgents", PongAgent.class.getName(), ",true")
+			args = Arrays.asList("--network", "--agentLogLevel", "ALL", "--launchAgents", BroadcastPongAgent.class.getName(), ",true")
 					.toArray(new String[0]);
 		}
 		Madkit.main(args);

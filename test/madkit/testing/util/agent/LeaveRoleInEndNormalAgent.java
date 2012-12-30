@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Fabien Michel
+ * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -18,61 +18,47 @@
  */
 package madkit.testing.util.agent;
 
+import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static madkit.kernel.JunitMadkit.COMMUNITY;
 import static madkit.kernel.JunitMadkit.GROUP;
 import static madkit.kernel.JunitMadkit.ROLE;
+import static org.junit.Assert.assertEquals;
 
-import java.util.Arrays;
+import java.util.logging.Level;
 
 import madkit.kernel.Agent;
-import madkit.kernel.JunitMadkit;
-import madkit.kernel.Madkit;
-import madkit.message.StringMessage;
 
 /**
  * @author Fabien Michel
- * @since MadKit 5.0.0.18
+ * @since MaDKit 5.0.0.12
  * @version 0.9
  * 
  */
-public class PongAgent extends Agent {
+public class LeaveRoleInEndNormalAgent extends Agent {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	protected void activate() {
-		System.err.println(getOrganizationSnapShot(false));
-		createGroupIfAbsent(JunitMadkit.COMMUNITY, GROUP, true, null);
-		requestRole(COMMUNITY, GROUP, ROLE, null);
+	public LeaveRoleInEndNormalAgent() {
+		setName(getLogger().getName());
 	}
 
 	@Override
-	public void live() {
-		while (true) {
-			pause(500);
-			sendMessage(COMMUNITY, GROUP, ROLE, new StringMessage("test"));
-			if (logger != null)
-				logger.talk("\nreceived: " + nextMessage());
-		}
+	protected void activate() {
+		assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP,true));
+		assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
 	}
-
+	
+	protected void live() {
+		setLogLevel(Level.ALL);
+	}
+	
 	@Override
 	protected void end() {
-		if (logger != null)
-			logger.info("bye");
-	}
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		if (args == null) {
-			args = Arrays.asList("--network", "--agentLogLevel", "ALL", "--launchAgents", PongAgent.class.getName(), ",true")
-					.toArray(new String[0]);
-		}
-		Madkit.main(args);
+		assertEquals(SUCCESS, leaveRole(COMMUNITY, GROUP, ROLE));
+		pause(1000);
 	}
 
 }

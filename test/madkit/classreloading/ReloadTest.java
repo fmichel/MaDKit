@@ -84,8 +84,7 @@ public class ReloadTest extends JunitMadkit {
 			destination = new FileOutputStream(destFile).getChannel();
 			long count = 0;
 			long size = source.size();
-			while ((count += destination.transferFrom(source, count, size - count)) < size)
-				;
+			while ((count += destination.transferFrom(source, count, size - count)) < size);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

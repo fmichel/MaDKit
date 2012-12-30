@@ -16,6 +16,21 @@ interact using messages. It also contains generic MAS simulation authoring tools
 
 
 ----------------------------------------------------------------------------------
+------------------------------- MaDKit 5.0.0.21 (alpha-21)------------------------
+----------------------------------------------------------------------------------
+
+1. Improvements and changes:
+	- fix a bug related to local connections under windows
+	- The hook system has been reworked and refactored.
+
+2. API changes:
+	+ madkit.kernel.AbstractAgent.getNetworkID()
+	+ madkit.kernel.AbstractAgent.getSimpleNetworkID()
+	+ madkit.kernel.AgentAddress.getAgentNetworkID()
+	+ madkit.kernel.AgentAddress.getSimpleAgentNetworkID()
+	+ madkit.message.hook.CGREvent
+
+----------------------------------------------------------------------------------
 ------------------------------- MaDKit 5.0.0.20 (alpha-20)------------------------
 ----------------------------------------------------------------------------------
 

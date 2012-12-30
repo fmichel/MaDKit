@@ -123,14 +123,14 @@ import madkit.message.hook.HookMessage.AgentActionEvent;
  * 
  * @author Fabien Michel
  * @author Olivier Gutknecht
- * @version 5.3
+ * @version 5.4
  */
 public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 
 	/**
 	 * 
 	 */
-	private static final long	serialVersionUID	= -6180517348998118712L;
+	private static final long	serialVersionUID	= -581974151975935098L;
 
 	private final static transient AtomicInteger	agentCounter		= new AtomicInteger(0);
 
@@ -229,6 +229,28 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	final public int hashCode() {// TODO should be regenerated if agent are sent
 											// through the network in next releases
 		return _hashCode;
+	}
+	
+	/**
+	 * Return a string representing a unique identifier for the agent
+	 * over the network.
+	 * 
+	 * @return the agent's network identifier
+	 */
+	final public String getNetworkID(){
+		return _hashCode+"@"+getKernelAddress().hashCode();
+	}
+
+	/**
+	 * Return a string representing a shorter version of the 
+	 * unique identifier of the agent over the network.
+	 * As a simplified version, this string may not be unique.
+	 * 
+	 * @return a simplified version of the agent's network identifier
+	 * @see #getNetworkID()
+	 */
+	final public String getSimpleNetworkID(){
+		return _hashCode + getKernelAddress().toString();
 	}
 
 	/**
@@ -453,7 +475,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			AgentStatusPanel.remove(this);
 		}
 		if(kernel.isHooked())
-			kernel.informHooks(AgentActionEvent.AGENT_TERMINATED, getName());
+			kernel.informHooks(AgentActionEvent.AGENT_TERMINATED, this);
 		kernel = TERMINATED_KERNEL;
 	}
 
@@ -1992,7 +2014,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         agent is running
 	 */
 	public KernelAddress getKernelAddress() {
-		return getKernel().getKernelAddress();
+		return kernel.getKernelAddress();
 	}
 
 	// //////////////////////////////////////////////////////////////////////////////
@@ -2341,7 +2363,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 				logger.warning("Cannot proceed message : wrong argument " + m);
 			logForSender("I have sent an incorrect command message ", message);
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InvocationTargetException e) {// TODO dirty : think about that
 			Throwable t = e.getCause();

@@ -383,7 +383,7 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 	private void broadcastUpdate(Message message) {
 		if (logger != null){
 			logger.finer("Local CGR update\nBroadcasting "+" to "+peers.values()+message);
-			logger.finest("Local org is\n\n"+getOrganizationSnapShot(false)+"\n");
+//			logger.finest("Local org is\n\n"+getOrganizationSnapShot(false)+"\n");
 		}
 		for (KernelConnection kc : peers.values()) {
 			kc.sendMessage(message);

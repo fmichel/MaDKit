@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
+import madkit.action.KernelAction;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.kernel.AbstractAgent.ReturnCode;
@@ -71,7 +72,7 @@ public class JunitMadkit {
 			Option.logDirectory.toString(), getBinTestDir(), LevelOption.agentLogLevel.toString(), "ALL",
 			LevelOption.madkitLogLevel.toString(), "INFO"));
 
-	public void launchTest(AbstractAgent a, ReturnCode expected, boolean gui) {
+	public Madkit launchTest(AbstractAgent a, ReturnCode expected, boolean gui) {
 		System.err.println("\n\n------------------------ " + name.getMethodName() + " TEST START ---------------------");
 		try {
 			String[] args = null;
@@ -101,6 +102,8 @@ public class JunitMadkit {
 		} finally {
 			System.err.println("\n\n------------------------ " + name.getMethodName() + " TEST FINISHED ---------------------\n\n");
 		}
+		madkit.doAction(KernelAction.EXIT);
+		return madkit;
 	}
 
 	public void lineBreak() {
@@ -111,12 +114,12 @@ public class JunitMadkit {
 		fail("Exception not thrown");
 	}
 
-	public void launchTest(AbstractAgent a) {
-		launchTest(a, SUCCESS);
+	public Madkit launchTest(AbstractAgent a) {
+		return launchTest(a, SUCCESS);
 	}
 	
-	public void launchTest(AbstractAgent a, ReturnCode expected) {
-		launchTest(a, expected, false);
+	public Madkit launchTest(AbstractAgent a, ReturnCode expected) {
+		return launchTest(a, expected, false);
 	}
 
 	public void launchDefaultAgent(AbstractAgent a){
@@ -249,7 +252,16 @@ public class JunitMadkit {
 		return new Madkit(
 				BooleanOption.network.toString(), 
 				Option.launchAgents.toString(), ForEverAgent.class.getName(),
-//				LevelOption.networkLogLevel.toString(),l.toString(),
+				LevelOption.networkLogLevel.toString(),l.toString(),
+				LevelOption.kernelLogLevel.toString(),l.toString());
+//				BooleanOption.createLogFiles.toString()};
+	}
+
+	public Madkit launchCustomNetworkInstance(Level l, Class<? extends AbstractAgent> agentTolaunch) {
+		return new Madkit(
+				BooleanOption.network.toString(), 
+				Option.launchAgents.toString(), agentTolaunch.getName(),
+				LevelOption.networkLogLevel.toString(),l.toString(),
 				LevelOption.kernelLogLevel.toString(),l.toString());
 //				BooleanOption.createLogFiles.toString()};
 	}

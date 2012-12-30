@@ -62,7 +62,7 @@ public class KernelAddress implements java.io.Serializable{//TODO local kernel a
 	 * @return a string representation for this platform address 
 	 */
 	@Override
-	public String toString(){
+	public String toString(){//TODO bench lazy creation
 		return name;
 	}
 

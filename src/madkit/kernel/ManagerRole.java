@@ -19,11 +19,9 @@
 
 package madkit.kernel;
 
-import static madkit.i18n.I18nUtilities.getCGRString;
 import static madkit.kernel.AbstractAgent.ReturnCode.ROLE_NOT_HANDLED;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 
-import java.util.Collections;
 import java.util.HashSet;
 
 import madkit.agr.Organization;

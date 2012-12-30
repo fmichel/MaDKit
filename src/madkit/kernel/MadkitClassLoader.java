@@ -225,7 +225,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 	}
 	
 
-	private void scanClassPathForAgentClasses() {//TODO
+	private void scanClassPathForAgentClasses() {
 		if (scannedURLs == null) {
 			scannedURLs = new HashSet<URL>();
 			agentClasses = new TreeSet<String>();

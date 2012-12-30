@@ -341,8 +341,10 @@ class MadkitKernel extends Agent {
 	@Override
 	protected void end() {
 		if (LevelOption.madkitLogLevel.getValue(platform.getConfigOption()) != Level.OFF) {
-			System.err.println("\n\t---------------------------------------" + "\n\t         MaDKit Kernel " + kernelAddress
-					+ " \n\t        is shutting down, Bye !" + "\n\t---------------------------------------\n");
+			System.err.println("\n\t---------------------------------------" 
+					+ "\n\t         MaDKit Kernel " + kernelAddress
+					+ " \n\t        is shutting down, Bye !" 
+					+ "\n\t---------------------------------------\n");
 		}
 	}
 
@@ -597,17 +599,17 @@ class MadkitKernel extends Agent {
 			g = getGroup(requesterAddress.getCommunity(), requesterAddress.getGroup());
 		} catch (CGRNotAvailable e) {
 		}
-		sendReply(m, new BooleanMessage(g != null && g.getGatekeeper().allowAgentToTakeRole(requesterAddress.hashCode()+"@"+requesterAddress.getKernelAddress().hashCode(), m.getRoleName(), m.getContent())));
+		sendReply(m, new BooleanMessage(g != null && g.getGatekeeper().allowAgentToTakeRole(requesterAddress.getAgentNetworkID(), m.getRoleName(), m.getContent())));
 	}
 
 	private void handleHookRequest(HookMessage m) {
 		if (hooks == null) {
 			hooks = new EnumMap<AgentActionEvent, Set<AbstractAgent>>(AgentActionEvent.class);
 		}
-		Set<AbstractAgent> l = hooks.get(m.getCode());
+		Set<AbstractAgent> l = hooks.get(m.getContent());
 		if (l == null) {
 			l = new HashSet<AbstractAgent>();
-			hooks.put(m.getCode(), l);
+			hooks.put(m.getContent(), l);
 		}
 		final AbstractAgent requester = m.getSender().getAgent();
 		// for speeding up if there is no hook, i.e. logger == null is default
@@ -615,7 +617,7 @@ class MadkitKernel extends Agent {
 		if (! l.add(requester)) {
 			l.remove(requester);
 			if(l.isEmpty()){
-				hooks.remove(m.getCode());
+				hooks.remove(m.getContent());
 				if(hooks.isEmpty())
 					hooks = null;
 			}
@@ -648,7 +650,8 @@ class MadkitKernel extends Agent {
 	// //////////////////////// Organization interface
 	// ////////////////////////////////////////////////////////////
 
-	ReturnCode createGroup(final AbstractAgent creator, final String community, final String group, final Gatekeeper gatekeeper,
+	ReturnCode createGroup(final AbstractAgent creator, final String community,
+			final String group, final Gatekeeper gatekeeper,
 			final boolean isDistributed) {
 		if (bucketMode)
 			return ReturnCode.IGNORED;
@@ -657,7 +660,8 @@ class MadkitKernel extends Agent {
 		Organization organization = new Organization(community, this);
 		// no need to remove org: never failed
 		// will throw null pointer if community is null
-		final Organization tmpOrg = organizations.putIfAbsent(community, organization);
+		final Organization tmpOrg = organizations.putIfAbsent(community,
+				organization);
 		if (tmpOrg != null) {
 			organization = tmpOrg;
 		}
@@ -665,23 +669,25 @@ class MadkitKernel extends Agent {
 			if (!organization.addGroup(creator, group, gatekeeper, isDistributed)) {
 				return ALREADY_GROUP;
 			}
-		}
-		if (isDistributed) {
-			try {
-				sendNetworkMessageWithRole(
-						new CGRSynchro(CREATE_GROUP, getRole(community, group, madkit.agr.Organization.GROUP_MANAGER_ROLE)
-								.getAgentAddressOf(creator)), netUpdater);
+			try {//TODO bof...
+				if (isDistributed) {
+					sendNetworkMessageWithRole(
+							new CGRSynchro(CREATE_GROUP, 
+									getRole(community, group, madkit.agr.Organization.GROUP_MANAGER_ROLE).getAgentAddressOf(creator)), 
+									netUpdater);
+				}
+				if (hooks != null) {
+					informHooks(AgentActionEvent.CREATE_GROUP, 
+									getRole(community, group, madkit.agr.Organization.GROUP_MANAGER_ROLE).getAgentAddressOf(creator));
+				}
 			} catch (CGRNotAvailable e) {
 				getLogger().severeLog("Please bug report", e);
 			}
 		}
-		if (logger != null) {
-			informHooks(AgentActionEvent.CREATE_GROUP, creator.getName(), community, group, isDistributed);
-		}
 		return SUCCESS;
 	}
 
-	void informHooks(AgentActionEvent action, Object... parameters) {
+	void informHooks(AgentActionEvent action, Object parameter) {//This looks dirty but avoids creating a message for nothing
 		if (hooks != null) {
 			final Set<AbstractAgent> l = hooks.get(action);
 			if (l != null) {
@@ -691,15 +697,15 @@ class MadkitKernel extends Agent {
 				case REQUEST_ROLE:
 				case LEAVE_GROUP:
 				case LEAVE_ROLE:
-					hm = new OrganizationEvent(action,parameters);
+					hm = new OrganizationEvent(action,(AgentAddress) parameter);
 					break;
 				case BROADCAST_MESSAGE:
 				case SEND_MESSAGE:
-					hm = new MessageEvent(action,parameters);
+					hm = new MessageEvent(action,(Message) parameter);
 					break;
 				case AGENT_STARTED:
 				case AGENT_TERMINATED:
-					hm = new AgentLifeEvent(action,parameters);
+					hm = new AgentLifeEvent(action,(AbstractAgent) parameter);
 					break;
 				default:
 					break;
@@ -738,10 +744,10 @@ class MadkitKernel extends Agent {
 		final ReturnCode result = g.requestRole(requester, role, memberCard);
 		if (result == SUCCESS) {
 			if (g.isDistributed()) {
-				sendNetworkMessageWithRole(new CGRSynchro(REQUEST_ROLE, g.get(role).getAgentAddressOf(requester)), netUpdater);
+				sendNetworkMessageWithRole(new CGRSynchro(REQUEST_ROLE, new AgentAddress(requester, g.get(role), kernelAddress)), netUpdater);
 			}
-			if (logger != null)
-				informHooks(AgentActionEvent.REQUEST_ROLE, requester.getName(), community, group, role);
+			if (hooks != null)
+				informHooks(AgentActionEvent.REQUEST_ROLE, new AgentAddress(requester, g.get(role), kernelAddress));
 		}
 		return result;
 	}
@@ -765,15 +771,15 @@ class MadkitKernel extends Agent {
 			affectedRoles = g.leaveGroup(requester);
 		}
 		if (affectedRoles != null) {//success
-			for (Role role : affectedRoles) {
+			for (final Role role : affectedRoles) {
 				role.removeFromOverlookers(requester);
 			}
 			if (g.isDistributed()) {
 				sendNetworkMessageWithRole(new CGRSynchro(LEAVE_GROUP, new AgentAddress(requester, new Role(community, group),
 						kernelAddress)), netUpdater);
 			}
-			if (logger != null)
-				informHooks(AgentActionEvent.LEAVE_GROUP, community, group);
+			if (hooks != null)//TODO facto
+				informHooks(AgentActionEvent.LEAVE_GROUP, new AgentAddress(requester, new Role(community, group), kernelAddress));
 			return SUCCESS;
 		}
 		return NOT_IN_GROUP;
@@ -804,15 +810,16 @@ class MadkitKernel extends Agent {
 				rc = r.removeMember(requester);
 				if (rc != SUCCESS)// TODO remove that
 					throw new AssertionError("cannot remove " + requester + " from " + r.buildAndGetAddresses());
-				sendNetworkMessageWithRole(new CGRSynchro(LEAVE_ROLE, leaver), netUpdater);
+				sendNetworkMessageWithRole(new CGRSynchro(LEAVE_ROLE, new AgentAddress(requester, r, kernelAddress)), netUpdater);
 			}
 			else{
 				rc = r.removeMember(requester);
 			}
 			if(rc == SUCCESS){
 				r.removeFromOverlookers(requester);
-				if (logger != null)
-					informHooks(AgentActionEvent.LEAVE_ROLE, community, group, role);
+				if (hooks != null){
+					informHooks(AgentActionEvent.LEAVE_ROLE, new AgentAddress(requester, r, kernelAddress));
+				}
 			}
 			return rc;
 		}
@@ -893,11 +900,13 @@ class MadkitKernel extends Agent {
 			if (receivers == null)
 				// the requester is the only agent in this group
 				return NO_RECIPIENT_FOUND;
-			messageToSend.setSender(getSenderAgentAddress(requester, receivers.get(0), senderRole));
+			final AgentAddress senderAgentAddress = getSenderAgentAddress(requester, receivers.get(0), senderRole);
+			messageToSend.setSender(senderAgentAddress);
 			// TODO consistency on senderRole
 			broadcasting(receivers, messageToSend);
-			if (logger != null) {
-				informHooks(AgentActionEvent.BROADCAST_MESSAGE, community, group, role, messageToSend, senderRole);
+			if (hooks != null) {
+				messageToSend.setReceiver(receivers.get(0));
+				informHooks(AgentActionEvent.BROADCAST_MESSAGE, messageToSend);
 			}
 			return SUCCESS;
 		} catch (CGRNotAvailable e) {
@@ -1147,11 +1156,11 @@ class MadkitKernel extends Agent {
 		if (!agent.state.compareAndSet(NOT_LAUNCHED, INITIALIZING) || shuttedDown) {
 			return ALREADY_LAUNCHED;
 		}
-		if(hooks != null)
-			informHooks(AgentActionEvent.AGENT_STARTED, agent.getName());
 		// System.err.println("adding "+agent.getName()+" using "+Thread.currentThread()+
 		// agent.getState());
 		agent.setKernel(this);
+		if(hooks != null)
+			informHooks(AgentActionEvent.AGENT_STARTED, agent);
 		if (defaultGUI)
 			agent.createGUIOnStartUp();
 		Level defaultLevel = LevelOption.agentLogLevel.getValue(getMadkitConfig());
@@ -1313,12 +1322,6 @@ class MadkitKernel extends Agent {
 		return false;
 	}
 
-//	final ReturnCode killAbstractAgent(final AbstractAgent target, int timeOutSeconds) {
-//		// still activating
-//		stopAbstractAgentProcess(ACTIVATED, target);
-//		return startEndBehavior(target, timeOutSeconds, false);
-//	}
-
 	/**
 	 * @param target
 	 * @param timeOutSeconds
@@ -1450,21 +1453,10 @@ class MadkitKernel extends Agent {
 		m.setSender(sender);
 		m.setReceiver(receiver);
 		final ReturnCode r = sendMessage(m, receiver.getAgent());
-		if (logger != null && r == SUCCESS) {
+		if (r == SUCCESS && hooks != null) {
 			informHooks(AgentActionEvent.SEND_MESSAGE, m);
 		}
 		return r;
-		// final AbstractAgent target = receiver.getAgent();
-		// if(target == null){
-		// if(netAgent != null)
-		// netAgent.receiveMessage(new MessageConveyor(m));
-		// else
-		// return NETWORK_DOWN;
-		// }
-		// else{
-		// target.receiveMessage(m);
-		// }
-		// return SUCCESS;
 	}
 
 	final AgentAddress getSenderAgentAddress(final AbstractAgent sender, final AgentAddress receiver, String senderRole)
@@ -1698,6 +1690,9 @@ class MadkitKernel extends Agent {
 						sender.setRoleObject(null);
 					}
 					target.receiveMessage(toInject);
+					if (hooks != null) {
+						informHooks(AgentActionEvent.SEND_MESSAGE, toInject);
+					}
 				} else if (logger != null)
 					logger.finer(m + " received but the agent address is no longer valid !! Current distributed org is "
 							+ getOrganizationSnapShot(false));
@@ -1708,10 +1703,12 @@ class MadkitKernel extends Agent {
 	}
 
 	final void injectOperation(CGRSynchro m) {
-		final Role r = m.getContent().getRoleObject();
+		final AgentAddress agentAddress = m.getContent();
+		final Role r = agentAddress.getRoleObject();
+//		System.err.println("\n\n"+m+"\nhooks = "+hooks+"\nrole ="+r+"\n\n");
 		if (r == null) {
 			if (logger != null)
-				logger.log(Level.FINE, "distant CGR " + m.getCode() + " update failed on " + m.getContent());
+				logger.log(Level.FINE, "distant CGR " + m.getCode() + " update failed on " + agentAddress);
 			return;
 		}
 		final String communityName = r.getCommunityName();
@@ -1728,25 +1725,25 @@ class MadkitKernel extends Agent {
 						organization = new Organization(communityName, this);
 						organizations.put(communityName, organization);
 					}
-					if (organization.putIfAbsent(groupName, new Group(communityName, groupName, m.getContent(), organization)) == null
-							&& logger != null) {
-						informHooks(AgentActionEvent.CREATE_GROUP, communityName, groupName, m.getContent());
+					if (organization.putIfAbsent(groupName, new Group(communityName, groupName, agentAddress, organization)) == null
+							&& hooks != null) {
+						informHooks(AgentActionEvent.CREATE_GROUP, agentAddress);
 					}
 					break;
 				case REQUEST_ROLE:
-					getGroup(communityName, groupName).addDistantMember(m.getContent());
-					if (logger != null)
-						informHooks(AgentActionEvent.REQUEST_ROLE, communityName, groupName, roleName, m.getContent());
+					getGroup(communityName, groupName).addDistantMember(agentAddress);
+					if (hooks != null)
+						informHooks(AgentActionEvent.REQUEST_ROLE, agentAddress);
 					break;
 				case LEAVE_ROLE:
-					getRole(communityName, groupName, roleName).removeDistantMember(m.getContent());
-					if (logger != null)
-						informHooks(AgentActionEvent.LEAVE_ROLE, communityName, groupName, roleName, m.getContent());
+					getRole(communityName, groupName, roleName).removeDistantMember(agentAddress);
+					if (hooks != null)
+						informHooks(AgentActionEvent.LEAVE_ROLE, agentAddress);
 					break;
 				case LEAVE_GROUP:
-					getGroup(communityName, groupName).removeDistantMember(m.getContent());
-					if (logger != null)
-						informHooks(AgentActionEvent.LEAVE_GROUP, communityName, groupName, m.getContent());
+					getGroup(communityName, groupName).removeDistantMember(agentAddress);
+					if (hooks != null)
+						informHooks(AgentActionEvent.LEAVE_GROUP, agentAddress);
 					break;
 				// case CGRSynchro.LEAVE_ORG://TODO to implement
 				// break;
@@ -1757,7 +1754,7 @@ class MadkitKernel extends Agent {
 			}
 		} catch (CGRNotAvailable e) {
 			if (logger != null)
-				logger.log(Level.FINE, "distant CGR " + m.getCode() + " update failed on " + m.getContent(), e);
+				logger.log(Level.FINE, "distant CGR " + m.getCode() + " update failed on " + agentAddress, e);
 		}
 	}
 

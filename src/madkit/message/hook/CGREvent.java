@@ -18,6 +18,8 @@
  */
 package madkit.message.hook;
 
+import madkit.kernel.AgentAddress;
+
 /**
  * Root class of messages which are sent to agents that have requested hooks to the kernel
  * 
@@ -26,21 +28,43 @@ package madkit.message.hook;
  * @version 0.9
  * 
  */
-public abstract class EventMessage extends HookMessage {
+public abstract class CGREvent extends HookMessage {
 	
+
 	/**
 	 * 
 	 */
-	private static final long	serialVersionUID	= 2023266969835668672L;
+	private static final long	serialVersionUID	= 6722477889792374461L;
 
-	public EventMessage(AgentActionEvent agentAction, Object[] infos) {
-		super(agentAction, infos);
+	CGREvent(AgentActionEvent event) {
+		super(event);
 	}
 
 	/**
+	 * Returns the name of the agent that did
+	 * the request.
+	 * 
 	 * @return the name of the agent that triggers the event
 	 */
-	public String getSourceAgent(){
-		return (String) getContent()[0];
+	public abstract AgentAddress getSourceAgent();
+	
+	/**
+	 * Return the ID of the agent.
+	 * That is, its hashcode if the agent is local
+	 * or a network ID otherwise.
+	 * 
+	 * @return the ID of the agent
+	 */
+	String getSourceAgentID(){
+		final AgentAddress agent = getSourceAgent();
+		if(agent.isLocal())
+			return ""+agent.hashCode();
+		return agent.hashCode()+agent.getKernelAddress().toString();//FIXME should be the full ka's ID for ensuring uniqueness 
 	}
+	
+	@Override
+	public String toString() {
+		return super.toString()+" from "+getSourceAgent();
+	}
+
 }

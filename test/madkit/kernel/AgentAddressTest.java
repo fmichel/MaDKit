@@ -50,7 +50,6 @@ public class AgentAddressTest {
 			mk.getGroup("c", "g").put("r", mk.getGroup("c", "g").createRole("r"));
 			r = mk.getRole("c", "g", "r");
 		} catch (CGRNotAvailable e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		assertTrue(r.addMember(a));

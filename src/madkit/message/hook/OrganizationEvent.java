@@ -18,6 +18,8 @@
  */
 package madkit.message.hook;
 
+import madkit.kernel.AgentAddress;
+
 /**
  * A message which is sent to agents that have requested 
  * a hook on {@link HookMessage.AgentActionEvent#CREATE_GROUP}, 
@@ -30,34 +32,20 @@ package madkit.message.hook;
  * @version 0.9
  * 
  */
-public class OrganizationEvent extends EventMessage{
+public class OrganizationEvent extends CGREvent{
 
 	/**
 	 * 
 	 */
-	private static final long	serialVersionUID	= -7858927796461934141L;
+	private static final long	serialVersionUID	= -7030965928934873405L;
+	final private AgentAddress source;
 
-	public OrganizationEvent(AgentActionEvent agentAction, Object[] infos) {
-		super(agentAction, infos);
-	}
-	
-	public String getCommunity(){
-		return (String) getContent()[1];
+	public OrganizationEvent(AgentActionEvent agentAction, AgentAddress source) {
+		super(agentAction);
+		this.source = source;
 	}
 
-	public String getGroup(){
-		return (String) getContent()[2];
-	}
-	
-	/**
-	 * @return the role or <code>null</code> when the action is either 
-	 * {@link HookMessage.AgentActionEvent#CREATE_GROUP} or
-	 * {@link HookMessage.AgentActionEvent#LEAVE_GROUP}
-	 */
-	public String getRole(){
-		if (getContent().length > 3) {
-			return (String) getContent()[3];
-		}
-		return null;
+	public AgentAddress getSourceAgent() {
+		return source;
 	}
 }

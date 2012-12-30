@@ -18,7 +18,7 @@
  */
 package madkit.message.hook;
 
-import madkit.message.EnumMessage;
+import madkit.message.ObjectMessage;
 
 /**
  * This message could be used to request a kernel's hook
@@ -31,13 +31,13 @@ import madkit.message.EnumMessage;
  * @see AgentActionEvent
  * 
  */
-public class HookMessage extends EnumMessage<HookMessage.AgentActionEvent> {
+public class HookMessage extends ObjectMessage<HookMessage.AgentActionEvent> {
 	
 
 	/**
 	 * 
 	 */
-	private static final long	serialVersionUID	= 2751873865788097297L;
+	private static final long	serialVersionUID	= 3008390114345525272L;
 
 	/**
 	 * This message should be used to request or release a hook on
@@ -63,13 +63,11 @@ public class HookMessage extends EnumMessage<HookMessage.AgentActionEvent> {
 	 * To give up the hook, just send to the kernel another message built with
 	 * the same action and it will remove the sender from the subscriber list.
 	 * 
-	 * @param hookType the action to monitor
-	 * @param infos used by the kernel to transmit action information as 
-	 * an array of objects
+	 * @param hookType the action event type to monitor
 	 * @see AgentActionEvent
 	 */
-	public HookMessage(HookMessage.AgentActionEvent hookType, Object... infos) {
-		super(hookType, infos);
+	public HookMessage(HookMessage.AgentActionEvent hookType) {
+		super(hookType);
 	}
 	
 	/**
@@ -85,8 +83,5 @@ public class HookMessage extends EnumMessage<HookMessage.AgentActionEvent> {
 		BROADCAST_MESSAGE,
 		AGENT_STARTED,
 		AGENT_TERMINATED
-//		LAUNCH_AGENT,
-//		RELOAD, 
-//		KILL_AGENT
 	}
 }

@@ -68,9 +68,6 @@ public class AgentAddress implements java.io.Serializable{
 		_hashCode = agt.hashCode();
 	}
 
-	/**
-	 * @return
-	 */
 	final AbstractAgent getAgent() {
 		return agent;
 	}
@@ -144,7 +141,7 @@ public class AgentAddress implements java.io.Serializable{
 	public String toString() {
 		String format = _hashCode+"@("+getCommunity()+","+getGroup()+","+getRole()+")";
 		if(! isLocal()){
-			format+=getKernelAddress();
+			format += kernelAddress;
 		}
 		if(! exists())
 			return format + " "+ReturnCode.INVALID_AGENT_ADDRESS;
@@ -167,14 +164,14 @@ public class AgentAddress implements java.io.Serializable{
 			return true;
 		if(agentAddress == null || !(agentAddress.hashCode() == hashCode()))
 			return false;
-//		if(agentAddress == null || !(agentAddress.hashCode() == _hashCode))
-//			return false;
 		final AgentAddress aa = (AgentAddress) agentAddress;
 		return kernelAddress.equals(aa.kernelAddress) && aa.roleObject == roleObject;
 	}
 
 	/**
-	 * @see java.lang.Object#hashCode()
+	 * The hash code of an agent address.
+	 * It is the same as
+	 * the underlying agent's. See {@link AbstractAgent#hashCode()}
 	 */
 	@Override
 	final public int hashCode() {
@@ -205,6 +202,29 @@ public class AgentAddress implements java.io.Serializable{
 	public boolean isLocal() {
 		return agent != null;
 	}
+	
+	/**
+	 * Return a string representing a unique identifier of the binded agent
+	 * over the network.
+	 * 
+	 * @return the agent's network identifier
+	 */
+	final public String getAgentNetworkID(){
+		return _hashCode+"@"+kernelAddress.hashCode();
+	}
+
+	/**
+	 * Return a string representing a shorter version of the 
+	 * unique identifier of the binded agent over the network.
+	 * As a simplified version, this string may not be unique.
+	 * 
+	 * @return a simplified version of the binded agent's network identifier
+	 * @see AbstractAgent#getSimpleNetworkID()
+	 */
+	final public String getSimpleAgentNetworkID(){
+		return _hashCode + kernelAddress.toString();
+	}
+
 }
 
 final class CandidateAgentAddress extends AgentAddress{

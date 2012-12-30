@@ -104,21 +104,4 @@ public class AgentActionTest extends JunitMadkit{
 			}
 		});
 	}
-
-	
-//	@Test
-//	public final void testToString() {
-//		fail("Not yet implemented"); // TODO
-//	}
-//
-//	@Test
-//	public final void testGetActionFor() {
-//		fail("Not yet implemented"); // TODO
-//	}
-//
-//	@Test
-//	public final void testAddAllGlobalActionsTo() {
-//		fail("Not yet implemented"); // TODO
-//	}
-
 }

@@ -31,6 +31,10 @@ import madkit.agr.LocalCommunity;
  */
 abstract class MicroAgent<T> extends Agent {
 
+	/**
+	 * 
+	 */
+	private static final long	serialVersionUID	= -655958680729623049L;
 	private T result;
 	
 	MicroAgent() {

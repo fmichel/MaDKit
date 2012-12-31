@@ -56,23 +56,22 @@ final class AboutFrame extends JDialog {
 	/**
 	 * 
 	 */
-	private static final long	serialVersionUID	= -6291196559273649285L;
+	private static final long	serialVersionUID	= -6873297970139729692L;
 
 	public AboutFrame() {
 		setTitle("MaDKit");
-		setLocationRelativeTo(null);
 
-		JLabel icon = new JLabel(SwingUtil.MADKIT_LOGO);
+		final JLabel icon = new JLabel(SwingUtil.MADKIT_LOGO);
 		icon.setBounds(10, 10, 10, 10);
 		add(icon, BorderLayout.WEST);
 		setIconImage(SwingUtil.MADKIT_LOGO.getImage());
 
-		JTextPane textPanel = new JTextPane();
+		final JTextPane textPanel = new JTextPane();
 		textPanel.setEditable(false);
 		textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
 		textPanel.add(Box.createRigidArea(new Dimension(0, 110)));
 
-		JLabel name = new JLabel("Visit");
+		final JLabel name = new JLabel("Visit");
 
 		name.setAlignmentX(0.5f);
 		textPanel.add(name);
@@ -80,7 +79,7 @@ final class AboutFrame extends JDialog {
 		Style def = StyleContext.getDefaultStyleContext().getStyle(
 				StyleContext.DEFAULT_STYLE);
 
-		Style regular = doc.addStyle("regular", def);
+		final Style regular = doc.addStyle("regular", def);
 		Style s = doc.addStyle("italic", regular);
 		StyleConstants.setItalic(s, true);
 
@@ -92,16 +91,13 @@ final class AboutFrame extends JDialog {
 		StyleConstants.setFontSize(s, 20);
 
 		try {
-			doc.insertString(doc.getLength(), "MaDKit\n", doc.getStyle("large"));
+			doc.insertString(doc.getLength(), "  MaDKit\n", doc.getStyle("large"));
 			doc.insertString(doc.getLength(),
-					"The Multiagent Development Kit\n\n", doc.getStyle("italic"));
-			doc.insertString(doc.getLength(), "Version: " + Madkit.VERSION
-					+ "\nBuild id: " + Madkit.BUILD_ID, doc.getStyle("small"));
-		} catch (BadLocationException e) {
-		}
-
-		try {
+					"   The Multiagent Development Kit\n\n", doc.getStyle("italic"));
+			doc.insertString(doc.getLength(), "   Version: " + Madkit.VERSION
+					+ "\n   Build id: " + Madkit.BUILD_ID, doc.getStyle("small"));
 			textPanel.add(new SwingLink("www.madkit.org", new URI("http://www.madkit.org")));
+		} catch (BadLocationException e) {
 		} catch (URISyntaxException e) {
 		}
 
@@ -117,7 +113,8 @@ final class AboutFrame extends JDialog {
 		add(close, BorderLayout.SOUTH);
 		setModalityType(ModalityType.MODELESS);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-		setSize(400, 200);
+		setSize(400, 250);
+		setLocationRelativeTo(null);
 		setVisible(true);
 		close.requestFocus();
 	}

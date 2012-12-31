@@ -265,7 +265,10 @@
 </copy>
 
 <echo>Building MaDKit Demos</echo>
-<exec executable="ant" spawn="false" dir="../MaDKit-demos" />
+	<exec executable="ant" spawn="false" dir="../MaDKit-demos" >
+		<arg value="update-to-last-kernel"/>
+	</exec>
+	<exec executable="ant" spawn="false" dir="../MaDKit-demos" />
 
 <zip destfile="${release.dir}/${distribution.zip.name}" level="9">
 	<zipfileset dir="${docs.dir}" prefix="${docs.dir}" />

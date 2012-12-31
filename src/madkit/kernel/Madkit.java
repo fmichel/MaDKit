@@ -186,6 +186,7 @@ final public class Madkit {
 	@SuppressWarnings("unused")
 	public static void main(String[] options) {
 		new Madkit(options);
+		System.err.println();
 	}
 	
 	/**
@@ -297,6 +298,18 @@ final public class Madkit {
 //		this.cmdLine = System.getProperty("java.home")+File.separatorChar+"bin"+File.separatorChar+"java -cp "+System.getProperty("java.class.path")+" madkit.kernel.Madkit ";
 
 		startKernel();
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				if (LevelOption.madkitLogLevel.getValue(madkitConfig) != Level.OFF) {
+					System.out.println("\n\t---------------------------------------" 
+							+ "\n\t         MaDKit Kernel " + myKernel.getKernelAddress()
+							+ " \n\t        is shutting down, Bye !" 
+							+ "\n\t---------------------------------------\n");
+				}
+				AgentLogger.resetLoggers();
+			}
+		});
 	}
 
 	private Policy getAllPermissionPolicy()//TODO super bourrin, mais fait marcher le jnlp pour l'instant...
@@ -451,7 +464,7 @@ final public class Madkit {
 	 */
 	private void printWelcomeString() {
 		if(!(LevelOption.madkitLogLevel.getValue(madkitConfig) == Level.OFF)){
-			System.err.println("\n\t---------------------------------------"+
+			System.out.println("\n\t---------------------------------------"+
 					"\n\t                MaDKit"+
 					"\n\t           version: "+defaultConfig.getProperty("madkit.version")+
 					"\n\t        build-id: "+defaultConfig.getProperty("build.id")+

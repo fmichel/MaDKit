@@ -170,12 +170,6 @@ class MadkitKernel extends Agent {
 	static {
 		serviceExecutor.prestartAllCoreThreads();
 		serviceExecutor.allowCoreThreadTimeOut(true);
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			@Override
-			public void run() {
-				AgentLogger.resetLoggers();
-			}
-		});
 	}
 
 	private final ConcurrentHashMap<String, Organization> organizations;
@@ -336,16 +330,6 @@ class MadkitKernel extends Agent {
 	@Override
 	public boolean isAlive() {
 		return super.isAlive() && ! shuttedDown;
-	}
-
-	@Override
-	protected void end() {
-		if (LevelOption.madkitLogLevel.getValue(platform.getConfigOption()) != Level.OFF) {
-			System.err.println("\n\t---------------------------------------" 
-					+ "\n\t         MaDKit Kernel " + kernelAddress
-					+ " \n\t        is shutting down, Bye !" 
-					+ "\n\t---------------------------------------\n");
-		}
 	}
 
 	final private void launchGuiManagerAgent() {

@@ -47,7 +47,7 @@ import madkit.kernel.Madkit.Option;
  * @since MaDKit 5.0.0.5
  * 
  */
-public class AgentLogger extends Logger {
+final public class AgentLogger extends Logger {
 
 	/**
 	 * Defines the default formatter as : [agent's name] LOG_LEVEL : message
@@ -79,9 +79,7 @@ public class AgentLogger extends Logger {
 		AgentLogger al = agentLoggers.get(agent);
 		if (al == null || !al.getName().equals(agent.getLoggingName())) {
 			if (al != null) {
-				for (final Handler h : al.getHandlers()) {
-					h.close();
-				}
+					al.close();
 			}
 			al = new AgentLogger(agent);
 			agentLoggers.put(agent, al);
@@ -90,7 +88,7 @@ public class AgentLogger extends Logger {
 	}
 
 	static void removeLogger(final AbstractAgent agent) {
-		agentLoggers.remove(agent);
+		agentLoggers.remove(agent).close();
 	}
 
 	// public static void renameLogger(AbstractAgent agent) {
@@ -206,6 +204,13 @@ public class AgentLogger extends Logger {
 		}
 		return fh;
 	}
+	
+	final synchronized void close(){
+		for (final Handler h : getHandlers()) {
+			removeHandler(h);
+				h.close();
+		}
+	}
 
 	@Override
 	public synchronized void addHandler(final Handler handler)
@@ -213,18 +218,11 @@ public class AgentLogger extends Logger {
 		super.addHandler(handler);
 		handler.setLevel(getLevel());
 	}
+	
 
 	static void resetLoggers() {
-		for (final Logger l : agentLoggers.values()) {
-			for (final Handler h : l.getHandlers()) {
-				l.removeHandler(h);
-				try {
-					h.close();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-			// l.setLevel(null);
+		for (final AgentLogger l : agentLoggers.values()) {
+				l.close();
 		}
 	}
 
@@ -235,13 +233,13 @@ public class AgentLogger extends Logger {
 	 * <p>
 	 * If the logger's level is not {@link Level#OFF} then the given message is forwarded to all the registered output Handler objects.
 	 * <p>
-	 * If the logger's level is {@link Level#OFF} then the message is only printed to {@link System#err}
+	 * If the logger's level is {@link Level#OFF} then the message is only printed to {@link System#out}
 	 * 
 	 * @param msg The string message
 	 */
 	public void talk(final String msg) {
 		if (getLevel() == Level.OFF)
-			System.err.print(msg);
+			System.out.print(msg);
 		else
 			log(talkLevel, msg);
 	}

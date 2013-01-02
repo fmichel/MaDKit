@@ -24,6 +24,8 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.HeadlessException;
 import java.awt.Point;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.beans.PropertyVetoException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,6 +45,7 @@ import javax.swing.event.InternalFrameEvent;
 
 import madkit.action.ActionInfo;
 import madkit.action.GUIManagerAction;
+import madkit.action.KernelAction;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.gui.menu.HelpMenu;
@@ -52,6 +55,7 @@ import madkit.gui.menu.MadkitMenu;
 import madkit.gui.toolbar.MadkitToolBar;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
+import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Message;
 import madkit.message.GUIMessage;
@@ -112,7 +116,7 @@ class GUIManagerAgent extends Agent {
 
 	@Override
 	protected void live() {
-		while (!shuttedDown) {
+		while (! shuttedDown) {
 			final Message m = waitNextMessage();
 			if (m instanceof GUIMessage) {
 				proceedCommandMessage((GUIMessage) m);
@@ -311,7 +315,7 @@ class GUIManagerAgent extends Agent {
 	}
 
 	private void buildUI() {
-		myFrame = new JFrame("MaDKit " + getMadkitProperty("madkit.version")
+		myFrame = new JFrame("MaDKit " + Madkit.VERSION 
 				+ " Desktop running on kernel " + getKernelAddress());
 		desktopPane = new JDesktopPane()
 		// {
@@ -339,10 +343,13 @@ class GUIManagerAgent extends Agent {
 		tb.setFloatable(false);
 		myFrame.add(tb, BorderLayout.PAGE_START);
 		myFrame.setPreferredSize(new Dimension(800, 600));
-		myFrame.setSize(new Dimension(800, 600));
-		// desktopPane.setPreferredSize(new Dimension(800,600));
-		// setSize(800,600);
-		myFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		myFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		myFrame.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				KernelAction.EXIT.getActionFor(GUIManagerAgent.this).actionPerformed(null);
+			}
+		});
 		myFrame.add(desktopPane);
 		myFrame.pack();
 		// myFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);

@@ -322,9 +322,10 @@ class MadkitKernel extends Agent {
 			addWebRepository();
 		}
 		startSession();
-		while (!shuttedDown) {
+		while (! shuttedDown) {
 			handleMessage(waitNextMessage());// As a daemon, a timeout is not required
 		}
+		System.err.println("living end");
 	}
 	
 	@Override
@@ -541,7 +542,14 @@ class MadkitKernel extends Agent {
 				bugReport(e);
 			}
 		} else {
-			new Madkit(platform.args);
+			final Thread t = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					new Madkit(platform.args);
+				}
+			});
+			t.setDaemon(false);
+			t.start();
 		}
 	}
 
@@ -1742,6 +1750,18 @@ class MadkitKernel extends Agent {
 		}
 	}
 
+	@Override
+	void terminate() {
+		super.terminate();
+		if (LevelOption.madkitLogLevel.getValue(getMadkitConfig()) != Level.OFF) {
+			System.out.println("\n\t---------------------------------------" 
+					+ "\n\t         MaDKit Kernel " + getKernelAddress()
+					+ " \n\t        is shutting down, Bye !" 
+					+ "\n\t---------------------------------------\n");
+		}
+		AgentLogger.closeLoggersFrom(kernelAddress);
+	}
+
 	private void exit() {
 		if (ActionInfo.javawsIsOn) {// TODO no need
 																					// for that now
@@ -1757,6 +1777,7 @@ class MadkitKernel extends Agent {
 		if (logger != null)
 			logger.finer("***** SHUTINGDOWN MADKIT ********\n");
 		killAgents(true);
+		killAgent(this);
 	}
 
 	private void launchNetwork() {

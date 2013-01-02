@@ -24,7 +24,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
@@ -223,6 +225,16 @@ final public class AgentLogger extends Logger {
 	static void resetLoggers() {
 		for (final AgentLogger l : agentLoggers.values()) {
 				l.close();
+		}
+	}
+
+	static void closeLoggersFrom(final KernelAddress ka) {
+		for (final Iterator<Entry<AbstractAgent, AgentLogger>> iterator = agentLoggers.entrySet().iterator();iterator.hasNext();) {
+			final Entry<AbstractAgent, AgentLogger> next = iterator.next();
+			if(next.getKey().getKernelAddress().equals(ka)){
+				next.getValue().close();
+				iterator.remove();
+			}
 		}
 	}
 

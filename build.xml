@@ -39,7 +39,8 @@
 	<property file="${resource.dir}/${MDK.build.properties}" />
 
 	<!-- user's specific local properties -->
-	<property name="server.info.dir" value="${user.home}/.mk_pass"/>
+	<property name="server.info.dir" value="${user.home}/.mdk_keystore"/>
+	<property name="MaDKit-demos.dir" value="../MaDKit-demos"/>
 
 	<import file="${madkit.ant.targets.file}" />
 
@@ -91,7 +92,7 @@
 			<manifest>
 				<attribute name="Description" value="${description}" />
 				<attribute name="Version" value="${madkit.version}" />
-				<attribute name="Author" value="${author.name}" />
+				<attribute name="Author" value="${author}" />
 				<attribute name="Build-Id" value="${build.id}" />
 				<attribute name="Built-On" value="${timestamp.isoformat}" />
 				<attribute name="Built-By" value="${user.name}" />
@@ -207,7 +208,7 @@
 		<header>
 			<![CDATA[<img src="{@docRoot}/doc-files/MaDKit.png" width="40" alt="MaDKit"/>]]></header>
 		<bottom>
-			<![CDATA[<i>${author.name}</i>]]></bottom>
+			<![CDATA[<i>${author}</i>]]></bottom>
 	<link href="${sun.api.url}" />
 </javadoc>
 </target>
@@ -234,14 +235,11 @@
 </target>
 
 <!-- - - - - - - - - - - - - - - - - - 
-          target: clean-demos-tutos                      
-		<echo>Building MaDKit Demos</echo>
-   		<exec executable="ant" spawn="true" dir="../MaDKit-demos" />
-		<ant dir="../MaDKit-demos" target="clean" inheritall="false"/>
+          target: clean-demos           
          - - - - - - - - - - - - - - - - - -->
 <target name="clean-demos">
 <echo>Cleaning MaDKit-demos</echo>
-<exec executable="ant" spawn="false" dir="../MaDKit-demos">
+<exec executable="ant" spawn="false" dir="${MaDKit-demos.dir}">
 	<arg value="clean" />
 </exec>
 </target>
@@ -265,10 +263,10 @@
 </copy>
 
 <echo>Building MaDKit Demos</echo>
-	<exec executable="ant" spawn="false" dir="../MaDKit-demos" >
+	<exec executable="ant" spawn="false" dir="${MaDKit-demos.dir}" >
 		<arg value="update-to-last-kernel"/>
 	</exec>
-	<exec executable="ant" spawn="false" dir="../MaDKit-demos" />
+	<exec executable="ant" spawn="false" dir="${MaDKit-demos.dir}" />
 
 <zip destfile="${release.dir}/${distribution.zip.name}" level="9">
 	<zipfileset dir="${docs.dir}" prefix="${docs.dir}" />
@@ -325,16 +323,4 @@
 	</ftp>
 </target>
 	
-	<!-- - - - - - - - - - - - - - - - - - 
-          target: test-Java                      
-         - - - - - - - - - - - - - - - - - -->
-    <target name="test-Java" depends="compile">
-        <java classname="madkit.kernel.MadkitClassLoader" fork="true">
-          <classpath>
-            <pathelement path="${build.dir}"/>
-          </classpath>
-        </java>
-    	<property file="${java.io.tmpdir}/agentClasses.properties"></property>
-    </target>
-
 </project>

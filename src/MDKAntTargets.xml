@@ -11,6 +11,9 @@
 	<property name="jnlp.template" value="jnlp.template" />
 	<property name="jnlp.jar" value="${ant.project.name}.jnlp.jar" />
 	<property name="jnlp.jar.gz" value="${jnlp.jar}.pack.gz" />
+	<property name="keystore.dir" location="${user.home}/.mdk_keystore" />
+	<property name="keystore" location="${keystore.dir}/local.keystore" />
+	<property name="keystore.alias" value="MaDKit-Application" />
 
 	<!-- - - - - - - - - - - - - - - - - - 
           target: compile                      
@@ -68,12 +71,9 @@
           target: init-security               
          - - - - - - - - - - - - - - - - - -->
 	<target name="init-security">
-		<property name="keystore.dir" location="${user.home}/.mk_pass" />
 		<mkdir dir="${keystore.dir}" />
 		<chmod file="${keystore.dir}" perm="700" />
-		<property name="keystore" location="${keystore.dir}/local.keystore" />
 		<property file="${keystore.dir}/keystore.properties" />
-		<property name="keystore.alias" value="MaDKit-Application" />
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
@@ -116,11 +116,10 @@
          - - - - - - - - - - - - - - - - - -->
 	<target name="get-password" depends="init-security" if="jarsigner.present" unless="keystore.password">
 		<input addproperty="keystore.password">${line.separator}	First build: Please enter a password for signing MaDKit jars, this will be stored in a keystore in ${keystore.dir}:</input>
+		<antcall target="create-signing-key" />
 		<propertyfile file="${keystore.dir}/keystore.properties" comment="${ant.project.name} signing password">
 			<entry key="keystore.password" value="${keystore.password}" />
 		</propertyfile>
-		<antcall target="init-lib-security" />
-		<antcall target="create-signing-key" />
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
@@ -143,25 +142,12 @@
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
-          target: delete-keystore                      
-         - - - - - - - - - - - - - - - - - -->
-	<target name="delete-keystore" depends="init-security">
-		<delete file="${keystore}" />
-	</target>
-
-	<!-- - - - - - - - - - - - - - - - - - 
           target: create-signing-key
          - - - - - - - - - - - - - - - - - -->
 	<target name="create-signing-key">
 		<genkey alias="${keystore.alias}" keystore="${keystore}" storepass="${keystore.password}" validity="3660">
 			<dname>
-				<param name="CN" value="${common.name}" />
-				<!--commonName - common name of a person-->
-				<param name="OU" value="${organization.unit}" />
-				<!--organizationUnit - small organization (e.g, department or division) name, e.g., "Purchasing"-->
-				<param name="O" value="${organization}" />
-				<!--organizationName - large organization name, e.g., "ABCSystems, Inc."-->
-				<param name="C" value="${user.country}" />
+				<param name="CN" value="${author}" />
 			</dname>
 		</genkey>
 	</target>
@@ -180,7 +166,7 @@
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
-          target: test-Java                      
+          target: scan-class-path                    
          - - - - - - - - - - - - - - - - - -->
 	<target name="scan-class-path" depends="check-lib">
 		<java classname="madkit.kernel.MadkitClassLoader" fork="true">

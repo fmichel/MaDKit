@@ -83,7 +83,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 
-import madkit.action.ActionInfo;
 import madkit.action.KernelAction;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
@@ -1752,23 +1751,17 @@ class MadkitKernel extends Agent {
 
 	@Override
 	void terminate() {
+//		AgentLogger.closeLoggersFrom(kernelAddress);
 		super.terminate();
 		if (LevelOption.madkitLogLevel.getValue(getMadkitConfig()) != Level.OFF) {
 			System.out.println("\n\t---------------------------------------" 
-					+ "\n\t         MaDKit Kernel " + getKernelAddress()
+					+ "\n\t         MaDKit Kernel " + kernelAddress
 					+ " \n\t        is shutting down, Bye !" 
 					+ "\n\t---------------------------------------\n");
 		}
-		AgentLogger.closeLoggersFrom(kernelAddress);
 	}
 
 	private void exit() {
-		if (ActionInfo.javawsIsOn) {// TODO no need
-																					// for that now
-																					// that all exit
-																					// normally
-			System.exit(0);
-		}
 		shuttedDown = true;
 		sendNetworkMessageWithRole(new KernelMessage(KernelAction.EXIT), kernelRole);
 		broadcastMessageWithRole(MadkitKernel.this, LocalCommunity.NAME, Groups.GUI, madkit.agr.Organization.GROUP_MANAGER_ROLE,

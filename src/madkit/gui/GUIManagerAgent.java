@@ -257,9 +257,6 @@ class GUIManagerAgent extends Agent {
 		if (f != null) {
 			f.dispose();
 		}
-		// making the javaws jvm quits //TODO
-		if (isDaemon() && guis.isEmpty()	&& ActionInfo.javawsIsOn)
-			System.exit(0);
 	}
 
 	private Point checkLocation(Container c) {

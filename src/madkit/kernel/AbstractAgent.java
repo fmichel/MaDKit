@@ -468,7 +468,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			// TODO This should be done anyway but this would slow down kills
 			// So there a risk of memory leak here because logger can be set to null after creation and still exists in AgentLogger.loggers 
 			// But that should not be a problem because such a practice is usually not used
-			AgentLogger.removeLogger(this);
+			logger.close();
 		}
 		if(hasGUI){
 			AgentLogLevelMenu.remove(this);

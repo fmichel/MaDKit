@@ -60,7 +60,9 @@ public class LaunchMAS extends JMenu {
 		super(Words.MAS.toString());
 		setMnemonic(KeyEvent.VK_S);
 		myAgent = agent;
-		menus.add(this);
+		synchronized (menus) {
+			menus.add(this);
+		}
 		update();
 	}
 
@@ -71,8 +73,10 @@ public class LaunchMAS extends JMenu {
 	 * is used.
 	 */
 	public static void updateAllMenus() {//TODO facto
-		for (LaunchMAS menu : menus) {
-			menu.update();
+		synchronized (menus) {
+			for (LaunchMAS menu : menus) {
+				menu.update();
+			}
 		}
 	}
 
@@ -88,6 +92,8 @@ public class LaunchMAS extends JMenu {
 	}
 
 	private void update() {
+		if(! myAgent.isAlive())
+			return;
 		removeAll();
 		for(final MASModel dm : myAgent.getMadkitClassLoader().getAvailableConfigurations()){
 			addTomenu(KernelAction.LAUNCH_MAS.getActionFor(myAgent, dm),this,dm);

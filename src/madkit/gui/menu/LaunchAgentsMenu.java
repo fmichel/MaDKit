@@ -79,7 +79,9 @@ public class LaunchAgentsMenu extends JMenu {
 				agent.launchAgent(e.getActionCommand(),0,true);
 			}
 		};
+		synchronized (menus) {
 			menus.add(this);
+		}
 		update();
 	}
 
@@ -101,8 +103,10 @@ public class LaunchAgentsMenu extends JMenu {
 	 * is used.
 	 */
 	public static void updateAllMenus() {
-		for (LaunchAgentsMenu menu : menus) {
-			menu.update();
+		synchronized (menus) {
+			for (LaunchAgentsMenu menu : menus) {
+				menu.update();
+			}
 		}
 	}
 
@@ -115,6 +119,8 @@ public class LaunchAgentsMenu extends JMenu {
 	}
 
 	private void update() {
+		if(! myAgent.isAlive())
+			return;
 		removeAll();
 		final Set<String> classesToLaunch = myAgent.getMadkitClassLoader().getAllAgentClasses();
 		if(! withKernelAgents)

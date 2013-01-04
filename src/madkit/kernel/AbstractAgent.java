@@ -930,13 +930,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *           is "class name + internal ID"
 	 */
 	public void setName(final String name) {// TODO trigger gui changes and so on need AgentModel
-		if (!getName().equals(name)) {
 			this.name = name;
-			if (logger != null && logger != AgentLogger.defaultAgentLogger) {
-				logger = null;
-				getLogger();
-			}
-		}
 	}
 
 	/**
@@ -2037,9 +2031,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	final String getLoggingName() {
-		if (name != null)
-			return "[" + name + "]";
-		return "[" + getClass().getSimpleName() + "-" + _hashCode + "]";
+		return "[" +(name != null ? name : getClass().getSimpleName()) + "-" + _hashCode + "]";//+hashCode : ensuring uniqueness
 	}
 
 	// //////////////////////////////////////////////////////////////////////////////
@@ -2661,7 +2653,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	public static void executeThisAgent(int nbOfInstances, boolean createFrame, String... args) {
 		final StackTraceElement[] trace = new Throwable().getStackTrace();
 		final ArrayList<String> arguments = new ArrayList<String>(Arrays.asList(Madkit.Option.launchAgents.toString(),
-				trace[trace.length - 1].getClassName() + "," + (createFrame ? "true" : "false") + "," + nbOfInstances));
+				trace[trace.length - 1].getClassName() + "," + createFrame + "," + nbOfInstances));
 		if (args != null) {
 			arguments.addAll(Arrays.asList(args));
 		}

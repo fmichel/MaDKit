@@ -48,7 +48,7 @@ import org.junit.Test;
 public class CreateLogFilesTest extends JunitMadkit {
 
 	File				f;
-	FilenameFilter	filter	= new FilenameFilter() {
+	public static FilenameFilter	filter	= new FilenameFilter() {
 
 										@Override
 										public boolean accept(File dir, String s) {

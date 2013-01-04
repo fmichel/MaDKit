@@ -53,10 +53,12 @@ import madkit.gui.menu.LaunchAgentsMenu;
 import madkit.gui.menu.LaunchMAS;
 import madkit.gui.menu.MadkitMenu;
 import madkit.gui.toolbar.MadkitToolBar;
+import madkit.i18n.Words;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
 import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.BooleanOption;
+import madkit.kernel.Madkit.Option;
 import madkit.kernel.Message;
 import madkit.message.GUIMessage;
 import madkit.message.KernelMessage;
@@ -81,7 +83,7 @@ class GUIManagerAgent extends Agent {
 
 	private JDesktopPane											desktopPane;
 
-	private JFrame													myFrame;
+	private MDKDesktopFrame											myFrame;
 
 	GUIManagerAgent(boolean asDaemon) { // NO_UCD use by reflection
 		super(asDaemon);
@@ -100,9 +102,22 @@ class GUIManagerAgent extends Agent {
 			} catch (HeadlessException e) {
 				headlessLog(e);
 				return;
+			} catch (InstantiationException e) {
+				buildUIExceptionLog(e);
+			} catch (IllegalAccessException e) {
+				buildUIExceptionLog(e);
+			} catch (ClassNotFoundException e) {
+				buildUIExceptionLog(e);
 			}
 		}
 		createGroup(LocalCommunity.NAME, Groups.GUI);
+	}
+
+	/**
+	 * @param e
+	 */
+	public void buildUIExceptionLog(Exception e) {
+		getLogger().severeLog(Words.FAILED.toString()+ " : UI creation", e);
 	}
 
 	/**
@@ -156,7 +171,7 @@ class GUIManagerAgent extends Agent {
 		// new Runnable() {
 		// public void run() {
 		killAgents(); // no need because it closes internal frames too
-		if (desktopPane != null) {// TODO swing thread or cleaner shutdown
+		if (myFrame != null) {// TODO swing thread or cleaner shutdown
 			myFrame.dispose();
 		}
 		// }});
@@ -232,11 +247,13 @@ class GUIManagerAgent extends Agent {
 		for (final JFrame f : guis.values()) {
 			f.setExtendedState(code);
 		}
-		for (JInternalFrame ijf : desktopPane.getAllFrames()) {
-			try {
-				ijf.setIcon(iconify);
-			} catch (PropertyVetoException e) {
-				e.printStackTrace();
+		if (myFrame != null) {//FIXME no need now, because this is only in desktop mode, but probably in the future
+			for (JInternalFrame ijf : desktopPane.getAllFrames()) {
+				try {
+					ijf.setIcon(iconify);
+				} catch (PropertyVetoException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}
@@ -311,10 +328,9 @@ class GUIManagerAgent extends Agent {
 		guis.clear();
 	}
 
-	private void buildUI() {
-		myFrame = new JFrame("MaDKit " + Madkit.VERSION 
-				+ " Desktop running on kernel " + getKernelAddress());
-		desktopPane = new JDesktopPane()
+	private void buildUI() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+		myFrame = (MDKDesktopFrame) getMadkitClassLoader().loadClass(getMadkitProperty(Option.desktopFrameClass.name())).newInstance();
+		desktopPane = myFrame.getDesktopPane();
 		// {
 		// @Override
 		// protected void paintComponent(Graphics g) {
@@ -326,20 +342,11 @@ class GUIManagerAgent extends Agent {
 		// }
 		// }
 		;
-		desktopPane.setBackground(Color.BLACK);
-		myFrame.setIconImage(SwingUtil.MADKIT_LOGO.getImage());
-		final JMenuBar menuBar = new JMenuBar();
-		menuBar.add(new MadkitMenu(this));
-		menuBar.add(new LaunchAgentsMenu(this,true));
-		menuBar.add(new LaunchMAS(this));
-		menuBar.add(new HelpMenu());
-
-		JToolBar tb = new MadkitToolBar(this);
-		myFrame.setJMenuBar(menuBar);
+		myFrame.setJMenuBar(myFrame.getMenuBar(this));
+		JToolBar tb = myFrame.getToolBar(this);
 		tb.setRollover(true);
 		tb.setFloatable(false);
 		myFrame.add(tb, BorderLayout.PAGE_START);
-		myFrame.setPreferredSize(new Dimension(800, 600));
 		myFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		myFrame.addWindowListener(new WindowAdapter() {
 			@Override
@@ -347,7 +354,6 @@ class GUIManagerAgent extends Agent {
 				KernelAction.EXIT.getActionFor(GUIManagerAgent.this).actionPerformed(null);
 			}
 		});
-		myFrame.add(desktopPane);
 		myFrame.pack();
 		// myFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		myFrame.setVisible(true);

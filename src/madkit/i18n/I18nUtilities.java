@@ -25,13 +25,15 @@ import java.util.ResourceBundle;
  * 
  * @author Fabien Michel
  * @since MaDKit 5.0.0.10
- * @version 0.9
+ * @version 0.91
  * 
  */
 public class I18nUtilities {
+
+	public static String i18nDirectory = "madkit/i18n/";
 	
 	public final static ResourceBundle getResourceBundle(String baseName){
-			return ResourceBundle.getBundle("madkit/i18n/"+baseName);
+			return ResourceBundle.getBundle(i18nDirectory+baseName);
 	}
 	
 	public static String getCGRString(final String community){
@@ -48,5 +50,13 @@ public class I18nUtilities {
 		if(group != null)
 			return Words.GROUP+" <"+community+","+group+"> ";
 		return Words.COMMUNITY+" <"+community+"> ";
+	}
+
+	/**
+	 * @param i18nDirectory the i18nDirectory to set
+	 */
+	public static final void setI18nDirectory(String i18nDirectory) {
+		I18nUtilities.i18nDirectory = i18nDirectory;
+		ResourceBundle.clearCache();
 	}	
 }

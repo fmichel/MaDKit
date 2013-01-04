@@ -77,10 +77,7 @@ final public class AgentLogger extends Logger {
 
 	final static AgentLogger getLogger(final AbstractAgent agent) {
 		AgentLogger al = agentLoggers.get(agent);
-		if (al == null || !al.getName().equals(agent.getLoggingName())) {
-			if (al != null) {
-					al.close();
-			}
+		if (al == null) {
 			al = new AgentLogger(agent);
 			agentLoggers.put(agent, al);
 		}
@@ -116,6 +113,8 @@ final public class AgentLogger extends Logger {
 	 * @param warningLogLevel the log level to set
 	 */
 	public void setWarningLogLevel(final Level warningLogLevel) {
+		if(warningLogLevel == null)
+			throw new NullPointerException();
 		this.warningLogLevel = warningLogLevel;
 		AgentLogLevelMenu.update(myAgent);
 	}
@@ -139,7 +138,7 @@ final public class AgentLogger extends Logger {
 		super.setLevel(l);
 		setWarningLogLevel(LevelOption.warningLogLevel.getValue(agent
 				.getMadkitConfig()));
-		if (!BooleanOption.noAgentConsoleLog.isActivated(agent.getMadkitConfig())) {
+		if (! BooleanOption.noAgentConsoleLog.isActivated(agent.getMadkitConfig())) {
 			ConsoleHandler ch = new ConsoleHandler();
 			addHandler(ch);
 			ch.setFormatter(AGENT_FORMATTER);
@@ -246,6 +245,8 @@ final public class AgentLogger extends Logger {
 	 */
 	@Override
 	public void setLevel(final Level newLevel) throws SecurityException {
+		if(newLevel == null)
+			throw new NullPointerException();
 		super.setLevel(newLevel);
 		for (Handler h : getHandlers()) {
 			h.setLevel(newLevel);

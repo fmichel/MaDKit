@@ -85,7 +85,7 @@ public class AgentLoggerTest extends JunitMadkit{
 		assertNull(a.logger);
 		a.setLogLevel(Level.ALL);
 		assertNotNull(a.logger);
-		assertEquals("[" + a.getName() + "]", a.logger.getName());
+		assertEquals("[" + a.getName() + "-"+a.hashCode()+"]", a.logger.getName());
 	}
 
 	@Test
@@ -96,7 +96,7 @@ public class AgentLoggerTest extends JunitMadkit{
 		assertEquals(defaultName, a.logger.getName());
 		a.setName("TEST");
 		assertNotNull(a.logger);
-		assertEquals("[TEST]", a.logger.getName());
+		assertEquals(defaultName, a.logger.getName());
 	}
 
 	@Test

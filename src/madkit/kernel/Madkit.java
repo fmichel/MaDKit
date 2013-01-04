@@ -49,7 +49,9 @@ import madkit.action.ActionInfo;
 import madkit.action.KernelAction;
 import madkit.gui.ConsoleAgent;
 import madkit.gui.MASModel;
+import madkit.gui.MDKDesktopFrame;
 import madkit.i18n.ErrorMessages;
+import madkit.i18n.I18nUtilities;
 import madkit.i18n.Words;
 import madkit.message.KernelMessage;
 
@@ -106,9 +108,12 @@ final public class Madkit {
 		});
 		try {
 			// no need to externalize because it is used only here
-			defaultConfig.load(Madkit.class.getResourceAsStream("madkit.properties"));
+			final InputStream resourceAsStream = Madkit.class.getResourceAsStream("madkit.properties");
+			defaultConfig.load(resourceAsStream);
+			resourceAsStream.close();
 		} catch (IOException e) {
 			e.printStackTrace();
+		} finally{
 		}
 	}
 	
@@ -192,7 +197,6 @@ final public class Madkit {
 	@SuppressWarnings("unused")
 	public static void main(String[] options) {
 		new Madkit(options);
-		System.err.println();
 	}
 	
 	/**
@@ -257,6 +261,7 @@ final public class Madkit {
 	 */
 
 	public Madkit(String... options){
+		
 		if(options != null && options.length == 1 && options[0].contains(" ")){//jnlp arg in here
 			options = options[0].trim().split(" ");
 //			for (final String s : options) {
@@ -279,7 +284,9 @@ final public class Madkit {
 		if(logger != null)
 			logger.fine("** OVERRIDING WITH COMMAND LINE ARGUMENTS **");
 		madkitConfig.putAll(fromArgs);
-		
+
+		I18nUtilities.setI18nDirectory(madkitConfig.getProperty(Option.i18nDirectory.name()));
+
 		//activating desktop if no agent at this point
 		if(madkitConfig.get(Option.launchAgents.name()).equals("null")){
 			if(logger != null)
@@ -395,6 +402,7 @@ final public class Madkit {
 
 	private void initMadkitLogging() {
 		Level l = LevelOption.madkitLogLevel.getValue(madkitConfig);
+//		l = Level.ALL;
 		if(l != Level.OFF){
 			logger = Logger.getLogger(MDK_LOGGER_NAME);
 			logger.setUseParentHandlers(false);
@@ -416,6 +424,15 @@ final public class Madkit {
 			logger.fine("** Loading config file "+fileName+" **");
 		InputStream url = getClass().getClassLoader().getResourceAsStream(fileName);
 		if(url != null){
+			if(fileName.endsWith(".properties")){
+				try {
+					madkitConfig.load(url);
+					url.close();
+					return;
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 			try {
 				madkitXMLConfigFile = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(url).getDocumentElement();
 				NodeList madkitOptionNodes = madkitXMLConfigFile.getElementsByTagName("madkitOptions");
@@ -688,9 +705,20 @@ final public class Madkit {
 		 * @see BooleanOption#createLogFiles
 		 */
 		logDirectory,
+		
+		/**
+		 * the desktop frame class which should be used, default is
+		 * {@link MDKDesktopFrame}
+		 */
+		desktopFrameClass,
 
 		/**
-		 * TODO
+		 * the directory containing the MDK i18n files
+		 */
+		i18nDirectory,
+		/**
+		 * Can be used to specify multiple properties at once, 
+		 * using a regular properties file
 		 */
 		configFile;
 

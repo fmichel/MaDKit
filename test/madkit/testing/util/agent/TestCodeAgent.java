@@ -32,7 +32,8 @@ public class TestCodeAgent extends Agent {
 
 	@Override
 	protected void activate() {
-		getLogger().createLogFile();
+//		getLogger().createLogFile();
+		setLogLevel(null);
 	}
 
 	public static void main(String[] args) {

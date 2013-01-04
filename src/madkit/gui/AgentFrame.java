@@ -67,7 +67,7 @@ final class AgentFrame extends JFrame {
 			private void closeProcess() {
 				if (agent.isAlive()) {
 					setTitle("Closing " + agent.getName());
-					killAgent(agent, 2);
+					killAgent(agent, 4);
 				}
 			}
 			public void windowClosing(java.awt.event.WindowEvent e) {

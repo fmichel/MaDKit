@@ -44,6 +44,8 @@ import madkit.kernel.Madkit;
  */
 final public class HelpMenu extends JMenu {
 	
+	private static final ImageIcon	HELP_ICON	= new ImageIcon(SwingUtil.class.getResource("images/help.png"));
+
 	final private static String MDKWeb = "http://www.madkit.net/";
 
 	private static final long serialVersionUID = 6177193453649323680L;
@@ -85,7 +87,7 @@ final public class HelpMenu extends JMenu {
 			mi.setActionCommand("forum");
 			add(mi);
 		}
-		mi = new JMenuItem(Words.ABOUT.toString(),new ImageIcon(SwingUtil.class.getResource("images/help.png")));
+		mi = new JMenuItem(Words.ABOUT.toString(),HELP_ICON);
 		mi.setMnemonic(KeyEvent.VK_A);
 		mi.addActionListener(about);
 		add(mi);

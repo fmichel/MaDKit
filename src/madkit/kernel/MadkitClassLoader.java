@@ -45,6 +45,7 @@ import java.util.logging.Logger;
 import madkit.gui.MASModel;
 import madkit.gui.menu.LaunchAgentsMenu;
 import madkit.gui.menu.LaunchMAS;
+import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Madkit.Option;
 
@@ -381,7 +382,8 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 	public static void main(String[] args) throws FileNotFoundException, IOException {
 		Madkit m = new Madkit(
 				LevelOption.madkitLogLevel.toString(),Level.OFF.toString(),
-				Option.launchAgents.toString(),AbstractAgent.class.getName()
+				Option.launchAgents.toString(),AbstractAgent.class.getName(),
+				BooleanOption.desktop.toString(),"false"
 				);
 		Set<String> s = m.getMadkitClassLoader().getAllAgentClasses();
 		int size = s.toString().length();

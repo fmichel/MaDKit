@@ -29,8 +29,6 @@ import static java.awt.event.KeyEvent.VK_T;
 import static java.awt.event.KeyEvent.VK_W;
 
 import java.awt.event.ActionEvent;
-import java.io.File;
-import java.io.FileFilter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.EnumSet;
@@ -46,6 +44,7 @@ import madkit.agr.LocalCommunity.Groups;
 import madkit.agr.Organization;
 import madkit.i18n.I18nUtilities;
 import madkit.kernel.AbstractAgent;
+import madkit.kernel.MadkitClassLoader;
 import madkit.message.KernelMessage;
 
 /**
@@ -133,7 +132,7 @@ public enum KernelAction {
 	/**
 	 * The path to the jconsole program if available
 	 */
-	public static String jconsolePath = findJconsole();
+	public static String jconsolePath = MadkitClassLoader.findJavaExecutable("jconsole");
 	final private int keyEvent;
 
 	final static private ResourceBundle messages = I18nUtilities.getResourceBundle(KernelAction.class.getSimpleName());
@@ -217,51 +216,6 @@ public enum KernelAction {
 		} catch (SecurityException e) {
 		} catch (NoSuchMethodException e) {
 		}
-	}
-	
-	private static String findJconsole() {//TODO facto
-		File lookupDir = new File(System.getProperty("java.home"));
-		String exe = findJConsoleExecutable(lookupDir);
-		if(exe != null)// was jdk dir
-			return exe;
-		lookupDir = lookupDir.getParentFile();
-		exe = findJConsoleExecutable(lookupDir);
-		if(exe != null)// was jre dir in jdk
-			return exe;
-		while(lookupDir != null){
-			for (File dir : lookupDir.listFiles(new FileFilter() {
-				@Override
-				public boolean accept(File pathname) {
-					if(pathname.isDirectory()){
-						final String dirName = pathname.getName();
-						return dirName.contains("jdk") || dirName.contains("java");
-					}
-					return false;
-				}
-			})) 
-			{
-				exe = findJConsoleExecutable(dir);
-				if(exe != null)
-					return exe;
-			}
-			lookupDir = lookupDir.getParentFile();
-		}
-		return null;
-	}
-
-	/**
-	 * @param dir
-	 */
-	private static String findJConsoleExecutable(File dir) {
-		dir = new File(dir,"bin");
-		if(dir.exists()){
-		for (File candidate : dir.listFiles()) {
-			if(candidate.getName().contains("jconsole")){
-				return candidate.getAbsolutePath();
-			}
-		}
-		}
-		return null;
 	}
 
 }

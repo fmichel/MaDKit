@@ -371,6 +371,58 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 	}
 
 	/**
+	 * @param dir
+	 * @param executable the name of the program to look for
+	 */
+	private static String findJExecutable(File dir, String executable) {
+		dir = new File(dir,"bin");
+		if(dir.exists()){
+		for (File candidate : dir.listFiles()) {
+			if(candidate.getName().contains(executable)){
+				return candidate.getAbsolutePath();
+			}
+		}
+		}
+		return null;
+	}
+
+	/**
+	 * Find a JDK/JRE program
+	 * 
+	 * @param executable the name of the Java program to look for. E.g. "jarsigner", without file extension.
+	 * @return the path to the executable or <code>null</code> if not found.
+	 */
+	public static String findJavaExecutable(String executable) {//TODO facto
+		File lookupDir = new File(System.getProperty("java.home"));
+		String exe = MadkitClassLoader.findJExecutable(lookupDir,executable);
+		if(exe != null)// was jdk dir
+			return exe;
+		lookupDir = lookupDir.getParentFile();
+		exe = MadkitClassLoader.findJExecutable(lookupDir,executable);
+		if(exe != null)// was jre dir in jdk
+			return exe;
+		while(lookupDir != null){
+			for (File dir : lookupDir.listFiles(new FileFilter() {
+				@Override
+				public boolean accept(File pathname) {
+					if(pathname.isDirectory()){
+						final String dirName = pathname.getName();
+						return dirName.contains("jdk") || dirName.contains("java");
+					}
+					return false;
+				}
+			})) 
+			{
+				exe = MadkitClassLoader.findJExecutable(dir,executable);
+				if(exe != null)
+					return exe;
+			}
+			lookupDir = lookupDir.getParentFile();
+		}
+		return null;
+	}
+
+	/**
 	 * This is only used by ant scripts for building MDK jar files.
 	 * This will create a file in java.io.tmpdir named agents.classes
 	 * containing the agent classes which are on the class path
@@ -389,6 +441,10 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 		int size = s.toString().length();
 		java.util.Properties p = new java.util.Properties();
 		p.setProperty("agents.classes", s.toString().substring(1,size-1).replace(", ", ","));
+		final String findJavaExecutable = findJavaExecutable("jarsigner");
+		if (findJavaExecutable != null) {
+			p.setProperty("jarsigner.path", findJavaExecutable);
+		}
 		p.store(new FileOutputStream(new File(System.getProperty("java.io.tmpdir")+File.separatorChar+"agentClasses.properties")),System.getProperty("java.class.path"));
 //		for (String string : System.getProperty("java.class.path").split(File.pathSeparator)) {
 //			System.err.println(string);

@@ -116,7 +116,11 @@
          - - - - - - - - - - - - - - - - - -->
 	<target name="get-password" depends="init-security" if="jarsigner.present" unless="keystore.password">
 		<input addproperty="keystore.password">${line.separator}	First build: Please enter a password for signing MaDKit jars, this will be stored in a keystore in ${keystore.dir}:</input>
-		<antcall target="create-signing-key" />
+		<genkey alias="${keystore.alias}" keystore="${keystore}" storepass="${keystore.password}" validity="3660">
+			<dname>
+				<param name="CN" value="${author}" />
+			</dname>
+		</genkey>
 		<propertyfile file="${keystore.dir}/keystore.properties" comment="${ant.project.name} signing password">
 			<entry key="keystore.password" value="${keystore.password}" />
 		</propertyfile>
@@ -142,26 +146,12 @@
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
-          target: create-signing-key
-         - - - - - - - - - - - - - - - - - -->
-	<target name="create-signing-key">
-		<genkey alias="${keystore.alias}" keystore="${keystore}" storepass="${keystore.password}" validity="3660">
-			<dname>
-				<param name="CN" value="${author}" />
-			</dname>
-		</genkey>
-	</target>
-
-	<!-- - - - - - - - - - - - - - - - - - 
           target: probe-for-jarsigner                      
          - - - - - - - - - - - - - - - - - -->
 	<target name="probe-for-jarsigner">
-		<property environment="env" />
+		<property file="${java.io.tmpdir}/agentClasses.properties" />
 		<condition property="jarsigner.present">
-			<or>
-				<available file="jarsigner" filepath="${env.PATH}" />
-				<available file="jarsigner.exe" filepath="${env.Path}" />
-			</or>
+			<isset property="jarsigner.path"/>
 		</condition>
 	</target>
 
@@ -176,8 +166,7 @@
 				<pathelement location="${kernel.location}"/>
 			</classpath>
 		</java>
-		<property file="${java.io.tmpdir}/agentClasses.properties">
-		</property>
+		<property file="${java.io.tmpdir}/agentClasses.properties" />
 	</target>
 
 

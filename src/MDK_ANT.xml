@@ -10,7 +10,7 @@
 	<property name="build.dir" value="build" />
 	<property name="manifest.location" value="${java.io.tmpdir}/MANIFEST.MF" />
 	<property name="kernel.location" location="${madkit.lib.dir}/madkit-${madkit.version}.jar" />
-	<property name="jnlp.template.file" value="jar:file://${kernel.location}!/jnlp.template.xml" />
+	<property name="jnlp.template.file" value="jar:file:${kernel.location}!/jnlp.template.xml" />
 	<property name="jnlp.jar" value="${ant.project.name}.jnlp.jar" />
 	<property name="jnlp.jar.gz" value="${jnlp.jar}.pack.gz" />
 	<property name="jnlp.file" value="${ant.project.name}.jnlp" />
@@ -18,7 +18,7 @@
 	<property name="jar.file" value="${ant.project.name}-${version}.jar" />
 	<property name="agent.lib.file" value="${ant.project.name}-${version}.agents.jar" />
 
-	<property url="jar:file://${kernel.location}!/madkit/kernel/madkit.properties" />
+	<property url="jar:file:${kernel.location}!/madkit/kernel/madkit.properties" />
 
 	<tstamp prefix="time" />
 
@@ -48,7 +48,7 @@
 			<zipgroupfileset refid="third.party.libraries" /> 
 		</jar>
          ================================= -->
-	<target name="build-executable-jar" depends="compile" description="executable jar">
+	<target name="build-executable-jar" depends="MDK.compile" description="executable jar">
 		<property name="jar.file" value="${ant.project.name}-${version}.jar" />
 		<echo>    Creating executable jar file : ${jar.file}</echo>
 		<antcall target="MDK.build-manifest" />
@@ -92,7 +92,7 @@
           target: Java-web-start            
          ================================= -->
 	<target name="Java-web-start" depends="build-executable-jar" description="builds jws files">
-		<antcall target="MDK.sign-jar" />
+		<antcall target="MDK.sign-jar"/>
 		<copy tofile="${ant.project.name}.jnlp" overwrite="true">
 			<resources>
 				<url url="${jnlp.template.file}" />

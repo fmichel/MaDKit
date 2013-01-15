@@ -21,14 +21,22 @@ package madkit.gui;
 import java.awt.Dimension;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
+import javax.swing.Action;
 import javax.swing.BoundedRangeModel;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.border.TitledBorder;
+
+import madkit.action.GUIManagerAction;
+import madkit.action.KernelAction;
+import madkit.kernel.AbstractAgent;
 
 
 /**
@@ -107,6 +115,61 @@ final public class SwingUtil {
 		slider.setMinorTickSpacing(model.getExtent());
 		slider.setSnapToTicks(true);
 		return slider;
+	}
+
+
+	/**
+	 * Builds a menu featuring the following actions:
+	 * <ul>
+	 * <li> {@link KernelAction#EXIT}
+	 * <li> {@link KernelAction#COPY}
+	 * <li> {@link KernelAction#RESTART}
+	 * <li> {@link KernelAction#LAUNCH_NETWORK}
+	 * <li> {@link KernelAction#STOP_NETWORK}
+	 * <li> {@link GUIManagerAction#CONNECT_TO_IP}
+	 * <li> {@link KernelAction#CONSOLE}
+	 * <li> {@link KernelAction#LOAD_LOCAL_DEMOS}
+	 * <li> {@link GUIManagerAction#LOAD_JAR_FILE}
+	 * <li> {@link GUIManagerAction#ICONIFY_ALL}
+	 * <li> {@link GUIManagerAction#DEICONIFY_ALL}
+	 * <li> {@link GUIManagerAction#KILL_AGENTS}
+	 * </ul>
+	 * 
+	 * @param agent the agent for which this menu
+	 * will be built.
+	 */
+	public static void addMaDKitActionsTo(JComponent menuOrToolBar, AbstractAgent agent){
+		try {//this bypasses class incompatibility
+			final Method add = menuOrToolBar.getClass().getMethod("add", Action.class);
+			final Method addSeparator = menuOrToolBar.getClass().getMethod("addSeparator");
+			
+			add.invoke(menuOrToolBar, KernelAction.EXIT.getActionFor(agent));
+			addSeparator.invoke(menuOrToolBar);
+			add.invoke(menuOrToolBar, KernelAction.COPY.getActionFor(agent));
+			add.invoke(menuOrToolBar, KernelAction.RESTART.getActionFor(agent));
+			addSeparator.invoke(menuOrToolBar);
+			add.invoke(menuOrToolBar, KernelAction.LAUNCH_NETWORK.getActionFor(agent));
+			add.invoke(menuOrToolBar, KernelAction.STOP_NETWORK.getActionFor(agent));
+			add.invoke(menuOrToolBar, GUIManagerAction.CONNECT_TO_IP.getActionFor(agent));
+			addSeparator.invoke(menuOrToolBar);
+			add.invoke(menuOrToolBar, KernelAction.JCONSOLE.getActionFor(agent));
+			add.invoke(menuOrToolBar, KernelAction.CONSOLE.getActionFor(agent));
+			addSeparator.invoke(menuOrToolBar);
+			add.invoke(menuOrToolBar, KernelAction.LOAD_LOCAL_DEMOS.getActionFor(agent));
+			add.invoke(menuOrToolBar, GUIManagerAction.LOAD_JAR_FILE.getActionFor(agent));
+			addSeparator.invoke(menuOrToolBar);
+			add.invoke(menuOrToolBar, GUIManagerAction.ICONIFY_ALL.getActionFor(agent));
+			add.invoke(menuOrToolBar, GUIManagerAction.DEICONIFY_ALL.getActionFor(agent));
+			addSeparator.invoke(menuOrToolBar);
+			add.invoke(menuOrToolBar, GUIManagerAction.KILL_AGENTS.getActionFor(agent));
+		} catch (InvocationTargetException e) {
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (SecurityException e) {
+		} catch (NoSuchMethodException e) {
+		}
 	}
 
 

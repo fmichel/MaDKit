@@ -56,9 +56,7 @@ public class AgentStatusPanel extends JPanel {
 		network = new JLabel();
 		add(network);
 		update();
-			if (myAgent.hasGUI()) {
-				panels.put(myAgent, this);
-			}
+		panels.put(myAgent, this);
 	}
 	
 	public static void updateAll(){
@@ -70,11 +68,12 @@ public class AgentStatusPanel extends JPanel {
 	private void update() {
 		if(myAgent.isAlive() && myAgent.isKernelOnline()){
 			network.setIcon(image);
-			network.setToolTipText("Kernel "+myAgent.getKernelAddress()+" is online");
+			network.setText(myAgent.getKernelAddress().toString());
+			network.setToolTipText(network.getText()+" online @ "+myAgent.getServerInfo());
 		}
 		else{
 			network.setIcon(null);
-//			network.setToolTipText("Kernel "+myAgent.getKernelAddress()+" is offline");
+			network.setText(null);
 		}
 	}
 

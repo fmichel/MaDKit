@@ -40,7 +40,7 @@ import madkit.message.EnumMessage;
  */
 public enum AgentAction {
 
-	LAUNCH_AGENT(KeyEvent.VK_L),
+	LAUNCH_AGENT(KeyEvent.VK_A),
 	RELOAD(VK_E), 
 	CREATE_GROUP(VK_DOLLAR),
 	REQUEST_ROLE(VK_DOLLAR),

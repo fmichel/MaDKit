@@ -135,6 +135,14 @@ final class AgentFrame extends JFrame {
 			internalFrame.setLocation(x, y);
 		}
 	}
+	
+	@Override
+	public void pack() {
+		super.pack();
+		if(internalFrame != null){
+			internalFrame.pack();
+		}
+	}
 
 	/**
 	 * @param agent

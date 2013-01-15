@@ -24,6 +24,7 @@ import javax.swing.JMenu;
 
 import madkit.action.GUIManagerAction;
 import madkit.action.KernelAction;
+import madkit.gui.SwingUtil;
 import madkit.kernel.AbstractAgent;
 
 /**
@@ -46,6 +47,8 @@ public class MadkitMenu extends JMenu {//TODO i18n
 	 * <li> {@link KernelAction#RESTART}
 	 * <li> {@link KernelAction#LAUNCH_NETWORK}
 	 * <li> {@link KernelAction#STOP_NETWORK}
+	 * <li> {@link GUIManagerAction#CONNECT_TO_IP}
+	 * <li> {@link KernelAction#JCONSOLE}
 	 * <li> {@link KernelAction#CONSOLE}
 	 * <li> {@link KernelAction#LOAD_LOCAL_DEMOS}
 	 * <li> {@link GUIManagerAction#LOAD_JAR_FILE}
@@ -60,7 +63,6 @@ public class MadkitMenu extends JMenu {//TODO i18n
 	public MadkitMenu(final AbstractAgent agent){
 		super("MaDKit");
 		setMnemonic(KeyEvent.VK_M);
-		KernelAction.addAllActionsTo(this,agent);
-		GUIManagerAction.addAllActionsTo(this, agent);
+		SwingUtil.addMaDKitActionsTo(this, agent);
 	}
 }

@@ -20,6 +20,7 @@ package madkit.gui;
 import java.awt.Color;
 import java.awt.Dimension;
 
+import javax.swing.Box;
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
@@ -34,6 +35,9 @@ import madkit.kernel.AbstractAgent;
 import madkit.kernel.Madkit;
 
 /**
+ * A class that could be overridden to define a new 
+ * desktop frame for MaDKit
+ * 
  * @author Fabien Michel
  * @since MadKit 5.0.0.22
  * @version 0.9
@@ -57,19 +61,25 @@ public class MDKDesktopFrame extends JFrame {
 	}
 
 	/**
-	 * @return
+	 * Builds tool bar for the desktop frame. By default it builds a classic MaDKit menu bar
+	 * 
+	 * @return the menu bar to use in the desktop frame
 	 */
 	public JMenuBar getMenuBar(final AbstractAgent guiManager) {
 		final JMenuBar menuBar = new JMenuBar();
 		menuBar.add(new MadkitMenu(guiManager));
-		menuBar.add(new LaunchAgentsMenu(guiManager,true));
+		menuBar.add(new LaunchAgentsMenu(guiManager));
 		menuBar.add(new LaunchMAS(guiManager));
 		menuBar.add(new HelpMenu());
+		menuBar.add(Box.createHorizontalGlue());
+		menuBar.add(new AgentStatusPanel(guiManager));
 		return menuBar;
 	}
 
 	/**
-	 * @return
+	 * Builds tool bar for the desktop frame. By default it builds a classic MaDKit tool bar
+	 * 
+	 * @return the tool bar to use in the desktop frame
 	 */
 	public JToolBar getToolBar(final AbstractAgent guiManager) {
 		return new MadkitToolBar(guiManager);

@@ -51,21 +51,47 @@ public class LaunchAgentsMenu extends JMenu {
 	final static private Set<LaunchAgentsMenu> menus = new HashSet<LaunchAgentsMenu>(); 
 	final private Action myAction;
 	final private AbstractAgent myAgent;
-	final private boolean withKernelAgents;
+	private AgentClassFilter filter;
+	protected int numberToLaunch;
 
 	/**
-	 * Builds a new menu containing all the agents available on the class path.
+	 * Builds a new menu, "Agents", containing all the agents available on the class path.
 	 * @param agent the agent according 
 	 * to which this menu should be created, i.e. the
 	 * agent that will be responsible of the launch.
-	 * @param withKernelAgents also take the 4 agents from madkit.kernel if <code>true</code>
 	 */
 	/**
 	 * @param agent
 	 */
-	public LaunchAgentsMenu(final AbstractAgent agent, boolean withKernelAgents) {
-		super("Agents");
-		this.withKernelAgents = withKernelAgents;
+	public LaunchAgentsMenu(final AbstractAgent agent) {
+		this(agent,"Agents",null);
+	}
+
+	/**
+	 * Builds a new menu containing all the agents available on the class path,
+	 * except madkit.kernel agents.
+	 * @param agent the agent according 
+	 * to which this menu should be created, i.e. the
+	 * agent that will be responsible of the launch.
+	 * @param menuName the name of the menu
+	 */
+	public LaunchAgentsMenu(final AbstractAgent agent, final String menuName) {
+		this(agent,menuName, null);
+	}
+
+	/**
+	 * Builds a new launching menu containing all 
+	 * the agents available on the class path.
+	 * 
+	 * @param agent the agent according 
+	 * to which this menu should be created, i.e. the
+	 * agent that will be responsible of the launch.
+	 * @param menuName the name of the menu
+	 * @param filter help filtering which classes should be included
+	 */
+	public LaunchAgentsMenu(final AbstractAgent agent, String menuName, AgentClassFilter filter) {
+		super(menuName);
+		this.filter = filter;
 		setMnemonic(KeyEvent.VK_G);
 		myAgent = agent;
 		myAction = new  MDKAbstractAction(AgentAction.LAUNCH_AGENT.getActionInfo()){
@@ -73,7 +99,6 @@ public class LaunchAgentsMenu extends JMenu {
 			 * 
 			 */
 			private static final long serialVersionUID = 6530886642947530268L;
-
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				agent.launchAgent(e.getActionCommand(),0,true);
@@ -85,16 +110,17 @@ public class LaunchAgentsMenu extends JMenu {
 		update();
 	}
 
-	/**
-	 * Builds a new menu containing all the agents available on the class path,
-	 * except madkit.kernel agents.
-	 * @param agent the agent according 
-	 * to which this menu should be created, i.e. the
-	 * agent that will be responsible of the launch.
-	 */
-	public LaunchAgentsMenu(final AbstractAgent agent) {
-		this(agent,false);
-	}
+//	private void addLaunchingNumber(ButtonGroup group, final int i) {//TODO
+//		final JRadioButton b = new JRadioButton(Words.LAUNCH.toString()+ " : "+i);
+//		add(b);
+//		b.addActionListener(new ActionListener() {
+//			@Override
+//			public void actionPerformed(ActionEvent e) {
+//				numberToLaunch = i;
+//			}
+//		});
+//		group.add(b);
+//	}
 
 	/**
 	 * Called by the kernel when the class path is modified.
@@ -123,9 +149,9 @@ public class LaunchAgentsMenu extends JMenu {
 			return;
 		removeAll();
 		final Set<String> classesToLaunch = myAgent.getMadkitClassLoader().getAllAgentClasses();
-		if(! withKernelAgents)
+		if(filter != null)
 			for (Iterator<String> iterator = classesToLaunch.iterator(); iterator.hasNext();) {
-				if(iterator.next().contains("madkit.kernel"))
+				if(! filter.accept(iterator.next()))
 						iterator.remove();
 			}
 		if (classesToLaunch.size() < 20) {
@@ -154,6 +180,10 @@ public class LaunchAgentsMenu extends JMenu {
 				}
 			}
 		}
+//		ButtonGroup group = new ButtonGroup();
+//		for (int i = 1; i <= 1000000; i*=10) {
+//			addLaunchingNumber(group,i);
+//		}
 		
 	}
 

@@ -27,6 +27,7 @@ import javax.swing.JToolBar;
 
 import madkit.action.GUIManagerAction;
 import madkit.action.KernelAction;
+import madkit.gui.SwingUtil;
 import madkit.kernel.AbstractAgent;
 
 /**
@@ -46,22 +47,26 @@ public class MadkitToolBar extends JToolBar {// TODO i18n
 
 	/**
 	 * Creates a {@link JToolBar} featuring: 
-	 * {@link KernelAction#EXIT}, 
-	 * {@link KernelAction#COPY}, 
-	 * {@link KernelAction#RESTART}, 
-	 * {@link KernelAction#LAUNCH_NETWORK}, 
-	 * {@link KernelAction#STOP_NETWORK}, 
-	 * {@link GUIManagerAction#ICONIFY_ALL}, 
-	 * {@link GUIManagerAction#DEICONIFY_ALL}, 
-	 * {@link KernelAction#LOAD_LOCAL_DEMOS}, 
+	 * <ul>
+	 * <li> {@link KernelAction#EXIT}
+	 * <li> {@link KernelAction#COPY}
+	 * <li> {@link KernelAction#RESTART}
+	 * <li> {@link KernelAction#LAUNCH_NETWORK}
+	 * <li> {@link KernelAction#STOP_NETWORK}
+	 * <li> {@link GUIManagerAction#CONNECT_TO_IP}
+	 * <li> {@link KernelAction#CONSOLE}
+	 * <li> {@link KernelAction#LOAD_LOCAL_DEMOS}
+	 * <li> {@link GUIManagerAction#LOAD_JAR_FILE}
+	 * <li> {@link GUIManagerAction#ICONIFY_ALL}
+	 * <li> {@link GUIManagerAction#DEICONIFY_ALL}
+	 * <li> {@link GUIManagerAction#KILL_AGENTS}
+	 * </ul>
 	 * 
 	 * @param agent the agent for which this menu is created
 	 */
 	public MadkitToolBar(final AbstractAgent agent) {
 		super("MaDKit");
-//		MadkitAction.addAllActionsTo(this, agent);
-		KernelAction.addAllActionsTo(this, agent);
-		GUIManagerAction.addAllActionsTo(this, agent);
+		SwingUtil.addMaDKitActionsTo(this, agent);
 		for (final Component c : getComponents()) {
 			if (c instanceof AbstractButton) {
 				final ImageIcon i = (ImageIcon) ((AbstractButton) c).getIcon();

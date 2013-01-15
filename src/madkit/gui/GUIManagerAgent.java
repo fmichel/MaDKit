@@ -19,7 +19,6 @@
 package madkit.gui;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.HeadlessException;
@@ -37,7 +36,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
-import javax.swing.JMenuBar;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.event.InternalFrameAdapter;
@@ -48,15 +46,9 @@ import madkit.action.GUIManagerAction;
 import madkit.action.KernelAction;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
-import madkit.gui.menu.HelpMenu;
-import madkit.gui.menu.LaunchAgentsMenu;
-import madkit.gui.menu.LaunchMAS;
-import madkit.gui.menu.MadkitMenu;
-import madkit.gui.toolbar.MadkitToolBar;
 import madkit.i18n.Words;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
-import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.Option;
 import madkit.kernel.Message;
@@ -200,12 +192,10 @@ class GUIManagerAgent extends Agent {
 
 				public void run() {
 					if (desktopPane != null) {
-						// JInternalFrame jf = new AgentInternalFrame(af, GUIManagerAgent.this);
 						final JInternalFrame jf = buildInternalFrame(af);
 						desktopPane.add(jf);
 						jf.setDefaultCloseOperation(JInternalFrame.DO_NOTHING_ON_CLOSE);
 						jf.addInternalFrameListener(new InternalFrameAdapter() {
-
 							@Override
 							public void internalFrameClosing(InternalFrameEvent e) {
 								if (agent.isAlive()) {
@@ -230,13 +220,15 @@ class GUIManagerAgent extends Agent {
 	}
 
 	private JInternalFrame buildInternalFrame(final AgentFrame af) {
+//		final JInternalFrame ijf = new JInternalFrame(af.getTitle(), true, true,
+//				true, true);
 		final JInternalFrame ijf = new JInternalFrame(af.getTitle(), true, true,
 				true, true);
 		ijf.setFrameIcon(new ImageIcon(af.getIconImage().getScaledInstance(14,
 				14, java.awt.Image.SCALE_SMOOTH)));
 		ijf.setSize(af.getSize());
 		ijf.setLocation(af.getLocation());
-		ijf.setContentPane(af.getContentPane());
+//		ijf.setContentPane(af.getContentPane());
 		ijf.setJMenuBar(af.getJMenuBar());
 		af.setInternalFrame(ijf);
 		return ijf;
@@ -341,7 +333,6 @@ class GUIManagerAgent extends Agent {
 		// g2d.drawImage(image, x, y, null);
 		// }
 		// }
-		;
 		myFrame.setJMenuBar(myFrame.getMenuBar(this));
 		JToolBar tb = myFrame.getToolBar(this);
 		tb.setRollover(true);
@@ -355,7 +346,6 @@ class GUIManagerAgent extends Agent {
 			}
 		});
 		myFrame.pack();
-		// myFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		myFrame.setVisible(true);
 		myFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		myFrame.setResizable(true);

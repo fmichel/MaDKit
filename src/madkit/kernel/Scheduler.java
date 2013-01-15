@@ -544,6 +544,7 @@ public class Scheduler extends Agent {
 		timer = new JLabel();
 		timer.setBorder(new EmptyBorder(4, 4, 4, 4));
 		timer.setHorizontalAlignment(JLabel.LEADING);
+		setGVT(getGVT());
 		return timer;
 	}
 

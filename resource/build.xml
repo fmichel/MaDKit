@@ -25,7 +25,8 @@
 		REQUIRED:
 		 Specify the directory where the MaDKit jar file is in 
 		 e.g. 
-		 <property name="madkit.lib.dir" value="/userHome/madkit5"/>
+		 <property name="madkit.lib.dir" value="lib"/> relative path or
+		 <property name="madkit.lib.dir" value="/userHome/madkit5"/> absolute path
          ================================= -->
 	<property name="madkit.lib.dir" value="${lib.dir}" />
 

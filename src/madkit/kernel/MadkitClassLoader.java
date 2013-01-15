@@ -392,7 +392,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 	 * @param executable the name of the Java program to look for. E.g. "jarsigner", without file extension.
 	 * @return the path to the executable or <code>null</code> if not found.
 	 */
-	public static String findJavaExecutable(String executable) {//TODO facto
+	public static String findJavaExecutable(String executable) {
 		File lookupDir = new File(System.getProperty("java.home"));
 		String exe = MadkitClassLoader.findJExecutable(lookupDir,executable);
 		if(exe != null)// was jdk dir

@@ -285,7 +285,7 @@ final public class AgentLogger extends Logger {
 	 * not <code>null</code>
 	 * 
 	 * @param msg the message to display
-	 * @param t the exception raised
+	 * @param t the related exception if any. It can be <code>null</code>
 	 */
 	public void severeLog(final String msg, final Throwable t) {
 		// This will also be logged by the kernel at FINEST
@@ -300,9 +300,24 @@ final public class AgentLogger extends Logger {
 		if (lvl == Level.OFF) {
 			setLevel(Level.ALL);
 		}
-		log(Level.SEVERE, msg, t);
+		if (t != null) {
+			log(Level.SEVERE, msg, t);
+		}
+		else{
+			log(Level.SEVERE,msg);
+		}
 		setLevel(lvl);
 	}
+
+	/**
+	 * This call bypasses any settings and always produces severe log
+	 * messages.
+	 * 
+	 * @param msg the message to display
+	 */
+	public void severeLog(final String msg) {
+			severeLog(msg, null);
+		}
 }
 
 class AgentFormatter extends Formatter {

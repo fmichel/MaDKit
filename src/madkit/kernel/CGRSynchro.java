@@ -69,6 +69,10 @@ class CGRSynchro extends ObjectMessage<AgentAddress> {
 
 class RequestRoleSecure extends ObjectMessage<Object>{
 
+	/**
+	 * 
+	 */
+	private static final long	serialVersionUID	= 1661974372588706717L;
 	final private AgentAddress	requester;
 	final private String	roleName;
 

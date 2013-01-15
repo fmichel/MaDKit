@@ -8,7 +8,6 @@
 <project name="MDKAntTargets" default="compile">
 
 	<property name="madkit.args" value="" description="for the null case" />
-	<property name="jnlp.template" value="jnlp.template" />
 	<property name="jnlp.jar" value="${ant.project.name}.jnlp.jar" />
 	<property name="jnlp.jar.gz" value="${jnlp.jar}.pack.gz" />
 	<property name="keystore.dir" location="${user.home}/.mdk_keystore" />
@@ -56,14 +55,13 @@
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
-          target: no-jarsigner-message                      
+          target: jarsigner-message                      
          - - - - - - - - - - - - - - - - - -->
 	<target name="jarsigner-message" unless="jarsigner.present">
 		<echo>
 	Build warning:
-	Cannot find the jarsigner tool so that the jar could not be signed.
-	This is a problem only if you want your jar to be executed online using java web start
-	You can fix that by downloading and installing the JDK from Oracle
+	Cannot find the jarsigner tool to sign the jar, which is required for Java web start.
+	You can fix that by installing the JDK from Oracle
 		</echo>
 	</target>
 
@@ -110,12 +108,12 @@
 		</jar>
 	</target>
 
-
 	<!-- - - - - - - - - - - - - - - - - - 
           target: get-password          
          - - - - - - - - - - - - - - - - - -->
 	<target name="get-password" depends="init-security" if="jarsigner.present" unless="keystore.password">
-		<input addproperty="keystore.password">${line.separator}	First build: Please enter a password for signing MaDKit jars, this will be stored in a keystore in ${keystore.dir}:</input>
+		<input addproperty="keystore.password">${line.separator}	
+	First Java-web-start build: Please enter a password for signing MaDKit jars, this will be stored in a keystore in ${keystore.dir}:${line.separator}</input>
 		<genkey alias="${keystore.alias}" keystore="${keystore}" storepass="${keystore.password}" validity="3660">
 			<dname>
 				<param name="CN" value="${author}" />
@@ -168,6 +166,5 @@
 		</java>
 		<property file="${java.io.tmpdir}/agentClasses.properties" />
 	</target>
-
 
 </project>

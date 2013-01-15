@@ -50,6 +50,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.net.InetAddress;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -373,6 +374,12 @@ class MadkitKernel extends Agent {
 	@SuppressWarnings("unused")
 	private void loadJarFile(URL url) {
 		platform.getMadkitClassLoader().addToClasspath(url);
+	}
+	
+	@SuppressWarnings("unused")
+	private void connectToIp(InetAddress ip){
+		launchNetwork();
+		sendNetworkMessageWithRole(new KernelMessage(KernelAction.CONNECT_TO_IP,ip), kernelRole);
 	}
 
 	private void copy() {
@@ -965,7 +972,7 @@ class MadkitKernel extends Agent {
 	}
 
 	private void updateNetworkAgent() {
-		if (netAgent == null || !netAgent.exists()) {// Is it still playing the
+		if (netAgent == null || ! netAgent.exists()) {// Is it still playing the
 			// role ?
 			netAgent = getAgentWithRole(LocalCommunity.NAME, Groups.NETWORK, madkit.agr.LocalCommunity.Roles.NET_AGENT);
 		}
@@ -1529,6 +1536,16 @@ class MadkitKernel extends Agent {
 	public KernelAddress getKernelAddress() {
 		return kernelAddress;
 	}
+	
+	@Override
+	public String getServerInfo(){
+		if (netAgent != null) {
+			return netAgent.getAgent().getServerInfo();
+		}
+		return "";
+	}
+
+
 
 	/**
 	 * @return

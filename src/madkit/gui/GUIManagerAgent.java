@@ -220,15 +220,13 @@ class GUIManagerAgent extends Agent {
 	}
 
 	private JInternalFrame buildInternalFrame(final AgentFrame af) {
-//		final JInternalFrame ijf = new JInternalFrame(af.getTitle(), true, true,
-//				true, true);
 		final JInternalFrame ijf = new JInternalFrame(af.getTitle(), true, true,
 				true, true);
 		ijf.setFrameIcon(new ImageIcon(af.getIconImage().getScaledInstance(14,
 				14, java.awt.Image.SCALE_SMOOTH)));
 		ijf.setSize(af.getSize());
 		ijf.setLocation(af.getLocation());
-//		ijf.setContentPane(af.getContentPane());
+		ijf.setContentPane(af.getContentPane());
 		ijf.setJMenuBar(af.getJMenuBar());
 		af.setInternalFrame(ijf);
 		return ijf;

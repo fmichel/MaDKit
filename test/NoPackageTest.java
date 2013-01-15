@@ -48,7 +48,7 @@ public class NoPackageTest extends JunitMadkit {
 			protected void activate() {
 				if(logger != null)
 					logger.info("w");
-				LaunchAgentsMenu m = new LaunchAgentsMenu(this,true);
+				LaunchAgentsMenu m = new LaunchAgentsMenu(this);
 				for (Component iterable_element : m.getMenuComponents()) {
 					if(((AbstractButton) iterable_element).getText().equals(NoPackageAgent.class.getName()))
 						return;

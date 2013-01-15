@@ -189,6 +189,9 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		_hashCode = -1;
 	}
 	
+	/**
+	 * @return the real kernel
+	 */
 	MadkitKernel getMadkitKernel(){
 		return kernel.getMadkitKernel();
 	}
@@ -2009,6 +2012,15 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 */
 	public KernelAddress getKernelAddress() {
 		return kernel.getKernelAddress();
+	}
+	
+	/**
+	 * Returns the server's info, IP and port, if the kernel is online.
+	 * 
+	 * @return server's info: e.g. /192.168.1.14:4444
+	 */
+	public String getServerInfo(){
+		return getMadkitKernel().getServerInfo();
 	}
 
 	// //////////////////////////////////////////////////////////////////////////////

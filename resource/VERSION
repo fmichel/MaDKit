@@ -16,6 +16,22 @@ interact using messages. It also contains generic MAS simulation authoring tools
 
 
 ----------------------------------------------------------------------------------
+------------------------------- MaDKit 5.0.0.22 (alpha-22)------------------------
+----------------------------------------------------------------------------------
+
+1. Improvements and changes:
+	- Connection of two MaDKit instances over Internet 
+	- fix a bug preventing ant building of jars under seven
+
+2. API changes:
+	+ madkit.kernel.AbstractAgent.getServerInfo()
+	+ madkit.gui.SwingUtil.addMaDKitActionsTo(JComponent, AbstractAgent)
+	+ madkit.gui.MDKDesktopFrame
+	+ madkit.gui.menu.AgentClassFilter
+	- madkit.action.GUIManagerAction.addAllActionsTo(JComponent, AbstractAgent)
+	
+
+----------------------------------------------------------------------------------
 ------------------------------- MaDKit 5.0.0.21 (alpha-21)------------------------
 ----------------------------------------------------------------------------------
 

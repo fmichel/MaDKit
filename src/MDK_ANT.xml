@@ -21,7 +21,6 @@
 	<property url="jar:file:${kernel.location}!/madkit/kernel/madkit.properties" />
 
 	<tstamp prefix="time" />
-
 	<tstamp>
 		<format property="timestamp.isoformat" pattern="yyyy-mm-dd HH:mm:ss" locale="en" />
 	</tstamp>
@@ -39,14 +38,8 @@
 		<antcall target="MDK.compile" />
     </target>
 
-
 	<!-- ================================= 
           target: build-executable-jar
-		<jar destfile="${jar.file}" manifest="${manifest.location}" level="1" duplicate="preserve">
-			<fileset dir="${build.dir}" />
-			<zipfileset src="${kernel.location}" excludes="MANIFEST.MF,*.xml" />
-			<zipgroupfileset refid="third.party.libraries" /> 
-		</jar>
          ================================= -->
 	<target name="build-executable-jar" depends="MDK.compile" description="executable jar">
 		<property name="jar.file" value="${ant.project.name}-${version}.jar" />
@@ -102,10 +95,10 @@
 			</filterchain>
 		</copy>
 		<echo>${line.separator}
-        	--- For Java Web Start :
+        	--- Using JAVA WEB START :
         	${line.separator} 
-    The ${jnlp.jar.gz} file is the target of the jnlp file : it has no vesion number so that 
-    the jnlp will always run the latest version without requiring any change
+		--- The ${jnlp.jar.gz} file is the target of the jnlp file : it has no version number so that 
+		the jnlp will always run the latest version without requiring any change
         	${line.separator} 
        </echo>
 		<delete file="${jnlp.jar}" />

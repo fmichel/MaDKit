@@ -113,7 +113,9 @@ final class KernelConnection extends Thread{
 				break;
 			}
 			catch (IOException e) {
-				myNetAgent.getLogger().severeLog(e.getMessage(),e);
+				if (e.getMessage() != null) {
+					myNetAgent.getLogger().severeLog(e.getMessage(), e);
+				}
 				myNetAgent.receiveMessage(new NetworkMessage(NetCode.PEER_DECONNECTED, distantKernelAddress));
 				break;
 			}		
@@ -127,7 +129,7 @@ final class KernelConnection extends Thread{
 	synchronized void sendMessage(Message m) {
 		try {
 			oos.writeObject(m);
-		} catch (IOException e) {
+		} catch (IOException e) {//FIXME
 //			e.printStackTrace();//log this//TODO handle broken pipe socket ex
 		}
 		
@@ -141,7 +143,7 @@ final class KernelConnection extends Thread{
 			oos.close();
 			ois.close();
 			distantKernelSocket.close();
-		} catch (IOException e) {//log this//TODO handle broken pipe
+		} catch (IOException e) {//log this//TODO handle broken pipe //FIXME
 		}
 		
 	}

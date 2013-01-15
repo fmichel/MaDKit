@@ -18,26 +18,27 @@
  */
 package madkit.action;
 
+import static java.awt.event.KeyEvent.VK_N;
+
+import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.EnumSet;
+import java.net.UnknownHostException;
 import java.util.ResourceBundle;
 
 import javax.swing.Action;
-import javax.swing.JComponent;
 import javax.swing.JFileChooser;
-import javax.swing.JMenu;
-import javax.swing.JToolBar;
+import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.agr.Organization;
 import madkit.i18n.I18nUtilities;
+import madkit.i18n.Words;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AgentAddress;
 import madkit.kernel.Message;
@@ -60,6 +61,10 @@ public enum GUIManagerAction {
 
 
 	/**
+	 * For connecting kernels in a wide area network
+	 */
+	CONNECT_TO_IP(VK_N),
+	/**
 	 * Opens a dialog for selecting the jar file to add.
 	 */
 	LOAD_JAR_FILE(KeyEvent.VK_J), 
@@ -74,7 +79,7 @@ public enum GUIManagerAction {
 	/**
 	 * Kills all the agents having a GUI
 	 */
-	KILL_AGENTS(KeyEvent.VK_A),
+	KILL_AGENTS(KeyEvent.VK_G),
 	//	CONNECT_WEB_REPO(VK_W),
 
 	/**
@@ -130,6 +135,54 @@ public enum GUIManagerAction {
 	 * @return an Action that could be used in an GUI for instance
 	 */
 	public Action getActionFor(final AbstractAgent agent, final Object... commandOptions){
+		if(this == LOAD_JAR_FILE){
+			return new MDKAbstractAction(getActionInfo()){
+				/**
+				 * 
+				 */
+				private static final long	serialVersionUID	= -3628118195822063331L;
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if (agent.isAlive()) {
+						agent.sendMessage(
+								LocalCommunity.NAME, 
+								Groups.SYSTEM, 
+								Organization.GROUP_MANAGER_ROLE, 
+								new KernelMessage(KernelAction.LOAD_JAR_FILE, getJarUrl()));
+					}
+				}
+			};
+		}
+		if(this == CONNECT_TO_IP){
+			return new MDKAbstractAction(getActionInfo()){
+				/**
+				 * 
+				 */
+				private static final long	serialVersionUID	= -5716094161691491218L;
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if (agent.isAlive()) {
+							try {
+								final String ip = JOptionPane.showInputDialog(null, getActionInfo().getName()+" : ");
+								if (ip != null) {
+									agent.sendMessage(
+											LocalCommunity.NAME,
+											Groups.SYSTEM,
+											Organization.GROUP_MANAGER_ROLE,
+											new KernelMessage(KernelAction.CONNECT_TO_IP,
+													InetAddress.getByName(ip)));
+								}
+							} catch (HeadlessException e1) {
+								e1.printStackTrace();
+							} catch (UnknownHostException e1) {
+								JOptionPane.showMessageDialog(null, e1, Words.FAILED.toString(), JOptionPane.WARNING_MESSAGE);
+							}
+					}
+				}
+			};
+		}
 		return new MDKAbstractAction(getActionInfo()){
 			/**
 			 * 
@@ -158,49 +211,6 @@ public enum GUIManagerAction {
 		if(actionInfo == null)
 			actionInfo = new ActionInfo(this,keyEvent,messages);
 		return actionInfo;
-	}
-
-	/**
-	 * Adds all the possible actions to {@link JComponent} such as
-	 * a {@link JMenu} or a {@link JToolBar}.
-	 * @param menuOrToolBar
-	 * @param agent
-	 */
-	public static void addAllActionsTo(JComponent menuOrToolBar, final AbstractAgent agent){
-		try {//this bypasses class incompatibility
-			final Method add = menuOrToolBar.getClass().getMethod("add", Action.class);
-			final Method addSeparator = menuOrToolBar.getClass().getMethod("addSeparator");
-			for (final GUIManagerAction mkA : EnumSet.allOf(GUIManagerAction.class)) {
-				if(mkA == SETUP_AGENT_GUI)
-					return;
-				Action a = mkA.getActionFor(agent);
-				if (mkA == LOAD_JAR_FILE) {//TODO move that code in manager
-					a = new MDKAbstractAction(mkA.actionInfo){
-						private static final long serialVersionUID = -7758727130858069498L;
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							if (agent.isAlive()) {
-								agent.sendMessage(
-										LocalCommunity.NAME, 
-										Groups.SYSTEM, 
-										Organization.GROUP_MANAGER_ROLE, 
-										new KernelMessage(KernelAction.LOAD_JAR_FILE, mkA.getJarUrl()));
-							}
-						}
-					};
-				}
-				add.invoke(menuOrToolBar, a);
-				if(mkA == LOAD_JAR_FILE)
-					addSeparator.invoke(menuOrToolBar);
-			}
-		} catch (InvocationTargetException e) {
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (SecurityException e) {
-		} catch (NoSuchMethodException e) {
-		}
 	}
 
 	private URL getJarUrl() {

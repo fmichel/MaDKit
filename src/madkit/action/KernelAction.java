@@ -21,7 +21,7 @@ package madkit.action;
 import static java.awt.event.KeyEvent.VK_C;
 import static java.awt.event.KeyEvent.VK_D;
 import static java.awt.event.KeyEvent.VK_DOLLAR;
-import static java.awt.event.KeyEvent.VK_N;
+import static java.awt.event.KeyEvent.VK_L;
 import static java.awt.event.KeyEvent.VK_O;
 import static java.awt.event.KeyEvent.VK_Q;
 import static java.awt.event.KeyEvent.VK_R;
@@ -31,6 +31,7 @@ import static java.awt.event.KeyEvent.VK_W;
 import java.awt.event.ActionEvent;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.InetAddress;
 import java.util.EnumSet;
 import java.util.ResourceBundle;
 
@@ -57,7 +58,7 @@ import madkit.message.KernelMessage;
  * 
  * @author Fabien Michel
  * @since MaDKit 5.0.0.14
- * @version 0.9
+ * @version 0.92
  * 
  */
 
@@ -76,7 +77,7 @@ public enum KernelAction {
 	 */
 	RESTART(VK_R),
 	/**
-	 * Start the network
+	 * Start the network 
 	 */
 	LAUNCH_NETWORK(VK_W),
 	/**
@@ -88,7 +89,7 @@ public enum KernelAction {
 	 * Launch jconsole on the kernel
 	 * if available
 	 */
-	JCONSOLE(VK_N),
+	JCONSOLE(VK_L),
 
 	/**
 	 * Makes a redirection of the out and err 
@@ -121,9 +122,14 @@ public enum KernelAction {
 	 */
 	CONNECT_WEB_REPO(VK_DOLLAR),
 	/**
+	 * For connecting kernels in a wide area network. It requires a parameter of type {@link InetAddress}.
+	 */
+	CONNECT_TO_IP(VK_DOLLAR),
+	/**
 	 * Load a jar file so that its agent classes are then available
 	 */
 	LOAD_JAR_FILE(VK_DOLLAR); 
+	
 
 
 	//	final private MKAction mkAction;

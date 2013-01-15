@@ -18,12 +18,16 @@
  */
 package madkit.kernel;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.Inet4Address;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.SocketException;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
 
@@ -43,6 +47,21 @@ final class KernelServer {
 	final private ServerSocket serverSocket;
 
 	private boolean running = true;
+	
+	final private static String EXTERNAL_IP;
+	
+	static{
+		String s = null;
+		try {
+			BufferedReader in = new BufferedReader(new InputStreamReader(
+					new URL("http://www.madkit.net/whatismyip.php").openStream()));
+			 s = in.readLine(); //you get the IP as a String
+			 in.close();
+		} catch (MalformedURLException e) {
+		} catch (IOException e) {
+		}
+		EXTERNAL_IP = s == null ? "" : " -- WAN : "+s; //you get the IP as a String
+	}
 
 	/**
 	 * @param serverSocket2
@@ -106,19 +125,22 @@ final class KernelServer {
 				return null;
 			}
 		}
-		ip.getHostName();
-		boolean inUse = true;
+//		ip.getHostName();
 		ServerSocket serverSocket = null;
 		int port = startingPort;
-		while (inUse) {
+		while (serverSocket == null) {
 			try {
 				serverSocket = new ServerSocket(port,50,ip);
-				inUse = false;
 			} catch (IOException e) {
 				port++;
 			}
 		}
 		return new KernelServer(serverSocket);
+	}
+	
+	@Override
+	public String toString() {
+		return getIp()+":"+getPort()+EXTERNAL_IP;
 	}
 
 
@@ -128,7 +150,6 @@ final class KernelServer {
 			//		    find:
 			while (en.hasMoreElements()) {
 				NetworkInterface ni = en.nextElement();
-				//				printParameter(ni);
 				if (! ni.isLoopback()) {
 					final Enumeration<InetAddress> e = ni.getInetAddresses();
 					while (e.hasMoreElements()) {

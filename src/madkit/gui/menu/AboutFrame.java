@@ -25,9 +25,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -43,6 +47,7 @@ import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 
 import madkit.gui.SwingUtil;
+import madkit.i18n.Words;
 import madkit.kernel.Madkit;
 
 /**
@@ -91,14 +96,27 @@ final class AboutFrame extends JDialog {
 		StyleConstants.setFontSize(s, 20);
 
 		try {
+			BufferedReader in = new BufferedReader(new InputStreamReader(
+					new URL(Madkit.WEB+"/LAST").openStream()));
+			String version = in.readLine();
+			if(Madkit.VERSION.compareTo(version) < 0){
+				 version = "\n\n   "+Words.LAST_AVAILABLE.toString()+" : "+version+"\n";
+			}
+			else{
+				version = "";
+			}
 			doc.insertString(doc.getLength(), "  MaDKit\n", doc.getStyle("large"));
 			doc.insertString(doc.getLength(),
 					"   The Multiagent Development Kit\n\n", doc.getStyle("italic"));
 			doc.insertString(doc.getLength(), "   Version: " + Madkit.VERSION
-					+ "\n   Build id: " + Madkit.BUILD_ID, doc.getStyle("small"));
-			textPanel.add(new SwingLink("www.madkit.org", new URI("http://www.madkit.org")));
+					+ "\n   Build id: " + Madkit.BUILD_ID + version, doc.getStyle("small"));
+			textPanel.add(new SwingLink(Madkit.WEB.substring(7), new URI(Madkit.WEB)));
 		} catch (BadLocationException e) {
 		} catch (URISyntaxException e) {
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 
 		add(textPanel);

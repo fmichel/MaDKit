@@ -48,7 +48,7 @@
 		<concat destfile="${build.dir}/README">--- ${project.label} version ${version} by ${author} -----
 			${line.separator}- Description  ${description}  -----
 			${line.separator}- Using        This jar file is runnable: Double click it (file execution permission is required) or use java -jar  -----
-			${line.separator}- Technology   It has been built using MaDKit: The Multiagent Development Kit http://www.madkit.org  -----
+			${line.separator}- Technology   It has been built using MaDKit: The Multiagent Development Kit ${madkit.web}  -----
 		</concat>
 		<manifest file="${manifest.location}" mode="update">
 			<attribute name="Main-Class" value="madkit.kernel.Madkit" />
@@ -75,7 +75,7 @@
 		<concat destfile="${build.dir}/README">--- ${project.label} version ${version} by ${author} -----
     			${line.separator}- Description  ${description}  -----
     			${line.separator}- Using        This jar file contains agents which can be ran using MaDKit: It can be used in MaDKit using load jar or by putting it in the classpath of your MaDKit application  -----
-    			${line.separator}- Technology   MaDKit, The Multiagent Development Kit : http://www.madkit.org A platform for building Multi-Agent Systems Application -----
+    			${line.separator}- Technology   MaDKit, The Multiagent Development Kit : ${madkit.web} A platform for building Multi-Agent Systems Application -----
     		</concat>
 		<antcall target="MDK.build-manifest" />
 		<antcall target="MDK.agent-jar" />

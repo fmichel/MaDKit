@@ -118,7 +118,7 @@ public enum KernelAction {
 	 */
 	KILL_AGENT(VK_DOLLAR),
 	/**
-	 * Connection to www.madkit.net repository
+	 * Connection to the MaDKit web repository
 	 */
 	CONNECT_WEB_REPO(VK_DOLLAR),
 	/**

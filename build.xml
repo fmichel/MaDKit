@@ -31,6 +31,7 @@
 	<property name="build.id" value="${time.DSTAMP}-${time.TSTAMP}" />
 	<property name="src.dir" value="src" />
 	<property name="madkit.properties" value="madkit/kernel/madkit.properties" />
+	<property name="project.website" value="${madkit.web}" />
 
 	<property file="${src.dir}/${madkit.properties}" />
 
@@ -75,7 +76,7 @@
 			debuglevel="lines"
          ================================= -->
 	<target name="compile" depends="buildResources">
-		<javac debug="true" debuglevel="vars" includeAntRuntime="false" srcdir="${src.dir}" destdir="${build.dir}" deprecation="on">
+		<javac debug="true" debuglevel="vars" includeAntRuntime="false" srcdir="${src.dir}" target="1.6" destdir="${build.dir}" deprecation="on">
 		</javac>
 	</target>
 
@@ -284,11 +285,13 @@
 <target name="ftp-release" depends="release">
 
 	<unzip src="${release.dir}/${distribution.zip.name}" dest="${release.dir}/web"/>
+	
+	<echo file="${build.dir}/LAST" append="false">${madkit.version}</echo>
 
 	<loadproperties srcFile="${server.info.dir}/MDK.net" />
 	<echo>FTP upload of Readme. Server is ${ftp.server} </echo>
 	<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="put">
-		<fileset dir="${build.dir}" includes="README.html" />
+		<fileset dir="${build.dir}" includes="README.html,LAST" />
 	</ftp>
 
 	<echo>FTP upload of docs</echo>

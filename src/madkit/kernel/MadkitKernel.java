@@ -46,11 +46,14 @@ import static madkit.kernel.Madkit.BooleanOption.console;
 import static madkit.kernel.Madkit.BooleanOption.loadLocalDemos;
 import static madkit.kernel.Madkit.BooleanOption.network;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -267,6 +270,7 @@ class MadkitKernel extends Agent {
 
 	@Override
 	protected void activate() {
+		addWebRepository();
 		if (logger != null)
 			logger.setWarningLogLevel(Level.INFO);
 		
@@ -400,18 +404,16 @@ class MadkitKernel extends Agent {
 		if (logger != null)
 			logger.fine("** CONNECTING WEB REPO **" + repoLocation);
 		try {
-			Properties p = new Properties();
-			p.load(new URL(repoLocation + "repo.properties").openStream());
-			// System.err.println(p);
-			for (Entry<Object, Object> object : p.entrySet()) {
-				// platform.getMadkitClassLoader().addJar(new
-				// URL(repoLocation+object.getKey()+".jar"));
-				platform.getMadkitClassLoader().addToClasspath(
-						new URL(repoLocation + object.getValue() + "/" + object.getKey() + ".agents.jar"));
+			BufferedReader in = new BufferedReader(new InputStreamReader(
+					new URL(getMadkitProperty("madkit.repository.url")).openStream()));
+			for(String s : in.readLine().split("<br/>")){
+				getMadkitClassLoader().addToClasspath(new URL(s));
 			}
-		} catch (final IOException e) {
+			in.close();
+		} catch (MalformedURLException e) {//FIXME
+		} catch (IOException e) {
 			if (logger != null)
-				logger.log(Level.WARNING, ErrorMessages.CANT_CONNECT + ": madkit.net " + repoLocation + "\n" + e.getMessage());
+			logger.log(Level.WARNING, ErrorMessages.CANT_CONNECT + ": "+ repoLocation + "\n" + e.getMessage());
 		}
 	}
 

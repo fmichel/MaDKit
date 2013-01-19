@@ -12,7 +12,7 @@
     Optionally, you can then use the following two lines in your web pages 
     to have a launching button :
     
-    <script src="http://www.madkit.net/js/deployJava.js"></script>
+    <script src="${madkit.web}/js/deployJava.js"></script>
     ...
     deployJava.createWebStartLaunchButton('${web.codebase}/${ant.project.name}.jnlp', '1.6.0'); 
  

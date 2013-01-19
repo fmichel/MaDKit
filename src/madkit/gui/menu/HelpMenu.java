@@ -22,13 +22,17 @@ import java.awt.Desktop;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 
 import javax.swing.ImageIcon;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 
 import madkit.action.KernelAction;
 import madkit.gui.SwingUtil;
@@ -46,8 +50,6 @@ final public class HelpMenu extends JMenu {
 	
 	private static final ImageIcon	HELP_ICON	= new ImageIcon(SwingUtil.class.getResource("images/help.png"));
 
-	final private static String MDKWeb = "http://www.madkit.net/";
-
 	private static final long serialVersionUID = 6177193453649323680L;
 	final private static ActionListener about = new ActionListener() {
 		@SuppressWarnings("unused")
@@ -60,7 +62,7 @@ final public class HelpMenu extends JMenu {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			try {
-				Desktop.getDesktop().browse(new URI(MDKWeb+e.getActionCommand()));
+				Desktop.getDesktop().browse(new URI(Madkit.WEB+"/"+e.getActionCommand()));
 			} catch (IOException e1) {
 			} catch (URISyntaxException e1) {
 				e1.printStackTrace();

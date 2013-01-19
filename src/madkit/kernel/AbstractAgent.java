@@ -1945,7 +1945,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * <td>MaDKit kernel build ID</td></tr
 	 * <tr>
 	 * <td><code>madkit.repository.url</code></td>
-	 * <td>the agent repository for this version, usually http://www.madkit.net/repository/MaDKit-${madkit.version}/ </td>
+	 * <td>the agent repository for this version, usually http://www.madkit.net/repository/MaDKit-version </td>
 	 * </tr>
 	 * <tr>
 	 * <td><code>desktop</code></td>

@@ -117,6 +117,9 @@
 		<genkey alias="${keystore.alias}" keystore="${keystore}" storepass="${keystore.password}" validity="3660">
 			<dname>
 				<param name="CN" value="${author}" />
+				<param name="OU" value="${project.label}" />
+				<param name="O" value="${project.website}" />
+				<param name="C" value="${user.country}" />
 			</dname>
 		</genkey>
 		<propertyfile file="${keystore.dir}/keystore.properties" comment="${ant.project.name} signing password">

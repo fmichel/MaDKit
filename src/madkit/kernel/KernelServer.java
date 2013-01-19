@@ -54,13 +54,13 @@ final class KernelServer {
 		String s = null;
 		try {
 			BufferedReader in = new BufferedReader(new InputStreamReader(
-					new URL("http://www.madkit.net/whatismyip.php").openStream()));
-			 s = in.readLine(); //you get the IP as a String
+					new URL(Madkit.WEB+"/whatismyip.php").openStream()));
+			 s = in.readLine();
 			 in.close();
 		} catch (MalformedURLException e) {
 		} catch (IOException e) {
 		}
-		EXTERNAL_IP = s == null ? "" : " -- WAN : "+s; //you get the IP as a String
+		EXTERNAL_IP = s == null ? "" : " -- WAN : "+s;
 	}
 
 	/**

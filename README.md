@@ -20,11 +20,11 @@ MaDKit agents play roles in groups and thus create artificial societies.
 More information
 ------------------------------------------------
 
-* [Official Homepage](http://www.madkit.org)
+* [Official Homepage](http://www.madkit.net)
 * [Getting started](http://www.madkit.net/README.html)
-* [API Reference](http://www.madkit.org/docs/api)
-* [Tutorials](http://www.madkit.org/tutorials)
-* [Forum](http://www.madkit.org/forum)
+* [API Reference](http://www.madkit.net/docs/api)
+* [Tutorials](http://www.madkit.net/tutorials)
+* [Forum](http://www.madkit.net/forum)
 
 
 [1]: http://janela.lirmm.fr/~fmichel/publi/pdfs/ferber04ocmas.pdf

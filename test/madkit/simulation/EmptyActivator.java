@@ -12,7 +12,7 @@ public class EmptyActivator extends Activator<AbstractAgent> {
 	}
 
 	@Override
-	public void execute(List<AbstractAgent> currentAgentsList) {
+	public void execute(List<AbstractAgent> currentAgentsList, Object... args) {
 	}
 
 }

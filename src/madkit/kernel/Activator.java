@@ -67,15 +67,17 @@ public abstract class Activator<A extends AbstractAgent> extends Overlooker<A>{
 	 * 
 	 * By default, this is automatically called by the default scheduler's 
 	 * loop once the activator is added.
+	 * @param args arguments that could be used by the scheduler 
+	 * to pass information to this activator for an activation
 	 * 
 	 * @see Scheduler#doSimulationStep()
 	 */
-	public void execute() {
+	public void execute(Object... args) {
 		if (isMulticoreModeOn()) {
 			multicoreExecute();
 		}
 		else{
-			execute(getCurrentAgentsList());
+			execute(getCurrentAgentsList(), args);
 		}
 	}
 
@@ -92,7 +94,7 @@ public abstract class Activator<A extends AbstractAgent> extends Overlooker<A>{
 	 * 
 	 * @param agentsList
 	 */
-	public abstract void execute(List<A> agentsList);
+	public abstract void execute(List<A> agentsList, Object... args);
 
 	/**
 	 * Executes the behavior on all the agents in a concurrent way, using several processor cores if available.
@@ -105,9 +107,9 @@ public abstract class Activator<A extends AbstractAgent> extends Overlooker<A>{
 	 * <a href="http://www.aamas-conference.org/Proceedings/aamas07/html/pdf/AAMAS07_0179_07a7765250ef7c3551a9eb0f13b75a58.pdf">IRM4S model<a/>
 	 * 
 	 */
-	protected void multicoreExecute() {
+	protected void multicoreExecute(final Object... args) {
 		final int cpuCoreNb = nbOfParallelTasks();
-		final ArrayList<Callable<Void>> workers = new ArrayList<Callable<Void>>(cpuCoreNb);
+		final ArrayList<Callable<Void>> workers = new ArrayList(cpuCoreNb);
 		final List<A> list = getCurrentAgentsList();
 		int bucketSize = list.size();
 		final int nbOfAgentsPerTask = bucketSize / cpuCoreNb;
@@ -116,14 +118,14 @@ public abstract class Activator<A extends AbstractAgent> extends Overlooker<A>{
 			workers.add(new Callable<Void>() {
 				public Void call() throws Exception {
 					int firstIndex = nbOfAgentsPerTask*index;//TODO check that using junit
-					execute(list.subList(firstIndex, firstIndex+nbOfAgentsPerTask));
+					execute(list.subList(firstIndex, firstIndex+nbOfAgentsPerTask), args);
 					return null;
 				}
 			});
 		}
 		workers.add(new Callable<Void>() {
 			public Void call() throws Exception {
-				execute(list.subList(nbOfAgentsPerTask*cpuCoreNb, list.size()));
+				execute(list.subList(nbOfAgentsPerTask*cpuCoreNb, list.size()), args);
 				return null;
 			}
 		});
@@ -191,7 +193,8 @@ public abstract class Activator<A extends AbstractAgent> extends Overlooker<A>{
 	 * @throws NoSuchMethodException 
 	 */
 	//	* This also works on <code>private</code> field.
-	public Method findMethodOn(Class<? extends A> agentClass, final String methodName) throws NoSuchMethodException {
+	@SuppressWarnings("unchecked")
+	public static <T> Method findMethodOn(Class<T> agentClass, final String methodName) throws NoSuchMethodException {
 		Method m;
 		while(true) {
 			try {
@@ -205,7 +208,7 @@ public abstract class Activator<A extends AbstractAgent> extends Overlooker<A>{
 			} catch (SecurityException e) {
 				e.printStackTrace();
 			} catch (NoSuchMethodException e) {
-				agentClass = (Class<? extends A>) agentClass.getSuperclass();//TODO not go further than A
+				agentClass = (Class<T>) agentClass.getSuperclass();//TODO not go further than A
 				if (agentClass == AbstractAgent.class) {//TODO bench vs local variable
 					throw e;
 				}

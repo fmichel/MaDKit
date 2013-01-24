@@ -64,7 +64,7 @@ public class GenericBehaviorActivator<A extends AbstractAgent> extends Activator
 	public GenericBehaviorActivator(final String community, final String group, final String role,final String theBehaviorToActivate)
 	{
 		super(community, group, role);
-		methods = new HashMap<Class<? extends A>, Method>();
+		methods = new HashMap();
 		methodName = theBehaviorToActivate;
 	}
 
@@ -80,7 +80,7 @@ public class GenericBehaviorActivator<A extends AbstractAgent> extends Activator
 	 */
 	@SuppressWarnings("null")
 	@Override
-	public void execute(final List<A> agents){
+	public void execute(final List<A> agents, Object... args){
 		//local cache for multicore execute and avoiding adding collision
 		Method cachedM = null;
 		Class<? extends A> cachedC = null;

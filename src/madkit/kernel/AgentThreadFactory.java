@@ -22,53 +22,43 @@ import java.util.concurrent.ThreadFactory;
 
 /**
  * @author Fabien Michel
- * @version 0.9
+ * @version 0.91
  * @since MaDKit 5.0
- *
+ * 
  */
 final class AgentThreadFactory extends Object implements ThreadFactory {
 
-	final private static int MKRA_PRIORITY = Thread.NORM_PRIORITY-1;
-	final private static int MKDA_PRIORITY = Thread.MAX_PRIORITY;
-	final private boolean daemonThreads;
-    final private ThreadGroup group;
-//	static private int nbthread=0;
-    
-    AgentThreadFactory(final KernelAddress kernelAddress, final boolean daemonThreadFactory) {
-    	daemonThreads = daemonThreadFactory;
-    	group = new ThreadGroup(daemonThreads ? "DAEMON" : "LIFE"+kernelAddress){
+	final private boolean		daemonThreads;
+	final private ThreadGroup	group;
+
+	AgentThreadFactory(final KernelAddress kernelAddress, final boolean daemonThreadFactory) {
+		daemonThreads = daemonThreadFactory;
+		group = new ThreadGroup(daemonThreads ? "DAEMON" : "LIFE" + kernelAddress) {
+
 			public void uncaughtException(Thread t, Throwable e) {
-				if(e instanceof KilledException){
+				if (e instanceof KilledException) {
 					e.printStackTrace();
 					throw new AssertionError("killedException uncaught");
 				}
 				System.err.println("--------------internal BUG--------------------");
-				System.err.println("\n-----------------uncaught exception on "+t);//TODO
+				System.err.println("\n-----------------uncaught exception on " + t);// TODO
 				e.printStackTrace();
 			}
 		};
+	}
 
-    	if (daemonThreadFactory) {
-			group.setMaxPriority(MKDA_PRIORITY);
-		}
-    	else{
-			group.setMaxPriority(MKRA_PRIORITY);    		
-    	}
-    }
 	/**
 	 * @see java.util.concurrent.ThreadFactory#newThread(java.lang.Runnable)
 	 */
 	@Override
-    public Thread newThread(final Runnable r) {
-        final Thread t = new Thread(group, r);
-//        System.err.println("\n\n\n new thread "+t);
-        t.setDaemon(daemonThreads);
-//        t.setPriority(t.getThreadGroup().getMaxPriority());
-        return t;
-    }
-	
-	ThreadGroup getThreadGroup(){
+	public Thread newThread(final Runnable r) {
+		final Thread t = new Thread(group, r);
+		t.setDaemon(daemonThreads);
+		return t;
+	}
+
+	ThreadGroup getThreadGroup() {
 		return group;
 	}
-	
+
 }

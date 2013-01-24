@@ -20,6 +20,7 @@ package madkit.kernel;
 
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 
+import java.rmi.activation.ActivateFailedException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -42,14 +43,15 @@ import madkit.i18n.Words;
  * @author Fabien Michel
  * @author Olivier Gutknecht
  * @since MaDKit 1.0
- * @version 5.11
+ * @version 5.0.1
  */
 public class Agent extends AbstractAgent{
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 8564494100061187968L;
+	private static final long	serialVersionUID	= 3300642867299288790L;
+
 	Thread myThread;
 
 	final private AgentExecutor agentExecutor;
@@ -65,6 +67,41 @@ public class Agent extends AbstractAgent{
 
 	public Agent(){
 		this(false);
+	}
+	
+   /**
+    * Changes the priority of the agent's thread. 
+    * This should be used only starting from the {@link Agent#activate()}
+    * to have a concrete effect.
+    * Default priority is set to {@link Thread#NORM_PRIORITY}.
+    * 
+    * @param newPriority priority to set this thread to
+    * @exception  IllegalArgumentException  If the priority is not in the
+    *               range <code>Thread.MIN_PRIORITY</code> to
+    *               <code>Thread.MAX_PRIORITY</code>.
+    * @exception  SecurityException  if the current thread cannot modify this thread.
+    * @see        Thread
+    * @since MadKit 5.0.1
+    */
+	//do not give any access to the thread because its name is normalized
+	public void setThreadPriority(int newPriority){
+		if(myThread != null){
+			myThread.setPriority(newPriority);
+		}
+	}
+
+   /**
+    * Returns this thread's priority.
+    *
+    * @return  this thread's priority for this agent.
+    * @see     Thread
+    * @since MadKit 5.0.1
+    */
+	public int getThreadPriority(){
+		if(myThread != null){
+			return myThread.getPriority();
+		}
+		return Thread.NORM_PRIORITY;
 	}
 
 	/**
@@ -469,24 +506,6 @@ public class Agent extends AbstractAgent{
 		return waitingNextMessage(timeOutMilliseconds, TimeUnit.MILLISECONDS);
 	}
 
-// TODO Remove unused code found by UCDetector
-// 	/**
-// 	 * This method gets the next message of the mailbox or waits 
-// 	 * for a new incoming message considering a certain delay.
-// 	 * 
-// 	 * @param timeOut the maximum time to wait.
-// 	 * @param unit The time unit for this time out, for instance : TimeUnit.MILLISECONDS.
-// 	 * @return the first message in the mailbox, or <code>null</code> if no message
-// 	 * has been received before the time out is elapsed.
-// 	 * @since MaDKit 5
-// 	 */
-// 	final public Message waitNextMessage(final long timeOut, final TimeUnit unit)
-// 	{
-// 		if(logger != null)
-// 			logger.finest("Waiting next message during "+timeOut+" "+unit);
-// 		return waitingNextMessage(timeOut, unit);
-// 	}
-
 	/**
 	 * Stops the agent's process for a while.
 	 * @param milliSeconds the number of milliseconds for which the agent should pause.
@@ -592,5 +611,7 @@ public class Agent extends AbstractAgent{
 			logger.finest("...a reply has arrived : "+answer);
 		return answer;
 	}
+	
+	
 
 }

@@ -51,7 +51,7 @@ public class LaunchAgentBucketWithRolesWithListTest extends JunitMadkit {
 
 	@Before
 	public void setUp() throws Exception {
-		buggy = new GenericBehaviorActivator<AbstractAgent>(COMMUNITY, GROUP,
+		buggy = new GenericBehaviorActivator<>(COMMUNITY, GROUP,
 				ROLE, "doIt");
 	}
 
@@ -71,7 +71,7 @@ public class LaunchAgentBucketWithRolesWithListTest extends JunitMadkit {
 		launchTest(new AbstractAgent() {
 
 			protected void activate() {
-				List<AbstractAgent> l = new ArrayList<AbstractAgent>();
+				List<AbstractAgent> l = new ArrayList<>();
 				for (int i = 0; i < 1; i++) {
 					l.add(null);
 				}
@@ -101,7 +101,7 @@ public class LaunchAgentBucketWithRolesWithListTest extends JunitMadkit {
 		launchTest(new AbstractAgent() {
 
 			protected void activate() {
-				List<SimulatedAgent> l = new ArrayList<SimulatedAgent>();
+				List<SimulatedAgent> l = new ArrayList<>();
 				for (int i = 0; i < size; i++) {
 					l.add(new SimulatedAgent());
 				}
@@ -117,7 +117,7 @@ public class LaunchAgentBucketWithRolesWithListTest extends JunitMadkit {
 		launchTest(new Scheduler() {
 
 			protected void activate() {
-				GenericBehaviorActivator<AbstractAgent> test = new GenericBehaviorActivator<AbstractAgent>(
+				GenericBehaviorActivator<AbstractAgent> test = new GenericBehaviorActivator<>(
 						COMMUNITY, GROUP, ROLE, "launchAgentBucketWithRoles");
 				launchAgent(new SimulatedAgent());
 				addActivator(test);

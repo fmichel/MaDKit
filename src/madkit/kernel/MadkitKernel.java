@@ -65,7 +65,6 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
@@ -208,7 +207,7 @@ class MadkitKernel extends Agent {
 		super(true);
 		platform = m;
 		kernel = this;
-		threadedAgents = new HashSet<Agent>(20);
+		threadedAgents = new HashSet<>(20);
 		
 		kernelAddress = new KernelAddress();
 		
@@ -222,8 +221,8 @@ class MadkitKernel extends Agent {
 		getMadkitConfig().setProperty(logDirKey, logDir);
 		
 		setLogLevel(LevelOption.kernelLogLevel.getValue(getMadkitConfig()));
-		organizations = new ConcurrentHashMap<String, Organization>();
-		operatingOverlookers = new LinkedHashSet<Overlooker<? extends AbstractAgent>>();
+		organizations = new ConcurrentHashMap<>();
+		operatingOverlookers = new LinkedHashSet<>();
 		loggedKernel = new LoggedKernel(this);
 		normalAgentThreadFactory = new AgentThreadFactory(kernelAddress, false);
 		daemonAgentThreadFactory = new AgentThreadFactory(kernelAddress, true);
@@ -457,6 +456,7 @@ class MadkitKernel extends Agent {
 		Properties currentConfig = new Properties();
 		currentConfig.putAll(mkCfg);
 		mkCfg.putAll(platform.buildConfigFromArgs(dm.getSessionArgs()));
+		//TODO parse config File 
 		startSession();
 		mkCfg.putAll(currentConfig);
 	}
@@ -604,11 +604,11 @@ class MadkitKernel extends Agent {
 
 	private void handleHookRequest(HookMessage m) {
 		if (hooks == null) {
-			hooks = new EnumMap<AgentActionEvent, Set<AbstractAgent>>(AgentActionEvent.class);
+			hooks = new EnumMap<>(AgentActionEvent.class);
 		}
 		Set<AbstractAgent> l = hooks.get(m.getContent());
 		if (l == null) {
-			l = new HashSet<AbstractAgent>();
+			l = new HashSet<>();
 			hooks.put(m.getContent(), l);
 		}
 		final AbstractAgent requester = m.getSender().getAgent();
@@ -956,7 +956,7 @@ class MadkitKernel extends Agent {
 
 	private final ReturnCode sendMessage(Message m, AbstractAgent target) {
 		if (target == null) {
-			return sendNetworkMessageWithRole(new ObjectMessage<Message>(m), netEmmiter);
+			return sendNetworkMessageWithRole(new ObjectMessage<>(m), netEmmiter);
 		}
 		target.receiveMessage(m);
 		return SUCCESS;
@@ -1077,17 +1077,16 @@ class MadkitKernel extends Agent {
 			IllegalAccessException, ClassNotFoundException {
 		if (shuttedDown)
 			return null;
-		@SuppressWarnings("unchecked")
 		final Class<? extends AbstractAgent> constructor = (Class<? extends AbstractAgent>) getMadkitClassLoader().loadClass(
 				agentClass);
 		final int cpuCoreNb = Runtime.getRuntime().availableProcessors();
-		final List<AbstractAgent> result = new ArrayList<AbstractAgent>(bucketSize);
+		final List<AbstractAgent> result = new ArrayList<>(bucketSize);
 		final int nbOfAgentsPerTask = bucketSize / (cpuCoreNb);
-		final CompletionService<List<AbstractAgent>> ecs = new ExecutorCompletionService<List<AbstractAgent>>(serviceExecutor);
+		final CompletionService<List<AbstractAgent>> ecs = new ExecutorCompletionService<>(serviceExecutor);
 		for (int i = 0; i < cpuCoreNb; i++) {
 			ecs.submit(new Callable<List<AbstractAgent>>() {
 				public List<AbstractAgent> call() throws InvocationTargetException, InstantiationException, IllegalAccessException {
-					final List<AbstractAgent> list = new ArrayList<AbstractAgent>(nbOfAgentsPerTask);
+					final List<AbstractAgent> list = new ArrayList<>(nbOfAgentsPerTask);
 					for (int j = nbOfAgentsPerTask; j > 0; j--) {
 						list.add(constructor.newInstance());
 					}
@@ -1112,7 +1111,7 @@ class MadkitKernel extends Agent {
 	}
 
 	private void doMulticore(Executor e, ArrayList<AgentsJob> arrayList) {
-		final CompletionService<Void> ecs = new ExecutorCompletionService<Void>(e);
+		final CompletionService<Void> ecs = new ExecutorCompletionService<>(e);
 		for (final Callable<Void> s : arrayList)
 			ecs.submit(s);
 		for (int i = arrayList.size(); i > 0; i--) {
@@ -1580,13 +1579,13 @@ class MadkitKernel extends Agent {
 
 	@Override
 	public TreeSet<String> getExistingCommunities() {
-		return new TreeSet<String>(organizations.keySet());
+		return new TreeSet<>(organizations.keySet());
 	}
 	
 	@Override
 	public TreeSet<String> getExistingGroups(String community) {
 		try {
-			return new TreeSet<String>(getCommunity(community).keySet());
+			return new TreeSet<>(getCommunity(community).keySet());
 		} catch (CGRNotAvailable e) {
 			return null;
 		}
@@ -1595,7 +1594,7 @@ class MadkitKernel extends Agent {
 	@Override
 	public TreeSet<String> getExistingRoles(String community, String group) {
 		try {
-			return new TreeSet<String>(getGroup(community,group).keySet());
+			return new TreeSet<>(getGroup(community,group).keySet());
 		} catch (CGRNotAvailable e) {
 			return null;
 		}
@@ -1642,7 +1641,7 @@ class MadkitKernel extends Agent {
 
 	@Override
 	final public Map<String, Map<String, Map<String, Set<AgentAddress>>>> getOrganizationSnapShot(boolean global) {
-		Map<String, Map<String, Map<String, Set<AgentAddress>>>> export = new TreeMap<String, Map<String, Map<String, Set<AgentAddress>>>>();
+		Map<String, Map<String, Map<String, Set<AgentAddress>>>> export = new TreeMap<>();
 		synchronized (organizations) {
 			for (Map.Entry<String, Organization> org : organizations.entrySet()) {
 				Map<String, Map<String, Set<AgentAddress>>> currentOrg = org.getValue().getOrgMap(global);
@@ -1841,7 +1840,7 @@ class MadkitKernel extends Agent {
 		// normalAgentThreadFactory.getThreadGroup().interrupt();
 		ArrayList<Agent> l;
 		synchronized (threadedAgents) {
-			l = new ArrayList<Agent>(threadedAgents);
+			l = new ArrayList<>(threadedAgents);
 		}
 		do {
 			for (final Agent a : l) {
@@ -1963,7 +1962,7 @@ abstract class AgentsJob implements Callable<Void>, Cloneable {
 
 	final ArrayList<AgentsJob> getJobs(List<AbstractAgent> l) {
 		final int cpuCoreNb = Runtime.getRuntime().availableProcessors();
-		final ArrayList<AgentsJob> workers = new ArrayList<AgentsJob>(cpuCoreNb);
+		final ArrayList<AgentsJob> workers = new ArrayList<>(cpuCoreNb);
 		int bucketSize = l.size();
 		final int nbOfAgentsPerTask = bucketSize / cpuCoreNb;
 		if (nbOfAgentsPerTask == 0) {

@@ -33,7 +33,7 @@ import madkit.kernel.AbstractAgent;
  * @version 0.9
  * 
  */
-public class AgentMenu extends JMenu {// TODO i18n
+public class AgentMenu extends JMenu {
 
 	/**
 	 * 
@@ -56,8 +56,7 @@ public class AgentMenu extends JMenu {// TODO i18n
 				add(AgentAction.RELOAD.getActionFor(agent));
 				add(AgentAction.LAUNCH_AGENT.getActionFor(agent,agent.getClass().getName(),0,true));
 			}
-		} catch (SecurityException e) {
-		} catch (NoSuchMethodException e) {
+		} catch (SecurityException | NoSuchMethodException e) {
 		}
 		add(AgentAction.KILL_AGENT.getActionFor(agent,agent));
 	}

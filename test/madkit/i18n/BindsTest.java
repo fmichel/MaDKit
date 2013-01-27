@@ -40,7 +40,7 @@ import org.junit.Test;
  */
 public class BindsTest {
 
-	static Map<Integer,Enum<?>> keys = new HashMap<Integer,Enum<?>>();
+	static Map<Integer,Enum<?>> keys = new HashMap<>();
 	
 	@Test
 	public void KernelActionConflicts() {

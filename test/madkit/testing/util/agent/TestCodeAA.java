@@ -86,7 +86,7 @@ public class TestCodeAA extends AbstractAgent {
 		sendMessage(LocalCommunity.NAME, Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE, m);
 		System.err.println(m);
 
-		m = new ObjectMessage<String>("zd");
+		m = new ObjectMessage<>("zd");
 		System.err.println(m);
 		sendMessage(LocalCommunity.NAME, Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE, m);
 		System.err.println(m);
@@ -96,7 +96,7 @@ public class TestCodeAA extends AbstractAgent {
 		sendMessage(LocalCommunity.NAME, Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE, m);
 		System.err.println(m);
 
-		m = new EnumMessage<KernelAction>(KernelAction.COPY, "kj",3);
+		m = new EnumMessage<>(KernelAction.COPY, "kj",3);
 		System.err.println(m);
 		sendMessage(LocalCommunity.NAME, Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE, m);
 		System.err.println(m);

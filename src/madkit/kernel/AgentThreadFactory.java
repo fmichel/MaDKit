@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -28,6 +28,8 @@ import java.util.concurrent.ThreadFactory;
  */
 final class AgentThreadFactory extends Object implements ThreadFactory {
 
+	final private static int MKRA_PRIORITY = Thread.NORM_PRIORITY-1;
+	final private static int MKDA_PRIORITY = Thread.MAX_PRIORITY;
 	final private boolean		daemonThreads;
 	final private ThreadGroup	group;
 
@@ -45,6 +47,12 @@ final class AgentThreadFactory extends Object implements ThreadFactory {
 				e.printStackTrace();
 			}
 		};
+    	if (daemonThreadFactory) {
+			group.setMaxPriority(MKDA_PRIORITY);
+		}
+    	else{
+			group.setMaxPriority(MKRA_PRIORITY);    		
+    	}
 	}
 
 	/**
@@ -53,7 +61,9 @@ final class AgentThreadFactory extends Object implements ThreadFactory {
 	@Override
 	public Thread newThread(final Runnable r) {
 		final Thread t = new Thread(group, r);
+		// System.err.println("\n\n\n new thread "+t);
 		t.setDaemon(daemonThreads);
+//		t.setPriority(Thread.NORM_PRIORITY - 1);
 		return t;
 	}
 

@@ -44,20 +44,20 @@ public class PropertyProbeTest extends JunitMadkit {
 	@Test
 	public void primitiveTypeProbing() {
 		launchTest(new Watcher() {
+
 			protected void activate() {
 				SimulatedAgent agent;
 				assertEquals(SUCCESS, launchAgent(agent = new SimulatedAgent()));
-				PropertyProbe<AbstractAgent, Integer> fp = new PropertyProbe<AbstractAgent, Integer>(COMMUNITY, GROUP, ROLE,
-						"privatePrimitiveField");
+				PropertyProbe<AbstractAgent, Integer> fp = new PropertyProbe<>(COMMUNITY, GROUP, ROLE, "privatePrimitiveField");
 				addProbe(fp);
 				assertTrue(1 == fp.getPropertyValue(agent));
-				PropertyProbe<AbstractAgent, Double> fp2 = new PropertyProbe<AbstractAgent, Double>(COMMUNITY, GROUP, ROLE,
-						"publicPrimitiveField");
+				PropertyProbe<AbstractAgent, Double> fp2 = new PropertyProbe<>(COMMUNITY, GROUP, ROLE, "publicPrimitiveField");
 				addProbe(fp2);
 				assertTrue(2 == fp2.getPropertyValue(agent));
 				agent.setPrivatePrimitiveField(10);
 				assertTrue(10 == fp.getPropertyValue(agent));
 				assertEquals(SUCCESS, launchAgent(agent = new SimulatedAgent() {
+
 					@Override
 					public void setPrivatePrimitiveField(int privatePrimitiveField) {
 						super.setPrivatePrimitiveField(100);
@@ -73,18 +73,17 @@ public class PropertyProbeTest extends JunitMadkit {
 	@Test
 	public void multiTypeProbing() {
 		launchTest(new Watcher() {
+
 			protected void activate() {
 				SimulatedAgent agent;
 				SimulatedAgentBis agentBis;
 				assertEquals(SUCCESS, launchAgent(agent = new SimulatedAgent()));
 				assertEquals(SUCCESS, launchAgent(agentBis = new SimulatedAgentBis()));
-				PropertyProbe<AbstractAgent, Integer> fp = new PropertyProbe<AbstractAgent, Integer>(COMMUNITY, GROUP, ROLE,
-						"privatePrimitiveField");
+				PropertyProbe<AbstractAgent, Integer> fp = new PropertyProbe<>(COMMUNITY, GROUP, ROLE, "privatePrimitiveField");
 				addProbe(fp);
 				assertTrue(1 == fp.getPropertyValue(agent));
 				assertTrue(1 == fp.getPropertyValue(agentBis));
-				PropertyProbe<AbstractAgent, Double> fp2 = new PropertyProbe<AbstractAgent, Double>(COMMUNITY, GROUP, ROLE,
-						"publicPrimitiveField");
+				PropertyProbe<AbstractAgent, Double> fp2 = new PropertyProbe<>(COMMUNITY, GROUP, ROLE, "publicPrimitiveField");
 				addProbe(fp2);
 				double i = fp2.getPropertyValue(agent);
 				System.err.println(i);
@@ -92,6 +91,7 @@ public class PropertyProbeTest extends JunitMadkit {
 				agent.setPrivatePrimitiveField(10);
 				assertTrue(10 == fp.getPropertyValue(agent));
 				assertEquals(SUCCESS, launchAgent(agent = new SimulatedAgent() {
+
 					@Override
 					public void setPrivatePrimitiveField(int privatePrimitiveField) {
 						super.setPrivatePrimitiveField(100);
@@ -107,11 +107,11 @@ public class PropertyProbeTest extends JunitMadkit {
 	@Test
 	public void wrongTypeProbing() {
 		launchTest(new Watcher() {
+
 			protected void activate() {
 				SimulatedAgent agent;
 				assertEquals(SUCCESS, launchAgent(agent = new SimulatedAgent()));
-				PropertyProbe<AbstractAgent, String> fp = new PropertyProbe<AbstractAgent, String>(COMMUNITY, GROUP, ROLE,
-						"privatePrimitiveField");
+				PropertyProbe<AbstractAgent, String> fp = new PropertyProbe<>(COMMUNITY, GROUP, ROLE, "privatePrimitiveField");
 				addProbe(fp);
 				try {
 					System.err.println(fp.getPropertyValue(agent));
@@ -120,21 +120,23 @@ public class PropertyProbeTest extends JunitMadkit {
 					throw e;
 				}
 			}
-		},ReturnCode.AGENT_CRASH);
+		}, ReturnCode.AGENT_CRASH);
 	}
 
 	@SuppressWarnings("unused")
 	@Test
 	public void wrongSourceProbing() {
 		launchTest(new Watcher() {
+
 			protected void activate() {
 				assertEquals(SUCCESS, launchAgent(new SimulatedAgent()));
-				PropertyProbe<AbstractAgent, Integer> fp = new PropertyProbe<AbstractAgent, Integer>(COMMUNITY, GROUP, ROLE,
+				PropertyProbe<AbstractAgent, Integer> fp = new PropertyProbe<>(COMMUNITY, GROUP, ROLE,
 						"privatePrimitiveField");
 				addProbe(fp);
 				try {
-					NormalAA normalAA = new NormalAA(){
-						String privatePrimitiveField="test";
+					NormalAA normalAA = new NormalAA() {
+
+						String	privatePrimitiveField	= "test";
 					};
 					System.err.println(fp.getPropertyValue(normalAA));
 					int i = fp.getPropertyValue(normalAA);
@@ -143,35 +145,35 @@ public class PropertyProbeTest extends JunitMadkit {
 					throw e;
 				}
 			}
-		},ReturnCode.AGENT_CRASH);
+		}, ReturnCode.AGENT_CRASH);
 	}
 
 	@Test
 	public void wrongTypeSetting() {
 		launchTest(new Watcher() {
+
 			protected void activate() {
 				SimulatedAgent agent;
 				assertEquals(SUCCESS, launchAgent(agent = new SimulatedAgent()));
-				PropertyProbe<AbstractAgent, Object> fp = new PropertyProbe<AbstractAgent, Object>(COMMUNITY, GROUP, ROLE,
-						"privatePrimitiveField");
+				PropertyProbe<AbstractAgent, Object> fp = new PropertyProbe<>(COMMUNITY, GROUP, ROLE, "privatePrimitiveField");
 				addProbe(fp);
 				try {
-					fp.setPropertyValue(agent,"a");
+					fp.setPropertyValue(agent, "a");
 					noExceptionFailure();
 				} catch (SimulationException e) {
 					throw e;
 				}
 			}
-		},ReturnCode.AGENT_CRASH);
+		}, ReturnCode.AGENT_CRASH);
 	}
 
 	@Test
 	public void noSuchFieldProbing() {
 		launchTest(new AbstractAgent() {
+
 			protected void activate() {
 				launchDefaultAgent(this);
-				PropertyProbe<AbstractAgent, String> fp = new PropertyProbe<AbstractAgent, String>(COMMUNITY, GROUP, ROLE,
-						"privatePrimitiveField");
+				PropertyProbe<AbstractAgent, String> fp = new PropertyProbe<>(COMMUNITY, GROUP, ROLE, "privatePrimitiveField");
 				Watcher s = new Watcher();
 				assertEquals(SUCCESS, launchAgent(s));
 				s.addProbe(fp);
@@ -182,9 +184,9 @@ public class PropertyProbeTest extends JunitMadkit {
 					throw e;
 				}
 			}
-		},ReturnCode.AGENT_CRASH);
+		}, ReturnCode.AGENT_CRASH);
 	}
-	
+
 	@Test
 	public void testGetMinAndGetMax() {
 		launchTest(new AbstractAgent() {
@@ -196,8 +198,7 @@ public class PropertyProbeTest extends JunitMadkit {
 					assertEquals(SUCCESS, launchAgent(agent = new SimulatedAgent()));
 					agent.publicPrimitiveField = i;
 				}
-				PropertyProbe<AbstractAgent, String> fp = new PropertyProbe<AbstractAgent, String>(
-						COMMUNITY, GROUP, ROLE, "publicPrimitiveField");
+				PropertyProbe<AbstractAgent, String> fp = new PropertyProbe<>(COMMUNITY, GROUP, ROLE, "publicPrimitiveField");
 				Watcher s = new Watcher();
 				assertEquals(SUCCESS, launchAgent(s));
 				s.addProbe(fp);
@@ -208,14 +209,13 @@ public class PropertyProbeTest extends JunitMadkit {
 	}
 
 	@Test
-	public void getMinAndGetMaxnotComparable(){
+	public void getMinAndGetMaxnotComparable() {
 		launchTest(new AbstractAgent() {
+
 			protected void activate() {
-//				launchDefaultAgent(this);
-				SimulatedAgent agent;
-				assertEquals(SUCCESS, launchAgent(agent = new SimulatedAgent()));
-				PropertyProbe<AbstractAgent, String> fp = new PropertyProbe<AbstractAgent, String>(COMMUNITY, GROUP, ROLE,
-						"objectField");
+				// launchDefaultAgent(this);
+				assertEquals(SUCCESS, launchAgent(new SimulatedAgent()));
+				PropertyProbe<AbstractAgent, String> fp = new PropertyProbe<>(COMMUNITY, GROUP, ROLE, "objectField");
 				Watcher s = new Watcher();
 				assertEquals(SUCCESS, launchAgent(s));
 				s.addProbe(fp);
@@ -232,7 +232,7 @@ public class PropertyProbeTest extends JunitMadkit {
 					e.printStackTrace();
 				}
 			}
-		},ReturnCode.SUCCESS);
+		}, ReturnCode.SUCCESS);
 	}
 
 }

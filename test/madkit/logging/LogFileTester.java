@@ -19,6 +19,7 @@ public class LogFileTester extends Agent {
 	/**
 	 * @param args
 	 */
+	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 		new Madkit(BooleanOption.createLogFiles.toString(),Option.launchAgents.toString(),LogFileTester.class.getName());
 	}

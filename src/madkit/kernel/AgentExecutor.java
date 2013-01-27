@@ -51,7 +51,7 @@ final class AgentExecutor extends ThreadPoolExecutor {
 	public AgentExecutor(Agent a) {
 		super(1, 1, 0, TimeUnit.NANOSECONDS, new ArrayBlockingQueue<Runnable>(4, false));
 		myAgent = a;
-		activate = new FutureTask<Boolean>(new Callable<Boolean>() {
+		activate = new FutureTask<>(new Callable<Boolean>() {
 			public Boolean call() {
 				myAgent.myThread = Thread.currentThread();
 				if (! myAgent.activation()) {//alive is false && not a suicide
@@ -65,7 +65,7 @@ final class AgentExecutor extends ThreadPoolExecutor {
 				return true;
 			}
 		});
-		live = new FutureTask<Object>(new Runnable() {
+		live = new FutureTask<>(new Runnable() {
 			public void run() {
 				if(myAgent.getAlive().get()){
 					myAgent.living();
@@ -76,7 +76,7 @@ final class AgentExecutor extends ThreadPoolExecutor {
 					}
 				}
 			}},null);
-		end = new FutureTask<Object>(new Runnable() {
+		end = new FutureTask<>(new Runnable() {
 			public void run() {
 					myAgent.ending();
 					

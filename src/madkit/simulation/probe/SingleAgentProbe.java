@@ -48,7 +48,6 @@ public class SingleAgentProbe<A extends AbstractAgent,T> extends Probe<A>//TODO 
 		this.fieldName = fieldName;
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	protected void adding(A agent) {
 		if(field == null){//TODO replace or not
@@ -72,7 +71,6 @@ public class SingleAgentProbe<A extends AbstractAgent,T> extends Probe<A>//TODO 
 	 * 
 	 * @return the value of the agent's field 
 	 */
-	@SuppressWarnings("unchecked")
 	public T getPropertyValue() {
 		try {
 			return (T) field.get(probedAgent);

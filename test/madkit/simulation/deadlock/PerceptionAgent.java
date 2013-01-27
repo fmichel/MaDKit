@@ -42,7 +42,7 @@ public class PerceptionAgent extends Watcher {
 
 	public void activate() {
 		requestRole(COMMUNITY, GROUP, "perception_agent");
-		agents2probe = new Probe<SimulatedAgent2>(COMMUNITY, GROUP, ROLE2);
+		agents2probe = new Probe<>(COMMUNITY, GROUP, ROLE2);
 		addProbe(new ProbeSAgent(COMMUNITY, GROUP, ROLE));
 		addProbe(agents2probe);
 	}

@@ -145,7 +145,7 @@ final class Group extends ConcurrentHashMap<String, Role> {
 									distantAgentWithRole,
 									new RequestRoleSecure(myKernel
 											.getSenderAgentAddress(requester, manager,
-													null), roleName, memberCard), 100000);
+													null), roleName, memberCard), 10000);
 							if (m != null) {
 								setResult(((ObjectMessage<Boolean>) m).getContent());
 							}
@@ -234,7 +234,7 @@ final class Group extends ConcurrentHashMap<String, Role> {
 			for (final Role r : values()) {
 				if (r.removeMember(requester) == SUCCESS) {
 					if (affectedRoles == null)
-						affectedRoles = new ArrayList<Role>();
+						affectedRoles = new ArrayList<>();
 					affectedRoles.add(r);
 				}
 			}
@@ -293,7 +293,7 @@ final class Group extends ConcurrentHashMap<String, Role> {
 	 * @return
 	 */
 	SortedMap<String, Set<AgentAddress>> getGroupMap() {
-		TreeMap<String, Set<AgentAddress>> export = new TreeMap<String, Set<AgentAddress>>();
+		TreeMap<String, Set<AgentAddress>> export = new TreeMap<>();
 		for (Map.Entry<String, Role> org : entrySet()) {
 			export.put(org.getKey(), org.getValue().buildAndGetAddresses());
 		}

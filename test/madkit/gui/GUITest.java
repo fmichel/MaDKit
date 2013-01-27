@@ -24,7 +24,9 @@ import static org.junit.Assert.assertTrue;
 import javax.swing.JFrame;
 
 import madkit.kernel.AbstractAgent;
+import madkit.kernel.Agent;
 import madkit.kernel.JunitMadkit;
+import madkit.kernel.Message;
 
 import org.junit.Test;
 
@@ -66,6 +68,58 @@ public class GUITest extends JunitMadkit {
 					protected void activate() {
 						assertTrue(ok);
 						f.dispose();
+					}
+				}, true));
+			}
+		});
+	}
+
+	@Test
+	public void noAAMessageTest() {
+		launchTest(new AbstractAgent() {
+			@Override
+			protected void activate() {
+				assertEquals(ReturnCode.SUCCESS, launchAgent(new AbstractAgent(){
+					private boolean ok = false;
+					private JFrame f;
+					@Override
+					public void setupFrame(JFrame frame) {
+						ok = true;
+						f = frame;
+					}
+					@Override
+					protected void activate() {
+						Message m = nextMessage();
+						System.err.println(m);
+					}
+				}, true));
+			}
+		});
+	}
+
+	@Test
+	public void noAgentMessageTest() {
+		launchTest(new AbstractAgent() {
+			@Override
+			protected void activate() {
+				assertEquals(ReturnCode.SUCCESS, launchAgent(new Agent(){
+					private boolean ok = false;
+					private JFrame f;
+					@Override
+					public void setupFrame(JFrame frame) {
+						ok = true;
+						f = frame;
+						try {
+							Thread.sleep(10000);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+					@Override
+					protected void activate() {
+						Message m = nextMessage();
+						System.err.println(m);
 					}
 				}, true));
 			}

@@ -192,7 +192,7 @@ public class KillAgentTest extends JunitMadkit {
 			protected void activate() {
 				setLogLevel(Level.INFO);
 				int number = 600;
-				ArrayList<AbstractAgent> list = new ArrayList<AbstractAgent>(number);
+				ArrayList<AbstractAgent> list = new ArrayList<>(number);
 				for (int i = 0; i < number; i++) {
 					if (i % 100 == 0 && logger != null)
 						logger.info(i + " agents launched");
@@ -325,7 +325,7 @@ public class KillAgentTest extends JunitMadkit {
 		RandomT.killingOn = false;
 		launchTest(new AbstractAgent() {
 			protected void activate() {
-				ArrayList<AbstractAgent> agents = new ArrayList<AbstractAgent>();
+				ArrayList<AbstractAgent> agents = new ArrayList<>();
 				for (int i = 0; i < 50; i++) {
 					agents.add(new RandomT());
 				}
@@ -356,7 +356,7 @@ public class KillAgentTest extends JunitMadkit {
 		RandomT.killingOn = true;
 		launchTest(new AbstractAgent() {
 			protected void activate() {
-				ArrayList<AbstractAgent> agents = new ArrayList<AbstractAgent>();
+				ArrayList<AbstractAgent> agents = new ArrayList<>();
 				for (int i = 0; i < 50; i++) {
 					agents.add(new RandomT());
 				}

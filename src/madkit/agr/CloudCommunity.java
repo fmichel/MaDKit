@@ -19,6 +19,8 @@
 package madkit.agr;
 
 /**
+ * Defines the default groups and roles used for networking.
+ * 
  * @author Fabien Michel
  * @since MaDKit 5.0.0.10
  * @version 0.9
@@ -28,12 +30,16 @@ public class CloudCommunity implements Organization{
 
 	public static final String NAME = "Cloud";
 
+	/**
+	 * Default groups in the Cloud community.
+	 * @since MaDKit 5.0.0.10
+	 */
 	public static final class Groups {
 		public static final String NETWORK_AGENTS = "net";
 	}
 
 	/**
-	 * Default roles within a MaDKit organization.
+	 * Default roles in the Cloud community.
 	 * @since MaDKit 5.0.0.10
 	 */
 	public static final class Roles {

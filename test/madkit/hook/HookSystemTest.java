@@ -18,25 +18,23 @@
  */
 package madkit.hook;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-import java.util.Arrays;
 import java.util.logging.Level;
 
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.agr.Organization;
-import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Message;
-import madkit.message.ObjectMessage;
 import madkit.message.hook.AgentLifeEvent;
 import madkit.message.hook.HookMessage;
-import madkit.message.hook.MessageEvent;
 import madkit.message.hook.HookMessage.AgentActionEvent;
+import madkit.message.hook.MessageEvent;
 import madkit.message.hook.OrganizationEvent;
 import madkit.testing.util.agent.NormalAA;
 import madkit.testing.util.agent.NormalAgent;

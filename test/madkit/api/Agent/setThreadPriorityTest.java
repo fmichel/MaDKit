@@ -41,7 +41,7 @@ public class setThreadPriorityTest extends JunitMadkit {
 			private static final long serialVersionUID = 1L;
 
 			protected void activate() {
-				assertEquals(Thread.NORM_PRIORITY, getThreadPriority());
+				assertEquals(Thread.NORM_PRIORITY -1, getThreadPriority());
 				setThreadPriority(2);
 				assertEquals(2, getThreadPriority());
 			}

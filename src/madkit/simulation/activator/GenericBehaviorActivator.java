@@ -64,7 +64,7 @@ public class GenericBehaviorActivator<A extends AbstractAgent> extends Activator
 	public GenericBehaviorActivator(final String community, final String group, final String role,final String theBehaviorToActivate)
 	{
 		super(community, group, role);
-		methods = new HashMap();
+		methods = new HashMap<>();
 		methodName = theBehaviorToActivate;
 	}
 
@@ -86,7 +86,6 @@ public class GenericBehaviorActivator<A extends AbstractAgent> extends Activator
 		Class<? extends A> cachedC = null;
 		for (final A a : agents) {
 			if (a.isAlive()) {
-				@SuppressWarnings("unchecked")
 				final Class<? extends A> agentClass = (Class<? extends A>) a.getClass();
 				if (agentClass != cachedC) {
 					cachedC = agentClass;

@@ -45,7 +45,7 @@ public class GenericBehaviorActivatorTest extends JunitMadkit {
 
 	@Before
 	public void setUp() throws Exception {
-		buggy = new GenericBehaviorActivator<AbstractAgent>(COMMUNITY, GROUP, ROLE, "doIt");
+		buggy = new GenericBehaviorActivator<>(COMMUNITY, GROUP, ROLE, "doIt");
 	}
 
 	@Test

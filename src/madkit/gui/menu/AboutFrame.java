@@ -28,7 +28,6 @@ import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -81,8 +80,7 @@ final class AboutFrame extends JDialog {
 		name.setAlignmentX(0.5f);
 		textPanel.add(name);
 		StyledDocument doc = textPanel.getStyledDocument();
-		Style def = StyleContext.getDefaultStyleContext().getStyle(
-				StyleContext.DEFAULT_STYLE);
+		Style def = StyleContext.getDefaultStyleContext().getStyle(StyleContext.DEFAULT_STYLE);
 
 		final Style regular = doc.addStyle("regular", def);
 		Style s = doc.addStyle("italic", regular);
@@ -95,27 +93,20 @@ final class AboutFrame extends JDialog {
 		StyleConstants.setBold(s, true);
 		StyleConstants.setFontSize(s, 20);
 
-		try {
-			BufferedReader in = new BufferedReader(new InputStreamReader(
-					new URL(Madkit.WEB+"/LAST").openStream()));
+		try (BufferedReader in = new BufferedReader(new InputStreamReader(new URL(Madkit.WEB + "/LAST").openStream()))){
 			String version = in.readLine();
-			if(Madkit.VERSION.compareTo(version) < 0){
-				 version = "\n\n   "+Words.LAST_AVAILABLE.toString()+" : "+version+"\n";
+			if (Madkit.VERSION.compareTo(version) < 0) {
+				version = "\n\n   " + Words.LAST_AVAILABLE.toString() + " : " + version + "\n";
 			}
-			else{
+			else {
 				version = "";
 			}
 			doc.insertString(doc.getLength(), "  MaDKit\n", doc.getStyle("large"));
-			doc.insertString(doc.getLength(),
-					"   The Multiagent Development Kit\n\n", doc.getStyle("italic"));
-			doc.insertString(doc.getLength(), "   Version: " + Madkit.VERSION
-					+ "\n   Build id: " + Madkit.BUILD_ID + version, doc.getStyle("small"));
+			doc.insertString(doc.getLength(), "   The Multiagent Development Kit\n\n", doc.getStyle("italic"));
+			doc.insertString(doc.getLength(), "   Version: " + Madkit.VERSION + "\n   Build id: " + Madkit.BUILD_ID + version,
+					doc.getStyle("small"));
 			textPanel.add(new SwingLink(Madkit.WEB.substring(7), new URI(Madkit.WEB)));
-		} catch (BadLocationException e) {
-		} catch (URISyntaxException e) {
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
+		} catch (IOException | BadLocationException | URISyntaxException e) {
 			e.printStackTrace();
 		}
 
@@ -123,6 +114,7 @@ final class AboutFrame extends JDialog {
 
 		final JButton close = new JButton("OK");
 		close.addActionListener(new ActionListener() {
+
 			public void actionPerformed(ActionEvent event) {
 				dispose();
 			}
@@ -147,8 +139,7 @@ final class SwingLink extends JLabel {
 	private static final long	serialVersionUID	= -6185189962939821896L;
 
 	public SwingLink(String text, final URI uri) {
-		setText("<html><span style=\"color: #000099;\">" + text
-				+ "</span></html>");
+		setText("<html><span style=\"color: #000099;\">" + text + "</span></html>");
 
 		setToolTipText(uri.toString());
 		addMouseListener(new MouseAdapter() {
@@ -159,16 +150,13 @@ final class SwingLink extends JLabel {
 					try {
 						desktop.browse(uri);
 					} catch (IOException e1) {
-						JOptionPane.showMessageDialog(null,
-								"Failed to launch the link, "
-										+ "your computer is likely misconfigured.",
+						JOptionPane.showMessageDialog(null, "Failed to launch the link, " + "your computer is likely misconfigured.",
 								"Cannot Launch Link", JOptionPane.WARNING_MESSAGE);
 					}
 				}
 				else {
-					JOptionPane.showMessageDialog(null,
-							"Java is not able to launch links on your computer.",
-							"Cannot Launch Link", JOptionPane.WARNING_MESSAGE);
+					JOptionPane.showMessageDialog(null, "Java is not able to launch links on your computer.", "Cannot Launch Link",
+							JOptionPane.WARNING_MESSAGE);
 				}
 			}
 		});

@@ -25,7 +25,6 @@ import java.util.logging.Level;
 
 import madkit.action.KernelAction;
 import madkit.agr.CloudCommunity;
-import madkit.agr.LocalCommunity.Roles;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AgentAddress;
 import madkit.kernel.JunitMadkit;

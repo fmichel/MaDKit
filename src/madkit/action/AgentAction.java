@@ -40,7 +40,7 @@ import madkit.message.EnumMessage;
  */
 public enum AgentAction {
 
-	LAUNCH_AGENT(KeyEvent.VK_A),
+	LAUNCH_AGENT(KeyEvent.VK_U),
 	RELOAD(VK_E), 
 	CREATE_GROUP(VK_DOLLAR),
 	REQUEST_ROLE(VK_DOLLAR),
@@ -88,7 +88,7 @@ public enum AgentAction {
 			@Override
 			public void actionPerformed(ActionEvent e) {//TODO I could do the check validity here for logging purpose
 				if (agent.isAlive()) {
-					agent.proceedEnumMessage(new EnumMessage<AgentAction>(AgentAction.this, parameters));
+					agent.proceedEnumMessage(new EnumMessage<>(AgentAction.this, parameters));
 				}
 			}
 	};

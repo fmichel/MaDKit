@@ -15,8 +15,8 @@ public class NoPackage extends AbstractAgent {
 	/**
 	 * @param args
 	 */
+	@SuppressWarnings("unused")
 	public static void main(String[] args) {
-//		executeThisAgent();
 		new Madkit(Option.launchAgents.toString(),AbstractAgent.class.getName()+",true",BooleanOption.desktop.toString());
 	}
 

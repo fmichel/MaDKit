@@ -45,7 +45,7 @@ final class ManagerRole extends Role {
 		super(groupObject, Organization.GROUP_MANAGER_ROLE);
 		synchronized (players) {
 			players.add(requester);
-			agentAddresses = new HashSet<AgentAddress>(1,1);
+			agentAddresses = new HashSet<>(1,1);
 			agentAddresses.add(new GroupManagerAddress(requester, this, getKernelAddress(), securedGroup));
 //			System.err.println(requester.getName() + " is now playing " + getCGRString(communityName, groupName, roleName));
 //			System.err.println(this+" current players---\n"+players+"\n\n");
@@ -56,7 +56,7 @@ final class ManagerRole extends Role {
 	ManagerRole(final Group groupObject, AgentAddress creator) {
 		super(groupObject, Organization.GROUP_MANAGER_ROLE);
 		synchronized (players) {
-			agentAddresses = new HashSet<AgentAddress>(1,1);
+			agentAddresses = new HashSet<>(1,1);
 			agentAddresses.add(creator);
 			creator.setRoleObject(this);//required for equals to work
 		}

@@ -96,8 +96,7 @@ public class OverlookerTest extends JunitMadkit {
 						testFailed = false;
 					}
 				});
-				NormalAgent a;
-				assertEquals(ReturnCode.SUCCESS, launchAgent(a = new NormalAgent()));
+				assertEquals(ReturnCode.SUCCESS, launchAgent(new NormalAgent()));
 				pause(10);
 			}
 		});

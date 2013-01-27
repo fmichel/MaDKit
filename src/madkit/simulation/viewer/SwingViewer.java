@@ -56,8 +56,6 @@ public abstract class SwingViewer extends Watcher {
 	private boolean rendering = true;
 	private JFrame frame;
 
-	
-	
 	/**
 		 * Creates a new agent with a default panel 
 		 * for rendering purposes
@@ -119,7 +117,7 @@ public abstract class SwingViewer extends Watcher {
 	}
 	
 	/**
-	 * Intended to be invoke by a scheduler's activator for 
+	 * Intended to be invoked by a scheduler's activator for 
 	 * triggering the rendering. This method
 	 * activate the rendering either synchronously or 
 	 * asynchronously depending

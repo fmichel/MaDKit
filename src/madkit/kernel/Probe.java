@@ -37,7 +37,7 @@ import madkit.simulation.probe.PropertyProbe;
 public class Probe<A extends AbstractAgent> extends Overlooker<A>{
 
 	/**
-	 * Builds a new Probe on the given CGR location of the
+	 * Builds a new Probe<> on the given CGR location of the
 	 * artificial society. Once created, it has to be added by a {@link Watcher} 
 	 * agent using the {@link Watcher#addProbe(Probe)} method.
 	 * @param communityName
@@ -59,7 +59,6 @@ public class Probe<A extends AbstractAgent> extends Overlooker<A>{
 	 * @return the agent's field named <code>fieldName</code>
 	 * @throws NoSuchFieldException
 	 */
-	@SuppressWarnings("unchecked")
 	public Field findFieldOn(Class<? extends A> agentClass, final String fieldName) throws NoSuchFieldException{
 		Field f = null;
 		while(true) {

@@ -45,7 +45,7 @@ public class ProbeTest {
 
 	@Before
 	public void setUp() throws Exception {
-		a = new Probe<TestAgent>("t", "t", "t");
+		a = new Probe<>("t", "t", "t");
 		agt = new TestAgent() {
 			boolean bool2 = false;
 		};
@@ -53,7 +53,7 @@ public class ProbeTest {
 
 	@Test
 	public void testActivator() {
-		a = new Probe<TestAgent>(null, null, null);
+		a = new Probe<>(null, null, null);
 	}
 
 	@Test

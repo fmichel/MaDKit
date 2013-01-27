@@ -20,7 +20,6 @@ package madkit.classreloading;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
@@ -47,6 +46,11 @@ public class ReloadTest extends JunitMadkit {
 	public void replyWithSameMessage() {
 		launchTest(new Agent() {
 
+			/**
+			 * 
+			 */
+			private static final long	serialVersionUID	= 1L;
+
 			protected void activate() {
 				final String agentClassName = AgentToReload.class.getName();
 				Assert.assertEquals("a", launchAgent(agentClassName).toString());
@@ -56,8 +60,7 @@ public class ReloadTest extends JunitMadkit {
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}
-				Assert.assertEquals("reloaded", launchAgent(agentClassName)
-						.toString());
+				Assert.assertEquals("reloaded", launchAgent(agentClassName).toString());
 			}
 		});
 	}
@@ -66,40 +69,22 @@ public class ReloadTest extends JunitMadkit {
 		 * 
 		 */
 	private void replaceFile() {
-		FileChannel source = null;
-		FileChannel destination = null;
-		try {
-			String classPath = '/' + AgentToReload.class.getName()
-					.replace('.', '/').concat(".class");
-			URL destUrl = getClass().getResource(classPath);
-			File destFile = new File(destUrl.getPath());
-			pause(1200);
-			destFile.delete();
+		String classPath = '/' + AgentToReload.class.getName().replace('.', '/').concat(".class");
+		URL destUrl = getClass().getResource(classPath);
+		File destFile = new File(destUrl.getPath());
+		pause(1200);
+		destFile.delete();
+		try (FileInputStream inS = new FileInputStream(new File(System.getProperty("user.dir") + File.separator + "test" + classPath)); 
+				FileOutputStream outS = new FileOutputStream(destFile);
+				FileChannel source = inS.getChannel();
+				FileChannel destination = outS.getChannel()){
 			destFile.createNewFile();
-
-			source = new FileInputStream(new File(System.getProperty("user.dir")
-					+ File.separator + "test" + classPath)).getChannel();
-
 			System.err.println(System.getProperty("user.dir"));
-			destination = new FileOutputStream(destFile).getChannel();
 			long count = 0;
 			long size = source.size();
 			while ((count += destination.transferFrom(source, count, size - count)) < size);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} finally {
-			try {
-				if (source != null)
-					source.close();
-				if (destination != null) {
-					destination.close();
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
 		}
 	}
 }

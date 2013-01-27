@@ -62,11 +62,11 @@ public class ActivatorTest {
 	public void testFindMethodOn() {
 		try {
 			Method m;
-			m = a.findMethodOn(AbstractAgent.class, "activate");
+			m = Activator.findMethodOn(AbstractAgent.class, "activate");
 			System.err.println(m);
-			m = a.findMethodOn(NormalLife.class, "live");//protected
+			m = Activator.findMethodOn(NormalLife.class, "live");//protected
 			System.err.println(m);
-			m = a.findMethodOn(NormalLife.class, "privateMethod");//private
+			m = Activator.findMethodOn(NormalLife.class, "privateMethod");//private
 			System.err.println(m);
 			m.invoke(new NormalLife());
 		} catch (NoSuchMethodException e) {

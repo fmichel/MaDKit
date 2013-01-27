@@ -42,6 +42,7 @@ public abstract class DoItDuringLifeCycleAgent extends Agent {
 	}
 	
 	
+	@SuppressWarnings("unused")
 	private void privateMethod() {
 	}
 

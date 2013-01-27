@@ -71,7 +71,7 @@ public enum GUIManagerAction {
 	/**
 	 * Iconify all the agent frames
 	 */
-	ICONIFY_ALL(KeyEvent.VK_U),
+	ICONIFY_ALL(KeyEvent.VK_M),
 	/**
 	 * Deiconify all the agent frames
 	 */

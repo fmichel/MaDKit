@@ -61,6 +61,7 @@ final class KernelConnection extends Thread{
 		return distantKernelAddress;
 	}
 
+	@SuppressWarnings("resource")
 	public KernelConnection(NetworkAgent netAgent, InetAddress address, int port) throws UnknownHostException,IOException {
 		this(netAgent,new Socket(address, port));
 	}
@@ -77,7 +78,6 @@ final class KernelConnection extends Thread{
 	 * @throws ClassNotFoundException 
 	 * @throws IOException 
 	 */
-	@SuppressWarnings("unchecked")
 	Map<String, Map<String, Map<String, Set<AgentAddress>>>> waitForDistantOrg() throws IOException, ClassNotFoundException {
 			return (Map<String, Map<String, Map<String, Set<AgentAddress>>>>) ois.readObject();
 	}

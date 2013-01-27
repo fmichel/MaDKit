@@ -16,6 +16,21 @@ interact using messages. It also contains generic MAS simulation authoring tools
 
 
 ----------------------------------------------------------------------------------
+------------------------------- MaDKit 5.0.1 (beta-1) ----------------------------
+----------------------------------------------------------------------------------
+
+1. Improvements and changes:
+	- Now requires Java 7
+	- 
+
+2. API changes:
+	+ madkit.kernel.Agent.setThreadPriority(int)
+	+ madkit.kernel.Agent.getThreadPriority()
+	+ madkit.message.ObjectMessage .max(Collection<M>) .min(Collection<M>) .sort(List<M>)
+	~ madkit.kernel.Activator.execute(Object...)
+	
+
+----------------------------------------------------------------------------------
 ------------------------------- MaDKit 5.0.0.22 (alpha-22)------------------------
 ----------------------------------------------------------------------------------
 

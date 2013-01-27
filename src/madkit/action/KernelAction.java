@@ -214,13 +214,8 @@ public enum KernelAction {
 					addSeparator.invoke(menuOrToolBar);
 				}
 			}
-		} catch (InvocationTargetException e) {
-		} catch (IllegalArgumentException e) {
+		} catch (IllegalArgumentException | NoSuchMethodException | SecurityException | IllegalAccessException | InvocationTargetException e) {
 			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (SecurityException e) {
-		} catch (NoSuchMethodException e) {
 		}
 	}
 

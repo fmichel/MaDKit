@@ -115,6 +115,7 @@ final class KernelServer {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	final static KernelServer getNewKernelServer() {
 		InetAddress ip = findInetAddress();
 		if(ip == null){

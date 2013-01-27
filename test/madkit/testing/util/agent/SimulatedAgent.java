@@ -42,6 +42,7 @@ public class SimulatedAgent extends AbstractAgent {
 	private static final long serialVersionUID = 1L;
 	private int privatePrimitiveField = 1;
 	public double publicPrimitiveField = 2;
+	@SuppressWarnings("unused")
 	private Object objectField = new Object();
 	private boolean activated = false;
 
@@ -55,7 +56,7 @@ public class SimulatedAgent extends AbstractAgent {
 	
 	
 	private void launchAgentBucketWithRoles() {
-		List<AbstractAgent> l = new ArrayList<AbstractAgent>();
+		List<AbstractAgent> l = new ArrayList<>();
 		for (int i = 0; i < 10; i++) {
 			l.add(new SimulatedAgent());
 		}

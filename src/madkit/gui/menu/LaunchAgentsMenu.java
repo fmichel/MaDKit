@@ -48,7 +48,7 @@ public class LaunchAgentsMenu extends JMenu {
 	 * 
 	 */
 	private static final long serialVersionUID = 634377755586801986L;
-	final static private Set<LaunchAgentsMenu> menus = new HashSet<LaunchAgentsMenu>(); 
+	final static private Set<LaunchAgentsMenu> menus = new HashSet<>(); 
 	final private Action myAction;
 	final private AbstractAgent myAgent;
 	private AgentClassFilter filter;

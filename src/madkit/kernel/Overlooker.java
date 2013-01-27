@@ -242,7 +242,7 @@ abstract class Overlooker <A extends AbstractAgent>
 	}
 
 	public void killAgents(){
-		List<A> l = new ArrayList<A>(getCurrentAgentsList());
+		List<A> l = new ArrayList<>(getCurrentAgentsList());
 		allAgentsLeaveRole();
 		for (A agent : l) {
 			agent.killAgent(agent,0);
@@ -255,7 +255,7 @@ abstract class Overlooker <A extends AbstractAgent>
 		}
 	}
 
-	public ExecutorService getMadkitServiceExecutor() {
+	public static ExecutorService getMadkitServiceExecutor() {
 		return MadkitKernel.getMadkitServiceExecutor();
 	}
 

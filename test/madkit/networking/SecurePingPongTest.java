@@ -18,19 +18,16 @@
  */
 package madkit.networking;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
-import java.util.Arrays;
 import java.util.logging.Level;
 
-import madkit.action.KernelAction;
 import madkit.kernel.Agent;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Madkit.Option;
-import madkit.testing.util.agent.PongAgent;
 
 import org.junit.Test;
 
@@ -46,9 +43,10 @@ public class SecurePingPongTest extends JunitMadkit {
 	public void networkPingPong() {
 		addMadkitArgs(BooleanOption.network.toString(),LevelOption.kernelLogLevel.toString(),Level.ALL.toString(),LevelOption.networkLogLevel.toString(),Level.ALL.toString());
 		launchTest(new Agent() {
+			@SuppressWarnings("unused")
 			@Override
 			protected void activate() {
-				Madkit m = new Madkit(Option.launchAgents.toString(),Denier.class.getName(),BooleanOption.network.toString());
+				new Madkit(Option.launchAgents.toString(),Denier.class.getName(),BooleanOption.network.toString());
 				pause(1000);
 				assertEquals(ReturnCode.ACCESS_DENIED, requestRole(COMMUNITY, GROUP, ROLE));
 //				m.doAction(KernelAction.EXIT);

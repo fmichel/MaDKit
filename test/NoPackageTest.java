@@ -16,21 +16,17 @@
  * You should have received a copy of the GNU General Public License
  * along with MaDKit. If not, see <http://www.gnu.org/licenses/>.
  */
-import static madkit.kernel.AbstractAgent.ReturnCode.NOT_IN_GROUP;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 import java.awt.Component;
 
 import javax.swing.AbstractButton;
 
-import org.junit.Test;
-
 import madkit.gui.menu.LaunchAgentsMenu;
 import madkit.kernel.JunitMadkit;
-import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.BooleanOption;
-import madkit.kernel.Madkit.Option;
+
+import org.junit.Test;
 
 /**
  * @author Fabien Michel

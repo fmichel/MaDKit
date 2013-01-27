@@ -68,7 +68,7 @@ final public class AgentLogger extends Logger {
 
 	final static Level												talkLevel				= Level
 																												.parse("1100");
-	final static private Map<AbstractAgent, AgentLogger>	agentLoggers			= new ConcurrentHashMap<AbstractAgent, AgentLogger>();	// TODO evaluate foot print
+	final static private Map<AbstractAgent, AgentLogger>	agentLoggers			= new ConcurrentHashMap<>();	// TODO evaluate foot print
 
 	final private AbstractAgent									myAgent;
 

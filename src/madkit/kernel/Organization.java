@@ -121,7 +121,7 @@ final class Organization extends ConcurrentHashMap <String, Group>{
 	 * @return all the groups that are distributed and that contained the agent
 	 */
 	ArrayList<String> removeAgentFromAllGroups(final AbstractAgent theAgent) {
-		final ArrayList<String> groups = new ArrayList<String>();
+		final ArrayList<String> groups = new ArrayList<>();
 		for (final Iterator<Map.Entry<String, Group>> e = this.entrySet().iterator();e.hasNext();) {
 			final Map.Entry<String, Group> entry = e.next();
 			final Group g = entry.getValue();
@@ -142,7 +142,7 @@ final class Organization extends ConcurrentHashMap <String, Group>{
 	 * @return
 	 */
 	Map<String, Map<String, Set<AgentAddress>>> getOrgMap(boolean global) {
-		Map<String, Map<String, Set<AgentAddress>>> export = new TreeMap<String,Map<String,Set<AgentAddress>>>();
+		Map<String, Map<String, Set<AgentAddress>>> export = new TreeMap<>();
 		for (Map.Entry<String, Group> org : entrySet()) {
 			if (global || org.getValue().isDistributed()) {
 				export.put(org.getKey(), org.getValue().getGroupMap());

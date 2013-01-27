@@ -64,7 +64,7 @@ public class JunitMadkit {
 	public static String testTitle;
 	protected Madkit madkit;
 
-	protected List<String> mkArgs = new ArrayList<String>(Arrays.asList(
+	protected List<String> mkArgs = new ArrayList<>(Arrays.asList(
 			// "--"+Madkit.warningLogLevel,"INFO",
 			BooleanOption.desktop.toString(), "false", Option.launchAgents.toString(),
 			"madkit.kernel.AbstractAgent",// to not have the desktop mode by
@@ -135,6 +135,15 @@ public class JunitMadkit {
 				requestRole(COMMUNITY, GROUP, ROLE);
 			}
 		});
+	}
+	
+	public void everythingOK(){
+		if(testFailed){
+			if (testException != null) {
+				testException.printStackTrace();
+			}
+			fail();
+		}
 	}
 
 	public void launchTest(AbstractAgent a, boolean all) {

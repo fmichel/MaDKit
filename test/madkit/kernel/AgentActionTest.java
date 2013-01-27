@@ -22,24 +22,24 @@ public class AgentActionTest extends JunitMadkit{
 
 			protected void activate() {
 				AbstractAgent a = new Agent();
-				EnumMessage<AgentAction> m = new EnumMessage<AgentAction>(AgentAction.LAUNCH_AGENT,a);
+				EnumMessage<AgentAction> m = new EnumMessage<>(AgentAction.LAUNCH_AGENT,a);
 				proceedEnumMessage(m);
 				assertTrue(a.isAlive());
 				assertFalse(a.hasGUI());
 
 				a = new Agent();
-				m = new EnumMessage<AgentAction>(AgentAction.LAUNCH_AGENT,a,true);
+				m = new EnumMessage<>(AgentAction.LAUNCH_AGENT,a,true);
 				proceedEnumMessage(m);
 				assertTrue(a.isAlive());
 				assertTrue(a.hasGUI());
 
 				a = new Agent();
-				m = new EnumMessage<AgentAction>(AgentAction.LAUNCH_AGENT,a,1,true);
+				m = new EnumMessage<>(AgentAction.LAUNCH_AGENT,a,1,true);
 				proceedEnumMessage(m);
 				assertTrue(a.hasGUI());
 
 				a = new Agent();
-				m = new EnumMessage<AgentAction>(AgentAction.LAUNCH_AGENT,a,0);
+				m = new EnumMessage<>(AgentAction.LAUNCH_AGENT,a,0);
 				proceedEnumMessage(m);
 				assertFalse(a.hasGUI());
 
@@ -62,13 +62,13 @@ public class AgentActionTest extends JunitMadkit{
 				createDefaultCGR(help);
 				createDefaultCGR(this);
 				AbstractAgent a = new Agent();
-				EnumMessage<AgentAction> m = new EnumMessage<AgentAction>(AgentAction.LAUNCH_AGENT,a,new Object());
+				EnumMessage<AgentAction> m = new EnumMessage<>(AgentAction.LAUNCH_AGENT,a,new Object());
 				sendMessage(COMMUNITY, GROUP, ROLE, m);
 				proceedEnumMessage(m);
 				assertFalse(a.hasGUI());
 
 				a = new Agent();
-				m = new EnumMessage<AgentAction>(AgentAction.LAUNCH_AGENT,new Object(),true);
+				m = new EnumMessage<>(AgentAction.LAUNCH_AGENT,new Object(),true);
 				proceedEnumMessage(m);
 				assertFalse(a.hasGUI());
 			}
@@ -92,13 +92,13 @@ public class AgentActionTest extends JunitMadkit{
 				createDefaultCGR(help);
 				createDefaultCGR(this);
 				AbstractAgent a = new Agent();
-				EnumMessage<AgentAction> m = new EnumMessage<AgentAction>(AgentAction.LAUNCH_AGENT,a,null);
+				EnumMessage<AgentAction> m = new EnumMessage<>(AgentAction.LAUNCH_AGENT,a,null);
 				sendMessage(COMMUNITY, GROUP, ROLE, m);
 				proceedEnumMessage(m);
 				assertFalse(a.hasGUI());
 
 				a = new Agent();
-				m = new EnumMessage<AgentAction>(AgentAction.LAUNCH_AGENT,null,true);
+				m = new EnumMessage<>(AgentAction.LAUNCH_AGENT,null,true);
 				proceedEnumMessage(m);
 				assertFalse(a.hasGUI());
 			}

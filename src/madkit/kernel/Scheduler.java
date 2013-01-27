@@ -105,7 +105,7 @@ public class Scheduler extends Agent {
 
 	private SimulationState simulationState = SimulationState.PAUSED;
 
-	final private Set<Activator<? extends AbstractAgent>> activators = new LinkedHashSet<Activator<? extends AbstractAgent>>();
+	final private Set<Activator<? extends AbstractAgent>> activators = new LinkedHashSet<>();
 
 	private Action run, step, speedUp, speedDown;
 

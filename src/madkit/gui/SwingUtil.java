@@ -162,13 +162,8 @@ final public class SwingUtil {
 			add.invoke(menuOrToolBar, GUIManagerAction.DEICONIFY_ALL.getActionFor(agent));
 			addSeparator.invoke(menuOrToolBar);
 			add.invoke(menuOrToolBar, GUIManagerAction.KILL_AGENTS.getActionFor(agent));
-		} catch (InvocationTargetException e) {
-		} catch (IllegalArgumentException e) {
+		} catch (IllegalArgumentException | NoSuchMethodException | SecurityException | IllegalAccessException | InvocationTargetException e) {
 			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (SecurityException e) {
-		} catch (NoSuchMethodException e) {
 		}
 	}
 

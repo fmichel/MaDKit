@@ -43,7 +43,7 @@ public class AgentStatusPanel extends JPanel {
 	 */
 	private static final long serialVersionUID = -5745998699827681837L;
 	
-	final private static Map<AbstractAgent,AgentStatusPanel> panels = new ConcurrentHashMap<AbstractAgent, AgentStatusPanel>(); 
+	final private static Map<AbstractAgent,AgentStatusPanel> panels = new ConcurrentHashMap<>(); 
 	
 	
 	final static private ImageIcon image = new ImageIcon(KernelAction.LAUNCH_NETWORK.getActionInfo().getBigIcon().getImage().getScaledInstance(10, 10, Image.SCALE_SMOOTH));

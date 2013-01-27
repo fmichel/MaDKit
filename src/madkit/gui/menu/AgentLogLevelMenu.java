@@ -51,7 +51,7 @@ public class AgentLogLevelMenu extends JMenu{
 
 	private static final long serialVersionUID = -5402608797586593530L;
 
-	final private static Map<AbstractAgent,AgentLogLevelMenu> menus = new HashMap<AbstractAgent, AgentLogLevelMenu>(); 
+	final private static Map<AbstractAgent,AgentLogLevelMenu> menus = new HashMap<>(); 
 	
 	final private static Level[] logLevels = {Level.OFF,Level.SEVERE,Level.WARNING,Level.INFO,Level.CONFIG,Level.FINE,Level.FINER,Level.FINEST, Level.ALL};
 

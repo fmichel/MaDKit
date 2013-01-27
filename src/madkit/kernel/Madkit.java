@@ -100,21 +100,18 @@ final public class Madkit {
 	final static Properties defaultConfig = new Properties();
 	final static SimpleDateFormat	dateFormat = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
 	static{
+		System.setProperty("sun.java2d.xrender", "True"); //TODO
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
 			public void run() {//just in case (like ctrl+c)
 				AgentLogger.resetLoggers();
 			}
 		});
-		try {
+		try(final InputStream resourceAsStream = Madkit.class.getResourceAsStream("madkit.properties")) {
 			// no need to externalize because it is used only here
-			final InputStream resourceAsStream = Madkit.class.getResourceAsStream("madkit.properties");
 			defaultConfig.load(resourceAsStream);
-			resourceAsStream.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally{
-		}
+	} catch (IOException e) {//FIXME
+	}
 	}
 	
 	public final static String VERSION = defaultConfig.getProperty("madkit.version");
@@ -281,7 +278,8 @@ final public class Madkit {
 		if(logger != null)
 			logger.finer("command line args : "+fromArgs);
 		loadJarFileArguments();
-		loadConfigFile();
+		if(loadConfigFile())//overriding config file
+			loadJarFileArguments();
 		if(logger != null)
 			logger.fine("** OVERRIDING WITH COMMAND LINE ARGUMENTS **");
 		madkitConfig.putAll(fromArgs);
@@ -370,7 +368,7 @@ final public class Madkit {
 					options = projectInfo.getValue("MaDKit-Args").split(" ");
 					if(logger != null)
 						logger.finer(Arrays.deepToString(options)+options.length);
-					Map<String,String> projectInfos = new HashMap<String, String>();
+					Map<String,String> projectInfos = new HashMap<>();
 					projectInfos.put("Project-Code-Name",projectInfo.getValue("Project-Code-Name"));
 					projectInfos.put("Project-Version",projectInfo.getValue("Project-Version"));
 					madkitConfig.putAll(buildConfigFromArgs(options));
@@ -416,49 +414,41 @@ final public class Madkit {
 		}
 	}
 
-	private void loadConfigFile() {//TODO
+	private boolean loadConfigFile() {// TODO
 		final String fileName = madkitConfig.getProperty(Option.configFile.name());
-		if(fileName.equals("null")){
-			return;
-		}
-		if(logger != null)
-			logger.fine("** Loading config file "+fileName+" **");
-		InputStream url = getClass().getClassLoader().getResourceAsStream(fileName);
-		if(url != null){
-			if(fileName.endsWith(".properties")){
-				try {
-					madkitConfig.load(url);
-					url.close();
-					return;
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-			try {
-				madkitXMLConfigFile = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(url).getDocumentElement();
-				NodeList madkitOptionNodes = madkitXMLConfigFile.getElementsByTagName("madkitOptions");
-				for (int i = 0; i < madkitOptionNodes.getLength(); i++) {
-					org.w3c.dom.NamedNodeMap options = madkitOptionNodes.item(i).getAttributes();
-					for (int j = 0; j < options.getLength(); j++) {
-						madkitConfig.put(options.item(j).getNodeName(),options.item(j).getNodeValue());					
+		if (!fileName.equals("null")) {
+			if (logger != null)
+				logger.fine("** Loading config file " + fileName + " **");
+
+			try (InputStream url = getClass().getClassLoader().getResourceAsStream(fileName)) {
+				if (url != null) {
+					if (fileName.endsWith(".properties")) {
+						madkitConfig.load(url);
+					}
+					else {
+						madkitXMLConfigFile = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(url).getDocumentElement();
+						NodeList madkitOptionNodes = madkitXMLConfigFile.getElementsByTagName("madkitOptions");
+						for (int i = 0; i < madkitOptionNodes.getLength(); i++) {
+							org.w3c.dom.NamedNodeMap options = madkitOptionNodes.item(i).getAttributes();
+							for (int j = 0; j < options.getLength(); j++) {
+								madkitConfig.put(options.item(j).getNodeName(), options.item(j).getNodeValue());
+							}
+						}
+						if (logger != null)
+							logger.fine("** Config file " + fileName + " successfully loaded **\n");
+						return true;
 					}
 				}
-				if(logger != null)
-					logger.fine("** Config file "+fileName+" successfully loaded **\n");
-			} catch (SAXException e) {
-				if(logger != null)
-					logger.log(Level.WARNING,ErrorMessages.CANT_LOAD+" configuration "+fileName,e);
-			} catch (IOException e) {
-				if(logger != null)
-					logger.log(Level.WARNING,ErrorMessages.CANT_LOAD+" configuration "+fileName,e);
-			} catch (ParserConfigurationException e) {
-				if(logger != null)
-					logger.log(Level.WARNING,ErrorMessages.CANT_LOAD+" configuration "+fileName,e);
+				else
+					if (logger != null) {
+						logger.warning(ErrorMessages.CANT_FIND + " configuration " + fileName);
+					}
+			} catch (IOException | SAXException | ParserConfigurationException e) {
+				if (logger != null)
+					logger.log(Level.WARNING, ErrorMessages.CANT_LOAD + " configuration " + fileName, e);
 			}
 		}
-		else if(logger != null){
-			logger.warning(ErrorMessages.CANT_FIND+" configuration "+fileName);
-		}
+		return false;
 	}
 
 	/**
@@ -492,7 +482,7 @@ final public class Madkit {
 			for (String option : defaultConfig.stringPropertyNames()) {
 				message+="\t"+String.format("%-" + 30 + "s", option)+session.getProperty(option)+"\n";					
 			}
-			Set<Object> tmp = new HashSet<Object>(session.keySet());
+			Set<Object> tmp = new HashSet<>(session.keySet());
 			tmp.removeAll(defaultConfig.keySet());
 			if(tmp.size()>0){
 				message+="\n\t--- Additional non MaDKit options ---\n";

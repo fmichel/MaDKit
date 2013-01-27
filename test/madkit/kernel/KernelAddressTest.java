@@ -40,8 +40,8 @@ public class KernelAddressTest {
 
 	@BeforeClass
 	public static void createNewAddresses() {
-		kas = new ArrayList<KernelAddress>();
-		simultaneous = new ArrayList<KernelAddress>();
+		kas = new ArrayList<>();
+		simultaneous = new ArrayList<>();
 		for (int i = 0; i < 2000; i++) {
 			try {
 				Thread.sleep((long) (Math.random() * 2));

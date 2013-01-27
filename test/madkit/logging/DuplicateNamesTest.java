@@ -1,28 +1,22 @@
 package madkit.logging;
 
-import static madkit.kernel.AbstractAgent.ReturnCode.*;
+import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.logging.Level;
 
-import org.junit.Before;
-import org.junit.Test;
-
 import madkit.boot.process.CreateLogFilesTest;
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.Agent;
-import madkit.kernel.AgentAddress;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Madkit.Option;
-import madkit.kernel.Message;
-import madkit.message.StringMessage;
+
+import org.junit.Before;
+import org.junit.Test;
 
 public class DuplicateNamesTest extends JunitMadkit {
 
@@ -36,6 +30,11 @@ public class DuplicateNamesTest extends JunitMadkit {
 	@Test
 	public void setNameTest() {
 		launchTest(new AbstractAgent() {
+			/**
+			 * 
+			 */
+			private static final long	serialVersionUID	= 682199976324991855L;
+
 			@Override
 			protected void activate() {
 				setName(COMMUNITY);
@@ -50,6 +49,11 @@ public class DuplicateNamesTest extends JunitMadkit {
 		addMadkitArgs(BooleanOption.createLogFiles.toString());
 		addMadkitArgs(LevelOption.guiLogLevel.toString(),Level.ALL.toString());
 		launchTest(new AbstractAgent() {
+
+			/**
+			 * 
+			 */
+			private static final long	serialVersionUID	= -4876624372420070372L;
 
 			@Override
 			protected void activate() {
@@ -68,6 +72,10 @@ public class DuplicateNamesTest extends JunitMadkit {
 
 class SetNameAgent extends AbstractAgent{
 	
+	/**
+	 * 
+	 */
+	private static final long	serialVersionUID	= -522022197619143781L;
 	public SetNameAgent() {
 		setName(JunitMadkit.COMMUNITY);// TODO Auto-generated constructor stub
 	}

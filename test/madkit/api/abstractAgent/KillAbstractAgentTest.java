@@ -98,7 +98,7 @@ public class KillAbstractAgentTest extends JunitMadkit {
 		addMadkitArgs(LevelOption.agentLogLevel.toString(), "FINEST");
 		addMadkitArgs(LevelOption.kernelLogLevel.toString(), "ALL");
 		launchTest(new AbstractAgent() {
-			ArrayList<AbstractAgent> list = new ArrayList<AbstractAgent>(100);
+			ArrayList<AbstractAgent> list = new ArrayList<>(100);
 
 			protected void activate() {
 				setLogLevel(Level.ALL);

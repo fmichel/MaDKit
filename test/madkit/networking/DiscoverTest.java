@@ -53,7 +53,7 @@ public class DiscoverTest extends JunitMadkit {
 		launchTest(new AbstractAgent() {
 			@Override
 			protected void activate() {
-				ArrayList<Madkit> mdks = new ArrayList<Madkit>();
+				ArrayList<Madkit> mdks = new ArrayList<>();
 				KernelAction.LAUNCH_NETWORK.getActionFor(this).actionPerformed(null);
 				mdks.add(launchMKNetworkInstance());
 				mdks.add(launchMKNetworkInstance());

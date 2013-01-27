@@ -109,7 +109,7 @@ public abstract class Activator<A extends AbstractAgent> extends Overlooker<A>{
 	 */
 	protected void multicoreExecute(final Object... args) {
 		final int cpuCoreNb = nbOfParallelTasks();
-		final ArrayList<Callable<Void>> workers = new ArrayList(cpuCoreNb);
+		final ArrayList<Callable<Void>> workers = new ArrayList<>(cpuCoreNb);
 		final List<A> list = getCurrentAgentsList();
 		int bucketSize = list.size();
 		final int nbOfAgentsPerTask = bucketSize / cpuCoreNb;
@@ -193,7 +193,6 @@ public abstract class Activator<A extends AbstractAgent> extends Overlooker<A>{
 	 * @throws NoSuchMethodException 
 	 */
 	//	* This also works on <code>private</code> field.
-	@SuppressWarnings("unchecked")
 	public static <T> Method findMethodOn(Class<T> agentClass, final String methodName) throws NoSuchMethodException {
 		Method m;
 		while(true) {

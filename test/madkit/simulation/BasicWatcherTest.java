@@ -45,35 +45,35 @@ public class BasicWatcherTest extends JunitMadkit {
 				Watcher s = new Watcher();
 				assertEquals(SUCCESS, launchAgent(s));
 				try {
-					Probe<AbstractAgent> a = new Probe<AbstractAgent>(null, null, null);
+					Probe<AbstractAgent> a = new Probe<>(null, null, null);
 					s.addProbe(a);
 					noExceptionFailure();
 				} catch (NullPointerException e) {
 					e.printStackTrace();
 				}
 				try {
-					Probe<AbstractAgent> a = new Probe<AbstractAgent>(COMMUNITY, null, null);
+					Probe<AbstractAgent> a = new Probe<>(COMMUNITY, null, null);
 					s.addProbe(a);
 					noExceptionFailure();
 				} catch (NullPointerException e) {
 					e.printStackTrace();
 				}
 				try {
-					Probe<AbstractAgent> a = new Probe<AbstractAgent>(COMMUNITY, GROUP, null);
+					Probe<AbstractAgent> a = new Probe<>(COMMUNITY, GROUP, null);
 					s.addProbe(a);
 					noExceptionFailure();
 				} catch (NullPointerException e) {
 					e.printStackTrace();
 				}
 				try {
-					Probe<AbstractAgent> a = new Probe<AbstractAgent>(null, GROUP, null);
+					Probe<AbstractAgent> a = new Probe<>(null, GROUP, null);
 					s.addProbe(a);
 					noExceptionFailure();
 				} catch (NullPointerException e) {
 					e.printStackTrace();
 				}
 				try {
-					Probe<AbstractAgent> a = new Probe<AbstractAgent>(null, null, ROLE);
+					Probe<AbstractAgent> a = new Probe<>(null, null, ROLE);
 					s.addProbe(a);
 					noExceptionFailure();
 				} catch (NullPointerException e) {
@@ -92,7 +92,7 @@ public class BasicWatcherTest extends JunitMadkit {
 				assertEquals(SUCCESS, launchAgent(s));
 				ReturnCode code;
 				// ///////////////////////// REQUEST ROLE ////////////////////////
-				Probe<AbstractAgent> a = new Probe<AbstractAgent>(COMMUNITY, GROUP, ROLE);
+				Probe<AbstractAgent> a = new Probe<>(COMMUNITY, GROUP, ROLE);
 				s.addProbe(a);
 				assertEquals(1, a.size());
 

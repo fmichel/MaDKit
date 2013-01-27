@@ -47,7 +47,7 @@ import madkit.kernel.MadkitClassLoader;
 public class LaunchMAS extends JMenu {
 
 	private static final long serialVersionUID = 6721458300016754609L;
-	final static private Set<LaunchMAS> menus = new HashSet<LaunchMAS>();//TODO Map 
+	final static private Set<LaunchMAS> menus = new HashSet<>();//TODO Map 
 	final private AbstractAgent myAgent;
 
 	/**

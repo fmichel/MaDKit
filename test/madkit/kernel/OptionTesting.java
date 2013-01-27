@@ -39,7 +39,7 @@ public class OptionTesting extends JunitMadkit {
 
 	@Test
 	public void correctness() {
-		mkArgs = new ArrayList<String>(Arrays.asList(BooleanOption.autoConnectMadkitWebsite.toString(),
+		mkArgs = new ArrayList<>(Arrays.asList(BooleanOption.autoConnectMadkitWebsite.toString(),
 		// "--"+Madkit.logDirectory,getBinTestDir(),
 		// "--"+Madkit.agentLogLevel,"ALL",
 				LevelOption.kernelLogLevel.toString(), "INFO"));

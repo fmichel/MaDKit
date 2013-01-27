@@ -39,7 +39,7 @@ public class ActMessage extends madkit.kernel.Message {
 	/** Constructor for GenericMessage class */
 	public ActMessage(String actiontype) {
 		action = actiontype;
-		fields = new Hashtable<String, Object>();
+		fields = new Hashtable<>();
 	}
 
 	public ActMessage(String actiontype, String content) {

@@ -47,7 +47,7 @@ public class PropertyProbe<A extends AbstractAgent, T> extends Probe<A>// TODO
 																		// safe
 																		// version
 {
-	final private Map<Class<? extends A>, Field> fields = new HashMap<Class<? extends A>, Field>();
+	final private Map<Class<? extends A>, Field> fields = new HashMap<>();
 	final private String fieldName;
 	private Field cachedField;
 	private Class<? extends A> cachedClass;
@@ -62,7 +62,6 @@ public class PropertyProbe<A extends AbstractAgent, T> extends Probe<A>// TODO
 	 * @param agentClass
 	 */
 	private void updateCache(A agent) {
-		@SuppressWarnings("unchecked")
 		final Class<? extends A> agentClass = (Class<? extends A>) agent
 				.getClass();
 		if (agentClass != cachedClass) {
@@ -73,8 +72,7 @@ public class PropertyProbe<A extends AbstractAgent, T> extends Probe<A>// TODO
 					cachedField = findFieldOn(cachedClass, fieldName);
 					fields.put(cachedClass, cachedField);
 				} catch (NoSuchFieldException e) {
-					throw new SimulationException(toString() + " on " + agent,
-							e);
+					throw new SimulationException(toString() + " on " + agent,	e);
 				}
 			}
 		}
@@ -87,7 +85,6 @@ public class PropertyProbe<A extends AbstractAgent, T> extends Probe<A>// TODO
 	 *            the agent to probe
 	 * @return the actual value of the agent's field
 	 */
-	@SuppressWarnings("unchecked")
 	public T getPropertyValue(final A agent) {
 		updateCache(agent);
 		try {

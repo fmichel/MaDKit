@@ -55,6 +55,7 @@ final class MultiCastListener {
 		ds = ds2;
 	}
 
+	@SuppressWarnings("resource")
 	static MultiCastListener getNewMultiCastListener(final int localPort) throws IOException, UnknownHostException{
 		MulticastSocket ms = null;
 		DatagramSocket ds = null;

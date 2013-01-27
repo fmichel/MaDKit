@@ -30,6 +30,10 @@ import madkit.kernel.Message;
  * 
  */
 public class Denier extends Agent{
+	/**
+	 * 
+	 */
+	private static final long	serialVersionUID	= 8921206055243582589L;
 	@Override
 	protected void activate() {
 		createGroup(JunitMadkit.COMMUNITY, JunitMadkit.GROUP, true, new Gatekeeper() {

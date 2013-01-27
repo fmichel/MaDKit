@@ -79,11 +79,12 @@ class GUIManagerAgent extends Agent {
 
 	GUIManagerAgent(boolean asDaemon) { // NO_UCD use by reflection
 		super(asDaemon);
-		guis = new ConcurrentHashMap<AbstractAgent, JFrame>();
+		guis = new ConcurrentHashMap<>();
 	}
 
 	@Override
 	protected void activate() {// TODO parallelize that
+//		setThreadPriority(Thread.MAX_PRIORITY);
 	// setLogLevel(Level.ALL);
 	// requestRole(LocalCommunity.NAME, Groups.SYSTEM, Roles.GUI_MANAGER);//no need: I am a manager
 		if (!isDaemon()) {// use to detect desktop mode
@@ -94,22 +95,11 @@ class GUIManagerAgent extends Agent {
 			} catch (HeadlessException e) {
 				headlessLog(e);
 				return;
-			} catch (InstantiationException e) {
-				buildUIExceptionLog(e);
-			} catch (IllegalAccessException e) {
-				buildUIExceptionLog(e);
-			} catch (ClassNotFoundException e) {
-				buildUIExceptionLog(e);
+			} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+				getLogger().severeLog(Words.FAILED.toString()+ " : UI creation", e);
 			}
 		}
 		createGroup(LocalCommunity.NAME, Groups.GUI);
-	}
-
-	/**
-	 * @param e
-	 */
-	public void buildUIExceptionLog(Exception e) {
-		getLogger().severeLog(Words.FAILED.toString()+ " : UI creation", e);
 	}
 
 	/**
@@ -144,9 +134,10 @@ class GUIManagerAgent extends Agent {
 			if (cm.getCode() == GUIManagerAction.SETUP_AGENT_GUI) {// because it needs a reply
 				try {
 					setupAgentGui((AbstractAgent) cm.getContent()[0]);
-					sendReply(cm, cm);
 				} catch (HeadlessException e) {
 					headlessLog(e);
+				} finally{
+					sendReply(cm, cm);
 				}
 			}
 			else {

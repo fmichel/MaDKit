@@ -70,8 +70,8 @@ class Role implements Serializable{//TODO test with arraylist
 
 
 	Role(final Group groupObject,final String roleName){
-		players = new ArrayList<AbstractAgent>();
-		tmpReferenceableAgents = new ArrayList<AbstractAgent>();//should not be necessary but ...
+		players = new ArrayList<>();
+		tmpReferenceableAgents = new ArrayList<>();//should not be necessary but ...
 		communityName = groupObject.getCommunityObject().getName();
 		groupName = groupObject.getName();
 		this.roleName = roleName;
@@ -83,7 +83,7 @@ class Role implements Serializable{//TODO test with arraylist
 			//			logger.setLevel(Level.ALL);
 			logger.finer(toString()+" created");
 		}
-		overlookers = new LinkedHashSet<Overlooker<? extends AbstractAgent>>();
+		overlookers = new LinkedHashSet<>();
 		initializeOverlookers();
 	}
 
@@ -217,7 +217,7 @@ class Role implements Serializable{//TODO test with arraylist
 		synchronized (players) {
 			players.addAll(bucket);//is optimized
 			if (agentAddresses != null) {
-				final Set<AgentAddress> addresses = new HashSet<AgentAddress>(bucket.size()+agentAddresses.size(),0.9f);//TODO try load factor
+				final Set<AgentAddress> addresses = new HashSet<>(bucket.size()+agentAddresses.size(),0.9f);//TODO try load factor
 				for (final AbstractAgent a : bucket) {
 					addresses.add(new AgentAddress(a, this, kernelAddress));
 				}
@@ -313,7 +313,7 @@ class Role implements Serializable{//TODO test with arraylist
 
 	final Set<AgentAddress> buildAndGetAddresses(){
 		if(agentAddresses == null){
-			agentAddresses = new HashSet<AgentAddress>(players.size(),0.8f);
+			agentAddresses = new HashSet<>(players.size(),0.8f);
 			synchronized (players) {
 				for (final AbstractAgent a : players) {
 					agentAddresses.add(new AgentAddress(a, this, kernelAddress));
@@ -399,7 +399,7 @@ class Role implements Serializable{//TODO test with arraylist
 
 	final List<AgentAddress> getAgentAddressesCopy(){
 		synchronized (players) {
-			return new ArrayList<AgentAddress>(buildAndGetAddresses());
+			return new ArrayList<>(buildAndGetAddresses());
 		}
 	}
 
@@ -454,7 +454,7 @@ class Role implements Serializable{//TODO test with arraylist
 			synchronized (players) {
 				modified = false;//TODO do a bench : new seems a little bit better
 				//long startTime = System.nanoTime();
-				tmpReferenceableAgents = new ArrayList<AbstractAgent>(players);
+				tmpReferenceableAgents = new ArrayList<>(players);
 				//tmpReferenceableAgents = (ArrayList<AbstractAgent>)referenceableAgents.clone();
 				//long estimatedTime = System.nanoTime() - startTime;	   System.err.println(estimatedTime);
 			}

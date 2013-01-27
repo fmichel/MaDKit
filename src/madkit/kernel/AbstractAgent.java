@@ -137,8 +137,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	static final transient MadkitKernel				FAKE_KERNEL			= new FakeKernel();
 	private static final transient MadkitKernel				TERMINATED_KERNEL	= new TerminatedKernel();
 
-	final AtomicReference<State>						state					= new AtomicReference<AbstractAgent.State>(
-																								AbstractAgent.State.NOT_LAUNCHED);
+	final AtomicReference<State>						state					= new AtomicReference<>(State.NOT_LAUNCHED);
 	transient MadkitKernel								kernel				= FAKE_KERNEL;
 
 	final private int										_hashCode;
@@ -149,7 +148,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 */
 	private String											name;
 	final AtomicBoolean									alive					= new AtomicBoolean();						//default false
-	final BlockingQueue<Message>						messageBox			= new LinkedBlockingQueue<Message>();		// TODO
+	final BlockingQueue<Message>						messageBox			= new LinkedBlockingQueue<>();		// TODO
 																																				// lazy
 																																				// creation
 
@@ -256,9 +255,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		return _hashCode + getKernelAddress().toString();
 	}
 
-	/**
-	 * @return
-	 */
 	final AtomicBoolean getAlive() {
 		return alive;
 	}
@@ -295,16 +291,26 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			if (logger != null) {
 				logger.finer("** setting up  GUI **");
 			}
+			launchAgent(new MicroAgent<Void>() {
+				@Override
+				protected void activate() {
+					sendMessageAndWaitForReply(
+							LocalCommunity.NAME, 
+							Groups.GUI,
+							Organization.GROUP_MANAGER_ROLE, 
+							new GUIMessage(GUIManagerAction.SETUP_AGENT_GUI, AbstractAgent.this));
+				}
+			});
 			// to avoid the log of logged kernel
 //			if(
-					getMadkitKernel().broadcastMessageWithRoleAndWaitForReplies(
-					this, 
-					LocalCommunity.NAME, 
-					Groups.GUI,
-					Organization.GROUP_MANAGER_ROLE, 
-					new GUIMessage(GUIManagerAction.SETUP_AGENT_GUI, this), 
-					null, 
-					3000);// == null)
+//					getMadkitKernel().broadcastMessageWithRoleAndWaitForReplies(
+//					this, 
+//					LocalCommunity.NAME, 
+//					Groups.GUI,
+//					Organization.GROUP_MANAGER_ROLE, 
+//					new GUIMessage(GUIManagerAction.SETUP_AGENT_GUI, this), 
+//					null, 
+//					10);// == null)
 //					hasGUI = false;
 			// getKernel().getMadkitKernel().sendMessageAndWaitForReply(//TODO
 			// LocalCommunity.NAME,
@@ -721,29 +727,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			final AbstractAgent a = (AbstractAgent) getMadkitClassLoader().loadClass(agentClass).newInstance();
 			if (ReturnCode.SUCCESS == launchAgent(a, timeOutSeconds, createFrame))
 				return a;
-		} catch (InstantiationException e) {
+		} catch (InstantiationException | ClassCastException | ClassNotFoundException | IllegalAccessException | KernelException e) {
 			handleException(Influence.LAUNCH_AGENT, e);
-//			cannotLaunchAgent(agentClass, e, " :  no default constructor");
-//			final String msg = ErrorMessages.CANT_LAUNCH + agentClass + " : no default constructor";
-//			SwingUtilities.invokeLater(new Runnable() {
-//
-//				public void run() {
-//					JOptionPane.showMessageDialog(null, msg, "Launch failed", JOptionPane.WARNING_MESSAGE);
-//				}
-//			});
-//			getLogger().severeLog(msg, e);
-		} catch (IllegalAccessException e) {
-			handleException(Influence.LAUNCH_AGENT, e);
-//			cannotLaunchAgent(agentClass, e, " : constructor not public");//TODO launch anyway ??
-		} catch (ClassCastException e) {
-			handleException(Influence.LAUNCH_AGENT, e);
-//		cannotLaunchAgent(agentClass, e, " : Not an agent class");
-		} catch (ClassNotFoundException e) {
-			handleException(Influence.LAUNCH_AGENT, e);
-//		cannotLaunchAgent(agentClass, e, null);
-		} catch (KernelException e) {
-			handleException(Influence.LAUNCH_AGENT, e);
-//		cannotLaunchAgent(agentClass, e, null);
 		}
 		return null;
 	}
@@ -805,11 +790,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		try {
 			bucket = getMadkitKernel().createBucket(agentClass, bucketSize);
 			launchAgentBucket(bucket, roles);
-		} catch (InstantiationException e) {//TODO waiting java 7
-			cannotLaunchAgent(agentClass, e, null);
-		} catch (IllegalAccessException e) {
-			cannotLaunchAgent(agentClass, e, null);
-		} catch (ClassNotFoundException e) {
+		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
 			cannotLaunchAgent(agentClass, e, null);
 		}
 		return bucket;
@@ -1312,8 +1293,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	final void setAgentStackTrace(final Throwable e) {
 		StackTraceElement[] stackTrace = e.getStackTrace();
 		if (stackTrace.length > 0) {
-			final List<StackTraceElement> stack = new ArrayList<StackTraceElement>();
-			// stack.add(stackTrace[1]);
+			final List<StackTraceElement> stack = new ArrayList<>();
 			final String agentClassName = getClass().getName();
 			for (int i = 0; i < stackTrace.length; i++) {
 				final String trace = stackTrace[i].getClassName();
@@ -2115,8 +2095,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		final long endTime = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(timeOutMilliSeconds);
 		final long conversationID = message.getConversationID();
 		int missing = size;
-		final List<Message> receptions = new ArrayList<Message>(messageBox.size());
-		final List<Message> answers = new ArrayList<Message>(size);
+		final List<Message> receptions = new ArrayList<>(messageBox.size());
+		final List<Message> answers = new ArrayList<>(size);
 		while (missing > 0 && System.nanoTime() < endTime) {
 			Message answer = waitingNextMessage(endTime - System.nanoTime(), TimeUnit.NANOSECONDS);
 			if (answer == null)
@@ -2440,7 +2420,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		return false;
 	}
 
-	final private static Map<Class<?>, Class<?>>	primitiveTypes	= new HashMap<Class<?>, Class<?>>();
+	final private static Map<Class<?>, Class<?>>	primitiveTypes	= new HashMap<>();
 	static {
 		primitiveTypes.put(int.class, Integer.class);
 		primitiveTypes.put(boolean.class, Boolean.class);

@@ -20,7 +20,6 @@ package madkit.kernel;
 
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 
-import java.rmi.activation.ActivateFailedException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -73,7 +72,8 @@ public class Agent extends AbstractAgent{
     * Changes the priority of the agent's thread. 
     * This should be used only starting from the {@link Agent#activate()}
     * to have a concrete effect.
-    * Default priority is set to {@link Thread#NORM_PRIORITY}.
+    * Default priority is set to {@link Thread#NORM_PRIORITY} - 1 
+    * to ensure swing responsiveness.
     * 
     * @param newPriority priority to set this thread to
     * @exception  IllegalArgumentException  If the priority is not in the
@@ -562,7 +562,7 @@ public class Agent extends AbstractAgent{
 	 */
 	private Message waitAnswer(final Message m) {
 		Message answer;
-		final List<Message> receptions = new ArrayList<Message>(messageBox.size());
+		final List<Message> receptions = new ArrayList<>(messageBox.size());
 		final long conversationID = m.getConversationID();
 		answer = waitingNextMessageForEver();
 		while(answer.getConversationID() != conversationID){
@@ -588,7 +588,7 @@ public class Agent extends AbstractAgent{
 		if(timeOutNanos == null)
 			return waitAnswer(theMessageToReplyTo);
 		Message answer;
-		final List<Message> receptions = new ArrayList<Message>(messageBox.size());
+		final List<Message> receptions = new ArrayList<>(messageBox.size());
 		//conversion
 		final long endTime = System.nanoTime()+timeOutNanos;
 		final long conversationID = theMessageToReplyTo.getConversationID();

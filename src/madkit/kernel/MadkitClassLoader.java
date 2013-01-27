@@ -63,9 +63,9 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 
 	private Collection<String>	 classesToReload;
 	final private Madkit			madkit;
-	private Set<String>			agentClasses	= new TreeSet<String>();
-	private Set<MASModel>		demos				= new HashSet<MASModel>();
-	private Set<URL>				scannedURLs		= new HashSet<URL>();
+	private Set<String>			agentClasses	= new TreeSet<>();
+	private Set<MASModel>		demos				= new HashSet<>();
+	private Set<URL>				scannedURLs		= new HashSet<>();
 
 	/**
 	 * @param urls
@@ -76,7 +76,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 			Collection<String> toReload) {
 		super(urls, parent);
 		if (toReload != null)
-			classesToReload = new HashSet<String>(toReload);
+			classesToReload = new HashSet<>(toReload);
 		madkit = m;
 	}
 
@@ -91,7 +91,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 				if (l != null) {
 					l.log(Level.FINE, "Already defined " + name + " : NEED NEW MCL");
 				}
-				MadkitClassLoader mcl = new MadkitClassLoader(madkit, getURLs(),
+				MadkitClassLoader mcl = new MadkitClassLoader(madkit, getURLs(),//FIXME close ?
 						this, classesToReload);
 				mcl.scannedURLs = scannedURLs;
 				mcl.agentClasses = agentClasses;
@@ -132,7 +132,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 		if (getResource(name.replace('.', '/') + ".class") == null)
 			throw new ClassNotFoundException(name);
 		if (classesToReload == null) {
-			classesToReload = new HashSet<String>();
+			classesToReload = new HashSet<>();
 		}
 		classesToReload.add(name);
 		return true;
@@ -228,19 +228,17 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 
 	private void scanClassPathForAgentClasses() {
 		if (scannedURLs == null) {
-			scannedURLs = new HashSet<URL>();
-			agentClasses = new TreeSet<String>();
+			scannedURLs = new HashSet<>();
+			agentClasses = new TreeSet<>();
 		}
 		for (URL dir : getURLs()) {
 			if (!scannedURLs.add(dir))
 				continue;
 			if (dir.getFile().endsWith(".jar")) {
-				try {
-					JarFile jarFile = ((JarURLConnection) new URL("jar:" + dir
-							+ "!/").openConnection()).getJarFile();
+				try (JarFile jarFile = ((JarURLConnection) new URL("jar:" + dir + "!/").openConnection()).getJarFile()){
 					agentClasses.addAll(scanJarFileForLaunchConfig(jarFile));
 				} catch (IOException e) {
-					madkit.getLogger().log(Level.SEVERE,"web repo conf is not valid", e);
+					madkit.getLogger().log(Level.SEVERE, "web repo conf is not valid", e);
 				}
 			}
 			else {
@@ -269,7 +267,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 	public Set<MASModel> getAvailableConfigurations() {
 		scanClassPathForAgentClasses();
 		if (demos != null) {
-			return new HashSet<MASModel>(demos);
+			return new HashSet<>(demos);
 		}
 		return Collections.emptySet();
 	}
@@ -286,7 +284,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 	 */
 	public Set<String> getAllAgentClasses() {
 		scanClassPathForAgentClasses();
-		return new TreeSet<String>(agentClasses);
+		return new TreeSet<>(agentClasses);
 	}
 
 	void addMASConfig(MASModel session) {
@@ -305,7 +303,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 		} catch (IOException e) {
 		}
 		if(projectInfo == null)
-			return Collections.EMPTY_LIST;
+			return Collections.emptyList();
 		
 		final String mdkArgs = projectInfo.getValue("MaDKit-Args");
 		if(mdkArgs != null && ! mdkArgs.trim().isEmpty()){
@@ -313,7 +311,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 					.trim(), mdkArgs.split(" "),
 					projectInfo.getValue("Description").trim());
 			if (demos == null) {
-				demos = new HashSet<MASModel>();
+				demos = new HashSet<>();
 			}
 			demos.add(mas);
 			Logger l = madkit.getLogger();
@@ -329,7 +327,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 		final File[] files = file.listFiles();
 		if (files == null)
 			return Collections.emptyList();
-		final List<String> l = new ArrayList<String>();
+		final List<String> l = new ArrayList<>();
 		for (File f : files) {
 			if (f.isDirectory()) {
 				l.addAll(scanFolderForAgentClasses(f, pckName == null ? f.getName()
@@ -445,10 +443,9 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 		if (findJavaExecutable != null) {
 			p.setProperty("jarsigner.path", findJavaExecutable);
 		}
-		p.store(new FileOutputStream(new File(System.getProperty("java.io.tmpdir")+File.separatorChar+"agentClasses.properties")),System.getProperty("java.class.path"));
-//		for (String string : System.getProperty("java.class.path").split(File.pathSeparator)) {
-//			System.err.println(string);
-//		}
+		try(final FileOutputStream out = new FileOutputStream(new File(System.getProperty("java.io.tmpdir")+File.separatorChar+"agentClasses.properties"))){
+			p.store(out,System.getProperty("java.class.path"));
+		}
 	}
 
 }

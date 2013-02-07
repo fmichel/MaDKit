@@ -184,7 +184,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 		if(name.startsWith("madkit.kernel."))
 			return;
 		final URL url = this.getResource(name.replace('.', '/') + ".class");
-		if (url != null) {// TODO if url is null return warning
+		if (url != null && url.getProtocol().equals("file")) {
 			String packageName = getClassPackageName(name);
 			packageName = packageName == null ? "" : packageName+'.';//need this to rebuild
 			final String urlPath = url.getPath();

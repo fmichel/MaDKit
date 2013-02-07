@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -23,7 +23,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.swing.Action;
-import javax.swing.ImageIcon;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
@@ -84,7 +83,7 @@ public class LaunchMAS extends JMenu {
 		JMenuItem name = new JMenuItem(a);
 		String displayedName = demo.getName();
 		name.setText(displayedName);
-		name.setIcon(new ImageIcon(SwingUtil.MADKIT_LOGO.getImage().getScaledInstance(16, 16, java.awt.Image.SCALE_SMOOTH)));
+		name.setIcon(SwingUtil.MADKIT_LOGO_SMALL);
 		name.setToolTipText(demo.toString());
 		name.setAccelerator(null);
 		name.setActionCommand(displayedName);

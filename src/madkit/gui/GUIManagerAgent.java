@@ -148,8 +148,6 @@ class GUIManagerAgent extends Agent {
 
 	@Override
 	protected void end() {
-		if (logger != null)
-			logger.finer("Ending: Disposing frames");
 		// SwingUtilities.invokeLater(
 		// new Runnable() {
 		// public void run() {
@@ -157,6 +155,8 @@ class GUIManagerAgent extends Agent {
 		if (myFrame != null) {// TODO swing thread or cleaner shutdown
 			myFrame.dispose();
 		}
+		if (logger != null)
+			logger.finer("Ending: Frames disposed");
 		// }});
 	}
 
@@ -213,8 +213,7 @@ class GUIManagerAgent extends Agent {
 	private JInternalFrame buildInternalFrame(final AgentFrame af) {
 		final JInternalFrame ijf = new JInternalFrame(af.getTitle(), true, true,
 				true, true);
-		ijf.setFrameIcon(new ImageIcon(af.getIconImage().getScaledInstance(14,
-				14, java.awt.Image.SCALE_SMOOTH)));
+		ijf.setFrameIcon(SwingUtil.MADKIT_LOGO_SMALL);
 		ijf.setSize(af.getSize());
 		ijf.setLocation(af.getLocation());
 		ijf.setContentPane(af.getContentPane());

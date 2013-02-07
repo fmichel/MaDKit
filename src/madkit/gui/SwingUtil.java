@@ -18,12 +18,16 @@
  */
 package madkit.gui;
 
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Image;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.BoundedRangeModel;
 import javax.swing.BoxLayout;
@@ -51,6 +55,7 @@ import madkit.kernel.AbstractAgent;
 final public class SwingUtil {
 	
 	final public static ImageIcon MADKIT_LOGO = new ImageIcon(SwingUtil.class.getResource("images/madkit_logo.png"));
+	final public static ImageIcon MADKIT_LOGO_SMALL = new ImageIcon(MADKIT_LOGO.getImage().getScaledInstance(14, 14, java.awt.Image.SCALE_SMOOTH));
 
 	/**
 	 * Creates a labeled panel containing a slider with default size.
@@ -106,14 +111,14 @@ final public class SwingUtil {
 		slider.addMouseWheelListener(new MouseWheelListener() {
 			@Override
 			public void mouseWheelMoved(MouseWheelEvent e) {
-				slider.setValue(-e.getWheelRotation() * model.getExtent() + model.getValue());
+				slider.setValue(-e.getWheelRotation() * model.getMaximum() / 100 + model.getValue());
 			}
 		});
 		slider.setPaintTicks(true);
 		slider.setPaintLabels(true);
-		slider.setMajorTickSpacing(model.getMaximum()/2);
-		slider.setMinorTickSpacing(model.getExtent());
-		slider.setSnapToTicks(true);
+//		slider.setMajorTickSpacing(model.getMaximum()/2);
+//		slider.setMinorTickSpacing(model.getMaximum()/10);
+//		slider.setSnapToTicks(true);
 		return slider;
 	}
 
@@ -164,6 +169,24 @@ final public class SwingUtil {
 			add.invoke(menuOrToolBar, GUIManagerAction.KILL_AGENTS.getActionFor(agent));
 		} catch (IllegalArgumentException | NoSuchMethodException | SecurityException | IllegalAccessException | InvocationTargetException e) {
 			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Resizes the icons of all the abstract buttons which are contained in
+	 * a container.
+	 * 
+	 * @param container a container containing abstract buttons
+	 * @param size the size which should be used for the icons
+	 */
+	public static void scaleAllAbstractButtonIcons(Container container, int size){
+		for (final Component c : container.getComponents()) {
+			if (c instanceof AbstractButton) {
+				final ImageIcon i = (ImageIcon) ((AbstractButton) c).getIcon();
+				if (i != null) {
+					i.setImage(i.getImage().getScaledInstance(size, size, Image.SCALE_SMOOTH));
+				}
+			}
 		}
 	}
 

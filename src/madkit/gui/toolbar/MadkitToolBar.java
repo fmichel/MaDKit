@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -18,11 +18,6 @@
  */
 package madkit.gui.toolbar;
 
-import java.awt.Component;
-import java.awt.Image;
-
-import javax.swing.AbstractButton;
-import javax.swing.ImageIcon;
 import javax.swing.JToolBar;
 
 import madkit.action.GUIManagerAction;
@@ -35,7 +30,7 @@ import madkit.kernel.AbstractAgent;
  * 
  * @author Fabien Michel
  * @since MaDKit 5.0.0.9
- * @version 0.9
+ * @version 0.91
  * 
  */
 public class MadkitToolBar extends JToolBar {// TODO i18n
@@ -67,13 +62,6 @@ public class MadkitToolBar extends JToolBar {// TODO i18n
 	public MadkitToolBar(final AbstractAgent agent) {
 		super("MaDKit");
 		SwingUtil.addMaDKitActionsTo(this, agent);
-		for (final Component c : getComponents()) {
-			if (c instanceof AbstractButton) {
-				final ImageIcon i = (ImageIcon) ((AbstractButton) c).getIcon();
-				if (i != null) {
-					i.setImage(i.getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH));
-				}
-			}
-		}
+		SwingUtil.scaleAllAbstractButtonIcons(this, 20);
 	}
 }

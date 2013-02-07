@@ -73,22 +73,7 @@ final class AgentFrame extends JFrame {
 			public void windowClosing(java.awt.event.WindowEvent e) {
 				closeProcess();
 			}
-//			@Override
-//			public void windowClosed(WindowEvent e) {
-//				killAgent(agent,0);
-//			}
 		});
-//		addWindowListener(new WindowAdapter() {
-//			@Override
-//			public void windowClosing(WindowEvent e) {
-//				setTitle(getTitle()+ " closing...");
-//				if (agent.isAlive()) {
-////					agent.sendMessage(LocalCommunity.NAME, Groups.SYSTEM, Roles.KERNEL, new KernelMessage(MadkitAction.MADKIT_KILL_AGENT, agent, 2));
-//					agent.killAgent(agent,1);
-//				}
-////				dispose();
-//			}
-//		});
 		setSize(400,300);
 		setLocationRelativeTo(null);
 	}
@@ -98,7 +83,6 @@ final class AgentFrame extends JFrame {
 		if(internalFrame != null){
 			internalFrame.dispose();
 		}
-//		removeAll();
 		super.dispose();
 	}
 
@@ -119,14 +103,6 @@ final class AgentFrame extends JFrame {
 	void setInternalFrame(JInternalFrame internalFrame) {
 		this.internalFrame = internalFrame;
 	}
-
-// TODO Remove unused code found by UCDetector
-// 	/**
-// 	 * @return the internalFrame
-// 	 */
-// 	JInternalFrame getInternalFrame() {
-// 		return internalFrame;
-// 	}
 
 	@Override
 	public void setLocation(int x, int y) {

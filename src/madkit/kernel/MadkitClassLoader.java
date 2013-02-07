@@ -29,12 +29,10 @@ import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.jar.Attributes;
@@ -64,6 +62,8 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 	private Collection<String>	 classesToReload;
 	final private Madkit			madkit;
 	private Set<String>			agentClasses	= new TreeSet<>();
+	private Set<String>			mdkFiles	= new TreeSet<>();
+	private Set<String>			mains = new TreeSet<>();
 	private Set<MASModel>		demos				= new HashSet<>();
 	private Set<URL>				scannedURLs		= new HashSet<>();
 
@@ -84,6 +84,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 	protected synchronized Class<?> loadClass(final String name, final boolean resolve)
 			throws ClassNotFoundException {
 		Class<?> c;
+//      synchronized (getClassLoadingLock(name)) {
 		if (classesToReload != null && classesToReload.contains(name)) {
 			c = findLoadedClass(name);
 			if (c != null) {
@@ -114,6 +115,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 		}
 		if (resolve)
 			resolveClass(c);
+//      }
 		return c;
 	}
 
@@ -127,7 +129,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 	 * @return <code>true</code> if the class has been successfully
 	 * @throws ClassNotFoundException if the class cannot be found on the class path
 	 */
-	public boolean reloadClass(String name) throws ClassNotFoundException {// TODO return false and return code
+	public void reloadClass(String name) throws ClassNotFoundException {// TODO return false and return code
 	// System.err.println(name.replace('.', '/')+".class");
 		if (getResource(name.replace('.', '/') + ".class") == null)
 			throw new ClassNotFoundException(name);
@@ -135,40 +137,36 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 			classesToReload = new HashSet<>();
 		}
 		classesToReload.add(name);
-		return true;
 	}
 
-	/**
-	 * returns the newest version of a class object given its name. If {@link #reloadClass(String)} has been used this
-	 * returns the class object corresponding to the last compilation of the java code. Especially, in such a case, this
-	 * returns a different version than {@link Class#forName(String)} if the caller using it has not been reloaded at the same time. This is because {@link Class#forName(String)} uses the
-	 * {@link ClassLoader} of the current class while this method uses the last class loader which is used by
-	 * MaDKit, i.e. the one created for loading classes on which {@link #reloadClass(String)} has been invoked.
-	 * Especially, {@link AbstractAgent#launchAgent(String, int, boolean)} always uses the newest version of the agent class.
-	 * 
-	 * @param className the fully qualified name of the desired class.
-	 * @return the newest version of a class object given its name.
-	 * @throws ClassNotFoundException
-	 * @since MaDKit 5.0.0.8
-	 */
-	public Class<?> getNewestClassVersion(final String className)
-			throws ClassNotFoundException {
-		return loadClass(className);
-	}
-
+//	/**
+//	 * returns the newest version of a class object given its name. If {@link #reloadClass(String)} has been used this
+//	 * returns the class object corresponding to the last compilation of the java code. Especially, in such a case, this
+//	 * returns a different version than {@link Class#forName(String)} if the caller using it has not been reloaded at the same time. This is because {@link Class#forName(String)} uses the
+//	 * {@link ClassLoader} of the current class while this method uses the last class loader which is used by
+//	 * MaDKit, i.e. the one created for loading classes on which {@link #reloadClass(String)} has been invoked.
+//	 * Especially, {@link AbstractAgent#launchAgent(String, int, boolean)} always uses the newest version of the agent class.
+//	 * 
+//	 * @param className the fully qualified name of the desired class.
+//	 * @return the newest version of a class object given its name.
+//	 * @throws ClassNotFoundException
+//	 * @since MaDKit 5.0.0.8
+//	 */
+//	public Class<?> getNewestClassVersion(final String className)
+//			throws ClassNotFoundException {
+//		return loadClass(className);
+//	}
+//
 	void loadJarsFromPath(final String path) {
 		final File demoDir = new File(path);
 		if (demoDir.isDirectory()) {
-			for (final File f : demoDir.listFiles(new FileFilter() {
-
-				public boolean accept(final File pathname) {
-					return pathname.getName().endsWith(".jar");
-				}
-			})) {
-				try {
-					addToClasspath(f.toURI().toURL());
-				} catch (MalformedURLException e) {
-					e.printStackTrace();
+			for (final File f : demoDir.listFiles()){
+				if (f.getName().endsWith(".jar")) {
+					try {
+						addToClasspath(f.toURI().toURL());
+					} catch (MalformedURLException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		}
@@ -183,6 +181,8 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 	 * @param name full class's name
 	 */
 	private void addUrlAndloadClasses(final String name) {
+		if(name.startsWith("madkit.kernel."))
+			return;
 		final URL url = this.getResource(name.replace('.', '/') + ".class");
 		if (url != null) {// TODO if url is null return warning
 			String packageName = getClassPackageName(name);
@@ -192,9 +192,12 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 			for (final String fileName : packageDir.list()) {
 				if (fileName.endsWith(".class")) {
 					try {
-						findClass(packageName + fileName.substring(0, fileName.length() - 6));
-					} catch (ClassNotFoundException e) {
-						e.printStackTrace();// TODO log this this should not happen
+						final String className = packageName + fileName.substring(0, fileName.length() - 6);
+						if (findLoadedClass(className) == null) {//because it could be already loaded by loading another class that depends on it
+							findClass(className);
+						}
+					} catch (ClassNotFoundException e ) {
+						e.printStackTrace();
 					}
 				}
 			}
@@ -236,13 +239,14 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 				continue;
 			if (dir.getFile().endsWith(".jar")) {
 				try (JarFile jarFile = ((JarURLConnection) new URL("jar:" + dir + "!/").openConnection()).getJarFile()){
-					agentClasses.addAll(scanJarFileForLaunchConfig(jarFile));
+					scanJarFileForLaunchConfig(jarFile);
+//					agentClasses.addAll(scanJarFileForLaunchConfig(jarFile));
 				} catch (IOException e) {
 					madkit.getLogger().log(Level.SEVERE, "web repo conf is not valid", e);
 				}
 			}
 			else {
-				agentClasses.addAll(scanFolderForAgentClasses(new File(dir.getFile()), null));
+				scanFolderForAgentClasses(new File(dir.getFile()), null, dir.getPath());
 			}
 		}
 	}
@@ -287,6 +291,14 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 		return new TreeSet<>(agentClasses);
 	}
 
+	public Set<String> getMDKFiles() {
+		return new TreeSet<>(mdkFiles);
+	}
+
+	public Set<String> getAgentsWithMain() {
+		return new TreeSet<>(mains);
+	}
+
 	void addMASConfig(MASModel session) {
 		demos.add(session);
 	}
@@ -295,54 +307,67 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 	 * @param jarFile
 	 * @return <code>true</code> if the jar contains MDK files
 	 */
-	private List<String> scanJarFileForLaunchConfig(final JarFile jarFile) {
+	private void scanJarFileForLaunchConfig(final JarFile jarFile) {
 		Attributes projectInfo = null;
 		try {
-			projectInfo = jarFile.getManifest().getAttributes(
-					"MaDKit-Project-Info");
+			projectInfo = jarFile.getManifest().getAttributes("MaDKit-Project-Info");
 		} catch (IOException e) {
 		}
-		if(projectInfo == null)
-			return Collections.emptyList();
-		
-		final String mdkArgs = projectInfo.getValue("MaDKit-Args");
-		if(mdkArgs != null && ! mdkArgs.trim().isEmpty()){
-			MASModel mas = new MASModel(projectInfo.getValue("Project-Name")
-					.trim(), mdkArgs.split(" "),
-					projectInfo.getValue("Description").trim());
-			if (demos == null) {
-				demos = new HashSet<>();
-			}
-			demos.add(mas);
+		if (projectInfo != null) {
 			Logger l = madkit.getLogger();
-			if (l != null) {
-				l.finest("found MAS config info " + mas);
-			}
-		}
-		return Arrays.asList(projectInfo.getValue("Agent-Classes").split(","));
-	}
-
-	private List<String> scanFolderForAgentClasses(final File file,
-			final String pckName) {
-		final File[] files = file.listFiles();
-		if (files == null)
-			return Collections.emptyList();
-		final List<String> l = new ArrayList<>();
-		for (File f : files) {
-			if (f.isDirectory()) {
-				l.addAll(scanFolderForAgentClasses(f, pckName == null ? f.getName()
-						: pckName + "." + f.getName()));
-			}
-			else
-				if (f.getName().endsWith(".class")) {
-					String className = (pckName == null ? "" : pckName + ".")
-							+ f.getName().replace(".class", "");
-					if (isAgentClass(className)) {
-						l.add(className);
+			String mdkArgs = projectInfo.getValue("MaDKit-Args");// TODO MDK files
+			if (mdkArgs != null && ! mdkArgs.trim().isEmpty()) {
+				final String projectName = projectInfo.getValue("Project-Name").trim();
+				final String projectDescription = projectInfo.getValue("Description").trim();
+				MASModel mas = new MASModel(projectName, mdkArgs.split(" "), projectDescription);
+				if (demos == null) {
+					demos = new HashSet<>();
+				}
+				demos.add(mas);
+				if (l != null) {
+					l.finest("found MAS info " + mas);
+				}
+				String mdkConfigs = projectInfo.getValue("mdk-files");
+				if (mdkConfigs != null && ! mdkConfigs.trim().isEmpty()) {
+					mdkArgs += Option.configFile.toString()+" ";
+					for (String configFile : mdkConfigs.split(",")) {
+						mas = new MASModel(projectName+configFile, (mdkArgs+configFile).split(" "), projectDescription);
+						demos.add(mas);
+						if (l != null) {
+							l.finest("found MAS config info " + mas);
+						}
 					}
 				}
+				mdkConfigs = projectInfo.getValue("Main-Classes");
+				if (mdkConfigs != null && ! mdkConfigs.trim().isEmpty()) {
+					mains.addAll(Arrays.asList(mdkConfigs.split(",")));
+				}
+			}
+			agentClasses.addAll(Arrays.asList(projectInfo.getValue("Agent-Classes").split(",")));
 		}
-		return l;
+	}
+
+	private void scanFolderForAgentClasses(final File file, final String pckName, String currentUrlPath) {
+		final File[] files = file.listFiles();
+		if (files != null) {
+			for (File f : files) {
+				final String fileName = f.getName();
+				if (f.isDirectory()) {
+					scanFolderForAgentClasses(f, pckName == null ? fileName : pckName + "." + fileName, currentUrlPath);
+				}
+				else {
+					if (fileName.endsWith(".class")) {
+						String className = (pckName == null ? "" : pckName + ".") + fileName.replace(".class", "");
+						if (isAgentClass(className)) {
+							agentClasses.add(className);
+						}
+					}
+					else if (fileName.endsWith(".mdk")) {
+							mdkFiles.add(f.getPath().substring(currentUrlPath.length()));
+						}
+				}
+			}
+		}
 	}
 
 	private boolean isAgentClass(final String className) {
@@ -352,18 +377,15 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 					&& cl.getConstructor((Class<?>[]) null) != null
 					&& (!Modifier.isAbstract(cl.getModifiers()))
 					&& Modifier.isPublic(cl.getModifiers())) {
+				try {
+					if(cl.getDeclaredMethod("main", String[].class) != null ){
+						mains.add(className);
+					}
+				} catch (NoSuchMethodException e) {
+				}
 				return true;
 			}
-		} catch (VerifyError e) {//scala files raise problems
-//			e.printStackTrace();//FIXME should be logged
-		} catch (ClassNotFoundException e) {//no log here for junit !!
-//			e.printStackTrace();
-		} catch (NoClassDefFoundError e) {
-//			e.printStackTrace(); 
-		} catch (SecurityException e) {
-//			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-//			e.printStackTrace();
+		} catch (VerifyError | ClassNotFoundException | NoClassDefFoundError | SecurityException  | NoSuchMethodException e) {//FIXME
 		}
 		return false;
 	}
@@ -430,22 +452,36 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 	 * @throws IOException
 	 */
 	public static void main(String[] args) throws FileNotFoundException, IOException {
-		Madkit m = new Madkit(
+		final MadkitClassLoader madkitClassLoader = new Madkit(
 				LevelOption.madkitLogLevel.toString(),Level.OFF.toString(),
 				Option.launchAgents.toString(),AbstractAgent.class.getName(),
 				BooleanOption.desktop.toString(),"false"
-				);
-		Set<String> s = m.getMadkitClassLoader().getAllAgentClasses();
-		int size = s.toString().length();
-		java.util.Properties p = new java.util.Properties();
-		p.setProperty("agents.classes", s.toString().substring(1,size-1).replace(", ", ","));
+				).getMadkitClassLoader();
+		final java.util.Properties p = new java.util.Properties();
+		p.setProperty("agents.classes", normalizeResult(madkitClassLoader.getAllAgentClasses()));
+		p.setProperty("mdk.files", normalizeResult(madkitClassLoader.getMDKFiles()));
+		p.setProperty("main.classes", normalizeResult(madkitClassLoader.getAgentsWithMain()));
 		final String findJavaExecutable = findJavaExecutable("jarsigner");
 		if (findJavaExecutable != null) {
 			p.setProperty("jarsigner.path", findJavaExecutable);
 		}
 		try(final FileOutputStream out = new FileOutputStream(new File(System.getProperty("java.io.tmpdir")+File.separatorChar+"agentClasses.properties"))){
-			p.store(out,System.getProperty("java.class.path"));
+			p.store(out,madkitClassLoader.toString());
 		}
+	}
+
+	/**
+	 * @param set
+	 * @return
+	 */
+	private static String normalizeResult(final Set<String> set) {
+		final String s = set.toString();
+		return s.substring(1,s.length()-1).replace(", ", ",");
+	}
+	
+	@Override
+	public String toString() {
+		return "MCL CP : "+Arrays.deepToString(getURLs());
 	}
 
 }

@@ -18,7 +18,7 @@
  
  -->
 
-<jnlp spec="7.0+" codebase="${web.codebase}" href="${ant.project.name}.jnlp">
+<jnlp spec="6.0+" codebase="${web.codebase}" href="${ant.project.name}.jnlp">
   <information>
     <title>${project.label}</title>
     <vendor>${author}</vendor>

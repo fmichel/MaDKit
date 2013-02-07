@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -22,6 +22,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.lang.reflect.InvocationTargetException;
 
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -51,7 +52,7 @@ public abstract class SwingViewer extends Watcher {
 	 * 
 	 */
 	private static final long	serialVersionUID	= -403113166858504599L;
-	private JPanel	displayPane;
+	private JComponent	displayPane;
 	private boolean synchronousPainting = false;
 	private boolean rendering = true;
 	private JFrame frame;
@@ -100,7 +101,7 @@ public abstract class SwingViewer extends Watcher {
 	/**
 	 * @return the current panel which is used for display
 	 */
-	public JPanel getDisplayPane() {
+	public JComponent getDisplayPane() {
 		return displayPane;
 	}
 	
@@ -112,8 +113,12 @@ public abstract class SwingViewer extends Watcher {
 	 * 
 	 * @param displayPane the displayPane to set
 	 */
-	public void setDisplayPane(JPanel displayPane) {
-		this.displayPane = displayPane;
+	public void setDisplayPane(JComponent displayPane) {
+		if (this.displayPane != displayPane ) {
+			getFrame().remove(this.displayPane);
+			getFrame().add(displayPane);
+			this.displayPane = displayPane;
+		}
 	}
 	
 	/**

@@ -100,7 +100,7 @@ final public class Madkit {
 	final static Properties defaultConfig = new Properties();
 	final static SimpleDateFormat	dateFormat = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
 	static{
-		System.setProperty("sun.java2d.xrender", "True"); //TODO
+//		System.setProperty("sun.java2d.xrender", "True"); //TODO
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
 			public void run() {//just in case (like ctrl+c)
@@ -415,40 +415,42 @@ final public class Madkit {
 	}
 
 	private boolean loadConfigFile() {// TODO
-		final String fileName = madkitConfig.getProperty(Option.configFile.name());
-		if (!fileName.equals("null")) {
-			if (logger != null)
-				logger.fine("** Loading config file " + fileName + " **");
-
-			try (InputStream url = getClass().getClassLoader().getResourceAsStream(fileName)) {
-				if (url != null) {
-					if (fileName.endsWith(".properties")) {
-						madkitConfig.load(url);
-					}
-					else {
-						madkitXMLConfigFile = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(url).getDocumentElement();
-						NodeList madkitOptionNodes = madkitXMLConfigFile.getElementsByTagName("madkitOptions");
-						for (int i = 0; i < madkitOptionNodes.getLength(); i++) {
-							org.w3c.dom.NamedNodeMap options = madkitOptionNodes.item(i).getAttributes();
-							for (int j = 0; j < options.getLength(); j++) {
-								madkitConfig.put(options.item(j).getNodeName(), options.item(j).getNodeValue());
+		final String filesName = madkitConfig.getProperty(Option.configFile.name());
+		boolean loaded = false;
+		if (! filesName.equals("null")) {
+			for (String fileName : filesName.split(";")) {
+				if (logger != null)
+					logger.fine("** Loading config file " + fileName + " **");
+				try (InputStream url = getClass().getClassLoader().getResourceAsStream(fileName)) {
+					if (url != null) {
+						if (! fileName.endsWith(".xml")) {
+							madkitConfig.load(url);
+						}
+						else {
+							madkitXMLConfigFile = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(url).getDocumentElement();
+							NodeList madkitOptionNodes = madkitXMLConfigFile.getElementsByTagName("madkitOptions");
+							for (int i = 0; i < madkitOptionNodes.getLength(); i++) {
+								org.w3c.dom.NamedNodeMap options = madkitOptionNodes.item(i).getAttributes();
+								for (int j = 0; j < options.getLength(); j++) {
+									madkitConfig.put(options.item(j).getNodeName(), options.item(j).getNodeValue());
+								}
 							}
 						}
 						if (logger != null)
 							logger.fine("** Config file " + fileName + " successfully loaded **\n");
-						return true;
+						loaded = true;
 					}
+					else
+						if (logger != null) {
+							logger.warning(ErrorMessages.CANT_FIND + "configuration " + fileName);
+						}
+				} catch (IOException | SAXException | ParserConfigurationException e) {
+					if (logger != null)
+						logger.log(Level.WARNING, ErrorMessages.CANT_LOAD + "configuration " + fileName, e);
 				}
-				else
-					if (logger != null) {
-						logger.warning(ErrorMessages.CANT_FIND + " configuration " + fileName);
-					}
-			} catch (IOException | SAXException | ParserConfigurationException e) {
-				if (logger != null)
-					logger.log(Level.WARNING, ErrorMessages.CANT_LOAD + " configuration " + fileName, e);
 			}
 		}
-		return false;
+		return loaded;
 	}
 
 	/**
@@ -508,9 +510,19 @@ final public class Madkit {
 						parameters = "";
 					}
 					else {
+						if(currentOption == null){
+							System.err.println("\n\t\t!!!!! MADKIT WARNING !!!!!!!!!!!\n\t\tNeeds an option with -- to start with\n\t\targs was : "+Arrays.deepToString(options));
+							return currentMap;
+						}
 						parameters += options[i] + " ";
 						if (i + 1 == options.length || options[i + 1].startsWith("--")) {
-							currentMap.put(currentOption, parameters.trim());//TODO bug on "-" use
+							String currentValue = currentMap.getProperty(currentOption);
+							if(currentOption.equals(Option.configFile.name()) && ! currentValue.equals("true")){
+								currentMap.put(currentOption, currentValue+';'+parameters.trim());//TODO bug on "-" use
+							}
+							else{
+								currentMap.put(currentOption, parameters.trim());//TODO bug on "-" use
+							}
 							if (logger != null)
 								logger.finest("found option -- " + currentOption + " -- value -- " + parameters.trim());
 						}

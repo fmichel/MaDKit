@@ -511,14 +511,14 @@ public class Agent extends AbstractAgent{
 	 * @param milliSeconds the number of milliseconds for which the agent should pause.
 	 */
 	protected void pause(final int milliSeconds) {
-		if(logger != null)
-			logger.finest(Words.PAUSE+" "+milliSeconds+ " ms.");
-		if(milliSeconds <0)
-			return;
-		try {
-			Thread.sleep(milliSeconds);
-		} catch (InterruptedException e) {
-			handleInterruptedException();
+		if (milliSeconds > 0) {
+			if (logger != null)
+				logger.finest(Words.PAUSE + " " + milliSeconds + " ms.");
+			try {
+				Thread.sleep(milliSeconds);
+			} catch (InterruptedException e) {
+				handleInterruptedException();
+			}
 		}
 	}
 

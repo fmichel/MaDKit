@@ -269,7 +269,7 @@ class MadkitKernel extends Agent {
 
 	@Override
 	protected void activate() {
-		addWebRepository();
+//		addWebRepository();
 		if (logger != null)
 			logger.setWarningLogLevel(Level.INFO);
 		
@@ -1784,6 +1784,9 @@ class MadkitKernel extends Agent {
 		sendNetworkMessageWithRole(new KernelMessage(KernelAction.EXIT), kernelRole);
 		broadcastMessageWithRole(MadkitKernel.this, LocalCommunity.NAME, Groups.GUI, madkit.agr.Organization.GROUP_MANAGER_ROLE,
 				new KernelMessage(KernelAction.EXIT), null);
+		while (getAgentWithRole(LocalCommunity.NAME, Groups.GUI, madkit.agr.Organization.GROUP_MANAGER_ROLE) != null) {
+			pause(10);
+		}
 		// pause(10);//be sure that last executors have started
 		if (logger != null)
 			logger.finer("***** SHUTINGDOWN MADKIT ********\n");

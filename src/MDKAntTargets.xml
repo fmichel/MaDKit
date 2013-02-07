@@ -50,6 +50,7 @@
 				<attribute name="Built-With" value="MaDKit ${madkit.version}" />
 				<attribute name="MaDKit-Args" value="${madkit.args}" />
 				<attribute name="Agent-Classes" value="${agents.classes}" />
+				<attribute name="mdk-files" value="${mdk.files}" />
 			</section>
 		</manifest>
 	</target>

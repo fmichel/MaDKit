@@ -183,7 +183,10 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		logger = AgentLogger.defaultAgentLogger;
 	}
 
-	@SuppressWarnings("unused")
+	/**
+	 * for building fake kernels
+	 * @param fake
+	 */
 	AbstractAgent(Object fake) {
 		_hashCode = -1;
 	}
@@ -291,33 +294,16 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			if (logger != null) {
 				logger.finer("** setting up  GUI **");
 			}
-			launchAgent(new MicroAgent<Void>() {
-				@Override
-				protected void activate() {
-					sendMessageAndWaitForReply(
-							LocalCommunity.NAME, 
-							Groups.GUI,
-							Organization.GROUP_MANAGER_ROLE, 
-							new GUIMessage(GUIManagerAction.SETUP_AGENT_GUI, AbstractAgent.this));
-				}
-			});
-			// to avoid the log of logged kernel
-//			if(
-//					getMadkitKernel().broadcastMessageWithRoleAndWaitForReplies(
-//					this, 
-//					LocalCommunity.NAME, 
-//					Groups.GUI,
-//					Organization.GROUP_MANAGER_ROLE, 
-//					new GUIMessage(GUIManagerAction.SETUP_AGENT_GUI, this), 
-//					null, 
-//					10);// == null)
-//					hasGUI = false;
-			// getKernel().getMadkitKernel().sendMessageAndWaitForReply(//TODO
-			// LocalCommunity.NAME,
-			// Groups.SYSTEM,
-			// Roles.GUI_MANAGER,
-			// new GUIMessage(GUIManagerAction.SETUP_AGENT_GUI,this),
-			// 10000);
+			sendMessage(
+					LocalCommunity.NAME, 
+					Groups.GUI,
+					Organization.GROUP_MANAGER_ROLE, 
+					new GUIMessage(GUIManagerAction.SETUP_AGENT_GUI, AbstractAgent.this));
+			try {//wait answer using a big hack
+				messageBox.take();//works because the agent cannot be joined in anyway
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 		logMethod(true);
 	}
@@ -728,7 +714,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			if (ReturnCode.SUCCESS == launchAgent(a, timeOutSeconds, createFrame))
 				return a;
 		} catch (InstantiationException | ClassCastException | ClassNotFoundException | IllegalAccessException | KernelException e) {
-			handleException(Influence.LAUNCH_AGENT, e);
+			getLogger().severeLog(Influence.LAUNCH_AGENT.failedString(), e);
 		}
 		return null;
 	}
@@ -871,7 +857,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 																													// origin
 		if (target == this && Thread.currentThread().getName().equals(getAgentThreadName(getState()))) {
 			if (isFinestLogOn())
-				logger.log(Level.FINEST, Influence.KILL_AGENT + " (" + timeOutSeconds + ")" + target.getLoggingName() + "...");
+				logger.log(Level.FINEST, Influence.KILL_AGENT + " (" + timeOutSeconds + ")" + target.getName() + "...");
 			if (alive.compareAndSet(true, false)) {
 				throw new SelfKillException("" + timeOutSeconds);
 			}
@@ -1297,7 +1283,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			final String agentClassName = getClass().getName();
 			for (int i = 0; i < stackTrace.length; i++) {
 				final String trace = stackTrace[i].getClassName();
-				if (!(trace.contains("madkit.kernel") || trace.contains("java.")) || trace.contains(agentClassName)) {
+				if (!(trace.startsWith("madkit.kernel") || trace.startsWith("java.") || trace.startsWith("sun.")) || trace.contains(agentClassName)) {
 					stack.add(stackTrace[i]);
 				}
 			}
@@ -2011,19 +1997,14 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	final boolean logLifeException(final Throwable e) {
 		if (e instanceof KilledException || e instanceof IllegalMonitorStateException) {
 			if (logger != null)
-				logger.warning("-*-GET KILLED in " + getState().lifeCycleMethod() + "-*-");
+				logger.finer("-*-GET KILLED in " + getState().lifeCycleMethod() + "-*-");
 		}
 		else {
 			if (alive.get()) {
-				getLogger().severeLog(
-						"-*-" + getState().lifeCycleMethod() + " BUG*-*", e);
+				getLogger().severeLog("-*-" + getState().lifeCycleMethod() + " BUG*-*", e);
 			}
 		}
 		return false;
-	}
-
-	final String getLoggingName() {
-		return "[" +(name != null ? name : getClass().getSimpleName()) + "-" + _hashCode + "]";//+hashCode : ensuring uniqueness
 	}
 
 	// //////////////////////////////////////////////////////////////////////////////
@@ -2350,6 +2331,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			e.printStackTrace();
 		} catch (InvocationTargetException e) {// TODO dirty : think about that
 			Throwable t = e.getCause();
+//			e.getCause().printStackTrace();
 			if (t instanceof SelfKillException) {
 				throw (SelfKillException) t;
 			}
@@ -2616,7 +2598,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * <pre>
 	 * <code>
 	 * public static void main(String[] args) {
-	 * 	AbstractAgent.executeThisAgent(args);
+	 * 	executeThisAgent(args);
 	 * }
 	 * </code>
 	 * </pre>
@@ -2642,14 +2624,21 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @since MaDKit 5.0.0.14
 	 */
 	@SuppressWarnings("unused")
-	public static void executeThisAgent(int nbOfInstances, boolean createFrame, String... args) {
-		final StackTraceElement[] trace = new Throwable().getStackTrace();
-		final ArrayList<String> arguments = new ArrayList<String>(Arrays.asList(Madkit.Option.launchAgents.toString(),
-				trace[trace.length - 1].getClassName() + "," + createFrame + "," + nbOfInstances));
+	protected static void executeThisAgent(int nbOfInstances, boolean createFrame, String... args) {
+		StackTraceElement element = null;
+		for (StackTraceElement stackTraceElement : new Throwable().getStackTrace()) {
+			if(stackTraceElement.getMethodName().equals("main")){
+				element  = stackTraceElement;
+				break;
+			}
+		}
+		@SuppressWarnings("null")
+		final ArrayList<String> arguments = new ArrayList<>(Arrays.asList(Madkit.Option.launchAgents.toString(),
+				element.getClassName() + "," + createFrame + "," + nbOfInstances));
 		if (args != null) {
 			arguments.addAll(Arrays.asList(args));
 		}
-		new Madkit(arguments.toArray(new String[0]));
+		new Madkit(arguments.toArray(new String[arguments.size()]));
 	}
 
 	/**

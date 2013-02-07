@@ -36,6 +36,6 @@ final class TerminatedKernel extends FakeKernel{
 //		if(agent instanceof AbstractAgent && Thread.currentThread().getThreadGroup() == MadkitKernel.A_LIFE){
 //			throw new KilledException((String)null);//TODO something else
 //		}
-		return agent != null ? agent.getLoggingName() : ""+AbstractAgent.State.TERMINATED;
+		return agent != null ? agent.getName() : ""+AbstractAgent.State.TERMINATED;
 	}
 }

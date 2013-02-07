@@ -57,7 +57,6 @@ final public class AgentLogger extends Logger {
 	 * Defines the default file formatter as : LOG_LEVEL : message
 	 */
 	final public static Formatter									AGENT_FILE_FORMATTER	= new AgentFormatter() {
-
 																											@Override
 																											protected String getHeader(
 																													final LogRecord record) {
@@ -66,9 +65,9 @@ final public class AgentLogger extends Logger {
 																										};
 	final static AgentLogger										defaultAgentLogger	= new AgentLogger();
 
-	final static Level												talkLevel				= Level
-																												.parse("1100");
+	final static Level												talkLevel				= Level.parse("1100");
 	final static private Map<AbstractAgent, AgentLogger>	agentLoggers			= new ConcurrentHashMap<>();	// TODO evaluate foot print
+	private FileHandler	fh;
 
 	final private AbstractAgent									myAgent;
 
@@ -130,7 +129,7 @@ final public class AgentLogger extends Logger {
 	}
 
 	private AgentLogger(final AbstractAgent agent) {
-		super(agent.getLoggingName(), null);
+		super("["+agent.getName()+"]", null);
 		myAgent = agent;
 		setUseParentHandlers(false);
 		final Level l = agent.logger == null ? Level.OFF
@@ -154,52 +153,37 @@ final public class AgentLogger extends Logger {
 	 * the MaDKit property {@link Option#logDirectory}
 	 */
 	public void createLogFile() {
-		final String logDir = myAgent.getMadkitConfig().getProperty(
-				Option.logDirectory.name());
-		new File(logDir).mkdirs();
-		final String fileName = logDir + File.separator + getName();
-		if (! new File(fileName).exists()) {
-			addHandler(getFileHandler(fileName));
+		if (fh == null) {
+			final String logDir = myAgent.getMadkitConfig().getProperty(Option.logDirectory.name());
+			new File(logDir).mkdirs();
+			final String logFileName = logDir + File.separator + getName();
+			final File logFile = new File(logFileName);
+			final String lineSeparator = "----------------------------------------------------------------------\n";
+			final String logSession = lineSeparator + "-- Log session for "
+					+ logFileName.substring(logFileName.lastIndexOf(File.separator) + 1);
+			final String logEnd = " --\n"+lineSeparator+"\n";
+			final Date date = new Date();
+			try (FileWriter fw = new FileWriter(logFile, true)) {
+				fw.write(logSession + " started on " + Madkit.dateFormat.format(date) + logEnd);
+				fh = new FileHandler(logFileName, true) {
+					public synchronized void close() throws SecurityException {
+						super.close();
+						try (FileWriter fw2 = new FileWriter(logFile, true)) {
+							date.setTime(System.currentTimeMillis());
+							fw2.write("\n\n"+logSession + " closed on  " + Madkit.dateFormat.format(date) + logEnd);
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
+				};
+				fh.setFormatter(AGENT_FILE_FORMATTER);
+			} catch (SecurityException | IOException  e) {
+				e.printStackTrace();
+			}
+			addHandler(fh);
 		}
 	}
 
-	static private FileHandler getFileHandler(final String logFileName){
-		final File logFile = new File(logFileName);
-		FileHandler fh = null;
-		final String logSession = "\n------------------------------------------------------------------\n" +
-				"-- Log session for "+logFileName.substring(logFileName.lastIndexOf(File.separator)+1);
-		final String logEnd= " --\n------------------------------------------------------------------\n\n";
-		final Date date = new Date();
-			try {
-				FileWriter fw = new FileWriter(logFile, true);
-				fw.write(logSession+" started on "+Madkit.dateFormat.format(date)+logEnd);
-				fw.close();
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-			try {
-			fh = new FileHandler(logFileName,true){
-				public synchronized void close() throws SecurityException {
-					super.close();
-					try {
-						FileWriter fw = new FileWriter(logFile, true);
-						date.setTime(System.currentTimeMillis());
-						fw.write(logSession+" closed on  "+Madkit.dateFormat.format(date)+logEnd);
-						fw.close();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-			};
-			fh.setFormatter(AGENT_FILE_FORMATTER);
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return fh;
-	}
-	
 	final synchronized void close(){
 		for (final Handler h : getHandlers()) {
 			removeHandler(h);
@@ -259,8 +243,7 @@ final public class AgentLogger extends Logger {
 
 	@Override
 	public String toString() {
-		return getName() + " logger: \n\tlevel " + getLevel()
-				+ "\n\twarningLogLevel " + getWarningLogLevel();
+		return getName() + " logger: \n\tlevel " + getLevel() + "\n\twarningLogLevel " + getWarningLogLevel();
 	}
 
 	/**

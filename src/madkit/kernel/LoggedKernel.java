@@ -292,7 +292,7 @@ final class LoggedKernel extends MadkitKernel {
 	@Override
 	final ReturnCode launchAgent(AbstractAgent requester, AbstractAgent agent, int timeOutSeconds, boolean defaultGUI) {
 		if(requester.isFinestLogOn())
-			requester.logger.log(Level.FINEST, Influence.LAUNCH_AGENT+" ("+timeOutSeconds+")"+ agent.getLoggingName()+"...");
+			requester.logger.log(Level.FINEST, Influence.LAUNCH_AGENT+" ("+timeOutSeconds+")"+ agent.getName()+"...");
 		final ReturnCode r = kernel.launchAgent(requester, agent, timeOutSeconds, defaultGUI);
 		if(r == SUCCESS || r == TIMEOUT){
 			if(requester.isFinestLogOn())
@@ -311,7 +311,7 @@ final class LoggedKernel extends MadkitKernel {
 		final ReturnCode r = kernel.killAgent(requester, target, timeOutSeconds);
 		if(r == SUCCESS || r == TIMEOUT){
 			if(requester.isFinestLogOn())
-				requester.logger.log(Level.FINEST, Influence.KILL_AGENT+ target.getLoggingName()+" "+r);
+				requester.logger.log(Level.FINEST, Influence.KILL_AGENT+ target.getName()+" "+r);
 		}
 		else if (requester.isWarningOn()) {
 				requester.handleException(Influence.KILL_AGENT, new MadkitWarning(target.toString(),r));

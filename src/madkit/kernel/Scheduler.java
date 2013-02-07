@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -21,7 +21,6 @@ package madkit.kernel;
 import static madkit.kernel.Scheduler.SimulationState.PAUSED;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
@@ -29,7 +28,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.swing.Action;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.JFrame;
@@ -42,6 +40,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
 import madkit.action.SchedulingAction;
+import madkit.gui.SwingUtil;
 import madkit.message.SchedulingMessage;
 
 /**
@@ -56,10 +55,11 @@ import madkit.message.SchedulingMessage;
  * @see Activator
  */
 public class Scheduler extends Agent {
+
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -2224235651899852429L;
+	private static final long	serialVersionUID	= -2224235651899852429L;
 
 	/**
 	 * A simulation state. The simulation process managed by a scheduler agent
@@ -68,8 +68,7 @@ public class Scheduler extends Agent {
 	 * <li>{@link #RUNNING}<br>
 	 * The simulation process is running normally.</li>
 	 * <li>{@link #STEP}<br>
-	 * The scheduler will process one simulation step and then will be in the
-	 * {@link #PAUSED} state.</li>
+	 * The scheduler will process one simulation step and then will be in the {@link #PAUSED} state.</li>
 	 * <li>{@link #PAUSED}<br>
 	 * The simulation is paused. This is the default state.</li>
 	 * </ul>
@@ -86,8 +85,7 @@ public class Scheduler extends Agent {
 		RUNNING,
 
 		/**
-		 * The scheduler will process one simulation step and then will be in the
-		 * {@link #PAUSED} state.
+		 * The scheduler will process one simulation step and then will be in the {@link #PAUSED} state.
 		 * 
 		 */
 		STEP,
@@ -103,19 +101,26 @@ public class Scheduler extends Agent {
 		SHUTDOWN
 	}
 
-	private SimulationState simulationState = SimulationState.PAUSED;
+	private SimulationState											simulationState	= SimulationState.PAUSED;
 
-	final private Set<Activator<? extends AbstractAgent>> activators = new LinkedHashSet<>();
+	final private Set<Activator<? extends AbstractAgent>>	activators			= new LinkedHashSet<>();
 
-	private Action run, step, speedUp, speedDown;
+	private Action														run, step, speedUp, speedDown;
 
-	private JLabel timer;
-	private JSlider speedSlider;
+	private JLabel														timer;
+	private int															delay;
 
 	/**
 	 * specify the delay between 2 steps
 	 */
-	private DefaultBoundedRangeModel speedModel = new DefaultBoundedRangeModel(0, 50, 0, 1001);
+	@SuppressWarnings("serial")
+	private DefaultBoundedRangeModel								speedModel			= new DefaultBoundedRangeModel(400, 0, 0, 400) {
+
+																										public void setValue(int n) {
+																											super.setValue(n);
+																											delay = 400 - n;
+																										}
+																									};
 
 	/**
 	 * Returns the delay between two simulation steps
@@ -123,7 +128,7 @@ public class Scheduler extends Agent {
 	 * @return the delay between two simulation steps.
 	 */
 	public int getDelay() {
-		return speedModel.getValue();
+		return delay;
 	}
 
 	/**
@@ -131,14 +136,14 @@ public class Scheduler extends Agent {
 	 * between to call to {@link #doSimulationStep()}
 	 * 
 	 * @param delay
-	 *           the delay to set, an integer between 0 and 1000 (ms): O is max
+	 *           the pause between two steps in ms, an integer between 0 and 400: O is max speed.
 	 *           speed
 	 */
 	public void setDelay(final int delay) {
 		speedModel.setValue(delay);
 	}
 
-	private double GVT = 0; // simulation global virtual time
+	private double	GVT	= 0;	// simulation global virtual time
 
 	/**
 	 * Returns the simulation global virtual time.
@@ -161,7 +166,7 @@ public class Scheduler extends Agent {
 			timer.setText("Simulation " + simulationState + ", time is " + GVT);
 	}
 
-	private double simulationDuration;
+	private double	simulationDuration;
 
 	/**
 	 * This constructor is equivalent to <code>Scheduler(Double.MAX_VALUE)</code>
@@ -202,6 +207,7 @@ public class Scheduler extends Agent {
 	public void setupFrame(JFrame frame) {
 		super.setupFrame(frame);
 		frame.add(getSchedulerToolBar(), BorderLayout.PAGE_START);
+//		frame.add(getSchedulerToolPanel(), BorderLayout.PAGE_START);
 		frame.add(getSchedulerStatusLabel(), BorderLayout.PAGE_END);
 		setGVT(GVT);
 		frame.validate();
@@ -236,8 +242,7 @@ public class Scheduler extends Agent {
 	}
 
 	/**
-	 * Executes all the activators in the order they have been added, using
-	 * {@link Activator#execute()}, and then increments the global virtual time
+	 * Executes all the activators in the order they have been added, using {@link Activator#execute()}, and then increments the global virtual time
 	 * of this scheduler by one unit.
 	 * 
 	 * This also automatically calls the multicore mode of the activator if it
@@ -264,13 +269,13 @@ public class Scheduler extends Agent {
 		}
 		for (final Activator<? extends AbstractAgent> activator : activators) {
 			if (logger != null)
-				logger.finer("Activating\n--------> " + activator);
-//			try {
-				activator.execute();
-//			} catch (SimulationException e) {//TODO is it better ?
-//				setSimulationState(SimulationState.SHUTDOWN);
-//				getLogger().log(Level.SEVERE, e.getMessage(), e);
-//			}
+				logger.finer("Activating --------> " + activator);
+			// try {
+			activator.execute();
+			// } catch (SimulationException e) {//TODO is it better ?
+			// setSimulationState(SimulationState.SHUTDOWN);
+			// getLogger().log(Level.SEVERE, e.getMessage(), e);
+			// }
 		}
 		setGVT(GVT + 1);
 	}
@@ -298,7 +303,7 @@ public class Scheduler extends Agent {
 	 * @param newState
 	 *           the new state
 	 */
-	protected void setSimulationState(final SimulationState newState) {
+	protected void setSimulationState(final SimulationState newState) {//TODO proceedEnumMessage
 		if (simulationState != newState) {
 			simulationState = newState;
 			switch (simulationState) {
@@ -329,8 +334,7 @@ public class Scheduler extends Agent {
 	 * while (isAlive()) {
 	 * 	if (GVT &gt; getSimulationDuration()) {
 	 * 		if (logger != null)
-	 * 			logger.info(&quot;Quitting: Simulation has reached end time &quot;
-	 * 					+ getSimulationDuration());
+	 * 			logger.info(&quot;Quitting: Simulation has reached end time &quot; + getSimulationDuration());
 	 * 		return;
 	 * 	}
 	 * 	if (getDelay() == 0)
@@ -366,10 +370,10 @@ public class Scheduler extends Agent {
 					logger.info("Quitting: Simulation has reached end time " + simulationDuration);
 				return;
 			}
-			if (getDelay() == 0)
-				Thread.yield();
-			else
-				pause(getDelay());
+			// if (getDelay() == 0)
+			// Thread.yield();
+			// else
+			pause(delay);
 			checkMail(nextMessage());
 			switch (simulationState) {
 			case RUNNING:
@@ -488,35 +492,23 @@ public class Scheduler extends Agent {
 		final JToolBar toolBar = new JToolBar("scheduler toolbar");
 		toolBar.add(run);
 		toolBar.add(step);
-
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		p.setBorder(new TitledBorder("speed"));
-
-		setSpeedSlider(new JSlider(speedModel));
-
-		getSpeedSlider().setPaintTicks(true);
-		getSpeedSlider().setPaintLabels(false);
-		getSpeedSlider().setMajorTickSpacing(speedModel.getMaximum() / 2);
-		getSpeedSlider().setMinorTickSpacing(100);
-		getSpeedSlider().setInverted(true);
-		getSpeedSlider().setSnapToTicks(false);
-
-		getSpeedSlider().addMouseWheelListener(new MouseWheelListener() {
+		final JSlider sp = new JSlider(speedModel);
+		sp.addMouseWheelListener(new MouseWheelListener() {
 			@Override
 			public void mouseWheelMoved(MouseWheelEvent e) {
-				getSpeedSlider().setValue(e.getWheelRotation() * 50 + getSpeedSlider().getValue());
+				sp.setValue(-e.getWheelRotation() * 10 + sp.getValue());
 			}
 		});
-
-		p.setPreferredSize(new Dimension(150, 50));
-		p.add(getSpeedSlider());
-		toolBar.addSeparator();
+		// p.setPreferredSize(new Dimension(150, 25));
+		p.add(sp);
+		// toolBar.addSeparator();
 		// toolBar.add(Box.createRigidArea(new Dimension(40,5)));
-		toolBar.add(Box.createHorizontalGlue());
+		// toolBar.add(Box.createHorizontalGlue());
 		toolBar.add(p);
-
-		// timer.setSize(30, 20);
+		SwingUtil.scaleAllAbstractButtonIcons(toolBar, 24);
 		return toolBar;
 	}
 
@@ -546,21 +538,6 @@ public class Scheduler extends Agent {
 		timer.setHorizontalAlignment(JLabel.LEADING);
 		setGVT(getGVT());
 		return timer;
-	}
-
-	/**
-	 * @param speedSlider
-	 *           the speedSlider to set
-	 */
-	private void setSpeedSlider(JSlider speedSlider) {
-		this.speedSlider = speedSlider;
-	}
-
-	/**
-	 * @return the speedSlider
-	 */
-	public JSlider getSpeedSlider() {
-		return speedSlider;
 	}
 
 }

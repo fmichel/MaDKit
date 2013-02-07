@@ -18,15 +18,18 @@
  */
 package madkit.gui;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertTrue;
 
 import javax.swing.JFrame;
 
+import madkit.action.AgentAction;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Message;
+import madkit.testing.util.agent.AlwaysInCGRNormalAA;
+import madkit.testing.util.agent.NormalAA;
 
 import org.junit.Test;
 
@@ -47,6 +50,19 @@ public class GUITest extends JunitMadkit {
 				AbstractAgent a = new AbstractAgent();
 				assertEquals(ReturnCode.SUCCESS, launchAgent(a, true));
 				assertTrue(a.hasGUI());
+			}
+		});
+	}
+
+	public void kill() {//FIXME 
+		launchTest(new AbstractAgent() {
+			@Override
+			protected void activate() {
+				AbstractAgent a = new AbstractAgent();
+				launchAgent(a, 0, true);
+					for (int i = 0; i < 100; i++) {
+						killAgent(a);
+					}
 			}
 		});
 	}
@@ -93,6 +109,32 @@ public class GUITest extends JunitMadkit {
 						System.err.println(m);
 					}
 				}, true));
+			}
+		});
+	}
+
+	@Test
+	public void launchAgentByGUITest() {
+		launchTest(new AbstractAgent() {
+			@Override
+			protected void activate() {
+				AbstractAgent a = launchAgent(AlwaysInCGRNormalAA.class.getName());
+				assertEquals(1, getAgentsWithRole(COMMUNITY, GROUP, ROLE).size());
+				AgentAction.LAUNCH_AGENT.getActionFor(a,a.getClass().getName(),true).actionPerformed(null);
+				assertEquals(2, getAgentsWithRole(COMMUNITY, GROUP, ROLE).size());
+			}
+		});
+	}
+
+
+	@Test
+	public void killAgentByGUITest() {
+		launchTest(new AbstractAgent() {
+			@Override
+			protected void activate() {
+				AbstractAgent a = launchAgent(AlwaysInCGRNormalAA.class.getName());
+				AgentAction.KILL_AGENT.getActionFor(a,a).actionPerformed(null);
+				assertFalse(a.isAlive());
 			}
 		});
 	}

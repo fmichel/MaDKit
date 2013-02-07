@@ -23,6 +23,9 @@ import static madkit.kernel.JunitMadkit.COMMUNITY;
 import static madkit.kernel.JunitMadkit.GROUP;
 import static madkit.kernel.JunitMadkit.ROLE;
 import static org.junit.Assert.assertEquals;
+
+import java.util.logging.Level;
+
 import madkit.kernel.AbstractAgent;
 
 /**
@@ -31,7 +34,7 @@ import madkit.kernel.AbstractAgent;
  * @version 0.9
  * 
  */
-public class NormalAA extends AbstractAgent {
+public class AlwaysInCGRNormalAA extends AbstractAgent {
 
 	/**
 	 * 
@@ -40,8 +43,10 @@ public class NormalAA extends AbstractAgent {
 
 	@Override
 	protected void activate() {
-		assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
+		setLogLevel(Level.ALL);
+		createGroupIfAbsent(COMMUNITY, GROUP);
 		assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
 	}
+	
 
 }

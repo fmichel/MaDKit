@@ -77,7 +77,7 @@ public class ReloadClassTest extends JunitMadkit {
 		launchTest(new AbstractAgent() {
 			protected void activate() {
 				try {
-					assertTrue(getMadkitClassLoader().reloadClass(getClass().getName()));
+					getMadkitClassLoader().reloadClass(getClass().getName());
 				} catch (ClassNotFoundException e) {
 					fail("exception thrown");
 					e.printStackTrace();

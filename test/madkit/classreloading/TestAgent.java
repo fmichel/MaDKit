@@ -73,7 +73,7 @@ public class TestAgent extends Agent {
 			try {
 				System.err.println(System.getProperty("java.class.path"));
 				getMadkitClassLoader().reloadClass("madkit.classreloading.anotherPackage.Fake");
-				logger.info("after reload : "+getMadkitClassLoader().getNewestClassVersion("madkit.classreloading.anotherPackage.Fake").newInstance().toString());
+				logger.info("after reload : "+getMadkitClassLoader().loadClass("madkit.classreloading.anotherPackage.Fake").newInstance().toString());
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			} catch (InstantiationException e) {

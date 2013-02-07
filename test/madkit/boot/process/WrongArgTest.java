@@ -39,21 +39,32 @@ import org.junit.Test;
 @SuppressWarnings("serial")
 public class WrongArgTest extends JunitMadkit {
 
+	@Test
 	public void agentDoesNotExist() {
 		addMadkitArgs(Option.launchAgents.toString(),"fake.fake",LevelOption.kernelLogLevel.toString(),Level.OFF.toString());
 		launchTest(new AbstractAgent());
 	}
 
+	@Test
 	public void wrongLaunchParameters() {
 		addMadkitArgs(Option.launchAgents.toString(),AbstractAgent.class.getName()+",fd,h",LevelOption.kernelLogLevel.toString(),Level.OFF.toString());
 		launchTest(new AbstractAgent());
 	}
 
+	@Test
+	public void wrongParameters() {
+		mkArgs.clear();
+		addMadkitArgs("azdadad");
+		launchTest(new AbstractAgent());
+	}
+
+	@Test
 	public void notAnAgentClass() {
 		addMadkitArgs(Option.launchAgents.toString(),Object.class.getName(),LevelOption.kernelLogLevel.toString(),Level.OFF.toString());
 		launchTest(new AbstractAgent());
 	}
 
+	@Test
 	public void agentCannotBeInitialized() {
 		addMadkitArgs(Option.launchAgents.toString(),GUIManagerAction.class.getName(),LevelOption.kernelLogLevel.toString(),Level.OFF.toString());
 		launchTest(new AbstractAgent());

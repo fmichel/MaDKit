@@ -18,6 +18,8 @@
  */
 package madkit.classreloading;
 
+import static org.junit.Assert.assertNotSame;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -25,8 +27,11 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.channels.FileChannel;
 
+import madkit.action.AgentAction;
+import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
 import madkit.kernel.JunitMadkit;
+import madkit.testing.util.agent.NormalAA;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -43,7 +48,7 @@ import org.junit.Test;
 public class ReloadTest extends JunitMadkit {
 
 	@Test
-	public void replyWithSameMessage() {
+	public void reloadTest() {
 		launchTest(new Agent() {
 
 			/**
@@ -62,6 +67,42 @@ public class ReloadTest extends JunitMadkit {
 				}
 				Assert.assertEquals("reloaded", launchAgent(agentClassName).toString());
 			}
+		});
+	}
+
+
+	@Test
+	public void reloadByGUITest() {//need to clean cp before use
+		launchTest(new Agent() {
+			/**
+			 * 
+			 */
+			private static final long	serialVersionUID	= 1L;
+
+			protected void activate() {
+				final String agentClassName = AgentToReload.class.getName();
+				final AbstractAgent launchAgent = launchAgent(agentClassName);
+				Assert.assertEquals("a", launchAgent.toString());
+				replaceFile();
+				AgentAction.RELOAD.getActionFor(launchAgent).actionPerformed(null);
+				Assert.assertEquals("reloaded", launchAgent(agentClassName).toString());
+			}
+		});
+	}
+
+	@Test
+	public void reloadAndLoadTest() {
+		launchTest(new AbstractAgent() {
+			protected void activate() {
+				NormalAA a = new NormalAA();
+				try {
+					getMadkitClassLoader().reloadClass(a.getClass().getName());
+					Class<AbstractAgent> c = (Class<AbstractAgent>) getMadkitClassLoader().loadClass(a.getClass().getName());
+					assertNotSame(c.getClassLoader(), a.getClass().getClassLoader());
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				}
+		}
 		});
 	}
 

@@ -194,7 +194,8 @@ public class AbstractAgentTest {
 		a.setName("new");
 		System.err.println(a.getName());
 		System.err.println(a.getLogger().getName());
-		assertEquals("[new-"+a.hashCode()+"]", a.getLoggingName());
+		assertEquals("new", a.getName());
+		assertEquals("[AbstractAgent-"+a.hashCode()+"]", a.getLogger().getName());
 		a.setLogLevel(Level.OFF);
 		assertNull(a.logger);
 	}

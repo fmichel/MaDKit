@@ -45,7 +45,7 @@ public class DuplicateNamesTest extends JunitMadkit {
 	}
 
 	@Test
-	public void setNameTestOnLogFile() {//FIXME local community does not exist
+	public void setNameTestOnLogFile() {
 		addMadkitArgs(BooleanOption.createLogFiles.toString());
 		addMadkitArgs(LevelOption.guiLogLevel.toString(),Level.ALL.toString());
 		launchTest(new AbstractAgent() {

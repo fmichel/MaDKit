@@ -18,9 +18,7 @@
  */
 package madkit.kernel;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -46,7 +44,7 @@ public class MadkitClassLoaderTest extends JunitMadkit {
 			protected void activate() {
 				try {
 					getMadkitClassLoader().loadClass("madkit.pingpong.PingPong");
-					fail("Not thrown"); // TODO
+					fail("Not thrown");
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}
@@ -56,7 +54,7 @@ public class MadkitClassLoaderTest extends JunitMadkit {
 				try {
 					assertNotNull(getMadkitClassLoader().loadClass("madkit.pingpong.PingPong"));
 				} catch (ClassNotFoundException e) {
-					fail(e.getMessage()); // TODO
+					fail(e.getMessage());
 				}
 			}
 		});
@@ -65,14 +63,13 @@ public class MadkitClassLoaderTest extends JunitMadkit {
 	@Test
 	public void testURLs() {
 		launchTest(new AbstractAgent() {
-			@SuppressWarnings("deprecation")
 			@Override
 			protected void activate() {
 					MadkitClassLoader mcl = getMadkitClassLoader();
 					try {
-						mcl.addToClasspath(new File(".").toURL());
+						mcl.addToClasspath(new File(".").toURI().toURL());
 						int n = mcl.getURLs().length;
-						mcl.addToClasspath(new File(".").toURL());
+						mcl.addToClasspath(new File(".").toURI().toURL());
 						assertEquals(n,mcl.getURLs().length);
 						System.err.println(Arrays.deepToString(mcl.getURLs()));
 					} catch (MalformedURLException e) {
@@ -105,6 +102,17 @@ public class MadkitClassLoaderTest extends JunitMadkit {
 				}
 			}
 		}, ReturnCode.AGENT_CRASH);
+	}
+	
+	@Test
+	public void scanFolderForMDKConfigFileAgentClassesTest(){
+			launchTest(new AbstractAgent() {
+				@Override
+				protected void activate() {
+						MadkitClassLoader mcl = getMadkitClassLoader();
+						assertFalse(mcl.getAllAgentClasses().isEmpty());
+						assertEquals(1,mcl.getMDKFiles().size());
+			}});
 	}
 
 }

@@ -31,6 +31,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
+import madkit.action.GlobalAction;
 import madkit.action.KernelAction;
 import madkit.gui.MASModel;
 import madkit.gui.SwingUtil;
@@ -58,10 +59,11 @@ public class LaunchMain extends JMenu {
 	 * @param agent the agent according 
 	 * to which this menu should be created, i.e. the
 	 * agent that will be responsible of the launch.
+	 * @param title the title to use
 	 */
-	public LaunchMain(final AbstractAgent agent) {
-		super("Main");
-		setMnemonic(KeyEvent.VK_S);
+	public LaunchMain(final AbstractAgent agent, final String title) {
+		super(title);
+		setMnemonic(KeyEvent.VK_A);
 		myAgent = agent;
 		synchronized (menus) {
 			menus.add(this);
@@ -87,23 +89,13 @@ public class LaunchMain extends JMenu {
 		if(! myAgent.isAlive())
 			return;
 		removeAll();
-		Set<String> classes = myAgent.getMadkitClassLoader().getAgentsWithMain();
-		final String[] params = null; 
-		for (final String string : classes) {
-			JMenuItem name = new JMenuItem(string+".main");
-			name.setIcon(SwingUtil.MADKIT_LOGO_SMALL);
-			name.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					try {
-						 myAgent.getMadkitClassLoader().loadClass(string).getDeclaredMethod("main", String[].class).invoke(null, (Object) params);
-					} catch (ClassNotFoundException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e1) {
-						e1.printStackTrace();
-					}
-				}
-			});
+		for (final String string : MadkitClassLoader.getLoader().getAgentsWithMain()) {
+			JMenuItem name = new JMenuItem(GlobalAction.LAUNCH_MAIN);
+			name.setActionCommand(string);
+			name.setText(string+".main");
 			add(name);
 		}
+		setVisible(getItemCount() != 0);
 	}
 
 }

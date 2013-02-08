@@ -23,6 +23,7 @@ import java.awt.event.KeyEvent;
 import javax.swing.JMenu;
 
 import madkit.action.GUIManagerAction;
+import madkit.action.GlobalAction;
 import madkit.action.KernelAction;
 import madkit.gui.SwingUtil;
 import madkit.kernel.AbstractAgent;
@@ -48,7 +49,7 @@ public class MadkitMenu extends JMenu {//TODO i18n
 	 * <li> {@link KernelAction#LAUNCH_NETWORK}
 	 * <li> {@link KernelAction#STOP_NETWORK}
 	 * <li> {@link GUIManagerAction#CONNECT_TO_IP}
-	 * <li> {@link KernelAction#JCONSOLE}
+	 * <li> {@link GlobalAction#JCONSOLE}
 	 * <li> {@link KernelAction#CONSOLE}
 	 * <li> {@link KernelAction#LOAD_LOCAL_DEMOS}
 	 * <li> {@link GUIManagerAction#LOAD_JAR_FILE}

@@ -18,8 +18,10 @@
  */
 package madkit.kernel;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.AllPermission;
@@ -387,12 +389,17 @@ final public class Madkit {
 		if(logger != null)
 			logger.finer("** BUILDING MADKIT CLASS LOADER **");
 		final ClassLoader systemCL = getClass().getClassLoader();
-		if(systemCL instanceof URLClassLoader){
-			madkitClassLoader = new MadkitClassLoader(this,((URLClassLoader) systemCL).getURLs(),systemCL,null);			
+		String[] urlsName = System.getProperty("java.class.path").split(File.pathSeparator);
+		URL[] urls = new URL[urlsName.length];
+		for (int i = 0; i < urlsName.length; i++) {
+				try {
+					urls[i] = new File(urlsName[i]).toURI().toURL();
+				} catch (MalformedURLException e) {
+					e.printStackTrace();
+				}
 		}
-		else{
-			madkitClassLoader = new MadkitClassLoader(this, new URL[0],systemCL,null);
-		}
+		madkitClassLoader = new MadkitClassLoader(this,urls,systemCL,null);			
+		
 		if(logger != null){
 			logger.finer("ClassPath is:\n"+madkitClassLoader);
 			logger.fine("** MADKIT CLASS LOADER INITIALIZED **");

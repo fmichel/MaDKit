@@ -19,33 +19,25 @@
 package madkit.action;
 
 import static java.awt.event.KeyEvent.VK_C;
-import static java.awt.event.KeyEvent.VK_D;
 import static java.awt.event.KeyEvent.VK_DOLLAR;
-import static java.awt.event.KeyEvent.VK_L;
 import static java.awt.event.KeyEvent.VK_O;
 import static java.awt.event.KeyEvent.VK_Q;
 import static java.awt.event.KeyEvent.VK_R;
+import static java.awt.event.KeyEvent.VK_S;
 import static java.awt.event.KeyEvent.VK_T;
 import static java.awt.event.KeyEvent.VK_W;
 
 import java.awt.event.ActionEvent;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.InetAddress;
-import java.util.EnumSet;
 import java.util.ResourceBundle;
 
 import javax.swing.Action;
-import javax.swing.JComponent;
-import javax.swing.JMenu;
-import javax.swing.JToolBar;
 
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.agr.Organization;
 import madkit.i18n.I18nUtilities;
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.MadkitClassLoader;
 import madkit.message.KernelMessage;
 
 /**
@@ -86,21 +78,15 @@ public enum KernelAction {
 	STOP_NETWORK(VK_T),
 
 	/**
-	 * Launch jconsole on the kernel
-	 * if available
-	 */
-	JCONSOLE(VK_L),
-
-	/**
 	 * Makes a redirection of the out and err 
 	 * to a MaDKit agent.
 	 */
 	CONSOLE(VK_O),
 
 	/**
-	 * Load the jar files which are in the "demos" directory if there is one in to the working directory
+	 * Load the jar files which are in the "demos" directory if there is one in the working directory
 	 */
-	LOAD_LOCAL_DEMOS(VK_D),
+	LOAD_LOCAL_DEMOS(VK_S),
 	
 
 	
@@ -135,10 +121,6 @@ public enum KernelAction {
 	//	final private MKAction mkAction;
 
 	private ActionInfo actionInfo;
-	/**
-	 * The path to the jconsole program if available
-	 */
-	public static String jconsolePath = MadkitClassLoader.findJavaExecutable("jconsole");
 	final private int keyEvent;
 
 	final static private ResourceBundle messages = I18nUtilities.getResourceBundle(KernelAction.class.getSimpleName());
@@ -183,40 +165,6 @@ public enum KernelAction {
 		if(actionInfo == null)
 			actionInfo = new ActionInfo(this,keyEvent,messages);
 		return actionInfo;
-	}
-
-	/**
-	 * Could be used to add all global actions 
-	 * to a menu or a toolbar
-	 * 
-	 * @param menuOrToolBar a {@link JMenu} or a {@link JToolBar} for instance
-	 * @param agent the agent that will send the message
-	 */
-	@SuppressWarnings("incomplete-switch")
-	public static void addAllActionsTo(JComponent menuOrToolBar, AbstractAgent agent){
-		try {//this bypasses class incompatibility
-			final Method add = menuOrToolBar.getClass().getMethod("add", Action.class);
-			final Method addSeparator = menuOrToolBar.getClass().getMethod("addSeparator");
-			for (KernelAction ka : EnumSet.allOf(KernelAction.class)) {
-				if(ka == LAUNCH_AGENT)
-					return;
-				if(ka == LOAD_LOCAL_DEMOS && ActionInfo.javawsIsOn)
-					continue;
-				if(ka == JCONSOLE && (jconsolePath == null || ActionInfo.javawsIsOn)){
-					continue;
-				}
-				add.invoke(menuOrToolBar, ka.getActionFor(agent));
-				switch (ka) {
-				case EXIT:
-				case RESTART:
-				case STOP_NETWORK:
-				case CONSOLE:
-					addSeparator.invoke(menuOrToolBar);
-				}
-			}
-		} catch (IllegalArgumentException | NoSuchMethodException | SecurityException | IllegalAccessException | InvocationTargetException e) {
-			e.printStackTrace();
-		}
 	}
 
 }

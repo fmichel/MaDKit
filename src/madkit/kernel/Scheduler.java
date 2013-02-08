@@ -140,7 +140,7 @@ public class Scheduler extends Agent {
 	 *           speed
 	 */
 	public void setDelay(final int delay) {
-		speedModel.setValue(delay);
+		speedModel.setValue(speedModel.getMaximum() - delay);
 	}
 
 	private double	GVT	= 0;	// simulation global virtual time

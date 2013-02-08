@@ -150,7 +150,8 @@ final public class AgentLogger extends Logger {
 	/**
 	 * Creates a log file for this logger.
 	 * This file will be located in the directory specified by
-	 * the MaDKit property {@link Option#logDirectory}
+	 * the MaDKit property {@link Option#logDirectory}, 
+	 * which is set to "logs" by default.
 	 */
 	public void createLogFile() {
 		if (fh == null) {
@@ -301,6 +302,29 @@ final public class AgentLogger extends Logger {
 	public void severeLog(final String msg) {
 			severeLog(msg, null);
 		}
+
+	/**
+	 * Set all the agents' loggers to the specified level
+	 * 
+	 * @param level the new level
+	 */
+	public static void setAllLogLevels(final Level level) {
+		for (AbstractAgent loggedAgent : agentLoggers.keySet()) {
+			if (loggedAgent != loggedAgent.getMadkitKernel()) {
+				loggedAgent.setLogLevel(level);
+			}
+		}
+	}
+	/**
+	 * Create a log file for each agent having a non <code>null</code> logger.
+	 * 
+	 * @see AgentLogger#createLogFile()
+	 */
+	public static void createLogFiles() {
+		for (AgentLogger logger : agentLoggers.values()) {
+			logger.createLogFile();
+		}
+	}
 }
 
 class AgentFormatter extends Formatter {

@@ -115,7 +115,9 @@ public abstract class SwingViewer extends Watcher {
 	 */
 	public void setDisplayPane(JComponent displayPane) {
 		if (this.displayPane != displayPane ) {
-			getFrame().remove(this.displayPane);
+			if (this.displayPane != null) {
+				getFrame().remove(this.displayPane);
+			}
 			getFrame().add(displayPane);
 			this.displayPane = displayPane;
 		}

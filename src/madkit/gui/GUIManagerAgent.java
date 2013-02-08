@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.swing.ImageIcon;
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
@@ -61,7 +60,7 @@ import madkit.message.KernelMessage;
  * 
  * @author Fabien Michel
  * @since MaDKit 5.0.0.6
- * @version 0.9
+ * @version 0.91
  * 
  */
 // * By default the kernel always launch this agent. Although, this agent is

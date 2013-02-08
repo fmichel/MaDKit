@@ -71,7 +71,7 @@ public class MDKDesktopFrame extends JFrame {
 		menuBar.add(new MadkitMenu(guiManager));
 		menuBar.add(new LaunchAgentsMenu(guiManager));
 		menuBar.add(new LaunchMAS(guiManager));
-		menuBar.add(new LaunchMain(guiManager));
+		menuBar.add(new LaunchMain(guiManager,"Main"));
 		menuBar.add(new HelpMenu());
 		menuBar.add(Box.createHorizontalGlue());
 		menuBar.add(new AgentStatusPanel(guiManager));

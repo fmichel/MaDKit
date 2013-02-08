@@ -25,8 +25,11 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.swing.Action;
+
 import madkit.action.AgentAction;
 import madkit.action.GUIManagerAction;
+import madkit.action.GlobalAction;
 import madkit.action.KernelAction;
 import madkit.action.SchedulingAction;
 
@@ -40,40 +43,45 @@ import org.junit.Test;
  */
 public class BindsTest {
 
-	static Map<Integer,Enum<?>> keys = new HashMap<>();
+	static Map<Integer,String> keys = new HashMap<>();
 	
 	@Test
 	public void KernelActionConflicts() {
 		for (KernelAction ka : EnumSet.allOf(KernelAction.class)) {
-			testKey(ka.getActionInfo().getKeyEvent(), ka);
+			testKey(ka.getActionInfo().getKeyEvent(), ka.name());
 		}
 	}
 
 	@Test
 	public void AgentActionConflicts() {
 		for (AgentAction ka : EnumSet.allOf(AgentAction.class)) {
-			testKey(ka.getActionInfo().getKeyEvent(),ka);
+			testKey(ka.getActionInfo().getKeyEvent(),ka.name());
 		}
 	}
 
 	@Test
 	public void GUIManagerActionConflicts() {
 		for (GUIManagerAction ka : EnumSet.allOf(GUIManagerAction.class)) {
-			testKey(ka.getActionInfo().getKeyEvent(), ka);
+			testKey(ka.getActionInfo().getKeyEvent(), ka.name());
 		}
+	}
+
+	@Test
+	public void GlobalActionConflicts() {
+		testKey((int) GlobalAction.DEBUG.getValue(Action.MNEMONIC_KEY), "DEBUG");
+		testKey((int) GlobalAction.JCONSOLE.getValue(Action.MNEMONIC_KEY), "JCONSOLE");
+		testKey((int) GlobalAction.LOG_FILES.getValue(Action.MNEMONIC_KEY), "LOG_FILES");
 	}
 
 	/**
 	 * @param i
-	 * @param ka 
+	 * @param name 
 	 */
-	private void testKey(int i, Enum<?> ka) {
+	private void testKey(int i, String name) {
 		if(i != KeyEvent.VK_DOLLAR){
-			Enum<?> e = keys.put(i, ka);
+			String e = keys.put(i, name);
 			if(e != null){
-				String s = ka.getClass()+"."+ka+" same key as "+e.getClass()+"."+e;
-				System.err.println(s);
-				fail(s);
+				fail(name+" has same key as "+e);
 			}
 		}
 	}
@@ -81,7 +89,7 @@ public class BindsTest {
 	@Test
 	public void SchedulingActionConflicts() {
 		for (SchedulingAction ka : EnumSet.allOf(SchedulingAction.class)) {
-			testKey(ka.getActionInfo().getKeyEvent(),ka);
+			testKey(ka.getActionInfo().getKeyEvent(),ka.name());
 		}
 	}
 

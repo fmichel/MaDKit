@@ -111,7 +111,8 @@ public class MadkitClassLoaderTest extends JunitMadkit {
 				protected void activate() {
 						MadkitClassLoader mcl = getMadkitClassLoader();
 						assertFalse(mcl.getAllAgentClasses().isEmpty());
-						assertEquals(1,mcl.getMDKFiles().size());
+						System.err.println(mcl.getMDKFiles());
+						assertEquals(5,mcl.getMDKFiles().size());
 			}});
 	}
 

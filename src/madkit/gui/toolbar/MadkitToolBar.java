@@ -21,6 +21,7 @@ package madkit.gui.toolbar;
 import javax.swing.JToolBar;
 
 import madkit.action.GUIManagerAction;
+import madkit.action.GlobalAction;
 import madkit.action.KernelAction;
 import madkit.gui.SwingUtil;
 import madkit.kernel.AbstractAgent;
@@ -30,10 +31,10 @@ import madkit.kernel.AbstractAgent;
  * 
  * @author Fabien Michel
  * @since MaDKit 5.0.0.9
- * @version 0.91
+ * @version 0.92
  * 
  */
-public class MadkitToolBar extends JToolBar {// TODO i18n
+public class MadkitToolBar extends JToolBar {
 
 	/**
 	 * 
@@ -49,7 +50,9 @@ public class MadkitToolBar extends JToolBar {// TODO i18n
 	 * <li> {@link KernelAction#LAUNCH_NETWORK}
 	 * <li> {@link KernelAction#STOP_NETWORK}
 	 * <li> {@link GUIManagerAction#CONNECT_TO_IP}
+	 * <li> {@link GlobalAction#JCONSOLE}
 	 * <li> {@link KernelAction#CONSOLE}
+	 * <li> {@link GlobalAction#DEBUG}
 	 * <li> {@link KernelAction#LOAD_LOCAL_DEMOS}
 	 * <li> {@link GUIManagerAction#LOAD_JAR_FILE}
 	 * <li> {@link GUIManagerAction#ICONIFY_ALL}

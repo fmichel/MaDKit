@@ -43,6 +43,7 @@ import java.util.logging.Logger;
 import madkit.gui.MASModel;
 import madkit.gui.menu.LaunchAgentsMenu;
 import madkit.gui.menu.LaunchMAS;
+import madkit.gui.menu.LaunchMain;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Madkit.Option;
@@ -66,6 +67,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 	private Set<String>			mains = new TreeSet<>();
 	private Set<MASModel>		demos				= new HashSet<>();
 	private Set<URL>				scannedURLs		= new HashSet<>();
+	private static MadkitClassLoader currentMCL;
 
 	/**
 	 * @param urls
@@ -78,6 +80,11 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 		if (toReload != null)
 			classesToReload = new HashSet<>(toReload);
 		madkit = m;
+		currentMCL = this;
+	}
+	
+	public static MadkitClassLoader getLoader(){
+		return currentMCL;
 	}
 
 	@Override
@@ -92,6 +99,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 				if (l != null) {
 					l.log(Level.FINE, "Already defined " + name + " : NEED NEW MCL");
 				}
+				@SuppressWarnings("resource")
 				MadkitClassLoader mcl = new MadkitClassLoader(madkit, getURLs(),//FIXME close ?
 						this, classesToReload);
 				mcl.scannedURLs = scannedURLs;
@@ -221,7 +229,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 	 * as input gives <code>Object</code> as output.
 	 * 
 	 * @param classFullName the full name of a class
-	 * @return the package name or an empty string if no package is defined
+	 * @return the simple name of a class name
 	 */
 	public static String getClassSimpleName(final String classFullName){
 		final int index = classFullName.lastIndexOf('.');
@@ -258,8 +266,10 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 	 */
 	public void addToClasspath(URL url) {
 		addURL(url);
+		System.setProperty("java.class.path", System.getProperty("java.class.path")+File.pathSeparator+url.getPath());
 		LaunchAgentsMenu.updateAllMenus();
 		LaunchMAS.updateAllMenus();
+		LaunchMain.updateAllMenus();
 	}
 
 	/**
@@ -327,7 +337,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 				if (l != null) {
 					l.finest("found MAS info " + mas);
 				}
-				String mdkConfigs = projectInfo.getValue("mdk-files");
+				String mdkConfigs = projectInfo.getValue("MDK-Files");
 				if (mdkConfigs != null && ! mdkConfigs.trim().isEmpty()) {
 					mdkArgs += Option.configFile.toString()+" ";
 					for (String configFile : mdkConfigs.split(",")) {
@@ -338,7 +348,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 						}
 					}
 				}
-				mdkConfigs = projectInfo.getValue("Main-Classes");
+				mdkConfigs = projectInfo.getValue("Main-Classes");//recycling
 				if (mdkConfigs != null && ! mdkConfigs.trim().isEmpty()) {
 					mains.addAll(Arrays.asList(mdkConfigs.split(",")));
 				}
@@ -378,9 +388,8 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 					&& (!Modifier.isAbstract(cl.getModifiers()))
 					&& Modifier.isPublic(cl.getModifiers())) {
 				try {
-					if(cl.getDeclaredMethod("main", String[].class) != null ){
+						cl.getDeclaredMethod("main", String[].class);
 						mains.add(className);
-					}
 				} catch (NoSuchMethodException e) {
 				}
 				return true;
@@ -445,12 +454,14 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 	/**
 	 * This is only used by ant scripts for building MDK jar files.
 	 * This will create a file in java.io.tmpdir named agents.classes
-	 * containing the agent classes which are on the class path
+	 * containing the agent classes which are on the class path and other
+	 * information
 	 * 
 	 * @param args
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
+	@SuppressWarnings("resource")
 	public static void main(String[] args) throws FileNotFoundException, IOException {
 		final MadkitClassLoader madkitClassLoader = new Madkit(
 				LevelOption.madkitLogLevel.toString(),Level.OFF.toString(),

@@ -49,9 +49,10 @@ public abstract class MDKAbstractAction extends AbstractAction {
 			putValue(AbstractAction.LARGE_ICON_KEY, actionInfo.getBigIcon());
 			putValue(AbstractAction.SMALL_ICON, actionInfo.getSmallIcon());
 		}
-		putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(actionInfo.getKeyEvent(), KeyEvent.CTRL_MASK));// TODO
-																																					// facto
-		putValue(Action.MNEMONIC_KEY, actionInfo.getKeyEvent());
+		if (actionInfo.getKeyEvent() != KeyEvent.VK_DOLLAR) {
+			putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(actionInfo.getKeyEvent(), KeyEvent.CTRL_MASK));
+			putValue(Action.MNEMONIC_KEY, actionInfo.getKeyEvent());
+		}
 		putValue(Action.ACTION_COMMAND_KEY, actionInfo.getName());
 		putValue(Action.SELECTED_KEY, false);
 	}

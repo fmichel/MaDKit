@@ -21,13 +21,19 @@ interact using messages. It also contains generic MAS simulation authoring tools
 
 1. Improvements and changes:
 	- Now requires Java 7
-	- 
+	- Add 'Debug' and 'Create log files' actions and gui related features
+	- Add a menu containing all the agents having a main method
 
 2. API changes:
 	+ madkit.kernel.Agent.setThreadPriority(int)
 	+ madkit.kernel.Agent.getThreadPriority()
+	+ madkit.kernel.AgentLogger.createLogFiles()
+	+ madkit.kernel.AgentLogger.setAllLogLevels(Level)
+	+ madkit.action.GlobalAction
+	+ madkit.gui.menu.LaunchMain
 	+ madkit.message.ObjectMessage .max(Collection<M>) .min(Collection<M>) .sort(List<M>)
 	~ madkit.kernel.Activator.execute(Object...)
+	- madkit.kernel.MadkitClassLoader.getNewestClassVersion(String)
 	
 
 ----------------------------------------------------------------------------------

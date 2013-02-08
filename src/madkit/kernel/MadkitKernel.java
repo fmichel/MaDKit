@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -54,7 +54,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -111,7 +110,7 @@ import madkit.message.hook.OrganizationEvent;
  * The brand new MaDKit kernel and it is now a real Agent :)
  * 
  * @author Fabien Michel
- * @version 1.3
+ * @version 1.4
  * @since MaDKit 5.0
  * 
  */
@@ -422,30 +421,11 @@ class MadkitKernel extends Agent {
 	private void loadLocalDemos() {
 		if (logger != null)
 			logger.fine("** LOADING DEMO DIRECTORY **");
-		File f = lookForMadkitDemoHome();
-		if (f != null && f.isDirectory()) {
+		File f = new File("demos");
+		if (f.exists() && f.isDirectory()) {
 			platform.getMadkitClassLoader().loadJarsFromPath(f.getAbsolutePath());
 		} else if (logger != null)
-			logger.log(Level.WARNING, ErrorMessages.CANT_FIND + " demo " + Words.DIRECTORY + "\n");
-	}
-
-	private File lookForMadkitDemoHome() {
-		for (URL url : getMadkitClassLoader().getURLs()) {
-			if (url.getProtocol().equals("file")
-					&& url.getPath().contains(platform.getConfigOption().getProperty("madkit.jar.name"))) {
-				try {
-					return new File(new File(url.toURI()).getParentFile(), "demos");// URI
-																											// prevents
-																											// error
-																											// from
-																											// character
-																											// encoding
-				} catch (URISyntaxException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		return null;
+			logger.log(Level.WARNING, ErrorMessages.CANT_FIND + " demos " + Words.DIRECTORY + "\n");
 	}
 
 	@SuppressWarnings("unused")
@@ -465,21 +445,6 @@ class MadkitKernel extends Agent {
 	@SuppressWarnings("unused")
 	private void console() {
 		launchAgent(ConsoleAgent.class.getName());
-	}
-
-	@SuppressWarnings("unused")
-	private void jconsole() {
-		if(KernelAction.jconsolePath != null){
-			final String pid = java.lang.management.ManagementFactory.getRuntimeMXBean().getName();
-					try {
-						Runtime.getRuntime().exec(KernelAction.jconsolePath+" "+pid.substring(0, pid.indexOf('@')));
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					}
-		}
-		else{
-			getLogger().severe("jconsole unavailable");
-		}
 	}
 
 	private void launchConfigAgents() {
@@ -512,7 +477,7 @@ class MadkitKernel extends Agent {
 						public void run() {
 							if (!shuttedDown) {
 									try {
-										launchAgent((AbstractAgent) getMadkitClassLoader().loadClass(className).newInstance(), 1, withGUI);
+										launchAgent((AbstractAgent) platform.getMadkitClassLoader().loadClass(className).newInstance(), 1, withGUI);
 									} catch (InstantiationException e) {
 										cannotLaunchAgent(className, e, null);
 //										getLogger().severeLog(ErrorMessages.CANT_LAUNCH.toString() + className+" "+e.getClass().getName()+" !!!\n" , null);//waiting java 7

@@ -46,9 +46,9 @@ public class ActionInfo {
 	
 	final private int keyEvent;
 
-	final private ImageIcon bigIcon;
+	private ImageIcon bigIcon;
 
-	final private ImageIcon smallIcon;
+	private ImageIcon smallIcon;
 	
 	private String name;
 
@@ -65,9 +65,42 @@ public class ActionInfo {
 	 * @param keyEvent
 	 */
 	<E extends Enum<E>> ActionInfo(E enumAction, int keyEvent, ResourceBundle resource) {
+		this(enumAction.name(),keyEvent,resource);
+	}
+
+	/**
+	 * Builds a new ActionInfo considering an {@link Enum}.
+	 * If the considered enum is from this package, it will be
+	 * built automatically with values contained in the madkit.i18n directory
+	 * 
+	 * @param enumAction
+	 * @param keyEvent
+	 */
+	 ActionInfo(String codeName, int keyEvent, ResourceBundle resource) {
+		name = codeName;
 		this.keyEvent = keyEvent;
-		name = enumAction.name();
-		final URL imageUrl = enumAction.getClass().getResource(imageDir + name + ".png");
+		setIcon(name);
+		String[] codes = null;
+		try {
+			codes = resource.getString(codeName).split(";");
+		} catch (MissingResourceException e) {
+			e.printStackTrace();
+		}
+		if (codes != null) {
+			shortDescription = codes.length > 1 ? codes[1] : codes[0];
+			longDescription = codes.length > 2 ? codes[2] : shortDescription;
+			name = codes[0];
+		}
+		else{
+			shortDescription = longDescription = name;
+		}
+	}
+
+	/**
+	 * 
+	 */
+	void setIcon(final String fileName) {
+		final URL imageUrl = getClass().getResource(imageDir + fileName + ".png");
 		if (imageUrl != null) {
 			bigIcon = new ImageIcon(imageUrl);
 			if (bigIcon.getIconWidth() > 16) {
@@ -78,19 +111,6 @@ public class ActionInfo {
 		}
 		else{
 			bigIcon = smallIcon = null;
-		}
-		String[] codes = null;
-		try {
-			codes = resource.getString(name).split(";");
-		} catch (MissingResourceException e) {
-		}
-		if (codes != null) {
-			shortDescription = codes.length > 1 ? codes[1] : codes[0];
-			longDescription = codes.length > 2 ? codes[2] : shortDescription;
-			name = codes[0];
-		}
-		else{
-			shortDescription = longDescription = enumAction.getClass().getSimpleName();
 		}
 	}
 
@@ -158,6 +178,5 @@ public class ActionInfo {
 		}
 		return methodName;
 	}
-	
 
 }

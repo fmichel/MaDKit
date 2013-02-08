@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -33,12 +33,16 @@ import javax.swing.BoundedRangeModel;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.ImageIcon;
-import javax.swing.JComponent;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JMenu;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.JToggleButton;
 import javax.swing.border.TitledBorder;
 
+import madkit.action.ActionInfo;
 import madkit.action.GUIManagerAction;
+import madkit.action.GlobalAction;
 import madkit.action.KernelAction;
 import madkit.kernel.AbstractAgent;
 
@@ -124,7 +128,7 @@ final public class SwingUtil {
 
 
 	/**
-	 * Builds a menu featuring the following actions:
+	 * Adds to a menu or toolbar the following actions:
 	 * <ul>
 	 * <li> {@link KernelAction#EXIT}
 	 * <li> {@link KernelAction#COPY}
@@ -132,7 +136,9 @@ final public class SwingUtil {
 	 * <li> {@link KernelAction#LAUNCH_NETWORK}
 	 * <li> {@link KernelAction#STOP_NETWORK}
 	 * <li> {@link GUIManagerAction#CONNECT_TO_IP}
+	 * <li> {@link GlobalAction#JCONSOLE}
 	 * <li> {@link KernelAction#CONSOLE}
+	 * <li> {@link GlobalAction#DEBUG}
 	 * <li> {@link KernelAction#LOAD_LOCAL_DEMOS}
 	 * <li> {@link GUIManagerAction#LOAD_JAR_FILE}
 	 * <li> {@link GUIManagerAction#ICONIFY_ALL}
@@ -143,10 +149,12 @@ final public class SwingUtil {
 	 * @param agent the agent for which this menu
 	 * will be built.
 	 */
-	public static void addMaDKitActionsTo(JComponent menuOrToolBar, AbstractAgent agent){
+	public static void addMaDKitActionsTo(Container menuOrToolBar, AbstractAgent agent){
 		try {//this bypasses class incompatibility
-			final Method add = menuOrToolBar.getClass().getMethod("add", Action.class);
-			final Method addSeparator = menuOrToolBar.getClass().getMethod("addSeparator");
+			final Class<? extends Container> componentClass = menuOrToolBar.getClass();
+			final Method add = componentClass.getMethod("add", Action.class);
+			final Method addButton = Container.class.getMethod("add", Component.class);
+			final Method addSeparator = componentClass.getMethod("addSeparator");
 			
 			add.invoke(menuOrToolBar, KernelAction.EXIT.getActionFor(agent));
 			addSeparator.invoke(menuOrToolBar);
@@ -157,8 +165,19 @@ final public class SwingUtil {
 			add.invoke(menuOrToolBar, KernelAction.STOP_NETWORK.getActionFor(agent));
 			add.invoke(menuOrToolBar, GUIManagerAction.CONNECT_TO_IP.getActionFor(agent));
 			addSeparator.invoke(menuOrToolBar);
-			add.invoke(menuOrToolBar, KernelAction.JCONSOLE.getActionFor(agent));
+			if (! (GlobalAction.jconsolePath == null || ActionInfo.javawsIsOn)) {
+				add.invoke(menuOrToolBar, GlobalAction.JCONSOLE);
+			}
 			add.invoke(menuOrToolBar, KernelAction.CONSOLE.getActionFor(agent));
+			if(menuOrToolBar instanceof JMenu){
+				addButton.invoke(menuOrToolBar, new JCheckBoxMenuItem(GlobalAction.DEBUG));
+			}
+			else{
+				final JToggleButton jToggleButton = new JToggleButton(GlobalAction.DEBUG);
+				jToggleButton.setText(null);
+				addButton.invoke(menuOrToolBar, jToggleButton);
+			}
+			add.invoke(menuOrToolBar, GlobalAction.LOG_FILES);
 			addSeparator.invoke(menuOrToolBar);
 			add.invoke(menuOrToolBar, KernelAction.LOAD_LOCAL_DEMOS.getActionFor(agent));
 			add.invoke(menuOrToolBar, GUIManagerAction.LOAD_JAR_FILE.getActionFor(agent));

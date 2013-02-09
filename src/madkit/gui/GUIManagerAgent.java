@@ -50,6 +50,7 @@ import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.Option;
+import madkit.kernel.MadkitClassLoader;
 import madkit.kernel.Message;
 import madkit.message.GUIMessage;
 import madkit.message.KernelMessage;
@@ -308,7 +309,7 @@ class GUIManagerAgent extends Agent {
 	}
 
 	private void buildUI() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-		myFrame = (MDKDesktopFrame) getMadkitClassLoader().loadClass(getMadkitProperty(Option.desktopFrameClass.name())).newInstance();
+		myFrame = (MDKDesktopFrame) MadkitClassLoader.getLoader().loadClass(getMadkitProperty(Option.desktopFrameClass.name())).newInstance();
 		desktopPane = myFrame.getDesktopPane();
 		// {
 		// @Override

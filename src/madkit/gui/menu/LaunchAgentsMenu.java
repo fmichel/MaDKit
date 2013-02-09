@@ -148,7 +148,7 @@ public class LaunchAgentsMenu extends JMenu {
 		if(! myAgent.isAlive())
 			return;
 		removeAll();
-		final Set<String> classesToLaunch = myAgent.getMadkitClassLoader().getAllAgentClasses();
+		final Set<String> classesToLaunch = MadkitClassLoader.getAllAgentClasses();
 		if(filter != null)
 			for (Iterator<String> iterator = classesToLaunch.iterator(); iterator.hasNext();) {
 				if(! filter.accept(iterator.next()))

@@ -1,6 +1,6 @@
 package madkit.logging;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadkit;
 import madkit.testing.util.agent.NormalAA;

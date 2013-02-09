@@ -699,7 +699,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		if (logger != null)
 			logger.finest(Words.LAUNCH + " " + agentClass + " GUI " + createFrame);
 		try {
-			final AbstractAgent a = (AbstractAgent) getMadkitClassLoader().loadClass(agentClass).newInstance();
+			final AbstractAgent a = (AbstractAgent) MadkitClassLoader.getLoader().loadClass(agentClass).newInstance();
 			if (ReturnCode.SUCCESS == launchAgent(a, timeOutSeconds, createFrame))
 				return a;
 		} catch (InstantiationException | ClassCastException | ClassNotFoundException | IllegalAccessException | KernelException e) {
@@ -2264,7 +2264,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 */
 	public void reload() {
 		try {
-			getMadkitClassLoader().reloadClass(getClass().getName());
+			MadkitClassLoader.reloadClass(getClass().getName());
 		} catch (ClassNotFoundException e) {
 			//not possible but who knows...
 			getLogger().severeLog("",e);
@@ -2390,9 +2390,14 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		primitiveTypes.put(long.class, Long.class);
 	}
 
-	public MadkitClassLoader getMadkitClassLoader() {// TODO log if no kernel
-		return getMadkitKernel().getMadkitClassLoader();
-	}
+	/**
+	 * replaced by {@link MadkitClassLoader#getLoader()}
+	 * @return
+	 */
+//	@Deprecated
+//	public MadkitClassLoader MadkitClassLoader.getLoader() {
+//		return MadkitClassLoader.getLoader();
+//	}
 
 	// /**
 	// * @return an Executor which could be used to do tasks asynchronously

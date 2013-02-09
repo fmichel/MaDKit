@@ -173,11 +173,6 @@ class FakeKernel extends MadkitKernel{
 	}
 
 	@Override
-	final public MadkitClassLoader getMadkitClassLoader() {
-		throw buildKernelException(null);
-	}
-	
-	@Override
 	final public Properties getMadkitConfig() {
 		return Madkit.defaultConfig;
 	}

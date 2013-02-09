@@ -18,24 +18,14 @@
  */
 package madkit.gui.menu;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.swing.Action;
-import javax.swing.ImageIcon;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
 import madkit.action.GlobalAction;
-import madkit.action.KernelAction;
-import madkit.gui.MASModel;
-import madkit.gui.SwingUtil;
-import madkit.i18n.Words;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.MadkitClassLoader;
 
@@ -89,7 +79,7 @@ public class LaunchMain extends JMenu {
 		if(! myAgent.isAlive())
 			return;
 		removeAll();
-		for (final String string : MadkitClassLoader.getLoader().getAgentsWithMain()) {
+		for (final String string : MadkitClassLoader.getAgentsWithMain()) {
 			JMenuItem name = new JMenuItem(GlobalAction.LAUNCH_MAIN);
 			name.setActionCommand(string);
 			name.setText(string+".main");

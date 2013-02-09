@@ -18,12 +18,9 @@
  */
 package madkit.kernel;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.security.AllPermission;
 import java.security.CodeSource;
 import java.security.PermissionCollection;
@@ -50,11 +47,9 @@ import javax.xml.parsers.ParserConfigurationException;
 import madkit.action.ActionInfo;
 import madkit.action.KernelAction;
 import madkit.gui.ConsoleAgent;
-import madkit.gui.MASModel;
 import madkit.gui.MDKDesktopFrame;
 import madkit.i18n.ErrorMessages;
 import madkit.i18n.I18nUtilities;
-import madkit.i18n.Words;
 import madkit.message.KernelMessage;
 
 import org.w3c.dom.Element;
@@ -92,7 +87,7 @@ import org.xml.sax.SAXException;
  * @author Fabien Michel
  * @author Jacques Ferber
  * @since MaDKit 4.0
- * @version 5.0
+ * @version 5.1
  */
 
 
@@ -125,14 +120,9 @@ final public class Madkit {
 //	private FileHandler madkitLogFileHandler;
 	final private MadkitKernel myKernel;
 	private Logger logger;
-	private MadkitClassLoader madkitClassLoader;
 // TODO Remove unused code found by UCDetector
 // 	String cmdLine;
 	String[] args;
-
-	MadkitClassLoader getMadkitClassLoader() {
-		return madkitClassLoader;
-	}
 
 //	private static Madkit currentInstance;
 //
@@ -302,12 +292,11 @@ final public class Madkit {
 			logger.finer("**  MADKIT KERNEL CREATED **");
 		
 		printWelcomeString();
-		buildMadkitClassLoader();
 		logSessionConfig(madkitConfig, Level.FINER);
-		if(madkitClassLoader.getAvailableConfigurations().isEmpty() 
-				&& ! madkitConfig.get(Option.launchAgents.name()).equals("null")){
-			madkitClassLoader.addMASConfig(new MASModel(Words.INITIAL_CONFIG.toString(), args, "desc"));
-		}
+//		if(madkitClassLoader.getAvailableConfigurations().isEmpty() //TODO
+//				&& ! madkitConfig.get(Option.launchAgents.name()).equals("null")){
+//			madkitClassLoader.addMASConfig(new MASModel(Words.INITIAL_CONFIG.toString(), args, "desc"));
+//		}
 
 //		this.cmdLine = System.getProperty("java.home")+File.separatorChar+"bin"+File.separatorChar+"java -cp "+System.getProperty("java.class.path")+" madkit.kernel.Madkit ";
 
@@ -379,30 +368,6 @@ final public class Madkit {
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * 
-	 */
-	private void buildMadkitClassLoader() {
-		if(logger != null)
-			logger.finer("** BUILDING MADKIT CLASS LOADER **");
-		final ClassLoader systemCL = getClass().getClassLoader();
-		String[] urlsName = System.getProperty("java.class.path").split(File.pathSeparator);
-		URL[] urls = new URL[urlsName.length];
-		for (int i = 0; i < urlsName.length; i++) {
-				try {
-					urls[i] = new File(urlsName[i]).toURI().toURL();
-				} catch (MalformedURLException e) {
-					e.printStackTrace();
-				}
-		}
-		madkitClassLoader = new MadkitClassLoader(this,urls,systemCL,null);			
-		
-		if(logger != null){
-			logger.finer("ClassPath is:\n"+madkitClassLoader);
-			logger.fine("** MADKIT CLASS LOADER INITIALIZED **");
 		}
 	}
 
@@ -556,13 +521,6 @@ final public class Madkit {
 	 */
 	MadkitKernel getKernel() {
 		return myKernel;
-	}
-
-	/**
-	 * @param madkitClassLoader the madkitClassLoader to set
-	 */
-	final void setMadkitClassLoader(MadkitClassLoader madkitClassLoader) {
-		this.madkitClassLoader = madkitClassLoader;
 	}
 
 	/**

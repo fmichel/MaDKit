@@ -18,14 +18,13 @@
  */
 package madkit.classreloading;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 import java.util.logging.Level;
 
 import madkit.action.AgentAction;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadkit;
-import madkit.kernel.MadkitClassLoader;
 import madkit.testing.util.agent.NormalAA;
 
 import org.junit.Test;

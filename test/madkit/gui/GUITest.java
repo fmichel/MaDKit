@@ -18,7 +18,8 @@
  */
 package madkit.gui;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import javax.swing.JFrame;
@@ -29,7 +30,6 @@ import madkit.kernel.Agent;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Message;
 import madkit.testing.util.agent.AlwaysInCGRNormalAA;
-import madkit.testing.util.agent.NormalAA;
 
 import org.junit.Test;
 

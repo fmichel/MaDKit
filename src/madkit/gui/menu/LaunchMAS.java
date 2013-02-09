@@ -94,7 +94,7 @@ public class LaunchMAS extends JMenu {
 		if(! myAgent.isAlive())
 			return;
 		removeAll();
-		for(final MASModel dm : myAgent.getMadkitClassLoader().getAvailableConfigurations()){
+		for(final MASModel dm : MadkitClassLoader.getAvailableConfigurations()){
 			addTomenu(KernelAction.LAUNCH_MAS.getActionFor(myAgent, dm),this,dm);
 		}
 		setVisible(getItemCount() != 0);

@@ -1,6 +1,6 @@
 package madkit.kernel;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
@@ -182,14 +182,17 @@ public class FakeKernelTest {
 
 	@Test
 	public final void testLaunchAgentBucketWithRolesAbstractAgentStringIntCollectionOfString() {
+			assertNull(a.launchAgentBucket("t", 20));
+	}
+
+	@Test
+	public final void testLaunchAgentBucketNoKernel() {
 		try {
-			a.launchAgentBucket("t", 20);
+			a.launchAgentBucket(AbstractAgent.class.getName(), 20);
 			fail("exception not thrown");
 		} catch (KernelException e) {
 			assertEquals(a.getKernel(), AbstractAgent.FAKE_KERNEL);
-
 		}
-
 	}
 
 	@Test
@@ -280,18 +283,6 @@ public class FakeKernelTest {
 	public final void testCreateGroupIfAbsentAbstractAgentStringStringStringGatekeeperBoolean() {
 		try {
 			a.createGroupIfAbsent("t", "t", true, null);
-			fail("exception not thrown");
-		} catch (KernelException e) {
-			assertEquals(a.getKernel(), AbstractAgent.FAKE_KERNEL);
-
-		}
-
-	}
-
-	@Test
-	public final void testGetMadkitClassLoader() {
-		try {
-			a.getMadkitClassLoader();
 			fail("exception not thrown");
 		} catch (KernelException e) {
 			assertEquals(a.getKernel(), AbstractAgent.FAKE_KERNEL);

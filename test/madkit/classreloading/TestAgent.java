@@ -23,6 +23,7 @@ import java.util.logging.Level;
 import madkit.classreloading.anotherPackage.Fake;
 import madkit.kernel.Agent;
 import madkit.kernel.Madkit;
+import madkit.kernel.MadkitClassLoader;
 
 /**
  * @author Fabien Michel
@@ -72,8 +73,8 @@ public class TestAgent extends Agent {
 			pause(8000);
 			try {
 				System.err.println(System.getProperty("java.class.path"));
-				getMadkitClassLoader().reloadClass("madkit.classreloading.anotherPackage.Fake");
-				logger.info("after reload : "+getMadkitClassLoader().loadClass("madkit.classreloading.anotherPackage.Fake").newInstance().toString());
+				MadkitClassLoader.reloadClass("madkit.classreloading.anotherPackage.Fake");
+				logger.info("after reload : "+MadkitClassLoader.getLoader().loadClass("madkit.classreloading.anotherPackage.Fake").newInstance().toString());
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			} catch (InstantiationException e) {
@@ -84,7 +85,7 @@ public class TestAgent extends Agent {
 			logger.info("\nfake3 is " + (new Fake().toString()));
 			pause(8000);
 			try {
-				getMadkitClassLoader().reloadClass("madkit.classreloading.anotherPackage.Fake");
+				MadkitClassLoader.reloadClass("madkit.classreloading.anotherPackage.Fake");
 			} catch (ClassNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

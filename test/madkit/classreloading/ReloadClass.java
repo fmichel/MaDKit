@@ -20,6 +20,7 @@ package madkit.classreloading;
 
 import madkit.classreloading.anotherPackage.Fake;
 import madkit.kernel.Agent;
+import madkit.kernel.MadkitClassLoader;
 
 /**
  * @author Fabien Michel
@@ -40,8 +41,8 @@ public class ReloadClass extends Agent {
 			logger.info("\n\n " + new Fake().toString());
 		pause(8000);
 		try {
-			getMadkitClassLoader().reloadClass(Fake.class.getName());
-			final Class<?> newestClassVersion = getMadkitClassLoader().loadClass(Fake.class.getName());
+			MadkitClassLoader.reloadClass(Fake.class.getName());
+			final Class<?> newestClassVersion = MadkitClassLoader.getLoader().loadClass(Fake.class.getName());
 			logger.info(newestClassVersion.newInstance().toString());
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();

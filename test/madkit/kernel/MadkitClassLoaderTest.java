@@ -18,7 +18,10 @@
  */
 package madkit.kernel;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -43,16 +46,15 @@ public class MadkitClassLoaderTest extends JunitMadkit {
 			@Override
 			protected void activate() {
 				try {
-					getMadkitClassLoader().loadClass("madkit.pingpong.PingPong");
+					MadkitClassLoader.getLoader().loadClass("madkit.pingpong.PingPong");
 					fail("Not thrown");
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 				}
-				MadkitClassLoader mcl = getMadkitClassLoader();
 				System.err.println(System.getProperty("user.dir"));
-				mcl.loadJarsFromPath(System.getProperty("user.dir") + File.separator + "test");
+				 MadkitClassLoader.loadJarsFromPath(System.getProperty("user.dir") + File.separator + "test");
 				try {
-					assertNotNull(getMadkitClassLoader().loadClass("madkit.pingpong.PingPong"));
+					assertNotNull(MadkitClassLoader.getLoader().loadClass("madkit.pingpong.PingPong"));
 				} catch (ClassNotFoundException e) {
 					fail(e.getMessage());
 				}
@@ -65,11 +67,12 @@ public class MadkitClassLoaderTest extends JunitMadkit {
 		launchTest(new AbstractAgent() {
 			@Override
 			protected void activate() {
-					MadkitClassLoader mcl = getMadkitClassLoader();
+					@SuppressWarnings("resource")
+					MadkitClassLoader mcl = MadkitClassLoader.getLoader();
 					try {
-						mcl.addToClasspath(new File(".").toURI().toURL());
+						MadkitClassLoader.addToClasspath(new File(".").toURI().toURL());
 						int n = mcl.getURLs().length;
-						mcl.addToClasspath(new File(".").toURI().toURL());
+						MadkitClassLoader.addToClasspath(new File(".").toURI().toURL());
 						assertEquals(n,mcl.getURLs().length);
 						System.err.println(Arrays.deepToString(mcl.getURLs()));
 					} catch (MalformedURLException e) {
@@ -87,12 +90,12 @@ public class MadkitClassLoaderTest extends JunitMadkit {
 			@Override
 			protected void activate() {
 				try {
-					assertNotNull(getMadkitClassLoader().loadClass("madkit.kernel.AbstractAgent"));
+					assertNotNull(MadkitClassLoader.getLoader().loadClass("madkit.kernel.AbstractAgent"));
 				} catch (ClassNotFoundException e) {
 					fail(e.getMessage()); 
 				}
 				try {
-					getMadkitClassLoader().loadClass(null);
+					MadkitClassLoader.getLoader().loadClass(null);
 					fail("Not thrown"); 
 				} catch (ClassNotFoundException e) {
 					fail("Not the one");
@@ -109,10 +112,9 @@ public class MadkitClassLoaderTest extends JunitMadkit {
 			launchTest(new AbstractAgent() {
 				@Override
 				protected void activate() {
-						MadkitClassLoader mcl = getMadkitClassLoader();
-						assertFalse(mcl.getAllAgentClasses().isEmpty());
-						System.err.println(mcl.getMDKFiles());
-						assertEquals(5,mcl.getMDKFiles().size());
+						assertFalse(MadkitClassLoader.getAllAgentClasses().isEmpty());
+						System.err.println(MadkitClassLoader.getMDKFiles());
+						assertEquals(5,MadkitClassLoader.getMDKFiles().size());
 			}});
 	}
 

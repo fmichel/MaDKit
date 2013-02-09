@@ -345,7 +345,7 @@ class MadkitKernel extends Agent {
 		// } else {
 		try {
 			// no need to externalize : it is the only use of that string
-			final Constructor<?> c = getMadkitClassLoader().loadClass("madkit.gui.GUIManagerAgent").getDeclaredConstructor(
+			final Constructor<?> c = MadkitClassLoader.getLoader().loadClass("madkit.gui.GUIManagerAgent").getDeclaredConstructor(
 					boolean.class);
 			c.setAccessible(true);
 			final AbstractAgent a = (AbstractAgent) c.newInstance(!BooleanOption.desktop.isActivated(getMadkitConfig()));
@@ -375,7 +375,7 @@ class MadkitKernel extends Agent {
 
 	@SuppressWarnings("unused")
 	private void loadJarFile(URL url) {
-		platform.getMadkitClassLoader().addToClasspath(url);
+		MadkitClassLoader.addToClasspath(url);
 	}
 	
 	@SuppressWarnings("unused")
@@ -405,7 +405,7 @@ class MadkitKernel extends Agent {
 			BufferedReader in = new BufferedReader(new InputStreamReader(
 					new URL(getMadkitProperty("madkit.repository.url")).openStream()));
 			for(String s : in.readLine().split("<br/>")){
-				getMadkitClassLoader().addToClasspath(new URL(s));
+				MadkitClassLoader.addToClasspath(new URL(s));
 			}
 			in.close();
 		} catch (MalformedURLException e) {//FIXME
@@ -423,7 +423,7 @@ class MadkitKernel extends Agent {
 			logger.fine("** LOADING DEMO DIRECTORY **");
 		File f = new File("demos");
 		if (f.exists() && f.isDirectory()) {
-			platform.getMadkitClassLoader().loadJarsFromPath(f.getAbsolutePath());
+			MadkitClassLoader.loadJarsFromPath(f.getAbsolutePath());
 		} else if (logger != null)
 			logger.log(Level.WARNING, ErrorMessages.CANT_FIND + " demos " + Words.DIRECTORY + "\n");
 	}
@@ -477,7 +477,7 @@ class MadkitKernel extends Agent {
 						public void run() {
 							if (!shuttedDown) {
 									try {
-										launchAgent((AbstractAgent) platform.getMadkitClassLoader().loadClass(className).newInstance(), 1, withGUI);
+										launchAgent((AbstractAgent) MadkitClassLoader.getLoader().loadClass(className).newInstance(), 1, withGUI);
 									} catch (InstantiationException e) {
 										cannotLaunchAgent(className, e, null);
 //										getLogger().severeLog(ErrorMessages.CANT_LAUNCH.toString() + className+" "+e.getClass().getName()+" !!!\n" , null);//waiting java 7
@@ -977,8 +977,7 @@ class MadkitKernel extends Agent {
 	 * @param bucket
 	 * @param cgrLocations
 	 */
-	void launchAgentBucketWithRoles(final AbstractAgent requester,
-			List<AbstractAgent> bucket, String... cgrLocations) {
+	void launchAgentBucketWithRoles(final AbstractAgent requester, List<AbstractAgent> bucket, String... cgrLocations) {
 		AgentsJob aj = new AgentsJob() {
 			@Override
 			void proceedAgent(AbstractAgent a) {
@@ -1042,7 +1041,7 @@ class MadkitKernel extends Agent {
 			IllegalAccessException, ClassNotFoundException {
 		if (shuttedDown)
 			return null;
-		final Class<? extends AbstractAgent> constructor = (Class<? extends AbstractAgent>) getMadkitClassLoader().loadClass(
+		final Class<? extends AbstractAgent> constructor = (Class<? extends AbstractAgent>) MadkitClassLoader.getLoader().loadClass(
 				agentClass);
 		final int cpuCoreNb = Runtime.getRuntime().availableProcessors();
 		final List<AbstractAgent> result = new ArrayList<>(bucketSize);
@@ -1617,10 +1616,10 @@ class MadkitKernel extends Agent {
 		return export;
 	}
 
-	@Override
-	public MadkitClassLoader getMadkitClassLoader() {
-		return platform.getMadkitClassLoader();
-	}
+//	@Override
+//	public MadkitClassLoader MadkitClassLoader.getLoader() {
+//		return platform.MadkitClassLoader.getLoader();
+//	}
 
 	// void logCurrentOrganization(Logger requester, Level lvl){
 	// if(requester != null){

@@ -31,6 +31,7 @@ import madkit.action.AgentAction;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
 import madkit.kernel.JunitMadkit;
+import madkit.kernel.MadkitClassLoader;
 import madkit.testing.util.agent.NormalAA;
 
 import org.junit.Assert;
@@ -47,28 +48,28 @@ import org.junit.Test;
  */
 public class ReloadTest extends JunitMadkit {
 
-	@Test
-	public void reloadTest() {
-		launchTest(new Agent() {
-
-			/**
-			 * 
-			 */
-			private static final long	serialVersionUID	= 1L;
-
-			protected void activate() {
-				final String agentClassName = AgentToReload.class.getName();
-				Assert.assertEquals("a", launchAgent(agentClassName).toString());
-				replaceFile();
-				try {
-					getMadkitClassLoader().reloadClass(agentClassName);
-				} catch (ClassNotFoundException e) {
-					e.printStackTrace();
-				}
-				Assert.assertEquals("reloaded", launchAgent(agentClassName).toString());
-			}
-		});
-	}
+//	@Test //TODO one file for each test
+//	public void reloadTest() {
+//		launchTest(new Agent() {
+//
+//			/**
+//			 * 
+//			 */
+//			private static final long	serialVersionUID	= 1L;
+//
+//			protected void activate() {
+//				final String agentClassName = AgentToReload.class.getName();
+//				Assert.assertEquals("a", launchAgent(agentClassName).toString());
+//				replaceFile();
+//				try {
+//					MadkitClassLoader.reloadClass(agentClassName);
+//				} catch (ClassNotFoundException e) {
+//					e.printStackTrace();
+//				}
+//				Assert.assertEquals("reloaded", launchAgent(agentClassName).toString());
+//			}
+//		});
+//	}
 
 
 	@Test
@@ -96,8 +97,8 @@ public class ReloadTest extends JunitMadkit {
 			protected void activate() {
 				NormalAA a = new NormalAA();
 				try {
-					getMadkitClassLoader().reloadClass(a.getClass().getName());
-					Class<AbstractAgent> c = (Class<AbstractAgent>) getMadkitClassLoader().loadClass(a.getClass().getName());
+					MadkitClassLoader.reloadClass(a.getClass().getName());
+					Class<AbstractAgent> c = (Class<AbstractAgent>) MadkitClassLoader.getLoader().loadClass(a.getClass().getName());
 					assertNotSame(c.getClassLoader(), a.getClass().getClassLoader());
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();

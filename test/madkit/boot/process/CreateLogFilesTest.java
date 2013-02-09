@@ -28,6 +28,7 @@ import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
 
+import madkit.action.KernelAction;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit;
@@ -94,7 +95,7 @@ public class CreateLogFilesTest extends JunitMadkit {
 		for (int i = 0; i < 100; i++) {
 			new Madkit(args);
 		}
-		pause(100);
+		pause(200);
 		assertEquals(100,new File(dir).listFiles().length);
 	}
 

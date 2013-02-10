@@ -28,7 +28,6 @@ import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
 
-import madkit.action.KernelAction;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit;

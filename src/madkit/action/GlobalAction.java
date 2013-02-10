@@ -20,15 +20,22 @@ package madkit.action;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 
 import javax.swing.Action;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import madkit.gui.SwingUtil;
+import madkit.i18n.ErrorMessages;
 import madkit.i18n.I18nUtilities;
+import madkit.i18n.Words;
 import madkit.kernel.AgentLogger;
 import madkit.kernel.MadkitClassLoader;
 
@@ -141,5 +148,49 @@ public class GlobalAction {
 			LAUNCH_MAIN.putValue(Action.SMALL_ICON, SwingUtil.MADKIT_LOGO_SMALL);
 			LAUNCH_MAIN.putValue(Action.SMALL_ICON, SwingUtil.MADKIT_LOGO_SMALL);
 		}
+		
+		/**
+		 * Opens a dialog for selecting the jar file to add.
+		 */
+		final public static Action LOAD_JAR_FILE= new MDKAbstractAction(new ActionInfo("LOAD_JAR_FILE", KeyEvent.VK_J, messages)) {
+			/**
+			 * 
+			 */
+			private static final long	serialVersionUID	= 1L;
 
+			@Override
+			public void actionPerformed(ActionEvent e) {
+					JFileChooser chooser = new JFileChooser(System.getProperty("user.dir"));
+					chooser.setFileFilter(new FileNameExtensionFilter("Jar file", "jar"));
+					int returnVal = chooser.showOpenDialog(null);
+					if(returnVal == JFileChooser.APPROVE_OPTION) {
+						try {
+							MadkitClassLoader.loadUrl(chooser.getSelectedFile().toURI().toURL());
+						} catch (MalformedURLException e1) {
+							e1.printStackTrace();
+						}
+					}
+			}
+		};
+		
+		/**
+		 * Load the jar files which are in the "demos" directory if there is one in the working directory
+		 */
+		final public static Action LOAD_LOCAL_DEMOS= new MDKAbstractAction(new ActionInfo("LOAD_LOCAL_DEMOS", KeyEvent.VK_S, messages)) {
+			/**
+			 * 
+			 */
+			private static final long	serialVersionUID	= 1L;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				File f = new File("demos");
+				if (f.exists() && f.isDirectory()) {
+					MadkitClassLoader.loadJarsFromDirectory(f.getAbsolutePath());
+				} else {
+				JOptionPane.showMessageDialog(null, "demos "+ Words.DIRECTORY +" "+ ErrorMessages.CANT_FIND , getValue(Action.NAME).toString(), JOptionPane.WARNING_MESSAGE);
+			}
+			}
+		};
+		
 }

@@ -52,7 +52,7 @@ public class MadkitClassLoaderTest extends JunitMadkit {
 					e.printStackTrace();
 				}
 				System.err.println(System.getProperty("user.dir"));
-				 MadkitClassLoader.loadJarsFromPath(System.getProperty("user.dir") + File.separator + "test");
+				 MadkitClassLoader.loadJarsFromDirectory(System.getProperty("user.dir") + File.separator + "test");
 				try {
 					assertNotNull(MadkitClassLoader.getLoader().loadClass("madkit.pingpong.PingPong"));
 				} catch (ClassNotFoundException e) {
@@ -70,9 +70,9 @@ public class MadkitClassLoaderTest extends JunitMadkit {
 					@SuppressWarnings("resource")
 					MadkitClassLoader mcl = MadkitClassLoader.getLoader();
 					try {
-						MadkitClassLoader.addToClasspath(new File(".").toURI().toURL());
+						MadkitClassLoader.loadUrl(new File(".").toURI().toURL());
 						int n = mcl.getURLs().length;
-						MadkitClassLoader.addToClasspath(new File(".").toURI().toURL());
+						MadkitClassLoader.loadUrl(new File(".").toURI().toURL());
 						assertEquals(n,mcl.getURLs().length);
 						System.err.println(Arrays.deepToString(mcl.getURLs()));
 					} catch (MalformedURLException e) {

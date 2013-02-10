@@ -179,7 +179,7 @@ final public class SwingUtil {
 			}
 			add.invoke(menuOrToolBar, GlobalAction.LOG_FILES);
 			addSeparator.invoke(menuOrToolBar);
-			add.invoke(menuOrToolBar, KernelAction.LOAD_LOCAL_DEMOS.getActionFor(agent));
+			add.invoke(menuOrToolBar, GlobalAction.LOAD_LOCAL_DEMOS);
 			add.invoke(menuOrToolBar, GlobalAction.LOAD_JAR_FILE);
 //			add.invoke(menuOrToolBar, GUIManagerAction.LOAD_JAR_FILE.getActionFor(agent));
 			addSeparator.invoke(menuOrToolBar);

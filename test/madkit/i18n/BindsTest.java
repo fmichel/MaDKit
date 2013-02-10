@@ -21,6 +21,7 @@ package madkit.i18n;
 import static org.junit.Assert.fail;
 
 import java.awt.event.KeyEvent;
+import java.lang.reflect.Field;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -67,10 +68,20 @@ public class BindsTest {
 	}
 
 	@Test
-	public void GlobalActionConflicts() {
-		testKey((int) GlobalAction.DEBUG.getValue(Action.MNEMONIC_KEY), "DEBUG");
-		testKey((int) GlobalAction.JCONSOLE.getValue(Action.MNEMONIC_KEY), "JCONSOLE");
-		testKey((int) GlobalAction.LOG_FILES.getValue(Action.MNEMONIC_KEY), "LOG_FILES");
+	public void GlobalActionConflicts() throws IllegalArgumentException {
+		for (Field f : GlobalAction.class.getDeclaredFields()) {
+			try {
+				final Object object = f.get(null);
+				final Class<? extends Object> cl = object.getClass();
+				if (Action.class.isAssignableFrom(cl)) {
+					final Object key = ((Action) object).getValue(Action.MNEMONIC_KEY);
+					if (key != null) {
+						testKey((int) key, f.getName());
+					}
+				}
+			} catch (IllegalAccessException e) {
+			}
+		}
 	}
 
 	/**

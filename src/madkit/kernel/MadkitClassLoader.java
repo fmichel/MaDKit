@@ -169,13 +169,18 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 //		return loadClass(className);
 //	}
 //
-	static void loadJarsFromPath(final String path) {
-		final File demoDir = new File(path);
+	/**
+	 * Loads all the jars present in a directory
+	 * 
+	 * @param directoryPath
+	 */
+	public static void loadJarsFromDirectory(final String directoryPath) {
+		final File demoDir = new File(directoryPath);
 		if (demoDir.isDirectory()) {
 			for (final File f : demoDir.listFiles()){
 				if (f.getName().endsWith(".jar")) {
 					try {
-						addToClasspath(f.toURI().toURL());
+						loadUrl(f.toURI().toURL());
 					} catch (MalformedURLException e) {
 						e.printStackTrace();
 					}
@@ -270,11 +275,11 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 	}
 	
 	/**
-	 * Adds a directory or a jar file to the class path.
 	 * 
+	 * Adds a directory or a jar file to the class path.
 	 * @param url the resource to add
 	 */
-	public static void addToClasspath(URL url) {
+	public static void loadUrl(URL url) {
 		getLoader().addURL(url);
 		System.setProperty("java.class.path", System.getProperty("java.class.path")+File.pathSeparator+url.getPath());
 		LaunchAgentsMenu.updateAllMenus();

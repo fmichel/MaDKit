@@ -18,9 +18,7 @@
  */
 package madkit.gui;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import javax.swing.JFrame;
 
@@ -96,12 +94,9 @@ public class GUITest extends JunitMadkit {
 			@Override
 			protected void activate() {
 				assertEquals(ReturnCode.SUCCESS, launchAgent(new AbstractAgent(){
-					private boolean ok = false;
-					private JFrame f;
 					@Override
 					public void setupFrame(JFrame frame) {
-						ok = true;
-						f = frame;
+						assertNotNull(frame);
 					}
 					@Override
 					protected void activate() {
@@ -145,16 +140,12 @@ public class GUITest extends JunitMadkit {
 			@Override
 			protected void activate() {
 				assertEquals(ReturnCode.SUCCESS, launchAgent(new Agent(){
-					private boolean ok = false;
-					private JFrame f;
 					@Override
 					public void setupFrame(JFrame frame) {
-						ok = true;
-						f = frame;
-						try {
+						assertNotNull(frame);
+					try {
 							Thread.sleep(10000);
 						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 					}

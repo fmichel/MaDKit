@@ -23,7 +23,6 @@ import static java.awt.event.KeyEvent.VK_DOLLAR;
 import static java.awt.event.KeyEvent.VK_O;
 import static java.awt.event.KeyEvent.VK_Q;
 import static java.awt.event.KeyEvent.VK_R;
-import static java.awt.event.KeyEvent.VK_S;
 import static java.awt.event.KeyEvent.VK_T;
 import static java.awt.event.KeyEvent.VK_W;
 
@@ -83,13 +82,6 @@ public enum KernelAction {
 	 */
 	CONSOLE(VK_O),
 
-	/**
-	 * Load the jar files which are in the "demos" directory if there is one in the working directory
-	 */
-	LOAD_LOCAL_DEMOS(VK_S),
-	
-
-	
 	//	//Actions that need parameters, i.e. not global
 	/**
 	 * Launch an agent
@@ -110,15 +102,9 @@ public enum KernelAction {
 	/**
 	 * For connecting kernels in a wide area network. It requires a parameter of type {@link InetAddress}.
 	 */
-	CONNECT_TO_IP(VK_DOLLAR),
-	/**
-	 * Load a jar file so that its agent classes are then available
-	 */
-	LOAD_JAR_FILE(VK_DOLLAR); 
+	CONNECT_TO_IP(VK_DOLLAR);
 	
 
-
-	//	final private MKAction mkAction;
 
 	private ActionInfo actionInfo;
 	final private int keyEvent;

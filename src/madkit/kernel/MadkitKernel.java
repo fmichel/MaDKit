@@ -85,6 +85,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 
+import madkit.action.GlobalAction;
 import madkit.action.KernelAction;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
@@ -92,7 +93,6 @@ import madkit.agr.LocalCommunity.Roles;
 import madkit.gui.ConsoleAgent;
 import madkit.gui.MASModel;
 import madkit.i18n.ErrorMessages;
-import madkit.i18n.Words;
 import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
@@ -296,7 +296,7 @@ class MadkitKernel extends Agent {
 		myThread.setPriority(Thread.NORM_PRIORITY + 1);
 
 		if (loadLocalDemos.isActivated(getMadkitConfig())) {
-			loadLocalDemos();
+			GlobalAction.LOAD_LOCAL_DEMOS.actionPerformed(null);
 		}
 		
 		launchGuiManagerAgent();
@@ -373,10 +373,10 @@ class MadkitKernel extends Agent {
 		// }
 	}
 
-	@SuppressWarnings("unused")
-	private void loadJarFile(URL url) {
-		MadkitClassLoader.addToClasspath(url);
-	}
+//	@SuppressWarnings("unused")
+//	private void loadJarFile(URL url) {
+//		MadkitClassLoader.addToClasspath(url);
+//	}
 	
 	@SuppressWarnings("unused")
 	private void connectToIp(InetAddress ip){
@@ -405,7 +405,7 @@ class MadkitKernel extends Agent {
 			BufferedReader in = new BufferedReader(new InputStreamReader(
 					new URL(getMadkitProperty("madkit.repository.url")).openStream()));
 			for(String s : in.readLine().split("<br/>")){
-				MadkitClassLoader.addToClasspath(new URL(s));
+				MadkitClassLoader.loadUrl(new URL(s));
 			}
 			in.close();
 		} catch (MalformedURLException e) {//FIXME
@@ -413,19 +413,6 @@ class MadkitKernel extends Agent {
 			if (logger != null)
 			logger.log(Level.WARNING, ErrorMessages.CANT_CONNECT + ": "+ repoLocation + "\n" + e.getMessage());
 		}
-	}
-
-	/**
-	 * 
-	 */
-	private void loadLocalDemos() {
-		if (logger != null)
-			logger.fine("** LOADING DEMO DIRECTORY **");
-		File f = new File("demos");
-		if (f.exists() && f.isDirectory()) {
-			MadkitClassLoader.loadJarsFromPath(f.getAbsolutePath());
-		} else if (logger != null)
-			logger.log(Level.WARNING, ErrorMessages.CANT_FIND + " demos " + Words.DIRECTORY + "\n");
 	}
 
 	@SuppressWarnings("unused")

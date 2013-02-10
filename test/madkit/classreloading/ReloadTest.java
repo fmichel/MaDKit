@@ -91,6 +91,7 @@ public class ReloadTest extends JunitMadkit {
 		});
 	}
 
+	@SuppressWarnings("serial")
 	@Test
 	public void reloadAndLoadTest() {
 		launchTest(new AbstractAgent() {
@@ -110,6 +111,7 @@ public class ReloadTest extends JunitMadkit {
 	/**
 		 * 
 		 */
+	@SuppressWarnings("all")//for the empty control flow statement
 	private void replaceFile() {
 		String classPath = '/' + AgentToReload.class.getName().replace('.', '/').concat(".class");
 		URL destUrl = getClass().getResource(classPath);

@@ -24,15 +24,11 @@ import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.net.InetAddress;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ResourceBundle;
 
 import javax.swing.Action;
-import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
@@ -64,10 +60,6 @@ public enum GUIManagerAction {
 	 * For connecting kernels in a wide area network
 	 */
 	CONNECT_TO_IP(VK_N),
-	/**
-	 * Opens a dialog for selecting the jar file to add.
-	 */
-	LOAD_JAR_FILE(KeyEvent.VK_J), 
 	/**
 	 * Iconify all the agent frames
 	 */
@@ -135,25 +127,6 @@ public enum GUIManagerAction {
 	 * @return an Action that could be used in an GUI for instance
 	 */
 	public Action getActionFor(final AbstractAgent agent, final Object... commandOptions){
-		if(this == LOAD_JAR_FILE){
-			return new MDKAbstractAction(getActionInfo()){
-				/**
-				 * 
-				 */
-				private static final long	serialVersionUID	= -3628118195822063331L;
-
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					if (agent.isAlive()) {
-						agent.sendMessage(
-								LocalCommunity.NAME, 
-								Groups.SYSTEM, 
-								Organization.GROUP_MANAGER_ROLE, 
-								new KernelMessage(KernelAction.LOAD_JAR_FILE, getJarUrl()));
-					}
-				}
-			};
-		}
 		if(this == CONNECT_TO_IP){
 			return new MDKAbstractAction(getActionInfo()){
 				/**
@@ -211,20 +184,6 @@ public enum GUIManagerAction {
 		if(actionInfo == null)
 			actionInfo = new ActionInfo(this,keyEvent,messages);
 		return actionInfo;
-	}
-
-	private URL getJarUrl() {
-		JFileChooser chooser = new JFileChooser(System.getProperty("user.dir"));
-		chooser.setFileFilter(new FileNameExtensionFilter("Jar file", "jar"));
-		int returnVal = chooser.showOpenDialog(null);
-		if(returnVal == JFileChooser.APPROVE_OPTION) {
-			try {
-				return chooser.getSelectedFile().toURI().toURL();
-			} catch (MalformedURLException e1) {
-				e1.printStackTrace();
-			}
-		}
-		return null;
 	}
 
 }

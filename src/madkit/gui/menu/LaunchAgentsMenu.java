@@ -125,7 +125,7 @@ public class LaunchAgentsMenu extends JMenu {
 	/**
 	 * Called by the kernel when the class path is modified.
 	 * This is for instance the case when the 
-	 * {@link MadkitClassLoader#addToClasspath(java.net.URL)}
+	 * {@link MadkitClassLoader#loadUrl(java.net.URL)}
 	 * is used.
 	 */
 	public static void updateAllMenus() {

@@ -5,6 +5,7 @@ import java.net.MalformedURLException;
 
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadkit;
+import madkit.kernel.MadkitClassLoader;
 
 import org.junit.Test;
 
@@ -22,7 +23,7 @@ public class KernelActionTest extends JunitMadkit{
 			@Override
 			protected void activate() {
 				try {
-					KernelAction.LOAD_JAR_FILE.getActionFor(this,new File("test.jar").toURI().toURL()).actionPerformed(null);
+					MadkitClassLoader.loadUrl(new File("test.jar").toURI().toURL());
 				} catch (MalformedURLException e) {
 					e.printStackTrace();
 				}

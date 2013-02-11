@@ -30,7 +30,7 @@ import madkit.simulation.activator.GenericBehaviorActivator;
  * This class defines a tool for scheduling mechanism.
  * An activator is configured according to a community, a group and a role.
  * It could be used to activate a group of agents on a particular behavior (a method of the agent's class)
- * Subclasses should override {@link #execute(List)} for defining how 
+ * Subclasses should override {@link #execute(List, Object...)} for defining how 
  * a sequential execution of a list of agents take place. By default, this list 
  * corresponds to all the agents in a single core mode or to partial views of
  * the entire list when the multicore mode is used.
@@ -154,12 +154,12 @@ public abstract class Activator<A extends AbstractAgent> extends Overlooker<A>{
 	/**
 	 * Sets the number of tasks which will be used on a multicore
 	 * architecture. If set to a number greater
-	 * than 1, the scheduler will automatically use {@link #multicoreExecute()}
-	 * on this activator when {@link Activator#execute()} is called.
+	 * than 1, the scheduler will automatically use {@link #multicoreExecute(Object...)}
+	 * on this activator when {@link Activator#execute(Object...)} is called.
 	 * If set to 1, the agents are sequentially activated. Beware
 	 * that this is the only way
 	 * to do exact replication of simulations, unless you have clear
-	 * specifications for your model, see {@link #multicoreExecute()}.
+	 * specifications for your model, see {@link #multicoreExecute(Object...)}.
 	 * 
 	 * @param nbOfParallelTasks the number of simultaneous tasks
 	 * that this activator will use to make a step. Default is 1 upon

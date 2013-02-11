@@ -53,8 +53,8 @@ public class MadkitToolBar extends JToolBar {
 	 * <li> {@link GlobalAction#JCONSOLE}
 	 * <li> {@link KernelAction#CONSOLE}
 	 * <li> {@link GlobalAction#DEBUG}
-	 * <li> {@link KernelAction#LOAD_LOCAL_DEMOS}
-	 * <li> {@link GUIManagerAction#LOAD_JAR_FILE}
+	 * <li> {@link GlobalAction#LOAD_LOCAL_DEMOS}
+	 * <li> {@link GlobalAction#LOAD_JAR_FILE}
 	 * <li> {@link GUIManagerAction#ICONIFY_ALL}
 	 * <li> {@link GUIManagerAction#DEICONIFY_ALL}
 	 * <li> {@link GUIManagerAction#KILL_AGENTS}

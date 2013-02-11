@@ -40,7 +40,6 @@ import javax.swing.JOptionPane;
 
 import madkit.gui.menu.AgentLogLevelMenu;
 import madkit.i18n.Words;
-import madkit.kernel.AbstractAgent.Influence;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Madkit.Option;

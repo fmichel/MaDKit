@@ -138,6 +138,7 @@ final class Group extends ConcurrentHashMap<String, Role> {
 				MicroAgent<Boolean> ma;
 				myKernel.launchAgent(ma = new MicroAgent<Boolean>() {
 					private static final long	serialVersionUID	= 1L;
+					@SuppressWarnings("unchecked")
 					protected void activate() {
 						super.activate();
 						try {
@@ -166,9 +167,6 @@ final class Group extends ConcurrentHashMap<String, Role> {
 				}
 		}
 		
-//		if (gatekeeper != null && !gatekeeper.allowAgentToTakeRole(roleName, memberCard))
-//			return ACCESS_DENIED;
-
 		ReturnCode result = SUCCESS;
 		Role theRole;
 		synchronized (this) {
@@ -177,7 +175,6 @@ final class Group extends ConcurrentHashMap<String, Role> {
 				theRole = createRole(roleName);
 				put(roleName, theRole);
 				theRole.addMember(requester);
-//				return SUCCESS;
 			}
 			else {
 				// TODO there is another RC : manager role is already handled

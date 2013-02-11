@@ -517,7 +517,8 @@ final public class Madkit {
 	}
 
 	/**
-	 * @return
+	 * only for junit
+	 * @return the kernel
 	 */
 	MadkitKernel getKernel() {
 		return myKernel;

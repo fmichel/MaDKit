@@ -242,7 +242,7 @@ public class Scheduler extends Agent {
 	}
 
 	/**
-	 * Executes all the activators in the order they have been added, using {@link Activator#execute()}, and then increments the global virtual time
+	 * Executes all the activators in the order they have been added, using {@link Activator#execute(Object...)}, and then increments the global virtual time
 	 * of this scheduler by one unit.
 	 * 
 	 * This also automatically calls the multicore mode of the activator if it

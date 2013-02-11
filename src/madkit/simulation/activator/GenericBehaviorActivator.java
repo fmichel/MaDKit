@@ -76,7 +76,7 @@ public class GenericBehaviorActivator<A extends AbstractAgent> extends Activator
 	 * Triggers the corresponding behavior on all the agents
 	 *  which are at the CGR location defined by this activator.
 	 * 
-	 * @see madkit.kernel.Activator#execute(java.util.List)
+	 * @see madkit.kernel.Activator#execute(List, Object...)
 	 */
 	@SuppressWarnings("null")
 	@Override

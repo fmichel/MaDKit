@@ -525,7 +525,7 @@ public class Agent extends AbstractAgent{
 	/**
 	 * @param timeout
 	 * @param unit
-	 * @return
+	 * @return message
 	 * @since MaDKit 5
 	 */
 	private Message waitingNextMessageForEver() {
@@ -542,7 +542,7 @@ public class Agent extends AbstractAgent{
 	/**
 	 * @param timeout
 	 * @param unit
-	 * @return
+	 * @return msg
 	 * @since MaDKit 5
 	 */
 	private Message waitingNextMessage(final long timeout, final TimeUnit unit) {
@@ -558,7 +558,7 @@ public class Agent extends AbstractAgent{
 
 	/**
 	 * @param m
-	 * @return
+	 * @return msg
 	 */
 	private Message waitAnswer(final Message m) {
 		Message answer;
@@ -582,7 +582,7 @@ public class Agent extends AbstractAgent{
 	/**
 	 * @param theReply
 	 * @param timeOutNanos
-	 * @return
+	 * @return msg
 	 */
 	private Message waitAnswer(final Message theMessageToReplyTo, Long timeOutNanos) {
 		if(timeOutNanos == null)

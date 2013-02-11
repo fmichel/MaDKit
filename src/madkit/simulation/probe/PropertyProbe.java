@@ -118,6 +118,7 @@ public class PropertyProbe<A extends AbstractAgent, T> extends Probe<A>// TODO
 	 * 
 	 * @return the maximum value for this property
 	 */
+	@SuppressWarnings("unchecked")
 	public T getMaxValue() {
 		T max = null;
 		for (final A a : getCurrentAgentsList()) {
@@ -142,6 +143,7 @@ public class PropertyProbe<A extends AbstractAgent, T> extends Probe<A>// TODO
 	 * 
 	 * @return the minimum value for this property
 	 */
+	@SuppressWarnings("unchecked")
 	public T getMinValue() {
 		T min = null;
 		for (final A a : getCurrentAgentsList()) {

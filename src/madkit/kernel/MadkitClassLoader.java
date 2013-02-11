@@ -132,13 +132,25 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 	}
 
 	/**
-	 * Asks the MaDKit class loader to reload the class
-	 * byte code so that new instances, created
-	 * using {@link Class#newInstance()} on a class object obtained with {@link #loadClass(String)}, will reflect
+	 * Schedule the reloading of the byte code of a class 
+	 * for its next loading. So new instances, created
+	 * using {@link Class#newInstance()} on a class object obtained 
+	 * with {@link #loadClass(String)}, will reflect
 	 * compilation changes during run time.
 	 * 
+	 * In fact, using {@link #loadClass(String)} on the current MDK class loader 
+	 * obtained with {@link #getLoader()} returns the class object corresponding 
+	 * to the last compilation of the java code available on the class path. 
+	 * Especially, this may return a different version than {@link Class#forName(String)} 
+	 * because {@link Class#forName(String)} uses the
+	 * {@link ClassLoader} of the caller's current class which could be different than
+	 * the current one (i.e. the one obtained {@link #getLoader()}) if several reloads
+	 * have been done.
+	 * 
+	 * Especially, {@link AbstractAgent#launchAgent(String, int, boolean)} 
+	 * always uses the newest version of an agent class.
+	 *  
 	 * @param name The fully qualified class name of the class
-	 * @return <code>true</code> if the class has been successfully
 	 * @throws ClassNotFoundException if the class cannot be found on the class path
 	 */
 	public static void reloadClass(String name) throws ClassNotFoundException {// TODO return false and return code
@@ -151,24 +163,6 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 		currentMCL.classesToReload.add(name);
 	}
 
-//	/**
-//	 * returns the newest version of a class object given its name. If {@link #reloadClass(String)} has been used this
-//	 * returns the class object corresponding to the last compilation of the java code. Especially, in such a case, this
-//	 * returns a different version than {@link Class#forName(String)} if the caller using it has not been reloaded at the same time. This is because {@link Class#forName(String)} uses the
-//	 * {@link ClassLoader} of the current class while this method uses the last class loader which is used by
-//	 * MaDKit, i.e. the one created for loading classes on which {@link #reloadClass(String)} has been invoked.
-//	 * Especially, {@link AbstractAgent#launchAgent(String, int, boolean)} always uses the newest version of the agent class.
-//	 * 
-//	 * @param className the fully qualified name of the desired class.
-//	 * @return the newest version of a class object given its name.
-//	 * @throws ClassNotFoundException
-//	 * @since MaDKit 5.0.0.8
-//	 */
-//	public Class<?> getNewestClassVersion(final String className)
-//			throws ClassNotFoundException {
-//		return loadClass(className);
-//	}
-//
 	/**
 	 * Loads all the jars present in a directory
 	 * 
@@ -487,8 +481,9 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 	}
 
 	/**
+	 * format the toString of a collection: Remove brackets and space
 	 * @param set
-	 * @return
+	 * @return the parsed string
 	 */
 	private static String normalizeResult(final Set<String> set) {
 		final String s = set.toString();

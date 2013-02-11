@@ -94,13 +94,7 @@ final class AboutFrame extends JDialog {
 		StyleConstants.setFontSize(s, 20);
 
 		try (BufferedReader in = new BufferedReader(new InputStreamReader(new URL(Madkit.WEB + "/LAST").openStream()))){
-			String version = in.readLine();
-			if (Madkit.VERSION.compareTo(version) < 0) {
-				version = "\n\n   " + Words.LAST_AVAILABLE.toString() + " : " + version + "\n";
-			}
-			else {
-				version = "";
-			}
+			String version = "\n\n   " + Words.LAST_AVAILABLE.toString() + " : " + in.readLine() + "\n";
 			doc.insertString(doc.getLength(), "  MaDKit\n", doc.getStyle("large"));
 			doc.insertString(doc.getLength(), "   The Multiagent Development Kit\n\n", doc.getStyle("italic"));
 			doc.insertString(doc.getLength(), "   Version: " + Madkit.VERSION + "\n   Build id: " + Madkit.BUILD_ID + version,

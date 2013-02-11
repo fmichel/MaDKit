@@ -1114,8 +1114,7 @@ class MadkitKernel extends Agent {
 		if (defaultGUI)
 			agent.createGUIOnStartUp();
 		Level defaultLevel = LevelOption.agentLogLevel.getValue(getMadkitConfig());
-		final AgentLogger agentLogger = agent.logger;
-		if (agentLogger == AgentLogger.defaultAgentLogger) {// not changed in the
+		if ( agent.logger == AgentLogger.defaultAgentLogger) {// not changed in the
 																				// constructor
 			if (defaultLevel == Level.OFF) {// default not changed and global is
 														// OFF

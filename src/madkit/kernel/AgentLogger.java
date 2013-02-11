@@ -23,8 +23,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
@@ -34,7 +36,11 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
+import javax.swing.JOptionPane;
+
 import madkit.gui.menu.AgentLogLevelMenu;
+import madkit.i18n.Words;
+import madkit.kernel.AbstractAgent.Influence;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Madkit.Option;
@@ -123,26 +129,25 @@ final public class AgentLogger extends Logger {
 		myAgent = null;
 		setUseParentHandlers(false);
 		super.setLevel(LevelOption.agentLogLevel.getValue(Madkit.defaultConfig));
-		if (!BooleanOption.noAgentConsoleLog.isActivated(Madkit.defaultConfig)) {
+		if (! BooleanOption.noAgentConsoleLog.isActivated(Madkit.defaultConfig)) {
 			addHandler(new ConsoleHandler());
 		}
 	}
 
 	private AgentLogger(final AbstractAgent agent) {
-		super("["+agent.getName()+"]", null);
+		super("[" + agent.getName() + "]", null);
 		myAgent = agent;
 		setUseParentHandlers(false);
-		final Level l = agent.logger == null ? Level.OFF
-				: LevelOption.agentLogLevel.getValue(agent.getMadkitConfig());
+		final Properties madkitConfig = myAgent.getMadkitConfig();
+		final Level l = myAgent.logger == null ? Level.OFF : LevelOption.agentLogLevel.getValue(madkitConfig);
 		super.setLevel(l);
-		setWarningLogLevel(LevelOption.warningLogLevel.getValue(agent
-				.getMadkitConfig()));
-		if (! BooleanOption.noAgentConsoleLog.isActivated(agent.getMadkitConfig())) {
+		setWarningLogLevel(LevelOption.warningLogLevel.getValue(madkitConfig));
+		if (! BooleanOption.noAgentConsoleLog.isActivated(madkitConfig)) {
 			ConsoleHandler ch = new ConsoleHandler();
 			addHandler(ch);
 			ch.setFormatter(AGENT_FORMATTER);
 		}
-		if (BooleanOption.createLogFiles.isActivated(myAgent.getMadkitConfig())) {
+		if (BooleanOption.createLogFiles.isActivated(madkitConfig)) {
 			createLogFile();
 		}
 	}
@@ -321,8 +326,17 @@ final public class AgentLogger extends Logger {
 	 * @see AgentLogger#createLogFile()
 	 */
 	public static void createLogFiles() {
-		for (AgentLogger logger : agentLoggers.values()) {
-			logger.createLogFile();
+		try{
+			AbstractAgent a = new ArrayList<>(agentLoggers.keySet()).get(0);
+			a.setMadkitProperty(BooleanOption.createLogFiles.name(), "true");
+			JOptionPane.showMessageDialog(null, Words.DIRECTORY+" "+new File(a.getMadkitProperty(Option.logDirectory.name())).getAbsolutePath() + " "
+					+ Words.CREATED, "OK", JOptionPane.INFORMATION_MESSAGE);
+			for (AgentLogger logger : agentLoggers.values()) {
+				logger.createLogFile();
+			}
+		}
+		catch(IndexOutOfBoundsException e){
+			JOptionPane.showMessageDialog(null, "No active agents yet", Words.FAILED.toString(), JOptionPane.WARNING_MESSAGE);
 		}
 	}
 }

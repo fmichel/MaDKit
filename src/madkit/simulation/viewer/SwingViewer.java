@@ -34,6 +34,14 @@ import madkit.kernel.Watcher;
  * A very basic simulation viewer agent. This class defines
  * a panel for the simulation rendering and two modes
  * of rendering: Synchronous and asynchronous.
+ * 
+ * The synchronous mode ensures that each simulation frame is displayed.
+ * That means that the scheduler will wait the end of the rendering activity
+ * to proceed to the next activator, waiting for the swing thread to ends.
+ * this is not the case with the asynchronous mode so that the whole 
+ * simulation process goes faster because some simulation states
+ * will not be displayed.
+ * 
  * An <code>observe</code> method is already defined 
  * and is intended to be called by
  * scheduler agents to trigger the rendering.

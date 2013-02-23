@@ -19,7 +19,7 @@
 package madkit.message;
 
 /**
- * A message class that conveys a integer.
+ * A message class that conveys an integer.
  * 
  * @author Fabien Michel
  * @since MaDKit 5.0.1
@@ -35,7 +35,7 @@ public class IntegerMessage extends ObjectMessage<Integer> {
 
 	/**
 	 * Builds a new message containing the integer i
-	 * @param i the string
+	 * @param i the integer
 	 */
 	public IntegerMessage(Integer i) {
 		super(i);

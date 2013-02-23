@@ -1,2 +1,3 @@
 #for testing the MCL
 test=true
+launchAgents=madkit.kernel.Agent

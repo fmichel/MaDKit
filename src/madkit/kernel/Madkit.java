@@ -27,6 +27,7 @@ import java.security.PermissionCollection;
 import java.security.Policy;
 import java.security.ProtectionDomain;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Enumeration;
@@ -46,6 +47,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import madkit.action.ActionInfo;
 import madkit.action.KernelAction;
+import madkit.gui.AgentFrame;
 import madkit.gui.ConsoleAgent;
 import madkit.gui.MDKDesktopFrame;
 import madkit.i18n.ErrorMessages;
@@ -122,7 +124,7 @@ final public class Madkit {
 	private Logger logger;
 // TODO Remove unused code found by UCDetector
 // 	String cmdLine;
-	String[] args;
+	String[] args = null;
 
 //	private static Madkit currentInstance;
 //
@@ -184,7 +186,6 @@ final public class Madkit {
 	 * @param options the options which should be used to launch Madkit:
 	 *           see {@link LevelOption}, {@link BooleanOption} and {@link Option}
 	 */
-	@SuppressWarnings("unused")
 	public static void main(String[] options) {
 		new Madkit(options);
 	}
@@ -251,14 +252,20 @@ final public class Madkit {
 	 */
 
 	public Madkit(String... options){
-		
-		if(options != null && options.length == 1 && options[0].contains(" ")){//jnlp arg in here
-			options = options[0].trim().split(" ");
-//			for (final String s : options) {
-//				this.cmdLine += " "+s;
-//			}
+		final ArrayList<String> argsList = new ArrayList<>();
+		if (options != null) {
+			for (String string : options) {
+				argsList.addAll(Arrays.asList(string.trim().split(" ")));
+			}
+			this.args = argsList.toArray(new String[argsList.size()]);
 		}
-		this.args = options != null && options.length != 0 ? options : null;
+//		if(options != null && options.length == 1 && options[0].contains(" ")){//jnlp arg in here
+//			options = options[0].trim().split(" ");
+////			for (final String s : options) {
+////				this.cmdLine += " "+s;
+////			}
+//		}
+//		this.args = options != null && options.length != 0 ? options : null;
 		
 		if (ActionInfo.javawsIsOn) {
 			Policy.setPolicy(getAllPermissionPolicy());//TODO this is for jws
@@ -689,7 +696,13 @@ final public class Madkit {
 		 * Can be used to specify multiple properties at once, 
 		 * using a regular properties file
 		 */
-		configFile;
+		configFile, 
+		
+		/**
+		 * the agent frame class which should be used by the GUI manager, 
+		 * default is {@link AgentFrame}
+		 */
+		agentFrameClass;
 
 		/**
 		 * Returns the constant's name prefixed by "<code>--</code>" so that

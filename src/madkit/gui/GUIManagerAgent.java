@@ -26,6 +26,8 @@ import java.awt.Point;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyVetoException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -45,6 +47,7 @@ import madkit.action.GUIManagerAction;
 import madkit.action.KernelAction;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
+import madkit.gui.menu.ClassPathSensitiveMenu;
 import madkit.i18n.Words;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
@@ -76,14 +79,25 @@ class GUIManagerAgent extends Agent {
 	private JDesktopPane											desktopPane;
 
 	private MDKDesktopFrame											myFrame;
+	private Constructor<? extends AgentFrame> agentFrameConstrutor;
 
 	GUIManagerAgent(boolean asDaemon) { // NO_UCD use by reflection
 		super(asDaemon);
 		guis = new ConcurrentHashMap<>();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected void activate() {// TODO parallelize that
+		try {
+			agentFrameConstrutor = (Constructor<? extends AgentFrame>) MadkitClassLoader.getLoader().loadClass(getMadkitProperty(Option.agentFrameClass.name())).getDeclaredConstructor(AbstractAgent.class);
+		} catch (NoSuchMethodException | SecurityException | ClassCastException | ClassNotFoundException e1) {
+			e1.printStackTrace();
+			try {
+				agentFrameConstrutor = AgentFrame.class.getConstructor(AbstractAgent.class);
+			} catch (NoSuchMethodException | SecurityException e) {
+			}
+		}
 //		setThreadPriority(Thread.MAX_PRIORITY);
 	// setLogLevel(Level.ALL);
 	// requestRole(LocalCommunity.NAME, Groups.SYSTEM, Roles.GUI_MANAGER);//no need: I am a manager
@@ -169,13 +183,17 @@ class GUIManagerAgent extends Agent {
 		if (!shuttedDown && agent.isAlive()) {
 			if (logger != null)
 				logger.fine("Setting up GUI for " + agent);
-			AgentFrame f = new AgentFrame(agent, agent.getName());
+			AgentFrame f = null;
+			try {
+				f = agentFrameConstrutor.newInstance(agent);
+			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e1) {
+				e1.printStackTrace();
+			}
 			try{
 				agent.setupFrame(f);// TODO catch failures because of delegation
 			} catch (Exception e) {
-				agent.getLogger().severeLog(
-						"Frame setup problem -> default GUI settings", e);
-				f = new AgentFrame(agent, agent.getName());
+				agent.getLogger().severeLog("Frame setup problem -> default GUI settings", e);
+				f = AgentFrame.createAgentFrame(agent);
 			}
 			guis.put(agent, f);
 			final AgentFrame af = f;

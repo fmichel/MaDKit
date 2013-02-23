@@ -21,8 +21,12 @@ package madkit.message;
 import madkit.action.GUIManagerAction;
 
 /**
+ * Message type that could be used to ask
+ * the gui manager to do something
+ * 
  * @author Fabien Michel
  * @since MaDKit 5.0.0.9
+ * @see GUIManagerAction
  * @version 0.9
  * 
  */

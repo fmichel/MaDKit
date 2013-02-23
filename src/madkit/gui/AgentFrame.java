@@ -18,6 +18,7 @@
  */
 package madkit.gui;
 
+import java.awt.BorderLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -25,8 +26,11 @@ import javax.swing.Box;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JMenuBar;
+import javax.swing.JToolBar;
 import javax.swing.WindowConstants;
 
+import madkit.action.GUIManagerAction;
+import madkit.action.GlobalAction;
 import madkit.action.KernelAction;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
@@ -39,24 +43,39 @@ import madkit.kernel.AbstractAgent;
 import madkit.message.KernelMessage;
 
 /**
+ * The default frame which is used for the agents in the GUI engine of MaDKit.
+ * Subclasses could be defined to obtain customized frames.
+ * 
  * @author Fabien Michel
  * @since MaDKit 5.0.0.9
- * @version 0.9
+ * @version 0.91
  * 
  */
-final class AgentFrame extends JFrame {
+public class AgentFrame extends JFrame {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 6337250099157352055L;
 	private JInternalFrame internalFrame;
+	private AbstractAgent agent;
 	
-	AgentFrame(final AbstractAgent agent, String name) {
-		super(name);
+	/**
+	 * TThis constructor is protected because this class
+	 * should not be directly instantiated as it is used
+	 * by the MaDKit GUI manager.
+	 * 
+	 * @param agent the considered agent
+	 */
+	protected AgentFrame(final AbstractAgent agent) {
+		super(agent.getName());
+		this.agent = agent;
 		setIconImage(SwingUtil.MADKIT_LOGO.getImage());
-		setJMenuBar(createMenuBarFor(agent));
-
+		setJMenuBar(createMenuBar());
+		JToolBar tb = createJToolBar();
+		if (tb != null) {
+			add(tb, BorderLayout.PAGE_START);
+		}
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
 			
@@ -86,7 +105,21 @@ final class AgentFrame extends JFrame {
 		super.dispose();
 	}
 
-	private JMenuBar createMenuBarFor(AbstractAgent agent) {
+	/**
+	 * Builds the menu bar that will be used for this frame.
+	 * By default it creates a {@link JMenuBar} featuring: 
+	 * <ul>
+	 * <li> {@link MadkitMenu}
+	 * <li> {@link AgentMenu}
+	 * <li> {@link AgentLogLevelMenu}
+	 * <li> {@link HelpMenu}
+	 * <li> {@link AgentStatusPanel}
+	 * </ul>
+	 * 
+	 * @param agent
+	 * @return a menu bar 
+	 */
+	public JMenuBar createMenuBar() {
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.add(new MadkitMenu(agent));
 		menuBar.add(new AgentMenu(agent));
@@ -95,6 +128,17 @@ final class AgentFrame extends JFrame {
 		menuBar.add(Box.createHorizontalGlue());
 		menuBar.add(new AgentStatusPanel(agent));
 		return menuBar;
+	}
+	
+	/**
+	 * Builds the tool bar that will be used. By default, 
+	 * it returns <code>null</code> so that there is no toll bar 
+	 * in the default agent frames.
+	 * 
+	 * @return a tool bar
+	 */
+	public JToolBar createJToolBar(){
+		return null;
 	}
 
 	/**
@@ -131,5 +175,23 @@ final class AgentFrame extends JFrame {
 					Organization.GROUP_MANAGER_ROLE, 
 					new KernelMessage(KernelAction.KILL_AGENT, agent, timeOutSeconds));
 		}
+	}
+
+	/**
+	 * @return the agent for which this frame has been created.
+	 */
+	public AbstractAgent getAgent() {
+		return agent;
+	}
+
+	/**
+	 * Override to customize the agent frame that should be created
+	 * by the GUI engine.
+	 * 
+	 * @param agent the related agent 
+	 * @return the created frame 
+	 */
+	public static AgentFrame createAgentFrame(final AbstractAgent agent) {
+		return new AgentFrame(agent);
 	}
 }

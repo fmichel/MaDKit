@@ -42,13 +42,13 @@ import madkit.kernel.MadkitClassLoader;
  * @version 0.9
  * 
  */
-public class LaunchAgentsMenu extends JMenu {
+public class LaunchAgentsMenu extends ClassPathSensitiveMenu {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 634377755586801986L;
-	final static private Set<LaunchAgentsMenu> menus = new HashSet<>(); 
+//	final static private Set<LaunchAgentsMenu> menus = new HashSet<>(); 
 	final private Action myAction;
 	final private AbstractAgent myAgent;
 	private AgentClassFilter filter;
@@ -104,9 +104,6 @@ public class LaunchAgentsMenu extends JMenu {
 				agent.launchAgent(e.getActionCommand(),0,true);
 			}
 		};
-		synchronized (menus) {
-			menus.add(this);
-		}
 		update();
 	}
 
@@ -121,20 +118,7 @@ public class LaunchAgentsMenu extends JMenu {
 //		});
 //		group.add(b);
 //	}
-
-	/**
-	 * Called by the kernel when the class path is modified.
-	 * This is for instance the case when the 
-	 * {@link MadkitClassLoader#loadUrl(java.net.URL)}
-	 * is used.
-	 */
-	public static void updateAllMenus() {
-		synchronized (menus) {
-			for (LaunchAgentsMenu menu : menus) {
-				menu.update();
-			}
-		}
-	}
+//
 
 	private void addTomenu(final Action a, final JMenu subMenu, final String className, final boolean simpleName) {
 		final JMenuItem name = new JMenuItem(a);
@@ -144,7 +128,7 @@ public class LaunchAgentsMenu extends JMenu {
 		subMenu.add(name);
 	}
 
-	private void update() {
+	public void update() {
 		if(! myAgent.isAlive())
 			return;
 		removeAll();

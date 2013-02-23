@@ -37,6 +37,9 @@ import madkit.i18n.ErrorMessages;
 import madkit.i18n.I18nUtilities;
 import madkit.i18n.Words;
 import madkit.kernel.AgentLogger;
+import madkit.kernel.Madkit;
+import madkit.kernel.Madkit.LevelOption;
+import madkit.kernel.Madkit.Option;
 import madkit.kernel.MadkitClassLoader;
 
 /**
@@ -122,7 +125,9 @@ public class GlobalAction {
 		}
 		
 		/**
-		 * An action that create a log file for each agent having a non <code>null</code> logger.
+		 * An action that launch the main method of the class
+		 * which name is obtained using {@link ActionEvent#getActionCommand()} 
+		 * on the received event, i.e. the action command of the button.
 		 */
 		final public static Action LAUNCH_MAIN;
 		
@@ -145,7 +150,6 @@ public class GlobalAction {
 					}
 				}
 			};
-			LAUNCH_MAIN.putValue(Action.SMALL_ICON, SwingUtil.MADKIT_LOGO_SMALL);
 			LAUNCH_MAIN.putValue(Action.SMALL_ICON, SwingUtil.MADKIT_LOGO_SMALL);
 		}
 		
@@ -188,9 +192,34 @@ public class GlobalAction {
 				if (f.exists() && f.isDirectory()) {
 					MadkitClassLoader.loadJarsFromDirectory(f.getAbsolutePath());
 				} else {
-				JOptionPane.showMessageDialog(null, "demos "+ Words.DIRECTORY +" "+ ErrorMessages.CANT_FIND , getValue(Action.NAME).toString(), JOptionPane.WARNING_MESSAGE);
+					JOptionPane.showMessageDialog(null, f.getAbsolutePath()+" "+ Words.DIRECTORY +" "+ ErrorMessages.CANT_FIND , getValue(Action.NAME).toString(), JOptionPane.WARNING_MESSAGE);
 			}
 			}
 		};
+
 		
+		/**
+		 * An action that launch a new MaDKit instance using the configuration file
+		 * which name is obtained using {@link ActionEvent#getActionCommand()} 
+		 * on the received event, i.e. the action command of the button.
+		 */
+		public static final Action LAUNCH_MDK_CONFIG;
+		
+		static{
+			final ActionInfo actionInfo = new ActionInfo("LAUNCH_MDK_CONFIG", KeyEvent.VK_DOLLAR, messages);
+			LAUNCH_MDK_CONFIG = new MDKAbstractAction(actionInfo) {
+				/**
+				 * 
+				 */
+				private static final long	serialVersionUID	= 1L;
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					System.err.println(e.getActionCommand());
+						new Madkit(Option.configFile.toString(),e.getActionCommand());
+				}
+			};
+			LAUNCH_MAIN.putValue(Action.SMALL_ICON, SwingUtil.MADKIT_LOGO_SMALL);
+		}
+
 }

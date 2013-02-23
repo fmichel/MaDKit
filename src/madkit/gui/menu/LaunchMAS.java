@@ -43,10 +43,8 @@ import madkit.kernel.MadkitClassLoader;
  * @version 0.9
  * 
  */
-public class LaunchMAS extends JMenu {
+public class LaunchMAS extends ClassPathSensitiveMenu {
 
-	private static final long serialVersionUID = 6721458300016754609L;
-	final static private Set<LaunchMAS> menus = new HashSet<>();//TODO Map 
 	final private AbstractAgent myAgent;
 
 	/**
@@ -59,24 +57,7 @@ public class LaunchMAS extends JMenu {
 		super(Words.MAS.toString());
 		setMnemonic(KeyEvent.VK_S);
 		myAgent = agent;
-		synchronized (menus) {
-			menus.add(this);
-		}
 		update();
-	}
-
-	/**
-	 * Called by the kernel when the class path is modified.
-	 * This is for instance the case when the 
-	 * {@link MadkitClassLoader#loadUrl(java.net.URL)}
-	 * is used.
-	 */
-	public static void updateAllMenus() {//TODO facto
-		synchronized (menus) {
-			for (LaunchMAS menu : menus) {
-				menu.update();
-			}
-		}
 	}
 
 	private void addTomenu(Action a, JMenu subMenu, MASModel demo) {
@@ -90,7 +71,7 @@ public class LaunchMAS extends JMenu {
 		subMenu.add(name);
 	}
 
-	private void update() {
+	public void update() {
 		if(! myAgent.isAlive())
 			return;
 		removeAll();

@@ -38,6 +38,7 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 
 import madkit.gui.MASModel;
+import madkit.gui.menu.ClassPathSensitiveMenu;
 import madkit.gui.menu.LaunchAgentsMenu;
 import madkit.gui.menu.LaunchMAS;
 import madkit.gui.menu.LaunchMain;
@@ -276,9 +277,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 	public static void loadUrl(URL url) {
 		getLoader().addURL(url);
 		System.setProperty("java.class.path", System.getProperty("java.class.path")+File.pathSeparator+url.getPath());
-		LaunchAgentsMenu.updateAllMenus();
-		LaunchMAS.updateAllMenus();
-		LaunchMain.updateAllMenus();
+		ClassPathSensitiveMenu.updateAllMenus();
 	}
 
 	/**

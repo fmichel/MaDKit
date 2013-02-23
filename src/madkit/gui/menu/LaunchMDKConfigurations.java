@@ -19,45 +19,58 @@
 package madkit.gui.menu;
 
 import java.awt.event.KeyEvent;
-import java.util.HashSet;
-import java.util.Set;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
 import madkit.action.GlobalAction;
-import madkit.kernel.AbstractAgent;
+import madkit.kernel.Madkit;
 import madkit.kernel.MadkitClassLoader;
 
 /**
  * This class builds a {@link JMenu} containing all the 
- * agent classes containing a main method
+ * MDK configuration files found on the class path.
+ * Each item will launch a separate instance of MaDKit
+ * using the corresponding configuration files
  * 
  * @author Fabien Michel
- * @since MaDKit 5.0.1
+ * @since MaDKit 5.0.2
  * @version 0.9
  * 
  */
-public class LaunchMain extends ClassPathSensitiveMenu {
+public class LaunchMDKConfigurations extends ClassPathSensitiveMenu {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3650744981788324553L;
 
 	/**
 	 * Builds a new menu.
-	 * 
 	 * @param title the title to use
 	 */
-	public LaunchMain(final String title) {
+	public LaunchMDKConfigurations(final String title) {
 		super(title);
-		setMnemonic(KeyEvent.VK_A);
+		setMnemonic(KeyEvent.VK_C);
 		update();
 	}
 
 	@Override
 	public void update() {
 		removeAll();
-		for (final String string : MadkitClassLoader.getAgentsWithMain()) {
-			JMenuItem name = new JMenuItem(GlobalAction.LAUNCH_MAIN);
+		for (final String string : MadkitClassLoader.getMDKFiles()) {
+			JMenuItem name = new JMenuItem(GlobalAction.LAUNCH_MDK_CONFIG);
 			name.setActionCommand(string);
-			name.setText(string+".main");
+			Properties config = new Properties();
+			try(final InputStream resourceAsStream = Madkit.class.getResourceAsStream(File.separatorChar+string)) {
+				config.load(resourceAsStream);
+		} catch (IOException e) {//FIXME
+		}
+			name.setText(string+" "+config);
 			add(name);
 		}
 		setVisible(getItemCount() != 0);

@@ -69,7 +69,6 @@ final class LoggedKernel extends MadkitKernel {
 		return r;
 	}
 	
-
 	@Override
 	boolean createGroupIfAbsent(AbstractAgent requester,String community, String group, Gatekeeper gatekeeper, boolean isDistributed) {
 		if(requester.isFinestLogOn())
@@ -79,9 +78,6 @@ final class LoggedKernel extends MadkitKernel {
 	}
 
 
-	/**
-	 * @see madkit.kernel.MadkitKernel#requestRole(madkit.kernel.AbstractAgent, java.lang.String, java.lang.String, java.lang.String, java.lang.Object)
-	 */
 	@Override
 	ReturnCode requestRole(AbstractAgent requester, String community, String group, String role, Object memberCard) {
 		final ReturnCode r = kernel.requestRole(requester, community, group, role, memberCard);
@@ -277,13 +273,13 @@ final class LoggedKernel extends MadkitKernel {
 //	}
 	
 	@Override
-	void launchAgentBucketWithRoles(AbstractAgent requester, List<AbstractAgent> bucket,
+	void launchAgentBucketWithRoles(AbstractAgent requester, List<AbstractAgent> bucket, int cpuCoreNb,
 			String... CGRLocations) {
 		if(requester.isFinestLogOn())
-			requester.logger.log(Level.FINEST,"launchAgentBucketWithRoles : "+bucket.size()+ " : "+Arrays.deepToString(CGRLocations));
-		kernel.launchAgentBucketWithRoles(requester, bucket, CGRLocations);
+			requester.logger.log(Level.FINEST,"launchAgentBucketWithRoles : "+bucket.size()+ " "+(bucket.size() > 0 ? bucket.get(0).getClass().getName() : "agents !!!")+" "+ (CGRLocations.length > 0 ? Arrays.deepToString(CGRLocations) : ""));
+		kernel.launchAgentBucketWithRoles(requester, bucket, cpuCoreNb, CGRLocations);
 		if(requester.isFinestLogOn())
-			requester.logger.log(Level.FINEST,"launchAgentBucketWithRoles  done !");
+			requester.logger.log(Level.FINEST,"launchAgentBucketWithRoles OK !");
 	}
 
 	/**

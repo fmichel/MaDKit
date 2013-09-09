@@ -52,7 +52,7 @@ public class SingleAgentProbe<A extends AbstractAgent,T> extends Probe<A>//TODO 
 	protected void adding(A agent) {
 		if(field == null){//TODO replace or not
 			try {
-				field = findFieldOn((Class<? extends A>) agent.getClass(), fieldName);
+				field = findFieldOn(agent.getClass(), fieldName);
 				probedAgent = agent;
 			} catch (NoSuchFieldException e) {
 				throw new SimulationException(toString()+" on "+agent,e);
@@ -64,6 +64,14 @@ public class SingleAgentProbe<A extends AbstractAgent,T> extends Probe<A>//TODO 
 	protected void removing(A agent) {
 		super.removing(agent);
 		field = null;
+	}
+	
+	/**
+	 * Get the current probed agent.
+	 * @return the agent which is currently probed
+	 */
+	public A getProbedAgent(){
+		return probedAgent;
 	}
 
 	/**

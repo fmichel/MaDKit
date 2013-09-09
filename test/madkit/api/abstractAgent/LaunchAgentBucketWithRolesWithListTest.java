@@ -23,10 +23,12 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.AbstractAgent.State;
+import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Scheduler;
 import madkit.simulation.SimulationException;
@@ -60,14 +62,15 @@ public class LaunchAgentBucketWithRolesWithListTest extends JunitMadkit {
 		launchTest(new AbstractAgent() {
 
 			protected void activate() {
-				launchAgentBucket(FaultyAA.class.getName(), size, COMMUNITY + ";"
-						+ GROUP + ";" + ROLE);
+				launchAgentBucket(FaultyAA.class.getName(), size, COMMUNITY + ","
+						+ GROUP + "," + ROLE);
 			}
 		});
 	}
 
 	@Test
 	public void nullArg() {
+		addMadkitArgs(LevelOption.kernelLogLevel.toString(),Level.ALL.toString());
 		launchTest(new AbstractAgent() {
 
 			protected void activate() {
@@ -75,9 +78,9 @@ public class LaunchAgentBucketWithRolesWithListTest extends JunitMadkit {
 				for (int i = 0; i < 1; i++) {
 					l.add(null);
 				}
-				launchAgentBucket(l, COMMUNITY + ";" + GROUP + ";" + ROLE);
+				launchAgentBucket(l, COMMUNITY + "," + GROUP + "," + ROLE);
 			}
-		});
+		}, ReturnCode.AGENT_CRASH);
 	}
 
 	@Test
@@ -87,7 +90,7 @@ public class LaunchAgentBucketWithRolesWithListTest extends JunitMadkit {
 			protected void activate() {
 				try {
 					launchAgentBucket(FaultyAA.class.getName(), size, COMMUNITY
-							+ ";" + GROUP + ";" + ROLE);
+							+ "," + GROUP + "," + ROLE);
 					JunitMadkit.noExceptionFailure();
 				} catch (IllegalArgumentException e) {
 					throw e;
@@ -105,9 +108,32 @@ public class LaunchAgentBucketWithRolesWithListTest extends JunitMadkit {
 				for (int i = 0; i < size; i++) {
 					l.add(new SimulatedAgent());
 				}
-				launchAgentBucket(l, COMMUNITY + ";" + GROUP + ";" + ROLE);
+				launchAgentBucket(l, COMMUNITY + "," + GROUP + "," + ROLE);
 				testAgents(l);
 				assertEquals(size, getAgentsWithRole(COMMUNITY, GROUP, ROLE).size());
+			}
+		});
+	}
+
+	@Test
+	public void testBucketRequestRole() {
+		launchTest(new AbstractAgent() {
+
+			protected void activate() {
+				List<AbstractAgent> l = new ArrayList<>();
+				for (int i = 0; i < 5; i++) {
+					l.add(new AbstractAgent(){
+						@Override
+						protected void activate() {
+							assertEquals(ReturnCode.IGNORED, bucketModeRequestRole(COMMUNITY, GROUP, ROLE2, null));
+							createGroup(COMMUNITY2, GROUP2,false,null);
+							assertEquals(ReturnCode.SUCCESS,requestRole(COMMUNITY2, GROUP2, ROLE2, null));
+						}
+					});
+				}
+				launchAgentBucket(l, COMMUNITY + "," + GROUP + "," + ROLE);
+				testAgentsRoles(l);
+				assertEquals(5, getAgentsWithRole(COMMUNITY, GROUP, ROLE).size());
 			}
 		});
 	}
@@ -136,6 +162,22 @@ public class LaunchAgentBucketWithRolesWithListTest extends JunitMadkit {
 			assertTrue(abstractAgent.isAlive());
 			assertEquals(State.ACTIVATED, abstractAgent.getState());
 			assertTrue(((SimulatedAgent) abstractAgent).goneThroughActivate());
+		}
+	}
+
+	public static void testAgentsRoles(List<? extends AbstractAgent> l) {
+		for (AbstractAgent abstractAgent : l) {
+			abstractAgent.setLogLevel(Level.ALL);
+			assertTrue(abstractAgent.isAlive());
+			ReturnCode requestRole = abstractAgent.requestRole(COMMUNITY,GROUP,ROLE);
+			System.err.println(requestRole);
+			assertEquals(ReturnCode.ROLE_ALREADY_HANDLED, requestRole);
+			requestRole = abstractAgent.requestRole(COMMUNITY,GROUP,ROLE2);
+			System.err.println(requestRole);
+			assertEquals(ReturnCode.SUCCESS, requestRole);
+			requestRole = abstractAgent.requestRole(COMMUNITY2,GROUP2,ROLE2);
+			System.err.println(requestRole);
+			assertEquals(ReturnCode.ROLE_ALREADY_HANDLED, requestRole);
 		}
 	}
 

@@ -18,12 +18,14 @@
  */
 package madkit.performance;
 
+import java.util.List;
 import java.util.logging.Level;
 
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.testing.util.agent.NormalAA;
+import static org.junit.Assert.*;
 
 import org.junit.Test;
 
@@ -37,32 +39,53 @@ import org.junit.Test;
 public class MassLaunchBench extends JunitMadkit {
 
 	@Test
-	public void massAALaunchWithBucket() {// TODO more cases
+	public void massAALaunchWithBucketAndNoRoles() {
+		final int tries = 1;//should be at least 100 to bench, this has no use for only testing
 		launchTest(new AbstractAgent() {
 			protected void activate() {
+				setLogLevel(Level.INFO);
+				long total = 0;
 				createGroup("test", "group", false, null);
+				for (int i = 0; i < tries; i++) {
+					startTimer();
+					assertNotNull(launchAgentBucket(AbstractAgent.class.getName(), 1000000));
+					total += stopTimer("bucket launch time = ");
+				}
+				if(logger != null)
+					logger.info("average launch time = "+(total / (tries * 1000000))+" ms");
+			}
+		});
+	}
+
+	@Test
+	public void massAALaunchWithBucketRoles() {
+		final int tries = 100;//should be at least 100 to bench, this has no use for only testing
+		launchTest(new AbstractAgent() {
+			protected void activate() {
+				setLogLevel(Level.INFO);
+				long total = 0;
+//				createGroup("test", "group", false, null);
+				for (int i = 0; i < tries; i++) {
+					startTimer();
+					assertNotNull(launchAgentBucket(AbstractAgent.class.getName(), 1000000, COMMUNITY+","+GROUP+","+ROLE));
+					total += stopTimer("bucket launch time = ");
+				}
+				if(logger != null)
+					logger.info("average launch time = "+(total / (tries * 1000000))+" ms");
+			}
+		});
+	}
+
+	@Test
+	public void massAALaunchWithBucketRolesAndRequestIgnored() {
+		launchTest(new AbstractAgent() {
+			protected void activate() {
 				System.err.println("begin");
 				startTimer();
-				// launchAgentBucket("madkit.agentLifeCycle.NormalAbstractLife",
-				// 3000100);
-				launchAgentBucket("madkit.kernel.AbstractAgent", 1000000);
+				List<AbstractAgent> l =  launchAgentBucket(MiniAgent.class.getName(), 1000000,COMMUNITY+","+GROUP+","+ROLE);
 				stopTimer("bucket launch time = ");
 				System.err.println("done\n\n");
-				// JUnitBooter.stopTimer("old launch time = "); // 6000000 min = 7s
-				// startTimer();
-				// ArrayList<AbstractAgent> agents = new
-				// ArrayList<AbstractAgent>(6000000);
-				// for (int i = 6000000-1; i >=0 ; i--) {
-				// if(i%1000000==0)
-				// System.err.println("launched "+i);
-				// agents.add(new AbstractAgent());
-				// }
-				// ArrayList<AbstractAgent> agents = new
-				// ArrayList<AbstractAgent>(6000000);
-				// for (int i = 6000000-1; i >=0 ; i--) {
-				// agents.add(new AbstractAgent());
-				// }
-				// stopTimer("old launch time = ");
+				System.err.println(l.get(0).requestRole(COMMUNITY, GROUP, ROLE));
 			}
 		});
 	}
@@ -99,21 +122,9 @@ public class MassLaunchBench extends JunitMadkit {
 				}
 				a = launchAgent("madkit.kernel.AbstractAgent");
 				a.createGroup("test", "group", false, null);
-				// System.err.println("begin");
-				// for (int i = 0; i < 2000000; i++) {
-				// if(i%100000==0){
-				// System.err.println("launched "+i);
-				// if (logger != null) {
-				// logger.info("nb of launched agents " + i);
-				// }
-				// }
-				// launchAgent(new test.madkit.agentLifeCycle.NormalAbstractLife());
-				// }
-				// System.err.println("done\n\n");
 				startTimer();
 				System.err.println("begin");
 				launchAgentBucket(NormalAA.class.getName(), 30100);
-				// launchAgentBucket("madkit.kernel.AbstractAgent", 6000100);
 				stopTimer("done ");
 			}
 		});

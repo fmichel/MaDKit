@@ -28,7 +28,7 @@ import madkit.kernel.AbstractAgent;
 
 /**
  * This class encapsulates action information which could be used
- * to easily create {@link MDKAbstractAction}.
+ * to easily create a new {@link MDKAbstractAction}.
  * 
  * @author Fabien Michel
  * @since MaDKit 5.0.0.14
@@ -42,7 +42,7 @@ public class ActionInfo {
 	 */
 	final public static boolean javawsIsOn = System.getProperty("javawebstart.version") != null;
 
-	final static private String imageDir = "images/";
+	final static private String imageDir = "/madkit/action/images/";
 	
 	final private int keyEvent;
 
@@ -64,19 +64,18 @@ public class ActionInfo {
 	 * @param enumAction
 	 * @param keyEvent
 	 */
-	<E extends Enum<E>> ActionInfo(E enumAction, int keyEvent, ResourceBundle resource) {
+	public <E extends Enum<E>> ActionInfo(E enumAction, int keyEvent, ResourceBundle resource) {
 		this(enumAction.name(),keyEvent,resource);
 	}
 
 	/**
-	 * Builds a new ActionInfo considering an {@link Enum}.
-	 * If the considered enum is from this package, it will be
-	 * built automatically with values contained in the madkit.i18n directory
+	 * Builds a new ActionInfo considering a codeName as a string.
 	 * 
-	 * @param enumAction
+	 * @param codeName the code name of the action as a string. For instance JCONSOLE.
 	 * @param keyEvent
+	 * @param resource
 	 */
-	 ActionInfo(String codeName, int keyEvent, ResourceBundle resource) {
+	public ActionInfo(String codeName, int keyEvent, ResourceBundle resource) {
 		name = codeName;
 		this.keyEvent = keyEvent;
 		setIcon(name);

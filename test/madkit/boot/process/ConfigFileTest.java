@@ -60,6 +60,19 @@ public class ConfigFileTest extends JunitMadkit {
 			});
 		}
 
+
+//		@Test
+//		public void xmlConfigFile() {
+//			addMadkitArgs(Madkit.Option.configFile.toString(),"madkit/boot/process/test.xml",Madkit.LevelOption.madkitLogLevel.toString(),Level.ALL.toString());
+//			launchTest(new AbstractAgent() {
+//				@Override
+//				protected void activate() {
+//					assertEquals("false",getMadkitProperty("test"));
+//					assertEquals("ok",getMadkitProperty("test2"));
+//				}
+//			});
+//		}
+
 		@Test
 		public void multiConfigOptions() {
 			addMadkitArgs(

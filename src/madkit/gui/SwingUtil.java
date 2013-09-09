@@ -153,7 +153,6 @@ final public class SwingUtil {
 		try {//this bypasses class incompatibility
 			final Class<? extends Container> componentClass = menuOrToolBar.getClass();
 			final Method add = componentClass.getMethod("add", Action.class);
-			final Method addButton = Container.class.getMethod("add", Component.class);
 			final Method addSeparator = componentClass.getMethod("addSeparator");
 			
 			add.invoke(menuOrToolBar, KernelAction.EXIT.getActionFor(agent));
@@ -169,14 +168,7 @@ final public class SwingUtil {
 				add.invoke(menuOrToolBar, GlobalAction.JCONSOLE);
 			}
 			add.invoke(menuOrToolBar, KernelAction.CONSOLE.getActionFor(agent));
-			if(menuOrToolBar instanceof JMenu){
-				addButton.invoke(menuOrToolBar, new JCheckBoxMenuItem(GlobalAction.DEBUG));
-			}
-			else{
-				final JToggleButton jToggleButton = new JToggleButton(GlobalAction.DEBUG);
-				jToggleButton.setText(null);
-				addButton.invoke(menuOrToolBar, jToggleButton);
-			}
+			addBooleanActionTo(menuOrToolBar,GlobalAction.DEBUG);
 			add.invoke(menuOrToolBar, GlobalAction.LOG_FILES);
 			addSeparator.invoke(menuOrToolBar);
 			add.invoke(menuOrToolBar, GlobalAction.LOAD_LOCAL_DEMOS);
@@ -188,6 +180,33 @@ final public class SwingUtil {
 			addSeparator.invoke(menuOrToolBar);
 			add.invoke(menuOrToolBar, GUIManagerAction.KILL_AGENTS.getActionFor(agent));
 		} catch (IllegalArgumentException | NoSuchMethodException | SecurityException | IllegalAccessException | InvocationTargetException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Creates a {@link JCheckBoxMenuItem} for a menu or {@link JToggleButton}
+	 * for a tool bar
+	 * 
+	 * @param menuOrToolBar
+	 * @param action 
+	 * @throws NoSuchMethodException
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 */
+	public static void addBooleanActionTo(Container menuOrToolBar, Action action){
+		Method addButton;
+		try {
+			addButton = Container.class.getMethod("add", Component.class);
+			if(menuOrToolBar instanceof JMenu){
+				addButton.invoke(menuOrToolBar, new JCheckBoxMenuItem(action));
+			}
+			else{
+				final JToggleButton jToggleButton = new JToggleButton(action);
+				jToggleButton.setText(null);
+				addButton.invoke(menuOrToolBar, jToggleButton);
+			}
+		} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			e.printStackTrace();
 		}
 	}

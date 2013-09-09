@@ -60,7 +60,7 @@ abstract class Overlooker <A extends AbstractAgent>
 			try {
 				initialize();
 			} catch (Throwable e) {
-				System.err.println("\n-----MADKIT WARNING : problem during initialize()-----\n-----Problem on "+this.getClass().getSimpleName()+" on <"+community+";"+group+";"+role+">-----\n-----Method call is at:");
+				System.err.println("\n-----MADKIT WARNING : problem during initialize()-----\n-----Problem on "+this.getClass().getSimpleName()+" on <"+community+","+group+","+role+">-----\n-----Method call is at:");
 				e.printStackTrace(); //TODO find another way
 			}
 	}
@@ -222,7 +222,7 @@ abstract class Overlooker <A extends AbstractAgent>
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + " <" + community + ";" + group + ";" + role + "> "+(overlookedRole == null ? "not added" : ": "+size() + " agents");
+		return getClass().getSimpleName() + " <" + community + "," + group + "," + role + "> "+ size() + " agents";
 	}
 
 	final void addAgent(AbstractAgent a) {

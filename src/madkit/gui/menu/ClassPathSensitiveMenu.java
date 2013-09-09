@@ -22,6 +22,8 @@ import java.util.Set;
 
 import javax.swing.JMenu;
 
+import madkit.kernel.MadkitClassLoader;
+
 /**
  * @author Fabien Michel
  * @since MadKit 5.0.2
@@ -30,6 +32,10 @@ import javax.swing.JMenu;
  */
 public abstract class ClassPathSensitiveMenu extends JMenu {
 
+	/**
+	 * 
+	 */
+	private static final long	serialVersionUID	= -8683241036884772403L;
 	final static private Set<ClassPathSensitiveMenu> menus = new HashSet<>();//TODO Map 
 
 	/**

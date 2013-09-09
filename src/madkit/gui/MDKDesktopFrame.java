@@ -31,9 +31,9 @@ import madkit.gui.menu.LaunchAgentsMenu;
 import madkit.gui.menu.LaunchMAS;
 import madkit.gui.menu.LaunchMDKConfigurations;
 import madkit.gui.menu.LaunchMain;
+import madkit.gui.menu.LaunchXMLConfigurations;
 import madkit.gui.menu.MadkitMenu;
 import madkit.gui.toolbar.MadkitToolBar;
-import madkit.i18n.Words;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Madkit;
 
@@ -75,6 +75,7 @@ public class MDKDesktopFrame extends JFrame {
 		menuBar.add(new LaunchMAS(guiManager));
 		menuBar.add(new LaunchMain("Main"));
 		menuBar.add(new LaunchMDKConfigurations("Configuration"));
+		menuBar.add(new LaunchXMLConfigurations(guiManager, "XML"));
 		menuBar.add(new HelpMenu());
 		menuBar.add(Box.createHorizontalGlue());
 		menuBar.add(new AgentStatusPanel(guiManager));

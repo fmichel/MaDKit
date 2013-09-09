@@ -138,7 +138,7 @@ public abstract class Activator<A extends AbstractAgent> extends Overlooker<A>{
 
 	@Override
 	public String toString() {
-		return super.toString()+" multicore mode "+isMulticoreModeOn();
+		return super.toString()+ (isMulticoreModeOn() ? " multicore mode ": "");
 	}
 
 	/**

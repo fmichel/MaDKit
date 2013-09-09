@@ -39,7 +39,8 @@ public interface MadkitOption {
 
 	/**
 	 * Returns the string form of the option as it should be used
-	 * in a command line or with the {@link Madkit#main(String[])} method.
+	 * in a command line, or with the {@link Madkit#main(String[])} method
+	 * or with {@link Madkit#Madkit(String...)} constructor.
 	 * @return The command line form for this option, with -- in front of 
 	 * the option's name, i.e. <code><b>--optionName</b></code> 
 	 */

@@ -47,7 +47,6 @@ import madkit.action.GUIManagerAction;
 import madkit.action.KernelAction;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
-import madkit.gui.menu.ClassPathSensitiveMenu;
 import madkit.i18n.Words;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
@@ -86,7 +85,6 @@ class GUIManagerAgent extends Agent {
 		guis = new ConcurrentHashMap<>();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	protected void activate() {// TODO parallelize that
 		try {
@@ -199,6 +197,7 @@ class GUIManagerAgent extends Agent {
 			final AgentFrame af = f;
 			SwingUtilities.invokeLater(new Runnable() {
 
+				@SuppressWarnings("null") //for af
 				public void run() {
 					if (desktopPane != null) {
 						final JInternalFrame jf = buildInternalFrame(af);

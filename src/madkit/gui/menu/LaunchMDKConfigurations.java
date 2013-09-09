@@ -19,23 +19,20 @@
 package madkit.gui.menu;
 
 import java.awt.event.KeyEvent;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
 import madkit.action.GlobalAction;
-import madkit.kernel.Madkit;
 import madkit.kernel.MadkitClassLoader;
+import madkit.util.MadkitProperties;
 
 /**
  * This class builds a {@link JMenu} containing all the 
  * MDK configuration files found on the class path.
  * Each item will launch a separate instance of MaDKit
- * using the corresponding configuration files
+ * using the corresponding configuration file
  * 
  * @author Fabien Michel
  * @since MaDKit 5.0.2
@@ -60,18 +57,19 @@ public class LaunchMDKConfigurations extends ClassPathSensitiveMenu {
 	}
 
 	@Override
-	public void update() {
+	public void update() {//TODO clean up xml related
 		removeAll();
 		for (final String string : MadkitClassLoader.getMDKFiles()) {
-			JMenuItem name = new JMenuItem(GlobalAction.LAUNCH_MDK_CONFIG);
-			name.setActionCommand(string);
-			Properties config = new Properties();
-			try(final InputStream resourceAsStream = Madkit.class.getResourceAsStream(File.separatorChar+string)) {
-				config.load(resourceAsStream);
-		} catch (IOException e) {//FIXME
-		}
-			name.setText(string+" "+config);
-			add(name);
+			try {
+				final MadkitProperties madkitProperties = new MadkitProperties();
+				madkitProperties.loadPropertiesFromFile(string);
+				JMenuItem name = new JMenuItem(GlobalAction.LAUNCH_MDK_CONFIG);
+				name.setActionCommand(string);
+				name.setText(string + " " + madkitProperties);
+				add(name);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		setVisible(getItemCount() != 0);
 	}

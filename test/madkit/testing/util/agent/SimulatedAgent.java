@@ -49,8 +49,8 @@ public class SimulatedAgent extends AbstractAgent {
 	@Override
 	protected void activate() {
 //		setLogLevel(Level.ALL);
-		createGroup(COMMUNITY, GROUP, false, null);
-		requestRole(COMMUNITY, GROUP, ROLE, null);
+		bucketModeCreateGroup(COMMUNITY, GROUP, false, null);
+		bucketModeRequestRole(COMMUNITY, GROUP, ROLE, null);
 		activated  = true;
 	}
 	
@@ -60,7 +60,7 @@ public class SimulatedAgent extends AbstractAgent {
 		for (int i = 0; i < 10; i++) {
 			l.add(new SimulatedAgent());
 		}
-		launchAgentBucket(l, COMMUNITY + ";" + GROUP + ";" + ROLE);
+		launchAgentBucket(l, COMMUNITY + "," + GROUP + "," + ROLE);
 		LaunchAgentBucketWithRolesWithListTest.testAgents(l);
 	}
 	

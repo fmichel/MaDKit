@@ -29,8 +29,6 @@ import javax.swing.JMenuBar;
 import javax.swing.JToolBar;
 import javax.swing.WindowConstants;
 
-import madkit.action.GUIManagerAction;
-import madkit.action.GlobalAction;
 import madkit.action.KernelAction;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
@@ -116,7 +114,6 @@ public class AgentFrame extends JFrame {
 	 * <li> {@link AgentStatusPanel}
 	 * </ul>
 	 * 
-	 * @param agent
 	 * @return a menu bar 
 	 */
 	public JMenuBar createMenuBar() {

@@ -26,7 +26,9 @@ import static madkit.kernel.AbstractAgent.State.INITIALIZING;
 import static madkit.kernel.AbstractAgent.State.LIVING;
 import static madkit.kernel.AbstractAgent.State.TERMINATED;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -36,7 +38,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeSet;
@@ -50,6 +51,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.JFrame;
+import javax.xml.parsers.ParserConfigurationException;
 
 import madkit.action.ActionInfo;
 import madkit.action.GUIManagerAction;
@@ -69,6 +71,13 @@ import madkit.kernel.Madkit.Option;
 import madkit.message.EnumMessage;
 import madkit.message.GUIMessage;
 import madkit.message.hook.HookMessage.AgentActionEvent;
+import madkit.util.MadkitProperties;
+import madkit.util.XMLUtilities;
+
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 // * <img src="doc-files/Capture.png" alt=""/>
 /**
@@ -718,7 +727,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	
 	/**
 	 * Optimizes mass agent launching. Launches <i><code>bucketSize</code></i>
-	 * agent instances of this <i><code>agentClassName</code></i> and put them in
+	 * instances of <i><code>agentClassName</code></i> (an agent class) and put them in
 	 * the artificial society at the locations defined by
 	 * <code>cgrLocations</code>. Each string of the <code>cgrLocations</code>
 	 * array defines a complete CGR location. So for example,
@@ -727,21 +736,20 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * <p>
 	 * 
 	 * <pre>
-	 * launchAgentBucketWithRoles("madkit.bees.Bee", 1000000, "community;group;role","anotherC;anotherG;anotherR")
+	 * launchAgentBucketWithRoles("madkit.bees.Bee", 1000000, "community,group,role","anotherC,anotherG,anotherR")
 	 * </pre>
 	 * 
 	 * In this example all the agents created by this process will have these two
-	 * roles in the artificial society, even if they do not request it in their
-	 * {@link #activate()} method as explained below.
+	 * roles in the artificial society, even if they do not request them in their
+	 * {@link #activate()} method.
 	 * <p>
-	 * For maximizing this optimization, if <code>cgrLocations</code> is not
-	 * <code>null</code> then calls to
-	 * {@link #createGroup(String, String, boolean, Gatekeeper)},
-	 * {@link #requestRole(String, String, String, Object)},
-	 * {@link #leaveGroup(String, String)} or
-	 * {@link #leaveRole(String, String, String)} used in the {@link #activate()}
-	 * methods will be ignored, as it is assumed that these are contained in
-	 * <code>cgrLocations</code>. It can be <code>null</code>
+	 * Additionally, in order to avoid to change the code of the agent
+	 * considering how they will be launched (using the bucket mode or not).
+	 * One should use the following alternative of the usual request methods :
+	 * {@link #bucketModeCreateGroup(String, String, boolean, Gatekeeper)},
+	 * {@link #bucketModeRequestRole(String, String, String, Object)}:
+	 * If used in {@link #activate()}, these requests will be ignored when the
+	 * bucket mode is used or normally proceeded otherwise.
 	 * <p>
 	 * 
 	 * If some of the corresponding groups do not exist before this call, the
@@ -751,20 +759,24 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *           the name of the class from which the agents should be built.
 	 * @param bucketSize
 	 *           the desired number of instances.
+	 * @param cpuCoreNb the number of parallel tasks to use. 
+	 * Beware that if cpuCoreNb is greater than 1, the agents' constructors and {@link #activate()} methods
+	 * will be called simultaneously so that one has to be careful if shared resources are
+	 * accessed by the agents
 	 * @param roles
 	 *           default locations in the artificial society for the launched
 	 *           agents. Each string of the <code>cgrLocations</code> array
 	 *           defines a complete CGR location by separating C, G and R with
-	 *           semicolon as follows: <code>"community;group;role"</code>
+	 *           commas as follows: <code>"community,group,role"</code>. It can be <code>null</code>.
 	 * @return a list containing all the agents which have been launched, or
 	 *         <code>null</code> if the operation has failed
 	 * @since MaDKit 5.0.0.6
 	 */
-	public List<AbstractAgent> launchAgentBucket(String agentClass, int bucketSize, String... roles) { 
+	public List<AbstractAgent> launchAgentBucket(String agentClass, int bucketSize, int cpuCoreNb, String... roles) { 
 		List<AbstractAgent> bucket = null;
 		try {
-			bucket = getMadkitKernel().createBucket(agentClass, bucketSize);
-			launchAgentBucket(bucket, roles);
+			bucket = getMadkitKernel().createBucket(agentClass, bucketSize, cpuCoreNb);
+			launchAgentBucket(bucket, cpuCoreNb, roles);
 		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
 			cannotLaunchAgent(agentClass, e, null);
 		}
@@ -772,21 +784,67 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 	
 	/**
-	 * Similar to {@link #launchAgentBucket(String, int, String...)}
-	 * except that the list of agents to launch is given. Especially, this could
-	 * be used when the agents have no default constructor.
+	 * This has the same effect as
+	 * <code>launchAgentBucket(agentClass, bucketSize, 1, roles)</code>.
+	 * 
+	 * @param agentClass
+	 *           the name of the class from which the agents should be built.
+	 * @param bucketSize
+	 *           the desired number of instances.
+	 * @param roles
+	 *           default locations in the artificial society for the launched
+	 *           agents. Each string of the <code>cgrLocations</code> array
+	 *           defines a complete CGR location by separating C, G and R with
+	 *           commas as follows: <code>"community,group,role"</code>
+	 * @return a list containing all the agents which have been launched, or
+	 *         <code>null</code> if the operation has failed
+	 * @since MaDKit 5.0.2
+	 */
+	public List<AbstractAgent> launchAgentBucket(String agentClass, int bucketSize, String... roles) { 
+		return launchAgentBucket(agentClass, bucketSize, 1, roles);
+	}
+	
+	/**
+	 * This call is equivalent to 
+	 * This has the same effect as
+	 * <code>launchAgentBucket(bucket, 1, roles)</code>, That is only one core
+	 * will be used for the launch.
 	 * 
 	 * @param bucket the list of agents to launch
 	 * @param roles
 	 *           default locations in the artificial society for the launched
 	 *           agents. Each string of the <code>cgrLocations</code> array
 	 *           defines a complete CGR location by separating C, G and R with
-	 *           semicolon as follows: <code>"community;group;role"</code>
+	 *           commas as follows: <code>"community,group,role"</code>.
+	 *           It can be <code>null</code>
 	 *          
 	 */
 	@SuppressWarnings("unchecked")
 	public void launchAgentBucket(List<? extends AbstractAgent> bucket, String... roles) {
-		getKernel().launchAgentBucketWithRoles(this, (List<AbstractAgent>) bucket, roles);
+		getKernel().launchAgentBucketWithRoles(this, (List<AbstractAgent>) bucket, 1, roles);
+	}
+
+	/**
+	 * Similar to {@link #launchAgentBucket(String, int, String...)}
+	 * except that the list of agents to launch is given. Especially, this could
+	 * be used when the agents have no default constructor.
+	 * 
+	 * @param bucket the list of agents to launch
+	 * @param cpuCoreNb the number of parallel tasks to use for launching the agents. 
+	 * Beware that if cpuCoreNb is greater than 1, the agents' {@link #activate()} methods
+	 * will be call simultaneously so that one has to be careful if shared resources are
+	 * accessed 
+	 * @param roles
+	 *           default locations in the artificial society for the launched
+	 *           agents. Each string of the <code>cgrLocations</code> array
+	 *           defines a complete CGR location by separating C, G and R with
+	 *           commas as follows: <code>"community,group,role"</code>.
+	 *           It can be <code>null</code>
+	 *          
+	 */
+	@SuppressWarnings("unchecked")
+	public void launchAgentBucket(List<? extends AbstractAgent> bucket, int cpuCoreNb, String... roles) {
+		getKernel().launchAgentBucketWithRoles(this, (List<AbstractAgent>) bucket, cpuCoreNb, roles);
 	}
 
 	/**
@@ -972,16 +1030,16 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         successfully created.</li>
 	 *         <li><code>{@link ReturnCode#ALREADY_GROUP}</code>: If the
 	 *         operation failed because such a group already exists.</li>
-	 *         <li><code>
-	 *         {@link ReturnCode#IGNORED}</code>: If this method is used in
-	 *         activate and this agent has been launched using
-	 *         {@link AbstractAgent#launchAgentBucket(List, String...)}
 	 *         </ul>
 	 *         </ul>
 	 * 
 	 * @see AbstractAgent#createGroup(String, String, boolean, Gatekeeper)
 	 * @since MaDKit 5.0
 	 */
+//	*         <li><code>
+//	*         {@link ReturnCode#IGNORED}</code>: If this method is used in
+//	*         activate and this agent has been launched using
+//	*         {@link AbstractAgent#launchAgentBucket(List, String...)}
 	public ReturnCode createGroup(final String community, final String group) {
 		return createGroup(community, group, false, null);
 	}
@@ -1051,11 +1109,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         successfully created.</li> <li><code>
 	 *         {@link ReturnCode#ALREADY_GROUP}</code>: If the operation failed
 	 *         because such a group already exists.</li> 
-	 *         <li><code>
-	 *         {@link ReturnCode#IGNORED}</code>: If this method is used in
-	 *         activate and this agent has been launched using
-	 *         {@link AbstractAgent#launchAgentBucket(List, String...)}
-	 *         </li>
 	 *         </ul>
 	 * 
 	 * @see Gatekeeper
@@ -1064,6 +1117,50 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 */
 	public ReturnCode createGroup(final String community, final String group, boolean isDistributed, final Gatekeeper keyMaster) {
 		return getKernel().createGroup(this, community, group, keyMaster, isDistributed);
+	}
+
+	/**
+	 * Creates a new Group within a community only if the agent has not been launched 
+	 * using using one of the <code>launchAgentBucket</code> methods, thus optimizing the launching
+	 * when a lot of agents are concerned.
+	 * This method has an effect only when called within the {@link #activate()} method.
+	 * <p>
+	 * For instance, this is useful if you launch one million of agents and when only some of them 
+	 * have to create a specific group, not defined in the parameters of {@link #launchAgentBucket(List, int, String...)}
+	 * 
+	 * @param community
+	 *           the community within which the group will be created. If this
+	 *           community does not exist it will be created.
+	 * @param group
+	 *           the name of the new group.
+	 * @param isDistributed
+	 *           if <code>true</code> the new group will be distributed when
+	 *           multiple MaDKit kernels are connected.
+	 * @param keyMaster
+	 *           any object that implements the {@link Gatekeeper} interface. If
+	 *           not <code>null</code>, this object will be used to check if an
+	 *           agent can be admitted in the group. When this object is null,
+	 *           there is no group access control.
+	 * @return <ul>
+	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the group has been
+	 *         successfully created.</li> <li><code>
+	 *         {@link ReturnCode#ALREADY_GROUP}</code>: If the operation failed
+	 *         because such a group already exists.</li> 
+	 *         </li>
+	 *         <li><code>{@link ReturnCode#IGNORED}</code>: If the agent has been 
+	 *         launched using a <code>launchAgentBucket</code> method such as
+	 *         {@link AbstractAgent#launchAgentBucket(List, String...)}
+	 *         </li>
+	 *         </ul>
+	 * 
+	 * @see Gatekeeper
+	 * @see ReturnCode
+	 * @since MaDKit 5.0.2
+	 */
+	public ReturnCode bucketModeCreateGroup(final String community, final String group, boolean isDistributed, final Gatekeeper keyMaster) {
+		if(kernel.isBucketModeOn())
+			return ReturnCode.IGNORED;
+		return kernel.createGroup(this, community, group, keyMaster, isDistributed);
 	}
 
 	/**
@@ -1170,7 +1267,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 
 	/**
 	 * Requests a role within a group of a particular community. This has the
-	 * same effect as <code>requestRole(community, group, role, null)</code>.
+	 * same effect as <code>requestRole(community, group, role, null, false)</code>.
 	 * So the passKey is <code>null</code> and the group must
 	 * not be secured for this to succeed.
 	 * 
@@ -1201,7 +1298,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *           generally delivered by the group's <i>group manager</i>. It
 	 *           could be <code>null</code>, which is sufficient to enter an
 	 *           unsecured group. Especially,
-	 *           {@link #requestRole(String, String, String)} uses a null
+	 *           {@link #requestRole(String, String, String)} uses a <code>null</code>
 	 *           <code>passKey</code>.
 	 * @return <ul>
 	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the operation has
@@ -1214,10 +1311,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         role is already handled by this agent.</li>
 	 *         <li><code>{@link ReturnCode#ACCESS_DENIED}</code>: If the access
 	 *         denied by the manager of that secured group.</li>
-	 *         <li><code>{@link ReturnCode#IGNORED}</code>: If this method is
-	 *         used in activate and that this agent has been launched using
-	 *         {@link AbstractAgent#launchAgentBucket(List, String...)}
-	 *         </li>
 	 *         </ul>
 	 * @see AbstractAgent.ReturnCode
 	 * @see Gatekeeper
@@ -1225,7 +1318,54 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @since MaDKit 5.0
 	 */
 	public ReturnCode requestRole(final String community, final String group, final String role, final Object passKey) {
-		return getKernel().requestRole(this, community, group, role, passKey);
+		return kernel.requestRole(this, community, group, role, passKey);
+	}
+
+	/**
+	 * Requests a role only if the agent has not been launched 
+	 * using one of the <code>launchAgentBucket</code> methods, thus optimizing the launching
+	 * when a lot of agents are concerned.
+	 * 
+	 * @param community
+	 *           the group's community.
+	 * @param group
+	 *           the targeted group.
+	 * @param role
+	 *           the desired role.
+	 * @param passKey
+	 *           the <code>passKey</code> to enter a secured group. It is
+	 *           generally delivered by the group's <i>group manager</i>. It
+	 *           could be <code>null</code>, which is sufficient to enter an
+	 *           unsecured group. Especially,
+	 *           {@link #requestRole(String, String, String)} uses a <code>null</code>
+	 *           <code>passKey</code>.
+	 * @return <ul>
+	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the operation has
+	 *         succeeded.</li>
+	 *         <li><code>{@link ReturnCode#NOT_COMMUNITY}</code>: If the
+	 *         community does not exist.</li>
+	 *         <li><code>{@link ReturnCode#NOT_GROUP}</code>: If the group does
+	 *         not exist.</li>
+	 *         <li><code>{@link ReturnCode#ROLE_ALREADY_HANDLED}</code>: If this
+	 *         role is already handled by this agent.</li>
+	 *         <li><code>{@link ReturnCode#ACCESS_DENIED}</code>: If the access
+	 *         denied by the manager of that secured group.</li>
+	 *         </li>
+	 *         <li><code>{@link ReturnCode#IGNORED}</code>: If the role has been 
+	 *         already set due to the fact that this agent has been launched using
+	 *         {@link AbstractAgent#launchAgentBucket(List, String...)}, so that the call is not
+	 *         proceeded.
+	 *         </li>
+	 *         </ul>
+	 * @see AbstractAgent.ReturnCode
+	 * @see Gatekeeper
+	 * 
+	 * @since MaDKit 5.0
+	 */
+	public ReturnCode bucketModeRequestRole(final String community, final String group, final String role, final Object passKey) {
+		if(kernel.isBucketModeOn())
+			return ReturnCode.IGNORED;
+		return kernel.requestRole(this, community, group, role, passKey);
 	}
 
 	/**
@@ -1260,7 +1400,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			logger.log(Level.WARNING, i.failedString(), e);
 		}
 	}
-
+	
 	final boolean isWarningOn() {
 		return logger != null && logger.getWarningLogLevel().intValue() >= logger.getLevel().intValue();
 	}
@@ -1638,8 +1778,11 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * 
 	 */
 	public ReturnCode sendReplyWithRole(final Message messageToReplyTo, final Message reply, final String senderRole) { 
+		final AgentAddress sender = messageToReplyTo.getSender();
+		if(sender == null)
+			return ReturnCode.CANT_REPLY;
 		reply.setID(messageToReplyTo.getConversationID());
-		return getKernel().sendMessage(this, messageToReplyTo.getSender(), reply, senderRole);
+		return getKernel().sendMessage(this, sender, reply, senderRole);
 	}
 
 	/**
@@ -1925,7 +2068,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @see Option LevelOption BooleanOption 
 	 * @since MaDKit 5.0.0.10
 	 */
-	public Properties getMadkitConfig() {
+	public MadkitProperties getMadkitConfig() {
 		return getKernel().getMadkitConfig();
 	}
 
@@ -2122,6 +2265,209 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		if (Thread.currentThread().getName().equals(getAgentThreadName(getState())) && alive.compareAndSet(true, false))
 			throw new SelfKillException("" + 0);// TODO why 0 ?
 		Thread.currentThread().interrupt();
+	}
+	
+	/**
+	 * launch all the agents defined in an xml configuration file
+	 * 
+	 * @param xmlFile the XML file to parse
+	 * @return {@link ReturnCode#SEVERE} if the launch failed
+	 * @throws ParserConfigurationException 
+	 * @throws IOException 
+	 * @throws SAXException 
+	 */
+	public ReturnCode launchXmlAgents(String xmlFile) throws SAXException, IOException, ParserConfigurationException {
+		final NodeList nodes = XMLUtilities.getDOM(xmlFile).getElementsByTagName(XMLUtilities.AGENT);
+		ReturnCode r = ReturnCode.SEVERE;
+		for (int i = 0; i < nodes.getLength(); i++) {
+			r = launchNode(nodes.item(i));
+		}
+		return r;
+	}
+	
+	/**
+	 * Launch agents by parsing an XML node. The method
+	 * immediately returns without waiting the end of the agents' activation, 
+	 * 
+	 * @param agentXmlNode the XML node
+	 * @return {@link ReturnCode#SEVERE} if the launch failed
+	 * 
+	 * @see XMLUtilities
+	 */
+	public ReturnCode launchNode(Node agentXmlNode){
+		if(logger != null)
+			logger.finest("launchNode "+XMLUtilities.nodeToString(agentXmlNode));
+		final NamedNodeMap namesMap = agentXmlNode.getAttributes();
+		try {
+			List<AbstractAgent> list = null;
+			int nbOfInstances = 1;
+			try {
+				nbOfInstances = Integer.parseInt(namesMap.getNamedItem(XMLUtilities.NB_OF_INSTANCES).getNodeValue());
+			} catch (NullPointerException e) {
+			}
+			list = getKernel().createBucket(namesMap.getNamedItem(XMLUtilities.CLASS).getNodeValue(), nbOfInstances, 1);
+			
+			boolean bucket = false;
+			try {
+				bucket = Boolean.parseBoolean(namesMap.getNamedItem(XMLUtilities.BUCKET_MODE).getNodeValue());
+			} catch (NullPointerException e) {
+			}
+			
+			NodeList attributes = agentXmlNode.getChildNodes();
+			List<String> roles= new ArrayList<>();
+			for (int i = 0; i < attributes.getLength(); i++) {
+				Node node = attributes.item(i);
+				switch (node.getNodeName()) {
+				case XMLUtilities.ATTRIBUTES:
+					NamedNodeMap att = node.getAttributes();
+					final Class<? extends AbstractAgent> agentClass = list.get(0).getClass();
+					for (int j = 0; j < att.getLength(); j++) {
+						Node item = att.item(j);
+						setAgentValues(Probe.findFieldOn(agentClass, item.getNodeName()),item.getNodeValue(),list);
+					}
+					break;
+				case XMLUtilities.BUCKET_MODE_ROLE:
+					NamedNodeMap roleAttributes = node.getAttributes();
+					roles.add(roleAttributes.item(0).getNodeValue() + ","
+							+ roleAttributes.item(1).getNodeValue() + ","
+							+ roleAttributes.item(2).getNodeValue());
+					break;
+				default:
+					break;
+				}
+			}
+			
+			if (bucket) {
+				launchAgentBucket(list, roles.toArray(new String[roles.size()]));
+			}
+			else{
+				try {
+					Level logLevel = Level.parse(namesMap.getNamedItem(XMLUtilities.LOG_LEVEL).getNodeValue());
+					for (AbstractAgent abstractAgent : list) {
+						abstractAgent.setLogLevel(logLevel);
+					}
+				} catch (NullPointerException e) {
+				}
+				
+				boolean guiMode = false;
+				try {
+					guiMode = Boolean.parseBoolean(namesMap.getNamedItem(XMLUtilities.GUI).getNodeValue());
+				} catch (NullPointerException e) {
+				}
+				for (AbstractAgent abstractAgent : list) {
+					launchAgent(abstractAgent, 0, guiMode);
+				}
+			}
+		} catch (NullPointerException | ClassNotFoundException | NoSuchFieldException | NumberFormatException | InstantiationException | IllegalAccessException e) {
+			getLogger().severeLog("launchNode "+ Words.FAILED+" : "+XMLUtilities.nodeToString(agentXmlNode),e);
+			return ReturnCode.SEVERE;
+		}
+		return ReturnCode.SUCCESS;
+	}
+
+	/**
+	 * @param stringValue
+	 * @param type
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 */
+	private void setAgentValues(final Field f, final String stringValue, List<AbstractAgent> l) throws IllegalAccessException {
+		final Class<?> type = f.getType();
+		if(type.isPrimitive()){
+			if (type == int.class){
+				int value = Integer.parseInt(stringValue);
+				for (AbstractAgent a : l) {
+					f.setInt(a, value);
+				}
+			}
+			else if(type == boolean.class){
+				boolean value = Boolean.parseBoolean(stringValue);
+				for (AbstractAgent a : l) {
+					f.setBoolean(a, value);
+				}
+			}
+			else if (type == float.class){
+				float value = Float.parseFloat(stringValue);
+				for (AbstractAgent a : l) {
+					f.setFloat(a, value);
+				}
+			}
+			else if (type == double.class){
+				double value = Double.parseDouble(stringValue);
+				for (AbstractAgent a : l) {
+					f.setDouble(a, value);
+				}
+			}
+			else if (type == byte.class){
+				byte value = Byte.parseByte(stringValue);
+				for (AbstractAgent a : l) {
+					f.setByte(a, value);
+				}
+			}
+			else if (type == short.class){
+				short value = Short.parseShort(stringValue);
+				for (AbstractAgent a : l) {
+					f.setShort(a, value);
+				}
+			}
+			else if (type == long.class){
+				long value = Long.parseLong(stringValue);
+				for (AbstractAgent a : l) {
+					f.setLong(a, value);
+				}
+			}
+		}
+		else if (type == Integer.class){
+			int value = Integer.parseInt(stringValue);
+			for (AbstractAgent a : l) {
+				f.set(a, value);
+			}
+		}
+		else if(type == Boolean.class){
+			boolean value = Boolean.parseBoolean(stringValue);
+			for (AbstractAgent a : l) {
+				f.set(a, value);
+			}
+		}
+		else if (type == Float.class){
+			float value = Float.parseFloat(stringValue);
+			for (AbstractAgent a : l) {
+				f.set(a, value);
+			}
+		}
+		else if (type == Double.class){
+			double value = Double.parseDouble(stringValue);
+			for (AbstractAgent a : l) {
+				f.set(a, value);
+			}
+		}
+		else if (type == String.class){
+			for (AbstractAgent a : l) {
+				f.set(a, stringValue);
+			}
+		}
+		else if (type == Byte.class){
+			byte value = Byte.parseByte(stringValue);
+			for (AbstractAgent a : l) {
+				f.set(a, value);
+			}
+		}
+		else if (type == Short.class){
+			short value = Short.parseShort(stringValue);
+			for (AbstractAgent a : l) {
+				f.set(a, value);
+			}
+		}
+		else if (type == Long.class){
+			long value = Long.parseLong(stringValue);
+			for (AbstractAgent a : l) {
+				f.set(a, value);
+			}
+		}
+		else{
+			if(logger != null)
+				logger.severe("Do not know how to change attrib "+stringValue);
+		}
 	}
 
 	// //////////////////////////////////////////////////////////////////////////////
@@ -2507,6 +2853,13 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		 * </li>
 		 */
 		IGNORED,
+		/**
+		 * Returned when an agent tries to reply
+		 * to a message which has not been received from another agent, 
+		 * e.g. newly created or sent directly by 
+		 * an object using {@link AbstractAgent#receiveMessage(Message)}.
+		 */
+		CANT_REPLY,
 		/**
 		 * Returned on special errors. This should not
 		 * be encountered

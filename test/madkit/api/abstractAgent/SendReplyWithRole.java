@@ -23,7 +23,9 @@ import static madkit.kernel.AbstractAgent.ReturnCode.NOT_IN_GROUP;
 import static madkit.kernel.AbstractAgent.ReturnCode.ROLE_NOT_HANDLED;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static org.junit.Assert.assertEquals;
+import madkit.kernel.AbstractAgent;
 import madkit.kernel.AbstractAgent.ReturnCode;
+import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Message;
 
@@ -82,6 +84,29 @@ public class SendReplyWithRole extends JunitMadkit {
 				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE2));
 				assertEquals(SUCCESS, leaveRole(COMMUNITY, GROUP, ROLE));
 				assertEquals(ROLE_NOT_HANDLED, sendReplyWithRole(nextMessage(), new Message(), ROLE));
+			}
+		});
+	}
+
+	@Test
+	public void wrongArg() {
+		addMadkitArgs(LevelOption.kernelLogLevel.toString(),"ALL");
+		launchTest(new AbstractAgent() {
+			protected void activate() {
+				createDefaultCGR(this);
+				assertEquals(ReturnCode.CANT_REPLY, sendReplyWithRole(new Message(), new Message(), ROLE));
+			}
+		});
+	}
+
+	@Test
+	public void wrongArgFromMessageSentFromAnObject() {
+		addMadkitArgs(LevelOption.kernelLogLevel.toString(),"ALL");
+		launchTest(new AbstractAgent() {
+			protected void activate() {
+				createDefaultCGR(this);
+				receiveMessage(new Message());
+				assertEquals(ReturnCode.CANT_REPLY, sendReplyWithRole(nextMessage(), new Message(), ROLE));
 			}
 		});
 	}

@@ -59,7 +59,7 @@ public class Probe<A extends AbstractAgent> extends Overlooker<A>{
 	 * @return the agent's field named <code>fieldName</code>
 	 * @throws NoSuchFieldException
 	 */
-	public Field findFieldOn(Class<? extends A> agentClass, final String fieldName) throws NoSuchFieldException{
+	public static Field findFieldOn(Class<? extends AbstractAgent> agentClass, final String fieldName) throws NoSuchFieldException{
 		Field f = null;
 		while(true) {
 			try {
@@ -73,7 +73,7 @@ public class Probe<A extends AbstractAgent> extends Overlooker<A>{
 			} catch (SecurityException e) {
 				e.printStackTrace();
 			} catch (NoSuchFieldException e) {
-				agentClass = (Class<? extends A>) agentClass.getSuperclass();//TODO not go further than A
+				agentClass = (Class<? extends AbstractAgent>) agentClass.getSuperclass();//TODO not go further than A ?
 				if (agentClass == AbstractAgent.class) {//TODO bench vs local variable or Object ?
 					throw e;
 				}

@@ -51,6 +51,7 @@
 				<attribute name="MaDKit-Args" value="${madkit.args}" />
 				<attribute name="Agent-Classes" value="${agents.classes}" />
 				<attribute name="MDK-Files" value="${mdk.files}" />
+				<attribute name="XML-Files" value="${xml.files}" />
 				<attribute name="Main-Classes" value="${main.classes}" />
 			</section>
 		</manifest>

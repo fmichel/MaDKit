@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MDK name="aName" description="test">
+	<Agents>
+		<Agent class="madkit.xml.XMLSuccessTestAgent" nbOfInstances="1"	GUI="true" logLevel="FINEST">
+			<Attributes speed="3" i="5" s="blabla" />
+		</Agent>
+		<Agent class="madkit.xml.XMLSuccessTestAgent2">
+			<Attributes speed="3" i="5" s="blabla" />
+		</Agent>
+		<Agent class="madkit.xml.XMLSuccessTestAgent2" nbOfInstances="1">
+			<Attributes speed="3" i="5" s="blabla" />
+		</Agent>
+	</Agents>
+
+	<MadkitProperties test="yes" test2="good" desktop="true" />
+</MDK>

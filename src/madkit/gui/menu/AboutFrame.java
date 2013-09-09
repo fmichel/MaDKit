@@ -52,7 +52,7 @@ import madkit.kernel.Madkit;
 /**
  * @author Fabien Michel
  * @since MaDKit 5.0.0.17
- * @version 0.9
+ * @version 0.91
  * 
  */
 final class AboutFrame extends JDialog {
@@ -75,12 +75,12 @@ final class AboutFrame extends JDialog {
 		textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
 		textPanel.add(Box.createRigidArea(new Dimension(0, 110)));
 
-		final JLabel name = new JLabel("Visit");
+//		final JLabel name = new JLabel("Visit");
+//		name.setAlignmentX(0.5f);
+//		textPanel.add(name);
 
-		name.setAlignmentX(0.5f);
-		textPanel.add(name);
-		StyledDocument doc = textPanel.getStyledDocument();
-		Style def = StyleContext.getDefaultStyleContext().getStyle(StyleContext.DEFAULT_STYLE);
+		final StyledDocument doc = textPanel.getStyledDocument();
+		final Style def = StyleContext.getDefaultStyleContext().getStyle(StyleContext.DEFAULT_STYLE);
 
 		final Style regular = doc.addStyle("regular", def);
 		Style s = doc.addStyle("italic", regular);
@@ -93,14 +93,18 @@ final class AboutFrame extends JDialog {
 		StyleConstants.setBold(s, true);
 		StyleConstants.setFontSize(s, 20);
 
+		String version = null;
 		try (BufferedReader in = new BufferedReader(new InputStreamReader(new URL(Madkit.WEB + "/LAST").openStream()))){
-			String version = "\n\n   " + Words.LAST_AVAILABLE.toString() + " : " + in.readLine() + "\n";
+			version = "\n\n   " + Words.LAST_AVAILABLE.toString() + " : " + in.readLine() + "\n";
+		} catch (IOException e) {//just offline
+		}
+		try {
 			doc.insertString(doc.getLength(), "  MaDKit\n", doc.getStyle("large"));
 			doc.insertString(doc.getLength(), "   The Multiagent Development Kit\n\n", doc.getStyle("italic"));
-			doc.insertString(doc.getLength(), "   Version: " + Madkit.VERSION + "\n   Build id: " + Madkit.BUILD_ID + version,
+			doc.insertString(doc.getLength(), "   Version: " + Madkit.VERSION + "\n   Build id: " + Madkit.BUILD_ID + (version == null ? "" : version),
 					doc.getStyle("small"));
 			textPanel.add(new SwingLink(Madkit.WEB.substring(7), new URI(Madkit.WEB)));
-		} catch (IOException | BadLocationException | URISyntaxException e) {
+		} catch (BadLocationException | URISyntaxException e) {
 			e.printStackTrace();
 		}
 

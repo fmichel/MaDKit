@@ -38,7 +38,6 @@ import madkit.i18n.I18nUtilities;
 import madkit.i18n.Words;
 import madkit.kernel.AgentLogger;
 import madkit.kernel.Madkit;
-import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Madkit.Option;
 import madkit.kernel.MadkitClassLoader;
 
@@ -94,7 +93,10 @@ public class GlobalAction {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (Boolean.valueOf((boolean) getValue(Action.SELECTED_KEY))) {
+				if(e == null){ // programmatically triggered
+					putValue(Action.SELECTED_KEY, ! (boolean) getValue(Action.SELECTED_KEY));
+				}
+				if ((boolean) getValue(Action.SELECTED_KEY)) {
 					AgentLogger.setAllLogLevels(Level.ALL);
 				}
 				else{
@@ -102,7 +104,7 @@ public class GlobalAction {
 				}
 			}
 		};
-
+		
 		/**
 		 * An action that create a log file for each agent having a non <code>null</code> logger.
 		 */
@@ -199,7 +201,7 @@ public class GlobalAction {
 
 		
 		/**
-		 * An action that launch a new MaDKit instance using the configuration file
+		 * An action that launches a new MaDKit instance using the configuration file
 		 * which name is obtained using {@link ActionEvent#getActionCommand()} 
 		 * on the received event, i.e. the action command of the button.
 		 */
@@ -213,9 +215,9 @@ public class GlobalAction {
 				 */
 				private static final long	serialVersionUID	= 1L;
 
+				@SuppressWarnings("unused")
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					System.err.println(e.getActionCommand());
 						new Madkit(Option.configFile.toString(),e.getActionCommand());
 				}
 			};

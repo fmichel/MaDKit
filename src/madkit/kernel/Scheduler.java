@@ -25,6 +25,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.LinkedHashSet;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Set;
 
 import javax.swing.Action;
@@ -107,7 +109,7 @@ public class Scheduler extends Agent {
 
 	private Action														run, step, speedUp, speedDown;
 
-	private JLabel														timer;
+//	private JLabel														timer;
 	private int															delay;
 
 	/**
@@ -162,11 +164,14 @@ public class Scheduler extends Agent {
 	 */
 	public void setGVT(final double GVT) {
 		this.GVT = GVT;
-		if (timer != null)
-			timer.setText("Simulation " + simulationState + ", time is " + GVT);
+		if (gvtModel != null){
+			gvtModel.notifyObservers((int) GVT);
+		}
 	}
 
 	private double	simulationDuration;
+
+	private GVTModel gvtModel;
 
 	/**
 	 * This constructor is equivalent to <code>Scheduler(Double.MAX_VALUE)</code>
@@ -508,6 +513,7 @@ public class Scheduler extends Agent {
 		// toolBar.add(Box.createRigidArea(new Dimension(40,5)));
 		// toolBar.add(Box.createHorizontalGlue());
 		toolBar.add(p);
+//		toolBar.add(getGVTLabel());
 		SwingUtil.scaleAllAbstractButtonIcons(toolBar, 24);
 		return toolBar;
 	}
@@ -533,11 +539,84 @@ public class Scheduler extends Agent {
 	 * @return a label giving some information on the simulation process
 	 */
 	public JLabel getSchedulerStatusLabel() {
-		timer = new JLabel();
+		if (gvtModel == null) {
+			gvtModel = new GVTModel();
+		}
+		GVTJLabel timer = new GVTJLabel(){
+			/**
+			 * 
+			 */
+			private static final long	serialVersionUID	= 1L;
+
+			@Override
+			public void update(Observable o, Object arg) {
+				setText("Simulation " + simulationState + ", time is " + arg);
+			}
+		};
+		timer.setText("GVT");
+		gvtModel.addObserver(timer);
 		timer.setBorder(new EmptyBorder(4, 4, 4, 4));
 		timer.setHorizontalAlignment(JLabel.LEADING);
 		setGVT(getGVT());
 		return timer;
 	}
 
+	/**
+	 * Returns a label giving some information on the simulation process
+	 * 
+	 * @return a label giving some information on the simulation process
+	 */
+	public JLabel getGVTLabel() {
+		if (gvtModel == null) {
+			gvtModel = new GVTModel();
+		}
+		GVTJLabel timer = new GVTJLabel();
+		timer.setText("0");
+		gvtModel.addObserver(timer);
+		timer.setBorder(new EmptyBorder(4, 4, 4, 4));
+		timer.setHorizontalAlignment(JLabel.LEADING);
+		setGVT(getGVT());
+		return timer;
+	}
+
+
+//	/**
+//	 * Returns a label giving some information on the simulation process
+//	 * 
+//	 * @return a label giving some information on the simulation process
+//	 */
+//	public JPanel getGVTPanel() {
+//		if (gvtModel == null) {
+//			gvtModel = new GVTModel();
+//		}
+//		JPanel p = new JPanel();
+//		p.setMinimumSize(new Dimension(60, 20));
+//		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+//		p.setBorder(new TitledBorder("gvt"));
+//		p.add(getGVTLabel());
+//		return p;
+//	}
+
+}
+
+class GVTModel extends Observable{
+	@Override
+	public void notifyObservers(Object arg) {
+		setChanged();
+		super.notifyObservers(arg);
+	}
+}
+
+class GVTJLabel extends JLabel implements Observer{
+
+	/**
+	 * 
+	 */
+	private static final long	serialVersionUID	= 2320718202738802489L;
+
+	@Override
+	public void update(Observable o, Object arg) {
+		setText(arg.toString());
+	}
+	
 }

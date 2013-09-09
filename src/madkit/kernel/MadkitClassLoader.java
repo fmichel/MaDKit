@@ -37,12 +37,15 @@ import java.util.TreeSet;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 
+import javax.xml.parsers.ParserConfigurationException;
+
 import madkit.gui.MASModel;
 import madkit.gui.menu.ClassPathSensitiveMenu;
-import madkit.gui.menu.LaunchAgentsMenu;
-import madkit.gui.menu.LaunchMAS;
-import madkit.gui.menu.LaunchMain;
 import madkit.kernel.Madkit.Option;
+import madkit.util.XMLUtilities;
+
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 /**
  * The MadkitClassLoader is the class loader used by MaDKit, enabling 
@@ -60,6 +63,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 //	final private Madkit			madkit;
 	private static Set<String>			agentClasses;
 	private static Set<String>			mdkFiles;
+	private static Set<String>			xmlFiles;
 	private static Set<String>			mains;
 	private static Set<MASModel>		demos;
 	private static Set<URL>				scannedURLs;
@@ -78,7 +82,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 		}
 		currentMCL = new MadkitClassLoader(urls,systemCL,null);			
 	}
-
+	
 	/**
 	 * @param urls
 	 * @param parent
@@ -91,6 +95,11 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 		currentMCL = this;
 	}
 	
+	/**
+	 * Returns the last class loader, thus having all the loaded jars on the classpath.
+	 * 
+	 * @return the last class loader.
+	 */
 	public static MadkitClassLoader getLoader(){
 		return currentMCL;
 	}
@@ -249,6 +258,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 			agentClasses = new TreeSet<>();
 			demos = new HashSet<>();
 			mdkFiles = new HashSet<>();
+			xmlFiles = new HashSet<>();
 			mains = new HashSet<>();
 		}
 		for (URL dir : getLoader().getURLs()) {
@@ -306,9 +316,26 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 		return new TreeSet<>(agentClasses);
 	}
 
+	/**
+	 * Returns the names of all the mdk properties files available
+	 * 
+	 * @return All the mdk files available on the
+	 *         class path
+	 */
 	public static Set<String> getMDKFiles() {
 		scanClassPathForAgentClasses();
 		return new TreeSet<>(mdkFiles);
+	}
+
+	/**
+	 * Returns the names of all the xml configuration files available
+	 * 
+	 * @return All the xml configuration file available on the
+	 *         class path
+	 */
+	public static Set<String> getXMLConfigurations() {
+		scanClassPathForAgentClasses();
+		return new TreeSet<>(xmlFiles);
 	}
 
 	public static Set<String> getAgentsWithMain() {
@@ -333,7 +360,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 		if (projectInfo != null) {
 //			Logger l = madkit.getLogger();
 			String mdkArgs = projectInfo.getValue("MaDKit-Args");// TODO MDK files
-			if (mdkArgs != null && ! mdkArgs.trim().isEmpty()) {
+			if (check(mdkArgs)) {
 				final String projectName = projectInfo.getValue("Project-Name").trim();
 				final String projectDescription = projectInfo.getValue("Description").trim();
 				MASModel mas = new MASModel(projectName, mdkArgs.split(" "), projectDescription);
@@ -342,7 +369,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 //					l.finest("found MAS info " + mas);
 //				}
 				String mdkConfigs = projectInfo.getValue("MDK-Files");
-				if (mdkConfigs != null && ! mdkConfigs.trim().isEmpty()) {
+				if (check(mdkConfigs)) {
 					mdkArgs += Option.configFile.toString()+" ";
 					for (String configFile : mdkConfigs.split(",")) {
 						mas = new MASModel(projectName+configFile, (mdkArgs+configFile).split(" "), projectDescription);
@@ -353,12 +380,24 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 					}
 				}
 				mdkConfigs = projectInfo.getValue("Main-Classes");//recycling
-				if (mdkConfigs != null && ! mdkConfigs.trim().isEmpty()) {
+				if (check(mdkConfigs)) {
 					mains.addAll(Arrays.asList(mdkConfigs.split(",")));
+				}
+				mdkConfigs = projectInfo.getValue("XML-Files");//recycling
+				if (check(mdkConfigs)) {
+					xmlFiles.addAll(Arrays.asList(mdkConfigs.split(",")));
 				}
 			}
 			agentClasses.addAll(Arrays.asList(projectInfo.getValue("Agent-Classes").split(",")));
 		}
+	}
+
+	/**
+	 * @param args
+	 * @return <code>true</code> if <code>args</code> is not <code>null</code> and not empty
+	 */
+	private static boolean check(String args) {
+		return args != null && ! args.trim().isEmpty();
 	}
 
 	private static void scanFolderForAgentClasses(final File file, final String pckName, String currentUrlPath) {
@@ -379,11 +418,24 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 					else if (fileName.endsWith(".mdk")) {
 							mdkFiles.add(f.getPath().substring(currentUrlPath.length()));
 						}
+					else if(fileName.endsWith(".xml")){
+						final String xmlFile = f.getPath().substring(currentUrlPath.length());
+						try {
+//							System.err.println(xmlFile);
+							Document dom = XMLUtilities.getDOM(xmlFile);
+							if(dom != null && dom.getDocumentElement().getNodeName().equals(XMLUtilities.MDK)	){
+								xmlFiles.add(xmlFile);
+							}
+						} catch (SAXException | IOException | ParserConfigurationException e) {
+//							e.printStackTrace();
+							//FIXME should be logged
+						}
+					}
 				}
 			}
 		}
 	}
-
+	
 	private static boolean isAgentClass(final String className) {
 		try {
 			final Class<?> cl = getLoader().loadClass(className);
@@ -393,7 +445,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 					&& Modifier.isPublic(cl.getModifiers())) {
 				try {
 						cl.getDeclaredMethod("main", String[].class);
-						mains.add(className);
+						mains.add(className);// if previous line succeeded
 				} catch (NoSuchMethodException e) {
 				}
 				return true;
@@ -469,6 +521,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 		final java.util.Properties p = new java.util.Properties();
 		p.setProperty("agents.classes", normalizeResult(MadkitClassLoader.getAllAgentClasses()));
 		p.setProperty("mdk.files", normalizeResult(MadkitClassLoader.getMDKFiles()));
+		p.setProperty("xml.files", normalizeResult(MadkitClassLoader.getXMLConfigurations()));
 		p.setProperty("main.classes", normalizeResult(MadkitClassLoader.getAgentsWithMain()));
 		final String findJavaExecutable = findJavaExecutable("jarsigner");
 		if (findJavaExecutable != null) {

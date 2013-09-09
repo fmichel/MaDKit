@@ -3,7 +3,7 @@
 
 <!-- 
  
-        	--- Using Java Web Start :
+        	Using Java Web Start :
 
     The ${jnlp.jar.gz} file is the target of this jnlp file : it has no version number so that 
     the jnlp will always run the latest version without requiring any change

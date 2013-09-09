@@ -16,6 +16,27 @@ interact using messages. It also contains generic MAS simulation authoring tools
 
 
 ----------------------------------------------------------------------------------
+------------------------------- MaDKit 5.0.2 (beta-2) ----------------------------
+----------------------------------------------------------------------------------
+
+1. Improvements and changes:
+	- A default tool bar for the SwingViewer is now included 
+	- XML files could be used to define configuration files. They then can be used to launch and 
+	initialize agents using --config file.xml at launch time or using the desktop corresponding menu.
+	An example of specification is available in the docs directory.
+	- The debug feature now also operates on all the active agents.   
+
+2. API changes:
+	+ madkit.kernel.AbstractAgent.launchAgentBucket(List<? extends AbstractAgent>, int, String...)
+	+ madkit.kernel.AbstractAgent.launchAgentBucket(String, int, int, String...)
+	WARNING: The above methods now require to write "community,group,role" instead of "community;group;role" 
+	for consistency with other MaDKit parts. 
+	+ madkit.kernel.AbstractAgent.bucketModeRequestRole(String, String, String, Object)
+	+ madkit.kernel.AbstractAgent.bucketModeCreateGroup(String, String, boolean, Gatekeeper)
+	
+	
+
+----------------------------------------------------------------------------------
 ------------------------------- MaDKit 5.0.1 (beta-1) ----------------------------
 ----------------------------------------------------------------------------------
 

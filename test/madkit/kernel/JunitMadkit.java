@@ -20,7 +20,7 @@ package madkit.kernel;
 
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static madkit.kernel.AbstractAgent.State.TERMINATED;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
@@ -57,7 +57,9 @@ public class JunitMadkit {
 	 * 	 */
 	public static String aString = "a";
 	public static final String COMMUNITY = "Tcommunity";
+	public static final String COMMUNITY2 = "Tcommunity2";
 	public static final String GROUP = "Tgroup";
+	public static final String GROUP2 = "Tgroup2";
 	public static final String ROLE = "Trole";
 	public static final String ROLE2 = "Trole2";
 
@@ -108,6 +110,10 @@ public class JunitMadkit {
 
 	public void lineBreak() {
 		System.err.println("---------------------------------");
+	}
+	
+	public void assertKernelIsAlive(){
+		assertTrue(getKernel().isAlive());
 	}
 
 	public static void noExceptionFailure() {

@@ -72,6 +72,7 @@ final public class AgentLogger extends Logger {
 
 	final static Level												talkLevel				= Level.parse("1100");
 	final static private Map<AbstractAgent, AgentLogger>	agentLoggers			= new ConcurrentHashMap<>();	// TODO evaluate foot print
+	
 	private FileHandler	fh;
 
 	final private AbstractAgent									myAgent;
@@ -146,7 +147,7 @@ final public class AgentLogger extends Logger {
 			addHandler(ch);
 			ch.setFormatter(AGENT_FORMATTER);
 		}
-		if (BooleanOption.createLogFiles.isActivated(madkitConfig)) {
+		if (BooleanOption.createLogFiles.isActivated(madkitConfig) && agent.getMadkitKernel() != agent) {
 			createLogFile();
 		}
 	}
@@ -317,8 +318,11 @@ final public class AgentLogger extends Logger {
 			if (loggedAgent != loggedAgent.getMadkitKernel()) {
 				loggedAgent.setLogLevel(level);
 			}
+			else
+				loggedAgent.setMadkitProperty(LevelOption.agentLogLevel.name(), level.toString());
 		}
 	}
+	
 	/**
 	 * Create a log file for each agent having a non <code>null</code> logger.
 	 * 

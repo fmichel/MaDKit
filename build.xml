@@ -315,7 +315,10 @@
 		<fileset dir="${release.dir}" includes="${jnlp.jar.file}.pack.gz" />
 	</ftp>
 
-	<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="put" remotedir="repository/MaDKit-${madkit.version}">
+	<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="mkdir" remotedir="repository/MaDKit-${madkit.version}" verbose="yes">
+	</ftp>
+
+		<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="put" remotedir="repository/MaDKit-${madkit.version}">
 		<fileset dir="${resource.dir}" includes="index.php"/>
 	</ftp>
 

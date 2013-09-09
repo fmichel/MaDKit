@@ -76,7 +76,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
@@ -84,6 +83,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
+
+import javax.xml.parsers.ParserConfigurationException;
 
 import madkit.action.GlobalAction;
 import madkit.action.KernelAction;
@@ -105,6 +106,9 @@ import madkit.message.hook.HookMessage;
 import madkit.message.hook.HookMessage.AgentActionEvent;
 import madkit.message.hook.MessageEvent;
 import madkit.message.hook.OrganizationEvent;
+import madkit.util.MadkitProperties;
+
+import org.xml.sax.SAXException;
 
 /**
  * The brand new MaDKit kernel and it is now a real Agent :)
@@ -193,7 +197,16 @@ class MadkitKernel extends Agent {
 	 */
 	private boolean bucketMode = false;
 
+	
+	/**
+	 * @return the bucketMode
+	 */
+	final boolean isBucketModeOn() {
+		return bucketMode;
+	}
+
 	private EnumMap<AgentActionEvent, Set<AbstractAgent>> hooks;
+
 
 	// private AtomicInteger proceed = new AtomicInteger(0);
 
@@ -207,22 +220,28 @@ class MadkitKernel extends Agent {
 		platform = m;
 		kernel = this;
 		threadedAgents = new HashSet<>(20);
-		
 		kernelAddress = new KernelAddress();
 		
 		//set the log dir name and checking uniqueness
 		final String logDirKey = Option.logDirectory.name();
-		final String logBaseDir= getMadkitConfig().getProperty(logDirKey) + File.separator;
+		final MadkitProperties madkitConfig = getMadkitConfig();
+		final String logBaseDir= madkitConfig.getProperty(logDirKey) + File.separator;
 		String logDir = logBaseDir + Madkit.dateFormat.format(new Date())+kernelAddress;
 		while (new File(logDir).exists()) {
 			logDir = logBaseDir + Madkit.dateFormat.format(new Date())+kernelAddress;
 		}
-		getMadkitConfig().setProperty(logDirKey, logDir);
+		madkitConfig.setProperty(logDirKey, logDir);
 		
-		setLogLevel(LevelOption.kernelLogLevel.getValue(getMadkitConfig()));
 		organizations = new ConcurrentHashMap<>();
 		operatingOverlookers = new LinkedHashSet<>();
 		loggedKernel = new LoggedKernel(this);
+
+		getLogger(); // Bootstrapping the agentLoggers with default logger variable for global actions
+		setLogLevel(LevelOption.kernelLogLevel.getValue(madkitConfig));
+		if(logger != null && BooleanOption.createLogFiles.isActivated(madkitConfig)){
+			logger.createLogFile();
+		}
+		
 		normalAgentThreadFactory = new AgentThreadFactory(kernelAddress, false);
 		daemonAgentThreadFactory = new AgentThreadFactory(kernelAddress, true);
 		lifeExecutor = new ThreadPoolExecutor(2, Integer.MAX_VALUE, 1L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(),
@@ -253,6 +272,9 @@ class MadkitKernel extends Agent {
 		lifeExecutor = null;
 	}
 
+	/**
+	 * for the logged kernel
+	 */
 	MadkitKernel(MadkitKernel k) {
 		super(null);
 		threadedAgents = null;
@@ -312,6 +334,7 @@ class MadkitKernel extends Agent {
 	 * Starts a session considering the current MaDKit configuration
 	 */
 	private void startSession() {
+		launchXMLConfigurations();
 		launchConfigAgents();
 	}
 
@@ -327,7 +350,6 @@ class MadkitKernel extends Agent {
 		while (! shuttedDown) {
 			handleMessage(waitNextMessage());// As a daemon, a timeout is not required
 		}
-		System.err.println("living end");
 	}
 	
 	@Override
@@ -355,19 +377,7 @@ class MadkitKernel extends Agent {
 			threadedAgents.remove(a);
 			if (logger != null)
 				logger.fine("\n\t****** GUI Manager launched ******\n");
-		} catch (ClassNotFoundException e) {
-			bugReport(e);
-		} catch (SecurityException e) {
-			bugReport(e);
-		} catch (NoSuchMethodException e) {
-			bugReport(e);
-		} catch (IllegalArgumentException e) {
-			bugReport(e);
-		} catch (InstantiationException e) {
-			bugReport(e);
-		} catch (IllegalAccessException e) {
-			bugReport(e);
-		} catch (InvocationTargetException e) {
+		} catch (ClassNotFoundException | SecurityException | NoSuchMethodException | IllegalArgumentException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
 			bugReport(e);
 		}
 		// }
@@ -424,10 +434,30 @@ class MadkitKernel extends Agent {
 		currentConfig.putAll(mkCfg);
 		mkCfg.putAll(platform.buildConfigFromArgs(dm.getSessionArgs()));
 		//TODO parse config File 
-		startSession();
+		launchConfigAgents();
 		mkCfg.putAll(currentConfig);
 	}
 	
+	@SuppressWarnings("unused")
+	private void launchXml(String xmlFile, boolean inNewMadkit) {
+		if (logger != null)
+			logger.finer("** LAUNCHING XML CONFIG " + xmlFile);
+		if (inNewMadkit) {
+			new Madkit(Option.configFile.toString(),xmlFile);
+		}
+		else{
+			MadkitProperties mkCfg = platform.getConfigOption();
+			Properties currentConfig = new Properties();
+			currentConfig.putAll(mkCfg);
+			try {
+				mkCfg.loadPropertiesFromMaDKitXML(xmlFile);
+				launchXmlAgents(xmlFile);
+			} catch (IOException | SAXException | ParserConfigurationException e) {
+				getLogger().severeLog("",e);
+			}
+			mkCfg.putAll(currentConfig);
+		}
+	}
 	
 	@SuppressWarnings("unused")
 	private void console() {
@@ -435,7 +465,7 @@ class MadkitKernel extends Agent {
 	}
 
 	private void launchConfigAgents() {
-		final ExecutorService startExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);// TODO
+//		final ExecutorService startExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() );// TODO
 																																									// do
 																																									// that
 																																									// with
@@ -459,28 +489,52 @@ class MadkitKernel extends Agent {
 				}
 				if (logger != null)
 					logger.finer("Launching " + number + " instance(s) of " + className + " with GUI = " + withGUI);
-				for (int i = 0; i < number; i++) {
-					startExecutor.execute(new Runnable() {
-						public void run() {
-							if (!shuttedDown) {
+				try {
+					final Class<?> agentClass = MadkitClassLoader.getLoader().loadClass(className);
+					for (int i = 0; i < number; i++) {
+						lifeExecutor.execute(new Runnable() {
+							public void run() {
+								if (!shuttedDown) {
 									try {
-										launchAgent((AbstractAgent) MadkitClassLoader.getLoader().loadClass(className).newInstance(), 1, withGUI);
-									} catch (InstantiationException e) {
-										cannotLaunchAgent(className, e, null);
-//										getLogger().severeLog(ErrorMessages.CANT_LAUNCH.toString() + className+" "+e.getClass().getName()+" !!!\n" , null);//waiting java 7
-									} catch (IllegalAccessException e) {
-										cannotLaunchAgent(className, e, null);
-									} catch (ClassNotFoundException e) {
-										cannotLaunchAgent(className, e, null);
+										launchAgent((AbstractAgent) agentClass.newInstance(), 0, withGUI);
 									} catch (Exception e) {
 										cannotLaunchAgent(className, e, null);
 									}
+								}
+							}
+						});
+					}
+				} catch (ClassNotFoundException e1) {
+					e1.printStackTrace();
+				}
+			}
+//			startExecutor.shutdown();
+		}
+	}
+	
+	private void launchXMLConfigurations() {
+		if (logger != null)
+			logger.fine("** LAUNCHING XML CONFIGS **");
+		final String filesName = getMadkitProperty(Option.configFile.name());
+		if (!filesName.equals("null")) {
+			for (final String fileName : filesName.split(";")) {
+				if (fileName.endsWith(".xml")) {
+					lifeExecutor.execute(new Runnable() {
+						@Override
+						public void run() {
+							try {
+								if (logger != null)
+									logger.finer("Launching xml " + fileName);
+								launchXmlAgents(fileName);
+							} catch (SAXException | IOException
+									| ParserConfigurationException e) {
+								getLogger().severeLog("xml config", e);
+								e.printStackTrace();
 							}
 						}
 					});
 				}
 			}
-			startExecutor.shutdown();
 		}
 	}
 
@@ -602,11 +656,7 @@ class MadkitKernel extends Agent {
 	// //////////////////////// Organization interface
 	// ////////////////////////////////////////////////////////////
 
-	ReturnCode createGroup(final AbstractAgent creator, final String community,
-			final String group, final Gatekeeper gatekeeper,
-			final boolean isDistributed) {
-		if (bucketMode)
-			return ReturnCode.IGNORED;
+	ReturnCode createGroup(final AbstractAgent creator, final String community, final String group, final Gatekeeper gatekeeper, final boolean isDistributed) {
 		if (group == null)
 			throw new NullPointerException(ErrorMessages.G_NULL.toString());
 		Organization organization = new Organization(community, this);
@@ -630,7 +680,7 @@ class MadkitKernel extends Agent {
 				}
 				if (hooks != null) {
 					informHooks(AgentActionEvent.CREATE_GROUP, 
-									getRole(community, group, madkit.agr.Organization.GROUP_MANAGER_ROLE).getAgentAddressOf(creator));
+							getRole(community, group, madkit.agr.Organization.GROUP_MANAGER_ROLE).getAgentAddressOf(creator));
 				}
 			} catch (CGRNotAvailable e) {
 				getLogger().severeLog("Please bug report", e);
@@ -639,7 +689,7 @@ class MadkitKernel extends Agent {
 		return SUCCESS;
 	}
 
-	void informHooks(AgentActionEvent action, Object parameter) {//This looks dirty but avoids creating a message for nothing
+		void informHooks(AgentActionEvent action, Object parameter) {//This looks dirty but avoids creating a message for nothing
 		if (hooks != null) {
 			final Set<AbstractAgent> l = hooks.get(action);
 			if (l != null) {
@@ -671,22 +721,14 @@ class MadkitKernel extends Agent {
 
 	/**
 	 * @param requester
-	 * @param roleName
-	 * @param groupName
 	 * @param community
 	 * @param memberCard
+	 * @param roleName
+	 * @param groupName
 	 * @throws RequestRoleException
 	 */
 
 	ReturnCode requestRole(AbstractAgent requester, String community, String group, String role, Object memberCard) {
-		if (bucketMode)
-			return ReturnCode.IGNORED;
-		// final Organization org = organizations.get(community);
-		// if(org == null)
-		// return NOT_COMMUNITY;
-		// final ReturnCode result = org.requestRole(requester, group, role,
-		// memberCard);
-
 		final Group g;
 		try {
 			g = getGroup(community, group);
@@ -962,13 +1004,18 @@ class MadkitKernel extends Agent {
 	/**
 	 * @param requester
 	 * @param bucket
+	 * @param cpuCoreNb the number of parallel tasks to use. 
+	 * Beware that if cpuCoreNb is greater than 1, the agents' {@link #activate()} methods
+	 * will be called simultaneously so that one has to be careful if shared resources are
+	 * accessed 
 	 * @param cgrLocations
 	 */
-	void launchAgentBucketWithRoles(final AbstractAgent requester, List<AbstractAgent> bucket, String... cgrLocations) {
+	void launchAgentBucketWithRoles(final AbstractAgent requester, List<AbstractAgent> bucket, int cpuCoreNb, String... cgrLocations) {
 		AgentsJob aj = new AgentsJob() {
+
 			@Override
 			void proceedAgent(AbstractAgent a) {
-				// no need to test : I created these instances
+				// no need to test : I created these instances :this is not true f //TODO
 				a.state.set(ACTIVATED);
 				a.setKernel(MadkitKernel.this);
 				a.getAlive().set(true);
@@ -977,9 +1024,10 @@ class MadkitKernel extends Agent {
 		};
 
 		// initialization
-		doMulticore(serviceExecutor, aj.getJobs(bucket));
+		doMulticore(serviceExecutor, aj.getJobs(bucket, cpuCoreNb));
 
 		aj = new AgentsJob() {
+
 			@Override
 			void proceedAgent(final AbstractAgent a) {
 				try {
@@ -990,47 +1038,45 @@ class MadkitKernel extends Agent {
 			}
 		};
 		if (cgrLocations != null && cgrLocations.length != 0) {
-			for (final String cgrLocation : cgrLocations) {
-				final String[] cgr = cgrLocation.split(";");
-				if (cgr.length != 3){
-					throw new IllegalArgumentException(cgrLocation);
-				}
-				createGroup(requester, cgr[0], cgr[1], null, false);
-				Group g = null;
-				try {
-					g = getGroup(cgr[0], cgr[1]);
-				} catch (CGRNotAvailable e) {
-					//not possible
-					throw new AssertionError(e);
-				}
-				boolean roleCreated = false;
-				Role r = g.get(cgr[2]);
-				if (r == null) {
-					r = g.createRole(cgr[2]);
-					g.put(r.getRoleName(), r);
-					roleCreated = true;
-				}
-				r.addMembers(bucket, roleCreated);
-				// test vs assignement ? -> No: cannot touch the organizational
-				// structure !!
-			}
 			synchronized (this) {
+				for (final String cgrLocation : cgrLocations) {
+					final String[] cgr = cgrLocation.split(",");
+					if (cgr.length != 3) {
+						throw new IllegalArgumentException("\"" + cgrLocation + "\" is incorrect. As of MDK 5.0.2, correct format is \"C,G,R\" ");
+					}
+					createGroup(requester, cgr[0], cgr[1], null, false);
+					Group g = null;
+					try {
+						g = getGroup(cgr[0], cgr[1]);
+					} catch (CGRNotAvailable e) {
+						// not possible
+						throw new AssertionError(e);
+					}
+					boolean roleCreated = false;
+					Role r = g.get(cgr[2]);
+					if (r == null) {
+						r = g.createRole(cgr[2]);
+						g.put(r.getRoleName(), r);
+						roleCreated = true;
+					}
+					r.addMembers(bucket, roleCreated);
+					// test vs assignement ? -> No: cannot touch the organizational
+					// structure !!
+				}
 				bucketMode = true;
-				doMulticore(serviceExecutor, aj.getJobs(bucket));
+				doMulticore(serviceExecutor, aj.getJobs(bucket, cpuCoreNb));
 				bucketMode = false;
 			}
-		} else {
-			doMulticore(serviceExecutor, aj.getJobs(bucket));
+		}
+		else {
+			doMulticore(serviceExecutor, aj.getJobs(bucket, cpuCoreNb));
 		}
 	}
 
-	final List<AbstractAgent> createBucket(final String agentClass, int bucketSize) throws InstantiationException,
+	final List<AbstractAgent> createBucket(final String agentClass, int bucketSize, int cpuCoreNb) throws InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
-		if (shuttedDown)
-			return null;
-		final Class<? extends AbstractAgent> constructor = (Class<? extends AbstractAgent>) MadkitClassLoader.getLoader().loadClass(
-				agentClass);
-		final int cpuCoreNb = Runtime.getRuntime().availableProcessors();
+		final Class<? extends AbstractAgent> constructor = (Class<? extends AbstractAgent>) MadkitClassLoader.getLoader().loadClass(agentClass);
+		cpuCoreNb = cpuCoreNb > 0 ? cpuCoreNb : 1;
 		final List<AbstractAgent> result = new ArrayList<>(bucketSize);
 		final int nbOfAgentsPerTask = bucketSize / (cpuCoreNb);
 		final CompletionService<List<AbstractAgent>> ecs = new ExecutorCompletionService<>(serviceExecutor);
@@ -1045,7 +1091,7 @@ class MadkitKernel extends Agent {
 				}
 			});
 		}
-		// adding the missing one when the division results as a real number
+		// adding the missing ones when the division results as a real number
 		for (int i = bucketSize - nbOfAgentsPerTask * cpuCoreNb; i > 0; i--) {
 			result.add(constructor.newInstance());
 		}
@@ -1455,7 +1501,7 @@ class MadkitKernel extends Agent {
 		if (operatingOverlookers.add(o)) {
 			try {
 				getRole(o.getCommunity(), o.getGroup(), o.getRole()).addOverlooker(o);
-			} catch (CGRNotAvailable e) {
+			} catch (CGRNotAvailable e) {//the role does not exist yet
 			}
 			return true;
 		}
@@ -1519,7 +1565,7 @@ class MadkitKernel extends Agent {
 	}
 
 	@Override
-	public Properties getMadkitConfig() {
+	public MadkitProperties getMadkitConfig() {
 		return platform.getConfigOption();
 	}
 
@@ -1797,8 +1843,9 @@ class MadkitKernel extends Agent {
 		}
 		do {
 			for (final Agent a : l) {
-				killAgent(this, a, 0);
+				killAgent(this, a, 10);
 			}
+			pause(10);
 		} while (untilEmpty && !threadedAgents.isEmpty());
 	}
 
@@ -1871,6 +1918,7 @@ class MadkitKernel extends Agent {
 		return hooks != null;
 	}
 
+
 }
 
 final class CGRNotAvailable extends Exception {
@@ -1913,8 +1961,16 @@ abstract class AgentsJob implements Callable<Void>, Cloneable {
 		return null;
 	}
 
-	final ArrayList<AgentsJob> getJobs(List<AbstractAgent> l) {
-		final int cpuCoreNb = Runtime.getRuntime().availableProcessors();
+	/**
+	 * 
+	 * Creates n tasks
+	 * 
+	 * @param l
+	 * @param cpuCoreNb
+	 * @return
+	 */
+	final ArrayList<AgentsJob> getJobs(List<AbstractAgent> l, int cpuCoreNb) {
+//		final int cpuCoreNb = Runtime.getRuntime().availableProcessors();
 		final ArrayList<AgentsJob> workers = new ArrayList<>(cpuCoreNb);
 		int bucketSize = l.size();
 		final int nbOfAgentsPerTask = bucketSize / cpuCoreNb;

@@ -19,9 +19,9 @@
 package madkit.kernel;
 
 import java.util.List;
-import java.util.Properties;
 
 import madkit.i18n.ErrorMessages;
+import madkit.util.MadkitProperties;
 
 /**
  * @author Fabien Michel
@@ -63,7 +63,6 @@ class FakeKernel extends MadkitKernel{
 	final ReturnCode requestRole(AbstractAgent agent, String community, String group, String role, Object memberCard) {
 		throw buildKernelException(agent);
 	}
-
 
 	@Override
 	final ReturnCode leaveGroup(final AbstractAgent agent, final String community, final String group) {
@@ -133,8 +132,7 @@ class FakeKernel extends MadkitKernel{
 	}
 
 	@Override
-	void launchAgentBucketWithRoles(AbstractAgent requester, List<AbstractAgent> bucket,
-			String... CGRLocations) {
+	void launchAgentBucketWithRoles(AbstractAgent requester, List<AbstractAgent> bucket, int cpuCoreNb, String... CGRLocations) {
 		throw buildKernelException(requester);
 	}
 
@@ -173,7 +171,7 @@ class FakeKernel extends MadkitKernel{
 	}
 
 	@Override
-	final public Properties getMadkitConfig() {
+	final public MadkitProperties getMadkitConfig() {
 		return Madkit.defaultConfig;
 	}
 

@@ -19,6 +19,7 @@
 package madkit.performance;
 
 import madkit.kernel.AbstractAgent;
+import madkit.kernel.JunitMadkit;
 
 /**
  * @author Fabien Michel
@@ -33,6 +34,6 @@ public class MiniAgent extends AbstractAgent {
 	private static final long serialVersionUID = -1905625922120769289L;
 
 	protected void activate() {
-		requestRole("comm", "group", "role");
+			requestRole(JunitMadkit.COMMUNITY,JunitMadkit.GROUP,JunitMadkit.ROLE);
 	}
 }

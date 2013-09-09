@@ -38,7 +38,7 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-/** A message that carries a XML document.
+/** A message that carries an XML document.
 
     You can set the document either through a string or a pre-parsed
     DOM tree. This class is optimized in the sense that it will change
@@ -63,7 +63,7 @@ public class XMLMessage extends Message
 	/** The xml content as a String (null if the content is defined as a Document) */
 	protected String   strcontent = null;
 
-	/** Setup a XMLMessage with the xml document setup as a string. The string is not validated at construction
+	/** Setup an XMLMessage with the xml document setup as a string. The string is not validated at construction
 	 * @param s A valid (i.e. parseable) text XML document
 	 */
 	public XMLMessage(String s)
@@ -72,7 +72,7 @@ public class XMLMessage extends Message
 		doccontent=null;
 	}
 
-	/** Setup a XMLMessage with the xml document setup as a Document
+	/** Setup an XMLMessage with the xml document setup as a Document
 	 * @param d A well-formed DOM object
 	 */
 	public XMLMessage(Document d)

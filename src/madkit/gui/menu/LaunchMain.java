@@ -19,14 +19,11 @@
 package madkit.gui.menu;
 
 import java.awt.event.KeyEvent;
-import java.util.HashSet;
-import java.util.Set;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
 import madkit.action.GlobalAction;
-import madkit.kernel.AbstractAgent;
 import madkit.kernel.MadkitClassLoader;
 
 /**
@@ -39,6 +36,11 @@ import madkit.kernel.MadkitClassLoader;
  * 
  */
 public class LaunchMain extends ClassPathSensitiveMenu {
+
+	/**
+	 * 
+	 */
+	private static final long	serialVersionUID	= 752058124107737762L;
 
 	/**
 	 * Builds a new menu.

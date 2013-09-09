@@ -18,7 +18,7 @@
  */
 package madkit.kernel;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -28,6 +28,7 @@ import java.net.MalformedURLException;
 import java.util.Arrays;
 
 import madkit.kernel.AbstractAgent.ReturnCode;
+import madkit.kernel.Madkit.LevelOption;
 
 import org.junit.Test;
 
@@ -39,6 +40,21 @@ import org.junit.Test;
  */
 @SuppressWarnings("serial")
 public class MadkitClassLoaderTest extends JunitMadkit {
+
+	@Test
+	public void scanFolderForMDKConfigFileAgentClassesTest(){
+		addMadkitArgs(LevelOption.kernelLogLevel.toString(),"ALL");
+			launchTest(new AbstractAgent() {
+				@Override
+				protected void activate() {
+						assertFalse(MadkitClassLoader.getAllAgentClasses().isEmpty());
+						System.err.println(MadkitClassLoader.getMDKFiles());
+						//ugly : inside and outside Eclipse
+						assertTrue(1 == MadkitClassLoader.getMDKFiles().size() || 5 == MadkitClassLoader.getMDKFiles().size());
+						System.err.println(MadkitClassLoader.getXMLConfigurations());
+						assertTrue(3 == MadkitClassLoader.getXMLConfigurations().size() || 15 == MadkitClassLoader.getXMLConfigurations().size());
+			}});
+	}
 
 	@Test
 	public void testLoadJarsFromPath() {
@@ -105,17 +121,6 @@ public class MadkitClassLoaderTest extends JunitMadkit {
 				}
 			}
 		}, ReturnCode.AGENT_CRASH);
-	}
-	
-	@Test
-	public void scanFolderForMDKConfigFileAgentClassesTest(){
-			launchTest(new AbstractAgent() {
-				@Override
-				protected void activate() {
-						assertFalse(MadkitClassLoader.getAllAgentClasses().isEmpty());
-						System.err.println(MadkitClassLoader.getMDKFiles());
-						assertEquals(5,MadkitClassLoader.getMDKFiles().size());
-			}});
 	}
 
 }

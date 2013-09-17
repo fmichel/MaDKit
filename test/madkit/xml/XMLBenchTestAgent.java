@@ -35,7 +35,7 @@ public class XMLBenchTestAgent extends AbstractAgent {
 	
 	@Override
 	protected void activate() {
-		createGroupIfAbsent(COMMUNITY, GROUP);
-		requestRole(COMMUNITY,GROUP,ROLE);
+		createGroup(COMMUNITY, GROUP,false,null);
+		requestRole(COMMUNITY,GROUP,ROLE,null);
 	}
 }

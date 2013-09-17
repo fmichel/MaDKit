@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -78,7 +78,7 @@ public class KillAbstractAgentTest extends JunitMadkit {
 	}
 
 	@Test
-	public void returnAlreadyKilled() {
+	public void returnAlreadyKilledAfterCrash() {
 		addMadkitArgs(LevelOption.agentLogLevel.toString(), "FINEST");
 		launchTest(new AbstractAgent() {
 			protected void activate() {
@@ -89,6 +89,23 @@ public class KillAbstractAgentTest extends JunitMadkit {
 				assertEquals(AGENT_CRASH, launchAgent(f));
 				pause(100);
 				assertEquals(ALREADY_KILLED, killAgent(f));
+			}
+		});
+	}
+
+	@Test
+	public void returnAlreadyKilled() {
+		addMadkitArgs(LevelOption.agentLogLevel.toString(), "FINEST");
+		launchTest(new AbstractAgent() {
+			protected void activate() {
+				setLogLevel(Level.ALL);
+				AbstractAgent f = new AbstractAgent();
+				if (logger != null)
+					logger.info("activating");
+				assertEquals(SUCCESS, launchAgent(f));
+				assertEquals(SUCCESS, killAgent(f));
+				assertEquals(ALREADY_KILLED, killAgent(f));
+				assertAgentIsTerminated(f);
 			}
 		});
 	}
@@ -399,17 +416,14 @@ class SelfKillAA extends DoItDuringLifeCycleAbstractAgent {
 
 	public SelfKillAA() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	public SelfKillAA(boolean inActivate, boolean inEnd) {
 		super(inActivate, inEnd);
-		// TODO Auto-generated constructor stub
 	}
 
 	public SelfKillAA(boolean inActivate) {
 		super(inActivate);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override

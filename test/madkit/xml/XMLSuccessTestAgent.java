@@ -66,7 +66,7 @@ public class XMLSuccessTestAgent extends AbstractAgent {
 		assertEquals(5, i.intValue());
 		assertEquals("blabla", s);
 		assertTrue(hasGUI());
-		createGroup(COMMUNITY, GROUP);
-		requestRole(COMMUNITY, GROUP, ROLE);
+		bucketModeCreateGroup(COMMUNITY, GROUP,false,null);
+		bucketModeRequestRole(COMMUNITY, GROUP, ROLE, null);
 	}
 }

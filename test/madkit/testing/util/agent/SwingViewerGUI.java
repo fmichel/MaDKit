@@ -16,7 +16,7 @@ public class SwingViewerGUI extends SwingViewer {
 
 	@Override
 	protected void render(Graphics g) {
-		// TODO Auto-generated method stub
+		
 		
 	}
 

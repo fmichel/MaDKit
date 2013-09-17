@@ -21,7 +21,9 @@ package madkit.kernel;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.junit.BeforeClass;
@@ -73,9 +75,30 @@ public class KernelAddressTest {
 		}
 	}
 
+	public void createKASimultaneously() throws InterruptedException {
+		List<Thread> ts = new ArrayList<>();
+		for (int i = 0; i < 5; i++) {
+			Thread t = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					for (int j = 0; j < 1000; j++) {
+						synchronized (kas) {
+							kas.add(new KernelAddress());
+						}
+					}
+				}
+			});
+			ts.add(t);
+			t.start();
+		}
+		for (Thread thread : ts) {
+			thread.join();
+		}
+	}
+
 	@Test
-	public void testUniqueness() {
-		for (int i = 0; i < 10000; i++) {
+	public void testUniqueness() throws InterruptedException {
+		for (int i = 0; i < 1000; i++) {
 			assertFalse(new KernelAddress().hashCode() == new KernelAddress().hashCode());
 		}
 		for (KernelAddress ka : kas) {
@@ -85,6 +108,26 @@ public class KernelAddressTest {
 				}
 			}
 		}
+		createKASimultaneously();
+		ArrayList<KernelAddress> all = new ArrayList<>(kas);
+		for (Iterator<KernelAddress> iterator = all.iterator(); iterator.hasNext();) {
+			ArrayList<KernelAddress> l = new ArrayList<>(all);
+			KernelAddress ka = iterator.next();
+			l.remove(ka);
+			for (KernelAddress other : l) {
+				if (other.hashCode() == ka.hashCode()) {
+					fail("two addresses with identical hashCode");
+				}
+			}
+			iterator.remove();
+		}
+	}
+	
+	@Test
+	public void testUniqueness2() throws IOException, InterruptedException {
+		Process p = Runtime.getRuntime().exec("java -cp bin:build/test/classes madkit.kernel.Madkit --desktop --launchAgents madkit.kernel.AbstractAgent");
+		Thread.sleep(10000);
+		p.destroy();
 	}
 
 	// @Test
@@ -120,11 +163,11 @@ public class KernelAddressTest {
 		}
 	}
 
-	@Test
-	public void testToString() {
-		for (KernelAddress ka : simultaneous) {
-			System.err.println(ka);
-		}
-	}
+//	@Test
+//	public void testToString() {
+//		for (KernelAddress ka : simultaneous) {
+//			System.err.println(ka);
+//		}
+//	}
 
 }

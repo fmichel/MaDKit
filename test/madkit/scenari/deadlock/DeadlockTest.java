@@ -36,9 +36,11 @@ public class DeadlockTest extends JunitMadkit {
 	@Test
 	public void multipleWaits() {
 		launchTest(new AbstractAgent() {
+
 			@Override
 			protected void activate() {
 				Agent a = new Agent() {
+
 					protected void live() {
 						waitNextMessage();
 					}

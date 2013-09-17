@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -48,9 +48,7 @@ public class PingPongTest extends JunitMadkit {
 				// setLogLevel(Level.OFF);
 				createGroupIfAbsent(COMMUNITY, GROUP, true, null);
 				requestRole(COMMUNITY, GROUP, ROLE, null);
-				String[] args = Arrays.asList("--network", "--agentLogLevel", "ALL", "--launchAgents", PongAgent.class.getName(), ",true")
-						.toArray(new String[0]);
-				Madkit m = new Madkit(args);
+				Madkit m = new Madkit("--network", "--agentLogLevel", "ALL", "--launchAgents", PongAgent.class.getName(), ",true");
 				assertNotNull(waitNextMessage(10000));
 				m.doAction(KernelAction.EXIT);
 				KernelAction.STOP_NETWORK.getActionFor(this).actionPerformed(null);

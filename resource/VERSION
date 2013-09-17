@@ -16,6 +16,22 @@ interact using messages. It also contains generic MAS simulation authoring tools
 
 
 ----------------------------------------------------------------------------------
+------------------------------- MaDKit 5.0.3 (beta-3) ----------------------------
+----------------------------------------------------------------------------------
+
+1. Improvements and changes:
+	- The uniqueness of the kernel address is now guaranteed in all cases
+
+2. API changes:
+	- WARNING : the semantic of madkit.kernel.AbstractAgent.bucketModeCreateGroup(String, String, boolean, Gatekeeper)
+	 and madkit.kernel.AbstractAgent.bucketModeRequestRole(String, String, String, Object) has changed. 
+	 see Javadoc for more details
+	+ madkit.kernel.AbstractAgent.hasRole(String, String, String)
+	+ madkit.kernel.AbstractAgent.getMyGroups(String)
+	+ madkit.kernel.AbstractAgent.getMadkitProperty(E)
+	+ madkit.kernel.AbstractAgent.isMadkitPropertyTrue(E)
+
+----------------------------------------------------------------------------------
 ------------------------------- MaDKit 5.0.2 (beta-2) ----------------------------
 ----------------------------------------------------------------------------------
 

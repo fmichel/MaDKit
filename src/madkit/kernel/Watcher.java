@@ -91,6 +91,14 @@ public class Watcher extends AbstractAgent
 //		return  (Probe<AbstractAgent>[]) probes.toArray();
 	}
 	
+	/**
+	 * Returns the probes which have been successfully added
+	 * @return all the added probes
+	 */
+	public Set<Probe<? extends AbstractAgent>> getProbes(){
+		return probes;
+	}
+	
 	@Override
 	public String toString() {
 		return getName() + " "+allProbes();

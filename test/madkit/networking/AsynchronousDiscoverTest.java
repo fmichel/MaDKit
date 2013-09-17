@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -45,6 +45,7 @@ public class AsynchronousDiscoverTest extends JunitMadkit {
 
 	@Test
 	public void multipleAsynchroneConnectionTest() {
+		cleanHelperMDKs();
 		addMadkitArgs(BooleanOption.network.toString());
 //		 addMadkitArgs(LevelOption.networkLogLevel.toString(),"FINER");
 		launchTest(new AbstractAgent() {
@@ -57,20 +58,11 @@ public class AsynchronousDiscoverTest extends JunitMadkit {
 				launchThreadedMKNetworkInstance();
 				launchThreadedMKNetworkInstance();
 				pause(100);
-				int i = 0;
-				while (getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT) == null || getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT)
-						.size() != 6) {
-					pause(500);
-					if (i++ == 10)
-						break;
-				}
+				checkConnectedIntancesNb(this, 6);
 				if (logger != null)
 					logger.info("" + getAgentsWithRole(LocalCommunity.NAME, Groups.NETWORK, LocalCommunity.Roles.NET_AGENT));
-				assertEquals(6,
-						getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT)
-								.size());
-				pause(500);
 				KernelAction.STOP_NETWORK.getActionFor(this).actionPerformed(null);
+				checkConnectedIntancesNb(this, 0);
 				pause(500);
 
 				// not connected
@@ -78,18 +70,9 @@ public class AsynchronousDiscoverTest extends JunitMadkit {
 
 				// second round
 				KernelAction.LAUNCH_NETWORK.getActionFor(this).actionPerformed(null);
-				List<AgentAddress> l = getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS,
-						CloudCommunity.Roles.NET_AGENT);
-				while (l == null || l.size() != 6) {
-					pause(500);
-					l = getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT);
-					if (i++ == 100)
-						break;
-				}
-				for (AgentAddress agentAddress : l) {
-					System.err.println(agentAddress);
-				}
-				assertEquals(6, l.size());
+				checkConnectedIntancesNb(this, 6);
+				cleanHelperMDKs();
+				checkConnectedIntancesNb(this, 1);
 			}
 		});
 	}

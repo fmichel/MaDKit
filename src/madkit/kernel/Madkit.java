@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -76,7 +76,7 @@ import madkit.util.MadkitProperties;
  * @author Fabien Michel
  * @author Jacques Ferber
  * @since MaDKit 4.0
- * @version 5.1
+ * @version 5.2
  */
 
 final public class Madkit {
@@ -233,9 +233,6 @@ final public class Madkit {
 			this.args = argsList.toArray(new String[argsList.size()]);
 		}
 
-		if (ActionInfo.javawsIsOn) {
-			Policy.setPolicy(getAllPermissionPolicy());// TODO this is for jws
-		}
 		madkitConfig.putAll(defaultConfig);
 		final Properties fromArgs = buildConfigFromArgs(args);
 		madkitConfig.putAll(fromArgs);
@@ -270,36 +267,36 @@ final public class Madkit {
 
 		startKernel();
 	}
-
-	private Policy getAllPermissionPolicy()// TODO super bourrin, mais fait marcher le jnlp pour l'instant...
-	{
-		Policy policy = new Policy() {
-
-			private PermissionCollection	m_permissionCollection;
-
-			@Override
-			public PermissionCollection getPermissions(CodeSource p_codesource) {
-				return getAllPermissionCollection();
-			}
-
-			@Override
-			public PermissionCollection getPermissions(ProtectionDomain p_domain) {
-				return getAllPermissionCollection();
-			}
-
-			/**
-			 * @return an AllPermissionCollection
-			 */
-			private PermissionCollection getAllPermissionCollection() {
-				if (m_permissionCollection == null) {
-					m_permissionCollection = new AllPermission().newPermissionCollection();
-					m_permissionCollection.add(new AllPermission());
-				}
-				return m_permissionCollection;
-			}
-		};
-		return policy;
-	}
+//
+//	private Policy getAllPermissionPolicy()// TODO super bourrin, mais fait marcher le jnlp pour l'instant...
+//	{
+//		Policy policy = new Policy() {
+//
+//			private PermissionCollection	m_permissionCollection;
+//
+//			@Override
+//			public PermissionCollection getPermissions(CodeSource p_codesource) {
+//				return getAllPermissionCollection();
+//			}
+//
+//			@Override
+//			public PermissionCollection getPermissions(ProtectionDomain p_domain) {
+//				return getAllPermissionCollection();
+//			}
+//
+//			/**
+//			 * @return an AllPermissionCollection
+//			 */
+//			private PermissionCollection getAllPermissionCollection() {
+//				if (m_permissionCollection == null) {
+//					m_permissionCollection = new AllPermission().newPermissionCollection();
+//					m_permissionCollection.add(new AllPermission());
+//				}
+//				return m_permissionCollection;
+//			}
+//		};
+//		return policy;
+//	}
 
 	/**
 	 * 
@@ -350,7 +347,7 @@ final public class Madkit {
 			for (String fileName : filesName.split(";")) {
 				logger.fine("** Loading config file " + fileName + " **");
 				try {
-					madkitConfig.loadPropertiesFromFile(fileName);
+					madkitConfig.loadPropertiesFromFile(fileName.trim());
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -367,6 +364,11 @@ final public class Madkit {
 		// starting the kernel agent and waiting the end of its activation
 		logger.fine("** LAUNCHING KERNEL AGENT **");
 		myKernel.launchAgent(myKernel, myKernel, Integer.MAX_VALUE, false);
+	}
+	
+	@Override
+	public String toString() {
+		return myKernel.toString()+" @ "+myKernel.getKernelAddress();
 	}
 
 	/**
@@ -461,7 +463,7 @@ final public class Madkit {
 	 * </pre>
 	 * 
 	 * If no boolean value is specified,
-	 * the option is considered as set to true.
+	 * the option is considered as being set to true.
 	 * 
 	 * <pre>
 	 * EXAMPLES
@@ -520,6 +522,13 @@ final public class Madkit {
 		 */
 		loadLocalDemos;
 
+		/**
+		 * Tells if this option is activated for this session.
+		 * 
+		 * @param session
+		 * @return <code>true</code> if this boolean option
+		 * is set to <code>true</code> for this config
+		 */
 		public boolean isActivated(Properties session) {
 			return Boolean.parseBoolean(session.getProperty(this.name()));
 		}

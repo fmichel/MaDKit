@@ -22,7 +22,7 @@ import static madkit.kernel.AbstractAgent.ReturnCode.AGENT_CRASH;
 import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_LAUNCHED;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadkit;
 import madkit.testing.util.agent.NoPublicConstructorAA;
@@ -101,7 +101,16 @@ public class LaunchAgentClassTest extends JunitMadkit {
 	public void NoPublicConstructor() {
 		launchTest(new AbstractAgent() {
 			protected void activate() {
-				assertNull(launchAgent(NoPublicConstructorAA.class.getName()));
+				assertNotNull(launchAgent(NoPublicConstructorAA.class.getName()));
+			}
+		});
+	}
+
+	@Test
+	public void NotPublic() {
+		launchTest(new AbstractAgent() {
+			protected void activate() {
+				assertNotNull(launchAgent(NotPublicAgent.class.getName()));
 			}
 		});
 	}
@@ -115,4 +124,8 @@ public class LaunchAgentClassTest extends JunitMadkit {
 		});
 	}
 
+}
+
+class NotPublicAgent extends AbstractAgent{
+	
 }

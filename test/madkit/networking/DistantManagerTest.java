@@ -33,6 +33,9 @@ import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
+import madkit.kernel.Madkit.Option;
+import madkit.testing.util.agent.ForEverAgent;
+import madkit.testing.util.agent.LeaveGroupInEndNormalAgent;
 
 import org.junit.After;
 import org.junit.Test;
@@ -44,34 +47,15 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class DiscoverTest extends JunitMadkit {
+public class DistantManagerTest extends JunitMadkit {
 	
-	protected static final int	OTHERS	= 6;
+	protected static final int	OTHERS	= 10;
 
 	@After
 	public void clean(){
 		cleanHelperMDKs();
 	}
 
-	@Test
-	public void multipleConnectionTest() {
-		cleanHelperMDKs();
-		addMadkitArgs(BooleanOption.network.toString(),LevelOption.networkLogLevel.toString(),"FINE"
-				,LevelOption.madkitLogLevel.toString(),Level.ALL.toString()
-				);
-		launchTest(new AbstractAgent() {
-			@Override
-			protected void activate() {
-				KernelAction.LAUNCH_NETWORK.getActionFor(this).actionPerformed(null);
-				for (int i = 0; i < OTHERS; i++) {
-					launchMKNetworkInstance(Level.OFF);
-				}
-				pause(300);
-				testConnections(this);
-			}
-		});
-	}
-	
 	@Test
 	public void multipleExternalConnectionTest() {
 		cleanHelperMDKs();
@@ -82,45 +66,19 @@ public class DiscoverTest extends JunitMadkit {
 			@Override
 			protected void activate() {
 				KernelAction.LAUNCH_NETWORK.getActionFor(this).actionPerformed(null);
-				for (int i = 0; i < OTHERS; i++) {
-					launchExternalNetworkInstance();
-				}
-				testConnections(this);
+				Madkit m = new Madkit(
+						BooleanOption.network.toString(),
+						LevelOption.agentLogLevel.toString(),"ALL",
+						Option.launchAgents.toString(), LeaveGroupInEndNormalAgent.class.getName()+";"+ForEverAgent.class.getName());
+//						BooleanOption.createLogFiles.toString()};
+				helperInstances.add(m);
+				pause(2000);
+				System.err.println(getOrganizationSnapShot(false));
+				List<AgentAddress> l = getAgentsWithRole(COMMUNITY,GROUP,ROLE);
+				System.err.println("others ="+l.size());
+				assertEquals(1, l.size());
 			}
 		});
-	}
-
-	/**
-	 * @param agent 
-	 * 
-	 */
-	private void testConnections(AbstractAgent agent) {
-		agent.setLogLevel(Level.INFO);
-		checkConnectedIntancesNb(agent, OTHERS+1);
-//		List<AgentAddress> l = agent.getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS,
-//				CloudCommunity.Roles.NET_AGENT);
-//		for (AgentAddress agentAddress : l) {
-//			System.err.println(agentAddress);
-//		}
-//		assertEquals(OTHERS+1, l.size());
-		KernelAction.STOP_NETWORK.getActionFor(agent).actionPerformed(null);
-		startTimer();
-		do {
-			pause(200);
-		}
-		while (stopTimer("") < 10000 && agent.isCommunity(CloudCommunity.NAME));
-
-//		System.err.println(agent.getOrganizationSnapShot(true));
-		// not connected
-		assertFalse(agent.isCommunity(CloudCommunity.NAME));
-
-		// second round
-		KernelAction.LAUNCH_NETWORK.getActionFor(agent).actionPerformed(null);
-		pause(300);
-		checkConnectedIntancesNb(agent, OTHERS+1);
-		cleanHelperMDKs();
-		checkConnectedIntancesNb(agent, 1);
-		KernelAction.EXIT.getActionFor(agent).actionPerformed(null);
 	}
 
 }

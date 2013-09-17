@@ -67,7 +67,6 @@ public class LeaveGroupTest extends JunitMadkit {
 					assertEquals(NOT_COMMUNITY, leaveGroup(null, GROUP));
 					noExceptionFailure();
 				} catch (NullPointerException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				assertEquals(NOT_COMMUNITY, leaveGroup(aa(), aa()));

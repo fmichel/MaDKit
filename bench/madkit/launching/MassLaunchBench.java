@@ -18,12 +18,14 @@
  */
 package madkit.launching;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit.LevelOption;
+import madkit.kernel.MadkitClassLoader;
 import madkit.performance.MiniAgent;
 import madkit.testing.util.agent.NormalAA;
 
@@ -42,29 +44,31 @@ public class MassLaunchBench extends JunitMadkit {
 	public void massAALaunchWithBucket() {// TODO more cases
 		launchTest(new AbstractAgent() {
 			protected void activate() {
+				setLogLevel(Level.OFF);
 				createGroup("test", "group", false, null);
 				System.err.println("begin");
 				startTimer();
-				// launchAgentBucket("madkit.agentLifeCycle.NormalAbstractLife",
-				// 3000100);
-				launchAgentBucket("madkit.kernel.AbstractAgent", 1000000);
-				stopTimer("bucket launch time = ");
-				System.err.println("done\n\n");
-				// JUnitBooter.stopTimer("old launch time = "); // 6000000 min = 7s
-				// startTimer();
-				// ArrayList<AbstractAgent> agents = new
-				// ArrayList<AbstractAgent>(6000000);
-				// for (int i = 6000000-1; i >=0 ; i--) {
-				// if(i%1000000==0)
-				// System.err.println("launched "+i);
-				// agents.add(new AbstractAgent());
-				// }
-				// ArrayList<AbstractAgent> agents = new
-				// ArrayList<AbstractAgent>(6000000);
-				// for (int i = 6000000-1; i >=0 ; i--) {
-				// agents.add(new AbstractAgent());
-				// }
-				// stopTimer("old launch time = ");
+				for (int i = 0; i < 10; i++) {
+					// launchAgentBucket("madkit.agentLifeCycle.NormalAbstractLife",
+					// 3000100);
+					launchAgentBucket("madkit.kernel.AbstractAgent", 10000000, 8);
+					stopTimer("bucket launch time = ");
+					// JUnitBooter.stopTimer("old launch time = "); // 6000000 min = 7s
+					// startTimer();
+					// ArrayList<AbstractAgent> agents = new
+					// ArrayList<AbstractAgent>(6000000);
+					// for (int i = 6000000-1; i >=0 ; i--) {
+					// if(i%1000000==0)
+					// System.err.println("launched "+i);
+					// agents.add(new AbstractAgent());
+					// }
+					// ArrayList<AbstractAgent> agents = new
+					// ArrayList<AbstractAgent>(6000000);
+					// for (int i = 6000000-1; i >=0 ; i--) {
+					// agents.add(new AbstractAgent());
+					// }
+					// stopTimer("old launch time = ");
+				}
 			}
 		});
 	}
@@ -117,6 +121,38 @@ public class MassLaunchBench extends JunitMadkit {
 			}
 		});
 	}
+	
+	@Test 
+	public void massInstantiation() throws ClassNotFoundException, InstantiationException, IllegalAccessException{
+		final Class<? extends AbstractAgent> constructor = (Class<? extends AbstractAgent>) MadkitClassLoader.getLoader().loadClass(AbstractAgent.class.getName());
+		int nbOfAgentsPerTask = 1_000_000;
+		long sum=0;
+		long min=Long.MAX_VALUE;
+		long max=Long.MIN_VALUE;
+		int nbIteration = 1500;
+		for (int i = 0; i < nbIteration ; i++) {
+			startTimer();
+			final List<AbstractAgent> list = new ArrayList<>(nbOfAgentsPerTask);
+			for (int j = nbOfAgentsPerTask; j > 0; j--) {
+				list.add(constructor.newInstance());
+			}
+	      if( i > 1 ) {
+	         long delta = stopTimer("done ");
+	         sum += delta;
+	         min = Math.min(  min,  delta );
+	         max = Math.max(  max,  delta );
+	      }
+		}
+      long average = sum / (nbIteration-2);// the first two are ignored
+      System.out.println( "Min    : " + min     + " ms" );
+      System.out.println( "Average: " + average + " ms" );
+      System.out.println( "Max    : " + max     + " ms" );
+	}
+// as of beltegeuse -Xmx huge
+//	Min    : 82 ms
+//	Average: 101 ms
+//	Max    : 1329 ms
+
 
 	@Test
 	public void massNormalLifeLaunch() {// TODO more cases

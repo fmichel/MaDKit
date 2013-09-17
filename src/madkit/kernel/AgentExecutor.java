@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -25,6 +25,7 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.AbstractAgent.State;
 
 /**
@@ -37,7 +38,7 @@ final class AgentExecutor extends ThreadPoolExecutor {
 
 	//	private boolean started = false;
 	final private Agent myAgent;
-	final private Future<Boolean> activate;
+	final private Future<ReturnCode> activate;
 	final private Future<?> live;
 	final private Future<?> end;
 
@@ -51,18 +52,18 @@ final class AgentExecutor extends ThreadPoolExecutor {
 	public AgentExecutor(Agent a) {
 		super(1, 1, 0, TimeUnit.NANOSECONDS, new ArrayBlockingQueue<Runnable>(4, false));
 		myAgent = a;
-		activate = new FutureTask<>(new Callable<Boolean>() {
-			public Boolean call() {
+		activate = new FutureTask<>(new Callable<ReturnCode>() {
+			public ReturnCode call() {
 				myAgent.myThread = Thread.currentThread();
-				if (! myAgent.activation()) {//alive is false && not a suicide
+				final ReturnCode r = myAgent.activation();
+				if (r != ReturnCode.SUCCESS) {//alive is false && not a suicide
 					live.cancel(false);
 					if(end.isCancelled())//TO was 0 in the MK
 						synchronized (myAgent.state) {
 							myAgent.state.notify();
 						}
-					return false;
 				}
-				return true;
+				return r;
 			}
 		});
 		live = new FutureTask<>(new Runnable() {
@@ -83,7 +84,7 @@ final class AgentExecutor extends ThreadPoolExecutor {
 			}},null);
 	}
 	
-	Future<Boolean> start(){//TODO transform to futuretask and execute
+	Future<ReturnCode> start(){//TODO transform to futuretask and execute
 		execute((Runnable) activate);
 		execute((Runnable) live);
 		execute((Runnable) end);
@@ -123,7 +124,7 @@ final class AgentExecutor extends ThreadPoolExecutor {
 	/**
 	 * @return the activate
 	 */
-	Future<Boolean> getActivate() {
+	Future<ReturnCode> getActivate() {
 		return activate;
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -18,42 +18,107 @@
  */
 package madkit.kernel;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.nio.ByteBuffer;
+import java.nio.ShortBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.util.Enumeration;
+
 
 
 /**
  * This class represents a unique identifier for MaDKit kernel.
- * Uniqueness is guaranteed even when different kernels run on the same JVM.
+ * Uniqueness is guaranteed even when different kernels run on the same JVM or over the network.
  * 
  * @author Oliver Gutknecht
  * @author Fabien Michel
- * @version 5.2
+ * @version 5.3
  * @since MaDKit 1.0
  *
  */
-public class KernelAddress implements java.io.Serializable{//TODO local kernel address
+public class KernelAddress implements java.io.Serializable{
 
-	private static final long serialVersionUID = 9180630068132973855L;
-
+	/**
+	 * 
+	 */
+	private static final long	serialVersionUID	= 3191926058535092533L;
 	
-	private final int ID = Long.valueOf(System.nanoTime()).hashCode();
-	private final String name = "@MK-"+(Integer.toString(ID,24).substring(0, 3));
+	private final static transient long	LOCAL_MAC;
+	static {
+		long result = 0;
+		try {
+			final Enumeration<NetworkInterface> e = NetworkInterface.getNetworkInterfaces();
+			while (e.hasMoreElements()) {
+				final NetworkInterface ni = e.nextElement();
+				if (! ni.isLoopback()) {
+					for (final byte value : ni.getHardwareAddress()) {
+						result <<= 8;
+						result |= value & 255;
+					}
+					break;
+				}
+			}
+		} catch (SocketException e1) {
+			e1.printStackTrace();
+		}
+		LOCAL_MAC = result;
+	}
+
+	final private long networkID; //for distant identification
+	private transient String	 name;
+
+	final private short localID;
 	
 	/**
 	 * Avoid the default public visibility for denying usage.
 	 */
-	KernelAddress()
-	{
+	KernelAddress(){
+		networkID = LOCAL_MAC;
+		short tmp = 0;
+		synchronized (Madkit.VERSION) {
+			try (final FileChannel channel = new RandomAccessFile(new File(System.getProperty("java.io.tmpdir"), "KA_MDK"), "rw").getChannel();final FileLock lock = channel.lock();) {
+				final ByteBuffer b = ByteBuffer.allocate(2);
+				channel.read(b, 0);
+				tmp = (short) (b.getShort(0) + 1);
+				b.putShort(0, tmp).rewind();
+				channel.write(b, 0);
+			} catch (IOException e) {
+				e.printStackTrace();
+				tmp = (short) System.nanoTime();
+			}
+		}
+		localID = tmp;
 	}
 	
+	/**
+	 * Tells if another kernel address is the same.
+	 * If <code>true</code>, this means that both addresses refer to
+	 * the same kernel, i.e. same MaDKit instance.
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 * 
+	 * @throws ClassCastException On purpose, 
+	 * if the address is compared to an object with another type 
+	 * which is considered as a programming error.
+	 * @throws NullPointerException On purpose, 
+	 * if the address is compared to <code>null</code>
+	 * which is considered as a programming error.
+	 */
 	@Override
 	public boolean equals(Object obj) {
-		//needed for networking mode
-		return this == obj || obj.hashCode() == ID;
+		final KernelAddress other = (KernelAddress) obj;
+		return this == obj || (other.localID == localID && networkID == other.networkID);
 	}
 
 	@Override
 	public int hashCode() {
-		return ID;
+		return localID;
 	}
 	
 	/** 
@@ -62,7 +127,9 @@ public class KernelAddress implements java.io.Serializable{//TODO local kernel a
 	 * @return a string representation for this platform address 
 	 */
 	@Override
-	public String toString(){//TODO bench lazy creation
+	public String toString(){
+		if(name == null)
+			name = "@MK-"+(localID < 0 ? localID + 65536 : localID);
 		return name;
 	}
 

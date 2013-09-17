@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -21,7 +21,7 @@ package madkit.testing.util.agent;
 import java.util.logging.Level;
 
 import madkit.kernel.Madkit.LevelOption;
-
+import static madkit.kernel.JunitMadkit.*;
 /**
  * @author Fabien Michel
  * @since MaDKit 5.0.0.7
@@ -49,6 +49,13 @@ public class FaultyAA extends DoItDuringLifeCycleAbstractAgent {
 
 	public FaultyAA() {
 		super();
+	}
+	
+	@Override
+	public void activate() {
+		createGroup(COMMUNITY, GROUP,true);
+		requestRole(COMMUNITY, GROUP, ROLE);
+		super.activate();
 	}
 
 	@SuppressWarnings("null")

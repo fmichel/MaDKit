@@ -97,7 +97,7 @@ class Role implements Serializable{//TODO test with arraylist
 	//		roleName.equals(other.roleName);
 	//	}
 
-	private synchronized void initializeOverlookers() {//TODO init process
+	private synchronized void initializeOverlookers() {
 		for(final Overlooker<? extends AbstractAgent> o : myGroup.getCommunityObject().getMyKernel().getOperatingOverlookers()){
 			if(o.getRole().equals(roleName) && o.getGroup().equals(groupName) && o.getCommunity().equals(communityName) )
 				addOverlooker(o);
@@ -202,14 +202,10 @@ class Role implements Serializable{//TODO test with arraylist
 			}
 			modified = true;
 		}
-		//not sure ->
-		//needs to be synchronized so that adding occurs prior to getAgentList
-
-		//		addToOverlookers(requester);
+		// needs to be synchronized so that adding occurs prior to getAgentList
+		//	So	addToOverlookers(requester); has to be called in group 
 		
 		return true;
-		//		requester.setRoleObject(this);
-		//		referenceableAgents.add(requester.getAgent());
 	}
 
 	final void addMembers(final List<AbstractAgent> bucket, final boolean roleJustCreated){
@@ -353,7 +349,7 @@ class Role implements Serializable{//TODO test with arraylist
 		}
 	}
 
-	private final void checkEmptyness(){
+	void checkEmptyness(){
 		if( (players == null || players.isEmpty()) && (agentAddresses == null || agentAddresses.isEmpty()) ){
 			cleanAndRemove();
 		}
@@ -462,21 +458,6 @@ class Role implements Serializable{//TODO test with arraylist
 		return tmpReferenceableAgents;
 	}
 
-
-	//	final private void updateOverlookers(final AbstractAgent theReference,final boolean added) {
-	//		for (final Overlooker<? extends AbstractAgent> o : overlookers){
-	//			o.update(theReference,added);// TODO choose solution on updateAgent
-	//		}
-	//	}
-
-	//	/**
-	//	 * @param bucket
-	//	 */
-	//	final private void updateOverlookers(final ArrayList<AbstractAgent> bucket,final boolean added) {
-	//		for (final AbstractAgent abstractAgent : bucket) {
-	//			updateOverlookers(abstractAgent, added);
-	//		}
-	//	}
 
 	final void addToOverlookers(AbstractAgent a){
 		for (final Overlooker<? extends AbstractAgent> o : overlookers){

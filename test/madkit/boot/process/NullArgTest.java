@@ -54,7 +54,6 @@ public class NullArgTest extends JunitMadkit {
 //	try {
 //		Thread.sleep(1000000);
 //	} catch (InterruptedException e) {
-//		// TODO Auto-generated catch block
 //		e.printStackTrace();
 //	}
 //	m.doAction(KernelAction.LAUNCH_NETWORK);

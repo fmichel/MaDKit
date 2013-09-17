@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -21,9 +21,8 @@ package madkit.kernel;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static madkit.kernel.AbstractAgent.State.TERMINATED;
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -31,6 +30,7 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import madkit.action.KernelAction;
+import madkit.agr.CloudCommunity;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.kernel.AbstractAgent.ReturnCode;
@@ -65,6 +65,7 @@ public class JunitMadkit {
 
 	public static String testTitle;
 	protected Madkit madkit;
+	protected List<Madkit> helperInstances = new ArrayList<>();
 
 	protected List<String> mkArgs = new ArrayList<>(Arrays.asList(
 			// "--"+Madkit.warningLogLevel,"INFO",
@@ -73,6 +74,8 @@ public class JunitMadkit {
 													// default
 			Option.logDirectory.toString(), getBinTestDir(), LevelOption.agentLogLevel.toString(), "ALL",
 			LevelOption.madkitLogLevel.toString(), "INFO"));
+
+	private List<Process>	externalProcesses = new ArrayList<>();
 
 	public Madkit launchTest(AbstractAgent a, ReturnCode expected, boolean gui) {
 		System.err.println("\n\n------------------------ " + name.getMethodName() + " TEST START ---------------------");
@@ -152,7 +155,7 @@ public class JunitMadkit {
 		}
 	}
 
-	public void launchTest(AbstractAgent a, boolean all) {
+	public Madkit launchTest(AbstractAgent a, boolean all) {
 		if (all) {
 			addMadkitArgs(LevelOption.agentLogLevel.toString(), "ALL");
 			addMadkitArgs(LevelOption.kernelLogLevel.toString(), "FINEST");
@@ -160,10 +163,10 @@ public class JunitMadkit {
 			addMadkitArgs(LevelOption.agentLogLevel.toString(), "INFO");
 			addMadkitArgs(LevelOption.kernelLogLevel.toString(), "OFF");
 		}
-		launchTest(a, SUCCESS);
+		return launchTest(a, SUCCESS);
 	}
 
-	public MadkitKernel getKernel() {
+	public AbstractAgent getKernel() {
 		return madkit.getKernel();
 	}
 
@@ -193,13 +196,18 @@ public class JunitMadkit {
 		time = System.nanoTime();
 	}
 
+	/**
+	 * @param message
+	 * @return the total time in ms
+	 */
 	public static long stopTimer(String message) {
 		final long t = System.nanoTime() - time;
 		System.err.println(message + (t / 1000000) + " ms");
-		return t;
+		return (t / 1000000);
 	}
 
 	protected void assertAgentIsTerminated(AbstractAgent a) {
+		System.err.println(a);
 		assertEquals(TERMINATED, a.getState());
 		assertFalse(a.isAlive());
 	}
@@ -245,17 +253,47 @@ public class JunitMadkit {
 		testException = a;
 	}
 
-	public void launchThreadedMKNetworkInstance() {
+	public void launchThreadedMKNetworkInstance(final Level l) {
+		launchThreadedMKNetworkInstance(l, ForEverAgent.class);
+	}
+	
+	public void launchThreadedMKNetworkInstance(final Level l, final Class<? extends AbstractAgent> agentClass) {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				String[] args = { BooleanOption.network.toString(), 
-//						LevelOption.networkLogLevel.toString(), Level.FINE.toString(), 
-						Option.launchAgents.toString(), ForEverAgent.class.getName() };
-				Madkit.main(args);
+				launchCustomNetworkInstance(l, agentClass);
 			}
 		}).start();
+	}
+	
+	
+	public void cleanHelperMDKs(int pauseTime){
+		boolean done = false;
+		for (Madkit m : helperInstances) {
+			m.doAction(KernelAction.EXIT);
+			done = true;
+		}
+		for (Process p : externalProcesses) {
+			p.destroy();
+			try {
+				p.waitFor();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			done = true;
+		}
+		helperInstances.clear();
+		externalProcesses.clear();
+		if(done)
+			pause(pauseTime);
+	}
 
+	public void cleanHelperMDKs(){
+		cleanHelperMDKs(1000);
+	}
+	public void launchThreadedMKNetworkInstance() {
+		launchThreadedMKNetworkInstance(Level.OFF);
 	}
 
 	public Madkit launchMKNetworkInstance() {
@@ -264,21 +302,65 @@ public class JunitMadkit {
 
 
 	public Madkit launchMKNetworkInstance(Level l) {
-		return new Madkit(
-				BooleanOption.network.toString(), 
-				Option.launchAgents.toString(), ForEverAgent.class.getName(),
-				LevelOption.networkLogLevel.toString(),l.toString(),
-				LevelOption.kernelLogLevel.toString(),l.toString());
-//				BooleanOption.createLogFiles.toString()};
+		return launchCustomNetworkInstance(l, ForEverAgent.class);
 	}
 
 	public Madkit launchCustomNetworkInstance(Level l, Class<? extends AbstractAgent> agentTolaunch) {
-		return new Madkit(
+		Madkit m = new Madkit(
 				BooleanOption.network.toString(), 
 				Option.launchAgents.toString(), agentTolaunch.getName(),
 				LevelOption.networkLogLevel.toString(),l.toString(),
 				LevelOption.kernelLogLevel.toString(),l.toString());
 //				BooleanOption.createLogFiles.toString()};
+		helperInstances.add(m);
+		return m;
 	}
+	
+	public void launchExternalNetworkInstance() {
+		launchExternalNetworkInstance(ForEverAgent.class);
+	}
+
+	public void launchExternalNetworkInstance(Class<? extends AbstractAgent> agentTolaunch) {
+		launchExternalMDKInstance(
+				BooleanOption.createLogFiles.toString(),
+				BooleanOption.network.toString(),
+				Option.launchAgents.toString(),agentTolaunch.getName());
+	}
+	
+	public void launchExternalMDKInstance(String... args){
+		String cmdLince = "java -cp bin:build/test/classes:lib/junit-4.9b2.jar madkit.kernel.Madkit";
+		for (String string : args) {
+			cmdLince += " "+string;
+		}
+		try {
+			Process p = Runtime.getRuntime().exec(cmdLince);
+			externalProcesses.add(p);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void checkConnectedIntancesNb(AbstractAgent agent, int nb) {
+		List<AgentAddress> l = null;
+		startTimer();
+		do {
+			if(nb == 0 && ! agent.isCommunity(CloudCommunity.NAME))
+				break;
+			l = agent.getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT);
+			if (l != null) {
+				System.err.println("others =" + l.size());
+			}
+			pause(1000);
+		}
+		while (stopTimer("") < 300000 && l == null || l.size() != nb);
+		if (nb > 0) {
+			assertEquals(nb, l.size());
+		}
+		else{
+			assertFalse(agent.isCommunity(CloudCommunity.NAME));
+		}
+	}
+
+
 
 }

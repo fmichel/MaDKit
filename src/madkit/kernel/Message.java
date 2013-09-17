@@ -75,6 +75,7 @@ public class Message implements Cloneable,java.io.Serializable{//TODO message al
 	}
 
 	/**
+	 * Returns the agent address corresponding to the agent that receive this message.
 	 * 
 	 * @return the receiver
 	 */
@@ -85,7 +86,8 @@ public class Message implements Cloneable,java.io.Serializable{//TODO message al
 	/**
 	 * Returns the agent address corresponding to the agent that sends this message.
 	 * 
-	 * @return the message's sender or <code>null</code> if the message has not been sent by an agent.
+	 * @return the message's sender or <code>null</code> if 
+	 * the message has not been sent by an agent, but by any other kind of object.
 	 * @see AbstractAgent#sendMessage(AgentAddress, Message)
 	 * @see AbstractAgent#sendMessage(String, String, String, Message)
 	 */
@@ -128,7 +130,13 @@ public class Message implements Cloneable,java.io.Serializable{//TODO message al
 	}
 
 	/**
-	 * returns the conversation ID of this message.
+	 * returns the conversation ID for this message. 
+	 * When a message is created, it is given an ID that will
+	 * be used to tag all the messages that will be created 
+	 * for answering this message using 
+	 * {@link AbstractAgent#sendReply(Message, Message)} like methods.
+	 * Especially, If the answer is again used for replying, the ID 
+	 * will be used again to tag this new answer, and so on.
 	 * 
 	 * @return the ID of the conversation to which this message belongs to.
 	 */

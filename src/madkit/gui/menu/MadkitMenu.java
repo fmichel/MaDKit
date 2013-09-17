@@ -36,7 +36,7 @@ import madkit.kernel.AbstractAgent;
  * @version 0.9
  * 
  */
-public class MadkitMenu extends JMenu {//TODO i18n
+public class MadkitMenu extends JMenu {
 
 	private static final long serialVersionUID = 6177193453649323680L;
 

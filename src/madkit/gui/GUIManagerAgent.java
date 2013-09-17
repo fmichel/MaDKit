@@ -88,7 +88,7 @@ class GUIManagerAgent extends Agent {
 	@Override
 	protected void activate() {// TODO parallelize that
 		try {
-			agentFrameConstrutor = (Constructor<? extends AgentFrame>) MadkitClassLoader.getLoader().loadClass(getMadkitProperty(Option.agentFrameClass.name())).getDeclaredConstructor(AbstractAgent.class);
+			agentFrameConstrutor = (Constructor<? extends AgentFrame>) MadkitClassLoader.getLoader().loadClass(getMadkitProperty(Option.agentFrameClass)).getDeclaredConstructor(AbstractAgent.class);
 		} catch (NoSuchMethodException | SecurityException | ClassCastException | ClassNotFoundException e1) {
 			e1.printStackTrace();
 			try {
@@ -188,7 +188,7 @@ class GUIManagerAgent extends Agent {
 				e1.printStackTrace();
 			}
 			try{
-				agent.setupFrame(f);// TODO catch failures because of delegation
+				agent.setupFrame(f);
 			} catch (Exception e) {
 				agent.getLogger().severeLog("Frame setup problem -> default GUI settings", e);
 				f = AgentFrame.createAgentFrame(agent);
@@ -326,7 +326,7 @@ class GUIManagerAgent extends Agent {
 	}
 
 	private void buildUI() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-		myFrame = (MDKDesktopFrame) MadkitClassLoader.getLoader().loadClass(getMadkitProperty(Option.desktopFrameClass.name())).newInstance();
+		myFrame = (MDKDesktopFrame) MadkitClassLoader.getLoader().loadClass(getMadkitProperty(Option.desktopFrameClass)).newInstance();
 		desktopPane = myFrame.getDesktopPane();
 		// {
 		// @Override

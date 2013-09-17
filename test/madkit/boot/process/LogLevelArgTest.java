@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -22,8 +22,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.logging.Level;
 
-import madkit.kernel.AbstractAgent;
-import madkit.kernel.JunitMadkit;
+import madkit.kernel.*;
 import madkit.kernel.Madkit.LevelOption;
 
 import org.junit.Test;
@@ -38,10 +37,11 @@ import org.junit.Test;
 public class LogLevelArgTest extends JunitMadkit {
 
 	@Test
-	public void AgentLogLevelIsAll() {
+	public void agentLogLevelIsAll() {
 		mkArgs.clear();
 		addMadkitArgs(LevelOption.agentLogLevel.toString(), Level.ALL.toString());
 		launchTest(new AbstractAgent() {
+
 			@Override
 			protected void activate() {
 				assertEquals("OFF", getMadkitProperty(LevelOption.kernelLogLevel.name()));
@@ -53,5 +53,28 @@ public class LogLevelArgTest extends JunitMadkit {
 				assertEquals("INFO", getMadkitProperty(LevelOption.madkitLogLevel.name()));
 			}
 		});
+	}
+
+	@Test
+	public void kernelLogLevelIsAll() {
+		mkArgs.clear();
+		addMadkitArgs(LevelOption.kernelLogLevel.toString(), Level.ALL.toString());
+		launchTest(new AbstractAgent() {
+
+			@Override
+			protected void activate() {
+				assertEquals("ALL", getMadkitProperty(LevelOption.kernelLogLevel.name()));
+				assertEquals("OFF", getMadkitProperty(LevelOption.guiLogLevel.name()));
+				assertEquals("INFO", getMadkitProperty(LevelOption.networkLogLevel.name()));
+				assertEquals("INFO", getMadkitProperty(LevelOption.madkitLogLevel.name()));
+				assertEquals("INFO", getMadkitProperty(LevelOption.agentLogLevel.name()));
+				assertEquals("FINE", getMadkitProperty(LevelOption.warningLogLevel.name()));
+				assertEquals("INFO", getMadkitProperty(LevelOption.madkitLogLevel.name()));
+			}
+		});
+		assertKernelIsAlive();
+		final AgentLogger logger = getKernel().getLogger();
+		logger.fine("test");
+		assertEquals("ALL", logger.getLevel().toString());
 	}
 }

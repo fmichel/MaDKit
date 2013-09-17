@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -59,7 +59,7 @@ public class MassLaunchBench extends JunitMadkit {
 
 	@Test
 	public void massAALaunchWithBucketRoles() {
-		final int tries = 100;//should be at least 100 to bench, this has no use for only testing
+		final int tries = 1;//should be at least 100 to bench, this has no use for only testing
 		launchTest(new AbstractAgent() {
 			protected void activate() {
 				setLogLevel(Level.INFO);

@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -94,18 +94,21 @@ final class Group extends ConcurrentHashMap<String, Role> {
 	 * @param gatekeeper
 	 * @param communityObject
 	 */
-	Group(String community, String group, AgentAddress manager,
-			Organization communityObject) {
+	Group(String community, String group, AgentAddress manager,	Organization communityObject) {
 		// manager = creator;
 		distributed = true;
 		this.communityObject = communityObject;
 		logger = communityObject.getLogger();
-		isSecured = ((GroupManagerAddress) manager).isGroupSecured();
+		if (manager instanceof GroupManagerAddress) {
+			isSecured = ((GroupManagerAddress) manager).isGroupSecured();
+		}
+		else{
+			isSecured = false;
+		}
 		gatekeeper = null;
 		communityName = community;
 		groupName = group;
-		put(madkit.agr.Organization.GROUP_MANAGER_ROLE, new ManagerRole(this,
-				manager));
+		put(madkit.agr.Organization.GROUP_MANAGER_ROLE, new ManagerRole(this, manager));
 	}
 
 	boolean isSecured() {
@@ -166,27 +169,16 @@ final class Group extends ConcurrentHashMap<String, Role> {
 					return ACCESS_DENIED;
 				}
 		}
-		
-		ReturnCode result = SUCCESS;
-		Role theRole;
+		// TODO there is another RC : manager role is already handled
 		synchronized (this) {
-			theRole = get(roleName);
-			if (theRole == null) {
-				theRole = createRole(roleName);
-				put(roleName, theRole);
-				theRole.addMember(requester);
+			final Role r = getOrCreateRole(roleName);
+			if(r.addMember(requester)){
+				// now trigger overlooker updates if needed. Note that the role always still exits here because requester is in
+				r.addToOverlookers(requester);
+				return SUCCESS;
 			}
-			else {
-				// TODO there is another RC : manager role is already handled
-				result = theRole.addMember(requester) ? SUCCESS : ROLE_ALREADY_HANDLED;
-			}
+			return ROLE_ALREADY_HANDLED;
 		}
-		// now trigger overlooker updates if needed. 
-		if (result == SUCCESS) {
-			//Note that the role always still exits here because requester is in
-			theRole.addToOverlookers(requester);
-		}
-		return result;
 	}
 
 	
@@ -198,7 +190,9 @@ final class Group extends ConcurrentHashMap<String, Role> {
 	}
 
 	Role createRole(final String roleName) {
-		return new Role(this, roleName);
+		final Role r = new Role(this, roleName);
+		put(roleName,r);
+		return r;
 	}
 
 	/**
@@ -240,7 +234,7 @@ final class Group extends ConcurrentHashMap<String, Role> {
 	}
 
 	boolean isIn(AbstractAgent agent) {
-		for (Role r : values()) {
+		for (final Role r : values()) {
 			if (r.contains(agent))
 				return true;
 		}
@@ -290,8 +284,8 @@ final class Group extends ConcurrentHashMap<String, Role> {
 	 * @return
 	 */
 	SortedMap<String, Set<AgentAddress>> getGroupMap() {
-		TreeMap<String, Set<AgentAddress>> export = new TreeMap<>();
-		for (Map.Entry<String, Role> org : entrySet()) {
+		final TreeMap<String, Set<AgentAddress>> export = new TreeMap<>();
+		for (final Map.Entry<String, Role> org : entrySet()) {
 			export.put(org.getKey(), org.getValue().buildAndGetAddresses());
 		}
 		return export;
@@ -300,17 +294,14 @@ final class Group extends ConcurrentHashMap<String, Role> {
 	/**
 	 * @param hashMap
 	 */
-	void importDistantOrg(Map<String, Set<AgentAddress>> map) {
-		for (String roleName : map.keySet()) {
-			Set<AgentAddress> list = map.get(roleName);
+	void importDistantOrg(final Map<String, Set<AgentAddress>> map) {
+		for (final String roleName : map.keySet()) {
+			final Set<AgentAddress> list = map.get(roleName);
 			if (list == null)
 				continue;
-			Role role = get(roleName);
-			if (role == null) {
-				role = createRole(roleName);
-				put(roleName, role);
+			synchronized (this) {
+				getOrCreateRole(roleName).importDistantOrg(list);
 			}
-			role.importDistantOrg(list);
 		}
 	}
 
@@ -319,15 +310,18 @@ final class Group extends ConcurrentHashMap<String, Role> {
 	 */
 	void addDistantMember(AgentAddress content) {
 		final String roleName = content.getRole();
-		Role r;
+		final Role r;
 		synchronized (this) {
-			r = get(roleName);
-			if (r == null) {
-				r = createRole(roleName);
-				put(roleName, r);
-			}
+			r = getOrCreateRole(roleName);
 		}
 		r.addDistantMember(content);
+	}
+	
+	Role getOrCreateRole(final String roleName){
+		Role r = get(roleName);
+		if(r == null)
+			return createRole(roleName);
+		return r;
 	}
 
 	/**

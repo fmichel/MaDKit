@@ -38,6 +38,7 @@ import madkit.i18n.I18nUtilities;
 import madkit.i18n.Words;
 import madkit.kernel.AgentLogger;
 import madkit.kernel.Madkit;
+import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Madkit.Option;
 import madkit.kernel.MadkitClassLoader;
 
@@ -215,10 +216,12 @@ public class GlobalAction {
 				 */
 				private static final long	serialVersionUID	= 1L;
 
-				@SuppressWarnings("unused")
 				@Override
 				public void actionPerformed(ActionEvent e) {
-						new Madkit(Option.configFile.toString(),e.getActionCommand());
+						new Madkit(Option.configFile.toString(),
+								e.getActionCommand()
+//								,LevelOption.madkitLogLevel.toString(),"ALL"
+								);
 				}
 			};
 			LAUNCH_MAIN.putValue(Action.SMALL_ICON, SwingUtil.MADKIT_LOGO_SMALL);

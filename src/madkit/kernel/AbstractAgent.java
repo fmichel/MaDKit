@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -28,6 +28,7 @@ import static madkit.kernel.AbstractAgent.State.TERMINATED;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -38,6 +39,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeSet;
@@ -334,8 +336,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * 
 	 * @return <code>true</code> if the agent did not crash
 	 */
-	boolean activation() {
-		boolean result = false;
+	ReturnCode activation() {
+		ReturnCode result = ReturnCode.AGENT_CRASH;
 		try {
 			try {
 				activationFirstStage();// the activated flag must be in the try
@@ -343,13 +345,13 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 				synchronized (state) {
 					Thread.currentThread().setName(getAgentThreadName(State.LIVING));
 				}// cannot be hard killed after that
-				result = true;
+				result = SUCCESS;
 			} catch (SelfKillException e) {
 				logLifeException(e);
 				logMethod(false);
 				state.set(LIVING);// for the following kill to work
 				suicide(e);
-				return true;
+				return SUCCESS;
 			} catch (Throwable e) {
 				validateDeathOnException(e, LIVING);
 			}
@@ -411,7 +413,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			}
 			try {
 				end();
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				validateDeathOnException(e, TERMINATED);
 			}
 			synchronized (state) {
@@ -689,7 +691,11 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * Launches a new agent using its full class name and returns when the
 	 * launched agent has completed its {@link AbstractAgent#activate()} method
 	 * or when the time out is elapsed. This has the same effect as {@link #launchAgent(AbstractAgent, int, boolean)} but allows to launch
-	 * agent using a class name found reflexively for instance. Additionally,
+	 * agent using a class name found reflexively. 
+	 * 
+	 * The targeted agent class should have a default constructor for this to work.
+	 * 
+	 * Additionally,
 	 * this method will launch the last compiled byte code of the corresponding
 	 * class if it has been reloaded using {@link MadkitClassLoader#reloadClass(String)}. Finally, if the launch
 	 * timely succeeded, this method returns the instance of the created agent.
@@ -704,14 +710,16 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @return the instance of the launched agent or <code>null</code> if the
 	 *         operation times out or failed.
 	 */
-	public AbstractAgent launchAgent(String agentClass, int timeOutSeconds, final boolean createFrame) {// TODO with args
+	public AbstractAgent launchAgent(String agentClass, int timeOutSeconds, final boolean createFrame) {// TODO with args, and regardless of visibility
 		if (logger != null)
 			logger.finest(Words.LAUNCH + " " + agentClass + " GUI " + createFrame);
 		try {
-			final AbstractAgent a = (AbstractAgent) MadkitClassLoader.getLoader().loadClass(agentClass).newInstance();
+			final Constructor<?> c = MadkitClassLoader.getLoader().loadClass(agentClass).getDeclaredConstructor();
+			c.setAccessible(true);
+			final AbstractAgent a = (AbstractAgent) c.newInstance();
 			if (ReturnCode.SUCCESS == launchAgent(a, timeOutSeconds, createFrame))
 				return a;
-		} catch (InstantiationException | ClassCastException | ClassNotFoundException | IllegalAccessException | KernelException e) {
+		} catch (InstantiationException | ClassCastException | ClassNotFoundException | IllegalAccessException | KernelException | NoSuchMethodException | SecurityException | IllegalArgumentException | InvocationTargetException e) {
 			getLogger().severeLog(Influence.LAUNCH_AGENT.failedString(), e);
 		}
 		return null;
@@ -773,6 +781,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @since MaDKit 5.0.0.6
 	 */
 	public List<AbstractAgent> launchAgentBucket(String agentClass, int bucketSize, int cpuCoreNb, String... roles) { 
+		if(cpuCoreNb < 1 || bucketSize < 0)
+			throw new IllegalArgumentException("launchAgentBucket : cpuCoreNb = "+cpuCoreNb+" bucketsize = "+bucketSize);
 		List<AbstractAgent> bucket = null;
 		try {
 			bucket = getMadkitKernel().createBucket(agentClass, bucketSize, cpuCoreNb);
@@ -1030,16 +1040,17 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         successfully created.</li>
 	 *         <li><code>{@link ReturnCode#ALREADY_GROUP}</code>: If the
 	 *         operation failed because such a group already exists.</li>
-	 *         </ul>
+	 *         <li><code>
+	 *         {@link ReturnCode#IGNORED}</code>: If this method is used in
+	 *         activate and this agent has been launched using
+	 *         {@link AbstractAgent#launchAgentBucket(List, String...)}
+	 *         with non <code>null</code> roles
+	 *         </li>
 	 *         </ul>
 	 * 
 	 * @see AbstractAgent#createGroup(String, String, boolean, Gatekeeper)
 	 * @since MaDKit 5.0
 	 */
-//	*         <li><code>
-//	*         {@link ReturnCode#IGNORED}</code>: If this method is used in
-//	*         activate and this agent has been launched using
-//	*         {@link AbstractAgent#launchAgentBucket(List, String...)}
 	public ReturnCode createGroup(final String community, final String group) {
 		return createGroup(community, group, false, null);
 	}
@@ -1065,7 +1076,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         {@link ReturnCode#IGNORED}</code>: If this method is used in
 	 *         activate and this agent has been launched using
 	 *         {@link AbstractAgent#launchAgentBucket(List, String...)}
-	 *         </ul>
+	 *         with non <code>null</code> roles
+	 *         </li>
 	 *         </ul>
 	 * 
 	 * @see AbstractAgent#createGroup(String, String, boolean, Gatekeeper)
@@ -1109,6 +1121,11 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         successfully created.</li> <li><code>
 	 *         {@link ReturnCode#ALREADY_GROUP}</code>: If the operation failed
 	 *         because such a group already exists.</li> 
+	 *         <li><code>{@link ReturnCode#IGNORED}</code>: If the agent has been 
+	 *         launched using a <code>launchAgentBucket</code> method such as
+	 *         {@link AbstractAgent#launchAgentBucket(List, String...)} with
+	 *         non <code>null</code> roles. This for optimization purposes.
+	 *         </li>
 	 *         </ul>
 	 * 
 	 * @see Gatekeeper
@@ -1116,14 +1133,19 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @since MaDKit 5.0
 	 */
 	public ReturnCode createGroup(final String community, final String group, boolean isDistributed, final Gatekeeper keyMaster) {
+		if(getState() == INITIALIZING){
+			if(isWarningOn()){
+				handleException(Influence.CREATE_GROUP, new OrganizationWarning(ReturnCode.IGNORED, community, group,null));
+			}
+			return ReturnCode.IGNORED;
+		}
 		return getKernel().createGroup(this, community, group, keyMaster, isDistributed);
 	}
 
 	/**
-	 * Creates a new Group within a community only if the agent has not been launched 
-	 * using using one of the <code>launchAgentBucket</code> methods, thus optimizing the launching
-	 * when a lot of agents are concerned.
-	 * This method has an effect only when called within the {@link #activate()} method.
+	 * Creates a new Group within a community even if the agent has been launched 
+	 * using using one of the <code>launchAgentBucket</code> methods.
+	 * This method is only useful when called within the {@link #activate()} method.
 	 * <p>
 	 * For instance, this is useful if you launch one million of agents and when only some of them 
 	 * have to create a specific group, not defined in the parameters of {@link #launchAgentBucket(List, int, String...)}
@@ -1147,10 +1169,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         {@link ReturnCode#ALREADY_GROUP}</code>: If the operation failed
 	 *         because such a group already exists.</li> 
 	 *         </li>
-	 *         <li><code>{@link ReturnCode#IGNORED}</code>: If the agent has been 
-	 *         launched using a <code>launchAgentBucket</code> method such as
-	 *         {@link AbstractAgent#launchAgentBucket(List, String...)}
-	 *         </li>
 	 *         </ul>
 	 * 
 	 * @see Gatekeeper
@@ -1158,8 +1176,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @since MaDKit 5.0.2
 	 */
 	public ReturnCode bucketModeCreateGroup(final String community, final String group, boolean isDistributed, final Gatekeeper keyMaster) {
-		if(kernel.isBucketModeOn())
-			return ReturnCode.IGNORED;
 		return kernel.createGroup(this, community, group, keyMaster, isDistributed);
 	}
 
@@ -1311,6 +1327,11 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         role is already handled by this agent.</li>
 	 *         <li><code>{@link ReturnCode#ACCESS_DENIED}</code>: If the access
 	 *         denied by the manager of that secured group.</li>
+	 *         <li><code>{@link ReturnCode#IGNORED}</code>: If the agent has been 
+	 *         launched using a <code>launchAgentBucket</code> method such as
+	 *         {@link AbstractAgent#launchAgentBucket(List, String...)} with
+	 *         non <code>null</code> roles. This for optimization purposes.
+	 *         </li>
 	 *         </ul>
 	 * @see AbstractAgent.ReturnCode
 	 * @see Gatekeeper
@@ -1318,13 +1339,23 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @since MaDKit 5.0
 	 */
 	public ReturnCode requestRole(final String community, final String group, final String role, final Object passKey) {
+		if(getState() == INITIALIZING){
+			if(isWarningOn()){
+				handleException(Influence.REQUEST_ROLE, new OrganizationWarning(ReturnCode.IGNORED, community, group, role));
+			}
+			return ReturnCode.IGNORED;
+		}
 		return kernel.requestRole(this, community, group, role, passKey);
 	}
 
 	/**
-	 * Requests a role only if the agent has not been launched 
-	 * using one of the <code>launchAgentBucket</code> methods, thus optimizing the launching
-	 * when a lot of agents are concerned.
+	 * Requests a role even if the agent has been launched 
+	 * using one of the <code>launchAgentBucket</code> methods with non <code>null</code>
+	 * roles. 
+	 * 
+	 * For instance, this is useful if you launch one million of agents and when only some of them 
+	 * have to take a specific role which cannot be defined in the parameters of {@link #launchAgentBucket(List, int, String...)}
+	 * because they are priorly unknown and build at runtime.
 	 * 
 	 * @param community
 	 *           the group's community.
@@ -1351,11 +1382,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         <li><code>{@link ReturnCode#ACCESS_DENIED}</code>: If the access
 	 *         denied by the manager of that secured group.</li>
 	 *         </li>
-	 *         <li><code>{@link ReturnCode#IGNORED}</code>: If the role has been 
-	 *         already set due to the fact that this agent has been launched using
-	 *         {@link AbstractAgent#launchAgentBucket(List, String...)}, so that the call is not
-	 *         proceeded.
-	 *         </li>
 	 *         </ul>
 	 * @see AbstractAgent.ReturnCode
 	 * @see Gatekeeper
@@ -1363,8 +1389,6 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @since MaDKit 5.0
 	 */
 	public ReturnCode bucketModeRequestRole(final String community, final String group, final String role, final Object passKey) {
-		if(kernel.isBucketModeOn())
-			return ReturnCode.IGNORED;
 		return kernel.requestRole(this, community, group, role, passKey);
 	}
 
@@ -1860,9 +1884,29 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	final public String getMadkitProperty(String key) {
 		return getMadkitConfig().getProperty(key);
 	}
+	
+	/**
+	 * Shortcut for <code>getMadkitProperty(option.name())</code>.
+	 * Runtime options could be represented using enumeration constants,
+	 * as it is the case for MaDKit's, so this is a convenient method 
+	 * for retrieving the value of an option.
+	 * 
+	 * @param option the constant representing a MaDKit option
+	 * 
+	 * @return the corresponding value as a String, or <code>null</code> if
+	 *         there is no property having the corresponding name.
+	 * 
+	 * @see Option LevelOption BooleanOption
+	 * 
+	 * @since MaDKit 5.0.3
+	 * 
+	 */
+	public <E extends Enum<E>> String getMadkitProperty(E option){
+		return getMadkitProperty(option.name());
+	}
 
 	/**
-	 * Sets the MaDKit session property indicated by the specified key.
+	 * Set the MaDKit session property indicated by the specified key.
 	 * 
 	 * @param key
 	 *           the name of the MaDKit property
@@ -1873,6 +1917,31 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 		getMadkitConfig().setProperty(key, value);	
 	}
 
+	/**
+	 * Set the MaDKit session property indicated by the specified 
+	 * constant representing a MaDKit option.
+	 * 
+	 * @param option the constant representing a MaDKit option
+	 * 
+	 * @see #getMadkitProperty(String)
+	 * @see Madkit
+	 */
+	public <E extends Enum<E>> void setMadkitProperty(E option, String value) { 
+		getMadkitConfig().setProperty(option.name(), value);	
+	}
+
+	/**
+	 * Shortcut for <code>Boolean.parseBoolean(getMadkitProperty(option))</code>
+	 * 
+	 * @param option the constant representing a runtime option
+	 * 
+	 * @return <code>true</code> if the option has been set to <code>true</code>
+	 * 
+	 * @since MadKit 5.0.3
+	 */
+	public <E extends Enum<E>> boolean isMadkitPropertyTrue(E option){
+		return Boolean.parseBoolean(getMadkitProperty(option));
+	}
 	/**
 	 * Called when the default GUI mechanism is used upon agent creation. This
 	 * provides an empty frame which will be used as GUI for the agent. The
@@ -1925,13 +1994,25 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @param community the community's name
 	 * 
 	 * @return an alphanumerically ordered set containing the names of the groups 
-	 * which exist in this community, or <code>null</code> if it does not exist. 
+	 * which exist in this community, or <code>null</code> if this community does not exist. 
 	 * 
 	 * @since MaDKit 5.0.0.20
 	 */
-	public TreeSet<String> getExistingGroups(final String community)
-	{
+	public TreeSet<String> getExistingGroups(final String community){
 		return getKernel().getExistingGroups(community);
+	}
+	
+	/**
+	 * Gets the names of the groups the agent is in
+	 * according to a community
+	 * 
+	 * @param community
+	 * @return a set containing the names of the groups
+	 * the agent is in, or <code>null</code> if this
+	 * community does not exist. This set could be empty.
+	 */
+	public TreeSet<String> getMyGroups(final String community){
+		return getKernel().getGroupsOf(this,community);
 	}
 
 	/**
@@ -1977,6 +2058,24 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 */
 	public boolean isGroup(final String community, final String group) { 
 		return getKernel().isGroup(this, community, group);
+	}
+	
+	/**
+	 * Tells if the agent is currently playing a specific role.
+	 * 
+	 * @param community
+	 * @param group
+	 * @param role
+	 * @return <code>true</code> if the agent is playing this role
+	 * 
+	 * @since MaDKit 5.0.3
+	 */
+	public boolean hasRole(final String community, final String group, final String role) {
+		try {
+			return getMadkitKernel().getRole(community, group, role).contains(this);
+		} catch (CGRNotAvailable e) {
+			return false;
+		}
 	}
 
 	/**
@@ -2118,7 +2217,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 				logger.finer("-*-GET KILLED in " + getState().lifeCycleMethod() + "-*-");
 		}
 		else {
-			if (alive.get()) {
+			if (alive.get() || state.get() == ENDING) {
 				getLogger().severeLog("-*-" + getState().lifeCycleMethod() + " BUG*-*", e);
 			}
 		}
@@ -2354,8 +2453,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 					guiMode = Boolean.parseBoolean(namesMap.getNamedItem(XMLUtilities.GUI).getNodeValue());
 				} catch (NullPointerException e) {
 				}
-				for (AbstractAgent abstractAgent : list) {
-					launchAgent(abstractAgent, 0, guiMode);
+				for (final AbstractAgent abstractAgent : list) {
+					launchAgent(abstractAgent, 0, guiMode);//TODO check return code -> only to here, do a version with parameterized timeout
 				}
 			}
 		} catch (NullPointerException | ClassNotFoundException | NoSuchFieldException | NumberFormatException | InstantiationException | IllegalAccessException e) {

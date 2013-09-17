@@ -105,7 +105,7 @@ public class KillingWaitingMessageThreadedAgentsTest extends JunitMadkit {
 	public void normalKills() {// TODO more cases
 		launchTest(new AbstractAgent() {
 			public void activate() {
-				// TODO Auto-generated method stub
+				
 				super.activate();
 				Agent a;
 				a = new WaitingMessageAgent(true, false, false);
@@ -153,7 +153,6 @@ class WaitingMessageAgent extends DoItDuringLifeCycleAgent {
 	 */
 	public WaitingMessageAgent(boolean inActivate, boolean inLive, boolean inEnd) {
 		super(inActivate, inLive, inEnd);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override

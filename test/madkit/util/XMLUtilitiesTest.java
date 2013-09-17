@@ -43,7 +43,6 @@ public class XMLUtilitiesTest {
 		try {
 			assertNotNull(XMLUtilities.getDOM("madkit/xml/bench.xml"));
 		} catch (SAXException | IOException | ParserConfigurationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -93,7 +92,6 @@ public class XMLUtilitiesTest {
 		try {
 			assertNotNull(XMLUtilities.getDOM(f.getAbsolutePath()));
 		} catch (SAXException | IOException | ParserConfigurationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

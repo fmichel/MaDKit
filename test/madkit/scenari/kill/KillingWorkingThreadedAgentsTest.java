@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -89,15 +89,15 @@ public class KillingWorkingThreadedAgentsTest extends JunitMadkit {
 
 				a = new WorkingAgent(true, false, true);
 				launchAgent(a, 1);
-				assertEquals(SUCCESS, killAgent(a, 0));
+				r = killAgent(a, 0);
+				assertTrue(ALREADY_KILLED == r || r == SUCCESS);
 				assertAgentIsTerminated(a);
-				pause(1000);
 			}
 		});
 	}
 
 	@Test
-	public void brutalKillOnEnd() {// TODO brutal kill with to < 0
+	public void brutalKillOnEnd() {
 		addMadkitArgs(LevelOption.agentLogLevel.toString(), "ALL");
 		addMadkitArgs(LevelOption.kernelLogLevel.toString(), "FINEST");
 		launchTest(new AbstractAgent() {
@@ -112,7 +112,7 @@ public class KillingWorkingThreadedAgentsTest extends JunitMadkit {
 	}
 
 	@Test
-	public void brutalKillOnActivate() {// TODO brutal kill with to < 0
+	public void brutalKillOnActivate() {
 		addMadkitArgs(LevelOption.agentLogLevel.toString(), "ALL");
 		addMadkitArgs(LevelOption.kernelLogLevel.toString(), "FINEST");
 		launchTest(new AbstractAgent() {
@@ -133,7 +133,7 @@ public class KillingWorkingThreadedAgentsTest extends JunitMadkit {
 	}
 
 	@Test
-	public void brutalKillOnLive() {// TODO brutal kill with to < 0
+	public void brutalKillOnLive() {
 		addMadkitArgs(LevelOption.agentLogLevel.toString(), "ALL");
 		addMadkitArgs(LevelOption.kernelLogLevel.toString(), "FINEST");
 		launchTest(new JUnitAgent() {
@@ -149,7 +149,7 @@ public class KillingWorkingThreadedAgentsTest extends JunitMadkit {
 	}
 
 	@Test
-	public void brutalKillOnLiveWTO() {// TODO brutal kill with to < 0
+	public void brutalKillOnLiveWTO() {
 		addMadkitArgs(LevelOption.agentLogLevel.toString(), "ALL");
 		addMadkitArgs(LevelOption.kernelLogLevel.toString(), "FINEST");
 		launchTest(new JUnitAgent() {
@@ -184,7 +184,7 @@ public class KillingWorkingThreadedAgentsTest extends JunitMadkit {
 	}
 
 	@Test
-	public void brutalKillonAllWTO() {// TODO brutal kill with to < 0
+	public void brutalKillonAllWTO() {
 		launchTest(new AbstractAgent() {
 			public void activate() {
 				Agent a;
@@ -202,7 +202,6 @@ public class KillingWorkingThreadedAgentsTest extends JunitMadkit {
 	public void normalKills() {// TODO more cases
 		launchTest(new AbstractAgent() {
 			public void activate() {
-				// TODO Auto-generated method stub
 				super.activate();
 				Agent a;
 				a = new WorkingAgent(true, false, false);

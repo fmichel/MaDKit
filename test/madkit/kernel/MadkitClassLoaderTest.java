@@ -92,7 +92,6 @@ public class MadkitClassLoaderTest extends JunitMadkit {
 						assertEquals(n,mcl.getURLs().length);
 						System.err.println(Arrays.deepToString(mcl.getURLs()));
 					} catch (MalformedURLException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 		}});

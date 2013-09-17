@@ -192,19 +192,6 @@ class MadkitKernel extends Agent {
 	private AgentAddress netUpdater, netEmmiter, kernelRole;
 	final private Set<Agent> threadedAgents;
 
-	/**
-	 * if <code>true</code>, deactivate organizational operations
-	 */
-	private boolean bucketMode = false;
-
-	
-	/**
-	 * @return the bucketMode
-	 */
-	final boolean isBucketModeOn() {
-		return bucketMode;
-	}
-
 	private EnumMap<AgentActionEvent, Set<AbstractAgent>> hooks;
 
 
@@ -418,7 +405,6 @@ class MadkitKernel extends Agent {
 				MadkitClassLoader.loadUrl(new URL(s));
 			}
 			in.close();
-		} catch (MalformedURLException e) {//FIXME
 		} catch (IOException e) {
 			if (logger != null)
 			logger.log(Level.WARNING, ErrorMessages.CANT_CONNECT + ": "+ repoLocation + "\n" + e.getMessage());
@@ -515,7 +501,7 @@ class MadkitKernel extends Agent {
 	private void launchXMLConfigurations() {
 		if (logger != null)
 			logger.fine("** LAUNCHING XML CONFIGS **");
-		final String filesName = getMadkitProperty(Option.configFile.name());
+		final String filesName = getMadkitProperty(Option.configFile);
 		if (!filesName.equals("null")) {
 			for (final String fileName : filesName.split(";")) {
 				if (fileName.endsWith(".xml")) {
@@ -630,7 +616,7 @@ class MadkitKernel extends Agent {
 		}
 	}
 
-	private void launchNetworkAgent() {// FIXME cannot be in start session
+	private void launchNetworkAgent() {
 		if (network.isActivated(getMadkitConfig())) {
 			launchNetwork();
 		} else {
@@ -689,7 +675,7 @@ class MadkitKernel extends Agent {
 		return SUCCESS;
 	}
 
-		void informHooks(AgentActionEvent action, Object parameter) {//This looks dirty but avoids creating a message for nothing
+		void informHooks(AgentActionEvent action, Object parameter) {
 		if (hooks != null) {
 			final Set<AbstractAgent> l = hooks.get(action);
 			if (l != null) {
@@ -772,7 +758,7 @@ class MadkitKernel extends Agent {
 				sendNetworkMessageWithRole(new CGRSynchro(LEAVE_GROUP, new AgentAddress(requester, new Role(community, group),
 						kernelAddress)), netUpdater);
 			}
-			if (hooks != null)//TODO facto
+			if (hooks != null)//should not be factorized to avoid useless object creation
 				informHooks(AgentActionEvent.LEAVE_GROUP, new AgentAddress(requester, new Role(community, group), kernelAddress));
 			return SUCCESS;
 		}
@@ -1011,33 +997,18 @@ class MadkitKernel extends Agent {
 	 * @param cgrLocations
 	 */
 	void launchAgentBucketWithRoles(final AbstractAgent requester, List<AbstractAgent> bucket, int cpuCoreNb, String... cgrLocations) {
-		AgentsJob aj = new AgentsJob() {
-
-			@Override
-			void proceedAgent(AbstractAgent a) {
-				// no need to test : I created these instances :this is not true f //TODO
-				a.state.set(ACTIVATED);
-				a.setKernel(MadkitKernel.this);
-				a.getAlive().set(true);
-				a.logger = null;
-			}
-		};
-
-		// initialization
-		doMulticore(serviceExecutor, aj.getJobs(bucket, cpuCoreNb));
-
-		aj = new AgentsJob() {
-
-			@Override
-			void proceedAgent(final AbstractAgent a) {
-				try {
-					a.activate();
-				} catch (Throwable e) {
-					requester.cannotLaunchAgent(a != null ? a.getClass().getName() : "launchAgentBucketWithRoles : list contains null", e, null);
-				}
-			}
-		};
 		if (cgrLocations != null && cgrLocations.length != 0) {
+			AgentsJob init = new AgentsJob() {
+				@Override
+				void proceedAgent(final AbstractAgent a) {
+					// no need to test : I created these instances :this is not true for the list case //TODO
+					a.state.set(INITIALIZING);
+					a.setKernel(MadkitKernel.this);
+					a.getAlive().set(true);
+					a.logger = null;
+				}
+			};
+			doMulticore(serviceExecutor, init.getJobs(bucket, cpuCoreNb));
 			synchronized (this) {
 				for (final String cgrLocation : cgrLocations) {
 					final String[] cgr = cgrLocation.split(",");
@@ -1056,19 +1027,42 @@ class MadkitKernel extends Agent {
 					Role r = g.get(cgr[2]);
 					if (r == null) {
 						r = g.createRole(cgr[2]);
-						g.put(r.getRoleName(), r);
 						roleCreated = true;
 					}
 					r.addMembers(bucket, roleCreated);
 					// test vs assignement ? -> No: cannot touch the organizational
 					// structure !!
 				}
-				bucketMode = true;
-				doMulticore(serviceExecutor, aj.getJobs(bucket, cpuCoreNb));
-				bucketMode = false;
+				init = new AgentsJob() {
+					@Override
+					void proceedAgent(final AbstractAgent a) {
+						try {
+							a.activate();
+							a.state.set(ACTIVATED);
+						} catch (Throwable e) {
+							requester.cannotLaunchAgent(a != null ? a.getClass().getName() : "launchAgentBucketWithRoles : list contains null", e, null);
+						}
+					}
+				};
+				doMulticore(serviceExecutor, init.getJobs(bucket, cpuCoreNb));
 			}
 		}
 		else {
+			AgentsJob aj = new AgentsJob() {
+				@Override
+				void proceedAgent(final AbstractAgent a) {
+					// no need to test : I created these instances :this is not true for the list case //TODO
+					a.state.set(ACTIVATED);
+					a.setKernel(MadkitKernel.this);
+					a.getAlive().set(true);
+					a.logger = null;
+					try {
+						a.activate();
+					} catch (Throwable e) {
+						requester.cannotLaunchAgent(a != null ? a.getClass().getName() : "launchAgentBucketWithRoles : list contains null", e, null);
+					}
+				}
+			};
 			doMulticore(serviceExecutor, aj.getJobs(bucket, cpuCoreNb));
 		}
 	}
@@ -1155,8 +1149,7 @@ class MadkitKernel extends Agent {
 		// System.err.println("adding "+agent.getName()+" using "+Thread.currentThread()+
 		// agent.getState());
 		agent.setKernel(this);
-		if(hooks != null)
-			informHooks(AgentActionEvent.AGENT_STARTED, agent);
+		informHooks(AgentActionEvent.AGENT_STARTED, agent);
 		if (defaultGUI)
 			agent.createGUIOnStartUp();
 		Level defaultLevel = LevelOption.agentLogLevel.getValue(getMadkitConfig());
@@ -1175,13 +1168,13 @@ class MadkitKernel extends Agent {
 		//AbstractAgent
 		if (ae == null) {
 			ReturnCode r = AGENT_CRASH;
-			final Future<Boolean> activationAttempt = lifeExecutor.submit(new Callable<Boolean>() {
-				public Boolean call() {
+			final Future<ReturnCode> activationAttempt = lifeExecutor.submit(new Callable<ReturnCode>() {
+				public ReturnCode call() {
 					return agent.activation();
 				}
 			});
 			try {
-				r = activationAttempt.get() ? SUCCESS : AGENT_CRASH;
+				r = activationAttempt.get();
 			} catch (ExecutionException e) {
 				bugReport(agent + " activation task failed using " + Thread.currentThread(), e);
 			} catch (InterruptedException e) {
@@ -1191,6 +1184,7 @@ class MadkitKernel extends Agent {
 				synchronized (agent.state) {
 					agent.state.notify();
 				}
+				startEndBehavior(agent, 0, false);
 			} else {
 				if (agent.isAlive()) {// ! self kill -> safe to make this here
 					agent.state.set(LIVING);
@@ -1207,8 +1201,8 @@ class MadkitKernel extends Agent {
 				threadedAgents.add(a);
 			}
 			ae.setThreadFactory(a.isDaemon() ? daemonAgentThreadFactory : normalAgentThreadFactory);
-			if (!shuttedDown && ae.start().get()) {
-				return SUCCESS;
+			if (!shuttedDown) {
+				return ae.start().get();
 			}
 			return AGENT_CRASH;
 		} catch (InterruptedException e) {
@@ -1345,8 +1339,7 @@ class MadkitKernel extends Agent {
 				stopAbstractAgentProcess(State.ENDING, target);
 			}
 		}
-//		if (!(target instanceof Agent)) {
-			if (target.getAgentExecutor() == null) {
+		if (target.getAgentExecutor() == null) {
 			target.terminate();
 		}
 		return r;
@@ -1398,6 +1391,7 @@ class MadkitKernel extends Agent {
 	}
 
 	final Group getGroup(final String community, final String group) throws CGRNotAvailable {
+//		System.err.println("HHHHHHHHHHHHHHHHHHHH "+community);
 		Group g = getCommunity(community).get(group);
 		if (g == null)
 			throw new CGRNotAvailable(NOT_GROUP);
@@ -1709,58 +1703,63 @@ class MadkitKernel extends Agent {
 
 	final void injectOperation(CGRSynchro m) {
 		final AgentAddress agentAddress = m.getContent();
-		final Role r = agentAddress.getRoleObject();
-//		System.err.println("\n\n"+m+"\nhooks = "+hooks+"\nrole ="+r+"\n\n");
-		if (r == null) {
-			if (logger != null)
-				logger.log(Level.FINE, "distant CGR " + m.getCode() + " update failed on " + agentAddress);
-			return;
-		}
-		final String communityName = r.getCommunityName();
-		final String groupName = r.getGroupName();
-		final String roleName = r.getRoleName();
-		try {
-			synchronized (organizations) {
-				switch (m.getCode()) {
-				case CREATE_GROUP:
-					Organization organization = null;
-					try {
-						organization = getCommunity(communityName);
-					} catch (CGRNotAvailable e) {
-						organization = new Organization(communityName, this);
-						organizations.put(communityName, organization);
-					}
-					if (organization.putIfAbsent(groupName, new Group(communityName, groupName, agentAddress, organization)) == null
-							&& hooks != null) {
-						informHooks(AgentActionEvent.CREATE_GROUP, agentAddress);
-					}
-					break;
-				case REQUEST_ROLE:
-					getGroup(communityName, groupName).addDistantMember(agentAddress);
-					if (hooks != null)
-						informHooks(AgentActionEvent.REQUEST_ROLE, agentAddress);
-					break;
-				case LEAVE_ROLE:
-					getRole(communityName, groupName, roleName).removeDistantMember(agentAddress);
-					if (hooks != null)
-						informHooks(AgentActionEvent.LEAVE_ROLE, agentAddress);
-					break;
-				case LEAVE_GROUP:
-					getGroup(communityName, groupName).removeDistantMember(agentAddress);
-					if (hooks != null)
-						informHooks(AgentActionEvent.LEAVE_GROUP, agentAddress);
-					break;
-				// case CGRSynchro.LEAVE_ORG://TODO to implement
-				// break;
-				default:
-					bugReport(new UnsupportedOperationException("case not treated in injectOperation"));
-					break;
+		final String communityName = agentAddress.getCommunity();
+		final String groupName = agentAddress.getGroup();
+		final String roleName = agentAddress.getRole();
+		synchronized (organizations) {
+			switch (m.getCode()) {
+			case CREATE_GROUP:
+				Organization organization = null;
+				try {
+					organization = getCommunity(communityName);
+				} catch (CGRNotAvailable e) {
+					organization = new Organization(communityName, this);
+					organizations.put(communityName, organization);
 				}
+				if (organization.putIfAbsent(groupName, new Group(communityName, groupName, agentAddress, organization)) == null) {
+					informHooks(AgentActionEvent.CREATE_GROUP, agentAddress);
+				}
+				break;
+			case REQUEST_ROLE:
+				try {
+					getGroup(communityName, groupName).addDistantMember(agentAddress);
+					informHooks(AgentActionEvent.REQUEST_ROLE, agentAddress);
+				} catch (CGRNotAvailable e) {
+					logInjectOperationFailure(m, agentAddress, e);
+				}
+				break;
+			case LEAVE_ROLE:
+				try {
+					getRole(communityName, groupName, roleName).removeDistantMember(agentAddress);
+					informHooks(AgentActionEvent.LEAVE_ROLE, agentAddress);
+				} catch (CGRNotAvailable e) {
+					logInjectOperationFailure(m, agentAddress, e);
+				}
+				break;
+			case LEAVE_GROUP:
+				try {
+					getGroup(communityName, groupName).removeDistantMember(agentAddress);
+					informHooks(AgentActionEvent.LEAVE_GROUP, agentAddress);
+				} catch (CGRNotAvailable e) {
+					logInjectOperationFailure(m, agentAddress, e);
+				}
+				break;
+			// case CGRSynchro.LEAVE_ORG://TODO to implement
+			// break;
+			default:
+				bugReport(new UnsupportedOperationException("case not treated in injectOperation"));
+				break;
 			}
-		} catch (CGRNotAvailable e) {
-			if (logger != null)
-				logger.log(Level.FINE, "distant CGR " + m.getCode() + " update failed on " + agentAddress, e);
 		}
+	}
+
+	/**
+	 * @param m
+	 * @param agentAddress
+	 * @param e
+	 */
+	private void logInjectOperationFailure(CGRSynchro m, final AgentAddress agentAddress, CGRNotAvailable e) {
+		getLogger().log(Level.FINE, "distant CGR " + m.getCode() + " update failed on " + agentAddress, e);
 	}
 
 	@Override
@@ -1918,6 +1917,26 @@ class MadkitKernel extends Agent {
 		return hooks != null;
 	}
 
+	/**
+	 * 
+	 * @param abstractAgent
+	 * @param community
+	 * @return the group names the agent is in, or <code>null</code> if this
+	 * community does not exist
+	 */
+	final TreeSet<String> getGroupsOf(AbstractAgent abstractAgent, String community) {
+		final TreeSet<String> groups = new TreeSet<>();
+		try {
+			for (Group g : getCommunity(community).values()) {
+				if(g.isIn(abstractAgent)){
+					groups.add(g.getName());
+				}
+			}
+		} catch (CGRNotAvailable e) {
+			return null;
+		}
+		return groups;
+	}
 
 }
 

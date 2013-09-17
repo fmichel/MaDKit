@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -40,6 +40,7 @@ import madkit.testing.util.agent.LeaveGroupInEndNormalAgent;
 import madkit.testing.util.agent.LeaveRoleInEndNormalAgent;
 import madkit.testing.util.agent.PongAgent;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -51,6 +52,12 @@ import org.junit.Test;
 @SuppressWarnings("serial")
 public class DistantHookSystemTest extends JunitMadkit {
 	
+//	@BeforeClass
+//	
+//	public static void init() {
+//		pause(2000);
+//	}
+//	
 	@Test
 	public void createGroupHook() {
 		addMadkitArgs(LevelOption.agentLogLevel.toString(), Level.ALL.toString()
@@ -64,10 +71,8 @@ public class DistantHookSystemTest extends JunitMadkit {
 								LocalCommunity.Groups.SYSTEM, 
 								Organization.GROUP_MANAGER_ROLE, 
 								new HookMessage(AgentActionEvent.CREATE_GROUP));
-						pause(10);
 						Madkit mk = launchMKNetworkInstance(Level.ALL);
 						OrganizationEvent m = (OrganizationEvent) waitNextMessage();
-						assertNotNull(m);
 						assertEquals(COMMUNITY, m.getSourceAgent().getCommunity());
 						assertEquals(GROUP, m.getSourceAgent().getGroup());
 						assertEquals(Organization.GROUP_MANAGER_ROLE, m.getSourceAgent().getRole());
@@ -75,6 +80,18 @@ public class DistantHookSystemTest extends JunitMadkit {
 					}
 				});
 		mdk.doAction(KernelAction.EXIT);
+	}
+	
+	@Test
+	public void massTest(){
+		for (int i = 0; i < 3; i++) {
+			leaveGroup();
+			broadcastMessage();
+			createGroupHook();
+			leaveRole();
+			requestRole();
+			sendMessage();
+		}
 	}
 
 	@Test
@@ -90,11 +107,10 @@ public class DistantHookSystemTest extends JunitMadkit {
 								LocalCommunity.Groups.SYSTEM, 
 								Organization.GROUP_MANAGER_ROLE, 
 								new HookMessage(AgentActionEvent.REQUEST_ROLE));
-						pause(100);
 						Madkit mk = launchMKNetworkInstance(Level.OFF);
 						OrganizationEvent m;
 						do{
-							m = (OrganizationEvent) waitNextMessage();
+							m = (OrganizationEvent) waitNextMessage(1000);
 						}
 						while (! m.getSourceAgent().getCommunity().equals(COMMUNITY));
 						assertEquals(AgentActionEvent.REQUEST_ROLE, m.getContent());
@@ -122,14 +138,12 @@ public class DistantHookSystemTest extends JunitMadkit {
 								LocalCommunity.Groups.SYSTEM, 
 								Organization.GROUP_MANAGER_ROLE, 
 								new HookMessage(AgentActionEvent.LEAVE_ROLE));
-						pause(100);
 						Madkit mk = launchCustomNetworkInstance(Level.FINE,LeaveRoleInEndNormalAgent.class);
 						OrganizationEvent m;
 						do{
-							m = (OrganizationEvent) waitNextMessage();
+							m = (OrganizationEvent) waitNextMessage(1000);
 						}
 						while (! m.getSourceAgent().getCommunity().equals(COMMUNITY));
-						assertNotNull(m);
 						assertEquals(AgentActionEvent.LEAVE_ROLE, m.getContent());
 						assertEquals(COMMUNITY, m.getSourceAgent().getCommunity());
 						assertEquals(GROUP, m.getSourceAgent().getGroup());
@@ -143,24 +157,23 @@ public class DistantHookSystemTest extends JunitMadkit {
 	@Test
 	public void leaveGroup() {
 		addMadkitArgs(LevelOption.agentLogLevel.toString(), Level.ALL.toString()
-//				,LevelOption.kernelLogLevel.toString(), Level.ALL.toString()
+				,LevelOption.kernelLogLevel.toString(), Level.ALL.toString()
 				,BooleanOption.network.toString()
 				);
 		Madkit mdk = launchTest(new Agent() {
 			@Override
 					protected void activate() {
+				setLogLevel(Level.ALL);
 						sendMessage(LocalCommunity.NAME, 
 								LocalCommunity.Groups.SYSTEM, 
 								Organization.GROUP_MANAGER_ROLE, 
 								new HookMessage(AgentActionEvent.LEAVE_GROUP));
-						pause(100);
 						Madkit mk = launchCustomNetworkInstance(Level.FINE,LeaveGroupInEndNormalAgent.class);
 						OrganizationEvent m;
 						do{
 							m = (OrganizationEvent) waitNextMessage();
 						}
 						while (! m.getSourceAgent().getCommunity().equals(COMMUNITY));
-						assertNotNull(m);
 						assertEquals(AgentActionEvent.LEAVE_GROUP, m.getContent());
 						assertEquals(COMMUNITY, m.getSourceAgent().getCommunity());
 						assertEquals(GROUP, m.getSourceAgent().getGroup());
@@ -169,6 +182,7 @@ public class DistantHookSystemTest extends JunitMadkit {
 					}
 				});
 		mdk.doAction(KernelAction.EXIT);
+		cleanHelperMDKs();
 	}
 
 	@Test
@@ -186,7 +200,6 @@ public class DistantHookSystemTest extends JunitMadkit {
 								LocalCommunity.Groups.SYSTEM, 
 								Organization.GROUP_MANAGER_ROLE, 
 								new HookMessage(AgentActionEvent.SEND_MESSAGE));
-						pause(100);
 						Madkit mk = launchCustomNetworkInstance(Level.FINE,PongAgent.class);
 						waitNextMessage();
 						MessageEvent m = (MessageEvent) waitNextMessage();
@@ -216,7 +229,6 @@ public class DistantHookSystemTest extends JunitMadkit {
 								LocalCommunity.Groups.SYSTEM, 
 								Organization.GROUP_MANAGER_ROLE, 
 								new HookMessage(AgentActionEvent.SEND_MESSAGE));
-						pause(100);
 						Madkit mk = launchCustomNetworkInstance(Level.FINE,PongAgent.class);
 						waitNextMessage();
 						MessageEvent m = (MessageEvent) waitNextMessage();

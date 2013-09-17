@@ -52,7 +52,7 @@ public class GUITest extends JunitMadkit {
 		});
 	}
 
-	public void kill() {//FIXME 
+	public void kill() {
 		launchTest(new AbstractAgent() {
 			@Override
 			protected void activate() {

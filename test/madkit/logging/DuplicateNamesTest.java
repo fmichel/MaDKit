@@ -77,7 +77,7 @@ class SetNameAgent extends AbstractAgent{
 	 */
 	private static final long	serialVersionUID	= -522022197619143781L;
 	public SetNameAgent() {
-		setName(JunitMadkit.COMMUNITY);// TODO Auto-generated constructor stub
+		setName(JunitMadkit.COMMUNITY);
 	}
 	@Override
 	protected void activate() {

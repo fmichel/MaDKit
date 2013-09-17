@@ -95,7 +95,6 @@ public class RandomT extends Agent {
 				killSomebody();
 			} catch (KernelException e) {
 				System.err.println("kernel ex : " + getState() + " alive " + isAlive());
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

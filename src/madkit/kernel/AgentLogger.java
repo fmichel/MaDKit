@@ -332,7 +332,7 @@ final public class AgentLogger extends Logger {
 		try{
 			AbstractAgent a = new ArrayList<>(agentLoggers.keySet()).get(0);
 			a.setMadkitProperty(BooleanOption.createLogFiles.name(), "true");
-			JOptionPane.showMessageDialog(null, Words.DIRECTORY+" "+new File(a.getMadkitProperty(Option.logDirectory.name())).getAbsolutePath() + " "
+			JOptionPane.showMessageDialog(null, Words.DIRECTORY+" "+new File(a.getMadkitProperty(Option.logDirectory)).getAbsolutePath() + " "
 					+ Words.CREATED, "OK", JOptionPane.INFORMATION_MESSAGE);
 			for (AgentLogger logger : agentLoggers.values()) {
 				logger.createLogFile();

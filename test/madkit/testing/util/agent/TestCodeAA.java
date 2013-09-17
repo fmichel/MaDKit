@@ -51,10 +51,6 @@ public class TestCodeAA extends AbstractAgent {
 		launchAgent(getClass().getName(),0, true);
 		killAgent(this);
 	}
-//	
-//	public TestCodeAA() {
-//		// TODO Auto-generated constructor stub
-//	}
 	
 	@Override
 	public void setupFrame(JFrame frame) {
@@ -70,15 +66,8 @@ public class TestCodeAA extends AbstractAgent {
 			Class<?> cl = Class.forName("java.lang.Thread");
 			Object o = cl.newInstance();
 			o.toString();
-		} catch (InstantiationException e1) {
-			// TODO Auto-generated catch block
+		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e1) {
 			e1.printStackTrace();
-		} catch (IllegalAccessException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 
 		Message m = new Message();
@@ -103,11 +92,7 @@ public class TestCodeAA extends AbstractAgent {
 
 		try {
 			System.err.println(this.getClass().getConstructor((Class<?>[])null));
-		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block
+		} catch (SecurityException | NoSuchMethodException e) {
 			e.printStackTrace();
 		}
 //		proceedCommandMessage(new EnumMessage<AgentAction>(AgentAction.RELOAD));

@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -29,6 +29,7 @@ import madkit.kernel.Madkit.Option;
  * @see LevelOption
  * @see BooleanOption
  * @see AbstractAgent#getMadkitProperty(String)
+ * @see AbstractAgent#getMadkitProperty(Enum)
  * @see AbstractAgent#setMadkitProperty(String, String)
  * @author Fabien Michel
  * @since MaDKit 5.0.0.10

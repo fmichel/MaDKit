@@ -35,6 +35,7 @@ import madkit.simulation.SimulationException;
 import madkit.simulation.activator.GenericBehaviorActivator;
 import madkit.testing.util.agent.FaultyAA;
 import madkit.testing.util.agent.SimulatedAgent;
+import madkit.testing.util.agent.SimulatedAgentThatLaunchesASimulatedAgent;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -116,6 +117,22 @@ public class LaunchAgentBucketWithRolesWithListTest extends JunitMadkit {
 	}
 
 	@Test
+	public void returnSuccessWithInsideLaunches() {
+		launchTest(new AbstractAgent() {
+
+			protected void activate() {
+				List<SimulatedAgent> l = new ArrayList<>();
+				for (int i = 0; i < 2; i++) {
+					l.add(new SimulatedAgentThatLaunchesASimulatedAgent());
+				}
+				launchAgentBucket(l, COMMUNITY + "," + GROUP + "," + ROLE);
+				testAgents(l);
+				assertEquals(4, getAgentsWithRole(COMMUNITY, GROUP, ROLE).size());
+			}
+		});
+	}
+
+	@Test
 	public void testBucketRequestRole() {
 		launchTest(new AbstractAgent() {
 
@@ -125,9 +142,9 @@ public class LaunchAgentBucketWithRolesWithListTest extends JunitMadkit {
 					l.add(new AbstractAgent(){
 						@Override
 						protected void activate() {
-							assertEquals(ReturnCode.IGNORED, bucketModeRequestRole(COMMUNITY, GROUP, ROLE2, null));
-							createGroup(COMMUNITY2, GROUP2,false,null);
-							assertEquals(ReturnCode.SUCCESS,requestRole(COMMUNITY2, GROUP2, ROLE2, null));
+							assertEquals(ReturnCode.IGNORED, requestRole(COMMUNITY, GROUP, ROLE2, null));
+							bucketModeCreateGroup(COMMUNITY2, GROUP2,false,null);
+							assertEquals(ReturnCode.SUCCESS,bucketModeRequestRole(COMMUNITY2, GROUP2, ROLE2, null));
 						}
 					});
 				}

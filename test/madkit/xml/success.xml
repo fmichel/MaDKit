@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <MDK name="aName" description="test">
-	<Agents>
+	<Agents><!-- just for structuring -->
 		<Agent class="madkit.xml.XMLSuccessTestAgent" nbOfInstances="1"	GUI="true" logLevel="FINEST">
 			<Attributes speed="3" i="5" s="blabla" />
 		</Agent>

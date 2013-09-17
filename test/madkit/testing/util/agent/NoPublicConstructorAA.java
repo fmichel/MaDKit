@@ -40,6 +40,7 @@ public class NoPublicConstructorAA extends AbstractAgent {
 
 	NoPublicConstructorAA() {
 		setName(getLogger().getName());
+		getLogger().info("launched");
 	}
 
 	@Override

@@ -39,16 +39,14 @@ public class HeadLessTest extends JunitMadkit {
 
 	@Test
 	public void testAA(){
-		System.setProperty("java.awt.headless", "true"); //TODO
+		System.setProperty("java.awt.headless", "true");
 		launchTest(new AbstractAgent(){
 			@Override
 			protected void activate() {
-				// TODO Auto-generated method stub
 				super.activate();
 			}
 			@Override
 			public void setupFrame(JFrame frame) {
-				// TODO Auto-generated method stub
 				super.setupFrame(frame);
 			}
 		},ReturnCode.SUCCESS,true);
@@ -61,16 +59,14 @@ public class HeadLessTest extends JunitMadkit {
 	 */
 	@Test
 	public void testAgent() {
-		System.setProperty("java.awt.headless", "true"); //TODO
+		System.setProperty("java.awt.headless", "true");
 		launchTest(new Agent(){
 			@Override
 			protected void activate() {
-				// TODO Auto-generated method stub
 				super.activate();
 			}
 			@Override
 			public void setupFrame(JFrame frame) {
-				// TODO Auto-generated method stub
 				super.setupFrame(frame);
 			}
 		},ReturnCode.SUCCESS,true);

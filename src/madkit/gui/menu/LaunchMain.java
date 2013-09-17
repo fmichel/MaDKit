@@ -59,7 +59,7 @@ public class LaunchMain extends ClassPathSensitiveMenu {
 		for (final String string : MadkitClassLoader.getAgentsWithMain()) {
 			JMenuItem name = new JMenuItem(GlobalAction.LAUNCH_MAIN);
 			name.setActionCommand(string);
-			name.setText(string+".main");
+			name.setText(string);
 			add(name);
 		}
 		setVisible(getItemCount() != 0);

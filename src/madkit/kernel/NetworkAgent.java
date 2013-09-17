@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -28,7 +28,10 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
@@ -48,7 +51,7 @@ import madkit.message.ObjectMessage;
  * @since MaDKit 5
  *
  */
-final class NetworkAgent extends Agent {//TODO if logger != null
+final class NetworkAgent extends Agent {
 
 	/**
 	 * 
@@ -84,7 +87,7 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 	protected void activate() {
 		setName(super.getName()+getKernelAddress());
 		setLogLevel(LevelOption.networkLogLevel.getValue(getMadkitConfig()));
-				setLogLevel(Level.FINER);
+//				setLogLevel(Level.INFO);
 		requestRole(LocalCommunity.NAME, Groups.NETWORK, madkit.agr.LocalCommunity.Roles.NET_AGENT);
 
 		kernelAgent = getAgentWithRole(LocalCommunity.NAME, Groups.NETWORK, Organization.GROUP_MANAGER_ROLE);
@@ -262,12 +265,12 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 	 * @param ka
 	 */
 	private void peerDeconnected(final KernelAddress ka) {
-		if(peers.remove(ka) == null)//TODO log
-			return;
-		if(logger != null)
-			logger.info("\n\t\t\t\t----- "+getKernelAddress()+" deconnected from MaDKit kernel "+ka+"------\n");
-		kernel.getMadkitKernel().removeAgentsFromDistantKernel(ka);
-		//		System.err.println(getOrganizationSnapShot(false));
+		if (peers.remove(ka) != null) {
+			if (logger != null)
+				logger.info("\n\t\t\t\t----- " + getKernelAddress() + " deconnected from " + ka + "------\n");
+			getMadkitKernel().removeAgentsFromDistantKernel(ka);
+//					System.err.println(getOrganizationSnapShot(false));
+		}
 	}
 
 	/**
@@ -285,14 +288,13 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 		}
 		if(logger != null)
 			logger.finer("KC opened: "+kc+"\n\tsending connection INFO");
-		if(! sendingConnectionInfo(kc))
-			return;
-		if (logger != null) 
-			logger.fine("Connection info sent, now waiting reply from "+kc.getDistantKernelSocket()+"...");
-		final KernelAddress dka = gettingConnectionInfo(kc);
-		if(dka == null)
-			return;
-		addConnection(dka,kc, getState().equals(LIVING));		
+		if (sendingConnectionInfo(kc)) {
+			if (logger != null)
+				logger.fine("Connection info sent, now waiting reply from " + kc.getDistantKernelSocket() + "...");
+			final KernelAddress dka = gettingConnectionInfo(kc);
+			if (dka != null)
+				addConnection(dka, kc, getState().equals(LIVING));
+		}		
 	}
 
 	/**
@@ -301,7 +303,7 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 	 */
 	private void addConnection(final KernelAddress ka, final KernelConnection kc, final boolean startConnection) {
 		peers.put(ka,kc);
-		if (logger != null) logger.info("\n\t\t\t\t----- "+getKernelAddress()+" now connected with MaDKit kernel "+kc.getKernelAddress()+"------\n");
+		if (logger != null) logger.info("\n\t\t\t\t----- "+getKernelAddress()+" now connected with "+kc.getKernelAddress()+"------\n");
 		if (startConnection) {
 			kc.start();
 		}
@@ -319,22 +321,18 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 			kc = new KernelConnection(this,packet.getAddress(),packet.getPort());
 			if(logger != null)
 				logger.finer("KC created "+kc);
-		} catch (final UnknownHostException e) {//TODO java 7
-			if (logger != null) 
-				logger.warning("Unable to contact peer: "+packet.getAddress()+" port = "+packet.getPort()+" because "+e.getMessage());
-			return;
 		} catch (final IOException e) {
 			if (logger != null) 
 				logger.warning("Unable to contact peer: "+packet.getAddress()+" port = "+packet.getPort()+" because "+e.getMessage());
 			return;
 		}
 		final KernelAddress dka = gettingConnectionInfo(kc);
-		if(dka == null)
-			return;
-		if (logger != null) logger.finer("Now replying to "+dka);
-		if(! sendingConnectionInfo(kc))
-			return;
-		addConnection(dka,kc, getState().equals(LIVING));		
+		if (dka != null) {
+			if (logger != null)
+				logger.finer("Now replying to " + dka);
+			if (sendingConnectionInfo(kc))
+				addConnection(dka, kc, getState().equals(LIVING));
+		}		
 	}
 	
 	@SuppressWarnings("unused")//used by reflection
@@ -370,16 +368,11 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 //							e.printStackTrace();
 //						}
 //						
-			kernel.getMadkitKernel().importDistantOrg(kc.waitForDistantOrg());
+			kernel.getMadkitKernel().importDistantOrg(cleanUp(kc.waitForDistantOrg(),dka));
 			return dka;
-		} catch (final IOException e) {
+		} catch (final IOException |  ClassNotFoundException e) {
 			if(dka == null)
 				getLogger().severeLog("I give up: Unable to get distant kernel address info on "+kc, e);
-			else
-				getLogger().severeLog("I give up: Unable to get distant organization from "+dka,e);
-		} catch (final ClassNotFoundException e) {
-			if(dka == null)
-				getLogger().severeLog("I give up: Unable to get distant kernel address info on "+kc,e);
 			else
 				getLogger().severeLog("I give up: Unable to get distant organization from "+dka,e);
 		}
@@ -401,6 +394,34 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 		return true;
 	}
 
+	private Map<String, Map<String, Map<String, Set<AgentAddress>>>> cleanUp(
+			Map<String, Map<String, Map<String, Set<AgentAddress>>>> organizationSnapShot, KernelAddress from) {
+		for (Iterator<Entry<String, Map<String, Map<String, Set<AgentAddress>>>>> iterator = organizationSnapShot.entrySet().iterator(); iterator.hasNext();) {
+			Entry<String, Map<String, Map<String, Set<AgentAddress>>>> org = iterator.next();
+			for (Iterator<Entry<String, Map<String, Set<AgentAddress>>>> iterator2 = org.getValue().entrySet().iterator(); iterator2.hasNext();) {
+				Entry<String, Map<String, Set<AgentAddress>>> group = iterator2.next();
+				for (Iterator<Entry<String, Set<AgentAddress>>> iterator3 = group.getValue().entrySet().iterator(); iterator3.hasNext();) {
+					Entry<String, Set<AgentAddress>> role = iterator3.next();
+					for (Iterator<AgentAddress> iterator4 = role.getValue().iterator(); iterator4.hasNext();) {
+						final KernelAddress dka = iterator4.next().getKernelAddress();
+						if(! from.equals(dka) && ! peers.containsKey(dka))
+							iterator4.remove();
+					}
+					if(role.getValue().isEmpty()){
+						iterator3.remove();
+					}
+				}
+				if(group.getValue().isEmpty()){
+					iterator2.remove();
+				}
+			}
+			if(org.getValue().isEmpty()){
+				iterator.remove();
+			}
+		}
+		return organizationSnapShot;
+	}
+
 	/**
 	 * @param message
 	 */
@@ -414,14 +435,12 @@ final class NetworkAgent extends Agent {//TODO if logger != null
 		}
 	}
 
-	private boolean sendDistantMessage(final ObjectMessage<Message> m){
+	private void sendDistantMessage(final ObjectMessage<Message> m){
 		if (logger != null) logger.finer("sending to "+m.getContent().getReceiver().getKernelAddress()+m);
 		final KernelConnection kc = peers.get(m.getContent().getReceiver().getKernelAddress());
-		if(kc == null){
-			return false;
+		if(kc != null){
+			kc.sendMessage(m);
 		}
-		kc.sendMessage(m);
-		return true;
 	}
 	
 		@Override

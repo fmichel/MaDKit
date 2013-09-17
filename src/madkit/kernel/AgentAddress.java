@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -159,10 +159,10 @@ public class AgentAddress implements java.io.Serializable{
 	 * which is considered as a programming error.
 	 */
 	@Override
-	public boolean equals(final Object agentAddress) throws ClassCastException{//TODO program the offline mode
+	public boolean equals(final Object agentAddress) throws ClassCastException{
 		if(this == agentAddress)
 			return true;
-		if(agentAddress == null || !(agentAddress.hashCode() == hashCode()))
+		if(agentAddress == null || agentAddress.hashCode() != _hashCode)
 			return false;
 		final AgentAddress aa = (AgentAddress) agentAddress;
 		return kernelAddress.equals(aa.kernelAddress) && aa.roleObject == roleObject;

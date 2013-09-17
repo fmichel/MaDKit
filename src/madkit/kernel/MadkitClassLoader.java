@@ -117,7 +117,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 //					l.log(Level.FINE, "Already defined " + name + " : NEED NEW MCL");
 //				}
 				@SuppressWarnings("resource")
-				MadkitClassLoader mcl = new MadkitClassLoader(getURLs(),//FIXME close ?
+				MadkitClassLoader mcl = new MadkitClassLoader(getURLs(),
 						this, classesToReload);
 				classesToReload.remove(name);
 				c = mcl.loadClass(name, resolve);
@@ -219,7 +219,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 						}
 					} catch (ClassNotFoundException e ) {
 						e.printStackTrace();
-					} catch (ClassCircularityError e) {//FIXME
+					} catch (ClassCircularityError e) {//FIXME just a reminder
 //						e.printStackTrace();
 					}
 				}
@@ -338,6 +338,9 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 		return new TreeSet<>(xmlFiles);
 	}
 
+	/**
+	 * @return all the agent classes having a <code>main</code> method.
+	 */
 	public static Set<String> getAgentsWithMain() {
 		scanClassPathForAgentClasses();
 		return new TreeSet<>(mains);
@@ -370,10 +373,8 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 //				}
 				String mdkConfigs = projectInfo.getValue("MDK-Files");
 				if (check(mdkConfigs)) {
-					mdkArgs += Option.configFile.toString()+" ";
 					for (String configFile : mdkConfigs.split(",")) {
-						mas = new MASModel(projectName+configFile, (mdkArgs+configFile).split(" "), projectDescription);
-						demos.add(mas);
+						mdkFiles.add(configFile);
 //						if (l != null) {
 //							l.finest("found MAS config info " + mas);
 //						}
@@ -450,7 +451,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 				}
 				return true;
 			}
-		} catch (VerifyError | ClassNotFoundException | NoClassDefFoundError | SecurityException  | NoSuchMethodException e) {//FIXME
+		} catch (VerifyError | ClassNotFoundException | NoClassDefFoundError | SecurityException  | NoSuchMethodException e) {//FIXME just a reminder
 		}
 		return false;
 	}

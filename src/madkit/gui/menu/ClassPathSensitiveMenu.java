@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Fabien Michel
+ * Copyright 2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -25,6 +25,9 @@ import javax.swing.JMenu;
 import madkit.kernel.MadkitClassLoader;
 
 /**
+ * The super class of MaDKit menu which have to be update when
+ * the class path is changed or updated with new classes or files.
+ * 
  * @author Fabien Michel
  * @since MadKit 5.0.2
  * @version 0.9
@@ -56,7 +59,7 @@ public abstract class ClassPathSensitiveMenu extends JMenu {
 	 * {@link MadkitClassLoader#loadUrl(java.net.URL)}
 	 * is used.
 	 */
-	public static void updateAllMenus() {//TODO facto
+	public static void updateAllMenus() {
 		synchronized (menus) {
 			for (ClassPathSensitiveMenu menu : menus) {
 				menu.update();

@@ -38,6 +38,6 @@ public class XMLSuccessTestAgent2 extends XMLSuccessTestAgent {
 		assertEquals(5, getI().intValue());
 		assertEquals("blabla", getS());
 		assertFalse(hasGUI());
-		requestRole(COMMUNITY, GROUP, ROLE);
+		bucketModeRequestRole(COMMUNITY, GROUP, ROLE, null);
 	}
 }

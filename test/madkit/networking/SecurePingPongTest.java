@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -41,12 +41,12 @@ import org.junit.Test;
 public class SecurePingPongTest extends JunitMadkit {
 	@Test
 	public void networkPingPong() {
-		addMadkitArgs(BooleanOption.network.toString(),LevelOption.kernelLogLevel.toString(),Level.ALL.toString(),LevelOption.networkLogLevel.toString(),Level.ALL.toString());
+		addMadkitArgs(BooleanOption.network.toString(),LevelOption.kernelLogLevel.toString(),Level.ALL.toString(),LevelOption.networkLogLevel.toString(),Level.FINE.toString());
 		launchTest(new Agent() {
 			@SuppressWarnings("unused")
 			@Override
 			protected void activate() {
-				new Madkit(Option.launchAgents.toString(),Denier.class.getName(),BooleanOption.network.toString());
+				launchCustomNetworkInstance(Level.ALL, Denier.class);
 				pause(1000);
 				assertEquals(ReturnCode.ACCESS_DENIED, requestRole(COMMUNITY, GROUP, ROLE));
 //				m.doAction(KernelAction.EXIT);
@@ -54,6 +54,7 @@ public class SecurePingPongTest extends JunitMadkit {
 //				KernelAction.EXIT.getActionFor(this).actionPerformed(null);
 			}
 		});
+		cleanHelperMDKs();
 	}
 
 }

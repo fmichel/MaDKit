@@ -413,22 +413,18 @@ class SelfKillAgent extends DoItDuringLifeCycleAgent {
 
 	public SelfKillAgent() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	public SelfKillAgent(boolean inActivate, boolean inLive, boolean inEnd) {
 		super(inActivate, inLive, inEnd);
-		// TODO Auto-generated constructor stub
 	}
 
 	public SelfKillAgent(boolean inActivate, boolean inLive) {
 		super(inActivate, inLive);
-		// TODO Auto-generated constructor stub
 	}
 
 	public SelfKillAgent(boolean inActivate) {
 		super(inActivate);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override

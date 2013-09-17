@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -18,14 +18,17 @@
  */
 package madkit.kernel;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 
 /**
  * @author Fabien Michel
@@ -109,41 +112,50 @@ final class KernelConnection extends Thread{
 			try {
 				myNetAgent.receiveMessage((Message) ois.readObject());
 			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
+				myNetAgent.getLogger().log(Level.SEVERE,"Unable to deserialize object", e);
+			} catch (IOException e) {
+				logIOException(e);
 				break;
 			}
-			catch (IOException e) {
-				if (e.getMessage() != null) {
-					myNetAgent.getLogger().severeLog(e.getMessage(), e);
-				}
-				myNetAgent.receiveMessage(new NetworkMessage(NetCode.PEER_DECONNECTED, distantKernelAddress));
-				break;
-			}		
 		}
+		myNetAgent.receiveMessage(new NetworkMessage(NetCode.PEER_DECONNECTED, distantKernelAddress));
 		closeConnection();
+	}
+
+	/**
+	 * @param e
+	 */
+	private void logIOException(final IOException e) {
+		if (e instanceof SocketException || e instanceof EOFException) {
+			myNetAgent.getLogger().log(Level.FINEST," socket closed on "+distantKernelAddress, e);
+		}
+		else{
+			myNetAgent.getLogger().severeLog("io problem", e);
+		}
 	}
 
 	/**
 	 * @param m
 	 */
-	synchronized void sendMessage(Message m) {
+	synchronized void sendMessage(final Message m) {
 		try {
 			oos.writeObject(m);
-		} catch (IOException e) {//FIXME
-//			e.printStackTrace();//log this//TODO handle broken pipe socket ex
+		} catch (IOException e) {
+			logIOException(e);
 		}
 		
 	}
 
 	/**
-	 * close the connection by closing the socket and the writing streams
+	 * close the connection by closing the socket and the streams
 	 */
 	synchronized void closeConnection() {
 		try {
 			oos.close();
 			ois.close();
 			distantKernelSocket.close();
-		} catch (IOException e) {//log this//TODO handle broken pipe //FIXME
+		} catch (IOException e) {
+			myNetAgent.getLogger().log(Level.FINE, "", e);
 		}
 		
 	}

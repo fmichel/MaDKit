@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -48,7 +48,7 @@ public class ConnectionTest extends JunitMadkit {
 //		pause(5000);
 		addMadkitArgs(BooleanOption.network.toString()
 //				,
-				,LevelOption.networkLogLevel.toString(),"ALL"
+				,LevelOption.networkLogLevel.toString(),"FINE"
 //				LevelOption.kernelLogLevel.toString(),"FINER",
 //				BooleanOption.createLogFiles.toString(),
 //				Option.launchAgents.toString(),ForEverAgent.class.getName()

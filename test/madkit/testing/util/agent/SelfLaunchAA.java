@@ -36,7 +36,6 @@ public class SelfLaunchAA extends DoItDuringLifeCycleAbstractAgent {
 	 */
 	public SelfLaunchAA(boolean inActivate, boolean inEnd) {
 		super(inActivate, inEnd);
-		// TODO Auto-generated constructor stub
 	}
 
 	public SelfLaunchAA(boolean inActivate) {

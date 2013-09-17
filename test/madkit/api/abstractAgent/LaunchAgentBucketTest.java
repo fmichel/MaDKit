@@ -31,6 +31,7 @@ import madkit.kernel.AbstractAgent;
 import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.AbstractAgent.State;
 import madkit.kernel.Agent;
+import madkit.kernel.AgentAddress;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.testing.util.agent.SimulatedAgent;
@@ -93,7 +94,6 @@ public class LaunchAgentBucketTest extends JunitMadkit {
 				try {
 					t.join();
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				stopTimer("bucket launch time = ");
@@ -164,6 +164,27 @@ public class LaunchAgentBucketTest extends JunitMadkit {
 				assertEquals(1, l.size());
 				assertEquals(1, getAgentsWithRole(COMMUNITY, GROUP, ROLE).size());
 				testAgents(l);
+			}
+		});
+	}
+	
+	@Test
+	public void moreCPUThanAgents() {
+		launchTest(new AbstractAgent() {
+			protected void activate() {
+				int nbOfAgents = 50;
+				for (int j = 0; j < nbOfAgents; j++) {
+					for (int i = 1; i < Runtime.getRuntime().availableProcessors() * 2; i++) {
+						List<AbstractAgent> l = launchAgentBucket(SimulatedAgent.class.getName(), j, i);
+						assertEquals(j, l.size());
+						final List<AgentAddress> agentsWithRole = getAgentsWithRole(COMMUNITY, GROUP, ROLE);
+						if (agentsWithRole != null) {
+							assertEquals(j, agentsWithRole.size());
+						}
+						testAgents(l);
+						destroyGroup(COMMUNITY, GROUP);
+					}
+				}
 			}
 		});
 	}

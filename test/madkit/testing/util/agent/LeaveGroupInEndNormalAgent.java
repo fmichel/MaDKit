@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -53,6 +53,7 @@ public class LeaveGroupInEndNormalAgent extends Agent {
 	}
 	
 	protected void live() {
+		pause(1000);
 	}
 	
 	@Override

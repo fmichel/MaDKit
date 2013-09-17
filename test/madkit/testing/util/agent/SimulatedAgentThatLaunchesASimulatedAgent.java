@@ -16,42 +16,30 @@
  * You should have received a copy of the GNU General Public License
  * along with MaDKit. If not, see <http://www.gnu.org/licenses/>.
  */
-package madkit.boot.process;
+package madkit.testing.util.agent;
 
-import static org.junit.Assert.*;
+import static madkit.kernel.JunitMadkit.COMMUNITY;
+import static madkit.kernel.JunitMadkit.GROUP;
+import static madkit.kernel.JunitMadkit.ROLE;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import madkit.api.abstractAgent.LaunchAgentBucketWithRolesWithListTest;
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.JunitMadkit;
-
-import org.junit.Test;
 
 /**
  * @author Fabien Michel
- * @since MaDKit 5.0.0.14
+ * @since MaDKit 5.0.0.13
  * @version 0.9
  * 
  */
-@SuppressWarnings("serial")
-public class OtherMadkitProperty extends JunitMadkit {
+public class SimulatedAgentThatLaunchesASimulatedAgent extends SimulatedAgent {
 
-	@Test
-	public void undefinedProperty() {
-		addMadkitArgs("--aProperty","2");
-		launchTest(new AbstractAgent() {
-			@Override
-			protected void activate() {
-				assertEquals("2", getMadkitProperty("aProperty"));
-			}
-		});
+	@Override
+	protected void activate() {
+		super.activate();
+		launchAgent(new SimulatedAgent());
 	}
-
-	@Test
-	public void undefinedEnumProperty() {
-		launchTest(new AbstractAgent() {
-			@Override
-			protected void activate() {
-				assertNull(getMadkitProperty(Thread.State.BLOCKED));
-			}
-		});
-	}
-
+	
 }

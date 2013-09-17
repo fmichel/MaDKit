@@ -60,7 +60,6 @@ public abstract class DoItDuringLifeCycleAgent extends Agent {
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
 		return super.getName() + (inActivate ? "-inActivate-" : "") + (inLive ? "-inLive-" : "") + (inEnd ? "-inEnd-" : "")
 				+ hashCode();
 	}

@@ -167,7 +167,7 @@
 	</target>
 
 	<target name="test-compile" depends="compile,test-init">
-		<javac destdir="${test.classes.dir}" includeAntRuntime="false" debug="true" srcdir="test">
+		<javac destdir="${test.classes.dir}" includeAntRuntime="false" debug="false" srcdir="test">
 			<classpath refid="test.compile.classpath" />
 		</javac>
 	</target>

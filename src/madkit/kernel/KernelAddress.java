@@ -54,14 +54,19 @@ public class KernelAddress implements java.io.Serializable{
 		long result = 0;
 		try {
 			final Enumeration<NetworkInterface> e = NetworkInterface.getNetworkInterfaces();
-			while (e.hasMoreElements()) {
-				final NetworkInterface ni = e.nextElement();
-				if (! ni.isLoopback()) {
-					for (final byte value : ni.getHardwareAddress()) {
-						result <<= 8;
-						result |= value & 255;
+			if (e != null) {
+				while (e.hasMoreElements()) {
+					final NetworkInterface ni = e.nextElement();
+					if (!ni.isLoopback()) {
+						final byte[] hardwareAddress = ni.getHardwareAddress();
+						if (hardwareAddress != null) {
+							for (final byte value : hardwareAddress) {
+								result <<= 8;
+								result |= value & 255;
+							}
+						}
+						break;
 					}
-					break;
 				}
 			}
 		} catch (SocketException e1) {

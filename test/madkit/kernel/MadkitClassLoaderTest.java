@@ -52,7 +52,7 @@ public class MadkitClassLoaderTest extends JunitMadkit {
 						//ugly : inside and outside Eclipse
 						assertTrue(1 == MadkitClassLoader.getMDKFiles().size() || 5 == MadkitClassLoader.getMDKFiles().size());
 						System.err.println(MadkitClassLoader.getXMLConfigurations());
-						assertTrue(3 == MadkitClassLoader.getXMLConfigurations().size() || 15 == MadkitClassLoader.getXMLConfigurations().size());
+						assertTrue(3 == MadkitClassLoader.getXMLConfigurations().size() || 16 == MadkitClassLoader.getXMLConfigurations().size());
 			}});
 	}
 

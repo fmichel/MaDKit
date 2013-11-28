@@ -94,6 +94,8 @@
 			<manifest>
 				<attribute name="Description" value="${description}" />
 				<attribute name="Version" value="${madkit.version}" />
+				<attribute name="Application-Name" value="${project.label}" />
+				<attribute name="Codebase" value="${web.codebase}" />
 				<attribute name="Author" value="${author}" />
 				<attribute name="Build-Id" value="${build.id}" />
 				<attribute name="Built-On" value="${timestamp.isoformat}" />

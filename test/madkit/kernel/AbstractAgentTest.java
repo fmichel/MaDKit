@@ -211,14 +211,6 @@ public class AbstractAgentTest {
 	}
 
 	/**
-	 * Test method for {@link madkit.kernel.AbstractAgent#getAgentExecutor()}.
-	 */
-	@Test
-	public final void testGetAgentExecutor() {
-		assertNull(a.getAgentExecutor());
-	}
-
-	/**
 	 * Test method for {@link java.lang.Object#equals(java.lang.Object)}.
 	 */
 	@Test

@@ -64,6 +64,11 @@ public class SimulatedAgent extends AbstractAgent {
 		LaunchAgentBucketWithRolesWithListTest.testAgents(l);
 	}
 	
+	@Override
+	protected void end() {
+		System.err.println("ening");
+	}
+	
 	
 	public void doIt() {
 		if(logger != null)

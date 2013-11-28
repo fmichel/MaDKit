@@ -127,7 +127,6 @@ public class Agent extends AbstractAgent{
 	/**
 	 * @return the agentExecutor
 	 */
-	@Override
 	final AgentExecutor getAgentExecutor() {
 		return agentExecutor;
 	}

@@ -373,7 +373,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	void suicide(SelfKillException e) {
 		getMadkitKernel().startEndBehavior(this, Integer.parseInt(e.getMessage()), true);
 	}
-
+	
 	/**
 	 * This method corresponds to the first behavior which is called by the
 	 * MaDKit kernel when an agent is launched. Usually a good place to take a
@@ -3017,9 +3017,9 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 				CloudCommunity.Roles.NET_AGENT);
 	}
 
-	AgentExecutor getAgentExecutor() {
-		return null;
-	}
+//	AgentExecutor getAgentExecutor() {
+//		return null;
+//	}
 
 	/**
 	 * This offers a convenient way to create main a main method that launches the agent

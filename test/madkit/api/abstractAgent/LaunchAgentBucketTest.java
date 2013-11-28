@@ -18,7 +18,7 @@
  */
 package madkit.api.abstractAgent;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -63,6 +63,30 @@ public class LaunchAgentBucketTest extends JunitMadkit {
 
 			});
 		}
+	}
+
+	@Test
+	public void withAnAgentClass() {
+			addMadkitArgs(LevelOption.agentLogLevel.toString(),Level.ALL.toString());
+			launchTest(new AbstractAgent() {
+				protected void activate() {
+					List<AbstractAgent> l = launchAgentBucket(Agent.class.getName(), size);
+					assertNotNull(l);
+					killAgent(l.get(0));
+				}
+			});
+	}
+
+	@Test
+	public void withAnAAClass() {
+			addMadkitArgs(LevelOption.agentLogLevel.toString(),Level.ALL.toString());
+			launchTest(new AbstractAgent() {
+				protected void activate() {
+					List<AbstractAgent> l = launchAgentBucket(SimulatedAgent.class.getName(), size);
+					assertNotNull(l);
+					killAgent(l.get(0));
+				}
+			});
 	}
 
 	@Test

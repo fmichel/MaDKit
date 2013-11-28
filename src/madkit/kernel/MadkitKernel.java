@@ -1067,6 +1067,17 @@ class MadkitKernel extends Agent {
 		}
 	}
 
+	/**
+	 * Creates all the instances for launching
+	 * 
+	 * @param agentClass
+	 * @param bucketSize
+	 * @param cpuCoreNb
+	 * @return
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 * @throws ClassNotFoundException
+	 */
 	final List<AbstractAgent> createBucket(final String agentClass, int bucketSize, int cpuCoreNb) throws InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
 		final Class<? extends AbstractAgent> constructor = (Class<? extends AbstractAgent>) MadkitClassLoader.getLoader().loadClass(agentClass);
@@ -1163,10 +1174,10 @@ class MadkitKernel extends Agent {
 				agent.getLogger().setWarningLogLevel(LevelOption.warningLogLevel.getValue(getMadkitConfig()));
 			}
 		}
-		final AgentExecutor ae = agent.getAgentExecutor();
+//		final AgentExecutor ae = agent.getAgentExecutor();
 		
 		//AbstractAgent
-		if (ae == null) {
+		if (! (agent instanceof Agent)) {
 			ReturnCode r = AGENT_CRASH;
 			final Future<ReturnCode> activationAttempt = lifeExecutor.submit(new Callable<ReturnCode>() {
 				public ReturnCode call() {
@@ -1196,6 +1207,7 @@ class MadkitKernel extends Agent {
 		//Agent
 		try {
 			final Agent a = (Agent) agent;
+			final AgentExecutor ae = a.getAgentExecutor();
 			synchronized (threadedAgents) {
 				// do that even if not started for cleaning properly
 				threadedAgents.add(a);
@@ -1254,9 +1266,9 @@ class MadkitKernel extends Agent {
 				return ALREADY_KILLED;
 			}
 		}
-		final AgentExecutor ae = target.getAgentExecutor();
-		if (ae != null) {
-			return killThreadedAgent((Agent) target, ae, timeOutSeconds);
+		if (target instanceof Agent && ((Agent) target).myThread != null) {
+			//extends Agent and not launched in bucket mode
+			return killThreadedAgent((Agent) target, timeOutSeconds);
 		}
 		stopAbstractAgentProcess(ACTIVATED, target);
 		return startEndBehavior(target, timeOutSeconds, false);
@@ -1339,14 +1351,15 @@ class MadkitKernel extends Agent {
 				stopAbstractAgentProcess(State.ENDING, target);
 			}
 		}
-		if (target.getAgentExecutor() == null) {
+		if (! (target instanceof Agent && ((Agent) target).myThread != null) ) {
 			target.terminate();
 		}
 		return r;
 	}
 
-	private final ReturnCode killThreadedAgent(Agent target, final AgentExecutor ae, int timeOutSeconds) {
-		final Future<?> end = ae.getEndProcess();
+	private final ReturnCode killThreadedAgent(Agent target, int timeOutSeconds) {
+		final AgentExecutor ae = target.getAgentExecutor();
+		final Future<?> end = ae .getEndProcess();
 		if (timeOutSeconds == 0) {
 			end.cancel(false);
 		}
@@ -1361,9 +1374,7 @@ class MadkitKernel extends Agent {
 		if (timeOutSeconds != 0) {
 			try {
 				end.get(timeOutSeconds, TimeUnit.SECONDS);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			} catch (CancellationException e) {
+			} catch (InterruptedException  | CancellationException e) {
 				e.printStackTrace();
 			} catch (ExecutionException e) {
 				bugReport("kill task failed on " + target, e);

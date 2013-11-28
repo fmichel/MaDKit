@@ -153,8 +153,56 @@ public class MassLaunchBench extends JunitMadkit {
 //	Average: 101 ms
 //	Max    : 1329 ms
 
+	@Test 
+	public void massLaunch(){
+		addMadkitArgs(LevelOption.agentLogLevel.toString(),"OFF");
+		launchTest(new AbstractAgent() {
+			protected void activate() {
+				if (logger != null) {
+					logger.info("\n******************* STARTING MASS LAUNCH *******************\n");
+				}
+				for (int j = 0; j < 3; j++) {
+					startTimer();
+					System.err.println("begin");
+					for (int i = 0; i < 1_000_000; i++) {
+						launchAgent(new AbstractAgent(),0);
+					}
+					stopTimer("done ");
+				}
+			}
+		});
+	}
+	
 
-	@Test
+	@Test 
+	public void massLaunchWithList(){
+		addMadkitArgs(LevelOption.agentLogLevel.toString(),"OFF");
+		launchTest(new AbstractAgent() {
+			protected void activate() {
+				if (logger != null) {
+					logger.info("\n******************* STARTING MASS LAUNCH *******************\n");
+				}
+				List<AbstractAgent> agents = new ArrayList<>(1_000_000);
+				for (int i = 0; i < 1_00_000; i++) {
+					agents.add(new AbstractAgent());
+				}
+				startTimer();
+				System.err.println("begin");
+				for (AbstractAgent abstractAgent : agents) {
+					launchAgent(abstractAgent);
+				}
+				stopTimer("done ");
+				startTimer();
+				System.err.println("begin");
+				for (AbstractAgent abstractAgent : agents) {
+					killAgent(abstractAgent);
+				}
+				stopTimer("done ");
+				}
+		});
+	}
+	
+		@Test
 	public void massNormalLifeLaunch() {// TODO more cases
 		launchTest(new AbstractAgent() {
 			protected void activate() {

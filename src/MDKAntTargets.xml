@@ -41,6 +41,7 @@
 		<manifest file="${manifest.location}">
 			<section name="MaDKit-Project-Info">
 				<attribute name="Project-Name" value="${project.label}" />
+				<attribute name="Application-Name" value="${project.label}" />
 				<attribute name="Project-Code-Name" value="${ant.project.name}" />
 				<attribute name="Project-Version" value="${version}" />
 				<attribute name="Description" value="${description}" />

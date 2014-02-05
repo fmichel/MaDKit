@@ -18,19 +18,14 @@
  */
 package madkit.networking;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 
 import madkit.action.KernelAction;
 import madkit.agr.CloudCommunity;
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.AgentAddress;
 import madkit.kernel.JunitMadkit;
-import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
 

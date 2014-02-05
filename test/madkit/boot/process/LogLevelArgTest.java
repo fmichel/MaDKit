@@ -22,7 +22,9 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.logging.Level;
 
-import madkit.kernel.*;
+import madkit.kernel.AbstractAgent;
+import madkit.kernel.AgentLogger;
+import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit.LevelOption;
 
 import org.junit.Test;

@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2014 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -50,8 +50,8 @@ public class LaunchAgentsMenu extends ClassPathSensitiveMenu {
 //	final static private Set<LaunchAgentsMenu> menus = new HashSet<>(); 
 	final private Action myAction;
 	final private AbstractAgent myAgent;
-	private AgentClassFilter filter;
-	protected int numberToLaunch;
+	private final AgentClassFilter filter;
+//	protected final int numberToLaunch;
 
 	/**
 	 * Builds a new menu, "Agents", containing all the agents available on the class path.

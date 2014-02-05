@@ -1,12 +1,15 @@
 package madkit.launching;
 
-import java.io.File;
-
+import static madkit.kernel.JunitMadkit.startTimer;
+import static madkit.kernel.JunitMadkit.stopTimer;
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.Madkit.Option;
-import static madkit.kernel.JunitMadkit.*;
 
 public class BucketBench extends AbstractAgent {
+
+	/**
+	 * 
+	 */
+	private static final long	serialVersionUID	= 1L;
 
 	@Override
 	protected void activate() {

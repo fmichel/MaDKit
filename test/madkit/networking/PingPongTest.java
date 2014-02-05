@@ -19,9 +19,6 @@
 package madkit.networking;
 
 import static org.junit.Assert.assertNotNull;
-
-import java.util.Arrays;
-
 import madkit.action.KernelAction;
 import madkit.kernel.Agent;
 import madkit.kernel.JunitMadkit;

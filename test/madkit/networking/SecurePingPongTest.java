@@ -24,10 +24,8 @@ import java.util.logging.Level;
 
 import madkit.kernel.Agent;
 import madkit.kernel.JunitMadkit;
-import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
-import madkit.kernel.Madkit.Option;
 
 import org.junit.Test;
 
@@ -43,7 +41,6 @@ public class SecurePingPongTest extends JunitMadkit {
 	public void networkPingPong() {
 		addMadkitArgs(BooleanOption.network.toString(),LevelOption.kernelLogLevel.toString(),Level.ALL.toString(),LevelOption.networkLogLevel.toString(),Level.FINE.toString());
 		launchTest(new Agent() {
-			@SuppressWarnings("unused")
 			@Override
 			protected void activate() {
 				launchCustomNetworkInstance(Level.ALL, Denier.class);

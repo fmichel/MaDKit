@@ -18,10 +18,13 @@
  */
 package madkit.testing.util.agent;
 
+import static madkit.kernel.JunitMadkit.COMMUNITY;
+import static madkit.kernel.JunitMadkit.GROUP;
+import static madkit.kernel.JunitMadkit.ROLE;
+
 import java.util.logging.Level;
 
 import madkit.kernel.Madkit.LevelOption;
-import static madkit.kernel.JunitMadkit.*;
 /**
  * @author Fabien Michel
  * @since MaDKit 5.0.0.7

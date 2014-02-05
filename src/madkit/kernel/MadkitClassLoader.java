@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2014 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -39,13 +39,16 @@ import java.util.jar.JarFile;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import madkit.action.ActionInfo;
 import madkit.gui.MASModel;
 import madkit.gui.menu.ClassPathSensitiveMenu;
-import madkit.kernel.Madkit.Option;
 import madkit.util.XMLUtilities;
 
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
+
+import com.sun.javaws.jnl.JARDesc;
+import com.sun.jnlp.JNLPClassLoader;
 
 /**
  * The MadkitClassLoader is the class loader used by MaDKit, enabling 
@@ -70,17 +73,30 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 	private static MadkitClassLoader currentMCL;
 	
 	static{
-		final ClassLoader systemCL = MadkitClassLoader.class.getClassLoader();
-		String[] urlsName = System.getProperty("java.class.path").split(File.pathSeparator);
-		URL[] urls = new URL[urlsName.length];
-		for (int i = 0; i < urlsName.length; i++) {
+		final URL[] urls;
+		if(ActionInfo.javawsIsOn){
+			final JARDesc[] jars = JNLPClassLoader.getInstance().getLaunchDesc().getResources().getEagerOrAllJarDescs(true);
+			urls = new URL[jars.length];
+			for (int i = 0; i < jars.length; i++) {
+//				System.err.println(jars[i].getLocation());
+				urls[i] = jars[i].getLocation();
+			}
+		}
+		else{
+			final String[] urlsName = System.getProperty("java.class.path").split(File.pathSeparator);
+			urls = new URL[urlsName.length];
+			for (int i = 0; i < urlsName.length; i++) {
 				try {
 					urls[i] = new File(urlsName[i]).toURI().toURL();
 				} catch (MalformedURLException e) {
 					e.printStackTrace();
 				}
+			}
 		}
-		currentMCL = new MadkitClassLoader(urls,systemCL,null);			
+//		final ClassLoader systemCL = MadkitClassLoader.class.getClassLoader();
+//		final ClassLoader systemCL = Thread.currentThread().getContextClassLoader();
+//		System.err.println(systemCL);
+		currentMCL = new MadkitClassLoader(urls,MadkitClassLoader.class.getClassLoader(),null);			
 	}
 	
 	/**
@@ -117,8 +133,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 //					l.log(Level.FINE, "Already defined " + name + " : NEED NEW MCL");
 //				}
 				@SuppressWarnings("resource")
-				MadkitClassLoader mcl = new MadkitClassLoader(getURLs(),
-						this, classesToReload);
+				MadkitClassLoader mcl = new MadkitClassLoader(getURLs(), this, classesToReload);
 				classesToReload.remove(name);
 				c = mcl.loadClass(name, resolve);
 			}
@@ -285,9 +300,12 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 	 * @param url the resource to add
 	 */
 	public static void loadUrl(URL url) {
+		int size = getLoader().getURLs().length;//TODO could check if present
 		getLoader().addURL(url);
-		System.setProperty("java.class.path", System.getProperty("java.class.path")+File.pathSeparator+url.getPath());
-		ClassPathSensitiveMenu.updateAllMenus();
+		if (size != getLoader().getURLs().length) {//truly loaded
+			System.setProperty("java.class.path", System.getProperty("java.class.path") + File.pathSeparator + url.getPath());
+			ClassPathSensitiveMenu.updateAllMenus();
+		}
 	}
 
 	/**
@@ -366,7 +384,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 			if (check(mdkArgs)) {
 				final String projectName = projectInfo.getValue("Project-Name").trim();
 				final String projectDescription = projectInfo.getValue("Description").trim();
-				MASModel mas = new MASModel(projectName, mdkArgs.split(" "), projectDescription);
+				MASModel mas = new MASModel(projectName, mdkArgs.trim().split("\\s+"), projectDescription);
 				demos.add(mas);
 //				if (l != null) {
 //					l.finest("found MAS info " + mas);
@@ -545,7 +563,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 	
 	@Override
 	public String toString() {
-		return "MCL CP : "+Arrays.deepToString(getURLs());
+		return "MCL CP : "+Arrays.deepToString(getURLs())+"\nmains="+getAgentsWithMain();
 	}
 
 }

@@ -18,15 +18,15 @@
  */
 package madkit.scenari.bug;
 
-import madkit.kernel.AbstractAgent;
-import madkit.kernel.AbstractAgent.ReturnCode;
-import madkit.kernel.Agent;
-import madkit.kernel.JunitMadkit;
-import madkit.testing.util.agent.FaultyAA;
-import madkit.testing.util.agent.NormalLife;
 import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_KILLED;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import madkit.kernel.AbstractAgent;
+import madkit.kernel.AbstractAgent.ReturnCode;
+import madkit.kernel.JunitMadkit;
+import madkit.testing.util.agent.FaultyAA;
 
 import org.junit.Test;
 

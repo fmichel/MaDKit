@@ -25,8 +25,8 @@ import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static org.junit.Assert.assertEquals;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AbstractAgent.ReturnCode;
-import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.JunitMadkit;
+import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Message;
 
 import org.junit.Test;

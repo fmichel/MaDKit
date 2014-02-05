@@ -18,15 +18,6 @@
  */
 package madkit.testing.util.agent;
 
-import static madkit.kernel.JunitMadkit.COMMUNITY;
-import static madkit.kernel.JunitMadkit.GROUP;
-import static madkit.kernel.JunitMadkit.ROLE;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import madkit.api.abstractAgent.LaunchAgentBucketWithRolesWithListTest;
-import madkit.kernel.AbstractAgent;
 
 /**
  * @author Fabien Michel
@@ -35,6 +26,11 @@ import madkit.kernel.AbstractAgent;
  * 
  */
 public class SimulatedAgentThatLaunchesASimulatedAgent extends SimulatedAgent {
+
+	/**
+	 * 
+	 */
+	private static final long	serialVersionUID	= 1L;
 
 	@Override
 	protected void activate() {

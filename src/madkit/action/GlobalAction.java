@@ -38,7 +38,6 @@ import madkit.i18n.I18nUtilities;
 import madkit.i18n.Words;
 import madkit.kernel.AgentLogger;
 import madkit.kernel.Madkit;
-import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Madkit.Option;
 import madkit.kernel.MadkitClassLoader;
 
@@ -57,7 +56,7 @@ public class GlobalAction {
 	/**
 	 * The path to the jconsole executable if available
 	 */
-	public static String jconsolePath = MadkitClassLoader.findJavaExecutable("jconsole");
+	public final static String jconsolePath = MadkitClassLoader.findJavaExecutable("jconsole");
 
 	/**
 	 * An action that Launches the jconsole tool if it is available.
@@ -70,7 +69,7 @@ public class GlobalAction {
 			if(jconsolePath != null){
 				final String pid = java.lang.management.ManagementFactory.getRuntimeMXBean().getName();
 							try {
-								Runtime.getRuntime().exec(jconsolePath+" "+pid.substring(0, pid.indexOf('@')));
+								new ProcessBuilder(jconsolePath,pid.substring(0, pid.indexOf('@'))).start();
 							} catch (IOException e1) {
 								e1.printStackTrace();
 							}
@@ -216,6 +215,7 @@ public class GlobalAction {
 				 */
 				private static final long	serialVersionUID	= 1L;
 
+				@SuppressWarnings("unused")
 				@Override
 				public void actionPerformed(ActionEvent e) {
 						new Madkit(Option.configFile.toString(),

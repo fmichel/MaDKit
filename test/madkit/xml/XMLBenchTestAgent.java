@@ -18,9 +18,10 @@
  */
 package madkit.xml;
 
+import static madkit.kernel.JunitMadkit.COMMUNITY;
+import static madkit.kernel.JunitMadkit.GROUP;
+import static madkit.kernel.JunitMadkit.ROLE;
 import madkit.kernel.AbstractAgent;
-import static org.junit.Assert.*;
-import static madkit.kernel.JunitMadkit.*;
 
 /**
  * @author Fabien Michel
@@ -28,7 +29,12 @@ import static madkit.kernel.JunitMadkit.*;
  * @version 0.9
  * 
  */
+@SuppressWarnings("unused")
 public class XMLBenchTestAgent extends AbstractAgent {
+	/**
+	 * 
+	 */
+	private static final long	serialVersionUID	= 1L;
 	private int speed = 0;
 	private Integer i = 10;
 	private String s="t";

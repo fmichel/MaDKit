@@ -2,7 +2,7 @@
 <!-- 
  This is ant build.xml file for building the MaDKit kernel jar file MaDKit V.5
  Author: Fabien Michel
- Version: 5.0
+ Version: 5.1
 -->
 
 <project name="MDK_targets" default="build-executable-jar" basedir=".">
@@ -30,13 +30,13 @@
 			<classpath location="${kernel.location}" />
 		</javaresource>
 	</include>
-	
+
 	<!-- ================================= 
           target: compile              
          ================================= -->
-    <target name="compile" description="compile source files">
+	<target name="compile" description="compile source files">
 		<antcall target="MDK.compile" />
-    </target>
+	</target>
 
 	<!-- ================================= 
           target: build-executable-jar
@@ -51,6 +51,8 @@
 			${line.separator}- Technology   It has been built using MaDKit: The Multiagent Development Kit ${madkit.web}  -----
 		</concat>
 		<manifest file="${manifest.location}" mode="update">
+			<attribute name="Permissions" value="all-permissions" />
+			<attribute name="Trusted-Library" value="true" />
 			<attribute name="Main-Class" value="madkit.kernel.Madkit" />
 		</manifest>
 		<antcall target="MDK.jar" />
@@ -85,7 +87,7 @@
           target: Java-web-start            
          ================================= -->
 	<target name="Java-web-start" depends="build-executable-jar" description="builds jws files">
-		<antcall target="MDK.sign-jar"/>
+		<antcall target="MDK.sign-jar" />
 		<copy tofile="${ant.project.name}.jnlp" overwrite="true">
 			<resources>
 				<url url="${jnlp.template.file}" />
@@ -117,7 +119,7 @@
           target: clean              
          ================================= -->
 	<target name="clean" description="clean generated files">
-        <delete dir="${build.dir}" followsymlinks="false" removeNotFollowedSymlinks="true"/>
+		<delete dir="${build.dir}" followsymlinks="false" removeNotFollowedSymlinks="true"/>
 		<delete dir="${build.dir}" failonerror="false"/>
 		<delete file="${jar.file}" />
 		<delete file="${jnlp.jar.gz}" />

@@ -56,7 +56,7 @@ public class AgentFrame extends JFrame {
 	 */
 	private static final long serialVersionUID = 6337250099157352055L;
 	private JInternalFrame internalFrame;
-	private AbstractAgent agent;
+	private final AbstractAgent agent;
 	
 	/**
 	 * TThis constructor is protected because this class

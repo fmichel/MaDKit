@@ -22,7 +22,8 @@ import static madkit.kernel.AbstractAgent.ReturnCode.AGENT_CRASH;
 import static madkit.kernel.AbstractAgent.ReturnCode.ALREADY_LAUNCHED;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadkit;
 import madkit.testing.util.agent.NoPublicConstructorAA;
@@ -127,5 +128,10 @@ public class LaunchAgentClassTest extends JunitMadkit {
 }
 
 class NotPublicAgent extends AbstractAgent{
+
+	/**
+	 * 
+	 */
+	private static final long	serialVersionUID	= 1L;
 	
 }

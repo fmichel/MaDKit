@@ -18,9 +18,12 @@
  */
 package madkit.xml;
 
+import static madkit.kernel.JunitMadkit.COMMUNITY;
+import static madkit.kernel.JunitMadkit.GROUP;
+import static madkit.kernel.JunitMadkit.ROLE;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import madkit.kernel.AbstractAgent;
-import static org.junit.Assert.*;
-import static madkit.kernel.JunitMadkit.*;
 
 
 /**
@@ -30,6 +33,10 @@ import static madkit.kernel.JunitMadkit.*;
  * 
  */
 public class XMLSuccessTestAgent extends AbstractAgent {
+	/**
+	 * 
+	 */
+	private static final long	serialVersionUID	= 1L;
 	private int speed = 0;
 	private Integer i = 10;
 	private String s="t";

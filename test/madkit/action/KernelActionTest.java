@@ -41,6 +41,11 @@ public class KernelActionTest extends JunitMadkit{
 		mkArgs.clear();
 //		addMadkitArgs(LevelOption.agentLogLevel.toString(), Level.ALL.toString());
 		launchTest(new AbstractAgent() {
+			/**
+			 * 
+			 */
+			private static final long	serialVersionUID	= 1L;
+
 			@Override
 			protected void activate() {
 				assertEquals("INFO", getMadkitProperty(LevelOption.agentLogLevel.name()));

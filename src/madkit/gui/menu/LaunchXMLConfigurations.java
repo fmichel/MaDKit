@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2014 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -52,7 +52,7 @@ public class LaunchXMLConfigurations extends ClassPathSensitiveMenu {
 	 * 
 	 */
 	private static final long serialVersionUID = -3650744981788324553L;
-	private AbstractAgent	myAgent;
+	private final AbstractAgent	myAgent;
 
 	/**
 	 * Builds a new menu.

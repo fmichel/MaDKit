@@ -18,6 +18,8 @@
  */
 package madkit.performance;
 
+import static org.junit.Assert.assertNotNull;
+
 import java.util.List;
 import java.util.logging.Level;
 
@@ -25,7 +27,6 @@ import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.testing.util.agent.NormalAA;
-import static org.junit.Assert.*;
 
 import org.junit.Test;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2014 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -261,7 +261,7 @@ final class GroupManagerAddress extends AgentAddress{
 	 * 
 	 */
 	private static final long	serialVersionUID	= -5757376397376189866L;
-	private boolean securedGroup;
+	private final boolean securedGroup;
 
 	GroupManagerAddress(AbstractAgent agt, Role role, KernelAddress ka, boolean securedGroup) {
 		super(agt, role, ka);

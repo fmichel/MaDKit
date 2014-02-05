@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2014 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -22,7 +22,6 @@ package madkit.kernel;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 
 /**
  * @author Fabien Michel
@@ -253,10 +252,6 @@ abstract class Overlooker <A extends AbstractAgent>
 		if(overlookedRole != null){
 			overlookedRole.removeMembers((List<AbstractAgent>) getCurrentAgentsList());
 		}
-	}
-
-	public static ExecutorService getMadkitServiceExecutor() {
-		return MadkitKernel.getMadkitServiceExecutor();
 	}
 
 

@@ -1,14 +1,19 @@
 package madkit.networking;
 
-import java.util.logging.Level;
-
+import static madkit.kernel.JunitMadkit.COMMUNITY;
+import static madkit.kernel.JunitMadkit.GROUP;
+import static madkit.kernel.JunitMadkit.ROLE;
 import madkit.kernel.Agent;
 import madkit.kernel.AgentAddress;
 import madkit.kernel.Message;
-import static madkit.kernel.JunitMadkit.*;
 
 
 public class ForEverReplier extends Agent {
+
+	/**
+	 * 
+	 */
+	private static final long	serialVersionUID	= 1L;
 
 	@Override
 	protected void activate() {

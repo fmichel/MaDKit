@@ -47,11 +47,11 @@ public class MassLaunchBench extends JunitMadkit {
 				setLogLevel(Level.OFF);
 				createGroup("test", "group", false, null);
 				System.err.println("begin");
-				startTimer();
 				for (int i = 0; i < 10; i++) {
+					startTimer();
 					// launchAgentBucket("madkit.agentLifeCycle.NormalAbstractLife",
 					// 3000100);
-					launchAgentBucket("madkit.kernel.AbstractAgent", 10000000, 8);
+					launchAgentBucket("madkit.kernel.AbstractAgent", 10_000_000, 11);
 					stopTimer("bucket launch time = ");
 					// JUnitBooter.stopTimer("old launch time = "); // 6000000 min = 7s
 					// startTimer();

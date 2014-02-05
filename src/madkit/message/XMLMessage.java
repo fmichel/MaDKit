@@ -59,9 +59,9 @@ public class XMLMessage extends Message
 	 */
 	private static final long serialVersionUID = 1266801281341621595L;
 	/** The xml content as a Document (null if the content is defined as a string) */
-	protected Document doccontent = null;
+	protected Document docContent = null;
 	/** The xml content as a String (null if the content is defined as a Document) */
-	protected String   strcontent = null;
+	protected String strcontent = null;
 
 	/** Setup an XMLMessage with the xml document setup as a string. The string is not validated at construction
 	 * @param s A valid (i.e. parseable) text XML document
@@ -69,7 +69,7 @@ public class XMLMessage extends Message
 	public XMLMessage(String s)
 	{
 		strcontent=s;
-		doccontent=null;
+		docContent=null;
 	}
 
 	/** Setup an XMLMessage with the xml document setup as a Document
@@ -78,7 +78,7 @@ public class XMLMessage extends Message
 	public XMLMessage(Document d)
 	{
 		strcontent=null;
-		doccontent=d;
+		docContent=d;
 	}
 
 	/** Returns the XMLMessage content as a string. If the String
@@ -91,7 +91,7 @@ public class XMLMessage extends Message
 		if (strcontent!=null)
 			return strcontent;
 		// Serialization through Transform.
-		DOMSource domSource = new DOMSource(doccontent);
+		DOMSource domSource = new DOMSource(docContent);
 		StreamResult streamResult = new StreamResult(new StringWriter());
 		try {
 			Transformer serializer = TransformerFactory.newInstance().newTransformer();
@@ -113,8 +113,8 @@ public class XMLMessage extends Message
 	 */
 	public Document getDocument()
 	{
-		if (doccontent!=null)
-			return doccontent;
+		if (docContent!=null)
+			return docContent;
 		try {
 			return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse((new InputSource(new StringReader(strcontent))));
 		} catch (SAXException e) {
@@ -136,6 +136,6 @@ public class XMLMessage extends Message
 	{
 		if (strcontent!=null)
 			return strcontent;
-		return doccontent.toString();
+		return docContent.toString();
 	}
 }

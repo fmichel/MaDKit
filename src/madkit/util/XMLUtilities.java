@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2014 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -129,8 +129,12 @@ public class XMLUtilities {
 	 * </Agent>
 	 * }
 	 * 
+	 * 
+	 * If the {@link #BUCKET_MODE_ROLE} tag is used, bucketMode is automatically 
+	 * added and set to <code>true</code>.
 	 * </pre>
-
+	 * 
+	 * 
 	 * see {@link AbstractAgent#launchAgentBucket(java.util.List, int, String...)}
 	 */
 	public static final String BUCKET_MODE = "bucketMode";

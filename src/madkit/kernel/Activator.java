@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2014 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
 
 import madkit.simulation.activator.GenericBehaviorActivator;
 
@@ -130,7 +131,7 @@ public abstract class Activator<A extends AbstractAgent> extends Overlooker<A>{
 			}
 		});
 		try {
-			getMadkitServiceExecutor().invokeAll(workers);
+			Activator.getMadkitServiceExecutor().invokeAll(workers);
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();//do not swallow it !
 		}
@@ -179,6 +180,15 @@ public abstract class Activator<A extends AbstractAgent> extends Overlooker<A>{
 	 */
 	public int nbOfParallelTasks() {
 		return nbOfsimultaneousTasks;
+	}
+
+	/**
+	 * Returns the MDK ExecutorService that executes task in parallel
+	 * 
+	 * @return an ExecutorService running task in parallel
+	 */
+	public static ExecutorService getMadkitServiceExecutor() {
+		return MadkitKernel.getMadkitServiceExecutor();
 	}
 
 	/**

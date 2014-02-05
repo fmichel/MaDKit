@@ -29,7 +29,12 @@ import madkit.kernel.AbstractAgent;
  * @version 0.9
  * 
  */
+@SuppressWarnings("unused")
 public class XMLFailureTestAgent extends AbstractAgent {
+	/**
+	 * 
+	 */
+	private static final long	serialVersionUID	= 1L;
 	private int speed = 0;
 	private Integer i = 10;
 	private String s="t";

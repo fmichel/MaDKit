@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2014 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -52,7 +52,7 @@ public class MadkitProperties extends Properties {
 	 */
 	private static final long	serialVersionUID	= 1964226720362899440L;
 	
-	private static Logger	logger = Logger.getLogger(MadkitProperties.class.getName());
+	private final static Logger	logger = Logger.getLogger(MadkitProperties.class.getName());
 
 	/**
 	 * Loads properties from an XML file.
@@ -109,7 +109,7 @@ public class MadkitProperties extends Properties {
 	/**
 	 * Return an <code>InputStream</code> on a file.
 	 * pathname could be relative to (1) the actual MaDKit class path, which is
-	 * preferable considering jar export, or (2) te user.dir, or it could be 
+	 * preferable considering jar export, or (2) the user.dir, or it could be 
 	 * an absolute path. The returned input stream should be closed once done.
 	 * 
      * @param   pathname  A pathname string

@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2014 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -116,7 +116,7 @@ public class Scheduler extends Agent {
 	 * specify the delay between 2 steps
 	 */
 	@SuppressWarnings("serial")
-	private DefaultBoundedRangeModel								speedModel			= new DefaultBoundedRangeModel(400, 0, 0, 400) {
+	private final DefaultBoundedRangeModel								speedModel			= new DefaultBoundedRangeModel(400, 0, 0, 400) {
 
 																										public void setValue(int n) {
 																											super.setValue(n);

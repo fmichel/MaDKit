@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!-- 
-  Copyright 1998-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+  Copyright 1998-2014 Fabien Michel, Olivier Gutknecht, Jacques Ferber
   
   This file is part of MaDKit.
   
@@ -78,6 +78,10 @@
          ================================= -->
 	<target name="compile" depends="buildResources">
 		<javac debug="true" debuglevel="vars" includeAntRuntime="false" srcdir="${src.dir}" destdir="${build.dir}" deprecation="on">
+			<classpath>
+				<pathelement location="${java.home}/lib/deploy.jar"/>
+				<pathelement location="${java.home}/lib/javaws.jar"/>
+			</classpath>
 		</javac>
 	</target>
 
@@ -182,7 +186,7 @@
 		<copy todir="${test.classes.dir}" overwrite="false">
 			<fileset dir="test" excludes="**/*.java" />
 		</copy>
-		<junit printsummary="false" haltonfailure="false" maxmemory="512m">
+		<junit printsummary="false" haltonfailure="false" maxmemory="2048m">
 			<classpath refid="test.classpath" />
 			<formatter type="brief" usefile="false" />
 			<formatter type="xml" />

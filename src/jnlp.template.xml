@@ -14,7 +14,9 @@
     
     <script src="${madkit.web}/js/deployJava.js"></script>
     ...
+    <script>    
     deployJava.createWebStartLaunchButton('${web.codebase}/${ant.project.name}.jnlp', '1.7.0'); 
+    </script>
  
  -->
 

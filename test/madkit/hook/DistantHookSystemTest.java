@@ -31,6 +31,7 @@ import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
+import madkit.kernel.Message;
 import madkit.message.StringMessage;
 import madkit.message.hook.HookMessage;
 import madkit.message.hook.HookMessage.AgentActionEvent;
@@ -40,7 +41,6 @@ import madkit.testing.util.agent.LeaveGroupInEndNormalAgent;
 import madkit.testing.util.agent.LeaveRoleInEndNormalAgent;
 import madkit.testing.util.agent.PongAgent;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -202,7 +202,11 @@ public class DistantHookSystemTest extends JunitMadkit {
 								new HookMessage(AgentActionEvent.SEND_MESSAGE));
 						Madkit mk = launchCustomNetworkInstance(Level.FINE,PongAgent.class);
 						waitNextMessage();
-						MessageEvent m = (MessageEvent) waitNextMessage();
+						Message waitNextMessage = null;
+						while (waitNextMessage == null || ! (waitNextMessage instanceof MessageEvent)) {
+							waitNextMessage = waitNextMessage();
+						}
+						MessageEvent m = (MessageEvent) waitNextMessage;
 						assertNotNull(m);
 						assertEquals(AgentActionEvent.SEND_MESSAGE, m.getContent());
 						assertEquals(ROLE, m.getMessage().getSender().getRole());
@@ -231,7 +235,11 @@ public class DistantHookSystemTest extends JunitMadkit {
 								new HookMessage(AgentActionEvent.SEND_MESSAGE));
 						Madkit mk = launchCustomNetworkInstance(Level.FINE,PongAgent.class);
 						waitNextMessage();
-						MessageEvent m = (MessageEvent) waitNextMessage();
+						Message waitNextMessage = null;
+						while (waitNextMessage == null || ! (waitNextMessage instanceof MessageEvent)) {
+							waitNextMessage = waitNextMessage();
+						}
+						MessageEvent m = (MessageEvent) waitNextMessage;
 						assertNotNull(m);
 						assertEquals(AgentActionEvent.SEND_MESSAGE, m.getContent());
 						assertEquals(ROLE, m.getMessage().getSender().getRole());

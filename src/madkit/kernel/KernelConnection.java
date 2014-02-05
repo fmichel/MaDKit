@@ -54,8 +54,8 @@ final class KernelConnection extends Thread{
 		return distantKernelSocket;
 	}
 
-	private ObjectOutputStream oos;
-	private ObjectInputStream ois;
+	private final ObjectOutputStream oos;
+	private final ObjectInputStream ois;
 
 	/**
 	 * @return the distantKernelAddress

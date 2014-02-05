@@ -19,18 +19,14 @@
 
 package madkit.networking;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.logging.Level;
 
 import madkit.kernel.Agent;
 import madkit.kernel.AgentAddress;
 import madkit.kernel.JunitMadkit;
-import madkit.kernel.Madkit;
-import madkit.kernel.Message;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
-import madkit.kernel.Madkit.Option;
+import madkit.kernel.Message;
 
 import org.junit.Test;
 
@@ -47,7 +43,6 @@ public class NetworkSpeed extends JunitMadkit {
 	public void networkPingPong() {
 		addMadkitArgs(BooleanOption.network.toString(),LevelOption.kernelLogLevel.toString(),Level.ALL.toString(),LevelOption.networkLogLevel.toString(),Level.OFF.toString());
 		launchTest(new Agent() {
-			@SuppressWarnings("unused")
 			@Override
 			protected void activate() {
 				setLogLevel(Level.OFF);
@@ -73,7 +68,6 @@ public class NetworkSpeed extends JunitMadkit {
 		final int nbOfExchanges = 100000;
 		addMadkitArgs(BooleanOption.network.toString(),LevelOption.kernelLogLevel.toString(),Level.ALL.toString(),LevelOption.networkLogLevel.toString(),Level.OFF.toString());
 		launchTest(new Agent() {
-			@SuppressWarnings("unused")
 			@Override
 			protected void activate() {
 				setLogLevel(Level.OFF);

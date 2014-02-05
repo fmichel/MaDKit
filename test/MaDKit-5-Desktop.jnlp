@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE jnlp PUBLIC "-//Sun Microsystems, Inc.//DTD JNLP 1.7//EN" "http://www.netbeans.org/jnlp/DTD/jnlp.dtd">
-<jnlp spec="7.0+" codebase="http://www.madkit.net/repository/test" href="MaDKit-5-Desktop.jnlp">
+<jnlp spec="7.0+" codebase="." href="MaDKit-5-Desktop.jnlp">
   <information>
     <title>The MaDKit 5 Desktop </title>
     <vendor>Fabien Michel, Jacques Ferber, Olivier Gutknecht</vendor>

@@ -126,7 +126,7 @@ public class ACLMessage extends ActMessage // NO_UCD
 	private static final String		CONVERSATION_ID_KEY		= ":conversation-id";
 	private static final String		ENVELOPE_KEY				= ":envelope";
 
-	public static List<String>			performatives				= new ArrayList<>(
+	public final static List<String>			performatives				= new ArrayList<>(
 																						22);
 	static { // initialization of the Vector of performatives
 		performatives.add("ACCEPT-PROPOSAL");
@@ -156,12 +156,12 @@ public class ACLMessage extends ActMessage // NO_UCD
 	/**
 	 * @serial
 	 */
-	private ArrayList<AgentAddress>	dests							= new ArrayList<>();
+	private final ArrayList<AgentAddress>	dests							= new ArrayList<>();
 
 	/**
 	 * @serial
 	 */
-	private ArrayList<AgentAddress>	reply_to						= new ArrayList<>();
+	private final ArrayList<AgentAddress>	reply_to						= new ArrayList<>();
 
 	/** Default constructor for ACLMessage class */
 	public ACLMessage() {

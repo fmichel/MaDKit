@@ -1,8 +1,6 @@
 package madkit.kernel;
 
-import static org.junit.Assert.*;
-
-import madkit.kernel.Madkit.Option;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
@@ -11,6 +9,11 @@ public class MadkitKernelTest extends JunitMadkit {
 	@Test
 	public void testCreateBucket() {
 		launchTest(new AbstractAgent() {
+			/**
+			 * 
+			 */
+			private static final long	serialVersionUID	= 1L;
+
 			@Override
 			protected void activate() {
 				try {

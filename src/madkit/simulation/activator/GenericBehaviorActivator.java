@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2014 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -47,7 +47,7 @@ public class GenericBehaviorActivator<A extends AbstractAgent> extends Activator
 {     
 	/** methods maps an agent class to its corresponding Method object for runtime invocation*/
 	private final Map<Class<? extends A>,Method> methods;
-	private String methodName;
+	private final String methodName;
 //	private Class<? extends A> cachedClass = null;
 
 	/**

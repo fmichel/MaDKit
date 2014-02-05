@@ -55,7 +55,7 @@ public class SimulatedAgent extends AbstractAgent {
 	}
 	
 	
-	private void launchAgentBucketWithRoles() {
+	private void launchAgentBucketWithRoles() {//used by reflection
 		List<AbstractAgent> l = new ArrayList<>();
 		for (int i = 0; i < 10; i++) {
 			l.add(new SimulatedAgent());

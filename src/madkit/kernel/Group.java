@@ -54,7 +54,7 @@ final class Group extends ConcurrentHashMap<String, Role> {
 	private final String			communityName;
 	private final String			groupName;
 	private final Organization	communityObject;
-	private boolean				isSecured;
+	private final boolean				isSecured;
 
 	private final boolean		distributed;
 

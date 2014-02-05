@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2014 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -194,7 +194,7 @@ public class Agent extends AbstractAgent{
 		setLogLevel(Level.INFO);
 		logger.talk("\n\tHi Human and hello World !!\n\n I am an instance of the madkit.kernel.Agent class\n As such, I am a MaDKit threaded Agent\n and thus have an autonomous activity!");
 		pause(5000);
-		logger.talk("\n\n And in fact, I am the simpliest agent ever\n because I simply do nothing at all :)\n\n");
+		logger.talk("\n\n And in fact, I am the simplest agent ever\n because I simply do nothing at all :)\n\n");
 		pause(4000);
 		int i = (int) (Math.random()*3000+4500);
 		logger.info("I will quit in "+i+" milliseconds... Bye !");

@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2014 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -39,7 +39,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeSet;
@@ -336,7 +335,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * 
 	 * @return <code>true</code> if the agent did not crash
 	 */
-	ReturnCode activation() {
+	final ReturnCode activation() {
 		ReturnCode result = ReturnCode.AGENT_CRASH;
 		try {
 			try {
@@ -840,8 +839,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * be used when the agents have no default constructor.
 	 * 
 	 * @param bucket the list of agents to launch
-	 * @param cpuCoreNb the number of parallel tasks to use for launching the agents. 
-	 * Beware that if cpuCoreNb is greater than 1, the agents' {@link #activate()} methods
+	 * @param nbOfParallelTasks the number of parallel tasks to use for launching the agents. 
+	 * Beware that if <code>nbOfParallelTasks</code> is greater than 1, the agents' {@link #activate()} methods
 	 * will be call simultaneously so that one has to be careful if shared resources are
 	 * accessed 
 	 * @param roles
@@ -853,8 +852,8 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *          
 	 */
 	@SuppressWarnings("unchecked")
-	public void launchAgentBucket(List<? extends AbstractAgent> bucket, int cpuCoreNb, String... roles) {
-		getKernel().launchAgentBucketWithRoles(this, (List<AbstractAgent>) bucket, cpuCoreNb, roles);
+	public void launchAgentBucket(List<? extends AbstractAgent> bucket, int nbOfParallelTasks, String... roles) {
+		getKernel().launchAgentBucketWithRoles(this, (List<AbstractAgent>) bucket, nbOfParallelTasks, roles);
 	}
 
 	/**
@@ -2016,6 +2015,20 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	/**
+	 * Gets the names of the roles that the agent has in
+	 * a specific group
+	 * 
+	 * @param community
+	 * @param group
+	 * @return a sorted set containing the names of the roles
+	 * the agent has in a group, or <code>null</code> if the
+	 * community or the group does not exist. This set could be empty.
+	 */
+	public TreeSet<String> getMyRoles(final String community, final String group){
+		return getKernel().getRolesOf(this,community, group);
+	}
+
+	/**
 	 * returns the names of the roles that exist in this group.
 	 * 
 	 * @param community the community's name
@@ -2406,9 +2419,10 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			}
 			list = getKernel().createBucket(namesMap.getNamedItem(XMLUtilities.CLASS).getNodeValue(), nbOfInstances, 1);
 			
-			boolean bucket = false;
+			//required for bucket mode with no roles
+			boolean bucketMode = false;
 			try {
-				bucket = Boolean.parseBoolean(namesMap.getNamedItem(XMLUtilities.BUCKET_MODE).getNodeValue());
+				bucketMode = Boolean.parseBoolean(namesMap.getNamedItem(XMLUtilities.BUCKET_MODE).getNodeValue());
 			} catch (NullPointerException e) {
 			}
 			
@@ -2426,6 +2440,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 					}
 					break;
 				case XMLUtilities.BUCKET_MODE_ROLE:
+					bucketMode = true;
 					NamedNodeMap roleAttributes = node.getAttributes();
 					roles.add(roleAttributes.item(0).getNodeValue() + ","
 							+ roleAttributes.item(1).getNodeValue() + ","
@@ -2436,7 +2451,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 				}
 			}
 			
-			if (bucket) {
+			if (bucketMode) {
 				launchAgentBucket(list, roles.toArray(new String[roles.size()]));
 			}
 			else{

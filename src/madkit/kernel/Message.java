@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2014 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -54,7 +54,7 @@ public class Message implements Cloneable,java.io.Serializable{//TODO message al
 	private static final long serialVersionUID = 6519763450927614564L;
 	private AgentAddress receiver, sender;
 	private int conversationID;
-	private static AtomicInteger cID = new AtomicInteger();//TODO if many many ??
+	private final static AtomicInteger cID = new AtomicInteger();//TODO if many many ??
 
 	
 	public Message(){//TODO id when sending ?

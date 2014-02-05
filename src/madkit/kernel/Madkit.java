@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2014 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -20,11 +20,6 @@ package madkit.kernel;
 
 import java.io.IOException;
 import java.net.URL;
-import java.security.AllPermission;
-import java.security.CodeSource;
-import java.security.PermissionCollection;
-import java.security.Policy;
-import java.security.ProtectionDomain;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,7 +36,6 @@ import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import madkit.action.ActionInfo;
 import madkit.action.KernelAction;
 import madkit.gui.AgentFrame;
 import madkit.gui.ConsoleAgent;
@@ -228,7 +222,7 @@ final public class Madkit {
 		final ArrayList<String> argsList = new ArrayList<>();
 		if (options != null) {
 			for (String string : options) {
-				argsList.addAll(Arrays.asList(string.trim().split(" ")));
+				argsList.addAll(Arrays.asList(string.trim().split("\\s+")));
 			}
 			this.args = argsList.toArray(new String[argsList.size()]);
 		}
@@ -245,6 +239,8 @@ final public class Madkit {
 		madkitConfig.putAll(fromArgs);
 
 		I18nUtilities.setI18nDirectory(madkitConfig.getProperty(Option.i18nDirectory.name()));
+		
+		logger.finest(MadkitClassLoader.getLoader().toString());
 
 		// activating desktop if no agent at this point
 		if (madkitConfig.get(Option.launchAgents.name()).equals("null") && madkitConfig.get(Option.configFile.name()).equals("null")) {
@@ -253,7 +249,7 @@ final public class Madkit {
 		}
 
 		myKernel = new MadkitKernel(this);
-
+		
 		logger.finer("**  MADKIT KERNEL CREATED **");
 
 		printWelcomeString();
@@ -267,36 +263,6 @@ final public class Madkit {
 
 		startKernel();
 	}
-//
-//	private Policy getAllPermissionPolicy()// TODO super bourrin, mais fait marcher le jnlp pour l'instant...
-//	{
-//		Policy policy = new Policy() {
-//
-//			private PermissionCollection	m_permissionCollection;
-//
-//			@Override
-//			public PermissionCollection getPermissions(CodeSource p_codesource) {
-//				return getAllPermissionCollection();
-//			}
-//
-//			@Override
-//			public PermissionCollection getPermissions(ProtectionDomain p_domain) {
-//				return getAllPermissionCollection();
-//			}
-//
-//			/**
-//			 * @return an AllPermissionCollection
-//			 */
-//			private PermissionCollection getAllPermissionCollection() {
-//				if (m_permissionCollection == null) {
-//					m_permissionCollection = new AllPermission().newPermissionCollection();
-//					m_permissionCollection.add(new AllPermission());
-//				}
-//				return m_permissionCollection;
-//			}
-//		};
-//		return policy;
-//	}
 
 	/**
 	 * 
@@ -315,8 +281,8 @@ final public class Madkit {
 				Attributes projectInfo = manifest.getAttributes("MaDKit-Project-Info");
 				if (projectInfo != null) {
 					logger.finest("found project info \n\t" + projectInfo.keySet() + "\n\t" + projectInfo.values());
-					options = projectInfo.getValue("MaDKit-Args").split(" ");
-					logger.finer(Arrays.deepToString(options) + options.length);
+					options = projectInfo.getValue("MaDKit-Args").trim().split("\\s+");
+					logger.finer("JAR FILE ARGUMENTS = "+Arrays.deepToString(options));
 					Map<String, String> projectInfos = new HashMap<>();
 					projectInfos.put("Project-Code-Name", projectInfo.getValue("Project-Code-Name"));
 					projectInfos.put("Project-Version", projectInfo.getValue("Project-Version"));

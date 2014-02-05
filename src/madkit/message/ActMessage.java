@@ -33,7 +33,7 @@ public class ActMessage extends madkit.kernel.Message {
 
 	private static final long				serialVersionUID	= -2556927686645807800L;
 	protected String							action;
-	protected Hashtable<String, Object>	fields;
+	protected final Hashtable<String, Object>	fields;
 	String										content;
 
 	/** Constructor for GenericMessage class */

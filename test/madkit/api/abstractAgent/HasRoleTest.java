@@ -18,9 +18,9 @@
  */
 package madkit.api.abstractAgent;
 
-import static org.junit.Assert.*;
-import static org.junit.Assert.assertNull;
-import madkit.agr.LocalCommunity;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import madkit.agr.Organization;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadkit;

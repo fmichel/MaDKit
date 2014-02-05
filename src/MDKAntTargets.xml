@@ -2,7 +2,7 @@
 <!-- 
  This is ant build.xml file for helping building MaDKit 5 projects
  Author: Fabien Michel
- Version: 1.0
+ Version: 1.1
 -->
 
 <project name="MDKAntTargets" default="compile">
@@ -74,8 +74,9 @@
          - - - - - - - - - - - - - - - - - -->
 	<target name="init-security">
 		<mkdir dir="${keystore.dir}" />
-		<chmod file="${keystore.dir}" perm="700" />
+		<chmod file="${keystore.dir}" perm="400" />
 		<property file="${keystore.dir}/keystore.properties" />
+		<chmod file="${keystore.dir}/keystore.properties" perm="400" />
 	</target>
 
 	<!-- - - - - - - - - - - - - - - - - - 
@@ -134,7 +135,7 @@
 	<!-- - - - - - - - - - - - - - - - - - 
           target: sign-jar
          - - - - - - - - - - - - - - - - - -->
-	<target name="sign-jar" depends="probe-for-jarsigner,jarsigner-message,get-password" if="jarsigner.present">
+	<target name="sign-jar" depends="scan-class-path,probe-for-jarsigner,jarsigner-message,get-password" if="jarsigner.present">
 		<exec executable="pack200" dir=".">
 			<arg value="-r" />
 			<arg value="${jar.file}" />

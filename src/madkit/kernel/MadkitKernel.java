@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2014 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -53,7 +53,6 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -66,6 +65,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TimerTask;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
@@ -73,7 +73,6 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -387,8 +386,18 @@ class MadkitKernel extends Agent {
 
 	@SuppressWarnings("unused")
 	private void restart() {
-		copy();
+		new java.util.Timer().schedule(new TimerTask() {
+		@Override
+		public void run() {
+			try {
+				myThread.join();
+			} catch (InterruptedException e) {
+			}
+			copy();
+			}
+		}, 100);
 		exit();
+//				copy();
 	}
 
 	/**
@@ -1008,7 +1017,7 @@ class MadkitKernel extends Agent {
 					a.logger = null;
 				}
 			};
-			doMulticore(serviceExecutor, init.getJobs(bucket, cpuCoreNb));
+			doMulticore(init.getJobs(bucket, cpuCoreNb));
 			synchronized (this) {
 				for (final String cgrLocation : cgrLocations) {
 					final String[] cgr = cgrLocation.split(",");
@@ -1044,7 +1053,7 @@ class MadkitKernel extends Agent {
 						}
 					}
 				};
-				doMulticore(serviceExecutor, init.getJobs(bucket, cpuCoreNb));
+				doMulticore(init.getJobs(bucket, cpuCoreNb));
 			}
 		}
 		else {
@@ -1059,11 +1068,11 @@ class MadkitKernel extends Agent {
 					try {
 						a.activate();
 					} catch (Throwable e) {
-						requester.cannotLaunchAgent(a != null ? a.getClass().getName() : "launchAgentBucketWithRoles : list contains null", e, null);
+						requester.cannotLaunchAgent("launchAgentBucketWithRoles : "+a.getClass().getName(), e, null);
 					}
 				}
 			};
-			doMulticore(serviceExecutor, aj.getJobs(bucket, cpuCoreNb));
+			doMulticore(aj.getJobs(bucket, cpuCoreNb));
 		}
 	}
 
@@ -1112,17 +1121,23 @@ class MadkitKernel extends Agent {
 		return result;
 	}
 
-	private void doMulticore(Executor e, ArrayList<AgentsJob> arrayList) {
-		final CompletionService<Void> ecs = new ExecutorCompletionService<>(e);
-		for (final Callable<Void> s : arrayList)
-			ecs.submit(s);
-		for (int i = arrayList.size(); i > 0; i--) {
-			try {
-				ecs.take();
-			} catch (InterruptedException ignore) {
-				ignore.printStackTrace();
-			}
+	private void doMulticore(ArrayList<AgentsJob> arrayList) {
+		try {
+			serviceExecutor.invokeAll(arrayList);
+		} catch (InterruptedException e1) {
+			e1.printStackTrace();
 		}
+//		
+//		final CompletionService<Void> ecs = new ExecutorCompletionService<>(serviceExecutor);
+//		for (final Callable<Void> s : arrayList)
+//			ecs.submit(s);
+//		for (int i = arrayList.size(); i > 0; i--) {
+//			try {
+//				ecs.take();
+//			} catch (InterruptedException ignore) {
+//				ignore.printStackTrace();
+//			}
+//		}
 	}
 
 	ReturnCode launchAgent(final AbstractAgent requester, final AbstractAgent agent, final int timeOutSeconds,
@@ -1132,11 +1147,15 @@ class MadkitKernel extends Agent {
 				logger.finest(requester + " launching " + agent + " by " + Thread.currentThread());
 			// if to == 0, this is still quicker than treating the case, this also
 			// holds for Integer.MAX_VALUE
-			return lifeExecutor.submit(new Callable<ReturnCode>() {
+			final ReturnCode returnCode = lifeExecutor.submit(new Callable<ReturnCode>() {
 				public ReturnCode call() {
 					return launchingAgent(agent, defaultGUI);
 				}
 			}).get(timeOutSeconds, TimeUnit.SECONDS);
+			if(returnCode == AGENT_CRASH || returnCode == ALREADY_LAUNCHED){
+				requester.getLogger().severeLog(Influence.LAUNCH_AGENT.failedString(), new MadkitWarning(agent.toString(),returnCode));
+			}
+			return returnCode;
 			// System.err.println(lifeExecutor.getCompletedTaskCount());
 			// System.err.println(lifeExecutor.allowsCoreThreadTimeOut());
 		} catch (InterruptedException e) {// requester has been killed or
@@ -1653,11 +1672,6 @@ class MadkitKernel extends Agent {
 		return export;
 	}
 
-//	@Override
-//	public MadkitClassLoader MadkitClassLoader.getLoader() {
-//		return platform.MadkitClassLoader.getLoader();
-//	}
-
 	// void logCurrentOrganization(Logger requester, Level lvl){
 	// if(requester != null){
 	// String message = "Current organization is\n";
@@ -1803,8 +1817,8 @@ class MadkitKernel extends Agent {
 	private void launchNetwork() {
 		updateNetworkAgent();
 		if (netAgent == null) {
-			NetworkAgent na = new NetworkAgent();
-			ReturnCode r = launchAgent(na);
+			final NetworkAgent na = new NetworkAgent();
+			final ReturnCode r = launchAgent(na);
 			threadedAgents.remove(na);
 			if (r == SUCCESS) {
 //				requestRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, Roles.KERNEL);
@@ -1938,7 +1952,7 @@ class MadkitKernel extends Agent {
 	final TreeSet<String> getGroupsOf(AbstractAgent abstractAgent, String community) {
 		final TreeSet<String> groups = new TreeSet<>();
 		try {
-			for (Group g : getCommunity(community).values()) {
+			for (final Group g : getCommunity(community).values()) {
 				if(g.isIn(abstractAgent)){
 					groups.add(g.getName());
 				}
@@ -1947,6 +1961,20 @@ class MadkitKernel extends Agent {
 			return null;
 		}
 		return groups;
+	}
+
+	final TreeSet<String> getRolesOf(AbstractAgent abstractAgent, String community, String group) {
+		final TreeSet<String> roles = new TreeSet<>();
+		try {
+			for (final Role r : getGroup(community,group).values()) {
+				if(r.contains(abstractAgent)){
+					roles.add(r.getRoleName());
+				}
+			}
+		} catch (CGRNotAvailable e) {
+			return null;
+		}
+		return roles;
 	}
 
 }

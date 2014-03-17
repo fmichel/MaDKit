@@ -33,9 +33,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import madkit.agr.Organization;
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.Agent;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Message;
+import madkit.testing.util.agent.NormalAgent;
 
 import org.junit.Test;
 
@@ -188,7 +188,7 @@ public class OrgErrorMessagingTest extends JunitMadkit {
 
 	@Test
 	public void testingSendMessage() {
-		launchTest(new Agent() {
+		launchTest(new NormalAgent() {
 			protected void activate() {
 				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP, false, null));
 				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));

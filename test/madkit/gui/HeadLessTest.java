@@ -28,8 +28,8 @@ import javax.swing.JFrame;
 
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AbstractAgent.ReturnCode;
-import madkit.kernel.Agent;
 import madkit.kernel.JunitMadkit;
+import madkit.testing.util.agent.NormalAgent;
 
 import org.junit.Test;
 
@@ -60,7 +60,7 @@ public class HeadLessTest extends JunitMadkit {
 	@Test
 	public void testAgent() {
 		System.setProperty("java.awt.headless", "true");
-		launchTest(new Agent(){
+		launchTest(new NormalAgent(){
 			@Override
 			protected void activate() {
 				super.activate();

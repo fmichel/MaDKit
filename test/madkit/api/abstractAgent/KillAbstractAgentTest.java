@@ -56,7 +56,7 @@ public class KillAbstractAgentTest extends JunitMadkit {
 		addMadkitArgs(LevelOption.kernelLogLevel.toString(), "FINEST");
 		launchTest(new AbstractAgent() {
 			protected void activate() {
-				setLogLevel(Level.ALL);
+//				setLogLevel(Level.ALL);
 				NormalAA naa = new NormalAA();
 				assertEquals(SUCCESS, launchAgent(naa));
 				assertEquals(SUCCESS, killAgent(naa));
@@ -68,7 +68,7 @@ public class KillAbstractAgentTest extends JunitMadkit {
 	public void returnNOT_YET_LAUNCHEDAfterImmediateLaunch() {
 		launchTest(new AbstractAgent() {
 			protected void activate() {
-				setLogLevel(Level.ALL);
+//				setLogLevel(Level.ALL);
 				TimeOutAA to = new TimeOutAA(true, true);
 				assertEquals(TIMEOUT, launchAgent(to, 0));
 				ReturnCode r = killAgent(to);
@@ -82,7 +82,7 @@ public class KillAbstractAgentTest extends JunitMadkit {
 		addMadkitArgs(LevelOption.agentLogLevel.toString(), "FINEST");
 		launchTest(new AbstractAgent() {
 			protected void activate() {
-				setLogLevel(Level.ALL);
+//				setLogLevel(Level.ALL);
 				FaultyAA f = new FaultyAA(true);
 				if (logger != null)
 					logger.info("activating");
@@ -98,7 +98,7 @@ public class KillAbstractAgentTest extends JunitMadkit {
 		addMadkitArgs(LevelOption.agentLogLevel.toString(), "FINEST");
 		launchTest(new AbstractAgent() {
 			protected void activate() {
-				setLogLevel(Level.ALL);
+//				setLogLevel(Level.ALL);
 				AbstractAgent f = new AbstractAgent();
 				if (logger != null)
 					logger.info("activating");
@@ -112,13 +112,13 @@ public class KillAbstractAgentTest extends JunitMadkit {
 
 	@Test
 	public void massKill() {
-		addMadkitArgs(LevelOption.agentLogLevel.toString(), "FINEST");
-		addMadkitArgs(LevelOption.kernelLogLevel.toString(), "ALL");
+//		addMadkitArgs(LevelOption.agentLogLevel.toString(), "FINEST");
+//		addMadkitArgs(LevelOption.kernelLogLevel.toString(), "ALL");
 		launchTest(new AbstractAgent() {
 			ArrayList<AbstractAgent> list = new ArrayList<>(100);
 
 			protected void activate() {
-				setLogLevel(Level.ALL);
+//				setLogLevel(Level.ALL);
 				startTimer();
 				for (int i = 0; i < 100; i++) {
 					AbstractAgent t = new AbstractAgent();

@@ -12,13 +12,14 @@ import madkit.kernel.AgentAddress;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Message;
 import madkit.message.StringMessage;
+import madkit.testing.util.agent.NormalAgent;
 
 import org.junit.Test;
 
 @SuppressWarnings("serial")
 public class BroadcastMessageAndWaitForRepliesTest extends JunitMadkit {
 
-	final Agent target = new Agent() {
+	final Agent target = new NormalAgent() {
 		protected void activate() {
 			assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
 		}
@@ -30,7 +31,7 @@ public class BroadcastMessageAndWaitForRepliesTest extends JunitMadkit {
 	};
 
 	// sends the same message as reply
-	final Agent target3 = new Agent() {
+	final Agent target3 = new NormalAgent() {
 		protected void activate() {
 			assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
 		}
@@ -42,7 +43,7 @@ public class BroadcastMessageAndWaitForRepliesTest extends JunitMadkit {
 		}
 	};
 
-	final Agent target2 = new Agent() {
+	final Agent target2 = new NormalAgent() {
 		protected void activate() {
 			assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
 		}
@@ -55,7 +56,7 @@ public class BroadcastMessageAndWaitForRepliesTest extends JunitMadkit {
 
 	@Test
 	public void replyWithSameMessage() {
-		launchTest(new Agent() {
+		launchTest(new NormalAgent() {
 			protected void activate() {
 				setLogLevel(Level.ALL);
 				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
@@ -68,7 +69,7 @@ public class BroadcastMessageAndWaitForRepliesTest extends JunitMadkit {
 
 	@Test
 	public void returnAllSuccess() {
-		launchTest(new Agent() {
+		launchTest(new NormalAgent() {
 			protected void activate() {
 				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
 				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
@@ -82,7 +83,7 @@ public class BroadcastMessageAndWaitForRepliesTest extends JunitMadkit {
 
 	@Test
 	public void returnNullOnTimeout() {
-		launchTest(new Agent() {
+		launchTest(new NormalAgent() {
 			protected void activate() {
 				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
 				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
@@ -96,7 +97,7 @@ public class BroadcastMessageAndWaitForRepliesTest extends JunitMadkit {
 
 	@Test
 	public void returnOneSuccess() {
-		launchTest(new Agent() {
+		launchTest(new NormalAgent() {
 			protected void activate() {
 				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
 				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
@@ -110,7 +111,7 @@ public class BroadcastMessageAndWaitForRepliesTest extends JunitMadkit {
 
 	// @Test
 	// public void returnSuccessOnCandidateRole(){
-	// launchTest(new Agent(){
+	// launchTest(new NormalAgent(){
 	// protected void activate() {
 	// assertEquals(SUCCESS,launchAgent(target2));
 	//
@@ -138,7 +139,7 @@ public class BroadcastMessageAndWaitForRepliesTest extends JunitMadkit {
 
 	@Test
 	public void returnBadCGR() {
-		launchTest(new Agent() {
+		launchTest(new NormalAgent() {
 			protected void activate() {
 				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
 				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
@@ -160,7 +161,7 @@ public class BroadcastMessageAndWaitForRepliesTest extends JunitMadkit {
 
 	@Test
 	public void returnNotCGR() {
-		launchTest(new Agent() {
+		launchTest(new NormalAgent() {
 			protected void activate() {
 				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
 				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
@@ -181,7 +182,7 @@ public class BroadcastMessageAndWaitForRepliesTest extends JunitMadkit {
 
 	@Test
 	public void nullCommunity() {
-		launchTest(new Agent() {
+		launchTest(new NormalAgent() {
 			protected void activate() {
 				try {
 					broadcastMessageWithRoleAndWaitForReplies(null, aa(), aa(), new Message(), null, 0);
@@ -195,7 +196,7 @@ public class BroadcastMessageAndWaitForRepliesTest extends JunitMadkit {
 
 	@Test
 	public void nullGroup() {
-		launchTest(new Agent() {
+		launchTest(new NormalAgent() {
 			protected void activate() {
 				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
 				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
@@ -212,7 +213,7 @@ public class BroadcastMessageAndWaitForRepliesTest extends JunitMadkit {
 
 	@Test
 	public void nullRole() {
-		launchTest(new Agent() {
+		launchTest(new NormalAgent() {
 			protected void activate() {
 				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
 				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
@@ -229,7 +230,7 @@ public class BroadcastMessageAndWaitForRepliesTest extends JunitMadkit {
 
 	@Test
 	public void nullMessage() {
-		launchTest(new Agent() {
+		launchTest(new NormalAgent() {
 			protected void activate() {
 				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
 				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));

@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2014 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -70,33 +70,3 @@ public class ConsoleAgent extends AbstractAgent {
 	}
 
 }
-
-// If I want both log stream
-
-//final class RedirectedPrintStream extends PrintStream{
-//	
-//	final private PrintStream	origin;
-//
-//	RedirectedPrintStream(final OutputStream origin, final PrintStream destination) {
-//		super(destination);
-//		this.origin = new PrintStream(origin);
-//	}
-//
-//
-//	@Override
-//	public void write(int b) {
-//		super.write(b);
-//		origin.write(b);
-//	}
-//	@Override
-//	public void write(byte[] b) throws IOException {
-//		super.write(b);
-//		origin.write(b);
-//	}
-//	@Override
-//	public void write(byte[] buf, int off, int len) {
-//		super.write(buf, off, len);
-//		origin.write(buf, off, len);
-//	}
-//	
-//}

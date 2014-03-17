@@ -27,6 +27,8 @@ import java.util.logging.Level;
 
 import madkit.i18n.I18nUtilities;
 import madkit.i18n.Words;
+import madkit.message.ConversationFilter;
+import madkit.message.MessageFilter;
 
 /**
  * The super class of all MaDKit threaded agents, v 5. 
@@ -283,7 +285,7 @@ public class Agent extends AbstractAgent{
 		if(getKernel().sendMessage(this, receiver, messageToSend,senderRole) != SUCCESS){
 			return null;
 		}
-		return waitAnswer(messageToSend, timeOutMilliSeconds == null ? null : TimeUnit.MILLISECONDS.toNanos(timeOutMilliSeconds));
+		return waitAnswer(messageToSend, timeOutMilliSeconds);
 	}
 
 	/**
@@ -373,7 +375,7 @@ public class Agent extends AbstractAgent{
 		if(getKernel().sendMessage(this,community,group,role, messageToSend,senderRole) != SUCCESS){
 			return null;
 		}
-		return waitAnswer(messageToSend,timeOutMilliSeconds == null ? null : TimeUnit.MILLISECONDS.toNanos(timeOutMilliSeconds) );
+		return waitAnswer(messageToSend, timeOutMilliSeconds);
 	}
 
 	/**
@@ -401,7 +403,7 @@ public class Agent extends AbstractAgent{
 	 * @see #sendReplyWithRoleAndWaitForReply(Message, Message, String, Integer)
 	 * @since MaDKit 5
 	 */
-	public Message sendReplyAndWaitForReply(final Message messageToReplyTo, final Message reply,int timeOutMilliSeconds){
+	public Message sendReplyAndWaitForReply(final Message messageToReplyTo, final Message reply, int timeOutMilliSeconds){
 		return sendReplyWithRoleAndWaitForReply(messageToReplyTo, reply, null, timeOutMilliSeconds);
 	}
 
@@ -437,12 +439,12 @@ public class Agent extends AbstractAgent{
 	 * @since MaDKit 5
 	 */
 	public Message sendReplyWithRoleAndWaitForReply(final Message messageToReplyTo, final Message reply, String senderRole, Integer timeOutMilliSeconds){
-		if(logger != null)
-			logger.finest("sendReplyAndWaitForReply : sending "+reply+" as reply to "+messageToReplyTo+", and waiting reply...");
 		if(sendReplyWithRole(messageToReplyTo, reply,senderRole) != SUCCESS){
 			return null;
 		}
-		return waitAnswer(reply,TimeUnit.MILLISECONDS.toNanos(timeOutMilliSeconds));
+		if(logger != null)
+			logger.finest("sendReplyAndWaitForReply : sending "+reply+" as reply to "+messageToReplyTo+", and waiting reply...");
+		return waitAnswer(reply,timeOutMilliSeconds);
 	}
 
 	/**
@@ -468,7 +470,7 @@ public class Agent extends AbstractAgent{
 	 * message in the mailbox, it suspends the agent life until a message is received
 	 *
 	 * @see #waitNextMessage(long)
-	 * @return the first message of received in the mailbox
+	 * @return the first received message
 	 */
 	public Message waitNextMessage()
 	{
@@ -491,18 +493,78 @@ public class Agent extends AbstractAgent{
 	 * @return  the first message in the mailbox, or <code>null</code> if no message
 	 * has been received before the time out delay is elapsed
 	 */
-	final public Message waitNextMessage(final long timeOutMilliseconds)
+	public Message waitNextMessage(final long timeOutMilliseconds)
 	{
 		if(logger != null){
 			logger.finest("Waiting next message during "+timeOutMilliseconds+" milliseconds...");
 			final Message m = waitingNextMessage(timeOutMilliseconds, TimeUnit.MILLISECONDS);
 			if(m != null)
-				logger.finest("..."+Words.NEW_MSG+": "+m);
+				logger.finest("waitNextMessage->"+Words.NEW_MSG+": "+m);
 			else
-				logger.finest("...time out !");
+				logger.finest("waitNextMessage time out !");
 			return m;
 		}
 		return waitingNextMessage(timeOutMilliseconds, TimeUnit.MILLISECONDS);
+	}
+	
+	/**
+	 * Retrieves and removes the next message that complies
+	 * with the filter, waiting for ever if necessary
+	 * until a matching message becomes available.
+	 * 
+	 * @param filter
+	 * 
+	 * @return 	the first received message that matches the filter
+	 */
+	public Message waitNextMessage(final MessageFilter filter) {
+		final List<Message> receptions = new ArrayList<>();
+		Message m = waitingNextMessageForEver();
+		while (!filter.accept(m)) {
+			receptions.add(m);
+			m = waitingNextMessageForEver();
+		}
+		if (!receptions.isEmpty()) {
+			synchronized (messageBox) {
+				messageBox.addAll(receptions);
+			}
+		}
+		if (logger != null)
+			logger.finest("a match has arrived " + m);
+		return m;
+	}
+
+	/**
+	 * This method gets the next message of the mailbox or waits 
+	 * for a new incoming acceptable message up to a certain delay.
+	 * 
+	 * @param timeOutMilliseconds the maximum time to wait, in milliseconds.
+	 * @param filter
+	 * 
+	 * @return a message that matches or <code>null</code> otherwise.
+	 */
+	public Message waitNextMessage(final Integer timeOutMilliseconds, final MessageFilter filter)
+	{
+		if(timeOutMilliseconds == null){
+			return waitNextMessage(filter);
+		}
+		// conversion
+		final long timeOutNanos = TimeUnit.MILLISECONDS.toNanos(timeOutMilliseconds);
+		final List<Message> receptions = new ArrayList<>();
+		final long endTime = System.nanoTime() + timeOutNanos;
+		Message answer = waitingNextMessage(timeOutNanos, TimeUnit.NANOSECONDS);
+		while (answer != null && !filter.accept(answer)) {
+			receptions.add(answer);
+			answer = waitingNextMessage(endTime - System.nanoTime(), TimeUnit.NANOSECONDS);
+		}
+		if (!receptions.isEmpty()) {
+			synchronized (messageBox) {
+				messageBox.addAll(receptions);
+			}
+		}
+		if(logger != null){
+			logger.finest(answer == null ? "...Waiting time out, no compliant message received" : "...a match has arrived : " + answer);
+		}
+		return answer;
 	}
 
 	/**
@@ -522,8 +584,6 @@ public class Agent extends AbstractAgent{
 	}
 
 	/**
-	 * @param timeout
-	 * @param unit
 	 * @return message
 	 * @since MaDKit 5
 	 */
@@ -539,76 +599,32 @@ public class Agent extends AbstractAgent{
 	}
 
 	/**
-	 * @param timeout
-	 * @param unit
-	 * @return msg
-	 * @since MaDKit 5
+	 * Retrieves and removes the next message that is a reply
+	 * to the query message, waiting for ever if necessary
+	 * until a matching reply becomes available.
+	 * 
+	 * @param query the message for which a reply is waited for 
+	 * 
+	 * @return 	the first reply to the query message
+	 * @since MadKit 5.0.4
 	 */
-	private Message waitingNextMessage(final long timeout, final TimeUnit unit) {
-		try {
-			return messageBox.poll(timeout, unit);
-		} catch (InterruptedException e) {
-			handleInterruptedException();
-			return null;
-		}
-	}
-
-
-
-	/**
-	 * @param m
-	 * @return msg
-	 */
-	private Message waitAnswer(final Message m) {
-		Message answer;
-		final List<Message> receptions = new ArrayList<>(messageBox.size());
-		final long conversationID = m.getConversationID();
-		answer = waitingNextMessageForEver();
-		while(answer.getConversationID() != conversationID){
-			receptions.add(answer);
-			answer = waitingNextMessageForEver();
-		}
-		if (!receptions.isEmpty()) {
-			synchronized (messageBox) {
-					messageBox.addAll(receptions);
-			}
-		}
-		if(logger != null)
-			logger.finest("a reply has arrived "+answer);
-		return answer;
+	public Message waitAnswer(final Message query) {
+		return waitNextMessage(new ConversationFilter(query));
 	}
 
 	/**
-	 * @param theReply
-	 * @param timeOutNanos
-	 * @return msg
+	 * Retrieves and removes the next message that is a reply
+	 * to the query message, waiting for ever if necessary
+	 * until a matching reply becomes available.
+	 * 
+	 * @param query the message for which a reply is waited for 
+	 * @param timeOutMilliSeconds the maximum time to wait, in milliseconds.
+	 * 
+	 * @return 	the first reply to the query message
+	 * @since MadKit 5.0.4
 	 */
-	private Message waitAnswer(final Message theMessageToReplyTo, Long timeOutNanos) {
-		if(timeOutNanos == null)
-			return waitAnswer(theMessageToReplyTo);
-		Message answer;
-		final List<Message> receptions = new ArrayList<>(messageBox.size());
-		//conversion
-		final long endTime = System.nanoTime()+timeOutNanos;
-		final long conversationID = theMessageToReplyTo.getConversationID();
-		answer = waitingNextMessage(timeOutNanos, TimeUnit.NANOSECONDS);
-		while (answer != null && answer.getConversationID() != conversationID) {
-			receptions.add(answer);
-			answer = waitingNextMessage(endTime - System.nanoTime(),TimeUnit.NANOSECONDS);
-		}
-		if (!receptions.isEmpty()) {
-			synchronized (messageBox) {
-					messageBox.addAll(receptions);
-			}
-		}
-		if(answer == null){
-			if(logger != null)
-				logger.finest("...Waiting for reply has reached time out, no reply received");
-			return null;
-		}
-		if(logger != null)
-			logger.finest("...a reply has arrived : "+answer);
-		return answer;
+	public Message waitAnswer(final Message query, final Integer timeOutMilliSeconds) {
+		return waitNextMessage(timeOutMilliSeconds, new ConversationFilter(query));
 	}
 	
 	

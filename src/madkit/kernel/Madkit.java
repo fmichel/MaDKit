@@ -78,6 +78,7 @@ final public class Madkit {
 	private final static String	MDK_LOGGER_NAME		= "[* MADKIT *] ";
 	final static MadkitProperties			defaultConfig			= new MadkitProperties();
 	final static SimpleDateFormat	dateFormat				= new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
+	
 	static {
 		// System.setProperty("sun.java2d.xrender", "True"); //TODO
 		Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -307,7 +308,7 @@ final public class Madkit {
 		logger.fine("** LOGGING INITIALIZED **");
 	}
 
-	private boolean loadConfigFiles() {// TODO
+	private boolean loadConfigFiles() {
 		final String filesName = madkitConfig.getProperty(Option.configFile.name());
 		if (! filesName.equals("null")) {
 			for (String fileName : filesName.split(";")) {
@@ -723,7 +724,6 @@ final public class Madkit {
 		public String toString() {
 			return "--" + name();
 		}
-
 	}
 
 }

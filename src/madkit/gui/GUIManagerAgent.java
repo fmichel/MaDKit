@@ -42,7 +42,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 
-import madkit.action.ActionInfo;
 import madkit.action.GUIManagerAction;
 import madkit.action.KernelAction;
 import madkit.agr.LocalCommunity;
@@ -56,6 +55,7 @@ import madkit.kernel.MadkitClassLoader;
 import madkit.kernel.Message;
 import madkit.message.GUIMessage;
 import madkit.message.KernelMessage;
+import madkit.util.MadkitProperties;
 
 /**
  * The GUI manager agent is responsible for setting and managing
@@ -102,7 +102,7 @@ class GUIManagerAgent extends Agent {
 		if (!isDaemon()) {// use to detect desktop mode
 			try {
 				buildUI();
-				if(ActionInfo.javawsIsOn)
+				if(MadkitProperties.JAVAWS_IS_ON)
 					setMadkitProperty(BooleanOption.autoConnectMadkitWebsite.name(), "true");
 			} catch (HeadlessException e) {
 				headlessLog(e);

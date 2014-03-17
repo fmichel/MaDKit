@@ -39,9 +39,9 @@ import java.util.jar.JarFile;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import madkit.action.ActionInfo;
 import madkit.gui.MASModel;
 import madkit.gui.menu.ClassPathSensitiveMenu;
+import madkit.util.MadkitProperties;
 import madkit.util.XMLUtilities;
 
 import org.w3c.dom.Document;
@@ -74,7 +74,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 	
 	static{
 		final URL[] urls;
-		if(ActionInfo.javawsIsOn){
+		if(MadkitProperties.JAVAWS_IS_ON){
 			final JARDesc[] jars = JNLPClassLoader.getInstance().getLaunchDesc().getResources().getEagerOrAllJarDescs(true);
 			urls = new URL[jars.length];
 			for (int i = 0; i < jars.length; i++) {
@@ -376,7 +376,8 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 		Attributes projectInfo = null;
 		try {
 			projectInfo = jarFile.getManifest().getAttributes("MaDKit-Project-Info");
-		} catch (IOException e) {
+		} catch (Exception e) {
+			// not a valid MDK jar file
 		}
 		if (projectInfo != null) {
 //			Logger l = madkit.getLogger();

@@ -20,9 +20,9 @@ package madkit.concurrent;
 
 import java.util.logging.Level;
 
-import madkit.kernel.Agent;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit.LevelOption;
+import madkit.testing.util.agent.NormalAgent;
 
 import org.junit.Test;
 
@@ -34,20 +34,20 @@ import org.junit.Test;
  */
 @SuppressWarnings("serial")
 public class ConcurrentOrgTest extends JunitMadkit {
-	private int testSize = 4000;
+	private int testSize = 8;
 
 	@Test
 	public void noConflictTest() {
 		addMadkitArgs(LevelOption.agentLogLevel.toString(),Level.OFF.toString());
-//		addMadkitArgs(LevelOption.kernelLogLevel.toString(),Level.ALL.toString());
-		launchTest(new Agent() {
+		addMadkitArgs(LevelOption.kernelLogLevel.toString(),Level.ALL.toString());
+		launchTest(new NormalAgent() {
 			@Override
 			protected void activate() {
 				for (int i = 0; i < testSize; i++) {
 					launchAgent(new ConcurrentTestAgent(), 0);
 				}
 				System.err.println("everything launched");
-				pause(15000);
+				pause(5000);
 			}
 		});
 	}
@@ -56,14 +56,14 @@ public class ConcurrentOrgTest extends JunitMadkit {
 	public void randomTest() {
 		addMadkitArgs(LevelOption.agentLogLevel.toString(),Level.OFF.toString());
 //		addMadkitArgs(LevelOption.kernelLogLevel.toString(),Level.ALL.toString());
-		launchTest(new Agent() {
+		launchTest(new NormalAgent() {
 			@Override
 			protected void activate() {
 				for (int i = 0; i < testSize; i++) {
 					launchAgent(new ConcurrentTestAgentBis(), 0);
 				}
 				System.err.println("everything launched");
-				pause(15000);
+				pause(5000);
 			}
 		});
 	}

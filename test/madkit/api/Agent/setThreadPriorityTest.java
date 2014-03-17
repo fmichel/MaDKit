@@ -19,8 +19,8 @@
 package madkit.api.Agent;
 
 import static org.junit.Assert.assertEquals;
-import madkit.kernel.Agent;
 import madkit.kernel.JunitMadkit;
+import madkit.testing.util.agent.NormalAgent;
 
 import org.junit.Test;
 
@@ -34,7 +34,7 @@ public class setThreadPriorityTest extends JunitMadkit {
 
 	@Test
 	public void nullCommunity() {
-		launchTest(new Agent() {
+		launchTest(new NormalAgent() {
 			/**
 			 * 
 			 */

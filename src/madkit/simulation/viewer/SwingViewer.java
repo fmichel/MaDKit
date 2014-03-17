@@ -303,7 +303,7 @@ public abstract class SwingViewer extends Watcher {
 			toolBar = new JToolBar("viewer toolbar");
 			SwingUtil.addBooleanActionTo(toolBar, rendering);
 			SwingUtil.addBooleanActionTo(toolBar, synchroPainting);
-			SwingUtil.scaleAllAbstractButtonIcons(toolBar, 24);
+			SwingUtil.scaleAllAbstractButtonIconsOf(toolBar, 24);
 		}
 		return toolBar;
 	}

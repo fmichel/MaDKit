@@ -40,11 +40,11 @@ import javax.swing.JSlider;
 import javax.swing.JToggleButton;
 import javax.swing.border.TitledBorder;
 
-import madkit.action.ActionInfo;
 import madkit.action.GUIManagerAction;
 import madkit.action.GlobalAction;
 import madkit.action.KernelAction;
 import madkit.kernel.AbstractAgent;
+import madkit.util.MadkitProperties;
 
 
 /**
@@ -58,7 +58,13 @@ import madkit.kernel.AbstractAgent;
  */
 final public class SwingUtil {
 	
+	/**
+	 * The MaDKit's logo
+	 */
 	final public static ImageIcon MADKIT_LOGO = new ImageIcon(SwingUtil.class.getResource("images/madkit_logo.png"));
+	/**
+	 * The MaDKit's logo with a size of 14x14 pixels
+	 */
 	final public static ImageIcon MADKIT_LOGO_SMALL = new ImageIcon(MADKIT_LOGO.getImage().getScaledInstance(14, 14, java.awt.Image.SCALE_SMOOTH));
 
 	/**
@@ -164,7 +170,7 @@ final public class SwingUtil {
 			add.invoke(menuOrToolBar, KernelAction.STOP_NETWORK.getActionFor(agent));
 			add.invoke(menuOrToolBar, GUIManagerAction.CONNECT_TO_IP.getActionFor(agent));
 			addSeparator.invoke(menuOrToolBar);
-			if (! (GlobalAction.jconsolePath == null || ActionInfo.javawsIsOn)) {
+			if (! (GlobalAction.JCONSOLE == null || MadkitProperties.JAVAWS_IS_ON)) {
 				add.invoke(menuOrToolBar, GlobalAction.JCONSOLE);
 			}
 			add.invoke(menuOrToolBar, KernelAction.CONSOLE.getActionFor(agent));
@@ -218,7 +224,7 @@ final public class SwingUtil {
 	 * @param container a container containing abstract buttons
 	 * @param size the size which should be used for the icons
 	 */
-	public static void scaleAllAbstractButtonIcons(Container container, int size){
+	public static void scaleAllAbstractButtonIconsOf(Container container, int size){
 		for (final Component c : container.getComponents()) {
 			if (c instanceof AbstractButton) {
 				final ImageIcon i = (ImageIcon) ((AbstractButton) c).getIcon();

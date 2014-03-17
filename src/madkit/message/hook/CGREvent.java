@@ -41,26 +41,12 @@ public abstract class CGREvent extends HookMessage {
 	}
 
 	/**
-	 * Returns the name of the agent that did
+	 * Returns the address of the agent that did
 	 * the request.
 	 * 
 	 * @return the name of the agent that triggers the event
 	 */
 	public abstract AgentAddress getSourceAgent();
-	
-	/**
-	 * Return the ID of the agent.
-	 * That is, its hashcode if the agent is local
-	 * or a network ID otherwise.
-	 * 
-	 * @return the ID of the agent
-	 */
-	String getSourceAgentID(){
-		final AgentAddress agent = getSourceAgent();
-		if(agent.isLocal())
-			return ""+agent.hashCode();
-		return agent.hashCode()+agent.getKernelAddress().toString();//FIXME should be the full ka's ID for ensuring uniqueness 
-	}
 	
 	@Override
 	public String toString() {

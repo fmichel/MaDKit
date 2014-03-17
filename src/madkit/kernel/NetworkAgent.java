@@ -216,7 +216,7 @@ final class NetworkAgent extends Agent {
 		if(sender == null){//contacted by my private objects (or by the kernel ? no)
 			proceedEnumMessage((EnumMessage<?>) m);
 		}
-		else if(sender.isLocal()){//contacted locally
+		else if(sender.isFrom(getKernelAddress())){//contacted locally
 			switch (sender.getRole()) {
 			case Roles.UPDATER://It is a CGR update
 				broadcastUpdate(m);
@@ -434,10 +434,19 @@ final class NetworkAgent extends Agent {
 	}
 
 	private void sendDistantMessage(final ObjectMessage<Message> m){
-		if (logger != null) logger.finer("sending to "+m.getContent().getReceiver().getKernelAddress()+m);
+		if (logger != null) 
+			logger.finer("sending to "+m.getContent().getReceiver().getKernelAddress()+m);
 		final KernelConnection kc = peers.get(m.getContent().getReceiver().getKernelAddress());
 		if(kc != null){
 			kc.sendMessage(m);
+		}
+		else {
+//			if (m.getContent().getReceiver().isFrom(getKernelAddress())){//the agent address which is used has been encapsulated and is not up-to-date (agent)
+//				getMadkitKernel().injectMessage(m);
+//			}
+//			else{
+//				m.getContent().getSender().getAgent().handleException(Influence.SEND_MESSAGE, new IOException(m.getContent().getReceiver().getKernelAddress().toString()+" is deconnected")); 
+//			}
 		}
 	}
 	

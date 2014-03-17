@@ -91,11 +91,11 @@ public class CreateLogFilesTest extends JunitMadkit {
 				BooleanOption.createLogFiles.toString(),
 				LevelOption.kernelLogLevel.toString(), "OFF",
 				Option.logDirectory.toString(), dir };
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < 50; i++) {
 			new Madkit(args);
 		}
 		pause(200);
-		assertEquals(100,new File(dir).listFiles().length);
+		assertEquals(50,new File(dir).listFiles().length);
 	}
 
 	@Test

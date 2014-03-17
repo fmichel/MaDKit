@@ -41,7 +41,12 @@ public abstract class MDKAbstractAction extends AbstractAction {
 	 */
 	private static final long	serialVersionUID	= -1414495456612340010L;
 
-	public MDKAbstractAction(ActionInfo actionInfo) {
+	/**
+	 * Builds a new action using the passed action's information
+	 * 
+	 * @param actionInfo
+	 */
+	public MDKAbstractAction(final ActionInfo actionInfo) {
 		putValue(Action.NAME, actionInfo.getName());
 		putValue(Action.SHORT_DESCRIPTION, actionInfo.getShortDescription());
 		putValue(Action.LONG_DESCRIPTION, actionInfo.getLongDescription());

@@ -19,7 +19,6 @@
 package madkit.kernel;
 
 import madkit.agr.Organization;
-import madkit.kernel.AbstractAgent.ReturnCode;
 
 
 /**
@@ -46,7 +45,7 @@ public class AgentAddress implements java.io.Serializable{
 	private static final long serialVersionUID = -5109274890965282440L;
 
 	//not transmitted 
-	final transient private AbstractAgent agent;
+	transient private AbstractAgent agent;
 
 	//these are the identifying parts over the net
 	final private KernelAddress kernelAddress;
@@ -139,13 +138,7 @@ public class AgentAddress implements java.io.Serializable{
 	 */
 	@Override
 	public String toString() {
-		String format = _hashCode+"@("+getCommunity()+","+getGroup()+","+getRole()+")";
-		if(! isLocal()){
-			format += kernelAddress;
-		}
-		if(! exists())
-			return format + " "+ReturnCode.INVALID_AGENT_ADDRESS;
-		return format;
+		return _hashCode+"@("+getCommunity()+","+getGroup()+","+getRole()+")"+kernelAddress;
 	}
 	
 	/**
@@ -165,7 +158,7 @@ public class AgentAddress implements java.io.Serializable{
 		if(agentAddress == null || agentAddress.hashCode() != _hashCode)
 			return false;
 		final AgentAddress aa = (AgentAddress) agentAddress;
-		return kernelAddress.equals(aa.kernelAddress) && aa.roleObject == roleObject;
+		return kernelAddress.equals(aa.kernelAddress) && getRole().equals(aa.getRole()) && getGroup().equals(aa.getGroup()) && getCommunity().equals(aa.getCommunity());
 	}
 
 	/**
@@ -179,28 +172,23 @@ public class AgentAddress implements java.io.Serializable{
 	}
 
 	/**
-	 * Tells if this agent address is still valid. I.e. the corresponding agent is 
-	 * still playing this role.
-	 * 
-	 * @return <code>true</code> if the address still exists in the organization.
-	 * @since MaDKit 5.0.0.9
-	 */
-	public boolean exists() {
-		return roleObject != null;
-	}
+	 * Tells if the address is from a specific kernel. If <code>true</code>,
+	 * This means that the agent to which 
+	 * this address belongs to is located on the tested kernel. So, it is just a  
+	 * shortcut for 
+	 * 	 * <pre>
+		* return getKernelAddress().equals(kernel);
+	 * </pre>
 
-	/**
-	 * Tells if the address belongs to a local agent running on the same kernel. This does not imply that the address 
-	 * is still valid and exists in the artificial society. This only tells if the agent
 	 * for which this address has been created was running on the local kernel.
 	 *  
-	 * @return <code>true</code> if this address corresponds to an agent which is running
-	 * on the same kernel.
-	 * @since MaDKit 1
-	 * @see #exists()
+	 * @param kernel the kernel address against which this address should be tested.
+	 * @return <code>true</code> if this address belongs to the corresponding kernel.
+	 * 
+	 * @since MaDKit 5.0.4
 	 */
-	public boolean isLocal() {
-		return agent != null;
+	public boolean isFrom(final KernelAddress kernel) {
+		return kernelAddress.equals(kernel);
 	}
 	
 	/**
@@ -210,7 +198,7 @@ public class AgentAddress implements java.io.Serializable{
 	 * @return the agent's network identifier
 	 */
 	final public String getAgentNetworkID(){
-		return _hashCode+"@"+kernelAddress.hashCode();
+		return _hashCode+"@"+kernelAddress.getNetworkID();
 	}
 
 	/**
@@ -222,7 +210,11 @@ public class AgentAddress implements java.io.Serializable{
 	 * @see AbstractAgent#getSimpleNetworkID()
 	 */
 	final public String getSimpleAgentNetworkID(){
-		return _hashCode + kernelAddress.toString();
+		return _hashCode +"@"+ kernelAddress;
+	}
+
+	final void setAgent(final AbstractAgent a) {
+		this.agent = a;
 	}
 
 }
@@ -248,11 +240,6 @@ final class CandidateAgentAddress extends AgentAddress{
 		return Organization.GROUP_CANDIDATE_ROLE;
 	}
 	
-	@Override
-	public boolean exists() {//really ? Yes it is, because it does not exist at all ;)... Unsure !!!
-		return true;
-	}
-
 }
 
 final class GroupManagerAddress extends AgentAddress{

@@ -369,11 +369,6 @@ class MadkitKernel extends Agent {
 		// }
 	}
 
-//	@SuppressWarnings("unused")
-//	private void loadJarFile(URL url) {
-//		MadkitClassLoader.addToClasspath(url);
-//	}
-	
 	@SuppressWarnings("unused")
 	private void connectToIp(InetAddress ip){
 		launchNetwork();
@@ -870,16 +865,32 @@ class MadkitKernel extends Agent {
 	ReturnCode sendMessage(AbstractAgent requester, AgentAddress receiver, final Message message, final String senderRole) {
 		// check that the AA is valid : the targeted agent is still playing the
 		// corresponding role or it was a candidate request
-		if (!receiver.exists()) {// && !
-			// receiver.getRole().equals(Roles.GROUP_CANDIDATE_ROLE)){
+//		if (! receiver.exists()) {// && !
+		final AgentAddress target = resolveAddress(receiver);
+		if (target == null && ! (receiver instanceof CandidateAgentAddress)) {
 			return INVALID_AGENT_ADDRESS;
 		}
 		try {
 			// get the role for the sender and then send
-			return buildAndSendMessage(getSenderAgentAddress(requester, receiver, senderRole), receiver, message);
+			return buildAndSendMessage(getSenderAgentAddress(requester, target, senderRole), target, message);
 		} catch (CGRNotAvailable e) {
 			return e.getCode();
 		}
+	}
+
+	final AgentAddress resolveAddress(AgentAddress receiver) {
+		final Role roleObject = receiver.getRoleObject();
+		if(roleObject != null){
+			if(roleObject.players == null){//has been traveling
+				try {
+					return getRole(roleObject.getCommunityName(), roleObject.getGroupName(),roleObject.getRoleName()).resolveAgentAddress(receiver);
+				} catch (CGRNotAvailable e) {
+					return null;
+				}
+			}
+			return receiver;
+		}
+		return null;
 	}
 
 	ReturnCode broadcastMessageWithRole(final AbstractAgent requester, final String community, final String group,
@@ -945,6 +956,7 @@ class MadkitKernel extends Agent {
 
 	private final ReturnCode sendMessage(Message m, AbstractAgent target) {
 		if (target == null) {
+			m.getConversationID().setOrigin(kernelAddress);
 			return sendNetworkMessageWithRole(new ObjectMessage<>(m), netEmmiter);
 		}
 		target.receiveMessage(m);
@@ -963,39 +975,16 @@ class MadkitKernel extends Agent {
 	}
 
 	private void updateNetworkAgent() {
-		if (netAgent == null || ! netAgent.exists()) {// Is it still playing the
+		if (netAgent == null || ! checkAgentAddress(netAgent)) {// Is it still playing the
 			// role ?
 			netAgent = getAgentWithRole(LocalCommunity.NAME, Groups.NETWORK, madkit.agr.LocalCommunity.Roles.NET_AGENT);
 		}
 	}
 
-// TODO Remove unused code found by UCDetector
-// 	boolean isOnline() {
-// 		getMadkitKernel().updateNetworkAgent();
-// 		return getMadkitKernel().netAgent != null;
-// 	}
-
 	// ////////////////////////////////////////////////////////////
 	// //////////////////////// Launching and Killing
 	// ////////////////////////////////////////////////////////////
 	
-//	List<AbstractAgent> launchAgentBucketWithRoles(final AbstractAgent requester, String agentClass,
-//			int bucketSize, String... cgrLocations) {
-//		List<AbstractAgent> bucket = null;
-//		try {
-//			bucket = createBucket(agentClass, bucketSize);
-//		} catch (InstantiationException e) {
-//			requester.cannotLaunchAgent(agentClass, e, null);
-//		} catch (IllegalAccessException e) {
-//			requester.cannotLaunchAgent(agentClass, e, null);
-//		} catch (ClassNotFoundException e) {
-//			requester.cannotLaunchAgent(agentClass, e, null);
-//		}
-//
-//		launchAgentBucketWithRoles(requester, bucket, cgrLocations);
-//		return bucket;
-//	}
-
 	/**
 	 * @param requester
 	 * @param bucket
@@ -1127,17 +1116,6 @@ class MadkitKernel extends Agent {
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
 		}
-//		
-//		final CompletionService<Void> ecs = new ExecutorCompletionService<>(serviceExecutor);
-//		for (final Callable<Void> s : arrayList)
-//			ecs.submit(s);
-//		for (int i = arrayList.size(); i > 0; i--) {
-//			try {
-//				ecs.take();
-//			} catch (InterruptedException ignore) {
-//				ignore.printStackTrace();
-//			}
-//		}
 	}
 
 	ReturnCode launchAgent(final AbstractAgent requester, final AbstractAgent agent, final int timeOutSeconds,
@@ -1156,8 +1134,6 @@ class MadkitKernel extends Agent {
 				requester.getLogger().severeLog(Influence.LAUNCH_AGENT.failedString(), new MadkitWarning(agent.toString(),returnCode));
 			}
 			return returnCode;
-			// System.err.println(lifeExecutor.getCompletedTaskCount());
-			// System.err.println(lifeExecutor.allowsCoreThreadTimeOut());
 		} catch (InterruptedException e) {// requester has been killed or
 														// something
 			requester.handleInterruptedException();
@@ -1708,6 +1684,7 @@ class MadkitKernel extends Agent {
 				final AbstractAgent target = receiverRole.getAbstractAgentWithAddress(receiver);
 				if (target != null) {
 					// updating sender address
+					receiver.setAgent(target);
 					try {
 						sender.setRoleObject(kernel.getRole(sender.getCommunity(), sender.getGroup(), sender.getRole()));
 					} catch (CGRNotAvailable e) {
@@ -1993,6 +1970,11 @@ final class CGRNotAvailable extends Exception {
 	final ReturnCode getCode() {
 		return code;
 	}
+	
+	@Override
+	public String toString() {
+		return super.toString()+" "+getCode();
+	}
 
 	/**
 	 * @param notCommunity
@@ -2028,7 +2010,6 @@ abstract class AgentsJob implements Callable<Void>, Cloneable {
 	 * @return
 	 */
 	final ArrayList<AgentsJob> getJobs(List<AbstractAgent> l, int cpuCoreNb) {
-//		final int cpuCoreNb = Runtime.getRuntime().availableProcessors();
 		final ArrayList<AgentsJob> workers = new ArrayList<>(cpuCoreNb);
 		int bucketSize = l.size();
 		final int nbOfAgentsPerTask = bucketSize / cpuCoreNb;
@@ -2038,7 +2019,7 @@ abstract class AgentsJob implements Callable<Void>, Cloneable {
 			return workers;
 		}
 		for (int i = 0; i < cpuCoreNb; i++) {
-			int firstIndex = nbOfAgentsPerTask * i;// TODO check that using junit
+			int firstIndex = nbOfAgentsPerTask * i;
 			workers.add(createNewAgentJobWithList(l.subList(firstIndex, firstIndex + nbOfAgentsPerTask)));
 			// System.err.println("from "+firstIndex+
 			// " to "+(firstIndex+nbOfAgentsPerTask));

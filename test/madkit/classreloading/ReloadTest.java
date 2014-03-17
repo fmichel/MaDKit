@@ -29,10 +29,10 @@ import java.nio.channels.FileChannel;
 
 import madkit.action.AgentAction;
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.Agent;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.MadkitClassLoader;
 import madkit.testing.util.agent.NormalAA;
+import madkit.testing.util.agent.NormalAgent;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -50,7 +50,7 @@ public class ReloadTest extends JunitMadkit {
 
 //	@Test //TODO one file for each test
 //	public void reloadTest() {
-//		launchTest(new Agent() {
+//		launchTest(new NormalAgent() {
 //
 //			/**
 //			 * 
@@ -74,7 +74,7 @@ public class ReloadTest extends JunitMadkit {
 
 	@Test
 	public void reloadByGUITest() {//need to clean cp before use
-		launchTest(new Agent() {
+		launchTest(new NormalAgent() {
 			/**
 			 * 
 			 */

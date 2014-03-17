@@ -64,8 +64,8 @@ public class AgentAddressTest {
 	 */
 	@Test
 	public void testAgentAddress() {
-		assertTrue(aa.exists());
-		assertTrue(aa.isLocal());
+		assertTrue(a.checkAgentAddress(aa));
+		assertTrue(aa.isFrom(a.getKernelAddress()));
 	}
 
 	/**
@@ -86,8 +86,8 @@ public class AgentAddressTest {
 		assertEquals("g", aa.getGroup());
 		assertEquals("r", aa.getRole());
 		assertEquals(AbstractAgent.ReturnCode.SUCCESS, r.removeMember(a));
-		assertFalse(aa.exists());
-		assertTrue(aa.isLocal());
+		assertFalse(a.checkAgentAddress(aa));
+		assertTrue(aa.isFrom(a.getKernelAddress()));
 		assertEquals("c", aa.getCommunity());
 		assertEquals("g", aa.getGroup());
 		assertEquals("r", aa.getRole());
@@ -145,21 +145,21 @@ public class AgentAddressTest {
 	 */
 	@Test
 	public void testExists() {
-		assertTrue(aa.exists());
+		assertTrue(a.checkAgentAddress(aa));
 		assertEquals(AbstractAgent.ReturnCode.SUCCESS, r.removeMember(a));
-		assertFalse(aa.exists());
+		assertFalse(a.checkAgentAddress(aa));
 	}
 
 	/**
-	 * Test method for {@link madkit.kernel.AgentAddress#isLocal()}.
+	 * Test method for {@link madkit.kernel.AgentAddress#isFrom()}.
 	 */
 	@Test
 	public void testIsLocal() {
 		// AgentAddress other = new AgentAddress(new AbstractAgent(), r,
 		// r.getKernelAddress());
-		assertTrue(aa.isLocal());
+		assertTrue(aa.isFrom(a.getKernelAddress()));
 		assertEquals(AbstractAgent.ReturnCode.SUCCESS, r.removeMember(a));
-		assertTrue(aa.isLocal());
+		assertTrue(aa.isFrom(a.getKernelAddress()));
 	}
 
 }

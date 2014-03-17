@@ -46,6 +46,12 @@ public class NetworkMessageAgent extends Agent {
 	 * 
 	 * @see test.util.OrgTestAgent#activate()
 	 */
+	
+	
+	public NetworkMessageAgent() {
+		createGUIOnStartUp();
+	}
+	
 	@Override
 	protected void live() {
 		setLogLevel(Level.ALL);
@@ -53,5 +59,8 @@ public class NetworkMessageAgent extends Agent {
 		assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
 		AgentAddress aa = getAgentWithRole(JunitMadkit.COMMUNITY, JunitMadkit.GROUP, JunitMadkit.ROLE);
 		sendMessage(aa, new Message());
+		while (true) {
+			waitNextMessage(10000);
+		}
 	}
 }

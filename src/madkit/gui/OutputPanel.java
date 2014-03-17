@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2014 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -66,6 +66,11 @@ public class OutputPanel extends JPanel {
 		return out;
 	}
 
+	/**
+	 * Builds the panel for the agent
+	 * 
+	 * @param agent
+	 */
 	public OutputPanel(final AbstractAgent agent)
 	{
 		outField = new JTextArea(5,32);
@@ -87,15 +92,6 @@ public class OutputPanel extends JPanel {
 			public void write(int b) throws IOException {
 				updateText(String.valueOf((char) b));
 			}
-			@Override  //TODO check utility
-			public void write(byte[] b, int off, int len) throws IOException {  
-				updateText(new String(b, off, len));  
-		}  
-			@Override  
-			public void write(byte[] b) throws IOException {  
-				write(b, 0, b.length);  
-		}  
-
 		};
 
 		final StreamHandler handler = new StreamHandler(out, AgentLogger.AGENT_FILE_FORMATTER){
@@ -134,18 +130,5 @@ public class OutputPanel extends JPanel {
 		super.setBackground(bg);
 	}
 
-//	/**
-//	 * This one could be used to directly print in this component.
-//	 * 
-//	 * @param message the string to display
-//	 */
-//	public void print(final String message) {//TODO remove ? useless ?
-//		 SwingUtilities.invokeLater(new Runnable() {  
-//		     public void run() {
-//		     outField.append(message);
-//		     outField.setCaretPosition(outField.getDocument().getLength());
-//		     }  
-//		   });
-//	}
 }
 

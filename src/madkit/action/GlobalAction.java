@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2014 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -54,32 +54,35 @@ public class GlobalAction {
 	final static private ResourceBundle messages = I18nUtilities.getResourceBundle(GlobalAction.class.getSimpleName());
 	
 	/**
-	 * The path to the jconsole executable if available
+	 * An action that Launches the jconsole tool if it is available. It is
+	 * set to <code>null</code> if jconsole is unavailable.
+	 * jconsole is available on environments containing the oracle JDK.
 	 */
-	public final static String jconsolePath = MadkitClassLoader.findJavaExecutable("jconsole");
+	final public static Action				JCONSOLE;
 
-	/**
-	 * An action that Launches the jconsole tool if it is available.
-	 * jconsole is available on environment containing the oracle JDK.
-	 */
-	final public static Action JCONSOLE = new MDKAbstractAction(new ActionInfo("JCONSOLE", KeyEvent.VK_L, messages)) {
-		private static final long	serialVersionUID	= 1L;
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			if(jconsolePath != null){
-				final String pid = java.lang.management.ManagementFactory.getRuntimeMXBean().getName();
-							try {
-								new ProcessBuilder(jconsolePath,pid.substring(0, pid.indexOf('@'))).start();
-							} catch (IOException e1) {
-								e1.printStackTrace();
-							}
-			}
-			else{
-				System.err.println("jconsole unavailable");
-			}
+	static {
+		final String jconsolePath = MadkitClassLoader.findJavaExecutable("jconsole");
+		if (jconsolePath == null) {
+			JCONSOLE = null;
 		}
-	};
-	
+		else {
+			JCONSOLE = new MDKAbstractAction(new ActionInfo("JCONSOLE", KeyEvent.VK_L, messages)) {
+
+				private static final long	serialVersionUID	= 1L;
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					final String pid = java.lang.management.ManagementFactory.getRuntimeMXBean().getName();
+					try {
+						new ProcessBuilder(jconsolePath, pid.substring(0, pid.indexOf('@'))).start();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+				}
+			};
+		}
+	}
+
 	/**
 	 * An action that enable or disable the debugging mode. 
 	 * When activated, all the active agent loggers set their level to {@link Level#ALL}.

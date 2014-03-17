@@ -18,7 +18,6 @@
  */
 package madkit.kernel;
 
-import java.util.concurrent.atomic.AtomicInteger;
 
 
 /** 
@@ -51,17 +50,17 @@ public class Message implements Cloneable,java.io.Serializable{//TODO message al
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 6519763450927614564L;
-	private AgentAddress receiver, sender;
-	private int conversationID;
-	private final static AtomicInteger cID = new AtomicInteger();//TODO if many many ??
-
-	
-	public Message(){//TODO id when sending ?
-		conversationID = cID.getAndIncrement();
-	}
+	private static final long	serialVersionUID	= -7343412576480540415L;
 	/**
-	 * @param a
+	 * 
+	 */
+	private AgentAddress receiver, sender;
+	private ConversationID conversationID	= new ConversationID();
+	
+//	public Message(){//TODO id when sending ?
+//	}
+	/**
+	 * @param atargetedRole
 	 */
 	final void setReceiver(AgentAddress a) {
 		receiver = a;
@@ -125,8 +124,8 @@ public class Message implements Cloneable,java.io.Serializable{//TODO message al
 	/**
 	 * @param iD the iD to set
 	 */
-	final void setID(final int iD) {
-			conversationID = iD;
+	final void getIDFrom(final Message from) {
+			conversationID = from.conversationID;
 	}
 
 	/**
@@ -135,12 +134,12 @@ public class Message implements Cloneable,java.io.Serializable{//TODO message al
 	 * be used to tag all the messages that will be created 
 	 * for answering this message using 
 	 * {@link AbstractAgent#sendReply(Message, Message)} like methods.
-	 * Especially, If the answer is again used for replying, the ID 
+	 * Especially, if the answer is again used for replying, the ID 
 	 * will be used again to tag this new answer, and so on.
 	 * 
 	 * @return the ID of the conversation to which this message belongs to.
 	 */
-	final public int getConversationID() {
+	public ConversationID getConversationID() {
 		return conversationID;
 	}
 	

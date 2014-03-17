@@ -330,7 +330,7 @@ final class Group extends ConcurrentHashMap<String, Role> {
 	void removeDistantMember(final AgentAddress aa) {
 		// boolean in = false;
 		for (final Role r : values()) {
-			aa.setRoleObject(r);
+			aa.setRoleObject(r);// required for equals to work
 			r.removeDistantMember(aa);
 		}
 		// if (manager.get().equals(aa)){

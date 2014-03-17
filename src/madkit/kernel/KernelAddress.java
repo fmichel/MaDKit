@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2014 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -36,7 +36,7 @@ import java.util.Enumeration;
  * 
  * @author Oliver Gutknecht
  * @author Fabien Michel
- * @version 5.3
+ * @version 5.31
  * @since MaDKit 1.0
  *
  */
@@ -115,8 +115,10 @@ public class KernelAddress implements java.io.Serializable{
 	 */
 	@Override
 	public boolean equals(Object obj) {
+		if(this == obj)
+			return true;
 		final KernelAddress other = (KernelAddress) obj;
-		return this == obj || (other.localID == localID && networkID == other.networkID);
+		return other.localID == localID && networkID == other.networkID;
 	}
 
 	@Override
@@ -124,8 +126,12 @@ public class KernelAddress implements java.io.Serializable{
 		return localID;
 	}
 	
+	public String getNetworkID(){
+		return localID+"-"+networkID;
+	}
+	
 	/** 
-	 * Returns a string representation for this platform address 
+	 * Returns a simplified string representation for this platform address 
 	 * 
 	 * @return a string representation for this platform address 
 	 */

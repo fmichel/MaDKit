@@ -26,7 +26,6 @@ import java.util.logging.Level;
 import madkit.action.KernelAction;
 import madkit.agr.LocalCommunity;
 import madkit.agr.Organization;
-import madkit.kernel.Agent;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.BooleanOption;
@@ -39,6 +38,7 @@ import madkit.message.hook.MessageEvent;
 import madkit.message.hook.OrganizationEvent;
 import madkit.testing.util.agent.LeaveGroupInEndNormalAgent;
 import madkit.testing.util.agent.LeaveRoleInEndNormalAgent;
+import madkit.testing.util.agent.NormalAgent;
 import madkit.testing.util.agent.PongAgent;
 
 import org.junit.Test;
@@ -64,7 +64,7 @@ public class DistantHookSystemTest extends JunitMadkit {
 				,LevelOption.kernelLogLevel.toString(), Level.ALL.toString()
 				,BooleanOption.network.toString()
 				);
-		Madkit mdk = launchTest(new Agent() {
+		Madkit mdk = launchTest(new NormalAgent() {
 			@Override
 			protected void activate() {
 						sendMessage(LocalCommunity.NAME, 
@@ -80,19 +80,20 @@ public class DistantHookSystemTest extends JunitMadkit {
 					}
 				});
 		mdk.doAction(KernelAction.EXIT);
+		cleanHelperMDKs();
 	}
 	
-	@Test
-	public void massTest(){
-		for (int i = 0; i < 3; i++) {
-			leaveGroup();
-			broadcastMessage();
-			createGroupHook();
-			leaveRole();
-			requestRole();
-			sendMessage();
-		}
-	}
+//	@Test
+//	public void massTest(){
+//		for (int i = 0; i < 2; i++) {
+//			leaveGroup();
+//			broadcastMessage();
+//			createGroupHook();
+//			leaveRole();
+//			requestRole();
+//			sendMessage();
+//		}
+//	}
 
 	@Test
 	public void requestRole() {
@@ -100,7 +101,7 @@ public class DistantHookSystemTest extends JunitMadkit {
 				,LevelOption.kernelLogLevel.toString(), Level.ALL.toString()
 				,BooleanOption.network.toString()
 				);
-		Madkit mdk = launchTest(new Agent() {
+		Madkit mdk = launchTest(new NormalAgent() {
 					@Override
 					protected void activate() {
 						sendMessage(LocalCommunity.NAME, 
@@ -121,6 +122,7 @@ public class DistantHookSystemTest extends JunitMadkit {
 					}
 				});
 		mdk.doAction(KernelAction.EXIT);
+		cleanHelperMDKs();
 	}
 
 	@Test
@@ -131,7 +133,7 @@ public class DistantHookSystemTest extends JunitMadkit {
 				,LevelOption.networkLogLevel.toString(), Level.ALL.toString()
 				,BooleanOption.network.toString()
 				);
-		Madkit mdk = launchTest(new Agent() {
+		Madkit mdk = launchTest(new NormalAgent() {
 			@Override
 					protected void activate() {
 						sendMessage(LocalCommunity.NAME, 
@@ -152,6 +154,7 @@ public class DistantHookSystemTest extends JunitMadkit {
 					}
 				});
 		mdk.doAction(KernelAction.EXIT);
+		cleanHelperMDKs();
 	}
 
 	@Test
@@ -160,7 +163,7 @@ public class DistantHookSystemTest extends JunitMadkit {
 				,LevelOption.kernelLogLevel.toString(), Level.ALL.toString()
 				,BooleanOption.network.toString()
 				);
-		Madkit mdk = launchTest(new Agent() {
+		Madkit mdk = launchTest(new NormalAgent() {
 			@Override
 					protected void activate() {
 				setLogLevel(Level.ALL);
@@ -190,7 +193,7 @@ public class DistantHookSystemTest extends JunitMadkit {
 		addMadkitArgs(LevelOption.agentLogLevel.toString(), Level.ALL.toString()
 				,BooleanOption.network.toString()
 				);
-		Madkit mdk = launchTest(new Agent() {
+		Madkit mdk = launchTest(new NormalAgent() {
 					@Override
 					protected void activate() {
 						createGroup(COMMUNITY, GROUP,true);
@@ -223,7 +226,7 @@ public class DistantHookSystemTest extends JunitMadkit {
 		addMadkitArgs(LevelOption.agentLogLevel.toString(), Level.ALL.toString()
 				,BooleanOption.network.toString()
 				);
-		Madkit mdk = launchTest(new Agent() {
+		Madkit mdk = launchTest(new NormalAgent() {
 					@Override
 					protected void activate() {
 						createGroup(COMMUNITY, GROUP,true);

@@ -18,10 +18,13 @@
  */
 package madkit.api.abstractAgent;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AbstractAgent.ReturnCode;
+import madkit.kernel.AgentAddress;
 import madkit.kernel.JunitMadkit;
 
 import org.junit.Test;
@@ -43,6 +46,40 @@ public class GetAgentAddressInTest extends JunitMadkit {
 			protected void activate() {
 				createDefaultCGR(this);
 				assertNotNull(getAgentAddressIn(COMMUNITY, GROUP, ROLE));
+			}
+		});
+	}
+
+	@Test
+	public void nullAfterLeaveRole() {
+		launchTest(new AbstractAgent() {
+			private static final long serialVersionUID = 1L;
+			protected void activate() {
+				createDefaultCGR(this);
+				AgentAddress aa = getAgentAddressIn(COMMUNITY, GROUP, ROLE);
+				assertNotNull(aa);
+				assertTrue(checkAgentAddress(aa));
+				leaveRole(COMMUNITY, GROUP, ROLE);
+				assertFalse(checkAgentAddress(aa));
+				aa = getAgentAddressIn(COMMUNITY, GROUP, ROLE);
+				assertNull(aa);
+			}
+		});
+	}
+
+	@Test
+	public void nullAfterLeaveGroup() {
+		launchTest(new AbstractAgent() {
+			private static final long serialVersionUID = 1L;
+			protected void activate() {
+				createDefaultCGR(this);
+				AgentAddress aa = getAgentAddressIn(COMMUNITY, GROUP, ROLE);
+				assertNotNull(aa);
+				assertTrue(checkAgentAddress(aa));
+				leaveGroup(COMMUNITY, GROUP);
+				assertFalse(checkAgentAddress(aa));
+				aa = getAgentAddressIn(COMMUNITY, GROUP, ROLE);
+				assertNull(aa);
 			}
 		});
 	}

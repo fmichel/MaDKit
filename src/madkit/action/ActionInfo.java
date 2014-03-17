@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2014 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -32,17 +32,12 @@ import madkit.kernel.AbstractAgent;
  * 
  * @author Fabien Michel
  * @since MaDKit 5.0.0.14
- * @version 1
+ * @version 1.1
  * 
  */
 public class ActionInfo {
 
-	/**
-	 * Shortcut for System.getProperty("javawebstart.version") != null;
-	 */
-	final public static boolean javawsIsOn = System.getProperty("javawebstart.version") != null;
-
-	final static private String imageDir = "/madkit/action/images/";
+	final static private String IMAGE_DIR = "/madkit/action/images/";
 	
 	final private int keyEvent;
 
@@ -99,7 +94,7 @@ public class ActionInfo {
 	 * 
 	 */
 	void setIcon(final String fileName) {
-		final URL imageUrl = getClass().getResource(imageDir + fileName + ".png");
+		final URL imageUrl = getClass().getResource(IMAGE_DIR + fileName + ".png");
 		if (imageUrl != null) {
 			bigIcon = new ImageIcon(imageUrl);
 			if (bigIcon.getIconWidth() > 16) {
@@ -156,7 +151,7 @@ public class ActionInfo {
 	}
 
 	/**
-	 * Converts the name of an enum object to a java
+	 * Converts the name of an enum object to a Java
 	 * standardized method name. For instance, using this on
 	 * {@link AgentAction#LAUNCH_AGENT}
 	 * will return <code>launchAgent</code>. This is especially used by 
@@ -165,14 +160,14 @@ public class ActionInfo {
 	 * to the code of such messages.
 	 * 
 	 * @param e the enum object to convert
-	 * @return a string having a java
+	 * @return a string having a Java
 	 * standardized method name form.
 	 */
-	public static <E extends Enum<E>> String enumToMethodName(E e){
+	public static <E extends Enum<E>> String enumToMethodName(final E e){
 		final String[] tab = e.name().split("_");
 		String methodName = tab[0].toLowerCase();
 		for (int i = 1; i < tab.length; i++) {
-			String s = tab[i];
+			final String s = tab[i];
 			methodName += s.charAt(0) + s.substring(1).toLowerCase();
 		}
 		return methodName;

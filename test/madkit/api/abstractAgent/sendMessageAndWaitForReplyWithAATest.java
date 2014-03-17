@@ -31,8 +31,11 @@ import madkit.agr.Organization;
 import madkit.kernel.Agent;
 import madkit.kernel.AgentAddress;
 import madkit.kernel.JunitMadkit;
+import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Message;
 import madkit.message.StringMessage;
+import madkit.testing.util.agent.ForEverReplierAgent;
+import madkit.testing.util.agent.NormalAgent;
 
 import org.junit.Test;
 
@@ -91,7 +94,7 @@ public class sendMessageAndWaitForReplyWithAATest extends JunitMadkit {
 
 	@Test
 	public void replyWithSameMessage() {
-		launchTest(new Agent() {
+		launchTest(new NormalAgent() {
 			protected void activate() {
 				setLogLevel(Level.ALL);
 				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
@@ -105,8 +108,39 @@ public class sendMessageAndWaitForReplyWithAATest extends JunitMadkit {
 	}
 
 	@Test
+	public void sendReplyAndWaitForReply() {
+		addMadkitArgs(LevelOption.kernelLogLevel.toString(),"ALL");
+		launchTest(new NormalAgent() {
+			protected void activate() {
+				super.activate();
+				assertEquals(SUCCESS, launchAgent(new ForEverReplierAgent()));
+				Message m = sendMessageAndWaitForReply(COMMUNITY, GROUP, ROLE, new Message());
+				m = sendReplyAndWaitForReply(m, new Message());
+				assertNotNull(m);
+				m = sendReplyAndWaitForReply(m, new Message());
+				assertNotNull(m);
+			}
+		});
+	}
+
+	@Test
+	public void sendReplyOnWaitNextMessage() {
+		addMadkitArgs(LevelOption.kernelLogLevel.toString(),"ALL");
+		launchTest(new NormalAgent() {
+			protected void activate() {
+				super.activate();
+				assertEquals(SUCCESS, launchAgent(new ForEverReplierAgent()));
+				sendReply(waitNextMessage(), new Message());
+				sendReply(waitNextMessage(), new Message());
+				Message m = waitNextMessage();
+				assertEquals(getAgentAddressIn(COMMUNITY, GROUP, ROLE), m.getReceiver());
+			}
+		});
+	}
+
+	@Test
 	public void returnSuccess() {
-		launchTest(new Agent() {
+		launchTest(new NormalAgent() {
 			protected void activate() {
 				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
 				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
@@ -161,7 +195,7 @@ public class sendMessageAndWaitForReplyWithAATest extends JunitMadkit {
 
 	@Test
 	public void returnSuccessOnCandidateRole() {
-		launchTest(new Agent() {
+		launchTest(new NormalAgent() {
 			protected void activate() {
 				assertEquals(SUCCESS, launchAgent(target2));
 
@@ -186,7 +220,7 @@ public class sendMessageAndWaitForReplyWithAATest extends JunitMadkit {
 
 	@Test
 	public void returnInvalidAA() {
-		launchTest(new Agent() {
+		launchTest(new NormalAgent() {
 			protected void activate() {
 				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
 				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
@@ -206,7 +240,7 @@ public class sendMessageAndWaitForReplyWithAATest extends JunitMadkit {
 
 	@Test
 	public void returnBadCGR() {
-		launchTest(new Agent() {
+		launchTest(new NormalAgent() {
 			protected void activate() {
 				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
 				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
@@ -227,7 +261,7 @@ public class sendMessageAndWaitForReplyWithAATest extends JunitMadkit {
 
 	@Test
 	public void nullArgs() {
-		launchTest(new Agent() {
+		launchTest(new NormalAgent() {
 			protected void activate() {
 				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
 				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));

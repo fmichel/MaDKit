@@ -229,9 +229,10 @@ final class LoggedKernel extends MadkitKernel {
 	ReturnCode sendMessage(AbstractAgent requester, String community, String group, String role, Message messageToSend, String senderRole) {
 		ReturnCode r = kernel.sendMessage(requester, community, group, role, messageToSend, senderRole);
 		if(r == SUCCESS){
-			if(requester.isFinestLogOn())
-				requester.logger.log(Level.FINEST,Influence.SEND_MESSAGE.successString() +"->" 
+			if(requester.isFinestLogOn()){
+				requester.logger.log(Level.FINEST, (messageToSend.getReceiver().isFrom(requester.getKernelAddress()) ? Influence.SEND_MESSAGE.successString() : Influence.SEND_MESSAGE.toString()) +"->" 
 						+ getCGRString(community,group,role)+" "+messageToSend);
+			}
 			return SUCCESS;
 		}
 		if (requester.isWarningOn()) {

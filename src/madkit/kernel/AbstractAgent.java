@@ -69,8 +69,10 @@ import madkit.i18n.ErrorMessages;
 import madkit.i18n.I18nUtilities;
 import madkit.i18n.Words;
 import madkit.kernel.Madkit.Option;
+import madkit.message.ConversationFilter;
 import madkit.message.EnumMessage;
 import madkit.message.GUIMessage;
+import madkit.message.MessageFilter;
 import madkit.message.hook.HookMessage.AgentActionEvent;
 import madkit.util.MadkitProperties;
 import madkit.util.XMLUtilities;
@@ -996,7 +998,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @see AbstractAgent#logger
 	 * @since MaDKit 5.0.0.6
 	 */
-	public AgentLogger getLogger() {
+	final public AgentLogger getLogger() {
 		if (logger == AgentLogger.defaultAgentLogger || logger == null) {
 			synchronized (this) {
 				logger = AgentLogger.getLogger(this);
@@ -1189,10 +1191,9 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * @param group
 	 *           the name of the new group.
 	 * @return <code>true</code> if the group has been created,
-	 *         <code>false</code> if it was already present. </ul>
+	 *         <code>false</code> if such a group already exists.
 	 * 
-	 * @see AbstractAgent#createGroupIfAbsent(String, String, boolean,
-	 *      Gatekeeper)
+	 * @see AbstractAgent#createGroupIfAbsent(String, String, boolean, Gatekeeper)
 	 * @since MaDKit 5.0
 	 */
 	public boolean createGroupIfAbsent(final String community, final String group) { 
@@ -1213,10 +1214,9 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *           if <code>true</code> the new group will be distributed when
 	 *           multiple MaDKit kernels are connected.
 	 * @return <code>true</code> if the group has been created,
-	 *         <code>false</code> if it was already present. </ul>
+	 *         <code>false</code> if such a group already exists.
 	 * 
-	 * @see AbstractAgent#createGroupIfAbsent(String, String, boolean,
-	 *      Gatekeeper)
+	 * @see AbstractAgent#createGroupIfAbsent(String, String, boolean, Gatekeeper)
 	 * @since MaDKit 5.0
 	 */
 	public boolean createGroupIfAbsent(final String community, final String group, boolean isDistributed) { 
@@ -1243,7 +1243,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *           agent can be admitted in the group. When this object is null,
 	 *           there is no group access control.
 	 * @return <code>true</code> if the group has been created,
-	 *         <code>false</code> if it was already present. </ul>
+	 *         <code>false</code> if such a group already exists.
 	 * 
 	 * @see Gatekeeper
 	 * @see ReturnCode
@@ -1547,6 +1547,53 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	}
 
 	/**
+	 * Retrieves and removes the first message of the
+	 * mailbox that matches the filter.
+	 * 
+	 * @return The next acceptable message or <code>null</code> if no such message has been found.
+	 */
+	public Message nextMessage(MessageFilter filter) {
+		synchronized (messageBox) {
+			for (final Iterator<Message> iterator = messageBox.iterator(); iterator.hasNext();) {
+				final Message m = iterator.next();
+				if(filter.accept(m)){
+					iterator.remove();
+					return m;
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Retrieves and removes all the messages of the
+	 * mailbox that match the filter. 
+	 * 
+	 * @param filter if <code>null</code> all the messages are returned and removed from the mailbox.
+	 * @return the ordered list of matching messages, or an empty list if none has been found.
+	 */
+	public List<Message> nextMessages(MessageFilter filter) {
+		if(filter == null){
+			synchronized (messageBox) {
+				List<Message> match = new ArrayList<>(messageBox);
+				messageBox.clear();
+				return match;
+			}
+		}
+		List<Message> match = new ArrayList<>();
+		synchronized (messageBox) {
+			for (Iterator<Message> iterator = messageBox.iterator(); iterator.hasNext();) {
+				final Message m = iterator.next();
+				if(filter.accept(m)){
+					iterator.remove();
+					match.add(m);
+				}
+			}
+		}
+		return match;
+	}
+
+	/**
 	 * Purges the mailbox and returns the most
 	 * recent received message at that time.
 	 * 
@@ -1801,11 +1848,11 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * 
 	 */
 	public ReturnCode sendReplyWithRole(final Message messageToReplyTo, final Message reply, final String senderRole) { 
-		final AgentAddress sender = messageToReplyTo.getSender();
-		if(sender == null)
+		final AgentAddress target = messageToReplyTo.getSender();
+		if(target == null)
 			return ReturnCode.CANT_REPLY;
-		reply.setID(messageToReplyTo.getConversationID());
-		return getKernel().sendMessage(this, sender, reply, senderRole);
+		reply.getIDFrom(messageToReplyTo);
+		return getKernel().sendMessage(this, target, reply, senderRole);
 	}
 
 	/**
@@ -1843,15 +1890,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 *         reply to this message has been received.
 	 */
 	public Message getReplyTo(final Message originalMessage) { 
-		final long searchID = originalMessage.getConversationID();
-		for (final Iterator<Message> it = messageBox.iterator(); it.hasNext();) {
-			final Message m = it.next();
-			if (m.getConversationID() == searchID) {
-				it.remove();
-				return m;
-			}
-		}
-		return null;
+		return nextMessage(new ConversationFilter(originalMessage));
 	}
 
 	/**
@@ -2039,12 +2078,20 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 * 
 	 * @since MaDKit 5.0.0.20
 	 */
-	public TreeSet<String> getExistingRoles(final String community, final String group)
-	{
+	public TreeSet<String> getExistingRoles(final String community, final String group){
 		return getKernel().getExistingRoles(community, group);
 	}
 
-
+	/**
+	 * Checks if this agent address is still valid. I.e. the corresponding agent is 
+	 * still playing this role. 
+	 * 
+	 * @return <code>true</code> if the address still exists in the organization.
+	 * @since MaDKit 5.0.4
+	 */
+	public boolean checkAgentAddress(final AgentAddress agentAddress){
+		return getMadkitKernel().resolveAddress(agentAddress) != null;
+	}
 
 
 	/**
@@ -2245,7 +2292,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	/**
 	 * @since MaDKit 5.0.0.9
 	 */
-	private Message waitingNextMessage(final long timeout, final TimeUnit unit) {
+	Message waitingNextMessage(final long timeout, final TimeUnit unit) {
 		try {
 			return messageBox.poll(timeout, unit);
 		} catch (InterruptedException e) {
@@ -2304,7 +2351,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	 */
 	List<Message> waitAnswers(final Message message, final int size, final Integer timeOutMilliSeconds) {
 		final long endTime = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(timeOutMilliSeconds);
-		final long conversationID = message.getConversationID();
+		final ConversationID conversationID = message.getConversationID();
 		int missing = size;
 		final List<Message> receptions = new ArrayList<>(messageBox.size());
 		final List<Message> answers = new ArrayList<>(size);
@@ -2312,7 +2359,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 			Message answer = waitingNextMessage(endTime - System.nanoTime(), TimeUnit.NANOSECONDS);
 			if (answer == null)
 				break;
-			if (answer.getConversationID() == conversationID) {
+			if (answer.getConversationID().equals(conversationID)) {
 				answers.add(answer);
 				missing--;
 			}

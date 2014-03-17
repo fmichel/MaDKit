@@ -29,7 +29,6 @@ import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
 
-import org.junit.After;
 import org.junit.Test;
 
 /**
@@ -43,10 +42,10 @@ public class DiscoverTest extends JunitMadkit {
 	
 	protected static final int	OTHERS	= 6;
 
-	@After
-	public void clean(){
-		cleanHelperMDKs();
-	}
+//	@After
+//	public void clean(){
+//		cleanHelperMDKs();
+//	}
 
 	@Test
 	public void multipleConnectionTest() {

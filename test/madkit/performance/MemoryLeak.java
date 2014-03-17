@@ -20,6 +20,7 @@ package madkit.performance;
 
 import madkit.kernel.Agent;
 import madkit.kernel.JunitMadkit;
+import madkit.testing.util.agent.NormalAgent;
 
 /**
  * @author Fabien Michel
@@ -33,7 +34,7 @@ public class MemoryLeak extends JunitMadkit {
 //	@Test
 	public void massAALaunchWithBucket() {// TODO more cases
 //		addMadkitArgs(LevelOption.agentLogLevel.toString(),Level.OFF.toString());
-		launchTest(new Agent() {
+		launchTest(new NormalAgent() {
 			protected void activate() {
 				pause(2000);
 				while (true) {

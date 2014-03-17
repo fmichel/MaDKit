@@ -10,6 +10,7 @@ import madkit.kernel.Gatekeeper;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Message;
+import madkit.testing.util.agent.NormalAgent;
 
 import org.junit.Test;
 
@@ -21,7 +22,7 @@ public class CandidateTest extends JunitMadkit {
 		addMadkitArgs(LevelOption.agentLogLevel.toString(), Level.ALL.toString()
 //				,LevelOption.kernelLogLevel.toString(),Level.ALL.toString()
 				);
-		launchTest(new Agent() {
+		launchTest(new NormalAgent() {
 			/**
 			 * 
 			 */

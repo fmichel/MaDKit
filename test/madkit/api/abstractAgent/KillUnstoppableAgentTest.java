@@ -12,7 +12,7 @@ import madkit.testing.util.agent.UnstopableAgent;
 
 import org.junit.Test;
 
-public class KillUnstoppableAgent extends JunitMadkit {
+public class KillUnstoppableAgentTest extends JunitMadkit {
 
 	@Test
 	public void killUnstoppableInActivate() {

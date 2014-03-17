@@ -149,6 +149,7 @@
 	<path id="compile.classpath">
 		<fileset dir="lib">
 			<include name="junit*.jar" />
+			<include name="hamcrest-core-1.3.jar" />
 		</fileset>
 	</path>
 
@@ -173,7 +174,7 @@
 	</target>
 
 	<target name="test-compile" depends="compile,test-init">
-		<javac destdir="${test.classes.dir}" includeAntRuntime="false" debug="false" srcdir="test">
+		<javac destdir="${test.classes.dir}" includeAntRuntime="false" debug="on" srcdir="test">
 			<classpath refid="test.compile.classpath" />
 		</javac>
 	</target>
@@ -182,11 +183,11 @@
 	<!-- ================================= 
           target: junit              
          ================================= -->
-	<target name="junit" depends="clean,test-compile" description="description">
+	<target name="junit" depends="clean,test-compile" description="junit">
 		<copy todir="${test.classes.dir}" overwrite="false">
 			<fileset dir="test" excludes="**/*.java" />
 		</copy>
-		<junit printsummary="false" haltonfailure="false" maxmemory="2048m">
+		<junit printsummary="true" haltonfailure="false" maxmemory="4096m">
 			<classpath refid="test.classpath" />
 			<formatter type="brief" usefile="false" />
 			<formatter type="xml" />

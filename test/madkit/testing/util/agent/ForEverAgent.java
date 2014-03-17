@@ -30,6 +30,7 @@ import madkit.kernel.Agent;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.LevelOption;
+import madkit.kernel.Message;
 
 /**
  * @author Fabien Michel
@@ -45,6 +46,7 @@ public class ForEverAgent extends Agent {
 		setLogLevel(Level.ALL);
 		createGroupIfAbsent(JunitMadkit.COMMUNITY, GROUP,true);
 		assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
+		sendMessage(COMMUNITY, GROUP,ROLE,new Message());
 	}
 
 	@Override

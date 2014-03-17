@@ -86,7 +86,7 @@ public class RoleTest {
 		assertNotNull(aa);
 		assertEquals(AbstractAgent.ReturnCode.SUCCESS, r.removeMember(a));
 		assertNull(r.getAgentAddressOf(a));
-		assertFalse(aa.exists());
+		assertFalse(a.checkAgentAddress(aa));
 	}
 
 	/**

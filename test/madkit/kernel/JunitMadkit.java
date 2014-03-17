@@ -68,7 +68,16 @@ public class JunitMadkit {
 
 	public static String testTitle;
 	protected Madkit madkit;
-	protected List<Madkit> helperInstances = new ArrayList<>();
+	protected static List<Madkit> helperInstances = new ArrayList<>();
+	
+//	static{
+//		Runtime.getRuntime().addShutdownHook(new Thread(){
+//			@Override
+//			public void run() {
+//				cleanHelperMDKs();
+//			}
+//		});
+//	}
 
 	protected List<String> mkArgs = new ArrayList<>(Arrays.asList(
 			// "--"+Madkit.warningLogLevel,"INFO",
@@ -78,7 +87,7 @@ public class JunitMadkit {
 			Option.logDirectory.toString(), getBinTestDir(), LevelOption.agentLogLevel.toString(), "ALL",
 			LevelOption.madkitLogLevel.toString(), "INFO"));
 
-	private List<Process>	externalProcesses = new ArrayList<>();
+	private static List<Process>	externalProcesses = new ArrayList<>();
 
 	public Madkit launchTest(AbstractAgent a, ReturnCode expected, boolean gui) {
 		System.err.println("\n\n------------------------ " + name.getMethodName() + " TEST START ---------------------");
@@ -111,6 +120,7 @@ public class JunitMadkit {
 			System.err.println("\n\n------------------------ " + name.getMethodName() + " TEST FINISHED ---------------------\n\n");
 		}
 		madkit.doAction(KernelAction.EXIT);
+		cleanHelperMDKs();
 		return madkit;
 	}
 
@@ -270,30 +280,29 @@ public class JunitMadkit {
 	}
 	
 	
-	public void cleanHelperMDKs(int pauseTime){
-		boolean done = false;
-		for (Madkit m : helperInstances) {
-			m.doAction(KernelAction.EXIT);
-			done = true;
-		}
-		for (Process p : externalProcesses) {
-			p.destroy();
-			try {
-				p.waitFor();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+	public static void cleanHelperMDKs(int pauseTime){
+		if (! helperInstances.isEmpty() || ! externalProcesses.isEmpty()) {
+			for (Madkit m : helperInstances) {
+				m.doAction(KernelAction.STOP_NETWORK);
+				m.doAction(KernelAction.EXIT);
 			}
-			done = true;
-		}
-		helperInstances.clear();
-		externalProcesses.clear();
-		if(done)
+			for (Process p : externalProcesses) {
+				p.destroy();
+				try {
+					p.waitFor();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			helperInstances.clear();
+			externalProcesses.clear();
 			pause(pauseTime);
+			System.err.println("------------Cleaning help instances done ---------------------\n\n");
+		}
 	}
 
-	public void cleanHelperMDKs(){
-		cleanHelperMDKs(1000);
+	public static void cleanHelperMDKs(){
+		cleanHelperMDKs(100);
 	}
 	public void launchThreadedMKNetworkInstance() {
 		launchThreadedMKNetworkInstance(Level.OFF);
@@ -331,7 +340,7 @@ public class JunitMadkit {
 	}
 	
 	public void launchExternalMDKInstance(String... args){
-		String cmdLince = "java -cp bin:build/test/classes:lib/junit-4.9b2.jar madkit.kernel.Madkit";
+		String cmdLince = "java -Xms1024m -cp bin:build/test/classes:lib/junit-4.11.jar:lib/hamcrest-core-1.3.jar madkit.kernel.Madkit";
 		for (String string : args) {
 			cmdLince += " "+string;
 		}

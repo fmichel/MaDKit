@@ -35,14 +35,13 @@ import madkit.kernel.MadkitClassLoader;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-
 /**
  * The properties object used within MaDKit.
  * 
  * 
  * @author Fabien Michel
  * @since MadKit 5.0.2
- * @version 0.9
+ * @version 0.91
  * 
  */
 public class MadkitProperties extends Properties {
@@ -50,33 +49,37 @@ public class MadkitProperties extends Properties {
 	/**
 	 * 
 	 */
-	private static final long	serialVersionUID	= 1964226720362899440L;
-	
-	private final static Logger	logger = Logger.getLogger(MadkitProperties.class.getName());
+	private static final long		serialVersionUID	= 1964226720362899440L;
+
+	private final static Logger	logger				= Logger.getLogger(MadkitProperties.class.getName());
+
+	/**
+	 * Shortcut for System.getProperty("javawebstart.version") != null;
+	 */
+	final public static boolean JAVAWS_IS_ON = System.getProperty("javawebstart.version") != null;
 
 	/**
 	 * Loads properties from an XML file.
 	 * 
-	 * @param pathname
+	 * @param filePath can be absolute or relative
 	 * @throws IOException
 	 */
-	public void loadPropertiesFromMaDKitXML(final String pathname) throws IOException{
-		try (InputStream is = getInputStream(pathname)) {
-					NodeList madkitOptionNodes = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is).getDocumentElement()
-							.getElementsByTagName(XMLUtilities.MADKIT_PROPERTIES);
-					for (int i = 0; i < madkitOptionNodes.getLength(); i++) {
-						org.w3c.dom.NamedNodeMap options = madkitOptionNodes.item(i).getAttributes();
-						for (int j = 0; j < options.getLength(); j++) {
-							put(options.item(j).getNodeName(), options.item(j).getNodeValue());
-						}
-					}
-					logLoadSuccess(pathname);
+	public void loadPropertiesFromMaDKitXML(final String filePath) throws IOException {
+		try (InputStream is = getInputStream(filePath)) {
+			NodeList madkitOptionNodes = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is).getDocumentElement()
+					.getElementsByTagName(XMLUtilities.MADKIT_PROPERTIES);
+			for (int i = 0; i < madkitOptionNodes.getLength(); i++) {
+				org.w3c.dom.NamedNodeMap options = madkitOptionNodes.item(i).getAttributes();
+				for (int j = 0; j < options.getLength(); j++) {
+					put(options.item(j).getNodeName(), options.item(j).getNodeValue());
+				}
+			}
+			logger.fine("** Config file " + filePath + " successfully loaded **\n");
 		} catch (SAXException | ParserConfigurationException e) {
-			logLoadFailure(pathname, e);
+			logger.log(Level.WARNING, ErrorMessages.CANT_LOAD + "configuration " + filePath, e);
 		}
 	}
 
-	
 	/**
 	 * Loads properties from a regular properties formatted file.
 	 * 
@@ -90,7 +93,7 @@ public class MadkitProperties extends Properties {
 			throw e;
 		}
 	}
-	
+
 	/**
 	 * Loads properties from a properties file (classic or XML).
 	 * 
@@ -98,60 +101,35 @@ public class MadkitProperties extends Properties {
 	 * @throws IOException
 	 */
 	public void loadPropertiesFromFile(final String pathname) throws IOException {
-		if(pathname.endsWith(".xml")){
+		if (pathname.endsWith(".xml")) {
 			loadPropertiesFromMaDKitXML(pathname);
 		}
-		else{
+		else {
 			loadPropertiesFromPropertiesFile(pathname);
 		}
 	}
-	
+
 	/**
 	 * Return an <code>InputStream</code> on a file.
 	 * pathname could be relative to (1) the actual MaDKit class path, which is
-	 * preferable considering jar export, or (2) the user.dir, or it could be 
+	 * preferable considering jar export, or (2) the user.dir, or it could be
 	 * an absolute path. The returned input stream should be closed once done.
 	 * 
-     * @param   pathname  A pathname string
-     * @throws  NullPointerException
-     *          If the <code>pathname</code> argument is <code>null</code>
+	 * @param pathname A pathname string
+	 *           If the <code>pathname</code> argument is <code>null</code>
 	 * @return an <code>InputStream</code> by
-     * opening a connection to an actual file, or <code>null</code>
-     * if the file is not found.
-     * 
+	 *         opening a connection to an actual file, or <code>null</code> if the file is not found.
+	 * 
+	 * @throws NullPointerException
 	 * @throws IOException
 	 */
-	public static InputStream getInputStream(final String pathname) throws IOException{
+	public static InputStream getInputStream(final String pathname) throws IOException {
 		final File f = new File(pathname);
-		@SuppressWarnings("resource") //closed when used
+		@SuppressWarnings("resource")
+		// closed when used
 		InputStream is = f.exists() ? new FileInputStream(f) : MadkitClassLoader.getLoader().getResourceAsStream(pathname);
-		if(is == null)
+		if (is == null)
 			throw new FileNotFoundException(pathname);
 		return is;
 	}
-	
-	/**
-	 * @param fileName
-	 * @param e
-	 */
-	static private void logLoadFailure(final String fileName, Exception e) {
-		logger.log(Level.WARNING, ErrorMessages.CANT_LOAD + "configuration " + fileName, e);
-	}
-	
-	/**
-	 * @param fileName
-	 */
-	static private void logLoadSuccess(final String fileName) {
-		logger.fine("** Config file " + fileName + " successfully loaded **\n");
-	}
-
-//	static private boolean checkInputStream(InputStream is,String fileName){
-//		if(is == null){
-//			logger.warning(ErrorMessages.CANT_FIND + "configuration " + fileName);
-//			return false;
-//		}
-//		return true;
-//	}
-
-
 }

@@ -514,7 +514,7 @@ public class Scheduler extends Agent {
 		// toolBar.add(Box.createHorizontalGlue());
 		toolBar.add(p);
 //		toolBar.add(getGVTLabel());
-		SwingUtil.scaleAllAbstractButtonIcons(toolBar, 24);
+		SwingUtil.scaleAllAbstractButtonIconsOf(toolBar, 24);
 		return toolBar;
 	}
 

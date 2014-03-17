@@ -513,9 +513,8 @@ class Role implements Serializable{//TODO test with arraylist
 //		final KernelAddress ka = a.getKernelAddress();
 		synchronized (players) {
 			for (final AgentAddress aa : buildAndGetAddresses()) {//TODO when offline second part is useless
-//				if (aa.getAgentCode() == hash && aa.getAgent() != null)// && ka.equals(aa.getKernelAddress()))
 					if (aa.hashCode() == hash && aa.getAgent() != null)// && ka.equals(aa.getKernelAddress()))
-					return aa;
+						return aa;
 			}
 		}
 		return null;
@@ -527,20 +526,36 @@ class Role implements Serializable{//TODO test with arraylist
 	 * @return the AbstractAgent corresponding to the aa agentAddress in this role, null if it does no longer play this role
 	 */
 	AbstractAgent getAbstractAgentWithAddress(AgentAddress aa) {
-//		final int hash = aa.getAgentCode();
-		final int hash = aa.hashCode();
-		synchronized (players) {
-			for (final AbstractAgent agent : players) {
-				if (agent.hashCode() == hash)
-					return agent;
+		if (players != null) {
+			final int hash = aa.hashCode();
+			synchronized (players) {
+				for (final AbstractAgent agent : players) {
+					if (agent.hashCode() == hash)
+						return agent;
+				}
 			}
 		}
 		return null;
 	}
 
-
 	final boolean contains(AbstractAgent agent) {
 		return players.contains(agent);
+	}
+
+
+	/**
+	 * Return the reference agent address
+	 * 
+	 * @param aa
+	 * @return <code>null</code> if it is not contained in this role anymore
+	 */
+	final AgentAddress resolveAgentAddress(AgentAddress anAA) {
+		for (final AgentAddress aa : buildAndGetAddresses()) {
+			if(aa.equals(anAA)){
+				return aa;
+			}
+		}
+		return null;
 	}
 
 

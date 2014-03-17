@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2014 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -49,11 +49,14 @@ public enum AgentAction {
 	SEND_MESSAGE(VK_DOLLAR),
 	BROADCAST_MESSAGE(VK_DOLLAR),
 	KILL_AGENT(KeyEvent.VK_K)
-	
 	;
 
 	final static private ResourceBundle messages = I18nUtilities.getResourceBundle(AgentAction.class.getSimpleName());
+	
 	private ActionInfo actionInfo;
+	
+	final private int keyEvent;
+
 	/**
 	 * @return the actionInfo corresponding to this constant
 	 */
@@ -63,7 +66,6 @@ public enum AgentAction {
 		return actionInfo;
 	}
 
-	final private int keyEvent;
 
 	private AgentAction(int keyEvent){
 		this.keyEvent = keyEvent;

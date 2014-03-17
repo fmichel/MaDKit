@@ -15,12 +15,39 @@ interact using messages. It also contains generic MAS simulation authoring tools
 ----------------------------------------------------------------------------------
 
 ----------------------------------------------------------------------------------
+------------------------------- MaDKit 5.0.4 (beta-4) ------------------------
+----------------------------------------------------------------------------------
+
+
+1. Improvements and changes:
+	- the mailbox now can be queried using custom message filters, see API changes.  
+
+2. Bug fixes:
+	- fix bugs that could appear when using the replying methods in a distributed mode
+	- fix a bug appearing when an uncommon jar with no manifest is on the classpath
+
+3. API changes:
+	- madkit.message.hook.CGREvent.getSourceAgentID() was useless considering madkit.kernel.AgentAddress.getAgentNetworkID() 
+	- madkit.kernel.AgentAddress.exists() semantic was unclear -> use madkit.kernel.AbstractAgent.checkAgentAddress(AgentAddress)
+	- madkit.kernel.AgentAddress.isLocal() semantic was unclear -> use madkit.kernel.AgentAddress.isFrom(KernelAddress)
+	+ madkit.message.MessageFilter
+	+ madkit.message.SenderRoleFilter
+	+ madkit.message.ConversationFilter
+	+ madkit.kernel.AbstractAgent.nextMessage(MessageFilter)
+	+ madkit.kernel.AbstractAgent.nextMessages(MessageFilter)
+	+ madkit.kernel.Agent.waitNextMessage(MessageFilter)
+	+ madkit.kernel.Agent.waitNextMessage(Integer, MessageFilter)
+	+ madkit.kernel.Agent.waitAnswer(Message)
+	+ madkit.kernel.Agent.waitAnswer(Message, Integer)
+	
+
+----------------------------------------------------------------------------------
 ------------------------------- MaDKit 5.0.3.2 (beta-3.2) ------------------------
 ----------------------------------------------------------------------------------
 
 Fix a Java web start issue that appeared with jdk 7u45
 
-2. API changes:
+   API changes:
 	+ madkit.kernel.AbstractAgent.getMyRoles(String, String)
 
 

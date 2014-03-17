@@ -20,10 +20,10 @@ package madkit.networking;
 
 import static org.junit.Assert.assertNotNull;
 import madkit.action.KernelAction;
-import madkit.kernel.Agent;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.BooleanOption;
+import madkit.testing.util.agent.NormalAgent;
 import madkit.testing.util.agent.PongAgent;
 
 import org.junit.Test;
@@ -39,7 +39,7 @@ public class PingPongTest extends JunitMadkit {
 	@Test
 	public void networkPingPong() {
 		addMadkitArgs(BooleanOption.network.toString());
-		launchTest(new Agent() {
+		launchTest(new NormalAgent() {
 			@Override
 			protected void activate() {
 				// setLogLevel(Level.OFF);

@@ -25,11 +25,11 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.logging.Level;
 
-import madkit.kernel.Agent;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
+import madkit.testing.util.agent.NormalAgent;
 
 import org.junit.Test;
 
@@ -47,7 +47,7 @@ public class NetworkMessagingTest extends JunitMadkit {
 		addMadkitArgs(BooleanOption.network.toString(), LevelOption.kernelLogLevel.toString(), "ALL"
 				,LevelOption.networkLogLevel.toString(), "FINE"
 				);
-		launchTest(new Agent() {
+		launchTest(new NormalAgent() {
 			protected void activate() {
 				setLogLevel(Level.FINE);
 				assertTrue(isKernelOnline());

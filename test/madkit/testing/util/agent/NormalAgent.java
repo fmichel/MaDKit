@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2014 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -31,7 +31,7 @@ import madkit.kernel.Agent;
 /**
  * @author Fabien Michel
  * @since MaDKit 5.0.0.12
- * @version 0.9
+ * @version 0.91
  * 
  */
 public class NormalAgent extends Agent {
@@ -47,12 +47,14 @@ public class NormalAgent extends Agent {
 
 	@Override
 	protected void activate() {
-		assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
+		createGroupIfAbsent(COMMUNITY, GROUP, true);
 		assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
-	}
-	
-	protected void live() {
 		setLogLevel(Level.ALL);
 	}
-
+	
+	@Override
+	protected void live() {//need the override !
+		setLogLevel(Level.ALL);
+	}
+	
 }

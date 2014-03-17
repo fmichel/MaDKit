@@ -186,7 +186,7 @@ public class LaunchAbstractAgentTest extends JunitMadkit {
 	public void massLaunchWithGUI() {
 		addMadkitArgs("--" + LevelOption.agentLogLevel, "OFF");
 		launchTest(new AbstractAgent() {
-			int number = 30;
+			int number = 10;
 
 			protected void activate() {
 				assertEquals(SUCCESS, createGroup(JunitMadkit.COMMUNITY, JunitMadkit.GROUP));

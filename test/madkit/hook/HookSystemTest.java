@@ -27,7 +27,6 @@ import java.util.logging.Level;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.agr.Organization;
-import madkit.kernel.Agent;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Message;
@@ -55,7 +54,7 @@ public class HookSystemTest extends JunitMadkit {
 		addMadkitArgs(LevelOption.agentLogLevel.toString(), Level.ALL.toString()
 //				,LevelOption.kernelLogLevel.toString(),Level.ALL.toString()
 				);
-		launchTest(new Agent() {
+		launchTest(new NormalAgent() {
 			@Override
 			protected void activate() {
 						sendMessage(LocalCommunity.NAME, 
@@ -79,7 +78,7 @@ public class HookSystemTest extends JunitMadkit {
 		addMadkitArgs(LevelOption.agentLogLevel.toString(), Level.ALL.toString()
 //				,LevelOption.kernelLogLevel.toString(),Level.ALL.toString()
 				);
-		launchTest(new Agent() {
+		launchTest(new NormalAgent() {
 			@Override
 					protected void activate() {
 						sendMessage(LocalCommunity.NAME, 
@@ -103,7 +102,7 @@ public class HookSystemTest extends JunitMadkit {
 		addMadkitArgs(LevelOption.agentLogLevel.toString(), Level.ALL.toString()
 //				,LevelOption.kernelLogLevel.toString(),Level.ALL.toString()
 				);
-		launchTest(new Agent() {
+		launchTest(new NormalAgent() {
 					@Override
 					protected void activate() {
 						sendMessage(LocalCommunity.NAME, 
@@ -129,7 +128,7 @@ public class HookSystemTest extends JunitMadkit {
 		addMadkitArgs(LevelOption.agentLogLevel.toString(), Level.ALL.toString()
 //				,LevelOption.kernelLogLevel.toString(),Level.ALL.toString()
 				);
-		launchTest(new Agent() {
+		launchTest(new NormalAgent() {
 			@Override
 					protected void activate() {
 						sendMessage(LocalCommunity.NAME, 
@@ -155,7 +154,7 @@ public class HookSystemTest extends JunitMadkit {
 		addMadkitArgs(LevelOption.agentLogLevel.toString(), Level.ALL.toString()
 //				,LevelOption.kernelLogLevel.toString(),Level.ALL.toString()
 				);
-		launchTest(new Agent() {
+		launchTest(new NormalAgent() {
 			@Override
 					protected void activate() {
 						sendMessage(LocalCommunity.NAME, 
@@ -180,7 +179,7 @@ public class HookSystemTest extends JunitMadkit {
 		addMadkitArgs(LevelOption.agentLogLevel.toString(), Level.ALL.toString()
 //				,LevelOption.kernelLogLevel.toString(),Level.ALL.toString()
 				);
-		launchTest(new Agent() {
+		launchTest(new NormalAgent() {
 					@Override
 					protected void activate() {
 						sendMessage(
@@ -205,7 +204,7 @@ public class HookSystemTest extends JunitMadkit {
 		addMadkitArgs(LevelOption.agentLogLevel.toString(), Level.ALL.toString()
 //				,LevelOption.kernelLogLevel.toString(),Level.ALL.toString()
 				);
-		launchTest(new Agent() {
+		launchTest(new NormalAgent() {
 					@Override
 					protected void activate() {
 						sendMessage(
@@ -230,7 +229,7 @@ public class HookSystemTest extends JunitMadkit {
 		addMadkitArgs(LevelOption.agentLogLevel.toString(), Level.ALL.toString()
 //				,LevelOption.kernelLogLevel.toString(),Level.ALL.toString()
 				);
-		launchTest(new Agent() {
+		launchTest(new NormalAgent() {
 					@Override
 					protected void activate() {
 						sendMessage(
@@ -258,7 +257,7 @@ public class HookSystemTest extends JunitMadkit {
 		addMadkitArgs(LevelOption.agentLogLevel.toString(), Level.ALL.toString()
 //				,LevelOption.kernelLogLevel.toString(),Level.ALL.toString()
 				);
-		launchTest(new Agent() {
+		launchTest(new NormalAgent() {
 					@Override
 					protected void activate() {
 						sendMessage(

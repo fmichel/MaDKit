@@ -27,10 +27,13 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.List;
 import java.util.logging.Level;
 
 import madkit.kernel.AbstractAgent.State;
 import madkit.kernel.Madkit.Option;
+import madkit.message.MessageFilter;
+import madkit.message.StringMessage;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -87,6 +90,48 @@ public class AbstractAgentTest {
 		a.receiveMessage(m = new Message());
 		assertNotSame(m, a.nextMessage());
 		assertSame(m, a.nextMessage());
+		assertNull(a.nextMessage());
+	}
+	
+	@Test
+	public void nextMessageWithFilter(){
+		assertNull(a.nextMessage());
+		Message m;
+		a.receiveMessage(new Message());
+		a.receiveMessage(new StringMessage(null));
+		a.receiveMessage(new Message());
+		a.receiveMessage(new StringMessage(null));
+		m = a.nextMessage(new MessageFilter() {
+			@Override
+			public boolean accept(Message m2) {
+				return m2 instanceof StringMessage;
+			}
+		});
+		assertFalse(a.nextMessage() instanceof StringMessage);
+		assertFalse(a.nextMessage() instanceof StringMessage);
+		assertTrue(a.nextMessage() instanceof StringMessage);
+		assertNull(a.nextMessage());
+	}
+	
+	@Test
+	public void nextMessagesWithFilter(){
+		assertNull(a.nextMessage());
+		Message m;
+		a.receiveMessage(new Message());
+		a.receiveMessage(new StringMessage(null));
+		a.receiveMessage(m = new Message());
+		a.receiveMessage(m = new StringMessage(null));
+		a.receiveMessage(m = new StringMessage(null));
+		List<Message> l = a.nextMessages(new MessageFilter() {
+			@Override
+			public boolean accept(Message m2) {
+				return m2 instanceof StringMessage;
+			}
+		});
+		assertEquals(3, l.size());
+		System.err.println(l);
+		assertFalse(a.nextMessage() instanceof StringMessage);
+		assertFalse(a.nextMessage() instanceof StringMessage);
 		assertNull(a.nextMessage());
 	}
 	

@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2014 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -36,11 +36,11 @@ import org.junit.Test;
 /**
  * @author Fabien Michel
  * @since MaDKit 5.0.0.15
- * @version 0.9
+ * @version 0.91
  * 
  */
 @SuppressWarnings("serial")
-public class SendReply extends JunitMadkit {
+public class SendReplyTest extends JunitMadkit {
 
 	@Test
 	public void returnNotInGroup() {

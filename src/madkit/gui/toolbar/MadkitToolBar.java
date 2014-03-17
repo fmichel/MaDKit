@@ -65,6 +65,6 @@ public class MadkitToolBar extends JToolBar {
 	public MadkitToolBar(final AbstractAgent agent) {
 		super("MaDKit");
 		SwingUtil.addMaDKitActionsTo(this, agent);
-		SwingUtil.scaleAllAbstractButtonIcons(this, 20);
+		SwingUtil.scaleAllAbstractButtonIconsOf(this, 20);
 	}
 }

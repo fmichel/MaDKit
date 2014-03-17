@@ -32,7 +32,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class OtherMadkitProperty extends JunitMadkit {
+public class OtherMadkitPropertyTest extends JunitMadkit {
 
 	@Test
 	public void undefinedProperty() {

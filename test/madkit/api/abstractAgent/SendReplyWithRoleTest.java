@@ -38,7 +38,7 @@ import org.junit.Test;
  * 
  */
 @SuppressWarnings("serial")
-public class SendReplyWithRole extends JunitMadkit {
+public class SendReplyWithRoleTest extends JunitMadkit {
 
 	@Test
 	public void returnNotInGroup() {

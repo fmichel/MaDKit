@@ -37,7 +37,6 @@ import org.junit.Test;
  * @version 0.9
  * 
  */
-@SuppressWarnings("serial")
 public class MassLaunchBench extends JunitMadkit {
 
 	@Test

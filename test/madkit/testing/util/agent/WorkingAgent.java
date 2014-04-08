@@ -23,11 +23,6 @@ import madkit.kernel.Madkit.BooleanOption;
 
 public class WorkingAgent extends DoItDuringLifeCycleAgent {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -175432600448922540L;
-
 	public WorkingAgent(boolean inActivate, boolean inLive, boolean inEnd) {
 		super(inActivate, inLive, inEnd);
 	}

@@ -38,7 +38,7 @@ import org.junit.Test;
  * @version 0.9
  * 
  */
-@SuppressWarnings("serial")
+
 public class GenericBehaviorActivatorTest extends JunitMadkit {
 
 	private static GenericBehaviorActivator<AbstractAgent> buggy;

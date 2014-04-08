@@ -29,10 +29,6 @@ import madkit.kernel.JunitMadkit;
  */
 public class SimulatedAgentBis extends AbstractAgent {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	private int privatePrimitiveField = 1;
 	public double publicPrimitiveField = 2;
 

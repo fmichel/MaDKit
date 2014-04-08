@@ -29,10 +29,6 @@ import madkit.kernel.Madkit;
  * 
  */
 public class NeverStopAgent extends Agent {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	@SuppressWarnings("unused")
 	private AgentAddress currentPartner = null;
 

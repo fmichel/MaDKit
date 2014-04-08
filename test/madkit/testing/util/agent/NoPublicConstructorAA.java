@@ -33,11 +33,6 @@ import madkit.kernel.AbstractAgent;
  */
 public class NoPublicConstructorAA extends AbstractAgent {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	NoPublicConstructorAA() {
 		setName(getLogger().getName());
 		getLogger().info("launched");

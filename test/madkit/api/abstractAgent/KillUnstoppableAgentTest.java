@@ -17,11 +17,6 @@ public class KillUnstoppableAgentTest extends JunitMadkit {
 	@Test
 	public void killUnstoppableInActivate() {
 		launchTest(new AbstractAgent() {
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
-
 			protected void activate() {
 				AbstractAgent unstopableAgent = new UnstopableAgent(true);
 				unstopableAgent.setLogLevel(Level.ALL);
@@ -37,11 +32,6 @@ public class KillUnstoppableAgentTest extends JunitMadkit {
 	@Test
 	public void brutalKillUnstoppableInActivateAndLive() {
 		launchTest(new AbstractAgent() {
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
-
 			protected void activate() {
 				AbstractAgent unstopableAgent = new UnstopableAgent(true, true, false);
 				assertEquals(TIMEOUT, launchAgent(unstopableAgent, 1));
@@ -57,11 +47,6 @@ public class KillUnstoppableAgentTest extends JunitMadkit {
 	@Test
 	public void brutalKillUnstoppableInActivateAndLiveAndEnd() {
 		launchTest(new AbstractAgent() {
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
-
 			protected void activate() {
 				AbstractAgent unstopableAgent = new UnstopableAgent(true, true, true);
 				assertEquals(TIMEOUT, launchAgent(unstopableAgent, 1));
@@ -77,11 +62,6 @@ public class KillUnstoppableAgentTest extends JunitMadkit {
 	@Test
 	public void brutalKillUnstoppableUsingSelfRef() {
 		launchTest(new AbstractAgent() {
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
-
 			protected void activate() {
 				AbstractAgent unstopableAgent = new UnstopableAgent(true);
 				assertEquals(TIMEOUT, launchAgent(unstopableAgent, 1));

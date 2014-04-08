@@ -9,11 +9,6 @@ public class MadkitKernelTest extends JunitMadkit {
 	@Test
 	public void testCreateBucket() {
 		launchTest(new AbstractAgent() {
-			/**
-			 * 
-			 */
-			private static final long	serialVersionUID	= 1L;
-
 			@Override
 			protected void activate() {
 				try {

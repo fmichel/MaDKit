@@ -38,7 +38,7 @@ import madkit.kernel.Message;
  * @version 0.9
  * 
  */
-@SuppressWarnings("serial")
+
 public class NetworkMessageAgent extends Agent {
 
 	/*

@@ -27,11 +27,6 @@ package madkit.testing.util.agent;
  */
 public class SimulatedAgentThatLaunchesASimulatedAgent extends SimulatedAgent {
 
-	/**
-	 * 
-	 */
-	private static final long	serialVersionUID	= 1L;
-
 	@Override
 	protected void activate() {
 		super.activate();

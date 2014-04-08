@@ -75,11 +75,6 @@ public class ReloadTest extends JunitMadkit {
 	@Test
 	public void reloadByGUITest() {//need to clean cp before use
 		launchTest(new NormalAgent() {
-			/**
-			 * 
-			 */
-			private static final long	serialVersionUID	= 1L;
-
 			protected void activate() {
 				final String agentClassName = AgentToReload.class.getName();
 				final AbstractAgent launchAgent = launchAgent(agentClassName);
@@ -91,7 +86,7 @@ public class ReloadTest extends JunitMadkit {
 		});
 	}
 
-	@SuppressWarnings("serial")
+	
 	@Test
 	public void reloadAndLoadTest() {
 		launchTest(new AbstractAgent() {

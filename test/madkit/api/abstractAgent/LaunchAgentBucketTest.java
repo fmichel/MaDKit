@@ -44,7 +44,7 @@ import org.junit.Test;
  * @version 0.9
  * 
  */
-@SuppressWarnings("serial")
+
 public class LaunchAgentBucketTest extends JunitMadkit {
 	
 	static int size = 1001;

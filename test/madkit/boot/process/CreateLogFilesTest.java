@@ -44,7 +44,7 @@ import org.junit.Test;
  * @version 0.9
  * 
  */
-@SuppressWarnings("serial")
+
 public class CreateLogFilesTest extends JunitMadkit {
 
 	File				f;
@@ -232,11 +232,6 @@ public class CreateLogFilesTest extends JunitMadkit {
 }
 
 class LogTester extends AbstractAgent {
-
-	/**
-	 * 
-	 */
-	private static final long	serialVersionUID	= 1L;
 
 	public LogTester() {
 		getLogger().createLogFile();

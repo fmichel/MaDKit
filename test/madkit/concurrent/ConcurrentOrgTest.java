@@ -32,7 +32,7 @@ import org.junit.Test;
  * @version 0.9
  * 
  */
-@SuppressWarnings("serial")
+
 public class ConcurrentOrgTest extends JunitMadkit {
 	private int testSize = 8;
 

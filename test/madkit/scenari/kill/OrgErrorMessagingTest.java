@@ -45,7 +45,7 @@ import org.junit.Test;
  * @version 0.9
  * 
  */
-@SuppressWarnings("serial")
+
 public class OrgErrorMessagingTest extends JunitMadkit {
 
 	final static String OTHER = "other";

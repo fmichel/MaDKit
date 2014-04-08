@@ -36,13 +36,12 @@ import org.junit.Test;
  * 
  */
 
-@SuppressWarnings("serial")
+
 public class GetAgentAddressInTest extends JunitMadkit {
 
 	@Test
 	public void success() {
 		launchTest(new AbstractAgent() {
-			private static final long serialVersionUID = 1L;
 			protected void activate() {
 				createDefaultCGR(this);
 				assertNotNull(getAgentAddressIn(COMMUNITY, GROUP, ROLE));
@@ -53,7 +52,6 @@ public class GetAgentAddressInTest extends JunitMadkit {
 	@Test
 	public void nullAfterLeaveRole() {
 		launchTest(new AbstractAgent() {
-			private static final long serialVersionUID = 1L;
 			protected void activate() {
 				createDefaultCGR(this);
 				AgentAddress aa = getAgentAddressIn(COMMUNITY, GROUP, ROLE);
@@ -70,7 +68,6 @@ public class GetAgentAddressInTest extends JunitMadkit {
 	@Test
 	public void nullAfterLeaveGroup() {
 		launchTest(new AbstractAgent() {
-			private static final long serialVersionUID = 1L;
 			protected void activate() {
 				createDefaultCGR(this);
 				AgentAddress aa = getAgentAddressIn(COMMUNITY, GROUP, ROLE);
@@ -87,8 +84,6 @@ public class GetAgentAddressInTest extends JunitMadkit {
 	@Test
 	public void nullCommunity() {
 		launchTest(new AbstractAgent() {
-			private static final long serialVersionUID = 1L;
-
 			protected void activate() {
 				createDefaultCGR(this);
 				try {
@@ -104,8 +99,6 @@ public class GetAgentAddressInTest extends JunitMadkit {
 	@Test
 	public void nullGroup() {
 		launchTest(new AbstractAgent() {
-			private static final long serialVersionUID = 1L;
-
 			protected void activate() {
 				createDefaultCGR(this);
 				try {
@@ -121,8 +114,6 @@ public class GetAgentAddressInTest extends JunitMadkit {
 	@Test
 	public void nullRole() {
 		launchTest(new AbstractAgent() {
-			private static final long serialVersionUID = 1L;
-
 			protected void activate() {
 				createDefaultCGR(this);
 				try {
@@ -138,7 +129,6 @@ public class GetAgentAddressInTest extends JunitMadkit {
 	@Test
 	public void roleNotExist() {
 		launchTest(new AbstractAgent() {
-			private static final long serialVersionUID = 1L;
 			protected void activate() {
 				createDefaultCGR(this);
 				assertNull(getAgentAddressIn(COMMUNITY, GROUP, aa()));
@@ -149,7 +139,6 @@ public class GetAgentAddressInTest extends JunitMadkit {
 	@Test
 	public void roleNotHandled() {
 		launchTest(new AbstractAgent() {
-			private static final long serialVersionUID = 1L;
 			protected void activate() {
 				createDefaultCGR(this);
 				launchAgent(new AbstractAgent(){
@@ -169,7 +158,6 @@ public class GetAgentAddressInTest extends JunitMadkit {
 	@Test
 	public void groupNotExist() {
 		launchTest(new AbstractAgent() {
-			private static final long serialVersionUID = 1L;
 			protected void activate() {
 				createDefaultCGR(this);
 				assertNull(getAgentAddressIn(COMMUNITY, aa(), aa()));
@@ -180,7 +168,6 @@ public class GetAgentAddressInTest extends JunitMadkit {
 	@Test
 	public void communityNotExist() {
 		launchTest(new AbstractAgent() {
-			private static final long serialVersionUID = 1L;
 			protected void activate() {
 				createDefaultCGR(this);
 				assertNull(getAgentAddressIn(aa(), aa(), aa()));

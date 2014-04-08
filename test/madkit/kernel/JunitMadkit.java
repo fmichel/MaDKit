@@ -146,11 +146,6 @@ public class JunitMadkit {
 
 	public void launchDefaultAgent(AbstractAgent a){
 		a.launchAgent(new AbstractAgent(){
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 1287673873282151865L;
-
 			@Override
 			protected void activate() {
 				createGroup(COMMUNITY, GROUP);

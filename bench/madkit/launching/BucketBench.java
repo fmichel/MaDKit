@@ -6,11 +6,6 @@ import madkit.kernel.AbstractAgent;
 
 public class BucketBench extends AbstractAgent {
 
-	/**
-	 * 
-	 */
-	private static final long	serialVersionUID	= 1L;
-
 	@Override
 	protected void activate() {
 		getLogger().createLogFile();

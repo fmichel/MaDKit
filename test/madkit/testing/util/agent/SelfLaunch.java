@@ -26,7 +26,7 @@ import static org.junit.Assert.assertEquals;
  * @version 0.9
  * 
  */
-@SuppressWarnings("serial")
+
 public class SelfLaunch extends DoItDuringLifeCycleAgent {
 
 	/**

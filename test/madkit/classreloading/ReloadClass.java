@@ -30,11 +30,6 @@ import madkit.kernel.MadkitClassLoader;
  */
 public class ReloadClass extends Agent {
 
-	/**
-	 * 
-	 */
-	private static final long	serialVersionUID	= 3489945298542444031L;
-
 	@Override
 	protected void live() {
 		if (logger != null)

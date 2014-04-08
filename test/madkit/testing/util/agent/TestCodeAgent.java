@@ -27,7 +27,7 @@ import madkit.kernel.Madkit.BooleanOption;
  * @version 0.9
  * 
  */
-@SuppressWarnings("serial")
+
 public class TestCodeAgent extends Agent {
 
 	@Override

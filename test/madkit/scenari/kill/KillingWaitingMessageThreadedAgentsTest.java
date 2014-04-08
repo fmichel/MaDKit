@@ -37,7 +37,7 @@ import org.junit.Test;
  * @version 0.9
  * 
  */
-@SuppressWarnings("serial")
+
 public class KillingWaitingMessageThreadedAgentsTest extends JunitMadkit {
 
 	@Test
@@ -140,11 +140,6 @@ public class KillingWaitingMessageThreadedAgentsTest extends JunitMadkit {
 }
 
 class WaitingMessageAgent extends DoItDuringLifeCycleAgent {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -6447448286398006781L;
 
 	/**
 	 * @param inActivate

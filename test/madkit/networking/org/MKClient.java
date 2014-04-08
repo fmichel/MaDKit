@@ -18,10 +18,6 @@ import madkit.kernel.Message;
  */
 public class MKClient extends Agent {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -371337965704044173L;
 	String communityName = LocalCommunity.NAME;
 	String groupName = Groups.NETWORK;
 	String roleName = "net agent";

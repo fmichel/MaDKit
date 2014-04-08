@@ -43,7 +43,7 @@ import org.junit.Test;
  * @version 0.9
  * 
  */
-@SuppressWarnings("serial")
+
 public class DistantManagerTest extends JunitMadkit {
 	
 	protected static final int	OTHERS	= 10;

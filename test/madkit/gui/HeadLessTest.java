@@ -34,7 +34,7 @@ import madkit.testing.util.agent.NormalAgent;
 import org.junit.Test;
 
 
-@SuppressWarnings("serial")
+
 public class HeadLessTest extends JunitMadkit {
 
 	@Test

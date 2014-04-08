@@ -35,7 +35,7 @@ import org.junit.Test;
  * @version 0.9
  * 
  */
-@SuppressWarnings("serial")
+
 public class SecurePingPongTest extends JunitMadkit {
 	@Test
 	public void networkPingPong() {

@@ -96,12 +96,11 @@ public class AbstractAgentTest {
 	@Test
 	public void nextMessageWithFilter(){
 		assertNull(a.nextMessage());
-		Message m;
 		a.receiveMessage(new Message());
 		a.receiveMessage(new StringMessage(null));
 		a.receiveMessage(new Message());
 		a.receiveMessage(new StringMessage(null));
-		m = a.nextMessage(new MessageFilter() {
+		a.nextMessage(new MessageFilter() {
 			@Override
 			public boolean accept(Message m2) {
 				return m2 instanceof StringMessage;
@@ -116,12 +115,11 @@ public class AbstractAgentTest {
 	@Test
 	public void nextMessagesWithFilter(){
 		assertNull(a.nextMessage());
-		Message m;
 		a.receiveMessage(new Message());
 		a.receiveMessage(new StringMessage(null));
-		a.receiveMessage(m = new Message());
-		a.receiveMessage(m = new StringMessage(null));
-		a.receiveMessage(m = new StringMessage(null));
+		a.receiveMessage(new Message());
+		a.receiveMessage(new StringMessage(null));
+		a.receiveMessage(new StringMessage(null));
 		List<Message> l = a.nextMessages(new MessageFilter() {
 			@Override
 			public boolean accept(Message m2) {

@@ -30,7 +30,7 @@ import org.junit.Test;
  * @version 0.9
  * 
  */
-@SuppressWarnings("serial")
+
 public class setLogLevelTest extends madkit.kernel.JunitMadkit {
 
 	@Test

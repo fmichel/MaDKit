@@ -36,11 +36,6 @@ import madkit.kernel.Agent;
  */
 public class NormalAgent extends Agent {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	public NormalAgent() {
 		setName(getLogger().getName());
 	}

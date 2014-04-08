@@ -10,11 +10,6 @@ import madkit.kernel.Message;
 
 public class ForEverOnTheSameAASenderAgent extends Agent {
 
-	/**
-	 * 
-	 */
-	private static final long	serialVersionUID	= 1L;
-
 	@Override
 	protected void activate() {
 		createGroup(COMMUNITY, GROUP,true);

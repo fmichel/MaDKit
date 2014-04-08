@@ -33,11 +33,6 @@ import static org.junit.Assert.assertFalse;
  */
 public class XMLSuccessTestAgent2 extends XMLSuccessTestAgent {
 	
-	/**
-	 * 
-	 */
-	private static final long	serialVersionUID	= 1L;
-
 	@Override
 	protected void activate() {
 		assertEquals(3, getSpeed());

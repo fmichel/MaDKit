@@ -33,11 +33,6 @@ import madkit.kernel.Agent;
  */
 public class ExecuteThisAgent extends Agent {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	public ExecuteThisAgent() {
 	}
 

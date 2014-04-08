@@ -43,18 +43,8 @@ public class ReloadByGUITest extends JunitMadkit {
 	@Test
 	public void noExceptionTest() {
 		launchTest(new AbstractAgent() {
-			/**
-			 * 
-			 */
-			private static final long	serialVersionUID	= 1L;
-
 			protected void activate() {
 				NormalAA a = new NormalAA(){
-					/**
-					 * 
-					 */
-					private static final long	serialVersionUID	= 1L;
-
 					@Override
 					protected void activate() {
 						super.activate();
@@ -75,11 +65,6 @@ public class ReloadByGUITest extends JunitMadkit {
 	@Test
 	public void noExceptionOnAATest() {
 		launchTest(new AbstractAgent() {
-			/**
-			 * 
-			 */
-			private static final long	serialVersionUID	= 1L;
-
 			protected void activate() {
 				try {
 					AbstractAgent a = new AbstractAgent();

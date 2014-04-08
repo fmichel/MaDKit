@@ -32,10 +32,6 @@ import java.util.Set;
 */
 public class Watcher extends AbstractAgent
 {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -4999802785768614838L;
 	final private Set<Probe<? extends AbstractAgent>> probes = new LinkedHashSet<> ();
 
 	/**

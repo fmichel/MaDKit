@@ -29,7 +29,7 @@ import madkit.kernel.Madkit.Option;
  * @version 0.9
  * 
  */
-@SuppressWarnings("serial")
+
 public class LaunchAgentArg extends AbstractAgent{
 
 	public static void main(String[] args) {

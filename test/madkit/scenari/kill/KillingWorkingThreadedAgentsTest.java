@@ -42,7 +42,7 @@ import org.junit.Test;
  * @version 0.9
  * 
  */
-@SuppressWarnings("serial")
+
 public class KillingWorkingThreadedAgentsTest extends JunitMadkit {
 
 	@Test

@@ -31,7 +31,7 @@ import org.junit.Test;
  * @version 0.9
  * 
  */
-@SuppressWarnings("serial")
+
 public class ReloadClassTest extends JunitMadkit {
 
 	@Test

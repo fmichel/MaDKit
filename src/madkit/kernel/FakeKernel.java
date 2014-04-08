@@ -31,10 +31,7 @@ import madkit.util.MadkitProperties;
  */
 class FakeKernel extends MadkitKernel{
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 6109903118706339496L;
+	
 
 	///////////////////////////////////////////////////////////////////////////
 	////////////////////////// Agent interface

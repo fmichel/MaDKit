@@ -59,11 +59,6 @@ import madkit.message.SchedulingMessage;
 public class Scheduler extends Agent {
 
 	/**
-	 * 
-	 */
-	private static final long	serialVersionUID	= -2224235651899852429L;
-
-	/**
 	 * A simulation state. The simulation process managed by a scheduler agent
 	 * can be in one of the following states:
 	 * <ul>

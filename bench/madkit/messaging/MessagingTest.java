@@ -11,11 +11,6 @@ import madkit.kernel.Message;
 
 public class MessagingTest extends AbstractAgent {
 
-	/**
-	 * 
-	 */
-	private static final long	serialVersionUID	= 1L;
-
 	@Override
 	protected void activate() {
 		createGroup(COMMUNITY, GROUP);

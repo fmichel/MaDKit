@@ -7,11 +7,6 @@ import madkit.kernel.Madkit.Option;
 
 public class NoPackage extends AbstractAgent {
 
-	/**
-	 * 
-	 */
-	private static final long	serialVersionUID	= 1L;
-	
 	@Override
 	protected void activate() {
 		if(logger != null)

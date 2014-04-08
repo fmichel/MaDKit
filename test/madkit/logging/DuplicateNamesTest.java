@@ -30,11 +30,6 @@ public class DuplicateNamesTest extends JunitMadkit {
 	@Test
 	public void setNameTest() {
 		launchTest(new AbstractAgent() {
-			/**
-			 * 
-			 */
-			private static final long	serialVersionUID	= 682199976324991855L;
-
 			@Override
 			protected void activate() {
 				setName(COMMUNITY);
@@ -49,11 +44,6 @@ public class DuplicateNamesTest extends JunitMadkit {
 		addMadkitArgs(BooleanOption.createLogFiles.toString());
 		addMadkitArgs(LevelOption.guiLogLevel.toString(),Level.ALL.toString());
 		launchTest(new AbstractAgent() {
-
-			/**
-			 * 
-			 */
-			private static final long	serialVersionUID	= -4876624372420070372L;
 
 			@Override
 			protected void activate() {
@@ -72,10 +62,6 @@ public class DuplicateNamesTest extends JunitMadkit {
 
 class SetNameAgent extends AbstractAgent{
 	
-	/**
-	 * 
-	 */
-	private static final long	serialVersionUID	= -522022197619143781L;
 	public SetNameAgent() {
 		setName(JunitMadkit.COMMUNITY);
 	}

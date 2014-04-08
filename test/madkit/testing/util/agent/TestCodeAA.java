@@ -42,11 +42,6 @@ import madkit.message.StringMessage;
 public class TestCodeAA extends AbstractAgent {
 
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	public void reload(){
 		launchAgent(getClass().getName(),0, true);
 		killAgent(this);

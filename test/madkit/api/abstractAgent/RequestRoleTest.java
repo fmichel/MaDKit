@@ -41,7 +41,7 @@ import org.junit.Test;
  * @version 0.9
  * 
  */
-@SuppressWarnings("serial")
+
 public class RequestRoleTest extends JunitMadkit {
 
 	final AbstractAgent helper = new AbstractAgent() {

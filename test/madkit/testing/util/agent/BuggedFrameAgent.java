@@ -30,7 +30,7 @@ import madkit.kernel.Madkit.LevelOption;
  * @version 0.9
  * 
  */
-@SuppressWarnings("serial")
+
 public class BuggedFrameAgent extends AbstractAgent {
 
 	@SuppressWarnings("null")

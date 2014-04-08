@@ -31,10 +31,6 @@ import madkit.action.KernelAction;
  */
 public class BenchAgent extends DoItDuringLifeCycleAgent {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	private JMenu name;
 
 	public BenchAgent(boolean inActivate, boolean inLive, boolean inEnd) {

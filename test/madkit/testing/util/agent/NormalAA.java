@@ -33,11 +33,6 @@ import madkit.kernel.AbstractAgent;
  */
 public class NormalAA extends AbstractAgent {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	@Override
 	protected void activate() {
 		assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));

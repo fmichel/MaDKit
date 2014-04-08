@@ -26,7 +26,7 @@ import madkit.kernel.AbstractAgent;
  * @version 0.9
  * 
  */
-@SuppressWarnings("serial")
+
 public class BuggedConstructorAgent extends AbstractAgent {
 
 	public BuggedConstructorAgent() {

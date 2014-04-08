@@ -28,11 +28,6 @@ import madkit.kernel.AbstractAgent;
  */
 public class NormalLife extends DoItDuringLifeCycleAgent {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -1828461521929290955L;
-
 	public NormalLife(boolean inActivate, boolean inLive, boolean inEnd) {
 		super(inActivate, inLive, inEnd);
 	}

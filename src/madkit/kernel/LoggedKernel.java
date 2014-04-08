@@ -39,11 +39,6 @@ import madkit.i18n.Words;
  */
 final class LoggedKernel extends MadkitKernel {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 8002356811073647875L;
-
 	LoggedKernel(MadkitKernel k) {
 		super(k);
 		loggedKernel = this;

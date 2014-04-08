@@ -28,7 +28,7 @@ import madkit.testing.util.agent.NormalAgent;
  * @version 0.9
  * 
  */
-@SuppressWarnings("serial")
+
 public class MemoryLeak extends JunitMadkit {
 
 //	@Test

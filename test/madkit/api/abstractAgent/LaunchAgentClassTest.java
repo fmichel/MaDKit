@@ -37,7 +37,7 @@ import org.junit.Test;
  * @version 0.9
  * 
  */
-@SuppressWarnings("serial")
+
 public class LaunchAgentClassTest extends JunitMadkit {
 
 	final AbstractAgent target = new AbstractAgent() {
@@ -128,10 +128,5 @@ public class LaunchAgentClassTest extends JunitMadkit {
 }
 
 class NotPublicAgent extends AbstractAgent{
-
-	/**
-	 * 
-	 */
-	private static final long	serialVersionUID	= 1L;
 	
 }

@@ -119,11 +119,6 @@ import org.xml.sax.SAXException;
  */
 class MadkitKernel extends Agent {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 3999398692543480834L;
-
 	private final static ThreadGroup SYSTEM = new ThreadGroup("MK_SYSTEM") {
 		public void uncaughtException(Thread t, Throwable e) {
 			System.err.println("\n------------uncaught exception on " + t);

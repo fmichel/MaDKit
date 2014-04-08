@@ -15,11 +15,6 @@ public class AgentActionTest extends JunitMadkit{
 	public void LAUNCH_AGENT() {
 		addMadkitArgs(LevelOption.kernelLogLevel.toString(),"ALL");
 		launchTest(new AbstractAgent() {
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
-
 			protected void activate() {
 				AbstractAgent a = new Agent();
 				EnumMessage<AgentAction> m = new EnumMessage<>(AgentAction.LAUNCH_AGENT,a);
@@ -51,11 +46,6 @@ public class AgentActionTest extends JunitMadkit{
 	public void LAUNCH_AGENT_wrongType() {
 		addMadkitArgs(LevelOption.kernelLogLevel.toString(),"ALL");
 		launchTest(new AbstractAgent() {
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
-
 			protected void activate() {
 				AbstractAgent help = new AbstractAgent();
 				launchAgent(help);
@@ -81,11 +71,6 @@ public class AgentActionTest extends JunitMadkit{
 	public void LAUNCH_AGENT_null() {
 		addMadkitArgs(LevelOption.kernelLogLevel.toString(),"ALL");
 		launchTest(new AbstractAgent() {
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
-
 			protected void activate() {
 				AbstractAgent help = new AbstractAgent();
 				launchAgent(help);

@@ -49,7 +49,7 @@ import org.junit.Test;
  * @version 0.9
  * 
  */
-@SuppressWarnings("serial")
+
 public class KillAgentTest extends JunitMadkit {
 
 	final Agent target = new Agent() {
@@ -389,11 +389,6 @@ public class KillAgentTest extends JunitMadkit {
 }
 
 class TimeOutAgent extends Agent {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	@Override
 	protected void live() {
 		while (true)
@@ -405,11 +400,6 @@ class TimeOutAgent extends Agent {
 }
 
 class SelfKillAgent extends DoItDuringLifeCycleAgent {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 
 	public SelfKillAgent() {
 		super();

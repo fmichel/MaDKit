@@ -21,11 +21,6 @@ import madkit.kernel.AbstractAgent;
 public class AbstractModel extends AbstractAgent {
 
 	/**
-	 * 
-	 */
-	private static final long	serialVersionUID	= 4331001068139223326L;
-
-	/**
 	 * Returns a panel containing sliders operating on all the
 	 * {@link BoundedRangeModel} fields which are found in this model.
 	 * 

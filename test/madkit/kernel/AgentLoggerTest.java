@@ -113,7 +113,7 @@ public class AgentLoggerTest extends JunitMadkit{
 		assertEquals(l, a.logger);
 	}
 	
-	@SuppressWarnings("serial")
+	
 	@Test
 	public void severeLogTest(){
 		launchTest(new AbstractAgent(){
@@ -126,7 +126,7 @@ public class AgentLoggerTest extends JunitMadkit{
 		},ReturnCode.SUCCESS, true);
 	}
 
-	@SuppressWarnings("serial")
+	
 	@Test
 	public void onlyOneFileTest(){
 		addMadkitArgs(BooleanOption.createLogFiles.toString());
@@ -152,11 +152,6 @@ public class AgentLoggerTest extends JunitMadkit{
 }
 
 class AgentLog extends AbstractAgent {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	AgentLog(Level lvl) {
 		setLogLevel(lvl);
 	}

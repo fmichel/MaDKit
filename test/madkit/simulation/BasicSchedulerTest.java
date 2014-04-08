@@ -35,7 +35,7 @@ import org.junit.Test;
  * @version 0.9
  * 
  */
-@SuppressWarnings("serial")
+
 public class BasicSchedulerTest extends JunitMadkit {
 
 	@Test

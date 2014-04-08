@@ -18,11 +18,6 @@ public class KernelActionTest extends JunitMadkit{
 	@Test
 	public final void test() {//TODO no test here...
 		launchTest(new AbstractAgent(){
-			/**
-			 * 
-			 */
-			private static final long	serialVersionUID	= -2571329103697172436L;
-
 			@Override
 			protected void activate() {
 				try {
@@ -41,11 +36,6 @@ public class KernelActionTest extends JunitMadkit{
 		mkArgs.clear();
 //		addMadkitArgs(LevelOption.agentLogLevel.toString(), Level.ALL.toString());
 		launchTest(new AbstractAgent() {
-			/**
-			 * 
-			 */
-			private static final long	serialVersionUID	= 1L;
-
 			@Override
 			protected void activate() {
 				assertEquals("INFO", getMadkitProperty(LevelOption.agentLogLevel.name()));

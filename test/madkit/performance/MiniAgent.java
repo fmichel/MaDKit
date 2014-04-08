@@ -28,11 +28,6 @@ import madkit.kernel.JunitMadkit;
  * 
  */
 public class MiniAgent extends AbstractAgent {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -1905625922120769289L;
-
 	protected void activate() {
 			requestRole(JunitMadkit.COMMUNITY,JunitMadkit.GROUP,JunitMadkit.ROLE);
 	}

@@ -27,7 +27,6 @@ import static madkit.kernel.AbstractAgent.State.LIVING;
 import static madkit.kernel.AbstractAgent.State.TERMINATED;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -137,12 +136,7 @@ import org.xml.sax.SAXException;
  * @author Olivier Gutknecht
  * @version 5.5
  */
-public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
-
-	/**
-	 * 
-	 */
-	private static final long	serialVersionUID	= 6342805234801543226L;
+public class AbstractAgent implements Comparable<AbstractAgent> {
 
 	private final static transient AtomicInteger	agentCounter		= new AtomicInteger(0);
 
@@ -152,7 +146,7 @@ public class AbstractAgent implements Comparable<AbstractAgent>, Serializable {
 	final AtomicReference<State>						state					= new AtomicReference<>(State.NOT_LAUNCHED);
 	transient MadkitKernel								kernel				= FAKE_KERNEL;
 
-	final private int										_hashCode;
+	final private int									_hashCode;
 
 	private boolean										hasGUI;
 	/**

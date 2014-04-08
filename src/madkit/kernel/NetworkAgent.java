@@ -51,11 +51,6 @@ import madkit.message.ObjectMessage;
  */
 final class NetworkAgent extends Agent {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 6961163274458902519L;
-
 	final private ConcurrentHashMap<KernelAddress, KernelConnection> peers = new ConcurrentHashMap<>();
 
 	private KernelServer myServer;

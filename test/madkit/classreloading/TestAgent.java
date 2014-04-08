@@ -35,11 +35,6 @@ public class TestAgent extends Agent {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
-
-	/**
-	 * 
-	 */
 	public TestAgent() {
 		setLogLevel(Level.ALL);
 //		Activator<AbstractAgent> a = new Activator<AbstractAgent>("test", "r", "r") {

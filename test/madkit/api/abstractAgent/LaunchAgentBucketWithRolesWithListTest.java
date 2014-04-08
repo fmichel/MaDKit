@@ -46,7 +46,7 @@ import org.junit.Test;
  * @version 0.9
  * 
  */
-@SuppressWarnings("serial")
+
 public class LaunchAgentBucketWithRolesWithListTest extends JunitMadkit {
 
 	GenericBehaviorActivator<AbstractAgent>	buggy;

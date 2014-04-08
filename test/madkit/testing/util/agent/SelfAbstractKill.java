@@ -34,10 +34,6 @@ import static org.junit.Assert.assertEquals;
  */
 public class SelfAbstractKill extends DoItDuringLifeCycleAbstractAgent {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	private int timeOut = 0;
 
 	public SelfAbstractKill(boolean inActivate, boolean inEnd, int noTimeOut) {

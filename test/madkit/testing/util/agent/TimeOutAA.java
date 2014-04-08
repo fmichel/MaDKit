@@ -29,11 +29,6 @@ import java.util.logging.Level;
 public class TimeOutAA extends DoItDuringLifeCycleAbstractAgent {
 
 	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
-	/**
 	 * @param inActivate
 	 * @param inEnd
 	 */

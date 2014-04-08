@@ -28,10 +28,6 @@ import madkit.kernel.Agent;
  */
 public abstract class DoItDuringLifeCycleAgent extends Agent {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 6981758600598841907L;
 	private boolean inActivate = false, inLive = false, inEnd = false;
 
 	public DoItDuringLifeCycleAgent(boolean inActivate, boolean inLive, boolean inEnd) {

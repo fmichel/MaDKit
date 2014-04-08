@@ -33,10 +33,6 @@ import madkit.kernel.KernelException;
  */
 public class RandomT extends Agent {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -6420300053860559183L;
 	public static ArrayList<AbstractAgent> agents;
 	public static boolean killingOn = false;
 

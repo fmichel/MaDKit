@@ -16,7 +16,7 @@ import madkit.testing.util.agent.NormalAgent;
 
 import org.junit.Test;
 
-@SuppressWarnings("serial")
+
 public class BroadcastMessageAndWaitForRepliesTest extends JunitMadkit {
 
 	final Agent target = new NormalAgent() {
@@ -248,10 +248,6 @@ public class BroadcastMessageAndWaitForRepliesTest extends JunitMadkit {
 }
 
 class sendReplyInLiveAgent extends Agent {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	private int time;
 
 	public sendReplyInLiveAgent(int timeToReply) {

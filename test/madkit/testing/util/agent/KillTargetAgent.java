@@ -28,10 +28,6 @@ import madkit.kernel.Agent;
  */
 public class KillTargetAgent extends DoItDuringLifeCycleAgent {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -5186267329069400681L;
 	Agent toKill;
 
 	/**

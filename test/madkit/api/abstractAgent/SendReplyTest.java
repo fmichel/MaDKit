@@ -39,7 +39,7 @@ import org.junit.Test;
  * @version 0.91
  * 
  */
-@SuppressWarnings("serial")
+
 public class SendReplyTest extends JunitMadkit {
 
 	@Test
@@ -121,7 +121,7 @@ public class SendReplyTest extends JunitMadkit {
 	
 }
 
-@SuppressWarnings("serial")
+
 class Replier extends AbstractAgent {
 
 	protected AbstractAgent	target;

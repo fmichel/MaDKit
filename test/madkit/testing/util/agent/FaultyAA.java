@@ -34,11 +34,6 @@ import madkit.kernel.Madkit.LevelOption;
 public class FaultyAA extends DoItDuringLifeCycleAbstractAgent {
 
 	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
-	/**
 	 * @param inActivate
 	 * @param inEnd
 	 */

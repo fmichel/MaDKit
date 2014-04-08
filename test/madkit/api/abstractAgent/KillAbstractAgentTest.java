@@ -48,7 +48,7 @@ import org.junit.Test;
  * @version 0.9
  * 
  */
-@SuppressWarnings("serial")
+
 public class KillAbstractAgentTest extends JunitMadkit {
 
 	@Test
@@ -411,7 +411,7 @@ public class KillAbstractAgentTest extends JunitMadkit {
 
 }
 
-@SuppressWarnings("serial")
+
 class SelfKillAA extends DoItDuringLifeCycleAbstractAgent {
 
 	public SelfKillAA() {
@@ -433,7 +433,7 @@ class SelfKillAA extends DoItDuringLifeCycleAbstractAgent {
 	}
 }
 
-@SuppressWarnings("serial")
+
 class Killer extends AbstractAgent {
 	AbstractAgent target;
 

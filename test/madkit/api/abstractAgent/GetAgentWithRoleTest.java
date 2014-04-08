@@ -34,7 +34,7 @@ import org.junit.Test;
  * @version 0.9
  * 
  */
-@SuppressWarnings("serial")
+
 public class GetAgentWithRoleTest extends JunitMadkit {
 
 	final AbstractAgent target = new AbstractAgent() {

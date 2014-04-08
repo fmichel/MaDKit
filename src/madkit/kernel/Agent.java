@@ -48,11 +48,6 @@ import madkit.message.MessageFilter;
  */
 public class Agent extends AbstractAgent{
 
-	/**
-	 * 
-	 */
-	private static final long	serialVersionUID	= 3300642867299288790L;
-
 	Thread myThread;
 
 	final private AgentExecutor agentExecutor;

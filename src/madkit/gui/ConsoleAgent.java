@@ -39,11 +39,6 @@ import madkit.kernel.AbstractAgent;
  */
 public class ConsoleAgent extends AbstractAgent {
 	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -6101789640805528218L;
-	
 	final static private PrintStream systemOut = System.out;
 	final static private PrintStream systemErr = System.err;
 	

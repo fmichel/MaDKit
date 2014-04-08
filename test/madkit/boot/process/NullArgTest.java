@@ -33,7 +33,7 @@ import org.junit.Test;
  * @version 0.9
  * 
  */
-@SuppressWarnings("serial")
+
 public class NullArgTest extends JunitMadkit {
 
 	@Test

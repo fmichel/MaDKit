@@ -12,11 +12,6 @@ import madkit.kernel.Message;
 
 public class ForEverSendRepliesWithTheSameMessageAgent extends Agent {
 
-	/**
-	 * 
-	 */
-	private static final long	serialVersionUID	= 1L;
-	
 	public ForEverSendRepliesWithTheSameMessageAgent() {
 		createGUIOnStartUp();
 	}

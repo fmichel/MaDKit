@@ -25,7 +25,7 @@ import static madkit.kernel.JunitMadkit.testFails;
 import madkit.kernel.Agent;
 import madkit.kernel.AgentAddress;
 
-@SuppressWarnings("serial")
+
 public class ConcurrentTestAgent extends Agent {
 
 	private boolean	playing = false;
@@ -92,11 +92,6 @@ public class ConcurrentTestAgent extends Agent {
 }
 
 class ConcurrentTestAgentBis extends ConcurrentTestAgent{
-	/**
-	 * 
-	 */
-	private static final long	serialVersionUID	= 1L;
-
 	@Override
 	protected void live() {
 		while (true) {

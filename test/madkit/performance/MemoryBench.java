@@ -30,11 +30,6 @@ import madkit.kernel.Madkit.LevelOption;
  */
 public class MemoryBench extends AbstractAgent {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -8973359349586637788L;
-
 	/*
 	 * (non-Javadoc)
 	 * 

@@ -37,7 +37,7 @@ import org.junit.Test;
  * @version 0.9
  * 
  */
-@SuppressWarnings("serial")
+
 public class LeaveGroupTest extends JunitMadkit {
 
 	final AbstractAgent target = new AbstractAgent() {

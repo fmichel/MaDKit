@@ -6,7 +6,7 @@ import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.Option;
 
 
-@SuppressWarnings("serial")
+
 public class LogFileTester extends Agent {
 	
 	@Override

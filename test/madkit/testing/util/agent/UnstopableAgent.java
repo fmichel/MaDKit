@@ -27,11 +27,6 @@ package madkit.testing.util.agent;
  */
 public class UnstopableAgent extends DoItDuringLifeCycleAgent {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	public UnstopableAgent(boolean inActivate, boolean inLive, boolean inEnd) {
 		super(inActivate, inLive, inEnd);
 	}

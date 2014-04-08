@@ -36,10 +36,6 @@ import madkit.kernel.AbstractAgent;
  */
 public class SimulatedAgent extends AbstractAgent {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	private int privatePrimitiveField = 1;
 	public double publicPrimitiveField = 2;
 	@SuppressWarnings("unused")
@@ -55,6 +51,7 @@ public class SimulatedAgent extends AbstractAgent {
 	}
 	
 	
+	@SuppressWarnings("unused")
 	private void launchAgentBucketWithRoles() {//used by reflection
 		List<AbstractAgent> l = new ArrayList<>();
 		for (int i = 0; i < 10; i++) {

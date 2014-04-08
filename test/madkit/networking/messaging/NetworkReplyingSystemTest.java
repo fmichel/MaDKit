@@ -68,7 +68,7 @@ public class NetworkReplyingSystemTest extends JunitMadkit {
 				super.activate();
 				assertTrue(isKernelOnline());
 				launchExternalNetworkInstance(ForEverReplierAgent.class);
-				Message message = waitNextMessage(10000);
+				waitNextMessage(10000);
 				Message m = sendMessageAndWaitForReply(COMMUNITY, GROUP, ROLE, new Message());
 				m = sendReplyAndWaitForReply(m, new Message());
 				assertNotNull(m);
@@ -89,7 +89,7 @@ public class NetworkReplyingSystemTest extends JunitMadkit {
 				super.activate();
 				assertTrue(isKernelOnline());
 				launchExternalNetworkInstance(OneReplyAndQuitAgent.class);
-				Message message = waitNextMessage(10000);
+				waitNextMessage(10000);
 				Message m = sendMessageAndWaitForReply(COMMUNITY, GROUP, ROLE, new Message());
 				assertNotNull(m);
 				cleanHelperMDKs(2000);

@@ -43,7 +43,7 @@ import org.xml.sax.SAXException;
  * @version 0.9
  * 
  */
-@SuppressWarnings("serial")
+
 public class XmlFeaturesTest extends JunitMadkit {
 
 	@Test

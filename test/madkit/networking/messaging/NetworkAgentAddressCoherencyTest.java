@@ -49,6 +49,7 @@ public class NetworkAgentAddressCoherencyTest extends JunitMadkit {
 				,BooleanOption.network.toString()
 				);
 		launchTest(new NormalAgent() {
+			@SuppressWarnings("unchecked")
 			protected void activate() {
 				super.activate();
 				requestRole(COMMUNITY, GROUP, ROLE2);
@@ -89,6 +90,7 @@ public class NetworkAgentAddressCoherencyTest extends JunitMadkit {
 				,LevelOption.networkLogLevel.toString(), "FINE"
 				);
 		launchTest(new NormalAgent() {
+			@SuppressWarnings("unchecked")
 			protected void activate() {
 				super.activate();
 				assertTrue(isKernelOnline());

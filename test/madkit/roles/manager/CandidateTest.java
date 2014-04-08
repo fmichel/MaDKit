@@ -23,18 +23,9 @@ public class CandidateTest extends JunitMadkit {
 //				,LevelOption.kernelLogLevel.toString(),Level.ALL.toString()
 				);
 		launchTest(new NormalAgent() {
-			/**
-			 * 
-			 */
-			private static final long	serialVersionUID	= 5220269193648621017L;
-
 			@Override
 			protected void activate() {
 				launchAgent(new Agent(){
-					/**
-					 * 
-					 */
-					private static final long	serialVersionUID	= -4920636059739869931L;
 					@Override
 					protected void activate() {
 						createGroup(COMMUNITY, GROUP,false,new Gatekeeper() {

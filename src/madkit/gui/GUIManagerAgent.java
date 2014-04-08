@@ -71,7 +71,6 @@ import madkit.util.MadkitProperties;
 // * by using the {@link BooleanOption#noGUIManager} option when launching MaDKit.
 class GUIManagerAgent extends Agent {
 
-	private static final long									serialVersionUID	= 8026421822077510523L;
 	final private ConcurrentMap<AbstractAgent, JFrame>	guis;
 	private boolean												shuttedDown			= false;
 

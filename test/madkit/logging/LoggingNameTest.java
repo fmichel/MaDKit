@@ -10,7 +10,7 @@ import org.junit.Test;
 
 public class LoggingNameTest extends JunitMadkit {
 
-	@SuppressWarnings("serial")
+	
 	@Test
 	public void setNameTest() {
 		launchTest(new AbstractAgent() {

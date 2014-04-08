@@ -37,11 +37,6 @@ import madkit.kernel.Agent;
  */
 public class LeaveGroupInEndNormalAgent extends Agent {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	public LeaveGroupInEndNormalAgent() {
 		setName(getLogger().getName());
 	}

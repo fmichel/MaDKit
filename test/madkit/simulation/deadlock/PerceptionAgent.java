@@ -34,10 +34,6 @@ import madkit.testing.util.agent.SimulatedAgent;
  */
 public class PerceptionAgent extends Watcher {
 
-	/**
-	 * 
-	 */
-	private static final long	serialVersionUID	= 1L;
 	Probe<SimulatedAgent2>	agents2probe;
 
 	public void activate() {
@@ -80,11 +76,6 @@ public class PerceptionAgent extends Watcher {
 }
 
 class SimulatedAgent2 extends SimulatedAgent{
-	/**
-	 * 
-	 */
-	private static final long	serialVersionUID	= 1L;
-
 	@Override
 	protected void activate() {
 		requestRole(COMMUNITY, GROUP, ROLE2);

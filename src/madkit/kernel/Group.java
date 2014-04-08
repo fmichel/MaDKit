@@ -140,7 +140,6 @@ final class Group extends ConcurrentHashMap<String, Role> {
 								manager.getKernelAddress());
 				MicroAgent<Boolean> ma;
 				myKernel.launchAgent(ma = new MicroAgent<Boolean>() {
-					private static final long	serialVersionUID	= 1L;
 					@SuppressWarnings("unchecked")
 					protected void activate() {
 						super.activate();

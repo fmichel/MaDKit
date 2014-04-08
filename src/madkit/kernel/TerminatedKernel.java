@@ -27,11 +27,6 @@ package madkit.kernel;
  */
 final class TerminatedKernel extends FakeKernel{
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 6872641432509497194L;
-
 	final String buildFailString(final AbstractAgent agent){
 //		if(agent instanceof AbstractAgent && Thread.currentThread().getThreadGroup() == MadkitKernel.A_LIFE){
 //			throw new KilledException((String)null);//TODO something else

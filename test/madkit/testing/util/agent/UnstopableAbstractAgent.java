@@ -27,11 +27,6 @@ import madkit.kernel.AbstractAgent;
  * 
  */
 public class UnstopableAbstractAgent extends AbstractAgent {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	protected void activate() {
 		int i = 0;
 		while (i < 990000000) {

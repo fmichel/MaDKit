@@ -119,8 +119,6 @@ final public class Madkit {
 	 * Basically this call just instantiates a new kernel like this:
 	 * 
 	 * <pre>
-	 * 
-	 * 
 	 * public static void main(String[] options) {
 	 * 	new Madkit(options);
 	 * }
@@ -142,9 +140,6 @@ final public class Madkit {
 	 * <p>
 	 * 
 	 * <pre>
-	 * 
-	 * 
-	 * 
 	 * public static void main(String[] args) {
 	 * 	String[] argss = { LevelOption.agentLogLevel.toString(), &quot;FINE&quot;, Option.launchAgents.toString(),// gets the -- launchAgents string
 	 * 			Client.class.getName() + &quot;,true,20;&quot; + Broker.class.getName() + &quot;,true,10;&quot; + Provider.class.getName() + &quot;,false,20&quot; };
@@ -162,24 +157,23 @@ final public class Madkit {
 
 	/**
 	 * Makes the kernel do the corresponding action. This is done
-	 * by sending a message directly to the kernel.
+	 * by sending a message directly to the kernel agent.
 	 * This should not be used intensively since it is better to control
 	 * the execution flow of the application using the agents running in the kernel.
 	 * Still it provides a way to launch and manage a kernel from any java application as
 	 * a third party service.
 	 * 
 	 * <pre>
-	 * 
 	 * public void somewhereInYourCode() {
 	 * 				...
 	 * 				Madkit m = new Madkit(args);
 	 * 				...
-	 * 				m.doAction(KernelAction.LAUNCH_NETWORK);
+	 * 				m.doAction(KernelAction.LAUNCH_NETWORK); //start the network
+	 * 				...
+	 * 				m.doAction(KernelAction.LAUNCH_AGENT, new Agent(), true); //launch a new agent with a GUI
 	 * 				...
 	 * }
 	 * </pre>
-	 * 
-	 * 
 	 * @param action the action to request
 	 * @param parameters the parameters of the request
 	 */
@@ -204,13 +198,11 @@ final public class Madkit {
 	 * 
 	 * <pre>
 	 * 
-	 * 
 	 * public void somewhereInYourCode() {
 	 * 	new Madkit(Option.launchAgents.toString(),// gets the --launchAgents string
 	 * 			Client.class.getName() + &quot;,true,20;&quot; + Broker.class.getName() + &quot;,true,10;&quot; + Provider.class.getName() + &quot;,false,20&quot;);
 	 * }
 	 * </pre>
-	 * 
 	 * @param options the options which should be used to launch Madkit.
 	 *           If <code>null</code>, the dektop mode is automatically used.
 	 * 
@@ -243,18 +235,25 @@ final public class Madkit {
 		
 		logger.finest(MadkitClassLoader.getLoader().toString());
 
-		// activating desktop if no agent at this point
-		if (madkitConfig.get(Option.launchAgents.name()).equals("null") && madkitConfig.get(Option.configFile.name()).equals("null")) {
-			logger.fine(Option.launchAgents.name() + " && "+Option.configFile.name()+" == null : Activating desktop");
-			madkitConfig.setProperty(BooleanOption.desktop.name(), "true");
+		// activating desktop if no agent at this point and desktop has not been set
+		final String desktopOptionName = BooleanOption.desktop.name();
+		if(madkitConfig.get(desktopOptionName).equals("null")){
+			if(madkitConfig.get(Option.launchAgents.name()).equals("null") && madkitConfig.get(Option.configFile.name()).equals("null")){
+				logger.fine(Option.launchAgents.name() + " && "+Option.configFile.name()+" == null : Activating desktop");
+				madkitConfig.setProperty(desktopOptionName, "true");
+			}
+			else{
+				madkitConfig.setProperty(desktopOptionName, "false");
+			}
 		}
+
+		logSessionConfig(madkitConfig, Level.FINER);
 
 		myKernel = new MadkitKernel(this);
 		
 		logger.finer("**  MADKIT KERNEL CREATED **");
 
 		printWelcomeString();
-		logSessionConfig(madkitConfig, Level.FINER);
 		// if(madkitClassLoader.getAvailableConfigurations().isEmpty() //TODO
 		// && ! madkitConfig.get(Option.launchAgents.name()).equals("null")){
 		// madkitClassLoader.addMASConfig(new MASModel(Words.INITIAL_CONFIG.toString(), args, "desc"));
@@ -449,6 +448,10 @@ final public class Madkit {
 		/**
 		 * Starts the desktop mode.
 		 * Default value is "false".
+		 * Still, if this property is not explicitly set to "false" and 
+		 * if {@link Option#launchAgents} and {@link Option#configFile} 
+		 * are both <code>null</code>, then the desktop mode will be automatically set 
+		 * to <code>true</code> during startup.
 		 */
 		desktop,
 		/**

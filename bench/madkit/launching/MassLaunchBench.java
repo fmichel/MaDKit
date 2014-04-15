@@ -23,11 +23,16 @@ import java.util.List;
 import java.util.logging.Level;
 
 import madkit.kernel.AbstractAgent;
+import madkit.kernel.Agent;
 import madkit.kernel.JunitMadkit;
+import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.LevelOption;
+import madkit.kernel.Madkit.Option;
 import madkit.kernel.MadkitClassLoader;
+import madkit.networking.PingPongTest;
 import madkit.performance.MiniAgent;
 import madkit.testing.util.agent.NormalAA;
+import madkit.testing.util.agent.PongAgent;
 
 import org.junit.Test;
 
@@ -199,6 +204,28 @@ public class MassLaunchBench extends JunitMadkit {
 				stopTimer("done ");
 				}
 		});
+	}
+	
+	@Test 
+	public void massAgentLaunch() throws InterruptedException{
+		addMadkitArgs(LevelOption.agentLogLevel.toString(),"OFF");
+		launchTest(new AbstractAgent() {
+			protected void activate() {
+				if (logger != null) {
+					logger.info("\n******************* STARTING MASS LAUNCH *******************\n");
+				}
+				List<AbstractAgent> agents = new ArrayList<>(1_000_000);
+				for (int i = 0; i < 10_000; i++) {
+					agents.add(new PongAgent());
+				}
+				startTimer();
+				System.err.println("begin");
+				for (AbstractAgent abstractAgent : agents) {
+					launchAgent(abstractAgent);
+				}
+				stopTimer("done ");
+				pause(100000);
+		}});
 	}
 	
 		@Test

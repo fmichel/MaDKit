@@ -20,6 +20,7 @@ package madkit.kernel;
 
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import madkit.action.KernelAction;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
 
@@ -108,6 +109,29 @@ public class MadkitTest {
 		m = new Madkit(argss);
 		Thread.sleep(100);
 		assertNull(m.getKernel().logger);
+	}
+	
+	@Test
+	public void doActionLaunchAgentWithDesktop() throws InterruptedException{
+		Madkit m = new Madkit();
+		Agent a = new Agent();
+		m.doAction(KernelAction.LAUNCH_AGENT, a, true);
+		Thread.sleep(100);
+		assertTrue(a.isAlive());
+		Thread.sleep(1000);
+	}
+
+	@Test
+	public void doActionLaunchAgentNoDesktop() throws InterruptedException{
+		Madkit m = new Madkit(BooleanOption.desktop.toString(),"false");
+		Agent a = new Agent();
+		m.doAction(KernelAction.LAUNCH_AGENT, a, true);
+		Thread.sleep(100);
+		assertTrue(a.isAlive());
+		Thread.sleep(1000);
+		m.doAction(KernelAction.LAUNCH_AGENT, a = new Agent(), true);
+		Thread.sleep(2000);
+		assertTrue(a.isAlive());
 	}
 
 	@SuppressWarnings("unused")

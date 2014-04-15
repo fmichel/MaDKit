@@ -38,7 +38,7 @@ import madkit.message.StringMessage;
 public class PongAgent extends Agent {
 
 	protected void activate() {
-		System.err.println(getOrganizationSnapShot(false));
+//		System.err.println(getOrganizationSnapShot(false));
 		createGroupIfAbsent(JunitMadkit.COMMUNITY, GROUP, true, null);
 		requestRole(COMMUNITY, GROUP, ROLE, null);
 	}

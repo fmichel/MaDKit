@@ -123,13 +123,6 @@ public class KernelAddressTest {
 		}
 	}
 	
-	@Test
-	public void testUniqueness2() throws IOException, InterruptedException {
-		Process p = Runtime.getRuntime().exec("java -cp bin:build/test/classes madkit.kernel.Madkit --desktop --launchAgents madkit.kernel.AbstractAgent");
-		Thread.sleep(10000);
-		p.destroy();
-	}
-
 	// @Test
 	// public void testLocalKernelAddress() {
 	// KernelAddress ka = new KernelAddress();

@@ -176,10 +176,12 @@ final public class SwingUtil {
 			add.invoke(menuOrToolBar, KernelAction.CONSOLE.getActionFor(agent));
 			addBooleanActionTo(menuOrToolBar,GlobalAction.DEBUG);
 			add.invoke(menuOrToolBar, GlobalAction.LOG_FILES);
-			addSeparator.invoke(menuOrToolBar);
-			add.invoke(menuOrToolBar, GlobalAction.LOAD_LOCAL_DEMOS);
-			add.invoke(menuOrToolBar, GlobalAction.LOAD_JAR_FILE);
-//			add.invoke(menuOrToolBar, GUIManagerAction.LOAD_JAR_FILE.getActionFor(agent));
+			if (! MadkitProperties.JAVAWS_IS_ON) {
+				addSeparator.invoke(menuOrToolBar);
+				add.invoke(menuOrToolBar, GlobalAction.LOAD_LOCAL_DEMOS);
+				add.invoke(menuOrToolBar, GlobalAction.LOAD_JAR_FILE);
+			}
+			//			add.invoke(menuOrToolBar, GUIManagerAction.LOAD_JAR_FILE.getActionFor(agent));
 			addSeparator.invoke(menuOrToolBar);
 			add.invoke(menuOrToolBar, GUIManagerAction.ICONIFY_ALL.getActionFor(agent));
 			add.invoke(menuOrToolBar, GUIManagerAction.DEICONIFY_ALL.getActionFor(agent));

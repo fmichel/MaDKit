@@ -64,7 +64,7 @@
 		 put the jar.gz and the jnlp files so that 
 		 they will directly work without editing the jnlp.
          ================================= -->
-	<property name="web.codebase" value="http://www.mysite.org/jws_dir" />
+	<property name="web.codebase" value="http://www.mysite.org/javaws_dir" />
 
 	
 	<!-- =================================

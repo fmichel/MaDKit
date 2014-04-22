@@ -73,7 +73,7 @@ final public class HelpMenu extends JMenu {
 			final ImageIcon ii = KernelAction.CONNECT_WEB_REPO.getActionInfo().getSmallIcon();
 			mi = new JMenuItem("API",ii);
 			mi.addActionListener(tuto);
-			mi.setActionCommand("docs/api/MaDKit-"+Madkit.VERSION);
+			mi.setActionCommand("repository/MaDKit-"+Madkit.VERSION+"/docs/api");
 			add(mi);
 			mi = new JMenuItem(Words.TUTORIALS.toString(),ii);
 			mi.addActionListener(tuto);

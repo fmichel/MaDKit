@@ -103,7 +103,7 @@ final class AboutFrame extends JDialog {
 			doc.insertString(doc.getLength(), "   The Multiagent Development Kit\n\n", doc.getStyle("italic"));
 			doc.insertString(doc.getLength(), "   Version: " + Madkit.VERSION + "\n   Build id: " + Madkit.BUILD_ID + (version == null ? "" : version),
 					doc.getStyle("small"));
-			textPanel.add(new SwingLink(Madkit.WEB.substring(7), new URI(Madkit.WEB)));
+			textPanel.add(new SwingLink(Madkit.WEB.substring(7,21), new URI(Madkit.WEB)));
 		} catch (BadLocationException | URISyntaxException e) {
 			e.printStackTrace();
 		}

@@ -25,6 +25,9 @@ Attributes should exist in the agent's class, the type of the attribute is match
 		</Agent>
 	</Agents>
 
-	﻿<!--  This allows to set MaDKit properties (regular or specific) in the xml configuration -->
-	<MadkitProperties test="yes" test2="good" desktop="true" />
+	﻿<!--  
+	This allows to set MaDKit properties in the xml configuration. 
+	Regular options like "desktop" or application specific, i.e. anything. 
+	-->
+	<MadkitProperties desktop="true" aValue="something"/>
 </MDK>

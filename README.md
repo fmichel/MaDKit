@@ -21,8 +21,8 @@ More information
 ------------------------------------------------
 
 * [Official Homepage](http://www.madkit.net)
-* [Getting started](http://www.madkit.net/README.html)
-* [API Reference](http://www.madkit.net/docs/api)
+* [Getting started](http://www.madkit.net/madkit/README.html)
+* [API Reference](http://www.madkit.net/madkit/docs/api)
 * [Tutorials](http://www.madkit.net/tutorials)
 * [Forum](http://www.madkit.net/forum)
 

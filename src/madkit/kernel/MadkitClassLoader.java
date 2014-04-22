@@ -390,23 +390,23 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 //				if (l != null) {
 //					l.finest("found MAS info " + mas);
 //				}
-				String mdkConfigs = projectInfo.getValue("MDK-Files");
-				if (check(mdkConfigs)) {
-					for (String configFile : mdkConfigs.split(",")) {
-						mdkFiles.add(configFile);
-//						if (l != null) {
-//							l.finest("found MAS config info " + mas);
-//						}
-					}
+			}
+			mdkArgs = projectInfo.getValue("MDK-Files");// recycling mdkArgs
+			if (check(mdkArgs)) {
+				for (String configFile : mdkArgs.split(",")) {
+					mdkFiles.add(configFile);
+					// if (l != null) {
+					// l.finest("found MAS config info " + mas);
+					// }
 				}
-				mdkConfigs = projectInfo.getValue("Main-Classes");//recycling
-				if (check(mdkConfigs)) {
-					mains.addAll(Arrays.asList(mdkConfigs.split(",")));
-				}
-				mdkConfigs = projectInfo.getValue("XML-Files");//recycling
-				if (check(mdkConfigs)) {
-					xmlFiles.addAll(Arrays.asList(mdkConfigs.split(",")));
-				}
+			}
+			mdkArgs = projectInfo.getValue("Main-Classes");// recycling
+			if (check(mdkArgs)) {
+				mains.addAll(Arrays.asList(mdkArgs.split(",")));
+			}
+			mdkArgs = projectInfo.getValue("XML-Files");// recycling
+			if (check(mdkArgs)) {
+				xmlFiles.addAll(Arrays.asList(mdkArgs.split(",")));
 			}
 			agentClasses.addAll(Arrays.asList(projectInfo.getValue("Agent-Classes").split(",")));
 		}

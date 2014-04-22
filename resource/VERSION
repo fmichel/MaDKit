@@ -16,16 +16,22 @@ interact using messages. It also contains generic MAS simulation authoring tools
 
 
 ----------------------------------------------------------------------------------
-------------------------------- MaDKit 5.0.4.1 (beta-4.1) ------------------------
+------------------------------- MaDKit 5.0.5 (beta-5) ----------------------------
 ----------------------------------------------------------------------------------
 
-1. remove the java.io.Serializable from the madkit.kernel.AbstractAgent: It makes no sense for now and it is
-a mistake to try to use it.
+1. Changes:
+	- now, if --desktop is set to false, there will be no desktop even if there is no agent to launch and no config file
+	
+2. Bug fixes:
+	- fix the desktop java web start demo.
+
+3. API changes:
+	- Remove the java.io.Serializable from madkit.kernel.AbstractAgent: not functional and thus misleading.
 
 
 
 ----------------------------------------------------------------------------------
-------------------------------- MaDKit 5.0.4 (beta-4) ------------------------
+------------------------------- MaDKit 5.0.4 (beta-4) ----------------------------
 ----------------------------------------------------------------------------------
 
 

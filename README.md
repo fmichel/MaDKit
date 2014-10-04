@@ -22,9 +22,10 @@ More information
 
 * [Official Homepage](http://www.madkit.net)
 * [Getting started](http://www.madkit.net/madkit/README.html)
+* [Documentation](http://www.madkit.net/madkit/documents.php)
 * [API Reference](http://www.madkit.net/madkit/docs/api)
-* [Tutorials](http://www.madkit.net/tutorials)
-* [Forum](http://www.madkit.net/forum)
+* [Tutorials](http://www.madkit.net/madkit/tutorials)
+* [Forum](http://www.madkit.net/madkit/forum)
 
 
 [1]: http://janela.lirmm.fr/~fmichel/publi/pdfs/ferber04ocmas.pdf

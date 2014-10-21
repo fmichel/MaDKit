@@ -114,14 +114,14 @@ public class OutputPanel extends JPanel {
 		add(BorderLayout.SOUTH,b);
 	}
 
+	/**
+	 * Remove all the contained text.
+	 */
 	public void clearOutput()
 	{
 		outField.setText(null);
 	}
 
-	/**
-	 * @see javax.swing.JComponent#setBackground(java.awt.Color)
-	 */
 	@Override
 	public void setBackground(Color bg) {
 		if (outField != null) {

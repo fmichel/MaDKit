@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import madkit.simulation.SimulationException;
+
 /**
  * @author Fabien Michel
  * @since MaDKit 2.1
@@ -41,6 +43,7 @@ abstract class Overlooker <A extends AbstractAgent>
 	/**
 	 * Builds a new Activator or Probe on the given CGR location of the
 	 * artificial society.
+	 * 
 	 * @param communityName
 	 * @param groupName
 	 * @param roleName
@@ -59,8 +62,7 @@ abstract class Overlooker <A extends AbstractAgent>
 			try {
 				initialize();
 			} catch (Throwable e) {
-				System.err.println("\n-----MADKIT WARNING : problem during initialize()-----\n-----Problem on "+this.getClass().getSimpleName()+" on <"+community+","+group+","+role+">-----\n-----Method call is at:");
-				e.printStackTrace(); //TODO find another way
+				throw new SimulationException("initialize problem on "+this, e);
 			}
 	}
 
@@ -79,24 +81,25 @@ abstract class Overlooker <A extends AbstractAgent>
 	//		return l.get(nb);
 	//	}
 
+	/**
+	 * Gets the community to which this activator/probe is binded to.
+	 * 
+	 * @return a string representing the community's name
+	 */
 	public String getCommunity()  {	return community;   }
 
-	//	@SuppressWarnings("unchecked")
-	//	final public A getAgentNb(final int nb)
-	//	{
-	//		final List<A> l = getCurrentAgentsList();
-	//		return l.get(nb);
-	//	}
-
+	/**
+	 * Gets the group to which this activator/probe is binded to.
+	 * 
+	 * @return a string representing the group's name
+	 */
 	public String getGroup()  {	return group;   }
 
-	//	@SuppressWarnings("unchecked")
-	//	final public A getAgentNb(final int nb)
-	//	{
-	//		final List<A> l = getCurrentAgentsList();
-	//		return l.get(nb);
-	//	}
-
+	/**
+	 * Gets the role to which this activator/probe is binded to.
+	 * 
+	 * @return a string representing the role's name
+	 */
 	public String getRole()   {	return role;    }
 
 	/**
@@ -161,7 +164,7 @@ abstract class Overlooker <A extends AbstractAgent>
 	 * @param agents the list of agents which have been removed from this group/role
 	 */
 	protected void removing(final List<A> agents){
-		for(A agent : agents){
+		for(final A agent : agents){
 			removing(agent);
 		}
 	}
@@ -219,35 +222,46 @@ abstract class Overlooker <A extends AbstractAgent>
 		return Collections.emptyList();
 	}
 
+	/**
+	 * returns a string containing the CGR location and the number of monitored agents.
+	 * 
+	 * @return a string representation of this tool.
+	 */
 	@Override
 	public String toString() {
 		return getClass().getSimpleName() + " <" + community + "," + group + "," + role + "> "+ size() + " agents";
 	}
 
-	final void addAgent(AbstractAgent a) {
+	final void addAgent(final AbstractAgent a) {
 		adding((A) a);
 	}
 
-	final void removeAgent(AbstractAgent a) {
+	final void removeAgent(final AbstractAgent a) {
 		removing((A) a);
 	}
 
-	final void addAgents(List<AbstractAgent> l) {
+	final void addAgents(final List<AbstractAgent> l) {
 		adding((List<A>) l);
 	}
 
-	final void removeAgents(List<AbstractAgent> l) {
+	final void removeAgents(final List<AbstractAgent> l) {
 		removing((List<A>) l);
 	}
 
+	/**
+	 * Kills all the agents which are monitored.
+	 */
 	public void killAgents(){
-		List<A> l = new ArrayList<>(getCurrentAgentsList());
+		final List<A> l = new ArrayList<>(getCurrentAgentsList());
 		allAgentsLeaveRole();
-		for (A agent : l) {
+		for (final A agent : l) {
 			agent.killAgent(agent,0);
 		}
 	}
 
+	/**
+	 * Makes all the agents leave the corresponding role at once.
+	 */
 	public void allAgentsLeaveRole(){
 		if(overlookedRole != null){
 			overlookedRole.removeMembers((List<AbstractAgent>) getCurrentAgentsList());

@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2014 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -42,7 +42,15 @@ public class SingleAgentProbe<A extends AbstractAgent,T> extends Probe<A>//TODO 
 	private Field field;
 	private A probedAgent;
 
-	public SingleAgentProbe(String community, String group, String role,String fieldName)
+	/**
+	 * Builds a new SingleAgentProbe considering a CGR location and the name of the class's field.
+	 * 
+	 * @param community
+	 * @param group
+	 * @param role
+	 * @param fieldName the name of a field which is encapsulated in the type <A>
+	 */
+	public SingleAgentProbe(String community, String group, String role, String fieldName)
 	{
 		super(community, group, role);
 		this.fieldName = fieldName;
@@ -87,6 +95,11 @@ public class SingleAgentProbe<A extends AbstractAgent,T> extends Probe<A>//TODO 
 		}
 	}
 	
+	@Override
+	public String toString() {
+		return super.toString() + (probedAgent == null ? "" : " : "+probedAgent);
+	}
+	
 	/**
 	 * Should be used to work with primitive types
 	 * or fields which are initially <code>null</code>
@@ -95,9 +108,7 @@ public class SingleAgentProbe<A extends AbstractAgent,T> extends Probe<A>//TODO 
 	public void setPropertyValue(final T value){
 		try {
 			field.set(probedAgent, value);
-		} catch (IllegalArgumentException e) {
-			throw new SimulationException(toString()+" on "+probedAgent,e);
-		} catch (IllegalAccessException e) {
+		} catch (IllegalArgumentException | IllegalAccessException e) {
 			throw new SimulationException(toString()+" on "+probedAgent,e);
 		}
 	}

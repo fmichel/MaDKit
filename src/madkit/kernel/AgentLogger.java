@@ -252,9 +252,6 @@ final public class AgentLogger extends Logger {
 		return getName() + " logger: \n\tlevel " + getLevel() + "\n\twarningLogLevel " + getWarningLogLevel();
 	}
 
-	/**
-	 * @see java.util.logging.Logger#log(java.util.logging.LogRecord)
-	 */
 	@Override
 	public void log(final LogRecord record) {
 		Throwable t = record.getThrown();

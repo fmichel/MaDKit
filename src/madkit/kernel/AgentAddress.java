@@ -124,17 +124,13 @@ public class AgentAddress implements java.io.Serializable{
 		return roleObject != null ? roleObject.getRoleName() : cgr.split(";;")[2];
 	}
 
-	//	/** 
-	//	 * Tells if an {@link AgentAddress} belongs to the same kernel
-	//	 * 
-	//	 * @return <code>true</code> if this address belongs to an agent running on the same kernel, <code>false</code> otherwise
-	//	 */
-	//	public boolean isLocal(){//TODO just verify that
-	//		return kernelAddress == roleObject.getKernelAddress();
-	//	}
-
 	/**
-	 * @see java.lang.Object#toString()
+	 * Returns a string representing this address.
+	 * This string contains the ID of the owner agent, 
+	 * the CGR location of this address and the {@link KernelAddress}
+	 * to which this address belongs to.
+	 * 
+	 *  @return a description of this address.
 	 */
 	@Override
 	public String toString() {

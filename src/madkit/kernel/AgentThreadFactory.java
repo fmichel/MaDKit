@@ -55,9 +55,6 @@ final class AgentThreadFactory extends Object implements ThreadFactory {
     	}
 	}
 
-	/**
-	 * @see java.util.concurrent.ThreadFactory#newThread(java.lang.Runnable)
-	 */
 	@Override
 	public Thread newThread(final Runnable r) {
 		final Thread t = new Thread(group, r);

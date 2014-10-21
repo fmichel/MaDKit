@@ -104,8 +104,6 @@ public class KernelAddress implements java.io.Serializable{
 	 * If <code>true</code>, this means that both addresses refer to
 	 * the same kernel, i.e. same MaDKit instance.
 	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 * 
 	 * @throws ClassCastException On purpose, 
 	 * if the address is compared to an object with another type 
 	 * which is considered as a programming error.

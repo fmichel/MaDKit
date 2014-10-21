@@ -23,11 +23,6 @@ public class MKClient extends Agent {
 	String roleName = "net agent";
 	private AgentAddress other;
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see madkit.kernel.AbstractMadkitBooter#activate()
-	 */
 	@Override
 	public void activate() {
 		if (logger != null)

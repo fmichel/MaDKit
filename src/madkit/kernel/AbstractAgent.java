@@ -1007,7 +1007,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * 
 	 * @param other
 	 *           the agent to be compared.
-	 * @see java.lang.Comparable#compareTo(java.lang.Object)
+	 *           
 	 * @return a negative integer, a positive integer or zero as this agent has
 	 *         been instantiated before, after or is the same agent than the
 	 *         specified agent.

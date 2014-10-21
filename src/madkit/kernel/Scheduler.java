@@ -140,7 +140,7 @@ public class Scheduler extends Agent {
 		speedModel.setValue(speedModel.getMaximum() - delay);
 	}
 
-	private double	GVT	= 0;	// simulation global virtual time
+	private double GVT	= 0;	// simulation global virtual time
 
 	/**
 	 * Returns the simulation global virtual time.
@@ -462,11 +462,13 @@ public class Scheduler extends Agent {
 	}
 
 	/**
-	 * @param simulationDuration
-	 *           the simulationDuration to set
+	 * Sets the simulation time for which the 
+	 * scheduler should end the simulation.
+	 * 
+	 * @param endTime the end time to set
 	 */
-	public void setSimulationDuration(final double simulationDuration) {
-		this.simulationDuration = simulationDuration;
+	public void setSimulationDuration(final double endTime) {
+		this.simulationDuration = endTime;
 	}
 
 	/**
@@ -499,7 +501,11 @@ public class Scheduler extends Agent {
 		sp.addMouseWheelListener(new MouseWheelListener() {
 			@Override
 			public void mouseWheelMoved(MouseWheelEvent e) {
-				sp.setValue(-e.getWheelRotation() * 10 + sp.getValue());
+				int move = -e.getWheelRotation();
+				if(sp.getValue() < 398) {
+					move *= 10;
+				}
+				sp.setValue(move + sp.getValue());
 			}
 		});
 		// p.setPreferredSize(new Dimension(150, 25));

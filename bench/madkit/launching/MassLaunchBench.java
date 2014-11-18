@@ -23,13 +23,9 @@ import java.util.List;
 import java.util.logging.Level;
 
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.Agent;
 import madkit.kernel.JunitMadkit;
-import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.LevelOption;
-import madkit.kernel.Madkit.Option;
 import madkit.kernel.MadkitClassLoader;
-import madkit.networking.PingPongTest;
 import madkit.performance.MiniAgent;
 import madkit.testing.util.agent.NormalAA;
 import madkit.testing.util.agent.PongAgent;
@@ -126,6 +122,7 @@ public class MassLaunchBench extends JunitMadkit {
 		});
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Test 
 	public void massInstantiation() throws ClassNotFoundException, InstantiationException, IllegalAccessException{
 		final Class<? extends AbstractAgent> constructor = (Class<? extends AbstractAgent>) MadkitClassLoader.getLoader().loadClass(AbstractAgent.class.getName());
@@ -207,7 +204,7 @@ public class MassLaunchBench extends JunitMadkit {
 	}
 	
 	@Test 
-	public void massAgentLaunch() throws InterruptedException{
+	public void massAgentLaunch() {
 		addMadkitArgs(LevelOption.agentLogLevel.toString(),"OFF");
 		launchTest(new AbstractAgent() {
 			protected void activate() {

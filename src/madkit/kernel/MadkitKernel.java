@@ -1073,6 +1073,7 @@ class MadkitKernel extends Agent {
 	 */
 	final List<AbstractAgent> createBucket(final String agentClass, int bucketSize, int cpuCoreNb) throws InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
+		@SuppressWarnings("unchecked")
 		final Class<? extends AbstractAgent> constructor = (Class<? extends AbstractAgent>) MadkitClassLoader.getLoader().loadClass(agentClass);
 		cpuCoreNb = cpuCoreNb > 0 ? cpuCoreNb : 1;
 		final List<AbstractAgent> result = new ArrayList<>(bucketSize);

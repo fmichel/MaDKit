@@ -205,25 +205,39 @@
 
 
 
-	<!-- ================================= 
-          target: javadoc              
-			<packageset dir="${src.dir}" defaultexcludes="yes">
-			      <exclude name="NetworkAgent.java"/>
-			</packageset>
-			<fileset dir="${src.dir}">
-			  <include name="**/*.java"/>
-			</fileset>
-         ================================= -->
-	<target name="javadoc" description="build the javadoc">
-		<javadoc sourcepath="${src.dir}" destdir="${docs.api.dir}" access="protected" docfilessubdirs="true" author="true" version="true" use="true" linksource="no" windowtitle="${project.label}">
-			<doctitle>
-				<![CDATA[<h1>${project.label}</h1>]]></doctitle>
+<!-- ================================= 
+      target: javadoc              
+		<packageset dir="${src.dir}" defaultexcludes="yes">
+		      <exclude name="NetworkAgent.java"/>
+		</packageset>
+		<fileset dir="${src.dir}">
+		  <include name="**/*.java"/>
+		</fileset>
+     ================================= -->
+<target name="javadoc" description="build the javadoc">
+	<tstamp/>
+	<javadoc sourcepath="${src.dir}" destdir="${docs.api.dir}" classpath="${java.home}/lib/javaws.jar" access="protected" docfilessubdirs="true" author="true" version="true" use="true" linksource="no" windowtitle="${project.label}">
+		<doctitle>
+			<![CDATA[<h1>${project.label}</h1><h2>${description}</h2>]]>
+		</doctitle>
 		<header>
-			<![CDATA[<img src="{@docRoot}/doc-files/MaDKit.png" width="20" alt="MaDKit"/>]]></header>
+			<![CDATA[
+			<a target="blank" href="${madkit.web}"><img alt="MaDKit" width="20" src="{@docRoot}/doc-files/MaDKit.png"></a>&nbsp;&nbsp;&nbsp;
+			<a target="blank" href="${github.url}"><img alt="GitHub" width="20" src="https://github.com/fluidicon.png"></a>
+			]]>
+		</header>
 		<bottom>
-			<![CDATA[<i>${author}</i>]]></bottom>
-	<link href="${sun.api.url}" />
-</javadoc>
+			<![CDATA[
+			<br/>
+			<p style=" text-indent: 3em;"> 
+			<a target="blank" href="${madkit.web}"><img alt="MaDKit" width="50" src="{@docRoot}/doc-files/MaDKit.png"></a>&nbsp;&nbsp;&nbsp;
+			<a target="blank" href="${github.url}"><img alt="GitHub" width="50" src="https://github.com/fluidicon.png"></a>
+			<i><br/>&nbsp;&nbsp;&nbsp;${author} - ${TODAY}</i>
+			</p>
+			]]>
+		</bottom>
+		<link href="${sun.api.url}" />
+	</javadoc>
 </target>
 
 <!-- ================================= 

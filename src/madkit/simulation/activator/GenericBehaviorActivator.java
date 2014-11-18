@@ -86,6 +86,7 @@ public class GenericBehaviorActivator<A extends AbstractAgent> extends Activator
 		Class<? extends A> cachedC = null;
 		for (final A a : agents) {
 			if (a.isAlive()) {
+				@SuppressWarnings("unchecked")
 				final Class<? extends A> agentClass = (Class<? extends A>) a.getClass();
 				if (agentClass != cachedC) {
 					cachedC = agentClass;

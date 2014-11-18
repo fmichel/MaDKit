@@ -59,6 +59,7 @@ public class Probe<A extends AbstractAgent> extends Overlooker<A>{
 	 * @return the agent's field named <code>fieldName</code>
 	 * @throws NoSuchFieldException
 	 */
+	@SuppressWarnings("unchecked")
 	public static Field findFieldOn(Class<? extends AbstractAgent> agentClass, final String fieldName) throws NoSuchFieldException{
 		Field f = null;
 		while(true) {

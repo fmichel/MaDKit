@@ -1,4 +1,4 @@
-MaDKit: The Multiagent Development Kit
+MaDKit: Multiagent Development Kit
 ================================================
 
 What is MaDKit ?

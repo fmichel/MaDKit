@@ -20,13 +20,11 @@ interact using messages. It also contains generic MAS simulation authoring tools
 ----------------------------------------------------------------------------------
 
 1. Changes:
-	- minor changes in the scheduler speed's GUI
+	- minor changes in the GUI of Scheduler and SwingViewer agents
 	
-2. Bug fixes:
-	- fix the desktop java web start demo.
-
-3. API changes:
+2. API changes:
 	+ madkit.simulation.viewer.SwingViewer.getOptionsMenu()
+	~ madkit.kernel.AbstractAgent.executeThisAgent()
 
 
 

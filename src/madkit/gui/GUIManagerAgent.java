@@ -84,6 +84,7 @@ class GUIManagerAgent extends Agent {
 		guis = new ConcurrentHashMap<>();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected void activate() {// TODO parallelize that
 		try {

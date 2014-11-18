@@ -87,6 +87,7 @@ public class SingleAgentProbe<A extends AbstractAgent,T> extends Probe<A>//TODO 
 	 * 
 	 * @return the value of the agent's field 
 	 */
+	@SuppressWarnings("unchecked")
 	public T getPropertyValue() {
 		try {
 			return (T) field.get(probedAgent);

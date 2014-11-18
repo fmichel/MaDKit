@@ -24,8 +24,6 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -33,14 +31,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ResourceBundle;
 
 import javax.swing.Action;
-import javax.swing.BoxLayout;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JMenu;
-import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
@@ -333,7 +328,7 @@ public abstract class SwingViewer extends Watcher {
 		comboBox = new JComboBox<Integer>(defaultValues){
 			public java.awt.Dimension getMaximumSize() {
 				return new Dimension(125, 38);
-			};
+			}
 		};
 		final String[] tatt = titleAndTooltip.split(";");
 		comboBox.setBorder(new TitledBorder(tatt[0]));

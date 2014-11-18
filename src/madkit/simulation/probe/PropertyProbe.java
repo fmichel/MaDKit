@@ -69,6 +69,7 @@ public class PropertyProbe<A extends AbstractAgent, T> extends Probe<A>// TODO
 	 * @param agentClass
 	 */
 	private void updateCache(A agent) {
+		@SuppressWarnings("unchecked")
 		final Class<? extends A> agentClass = (Class<? extends A>) agent
 				.getClass();
 		if (agentClass != cachedClass) {
@@ -92,6 +93,7 @@ public class PropertyProbe<A extends AbstractAgent, T> extends Probe<A>// TODO
 	 *            the agent to probe
 	 * @return the actual value of the agent's field
 	 */
+	@SuppressWarnings("unchecked")
 	public T getPropertyValue(final A agent) {
 		updateCache(agent);
 		try {

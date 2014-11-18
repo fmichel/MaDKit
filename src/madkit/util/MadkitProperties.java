@@ -125,7 +125,6 @@ public class MadkitProperties extends Properties {
 	 */
 	public static InputStream getInputStream(final String pathname) throws IOException {
 		final File f = new File(pathname);
-		@SuppressWarnings("resource")
 		// closed when used
 		InputStream is = f.exists() ? new FileInputStream(f) : MadkitClassLoader.getLoader().getResourceAsStream(pathname);
 		if (is == null)

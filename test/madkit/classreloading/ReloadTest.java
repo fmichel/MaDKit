@@ -94,6 +94,7 @@ public class ReloadTest extends JunitMadkit {
 				NormalAA a = new NormalAA();
 				try {
 					MadkitClassLoader.reloadClass(a.getClass().getName());
+					@SuppressWarnings("unchecked")
 					Class<AbstractAgent> c = (Class<AbstractAgent>) MadkitClassLoader.getLoader().loadClass(a.getClass().getName());
 					assertNotSame(c.getClassLoader(), a.getClass().getClassLoader());
 				} catch (ClassNotFoundException e) {

@@ -38,6 +38,7 @@ public class AbstractModel extends AbstractAgent {
 	 * @param label the name of the panel
 	 * @return a panel containing sliders
 	 */
+	@SuppressWarnings("unchecked")
 	public JPanel getParametersView(String label, AbstractAgent onInstance) {
 		final JPanel all = new JPanel();
 		all.setBorder(new TitledBorder(label));

@@ -1,6 +1,6 @@
 package madkit.gui.menu;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.awt.Component;
 import java.io.IOException;

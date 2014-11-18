@@ -3080,7 +3080,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	/**
 	 * This offers a convenient way to create main a main method that launches the agent
 	 * class under development. The agent is launched in a new instance MaDKit.
-	 * This call only works in the main method of the agent.
+	 * This call only works in the main method of the agent's class.
 	 * MaDKit. Here is an example of use that will work in any subclass of {@link AbstractAgent}:
 	 * 
 	 * <pre>
@@ -3106,13 +3106,15 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * 	executeThisAgent(BooleanOption.desktop.toString());
 	 * }
 	 * </code>
-	 * </pre>
+	 * 
+	 * @return the kernel instance that actually launches this agent, 
+	 * so that it is possible to do other actions after the launch using
+	 * {@link Madkit#doAction(madkit.action.KernelAction, Object...)} 
 	 * 
 	 * @see Option BooleanOption LevelOption
 	 * @since MaDKit 5.0.0.14
 	 */
-	@SuppressWarnings("unused")
-	protected static void executeThisAgent(int nbOfInstances, boolean createFrame, String... args) {
+	protected static Madkit executeThisAgent(int nbOfInstances, boolean createFrame, String... args) {
 		StackTraceElement element = null;
 		for (StackTraceElement stackTraceElement : new Throwable().getStackTrace()) {
 			if(stackTraceElement.getMethodName().equals("main")){
@@ -3126,38 +3128,47 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 		if (args != null) {
 			arguments.addAll(Arrays.asList(args));
 		}
-		new Madkit(arguments.toArray(new String[arguments.size()]));
+		return new Madkit(arguments.toArray(new String[arguments.size()]));
 	}
 
 	/**
 	 * This offers a convenient way to create a main method 
 	 * that launches the agent
 	 * class under development. 
-	 * This call only works in the main method of the agent.
+	 * This call only works in the main method of the agent's class.
 	 * This call is equivalent to
 	 * <code>executeThisAgent(1, true, args)</code>
 	 * 
 	 * @param args
 	 *           MaDKit options
+	 *           
+	 * @return the kernel instance that actually launches this agent, 
+	 * so that it is possible to do other actions after the launch using
+	 * {@link Madkit#doAction(madkit.action.KernelAction, Object...)} 
+	 * 
 	 * @see #executeThisAgent(int, boolean, String...)
 	 * @since MaDKit 5.0.0.14 
 	 */
-	protected static void executeThisAgent(String... args) {
-		executeThisAgent(1, true, args);
+	protected static Madkit executeThisAgent(String... args) {
+		return executeThisAgent(1, true, args);
 	}
 
 	/**
 	 * This offers a convenient way to create a main method that launches the agent
 	 * class under development. 
-	 * This call only works in the main method of the agent.
+	 * This call only works in the main method of the agent's class.
 	 * This call is equivalent to
 	 * <code>executeThisAgent(null, 1, true)</code>
+	 * 
+	 * @return the kernel instance that actually launches this agent, 
+	 * so that it is possible to do other actions after the launch using
+	 * {@link Madkit#doAction(madkit.action.KernelAction, Object...)} 
 	 * 
 	 * @see #executeThisAgent(int, boolean, String...)
 	 * @since MaDKit 5.0.0.15
 	 */
-	protected static void executeThisAgent() { 
-		executeThisAgent(1, true);
+	protected static Madkit executeThisAgent() { 
+		return executeThisAgent(1, true);
 	}
 
 }

@@ -40,6 +40,8 @@ import javax.swing.JSlider;
 import javax.swing.JToolBar;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import madkit.action.SchedulingAction;
 import madkit.gui.SwingUtil;
@@ -51,9 +53,8 @@ import madkit.message.SchedulingMessage;
  * default delay between two steps is 0 ms (max speed).
  * 
  * @author Fabien Michel
- * @author Olivier Gutknecht
  * @since MaDKit 2.0
- * @version 5.1
+ * @version 5.2
  * @see Activator
  */
 public class Scheduler extends Agent {
@@ -104,18 +105,18 @@ public class Scheduler extends Agent {
 
 	private Action														run, step, speedUp, speedDown;
 
-//	private JLabel														timer;
+	// private JLabel timer;
 	private int															delay;
 
 	/**
 	 * specify the delay between 2 steps
 	 */
 	@SuppressWarnings("serial")
-	private final DefaultBoundedRangeModel								speedModel			= new DefaultBoundedRangeModel(400, 0, 0, 400) {
+	private final DefaultBoundedRangeModel						speedModel			= new DefaultBoundedRangeModel(400, 0, 0, 400) {
 
 																										public void setValue(int n) {
 																											super.setValue(n);
-																											delay = 400 - n;
+																											delay = 400 - getValue();
 																										}
 																									};
 
@@ -130,11 +131,11 @@ public class Scheduler extends Agent {
 
 	/**
 	 * Sets the delay between two simulation steps. That is the pause time
-	 * between to call to {@link #doSimulationStep()}
+	 * between to call to {@link #doSimulationStep()}.
+	 * The value is automatically adjusted between 0 and 400.
 	 * 
 	 * @param delay
-	 *           the pause between two steps in ms, an integer between 0 and 400: O is max speed.
-	 *           speed
+	 *           the pause between two steps in milliseconds, an integer between 0 and 400: O is max speed.
 	 */
 	public void setDelay(final int delay) {
 		speedModel.setValue(speedModel.getMaximum() - delay);
@@ -190,12 +191,6 @@ public class Scheduler extends Agent {
 		setSimulationDuration(endTime);
 	}
 
-	// @Override
-	// protected void activate() {
-	// if(logger != null)
-	// logger.talk("\n\tHi human !\n\n I am an instance of the madkit.kernel.Scheduler class.\n I am specialized in simulation scheduling.\n I use activators on the artificial society\n to trigger agents' behaviors and simulate artificial worlds.\n You can extend me to create your own simulations !");
-	// }
-
 	/**
 	 * Setup the default Scheduler GUI when launched with the default MaDKit GUI
 	 * mechanism.
@@ -207,11 +202,9 @@ public class Scheduler extends Agent {
 	public void setupFrame(JFrame frame) {
 		super.setupFrame(frame);
 		frame.add(getSchedulerToolBar(), BorderLayout.PAGE_START);
-//		frame.add(getSchedulerToolPanel(), BorderLayout.PAGE_START);
 		frame.add(getSchedulerStatusLabel(), BorderLayout.PAGE_END);
 		setGVT(GVT);
-		frame.validate();
-		frame.getJMenuBar().add(getSchedulerMenu());
+		frame.getJMenuBar().add(getSchedulerMenu(),2);
 	}
 
 	/**
@@ -337,10 +330,7 @@ public class Scheduler extends Agent {
 	 * 			logger.info(&quot;Quitting: Simulation has reached end time &quot; + getSimulationDuration());
 	 * 		return;
 	 * 	}
-	 * 	if (getDelay() == 0)
-	 * 		Thread.yield();
-	 * 	else
-	 * 		pause(getDelay());
+	 * 	pause(getDelay());
 	 * 	checkMail(nextMessage());
 	 * 	switch (getSimulationState()) {
 	 * 	case RUNNING:
@@ -370,9 +360,6 @@ public class Scheduler extends Agent {
 					logger.info("Quitting: Simulation has reached end time " + simulationDuration);
 				return;
 			}
-			// if (getDelay() == 0)
-			// Thread.yield();
-			// else
 			pause(delay);
 			checkMail(nextMessage());
 			switch (simulationState) {
@@ -380,7 +367,6 @@ public class Scheduler extends Agent {
 				doSimulationStep();
 				break;
 			case PAUSED:
-				// updateStatusDisplay();
 				paused();
 				break;
 			case STEP:
@@ -452,7 +438,7 @@ public class Scheduler extends Agent {
 	}
 
 	/**
-	 * 
+	 * Remove all the activators which have been previously added
 	 */
 	public void removeAllActivators() {
 		for (final Activator<? extends AbstractAgent> a : activators) {
@@ -494,7 +480,7 @@ public class Scheduler extends Agent {
 		final JToolBar toolBar = new JToolBar("scheduler toolbar");
 		toolBar.add(run);
 		toolBar.add(step);
-		JPanel p = new JPanel();
+		final JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		p.setBorder(new TitledBorder("speed"));
 		final JSlider sp = new JSlider(speedModel);
@@ -505,9 +491,19 @@ public class Scheduler extends Agent {
 				if(sp.getValue() < 398) {
 					move *= 10;
 				}
-				sp.setValue(move + sp.getValue());
+				move = (move + sp.getValue()) > sp.getMaximum() ? sp.getMaximum() : move + sp.getValue();
+				sp.setValue(move);
+				sp.getChangeListeners()[0].stateChanged(new ChangeEvent(this));
 			}
 		});
+		sp.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				updateToolTip(p, sp);
+			}
+
+		});
+		updateToolTip(p, sp);
 		// p.setPreferredSize(new Dimension(150, 25));
 		p.add(sp);
 		// toolBar.addSeparator();
@@ -517,6 +513,15 @@ public class Scheduler extends Agent {
 //		toolBar.add(getGVTLabel());
 		SwingUtil.scaleAllAbstractButtonIconsOf(toolBar, 24);
 		return toolBar;
+	}
+	/**
+	 * @param p
+	 * @param sp
+	 */
+	private void updateToolTip(final JPanel p, final JSlider sp) {
+		final String text = "pause = "+getDelay()+" ms";
+		sp.setToolTipText(text);
+		p.setToolTipText(text);
 	}
 
 	/**
@@ -543,12 +548,8 @@ public class Scheduler extends Agent {
 		if (gvtModel == null) {
 			gvtModel = new GVTModel();
 		}
+		@SuppressWarnings("serial")
 		GVTJLabel timer = new GVTJLabel(){
-			/**
-			 * 
-			 */
-			private static final long	serialVersionUID	= 1L;
-
 			@Override
 			public void update(Observable o, Object arg) {
 				setText("Simulation " + simulationState + ", time is " + arg);
@@ -563,15 +564,15 @@ public class Scheduler extends Agent {
 	}
 
 	/**
-	 * Returns a label giving some information on the simulation process
+	 * Returns a label giving the simulation time
 	 * 
-	 * @return a label giving some information on the simulation process
+	 * @return a label giving the simulation time
 	 */
 	public JLabel getGVTLabel() {
 		if (gvtModel == null) {
 			gvtModel = new GVTModel();
 		}
-		GVTJLabel timer = new GVTJLabel();
+		final GVTJLabel timer = new GVTJLabel();
 		timer.setText("0");
 		gvtModel.addObserver(timer);
 		timer.setBorder(new EmptyBorder(4, 4, 4, 4));
@@ -580,27 +581,9 @@ public class Scheduler extends Agent {
 		return timer;
 	}
 
-
-//	/**
-//	 * Returns a label giving some information on the simulation process
-//	 * 
-//	 * @return a label giving some information on the simulation process
-//	 */
-//	public JPanel getGVTPanel() {
-//		if (gvtModel == null) {
-//			gvtModel = new GVTModel();
-//		}
-//		JPanel p = new JPanel();
-//		p.setMinimumSize(new Dimension(60, 20));
-//		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-//		p.setBorder(new TitledBorder("gvt"));
-//		p.add(getGVTLabel());
-//		return p;
-//	}
-
 }
 
-class GVTModel extends Observable{
+final class GVTModel extends Observable{
 	@Override
 	public void notifyObservers(Object arg) {
 		setChanged();
@@ -610,9 +593,6 @@ class GVTModel extends Observable{
 
 class GVTJLabel extends JLabel implements Observer{
 
-	/**
-	 * 
-	 */
 	private static final long	serialVersionUID	= 2320718202738802489L;
 
 	@Override

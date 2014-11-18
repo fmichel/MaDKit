@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2014 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -20,6 +20,12 @@ package madkit.i18n;
 
 import java.util.ResourceBundle;
 
+/**
+ * Enum containing key for some useful words
+ * 
+ * @author Fabien Michel
+ *
+ */
 public enum Words {
 	
 	FAILED,COMMUNITY,GROUP,ROLE,
@@ -28,10 +34,9 @@ public enum Words {
 	EXITING,
 	TERMINATED,
 	INITIAL_CONFIG,
-	RELOAD, DIRECTORY, MAS, PAUSE, NEW_MSG, ABOUT, HELP, TUTORIALS, LAST_AVAILABLE, CREATED;
+	RELOAD, DIRECTORY, MAS, PAUSE, NEW_MSG, ABOUT, HELP, TUTORIALS, LAST_AVAILABLE, CREATED, DISPLAY;
 	
 	final static ResourceBundle messages = I18nUtilities.getResourceBundle(Words.class.getSimpleName());
-//	static ResourceBundle messages = I18nUtilities.getResourceBundle(ReturnCode.class);
 	
 	public String toString() {
 		return messages.getString(name());

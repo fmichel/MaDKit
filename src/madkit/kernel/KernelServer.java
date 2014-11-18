@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2014 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -35,8 +35,10 @@ import madkit.action.KernelAction;
 import madkit.message.KernelMessage;
 
 /**
+ * The kernel server class. Create P2P connections with other kernels.
+ * 
  * @author Fabien Michel
- * @version 0.9
+ * @version 0.91
  * @since MaDKit 5.0.0.2
  *
  */
@@ -49,18 +51,16 @@ final class KernelServer {
 	private boolean running = true;
 	
 	final private static String EXTERNAL_IP;
-	
-	static{
+
+	static {
 		String s = null;
 		try {
-			BufferedReader in = new BufferedReader(new InputStreamReader(
-					new URL(Madkit.WEB+"/whatismyip.php").openStream()));
-			 s = in.readLine();
-			 in.close();
-		} catch (MalformedURLException e) {
+			BufferedReader in = new BufferedReader(new InputStreamReader(new URL(Madkit.WEB + "/whatismyip.php").openStream()));
+			s = in.readLine();
+			in.close();
 		} catch (IOException e) {
 		}
-		EXTERNAL_IP = s == null ? "" : " -- WAN : "+s;
+		EXTERNAL_IP = s == null ? "" : " -- WAN : " + s;
 	}
 
 	/**

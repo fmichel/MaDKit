@@ -4,6 +4,11 @@ import madkit.kernel.Scheduler;
 
 
 public class SchedulerGUI extends Scheduler {
+	
+	
+	public SchedulerGUI() {
+		setDelay(500);
+	}
 
 	/**
 	 * @param args

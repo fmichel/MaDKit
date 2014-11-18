@@ -38,5 +38,11 @@ public class NormalAA extends AbstractAgent {
 		assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
 		assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
 	}
+	
+	
+	public static void main(String[] args) {
+		executeThisAgent();
+	}
+
 
 }

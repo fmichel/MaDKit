@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2014 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -20,8 +20,12 @@ package madkit.simulation.viewer;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -29,16 +33,24 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ResourceBundle;
 
 import javax.swing.Action;
+import javax.swing.BoxLayout;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
+import javax.swing.border.TitledBorder;
 
 import madkit.action.ActionInfo;
 import madkit.action.MDKAbstractAction;
 import madkit.gui.SwingUtil;
 import madkit.i18n.I18nUtilities;
+import madkit.i18n.Words;
 import madkit.kernel.Watcher;
 
 
@@ -62,30 +74,34 @@ import madkit.kernel.Watcher;
  * 
  * @author Fabien Michel
  * @since MaDKit 5.0.0.17
- * @version 0.9
+ * @version 1.1
  * 
  */
 public abstract class SwingViewer extends Watcher {
 
 	
-	private JComponent	displayPane;
+	private JComponent displayPane;
 	private boolean synchronousPainting = true;
 	private boolean renderingOn = true;
 	private JFrame frame;
 
 //	private Action synchroPaint;
 	private int renderingInterval;
-	private int counter = 0;
+	private int counter = 1;
 	
 	private Action rendering;
 	private Action synchroPainting;
 	private JToolBar toolBar;
+	private JComboBox<Integer>	comboBox;
+	
+	
 	/**
 		 * Creates a new agent with a default panel 
 		 * for rendering purposes
 		 */
 		public SwingViewer() {
-			initActions();
+			initActionsAndGUIComponent();
+			setRenderingInterval(1);
 			setSynchronousPainting(true);
 			displayPane = new JPanel(){
 				/**
@@ -95,10 +111,8 @@ public abstract class SwingViewer extends Watcher {
 
 				@Override
 				protected void paintComponent(Graphics g) {
-	//				if (g != null) {
-						super.paintComponent(g);
-						render(g);
-	//				}
+					super.paintComponent(g);
+					render(g);
 				}
 			};
 			displayPane.setBackground(Color.WHITE);
@@ -108,13 +122,13 @@ public abstract class SwingViewer extends Watcher {
 	/**
 	 * 
 	 */
-	private void initActions() {
+	private void initActionsAndGUIComponent() {
 		final ResourceBundle messages = I18nUtilities.getResourceBundle(SwingViewer.class.getSimpleName());
-		rendering = new MDKAbstractAction(new ActionInfo("DISABLE",KeyEvent.VK_DOLLAR, messages)){
+		initRenderingIntervalComboBox(messages.getString("UPDATE_INTERVAL"));
+		rendering = new MDKAbstractAction(new ActionInfo("DISABLE",KeyEvent.VK_A, messages)){
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void actionPerformed(ActionEvent e) {
-//				renderingOn = ! (boolean) getValue(Action.SELECTED_KEY);
 			}
 		};
 		rendering.addPropertyChangeListener(new PropertyChangeListener() {
@@ -123,19 +137,18 @@ public abstract class SwingViewer extends Watcher {
 				renderingOn = ! (boolean) rendering.getValue(Action.SELECTED_KEY);
 			}
 		});
-//		rendering.putValue(Action.SELECTED_KEY, ! renderingOn);
 		setRendering(renderingOn);
-		synchroPainting = new MDKAbstractAction(new ActionInfo("SYNCHRO_PAINTING",KeyEvent.VK_DOLLAR, messages)){
+		synchroPainting = new MDKAbstractAction(new ActionInfo("SYNCHRO_PAINTING",KeyEvent.VK_Z, messages)){
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void actionPerformed(ActionEvent e) {
-//				synchronousPainting = ! (boolean) getValue(Action.SELECTED_KEY);
 			}
 		};
 		synchroPainting.addPropertyChangeListener(new PropertyChangeListener() {
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
 				synchronousPainting = ! (boolean) synchroPainting.getValue(Action.SELECTED_KEY);
+				comboBox.setVisible(synchronousPainting);
 			}
 		});
 		rendering.putValue(Action.SELECTED_KEY, ! synchronousPainting);
@@ -189,7 +202,7 @@ public abstract class SwingViewer extends Watcher {
 	protected void observe() {
 		if (renderingOn && isAlive()) {
 			if (synchronousPainting) {
-				if (counter == renderingInterval) {
+				if (counter > renderingInterval) {
 					try {
 						SwingUtilities.invokeAndWait(new Runnable() {
 							@Override
@@ -202,7 +215,7 @@ public abstract class SwingViewer extends Watcher {
 					} catch (InvocationTargetException e) {
 						e.printStackTrace();
 					}
-					counter = 0;
+					counter = 2;
 				} 
 				else {
 					counter++;
@@ -255,9 +268,25 @@ public abstract class SwingViewer extends Watcher {
 	public void setupFrame(javax.swing.JFrame frame) {
 		displayPane.setSize(frame.getSize());
 		frame.add(displayPane);
+		frame.getJMenuBar().add(getDisplayMenu(), 2);
 		frame.add(getToolBar(),BorderLayout.PAGE_START);
 		setFrame(frame);
 	}
+	
+	/**
+	 * Returns a menu which could be used in any GUI.
+	 * 
+	 * @return a menu controlling the viewer's options
+	 */
+	public JMenu getDisplayMenu() {
+		JMenu myMenu = new JMenu(Words.DISPLAY.toString());
+		myMenu.setMnemonic(KeyEvent.VK_O);
+		myMenu.add(new JCheckBoxMenuItem(rendering));
+		myMenu.add(new JCheckBoxMenuItem(synchroPainting));
+		return myMenu;
+	}
+
+
 
 	/**
 	 * By default, get the default frame provided by MaDKit in 
@@ -285,8 +314,42 @@ public abstract class SwingViewer extends Watcher {
 		this.frame = frame;
 	}
 
+	/**
+	 * Set the number of states between display updates.
+	 * If set to 1, every simulation states will be displayed
+	 * 
+	 * @param interval an int > 0
+	 */
 	public void setRenderingInterval(int interval) {
 		renderingInterval = interval > 0 ? interval : 1;
+		if((int) comboBox.getSelectedItem() != renderingInterval){
+			comboBox.setSelectedItem(renderingInterval);
+		}
+	}
+	
+	@SuppressWarnings("serial")
+	private void initRenderingIntervalComboBox(String titleAndTooltip){
+		final Integer[] defaultValues = {1, 5, 10, 20, 50, 100, 200, 500, 1000, 5000, 10000, 50000, 100000, 200000, 500000};
+		comboBox = new JComboBox<Integer>(defaultValues){
+			public java.awt.Dimension getMaximumSize() {
+				return new Dimension(125, 38);
+			};
+		};
+		final String[] tatt = titleAndTooltip.split(";");
+		comboBox.setBorder(new TitledBorder(tatt[0]));
+		comboBox.setToolTipText(tatt[1]);
+		comboBox.setEditable(true);
+		comboBox.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					setRenderingInterval((int) comboBox.getSelectedItem());
+				} catch (ClassCastException e1) {
+					comboBox.setSelectedItem(1);
+				}
+			}
+		});
 	}
 	
 	/**
@@ -297,8 +360,10 @@ public abstract class SwingViewer extends Watcher {
 	public JToolBar getToolBar() {
 		if (toolBar == null) {
 			toolBar = new JToolBar("viewer toolbar");
+			toolBar.setAlignmentX(JToolBar.RIGHT_ALIGNMENT);
 			SwingUtil.addBooleanActionTo(toolBar, rendering);
 			SwingUtil.addBooleanActionTo(toolBar, synchroPainting);
+			toolBar.add(comboBox);
 			SwingUtil.scaleAllAbstractButtonIconsOf(toolBar, 24);
 		}
 		return toolBar;

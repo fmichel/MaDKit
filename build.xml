@@ -186,7 +186,7 @@
 		<copy todir="${test.classes.dir}" overwrite="false">
 			<fileset dir="test" excludes="**/*.java" />
 		</copy>
-		<junit printsummary="withOutAndErr" haltonfailure="true" maxmemory="2048m">
+		<junit printsummary="withOutAndErr" haltonfailure="false" maxmemory="2048m">
 			<classpath refid="test.classpath" />
 			<formatter type="brief" usefile="false" />
 			<formatter type="xml" />

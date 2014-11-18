@@ -2,5 +2,6 @@ bin
 build
 release
 docs/api
+logs
 *~
 .externalToolBuilders

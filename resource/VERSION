@@ -16,6 +16,21 @@ interact using messages. It also contains generic MAS simulation authoring tools
 
 
 ----------------------------------------------------------------------------------
+------------------------------- MaDKit 5.0.5.1 (beta-5.1) ----------------------------
+----------------------------------------------------------------------------------
+
+1. Changes:
+	- minor changes in the scheduler speed's GUI
+	
+2. Bug fixes:
+	- fix the desktop java web start demo.
+
+3. API changes:
+	+ madkit.simulation.viewer.SwingViewer.getOptionsMenu()
+
+
+
+----------------------------------------------------------------------------------
 ------------------------------- MaDKit 5.0.5 (beta-5) ----------------------------
 ----------------------------------------------------------------------------------
 

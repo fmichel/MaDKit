@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2014 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2015 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -25,6 +25,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.util.List;
+import java.util.Scanner;
 import java.util.logging.LogRecord;
 import java.util.logging.StreamHandler;
 
@@ -32,7 +36,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AgentLogger;
@@ -54,7 +58,7 @@ public class OutputPanel extends JPanel {
 	 * 
 	 */
 	private static final long	serialVersionUID	= 602152712654986449L;
-	final private OutputStream out;
+	private OutputStream out;
 	final private JTextArea outField;
 	
 	/**
@@ -65,7 +69,7 @@ public class OutputPanel extends JPanel {
 	public OutputStream getOutputStream(){
 		return out;
 	}
-
+	
 	/**
 	 * Builds the panel for the agent
 	 * 
@@ -79,21 +83,32 @@ public class OutputPanel extends JPanel {
 		outField.setEditable(false);
 		setPreferredSize(new Dimension(250,100));
 		
-		out = new OutputStream() {
-			private void updateText(final String txt) {
-				 SwingUtilities.invokeLater(new Runnable() {  
-					     public void run() {
-					     outField.append(txt);
-					     outField.setCaretPosition(outField.getDocument().getLength());
-					     }  
-					   });
-			}
-				 @Override
-			public void write(int b) throws IOException {
-				updateText(String.valueOf((char) b));
-			}
-		};
-
+		try {
+			@SuppressWarnings("resource")
+			final PipedInputStream inPipe = new PipedInputStream();
+			out = new PipedOutputStream(inPipe);
+			new SwingWorker<Void, String>() {
+				@Override
+				protected Void doInBackground() throws Exception {
+					Scanner s = new Scanner(inPipe);
+					while (s.hasNextLine()){
+						String line = s.nextLine();
+						publish(line + "\n");
+					}
+					s.close();
+					return null;
+				}
+				@Override
+				protected void process(List<String> chunks) {
+					for (String line : chunks){
+						outField.append(line);
+					}
+				}
+			}.execute();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 		final StreamHandler handler = new StreamHandler(out, AgentLogger.AGENT_FILE_FORMATTER){
 			@Override
 			public synchronized void publish(LogRecord record) {
@@ -101,6 +116,7 @@ public class OutputPanel extends JPanel {
 				flush();
 			}
 		};
+		
 		agent.getLogger().addHandler(handler);
 
 		add(BorderLayout.CENTER,new JScrollPane(outField));
@@ -131,4 +147,3 @@ public class OutputPanel extends JPanel {
 	}
 
 }
-

@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2014 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2015 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -50,6 +50,10 @@ public class NormalAgent extends Agent {
 	@Override
 	protected void live() {//need the override !
 		setLogLevel(Level.ALL);
+	}
+	
+	public static void main(String[] args) {
+		executeThisAgent("--agentLogLevel","ALL","--createLogFiles","--debug");
 	}
 	
 }

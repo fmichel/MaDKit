@@ -24,6 +24,9 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Paths;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 
@@ -194,8 +197,23 @@ public class GlobalAction {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				File f = new File("demos");
+				if (! (f.exists() && f.isDirectory())) {
+					for (URL url : MadkitClassLoader.getLoader().getURLs()) {
+						System.err.println(url);
+						if(url.getFile().endsWith("madkit-"+Madkit.VERSION+".jar")){
+							try {
+								f = new File(Paths.get(url.toURI()).getParent().toString(),"demos");
+								break;
+							} catch (URISyntaxException ex) {
+								ex.printStackTrace();
+							}
+						}
+					}
+				}
 				if (f.exists() && f.isDirectory()) {
-					MadkitClassLoader.loadJarsFromDirectory(f.getAbsolutePath());
+					if(! MadkitClassLoader.loadJarsFromDirectory(f.getAbsolutePath())){
+						JOptionPane.showMessageDialog(null, f.getAbsolutePath()+" : no new resources found", getValue(Action.NAME).toString(), JOptionPane.WARNING_MESSAGE);
+					}
 				} else {
 					JOptionPane.showMessageDialog(null, f.getAbsolutePath()+" "+ Words.DIRECTORY +" "+ ErrorMessages.CANT_FIND , getValue(Action.NAME).toString(), JOptionPane.WARNING_MESSAGE);
 			}

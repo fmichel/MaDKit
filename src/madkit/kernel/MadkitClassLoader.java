@@ -51,8 +51,8 @@ import com.sun.javaws.jnl.JARDesc;
 import com.sun.jnlp.JNLPClassLoader;
 
 /**
- * The MadkitClassLoader is the class loader used by MaDKit, enabling 
- * some specific features such as hot class reloading.
+ * The MadkitClassLoader is the class loader used by MaDKit. It enables
+ * some specific features such as class hot reloading, jar loading, etc.
  * 
  * @author Fabien Michel
  * @author Jacques Ferber
@@ -191,21 +191,25 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 	/**
 	 * Loads all the jars present in a directory
 	 * 
-	 * @param directoryPath
+	 * @param directoryPath directory's path
+	 * @return <code>true</code> if at least one new jar has been loaded
 	 */
-	public static void loadJarsFromDirectory(final String directoryPath) {
+	public static boolean loadJarsFromDirectory(final String directoryPath) {
 		final File demoDir = new File(directoryPath);
+		boolean hasLoadSomething = false;
 		if (demoDir.isDirectory()) {
 			for (final File f : demoDir.listFiles()){
 				if (f.getName().endsWith(".jar")) {
 					try {
-						loadUrl(f.toURI().toURL());
+						if(loadUrl(f.toURI().toURL()))
+							hasLoadSomething = true;
 					} catch (MalformedURLException e) {
 						e.printStackTrace();
 					}
 				}
 			}
 		}
+		return hasLoadSomething;
 	}
 
 	// Class<? extends AbstractAgent> loadAgentClass(String name) throws ClassNotFoundException{
@@ -298,14 +302,17 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 	 * 
 	 * Adds a directory or a jar file to the class path.
 	 * @param url the resource to add
+	 * @return <code>true</code> if this url was not already loaded
 	 */
-	public static void loadUrl(URL url) {
-		int size = getLoader().getURLs().length;//TODO could check if present
+	public static boolean loadUrl(URL url) {
+		final int size = getLoader().getURLs().length;//TODO could check if present
 		getLoader().addURL(url);
 		if (size != getLoader().getURLs().length) {//truly loaded
 			System.setProperty("java.class.path", System.getProperty("java.class.path") + File.pathSeparator + url.getPath());
 			ClassPathSensitiveMenu.updateAllMenus();
+			return true;
 		}
+		return false;
 	}
 
 	/**

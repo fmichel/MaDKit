@@ -95,12 +95,12 @@ final class AboutFrame extends JDialog {
 
 		String version = null;
 		try (BufferedReader in = new BufferedReader(new InputStreamReader(new URL(Madkit.WEB + "/LAST").openStream()))){
-			version = "\n\n   " + Words.LAST_AVAILABLE.toString() + " : " + in.readLine() + "\n";
+			version = "\n\n   " + Words.LAST_AVAILABLE.toString() + ": " + in.readLine() + "\n";
 		} catch (IOException e) {//just offline
 		}
 		try {
 			doc.insertString(doc.getLength(), "  MaDKit\n", doc.getStyle("large"));
-			doc.insertString(doc.getLength(), "   The Multiagent Development Kit\n\n", doc.getStyle("italic"));
+			doc.insertString(doc.getLength(), "   Multiagent Development Kit\n\n", doc.getStyle("italic"));
 			doc.insertString(doc.getLength(), "   Version: " + Madkit.VERSION + "\n   Build id: " + Madkit.BUILD_ID + (version == null ? "" : version),
 					doc.getStyle("small"));
 			textPanel.add(new SwingLink(Madkit.WEB.substring(7,21), new URI(Madkit.WEB)));

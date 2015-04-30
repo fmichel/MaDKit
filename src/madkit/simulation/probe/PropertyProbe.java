@@ -123,7 +123,7 @@ public class PropertyProbe<A extends AbstractAgent, T> extends Probe<A>// TODO
 
 	/**
 	 * Returns the maximum for the property over all the agents. The property
-	 * must implement the {@link Comparable} interface for this to work.
+	 * must be numerical or {@link Comparable} for this to work.
 	 * 
 	 * @return the maximum value for this property
 	 */
@@ -148,7 +148,7 @@ public class PropertyProbe<A extends AbstractAgent, T> extends Probe<A>// TODO
 
 	/**
 	 * Returns the minimum for the property over all the agents. The property
-	 * must implement the {@link Comparable} interface for this to work.
+	 * must be numerical or {@link Comparable} for this to work.
 	 * 
 	 * @return the minimum value for this property
 	 */
@@ -169,6 +169,24 @@ public class PropertyProbe<A extends AbstractAgent, T> extends Probe<A>// TODO
 			}
 		}
 		return min;
+	}
+	
+	/**
+	 * Returns the average value for the property over all the agents. The property
+	 * must be numerical for this to work.
+	 * 
+	 * @return the average value for this property
+	 */
+	public double getAverageValue() {
+		double total = 0;
+		for (final A a : getCurrentAgentsList()) {
+			try {
+				total += ((Number) getPropertyValue(a)).doubleValue();
+			} catch (ClassCastException e) {
+				throw new SimulationException(toString() + " on " + a, e);
+			}
+		}
+		return total / size();
 	}
 
 	// final public List<T> getAllProperties(){

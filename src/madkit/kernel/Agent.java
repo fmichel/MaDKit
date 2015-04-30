@@ -518,11 +518,12 @@ public class Agent extends AbstractAgent{
 			receptions.add(m);
 			m = waitingNextMessageForEver();
 		}
-		if (!receptions.isEmpty()) {
-			synchronized (messageBox) {
-				messageBox.addAll(receptions);
-			}
-		}
+		addAllToMessageBox(receptions);
+//		if (!receptions.isEmpty()) {
+//			synchronized (messageBox) {
+//				messageBox.addAll(receptions);
+//			}
+//		}
 		if (logger != null)
 			logger.finest("a match has arrived " + m);
 		return m;
@@ -551,11 +552,12 @@ public class Agent extends AbstractAgent{
 			receptions.add(answer);
 			answer = waitingNextMessage(endTime - System.nanoTime(), TimeUnit.NANOSECONDS);
 		}
-		if (!receptions.isEmpty()) {
-			synchronized (messageBox) {
-				messageBox.addAll(receptions);
-			}
-		}
+		addAllToMessageBox(receptions);
+//		if (!receptions.isEmpty()) {
+//			synchronized (messageBox) {
+//				messageBox.addAll(receptions);
+//			}
+//		}
 		if(logger != null){
 			logger.finest(answer == null ? "...Waiting time out, no compliant message received" : "...a match has arrived : " + answer);
 		}

@@ -335,7 +335,7 @@ public class JunitMadkit {
 	}
 	
 	public void launchExternalMDKInstance(String... args){
-		String cmdLince = "java -Xms1024m -cp bin:build/test/classes:lib/junit-4.11.jar:lib/hamcrest-core-1.3.jar madkit.kernel.Madkit";
+		String cmdLince = "java -Xms1024m -cp bin:build/test/classes:lib/junit-4.12.jar:lib/hamcrest-core-1.3.jar madkit.kernel.Madkit";
 		for (String string : args) {
 			cmdLince += " "+string;
 		}

@@ -5,3 +5,4 @@ docs/api
 logs
 *~
 .externalToolBuilders
+.ant-targets-build.xml

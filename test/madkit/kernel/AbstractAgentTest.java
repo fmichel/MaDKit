@@ -20,6 +20,7 @@ package madkit.kernel;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
@@ -33,6 +34,7 @@ import java.util.logging.Level;
 import madkit.kernel.AbstractAgent.State;
 import madkit.kernel.Madkit.Option;
 import madkit.message.MessageFilter;
+import madkit.message.ObjectMessage;
 import madkit.message.StringMessage;
 
 import org.junit.Before;
@@ -80,6 +82,36 @@ public class AbstractAgentTest {
 		a.receiveMessage(new Message());
 		assertNotSame(m, a.purgeMailbox());
 		assertNull(a.purgeMailbox());
+	}
+
+	@Test
+	public void getLastReceivedMessage(){
+		assertNull(a.purgeMailbox());
+		Message m,m2;
+		a.receiveMessage(m = new Message());
+		a.receiveMessage(m2 = new Message());
+		assertEquals(m2, a.getLastReceivedMessage());
+		assertEquals(m, a.getLastReceivedMessage());
+		assertNotEquals(m, a.nextMessage());
+		assertNull(a.nextMessage());
+	}
+
+	@Test
+	public void getLastReceivedMessageWithFilter(){
+		assertNull(a.purgeMailbox());
+		Message m,m2;
+		a.receiveMessage(m = new ObjectMessage<>("test"));
+		a.receiveMessage(m2 = new Message());
+		assertEquals(m, a.getLastReceivedMessage(new MessageFilter() {
+			
+			@Override
+			public boolean accept(Message om) {
+				return om instanceof ObjectMessage<?>;
+			}
+		}));
+		assertEquals(m2, a.getLastReceivedMessage());
+		assertNotEquals(m, a.nextMessage());
+		assertNull(a.nextMessage());
 	}
 
 	@Test

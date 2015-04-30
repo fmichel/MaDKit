@@ -37,12 +37,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -154,7 +153,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 */
 	private String											name;
 	final AtomicBoolean									alive					= new AtomicBoolean();						//default false
-	final BlockingQueue<Message>						messageBox			= new LinkedBlockingQueue<>();		// TODO
+	final BlockingDeque<Message>						messageBox			= new LinkedBlockingDeque<>();		// TODO
 																																				// lazy
 																																				// creation
 
@@ -933,7 +932,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	}
 
 	/**
-	 * Returns the agent's name.
+	 * The agent's name.
 	 * 
 	 * @return the name to display in logger info, GUI title and so on. Default
 	 *         is "<i>class name + internal ID</i>"
@@ -1438,7 +1437,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	}
 
 	/**
-	 * Returns the agent address of this agent at this CGR location.
+	 * Agent's address at this CGR location.
 	 * 
 	 * @param community
 	 * @param group
@@ -1469,7 +1468,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	}
 
 	/**
-	 * Returns an {@link AgentAddress} corresponding to an agent having this
+	 * {@link AgentAddress} corresponding to an agent having this
 	 * position in the organization on a particular kernel. The caller is excluded from the search.
 	 * 
 	 * @param community
@@ -1488,7 +1487,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	}
 
 	/**
-	 * Returns an {@link java.util.List} containing agents that handle this role
+	 * A list containing other agents playing this role
 	 * in the organization. The caller is excluded from this list.
 	 * 
 	 * @param community
@@ -1505,7 +1504,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	}
 
 	/**
-	 * Returns an {@link java.util.List} containing all the agents that handle
+	 * A list containing all the agents playing
 	 * this role in the organization.
 	 * 
 	 * @param community
@@ -1544,9 +1543,9 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * Retrieves and removes the first message of the
 	 * mailbox that matches the filter.
 	 * 
-	 * @return The next acceptable message or <code>null</code> if no such message has been found.
+	 * @return The next acceptable message or <code>null</code> if such message has not been found.
 	 */
-	public Message nextMessage(MessageFilter filter) {
+	public Message nextMessage(final MessageFilter filter) {
 		synchronized (messageBox) {
 			for (final Iterator<Message> iterator = messageBox.iterator(); iterator.hasNext();) {
 				final Message m = iterator.next();
@@ -1566,15 +1565,15 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * @param filter if <code>null</code> all the messages are returned and removed from the mailbox.
 	 * @return the ordered list of matching messages, or an empty list if none has been found.
 	 */
-	public List<Message> nextMessages(MessageFilter filter) {
+	public List<Message> nextMessages(final MessageFilter filter) {
 		if(filter == null){
 			synchronized (messageBox) {
-				List<Message> match = new ArrayList<>(messageBox);
+				final List<Message> match = new ArrayList<>(messageBox);
 				messageBox.clear();
 				return match;
 			}
 		}
-		List<Message> match = new ArrayList<>();
+		final List<Message> match = new ArrayList<>();
 		synchronized (messageBox) {
 			for (Iterator<Message> iterator = messageBox.iterator(); iterator.hasNext();) {
 				final Message m = iterator.next();
@@ -1586,7 +1585,36 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 		}
 		return match;
 	}
+	
+	/**
+	 * Gets the last received message.
+	 * 
+	 * @return the last received message or <code>null</code>
+	 * if the mailbox is empty.
+	 */
+	public Message getLastReceivedMessage(){
+		return messageBox.pollLast();
+	}
 
+	/**
+	 * Gets the last received message according to a filter.
+	 * 
+	 * @param filter the message filter to use
+	 * 
+	 * @return the last received message that matches the filter 
+	 * or <code>null</code> if such message has not been found.
+	 */
+	public Message getLastReceivedMessage(final MessageFilter filter){
+		for (final Iterator<Message> iterator = messageBox.descendingIterator(); iterator.hasNext();) {
+			final Message message = iterator.next();
+			if(filter.accept(message)){
+				iterator.remove();
+				return message;
+			}
+		}
+		return null;
+	}
+	
 	/**
 	 * Purges the mailbox and returns the most
 	 * recent received message at that time.
@@ -1595,16 +1623,11 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 *         mailbox is already empty.
 	 */
 	public Message purgeMailbox() { 
-		Message m = null;
 		synchronized (messageBox) {
-			try {
-				while (true) {
-					m = messageBox.remove();
-				}
-			} catch (NoSuchElementException e) {
-			}
+			final Message m = messageBox.pollLast();
+			messageBox.clear();		
+			return m;
 		}
-		return m;
 	}
 
 	/**
@@ -2002,13 +2025,22 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	// /////////////////////////////////////////////// UTILITIES
 	// /////////////////////////////////
 
+	/**
+	 * Returns a snapshot view of all the current organization for debugging purpose.
+	 * Community -> Group -> Role -> AgentAddress
+	 * 
+	 * @param global if <code>true</code> this takes into account agents 
+	 * coming from other connected kernels
+	 * 
+	 * @return a data containing all the organization structure 
+	 */
 	public Map<String, Map<String, Map<String, Set<AgentAddress>>>> getOrganizationSnapShot(boolean global) {
 		return getKernel().getOrganizationSnapShot(global);
 	}
 	
 
 	/**
-	 * returns the names of the communities that exist.
+	 * Returns the names of the communities that exist.
 	 * 
 	 * @return an alphanumerically ordered set containing the names of the communities 
 	 * which exist. 
@@ -2021,7 +2053,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	}
 
 	/**
-	 * returns the names of the groups that exist in this community.
+	 * Returns the names of the groups that exist in this community.
 	 * 
 	 * @param community the community's name
 	 * 
@@ -2062,7 +2094,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	}
 
 	/**
-	 * returns the names of the roles that exist in this group.
+	 * Returns the names of the roles that exist in this group.
 	 * 
 	 * @param community the community's name
 	 * @param group the group's name
@@ -2242,7 +2274,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	}
 
 	/**
-	 * Returns the kernel address on which the agent is running.
+	 * The kernel's address on which this agent is running.
 	 * 
 	 * @return the kernel address representing the MaDKit kernel on which the
 	 *         agent is running
@@ -2360,14 +2392,19 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 			else
 				receptions.add(answer);
 		}
-		if (!receptions.isEmpty()) {
-			synchronized (messageBox) {
-				messageBox.addAll(receptions);
-			}
-		}
+		addAllToMessageBox(receptions);
 		if (!answers.isEmpty())
 			return answers;
 		return null;
+	}
+
+	/**
+	 * @param receptions
+	 */
+	void addAllToMessageBox(final List<Message> receptions) {
+		synchronized (messageBox) {
+			messageBox.addAll(receptions);
+		}
 	}
 
 	/**

@@ -47,6 +47,14 @@ public class DiscoverTest extends JunitMadkit {
 //		cleanHelperMDKs();
 //	}
 
+	//TODO use junit 4.12
+//   @Rule public final TestRule timeout = Timeout.builder()
+//         .withTimeout(10, TimeUnit.SECONDS)
+//         .withLookingForStuckThread(true)
+//         .build();
+
+
+
 	@Test
 	public void multipleConnectionTest() {
 		cleanHelperMDKs();

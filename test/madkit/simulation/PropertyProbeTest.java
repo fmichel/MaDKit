@@ -209,6 +209,44 @@ public class PropertyProbeTest extends JunitMadkit {
 	}
 
 	@Test
+	public void getAverageTest() {
+		launchTest(new AbstractAgent() {
+
+			protected void activate() {
+				for (int i = 0; i < 12; i++) {
+					// launchDefaultAgent(this);
+					SimulatedAgent agent;
+					assertEquals(SUCCESS, launchAgent(agent = new SimulatedAgent()));
+					agent.publicPrimitiveField = i;
+					agent.setPrivatePrimitiveField(i*2);
+				}
+				PropertyProbe<AbstractAgent, String> fp = new PropertyProbe<>(COMMUNITY, GROUP, ROLE, "publicPrimitiveField");
+				PropertyProbe<AbstractAgent, String> fpInt = new PropertyProbe<>(COMMUNITY, GROUP, ROLE, "privatePrimitiveField");
+				Watcher s = new Watcher();
+				assertEquals(SUCCESS, launchAgent(s));
+				s.addProbe(fp);
+				s.addProbe(fpInt);
+				assertEquals(5.5d, fp.getAverageValue(),0.0);
+				assertEquals(11d, fpInt.getAverageValue(),0.0);
+			}
+		}, ReturnCode.SUCCESS);
+	}
+
+	@Test
+	public void noAgentgetAverageTest() {
+		launchTest(new AbstractAgent() {
+
+			protected void activate() {
+				PropertyProbe<AbstractAgent, String> fp = new PropertyProbe<>(COMMUNITY, GROUP, ROLE, "publicPrimitiveField");
+				Watcher s = new Watcher();
+				assertEquals(SUCCESS, launchAgent(s));
+				s.addProbe(fp);
+				assertEquals(Double.NaN, fp.getAverageValue(),0.0);
+			}
+		}, ReturnCode.SUCCESS);
+	}
+
+	@Test
 	public void getMinAndGetMaxnotComparable() {
 		launchTest(new AbstractAgent() {
 
@@ -221,6 +259,12 @@ public class PropertyProbeTest extends JunitMadkit {
 				s.addProbe(fp);
 				try {
 					System.err.println(fp.getMaxValue());
+					noExceptionFailure();
+				} catch (SimulationException e) {
+					e.printStackTrace();
+				}
+				try {
+					System.err.println(fp.getAverageValue());
 					noExceptionFailure();
 				} catch (SimulationException e) {
 					e.printStackTrace();

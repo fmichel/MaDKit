@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2016 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -26,6 +26,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.ConsoleHandler;
@@ -48,7 +49,7 @@ import madkit.kernel.Madkit.Option;
  * This class defines a logger specialized for MaDKit agents.
  * 
  * @author Fabien Michel
- * @version 0.91
+ * @version 0.92
  * @since MaDKit 5.0.0.5
  * 
  */
@@ -118,9 +119,7 @@ final public class AgentLogger extends Logger {
 	 * @param warningLogLevel the log level to set
 	 */
 	public void setWarningLogLevel(final Level warningLogLevel) {
-		if(warningLogLevel == null)
-			throw new NullPointerException();
-		this.warningLogLevel = warningLogLevel;
+		this.warningLogLevel = Objects.requireNonNull(warningLogLevel);
 		AgentLogLevelMenu.update(myAgent);
 	}
 
@@ -235,9 +234,7 @@ final public class AgentLogger extends Logger {
 	 */
 	@Override
 	public void setLevel(final Level newLevel) throws SecurityException {
-		if(newLevel == null)
-			throw new NullPointerException();
-		super.setLevel(newLevel);
+		super.setLevel(Objects.requireNonNull(newLevel));
 		for (Handler h : getHandlers()) {
 			h.setLevel(newLevel);
 		}

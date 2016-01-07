@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2016 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -40,7 +41,7 @@ import madkit.message.ObjectMessage;
 /**
  * @author Oliver Gutknecht
  * @author Fabien Michel since v.3
- * @version 5.0
+ * @version 5.1
  * @since MaDKit 1.0
  * 
  */
@@ -54,7 +55,7 @@ final class Group extends ConcurrentHashMap<String, Role> {
 	private final String			communityName;
 	private final String			groupName;
 	private final Organization	communityObject;
-	private final boolean				isSecured;
+	private final boolean		isSecured;
 
 	private final boolean		distributed;
 
@@ -126,8 +127,7 @@ final class Group extends ConcurrentHashMap<String, Role> {
 	 * @return
 	 */
 	ReturnCode requestRole(final AbstractAgent requester, final String roleName, final Object memberCard) {
-		if (roleName == null)
-			throw new NullPointerException(ErrorMessages.R_NULL.toString());
+		Objects.requireNonNull(roleName, ErrorMessages.R_NULL.toString());
 		if (isSecured) {
 			final MadkitKernel myKernel = getCommunityObject().getMyKernel();
 			if (gatekeeper == null) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2014 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2016 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -63,6 +63,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TimerTask;
@@ -113,7 +114,7 @@ import org.xml.sax.SAXException;
  * The brand new MaDKit kernel and it is now a real Agent :)
  * 
  * @author Fabien Michel
- * @version 1.4
+ * @version 1.41
  * @since MaDKit 5.0
  * 
  */
@@ -391,22 +392,19 @@ class MadkitKernel extends Agent {
 	}
 
 	/**
-	 * 
+	 * load the repository url which lists what agent jar files are available in an "agents" folder
 	 */
 	private void addWebRepository() {
 		final String repoLocation = getMadkitConfig().getProperty("madkit.repository.url");
 		if (logger != null)
 			logger.fine("** CONNECTING WEB REPO **" + repoLocation);
-		try {
-			BufferedReader in = new BufferedReader(new InputStreamReader(
-					new URL(getMadkitProperty("madkit.repository.url")).openStream()));
-			for(String s : in.readLine().split("<br/>")){
+		try (final BufferedReader in = new BufferedReader(new InputStreamReader(new URL(getMadkitProperty("madkit.repository.url")).openStream()))) {
+			for (final String s : in.readLine().split("<br/>")) {
 				MadkitClassLoader.loadUrl(new URL(s));
 			}
-			in.close();
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			if (logger != null)
-			logger.log(Level.WARNING, ErrorMessages.CANT_CONNECT + ": "+ repoLocation + "\n" + e.getMessage());
+				logger.log(Level.WARNING, ErrorMessages.CANT_CONNECT + ": " + repoLocation + "\n" + e.getMessage());
 		}
 	}
 
@@ -642,8 +640,7 @@ class MadkitKernel extends Agent {
 	// ////////////////////////////////////////////////////////////
 
 	ReturnCode createGroup(final AbstractAgent creator, final String community, final String group, final Gatekeeper gatekeeper, final boolean isDistributed) {
-		if (group == null)
-			throw new NullPointerException(ErrorMessages.G_NULL.toString());
+		Objects.requireNonNull(group, ErrorMessages.G_NULL.toString());
 		Organization organization = new Organization(community, this);
 		// no need to remove org: never failed
 		// will throw null pointer if community is null

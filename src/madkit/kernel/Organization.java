@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2016 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -23,6 +23,7 @@ import static madkit.i18n.I18nUtilities.getCGRString;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,7 +34,7 @@ import madkit.i18n.ErrorMessages;
 /**
  * @author Fabien Michel
  * @since MaDKit 3.0
- * @version 5.0
+ * @version 5.1
  */
 final class Organization extends ConcurrentHashMap <String, Group>{
 
@@ -57,9 +58,7 @@ final class Organization extends ConcurrentHashMap <String, Group>{
 	 * @param string 
 	 */
 	Organization(final String string, final MadkitKernel madkitKernel) {
-		if(string == null)
-			throw new NullPointerException(ErrorMessages.C_NULL.toString());
-		communityName = string;
+		communityName = Objects.requireNonNull(string, ErrorMessages.C_NULL.toString());
 		myKernel = madkitKernel;
 //		logger = madkitKernel.getLogger();
 		logger = null;

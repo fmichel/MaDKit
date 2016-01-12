@@ -24,7 +24,7 @@ import madkit.kernel.AbstractAgent.ReturnCode;
 
 /**
  * @author Fabien Michel
- * @version 0.9
+ * @version 0.91
  * @since MaDKit 5.0
  * 
  */
@@ -92,26 +92,21 @@ final class OrganizationWarning extends MadkitWarning {
 	}
 }
 
-class KilledException extends Error {// TODO should be runtime exception
+final class SelfKillException extends ThreadDeath {
 
-	private static final long	serialVersionUID	= -8695603147644262321L;
-
-	public KilledException(String msg) {
-		super(msg);
+	
+	/**
+	 * @return the timeOut
+	 */
+	public int getTimeOut() {
+		return timeOut;
 	}
-
-	@Override
-	public synchronized Throwable fillInStackTrace() {
-		return null;
-	}
-}
-
-class SelfKillException extends KilledException {
 
 	private static final long	serialVersionUID	= -6883135491234461609L;
+	private final int timeOut;
 
-	public SelfKillException(String msg) {
-		super(msg);
+	public SelfKillException(int timeOut) {
+		this.timeOut = timeOut;
 	}
-
+	
 }

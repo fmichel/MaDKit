@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2016 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -22,7 +22,7 @@ import java.util.concurrent.ThreadFactory;
 
 /**
  * @author Fabien Michel
- * @version 0.91
+ * @version 0.92
  * @since MaDKit 5.0
  * 
  */
@@ -38,9 +38,9 @@ final class AgentThreadFactory extends Object implements ThreadFactory {
 		group = new ThreadGroup(daemonThreads ? "DAEMON" : "LIFE" + kernelAddress) {
 
 			public void uncaughtException(Thread t, Throwable e) {
-				if (e instanceof KilledException) {
+				if (e instanceof ThreadDeath) {
 					e.printStackTrace();
-					throw new AssertionError("killedException uncaught");
+					throw new AssertionError("ThreadDeath uncaught");
 				}
 				System.err.println("--------------internal BUG--------------------");
 				System.err.println("\n-----------------uncaught exception on " + t);// TODO

@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2014 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2016 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -44,7 +44,7 @@ import madkit.message.MessageFilter;
  * @author Fabien Michel
  * @author Olivier Gutknecht
  * @since MaDKit 1.0
- * @version 5.0.1
+ * @version 5.0.2
  */
 public class Agent extends AbstractAgent{
 
@@ -135,7 +135,7 @@ public class Agent extends AbstractAgent{
 		getAgentExecutor().getLiveProcess().cancel(false);
 		getAgentExecutor().getEndProcess().cancel(false);
 		super.suicide(e);
-		terminate(); //the ae's terminate will not be executed because it will be on fake kernel
+		terminate(); //the ae's terminate method will not be executed because it will be on fake kernel
 	}
 
 
@@ -160,7 +160,7 @@ public class Agent extends AbstractAgent{
 				} catch (InterruptedException e) {
 				}//answer the kill
 			}
-		} catch (KilledException e) {
+		} catch (ThreadDeath e) {
 			logLifeException(e);
 		}
 		logMethod(false);
@@ -202,7 +202,7 @@ public class Agent extends AbstractAgent{
 	public ReturnCode killAgent(AbstractAgent target, int timeOutSeconds) {
 		//if this is a self kill done by the agent itself, not an object which has access to the agent
 		if(target == this && myThread == Thread.currentThread() && alive.compareAndSet(true, false)){
-			throw new SelfKillException(""+timeOutSeconds);
+			throw new SelfKillException(timeOutSeconds);
 		}
 		return super.killAgent(target, timeOutSeconds);
 	}

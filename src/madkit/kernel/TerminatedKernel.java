@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2016 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -20,17 +20,16 @@ package madkit.kernel;
 
 
 /**
+ * The kernel used when the agent is terminated, i.e. for debugging purpose.
+ * 
  * @author Fabien Michel
  * @since MaDKit 5.0.0.12
- * @version 1.0
+ * @version 1.1
  * 
  */
 final class TerminatedKernel extends FakeKernel{
 
 	final String buildFailString(final AbstractAgent agent){
-//		if(agent instanceof AbstractAgent && Thread.currentThread().getThreadGroup() == MadkitKernel.A_LIFE){
-//			throw new KilledException((String)null);//TODO something else
-//		}
 		return agent != null ? agent.getName() : ""+AbstractAgent.State.TERMINATED;
 	}
 }

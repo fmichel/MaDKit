@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2013 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2016 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -31,16 +31,16 @@ import madkit.kernel.AbstractAgent.State;
 /**
  * @author Fabien Michel
  * @since MaDKit 5.0.0.9
- * @version 0.9
+ * @version 0.91
  * 
  */
 final class AgentExecutor extends ThreadPoolExecutor {
 
 	//	private boolean started = false;
 	final private Agent myAgent;
-	final private Future<ReturnCode> activate;
-	final private Future<?> live;
-	final private Future<?> end;
+	final private FutureTask<ReturnCode> activate;
+	final private FutureTask<Void> live;
+	final private FutureTask<Void> end;
 
 //	public AgentExecutor(Agent a, ThreadFactory threadFactory) {
 //		super(1, Integer.MAX_VALUE, 0, TimeUnit.NANOSECONDS, new ArrayBlockingQueue<Runnable>(4, false), threadFactory);
@@ -84,14 +84,13 @@ final class AgentExecutor extends ThreadPoolExecutor {
 			}},null);
 	}
 	
-	Future<ReturnCode> start(){//TODO transform to futuretask and execute
-		execute((Runnable) activate);
-		execute((Runnable) live);
-		execute((Runnable) end);
+	Future<ReturnCode> start(){
+		execute(activate);
+		execute(live);
+		execute(end);
 		execute(new Runnable() {
 			@Override
 			public void run() {
-//				System.err.println(activate.isDone());
 				shutdown();
 			}
 		});
@@ -135,7 +134,7 @@ final class AgentExecutor extends ThreadPoolExecutor {
 //	protected void afterExecute(Runnable r, Throwable t) {
 ////		if(t != null){
 ////			myAgent.getAlive().set(false);
-////			if(t instanceof KilledException){
+////			if(t instanceof ThreadDeath){
 ////				if(myAgent.logger != null){
 ////					myAgent.logger.finer( "-*-GET KILLED in "+methodName()+"-*- : "+t.getMessage());
 ////				}

@@ -114,7 +114,7 @@ import org.xml.sax.SAXException;
  * The brand new MaDKit kernel and it is now a real Agent :)
  * 
  * @author Fabien Michel
- * @version 1.41
+ * @version 1.42
  * @since MaDKit 5.0
  * 
  */
@@ -129,7 +129,7 @@ class MadkitKernel extends Agent {
 	// duplicate
 	// public void uncaughtException(Thread t, Throwable e) {
 	// System.err.println(t);
-	// if(e instanceof KilledException){
+	// if(e instanceof ThreadDeath){
 	// e.printStackTrace();
 	// }
 	// else{
@@ -1291,7 +1291,7 @@ class MadkitKernel extends Agent {
 					// // dumpThreadStack(t);
 					// // logger.finer("----------\n");
 				}
-				t.stop(new KilledException("brutal kill"));
+				t.stop();
 				// long deb = System.currentTimeMillis();
 				if (logger != null)
 					logger.finer("now waiting for " + s + " to end on " + target);

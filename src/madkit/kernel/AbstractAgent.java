@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2014 Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * Copyright 1997-2016 Fabien Michel, Olivier Gutknecht, Jacques Ferber
  * 
  * This file is part of MaDKit.
  * 
@@ -133,7 +133,7 @@ import org.xml.sax.SAXException;
  * 
  * @author Fabien Michel
  * @author Olivier Gutknecht
- * @version 5.5
+ * @version 5.6
  */
 public class AbstractAgent implements Comparable<AbstractAgent> {
 
@@ -349,7 +349,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 			} catch (Throwable e) {
 				validateDeathOnException(e, LIVING);
 			}
-		} catch (KilledException e) {
+		} catch (ThreadDeath e) {
 			logLifeException(e);
 		}
 		logMethod(false);
@@ -365,7 +365,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * @param e
 	 */
 	void suicide(SelfKillException e) {
-		getMadkitKernel().startEndBehavior(this, Integer.parseInt(e.getMessage()), true);
+		getMadkitKernel().startEndBehavior(this, e.getTimeOut(), true);
 	}
 	
 	/**
@@ -414,7 +414,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 				alive.set(false);
 				Thread.currentThread().setName(getAgentThreadName(TERMINATED));
 			}
-		} catch (KilledException e) {
+		} catch (ThreadDeath e) {
 			logLifeException(e);
 		}
 		logMethod(false);
@@ -910,7 +910,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 			if (isFinestLogOn())
 				logger.log(Level.FINEST, Influence.KILL_AGENT + " (" + timeOutSeconds + ")" + target.getName() + "...");
 			if (alive.compareAndSet(true, false)) {
-				throw new SelfKillException("" + timeOutSeconds);
+				throw new SelfKillException(timeOutSeconds);
 			}
 		}
 		return getKernel().killAgent(this, target, timeOutSeconds);
@@ -2298,7 +2298,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	// /////////////////////////////////////////////////////////////////////////////
 
 	final boolean logLifeException(final Throwable e) {
-		if (e instanceof KilledException || e instanceof IllegalMonitorStateException) {
+		if (e instanceof ThreadDeath || e instanceof IllegalMonitorStateException) {
 			if (logger != null)
 				logger.finer("-*-GET KILLED in " + getState().lifeCycleMethod() + "-*-");
 		}
@@ -2453,7 +2453,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 */
 	final void handleInterruptedException() {// TODO
 		if (Thread.currentThread().getName().equals(getAgentThreadName(getState())) && alive.compareAndSet(true, false))
-			throw new SelfKillException("" + 0);// TODO why 0 ?
+			throw new SelfKillException(0);// TODO why 0 ?
 		Thread.currentThread().interrupt();
 	}
 	

@@ -1,24 +1,5 @@
 <?xml version="1.0"?>
 <!-- 
-  Copyright 1998-2014 Fabien Michel, Olivier Gutknecht, Jacques Ferber
-  
-  This file is part of MaDKit.
-  
-  MaDKit is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
-  
-  MaDKit is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  GNU General Public License for more details.
-  
-  You should have received a copy of the GNU General Public License
-  along with MaDKit. If not, see <http://www.gnu.org/licenses/>.
- -->
-
-<!-- 
  This is ant build.xml file for building the MaDKit kernel jar file MaDKit V.5
  Author: Fabien Michel
  Version: 5.1
@@ -44,6 +25,9 @@
 	<property name="MaDKit-demos.dir" value="../MaDKit-demos" />
 
 	<import file="${madkit.ant.targets.file}" />
+	
+	<echo>using ${ant.version}</echo>
+	<echo>using Java ${java.runtime.version} from ${java.home}</echo>
 
 
 	<!-- ================================= 
@@ -206,17 +190,11 @@
 
 
 <!-- ================================= 
-      target: javadoc              
-		<packageset dir="${src.dir}" defaultexcludes="yes">
-		      <exclude name="NetworkAgent.java"/>
-		</packageset>
-		<fileset dir="${src.dir}">
-		  <include name="**/*.java"/>
-		</fileset>
+      TODO fix xdoclint validation
      ================================= -->
 <target name="javadoc" description="build the javadoc">
 	<tstamp/>
-	<javadoc sourcepath="${src.dir}" destdir="${docs.api.dir}" classpathref="compile.classpath" failonwarning="true" access="protected" docfilessubdirs="true" author="true" version="true" use="true" linksource="no" windowtitle="${project.label}">
+	<javadoc sourcepath="${src.dir}" destdir="${docs.api.dir}" classpathref="compile.classpath" failonwarning="true" access="protected" docfilessubdirs="true" author="true" version="true" use="true" linksource="no" windowtitle="${project.label}" additionalparam="-Xdoclint:none">
 		<doctitle>
 			<![CDATA[<h1>${project.label}</h1><h2>${description}</h2>]]>
 		</doctitle>
@@ -283,7 +261,7 @@
 	<mkdir dir="${release.dir}" />
 	
 	<copy todir="${build.dir}">
-		<fileset dir="${resource.dir}" excludes="COPYING,${MDK.build.properties}" />
+		<fileset dir="${resource.dir}" excludes="${MDK.build.properties}" />
 		<filterchain>
 			<expandproperties />
 		</filterchain>
@@ -301,7 +279,7 @@
 		<zipfileset dir="${build.dir}" includes="README.html" />
 		<zipfileset dir="${build.dir}" includes="VERSION,${doc.html},build.xml,XML_config_example.xml" prefix="${docs.dir}" />
 		<zipfileset file="${jar.file}" filemode="755" />
-		<zipfileset file="${resource.dir}/COPYING" />
+		<zipfileset file="LICENSE" />
 		<zipfileset dir="${demo.dir}" prefix="${demo.dir}" filemode="755" />
 	</zip>
 
@@ -346,8 +324,9 @@
 	<echo>FTP uploading new release files in ${ftp.dir.target}</echo>
 	<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="mkdir" remotedir="${ftp.dir.target}" verbose="yes" />
 	<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="put" remotedir="${ftp.dir.target}">
-		<fileset dir="${release.dir}/web" />
+		<fileset dir="${release.dir}/web" excludes="LICENSE,README.html"/>
 		<fileset dir="${resource.dir}" includes="index.php" />
+		<fileset file="${release.dir}/${distribution.zip.name}" />
 	</ftp>
 	
 	<echo>FTP upload of MDK desktop web start files in ${madkit.ftp.dir}/${javaws.ftp.dir}</echo>

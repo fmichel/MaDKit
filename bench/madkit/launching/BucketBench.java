@@ -2,8 +2,12 @@ package madkit.launching;
 
 import static madkit.kernel.JunitMadkit.startTimer;
 import static madkit.kernel.JunitMadkit.stopTimer;
+
 import madkit.kernel.AbstractAgent;
 
+/**
+* @author Fabien Michel
+*/
 public class BucketBench extends AbstractAgent {
 
 	@Override

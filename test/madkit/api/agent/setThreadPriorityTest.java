@@ -34,41 +34,51 @@ same conditions as regards security.
 The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-C license and that you accept its terms.
  */
-package madkit.kernel;
+package madkit.api.agent;
 
-import madkit.kernel.Madkit.BooleanOption;
-import madkit.kernel.Madkit.LevelOption;
-import madkit.kernel.Madkit.Option;
+import static org.junit.Assert.assertEquals;
+import madkit.kernel.JunitMadkit;
+import madkit.testing.util.agent.NormalAgent;
+
+import org.junit.Test;
 
 /**
- * Every regular MaDKit Options implements this interface.
- * 
- * @see Option
- * @see LevelOption
- * @see BooleanOption
- * @see AbstractAgent#getMadkitProperty(String)
- * @see AbstractAgent#getMadkitProperty(Enum)
- * @see AbstractAgent#setMadkitProperty(String, String)
  * @author Fabien Michel
- * @since MaDKit 5.0.0.10
+ * @since MaDKit 5.0.0.7
  * @version 0.9
  * 
  */
-public interface MadkitOption {
+public class setThreadPriorityTest extends JunitMadkit {
 
-	/**
-	 * Returns the string form of the option as it should be used
-	 * in a command line, or with the {@link Madkit#main(String[])} method
-	 * or with {@link Madkit#Madkit(String...)} constructor.
-	 * @return The command line form for this option, with -- in front of 
-	 * the option's name, i.e. <code><b>--optionName</b></code> 
-	 */
-	public String toString();
-	
-	/**
-	 * Returns the option's name. This is a call to
-	 * {@link Enum#name()}
-	 * @return the option's name
-	 */
-	public String name();
+	@Test
+	public void nullCommunity() {
+		launchTest(new NormalAgent() {
+			protected void activate() {
+				assertEquals(Thread.NORM_PRIORITY -1, getThreadPriority());
+				setThreadPriority(2);
+				assertEquals(2, getThreadPriority());
+			}
+			
+			@Override
+			protected void live() {
+				try {
+					assertEquals(2, getThreadPriority());
+					setThreadPriority(3);
+				} catch (AssertionError e) {
+					testFails(e);
+				}
+			}
+			
+			@Override
+			protected void end() {
+				try {
+					assertEquals(3, getThreadPriority());
+				} catch (AssertionError e) {
+					testFails(e);
+				}
+			}
+		});
+		pause(100);
+		everythingOK();
+	}
 }

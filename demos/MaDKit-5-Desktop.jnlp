@@ -13,7 +13,7 @@
       <all-permissions/>
   </security>
   <resources>
-    <j2se version="1.7+" java-vm-args="-Xnoclassgc"/>
+    <j2se version="1.8+" java-vm-args="-Xnoclassgc"/>
     <jar href="MaDKit-5-Desktop.jnlp.jar"/>
     <property name="jnlp.packEnabled" value="true"/> 
 <!--    

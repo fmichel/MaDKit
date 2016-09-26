@@ -4,7 +4,7 @@ MaDKit: Multiagent Development Kit
 What is MaDKit ?
 -----------------
 
-MaDKit is a multiagent-based development platform written in Java.
+MaDKit is an open source multiagent-based development platform written in Java.
 MaDKit is designed to easily build distributed applications and simulations using the multiagent paradigm and features:
 
 * Artificial agents creation and life cycle management
@@ -28,4 +28,4 @@ More information
 * [Forum](http://www.madkit.net/madkit/forum)
 
 
-[1]: http://janela.lirmm.fr/~fmichel/publi/pdfs/ferber04ocmas.pdf
+[1]: http://www.lirmm.fr/~fmichel/publi/pdfs/ferber04ocmas.pdf

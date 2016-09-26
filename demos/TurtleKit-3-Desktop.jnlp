@@ -3,18 +3,18 @@
 
 <jnlp spec="6.0+" codebase="http://www.madkit.net/turtlekit/javaws" href="TurtleKit-3-Desktop.jnlp">
   <information>
-    <title>TurtleKit 3.0.0.1</title>
+    <title>TurtleKit 3.0.0.4</title>
     <vendor>Fabien Michel</vendor>
     <homepage href="http://www.turtlekit.org"/>
-    <description>TurtleKit 3.0.0.1, An artificial life platform inspired by the Logo programming and built on top of MaDKit</description>
-    <description kind="short">TurtleKit 3.0.0.1</description>
+    <description>TurtleKit 3.0.0.4, An artificial life platform inspired by the Logo programming and built on top of MaDKit</description>
+    <description kind="short">TurtleKit 3.0.0.4</description>
     <shortcut online="false"/>
   </information>
   <security>
       <all-permissions/>
   </security>
   <resources>
-    <j2se version="1.7+" java-vm-args="-Xnoclassgc"/>
+    <j2se version="1.8+" java-vm-args="-Xnoclassgc"/>
     <jar href="TurtleKit-3-Desktop.jnlp.jar"/>
     <property name="jnlp.packEnabled" value="true"/> 
   </resources>

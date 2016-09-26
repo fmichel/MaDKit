@@ -5,10 +5,14 @@ import static madkit.kernel.JunitMadkit.GROUP;
 import static madkit.kernel.JunitMadkit.ROLE;
 import static madkit.kernel.JunitMadkit.startTimer;
 import static madkit.kernel.JunitMadkit.stopTimer;
+
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AgentAddress;
 import madkit.kernel.Message;
 
+/**
+* @author Fabien Michel
+*/
 public class MessagingTest extends AbstractAgent {
 
 	@Override

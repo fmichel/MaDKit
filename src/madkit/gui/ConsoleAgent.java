@@ -73,7 +73,6 @@ public class ConsoleAgent extends AbstractAgent {
 		System.setErr(ps);
 		System.setOut(ps);
 		frame.setSize(800, 500);
-		frame.setLocation(0, 0);
 	}
 	
 	@Override

@@ -44,6 +44,7 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.prefs.Preferences;
 
 import javax.swing.AbstractButton;
 import javax.swing.Action;
@@ -84,6 +85,11 @@ final public class SwingUtil {
 	 * The MaDKit's logo with a size of 14x14 pixels
 	 */
 	final public static ImageIcon MADKIT_LOGO_SMALL = new ImageIcon(MADKIT_LOGO.getImage().getScaledInstance(14, 14, java.awt.Image.SCALE_SMOOTH));
+
+	/**
+	 * access to persistently stored preferences 
+	 */
+	final public static Preferences UI_PREFERENCES = Preferences.userRoot().node(SwingUtil.class.getName());
 
 	/**
 	 * Creates a labeled panel containing a slider with default size.

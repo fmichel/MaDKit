@@ -36,15 +36,18 @@ knowledge of the CeCILL-C license and that you accept its terms.
  */
 package madkit.action;
 
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.util.ResourceBundle;
 
 import javax.swing.Action;
+import javax.swing.JColorChooser;
+import javax.swing.JFrame;
 
-import madkit.gui.PrintableFrame;
 import madkit.i18n.I18nUtilities;
 
 /**
@@ -56,12 +59,47 @@ import madkit.i18n.I18nUtilities;
  */
 public enum UIAction {
 
-	PRINT(KeyEvent.VK_P)
+
+	BACKGROUND(KeyEvent.VK_B){
+		@SuppressWarnings("serial")
+		public Action getActionFor(JFrame f) {
+			return new MDKAbstractAction(getActionInfo()){
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					final Color selectedColor = JColorChooser.showDialog(f, "Selection", f.getBackground());
+					if (selectedColor != null) {
+						f.setBackground(selectedColor);
+					}
+				}
+			};			
+		}
+	},
+	PRINT(KeyEvent.VK_P) 
+	{
+		@SuppressWarnings("serial")
+		public Action getActionFor(JFrame frame) {
+			return new MDKAbstractAction(getActionInfo()){
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					PrinterJob job = PrinterJob.getPrinterJob();
+					job.setPrintable((Printable) frame);
+					if (job.printDialog()) {
+						try {
+							job.print();
+						} catch (PrinterException ex) {
+							ex.printStackTrace();
+						}
+
+					}
+				}
+			};			
+		}
+	}
 	;
 
 	final static private ResourceBundle messages = I18nUtilities.getResourceBundle(UIAction.class.getSimpleName());
-	
-	
+
+
 	/**
 	 * @return the bundle for internationalized messages
 	 */
@@ -70,7 +108,7 @@ public enum UIAction {
 	}
 
 	private ActionInfo actionInfo;
-	
+
 	final private int keyEvent;
 
 	/**
@@ -91,28 +129,10 @@ public enum UIAction {
 	/**
 	 * Builds an action that will operate on this frame
 	 * 
-	 * @param agent the frameon which this action 
+	 * @param frame the frame on which this action 
 	 * will operate
-	 * @return the action corresponding to this feature
+	 * @return the Action corresponding to this feature
 	 */
-	public Action getActionFor(PrintableFrame pf){
-		return new MDKAbstractAction(getActionInfo()){
-			private static final long serialVersionUID = -3078505474395164899L;
-
-			@Override
-			public void actionPerformed(ActionEvent e) {//TODO I could do the check validity here for logging purpose
-				PrinterJob job = PrinterJob.getPrinterJob();
-				job.setPrintable(pf);
-				if (job.printDialog()) {
-					try {
-						job.print();
-					} catch (PrinterException ex) {
-						ex.printStackTrace();
-					}
-
-			}
-		}
-	};
-}
+	public abstract Action getActionFor(JFrame frame);
 	
 }

@@ -38,6 +38,7 @@ package madkit.gui.menu;
 
 import java.awt.event.KeyEvent;
 
+import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
@@ -56,9 +57,12 @@ import madkit.i18n.Words;
 @SuppressWarnings("serial")
 final public class DisplayMenu extends JMenu {
 
-	public DisplayMenu(final PrintableFrame f){
+	public DisplayMenu(final JFrame f){
 		super(Words.DISPLAY.toString());
 		setMnemonic(KeyEvent.VK_D);
-		add(new JMenuItem(UIAction.PRINT.getActionFor(f)));
+		if (f instanceof PrintableFrame) {
+			add(new JMenuItem(UIAction.PRINT.getActionFor(f)));
+		}
+		add(new JMenuItem(UIAction.BACKGROUND.getActionFor(f)));
 	}
 }

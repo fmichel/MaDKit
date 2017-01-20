@@ -44,6 +44,7 @@ import static madkit.kernel.AbstractAgent.State.INITIALIZING;
 import static madkit.kernel.AbstractAgent.State.LIVING;
 import static madkit.kernel.AbstractAgent.State.TERMINATED;
 
+import java.awt.Color;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -66,6 +67,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.prefs.Preferences;
 
 import javax.swing.JFrame;
 import javax.xml.parsers.ParserConfigurationException;
@@ -83,6 +85,7 @@ import madkit.agr.LocalCommunity.Groups;
 import madkit.agr.Organization;
 import madkit.gui.AgentStatusPanel;
 import madkit.gui.OutputPanel;
+import madkit.gui.SwingUtil;
 import madkit.gui.menu.AgentLogLevelMenu;
 import madkit.gui.menu.AgentMenu;
 import madkit.gui.menu.MadkitMenu;
@@ -2038,7 +2041,11 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * @see madkit.gui.OutputPanel
 	 */
 	public void setupFrame(final JFrame frame) {
-		frame.add(new OutputPanel(this));
+		frame.setContentPane(new OutputPanel(this));
+		final Preferences uiPreferences = SwingUtil.UI_PREFERENCES;
+		frame.setBackground(new Color(uiPreferences.getInt(getClass().getName() + "_BGC", Color.WHITE.getRGB())));
+		frame.setLocation(uiPreferences.getInt(getName() + "_X",0), uiPreferences.getInt(getName() + "_Y",0));
+		frame.setSize(uiPreferences.getInt(getName() + "_WIDTH",frame.getWidth()), uiPreferences.getInt(getName() + "_HEIGHT",frame.getHeight()));
 	}
 
 	// /////////////////////////////////////////////// UTILITIES

@@ -146,6 +146,7 @@ public class OutputPanel extends JPanel {
 			}
 		});
 		add(BorderLayout.SOUTH,b);
+		setBackground(Color.WHITE);
 	}
 
 	/**

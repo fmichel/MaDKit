@@ -38,6 +38,8 @@ package madkit.gui;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.swing.Box;
 import javax.swing.JDesktopPane;
@@ -81,6 +83,16 @@ public class MDKDesktopFrame extends JFrame implements PrintableFrame{
 		desktopPane.setBackground(Color.BLACK);
 		add(desktopPane);
 		setIconImage(SwingUtil.MADKIT_LOGO.getImage());
+		final String key = getClass().getName() + "_BGC";
+		setBackground(new Color(SwingUtil.UI_PREFERENCES.getInt(key, Color.BLACK.getRGB())));
+		addPropertyChangeListener(new PropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				if(evt.getPropertyName().equals("background")){
+					SwingUtil.UI_PREFERENCES.putInt(key, ((Color) evt.getNewValue()).getRGB());
+				}
+			}
+		});
 	}
 
 	/**
@@ -117,6 +129,14 @@ public class MDKDesktopFrame extends JFrame implements PrintableFrame{
 	 */
 	final JDesktopPane getDesktopPane() {
 		return desktopPane;
+	}
+	
+	@Override
+	public void setBackground(Color bgColor) {
+		super.setBackground(bgColor);
+		if (desktopPane != null) {
+			desktopPane.setBackground(bgColor);
+		}
 	}
 
 }

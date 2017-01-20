@@ -37,9 +37,16 @@ knowledge of the CeCILL-C license and that you accept its terms.
 package madkit.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.swing.Box;
 import javax.swing.JFrame;
@@ -113,6 +120,28 @@ public class AgentFrame extends JFrame  implements PrintableFrame{
 		});
 		setSize(400,300);
 		setLocationRelativeTo(null);
+		addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentMoved(ComponentEvent e) {
+				final Component component = e.getComponent();
+				SwingUtil.UI_PREFERENCES.putInt(agent.getName() + "_X", component.getX());
+				SwingUtil.UI_PREFERENCES.putInt(agent.getName() + "_Y", component.getY());
+			}
+			@Override
+			public void componentResized(ComponentEvent e) {
+				final Component component = e.getComponent();
+				SwingUtil.UI_PREFERENCES.putInt(agent.getName() + "_WIDTH", component.getWidth());
+				SwingUtil.UI_PREFERENCES.putInt(agent.getName() + "_HEIGHT", component.getHeight());
+			}
+		});
+		addPropertyChangeListener(new PropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				if(evt.getPropertyName().equals("background")){
+					SwingUtil.UI_PREFERENCES.putInt(agent.getClass().getName() + "_BGC", getBackground().getRGB());
+				}
+			}
+		});
 	}
 	
 	@Override
@@ -164,6 +193,8 @@ public class AgentFrame extends JFrame  implements PrintableFrame{
 	 */
 	void setInternalFrame(JInternalFrame internalFrame) {
 		this.internalFrame = internalFrame;
+		for(ComponentListener l : this.getComponentListeners())
+			this.internalFrame.addComponentListener(l);
 	}
 
 	@Override
@@ -171,6 +202,14 @@ public class AgentFrame extends JFrame  implements PrintableFrame{
 		super.setLocation(x, y);
 		if(internalFrame != null){
 			internalFrame.setLocation(x, y);
+		}
+	}
+	
+	@Override
+	public void setSize(int width, int height) {
+		super.setSize(width, height);
+		if(internalFrame != null){
+			internalFrame.setSize(width, height);
 		}
 	}
 	
@@ -225,4 +264,11 @@ public class AgentFrame extends JFrame  implements PrintableFrame{
 		}
 		return this;
 	}
+	
+	@Override
+	public void setBackground(Color bgColor) {
+		super.setBackground(bgColor);
+		getContentPane().setBackground(bgColor);
+	}
+
 }

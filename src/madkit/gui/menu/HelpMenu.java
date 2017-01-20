@@ -54,25 +54,33 @@ import madkit.i18n.Words;
 import madkit.kernel.Madkit;
 
 /**
+ * Class for building the help menu of MDK frames.
  * 
  * @author Fabien Michel
  * @since MaDKit 5.0.0.17
  * @version 0.91
  * 
  */
+@SuppressWarnings("serial")
 final public class HelpMenu extends JMenu {
 	
 	private static final ImageIcon	HELP_ICON	= new ImageIcon(SwingUtil.class.getResource("images/help.png"));
 
-	private static final long serialVersionUID = 6177193453649323680L;
-	final private static ActionListener about = new ActionListener() {
+	/**
+	 * An ABOUT listener which will be used for all MDK help menus
+	 */
+	final private static ActionListener ABOUT = new ActionListener() {
 		@SuppressWarnings("unused")
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			new AboutFrame();
 		}
 	};
-	final private static ActionListener tuto = new ActionListener() {
+	
+	/**
+	 * The listener which will be used for all MDK help menus
+	 */
+	final private static ActionListener DOC_LINKS = new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 				try {
@@ -90,21 +98,21 @@ final public class HelpMenu extends JMenu {
 		if (Desktop.isDesktopSupported()) {
 			final ImageIcon ii = KernelAction.CONNECT_WEB_REPO.getActionInfo().getSmallIcon();
 			mi = new JMenuItem("API",ii);
-			mi.addActionListener(tuto);
+			mi.addActionListener(DOC_LINKS);
 			mi.setActionCommand("repository/MaDKit-"+Madkit.VERSION+"/docs/api");
 			add(mi);
 			mi = new JMenuItem(Words.TUTORIALS.toString(),ii);
-			mi.addActionListener(tuto);
+			mi.addActionListener(DOC_LINKS);
 			mi.setActionCommand("tutorials");
 			add(mi);
 			mi = new JMenuItem("Forum",ii);
-			mi.addActionListener(tuto);
+			mi.addActionListener(DOC_LINKS);
 			mi.setActionCommand("forum");
 			add(mi);
 		}
 		mi = new JMenuItem(Words.ABOUT.toString(),HELP_ICON);
 		mi.setMnemonic(KeyEvent.VK_A);
-		mi.addActionListener(about);
+		mi.addActionListener(ABOUT);
 		add(mi);
 	}
 }

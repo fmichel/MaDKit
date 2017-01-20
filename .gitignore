@@ -6,3 +6,4 @@ logs
 *~
 .externalToolBuilders
 .ant-targets-build.xml
+/sandbox/

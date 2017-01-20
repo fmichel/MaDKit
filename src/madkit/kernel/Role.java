@@ -229,7 +229,7 @@ class Role implements Serializable{//TODO test with arraylist
 	final void addMembers(final List<AbstractAgent> bucket, final boolean roleJustCreated){
 //		System.err.println("add members "+bucket.size());
 		synchronized (players) {
-			players.addAll(bucket);//is optimized
+			players.addAll(bucket);//is optimized wrt size
 			if (agentAddresses != null) {
 				final Set<AgentAddress> addresses = new HashSet<>(bucket.size()+agentAddresses.size(),0.9f);//TODO try load factor
 				for (final AbstractAgent a : bucket) {

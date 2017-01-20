@@ -324,7 +324,7 @@
 	<echo>FTP uploading new release files in ${ftp.dir.target}</echo>
 	<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="mkdir" remotedir="${ftp.dir.target}" verbose="yes" />
 	<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="put" remotedir="${ftp.dir.target}">
-		<fileset dir="${release.dir}/web" excludes="LICENSE,README.html"/>
+		<fileset dir="${release.dir}/web" excludes="LICENSE"/>
 		<fileset dir="${resource.dir}" includes="index.php" />
 		<fileset file="${release.dir}/${distribution.zip.name}" />
 	</ftp>

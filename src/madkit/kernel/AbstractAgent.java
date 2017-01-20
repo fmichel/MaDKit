@@ -854,7 +854,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * @param bucket the list of agents to launch
 	 * @param nbOfParallelTasks the number of parallel tasks to use for launching the agents. 
 	 * Beware that if <code>nbOfParallelTasks</code> is greater than 1, the agents' {@link #activate()} methods
-	 * will be call simultaneously so that one has to be careful if shared resources are
+	 * will be called simultaneously so that one has to be careful if shared resources are
 	 * accessed 
 	 * @param roles
 	 *           default locations in the artificial society for the launched
@@ -1350,6 +1350,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 */
 	public ReturnCode requestRole(final String community, final String group, final String role, final Object passKey) {
 		if(getState() == INITIALIZING){
+			//the agent has not been activated yet, meaning that it has been launched using the bucket mode
 			if(isWarningOn()){
 				handleException(Influence.REQUEST_ROLE, new OrganizationWarning(ReturnCode.IGNORED, community, group, role));
 			}
@@ -1360,7 +1361,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
 	/**
 	 * Requests a role even if the agent has been launched 
-	 * using one of the <code>launchAgentBucket</code> methods with non <code>null</code>
+	 * using one of the <code>launchAgentBucket</code> methods with no <code>null</code>
 	 * roles. 
 	 * 
 	 * For instance, this is useful if you launch one million of agents and when only some of them 

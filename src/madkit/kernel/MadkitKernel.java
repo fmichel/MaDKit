@@ -190,15 +190,15 @@ class MadkitKernel extends Agent {
 		serviceExecutor.allowCoreThreadTimeOut(true);
 	}
 
-	private final ConcurrentHashMap<String, Organization> organizations;
+	final private ConcurrentHashMap<String, Organization> organizations;
 	final private Set<Overlooker<? extends AbstractAgent>> operatingOverlookers;
 	final private Madkit platform;
 	final private KernelAddress kernelAddress;
 
 	protected MadkitKernel loggedKernel;
 	private volatile boolean shuttedDown = false;
-	private final AgentThreadFactory normalAgentThreadFactory;
-	private final AgentThreadFactory daemonAgentThreadFactory;
+	final private AgentThreadFactory normalAgentThreadFactory;
+	final private AgentThreadFactory daemonAgentThreadFactory;
 
 	private AgentAddress netAgent;
 	// my private addresses for optimizing the message building
@@ -1038,8 +1038,8 @@ class MadkitKernel extends Agent {
 						roleCreated = true;
 					}
 					r.addMembers(bucket, roleCreated);
-					// test vs assignement ? -> No: cannot touch the organizational
-					// structure !!
+					// test vs assignment ? 
+					//-> No: cannot touch the organizational structure !!
 				}
 				init = new AgentsJob() {
 					@Override
@@ -1170,6 +1170,7 @@ class MadkitKernel extends Agent {
 		if (defaultGUI)
 			agent.createGUIOnStartUp();
 		Level defaultLevel = LevelOption.agentLogLevel.getValue(getMadkitConfig());
+//		Level defaultLevel = Level.INFO;
 		if ( agent.logger == AgentLogger.defaultAgentLogger) {// not changed in the
 																				// constructor
 			if (defaultLevel == Level.OFF) {// default not changed and global is
@@ -1177,6 +1178,7 @@ class MadkitKernel extends Agent {
 				agent.logger = null;
 			} else {
 				agent.setLogLevel(defaultLevel);
+//				agent.getLogger().setWarningLogLevel(Level.INFO);
 				agent.getLogger().setWarningLogLevel(LevelOption.warningLogLevel.getValue(getMadkitConfig()));
 			}
 		}
@@ -1192,9 +1194,7 @@ class MadkitKernel extends Agent {
 			});
 			try {
 				r = activationAttempt.get();
-			} catch (ExecutionException e) {
-				bugReport(agent + " activation task failed using " + Thread.currentThread(), e);
-			} catch (InterruptedException e) {
+			} catch (ExecutionException | InterruptedException e) {
 				bugReport(agent + " activation task failed using " + Thread.currentThread(), e);
 			}
 			if (r != SUCCESS) {
@@ -1223,13 +1223,7 @@ class MadkitKernel extends Agent {
 				return ae.start().get();
 			}
 			return AGENT_CRASH;
-		} catch (InterruptedException e) {
-			if (!shuttedDown) {
-				// Kernel cannot be interrupted !!
-				bugReport(e);
-				return SEVERE;
-			}
-		} catch (ExecutionException e) {
+		} catch (InterruptedException | ExecutionException e) {
 			if (!shuttedDown) {
 				// Kernel cannot be interrupted !!
 				bugReport(e);

@@ -34,29 +34,31 @@ same conditions as regards security.
 The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-C license and that you accept its terms.
  */
-import madkit.kernel.AbstractAgent;
-import madkit.kernel.Madkit;
-import madkit.kernel.Madkit.BooleanOption;
-import madkit.kernel.Madkit.Option;
+package madkit.gui.menu;
 
+import java.awt.event.KeyEvent;
+
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+
+import madkit.action.UIAction;
+import madkit.gui.PrintableFrame;
+import madkit.i18n.Words;
 
 /**
-* @author Fabien Michel
-*/
-public class NoPackage extends AbstractAgent {
+ * Class for building the help menu of MDK frames.
+ * 
+ * @author Fabien Michel
+ * @since MaDKit 5.0.0.17
+ * @version 0.91
+ * 
+ */
+@SuppressWarnings("serial")
+final public class DisplayMenu extends JMenu {
 
-	@Override
-	protected void activate() {
-		if(logger != null)
-			logger.info("test");
+	public DisplayMenu(final PrintableFrame f){
+		super(Words.DISPLAY.toString());
+		setMnemonic(KeyEvent.VK_D);
+		add(new JMenuItem(UIAction.PRINT.getActionFor(f)));
 	}
-
-	/**
-	 * @param args
-	 */
-	@SuppressWarnings("unused")
-	public static void main(String[] args) {
-		new Madkit(Option.launchAgents.toString(),AbstractAgent.class.getName()+",true",BooleanOption.desktop.toString());
-	}
-
 }

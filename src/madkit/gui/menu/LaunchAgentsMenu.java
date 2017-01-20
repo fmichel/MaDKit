@@ -59,13 +59,9 @@ import madkit.kernel.MadkitClassLoader;
  * @version 0.9
  * 
  */
+@SuppressWarnings("serial")
 public class LaunchAgentsMenu extends ClassPathSensitiveMenu {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 634377755586801986L;
-//	final static private Set<LaunchAgentsMenu> menus = new HashSet<>(); 
 	final private Action myAction;
 	final private AbstractAgent myAgent;
 	private final AgentClassFilter filter;

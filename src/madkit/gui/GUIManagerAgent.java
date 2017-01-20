@@ -246,8 +246,7 @@ class GUIManagerAgent extends Agent {
 	}
 
 	private JInternalFrame buildInternalFrame(final AgentFrame af) {
-		final JInternalFrame ijf = new JInternalFrame(af.getTitle(), true, true,
-				true, true);
+		final JInternalFrame ijf = new JInternalFrame(af.getTitle(), true, true, true, true);
 		ijf.setFrameIcon(SwingUtil.MADKIT_LOGO_SMALL);
 		ijf.setSize(af.getSize());
 		ijf.setLocation(af.getLocation());

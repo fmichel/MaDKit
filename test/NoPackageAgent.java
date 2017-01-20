@@ -36,7 +36,9 @@ knowledge of the CeCILL-C license and that you accept its terms.
  */
 import madkit.kernel.AbstractAgent;
 
-
+/**
+* @author Fabien Michel
+*/
 public class NoPackageAgent extends AbstractAgent{
 
 	public static void main(String[] args) {

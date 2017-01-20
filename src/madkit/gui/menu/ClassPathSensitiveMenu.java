@@ -52,12 +52,9 @@ import madkit.kernel.MadkitClassLoader;
  * @version 0.9
  * 
  */
+@SuppressWarnings("serial")
 public abstract class ClassPathSensitiveMenu extends JMenu {
 
-	/**
-	 * 
-	 */
-	private static final long	serialVersionUID	= -8683241036884772403L;
 	final static private Set<ClassPathSensitiveMenu> menus = new HashSet<>();//TODO Map 
 
 	/**

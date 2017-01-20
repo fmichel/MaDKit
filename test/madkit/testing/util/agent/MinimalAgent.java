@@ -34,29 +34,15 @@ same conditions as regards security.
 The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-C license and that you accept its terms.
  */
-import madkit.kernel.AbstractAgent;
-import madkit.kernel.Madkit;
-import madkit.kernel.Madkit.BooleanOption;
-import madkit.kernel.Madkit.Option;
+package madkit.testing.util.agent;
 
+import madkit.kernel.Agent;
 
 /**
 * @author Fabien Michel
 */
-public class NoPackage extends AbstractAgent {
-
-	@Override
-	protected void activate() {
-		if(logger != null)
-			logger.info("test");
-	}
-
-	/**
-	 * @param args
-	 */
-	@SuppressWarnings("unused")
-	public static void main(String[] args) {
-		new Madkit(Option.launchAgents.toString(),AbstractAgent.class.getName()+",true",BooleanOption.desktop.toString());
-	}
-
+public class MinimalAgent extends Agent {
+@Override
+protected void live() {
+}
 }

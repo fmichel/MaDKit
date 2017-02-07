@@ -63,7 +63,7 @@ public class LeaveGroupInEndNormalAgent extends Agent {
 	protected void activate() {
 		setLogLevel(Level.ALL);
 		assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP,true));
-		logger.info(getAgentsWithRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE).toString());
+		logger.info(""+getAgentsWithRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE));
 		assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
 	}
 	

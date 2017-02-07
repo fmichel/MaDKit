@@ -42,14 +42,18 @@ import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static madkit.kernel.AbstractAgent.ReturnCode.TIMEOUT;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+
+import javax.swing.JFrame;
+
+import org.junit.Test;
+
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit.LevelOption;
+import madkit.testing.util.agent.BlockedInActivateAgent;
 import madkit.testing.util.agent.BuggedConstructorAgent;
 import madkit.testing.util.agent.BuggedFrameAgent;
 import madkit.testing.util.agent.SelfLaunchAA;
-
-import org.junit.Test;
 
 /**
  * @author Fabien Michel
@@ -166,13 +170,29 @@ public class LaunchAbstractAgentTest extends JunitMadkit {
 	}
 
 	@Test
-	public void returnTimeOut() {
+	public void returntTimeOut() {
 		launchTest(new AbstractAgent() {
 			protected void activate() {
 				assertEquals(TIMEOUT, launchAgent(timeOutAgent, 1));
 				assertEquals(TIMEOUT, launchAgent(new AbstractAgent(), 0));
 				assertEquals(TIMEOUT, launchAgent(new AbstractAgent(), -1));
 				assertEquals(ALREADY_LAUNCHED, launchAgent(timeOutAgent));
+			}
+		});
+	}
+
+	@Test
+	public void returntTimeOutOnActivate() {
+		launchTest(new AbstractAgent() {
+			protected void activate() {
+				assertEquals(TIMEOUT, launchAgent(new BlockedInActivateAgent(), 1));
+				assertEquals(TIMEOUT, launchAgent(new BlockedInActivateAgent(){
+					@Override
+					public void setupFrame(JFrame frame) {
+						super.setupFrame(frame);
+						waitNextMessage(2000);
+					}
+				},1));
 			}
 		});
 	}

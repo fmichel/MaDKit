@@ -54,10 +54,14 @@ import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.swing.Action;
+
+import madkit.action.GlobalAction;
 import madkit.action.KernelAction;
 import madkit.gui.AgentFrame;
 import madkit.gui.ConsoleAgent;
 import madkit.gui.MDKDesktopFrame;
+import madkit.gui.SwingUtil;
 import madkit.i18n.ErrorMessages;
 import madkit.i18n.I18nUtilities;
 import madkit.message.KernelMessage;
@@ -94,8 +98,8 @@ import madkit.util.MadkitProperties;
 final public class Madkit {
 
 	private final static String	MDK_LOGGER_NAME		= "[* MADKIT *] ";
-	final static MadkitProperties			defaultConfig			= new MadkitProperties();
-	final static SimpleDateFormat	dateFormat				= new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
+	final static MadkitProperties			DEFAULT_CONFIG			= new MadkitProperties();
+	final static SimpleDateFormat	DATE_FORMAT				= new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
 	
 	static {
 		// System.setProperty("sun.java2d.xrender", "True"); //TODO
@@ -108,14 +112,14 @@ final public class Madkit {
 		});
 		// no need to externalize because it is used only here
 		try {
-			defaultConfig.loadPropertiesFromPropertiesFile("madkit/kernel/madkit.properties");
+			DEFAULT_CONFIG.loadPropertiesFromPropertiesFile("madkit/kernel/madkit.properties");
 		} catch (IOException e) {
 		}
 	}
 
-	public final static String		VERSION					= defaultConfig.getProperty("madkit.version");
-	public final static String		BUILD_ID					= defaultConfig.getProperty("build.id");
-	public final static String		WEB						= defaultConfig.getProperty("madkit.web");
+	public final static String		VERSION					= DEFAULT_CONFIG.getProperty("madkit.version");
+	public final static String		BUILD_ID					= DEFAULT_CONFIG.getProperty("build.id");
+	public final static String		WEB						= DEFAULT_CONFIG.getProperty("madkit.web");
 
 	final private MadkitProperties		madkitConfig			= new MadkitProperties();
 //	private Element					madkitXMLConfigFile	= null;
@@ -242,7 +246,14 @@ final public class Madkit {
 			this.args = argsList.toArray(new String[argsList.size()]);
 		}
 
-		madkitConfig.putAll(defaultConfig);
+		madkitConfig.putAll(DEFAULT_CONFIG);
+		final boolean boolean1 = SwingUtil.UI_PREFERENCES.getBoolean("MDK_DEBUG",false);
+		if(boolean1){
+			GlobalAction.DEBUG.putValue(Action.SELECTED_KEY, false);
+			GlobalAction.DEBUG.putValue(Action.SELECTED_KEY, true);//validating a change
+			madkitConfig.put(LevelOption.agentLogLevel.name(), Level.ALL.toString());
+		}
+		
 		final Properties fromArgs = buildConfigFromArgs(args);
 		madkitConfig.putAll(fromArgs);
 		initMadkitLogging();
@@ -284,6 +295,7 @@ final public class Madkit {
 		// this.cmdLine = System.getProperty("java.home")+File.separatorChar+"bin"+File.separatorChar+"java -cp "+System.getProperty("java.class.path")+" madkit.kernel.Madkit ";
 
 		startKernel();
+
 	}
 
 	/**
@@ -365,7 +377,7 @@ final public class Madkit {
 	private void printWelcomeString() {
 		if (!(LevelOption.madkitLogLevel.getValue(madkitConfig) == Level.OFF)) {
 			System.out.println("\n\t---------------------------------------" + "\n\t                MaDKit" + "\n\t           version: "
-					+ VERSION + "\n\t        build-id: " + defaultConfig.getProperty("build.id") + "\n\t       MaDKit Team (c) 1997-"
+					+ VERSION + "\n\t        build-id: " + DEFAULT_CONFIG.getProperty("build.id") + "\n\t       MaDKit Team (c) 1997-"
 					+ Calendar.getInstance().get(Calendar.YEAR) + "\n\t---------------------------------------\n");
 		}
 	}
@@ -373,11 +385,11 @@ final public class Madkit {
 	private void logSessionConfig(Properties session, Level lvl) {
 		String message = "MaDKit current configuration is\n\n";
 		message += "\t--- MaDKit regular options ---\n";
-		for (String option : defaultConfig.stringPropertyNames()) {
+		for (String option : DEFAULT_CONFIG.stringPropertyNames()) {
 			message += "\t" + String.format("%-" + 30 + "s", option) + session.getProperty(option) + "\n";
 		}
 		Set<Object> tmp = new HashSet<>(session.keySet());
-		tmp.removeAll(defaultConfig.keySet());
+		tmp.removeAll(DEFAULT_CONFIG.keySet());
 		if (tmp.size() > 0) {
 			message += "\n\t--- Additional non MaDKit options ---\n";
 			for (Object o : tmp)

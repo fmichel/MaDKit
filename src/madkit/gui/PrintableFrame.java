@@ -46,6 +46,8 @@ import java.awt.print.PrinterException;
 
 
 /**
+ * Interface that adds the printing feature to MDK frames 
+ * 
 * @author Fabien Michel
 * @since MaDKit 5.1.1
 */

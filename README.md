@@ -1,11 +1,10 @@
-MaDKit: Multiagent Development Kit
-================================================
-
-What is MaDKit ?
------------------
+#MaDKit: Multiagent Development Kit
 
 MaDKit is an open source multiagent-based development platform written in Java.
-MaDKit is designed to easily build distributed applications and simulations using the multiagent paradigm and features:
+
+MaDKit 5.x is designed as a lightweight software library for developing distributed applications and simulations using the multiagent paradigm.
+
+### Features
 
 * Artificial agents creation and life cycle management
 * An organizational infrastructure for communication between agents, structuring the application
@@ -13,12 +12,16 @@ MaDKit is designed to easily build distributed applications and simulations usin
 * Multi-Agent based simulation and simulator authoring tools
 * Multi-agent based distributed application authoring facilities
 
-In contrast to conventional approaches, which are mostly agent-centered, MaDKit follows an organization-centered approach [OCMAS][1]
-so that there is no predefnied agent model in MaDKit. So, MaDKit is built upon the AGR (Agent/Group/Role) organizational model:
-MaDKit agents play roles in groups and thus create artificial societies.
+
+### Approach
+
+In contrast to conventional approaches, which are mostly agent-centered, MaDKit follows an organization-centered approach ([OCMAS][1]): There is no predefnied agent model in MaDKit. 
+
+So, MaDKit is built upon the AGR (Agent/Group/Role) organizational model: Agents play roles in groups and thus create artificial societies.
  
-More information
-------------------------------------------------
+[1]: http://www.lirmm.fr/~fmichel/publi/pdfs/ferber04ocmas.pdf
+
+## More information
 
 * [Official Homepage](http://www.madkit.net)
 * [Getting started](http://www.madkit.net/madkit/README.html)
@@ -27,5 +30,10 @@ More information
 * [Tutorials](http://www.madkit.net/madkit/tutorials)
 * [Forum](http://www.madkit.net/madkit/forum)
 
+## Contributing
 
-[1]: http://www.lirmm.fr/~fmichel/publi/pdfs/ferber04ocmas.pdf
+1. Fork it
+2. Create your feature branch (`git checkout -b my-new-feature`)
+3. Commit your changes (`git commit -am 'Added some feature'`)
+4. Push to the branch (`git push origin my-new-feature`)
+5. Create new Pull Request

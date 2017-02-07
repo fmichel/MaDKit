@@ -64,7 +64,7 @@ public class AgentLoggerTest extends JunitMadkit{
 	public void noLogger() {
 		AbstractAgent a = new AbstractAgent();
 		a.logger.info("testing");
-		assertSame(AgentLogger.defaultAgentLogger, a.logger);
+		assertSame(AgentLogger.DEFAULT_AGENT_LOGGER, a.logger);
 	}
 
 	@Test

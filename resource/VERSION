@@ -16,12 +16,29 @@ It also contains generic MAS simulation authoring tools.
 
 
 ----------------------------------------------------------------------------------
+------------------------------- MaDKit 5.1.1 -------------------------------------
+----------------------------------------------------------------------------------
+
+1. Changes:
+	+ MaDKit now retains some preferences over different executions:
+		Debug mode on or off
+		Agent frames size, location and color (based on the agent's name or class)
+		Agent log level (based on the agent's name)
+	
+	+ Adding a printing feature to agent frames
+
+	- madkit.kernel.AbstractAgent.setupFrame(JFrame) has been deprecated.
+		Change it to madkit.kernel.AbstractAgent.setupFrame(AgentFrame) for
+		avoiding unexpected UI behaviors.
+
+
+----------------------------------------------------------------------------------
 ------------------------------- MaDKit 5.1 ---------------------------------------
 ----------------------------------------------------------------------------------
 
 1. Changes:
-	- MaDKit is now distributed under the CeCILL-C open source license
-	- Java 8 is now required
+	+ MaDKit is now distributed under the CeCILL-C open source license
+	+ Java 8 is now required
 
 
 ----------------------------------------------------------------------------------
@@ -29,7 +46,7 @@ It also contains generic MAS simulation authoring tools.
 ----------------------------------------------------------------------------------
 
 1. Changes:
-	- Java 8 fix and minor changes
+	+ Java 8 fix and minor changes
 
 
 ----------------------------------------------------------------------------------

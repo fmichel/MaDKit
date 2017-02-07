@@ -40,6 +40,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
@@ -73,10 +75,10 @@ import madkit.message.KernelMessage;
  * 
  * @author Fabien Michel
  * @since MaDKit 5.0.0.9
- * @version 0.91
+ * @version 0.92
  * 
  */
-public class AgentFrame extends JFrame  implements PrintableFrame{
+public class AgentFrame extends JFrame implements PrintableFrame{
 
 	/**
 	 * 
@@ -84,6 +86,8 @@ public class AgentFrame extends JFrame  implements PrintableFrame{
 	private static final long serialVersionUID = 6337250099157352055L;
 	private JInternalFrame internalFrame;
 	private final AbstractAgent agent;
+	final private String classUIPreferenceCodeBase;
+	final private String agentUIPreferenceCodeBase;
 	
 	/**
 	 * TThis constructor is protected because this class
@@ -95,6 +99,8 @@ public class AgentFrame extends JFrame  implements PrintableFrame{
 	protected AgentFrame(final AbstractAgent agent) {
 		super(agent.getName());
 		this.agent = agent;
+		classUIPreferenceCodeBase = agent.getClass().getName();
+		agentUIPreferenceCodeBase = agent.getName();
 		setIconImage(SwingUtil.MADKIT_LOGO.getImage());
 		setJMenuBar(createMenuBar());
 		JToolBar tb = createJToolBar();
@@ -118,27 +124,30 @@ public class AgentFrame extends JFrame  implements PrintableFrame{
 				closeProcess();
 			}
 		});
-		setSize(400,300);
-		setLocationRelativeTo(null);
+//		setSize(400,300);
+//		getContentPane().setBackground(Color.WHITE);
+//		setBackground(Color.WHITE);
+//		setLocationRelativeTo(null);
+		restoreUIPreferences();
 		addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentMoved(ComponentEvent e) {
 				final Component component = e.getComponent();
-				SwingUtil.UI_PREFERENCES.putInt(agent.getName() + "_X", component.getX());
-				SwingUtil.UI_PREFERENCES.putInt(agent.getName() + "_Y", component.getY());
+				SwingUtil.UI_PREFERENCES.putInt(agentUIPreferenceCodeBase + "_X", component.getX());
+				SwingUtil.UI_PREFERENCES.putInt(agentUIPreferenceCodeBase + "_Y", component.getY());
 			}
 			@Override
 			public void componentResized(ComponentEvent e) {
 				final Component component = e.getComponent();
-				SwingUtil.UI_PREFERENCES.putInt(agent.getName() + "_WIDTH", component.getWidth());
-				SwingUtil.UI_PREFERENCES.putInt(agent.getName() + "_HEIGHT", component.getHeight());
+				SwingUtil.UI_PREFERENCES.putInt(agentUIPreferenceCodeBase + "_W", component.getWidth());
+				SwingUtil.UI_PREFERENCES.putInt(agentUIPreferenceCodeBase + "_H", component.getHeight());
 			}
 		});
 		addPropertyChangeListener(new PropertyChangeListener() {
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
 				if(evt.getPropertyName().equals("background")){
-					SwingUtil.UI_PREFERENCES.putInt(agent.getClass().getName() + "_BGC", getBackground().getRGB());
+					SwingUtil.UI_PREFERENCES.putInt(classUIPreferenceCodeBase + "_BGC", getBackground().getRGB());
 				}
 			}
 		});
@@ -150,6 +159,28 @@ public class AgentFrame extends JFrame  implements PrintableFrame{
 			internalFrame.dispose();
 		}
 		super.dispose();
+	}
+	
+	public Dimension getLastSavedDimensionPreference(){
+		return new Dimension(SwingUtil.UI_PREFERENCES.getInt(agentUIPreferenceCodeBase + "_W",400), SwingUtil.UI_PREFERENCES.getInt(agentUIPreferenceCodeBase + "_H",300));
+	}
+
+	public Point getLastSavedLocationPreference(){
+		return new Point(SwingUtil.UI_PREFERENCES.getInt(agentUIPreferenceCodeBase + "_X",-1), SwingUtil.UI_PREFERENCES.getInt(agentUIPreferenceCodeBase + "_Y",-1));
+	}
+
+	public Color getLastSavedBackgroundPreference(){
+		return new Color(SwingUtil.UI_PREFERENCES.getInt(classUIPreferenceCodeBase + "_BGC", Color.WHITE.getRGB()));
+	}
+	
+	public void restoreUIPreferences(){
+		final Color lastSavedBackgroundPreference = getLastSavedBackgroundPreference();
+		setBackground(lastSavedBackgroundPreference);
+		setSize(getLastSavedDimensionPreference());
+		setLocation(getLastSavedLocationPreference());
+		if(getLocation().equals(new Point(-1, -1))){
+			setLocationRelativeTo(null);
+		}
 	}
 
 	/**

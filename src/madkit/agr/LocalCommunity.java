@@ -37,6 +37,8 @@ knowledge of the CeCILL-C license and that you accept its terms.
 package madkit.agr;
 
 /**
+ * Implements Constants which are used for the primary CGR organization places.
+ * 
  * @author Fabien Michel
  * @since MaDKit 5.0.0.10
  * @version 0.9
@@ -47,18 +49,32 @@ public class LocalCommunity implements Organization{
 
 	public static final String NAME = "local";
 
+	/**
+	 * 
+	 * MDK kernel core groups.
+	 *
+	 */
 	public static final class Groups {
 
+		/**
+		 * The value of this constant is {@value}.
+		 */
 		public static final String NETWORK = "network";
 		/**
 		 * The value of this constant is {@value}.
 		 */
 		public static final String SYSTEM = "system";
+		/**
+		 * The value of this constant is {@value}.
+		 */
 		public static final String GUI = "gui";
 	}
 
 	
 	/**
+	 * 
+	 * MDK kernel core roles.
+	 * 
 	 * Default roles within a MaDKit organization.
 	 * @since MaDKit 5.0.0.10
 	 */
@@ -68,15 +84,21 @@ public class LocalCommunity implements Organization{
 		 * The value of this constant is {@value}.
 		 */
 		public static final String KERNEL = "kernel";
+		
+		/**
+		 * The value of this constant is {@value}.
+		 */
 		public static final String NET_AGENT = "net agent";
+		/**
+		 * The value of this constant is {@value}.
+		 */
 		public static final String UPDATER = "updater";
+		
+		/**
+		 * The value of this constant is {@value}.
+		 */
 		public static final String EMMITER = "emmiter";
 		
 	}
-	/**
-	 * The value of this constant is {@value}.
-	 */
-
-	
 	
 }

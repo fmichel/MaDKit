@@ -50,6 +50,7 @@ import java.util.Set;
 import javax.swing.Action;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultBoundedRangeModel;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -62,6 +63,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import madkit.action.SchedulingAction;
+import madkit.gui.AgentFrame;
 import madkit.gui.SwingUtil;
 import madkit.message.SchedulingMessage;
 
@@ -117,7 +119,7 @@ public class Scheduler extends Agent {
 		SHUTDOWN
 	}
 
-	private SimulationState											simulationState	= SimulationState.PAUSED;
+	private SimulationState											simulationState = SimulationState.PAUSED;
 
 	final private Set<Activator<? extends AbstractAgent>>	activators			= new LinkedHashSet<>();
 
@@ -135,7 +137,8 @@ public class Scheduler extends Agent {
 																										public void setValue(int n) {
 																											super.setValue(n);
 																											delay = 400 - getValue();
-																										}
+																											SwingUtil.UI_PREFERENCES.putInt(getName()+"speed",getValue());
+																											}
 																									};
 
 	/**
@@ -214,15 +217,35 @@ public class Scheduler extends Agent {
 	 * mechanism.
 	 * 
 	 * @see madkit.kernel.AbstractAgent#setupFrame(javax.swing.JFrame)
-	 * @since MaDKit 5.0.0.8
+	 * @deprecated replaced by {@link #setupFrame(AgentFrame)}
 	 */
 	@Override
 	public void setupFrame(JFrame frame) {
+		setupFrame((AgentFrame)frame);
 		super.setupFrame(frame);
 		frame.add(getSchedulerToolBar(), BorderLayout.PAGE_START);
 		frame.add(getSchedulerStatusLabel(), BorderLayout.PAGE_END);
 		setGVT(GVT);
 		frame.getJMenuBar().add(getSchedulerMenu(),2);
+		speedModel.setValue(SwingUtil.UI_PREFERENCES.getInt(getName()+"speed",speedModel.getValue()));
+		setSimulationState(SwingUtil.UI_PREFERENCES.getBoolean(getName()+"autostart", false) ? SimulationState.RUNNING : SimulationState.PAUSED);
+	}
+	
+	/**
+	 * Setup the default Scheduler GUI when launched with the default MaDKit GUI
+	 * mechanism.
+	 * 
+	 * @see madkit.kernel.AbstractAgent#setupFrame(AgentFrame)
+	 */
+	@Override
+	public void setupFrame(AgentFrame frame) {
+		super.setupFrame(frame);
+		frame.add(getSchedulerToolBar(), BorderLayout.PAGE_START);
+		frame.add(getSchedulerStatusLabel(), BorderLayout.PAGE_END);
+		setGVT(GVT);
+		frame.getJMenuBar().add(getSchedulerMenu(),2);
+		speedModel.setValue(SwingUtil.UI_PREFERENCES.getInt(getName()+"speed",speedModel.getValue()));
+		setSimulationState(SwingUtil.UI_PREFERENCES.getBoolean(getName()+"autostart", false) ? SimulationState.RUNNING : SimulationState.PAUSED);
 	}
 
 	/**
@@ -231,6 +254,7 @@ public class Scheduler extends Agent {
 	 * 
 	 * @param activator
 	 *           an activator.
+	 * @since MaDKit 5.0.0.8
 	 */
 	public void addActivator(final Activator<? extends AbstractAgent> activator) {
 		if (kernel.addOverlooker(this, activator))
@@ -398,7 +422,7 @@ public class Scheduler extends Agent {
 			}
 		}
 	}
-
+	
 	/**
 	 * Changes my state according to a {@link SchedulingMessage} and sends
 	 * a reply to the sender as acknowledgment.
@@ -554,6 +578,14 @@ public class Scheduler extends Agent {
 		myMenu.add(step);
 		myMenu.add(speedUp);
 		myMenu.add(speedDown);
+		final JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem("autostart", SwingUtil.UI_PREFERENCES.getBoolean(getName()+"autostart", false));
+		menuItem.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				SwingUtil.UI_PREFERENCES.putBoolean(getName()+"autostart", menuItem.isSelected());
+			}
+		});
+		myMenu.add(menuItem);
 		return myMenu;
 	}
 

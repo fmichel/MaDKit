@@ -38,6 +38,8 @@ package madkit.action;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -70,6 +72,7 @@ import madkit.kernel.MadkitClassLoader;
  * @version 0.9
  * 
  */
+@SuppressWarnings("serial")
 public class GlobalAction {
 
 	final static private ResourceBundle messages = I18nUtilities.getResourceBundle(GlobalAction.class.getSimpleName());
@@ -109,25 +112,33 @@ public class GlobalAction {
 	 * When activated, all the active agent loggers set their level to {@link Level#ALL}.
 	 * When disabled, all the loggers are set to {@link Level#INFO}.
 	 */
-	final public static Action DEBUG = new MDKAbstractAction(new ActionInfo("DEBUG", KeyEvent.VK_D, messages)) {
-			/**
-			 * 
-			 */
-			private static final long	serialVersionUID	= 1L;
-
+	final public static Action DEBUG;
+	static{
+		DEBUG = new MDKAbstractAction(new ActionInfo("DEBUG", KeyEvent.VK_D, messages)){
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if(e == null){ // programmatically triggered
 					putValue(Action.SELECTED_KEY, ! (boolean) getValue(Action.SELECTED_KEY));
 				}
-				if ((boolean) getValue(Action.SELECTED_KEY)) {
-					AgentLogger.setAllLogLevels(Level.ALL);
-				}
-				else{
-					AgentLogger.setAllLogLevels(Level.INFO);
-				}
 			}
 		};
+		DEBUG.addPropertyChangeListener(new PropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				if(evt.getPropertyName().equals("SwingSelectedKey")){
+					final boolean value = (boolean) DEBUG.getValue(Action.SELECTED_KEY);
+//					System.err.println(value);
+					SwingUtil.UI_PREFERENCES.putBoolean("MDK_DEBUG",value);
+					if(value){
+						AgentLogger.setAllLogLevels(Level.ALL);
+					}
+					else{
+						AgentLogger.setAllLogLevels(Level.INFO);
+					}
+				}
+			}
+		});
+	}
 		
 		/**
 		 * An action that create a log file for each agent having a non <code>null</code> logger.

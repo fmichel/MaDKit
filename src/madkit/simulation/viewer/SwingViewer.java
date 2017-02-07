@@ -61,9 +61,10 @@ import javax.swing.border.TitledBorder;
 
 import madkit.action.ActionInfo;
 import madkit.action.MDKAbstractAction;
+import madkit.gui.AgentFrame;
 import madkit.gui.SwingUtil;
+import madkit.gui.menu.DisplayMenu;
 import madkit.i18n.I18nUtilities;
-import madkit.i18n.Words;
 import madkit.kernel.Watcher;
 
 
@@ -106,7 +107,6 @@ public abstract class SwingViewer extends Watcher {
 	private Action synchroPainting;
 	private JToolBar toolBar;
 	private JComboBox<Integer>	comboBox;
-	
 	
 	/**
 		 * Creates a new agent with a default panel 
@@ -273,26 +273,47 @@ public abstract class SwingViewer extends Watcher {
 		synchroPainting.putValue(Action.SELECTED_KEY, ! synchronousPainting);
 	}
 
+//	/** Provides a default implementation that 
+//	 * assigns the default panel to the default frame
+//	 * 
+//	 * @see madkit.kernel.AbstractAgent#setupFrame(javax.swing.JFrame)
+//	 * @deprecated 
+//	 */
+//	@Override
+//	public void setupFrame(javax.swing.JFrame frame) {
+//		setupFrame((AgentFrame) frame);
+////		setFrame(frame);
+////		displayPane.setSize(frame.getSize());
+////		frame.add(displayPane);
+////		frame.getJMenuBar().remove(3);
+////		frame.getJMenuBar().add(getDisplayMenu(), 2);
+////		frame.add(getToolBar(),BorderLayout.PAGE_START);
+//	}
+	
 	/** Provides a default implementation that 
 	 * assigns the default panel to the default frame
 	 * 
 	 * @see madkit.kernel.AbstractAgent#setupFrame(javax.swing.JFrame)
 	 */
-	public void setupFrame(javax.swing.JFrame frame) {
+	@Override
+	public void setupFrame(AgentFrame frame) {
+//		super.setupFrame(frame);
+		setFrame(frame);
 		displayPane.setSize(frame.getSize());
 		frame.add(displayPane);
+		frame.getJMenuBar().remove(3);
 		frame.getJMenuBar().add(getDisplayMenu(), 2);
 		frame.add(getToolBar(),BorderLayout.PAGE_START);
-		setFrame(frame);
 	}
 	
 	/**
-	 * Returns a menu which could be used in any GUI.
+	 * Returns a menu which could be used in any viewer GUI.
 	 * 
 	 * @return a menu controlling the viewer's options
 	 */
 	public JMenu getDisplayMenu() {
-		JMenu myMenu = new JMenu(Words.DISPLAY.toString());
+		JMenu myMenu = new DisplayMenu(getFrame());// JMenu(Words.DISPLAY.toString());
+		myMenu.remove(1);//TODO dirty hack
 		myMenu.setMnemonic(KeyEvent.VK_O);
 		myMenu.add(new JCheckBoxMenuItem(rendering));
 		myMenu.add(new JCheckBoxMenuItem(synchroPainting));

@@ -51,6 +51,7 @@ import javax.swing.JRadioButtonMenuItem;
 
 import madkit.action.ActionInfo;
 import madkit.action.GUIManagerAction;
+import madkit.gui.SwingUtil;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AgentLogger;
 
@@ -103,17 +104,21 @@ public class AgentLogLevelMenu extends JMenu{
 		add(logLevelMenu);
 		add(warningLogLevelMenu);
 		
+		final String agentName = myAgent.getName();
 		final ActionListener setLogLevelListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				myAgent.setLogLevel(Level.parse( e.getActionCommand()));
+				SwingUtil.UI_PREFERENCES.put(agentName+"LL",e.getActionCommand());
 			}
 		};
 		
+		final AgentLogger logger = myAgent.getLogger();
 		final ActionListener setWarningLogLevelListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				myAgent.getLogger().setWarningLogLevel(Level.parse( e.getActionCommand()));
+				logger.setWarningLogLevel(Level.parse(e.getActionCommand()));
+				SwingUtil.UI_PREFERENCES.put(agentName+"WLL",e.getActionCommand());
 			}
 		};
 		
@@ -123,6 +128,8 @@ public class AgentLogLevelMenu extends JMenu{
 			initMenuItem(logItem,setLogLevelListener,l.toString(),logGroup,logLevelMenu);
 			initMenuItem(warningItem,setWarningLogLevelListener,l.toString(),warningGroup,warningLogLevelMenu);
 		}
+		myAgent.setLogLevel(Level.parse(SwingUtil.UI_PREFERENCES.get(agentName+"LL",logger.getLevel().toString())));
+		logger.setWarningLogLevel(Level.parse(SwingUtil.UI_PREFERENCES.get(agentName+"WLL",logger.getWarningLogLevel().toString())));
 		update();
 		if (myAgent.hasGUI()) {//TODO need mvc here
 			menus.put(myAgent, this);

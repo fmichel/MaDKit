@@ -87,35 +87,35 @@ final public class AgentLogger extends Logger {
 																												return "";
 																											}
 																										};
-	final static AgentLogger										defaultAgentLogger	= new AgentLogger();
+	final static AgentLogger										DEFAULT_AGENT_LOGGER	= new AgentLogger();
 
-	final static Level												talkLevel				= Level.parse("1100");
-	final static private Map<AbstractAgent, AgentLogger>	agentLoggers			= new ConcurrentHashMap<>();	// TODO evaluate foot print
+	final static Level												TALK_LEVEL				= Level.parse("1100");
+	final static private Map<AbstractAgent, AgentLogger>	AGENT_LOGGERS			= new ConcurrentHashMap<>();	// TODO evaluate foot print
 	
 	private FileHandler	fh;
 
 	final private AbstractAgent									myAgent;
 
 	private Level														warningLogLevel		= LevelOption.warningLogLevel
-																												.getValue(Madkit.defaultConfig);
+																												.getValue(Madkit.DEFAULT_CONFIG);
 
 	final static AgentLogger getLogger(final AbstractAgent agent) {
-		AgentLogger al = agentLoggers.get(agent);
+		AgentLogger al = AGENT_LOGGERS.get(agent);
 		if (al == null) {
 			al = new AgentLogger(agent);
-			agentLoggers.put(agent, al);
+			AGENT_LOGGERS.put(agent, al);
 		}
 		return al;
 	}
 
 	// public static void renameLogger(AbstractAgent agent) {
-	// AgentLogger al = agentLoggers.get(agent);
+	// AgentLogger al = AGENT_LOGGERS.get(agent);
 	// if(! al.getName().equals(agent.getName())){
 	//
 	// }
 	// if(al == null){
 	// al = new AgentLogger(agent);
-	// agentLoggers.put(agent, al);
+	// AGENT_LOGGERS.put(agent, al);
 	// LogManager.getLogManager().addLogger(al);
 	// }
 	// return al;
@@ -132,7 +132,7 @@ final public class AgentLogger extends Logger {
 	}
 
 	/**
-	 * Sets the agent's log level above which MaDKit warnings are displayed
+	 * Sets the agent's log level threshold above which MaDKit warnings are displayed
 	 * 
 	 * @param warningLogLevel the log level to set
 	 */
@@ -145,8 +145,8 @@ final public class AgentLogger extends Logger {
 		super("[UNREGISTERED AGENT]", null);
 		myAgent = null;
 		setUseParentHandlers(false);
-		super.setLevel(LevelOption.agentLogLevel.getValue(Madkit.defaultConfig));
-		if (! BooleanOption.noAgentConsoleLog.isActivated(Madkit.defaultConfig)) {
+		super.setLevel(LevelOption.agentLogLevel.getValue(Madkit.DEFAULT_CONFIG));
+		if (! BooleanOption.noAgentConsoleLog.isActivated(Madkit.DEFAULT_CONFIG)) {
 			addHandler(new ConsoleHandler());
 		}
 	}
@@ -187,13 +187,13 @@ final public class AgentLogger extends Logger {
 			final String logEnd = " --\n"+lineSeparator+"\n";
 			final Date date = new Date();
 			try (FileWriter fw = new FileWriter(logFile, true)) {
-				fw.write(logSession + " started on " + Madkit.dateFormat.format(date) + logEnd);
+				fw.write(logSession + " started on " + Madkit.DATE_FORMAT.format(date) + logEnd);
 				fh = new FileHandler(logFileName, true) {
 					public synchronized void close() throws SecurityException {
 						super.close();
 						try (FileWriter fw2 = new FileWriter(logFile, true)) {
 							date.setTime(System.currentTimeMillis());
-							fw2.write("\n\n"+logSession + " closed on  " + Madkit.dateFormat.format(date) + logEnd);
+							fw2.write("\n\n"+logSession + " closed on  " + Madkit.DATE_FORMAT.format(date) + logEnd);
 						} catch (IOException e) {
 							e.printStackTrace();
 						}
@@ -212,7 +212,7 @@ final public class AgentLogger extends Logger {
 			removeHandler(h);
 				h.close();
 		}
-		agentLoggers.remove(myAgent);
+		AGENT_LOGGERS.remove(myAgent);
 	}
 
 	@Override
@@ -224,7 +224,7 @@ final public class AgentLogger extends Logger {
 	
 
 	static void resetLoggers() {
-		for (final AgentLogger l : agentLoggers.values()) {
+		for (final AgentLogger l : AGENT_LOGGERS.values()) {
 				l.close();
 		}
 	}
@@ -244,7 +244,7 @@ final public class AgentLogger extends Logger {
 		if (getLevel() == Level.OFF)
 			System.out.print(msg);
 		else
-			log(talkLevel, msg);
+			log(TALK_LEVEL, msg);
 	}
 
 	/**
@@ -326,7 +326,7 @@ final public class AgentLogger extends Logger {
 	 * @param level the new level
 	 */
 	public static void setAllLogLevels(final Level level) {
-		for (AbstractAgent loggedAgent : agentLoggers.keySet()) {
+		for (AbstractAgent loggedAgent : AGENT_LOGGERS.keySet()) {
 			if (loggedAgent != loggedAgent.getMadkitKernel()) {
 				loggedAgent.setLogLevel(level);
 			}
@@ -342,11 +342,11 @@ final public class AgentLogger extends Logger {
 	 */
 	public static void createLogFiles() {
 		try{
-			AbstractAgent a = new ArrayList<>(agentLoggers.keySet()).get(0);
+			AbstractAgent a = new ArrayList<>(AGENT_LOGGERS.keySet()).get(0);
 			a.setMadkitProperty(BooleanOption.createLogFiles.name(), "true");
 			JOptionPane.showMessageDialog(null, Words.DIRECTORY+" "+new File(a.getMadkitProperty(Option.logDirectory)).getAbsolutePath() + " "
 					+ Words.CREATED, "OK", JOptionPane.INFORMATION_MESSAGE);
-			for (AgentLogger logger : agentLoggers.values()) {
+			for (AgentLogger logger : AGENT_LOGGERS.values()) {
 				logger.createLogFile();
 			}
 		}
@@ -361,7 +361,7 @@ class AgentFormatter extends Formatter {
 	@Override
 	public String format(final LogRecord record) {
 		final Level lvl = record.getLevel();
-		if (lvl.equals(AgentLogger.talkLevel)) {
+		if (lvl.equals(AgentLogger.TALK_LEVEL)) {
 			return record.getMessage();
 		}
 		return getHeader(record) + lvl.getLocalizedName() + " : "

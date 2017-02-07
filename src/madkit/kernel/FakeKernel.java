@@ -187,7 +187,7 @@ class FakeKernel extends MadkitKernel{
 
 	@Override
 	final public MadkitProperties getMadkitConfig() {
-		return Madkit.defaultConfig;
+		return Madkit.DEFAULT_CONFIG;
 	}
 
 	@Override

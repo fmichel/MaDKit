@@ -41,6 +41,8 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 
+import javax.swing.Action;
+
 import org.junit.Test;
 
 import madkit.kernel.AbstractAgent;
@@ -77,9 +79,9 @@ public class KernelActionTest extends JunitMadkit{
 			@Override
 			protected void activate() {
 				assertEquals("INFO", getMadkitProperty(LevelOption.agentLogLevel.name()));
-				GlobalAction.DEBUG.actionPerformed(null);
+				GlobalAction.DEBUG.putValue(Action.SELECTED_KEY,true);
 				assertEquals("ALL", getMadkitProperty(LevelOption.agentLogLevel.name()));
-				GlobalAction.DEBUG.actionPerformed(null);
+				GlobalAction.DEBUG.putValue(Action.SELECTED_KEY,false);
 				assertEquals("INFO", getMadkitProperty(LevelOption.agentLogLevel.name()));
 			}
 		});

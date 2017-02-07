@@ -243,7 +243,7 @@ public class AbstractAgentTest {
 	 */
 	@Test
 	public final void testGetLogger() {
-		assertNotSame(a.getLogger(), AgentLogger.defaultAgentLogger);
+		assertNotSame(a.getLogger(), AgentLogger.DEFAULT_AGENT_LOGGER);
 	}
 
 	/**
@@ -272,7 +272,7 @@ public class AbstractAgentTest {
 	 */
 	@Test
 	public final void testSetLogLevel() {
-		assertEquals(a.logger, AgentLogger.defaultAgentLogger);
+		assertEquals(a.logger, AgentLogger.DEFAULT_AGENT_LOGGER);
 		a.setLogLevel(Level.OFF);
 		assertNull(a.logger);
 		a.setLogLevel(Level.INFO);

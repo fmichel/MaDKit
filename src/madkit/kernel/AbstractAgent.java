@@ -44,7 +44,6 @@ import static madkit.kernel.AbstractAgent.State.INITIALIZING;
 import static madkit.kernel.AbstractAgent.State.LIVING;
 import static madkit.kernel.AbstractAgent.State.TERMINATED;
 
-import java.awt.Color;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -67,7 +66,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.prefs.Preferences;
 
 import javax.swing.JFrame;
 import javax.xml.parsers.ParserConfigurationException;
@@ -83,9 +81,9 @@ import madkit.agr.CloudCommunity;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.agr.Organization;
+import madkit.gui.AgentFrame;
 import madkit.gui.AgentStatusPanel;
 import madkit.gui.OutputPanel;
-import madkit.gui.SwingUtil;
 import madkit.gui.menu.AgentLogLevelMenu;
 import madkit.gui.menu.AgentMenu;
 import madkit.gui.menu.MadkitMenu;
@@ -206,7 +204,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
 	public AbstractAgent() {
 		_hashCode = agentCounter.getAndIncrement();// TODO bench outside
-		logger = AgentLogger.defaultAgentLogger;
+		logger = AgentLogger.DEFAULT_AGENT_LOGGER;
 	}
 
 	/**
@@ -989,7 +987,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 */
 	public void setLogLevel(final Level newLevel) {
 		if (Level.OFF == newLevel) {
-			if (logger != null && logger != AgentLogger.defaultAgentLogger) {
+			if (logger != null && logger != AgentLogger.DEFAULT_AGENT_LOGGER) {
 				logger.setLevel(newLevel);
 			}
 			logger = null;
@@ -1013,7 +1011,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * @since MaDKit 5.0.0.6
 	 */
 	final public AgentLogger getLogger() {
-		if (logger == AgentLogger.defaultAgentLogger || logger == null) {
+		if (logger == AgentLogger.DEFAULT_AGENT_LOGGER || logger == null) {
 			synchronized (this) {
 				logger = AgentLogger.getLogger(this);
 			}
@@ -2019,12 +2017,25 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	public <E extends Enum<E>> boolean isMadkitPropertyTrue(E option){
 		return Boolean.parseBoolean(getMadkitProperty(option));
 	}
+	
+	/**
+	 * @deprecated replaced by {@link #setupFrame(AgentFrame)}
+	 */
+	public void setupFrame(final JFrame frame) {//allowing this until next major release
+		setupFrame((AgentFrame)frame);
+//		frame.setContentPane(new OutputPanel(this));
+//		final Preferences uiPreferences = SwingUtil.UI_PREFERENCES;
+//		frame.setBackground(new Color(uiPreferences.getInt(getClass().getName() + "_BGC", Color.WHITE.getRGB())));
+//		frame.setLocation(uiPreferences.getInt(getName() + "_X",0), uiPreferences.getInt(getName() + "_Y",0));
+//		frame.setSize(uiPreferences.getInt(getName() + "_WIDTH",frame.getWidth()), uiPreferences.getInt(getName() + "_HEIGHT",frame.getHeight()));
+	}
+
 	/**
 	 * Called when the default GUI mechanism is used upon agent creation. This
 	 * provides an empty frame which will be used as GUI for the agent. The
-	 * life cycle of the frame is automatically managed: the frame is disposed when the
+	 * life cycle of the frame is automatically managed: The frame is disposed when the
 	 * agent is terminated. Some menus are available by default. Default code
-	 * is only one line: <code>frame.add(new IOPanel(this));</code>.
+	 * is only one line: <code>frame.setContentPane(new OutputPanel(this));</code>.
 	 * 
 	 * Default settings for the frame are:
 	 * <ul>
@@ -2037,15 +2048,12 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * @param frame
 	 *           the default frame which has been created by MaDKit for this
 	 *           agent.
-	 * @since MaDKit 5.0.0.8
+	 * @since MaDKit 5.1.1
 	 * @see madkit.gui.OutputPanel
 	 */
-	public void setupFrame(final JFrame frame) {
+	public void setupFrame(final AgentFrame frame) {
 		frame.setContentPane(new OutputPanel(this));
-		final Preferences uiPreferences = SwingUtil.UI_PREFERENCES;
-		frame.setBackground(new Color(uiPreferences.getInt(getClass().getName() + "_BGC", Color.WHITE.getRGB())));
-		frame.setLocation(uiPreferences.getInt(getName() + "_X",0), uiPreferences.getInt(getName() + "_Y",0));
-		frame.setSize(uiPreferences.getInt(getName() + "_WIDTH",frame.getWidth()), uiPreferences.getInt(getName() + "_HEIGHT",frame.getHeight()));
+		frame.restoreUIPreferences();
 	}
 
 	// /////////////////////////////////////////////// UTILITIES

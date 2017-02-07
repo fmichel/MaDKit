@@ -250,6 +250,7 @@ class GUIManagerAgent extends Agent {
 		ijf.setFrameIcon(SwingUtil.MADKIT_LOGO_SMALL);
 		ijf.setSize(af.getSize());
 		ijf.setLocation(af.getLocation());
+		ijf.setBackground(af.getBackground());
 		ijf.setContentPane(af.getContentPane());
 		ijf.setJMenuBar(af.getJMenuBar());
 		af.setInternalFrame(ijf);

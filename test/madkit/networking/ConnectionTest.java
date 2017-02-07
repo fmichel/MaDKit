@@ -41,6 +41,8 @@ import static org.junit.Assert.assertEquals;
 import java.util.List;
 import java.util.logging.Level;
 
+import org.junit.Test;
+
 import madkit.action.KernelAction;
 import madkit.agr.CloudCommunity;
 import madkit.kernel.AbstractAgent;
@@ -49,8 +51,6 @@ import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
-
-import org.junit.Test;
 
 /**
  * @author Fabien Michel
@@ -66,7 +66,7 @@ public class ConnectionTest extends JunitMadkit {
 //		pause(5000);
 		addMadkitArgs(BooleanOption.network.toString()
 //				,
-				,LevelOption.networkLogLevel.toString(),"FINE"
+				,LevelOption.networkLogLevel.toString(),"ALL"
 //				LevelOption.kernelLogLevel.toString(),"FINER",
 //				BooleanOption.createLogFiles.toString(),
 //				Option.launchAgents.toString(),ForEverAgent.class.getName()
@@ -74,7 +74,7 @@ public class ConnectionTest extends JunitMadkit {
 		launchTest(new AbstractAgent() {
 			@Override
 			protected void activate() {
-				Madkit m = launchMKNetworkInstance(Level.OFF);
+				Madkit m = launchMKNetworkInstance(Level.ALL);
 				pause(200);
 				List<AgentAddress> l = getAgentsWithRole(
 						CloudCommunity.NAME, 

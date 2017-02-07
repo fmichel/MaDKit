@@ -226,9 +226,9 @@ class MadkitKernel extends Agent {
 		final String logDirKey = Option.logDirectory.name();
 		final MadkitProperties madkitConfig = getMadkitConfig();
 		final String logBaseDir= madkitConfig.getProperty(logDirKey) + File.separator;
-		String logDir = logBaseDir + Madkit.dateFormat.format(new Date())+kernelAddress;
+		String logDir = logBaseDir + Madkit.DATE_FORMAT.format(new Date())+kernelAddress;
 		while (new File(logDir).exists()) {
-			logDir = logBaseDir + Madkit.dateFormat.format(new Date())+kernelAddress;
+			logDir = logBaseDir + Madkit.DATE_FORMAT.format(new Date())+kernelAddress;
 		}
 		madkitConfig.setProperty(logDirKey, logDir);
 		
@@ -1171,7 +1171,7 @@ class MadkitKernel extends Agent {
 			agent.createGUIOnStartUp();
 		Level defaultLevel = LevelOption.agentLogLevel.getValue(getMadkitConfig());
 //		Level defaultLevel = Level.INFO;
-		if ( agent.logger == AgentLogger.defaultAgentLogger) {// not changed in the
+		if ( agent.logger == AgentLogger.DEFAULT_AGENT_LOGGER) {// not changed in the
 																				// constructor
 			if (defaultLevel == Level.OFF) {// default not changed and global is
 														// OFF

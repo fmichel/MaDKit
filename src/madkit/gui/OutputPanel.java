@@ -100,6 +100,7 @@ public class OutputPanel extends JPanel {
 
 		outField.setEditable(false);
 		setPreferredSize(new Dimension(250,100));
+		setBackground(Color.WHITE);
 		
 		try {
 			@SuppressWarnings("resource")

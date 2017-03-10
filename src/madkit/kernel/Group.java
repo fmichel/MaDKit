@@ -239,10 +239,11 @@ final class Group extends ConcurrentHashMap<String, Role> {
 	List<Role> leaveGroup(final AbstractAgent requester) {
 		List<Role> affectedRoles = null;
 		synchronized (this) {
+//			values().parallelStream().filter(r -> r.removeMember(requester) == SUCCESS);//TODO lambda
 			for (final Role r : values()) {
 				if (r.removeMember(requester) == SUCCESS) {
 					if (affectedRoles == null)
-						affectedRoles = new ArrayList<>();
+						affectedRoles = new ArrayList<>(10);
 					affectedRoles.add(r);
 				}
 			}
@@ -251,6 +252,7 @@ final class Group extends ConcurrentHashMap<String, Role> {
 	}
 
 	boolean isIn(AbstractAgent agent) {
+//		return values().parallelStream().anyMatch(r -> r.contains(agent));//TODO lambda
 		for (final Role r : values()) {
 			if (r.contains(agent))
 				return true;

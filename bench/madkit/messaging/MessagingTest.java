@@ -20,13 +20,19 @@ public class MessagingTest extends AbstractAgent {
 		createGroup(COMMUNITY, GROUP);
 		requestRole(COMMUNITY, GROUP, ROLE);
 		AgentAddress a = getAgentsWithRole(COMMUNITY, GROUP, ROLE, true).get(0);
-		for (int i = 0; i < 25; i++) {
+		for (int i = 0; i < 15; i++) {
 			startTimer();
 			for (int j = 0; j < 3_000_000; j++) {
 				sendMessage(a, new Message());
 			}
 			purgeMailbox();
 			stopTimer("message creation time: ");
+		}
+		launchAgentBucket(AbstractAgent.class.getName(),200_000, COMMUNITY+","+GROUP+","+ ROLE);
+		for (int j = 0; j < 30; j++) {
+			startTimer();
+			broadcastMessage(COMMUNITY, GROUP, ROLE,new Message());
+			stopTimer(" broadcast time: ");
 		}
 	}
 	// 86 ms on beltegeuse

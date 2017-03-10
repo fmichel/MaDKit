@@ -916,7 +916,7 @@ class MadkitKernel extends Agent {
 			broadcasting(receivers, messageToSend);
 			if (hooks != null) {
 				messageToSend.setReceiver(receivers.get(0));
-				informHooks(AgentActionEvent.BROADCAST_MESSAGE, messageToSend);
+				informHooks(AgentActionEvent.BROADCAST_MESSAGE, messageToSend.clone());
 			}
 			return SUCCESS;
 		} catch (CGRNotAvailable e) {
@@ -951,17 +951,22 @@ class MadkitKernel extends Agent {
 		}
 	}
 
-	private void broadcasting(final Collection<AgentAddress> receivers, Message m) {// TODO
+	private void broadcasting(final Collection<AgentAddress> receivers, final Message m) {//TODO check lambda
 																									// optimize
 																									// without
 																									// cloning
-		for (final AgentAddress agentAddress : receivers) {
-			if (agentAddress != null) {// TODO this should not be possible
-				m = m.clone();
-				m.setReceiver(agentAddress);
-				sendMessage(m, agentAddress.getAgent());
-			}
-		}
+		receivers.parallelStream().forEach(agentAddress -> {
+			final Message cm = m.clone();
+			cm.setReceiver(agentAddress);
+			sendMessage(cm, agentAddress.getAgent());
+		});
+//		for (final AgentAddress agentAddress : receivers) {
+//			if (agentAddress != null) {// TODO this should not be possible
+//				m = m.clone();
+//				m.setReceiver(agentAddress);
+//				sendMessage(m, agentAddress.getAgent());
+//			}
+//		}
 	}
 
 	private final ReturnCode sendMessage(Message m, AbstractAgent target) {
@@ -1005,7 +1010,7 @@ class MadkitKernel extends Agent {
 	 * @param cgrLocations
 	 */
 	void launchAgentBucketWithRoles(final AbstractAgent requester, List<AbstractAgent> bucket, int cpuCoreNb, String... cgrLocations) {
-		if (cgrLocations != null && cgrLocations.length != 0) {
+		if (cgrLocations != null && cgrLocations.length != 0) {//TODO check lambda
 			AgentsJob init = new AgentsJob() {
 				@Override
 				void proceedAgent(final AbstractAgent a) {
@@ -1017,6 +1022,14 @@ class MadkitKernel extends Agent {
 				}
 			};
 			doMulticore(init.getJobs(bucket, cpuCoreNb));
+
+//			bucket.parallelStream().forEach(a -> {
+//				a.state.set(INITIALIZING);
+//				a.setKernel(MadkitKernel.this);
+//				a.getAlive().set(true);
+//				a.logger = null;
+//				});
+			
 			synchronized (this) {
 				for (final String cgrLocation : cgrLocations) {
 					final String[] cgr = cgrLocation.split(",");
@@ -1041,6 +1054,12 @@ class MadkitKernel extends Agent {
 					// test vs assignment ? 
 					//-> No: cannot touch the organizational structure !!
 				}
+				
+//				bucket.parallelStream().forEach(a -> {//TODO get the exception
+//					a.activate();
+//					a.state.set(ACTIVATED);
+//				});
+				
 				init = new AgentsJob() {
 					@Override
 					void proceedAgent(final AbstractAgent a) {
@@ -1056,6 +1075,18 @@ class MadkitKernel extends Agent {
 			}
 		}
 		else {
+//			bucket.parallelStream().forEach(a -> {
+//				a.state.set(ACTIVATED);
+//				a.setKernel(MadkitKernel.this);
+//				a.getAlive().set(true);
+//				a.logger = null;
+//				try {
+//					a.activate();
+//				} catch (Throwable e) {
+//					requester.cannotLaunchAgent("launchAgentBucketWithRoles : "+a.getClass().getName(), e, null);
+//				}
+//			});
+
 			AgentsJob aj = new AgentsJob() {
 				@Override
 				void proceedAgent(final AbstractAgent a) {
@@ -1090,6 +1121,14 @@ class MadkitKernel extends Agent {
 			IllegalAccessException, ClassNotFoundException {
 		@SuppressWarnings("unchecked")
 		final Class<? extends AbstractAgent> constructor = (Class<? extends AbstractAgent>) MadkitClassLoader.getLoader().loadClass(agentClass);
+//		final List<AbstractAgent> result2 = IntStream.range(0, bucketSize).parallel().mapToObj(i -> {
+//			try {
+//				return constructor.newInstance();
+//			} catch (InstantiationException | IllegalAccessException e1) {
+//				e1.printStackTrace();
+//			}
+//			return null;
+//		}).collect(Collectors.toList());//TODO lambda
 		cpuCoreNb = cpuCoreNb > 0 ? cpuCoreNb : 1;
 		final List<AbstractAgent> result = new ArrayList<>(bucketSize);
 		final int nbOfAgentsPerTask = bucketSize / (cpuCoreNb);
@@ -1119,6 +1158,7 @@ class MadkitKernel extends Agent {
 			}
 		}
 		return result;
+//		return result2;
 	}
 
 	private void doMulticore(ArrayList<AgentsJob> arrayList) {

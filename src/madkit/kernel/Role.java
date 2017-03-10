@@ -325,7 +325,7 @@ class Role implements Serializable{//TODO test with arraylist
 	}
 
 
-	final Set<AgentAddress> buildAndGetAddresses(){
+	final Set<AgentAddress> buildAndGetAddresses(){//TODO lambda
 		if(agentAddresses == null){
 			agentAddresses = new HashSet<>(players.size(),0.8f);
 			synchronized (players) {
@@ -478,27 +478,31 @@ class Role implements Serializable{//TODO test with arraylist
 
 
 	final void addToOverlookers(AbstractAgent a){
-		for (final Overlooker<? extends AbstractAgent> o : overlookers){
-			o.addAgent(a);
-		}
+		overlookers.parallelStream().forEach(o -> o.addAgent(a));
+//		for (final Overlooker<? extends AbstractAgent> o : overlookers){
+//			o.addAgent(a);
+//		}
 	}
 
-	final private void addToOverlookers(List<AbstractAgent> l){
-		for (final Overlooker<? extends AbstractAgent> o : overlookers){
-			o.addAgents(l);
-		}
+	final private void addToOverlookers(List<AbstractAgent> l){//TODO check lambda
+		overlookers.parallelStream().forEach(o -> o.addAgents(l));
+//		for (final Overlooker<? extends AbstractAgent> o : overlookers){
+//			o.addAgents(l);
+//		}
 	}
 
 	final void removeFromOverlookers(AbstractAgent a){
-		for (final Overlooker<? extends AbstractAgent> o : overlookers){
-			o.removeAgent(a);
-		}
+		overlookers.parallelStream().forEach(o -> o.removeAgent(a));
+//		for (final Overlooker<? extends AbstractAgent> o : overlookers){
+//			o.removeAgent(a);
+//		}
 	}
 
 	final private void removeFromOverlookers(List<AbstractAgent> l){
-		for (final Overlooker<? extends AbstractAgent> o : overlookers){
-			o.removeAgents(l);
-		}
+		overlookers.parallelStream().forEach(o -> o.removeAgents(l));
+//		for (final Overlooker<? extends AbstractAgent> o : overlookers){
+//			o.removeAgents(l);
+//		}
 	}
 
 

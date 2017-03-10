@@ -27,7 +27,7 @@
 		<copy todir="${build.dir}">
 			<fileset dir="${src.dir}" excludes="**/*.java" />
 		</copy>
-		<javac classpath="${kernel.location}" includeAntRuntime="false" srcdir="${src.dir}" destdir="${build.dir}" deprecation="on">
+		<javac debug="true" debuglevel="vars" classpath="${kernel.location}" includeAntRuntime="false" srcdir="${src.dir}" destdir="${build.dir}" deprecation="on">
 			<classpath>
 				<fileset refid="third.party.libraries" />
 			</classpath>

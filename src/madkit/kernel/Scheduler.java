@@ -46,11 +46,11 @@ import java.util.LinkedHashSet;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
+import java.util.logging.Level;
 
 import javax.swing.Action;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultBoundedRangeModel;
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -137,7 +137,7 @@ public class Scheduler extends Agent {
 																										public void setValue(int n) {
 																											super.setValue(n);
 																											delay = 400 - getValue();
-																											SwingUtil.UI_PREFERENCES.putInt(getName()+"speed",getValue());
+//																											SwingUtil.UI_PREFERENCES.putInt(getName()+"speed",getValue());
 																											}
 																									};
 
@@ -227,8 +227,8 @@ public class Scheduler extends Agent {
 		frame.add(getSchedulerStatusLabel(), BorderLayout.PAGE_END);
 		setGVT(GVT);
 		frame.getJMenuBar().add(getSchedulerMenu(),2);
-		speedModel.setValue(SwingUtil.UI_PREFERENCES.getInt(getName()+"speed",speedModel.getValue()));
-		setSimulationState(SwingUtil.UI_PREFERENCES.getBoolean(getName()+"autostart", false) ? SimulationState.RUNNING : SimulationState.PAUSED);
+//		speedModel.setValue(SwingUtil.UI_PREFERENCES.getInt(getName()+"speed",speedModel.getValue()));
+//		setSimulationState(SwingUtil.UI_PREFERENCES.getBoolean(getName()+"autostart", false) ? SimulationState.RUNNING : SimulationState.PAUSED);
 	}
 	
 	/**
@@ -244,8 +244,8 @@ public class Scheduler extends Agent {
 		frame.add(getSchedulerStatusLabel(), BorderLayout.PAGE_END);
 		setGVT(GVT);
 		frame.getJMenuBar().add(getSchedulerMenu(),2);
-		speedModel.setValue(SwingUtil.UI_PREFERENCES.getInt(getName()+"speed",speedModel.getValue()));
-		setSimulationState(SwingUtil.UI_PREFERENCES.getBoolean(getName()+"autostart", false) ? SimulationState.RUNNING : SimulationState.PAUSED);
+//		speedModel.setValue(SwingUtil.UI_PREFERENCES.getInt(getName()+"speed",speedModel.getValue()));
+//		setSimulationState(SwingUtil.UI_PREFERENCES.getBoolean(getName()+"autostart", false) ? SimulationState.RUNNING : SimulationState.PAUSED);
 	}
 
 	/**
@@ -303,10 +303,8 @@ public class Scheduler extends Agent {
 			logger.finer("Doing simulation step " + GVT);
 		}
 		for (final Activator<? extends AbstractAgent> activator : activators) {
-			if (logger != null)
-				logger.finer("Activating --------> " + activator);
+			executeAndLog(activator);
 			// try {
-			activator.execute();
 			// } catch (SimulationException e) {//TODO is it better ?
 			// setSimulationState(SimulationState.SHUTDOWN);
 			// getLogger().log(Level.SEVERE, e.getMessage(), e);
@@ -315,11 +313,23 @@ public class Scheduler extends Agent {
 		setGVT(GVT + 1);
 	}
 
+	/**
+	 * Triggers the execute method of this <code>activator</code> and
+	 * logs it using the {@link Level.FINER} logging level
+	 * 
+	 * @param activator
+	 */
+	public void executeAndLog(final Activator<? extends AbstractAgent> activator) {
+		if (logger != null)
+			logger.finer("Activating --------> " + activator);
+		activator.execute();
+	}
+
 	@Override
 	protected void end() {
 		simulationState = PAUSED;
 		if (logger != null)
-			logger.info("Simulation stopped !");
+			logger.info("Simulation stopped at time = "+getGVT());
 	}
 
 	/**
@@ -578,14 +588,14 @@ public class Scheduler extends Agent {
 		myMenu.add(step);
 		myMenu.add(speedUp);
 		myMenu.add(speedDown);
-		final JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem("autostart", SwingUtil.UI_PREFERENCES.getBoolean(getName()+"autostart", false));
-		menuItem.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				SwingUtil.UI_PREFERENCES.putBoolean(getName()+"autostart", menuItem.isSelected());
-			}
-		});
-		myMenu.add(menuItem);
+//		final JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem("autostart", SwingUtil.UI_PREFERENCES.getBoolean(getName()+"autostart", false));
+//		menuItem.addChangeListener(new ChangeListener() {
+//			@Override
+//			public void stateChanged(ChangeEvent e) {
+//				SwingUtil.UI_PREFERENCES.putBoolean(getName()+"autostart", menuItem.isSelected());
+//			}
+//		});
+//		myMenu.add(menuItem);
 		return myMenu;
 	}
 

@@ -44,7 +44,6 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.prefs.Preferences;
 
 import javax.swing.AbstractButton;
 import javax.swing.Action;
@@ -89,8 +88,8 @@ final public class SwingUtil {
 	/**
 	 * access to persistently stored preferences 
 	 */
-	final public static Preferences UI_PREFERENCES = Preferences.userRoot().node(SwingUtil.class.getName());
-
+//	final public static Preferences UI_PREFERENCES = Preferences.userRoot().node(SwingUtil.class.getName());
+	
 	/**
 	 * Creates a labeled panel containing a slider with default size.
 	 * 

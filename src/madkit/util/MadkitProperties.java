@@ -48,11 +48,11 @@ import java.util.logging.Logger;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import madkit.i18n.ErrorMessages;
-import madkit.kernel.MadkitClassLoader;
-
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
+import madkit.i18n.ErrorMessages;
+import madkit.kernel.MadkitClassLoader;
 
 /**
  * The properties object used within MaDKit.
@@ -108,7 +108,7 @@ public class MadkitProperties extends Properties {
 	public void loadPropertiesFromPropertiesFile(final String pathname) throws IOException {
 		try (InputStream is = getInputStream(pathname)) {
 			load(is);
-		} catch (IOException e) {
+	} catch (IOException e) {
 			throw e;
 		}
 	}

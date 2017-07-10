@@ -72,10 +72,10 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
 import java.net.URL;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Date;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -226,10 +226,12 @@ class MadkitKernel extends Agent {
 		final String logDirKey = Option.logDirectory.name();
 		final MadkitProperties madkitConfig = getMadkitConfig();
 		final String logBaseDir= madkitConfig.getProperty(logDirKey) + File.separator;
-		String logDir = logBaseDir + Madkit.DATE_FORMAT.format(new Date())+kernelAddress;
-		while (new File(logDir).exists()) {
-			logDir = logBaseDir + Madkit.DATE_FORMAT.format(new Date())+kernelAddress;
-		}
+//		String logDir = logBaseDir + Madkit.DATE_FORMAT.format(new Date())+kernelAddress;
+		final String date = Madkit.DATE_FORMATTER.format(Instant.now()).replace(':', '-');
+		String logDir = logBaseDir + date +kernelAddress;
+//		while (new File(logDir).exists()) {
+//			logDir = logBaseDir + Madkit.DATE_FORMAT.format(new Date())+kernelAddress;
+//		}
 		madkitConfig.setProperty(logDirKey, logDir);
 		
 		organizations = new ConcurrentHashMap<>();
@@ -1023,12 +1025,12 @@ class MadkitKernel extends Agent {
 			};
 			doMulticore(init.getJobs(bucket, cpuCoreNb));
 
-//			bucket.parallelStream().forEach(a -> {
-//				a.state.set(INITIALIZING);
-//				a.setKernel(MadkitKernel.this);
-//				a.getAlive().set(true);
-//				a.logger = null;
-//				});
+			bucket.parallelStream().forEach(a -> {
+				a.state.set(INITIALIZING);
+				a.setKernel(MadkitKernel.this);
+				a.getAlive().set(true);
+				a.logger = null;
+				});
 			
 			synchronized (this) {
 				for (final String cgrLocation : cgrLocations) {

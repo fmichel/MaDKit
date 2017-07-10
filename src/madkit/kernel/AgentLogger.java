@@ -41,8 +41,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
@@ -171,39 +175,113 @@ final public class AgentLogger extends Logger {
 
 	/**
 	 * Creates a log file for this logger.
+	 * This call is equivalent to <code>createLogFile(null, null, null, false, true)</code>
 	 * This file will be located in the directory specified by
 	 * the MaDKit property {@link Option#logDirectory}, 
 	 * which is set to "logs" by default.
+	 * @see #createLogFile(Path, String, String, boolean, boolean)
 	 */
 	public void createLogFile() {
+		createLogFile(null,null, null, false, true);
+//		if (fh == null) {
+//			final String logDir = myAgent.getMadkitConfig().getProperty(Option.logDirectory.name());
+//			new File(logDir).mkdirs();
+//			final String logFileName = logDir + File.separator + getName();
+//			final File logFile = new File(logFileName);
+//			final String lineSeparator = "----------------------------------------------------------------------\n";
+//			final String logSession = lineSeparator + "-- Log session for "
+//					+ logFileName.substring(logFileName.lastIndexOf(File.separator) + 1);
+//			final String logEnd = " --\n"+lineSeparator+"\n";
+//			final Date date = new Date();
+//			try (FileWriter fw = new FileWriter(logFile, true)) {
+//				fw.write(logSession + " started on " + Madkit.DATE_FORMAT.format(date) + logEnd);
+//				fh = new FileHandler(logFileName, true) {
+//					public synchronized void close() throws SecurityException {
+//						super.close();
+//						try (FileWriter fw2 = new FileWriter(logFile, true)) {
+//							date.setTime(System.currentTimeMillis());
+//							fw2.write("\n\n"+logSession + " closed on  " + Madkit.DATE_FORMAT.format(date) + logEnd);
+//						} catch (IOException e) {
+//							e.printStackTrace();
+//						}
+//					}
+//				};
+//				fh.setFormatter(AGENT_FILE_FORMATTER);
+//			} catch (SecurityException | IOException  e) {
+//				e.printStackTrace();
+//			}
+//			addHandler(fh);
+//		}
+	}
+
+	/**
+	 * Creates a log file for this logger.
+	 * This file will be located in the directory specified by
+	 * the MaDKit property {@link Option#logDirectory}, 
+	 * which is set to "logs" by default.
+	 * 
+	 * @param logDirectory
+	 * 			the logDirectory to be used
+	 *          may be {@code null}, in which case the file will be 
+	 *          located in the directory specified by
+	 * the MaDKit property {@link Option#logDirectory} which is set to "logs" by default.
+
+	 * @param   fileBaseName
+	 *          the fileBaseName string to be used;
+	 *          may be {@code null}, in which case {@link #getName()} is used
+	 * @param   suffix
+	 *          the suffix string to be used in generating the file's name;i.e <code>"csv"</code>
+	 *          may be {@code null}, in which case no extension is used
+     * @param     append    if <code>true</code>, then bytes will be written
+     *                      to the end of the file rather than the beginning
+	 * @param includeDefaultComment 
+	 * 			if <code>true</code>, add some default creation and closing comments 
+	 * 
+	 */
+	public void createLogFile(Path logDirectory, String fileBaseName, String suffix, boolean append, boolean includeDefaultComment) {
 		if (fh == null) {
-			final String logDir = myAgent.getMadkitConfig().getProperty(Option.logDirectory.name());
-			new File(logDir).mkdirs();
-			final String logFileName = logDir + File.separator + getName();
-			final File logFile = new File(logFileName);
-			final String lineSeparator = "----------------------------------------------------------------------\n";
-			final String logSession = lineSeparator + "-- Log session for "
-					+ logFileName.substring(logFileName.lastIndexOf(File.separator) + 1);
-			final String logEnd = " --\n"+lineSeparator+"\n";
-			final Date date = new Date();
-			try (FileWriter fw = new FileWriter(logFile, true)) {
-				fw.write(logSession + " started on " + Madkit.DATE_FORMAT.format(date) + logEnd);
-				fh = new FileHandler(logFileName, true) {
+			if(fileBaseName == null){
+				fileBaseName = getName();
+			}
+			if(suffix != null){
+				fileBaseName += "."+suffix;
+			}
+			if(logDirectory == null){
+				logDirectory = FileSystems.getDefault().getPath(myAgent.getMadkitConfig().getProperty(Option.logDirectory.name()));
+			}
+			try {
+				Files.createDirectories(logDirectory);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+				return;
+			}
+			final File logFile = Paths.get(logDirectory.toString(), fileBaseName).toFile();
+			
+			try (FileWriter fw = new FileWriter(logFile, append)) {
+				final String lineSeparator = "----------------------------------------------------------------------\n";
+				final String logSession = lineSeparator + "-- Log session for "+getName();
+				final String logEnd = " --\n"+lineSeparator+"\n";
+				if (includeDefaultComment) {
+					fw.write(logSession + " started on " + Madkit.DATE_FORMATTER.format(Instant.now()) + logEnd);
+				}
+				fh = new FileHandler(logFile.toString(), true) {
 					public synchronized void close() throws SecurityException {
 						super.close();
-						try (FileWriter fw2 = new FileWriter(logFile, true)) {
-							date.setTime(System.currentTimeMillis());
-							fw2.write("\n\n"+logSession + " closed on  " + Madkit.DATE_FORMAT.format(date) + logEnd);
-						} catch (IOException e) {
-							e.printStackTrace();
+						if (includeDefaultComment) {
+							try (FileWriter fw2 = new FileWriter(logFile, append)) {
+								fw2.write("\n\n" + logSession + " closed on  "
+										+ Madkit.DATE_FORMATTER.format(Instant.now()) + logEnd);
+							} catch (IOException e) {
+								e.printStackTrace();
+							} 
 						}
 					}
 				};
 				fh.setFormatter(AGENT_FILE_FORMATTER);
+				addHandler(fh);
 			} catch (SecurityException | IOException  e) {
 				e.printStackTrace();
 			}
-			addHandler(fh);
 		}
 	}
 

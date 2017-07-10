@@ -95,13 +95,14 @@ public class ConfigFileTest extends JunitMadkit {
 		public void multiConfigOptions() {
 			addMadkitArgs(
 					Madkit.Option.configFile.toString(),"madkit/boot/process/test.prop",
-					Madkit.Option.configFile.toString(),"madkit/boot/process/test2.prop",
 					Madkit.BooleanOption.network.toString(),"true",
+					Madkit.Option.configFile.toString(),"madkit/boot/process/test2.prop",
 					Madkit.LevelOption.madkitLogLevel.toString(),Level.ALL.toString());
 			launchTest(new AbstractAgent() {
 				@Override
 				protected void activate() {
-					assertEquals("false",getMadkitProperty("test"));
+					assertEquals("OK",getMadkitProperty("file1"));
+					assertEquals("overridden",getMadkitProperty("test"));
 					assertEquals("ok",getMadkitProperty("test2"));
 				}
 			});

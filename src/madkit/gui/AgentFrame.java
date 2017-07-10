@@ -38,17 +38,10 @@ package madkit.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Point;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 import javax.swing.Box;
 import javax.swing.JFrame;
@@ -80,6 +73,7 @@ import madkit.message.KernelMessage;
  */
 public class AgentFrame extends JFrame implements PrintableFrame{
 
+//	final public static Preferences UI_PREFERENCES = Preferences.userRoot().node(AgentFrame.class.getName());
 	/**
 	 * 
 	 */
@@ -124,33 +118,33 @@ public class AgentFrame extends JFrame implements PrintableFrame{
 				closeProcess();
 			}
 		});
-//		setSize(400,300);
-//		getContentPane().setBackground(Color.WHITE);
-//		setBackground(Color.WHITE);
-//		setLocationRelativeTo(null);
-		restoreUIPreferences();
-		addComponentListener(new ComponentAdapter() {
-			@Override
-			public void componentMoved(ComponentEvent e) {
-				final Component component = e.getComponent();
-				SwingUtil.UI_PREFERENCES.putInt(agentUIPreferenceCodeBase + "_X", component.getX());
-				SwingUtil.UI_PREFERENCES.putInt(agentUIPreferenceCodeBase + "_Y", component.getY());
-			}
-			@Override
-			public void componentResized(ComponentEvent e) {
-				final Component component = e.getComponent();
-				SwingUtil.UI_PREFERENCES.putInt(agentUIPreferenceCodeBase + "_W", component.getWidth());
-				SwingUtil.UI_PREFERENCES.putInt(agentUIPreferenceCodeBase + "_H", component.getHeight());
-			}
-		});
-		addPropertyChangeListener(new PropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				if(evt.getPropertyName().equals("background")){
-					SwingUtil.UI_PREFERENCES.putInt(classUIPreferenceCodeBase + "_BGC", getBackground().getRGB());
-				}
-			}
-		});
+		setSize(400,300);
+		getContentPane().setBackground(Color.WHITE);
+		setBackground(Color.WHITE);
+		setLocationRelativeTo(null);
+//		restoreUIPreferences();
+//		addComponentListener(new ComponentAdapter() {
+//			@Override
+//			public void componentMoved(ComponentEvent e) {
+//				final Component component = e.getComponent();
+//				UI_PREFERENCES.putInt(agentUIPreferenceCodeBase + "_X", component.getX());
+//				UI_PREFERENCES.putInt(agentUIPreferenceCodeBase + "_Y", component.getY());
+//			}
+//			@Override
+//			public void componentResized(ComponentEvent e) {
+//				final Component component = e.getComponent();
+//				UI_PREFERENCES.putInt(agentUIPreferenceCodeBase + "_W", component.getWidth());
+//				UI_PREFERENCES.putInt(agentUIPreferenceCodeBase + "_H", component.getHeight());
+//			}
+//		});
+//		addPropertyChangeListener(new PropertyChangeListener() {
+//			@Override
+//			public void propertyChange(PropertyChangeEvent evt) {
+//				if(evt.getPropertyName().equals("background")){
+//					UI_PREFERENCES.putInt(classUIPreferenceCodeBase + "_BGC", getBackground().getRGB());
+//				}
+//			}
+//		});
 	}
 	
 	@Override
@@ -161,27 +155,27 @@ public class AgentFrame extends JFrame implements PrintableFrame{
 		super.dispose();
 	}
 	
-	public Dimension getLastSavedDimensionPreference(){
-		return new Dimension(SwingUtil.UI_PREFERENCES.getInt(agentUIPreferenceCodeBase + "_W",400), SwingUtil.UI_PREFERENCES.getInt(agentUIPreferenceCodeBase + "_H",300));
-	}
-
-	public Point getLastSavedLocationPreference(){
-		return new Point(SwingUtil.UI_PREFERENCES.getInt(agentUIPreferenceCodeBase + "_X",-1), SwingUtil.UI_PREFERENCES.getInt(agentUIPreferenceCodeBase + "_Y",-1));
-	}
-
-	public Color getLastSavedBackgroundPreference(){
-		return new Color(SwingUtil.UI_PREFERENCES.getInt(classUIPreferenceCodeBase + "_BGC", Color.WHITE.getRGB()));
-	}
-	
-	public void restoreUIPreferences(){
-		final Color lastSavedBackgroundPreference = getLastSavedBackgroundPreference();
-		setBackground(lastSavedBackgroundPreference);
-		setSize(getLastSavedDimensionPreference());
-		setLocation(getLastSavedLocationPreference());
-		if(getLocation().equals(new Point(-1, -1))){
-			setLocationRelativeTo(null);
-		}
-	}
+//	public Dimension getLastSavedDimensionPreference(){
+//		return new Dimension(UI_PREFERENCES.getInt(agentUIPreferenceCodeBase + "_W",400), UI_PREFERENCES.getInt(agentUIPreferenceCodeBase + "_H",300));
+//	}
+//
+//	public Point getLastSavedLocationPreference(){
+//		return new Point(UI_PREFERENCES.getInt(agentUIPreferenceCodeBase + "_X",-1), UI_PREFERENCES.getInt(agentUIPreferenceCodeBase + "_Y",-1));
+//	}
+//
+//	public Color getLastSavedBackgroundPreference(){
+//		return new Color(UI_PREFERENCES.getInt(classUIPreferenceCodeBase + "_BGC", Color.WHITE.getRGB()));
+//	}
+//	
+//	public void restoreUIPreferences(){
+//		final Color lastSavedBackgroundPreference = getLastSavedBackgroundPreference();
+//		setBackground(lastSavedBackgroundPreference);
+//		setSize(getLastSavedDimensionPreference());
+//		setLocation(getLastSavedLocationPreference());
+//		if(getLocation().equals(new Point(-1, -1))){
+//			setLocationRelativeTo(null);
+//		}
+//	}
 
 	/**
 	 * Builds the menu bar that will be used for this frame.

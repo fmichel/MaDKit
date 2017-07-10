@@ -39,6 +39,8 @@ package madkit.kernel;
 import java.io.IOException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -54,14 +56,10 @@ import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.swing.Action;
-
-import madkit.action.GlobalAction;
 import madkit.action.KernelAction;
 import madkit.gui.AgentFrame;
 import madkit.gui.ConsoleAgent;
 import madkit.gui.MDKDesktopFrame;
-import madkit.gui.SwingUtil;
 import madkit.i18n.ErrorMessages;
 import madkit.i18n.I18nUtilities;
 import madkit.message.KernelMessage;
@@ -100,6 +98,7 @@ final public class Madkit {
 	private final static String	MDK_LOGGER_NAME		= "[* MADKIT *] ";
 	final static MadkitProperties			DEFAULT_CONFIG			= new MadkitProperties();
 	final static SimpleDateFormat	DATE_FORMAT				= new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
+	final static DateTimeFormatter	DATE_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME.withZone(ZoneId.systemDefault());//
 	
 	static {
 		// System.setProperty("sun.java2d.xrender", "True"); //TODO
@@ -247,12 +246,12 @@ final public class Madkit {
 		}
 
 		madkitConfig.putAll(DEFAULT_CONFIG);
-		final boolean boolean1 = SwingUtil.UI_PREFERENCES.getBoolean("MDK_DEBUG",false);
-		if(boolean1){
-			GlobalAction.DEBUG.putValue(Action.SELECTED_KEY, false);
-			GlobalAction.DEBUG.putValue(Action.SELECTED_KEY, true);//validating a change
-			madkitConfig.put(LevelOption.agentLogLevel.name(), Level.ALL.toString());
-		}
+//		final boolean boolean1 = SwingUtil.UI_PREFERENCES.getBoolean("MDK_DEBUG",false);
+//		if(boolean1){
+//			GlobalAction.DEBUG.putValue(Action.SELECTED_KEY, false);
+//			GlobalAction.DEBUG.putValue(Action.SELECTED_KEY, true);//validating a change
+//			madkitConfig.put(LevelOption.agentLogLevel.name(), Level.ALL.toString());
+//		}
 		
 		final Properties fromArgs = buildConfigFromArgs(args);
 		madkitConfig.putAll(fromArgs);
@@ -407,7 +406,7 @@ final public class Madkit {
 				if (!options[i].trim().isEmpty()) {
 					if (options[i].startsWith("--")) {
 						currentOption = options[i].substring(2);
-						currentMap.put(currentOption, "true");
+						currentMap.putIfAbsent(currentOption, "true");
 						parameters = "";
 					}
 					else {

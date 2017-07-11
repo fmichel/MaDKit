@@ -41,6 +41,9 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.logging.Level;
 
+import org.junit.Ignore;
+import org.junit.Test;
+
 import madkit.action.KernelAction;
 import madkit.agr.LocalCommunity;
 import madkit.agr.Organization;
@@ -59,8 +62,6 @@ import madkit.testing.util.agent.LeaveRoleInEndNormalAgent;
 import madkit.testing.util.agent.NormalAgent;
 import madkit.testing.util.agent.PongAgent;
 
-import org.junit.Test;
-
 /**
  * @author Fabien Michel
  * @since MaDKit 5.0.0.14
@@ -68,6 +69,7 @@ import org.junit.Test;
  * 
  */
 
+@Ignore //TODO
 public class DistantHookSystemTest extends JunitMadkit {
 	
 //	@BeforeClass

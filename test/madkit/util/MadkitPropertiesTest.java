@@ -73,8 +73,8 @@ public class MadkitPropertiesTest {
 			final MadkitProperties madkitProperties = new MadkitProperties();
 			madkitProperties.loadPropertiesFromPropertiesFile("madkit/boot/process/test2.prop");
 			System.err.println(madkitProperties);
-			assertEquals(madkitProperties.getProperty("test"), "false");
-			assertEquals(madkitProperties.getProperty("test2"), "ok");
+			assertEquals("overridden", madkitProperties.getProperty("test"));
+			assertEquals("ok", madkitProperties.getProperty("test2"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

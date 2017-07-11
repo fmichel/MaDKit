@@ -40,12 +40,12 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.logging.Level;
 
+import org.junit.Test;
+
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.testing.util.agent.NormalAgent;
-
-import org.junit.Test;
 
 /**
  * @author Fabien Michel

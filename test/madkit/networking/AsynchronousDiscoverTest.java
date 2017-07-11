@@ -37,6 +37,9 @@ knowledge of the CeCILL-C license and that you accept its terms.
 package madkit.networking;
 
 import static org.junit.Assert.assertFalse;
+
+import org.junit.Test;
+
 import madkit.action.KernelAction;
 import madkit.agr.CloudCommunity;
 import madkit.agr.LocalCommunity;
@@ -44,8 +47,6 @@ import madkit.agr.LocalCommunity.Groups;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit.BooleanOption;
-
-import org.junit.Test;
 
 /**
  * @author Fabien Michel

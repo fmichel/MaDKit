@@ -41,6 +41,9 @@ import static org.junit.Assert.assertEquals;
 import java.util.List;
 import java.util.logging.Level;
 
+import org.junit.After;
+import org.junit.Test;
+
 import madkit.action.KernelAction;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AgentAddress;
@@ -51,9 +54,6 @@ import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Madkit.Option;
 import madkit.testing.util.agent.ForEverAgent;
 import madkit.testing.util.agent.LeaveGroupInEndNormalAgent;
-
-import org.junit.After;
-import org.junit.Test;
 
 /**
  * @author Fabien Michel

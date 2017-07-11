@@ -58,6 +58,7 @@ public class KernelServerTest {
 		"([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
 
 	@Test
+	//need the release to be deployed to succeed
 	public final void testToString() {
 		String s = null;
 		try {

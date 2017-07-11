@@ -127,14 +127,14 @@ public class GlobalAction {
 			public void propertyChange(PropertyChangeEvent evt) {
 				if(evt.getPropertyName().equals("SwingSelectedKey")){
 					final boolean value = (boolean) DEBUG.getValue(Action.SELECTED_KEY);
-//					System.err.println(value);
+					System.err.println(value);
 //					SwingUtil.UI_PREFERENCES.putBoolean("MDK_DEBUG",value);
-//					if(value){
-//						AgentLogger.setAllLogLevels(Level.ALL);
-//					}
-//					else{
-//						AgentLogger.setAllLogLevels(Level.INFO);
-//					}
+					if(value){
+						AgentLogger.setAllLogLevels(Level.ALL);
+					}
+					else{
+						AgentLogger.setAllLogLevels(Level.INFO);
+					}
 				}
 			}
 		});

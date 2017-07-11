@@ -47,10 +47,10 @@ import java.io.FilenameFilter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.junit.Test;
+
 import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.Madkit.BooleanOption;
-
-import org.junit.Test;
 
 /**
  * @author Fabien Michel
@@ -146,7 +146,7 @@ public class AgentLoggerTest extends JunitMadkit{
 
 	
 	@Test
-	public void onlyOneFileTest(){
+	public void twoDefaultFilesforOneAgentTest(){
 		addMadkitArgs(BooleanOption.createLogFiles.toString());
 		launchTest(new AbstractAgent(){
 			@Override
@@ -156,7 +156,7 @@ public class AgentLoggerTest extends JunitMadkit{
 				if(logger != null)
 					logger.fine(getName());
 				File f = new File(getMadkitProperty(Madkit.Option.logDirectory.name()));
-				assertSame(1, f.listFiles(new FilenameFilter() {
+				assertSame(2, f.listFiles(new FilenameFilter() {
 					@Override
 					public boolean accept(File arg0, String s) {
 						return s.contains(getName()) && !s.contains(".lck");

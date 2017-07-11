@@ -72,7 +72,7 @@ public class ConfigFileTest extends JunitMadkit {
 			launchTest(new AbstractAgent() {
 				@Override
 				protected void activate() {
-					assertEquals("false",getMadkitProperty("test"));
+					assertEquals("overridden",getMadkitProperty("test"));
 					assertEquals("ok",getMadkitProperty("test2"));
 				}
 			});

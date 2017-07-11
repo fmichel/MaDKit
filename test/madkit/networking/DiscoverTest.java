@@ -40,14 +40,14 @@ import static org.junit.Assert.assertFalse;
 
 import java.util.logging.Level;
 
+import org.junit.Test;
+
 import madkit.action.KernelAction;
 import madkit.agr.CloudCommunity;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
-
-import org.junit.Test;
 
 /**
  * @author Fabien Michel

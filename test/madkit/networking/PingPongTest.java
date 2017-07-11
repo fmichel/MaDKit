@@ -37,14 +37,15 @@ knowledge of the CeCILL-C license and that you accept its terms.
 package madkit.networking;
 
 import static org.junit.Assert.assertNotNull;
+
+import org.junit.Test;
+
 import madkit.action.KernelAction;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.testing.util.agent.NormalAgent;
 import madkit.testing.util.agent.PongAgent;
-
-import org.junit.Test;
 
 /**
  * @author Fabien Michel

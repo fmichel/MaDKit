@@ -79,6 +79,8 @@ public class KernelActionTest extends JunitMadkit{
 			@Override
 			protected void activate() {
 				assertEquals("INFO", getMadkitProperty(LevelOption.agentLogLevel.name()));
+				GlobalAction.DEBUG.putValue(Action.SELECTED_KEY,false);
+				assertEquals("INFO", getMadkitProperty(LevelOption.agentLogLevel.name()));
 				GlobalAction.DEBUG.putValue(Action.SELECTED_KEY,true);
 				assertEquals("ALL", getMadkitProperty(LevelOption.agentLogLevel.name()));
 				GlobalAction.DEBUG.putValue(Action.SELECTED_KEY,false);

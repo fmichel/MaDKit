@@ -25,7 +25,7 @@
 	<property name="MaDKit-demos.dir" value="../MaDKit-demos" />
 
 	<import file="${madkit.ant.targets.file}" />
-	
+
 	<echo>using ${ant.version}</echo>
 	<echo>using Java ${java.runtime.version} from ${java.home}</echo>
 
@@ -148,7 +148,7 @@
 	</path>
 
 	<target name="test-init" depends="buildResources">
-		<javac debug="true" includeAntRuntime="false" classpathref="compile.classpath" srcdir="${src.dir}" destdir="${build.dir}" />
+		<javac debug="true" includeAntRuntime="false" classpathref="compile.classpath" srcdir="${src.dir}" destdir="${build.dir}" excludes="**/networking/**"/>
 		<mkdir dir="${test.classes.dir}" />
 		<delete dir="${test.data.dir}" />
 		<delete dir="${test.reports.dir}" />
@@ -167,6 +167,14 @@
           target: junit              
          ================================= -->
 	<target name="junit" depends="clean,test-compile" description="junit">
+		<!-- networking is excluded for now -->
+		<delete>
+			<fileset dir="${test.classes.dir}">
+				<include name="**/networking/**" />
+			</fileset>
+		</delete>
+
+		<!-- copy resources -->
 		<copy todir="${test.classes.dir}" overwrite="false">
 			<fileset dir="test" excludes="**/*.java" />
 		</copy>
@@ -189,182 +197,192 @@
 
 
 
-<!-- ================================= 
+	<!-- ================================= 
       TODO fix xdoclint validation
      ================================= -->
-<target name="javadoc" description="build the javadoc">
-	<tstamp/>
-	<javadoc sourcepath="${src.dir}" destdir="${docs.api.dir}" classpathref="compile.classpath" failonwarning="true" access="protected" docfilessubdirs="true" author="true" version="true" use="true" linksource="no" windowtitle="${project.label}" additionalparam="-Xdoclint:none">
-		<doctitle>
-			<![CDATA[<h1>${project.label}</h1><h2>${description}</h2>]]>
+	<target name="javadoc" description="build the javadoc">
+		<tstamp/>
+		<javadoc sourcepath="${src.dir}" destdir="${docs.api.dir}" classpathref="compile.classpath" failonwarning="true" access="protected" docfilessubdirs="true" author="true" version="true" use="true" linksource="no" windowtitle="${project.label}" additionalparam="-Xdoclint:none">
+			<doctitle>
+				<![CDATA[<h1>${project.label}</h1>
+			<h2>${description}</h2>]]>
 		</doctitle>
 		<header>
 			<![CDATA[
-			<a target="blank" href="${madkit.web}"><img alt="MaDKit" width="20" src="{@docRoot}/doc-files/MaDKit.png"></a>&nbsp;&nbsp;&nbsp;
-			<a target="blank" href="${github.url}"><img alt="GitHub" width="20" src="https://github.com/fluidicon.png"></a>
+			<a target="blank" href="${madkit.web}">
+			<img alt="MaDKit" width="20" src="{@docRoot}/doc-files/MaDKit.png">
+			</a>&nbsp;&nbsp;&nbsp;
+			<a target="blank" href="${github.url}">
+				<img alt="GitHub" width="20" src="https://github.com/fluidicon.png">
+				</a>
 			]]>
 		</header>
-		<bottom>
-			<![CDATA[
+			<bottom>
+				<![CDATA[
 			<br/>
-			<p style=" text-indent: 3em;"> 
-			<a target="blank" href="${madkit.web}"><img alt="MaDKit" width="50" src="{@docRoot}/doc-files/MaDKit.png"></a>&nbsp;&nbsp;&nbsp;
-			<a target="blank" href="${github.url}"><img alt="GitHub" width="50" src="https://github.com/fluidicon.png"></a>
-			<i><br/>&nbsp;&nbsp;&nbsp;${author} - ${TODAY}</i>
-			</p>
+				<p style=" text-indent: 3em;">
+					<a target="blank" href="${madkit.web}">
+						<img alt="MaDKit" width="50" src="{@docRoot}/doc-files/MaDKit.png">
+						</a>&nbsp;&nbsp;&nbsp;
+			<a target="blank" href="${github.url}">
+							<img alt="GitHub" width="50" src="https://github.com/fluidicon.png">
+							</a>
+							<i>
+								<br/>&nbsp;&nbsp;&nbsp;${author} - ${TODAY}</i>
+						</p>
 			]]>
 		</bottom>
-		<link href="${sun.api.url}" />
-	</javadoc>
-</target>
+					<link href="${sun.api.url}" />
+				</javadoc>
+			</target>
 
-<!-- ================================= 
+			<!-- ================================= 
           target: clean              
          ================================= -->
-<target name="clean" description="cleanup build directories">
-<delete dir="${build.dir}" />
-<delete dir="${logDirectory}" />
-<delete dir="${release.dir}" />
-<delete file="${jar.file}" failonerror="false" />
-<delete file="${src.zip.location}" failonerror="false" />
-<delete dir="${docs.dir}" />
-<delete dir="${tuto.dir}" />
-<delete file="${docs.dir}/French_Tutorial/MaDKit_Tutorial/${lib.dir}/${madkit.jar.name}" />
-<delete>
-	<fileset dir="${demo.dir}">
-		<include name="**/*MaDKit-bees*" />
-		<include name="**/*MaDKit-market-organization*" />
-		<include name="**/*MaDKit-ping*" />
-	</fileset>
-</delete>
-</target>
+			<target name="clean" description="cleanup build directories">
+				<delete dir="${build.dir}" />
+				<delete dir="${logDirectory}" />
+				<delete dir="${release.dir}" />
+				<delete file="${jar.file}" failonerror="false" />
+				<delete file="${src.zip.location}" failonerror="false" />
+				<delete dir="${docs.dir}" />
+				<delete dir="${tuto.dir}" />
+				<delete file="${docs.dir}/French_Tutorial/MaDKit_Tutorial/${lib.dir}/${madkit.jar.name}" />
+				<delete>
+					<fileset dir="${demo.dir}">
+						<include name="**/*MaDKit-bees*" />
+						<include name="**/*MaDKit-market-organization*" />
+						<include name="**/*MaDKit-ping*" />
+					</fileset>
+				</delete>
+			</target>
 
-<!-- - - - - - - - - - - - - - - - - - 
+			<!-- - - - - - - - - - - - - - - - - - 
           target: clean-demos           
          - - - - - - - - - - - - - - - - - -->
-<target name="clean-demos">
-<echo>Cleaning MaDKit-demos</echo>
-<exec executable="ant" spawn="false" dir="${MaDKit-demos.dir}">
-	<arg value="clean" />
-</exec>
-</target>
+			<target name="clean-demos">
+				<echo>Cleaning MaDKit-demos</echo>
+				<exec executable="ant" spawn="false" dir="${MaDKit-demos.dir}">
+					<arg value="clean" />
+				</exec>
+			</target>
 
 
-<!-- ================================= 
+			<!-- ================================= 
           target: release              
 	<chmod dir="${demo.dir}" perm="u+x" includes="**/*.jar"/>
 	<chmod dir="${tuto.dir}" perm="u+x" includes="**/*.jar"/>
 			<zipfileset dir="${release.dir}" includes="MaDKit-5-Desktop.jnlp"/>
          ================================= -->
-<target name="release" depends="clean-demos,jar,javadoc,src-zip" description="build MaDKit release">
-	<echo> --- Build Release : MaDKit ${madkit.version}${line.separator}</echo>
-	<mkdir dir="${release.dir}" />
-	
-	<copy todir="${build.dir}">
-		<fileset dir="${resource.dir}" excludes="${MDK.build.properties}" />
-		<filterchain>
-			<expandproperties />
-		</filterchain>
-	</copy>
-	
-	<echo>Building MaDKit Demos</echo>
-	<exec executable="ant" spawn="false" dir="${MaDKit-demos.dir}">
-		<arg value="update-to-last-kernel" />
-	</exec>
-	<exec executable="ant" spawn="false" dir="${MaDKit-demos.dir}" />
-	
-	<echo>Zipping MaDKit release</echo>
-	<zip destfile="${release.dir}/${distribution.zip.name}" level="9">
-		<zipfileset dir="${docs.dir}" prefix="${docs.dir}" />
-		<zipfileset dir="${build.dir}" includes="README.html" />
-		<zipfileset dir="${build.dir}" includes="VERSION,${doc.html},build.xml,XML_config_example.xml" prefix="${docs.dir}" />
-		<zipfileset file="${jar.file}" filemode="755" />
-		<zipfileset file="LICENSE" />
-		<zipfileset dir="${demo.dir}" prefix="${demo.dir}" filemode="755" />
-	</zip>
+			<target name="release" depends="clean-demos,jar,javadoc,src-zip" description="build MaDKit release">
+				<echo> --- Build Release : MaDKit ${madkit.version}${line.separator}</echo>
+				<mkdir dir="${release.dir}" />
 
-	<echo>Building the desktop webstart archive</echo>
-	<delete>
-		<fileset dir="${build.dir}" includes="VERSION,*.xml,README*,*.php"/>
-	</delete>
+				<copy todir="${build.dir}">
+					<fileset dir="${resource.dir}" excludes="${MDK.build.properties}" />
+					<filterchain>
+						<expandproperties />
+					</filterchain>
+				</copy>
 
-	<unzip dest="${build.dir}">
-		<patternset>
-			<exclude name="META-INF/*" />
-		</patternset>
-		<fileset dir="${MaDKit-demos.dir}/release">
-			<include name="**/*.agents.jar" />
-		</fileset>
-	</unzip>
-	<jar destfile="${jar.file}" level="1" update="true">
-		<fileset dir="${build.dir}">
-			<exclude name="**/package-info.class" />
-			<exclude name="**/doc-files/**" />
-		</fileset>
-		<manifest>
-			<section name="MaDKit-Project-Info">
-				<attribute name="Agent-Classes" value="madkit.pingpong.PingPong,madkit.pingpong.PingPongDemoLauncherAgent,madkit.marketorg.Broker,madkit.marketorg.Client,madkit.marketorg.Provider,madkit.bees.Bee,madkit.bees.BeeLauncher,madkit.bees.QueenBee,madkit.gui.ConsoleAgent,madkit.kernel.AbstractAgent,madkit.kernel.Agent,madkit.kernel.Scheduler,madkit.kernel.Watcher" />
-				<attribute name="Main-Classes" value="madkit.bees.BeeLauncher,madkit.marketorg.Client,madkit.pingpong.PingPong,madkit.pingpong.PingPongDemoLauncherAgent" />
-				<attribute name="XML-Files" value="marketorg.xml" />
-			</section>
-		</manifest>
-	</jar>
-	<antcall target="sign-jar" />
-</target>
-	
-<!-- - - - - - - - - - - - - - - - - - 
+				<echo>Building MaDKit Demos</echo>
+				<exec executable="ant" spawn="false" dir="${MaDKit-demos.dir}">
+					<arg value="update-to-last-kernel" />
+				</exec>
+				<exec executable="ant" spawn="false" dir="${MaDKit-demos.dir}" />
+
+				<echo>Zipping MaDKit release</echo>
+				<zip destfile="${release.dir}/${distribution.zip.name}" level="9">
+					<zipfileset dir="${docs.dir}" prefix="${docs.dir}" />
+					<zipfileset dir="${build.dir}" includes="README.html" />
+					<zipfileset dir="${build.dir}" includes="VERSION,${doc.html},build.xml,XML_config_example.xml" prefix="${docs.dir}" />
+					<zipfileset file="${jar.file}" filemode="755" />
+					<zipfileset file="LICENSE" />
+					<zipfileset dir="${demo.dir}" prefix="${demo.dir}" filemode="755" />
+				</zip>
+
+				<echo>Building the desktop webstart archive</echo>
+				<delete>
+					<fileset dir="${build.dir}" includes="VERSION,*.xml,README*,*.php"/>
+				</delete>
+
+				<unzip dest="${build.dir}">
+					<patternset>
+						<exclude name="META-INF/*" />
+					</patternset>
+					<fileset dir="${MaDKit-demos.dir}/release">
+						<include name="**/*.agents.jar" />
+					</fileset>
+				</unzip>
+				<jar destfile="${jar.file}" level="1" update="true">
+					<fileset dir="${build.dir}">
+						<exclude name="**/package-info.class" />
+						<exclude name="**/doc-files/**" />
+					</fileset>
+					<manifest>
+						<section name="MaDKit-Project-Info">
+							<attribute name="Agent-Classes" value="madkit.pingpong.PingPong,madkit.pingpong.PingPongDemoLauncherAgent,madkit.marketorg.Broker,madkit.marketorg.Client,madkit.marketorg.Provider,madkit.bees.Bee,madkit.bees.BeeLauncher,madkit.bees.QueenBee,madkit.gui.ConsoleAgent,madkit.kernel.AbstractAgent,madkit.kernel.Agent,madkit.kernel.Scheduler,madkit.kernel.Watcher" />
+							<attribute name="Main-Classes" value="madkit.bees.BeeLauncher,madkit.marketorg.Client,madkit.pingpong.PingPong,madkit.pingpong.PingPongDemoLauncherAgent" />
+							<attribute name="XML-Files" value="marketorg.xml" />
+						</section>
+					</manifest>
+				</jar>
+				<antcall target="sign-jar" />
+			</target>
+
+			<!-- - - - - - - - - - - - - - - - - - 
           target: ftp-release                      
          - - - - - - - - - - - - - - - - - -->
-<target name="ftp-release" depends="release">
-	<loadproperties srcFile="${server.info.dir}/MDK.net" />
-	<property name="ftp.dir.target" value="${madkit.ftp.dir}/repository/MaDKit-${madkit.version}" />
-	
-	<unzip src="${release.dir}/${distribution.zip.name}" dest="${release.dir}/web" />
-	
-	<echo>FTP uploading new release files in ${ftp.dir.target}</echo>
-	<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="mkdir" remotedir="${ftp.dir.target}" verbose="yes" />
-	<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="put" remotedir="${ftp.dir.target}">
-		<fileset dir="${release.dir}/web" excludes="LICENSE"/>
-		<fileset dir="${resource.dir}" includes="index.php" />
-		<fileset file="${release.dir}/${distribution.zip.name}" />
-	</ftp>
-	
-	<echo>FTP upload of MDK desktop web start files in ${madkit.ftp.dir}/${javaws.ftp.dir}</echo>
-	<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="put" remotedir="${madkit.ftp.dir}/${javaws.ftp.dir}">
-		<fileset file="${jnlp.jar.gz}" />
-		<fileset file="${demo.dir}/MaDKit-5-Desktop.jnlp" />
-	</ftp>
-	
-</target>
-	
-	<!-- ================================= 
+			<target name="ftp-release" depends="release">
+				<loadproperties srcFile="${server.info.dir}/MDK.net" />
+				<property name="ftp.dir.target" value="${madkit.ftp.dir}/repository/MaDKit-${madkit.version}" />
+
+				<unzip src="${release.dir}/${distribution.zip.name}" dest="${release.dir}/web" />
+
+				<echo>FTP uploading new release files in ${ftp.dir.target}</echo>
+				<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="mkdir" remotedir="${ftp.dir.target}" verbose="yes" />
+				<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="put" remotedir="${ftp.dir.target}">
+					<fileset dir="${release.dir}/web" excludes="LICENSE"/>
+					<fileset dir="${resource.dir}" includes="index.php" />
+					<fileset file="${release.dir}/${distribution.zip.name}" />
+				</ftp>
+
+				<echo>FTP upload of MDK desktop web start files in ${madkit.ftp.dir}/${javaws.ftp.dir}</echo>
+				<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="put" remotedir="${madkit.ftp.dir}/${javaws.ftp.dir}">
+					<fileset file="${jnlp.jar.gz}" />
+					<fileset file="${demo.dir}/MaDKit-5-Desktop.jnlp" />
+				</ftp>
+
+			</target>
+
+			<!-- ================================= 
           target: update_website              
 		<echo>FTP : updating online LAST version : REMOVE That after several versions</echo>
 		<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="put" remotedir="${madkit.ftp.dir}/..">
 			<fileset dir="${build.dir}" includes="LAST" />
 		</ftp>
          ================================= -->
-    <target name="update_website" description="update MDK website new release">
-		<echo file="${build.dir}/LAST">${madkit.version}</echo>
-    	<loadproperties srcFile="${server.info.dir}/MDK.net" />
-		<echo>FTP : updating online LAST version</echo>
-		<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="put" remotedir="${madkit.ftp.dir}">
-			<fileset dir="${build.dir}" includes="LAST" />
-		</ftp>
-    </target>
-	
-<!-- ================================= 
+			<target name="update_website" description="update MDK website new release">
+				<echo file="${build.dir}/LAST">${madkit.version}</echo>
+				<loadproperties srcFile="${server.info.dir}/MDK.net" />
+				<echo>FTP : updating online LAST version</echo>
+				<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="put" remotedir="${madkit.ftp.dir}">
+					<fileset dir="${build.dir}" includes="LAST" />
+				</ftp>
+			</target>
+
+			<!-- ================================= 
           target:      ftp-push-test        
          ================================= -->
-<target name="ftp-push-test" depends="junit">
-<loadproperties srcFile="${server.info.dir}/MDK.net" />
-<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="mkdir" remotedir="${test.ftp.dir}" verbose="yes" />
-<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="put" remotedir="${test.ftp.dir}">
-	<fileset dir="${test.reports.dir}" />
-</ftp>
-<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="put" remotedir="${test.ftp.dir}">
-	<fileset dir="${test.reports.dir}" />
-</ftp>
-</target>
+			<target name="ftp-push-test" depends="junit">
+				<loadproperties srcFile="${server.info.dir}/MDK.net" />
+				<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="mkdir" remotedir="${test.ftp.dir}" verbose="yes" />
+				<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="put" remotedir="${test.ftp.dir}">
+					<fileset dir="${test.reports.dir}" />
+				</ftp>
+				<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="put" remotedir="${test.ftp.dir}">
+					<fileset dir="${test.reports.dir}" />
+				</ftp>
+			</target>
 
-</project>
+		</project>

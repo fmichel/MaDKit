@@ -53,7 +53,7 @@ public class ConcurrentTestAgent extends Agent {
 
 	@Override
 	protected void live() {
-//		setLogLevel(Level.INFO);
+//		getLogger().setLevel(Level.INFO);
 //		getLogger().setWarningLogLevel(Level.OFF);
 		while (true) {
 			if (Math.random() < .5) {

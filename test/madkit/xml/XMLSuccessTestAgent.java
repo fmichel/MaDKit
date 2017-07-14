@@ -41,6 +41,7 @@ import static madkit.kernel.JunitMadkit.GROUP;
 import static madkit.kernel.JunitMadkit.ROLE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+
 import madkit.kernel.AbstractAgent;
 
 
@@ -82,8 +83,7 @@ public class XMLSuccessTestAgent extends AbstractAgent {
 	@Override
 	protected void activate() {
 		assertEquals(3, speed);
-		if(logger != null)
-			logger.info("speed = "+speed);
+		getLogger().info("speed = "+speed);
 		assertEquals(5, i.intValue());
 		assertEquals("blabla", s);
 		assertTrue(hasGUI());

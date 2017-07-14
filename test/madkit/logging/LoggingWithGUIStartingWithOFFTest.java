@@ -74,13 +74,13 @@ public class LoggingWithGUIStartingWithOFFTest extends JunitMadkit {
 	}
 
 	@Test
-	public void setLogLevelInLife() {
+	public void setLevelInLife() {
 		launchTest(new AbstractAgent() {
 			@Override
 			protected void activate() {
 				assertEquals(SUCCESS , launchAgent(new Agent() {
 					protected void activate() {
-						setLogLevel(Level.ALL);
+						getLogger().setLevel(Level.ALL);
 					}
 				}, true));
 			}
@@ -88,13 +88,13 @@ public class LoggingWithGUIStartingWithOFFTest extends JunitMadkit {
 	}
 
 	@Test
-	public void setLogLevelNullInLife() {
+	public void setLevelNullInLife() {
 		launchTest(new AbstractAgent() {
 			@Override
 			protected void activate() {
 				assertEquals(AGENT_CRASH, launchAgent(new Agent() {
 					protected void activate() {
-						setLogLevel(null);
+						getLogger().setLevel(null);
 					}
 				}, true));
 			}
@@ -102,13 +102,13 @@ public class LoggingWithGUIStartingWithOFFTest extends JunitMadkit {
 	}
 
 	@Test
-	public void setLogWarningLevelNullInLife() {
+	public void disableWarningInLife() {
 		launchTest(new AbstractAgent() {
 			@Override
 			protected void activate() {
-				assertEquals(AGENT_CRASH, launchAgent(new Agent() {
+				assertEquals(SUCCESS, launchAgent(new Agent() {
 					protected void activate() {
-						getLogger().setWarningLogLevel(null);
+						getLogger().disableCGRWarnings();
 					}
 				}, true));
 			}
@@ -122,7 +122,7 @@ public class LoggingWithGUIStartingWithOFFTest extends JunitMadkit {
 			protected void activate() {
 				assertEquals(SUCCESS , launchAgent(new Agent() {
 					protected void activate() {
-						getLogger().setWarningLogLevel(Level.ALL);
+						getLogger().enableCGRWarnings();
 					}
 				}, true));
 			}

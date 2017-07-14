@@ -36,80 +36,80 @@ knowledge of the CeCILL-C license and that you accept its terms.
  */
 package madkit.action;
 
-import static java.awt.event.KeyEvent.VK_DOLLAR;
-import static java.awt.event.KeyEvent.VK_E;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
 
 import javax.swing.Action;
 
 import madkit.i18n.I18nUtilities;
 import madkit.kernel.AbstractAgent;
-import madkit.message.EnumMessage;
 
 /**
  * Enum representing agent actions
- * 
  * @author Fabien Michel
  * @since MaDKit 5.0.0.14
  * @version 0.9
+ * 
  */
-public enum AgentAction {
+public enum LoggingAction {
 
-    LAUNCH_AGENT(KeyEvent.VK_U),
-    RELOAD(VK_E),
-    CREATE_GROUP(VK_DOLLAR),
-    REQUEST_ROLE(VK_DOLLAR),
-    LEAVE_ROLE(VK_DOLLAR),
-    LEAVE_GROUP(VK_DOLLAR),
-    SEND_MESSAGE(VK_DOLLAR),
-    BROADCAST_MESSAGE(VK_DOLLAR),
-    KILL_AGENT(KeyEvent.VK_K);
+	LOG_LEVEL(KeyEvent.VK_DOLLAR),
+	CGR_WARNINGS(KeyEvent.VK_DOLLAR)
+	;
 
-    private static final ResourceBundle messages = I18nUtilities.getResourceBundle(AgentAction.class.getSimpleName());
+	final static private ResourceBundle messages = I18nUtilities.getResourceBundle(LoggingAction.class.getSimpleName());
+	
+	private ActionInfo actionInfo;
+	
+	final private int keyEvent;
 
-    private ActionInfo actionInfo;
-    private final int keyEvent;
+	/**
+	 * @return the actionInfo corresponding to this constant
+	 */
+	public ActionInfo getActionInfo() {
+		if(actionInfo == null)
+			actionInfo = new ActionInfo(this,keyEvent,messages);
+		return actionInfo;
+	}
 
-    /**
-     * @return the {@link ActionInfo} corresponding to this constant
-     */
-    public ActionInfo getActionInfo() {
-	if (actionInfo == null)
-	    actionInfo = new ActionInfo(this, keyEvent, messages);
-	return actionInfo;
-    }
 
-    private AgentAction(int keyEvent) {
-	this.keyEvent = keyEvent;
-    }
+	private LoggingAction(int keyEvent){
+		this.keyEvent = keyEvent;
+	}
 
-    /**
-     * Builds an action that will make the agent do the corresponding behavior
-     * 
-     * @param agent
-     *            the agent on which this action will operate
-     * @param parameters
-     *            the info to be used
-     * @return the action corresponding to the enum
-     */
-    public Action getActionFor(final AbstractAgent agent, final Object... parameters) {
-	return new MDKAbstractAction(getActionInfo()) {
-
-	    /**
-	     * 
-	     */
-	    private static final long serialVersionUID = -3078505474395164899L;
-
-	    @Override
-	    public void actionPerformed(ActionEvent e) {
-		if (agent.isAlive()) {
-		    agent.proceedEnumMessage(new EnumMessage<>(AgentAction.this, parameters));
+	/**
+	 * Builds an action that will make the agent do the
+	 * corresponding behavior
+	 * 
+	 * @param agent the agent on which this action 
+	 * will operate
+	 * @param parameters the info to be used
+	 * @return the action corresponding to the enum
+	 */
+	@SuppressWarnings("serial")
+	public Action getActionFor(final AbstractAgent agent, final Object... parameters){
+		switch (this) {
+		case LOG_LEVEL:
+			return new MDKAbstractAction(getActionInfo()) {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					agent.getLogger().setLevel(Level.parse(parameters[0].toString()));
+				}
+			};
+		case CGR_WARNINGS:
+			return new MDKAbstractAction(getActionInfo()) {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if(e == null){ // programmatically triggered
+						putValue(Action.SELECTED_KEY, ! (boolean) getValue(Action.SELECTED_KEY));
+					}
+				}
+			};
+		default:
+			return null;
 		}
-	    }
-	};
-    }
-
+}
+	
 }

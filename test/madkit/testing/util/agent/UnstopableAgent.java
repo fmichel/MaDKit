@@ -67,8 +67,7 @@ public class UnstopableAgent extends DoItDuringLifeCycleAgent {
 		while (true) {
 			i++;
 			if (i % 10000000 == 0) {
-				if (logger != null)
-					logger.info(getState() + " " + i);
+				getLogger().info(getState() + " " + i);
 			}
 		}
 	}

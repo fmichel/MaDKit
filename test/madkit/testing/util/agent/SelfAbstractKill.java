@@ -66,8 +66,7 @@ public class SelfAbstractKill extends DoItDuringLifeCycleAbstractAgent {
 
 	@Override
 	public void doIt() {
-		if (logger != null)
-			logger.info("killing myself");
+		getLogger().info("killing myself");
 		if (inActivate) {
 			if (timeOut == 0) {
 				assertEquals(timeOut == 0 ? SUCCESS : TIMEOUT, killAgent(this, timeOut));

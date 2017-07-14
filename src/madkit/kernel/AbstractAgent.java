@@ -64,6 +64,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -77,9 +78,9 @@ import org.xml.sax.SAXException;
 
 import madkit.action.ActionInfo;
 import madkit.action.GUIManagerAction;
-import madkit.agr.CloudCommunity;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
+import madkit.agr.NetworkCommunity;
 import madkit.agr.Organization;
 import madkit.gui.AgentFrame;
 import madkit.gui.AgentStatusPanel;
@@ -147,64 +148,58 @@ import madkit.util.XMLUtilities;
  * {@link #getState()} method for detailed information.</li>
  * <br>
  * <li>One of the most convenient improvement of v.5 is the logging mechanism
- * which is provided. See the {@link #logger} attribute for more details.</li>
+ * which is provided. See the {@link #getLogger()} method for more details.</li>
  * <p>
  * 
  * @author Fabien Michel
  * @author Olivier Gutknecht
- * @version 5.6
+ * @version 5.7
  */
 public class AbstractAgent implements Comparable<AbstractAgent> {
 
-	private final static transient AtomicInteger	agentCounter		= new AtomicInteger(0);
+    private final static transient AtomicInteger agentCounter = new AtomicInteger(0);
 
-	static final transient MadkitKernel				FAKE_KERNEL			= new FakeKernel();
-	private static final transient MadkitKernel	TERMINATED_KERNEL	= new TerminatedKernel();
+    static final transient MadkitKernel FAKE_KERNEL = new FakeKernel();
+    private static final transient MadkitKernel TERMINATED_KERNEL = new TerminatedKernel();
 
-	final AtomicReference<State>						state					= new AtomicReference<>(State.NOT_LAUNCHED);
-	transient MadkitKernel								kernel				= FAKE_KERNEL;
+    final AtomicReference<State> state = new AtomicReference<>(State.NOT_LAUNCHED);
+    transient MadkitKernel kernel = FAKE_KERNEL;
 
-	final private int									_hashCode;
+    final private int _hashCode;
 
-	private boolean										hasGUI;
-	/**
-	 * name is lazily created to save memory
-	 */
-	private String											name;
-	final AtomicBoolean									alive					= new AtomicBoolean();						//default false
-	final BlockingDeque<Message>						messageBox			= new LinkedBlockingDeque<>();		// TODO
-																																				// lazy
-																																				// creation
+    private boolean hasGUI;
+    /**
+     * name is lazily created to save memory
+     */
+    private String name;
+    final AtomicBoolean alive = new AtomicBoolean(); // default false
+    final BlockingDeque<Message> messageBox = new LinkedBlockingDeque<>(); 
 
-	/**
-	 * <code>logger</code> should be used to print messages and trace the agent's life cycle. 
-	 * According to a log level, the messages will be displayed in the console and/or the GUI 
-	 * and/or a file according to the settings.
-	 * 
-	 * Thanks to the logging mechanism of the SDK, various log level could be used.
-	 * 
-	 * The following idiom should be used because {@link Logger} is set to <code>null</code>
-	 * when {@link AgentLogger#setLevel(Level)} is used with {@link Level#OFF}. This allows
-	 * to efficiently optimize the runtime speed when they are a lot of agents 
-	 * (e.g. in a simulation mode). Indeed, thanks to this idiom, useless strings will not
-	 * be built, thus saving a lot of time. 
-	 * 
-	 * <pre>
-	 * if (logger != null)
-	 * 	logger.info(&quot;info message&quot;);
-	 * </pre>
-	 * 
-	 * {@link #getLogger()} should not be used here because it always returns a non <code>null</code>
-	 * logger.
-	 * 
-	 * @see java.util.logging.Level
-	 * @see java.util.logging.Logger
-	 */
-	protected AgentLogger								logger;
+    /**
+     * <code>logger</code> should be used to print messages and trace the agent's life cycle. According
+     * to a log level, the messages will be displayed in the console and/or the GUI and/or a file
+     * according to the settings. Thanks to the logging mechanism of the SDK, various log level could be
+     * used. The following idiom should be used because {@link Logger} is set to <code>null</code> when
+     * {@link AgentLogger#setLevel(Level)} is used with {@link Level#OFF}. This allows to efficiently
+     * optimize the runtime speed when they are a lot of agents (e.g. in a simulation mode). Indeed,
+     * thanks to this idiom, useless strings will not be built, thus saving a lot of time.
+     * 
+     * <pre>
+     * if (logger != null)
+     *     logger.info(&quot;info message&quot;);
+     * </pre>
+     * 
+     * {@link #getLogger()} should not be used here because it always returns a non <code>null</code>
+     * logger.
+     * 
+     * @see java.util.logging.Level
+     * @see java.util.logging.Logger
+     */
+    AgentLogger logger;
 
 	public AbstractAgent() {
-		_hashCode = agentCounter.getAndIncrement();// TODO bench outside
-		logger = AgentLogger.DEFAULT_AGENT_LOGGER;
+		_hashCode = agentCounter.getAndIncrement();
+//		logger = AgentLogger.DEFAULT_AGENT_LOGGER;
 	}
 
 	/**
@@ -315,7 +310,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 		}
 		if (hasGUI) {
 			if (logger != null) {
-				logger.finer("** setting up  GUI **");
+				logger.finer(() -> "** setting up  GUI **");
 			}
 			sendMessage(
 					LocalCommunity.NAME, 
@@ -377,7 +372,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
 	final void logMethod(final boolean entering) {
 		if (logger != null)
-			logger.finer("** " + (entering ? Words.ENTERING : Words.EXITING) + " " + getState().lifeCycleMethod() + " **");
+			logger.finer(() -> "** " + (entering ? Words.ENTERING : Words.EXITING) + " " + getState().lifeCycleMethod() + " **");
 	}
 
 	/**
@@ -477,11 +472,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 			logLifeException(e);
 		}
 		if (logger != null) {
-			logger.finest("** TERMINATED **");
-			// TODO This should be done anyway but this would slow down kills
-			// So there a risk of memory leak here because logger can be set to null after creation and still exists in AgentLogger.loggers 
-			// But that should not be a problem because such a practice is usually not used
-			logger.close();
+			logger.finest(() -> "** TERMINATED **");
 		}
 		if(hasGUI){
 			AgentLogLevelMenu.remove(this);
@@ -725,7 +716,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 */
 	public AbstractAgent launchAgent(String agentClass, int timeOutSeconds, final boolean createFrame) {// TODO with args, and regardless of visibility
 		if (logger != null)
-			logger.finest(Words.LAUNCH + " " + agentClass + " GUI " + createFrame);
+			logger.finest(() -> Words.LAUNCH + " " + agentClass + " GUI " + createFrame);
 		try {
 			final Constructor<?> c = MadkitClassLoader.getLoader().loadClass(agentClass).getDeclaredConstructor();
 			c.setAccessible(true);
@@ -802,6 +793,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 			launchAgentBucket(bucket, cpuCoreNb, roles);
 		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
 			cannotLaunchAgent(agentClass, e, null);
+			return null;
 		}
 		return bucket;
 	}
@@ -926,8 +918,8 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 																													// threads
 																													// origin
 		if (target == this && Thread.currentThread().getName().equals(getAgentThreadName(getState()))) {
-			if (isFinestLogOn())
-				logger.log(Level.FINEST, Influence.KILL_AGENT + " (" + timeOutSeconds + ")" + target.getName() + "...");
+			if (logger != null)
+				logger.log(Level.FINEST, () -> Influence.KILL_AGENT + " (" + timeOutSeconds + ")" + target.getName() + "...");
 			if (alive.compareAndSet(true, false)) {
 				throw new SelfKillException(timeOutSeconds);
 			}
@@ -984,37 +976,29 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * then {@link #logger} is set to <code>null</code>
 	 * 
 	 * @see #logger
+	 * @deprecated as of MaDKit 5.2, {@link AgentLogger#setLevel(Level)} should now be used
+	 * through {@link #getLogger()} 
 	 */
 	public void setLogLevel(final Level newLevel) {
-		if (Level.OFF == newLevel) {
-			if (logger != null && logger != AgentLogger.DEFAULT_AGENT_LOGGER) {
-				logger.setLevel(newLevel);
-			}
-			logger = null;
-			setKernel(getMadkitKernel());
-		}
-		else {
 			getLogger().setLevel(newLevel);
-			setKernel(kernel.getLoggedKernel());
-		}
+//			setKernel(kernel.getLoggedKernel());//TODO 
 	}
 
 	/**
-	 * Returns the agent's logger.
+	 * Returns the agent's logger. It is lazily created so that if {@link #getLogger()} 
+	 * is not used, there is no memory foot print at all, which could be crucial when
+	 * working with thousands of abstract agent in a simulation mode. Especially
 	 * 
-	 * @return the agent's logger. It cannot be <code>null</code> as it will be
-	 *         created if necessary. But you can then still put {@link #logger}
-	 *         to <code>null</code> for optimizing your code by using
-	 *         {@link #setLogLevel(Level)} with {@link Level#OFF}.
-	 * 
-	 * @see AbstractAgent#logger
+	 * @return the agent's logger.  
+	 * @see AgentLogger
 	 * @since MaDKit 5.0.0.6
 	 */
-	final public AgentLogger getLogger() {
-		if (logger == AgentLogger.DEFAULT_AGENT_LOGGER || logger == null) {
-			synchronized (this) {
+	public AgentLogger getLogger() {
+		if (logger == null) {
+//			synchronized (this) {
 				logger = AgentLogger.getLogger(this);
-			}
+				
+//			}
 		}
 		return logger;
 	}
@@ -1147,9 +1131,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 */
 	public ReturnCode createGroup(final String community, final String group, boolean isDistributed, final Gatekeeper keyMaster) {
 		if(getState() == INITIALIZING){
-			if(isWarningOn()){
-				handleException(Influence.CREATE_GROUP, new OrganizationWarning(ReturnCode.IGNORED, community, group,null));
-			}
+			handleWarning(Influence.CREATE_GROUP, () -> new OrganizationWarning(ReturnCode.IGNORED, community, group,null));
 			return ReturnCode.IGNORED;
 		}
 		return getKernel().createGroup(this, community, group, keyMaster, isDistributed);
@@ -1352,9 +1334,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	public ReturnCode requestRole(final String community, final String group, final String role, final Object passKey) {
 		if(getState() == INITIALIZING){
 			//the agent has not been activated yet, meaning that it has been launched using the bucket mode
-			if(isWarningOn()){
-				handleException(Influence.REQUEST_ROLE, new OrganizationWarning(ReturnCode.IGNORED, community, group, role));
-			}
+			handleWarning(Influence.REQUEST_ROLE, () -> new OrganizationWarning(ReturnCode.IGNORED, community, group, role));
 			return ReturnCode.IGNORED;
 		}
 		return kernel.requestRole(this, community, group, role, passKey);
@@ -1430,18 +1410,19 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 		return getKernel().leaveRole(this, community, group, role);
 	}
 
-	final void handleException(final Influence i, final Throwable e) {
+	final void handleWarning(final Influence i, final Supplier<Throwable> e) {
 		if (isWarningOn()) {
-			setAgentStackTrace(e);
-			logger.log(Level.WARNING, i.failedString(), e);
+			Throwable t = e.get();
+			filterAgentStackTrace(t);
+			logger.log(Level.WARNING, t, () -> i.failedString());
 		}
 	}
 	
 	final boolean isWarningOn() {
-		return logger != null && logger.getWarningLogLevel().intValue() >= logger.getLevel().intValue();
+		return logger != null && logger.isCGRWarningsOn();
 	}
 
-	final void setAgentStackTrace(final Throwable e) {
+	final void filterAgentStackTrace(final Throwable e) {
 		StackTraceElement[] stackTrace = e.getStackTrace();
 		if (stackTrace.length > 0) {
 			final List<StackTraceElement> stack = new ArrayList<>();
@@ -1553,7 +1534,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	public Message nextMessage() {
 		if (logger != null) {
 			final Message m = messageBox.poll();
-			logger.finest("nextMessage = " + m);
+			logger.finest(() -> "nextMessage = " + m);
 			return m;
 		}
 		return messageBox.poll();
@@ -2292,22 +2273,6 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	}
 
 	/**
-	 * Called by the logged kernel to see if it is worth to build the log message
-	 * 
-	 * @return if it is is worth to build the log message
-	 */
-	final boolean isFinestLogOn() {
-		if (logger != null) {
-			return !(Level.FINEST.intValue() < logger.getLevel().intValue());
-		}
-		// As it is called by the logged kernel
-		// updating the level accordingly -> the user has set logger to null
-		// himself
-		setLogLevel(Level.OFF);
-		return false;
-	}
-
-	/**
 	 * The kernel's address on which this agent is running.
 	 * 
 	 * @return the kernel address representing the MaDKit kernel on which the
@@ -2334,7 +2299,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	final boolean logLifeException(final Throwable e) {
 		if (e instanceof ThreadDeath || e instanceof IllegalMonitorStateException) {
 			if (logger != null)
-				logger.finer("-*-GET KILLED in " + getState().lifeCycleMethod() + "-*-");
+				logger.finer(() -> "-*-GET KILLED in " + getState().lifeCycleMethod() + "-*-");
 		}
 		else {
 			if (alive.get() || state.get() == ENDING) {
@@ -2520,7 +2485,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 */
 	public ReturnCode launchNode(Node agentXmlNode){
 		if(logger != null)
-			logger.finest("launchNode "+XMLUtilities.nodeToString(agentXmlNode));
+			logger.finest(() -> "launchNode "+XMLUtilities.nodeToString(agentXmlNode));
 		final NamedNodeMap namesMap = agentXmlNode.getAttributes();
 		try {
 			List<AbstractAgent> list = null;
@@ -2692,7 +2657,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 		}
 		else{
 			if(logger != null)
-				logger.severe("Do not know how to change attrib "+stringValue);
+				logger.severe(() -> "Do not know how to change attrib "+stringValue);
 		}
 	}
 
@@ -2857,7 +2822,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 */
 	public <E extends Enum<E>> void proceedEnumMessage(EnumMessage<E> message) {
 		if (logger != null)
-			logger.finest("proceeding command message " + message);
+			logger.finest(() -> "proceeding command message " + message);
 		Object[] parameters = message.getContent();
 		Method m = null;
 		try {
@@ -2867,13 +2832,13 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 			throw e;
 		} catch (NoSuchMethodException e) {
 			if (logger != null)
-				logger.warning("I do not know how to " + ActionInfo.enumToMethodName(message.getCode())
+				logger.warning(() -> "I do not know how to " + ActionInfo.enumToMethodName(message.getCode())
 						+ Arrays.deepToString(parameters));
-			logForSender("I have sent a message which has not been understood", message);//TODO i18n
+			logForSender(() -> "I have sent a message which has not been understood", message);//TODO i18n
 		} catch (IllegalArgumentException e) {
 			if (logger != null)
 				logger.warning("Cannot proceed message : wrong argument " + m);
-			logForSender("I have sent an incorrect command message ", message);
+			logForSender(() -> "I have sent an incorrect command message ", message);
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
 		} catch (InvocationTargetException e) {// TODO dirty : think about that
@@ -2885,9 +2850,9 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 		}
 	}
 
-	private void logForSender(String msg, EnumMessage<?> cm) {
+	private void logForSender(Supplier<String> msg, EnumMessage<?> cm) {
 		try {
-			cm.getSender().getAgent().logger.warning(msg + cm);
+			cm.getSender().getAgent().logger.warning(() -> msg.get() + cm);
 		} catch (NullPointerException e1) {
 			// logger is off or sender is null
 		}
@@ -3140,8 +3105,8 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 */
 	public boolean isKernelOnline() {
 		// bypassing logging
-		return getMadkitKernel().isRole(this, CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS,
-				CloudCommunity.Roles.NET_AGENT);
+		return getMadkitKernel().isRole(this, NetworkCommunity.NAME, NetworkCommunity.Groups.NETWORK_AGENTS,
+				NetworkCommunity.Roles.NET_AGENT);
 	}
 
 //	AgentExecutor getAgentExecutor() {

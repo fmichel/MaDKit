@@ -55,18 +55,18 @@ public class ForEverSendRepliesWithTheSameMessageAgent extends Agent {
 	}
 	@Override
 	protected void activate() {
-		setLogLevel(Level.ALL);
+		getLogger().setLevel(Level.ALL);
 		createGroup(COMMUNITY, GROUP,true);
 		requestRole(COMMUNITY, GROUP, ROLE);
 		sendMessage(COMMUNITY,GROUP,ROLE,new Message());
-//		setLogLevel(Level.ALL);
+//		getLogger().setLevel(Level.ALL);
 	}
 	
 	@Override
 	protected void live() {
 		while (true) {
 			Message m = waitNextMessage();
-			logger.info(""+m.getSender().isFrom(getKernelAddress()));
+			getLogger().info(""+m.getSender().isFrom(getKernelAddress()));
 			pause(100);
 			sendReply(m, m);
 		}

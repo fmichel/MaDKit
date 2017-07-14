@@ -51,7 +51,7 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import madkit.action.KernelAction;
-import madkit.agr.CloudCommunity;
+import madkit.agr.NetworkCommunity;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.kernel.AbstractAgent.ReturnCode;
@@ -370,9 +370,9 @@ public class JunitMadkit {
 		List<AgentAddress> l = null;
 		startTimer();
 		do {
-			if(nb == 0 && ! agent.isCommunity(CloudCommunity.NAME))
+			if(nb == 0 && ! agent.isCommunity(NetworkCommunity.NAME))
 				break;
-			l = agent.getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS, CloudCommunity.Roles.NET_AGENT);
+			l = agent.getAgentsWithRole(NetworkCommunity.NAME, NetworkCommunity.Groups.NETWORK_AGENTS, NetworkCommunity.Roles.NET_AGENT);
 			if (l != null) {
 				System.err.println("others =" + l.size());
 			}
@@ -383,7 +383,7 @@ public class JunitMadkit {
 			assertEquals(nb, l.size());
 		}
 		else{
-			assertFalse(agent.isCommunity(CloudCommunity.NAME));
+			assertFalse(agent.isCommunity(NetworkCommunity.NAME));
 		}
 	}
 

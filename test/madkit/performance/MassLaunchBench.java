@@ -41,12 +41,12 @@ import static org.junit.Assert.assertNotNull;
 import java.util.List;
 import java.util.logging.Level;
 
+import org.junit.Test;
+
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.testing.util.agent.NormalAA;
-
-import org.junit.Test;
 
 /**
  * @author Fabien Michel
@@ -62,7 +62,7 @@ public class MassLaunchBench extends JunitMadkit {
 		final int tries = 1;//should be at least 100 to bench, this has no use for only testing
 		launchTest(new AbstractAgent() {
 			protected void activate() {
-				setLogLevel(Level.INFO);
+				getLogger().setLevel(Level.INFO);
 				long total = 0;
 				createGroup("test", "group", false, null);
 				for (int i = 0; i < tries; i++) {
@@ -70,8 +70,7 @@ public class MassLaunchBench extends JunitMadkit {
 					assertNotNull(launchAgentBucket(AbstractAgent.class.getName(), 1000000));
 					total += stopTimer("bucket launch time = ");
 				}
-				if(logger != null)
-					logger.info("average launch time = "+(total / (tries * 1000000))+" ms");
+					getLogger().info("average launch time = "+(total / (tries * 1000000))+" ms");
 			}
 		});
 	}
@@ -81,7 +80,7 @@ public class MassLaunchBench extends JunitMadkit {
 		final int tries = 1;//should be at least 100 to bench, this has no use for only testing
 		launchTest(new AbstractAgent() {
 			protected void activate() {
-				setLogLevel(Level.INFO);
+				getLogger().setLevel(Level.INFO);
 				long total = 0;
 //				createGroup("test", "group", false, null);
 				for (int i = 0; i < tries; i++) {
@@ -89,8 +88,7 @@ public class MassLaunchBench extends JunitMadkit {
 					assertNotNull(launchAgentBucket(AbstractAgent.class.getName(), 1000000, COMMUNITY+","+GROUP+","+ROLE));
 					total += stopTimer("bucket launch time = ");
 				}
-				if(logger != null)
-					logger.info("average launch time = "+(total / (tries * 1000000))+" ms");
+					getLogger().info("average launch time = "+(total / (tries * 1000000))+" ms");
 			}
 		});
 	}
@@ -114,7 +112,7 @@ public class MassLaunchBench extends JunitMadkit {
 		addMadkitArgs(LevelOption.agentLogLevel.toString(), "OFF");
 		launchTest(new AbstractAgent() {
 			protected void activate() {
-				setLogLevel(Level.OFF);
+				getLogger().setLevel(Level.OFF);
 				createGroup("test", "group", false, null);
 				System.err.println("begin");
 				long total = 0;
@@ -136,9 +134,7 @@ public class MassLaunchBench extends JunitMadkit {
 		launchTest(new AbstractAgent() {
 			protected void activate() {
 				AbstractAgent a;
-				if (logger != null) {
-					logger.info("\n******************* STARTING MASS LAUNCH *******************\n");
-				}
+				getLogger().info("\n******************* STARTING MASS LAUNCH *******************\n");
 				a = launchAgent("madkit.kernel.AbstractAgent");
 				a.createGroup("test", "group", false, null);
 				startTimer();

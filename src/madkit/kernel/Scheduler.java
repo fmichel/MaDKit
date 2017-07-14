@@ -259,8 +259,7 @@ public class Scheduler extends Agent {
 	public void addActivator(final Activator<? extends AbstractAgent> activator) {
 		if (kernel.addOverlooker(this, activator))
 			activators.add(activator);
-		if (logger != null)
-			logger.fine("Activator added: " + activator);
+			getLogger().fine(() -> "Activator added: " + activator);
 	}
 
 	/**
@@ -272,8 +271,7 @@ public class Scheduler extends Agent {
 	public void removeActivator(final Activator<? extends AbstractAgent> activator) {
 		kernel.removeOverlooker(this, activator);
 		activators.remove(activator);
-		if (logger != null)
-			logger.fine("Activator removed: " + activator);
+		getLogger().fine(() -> "Activator removed: " + activator);
 	}
 
 	/**
@@ -299,9 +297,7 @@ public class Scheduler extends Agent {
 	 * </pre>
 	 */
 	public void doSimulationStep() {
-		if (logger != null) {
-			logger.finer("Doing simulation step " + GVT);
-		}
+		getLogger().finer(() -> "Doing simulation step " + GVT);
 		for (final Activator<? extends AbstractAgent> activator : activators) {
 			executeAndLog(activator);
 			// try {
@@ -320,16 +316,14 @@ public class Scheduler extends Agent {
 	 * @param activator
 	 */
 	public void executeAndLog(final Activator<? extends AbstractAgent> activator) {
-		if (logger != null)
-			logger.finer("Activating --------> " + activator);
+		getLogger().finer(() -> "Activating --------> " + activator);
 		activator.execute();
 	}
 
 	@Override
 	protected void end() {
 		simulationState = PAUSED;
-		if (logger != null)
-			logger.info("Simulation stopped at time = "+getGVT());
+		getLogger().info(() -> "Simulation stopped at time = "+getGVT());
 	}
 
 	/**
@@ -408,8 +402,7 @@ public class Scheduler extends Agent {
 	protected void live() {
 		while (isAlive()) {
 			if (GVT > simulationDuration) {
-				if (logger != null)
-					logger.info("Quitting: Simulation has reached end time " + simulationDuration);
+				getLogger().info(() -> "Quitting: Simulation has reached end time " + simulationDuration);
 				return;
 			}
 			pause(delay);
@@ -428,7 +421,7 @@ public class Scheduler extends Agent {
 			case SHUTDOWN:
 				return; // shutdown
 			default:
-				getLogger().severe("state not handled " + simulationState);
+				getLogger().severeLog("state not handled " + simulationState);
 			}
 		}
 	}
@@ -467,8 +460,7 @@ public class Scheduler extends Agent {
 					sendReply(m, m);
 				}
 			} catch (ClassCastException e) {
-				if (logger != null)
-					logger.info("I received a message that I cannot understand" + m);
+				getLogger().warning(() -> "I received a message that I cannot understand" + m);
 			}
 		}
 	}

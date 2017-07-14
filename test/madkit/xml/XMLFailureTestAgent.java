@@ -59,6 +59,6 @@ public class XMLFailureTestAgent extends AbstractAgent {
 	
 	@Override
 	protected void activate() {
-		setLogLevel(Level.ALL);
+		getLogger().setLevel(Level.ALL);
 	}
 }

@@ -146,34 +146,3 @@ final class AgentExecutor extends ThreadPoolExecutor {
 	}
 }
 
-
-
-//	@Override
-//	protected void afterExecute(Runnable r, Throwable t) {
-////		if(t != null){
-////			myAgent.getAlive().set(false);
-////			if(t instanceof ThreadDeath){
-////				if(myAgent.logger != null){
-////					myAgent.logger.finer( "-*-GET KILLED in "+methodName()+"-*- : "+t.getMessage());
-////				}
-////			}
-////			else{
-////				myAgent.kernel.logSevereException(t);
-////				myAgent.kernel.getMadkitKernel().kernelLog("Problem for "+this+" in "+methodName(), Level.FINER, t);
-////			}
-////		}
-//		if(! isTerminating() && myAgent.logger != null){
-//			myAgent.logger.finer("** exiting "+methodName()+" **");
-//		}
-//	}
-//
-//	String methodName(){
-//		switch (myAgent.getState()) {
-//		case ACTIVATED:
-//			return "ACTIVATE";
-//		case LIVING:
-//			return "LIVE";
-//		default:
-//			return "END";
-//		}
-//	}

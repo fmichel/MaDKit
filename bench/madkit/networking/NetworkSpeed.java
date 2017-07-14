@@ -46,7 +46,7 @@ public class NetworkSpeed extends JunitMadkit {
 		launchTest(new NormalAgent() {
 			@Override
 			protected void activate() {
-				setLogLevel(Level.OFF);
+				getLogger().setLevel(Level.OFF);
 				createGroup(COMMUNITY, GROUP,true);
 				requestRole(COMMUNITY, GROUP, ROLE);
 				launchCustomNetworkInstance(Level.OFF, ForEverOnTheSameAASenderAgent.class);
@@ -71,12 +71,12 @@ public class NetworkSpeed extends JunitMadkit {
 		launchTest(new NormalAgent() {
 			@Override
 			protected void activate() {
-				setLogLevel(Level.OFF);
+				getLogger().setLevel(Level.OFF);
 				createGroup(COMMUNITY, GROUP,true);
 				requestRole(COMMUNITY, GROUP, ROLE);
 				ForEverOnTheSameAASenderAgent a;
 				launchAgent(a = new ForEverOnTheSameAASenderAgent());
-				a.setLogLevel(Level.OFF);
+				a.getLogger().setLevel(Level.OFF);
 				AgentAddress aa = waitNextMessage().getSender();
 				Message m = null;
 				startTimer();

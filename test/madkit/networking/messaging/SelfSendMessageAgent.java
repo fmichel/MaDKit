@@ -71,13 +71,12 @@ public class SelfSendMessageAgent extends Agent {
 	
 	@Override
 	protected void live() {
-		setLogLevel(Level.ALL);
+		getLogger().setLevel(Level.ALL);
 		assertEquals(SUCCESS, createGroup(JunitMadkit.COMMUNITY, JunitMadkit.GROUP, true));
 		assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
 		AgentAddress aa = getAgentAddressIn(JunitMadkit.COMMUNITY, JunitMadkit.GROUP, JunitMadkit.ROLE);
 		sendMessage(aa, new Message());
-		if(logger != null)
-			logger.info(nextMessage().toString());
+		getLogger().info(nextMessage().toString());
 	}
 	
 	public static void main(String[] args) {

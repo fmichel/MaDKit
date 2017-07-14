@@ -70,7 +70,7 @@ public class ReloadByGUITest extends JunitMadkit {
 				};
 				launchAgent(a);
 				try {
-					setLogLevel(Level.ALL);
+					getLogger().setLevel(Level.ALL);
 					AgentAction.RELOAD.getActionFor(a).actionPerformed(null);
 				} catch (Throwable e) {
 					fail(e.getMessage());

@@ -40,12 +40,11 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.logging.Level;
 
+import org.junit.Test;
+
 import madkit.kernel.AbstractAgent;
-import madkit.kernel.AgentLogger;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit.LevelOption;
-
-import org.junit.Test;
 
 /**
  * @author Fabien Michel
@@ -93,8 +92,5 @@ public class LogLevelArgTest extends JunitMadkit {
 			}
 		});
 		assertKernelIsAlive();
-		final AgentLogger logger = getKernel().getLogger();
-		logger.fine("test");
-		assertEquals("ALL", logger.getLevel().toString());
 	}
 }

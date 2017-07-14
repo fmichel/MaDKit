@@ -61,7 +61,7 @@ public class PingPongTest extends JunitMadkit {
 		launchTest(new NormalAgent() {
 			@Override
 			protected void activate() {
-				// setLogLevel(Level.OFF);
+				// getLogger().setLevel(Level.OFF);
 				createGroupIfAbsent(COMMUNITY, GROUP, true, null);
 				requestRole(COMMUNITY, GROUP, ROLE, null);
 				Madkit m = new Madkit("--network", "--agentLogLevel", "ALL", "--launchAgents", PongAgent.class.getName(), ",true");

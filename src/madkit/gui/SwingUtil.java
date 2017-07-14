@@ -221,25 +221,28 @@ final public class SwingUtil {
 	 * 
 	 * @param menuOrToolBar
 	 * @param action 
+	 * @return the newly created button: Either a {@link JToggleButton} or a {@link JCheckBoxMenuItem}
 	 * @throws NoSuchMethodException
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
 	 */
-	public static void addBooleanActionTo(Container menuOrToolBar, Action action){
+	public static AbstractButton addBooleanActionTo(Container menuOrToolBar, Action action){
 		Method addButton;
 		try {
 			addButton = Container.class.getMethod("add", Component.class);
 			if(menuOrToolBar instanceof JMenu){
-				addButton.invoke(menuOrToolBar, new JCheckBoxMenuItem(action));
+				final JCheckBoxMenuItem jCheckBoxMenuItem = new JCheckBoxMenuItem(action);
+				addButton.invoke(menuOrToolBar, jCheckBoxMenuItem);
+				return jCheckBoxMenuItem;
 			}
-			else{
-				final JToggleButton jToggleButton = new JToggleButton(action);
-				jToggleButton.setText(null);
-				addButton.invoke(menuOrToolBar, jToggleButton);
-			}
+			final JToggleButton jToggleButton = new JToggleButton(action);
+			jToggleButton.setText(null);
+			addButton.invoke(menuOrToolBar, jToggleButton);
+			return jToggleButton;
 		} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			e.printStackTrace();
 		}
+		return null;
 	}
 	
 	/**

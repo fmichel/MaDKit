@@ -155,7 +155,7 @@ public class XmlFeaturesTest extends JunitMadkit {
 		launchTest(new AbstractAgent() {
 			@Override
 			protected void activate() {
-				setLogLevel(Level.INFO);
+				getLogger().setLevel(Level.INFO);
 				createGroup(COMMUNITY, GROUP);
 				Document dom;
 				try {

@@ -45,7 +45,7 @@ public class MassLaunchBench extends JunitMadkit {
 	public void massAALaunchWithBucket() {// TODO more cases
 		launchTest(new AbstractAgent() {
 			protected void activate() {
-				setLogLevel(Level.OFF);
+				getLogger().setLevel(Level.OFF);
 				createGroup("test", "group", false, null);
 				System.err.println("begin");
 				for (int i = 0; i < 10; i++) {
@@ -106,7 +106,7 @@ public class MassLaunchBench extends JunitMadkit {
 		addMadkitArgs(LevelOption.agentLogLevel.toString(), "INFO");
 		launchTest(new AbstractAgent() {
 			protected void activate() {
-				setLogLevel(Level.OFF);
+				getLogger().setLevel(Level.OFF);
 				createGroup("test", "group", false, null);
 				System.err.println("begin");
 				long total = 0;
@@ -160,9 +160,7 @@ public class MassLaunchBench extends JunitMadkit {
 		addMadkitArgs(LevelOption.agentLogLevel.toString(),"OFF");
 		launchTest(new AbstractAgent() {
 			protected void activate() {
-				if (logger != null) {
-					logger.info("\n******************* STARTING MASS LAUNCH *******************\n");
-				}
+				getLogger().info("\n******************* STARTING MASS LAUNCH *******************\n");
 				for (int j = 0; j < 3; j++) {
 					startTimer();
 					System.err.println("begin");
@@ -176,17 +174,15 @@ public class MassLaunchBench extends JunitMadkit {
 	}
 	
 
-	public void massLaunchWithList(final Class agentType){
+	public void massLaunchWithList(final Class<? extends AbstractAgent> agentType){
 		addMadkitArgs(LevelOption.agentLogLevel.toString(),"OFF");
 		launchTest(new AbstractAgent() {
 			protected void activate() {
-				if (logger != null) {
-					logger.info("\n******************* STARTING MASS LAUNCH *******************\n");
-				}
+				getLogger().info("\n******************* STARTING MASS LAUNCH *******************\n");
 				List<AbstractAgent> agents = new ArrayList<>(1_000_00);
 				for (int i = 0; i < 1_000_00; i++) {
 					try {
-						agents.add((AbstractAgent) agentType.newInstance());
+						agents.add(agentType.newInstance());
 					} catch (InstantiationException | IllegalAccessException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -213,37 +209,33 @@ public class MassLaunchBench extends JunitMadkit {
 		addMadkitArgs(LevelOption.agentLogLevel.toString(),"OFF");
 		launchTest(new AbstractAgent() {
 			protected void activate() {
-				if (logger != null) {
-					logger.info("\n******************* STARTING MASS LAUNCH *******************\n");
-				}
+				getLogger().info("\n******************* STARTING MASS LAUNCH *******************\n");
 				List<AbstractAgent> agents = new ArrayList<>(1_000_00);
 				for (int i = 0; i < 1_000_00; i++) {
 					agents.add(new AbstractAgent());
+					startTimer();
+					System.err.println("begin");
+					for (AbstractAgent abstractAgent : agents) {
+						launchAgent(abstractAgent);
+					}
+					stopTimer("done ");
+					startTimer();
+					System.err.println("begin kills");
+					for (AbstractAgent abstractAgent : agents) {
+						killAgent(abstractAgent);
+					}
+					stopTimer("kill done ");
 				}
-				startTimer();
-				System.err.println("begin");
-				for (AbstractAgent abstractAgent : agents) {
-					launchAgent(abstractAgent);
-				}
-				stopTimer("done ");
-				startTimer();
-				System.err.println("begin kills");
-				for (AbstractAgent abstractAgent : agents) {
-					killAgent(abstractAgent);
-				}
-				stopTimer("kill done ");
-				}
+			}
 		});
 	}
-	
+
 	@Test 
 	public void massAgentLaunch() {
 		addMadkitArgs(LevelOption.agentLogLevel.toString(),"OFF");
 		launchTest(new AbstractAgent() {
 			protected void activate() {
-				if (logger != null) {
-					logger.info("\n******************* STARTING MASS LAUNCH *******************\n");
-				}
+				getLogger().info("\n******************* STARTING MASS LAUNCH *******************\n");
 				List<AbstractAgent> agents = new ArrayList<>(10_000);
 				for (int i = 0; i < 10_000; i++) {
 					agents.add(new PongAgent());
@@ -268,9 +260,7 @@ public class MassLaunchBench extends JunitMadkit {
 		launchTest(new AbstractAgent() {
 			protected void activate() {
 				AbstractAgent a;
-				if (logger != null) {
-					logger.info("\n******************* STARTING MASS LAUNCH *******************\n");
-				}
+				getLogger().info("\n******************* STARTING MASS LAUNCH *******************\n");
 				a = launchAgent("madkit.kernel.AbstractAgent");
 				a.createGroup("test", "group", false, null);
 				startTimer();

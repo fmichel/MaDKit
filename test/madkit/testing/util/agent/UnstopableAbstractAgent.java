@@ -50,8 +50,7 @@ public class UnstopableAbstractAgent extends AbstractAgent {
 		while (i < 990000000) {
 			i++;
 			if (i % 10000000 == 0)
-				if (logger != null)
-					logger.info("activate " + getState() + " " + i);
+				getLogger().info("activate " + getState() + " " + i);
 		}
 	}
 
@@ -63,8 +62,7 @@ public class UnstopableAbstractAgent extends AbstractAgent {
 		while (true) {
 			i++;
 			if (i % 10000000 == 0) {
-				if (logger != null)
-					logger.info("end " + getState() + " " + i);
+				getLogger().info("end " + getState() + " " + i);
 			}
 		}
 	}

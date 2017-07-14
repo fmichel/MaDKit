@@ -67,7 +67,7 @@ public class NetworkMessagingTest extends JunitMadkit {
 				);
 		launchTest(new NormalAgent() {
 			protected void activate() {
-				setLogLevel(Level.FINE);
+				getLogger().setLevel(Level.FINE);
 				assertTrue(isKernelOnline());
 				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP, true));
 				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));

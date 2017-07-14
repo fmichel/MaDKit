@@ -114,7 +114,7 @@ public class sendMessageAndWaitForReplyWithAATest extends JunitMadkit {
 	public void replyWithSameMessage() {
 		launchTest(new NormalAgent() {
 			protected void activate() {
-				setLogLevel(Level.ALL);
+				getLogger().setLevel(Level.ALL);
 				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
 				// assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,ROLE));
 				assertEquals(SUCCESS, launchAgent(target3));

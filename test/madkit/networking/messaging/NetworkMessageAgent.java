@@ -72,7 +72,7 @@ public class NetworkMessageAgent extends Agent {
 	
 	@Override
 	protected void live() {
-		setLogLevel(Level.ALL);
+		getLogger().setLevel(Level.ALL);
 		assertEquals(ALREADY_GROUP, createGroup(JunitMadkit.COMMUNITY, JunitMadkit.GROUP, true));
 		assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
 		AgentAddress aa = getAgentWithRole(JunitMadkit.COMMUNITY, JunitMadkit.GROUP, JunitMadkit.ROLE);

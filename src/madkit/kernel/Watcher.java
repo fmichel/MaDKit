@@ -61,8 +61,7 @@ public class Watcher extends AbstractAgent
 	public void addProbe(final Probe<? extends AbstractAgent> probe){
 		if(kernel.addOverlooker(this, probe))
 			probes.add(probe);
-		if(logger != null)
-			logger.fine("Probe added: "+probe);
+		getLogger().fine(() -> "Probe added: "+probe);
 	}
 	
 	/**
@@ -77,8 +76,7 @@ public class Watcher extends AbstractAgent
 	
 	@Override
 	protected void activate() {
-		if(logger != null)
-			logger.talk("\n\tHi human !\n\n I am an instance of the madkit.kernel.Watcher class.\n I am specialized in simulation probing.\n I use probes on the artificial society to analyze and\n visualize what is going on in a simulation.\n You can extend me to create your own\n simulation analyzing and visualizing tools !\n");
+		getLogger().talk("\n\tHi human !\n\n I am an instance of the madkit.kernel.Watcher class.\n I am specialized in simulation probing.\n I use probes on the artificial society to analyze and\n visualize what is going on in a simulation.\n You can extend me to create your own\n simulation analyzing and visualizing tools !\n");
 	}
 	
 	/**

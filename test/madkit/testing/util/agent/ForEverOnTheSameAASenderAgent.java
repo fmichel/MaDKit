@@ -54,7 +54,7 @@ public class ForEverOnTheSameAASenderAgent extends Agent {
 		createGroup(COMMUNITY, GROUP,true);
 		requestRole(COMMUNITY, GROUP, ROLE);
 		sendMessage(COMMUNITY,GROUP,ROLE,new Message());
-//		setLogLevel(Level.ALL);
+//		getLogger().setLevel(Level.ALL);
 	}
 	
 	@Override

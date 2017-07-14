@@ -80,16 +80,14 @@ public abstract class DoItDuringLifeCycleAgent extends Agent {
 
 	public void activate() {
 		if (inActivate) {
-			if (logger != null)
-				logger.info("Doing It in activate!!");
+							getLogger().info("Doing It in activate!!");
 			doIt();
 		}
 	}
 
 	public void live() {
 		if (inLive) {
-			if (logger != null)
-				logger.info("Doing It in live!!");
+							getLogger().info("Doing It in live!!");
 			doIt();
 		}
 	}
@@ -97,14 +95,12 @@ public abstract class DoItDuringLifeCycleAgent extends Agent {
 	public void end() {
 		super.end();
 		if (inEnd) {
-			if (logger != null)
-				logger.info("Doing It in end!!");
+							getLogger().info("Doing It in end!!");
 			doIt();
 		}
 	}
 
 	public void doIt() {
-		if (logger != null)
-			logger.info("\n\n\tDo it JOB DONE !!!!!! in " + getState() + "\n\n");
+		getLogger().info("\n\n\tDo it JOB DONE !!!!!! in " + getState() + "\n\n");
 	}
 }

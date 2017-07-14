@@ -109,8 +109,7 @@ public class OverlookerTest extends JunitMadkit {
 				testFails(new Exception());
 				addActivator(new EmptyActivator(COMMUNITY, GROUP, ROLE) {
 					protected void removing(AbstractAgent theAgent) {
-						if (logger != null)
-							logger.info("\nremoving OK " + theAgent);
+													getLogger().info("\nremoving OK " + theAgent);
 						testFailed = false;
 					}
 				});

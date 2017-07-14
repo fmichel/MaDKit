@@ -52,7 +52,7 @@ public class TimeOutAA extends DoItDuringLifeCycleAbstractAgent {
 	 */
 	public TimeOutAA(boolean inActivate, boolean inEnd) {
 		super(inActivate, inEnd);
-		setLogLevel(Level.ALL);
+		getLogger().setLevel(Level.ALL);
 	}
 
 	public TimeOutAA(boolean inActivate) {
@@ -61,8 +61,7 @@ public class TimeOutAA extends DoItDuringLifeCycleAbstractAgent {
 
 	@Override
 	public void doIt() {
-		if (logger != null)
-			logger.info("waiting 1.5s");
+		getLogger().info("waiting 1.5s");
 		try {
 			Thread.sleep(1500);
 		} catch (InterruptedException e) {

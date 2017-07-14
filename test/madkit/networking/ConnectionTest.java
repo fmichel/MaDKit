@@ -44,7 +44,7 @@ import java.util.logging.Level;
 import org.junit.Test;
 
 import madkit.action.KernelAction;
-import madkit.agr.CloudCommunity;
+import madkit.agr.NetworkCommunity;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AgentAddress;
 import madkit.kernel.JunitMadkit;
@@ -77,9 +77,9 @@ public class ConnectionTest extends JunitMadkit {
 				Madkit m = launchMKNetworkInstance(Level.ALL);
 				pause(200);
 				List<AgentAddress> l = getAgentsWithRole(
-						CloudCommunity.NAME, 
-						CloudCommunity.Groups.NETWORK_AGENTS,
-						CloudCommunity.Roles.NET_AGENT);
+						NetworkCommunity.NAME, 
+						NetworkCommunity.Groups.NETWORK_AGENTS,
+						NetworkCommunity.Roles.NET_AGENT);
 				for (AgentAddress agentAddress : l) {
 					System.err.println(agentAddress);
 				}

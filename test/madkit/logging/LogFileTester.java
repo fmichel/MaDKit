@@ -48,9 +48,8 @@ public class LogFileTester extends Agent {
 	
 	@Override
 	protected void live() {
-		if(logger != null)
-			logger.info("test");
-		logger.talk("test");
+		getLogger().info("test");
+		getLogger().talk("test");
 	}
 
 	/**

@@ -65,7 +65,7 @@ public class LeaveRoleInEndNormalAgent extends Agent {
 	}
 	
 	protected void live() {
-		setLogLevel(Level.ALL);
+		getLogger().setLevel(Level.ALL);
 	}
 	
 	@Override

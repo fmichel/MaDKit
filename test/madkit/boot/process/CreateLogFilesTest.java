@@ -46,15 +46,15 @@ import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
 
+import org.junit.AfterClass;
+import org.junit.Test;
+
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Madkit.Option;
-
-import org.junit.AfterClass;
-import org.junit.Test;
 
 /**
  * @author Fabien Michel
@@ -132,7 +132,7 @@ public class CreateLogFilesTest extends JunitMadkit {
 		System.err.println(f);
 		assertTrue(f.exists());
 		assertTrue(f.isDirectory());
-		assertSame(3, f.listFiles(filter).length);
+		assertSame(2, f.listFiles(filter).length);
 	}
 
 	@Test
@@ -193,7 +193,6 @@ public class CreateLogFilesTest extends JunitMadkit {
 				LevelOption.kernelLogLevel.toString(), "ALL",
 				LevelOption.madkitLogLevel.toString(), "OFF");
 		launchTest(new AbstractAgent() {
-
 			@Override
 			protected void activate() {
 				System.err.println(getMadkitProperty(Option.logDirectory.name()));
@@ -203,7 +202,7 @@ public class CreateLogFilesTest extends JunitMadkit {
 		assertTrue(f.exists());
 		assertTrue(f.isDirectory());
 		pause(500);
-		assertSame(3, f.listFiles(filter).length);
+		assertSame(2, f.listFiles(filter).length);
 	}
 
 	@Test

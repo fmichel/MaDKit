@@ -71,8 +71,7 @@ public class NeverStopAgent extends Agent {
 
 	@Override
 	protected void end() {
-		if (logger != null)
-			logger.info("bye");
+		getLogger().info("bye");
 	}
 
 	public static void main(String[] args) {

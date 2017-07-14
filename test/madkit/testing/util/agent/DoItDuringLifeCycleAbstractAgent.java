@@ -76,7 +76,6 @@ public abstract class DoItDuringLifeCycleAbstractAgent extends AbstractAgent {
 	}
 
 	public void doIt() {
-		if (logger != null)
-			logger.info("I am in " + getState());
+		getLogger().info("I am in " + getState());
 	}
 }

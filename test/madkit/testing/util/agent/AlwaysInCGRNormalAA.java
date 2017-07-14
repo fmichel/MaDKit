@@ -56,7 +56,7 @@ public class AlwaysInCGRNormalAA extends AbstractAgent {
 
 	@Override
 	protected void activate() {
-		setLogLevel(Level.ALL);
+		getLogger().setLevel(Level.ALL);
 		createGroupIfAbsent(COMMUNITY, GROUP);
 		assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
 	}

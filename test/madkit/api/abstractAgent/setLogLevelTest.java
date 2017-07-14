@@ -36,11 +36,11 @@ knowledge of the CeCILL-C license and that you accept its terms.
  */
 package madkit.api.abstractAgent;
 
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
-import madkit.kernel.AbstractAgent;
 
 import org.junit.Test;
+
+import madkit.kernel.AbstractAgent;
 
 /**
  * @author Fabien Michel
@@ -56,11 +56,11 @@ public class setLogLevelTest extends madkit.kernel.JunitMadkit {
 		addMadkitArgs("--agentLogLevel", "OFF");
 		launchTest(new AbstractAgent() {
 			protected void activate() {
-				assertNull(logger);
 				try {
-					setLogLevel(null);
+					getLogger().setLevel(null);
 					fail("execption not launched");
 				} catch (NullPointerException e) {
+					e.printStackTrace();
 				}
 			}
 		});

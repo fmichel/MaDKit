@@ -40,11 +40,11 @@ import java.awt.Component;
 
 import javax.swing.AbstractButton;
 
+import org.junit.Test;
+
 import madkit.gui.menu.LaunchAgentsMenu;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit.BooleanOption;
-
-import org.junit.Test;
 
 /**
  * @author Fabien Michel
@@ -60,8 +60,7 @@ public class NoPackageTest extends JunitMadkit {
 		addMadkitArgs(BooleanOption.desktop.toString());
 		launchTest(new NoPackageAgent() {
 			protected void activate() {
-				if(logger != null)
-					logger.info("w");
+				getLogger().info("w");
 				LaunchAgentsMenu m = new LaunchAgentsMenu(this);
 				for (Component iterable_element : m.getMenuComponents()) {
 					if(((AbstractButton) iterable_element).getText().equals(NoPackageAgent.class.getName()))

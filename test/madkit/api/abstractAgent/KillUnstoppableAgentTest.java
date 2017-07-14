@@ -58,7 +58,7 @@ public class KillUnstoppableAgentTest extends JunitMadkit {
 		launchTest(new AbstractAgent() {
 			protected void activate() {
 				AbstractAgent unstopableAgent = new UnstopableAgent(true);
-				unstopableAgent.setLogLevel(Level.ALL);
+				unstopableAgent.getLogger().setLevel(Level.ALL);
 				startTimer();
 				assertEquals(TIMEOUT, launchAgent(unstopableAgent, 1));
 				stopTimer("launch time out ");
@@ -74,8 +74,7 @@ public class KillUnstoppableAgentTest extends JunitMadkit {
 			protected void activate() {
 				AbstractAgent unstopableAgent = new UnstopableAgent(true, true, false);
 				assertEquals(TIMEOUT, launchAgent(unstopableAgent, 1));
-				if (logger != null)
-					logger.info(unstopableAgent.getState().toString());
+				getLogger().info(unstopableAgent.getState().toString());
 				assertEquals(SUCCESS, killAgent(unstopableAgent, 0));
 				assertAgentIsTerminated(unstopableAgent);
 				pause(1000);
@@ -89,8 +88,7 @@ public class KillUnstoppableAgentTest extends JunitMadkit {
 			protected void activate() {
 				AbstractAgent unstopableAgent = new UnstopableAgent(true, true, true);
 				assertEquals(TIMEOUT, launchAgent(unstopableAgent, 1));
-				if (logger != null)
-					logger.info(unstopableAgent.getState().toString());
+				getLogger().info(unstopableAgent.getState().toString());
 				assertEquals(TIMEOUT, killAgent(unstopableAgent, 1));
 				assertAgentIsTerminated(unstopableAgent);
 				pause(1000);

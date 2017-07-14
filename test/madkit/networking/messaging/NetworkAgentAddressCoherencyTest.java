@@ -68,8 +68,7 @@ public class NetworkAgentAddressCoherencyTest extends JunitMadkit {
 				assertTrue(isKernelOnline());
 				launchExternalNetworkInstance(NetworkMessageAgent.class);
 				Message message = waitNextMessage(10000);
-				if(logger != null)
-					logger.info(message.toString());
+					getLogger().info(message.toString());
 				assertFalse(message.getSender().isFrom(getKernelAddress()));
 				AgentAddress local = getAgentAddressIn(COMMUNITY, GROUP, ROLE);
 				assertTrue(local.isFrom(getKernelAddress()));
@@ -94,10 +93,8 @@ public class NetworkAgentAddressCoherencyTest extends JunitMadkit {
 				requestRole(COMMUNITY, GROUP, ROLE2);
 				launchExternalNetworkInstance(ForEverSendRepliesWithTheSameMessageAgent.class);
 				Message message = waitNextMessage(10000);
-				if(logger != null){
-					logger.info(message.toString());
-					logger.info("sender is local ?"+message.getSender().isFrom(getKernelAddress()));
-				}
+				getLogger().info(message.toString());
+				getLogger().info("sender is local ?"+message.getSender().isFrom(getKernelAddress()));
 				assertFalse(message.getSender().isFrom(getKernelAddress()));
 				AgentAddress local = getAgentAddressIn(COMMUNITY, GROUP, ROLE2);
 				assertTrue(local.isFrom(getKernelAddress()));
@@ -106,11 +103,11 @@ public class NetworkAgentAddressCoherencyTest extends JunitMadkit {
 				assertFalse(message.getSender().isFrom(getKernelAddress()));
 				assertTrue(receiver.isFrom(getKernelAddress()));
 				
-				logger.info(message.toString());
+				getLogger().info(message.toString());
 				ObjectMessage<AgentAddress> m = (ObjectMessage<AgentAddress>) message;
 				final AgentAddress myAA = m.getContent();
-				logger.info(local.toString());
-				logger.info(myAA.toString());
+				getLogger().info(local.toString());
+				getLogger().info(myAA.toString());
 				assertTrue(local.equals(myAA));
 				assertTrue(myAA.isFrom(getKernelAddress()));
 				sendMessage(myAA, new Message());
@@ -135,10 +132,8 @@ public class NetworkAgentAddressCoherencyTest extends JunitMadkit {
 				assertTrue(isKernelOnline());
 				launchExternalNetworkInstance(ForEverSendRepliesWithTheSameMessageAgent.class);
 				Message message = waitNextMessage(10000);
-				if(logger != null){
-					logger.info(message.toString());
-					logger.info("sender is local ?"+message.getSender().isFrom(getKernelAddress()));
-				}
+				getLogger().info(message.toString());
+					getLogger().info("sender is local ?"+message.getSender().isFrom(getKernelAddress()));
 				assertFalse(message.getSender().isFrom(getKernelAddress()));
 				AgentAddress local = getAgentAddressIn(COMMUNITY, GROUP, ROLE);
 				assertTrue(local.isFrom(getKernelAddress()));

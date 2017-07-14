@@ -37,13 +37,13 @@ knowledge of the CeCILL-C license and that you accept its terms.
 package madkit.visibility;
 
 import static org.junit.Assert.assertSame;
+
+import org.junit.Test;
+
 import madkit.kernel.AgentAddress;
-import madkit.kernel.AgentLogger;
 import madkit.kernel.KernelAddress;
 import madkit.kernel.Madkit;
 import madkit.kernel.Message;
-
-import org.junit.Test;
 
 /**
  * @author Fabien Michel
@@ -66,11 +66,6 @@ public class KernelVisibilityTest {
 	@Test
 	public void testAgentAddressVisibility() {
 		assertSame(0, AgentAddress.class.getConstructors().length);
-	}
-
-	@Test
-	public void testAgentLoggerVisibility() {
-		assertSame(0, AgentLogger.class.getConstructors().length);
 	}
 
 	@Test

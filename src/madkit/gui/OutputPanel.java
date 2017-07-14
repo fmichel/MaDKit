@@ -134,6 +134,10 @@ public class OutputPanel extends JPanel {
 				super.publish(record);
 				flush();
 			}
+			@Override
+			protected void reportError(String msg, Exception ex, int code) {
+//				super.reportError(msg, ex, code);//Avoid stream pipe closed exception
+			}
 		};
 		
 		agent.getLogger().addHandler(handler);

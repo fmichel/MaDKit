@@ -206,13 +206,13 @@ public class Agent extends AbstractAgent{
 	 * </pre>
 	 */
 	protected void live() {
-		setLogLevel(Level.INFO);
-		logger.talk("\n\tHi Human and hello World !!\n\n I am an instance of the madkit.kernel.Agent class\n As such, I am a MaDKit threaded Agent\n and thus have an autonomous activity!");
+		getLogger().setLevel(Level.INFO);
+		getLogger().talk("\n\tHi Human and hello World !!\n\n I am an instance of the madkit.kernel.Agent class\n As such, I am a MaDKit threaded Agent\n and thus have an autonomous activity!");
 		pause(5000);
-		logger.talk("\n\n And in fact, I am the simplest agent ever\n because I simply do nothing at all :)\n\n");
+		getLogger().talk("\n\n And in fact, I am the simplest agent ever\n because I simply do nothing at all :)\n\n");
 		pause(4000);
 		int i = (int) (Math.random()*3000+4500);
-		logger.info("I will quit in "+i+" milliseconds... Bye !");
+		getLogger().info("I will quit in "+i+" milliseconds... Bye !");
 		pause(i);
 	}
 
@@ -294,7 +294,7 @@ public class Agent extends AbstractAgent{
 	public Message sendMessageWithRoleAndWaitForReply(final AgentAddress receiver, Message messageToSend, String senderRole, Integer timeOutMilliSeconds ){
 		//no need to checkAliveness : this is done in noLogSendingMessage
 		if(logger != null)
-			logger.finest("sendMessageAndWaitForReply : sending "+messageToSend+" to "+receiver+", and waiting reply...");
+			logger.finest(() -> "sendMessageAndWaitForReply : sending "+messageToSend+" to "+receiver+", and waiting reply...");
 		if(getKernel().sendMessage(this, receiver, messageToSend,senderRole) != SUCCESS){
 			return null;
 		}
@@ -383,7 +383,7 @@ public class Agent extends AbstractAgent{
 			final String senderRole, 
 			final Integer timeOutMilliSeconds){
 		if(logger != null)
-			logger.finest("sendMessageAndWaitForReply : sending "+messageToSend+" to any "+I18nUtilities.getCGRString(community, group, role)+
+			logger.finest(() -> "sendMessageAndWaitForReply : sending "+messageToSend+" to any "+I18nUtilities.getCGRString(community, group, role)+
 					(timeOutMilliSeconds == null ? "":", and waiting reply for "+TimeUnit.MILLISECONDS.toSeconds(timeOutMilliSeconds)+" s..."));
 		if(getKernel().sendMessage(this,community,group,role, messageToSend,senderRole) != SUCCESS){
 			return null;
@@ -456,7 +456,7 @@ public class Agent extends AbstractAgent{
 			return null;
 		}
 		if(logger != null)
-			logger.finest("sendReplyAndWaitForReply : sending "+reply+" as reply to "+messageToReplyTo+", and waiting reply...");
+			logger.finest(() -> "sendReplyAndWaitForReply : sending "+reply+" as reply to "+messageToReplyTo+", and waiting reply...");
 		return waitAnswer(reply,timeOutMilliSeconds);
 	}
 
@@ -488,10 +488,9 @@ public class Agent extends AbstractAgent{
 	public Message waitNextMessage()
 	{
 		if(logger != null){
-			logger.finest("waitNextMessage...");
+			logger.finest(() -> "waitNextMessage...");
 			final Message m = waitingNextMessageForEver();
-			if(logger != null)
-				logger.finest("..."+Words.NEW_MSG+": "+m);
+			logger.finest(() -> "..."+Words.NEW_MSG+": "+m);
 			return m;
 		}
 		return waitingNextMessageForEver();
@@ -509,12 +508,12 @@ public class Agent extends AbstractAgent{
 	public Message waitNextMessage(final long timeOutMilliseconds)
 	{
 		if(logger != null){
-			logger.finest("Waiting next message during "+timeOutMilliseconds+" milliseconds...");
+			logger.finest(() -> "Waiting next message during "+timeOutMilliseconds+" milliseconds...");
 			final Message m = waitingNextMessage(timeOutMilliseconds, TimeUnit.MILLISECONDS);
 			if(m != null)
-				logger.finest("waitNextMessage->"+Words.NEW_MSG+": "+m);
+				logger.finest(() -> "waitNextMessage->"+Words.NEW_MSG+": "+m);
 			else
-				logger.finest("waitNextMessage time out !");
+				logger.finest(() -> "waitNextMessage time out !");
 			return m;
 		}
 		return waitingNextMessage(timeOutMilliseconds, TimeUnit.MILLISECONDS);
@@ -537,13 +536,10 @@ public class Agent extends AbstractAgent{
 			m = waitingNextMessageForEver();
 		}
 		addAllToMessageBox(receptions);
-//		if (!receptions.isEmpty()) {
-//			synchronized (messageBox) {
-//				messageBox.addAll(receptions);
-//			}
-//		}
-		if (logger != null)
-			logger.finest("a match has arrived " + m);
+		if (logger != null) {
+			final Message answerFinal = m;
+			logger.finest(() -> "a match has arrived " + answerFinal);
+		}
 		return m;
 	}
 
@@ -566,7 +562,7 @@ public class Agent extends AbstractAgent{
 		final List<Message> receptions = new ArrayList<>();
 		final long endTime = System.nanoTime() + timeOutNanos;
 		Message answer = waitingNextMessage(timeOutNanos, TimeUnit.NANOSECONDS);
-		while (answer != null && !filter.accept(answer)) {
+		while (answer != null && ! filter.accept(answer)) {
 			receptions.add(answer);
 			answer = waitingNextMessage(endTime - System.nanoTime(), TimeUnit.NANOSECONDS);
 		}
@@ -577,7 +573,8 @@ public class Agent extends AbstractAgent{
 //			}
 //		}
 		if(logger != null){
-			logger.finest(answer == null ? "...Waiting time out, no compliant message received" : "...a match has arrived : " + answer);
+			final Message answerFinal = answer;
+			logger.finest(() -> (answerFinal == null) ? "...Waiting time out, no compliant message received" : "...a match has arrived : " + answerFinal);
 		}
 		return answer;
 	}
@@ -589,7 +586,7 @@ public class Agent extends AbstractAgent{
 	protected void pause(final int milliSeconds) {
 		if (milliSeconds > 0) {
 			if (logger != null)
-				logger.finest(Words.PAUSE + " " + milliSeconds + " ms.");
+				logger.finest(() -> Words.PAUSE + " " + milliSeconds + " ms.");
 			try {
 				Thread.sleep(milliSeconds);
 			} catch (InterruptedException e) {

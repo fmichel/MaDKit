@@ -186,7 +186,7 @@ public class DistantHookSystemTest extends JunitMadkit {
 		Madkit mdk = launchTest(new NormalAgent() {
 			@Override
 					protected void activate() {
-				setLogLevel(Level.ALL);
+				getLogger().setLevel(Level.ALL);
 						sendMessage(LocalCommunity.NAME, 
 								LocalCommunity.Groups.SYSTEM, 
 								Organization.GROUP_MANAGER_ROLE, 

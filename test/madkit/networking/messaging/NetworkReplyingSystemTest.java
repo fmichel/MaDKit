@@ -71,7 +71,7 @@ public class NetworkReplyingSystemTest extends JunitMadkit {
 				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
 				final ForEverAgent agent = new ForEverAgent();
 				launchAgent(agent);
-				setLogLevel(Level.ALL);
+				getLogger().setLevel(Level.ALL);
 				assertTrue(isKernelOnline());
 				Message m = new Message(); 
 				for (int i = 0; i < 10; i++) {
@@ -82,8 +82,7 @@ public class NetworkReplyingSystemTest extends JunitMadkit {
 				pause(5000);
 				Message message = new Message();
 				sendMessage(COMMUNITY, GROUP, ROLE, message );
-				if(logger != null)
-					logger.info(message.toString());
+				getLogger().info(message.toString());
 				Message m2 = sendMessageAndWaitForReply(COMMUNITY, GROUP, ROLE, m, 10000);
 				cleanHelperMDKs(1000);
 				System.err.println(m);

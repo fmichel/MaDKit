@@ -72,7 +72,7 @@ public class DuplicateNamesTest extends JunitMadkit {
 			@Override
 			protected void activate() {
 				setName(COMMUNITY);
-				setLogLevel(Level.ALL);
+				getLogger().setLevel(Level.ALL);
 				assertEquals(SUCCESS , launchAgent(new SetNameAgent(),true));
 			}
 		});
@@ -87,7 +87,7 @@ public class DuplicateNamesTest extends JunitMadkit {
 			@Override
 			protected void activate() {
 				setName(COMMUNITY);
-				setLogLevel(Level.ALL);
+				getLogger().setLevel(Level.ALL);
 				assertEquals(SUCCESS , launchAgent(new SetNameAgent(),true));
 				f = new File(getMadkitProperty(Option.logDirectory.name()));
 			}
@@ -106,14 +106,11 @@ class SetNameAgent extends AbstractAgent{
 	}
 	@Override
 	protected void activate() {
-		setLogLevel(Level.ALL);
-		if(logger != null)
-			logger.info("test");
-		setLogLevel(Level.OFF);
-		if(logger != null)
-			logger.info("test no display");
-		setLogLevel(Level.ALL);
-		if(logger != null)
-			logger.info("test 2");
+		getLogger().setLevel(Level.ALL);
+		getLogger().info("test");
+		getLogger().setLevel(Level.OFF);
+		getLogger().info("test no display");
+		getLogger().setLevel(Level.ALL);
+		getLogger().info("test 2");
 	}
 }

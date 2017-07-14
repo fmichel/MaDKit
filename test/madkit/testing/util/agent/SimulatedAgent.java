@@ -62,7 +62,7 @@ public class SimulatedAgent extends AbstractAgent {
 
 	@Override
 	protected void activate() {
-//		setLogLevel(Level.ALL);
+//		getLogger().setLevel(Level.ALL);
 		bucketModeCreateGroup(COMMUNITY, GROUP, false, null);
 		bucketModeRequestRole(COMMUNITY, GROUP, ROLE, null);
 		activated  = true;
@@ -86,8 +86,7 @@ public class SimulatedAgent extends AbstractAgent {
 	
 	
 	public void doIt() {
-		if(logger != null)
-			logger.info("doing it");
+		getLogger().info("doing it");
 	}
 	
 	public boolean goneThroughActivate(){

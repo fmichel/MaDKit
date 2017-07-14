@@ -66,15 +66,13 @@ public class PongAgent extends Agent {
 		while (true) {
 			pause(500);
 			sendMessage(COMMUNITY, GROUP, ROLE, new StringMessage("test"));
-			if (logger != null)
-				logger.talk("\nreceived: " + nextMessage());
+							getLogger().talk("\nreceived: " + nextMessage());
 		}
 	}
 
 	@Override
 	protected void end() {
-		if (logger != null)
-			logger.info("bye");
+		getLogger().info("bye");
 	}
 
 	/**

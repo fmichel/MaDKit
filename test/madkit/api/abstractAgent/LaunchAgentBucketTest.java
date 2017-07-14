@@ -118,7 +118,7 @@ public class LaunchAgentBucketTest extends JunitMadkit {
 						launchAgent(new Agent(){
 							@Override
 							protected void activate() {
-								setLogLevel(Level.ALL);
+								getLogger().setLevel(Level.ALL);
 								pause(100);
 								requestRole(COMMUNITY, GROUP, ROLE);
 							}
@@ -141,7 +141,7 @@ public class LaunchAgentBucketTest extends JunitMadkit {
 				stopTimer("bucket launch time = ");
 				System.err.println("done\n\n");
 				requestRole(COMMUNITY, GROUP, ROLE);
-				setLogLevel(Level.OFF);
+				getLogger().setLevel(Level.OFF);
 				assertEquals(1000002, getAgentsWithRole(COMMUNITY, GROUP, ROLE,true).size());
 			}
 		});
@@ -189,7 +189,7 @@ public class LaunchAgentBucketTest extends JunitMadkit {
 	public void returnSuccessOn0() {
 		launchTest(new AbstractAgent() {
 			protected void activate() {
-//				setLogLevel(Level.ALL);
+//				getLogger().setLevel(Level.ALL);
 				List<AbstractAgent> l = launchAgentBucket(SimulatedAgent.class.getName(), 0);
 				assertEquals(0, l.size());
 				assertEquals(null, getAgentsWithRole(COMMUNITY, GROUP, ROLE));

@@ -43,6 +43,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
+import org.junit.Before;
+import org.junit.Test;
+
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.AbstractAgent.State;
@@ -54,9 +57,6 @@ import madkit.simulation.activator.GenericBehaviorActivator;
 import madkit.testing.util.agent.FaultyAA;
 import madkit.testing.util.agent.SimulatedAgent;
 import madkit.testing.util.agent.SimulatedAgentThatLaunchesASimulatedAgent;
-
-import org.junit.Before;
-import org.junit.Test;
 
 /**
  * @author Fabien Michel
@@ -78,13 +78,12 @@ public class LaunchAgentBucketWithRolesWithListTest extends JunitMadkit {
 
 	@Test
 	public void cannotLaunch() {
+//		addMadkitArgs(LevelOption.kernelLogLevel.toString(),"INFO");
 		launchTest(new AbstractAgent() {
-
 			protected void activate() {
-				launchAgentBucket(FaultyAA.class.getName(), size, COMMUNITY + ","
-						+ GROUP + "," + ROLE);
+				launchAgentBucket(FaultyAA.class.getName(), size, COMMUNITY + ","	+ GROUP + "," + ROLE);
 			}
-		});
+		},ReturnCode.SUCCESS);
 	}
 
 	@Test
@@ -202,7 +201,7 @@ public class LaunchAgentBucketWithRolesWithListTest extends JunitMadkit {
 
 	public static void testAgentsRoles(List<? extends AbstractAgent> l) {
 		for (AbstractAgent abstractAgent : l) {
-			abstractAgent.setLogLevel(Level.ALL);
+			abstractAgent.getLogger().setLevel(Level.ALL);
 			assertTrue(abstractAgent.isAlive());
 			ReturnCode requestRole = abstractAgent.requestRole(COMMUNITY,GROUP,ROLE);
 			System.err.println(requestRole);

@@ -75,7 +75,7 @@ public class CandidateTest extends JunitMadkit {
 					}
 					@Override
 					protected void live() {
-						setLogLevel(Level.ALL);
+						getLogger().setLevel(Level.ALL);
 						sendReply(waitNextMessage(), new Message());
 					}
 				});

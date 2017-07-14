@@ -50,7 +50,7 @@ public class BlockedInActivateAgent extends Agent {
 
 	@Override
 	protected void activate() {
-		setLogLevel(Level.ALL);
+		getLogger().setLevel(Level.ALL);
 		waitNextMessage();
 	}
 	

@@ -62,7 +62,7 @@ public class KillingWaitingMessageThreadedAgentsTest extends JunitMadkit {
 	public void brutalKills() {// TODO brutal kill with to < 0
 		launchTest(new AbstractAgent() {
 			public void activate() {
-				setLogLevel(Level.ALL);
+				getLogger().setLevel(Level.ALL);
 				Agent a;
 
 				a = new WaitingMessageAgent(true, false, true);
@@ -82,7 +82,7 @@ public class KillingWaitingMessageThreadedAgentsTest extends JunitMadkit {
 	public void brutalKillOnWaitInActivate() {// TODO brutal kill with to < 0
 		launchTest(new AbstractAgent() {
 			public void activate() {
-				setLogLevel(Level.ALL);
+				getLogger().setLevel(Level.ALL);
 				WaitingMessageAgent a = new WaitingMessageAgent(true, false, false);
 				assertEquals(TIMEOUT, launchAgent(a, 1));
 				assertEquals(SUCCESS, killAgent(a, 1));
@@ -95,7 +95,7 @@ public class KillingWaitingMessageThreadedAgentsTest extends JunitMadkit {
 	public void brutalKillOnWaitInLive() {// TODO brutal kill with to < 0
 		launchTest(new AbstractAgent() {
 			public void activate() {
-				setLogLevel(Level.ALL);
+				getLogger().setLevel(Level.ALL);
 				WaitingMessageAgent a = new WaitingMessageAgent(false, true, false);
 				assertEquals(SUCCESS, launchAgent(a));
 				pause(100);
@@ -109,7 +109,7 @@ public class KillingWaitingMessageThreadedAgentsTest extends JunitMadkit {
 	public void brutalKillOnWaitInEnd() {// TODO brutal kill with to < 0
 		launchTest(new AbstractAgent() {
 			public void activate() {
-				setLogLevel(Level.ALL);
+				getLogger().setLevel(Level.ALL);
 				WaitingMessageAgent a = new WaitingMessageAgent(false, false, true);
 				assertEquals(SUCCESS, launchAgent(a));
 				pause(100);

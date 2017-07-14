@@ -57,16 +57,16 @@ import java.util.jar.JarFile;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import madkit.gui.MASModel;
-import madkit.gui.menu.ClassPathSensitiveMenu;
-import madkit.util.MadkitProperties;
-import madkit.util.XMLUtilities;
-
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import com.sun.javaws.jnl.JARDesc;
 import com.sun.jnlp.JNLPClassLoader;
+
+import madkit.gui.MASModel;
+import madkit.gui.menu.ClassPathSensitiveMenu;
+import madkit.util.MadkitProperties;
+import madkit.util.XMLUtilities;
 
 /**
  * The MadkitClassLoader is the class loader used by MaDKit. It enables
@@ -78,7 +78,7 @@ import com.sun.jnlp.JNLPClassLoader;
  * @version 5.2
  * 
  */
-final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
+final public class MadkitClassLoader extends URLClassLoader {
 
 	private Collection<String>	 classesToReload;
 //	final private Madkit			madkit;

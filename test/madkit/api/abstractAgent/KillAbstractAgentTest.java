@@ -74,7 +74,7 @@ public class KillAbstractAgentTest extends JunitMadkit {
 		addMadkitArgs(LevelOption.kernelLogLevel.toString(), "FINEST");
 		launchTest(new AbstractAgent() {
 			protected void activate() {
-//				setLogLevel(Level.ALL);
+//				getLogger().setLevel(Level.ALL);
 				NormalAA naa = new NormalAA();
 				assertEquals(SUCCESS, launchAgent(naa));
 				assertEquals(SUCCESS, killAgent(naa));
@@ -86,7 +86,7 @@ public class KillAbstractAgentTest extends JunitMadkit {
 	public void returnNOT_YET_LAUNCHEDAfterImmediateLaunch() {
 		launchTest(new AbstractAgent() {
 			protected void activate() {
-//				setLogLevel(Level.ALL);
+//				getLogger().setLevel(Level.ALL);
 				TimeOutAA to = new TimeOutAA(true, true);
 				assertEquals(TIMEOUT, launchAgent(to, 0));
 				ReturnCode r = killAgent(to);
@@ -100,10 +100,9 @@ public class KillAbstractAgentTest extends JunitMadkit {
 		addMadkitArgs(LevelOption.agentLogLevel.toString(), "FINEST");
 		launchTest(new AbstractAgent() {
 			protected void activate() {
-//				setLogLevel(Level.ALL);
+//				getLogger().setLevel(Level.ALL);
 				FaultyAA f = new FaultyAA(true);
-				if (logger != null)
-					logger.info("activating");
+				getLogger().info("activating");
 				assertEquals(AGENT_CRASH, launchAgent(f));
 				pause(100);
 				assertEquals(ALREADY_KILLED, killAgent(f));
@@ -116,10 +115,9 @@ public class KillAbstractAgentTest extends JunitMadkit {
 		addMadkitArgs(LevelOption.agentLogLevel.toString(), "FINEST");
 		launchTest(new AbstractAgent() {
 			protected void activate() {
-//				setLogLevel(Level.ALL);
+//				getLogger().setLevel(Level.ALL);
 				AbstractAgent f = new AbstractAgent();
-				if (logger != null)
-					logger.info("activating");
+				getLogger().info("activating");
 				assertEquals(SUCCESS, launchAgent(f));
 				assertEquals(SUCCESS, killAgent(f));
 				assertEquals(ALREADY_KILLED, killAgent(f));
@@ -136,7 +134,7 @@ public class KillAbstractAgentTest extends JunitMadkit {
 			ArrayList<AbstractAgent> list = new ArrayList<>(100);
 
 			protected void activate() {
-//				setLogLevel(Level.ALL);
+//				getLogger().setLevel(Level.ALL);
 				startTimer();
 				for (int i = 0; i < 100; i++) {
 					AbstractAgent t = new AbstractAgent();
@@ -158,7 +156,7 @@ public class KillAbstractAgentTest extends JunitMadkit {
 	public void returnTimeOut() {
 		launchTest(new AbstractAgent() {
 			protected void activate() {
-				setLogLevel(Level.ALL);
+				getLogger().setLevel(Level.ALL);
 				TimeOutAA to = new TimeOutAA(true, true);
 				assertEquals(TIMEOUT, launchAgent(to, 1));
 				while (to.getState() != State.LIVING) {
@@ -178,7 +176,7 @@ public class KillAbstractAgentTest extends JunitMadkit {
 		launchTest(new AbstractAgent() {
 			protected void activate() {
 				NormalAA target = new NormalAA();
-				setLogLevel(Level.ALL);
+				getLogger().setLevel(Level.ALL);
 				assertEquals(SUCCESS, launchAgent(target));
 				assertEquals(SUCCESS, killAgent(target));
 				assertEquals(ALREADY_KILLED, killAgent(target));
@@ -191,7 +189,7 @@ public class KillAbstractAgentTest extends JunitMadkit {
 		addMadkitArgs(LevelOption.agentLogLevel.toString(), "ALL");
 		launchTest(new AbstractAgent() {
 			protected void activate() {
-				setLogLevel(Level.ALL);
+				getLogger().setLevel(Level.ALL);
 				NormalAA target = new NormalAA();
 				assertEquals(SUCCESS, launchAgent(target));
 				assertEquals(SUCCESS, killAgent(target, 0));
@@ -204,7 +202,7 @@ public class KillAbstractAgentTest extends JunitMadkit {
 		addMadkitArgs(LevelOption.kernelLogLevel.toString(), "ALL");
 		launchTest(new AbstractAgent() {
 			protected void activate() {
-				setLogLevel(Level.ALL);
+				getLogger().setLevel(Level.ALL);
 				FaultyAA f = new FaultyAA(true);
 				assertEquals(AGENT_CRASH, launchAgent(f));
 				assertEquals(ALREADY_LAUNCHED, launchAgent(f));
@@ -216,7 +214,7 @@ public class KillAbstractAgentTest extends JunitMadkit {
 	public void selfKill() {
 		launchTest(new AbstractAgent() {
 			protected void activate() {
-				setLogLevel(Level.OFF);
+				getLogger().setLevel(Level.OFF);
 
 				ReturnCode r = launchAgent(new SelfKillAA(true), 1);
 				assertTrue(r == SUCCESS || r == AGENT_CRASH);
@@ -231,7 +229,7 @@ public class KillAbstractAgentTest extends JunitMadkit {
 	public void selfKillInActivate() {
 		launchTest(new AbstractAgent() {
 			protected void activate() {
-				setLogLevel(Level.OFF);
+				getLogger().setLevel(Level.OFF);
 				assertEquals(SUCCESS, launchAgent(new SelfKillAA(true, true)));
 				assertEquals(SUCCESS, launchAgent(new SelfKillAA(true, false)));
 			}
@@ -242,7 +240,7 @@ public class KillAbstractAgentTest extends JunitMadkit {
 	public void selfKillInActivateWTO() {
 		launchTest(new AbstractAgent() {
 			protected void activate() {
-				setLogLevel(Level.OFF);
+				getLogger().setLevel(Level.OFF);
 				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
 				assertEquals(SUCCESS, launchAgent(new SelfAbstractKill(true, false, 0)));
 				assertEquals(SUCCESS, launchAgent(new SelfAbstractKill(true, false, 1)));
@@ -375,7 +373,7 @@ public class KillAbstractAgentTest extends JunitMadkit {
 		launchTest(new AbstractAgent() {
 			protected void activate() {
 				AbstractAgent unstopableAgent = new UnstopableAbstractAgent();
-				unstopableAgent.setLogLevel(Level.FINER);
+				unstopableAgent.getLogger().setLevel(Level.FINER);
 				startTimer();
 				assertEquals(TIMEOUT, launchAgent(unstopableAgent, 1));
 				stopTimer("launch time out ");
@@ -391,8 +389,7 @@ public class KillAbstractAgentTest extends JunitMadkit {
 			protected void activate() {
 				AbstractAgent unstopableAgent = new UnstopableAbstractAgent();
 				assertEquals(TIMEOUT, launchAgent(unstopableAgent, 1));
-				if (logger != null)
-					logger.info(unstopableAgent.getState().toString());
+				getLogger().info(unstopableAgent.getState().toString());
 				assertEquals(SUCCESS, killAgent(unstopableAgent, 0));
 				assertAgentIsTerminated(unstopableAgent);
 			}

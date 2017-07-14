@@ -59,7 +59,7 @@ public class WorkingAgent extends DoItDuringLifeCycleAgent {
 			d *= Math.PI * 100;
 			// if(i % 10000000 == 0)
 			// if(logger != null)
-			// logger.info("yo");
+			// getLogger().info("yo");
 		}
 		super.doIt();
 	}

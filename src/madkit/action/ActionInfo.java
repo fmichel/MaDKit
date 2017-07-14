@@ -45,150 +45,147 @@ import javax.swing.ImageIcon;
 import madkit.kernel.AbstractAgent;
 
 /**
- * This class encapsulates action information which could be used
- * to easily create a new {@link MDKAbstractAction}.
+ * This class encapsulates action information which could be used to easily
+ * create a new {@link MDKAbstractAction}.
  * 
  * @author Fabien Michel
  * @since MaDKit 5.0.0.14
  * @version 1.1
- * 
  */
 public class ActionInfo {
 
-	final static private String IMAGE_DIR = "/madkit/action/images/";
-	
-	final private int keyEvent;
+    private static final String IMAGE_DIR = "/madkit/action/images/";
 
-	private ImageIcon bigIcon;
+    private final int keyEvent;
+    private final String shortDescription;
+    private final String longDescription;
+    
+    private ImageIcon bigIcon;
+    private ImageIcon smallIcon;
+    private String name;
 
-	private ImageIcon smallIcon;
-	
-	private String name;
+    /**
+     * Builds a new ActionInfo considering an {@link Enum}. If the considered enum
+     * is from this package, it will be built automatically with values contained in
+     * the madkit.i18n directory
+     * 
+     * @param enumAction
+     * @param keyEvent
+     */
+    public <E extends Enum<E>> ActionInfo(E enumAction, int keyEvent, ResourceBundle resource) {
+	this(enumAction.name(), keyEvent, resource);
+    }
 
-	final private String shortDescription;
-
-	final private String longDescription;
-	
-	/**
-	 * Builds a new ActionInfo considering an {@link Enum}.
-	 * If the considered enum is from this package, it will be
-	 * built automatically with values contained in the madkit.i18n directory
-	 * 
-	 * @param enumAction
-	 * @param keyEvent
-	 */
-	public <E extends Enum<E>> ActionInfo(E enumAction, int keyEvent, ResourceBundle resource) {
-		this(enumAction.name(),keyEvent,resource);
+    /**
+     * Builds a new ActionInfo considering a codeName as a string.
+     * 
+     * @param codeName
+     *            the code name of the action as a string. For instance JCONSOLE.
+     * @param keyEvent
+     * @param resource
+     */
+    public ActionInfo(String codeName, int keyEvent, ResourceBundle resource) {
+	name = codeName;
+	this.keyEvent = keyEvent;
+	setIcon(name);
+	String[] codes = null;
+	try {
+	    codes = resource.getString(codeName).split(";");
 	}
-
-	/**
-	 * Builds a new ActionInfo considering a codeName as a string.
-	 * 
-	 * @param codeName the code name of the action as a string. For instance JCONSOLE.
-	 * @param keyEvent
-	 * @param resource
-	 */
-	public ActionInfo(String codeName, int keyEvent, ResourceBundle resource) {
-		name = codeName;
-		this.keyEvent = keyEvent;
-		setIcon(name);
-		String[] codes = null;
-		try {
-			codes = resource.getString(codeName).split(";");
-		} catch (MissingResourceException e) {
-			e.printStackTrace();
-		}
-		if (codes != null) {
-			shortDescription = codes.length > 1 ? codes[1] : codes[0];
-			longDescription = codes.length > 2 ? codes[2] : shortDescription;
-			name = codes[0];
-		}
-		else{
-			shortDescription = longDescription = name;
-		}
+	catch(MissingResourceException e) {
+	    e.printStackTrace();// NOSONAR
 	}
-
-	/**
-	 * 
-	 */
-	void setIcon(final String fileName) {
-		final URL imageUrl = getClass().getResource(IMAGE_DIR + fileName + ".png");
-		if (imageUrl != null) {
-			bigIcon = new ImageIcon(imageUrl);
-			if (bigIcon.getIconWidth() > 16) {
-				smallIcon = new ImageIcon(bigIcon.getImage().getScaledInstance(16, 16, java.awt.Image.SCALE_SMOOTH));
-			} else {
-				smallIcon = bigIcon;
-			}
-		}
-		else{
-			bigIcon = smallIcon = null;
-		}
+	if (codes != null) {
+	    shortDescription = codes.length > 1 ? codes[1] : codes[0];
+	    longDescription = codes.length > 2 ? codes[2] : shortDescription;
+	    name = codes[0];
 	}
-
-	/**
-	 * @return the keyEvent
-	 */
-	public int getKeyEvent() {
-		return keyEvent;
+	else {
+	    shortDescription = longDescription = name;
 	}
+    }
 
-	/**
-	 * @return the bigIcon
-	 */
-	public ImageIcon getBigIcon() {
-		return bigIcon;
+    /**
+     * 
+     */
+    void setIcon(final String fileName) {
+	final URL imageUrl = getClass().getResource(IMAGE_DIR + fileName + ".png");
+	if (imageUrl != null) {
+	    bigIcon = new ImageIcon(imageUrl);
+	    if (bigIcon.getIconWidth() > 16) {
+		smallIcon = new ImageIcon(bigIcon.getImage().getScaledInstance(16, 16, java.awt.Image.SCALE_SMOOTH));
+	    }
+	    else {
+		smallIcon = bigIcon;
+	    }
 	}
+	else {
+	    bigIcon = smallIcon = null;
+	}
+    }
 
-	/**
-	 * @return the smallIcon
-	 */
-	public ImageIcon getSmallIcon() {
-		return smallIcon;
-	}
+    /**
+     * @return the keyEvent
+     */
+    public int getKeyEvent() {
+	return keyEvent;
+    }
 
-	/**
-	 * @return the name
-	 */
-	public String getName() {
-		return name;
-	}
+    /**
+     * @return the bigIcon
+     */
+    public ImageIcon getBigIcon() {
+	return bigIcon;
+    }
 
-	/**
-	 * @return the shortDescription
-	 */
-	public String getShortDescription() {
-		return shortDescription;
-	}
+    /**
+     * @return the smallIcon
+     */
+    public ImageIcon getSmallIcon() {
+	return smallIcon;
+    }
 
-	/**
-	 * @return the longDescription
-	 */
-	public String getLongDescription() {
-		return longDescription;
-	}
+    /**
+     * @return the name
+     */
+    public String getName() {
+	return name;
+    }
 
-	/**
-	 * Converts the name of an enum object to a Java
-	 * standardized method name. For instance, using this on
-	 * {@link AgentAction#LAUNCH_AGENT}
-	 * will return <code>launchAgent</code>. This is especially used by 
-	 * {@link AbstractAgent#proceedEnumMessage(madkit.message.EnumMessage)}
-	 * to reflexively call the method of an agent which corresponds 
-	 * to the code of such messages.
-	 * 
-	 * @param e the enum object to convert
-	 * @return a string having a Java
-	 * standardized method name form.
-	 */
-	public static <E extends Enum<E>> String enumToMethodName(final E e){
-		final String[] tab = e.name().split("_");
-		String methodName = tab[0].toLowerCase();
-		for (int i = 1; i < tab.length; i++) {
-			final String s = tab[i];
-			methodName += s.charAt(0) + s.substring(1).toLowerCase();
-		}
-		return methodName;
+    /**
+     * @return the shortDescription
+     */
+    public String getShortDescription() {
+	return shortDescription;
+    }
+
+    /**
+     * @return the longDescription
+     */
+    public String getLongDescription() {
+	return longDescription;
+    }
+
+    /**
+     * Converts the name of an enum object to a Java standardized method name. For
+     * instance, using this on {@link AgentAction#LAUNCH_AGENT} will return
+     * <code>launchAgent</code>. This is especially used by
+     * {@link AbstractAgent#proceedEnumMessage(madkit.message.EnumMessage)} to
+     * reflexively call the method of an agent which corresponds to the code of such
+     * messages.
+     * 
+     * @param e
+     *            the enum object to convert
+     * @return a string having a Java standardized method name form.
+     */
+    public static <E extends Enum<E>> String enumToMethodName(final E e) {
+	final String[] tab = e.name().split("_");
+	StringBuilder methodName = new StringBuilder(tab[0].toLowerCase());
+	for (int i = 1; i < tab.length; i++) {
+	    final String s = tab[i];
+	    methodName.append(s.charAt(0) + s.substring(1).toLowerCase());
 	}
+	return methodName.toString();
+    }
 
 }

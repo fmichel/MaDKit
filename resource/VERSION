@@ -16,6 +16,18 @@ It also contains generic MAS simulation authoring tools.
 
 
 ----------------------------------------------------------------------------------
+------------------------------- MaDKit 5.2 ---------------------------------------
+----------------------------------------------------------------------------------
+
+1. Changes:
+	+ Logging mechanism entirely reworked, see the madkit.kernel.AgentLogger api. 
+	The logger field is no longer accessible by subclasses of AbstractAgent. 
+	madkit.kernel.AbstractAgent.getLogger() should now be used
+
+
+
+
+----------------------------------------------------------------------------------
 ------------------------------- MaDKit 5.1.1 -------------------------------------
 ----------------------------------------------------------------------------------
 

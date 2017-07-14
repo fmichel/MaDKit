@@ -41,7 +41,7 @@ import static org.junit.Assert.assertFalse;
 import org.junit.Test;
 
 import madkit.action.KernelAction;
-import madkit.agr.CloudCommunity;
+import madkit.agr.NetworkCommunity;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.kernel.AbstractAgent;
@@ -73,14 +73,13 @@ public class AsynchronousDiscoverTest extends JunitMadkit {
 				launchThreadedMKNetworkInstance();
 				pause(100);
 				checkConnectedIntancesNb(this, 6);
-				if (logger != null)
-					logger.info("" + getAgentsWithRole(LocalCommunity.NAME, Groups.NETWORK, LocalCommunity.Roles.NET_AGENT));
+				getLogger().info("" + getAgentsWithRole(LocalCommunity.NAME, Groups.NETWORK, LocalCommunity.Roles.NET_AGENT));
 				KernelAction.STOP_NETWORK.getActionFor(this).actionPerformed(null);
 				checkConnectedIntancesNb(this, 0);
 				pause(500);
 
 				// not connected
-				assertFalse(isCommunity(CloudCommunity.NAME));
+				assertFalse(isCommunity(NetworkCommunity.NAME));
 
 				// second round
 				KernelAction.LAUNCH_NETWORK.getActionFor(this).actionPerformed(null);

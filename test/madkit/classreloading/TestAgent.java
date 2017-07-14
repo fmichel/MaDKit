@@ -54,7 +54,7 @@ public class TestAgent extends Agent {
 	 * 
 	 */
 	public TestAgent() {
-		setLogLevel(Level.ALL);
+		getLogger().setLevel(Level.ALL);
 //		Activator<AbstractAgent> a = new Activator<AbstractAgent>("test", "r", "r") {
 //			public void adding(AbstractAgent theAgent) {
 //				ActionListener al = new ActionListener() {
@@ -76,18 +76,17 @@ public class TestAgent extends Agent {
 	 */
 	@Override
 	protected void activate() {
-		setLogLevel(Level.ALL);
+		getLogger().setLevel(Level.ALL);
 		super.activate();
-		if (logger != null) {
-			logger.info("\n\na\n\n");
+			getLogger().info("\n\na\n\n");
 			FakeObject o = new FakeObject();
-			logger.info("\nfake is " + o);
-			logger.info("\nfake2 is " + (new  Fake().toString()));
+			getLogger().info("\nfake is " + o);
+			getLogger().info("\nfake2 is " + (new  Fake().toString()));
 			pause(8000);
 			try {
 				System.err.println(System.getProperty("java.class.path"));
 				MadkitClassLoader.reloadClass("madkit.classreloading.anotherPackage.Fake");
-				logger.info("after reload : "+MadkitClassLoader.getLoader().loadClass("madkit.classreloading.anotherPackage.Fake").newInstance().toString());
+				getLogger().info("after reload : "+MadkitClassLoader.getLoader().loadClass("madkit.classreloading.anotherPackage.Fake").newInstance().toString());
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			} catch (InstantiationException e) {
@@ -95,24 +94,22 @@ public class TestAgent extends Agent {
 			} catch (IllegalAccessException e) {
 				e.printStackTrace();
 			}
-			logger.info("\nfake3 is " + (new Fake().toString()));
+			getLogger().info("\nfake3 is " + (new Fake().toString()));
 			pause(8000);
 			try {
 				MadkitClassLoader.reloadClass("madkit.classreloading.anotherPackage.Fake");
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}
-			logger.info("\nfake4 is " + (new Fake().toString()));
+			getLogger().info("\nfake4 is " + (new Fake().toString()));
 		}
-	}
 
 	/**
 	 * 
 	 */
 	@Override
 	protected void live() {
-		if (logger != null)
-			logger.info("a");
+		getLogger().info("a");
 		pause(1000);
 	}
 

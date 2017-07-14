@@ -68,6 +68,7 @@ import madkit.i18n.Words;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
 import madkit.kernel.Madkit.BooleanOption;
+import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Madkit.Option;
 import madkit.kernel.MadkitClassLoader;
 import madkit.kernel.Message;
@@ -105,6 +106,7 @@ class GUIManagerAgent extends Agent {
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void activate() {// TODO parallelize that
+		getLogger().setLevel(LevelOption.guiLogLevel.getValue(getMadkitConfig()));
 		try {
 			agentFrameConstrutor = (Constructor<? extends AgentFrame>) MadkitClassLoader.getLoader().loadClass(getMadkitProperty(Option.agentFrameClass)).getDeclaredConstructor(AbstractAgent.class);
 		} catch (NoSuchMethodException | SecurityException | ClassCastException | ClassNotFoundException e1) {
@@ -153,8 +155,7 @@ class GUIManagerAgent extends Agent {
 					proceedEnumMessage((KernelMessage) m);
 				}
 				else
-					if (logger != null)
-						logger.warning("I received a message that I do not understand. Discarding "
+						getLogger().warning(() -> "I received a message that I do not understand. Discarding "
 								+ m);
 		}
 	}
@@ -185,9 +186,7 @@ class GUIManagerAgent extends Agent {
 		if (myFrame != null) {// TODO swing thread or cleaner shutdown
 			myFrame.dispose();
 		}
-		if (logger != null)
-			logger.finer("Ending: Frames disposed");
-		// }});
+		getLogger().finer(() -> "Ending: Frames disposed");
 	}
 
 	@SuppressWarnings("unused")
@@ -197,8 +196,7 @@ class GUIManagerAgent extends Agent {
 
 	private void setupAgentGui(final AbstractAgent agent) {
 		if (!shuttedDown && agent.isAlive()) {
-			if (logger != null)
-				logger.fine("Setting up GUI for " + agent);
+			getLogger().fine(() -> "Setting up GUI for " + agent);
 			AgentFrame f = null;
 			try {
 				f = agentFrameConstrutor.newInstance(agent);

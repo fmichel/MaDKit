@@ -62,12 +62,12 @@ public class NormalAgent extends Agent {
 	protected void activate() {
 		createGroupIfAbsent(COMMUNITY, GROUP, true);
 		assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
-		setLogLevel(Level.ALL);
+		getLogger().setLevel(Level.ALL);
 	}
 	
 	@Override
 	protected void live() {//need the override !
-		setLogLevel(Level.ALL);
+		getLogger().setLevel(Level.ALL);
 	}
 	
 	public static void main(String[] args) {

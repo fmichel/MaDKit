@@ -48,6 +48,11 @@ public class LocalCommunity implements Organization{
 
 
 	public static final String NAME = "local";
+	
+	
+	private LocalCommunity() {
+	    throw new IllegalStateException("Utility class");
+	}
 
 	/**
 	 * 

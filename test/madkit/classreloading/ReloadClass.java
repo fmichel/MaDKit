@@ -50,13 +50,12 @@ public class ReloadClass extends Agent {
 
 	@Override
 	protected void live() {
-		if (logger != null)
-			logger.info("\n\n " + new Fake().toString());
+		getLogger().info("\n\n " + new Fake().toString());
 		pause(8000);
 		try {
 			MadkitClassLoader.reloadClass(Fake.class.getName());
 			final Class<?> newestClassVersion = MadkitClassLoader.getLoader().loadClass(Fake.class.getName());
-			logger.info(newestClassVersion.newInstance().toString());
+			getLogger().info(newestClassVersion.newInstance().toString());
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} catch (InstantiationException e) {

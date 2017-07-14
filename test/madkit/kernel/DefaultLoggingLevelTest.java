@@ -34,7 +34,7 @@ same conditions as regards security.
 The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-C license and that you accept its terms.
  */
-package madkit.api.abstractAgent;
+package madkit.kernel;
 
 import static madkit.kernel.AbstractAgent.ReturnCode.NOT_COMMUNITY;
 import static org.junit.Assert.assertEquals;
@@ -47,10 +47,9 @@ import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
-import madkit.kernel.AbstractAgent;
-import madkit.kernel.JunitMadkit;
-
 import org.junit.Test;
+
+import madkit.kernel.Madkit.BooleanOption;
 
 /**
  * @author Fabien Michel
@@ -87,11 +86,46 @@ public class DefaultLoggingLevelTest extends JunitMadkit {
 	}
 
 	@Test
-	public void warningLogs() {
-		addMadkitArgs("--agentLogLevel", "INFO", "--warningLogLevel", "OFF");
+	public void noWwarningLogs() {
+		addMadkitArgs("--agentLogLevel", "INFO", BooleanOption.cgrWarnings.toString(), "false");
 		launchTest(new AbstractAgent() {
 			protected void activate() {
 				assertNotNull(getLogger());
+				assertEquals(Level.INFO, getLogger().getLevel());
+				getLogger().warning("warning");
+				TestHandler h = new TestHandler();
+				getLogger().addHandler(h);
+				assertEquals(NOT_COMMUNITY, requestRole(COMMUNITY, GROUP, ROLE));
+				assertFalse(h.hasBeenUsed());
+			}
+		});
+	}
+
+	@Test
+	public void noWarningLogsAtSevereLevel() {
+		addMadkitArgs("--agentLogLevel", "SEVERE", BooleanOption.cgrWarnings.toString());
+		launchTest(new AbstractAgent() {
+			protected void activate() {
+				assertNotNull(getLogger());
+				assertEquals(Level.SEVERE, getLogger().getLevel());
+				getLogger().warning("warning");
+				TestHandler h = new TestHandler();
+				getLogger().addHandler(h);
+				assertEquals(NOT_COMMUNITY, requestRole(COMMUNITY, GROUP, ROLE));
+				assertFalse(h.hasBeenUsed());
+			}
+		});
+	}
+
+	@Test
+	public void warningsActivatedAndOnUnderInfo() {
+		addMadkitArgs("--agentLogLevel", "INFO", BooleanOption.cgrWarnings.toString());
+		launchTest(new AbstractAgent() {
+			protected void activate() {
+				assertNotNull(getLogger());
+				assertTrue(getLogger().isCGRWarningsOn());
+				assertEquals(Level.INFO, getLogger().getLevel());
+				getLogger().warning("warning");
 				TestHandler h = new TestHandler();
 				getLogger().addHandler(h);
 				assertEquals(NOT_COMMUNITY, requestRole(COMMUNITY, GROUP, ROLE));
@@ -101,12 +135,31 @@ public class DefaultLoggingLevelTest extends JunitMadkit {
 	}
 
 	@Test
-	public void noWarningLogs() {
-		addMadkitArgs("--agentLogLevel", "INFO", "--warningLogLevel", "FINE");
+	public void warningsOnUnderALL() {
+		addMadkitArgs("--agentLogLevel", "ALL");
 		launchTest(new AbstractAgent() {
 			protected void activate() {
 				assertNotNull(getLogger());
-				assertEquals(Level.FINE, getLogger().getWarningLogLevel());
+				assertTrue(getLogger().isCGRWarningsOn());
+				assertEquals(Level.ALL, getLogger().getLevel());
+				getLogger().warning("warning");
+				TestHandler h = new TestHandler();
+				getLogger().addHandler(h);
+				assertEquals(NOT_COMMUNITY, requestRole(COMMUNITY, GROUP, ROLE));
+				assertTrue(h.hasBeenUsed());
+			}
+		});
+	}
+
+	@Test
+	public void warningsOffUnderInfo() {
+		addMadkitArgs("--agentLogLevel", "INFO");
+		launchTest(new AbstractAgent() {
+			protected void activate() {
+				assertNotNull(getLogger());
+				assertFalse(getLogger().isCGRWarningsOn());
+				assertEquals(Level.INFO, getLogger().getLevel());
+				getLogger().warning("warning");
 				TestHandler h = new TestHandler();
 				getLogger().addHandler(h);
 				assertEquals(NOT_COMMUNITY, requestRole(COMMUNITY, GROUP, ROLE));
@@ -114,7 +167,7 @@ public class DefaultLoggingLevelTest extends JunitMadkit {
 			}
 		});
 	}
-
+	
 }
 
 class TestHandler extends ConsoleHandler {
@@ -123,6 +176,7 @@ class TestHandler extends ConsoleHandler {
 
 	@Override
 	public void publish(LogRecord record) {
+//		super.publish(record);
 		logReceived = true;
 	}
 

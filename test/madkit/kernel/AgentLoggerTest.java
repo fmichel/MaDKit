@@ -37,9 +37,11 @@ knowledge of the CeCILL-C license and that you accept its terms.
 package madkit.kernel;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
@@ -47,10 +49,15 @@ import java.io.FilenameFilter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.swing.Action;
+
+import org.junit.Ignore;
 import org.junit.Test;
 
+import madkit.action.LoggingAction;
 import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.Madkit.BooleanOption;
+import madkit.kernel.Madkit.LevelOption;
 
 /**
  * @author Fabien Michel
@@ -61,19 +68,20 @@ import madkit.kernel.Madkit.BooleanOption;
 public class AgentLoggerTest extends JunitMadkit{
 
 	@Test
-	public void noLogger() {
+	public void lazyCreationTest() {
 		AbstractAgent a = new AbstractAgent();
-		a.logger.info("testing");
-		assertSame(AgentLogger.DEFAULT_AGENT_LOGGER, a.logger);
+		assertNull(a.logger);
+		a.getLogger().info("testing");
+		assertNotNull(a.logger);
 	}
 
 	@Test
 	public void logLevelOFF() {
 		AgentLog a = new AgentLog(Level.OFF);
 		assertNull(a.logger);
-		a.setLogLevel(Level.ALL);
+		a.getLogger().setLevel(Level.ALL);
 		assertNotNull(a.logger);
-		a.logger.info("testing");
+		a.getLogger().info("testing");
 	}
 
 	@Test
@@ -84,15 +92,13 @@ public class AgentLoggerTest extends JunitMadkit{
 			a.createGroup("test", "test");
 			fail();
 		} catch (KernelException e) {
-			e.printStackTrace();
+//			e.printStackTrace();
 		}
-		a.setLogLevel(Level.OFF);
-		assertNull(a.logger);
 		try {
 			a.createGroup("test", "test");
 			fail();
 		} catch (KernelException e) {
-			e.printStackTrace();
+//			e.printStackTrace();
 		}
 	}
 
@@ -101,11 +107,11 @@ public class AgentLoggerTest extends JunitMadkit{
 		AgentLog a = new AgentLog(Level.OFF);
 		a.setName("TEST");
 		assertNull(a.logger);
-		a.setLogLevel(Level.ALL);
+		a.getLogger().setLevel(Level.ALL);
 		assertNotNull(a.logger);
 		System.err.println(a.getName());
 		System.err.println(a.getName());
-		assertEquals("[" + a.getName() +"]", a.logger.getName());
+		assertEquals("[" + a.getName() +"]", a.getLogger().getName());
 	}
 
 	@Test
@@ -113,20 +119,21 @@ public class AgentLoggerTest extends JunitMadkit{
 		AgentLog a = new AgentLog(Level.ALL);
 		assertNotNull(a.logger);
 		String defaultName = "[" + a.getClass().getSimpleName() + "-" + a.hashCode() + "]";
-		assertEquals(defaultName, a.logger.getName());
+		assertEquals(defaultName, a.getLogger().getName());
 		a.setName("TEST");
 		assertNotNull(a.logger);
-		assertEquals(defaultName, a.logger.getName());
+		assertEquals(defaultName, a.getLogger().getName());
 	}
 
+	@Ignore 
 	@Test
-	public void logOnAndOffAndOnEquality() {
+	public void logOnAndOffAndOnEquality() {//could be reactivated if I create an emptyLogger for performance
 		AgentLog a = new AgentLog(Level.ALL);
 		assertNotNull(a.logger);
 		Logger l = a.logger;
-		a.setLogLevel(Level.OFF);
+		a.getLogger().setLevel(Level.OFF);
 		assertNull(a.logger);
-		a.setLogLevel(Level.ALL);
+		a.getLogger().setLevel(Level.ALL);
 		assertNotNull(a.logger);
 		assertEquals(l, a.logger);
 	}
@@ -141,7 +148,7 @@ public class AgentLoggerTest extends JunitMadkit{
 				getLogger().severeLog("test", new Exception());
 				pause(1000);
 			}
-		},ReturnCode.SUCCESS, true);
+		},ReturnCode.SUCCESS);
 	}
 
 	
@@ -154,7 +161,7 @@ public class AgentLoggerTest extends JunitMadkit{
 				System.err.println(getMadkitProperty(Madkit.Option.logDirectory.name()));
 				getLogger().createLogFile();
 				if(logger != null)
-					logger.fine(getName());
+					getLogger().fine(getName());
 				File f = new File(getMadkitProperty(Madkit.Option.logDirectory.name()));
 				assertSame(2, f.listFiles(new FilenameFilter() {
 					@Override
@@ -163,14 +170,70 @@ public class AgentLoggerTest extends JunitMadkit{
 					}
 				}).length);				
 			}
-		},ReturnCode.SUCCESS, true);
-		
+		},ReturnCode.SUCCESS);
 	}
+	
+	@Test
+	public void warningsLoggingDefaultValuesTest() {
+		addMadkitArgs(LevelOption.agentLogLevel.toString(),"INFO");
+		launchTest(new AbstractAgent(){
+			@Override
+			protected void activate() {
+				assertFalse(getLogger().isCGRWarningsOn());
+				getLogger().enableCGRWarnings();
+				assertTrue(getLogger().isCGRWarningsOn());
+			}
+		},ReturnCode.SUCCESS);
+	}
+	
+	@Test
+	public void warningsLoggingActionTest() {
+		addMadkitArgs(LevelOption.agentLogLevel.toString(),"INFO");
+		launchTest(new AbstractAgent(){
+			@Override
+			protected void activate() {
+				assertFalse(getLogger().isCGRWarningsOn());
+				Action action = getLogger().getEnableCGRWarningsAction();
+				assertFalse((boolean) action.getValue(action.SELECTED_KEY));
+				action.putValue(Action.SELECTED_KEY, true);
+				assertTrue(getLogger().isCGRWarningsOn());
+				action.putValue(Action.SELECTED_KEY, false);
+				assertFalse(getLogger().isCGRWarningsOn());
+				assertFalse((boolean) action.getValue(action.SELECTED_KEY));
+				action.actionPerformed(null);
+				assertTrue((boolean) action.getValue(action.SELECTED_KEY));
+				assertTrue(getLogger().isCGRWarningsOn());
+				action.actionPerformed(null);
+				assertFalse((boolean) action.getValue(action.SELECTED_KEY));
+				assertFalse(getLogger().isCGRWarningsOn());
+			}
+		},ReturnCode.SUCCESS);
+	}
+	
+	@Test
+	public void LogLevelActionTest() {
+		addMadkitArgs(LevelOption.agentLogLevel.toString(),"INFO");
+		launchTest(new AbstractAgent(){
+			@Override
+			protected void activate() {
+				assertFalse(getLogger().isCGRWarningsOn());
+				assertEquals(Level.INFO,getLogger().getLevel());
+				getLogger().finest("testing");
+				Action action = LoggingAction.LOG_LEVEL.getActionFor(this, Level.ALL);
+				action.actionPerformed(null);
+				assertEquals(Level.ALL,getLogger().getLevel());
+				getLogger().finest("testing");
+			}
+		},ReturnCode.SUCCESS);
+	}
+	
 
 }
 
 class AgentLog extends AbstractAgent {
 	AgentLog(Level lvl) {
-		setLogLevel(lvl);
+		if (lvl != Level.OFF) {
+			getLogger().setLevel(lvl);
+		}
 	}
 }

@@ -68,7 +68,7 @@ public class KillingWorkingThreadedAgentsTest extends JunitMadkit {
 		launchTest(new AbstractAgent() {
 			protected void activate() {
 				AbstractAgent unstopableAgent = new UnstopableAgent();
-				unstopableAgent.setLogLevel(Level.FINER);
+				unstopableAgent.getLogger().setLevel(Level.FINER);
 				startTimer();
 				assertEquals(TIMEOUT, launchAgent(unstopableAgent, 1));
 				stopTimer("launch time out ");

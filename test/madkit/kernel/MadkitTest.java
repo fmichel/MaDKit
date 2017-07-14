@@ -38,11 +38,12 @@ package madkit.kernel;
 
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+
+import org.junit.Test;
+
 import madkit.action.KernelAction;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
-
-import org.junit.Test;
 
 /**
  * @author Fabien Michel
@@ -117,6 +118,23 @@ public class MadkitTest {
 	@Test
 	public void defaultAgentLogging() throws InterruptedException {
 		Madkit m = new Madkit();
+		Thread.sleep(100);
+		assertNull(m.getKernel().logger);
+		String[] args = { BooleanOption.desktop.toString(), "false" };
+		m = new Madkit(args);
+		Thread.sleep(100);
+		assertNull(m.getKernel().logger);
+		String[] argss = { Madkit.Option.launchAgents.toString(), "madkit.kernel.Agent" };
+		m = new Madkit(argss);
+		Thread.sleep(100);
+		assertNull(m.getKernel().logger);
+	}
+	
+	@Test
+	public void defaultAgentLoggingNoDesktop() throws InterruptedException {
+		Madkit m = new Madkit(BooleanOption.desktop.toString(),"false"
+			,LevelOption.kernelLogLevel.toString(),"OFF"
+			);
 		Thread.sleep(100);
 		assertNull(m.getKernel().logger);
 		String[] args = { BooleanOption.desktop.toString(), "false" };

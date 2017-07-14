@@ -48,6 +48,7 @@ import org.junit.Test;
 import madkit.action.AgentAction;
 import madkit.action.GUIManagerAction;
 import madkit.action.KernelAction;
+import madkit.action.LoggingAction;
 import madkit.action.SchedulingAction;
 
 /**
@@ -68,6 +69,11 @@ public class I18nFileTest {
 	@Test
 	public final void testGUIManagerAction() throws IOException {
 		testFilePresenceAndContent(GUIManagerAction.class,"fr_FR");
+	}
+
+	@Test
+	public final void testLogLevelAction() throws IOException {
+		testFilePresenceAndContent(LoggingAction.class,"fr_FR");
 	}
 
 	@Test

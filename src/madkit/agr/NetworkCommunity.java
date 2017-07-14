@@ -40,16 +40,16 @@ package madkit.agr;
  * Defines the default groups and roles used for networking.
  * 
  * @author Fabien Michel
- * @since MaDKit 5.0.0.10
+ * @since MaDKit 5.2
  * @version 0.9
  * 
  */
-public class CloudCommunity implements Organization{
+public class NetworkCommunity implements Organization{
 
 	public static final String NAME = "Cloud";
 
 	/**
-	 * Default groups in the Cloud community.
+	 * Default groups in the Network community.
 	 * @since MaDKit 5.0.0.10
 	 */
 	public static final class Groups {
@@ -57,7 +57,7 @@ public class CloudCommunity implements Organization{
 	}
 
 	/**
-	 * Default roles in the Cloud community.
+	 * Default roles in the Network community.
 	 * @since MaDKit 5.0.0.10
 	 */
 	public static final class Roles {

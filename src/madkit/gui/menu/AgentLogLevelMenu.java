@@ -45,12 +45,14 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import javax.swing.AbstractButton;
+import javax.swing.Action;
 import javax.swing.ButtonGroup;
 import javax.swing.JMenu;
 import javax.swing.JRadioButtonMenuItem;
 
 import madkit.action.ActionInfo;
-import madkit.action.GUIManagerAction;
+import madkit.action.LoggingAction;
+import madkit.gui.SwingUtil;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AgentLogger;
 
@@ -67,15 +69,15 @@ import madkit.kernel.AgentLogger;
 public class AgentLogLevelMenu extends JMenu{
 	
 
-	private static final long serialVersionUID = -5402608797586593530L;
-
 	final private static Map<AbstractAgent,AgentLogLevelMenu> menus = new HashMap<>(); 
 	
 	final private static Level[] logLevels = {Level.OFF,Level.SEVERE,Level.WARNING,Level.INFO,Level.CONFIG,Level.FINE,Level.FINER,Level.FINEST, Level.ALL};
 
 	final private AbstractAgent myAgent;
 	final private ButtonGroup logGroup;
-	final private ButtonGroup warningGroup;
+//	final private ButtonGroup warningGroup;
+
+	private Action cgrWarningsAction;
 	
 	/**
 	 * Builds a menu containing all the log levels which
@@ -87,48 +89,30 @@ public class AgentLogLevelMenu extends JMenu{
 
 		myAgent = agent;
 		
-		ActionInfo action = GUIManagerAction.LOG_LEVEL.getActionInfo();
+		ActionInfo action = LoggingAction.LOG_LEVEL.getActionInfo();
 		JMenu logLevelMenu = new JMenu(action.getName());
 		logLevelMenu.setIcon(action.getSmallIcon());
 		logLevelMenu.setToolTipText(action.getShortDescription());
 		
-		action = GUIManagerAction.WARNING_LOG_LEVEL.getActionInfo();
-		JMenu warningLogLevelMenu = new JMenu(action.getName());
-		warningLogLevelMenu.setIcon(action.getSmallIcon());
-		warningLogLevelMenu.setToolTipText(action.getShortDescription());
-		
 		logGroup = new ButtonGroup();
-		warningGroup = new ButtonGroup();
 		
 		add(logLevelMenu);
-		add(warningLogLevelMenu);
 		
-		final String agentName = myAgent.getName();
 		final ActionListener setLogLevelListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				myAgent.setLogLevel(Level.parse( e.getActionCommand()));
+				myAgent.getLogger().setLevel(Level.parse( e.getActionCommand()));
 //				SwingUtil.UI_PREFERENCES.put(agentName+"LL",e.getActionCommand());
 			}
 		};
-		
-		final AgentLogger logger = myAgent.getLogger();
-		final ActionListener setWarningLogLevelListener = new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				logger.setWarningLogLevel(Level.parse(e.getActionCommand()));
-//				SwingUtil.UI_PREFERENCES.put(agentName+"WLL",e.getActionCommand());
-			}
-		};
-		
+
+		SwingUtil.addBooleanActionTo(this,myAgent.getLogger().getEnableCGRWarningsAction());
+
 		for(final Level l : logLevels){
 			JRadioButtonMenuItem logItem = new JRadioButtonMenuItem(l.getLocalizedName());
-			JRadioButtonMenuItem warningItem = new JRadioButtonMenuItem(l.getLocalizedName());
 			initMenuItem(logItem,setLogLevelListener,l.toString(),logGroup,logLevelMenu);
-			initMenuItem(warningItem,setWarningLogLevelListener,l.toString(),warningGroup,warningLogLevelMenu);
 		}
 //		myAgent.setLogLevel(Level.parse(SwingUtil.UI_PREFERENCES.get(agentName+"LL",logger.getLevel().toString())));
-//		logger.setWarningLogLevel(Level.parse(SwingUtil.UI_PREFERENCES.get(agentName+"WLL",logger.getWarningLogLevel().toString())));
 		update();
 		if (myAgent.hasGUI()) {//TODO need mvc here
 			menus.put(myAgent, this);
@@ -137,11 +121,7 @@ public class AgentLogLevelMenu extends JMenu{
 	}
 	
 	private void update() {
-//		if (myAgent.isAlive()) {
-			final AgentLogger logger = myAgent.getLogger();
-			updateButtonGroup(logGroup, logger.getLevel());
-			updateButtonGroup(warningGroup, logger.getWarningLogLevel());
-//		}
+			updateLogLevelGroup(myAgent.getLogger().getLevel());
 	}
 	
 	/**
@@ -157,11 +137,10 @@ public class AgentLogLevelMenu extends JMenu{
 	}
 	
 	/**
-	 * @param group 
 	 * @param logLevel
 	 */
-	private void updateButtonGroup(final ButtonGroup group, final Level logLevel) {
-		for (Enumeration<AbstractButton> buttons = group.getElements();buttons.hasMoreElements();) {
+	private void updateLogLevelGroup(final Level logLevel) {
+		for (Enumeration<AbstractButton> buttons = logGroup.getElements();buttons.hasMoreElements();) {
 			final AbstractButton button = buttons.nextElement();
 			if(button.getActionCommand().equals(logLevel.toString())){
 				button.setSelected(true);

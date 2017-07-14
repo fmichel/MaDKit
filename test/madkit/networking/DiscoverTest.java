@@ -43,7 +43,7 @@ import java.util.logging.Level;
 import org.junit.Test;
 
 import madkit.action.KernelAction;
-import madkit.agr.CloudCommunity;
+import madkit.agr.NetworkCommunity;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit.BooleanOption;
@@ -115,10 +115,10 @@ public class DiscoverTest extends JunitMadkit {
 	 * 
 	 */
 	private void testConnections(AbstractAgent agent) {
-		agent.setLogLevel(Level.INFO);
+		agent.getLogger().setLevel(Level.INFO);
 		checkConnectedIntancesNb(agent, OTHERS+1);
-//		List<AgentAddress> l = agent.getAgentsWithRole(CloudCommunity.NAME, CloudCommunity.Groups.NETWORK_AGENTS,
-//				CloudCommunity.Roles.NET_AGENT);
+//		List<AgentAddress> l = agent.getAgentsWithRole(NetworkCommunity.NAME, NetworkCommunity.Groups.NETWORK_AGENTS,
+//				NetworkCommunity.Roles.NET_AGENT);
 //		for (AgentAddress agentAddress : l) {
 //			System.err.println(agentAddress);
 //		}
@@ -128,11 +128,11 @@ public class DiscoverTest extends JunitMadkit {
 		do {
 			pause(200);
 		}
-		while (stopTimer("") < 10000 && agent.isCommunity(CloudCommunity.NAME));
+		while (stopTimer("") < 10000 && agent.isCommunity(NetworkCommunity.NAME));
 
 //		System.err.println(agent.getOrganizationSnapShot(true));
 		// not connected
-		assertFalse(agent.isCommunity(CloudCommunity.NAME));
+		assertFalse(agent.isCommunity(NetworkCommunity.NAME));
 
 		// second round
 		KernelAction.LAUNCH_NETWORK.getActionFor(agent).actionPerformed(null);

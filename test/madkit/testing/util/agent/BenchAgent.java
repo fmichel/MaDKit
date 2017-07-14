@@ -69,13 +69,11 @@ public class BenchAgent extends DoItDuringLifeCycleAgent {
 	
 	public void doIt() {
 		name = new JMenu();
-		if(logger != null)
-			logger.severe("action creation");
+		getLogger().severe("action creation");
 		for (int i = 0; i < 1000; i++) {
 			name.add(KernelAction.EXIT.getActionFor(this));
 		}
-		if(logger != null)
-			logger.info("action creation finish");
+		getLogger().info("action creation finish");
 	}
 
 	public static void main(String[] args) {

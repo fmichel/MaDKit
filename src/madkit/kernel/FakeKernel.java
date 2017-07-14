@@ -65,6 +65,18 @@ class FakeKernel extends MadkitKernel{
 		return (agent != null ? agent.toString() : "Agent" + AbstractAgent.State.NOT_LAUNCHED)+ErrorMessages.MUST_BE_LAUNCHED;
 	}
 	
+
+	/**
+	 * @param agent
+	 * @return 
+	 * @throws KernelException 
+	 */
+	private KernelException buildKernelException(final AbstractAgent agent) {
+		final KernelException ke = new KernelException(buildFailString(agent));
+		ke.printStackTrace();
+		return ke;
+	}
+
 	@Override
 	final ReturnCode createGroup(final AbstractAgent agent, final String community, final String group, final Gatekeeper gatekeeper, final boolean isDistributed) {
 		throw buildKernelException(agent);
@@ -154,17 +166,6 @@ class FakeKernel extends MadkitKernel{
 	@Override
 	final ReturnCode killAgent(final AbstractAgent agent,final AbstractAgent target, int timeOutSeconds){
 		throw buildKernelException(agent);
-	}
-
-	/**
-	 * @param agent
-	 * @return 
-	 * @throws KernelException 
-	 */
-	private KernelException buildKernelException(final AbstractAgent agent) {
-		final KernelException ke = new KernelException(buildFailString(agent));
-		ke.printStackTrace();
-		return ke;
 	}
 
 	@Override

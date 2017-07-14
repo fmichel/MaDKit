@@ -58,8 +58,7 @@ public class MKClient extends Agent {
 
 	@Override
 	public void activate() {
-		if (logger != null)
-			logger.info("\n\n-----------Client launched ------------\n\n");
+		getLogger().info("\n\n-----------Client launched ------------\n\n");
 		assertEquals(SUCCESS, createGroup("other", "other", true, null));
 		assertEquals(SUCCESS, requestRole("other", "other", "client", null));
 

@@ -47,8 +47,7 @@ public class NoPackage extends AbstractAgent {
 
 	@Override
 	protected void activate() {
-		if(logger != null)
-			logger.info("test");
+		getLogger().info("test");
 	}
 
 	/**

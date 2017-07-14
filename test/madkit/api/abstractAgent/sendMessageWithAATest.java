@@ -44,8 +44,6 @@ import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.util.logging.Level;
-
 import org.junit.Test;
 
 import madkit.agr.Organization;

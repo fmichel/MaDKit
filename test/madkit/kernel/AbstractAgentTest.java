@@ -49,14 +49,14 @@ import static org.junit.Assert.fail;
 import java.util.List;
 import java.util.logging.Level;
 
+import org.junit.Before;
+import org.junit.Test;
+
 import madkit.kernel.AbstractAgent.State;
 import madkit.kernel.Madkit.Option;
 import madkit.message.MessageFilter;
 import madkit.message.ObjectMessage;
 import madkit.message.StringMessage;
-
-import org.junit.Before;
-import org.junit.Test;
 
 /**
  * @author Fabien Michel
@@ -78,9 +78,9 @@ public class AbstractAgentTest {
 
 	@Test
 	public void testKernelNull() {
-		b.setLogLevel(Level.INFO);
+		b.getLogger().setLevel(Level.INFO);
 		if (b.logger != null)
-			b.logger.info("" + b.getKernel());
+			b.getLogger().info("" + b.getKernel());
 		try {
 			b.launchAgent(new AbstractAgent(), 0, true);
 			fail("exception not thrown");
@@ -243,7 +243,7 @@ public class AbstractAgentTest {
 	 */
 	@Test
 	public final void testGetLogger() {
-		assertNotSame(a.getLogger(), AgentLogger.DEFAULT_AGENT_LOGGER);
+		assertNotNull(a.getLogger());
 	}
 
 	/**
@@ -268,14 +268,13 @@ public class AbstractAgentTest {
 
 	/**
 	 * Test method for
-	 * {@link madkit.kernel.AbstractAgent#setLogLevel(java.util.logging.Level)}.
+	 * {@link madkit.kernel.AbstractAgent#getLogger().setLevel(java.util.logging.Level)}.
 	 */
 	@Test
-	public final void testSetLogLevel() {
-		assertEquals(a.logger, AgentLogger.DEFAULT_AGENT_LOGGER);
-		a.setLogLevel(Level.OFF);
+	public final void testgetLogger() {
 		assertNull(a.logger);
-		a.setLogLevel(Level.INFO);
+		a.getLogger().setLevel(Level.OFF);
+		a.getLogger().setLevel(Level.INFO);
 		assertNotNull(a.logger);
 		System.err.println(a.getLogger().getName());
 		a.setName("new");
@@ -283,8 +282,6 @@ public class AbstractAgentTest {
 		System.err.println(a.getLogger().getName());
 		assertEquals("new", a.getName());
 		assertEquals("[AbstractAgent-"+a.hashCode()+"]", a.getLogger().getName());
-		a.setLogLevel(Level.OFF);
-		assertNull(a.logger);
 	}
 
 	/**

@@ -61,7 +61,7 @@ public class ForEverAgent extends Agent {
 
 	@Override
 	protected void activate() {
-		setLogLevel(Level.ALL);
+		getLogger().setLevel(Level.ALL);
 		createGroupIfAbsent(JunitMadkit.COMMUNITY, GROUP,true);
 		assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
 		sendMessage(COMMUNITY, GROUP,ROLE,new Message());

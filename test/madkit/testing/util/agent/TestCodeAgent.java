@@ -51,7 +51,7 @@ public class TestCodeAgent extends Agent {
 	@Override
 	protected void activate() {
 //		getLogger().createLogFile();
-		setLogLevel(null);
+		getLogger().setLevel(null);
 	}
 
 	public static void main(String[] args) {

@@ -77,8 +77,7 @@ public class FaultyAA extends DoItDuringLifeCycleAbstractAgent {
 	@SuppressWarnings("null")
 	@Override
 	public void doIt() {
-		if (logger != null)
-			logger.info("crashing myself");
+		getLogger().info("crashing myself");
 		Object o = null;
 		o.toString();
 	}

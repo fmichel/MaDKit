@@ -46,11 +46,11 @@ import java.util.Arrays;
  * @version 0.91
  * 
  */
-final public class MASModel implements Comparable<MASModel> {
+public final class MASModel implements Comparable<MASModel> {
 	
-	final private String[] sessionCfg;
-	final private String description;
-	final private String name;
+    private final String[] sessionCfg;
+    private final String description;
+    private final String name;
 
 	public MASModel(String demoName, String[] args, String description) {
 		this.description = description;

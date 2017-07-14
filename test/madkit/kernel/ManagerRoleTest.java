@@ -41,7 +41,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import madkit.agr.Organization;
+import madkit.agr.DefaultMaDKitRoles;
 
 /**
 * @author Fabien Michel
@@ -60,9 +60,9 @@ public class ManagerRoleTest extends JunitMadkit {
 					}
 				});
 				try {
-					System.err.println("\nplayers="+getKernel().getRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE).players+"\n");
-					assertEquals(1, getKernel().getRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE).players.size());
-					assertEquals(this, getKernel().getRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE).players.get(0));
+					System.err.println("\nplayers="+getKernel().getRole(COMMUNITY, GROUP, DefaultMaDKitRoles.GROUP_MANAGER_ROLE).players+"\n");
+					assertEquals(1, getKernel().getRole(COMMUNITY, GROUP, DefaultMaDKitRoles.GROUP_MANAGER_ROLE).players.size());
+					assertEquals(this, getKernel().getRole(COMMUNITY, GROUP, DefaultMaDKitRoles.GROUP_MANAGER_ROLE).players.get(0));
 				} catch (CGRNotAvailable e) {
 					e.printStackTrace();
 				}

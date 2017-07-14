@@ -28,9 +28,9 @@ import java.util.logging.Level;
 
 import org.junit.Test;
 
+import madkit.agr.DefaultMaDKitRoles;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
-import madkit.agr.Organization;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Message;
@@ -59,14 +59,14 @@ public class HookSystemTest extends JunitMadkit {
 
 	    @Override
 	    protected void activate() {
-		sendMessage(LocalCommunity.NAME, LocalCommunity.Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE, new HookMessage(AgentActionEvent.CREATE_GROUP));
+		sendMessage(LocalCommunity.NAME, LocalCommunity.Groups.SYSTEM, DefaultMaDKitRoles.GROUP_MANAGER_ROLE, new HookMessage(AgentActionEvent.CREATE_GROUP));
 		pause(10);
 		createGroup(COMMUNITY, GROUP);
 		OrganizationEvent m = (OrganizationEvent) waitNextMessage();
 		assertNotNull(m);
 		assertEquals(COMMUNITY, m.getSourceAgent().getCommunity());
 		assertEquals(GROUP, m.getSourceAgent().getGroup());
-		assertEquals(Organization.GROUP_MANAGER_ROLE, m.getSourceAgent().getRole());
+		assertEquals(DefaultMaDKitRoles.GROUP_MANAGER_ROLE, m.getSourceAgent().getRole());
 	    }
 	});
 	pause(100);
@@ -81,8 +81,8 @@ public class HookSystemTest extends JunitMadkit {
 
 	    @Override
 	    protected void activate() {
-		sendMessage(LocalCommunity.NAME, LocalCommunity.Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE, new HookMessage(AgentActionEvent.CREATE_GROUP));
-		sendMessage(LocalCommunity.NAME, LocalCommunity.Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE, new HookMessage(AgentActionEvent.CREATE_GROUP));
+		sendMessage(LocalCommunity.NAME, LocalCommunity.Groups.SYSTEM, DefaultMaDKitRoles.GROUP_MANAGER_ROLE, new HookMessage(AgentActionEvent.CREATE_GROUP));
+		sendMessage(LocalCommunity.NAME, LocalCommunity.Groups.SYSTEM, DefaultMaDKitRoles.GROUP_MANAGER_ROLE, new HookMessage(AgentActionEvent.CREATE_GROUP));
 		pause(10);
 		createGroup(COMMUNITY, GROUP);
 		assertNull(nextMessage());
@@ -100,7 +100,7 @@ public class HookSystemTest extends JunitMadkit {
 
 	    @Override
 	    protected void activate() {
-		sendMessage(LocalCommunity.NAME, LocalCommunity.Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE, new HookMessage(AgentActionEvent.REQUEST_ROLE));
+		sendMessage(LocalCommunity.NAME, LocalCommunity.Groups.SYSTEM, DefaultMaDKitRoles.GROUP_MANAGER_ROLE, new HookMessage(AgentActionEvent.REQUEST_ROLE));
 		pause(10);
 		createGroup(COMMUNITY, GROUP);
 		requestRole(COMMUNITY, GROUP, ROLE);
@@ -124,7 +124,7 @@ public class HookSystemTest extends JunitMadkit {
 
 	    @Override
 	    protected void activate() {
-		sendMessage(LocalCommunity.NAME, LocalCommunity.Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE, new HookMessage(AgentActionEvent.LEAVE_ROLE));
+		sendMessage(LocalCommunity.NAME, LocalCommunity.Groups.SYSTEM, DefaultMaDKitRoles.GROUP_MANAGER_ROLE, new HookMessage(AgentActionEvent.LEAVE_ROLE));
 		pause(10);
 		createGroup(COMMUNITY, GROUP);
 		requestRole(COMMUNITY, GROUP, ROLE);
@@ -148,7 +148,7 @@ public class HookSystemTest extends JunitMadkit {
 
 	    @Override
 	    protected void activate() {
-		sendMessage(LocalCommunity.NAME, LocalCommunity.Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE, new HookMessage(AgentActionEvent.LEAVE_GROUP));
+		sendMessage(LocalCommunity.NAME, LocalCommunity.Groups.SYSTEM, DefaultMaDKitRoles.GROUP_MANAGER_ROLE, new HookMessage(AgentActionEvent.LEAVE_GROUP));
 		pause(10);
 		createGroup(COMMUNITY, GROUP);
 		leaveGroup(COMMUNITY, GROUP);
@@ -171,14 +171,14 @@ public class HookSystemTest extends JunitMadkit {
 
 	    @Override
 	    protected void activate() {
-		sendMessage(LocalCommunity.NAME, LocalCommunity.Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE, new HookMessage(AgentActionEvent.SEND_MESSAGE));
+		sendMessage(LocalCommunity.NAME, LocalCommunity.Groups.SYSTEM, DefaultMaDKitRoles.GROUP_MANAGER_ROLE, new HookMessage(AgentActionEvent.SEND_MESSAGE));
 		pause(10);
-		sendMessage(LocalCommunity.NAME, Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE, new Message());
+		sendMessage(LocalCommunity.NAME, Groups.SYSTEM, DefaultMaDKitRoles.GROUP_MANAGER_ROLE, new Message());
 		MessageEvent m = (MessageEvent) waitNextMessage();
 		assertNotNull(m);
 		assertEquals(AgentActionEvent.SEND_MESSAGE, m.getContent());
 		assertEquals(hashCode(), m.getMessage().getSender().hashCode());
-		assertEquals(Organization.GROUP_CANDIDATE_ROLE, m.getMessage().getSender().getRole());
+		assertEquals(DefaultMaDKitRoles.GROUP_CANDIDATE_ROLE, m.getMessage().getSender().getRole());
 	    }
 	});
     }
@@ -192,14 +192,14 @@ public class HookSystemTest extends JunitMadkit {
 
 	    @Override
 	    protected void activate() {
-		sendMessage(LocalCommunity.NAME, LocalCommunity.Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE, new HookMessage(AgentActionEvent.BROADCAST_MESSAGE));
+		sendMessage(LocalCommunity.NAME, LocalCommunity.Groups.SYSTEM, DefaultMaDKitRoles.GROUP_MANAGER_ROLE, new HookMessage(AgentActionEvent.BROADCAST_MESSAGE));
 		pause(10);
-		broadcastMessage(LocalCommunity.NAME, Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE, new Message());
+		broadcastMessage(LocalCommunity.NAME, Groups.SYSTEM, DefaultMaDKitRoles.GROUP_MANAGER_ROLE, new Message());
 		MessageEvent m = (MessageEvent) waitNextMessage();
 		assertNotNull(m);
 		assertEquals(AgentActionEvent.BROADCAST_MESSAGE, m.getContent());
 		assertEquals(hashCode(), m.getMessage().getSender().hashCode());
-		assertEquals(Organization.GROUP_CANDIDATE_ROLE, m.getMessage().getSender().getRole());
+		assertEquals(DefaultMaDKitRoles.GROUP_CANDIDATE_ROLE, m.getMessage().getSender().getRole());
 	    }
 	});
     }
@@ -211,7 +211,7 @@ public class HookSystemTest extends JunitMadkit {
 
 	    @Override
 	    protected void activate() {
-		sendMessage(LocalCommunity.NAME, LocalCommunity.Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE, new HookMessage(AgentActionEvent.AGENT_STARTED));
+		sendMessage(LocalCommunity.NAME, LocalCommunity.Groups.SYSTEM, DefaultMaDKitRoles.GROUP_MANAGER_ROLE, new HookMessage(AgentActionEvent.AGENT_STARTED));
 		pause(10);
 		NormalAA a;
 		launchAgent(a = new NormalAA());
@@ -236,7 +236,7 @@ public class HookSystemTest extends JunitMadkit {
 
 	    @Override
 	    protected void activate() {
-		sendMessage(LocalCommunity.NAME, LocalCommunity.Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE, new HookMessage(AgentActionEvent.AGENT_TERMINATED));
+		sendMessage(LocalCommunity.NAME, LocalCommunity.Groups.SYSTEM, DefaultMaDKitRoles.GROUP_MANAGER_ROLE, new HookMessage(AgentActionEvent.AGENT_TERMINATED));
 		pause(10);
 		NormalAA a;
 		launchAgent(a = new NormalAA());

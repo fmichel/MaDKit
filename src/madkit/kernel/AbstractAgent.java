@@ -78,10 +78,10 @@ import org.xml.sax.SAXException;
 
 import madkit.action.ActionInfo;
 import madkit.action.GUIManagerAction;
+import madkit.agr.DefaultMaDKitRoles;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.agr.NetworkCommunity;
-import madkit.agr.Organization;
 import madkit.gui.AgentFrame;
 import madkit.gui.AgentStatusPanel;
 import madkit.gui.OutputPanel;
@@ -315,7 +315,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 			sendMessage(
 					LocalCommunity.NAME, 
 					Groups.GUI,
-					Organization.GROUP_MANAGER_ROLE, 
+					DefaultMaDKitRoles.GROUP_MANAGER_ROLE, 
 					new GUIMessage(GUIManagerAction.SETUP_AGENT_GUI, AbstractAgent.this));
 			try {//wait answer using a big hack
 				messageBox.take();//works because the agent cannot be joined in anyway
@@ -463,7 +463,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 		}
 		kernel = getMadkitKernel();
 		if (hasGUI) {
-			kernel.broadcastMessageWithRole(this, LocalCommunity.NAME, Groups.GUI, Organization.GROUP_MANAGER_ROLE, new GUIMessage(
+			kernel.broadcastMessageWithRole(this, LocalCommunity.NAME, Groups.GUI, DefaultMaDKitRoles.GROUP_MANAGER_ROLE, new GUIMessage(
 					GUIManagerAction.DISPOSE_AGENT_GUI, this), null);
 		}
 		try {
@@ -1088,17 +1088,17 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * Creates a new Group within a community.
 	 * <p>
 	 * If this operation succeed, the agent will automatically handle the role
-	 * defined by {@link Organization#GROUP_MANAGER_ROLE}, which value is <i>
-	 * {@value madkit.agr.Organization#GROUP_MANAGER_ROLE}</i>, in this created
+	 * defined by {@link DefaultMaDKitRoles#GROUP_MANAGER_ROLE}, which value is <i>
+	 * {@value madkit.agr.DefaultMaDKitRoles#GROUP_MANAGER_ROLE}</i>, in this created
 	 * group. Especially, if the agent leaves the role of <i>
-	 * {@value madkit.agr.Organization#GROUP_MANAGER_ROLE}</i>, it will also
+	 * {@value madkit.agr.DefaultMaDKitRoles#GROUP_MANAGER_ROLE}</i>, it will also
 	 * automatically leave the group and thus all the roles it has in this group.
 	 * 
 	 * <p>
 	 * Agents that want to enter the group may send messages to the <i>
-	 * {@value madkit.agr.Organization#GROUP_MANAGER_ROLE}</i> using the role
-	 * defined by {@link Organization#GROUP_CANDIDATE_ROLE}, which value is <i>
-	 * {@value madkit.agr.Organization#GROUP_CANDIDATE_ROLE}</i>.
+	 * {@value madkit.agr.DefaultMaDKitRoles#GROUP_MANAGER_ROLE}</i> using the role
+	 * defined by {@link DefaultMaDKitRoles#GROUP_CANDIDATE_ROLE}, which value is <i>
+	 * {@value madkit.agr.DefaultMaDKitRoles#GROUP_CANDIDATE_ROLE}</i>.
 	 * 
 	 * @param community
 	 *           the community within which the group will be created. If this

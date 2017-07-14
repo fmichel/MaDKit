@@ -45,7 +45,7 @@ import static org.junit.Assert.assertNull;
 
 import java.util.logging.Level;
 
-import madkit.agr.Organization;
+import madkit.agr.DefaultMaDKitRoles;
 import madkit.kernel.Agent;
 import madkit.kernel.AgentAddress;
 import madkit.kernel.JunitMadkit;
@@ -218,20 +218,20 @@ public class sendMessageAndWaitForReplyWithAATest extends JunitMadkit {
 				assertEquals(SUCCESS, launchAgent(target2));
 
 				// Without role
-				AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE);
+				AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, DefaultMaDKitRoles.GROUP_MANAGER_ROLE);
 				assertNotNull(aa);
 				Message m = sendMessageAndWaitForReply(aa, new Message());
 				assertNotNull(m);
 				assertEquals("reply", ((StringMessage) m).getContent());
-				assertEquals(Organization.GROUP_CANDIDATE_ROLE, m.getReceiver().getRole());
-				assertEquals(Organization.GROUP_MANAGER_ROLE, m.getSender().getRole());
+				assertEquals(DefaultMaDKitRoles.GROUP_CANDIDATE_ROLE, m.getReceiver().getRole());
+				assertEquals(DefaultMaDKitRoles.GROUP_MANAGER_ROLE, m.getSender().getRole());
 
 				// With role
-				m = sendMessageWithRoleAndWaitForReply(aa, new Message(), Organization.GROUP_CANDIDATE_ROLE);
+				m = sendMessageWithRoleAndWaitForReply(aa, new Message(), DefaultMaDKitRoles.GROUP_CANDIDATE_ROLE);
 				assertNotNull(m);
 				assertEquals("reply2", ((StringMessage) m).getContent());
-				assertEquals(Organization.GROUP_CANDIDATE_ROLE, m.getReceiver().getRole());
-				assertEquals(Organization.GROUP_MANAGER_ROLE, m.getSender().getRole());
+				assertEquals(DefaultMaDKitRoles.GROUP_CANDIDATE_ROLE, m.getReceiver().getRole());
+				assertEquals(DefaultMaDKitRoles.GROUP_MANAGER_ROLE, m.getSender().getRole());
 			}
 		});
 	}

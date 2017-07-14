@@ -44,7 +44,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 import java.util.logging.Level;
 
-import madkit.agr.Organization;
+import madkit.agr.DefaultMaDKitRoles;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.AbstractAgent.State;
@@ -239,8 +239,8 @@ public class LaunchAgentBucketTest extends JunitMadkit {
 				assertEquals(size, l.size());
 				assertEquals(size, getAgentsWithRole(COMMUNITY, GROUP, ROLE).size());
 				//I am the manager
-				assertNull(getAgentsWithRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE));
-				assertNotNull(getAgentsWithRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE,true));
+				assertNull(getAgentsWithRole(COMMUNITY, GROUP, DefaultMaDKitRoles.GROUP_MANAGER_ROLE));
+				assertNotNull(getAgentsWithRole(COMMUNITY, GROUP, DefaultMaDKitRoles.GROUP_MANAGER_ROLE,true));
 				testAgents(l);
 			}
 		});

@@ -45,7 +45,8 @@ import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import madkit.agr.Organization;
+
+import madkit.agr.DefaultMaDKitRoles;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Gatekeeper;
 import madkit.kernel.JunitMadkit;
@@ -64,14 +65,14 @@ public class RequestRoleTest extends JunitMadkit {
 
 	final AbstractAgent helper = new AbstractAgent() {
 		protected void activate() {
-			assertEquals(ROLE_ALREADY_HANDLED, requestRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE));
+			assertEquals(ROLE_ALREADY_HANDLED, requestRole(COMMUNITY, GROUP, DefaultMaDKitRoles.GROUP_MANAGER_ROLE));
 			assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
 		}
 	};
 
 	final AbstractAgent helper2 = new AbstractAgent() {
 		protected void activate() {
-			assertEquals(ROLE_ALREADY_HANDLED, requestRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE));
+			assertEquals(ROLE_ALREADY_HANDLED, requestRole(COMMUNITY, GROUP, DefaultMaDKitRoles.GROUP_MANAGER_ROLE));
 			assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
 		}
 	};
@@ -106,7 +107,7 @@ public class RequestRoleTest extends JunitMadkit {
 			protected void activate() {
 				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
 				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
-				assertTrue(isRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE));
+				assertTrue(isRole(COMMUNITY, GROUP, DefaultMaDKitRoles.GROUP_MANAGER_ROLE));
 				assertTrue(isRole(COMMUNITY, GROUP, ROLE));
 			}
 		});
@@ -131,7 +132,7 @@ public class RequestRoleTest extends JunitMadkit {
 		launchTest(new AbstractAgent() {
 			protected void activate() {
 				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
-				assertEquals(ROLE_ALREADY_HANDLED, requestRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE));
+				assertEquals(ROLE_ALREADY_HANDLED, requestRole(COMMUNITY, GROUP, DefaultMaDKitRoles.GROUP_MANAGER_ROLE));
 				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
 				assertEquals(ROLE_ALREADY_HANDLED, requestRole(COMMUNITY, GROUP, ROLE));
 			}
@@ -189,7 +190,7 @@ public class RequestRoleTest extends JunitMadkit {
 			protected void activate() {
 				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
 				assertTrue(isGroup(COMMUNITY, GROUP));
-				assertTrue(isRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE));
+				assertTrue(isRole(COMMUNITY, GROUP, DefaultMaDKitRoles.GROUP_MANAGER_ROLE));
 				assertEquals(SUCCESS, leaveGroup(COMMUNITY, GROUP));
 				assertFalse(isGroup(COMMUNITY, GROUP));
 			}
@@ -259,7 +260,7 @@ public class RequestRoleTest extends JunitMadkit {
 		launchTest(new AbstractAgent() {
 			protected void activate() {
 				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
-				assertEquals(ROLE_ALREADY_HANDLED, requestRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE));
+				assertEquals(ROLE_ALREADY_HANDLED, requestRole(COMMUNITY, GROUP, DefaultMaDKitRoles.GROUP_MANAGER_ROLE));
 				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
 				assertEquals(SUCCESS, launchAgent(helper));
 				assertEquals(SUCCESS, launchAgent(helper2));

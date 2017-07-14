@@ -34,9 +34,9 @@ import java.util.ResourceBundle;
 
 import javax.swing.Action;
 
+import madkit.agr.DefaultMaDKitRoles;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
-import madkit.agr.Organization;
 import madkit.i18n.I18nUtilities;
 import madkit.kernel.AbstractAgent;
 import madkit.message.KernelMessage;
@@ -132,7 +132,7 @@ public enum KernelAction {
 	    @Override
 	    public void actionPerformed(ActionEvent e) {
 		if (agent.isAlive()) {
-		    agent.sendMessage(LocalCommunity.NAME, Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE,
+		    agent.sendMessage(LocalCommunity.NAME, Groups.SYSTEM, DefaultMaDKitRoles.GROUP_MANAGER_ROLE,
 			    new KernelMessage(KernelAction.this, parameters));// TODO work with AA but this is probably
 									      // worthless
 		}

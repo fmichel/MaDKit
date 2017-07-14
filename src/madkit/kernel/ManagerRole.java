@@ -42,7 +42,7 @@ import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 
 import java.util.HashSet;
 
-import madkit.agr.Organization;
+import madkit.agr.DefaultMaDKitRoles;
 import madkit.kernel.AbstractAgent.ReturnCode;
 
 
@@ -60,7 +60,7 @@ final class ManagerRole extends Role{
 	private static final long serialVersionUID = 1919401829672949296L;
 
 	ManagerRole(final Group groupObject, AbstractAgent requester, boolean securedGroup) {
-		super(groupObject, Organization.GROUP_MANAGER_ROLE);
+		super(groupObject, DefaultMaDKitRoles.GROUP_MANAGER_ROLE);
 		synchronized (players) {
 			players.add(requester);
 			agentAddresses = new HashSet<>(1,1);
@@ -72,7 +72,7 @@ final class ManagerRole extends Role{
 	}
 	
 	ManagerRole(final Group groupObject, AgentAddress creator) {
-		super(groupObject, Organization.GROUP_MANAGER_ROLE);
+		super(groupObject, DefaultMaDKitRoles.GROUP_MANAGER_ROLE);
 		synchronized (players) {
 			agentAddresses = new HashSet<>(1,1);
 			agentAddresses.add(creator);

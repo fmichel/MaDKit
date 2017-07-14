@@ -36,7 +36,7 @@ knowledge of the CeCILL-C license and that you accept its terms.
  */
 package madkit.kernel;
 
-import madkit.agr.Organization;
+import madkit.agr.DefaultMaDKitRoles;
 
 
 /**
@@ -251,7 +251,7 @@ final class CandidateAgentAddress extends AgentAddress{
 	 */
 	@Override
 	final public String getRole() {
-		return Organization.GROUP_CANDIDATE_ROLE;
+		return DefaultMaDKitRoles.GROUP_CANDIDATE_ROLE;
 	}
 	
 }

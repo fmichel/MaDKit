@@ -92,7 +92,7 @@ final class Group extends ConcurrentHashMap<String, Role> {
 		groupName = group;
 		communityObject = organization;
 		logger = communityObject.getLogger();
-		put(madkit.agr.Organization.GROUP_MANAGER_ROLE, new ManagerRole(this,
+		put(madkit.agr.DefaultMaDKitRoles.GROUP_MANAGER_ROLE, new ManagerRole(this,
 				creator, isSecured));
 	}
 
@@ -127,7 +127,7 @@ final class Group extends ConcurrentHashMap<String, Role> {
 		gatekeeper = null;
 		communityName = community;
 		groupName = group;
-		put(madkit.agr.Organization.GROUP_MANAGER_ROLE, new ManagerRole(this, manager));
+		put(madkit.agr.DefaultMaDKitRoles.GROUP_MANAGER_ROLE, new ManagerRole(this, manager));
 	}
 
 	boolean isSecured() {
@@ -151,10 +151,10 @@ final class Group extends ConcurrentHashMap<String, Role> {
 			if (gatekeeper == null) {
 				final AgentAddress manager = myKernel.getAgentWithRole(
 						communityName, groupName,
-						madkit.agr.Organization.GROUP_MANAGER_ROLE);
+						madkit.agr.DefaultMaDKitRoles.GROUP_MANAGER_ROLE);
 				final AgentAddress distantAgentWithRole = myKernel
 						.getDistantAgentWithRole(requester, madkit.agr.LocalCommunity.NAME,
-								"kernels", madkit.agr.Organization.GROUP_MANAGER_ROLE,
+								"kernels", madkit.agr.DefaultMaDKitRoles.GROUP_MANAGER_ROLE,
 								manager.getKernelAddress());
 				MicroAgent<Boolean> ma;
 				myKernel.launchAgent(ma = new MicroAgent<Boolean>() {
@@ -384,7 +384,7 @@ final class Group extends ConcurrentHashMap<String, Role> {
 							.iterator(); iterator.hasNext();) {
 						AbstractAgent a = iterator.next();
 						if (a != oldManager) {
-							put(madkit.agr.Organization.GROUP_MANAGER_ROLE,
+							put(madkit.agr.DefaultMaDKitRoles.GROUP_MANAGER_ROLE,
 									new ManagerRole(this, a, false));
 							return;
 						}

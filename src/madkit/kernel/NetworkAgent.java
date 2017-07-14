@@ -52,10 +52,10 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import madkit.agr.NetworkCommunity;
+import madkit.agr.DefaultMaDKitRoles;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.agr.LocalCommunity.Roles;
-import madkit.agr.Organization;
 import madkit.gui.AgentStatusPanel;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.message.EnumMessage;
@@ -101,7 +101,7 @@ final class NetworkAgent extends Agent {
 //				setLogLevel(Level.INFO);
 		requestRole(LocalCommunity.NAME, Groups.NETWORK, madkit.agr.LocalCommunity.Roles.NET_AGENT);
 
-		kernelAgent = getAgentWithRole(LocalCommunity.NAME, Groups.NETWORK, Organization.GROUP_MANAGER_ROLE);
+		kernelAgent = getAgentWithRole(LocalCommunity.NAME, Groups.NETWORK, DefaultMaDKitRoles.GROUP_MANAGER_ROLE);
 		myThread.setPriority(Thread.MAX_PRIORITY-3);
 		if(kernelAgent == null)
 			throw new AssertionError(this+" no kernel agent to work with... Please bug report");

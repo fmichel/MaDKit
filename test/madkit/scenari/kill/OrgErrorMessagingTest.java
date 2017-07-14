@@ -49,7 +49,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import madkit.agr.Organization;
+
+import madkit.agr.DefaultMaDKitRoles;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Message;
@@ -95,26 +96,26 @@ public class OrgErrorMessagingTest extends JunitMadkit {
 
 				// the candidate role should be used to send message to the manager
 				assertEquals(NOT_IN_GROUP,
-						sendMessageWithRole(COMMUNITY, OTHER, OTHER, new Message(), Organization.GROUP_CANDIDATE_ROLE));
+						sendMessageWithRole(COMMUNITY, OTHER, OTHER, new Message(), DefaultMaDKitRoles.GROUP_CANDIDATE_ROLE));
 				assertEquals(NOT_IN_GROUP,
-						sendMessageWithRole(COMMUNITY, OTHER, Organization.GROUP_MANAGER_ROLE, new Message(), OTHER));
+						sendMessageWithRole(COMMUNITY, OTHER, DefaultMaDKitRoles.GROUP_MANAGER_ROLE, new Message(), OTHER));
 				assertEquals(
 						SUCCESS,
-						sendMessageWithRole(COMMUNITY, OTHER, Organization.GROUP_MANAGER_ROLE, new Message(),
-								Organization.GROUP_CANDIDATE_ROLE));
+						sendMessageWithRole(COMMUNITY, OTHER, DefaultMaDKitRoles.GROUP_MANAGER_ROLE, new Message(),
+								DefaultMaDKitRoles.GROUP_CANDIDATE_ROLE));
 				// check reception
 				Message m = testAgent.nextMessage();
 				assertNotNull(m);
 				assertNull(testAgent.nextMessage());
-				assertEquals(Organization.GROUP_CANDIDATE_ROLE, m.getSender().getRole());
-				assertEquals(Organization.GROUP_MANAGER_ROLE, m.getReceiver().getRole());
+				assertEquals(DefaultMaDKitRoles.GROUP_CANDIDATE_ROLE, m.getSender().getRole());
+				assertEquals(DefaultMaDKitRoles.GROUP_MANAGER_ROLE, m.getReceiver().getRole());
 				// fake agent is replying
 				assertEquals(SUCCESS, testAgent.sendMessage(m.getSender(), new Message()));
 
 				m = nextMessage();
 				assertNotNull(m);
-				assertEquals(Organization.GROUP_MANAGER_ROLE, m.getSender().getRole());
-				assertEquals(Organization.GROUP_CANDIDATE_ROLE, m.getReceiver().getRole());
+				assertEquals(DefaultMaDKitRoles.GROUP_MANAGER_ROLE, m.getSender().getRole());
+				assertEquals(DefaultMaDKitRoles.GROUP_CANDIDATE_ROLE, m.getReceiver().getRole());
 				assertEquals(SUCCESS, sendMessage(m.getSender(), new Message()));
 
 				// trash fake agent mailbox
@@ -163,14 +164,14 @@ public class OrgErrorMessagingTest extends JunitMadkit {
 				// I am not in this group anymore
 				assertEquals(NOT_IN_GROUP, sendMessageWithRole(COMMUNITY, GROUP, ROLE, new Message(), "any"));
 				assertEquals(NOT_IN_GROUP,
-						sendMessageWithRole(COMMUNITY, GROUP, ROLE, new Message(), Organization.GROUP_CANDIDATE_ROLE));
+						sendMessageWithRole(COMMUNITY, GROUP, ROLE, new Message(), DefaultMaDKitRoles.GROUP_CANDIDATE_ROLE));
 				assertEquals(NOT_IN_GROUP, sendMessage(COMMUNITY, GROUP, ROLE, new Message()));
 				assertEquals(NOT_IN_GROUP, sendMessage(COMMUNITY, GROUP, ROLE, new Message()));
 				// TODO what if no manager left
 				assertEquals(
 						SUCCESS,
-						sendMessageWithRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE, new Message(),
-								Organization.GROUP_CANDIDATE_ROLE));
+						sendMessageWithRole(COMMUNITY, GROUP, DefaultMaDKitRoles.GROUP_MANAGER_ROLE, new Message(),
+								DefaultMaDKitRoles.GROUP_CANDIDATE_ROLE));
 
 				// this agent has leaved the group so m2.getSender() is invalid
 				assertEquals(INVALID_AGENT_ADDRESS, testAgent.sendMessage(m2.getSender(), new Message()));
@@ -185,8 +186,8 @@ public class OrgErrorMessagingTest extends JunitMadkit {
 				// empty mailbox
 				m3 = nextMessage();
 				assertNotNull(m3);
-				assertEquals(Organization.GROUP_MANAGER_ROLE, m3.getSender().getRole());
-				assertEquals(Organization.GROUP_CANDIDATE_ROLE, m3.getReceiver().getRole());
+				assertEquals(DefaultMaDKitRoles.GROUP_MANAGER_ROLE, m3.getSender().getRole());
+				assertEquals(DefaultMaDKitRoles.GROUP_CANDIDATE_ROLE, m3.getReceiver().getRole());
 
 				assertNull(nextMessage());
 				assertNull(testAgent.nextMessage());
@@ -239,26 +240,26 @@ public class OrgErrorMessagingTest extends JunitMadkit {
 
 				// the candidate role should be used to send message to the manager
 				assertEquals(NOT_IN_GROUP,
-						sendMessageWithRole(COMMUNITY, OTHER, OTHER, new Message(), Organization.GROUP_CANDIDATE_ROLE));
+						sendMessageWithRole(COMMUNITY, OTHER, OTHER, new Message(), DefaultMaDKitRoles.GROUP_CANDIDATE_ROLE));
 				assertEquals(NOT_IN_GROUP,
-						sendMessageWithRole(COMMUNITY, OTHER, Organization.GROUP_MANAGER_ROLE, new Message(), OTHER));
+						sendMessageWithRole(COMMUNITY, OTHER, DefaultMaDKitRoles.GROUP_MANAGER_ROLE, new Message(), OTHER));
 				assertEquals(
 						SUCCESS,
-						sendMessageWithRole(COMMUNITY, OTHER, Organization.GROUP_MANAGER_ROLE, new Message(),
-								Organization.GROUP_CANDIDATE_ROLE));
+						sendMessageWithRole(COMMUNITY, OTHER, DefaultMaDKitRoles.GROUP_MANAGER_ROLE, new Message(),
+								DefaultMaDKitRoles.GROUP_CANDIDATE_ROLE));
 				// check reception
 				Message m = testAgent.nextMessage();
 				assertNotNull(m);
 				assertNull(testAgent.nextMessage());
-				assertEquals(Organization.GROUP_CANDIDATE_ROLE, m.getSender().getRole());
-				assertEquals(Organization.GROUP_MANAGER_ROLE, m.getReceiver().getRole());
+				assertEquals(DefaultMaDKitRoles.GROUP_CANDIDATE_ROLE, m.getSender().getRole());
+				assertEquals(DefaultMaDKitRoles.GROUP_MANAGER_ROLE, m.getReceiver().getRole());
 				// fake agent is replying
 				assertEquals(SUCCESS, testAgent.sendMessage(m.getSender(), new Message()));
 
 				m = nextMessage();
 				assertNotNull(m);
-				assertEquals(Organization.GROUP_MANAGER_ROLE, m.getSender().getRole());
-				assertEquals(Organization.GROUP_CANDIDATE_ROLE, m.getReceiver().getRole());
+				assertEquals(DefaultMaDKitRoles.GROUP_MANAGER_ROLE, m.getSender().getRole());
+				assertEquals(DefaultMaDKitRoles.GROUP_CANDIDATE_ROLE, m.getReceiver().getRole());
 				assertEquals(SUCCESS, sendMessage(m.getSender(), new Message()));
 
 				// trash fake agent mailbox

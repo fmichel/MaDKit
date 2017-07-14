@@ -51,9 +51,9 @@ import javax.swing.JToolBar;
 import javax.swing.WindowConstants;
 
 import madkit.action.KernelAction;
+import madkit.agr.DefaultMaDKitRoles;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
-import madkit.agr.Organization;
 import madkit.gui.menu.AgentLogLevelMenu;
 import madkit.gui.menu.AgentMenu;
 import madkit.gui.menu.DisplayMenu;
@@ -78,10 +78,12 @@ public class AgentFrame extends JFrame implements PrintableFrame{
 	 * 
 	 */
 	private static final long serialVersionUID = 6337250099157352055L;
-	private JInternalFrame internalFrame;
+
 	private final AbstractAgent agent;
-	final private String classUIPreferenceCodeBase;
-	final private String agentUIPreferenceCodeBase;
+	private final String classUIPreferenceCodeBase;
+	private final String agentUIPreferenceCodeBase;
+	
+	private JInternalFrame internalFrame;
 	
 	/**
 	 * TThis constructor is protected because this class
@@ -254,7 +256,7 @@ public class AgentFrame extends JFrame implements PrintableFrame{
 			agent.sendMessage(
 					LocalCommunity.NAME, 
 					Groups.SYSTEM, 
-					Organization.GROUP_MANAGER_ROLE, 
+					DefaultMaDKitRoles.GROUP_MANAGER_ROLE, 
 					new KernelMessage(KernelAction.KILL_AGENT, agent, timeOutSeconds));
 		}
 	}

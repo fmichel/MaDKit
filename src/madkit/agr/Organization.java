@@ -42,8 +42,9 @@ package madkit.agr;
  * @author Fabien Michel
  * @since MaDKit 5.0.0.10
  * @version 0.9
- * 
+ * @deprecated as of MaDKit 5.2 replaced by {@link DefaultMaDKitRoles}
  */
+@Deprecated
 public interface Organization {
 
 	/**

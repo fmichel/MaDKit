@@ -38,8 +38,9 @@ package madkit.api.abstractAgent;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+
+import madkit.agr.DefaultMaDKitRoles;
 import madkit.agr.LocalCommunity;
-import madkit.agr.Organization;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadkit;
 
@@ -60,7 +61,7 @@ public class GetExistingRolesTest extends JunitMadkit {
 			protected void activate() {
 				System.err.println(getExistingRoles(LocalCommunity.NAME,LocalCommunity.Groups.SYSTEM));
 				assertEquals(1, getExistingRoles(LocalCommunity.NAME,LocalCommunity.Groups.SYSTEM).size());
-				assertEquals(Organization.GROUP_MANAGER_ROLE, getExistingRoles(LocalCommunity.NAME,LocalCommunity.Groups.SYSTEM).first());
+				assertEquals(DefaultMaDKitRoles.GROUP_MANAGER_ROLE, getExistingRoles(LocalCommunity.NAME,LocalCommunity.Groups.SYSTEM).first());
 			}
 		});
 	}
@@ -80,7 +81,7 @@ public class GetExistingRolesTest extends JunitMadkit {
 			protected void activate() {
 				createGroup(COMMUNITY, GROUP);
 				assertEquals(1, getExistingRoles(COMMUNITY,GROUP).size());
-				assertEquals(Organization.GROUP_MANAGER_ROLE, getExistingRoles(COMMUNITY,GROUP).first());
+				assertEquals(DefaultMaDKitRoles.GROUP_MANAGER_ROLE, getExistingRoles(COMMUNITY,GROUP).first());
 				requestRole(COMMUNITY, GROUP, ROLE);
 				assertEquals(2, getExistingRoles(COMMUNITY,GROUP).size());
 				assertEquals(ROLE, getExistingRoles(COMMUNITY,GROUP).first());

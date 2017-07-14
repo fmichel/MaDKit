@@ -44,7 +44,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.logging.Level;
 
-import madkit.agr.Organization;
+import madkit.agr.DefaultMaDKitRoles;
 import madkit.kernel.Agent;
 
 /**
@@ -63,7 +63,7 @@ public class LeaveGroupInEndNormalAgent extends Agent {
 	protected void activate() {
 		getLogger().setLevel(Level.ALL);
 		assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP,true));
-		getLogger().info(""+getAgentsWithRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE));
+		getLogger().info(""+getAgentsWithRole(COMMUNITY, GROUP, DefaultMaDKitRoles.GROUP_MANAGER_ROLE));
 		assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
 	}
 	

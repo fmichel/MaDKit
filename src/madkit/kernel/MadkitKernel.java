@@ -669,12 +669,12 @@ class MadkitKernel extends Agent {
 		if (isDistributed) {
 		    sendNetworkMessageWithRole(
 			    new CGRSynchro(CREATE_GROUP,
-				    getRole(community, group, madkit.agr.Organization.GROUP_MANAGER_ROLE).getAgentAddressOf(creator)),
+				    getRole(community, group, madkit.agr.DefaultMaDKitRoles.GROUP_MANAGER_ROLE).getAgentAddressOf(creator)),
 			    netUpdater);
 		}
 		if (hooks != null) {
 		    informHooks(AgentActionEvent.CREATE_GROUP,
-			    getRole(community, group, madkit.agr.Organization.GROUP_MANAGER_ROLE).getAgentAddressOf(creator));
+			    getRole(community, group, madkit.agr.DefaultMaDKitRoles.GROUP_MANAGER_ROLE).getAgentAddressOf(creator));
 		}
 	    }
 	    catch(CGRNotAvailable e) {
@@ -1517,7 +1517,7 @@ class MadkitKernel extends Agent {
 	    senderAA = targetedRole.getAgentAddressInGroup(sender);
 	    // if still null : this SHOULD be a candidate's request to the manager or it is an error
 	    if (senderAA == null) {
-		if (targetedRole.getRoleName().equals(madkit.agr.Organization.GROUP_MANAGER_ROLE))
+		if (targetedRole.getRoleName().equals(madkit.agr.DefaultMaDKitRoles.GROUP_MANAGER_ROLE))
 		    return new CandidateAgentAddress(sender, targetedRole, kernelAddress);
 		throw new CGRNotAvailable(NOT_IN_GROUP);
 	    }
@@ -1533,8 +1533,8 @@ class MadkitKernel extends Agent {
 	if (senderAA == null) {// if still null : this SHOULD be a
 	    // candidate's request to the manager or it
 	    // is an error
-	    if (senderRole.equals(madkit.agr.Organization.GROUP_CANDIDATE_ROLE)
-		    && targetedRole.getRoleName().equals(madkit.agr.Organization.GROUP_MANAGER_ROLE))
+	    if (senderRole.equals(madkit.agr.DefaultMaDKitRoles.GROUP_CANDIDATE_ROLE)
+		    && targetedRole.getRoleName().equals(madkit.agr.DefaultMaDKitRoles.GROUP_MANAGER_ROLE))
 		return new CandidateAgentAddress(sender, targetedRole, kernelAddress);
 	    if (targetedRole.getAgentAddressInGroup(sender) == null)
 		throw new CGRNotAvailable(NOT_IN_GROUP);
@@ -1843,9 +1843,9 @@ class MadkitKernel extends Agent {
     private void exit() {
 	shuttedDown = true;
 	sendNetworkMessageWithRole(new KernelMessage(KernelAction.EXIT), kernelRole);
-	broadcastMessageWithRole(MadkitKernel.this, LocalCommunity.NAME, Groups.GUI, madkit.agr.Organization.GROUP_MANAGER_ROLE,
+	broadcastMessageWithRole(MadkitKernel.this, LocalCommunity.NAME, Groups.GUI, madkit.agr.DefaultMaDKitRoles.GROUP_MANAGER_ROLE,
 		new KernelMessage(KernelAction.EXIT), null);
-	while (getAgentWithRole(LocalCommunity.NAME, Groups.GUI, madkit.agr.Organization.GROUP_MANAGER_ROLE) != null) {
+	while (getAgentWithRole(LocalCommunity.NAME, Groups.GUI, madkit.agr.DefaultMaDKitRoles.GROUP_MANAGER_ROLE) != null) {
 	    pause(10);
 	}
 	// pause(10);//be sure that last executors have started

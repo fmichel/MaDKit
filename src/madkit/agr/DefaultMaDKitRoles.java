@@ -36,71 +36,29 @@ knowledge of the CeCILL-C license and that you accept its terms.
  */
 package madkit.agr;
 
+import madkit.kernel.AbstractAgent;
+
 /**
- * Implements Constants which are used for the primary CGR organization places.
+ * Defines default roles used by the MaDKit kernel or regular agents to achieve specific CGR queries. See
+ * {@link AbstractAgent#createGroup(String, String, boolean, madkit.kernel.Gatekeeper)}
  * 
  * @author Fabien Michel
- * @since MaDKit 5.0.0.10
- * @version 0.9
+ * @since MaDKit 5.2
  */
-public class LocalCommunity {
+public class DefaultMaDKitRoles {
 
-    public static final String NAME = "local";
-
-    private LocalCommunity() {
+    private DefaultMaDKitRoles() {
+	throw new IllegalStateException("Utility class");
     }
 
     /**
-     * MDK kernel core groups.
+     * This role is automatically given to agents that create a group The value of this constant is {@value}.
      */
-    public static final class Groups {
-
-	private Groups() {
-	}
-
-	/**
-	 * The value of this constant is {@value}.
-	 */
-	public static final String NETWORK = "network";
-	/**
-	 * The value of this constant is {@value}.
-	 */
-	public static final String SYSTEM = "system";
-	/**
-	 * The value of this constant is {@value}.
-	 */
-	public static final String GUI = "gui";
-    }
-
+    public static final String GROUP_MANAGER_ROLE = "manager";
     /**
-     * MDK kernel core roles. Default roles within a MaDKit organization.
-     * 
-     * @since MaDKit 5.0.0.10
+     * This role is a temporary role used to exchange messages with a group's manager that one agent is not part of. The
+     * value of this constant is {@value}.
      */
-    public static final class Roles {
-
-	private Roles() {
-	}
-
-	/**
-	 * The value of this constant is {@value}.
-	 */
-	public static final String KERNEL = "kernel";
-
-	/**
-	 * The value of this constant is {@value}.
-	 */
-	public static final String NET_AGENT = "net agent";
-	/**
-	 * The value of this constant is {@value}.
-	 */
-	public static final String UPDATER = "updater";
-
-	/**
-	 * The value of this constant is {@value}.
-	 */
-	public static final String EMMITER = "emmiter";
-
-    }
+    public static final String GROUP_CANDIDATE_ROLE = "candidate";
 
 }

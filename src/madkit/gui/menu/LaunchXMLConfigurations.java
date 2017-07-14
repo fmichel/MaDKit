@@ -46,9 +46,9 @@ import javax.swing.JMenuItem;
 
 import madkit.action.KernelAction;
 import madkit.action.MDKAbstractAction;
+import madkit.agr.DefaultMaDKitRoles;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
-import madkit.agr.Organization;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.MadkitClassLoader;
 import madkit.message.KernelMessage;
@@ -96,7 +96,7 @@ public class LaunchXMLConfigurations extends ClassPathSensitiveMenu {
 					myAgent.sendMessage(
 						LocalCommunity.NAME, 
 						Groups.SYSTEM, 
-						Organization.GROUP_MANAGER_ROLE, 
+						DefaultMaDKitRoles.GROUP_MANAGER_ROLE, 
 						new KernelMessage(KernelAction.LAUNCH_XML, e.getActionCommand(),cbox.getState()));
 				}
 			}

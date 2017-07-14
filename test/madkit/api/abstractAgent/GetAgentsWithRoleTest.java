@@ -40,7 +40,8 @@ import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import madkit.agr.Organization;
+
+import madkit.agr.DefaultMaDKitRoles;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadkit;
 
@@ -147,8 +148,8 @@ public class GetAgentsWithRoleTest extends JunitMadkit {
 		launchTest(new AbstractAgent() {
 			protected void activate() {
 				launchAgent(target);
-				assertNotNull(getAgentsWithRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE));
-				assertEquals(1, getAgentsWithRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE).size());
+				assertNotNull(getAgentsWithRole(COMMUNITY, GROUP, DefaultMaDKitRoles.GROUP_MANAGER_ROLE));
+				assertEquals(1, getAgentsWithRole(COMMUNITY, GROUP, DefaultMaDKitRoles.GROUP_MANAGER_ROLE).size());
 			}
 		});
 	}
@@ -158,7 +159,7 @@ public class GetAgentsWithRoleTest extends JunitMadkit {
 		launchTest(new AbstractAgent() {
 			protected void activate() {
 				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
-				assertNull(getAgentsWithRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE));
+				assertNull(getAgentsWithRole(COMMUNITY, GROUP, DefaultMaDKitRoles.GROUP_MANAGER_ROLE));
 			}
 		});
 	}

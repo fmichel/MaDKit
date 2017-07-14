@@ -47,7 +47,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.logging.Level;
 
-import madkit.agr.Organization;
+import madkit.agr.DefaultMaDKitRoles;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit.LevelOption;
@@ -74,18 +74,18 @@ public class CreateGroupAndLeaveRoleTest extends JunitMadkit {
 				assertEquals(false, createGroupIfAbsent(COMMUNITY, GROUP, true, null));
 
 				assertTrue(isGroup(COMMUNITY, GROUP));
-				assertTrue(isRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE));
+				assertTrue(isRole(COMMUNITY, GROUP, DefaultMaDKitRoles.GROUP_MANAGER_ROLE));
 				assertTrue(isCommunity(COMMUNITY));
 
 				assertEquals(NOT_COMMUNITY, leaveGroup(COMMUNITY + "d", GROUP));
 				assertEquals(NOT_GROUP, leaveGroup(COMMUNITY, GROUP + "d"));
 
 				// Manager role cannot be requested
-				assertEquals(ROLE_ALREADY_HANDLED, requestRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE));
+				assertEquals(ROLE_ALREADY_HANDLED, requestRole(COMMUNITY, GROUP, DefaultMaDKitRoles.GROUP_MANAGER_ROLE));
 
-				assertEquals(SUCCESS, leaveRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE));
+				assertEquals(SUCCESS, leaveRole(COMMUNITY, GROUP, DefaultMaDKitRoles.GROUP_MANAGER_ROLE));
 
-				assertFalse(isRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE));
+				assertFalse(isRole(COMMUNITY, GROUP, DefaultMaDKitRoles.GROUP_MANAGER_ROLE));
 				assertFalse(isGroup(COMMUNITY, GROUP));
 				assertFalse(isCommunity(COMMUNITY));
 
@@ -95,10 +95,10 @@ public class CreateGroupAndLeaveRoleTest extends JunitMadkit {
 				launchAgent(testAgent);
 
 				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP, true, null));
-				assertEquals(ROLE_ALREADY_HANDLED, testAgent.requestRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE));
+				assertEquals(ROLE_ALREADY_HANDLED, testAgent.requestRole(COMMUNITY, GROUP, DefaultMaDKitRoles.GROUP_MANAGER_ROLE));
 				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
 				assertEquals(SUCCESS, testAgent.requestRole(COMMUNITY, GROUP, ROLE));
-				assertEquals(SUCCESS, leaveRole(COMMUNITY, GROUP, Organization.GROUP_MANAGER_ROLE));
+				assertEquals(SUCCESS, leaveRole(COMMUNITY, GROUP, DefaultMaDKitRoles.GROUP_MANAGER_ROLE));
 				assertTrue(isCommunity(COMMUNITY));
 				assertTrue(isGroup(COMMUNITY, GROUP));
 			}

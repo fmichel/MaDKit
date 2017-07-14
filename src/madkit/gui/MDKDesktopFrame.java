@@ -58,83 +58,81 @@ import madkit.kernel.AbstractAgent;
 import madkit.kernel.Madkit;
 
 /**
- * A class that could be overridden to define a new 
- * desktop frame for MaDKit
+ * A class that could be overridden to define a new desktop frame for MaDKit
  * 
  * @author Fabien Michel
  * @since MadKit 5.0.0.22
  * @version 0.9
- * 
  */
-public class MDKDesktopFrame extends JFrame implements PrintableFrame{
+public class MDKDesktopFrame extends JFrame implements PrintableFrame {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -5136102562032184534L;
-	final private JDesktopPane desktopPane;
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -5136102562032184534L;
+    private final JDesktopPane desktopPane;
 
-	public MDKDesktopFrame() {
-		super("MaDKit " + Madkit.VERSION + " Desktop ");		
-		setPreferredSize(new Dimension(800, 600));
-		desktopPane = new JDesktopPane();
-		desktopPane.setBackground(Color.BLACK);
-		add(desktopPane);
-		setIconImage(SwingUtil.MADKIT_LOGO.getImage());
-		final String key = getClass().getName() + "_BGC";
-//		setBackground(new Color(SwingUtil.UI_PREFERENCES.getInt(key, Color.BLACK.getRGB())));
-//		addPropertyChangeListener(new PropertyChangeListener() {
-//			@Override
-//			public void propertyChange(PropertyChangeEvent evt) {
-//				if(evt.getPropertyName().equals("background")){
-//					SwingUtil.UI_PREFERENCES.putInt(key, ((Color) evt.getNewValue()).getRGB());
-//				}
-//			}
-//		});
-	}
+    public MDKDesktopFrame() {
+	super("MaDKit " + Madkit.VERSION + " Desktop ");
+	setPreferredSize(new Dimension(800, 600));
+	desktopPane = new JDesktopPane();
+	desktopPane.setBackground(Color.BLACK);
+	add(desktopPane);
+	setIconImage(SwingUtil.MADKIT_LOGO.getImage());
+	final String key = getClass().getName() + "_BGC";
+	// setBackground(new Color(SwingUtil.UI_PREFERENCES.getInt(key, Color.BLACK.getRGB())));
+	// addPropertyChangeListener(new PropertyChangeListener() {
+	// @Override
+	// public void propertyChange(PropertyChangeEvent evt) {
+	// if(evt.getPropertyName().equals("background")){
+	// SwingUtil.UI_PREFERENCES.putInt(key, ((Color) evt.getNewValue()).getRGB());
+	// }
+	// }
+	// });
+    }
 
-	/**
-	 * Builds tool bar for the desktop frame. By default it builds a classic MaDKit menu bar
-	 * 
-	 * @return the menu bar to use in the desktop frame
-	 */
-	public JMenuBar getMenuBar(final AbstractAgent guiManager) {
-		final JMenuBar menuBar = new JMenuBar();
-		menuBar.add(new MadkitMenu(guiManager));
-		menuBar.add(new LaunchAgentsMenu(guiManager));
-		menuBar.add(new LaunchMAS(guiManager));
-		menuBar.add(new LaunchMain("Main"));
-		menuBar.add(new LaunchMDKConfigurations("Configuration"));
-		menuBar.add(new LaunchXMLConfigurations(guiManager, "XML"));
-		menuBar.add(new DisplayMenu(this));
-		menuBar.add(new HelpMenu());
-		menuBar.add(Box.createHorizontalGlue());
-		menuBar.add(new AgentStatusPanel(guiManager));
-		return menuBar;
-	}
+    /**
+     * Builds tool bar for the desktop frame. By default it builds a classic MaDKit menu bar
+     * 
+     * @return the menu bar to use in the desktop frame
+     */
+    public JMenuBar getMenuBar(final AbstractAgent guiManager) {
+	final JMenuBar menuBar = new JMenuBar();
+	menuBar.add(new MadkitMenu(guiManager));
+	menuBar.add(new LaunchAgentsMenu(guiManager));
+	menuBar.add(new LaunchMAS(guiManager));
+	menuBar.add(new LaunchMain("Main"));
+	menuBar.add(new LaunchMDKConfigurations("Configuration"));
+	menuBar.add(new LaunchXMLConfigurations(guiManager, "XML"));
+	menuBar.add(new DisplayMenu(this));
+	menuBar.add(new HelpMenu());
+	menuBar.add(Box.createHorizontalGlue());
+	menuBar.add(new AgentStatusPanel(guiManager));
+	return menuBar;
+    }
 
-	/**
-	 * Builds tool bar for the desktop frame. By default it builds a classic MaDKit tool bar
-	 * 
-	 * @return the tool bar to use in the desktop frame
-	 */
-	public JToolBar getToolBar(final AbstractAgent guiManager) {
-		return new MadkitToolBar(guiManager);
-	}
+    /**
+     * Builds tool bar for the desktop frame. By default it builds a classic MaDKit tool bar
+     * 
+     * @return the tool bar to use in the desktop frame
+     */
+    public JToolBar getToolBar(final AbstractAgent guiManager) {
+	return new MadkitToolBar(guiManager);
+    }
 
-	/**
-	 * @return the desktopPane
-	 */
-	final JDesktopPane getDesktopPane() {
-		return desktopPane;
+    /**
+     * @return the desktopPane
+     */
+    final JDesktopPane getDesktopPane() {
+	return desktopPane;
+    }
+
+    @Override
+    public void setBackground(Color bgColor) {
+	super.setBackground(bgColor);
+	if (desktopPane != null) {
+	    desktopPane.setBackground(bgColor);
 	}
-	
-	@Override
-	public void setBackground(Color bgColor) {
-		super.setBackground(bgColor);
-		if (desktopPane != null) {
-			desktopPane.setBackground(bgColor);
-		}
-	}
+    }
 
 }

@@ -41,7 +41,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import madkit.agr.Organization;
+
+import madkit.agr.DefaultMaDKitRoles;
 import madkit.kernel.Madkit.BooleanOption;
 
 import org.junit.Before;
@@ -136,7 +137,7 @@ public class RoleTest {
 		assertTrue(r.addMember(a));
 		assertNotNull(r.getAgentAddressInGroup(a));
 		assertEquals(AbstractAgent.ReturnCode.SUCCESS, r.removeMember(a));
-		assertEquals(Organization.GROUP_MANAGER_ROLE, r.getAgentAddressInGroup(a).getRole());
+		assertEquals(DefaultMaDKitRoles.GROUP_MANAGER_ROLE, r.getAgentAddressInGroup(a).getRole());
 		assertEquals(AbstractAgent.ReturnCode.SUCCESS, a.leaveGroup("c", "g"));
 		assertNull(r.getAgentAddressOf(a));
 	}

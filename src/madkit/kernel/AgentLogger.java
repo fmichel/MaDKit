@@ -1,22 +1,38 @@
 /*
- * Copyright or © or Copr. Fabien Michel, Olivier Gutknecht, Jacques Ferber (1997) fmichel@lirmm.fr
- * olg@no-distance.net ferber@lirmm.fr This software is a computer program whose purpose is to
- * provide a lightweight Java library for designing and simulating Multi-Agent Systems (MAS). This
- * software is governed by the CeCILL-C license under French law and abiding by the rules of
- * distribution of free software. You can use, modify and/ or redistribute the software under the
- * terms of the CeCILL-C license as circulated by CEA, CNRS and INRIA at the following URL
- * "http://www.cecill.info". As a counterpart to the access to the source code and rights to copy,
- * modify and redistribute granted by the license, users are provided only with a limited warranty
- * and the software's author, the holder of the economic rights, and the successive licensors have
- * only limited liability. In this respect, the user's attention is drawn to the risks associated
- * with loading, using, modifying and/or developing or reproducing the software by the user in light
- * of its specific status of free software, that may mean that it is complicated to manipulate, and
- * that also therefore means that it is reserved for developers and experienced professionals having
- * in-depth computer knowledge. Users are therefore encouraged to load and test the software's
- * suitability as regards their requirements in conditions enabling the security of their systems
- * and/or data to be ensured and, more generally, to use and operate it in the same conditions as
- * regards security. The fact that you are presently reading this means that you have had knowledge
- * of the CeCILL-C license and that you accept its terms.
+ * Copyright or © or Copr. Fabien Michel, Olivier Gutknecht, Jacques Ferber (1997)
+
+fmichel@lirmm.fr
+olg@no-distance.net
+ferber@lirmm.fr
+
+This software is a computer program whose purpose is to 
+provide a lightweight Java library for designing and simulating Multi-Agent Systems (MAS).
+
+This software is governed by the CeCILL-C license under French law and
+abiding by the rules of distribution of free software.  You can  use, 
+modify and/ or redistribute the software under the terms of the CeCILL-C
+license as circulated by CEA, CNRS and INRIA at the following URL
+"http://www.cecill.info". 
+
+As a counterpart to the access to the source code and  rights to copy,
+modify and redistribute granted by the license, users are provided only
+with a limited warranty  and the software's author,  the holder of the
+economic rights,  and the successive licensors  have only  limited
+liability. 
+
+In this respect, the user's attention is drawn to the risks associated
+with loading,  using,  modifying and/or developing or reproducing the
+software by the user in light of its specific status of free software,
+that may mean  that it is complicated to manipulate,  and  that  also
+therefore means  that it is reserved for developers  and  experienced
+professionals having in-depth computer knowledge. Users are therefore
+encouraged to load and test the software's suitability as regards their
+requirements in conditions enabling the security of their systems and/or 
+data to be ensured and,  more generally, to use and operate it in the 
+same conditions as regards security. 
+
+The fact that you are presently reading this means that you have had
+knowledge of the CeCILL-C license and that you accept its terms.
  */
 package madkit.kernel;
 
@@ -148,11 +164,11 @@ public final class AgentLogger extends Logger {
     }
 
     /**
-     * Enables or disables the logging of {@link Level#WARNING} messages related with failed queries
-     * over the artificial society. For instance, if an agent tries to get agent addresses using
-     * {@link AbstractAgent#getAgentsWithRole(String, String, String)} over a CGR location which does
-     * not exist then there will be a warning about that. Since such results could be obtained by agents
-     * on purpose, this method provides a convenient way of disabling/enabling these kind of traces.
+     * Enables or disables the logging of {@link Level#WARNING} messages related with failed queries over the artificial
+     * society. For instance, if an agent tries to get agent addresses using
+     * {@link AbstractAgent#getAgentsWithRole(String, String, String)} over a CGR location which does not exist then there
+     * will be a warning about that. Since such results could be obtained by agents on purpose, this method provides a
+     * convenient way of disabling/enabling these kind of traces.
      * 
      * @param agentRequestsWarningsOn
      *            if <code>true</code>, CGR warnings are enabled, disabled otherwise
@@ -179,8 +195,8 @@ public final class AgentLogger extends Logger {
 
     /**
      * Creates a default log file for this logger. This call is equivalent to
-     * <code>addLogFile(null, null, false, true)</code> This file will be located in the directory
-     * specified by the MaDKit property {@link Option#logDirectory}, which is set to "logs" by default.
+     * <code>addLogFile(null, null, false, true)</code> This file will be located in the directory specified by the MaDKit
+     * property {@link Option#logDirectory}, which is set to "logs" by default.
      * 
      * @see #addFileHandler(Path, String, boolean, boolean)
      */
@@ -189,21 +205,18 @@ public final class AgentLogger extends Logger {
     }
 
     /**
-     * Adds a new {@link FileHandler} to this logger. This method provides an easy way of creating a new
-     * file handler with an agent formatting and with a corresponding file located in a specified
-     * directory. The related file will be located in the directory specified by the MaDKit property
-     * {@link Option#logDirectory}, which is set to "logs" followed by a directory named according to
-     * the date of the run.
+     * Adds a new {@link FileHandler} to this logger. This method provides an easy way of creating a new file handler with
+     * an agent formatting and with a corresponding file located in a specified directory. The related file will be located
+     * in the directory specified by the MaDKit property {@link Option#logDirectory}, which is set to "logs" followed by a
+     * directory named according to the date of the run.
      * 
      * @param logDirectory
-     *            the logDirectory to be used may be {@code null}, in which case the file will be
-     *            located in the directory specified by the MaDKit property {@link Option#logDirectory}
-     *            which is set to "logs" by default.
+     *            the logDirectory to be used may be {@code null}, in which case the file will be located in the directory
+     *            specified by the MaDKit property {@link Option#logDirectory} which is set to "logs" by default.
      * @param fileName
      *            may be {@code null}, in which case {@link #getName()} is used
      * @param append
-     *            if <code>true</code>, then bytes will be written to the end of the file rather than
-     *            the beginning
+     *            if <code>true</code>, then bytes will be written to the end of the file rather than the beginning
      * @param includeDefaultComment
      *            if <code>true</code>, includes comments displaying creation and closing dates
      * @see FileHandler
@@ -224,6 +237,7 @@ public final class AgentLogger extends Logger {
 	    final String logEnd = " --\n" + lineSeparator + "\n";
 
 	    final FileHandler fh = new FileHandler(pathToFile.toString(), append) {
+
 		@Override
 		public synchronized void close() {
 		    if (includeDefaultComment) {
@@ -266,12 +280,11 @@ public final class AgentLogger extends Logger {
     }
 
     /**
-     * Logs a {@link #TALK_LEVEL} message. This uses a special level which could be used to produce
-     * messages that will be rendered as they are, without any formatting work nor end-of-line
-     * character.
+     * Logs a {@link #TALK_LEVEL} message. This uses a special level which could be used to produce messages that will be
+     * rendered as they are, without any formatting work nor end-of-line character.
      * <p>
-     * If the logger's level is not {@link Level#OFF} then the given message is forwarded to all the
-     * registered output Handler objects.
+     * If the logger's level is not {@link Level#OFF} then the given message is forwarded to all the registered output
+     * Handler objects.
      * <p>
      * If the logger's level is {@link Level#OFF} then the message is only printed to {@link System#out}
      * 
@@ -304,8 +317,8 @@ public final class AgentLogger extends Logger {
     }
 
     /**
-     * This call bypasses any settings and always produces severe log messages displaying the stack
-     * trace of the throwable if it is not <code>null</code>
+     * This call bypasses any settings and always produces severe log messages displaying the stack trace of the throwable
+     * if it is not <code>null</code>
      * 
      * @param message
      *            the message to display
@@ -328,8 +341,7 @@ public final class AgentLogger extends Logger {
     }
 
     /**
-     * This call bypasses any settings and always produces severe log messages whatever the logger's
-     * current level.
+     * This call bypasses any settings and always produces severe log messages whatever the logger's current level.
      * 
      * @param msg
      *            the message to display
@@ -383,7 +395,7 @@ public final class AgentLogger extends Logger {
     public Level getWarningLogLevel() {
 	return Level.ALL;
     }
-    
+
     /**
      * now useless.
      * 
@@ -391,7 +403,7 @@ public final class AgentLogger extends Logger {
      */
     @Deprecated
     public void setWarningLogLevel(final Level warningLogLevel) {
-	if(warningLogLevel != Level.OFF) {
+	if (warningLogLevel != Level.OFF) {
 	    enableCGRWarnings();
 	}
     }

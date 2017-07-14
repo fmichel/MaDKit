@@ -42,25 +42,37 @@ package madkit.agr;
  * @author Fabien Michel
  * @since MaDKit 5.2
  * @version 0.9
- * 
  */
-public class NetworkCommunity implements Organization{
+public class NetworkCommunity {
 
-	public static final String NAME = "Cloud";
+    public static final String NAME = "NetworK";
 
-	/**
-	 * Default groups in the Network community.
-	 * @since MaDKit 5.0.0.10
-	 */
-	public static final class Groups {
-		public static final String NETWORK_AGENTS = "net";
+    private NetworkCommunity() {
+    }
+
+    /**
+     * Default groups in the Network community.
+     * 
+     * @since MaDKit 5.0.0.10
+     */
+    public static final class Groups {
+
+	public static final String NETWORK_AGENTS = "MDK_net";
+
+	private Groups() {
 	}
+    }
 
-	/**
-	 * Default roles in the Network community.
-	 * @since MaDKit 5.0.0.10
-	 */
-	public static final class Roles {
-		public static final String NET_AGENT = "net agent";
+    /**
+     * Default roles in the Network community.
+     * 
+     * @since MaDKit 5.0.0.10
+     */
+    public static final class Roles {
+
+	public static final String NET_AGENT = "MDK net agent";
+
+	private Roles() {
 	}
+    }
 }

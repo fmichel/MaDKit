@@ -41,9 +41,9 @@ import java.io.PrintStream;
 import javax.swing.JFrame;
 
 import madkit.action.KernelAction;
+import madkit.agr.DefaultMaDKitRoles;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
-import madkit.agr.Organization;
 import madkit.gui.OutputPanel;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Message;
@@ -85,22 +85,22 @@ public class TestCodeAA extends AbstractAgent {
 
 		Message m = new Message();
 		System.err.println(m);
-		sendMessage(LocalCommunity.NAME, Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE, m);
+		sendMessage(LocalCommunity.NAME, Groups.SYSTEM, DefaultMaDKitRoles.GROUP_MANAGER_ROLE, m);
 		System.err.println(m);
 
 		m = new ObjectMessage<>("zd");
 		System.err.println(m);
-		sendMessage(LocalCommunity.NAME, Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE, m);
+		sendMessage(LocalCommunity.NAME, Groups.SYSTEM, DefaultMaDKitRoles.GROUP_MANAGER_ROLE, m);
 		System.err.println(m);
 
 		m = new StringMessage("zd");
 		System.err.println(m);
-		sendMessage(LocalCommunity.NAME, Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE, m);
+		sendMessage(LocalCommunity.NAME, Groups.SYSTEM, DefaultMaDKitRoles.GROUP_MANAGER_ROLE, m);
 		System.err.println(m);
 
 		m = new EnumMessage<>(KernelAction.COPY, "kj",3);
 		System.err.println(m);
-		sendMessage(LocalCommunity.NAME, Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE, m);
+		sendMessage(LocalCommunity.NAME, Groups.SYSTEM, DefaultMaDKitRoles.GROUP_MANAGER_ROLE, m);
 		System.err.println(m);
 
 		try {

@@ -59,11 +59,9 @@ import javax.swing.SwingWorker;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AgentLogger;
 
-
 /**
- * This component is the default panel which is used for the frames assigned to 
- * agents that do not define their own GUI and which are launched using <code>true</code>
- * for the <code>createFrame</code> parameter.
+ * This component is the default panel which is used for the frames assigned to agents that do not define their own GUI
+ * and which are launched using <code>true</code> for the <code>createFrame</code> parameter.
  * 
  * @author Fabien Michel
  * @since MaDKit 5.0.0.2
@@ -72,102 +70,105 @@ import madkit.kernel.AgentLogger;
  */
 public class OutputPanel extends JPanel {
 
-	/**
-	 * 
-	 */
-	private static final long	serialVersionUID	= 602152712654986449L;
-	private OutputStream out;
-	final private JTextArea outField;
-	
-	/**
-	 * returns the output stream to which log messages will
-	 * be forwarded to.
-	 * @return the output stream for this component.
-	 */
-	public OutputStream getOutputStream(){
-		return out;
-	}
-	
-	/**
-	 * Builds the panel for the agent
-	 * 
-	 * @param agent
-	 */
-	public OutputPanel(final AbstractAgent agent)
-	{
-		outField = new JTextArea(5,32);
-		setLayout(new BorderLayout());
+    private static final long serialVersionUID = 602152712654986449L;
 
-		outField.setEditable(false);
-		setPreferredSize(new Dimension(250,100));
-		setBackground(Color.WHITE);
-		
-		try {
-			@SuppressWarnings("resource")
-			final PipedInputStream inPipe = new PipedInputStream();
-			out = new PipedOutputStream(inPipe);
-			new SwingWorker<Void, String>() {
-				@Override
-				protected Void doInBackground() throws Exception {
-					Scanner s = new Scanner(inPipe);
-					while (s.hasNextLine()){
-						String line = s.nextLine();
-						publish(line + "\n");
-					}
-					s.close();
-					return null;
-				}
-				@Override
-				protected void process(List<String> chunks) {
-					for (String line : chunks){
-						outField.append(line);
-					}
-				}
-			}.execute();
-		} catch (IOException e) {
-			e.printStackTrace();
+    private final JTextArea outField;
+
+    private OutputStream out;
+
+    /**
+     * returns the output stream to which log messages will be forwarded to.
+     * 
+     * @return the output stream for this component.
+     */
+    public OutputStream getOutputStream() {
+	return out;
+    }
+
+    /**
+     * Builds the panel for the agent
+     * 
+     * @param agent
+     */
+    public OutputPanel(final AbstractAgent agent) {
+	outField = new JTextArea(5, 32);
+	setLayout(new BorderLayout());
+
+	outField.setEditable(false);
+	setPreferredSize(new Dimension(250, 100));
+	setBackground(Color.WHITE);
+
+	try {
+	    @SuppressWarnings("resource")
+	    final PipedInputStream inPipe = new PipedInputStream();//FIXME
+	    out = new PipedOutputStream(inPipe);
+	    new SwingWorker<Void, String>() {
+
+		@Override
+		protected Void doInBackground() throws Exception {
+		    Scanner s = new Scanner(inPipe);
+		    while (s.hasNextLine()) {
+			String line = s.nextLine();
+			publish(line + "\n");
+		    }
+		    s.close();
+		    return null;
 		}
-		
-		final StreamHandler handler = new StreamHandler(out, AgentLogger.AGENT_FILE_FORMATTER){
-			@Override
-			public synchronized void publish(LogRecord record) {
-				super.publish(record);
-				flush();
-			}
-			@Override
-			protected void reportError(String msg, Exception ex, int code) {
-//				super.reportError(msg, ex, code);//Avoid stream pipe closed exception
-			}
-		};
-		
-		agent.getLogger().addHandler(handler);
 
-		add(BorderLayout.CENTER,new JScrollPane(outField));
-
-		final JButton b = new JButton("clear");//TODO i18n
-		b.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				clearOutput();
-			}
-		});
-		add(BorderLayout.SOUTH,b);
-		setBackground(Color.WHITE);
-	}
-
-	/**
-	 * Remove all the contained text.
-	 */
-	public void clearOutput()
-	{
-		outField.setText(null);
-	}
-
-	@Override
-	public void setBackground(Color bg) {
-		if (outField != null) {
-			outField.setBackground(bg);
+		@Override
+		protected void process(List<String> chunks) {
+		    for (String line : chunks) {
+			outField.append(line);
+		    }
 		}
-		super.setBackground(bg);
+	    }.execute();
 	}
+	catch(IOException e) {
+	    e.printStackTrace();
+	}
+
+	final StreamHandler handler = new StreamHandler(out, AgentLogger.AGENT_FILE_FORMATTER) {
+
+	    @Override
+	    public synchronized void publish(LogRecord record) {
+		super.publish(record);
+		flush();
+	    }
+
+	    @Override
+	    protected void reportError(String msg, Exception ex, int code) {
+		// super.reportError(msg, ex, code);//Avoid stream pipe closed exception
+	    }
+	};
+
+	agent.getLogger().addHandler(handler);
+
+	add(BorderLayout.CENTER, new JScrollPane(outField));
+
+	final JButton b = new JButton("clear");// TODO i18n
+	b.addActionListener(new ActionListener() {
+
+	    public void actionPerformed(ActionEvent e) {
+		clearOutput();
+	    }
+	});
+	add(BorderLayout.SOUTH, b);
+	setBackground(Color.WHITE);
+    }
+
+    /**
+     * Remove all the contained text.
+     */
+    public void clearOutput() {
+	outField.setText(null);
+    }
+
+    @Override
+    public void setBackground(Color bg) {
+	if (outField != null) {
+	    outField.setBackground(bg);
+	}
+	super.setBackground(bg);
+    }
 
 }

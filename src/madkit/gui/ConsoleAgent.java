@@ -42,40 +42,37 @@ import madkit.action.KernelAction;
 import madkit.kernel.AbstractAgent;
 
 /**
- * This agent displays standard out and err
- * prints in its GUI. This agent is useful
- * when the application is not launched from
- * a command line or an IDE so that the console is
- * not directly visible.
+ * This agent displays standard out and err prints in its GUI. This agent is useful when the application is not launched
+ * from a command line or an IDE so that the console is not directly visible.
  * 
  * @author Fabien Michel
  * @since MaDKit 5.0.0.14
  * @version 0.91
- * 
  */
 public class ConsoleAgent extends AbstractAgent {
-	
-	final static private PrintStream systemOut = System.out;
-	final static private PrintStream systemErr = System.err;
-	
-	public ConsoleAgent(){
-		createGUIOnStartUp();
-	}
-	
-	public void setupFrame(final AgentFrame frame) {
-		final OutputPanel outP = new OutputPanel(this);
-		final PrintStream ps = new PrintStream(outP.getOutputStream());
-		frame.setIconImage(KernelAction.CONSOLE.getActionInfo().getBigIcon().getImage());
-		frame.add(outP);
-		System.setErr(ps);
-		System.setOut(ps);
-		frame.setSize(800, 500);
-	}
 
-	@Override
-	protected void end() {
-		System.setErr(systemErr);
-		System.setOut(systemOut);
-	}
+    private static final PrintStream systemOut = System.out;
+    private static final PrintStream systemErr = System.err;
+
+    public ConsoleAgent() {
+	createGUIOnStartUp();
+    }
+
+    @Override
+    public void setupFrame(final AgentFrame frame) {
+	final OutputPanel outP = new OutputPanel(this);
+	final PrintStream ps = new PrintStream(outP.getOutputStream());
+	frame.setIconImage(KernelAction.CONSOLE.getActionInfo().getBigIcon().getImage());
+	frame.add(outP);
+	System.setErr(ps);
+	System.setOut(ps);
+	frame.setSize(800, 500);
+    }
+
+    @Override
+    protected void end() {
+	System.setErr(systemErr);
+	System.setOut(systemOut);
+    }
 
 }

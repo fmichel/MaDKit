@@ -42,7 +42,7 @@ import java.util.logging.Level;
 
 import org.junit.Test;
 
-import madkit.agr.Organization;
+import madkit.agr.DefaultMaDKitRoles;
 import madkit.kernel.Agent;
 import madkit.kernel.Gatekeeper;
 import madkit.kernel.JunitMadkit;
@@ -81,7 +81,7 @@ public class CandidateTest extends JunitMadkit {
 				});
 						sendMessage(COMMUNITY, 
 								GROUP, 
-								Organization.GROUP_MANAGER_ROLE, 
+								DefaultMaDKitRoles.GROUP_MANAGER_ROLE, 
 								new Message());
 						pause(10);
 						Message m = waitNextMessage();

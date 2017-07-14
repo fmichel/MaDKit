@@ -52,6 +52,7 @@ import java.util.logging.Level;
 
 import madkit.action.KernelAction;
 import madkit.agr.NetworkCommunity;
+import madkit.agr.DefaultMaDKitRoles;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.kernel.AbstractAgent.ReturnCode;
@@ -116,7 +117,7 @@ public class JunitMadkit {
 			}
 			madkit = new Madkit(args);
 			AbstractAgent kernelAgent = madkit.getKernel()
-					.getAgentWithRole(null, LocalCommunity.NAME, Groups.SYSTEM, LocalCommunity.GROUP_MANAGER_ROLE).getAgent();
+					.getAgentWithRole(null, LocalCommunity.NAME, Groups.SYSTEM, DefaultMaDKitRoles.GROUP_MANAGER_ROLE).getAgent();
 			// kernelAgent.receiveMessage(new
 			// KernelMessage(MadkitAction.LAUNCH_AGENT, a, false));
 			a.setName(name.getMethodName());

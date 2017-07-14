@@ -32,9 +32,9 @@ import java.util.ResourceBundle;
 import javax.swing.Action;
 import javax.swing.JOptionPane;
 
+import madkit.agr.DefaultMaDKitRoles;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
-import madkit.agr.Organization;
 import madkit.i18n.I18nUtilities;
 import madkit.i18n.Words;
 import madkit.kernel.AbstractAgent;
@@ -145,7 +145,7 @@ public enum GUIManagerAction {
 			try {
 			    final String ip = JOptionPane.showInputDialog(null, getActionInfo().getName() + " : ");
 			    if (ip != null) {
-				agent.sendMessage(LocalCommunity.NAME, Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE,
+				agent.sendMessage(LocalCommunity.NAME, Groups.SYSTEM, DefaultMaDKitRoles.GROUP_MANAGER_ROLE,
 					new KernelMessage(KernelAction.CONNECT_TO_IP, InetAddress.getByName(ip)));
 			    }
 			}
@@ -170,7 +170,7 @@ public enum GUIManagerAction {
 	    public void actionPerformed(ActionEvent e) {
 		if (agent.isAlive()) {
 		    final Message m = new GUIMessage(GUIManagerAction.this, commandOptions);
-		    final AgentAddress guiManager = agent.getAgentWithRole(LocalCommunity.NAME, Groups.GUI, Organization.GROUP_MANAGER_ROLE);
+		    final AgentAddress guiManager = agent.getAgentWithRole(LocalCommunity.NAME, Groups.GUI, DefaultMaDKitRoles.GROUP_MANAGER_ROLE);
 		    if (guiManager != null) {
 			agent.sendMessage(guiManager, m);
 		    }

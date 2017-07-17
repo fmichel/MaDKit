@@ -44,7 +44,6 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.prefs.Preferences;
 
 import javax.swing.AbstractButton;
 import javax.swing.Action;
@@ -87,7 +86,7 @@ public final class SwingUtil {
     /**
      * access to persistently stored preferences
      */
-    public static final Preferences UI_PREFERENCES = Preferences.userRoot().node(SwingUtil.class.getName());
+//    public static final Preferences UI_PREFERENCES = Preferences.userRoot().node(SwingUtil.class.getName());
 
     private SwingUtil() {
     }

@@ -38,10 +38,16 @@ package madkit.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.prefs.Preferences;
 
 import javax.swing.Box;
 import javax.swing.JFrame;
@@ -63,239 +69,232 @@ import madkit.kernel.AbstractAgent;
 import madkit.message.KernelMessage;
 
 /**
- * The default frame which is used for the agents in the GUI engine of MaDKit.
- * Subclasses could be defined to obtain customized frames.
+ * The default frame which is used for the agents in the GUI engine of MaDKit. Subclasses could be defined to obtain
+ * customized frames.
  * 
  * @author Fabien Michel
  * @since MaDKit 5.0.0.9
  * @version 0.92
- * 
  */
-public class AgentFrame extends JFrame implements PrintableFrame{
+public class AgentFrame extends JFrame implements PrintableFrame {//NOSONAR
 
-//	final public static Preferences UI_PREFERENCES = Preferences.userRoot().node(AgentFrame.class.getName());
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 6337250099157352055L;
+    private static final long serialVersionUID = 8787803902533059051L;
+    private static final Preferences AGENTS_UI_PREFERENCES = Preferences.userRoot().node(AgentFrame.class.getName());
 
-	private final AbstractAgent agent;
-	private final String classUIPreferenceCodeBase;
-	private final String agentUIPreferenceCodeBase;
-	
-	private JInternalFrame internalFrame;
-	
-	/**
-	 * TThis constructor is protected because this class
-	 * should not be directly instantiated as it is used
-	 * by the MaDKit GUI manager.
-	 * 
-	 * @param agent the considered agent
-	 */
-	protected AgentFrame(final AbstractAgent agent) {
-		super(agent.getName());
-		this.agent = agent;
-		classUIPreferenceCodeBase = agent.getClass().getName();
-		agentUIPreferenceCodeBase = agent.getName();
-		setIconImage(SwingUtil.MADKIT_LOGO.getImage());
-		setJMenuBar(createMenuBar());
-		JToolBar tb = createJToolBar();
-		if (tb != null) {
-			add(tb, BorderLayout.PAGE_START);
-		}
-		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-		addWindowListener(new WindowAdapter() {
-			
-			@Override
-			public void windowClosed(WindowEvent e) {
-				closeProcess();
-			}
-			private void closeProcess() {
-				if (agent.isAlive()) {
-					setTitle("Closing " + agent.getName());
-					killAgent(agent, 4);
-				}
-			}
-			public void windowClosing(java.awt.event.WindowEvent e) {
-				closeProcess();
-			}
-		});
-		setSize(400,300);
-		getContentPane().setBackground(Color.WHITE);
-		setBackground(Color.WHITE);
-		setLocationRelativeTo(null);
-//		restoreUIPreferences();
-//		addComponentListener(new ComponentAdapter() {
-//			@Override
-//			public void componentMoved(ComponentEvent e) {
-//				final Component component = e.getComponent();
-//				UI_PREFERENCES.putInt(agentUIPreferenceCodeBase + "_X", component.getX());
-//				UI_PREFERENCES.putInt(agentUIPreferenceCodeBase + "_Y", component.getY());
-//			}
-//			@Override
-//			public void componentResized(ComponentEvent e) {
-//				final Component component = e.getComponent();
-//				UI_PREFERENCES.putInt(agentUIPreferenceCodeBase + "_W", component.getWidth());
-//				UI_PREFERENCES.putInt(agentUIPreferenceCodeBase + "_H", component.getHeight());
-//			}
-//		});
-//		addPropertyChangeListener(new PropertyChangeListener() {
-//			@Override
-//			public void propertyChange(PropertyChangeEvent evt) {
-//				if(evt.getPropertyName().equals("background")){
-//					UI_PREFERENCES.putInt(classUIPreferenceCodeBase + "_BGC", getBackground().getRGB());
-//				}
-//			}
-//		});
-	}
-	
-	@Override
-	public void dispose() {
-		if(internalFrame != null){
-			internalFrame.dispose();
-		}
-		super.dispose();
-	}
-	
-//	public Dimension getLastSavedDimensionPreference(){
-//		return new Dimension(UI_PREFERENCES.getInt(agentUIPreferenceCodeBase + "_W",400), UI_PREFERENCES.getInt(agentUIPreferenceCodeBase + "_H",300));
-//	}
-//
-//	public Point getLastSavedLocationPreference(){
-//		return new Point(UI_PREFERENCES.getInt(agentUIPreferenceCodeBase + "_X",-1), UI_PREFERENCES.getInt(agentUIPreferenceCodeBase + "_Y",-1));
-//	}
-//
-//	public Color getLastSavedBackgroundPreference(){
-//		return new Color(UI_PREFERENCES.getInt(classUIPreferenceCodeBase + "_BGC", Color.WHITE.getRGB()));
-//	}
-//	
-//	public void restoreUIPreferences(){
-//		final Color lastSavedBackgroundPreference = getLastSavedBackgroundPreference();
-//		setBackground(lastSavedBackgroundPreference);
-//		setSize(getLastSavedDimensionPreference());
-//		setLocation(getLastSavedLocationPreference());
-//		if(getLocation().equals(new Point(-1, -1))){
-//			setLocationRelativeTo(null);
-//		}
-//	}
+    private final transient AbstractAgent agent;
+    private final String classUIPreferenceCodeBase;
+    private final String agentUIPreferenceCodeBase;
 
-	/**
-	 * Builds the menu bar that will be used for this frame.
-	 * By default it creates a {@link JMenuBar} featuring: 
-	 * <ul>
-	 * <li> {@link MadkitMenu}
-	 * <li> {@link AgentMenu}
-	 * <li> {@link AgentLogLevelMenu}
-	 * <li> {@link HelpMenu}
-	 * <li> {@link AgentStatusPanel}
-	 * </ul>
-	 * 
-	 * @return a menu bar 
-	 */
-	public JMenuBar createMenuBar() {
-		JMenuBar menuBar = new JMenuBar();
-		menuBar.add(new MadkitMenu(agent));
-		menuBar.add(new AgentMenu(agent));
-		menuBar.add(new AgentLogLevelMenu(agent));
-		menuBar.add(new DisplayMenu(this));
-		menuBar.add(new HelpMenu());
-		menuBar.add(Box.createHorizontalGlue());
-		menuBar.add(new AgentStatusPanel(agent));
-		return menuBar;
-	}
-	
-	/**
-	 * Builds the tool bar that will be used. By default, 
-	 * it returns <code>null</code> so that there is no toll bar 
-	 * in the default agent frames.
-	 * 
-	 * @return a tool bar
-	 */
-	public JToolBar createJToolBar(){
-		return null;
-	}
+    private JInternalFrame internalFrame;
 
-	/**
-	 * @param internalFrame the internalFrame to set
-	 */
-	void setInternalFrame(JInternalFrame internalFrame) {
-		this.internalFrame = internalFrame;
-		for(ComponentListener l : this.getComponentListeners())
-			this.internalFrame.addComponentListener(l);
+    /**
+     * TThis constructor is protected because this class should not be directly instantiated as it is used by the MaDKit GUI
+     * manager.
+     * 
+     * @param agent
+     *            the considered agent
+     */
+    protected AgentFrame(final AbstractAgent agent) {
+	super(agent.getName());
+	this.agent = agent;
+	classUIPreferenceCodeBase = agent.getClass().getName();
+	agentUIPreferenceCodeBase = agent.getName();
+	setIconImage(SwingUtil.MADKIT_LOGO.getImage());
+	setJMenuBar(createMenuBar());
+	JToolBar tb = createJToolBar();
+	if (tb != null) {
+	    add(tb, BorderLayout.PAGE_START);
 	}
+	setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+	addWindowListener(new WindowAdapter() {
 
-	@Override
-	public void setLocation(int x, int y) {
-		super.setLocation(x, y);
-		if(internalFrame != null){
-			internalFrame.setLocation(x, y);
-		}
-	}
-	
-	@Override
-	public void setSize(int width, int height) {
-		super.setSize(width, height);
-		if(internalFrame != null){
-			internalFrame.setSize(width, height);
-		}
-	}
-	
-	@Override
-	public void pack() {
-		super.pack();
-		if(internalFrame != null){
-			internalFrame.pack();
-		}
-	}
+	    @Override
+	    public void windowClosed(WindowEvent e) {
+		closeProcess();
+	    }
 
-	/**
-	 * @param agent
-	 */
-	static void killAgent(final AbstractAgent agent,int timeOutSeconds) {//TODO move that
+	    private void closeProcess() {
 		if (agent.isAlive()) {
-			agent.sendMessage(
-					LocalCommunity.NAME, 
-					Groups.SYSTEM, 
-					DefaultMaDKitRoles.GROUP_MANAGER_ROLE, 
-					new KernelMessage(KernelAction.KILL_AGENT, agent, timeOutSeconds));
+		    setTitle("Closing " + agent.getName());
+		    killAgent(agent, 4);
 		}
-	}
+	    }
 
-	/**
-	 * @return the agent for which this frame has been created.
-	 */
-	public AbstractAgent getAgent() {
-		return agent;
-	}
+	    @Override
+	    public void windowClosing(java.awt.event.WindowEvent e) {
+		closeProcess();
+	    }
+	});
+	setSize(400, 300);
+	getContentPane().setBackground(Color.WHITE);
+	setBackground(Color.WHITE);
+	setLocationRelativeTo(null);
+	restoreUIPreferences();
+	addComponentListener(new ComponentAdapter() {
 
-	/**
-	 * Override to customize the agent frame that should be created
-	 * by the GUI engine.
-	 * 
-	 * @param agent the related agent 
-	 * @return the created frame 
-	 */
-	public static AgentFrame createAgentFrame(final AbstractAgent agent) {
-		return new AgentFrame(agent);
-	}
-	
-	@Override
-	public String toString() {
-		return "AFrame for "+agent+" "+super.toString();
-	}
+	    @Override
+	    public void componentMoved(ComponentEvent e) {
+		final Component component = e.getComponent();
+		AGENTS_UI_PREFERENCES.putInt(agentUIPreferenceCodeBase + "_X", component.getX());
+		AGENTS_UI_PREFERENCES.putInt(agentUIPreferenceCodeBase + "_Y", component.getY());
+	    }
 
-	@Override
-	public Container getPrintableContainer() {
-		if(internalFrame != null){
-			return internalFrame.getDesktopPane().getTopLevelAncestor();
-		}
-		return this;
+	    @Override
+	    public void componentResized(ComponentEvent e) {
+		final Component component = e.getComponent();
+		AGENTS_UI_PREFERENCES.putInt(agentUIPreferenceCodeBase + "_W", component.getWidth());
+		AGENTS_UI_PREFERENCES.putInt(agentUIPreferenceCodeBase + "_H", component.getHeight());
+	    }
+	});
+	addPropertyChangeListener((evt) -> {
+	    if (evt.getPropertyName().equals("background")) {
+		AGENTS_UI_PREFERENCES.putInt(agentUIPreferenceCodeBase + "_BGC", getBackground().getRGB());
+	    }
+	});
+    }
+
+    @Override
+    public void dispose() {
+	if (internalFrame != null) {
+	    internalFrame.dispose();
 	}
-	
-	@Override
-	public void setBackground(Color bgColor) {
-		super.setBackground(bgColor);
-		getContentPane().setBackground(bgColor);
+	super.dispose();
+    }
+
+    public Dimension getLastSavedDimensionPreference() {
+	return new Dimension(AGENTS_UI_PREFERENCES.getInt(agentUIPreferenceCodeBase + "_W", 400), AGENTS_UI_PREFERENCES.getInt(agentUIPreferenceCodeBase + "_H", 300));
+    }
+
+    public Point getLastSavedLocationPreference() {
+	return new Point(AGENTS_UI_PREFERENCES.getInt(agentUIPreferenceCodeBase + "_X", -1), AGENTS_UI_PREFERENCES.getInt(agentUIPreferenceCodeBase + "_Y", -1));
+    }
+
+    public Color getLastSavedBackgroundPreference() {
+	return new Color(AGENTS_UI_PREFERENCES.getInt(agentUIPreferenceCodeBase + "_BGC", Color.WHITE.getRGB()));
+    }
+
+    public void restoreUIPreferences() {
+	final Color lastSavedBackgroundPreference = getLastSavedBackgroundPreference();
+	setBackground(lastSavedBackgroundPreference);
+	setSize(getLastSavedDimensionPreference());
+	setLocation(getLastSavedLocationPreference());
+	if (getLocation().equals(new Point(-1, -1))) {
+	    setLocationRelativeTo(null);
 	}
+    }
+
+    /**
+     * Builds the menu bar that will be used for this frame. By default it creates a {@link JMenuBar} featuring:
+     * <ul>
+     * <li>{@link MadkitMenu}
+     * <li>{@link AgentMenu}
+     * <li>{@link AgentLogLevelMenu}
+     * <li>{@link HelpMenu}
+     * <li>{@link AgentStatusPanel}
+     * </ul>
+     * 
+     * @return a menu bar
+     */
+    public JMenuBar createMenuBar() {
+	JMenuBar menuBar = new JMenuBar();
+	menuBar.add(new MadkitMenu(agent));
+	menuBar.add(new AgentMenu(agent));
+	menuBar.add(new AgentLogLevelMenu(agent));
+	menuBar.add(new DisplayMenu(this));
+	menuBar.add(new HelpMenu());
+	menuBar.add(Box.createHorizontalGlue());
+	menuBar.add(new AgentStatusPanel(agent));
+	return menuBar;
+    }
+
+    /**
+     * Builds the tool bar that will be used. By default, it returns <code>null</code> so that there is no toll bar in the
+     * default agent frames.
+     * 
+     * @return a tool bar
+     */
+    public JToolBar createJToolBar() {
+	return null;
+    }
+
+    /**
+     * @param internalFrame
+     *            the internalFrame to set
+     */
+    void setInternalFrame(JInternalFrame internalFrame) {
+	this.internalFrame = internalFrame;
+	for (ComponentListener l : this.getComponentListeners())
+	    this.internalFrame.addComponentListener(l);
+    }
+
+    @Override
+    public void setLocation(int x, int y) {
+	super.setLocation(x, y);
+	if (internalFrame != null) {
+	    internalFrame.setLocation(x, y);
+	}
+    }
+
+    @Override
+    public void setSize(int width, int height) {
+	super.setSize(width, height);
+	if (internalFrame != null) {
+	    internalFrame.setSize(width, height);
+	}
+    }
+
+    @Override
+    public void pack() {
+	super.pack();
+	if (internalFrame != null) {
+	    internalFrame.pack();
+	}
+    }
+
+    /**
+     * @param agent
+     */
+    static void killAgent(final AbstractAgent agent, int timeOutSeconds) {// TODO move that
+	if (agent.isAlive()) {
+	    agent.sendMessage(LocalCommunity.NAME, Groups.SYSTEM, DefaultMaDKitRoles.GROUP_MANAGER_ROLE, new KernelMessage(KernelAction.KILL_AGENT, agent, timeOutSeconds));
+	}
+    }
+
+    /**
+     * @return the agent for which this frame has been created.
+     */
+    public AbstractAgent getAgent() {
+	return agent;
+    }
+
+    /**
+     * Override to customize the agent frame that should be created by the GUI engine.
+     * 
+     * @param agent
+     *            the related agent
+     * @return the created frame
+     */
+    public static AgentFrame createAgentFrame(final AbstractAgent agent) {
+	return new AgentFrame(agent);
+    }
+
+    @Override
+    public String toString() {
+	return "AFrame for " + agent + " " + super.toString();
+    }
+
+    @Override
+    public Container getPrintableContainer() {
+	if (internalFrame != null) {
+	    return internalFrame.getDesktopPane().getTopLevelAncestor();
+	}
+	return this;
+    }
+
+    @Override
+    public void setBackground(Color bgColor) {
+	super.setBackground(bgColor);
+	getContentPane().setBackground(bgColor);
+    }
 
 }

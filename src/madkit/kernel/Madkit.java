@@ -45,7 +45,6 @@ import madkit.action.LoggingAction;
 import madkit.gui.AgentFrame;
 import madkit.gui.ConsoleAgent;
 import madkit.gui.MDKDesktopFrame;
-import madkit.gui.SwingUtil;
 import madkit.i18n.ErrorMessages;
 import madkit.i18n.I18nUtilities;
 import madkit.message.KernelMessage;
@@ -236,34 +235,26 @@ public final class Madkit {
 	    }
 	    this.args = argsList.toArray(new String[argsList.size()]);
 	}
-
 	madkitConfig.putAll(DEFAULT_CONFIG);
-	 final boolean boolean1 = SwingUtil.UI_PREFERENCES.getBoolean("MDK_DEBUG",false);
-	// if(boolean1){
-	// GlobalAction.DEBUG.putValue(Action.SELECTED_KEY, false);
-	// GlobalAction.DEBUG.putValue(Action.SELECTED_KEY, true);//validating a change
-	// madkitConfig.put(LevelOption.agentLogLevel.name(), Level.ALL.toString());
-	// }
-
 	final Properties fromArgs = buildConfigFromArgs(args);
 	madkitConfig.putAll(fromArgs);
 	initMadkitLogging();
-	logger.finest("command line args : " + fromArgs);
+	logger.finest(() -> "command line args : " + fromArgs);
 	loadJarFileArguments();
 	if (loadConfigFiles())// overriding config file
 	    loadJarFileArguments();
-	logger.fine("** OVERRIDING WITH COMMAND LINE ARGUMENTS **");
+	logger.fine(() -> "** OVERRIDING WITH COMMAND LINE ARGUMENTS **");
 	madkitConfig.putAll(fromArgs);
 
 	I18nUtilities.setI18nDirectory(madkitConfig.getProperty(Option.i18nDirectory.name()));
 
-	logger.finest(MadkitClassLoader.getLoader().toString());
+	logger.finest(() -> MadkitClassLoader.getLoader().toString());
 
 	// activating desktop if no agent at this point and desktop has not been set
 	final String desktopOptionName = BooleanOption.desktop.name();
 	if (madkitConfig.get(desktopOptionName).equals("null")) {
 	    if (madkitConfig.get(Option.launchAgents.name()).equals("null") && madkitConfig.get(Option.configFile.name()).equals("null")) {
-		logger.fine(Option.launchAgents.name() + " && " + Option.configFile.name() + " == null : Activating desktop");
+		logger.fine(() -> Option.launchAgents.name() + " && " + Option.configFile.name() + " == null : Activating desktop");
 		madkitConfig.setProperty(desktopOptionName, "true");
 	    }
 	    else {
@@ -278,14 +269,6 @@ public final class Madkit {
 	logger.finer(() -> "**  MADKIT KERNEL CREATED **");
 
 	printWelcomeString();
-	// if(madkitClassLoader.getAvailableConfigurations().isEmpty() //TODO
-	// && ! madkitConfig.get(Option.launchAgents.name()).equals("null")){
-	// madkitClassLoader.addMASConfig(new MASModel(Words.INITIAL_CONFIG.toString(), args, "desc"));
-	// }
-
-	// this.cmdLine = System.getProperty("java.home")+File.separatorChar+"bin"+File.separatorChar+"java
-	// -cp "+System.getProperty("java.class.path")+" madkit.kernel.Madkit ";
-
 	startKernel();
 
     }

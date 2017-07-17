@@ -2030,7 +2030,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 */
 	public void setupFrame(final AgentFrame frame) {
 		frame.setContentPane(new OutputPanel(this));
-//		frame.restoreUIPreferences();
+		frame.restoreUIPreferences();
 	}
 
 	// /////////////////////////////////////////////// UTILITIES

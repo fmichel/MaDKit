@@ -38,6 +38,7 @@ package madkit.gui;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.util.prefs.Preferences;
 
 import javax.swing.Box;
 import javax.swing.JDesktopPane;
@@ -64,11 +65,10 @@ import madkit.kernel.Madkit;
  * @since MadKit 5.0.0.22
  * @version 0.9
  */
-public class MDKDesktopFrame extends JFrame implements PrintableFrame {
+public class MDKDesktopFrame extends JFrame implements PrintableFrame {// NOSONAR
 
-    /**
-     * 
-     */
+    private static final Preferences DESKTOP_UI_PREFERENCES = Preferences.userRoot().node(MDKDesktopFrame.class.getName());
+
     private static final long serialVersionUID = -5136102562032184534L;
     private final JDesktopPane desktopPane;
 
@@ -79,16 +79,13 @@ public class MDKDesktopFrame extends JFrame implements PrintableFrame {
 	desktopPane.setBackground(Color.BLACK);
 	add(desktopPane);
 	setIconImage(SwingUtil.MADKIT_LOGO.getImage());
-	final String key = getClass().getName() + "_BGC";
-	// setBackground(new Color(SwingUtil.UI_PREFERENCES.getInt(key, Color.BLACK.getRGB())));
-	// addPropertyChangeListener(new PropertyChangeListener() {
-	// @Override
-	// public void propertyChange(PropertyChangeEvent evt) {
-	// if(evt.getPropertyName().equals("background")){
-	// SwingUtil.UI_PREFERENCES.putInt(key, ((Color) evt.getNewValue()).getRGB());
-	// }
-	// }
-	// });
+	final String key = "MDK_Desktop_BGC";
+	setBackground(new Color(DESKTOP_UI_PREFERENCES.getInt(key, Color.BLACK.getRGB())));
+	addPropertyChangeListener(evt -> {
+	    if (evt.getPropertyName().equals("background")) {
+		DESKTOP_UI_PREFERENCES.putInt(key, ((Color) evt.getNewValue()).getRGB());
+	    }
+	});
     }
 
     /**

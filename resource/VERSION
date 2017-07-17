@@ -38,7 +38,7 @@ Refactoring:
 1. Changes:
 	+ MaDKit now retains some preferences over different executions:
 		Debug mode on or off
-		Agent frames size, location and color (based on the agent's name or class)
+		Agent frames size, location and color (based on the agent's default name)
 		Agent log level (based on the agent's name)
 	
 	+ Adding a printing feature to agent frames

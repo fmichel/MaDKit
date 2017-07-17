@@ -83,11 +83,6 @@ public final class SwingUtil {
      */
     public static final ImageIcon MADKIT_LOGO_SMALL = new ImageIcon(MADKIT_LOGO.getImage().getScaledInstance(14, 14, java.awt.Image.SCALE_SMOOTH));
 
-    /**
-     * access to persistently stored preferences
-     */
-//    public static final Preferences UI_PREFERENCES = Preferences.userRoot().node(SwingUtil.class.getName());
-
     private SwingUtil() {
     }
 

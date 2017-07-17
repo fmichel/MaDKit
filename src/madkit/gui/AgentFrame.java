@@ -76,13 +76,12 @@ import madkit.message.KernelMessage;
  * @since MaDKit 5.0.0.9
  * @version 0.92
  */
-public class AgentFrame extends JFrame implements PrintableFrame {//NOSONAR
+public class AgentFrame extends JFrame implements PrintableFrame {// NOSONAR
 
     private static final long serialVersionUID = 8787803902533059051L;
     private static final Preferences AGENTS_UI_PREFERENCES = Preferences.userRoot().node(AgentFrame.class.getName());
 
     private final transient AbstractAgent agent;
-    private final String classUIPreferenceCodeBase;
     private final String agentUIPreferenceCodeBase;
 
     private JInternalFrame internalFrame;
@@ -97,7 +96,6 @@ public class AgentFrame extends JFrame implements PrintableFrame {//NOSONAR
     protected AgentFrame(final AbstractAgent agent) {
 	super(agent.getName());
 	this.agent = agent;
-	classUIPreferenceCodeBase = agent.getClass().getName();
 	agentUIPreferenceCodeBase = agent.getName();
 	setIconImage(SwingUtil.MADKIT_LOGO.getImage());
 	setJMenuBar(createMenuBar());

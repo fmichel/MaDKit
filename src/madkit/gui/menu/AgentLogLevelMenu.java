@@ -42,9 +42,9 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
+import java.util.prefs.Preferences;
 
 import javax.swing.AbstractButton;
-import javax.swing.Action;
 import javax.swing.ButtonGroup;
 import javax.swing.JMenu;
 import javax.swing.JRadioButtonMenuItem;
@@ -56,111 +56,110 @@ import madkit.kernel.AbstractAgent;
 import madkit.kernel.AgentLogger;
 
 /**
- * An out of the box menu for manipulating the
- * log level of an agent.
+ * An out of the box menu for manipulating the log level of an agent.
  * 
  * @author Fabien Michel
  * @since MaDKit 5.0.0.7
  * @see AgentLogger
  * @version 0.91
- * 
  */
-public class AgentLogLevelMenu extends JMenu{
-	
+public class AgentLogLevelMenu extends JMenu {//NOSONAR
 
-	final private static Map<AbstractAgent,AgentLogLevelMenu> menus = new HashMap<>(); 
-	
-	final private static Level[] logLevels = {Level.OFF,Level.SEVERE,Level.WARNING,Level.INFO,Level.CONFIG,Level.FINE,Level.FINER,Level.FINEST, Level.ALL};
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1274573952636236546L;
+    private static final Preferences UI_LOGGING_PREFERENCES = Preferences.userRoot().node(AgentLogger.class.getName());
+    private static final Map<AbstractAgent, AgentLogLevelMenu> menus = new HashMap<>();
+    private static final Level[] logLevels = { Level.OFF, Level.SEVERE, Level.WARNING, Level.INFO, Level.CONFIG, Level.FINE, Level.FINER, Level.FINEST, Level.ALL };
 
-	final private AbstractAgent myAgent;
-	final private ButtonGroup logGroup;
-//	final private ButtonGroup warningGroup;
+    private final ButtonGroup logGroup;
+    private final transient AgentLogger agentLogger;
 
-	private Action cgrWarningsAction;
-	
-	/**
-	 * Builds a menu containing all the log levels which
-	 * could be set on an agent. 
-	 */
-	public AgentLogLevelMenu(final AbstractAgent agent){
-		super("Logging");
-		setMnemonic(KeyEvent.VK_L);
 
-		myAgent = agent;
-		
-		ActionInfo action = LoggingAction.LOG_LEVEL.getActionInfo();
-		JMenu logLevelMenu = new JMenu(action.getName());
-		logLevelMenu.setIcon(action.getSmallIcon());
-		logLevelMenu.setToolTipText(action.getShortDescription());
-		
-		logGroup = new ButtonGroup();
-		
-		add(logLevelMenu);
-		
-		final ActionListener setLogLevelListener = (evt) -> {
-			myAgent.getLogger().setLevel(Level.parse(evt.getActionCommand()));
-////			SwingUtil.UI_PREFERENCES.put(agentName+"LL",e.getActionCommand());
-		};
+    /**
+     * Builds a menu containing all the log levels which could be set on an agent.
+     */
+    public AgentLogLevelMenu(final AbstractAgent agent) {
+	super("Logging");
+	setMnemonic(KeyEvent.VK_L);
 
-		SwingUtil.addBooleanActionTo(this,myAgent.getLogger().getEnableCGRWarningsAction());
 
-		for(final Level l : logLevels){
-			JRadioButtonMenuItem logItem = new JRadioButtonMenuItem(l.getLocalizedName());
-			initMenuItem(logItem,setLogLevelListener,l.toString(),logGroup,logLevelMenu);
-		}
-//		myAgent.setLogLevel(Level.parse(SwingUtil.UI_PREFERENCES.get(agentName+"LL",logger.getLevel().toString())));
-		update();
-		if (myAgent.hasGUI()) {//TODO need mvc here
-			menus.put(myAgent, this);
-		}
-		
+	ActionInfo action = LoggingAction.LOG_LEVEL.getActionInfo();
+	JMenu logLevelMenu = new JMenu(action.getName());
+	logLevelMenu.setIcon(action.getSmallIcon());
+	logLevelMenu.setToolTipText(action.getShortDescription());
+
+	logGroup = new ButtonGroup();
+
+	add(logLevelMenu);
+
+	final String agentLogLEvelKey = agent.getName() + "_LL";
+	agentLogger = agent.getLogger();
+	final ActionListener setLogLevelListener = evt -> {
+	    final String levelName = evt.getActionCommand();
+	    agentLogger.setLevel(Level.parse(levelName));
+	    UI_LOGGING_PREFERENCES.put(agentLogLEvelKey, levelName);
+	};
+	for (final Level l : logLevels) {
+	    JRadioButtonMenuItem logItem = new JRadioButtonMenuItem(l.getLocalizedName());
+	    initMenuItem(logItem, setLogLevelListener, l.toString(), logGroup, logLevelMenu);
 	}
-	
-	private void update() {
-			updateLogLevelGroup(myAgent.getLogger().getLevel());
-	}
-	
-	/**
-	 * Update the menu of this agent
-	 * 
-	 * @param agent
-	 */
-	public static void update(final AbstractAgent agent){
-		final AgentLogLevelMenu menu = menus.get(agent);
-		if(menu != null){
-			menu.update();
-		}
-	}
-	
-	/**
-	 * @param logLevel
-	 */
-	private void updateLogLevelGroup(final Level logLevel) {
-		for (Enumeration<AbstractButton> buttons = logGroup.getElements();buttons.hasMoreElements();) {
-			final AbstractButton button = buttons.nextElement();
-			if(button.getActionCommand().equals(logLevel.toString())){
-				button.setSelected(true);
-				return;
-			}
-		}
+	agentLogger.setLevel(Level.parse(UI_LOGGING_PREFERENCES.get(agentLogLEvelKey, agentLogger.getLevel().toString())));
+	update();
+
+	SwingUtil.addBooleanActionTo(this, agentLogger.getEnableCGRWarningsAction());
+
+	if (agent.hasGUI()) {
+	    menus.put(agent, this);
 	}
 
-	/**
-	 * @param logItem
-	 * @param listener 
-	 */
-	private void initMenuItem(JRadioButtonMenuItem logItem,ActionListener listener, String actionCommand, ButtonGroup group, JMenu menu) {
-		menu.add(logItem);
-		logItem.setActionCommand(actionCommand);
-		logItem.addActionListener(listener);
-		group.add(logItem);
-	}
+    }
 
-	public static void remove(AbstractAgent abstractAgent) {
-		menus.remove(abstractAgent);
-	}
-	
-	//TODO remove agent on dispose
+    private void update() {
+	updateLogLevelGroup(agentLogger.getLevel());
+    }
 
+    /**
+     * Update the menu of this agent
+     * 
+     * @param agent
+     */
+    public static void update(final AbstractAgent agent) {
+	final AgentLogLevelMenu menu = menus.get(agent);
+	if (menu != null) {
+	    menu.update();
+	}
+    }
+
+    /**
+     * @param logLevel
+     */
+    private void updateLogLevelGroup(final Level logLevel) {
+	for (Enumeration<AbstractButton> buttons = logGroup.getElements(); buttons.hasMoreElements();) {
+	    final AbstractButton button = buttons.nextElement();
+	    if (button.getActionCommand().equals(logLevel.toString())) {
+		button.setSelected(true);
+		return;
+	    }
+	}
+    }
+
+    /**
+     * @param logItem
+     * @param listener
+     */
+    private void initMenuItem(JRadioButtonMenuItem logItem, ActionListener listener, String actionCommand, ButtonGroup group, JMenu menu) {
+	menu.add(logItem);
+	logItem.setActionCommand(actionCommand);
+	logItem.addActionListener(listener);
+	group.add(logItem);
+    }
+
+    public static void remove(AbstractAgent abstractAgent) {
+	menus.remove(abstractAgent);
+    }
+
+    // TODO remove agent on dispose
 
 }

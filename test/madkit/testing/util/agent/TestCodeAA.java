@@ -36,15 +36,10 @@ knowledge of the CeCILL-C license and that you accept its terms.
  */
 package madkit.testing.util.agent;
 
-import java.io.PrintStream;
-
-import javax.swing.JFrame;
-
 import madkit.action.KernelAction;
 import madkit.agr.DefaultMaDKitRoles;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
-import madkit.gui.OutputPanel;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Message;
 import madkit.message.EnumMessage;
@@ -65,14 +60,6 @@ public class TestCodeAA extends AbstractAgent {
 		killAgent(this);
 	}
 	
-	@Override
-	public void setupFrame(JFrame frame) {
-		OutputPanel outP;
-		frame.add(outP = new OutputPanel(this));
-		System.setErr(new PrintStream(outP.getOutputStream()));
-		System.setOut(new PrintStream(outP.getOutputStream()));
-	}
-
 	@Override
 	protected void activate() {
 		try {

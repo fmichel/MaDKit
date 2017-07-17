@@ -86,6 +86,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 
+import javax.swing.Action;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
@@ -198,9 +199,6 @@ class MadkitKernel extends Agent {
 	final String logBaseDir = madkitConfig.getProperty(logDirKey) + File.separator;
 	final String date = Madkit.DATE_FORMATTER.format(Instant.now()).replace(':', '-');
 	String logDir = logBaseDir + date + kernelAddress;
-	// while (new File(logDir).exists()) {
-	// logDir = logBaseDir + Madkit.DATE_FORMAT.format(new Date())+kernelAddress;
-	// }
 	madkitConfig.setProperty(logDirKey, logDir);
 
 	organizations = new ConcurrentHashMap<>();
@@ -208,6 +206,7 @@ class MadkitKernel extends Agent {
 	loggedKernel = new LoggedKernel(this);
 
 	getLogger().setLevel(LevelOption.kernelLogLevel.getValue(madkitConfig));
+	getLogger().doNotReactToDebugMode();
 
 	normalAgentThreadFactory = new AgentThreadFactory(kernelAddress, false);
 	daemonAgentThreadFactory = new AgentThreadFactory(kernelAddress, true);
@@ -261,6 +260,8 @@ class MadkitKernel extends Agent {
 	if (getLogger().getLevel() == Level.OFF) {
 	    logger = null;
 	}
+	
+	checkDebugMode();
 
 	// addWebRepository();
 
@@ -300,6 +301,13 @@ class MadkitKernel extends Agent {
 	// logCurrentOrganization(logger,Level.FINEST);
     }
 
+    private void checkDebugMode() {
+	final boolean debugModeOn = BooleanOption.debug.isActivated(getMadkitConfig());
+	if (debugModeOn) {
+	    GlobalAction.DEBUG.putValue(Action.SELECTED_KEY, true);
+	}
+    }
+
     /**
      * Starts a session considering the current MaDKit configuration
      */
@@ -330,11 +338,6 @@ class MadkitKernel extends Agent {
     final private void launchGuiManagerAgent() {
 	if (logger != null)
 	    logger.fine(() -> "\n\t****** Launching GUI Manager ******\n");
-	// if (noGUIManager.isActivated(getMadkitConfig())) {
-	// if (logger != null)
-	// logger.fine("** No GUI Manager: " + noGUIManager +
-	// " option is true**\n");
-	// } else {
 	try {
 	    // no need to externalize : it is the only use of that string
 	    final Constructor<?> c = MadkitClassLoader.getLoader().loadClass("madkit.gui.GUIManagerAgent")

@@ -36,61 +36,32 @@ knowledge of the CeCILL-C license and that you accept its terms.
  */
 package madkit.boot.process;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+
+import org.junit.Test;
+
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit.BooleanOption;
-import madkit.kernel.Madkit.LevelOption;
-
-import org.junit.Test;
 
 /**
  * @author Fabien Michel
  * @since MaDKit 5.0.0.10
  * @version 0.9
- * 
  */
 
 public class NullArgTest extends JunitMadkit {
 
-	@Test
-	public void desktopOn() {
-		mkArgs = null;
-		launchTest(new AbstractAgent() {
-			@Override
-			protected void activate() {
-				assertTrue(BooleanOption.desktop.isActivated(getMadkitConfig()));
-			}
-		});
-	}
-	
-//	@Test
-//	public void noDesktop(){
-//	System.err.println(java.lang.management.ManagementFactory.getRuntimeMXBean().getName());
-//	Madkit m = new Madkit(BooleanOption.desktop.toString(), "false",Option.launchAgents.toString(),Agent.class.getName());
-//	try {
-//		Thread.sleep(1000000);
-//	} catch (InterruptedException e) {
-//		e.printStackTrace();
-//	}
-//	m.doAction(KernelAction.LAUNCH_NETWORK);
-//		}
+    @Test
+    public void desktopOn() {
+	mkArgs = null;
+	launchTest(new AbstractAgent() {
 
-	@Test
-	public void LogLevels() {
-		mkArgs = null;
-		launchTest(new AbstractAgent() {
-			@Override
-			protected void activate() {
-				assertEquals("OFF", getMadkitProperty(LevelOption.kernelLogLevel.name()));
-				assertEquals("OFF", getMadkitProperty(LevelOption.guiLogLevel.name()));
-				assertEquals("INFO", getMadkitProperty(LevelOption.networkLogLevel.name()));
-				assertEquals("INFO", getMadkitProperty(LevelOption.madkitLogLevel.name()));
-				assertEquals("INFO", getMadkitProperty(LevelOption.agentLogLevel.name()));
-				assertEquals("FINE", getMadkitProperty(LevelOption.warningLogLevel.name()));
-				assertEquals("INFO", getMadkitProperty(LevelOption.madkitLogLevel.name()));
-			}
-		});
-	}
+	    @Override
+	    protected void activate() {
+		assertTrue(BooleanOption.desktop.isActivated(getMadkitConfig()));
+	    }
+	});
+    }
+
 }

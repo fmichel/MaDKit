@@ -36,7 +36,12 @@ knowledge of the CeCILL-C license and that you accept its terms.
  */
 package madkit.gui;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.IntStream;
 
 import madkit.action.KernelAction;
 import madkit.kernel.AbstractAgent;
@@ -53,19 +58,19 @@ public class ConsoleAgent extends AbstractAgent {
 
     private static final PrintStream systemOut = System.out;
     private static final PrintStream systemErr = System.err;
-
+    
     public ConsoleAgent() {
 	createGUIOnStartUp();
     }
 
+    @SuppressWarnings("resource")
     @Override
     public void setupFrame(final AgentFrame frame) {
-	final OutputPanel outP = new OutputPanel(this);
-	final PrintStream ps = new PrintStream(outP.getOutputStream());
+	OutputPanel outP = new OutputPanel(this);
+	frame.setContentPane(outP);
 	frame.setIconImage(KernelAction.CONSOLE.getActionInfo().getBigIcon().getImage());
-	frame.add(outP);
-	System.setErr(ps);
-	System.setOut(ps);
+	System.setOut(new PrintStream(new StreamCapturer(outP, systemOut)));
+	System.setErr(new PrintStream(new StreamCapturer(outP, systemErr)));
 	frame.setSize(800, 500);
     }
 
@@ -75,4 +80,31 @@ public class ConsoleAgent extends AbstractAgent {
 	System.setOut(systemOut);
     }
 
+}
+
+
+class StreamCapturer extends OutputStream {
+
+    private OutputPanel panel;
+    private PrintStream capturedStream;
+    private List<Byte> bytesList;
+
+    public StreamCapturer(OutputPanel consumer, PrintStream old) {
+        bytesList = new ArrayList<>(128);
+        this.capturedStream = old;
+        this.panel = consumer;
+    }
+
+    @Override
+    public void write(int b) throws IOException {
+	capturedStream.write(b);
+	bytesList.add((byte) b);
+        if ((char) b == '\n') {
+            final Byte[] array = bytesList.toArray(new Byte[bytesList.size()]);
+            byte[] byteArray = new byte[array.length];
+	    IntStream.range(0, array.length).forEach(i -> byteArray [i] = array[i]);
+	    panel.writeToTextArea(new String(byteArray));
+	    bytesList.clear();
+        }
+    }        
 }

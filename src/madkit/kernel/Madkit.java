@@ -45,6 +45,7 @@ import madkit.action.LoggingAction;
 import madkit.gui.AgentFrame;
 import madkit.gui.ConsoleAgent;
 import madkit.gui.MDKDesktopFrame;
+import madkit.gui.SwingUtil;
 import madkit.i18n.ErrorMessages;
 import madkit.i18n.I18nUtilities;
 import madkit.message.KernelMessage;
@@ -82,7 +83,7 @@ import madkit.util.MadkitProperties;
  * @version 5.2
  */
 
-final public class Madkit {
+public final class Madkit {
 
     final static MadkitProperties DEFAULT_CONFIG = new MadkitProperties();
     static {
@@ -237,7 +238,7 @@ final public class Madkit {
 	}
 
 	madkitConfig.putAll(DEFAULT_CONFIG);
-	// final boolean boolean1 = SwingUtil.UI_PREFERENCES.getBoolean("MDK_DEBUG",false);
+	 final boolean boolean1 = SwingUtil.UI_PREFERENCES.getBoolean("MDK_DEBUG",false);
 	// if(boolean1){
 	// GlobalAction.DEBUG.putValue(Action.SELECTED_KEY, false);
 	// GlobalAction.DEBUG.putValue(Action.SELECTED_KEY, true);//validating a change
@@ -305,7 +306,7 @@ final public class Madkit {
 		// }
 		Attributes projectInfo = manifest.getAttributes("MaDKit-Project-Info");
 		if (projectInfo != null) {
-		    logger.finest("found project info \n\t" + projectInfo.keySet() + "\n\t" + projectInfo.values());
+		    logger.finest(() -> "found project info \n\t" + projectInfo.keySet() + "\n\t" + projectInfo.values());
 		    options = projectInfo.getValue("MaDKit-Args").trim().split("\\s+");
 		    logger.finer("JAR FILE ARGUMENTS = " + Arrays.deepToString(options));
 		    Map<String, String> projectInfos = new HashMap<>();
@@ -466,7 +467,7 @@ final public class Madkit {
      * @since MaDKit 5
      * @version 0.9
      */
-    public static enum BooleanOption implements MadkitOption {
+    public enum BooleanOption implements MadkitOption {
 	/**
 	 * Starts the desktop mode. Default value is "false". Still, if this property is not explicitly set
 	 * to "false" and if {@link Option#launchAgents} and {@link Option#configFile} are both
@@ -474,6 +475,10 @@ final public class Madkit {
 	 * startup.
 	 */
 	desktop,
+	/**
+	 * Activates the debug mode so that all agents' log levels are set to {@link Level#ALL}
+	 */
+	debug,
 	/**
 	 * Connect to the MaDKit repository on startup. Default value is "false".
 	 */
@@ -541,7 +546,7 @@ final public class Madkit {
      * @since MaDKit 5.0.0.10
      * @version 0.9
      */
-    public static enum Option implements MadkitOption {
+    public enum Option implements MadkitOption {
 	/**
 	 * Used to launch agents at start up. This option can be used from the command line or using the
 	 * main method of MaDKit.
@@ -665,7 +670,7 @@ final public class Madkit {
      * @since MaDKit 5.0.0.10
      * @version 0.9
      */
-    public static enum LevelOption implements MadkitOption {
+    public enum LevelOption implements MadkitOption {
 	/**
 	 * Option defining the default agent log level for newly launched agents. Default value is "INFO".
 	 * This value could be overridden individually by agents using

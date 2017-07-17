@@ -43,8 +43,10 @@ import madkit.i18n.I18nUtilities;
 import madkit.i18n.Words;
 import madkit.kernel.AgentLogger;
 import madkit.kernel.Madkit;
+import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Madkit.Option;
 import madkit.kernel.MadkitClassLoader;
+import madkit.util.MadkitProperties;
 
 /**
  * Global actions that can be triggered from anywhere during execution.
@@ -59,8 +61,8 @@ public class GlobalAction {
     private static final ResourceBundle messages = I18nUtilities.getResourceBundle(GlobalAction.class.getSimpleName());
 
     /**
-     * An action that Launches the jconsole tool if it is available. It is set to <code>null</code> if
-     * jconsole is unavailable. jconsole is available on environments containing the oracle JDK.
+     * An action that Launches the jconsole tool if it is available. It is set to <code>null</code> if jconsole is
+     * unavailable. jconsole is available on environments containing the oracle JDK.
      */
     public static final Action JCONSOLE;
 
@@ -93,33 +95,35 @@ public class GlobalAction {
     }
 
     /**
-     * An action that enable or disable the debugging mode. When activated, all the active agent loggers
-     * set their level to {@link Level#ALL}. When disabled, all the loggers are set to
-     * {@link Level#INFO}.
+     * An action that enable or disable the debugging mode. When activated, all the active agent loggers set their level to
+     * {@link Level#ALL}, so does the {@link LevelOption#agentLogLevel} in the available {@link MadkitProperties}. When
+     * disabled, everything is restored at {@link Level#INFO}.
      */
-    public static final Action DEBUG;
+    public static final BooleanAction DEBUG;
     static {
-	DEBUG = new MDKAbstractAction(new ActionInfo("DEBUG", KeyEvent.VK_D, messages)) {
-
+	DEBUG = new BooleanAction(new ActionInfo("DEBUG", KeyEvent.VK_D, messages)) {
 	    @Override
-	    public void actionPerformed(ActionEvent e) {
-		if (e == null) { // programmatically triggered
-		    putValue(Action.SELECTED_KEY, !(boolean) getValue(Action.SELECTED_KEY));
-		}
+	    public void onUpdate(boolean isSelected) {
+		AgentLogger.setAllLogLevels(isSelected ? Level.ALL : Level.INFO);
 	    }
 	};
-	DEBUG.addPropertyChangeListener(evt -> {
-		if (evt.getPropertyName().equals("SwingSelectedKey")) {
-		    final boolean selected = (boolean) DEBUG.getValue(Action.SELECTED_KEY);
-		    // SwingUtil.UI_PREFERENCES.putBoolean("MDK_DEBUG",value);
-		    if (selected) {
-			AgentLogger.setAllLogLevels(Level.ALL);
-		    }
-		    else {
-			AgentLogger.setAllLogLevels(Level.INFO);
-		    }
-		}
-	});
+//	(new ActionInfo("DEBUG", KeyEvent.VK_D, messages)) {
+//
+//	    @Override
+//	    public void actionPerformed(ActionEvent e) {
+//		if (e == null) { // programmatically triggered
+//		    putValue(Action.SELECTED_KEY, !(boolean) getValue(Action.SELECTED_KEY));
+//		}
+//	    }
+//	    
+//	};
+//	DEBUG.addPropertyChangeListener(evt -> {
+//	    if (evt.getPropertyName().equals("SwingSelectedKey")) {
+//		final boolean selected = (boolean) DEBUG.getValue(Action.SELECTED_KEY);
+//		DEBUG.storeSelectedKeyToPreferences();
+//		AgentLogger.setAllLogLevels(selected ? Level.ALL : Level.INFO);
+//	    }
+//	});
     }
 
     /**
@@ -146,8 +150,7 @@ public class GlobalAction {
 
     /**
      * An action that launch the main method of the class which name is obtained using
-     * {@link ActionEvent#getActionCommand()} on the received event, i.e. the action command of the
-     * button.
+     * {@link ActionEvent#getActionCommand()} on the received event, i.e. the action command of the button.
      */
     public static final Action LAUNCH_MAIN;
 
@@ -215,14 +218,14 @@ public class GlobalAction {
 	public void actionPerformed(ActionEvent e) {
 	    File f = new File("demos");
 	    if (!(f.exists() && f.isDirectory())) {
-		for (URL url : MadkitClassLoader.getLoader().getURLs()) {// NOSONAR
+		for (URL url : MadkitClassLoader.getLoader().getURLs()) {
 		    if (url.getFile().endsWith("madkit-" + Madkit.VERSION + ".jar")) {
 			try {
 			    f = new File(Paths.get(url.toURI()).getParent().toString(), "demos");
 			    break;
 			}
 			catch(URISyntaxException ex) {
-			    ex.printStackTrace();// NOSONAR
+			    ex.printStackTrace();
 			}
 		    }
 		}
@@ -240,9 +243,8 @@ public class GlobalAction {
     };
 
     /**
-     * An action that launches a new MaDKit instance using the configuration file which name is obtained
-     * using {@link ActionEvent#getActionCommand()} on the received event, i.e. the action command of
-     * the button.
+     * An action that launches a new MaDKit instance using the configuration file which name is obtained using
+     * {@link ActionEvent#getActionCommand()} on the received event, i.e. the action command of the button.
      */
     public static final Action LAUNCH_MDK_CONFIG;
 

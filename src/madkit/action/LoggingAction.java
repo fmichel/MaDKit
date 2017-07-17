@@ -48,68 +48,59 @@ import madkit.kernel.AbstractAgent;
 
 /**
  * Enum representing agent actions
+ * 
  * @author Fabien Michel
  * @since MaDKit 5.0.0.14
  * @version 0.9
- * 
  */
 public enum LoggingAction {
 
-	LOG_LEVEL(KeyEvent.VK_DOLLAR),
-	CGR_WARNINGS(KeyEvent.VK_DOLLAR)
-	;
+    LOG_LEVEL(KeyEvent.VK_DOLLAR),
 
-	final static private ResourceBundle messages = I18nUtilities.getResourceBundle(LoggingAction.class.getSimpleName());
-	
-	private ActionInfo actionInfo;
-	
-	final private int keyEvent;
-
-	/**
-	 * @return the actionInfo corresponding to this constant
-	 */
-	public ActionInfo getActionInfo() {
-		if(actionInfo == null)
-			actionInfo = new ActionInfo(this,keyEvent,messages);
-		return actionInfo;
+    CGR_WARNINGS(KeyEvent.VK_DOLLAR) {
+@Override
+	public BooleanAction getActionFor(final AbstractAgent agent, final Object... parameters) {
+	    return new BooleanAction(getActionInfo());
 	}
+    };
 
+    private static final ResourceBundle messages = I18nUtilities.getResourceBundle(LoggingAction.class.getSimpleName());
 
-	private LoggingAction(int keyEvent){
-		this.keyEvent = keyEvent;
-	}
+    private ActionInfo actionInfo;
 
-	/**
-	 * Builds an action that will make the agent do the
-	 * corresponding behavior
-	 * 
-	 * @param agent the agent on which this action 
-	 * will operate
-	 * @param parameters the info to be used
-	 * @return the action corresponding to the enum
-	 */
-	@SuppressWarnings("serial")
-	public Action getActionFor(final AbstractAgent agent, final Object... parameters){
-		switch (this) {
-		case LOG_LEVEL:
-			return new MDKAbstractAction(getActionInfo()) {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					agent.getLogger().setLevel(Level.parse(parameters[0].toString()));
-				}
-			};
-		case CGR_WARNINGS:
-			return new MDKAbstractAction(getActionInfo()) {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					if(e == null){ // programmatically triggered
-						putValue(Action.SELECTED_KEY, ! (boolean) getValue(Action.SELECTED_KEY));
-					}
-				}
-			};
-		default:
-			return null;
-		}
-}
-	
+    final private int keyEvent;
+
+    /**
+     * @return the actionInfo corresponding to this constant
+     */
+    public ActionInfo getActionInfo() {
+	if (actionInfo == null)
+	    actionInfo = new ActionInfo(this, keyEvent, messages);
+	return actionInfo;
+    }
+
+    private LoggingAction(int keyEvent) {
+	this.keyEvent = keyEvent;
+    }
+
+    /**
+     * Builds an action that will make the agent do the corresponding behavior
+     * 
+     * @param agent
+     *            the agent on which this action will operate
+     * @param parameters
+     *            the info to be used
+     * @return the action corresponding to the enum
+     */
+    public Action getActionFor(final AbstractAgent agent, final Object... parameters) {
+	return new MDKAbstractAction(getActionInfo()) {
+	    private static final long serialVersionUID = 1L;
+
+	    @Override
+	    public void actionPerformed(ActionEvent e) {
+		agent.getLogger().setLevel(Level.parse(parameters[0].toString()));
+	    }
+	};
+
+    }
 }

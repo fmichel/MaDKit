@@ -157,7 +157,7 @@ import madkit.util.XMLUtilities;
  */
 public class AbstractAgent implements Comparable<AbstractAgent> {
 
-    private final static transient AtomicInteger agentCounter = new AtomicInteger(0);
+    private static transient final AtomicInteger agentCounter = new AtomicInteger(0);
 
     static final transient MadkitKernel FAKE_KERNEL = new FakeKernel();
     private static final transient MadkitKernel TERMINATED_KERNEL = new TerminatedKernel();
@@ -165,7 +165,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
     final AtomicReference<State> state = new AtomicReference<>(State.NOT_LAUNCHED);
     transient MadkitKernel kernel = FAKE_KERNEL;
 
-    final private int _hashCode;
+    private final int _hashCode;
 
     private boolean hasGUI;
     /**
@@ -199,7 +199,6 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
 	public AbstractAgent() {
 		_hashCode = agentCounter.getAndIncrement();
-//		logger = AgentLogger.DEFAULT_AGENT_LOGGER;
 	}
 
 	/**
@@ -995,10 +994,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 */
 	public AgentLogger getLogger() {
 		if (logger == null) {
-//			synchronized (this) {
 				logger = AgentLogger.getLogger(this);
-				
-//			}
 		}
 		return logger;
 	}
@@ -1541,7 +1537,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	}
 
 	/**
-	 * Retrieves and removes the first message of the
+	 * Retrieves and removes the first oldest message of the
 	 * mailbox that matches the filter.
 	 * 
 	 * @return The next acceptable message or <code>null</code> if such message has not been found.
@@ -1561,7 +1557,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
 	/**
 	 * Retrieves and removes all the messages of the
-	 * mailbox that match the filter. 
+	 * mailbox that match the filter, in the order they were received. 
 	 * 
 	 * @param filter if <code>null</code> all the messages are returned and removed from the mailbox.
 	 * @return the ordered list of matching messages, or an empty list if none has been found.
@@ -2927,22 +2923,6 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 		primitiveTypes.put(long.class, Long.class);
 	}
 
-	/**
-	 * replaced by {@link MadkitClassLoader#getLoader()}
-	 * @return
-	 */
-//	@Deprecated
-//	public MadkitClassLoader MadkitClassLoader.getLoader() {
-//		return MadkitClassLoader.getLoader();
-//	}
-
-	// /**
-	// * @return an Executor which could be used to do tasks asynchronously
-	// */
-	// public Executor getMadkitExecutor(){
-	// return kernel.getMadkitKernel().getMadkitExecutor();
-	// }
-
 	// //////////////////////////////////////////////////////////////////////////////
 	// /////////////////////////////////// Return codes
 	// //////////////////////////////
@@ -3108,10 +3088,6 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 		return getMadkitKernel().isRole(this, NetworkCommunity.NAME, NetworkCommunity.Groups.NETWORK_AGENTS,
 				NetworkCommunity.Roles.NET_AGENT);
 	}
-
-//	AgentExecutor getAgentExecutor() {
-//		return null;
-//	}
 
 	/**
 	 * This offers a convenient way to create main a main method that launches the agent

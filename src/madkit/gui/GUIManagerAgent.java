@@ -100,6 +100,7 @@ class GUIManagerAgent extends Agent {
     GUIManagerAgent(boolean asDaemon) { // NO_UCD use by reflection
 	super(asDaemon);
 	guis = new ConcurrentHashMap<>();
+	getLogger().doNotReactToDebugMode();
     }
 
     @SuppressWarnings("unchecked")

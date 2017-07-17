@@ -52,87 +52,87 @@ import madkit.i18n.I18nUtilities;
 
 /**
  * Enum representing actions which could be used on MDK frames
+ * 
  * @author Fabien Michel
  * @since MaDKit 5.1.0.1
  * @version 0.9
- * 
  */
 public enum UIAction {
 
+    BACKGROUND(KeyEvent.VK_B) {
 
-	BACKGROUND(KeyEvent.VK_B){
-		@SuppressWarnings("serial")
-		public Action getActionFor(JFrame f) {
-			return new MDKAbstractAction(getActionInfo()){
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					final Color selectedColor = JColorChooser.showDialog(f, "Selection", f.getBackground());
-					if (selectedColor != null) {
-						f.setBackground(selectedColor);
-					}
-				}
-			};			
+	@SuppressWarnings("serial")
+	public Action getActionFor(JFrame f) {
+	    return new MDKAbstractAction(getActionInfo()) {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+		    final Color selectedColor = JColorChooser.showDialog(f, "Selection", f.getBackground());
+		    if (selectedColor != null) {
+			f.setBackground(selectedColor);
+		    }
 		}
-	},
-	PRINT(KeyEvent.VK_P) 
-	{
-		@SuppressWarnings("serial")
-		public Action getActionFor(JFrame frame) {
-			return new MDKAbstractAction(getActionInfo()){
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					PrinterJob job = PrinterJob.getPrinterJob();
-					job.setPrintable((Printable) frame);
-					if (job.printDialog()) {
-						try {
-							job.print();
-						} catch (PrinterException ex) {
-							ex.printStackTrace();
-						}
+	    };
+	}
+    },
+    PRINT(KeyEvent.VK_P) {
 
-					}
-				}
-			};			
+	@SuppressWarnings("serial")
+	public Action getActionFor(JFrame frame) {
+	    return new MDKAbstractAction(getActionInfo()) {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+		    PrinterJob job = PrinterJob.getPrinterJob();
+		    job.setPrintable((Printable) frame);
+		    if (job.printDialog()) {
+			try {
+			    job.print();
+			}
+			catch(PrinterException ex) {
+			    ex.printStackTrace();
+			}
+
+		    }
 		}
+	    };
 	}
-	;
+    };
 
-	final static private ResourceBundle messages = I18nUtilities.getResourceBundle(UIAction.class.getSimpleName());
+    private static final ResourceBundle messages = I18nUtilities.getResourceBundle(UIAction.class.getSimpleName());
 
+    /**
+     * @return the bundle for internationalized messages
+     */
+    public static ResourceBundle getMessages() {
+	return messages;
+    }
 
-	/**
-	 * @return the bundle for internationalized messages
-	 */
-	public static ResourceBundle getMessages() {
-		return messages;
-	}
+    private ActionInfo actionInfo;
 
-	private ActionInfo actionInfo;
+    private final int keyEvent;
 
-	final private int keyEvent;
+    /**
+     * @return the actionInfo corresponding to this constant
+     */
+    // messages is null if used in the constructor...
+    public ActionInfo getActionInfo() {
+	if (actionInfo == null)
+	    actionInfo = new ActionInfo(this, keyEvent, messages);
+	return actionInfo;
+    }
 
-	/**
-	 * @return the actionInfo corresponding to this constant
-	 */
-	// messages is null if used in the constructor...
-	public ActionInfo getActionInfo() {
-		if(actionInfo == null)
-			actionInfo = new ActionInfo(this,keyEvent,messages);
-		return actionInfo;
-	}
+    private UIAction(int keyEvent) {
+	this.keyEvent = keyEvent;
+    }
 
+    /**
+     * Builds an action that will operate on this frame
+     * 
+     * @param frame
+     *            the frame on which this action will operate
+     * @return the Action corresponding to this feature
+     */
+    public abstract Action getActionFor(JFrame frame);
 
-	private UIAction(int keyEvent){
-		this.keyEvent = keyEvent;
-	}
-
-	/**
-	 * Builds an action that will operate on this frame
-	 * 
-	 * @param frame the frame on which this action 
-	 * will operate
-	 * @return the Action corresponding to this feature
-	 */
-	public abstract Action getActionFor(JFrame frame);
-	
 }

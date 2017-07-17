@@ -41,7 +41,6 @@ import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 
 import madkit.i18n.I18nUtilities;
 import madkit.i18n.Words;
@@ -206,8 +205,7 @@ public class Agent extends AbstractAgent{
 	 * </pre>
 	 */
 	protected void live() {
-		getLogger().setLevel(Level.INFO);
-		getLogger().talk("\n\tHi Human and hello World !!\n\n I am an instance of the madkit.kernel.Agent class\n As such, I am a MaDKit threaded Agent\n and thus have an autonomous activity!");
+		getLogger().talk("\n\tHi Human and hello World !!\n\n I am an instance of the madkit.kernel.Agent class\n As such, I am a MaDKit threaded Agent\n and thus have an autonomous activity!\n\n");
 		pause(5000);
 		getLogger().talk("\n\n And in fact, I am the simplest agent ever\n because I simply do nothing at all :)\n\n");
 		pause(4000);

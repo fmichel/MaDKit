@@ -57,7 +57,7 @@ public abstract class MDKAbstractAction extends AbstractAction {
 	/**
 	 * 
 	 */
-	private static final long	serialVersionUID	= -1414495456612340010L;
+    private static final long	serialVersionUID	= -1414495456612340010L;
 
 	/**
 	 * Builds a new action using the passed action's information
@@ -65,19 +65,19 @@ public abstract class MDKAbstractAction extends AbstractAction {
 	 * @param actionInfo
 	 */
 	public MDKAbstractAction(final ActionInfo actionInfo) {
-		putValue(Action.NAME, actionInfo.getName());
-		putValue(Action.SHORT_DESCRIPTION, actionInfo.getShortDescription());
-		putValue(Action.LONG_DESCRIPTION, actionInfo.getLongDescription());
+		putValue(NAME, actionInfo.getName());
+		putValue(SHORT_DESCRIPTION, actionInfo.getShortDescription());
+		putValue(LONG_DESCRIPTION, actionInfo.getLongDescription());
 		if (actionInfo.getBigIcon() != null) {
-			putValue(AbstractAction.LARGE_ICON_KEY, actionInfo.getBigIcon());
-			putValue(AbstractAction.SMALL_ICON, actionInfo.getSmallIcon());
+			putValue(LARGE_ICON_KEY, actionInfo.getBigIcon());
+			putValue(SMALL_ICON, actionInfo.getSmallIcon());
 		}
 		if (actionInfo.getKeyEvent() != KeyEvent.VK_DOLLAR) {
-			putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(actionInfo.getKeyEvent(), KeyEvent.CTRL_MASK));
-			putValue(Action.MNEMONIC_KEY, actionInfo.getKeyEvent());
+			putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(actionInfo.getKeyEvent(), KeyEvent.CTRL_MASK));
+			putValue(MNEMONIC_KEY, actionInfo.getKeyEvent());
 		}
-		putValue(Action.ACTION_COMMAND_KEY, actionInfo.getName());
-		putValue(Action.SELECTED_KEY, false);
+		putValue(ACTION_COMMAND_KEY, actionInfo.getName());
+		putValue(SELECTED_KEY, false);
 	}
-
+	
 }

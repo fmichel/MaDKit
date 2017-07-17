@@ -46,6 +46,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
@@ -61,6 +62,7 @@ import java.util.logging.Logger;
 import javax.swing.Action;
 import javax.swing.JOptionPane;
 
+import madkit.action.BooleanAction;
 import madkit.action.LoggingAction;
 import madkit.gui.menu.AgentLogLevelMenu;
 import madkit.i18n.Words;
@@ -95,9 +97,10 @@ public final class AgentLogger extends Logger {
     static final Level TALK_LEVEL = Level.parse("1100");
 
     private static Map<AbstractAgent, AgentLogger> agentLoggers = new ConcurrentHashMap<>();
+    private static List<AgentLogger> debugModeBlackList = new ArrayList<>();
 
     private final AbstractAgent myAgent;
-    private Action agentCGRWarningsOnAction;
+    private BooleanAction agentCGRWarningsOnAction;
 
     static final AgentLogger getLogger(final AbstractAgent agent) {
 	AgentLogger al = agentLoggers.get(agent);
@@ -152,6 +155,14 @@ public final class AgentLogger extends Logger {
 	    myAgent.setKernel(myAgent.getMadkitKernel());
 	}
     }
+    
+    /**
+     * Prevents this logger to change its level when {@link #setAllLoggersAtLevelAll()}
+     * or {@link #setAllLogLevels(Level)} are used.
+     */
+    public void doNotReactToDebugMode() {
+	debugModeBlackList.add(this);
+    }
 
     /**
      * Tells if CGR warnings (Community, Group, Role) are enabled.
@@ -186,9 +197,9 @@ public final class AgentLogger extends Logger {
     /**
      * @return an {@link Action} for building UI with this feature
      */
-    public Action getEnableCGRWarningsAction() {
+    public BooleanAction getEnableCGRWarningsAction() {
 	if (agentCGRWarningsOnAction == null) {
-	    agentCGRWarningsOnAction = LoggingAction.CGR_WARNINGS.getActionFor(myAgent);
+	    agentCGRWarningsOnAction = (BooleanAction) LoggingAction.CGR_WARNINGS.getActionFor(myAgent);
 	}
 	return agentCGRWarningsOnAction;
     }
@@ -343,11 +354,11 @@ public final class AgentLogger extends Logger {
     /**
      * This call bypasses any settings and always produces severe log messages whatever the logger's current level.
      * 
-     * @param msg
+     * @param message
      *            the message to display
      */
-    public void severeLog(final String msg) {
-	severeLog(msg, null);
+    public void severeLog(final String message) {
+	severeLog(message, null);
     }
 
     /**
@@ -358,12 +369,29 @@ public final class AgentLogger extends Logger {
      */
     public static void setAllLogLevels(final Level level) {
 	for (AbstractAgent loggedAgent : agentLoggers.keySet()) {
-	    if (loggedAgent != loggedAgent.getMadkitKernel()) {
-		loggedAgent.getLogger().setLevel(level);
+	    final AgentLogger logger = loggedAgent.getLogger();
+	    if (! debugModeBlackList.contains(logger)) {
+		logger.setLevel(level);
 	    }
 	    else
-		loggedAgent.setMadkitProperty(LevelOption.agentLogLevel.name(), level.toString());
+		loggedAgent.setMadkitProperty(LevelOption.agentLogLevel, level.toString());
 	}
+    }
+    
+    /**
+     * A convenient way of activating a debug session
+     */
+    public static void setAllLoggersAtLevelAll() {
+	setAllLogLevels(Level.ALL);
+    }
+
+    /**
+     * reset all loggers to the level specified by {@link LevelOption#agentLogLevel}
+     * 
+     */
+    public static void resetAllLoggersToDefaultLevel() {
+	String level = agentLoggers.keySet().iterator().next().getMadkitProperty(LevelOption.agentLogLevel);
+	setAllLogLevels(Level.parse(level));
     }
 
     /**

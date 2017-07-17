@@ -52,17 +52,16 @@ import madkit.i18n.Words;
  * @author Fabien Michel
  * @since MaDKit 5.0.0.17
  * @version 0.91
- * 
  */
 @SuppressWarnings("serial")
-final public class DisplayMenu extends JMenu {
+public final class DisplayMenu extends JMenu {
 
-	public DisplayMenu(final JFrame f){
-		super(Words.DISPLAY.toString());
-		setMnemonic(KeyEvent.VK_D);
-		if (f instanceof PrintableFrame) {
-			add(new JMenuItem(UIAction.PRINT.getActionFor(f)));
-		}
-		add(new JMenuItem(UIAction.BACKGROUND.getActionFor(f)));
+    public DisplayMenu(final JFrame f) {
+	super(Words.DISPLAY.toString());
+	setMnemonic(KeyEvent.VK_D);
+	if (f instanceof PrintableFrame) {
+	    add(new JMenuItem(UIAction.PRINT.getActionFor(f)));
 	}
+	add(new JMenuItem(UIAction.BACKGROUND.getActionFor(f)));
+    }
 }

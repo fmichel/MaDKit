@@ -39,14 +39,10 @@ package madkit.gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
-import java.util.List;
-import java.util.Scanner;
+import java.awt.EventQueue;
+import java.util.logging.ErrorManager;
+import java.util.logging.Filter;
+import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.StreamHandler;
 
@@ -54,36 +50,27 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.SwingWorker;
 
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AgentLogger;
 
 /**
+ * A scrollable panel that prints all the agent's logging activity.
  * This component is the default panel which is used for the frames assigned to agents that do not define their own GUI
  * and which are launched using <code>true</code> for the <code>createFrame</code> parameter.
  * 
  * @author Fabien Michel
  * @since MaDKit 5.0.0.2
- * @version 0.92
- * @see AbstractAgent#setupFrame(javax.swing.JFrame)
+ * @version 1
+ * @see AbstractAgent#setupFrame(AgentFrame)
  */
 public class OutputPanel extends JPanel {
 
     private static final long serialVersionUID = 602152712654986449L;
 
-    private final JTextArea outField;
+    private final JTextArea textArea;
 
-    private OutputStream out;
-
-    /**
-     * returns the output stream to which log messages will be forwarded to.
-     * 
-     * @return the output stream for this component.
-     */
-    public OutputStream getOutputStream() {
-	return out;
-    }
+    private transient StreamHandler handler;
 
     /**
      * Builds the panel for the agent
@@ -91,84 +78,104 @@ public class OutputPanel extends JPanel {
      * @param agent
      */
     public OutputPanel(final AbstractAgent agent) {
-	outField = new JTextArea(5, 32);
+	textArea = new JTextArea(5, 32);
 	setLayout(new BorderLayout());
 
-	outField.setEditable(false);
+	textArea.setEditable(false);
 	setPreferredSize(new Dimension(250, 100));
 	setBackground(Color.WHITE);
 
-	try {
-	    @SuppressWarnings("resource")
-	    final PipedInputStream inPipe = new PipedInputStream();//FIXME
-	    out = new PipedOutputStream(inPipe);
-	    new SwingWorker<Void, String>() {
+	initHandler(agent);
 
-		@Override
-		protected Void doInBackground() throws Exception {
-		    Scanner s = new Scanner(inPipe);
-		    while (s.hasNextLine()) {
-			String line = s.nextLine();
-			publish(line + "\n");
-		    }
-		    s.close();
-		    return null;
-		}
-
-		@Override
-		protected void process(List<String> chunks) {
-		    for (String line : chunks) {
-			outField.append(line);
-		    }
-		}
-	    }.execute();
-	}
-	catch(IOException e) {
-	    e.printStackTrace();
-	}
-
-	final StreamHandler handler = new StreamHandler(out, AgentLogger.AGENT_FILE_FORMATTER) {
-
-	    @Override
-	    public synchronized void publish(LogRecord record) {
-		super.publish(record);
-		flush();
-	    }
-
-	    @Override
-	    protected void reportError(String msg, Exception ex, int code) {
-		// super.reportError(msg, ex, code);//Avoid stream pipe closed exception
-	    }
-	};
-
-	agent.getLogger().addHandler(handler);
-
-	add(BorderLayout.CENTER, new JScrollPane(outField));
+	add(BorderLayout.CENTER, new JScrollPane(textArea));
 
 	final JButton b = new JButton("clear");// TODO i18n
-	b.addActionListener(new ActionListener() {
-
-	    public void actionPerformed(ActionEvent e) {
-		clearOutput();
-	    }
-	});
+	b.addActionListener((evt) -> clearOutput());
 	add(BorderLayout.SOUTH, b);
 	setBackground(Color.WHITE);
     }
+
+    public void writeToTextArea(String text) {
+	if (EventQueue.isDispatchThread()) {
+	    textArea.append(text);
+	    textArea.setCaretPosition(textArea.getText().length());
+	}
+	else {
+	    EventQueue.invokeLater(() -> writeToTextArea(text));
+	}
+    }
+
+    /**
+     * returns the output stream to which log messages will be forwarded to.
+     * 
+     * @return the output stream for this component.
+     * @deprecated now returns <code>null</code> as of MaDKit 5.2. {@link #getHandler()} could be used instead
+     */
+//    public OutputStream getOutputStream() {
+//	return null;
+//    }
 
     /**
      * Remove all the contained text.
      */
     public void clearOutput() {
-	outField.setText(null);
+	textArea.setText(null);
     }
 
     @Override
     public void setBackground(Color bg) {
-	if (outField != null) {
-	    outField.setBackground(bg);
+	if (textArea != null) {
+	    textArea.setBackground(bg);
 	}
 	super.setBackground(bg);
+    }
+
+    private void initHandler(AbstractAgent agent) {
+        handler = new StreamHandler() {
+    
+            @Override
+            public synchronized void publish(LogRecord record) {
+        	if (!isLoggable(record)) {
+        	    return;
+        	}
+        	String msg;
+        	try {
+        	    msg = getFormatter().format(record);
+        	}
+        	catch(Exception ex) {
+        	    // We don't want to throw an exception here, but we
+        	    // report the exception to any registered ErrorManager.
+        	    reportError(null, ex, ErrorManager.FORMAT_FAILURE);
+        	    return;
+        	}
+        	writeToTextArea(msg);
+    
+            }
+    
+            @Override
+            public boolean isLoggable(LogRecord record) {
+        	final int levelValue = getLevel().intValue();
+        	if (record.getLevel().intValue() < levelValue || levelValue == Level.OFF.intValue()) {
+        	    return false;
+        	}
+        	final Filter filter = getFilter();
+        	if (filter == null) {
+        	    return true;
+        	}
+        	return filter.isLoggable(record);
+            }
+        };
+        handler.setFormatter(AgentLogger.AGENT_FILE_FORMATTER);
+        agent.getLogger().addHandler(getHandler());
+    }
+
+    /**
+     * Returns the handler which has been created for the agent
+     * 
+     * @return the handler associated with this panel
+     */
+    public StreamHandler getHandler() {
+	return handler;
     }
 
 }

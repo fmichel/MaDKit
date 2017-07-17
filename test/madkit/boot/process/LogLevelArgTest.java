@@ -44,53 +44,70 @@ import org.junit.Test;
 
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadkit;
+import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
 
 /**
  * @author Fabien Michel
  * @since MaDKit 5.0.0.10
  * @version 0.9
- * 
  */
 
 public class LogLevelArgTest extends JunitMadkit {
 
-	@Test
-	public void agentLogLevelIsAll() {
-		mkArgs.clear();
-		addMadkitArgs(LevelOption.agentLogLevel.toString(), Level.ALL.toString());
-		launchTest(new AbstractAgent() {
+    @Test
+    public void agentLogLevelIsAll() {
+	mkArgs.clear();
+	addMadkitArgs(LevelOption.agentLogLevel.toString(), Level.ALL.toString());
+	launchTest(new AbstractAgent() {
 
-			@Override
-			protected void activate() {
-				assertEquals("OFF", getMadkitProperty(LevelOption.kernelLogLevel.name()));
-				assertEquals("OFF", getMadkitProperty(LevelOption.guiLogLevel.name()));
-				assertEquals("INFO", getMadkitProperty(LevelOption.networkLogLevel.name()));
-				assertEquals("INFO", getMadkitProperty(LevelOption.madkitLogLevel.name()));
-				assertEquals("ALL", getMadkitProperty(LevelOption.agentLogLevel.name()));
-				assertEquals("FINE", getMadkitProperty(LevelOption.warningLogLevel.name()));
-				assertEquals("INFO", getMadkitProperty(LevelOption.madkitLogLevel.name()));
-			}
-		});
-	}
+	    @Override
+	    protected void activate() {
+		assertEquals("OFF", getMadkitProperty(LevelOption.kernelLogLevel.name()));
+		assertEquals("OFF", getMadkitProperty(LevelOption.guiLogLevel.name()));
+		assertEquals("INFO", getMadkitProperty(LevelOption.networkLogLevel.name()));
+		assertEquals("ALL", getMadkitProperty(LevelOption.agentLogLevel.name()));
+		assertEquals("INFO", getMadkitProperty(LevelOption.madkitLogLevel.name()));
+	    }
+	});
+    }
 
-	@Test
-	public void kernelLogLevelIsAll() {
-		mkArgs.clear();
-		addMadkitArgs(LevelOption.kernelLogLevel.toString(), Level.ALL.toString());
-		launchTest(new AbstractAgent() {
+    @Test
+    public void kernelLogLevelIsAll() {
+	mkArgs.clear();
+	addMadkitArgs(
+		LevelOption.kernelLogLevel.toString(), Level.ALL.toString(), 
+		BooleanOption.desktop.toString(), "false"// avoid preferences initialization
+	);
+	launchTest(new AbstractAgent() {
 
-			@Override
-			protected void activate() {
-				assertEquals("ALL", getMadkitProperty(LevelOption.kernelLogLevel.name()));
-				assertEquals("OFF", getMadkitProperty(LevelOption.guiLogLevel.name()));
-				assertEquals("INFO", getMadkitProperty(LevelOption.networkLogLevel.name()));
-				assertEquals("INFO", getMadkitProperty(LevelOption.madkitLogLevel.name()));
-				assertEquals("INFO", getMadkitProperty(LevelOption.agentLogLevel.name()));
-				assertEquals("FINE", getMadkitProperty(LevelOption.warningLogLevel.name()));
-				assertEquals("INFO", getMadkitProperty(LevelOption.madkitLogLevel.name()));
-			}
-		});
-		assertKernelIsAlive();
-	}
+	    @Override
+	    protected void activate() {
+		assertEquals("ALL", getMadkitProperty(LevelOption.kernelLogLevel.name()));
+		assertEquals("OFF", getMadkitProperty(LevelOption.guiLogLevel.name()));
+		assertEquals("INFO", getMadkitProperty(LevelOption.networkLogLevel.name()));
+		assertEquals("INFO", getMadkitProperty(LevelOption.agentLogLevel.name()));
+		assertEquals("INFO", getMadkitProperty(LevelOption.madkitLogLevel.name()));
+	    }
+	});
+	assertKernelIsAlive();
+    }
+
+    @Test
+    public void defaultLogLevels() {
+	mkArgs.clear();
+	addMadkitArgs(BooleanOption.desktop.toString(), "false");
+	launchTest(new AbstractAgent() {
+
+	    @Override
+	    protected void activate() {
+		assertEquals("OFF", getMadkitProperty(LevelOption.kernelLogLevel.name()));
+		assertEquals("OFF", getMadkitProperty(LevelOption.guiLogLevel.name()));
+		assertEquals("INFO", getMadkitProperty(LevelOption.networkLogLevel.name()));
+		assertEquals("INFO", getMadkitProperty(LevelOption.agentLogLevel.name()));
+		assertEquals("INFO", getMadkitProperty(LevelOption.madkitLogLevel.name()));
+	    }
+	});
+	assertKernelIsAlive();
+    }
 }

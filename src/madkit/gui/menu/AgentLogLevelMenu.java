@@ -36,7 +36,6 @@ knowledge of the CeCILL-C license and that you accept its terms.
  */
 package madkit.gui.menu;
 
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.util.Enumeration;
@@ -98,12 +97,9 @@ public class AgentLogLevelMenu extends JMenu{
 		
 		add(logLevelMenu);
 		
-		final ActionListener setLogLevelListener = new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				myAgent.getLogger().setLevel(Level.parse( e.getActionCommand()));
-//				SwingUtil.UI_PREFERENCES.put(agentName+"LL",e.getActionCommand());
-			}
+		final ActionListener setLogLevelListener = (evt) -> {
+			myAgent.getLogger().setLevel(Level.parse(evt.getActionCommand()));
+////			SwingUtil.UI_PREFERENCES.put(agentName+"LL",e.getActionCommand());
 		};
 
 		SwingUtil.addBooleanActionTo(this,myAgent.getLogger().getEnableCGRWarningsAction());

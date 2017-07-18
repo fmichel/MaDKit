@@ -36,20 +36,12 @@ knowledge of the CeCILL-C license and that you accept its terms.
  */
 package madkit.gui;
 
-/**
- * @author Fabien Michel
- * @since MadKit 5.0.1
- * @version 0.9
- * 
- */
-import javax.swing.JFrame;
+import org.junit.Test;
 
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.JunitMadkit;
 import madkit.testing.util.agent.NormalAgent;
-
-import org.junit.Test;
 
 
 
@@ -64,7 +56,7 @@ public class HeadLessTest extends JunitMadkit {
 				super.activate();
 			}
 			@Override
-			public void setupFrame(JFrame frame) {
+			public void setupFrame(AgentFrame frame) {
 				super.setupFrame(frame);
 			}
 		},ReturnCode.SUCCESS,true);
@@ -84,7 +76,7 @@ public class HeadLessTest extends JunitMadkit {
 				super.activate();
 			}
 			@Override
-			public void setupFrame(JFrame frame) {
+			public void setupFrame(AgentFrame frame) {
 				super.setupFrame(frame);
 			}
 		},ReturnCode.SUCCESS,true);

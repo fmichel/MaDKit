@@ -43,6 +43,8 @@ import static org.junit.Assert.assertTrue;
 
 import javax.swing.JFrame;
 
+import org.junit.Test;
+
 import madkit.action.AgentAction;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Agent;
@@ -50,134 +52,145 @@ import madkit.kernel.JunitMadkit;
 import madkit.kernel.Message;
 import madkit.testing.util.agent.AlwaysInCGRNormalAA;
 
-import org.junit.Test;
-
 /**
  * @author Fabien Michel
  * @since MaDKit 5.0.0.9
  * @version 0.9
- * 
  */
 
 public class GUITest extends JunitMadkit {
 
-	@Test
-	public void hasGUITest() {
-		launchTest(new AbstractAgent() {
-			@Override
-			protected void activate() {
-				AbstractAgent a = new AbstractAgent();
-				assertEquals(ReturnCode.SUCCESS, launchAgent(a, true));
-				assertTrue(a.hasGUI());
-			}
-		});
-	}
+    @Test
+    public void hasGUITest() {
+	launchTest(new AbstractAgent() {
 
-	public void kill() {
-		launchTest(new AbstractAgent() {
-			@Override
-			protected void activate() {
-				AbstractAgent a = new AbstractAgent();
-				launchAgent(a, 0, true);
-					for (int i = 0; i < 100; i++) {
-						killAgent(a);
-					}
-			}
-		});
-	}
+	    @Override
+	    protected void activate() {
+		AbstractAgent a = new AbstractAgent();
+		assertEquals(ReturnCode.SUCCESS, launchAgent(a, true));
+		assertTrue(a.hasGUI());
+	    }
+	});
+    }
 
-	@Test
-	public void setupFrameTest() {
-		launchTest(new AbstractAgent() {
-			@Override
-			protected void activate() {
-				assertEquals(ReturnCode.SUCCESS, launchAgent(new AbstractAgent(){
-					private boolean ok = false;
-					private JFrame f;
-					@Override
-					public void setupFrame(JFrame frame) {
-						ok = true;
-						f = frame;
-					}
-					@Override
-					protected void activate() {
-						assertTrue(ok);
-						f.dispose();
-					}
-				}, true));
-			}
-		});
-	}
+    public void kill() {
+	launchTest(new AbstractAgent() {
 
-	@Test
-	public void noAAMessageTest() {
-		launchTest(new AbstractAgent() {
-			@Override
-			protected void activate() {
-				assertEquals(ReturnCode.SUCCESS, launchAgent(new AbstractAgent(){
-					@Override
-					public void setupFrame(JFrame frame) {
-						assertNotNull(frame);
-					}
-					@Override
-					protected void activate() {
-						Message m = nextMessage();
-						System.err.println(m);
-					}
-				}, true));
-			}
-		});
-	}
+	    @Override
+	    protected void activate() {
+		AbstractAgent a = new AbstractAgent();
+		launchAgent(a, 0, true);
+		for (int i = 0; i < 100; i++) {
+		    killAgent(a);
+		}
+	    }
+	});
+    }
 
-	@Test
-	public void launchAgentByGUITest() {
-		launchTest(new AbstractAgent() {
-			@Override
-			protected void activate() {
-				AbstractAgent a = launchAgent(AlwaysInCGRNormalAA.class.getName());
-				assertEquals(1, getAgentsWithRole(COMMUNITY, GROUP, ROLE).size());
-				AgentAction.LAUNCH_AGENT.getActionFor(a,a.getClass().getName(),true).actionPerformed(null);
-				assertEquals(2, getAgentsWithRole(COMMUNITY, GROUP, ROLE).size());
-			}
-		});
-	}
+    @Test
+    public void setupFrameTest() {
+	launchTest(new AbstractAgent() {
 
+	    @Override
+	    protected void activate() {
+		assertEquals(ReturnCode.SUCCESS, launchAgent(new AbstractAgent() {
 
-	@Test
-	public void killAgentByGUITest() {
-		launchTest(new AbstractAgent() {
-			@Override
-			protected void activate() {
-				AbstractAgent a = launchAgent(AlwaysInCGRNormalAA.class.getName());
-				AgentAction.KILL_AGENT.getActionFor(a,a).actionPerformed(null);
-				assertFalse(a.isAlive());
-			}
-		});
-	}
+		    private boolean ok = false;
+		    private JFrame f;
 
-	@Test
-	public void noAgentMessageTest() {
-		launchTest(new AbstractAgent() {
-			@Override
-			protected void activate() {
-				assertEquals(ReturnCode.SUCCESS, launchAgent(new Agent(){
-					@Override
-					public void setupFrame(JFrame frame) {
-						assertNotNull(frame);
-					try {
-							Thread.sleep(10000);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-					}
-					@Override
-					protected void activate() {
-						Message m = nextMessage();
-						System.err.println(m);
-					}
-				}, true));
+		    @Override
+		    public void setupFrame(AgentFrame frame) {
+			ok = true;
+			f = frame;
+		    }
+
+		    @Override
+		    protected void activate() {
+			assertTrue(ok);
+			f.dispose();
+		    }
+		}, true));
+	    }
+	});
+    }
+
+    @Test
+    public void noAAMessageTest() {
+	launchTest(new AbstractAgent() {
+
+	    @Override
+	    protected void activate() {
+		assertEquals(ReturnCode.SUCCESS, launchAgent(new AbstractAgent() {
+
+		    @Override
+		    public void setupFrame(AgentFrame frame) {
+			assertNotNull(frame);
+		    }
+
+		    @Override
+		    protected void activate() {
+			Message m = nextMessage();
+			System.err.println(m);
+		    }
+		}, true));
+	    }
+	});
+    }
+
+    @Test
+    public void launchAgentByGUITest() {
+	launchTest(new AbstractAgent() {
+
+	    @Override
+	    protected void activate() {
+		AbstractAgent a = launchAgent(AlwaysInCGRNormalAA.class.getName());
+		assertEquals(1, getAgentsWithRole(COMMUNITY, GROUP, ROLE).size());
+		AgentAction.LAUNCH_AGENT.getActionFor(a, a.getClass().getName(), true).actionPerformed(null);
+		assertEquals(2, getAgentsWithRole(COMMUNITY, GROUP, ROLE).size());
+	    }
+	});
+    }
+
+    @Test
+    public void killAgentByGUITest() {
+	launchTest(new AbstractAgent() {
+
+	    @Override
+	    protected void activate() {
+		AbstractAgent a = launchAgent(AlwaysInCGRNormalAA.class.getName());
+		AgentAction.KILL_AGENT.getActionFor(a, a).actionPerformed(null);
+		assertFalse(a.isAlive());
+	    }
+	});
+    }
+
+    @Test
+    public void noAgentMessageTest() {
+	launchTest(new AbstractAgent() {
+
+	    @Override
+	    protected void activate() {
+		assertEquals(ReturnCode.SUCCESS, launchAgent(new Agent() {
+
+		    @Override
+		    public void setupFrame(AgentFrame frame) {
+			assertNotNull(frame);
+			try {
+			    Thread.sleep(10000);
 			}
-		});
-	}
+			catch(InterruptedException e) {
+			    e.printStackTrace();
+			}
+		    }
+
+		    @Override
+		    protected void activate() {
+			Message m = nextMessage();
+			System.err.println(m);
+		    }
+		}, true));
+	    }
+	});
+    }
 
 }

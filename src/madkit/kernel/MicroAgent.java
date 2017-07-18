@@ -36,8 +36,6 @@ knowledge of the CeCILL-C license and that you accept its terms.
  */
 package madkit.kernel;
 
-import java.util.logging.Level;
-
 import madkit.agr.LocalCommunity;
 
 
@@ -50,10 +48,6 @@ import madkit.agr.LocalCommunity;
 abstract class MicroAgent<T> extends Agent {
 
 	private T result;
-	
-	MicroAgent() {
-		setLogLevel(Level.OFF);
-	}
 	
 	@Override
 	protected void activate() {

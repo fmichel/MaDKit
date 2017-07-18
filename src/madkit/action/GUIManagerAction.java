@@ -85,7 +85,7 @@ public enum GUIManagerAction {
      * 
      * They could be identical.
      * 
-     * @see AbstractAgent#setupFrame(javax.swing.JFrame)
+     * @see AbstractAgent#setupFrame(madkit.gui.AgentFrame)
      */
     SETUP_AGENT_GUI(KeyEvent.VK_DOLLAR),
     /**

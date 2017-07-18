@@ -209,7 +209,7 @@ class GUIManagerAgent extends Agent {
 		e1.printStackTrace();
 	    }
 	    try {
-		agent.setupFrame((JFrame) f);// FIXME allowing this until next major release
+		agent.setupFrame(f);
 	    }
 	    catch(Exception e) {
 		agent.getLogger().severeLog("Frame setup problem -> default GUI settings", e);

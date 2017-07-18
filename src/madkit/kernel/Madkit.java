@@ -56,23 +56,20 @@ import madkit.util.MadkitProperties;
  * <h2>MaDKit v.5 new features</h2>
  * <p>
  * <ul>
- * <li>One big change that comes with version 5 is how agents are identified and localized within
- * the artificial society. An agent is no longer binded to a single agent address but has as many
- * agent addresses as holden positions in the artificial society. see {@link AgentAddress} for more
- * information.</li> <br>
- * <li>With respect to the previous change, a <code><i>withRole</i></code> version of all the
- * messaging methods has been added. See
- * {@link AbstractAgent#sendMessageWithRole(AgentAddress, Message, String)} for an example of such a
+ * <li>One big change that comes with version 5 is how agents are identified and localized within the artificial
+ * society. An agent is no longer binded to a single agent address but has as many agent addresses as holden positions
+ * in the artificial society. see {@link AgentAddress} for more information.</li> <br>
+ * <li>With respect to the previous change, a <code><i>withRole</i></code> version of all the messaging methods has been
+ * added. See {@link AbstractAgent#sendMessageWithRole(AgentAddress, Message, String)} for an example of such a
  * method.</li> <br>
- * <li>A replying mechanism has been introduced through <code><i>SendReply</i></code> methods. It
- * enables the agent with the possibility of replying directly to a given message. Also, it is now
- * possible to get the reply to a message, or to wait for a reply ( for {@link Agent} subclasses
- * only as they are threaded) See {@link AbstractAgent#sendReply(Message, Message)} for more
- * details.</li> <br>
- * <li>Agents now have a <i>formal</i> state during a MaDKit session. See the
- * {@link AbstractAgent#getState()} method for detailed information.</li> <br>
- * <li>One of the most convenient improvement of v.5 is the logging mechanism which is provided. See
- * the {@link AbstractAgent#getLogger()} for more details.</li> <br>
+ * <li>A replying mechanism has been introduced through <code><i>SendReply</i></code> methods. It enables the agent with
+ * the possibility of replying directly to a given message. Also, it is now possible to get the reply to a message, or
+ * to wait for a reply ( for {@link Agent} subclasses only as they are threaded) See
+ * {@link AbstractAgent#sendReply(Message, Message)} for more details.</li> <br>
+ * <li>Agents now have a <i>formal</i> state during a MaDKit session. See the {@link AbstractAgent#getState()} method
+ * for detailed information.</li> <br>
+ * <li>One of the most convenient improvement of v.5 is the logging mechanism which is provided. See the
+ * {@link AbstractAgent#getLogger()} for more details.</li> <br>
  * <li>Internationalization is being made (fr_fr and en_us for now).</li>
  * <p>
  * 
@@ -86,7 +83,7 @@ public final class Madkit {
 
     final static MadkitProperties DEFAULT_CONFIG = new MadkitProperties();
     static {
-	//There are problem when awt components are initialized by helper threads... This solves them
+	// There are problem when awt components are initialized by helper threads... This solves them
 	LoggingAction.CGR_WARNINGS.getActionInfo();
 	// System.setProperty("sun.java2d.xrender", "True"); //TODO
 	Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -122,10 +119,9 @@ public final class Madkit {
     String[] args = null;
 
     /**
-     * This main could be used to launch a new kernel using predefined options. The new kernel
-     * automatically ends when all the agents living on this kernel are done. So the JVM automatically
-     * quits if there is no other remaining threads. Basically this call just instantiates a new kernel
-     * like this:
+     * This main could be used to launch a new kernel using predefined options. The new kernel automatically ends when all
+     * the agents living on this kernel are done. So the JVM automatically quits if there is no other remaining threads.
+     * Basically this call just instantiates a new kernel like this:
      * 
      * <pre>
      * 
@@ -143,8 +139,8 @@ public final class Madkit {
      * <tt>>java madkit.kernel.Madkit agentLogLevel INFO --launchAgents
      * madkit.marketorg.Client,20,true;madkit.marketorg.Broker,10,true;madkit.marketorg.Provider,20,true;</tt>
      * <p>
-     * (2) It can be used programmatically anywhere, especially within main method of agent classes to
-     * ease their launch within an IDE.
+     * (2) It can be used programmatically anywhere, especially within main method of agent classes to ease their launch
+     * within an IDE.
      * <p>
      * Here is an example of how it can be used in this way:
      * <p>
@@ -159,8 +155,8 @@ public final class Madkit {
      * </pre>
      * 
      * @param options
-     *            the options which should be used to launch Madkit: see {@link LevelOption},
-     *            {@link BooleanOption} and {@link Option}
+     *            the options which should be used to launch Madkit: see {@link LevelOption}, {@link BooleanOption} and
+     *            {@link Option}
      */
     @SuppressWarnings("unused")
     public static void main(String[] options) {
@@ -168,10 +164,10 @@ public final class Madkit {
     }
 
     /**
-     * Makes the kernel do the corresponding action. This is done by sending a message directly to the
-     * kernel agent. This should not be used intensively since it is better to control the execution
-     * flow of the application using the agents running in the kernel. Still it provides a way to launch
-     * and manage a kernel from any java application as a third party service.
+     * Makes the kernel do the corresponding action. This is done by sending a message directly to the kernel agent. This
+     * should not be used intensively since it is better to control the execution flow of the application using the agents
+     * running in the kernel. Still it provides a way to launch and manage a kernel from any java application as a third
+     * party service.
      * 
      * <pre>
      * public void somewhereInYourCode() {
@@ -188,11 +184,10 @@ public final class Madkit {
      * @param action
      *            the action to request
      * @param parameters
-     *            the parameters of the request. To work properly, the actual class of the parameters
-     *            should match the class of the parameters of the underlying targeted method. For
-     *            instance, for launching an Agent, one must use
-     *            <code>m.doAction(KernelAction.LAUNCH_AGENT, new Agent(),Boolean.TRUE);</code> That is,
-     *            in this case, using "true" does not work since it is a String.
+     *            the parameters of the request. To work properly, the actual class of the parameters should match the class
+     *            of the parameters of the underlying targeted method. For instance, for launching an Agent, one must use
+     *            <code>m.doAction(KernelAction.LAUNCH_AGENT, new Agent(),Boolean.TRUE);</code> That is, in this case, using
+     *            "true" does not work since it is a String.
      */
     public void doAction(KernelAction action, Object... parameters) {
 	if (myKernel.isAlive()) {
@@ -204,9 +199,8 @@ public final class Madkit {
     }
 
     /**
-     * Launch a new kernel with predefined options. The call returns when the new kernel has finished to
-     * take care of all options. Moreover the kernel automatically ends when all the agents living on
-     * this kernel are done.
+     * Launch a new kernel with predefined options. The call returns when the new kernel has finished to take care of all
+     * options. Moreover the kernel automatically ends when all the agents living on this kernel are done.
      * <p>
      * Here is an example of use:
      * <p>
@@ -220,8 +214,8 @@ public final class Madkit {
      * </pre>
      * 
      * @param options
-     *            the options which should be used to launch Madkit. If <code>null</code>, the dektop
-     *            mode is automatically used.
+     *            the options which should be used to launch Madkit. If <code>null</code>, the dektop mode is automatically
+     *            used.
      * @see Option
      * @see BooleanOption
      * @see LevelOption
@@ -423,8 +417,8 @@ public final class Madkit {
     }
 
     /**
-     * Option used to activate or disable features on startup. These options can be used from the
-     * command line or using the main method of MaDKit.
+     * Option used to activate or disable features on startup. These options can be used from the command line or using the
+     * main method of MaDKit.
      * 
      * <pre>
      * SYNOPSIS
@@ -452,10 +446,9 @@ public final class Madkit {
      */
     public enum BooleanOption implements MadkitOption {
 	/**
-	 * Starts the desktop mode. Default value is "false". Still, if this property is not explicitly set
-	 * to "false" and if {@link Option#launchAgents} and {@link Option#configFile} are both
-	 * <code>null</code>, then the desktop mode will be automatically set to <code>true</code> during
-	 * startup.
+	 * Starts the desktop mode. Default value is "false". Still, if this property is not explicitly set to "false" and if
+	 * {@link Option#launchAgents} and {@link Option#configFile} are both <code>null</code>, then the desktop mode will be
+	 * automatically set to <code>true</code> during startup.
 	 */
 	desktop,
 	/**
@@ -471,8 +464,8 @@ public final class Madkit {
 	 */
 	network,
 	/**
-	 * If activated, MaDKit will create a log file for every agent which has a log level greater than
-	 * {@link Level#OFF}. Default value is "false".
+	 * If activated, MaDKit will create a log file for every agent which has a log level greater than {@link Level#OFF}.
+	 * Default value is "false".
 	 * 
 	 * @see Madkit.Option#logDirectory
 	 */
@@ -492,12 +485,11 @@ public final class Madkit {
 	/**
 	 * Loads all the jar files which are in the demos directory on startup. Default value is "false".
 	 */
-	loadLocalDemos,
 	/**
-	 * activates CGR warnings for the logging of the agents
-	 * 
-	 * @see {@link AgentLogger#enableCGRWarnings()}
+	 * activates CGR warnings for the logging of the agents. see {@link AgentLogger#enableCGRWarnings()}
+	 * @see AgentLogger
 	 */
+	loadLocalDemos,
 	cgrWarnings;
 
 	/**
@@ -511,8 +503,8 @@ public final class Madkit {
 	}
 
 	/**
-	 * Returns the constant's name prefixed by "<code>--</code>" so that it could interpreted as an
-	 * option of the command line or in {@link Madkit#Madkit(String...)}.
+	 * Returns the constant's name prefixed by "<code>--</code>" so that it could interpreted as an option of the command
+	 * line or in {@link Madkit#Madkit(String...)}.
 	 */
 	@Override
 	public String toString() {
@@ -522,8 +514,8 @@ public final class Madkit {
     }
 
     /**
-     * MaDKit options which are valued with a string representing parameters. These options could be
-     * used from the command line or using the main method of MaDKit.
+     * MaDKit options which are valued with a string representing parameters. These options could be used from the command
+     * line or using the main method of MaDKit.
      * 
      * @author Fabien Michel
      * @since MaDKit 5.0.0.10
@@ -531,8 +523,7 @@ public final class Madkit {
      */
     public enum Option implements MadkitOption {
 	/**
-	 * Used to launch agents at start up. This option can be used from the command line or using the
-	 * main method of MaDKit.
+	 * Used to launch agents at start up. This option can be used from the command line or using the main method of MaDKit.
 	 * 
 	 * <pre>
 	 * SYNOPSIS
@@ -550,8 +541,8 @@ public final class Madkit {
 	 * DESCRIPTION
 	 * </pre>
 	 * 
-	 * The optional parameters could be used to (1) launch several different types of agents, (2) launch
-	 * the agents with a default GUI and/or (3) specify the number of desired instances of each type.
+	 * The optional parameters could be used to (1) launch several different types of agents, (2) launch the agents with a
+	 * default GUI and/or (3) specify the number of desired instances of each type.
 	 * 
 	 * <pre>
 	 * DEFAULT VALUE
@@ -579,8 +570,8 @@ public final class Madkit {
 	 */
 	launchAgents,
 	/**
-	 * Used to specify the directory wherein the logs should be done when the
-	 * {@link BooleanOption#createLogFiles} is activated.
+	 * Used to specify the directory wherein the logs should be done when the {@link BooleanOption#createLogFiles} is
+	 * activated.
 	 * 
 	 * <pre>
 	 * SYNOPSIS
@@ -592,16 +583,16 @@ public final class Madkit {
 	 * DESCRIPTION
 	 * </pre>
 	 * 
-	 * Specify the desired directory. It could be an absolute or a relative path. At runtime, a log
-	 * directory named with the current date (second precision) will be created in the log directory for
-	 * each MaDKit session. E.g. /home/neo/madkit_5/logs/2012.02.23.16.23.53
+	 * Specify the desired directory. It could be an absolute or a relative path. At runtime, a log directory named with the
+	 * current date (second precision) will be created in the log directory for each MaDKit session. E.g.
+	 * /home/neo/madkit_5/logs/2012.02.23.16.23.53
 	 * 
 	 * <pre>
 	 * DEFAULT VALUE
 	 * </pre>
 	 * 
-	 * Default value is <i>"logs"</i>, so that a directory named "logs" will be created in the
-	 * application working directory.
+	 * Default value is <i>"logs"</i>, so that a directory named "logs" will be created in the application working
+	 * directory.
 	 * 
 	 * <pre>
 	 * EXAMPLES
@@ -635,8 +626,8 @@ public final class Madkit {
 	agentFrameClass;
 
 	/**
-	 * Returns the constant's name prefixed by "<code>--</code>" so that it could interpreted as an
-	 * option of the command line or in {@link Madkit#Madkit(String...)}.
+	 * Returns the constant's name prefixed by "<code>--</code>" so that it could interpreted as an option of the command
+	 * line or in {@link Madkit#Madkit(String...)}.
 	 */
 	@Override
 	public String toString() {
@@ -646,8 +637,8 @@ public final class Madkit {
     }
 
     /**
-     * MaDKit options valued with a string representing a {@link Level} value. These options could be
-     * used from the command line or using the main method of MaDKit.
+     * MaDKit options valued with a string representing a {@link Level} value. These options could be used from the command
+     * line or using the main method of MaDKit.
      * 
      * @author Fabien Michel
      * @since MaDKit 5.0.0.10
@@ -655,9 +646,8 @@ public final class Madkit {
      */
     public enum LevelOption implements MadkitOption {
 	/**
-	 * Option defining the default agent log level for newly launched agents. Default value is "INFO".
-	 * This value could be overridden individually by agents using
-	 * {@link AbstractAgent#setLogLevel(Level)}.
+	 * Option defining the default agent log level for newly launched agents. Default value is "INFO". This value could be
+	 * overridden individually by agents using {@link AbstractAgent#setLogLevel(Level)}.
 	 * <p>
 	 * Example:
 	 * <ul>
@@ -708,8 +698,8 @@ public final class Madkit {
 	}
 
 	/**
-	 * Returns the constant's name prefixed by "<code>--</code>" so that it could interpreted as an
-	 * option of the command line or in {@link Madkit#Madkit(String...)}.
+	 * Returns the constant's name prefixed by "<code>--</code>" so that it could interpreted as an option of the command
+	 * line or in {@link Madkit#Madkit(String...)}.
 	 */
 	@Override
 	public String toString() {

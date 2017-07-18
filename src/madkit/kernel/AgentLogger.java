@@ -74,7 +74,7 @@ import madkit.kernel.Madkit.Option;
  * This class defines a logger specialized for MaDKit agents.
  * 
  * @author Fabien Michel
- * @version 0.92
+ * @version 1
  * @since MaDKit 5.0.0.5
  */
 public final class AgentLogger extends Logger {
@@ -94,7 +94,7 @@ public final class AgentLogger extends Logger {
 	}
     };
 
-    static final Level TALK_LEVEL = Level.parse("1100");
+    static final Level TALK = Level.parse("1100");
 
     private static Map<AbstractAgent, AgentLogger> agentLoggers = new ConcurrentHashMap<>();
     private static List<AgentLogger> debugModeBlackList = new ArrayList<>();
@@ -167,7 +167,7 @@ public final class AgentLogger extends Logger {
     /**
      * Tells if CGR warnings (Community, Group, Role) are enabled.
      * 
-     * @see #activateAgentRequestsWarnings(boolean)
+     * @see #enableCGRWarnings()
      * @return <code>true</code> if CGR warnings are enabled for this logger
      */
     public boolean isCGRWarningsOn() {
@@ -175,19 +175,22 @@ public final class AgentLogger extends Logger {
     }
 
     /**
-     * Enables or disables the logging of {@link Level#WARNING} messages related with failed queries over the artificial
+     * Enables the logging of {@link Level#WARNING} messages related with failed queries over the artificial
      * society. For instance, if an agent tries to get agent addresses using
      * {@link AbstractAgent#getAgentsWithRole(String, String, String)} over a CGR location which does not exist then there
      * will be a warning about that. Since such results could be obtained by agents on purpose, this method provides a
-     * convenient way of disabling/enabling these kind of traces.
+     * convenient way of enabling these kind of traces as will.
      * 
-     * @param agentRequestsWarningsOn
-     *            if <code>true</code>, CGR warnings are enabled, disabled otherwise
      */
     public void enableCGRWarnings() {
 	getEnableCGRWarningsAction().putValue(Action.SELECTED_KEY, true);
     }
 
+    /**
+     * Disables the logging of {@link Level#WARNING} messages related with failed queries over the artificial
+     * society.
+     * @see #enableCGRWarnings()
+     */
     public void disableCGRWarnings() {
 	if (agentCGRWarningsOnAction != null) {
 	    getEnableCGRWarningsAction().putValue(Action.SELECTED_KEY, false);
@@ -253,7 +256,7 @@ public final class AgentLogger extends Logger {
 		public synchronized void close() {
 		    if (includeDefaultComment) {
 			String closeString = "\n\n" + logSession + " closed on  " + Madkit.DATE_FORMATTER.format(Instant.now()) + logEnd;
-			publish(new LogRecord(TALK_LEVEL, closeString));
+			publish(new LogRecord(TALK, closeString));
 		    }
 		    super.close();
 		}
@@ -262,7 +265,7 @@ public final class AgentLogger extends Logger {
 	    addHandler(fh);
 	    if (includeDefaultComment) {
 		final String startComments = logSession + " started on " + Madkit.DATE_FORMATTER.format(Instant.now()) + logEnd;
-		fh.publish(new LogRecord(TALK_LEVEL, startComments));
+		fh.publish(new LogRecord(TALK, startComments));
 	    }
 	}
 	catch(SecurityException | IOException e) {
@@ -291,7 +294,7 @@ public final class AgentLogger extends Logger {
     }
 
     /**
-     * Logs a {@link #TALK_LEVEL} message. This uses a special level which could be used to produce messages that will be
+     * Logs a {@link #TALK} message. This uses a special level which could be used to produce messages that will be
      * rendered as they are, without any formatting work nor end-of-line character.
      * <p>
      * If the logger's level is not {@link Level#OFF} then the given message is forwarded to all the registered output
@@ -306,7 +309,7 @@ public final class AgentLogger extends Logger {
 	if (getLevel() == Level.OFF)
 	    System.out.print(msg);// NOSONAR
 	else
-	    log(TALK_LEVEL, msg);
+	    log(TALK, msg);
     }
 
     @Override
@@ -326,6 +329,20 @@ public final class AgentLogger extends Logger {
 	}
 	super.log(record);
     }
+    
+    /**
+     * Check if a message of the given level would actually be logged
+     * by this logger.  This check is based on the Loggers effective level,
+     * which may be inherited from its parent.
+     *
+     * @param   level   a message logging level
+     * @return  true if the given message level is currently being logged.
+     */
+    @Override
+    public boolean isLoggable(Level level) {//override for performance: Level.OFF -> performance
+        return ! (level == Level.OFF || level.intValue() < getLevel().intValue());
+    }
+
 
     /**
      * This call bypasses any settings and always produces severe log messages displaying the stack trace of the throwable
@@ -442,7 +459,7 @@ class AgentFormatter extends Formatter {
     @Override
     public String format(final LogRecord record) {
 	final Level lvl = record.getLevel();
-	if (lvl.equals(AgentLogger.TALK_LEVEL)) {
+	if (lvl.equals(AgentLogger.TALK)) {
 	    return record.getMessage();
 	}
 	return getHeader(record) + lvl.getLocalizedName() + " : " + record.getMessage() + "\n";

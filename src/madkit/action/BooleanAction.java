@@ -47,5 +47,10 @@ public class BooleanAction extends MDKAbstractAction {
     public void onUpdate(boolean isSelected) {
 	// Doing nothing is default behavior
     }
+    
+    @Override
+    public String toString() {
+        return "action: "+getValue(ACTION_COMMAND_KEY)+": "+getValue(SELECTED_KEY);
+    }
 
 }

@@ -27,8 +27,9 @@ Changes:
 	+ adding the madkit.kernel.Madkit.BooleanOption.debug option to ease debugging
 
 Refactoring:
-	madkit.agr.Organization replaced by madkit.agr.DefaultMaDKitRoles as it
-	a misleading name.
+	- deprecated madkit.kernel.AbstractAgent.setupFrame(JFrame) removed
+	- madkit.agr.Organization replaced by 
+	+ madkit.agr.DefaultMaDKitRoles
 
 
 ----------------------------------------------------------------------------------

@@ -68,7 +68,7 @@ public enum LoggingAction {
 
     private ActionInfo actionInfo;
 
-    final private int keyEvent;
+    private final int keyEvent;
 
     /**
      * @return the actionInfo corresponding to this constant

@@ -43,10 +43,9 @@ import static madkit.kernel.AbstractAgent.ReturnCode.TIMEOUT;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import javax.swing.JFrame;
-
 import org.junit.Test;
 
+import madkit.gui.AgentFrame;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit.LevelOption;
@@ -188,7 +187,7 @@ public class LaunchAbstractAgentTest extends JunitMadkit {
 				assertEquals(TIMEOUT, launchAgent(new BlockedInActivateAgent(), 1));
 				assertEquals(TIMEOUT, launchAgent(new BlockedInActivateAgent(){
 					@Override
-					public void setupFrame(JFrame frame) {
+					public void setupFrame(AgentFrame frame) {
 						super.setupFrame(frame);
 						waitNextMessage(2000);
 					}

@@ -68,7 +68,6 @@ import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.swing.JFrame;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.NamedNodeMap;
@@ -609,7 +608,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * there are two possibilities:
 	 * <ul>
 	 * <li>1. the agent overrides the method
-	 * {@link AbstractAgent#setupFrame(JFrame)} and so setup the default JFrame
+	 * {@link AbstractAgent#setupFrame(AgentFrame)} and so setup the default JFrame
 	 * as will</li>
 	 * <li>2. the agent does not override it so that MaDKit will setup the JFrame
 	 * with the default Graphical component delivered by the MaDKit platform:
@@ -1995,18 +1994,6 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 		return Boolean.parseBoolean(getMadkitProperty(option));
 	}
 	
-	/**
-	 * @deprecated replaced by {@link #setupFrame(AgentFrame)}
-	 */
-	public void setupFrame(final JFrame frame) {//allowing this until next major release
-		setupFrame((AgentFrame)frame);
-//		frame.setContentPane(new OutputPanel(this));
-//		final Preferences uiPreferences = SwingUtil.UI_PREFERENCES;
-//		frame.setBackground(new Color(uiPreferences.getInt(getClass().getName() + "_BGC", Color.WHITE.getRGB())));
-//		frame.setLocation(uiPreferences.getInt(getName() + "_X",0), uiPreferences.getInt(getName() + "_Y",0));
-//		frame.setSize(uiPreferences.getInt(getName() + "_WIDTH",frame.getWidth()), uiPreferences.getInt(getName() + "_HEIGHT",frame.getHeight()));
-	}
-
 	/**
 	 * Called when the default GUI mechanism is used upon agent creation. This
 	 * provides an empty frame which will be used as GUI for the agent. The

@@ -40,80 +40,83 @@ package madkit.kernel;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-/** 
+/**
  * This class defines a generic watcher agent. It holds a collection of probes to explore agents' internal properties.
  * 
  * @author Fabien Michel
- * @author Olivier Gutknecht 
+ * @author Olivier Gutknecht
  * @since MaDKit 2.0
  * @version 5.0
-*/
-public class Watcher extends AbstractAgent
-{
-	final private Set<Probe<? extends AbstractAgent>> probes = new LinkedHashSet<> ();
+ */
+public class Watcher extends AbstractAgent {
 
-	/**
-	 * Adds the probe to the artificial organization so that it starts 
-	 * to probe the agents which are at the corresponding CGR location.
-	 * 
-	 * @param probe the probe to add
-	 */
-	public void addProbe(final Probe<? extends AbstractAgent> probe){
-		if(kernel.addOverlooker(this, probe))
-			probes.add(probe);
-		getLogger().fine(() -> "Probe added: "+probe);
-	}
-	
-	/**
-	 * Removes the probe from the artificial organization, thus stopping the probing activity.
-	 * 
-	 * @param probe the probe to remove
-	 */
-	public void removeProbe(final Probe<? extends AbstractAgent> probe){
-		kernel.removeOverlooker(this, probe);
-		probes.remove(probe);
-	}
-	
-	@Override
-	protected void activate() {
-		getLogger().talk("\n\tHi human !\n\n I am an instance of the madkit.kernel.Watcher class.\n I am specialized in simulation probing.\n I use probes on the artificial society to analyze and\n visualize what is going on in a simulation.\n You can extend me to create your own\n simulation analyzing and visualizing tools !\n");
-	}
-	
-	/**
-	 * @see madkit.kernel.AbstractAgent#terminate()
-	 */
-	@Override
-	final void terminate() {
-		removeAllProbes();
-		super.terminate();
-	}
+    private final Set<Probe<? extends AbstractAgent>> probes = new LinkedHashSet<>();
 
-	/**
-	 * Remove all probes at once.
-	 */
-	public void removeAllProbes() {
-		for(final Probe<? extends AbstractAgent> p : probes ){
-			kernel.removeOverlooker(this,p);
-		}
-		probes.clear();
+    /**
+     * Adds the probe to the artificial organization so that it starts to probe the agents which are at the corresponding
+     * CGR location.
+     * 
+     * @param probe
+     *            the probe to add
+     */
+    public void addProbe(final Probe<? extends AbstractAgent> probe) {
+	if (kernel.addOverlooker(this, probe))
+	    probes.add(probe);
+	getLogger().fine(() -> "Probe added: " + probe);
+    }
+
+    /**
+     * Removes the probe from the artificial organization, thus stopping the probing activity.
+     * 
+     * @param probe
+     *            the probe to remove
+     */
+    public void removeProbe(final Probe<? extends AbstractAgent> probe) {
+	kernel.removeOverlooker(this, probe);
+	probes.remove(probe);
+    }
+
+    @Override
+    protected void activate() {
+	getLogger().talk(
+		"\n\tHi human !\n\n I am an instance of the madkit.kernel.Watcher class.\n I am specialized in simulation probing.\n I use probes on the artificial society to analyze and\n visualize what is going on in a simulation.\n You can extend me to create your own\n simulation analyzing and visualizing tools !\n");
+    }
+
+    /**
+     * @see madkit.kernel.AbstractAgent#terminate()
+     */
+    @Override
+    final void terminate() {
+	removeAllProbes();
+	super.terminate();
+    }
+
+    /**
+     * Remove all probes at once.
+     */
+    public void removeAllProbes() {
+	for (final Probe<? extends AbstractAgent> p : probes) {
+	    kernel.removeOverlooker(this, p);
 	}
-	
-	public Probe<AbstractAgent>[] allProbes(){
-		return probes.toArray(new Probe[probes.size()]);
-//		return  (Probe<AbstractAgent>[]) probes.toArray();
-	}
-	
-	/**
-	 * Returns the probes which have been successfully added
-	 * @return all the added probes
-	 */
-	public Set<Probe<? extends AbstractAgent>> getProbes(){
-		return probes;
-	}
-	
-	@Override
-	public String toString() {
-		return getName() + " "+allProbes();
-	}
+	probes.clear();
+    }
+
+    public Probe<AbstractAgent>[] allProbes() {
+	return probes.toArray(new Probe[probes.size()]);
+    }
+
+    /**
+     * Returns the probes which have been successfully added
+     * 
+     * @return all the added probes
+     */
+    public Set<Probe<? extends AbstractAgent>> getProbes() {
+	return probes;
+    }
+
+    @Override
+    public String toString() {
+	return getName() + " " + allProbes();
+    }
 
 }

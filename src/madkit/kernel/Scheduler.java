@@ -118,9 +118,9 @@ public class Scheduler extends Agent {
 
     private static final Preferences SCHEDULER_UI_PREFERENCES = Preferences.userRoot().node(Scheduler.class.getName());
 
-    private SimulationState simulationState = SimulationState.PAUSED;
+    private final Set<Activator<? extends AbstractAgent>> activators = new LinkedHashSet<>();
 
-    final private Set<Activator<? extends AbstractAgent>> activators = new LinkedHashSet<>();
+    private SimulationState simulationState = SimulationState.PAUSED;
 
     private Action run, step, speedUp, speedDown;
 
@@ -287,7 +287,7 @@ public class Scheduler extends Agent {
     }
 
     /**
-     * Triggers the execute method of this <code>activator</code> and logs it using the {@link Level.FINER} logging level
+     * Triggers the execute method of this <code>activator</code> and logs it using the {@link Level#FINER} logging level
      * 
      * @param activator
      */

@@ -81,18 +81,15 @@ import madkit.kernel.Watcher;
 public abstract class SwingViewer extends Watcher {
 
     private JComponent displayPane;
-    private boolean synchronousPainting = true;
-    private boolean renderingOn = true;
     private JFrame frame;
-
-    // private Action synchroPaint;
-    private int renderingInterval;
-    private int counter = 1;
-
     private BooleanAction rendering;
     private BooleanAction synchroPainting;
     private JToolBar toolBar;
     private JComboBox<Integer> comboBox;
+    private boolean synchronousPainting = true;
+    private boolean renderingOn = true;
+    private int renderingInterval;
+    private int counter = 1;
 
     /**
      * Creates a new agent with a default panel for rendering purposes
@@ -119,31 +116,34 @@ public abstract class SwingViewer extends Watcher {
     }
 
     /**
-	 * 
-	 */
-	private void initActionsAndGUIComponent() {
-		final ResourceBundle messages = I18nUtilities.getResourceBundle(SwingViewer.class.getSimpleName());
-		initRenderingIntervalComboBox(messages.getString("UPDATE_INTERVAL"));
-		rendering = new BooleanAction(new ActionInfo("DISABLE",KeyEvent.VK_A, messages)){
-			private static final long serialVersionUID = 1L;
-			@Override
-			public void onUpdate(boolean isSelected) {
-			    renderingOn = isSelected;
-			}
-		};
-		setRendering(renderingOn);
-		
-		synchroPainting = new BooleanAction(new ActionInfo("SYNCHRO_PAINTING",KeyEvent.VK_Z, messages)){
-			private static final long serialVersionUID = 1L;
+     * 
+     */
+    private void initActionsAndGUIComponent() {
+	final ResourceBundle messages = I18nUtilities.getResourceBundle(SwingViewer.class.getSimpleName());
+	initRenderingIntervalComboBox(messages.getString("UPDATE_INTERVAL"));
+	rendering = new BooleanAction(new ActionInfo("DISABLE", KeyEvent.VK_A, messages)) {
 
-			@Override
-			public void onUpdate(boolean isSelected) {
-				synchronousPainting = ! isSelected;
-				comboBox.setVisible(synchronousPainting);
-			}
-		};
-		rendering.putValue(Action.SELECTED_KEY, ! synchronousPainting);
-	}
+	    private static final long serialVersionUID = 1L;
+
+	    @Override
+	    public void onUpdate(boolean isSelected) {
+		renderingOn = isSelected;
+	    }
+	};
+	setRendering(renderingOn);
+
+	synchroPainting = new BooleanAction(new ActionInfo("SYNCHRO_PAINTING", KeyEvent.VK_Z, messages)) {
+
+	    private static final long serialVersionUID = 1L;
+
+	    @Override
+	    public void onUpdate(boolean isSelected) {
+		synchronousPainting = !isSelected;
+		comboBox.setVisible(synchronousPainting);
+	    }
+	};
+	rendering.putValue(Action.SELECTED_KEY, !synchronousPainting);
+    }
 
     /**
      * @return <code>true</code> if the rendering activity is activated.
@@ -246,31 +246,13 @@ public abstract class SwingViewer extends Watcher {
 	synchroPainting.putValue(Action.SELECTED_KEY, !synchronousPainting);
     }
 
-    // /** Provides a default implementation that
-    // * assigns the default panel to the default frame
-    // *
-    // * @see madkit.kernel.AbstractAgent#setupFrame(javax.swing.JFrame)
-    // * @deprecated
-    // */
-    // @Override
-    // public void setupFrame(javax.swing.JFrame frame) {
-    // setupFrame((AgentFrame) frame);
-    //// setFrame(frame);
-    //// displayPane.setSize(frame.getSize());
-    //// frame.add(displayPane);
-    //// frame.getJMenuBar().remove(3);
-    //// frame.getJMenuBar().add(getDisplayMenu(), 2);
-    //// frame.add(getToolBar(),BorderLayout.PAGE_START);
-    // }
-
     /**
      * Provides a default implementation that assigns the default panel to the default frame
      * 
-     * @see madkit.kernel.AbstractAgent#setupFrame(javax.swing.JFrame)
+     * @see madkit.kernel.AbstractAgent#setupFrame(AgentFrame)
      */
     @Override
     public void setupFrame(AgentFrame frame) {
-	// super.setupFrame(frame);
 	setFrame(frame);
 	displayPane.setSize(frame.getSize());
 	frame.add(displayPane);
@@ -285,7 +267,7 @@ public abstract class SwingViewer extends Watcher {
      * @return a menu controlling the viewer's options
      */
     public JMenu getDisplayMenu() {
-	JMenu myMenu = new DisplayMenu(getFrame());// JMenu(Words.DISPLAY.toString());
+	JMenu myMenu = new DisplayMenu(getFrame());
 	myMenu.remove(1);// TODO dirty hack
 	myMenu.setMnemonic(KeyEvent.VK_O);
 	myMenu.add(new JCheckBoxMenuItem(rendering));
@@ -294,8 +276,8 @@ public abstract class SwingViewer extends Watcher {
     }
 
     /**
-     * By default, get the default frame provided by MaDKit in {@link #setupFrame(JFrame)} and set using
-     * {@link #setupFrame(JFrame)}. It can be anything else if {@link #setupFrame(JFrame)} is overridden.
+     * By default, get the default frame provided by MaDKit in {@link #setupFrame(AgentFrame)} and set using
+     * {@link #setupFrame(AgentFrame)}. It can be any {@link JFrame} if {@link #setupFrame(AgentFrame)} has been overridden.
      * 
      * @return the working frame
      */

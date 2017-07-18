@@ -44,16 +44,16 @@ import java.util.logging.Level;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.junit.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Madkit.Option;
 import madkit.util.XMLUtilities;
-
-import org.junit.Test;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 /**
  * @author Fabien Michel
@@ -96,8 +96,8 @@ public class XmlFeaturesTest extends JunitMadkit {
 				createGroup(COMMUNITY, GROUP);
 				int i = 0;
 				final int expected = 3;
-				while((getAgentsWithRole(COMMUNITY, GROUP, ROLE, false) == null || getAgentsWithRole(COMMUNITY, GROUP, ROLE, false).size() != expected) && i ++ < 10)
-					pause(200);
+				while((getAgentsWithRole(COMMUNITY, GROUP, ROLE, false) == null || getAgentsWithRole(COMMUNITY, GROUP, ROLE, false).size() != expected) && i ++ < 30)
+					pause(100);
 				assertEquals(expected, getAgentsWithRole(COMMUNITY, GROUP, ROLE).size());
 			}
 		});
@@ -127,8 +127,8 @@ public class XmlFeaturesTest extends JunitMadkit {
 			protected void activate() {
 				final int expected = 100100;
 				int i = 0;
-				while((getAgentsWithRole(COMMUNITY, GROUP, ROLE, false) == null || getAgentsWithRole(COMMUNITY, GROUP, ROLE, false).size() != expected) && i ++ < 20)
-					pause(200);
+				while((getAgentsWithRole(COMMUNITY, GROUP, ROLE, false) == null || getAgentsWithRole(COMMUNITY, GROUP, ROLE, false).size() != expected) && i ++ < 30)
+					pause(100);
 				assertEquals(expected, getAgentsWithRole(COMMUNITY, GROUP, ROLE).size());
 				assertKernelIsAlive();
 			}

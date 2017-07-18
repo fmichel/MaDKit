@@ -36,8 +36,7 @@ knowledge of the CeCILL-C license and that you accept its terms.
  */
 package madkit.testing.util.agent;
 
-import javax.swing.JFrame;
-
+import madkit.gui.AgentFrame;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.LevelOption;
@@ -53,7 +52,7 @@ public class BuggedFrameAgent extends AbstractAgent {
 
 	@SuppressWarnings("null")
 	@Override
-	public void setupFrame(JFrame frame) {
+	public void setupFrame(AgentFrame frame) {
 		Object o = null;
 		o.toString();
 	}

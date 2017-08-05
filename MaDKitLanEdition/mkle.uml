@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uml:Model xmi:version="20131001" xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML" xmi:id="_UYMQ0AiHEeaf-coHa-p4IA" name="MKLE">
+  <packagedElement xmi:type="uml:Interaction" xmi:id="_fUipoAiHEeaf-coHa-p4IA" name="Transfer protocol">
+    <ownedAttribute xmi:id="_ykoaQAiHEeaf-coHa-p4IA" name="Class1"/>
+    <ownedAttribute xmi:id="_2G8N8AiIEeaf-coHa-p4IA" name="TransferAgent" type="_NbSToAiIEeaf-coHa-p4IA"/>
+    <ownedAttribute xmi:id="_9PdIwAiIEeaf-coHa-p4IA" name="AbstractAgentSocket" type="_YZnpcAiIEeaf-coHa-p4IA"/>
+    <ownedAttribute xmi:id="_AjfsYAiJEeaf-coHa-p4IA" name="AbstractAgentSocket" type="_YZnpcAiIEeaf-coHa-p4IA"/>
+    <ownedAttribute xmi:id="_DuDj4AiJEeaf-coHa-p4IA" name="DistantKernelAgent" type="_lZ_vgAiIEeaf-coHa-p4IA"/>
+    <ownedAttribute xmi:id="_KdeCMAiJEeaf-coHa-p4IA" name="DistantKernelAgent" type="_lZ_vgAiIEeaf-coHa-p4IA"/>
+    <ownedAttribute xmi:id="_h9RUgQiJEeaf-coHa-p4IA" name="Class5" type="_h9QtcAiJEeaf-coHa-p4IA"/>
+    <lifeline xmi:id="_9PdIwQiIEeaf-coHa-p4IA" name="AbstractAgentSocket" represents="_9PdIwAiIEeaf-coHa-p4IA"/>
+    <lifeline xmi:id="_KdeCMQiJEeaf-coHa-p4IA" name="DistantKernelAgent A" represents="_KdeCMAiJEeaf-coHa-p4IA"/>
+    <lifeline xmi:id="_2G8N8QiIEeaf-coHa-p4IA" name="TransferAgent" represents="_2G8N8AiIEeaf-coHa-p4IA"/>
+    <lifeline xmi:id="_DuEK8AiJEeaf-coHa-p4IA" name="DistantKernelAgent" represents="_DuDj4AiJEeaf-coHa-p4IA"/>
+    <lifeline xmi:id="_AjgTcAiJEeaf-coHa-p4IA" name="AbstractAgentSocket" represents="_AjfsYAiJEeaf-coHa-p4IA"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Class" xmi:id="_NbSToAiIEeaf-coHa-p4IA" name="TransferAgent">
+    <generalization xmi:id="_TMigkAiIEeaf-coHa-p4IA" general="_O2RD4AiIEeaf-coHa-p4IA"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Class" xmi:id="_O2RD4AiIEeaf-coHa-p4IA" name="AgentFakeThread" isAbstract="true"/>
+  <packagedElement xmi:type="uml:Class" xmi:id="_YZnpcAiIEeaf-coHa-p4IA" name="AbstractAgentSocket" isAbstract="true">
+    <generalization xmi:id="_k8AzAAiIEeaf-coHa-p4IA" general="_O2RD4AiIEeaf-coHa-p4IA"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Class" xmi:id="_lZ_vgAiIEeaf-coHa-p4IA" name="DistantKernelAgent">
+    <generalization xmi:id="_pXI6gAiIEeaf-coHa-p4IA" general="_O2RD4AiIEeaf-coHa-p4IA"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Class" xmi:id="_h9QtcAiJEeaf-coHa-p4IA" name="Class5"/>
+</uml:Model>

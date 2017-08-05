@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<MDK>
+    <com.distrimind.madkit.kernel.MadkitProperties>
+        <com.distrimind.util.version.Version.minimumMadkitVersion>
+            <m_major>1</m_major>
+            <m_minor>0</m_minor>
+            <m_revision>0</m_revision>
+            <m_type>Stable</m_type>
+            <m_alpha_beta_version>1</m_alpha_beta_version>
+            <m_date_start_project>1432288031163</m_date_start_project>
+            <m_date_end_project>1496569631163</m_date_end_project>
+            <m_build_number>40</m_build_number>
+            <m_program_name>MadkitLanEdition</m_program_name>
+            <m_short_program_name>MKLE</m_short_program_name>
+            <m_creators>
+                <ElementList ElementType="com.distrimind.util.version.Person">
+                    <m_name>MAHDJOUB</m_name>
+                    <m_first_name>Jason</m_first_name>
+                </ElementList>
+            </m_creators>
+            <m_developers>
+                <ElementList ElementType="com.distrimind.util.version.PersonDeveloper">
+                    <m_date_begin_development>1432288031164</m_date_begin_development>
+                    <m_name>MAHDJOUB</m_name>
+                    <m_first_name>Jason</m_first_name>
+                </ElementList>
+                <ElementList ElementType="com.distrimind.util.version.PersonDeveloper">
+                    <m_date_begin_development>854790431164</m_date_begin_development>
+                    <m_name>MICHEL</m_name>
+                    <m_first_name>Fabien</m_first_name>
+                </ElementList>
+                <ElementList ElementType="com.distrimind.util.version.PersonDeveloper">
+                    <m_date_begin_development>854790431165</m_date_begin_development>
+                    <m_name>GUTKNECHT</m_name>
+                    <m_first_name>Olivier</m_first_name>
+                </ElementList>
+                <ElementList ElementType="com.distrimind.util.version.PersonDeveloper">
+                    <m_date_begin_development>854790431165</m_date_begin_development>
+                    <m_name>FERBER</m_name>
+                    <m_first_name>Jacques</m_first_name>
+                </ElementList>
+            </m_developers>
+            <m_descriptions>
+                <ElementList ElementType="com.distrimind.util.version.Description">
+                    <m_items>
+                        <ElementList ElementType="java.lang.String">Correction of a bug with database deconnection</ElementList>
+                        <ElementList ElementType="java.lang.String">Debugging indirect connections</ElementList>
+                        <ElementList ElementType="java.lang.String">Solving a memory leak problem with ConversationID</ElementList>
+                        <ElementList ElementType="java.lang.String">Solving a memory leak problem with TransferAgent (not killed)</ElementList>
+                        <ElementList ElementType="java.lang.String">Solbing problem when deny BigDataProposition and kill agent just after</ElementList>
+                        <ElementList ElementType="java.lang.String">Indirect connection send now ping message</ElementList>
+                        <ElementList ElementType="java.lang.String">Adding white list for inet addresses in network properties</ElementList>
+                        <ElementList ElementType="java.lang.String">Correcting problems of internal group/role references/dereferences</ElementList>
+                    </m_items>
+                    <m_major>1</m_major>
+                    <m_minor>0</m_minor>
+                    <m_revision>0</m_revision>
+                    <m_type>Stable</m_type>
+                    <m_alpha_beta_version>1</m_alpha_beta_version>
+                    <m_date>1496569631165</m_date>
+                </ElementList>
+                <ElementList ElementType="com.distrimind.util.version.Description">
+                    <m_items>
+                        <ElementList ElementType="java.lang.String">Agents are now identified by a long (and not int)</ElementList>
+                        <ElementList ElementType="java.lang.String">Adding the function AbstractAgent.getAgentID()</ElementList>
+                        <ElementList ElementType="java.lang.String">Removing static elements in Conversation ID</ElementList>
+                    </m_items>
+                    <m_major>1</m_major>
+                    <m_minor>0</m_minor>
+                    <m_revision>0</m_revision>
+                    <m_type>Beta</m_type>
+                    <m_alpha_beta_version>4</m_alpha_beta_version>
+                    <m_date>1495878431165</m_date>
+                </ElementList>
+                <ElementList ElementType="com.distrimind.util.version.Description">
+                    <m_items>
+                        <ElementList ElementType="java.lang.String">Update Utils to 2.7.1</ElementList>
+                        <ElementList ElementType="java.lang.String">Update OOD to 2.0.0 Beta 1</ElementList>
+                        <ElementList ElementType="java.lang.String">JDK 7 compatible</ElementList>
+                    </m_items>
+                    <m_major>1</m_major>
+                    <m_minor>0</m_minor>
+                    <m_revision>0</m_revision>
+                    <m_type>Beta</m_type>
+                    <m_alpha_beta_version>3</m_alpha_beta_version>
+                    <m_date>1495532831165</m_date>
+                </ElementList>
+                <ElementList ElementType="com.distrimind.util.version.Description">
+                    <m_items>
+                        <ElementList ElementType="java.lang.String">Renforce secret identifier/password exchange</ElementList>
+                        <ElementList ElementType="java.lang.String">Add agent to launch into MKDesktop windows</ElementList>
+                    </m_items>
+                    <m_major>1</m_major>
+                    <m_minor>0</m_minor>
+                    <m_revision>0</m_revision>
+                    <m_type>Beta</m_type>
+                    <m_alpha_beta_version>2</m_alpha_beta_version>
+                    <m_date>1488880031165</m_date>
+                </ElementList>
+                <ElementList ElementType="com.distrimind.util.version.Description">
+                    <m_items>
+                        <ElementList ElementType="java.lang.String">First MadkitLanEdition release, based on Madkit</ElementList>
+                    </m_items>
+                    <m_major>1</m_major>
+                    <m_minor>0</m_minor>
+                    <m_revision>0</m_revision>
+                    <m_type>Beta</m_type>
+                    <m_alpha_beta_version>0</m_alpha_beta_version>
+                    <m_date>1488620831165</m_date>
+                </ElementList>
+            </m_descriptions>
+        </com.distrimind.util.version.Version.minimumMadkitVersion>
+        <madkitMainClass>com.distrimind.madkit.kernel.Madkit</madkitMainClass>
+        <madkitWeb>https://github.com/JazZ51/MaDKitLanEdition</madkitWeb>
+        <madkitRepositoryURL>https://github.com/JazZ51/MaDKitLanEdition</madkitRepositoryURL>
+        <isKernelAddressSecured>true</isKernelAddressSecured>
+        <desktopFrameClass>com.distrimind.madkit.gui.MDKDesktopFrame</desktopFrameClass>
+        <desktop>false</desktop>
+        <forceDesktop>false</forceDesktop>
+        <agentFrameClass>com.distrimind.madkit.gui.AgentFrame</agentFrameClass>
+        <i18nDirectory>com/distrimind/madkit/i18n</i18nDirectory>
+        <kernelLogLevel>OFF</kernelLogLevel>
+        <guiLogLevel>OFF</guiLogLevel>
+        <madkitLogLevel>INFO</madkitLogLevel>
+        <platformLogLevel>INFO</platformLogLevel>
+        <autoConnectMadkitWebsite>false</autoConnectMadkitWebsite>
+        <loadLocalDemos>false</loadLocalDemos>
+        <console>false</console>
+        <noMadkitConsoleLog>false</noMadkitConsoleLog>
+        <orgLogLevel>OFF</orgLogLevel>
+        <noOrgConsolLog>false</noOrgConsolLog>
+        <agentLogLevel>INFO</agentLogLevel>
+        <noAgentConsoleLog>false</noAgentConsoleLog>
+        <createLogFiles>false</createLogFiles>
+        <logDirectory>logs</logDirectory>
+        <warningLogLevel>FINE</warningLogLevel>
+        <com.distrimind.madkit.kernel.network.NetworkProperties.networkProperties>
+            <networkAgent>com.distrimind.madkit.kernel.NetworkAgent</networkAgent>
+            <networkLogLevel>INFO</networkLogLevel>
+            <network>false</network>
+            <maxBufferSize>32767</maxBufferSize>
+            <maxRandomPacketValues>0</maxRandomPacketValues>
+            <maxShortDataSize>20971520</maxShortDataSize>
+            <maxSizeForUnreadShortDataFromOneDistantKernel>41943040</maxSizeForUnreadShortDataFromOneDistantKernel>
+            <maxSizeForUnreadShortDataFromAllConnections>419430400</maxSizeForUnreadShortDataFromAllConnections>
+            <bigDataStatDurationMean>1000</bigDataStatDurationMean>
+            <expulsionDuration>600000</expulsionDuration>
+            <nbMaxAnomaliesBeforeTrigeringExpulsion>7</nbMaxAnomaliesBeforeTrigeringExpulsion>
+            <nbMaxExpulsions>20</nbMaxExpulsions>
+            <banishmentDuration>43200000</banishmentDuration>
+            <nbMaxAnomaliesBeforeTrigeringBanishment>1</nbMaxAnomaliesBeforeTrigeringBanishment>
+            <nbMaxBanishment>100</nbMaxBanishment>
+            <expulsionStatisticDuration>7200000</expulsionStatisticDuration>
+            <banishmentStatisticDuration>1728000000</banishmentStatisticDuration>
+            <gatewayConnection>false</gatewayConnection>
+            <gatewayDepth>1</gatewayDepth>
+            <timeBetweenEachUpdateOfTransfertSpeedForGatewayConnection>30000</timeBetweenEachUpdateOfTransfertSpeedForGatewayConnection>
+            <numberOfCachedBytesToTransferBeforeBlockingSocket>41943040</numberOfCachedBytesToTransferBeforeBlockingSocket>
+            <distantKernelAddressPriority>priorityIfCertifiedConnection</distantKernelAddressPriority>
+            <numberOfMaximumConnectionsBetweenTwoSameKernelsAndMachines>3</numberOfMaximumConnectionsBetweenTwoSameKernelsAndMachines>
+            <numberOfMaximumConnectionsFromOneIPV4>256</numberOfMaximumConnectionsFromOneIPV4>
+            <numberOfMaximumConnectionsFromOneIPV6>8</numberOfMaximumConnectionsFromOneIPV6>
+            <durationBeforeCancelingTransferConnection>120000</durationBeforeCancelingTransferConnection>
+            <maximumNumberOfCryptoKeysForIpsSpectrum>1000</maximumNumberOfCryptoKeysForIpsSpectrum>
+            <selectorTimeOut>30000</selectorTimeOut>
+            <selectorTimeOutWhenWaitingPendingConnections>300</selectorTimeOutWhenWaitingPendingConnections>
+            <connectionTimeOut>30000</connectionTimeOut>
+            <upnpIGDEnabled>false</upnpIGDEnabled>
+            <UpnpIGDLogLevel>INFO</UpnpIGDLogLevel>
+            <delayBetweenEachRouterConnectionCheck>10000</delayBetweenEachRouterConnectionCheck>
+            <delayBetweenEachExternalIPRouterCheck>3600000</delayBetweenEachExternalIPRouterCheck>
+            <networkInterfaceScan>true</networkInterfaceScan>
+            <delayBetweenEachNetworkInterfaceScan>30000</delayBetweenEachNetworkInterfaceScan>
+            <delayBetweenEachAgentSocketOptimization>10000</delayBetweenEachAgentSocketOptimization>
+            <maxDurationOfDistantKernelAddressCheck>60000</maxDurationOfDistantKernelAddressCheck>
+            <maxDurationBeforeClosingObsoleteNetworkInterfaces>60000</maxDurationBeforeClosingObsoleteNetworkInterfaces>
+            <IPV4MulticastGroupForPeerDiscovery>239.54.8.89</IPV4MulticastGroupForPeerDiscovery>
+            <IPV6MulticastGroupForPeerDiscovery>ff05:5d6e:89fa:5fbc:589f:fc57:c459:ab79</IPV6MulticastGroupForPeerDiscovery>
+            <portForMulticastDiffusionMessage>5000</portForMulticastDiffusionMessage>
+            <autoConnectWithLocalSitePeers>true</autoConnectWithLocalSitePeers>
+            <portsToBindForAutomaticLocalConnections>5001</portsToBindForAutomaticLocalConnections>
+            <portsToBindForManualDirectConnections>-1</portsToBindForManualDirectConnections>
+            <addressesToConnect/>
+            <accessProtocolProperties/>
+            <whiteInetAddressesList>
+                <ElementList ElementType="java.net.Inet4Address">0.0.0.0</ElementList>
+                <ElementList ElementType="java.net.Inet4Address">127.0.0.1</ElementList>
+                <ElementList ElementType="java.net.Inet6Address">0:0:0:0:0:0:0:1</ElementList>
+                <ElementList ElementType="java.net.Inet4Address">127.0.0.1</ElementList>
+            </whiteInetAddressesList>
+        </com.distrimind.madkit.kernel.network.NetworkProperties.networkProperties>
+    </com.distrimind.madkit.kernel.MadkitProperties>
+</MDK>

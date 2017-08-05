@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+This is an example of how you can specify an xml file for defining a MaDKit configuration which
+could be used using the config option on the command line, in a main method or through the corresponding menu of the Desktop.
+
+Attributes should exist in the agent's class, the type of the attribute is matched at runtime.
+-->
+
+<MDK name="aConfigName" description="a description">
+	
+	<!-- The <Agents> element is just about structuring this example, i.e. using only the <Agent> element is sufficient -->
+	<Agents>
+
+		<Agent class="myPackage.myAgent" nbOfInstances="5" GUI="true" logLevel="FINEST">
+			<Attributes aNbAsAnInteger="3" aReal="5.5" aString="blabla" />
+		</Agent>
+
+		﻿<!-- nbOfInstances="1" is the default value -->
+		<Agent class="myPackage.myAgent">
+			<Attributes speed="3" i="5" s="blabla" />
+		</Agent>
+
+		<Agent class="myPackage.myAgentBis" nbOfInstances="10">
+			<Attributes speed="3" i="5" s="blabla" />
+		</Agent>
+	</Agents>
+
+	﻿<!--  
+	This allows to set MaDKit properties in the xml configuration. 
+	Regular options like "desktop" or application specific, i.e. anything. 
+	-->
+	<MadkitProperties desktop="true" aValue="something"/>
+</MDK>

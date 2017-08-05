@@ -1,0 +1,118 @@
+/*
+ * MadKitLanEdition (created by Jason MAHDJOUB (jason.mahdjoub@distri-mind.fr)) Copyright (c)
+ * 2015 is a fork of MadKit and MadKitGroupExtension. 
+ * 
+ * Copyright or © or Copr. Jason Mahdjoub, Fabien Michel, Olivier Gutknecht, Jacques Ferber (1997)
+ * 
+ * jason.mahdjoub@distri-mind.fr
+ * fmichel@lirmm.fr
+ * olg@no-distance.net
+ * ferber@lirmm.fr
+ * 
+ * This software is a computer program whose purpose is to
+ * provide a lightweight Java library for designing and simulating Multi-Agent Systems (MAS).
+ * This software is governed by the CeCILL-C license under French law and
+ * abiding by the rules of distribution of free software.  You can  use,
+ * modify and/ or redistribute the software under the terms of the CeCILL-C
+ * license as circulated by CEA, CNRS and INRIA at the following URL
+ * "http://www.cecill.info".
+ * As a counterpart to the access to the source code and  rights to copy,
+ * modify and redistribute granted by the license, users are provided only
+ * with a limited warranty  and the software's author,  the holder of the
+ * economic rights,  and the successive licensors  have only  limited
+ * liability.
+ * 
+ * In this respect, the user's attention is drawn to the risks associated
+ * with loading,  using,  modifying and/or developing or reproducing the
+ * software by the user in light of its specific status of free software,
+ * that may mean  that it is complicated to manipulate,  and  that  also
+ * therefore means  that it is reserved for developers  and  experienced
+ * professionals having in-depth computer knowledge. Users are therefore
+ * encouraged to load and test the software's suitability as regards their
+ * requirements in conditions enabling the security of their systems and/or
+ * data to be ensured and,  more generally, to use and operate it in the
+ * same conditions as regards security.
+ * The fact that you are presently reading this means that you have had
+ * knowledge of the CeCILL-C license and that you accept its terms.
+ */
+package com.distrimind.madkit.kernel.network;
+
+import java.net.InetSocketAddress;
+
+import com.distrimind.madkit.kernel.Message;
+import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol.ConnectionClosedReason;
+
+/**
+ * Gives a connection status for a given IP and a given port.
+ * 
+ * @author Jason Mahdjoub
+ * @version 1.0
+ * @since MadkitLanEdition 1.0
+ */
+public class ConnectionStatusMessage extends Message {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 574243058721666652L;
+
+	private final AbstractIP address;
+	final Type type;
+	InetSocketAddress interface_address;
+	final ConnectionClosedReason connection_closed_reason;
+	protected InetSocketAddress choosenIP = null;
+
+	@Override
+	public String toString() {
+		if (type.equals(Type.DISCONNECT))
+			return getClass().getSimpleName() + "[address=" + address + ", type=" + type + ", interface_address="
+					+ interface_address + ", choosen ip=" + choosenIP + ", connectionCloseReason"
+					+ connection_closed_reason + "]";
+		else
+			return getClass().getSimpleName() + "[address=" + address + ", type=" + type + ", interface_address="
+					+ interface_address + ", choosen ip=" + choosenIP + "]";
+	}
+
+	public InetSocketAddress getChoosenIP() {
+		return choosenIP;
+	}
+
+	public ConnectionStatusMessage(Type _type, AbstractIP _address) {
+		this(_type, _address, null, null, null);
+	}
+
+	ConnectionStatusMessage(Type _type, AbstractIP _address, InetSocketAddress choosenIP,
+			InetSocketAddress _interface_address) {
+		this(_type, _address, choosenIP, _interface_address, null);
+	}
+
+	ConnectionStatusMessage(Type _type, AbstractIP _address, InetSocketAddress choosenIP,
+			InetSocketAddress _interface_address, ConnectionClosedReason _connection_closed_reason) {
+		address = _address;
+		type = _type;
+		interface_address = _interface_address;
+		connection_closed_reason = _connection_closed_reason;
+		this.choosenIP = choosenIP;
+	}
+
+	ConnectionStatusMessage(ConnectionStatusMessage m) {
+		super(m);
+		address = m.address;
+		type = m.type;
+		interface_address = m.interface_address;
+		connection_closed_reason = m.connection_closed_reason;
+		this.choosenIP = m.choosenIP;
+	}
+
+	public AbstractIP getIP() {
+		return address;
+	}
+
+	public Type getType() {
+		return type;
+	}
+
+	public static enum Type {
+		CONNECT, DISCONNECT
+	}
+}

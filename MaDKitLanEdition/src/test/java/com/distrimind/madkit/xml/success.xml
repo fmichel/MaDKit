@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MDK name="aName" description="test">
+	<Agents><!-- just for structuring -->
+		<Agent class="com.distrimind.madkit.xml.XMLSuccessTestAgent" nbOfInstances="1"	GUI="true" logLevel="FINEST">
+			<Attributes speed="3" i="5" s="blabla" />
+		</Agent>
+		<Agent class="com.distrimind.madkit.xml.XMLSuccessTestAgent2">
+			<Attributes speed="3" i="5" s="blabla" />
+		</Agent>
+		<Agent class="com.distrimind.madkit.xml.XMLSuccessTestAgent2" nbOfInstances="1">
+			<Attributes speed="3" i="5" s="blabla" />
+		</Agent>
+	</Agents>
+
+	<com.distrimind.madkit.kernel.MadkitProperties>
+        <databaseFile>mkledbtest</databaseFile>
+        <launchAgents>
+            <ElementList ElementType="com.distrimind.madkit.kernel.AgentToLaunch">com.distrimind.madkit.kernel.Agent,false,1</ElementList>
+        </launchAgents>
+        <desktop>true</desktop>
+        <freeStringProperties>test yes;test2 good</freeStringProperties>
+    </com.distrimind.madkit.kernel.MadkitProperties>
+</MDK>

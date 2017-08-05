@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<MDK>
+    <com.distrimind.madkit.kernel.MadkitProperties>
+        <madkitWeb>http://madkitlanedition.test.com</madkitWeb>
+    </com.distrimind.madkit.kernel.MadkitProperties>
+</MDK>

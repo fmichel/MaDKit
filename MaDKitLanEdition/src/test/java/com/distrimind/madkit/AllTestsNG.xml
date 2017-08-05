@@ -1,0 +1,115 @@
+<suite name="TestAll">
+
+	<test name="allTests" junit="true">
+		<classes>
+  			<class name="com.distrimind.madkit.boot.process.NetworkOnTest"/>
+  			<class name="com.distrimind.madkit.api.abstractAgent.BroadcastMessageAndWaitForRepliesTest"/>
+  			<class name="com.distrimind.madkit.kernel.OverlookerTest"/>
+  			<class name="com.distrimind.madkit.api.abstractAgent.GetExistingRolesTest"/>
+  			<class name="com.distrimind.madkit.gui.GUITest"/>
+  			<class name="com.distrimind.madkit.kernel.ConversationIDTest"/>
+  			<class name="com.distrimind.madkit.api.abstractAgent.SendMessageWithCGRTest"/>
+  			<class name="com.distrimind.madkit.api.abstractAgent.KillAbstractAgentTest"/>
+  			<class name="com.distrimind.madkit.api.abstractAgent.GetExistingGroupsTest"/>
+  			<class name="com.distrimind.madkit.kernel.AbstractAgentTest"/>
+  			<class name="com.distrimind.madkit.util.XMLUtilitiesTest"/>
+  			<class name="com.distrimind.madkit.scenari.deadlock.DeadlockTest"/>
+  			<class name="com.distrimind.madkit.kernel.network.MultipleConnectionsTest"/>
+  			<class name="com.distrimind.madkit.kernel.network.StatTests"/>
+  			<class name="com.distrimind.madkit.api.abstractAgent.RequestRoleTest"/>
+  			<class name="com.distrimind.madkit.hook.HookSystemTest"/>
+  			<class name="com.distrimind.madkit.api.abstractAgent.BroadcastMessageTest"/>
+  			<class name="com.distrimind.madkit.kernel.KernelActionTest"/>
+  			<class name="com.distrimind.madkit.kernel.OptionTestingTest"/>
+  			<class name="com.distrimind.madkit.kernel.network.IDTransferTest"/>
+  			<class name="com.distrimind.madkit.api.abstractAgent.LeaveGroupTest"/>
+  			<class name="com.distrimind.madkit.simulation.PropertyProbeTest"/>
+  			<class name="com.distrimind.madkit.kernel.FakeKernelTest"/>
+  			<class name="com.distrimind.madkit.kernel.AgentActionTest"/>
+  			<class name="com.distrimind.madkit.api.abstractAgent.isCGRTest"/>
+  			<class name="com.distrimind.madkit.api.abstractAgent.sendMessageWithAATest"/>
+  			<class name="com.distrimind.madkit.api.abstractAgent.CreateGroupTest"/>
+  			<class name="com.distrimind.madkit.kernel.KernelAddressTest"/>
+  			<class name="com.distrimind.madkit.util.MadkitPropertiesTest"/>
+  			<class name="com.distrimind.madkit.api.abstractAgent.KillAgentFakeThreadTest"/>
+  			<class name="com.distrimind.madkit.classreloading.ReloadTest"/>
+  			<class name="com.distrimind.madkit.api.abstractAgent.DefaultLoggingLevelTest"/>
+  			<class name="com.distrimind.madkit.kernel.RoleTest"/>
+  			<class name="com.distrimind.madkit.api.abstractAgent.sendMessageAndWaitForReplyWithAATest"/>
+  			<class name="com.distrimind.madkit.api.abstractAgent.GetAgentAddressInTest"/>
+  			<class name="com.distrimind.madkit.kernel.AgentFakeThreadTest"/>
+  			<class name="com.distrimind.madkit.api.abstractAgent.LaunchAgentTest"/>
+  			<class name="com.distrimind.madkit.api.abstractAgent.TaskExecutionTest"/>
+  			<class name="com.distrimind.madkit.boot.process.OtherMadkitPropertyTest"/>
+  			<class name="com.distrimind.madkit.performance.MassLaunchBench"/>
+  			<class name="com.distrimind.madkit.scenari.kill.KillingWaitingMessageThreadedAgentsTest"/>
+  			<class name="com.distrimind.madkit.concurrent.ConcurrentOrgTest"/>
+  			<class name="com.distrimind.madkit.scenari.agr.CreateGroupAndLeaveGroupTest"/>
+  			<class name="com.distrimind.madkit.api.abstractAgent.KillAgentTest"/>
+  			<class name="com.distrimind.madkit.kernel.SchedulerTest"/>
+  			<class name="com.distrimind.madkit.api.abstractAgent.LaunchAgentBucketTest"/>
+  			<class name="com.distrimind.madkit.classreloading.ReloadByGUITest"/>
+  			<class name="com.distrimind.madkit.boot.process.NullArgTest"/>
+  			<class name="com.distrimind.madkit.kernel.ManagerRoleTest"/>
+  			<class name="com.distrimind.madkit.kernel.network.UPNPIDGTest"/>
+  			<class name="com.distrimind.madkit.api.abstractAgent.ReloadClassTest"/>
+  			<class name="com.distrimind.madkit.gui.HeadLessTest"/>
+  			<class name="com.distrimind.madkit.api.abstractAgent.KillUnstoppableAgentFakeThreadTest"/>
+  			<class name="com.distrimind.madkit.api.agent.waitNextMessageWithFilterTest"/>
+  			<class name="com.distrimind.madkit.boot.process.WrongArgTest"/>
+  			<class name="com.distrimind.madkit.kernel.network.ConnectionsProtocolsTests"/>
+  			<class name="com.distrimind.madkit.api.abstractAgent.LeaveRoleTest"/>
+  			<class name="com.distrimind.madkit.scenari.bug.RuntimeExceptionTest"/>
+  			<class name="com.distrimind.madkit.boot.process.ConfigFileTest"/>
+  			<class name="com.distrimind.madkit.organization.createGroup.CreateGroupAndLeaveRoleTest"/>
+  			<class name="com.distrimind.madkit.scenari.kill.OrgErrorMessagingTest"/>
+  			<class name="com.distrimind.madkit.logging.LoggingNameTest"/>
+  			<class name="com.distrimind.madkit.api.abstractAgent.getReplyToTest"/>
+  			<class name="com.distrimind.madkit.api.agent.waitForReplyTest"/>
+  			<class name="com.distrimind.madkit.simulation.GenericBehaviorActivatorTest"/>
+  			<class name="com.distrimind.madkit.logging.DuplicateNamesTest"/>
+  			<class name="com.distrimind.madkit.xml.XmlFeaturesTest"/>
+  			<class name="com.distrimind.madkit.api.abstractAgent.GetExistingCommunitiesTest"/>
+  			<class name="com.distrimind.madkit.api.abstractAgent.BroadcastMessageForAgentFakeThread"/>
+  			<class name="com.distrimind.madkit.kernel.network.DatagramDataTest"/>
+  			<class name="com.distrimind.madkit.api.abstractAgent.sendMessageWithAgentFakeThreadTest"/>
+  			<class name="com.distrimind.madkit.api.abstractAgent.SendReplyWithRoleTest"/>
+  			<class name="com.distrimind.madkit.kernel.MadkitClassLoaderTest"/>
+  			<class name="com.distrimind.madkit.api.abstractAgent.AutoRequestGroupTest"/>
+  			<class name="com.distrimind.madkit.kernel.RootKernelTest"/>
+  			<class name="com.distrimind.madkit.api.abstractAgent.HasRoleTest"/>
+  			<class name="com.distrimind.madkit.api.abstractAgent.SendReplyTest"/>
+  			<class name="com.distrimind.madkit.api.abstractAgent.CreateGroupIfAbsentTest"/>
+  			<class name="com.distrimind.madkit.simulation.BasicWatcherTest"/>
+  			<class name="com.distrimind.madkit.boot.process.LogLevelArgTest"/>
+  			<class name="com.distrimind.madkit.simulation.ProbeTest"/>
+  			<class name="com.distrimind.madkit.boot.process.CreateLogFilesTest"/>
+  			<class name="com.distrimind.madkit.kernel.AgentLoggerTest"/>
+  			<class name="com.distrimind.madkit.api.abstractAgent.LaunchAgentClassTest"/>
+  			<class name="com.distrimind.madkit.i18n.BindsTest"/>
+  			<class name="com.distrimind.madkit.api.abstractAgent.LaunchAgentFakeThreadTest"/>
+  			<class name="com.distrimind.madkit.simulation.ActivatorTest"/>
+  			<class name="com.distrimind.madkit.kernel.network.ReadWritePacketTests"/>
+  			<class name="com.distrimind.madkit.kernel.AgentAddressTest"/>
+  			<class name="com.distrimind.madkit.database.DatabaseTests"/>
+  			<class name="com.distrimind.madkit.visibility.KernelVisibilityTest"/>
+  			<class name="com.distrimind.madkit.api.agent.setThreadPriorityTest"/>
+  			<class name="com.distrimind.madkit.api.abstractAgent.LaunchAbstractAgentTest"/>
+  			<class name="com.distrimind.madkit.api.abstractAgent.setLogLevelTest"/>
+  			<class name="com.distrimind.madkit.api.abstractAgent.KillUnstoppableAgentTest"/>
+  			<class name="com.distrimind.madkit.kernel.network.AutomaticLocalConnectionTest"/>
+  			<class name="com.distrimind.madkit.logging.LoggingWithGUIStartingWithOFFTest"/>
+  			<class name="com.distrimind.madkit.kernel.network.TransferConnectionTest"/>
+  			<class name="com.distrimind.madkit.kernel.network.connection.access.AccessProtocolTests"/>
+  			<class name="com.distrimind.madkit.simulation.BasicSchedulerTest"/>
+  			<class name="com.distrimind.madkit.roles.manager.CandidateTest"/>
+  			<class name="com.distrimind.madkit.api.abstractAgent.LaunchAgentBucketWithRolesWithListTest"/>
+  			<class name="com.distrimind.madkit.i18n.I18nFileTest"/>
+  			<class name="com.distrimind.madkit.scenari.kill.KillingWorkingThreadedAgentsTest"/>
+  		</classes>
+  	</test>
+		
+		
+</suite>
+
+

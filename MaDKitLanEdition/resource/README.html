@@ -1,0 +1,203 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="content-type"
+ content="text/html; charset=ISO-8859-1">
+  <title>MaDKit ${madkit.version} general documentation</title>
+  <meta content="author" name="Fabien Michel">
+  <meta content="description" name="MaDKit ${madkit.version} general documentation">
+</head>
+<body style="background-color: white;">
+<h1>MaDKit ${madkit.version}</h1>
+
+<h1 style="text-align: right;"><a href="${github.url}/"><img style="border: 0px solid ; width: 100px; height: 100px;" src="https://github.com/fluidicon.png" alt="GitHub" align="right"></a></h1>
+<h1 style="text-align: right;"><a href="${madkit.web}/"><img style="border: 0px solid ; width: 100px; height: 100px;" src="http://www.madkit.net/docs/api/doc-files/MaDKit.png" alt="MaDKit" align="right"></a></h1>
+
+<h3><i>Multiagent Development Kit</i></h3>
+by Fabien Michel, Jacques Ferber, and Olivier Gutknecht.<br>
+<br>
+<a href="${madkit.web}/">www.madkit.net</a><br>
+<br>
+<span style="font-style: italic;">${TODAY}</span><br>
+<br>
+MaDKit is an open source modular and scalable multiagent platform
+written in Java and built upon the AGR (Agent/Group/Role)
+organizational model: MaDKit agents play roles in groups and thus
+create artificial societies.&nbsp; <br>
+MaDKit does not enforce any consideration about the internal structure
+of agents, thus allowing a developer to freely implements its own
+agent architectures. <br>
+<br>
+MaDKit is free software, licensed under the GNU GPL, featuring:<br>
+<ul>
+  <li>Artificial agents creation and life cycle management.</li>
+  <li>An organizational infrastructure for communication between agents.</li>
+  <li>High heterogeneity in agent architectures: No predefined agent
+model.</li>
+  <li>Multi-Agent based simulation and simulator authoring tools.</li>
+  <li>Multi-agent based distributed application authoring facilities.<br>
+  </li>
+</ul>
+<h2><br>
+</h2>
+<hr><span style="font-weight: bold;"></span>
+<h2><span style="font-weight: bold;"></span>Documentation and resources
+</h2>
+<ul>
+  <li><big><a style="font-weight: bold;" href="docs/api/index.html">API</a></big>:
+Javadoc
+detailing
+the
+MaDKit programming interface<br>
+    <br>
+  </li>
+  <li><big style="font-weight: bold;"><a
+ href="${madkit.web}/tutorials">Tutorials</a></big>: Getting
+started with MaDKit source
+code examples
+illustrating basic features<br>
+    <br>
+  </li>
+  <li>A <big style="font-weight: bold;"><a
+ href="${madkit.web}/${docs.dir}/French_Tutorial/Rapport_Madkit_Tutoriels.pdf">French
+tutorial</a></big> realized by second year students at the IUT of
+Montpellier, and its <a
+ href="${madkit.web}/${docs.dir}/French_Tutorial/MaDKit_Tutorial.zip">source
+codes</a>.<br>
+    <br>
+  </li>
+  <li>Demo source codes are also a good starting point. They are available in the demos directory of the <a
+ href="${madkit.web}/">MaDKit-${madkit.version}.zip</a> file.<br>
+    <br>
+  </li>
+  <li>Xml files could be used to set the running parameters and launch agents. An example is available in the 
+${docs.dir}: <a
+ href="${docs.dir}/XML_config_example.xml"><big><span style="font-weight: bold;">XML_config_example.xml</span></big></a>.<br>
+  </li>
+</ul>
+<ul>
+  <li>A <big><a href="${docs.dir}/build.xml"><span style="font-weight: bold;">build.xml</span></a></big>
+ant file for easing the development and deployment of MaDKit projects.</li>
+</ul>
+<ul>
+  <li>MaDKit classes <big style="font-weight: bold;"><a
+ href="${src.zip.location}">Java source
+code</a></big> as a zip file. It could be used to attach source in an
+IDE for easing the development.</li>
+</ul>
+<ul>
+  <li>The complete <big style="font-weight: bold;"><a href="https://github.com/fmichel/MaDKit">MaDKit development
+tree</a></big> is available on GitHub.</li>
+</ul>
+<br>
+<br>
+<hr><span style="font-style: italic;"></span>
+<h2>Testing MaDKit ${madkit.version}<br>
+</h2>
+<ol>
+  <li>unzip the MaDKit-${madkit.version}.zip file somewhere in your
+file system.</li>
+  <li>using java -jar <span style="font-weight: bold;">${madkit.jar.name}</span>
+launches the desktop mode of MaDKit which could be used to test the
+demos.</li>
+</ol>
+&nbsp;&nbsp;&nbsp; The demo directory contains files for different
+purposes:<br>
+<br>
+<div style="margin-left: 40px;">- Using the jar
+files&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp; These jar files are runnable: Double click them
+(file execution permission is required) or use java -jar&nbsp;
+demo-name.jar<br>
+&nbsp;&nbsp;&nbsp; They are also used to build the demo menu of the
+MaDKit 5 desktop which could be launch by running the kernel jar file.<br>
+<br>
+- Using the jnlp files&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp; These files could be used to launch the last version
+of a demo using Java web start.<br>
+&nbsp;&nbsp;&nbsp; You can also distribute these files so that one can
+see the demos without installing anything<br>
+<br>
+- Source codes<br>
+&nbsp;&nbsp;&nbsp; can be tested in Eclipse with Import &gt; Existing
+project &gt; Select Archive File &gt; demo-name.-src.zip &gt;
+finish&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>
+<br>
+</div>
+<br>
+<hr><span style="font-style: italic;"></span>
+<h2>Developing with MaDKit ${madkit.version}</h2>
+<span style="font-weight: bold;">${madkit.jar.name}</span> is a regular
+Java library which could be used by simply having it on the classpath:<br>
+<br>
+<ol>
+  <li>unzip the MaDKit-${madkit.version}.zip file somewhere in your
+file system.</li>
+  <li>In a new Java project, add the <span style="font-weight: bold;">${madkit.jar.name}</span>
+to the build path (e.g. in your Eclipse project).</li>
+  <li>Now, you can start using the API.<br>
+  </li>
+  <li>Optional: You can use the <a href="docs/build.xml">build.xml</a>
+file in your project to easily build library and deployment files
+(runnable jars, Java Web Start files, etc.)<br>
+  </li>
+</ol>
+<br>
+To launch your MaDKit agents, simply either<br>
+&nbsp;<br>
+(1) use, anywhere, a main method with something like&nbsp; :<br>
+<br>
+&nbsp;&nbsp;&nbsp; public static void main(String[] args) {<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; new
+Madkit("--launchAgents","mypackage.myagentClass;mypackage.myOtherAgentClass");<br>
+&nbsp;&nbsp;&nbsp; }<br>
+<br>
+<br>
+(2) use, in an agent class, a main method with&nbsp; :<br>
+<br>
+&nbsp;&nbsp;&nbsp; public static void main(String[] args) {<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+executeThisAgent(args) // This will execute one agent of this kind with
+a GUI<br>
+&nbsp;&nbsp;&nbsp; }<br>
+<br>
+<br>
+(3) use a command line such as <br>
+<br>
+java -cp pathTo-${madkit.jar.name}:yourClassPath madkit.kernel.Madkit
+--launchAgents mypackage.myagentClass;mypackage.myOtherAgentClass<br>
+<br>
+Other command line options are described in the API of the
+madkit.kernel.Madkit class<br>
+<br>
+<br>
+<hr>
+<h2>Online help<br>
+</h2>
+<h3>
+</h3>
+<ul>
+  <li><a href="${madkit.web}/forum">MaDKit forum</a></li>
+</ul>
+<br>
+<hr>
+<h2>Release notes<br>
+</h2>
+<h3>
+</h3>
+<ul>
+  <li><a href="docs/VERSION">VERSION ${madkit.version}</a></li>
+</ul>
+<br>
+<hr>
+<h2>License</h2>
+<ul>
+  <li>MaDKit ${madkit.version} is 100% pure JDK and free software
+licensed under the&nbsp;<a href="http://www.gnu.org/licenses/gpl.html">GNU
+General
+Public License v3</a>. </li>
+</ul>
+<br>
+<hr size="2">
+</body>
+</html>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<MDK>
+    <com.distrimind.madkit.kernel.MadkitProperties>
+        <databaseFile>mkledbtest</databaseFile>
+        <launchAgents>
+            <ElementList ElementType="com.distrimind.madkit.kernel.AgentToLaunch">com.distrimind.madkit.kernel.Agent,false,1</ElementList>
+        </launchAgents>
+        <freeStringProperties>test true;</freeStringProperties>
+    </com.distrimind.madkit.kernel.MadkitProperties>
+</MDK>

@@ -111,7 +111,7 @@ final public class Madkit {
 		c.set(2015, 4, 22);
 		Calendar c2 = Calendar.getInstance();
 		c2.set(2017, 7, 4);
-		VERSION = new Version("MadkitLanEdition", "MKLE", 1, 1, 1, Version.Type.Stable, 1, c.getTime(), c2.getTime());
+		VERSION = new Version("MadkitLanEdition", "MKLE", 1, 1, 2, Version.Type.Stable, 1, c.getTime(), c2.getTime());
 		try {
 
 			InputStream is = Madkit.class.getResourceAsStream("build.txt");
@@ -134,8 +134,8 @@ final public class Madkit {
 
 			c = Calendar.getInstance();
 			c.set(2017, 7, 5);
-			Description d = new Description(1, 1, 1, Version.Type.Stable, 1, c.getTime());
-			d.addItem("Updating OOD to 2.0.0 Beta 12");
+			Description d = new Description(1, 1, 2, Version.Type.Stable, 1, c.getTime());
+			d.addItem("Updating OOD to 2.0.0 Beta 14");
 			d.addItem("Optimizing some memory leak tests");
 			VERSION.addDescription(d);
 

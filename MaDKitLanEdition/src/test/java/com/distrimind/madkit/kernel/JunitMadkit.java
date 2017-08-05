@@ -694,21 +694,21 @@ public class JunitMadkit {
 	}
 
 	public void checkReleasedGroups(AbstractAgent agent, Madkit m) {
-		Assert.assertFalse(LocalCommunity.Groups.AGENTS_SOCKET_GROUPS.isMadKitCreated(m.kernelAddress));
-		Assert.assertFalse(LocalCommunity.Groups.DISTANT_KERNEL_AGENTS_GROUPS.isMadKitCreated(m.kernelAddress));
-		Assert.assertFalse(LocalCommunity.Groups.GUI.isMadKitCreated(m.kernelAddress));
-		Assert.assertFalse(LocalCommunity.Groups.KERNELS.isMadKitCreated(m.kernelAddress));
-		Assert.assertFalse(LocalCommunity.Groups.LOCAL_NETWORKS.isMadKitCreated(m.kernelAddress));
-		Assert.assertFalse(LocalCommunity.Groups.NETWORK.isMadKitCreated(m.kernelAddress));
-		Assert.assertFalse(LocalCommunity.Groups.NETWORK_INTERFACES.isMadKitCreated(m.kernelAddress));
-		Assert.assertFalse(LocalCommunity.Groups.SYSTEM.isMadKitCreated(m.kernelAddress));
-		Assert.assertFalse(LocalCommunity.Groups.SYSTEM_ROOT.isMadKitCreated(m.kernelAddress));
-		Assert.assertFalse(LocalCommunity.Groups.TASK_AGENTS.isMadKitCreated(m.kernelAddress));
+		Assert.assertFalse(LocalCommunity.Groups.AGENTS_SOCKET_GROUPS.hasMadKitTraces(m.kernelAddress));
+		Assert.assertFalse(LocalCommunity.Groups.DISTANT_KERNEL_AGENTS_GROUPS.hasMadKitTraces(m.kernelAddress));
+		Assert.assertFalse(LocalCommunity.Groups.GUI.hasMadKitTraces(m.kernelAddress));
+		Assert.assertFalse(LocalCommunity.Groups.KERNELS.hasMadKitTraces(m.kernelAddress));
+		Assert.assertFalse(LocalCommunity.Groups.LOCAL_NETWORKS.hasMadKitTraces(m.kernelAddress));
+		Assert.assertFalse(LocalCommunity.Groups.NETWORK.hasMadKitTraces(m.kernelAddress));
+		Assert.assertFalse(LocalCommunity.Groups.NETWORK_INTERFACES.hasMadKitTraces(m.kernelAddress));
+		Assert.assertFalse(LocalCommunity.Groups.SYSTEM.hasMadKitTraces(m.kernelAddress));
+		Assert.assertFalse(LocalCommunity.Groups.SYSTEM_ROOT.hasMadKitTraces(m.kernelAddress));
+		Assert.assertFalse(LocalCommunity.Groups.TASK_AGENTS.hasMadKitTraces(m.kernelAddress));
 
-		Assert.assertFalse(JunitMadkit.GROUP.isMadKitCreated(m.kernelAddress));
-		Assert.assertFalse(JunitMadkit.GROUP2.isMadKitCreated(m.kernelAddress));
-		Assert.assertFalse(JunitMadkit.DEFAULT_NETWORK_GROUP_FOR_ACCESS_DATA.isMadKitCreated(m.kernelAddress));
-		Assert.assertFalse(JunitMadkit.NETWORK_GROUP_FOR_LOGIN_DATA.isMadKitCreated(m.kernelAddress));
+		Assert.assertFalse(JunitMadkit.GROUP.hasMadKitTraces(m.kernelAddress));
+		Assert.assertFalse(JunitMadkit.GROUP2.hasMadKitTraces(m.kernelAddress));
+		Assert.assertFalse(JunitMadkit.DEFAULT_NETWORK_GROUP_FOR_ACCESS_DATA.hasMadKitTraces(m.kernelAddress));
+		Assert.assertFalse(JunitMadkit.NETWORK_GROUP_FOR_LOGIN_DATA.hasMadKitTraces(m.kernelAddress));
 
 	}
 

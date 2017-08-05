@@ -989,6 +989,10 @@ public final class Group extends AbstractGroup implements Comparable<Group> {
 	boolean isMadKitCreated(KernelAddress ka) {
 		return m_group.isMadKitCreated(ka);
 	}
+	
+	boolean hasMadKitTraces(KernelAddress ka) {
+		return m_group.hasMadKitTraces(ka);
+	}
 
 	boolean isAnyRoleRequested(KernelAddress ka) {
 		return m_group.isAnyRoleRequested(ka);
@@ -1739,6 +1743,13 @@ public final class Group extends AbstractGroup implements Comparable<Group> {
 				KernelReferences kr = m_kernel_references.get(ka);
 
 				return kr != null && kr.m_madkit_references > 0;
+			}
+		}
+		boolean hasMadKitTraces(KernelAddress ka) {
+			synchronized (m_root) {
+				KernelReferences kr = m_kernel_references.get(ka);
+
+				return kr != null;
 			}
 		}
 

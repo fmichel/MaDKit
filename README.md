@@ -116,6 +116,55 @@ Note that one agent can't be attached to a MultiGroup or a Group that represents
 
 [Here you will find examples in the use of classes Group and MultiGroup](groups.png)
 
+How to use it ?
+---------------
+### With Gradle :
+
+Adapt into your build.gradle file, the next code :
+
+	...
+	repositories {
+		...
+		maven {
+	       		url "https://mahdjoub.net/artifactory/DistriMind-Public"
+	   	} 
+		...
+	}
+	...
+	dependencies {
+		...
+		compile(group:'com.distrimind.madkit', name: 'MaDKitLanEdition', version: '1.1.2')
+		...
+	}
+	...
+
+To know what last version has been uploaded, please refer to versions availables into [this repository](https://mahdjoub.net/artifactory/DistriMind-Public/com/distrimind/madkit/MaDKitLanEdition)
+### With Maven :
+Adapt into your pom.xml file, the next code :
+
+	<project>
+		...
+		<dependencies>
+			...
+			<dependency>
+				<groupId>com.distrimind.madkit</groupId>
+				<artifactId>MaDKitLanEdition</artifactId>
+				<version>1.1.2</version>
+			</dependency>
+			...
+		</dependencies>
+		...
+		<repositories>
+			...
+			<repository>
+				<id>DistriMind-Public</id>
+				<url>https://mahdjoub.net/artifactory/DistriMind-Public</url>
+			</repository>
+			...
+		</repositories>
+	</project>
+
+To know what last version has been uploaded, please refer to versions availables into [this repository](https://mahdjoub.net/artifactory/DistriMind-Public/com/distrimind/madkit/MaDKitLanEdition)
 
 
 [1]: http://www.lirmm.fr/~fmichel/publi/pdfs/ferber04ocmas.pdf

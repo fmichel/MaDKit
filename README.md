@@ -1,4 +1,3 @@
-<<<<<<< Upstream, based on branch 'master' of https://github.com/JazZ51/MaDKitLanEdition.git
 #MaDKit: Multiagent Development Kit
 
 MaDKit is an open source multiagent-based development platform written in Java.

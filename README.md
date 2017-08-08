@@ -1,4 +1,4 @@
-#MaDKit: Multiagent Development Kit
+# MaDKit: Multiagent Development Kit
 
 MaDKit is an open source multiagent-based development platform written in Java.
 

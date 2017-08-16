@@ -54,7 +54,7 @@ import madkit.i18n.Words;
  * @version 0.91
  */
 @SuppressWarnings("serial")
-public final class DisplayMenu extends JMenu {
+public final class DisplayMenu extends JMenu {// NOSONAR
 
     public DisplayMenu(final JFrame f) {
 	super(Words.DISPLAY.toString());

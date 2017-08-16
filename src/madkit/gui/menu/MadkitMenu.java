@@ -52,37 +52,36 @@ import madkit.kernel.AbstractAgent;
  * @author Fabien Michel
  * @since MaDKit 5.0.0.9
  * @version 0.9
- * 
  */
-public class MadkitMenu extends JMenu {
+public class MadkitMenu extends JMenu {// NOSONAR
 
-	private static final long serialVersionUID = 6177193453649323680L;
+    private static final long serialVersionUID = 6177193453649323680L;
 
-	/**
-	 * Builds a menu featuring the following actions:
-	 * <ul>
-	 * <li> {@link KernelAction#EXIT}
-	 * <li> {@link KernelAction#COPY}
-	 * <li> {@link KernelAction#RESTART}
-	 * <li> {@link KernelAction#LAUNCH_NETWORK}
-	 * <li> {@link KernelAction#STOP_NETWORK}
-	 * <li> {@link GUIManagerAction#CONNECT_TO_IP}
-	 * <li> {@link GlobalAction#JCONSOLE}
-	 * <li> {@link KernelAction#CONSOLE}
-	 * <li> {@link GlobalAction#DEBUG}
-	 * <li> {@link GlobalAction#LOAD_LOCAL_DEMOS}
-	 * <li> {@link GlobalAction#LOAD_JAR_FILE}
-	 * <li> {@link GUIManagerAction#ICONIFY_ALL}
-	 * <li> {@link GUIManagerAction#DEICONIFY_ALL}
-	 * <li> {@link GUIManagerAction#KILL_AGENTS}
-	 * </ul>
-	 * 
-	 * @param agent the agent for which this menu
-	 * will be built.
-	 */
-	public MadkitMenu(final AbstractAgent agent){
-		super("MaDKit");
-		setMnemonic(KeyEvent.VK_M);
-		SwingUtil.addMaDKitActionsTo(this, agent);
-	}
+    /**
+     * Builds a menu featuring the following actions:
+     * <ul>
+     * <li>{@link KernelAction#EXIT}
+     * <li>{@link KernelAction#COPY}
+     * <li>{@link KernelAction#RESTART}
+     * <li>{@link KernelAction#LAUNCH_NETWORK}
+     * <li>{@link KernelAction#STOP_NETWORK}
+     * <li>{@link GUIManagerAction#CONNECT_TO_IP}
+     * <li>{@link GlobalAction#JCONSOLE}
+     * <li>{@link KernelAction#CONSOLE}
+     * <li>{@link GlobalAction#DEBUG}
+     * <li>{@link GlobalAction#LOAD_LOCAL_DEMOS}
+     * <li>{@link GlobalAction#LOAD_JAR_FILE}
+     * <li>{@link GUIManagerAction#ICONIFY_ALL}
+     * <li>{@link GUIManagerAction#DEICONIFY_ALL}
+     * <li>{@link GUIManagerAction#KILL_AGENTS}
+     * </ul>
+     * 
+     * @param agent
+     *            the agent for which this menu will be built.
+     */
+    public MadkitMenu(final AbstractAgent agent) {
+	super("MaDKit");
+	setMnemonic(KeyEvent.VK_M);
+	SwingUtil.addMaDKitActionsTo(this, agent);
+    }
 }

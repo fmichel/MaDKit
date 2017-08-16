@@ -41,64 +41,66 @@ import java.lang.reflect.Field;
 import madkit.simulation.probe.PropertyProbe;
 
 /**
- * This class defines a watcher's generic probe. 
- * A probe is configured according to a community, a group and a role.
+ * This class defines a watcher's generic probe. A probe is configured according to a community, a group and a role.
  * 
  * @author Fabien Michel
- * @author Olivier Gutknecht 
+ * @author Olivier Gutknecht
  * @since MaDKit 2.0
  * @version 5.0
  * @see Watcher
  * @see PropertyProbe
  * 
  */
-public class Probe<A extends AbstractAgent> extends Overlooker<A>{
+public class Probe<A extends AbstractAgent> extends Overlooker<A> {
 
-	/**
-	 * Builds a new Probe<> on the given CGR location of the
-	 * artificial society. Once created, it has to be added by a {@link Watcher} 
-	 * agent using the {@link Watcher#addProbe(Probe)} method.
-	 * @param communityName
-	 * @param groupName
-	 * @param roleName
-	 * @see Watcher
-	 */
-	public Probe(final String communityName, final String groupName, final String roleName) {
-		super(communityName, groupName, roleName);
+    /**
+     * Builds a new Probe<> on the given CGR location of the artificial society. Once created, it has to be added by a
+     * {@link Watcher} agent using the {@link Watcher#addProbe(Probe)} method.
+     * 
+     * @param communityName
+     * @param groupName
+     * @param roleName
+     * @see Watcher
+     */
+    public Probe(final String communityName, final String groupName, final String roleName) {
+	super(communityName, groupName, roleName);
+    }
+
+    /**
+     * Returns the agent's field named <code>fieldName</code>. This also works on <code>private</code> fields, even
+     * inherited ones.
+     * 
+     * @param agentClass
+     *            the targeted agent's class
+     * @param fieldName
+     *            the name of the field
+     * @return the agent's field named <code>fieldName</code>
+     * @throws NoSuchFieldException
+     */
+    @SuppressWarnings("unchecked")
+    public static Field findFieldOn(Class<? extends AbstractAgent> agentClass, final String fieldName) throws NoSuchFieldException {
+	Field f = null;
+	while (true) {
+	    try {
+		f = agentClass.getDeclaredField(fieldName);
+		if (f != null) {
+		    if (! f.isAccessible()) {
+			f.setAccessible(true);
+		    }
+		    return f;
+		}
+	    }
+	    catch(SecurityException e) {
+		e.printStackTrace();
+		return null;
+	    }
+	    catch(NoSuchFieldException e) {
+		agentClass = (Class<? extends AbstractAgent>) agentClass.getSuperclass();
+		if (agentClass == AbstractAgent.class) { // not found
+		    throw e;
+		}
+	    }
 	}
-
-	/**
-	 * Returns the agent's field named <code>fieldName</code>.
-	 * This also works on <code>private</code> fields, even
-	 * inherited ones.
-	 * 
-	 * @param agentClass the targeted agent 
-	 * @param fieldName the name of the field
-	 * @return the agent's field named <code>fieldName</code>
-	 * @throws NoSuchFieldException
-	 */
-	@SuppressWarnings("unchecked")
-	public static Field findFieldOn(Class<? extends AbstractAgent> agentClass, final String fieldName) throws NoSuchFieldException{
-		Field f = null;
-		while(true) {
-			try {
-				f = agentClass.getDeclaredField(fieldName);
-				if(f != null){
-					if (! f.isAccessible()) {//TODO seems to be always the case the first time
-						f.setAccessible(true);
-					}
-					return f;
-				}
-			} catch (SecurityException e) {
-				e.printStackTrace();
-			} catch (NoSuchFieldException e) {
-				agentClass = (Class<? extends AbstractAgent>) agentClass.getSuperclass();//TODO not go further than A ?
-				if (agentClass == AbstractAgent.class) {//TODO bench vs local variable or Object ?
-					throw e;
-				}
-			}
-		} 
-	}
-
+    }
 
 }

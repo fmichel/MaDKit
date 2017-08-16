@@ -47,28 +47,26 @@ import madkit.kernel.AgentAddress;
  * 
  */
 public abstract class CGREvent extends HookMessage {
-	
 
-	/**
-	 * 
-	 */
-	private static final long	serialVersionUID	= 6722477889792374461L;
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 6722477889792374461L;
 
-	CGREvent(AgentActionEvent event) {
-		super(event);
-	}
+    CGREvent(AgentActionEvent event) {
+	super(event);
+    }
 
-	/**
-	 * Returns the address of the agent that did
-	 * the request.
-	 * 
-	 * @return the name of the agent that triggers the event
-	 */
-	public abstract AgentAddress getSourceAgent();
-	
-	@Override
-	public String toString() {
-		return super.toString()+" from "+getSourceAgent();
-	}
+    /**
+     * Returns the address of the agent that did the request.
+     * 
+     * @return the name of the agent that triggers the event
+     */
+    public abstract AgentAddress getSourceAgent();
+
+    @Override
+    public String toString() {
+	return super.toString() + " from " + getSourceAgent();
+    }
 
 }

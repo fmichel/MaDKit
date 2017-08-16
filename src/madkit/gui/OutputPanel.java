@@ -105,15 +105,6 @@ public class OutputPanel extends JPanel {
 	}
     }
 
-    /**
-     * returns the output stream to which log messages will be forwarded to.
-     * 
-     * @return the output stream for this component.
-     * @deprecated now returns <code>null</code> as of MaDKit 5.2. {@link #getHandler()} could be used instead
-     */
-//    public OutputStream getOutputStream() {
-//	return null;
-//    }
 
     /**
      * Remove all the contained text.

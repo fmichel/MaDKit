@@ -48,13 +48,13 @@ import java.util.Arrays;
  * @version 1.0
  * 
  */
-final public class KernelException extends RuntimeException {
+public final class KernelException extends RuntimeException {
 
 
 	private static final long serialVersionUID = 8942343591444752340L;
 
 	KernelException(final String message){
-		super(message);//TODO clean stack trace
+		super(message);
 		setStackTrace(Arrays.asList(getStackTrace()).subList(3, getStackTrace().length-1).toArray(new StackTraceElement[0]));
 	}
 }

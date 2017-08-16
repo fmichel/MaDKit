@@ -56,9 +56,9 @@ import java.util.logging.Level;
  */
 final class KernelConnection extends Thread{
 
-	final private Socket distantKernelSocket;
+	private final Socket distantKernelSocket;
 	private boolean activated = false;
-	final private NetworkAgent myNetAgent;
+	private final NetworkAgent myNetAgent;
 	private KernelAddress distantKernelAddress;
 
 	boolean isActivated() {

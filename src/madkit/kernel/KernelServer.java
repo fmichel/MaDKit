@@ -61,128 +61,129 @@ import madkit.message.KernelMessage;
  */
 final class KernelServer {
 
-	final static private int startingPort = 4444;
+    private static final int startingPort = 4444;
 
-	final private ServerSocket serverSocket;
+    private final ServerSocket serverSocket;
 
-	private boolean running = true;
-	
-	final private static String EXTERNAL_IP;
+    private boolean running = true;
 
-	static {
-		String s = null;
-		try {
-			BufferedReader in = new BufferedReader(new InputStreamReader(new URL(Madkit.WEB + "/whatismyip.php").openStream()));
-			s = in.readLine();
-			in.close();
-		} catch (IOException e) {
-		}
-		EXTERNAL_IP = s == null ? "" : " -- WAN : " + s;
+    private static final String EXTERNAL_IP;
+
+    static {
+	String s = null;
+	try {
+	    BufferedReader in = new BufferedReader(new InputStreamReader(new URL(Madkit.WEB + "/whatismyip.php").openStream()));
+	    s = in.readLine();
+	    in.close();
 	}
-
-	/**
-	 * @param serverSocket2
-	 */
-	private KernelServer(ServerSocket serverSocket2) {
-		serverSocket = serverSocket2;
+	catch(IOException e) {
 	}
+	EXTERNAL_IP = s == null ? "" : " -- WAN : " + s;
+    }
 
+    /**
+     * @param serverSocket2
+     */
+    private KernelServer(ServerSocket serverSocket2) {
+	serverSocket = serverSocket2;
+    }
 
+    void activate(final NetworkAgent netAgent) {
+	final Thread t = new Thread(new Runnable() {
 
-	void activate(final NetworkAgent netAgent){
-		final Thread t = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				while(running){
-					try {
-						netAgent.receiveMessage(new NetworkMessage(NetCode.NEW_PEER_REQUEST, serverSocket.accept()));
-					} catch (IOException e) {
-						if (running) {//socket failure
-							netAgent.receiveMessage(new KernelMessage(KernelAction.EXIT));
-						}
-						break;
-					}
-				}
-				stop();
+	    @Override
+	    public void run() {
+		while (running) {
+		    try {
+			netAgent.receiveMessage(new NetworkMessage(NetCode.NEW_PEER_REQUEST, serverSocket.accept()));
+		    }
+		    catch(IOException e) {
+			if (running) {// socket failure
+			    netAgent.receiveMessage(new KernelMessage(KernelAction.EXIT));
 			}
-		});
-		t.setName("MK Server "+netAgent.getName());
-		t.start();
-	}
-
-
-
-	int getPort() {
-		return serverSocket.getLocalPort();
-	}
-
-	/**
-	 * @return the ip
-	 */
-	InetAddress getIp() {
-		return serverSocket.getInetAddress();
-	}
-
-	void stop(){
-		running = false;
-		try {
-			serverSocket.close();
-		} catch (IOException e) {
-			e.printStackTrace();
+			break;
+		    }
 		}
-	}
+		stop();
+	    }
+	});
+	t.setName("MK Server " + netAgent.getName());
+	t.start();
+    }
 
-	@SuppressWarnings("resource")
-	final static KernelServer getNewKernelServer() {
-		InetAddress ip = findInetAddress();
-		if(ip == null){
-			try {
-				ip = InetAddress.getLocalHost();
-			} catch (UnknownHostException e1) {
-				e1.printStackTrace();
-				return null;
+    int getPort() {
+	return serverSocket.getLocalPort();
+    }
+
+    /**
+     * @return the ip
+     */
+    InetAddress getIp() {
+	return serverSocket.getInetAddress();
+    }
+
+    void stop() {
+	running = false;
+	try {
+	    serverSocket.close();
+	}
+	catch(IOException e) {
+	    e.printStackTrace();
+	}
+    }
+
+    @SuppressWarnings("resource")
+    static final KernelServer getNewKernelServer() {
+	InetAddress ip = findInetAddress();
+	if (ip == null) {
+	    try {
+		ip = InetAddress.getLocalHost();
+	    }
+	    catch(UnknownHostException e1) {
+		e1.printStackTrace();
+		return null;
+	    }
+	}
+	// ip.getHostName();
+	ServerSocket serverSocket = null;
+	int port = startingPort;
+	while (serverSocket == null) {
+	    try {
+		serverSocket = new ServerSocket(port, 50, ip);
+	    }
+	    catch(IOException e) {
+		port++;
+	    }
+	}
+	return new KernelServer(serverSocket);
+    }
+
+    @Override
+    public String toString() {
+	return getIp() + ":" + getPort() + EXTERNAL_IP;
+    }
+
+    static private InetAddress findInetAddress() {
+	try {
+	    Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces();
+	    // find:
+	    while (en.hasMoreElements()) {
+		NetworkInterface ni = en.nextElement();
+		if (!ni.isLoopback()) {
+		    final Enumeration<InetAddress> e = ni.getInetAddresses();
+		    while (e.hasMoreElements()) {
+			InetAddress ia = e.nextElement();
+			if (!ia.isLoopbackAddress() && ia instanceof Inet4Address) {
+			    return ia;
 			}
+		    }
 		}
-//		ip.getHostName();
-		ServerSocket serverSocket = null;
-		int port = startingPort;
-		while (serverSocket == null) {
-			try {
-				serverSocket = new ServerSocket(port,50,ip);
-			} catch (IOException e) {
-				port++;
-			}
-		}
-		return new KernelServer(serverSocket);
+	    }
 	}
-	
-	@Override
-	public String toString() {
-		return getIp()+":"+getPort()+EXTERNAL_IP;
+	catch(SocketException e1) {
+	    e1.printStackTrace();
 	}
-
-
-	static private InetAddress findInetAddress(){
-		try {
-			Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces();
-			//		    find:
-			while (en.hasMoreElements()) {
-				NetworkInterface ni = en.nextElement();
-				if (! ni.isLoopback()) {
-					final Enumeration<InetAddress> e = ni.getInetAddresses();
-					while (e.hasMoreElements()) {
-						InetAddress ia = e.nextElement();
-						if (!ia.isLoopbackAddress() && ia instanceof Inet4Address) {
-							return ia;
-						}
-					}
-				}
-			}
-		} catch (SocketException e1) {
-			e1.printStackTrace();
-		}
-		return null;	
-	}
-
+	return null;
+    }
 
 }

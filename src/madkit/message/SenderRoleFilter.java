@@ -51,7 +51,7 @@ import madkit.kernel.Message;
 public class SenderRoleFilter implements MessageFilter {
 	
 	
-	final private String community, group, role;
+	private final String community, group, role;
 
 	/**
 	 * a new filter that acts according to the sender's CGR location.

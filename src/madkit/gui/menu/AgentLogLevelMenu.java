@@ -65,9 +65,6 @@ import madkit.kernel.AgentLogger;
  */
 public class AgentLogLevelMenu extends JMenu {//NOSONAR
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 1274573952636236546L;
     private static final Preferences UI_LOGGING_PREFERENCES = Preferences.userRoot().node(AgentLogger.class.getName());
     private static final Map<AbstractAgent, AgentLogLevelMenu> menus = new HashMap<>();

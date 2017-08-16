@@ -55,10 +55,10 @@ import madkit.kernel.AbstractAgent.State;
 final class AgentExecutor extends ThreadPoolExecutor {
 
 	//	private boolean started = false;
-	final private Agent myAgent;
-	final private FutureTask<ReturnCode> activate;
-	final private FutureTask<Void> live;
-	final private FutureTask<Void> end;
+	private final Agent myAgent;
+	private final FutureTask<ReturnCode> activate;
+	private final FutureTask<Void> live;
+	private final FutureTask<Void> end;
 
 //	public AgentExecutor(Agent a, ThreadFactory threadFactory) {
 //		super(1, Integer.MAX_VALUE, 0, TimeUnit.NANOSECONDS, new ArrayBlockingQueue<Runnable>(4, false), threadFactory);

@@ -50,39 +50,36 @@ import madkit.kernel.AbstractAgent;
  * @author Fabien Michel
  * @since MaDKit 5.0.0.9
  * @version 0.92
- * 
  */
 public class MadkitToolBar extends JToolBar {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -700298646422969523L;
+    private static final long serialVersionUID = -700298646422969523L;
 
-	/**
-	 * Creates a {@link JToolBar} featuring: 
-	 * <ul>
-	 * <li> {@link KernelAction#EXIT}
-	 * <li> {@link KernelAction#COPY}
-	 * <li> {@link KernelAction#RESTART}
-	 * <li> {@link KernelAction#LAUNCH_NETWORK}
-	 * <li> {@link KernelAction#STOP_NETWORK}
-	 * <li> {@link GUIManagerAction#CONNECT_TO_IP}
-	 * <li> {@link GlobalAction#JCONSOLE}
-	 * <li> {@link KernelAction#CONSOLE}
-	 * <li> {@link GlobalAction#DEBUG}
-	 * <li> {@link GlobalAction#LOAD_LOCAL_DEMOS}
-	 * <li> {@link GlobalAction#LOAD_JAR_FILE}
-	 * <li> {@link GUIManagerAction#ICONIFY_ALL}
-	 * <li> {@link GUIManagerAction#DEICONIFY_ALL}
-	 * <li> {@link GUIManagerAction#KILL_AGENTS}
-	 * </ul>
-	 * 
-	 * @param agent the agent for which this menu is created
-	 */
-	public MadkitToolBar(final AbstractAgent agent) {
-		super("MaDKit");
-		SwingUtil.addMaDKitActionsTo(this, agent);
-		SwingUtil.scaleAllAbstractButtonIconsOf(this, 20);
-	}
+    /**
+     * Creates a {@link JToolBar} featuring:
+     * <ul>
+     * <li>{@link KernelAction#EXIT}
+     * <li>{@link KernelAction#COPY}
+     * <li>{@link KernelAction#RESTART}
+     * <li>{@link KernelAction#LAUNCH_NETWORK}
+     * <li>{@link KernelAction#STOP_NETWORK}
+     * <li>{@link GUIManagerAction#CONNECT_TO_IP}
+     * <li>{@link GlobalAction#JCONSOLE}
+     * <li>{@link KernelAction#CONSOLE}
+     * <li>{@link GlobalAction#DEBUG}
+     * <li>{@link GlobalAction#LOAD_LOCAL_DEMOS}
+     * <li>{@link GlobalAction#LOAD_JAR_FILE}
+     * <li>{@link GUIManagerAction#ICONIFY_ALL}
+     * <li>{@link GUIManagerAction#DEICONIFY_ALL}
+     * <li>{@link GUIManagerAction#KILL_AGENTS}
+     * </ul>
+     * 
+     * @param agent
+     *            the agent for which this menu is created
+     */
+    public MadkitToolBar(final AbstractAgent agent) {
+	super("MaDKit");
+	SwingUtil.addMaDKitActionsTo(this, agent);
+	SwingUtil.scaleAllAbstractButtonIconsOf(this, 20);
+    }
 }

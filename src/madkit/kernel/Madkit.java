@@ -81,7 +81,7 @@ import madkit.util.MadkitProperties;
 
 public final class Madkit {
 
-    final static MadkitProperties DEFAULT_CONFIG = new MadkitProperties();
+    static final MadkitProperties DEFAULT_CONFIG = new MadkitProperties();
     static {
 	// There are problem when awt components are initialized by helper threads... This solves them
 	LoggingAction.CGR_WARNINGS.getActionInfo();
@@ -101,18 +101,18 @@ public final class Madkit {
 	    e.printStackTrace();
 	}
     }
-    final public static String VERSION = DEFAULT_CONFIG.getProperty("madkit.version");
-    final public static String BUILD_ID = DEFAULT_CONFIG.getProperty("build.id");
-    final public static String WEB = DEFAULT_CONFIG.getProperty("madkit.web");
+    public static final String VERSION = DEFAULT_CONFIG.getProperty("madkit.version");
+    public static final String BUILD_ID = DEFAULT_CONFIG.getProperty("build.id");
+    public static final String WEB = DEFAULT_CONFIG.getProperty("madkit.web");
 
-    private final static String MDK_LOGGER_NAME = "[* MADKIT *] ";
-    final static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
-    final static DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME.withZone(ZoneId.systemDefault());
+    private static final String MDK_LOGGER_NAME = "[* MADKIT *] ";
+    static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
+    static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME.withZone(ZoneId.systemDefault());
 
-    final private MadkitProperties madkitConfig = new MadkitProperties();
+    private final MadkitProperties madkitConfig = new MadkitProperties();
     // private Element madkitXMLConfigFile = null;
     // private FileHandler madkitLogFileHandler;
-    final private MadkitKernel myKernel;
+    private final MadkitKernel myKernel;
     private Logger logger;
     // TODO Remove unused code found by UCDetector
     // String cmdLine;
@@ -267,9 +267,6 @@ public final class Madkit {
 
     }
 
-    /**
-     * 
-     */
     private void loadJarFileArguments() {
 	String[] options = null;
 	logger.fine("** LOADING JAR FILE ARGUMENTS **");
@@ -328,9 +325,6 @@ public final class Madkit {
 	return false;
     }
 
-    /**
-     * 
-     */
     private void startKernel() {
 	// starting the kernel agent and waiting the end of its activation
 	logger.fine("** LAUNCHING KERNEL AGENT **");
@@ -342,9 +336,6 @@ public final class Madkit {
 	return myKernel.toString() + " @ " + myKernel.getKernelAddress();
     }
 
-    /**
-     * 
-     */
     private void printWelcomeString() {
 	if (!(LevelOption.madkitLogLevel.getValue(madkitConfig) == Level.OFF)) {
 	    System.out.println("\n\t---------------------------------------" + "\n\t                MaDKit" + "\n\t           version: " + VERSION + "\n\t        build-id: "

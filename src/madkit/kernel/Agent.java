@@ -67,8 +67,8 @@ public class Agent extends AbstractAgent{
 
 	Thread myThread;
 
-	final private AgentExecutor agentExecutor;
-	final private boolean isDaemon;
+	private final AgentExecutor agentExecutor;
+	private final boolean isDaemon;
 
 	/**
 	 * 
@@ -145,9 +145,7 @@ public class Agent extends AbstractAgent{
 		return agentExecutor;
 	}
 	
-	/**
-	 * @param e
-	 */
+	@Override
 	final void suicide(SelfKillException e) {
 		getAgentExecutor().getLiveProcess().cancel(false);
 		getAgentExecutor().getEndProcess().cancel(false);
@@ -210,7 +208,7 @@ public class Agent extends AbstractAgent{
 		getLogger().talk("\n\n And in fact, I am the simplest agent ever\n because I simply do nothing at all :)\n\n");
 		pause(4000);
 		int i = (int) (Math.random()*3000+4500);
-		getLogger().info("I will quit in "+i+" milliseconds... Bye !");
+		getLogger().info(() -> "I will quit in "+i+" milliseconds... Bye !");
 		pause(i);
 	}
 

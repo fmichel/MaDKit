@@ -48,9 +48,6 @@ import java.util.Map;
  */
 public class MapMessage<K, V> extends ObjectMessage<Map<K, V>> {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = -6301488493002636831L;
 
     /**

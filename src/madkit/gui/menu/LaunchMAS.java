@@ -50,55 +50,51 @@ import madkit.kernel.AbstractAgent;
 import madkit.kernel.MadkitClassLoader;
 
 /**
- * This class builds a {@link JMenu} containing all the 
- * MAS which have been found on the class path, so that they can be
+ * This class builds a {@link JMenu} containing all the MAS which have been found on the class path, so that they can be
  * individually launched according to their configuration.
  * 
  * @author Fabien Michel
  * @since MaDKit 5.0.0.16
  * @version 0.9
- * 
  */
-public class LaunchMAS extends ClassPathSensitiveMenu {
+public class LaunchMAS extends ClassPathSensitiveMenu {// NOSONAR
 
-	/**
-	 * 
-	 */
-	private static final long	serialVersionUID	= -3716696545105934911L;
-	final private AbstractAgent myAgent;
+    private static final long serialVersionUID = -8245417381074154169L;
+    private final transient AbstractAgent myAgent;
 
-	/**
-	 * Builds a new menu.
-	 * @param agent the agent according 
-	 * to which this menu should be created, i.e. the
-	 * agent that will be responsible of the launch.
-	 */
-	public LaunchMAS(final AbstractAgent agent) {
-		super(Words.MAS.toString());
-		setMnemonic(KeyEvent.VK_S);
-		myAgent = agent;
-		update();
+    /**
+     * Builds a new menu.
+     * 
+     * @param agent
+     *            the agent according to which this menu should be created, i.e. the agent that will be responsible of the
+     *            launch.
+     */
+    public LaunchMAS(final AbstractAgent agent) {
+	super(Words.MAS.toString());
+	setMnemonic(KeyEvent.VK_S);
+	myAgent = agent;
+	update();
+    }
+
+    private void addTomenu(Action a, JMenu subMenu, MASModel demo) {
+	JMenuItem name = new JMenuItem(a);
+	String displayedName = demo.getName();
+	name.setText(displayedName);
+	name.setIcon(SwingUtil.MADKIT_LOGO_SMALL);
+	name.setToolTipText(demo.toString());
+	name.setAccelerator(null);
+	name.setActionCommand(displayedName);
+	subMenu.add(name);
+    }
+
+    public void update() {
+	if (!myAgent.isAlive())
+	    return;
+	removeAll();
+	for (final MASModel dm : MadkitClassLoader.getAvailableConfigurations()) {
+	    addTomenu(KernelAction.LAUNCH_MAS.getActionFor(myAgent, dm), this, dm);
 	}
-
-	private void addTomenu(Action a, JMenu subMenu, MASModel demo) {
-		JMenuItem name = new JMenuItem(a);
-		String displayedName = demo.getName();
-		name.setText(displayedName);
-		name.setIcon(SwingUtil.MADKIT_LOGO_SMALL);
-		name.setToolTipText(demo.toString());
-		name.setAccelerator(null);
-		name.setActionCommand(displayedName);
-		subMenu.add(name);
-	}
-
-	public void update() {
-		if(! myAgent.isAlive())
-			return;
-		removeAll();
-		for(final MASModel dm : MadkitClassLoader.getAvailableConfigurations()){
-			addTomenu(KernelAction.LAUNCH_MAS.getActionFor(myAgent, dm),this,dm);
-		}
-		setVisible(getItemCount() != 0);
-	}
+	setVisible(getItemCount() != 0);
+    }
 
 }

@@ -71,10 +71,10 @@ public enum SchedulingAction {
 	PAUSE(VK_DOLLAR),
 	SHUTDOWN(VK_DOLLAR);
 	
-	final static private ResourceBundle messages = I18nUtilities.getResourceBundle(SchedulingAction.class.getSimpleName());
+	private static final ResourceBundle messages = I18nUtilities.getResourceBundle(SchedulingAction.class.getSimpleName());
 
 	private ActionInfo actionInfo;
-	final private int keyEvent;
+	private final int keyEvent;
 
 	private SchedulingAction(int keyEvent){
 		this.keyEvent = keyEvent;

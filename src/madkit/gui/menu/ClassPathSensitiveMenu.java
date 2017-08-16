@@ -44,50 +44,46 @@ import javax.swing.JMenu;
 import madkit.kernel.MadkitClassLoader;
 
 /**
- * The super class of MaDKit menu which have to be update when
- * the class path is changed or updated with new classes or files.
+ * The super class of MaDKit menu which have to be update when the class path is changed or updated with new classes or
+ * files.
  * 
  * @author Fabien Michel
  * @since MadKit 5.0.2
  * @version 0.9
- * 
  */
 @SuppressWarnings("serial")
-public abstract class ClassPathSensitiveMenu extends JMenu {
+public abstract class ClassPathSensitiveMenu extends JMenu {// NOSONAR
 
-	final static private Set<ClassPathSensitiveMenu> menus = new HashSet<>();//TODO Map 
+    private static final Set<ClassPathSensitiveMenu> menus = new HashSet<>();
 
-	/**
-	 * Builds a new menu.
-	 * 
-	 * @param title the title to use
-	 */
-	public ClassPathSensitiveMenu(String title) {
-		super(title);
-		synchronized (menus) {
-			menus.add(this);
-		}
+    /**
+     * Builds a new menu.
+     * 
+     * @param title
+     *            the title to use
+     */
+    public ClassPathSensitiveMenu(String title) {
+	super(title);
+	synchronized (menus) {
+	    menus.add(this);
 	}
+    }
 
-	/**
-	 * Called by the kernel when the class path is modified.
-	 * This is for instance the case when the 
-	 * {@link MadkitClassLoader#loadUrl(java.net.URL)}
-	 * is used.
-	 */
-	public static void updateAllMenus() {
-		synchronized (menus) {
-			for (ClassPathSensitiveMenu menu : menus) {
-				menu.update();
-			}
-		}
+    /**
+     * Called by the kernel when the class path is modified. This is for instance the case when
+     * {@link MadkitClassLoader#loadUrl(java.net.URL)} is used.
+     */
+    public static void updateAllMenus() {
+	synchronized (menus) {
+	    for (ClassPathSensitiveMenu menu : menus) {
+		menu.update();
+	    }
 	}
-	
-	/**
-	 * Called by {@link #updateAllMenus()} when the class path is modified.
-	 * This is for instance the case when the 
-	 * {@link MadkitClassLoader#loadUrl(java.net.URL)}
-	 * is used.
-	 */
-	public abstract void update();
+    }
+
+    /**
+     * Called by {@link #updateAllMenus()} when the class path is modified. This is for instance the case when
+     * {@link MadkitClassLoader#loadUrl(java.net.URL)} is used.
+     */
+    public abstract void update();
 }

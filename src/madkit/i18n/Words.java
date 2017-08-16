@@ -54,7 +54,7 @@ public enum Words {
 	INITIAL_CONFIG,
 	RELOAD, DIRECTORY, MAS, PAUSE, NEW_MSG, ABOUT, HELP, TUTORIALS, LAST_AVAILABLE, CREATED, DISPLAY;
 	
-	final static ResourceBundle messages = I18nUtilities.getResourceBundle(Words.class.getSimpleName());
+	static final ResourceBundle messages = I18nUtilities.getResourceBundle(Words.class.getSimpleName());
 	
 	public String toString() {
 		return messages.getString(name());

@@ -36,18 +36,17 @@ knowledge of the CeCILL-C license and that you accept its terms.
  */
 package madkit.kernel;
 
-
 /**
  * The kernel used when the agent is terminated, i.e. for debugging purpose.
  * 
  * @author Fabien Michel
  * @since MaDKit 5.0.0.12
  * @version 1.1
- * 
  */
-final class TerminatedKernel extends FakeKernel{
+final class TerminatedKernel extends FakeKernel {
 
-	final String buildFailString(final AbstractAgent agent){
-		return agent != null ? agent.getName() : ""+AbstractAgent.State.TERMINATED;
-	}
+    @Override
+    final String buildFailString(final AbstractAgent agent) {
+	return agent != null ? agent.getName() : "" + AbstractAgent.State.TERMINATED;
+    }
 }

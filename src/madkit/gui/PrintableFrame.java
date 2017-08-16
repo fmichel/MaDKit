@@ -44,29 +44,28 @@ import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 
-
 /**
- * Interface that adds the printing feature to MDK frames 
+ * Interface that adds the printing feature to MDK frames
  * 
-* @author Fabien Michel
-* @since MaDKit 5.1.1
-*/
+ * @author Fabien Michel
+ * @since MaDKit 5.1.1
+ */
 public interface PrintableFrame extends Printable {
 
-	@Override
-	default public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
-		if (pageIndex > 0) { /* We have only one page, and 'page' is zero-based */
-			return NO_SUCH_PAGE;
-		}
-      Graphics2D g2d = (Graphics2D)graphics;
-      final double imageableX = pageFormat.getImageableX();
-		g2d.translate(imageableX, pageFormat.getImageableY());
-		
-		getPrintableContainer().printAll(graphics); 
-		return PAGE_EXISTS;	
+    @Override
+    public default int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
+	if (pageIndex > 0) { /* We have only one page, and 'page' is zero-based */
+	    return NO_SUCH_PAGE;
 	}
-	
-   default public Container getPrintableContainer(){
-   	return (Container) this;
-   }
+	Graphics2D g2d = (Graphics2D) graphics;
+	final double imageableX = pageFormat.getImageableX();
+	g2d.translate(imageableX, pageFormat.getImageableY());
+
+	getPrintableContainer().printAll(graphics);
+	return PAGE_EXISTS;
+    }
+
+    public default Container getPrintableContainer() {
+	return (Container) this;
+    }
 }

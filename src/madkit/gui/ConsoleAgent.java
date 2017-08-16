@@ -56,9 +56,9 @@ import madkit.kernel.AbstractAgent;
  */
 public class ConsoleAgent extends AbstractAgent {
 
-    private static final PrintStream systemOut = System.out;
-    private static final PrintStream systemErr = System.err;
-    
+    private static final PrintStream systemOut = System.out;// NOSONAR
+    private static final PrintStream systemErr = System.err;// NOSONAR
+
     public ConsoleAgent() {
 	createGUIOnStartUp();
     }
@@ -82,7 +82,6 @@ public class ConsoleAgent extends AbstractAgent {
 
 }
 
-
 class StreamCapturer extends OutputStream {
 
     private OutputPanel panel;
@@ -90,21 +89,21 @@ class StreamCapturer extends OutputStream {
     private List<Byte> bytesList;
 
     public StreamCapturer(OutputPanel consumer, PrintStream old) {
-        bytesList = new ArrayList<>(128);
-        this.capturedStream = old;
-        this.panel = consumer;
+	bytesList = new ArrayList<>(128);
+	this.capturedStream = old;
+	this.panel = consumer;
     }
 
     @Override
     public void write(int b) throws IOException {
 	capturedStream.write(b);
 	bytesList.add((byte) b);
-        if ((char) b == '\n') {
-            final Byte[] array = bytesList.toArray(new Byte[bytesList.size()]);
-            byte[] byteArray = new byte[array.length];
-	    IntStream.range(0, array.length).forEach(i -> byteArray [i] = array[i]);
+	if ((char) b == '\n') {
+	    final Byte[] array = bytesList.toArray(new Byte[bytesList.size()]);
+	    byte[] byteArray = new byte[array.length];
+	    IntStream.range(0, array.length).forEach(i -> byteArray[i] = array[i]);
 	    panel.writeToTextArea(new String(byteArray));
 	    bytesList.clear();
-        }
-    }        
+	}
+    }
 }

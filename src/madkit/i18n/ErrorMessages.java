@@ -51,9 +51,10 @@ public enum ErrorMessages {
 	CANT_CONNECT,
 	MUST_BE_LAUNCHED;
 	
-	final static ResourceBundle messages = I18nUtilities.getResourceBundle(ErrorMessages.class.getSimpleName());
+	static final ResourceBundle messages = I18nUtilities.getResourceBundle(ErrorMessages.class.getSimpleName());
 //	static ResourceBundle messages = I18nUtilities.getResourceBundle(ReturnCode.class);
 	
+	@Override
 	public String toString() {
 		return messages.getString(name())+" ";
 	}

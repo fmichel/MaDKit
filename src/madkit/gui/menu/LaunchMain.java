@@ -45,42 +45,38 @@ import madkit.action.GlobalAction;
 import madkit.kernel.MadkitClassLoader;
 
 /**
- * This class builds a {@link JMenu} containing all the 
- * agent classes containing a main method
+ * This class builds a {@link JMenu} containing all the agent classes containing a main method
  * 
  * @author Fabien Michel
  * @since MaDKit 5.0.1
  * @version 0.9
- * 
  */
-public class LaunchMain extends ClassPathSensitiveMenu {
+public class LaunchMain extends ClassPathSensitiveMenu {// NOSONAR
 
-	/**
-	 * 
-	 */
-	private static final long	serialVersionUID	= 752058124107737762L;
+    private static final long serialVersionUID = 752058124107737762L;
 
-	/**
-	 * Builds a new menu.
-	 * 
-	 * @param title the title to use
-	 */
-	public LaunchMain(final String title) {
-		super(title);
-		setMnemonic(KeyEvent.VK_A);
-		update();
+    /**
+     * Builds a new menu.
+     * 
+     * @param title
+     *            the title to use
+     */
+    public LaunchMain(final String title) {
+	super(title);
+	setMnemonic(KeyEvent.VK_A);
+	update();
+    }
+
+    @Override
+    public void update() {
+	removeAll();
+	for (final String string : MadkitClassLoader.getAgentsWithMain()) {
+	    JMenuItem name = new JMenuItem(GlobalAction.LAUNCH_MAIN);
+	    name.setActionCommand(string);
+	    name.setText(string);
+	    add(name);
 	}
-
-	@Override
-	public void update() {
-		removeAll();
-		for (final String string : MadkitClassLoader.getAgentsWithMain()) {
-			JMenuItem name = new JMenuItem(GlobalAction.LAUNCH_MAIN);
-			name.setActionCommand(string);
-			name.setText(string);
-			add(name);
-		}
-		setVisible(getItemCount() != 0);
-	}
+	setVisible(getItemCount() != 0);
+    }
 
 }

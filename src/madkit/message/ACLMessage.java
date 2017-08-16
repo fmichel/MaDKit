@@ -144,7 +144,7 @@ public class ACLMessage extends ActMessage // NO_UCD
 	private static final String		CONVERSATION_ID_KEY		= ":conversation-id";
 	private static final String		ENVELOPE_KEY				= ":envelope";
 
-	public final static List<String>			performatives				= new ArrayList<>(
+	public static final List<String>			performatives				= new ArrayList<>(
 																						22);
 	static { // initialization of the Vector of performatives
 		performatives.add("ACCEPT-PROPOSAL");

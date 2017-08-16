@@ -45,7 +45,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyVetoException;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -105,28 +104,28 @@ class GUIManagerAgent extends Agent {
 
     @SuppressWarnings("unchecked")
     @Override
-    protected void activate() {// TODO parallelize that
+    protected void activate() {
 	getLogger().setLevel(LevelOption.guiLogLevel.getValue(getMadkitConfig()));
 	try {
-	    agentFrameConstrutor = (Constructor<? extends AgentFrame>) MadkitClassLoader.getLoader().loadClass(getMadkitProperty(Option.agentFrameClass))
+	    agentFrameConstrutor = (Constructor<? extends AgentFrame>) MadkitClassLoader.getLoader().loadClass(getMadkitProperty(Option.agentFrameClass))// NOSONAR mcl must not be
+																			 // closed
 		    .getDeclaredConstructor(AbstractAgent.class);
 	}
 	catch(NoSuchMethodException | SecurityException | ClassCastException | ClassNotFoundException e1) {
-	    e1.printStackTrace();
+	    getLogger().severeLog("agent frame init :", e1);
 	    try {
 		agentFrameConstrutor = AgentFrame.class.getConstructor(AbstractAgent.class);
 	    }
 	    catch(NoSuchMethodException | SecurityException e) {
+		// just not possible
 	    }
 	}
-	// setThreadPriority(Thread.MAX_PRIORITY);
-	// setLogLevel(Level.ALL);
-	// requestRole(LocalCommunity.NAME, Groups.SYSTEM, Roles.GUI_MANAGER);//no need: I am a manager
+	setThreadPriority(Thread.MAX_PRIORITY);
 	if (!isDaemon()) {// use to detect desktop mode
 	    try {
 		buildUI();
 		if (MadkitProperties.JAVAWS_IS_ON)
-		    setMadkitProperty(BooleanOption.autoConnectMadkitWebsite.name(), "true");
+		    setMadkitProperty(BooleanOption.autoConnectMadkitWebsite, "true");
 	    }
 	    catch(HeadlessException e) {
 		headlessLog(e);
@@ -204,11 +203,6 @@ class GUIManagerAgent extends Agent {
 	    AgentFrame f = null;
 	    try {
 		f = agentFrameConstrutor.newInstance(agent);
-	    }
-	    catch(InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e1) {
-		e1.printStackTrace();
-	    }
-	    try {
 		agent.setupFrame(f);
 	    }
 	    catch(Exception e) {
@@ -217,34 +211,30 @@ class GUIManagerAgent extends Agent {
 	    }
 	    guis.put(agent, f);
 	    final AgentFrame af = f;
-	    SwingUtilities.invokeLater(new Runnable() {
+	    SwingUtilities.invokeLater(() -> {
+		if (desktopPane != null) {
+		    final JInternalFrame jf = buildInternalFrame(af);
+		    desktopPane.add(jf);
+		    jf.setDefaultCloseOperation(JInternalFrame.DO_NOTHING_ON_CLOSE);
+		    jf.addInternalFrameListener(new InternalFrameAdapter() {
 
-		@SuppressWarnings("null") // for af
-		public void run() {
-		    if (desktopPane != null) {
-			final JInternalFrame jf = buildInternalFrame(af);
-			desktopPane.add(jf);
-			jf.setDefaultCloseOperation(JInternalFrame.DO_NOTHING_ON_CLOSE);
-			jf.addInternalFrameListener(new InternalFrameAdapter() {
-
-			    @Override
-			    public void internalFrameClosing(InternalFrameEvent e) {
-				if (agent.isAlive()) {
-				    jf.setTitle("Closing " + agent.getName());
-				    AgentFrame.killAgent(agent, 2);
-				}
-				else {
-				    jf.dispose();
-				}
+			@Override
+			public void internalFrameClosing(InternalFrameEvent e) {
+			    if (agent.isAlive()) {
+				jf.setTitle("Closing " + agent.getName());
+				AgentFrame.killAgent(agent, 2);
 			    }
-			});
-			jf.setLocation(checkLocation(jf));
-			jf.setVisible(true);
-		    }
-		    else {
-			af.setLocation(checkLocation(af));
-			af.setVisible(true);
-		    }
+			    else {
+				jf.dispose();
+			    }
+			}
+		    });
+		    jf.setLocation(checkLocation(jf));
+		    jf.setVisible(true);
+		}
+		else {
+		    af.setLocation(checkLocation(af));
+		    af.setVisible(true);
 		}
 	    });
 	}
@@ -306,9 +296,8 @@ class GUIManagerAgent extends Agent {
 	}
 	else {
 	    dim = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
-	    l = new ArrayList<Container>(guis.values());
+	    l = new ArrayList<>(guis.values());
 	}
-	// dim.setSize(dim.width, dim.height-25);
 	Dimension size = c.getSize();
 	if (size.width > dim.width)
 	    size.width = dim.width;

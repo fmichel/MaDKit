@@ -77,7 +77,7 @@ final class OrganizationWarning extends MadkitWarning {
 	 * 
 	 */
 	private static final long	serialVersionUID	= -1096664441558015062L;
-	final private String			community, group, role;
+	private final String			community, group, role;
 
 	public OrganizationWarning(ReturnCode code, String community, String group, String role) {
 		super(code);

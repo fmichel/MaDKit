@@ -54,61 +54,55 @@ import madkit.kernel.MadkitClassLoader;
 import madkit.message.KernelMessage;
 
 /**
- * This class builds a {@link JMenu} containing all the 
- * MDK xml configuration files found on the class path.
- * If checked, a new MaDKit instance will be used for the
- * corresponding configuration.
+ * This class builds a {@link JMenu} containing all the MDK xml configuration files found on the class path. If checked,
+ * a new MaDKit instance will be used for the corresponding configuration.
  * 
  * @author Fabien Michel
  * @since MaDKit 5.0.2
  * @version 0.9
- * 
  */
-public class LaunchXMLConfigurations extends ClassPathSensitiveMenu {
+public class LaunchXMLConfigurations extends ClassPathSensitiveMenu {//NOSONAR
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3650744981788324553L;
-	private final AbstractAgent	myAgent;
+    private static final long serialVersionUID = -2768941338826062736L;
+    private final transient AbstractAgent myAgent;
 
-	/**
-	 * Builds a new menu.
-	 * @param title the title to use
-	 */
-	public LaunchXMLConfigurations(final AbstractAgent agent, final String title) {
-		super(title);
-		myAgent = agent;
-		setMnemonic(KeyEvent.VK_X);
-		update();
-	}
+    /**
+     * Builds a new menu.
+     * 
+     * @param title
+     *            the title to use
+     */
+    public LaunchXMLConfigurations(final AbstractAgent agent, final String title) {
+	super(title);
+	myAgent = agent;
+	setMnemonic(KeyEvent.VK_X);
+	update();
+    }
 
-	@Override
-	public void update() {
-		removeAll();
-		final JCheckBoxMenuItem cbox = new JCheckBoxMenuItem("+ MaDKit instance");
-		final Action a = new MDKAbstractAction(KernelAction.LAUNCH_XML.getActionInfo() ) {
-			private static final long	serialVersionUID	= 1L;
+    @Override
+    public void update() {
+	removeAll();
+	final JCheckBoxMenuItem cbox = new JCheckBoxMenuItem("+ MaDKit instance");
+	final Action a = new MDKAbstractAction(KernelAction.LAUNCH_XML.getActionInfo()) {
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if(myAgent.isAlive()){
-					myAgent.sendMessage(
-						LocalCommunity.NAME, 
-						Groups.SYSTEM, 
-						DefaultMaDKitRoles.GROUP_MANAGER_ROLE, 
-						new KernelMessage(KernelAction.LAUNCH_XML, e.getActionCommand(),cbox.getState()));
-				}
-			}
-		};
-		for (final String string : MadkitClassLoader.getXMLConfigurations()) {
-			JMenuItem name = new JMenuItem(a);
-			name.setActionCommand(string);
-			name.setText(string);
-			add(name);
+	    private static final long serialVersionUID = 1L;
+
+	    @Override
+	    public void actionPerformed(ActionEvent e) {
+		if (myAgent.isAlive()) {
+		    myAgent.sendMessage(LocalCommunity.NAME, Groups.SYSTEM, DefaultMaDKitRoles.GROUP_MANAGER_ROLE,
+			    new KernelMessage(KernelAction.LAUNCH_XML, e.getActionCommand(), cbox.getState()));
 		}
-		add(cbox);
-		setVisible(getItemCount() != 1);
+	    }
+	};
+	for (final String string : MadkitClassLoader.getXMLConfigurations()) {
+	    JMenuItem name = new JMenuItem(a);
+	    name.setActionCommand(string);
+	    name.setText(string);
+	    add(name);
 	}
+	add(cbox);
+	setVisible(getItemCount() != 1);
+    }
 
 }

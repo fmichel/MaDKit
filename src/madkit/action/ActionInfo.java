@@ -105,9 +105,6 @@ public class ActionInfo {
 	}
     }
 
-    /**
-     * 
-     */
     void setIcon(final String fileName) {
 	final URL imageUrl = getClass().getResource(IMAGE_DIR + fileName + ".png");
 	if (imageUrl != null) {

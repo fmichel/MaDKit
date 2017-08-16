@@ -37,7 +37,6 @@ knowledge of the CeCILL-C license and that you accept its terms.
 package madkit.gui.menu;
 
 import java.awt.Desktop;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
@@ -59,60 +58,51 @@ import madkit.kernel.Madkit;
  * @author Fabien Michel
  * @since MaDKit 5.0.0.17
  * @version 0.91
- * 
  */
 @SuppressWarnings("serial")
-final public class HelpMenu extends JMenu {
-	
-	private static final ImageIcon	HELP_ICON	= new ImageIcon(SwingUtil.class.getResource("images/help.png"));
+public final class HelpMenu extends JMenu {// NOSONAR
 
-	/**
-	 * An ABOUT listener which will be used for all MDK help menus
-	 */
-	final private static ActionListener ABOUT = new ActionListener() {
-		@SuppressWarnings("unused")
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			new AboutFrame();
-		}
-	};
-	
-	/**
-	 * The listener which will be used for all MDK help menus
-	 */
-	final private static ActionListener DOC_LINKS = new ActionListener() {
-		@Override
-		public void actionPerformed(ActionEvent e) {
-				try {
-					Desktop.getDesktop().browse(new URI(Madkit.WEB+"/"+e.getActionCommand()));
-				} catch (IOException | URISyntaxException e1) {
-					e1.printStackTrace();
-				}
-		}
-	};
+    private static final ImageIcon HELP_ICON = new ImageIcon(SwingUtil.class.getResource("images/help.png"));
 
-	public HelpMenu(){
-		super(Words.HELP.toString());
-		setMnemonic(KeyEvent.VK_E);
-		JMenuItem mi;
-		if (Desktop.isDesktopSupported()) {
-			final ImageIcon ii = KernelAction.CONNECT_WEB_REPO.getActionInfo().getSmallIcon();
-			mi = new JMenuItem("API",ii);
-			mi.addActionListener(DOC_LINKS);
-			mi.setActionCommand("repository/MaDKit-"+Madkit.VERSION+"/docs/api");
-			add(mi);
-			mi = new JMenuItem(Words.TUTORIALS.toString(),ii);
-			mi.addActionListener(DOC_LINKS);
-			mi.setActionCommand("tutorials");
-			add(mi);
-			mi = new JMenuItem("Forum",ii);
-			mi.addActionListener(DOC_LINKS);
-			mi.setActionCommand("forum");
-			add(mi);
-		}
-		mi = new JMenuItem(Words.ABOUT.toString(),HELP_ICON);
-		mi.setMnemonic(KeyEvent.VK_A);
-		mi.addActionListener(ABOUT);
-		add(mi);
+    /**
+     * An ABOUT listener which will be used for all MDK help menus
+     */
+    private static final ActionListener ABOUT = e -> new AboutFrame();
+
+    /**
+     * The listener which will be used for all MDK help menus
+     */
+    private static final ActionListener DOC_LINKS = e -> {
+	try {
+	    Desktop.getDesktop().browse(new URI(Madkit.WEB + "/" + e.getActionCommand()));
 	}
+	catch(IOException | URISyntaxException e1) {
+	    e1.printStackTrace();
+	}
+    };
+
+    public HelpMenu() {
+	super(Words.HELP.toString());
+	setMnemonic(KeyEvent.VK_E);
+	JMenuItem mi;
+	if (Desktop.isDesktopSupported()) {
+	    final ImageIcon ii = KernelAction.CONNECT_WEB_REPO.getActionInfo().getSmallIcon();
+	    mi = new JMenuItem("API", ii);
+	    mi.addActionListener(DOC_LINKS);
+	    mi.setActionCommand("repository/MaDKit-" + Madkit.VERSION + "/docs/api");
+	    add(mi);
+	    mi = new JMenuItem(Words.TUTORIALS.toString(), ii);
+	    mi.addActionListener(DOC_LINKS);
+	    mi.setActionCommand("tutorials");
+	    add(mi);
+	    mi = new JMenuItem("Forum", ii);
+	    mi.addActionListener(DOC_LINKS);
+	    mi.setActionCommand("forum");
+	    add(mi);
+	}
+	mi = new JMenuItem(Words.ABOUT.toString(), HELP_ICON);
+	mi.setMnemonic(KeyEvent.VK_A);
+	mi.addActionListener(ABOUT);
+	add(mi);
+    }
 }

@@ -102,28 +102,12 @@ public class GlobalAction {
     public static final BooleanAction DEBUG;
     static {
 	DEBUG = new BooleanAction(new ActionInfo("DEBUG", KeyEvent.VK_D, messages)) {
+
 	    @Override
 	    public void onUpdate(boolean isSelected) {
 		AgentLogger.setAllLogLevels(isSelected ? Level.ALL : Level.INFO);
 	    }
 	};
-//	(new ActionInfo("DEBUG", KeyEvent.VK_D, messages)) {
-//
-//	    @Override
-//	    public void actionPerformed(ActionEvent e) {
-//		if (e == null) { // programmatically triggered
-//		    putValue(Action.SELECTED_KEY, !(boolean) getValue(Action.SELECTED_KEY));
-//		}
-//	    }
-//	    
-//	};
-//	DEBUG.addPropertyChangeListener(evt -> {
-//	    if (evt.getPropertyName().equals("SwingSelectedKey")) {
-//		final boolean selected = (boolean) DEBUG.getValue(Action.SELECTED_KEY);
-//		DEBUG.storeSelectedKeyToPreferences();
-//		AgentLogger.setAllLogLevels(selected ? Level.ALL : Level.INFO);
-//	    }
-//	});
     }
 
     /**
@@ -218,7 +202,7 @@ public class GlobalAction {
 	public void actionPerformed(ActionEvent e) {
 	    File f = new File("demos");
 	    if (!(f.exists() && f.isDirectory())) {
-		for (URL url : MadkitClassLoader.getLoader().getURLs()) {
+		for (URL url : MadkitClassLoader.getLoader().getURLs()) {// NOSONAR do not close it !
 		    if (url.getFile().endsWith("madkit-" + Madkit.VERSION + ".jar")) {
 			try {
 			    f = new File(Paths.get(url.toURI()).getParent().toString(), "demos");

@@ -59,7 +59,7 @@ class CGRSynchro extends ObjectMessage<AgentAddress> {
 //		LEAVE_ORG		
 		}
 	
-	final private Code code;
+	private final Code code;
 
 	/**
 	 * @param code
@@ -91,8 +91,8 @@ class RequestRoleSecure extends ObjectMessage<Object>{
 	 * 
 	 */
 	private static final long	serialVersionUID	= 1661974372588706717L;
-	final private AgentAddress	requester;
-	final private String	roleName;
+	private final AgentAddress	requester;
+	private final String	roleName;
 
 	public RequestRoleSecure(AgentAddress requester, String roleName, Object key) {
 		super(key);

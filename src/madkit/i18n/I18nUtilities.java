@@ -50,7 +50,7 @@ public class I18nUtilities {
 
 	public static String i18nDirectory = "madkit/i18n/";
 	
-	public final static ResourceBundle getResourceBundle(String baseName){
+	public static final ResourceBundle getResourceBundle(String baseName){
 			return ResourceBundle.getBundle(i18nDirectory+baseName);
 	}
 	

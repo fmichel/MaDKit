@@ -49,71 +49,71 @@ import java.util.Hashtable;
 
 public class ActMessage extends madkit.kernel.Message {
 
-	private static final long				serialVersionUID	= -2556927686645807800L;
-	protected String							action;
-	protected final Hashtable<String, Object>	fields;
-	String										content;
+    private static final long serialVersionUID = -2556927686645807800L;
+    protected String action;
+    protected final Hashtable<String, Object> fields;
+    String content;
 
-	/** Constructor for GenericMessage class */
-	public ActMessage(String actiontype) {
-		action = actiontype;
-		fields = new Hashtable<>();
-	}
+    /** Constructor for GenericMessage class */
+    public ActMessage(String actiontype) {
+	action = actiontype;
+	fields = new Hashtable<>();
+    }
 
-	public ActMessage(String actiontype, String content) {
-		this(actiontype);
-		this.content = content;
-	}
+    public ActMessage(String actiontype, String content) {
+	this(actiontype);
+	this.content = content;
+    }
 
-	public ActMessage(String actiontype, Object o) {
-		this(actiontype);
-		setObject(o);
-	}
+    public ActMessage(String actiontype, Object o) {
+	this(actiontype);
+	setObject(o);
+    }
 
-	public ActMessage(String actiontype, String content, Object o) {
-		this(actiontype);
-		this.content = content;
-		setObject(o);
-	}
+    public ActMessage(String actiontype, String content, Object o) {
+	this(actiontype);
+	this.content = content;
+	setObject(o);
+    }
 
-	public String getAction() {
-		return action;
-	}
+    public String getAction() {
+	return action;
+    }
 
-	public String getContent() {
-		return content;
-	}
+    public String getContent() {
+	return content;
+    }
 
-	public void setContent(String s) {
-		content = s;
-	}
+    public void setContent(String s) {
+	content = s;
+    }
 
-	public Object getObject() {
-		return fields.get("object");
-	}
+    public Object getObject() {
+	return fields.get("object");
+    }
 
-	public void setObject(Object o) {
-		fields.put("object", o);
-	}
+    public void setObject(Object o) {
+	fields.put("object", o);
+    }
 
-	public Enumeration<String> getKeys() {
-		return fields.keys();
-	}
+    public Enumeration<String> getKeys() {
+	return fields.keys();
+    }
 
-	public void setField(String key, Object value) {
-		fields.put(key, value);
-	}
+    public void setField(String key, Object value) {
+	fields.put(key, value);
+    }
 
-	public Object getFieldValue(String key) {
-		return fields.get(key);
-	}
+    public Object getFieldValue(String key) {
+	return fields.get(key);
+    }
 
-	public String getInReplyTo() {
-		return (String) getFieldValue(":in-reply-to");
-	}
+    public String getInReplyTo() {
+	return (String) getFieldValue(":in-reply-to");
+    }
 
-	public void setInReplyTo(String s) {
-		setField(":in-reply-to", s);
-	}
+    public void setInReplyTo(String s) {
+	setField(":in-reply-to", s);
+    }
 
 }

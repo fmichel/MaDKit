@@ -107,9 +107,9 @@ public enum KernelAction {
     CONNECT_TO_IP(VK_DOLLAR);
 
     private ActionInfo actionInfo;
-    final private int keyEvent;
+    private final int keyEvent;
 
-    final static private ResourceBundle messages = I18nUtilities.getResourceBundle(KernelAction.class.getSimpleName());
+    private static final ResourceBundle messages = I18nUtilities.getResourceBundle(KernelAction.class.getSimpleName());
 
     private KernelAction(int keyEvent) {
 	this.keyEvent = keyEvent;

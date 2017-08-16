@@ -38,10 +38,9 @@ package madkit.message.hook;
 
 import madkit.kernel.AbstractAgent;
 
-
 /**
- * A message which is sent to agents that have requested 
- * a hook on {@link HookMessage.AgentActionEvent#AGENT_STARTED} or {@link HookMessage.AgentActionEvent#AGENT_TERMINATED}
+ * A message which is sent to agents that have requested a hook on {@link HookMessage.AgentActionEvent#AGENT_STARTED} or
+ * {@link HookMessage.AgentActionEvent#AGENT_TERMINATED}
  * 
  * @author Fabien Michel
  * @since MadKit 5.0.0.19
@@ -50,38 +49,38 @@ import madkit.kernel.AbstractAgent;
  */
 public class AgentLifeEvent extends HookMessage {
 
-	/**
-	 * 
-	 */
-	private static final long	serialVersionUID	= -5737575514238878308L;
-	final private AbstractAgent	 source;
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -5737575514238878308L;
+    private final AbstractAgent source;
 
-	public AgentLifeEvent(AgentActionEvent agentAction, AbstractAgent agent) {
-		super(agentAction);
-		source = agent;
-	}
+    public AgentLifeEvent(AgentActionEvent agentAction, AbstractAgent agent) {
+	super(agentAction);
+	source = agent;
+    }
 
-	/**
-	 * The agent which is related to this event
-	 * 
-	 * @return the source agent of the event
-	 */
-	public AbstractAgent getSource() {
-		return source;
-	}
-	
-	/**
-	 * Return the ID of the agent, i.e. its hashCode value
-	 * 
-	 * @return the ID of the agent
-	 */
-	String getSourceAgentID(){
-		return ""+source.hashCode();
-	}
-	
-	@Override
-	public String toString() {
-		return super.toString()+" from "+source;
-	}
-	
+    /**
+     * The agent which is related to this event
+     * 
+     * @return the source agent of the event
+     */
+    public AbstractAgent getSource() {
+	return source;
+    }
+
+    /**
+     * Return the ID of the agent, i.e. its hashCode value
+     * 
+     * @return the ID of the agent
+     */
+    String getSourceAgentID() {
+	return "" + source.hashCode();
+    }
+
+    @Override
+    public String toString() {
+	return super.toString() + " from " + source;
+    }
+
 }

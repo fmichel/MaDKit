@@ -1,8 +1,9 @@
-#MaDKit: Multiagent Development Kit
+MaDKit: Multiagent Development Kit
+================================================
 
-MaDKit is an open source multiagent-based development platform written in Java.
+MaDKit is an open source multiagent-based software written in Java.
 
-MaDKit 5.x is designed as a lightweight software library for developing distributed applications and simulations using the multiagent paradigm.
+MaDKit-5 is designed as a lightweight software library for developing distributed applications and simulations using the multiagent paradigm.
 
 ### Features
 
@@ -17,6 +18,8 @@ MaDKit 5.x is designed as a lightweight software library for developing distribu
 
 In contrast to conventional approaches, which are mostly agent-centered, MaDKit follows an organization-centered approach ([OCMAS][1]): There is no predefnied agent model in MaDKit. 
 
+Especially, MaDKit does not enforce any consideration about the internal structure of agents, thus allowing a developer to freely implements its own agent architectures. 
+
 So, MaDKit is built upon the AGR (Agent/Group/Role) organizational model: Agents play roles in groups and thus create artificial societies.
  
 [1]: http://www.lirmm.fr/~fmichel/publi/pdfs/ferber04ocmas.pdf
@@ -24,10 +27,10 @@ So, MaDKit is built upon the AGR (Agent/Group/Role) organizational model: Agents
 ## More information
 
 * [Official Homepage](http://www.madkit.net)
-* [Getting started](http://www.madkit.net/madkit/README.html)
-* [Documentation](http://www.madkit.net/madkit/documents.php)
 * [API Reference](http://www.madkit.net/madkit/docs/api)
 * [Tutorials](http://www.madkit.net/madkit/tutorials)
+* [Getting started](http://www.madkit.net/madkit/README.html)
+* [Documentation](http://www.madkit.net/madkit/documents.php)
 * [Forum](http://www.madkit.net/madkit/forum)
 
 ## Contributing

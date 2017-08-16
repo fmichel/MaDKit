@@ -67,8 +67,8 @@ import org.junit.Test;
 
 public class OrgErrorMessagingTest extends JunitMadkit {
 
-	final static String OTHER = "other";
-	final static String UNKNOWN = "unknown";
+	static final String OTHER = "other";
+	static final String UNKNOWN = "unknown";
 
 	@Test
 	public void sendMessageTesting() {

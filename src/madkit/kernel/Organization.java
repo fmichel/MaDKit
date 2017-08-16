@@ -54,179 +54,160 @@ import madkit.i18n.ErrorMessages;
  * @since MaDKit 3.0
  * @version 5.1
  */
-final class Organization extends ConcurrentHashMap <String, Group>{
+final class Organization extends ConcurrentHashMap<String, Group> {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1547623313555380703L;
-	private final Logger logger;
-	private final String communityName;
-	private final transient MadkitKernel myKernel;
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1547623313555380703L;
+    private final transient Logger logger;
+    private final String communityName;
+    private final transient MadkitKernel myKernel;
 
-	/**
-	 * @return the myKernel
-	 */
-	final MadkitKernel getMyKernel() {
-		return myKernel;
+    /**
+     * @return the myKernel
+     */
+    final MadkitKernel getMyKernel() {
+	return myKernel;
+    }
+
+    /**
+     * @param setLogging
+     * @param string
+     */
+    Organization(final String string, final MadkitKernel madkitKernel) {
+	communityName = Objects.requireNonNull(string, ErrorMessages.C_NULL.toString());
+	myKernel = madkitKernel;
+	logger = myKernel.logger;
+	if (logger != null)
+	    logger.finer(getCGRString(communityName) + "created");
+    }
+
+    String getName() {
+	return communityName;
+    }
+
+    /**
+     * Group adding. Guarded by this in {@link MadkitKernel#createGroup(AbstractAgent, String, String, Gatekeeper, boolean)}
+     * 
+     * @param creator
+     * @param gatekeeper
+     * @param group
+     * @param groupName
+     * @param gatekeeper
+     * @param isDistributed
+     * @return true if the group has been created
+     */
+    boolean addGroup(final AbstractAgent creator, String group, Gatekeeper gatekeeper, boolean isDistributed) {
+	Group g = get(group);
+	if (g == null) {// There was no such group
+	    g = new Group(communityName, group, creator, gatekeeper, isDistributed, this);
+	    put(group, g);
+	    if (logger != null)
+		logger.fine(getCGRString(communityName, group) + "created by " + creator.getName() + "\n");
+	    return true;
 	}
+	if (logger != null)
+	    logger.finer(getCGRString(communityName, group) + "already exists: Creation aborted" + "\n");
+	return false;
+    }
 
-	/**
-	 * @param setLogging
-	 * @param string 
-	 */
-	Organization(final String string, final MadkitKernel madkitKernel) {
-		communityName = Objects.requireNonNull(string, ErrorMessages.C_NULL.toString());
-		myKernel = madkitKernel;
-//		logger = madkitKernel.getLogger();
-		logger = null;
-		if(logger != null)
-			logger.finer(getCGRString(communityName)+"created");
+    /**
+     * @param group
+     */
+    void removeGroup(final String group) {
+	synchronized (this) {
+	    if (logger != null)
+		logger.finer("Removing" + getCGRString(communityName, group));
+	    remove(group);
+	    checkEmptyness();
 	}
+    }
 
-	String getName(){
-		return communityName;
+    private void checkEmptyness() {
+	if (isEmpty()) {
+	    if (logger != null)
+		logger.finer("Removing" + getCGRString(communityName));
+	    myKernel.removeCommunity(communityName);
 	}
+    }
 
-	/**
-	 * Group adding. Guarded by this in {@link MadkitKernel#createGroup(AbstractAgent, String, String, Gatekeeper, boolean)}
-	 * 
-	 * @param creator
-	 * @param gatekeeper 
-	 * @param group 
-	 * @param groupName
-	 * @param gatekeeper
-	 * @param isDistributed 
-	 * @return true if the group has been created
-	 */
-	boolean addGroup(final AbstractAgent creator, String group, Gatekeeper gatekeeper, boolean isDistributed) {
-		Group g = get(group);
-		if(g == null){// There was no such group
-			g = new Group(communityName,group,creator,gatekeeper,isDistributed,this);
-			put(group,g);
-			if(logger != null)
-				logger.fine(getCGRString(communityName, group)+"created by "+creator.getName()+"\n");
-			return true;
+    /**
+     * @param theAgent
+     * @return all the groups that are distributed and that contained the agent
+     */
+    ArrayList<String> removeAgentFromAllGroups(final AbstractAgent theAgent) {
+	final ArrayList<String> groups = new ArrayList<>();
+	for (final Iterator<Map.Entry<String, Group>> e = this.entrySet().iterator(); e.hasNext();) {
+	    final Map.Entry<String, Group> entry = e.next();
+	    final Group g = entry.getValue();
+	    if (g.leaveGroup(theAgent) != null) {// at least present in one group
+		if (g.isDistributed()) {
+		    groups.add(entry.getKey());
 		}
-		if(logger != null)
-			logger.finer(getCGRString(communityName, group)+"already exists: Creation aborted"+"\n");
-		return false;
+		if (g.isEmpty())
+		    e.remove();
+	    }
 	}
+	return groups;
 
-	/**
-	 * @param group
-	 */
-	void removeGroup(final String group) {
-		synchronized (this) {
-			if (logger != null)
-				logger.finer("Removing" + getCGRString(communityName, group));
-			remove(group);
-			checkEmptyness();
+    }
+
+    /**
+     * @param b
+     * @return
+     */
+    Map<String, Map<String, Set<AgentAddress>>> getOrgMap(boolean global) {
+	Map<String, Map<String, Set<AgentAddress>>> export = new TreeMap<>();
+	for (Map.Entry<String, Group> org : entrySet()) {
+	    if (global || org.getValue().isDistributed()) {
+		export.put(org.getKey(), org.getValue().getGroupMap());
+	    }
+	}
+	return export;
+    }
+
+    /**
+     * @param hashMap
+     */
+    void importDistantOrg(Map<String, Map<String, Set<AgentAddress>>> map) {
+	for (String groupName : map.keySet()) {
+	    Group group = get(groupName);
+	    if (group == null) {
+		AgentAddress manager = null;
+		try {
+		    manager = map.get(groupName).get(madkit.agr.DefaultMaDKitRoles.GROUP_MANAGER_ROLE).iterator().next();
 		}
-	}
-
-	private void checkEmptyness() {
-		if(isEmpty()){
-			if(logger != null)
-				logger.finer("Removing"+getCGRString(communityName));
-			myKernel.removeCommunity(communityName);
+		catch(NullPointerException e) {// TODO a clean protocol to get the groupManager
+		    manager = map.get(groupName).values().iterator().next().iterator().next();
 		}
+		group = new Group(communityName, groupName, manager, this);
+		put(groupName, group);
+	    }
+	    group.importDistantOrg(map.get(groupName));
 	}
+    }
 
-	/**
-	 * @param theAgent
-	 * @return all the groups that are distributed and that contained the agent
-	 */
-	ArrayList<String> removeAgentFromAllGroups(final AbstractAgent theAgent) {
-		final ArrayList<String> groups = new ArrayList<>();
-		for (final Iterator<Map.Entry<String, Group>> e = this.entrySet().iterator();e.hasNext();) {
-			final Map.Entry<String, Group> entry = e.next();
-			final Group g = entry.getValue();
-			if(g.leaveGroup(theAgent) != null){//at least present in one group
-				if (g.isDistributed()) {
-					groups.add(entry.getKey());
-				}
-				if(g.isEmpty())
-					e.remove();
-			}
-		}
-		return groups;
-
+    /**
+     * @param kernelAddress2
+     */
+    void removeAgentsFromDistantKernel(KernelAddress kernelAddress2) {
+	for (Group group : values()) {
+	    if (group.isDistributed()) {
+		group.removeAgentsFromDistantKernel(kernelAddress2);
+	    }
 	}
+    }
 
-	/**
-	 * @param b
-	 * @return
-	 */
-	Map<String, Map<String, Set<AgentAddress>>> getOrgMap(boolean global) {
-		Map<String, Map<String, Set<AgentAddress>>> export = new TreeMap<>();
-		for (Map.Entry<String, Group> org : entrySet()) {
-			if (global || org.getValue().isDistributed()) {
-				export.put(org.getKey(), org.getValue().getGroupMap());
-			}
-		}
-		return export;
-	}
+    Logger getLogger() {
+	return logger;
+    }
 
-	/**
-	 * @param hashMap
-	 */
-	void importDistantOrg(Map<String, Map<String, Set<AgentAddress>>> map) {
-		for (String groupName : map.keySet()) {
-			Group group = get(groupName);
-			if(group == null){
-				AgentAddress manager = null;
-				try {
-					manager = map.get(groupName).get(madkit.agr.DefaultMaDKitRoles.GROUP_MANAGER_ROLE).iterator().next();
-				} catch (NullPointerException e) {//TODO a clean protocol to get the groupManager
-					manager = map.get(groupName).values().iterator().next().iterator().next();
-				}
-				group = new Group(communityName, groupName,manager, this);
-				put(groupName, group);
-			}
-			group.importDistantOrg(map.get(groupName));
-		}		
+    void destroy() {
+	for (final Group g : values()) {
+	    g.destroy();
 	}
-
-	/**
-	 * @param kernelAddress2
-	 */
-	void removeAgentsFromDistantKernel(KernelAddress kernelAddress2) {
-		for (Group group : values()) {
-			if (group.isDistributed()) {
-				group.removeAgentsFromDistantKernel(kernelAddress2);
-			}
-		}
-	}
-	
-	
-	Logger getLogger(){
-		return logger;
-	}
-
-	void destroy() {
-		for(final Group g : values()){
-			g.destroy();
-		}
-		myKernel.removeCommunity(communityName);
-	}
-
-	
+	myKernel.removeCommunity(communityName);
+    }
+    
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

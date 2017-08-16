@@ -40,8 +40,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ResourceBundle;
@@ -115,9 +113,6 @@ public abstract class SwingViewer extends Watcher {
 	createGUIOnStartUp();
     }
 
-    /**
-     * 
-     */
     private void initActionsAndGUIComponent() {
 	final ResourceBundle messages = I18nUtilities.getResourceBundle(SwingViewer.class.getSimpleName());
 	initRenderingIntervalComboBox(messages.getString("UPDATE_INTERVAL"));
@@ -268,7 +263,7 @@ public abstract class SwingViewer extends Watcher {
      */
     public JMenu getDisplayMenu() {
 	JMenu myMenu = new DisplayMenu(getFrame());
-	myMenu.remove(1);// TODO dirty hack
+	myMenu.remove(1);// remove background selection
 	myMenu.setMnemonic(KeyEvent.VK_O);
 	myMenu.add(new JCheckBoxMenuItem(rendering));
 	myMenu.add(new JCheckBoxMenuItem(synchroPainting));
@@ -316,7 +311,7 @@ public abstract class SwingViewer extends Watcher {
     private void initRenderingIntervalComboBox(String titleAndTooltip) {
 	final Integer[] defaultValues = { 1, 5, 10, 20, 50, 100, 200, 500, 1000, 5000, 10000, 50000, 100000, 200000, 500000 };
 	comboBox = new JComboBox<Integer>(defaultValues) {
-
+	    @Override
 	    public java.awt.Dimension getMaximumSize() {
 		return new Dimension(125, 38);
 	    }
@@ -325,10 +320,7 @@ public abstract class SwingViewer extends Watcher {
 	comboBox.setBorder(new TitledBorder(tatt[0]));
 	comboBox.setToolTipText(tatt[1]);
 	comboBox.setEditable(true);
-	comboBox.addActionListener(new ActionListener() {
-
-	    @Override
-	    public void actionPerformed(ActionEvent e) {
+	comboBox.addActionListener(e -> {
 		try {
 		    setRenderingInterval((int) comboBox.getSelectedItem());
 		}
@@ -336,7 +328,7 @@ public abstract class SwingViewer extends Watcher {
 		    comboBox.setSelectedItem(1);
 		}
 	    }
-	});
+	);
     }
 
     /**

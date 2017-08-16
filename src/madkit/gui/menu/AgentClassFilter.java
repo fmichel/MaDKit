@@ -37,21 +37,20 @@ knowledge of the CeCILL-C license and that you accept its terms.
 package madkit.gui.menu;
 
 /**
- * Filter to be used with {@link LaunchAgentsMenu}
- * It tests if a class should be used
+ * Filter to be used with {@link LaunchAgentsMenu} It tests if a class should be used
  * 
  * @author Fabien Michel
  * @since MadKit 5.0.0.22
  * @version 0.9
- * 
  */
-public abstract class AgentClassFilter {
+public interface AgentClassFilter {
 
-	/**
-	 * Test if a class should be used in a {@link LaunchAgentsMenu}
-	 * 
-	 * @param agentClass the full name of an agent class
-	 * @return true if this class should be included in the menu
-	 */
-	abstract public boolean accept(String agentClass);
+    /**
+     * Test if a class should be used in a {@link LaunchAgentsMenu}
+     * 
+     * @param agentClass
+     *            the full name of an agent class
+     * @return true if this class should be included in the menu
+     */
+    public boolean accept(String agentClass);
 }

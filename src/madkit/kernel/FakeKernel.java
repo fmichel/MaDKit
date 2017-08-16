@@ -127,7 +127,7 @@ class FakeKernel extends MadkitKernel{
 	}
 	
 	@Override
-	final public boolean isKernelOnline() {
+	public final boolean isKernelOnline() {
 		throw buildKernelException(null);
 	}
 	
@@ -182,12 +182,12 @@ class FakeKernel extends MadkitKernel{
 	 * @return
 	 */
 	@Override
-	final public KernelAddress getKernelAddress() {
+	public final KernelAddress getKernelAddress() {
 		throw buildKernelException(null);
 	}
 
 	@Override
-	final public MadkitProperties getMadkitConfig() {
+	public final MadkitProperties getMadkitConfig() {
 		return Madkit.DEFAULT_CONFIG;
 	}
 

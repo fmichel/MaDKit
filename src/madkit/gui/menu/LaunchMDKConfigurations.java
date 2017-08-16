@@ -47,49 +47,46 @@ import madkit.kernel.MadkitClassLoader;
 import madkit.util.MadkitProperties;
 
 /**
- * This class builds a {@link JMenu} containing all the 
- * MDK configuration files found on the class path.
- * Each item will launch a separate instance of MaDKit
- * using the corresponding configuration file
+ * This class builds a {@link JMenu} containing all the MDK configuration files found on the class path. Each item will
+ * launch a separate instance of MaDKit using the corresponding configuration file
  * 
  * @author Fabien Michel
  * @since MaDKit 5.0.2
  * @version 0.9
- * 
  */
-public class LaunchMDKConfigurations extends ClassPathSensitiveMenu {
+public class LaunchMDKConfigurations extends ClassPathSensitiveMenu {// NOSONAR
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3650744981788324553L;
+    private static final long serialVersionUID = -3650744981788324553L;
 
-	/**
-	 * Builds a new menu.
-	 * @param title the title to use
-	 */
-	public LaunchMDKConfigurations(final String title) {
-		super(title);
-		setMnemonic(KeyEvent.VK_C);
-		update();
+    /**
+     * Builds a new menu.
+     * 
+     * @param title
+     *            the title to use
+     */
+    public LaunchMDKConfigurations(final String title) {
+	super(title);
+	setMnemonic(KeyEvent.VK_C);
+	update();
+    }
+
+    @Override
+    public void update() {// TODO clean up xml related
+	removeAll();
+	for (final String string : MadkitClassLoader.getMDKFiles()) {
+	    try {
+		final MadkitProperties madkitProperties = new MadkitProperties();
+		madkitProperties.loadPropertiesFromFile(string);
+		JMenuItem name = new JMenuItem(GlobalAction.LAUNCH_MDK_CONFIG);
+		name.setActionCommand(string);
+		name.setText(string + " " + madkitProperties);
+		add(name);
+	    }
+	    catch(IOException e) {
+		e.printStackTrace();
+	    }
 	}
-
-	@Override
-	public void update() {//TODO clean up xml related
-		removeAll();
-		for (final String string : MadkitClassLoader.getMDKFiles()) {
-			try {
-				final MadkitProperties madkitProperties = new MadkitProperties();
-				madkitProperties.loadPropertiesFromFile(string);
-				JMenuItem name = new JMenuItem(GlobalAction.LAUNCH_MDK_CONFIG);
-				name.setActionCommand(string);
-				name.setText(string + " " + madkitProperties);
-				add(name);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		setVisible(getItemCount() != 0);
-	}
+	setVisible(getItemCount() != 0);
+    }
 
 }

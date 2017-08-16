@@ -44,39 +44,39 @@ import madkit.action.AgentAction;
 import madkit.kernel.AbstractAgent;
 
 /**
- * An out of the box menu called <i>Agent</i> for Madkit Agent GUI.
+ * An out of the box menu called <i>Agent</i> for MaDKit Agent GUI.
  * 
  * @author Fabien Michel
  * @since MaDKit 5.0.0.7
  * @version 0.9
  * 
  */
-public class AgentMenu extends JMenu {
+public class AgentMenu extends JMenu {// NOSONAR
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 7141072399712971987L;
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 7141072399712971987L;
 
-	/**
-	 * Creates a menu featuring: 
-	 * {@link AgentAction#RELOAD}, 
-	 * {@link AgentAction#LAUNCH_AGENT}, 
-	 * {@link AgentAction#KILL_AGENT}
-	 * 
-	 * @param agent the agent for which this menu is created
-	 */
-	public AgentMenu(final AbstractAgent agent) {
-		super("Agent");
-		setMnemonic(KeyEvent.VK_A);
-		try {
-			if(agent.getClass().getConstructor((Class<?>[]) null) != null){
-				add(AgentAction.RELOAD.getActionFor(agent));
-				add(AgentAction.LAUNCH_AGENT.getActionFor(agent,agent.getClass().getName(),0,true));
-			}
-		} catch (SecurityException | NoSuchMethodException e) {
-		}
-		add(AgentAction.KILL_AGENT.getActionFor(agent,agent));
+    /**
+     * Creates a menu featuring: {@link AgentAction#RELOAD}, {@link AgentAction#LAUNCH_AGENT},
+     * {@link AgentAction#KILL_AGENT}
+     * 
+     * @param agent
+     *            the agent for which this menu is created
+     */
+    public AgentMenu(final AbstractAgent agent) {
+	super("Agent");
+	setMnemonic(KeyEvent.VK_A);
+	try {
+	    if (agent.getClass().getConstructor((Class<?>[]) null) != null) {
+		add(AgentAction.RELOAD.getActionFor(agent));
+		add(AgentAction.LAUNCH_AGENT.getActionFor(agent, agent.getClass().getName(), 0, true));
+	    }
 	}
-	
+	catch(SecurityException | NoSuchMethodException e) {
+	}
+	add(AgentAction.KILL_AGENT.getActionFor(agent, agent));
+    }
+
 }

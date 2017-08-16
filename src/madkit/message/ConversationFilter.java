@@ -51,7 +51,7 @@ import madkit.kernel.Message;
 public class ConversationFilter implements MessageFilter {
 	
 	
-	final private ConversationID conversationID;
+	private final ConversationID conversationID;
 
 	/**
 	 * a new filter that acts according to the conversationID of a message.

@@ -46,99 +46,108 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.util.Arrays;
 
+import org.junit.Test;
+
 import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.Madkit.LevelOption;
-
-import org.junit.Test;
 
 /**
  * @author Fabien Michel
  * @since MaDKit 5.0.0.10
  * @version 0.9
- * 
  */
 
 public class MadkitClassLoaderTest extends JunitMadkit {
 
-	@Test
-	public void scanFolderForMDKConfigFileAgentClassesTest(){
-		addMadkitArgs(LevelOption.kernelLogLevel.toString(),"ALL");
-			launchTest(new AbstractAgent() {
-				@Override
-				protected void activate() {
-						assertFalse(MadkitClassLoader.getAllAgentClasses().isEmpty());
-						System.err.println(MadkitClassLoader.getMDKFiles());
-						//ugly : inside and outside Eclipse
-						assertTrue(1 == MadkitClassLoader.getMDKFiles().size() || 5 == MadkitClassLoader.getMDKFiles().size());
-						System.err.println(MadkitClassLoader.getXMLConfigurations());
-						assertTrue(3 == MadkitClassLoader.getXMLConfigurations().size() || 16 == MadkitClassLoader.getXMLConfigurations().size());
-			}});
-	}
+    @Test
+    public void scanFolderForMDKConfigFileAgentClassesTest() {
+	addMadkitArgs(LevelOption.kernelLogLevel.toString(), "ALL");
+	launchTest(new AbstractAgent() {
 
-	@Test
-	public void testLoadJarsFromPath() {
-		launchTest(new AbstractAgent() {
-			@Override
-			protected void activate() {
-				try {
-					MadkitClassLoader.getLoader().loadClass("madkit.pingpong.PingPong");
-					fail("Not thrown");
-				} catch (ClassNotFoundException e) {
-					e.printStackTrace();
-				}
-				System.err.println(System.getProperty("user.dir"));
-				 MadkitClassLoader.loadJarsFromDirectory(System.getProperty("user.dir") + File.separator + "test");
-				try {
-					assertNotNull(MadkitClassLoader.getLoader().loadClass("madkit.pingpong.PingPong"));
-				} catch (ClassNotFoundException e) {
-					fail(e.getMessage());
-				}
-			}
-		});
-	}
-	
-	@Test
-	public void testURLs() {
-		launchTest(new AbstractAgent() {
-			@Override
-			protected void activate() {
-					@SuppressWarnings("resource")
-					MadkitClassLoader mcl = MadkitClassLoader.getLoader();
-					try {
-						MadkitClassLoader.loadUrl(new File(".").toURI().toURL());
-						int n = mcl.getURLs().length;
-						MadkitClassLoader.loadUrl(new File(".").toURI().toURL());
-						assertEquals(n,mcl.getURLs().length);
-						System.err.println(Arrays.deepToString(mcl.getURLs()));
-					} catch (MalformedURLException e) {
-						e.printStackTrace();
-					}
-		}});
-	}
-	
-	
+	    @Override
+	    protected void activate() {
+		assertFalse(MadkitClassLoader.getAllAgentClasses().isEmpty());
+		System.err.println(MadkitClassLoader.getMDKFiles());
+		// ugly : inside and outside Eclipse
+		assertTrue(1 == MadkitClassLoader.getMDKFiles().size() || 5 == MadkitClassLoader.getMDKFiles().size());
+		System.err.println(MadkitClassLoader.getXMLConfigurations());
+		assertTrue(3 == MadkitClassLoader.getXMLConfigurations().size() || 16 == MadkitClassLoader.getXMLConfigurations().size());
+	    }
+	});
+    }
 
-	@Test
-	public void testLoadClassString() {
-		launchTest(new AbstractAgent() {
-			@Override
-			protected void activate() {
-				try {
-					assertNotNull(MadkitClassLoader.getLoader().loadClass("madkit.kernel.AbstractAgent"));
-				} catch (ClassNotFoundException e) {
-					fail(e.getMessage()); 
-				}
-				try {
-					MadkitClassLoader.getLoader().loadClass(null);
-					fail("Not thrown"); 
-				} catch (ClassNotFoundException e) {
-					fail("Not the one");
-					e.printStackTrace();
-				} catch (NullPointerException e) {
-					throw e;
-				}
-			}
-		}, ReturnCode.AGENT_CRASH);
-	}
+    @Test
+    public void testLoadJarsFromPath() {
+	launchTest(new AbstractAgent() {
+
+	    @Override
+	    protected void activate() {
+		try {
+		    MadkitClassLoader.getLoader().loadClass("madkit.pingpong.PingPong");
+		    fail("Not thrown");
+		}
+		catch(ClassNotFoundException e) {
+		    e.printStackTrace();
+		}
+		System.err.println(System.getProperty("user.dir"));
+		MadkitClassLoader.loadJarsFromDirectory(System.getProperty("user.dir") + File.separator + "test");
+		try {
+		    assertNotNull(MadkitClassLoader.getLoader().loadClass("madkit.pingpong.PingPong"));
+		}
+		catch(ClassNotFoundException e) {
+		    fail(e.getMessage());
+		}
+	    }
+	});
+    }
+
+    @Test
+    public void testURLs() {
+	launchTest(new AbstractAgent() {
+
+	    @Override
+	    protected void activate() {
+		@SuppressWarnings("resource")
+		MadkitClassLoader mcl = MadkitClassLoader.getLoader();
+		try {
+		    MadkitClassLoader.loadUrl(new File(".").toURI().toURL());
+		    int n = mcl.getURLs().length;
+		    MadkitClassLoader.loadUrl(new File(".").toURI().toURL());
+		    assertEquals(n, mcl.getURLs().length);
+		    System.err.println(Arrays.deepToString(mcl.getURLs()));
+		}
+		catch(MalformedURLException e) {
+		    e.printStackTrace();
+		}
+	    }
+	});
+    }
+
+    @Test
+    public void testLoadClassString() {
+	launchTest(new AbstractAgent() {
+
+	    @Override
+	    protected void activate() {
+		try {
+		    assertNotNull(MadkitClassLoader.getLoader().loadClass("madkit.kernel.AbstractAgent"));
+		}
+		catch(ClassNotFoundException e) {
+		    fail(e.getMessage());
+		}
+		try {
+		    MadkitClassLoader.getLoader().loadClass(null);
+		    fail("Not thrown");
+		}
+		catch(ClassNotFoundException e) {
+		    fail("Not the one");
+		    e.printStackTrace();
+		}
+		catch(NullPointerException e) {
+		    throw e;
+		}
+	    }
+	}, ReturnCode.AGENT_CRASH);
+    }
 
 }

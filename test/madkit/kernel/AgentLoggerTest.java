@@ -127,7 +127,7 @@ public class AgentLoggerTest extends JunitMadkit{
 
 	@Ignore 
 	@Test
-	public void logOnAndOffAndOnEquality() {//could be reactivated if I create an emptyLogger for performance
+	public void logOnAndOffAndOnEquality() {//TODO could be reactivated if I create an emptyLogger for performance
 		AgentLog a = new AgentLog(Level.ALL);
 		assertNotNull(a.logger);
 		Logger l = a.logger;

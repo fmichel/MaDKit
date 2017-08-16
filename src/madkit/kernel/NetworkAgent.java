@@ -198,9 +198,6 @@ final class NetworkAgent extends Agent {
 	stopNetwork();
     }
 
-    /**
-     * 
-     */
     private void stopNetwork() {
 	if (logger != null) {
 	    logger.info(() -> "\n\t\t\t\t----- " + getKernelAddress() + " network closed ------\n");

@@ -79,9 +79,10 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithmProperties extends Con
 	public SymmetricEncryptionType symmetricEncryptionType = SymmetricEncryptionType.DEFAULT;
 
 	/**
-	 * Signature type
+	 * Symmetric signature algorithm
 	 */
-	public SymmetricSignatureType signatureType=SymmetricSignatureType.HMAC_SHA_256;
+	public SymmetricSignatureType symmetricSignatureType=symmetricEncryptionType.getDefaultSignatureAlgorithm();
+	
 	
 	/**
 	 * Secure Random Type
@@ -98,8 +99,8 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithmProperties extends Con
 			throw new ConnectionException(new NullPointerException("ellipticCurveDiffieHellmanType"));
 		if (symmetricEncryptionType==null)
 			throw new ConnectionException(new NullPointerException("symmetricEncryptionType"));
-		if (signatureType==null)
-			throw new ConnectionException(new NullPointerException("signatureType"));
+		if (symmetricSignatureType==null)
+			throw new ConnectionException(new NullPointerException("symmetricSignatureType"));
 		if (secureRandomType==null)
 			throw new ConnectionException(new NullPointerException("secureRandomType"));
 	}

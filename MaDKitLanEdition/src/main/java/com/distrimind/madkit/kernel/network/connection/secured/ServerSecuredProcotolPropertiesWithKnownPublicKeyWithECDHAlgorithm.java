@@ -46,7 +46,11 @@ import com.distrimind.util.crypto.ASymmetricEncryptionType;
 import com.distrimind.util.crypto.ASymmetricKeyPair;
 import com.distrimind.util.crypto.ASymmetricSignatureType;
 import com.distrimind.util.crypto.AbstractSecureRandom;
+import com.distrimind.util.crypto.EllipticCurveDiffieHellmanType;
+import com.distrimind.util.crypto.SecureRandomType;
 import com.distrimind.util.crypto.SymmetricEncryptionType;
+import com.distrimind.util.crypto.SymmetricSignatureType;
+import com.distrimind.util.crypto.SymmetricSignerAlgorithm;
 
 import gnu.vm.jgnu.security.NoSuchAlgorithmException;
 
@@ -83,8 +87,8 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm
 	 * @throws NoSuchAlgorithmException
 	 */
 	public int generateAndAddEncryptionProfile(AbstractSecureRandom random, ASymmetricEncryptionType as_type,
-			SymmetricEncryptionType s_type) throws NoSuchAlgorithmException {
-		return addEncryptionProfile(as_type.getKeyPairGenerator(random).generateKeyPair(), as_type.getKeyPairGenerator(random).generateKeyPair(), s_type);
+			SymmetricEncryptionType s_type, SymmetricSignatureType symmetricSignatureType, EllipticCurveDiffieHellmanType ellipticCurveDiffieHellmanType) throws NoSuchAlgorithmException {
+		return addEncryptionProfile(as_type.getKeyPairGenerator(random).generateKeyPair(), s_type, symmetricSignatureType, ellipticCurveDiffieHellmanType);
 	}
 
 	/**
@@ -110,11 +114,10 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm
 	 */
 	public int generateAndAddEncryptionProfile(AbstractSecureRandom random, ASymmetricEncryptionType as_type,
 			long expirationTimeUTC, short asymmetricKeySizeBits, ASymmetricSignatureType signatureType,
-			SymmetricEncryptionType s_type, short symmetricKeySizeBits) throws NoSuchAlgorithmException {
+			SymmetricEncryptionType s_type, SymmetricSignatureType symmetricSignatureType, short symmetricKeySizeBits, EllipticCurveDiffieHellmanType ellipticCurveDiffieHellmanType) throws NoSuchAlgorithmException {
 		return addEncryptionProfile(
 				as_type.getKeyPairGenerator(random, asymmetricKeySizeBits, expirationTimeUTC).generateKeyPair(),
-				as_type.getKeyPairGenerator(random, asymmetricKeySizeBits, expirationTimeUTC).generateKeyPair(),
-				signatureType, s_type, symmetricKeySizeBits);
+				signatureType, s_type, symmetricSignatureType, symmetricKeySizeBits, ellipticCurveDiffieHellmanType);
 	}
 
 	/**
@@ -129,9 +132,9 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm
 	 *            type)
 	 * @return the encryption profile identifier
 	 */
-	public int addEncryptionProfile(ASymmetricKeyPair keyPairForEncryption,ASymmetricKeyPair keyPairForSignature, SymmetricEncryptionType symmetricEncryptionType) {
-		return this.addEncryptionProfile(keyPairForEncryption, keyPairForSignature, null, symmetricEncryptionType,
-				symmetricEncryptionType == null ? (short) -1 : symmetricEncryptionType.getDefaultKeySizeBits());
+	public int addEncryptionProfile(ASymmetricKeyPair keyPairForSignature, SymmetricEncryptionType symmetricEncryptionType, SymmetricSignatureType symmetricSignatureType, EllipticCurveDiffieHellmanType ellipticCurveDiffieHellmanType) {
+		return this.addEncryptionProfile(keyPairForSignature, null, symmetricEncryptionType,symmetricSignatureType,
+				symmetricEncryptionType == null ? (short) -1 : symmetricEncryptionType.getDefaultKeySizeBits(), ellipticCurveDiffieHellmanType);
 	}
 
 	/**
@@ -150,39 +153,29 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm
 	 *            the symmetric key size in bits
 	 * @return the encryption profile identifier
 	 */
-	public int addEncryptionProfile(ASymmetricKeyPair keyPairForEncryption,ASymmetricKeyPair keyPairForSignature, ASymmetricSignatureType signatureType,
-			SymmetricEncryptionType symmetricEncryptionType, short symmetricKeySizeBits) {
-		if (keyPairForEncryption == null)
-			throw new NullPointerException("keyPairForEncryption");
+	public int addEncryptionProfile(ASymmetricKeyPair keyPairForSignature, ASymmetricSignatureType signatureType,
+			SymmetricEncryptionType symmetricEncryptionType, SymmetricSignatureType symmetricSignatureType, short symmetricKeySizeBits, EllipticCurveDiffieHellmanType ellipticCurveDiffieHellmanType) {
 		if (keyPairForSignature == null)
 			throw new NullPointerException("keyPairForSignature");
-		keyPairsForEncryption.put(new Integer(generateNewKeyPairIdentifier()), keyPairForEncryption);
+		if (symmetricSignatureType==null)
+			throw new NullPointerException("symmetricSignatureType");
+		
 		keyPairsForSignature.put(new Integer(generateNewKeyPairIdentifier()), keyPairForSignature);
 		if (signatureType == null)
-			signatures.put(new Integer(lastIdentifier), keyPairForSignature.getAlgorithmType().getDefaultSignatureAlgorithm());
+			asymmetricSignatureTypes.put(new Integer(lastIdentifier), keyPairForSignature.getAlgorithmType().getDefaultSignatureAlgorithm());
 		else
-			signatures.put(new Integer(lastIdentifier), signatureType);
+			asymmetricSignatureTypes.put(new Integer(lastIdentifier), signatureType);
 		if (symmetricEncryptionType == null) {
 			symmetricEncryptionType = SymmetricEncryptionType.DEFAULT;
 			symmetricKeySizeBits = symmetricEncryptionType.getDefaultKeySizeBits();
 		}
 		symmetricEncryptionTypes.put(new Integer(lastIdentifier), symmetricEncryptionType);
+		symmetricSignatureTypes.put(new Integer(lastIdentifier), symmetricSignatureType);
 		symmetricEncryptionKeySizeBits.put(new Integer(lastIdentifier), new Short(symmetricKeySizeBits));
+		ellipticCurveDiffieHellmanTypes.put(new Integer(lastIdentifier), ellipticCurveDiffieHellmanType);
 		return lastIdentifier;
 	}
 
-	/**
-	 * Gets the key pair used for encryption and attached to this connection protocol and the given profile
-	 * identifier
-	 * 
-	 * @param profileIdentifier
-	 *            the profile identifier
-	 * @return the key pair attached to this connection protocol and the given
-	 *         profile identifier
-	 */
-	public ASymmetricKeyPair getKeyPairForEncryption(int profileIdentifier) {
-		return keyPairsForEncryption.get(new Integer(profileIdentifier));
-	}
 	/**
 	 * Gets the key pair used for the message signature and attached to this connection protocol and the given profile
 	 * identifier
@@ -205,14 +198,30 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm
 	 * @return the signature type attached to this connection protocol and the given
 	 *         profile identifier
 	 */
-	public ASymmetricSignatureType getSignatureType(int profileIdentifier) {
-		return signatures.get(new Integer(profileIdentifier));
+	public ASymmetricSignatureType getASymmetricSignatureType(int profileIdentifier) {
+		return asymmetricSignatureTypes.get(new Integer(profileIdentifier));
 	}
 
-	public int getMaximumSignatureSizeBits() {
+	public int getMaximumSignatureSizeBits() throws ConnectionException {
 		int res = -1;
 		for (Map.Entry<Integer, ASymmetricKeyPair> e : keyPairsForSignature.entrySet()) {
-			res = Math.max(res, signatures.get(e.getKey()).getSignatureSizeBits(e.getValue().getKeySize()));
+			res = Math.max(res, asymmetricSignatureTypes.get(e.getKey()).getSignatureSizeBits(e.getValue().getKeySize()));
+		}
+		for (Map.Entry<Integer, SymmetricSignatureType> e : symmetricSignatureTypes.entrySet())
+		{
+			try
+			{
+				SymmetricEncryptionType set=symmetricEncryptionTypes.get(e.getKey());
+				SymmetricSignerAlgorithm signerTmp = new SymmetricSignerAlgorithm(e.getValue(), set.getKeyGenerator(SecureRandomType.DEFAULT.getInstance(), set.getDefaultKeySizeBits()).generateKey());
+				signerTmp.init();
+				int sigsize = signerTmp.getMacLength();
+			
+				res = Math.max(res, sigsize);
+			}
+			catch(Exception e2)
+			{
+				throw new ConnectionException(e2);
+			}
 		}
 		return res;
 	}
@@ -229,6 +238,31 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm
 	public SymmetricEncryptionType getSymmetricEncryptionType(int profileIdentifier) {
 		return symmetricEncryptionTypes.get(new Integer(profileIdentifier));
 	}
+	/**
+	 * Gets the Elliptic Curve Diffie Hellman Type attached to this connection protocol and
+	 * the given profile identifier
+	 * 
+	 * @param profileIdentifier
+	 *            the profile identifier
+	 * @return the Elliptic Curve Diffie Hellman Type attached to this connection protocol
+	 *         and the given profile identifier
+	 */
+	public EllipticCurveDiffieHellmanType getEllipticCurveDiffieHellmanType(int profileIdentifier) {
+		return ellipticCurveDiffieHellmanTypes.get(new Integer(profileIdentifier));
+	}
+	
+	/**
+	 * Gets the symmetric signature type attached to this connection protocol and
+	 * the given profile identifier
+	 * 
+	 * @param profileIdentifier
+	 *            the profile identifier
+	 * @return the symmetric signature type attached to this connection protocol
+	 *         and the given profile identifier
+	 */
+	public SymmetricSignatureType getSymmetricSignatureType(int profileIdentifier) {
+		return symmetricSignatureTypes.get(new Integer(profileIdentifier));
+	}
 
 	/**
 	 * Gets the symmetric encryption key size in bits attached to this connection
@@ -243,16 +277,6 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm
 		return symmetricEncryptionKeySizeBits.get(new Integer(profileIdentifier)).shortValue();
 	}
 
-	/**
-	 * Gets the default key pair (for encryption) attached to this connection protocol and its
-	 * default profile
-	 * 
-	 * @return the default key pair attached to this connection protocol and its
-	 *         default profile
-	 */
-	public ASymmetricKeyPair getDefaultKeyPairForEncryption() {
-		return keyPairsForEncryption.get(new Integer(lastIdentifier));
-	}
 	/**
 	 * Gets the default key pair (for signature) attached to this connection protocol and its
 	 * default profile
@@ -271,8 +295,8 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm
 	 * @return the default signature type attached to this connection protocol and
 	 *         its default profile
 	 */
-	public ASymmetricSignatureType getDefaultSignatureType() {
-		return signatures.get(new Integer(lastIdentifier));
+	public ASymmetricSignatureType getDefaultASymmetricSignatureType() {
+		return asymmetricSignatureTypes.get(new Integer(lastIdentifier));
 	}
 
 	/**
@@ -284,6 +308,27 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm
 	 */
 	public SymmetricEncryptionType getDefaultSymmetricEncryptionType() {
 		return symmetricEncryptionTypes.get(new Integer(lastIdentifier));
+	}
+
+	/**
+	 * Gets the default Elliptic Curve Diffie Hellman type attached to this connection
+	 * protocol and its default profile
+	 * 
+	 * @return the default Elliptic Curve Diffie Hellman Type attached to this connection
+	 *         protocol and its default profile
+	 */
+	public EllipticCurveDiffieHellmanType getDefaultEllipticCurveDiffieHellmanType() {
+		return ellipticCurveDiffieHellmanTypes.get(new Integer(lastIdentifier));
+	}
+	/**
+	 * Gets the default symmetric signature type type attached to this connection
+	 * protocol and its default profile
+	 * 
+	 * @return the default symmetric signature type attached to this connection
+	 *         protocol and its default profile
+	 */
+	public SymmetricSignatureType getDefaultSymmetricSignatureType() {
+		return symmetricSignatureTypes.get(new Integer(lastIdentifier));
 	}
 
 	/**
@@ -329,11 +374,6 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm
 	// ASymmetricKeyPair keyPair=null;
 
 	/**
-	 * The used key pairs for encryption
-	 */
-	private Map<Integer, ASymmetricKeyPair> keyPairsForEncryption = new HashMap<>();
-
-	/**
 	 * The used key pairs for signature
 	 */
 	private Map<Integer, ASymmetricKeyPair> keyPairsForSignature = new HashMap<>();
@@ -341,7 +381,7 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm
 	/**
 	 * The used signatures
 	 */
-	private Map<Integer, ASymmetricSignatureType> signatures = new HashMap<>();
+	private Map<Integer, ASymmetricSignatureType> asymmetricSignatureTypes = new HashMap<>();
 
 	private int lastIdentifier = 0;
 
@@ -360,10 +400,20 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm
 	private Map<Integer, SymmetricEncryptionType> symmetricEncryptionTypes = new HashMap<>();
 
 	/**
+	 * Symmetric signature algorithm
+	 */
+	private Map<Integer, SymmetricSignatureType> symmetricSignatureTypes = new HashMap<>();
+
+	/**
 	 * Symmetric encryption key sizes bits
 	 */
 	private Map<Integer, Short> symmetricEncryptionKeySizeBits = new HashMap<>();
 
+	/**
+	 * Elliptic Curve Diffie Hellman Type, used for symmetric key exchange
+	 */
+	public Map<Integer, EllipticCurveDiffieHellmanType> ellipticCurveDiffieHellmanTypes = new HashMap<>();
+	
 	/**
 	 * Default duration of a public key before being regenerated. Must be greater or
 	 * equal than 0.
@@ -397,10 +447,14 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm
 					throw new ConnectionException("The RSA key size have a size of " + e.getValue().getKeySize()
 							+ ". This number must correspond to this schema : _rsa_key_size=2^x.");
 			}
-			if (signatures.get(e.getKey()) == null)
+			if (asymmetricSignatureTypes.get(e.getKey()) == null)
 				throw new NullPointerException("No signature found for identifier " + e.getKey());
 			if (symmetricEncryptionTypes.get(e.getKey()) == null)
 				throw new NullPointerException("No symmetric encryption type found for identifier " + e.getKey());
+			if (symmetricSignatureTypes.get(e.getKey()) == null)
+				throw new NullPointerException("No symmetric signature type found for identifier " + e.getKey());
+			if (ellipticCurveDiffieHellmanTypes.get(e.getKey()) == null)
+				throw new NullPointerException("No ECDH type found for identifier " + e.getKey());
 			if (symmetricEncryptionKeySizeBits.get(e.getKey()) == null)
 				throw new NullPointerException(
 						"No symmetric encryption key size bits found for identifier " + e.getKey());
@@ -413,7 +467,6 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm
 	
 	void checkProperties() throws ConnectionException {
 		boolean valid=true;
-		valid|=checkKeyPairs(keyPairsForEncryption);
 		valid|=checkKeyPairs(keyPairsForSignature);
 		if (!valid) {
 			throw new ConnectionException("All given public keys has expired");
@@ -441,4 +494,8 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm
 		return true;
 	}
 
+	/**
+	 * Secure Random type
+	 */
+	public SecureRandomType secureRandomType;
 }

@@ -66,19 +66,21 @@ import com.distrimind.madkit.kernel.network.connection.ConnectionMessage;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol;
 import com.distrimind.madkit.kernel.network.connection.TransferedBlockChecker;
 import com.distrimind.madkit.kernel.network.connection.UnexpectedMessage;
-import com.distrimind.madkit.kernel.network.connection.IncomprehensiblePublicKey;
 import com.distrimind.ood.database.DatabaseWrapper;
 import com.distrimind.util.Bits;
 import com.distrimind.util.crypto.ASymmetricKeyPair;
 import com.distrimind.util.crypto.ASymmetricPublicKey;
-import com.distrimind.util.crypto.ASymmetricSignatureCheckerAlgorithm;
 import com.distrimind.util.crypto.ASymmetricSignatureType;
+import com.distrimind.util.crypto.ASymmetricSignerAlgorithm;
 import com.distrimind.util.crypto.AbstractSecureRandom;
 import com.distrimind.util.crypto.AbstractSignature;
+import com.distrimind.util.crypto.EllipticCurveDiffieHellmanAlgorithm;
+import com.distrimind.util.crypto.EllipticCurveDiffieHellmanType;
 import com.distrimind.util.crypto.SecureRandomType;
-import com.distrimind.util.crypto.ServerASymmetricEncryptionAlgorithm;
 import com.distrimind.util.crypto.SymmetricEncryptionAlgorithm;
 import com.distrimind.util.crypto.SymmetricEncryptionType;
+import com.distrimind.util.crypto.SymmetricSignatureCheckerAlgorithm;
+import com.distrimind.util.crypto.SymmetricSignatureType;
 import com.distrimind.util.sizeof.ObjectSizer;
 
 /**
@@ -95,15 +97,21 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKeyWithECDHAlgorithm
 		extends ConnectionProtocol<ServerSecuredConnectionProtocolWithKnwonPublicKeyWithECDHAlgorithm> {
 	Step current_step = Step.NOT_CONNECTED;
 
-	ASymmetricKeyPair myKeyPairForEncryption, myKeyPairForSignature;
-	private ASymmetricPublicKey distant_public_key_for_encryption=null, distant_public_key_for_signature = null;
+	ASymmetricKeyPair myKeyPairForSignature;
+	
 
-	protected ServerASymmetricEncryptionAlgorithm aSymmetricAlgorithm;
+	protected EllipticCurveDiffieHellmanType ellipticCurveDiffieHellmanType;
+	protected EllipticCurveDiffieHellmanAlgorithm ellipticCurveDiffieHellmanAlgorithmForEncryption=null;
+	protected EllipticCurveDiffieHellmanAlgorithm ellipticCurveDiffieHellmanAlgorithmForSignature=null;
+
 	protected SymmetricEncryptionAlgorithm symmetricAlgorithm = null;
-	protected ASymmetricSignatureCheckerAlgorithm signatureChecker = null;
-	protected ASymmetricSignatureType signatureType;
+	protected ASymmetricSignerAlgorithm signer=null;
+	protected SymmetricSignatureCheckerAlgorithm signatureChecker = null;
+	protected ASymmetricSignatureType localSignatureType=null;
+	protected SymmetricSignatureType distantSignatureType=null;
+	protected SymmetricEncryptionType symmetricEncryptionType=null;
 
-	int signature_size;
+	int local_signature_size, distant_signature_size;
 	private final SubBlockParser parser;
 
 	protected final ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm hproperties;
@@ -112,6 +120,7 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKeyWithECDHAlgorithm
 	boolean firstMessageReceived = false;
 	private boolean needToRefreshTransferBlockChecker = true;
 	private boolean currentBlockCheckerIsNull = true;
+	
 
 	private ServerSecuredConnectionProtocolWithKnwonPublicKeyWithECDHAlgorithm(InetSocketAddress _distant_inet_address,
 			InetSocketAddress _local_interface_address, ConnectionProtocol<?> _subProtocol,
@@ -123,15 +132,16 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKeyWithECDHAlgorithm
 
 		hproperties.checkProperties();
 
-		myKeyPairForEncryption = null;
 		myKeyPairForSignature = null;
 
-		signature_size = -1;
-		aSymmetricAlgorithm = null;
+		local_signature_size = -1;
+		distant_signature_size=-1;
+		
 		this.symmetricAlgorithm = null;
-		signatureType = null;
+		localSignatureType = null;
+		distantSignatureType=null;
 		try {
-			random = SecureRandomType.DEFAULT.getInstance();
+			random=SecureRandomType.NativePRNGBlocking.getInstance();
 			maximumSignatureSize = hproperties.getMaximumSignatureSizeBits();
 		} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
 			throw new ConnectionException(e);
@@ -144,37 +154,42 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKeyWithECDHAlgorithm
 	}
 
 	void initMyKeyPair(int identifier) throws BlockParserException {
-		if (myKeyPairForEncryption != null && myKeyPairForSignature!=null)
+		if (myKeyPairForSignature!=null)
 			return;
 		try {
-			myKeyPairForEncryption = hproperties.getKeyPairForEncryption(identifier);
-			if (myKeyPairForEncryption == null)
-				throw new BlockParserException(
-						"Unkonw encryption profile. Impossible to find key pair identified by " + identifier);
 			myKeyPairForSignature = hproperties.getKeyPairForSignature(identifier);
 			if (myKeyPairForSignature == null)
 				throw new BlockParserException(
 						"Unkonw encryption profile. Impossible to find key pair identified by " + identifier);
-			signatureType = hproperties.getSignatureType(identifier);
-			if (signatureType == null)
+			localSignatureType = hproperties.getASymmetricSignatureType(identifier);
+			if (localSignatureType == null)
 				throw new BlockParserException(
 						"Unkonw encryption profile. Impossible to find signature identified by " + identifier);
 
-			SymmetricEncryptionType symmetricEncryptionType = hproperties.getSymmetricEncryptionType(identifier);
+			local_signature_size = localSignatureType.getSignatureSizeBytes(myKeyPairForSignature.getKeySize());
+			signer=new ASymmetricSignerAlgorithm(localSignatureType, myKeyPairForSignature.getASymmetricPrivateKey());
+
+			symmetricEncryptionType = hproperties.getSymmetricEncryptionType(identifier);
 			if (symmetricEncryptionType == null)
 				throw new BlockParserException(
 						"Unkonw encryption profile. Impossible to find symmetric encryption type identified by "
 								+ identifier);
 
-			signature_size = signatureType.getSignatureSizeBytes(myKeyPairForSignature.getKeySize());
 
-			aSymmetricAlgorithm = new ServerASymmetricEncryptionAlgorithm(signatureType, myKeyPairForEncryption);
-			byte[] seed = new byte[64];
-			random.nextBytes(seed);
+			ellipticCurveDiffieHellmanType=hproperties.getEllipticCurveDiffieHellmanType(identifier);
+			if (ellipticCurveDiffieHellmanType==null)
+				throw new BlockParserException(
+						"Unkonw encryption profile. Impossible to find ECDH identified by " + identifier);
 
-			this.symmetricAlgorithm = new SymmetricEncryptionAlgorithm(symmetricEncryptionType
-					.getKeyGenerator(random, hproperties.getSymmetricEncryptionKeySizeBits(identifier)).generateKey(),
-					SecureRandomType.DEFAULT, seed);
+			ellipticCurveDiffieHellmanAlgorithmForEncryption=ellipticCurveDiffieHellmanType.getInstance();
+			ellipticCurveDiffieHellmanAlgorithmForSignature=ellipticCurveDiffieHellmanType.getInstance();
+			distantSignatureType=hproperties.getSymmetricSignatureType(identifier);
+			if (distantSignatureType == null)
+				throw new BlockParserException(
+						"Unkonw encryption profile. Impossible to find symmetric signature type identified by "
+								+ identifier);
+
+			this.symmetricAlgorithm = null;
 
 		} catch (Exception e) {
 			if (e instanceof BlockParserException)
@@ -185,41 +200,36 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKeyWithECDHAlgorithm
 
 	}
 
-	private void setDistantPublicKeys(byte[] encodedPublicKeyForEncryption, byte[] encodedPublicKeyForSignature) throws ConnectionException {
-
+	private ECDHDataMessage receivedDistantECDHData(byte[] distantPublicKeyForEncryption, byte[] distantPublicKeyForSignature) throws ConnectionException, java.security.InvalidKeyException, java.security.spec.InvalidKeySpecException, InvalidKeyException, NoSuchPaddingException, InvalidAlgorithmParameterException, InvalidKeySpecException
+	{
+		
+		ECDHDataMessage res;
 		try {
-			this.distant_public_key_for_encryption = ASymmetricPublicKey.decode(aSymmetricAlgorithm.decode(encodedPublicKeyForEncryption));
-			this.distant_public_key_for_signature = ASymmetricPublicKey.decode(aSymmetricAlgorithm.decode(encodedPublicKeyForSignature));
-			this.signatureChecker = new ASymmetricSignatureCheckerAlgorithm(signatureType, distant_public_key_for_signature);
-		} catch (NoSuchAlgorithmException | InvalidKeyException | InvalidKeySpecException | IllegalBlockSizeException
-				| BadPaddingException | IOException | NoSuchProviderException e) {
-			this.distant_public_key_for_encryption = null;
-			this.distant_public_key_for_signature = null;
-			this.signatureChecker = null;
+			res = new ECDHDataMessage(ellipticCurveDiffieHellmanAlgorithmForEncryption.generateAndGetPublicKey(),ellipticCurveDiffieHellmanAlgorithmForSignature.generateAndGetPublicKey());
+			ellipticCurveDiffieHellmanAlgorithmForEncryption.setDistantPublicKey(distantPublicKeyForEncryption);
+			ellipticCurveDiffieHellmanAlgorithmForSignature.setDistantPublicKey(distantPublicKeyForSignature);
+			byte tab[]=new byte[64];
+			random.nextBytes(tab);
+			
+			symmetricAlgorithm=new SymmetricEncryptionAlgorithm(ellipticCurveDiffieHellmanAlgorithmForEncryption.getDerivedKey(symmetricEncryptionType), hproperties.secureRandomType, tab);
+			signatureChecker=new SymmetricSignatureCheckerAlgorithm(ellipticCurveDiffieHellmanAlgorithmForSignature.getDerivedKey(symmetricEncryptionType));
+			return res;
+		} catch (java.security.NoSuchAlgorithmException | NoSuchAlgorithmException | NoSuchProviderException e) {
 			throw new ConnectionException(e);
 		}
+		
+		
 	}
+	
+	
 
-	private void setSecretKey(byte secretKeyAndIV[]) throws ConnectionException {
-		try {
-			byte[] seed = new byte[64];
-			random.nextBytes(seed);
-			this.symmetricAlgorithm = SymmetricEncryptionAlgorithm.getInstance(SecureRandomType.DEFAULT, seed,
-					secretKeyAndIV, aSymmetricAlgorithm);
-			// this.secret_key=symmetricAlgorithm.getSecretKey();
-		} catch (InvalidKeyException | InvalidAlgorithmParameterException | IOException | NoSuchAlgorithmException
-				| NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException | NoSuchProviderException
-				| IllegalArgumentException | InvalidKeySpecException e) {
-			this.symmetricAlgorithm = null;
-			// this.secret_key=null;
-			throw new ConnectionException(e);
-		}
-	}
-
-	private void resetDistantPublicKey() {
-		this.distant_public_key_for_encryption = null;
-		this.distant_public_key_for_signature = null;
+	private void reset() {
+		this.ellipticCurveDiffieHellmanAlgorithmForEncryption = null;
+		this.ellipticCurveDiffieHellmanAlgorithmForEncryption = null;
+		this.symmetricAlgorithm=null;
 		signatureChecker = null;
+		this.resetSecretKey();
+		
 	}
 
 	private void resetSecretKey() {
@@ -228,49 +238,29 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKeyWithECDHAlgorithm
 	}
 
 	private enum Step {
-		NOT_CONNECTED, WAITING_FIRST_MESSAGE, WAITING_FOR_CONNECTION_CONFIRMATION, CONNECTED,
+		NOT_CONNECTED, WAITING_FOR_CONNECTION_CONFIRMATION, CONNECTED,
 	}
 
 	@Override
 	protected ConnectionMessage getNextStep(ConnectionMessage _m) {
 		switch (current_step) {
 		case NOT_CONNECTED: {
-			if (_m instanceof AskClientServerConnection) {
+			if (_m instanceof AskClientServerConnectionECDH) {
 
-				AskClientServerConnection ask = (AskClientServerConnection) _m;
+				AskClientServerConnectionECDH ask = (AskClientServerConnectionECDH) _m;
 
-				try {
-					setSecretKey(ask.getSecretKey());
-				} catch (ConnectionException e) {
+				try
+				{
+					ECDHDataMessage toSend=receivedDistantECDHData(ask.getDataForEncryption(), ask.getDataForSignature());
+					current_step = Step.WAITING_FOR_CONNECTION_CONFIRMATION;
+					return toSend;
+				}
+				catch(java.security.InvalidKeyException | java.security.spec.InvalidKeySpecException | InvalidKeySpecException | InvalidKeyException | ConnectionException | NoSuchPaddingException | InvalidAlgorithmParameterException e)
+				{
+					reset();
 					return new ConnectionFinished(this.getDistantInetSocketAddress(),
 							ConnectionClosedReason.CONNECTION_ANOMALY);
 				}
-				try {
-					setDistantPublicKeys(ask.getEncodedPublicKeyForEncryption(), ask.getEncodedPublicKeyForSignature());
-				} catch (ConnectionException e) {
-					return new IncomprehensiblePublicKey();
-				}
-				if (distant_public_key_for_encryption.equals(myKeyPairForEncryption.getASymmetricPublicKey()) || distant_public_key_for_signature.equals(myKeyPairForSignature.getASymmetricPublicKey())) {
-					resetDistantPublicKey();
-					return new SimilarPublicKeysError();
-				}
-				current_step = Step.WAITING_FIRST_MESSAGE;
-				return new FirstMessage();
-			} else if (_m instanceof ConnectionFinished) {
-				if (((ConnectionFinished) _m).getState()
-						.equals(ConnectionProtocol.ConnectionState.CONNECTION_ESTABLISHED)) {
-					return new UnexpectedMessage(this.getDistantInetSocketAddress());
-				} else
-					return new ConnectionFinished(this.getDistantInetSocketAddress(),
-							ConnectionClosedReason.CONNECTION_ANOMALY);
-			} else {
-				return new UnexpectedMessage(this.getDistantInetSocketAddress());
-			}
-		}
-		case WAITING_FIRST_MESSAGE: {
-			if (_m instanceof FirstMessage) {
-				current_step = Step.WAITING_FOR_CONNECTION_CONFIRMATION;
-				return new ConnectionFinished(getDistantInetSocketAddress());
 			} else if (_m instanceof ConnectionFinished) {
 				if (((ConnectionFinished) _m).getState()
 						.equals(ConnectionProtocol.ConnectionState.CONNECTION_ESTABLISHED)) {
@@ -286,7 +276,7 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKeyWithECDHAlgorithm
 			if (_m instanceof ConnectionFinished && ((ConnectionFinished) _m).getState()
 					.equals(ConnectionProtocol.ConnectionState.CONNECTION_ESTABLISHED)) {
 				current_step = Step.CONNECTED;
-				return null;
+				return new ConnectionFinished(getDistantInetSocketAddress());
 			} else if (_m instanceof ConnectionFinished) {
 				return new UnexpectedMessage(this.getDistantInetSocketAddress());
 			} else {
@@ -323,8 +313,8 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKeyWithECDHAlgorithm
 	@Override
 	protected void closeConnection(ConnectionClosedReason _reason) {
 		if (_reason.equals(ConnectionClosedReason.CONNECTION_ANOMALY)) {
-			resetSecretKey();
-			resetDistantPublicKey();
+			reset();
+			
 		}
 		current_step = Step.NOT_CONNECTED;
 	}
@@ -340,10 +330,9 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKeyWithECDHAlgorithm
 			try {
 				switch (current_step) {
 				case NOT_CONNECTED:
-				case WAITING_FIRST_MESSAGE: {
+				case WAITING_FOR_CONNECTION_CONFIRMATION: {
 					return size;
 				}
-				case WAITING_FOR_CONNECTION_CONFIRMATION:
 				case CONNECTED: {
 					return symmetricAlgorithm.getOutputSizeForEncryption(size);
 				}
@@ -362,7 +351,6 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKeyWithECDHAlgorithm
 				switch (current_step) {
 				case NOT_CONNECTED:
 					return size;
-				case WAITING_FIRST_MESSAGE:
 				case WAITING_FOR_CONNECTION_CONFIRMATION:
 				case CONNECTED:
 					return symmetricAlgorithm.getOutputSizeForDecryption(size);
@@ -386,7 +374,7 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKeyWithECDHAlgorithm
 				setFirstMessageReceived();
 				return new SubBlockInfo(res, true, false);
 			}
-			case WAITING_FIRST_MESSAGE:
+			
 			case WAITING_FOR_CONNECTION_CONFIRMATION:
 			case CONNECTED: {
 				try (ByteArrayInputStream bais = new ByteArrayInputStream(_block.getBytes(),
@@ -399,7 +387,7 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKeyWithECDHAlgorithm
 							tmp.length);
 
 					boolean check = signatureChecker.verify(_block.getBytes(), res.getOffset(),
-							_block.getSize() - getSizeHead(), _block.getBytes(), _block.getOffset(), signature_size);
+							_block.getSize() - getSizeHead(), _block.getBytes(), _block.getOffset(), distant_signature_size);
 					System.arraycopy(tmp, 0, res.getBytes(), res.getOffset(), tmp.length);
 					return new SubBlockInfo(res, check, !check);
 				} catch (SignatureException | IOException | InvalidKeyException | InvalidAlgorithmParameterException
@@ -420,14 +408,14 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKeyWithECDHAlgorithm
 				int outputSize = getBodyOutputSizeForEncryption(_block.getSize());
 				switch (current_step) {
 				case NOT_CONNECTED:
-				case WAITING_FIRST_MESSAGE: {
+				case WAITING_FOR_CONNECTION_CONFIRMATION: {
 					SubBlock res = new SubBlock(_block.getBytes().clone(), _block.getOffset() - getSizeHead(),
 							outputSize + getSizeHead());
-					aSymmetricAlgorithm.getSignerAlgorithm().sign(_block.getBytes(), _block.getOffset(), outputSize,
-							res.getBytes(), res.getOffset(), signature_size);
+					signer.sign(_block.getBytes(), _block.getOffset(), outputSize,
+							res.getBytes(), res.getOffset(), local_signature_size);
 					return res;
 				}
-				case WAITING_FOR_CONNECTION_CONFIRMATION:
+				
 				case CONNECTED: {
 					SubBlock res = new SubBlock(new byte[_block.getBytes().length], _block.getOffset() - getSizeHead(),
 							outputSize + getSizeHead());
@@ -437,8 +425,8 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKeyWithECDHAlgorithm
 					if (outputSize != tmp.length)
 						throw new BlockParserException("Invalid block size for encoding.");
 					System.arraycopy(tmp, 0, res.getBytes(), _block.getOffset(), tmp.length);
-					aSymmetricAlgorithm.getSignerAlgorithm().sign(tmp, 0, tmp.length, res.getBytes(), res.getOffset(),
-							signature_size);
+					signer.sign(tmp, 0, tmp.length, res.getBytes(), res.getOffset(),
+							local_signature_size);
 					return res;
 				}
 				}
@@ -453,7 +441,7 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKeyWithECDHAlgorithm
 		@Override
 		public int getSizeHead() {
 			if (firstMessageReceived)
-				return signature_size;
+				return local_signature_size;
 			else
 				return ObjectSizer.sizeOf(hproperties.getLastEncryptionProfileIdentifier());
 		}
@@ -487,14 +475,13 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKeyWithECDHAlgorithm
 				setFirstMessageReceived();
 				return new SubBlockInfo(res, true, false);
 			}
-			case WAITING_FIRST_MESSAGE:
 			case WAITING_FOR_CONNECTION_CONFIRMATION:
 			case CONNECTED: {
 				SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() + getSizeHead(),
 						getBodyOutputSizeForDecryption(_block.getSize() - getSizeHead()));
 				try {
 					boolean check = signatureChecker.verify(res.getBytes(), res.getOffset(),
-							_block.getSize() - getSizeHead(), _block.getBytes(), _block.getOffset(), signature_size);
+							_block.getSize() - getSizeHead(), _block.getBytes(), _block.getOffset(), distant_signature_size);
 					return new SubBlockInfo(res, check, !check);
 				} catch (SignatureException | InvalidKeyException | NoSuchAlgorithmException
 						| InvalidKeySpecException | ShortBufferException | IllegalStateException e) {
@@ -510,9 +497,9 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKeyWithECDHAlgorithm
 			try {
 				SubBlock res = new SubBlock(_block.getBytes().clone(), _block.getOffset() - getSizeHead(),
 						getBodyOutputSizeForEncryption(_block.getSize()) + getSizeHead());
-				aSymmetricAlgorithm.getSignerAlgorithm().sign(_block.getBytes(), _block.getOffset(),
+				signer.sign(_block.getBytes(), _block.getOffset(),
 						getBodyOutputSizeForEncryption(_block.getSize()), res.getBytes(), res.getOffset(),
-						signature_size);
+						local_signature_size);
 				return res;
 			} catch (SignatureException | InvalidKeyException | NoSuchAlgorithmException | InvalidKeySpecException e) {
 				throw new BlockParserException(e);
@@ -523,7 +510,7 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKeyWithECDHAlgorithm
 		@Override
 		public int getSizeHead() {
 			if (firstMessageReceived)
-				return signature_size;
+				return Math.max(local_signature_size, distant_signature_size);
 			else
 				return ObjectSizer.sizeOf(hproperties.getLastEncryptionProfileIdentifier());
 		}
@@ -556,14 +543,14 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKeyWithECDHAlgorithm
 		try {
 			needToRefreshTransferBlockChecker = false;
 
-			if (myKeyPairForEncryption == null || myKeyPairForSignature == null || signatureType == null) {
+			if (myKeyPairForSignature == null || localSignatureType == null) {
 				currentBlockCheckerIsNull = true;
 				return new ConnectionProtocol.NullBlockChecker(subBlockChercker, this.isCrypted(),
 						(short) parser.getSizeHead());
 			} else {
 				currentBlockCheckerIsNull = false;
-				return new BlockChecker(subBlockChercker, signatureType, this.myKeyPairForSignature.getASymmetricPublicKey(),
-						this.signature_size, this.isCrypted());
+				return new BlockChecker(subBlockChercker, localSignatureType, this.myKeyPairForSignature.getASymmetricPublicKey(),
+						this.local_signature_size, this.isCrypted());
 			}
 		} catch (Exception e) {
 			needToRefreshTransferBlockChecker = true;
@@ -574,7 +561,7 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKeyWithECDHAlgorithm
 	@Override
 	public boolean isTransferBlockCheckerChangedImpl() {
 
-		if (myKeyPairForEncryption == null || myKeyPairForSignature == null || signatureType == null) {
+		if (myKeyPairForSignature == null || localSignatureType == null) {
 			return !currentBlockCheckerIsNull || needToRefreshTransferBlockChecker;
 		} else
 			return currentBlockCheckerIsNull || needToRefreshTransferBlockChecker;

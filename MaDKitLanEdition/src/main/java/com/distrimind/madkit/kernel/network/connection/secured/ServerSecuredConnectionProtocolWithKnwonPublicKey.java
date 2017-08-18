@@ -73,6 +73,7 @@ import com.distrimind.util.crypto.ASymmetricKeyPair;
 import com.distrimind.util.crypto.ASymmetricPublicKey;
 import com.distrimind.util.crypto.ASymmetricSignatureCheckerAlgorithm;
 import com.distrimind.util.crypto.ASymmetricSignatureType;
+import com.distrimind.util.crypto.ASymmetricSignerAlgorithm;
 import com.distrimind.util.crypto.AbstractSecureRandom;
 import com.distrimind.util.crypto.AbstractSignature;
 import com.distrimind.util.crypto.SecureRandomType;
@@ -100,6 +101,7 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 
 	protected ServerASymmetricEncryptionAlgorithm aSymmetricAlgorithm;
 	protected SymmetricEncryptionAlgorithm symmetricAlgorithm = null;
+	protected ASymmetricSignerAlgorithm signer=null;
 	protected ASymmetricSignatureCheckerAlgorithm signatureChecker = null;
 	protected ASymmetricSignatureType signatureType;
 
@@ -159,7 +161,8 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 			if (signatureType == null)
 				throw new BlockParserException(
 						"Unkonw encryption profile. Impossible to find signature identified by " + identifier);
-
+			signer=new ASymmetricSignerAlgorithm(signatureType, myKeyPairForSignature.getASymmetricPrivateKey());
+			
 			SymmetricEncryptionType symmetricEncryptionType = hproperties.getSymmetricEncryptionType(identifier);
 			if (symmetricEncryptionType == null)
 				throw new BlockParserException(
@@ -423,7 +426,7 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 				case WAITING_FIRST_MESSAGE: {
 					SubBlock res = new SubBlock(_block.getBytes().clone(), _block.getOffset() - getSizeHead(),
 							outputSize + getSizeHead());
-					aSymmetricAlgorithm.getSignerAlgorithm().sign(_block.getBytes(), _block.getOffset(), outputSize,
+					signer.sign(_block.getBytes(), _block.getOffset(), outputSize,
 							res.getBytes(), res.getOffset(), signature_size);
 					return res;
 				}
@@ -437,7 +440,7 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 					if (outputSize != tmp.length)
 						throw new BlockParserException("Invalid block size for encoding.");
 					System.arraycopy(tmp, 0, res.getBytes(), _block.getOffset(), tmp.length);
-					aSymmetricAlgorithm.getSignerAlgorithm().sign(tmp, 0, tmp.length, res.getBytes(), res.getOffset(),
+					signer.sign(tmp, 0, tmp.length, res.getBytes(), res.getOffset(),
 							signature_size);
 					return res;
 				}
@@ -510,7 +513,7 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 			try {
 				SubBlock res = new SubBlock(_block.getBytes().clone(), _block.getOffset() - getSizeHead(),
 						getBodyOutputSizeForEncryption(_block.getSize()) + getSizeHead());
-				aSymmetricAlgorithm.getSignerAlgorithm().sign(_block.getBytes(), _block.getOffset(),
+				signer.sign(_block.getBytes(), _block.getOffset(),
 						getBodyOutputSizeForEncryption(_block.getSize()), res.getBytes(), res.getOffset(),
 						signature_size);
 				return res;

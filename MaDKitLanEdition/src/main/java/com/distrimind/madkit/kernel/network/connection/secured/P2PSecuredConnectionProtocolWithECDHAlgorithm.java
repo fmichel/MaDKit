@@ -115,7 +115,7 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 		
 		int sigsize=0;
 		try {
-			SymmetricSignerAlgorithm signerTmp = new SymmetricSignerAlgorithm(hproperties.symmetricEncryptionType.getKeyGenerator(SecureRandomType.DEFAULT.getInstance(), hproperties.symmetricEncryptionType.getDefaultKeySizeBits()).generateKey());
+			SymmetricSignerAlgorithm signerTmp = new SymmetricSignerAlgorithm(hproperties.symmetricSignatureType, hproperties.symmetricEncryptionType.getKeyGenerator(SecureRandomType.DEFAULT.getInstance(), hproperties.symmetricEncryptionType.getDefaultKeySizeBits()).generateKey());
 			signerTmp.init();
 			sigsize = signerTmp.getMacLength();
 			
@@ -124,7 +124,7 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 		}
 		signature_size=sigsize;
 		try {
-			random=SecureRandomType.DEFAULT.getInstance();
+			random=SecureRandomType.NativePRNGBlocking.getInstance();
 		} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
 			throw new ConnectionException(e);
 		}
@@ -146,8 +146,8 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 				}
 				if (signerAlgorithm==null || signatureCheckerAlgorithm==null)
 				{
-					signerAlgorithm=new SymmetricSignerAlgorithm(secret_key_for_signature);
-					signatureCheckerAlgorithm=new SymmetricSignatureCheckerAlgorithm(secret_key_for_signature);
+					signerAlgorithm=new SymmetricSignerAlgorithm(hproperties.symmetricSignatureType, secret_key_for_signature);
+					signatureCheckerAlgorithm=new SymmetricSignatureCheckerAlgorithm(hproperties.symmetricSignatureType, secret_key_for_signature);
 					blockCheckerChanged=true;
 				}
 			} else {

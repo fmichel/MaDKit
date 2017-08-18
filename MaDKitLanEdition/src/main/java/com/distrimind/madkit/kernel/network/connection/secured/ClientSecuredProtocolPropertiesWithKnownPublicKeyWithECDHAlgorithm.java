@@ -41,7 +41,10 @@ import com.distrimind.madkit.exceptions.ConnectionException;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocolProperties;
 import com.distrimind.util.crypto.ASymmetricPublicKey;
 import com.distrimind.util.crypto.ASymmetricSignatureType;
+import com.distrimind.util.crypto.EllipticCurveDiffieHellmanType;
+import com.distrimind.util.crypto.SecureRandomType;
 import com.distrimind.util.crypto.SymmetricEncryptionType;
+import com.distrimind.util.crypto.SymmetricSignatureType;
 
 /**
  * {@inheritDoc}
@@ -77,16 +80,19 @@ public class ClientSecuredProtocolPropertiesWithKnownPublicKeyWithECDHAlgorithm
 	 * @param symmetricEncryptionType
 	 *            the symmetric encryption type (if null, use default symmetric
 	 *            encryption type and default key size)
+	 * @param symmetricSignatureType
+	 * 			the symmetric signature type (if null, use default symmetric
+	 *            encryption type and default key size)
 	 * @param publicKeyForEncryption
 	 *            the public key for encryption
 	 * @param publicKeyForSignature
 	 *            the public key for signature
 	 */
-	public void setEncryptionProfile(int identifier, SymmetricEncryptionType symmetricEncryptionType,
-			ASymmetricPublicKey publicKeyForEncryption, ASymmetricPublicKey publicKeyForSignature) {
-		this.setEncryptionProfile(identifier, symmetricEncryptionType,
-				symmetricEncryptionType == null ? -1 : symmetricEncryptionType.getDefaultKeySizeBits(), publicKeyForEncryption,publicKeyForSignature,
-				null);
+	public void setEncryptionProfile(int identifier, SymmetricEncryptionType symmetricEncryptionType,SymmetricSignatureType symmetricSignatureType,
+			ASymmetricPublicKey publicKeyForSignature, EllipticCurveDiffieHellmanType ellipticCurveDiffieHellmanType) {
+		this.setEncryptionProfile(identifier, symmetricEncryptionType,symmetricSignatureType,
+				symmetricEncryptionType == null ? -1 : symmetricEncryptionType.getDefaultKeySizeBits(),publicKeyForSignature,
+				null, ellipticCurveDiffieHellmanType);
 	}
 
 	/**
@@ -107,26 +113,31 @@ public class ClientSecuredProtocolPropertiesWithKnownPublicKeyWithECDHAlgorithm
 	 * @param signatureType
 	 *            the signature type (if null, use default signature type)
 	 */
-	public void setEncryptionProfile(int identifier, SymmetricEncryptionType symmetricEncryptionType,
-			short symmetricKeySizeBits, ASymmetricPublicKey publicKeyForEncryption, ASymmetricPublicKey publicKeyForSignature, ASymmetricSignatureType signatureType) {
-		if (publicKeyForEncryption == null)
-			throw new NullPointerException("publicKey");
-		if (publicKeyForEncryption.getKeySize() < minASymetricKeySize)
-			throw new IllegalArgumentException("The public key size must be greater than " + minASymetricKeySize);
+	public void setEncryptionProfile(int identifier, SymmetricEncryptionType symmetricEncryptionType,SymmetricSignatureType symmetricSignatureType,
+			short symmetricKeySizeBits, ASymmetricPublicKey publicKeyForSignature, ASymmetricSignatureType signatureType, EllipticCurveDiffieHellmanType ellipticCurveDiffieHellmanType) {
+		if (symmetricSignatureType == null)
+			throw new NullPointerException("symmetricSignatureType");
 		if (publicKeyForSignature == null)
 			throw new NullPointerException("publicKey");
 		if (publicKeyForSignature.getKeySize() < minASymetricKeySize)
 			throw new IllegalArgumentException("The public key size must be greater than " + minASymetricKeySize);
-		this.publicKeyForEncryption = publicKeyForEncryption;
+		if (ellipticCurveDiffieHellmanType==null)
+			throw new NullPointerException("ellipticCurveDiffieHellmanType");
 		this.publicKeyForSignature=publicKeyForSignature;
 		if (signatureType == null)
 			signatureType = publicKeyForSignature.getAlgorithmType().getDefaultSignatureAlgorithm();
-		this.signatureType = signatureType;
+		this.asymmetricSignatureType = signatureType;
 		keyIdentifier = identifier;
 		if (symmetricEncryptionType != null) {
 			this.symmetricEncryptionType = symmetricEncryptionType;
 			this.SymmetricKeySizeBits = symmetricKeySizeBits;
+			this.symmetricSignatureType=this.symmetricEncryptionType.getDefaultSignatureAlgorithm();
 		}
+		if(symmetricSignatureType!=null)
+		{
+			this.symmetricSignatureType=symmetricSignatureType;
+		}
+		this.ellipticCurveDiffieHellmanType=ellipticCurveDiffieHellmanType;
 	}
 
 	/**
@@ -136,24 +147,17 @@ public class ClientSecuredProtocolPropertiesWithKnownPublicKeyWithECDHAlgorithm
 	 * @param serverProperties
 	 *            the server side properties
 	 */
-	public void setEncryptionProfile(ServerSecuredProcotolPropertiesWithKnownPublicKey serverProperties) {
+	public void setEncryptionProfile(ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm serverProperties) {
 		enableEncryption = serverProperties.enableEncryption;
 		setEncryptionProfile(serverProperties.getLastEncryptionProfileIdentifier(),
 				serverProperties.getDefaultSymmetricEncryptionType(),
+				serverProperties.getDefaultSymmetricSignatureType(),
 				serverProperties.getDefaultSymmetricEncryptionKeySizeBits(),
-				serverProperties.getDefaultKeyPairForEncryption().getASymmetricPublicKey(),
 				serverProperties.getDefaultKeyPairForSignature().getASymmetricPublicKey(),
-				serverProperties.getDefaultSignatureType());
+				serverProperties.getDefaultASymmetricSignatureType(),
+				serverProperties.getDefaultEllipticCurveDiffieHellmanType());
 	}
 
-	/**
-	 * Gets the publicKey attached to this connection protocol
-	 * 
-	 * @return the publicKey attached to this connection protocol
-	 */
-	public ASymmetricPublicKey getPublicKeyForEncryption() {
-		return publicKeyForEncryption;
-	}
 
 	/**
 	 * Gets the publicKey attached to this connection protocol
@@ -161,7 +165,7 @@ public class ClientSecuredProtocolPropertiesWithKnownPublicKeyWithECDHAlgorithm
 	 * @return the publicKey attached to this connection protocol
 	 */
 	public ASymmetricPublicKey getPublicKeyForSignature() {
-		return publicKeyForEncryption;
+		return publicKeyForSignature;
 	}
 
 	/**
@@ -169,8 +173,8 @@ public class ClientSecuredProtocolPropertiesWithKnownPublicKeyWithECDHAlgorithm
 	 * 
 	 * @return the signature attached to this connection protocol
 	 */
-	public ASymmetricSignatureType getSignature() {
-		return signatureType;
+	public ASymmetricSignatureType getASymmetricSignatureType() {
+		return asymmetricSignatureType;
 	}
 
 	/**
@@ -202,16 +206,14 @@ public class ClientSecuredProtocolPropertiesWithKnownPublicKeyWithECDHAlgorithm
 		return SymmetricKeySizeBits;
 	}
 
-	/**
-	 * The used public key
-	 */
-	private ASymmetricPublicKey publicKeyForEncryption;
 
 	/**
 	 * The used public key
 	 */
 	private ASymmetricPublicKey publicKeyForSignature;
 
+	
+	
 	/**
 	 * key identifier
 	 */
@@ -222,10 +224,16 @@ public class ClientSecuredProtocolPropertiesWithKnownPublicKeyWithECDHAlgorithm
 	 */
 	public final int minASymetricKeySize = 1024;
 
+	
 	/**
 	 * Symmetric encryption algorithm
 	 */
 	private SymmetricEncryptionType symmetricEncryptionType = SymmetricEncryptionType.DEFAULT;
+
+	/**
+	 * Symmetric signature algorithm
+	 */
+	private SymmetricSignatureType symmetricSignatureType=symmetricEncryptionType.getDefaultSignatureAlgorithm();
 
 	/**
 	 * The symmetric key size in bits
@@ -233,9 +241,14 @@ public class ClientSecuredProtocolPropertiesWithKnownPublicKeyWithECDHAlgorithm
 	private short SymmetricKeySizeBits = symmetricEncryptionType.getDefaultKeySizeBits();
 
 	/**
+	 * Elliptic Curve Diffie Hellman Type, used for symmetric key exchange
+	 */
+	private EllipticCurveDiffieHellmanType ellipticCurveDiffieHellmanType=EllipticCurveDiffieHellmanType.DEFAULT;
+	
+	/**
 	 * Signature type
 	 */
-	public ASymmetricSignatureType signatureType = null;
+	private ASymmetricSignatureType asymmetricSignatureType = null;
 
 	/**
 	 * Default duration of a public key before being regenerated. Must be greater or
@@ -275,10 +288,17 @@ public class ClientSecuredProtocolPropertiesWithKnownPublicKeyWithECDHAlgorithm
 	}
 	
 	void checkProperties() throws ConnectionException {
-		checkPublicKey(publicKeyForEncryption);
+		
 		checkPublicKey(publicKeyForSignature);
-		if (signatureType == null)
-			signatureType = publicKeyForSignature.getAlgorithmType().getDefaultSignatureAlgorithm();
+		if (asymmetricSignatureType == null)
+			asymmetricSignatureType = publicKeyForSignature.getAlgorithmType().getDefaultSignatureAlgorithm();
+		if (symmetricEncryptionType==null)
+			throw new ConnectionException(new NullPointerException());
+		if (symmetricSignatureType==null)
+			symmetricSignatureType=this.symmetricEncryptionType.getDefaultSignatureAlgorithm();
+			
+		if (ellipticCurveDiffieHellmanType==null)
+			throw new ConnectionException(new NullPointerException());
 
 	}
 
@@ -302,4 +322,19 @@ public class ClientSecuredProtocolPropertiesWithKnownPublicKeyWithECDHAlgorithm
 		return false;
 	}
 
+	public SymmetricSignatureType getSymmetricSignatureType() {
+		return symmetricSignatureType;
+	}
+
+	public EllipticCurveDiffieHellmanType getEllipticCurveDiffieHellmanType() {
+		return ellipticCurveDiffieHellmanType;
+	}
+
+	public ASymmetricSignatureType getAsymmetricSignatureType() {
+		return asymmetricSignatureType;
+	}
+	/**
+	 * Secure Random type
+	 */
+	public SecureRandomType secureRandomType;
 }

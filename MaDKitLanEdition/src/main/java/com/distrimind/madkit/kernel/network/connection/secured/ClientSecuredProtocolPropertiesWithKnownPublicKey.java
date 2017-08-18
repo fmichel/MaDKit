@@ -161,7 +161,7 @@ public class ClientSecuredProtocolPropertiesWithKnownPublicKey
 	 * @return the publicKey attached to this connection protocol
 	 */
 	public ASymmetricPublicKey getPublicKeyForSignature() {
-		return publicKeyForEncryption;
+		return publicKeyForSignature;
 	}
 
 	/**
@@ -279,6 +279,8 @@ public class ClientSecuredProtocolPropertiesWithKnownPublicKey
 		checkPublicKey(publicKeyForSignature);
 		if (signatureType == null)
 			signatureType = publicKeyForSignature.getAlgorithmType().getDefaultSignatureAlgorithm();
+		if (symmetricEncryptionType==null)
+			throw new ConnectionException(new NullPointerException());
 
 	}
 

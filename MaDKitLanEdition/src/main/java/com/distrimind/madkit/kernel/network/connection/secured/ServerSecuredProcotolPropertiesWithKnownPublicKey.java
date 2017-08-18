@@ -415,6 +415,7 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKey
 		boolean valid=true;
 		valid|=checkKeyPairs(keyPairsForEncryption);
 		valid|=checkKeyPairs(keyPairsForSignature);
+		
 		if (!valid) {
 			throw new ConnectionException("All given public keys has expired");
 		}

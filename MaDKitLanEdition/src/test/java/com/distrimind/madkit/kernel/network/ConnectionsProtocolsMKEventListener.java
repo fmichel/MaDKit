@@ -42,7 +42,7 @@ import java.util.ArrayList;
 import com.distrimind.madkit.kernel.MadkitEventListener;
 import com.distrimind.madkit.kernel.MadkitProperties;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocolProperties;
-import com.distrimind.madkit.kernel.network.connection.secured.ClientSecuredProtocolPropertiesWithKnownPublicKey;
+import com.distrimind.madkit.kernel.network.connection.secured.ClientSecuredProtocolPropertiesWithKnownPublicKeyWithECDHAlgorithm;
 import com.distrimind.madkit.kernel.network.connection.secured.P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties;
 import com.distrimind.madkit.kernel.network.connection.secured.P2PSecuredConnectionProtocolWithECDHAlgorithmProperties;
 import com.distrimind.madkit.kernel.network.connection.secured.ServerSecuredProcotolPropertiesWithKnownPublicKey;
@@ -50,6 +50,7 @@ import com.distrimind.madkit.kernel.network.connection.unsecured.CheckSumConnect
 import com.distrimind.madkit.kernel.network.connection.unsecured.UnsecuredConnectionProtocolProperties;
 import com.distrimind.util.crypto.ASymmetricEncryptionType;
 import com.distrimind.util.crypto.ASymmetricKeyPair;
+import com.distrimind.util.crypto.EllipticCurveDiffieHellmanType;
 import com.distrimind.util.crypto.SecureRandomType;
 import com.distrimind.util.crypto.SymmetricEncryptionType;
 
@@ -198,9 +199,9 @@ public class ConnectionsProtocolsMKEventListener implements MadkitEventListener 
 		u.isServer = false;
 		res.add(new ConnectionsProtocolsMKEventListener(u));
 
-		ClientSecuredProtocolPropertiesWithKnownPublicKey c = new ClientSecuredProtocolPropertiesWithKnownPublicKey();
-		c.setEncryptionProfile(encryptionProfileIdentifier, SymmetricEncryptionType.DEFAULT,
-				getKeyPairForEncryption().getASymmetricPublicKey(), getKeyPairForSignature().getASymmetricPublicKey());
+		ClientSecuredProtocolPropertiesWithKnownPublicKeyWithECDHAlgorithm c = new ClientSecuredProtocolPropertiesWithKnownPublicKeyWithECDHAlgorithm();
+		c.setEncryptionProfile(encryptionProfileIdentifier, SymmetricEncryptionType.DEFAULT,SymmetricEncryptionType.DEFAULT.getDefaultSignatureAlgorithm(),
+				getKeyPairForSignature().getASymmetricPublicKey(), EllipticCurveDiffieHellmanType.ECDH_128);
 		if (includeP2PConnectionPossibilityForClients) {
 			P2PSecuredConnectionProtocolWithECDHAlgorithmProperties p2p = new P2PSecuredConnectionProtocolWithECDHAlgorithmProperties();
 			p2p.isServer = false;
@@ -210,9 +211,9 @@ public class ConnectionsProtocolsMKEventListener implements MadkitEventListener 
 
 		ConnectionProtocolProperties<?> cpp = u = new UnsecuredConnectionProtocolProperties();
 		u.isServer = false;
-		c = new ClientSecuredProtocolPropertiesWithKnownPublicKey();
-		c.setEncryptionProfile(encryptionProfileIdentifier, SymmetricEncryptionType.DEFAULT,
-				getKeyPairForEncryption().getASymmetricPublicKey(), getKeyPairForSignature().getASymmetricPublicKey());
+		c = new ClientSecuredProtocolPropertiesWithKnownPublicKeyWithECDHAlgorithm();
+		c.setEncryptionProfile(encryptionProfileIdentifier, SymmetricEncryptionType.DEFAULT,SymmetricEncryptionType.DEFAULT.getDefaultSignatureAlgorithm(),
+				getKeyPairForSignature().getASymmetricPublicKey(), EllipticCurveDiffieHellmanType.ECDH_128);
 		cpp.subProtocolProperties = c;
 		if (includeP2PConnectionPossibilityForClients) {
 			UnsecuredConnectionProtocolProperties cpp2 = new UnsecuredConnectionProtocolProperties();

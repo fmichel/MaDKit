@@ -40,7 +40,6 @@ package com.distrimind.madkit.kernel.network.connection.access;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
-import java.util.List;
 
 import com.distrimind.madkit.database.KeysPairs;
 import com.distrimind.madkit.kernel.MadkitProperties;
@@ -144,7 +143,8 @@ public class AccessProtocolWithASymmetricKeyExchanger extends AbstractAccessProt
 			}
 			switch (access_state) {
 			case ACCESS_NOT_INITIALIZED: {
-				reset();
+				setGroupAccess(null);
+				setIdentifiers(null);
 				if (_m instanceof AccessAskInitiliazation) {
 					if (access_data instanceof LoginData) {
 						initKeyPair();
@@ -221,12 +221,11 @@ public class AccessProtocolWithASymmetricKeyExchanger extends AbstractAccessProt
 			}
 			case ACCESS_INITIALIZED: {
 				if (_m instanceof AccessInitialized) {
-					setOtherCanTakesInitiative( ((AccessInitialized) _m).can_takes_login_initiative);
+					setOtherCanTakesInitiative(((AccessInitialized) _m).can_takes_login_initiative);
 
 					if (access_data instanceof LoginData) {
 						LoginData lp = (LoginData) access_data;
 
-						
 						if (lp.canTakesLoginInitiative())
 							setIdentifiers(lp.getIdentifiersToInitiate());
 						else
@@ -340,8 +339,10 @@ public class AccessProtocolWithASymmetricKeyExchanger extends AbstractAccessProt
 							denied_identiers.add(id);
 					}
 					setAcceptedIdentifiers(ai);
+					// LoginData lp=(LoginData)access_data;
 
 					setDistantKernelAddress(((LoginConfirmationMessage) _m).kernel_address);
+					
 					addLastAcceptedAndDeniedIdentifiers(getAcceptedIdentifiers(), denied_identiers);
 
 					access_state = AccessState.ACCESS_FINALIZED;
@@ -378,6 +379,10 @@ public class AccessProtocolWithASymmetricKeyExchanger extends AbstractAccessProt
 						}
 					} else
 						return null;
+					/*
+					 * if (access_data instanceof LoginData) { return null; } else {
+					 * updateGroupAccess(); return null; }
+					 */
 				} else if (_m instanceof UnlogMessage) {
 					removeAcceptedIdentifiers(((UnlogMessage) _m).identifier_to_unlog);
 					updateGroupAccess();
@@ -519,7 +524,7 @@ public class AccessProtocolWithASymmetricKeyExchanger extends AbstractAccessProt
 				| InvalidAlgorithmParameterException | InvalidKeySpecException | IOException | IllegalAccessException
 				| IllegalBlockSizeException | BadPaddingException | NoSuchProviderException e) {
 			throw new AccessException(e);
-		}
+}
 	}
 	@Override
 	public final boolean isAccessFinalized() {
@@ -533,10 +538,9 @@ public class AccessProtocolWithASymmetricKeyExchanger extends AbstractAccessProt
 			if (_m instanceof NewLocalLoginAddedMessage) {
 				if (access_data instanceof LoginData && ((LoginData) access_data).canTakesLoginInitiative()) {
 					access_state = AccessState.WAITING_FOR_NEW_LOGIN_PW_FOR_ASKER;
-					List<Identifier> identifiers = new ArrayList<>();
-					identifiers.addAll(((NewLocalLoginAddedMessage) _m).identifiers);
-					setIdentifiers(identifiers);
-					return new IdentifiersPropositionMessage(identifiers, cipher,
+					setIdentifiers(new ArrayList<Identifier>());
+					getIdentifiers().addAll(((NewLocalLoginAddedMessage) _m).identifiers);
+					return new IdentifiersPropositionMessage(getIdentifiers(), cipher,
 							this.access_protocol_properties.encryptIdentifiersBeforeSendingToDistantPeer, (short) 0);
 				} else
 					return null;
@@ -552,7 +556,7 @@ public class AccessProtocolWithASymmetricKeyExchanger extends AbstractAccessProt
 			} else {
 				access_state = AccessState.ACCESS_NOT_INITIALIZED;
 				return new AccessErrorMessage(false);
-			}
+			}			
 		}
 		catch(InvalidKeyException | IOException | AccessException | IllegalBlockSizeException | BadPaddingException |
 				NoSuchAlgorithmException | InvalidKeySpecException | NoSuchPaddingException |

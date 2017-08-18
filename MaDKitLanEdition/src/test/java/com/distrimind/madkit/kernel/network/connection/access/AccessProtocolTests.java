@@ -383,6 +383,7 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 			mpasker.setDatabaseFactory(new EmbeddedHSQLDBDatabaseFactory(dbfileasker));
 			mpreceiver.setDatabaseFactory(new EmbeddedHSQLDBDatabaseFactory(dbfilereceiver));
 		}
+		System.out.println(accessProtocolProperties.getClass());
 	}
 
 	@Before

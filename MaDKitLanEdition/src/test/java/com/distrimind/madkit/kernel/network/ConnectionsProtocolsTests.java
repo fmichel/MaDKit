@@ -76,15 +76,18 @@ import com.distrimind.madkit.kernel.network.connection.ConnectionProtocolPropert
 import com.distrimind.madkit.kernel.network.connection.TransferedBlockChecker;
 import com.distrimind.madkit.kernel.network.connection.UnexpectedMessage;
 import com.distrimind.madkit.kernel.network.connection.secured.ClientSecuredProtocolPropertiesWithKnownPublicKey;
+import com.distrimind.madkit.kernel.network.connection.secured.ClientSecuredProtocolPropertiesWithKnownPublicKeyWithECDHAlgorithm;
 import com.distrimind.madkit.kernel.network.connection.secured.P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties;
 import com.distrimind.madkit.kernel.network.connection.secured.P2PSecuredConnectionProtocolWithECDHAlgorithmProperties;
 import com.distrimind.madkit.kernel.network.connection.secured.ServerSecuredProcotolPropertiesWithKnownPublicKey;
+import com.distrimind.madkit.kernel.network.connection.secured.ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm;
 import com.distrimind.madkit.kernel.network.connection.unsecured.CheckSumConnectionProtocolProperties;
 import com.distrimind.madkit.kernel.network.connection.unsecured.UnsecuredConnectionProtocolProperties;
 import com.distrimind.ood.database.DatabaseConfiguration;
 import com.distrimind.ood.database.EmbeddedHSQLDBWrapper;
 import com.distrimind.util.crypto.ASymmetricEncryptionType;
 import com.distrimind.util.crypto.ASymmetricKeyPair;
+import com.distrimind.util.crypto.EllipticCurveDiffieHellmanType;
 import com.distrimind.util.crypto.MessageDigestType;
 import com.distrimind.util.crypto.SecureRandomType;
 import com.distrimind.util.crypto.SymmetricEncryptionType;
@@ -231,6 +234,29 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 		cp.enableEncryption = false;
 		o[0] = cp;
 		o[1] = sp;
+		res.add(o);
+
+		o = new ConnectionProtocolProperties<?>[2];
+		ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm spwe = new ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm();
+		ClientSecuredProtocolPropertiesWithKnownPublicKeyWithECDHAlgorithm cpwe = new ClientSecuredProtocolPropertiesWithKnownPublicKeyWithECDHAlgorithm();
+		kps = ASymmetricEncryptionType.DEFAULT
+				.getKeyPairGenerator(SecureRandomType.DEFAULT.getInstance(), (short) 1024).generateKeyPair();
+		
+		spwe.addEncryptionProfile(kps, SymmetricEncryptionType.DEFAULT, SymmetricEncryptionType.DEFAULT.getDefaultSignatureAlgorithm(), EllipticCurveDiffieHellmanType.BOUNCY_CASTLE_ECDH_128);
+		cpwe.setEncryptionProfile(spwe);
+		o[0] = cpwe;
+		o[1] = spwe;
+		res.add(o);
+		
+		o = new ConnectionProtocolProperties<?>[2];
+		spwe = new ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm();
+		cpwe = new ClientSecuredProtocolPropertiesWithKnownPublicKeyWithECDHAlgorithm();
+		spwe.addEncryptionProfile(kps, SymmetricEncryptionType.DEFAULT, SymmetricEncryptionType.DEFAULT.getDefaultSignatureAlgorithm(), EllipticCurveDiffieHellmanType.BOUNCY_CASTLE_ECDH_128);
+		cpwe.setEncryptionProfile(spwe);
+		spwe.enableEncryption = false;
+		cpwe.enableEncryption = false;
+		o[0] = cpwe;
+		o[1] = spwe;
 		res.add(o);
 
 		o = new ConnectionProtocolProperties<?>[2];

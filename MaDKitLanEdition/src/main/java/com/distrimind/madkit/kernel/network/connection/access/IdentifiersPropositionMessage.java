@@ -211,7 +211,7 @@ class IdentifiersPropositionMessage extends AccessMessage {
 				loginData.canTakesLoginInitiative()
 						? ((res.size() == 0 && identifiers.length > 0) ? (short) 1 : (short) 0)
 						: (nbAno > Short.MAX_VALUE) ? Short.MAX_VALUE : (short) nbAno);
-	}
+}
 	public JPakeMessage getJPakeMessage(LoginData loginData, Map<Identifier, P2PJPAKESecretMessageExchanger> jpakes, AbstractSecureRandom random, AbstractMessageDigest messageDigest,
 			boolean encryptIdentifiers) throws AccessException, InvalidKeyException, IOException,
 			IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, InvalidKeySpecException,

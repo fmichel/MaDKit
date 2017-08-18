@@ -16,3 +16,13 @@
 /tmpfortest.database.log
 /tmpfortest.database.properties
 /tmpfortest.database.script
+/dbasker.database.data
+/dbasker.database.lck
+/dbasker.database.log
+/dbasker.database.properties
+/dbasker.database.script
+/dbreceiver.database.data
+/dbreceiver.database.lck
+/dbreceiver.database.log
+/dbreceiver.database.properties
+/dbreceiver.database.script

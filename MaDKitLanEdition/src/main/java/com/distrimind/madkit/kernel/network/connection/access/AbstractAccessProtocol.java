@@ -99,14 +99,17 @@ public abstract class AbstractAccessProtocol {
 			((LoginData) access_data).addTrigger(loginTrigger);
 		}
 	}
-
+	protected void setGroupAccess(MultiGroup gp)
+	{
+		groups_access.set(gp);
+	}
 	@Override
 	public boolean equals(Object o) {
 		if (this == o)
 			return true;
 		if (o == null)
 			return false;
-		if (o instanceof AbstractAccessProtocol)
+		if (o.getClass()==this.getClass())
 			return ((AbstractAccessProtocol) o).access_data.equals(access_data);
 		return false;
 	}
@@ -125,7 +128,7 @@ public abstract class AbstractAccessProtocol {
 		identifiers=null;
 		acceptedIdentifiers=null;
 		deniedIdentifiers=null;
-		groups_access=null;
+		groups_access.set(null);;
 	}
 
 
@@ -134,17 +137,7 @@ public abstract class AbstractAccessProtocol {
 			accessFinalizedMessageReceived = true;
 		
 		return subSetAndGetNextMessage(_m);
-		/*
-		 * if (_m instanceof LocalLogingAccessMessage) { if
-		 * (this.access_state.equals(AccessState.ACCESS_FINALIZED)) return
-		 * subSetAndGetNextMessage(_m); else {
-		 * addNewLocalLoginEvent((LocalLogingAccessMessage)_m); return null; } } else {
-		 * AccessMessage am=subSetAndGetNextMessage(_m); if (am==null &&
-		 * this.access_state.equals(AccessState.ACCESS_FINALIZED)) {
-		 * LocalLogingAccessMessage l=popLocalLogingEvent(); if (l!=null) return
-		 * subSetAndGetNextMessage(l); else return null; } else return am; }
-		 */
-
+		
 	}
 
 	public abstract AccessMessage subSetAndGetNextMessage(AccessMessage _m) throws AccessException;

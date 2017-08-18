@@ -59,7 +59,8 @@ import com.distrimind.madkit.kernel.network.AccessProtocolPropertiesMKEventListe
 import com.distrimind.madkit.kernel.network.ConnectionsProtocolsMKEventListener;
 import com.distrimind.madkit.kernel.network.DoubleIP;
 import com.distrimind.madkit.kernel.network.NetworkEventListener;
-import com.distrimind.madkit.kernel.network.connection.access.AccessProtocolProperties;
+import com.distrimind.madkit.kernel.network.connection.access.AbstractAccessProtocolProperties;
+import com.distrimind.madkit.kernel.network.connection.access.AccessProtocolWithJPakeProperties;
 import com.distrimind.madkit.kernel.network.connection.unsecured.UnsecuredConnectionProtocolProperties;
 import com.distrimind.madkit.testing.util.agent.ForEverOnTheSameAASenderAgent;
 import com.distrimind.madkit.testing.util.agent.NormalAgent;
@@ -85,9 +86,7 @@ public class NetworkSpeed extends JunitMadkit {
 
 			@Override
 			public void onMadkitPropertiesLoaded(MadkitProperties _properties) {
-				AccessProtocolProperties app = new AccessProtocolProperties();
-				app.aSymetricKeySize = 1024;
-				app.passwordHashIterations = 1024;
+				AbstractAccessProtocolProperties app = new AccessProtocolWithJPakeProperties();
 
 				try {
 					new NetworkEventListener(true, false, false, null,
@@ -105,9 +104,7 @@ public class NetworkSpeed extends JunitMadkit {
 		UnsecuredConnectionProtocolProperties u = new UnsecuredConnectionProtocolProperties();
 		u.isServer = false;
 
-		AccessProtocolProperties app = new AccessProtocolProperties();
-		app.aSymetricKeySize = 1024;
-		app.passwordHashIterations = 1024;
+		AbstractAccessProtocolProperties app = new AccessProtocolWithJPakeProperties();
 
 		this.eventListener2 = new NetworkEventListener(true, false, false, null,
 				new ConnectionsProtocolsMKEventListener(u), new AccessProtocolPropertiesMKEventListener(app),

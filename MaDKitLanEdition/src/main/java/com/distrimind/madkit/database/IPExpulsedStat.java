@@ -61,7 +61,7 @@ public final class IPExpulsedStat extends Table<IPExpulsedStat.Record> {
 
 		}
 
-		public @NotNull @PrimaryKey byte[] inet_address;
+		public @NotNull @PrimaryKey(limit=20) byte[] inet_address;
 		public @Field long last_update_time;
 		// public @Field long time_accumulation;
 		public @Field short number_hits;

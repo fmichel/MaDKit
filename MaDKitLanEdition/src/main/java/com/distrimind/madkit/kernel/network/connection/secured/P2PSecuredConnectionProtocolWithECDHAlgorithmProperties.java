@@ -39,26 +39,27 @@ package com.distrimind.madkit.kernel.network.connection.secured;
 
 import com.distrimind.madkit.exceptions.ConnectionException;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocolProperties;
-import com.distrimind.util.crypto.ASymmetricEncryptionType;
-import com.distrimind.util.crypto.ASymmetricSignatureType;
+import com.distrimind.util.crypto.EllipticCurveDiffieHellmanType;
+import com.distrimind.util.crypto.SecureRandomType;
 import com.distrimind.util.crypto.SymmetricEncryptionType;
+import com.distrimind.util.crypto.SymmetricSignatureType;
 
 /**
  * {@inheritDoc}
  * 
  * @author Jason Mahdjoub
  * @version 1.0
- * @since MadkitLanEdition 1.0
+ * @since MadkitLanEdition 1.2
  */
-public class P2PSecuredConnectionProtocolProperties extends ConnectionProtocolProperties<P2PSecuredConnectionProtocol> {
-
+public class P2PSecuredConnectionProtocolWithECDHAlgorithmProperties extends ConnectionProtocolProperties<P2PSecuredConnectionProtocolWithECDHAlgorithm> {
+	
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -3844860519386846020L;
+	private static final long serialVersionUID = -616754777676015639L;
 
-	public P2PSecuredConnectionProtocolProperties() {
-		super(P2PSecuredConnectionProtocol.class);
+	public P2PSecuredConnectionProtocolWithECDHAlgorithmProperties() {
+		super(P2PSecuredConnectionProtocolWithECDHAlgorithm.class);
 	}
 
 	/**
@@ -68,65 +69,39 @@ public class P2PSecuredConnectionProtocolProperties extends ConnectionProtocolPr
 	public boolean enableEncryption = true;
 
 	/**
-	 * The asymetric cipher key size
+	 * Elliptic Curve Diffie Hellman Type
 	 */
-	public short aSymetricKeySize = 4096;
-
-	/**
-	 * The minimum asymetric cipher RSA Key size
-	 */
-	public final int minASymetricKeySize = 1024;
-
+	public EllipticCurveDiffieHellmanType ellipticCurveDiffieHellmanType=EllipticCurveDiffieHellmanType.ECDH_128;
+	
 	/**
 	 * Symmetric encryption algorithm
 	 */
 	public SymmetricEncryptionType symmetricEncryptionType = SymmetricEncryptionType.DEFAULT;
 
 	/**
-	 * The symmetric key size in bits
-	 */
-	public short SymmetricKeySizeBits = symmetricEncryptionType.getDefaultKeySizeBits();
-
-	/**
-	 * Asymmetric encryption algorithm
-	 */
-	public ASymmetricEncryptionType aSymetricEncryptionType = ASymmetricEncryptionType.DEFAULT;
-
-	/**
 	 * Signature type
 	 */
-	public ASymmetricSignatureType signatureType = aSymetricEncryptionType.getDefaultSignatureAlgorithm();
-
+	public SymmetricSignatureType signatureType=SymmetricSignatureType.HMAC_SHA_256;
+	
 	/**
-	 * Default duration of a public key before being regenerated. Must be greater or
-	 * equal than 0.
+	 * Secure Random Type
 	 */
-	public final long defaultASymmetricKeyExpirationMs = 15552000000l;
-
-	/**
-	 * The duration of a public key before being regenerated. Must be greater or
-	 * equal than 0.
-	 */
-	public long aSymmetricKeyExpirationMs = defaultASymmetricKeyExpirationMs;
-
+	public SecureRandomType secureRandomType=SecureRandomType.DEFAULT; 
+	
 	/**
 	 * Tells if the current peer can receive an ask for connection.
 	 */
 	public boolean isServer = true;
 
 	void checkProperties() throws ConnectionException {
-		if (aSymetricKeySize < minASymetricKeySize)
-			throw new ConnectionException("_rsa_key_size must be greater or equal than " + minASymetricKeySize
-					+ " . Moreover, this number must correspond to this schema : _rsa_key_size=2^x.");
-		int tmp = aSymetricKeySize;
-		while (tmp != 1) {
-			if (tmp % 2 == 0)
-				tmp = tmp / 2;
-			else
-				throw new ConnectionException("The RSA key size have a size of " + aSymetricKeySize
-						+ ". This number must correspond to this schema : _rsa_key_size=2^x.");
-		}
-
+		if (ellipticCurveDiffieHellmanType==null)
+			throw new ConnectionException(new NullPointerException("ellipticCurveDiffieHellmanType"));
+		if (symmetricEncryptionType==null)
+			throw new ConnectionException(new NullPointerException("symmetricEncryptionType"));
+		if (signatureType==null)
+			throw new ConnectionException(new NullPointerException("signatureType"));
+		if (secureRandomType==null)
+			throw new ConnectionException(new NullPointerException("secureRandomType"));
 	}
 
 	@Override

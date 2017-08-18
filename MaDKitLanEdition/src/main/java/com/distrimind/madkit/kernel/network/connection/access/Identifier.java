@@ -81,6 +81,12 @@ public class Identifier implements Serializable {
 		return false;
 	}
 
+	@Override
+	public int hashCode()
+	{
+		return cloud_identifier.hashCode()^host_identifier.hashCode();
+	}
+	
 	/**
 	 * Tells if the given identifier has the same cloud identifier than those of the
 	 * current instance.

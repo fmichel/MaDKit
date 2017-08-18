@@ -100,8 +100,9 @@ import com.distrimind.madkit.kernel.network.connection.access.AccessAbordedMessa
 import com.distrimind.madkit.kernel.network.connection.access.AccessAskInitiliazation;
 import com.distrimind.madkit.kernel.network.connection.access.AccessErrorMessage;
 import com.distrimind.madkit.kernel.network.connection.access.AccessMessage;
+import com.distrimind.madkit.kernel.network.connection.access.AccessMessagesList;
 import com.distrimind.madkit.kernel.network.connection.access.AccessGroupsNotifier;
-import com.distrimind.madkit.kernel.network.connection.access.AccessProtocol;
+import com.distrimind.madkit.kernel.network.connection.access.AbstractAccessProtocol;
 import com.distrimind.madkit.kernel.network.connection.access.DoNotSendMessage;
 import com.distrimind.madkit.kernel.network.connection.access.Identifier;
 import com.distrimind.madkit.kernel.network.connection.access.LoginEventsTrigger;
@@ -145,7 +146,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 	protected int max_block_size;
 
 	protected final boolean this_ask_connection;
-	protected AccessProtocol access_protocol;
+	protected AbstractAccessProtocol access_protocol;
 	// private ConnectionState
 	// global_connection_state=ConnectionState.NOT_CONNECTED;
 	protected final AgentAddress nio_agent_address;
@@ -359,8 +360,8 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 
 				@Override
 				public void removingIdentifiers(Collection<Identifier> _identifiers) {
-					AbstractAgentSocket.this.receiveMessage(new ObjectMessage<NewLocalLoginAddedMessage>(
-							new NewLocalLoginAddedMessage(new ArrayList<>(_identifiers))));
+					AbstractAgentSocket.this.receiveMessage(new ObjectMessage<NewLocalLoginRemovedMessage>(
+							new NewLocalLoginRemovedMessage(new ArrayList<>(_identifiers))));
 				}
 
 				@Override
@@ -368,13 +369,13 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 					ArrayList<Identifier> identifiers = new ArrayList<>();
 					identifiers.add(_identifier);
 					AbstractAgentSocket.this.receiveMessage(
-							new ObjectMessage<NewLocalLoginAddedMessage>(new NewLocalLoginAddedMessage(identifiers)));
+							new ObjectMessage<NewLocalLoginRemovedMessage>(new NewLocalLoginRemovedMessage(identifiers)));
 				}
 
 				@Override
 				public void addingIdentifiers(Collection<Identifier> _identifiers) {
-					AbstractAgentSocket.this.receiveMessage(new ObjectMessage<NewLocalLoginRemovedMessage>(
-							new NewLocalLoginRemovedMessage(new ArrayList<>(_identifiers))));
+					AbstractAgentSocket.this.receiveMessage(new ObjectMessage<NewLocalLoginAddedMessage>(
+							new NewLocalLoginAddedMessage(new ArrayList<>(_identifiers))));
 
 				}
 
@@ -382,16 +383,16 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 				public void addingIdentifier(Identifier _identifier) {
 					ArrayList<Identifier> identifiers = new ArrayList<>();
 					identifiers.add(_identifier);
-					AbstractAgentSocket.this.receiveMessage(new ObjectMessage<NewLocalLoginRemovedMessage>(
-							new NewLocalLoginRemovedMessage(new ArrayList<>(identifiers))));
+					AbstractAgentSocket.this.receiveMessage(new ObjectMessage<NewLocalLoginAddedMessage>(
+							new NewLocalLoginAddedMessage(new ArrayList<>(identifiers))));
 				}
 			};
 
 			my_accepted_groups = new Groups();
 			my_accepted_logins = new Logins();
 
-			access_protocol = new AccessProtocol(distant_inet_address, local_interface_address, lt, getMadkitConfig());
-
+			access_protocol = getMadkitConfig().networkProperties.getAccessProtocolProperties(distant_inet_address,local_interface_address).getAccessProtocolInstance(distant_inet_address, local_interface_address, lt, getMadkitConfig());
+			
 			if (!this.requestRole(LocalCommunity.Groups.NETWORK, LocalCommunity.Roles.SOCKET_AGENT_ROLE)
 					.equals(ReturnCode.SUCCESS) && logger != null)
 				logger.severe("Cannot request group " + LocalCommunity.Groups.NETWORK + " and role "
@@ -2089,7 +2090,13 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 												.setAndGetNextMessage(new AccessAskInitiliazation());
 										if (am != null) {
 											checkTransferBlockCheckerChangments();
-											sendData(am, true, false);
+											if (am instanceof AccessMessagesList)
+											{
+												for (AccessMessage am2 : ((AccessMessagesList) am).getMessages())
+													sendData(am2, true, false);	
+											}
+											else
+												sendData(am, true, false);
 										}
 									}
 								}
@@ -2124,55 +2131,59 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 							con_close_reason = ConnectionClosedReason.CONNECTION_PROPERLY_CLOSED;
 						}
 
-						AccessMessage toSend = access_protocol.setAndGetNextMessage((AccessMessage) obj);
-						if (toSend != null) {
-							if (toSend instanceof DoNotSendMessage) {
-								toSend = null;
-							}
-						}
-						if (toSend != null) {
-							if (toSend instanceof AccessErrorMessage) {
-								AccessErrorMessage aem = (AccessErrorMessage) toSend;
-								processInvalidAccessMessage(null, (AccessMessage) obj, aem);
-								aem.candidate_to_ban = false;
-								con_close_reason = ConnectionClosedReason.CONNECTION_ANOMALY;
-							}
-						}
-						if (toSend != null) {
-							short nbAnomalies = toSend.getNbAnomalies();
-							if (nbAnomalies > 0) {
-								if (processInvalidProcess("Too much anomalies during identification protocol",
-										nbAnomalies)) {
+						AccessMessage tsm = access_protocol.setAndGetNextMessage((AccessMessage) obj);
+						AccessMessage messagesToSend[]=(tsm instanceof AccessMessagesList)?((AccessMessagesList)tsm).getMessages():new AccessMessage[] {tsm};
+						for (AccessMessage toSend : messagesToSend)
+						{
+							if (toSend != null) {
+								if (toSend instanceof DoNotSendMessage) {
 									toSend = null;
 								}
 							}
-						}
-						if (toSend != null && con_close_reason == null && !(toSend instanceof DoNotSendMessage)) {
-							AccessMessage am = toSend;
-							while (am != null) {
-								sendData(am, true, false);
-								if (am.checkDifferedMessages()) {
-									am = access_protocol.manageDifferedAccessMessage();
-								} else
-									am = null;
+							if (toSend != null) {
+								if (toSend instanceof AccessErrorMessage) {
+									AccessErrorMessage aem = (AccessErrorMessage) toSend;
+									processInvalidAccessMessage(null, (AccessMessage) obj, aem);
+									aem.candidate_to_ban = false;
+									con_close_reason = ConnectionClosedReason.CONNECTION_ANOMALY;
+								}
 							}
+							if (toSend != null) {
+								short nbAnomalies = toSend.getNbAnomalies();
+								if (nbAnomalies > 0) {
+									if (processInvalidProcess("Too much anomalies during identification protocol",
+											nbAnomalies)) {
+										toSend = null;
+									}
+								}
+							}
+							if (toSend != null && con_close_reason == null && !(toSend instanceof DoNotSendMessage)) {
+								AccessMessage am = toSend;
+								while (am != null) {
+									sendData(am, true, false);
+									if (am.checkDifferedMessages()) {
+										am = access_protocol.manageDifferedAccessMessage();
+									} else
+										am = null;
+								}
+							}
+							if (toSend != null && toSend instanceof AccessAbordedMessage) {
+								con_close_reason = ConnectionClosedReason.CONNECTION_PROPERLY_CLOSED;
+							}
+							if (con_close_reason != null)
+								startDeconnectionProcess(con_close_reason);
+							else if (access_protocol.isNotifyAccessGroupChangements()) {
+								notifyNewAccessChangements();
+							}
+							State oldState = state;
+							updateState();
+						
+							if (logger != null && logger.isLoggable(Level.FINER)
+									&& oldState == State.CONNECTED_INITIALIZING_ACCESS && state == State.CONNECTED)
+								logger.finer("Access protocol successfully finished (distant_inet_address="
+										+ distant_inet_address + ", distantInterfacedKernelAddress="
+										+ distantInterfacedKernelAddress + ")");
 						}
-						if (toSend != null && toSend instanceof AccessAbordedMessage) {
-							con_close_reason = ConnectionClosedReason.CONNECTION_PROPERLY_CLOSED;
-						}
-						if (con_close_reason != null)
-							startDeconnectionProcess(con_close_reason);
-						else if (access_protocol.isNotifyAccessGroupChangements()) {
-							notifyNewAccessChangements();
-						}
-						State oldState = state;
-						updateState();
-
-						if (logger != null && logger.isLoggable(Level.FINER)
-								&& oldState == State.CONNECTED_INITIALIZING_ACCESS && state == State.CONNECTED)
-							logger.finer("Access protocol successfully finished (distant_inet_address="
-									+ distant_inet_address + ", distantInterfacedKernelAddress="
-									+ distantInterfacedKernelAddress + ")");
 					} catch (Exception e) {
 						if (logger != null)
 							logger.severeLog("", e);

@@ -50,16 +50,16 @@ import com.distrimind.util.crypto.SymmetricEncryptionType;
  * @version 1.0
  * @since MadkitLanEdition 1.0
  */
-public class ClientSecuredProtocolPropertiesWithKnownPublicKey
-		extends ConnectionProtocolProperties<ClientSecuredConnectionProtocolWithKnownPublicKey> {
+public class ClientSecuredProtocolPropertiesWithKnownPublicKeyWithECDHAlgorithm
+		extends ConnectionProtocolProperties<ClientSecuredConnectionProtocolWithKnownPublicKeyWithECDHAlgorithm> {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1775803204716519459L;
 
-	public ClientSecuredProtocolPropertiesWithKnownPublicKey() {
-		super(ClientSecuredConnectionProtocolWithKnownPublicKey.class);
+	public ClientSecuredProtocolPropertiesWithKnownPublicKeyWithECDHAlgorithm() {
+		super(ClientSecuredConnectionProtocolWithKnownPublicKeyWithECDHAlgorithm.class);
 	}
 
 	/**

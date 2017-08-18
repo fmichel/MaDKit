@@ -38,16 +38,15 @@
 package com.distrimind.madkit.kernel.network.connection.access;
 
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import com.distrimind.madkit.kernel.MadkitProperties;
 import com.distrimind.madkit.kernel.network.InetAddressFilters;
 import com.distrimind.madkit.util.XMLObjectParser;
 import com.distrimind.madkit.util.XMLUtilities;
-import com.distrimind.util.crypto.ASymmetricEncryptionType;
-import com.distrimind.util.crypto.MessageDigestType;
-import com.distrimind.util.crypto.PasswordHashType;
 import com.distrimind.util.properties.XMLProperties;
 
 /**
@@ -55,10 +54,10 @@ import com.distrimind.util.properties.XMLProperties;
  * 
  * @author Jason Mahdjoub
  * @version 1.0
- * @since MadkitLanEdition
+ * @since MadkitLanEdition 1.2
  *
  */
-public class AccessProtocolProperties extends XMLProperties {
+public abstract class AbstractAccessProtocolProperties extends XMLProperties {
 
 	/**
 	 * 
@@ -70,50 +69,6 @@ public class AccessProtocolProperties extends XMLProperties {
 	 */
 	public InetAddressFilters filters;
 
-	/**
-	 * The asymetric cipher key size used for
-	 * {@link PeerToPeerASymmetricSecretMessageExchanger}
-	 */
-	public short aSymetricKeySize = 4096;
-
-	/**
-	 * The minimum asymetric cipher RSA Key size used for
-	 * {@link PeerToPeerASymmetricSecretMessageExchanger}
-	 */
-	public final int minASymetricKeySize = 1024;
-
-	/**
-	 * Asymmetric encryption algorithm used for
-	 * {@link PeerToPeerASymmetricSecretMessageExchanger}
-	 */
-	public ASymmetricEncryptionType aSymetricEncryptionType = ASymmetricEncryptionType.DEFAULT;
-
-	/**
-	 * Message digest type used for {@link P2PASymmetricSecretMessageExchanger}
-	 */
-	public MessageDigestType messageDigestType = MessageDigestType.SHA_512;
-
-	/**
-	 * PasswordDigestType used for {@link P2PASymmetricSecretMessageExchanger}
-	 */
-	public PasswordHashType passwordHashType = PasswordHashType.DEFAULT;
-
-	/**
-	 * Password hash iterations
-	 */
-	public int passwordHashIterations = 100000;
-
-	/**
-	 * Default duration of a public key before being regenerated. Must be greater or
-	 * equal than 0.
-	 */
-	public final long defaultASymmetricKeyExpirationMs = 15552000000l;
-
-	/**
-	 * The duration of a public key before being regenerated. Must be greater or
-	 * equal than 0.
-	 */
-	public long aSymmetricKeyExpirationMs = defaultASymmetricKeyExpirationMs;
 
 	/**
 	 * Tells if the identifiers must be encrypted before being sent to the distant
@@ -125,21 +80,9 @@ public class AccessProtocolProperties extends XMLProperties {
 	 */
 	public boolean encryptIdentifiersBeforeSendingToDistantPeer = true;
 
-	void checkProperties() throws AccessException {
-		if (aSymetricKeySize < minASymetricKeySize)
-			throw new AccessException("aSymetricKeySize value must be greter than " + minASymetricKeySize);
-		int tmp = aSymetricKeySize;
-		while (tmp != 1) {
-			if (tmp % 2 == 0)
-				tmp = tmp / 2;
-			else
-				throw new AccessException("The RSA key size have a size of " + aSymetricKeySize
-						+ ". This number must correspond to this schema : _rsa_key_size=2^x.");
-		}
-
-	}
-
-	public AccessProtocolProperties() {
+	abstract void checkProperties() throws AccessException;
+	
+	public AbstractAccessProtocolProperties() {
 		super(new XMLObjectParser());
 	}
 
@@ -179,4 +122,8 @@ public class AccessProtocolProperties extends XMLProperties {
 		return res;
 	}
 
+	public abstract AbstractAccessProtocol getAccessProtocolInstance(InetSocketAddress _distant_inet_address, InetSocketAddress _local_interface_address,
+			LoginEventsTrigger loginTrigger,
+			MadkitProperties _properties) throws AccessException;
+	
 }

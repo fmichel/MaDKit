@@ -62,7 +62,7 @@ import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.madkit.kernel.network.connection.access.AccessData;
 import com.distrimind.madkit.kernel.network.connection.access.AccessException;
 import com.distrimind.madkit.kernel.network.connection.access.AccessGroupsNotifier;
-import com.distrimind.madkit.kernel.network.connection.access.AccessProtocol;
+import com.distrimind.madkit.kernel.network.connection.access.AbstractAccessProtocol;
 import com.distrimind.madkit.kernel.network.connection.access.Identifier;
 import com.distrimind.madkit.kernel.network.connection.access.LoginEventsTrigger;
 import com.distrimind.ood.database.DatabaseConfiguration;
@@ -87,8 +87,8 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 	final ArrayList<AccessData> adreceiver;
 	final MadkitProperties mpasker;
 	final MadkitProperties mpreceiver;
-	AccessProtocol apasker;
-	AccessProtocol apreceiver;
+	AbstractAccessProtocol apasker;
+	AbstractAccessProtocol apreceiver;
 	final ArrayList<Identifier> acceptedAskerIdentifiers;
 	final ArrayList<Identifier> acceptedReceiverIdentifiers;
 	final ArrayList<IdentifierPassword> identifierPassordsAsker;
@@ -105,6 +105,16 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 	}
 
 	public static Collection<Object[]> data(boolean databaseEnabled) {
+		AccessProtocolWithASymmetricKeyExchangerProperties app1=new AccessProtocolWithASymmetricKeyExchangerProperties();
+		app1.aSymetricKeySize = 1024;
+		app1.passwordHashIterations = 1024;
+		Collection<Object[]> res=data(databaseEnabled, app1);
+		AccessProtocolWithJPakeProperties app2=new AccessProtocolWithJPakeProperties();
+		res.addAll(data(databaseEnabled, app2));
+		return res;
+	}
+
+	public static Collection<Object[]> data(boolean databaseEnabled, AbstractAccessProtocolProperties accessProtocolProperties) {
 		ArrayList<Object[]> res = new ArrayList<>();
 		ArrayList<AccessData> adasker = new ArrayList<>();
 		ArrayList<AccessData> adreceiver = new ArrayList<>();
@@ -112,7 +122,7 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 		ArrayList<Identifier> acceptedReceiverIdentifiers = new ArrayList<>();
 		ArrayList<IdentifierPassword> identifierPassordsAsker = null;
 		ArrayList<IdentifierPassword> identifierPassordsReceiver = null;
-		Object[] o = new Object[7];
+		Object[] o = new Object[8];
 		adasker.add(AccessDataMKEventListener.getDefaultAccessData(JunitMadkit.DEFAULT_NETWORK_GROUP_FOR_ACCESS_DATA));
 		adreceiver
 				.add(AccessDataMKEventListener.getDefaultAccessData(JunitMadkit.DEFAULT_NETWORK_GROUP_FOR_ACCESS_DATA));
@@ -123,9 +133,10 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 		o[4] = identifierPassordsAsker;
 		o[5] = identifierPassordsReceiver;
 		o[6] = new Boolean(databaseEnabled);
+		o[7] = accessProtocolProperties;
 		res.add(o);
 
-		o = new Object[7];
+		o = new Object[8];
 		adasker = new ArrayList<>();
 		adreceiver = new ArrayList<>();
 		acceptedAskerIdentifiers = new ArrayList<>();
@@ -165,9 +176,10 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 		o[4] = identifierPassordsAsker;
 		o[5] = identifierPassordsReceiver;
 		o[6] = new Boolean(databaseEnabled);
+		o[7] = accessProtocolProperties;
 		res.add(o);
 
-		o = new Object[7];
+		o = new Object[8];
 		adasker = new ArrayList<>();
 		adreceiver = new ArrayList<>();
 		acceptedAskerIdentifiers = new ArrayList<>();
@@ -207,9 +219,10 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 		o[4] = identifierPassordsAsker;
 		o[5] = identifierPassordsReceiver;
 		o[6] = new Boolean(databaseEnabled);
+		o[7] = accessProtocolProperties;
 		res.add(o);
 
-		o = new Object[7];
+		o = new Object[8];
 		adasker = new ArrayList<>();
 		adreceiver = new ArrayList<>();
 		acceptedAskerIdentifiers = new ArrayList<>();
@@ -251,9 +264,10 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 		o[4] = identifierPassordsAsker;
 		o[5] = identifierPassordsReceiver;
 		o[6] = new Boolean(databaseEnabled);
+		o[7] = accessProtocolProperties;
 		res.add(o);
 
-		o = new Object[7];
+		o = new Object[8];
 		adasker = new ArrayList<>();
 		adreceiver = new ArrayList<>();
 		acceptedAskerIdentifiers = new ArrayList<>();
@@ -295,9 +309,10 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 		o[4] = identifierPassordsAsker;
 		o[5] = identifierPassordsReceiver;
 		o[6] = new Boolean(databaseEnabled);
+		o[7] = accessProtocolProperties;
 		res.add(o);
 
-		o = new Object[7];
+		o = new Object[8];
 		adasker = new ArrayList<>();
 		adreceiver = new ArrayList<>();
 		acceptedAskerIdentifiers = new ArrayList<>();
@@ -339,6 +354,7 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 		o[4] = identifierPassordsAsker;
 		o[5] = identifierPassordsReceiver;
 		o[6] = new Boolean(databaseEnabled);
+		o[7] = accessProtocolProperties;
 		res.add(o);
 
 		return res;
@@ -347,7 +363,7 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 	public AccessProtocolTests(ArrayList<AccessData> adasker, ArrayList<AccessData> adreceiver,
 			ArrayList<Identifier> acceptedAskerIdentifiers, ArrayList<Identifier> acceptedReceiverIdentifiers,
 			ArrayList<IdentifierPassword> identifierPassordsAsker,
-			ArrayList<IdentifierPassword> identifierPassordsReceiver, boolean databaseEnabled)
+			ArrayList<IdentifierPassword> identifierPassordsReceiver, boolean databaseEnabled, AbstractAccessProtocolProperties accessProtocolProperties)
 			throws IllegalArgumentException, DatabaseException {
 		this.adasker = adasker;
 		this.adreceiver = adreceiver;
@@ -359,14 +375,8 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 			this.mpasker.networkProperties.addAccessData(ad);
 		for (AccessData ad : adreceiver)
 			this.mpreceiver.networkProperties.addAccessData(ad);
-		AccessProtocolProperties app = new AccessProtocolProperties();
-		app.aSymetricKeySize = 1024;
-		app.passwordHashIterations = 1024;
-		this.mpasker.networkProperties.addAccessProtocolProperties(app);
-		app = new AccessProtocolProperties();
-		app.aSymetricKeySize = 1024;
-		app.passwordHashIterations = 1024;
-		this.mpreceiver.networkProperties.addAccessProtocolProperties(app);
+		this.mpasker.networkProperties.addAccessProtocolProperties(accessProtocolProperties);
+		this.mpreceiver.networkProperties.addAccessProtocolProperties(accessProtocolProperties);
 		this.acceptedAskerIdentifiers = acceptedAskerIdentifiers;
 		this.acceptedReceiverIdentifiers = acceptedReceiverIdentifiers;
 		if (databaseEnabled) {
@@ -444,9 +454,13 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 				&& !((LoginData) this.mpreceiver.networkProperties.getAccessData(
 						new InetSocketAddress(InetAddress.getByName("56.41.158.221"), 5000),
 						new InetSocketAddress(InetAddress.getByName("192.168.0.55"), 5000))).canTakesLoginInitiative();
-		apasker = new AccessProtocol(new InetSocketAddress(InetAddress.getByName("56.41.158.221"), 5000),
-				new InetSocketAddress(InetAddress.getByName("192.168.0.55"), 5000), this, mpasker);
-		apreceiver = new AccessProtocol(new InetSocketAddress(InetAddress.getByName("56.41.158.221"), 5000),
+		apasker = this.mpasker.networkProperties.getAccessProtocolProperties(new InetSocketAddress(InetAddress.getByName("56.41.158.221"), 5000),
+				new InetSocketAddress(InetAddress.getByName("192.168.0.55"), 5000))
+				.getAccessProtocolInstance(new InetSocketAddress(InetAddress.getByName("56.41.158.221"), 5000),
+						new InetSocketAddress(InetAddress.getByName("192.168.0.55"), 5000), this, mpasker);
+		apreceiver = this.mpreceiver.networkProperties.getAccessProtocolProperties(new InetSocketAddress(InetAddress.getByName("56.41.158.221"), 5000),
+				new InetSocketAddress(InetAddress.getByName("192.168.0.55"), 5000))
+				.getAccessProtocolInstance(new InetSocketAddress(InetAddress.getByName("56.41.158.221"), 5000),
 				new InetSocketAddress(InetAddress.getByName("192.168.0.55"), 5000), this, mpreceiver);
 		apasker.setKernelAddress(KernelAddressTest.getKernelAddressInstance());
 		apreceiver.setKernelAddress(KernelAddressTest.getKernelAddressInstance());

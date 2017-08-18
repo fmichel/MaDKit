@@ -57,16 +57,16 @@ import gnu.vm.jgnu.security.NoSuchAlgorithmException;
  * @version 1.0
  * @since MadkitLanEdition 1.0
  */
-public class ServerSecuredProcotolPropertiesWithKnownPublicKey
-		extends ConnectionProtocolProperties<ServerSecuredConnectionProtocolWithKnwonPublicKey> {
+public class ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm
+		extends ConnectionProtocolProperties<ServerSecuredConnectionProtocolWithKnwonPublicKeyWithECDHAlgorithm> {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -4979144000199527880L;
 
-	public ServerSecuredProcotolPropertiesWithKnownPublicKey() {
-		super(ServerSecuredConnectionProtocolWithKnwonPublicKey.class);
+	public ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm() {
+		super(ServerSecuredConnectionProtocolWithKnwonPublicKeyWithECDHAlgorithm.class);
 	}
 
 	/**

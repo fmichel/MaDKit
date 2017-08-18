@@ -67,6 +67,7 @@ import javax.swing.text.StyledDocument;
 import com.distrimind.madkit.gui.SwingUtil;
 import com.distrimind.madkit.i18n.Words;
 import com.distrimind.madkit.kernel.Madkit;
+import com.distrimind.util.version.Version;
 
 /**
  * @author Fabien Michel
@@ -114,8 +115,9 @@ final class AboutFrame extends JDialog {
 		StyleConstants.setFontSize(s, 20);
 
 		String version = null;
+		Version VERSION=Madkit.getVersion();
 		try (BufferedReader in = new BufferedReader(
-				new InputStreamReader(new URL(Madkit.WEB + "/LAST").openStream()))) {
+				new InputStreamReader(new URL(Madkit.getWEB() + "/LAST").openStream()))) {
 			version = "\n\n   " + Words.LAST_AVAILABLE.toString() + ": " + in.readLine() + "\n";
 		} catch (IOException e) {// just offline
 		}
@@ -123,10 +125,10 @@ final class AboutFrame extends JDialog {
 			doc.insertString(doc.getLength(), "  MaDKit\n", doc.getStyle("large"));
 			doc.insertString(doc.getLength(), "   Multiagent Development Kit\n\n", doc.getStyle("italic"));
 			doc.insertString(
-					doc.getLength(), "   Version: " + Madkit.VERSION + "\n   Build id: "
-							+ Madkit.VERSION.getBuildNumber() + (version == null ? "" : version),
+					doc.getLength(), "   Version: " + VERSION + "\n   Build id: "
+							+ VERSION.getBuildNumber() + (version == null ? "" : version),
 					doc.getStyle("small"));
-			textPanel.add(new SwingLink(Madkit.WEB.toString().substring(7, 21), new URI(Madkit.WEB.toString())));
+			textPanel.add(new SwingLink(Madkit.getWEB().toString().substring(7, 21), new URI(Madkit.getWEB().toString())));
 		} catch (BadLocationException | URISyntaxException e) {
 			e.printStackTrace();
 		}

@@ -76,7 +76,8 @@ import com.distrimind.madkit.kernel.network.connection.ConnectionProtocolPropert
 import com.distrimind.madkit.kernel.network.connection.TransferedBlockChecker;
 import com.distrimind.madkit.kernel.network.connection.UnexpectedMessage;
 import com.distrimind.madkit.kernel.network.connection.secured.ClientSecuredProtocolPropertiesWithKnownPublicKey;
-import com.distrimind.madkit.kernel.network.connection.secured.P2PSecuredConnectionProtocolProperties;
+import com.distrimind.madkit.kernel.network.connection.secured.P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties;
+import com.distrimind.madkit.kernel.network.connection.secured.P2PSecuredConnectionProtocolWithECDHAlgorithmProperties;
 import com.distrimind.madkit.kernel.network.connection.secured.ServerSecuredProcotolPropertiesWithKnownPublicKey;
 import com.distrimind.madkit.kernel.network.connection.unsecured.CheckSumConnectionProtocolProperties;
 import com.distrimind.madkit.kernel.network.connection.unsecured.UnsecuredConnectionProtocolProperties;
@@ -165,35 +166,57 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 		ArrayList<ConnectionProtocolProperties<?>[]> res = new ArrayList<>();
 
 		ConnectionProtocolProperties<?>[] o = new ConnectionProtocolProperties<?>[2];
-		P2PSecuredConnectionProtocolProperties p2pp = new P2PSecuredConnectionProtocolProperties();
+		P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties p2pp = new P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties();
 		p2pp.aSymetricKeySize = 1024;
-		p2pp.symmetricEncryptionType = SymmetricEncryptionType.GNU_TWOFISH;
+		p2pp.symmetricEncryptionType = SymmetricEncryptionType.DEFAULT;
 		o[0] = p2pp;
-		p2pp = new P2PSecuredConnectionProtocolProperties();
+		p2pp = new P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties();
 		p2pp.aSymetricKeySize = 1024;
-		p2pp.symmetricEncryptionType = SymmetricEncryptionType.GNU_TWOFISH;
+		p2pp.symmetricEncryptionType = SymmetricEncryptionType.DEFAULT;
 		o[1] = p2pp;
 		res.add(o);
 
 		o = new ConnectionProtocolProperties<?>[2];
-		p2pp = new P2PSecuredConnectionProtocolProperties();
+		p2pp = new P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties();
 		p2pp.aSymetricKeySize = 1024;
 		p2pp.enableEncryption = false;
-		p2pp.symmetricEncryptionType = SymmetricEncryptionType.GNU_TWOFISH;
+		p2pp.symmetricEncryptionType = SymmetricEncryptionType.DEFAULT;
 		o[0] = p2pp;
-		p2pp = new P2PSecuredConnectionProtocolProperties();
+		p2pp = new P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties();
 		p2pp.aSymetricKeySize = 1024;
 		p2pp.enableEncryption = false;
-		p2pp.symmetricEncryptionType = SymmetricEncryptionType.GNU_TWOFISH;
+		p2pp.symmetricEncryptionType = SymmetricEncryptionType.DEFAULT;
 		o[1] = p2pp;
+		res.add(o);
+
+		o = new ConnectionProtocolProperties<?>[2];
+		P2PSecuredConnectionProtocolWithECDHAlgorithmProperties p2pp_ecdh = new P2PSecuredConnectionProtocolWithECDHAlgorithmProperties();
+		p2pp_ecdh.symmetricEncryptionType = SymmetricEncryptionType.DEFAULT;
+		o[0] = p2pp_ecdh;
+		p2pp_ecdh = new P2PSecuredConnectionProtocolWithECDHAlgorithmProperties();
+		p2pp_ecdh.symmetricEncryptionType = SymmetricEncryptionType.DEFAULT;
+		o[1] = p2pp_ecdh;
+		res.add(o);
+
+		o = new ConnectionProtocolProperties<?>[2];
+		p2pp_ecdh = new P2PSecuredConnectionProtocolWithECDHAlgorithmProperties();
+		p2pp_ecdh.symmetricEncryptionType = SymmetricEncryptionType.DEFAULT;
+		p2pp_ecdh.enableEncryption=false;
+		o[0] = p2pp_ecdh;
+		p2pp_ecdh = new P2PSecuredConnectionProtocolWithECDHAlgorithmProperties();
+		p2pp_ecdh.symmetricEncryptionType = SymmetricEncryptionType.DEFAULT;
+		p2pp_ecdh.enableEncryption=false;
+		o[1] = p2pp_ecdh;
 		res.add(o);
 
 		o = new ConnectionProtocolProperties<?>[2];
 		ServerSecuredProcotolPropertiesWithKnownPublicKey sp = new ServerSecuredProcotolPropertiesWithKnownPublicKey();
 		ClientSecuredProtocolPropertiesWithKnownPublicKey cp = new ClientSecuredProtocolPropertiesWithKnownPublicKey();
-		ASymmetricKeyPair kp = ASymmetricEncryptionType.DEFAULT
+		ASymmetricKeyPair kpe = ASymmetricEncryptionType.DEFAULT
 				.getKeyPairGenerator(SecureRandomType.DEFAULT.getInstance(), (short) 1024).generateKeyPair();
-		sp.addEncryptionProfile(kp, SymmetricEncryptionType.GNU_TWOFISH);
+		ASymmetricKeyPair kps = ASymmetricEncryptionType.DEFAULT
+				.getKeyPairGenerator(SecureRandomType.DEFAULT.getInstance(), (short) 1024).generateKeyPair();
+		sp.addEncryptionProfile(kpe, kps, SymmetricEncryptionType.DEFAULT);
 		cp.setEncryptionProfile(sp);
 		o[0] = cp;
 		o[1] = sp;
@@ -202,7 +225,7 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 		o = new ConnectionProtocolProperties<?>[2];
 		sp = new ServerSecuredProcotolPropertiesWithKnownPublicKey();
 		cp = new ClientSecuredProtocolPropertiesWithKnownPublicKey();
-		sp.addEncryptionProfile(kp, SymmetricEncryptionType.GNU_TWOFISH);
+		sp.addEncryptionProfile(kpe,kps, SymmetricEncryptionType.DEFAULT);
 		cp.setEncryptionProfile(sp);
 		sp.enableEncryption = false;
 		cp.enableEncryption = false;

@@ -35,55 +35,65 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C license and that you accept its terms.
  */
-package com.distrimind.madkit.kernel.network;
+package com.distrimind.madkit.kernel.network.connection.access;
 
-import java.util.ArrayList;
+import java.net.InetSocketAddress;
 
-import com.distrimind.madkit.kernel.MadkitEventListener;
 import com.distrimind.madkit.kernel.MadkitProperties;
-import com.distrimind.madkit.kernel.network.connection.access.AbstractAccessProtocolProperties;
-import com.distrimind.madkit.kernel.network.connection.access.AccessProtocolWithJPakeProperties;
+import com.distrimind.util.crypto.MessageDigestType;
+import com.distrimind.util.crypto.SecureRandomType;
 
 /**
+ * Represents properties of a specific connection protocol
  * 
  * @author Jason Mahdjoub
  * @version 1.0
- * @since MadkitLanEdition 1.0
+ * @since MadkitLanEdition 1.2
+ *
  */
-public class AccessProtocolPropertiesMKEventListener implements MadkitEventListener {
-	private final ArrayList<AbstractAccessProtocolProperties> accessProtocolProperties;
+public class AccessProtocolWithJPakeProperties extends AbstractAccessProtocolProperties{
 
-	public AccessProtocolPropertiesMKEventListener(AbstractAccessProtocolProperties... accessProtocolProperties) {
-		this.accessProtocolProperties = new ArrayList<>(accessProtocolProperties.length);
-		for (AbstractAccessProtocolProperties ad : accessProtocolProperties) {
-			this.accessProtocolProperties.add(ad);
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2781524045639535331L;
+
+	/**
+	 * If true, transmitted identifiers will be anonymized. For a given identifier, the system will transmit a different encrypted identifier during each new connection.  
+	 */
+	public boolean anonymizeIdentifier=true;
+	
+	/**
+	 * Message digest type used for anonymization
+	 */
+	public MessageDigestType identifierDigestionTypeUsedForAnonymization=MessageDigestType.SHA_512;
+	
+	/**
+	 * Secure random type used for anonymization
+	 */
+	public SecureRandomType randomTypeUsedForAnonymization=SecureRandomType.DEFAULT;
+	
+	
+	@Override
+	void checkProperties() throws AccessException {
+		if (anonymizeIdentifier)
+		{
+			if (identifierDigestionTypeUsedForAnonymization==null)
+				throw new AccessException(new NullPointerException("identifierDigestionTypeUsedForAnonymization can't be null !"));
+			if (randomTypeUsedForAnonymization==null)
+				throw new AccessException(new NullPointerException("randomTypeUsedForAnonymization can't be null !"));
 		}
+		
 	}
 
-	public AccessProtocolPropertiesMKEventListener(ArrayList<AbstractAccessProtocolProperties> accessProtocolProperties) {
-		this.accessProtocolProperties = accessProtocolProperties;
-	}
 
 	@Override
-	public void onMadkitPropertiesLoaded(MadkitProperties _properties) {
-		if (accessProtocolProperties != null) {
-			for (AbstractAccessProtocolProperties app : accessProtocolProperties)
-				_properties.networkProperties.addAccessProtocolProperties(app);
-		}
+	public AbstractAccessProtocol getAccessProtocolInstance(InetSocketAddress _distant_inet_address,
+			InetSocketAddress _local_interface_address, LoginEventsTrigger loginTrigger, MadkitProperties _properties)
+			throws AccessException {
+		return new AccessProtocolWithJPake(_distant_inet_address, _local_interface_address, loginTrigger, _properties);
 	}
 
-	public static ArrayList<AccessProtocolPropertiesMKEventListener> getConnectionsProtocolsMKEventListenerForPeerToPeerConnections() {
-		ArrayList<AccessProtocolPropertiesMKEventListener> res = new ArrayList<>();
-		AbstractAccessProtocolProperties app = new AccessProtocolWithJPakeProperties();
-		res.add(new AccessProtocolPropertiesMKEventListener(app));
-		return res;
-	}
-
-	public static ArrayList<AccessProtocolPropertiesMKEventListener> getConnectionsProtocolsMKEventListenerForServerConnections() {
-		return getConnectionsProtocolsMKEventListenerForPeerToPeerConnections();
-	}
-
-	public static ArrayList<AccessProtocolPropertiesMKEventListener> getConnectionsProtocolsMKEventListenerForClientConnections() {
-		return getConnectionsProtocolsMKEventListenerForPeerToPeerConnections();
-	}
+	
+	
 }

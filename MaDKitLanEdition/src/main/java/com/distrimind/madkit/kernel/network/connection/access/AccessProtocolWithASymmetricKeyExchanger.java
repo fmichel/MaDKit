@@ -40,9 +40,16 @@ package com.distrimind.madkit.kernel.network.connection.access;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
+
+import com.distrimind.madkit.database.KeysPairs;
+import com.distrimind.madkit.kernel.MadkitProperties;
+import com.distrimind.madkit.kernel.network.NetworkProperties;
+import com.distrimind.ood.database.exceptions.DatabaseException;
+import com.distrimind.util.crypto.ASymmetricKeyPair;
+import com.distrimind.util.crypto.AbstractSecureRandom;
+import com.distrimind.util.crypto.P2PASymmetricSecretMessageExchanger;
+import com.distrimind.util.crypto.SecureRandomType;
 
 import gnu.vm.jgnu.security.InvalidAlgorithmParameterException;
 import gnu.vm.jgnu.security.InvalidKeyException;
@@ -53,120 +60,45 @@ import gnu.vm.jgnux.crypto.BadPaddingException;
 import gnu.vm.jgnux.crypto.IllegalBlockSizeException;
 import gnu.vm.jgnux.crypto.NoSuchPaddingException;
 
-import com.distrimind.madkit.database.KeysPairs;
-import com.distrimind.madkit.kernel.AbstractGroup;
-import com.distrimind.madkit.kernel.KernelAddress;
-import com.distrimind.madkit.kernel.MadkitProperties;
-import com.distrimind.madkit.kernel.MultiGroup;
-import com.distrimind.madkit.kernel.network.NetworkProperties;
-import com.distrimind.ood.database.exceptions.DatabaseException;
-import com.distrimind.util.crypto.ASymmetricKeyPair;
-import com.distrimind.util.crypto.AbstractSecureRandom;
-import com.distrimind.util.crypto.P2PASymmetricSecretMessageExchanger;
-import com.distrimind.util.crypto.SecureRandomType;
-
 /**
+ * Represents properties of a specific connection protocol
  * 
  * @author Jason Mahdjoub
- * @version 1.0
+ * @version 2.0
  * @since MadkitLanEdition 1.0
+ *
  */
-public class AccessProtocol {
-	private final AccessData access_data;
-	private final AccessProtocolProperties access_protocol_properties;
-	private final MadkitProperties properties;
+public class AccessProtocolWithASymmetricKeyExchanger extends AbstractAccessProtocol {
 
+	private final AccessProtocolWithASymmetricKeyExchangerProperties access_protocol_properties;
 	private AccessState access_state = AccessState.ACCESS_NOT_INITIALIZED;
 	private ASymmetricKeyPair myKeyPair = null;
-	/*
-	 * private PublicKey access_public_key=null; private PublicKey
-	 * access_distant_public_key=null;
-	 */
-	// private PublicKey access_private_key=null;
-	/*
-	 * private final Cipher access_cipher_rsa_crypt; private final Cipher
-	 * access_distant_cipher_rsa_crypt;
-	 */
 	private P2PASymmetricSecretMessageExchanger cipher;
-	// private final int maximum_rsa_message_size;
-
-	private AtomicReference<MultiGroup> groups_access = new AtomicReference<MultiGroup>();
-	private boolean other_can_takes_initiative;
-
-	private List<Identifier> identifiers = null;
-	private ArrayList<PairOfIdentifiers> accepted_identifiers = null;
-	private ArrayList<PairOfIdentifiers> denied_identifiers = null;
-	private final InetSocketAddress distant_inet_address;
-	// private final InetSocketAddress local_interface_address;
-	private KernelAddress kernel_address = null;
 	private final AbstractSecureRandom random;
-	private LinkedList<AccessMessage> differedAccessMessages = new LinkedList<>();
-	private boolean accessFinalizedMessageReceived = false;
-
-	public AccessProtocol(InetSocketAddress _distant_inet_address, InetSocketAddress _local_interface_address,
-			/* AccessGroupsNotifier accessGroupsNotifier, */ LoginEventsTrigger loginTrigger,
-			MadkitProperties _properties) throws AccessException, NoSuchAlgorithmException, NoSuchProviderException {
-		if (_distant_inet_address == null)
-			throw new NullPointerException("_distant_inet_address");
-		if (_local_interface_address == null)
-			throw new NullPointerException("_local_interface_address");
-		if (_properties == null)
-			throw new NullPointerException("_properties");
-		properties = _properties;
-		access_data = properties.networkProperties.getAccessData(_distant_inet_address, _local_interface_address);
-		if (access_data == null)
-			throw new NullPointerException("No Access data was found into the MadkitProperties !");
-
-		access_protocol_properties = properties.networkProperties.getAccessProtocolProperties(_distant_inet_address,
-				_local_interface_address);
+	
+	public AccessProtocolWithASymmetricKeyExchanger(InetSocketAddress _distant_inet_address,
+			InetSocketAddress _local_interface_address, LoginEventsTrigger loginTrigger, MadkitProperties _properties)
+			throws AccessException {
+		super(_distant_inet_address, _local_interface_address, loginTrigger, _properties);
+		
+		access_protocol_properties = (AccessProtocolWithASymmetricKeyExchangerProperties)_properties.networkProperties.getAccessProtocolProperties(_distant_inet_address,_local_interface_address);
 		if (access_protocol_properties == null)
 			throw new NullPointerException("No AccessProtocolProperties was found into the MadkitProperties !");
-
-		// maximum_rsa_message_size=access_protocol_properties.RSALoginKeySize/8-11;
-		distant_inet_address = _distant_inet_address;
+		
 		cipher = null;
-		random = SecureRandomType.DEFAULT.getInstance();
-		access_protocol_properties.checkProperties();
-		// this.accessGroupsNotifier=accessGroupsNotifier;
-		if (access_data instanceof LoginData) {
-			((LoginData) access_data).addTrigger(loginTrigger);
+		try
+		{
+			random = SecureRandomType.DEFAULT.getInstance();
 		}
+		catch(NoSuchProviderException | NoSuchAlgorithmException e)
+		{
+			throw new AccessException(e);
+		}
+		
 	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o)
-			return true;
-		if (o == null)
-			return false;
-		if (o instanceof AccessProtocol)
-			return ((AccessProtocol) o).access_data.equals(access_data);
-		return false;
-	}
-
-	public void setKernelAddress(KernelAddress ka) {
-		kernel_address = ka;
-	}
-
+	
 	private static enum AccessState {
 		ACCESS_NOT_INITIALIZED, WAITING_FOR_PUBLIC_KEY, IDENTICAL_PUBLIC_KEY, INVALID_PUBLIC_KEY, ACCESS_INITIALIZED, WAITING_FOR_IDENTIFIERS, WAITING_FOR_PASSWORD, WAITING_FOR_LOGIN_CONFIRMATION, ACCESS_FINALIZED, WAITING_FOR_NEW_LOGIN_PW_FOR_ASKER, WAITING_FOR_NEW_LOGIN_PW_FOR_RECEIVER, WAITING_FOR_NEW_LOGIN_CONFIRMATION_ASKER, WAITING_FOR_NEW_LOGIN_CONFIRMATION_RECEIVER,
-	}
-
-	public AccessMessage setAndGetNextMessage(AccessMessage _m) throws AccessException {
-		if (_m instanceof AccessFinalizedMessage)
-			accessFinalizedMessageReceived = true;
-		return subSetAndGetNextMessage(_m);
-		/*
-		 * if (_m instanceof LocalLogingAccessMessage) { if
-		 * (this.access_state.equals(AccessState.ACCESS_FINALIZED)) return
-		 * subSetAndGetNextMessage(_m); else {
-		 * addNewLocalLoginEvent((LocalLogingAccessMessage)_m); return null; } } else {
-		 * AccessMessage am=subSetAndGetNextMessage(_m); if (am==null &&
-		 * this.access_state.equals(AccessState.ACCESS_FINALIZED)) {
-		 * LocalLogingAccessMessage l=popLocalLogingEvent(); if (l!=null) return
-		 * subSetAndGetNextMessage(l); else return null; } else return am; }
-		 */
-
 	}
 
 	private void initKeyPair() throws NoSuchAlgorithmException, DatabaseException {
@@ -194,7 +126,8 @@ public class AccessProtocol {
 					random, access_protocol_properties.aSymmetricKeyExpirationMs,
 					properties.networkProperties.maximumNumberOfCryptoKeysForIpsSpectrum));
 	}
-
+	
+	@Override
 	public AccessMessage subSetAndGetNextMessage(AccessMessage _m) throws AccessException {
 		try {
 			if (_m instanceof AccessErrorMessage) {
@@ -211,8 +144,7 @@ public class AccessProtocol {
 			}
 			switch (access_state) {
 			case ACCESS_NOT_INITIALIZED: {
-				groups_access.set(null);
-				identifiers = null;
+				reset();
 				if (_m instanceof AccessAskInitiliazation) {
 					if (access_data instanceof LoginData) {
 						initKeyPair();
@@ -236,7 +168,7 @@ public class AccessProtocol {
 					boolean invalid_key = false;
 					try {
 						AccessPublicKeyMessage m = ((AccessPublicKeyMessage) _m);
-						other_can_takes_initiative = m.isOtherCanTakeLoginInitiative();
+						setOtherCanTakesInitiative(m.isOtherCanTakeLoginInitiative());
 						this.cipher.setDistantPublicKey(m.getEncodedPublicKey());
 						if (this.cipher.getDistantPublicKey().equals(this.cipher.getMyPublicKey())) {
 							initNewKeyPair();
@@ -289,20 +221,21 @@ public class AccessProtocol {
 			}
 			case ACCESS_INITIALIZED: {
 				if (_m instanceof AccessInitialized) {
-					other_can_takes_initiative = ((AccessInitialized) _m).can_takes_login_initiative;
+					setOtherCanTakesInitiative( ((AccessInitialized) _m).can_takes_login_initiative);
 
 					if (access_data instanceof LoginData) {
 						LoginData lp = (LoginData) access_data;
 
+						
 						if (lp.canTakesLoginInitiative())
-							identifiers = lp.getIdentifiersToInitiate();
+							setIdentifiers(lp.getIdentifiersToInitiate());
 						else
-							identifiers = null;
-						if (identifiers != null && identifiers.size() == 0)
-							identifiers = null;
-						if (identifiers != null) {
+							setIdentifiers(null);
+						if (getIdentifiers() != null && getIdentifiers().size() == 0)
+							setIdentifiers(null);
+						if (getIdentifiers() != null) {
 							access_state = AccessState.WAITING_FOR_IDENTIFIERS;
-							return new IdentifiersPropositionMessage(identifiers, cipher,
+							return new IdentifiersPropositionMessage(getIdentifiers(), cipher,
 									this.access_protocol_properties.encryptIdentifiersBeforeSendingToDistantPeer,
 									(short) 0);
 							/*
@@ -318,7 +251,7 @@ public class AccessProtocol {
 							 * access_cipher_rsa_crypt, maximum_rsa_message_size); }
 							 */
 						} else {
-							if (!other_can_takes_initiative) {
+							if (!isOtherCanTakesInitiative()) {
 								access_state = AccessState.ACCESS_NOT_INITIALIZED;
 								return new AccessAbordedMessage();
 							} else {
@@ -342,7 +275,7 @@ public class AccessProtocol {
 				if (_m instanceof IdentifiersPropositionMessage) {
 					if (access_data instanceof LoginData) {
 						LoginData lp = (LoginData) access_data;
-						if (identifiers != null) {
+						if (getIdentifiers() != null) {
 							access_state = AccessState.WAITING_FOR_PASSWORD;
 							return ((IdentifiersPropositionMessage) _m).getIdPwMessage(lp, cipher,
 									this.access_protocol_properties.encryptIdentifiersBeforeSendingToDistantPeer);
@@ -366,15 +299,15 @@ public class AccessProtocol {
 				if (_m instanceof IdPwMessage) {
 					LoginData lp = (LoginData) access_data;
 					IdPwMessage idpw = (IdPwMessage) _m;
-					accepted_identifiers = new ArrayList<>();
-					denied_identifiers = new ArrayList<>();
+					setAcceptedIdentifiers(new ArrayList<PairOfIdentifiers>());
+					setDeniedIdentifiers(new ArrayList<PairOfIdentifiers>());
 					ArrayList<IdentifierPassword> idpws = new ArrayList<>();
-					short nbAnomalies = idpw.getAcceptedIdentifiers(lp, cipher, accepted_identifiers,
-							denied_identifiers, idpws);
+					short nbAnomalies = idpw.getAcceptedIdentifiers(lp, cipher, getAcceptedIdentifiers(),
+							getDeniedIdentifiers(), idpws);
 					access_state = AccessState.WAITING_FOR_LOGIN_CONFIRMATION;
 
 					if (lp.canTakesLoginInitiative()) {
-						return new LoginConfirmationMessage(accepted_identifiers, denied_identifiers, kernel_address,
+						return new LoginConfirmationMessage(getAcceptedIdentifiers(), getDeniedIdentifiers(), getKernelAddress(),
 								nbAnomalies, false);
 					} else {
 						return new IdPwMessage(idpws, cipher,
@@ -392,7 +325,7 @@ public class AccessProtocol {
 					ArrayList<PairOfIdentifiers> ai = new ArrayList<>();
 					ArrayList<PairOfIdentifiers> denied_identiers = new ArrayList<>();
 
-					for (PairOfIdentifiers id : accepted_identifiers) {
+					for (PairOfIdentifiers id : getAcceptedIdentifiers()) {
 						PairOfIdentifiers found_id = null;
 
 						for (Identifier id2 : ((LoginConfirmationMessage) _m).accepted_identifiers) {
@@ -406,19 +339,18 @@ public class AccessProtocol {
 						else
 							denied_identiers.add(id);
 					}
-					accepted_identifiers = ai;
-					// LoginData lp=(LoginData)access_data;
+					setAcceptedIdentifiers(ai);
 
-					distant_kernel_address = ((LoginConfirmationMessage) _m).kernel_address;
-					addLastAcceptedAndDeniedIdentifiers(accepted_identifiers, denied_identiers);
+					setDistantKernelAddress(((LoginConfirmationMessage) _m).kernel_address);
+					addLastAcceptedAndDeniedIdentifiers(getAcceptedIdentifiers(), denied_identiers);
 
 					access_state = AccessState.ACCESS_FINALIZED;
 					LoginData lp = (LoginData) access_data;
-					AccessMessage am = new LoginConfirmationMessage(accepted_identifiers, denied_identifiers,
-							kernel_address, (short) 0, false);
-					accepted_identifiers = null;
-					denied_identifiers = null;
-					identifiers = null;
+					AccessMessage am = new LoginConfirmationMessage(getAcceptedIdentifiers(), getDeniedIdentifiers(),
+							getKernelAddress(), (short) 0, false);
+					setAcceptedIdentifiers(null);
+					setDeniedIdentifiers(null);
+					setIdentifiers(null);
 					// accessGroupsNotifier.notifyNewAccessChangements();
 					if (!lp.canTakesLoginInitiative())
 						return am;
@@ -446,10 +378,6 @@ public class AccessProtocol {
 						}
 					} else
 						return null;
-					/*
-					 * if (access_data instanceof LoginData) { return null; } else {
-					 * updateGroupAccess(); return null; }
-					 */
 				} else if (_m instanceof UnlogMessage) {
 					removeAcceptedIdentifiers(((UnlogMessage) _m).identifier_to_unlog);
 					updateGroupAccess();
@@ -462,10 +390,10 @@ public class AccessProtocol {
 				if (_m instanceof IdPwMessage) {
 					LoginData lp = (LoginData) access_data;
 					IdPwMessage ipm = (IdPwMessage) _m;
-					accepted_identifiers = new ArrayList<>();
-					denied_identifiers = new ArrayList<>();
+					setAcceptedIdentifiers(new ArrayList<PairOfIdentifiers>());
+					setDeniedIdentifiers(new ArrayList<PairOfIdentifiers>());
 					ArrayList<IdentifierPassword> idpws = new ArrayList<>();
-					short nbAno = ipm.getAcceptedIdentifiers(lp, cipher, accepted_identifiers, denied_identifiers,
+					short nbAno = ipm.getAcceptedIdentifiers(lp, cipher, getAcceptedIdentifiers(), getDeniedIdentifiers(),
 							idpws);
 					access_state = AccessState.WAITING_FOR_NEW_LOGIN_CONFIRMATION_ASKER;
 
@@ -481,7 +409,7 @@ public class AccessProtocol {
 				 * ; }
 				 */
 				else if (!differrAccessMessage(_m)) {
-					identifiers = null;
+					setIdentifiers(null);
 					access_state = AccessState.ACCESS_FINALIZED;
 					return manageDifferedAccessMessage();
 				} else
@@ -492,15 +420,15 @@ public class AccessProtocol {
 				if (_m instanceof IdPwMessage) {
 					LoginData lp = (LoginData) access_data;
 					IdPwMessage ipm = (IdPwMessage) _m;
-					accepted_identifiers = new ArrayList<>();
-					denied_identifiers = new ArrayList<>();
-					short nbAno = ipm.getAcceptedIdentifiers(lp, cipher, accepted_identifiers, denied_identifiers,
+					setAcceptedIdentifiers(new ArrayList<PairOfIdentifiers>());
+					setDeniedIdentifiers(new ArrayList<PairOfIdentifiers>());
+					short nbAno = ipm.getAcceptedIdentifiers(lp, cipher, getAcceptedIdentifiers(), getDeniedIdentifiers(),
 							new ArrayList<IdentifierPassword>());
 					access_state = AccessState.WAITING_FOR_NEW_LOGIN_CONFIRMATION_RECEIVER;
-					return new LoginConfirmationMessage(accepted_identifiers, denied_identifiers, kernel_address, nbAno,
+					return new LoginConfirmationMessage(getAcceptedIdentifiers(), getDeniedIdentifiers(), getKernelAddress(), nbAno,
 							false);
 				} else if (!differrAccessMessage(_m)) {
-					identifiers = null;
+					setIdentifiers(null);
 					access_state = AccessState.ACCESS_FINALIZED;
 					return manageDifferedAccessMessage();
 				} else
@@ -511,7 +439,7 @@ public class AccessProtocol {
 				if (_m instanceof LoginConfirmationMessage) {
 					LoginConfirmationMessage lcm = (LoginConfirmationMessage) _m;
 					ArrayList<PairOfIdentifiers> ai = new ArrayList<>();
-					for (PairOfIdentifiers id : accepted_identifiers) {
+					for (PairOfIdentifiers id : getAcceptedIdentifiers()) {
 						boolean found = false;
 						for (Identifier id2 : lcm.accepted_identifiers) {
 							if (id.getDistantIdentifier().equalsCloudIdentifier(id2)) {
@@ -522,24 +450,24 @@ public class AccessProtocol {
 						if (found)
 							ai.add(id);
 						else
-							denied_identifiers.add(id);
+							getDeniedIdentifiers().add(id);
 					}
-					accepted_identifiers = ai;
-					addLastAcceptedAndDeniedIdentifiers(ai, denied_identifiers);
-					AccessMessage am = new LoginConfirmationMessage(accepted_identifiers, denied_identifiers,
-							kernel_address, (short) 0, true);
+					setAcceptedIdentifiers(ai);
+					addLastAcceptedAndDeniedIdentifiers(ai, getDeniedIdentifiers());
+					AccessMessage am = new LoginConfirmationMessage(getAcceptedIdentifiers(), getDeniedIdentifiers(),
+							getKernelAddress(), (short) 0, true);
 
-					identifiers = null;
-					accepted_identifiers = null;
-					denied_identifiers = null;
+					setIdentifiers(null);
+					setAcceptedIdentifiers(null);
+					setDeniedIdentifiers(null);
 					updateGroupAccess();
 					// accessGroupsNotifier.notifyNewAccessChangements();
 					access_state = AccessState.ACCESS_FINALIZED;
 					return am;
 				} else if (!differrAccessMessage(_m)) {
-					identifiers = null;
-					accepted_identifiers = null;
-					denied_identifiers = null;
+					setIdentifiers(null);
+					setAcceptedIdentifiers(null);
+					setDeniedIdentifiers(null);
 					access_state = AccessState.ACCESS_FINALIZED;
 					return manageDifferedAccessMessage();
 				} else
@@ -550,7 +478,7 @@ public class AccessProtocol {
 				if (_m instanceof LoginConfirmationMessage) {
 					LoginConfirmationMessage lcm = (LoginConfirmationMessage) _m;
 					ArrayList<PairOfIdentifiers> ai = new ArrayList<>();
-					for (PairOfIdentifiers id : accepted_identifiers) {
+					for (PairOfIdentifiers id : getAcceptedIdentifiers()) {
 						boolean found = false;
 						for (Identifier id2 : lcm.accepted_identifiers) {
 							if (id.getDistantIdentifier().equalsCloudIdentifier(id2)) {
@@ -561,23 +489,23 @@ public class AccessProtocol {
 						if (found)
 							ai.add(id);
 						else
-							denied_identifiers.add(id);
+							getDeniedIdentifiers().add(id);
 					}
-					accepted_identifiers = ai;
-					addLastAcceptedAndDeniedIdentifiers(ai, denied_identifiers);
+					setAcceptedIdentifiers(ai);
+					addLastAcceptedAndDeniedIdentifiers(ai, getDeniedIdentifiers());
 
-					identifiers = null;
-					accepted_identifiers = null;
-					denied_identifiers = null;
+					setIdentifiers(null);
+					setAcceptedIdentifiers(null);
+					setDeniedIdentifiers(null);
 					updateGroupAccess();
 
 					// accessGroupsNotifier.notifyNewAccessChangements();
 					access_state = AccessState.ACCESS_FINALIZED;
 					return manageDifferedAccessMessage();
 				} else if (!differrAccessMessage(_m)) {
-					identifiers = null;
-					accepted_identifiers = null;
-					denied_identifiers = null;
+					setIdentifiers(null);
+					setAcceptedIdentifiers(null);
+					setDeniedIdentifiers(null);
 					access_state = AccessState.ACCESS_FINALIZED;
 					return manageDifferedAccessMessage();
 				} else
@@ -593,170 +521,45 @@ public class AccessProtocol {
 			throw new AccessException(e);
 		}
 	}
-
-	private boolean differrAccessMessage(AccessMessage m) {
-		if (m != null && ((m instanceof NewLocalLoginAddedMessage) || (m instanceof NewLocalLoginRemovedMessage))) {
-
-			differedAccessMessages.offer(m);
-			return true;
-		}
-		return false;
-	}
-
-	public AccessMessage manageDifferedAccessMessage()
-			throws AccessException, NoSuchAlgorithmException, InvalidKeySpecException {
-		try {
-			while (differedAccessMessages.size() != 0) {
-				AccessMessage res = manageDifferableAccessMessage(differedAccessMessages.poll());
-				if (res != null)
-					return res;
-			}
-
-			return null;
-		} catch (InvalidKeyException | IOException | IllegalBlockSizeException | BadPaddingException
-				| NoSuchPaddingException | InvalidAlgorithmParameterException | NoSuchProviderException e) {
-			throw new AccessException(e);
-		}
-
-	}
-
-	private AccessMessage manageDifferableAccessMessage(AccessMessage _m)
-			throws InvalidKeyException, IOException, AccessException, IllegalBlockSizeException, BadPaddingException,
-			NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException,
-			InvalidAlgorithmParameterException, NoSuchProviderException {
-		if (_m instanceof NewLocalLoginAddedMessage) {
-			if (access_data instanceof LoginData && ((LoginData) access_data).canTakesLoginInitiative()) {
-				access_state = AccessState.WAITING_FOR_NEW_LOGIN_PW_FOR_ASKER;
-				identifiers = new ArrayList<>();
-				identifiers.addAll(((NewLocalLoginAddedMessage) _m).identifiers);
-				return new IdentifiersPropositionMessage(identifiers, cipher,
-						this.access_protocol_properties.encryptIdentifiersBeforeSendingToDistantPeer, (short) 0);
-			} else
-				return null;
-		} else if (_m instanceof NewLocalLoginRemovedMessage) {
-			NewLocalLoginRemovedMessage nlrm = (NewLocalLoginRemovedMessage) _m;
-			UnlogMessage um = removeAcceptedIdentifiers(nlrm.removed_identifiers);
-			if (um.identifier_to_unlog == null || um.identifier_to_unlog.isEmpty())
-				return null;
-			else {
-				updateGroupAccess();
-				return um;
-			}
-		} else {
-			access_state = AccessState.ACCESS_NOT_INITIALIZED;
-			return new AccessErrorMessage(false);
-		}
-	}
-
-	/*
-	 * private final LinkedList<LocalLogingAccessMessage>
-	 * new_login_events_waiting=new LinkedList<>();
-	 * 
-	 * private void addNewLocalLoginEvent(LocalLogingAccessMessage loginEvent) {
-	 * new_login_events_waiting.add(loginEvent); }
-	 * 
-	 * private LocalLogingAccessMessage popLocalLogingEvent() { if
-	 * (new_login_events_waiting.size()==0) return null;
-	 * 
-	 * return new_login_events_waiting.removeFirst(); }
-	 */
-
-	private KernelAddress distant_kernel_address;
-	private ArrayList<PairOfIdentifiers> last_accepted_identifiers = new ArrayList<PairOfIdentifiers>();
-	private ArrayList<PairOfIdentifiers> all_accepted_identifiers = new ArrayList<PairOfIdentifiers>();
-	private ArrayList<PairOfIdentifiers> last_denied_identifiers_from_other = new ArrayList<>();
-	private ArrayList<PairOfIdentifiers> last_unlogged_identifiers = new ArrayList<>();
-
-	public KernelAddress getDistantKernelAddress() {
-		return distant_kernel_address;
-	}
-
-	private void addLastAcceptedAndDeniedIdentifiers(ArrayList<PairOfIdentifiers> _accepted_identifiers,
-			ArrayList<PairOfIdentifiers> _denied_identifiers) {
-		last_accepted_identifiers.addAll(_accepted_identifiers);
-		all_accepted_identifiers.addAll(_accepted_identifiers);
-		last_denied_identifiers_from_other.addAll(_denied_identifiers);
-	}
-
-	private UnlogMessage removeAcceptedIdentifiers(ArrayList<Identifier> _identifiers) {
-
-		ArrayList<PairOfIdentifiers> toRemove = new ArrayList<PairOfIdentifiers>(_identifiers.size());
-		ArrayList<Identifier> res = new ArrayList<>(_identifiers.size());
-		for (Identifier id : _identifiers) {
-			for (PairOfIdentifiers id2 : all_accepted_identifiers) {
-				if (id.equals(id2.getLocalIdentifier())) {
-					toRemove.add(id2);
-					res.add(id2.getDistantIdentifier());
-					break;
-				}
-			}
-		}
-		all_accepted_identifiers.removeAll(toRemove);
-		last_accepted_identifiers.removeAll(toRemove);
-		last_unlogged_identifiers.addAll(toRemove);
-		return new UnlogMessage(res);
-	}
-
-	private void updateGroupAccess() throws AccessException {
-
-		AbstractGroup defaultGroup = access_data.getDefaultGroupsAccess();
-		MultiGroup mg = null;
-		if (defaultGroup == null)
-			mg = new MultiGroup();
-		else
-			mg = new MultiGroup(defaultGroup);
-
-		if (access_data instanceof LoginData) {
-			LoginData lp = (LoginData) access_data;
-
-			for (PairOfIdentifiers id : all_accepted_identifiers)
-				mg.addGroup(lp.getGroupsAccess(id.getLocalIdentifier()));
-
-		}
-		groups_access.set(mg);
-
-		notifyAccessGroupChangements = true;
-	}
-
-	public MultiGroup getGroupsAccess() {
-		return groups_access.get();
-	}
-
-	// private final AccessGroupsNotifier accessGroupsNotifier;
-	private boolean notifyAccessGroupChangements = false;
-
-	public boolean isNotifyAccessGroupChangements() {
-		boolean res = notifyAccessGroupChangements;
-		notifyAccessGroupChangements = false;
-		return res;
-	}
-
-	public ArrayList<PairOfIdentifiers> getLastDeniedIdentifiers() {
-		ArrayList<PairOfIdentifiers> res = last_denied_identifiers_from_other;
-		last_denied_identifiers_from_other = new ArrayList<>();
-		return res;
-	}
-
-	public ArrayList<PairOfIdentifiers> getLastUnloggedIdentifiers() {
-		ArrayList<PairOfIdentifiers> res = last_unlogged_identifiers;
-		last_unlogged_identifiers = new ArrayList<>();
-		return res;
-	}
-
-	public ArrayList<PairOfIdentifiers> getLastAcceptedIdentifiers() {
-		ArrayList<PairOfIdentifiers> res = last_accepted_identifiers;
-		last_accepted_identifiers = new ArrayList<>();
-		return res;
-	}
-
-	@SuppressWarnings("unchecked")
-	public ArrayList<PairOfIdentifiers> getAllAcceptedIdentifiers() {
-		return (ArrayList<PairOfIdentifiers>) all_accepted_identifiers.clone();
-	}
-
+	@Override
 	public final boolean isAccessFinalized() {
 
-		return accessFinalizedMessageReceived && access_state.compareTo(AccessState.ACCESS_FINALIZED) >= 0;
+		return isAccessFinalizedMessage() && access_state.compareTo(AccessState.ACCESS_FINALIZED) >= 0;
+	}
+	@Override
+	protected  AccessMessage manageDifferableAccessMessage(AccessMessage _m) throws AccessException {
+		try
+		{
+			if (_m instanceof NewLocalLoginAddedMessage) {
+				if (access_data instanceof LoginData && ((LoginData) access_data).canTakesLoginInitiative()) {
+					access_state = AccessState.WAITING_FOR_NEW_LOGIN_PW_FOR_ASKER;
+					List<Identifier> identifiers = new ArrayList<>();
+					identifiers.addAll(((NewLocalLoginAddedMessage) _m).identifiers);
+					setIdentifiers(identifiers);
+					return new IdentifiersPropositionMessage(identifiers, cipher,
+							this.access_protocol_properties.encryptIdentifiersBeforeSendingToDistantPeer, (short) 0);
+				} else
+					return null;
+			} else if (_m instanceof NewLocalLoginRemovedMessage) {
+				NewLocalLoginRemovedMessage nlrm = (NewLocalLoginRemovedMessage) _m;
+				UnlogMessage um = removeAcceptedIdentifiers(nlrm.removed_identifiers);
+				if (um.identifier_to_unlog == null || um.identifier_to_unlog.isEmpty())
+					return null;
+				else {
+					updateGroupAccess();
+					return um;
+				}
+			} else {
+				access_state = AccessState.ACCESS_NOT_INITIALIZED;
+				return new AccessErrorMessage(false);
+			}
+		}
+		catch(InvalidKeyException | IOException | AccessException | IllegalBlockSizeException | BadPaddingException |
+				NoSuchAlgorithmException | InvalidKeySpecException | NoSuchPaddingException |
+				InvalidAlgorithmParameterException | NoSuchProviderException e)
+		{
+			throw new AccessException(e);
+		}
 	}
 
 }

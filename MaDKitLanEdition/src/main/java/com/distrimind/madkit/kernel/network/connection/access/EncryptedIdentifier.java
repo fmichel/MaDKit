@@ -40,6 +40,7 @@ package com.distrimind.madkit.kernel.network.connection.access;
 
 import java.io.IOException;
 
+import gnu.vm.jgnu.security.DigestException;
 import gnu.vm.jgnu.security.InvalidAlgorithmParameterException;
 import gnu.vm.jgnu.security.InvalidKeyException;
 import gnu.vm.jgnu.security.NoSuchAlgorithmException;
@@ -49,6 +50,8 @@ import gnu.vm.jgnux.crypto.BadPaddingException;
 import gnu.vm.jgnux.crypto.IllegalBlockSizeException;
 import gnu.vm.jgnux.crypto.NoSuchPaddingException;
 
+import com.distrimind.util.crypto.AbstractMessageDigest;
+import com.distrimind.util.crypto.AbstractSecureRandom;
 import com.distrimind.util.crypto.P2PASymmetricSecretMessageExchanger;
 
 /**
@@ -76,6 +79,13 @@ public class EncryptedIdentifier extends Identifier {
 			NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchProviderException {
 		super(new EncryptedCloudIdentifier(_cloud_identifier, cipher), _host_identifier);
 
+	}
+
+	EncryptedIdentifier(Identifier identifier, AbstractSecureRandom random, AbstractMessageDigest messageDigest)
+			throws InvalidKeyException, IOException, IllegalBlockSizeException, BadPaddingException,
+			NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException,
+			InvalidAlgorithmParameterException, NoSuchProviderException, DigestException {
+		super(new EncryptedCloudIdentifier(identifier.getCloudIdentifier(), random, messageDigest), identifier.getHostIdentifier());
 	}
 
 	EncryptedIdentifier(Identifier identifier, P2PASymmetricSecretMessageExchanger cipher)

@@ -106,7 +106,7 @@ import com.distrimind.madkit.kernel.network.TransferFilter;
 import com.distrimind.madkit.kernel.network.TransfersReturnsCodes;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocolProperties;
 import com.distrimind.madkit.kernel.network.connection.access.AccessData;
-import com.distrimind.madkit.kernel.network.connection.access.AccessProtocolProperties;
+import com.distrimind.madkit.kernel.network.connection.access.AbstractAccessProtocolProperties;
 import com.distrimind.madkit.kernel.network.connection.access.PairOfIdentifiers;
 import com.distrimind.madkit.message.ConversationFilter;
 import com.distrimind.madkit.message.EnumMessage;
@@ -4772,7 +4772,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 *         current properties values
 	 * @see #addAccessData(AccessData)
 	 * @see #addConnectionProtocol(ConnectionProtocolProperties)
-	 * @see #addAccessProtocolProperties(AccessProtocolProperties)
+	 * @see #addAccessProtocolProperties(AbstractAccessProtocolProperties)
 	 */
 	public boolean isConnectionPossible(InetSocketAddress _distant_inet_address,
 			InetSocketAddress _local_interface_address, boolean takeConnectionInitiative, boolean thisAskConnection,
@@ -4797,7 +4797,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 *         current properties values
 	 * @see #addAccessData(AccessData)
 	 * @see #addConnectionProtocol(ConnectionProtocolProperties)
-	 * @see #addAccessProtocolProperties(AccessProtocolProperties)
+	 * @see #addAccessProtocolProperties(AbstractAccessProtocolProperties)
 	 */
 	public boolean isConnectionPossible(InetSocketAddress _distant_inet_address,
 			InetSocketAddress _local_interface_address, boolean thisAskConnection, boolean takeConnectionInitiative) {
@@ -4817,7 +4817,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 *         current properties values
 	 * @see #addAccessData(AccessData)
 	 * @see #addConnectionProtocol(ConnectionProtocolProperties)
-	 * @see #addAccessProtocolProperties(AccessProtocolProperties)
+	 * @see #addAccessProtocolProperties(AbstractAccessProtocolProperties)
 	 */
 	public boolean isConnectionPossible(InetSocketAddress _distant_inet_address,
 			InetSocketAddress _local_interface_address) {

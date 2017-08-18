@@ -93,14 +93,14 @@ public class MadkitProperties extends XMLProperties {
 	/**
 	 * Represents the current madkit version.
 	 */
-	public final Version madkitVersion = Madkit.VERSION;
+	public final Version madkitVersion = Madkit.getVersion();
 
 	/**
 	 * Represents the minimum MadkitLanEdition version that this instance can
 	 * accept. If a distant peer try to connect with a MadkitLanEdition version
 	 * lower than this one, than the connection will be rejected.
 	 */
-	public Version minimumMadkitVersion = madkitVersion;
+	public Version minimumMadkitVersion = Madkit.getNewVersionInstance();
 
 	public Class<?> madkitMainClass = Madkit.class;
 

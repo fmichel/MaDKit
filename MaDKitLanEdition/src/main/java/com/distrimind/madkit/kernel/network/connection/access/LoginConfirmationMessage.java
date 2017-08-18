@@ -38,6 +38,7 @@
 package com.distrimind.madkit.kernel.network.connection.access;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 import com.distrimind.madkit.kernel.KernelAddress;
 
@@ -60,8 +61,8 @@ class LoginConfirmationMessage extends AccessMessage {
 	private final transient short nbAnomalies;
 	private final boolean checkDifferedMessages;
 
-	public LoginConfirmationMessage(ArrayList<PairOfIdentifiers> _accepted_identifiers,
-			ArrayList<PairOfIdentifiers> _denied_identifiers, KernelAddress _kernel_address, short nbAnomalies,
+	public LoginConfirmationMessage(Collection<PairOfIdentifiers> _accepted_identifiers,
+			Collection<PairOfIdentifiers> _denied_identifiers, KernelAddress _kernel_address, short nbAnomalies,
 			boolean checkDifferedMessages) {
 		if (_accepted_identifiers == null)
 			throw new NullPointerException("_accepted_identifiers");

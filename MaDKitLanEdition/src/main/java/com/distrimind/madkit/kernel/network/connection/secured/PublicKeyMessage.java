@@ -52,27 +52,46 @@ class PublicKeyMessage extends ConnectionMessage {
 	 */
 	private static final long serialVersionUID = 3516261115139207424L;
 
-	private transient ASymmetricPublicKey public_key = null;
-	private byte[] public_key_bytes;
-	private transient final byte[] public_key_bytes_distant;
+	private transient ASymmetricPublicKey public_key_for_encryption = null;
+	private byte[] public_key_for_encryption_bytes;
+	private transient final byte[] public_key_bytes_distant_for_encryption;
+	private transient ASymmetricPublicKey public_key_for_signature = null;
+	private byte[] public_key_for_signature_bytes;
+	private transient final byte[] public_key_bytes_distant_for_signature;
 
-	public PublicKeyMessage(ASymmetricPublicKey _public_key, ASymmetricPublicKey _public_key_distant) {
-		public_key = _public_key;
-		public_key_bytes = _public_key.encode();
-		public_key_bytes_distant = _public_key_distant == null ? null : _public_key_distant.encode();
+	public PublicKeyMessage(ASymmetricPublicKey _public_key_for_encryption, ASymmetricPublicKey _public_key_distant_for_encryption, ASymmetricPublicKey _public_key_for_signature, ASymmetricPublicKey _public_key_distant_for_signature) {
+		public_key_for_encryption = _public_key_for_encryption;
+		public_key_for_encryption_bytes = _public_key_for_encryption.encode();
+		public_key_bytes_distant_for_encryption = _public_key_distant_for_encryption == null ? null : _public_key_distant_for_encryption.encode();
+		public_key_for_signature = _public_key_for_signature;
+		public_key_for_signature_bytes = _public_key_for_signature.encode();
+		public_key_bytes_distant_for_signature = _public_key_distant_for_signature == null ? null : _public_key_distant_for_signature.encode();
 	}
 
-	public ASymmetricPublicKey getPublicKey() {
-		return public_key;
+	public ASymmetricPublicKey getPublicKeyForEncryption() {
+		return public_key_for_encryption;
+	}
+	public ASymmetricPublicKey getPublicKeyForSignature() {
+		return public_key_for_signature;
 	}
 
+	
 	@Override
 	public Integrity checkDataIntegrity() {
-		if (public_key_bytes == null)
+		if (public_key_for_encryption_bytes == null)
 			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
 		try {
-			public_key = ASymmetricPublicKey.decode(public_key_bytes);
-			if (public_key == null)
+			public_key_for_encryption = ASymmetricPublicKey.decode(public_key_for_encryption_bytes);
+			if (public_key_for_encryption == null)
+				return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
+		} catch (Exception e) {
+			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
+		}
+		if (public_key_for_signature_bytes == null)
+			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
+		try {
+			public_key_for_signature = ASymmetricPublicKey.decode(public_key_for_signature_bytes);
+			if (public_key_for_signature == null)
 				return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
 		} catch (Exception e) {
 			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
@@ -82,8 +101,10 @@ class PublicKeyMessage extends ConnectionMessage {
 
 	@Override
 	public void corrupt() {
-		if (public_key_bytes_distant != null)
-			public_key_bytes = public_key_bytes_distant;
+		if (public_key_bytes_distant_for_encryption != null)
+			public_key_for_encryption_bytes = public_key_bytes_distant_for_encryption;
+		if (public_key_bytes_distant_for_signature != null)
+			public_key_for_signature_bytes = public_key_bytes_distant_for_signature;
 	}
 
 }

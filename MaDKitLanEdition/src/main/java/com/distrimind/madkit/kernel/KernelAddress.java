@@ -144,7 +144,7 @@ public class KernelAddress implements Serializable, Cloneable {
 	}
 
 	private String getKernelName() {
-		return "@" + Madkit.VERSION.getShortProgramName() + "-" + getNetworkID();
+		return "@" + Madkit.getVersion().getShortProgramName() + "-" + getNetworkID();
 	}
 
 	@Override

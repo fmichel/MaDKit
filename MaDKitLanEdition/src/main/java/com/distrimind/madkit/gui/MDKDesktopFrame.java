@@ -69,7 +69,7 @@ public class MDKDesktopFrame extends JFrame {
 	final private JDesktopPane desktopPane;
 
 	public MDKDesktopFrame() {
-		super("MaDKitLanEdition " + Madkit.VERSION.toStringShort() + " Desktop ");
+		super("MaDKitLanEdition " + Madkit.getVersion().toStringShort() + " Desktop ");
 
 		setPreferredSize(new Dimension(800, 600));
 		desktopPane = new JDesktopPane();

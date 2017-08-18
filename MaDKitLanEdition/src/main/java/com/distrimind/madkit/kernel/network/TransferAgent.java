@@ -411,6 +411,7 @@ class TransferAgent extends AgentFakeThread {
 	private void initiateTransferConnection() {
 		if (logger != null)
 			logger.finer("Initiate transfer connection : " + originalAskMessage);
+		
 		sendMessageWithRole(candidate2.getAgentAddress(),
 				new ObjectMessage<InitiateTransferConnection>(
 						originalAskMessage.getIntiateConnectionMessage(candidate1.getAgentAddress(),

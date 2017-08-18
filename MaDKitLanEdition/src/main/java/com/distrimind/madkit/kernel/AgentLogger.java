@@ -73,7 +73,7 @@ final public class AgentLogger extends Logger {
 
 	final private AbstractAgent myAgent;
 
-	private Level warningLogLevel = Madkit.defaultConfig.warningLogLevel;
+	private Level warningLogLevel = Madkit.getDefaultConfig().warningLogLevel;
 
 	final static AgentLogger getLogger(final AbstractAgent agent) {
 		AgentLogger al = agentLoggers.get(agent);
@@ -124,8 +124,8 @@ final public class AgentLogger extends Logger {
 		super("[UNREGISTERED AGENT]", null);
 		myAgent = null;
 		setUseParentHandlers(false);
-		super.setLevel(Madkit.defaultConfig.agentLogLevel);
-		if (!Madkit.defaultConfig.noAgentConsoleLog) {
+		super.setLevel(Madkit.getDefaultConfig().agentLogLevel);
+		if (!Madkit.getDefaultConfig().noAgentConsoleLog) {
 			addHandler(new ConsoleHandler());
 		}
 	}

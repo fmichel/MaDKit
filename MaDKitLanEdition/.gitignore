@@ -2,3 +2,17 @@
 /bin/
 /gradle.properties
 /build/
+/tmpfortest0.database.data
+/tmpfortest0.database.lobs
+/tmpfortest0.database.log
+/tmpfortest0.database.properties
+/tmpfortest0.database.script
+/tmpfortest4.database.data
+/tmpfortest4.database.lobs
+/tmpfortest4.database.log
+/tmpfortest4.database.properties
+/tmpfortest4.database.script
+/tmpfortest.database.data
+/tmpfortest.database.log
+/tmpfortest.database.properties
+/tmpfortest.database.script

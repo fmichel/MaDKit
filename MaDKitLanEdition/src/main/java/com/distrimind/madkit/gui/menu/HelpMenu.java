@@ -72,7 +72,7 @@ final public class HelpMenu extends JMenu {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			try {
-				Desktop.getDesktop().browse(new URI(Madkit.WEB + "/" + e.getActionCommand()));
+				Desktop.getDesktop().browse(new URI(Madkit.getWEB() + "/" + e.getActionCommand()));
 			} catch (IOException | URISyntaxException e1) {
 				e1.printStackTrace();
 			}
@@ -87,7 +87,7 @@ final public class HelpMenu extends JMenu {
 			final ImageIcon ii = KernelAction.CONNECT_WEB_REPO.getActionInfo().getSmallIcon();
 			mi = new JMenuItem("API", ii);
 			mi.addActionListener(tuto);
-			mi.setActionCommand("repository/MaDKit-" + Madkit.VERSION + "/docs/api");
+			mi.setActionCommand("repository/MaDKit-" + Madkit.getVersion() + "/docs/api");
 			add(mi);
 			mi = new JMenuItem(Words.TUTORIALS.toString(), ii);
 			mi.addActionListener(tuto);

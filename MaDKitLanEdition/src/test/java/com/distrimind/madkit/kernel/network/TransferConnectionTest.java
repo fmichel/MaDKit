@@ -58,7 +58,7 @@ import com.distrimind.madkit.kernel.Madkit;
 import com.distrimind.madkit.kernel.Message;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocolProperties;
 import com.distrimind.madkit.kernel.network.connection.secured.ClientSecuredProtocolPropertiesWithKnownPublicKey;
-import com.distrimind.madkit.kernel.network.connection.secured.P2PSecuredConnectionProtocolProperties;
+import com.distrimind.madkit.kernel.network.connection.secured.P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties;
 import com.distrimind.madkit.kernel.network.connection.secured.ServerSecuredProcotolPropertiesWithKnownPublicKey;
 import com.distrimind.madkit.kernel.network.connection.unsecured.CheckSumConnectionProtocolProperties;
 import com.distrimind.madkit.kernel.network.connection.unsecured.UnsecuredConnectionProtocolProperties;
@@ -162,8 +162,8 @@ public class TransferConnectionTest extends JunitMadkit {
 		while (c != null) {
 			if (c.getClass() == ClientSecuredProtocolPropertiesWithKnownPublicKey.class)
 				return null;
-			else if (cpp.getClass() == P2PSecuredConnectionProtocolProperties.class) {
-				if (!((P2PSecuredConnectionProtocolProperties) cpp).isServer)
+			else if (cpp.getClass() == P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties.class) {
+				if (!((P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties) cpp).isServer)
 					return null;
 			} else if (cpp.getClass() == CheckSumConnectionProtocolProperties.class) {
 				if (!((CheckSumConnectionProtocolProperties) cpp).isServer)
@@ -184,12 +184,12 @@ public class TransferConnectionTest extends JunitMadkit {
 		if (cpp.getClass() == ServerSecuredProcotolPropertiesWithKnownPublicKey.class) {
 			ServerSecuredProcotolPropertiesWithKnownPublicKey sold = (ServerSecuredProcotolPropertiesWithKnownPublicKey) cpp;
 			ServerSecuredProcotolPropertiesWithKnownPublicKey s = new ServerSecuredProcotolPropertiesWithKnownPublicKey();
-			s.addEncryptionProfile(sold.getDefaultKeyPair(), sold.getDefaultSignatureType(),
+			s.addEncryptionProfile(sold.getDefaultKeyPairForEncryption(),sold.getDefaultKeyPairForSignature(), sold.getDefaultSignatureType(),
 					sold.getDefaultSymmetricEncryptionType(), sold.getDefaultSymmetricEncryptionKeySizeBits());
 			res = s;
-		} else if (cpp.getClass() == P2PSecuredConnectionProtocolProperties.class) {
-			P2PSecuredConnectionProtocolProperties sold = (P2PSecuredConnectionProtocolProperties) cpp;
-			P2PSecuredConnectionProtocolProperties s = new P2PSecuredConnectionProtocolProperties();
+		} else if (cpp.getClass() == P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties.class) {
+			P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties sold = (P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties) cpp;
+			P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties s = new P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties();
 			s.aSymetricEncryptionType = sold.aSymetricEncryptionType;
 			s.aSymetricKeySize = sold.aSymetricKeySize;
 			s.aSymmetricKeyExpirationMs = sold.aSymmetricKeyExpirationMs;

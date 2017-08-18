@@ -101,17 +101,24 @@ import com.distrimind.util.version.Version;
 final public class Madkit {
 
 	private final static String MDK_LOGGER_NAME = "[* MADKIT *] ";
-	final static MadkitProperties defaultConfig;
+	private volatile static MadkitProperties defaultConfig;
 	final static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
 
-	public final static Version VERSION;
+	static MadkitProperties getDefaultConfig()
+	{
+		getVersion();
+		return defaultConfig;
+	}
+	
+	private volatile static Version VERSION;
 
-	static {
+	static Version getNewVersionInstance()
+	{
 		Calendar c = Calendar.getInstance();
 		c.set(2015, 4, 22);
 		Calendar c2 = Calendar.getInstance();
-		c2.set(2017, 7, 9);
-		VERSION = new Version("MadkitLanEdition", "MKLE", 1, 1, 3, Version.Type.Stable, 1, c.getTime(), c2.getTime());
+		c2.set(2017, 7, 13);
+		Version VERSION = new Version("MadkitLanEdition", "MKLE", 1, 2, 0, Version.Type.Stable, 1, c.getTime(), c2.getTime());
 		try {
 
 			InputStream is = Madkit.class.getResourceAsStream("build.txt");
@@ -134,7 +141,15 @@ final public class Madkit {
 
 			c = Calendar.getInstance();
 			c.set(2017, 7, 5);
-			Description d = new Description(1, 1, 3, Version.Type.Stable, 1, c.getTime());
+			Description d = new Description(1, 2, 0, Version.Type.Stable, 1, c.getTime());
+			d.addItem("Correction a problem with database");
+			d.addItem("Adding P2PSecuredConnectionProtocolWithECDHAlgorithm connection protocol");
+			d.addItem("Updating OOD to 2.14.0 version");
+			VERSION.addDescription(d);
+
+			c = Calendar.getInstance();
+			c.set(2017, 7, 5);
+			d = new Description(1, 1, 3, Version.Type.Stable, 1, c.getTime());
 			d.addItem("Updating OOD to 2.0.0 Beta 15");
 			VERSION.addDescription(d);
 
@@ -195,24 +210,46 @@ final public class Madkit {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		defaultConfig = new MadkitProperties();
-		// System.setProperty("sun.java2d.xrender", "True"); //TODO
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-
-			@Override
-			public void run() {// just in case (like ctrl+c)
-				AgentLogger.resetLoggers();
-			}
-		});
-		// no need to externalize because it is used only here
-		try {
-			defaultConfig.load(new File("com/distrimind/madkit/kernel/madkit.xml"));
-		} catch (IOException e) {
-		}
-
+		return VERSION;
 	}
-	public final static URL WEB = defaultConfig.madkitWeb;
+	
+	public static Version getVersion()
+	{
+		if (VERSION==null)
+		{
+			synchronized(Madkit.class)
+			{
+				if (VERSION==null)
+				{
+					VERSION=getNewVersionInstance();
+					defaultConfig = new MadkitProperties();
+					// System.setProperty("sun.java2d.xrender", "True"); //TODO
+					Runtime.getRuntime().addShutdownHook(new Thread() {
 
+						@Override
+						public void run() {// just in case (like ctrl+c)
+							AgentLogger.resetLoggers();
+						}
+					});
+					// no need to externalize because it is used only here
+					try {
+						defaultConfig.load(new File("com/distrimind/madkit/kernel/madkit.xml"));
+					} catch (IOException e) {
+					}
+					WEB=defaultConfig.madkitWeb;
+				}
+			}
+		}
+		return VERSION;
+	}
+	private volatile static URL WEB;
+
+	public static URL getWEB()
+	{
+		getVersion();
+		return WEB;
+	}
+	
 	final private MadkitProperties madkitConfig = new MadkitProperties();
 	// private Element madkitXMLConfigFile = null;
 	// private FileHandler madkitLogFileHandler;
@@ -373,7 +410,6 @@ final public class Madkit {
 	}
 
 	Madkit(KernelAddress kernelAddress, MadkitEventListener eventListener, String... options) {
-
 		if (eventListener == null)
 			throw new NullPointerException("eventListener");
 		this.kernelAddress = kernelAddress;
@@ -515,6 +551,7 @@ final public class Madkit {
 	 * 
 	 */
 	private void printWelcomeString() {
+		Version VERSION=getVersion();
 		if (!(madkitConfig.madkitLogLevel == Level.OFF)) {
 			Calendar startCal = Calendar.getInstance();
 			Calendar endCal = Calendar.getInstance();
@@ -524,7 +561,7 @@ final public class Madkit {
 					+ "\n\t\t\t\t    MadkitLanEdition\n" + "\n\t version: " + VERSION.getMajor() + "."
 					+ VERSION.getMinor() + "." + VERSION.getRevision() + " " + VERSION.getType()
 					+ (VERSION.getType().equals(Version.Type.Stable) ? "" : (" " + VERSION.getAlphaBetaVersion()))
-					+ "\n\t build-id: " + Madkit.VERSION.getBuildNumber() + "\n\t MaDKit Team (c) 1997-2016"
+					+ "\n\t MaDKit Team (c) 1997-2016"
 					+ "\n\t MadkitLanEdition Team (c) " + startCal.get(Calendar.YEAR) + "-" + endCal.get(Calendar.YEAR)
 					+ "\n\t Kernel " + myKernel.getNetworkID()
 					+ "\n-----------------------------------------------------------------------------\n");

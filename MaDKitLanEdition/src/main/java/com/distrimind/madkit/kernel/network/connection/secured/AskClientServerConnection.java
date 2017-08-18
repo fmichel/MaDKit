@@ -65,33 +65,41 @@ class AskClientServerConnection extends AskConnection {
 	 */
 	private static final long serialVersionUID = 6607916237726396986L;
 
-	private final transient byte[] distantPublicKeyEncoded;
+	private final transient byte[] distantPublicKeyForEncryptionEncoded;
+	private final transient byte[] distantPublicKeyForSignatureEncoded;
 	private final byte[] secretKey;
-	private byte[] publicKeyEncoded;
+	private byte[] publicKeyForEncryptionEncoded, publicKeyForSignatureEncoded;
 
 	AskClientServerConnection(SymmetricEncryptionAlgorithm symmetricAlgo,
-			ClientASymmetricEncryptionAlgorithm asymmetricAlgo, ASymmetricPublicKey publicKey,
-			ASymmetricPublicKey distantPublicKey) throws InvalidKeyException, InvalidAlgorithmParameterException,
+			ClientASymmetricEncryptionAlgorithm asymmetricAlgo, ASymmetricPublicKey publicKeyForEncryption,ASymmetricPublicKey publicKeyForSignature,
+			ASymmetricPublicKey distantPublicKeyForEncryption, ASymmetricPublicKey distantPublicKeyForSignature) throws InvalidKeyException, InvalidAlgorithmParameterException,
 			IllegalBlockSizeException, BadPaddingException, IOException, IllegalStateException,
 			NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException {
 		super(false);
 		if (symmetricAlgo == null)
 			throw new NullPointerException("symmetricAlgo");
-		if (publicKey == null)
-			throw new NullPointerException("publicKey");
+		if (publicKeyForEncryption == null)
+			throw new NullPointerException("publicKeyForEncryption");
+		if (publicKeyForSignature == null)
+			throw new NullPointerException("publicKeyForSignature");
 		if (asymmetricAlgo == null)
 			throw new NullPointerException("asymmetricAlgo");
 		this.secretKey = symmetricAlgo.encodeKey(asymmetricAlgo);
-		this.publicKeyEncoded = asymmetricAlgo.encode(publicKey.encode());
-		this.distantPublicKeyEncoded = asymmetricAlgo.encode(distantPublicKey.encode());
+		this.publicKeyForEncryptionEncoded = asymmetricAlgo.encode(publicKeyForEncryption.encode());
+		this.publicKeyForSignatureEncoded = asymmetricAlgo.encode(publicKeyForSignature.encode());
+		this.distantPublicKeyForEncryptionEncoded = asymmetricAlgo.encode(distantPublicKeyForEncryption.encode());
+		this.distantPublicKeyForSignatureEncoded = asymmetricAlgo.encode(distantPublicKeyForSignature.encode());
 	}
 
 	byte[] getSecretKey() {
 		return secretKey;
 	}
 
-	byte[] getEncodedPublicKey() {
-		return publicKeyEncoded;
+	byte[] getEncodedPublicKeyForEncryption() {
+		return publicKeyForEncryptionEncoded;
+	}
+	byte[] getEncodedPublicKeyForSignature() {
+		return publicKeyForSignatureEncoded;
 	}
 
 	/**
@@ -103,9 +111,13 @@ class AskClientServerConnection extends AskConnection {
 			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
 		if (secretKey.length == 0)
 			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		if (publicKeyEncoded == null)
+		if (publicKeyForEncryptionEncoded == null)
 			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		if (publicKeyEncoded.length == 0)
+		if (publicKeyForEncryptionEncoded.length == 0)
+			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
+		if (publicKeyForSignatureEncoded == null)
+			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
+		if (publicKeyForSignatureEncoded.length == 0)
 			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
 		if (this.isYouAreAsking())
 			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
@@ -114,8 +126,10 @@ class AskClientServerConnection extends AskConnection {
 
 	@Override
 	public void corrupt() {
-		if (distantPublicKeyEncoded != null)
-			publicKeyEncoded = distantPublicKeyEncoded;
+		if (distantPublicKeyForEncryptionEncoded != null)
+			publicKeyForEncryptionEncoded = distantPublicKeyForEncryptionEncoded;
+		if (distantPublicKeyForSignatureEncoded != null)
+			publicKeyForSignatureEncoded = distantPublicKeyForSignatureEncoded;
 	}
 
 }

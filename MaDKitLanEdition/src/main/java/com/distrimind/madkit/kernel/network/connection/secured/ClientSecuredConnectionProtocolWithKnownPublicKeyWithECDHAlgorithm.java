@@ -68,6 +68,9 @@ import com.distrimind.madkit.kernel.network.connection.ConnectionMessage;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol;
 import com.distrimind.madkit.kernel.network.connection.TransferedBlockChecker;
 import com.distrimind.madkit.kernel.network.connection.UnexpectedMessage;
+import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol.ConnectionClosedReason;
+import com.distrimind.madkit.kernel.network.connection.secured.ClientSecuredConnectionProtocolWithKnownPublicKey.BlockChecker;
+import com.distrimind.madkit.kernel.network.connection.secured.ClientSecuredConnectionProtocolWithKnownPublicKey.Step;
 import com.distrimind.ood.database.DatabaseWrapper;
 import com.distrimind.ood.database.exceptions.DatabaseException;
 import com.distrimind.util.Bits;
@@ -79,6 +82,7 @@ import com.distrimind.util.crypto.ASymmetricSignerAlgorithm;
 import com.distrimind.util.crypto.AbstractSecureRandom;
 import com.distrimind.util.crypto.AbstractSignature;
 import com.distrimind.util.crypto.ClientASymmetricEncryptionAlgorithm;
+import com.distrimind.util.crypto.EllipticCurveDiffieHellmanAlgorithm;
 import com.distrimind.util.crypto.SecureRandomType;
 import com.distrimind.util.crypto.SymmetricEncryptionAlgorithm;
 import com.distrimind.util.crypto.SymmetricSecretKey;
@@ -94,8 +98,8 @@ import com.distrimind.util.sizeof.ObjectSizer;
  * @since MadkitLanEdition 1.0
  * @see ServerSecuredConnectionProtocolWithKnwonPublicKey
  */
-public class ClientSecuredConnectionProtocolWithKnownPublicKey
-		extends ConnectionProtocol<ClientSecuredConnectionProtocolWithKnownPublicKey> {
+public class ClientSecuredConnectionProtocolWithKnownPublicKeyWithECDHAlgorithm
+		extends ConnectionProtocol<ClientSecuredConnectionProtocolWithKnownPublicKeyWithECDHAlgorithm> {
 	Step current_step = Step.NOT_CONNECTED;
 
 	private final ASymmetricPublicKey distant_public_key_for_encryption, distant_public_key_for_signature;
@@ -104,23 +108,24 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 	protected SymmetricEncryptionAlgorithm symmetricAlgorithm = null;
 	protected ASymmetricSignerAlgorithm signer = null;
 	protected ASymmetricSignatureCheckerAlgorithm signatureChecker=null;
-	protected ASymmetricKeyPair myKeyPairForEncryption = null, myKeyPairForSignature = null;
+	protected EllipticCurveDiffieHellmanAlgorithm ellipticCurveDiffieHellmanAlgorithmForEncryption=null;
+	protected EllipticCurveDiffieHellmanAlgorithm ellipticCurveDiffieHellmanAlgorithmForSignature=null;
 	int signature_size;
 	private final SubBlockParser parser;
 
-	protected final ClientSecuredProtocolPropertiesWithKnownPublicKey hproperties;
+	protected final ClientSecuredProtocolPropertiesWithKnownPublicKeyWithECDHAlgorithm hproperties;
 	private final AbstractSecureRandom random;
 	boolean firstMessageSent = false;
 	private boolean currentBlockCheckerIsNull = true;
 	private boolean needToRefreshTransferBlockChecker = true;
 
-	private ClientSecuredConnectionProtocolWithKnownPublicKey(InetSocketAddress _distant_inet_address,
+	private ClientSecuredConnectionProtocolWithKnownPublicKeyWithECDHAlgorithm(InetSocketAddress _distant_inet_address,
 			InetSocketAddress _local_interface_address, ConnectionProtocol<?> _subProtocol,
 			DatabaseWrapper sql_connection, NetworkProperties _properties, int subProtocolLevel, boolean isServer,
 			boolean mustSupportBidirectionnalConnectionInitiative) throws ConnectionException {
 		super(_distant_inet_address, _local_interface_address, _subProtocol, sql_connection, _properties,
 				subProtocolLevel, isServer, mustSupportBidirectionnalConnectionInitiative);
-		hproperties = (ClientSecuredProtocolPropertiesWithKnownPublicKey) super.connection_protocol_properties;
+		hproperties = (ClientSecuredProtocolPropertiesWithKnownPublicKeyWithECDHAlgorithm) super.connection_protocol_properties;
 
 		hproperties.checkProperties();
 

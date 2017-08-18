@@ -65,7 +65,7 @@ public final class IPBanStat extends Table<IPBanStat.Record> {
 	}
 
 	public static class Record extends DatabaseRecord {
-		public @NotNull @PrimaryKey byte[] inet_address;
+		public @NotNull @PrimaryKey(limit=20) byte[] inet_address;
 		public @Field long last_update_time;
 		// public @Field long time_accumulation;
 		public @Field short number_hits;

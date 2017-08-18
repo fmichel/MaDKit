@@ -52,6 +52,7 @@ import gnu.vm.jgnu.security.spec.InvalidKeySpecException;
 import gnu.vm.jgnux.crypto.BadPaddingException;
 import gnu.vm.jgnux.crypto.IllegalBlockSizeException;
 import gnu.vm.jgnux.crypto.NoSuchPaddingException;
+import gnu.vm.jgnux.crypto.ShortBufferException;
 
 import com.distrimind.madkit.exceptions.BlockParserException;
 import com.distrimind.madkit.exceptions.ConnectionException;
@@ -94,8 +95,8 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 		extends ConnectionProtocol<ServerSecuredConnectionProtocolWithKnwonPublicKey> {
 	Step current_step = Step.NOT_CONNECTED;
 
-	ASymmetricKeyPair myKeyPair;
-	private ASymmetricPublicKey distant_public_key = null;
+	ASymmetricKeyPair myKeyPairForEncryption, myKeyPairForSignature;
+	private ASymmetricPublicKey distant_public_key_for_encryption=null, distant_public_key_for_signature = null;
 
 	protected ServerASymmetricEncryptionAlgorithm aSymmetricAlgorithm;
 	protected SymmetricEncryptionAlgorithm symmetricAlgorithm = null;
@@ -122,7 +123,8 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 
 		hproperties.checkProperties();
 
-		myKeyPair = null;
+		myKeyPairForEncryption = null;
+		myKeyPairForSignature = null;
 
 		signature_size = -1;
 		aSymmetricAlgorithm = null;
@@ -142,11 +144,15 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 	}
 
 	void initMyKeyPair(int identifier) throws BlockParserException {
-		if (myKeyPair != null)
+		if (myKeyPairForEncryption != null && myKeyPairForSignature!=null)
 			return;
 		try {
-			myKeyPair = hproperties.getKeyPair(identifier);
-			if (myKeyPair == null)
+			myKeyPairForEncryption = hproperties.getKeyPairForEncryption(identifier);
+			if (myKeyPairForEncryption == null)
+				throw new BlockParserException(
+						"Unkonw encryption profile. Impossible to find key pair identified by " + identifier);
+			myKeyPairForSignature = hproperties.getKeyPairForSignature(identifier);
+			if (myKeyPairForSignature == null)
 				throw new BlockParserException(
 						"Unkonw encryption profile. Impossible to find key pair identified by " + identifier);
 			signatureType = hproperties.getSignatureType(identifier);
@@ -160,9 +166,9 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 						"Unkonw encryption profile. Impossible to find symmetric encryption type identified by "
 								+ identifier);
 
-			signature_size = signatureType.getSignatureSizeBytes(myKeyPair.getKeySize());
+			signature_size = signatureType.getSignatureSizeBytes(myKeyPairForSignature.getKeySize());
 
-			aSymmetricAlgorithm = new ServerASymmetricEncryptionAlgorithm(signatureType, myKeyPair);
+			aSymmetricAlgorithm = new ServerASymmetricEncryptionAlgorithm(signatureType, myKeyPairForEncryption);
 			byte[] seed = new byte[64];
 			random.nextBytes(seed);
 
@@ -179,14 +185,16 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 
 	}
 
-	private void setDistantPublicKey(byte[] encodedPublicKey) throws ConnectionException {
+	private void setDistantPublicKeys(byte[] encodedPublicKeyForEncryption, byte[] encodedPublicKeyForSignature) throws ConnectionException {
 
 		try {
-			this.distant_public_key = ASymmetricPublicKey.decode(aSymmetricAlgorithm.decode(encodedPublicKey));
-			this.signatureChecker = new ASymmetricSignatureCheckerAlgorithm(signatureType, distant_public_key);
+			this.distant_public_key_for_encryption = ASymmetricPublicKey.decode(aSymmetricAlgorithm.decode(encodedPublicKeyForEncryption));
+			this.distant_public_key_for_signature = ASymmetricPublicKey.decode(aSymmetricAlgorithm.decode(encodedPublicKeyForSignature));
+			this.signatureChecker = new ASymmetricSignatureCheckerAlgorithm(signatureType, distant_public_key_for_signature);
 		} catch (NoSuchAlgorithmException | InvalidKeyException | InvalidKeySpecException | IllegalBlockSizeException
 				| BadPaddingException | IOException | NoSuchProviderException e) {
-			this.distant_public_key = null;
+			this.distant_public_key_for_encryption = null;
+			this.distant_public_key_for_signature = null;
 			this.signatureChecker = null;
 			throw new ConnectionException(e);
 		}
@@ -209,7 +217,8 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 	}
 
 	private void resetDistantPublicKey() {
-		distant_public_key = null;
+		this.distant_public_key_for_encryption = null;
+		this.distant_public_key_for_signature = null;
 		signatureChecker = null;
 	}
 
@@ -237,11 +246,11 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 							ConnectionClosedReason.CONNECTION_ANOMALY);
 				}
 				try {
-					setDistantPublicKey(ask.getEncodedPublicKey());
+					setDistantPublicKeys(ask.getEncodedPublicKeyForEncryption(), ask.getEncodedPublicKeyForSignature());
 				} catch (ConnectionException e) {
 					return new IncomprehensiblePublicKey();
 				}
-				if (distant_public_key.equals(myKeyPair.getASymmetricPublicKey())) {
+				if (distant_public_key_for_encryption.equals(myKeyPairForEncryption.getASymmetricPublicKey()) || distant_public_key_for_signature.equals(myKeyPairForSignature.getASymmetricPublicKey())) {
 					resetDistantPublicKey();
 					return new SimilarPublicKeysError();
 				}
@@ -395,7 +404,7 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 					return new SubBlockInfo(res, check, !check);
 				} catch (SignatureException | IOException | InvalidKeyException | InvalidAlgorithmParameterException
 						| IllegalBlockSizeException | BadPaddingException | NoSuchAlgorithmException
-						| InvalidKeySpecException | NoSuchProviderException e) {
+						| InvalidKeySpecException | NoSuchProviderException | ShortBufferException | IllegalStateException e) {
 					SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() + getSizeHead(),
 							getBodyOutputSizeForDecryption(_block.getSize() - getSizeHead()));
 					return new SubBlockInfo(res, false, true);
@@ -488,7 +497,7 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 							_block.getSize() - getSizeHead(), _block.getBytes(), _block.getOffset(), signature_size);
 					return new SubBlockInfo(res, check, !check);
 				} catch (SignatureException | InvalidKeyException | NoSuchAlgorithmException
-						| InvalidKeySpecException e) {
+						| InvalidKeySpecException | ShortBufferException | IllegalStateException e) {
 					return new SubBlockInfo(res, false, true);
 				}
 			}
@@ -547,13 +556,13 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 		try {
 			needToRefreshTransferBlockChecker = false;
 
-			if (myKeyPair == null || signatureType == null) {
+			if (myKeyPairForEncryption == null || myKeyPairForSignature == null || signatureType == null) {
 				currentBlockCheckerIsNull = true;
 				return new ConnectionProtocol.NullBlockChecker(subBlockChercker, this.isCrypted(),
 						(short) parser.getSizeHead());
 			} else {
 				currentBlockCheckerIsNull = false;
-				return new BlockChecker(subBlockChercker, signatureType, this.myKeyPair.getASymmetricPublicKey(),
+				return new BlockChecker(subBlockChercker, signatureType, this.myKeyPairForSignature.getASymmetricPublicKey(),
 						this.signature_size, this.isCrypted());
 			}
 		} catch (Exception e) {
@@ -565,7 +574,7 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 	@Override
 	public boolean isTransferBlockCheckerChangedImpl() {
 
-		if (myKeyPair == null || signatureType == null) {
+		if (myKeyPairForEncryption == null || myKeyPairForSignature == null || signatureType == null) {
 			return !currentBlockCheckerIsNull || needToRefreshTransferBlockChecker;
 		} else
 			return currentBlockCheckerIsNull || needToRefreshTransferBlockChecker;

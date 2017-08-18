@@ -40,7 +40,10 @@ package com.distrimind.madkit.kernel.network.connection.access;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
+import gnu.vm.jgnu.security.DigestException;
 import gnu.vm.jgnu.security.InvalidAlgorithmParameterException;
 import gnu.vm.jgnu.security.InvalidKeyException;
 import gnu.vm.jgnu.security.NoSuchAlgorithmException;
@@ -50,7 +53,10 @@ import gnu.vm.jgnux.crypto.BadPaddingException;
 import gnu.vm.jgnux.crypto.IllegalBlockSizeException;
 import gnu.vm.jgnux.crypto.NoSuchPaddingException;
 
+import com.distrimind.util.crypto.AbstractMessageDigest;
+import com.distrimind.util.crypto.AbstractSecureRandom;
 import com.distrimind.util.crypto.P2PASymmetricSecretMessageExchanger;
+import com.distrimind.util.crypto.P2PJPAKESecretMessageExchanger;
 
 /**
  * 
@@ -84,6 +90,26 @@ class IdentifiersPropositionMessage extends AccessMessage {
 		this.nbAnomalies = nbAnomalies;
 	}
 
+	public IdentifiersPropositionMessage(Collection<Identifier> _id_pws, AbstractSecureRandom random, AbstractMessageDigest messageDigest,
+			boolean encryptIdentifiers, short nbAnomalies) throws InvalidKeyException, IOException,
+			IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, InvalidKeySpecException,
+			NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchProviderException, DigestException {
+		identifiers = new Identifier[_id_pws.size()];
+		isEncrypted = encryptIdentifiers;
+		int index = 0;
+		for (Identifier ip : _id_pws) {
+			if (encryptIdentifiers)
+			{
+				identifiers[index++] = new EncryptedIdentifier(ip, random, messageDigest);
+			}
+			else
+			{
+				identifiers[index++] = ip;
+			}
+		}
+		this.nbAnomalies = nbAnomalies;
+	}
+
 	@Override
 	public short getNbAnomalies() {
 		return nbAnomalies;
@@ -106,6 +132,23 @@ class IdentifiersPropositionMessage extends AccessMessage {
 
 		return res;
 	}
+	public ArrayList<Identifier> getValidDecodedIdentifiers(LoginData loginData,
+			AbstractMessageDigest messageDigest) throws AccessException {
+		ArrayList<Identifier> res = new ArrayList<>();
+		if (isEncrypted) {
+			for (Identifier id : identifiers) {
+				Identifier i = loginData.getIdentifier((EncryptedIdentifier) id, messageDigest);
+				if (i != null)
+					res.add(i);
+			}
+		} else {
+			for (Identifier id : identifiers) {
+				res.add(id);
+			}
+		}
+
+		return res;
+	}
 
 	public IdentifiersPropositionMessage getIdentifiersPropositionMessageAnswer(LoginData loginData,
 			P2PASymmetricSecretMessageExchanger cipher, boolean encryptIdentifiers)
@@ -117,6 +160,19 @@ class IdentifiersPropositionMessage extends AccessMessage {
 		return new IdentifiersPropositionMessage(validID, cipher, encryptIdentifiers,
 				loginData.canTakesLoginInitiative()
 						? ((validID.size() == 0 && identifiers.length > 0) ? (short) 1 : (short) 0)
+						: (nbAno > Short.MAX_VALUE) ? Short.MAX_VALUE : (short) nbAno);
+	}
+	public IdentifiersPropositionMessage getIdentifiersPropositionMessageAnswer(LoginData loginData,
+			AbstractSecureRandom random, AbstractMessageDigest messageDigest, boolean encryptIdentifiers, List<Identifier> identifiers)
+			throws AccessException, InvalidKeyException, IOException, IllegalBlockSizeException, BadPaddingException,
+			NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException,
+			InvalidAlgorithmParameterException, NoSuchProviderException, DigestException {
+		ArrayList<Identifier> validID = getValidDecodedIdentifiers(loginData, messageDigest);
+		identifiers.addAll(validID);
+		int nbAno = this.identifiers.length - validID.size();
+		return new IdentifiersPropositionMessage(validID, random, messageDigest, encryptIdentifiers,
+				loginData.canTakesLoginInitiative()
+						? ((validID.size() == 0 && this.identifiers.length > 0) ? (short) 1 : (short) 0)
 						: (nbAno > Short.MAX_VALUE) ? Short.MAX_VALUE : (short) nbAno);
 	}
 
@@ -155,6 +211,47 @@ class IdentifiersPropositionMessage extends AccessMessage {
 				loginData.canTakesLoginInitiative()
 						? ((res.size() == 0 && identifiers.length > 0) ? (short) 1 : (short) 0)
 						: (nbAno > Short.MAX_VALUE) ? Short.MAX_VALUE : (short) nbAno);
+	}
+	public JPakeMessage getJPakeMessage(LoginData loginData, Map<Identifier, P2PJPAKESecretMessageExchanger> jpakes, AbstractSecureRandom random, AbstractMessageDigest messageDigest,
+			boolean encryptIdentifiers) throws AccessException, InvalidKeyException, IOException,
+			IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, InvalidKeySpecException,
+			NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchProviderException, DigestException {
+		int nbAno = 0;
+		if (isEncrypted) {
+			for (Identifier id : identifiers) {
+				Identifier i = loginData.getIdentifier((EncryptedIdentifier) id, messageDigest);
+
+				if (i != null) {
+					Identifier localId = loginData.localiseIdentifier(i);
+					PasswordKey pw = loginData.getPassword(localId);
+					if (pw != null)
+					{
+						P2PJPAKESecretMessageExchanger jpake=new P2PJPAKESecretMessageExchanger(localId, pw.getPasswordBytes(), pw.isKey());
+						jpakes.put(localId, jpake);
+					}
+					else
+						++nbAno;
+				} else
+					++nbAno;
+			}
+
+		} else {
+			for (Identifier id : identifiers) {
+				Identifier localId = loginData.localiseIdentifier(id);
+				PasswordKey pw = loginData.getPassword(localId);
+				if (pw != null)
+				{
+					P2PJPAKESecretMessageExchanger jpake=new P2PJPAKESecretMessageExchanger(localId, pw.getPasswordBytes(), pw.isKey());
+					jpakes.put(localId, jpake);
+				}
+				else
+					++nbAno;
+			}
+		}
+		return new JPakeMessage(jpakes, encryptIdentifiers,
+				loginData.canTakesLoginInitiative()
+						? ((jpakes.size() == 0 && identifiers.length > 0) ? (short) 1 : (short) 0)
+						: (nbAno > Short.MAX_VALUE) ? Short.MAX_VALUE : (short) nbAno, random, messageDigest);
 	}
 
 	@Override

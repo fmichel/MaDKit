@@ -61,7 +61,7 @@ import com.distrimind.madkit.kernel.network.LocalNetworkAgent.PossibleAddressFor
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocolProperties;
 import com.distrimind.madkit.kernel.network.connection.access.AccessData;
-import com.distrimind.madkit.kernel.network.connection.access.AccessProtocolProperties;
+import com.distrimind.madkit.kernel.network.connection.access.AbstractAccessProtocolProperties;
 import com.distrimind.madkit.util.XMLObjectParser;
 import com.distrimind.madkit.util.XMLUtilities;
 import com.distrimind.ood.database.DatabaseWrapper;
@@ -416,11 +416,16 @@ public class NetworkProperties extends XMLProperties {
 	/**
 	 * for internal use
 	 */
-	public static final byte connectionProtocolDatabaseUsingCode = 0;
+	public static final byte connectionProtocolDatabaseUsingCodeForEncryption = 1;
+
 	/**
 	 * for internal use
 	 */
-	public static final byte accessProtocolDatabaseUsingCode = 1;
+	public static final byte connectionProtocolDatabaseUsingCodeForSignature = 2;
+	/**
+	 * for internal use
+	 */
+	public static final byte accessProtocolDatabaseUsingCode = 3;
 
 	/**
 	 * Default IPV4 used to join several peers into the local network, and enable
@@ -681,16 +686,16 @@ public class NetworkProperties extends XMLProperties {
 		return null;
 	}
 
-	protected ArrayList<AccessProtocolProperties> accessProtocolProperties = new ArrayList<>();
+	protected ArrayList<AbstractAccessProtocolProperties> accessProtocolProperties = new ArrayList<>();
 
 	/**
 	 * Add an AccessProtocolProperties according its InetAddress filters
 	 * 
 	 * @param _access_protocol_properties
 	 *            the access protocol properties
-	 * @see AccessProtocolProperties
+	 * @see AbstractAccessProtocolProperties
 	 */
-	public void addAccessProtocolProperties(AccessProtocolProperties _access_protocol_properties) {
+	public void addAccessProtocolProperties(AbstractAccessProtocolProperties _access_protocol_properties) {
 		accessProtocolProperties.add(_access_protocol_properties);
 	}
 
@@ -698,25 +703,25 @@ public class NetworkProperties extends XMLProperties {
 	 * 
 	 * @return the access protocol properties list
 	 */
-	public ArrayList<AccessProtocolProperties> getAccessProtocolProperties() {
+	public ArrayList<AbstractAccessProtocolProperties> getAccessProtocolProperties() {
 		return accessProtocolProperties;
 	}
 
 	/**
-	 * Gets an {@link AccessProtocolProperties} instance according the given
+	 * Gets an {@link AbstractAccessProtocolProperties} instance according the given
 	 * parameters
 	 * 
 	 * @param _distant_inet_address
 	 *            the distant inet address used
 	 * @param _local_interface_address
 	 *            the local inet address used
-	 * @return the corresponding {@link AccessProtocolProperties}, or null if no one
+	 * @return the corresponding {@link AbstractAccessProtocolProperties}, or null if no one
 	 *         was found
-	 * @see AccessProtocolProperties
+	 * @see AbstractAccessProtocolProperties
 	 */
-	public AccessProtocolProperties getAccessProtocolProperties(InetSocketAddress _distant_inet_address,
+	public AbstractAccessProtocolProperties getAccessProtocolProperties(InetSocketAddress _distant_inet_address,
 			InetSocketAddress _local_interface_address) {
-		for (AccessProtocolProperties ad : accessProtocolProperties) {
+		for (AbstractAccessProtocolProperties ad : accessProtocolProperties) {
 			if (ad.isConcernedBy(_distant_inet_address.getAddress(), _local_interface_address.getPort()))
 				return ad;
 		}
@@ -740,7 +745,7 @@ public class NetworkProperties extends XMLProperties {
 	 *         current properties values
 	 * @see #addAccessData(AccessData)
 	 * @see #addConnectionProtocol(ConnectionProtocolProperties)
-	 * @see #addAccessProtocolProperties(AccessProtocolProperties)
+	 * @see #addAccessProtocolProperties(AbstractAccessProtocolProperties)
 	 */
 	public boolean isConnectionPossible(InetSocketAddress _distant_inet_address,
 			InetSocketAddress _local_interface_address, boolean takeConnectionInitiative, boolean isServer,
@@ -755,7 +760,7 @@ public class NetworkProperties extends XMLProperties {
 		if (!found)
 			return false;
 		found = false;
-		for (AccessProtocolProperties app : accessProtocolProperties) {
+		for (AbstractAccessProtocolProperties app : accessProtocolProperties) {
 			if (app.isConcernedBy(_distant_inet_address.getAddress(), _local_interface_address.getPort())) {
 				found = true;
 				break;

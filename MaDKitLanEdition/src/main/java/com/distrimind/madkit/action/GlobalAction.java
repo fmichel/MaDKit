@@ -223,7 +223,7 @@ public class GlobalAction {
 			if (!(f.exists() && f.isDirectory())) {
 				for (URL url : MadkitClassLoader.getLoader().getURLs()) {
 					System.err.println(url);
-					if (url.getFile().endsWith("madkit-" + Madkit.VERSION + ".jar")) {
+					if (url.getFile().endsWith("madkit-" + Madkit.getVersion() + ".jar")) {
 						try {
 							f = new File(Paths.get(url.toURI()).getParent().toString(), "demos");
 							break;

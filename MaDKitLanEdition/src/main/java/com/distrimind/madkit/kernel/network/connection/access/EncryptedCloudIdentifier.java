@@ -39,6 +39,7 @@ package com.distrimind.madkit.kernel.network.connection.access;
 
 import java.io.IOException;
 
+import gnu.vm.jgnu.security.DigestException;
 import gnu.vm.jgnu.security.InvalidAlgorithmParameterException;
 import gnu.vm.jgnu.security.InvalidKeyException;
 import gnu.vm.jgnu.security.NoSuchAlgorithmException;
@@ -48,6 +49,8 @@ import gnu.vm.jgnux.crypto.BadPaddingException;
 import gnu.vm.jgnux.crypto.IllegalBlockSizeException;
 import gnu.vm.jgnux.crypto.NoSuchPaddingException;
 
+import com.distrimind.util.crypto.AbstractMessageDigest;
+import com.distrimind.util.crypto.AbstractSecureRandom;
 import com.distrimind.util.crypto.P2PASymmetricSecretMessageExchanger;
 
 /**
@@ -76,6 +79,31 @@ public final class EncryptedCloudIdentifier extends CloudIdentifier {
 
 		bytes = cipher.encode(cloudIdentifier.getIdentifierBytes(), cloudIdentifier.getSaltBytes(), false);
 	}
+	EncryptedCloudIdentifier(CloudIdentifier cloudIdentifier, AbstractSecureRandom random, AbstractMessageDigest messageDigest)
+			throws InvalidKeyException, IOException, IllegalBlockSizeException, BadPaddingException,
+			NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException,
+			InvalidAlgorithmParameterException, NoSuchProviderException, DigestException {
+		if (cloudIdentifier == null)
+			throw new NullPointerException("cloudIdentifier");
+		if (random == null)
+			throw new NullPointerException("random");
+		
+		
+		bytes = AccessProtocolWithJPake.anonimizeIdentifier(getByteTabToEncode(cloudIdentifier), random, messageDigest);
+	}
+	
+	private static byte[] getByteTabToEncode(CloudIdentifier cloudIdentifier)
+	{
+		byte idbytes[]=cloudIdentifier.getIdentifierBytes();
+		byte salt[]=cloudIdentifier.getSaltBytes();
+		byte res[]=new byte[idbytes.length+(salt==null?0:salt.length)];
+		System.arraycopy(idbytes, 0, res, 0, idbytes.length);
+		if (salt!=null)
+			System.arraycopy(salt, 0, res, idbytes.length, salt.length);
+		return res;
+		
+	}
+	
 
 	@Override
 	public boolean equals(Object _cloud_identifier) {
@@ -137,6 +165,16 @@ public final class EncryptedCloudIdentifier extends CloudIdentifier {
 			throw new NullPointerException("cipher");
 		return cipher.verifyDistantMessage(originalCloudIdentifier.getIdentifierBytes(),
 				originalCloudIdentifier.getSaltBytes(), bytes, false);
+	}
+
+	public boolean verifyWithLocalCloudIdentifier(CloudIdentifier originalCloudIdentifier,
+			AbstractMessageDigest messageDigest) throws InvalidKeyException, IllegalAccessException, IOException,
+			IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, InvalidKeySpecException, DigestException {
+		if (originalCloudIdentifier == null)
+			throw new NullPointerException("originalCloudIdentifier");
+		if (messageDigest == null)
+			throw new NullPointerException("messageDigest");
+		return AccessProtocolWithJPake.compareAnonymizedIdentifier(getByteTabToEncode(originalCloudIdentifier), bytes, messageDigest);
 	}
 
 	@Override

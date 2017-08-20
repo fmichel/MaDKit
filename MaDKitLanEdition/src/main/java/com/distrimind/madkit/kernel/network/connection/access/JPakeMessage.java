@@ -40,6 +40,7 @@ package com.distrimind.madkit.kernel.network.connection.access;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.bouncycastle.crypto.CryptoException;
@@ -79,7 +80,7 @@ class JPakeMessage extends AccessMessage{
 	
 	
 	
-	public JPakeMessage(Map<Identifier, P2PJPAKESecretMessageExchanger> jpakes, boolean identifiersIsEncrypted, short nbAnomalies, AbstractSecureRandom random, AbstractMessageDigest messageDigest) throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchProviderException, DigestException, IOException {
+	JPakeMessage(Map<Identifier, P2PJPAKESecretMessageExchanger> jpakes, boolean identifiersIsEncrypted, short nbAnomalies, AbstractSecureRandom random, AbstractMessageDigest messageDigest) throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchProviderException, DigestException, IOException {
 		super();
 		this.identifiersIsEncrypted=identifiersIsEncrypted;
 		this.identifiers=new Identifier[jpakes.size()];
@@ -100,11 +101,11 @@ class JPakeMessage extends AccessMessage{
 	private JPakeMessage(Map<Identifier, P2PJPAKESecretMessageExchanger> jpakes, boolean identifiersIsEncrypted, short nbAnomalies, AbstractSecureRandom random, AbstractMessageDigest messageDigest, short step, Map<Identifier, byte[]> jakeMessages) throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchProviderException, DigestException, IOException {
 		super();
 		this.identifiersIsEncrypted=identifiersIsEncrypted;
-		this.identifiers=new Identifier[jpakes.size()];
-		this.jpakeMessages=new byte[jpakes.size()][];
+		this.identifiers=new Identifier[jakeMessages.size()];
+		this.jpakeMessages=new byte[jakeMessages.size()][];
 		this.step = step;
 		int i=0;
-		for (Map.Entry<Identifier, P2PJPAKESecretMessageExchanger> e : jpakes.entrySet())
+		for (Map.Entry<Identifier, byte[]> e : jakeMessages.entrySet())
 		{
 			if (identifiersIsEncrypted)
 				this.identifiers[i] = new EncryptedIdentifier(e.getKey(), random, messageDigest);
@@ -114,6 +115,49 @@ class JPakeMessage extends AccessMessage{
 			++i;
 		}
 		this.nbAnomalies=nbAnomalies;
+	}
+	
+	JPakeMessage(LoginData loginData, AbstractSecureRandom random, AbstractMessageDigest messageDigest, Map<Identifier, P2PJPAKESecretMessageExchanger> jpakes, boolean encryptIdentifiers, List<Identifier> newIdentifiers) throws AccessException
+	{
+		try
+		{
+			for (Identifier id : newIdentifiers) {
+				if (id==null)
+					throw new AccessException(new NullPointerException());
+				Identifier localId = loginData.localiseIdentifier(id);
+				if (localId==null)
+					throw new AccessException(new NullPointerException());
+				PasswordKey pw = loginData.getPassword(localId);
+				if (pw != null)
+				{
+					P2PJPAKESecretMessageExchanger jpake=new P2PJPAKESecretMessageExchanger(localId, pw.getPasswordBytes(), pw.isKey());
+					jpakes.put(localId, jpake);
+				}
+				else
+					throw new IllegalAccessError();
+			}
+			this.identifiersIsEncrypted=encryptIdentifiers;
+			this.identifiers=new Identifier[jpakes.size()];
+			this.jpakeMessages=new byte[jpakes.size()][];
+			this.step = 1;
+			int i=0;
+			for (Map.Entry<Identifier, P2PJPAKESecretMessageExchanger> e : jpakes.entrySet())
+			{
+				if (identifiersIsEncrypted)
+					this.identifiers[i] = new EncryptedIdentifier(e.getKey(), random, messageDigest);
+				else
+					this.identifiers[i] = e.getKey();
+				jpakeMessages[i]=e.getValue().getStep1Message();
+				++i;
+			}
+			this.nbAnomalies=0;
+		}
+		catch ( NoSuchAlgorithmException | InvalidKeySpecException | NoSuchProviderException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException | NoSuchPaddingException | InvalidAlgorithmParameterException | DigestException | IOException e) {
+			
+			throw new AccessException(e);
+		}
+		
+		
 	}
 	@Override
 	public short getNbAnomalies() {
@@ -153,6 +197,7 @@ class JPakeMessage extends AccessMessage{
 		return false;
 	}
 	
+	
 	public AccessMessage getJPakeMessageNewStep(short newStep, LoginData lp, AbstractSecureRandom random, AbstractMessageDigest messageDigest, Collection<PairOfIdentifiers> deniedIdentifiers,
 			Map<Identifier, P2PJPAKESecretMessageExchanger> jpakes)
 			throws AccessException, InvalidKeyException, IllegalAccessException, IOException, IllegalBlockSizeException,
@@ -188,9 +233,11 @@ class JPakeMessage extends AccessMessage{
 								jpakeMessage=jpake.receiveStep1AndGetStep2Message(this.jpakeMessages[i]);
 							else if (newStep==3)
 								jpakeMessage=jpake.receiveStep2AndGetStep3Message(this.jpakeMessages[i]);
+							else 
+								throw new IllegalAccessError();
 							jpkms.put(localID, jpakeMessage);
 						}
-						catch(IOException | CryptoException | ClassNotFoundException e)
+						catch(IOException | CryptoException | ClassNotFoundException | IllegalStateException e)
 						{
 							deniedIdentifiers.add(new PairOfIdentifiers(localID, decodedID));
 							jpakes.remove(localID);
@@ -246,7 +293,7 @@ class JPakeMessage extends AccessMessage{
 							else
 								deniedIdentifiers.add(new PairOfIdentifiers(localID, decodedID));	
 						}
-						catch(IOException | CryptoException | ClassNotFoundException e)
+						catch(IOException | CryptoException | ClassNotFoundException | IllegalStateException e)
 						{
 							deniedIdentifiers.add(new PairOfIdentifiers(localID, decodedID));
 							jpakes.remove(localID);

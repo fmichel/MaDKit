@@ -42,7 +42,9 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -89,10 +91,14 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 	final MadkitProperties mpreceiver;
 	AbstractAccessProtocol apasker;
 	AbstractAccessProtocol apreceiver;
-	final ArrayList<Identifier> acceptedAskerIdentifiers;
-	final ArrayList<Identifier> acceptedReceiverIdentifiers;
-	final ArrayList<IdentifierPassword> identifierPassordsAsker;
-	final ArrayList<IdentifierPassword> identifierPassordsReceiver;
+	ArrayList<Identifier> acceptedAskerIdentifiers;
+	ArrayList<Identifier> acceptedReceiverIdentifiers;
+	ArrayList<IdentifierPassword> identifierPassordsAsker;
+	ArrayList<IdentifierPassword> identifierPassordsReceiver;
+	final ArrayList<Identifier> initialAcceptedAskerIdentifiers;
+	final ArrayList<Identifier> initialAcceptedReceiverIdentifiers;
+	final ArrayList<IdentifierPassword> initialIdentifierPassordsAsker;
+	final ArrayList<IdentifierPassword> initialIdentifierPassordsReceiver;
 
 	static final File dbfileasker = new File("testaccessasker.database");
 	static final File dbfilereceiver = new File("testaccessreceiver.database");
@@ -377,8 +383,22 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 			this.mpreceiver.networkProperties.addAccessData(ad);
 		this.mpasker.networkProperties.addAccessProtocolProperties(accessProtocolProperties);
 		this.mpreceiver.networkProperties.addAccessProtocolProperties(accessProtocolProperties);
-		this.acceptedAskerIdentifiers = acceptedAskerIdentifiers;
-		this.acceptedReceiverIdentifiers = acceptedReceiverIdentifiers;
+		this.acceptedAskerIdentifiers = null;
+		this.acceptedReceiverIdentifiers = null;
+		this.initialAcceptedAskerIdentifiers=acceptedAskerIdentifiers;
+		this.initialAcceptedReceiverIdentifiers=acceptedReceiverIdentifiers;
+		this.initialIdentifierPassordsAsker=identifierPassordsAsker==null?null:new ArrayList<IdentifierPassword>();
+		if (initialIdentifierPassordsAsker!=null)
+		{
+			for (IdentifierPassword idpw : identifierPassordsAsker)
+				initialIdentifierPassordsAsker.add(idpw);
+		}
+		this.initialIdentifierPassordsReceiver=identifierPassordsAsker==null?null:new ArrayList<IdentifierPassword>();
+		if (initialIdentifierPassordsReceiver!=null)
+		{
+			for (IdentifierPassword idpw : identifierPassordsReceiver)
+				initialIdentifierPassordsReceiver.add(idpw);
+		}
 		if (databaseEnabled) {
 			mpasker.setDatabaseFactory(new EmbeddedHSQLDBDatabaseFactory(dbfileasker));
 			mpreceiver.setDatabaseFactory(new EmbeddedHSQLDBDatabaseFactory(dbfilereceiver));
@@ -420,6 +440,7 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 			NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException {
 		int nb = testRegularAccessProtocol(0, -1, false);
 		for (int i = 0; i < nb - 1; i++) {
+			System.out.println(i+"/"+(nb-1));
 			testRegularAccessProtocol(1, i, true);
 			testRegularAccessProtocol(1, i, false);
 			testRegularAccessProtocol(2, i, true);
@@ -445,9 +466,64 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 
 	}
 
+	private AccessMessage[] getAccessMessages(AccessMessage m, AccessMessage[] old)
+	{
+		ArrayList<AccessMessage> res=new ArrayList<>();
+		if (m==null)
+			return old;
+		for (AccessMessage am : old)
+			res.add(am);
+		if (m instanceof AccessMessagesList)
+		{
+			for (AccessMessage am : ((AccessMessagesList) m).getMessages())
+				res.add(am);
+		}
+		else
+			res.add(m);
+		return toArray(res);
+	}
+	private AccessMessage[] getAccessMessages(AccessMessage m)
+	{
+		if (m==null)
+			return new AccessMessage[0];
+		if (m instanceof AccessMessagesList)
+		{
+			return ((AccessMessagesList) m).getMessages();
+		}
+		else
+			return new AccessMessage[] {m};
+	}
+	private AccessMessage[] toArray(List<AccessMessage> list)
+	{
+		AccessMessage[] res=new AccessMessage[list.size()];
+		for (int i=0;i<list.size();i++)
+			res[i]=list.get(i);
+		return res;
+	}
+	
 	public int testRegularAccessProtocol(int type, int index, boolean asker)
 			throws AccessException, ClassNotFoundException, IOException, NoSuchAlgorithmException,
 			InvalidKeySpecException, NoSuchProviderException {
+		
+		this.acceptedAskerIdentifiers=new ArrayList<Identifier>();
+		for (Identifier id : this.initialAcceptedAskerIdentifiers)
+			this.acceptedAskerIdentifiers.add(id);
+		this.acceptedReceiverIdentifiers=new ArrayList<Identifier>();
+		for (Identifier id : this.initialAcceptedReceiverIdentifiers)
+			this.acceptedReceiverIdentifiers.add(id);
+		if (identifierPassordsAsker!=null)
+		{
+			this.identifierPassordsAsker.clear();
+			for (IdentifierPassword id : this.initialIdentifierPassordsAsker)
+				this.identifierPassordsAsker.add(id);
+		}
+		if (identifierPassordsReceiver!=null)
+		{
+			this.identifierPassordsReceiver.clear();
+			for (IdentifierPassword id : this.initialIdentifierPassordsReceiver)
+				this.identifierPassordsReceiver.add(id);
+		}
+		
 		boolean allCannotTakeInitiatives = identifierPassordsAsker != null
 				&& !((LoginData) this.mpasker.networkProperties.getAccessData(
 						new InetSocketAddress(InetAddress.getByName("56.41.158.221"), 5000),
@@ -469,8 +545,8 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 		Assert.assertFalse(apasker.isAccessFinalized());
 		Assert.assertFalse(apreceiver.isAccessFinalized());
 
-		AccessMessage masker = apasker.setAndGetNextMessage(new AccessAskInitiliazation());
-		AccessMessage mreceiver = apreceiver.setAndGetNextMessage(new AccessAskInitiliazation());
+		AccessMessage masker[] = getAccessMessages(apasker.setAndGetNextMessage(new AccessAskInitiliazation()));
+		AccessMessage mreceiver[] = getAccessMessages(apreceiver.setAndGetNextMessage(new AccessAskInitiliazation()));
 		boolean askerAsNotifiedGroupsChangements = false;
 		boolean receiverAsNotifiedGroupsChangements = false;
 		int cycles = 0;
@@ -479,44 +555,52 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 			 * System.out.println("asker="+masker);
 			 * System.out.println("receiver="+mreceiver);
 			 */
-			AccessMessage mreceiver2 = null;
-			AccessMessage masker2 = null;
+			ArrayList<AccessMessage> mreceiver2 = new ArrayList<>();
+			ArrayList<AccessMessage> masker2 = new ArrayList<>();
 
 			if (cycles == index && asker && type == 1) {
-				masker = new UnkownAccessMessage();
+				masker = getAccessMessages(new UnkownAccessMessage());
 			}
-			if (masker != null && !(masker instanceof DoNotSendMessage)) {
-				if (cycles == index && asker && type == 2) {
-					masker.corrupt();
+			for (AccessMessage m : masker)
+			{
+				if (m != null && !(m instanceof DoNotSendMessage)) {
+					if (cycles == index && asker && type == 2) {
+						m.corrupt();
+					}
+	
+					m = (AccessMessage) ConnectionsProtocolsTests
+							.unserialize(ConnectionsProtocolsTests.serialize(m));
+					Assert.assertEquals(m.checkDataIntegrity(), Integrity.OK);
+					mreceiver2.addAll(Arrays.asList(getAccessMessages(apreceiver.setAndGetNextMessage(m))));
+					receiverAsNotifiedGroupsChangements |= apreceiver.isNotifyAccessGroupChangements();
 				}
-
-				masker = (AccessMessage) ConnectionsProtocolsTests
-						.unserialize(ConnectionsProtocolsTests.serialize(masker));
-				Assert.assertEquals(masker.checkDataIntegrity(), Integrity.OK);
-				mreceiver2 = apreceiver.setAndGetNextMessage(masker);
-				receiverAsNotifiedGroupsChangements |= apreceiver.isNotifyAccessGroupChangements();
 			}
 			if (cycles == index && !asker && type == 1) {
-				mreceiver = new UnkownAccessMessage();
+				mreceiver = getAccessMessages(new UnkownAccessMessage());
 			}
-			if (mreceiver != null && !(mreceiver instanceof DoNotSendMessage)) {
-				if (cycles == index && !asker && type == 2) {
-					mreceiver.corrupt();
+			for (AccessMessage m : mreceiver)
+			{
+				if (m != null && !(m instanceof DoNotSendMessage)) {
+					if (cycles == index && !asker && type == 2) {
+						m.corrupt();
+					}
+					m = (AccessMessage) ConnectionsProtocolsTests
+							.unserialize(ConnectionsProtocolsTests.serialize(m));
+					Assert.assertEquals(m.checkDataIntegrity(), Integrity.OK);
+					masker2.addAll(Arrays.asList(getAccessMessages(apasker.setAndGetNextMessage(m))));
+					askerAsNotifiedGroupsChangements |= apasker.isNotifyAccessGroupChangements();
 				}
-				mreceiver = (AccessMessage) ConnectionsProtocolsTests
-						.unserialize(ConnectionsProtocolsTests.serialize(mreceiver));
-				Assert.assertEquals(mreceiver.checkDataIntegrity(), Integrity.OK);
-				masker2 = apasker.setAndGetNextMessage(mreceiver);
-				askerAsNotifiedGroupsChangements |= apasker.isNotifyAccessGroupChangements();
 			}
-			mreceiver = mreceiver2;
-			masker = masker2;
+			mreceiver = toArray(mreceiver2);
+			masker = toArray(masker2);
 			int nberror = 0;
-			if (mreceiver instanceof AccessErrorMessage)
-				nberror++;
-			if (masker instanceof AccessErrorMessage)
-				nberror++;
-			if (((mreceiver == null || masker == null) && nberror > 0) || nberror == 2) {
+			for (AccessMessage m : mreceiver)
+				if (m instanceof AccessErrorMessage)
+					nberror++;
+			for (AccessMessage m : masker)
+				if (m instanceof AccessErrorMessage)
+					nberror++;
+			if (((mreceiver.length==0 || masker.length==0) && nberror > 0) || nberror == 2) {
 				/*
 				 * if (masker!=null) {
 				 * masker=(AccessMessage)ConnectionsProtocolsTests.unserialize(
@@ -524,13 +608,13 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 				 * Assert.assertEquals(masker.checkDataIntegrity(), Integrity.OK);
 				 * mreceiver2=apreceiver.setAndGetNextMessage(masker); }
 				 */
-				mreceiver = null;
-				masker = null;
+				mreceiver = new AccessMessage[0];
+				masker = new AccessMessage[0];
 			}
 			cycles++;
-		} while ((masker != null || mreceiver != null) && cycles < numberMaxExchange);
+		} while ((masker.length>0 || mreceiver.length>0) && cycles < numberMaxExchange);
 		Assert.assertTrue(cycles < numberMaxExchange);
-		Assert.assertTrue(masker == null && mreceiver == null);
+		Assert.assertTrue(masker.length==0 && mreceiver.length==0);
 		if (allCannotTakeInitiatives || type == 1) {
 			Assert.assertFalse(apreceiver.isAccessFinalized());
 			Assert.assertFalse(apasker.isAccessFinalized());
@@ -597,8 +681,8 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 		Assert.assertTrue(apasker.isAccessFinalized());
 		Assert.assertTrue(apreceiver.isAccessFinalized());
 
-		AccessMessage masker = apasker.setAndGetNextMessage(new NewLocalLoginAddedMessage(addedForAsker));
-		AccessMessage mreceiver = null;
+		AccessMessage masker[] = getAccessMessages(apasker.setAndGetNextMessage(new NewLocalLoginAddedMessage(addedForAsker)));
+		AccessMessage mreceiver[] = new AccessMessage[0];
 		testSubNewAddingRemovingIdentifier(masker, mreceiver);
 
 	}
@@ -609,8 +693,8 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 		Assert.assertTrue(apasker.isAccessFinalized());
 		Assert.assertTrue(apreceiver.isAccessFinalized());
 
-		AccessMessage masker = apasker.setAndGetNextMessage(new NewLocalLoginRemovedMessage(addedForAsker));
-		AccessMessage mreceiver = null;
+		AccessMessage masker[] = getAccessMessages(apasker.setAndGetNextMessage(new NewLocalLoginRemovedMessage(addedForAsker)));
+		AccessMessage mreceiver[] = new AccessMessage[0];
 		testSubNewAddingRemovingIdentifier(masker, mreceiver);
 	}
 
@@ -629,9 +713,9 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 		addedForAsker.add(idpwAsker.getIdentifier());
 		addedForReceiver.add(idpwReceiver.getIdentifier());
 		idpwAsker = AccessDataMKEventListener
-				.getIdentifierPassword(AccessDataMKEventListener.getCustumHostIdentifier(0), newid1);
+				.getIdentifierPassword(AccessDataMKEventListener.getCustumHostIdentifier(0), newid2);
 		idpwReceiver = AccessDataMKEventListener
-				.getIdentifierPassword(AccessDataMKEventListener.getCustumHostIdentifier(1), newid1);
+				.getIdentifierPassword(AccessDataMKEventListener.getCustumHostIdentifier(1), newid2);
 		identifierPassordsAsker.add(idpwAsker);
 		identifierPassordsReceiver.add(idpwReceiver);
 		acceptedAskerIdentifiers.add(idpwAsker.getIdentifier());
@@ -676,37 +760,45 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 			testRemovingNewIdentifier(addedForAsker, addedForReceiver);
 	}
 
-	private void testSubNewAddingRemovingIdentifier(AccessMessage masker, AccessMessage mreceiver)
+	private void testSubNewAddingRemovingIdentifier(AccessMessage maskerl[], AccessMessage mreceiverl[])
 			throws ClassNotFoundException, IOException, AccessException, NoSuchAlgorithmException,
 			InvalidKeySpecException {
 		int cycles = 0;
 		do {
 
-			if (masker != null && !(masker instanceof DoNotSendMessage)) {
-				masker = (AccessMessage) ConnectionsProtocolsTests
-						.unserialize(ConnectionsProtocolsTests.serialize(masker));
-				Assert.assertEquals(masker.checkDataIntegrity(), Integrity.OK);
-				mreceiver = apreceiver.setAndGetNextMessage(masker);
+			for (AccessMessage masker : maskerl)
+			{
+				if (masker != null && !(masker instanceof DoNotSendMessage)) {
+					masker = (AccessMessage) ConnectionsProtocolsTests
+							.unserialize(ConnectionsProtocolsTests.serialize(masker));
+					Assert.assertEquals(masker.checkDataIntegrity(), Integrity.OK);
+					mreceiverl = getAccessMessages(apreceiver.setAndGetNextMessage(masker), mreceiverl);
+				}
 			}
-			masker = null;
-			if (mreceiver == null) {
-				mreceiver = apreceiver.manageDifferedAccessMessage();
+			maskerl = new AccessMessage[0];
+			for (AccessMessage mreceiver : mreceiverl)
+			{
+				if (mreceiver == null) {
+					mreceiver = apreceiver.manageDifferedAccessMessage();
+				}
+	
+				if (mreceiver != null && !(mreceiver instanceof DoNotSendMessage)) {
+					mreceiver = (AccessMessage) ConnectionsProtocolsTests
+							.unserialize(ConnectionsProtocolsTests.serialize(mreceiver));
+					Assert.assertEquals(mreceiver.checkDataIntegrity(), Integrity.OK);
+					maskerl = getAccessMessages(apasker.setAndGetNextMessage(mreceiver), maskerl);
+				}
 			}
-
-			if (mreceiver != null && !(mreceiver instanceof DoNotSendMessage)) {
-				mreceiver = (AccessMessage) ConnectionsProtocolsTests
-						.unserialize(ConnectionsProtocolsTests.serialize(mreceiver));
-				Assert.assertEquals(mreceiver.checkDataIntegrity(), Integrity.OK);
-				masker = apasker.setAndGetNextMessage(mreceiver);
-			}
-			mreceiver = null;
-			if (masker == null) {
-				masker = apasker.manageDifferedAccessMessage();
+			mreceiverl = new AccessMessage[0];
+			if (maskerl.length==0) {
+				maskerl = getAccessMessages(apasker.manageDifferedAccessMessage());
 			}
 			cycles++;
-		} while ((masker != null || mreceiver != null) && cycles < numberMaxExchange);
+		} while ((maskerl.length>0 || mreceiverl.length>0) && cycles < numberMaxExchange);
 		Assert.assertTrue(cycles < numberMaxExchange);
-		Assert.assertTrue(masker == null && mreceiver == null);
+		Assert.assertTrue(maskerl.length == 0 && mreceiverl.length==0);
+		Assert.assertTrue(apreceiver.isAccessFinalizedMessage());
+		Assert.assertTrue(apasker.isAccessFinalizedMessage());
 		Assert.assertTrue(apreceiver.isAccessFinalized());
 		Assert.assertTrue(apasker.isAccessFinalized());
 		testExpectedLogins();
@@ -760,17 +852,17 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 		Assert.assertTrue(apasker.isAccessFinalized());
 		Assert.assertTrue(apreceiver.isAccessFinalized());
 
-		AccessMessage masker = null;
+		AccessMessage masker[] = new AccessMessage[0];
 		for (Identifier id : addedForAsker) {
 			ArrayList<Identifier> l = new ArrayList<>();
 			l.add(id);
-			AccessMessage am = apasker.setAndGetNextMessage(new NewLocalLoginAddedMessage(l));
-			if (masker == null)
-				Assert.assertNotNull(masker = am);
+			AccessMessage am[] = getAccessMessages(apasker.setAndGetNextMessage(new NewLocalLoginAddedMessage(l)));
+			if (masker.length==0)
+				Assert.assertTrue((masker = am).length>0);
 			else
-				Assert.assertNull(am);
+				Assert.assertTrue(am.length==0);
 		}
-		AccessMessage mreceiver = null;
+		AccessMessage mreceiver[] = new AccessMessage[0];
 		testSubNewAddingRemovingIdentifier(masker, mreceiver);
 	}
 
@@ -780,17 +872,17 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 		Assert.assertTrue(apasker.isAccessFinalized());
 		Assert.assertTrue(apreceiver.isAccessFinalized());
 
-		AccessMessage masker = null;
+		AccessMessage masker[] = new AccessMessage[0];
 		for (Identifier id : addedForAsker) {
 			ArrayList<Identifier> l = new ArrayList<>();
 			l.add(id);
-			AccessMessage am = apasker.setAndGetNextMessage(new NewLocalLoginRemovedMessage(l));
-			if (masker == null)
-				Assert.assertNotNull(masker = am);
+			AccessMessage am[] = getAccessMessages(apasker.setAndGetNextMessage(new NewLocalLoginRemovedMessage(l)));
+			if (masker.length==0)
+				Assert.assertTrue((masker = am).length>0);
 			else
-				Assert.assertNull(am);
+				Assert.assertTrue(am.length==0);
 		}
-		AccessMessage mreceiver = null;
+		AccessMessage mreceiver[] = new AccessMessage[0];
 		testSubNewAddingRemovingIdentifier(masker, mreceiver);
 	}
 

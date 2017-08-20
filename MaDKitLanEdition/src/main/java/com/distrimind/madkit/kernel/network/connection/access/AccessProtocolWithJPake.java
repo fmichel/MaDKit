@@ -108,12 +108,17 @@ public class AccessProtocolWithJPake extends AbstractAccessProtocol {
 	{
 		super.reset();
 		jpakes=new HashMap<>();
-		getAcceptedIdentifiers().clear();
-		getDeniedIdentifiers().clear();
+		setAcceptedIdentifiers(null);
+		setDeniedIdentifiers(null);
 	}
 	@Override
 	public AccessMessage subSetAndGetNextMessage(AccessMessage _m) throws AccessException {
 		try {
+			if (_m instanceof AccessErrorMessage) {
+				access_state = AccessState.ACCESS_NOT_INITIALIZED;
+				return null;
+			}
+
 			switch (access_state) {
 			case ACCESS_NOT_INITIALIZED: {
 				reset();
@@ -177,7 +182,7 @@ public class AccessProtocolWithJPake extends AbstractAccessProtocol {
 									this.access_protocol_properties.encryptIdentifiersBeforeSendingToDistantPeer);
 						} else {
 							access_state = AccessState.WAITING_FOR_PASSWORD_VALIDATION_1;
-
+							setIdentifiers(new ArrayList<Identifier>());
 							return new AccessMessagesList(((IdentifiersPropositionMessage) _m).getIdentifiersPropositionMessageAnswer(lp, random, messageDigest,
 											this.access_protocol_properties.encryptIdentifiersBeforeSendingToDistantPeer, getIdentifiers()),
 									((IdentifiersPropositionMessage) _m).getJPakeMessage(lp, jpakes,random, messageDigest,
@@ -321,6 +326,7 @@ public class AccessProtocolWithJPake extends AbstractAccessProtocol {
 				}
 			}
 			
+			
 			case WAITING_FOR_NEW_LOGIN_STEP1:{
 				if (_m instanceof JPakeMessage) {
 					LoginData lp = (LoginData) access_data;
@@ -345,10 +351,8 @@ public class AccessProtocolWithJPake extends AbstractAccessProtocol {
 					jpakes.clear();
 					access_state = AccessState.ACCESS_FINALIZED;
 					return manageDifferedAccessMessage();
-				} else {
-					access_state = AccessState.ACCESS_NOT_INITIALIZED;
-					return new AccessErrorMessage(false);
-				}
+				} else 
+					return null;
 			}
 			case WAITING_FOR_NEW_LOGIN_STEP2:{
 				if (_m instanceof JPakeMessage) {
@@ -379,10 +383,8 @@ public class AccessProtocolWithJPake extends AbstractAccessProtocol {
 					jpakes.clear();
 					access_state = AccessState.ACCESS_FINALIZED;
 					return manageDifferedAccessMessage();
-				} else {
-					access_state = AccessState.ACCESS_NOT_INITIALIZED;
-					return new AccessErrorMessage(false);
-				}
+				} else 
+					return null;
 			}
 			case WAITING_FOR_NEW_LOGIN_STEP3:{
 				if (_m instanceof JPakeMessage) {
@@ -411,10 +413,8 @@ public class AccessProtocolWithJPake extends AbstractAccessProtocol {
 					jpakes.clear();
 					access_state = AccessState.ACCESS_FINALIZED;
 					return manageDifferedAccessMessage();
-				} else {
-					access_state = AccessState.ACCESS_NOT_INITIALIZED;
-					return new AccessErrorMessage(false);
-				}
+				} else 
+					return null;
 			}
 			case WAITING_FOR_NEW_LOGIN_CONFIRMATION: {
 				if (_m instanceof LoginConfirmationMessage && access_data instanceof LoginData) {
@@ -453,10 +453,8 @@ public class AccessProtocolWithJPake extends AbstractAccessProtocol {
 					jpakes.clear();
 					access_state = AccessState.ACCESS_FINALIZED;
 					return manageDifferedAccessMessage();
-				} else {
-					access_state = AccessState.ACCESS_NOT_INITIALIZED;
-					return new AccessErrorMessage(false);
-				}
+				} else 
+					return null;
 
 			}
 			default:
@@ -484,8 +482,11 @@ public class AccessProtocolWithJPake extends AbstractAccessProtocol {
 					List<Identifier> identifiers = new ArrayList<>();
 					identifiers.addAll(((NewLocalLoginAddedMessage) _m).identifiers);
 					setIdentifiers(identifiers);
-					return new IdentifiersPropositionMessage(identifiers, random, messageDigest,
+					IdentifiersPropositionMessage m1= new IdentifiersPropositionMessage(identifiers, random, messageDigest,
 							this.access_protocol_properties.encryptIdentifiersBeforeSendingToDistantPeer, (short) 0);
+					
+					JPakeMessage m2=new JPakeMessage((LoginData)access_data, random, messageDigest, jpakes, access_protocol_properties.encryptIdentifiersBeforeSendingToDistantPeer, identifiers);
+					return new AccessMessagesList(m1, m2);
 				} else
 					return null;
 			} else if (_m instanceof NewLocalLoginRemovedMessage) {
@@ -502,7 +503,7 @@ public class AccessProtocolWithJPake extends AbstractAccessProtocol {
 				return new AccessErrorMessage(false);
 			}
 		}
-		catch(InvalidKeyException | IOException | AccessException | IllegalBlockSizeException | BadPaddingException |
+		catch(InvalidKeyException | IOException | IllegalBlockSizeException | BadPaddingException |
 				NoSuchAlgorithmException | InvalidKeySpecException | NoSuchPaddingException |
 				InvalidAlgorithmParameterException | NoSuchProviderException | DigestException e)
 		{

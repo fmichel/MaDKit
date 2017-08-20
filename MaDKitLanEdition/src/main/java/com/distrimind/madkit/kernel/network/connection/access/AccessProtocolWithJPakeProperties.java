@@ -57,11 +57,6 @@ public class AccessProtocolWithJPakeProperties extends AbstractAccessProtocolPro
 	 * 
 	 */
 	private static final long serialVersionUID = 2781524045639535331L;
-
-	/**
-	 * If true, transmitted identifiers will be anonymized. For a given identifier, the system will transmit a different encrypted identifier during each new connection.  
-	 */
-	public boolean anonymizeIdentifier=true;
 	
 	/**
 	 * Message digest type used for anonymization
@@ -76,7 +71,7 @@ public class AccessProtocolWithJPakeProperties extends AbstractAccessProtocolPro
 	
 	@Override
 	void checkProperties() throws AccessException {
-		if (anonymizeIdentifier)
+		if (this.encryptIdentifiersBeforeSendingToDistantPeer)
 		{
 			if (identifierDigestionTypeUsedForAnonymization==null)
 				throw new AccessException(new NullPointerException("identifierDigestionTypeUsedForAnonymization can't be null !"));

@@ -110,6 +110,7 @@ class IdentifiersPropositionMessage extends AccessMessage {
 		this.nbAnomalies = nbAnomalies;
 	}
 
+	
 	@Override
 	public short getNbAnomalies() {
 		return nbAnomalies;
@@ -217,7 +218,7 @@ class IdentifiersPropositionMessage extends AccessMessage {
 			IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, InvalidKeySpecException,
 			NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchProviderException, DigestException {
 		int nbAno = 0;
-		if (isEncrypted) {
+		if (encryptIdentifiers) {
 			for (Identifier id : identifiers) {
 				Identifier i = loginData.getIdentifier((EncryptedIdentifier) id, messageDigest);
 

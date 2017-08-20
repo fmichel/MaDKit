@@ -26,3 +26,12 @@
 /dbreceiver.database.log
 /dbreceiver.database.properties
 /dbreceiver.database.script
+/testaccessasker.database.data
+/testaccessasker.database.lobs
+/testaccessasker.database.properties
+/testaccessasker.database.script
+/testaccessreceiver.database.data
+/testaccessreceiver.database.lobs
+/testaccessreceiver.database.log
+/testaccessreceiver.database.properties
+/testaccessreceiver.database.script

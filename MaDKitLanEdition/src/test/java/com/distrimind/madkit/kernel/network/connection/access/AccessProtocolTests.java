@@ -637,6 +637,10 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 			testRemovingOneNewIdentifier(10);
 			testRemovingTwoNewIdentifier(11, 12, false);
 			testRemovingTwoNewIdentifier(13, 14, true);
+			
+			testAddingOneNewIdentifierNonUsable(15);
+			testAddingTwoNewIdentifierNonUsable(16, 17, false);
+			testAddingTwoNewIdentifierNonUsable(18, 19, true);
 		}
 		return cycles;
 	}
@@ -657,6 +661,36 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 		addedForReceiver.add(idpwReceiver.getIdentifier());
 		testAddingNewIdentifier(addedForAsker, addedForReceiver);
 	}
+	private void testAddingOneNewIdentifierNonUsable(int newid) throws AccessException, ClassNotFoundException, IOException,
+	NoSuchAlgorithmException, InvalidKeySpecException {
+		IdentifierPassword idpwAsker = AccessDataMKEventListener
+				.getIdentifierPassword(AccessDataMKEventListener.getCustumHostIdentifier(0), newid);
+		identifierPassordsAsker.add(idpwAsker);
+		ArrayList<Identifier> addedForAsker = new ArrayList<>();
+		ArrayList<Identifier> addedForReceiver = new ArrayList<>();
+		addedForAsker.add(idpwAsker.getIdentifier());
+		
+		testAddingNewIdentifier(addedForAsker, addedForReceiver);
+	}
+	private void testAddingTwoNewIdentifierNonUsable(int newid1, int newid2, boolean differed) throws AccessException,
+	ClassNotFoundException, IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+		IdentifierPassword idpwAsker = AccessDataMKEventListener
+				.getIdentifierPassword(AccessDataMKEventListener.getCustumHostIdentifier(0), newid1);
+		identifierPassordsAsker.add(idpwAsker);
+		ArrayList<Identifier> addedForAsker = new ArrayList<>();
+		ArrayList<Identifier> addedForReceiver = new ArrayList<>();
+		addedForAsker.add(idpwAsker.getIdentifier());
+
+		idpwAsker = AccessDataMKEventListener
+				.getIdentifierPassword(AccessDataMKEventListener.getCustumHostIdentifier(0), newid2);
+		identifierPassordsAsker.add(idpwAsker);
+		addedForAsker.add(idpwAsker.getIdentifier());
+
+		if (differed)
+			testDifferedAddingNewIdentifier(addedForAsker, addedForReceiver);
+		else
+			testAddingNewIdentifier(addedForAsker, addedForReceiver);
+}	
 
 	private void testRemovingOneNewIdentifier(int newid) throws AccessException, ClassNotFoundException, IOException,
 			NoSuchAlgorithmException, InvalidKeySpecException {

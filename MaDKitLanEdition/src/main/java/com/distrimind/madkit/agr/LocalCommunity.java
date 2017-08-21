@@ -308,6 +308,7 @@ public class LocalCommunity implements Organization {// TODO check groups protec
 		public static final String UPDATER = "~~updater";
 		public static final String EMMITER = "~~emmiter";
 		public static final String SECURITY = "~~security";
+		public static final String GUI = "~~gui";
 
 		/**
 		 * This role is given to internal MadKit agents that manage task execution

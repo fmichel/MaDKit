@@ -35,3 +35,5 @@
 /testaccessreceiver.database.log
 /testaccessreceiver.database.properties
 /testaccessreceiver.database.script
+/mkledbtest.properties
+/mkledbtest.script

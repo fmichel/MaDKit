@@ -72,7 +72,7 @@ public class ConfigFileTest extends JunitMadkit {
 	@Test
 	public void multiConfigFile() {
 		addMadkitArgs("--configFiles",
-				"{Tests/com/distrimind/madkit/boot/process/madkit.xml;Tests/com/distrimind/madkit/boot/process/madkit2.xml}",
+				"{src/test/java/com/distrimind/madkit/boot/process/madkit.xml;src/test/java/com/distrimind/madkit/boot/process/madkit2.xml}",
 				"--madkitLogLevel", Level.ALL.toString());
 		launchTest(new AbstractAgent() {
 			@Override
@@ -102,7 +102,7 @@ public class ConfigFileTest extends JunitMadkit {
 	@Test
 	public void multiConfigOptions() {
 		addMadkitArgs("--configFiles",
-				"{Tests/com/distrimind/madkit/boot/process/madkit.xml;Tests/com/distrimind/madkit/boot/process/madkit2.xml}",
+				"{src/test/java/com/distrimind/madkit/boot/process/madkit.xml;src/test/java/com/distrimind/madkit/boot/process/madkit2.xml}",
 				"--networkProperties.network", "true", "--madkitLogLevel", Level.ALL.toString());
 		launchTest(new AbstractAgent() {
 			@Override

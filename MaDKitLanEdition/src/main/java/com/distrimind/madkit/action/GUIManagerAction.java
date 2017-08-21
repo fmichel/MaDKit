@@ -53,6 +53,7 @@ import javax.swing.JOptionPane;
 import com.distrimind.madkit.agr.LocalCommunity;
 import com.distrimind.madkit.agr.Organization;
 import com.distrimind.madkit.agr.LocalCommunity.Groups;
+import com.distrimind.madkit.agr.LocalCommunity.Roles;
 import com.distrimind.madkit.i18n.I18nUtilities;
 import com.distrimind.madkit.i18n.Words;
 import com.distrimind.madkit.kernel.AbstractAgent;
@@ -199,7 +200,7 @@ public enum GUIManagerAction {
 			public void actionPerformed(ActionEvent e) {
 				if (agent.isAlive()) {
 					final Message m = new GUIMessage(GUIManagerAction.this, commandOptions);
-					final AgentAddress guiManager = agent.getAgentWithRole(Groups.GUI, Organization.GROUP_MANAGER_ROLE);
+					final AgentAddress guiManager = agent.getAgentWithRole(Groups.GUI, Roles.GUI);
 					if (guiManager != null) {
 						agent.sendMessage(guiManager, m);
 					} else {// this is the gui manager itself

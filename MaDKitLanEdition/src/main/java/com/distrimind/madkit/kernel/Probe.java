@@ -61,7 +61,7 @@ public class Probe<A extends AbstractAgent> extends Overlooker<A> {
 	 * Once created, it has to be added by a {@link Watcher} agent using the
 	 * {@link Watcher#addProbe(Probe)} method.
 	 * 
-	 * This has the same effect than {@link #Probe(AbstractGroup, String, true)}
+	 * This has the same effect than <code>#Probe(groups, roleName, true)</code>
 	 * 
 	 * @param groups
 	 * @param roleName

@@ -82,10 +82,10 @@ import org.xml.sax.SAXException;
 import com.distrimind.madkit.action.ActionInfo;
 import com.distrimind.madkit.action.GUIManagerAction;
 import com.distrimind.madkit.agr.LocalCommunity;
-import com.distrimind.madkit.agr.Organization;
 import com.distrimind.madkit.exceptions.KilledException;
 import com.distrimind.madkit.exceptions.SelfKillException;
 import com.distrimind.madkit.agr.LocalCommunity.Groups;
+import com.distrimind.madkit.agr.LocalCommunity.Roles;
 import com.distrimind.madkit.gui.AgentStatusPanel;
 import com.distrimind.madkit.gui.OutputPanel;
 import com.distrimind.madkit.gui.menu.AgentLogLevelMenu;
@@ -115,6 +115,7 @@ import com.distrimind.madkit.message.MessageFilter;
 import com.distrimind.madkit.message.hook.AgentLifeEvent;
 import com.distrimind.madkit.message.hook.MessageEvent;
 import com.distrimind.madkit.message.hook.OrganizationEvent;
+import com.distrimind.madkit.message.task.TasksExecutionConfirmationMessage;
 import com.distrimind.madkit.message.hook.HookMessage.AgentActionEvent;
 import com.distrimind.madkit.util.XMLUtilities;
 import com.distrimind.madkit.util.concurrent.LinkedBlockingDeque;
@@ -356,7 +357,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * Use this function instead of {@link Thread#sleep(long)} in order to avoid
 	 * dead lock, especially when using {@link AgentFakeThread}.
 	 *
-	 * @param millis
+	 * @param milliSeconds
 	 *            the length of time to sleep in milliseconds
 	 *
 	 * @throws IllegalArgumentException
@@ -457,7 +458,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 			if (logger != null && logger.isLoggable(Level.FINER)) {
 				logger.finer("** setting up  GUI **");
 			}
-			sendMessage(Groups.GUI, Organization.GROUP_MANAGER_ROLE,
+			sendMessage(Groups.GUI, Roles.GUI,
 					new GUIMessage(GUIManagerAction.SETUP_AGENT_GUI, AbstractAgent.this));
 			try {// wait answer using a big hack
 				messageBox.take();// works because the agent cannot be joined in anyway
@@ -643,8 +644,10 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 		kernel = getMadkitKernel();
 
 		if (hasGUI) {
-			kernel.broadcastMessageWithRole(this, Groups.GUI, Organization.GROUP_MANAGER_ROLE,
+			ReturnCode rc=kernel.broadcastMessageWithRole(this, Groups.GUI, Roles.GUI,
 					new GUIMessage(GUIManagerAction.DISPOSE_AGENT_GUI, this), null, false);
+			if (rc!=ReturnCode.SUCCESS)
+				getLogger().warning("Agent GUI disposing. Impossible send message to GUI Manager Agent : "+rc);
 		}
 
 		try {
@@ -970,9 +973,9 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * If some of the corresponding groups do not exist before this call, the caller
 	 * agent will automatically become the manager of these groups.
 	 * 
-	 * @param _agentClassName
+	 * @param agentClassName
 	 *            the name of the class from which the agents should be built.
-	 * @param _bucketSize
+	 * @param bucketSize
 	 *            the desired number of instances.
 	 * @param cpuCoreNb
 	 *            the number of parallel tasks to use. Beware that if cpuCoreNb is
@@ -980,7 +983,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 *            {@link AbstractAgent#activate()} methods will be called
 	 *            simultaneously so that one has to be careful if shared resources
 	 *            are accessed by the agents
-	 * @param _rolesName
+	 * @param roles
 	 *            default locations in the artificial society for the launched
 	 *            agents. Each string of the <code>cgrLocations</code> array defines
 	 *            a complete CGR location by separating C, G and R with commas as
@@ -992,16 +995,16 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * @since MaDKit 5.0.0.6
 	 * @since MadKitLanEdition 1.0
 	 */
-	public List<AbstractAgent> launchAgentBucket(String agentClass, int bucketSize, int cpuCoreNb, Role... roles) {
+	public List<AbstractAgent> launchAgentBucket(String agentClassName, int bucketSize, int cpuCoreNb, Role... roles) {
 		if (cpuCoreNb < 1 || bucketSize < 0)
 			throw new IllegalArgumentException(
 					"launchAgentBucket : cpuCoreNb = " + cpuCoreNb + " bucketsize = " + bucketSize);
 		List<AbstractAgent> bucket = null;
 		try {
-			bucket = getMadkitKernel().createBucket(agentClass, bucketSize, cpuCoreNb);
+			bucket = getMadkitKernel().createBucket(agentClassName, bucketSize, cpuCoreNb);
 			launchAgentBucket(bucket, cpuCoreNb, roles);
 		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-			cannotLaunchAgent(agentClass, e, null);
+			cannotLaunchAgent(agentClassName, e, null);
 		}
 		return bucket;
 
@@ -1051,7 +1054,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	}
 
 	/**
-	 * Similar to {@link #launchAgentBucket(String, int, String...)} except that the
+	 * Similar to {@link #launchAgentBucket(String, int, int, Role...)} except that the
 	 * list of agents to launch is given. Especially, this could be used when the
 	 * agents have no default constructor.
 	 * 
@@ -1375,7 +1378,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 *         <li><code>
 	 *         {@link ReturnCode#IGNORED}</code>: If this method is used in activate
 	 *         and this agent has been launched using
-	 *         {@link AbstractAgent#launchAgentBucket(List, String...)} with non
+	 *         {@link AbstractAgent#launchAgentBucket(String, int, int, Role...)} with non
 	 *         <code>null</code> roles</li>
 	 *         </ul>
 	 * 
@@ -1384,14 +1387,14 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * @see #setAutoCreateGroup(boolean)
 	 * @since MaDKitLanEdition 1.0
 	 */
-	public ReturnCode createGroup(Group _group, Object passKey) {
+	public ReturnCode createGroup(Group group, Object passKey) {
 		if (getState() == INITIALIZING) {
 			if (isWarningOn()) {
-				handleException(Influence.CREATE_GROUP, new OrganizationWarning(ReturnCode.IGNORED, _group));
+				handleException(Influence.CREATE_GROUP, new OrganizationWarning(ReturnCode.IGNORED, group));
 			}
 			return ReturnCode.IGNORED;
 		}
-		return getKernel().createGroup(this, _group, passKey, true);
+		return getKernel().createGroup(this, group, passKey, true);
 	}
 
 	/**
@@ -1416,7 +1419,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 *         <li><code>
 	 *         {@link ReturnCode#IGNORED}</code>: If this method is used in activate
 	 *         and this agent has been launched using
-	 *         {@link AbstractAgent#launchAgentBucket(List, String...)} with non
+	 *         {@link AbstractAgent#launchAgentBucket(List, int, Role...)} with non
 	 *         <code>null</code> roles</li>
 	 *         </ul>
 	 * 
@@ -1425,8 +1428,8 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * @see #setAutoCreateGroup(boolean)
 	 * @since MaDKitLanEdition 1.0
 	 */
-	public ReturnCode createGroup(Group _group) {
-		return createGroup(_group, null);
+	public ReturnCode createGroup(Group group) {
+		return createGroup(group, null);
 	}
 
 	/**
@@ -1460,7 +1463,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * <p>
 	 * For instance, this is useful if you launch one million of agents and when
 	 * only some of them have to create a specific group, not defined in the
-	 * parameters of {@link #launchAgentBucket(List, int, String...)}
+	 * parameters of {@link #launchAgentBucket(String, int, int, Role...)}
 	 * 
 	 * This function is unuseful is groups auto-creation is activated through the
 	 * function {@link #setAutoCreateGroup(boolean)}.
@@ -1494,8 +1497,8 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * @since MaDKitLanEdition 1.0
 	 * @since MaDKit 5.0.2
 	 */
-	public ReturnCode bucketModeCreateGroup(Group _group, Object passKey) {
-		return kernel.createGroup(this, _group, passKey, true);
+	public ReturnCode bucketModeCreateGroup(Group group, Object passKey) {
+		return kernel.createGroup(this, group, passKey, true);
 	}
 
 	/**
@@ -1505,7 +1508,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * <p>
 	 * For instance, this is useful if you launch one million of agents and when
 	 * only some of them have to create a specific group, not defined in the
-	 * parameters of {@link #launchAgentBucket(List, int, String...)}
+	 * parameters of {@link #launchAgentBucket(String, int, int, Role...)}
 	 * 
 	 * This function is unuseful is groups auto-creation is activated through the
 	 * function {@link #setAutoCreateGroup(boolean)}.
@@ -1533,8 +1536,8 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * @since MaDKitLanEdition 1.0
 	 * @since MaDKit 5.0.2
 	 */
-	public ReturnCode bucketModeCreateGroup(Group _group) {
-		return bucketModeCreateGroup(_group, null);
+	public ReturnCode bucketModeCreateGroup(Group group) {
+		return bucketModeCreateGroup(group, null);
 	}
 
 	/**
@@ -1577,8 +1580,8 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * @see Group
 	 * 
 	 */
-	public ReturnCode requestRole(final Group _group, final String role) {
-		return requestRole(_group, role, null);
+	public ReturnCode requestRole(final Group group, final String role) {
+		return requestRole(group, role, null);
 	}
 
 	/**
@@ -1608,7 +1611,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 *         denied by the manager of that secured group.</li>
 	 *         <li><code>{@link ReturnCode#IGNORED}</code>: If the agent has been
 	 *         launched using a <code>launchAgentBucket</code> method such as
-	 *         {@link AbstractAgent#launchAgentBucket(List, String...)} with non
+	 *         {@link AbstractAgent#launchAgentBucket(List, int, Role...)} with non
 	 *         <code>null</code> roles. This for optimization purposes.</li>
 	 *         </ul>
 	 * @see AbstractAgent.ReturnCode
@@ -1633,7 +1636,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * 
 	 * For instance, this is useful if you launch one million of agents and when
 	 * only some of them have to take a specific role which cannot be defined in the
-	 * parameters of {@link #launchAgentBucket(List, int, String...)} because they
+	 * parameters of {@link #launchAgentBucket(String, int, int, Role...)} because they
 	 * are priorly unknown and build at runtime.
 	 * 
 	 * @param _group
@@ -2043,11 +2046,11 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * agents match, the target is chosen randomly. The sender is excluded from this
 	 * search.
 	 * 
-	 * @param _group
+	 * @param group
 	 *            the group(s) and the community(ies) name
-	 * @param _role
+	 * @param role
 	 *            the role name
-	 * @param _messageToSend
+	 * @param messageToSend
 	 *            the message to send
 	 * @return
 	 *         <ul>
@@ -2071,8 +2074,8 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * @see MultiGroup
 	 * @since MadKitLanEdition 1.0
 	 */
-	public ReturnCode sendMessage(AbstractGroup group, final String role, final Message message) {
-		return sendMessageWithRole(group, role, message, null);
+	public ReturnCode sendMessage(AbstractGroup group, final String role, final Message messageToSend) {
+		return sendMessageWithRole(group, role, messageToSend, null);
 	}
 
 	/**
@@ -2114,9 +2117,9 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * @see MultiGroup
 	 * @since MadKitLanEdition 1.0
 	 */
-	public ReturnCode sendMessageWithRole(AbstractGroup group, final String role, final Message message,
+	public ReturnCode sendMessageWithRole(AbstractGroup group, final String role, final Message messageToSend,
 			final String senderRole) {
-		return getKernel().sendMessage(this, group, role, message, senderRole);
+		return getKernel().sendMessage(this, group, role, messageToSend, senderRole);
 	}
 
 	/**
@@ -2146,13 +2149,13 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * {@link AgentLifeEvent} messages will be sent by the kernel according to the
 	 * type of the hook which has been requested.
 	 * <p>
-	 * To give up the hook, just call the function
-	 * {@link #stopHookEvents(AgentActionEvent)} and it will remove the sender from
+	 * To give up the hook, just call the function {@link AbstractAgent#releaseHookEvents} and it will remove the sender from
 	 * the subscriber list.
 	 * 
 	 * @param hookType
 	 *            the action event type to monitor
 	 * @return {@link ReturnCode#SUCCESS} or {@link ReturnCode#IGNORED}
+	 * @see #releaseHookEvents
 	 */
 	public ReturnCode requestHookEvents(AgentActionEvent hookType) {
 		return getKernel().requestHookEvents(this, hookType, false);
@@ -2164,7 +2167,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * @param hookType
 	 *            the action event type
 	 * @return {@link ReturnCode#SUCCESS} or {@link ReturnCode#IGNORED}
-	 * @see #requestHookEvents(AgentActionEvent)
+	 * @see #requestHookEvents
 	 */
 	public ReturnCode releaseHookEvents(AgentActionEvent hookType) {
 		return getKernel().releaseHookEvents(this, hookType);
@@ -2188,11 +2191,11 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * equivalent to
 	 * <code>broadcastMessageWithRole(group, role, message, receiveAllRepliesInOneBlock, null)</code>
 	 * 
-	 * @param _group
+	 * @param group
 	 *            the group(s) and the community(ies) name
-	 * @param _roleName
+	 * @param roleName
 	 *            the role name
-	 * @param _m
+	 * @param message
 	 *            the message
 	 * @param receiveAllRepliesInOneBlock
 	 *            if set true, all replies will be received into one block thanks to
@@ -2219,9 +2222,9 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * @see MultiGroup
 	 * @since MadKitLanEdition 1.0
 	 */
-	public ReturnCode broadcastMessage(AbstractGroup group, final String role, final Message message,
+	public ReturnCode broadcastMessage(AbstractGroup group, final String roleName, final Message message,
 			boolean receiveAllRepliesInOneBlock) {
-		return broadcastMessageWithRole(group, role, message, receiveAllRepliesInOneBlock, null);
+		return broadcastMessageWithRole(group, roleName, message, receiveAllRepliesInOneBlock, null);
 	}
 
 	/**
@@ -2231,11 +2234,11 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * equivalent to
 	 * <code>broadcastMessageWithRole(group, role, null, message)</code>
 	 * 
-	 * @param _group
+	 * @param group
 	 *            the group(s) and the community(ies) name
-	 * @param _roleName
+	 * @param roleName
 	 *            the role name
-	 * @param _m
+	 * @param message
 	 *            the message
 	 * @return
 	 *         <ul>
@@ -2259,8 +2262,8 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * @see MultiGroup
 	 * @since MadKitLanEdition 1.0
 	 */
-	public ReturnCode broadcastMessage(AbstractGroup group, final String role, final Message message) {
-		return broadcastMessageWithRole(group, role, message, null);
+	public ReturnCode broadcastMessage(AbstractGroup group, final String roleName, final Message message) {
+		return broadcastMessageWithRole(group, roleName, message, null);
 	}
 
 	/**
@@ -2274,7 +2277,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 *            the group(s) and the community(ies) name
 	 * @param roleName
 	 *            the role name
-	 * @param m
+	 * @param messageToSend
 	 *            the message
 	 * @param senderRole
 	 *            the role name of the sender
@@ -2300,9 +2303,9 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * @see MultiGroup
 	 * @since MadKitGroupExtension 1.0
 	 */
-	public ReturnCode broadcastMessageWithRole(AbstractGroup group, final String role, final Message messageToSend,
+	public ReturnCode broadcastMessageWithRole(AbstractGroup group, final String roleName, final Message messageToSend,
 			final String senderRole) {
-		return this.broadcastMessageWithRole(group, role, messageToSend, false, senderRole);
+		return this.broadcastMessageWithRole(group, roleName, messageToSend, false, senderRole);
 	}
 
 	/**
@@ -2313,7 +2316,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 *            the group(s) and the community(ies) name
 	 * @param roleName
 	 *            the role name
-	 * @param m
+	 * @param messageToSend
 	 *            the message
 	 * @param receiveAllRepliesInOneBlock
 	 *            if set true, all replies will be received into one block thanks to
@@ -2342,9 +2345,9 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * @see MultiGroup
 	 * @since MadKitGroupExtension 1.0
 	 */
-	public ReturnCode broadcastMessageWithRole(AbstractGroup group, final String role, final Message messageToSend,
+	public ReturnCode broadcastMessageWithRole(AbstractGroup group, final String roleName, final Message messageToSend,
 			boolean receiveAllRepliesInOneBlock, final String senderRole) {
-		return getKernel().broadcastMessageWithRole(this, group, role, messageToSend, senderRole,
+		return getKernel().broadcastMessageWithRole(this, group, roleName, messageToSend, senderRole,
 				receiveAllRepliesInOneBlock);
 	}
 
@@ -2705,63 +2708,13 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * default MaDKit configuration. It can be programmatically modified to launch a
 	 * new session with different parameters. It can also be used as a black board
 	 * shared by all the agents of a kernel by adding new user defined properties at
-	 * run time or via the command line. The default set of MaDKit properties
-	 * includes values for the following keys:
-	 * <table summary="Shows madkit keys and associated values">
-	 * <tr>
-	 * <th>Key</th>
-	 * <th>Description of Associated Value</th>
-	 * </tr>
-	 * <tr>
-	 * <td><code>madkit.version</code></td>
-	 * <td>MaDKit kernel version</td>
-	 * </tr>
-	 * <tr>
-	 * <td><code>build.id</code></td>
-	 * <td>MaDKit kernel build ID</td></tr
-	 * <tr>
-	 * <td><code>madkit.repository.url</code></td>
-	 * <td>the agent repository for this version, usually
-	 * http://www.madkit.net/madkit/repository/MaDKit-version</td>
-	 * </tr>
-	 * <tr>
-	 * <td><code>desktop</code></td>
-	 * <td><code>true</code> or <code>false</code>: Launch the desktop during boot
-	 * phase</td>
-	 * </tr>
-	 * <tr>
-	 * <td><code>launchAgents</code></td>
-	 * <td>The agents launched during the boot phase</td>
-	 * </tr>
-	 * <tr>
-	 * <td><code>createLogFiles</code></td>
-	 * <td>true</code> or <code>false</code>: Create log files automatically for the
-	 * new agents</td>
-	 * </tr>
-	 * <tr>
-	 * <td><code>logDirectory</code></td>
-	 * <td>The directory used for the log files (./logs by default)</td>
-	 * </tr>
-	 * <tr>
-	 * <td><code>agentLogLevel</code></td>
-	 * <td>the default log level for the new agents</td>
-	 * </tr>
-	 * <tr>
-	 * <td><code>warningLogLevel</code></td>
-	 * <td>the default warning log level for the new agents</td>
-	 * </tr>
-	 * <tr>
-	 * <td><code>network</code></td>
-	 * <td><code>true</code> or <code>false</code>: Launch the network during boot
-	 * phase</td>
-	 * </tr>
-	 * </table>
-	 * <p>
+	 * run time or via the command line. 
+	 * 
 	 * 
 	 * 
 	 * @return the Properties object defining the values of each MaDKit options in
 	 *         the current session.
-	 * @see Option LevelOption BooleanOption
+	 * @see MadkitProperties
 	 * @since MaDKit 5.0.0.10
 	 */
 	public MadkitProperties getMadkitConfig() {
@@ -2880,7 +2833,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 		getKernel().destroyRole(this, group, role);
 	}
 
-	@SuppressWarnings("unused")
+
 	void checkInterruptedExceptionForMessageWaiting() throws InterruptedException {
 
 	}
@@ -2985,7 +2938,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	/**
 	 * launch all the agents defined in an xml configuration file
 	 * 
-	 * @param xmlFile
+	 * @param document
 	 *            the XML document to parse
 	 * @return {@link ReturnCode#SEVERE} if the launch failed
 	 * @throws ParserConfigurationException
@@ -3212,8 +3165,8 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * An agent that is processing its {@link #activate()} method is in this
 	 * state.</li>
 	 * <li>{@link #LIVING}<br>
-	 * An agent that is processing its {@link Agent#live()} method is in this
-	 * state.</li>
+	 * An agent that is processing its {@link Agent#preLiveCycle()} method just before calling in a loop its {@link Agent#liveCycle()} method is in this
+	 * state.
 	 * <li>{@link #ENDING}<br>
 	 * An agent that is processing its {@link #end()} method is in this state.</li>
 	 * <li>{@link #TERMINATED}<br>
@@ -3389,12 +3342,12 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 *         <li><code>{@link State#ACTIVATING}</code>: the agent is processing
 	 *         its {@link #activate()} method. This state is also the "running"
 	 *         state of {@link AbstractAgent} subclasses (i.e. when they have
-	 *         finished their activation) as they do not have a {@link Agent#live()}
+	 *         finished their activation) as they do not have a {@link Agent#liveCycle()}
 	 *         managed by the kernel in their life cycle. On the contrary to
 	 *         {@link Agent} subclasses which next state is
 	 *         {@link State#LIVING}.</li> <br/>
 	 *         <li><code>{@link State#LIVING}</code>: returned when {@link Agent}
-	 *         subclasses are processing their {@link Agent#live()} method.</li>
+	 *         subclasses are processing in loop their {@link Agent#liveCycle()} method.</li>
 	 *         <br/>
 	 *         <li><code>{@link State#ENDING}</code>: the agent is processing its
 	 *         {@link #end()} method.</li> <br/>
@@ -3606,7 +3559,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 		ROLE_NOT_HANDLED,
 		/**
 		 * Returned when using
-		 * {@link AbstractAgent#createGroup(String, String, boolean, Gatekeeper)} and
+		 * {@link AbstractAgent#createGroup(Group, Object)} and
 		 * that a group already exists
 		 */
 		ALREADY_GROUP,
@@ -3653,11 +3606,11 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 		NO_RECIPIENT_FOUND,
 		/**
 		 * Returned when
-		 * {@link AbstractAgent#requestRole(String, String, String, Object)} or
-		 * {@link AbstractAgent#createGroup(String, String, boolean, Gatekeeper)} is
+		 * {@link AbstractAgent#requestRole(Group, String, Object)} or
+		 * {@link AbstractAgent#createGroup(Group, Object)} is
 		 * used in activate and that the agent has been launched using
-		 * {@link AbstractAgent#launchAgentBucket(List, String...)} or
-		 * {@link AbstractAgent#launchAgentBucket(String, int, String...)}</li>
+		 * {@link AbstractAgent#launchAgentBucket(List, int, Role...)} or
+		 * {@link AbstractAgent#launchAgentBucket(String, int, int, Role...)}</li>
 		 */
 		IGNORED,
 		/**
@@ -3810,7 +3763,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 *         possible to do other actions after the launch using
 	 *         {@link Madkit#doAction(com.distrimind.madkit.action.KernelAction, Object...)}
 	 * 
-	 * @see Option BooleanOption LevelOption
+	 * 
 	 * @since MaDKit 5.0.0.14
 	 */
 	protected static Madkit executeThisAgent(int nbOfInstances, boolean createFrame, String... args) {
@@ -3843,7 +3796,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 *         possible to do other actions after the launch using
 	 *         {@link Madkit#doAction(com.distrimind.madkit.action.KernelAction, Object...)}
 	 * 
-	 * @see #executeThisAgent(int, boolean, String...)
+	 * @see AbstractAgent#executeThisAgent(int, boolean, String...)
 	 * @since MaDKit 5.0.0.14
 	 */
 	protected static Madkit executeThisAgent(String... args) {
@@ -3860,7 +3813,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 *         possible to do other actions after the launch using
 	 *         {@link Madkit#doAction(com.distrimind.madkit.action.KernelAction, Object...)}
 	 * 
-	 * @see #executeThisAgent(int, boolean, String...)
+	 * @see AbstractAgent#executeThisAgent(int, boolean, String...)
 	 * @since MaDKit 5.0.0.15
 	 */
 	protected static Madkit executeThisAgent() {
@@ -3883,9 +3836,9 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 *         succeeded.</li>
 	 *         <li><code>{@link ReturnCode#SEVERE}</code>: If a problem occurs.</li>
 	 *         </ul>
-	 * @see #launchTaskExectutorService(String, int)
-	 * @see #killTaskExectutorService(String)
-	 * @see #scheduleTask(String, Task, boolean)
+	 * @see AbstractAgent#launchTaskExectutorService(String, int)
+	 * @see AbstractAgent#killTaskExectutorService(String)
+	 * @see AbstractAgent#scheduleTask(String, Task, boolean)
 	 * @since MadKitLanEdition 1.0
 	 */
 	/*
@@ -3918,8 +3871,8 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 *         succeeded.</li>
 	 *         <li><code>{@link ReturnCode#SEVERE}</code>: If a problem occurs.</li>
 	 *         </ul>
-	 * @see #killTaskExectutorService(String)
-	 * @see #scheduleTask(String, Task, boolean)
+	 * @see AbstractAgent#killTaskExectutorService(String)
+	 * @see AbstractAgent#scheduleTask(String, Task, boolean)
 	 * @since MadKitLanEdition 1.0
 	 */
 	/*
@@ -3939,7 +3892,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 *            the name of the TaskAgent
 	 * @return if the service executor was found and killed.
 	 * 
-	 * @see #launchTaskExectutorService(String, int, int, long)
+	 * @see AbstractAgent#launchTaskExectutorService(String, int, int, long)
 	 * @since MadKitLanEdition 1.0
 	 */
 	/*
@@ -3976,8 +3929,8 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 *            {@link TaskExecutionConfirmationMessage} will be sent to the
 	 *            requester for every execution of the given task.
 	 * @return a task ID that reference the task, or null if a problem occurs
-	 * @see #launchTaskManagerAgent(String, int)
-	 * @see #cancelTask(String, Task)
+	 * @see AbstractAgent#launchTaskManagerAgent(String, int)
+	 * @see AbstractAgent#cancelTask(String, Task)
 	 * @see TaskExecutionConfirmationMessage
 	 * @see Task
 	 * @see TaskID
@@ -4002,8 +3955,8 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * @param _task
 	 *            the task to execute
 	 * @return a task ID that reference the task, or null if a problem occurs
-	 * @see #launchTaskManagerAgent(String, int)
-	 * @see #cancelTask(String, Task)
+	 * @see AbstractAgent#launchTaskManagerAgent(String, int)
+	 * @see AbstractAgent#cancelTask(String, Task)
 	 * @see Task
 	 * @since MadKitLanEdition 1.0
 	 */
@@ -4023,8 +3976,9 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * 
 	 * @return false if the task could not be cancelled, typically because it has
 	 *         already completed normally; true otherwise
-	 * @see #launchTaskExectutorService(String, int, int, long)
-	 * @see #scheduleTask(String, Task, boolean)
+	 * 
+	 * @see AbstractAgent#scheduleTask(Task)
+	 * @see AbstractAgent#scheduleTask(Task, boolean)
 	 * @see Task
 	 * @see TaskID
 	 * @since MadKitLanEdition 1.0
@@ -4042,13 +3996,13 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 *            the task to execute
 	 * @param ask_for_execution_confirmation
 	 *            if set to 'true', means that a confirmation message
-	 *            {@link TaskExecutionConfirmationMessage} will be sent to the
+	 *            {@link TasksExecutionConfirmationMessage} will be sent to the
 	 *            requester for every execution of the given task.
 	 * @return a task ID that reference the task
-	 * @see #cancelTask(Task)
+	 * @see AbstractAgent#cancelTask(TaskID, boolean)
 	 * @see Task
 	 * @see TaskID
-	 * @see TaskExecutionConfirmationMessage
+	 * @see TasksExecutionConfirmationMessage
 	 * @since MadKitLanEdition 1.0
 	 */
 	public TaskID scheduleTask(Task<?> _task, boolean ask_for_execution_confirmation) {
@@ -4066,7 +4020,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * @param _task
 	 *            the task to execute
 	 * @return a task ID that reference the task
-	 * @see #cancelTask(Task)
+	 * @see AbstractAgent#cancelTask(TaskID, boolean)
 	 * @see Task
 	 * @see TaskID
 	 * @since MadKitLanEdition 1.0
@@ -4092,7 +4046,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 *                to <code>MAX_PRIORITY</code>.
 	 * @exception SecurityException
 	 *                if the current thread cannot modify this thread.
-	 * @see #getTaskManagerAgentPriority
+	 * 
 	 * @see Thread#MAX_PRIORITY
 	 * @see Thread#MIN_PRIORITY
 	 */
@@ -4118,10 +4072,12 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 *            <code>null</code>, which is sufficient to enter an unsecured
 	 *            group. Especially, {@link #autoRequestRole(AbstractGroup, String)}
 	 *            uses a null <code>passKey</code>.
-	 * @see #removeAutoRequestedGroup(AbstractGroup)
-	 * @see #removeAutoRequestedRole(String)
+	 * @see AbstractAgent#leaveAutoRequestedGroup(AbstractGroup)
+	 * @see AbstractAgent#leaveAutoRequestedRole(String)
+	 * @see AbstractAgent#leaveAutoRequestedRole(AbstractGroup, String)
+	 * @see AbstractAgent#leaveAllAutoRequestedGroups()
 	 */
-	public void autoRequesteRole(AbstractGroup _group, String _role, Object _passKey) {
+	public void autoRequestRole(AbstractGroup _group, String _role, Object _passKey) {
 		if (_group == null || _role == null)
 			return;
 		getKernel().autoRequesteRole(this, _group, _role, _passKey);
@@ -4137,11 +4093,13 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 *            the abstract group and these represented groups.
 	 * @param _role
 	 *            the role to request
-	 * @see #removeAutoRequestedGroup(AbstractGroup)
-	 * @see #removeAutoRequestedRole(String)
+	 * @see AbstractAgent#leaveAutoRequestedGroup(AbstractGroup)
+	 * @see AbstractAgent#leaveAutoRequestedRole(String)
+	 * @see AbstractAgent#leaveAutoRequestedRole(AbstractGroup, String)
+	 * @see AbstractAgent#leaveAllAutoRequestedGroups()
 	 */
-	public void autoRequesteRole(AbstractGroup _group, String _role) {
-		this.autoRequesteRole(_group, _role, null);
+	public void autoRequestRole(AbstractGroup _group, String _role) {
+		this.autoRequestRole(_group, _role, null);
 	}
 
 	/**
@@ -4154,7 +4112,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 *            the role to request
 	 * @return true if this agent automically request the given group/role if
 	 *         another another has requested this group/role.
-	 * @see #autoRequesteRole(AbstractGroup, String, Object)
+	 * @see AbstractAgent#autoRequestRole(AbstractGroup, String, Object)
 	 */
 	public boolean isConcernedByAutoRequestRole(Group _group, String _role) {
 		return getKernel().isConcernedByAutoRequestRole(this, _group, _role);
@@ -4166,7 +4124,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * 
 	 * @param role
 	 *            the role name
-	 * @see #autoRequestRole(AbstractGroup, String, Object)
+	 * @see AbstractAgent#autoRequestRole(AbstractGroup, String, Object)
 	 */
 	public void leaveAutoRequestedRole(String role) {
 		getKernel().leaveAutoRequestedRole(this, role);
@@ -4651,16 +4609,16 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * 
 	 * Case candidateToBan is set to false : the anomaly will be saved into a
 	 * database. If too much anomalies occurs
-	 * ({@link NetworkProperties#nbMaxAnomalyBeforeTrigeringExpulsion), than the
+	 * ({@link NetworkProperties#nbMaxAnomaliesBeforeTrigeringExpulsion}), than the
 	 * connection is closed and the IP address is expulsed for a while
-	 * ({@link NetworkProperties#expulsionDuration}. If too much expulsions occurs
-	 * ({@link NetworkProperties#nbMaxExpulsions}, the kernel will consider
+	 * ({@link NetworkProperties#expulsionDuration}). If too much expulsions occurs
+	 * ({@link NetworkProperties#nbMaxExpulsions}), the kernel will consider
 	 * anomalies the candidateToBan set to true. Case candidateToBan is set to true
 	 * : the anomaly will be also saved into a database. If too much anomalies
-	 * occurs ({@link NetworkProperties#nbMaxAnomalyBeforeTrigeringBan), than the
+	 * occurs ({@link NetworkProperties#nbMaxAnomaliesBeforeTrigeringBanishment}), than the
 	 * connection is closed and the IP address banned for a while
-	 * ({@link NetworkProperties#banishmentDuration}. If too much bans occurs
-	 * ({@link NetworkProperties#nbMaxBanishment}, the kernel will ban the IP
+	 * ({@link NetworkProperties#banishmentDuration}). If too much bans occurs
+	 * ({@link NetworkProperties#nbMaxBanishments}), the kernel will ban the IP
 	 * address indefinitely. The difference between an expulsion and a banishment is
 	 * defined by the properties see bellow (thresholds and durations)
 	 * 
@@ -4682,17 +4640,17 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * 
 	 * Case candidateToBan is set to false : the anomaly will be saved into a
 	 * database. If too much anomalies occurs
-	 * ({@link NetworkProperties#nbMaxAnomalyBeforeTrigeringExpulsion), than the
+	 * ({@link NetworkProperties#nbMaxAnomaliesBeforeTrigeringExpulsion}), than the
 	 * connections associated with the kernel address and their IP addresses are
-	 * expulsed for a while ({@link NetworkProperties#expulsionDuration}. If too
-	 * much expulsions occurs ({@link NetworkProperties#nbMaxExpulsions}, the kernel
+	 * expulsed for a while ({@link NetworkProperties#expulsionDuration}). If too
+	 * much expulsions occurs ({@link NetworkProperties#nbMaxExpulsions}), the kernel
 	 * will consider anomalies the candidateToBan set to true. Case candidateToBan
 	 * is set to true : the anomaly will be also saved into a database. If too much
-	 * anomalies occurs ({@link NetworkProperties#nbMaxAnomalyBeforeTrigeringBan),
+	 * anomalies occurs ({@link NetworkProperties#nbMaxAnomaliesBeforeTrigeringBanishment}),
 	 * than the connections associated with the kernel address and their IP
 	 * addresses are banned for a while
-	 * ({@link NetworkProperties#banishmentDuration}. If too much bans occurs
-	 * ({@link NetworkProperties#nbMaxBanishment}, the kernel will ban the
+	 * ({@link NetworkProperties#banishmentDuration}). If too much bans occurs
+	 * ({@link NetworkProperties#nbMaxBanishments}), the kernel will ban the
 	 * connections associated with the kernel address and their IP addresses
 	 * indefinitely. The difference between an expulsion and a banishment is defined
 	 * by the properties see bellow (thresholds and durations)
@@ -4770,9 +4728,9 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 *            initiative
 	 * @return true if a connection is possible with the given parameters and the
 	 *         current properties values
-	 * @see #addAccessData(AccessData)
-	 * @see #addConnectionProtocol(ConnectionProtocolProperties)
-	 * @see #addAccessProtocolProperties(AbstractAccessProtocolProperties)
+	 * @see NetworkProperties#addAccessData(AccessData)
+	 * @see NetworkProperties#addConnectionProtocol(ConnectionProtocolProperties)
+	 * @see NetworkProperties#addAccessProtocolProperties(AbstractAccessProtocolProperties)
 	 */
 	public boolean isConnectionPossible(InetSocketAddress _distant_inet_address,
 			InetSocketAddress _local_interface_address, boolean takeConnectionInitiative, boolean thisAskConnection,
@@ -4795,9 +4753,9 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 *            tells if the current peer will take connection initiative
 	 * @return true if a connection is possible with the given parameters and the
 	 *         current properties values
-	 * @see #addAccessData(AccessData)
-	 * @see #addConnectionProtocol(ConnectionProtocolProperties)
-	 * @see #addAccessProtocolProperties(AbstractAccessProtocolProperties)
+	 * @see NetworkProperties#addAccessData(AccessData)
+	 * @see NetworkProperties#addConnectionProtocol(ConnectionProtocolProperties)
+	 * @see NetworkProperties#addAccessProtocolProperties(AbstractAccessProtocolProperties)
 	 */
 	public boolean isConnectionPossible(InetSocketAddress _distant_inet_address,
 			InetSocketAddress _local_interface_address, boolean thisAskConnection, boolean takeConnectionInitiative) {
@@ -4815,9 +4773,9 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 *            the local inet address
 	 * @return true if a connection is possible with the given parameters and the
 	 *         current properties values
-	 * @see #addAccessData(AccessData)
-	 * @see #addConnectionProtocol(ConnectionProtocolProperties)
-	 * @see #addAccessProtocolProperties(AbstractAccessProtocolProperties)
+	 * @see NetworkProperties#addAccessData(AccessData)
+	 * @see NetworkProperties#addConnectionProtocol(ConnectionProtocolProperties)
+	 * @see NetworkProperties#addAccessProtocolProperties(AbstractAccessProtocolProperties)
 	 */
 	public boolean isConnectionPossible(InetSocketAddress _distant_inet_address,
 			InetSocketAddress _local_interface_address) {

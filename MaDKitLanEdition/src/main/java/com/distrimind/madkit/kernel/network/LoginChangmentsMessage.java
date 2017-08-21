@@ -39,15 +39,15 @@ package com.distrimind.madkit.kernel.network;
 
 import java.util.ArrayList;
 
+
 import com.distrimind.madkit.kernel.KernelAddress;
 import com.distrimind.madkit.kernel.Message;
 import com.distrimind.madkit.kernel.network.connection.access.PairOfIdentifiers;
+import com.distrimind.madkit.message.hook.HookMessage.AgentActionEvent;
 
 /**
- * Notification message about new logged identifiers, or new denied identifier
- * from a distant kernel address into the network.
- * 
- * @see AbstractAgent#setLanIdentifierNotifications(boolean)
+ * It is sent to agents that listen to
+ * {@link AgentActionEvent#LOGGED_IDENTIFIERS_UPDATE}
  * 
  * @author Jason Mahdjoub
  *

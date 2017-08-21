@@ -58,8 +58,11 @@ import com.distrimind.madkit.kernel.Madkit;
 import com.distrimind.madkit.kernel.Message;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocolProperties;
 import com.distrimind.madkit.kernel.network.connection.secured.ClientSecuredProtocolPropertiesWithKnownPublicKey;
+import com.distrimind.madkit.kernel.network.connection.secured.ClientSecuredProtocolPropertiesWithKnownPublicKeyWithECDHAlgorithm;
 import com.distrimind.madkit.kernel.network.connection.secured.P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties;
+import com.distrimind.madkit.kernel.network.connection.secured.P2PSecuredConnectionProtocolWithECDHAlgorithmProperties;
 import com.distrimind.madkit.kernel.network.connection.secured.ServerSecuredProcotolPropertiesWithKnownPublicKey;
+import com.distrimind.madkit.kernel.network.connection.secured.ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm;
 import com.distrimind.madkit.kernel.network.connection.unsecured.CheckSumConnectionProtocolProperties;
 import com.distrimind.madkit.kernel.network.connection.unsecured.UnsecuredConnectionProtocolProperties;
 import com.distrimind.madkit.kernel.AgentFakeThread;
@@ -160,7 +163,7 @@ public class TransferConnectionTest extends JunitMadkit {
 		ConnectionProtocolProperties<?> c = res;
 
 		while (c != null) {
-			if (c.getClass() == ClientSecuredProtocolPropertiesWithKnownPublicKey.class)
+			if (c.getClass() == ClientSecuredProtocolPropertiesWithKnownPublicKey.class || c.getClass()==ClientSecuredProtocolPropertiesWithKnownPublicKeyWithECDHAlgorithm.class)
 				return null;
 			else if (cpp.getClass() == P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties.class) {
 				if (!((P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties) cpp).isServer)
@@ -187,6 +190,11 @@ public class TransferConnectionTest extends JunitMadkit {
 			s.addEncryptionProfile(sold.getDefaultKeyPairForEncryption(),sold.getDefaultKeyPairForSignature(), sold.getDefaultSignatureType(),
 					sold.getDefaultSymmetricEncryptionType(), sold.getDefaultSymmetricEncryptionKeySizeBits());
 			res = s;
+		} else if (cpp.getClass() == ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm.class) {
+			ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm sold = (ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm) cpp;
+			ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm s = new ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm();
+			s.addEncryptionProfile(sold.getDefaultKeyPairForSignature(), sold.getDefaultSymmetricEncryptionType(),sold.getDefaultSymmetricSignatureType(),sold.getDefaultEllipticCurveDiffieHellmanType());
+			res = s;
 		} else if (cpp.getClass() == P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties.class) {
 			P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties sold = (P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties) cpp;
 			P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties s = new P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties();
@@ -197,6 +205,14 @@ public class TransferConnectionTest extends JunitMadkit {
 			s.isServer = sold.isServer;
 			s.symmetricEncryptionType = sold.symmetricEncryptionType;
 			s.signatureType = sold.signatureType;
+			res = s;
+		} else if (cpp.getClass() == P2PSecuredConnectionProtocolWithECDHAlgorithmProperties.class) {
+			P2PSecuredConnectionProtocolWithECDHAlgorithmProperties sold = (P2PSecuredConnectionProtocolWithECDHAlgorithmProperties) cpp;
+			P2PSecuredConnectionProtocolWithECDHAlgorithmProperties s = new P2PSecuredConnectionProtocolWithECDHAlgorithmProperties();
+			s.enableEncryption = sold.enableEncryption;
+			s.isServer = sold.isServer;
+			s.symmetricEncryptionType = sold.symmetricEncryptionType;
+			s.symmetricSignatureType=sold.symmetricSignatureType;
 			res = s;
 		} else if (cpp.getClass() == CheckSumConnectionProtocolProperties.class) {
 			CheckSumConnectionProtocolProperties sold = (CheckSumConnectionProtocolProperties) cpp;
@@ -254,7 +270,7 @@ public class TransferConnectionTest extends JunitMadkit {
 			@Override
 			protected void activate() throws InterruptedException {
 				System.err.println("------------------------ Thread cound at start : " + Thread.activeCount());
-
+				
 				AgentToLaunch a1 = new AgentToLaunch(connectionPerKernelAddress, false);
 				AgentToLaunch a2 = new AgentToLaunch(connectionPerKernelAddress, true);
 				// AgentToLaunch a3=new AgentToLaunch(connectionPerKernelAddress);
@@ -262,7 +278,8 @@ public class TransferConnectionTest extends JunitMadkit {
 				// AgentToLaunch a5=new AgentToLaunch(connectionPerKernelAddress);
 
 				System.out.println("**************Launch kernels****************");
-
+				System.out.println(TransferConnectionTest.this.eventListener1.madkitEventListenerForConnectionProtocols.getConnectionProtocolProperties().toString());
+				
 				launchThreadedMKNetworkInstance(Level.INFO, AbstractAgent.class, a1, eventListener1);
 
 				ka1 = TransferConnectionTest.this.getKernelAddress(getHelperInstances(1).get(0));

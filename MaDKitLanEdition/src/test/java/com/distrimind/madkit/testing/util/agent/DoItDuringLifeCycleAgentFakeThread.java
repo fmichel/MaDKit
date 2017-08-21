@@ -107,7 +107,6 @@ public class DoItDuringLifeCycleAgentFakeThread extends AgentFakeThread {
 		}
 	}
 
-	@SuppressWarnings("unused")
 	public void doIt() throws InterruptedException {
 		if (logger != null)
 			logger.info("\n\n\tDo it JOB DONE !!!!!! in " + getState() + "\n\n");

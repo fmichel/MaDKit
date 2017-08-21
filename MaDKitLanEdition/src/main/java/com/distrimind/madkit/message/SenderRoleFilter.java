@@ -32,6 +32,7 @@
 package com.distrimind.madkit.message;
 
 import com.distrimind.madkit.kernel.AgentAddress;
+import com.distrimind.madkit.kernel.Group;
 import com.distrimind.madkit.kernel.Message;
 
 /**
@@ -44,18 +45,17 @@ import com.distrimind.madkit.kernel.Message;
  */
 public class SenderRoleFilter implements MessageFilter {
 
-	final private String community, group, role;
+	final private Group group;
+	final private String role;
 
 	/**
 	 * a new filter that acts according to the sender's CGR location.
 	 * 
-	 * @param community
 	 * @param group
 	 * @param role
 	 *            the role that the sender must have
 	 */
-	public SenderRoleFilter(final String community, final String group, final String role) {
-		this.community = community;
+	public SenderRoleFilter(final Group group, final String role) {
 		this.group = group;
 		this.role = role;
 	}
@@ -63,7 +63,7 @@ public class SenderRoleFilter implements MessageFilter {
 	@Override
 	public boolean accept(final Message m) {
 		final AgentAddress sender = m.getSender();
-		return sender.getCommunity().equals(community) && sender.getGroup().equals(group)
+		return sender.getGroup().equals(group)
 				&& sender.getRole().equals(role);
 	}
 

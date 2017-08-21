@@ -579,7 +579,6 @@ class TransferAgent extends AgentFakeThread {
 
 	}
 
-	@SuppressWarnings("synthetic-access")
 	public static final IDTransfer NullIDTransfer = new IDTransfer();
 
 	static class InterfacedIDTransfer implements Cloneable {

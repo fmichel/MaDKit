@@ -118,9 +118,7 @@ public class XMLUtilities {
 	/**
 	 * The name of a node containing properties for MaDKit : {@value}
 	 * 
-	 * @see Option
-	 * @see LevelOption
-	 * @see BooleanOption
+	 * @see MadkitProperties
 	 */
 	public static final String MADKIT_PROPERTIES = "MadkitProperties";
 
@@ -153,7 +151,7 @@ public class XMLUtilities {
 	 * </pre>
 	 * 
 	 * 
-	 * see {@link AbstractAgent#launchAgentBucket(java.util.List, int, String...)}
+	 * see {@link AbstractAgent#launchAgentBucket(java.util.List, int, com.distrimind.madkit.kernel.Role...)}
 	 */
 	public static final String BUCKET_MODE = "bucketMode";
 

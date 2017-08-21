@@ -492,7 +492,7 @@ class MadkitKernel extends Agent {
 
 		createGroup(LocalCommunity.Groups.SYSTEM);
 		createGroup(LocalCommunity.Groups.KERNELS);
-
+		
 		// building the network group
 		createGroup(Groups.NETWORK);
 		if (!requestRole(Groups.NETWORK, Roles.KERNEL, null).equals(ReturnCode.SUCCESS)) {
@@ -2219,8 +2219,8 @@ class MadkitKernel extends Agent {
 	private final ReturnCode killThreadedAgent(final Agent target) {
 
 		synchronized (target.state) {
-			if (target.state.equals(State.ENDING) || target.state.equals(State.ZOMBIE)
-					|| target.equals(State.WAIT_FOR_KILL))
+			if (target.state.get().equals(State.ENDING) || target.state.get().equals(State.ZOMBIE)
+					|| target.state.get().equals(State.WAIT_FOR_KILL))
 				target.getAgentExecutor().getEndProcess().cancel(true);
 			target.state.set(State.ENDING);
 
@@ -2348,8 +2348,8 @@ class MadkitKernel extends Agent {
 			// an error
 			if (senderAA == null) {
 				if (targetedRole.getRoleName().equals(com.distrimind.madkit.agr.Organization.GROUP_MANAGER_ROLE)
-						|| targetedRole.getRoleName()
-								.equals(com.distrimind.madkit.agr.LocalCommunity.Roles.TASK_MANAGER_ROLE))
+						|| targetedRole.getRoleName().equals(com.distrimind.madkit.agr.LocalCommunity.Roles.TASK_MANAGER_ROLE)
+						|| (targetedRole.getRoleName().equals(Roles.GUI) && targetedRole.getGroup().equals(Groups.GUI)))
 					return new CandidateAgentAddress(sender, targetedRole, kernelAddress, isAutoCreateGroup(sender));
 				throw new CGRNotAvailable(NOT_IN_GROUP);
 			}
@@ -2751,15 +2751,15 @@ class MadkitKernel extends Agent {
 	}
 
 	protected void exit() throws InterruptedException {
-		shuttedDown = true;
 		if (shuttedDown)
 			return;
+		shuttedDown = true;
 		sendNetworkKernelMessageWithRole(new KernelMessage(KernelAction.EXIT));
 
 		broadcastMessageWithRole(MadkitKernel.this, Groups.GUI,
-				com.distrimind.madkit.agr.Organization.GROUP_MANAGER_ROLE, new KernelMessage(KernelAction.EXIT), null,
+				Roles.GUI, new KernelMessage(KernelAction.EXIT), null,
 				false);
-		while (getAgentWithRole(Groups.GUI, com.distrimind.madkit.agr.Organization.GROUP_MANAGER_ROLE) != null) {
+		while (getAgentWithRole(Groups.GUI, Roles.GUI) != null) {
 			pause(10);
 		}
 		// pause(10);//be sure that last executors have started

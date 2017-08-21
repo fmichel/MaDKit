@@ -38,7 +38,6 @@
 package com.distrimind.madkit.kernel.network;
 
 import java.io.Serializable;
-import java.net.InetSocketAddress;
 
 import com.distrimind.madkit.kernel.KernelAddress;
 
@@ -49,9 +48,9 @@ import com.distrimind.madkit.kernel.KernelAddress;
  * @author Jason Mahdjoub
  * @version 1.0
  * @since MadkitLanEdition 1.0
- * @see NetworkProperties#setTransferTriggers(TransferTriggers)
- * @see #newTransferConnectionProposition(KernelAddress, InetSocketAddress,
- *      Serializable)
+ * @see NetworkProperties#setTransferTriggers(TransferFilter)
+ * @see #newTransferConnectionPropositionToFinalPeers(NetworkProperties, KernelAddress, int, Serializable)
+ * @see #newTransferConnectionPropositionToIntermediatePeers(NetworkProperties, KernelAddress, KernelAddress, int, Serializable)
  * 
  */
 public interface TransferFilter {
@@ -62,8 +61,6 @@ public interface TransferFilter {
 	 *            the used network properties
 	 * @param distantKernelAddress
 	 *            the distant kernel address
-	 * @param distantInetSocketAddress
-	 *            the distant inet socket address
 	 * @param numberOfIntermediatePeers
 	 *            give the number of intermediate peers between the two final peers
 	 *            to connect

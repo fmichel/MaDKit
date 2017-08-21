@@ -75,7 +75,7 @@ import gnu.vm.jgnux.crypto.NoSuchPaddingException;
 import gnu.vm.jgnux.crypto.ShortBufferException;
 
 /**
- * {@inheritDoc}
+ * 
  * 
  * @author Jason Mahdjoub
  * @version 1.0
@@ -198,7 +198,7 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 				} else {
 					try {
 						return new ECDHDataMessage(ellipticCurveDiffieHellmanAlgorithmForEncryption.generateAndGetPublicKey(), ellipticCurveDiffieHellmanAlgorithmForSignature.generateAndGetPublicKey());
-					} catch (java.security.NoSuchAlgorithmException e) {
+					} catch (NoSuchAlgorithmException e) {
 						throw new ConnectionException(e);
 					}
 				}
@@ -222,7 +222,7 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 					try {
 						dataForEncryption = ellipticCurveDiffieHellmanAlgorithmForEncryption.generateAndGetPublicKey();
 						dataForSignature = ellipticCurveDiffieHellmanAlgorithmForSignature.generateAndGetPublicKey();
-					} catch (java.security.NoSuchAlgorithmException e) {
+					} catch (NoSuchAlgorithmException e) {
 						throw new ConnectionException(e);
 					}
 					try

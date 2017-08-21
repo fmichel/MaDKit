@@ -56,6 +56,7 @@ import java.util.logging.Logger;
 
 import com.distrimind.madkit.action.KernelAction;
 import com.distrimind.madkit.i18n.I18nUtilities;
+import com.distrimind.madkit.kernel.network.NetworkProperties;
 import com.distrimind.madkit.message.KernelMessage;
 import com.distrimind.util.properties.XMLPropertiesParseException;
 import com.distrimind.util.version.Description;
@@ -143,8 +144,14 @@ final public class Madkit {
 			c.set(2017, 7, 5);
 			Description d = new Description(1, 2, 0, Version.Type.Stable, 1, c.getTime());
 			d.addItem("Correction a problem with database");
-			d.addItem("Adding P2PSecuredConnectionProtocolWithECDHAlgorithm connection protocol");
-			d.addItem("Updating OOD to 2.14.0 version");
+			d.addItem("Adding P2PSecuredConnectionProtocolWithECDHAlgorithm connection protocol (speedest)");
+			d.addItem("Adding Client/ServerSecuredConnectionProtocolWithKnwonPublicKeyWithECDHAlgorithm connection protocol (speedest)");
+			d.addItem("Now all connection protocols use different keys for encryption and for signature");
+			d.addItem("Adding AccessProtocolWithJPake (speedest)");
+			d.addItem("Debugging desktop Jframe closing (however the JMV still become opened when all windows are closed)");
+			d.addItem("Several minimal bug fix");
+			d.addItem("Correction of JavaDoc");
+			d.addItem("Updating OOD to 2.0.0 Beta 20 version");
 			VERSION.addDescription(d);
 
 			c = Calendar.getInstance();
@@ -273,36 +280,8 @@ final public class Madkit {
 	 * }
 	 * </pre>
 	 * 
-	 * So, this main can be used as a MAS application entry point in two ways :
-	 * <p>
-	 * (1) From the command line:
-	 * <p>
-	 * For instance, assuming that your classpath is already set correctly:
-	 * <p>
-	 * <tt>>java madkit.kernel.Madkit agentLogLevel INFO --launchAgents
-	 * madkit.marketorg.Client,20,true;madkit.marketorg.Broker,10,true;madkit.marketorg.Provider,20,true;</tt>
-	 * <p>
-	 * (2) It can be used programmatically anywhere, especially within main method
-	 * of agent classes to ease their launch within an IDE.
-	 * <p>
-	 * Here is an example of how it can be used in this way:
-	 * <p>
-	 * 
-	 * <pre>
-	 * public static void main(String[] args) {
-	 * 	String[] argss = { LevelOption.agentLogLevel.toString(), &quot;FINE&quot;, Option.launchAgents.toString(), // gets the
-	 * 																										// --
-	 * 																										// launchAgents
-	 * 																										// string
-	 * 			Client.class.getName() + &quot;,true,20;&quot; + Broker.class.getName() + &quot;,true,10;&quot;
-	 * 					+ Provider.class.getName() + &quot;,false,20&quot; };
-	 * 	Madkit.main(argss);// launching the application
-	 * }
-	 * </pre>
-	 * 
 	 * @param options
-	 *            the options which should be used to launch Madkit: see
-	 *            {@link LevelOption}, {@link BooleanOption} and {@link Option}
+	 *            the options which should be used to launch Madkit: see {@link MadkitProperties}
 	 */
 	public static void main(String[] options) {
 		new Madkit(options);
@@ -346,25 +325,14 @@ final public class Madkit {
 	 * automatically ends when all the agents living on this kernel are done.
 	 * <p>
 	 * 
-	 * Here is an example of use:
-	 * <p>
-	 * 
-	 * <pre>
-	 * 
-	 * public void somewhereInYourCode() {
-	 * 	new Madkit(Option.launchAgents.toString(), // gets the --launchAgents string
-	 * 			Client.class.getName() + &quot;,true,20;&quot; + Broker.class.getName() + &quot;,true,10;&quot;
-	 * 					+ Provider.class.getName() + &quot;,false,20&quot;);
-	 * }
-	 * </pre>
 	 * 
 	 * @param options
 	 *            the options which should be used to launch Madkit. If
 	 *            <code>null</code>, the dektop mode is automatically used.
 	 * 
-	 * @see Option
-	 * @see BooleanOption
-	 * @see LevelOption
+	 * @see MadkitProperties
+	 * @see NetworkProperties
+	 * 
 	 */
 	public Madkit(String... options) {
 		this(new MadkitEventListener() {
@@ -385,14 +353,6 @@ final public class Madkit {
 	 * Here is an example of use:
 	 * <p>
 	 * 
-	 * <pre>
-	 * 
-	 * public void somewhereInYourCode() {
-	 * 	new Madkit(Option.launchAgents.toString(), // gets the --launchAgents string
-	 * 			Client.class.getName() + &quot;,true,20;&quot; + Broker.class.getName() + &quot;,true,10;&quot;
-	 * 					+ Provider.class.getName() + &quot;,false,20&quot;);
-	 * }
-	 * </pre>
 	 * 
 	 * @param eventListener
 	 *            the event listener called when events occurs during Madkit life
@@ -401,9 +361,8 @@ final public class Madkit {
 	 *            the options which should be used to launch Madkit. If
 	 *            <code>null</code>, the dektop mode is automatically used.
 	 * 
-	 * @see Option
-	 * @see BooleanOption
-	 * @see LevelOption
+	 * @see MadkitProperties
+	 * @see NetworkProperties
 	 */
 	public Madkit(MadkitEventListener eventListener, String... options) {
 		this(null, eventListener, options);

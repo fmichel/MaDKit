@@ -42,6 +42,7 @@ import java.net.InetSocketAddress;
 import com.distrimind.madkit.kernel.MadkitProperties;
 import com.distrimind.util.crypto.ASymmetricEncryptionType;
 import com.distrimind.util.crypto.MessageDigestType;
+import com.distrimind.util.crypto.P2PASymmetricSecretMessageExchanger;
 import com.distrimind.util.crypto.PasswordHashType;
 
 /**
@@ -61,19 +62,19 @@ public class AccessProtocolWithASymmetricKeyExchangerProperties extends Abstract
 	
 	/**
 	 * The asymetric cipher key size used for
-	 * {@link PeerToPeerASymmetricSecretMessageExchanger}
+	 * {@link P2PASymmetricSecretMessageExchanger}
 	 */
 	public short aSymetricKeySize = 4096;
 
 	/**
 	 * The minimum asymetric cipher RSA Key size used for
-	 * {@link PeerToPeerASymmetricSecretMessageExchanger}
+	 * {@link P2PASymmetricSecretMessageExchanger}
 	 */
 	public final int minASymetricKeySize = 1024;
 
 	/**
 	 * Asymmetric encryption algorithm used for
-	 * {@link PeerToPeerASymmetricSecretMessageExchanger}
+	 * {@link P2PASymmetricSecretMessageExchanger}
 	 */
 	public ASymmetricEncryptionType aSymetricEncryptionType = ASymmetricEncryptionType.DEFAULT;
 

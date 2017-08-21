@@ -367,7 +367,7 @@ abstract class Overlooker<A extends AbstractAgent> {
 	 * Called when a list of agents joins the corresponding group and role. This
 	 * method is automatically called by the MaDKit kernel when agents enter a role
 	 * due to the use of
-	 * {@link AbstractAgent#launchAgentBucket(String, int, String...)}. Override
+	 * {@link AbstractAgent#launchAgentBucket(String, int, int, Role...)}. Override
 	 * this method when you want to do some initialization on the agents that enter
 	 * the group/role. Default implementation is:
 	 * 

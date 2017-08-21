@@ -50,10 +50,8 @@ import com.distrimind.madkit.kernel.network.ConnectionIdentifier;
  * @author Jason Mahdjoub
  * @version 1.0
  * @since MadkitLanEdition 1.0
- * @see AbstractAgent#anomalyDetectedWithOneConnection(boolean,
- *      ConnectionIdentifier)
- * @see AbstractAgent#anomalyDetectedWithOneDistantKernel(boolean,
- *      KernelAddress)
+ * @see AbstractAgent#anomalyDetectedWithOneConnection(boolean, ConnectionIdentifier, String)
+ * @see AbstractAgent#anomalyDetectedWithOneDistantKernel(boolean, KernelAddress, String)
  */
 public class NetworkAnomalyEvent extends HookMessage {
 	/**

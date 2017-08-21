@@ -56,6 +56,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 import com.distrimind.madkit.database.KeysPairs;
 import com.distrimind.madkit.kernel.JunitMadkit;
+import com.distrimind.madkit.kernel.KernelAddress;
 import com.distrimind.madkit.kernel.KernelAddressTest;
 import com.distrimind.madkit.kernel.MadkitProperties;
 import com.distrimind.madkit.kernel.network.AccessDataMKEventListener;
@@ -79,7 +80,7 @@ import gnu.vm.jgnu.security.spec.InvalidKeySpecException;
 /**
  * 
  * @author Jason Mahdjoub
- * @version 1.0
+ * @version 1.2
  * @since MadkitLanEdition 1.0
  */
 @RunWith(Parameterized.class)
@@ -119,6 +120,8 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 		res.addAll(data(databaseEnabled, app2));
 		return res;
 	}
+	
+	
 
 	public static Collection<Object[]> data(boolean databaseEnabled, AbstractAccessProtocolProperties accessProtocolProperties) {
 		ArrayList<Object[]> res = new ArrayList<>();
@@ -447,6 +450,8 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 			testRegularAccessProtocol(2, i, false);
 		}
 	}
+	
+	
 
 	static class UnkownAccessMessage extends AccessMessage {
 		/**
@@ -539,8 +544,12 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 				new InetSocketAddress(InetAddress.getByName("192.168.0.55"), 5000))
 				.getAccessProtocolInstance(new InetSocketAddress(InetAddress.getByName("56.41.158.221"), 5000),
 				new InetSocketAddress(InetAddress.getByName("192.168.0.55"), 5000), this, mpreceiver);
-		apasker.setKernelAddress(KernelAddressTest.getKernelAddressInstance());
-		apreceiver.setKernelAddress(KernelAddressTest.getKernelAddressInstance());
+		KernelAddress kaasker=KernelAddressTest.getKernelAddressInstance();
+		KernelAddress kareceiver=KernelAddressTest.getKernelAddressInstance();
+		apasker.setKernelAddress(kaasker);
+		apreceiver.setDistantKernelAddress(kaasker);
+		apreceiver.setKernelAddress(kareceiver);
+		apasker.setDistantKernelAddress(kareceiver);
 
 		Assert.assertFalse(apasker.isAccessFinalized());
 		Assert.assertFalse(apreceiver.isAccessFinalized());

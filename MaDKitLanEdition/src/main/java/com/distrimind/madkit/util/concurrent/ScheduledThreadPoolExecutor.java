@@ -93,7 +93,7 @@ import java.util.*;
  * <p>
  * <b>Extension notes:</b> This class overrides the
  * {@link ThreadPoolExecutor#execute execute} and
- * {@link AbstractExecutorService#submit(Runnable) submit} methods to generate
+ * {@link #submit(Runnable) submit} methods to generate
  * internal {@link ScheduledFuture} objects to control per-task delays and
  * scheduling. To preserve functionality, any further overrides of these methods
  * in subclasses must invoke superclass versions, which effectively disables
@@ -292,7 +292,6 @@ public class ScheduledThreadPoolExecutor extends ThreadPoolExecutor implements S
 		/**
 		 * Overrides FutureTask version so as to reset/requeue if periodic.
 		 */
-		@SuppressWarnings("synthetic-access")
 		@Override
 		public void run() {
 			boolean periodic = isPeriodic();

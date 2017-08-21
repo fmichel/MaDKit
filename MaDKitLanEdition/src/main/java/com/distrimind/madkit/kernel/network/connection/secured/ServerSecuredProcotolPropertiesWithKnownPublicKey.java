@@ -51,7 +51,7 @@ import com.distrimind.util.crypto.SymmetricEncryptionType;
 import gnu.vm.jgnu.security.NoSuchAlgorithmException;
 
 /**
- * {@inheritDoc}
+ * 
  * 
  * @author Jason Mahdjoub
  * @version 1.0
@@ -157,7 +157,7 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKey
 		if (keyPairForSignature == null)
 			throw new NullPointerException("keyPairForSignature");
 		keyPairsForEncryption.put(new Integer(generateNewKeyPairIdentifier()), keyPairForEncryption);
-		keyPairsForSignature.put(new Integer(generateNewKeyPairIdentifier()), keyPairForSignature);
+		keyPairsForSignature.put(new Integer(lastIdentifier), keyPairForSignature);
 		if (signatureType == null)
 			signatures.put(new Integer(lastIdentifier), keyPairForSignature.getAlgorithmType().getDefaultSignatureAlgorithm());
 		else

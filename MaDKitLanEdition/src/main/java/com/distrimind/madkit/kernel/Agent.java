@@ -88,7 +88,7 @@ public class Agent extends AbstractAgent {
 	}
 
 	/**
-	 * {@inherited}
+	 * {@inheritDoc}
 	 */
 	@Override
 	public Message receiveMessage(final Message m) {
@@ -234,7 +234,6 @@ public class Agent extends AbstractAgent {
 	/**
 	 * This method is executed one time just before {@link #liveCycle()}
 	 */
-	@SuppressWarnings("unused")
 	protected void preLiveCycle() throws InterruptedException {
 
 	}
@@ -411,8 +410,7 @@ public class Agent extends AbstractAgent {
 	 *            indefinitely.
 	 * @return the reply received as soon as available, or <code>null</code> if
 	 *         there was an error when sending the message.
-	 * @see #sendMessageWithRoleAndWaitForReply(String, String, String, Message,
-	 *      String, Integer)
+	 * @see #sendMessageWithRoleAndWaitForReply(AbstractGroup, String, Message, String, Integer)
 	 * @since MaDKitLanEdition 1.0
 	 * @see AbstractGroup
 	 * @see Group
@@ -439,8 +437,7 @@ public class Agent extends AbstractAgent {
 	 *            agent will wait indefinitely.
 	 * @return the reply received as soon as available, or <code>null</code> if
 	 *         there was an error when sending the message.
-	 * @see #sendMessageWithRoleAndWaitForReply(String, String, String, Message,
-	 *      String, Integer)
+	 * @see #sendMessageWithRoleAndWaitForReply(AbstractGroup, String, Message, String, Integer)
 	 * @since MaDKitLanEdition 1.0
 	 * @see AbstractGroup
 	 * @see Group
@@ -468,8 +465,7 @@ public class Agent extends AbstractAgent {
 	 * @return the reply received as soon as available, or <code>null</code> if the
 	 *         time out has elapsed or if there was an error when sending the
 	 *         message.
-	 * @see #sendMessageWithRoleAndWaitForReply(String, String, String, Message,
-	 *      String, Integer)
+	 * @see #sendMessageWithRoleAndWaitForReply(AbstractGroup, String, Message, String, Integer)
 	 * @since MaDKitLanEdition 1.0
 	 * @see AbstractGroup
 	 * @see Group

@@ -46,7 +46,7 @@ import java.util.concurrent.ScheduledFuture;
  * 
  * 
  * @see AbstractAgent#scheduleTask(Task)
- * @see AbstractAgent#scheduleTasks(java.util.Collection)
+ * 
  * @author Jason Mahdjoub
  * @version 1.0
  * @since MadKitLanEdition 1.0

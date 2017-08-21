@@ -140,7 +140,6 @@ public class Scheduler extends Agent {
 	@SuppressWarnings("serial")
 	private final DefaultBoundedRangeModel speedModel = new DefaultBoundedRangeModel(400, 0, 0, 400) {
 
-		@SuppressWarnings("synthetic-access")
 		public void setValue(int n) {
 			super.setValue(n);
 			delay = 400 - getValue();

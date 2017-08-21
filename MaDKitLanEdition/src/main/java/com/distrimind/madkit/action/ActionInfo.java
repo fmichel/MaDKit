@@ -168,7 +168,7 @@ public class ActionInfo {
 	 * Converts the name of an enum object to a Java standardized method name. For
 	 * instance, using this on {@link AgentAction#LAUNCH_AGENT} will return
 	 * <code>launchAgent</code>. This is especially used by
-	 * {@link AbstractAgent#proceedEnumMessage(madkit.message.EnumMessage)} to
+	 * {@link AbstractAgent#proceedEnumMessage(com.distrimind.madkit.message.EnumMessage)} to
 	 * reflexively call the method of an agent which corresponds to the code of such
 	 * messages.
 	 * 

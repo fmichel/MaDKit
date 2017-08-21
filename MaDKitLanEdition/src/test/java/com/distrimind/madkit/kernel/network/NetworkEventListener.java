@@ -68,8 +68,8 @@ public class NetworkEventListener implements MadkitEventListener {
 	final boolean autoConnectWithLocalSitePeers;
 	final boolean databaseEnabled;
 	final File databaseFile;
-	final MadkitEventListener madkitEventListenerForAccessProtocols;
-	final MadkitEventListener madkitEventListenerForConnectionProtocols;
+	final AccessProtocolPropertiesMKEventListener madkitEventListenerForAccessProtocols;
+	final ConnectionsProtocolsMKEventListener madkitEventListenerForConnectionProtocols;
 	final AccessDataMKEventListener madkitEventListenerForAccessData;
 	int localPortToBind;
 	InetAddress[] inetAddressesToBind;

@@ -911,7 +911,6 @@ class DistantKernelAgent extends AgentFakeThread {
 			}
 		}
 
-		@SuppressWarnings("synthetic-access")
 		void setOneSocketPurged(DistantKernelAgent asker, Integer id, SerializedReading sr) {
 			if (isPaused() && mustPurge()) {
 				if (asker.logger != null && asker.logger.isLoggable(Level.FINEST))
@@ -1943,7 +1942,6 @@ class DistantKernelAgent extends AgentFakeThread {
 
 		abstract boolean isSystemMessage();
 
-		@SuppressWarnings("unused")
 		@Override
 		public void unlockMessage() throws MadkitException {
 			unlocked.set(true);
@@ -1954,7 +1952,6 @@ class DistantKernelAgent extends AgentFakeThread {
 			return unlocked.get();
 		}
 
-		@SuppressWarnings("synthetic-access")
 		@Override
 		public void finalize() {
 			try {
@@ -2489,7 +2486,6 @@ class DistantKernelAgent extends AgentFakeThread {
 			return DistantKernelAgent.this.distant_kernel_address;
 		}
 
-		@SuppressWarnings("synthetic-access")
 		void markDataAsRead() {
 			if (dataSize.addAndGet(-dataIncrement) >= 0) {
 				decrementTotalDataQueue(dataIncrement);

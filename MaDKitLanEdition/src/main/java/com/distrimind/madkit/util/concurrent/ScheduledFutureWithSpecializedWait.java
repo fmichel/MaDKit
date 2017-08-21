@@ -45,7 +45,7 @@ import java.util.concurrent.TimeUnit;
  * 
  * @author Jason Mahdjoub
  * @version 1.0
- * @Since MadkitLanEdition 1.0
+ * @since MadkitLanEdition 1.0
  * 
  * @param <V>
  */

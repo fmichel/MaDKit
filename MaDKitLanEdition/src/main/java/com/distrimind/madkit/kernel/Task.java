@@ -46,12 +46,8 @@ import com.distrimind.madkit.agr.LocalCommunity;
  * also be repetitive according a given duration between each execution.
  * 
  * To launch a programmed task, use the function
- * {@link AbstractAgent#addTask(Task)}
+ * {@link AbstractAgent#scheduleTask(Task, boolean)}
  * 
- * It is also possible to use a specific task agent with the function
- * {@link AbstractAgent#addTask(String, Task)}. In this case, don't forget to
- * initialize the TaskAgent through the function
- * {@link AbstractAgent#initializeNewTaskAgent(String, int)}.
  * 
  * If you don't specify the TaskAgent name, than the default task agent is used.
  * This last is automically launched with the first added task.
@@ -59,11 +55,11 @@ import com.distrimind.madkit.agr.LocalCommunity;
  * @author Jason Mahdjoub
  * @since MadKitLanEdition 1.0
  * @version 1.0
- * @see AbstractAgent#initializeNewTaskAgent(String, int)
- * @see AbstractAgent#addTask(String, Task)
- * @see AbstractAgent#cancelTask(String, Task)
- * @see AbstractAgent#addTask(Task)
- * @see AbstractAgent#cancelTask(Task)
+ * 
+ * @see AbstractAgent#scheduleTask(Task)
+ * @see AbstractAgent#scheduleTask(Task, boolean)
+ * @see AbstractAgent#cancelTask(TaskID, boolean)
+ * 
  *
  *
  *
@@ -123,14 +119,12 @@ public final class Task<V> implements Cloneable {
 	/**
 	 * Construct a task to execute at the current time
 	 * 
-	 * @param _runnable
+	 * @param _callable
 	 *            the runnable to execute
 	 * @throws NullPointerException
 	 *             if _runnable is null
-	 * @see AbstractAgent#addTask(String, Task)
-	 * @see AbstractAgent#cancelTask(String, Task)
-	 * @see AbstractAgent#addTask(Task)
-	 * @see AbstractAgent#cancelTask(Task)
+	 * @see AbstractAgent#scheduleTask(Task, boolean)
+	 * @see AbstractAgent#cancelTask(TaskID, boolean)
 	 */
 	public Task(Callable<V> _callable) {
 		this(_callable, System.currentTimeMillis());
@@ -139,16 +133,14 @@ public final class Task<V> implements Cloneable {
 	/**
 	 * Construct a task to execute at the given time
 	 * 
-	 * @param _runnable
+	 * @param _callable
 	 *            the runnable to execute
 	 * @param _time
 	 *            the moment when the TaskAgent must execute this task
 	 * @throws NullPointerException
 	 *             if _runnable is null
-	 * @see AbstractAgent#addTask(String, Task)
-	 * @see AbstractAgent#cancelTask(String, Task)
-	 * @see AbstractAgent#addTask(Task)
-	 * @see AbstractAgent#cancelTask(Task)
+	 * @see AbstractAgent#scheduleTask(Task, boolean)
+	 * @see AbstractAgent#cancelTask(TaskID, boolean)
 	 */
 	public Task(Callable<V> _callable, long _time) {
 		this(_callable, _time, -1);
@@ -157,7 +149,7 @@ public final class Task<V> implements Cloneable {
 	/**
 	 * Construct a repetitive task to start at a given time
 	 * 
-	 * @param _runnable
+	 * @param _callable
 	 *            the runnable to execute
 	 * @param _time
 	 *            the moment when the TaskAgent must execute this task
@@ -165,10 +157,8 @@ public final class Task<V> implements Cloneable {
 	 *            the duration between each execution
 	 * @throws NullPointerException
 	 *             if _runnable is null
-	 * @see AbstractAgent#addTask(String, Task)
-	 * @see AbstractAgent#cancelTask(String, Task)
-	 * @see AbstractAgent#addTask(Task)
-	 * @see AbstractAgent#cancelTask(Task)
+	 * @see AbstractAgent#scheduleTask(Task, boolean)
+	 * @see AbstractAgent#cancelTask(TaskID, boolean)
 	 */
 	public Task(Callable<V> _callable, long _time, long _duration_between_each_repetition) {
 		if (_callable == null)

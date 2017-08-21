@@ -44,7 +44,7 @@ import com.distrimind.util.crypto.ASymmetricSignatureType;
 import com.distrimind.util.crypto.SymmetricEncryptionType;
 
 /**
- * {@inheritDoc}
+ * 
  * 
  * @author Jason Mahdjoub
  * @version 1.1

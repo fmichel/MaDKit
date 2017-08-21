@@ -43,9 +43,8 @@ import com.distrimind.madkit.kernel.MadkitEventListener;
 import com.distrimind.madkit.kernel.MadkitProperties;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocolProperties;
 import com.distrimind.madkit.kernel.network.connection.secured.ClientSecuredProtocolPropertiesWithKnownPublicKeyWithECDHAlgorithm;
-import com.distrimind.madkit.kernel.network.connection.secured.P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties;
 import com.distrimind.madkit.kernel.network.connection.secured.P2PSecuredConnectionProtocolWithECDHAlgorithmProperties;
-import com.distrimind.madkit.kernel.network.connection.secured.ServerSecuredProcotolPropertiesWithKnownPublicKey;
+import com.distrimind.madkit.kernel.network.connection.secured.ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm;
 import com.distrimind.madkit.kernel.network.connection.unsecured.CheckSumConnectionProtocolProperties;
 import com.distrimind.madkit.kernel.network.connection.unsecured.UnsecuredConnectionProtocolProperties;
 import com.distrimind.util.crypto.ASymmetricEncryptionType;
@@ -100,29 +99,10 @@ public class ConnectionsProtocolsMKEventListener implements MadkitEventListener 
 	public static ArrayList<ConnectionsProtocolsMKEventListener> getConnectionsProtocolsMKEventListenerForPeerToPeerConnections(
 			boolean isServer) {
 		ArrayList<ConnectionsProtocolsMKEventListener> res = new ArrayList<>();
-		UnsecuredConnectionProtocolProperties ucpp = new UnsecuredConnectionProtocolProperties();
-		ucpp.isServer = isServer;
-		res.add(new ConnectionsProtocolsMKEventListener(ucpp));
-		P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties p2p = new P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties();
-		p2p.isServer = isServer;
-		res.add(new ConnectionsProtocolsMKEventListener(p2p));
-		ucpp = new UnsecuredConnectionProtocolProperties();
-		ucpp.isServer = isServer;
-		p2p = new P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties();
-		p2p.isServer = isServer;
-		ucpp.subProtocolProperties = p2p;
-		res.add(new ConnectionsProtocolsMKEventListener(ucpp));
-		p2p = new P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties();
-		p2p.isServer = isServer;
-		ucpp = new UnsecuredConnectionProtocolProperties();
-		ucpp.isServer = isServer;
-		p2p.subProtocolProperties = ucpp;
-		res.add(new ConnectionsProtocolsMKEventListener(p2p));
-
 		P2PSecuredConnectionProtocolWithECDHAlgorithmProperties p2p_ecdh = new P2PSecuredConnectionProtocolWithECDHAlgorithmProperties();
 		p2p_ecdh.isServer = isServer;
 		res.add(new ConnectionsProtocolsMKEventListener(p2p_ecdh));
-		ucpp = new UnsecuredConnectionProtocolProperties();
+		UnsecuredConnectionProtocolProperties ucpp = new UnsecuredConnectionProtocolProperties();
 		ucpp.isServer = isServer;
 		p2p_ecdh = new P2PSecuredConnectionProtocolWithECDHAlgorithmProperties();
 		p2p_ecdh.isServer = isServer;
@@ -163,9 +143,9 @@ public class ConnectionsProtocolsMKEventListener implements MadkitEventListener 
 		ArrayList<ConnectionsProtocolsMKEventListener> res = new ArrayList<>();
 		res.add(new ConnectionsProtocolsMKEventListener(new UnsecuredConnectionProtocolProperties()));
 
-		ServerSecuredProcotolPropertiesWithKnownPublicKey s = new ServerSecuredProcotolPropertiesWithKnownPublicKey();
+		ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm s = new ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm();
 		
-		encryptionProfileIdentifier = s.addEncryptionProfile(getKeyPairForEncryption(), getKeyPairForSignature(), SymmetricEncryptionType.DEFAULT);
+		encryptionProfileIdentifier = s.addEncryptionProfile(getKeyPairForSignature(), SymmetricEncryptionType.DEFAULT, SymmetricEncryptionType.DEFAULT.getDefaultSignatureAlgorithm(), EllipticCurveDiffieHellmanType.ECDH_128);
 		if (includeP2PConnectionPossibilityForClients) {
 			P2PSecuredConnectionProtocolWithECDHAlgorithmProperties p2p = new P2PSecuredConnectionProtocolWithECDHAlgorithmProperties();
 			p2p.isServer = false;
@@ -174,8 +154,8 @@ public class ConnectionsProtocolsMKEventListener implements MadkitEventListener 
 			res.add(new ConnectionsProtocolsMKEventListener(s));
 
 		ConnectionProtocolProperties<?> cpp = new UnsecuredConnectionProtocolProperties();
-		s = new ServerSecuredProcotolPropertiesWithKnownPublicKey();
-		s.addEncryptionProfile(getKeyPairForEncryption(), getKeyPairForSignature(), SymmetricEncryptionType.DEFAULT);
+		s = new ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm();
+		s.addEncryptionProfile(getKeyPairForSignature(), SymmetricEncryptionType.DEFAULT, SymmetricEncryptionType.DEFAULT.getDefaultSignatureAlgorithm(), EllipticCurveDiffieHellmanType.ECDH_128);
 		cpp.subProtocolProperties = s;
 		if (includeP2PConnectionPossibilityForClients) {
 			ConnectionProtocolProperties<?> cpp2 = new UnsecuredConnectionProtocolProperties();

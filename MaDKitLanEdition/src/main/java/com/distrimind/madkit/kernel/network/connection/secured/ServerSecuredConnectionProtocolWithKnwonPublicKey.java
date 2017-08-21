@@ -90,7 +90,7 @@ import com.distrimind.util.sizeof.ObjectSizer;
  * @author Jason Mahdjoub
  * @version 1.0
  * @since MadkitLanEdition 1.0
- * @see ClientConnectionProtocolWithKnwonPublicKey
+ * @see ClientSecuredConnectionProtocolWithKnownPublicKey
  */
 public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 		extends ConnectionProtocol<ServerSecuredConnectionProtocolWithKnwonPublicKey> {

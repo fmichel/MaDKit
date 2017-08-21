@@ -60,7 +60,6 @@ public class NormalAgent extends Agent {
 		setName(getLogger().getName());
 	}
 
-	@SuppressWarnings("unused")
 	@Override
 	protected void activate() throws InterruptedException {
 		createGroup(GROUP);
@@ -68,7 +67,6 @@ public class NormalAgent extends Agent {
 		setLogLevel(Level.ALL);
 	}
 
-	@SuppressWarnings("unused")
 	@Override
 	protected void liveCycle() throws InterruptedException {// need the override !
 		setLogLevel(Level.ALL);

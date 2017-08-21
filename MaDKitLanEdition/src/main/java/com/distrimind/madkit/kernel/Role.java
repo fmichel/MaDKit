@@ -59,7 +59,7 @@ public class Role {
 	private final String m_role;
 
 	/**
-	 * The concatenation of the cummunity, the group and the group, separated by
+	 * The concatenation of the cummunity, the group and the role, separated by
 	 * semicolons.
 	 */
 	private final String m_group_role;
@@ -107,11 +107,11 @@ public class Role {
 	}
 
 	public boolean equals(Role _r) {
-		return m_group_role.equals(m_group);
+		return m_group_role.equals(_r.m_group_role);
 	}
 
 	@Override
 	public boolean equals(Object _r) {
-		return _r == null ? false : ((_r instanceof Role) ? m_group_role.equals(m_group) : false);
+		return _r == null ? false : ((_r instanceof Role) ? m_group_role.equals(((Role)_r).m_group_role) : false);
 	}
 }

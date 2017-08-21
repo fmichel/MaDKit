@@ -151,7 +151,7 @@ final public class AgentLogger extends Logger {
 
 	/**
 	 * Creates a log file for this logger. This file will be located in the
-	 * directory specified by the MaDKit property {@link Option#logDirectory}, which
+	 * directory specified by the MaDKit property {@link MadkitProperties#logDirectory}, which
 	 * is set to "logs" by default.
 	 */
 	public void createLogFile() {

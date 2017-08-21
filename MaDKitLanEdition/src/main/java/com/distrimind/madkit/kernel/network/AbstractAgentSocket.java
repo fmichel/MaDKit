@@ -1694,7 +1694,6 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 			this.p = p;
 		}
 
-		@SuppressWarnings("synthetic-access")
 		void executeTask() {
 			if (logger != null)
 				logger.severeLog("Start of " + this.getClass().getName() + " (" + distant_inet_address + ") FAILED !",
@@ -2625,7 +2624,6 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 				AbstractAgentSocket.this.sendData(ag, true, false);
 		}
 
-		@SuppressWarnings("synthetic-access")
 		private AcceptedGroups getGroupChangements() {
 			if (represented_groups != null && access_protocol.isAccessFinalized() && !groups.isEmpty()) {
 				kernelAddressSent = true;
@@ -2874,7 +2872,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 									getMadkitConfig().networkProperties.nbMaxExpulsions,
 									getMadkitConfig().networkProperties.banishmentDuration,
 									getMadkitConfig().networkProperties.nbMaxAnomaliesBeforeTrigeringBanishment,
-									getMadkitConfig().networkProperties.nbMaxBanishment,
+									getMadkitConfig().networkProperties.nbMaxBanishments,
 									getMadkitConfig().networkProperties.expulsionStatisticDuration,
 									getMadkitConfig().networkProperties.banishmentStatisticDuration,
 									getMadkitConfig().networkProperties.getWhiteInetAddressesList());
@@ -2919,7 +2917,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 								getMadkitConfig().networkProperties.nbMaxExpulsions,
 								getMadkitConfig().networkProperties.banishmentDuration,
 								getMadkitConfig().networkProperties.nbMaxAnomaliesBeforeTrigeringBanishment,
-								getMadkitConfig().networkProperties.nbMaxBanishment,
+								getMadkitConfig().networkProperties.nbMaxBanishments,
 								getMadkitConfig().networkProperties.expulsionStatisticDuration,
 								getMadkitConfig().networkProperties.banishmentStatisticDuration,
 								getMadkitConfig().networkProperties.getWhiteInetAddressesList());

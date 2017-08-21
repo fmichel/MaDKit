@@ -127,8 +127,7 @@ public class NetworkProperties extends XMLProperties {
 	 * 
 	 * @see AbstractAgent#logger
 	 * @see java.util.logging.Logger
-	 * @see AbstractAgent#getMadkitProperty(String)
-	 * @see AbstractAgent#setMadkitProperty(String, String)
+	 * @see AbstractAgent#getMadkitConfig()
 	 * @since MaDKit 5
 	 */
 	public Level networkLogLevel = Level.INFO;
@@ -227,7 +226,7 @@ public class NetworkProperties extends XMLProperties {
 	 * the system ban definitively the concerned host. This variable corresponds to
 	 * the maximum number of banishment before triggering the definitive ban.
 	 */
-	public short nbMaxBanishment = 100;
+	public short nbMaxBanishments = 100;
 
 	/**
 	 * Duration of the statistics concerning the temporary expulsion of a computer.
@@ -251,17 +250,17 @@ public class NetworkProperties extends XMLProperties {
 	 * encrypted, it cannot be comprehensible for the current computer. So the data
 	 * security is maintained.
 	 * 
-	 * @see #GATEWAY_DEPTH
-	 * @see #TIME_BETWEEN_EACH_UPDATE_OF_TRANSFERT_SPEED_FOR_GATEWAY_CONNECTION
+	 * @see #gatewayDepth
+	 * @see #timeBetweenEachUpdateOfTransfertSpeedForGatewayConnection
 	 */
 	public boolean gatewayConnection = false;
 
 	/**
 	 * Define the number of gateway that are enabled between two computers. This
-	 * value has no effect if {@link #ENABLE_GATEWAY_CONNECTION} is set to
+	 * value has no effect if {@link #gatewayConnection} is set to
 	 * <code>false</code>
 	 * 
-	 * @see #ENABLE_GATEWAY_CONNECTION
+	 * @see #gatewayConnection
 	 */
 	public int gatewayDepth = 1;
 
@@ -270,10 +269,10 @@ public class NetworkProperties extends XMLProperties {
 	 * connected computers connected through the current computer. The transfer
 	 * speed is automatically computed.
 	 * 
-	 * This value has no effect if {@link #ENABLE_GATEWAY_CONNECTION} is set to
+	 * This value has no effect if {@link #gatewayConnection} is set to
 	 * <code>false</code>
 	 * 
-	 * @see #ENABLE_GATEWAY_CONNECTION
+	 * @see #gatewayConnection
 	 */
 	public long timeBetweenEachUpdateOfTransfertSpeedForGatewayConnection = 30000l;
 
@@ -357,7 +356,7 @@ public class NetworkProperties extends XMLProperties {
 	 * This protocol enables to open port into the local router, in order to have
 	 * access to internet.
 	 * 
-	 * @see #timeBetweenEachRouterScan
+	 * @see #timeBetweenEachUpdateOfTransfertSpeedForGatewayConnection
 	 */
 	public boolean upnpIGDEnabled = false;
 
@@ -386,7 +385,7 @@ public class NetworkProperties extends XMLProperties {
 	 * Tells if the network interfaces availability can be scanned (does not work if
 	 * {@link NetworkProperties#upnpIGDEnabled} is set to <code>false</code>.
 	 * 
-	 * @see #timeBetweenEachNetworkInterfaceScan
+	 * @see #timeBetweenEachUpdateOfTransfertSpeedForGatewayConnection
 	 */
 	public boolean networkInterfaceScan = true;
 
@@ -520,8 +519,9 @@ public class NetworkProperties extends XMLProperties {
 	/**
 	 * Represents properties of each used connection protocol and each sub network
 	 * 
-	 * @see {@link InetAddressFilter}
-	 * @see {@link ConnectionProtocolProperties}
+	 * @see InetAddressFilter
+	 * @see InetAddressFilters
+	 * @see ConnectionProtocolProperties
 	 */
 	private final ArrayList<ConnectionProtocolProperties<?>> connectionProtocolProperties = new ArrayList<>();
 
@@ -544,8 +544,14 @@ public class NetworkProperties extends XMLProperties {
 	 * 
 	 * @param _distant_inet_address
 	 *            the distant peer ip
-	 * @param _local_port
-	 *            the local used port
+	 * @param _local_interface_address
+	 *            the local interface address
+	 * @param sql_connection
+	 * 			the sql database wrapper
+	 * @param isServer
+	 * 			true if this peer can receive connection ask from other peer
+	 * @param needBiDirectionnalConnectionInitiationAbility
+	 * 			true if the two concerned peers can be interpreted as servers
 	 * @return a connection protocol chain according the distant peer ip, and the
 	 *         local used port. Returns null if no connection protocol was found.
 	 * @throws NIOException
@@ -570,8 +576,14 @@ public class NetworkProperties extends XMLProperties {
 	 * 
 	 * @param _distant_inet_address
 	 *            the distant peer ip
-	 * @param _local_port
-	 *            the local used port
+	 * @param _local_interface_address
+	 *            the local interface address
+	 * @param isServer
+	 * 			true if this peer can receive connection ask from other peer
+	 * @param mustSupportBidirectionnalConnectionInitiative
+	 * 			true if the two concerned peers can be interpreted as servers
+	 * @return a connection protocol chain according the distant peer ip, and the
+	 *         local used port. Returns null if no connection protocol was found.
 	 * @return a connection protocol properties according the distant peer ip, and
 	 *         the local used port. Returns null if no connection protocol was
 	 *         found.
@@ -591,10 +603,14 @@ public class NetworkProperties extends XMLProperties {
 	 * 
 	 * @param _distant_inet_address
 	 *            the distant peer ip
-	 * @param _local_port
-	 *            the local used port
+	 * @param _local_interface_address
+	 *            the local interface address
 	 * @param subProtocolLevel
-	 *            the sub level number starting from 0
+	 * 			the sub protocol properties level (the root protocol start with 0)
+	 * @param isServer
+	 * 			true if this peer can receive connection ask from other peer
+	 * @param mustSupportBidirectionnalConnectionInitiative
+	 * 			true if the two concerned peers can be interpreted as servers
 	 * @return a connection protocol properties according the distant peer ip, and
 	 *         the local used port. Returns null if no connection protocol was
 	 *         found.
@@ -809,7 +825,7 @@ public class NetworkProperties extends XMLProperties {
 	 * Tag/key corresponding to LAN statistics per segments of 512Kb
 	 * 
 	 * @see StatsBandwidth#getBytesDownloadedInRealBytes(String)
-	 * @see StatsBandwidth#getBytesUploadInRealBytes(String)
+	 * @see StatsBandwidth#getBytesUploadedInRealBytes(String)
 	 */
 	public static final String DEFAULT_STAT_PER_512KB_SEGMENTS = "~~DEFAULT_UPLOAD_STAT_PER_BYTES_SEGMENTS";
 
@@ -817,7 +833,7 @@ public class NetworkProperties extends XMLProperties {
 	 * Tag/key corresponding to real time LAN statistics per segments of 30 seconds
 	 * 
 	 * @see StatsBandwidth#getBytesDownloadedInRealTime(String)
-	 * @see StatsBandwidth#getBytesUploadInRealTime(String)
+	 * @see StatsBandwidth#getBytesUploadedInRealTime(String)
 	 */
 	public static final String DEFAULT_TRANSFERT_STAT_IN_REAL_TIME_PER_30_SECONDS_SEGMENTS = "~~DEFAULT_TRANSFERT_STAT_IN_REAL_TIME_PER_30_SECONDS_SEGMENTS";
 
@@ -825,7 +841,7 @@ public class NetworkProperties extends XMLProperties {
 	 * Tag/key corresponding to real time LAN statistics per segments of 5 minutes
 	 * 
 	 * @see StatsBandwidth#getBytesDownloadedInRealTime(String)
-	 * @see StatsBandwidth#getBytesUploadInRealTime(String)
+	 * @see StatsBandwidth#getBytesUploadedInRealTime(String)
 	 */
 	public static final String DEFAULT_TRANSFERT_STAT_IN_REAL_TIME_PER_5_MINUTES_SEGMENTS = "~~DEFAULT_TRANSFERT_STAT_IN_REAL_TIME_PER_5_MINUTES_SEGMENTS";
 
@@ -1109,7 +1125,7 @@ public class NetworkProperties extends XMLProperties {
 	/**
 	 * Remove addresses that cannot be blacklisted
 	 * 
-	 * @param ia
+	 * @param ias
 	 *            the addresses
 	 */
 	public void removeWhiteInetAddresses(Collection<InetAddress> ias) {
@@ -1119,8 +1135,6 @@ public class NetworkProperties extends XMLProperties {
 	/**
 	 * Clean addresses that cannot be blacklisted
 	 * 
-	 * @param ia
-	 *            the address
 	 */
 	public void cleanWhiteInetAddresses() {
 		whiteInetAddressesList.clear();

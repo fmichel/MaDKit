@@ -55,7 +55,7 @@ public class AutoRequestGroupTest extends JunitMadkit {
 			@Override
 			public void activate() {
 				Assert.assertFalse(hasGroup(GROUP));
-				autoRequesteRole(GROUP, ROLE, null);
+				autoRequestRole(GROUP, ROLE, null);
 				Assert.assertTrue(isConcernedByAutoRequestRole(GROUP, ROLE));
 				Assert.assertFalse(hasGroup(GROUP));
 				AbstractAgent aa = new AbstractAgent();
@@ -115,7 +115,7 @@ public class AutoRequestGroupTest extends JunitMadkit {
 				Assert.assertFalse(aa.hasGroup(GROUP));
 				Assert.assertFalse(aa.hasRole(GROUP, ROLE));
 
-				autoRequesteRole(GROUP, ROLE, null);
+				autoRequestRole(GROUP, ROLE, null);
 				Assert.assertTrue(isConcernedByAutoRequestRole(GROUP, ROLE));
 				aa.requestRole(GROUP, ROLE);
 				Assert.assertTrue(aa.hasGroup(GROUP));
@@ -134,7 +134,7 @@ public class AutoRequestGroupTest extends JunitMadkit {
 				Assert.assertFalse(hasGroup(GROUP));
 				Assert.assertFalse(hasRole(GROUP, ROLE));
 
-				autoRequesteRole(GROUP, ROLE, null);
+				autoRequestRole(GROUP, ROLE, null);
 				Assert.assertTrue(isConcernedByAutoRequestRole(GROUP, ROLE));
 				Assert.assertTrue(hasGroup(GROUP));
 				Assert.assertTrue(hasRole(GROUP, ROLE));
@@ -147,7 +147,7 @@ public class AutoRequestGroupTest extends JunitMadkit {
 				Assert.assertTrue(aa.hasRole(GROUP, ROLE));
 				Assert.assertTrue(aa2.hasGroup(GROUP));
 				Assert.assertTrue(aa2.hasRole(GROUP, ROLE));
-				autoRequesteRole(GROUP, ROLE, null);
+				autoRequestRole(GROUP, ROLE, null);
 				Assert.assertTrue(hasGroup(GROUP));
 				Assert.assertTrue(hasRole(GROUP, ROLE));
 				Assert.assertTrue(aa.hasGroup(GROUP));

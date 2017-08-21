@@ -590,7 +590,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 	/**
 	 * format the toString of a collection: Remove brackets and space
 	 * 
-	 * @param set
+	 * 
 	 * @return the parsed string
 	 */
 	/*

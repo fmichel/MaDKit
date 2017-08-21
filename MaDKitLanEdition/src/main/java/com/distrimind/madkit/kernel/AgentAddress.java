@@ -277,7 +277,7 @@ public class AgentAddress implements java.io.Serializable, Cloneable {
 	 * Tells if this agent address was automatically requested or manually requested
 	 * 
 	 * @return true if this agent address was manually requested
-	 * @see AbstractAgent#autoRequesteRole(AbstractGroup, String, Object)
+	 * @see AbstractAgent#autoRequestRole(AbstractGroup, String, Object)
 	 */
 	public boolean isManuallyRequested() {
 		return manually_requested;

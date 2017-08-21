@@ -42,7 +42,7 @@ import com.distrimind.madkit.kernel.Message;
 
 /**
  * It is sent to agents that listen to
- * {@link EventMessage.EventType#SEND_MESSAGE}
+ * {@link HookMessage.AgentActionEvent#SEND_MESSAGE}
  * 
  * @author Jason Mahdjoub
  * @since MadKitLanEdition 1.0

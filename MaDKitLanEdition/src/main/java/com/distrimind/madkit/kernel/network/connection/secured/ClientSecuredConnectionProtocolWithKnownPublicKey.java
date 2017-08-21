@@ -143,6 +143,7 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 			parser = new ParserWithEncryption();
 		else
 			parser = new ParserWithNoEncryption();
+		setPublicPrivateKeys();
 	}
 
 	private void setPublicPrivateKeys() throws ConnectionException {
@@ -262,7 +263,7 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 				if (ask.isYouAreAsking()) {
 					try {
 						current_step = Step.WAITING_FIRST_MESSAGE;
-						setPublicPrivateKeys();
+						
 
 						return new AskClientServerConnection(symmetricAlgorithm, aSymmetricAlgorithm,
 								myKeyPairForEncryption.getASymmetricPublicKey(), myKeyPairForSignature.getASymmetricPublicKey(), distant_public_key_for_encryption, distant_public_key_for_signature);

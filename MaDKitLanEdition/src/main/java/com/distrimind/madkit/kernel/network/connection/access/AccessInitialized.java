@@ -51,7 +51,7 @@ class AccessInitialized extends AccessMessage {
 	private static final long serialVersionUID = -2227104960414577743L;
 
 	public final boolean can_takes_login_initiative;
-
+	
 	public AccessInitialized(boolean _can_takes_login_initiative) {
 		can_takes_login_initiative = _can_takes_login_initiative;
 	}

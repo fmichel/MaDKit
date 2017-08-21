@@ -50,6 +50,7 @@ import gnu.vm.jgnux.crypto.BadPaddingException;
 import gnu.vm.jgnux.crypto.IllegalBlockSizeException;
 import gnu.vm.jgnux.crypto.NoSuchPaddingException;
 
+import com.distrimind.madkit.kernel.KernelAddress;
 import com.distrimind.util.crypto.AbstractMessageDigest;
 import com.distrimind.util.crypto.AbstractSecureRandom;
 import com.distrimind.util.crypto.P2PASymmetricSecretMessageExchanger;
@@ -81,11 +82,11 @@ public class EncryptedIdentifier extends Identifier {
 
 	}
 
-	EncryptedIdentifier(Identifier identifier, AbstractSecureRandom random, AbstractMessageDigest messageDigest)
+	EncryptedIdentifier(Identifier identifier, AbstractSecureRandom random, AbstractMessageDigest messageDigest, KernelAddress distantKernelAddress, byte[] distantGeneratedSalt)
 			throws InvalidKeyException, IOException, IllegalBlockSizeException, BadPaddingException,
 			NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException,
 			InvalidAlgorithmParameterException, NoSuchProviderException, DigestException {
-		super(new EncryptedCloudIdentifier(identifier.getCloudIdentifier(), random, messageDigest), identifier.getHostIdentifier());
+		super(new EncryptedCloudIdentifier(identifier.getCloudIdentifier(), random, messageDigest, distantKernelAddress, distantGeneratedSalt), identifier.getHostIdentifier());
 	}
 
 	EncryptedIdentifier(Identifier identifier, P2PASymmetricSecretMessageExchanger cipher)

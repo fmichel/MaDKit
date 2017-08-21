@@ -50,7 +50,6 @@ import com.distrimind.madkit.kernel.Message;
  */
 public class SimpleAgentFakeThread extends AgentFakeThread {
 
-	@SuppressWarnings("unused")
 	@Override
 	protected void activate() throws InterruptedException {
 		setLogLevel(Level.ALL);
@@ -58,14 +57,12 @@ public class SimpleAgentFakeThread extends AgentFakeThread {
 			logger.fine("activate function");
 	}
 
-	@SuppressWarnings("unused")
 	@Override
 	protected void liveByStep(Message _message) throws InterruptedException {
 		if (logger != null)
 			logger.fine("received " + _message);
 	}
 
-	@SuppressWarnings("unused")
 	@Override
 	protected void end() throws InterruptedException {
 		if (logger != null)

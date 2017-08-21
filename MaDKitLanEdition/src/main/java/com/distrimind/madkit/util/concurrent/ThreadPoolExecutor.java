@@ -36,11 +36,14 @@
 package com.distrimind.madkit.util.concurrent;
 
 import java.util.concurrent.AbstractExecutorService;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
@@ -57,7 +60,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.*;
 
 /**
- * An {@link ExecutorService} that executes each submitted task using one of
+ * An Executor Service that executes each submitted task using one of
  * possibly several pooled threads, normally configured using {@link Executors}
  * factory methods.
  *

@@ -41,9 +41,9 @@ package com.distrimind.madkit.kernel;
  * 
  * @author Jason Mahdjoub
  * @version 1.0
- * @Since MadkitLanEdition 1.0
+ * @since MadkitLanEdition 1.0
  * 
- * @param <V>
+ * 
  */
 public abstract class LockerCondition implements Cloneable {
 	private Object locker;

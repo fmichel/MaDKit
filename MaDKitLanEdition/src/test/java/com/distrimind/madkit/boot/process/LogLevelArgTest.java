@@ -91,11 +91,13 @@ public class LogLevelArgTest extends JunitMadkit {
 				assertEquals(Level.INFO, getMadkitConfig().agentLogLevel);
 				assertEquals(Level.FINE, getMadkitConfig().warningLogLevel);
 				assertEquals(Level.INFO, getMadkitConfig().madkitLogLevel);
+				
+				
+				LogLevelArgTest.this.assertKernelIsAlive();
+				final AgentLogger logger = LogLevelArgTest.this.getKernel().getLogger();
+				logger.fine("test");
+				assertEquals("ALL", logger.getLevel().toString());
 			}
 		});
-		assertKernelIsAlive();
-		final AgentLogger logger = getKernel().getLogger();
-		logger.fine("test");
-		assertEquals("ALL", logger.getLevel().toString());
 	}
 }

@@ -55,7 +55,7 @@ import com.distrimind.util.crypto.SymmetricSignerAlgorithm;
 import gnu.vm.jgnu.security.NoSuchAlgorithmException;
 
 /**
- * {@inheritDoc}
+ * 
  * 
  * @author Jason Mahdjoub
  * @version 1.0
@@ -123,13 +123,15 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm
 	/**
 	 * Add an encryption profile with a new key pair, etc.
 	 * 
-	 * @param keyPairForEncryption
-	 *            the key pair for encryption
 	 * @param keyPairForSignature
 	 *            the key pair for signature
 	 * @param symmetricEncryptionType
 	 *            the symmetric encryption type (if null, use default encryption
 	 *            type)
+	 * @param symmetricSignatureType
+	 *            the signature type (if null, use default signature type)
+	 * @param ellipticCurveDiffieHellmanType
+	 * 			the Ellipctic Curve Diffie Hellman type
 	 * @return the encryption profile identifier
 	 */
 	public int addEncryptionProfile(ASymmetricKeyPair keyPairForSignature, SymmetricEncryptionType symmetricEncryptionType, SymmetricSignatureType symmetricSignatureType, EllipticCurveDiffieHellmanType ellipticCurveDiffieHellmanType) {
@@ -140,8 +142,6 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm
 	/**
 	 * Add an encryption profile with a new key pair, etc.
 	 * 
-	 * @param keyPairForEncryption
-	 *            the key pair for encryption
 	 * @param keyPairForSignature
 	 *            the key pair for signature
 	 * @param signatureType
@@ -149,8 +149,12 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm
 	 * @param symmetricEncryptionType
 	 *            the symmetric encryption type (if null, use default encryption
 	 *            type)
+	 * @param symmetricSignatureType
+	 *            the signature type (if null, use default signature type)
 	 * @param symmetricKeySizeBits
 	 *            the symmetric key size in bits
+	 * @param ellipticCurveDiffieHellmanType
+	 * 			the Ellipctic Curve Diffie Hellman type
 	 * @return the encryption profile identifier
 	 */
 	public int addEncryptionProfile(ASymmetricKeyPair keyPairForSignature, ASymmetricSignatureType signatureType,
@@ -468,9 +472,12 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm
 	void checkProperties() throws ConnectionException {
 		boolean valid=true;
 		valid|=checkKeyPairs(keyPairsForSignature);
+		
 		if (!valid) {
 			throw new ConnectionException("All given public keys has expired");
 		}
+		if (secureRandomType==null)
+			throw new ConnectionException("secureRandomType is null !");
 
 	}
 
@@ -497,5 +504,5 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm
 	/**
 	 * Secure Random type
 	 */
-	public SecureRandomType secureRandomType;
+	public SecureRandomType secureRandomType=SecureRandomType.DEFAULT;
 }

@@ -1019,7 +1019,6 @@ final class NIOAgent extends Agent {
 			return waitingForPongMessage;
 		}
 
-		@SuppressWarnings("synthetic-access")
 		public void pongMessageReceived() {
 			if (logger != null && logger.isLoggable(Level.FINEST))
 				logger.finest("Received pong message : " + this);
@@ -1035,7 +1034,6 @@ final class NIOAgent extends Agent {
 			return shortDataToSend.size() > 0 || bigDataToSend.size() > 0 || dataToTransfer.size() > 0;
 		}
 
-		@SuppressWarnings("synthetic-access")
 		public boolean addDataToSend(AbstractData _data) {
 			if (shortDataToSend != null && bigDataToSend != null) {
 
@@ -1237,7 +1235,6 @@ final class NIOAgent extends Agent {
 
 		}
 
-		@SuppressWarnings("synthetic-access")
 		private boolean free(AbstractData d) throws TransfertException {
 			firstPacketSent = true;
 			boolean finished = d.isFinished();
@@ -1304,7 +1301,6 @@ final class NIOAgent extends Agent {
 		private Timer timer_send = null;
 		private int data_sended = 0;
 
-		@SuppressWarnings("synthetic-access")
 		public void read(SelectionKey key) {
 
 			if (is_closed)
@@ -1354,7 +1350,6 @@ final class NIOAgent extends Agent {
 
 		}
 
-		@SuppressWarnings("synthetic-access")
 		private void receivedData(SelectionKey key, ByteBuffer data, int data_read) {
 			data.clear();
 			if (firstReceivedData != null) {
@@ -1401,7 +1396,6 @@ final class NIOAgent extends Agent {
 			}
 		}
 
-		@SuppressWarnings("synthetic-access")
 		public void write(SelectionKey key) throws MadkitException {
 			try {
 				if (is_closed)
@@ -1490,7 +1484,6 @@ final class NIOAgent extends Agent {
 		 * LocalCommunity.Roles.NIO_ROLE); }
 		 */
 
-		@SuppressWarnings("synthetic-access")
 		public void closeConnection(ConnectionClosedReason cs) {
 			if (logger != null)
 				logger.finer("Closing connection : " + this);
@@ -1612,7 +1605,6 @@ final class NIOAgent extends Agent {
 				sk.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
 		}
 
-		@SuppressWarnings("synthetic-access")
 		void read(SelectionKey key) {
 			try {
 
@@ -1643,7 +1635,6 @@ final class NIOAgent extends Agent {
 			}
 		}
 
-		@SuppressWarnings("synthetic-access")
 		void write(SelectionKey key) {
 			try {
 
@@ -1673,7 +1664,6 @@ final class NIOAgent extends Agent {
 		 * DatagramChannel getDatagramChannel() { return datagramChannel; }
 		 */
 
-		@SuppressWarnings("synthetic-access")
 		void closeConnection(boolean sentFromMulticastAgent) {
 			if (logger != null)
 				logger.finer("Closing datagram channel : " + this);

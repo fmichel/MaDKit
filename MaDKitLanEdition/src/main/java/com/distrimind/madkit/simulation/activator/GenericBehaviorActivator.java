@@ -81,10 +81,10 @@ public class GenericBehaviorActivator<A extends AbstractAgent> extends Activator
 	 * {@link AbstractAgent}
 	 * 
 	 * This function has the same effect than
-	 * {@link #GenericBehaviorActivator(AbstractGroup, String, String, true)}
+	 * <code>#GenericBehaviorActivator(groups, role, theBehaviorToActivate, true)</code>
 	 * 
-	 * @param community
-	 * @param group
+	 * 
+	 * @param groups
 	 * @param role
 	 * @param theBehaviorToActivate
 	 *            name of the Java method which will be invoked
@@ -101,13 +101,13 @@ public class GenericBehaviorActivator<A extends AbstractAgent> extends Activator
 	 * CGR location, regardless of their class type as long as they extend
 	 * {@link AbstractAgent}
 	 * 
-	 * @param community
-	 * @param group
+	 * 
+	 * @param groups
 	 * @param role
 	 * @param theBehaviorToActivate
 	 *            name of the Java method which will be invoked
 	 * @param unique
-	 *            Tells if the function {@link Overlooker#getCurrentAgentsList()}
+	 *            Tells if the function {@link #getCurrentAgentsList()}
 	 *            must returns unique references.
 	 */
 	public GenericBehaviorActivator(AbstractGroup groups, final String role, final String theBehaviorToActivate,

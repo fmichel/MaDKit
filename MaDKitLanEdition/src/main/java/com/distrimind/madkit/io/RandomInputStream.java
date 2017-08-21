@@ -69,7 +69,7 @@ public abstract class RandomInputStream extends InputStream implements AutoClose
 	 * the end of the stream source. Setting the offset or beyond over the end of
 	 * the file does not change the file length.
 	 *
-	 * @param pos
+	 * @param _pos
 	 *            the offset position, measured in bytes from the beginning of the
 	 *            stream, at which to set the stream source pointer.
 	 * @exception IOException

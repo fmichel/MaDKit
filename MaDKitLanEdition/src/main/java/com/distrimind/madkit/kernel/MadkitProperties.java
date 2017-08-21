@@ -206,8 +206,7 @@ public class MadkitProperties extends XMLProperties {
 	 * 
 	 * @see AbstractAgent#logger
 	 * @see java.util.logging.Logger
-	 * @see AbstractAgent#getMadkitProperty(String)
-	 * @see AbstractAgent#setMadkitProperty(String, String)
+	 * @see AbstractAgent#getMadkitConfig()
 	 */
 	public Level agentLogLevel = Level.INFO;
 
@@ -221,13 +220,13 @@ public class MadkitProperties extends XMLProperties {
 	 * If activated, MaDKit will create a log file for every agent which has a log
 	 * level greater than {@link Level#OFF}. Default value is "false".
 	 * 
-	 * @see Madkit.Option#logDirectory
+	 * @see #logDirectory
 	 */
 	public boolean createLogFiles = false;
 
 	/**
 	 * Used to specify the directory wherein the logs should be done when the
-	 * {@link BooleanOption#createLogFiles} is activated.
+	 * {@link #createLogFiles} is activated.
 	 * 
 	 * <pre>
 	 * SYNOPSIS
@@ -259,7 +258,7 @@ public class MadkitProperties extends XMLProperties {
 	 * <li>--logDirectory /home/neo/madkit_logs</li>
 	 * </ul>
 	 * 
-	 * @see BooleanOption#createLogFiles
+	 * @see #createLogFiles
 	 */
 	public File logDirectory = new File("logs");
 
@@ -278,8 +277,7 @@ public class MadkitProperties extends XMLProperties {
 	 * 
 	 * @see AbstractAgent#logger
 	 * @see java.util.logging.Logger
-	 * @see AbstractAgent#getMadkitProperty(String)
-	 * @see AbstractAgent#setMadkitProperty(String, String)
+	 * @see AbstractAgent#getMadkitConfig()
 	 * @since MaDKit 5
 	 */
 	public Level warningLogLevel = Level.FINE;
@@ -355,7 +353,7 @@ public class MadkitProperties extends XMLProperties {
 	/**
 	 * Loads properties from an XML file.
 	 * 
-	 * @param filePath
+	 * @param xml_file
 	 *            can be absolute or relative
 	 * @throws IOException
 	 */
@@ -475,7 +473,7 @@ public class MadkitProperties extends XMLProperties {
 	 * or (2) the user.dir, or it could be an absolute path. The returned input
 	 * stream should be closed once done.
 	 * 
-	 * @param pathname
+	 * @param file
 	 *            A pathname string If the <code>pathname</code> argument is
 	 *            <code>null</code>
 	 * @return an <code>InputStream</code> by opening a connection to an actual

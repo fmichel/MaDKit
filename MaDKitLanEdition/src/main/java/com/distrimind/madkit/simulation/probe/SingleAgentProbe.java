@@ -72,10 +72,10 @@ public class SingleAgentProbe<A extends AbstractAgent, T> extends Probe<A>// TOD
 	 * class's field.
 	 * 
 	 * This constructor has the same effect than
-	 * {@link #SingleAgentProbe(AbstractGroup, String, String, true)}
+	 * <code>#SingleAgentProbe(groups, role, true)</code>
 	 * 
-	 * @param community
-	 * @param group
+	 * 
+	 * @param groups
 	 * @param role
 	 * @param fieldName
 	 *            the name of a field which is encapsulated in the type <A>
@@ -89,13 +89,13 @@ public class SingleAgentProbe<A extends AbstractAgent, T> extends Probe<A>// TOD
 	 * Builds a new SingleAgentProbe considering a CGR location and the name of the
 	 * class's field.
 	 * 
-	 * @param community
-	 * @param group
+	 * 
+	 * @param groups
 	 * @param role
 	 * @param fieldName
 	 *            the name of a field which is encapsulated in the type <A>
 	 * @param unique
-	 *            Tells if the function {@link Overlooker#getCurrentAgentsList()}
+	 *            Tells if the function {@link #getCurrentAgentsList()}
 	 *            must returns unique references.
 	 */
 	public SingleAgentProbe(AbstractGroup groups, String role, String fieldName, boolean unique) {

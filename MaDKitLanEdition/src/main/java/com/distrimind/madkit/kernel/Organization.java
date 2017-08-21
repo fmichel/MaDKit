@@ -238,7 +238,7 @@ final class Organization extends ConcurrentHashMap<Group, InternalGroup> {
 
 	void removeDistantGroup(KernelAddress distantKernelAddress, Group distantGroup, MadkitKernel madkitKernel) {
 		for (InternalGroup group : values()) {
-			if (group.isDistributed() && group.equals(distantGroup)) {
+			if (group.isDistributed() && group.getGroup().equals(distantGroup)) {
 				group.removeAgentsFromDistantKernel(distantKernelAddress, madkitKernel);
 			}
 		}

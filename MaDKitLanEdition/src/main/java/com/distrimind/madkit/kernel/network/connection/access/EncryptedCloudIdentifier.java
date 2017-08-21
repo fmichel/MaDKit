@@ -49,6 +49,7 @@ import gnu.vm.jgnux.crypto.BadPaddingException;
 import gnu.vm.jgnux.crypto.IllegalBlockSizeException;
 import gnu.vm.jgnux.crypto.NoSuchPaddingException;
 
+import com.distrimind.madkit.kernel.KernelAddress;
 import com.distrimind.util.crypto.AbstractMessageDigest;
 import com.distrimind.util.crypto.AbstractSecureRandom;
 import com.distrimind.util.crypto.P2PASymmetricSecretMessageExchanger;
@@ -79,7 +80,7 @@ public final class EncryptedCloudIdentifier extends CloudIdentifier {
 
 		bytes = cipher.encode(cloudIdentifier.getIdentifierBytes(), cloudIdentifier.getSaltBytes(), false);
 	}
-	EncryptedCloudIdentifier(CloudIdentifier cloudIdentifier, AbstractSecureRandom random, AbstractMessageDigest messageDigest)
+	EncryptedCloudIdentifier(CloudIdentifier cloudIdentifier, AbstractSecureRandom random, AbstractMessageDigest messageDigest, KernelAddress distantKernelAddress, byte[] distantGeneratedSalt)
 			throws InvalidKeyException, IOException, IllegalBlockSizeException, BadPaddingException,
 			NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException,
 			InvalidAlgorithmParameterException, NoSuchProviderException, DigestException {
@@ -89,7 +90,7 @@ public final class EncryptedCloudIdentifier extends CloudIdentifier {
 			throw new NullPointerException("random");
 		
 		
-		bytes = AccessProtocolWithJPake.anonimizeIdentifier(getByteTabToEncode(cloudIdentifier), random, messageDigest);
+		bytes = AccessProtocolWithJPake.anonimizeIdentifier(getByteTabToEncode(cloudIdentifier), random, messageDigest, distantKernelAddress, distantGeneratedSalt);
 	}
 	
 	private static byte[] getByteTabToEncode(CloudIdentifier cloudIdentifier)
@@ -168,13 +169,13 @@ public final class EncryptedCloudIdentifier extends CloudIdentifier {
 	}
 
 	public boolean verifyWithLocalCloudIdentifier(CloudIdentifier originalCloudIdentifier,
-			AbstractMessageDigest messageDigest) throws InvalidKeyException, IllegalAccessException, IOException,
+			AbstractMessageDigest messageDigest, KernelAddress localKernelAddress, byte[] localGeneratedSalt) throws InvalidKeyException, IllegalAccessException, IOException,
 			IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, InvalidKeySpecException, DigestException {
 		if (originalCloudIdentifier == null)
 			throw new NullPointerException("originalCloudIdentifier");
 		if (messageDigest == null)
 			throw new NullPointerException("messageDigest");
-		return AccessProtocolWithJPake.compareAnonymizedIdentifier(getByteTabToEncode(originalCloudIdentifier), bytes, messageDigest);
+		return AccessProtocolWithJPake.compareAnonymizedIdentifier(getByteTabToEncode(originalCloudIdentifier), bytes, messageDigest, localKernelAddress, localGeneratedSalt);
 	}
 
 	@Override

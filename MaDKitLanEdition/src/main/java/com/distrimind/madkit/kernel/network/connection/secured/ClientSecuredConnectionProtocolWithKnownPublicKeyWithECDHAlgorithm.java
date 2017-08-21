@@ -83,7 +83,7 @@ import com.distrimind.util.sizeof.ObjectSizer;
  * @author Jason Mahdjoub
  * @version 1.0
  * @since MadkitLanEdition 1.0
- * @see ServerSecuredConnectionProtocolWithKnwonPublicKey
+ * @see ServerSecuredConnectionProtocolWithKnwonPublicKeyWithECDHAlgorithm
  */
 public class ClientSecuredConnectionProtocolWithKnownPublicKeyWithECDHAlgorithm
 		extends ConnectionProtocol<ClientSecuredConnectionProtocolWithKnownPublicKeyWithECDHAlgorithm> {
@@ -97,7 +97,7 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKeyWithECDHAlgorithm
 	protected ASymmetricSignatureCheckerAlgorithm signatureChecker=null;
 	protected EllipticCurveDiffieHellmanAlgorithm ellipticCurveDiffieHellmanAlgorithmForEncryption=null;
 	protected EllipticCurveDiffieHellmanAlgorithm ellipticCurveDiffieHellmanAlgorithmForSignature=null;
-	int local_signature_size, distant_signature_size;
+	int local_signature_size, distant_signature_size, mixed_signature_size;
 	private final SubBlockParser parser;
 
 	protected final ClientSecuredProtocolPropertiesWithKnownPublicKeyWithECDHAlgorithm hproperties;
@@ -135,11 +135,12 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKeyWithECDHAlgorithm
 			throw new ConnectionException(e);
 		}
 		local_signature_size=sigsize;		
-		
+		mixed_signature_size=Math.max(distant_signature_size, local_signature_size);
 		if (hproperties.enableEncryption)
 			parser = new ParserWithEncryption();
 		else
 			parser = new ParserWithNoEncryption();
+		setPublicPrivateKeys();
 	}
 
 	private void setPublicPrivateKeys() throws ConnectionException {
@@ -169,7 +170,7 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKeyWithECDHAlgorithm
 			
 			symmetricAlgorithm=new SymmetricEncryptionAlgorithm(ellipticCurveDiffieHellmanAlgorithmForEncryption.getDerivedKey(hproperties.getSymmetricEncryptionType()), hproperties.secureRandomType, tab);
 			signer=new SymmetricSignerAlgorithm(hproperties.getSymmetricSignatureType(),ellipticCurveDiffieHellmanAlgorithmForSignature.getDerivedKey(hproperties.getSymmetricEncryptionType())); 
-		} catch (java.security.NoSuchAlgorithmException | NoSuchAlgorithmException | NoSuchProviderException e) {
+		} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
 			throw new ConnectionException(e);
 		}
 		
@@ -212,7 +213,7 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKeyWithECDHAlgorithm
 				if (ask.isYouAreAsking()) {
 					try {
 						current_step = Step.WAITING_ECHD_DATA;
-						setPublicPrivateKeys();
+						
 
 						return new AskClientServerConnectionECDH(ellipticCurveDiffieHellmanAlgorithmForEncryption.generateAndGetPublicKey(), ellipticCurveDiffieHellmanAlgorithmForSignature.generateAndGetPublicKey());
 					} catch (Exception e) {
@@ -242,6 +243,7 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKeyWithECDHAlgorithm
 				}
 				catch(java.security.InvalidKeyException | java.security.spec.InvalidKeySpecException | InvalidKeyException | NoSuchPaddingException | InvalidAlgorithmParameterException | InvalidKeySpecException e) {
 					reset();
+					setPublicPrivateKeys();
 					current_step = Step.NOT_CONNECTED;					
 				}
 				current_step = Step.WAITING_FOR_CONNECTION_CONFIRMATION;
@@ -431,7 +433,7 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKeyWithECDHAlgorithm
 		@Override
 		public int getSizeHead() {
 			if (firstMessageSent)
-				return Math.max(local_signature_size, distant_signature_size);
+				return mixed_signature_size;
 			else {
 				return ObjectSizer.sizeOf(hproperties.getEncryptionProfileIndentifier());
 			}
@@ -439,7 +441,7 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKeyWithECDHAlgorithm
 
 		@Override
 		public int getMaximumSizeHead() {
-			return Math.max(local_signature_size, distant_signature_size);
+			return mixed_signature_size;
 		}
 
 	}
@@ -503,7 +505,7 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKeyWithECDHAlgorithm
 		@Override
 		public int getSizeHead() {
 			if (firstMessageSent)
-				return Math.max(local_signature_size, distant_signature_size);
+				return mixed_signature_size;
 			else {
 				return ObjectSizer.sizeOf(hproperties.getEncryptionProfileIndentifier());
 			}
@@ -516,7 +518,7 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKeyWithECDHAlgorithm
 
 		@Override
 		public int getMaximumSizeHead() {
-			return Math.max(local_signature_size, distant_signature_size);
+			return mixed_signature_size;
 		}
 
 	}

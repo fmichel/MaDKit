@@ -48,9 +48,7 @@ import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
  * @author Jason Mahdjoub
  * @version 1.0
  * @since MadkitLanEdition 1.0
- * @see AbstractAgent#sendBigDataWithRole(AgentAddress,
- *      com.distrimind.madkit.io.RandomInputStream, long, long,
- *      java.io.Serializable, String);
+ * @see AbstractAgent#sendBigDataWithRole(AgentAddress, com.distrimind.madkit.io.RandomInputStream, long, long, java.io.Serializable, com.distrimind.util.crypto.MessageDigestType, String)
  */
 public class BigDataTransferID extends ConversationID {
 	/**

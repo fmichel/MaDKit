@@ -47,7 +47,7 @@ import com.distrimind.util.crypto.SymmetricEncryptionType;
 import com.distrimind.util.crypto.SymmetricSignatureType;
 
 /**
- * {@inheritDoc}
+ * 
  * 
  * @author Jason Mahdjoub
  * @version 1.0
@@ -83,10 +83,10 @@ public class ClientSecuredProtocolPropertiesWithKnownPublicKeyWithECDHAlgorithm
 	 * @param symmetricSignatureType
 	 * 			the symmetric signature type (if null, use default symmetric
 	 *            encryption type and default key size)
-	 * @param publicKeyForEncryption
-	 *            the public key for encryption
 	 * @param publicKeyForSignature
 	 *            the public key for signature
+	 * @param ellipticCurveDiffieHellmanType
+	 * 			the Ellipctic Curve Diffie Hellman type
 	 */
 	public void setEncryptionProfile(int identifier, SymmetricEncryptionType symmetricEncryptionType,SymmetricSignatureType symmetricSignatureType,
 			ASymmetricPublicKey publicKeyForSignature, EllipticCurveDiffieHellmanType ellipticCurveDiffieHellmanType) {
@@ -106,12 +106,13 @@ public class ClientSecuredProtocolPropertiesWithKnownPublicKeyWithECDHAlgorithm
 	 *            encryption type and default key size)
 	 * @param symmetricKeySizeBits
 	 *            the symmetric encryption key size in bits
-	 * @param publicKeyForEncryption
-	 *            the public key for encryption
 	 * @param publicKeyForSignature
 	 *            the public key for signature
 	 * @param signatureType
 	 *            the signature type (if null, use default signature type)
+	 * @param ellipticCurveDiffieHellmanType
+	 * 			the Ellipctic Curve Diffie Hellman type
+	 *            
 	 */
 	public void setEncryptionProfile(int identifier, SymmetricEncryptionType symmetricEncryptionType,SymmetricSignatureType symmetricSignatureType,
 			short symmetricKeySizeBits, ASymmetricPublicKey publicKeyForSignature, ASymmetricSignatureType signatureType, EllipticCurveDiffieHellmanType ellipticCurveDiffieHellmanType) {
@@ -299,6 +300,8 @@ public class ClientSecuredProtocolPropertiesWithKnownPublicKeyWithECDHAlgorithm
 			
 		if (ellipticCurveDiffieHellmanType==null)
 			throw new ConnectionException(new NullPointerException());
+		if (secureRandomType==null)
+			throw new ConnectionException("secureRandomType is null !");
 
 	}
 
@@ -336,5 +339,5 @@ public class ClientSecuredProtocolPropertiesWithKnownPublicKeyWithECDHAlgorithm
 	/**
 	 * Secure Random type
 	 */
-	public SecureRandomType secureRandomType;
+	public SecureRandomType secureRandomType=SecureRandomType.DEFAULT;
 }

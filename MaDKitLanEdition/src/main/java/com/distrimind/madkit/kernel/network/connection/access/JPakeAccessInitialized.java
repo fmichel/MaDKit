@@ -35,75 +35,42 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C license and that you accept its terms.
  */
-package com.distrimind.madkit.kernel.network;
+package com.distrimind.madkit.kernel.network.connection.access;
 
-import java.net.InetSocketAddress;
-
-import com.distrimind.madkit.kernel.AbstractAgent;
-import com.distrimind.madkit.kernel.KernelAddress;
-import com.distrimind.madkit.kernel.Message;
+import com.distrimind.util.crypto.AbstractSecureRandom;
 
 /**
- * Message used to inform the system that an anomaly has been detected with a
- * connection or a distant Madkit kernel
  * 
  * @author Jason Mahdjoub
  * @version 1.0
  * @since MadkitLanEdition 1.0
- * @see AbstractAgent#anomalyDetectedWithOneConnection(boolean, ConnectionIdentifier, String)
- * 
  */
-public class AnomalyDetectedMessage extends Message {
+public class JPakeAccessInitialized extends AccessInitialized {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 5396999073321069707L;
-
-	private final boolean candidateToBan;
-	private final InetSocketAddress inetSocketAddress;
-	private final KernelAddress kernelAddress;
-	private final String message;
-
-	public AnomalyDetectedMessage(boolean candidateToBan, ConnectionIdentifier connectionIdentifier, String message) {
-		this(candidateToBan, connectionIdentifier.getDistantInetSocketAddress(), message);
+	private static final long serialVersionUID = -7094989210668214156L;
+	
+	public final byte[] generatedSalt;
+	public static final int generatedSaltSize=32;
+	public JPakeAccessInitialized(boolean _can_takes_login_initiative, AbstractSecureRandom random) {
+		super(_can_takes_login_initiative);
+		generatedSalt=new byte[generatedSaltSize];
+		random.nextBytes(generatedSalt);
 	}
-
-	public AnomalyDetectedMessage(boolean candidateToBan, InetSocketAddress inetSocketAddress, String message) {
-		if (inetSocketAddress == null)
-			throw new NullPointerException("inetSocketAddress");
-		this.candidateToBan = candidateToBan;
-		this.inetSocketAddress = inetSocketAddress;
-		this.kernelAddress = null;
-		this.message = message;
-	}
-
-	public AnomalyDetectedMessage(boolean candidateToBan, KernelAddress kernelAddress, String message) {
-		this.candidateToBan = candidateToBan;
-		this.kernelAddress = kernelAddress;
-		this.inetSocketAddress = null;
-		this.message = message;
-	}
-
+	
 	@Override
-	public String toString() {
-		return "AnomalyDetectedMessage[candidateToBan=" + candidateToBan + ", inetSocketAddress=" + inetSocketAddress
-				+ ", kernelAddress=" + kernelAddress + ", message=" + message + "]";
+	public Integrity checkDataIntegrity() {
+		Integrity i=super.checkDataIntegrity();
+		if (i!=Integrity.OK)
+			return i;
+		if (generatedSalt!=null && generatedSalt.length!=generatedSaltSize)
+			return Integrity.FAIL;
+		return Integrity.OK;
 	}
 
-	public InetSocketAddress getInetSocketAddress() {
-		return inetSocketAddress;
-	}
-
-	public KernelAddress getKernelAddress() {
-		return kernelAddress;
-	}
-
-	public boolean isCandidateToBan() {
-		return candidateToBan;
-	}
-
-	public String getMessage() {
-		return message;
+	public byte[] getGeneratedSalt() {
+		return generatedSalt;
 	}
 
 }

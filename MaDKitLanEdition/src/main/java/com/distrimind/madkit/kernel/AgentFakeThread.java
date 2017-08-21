@@ -53,7 +53,7 @@ import com.distrimind.madkit.kernel.Message;
  * full CPU mode even if it has nothing to do. The solution produced here
  * consists of automatically scheduling AgentFakeThread agents types through
  * several threads with a limited number (the default maximum number of threads
- * is {@link Runtime.getRuntime().availableProcessors()}).
+ * is <code>Runtime.getRuntime().availableProcessors()</code>.
  * 
  * To use the AgentFakeThread class, the user must inherit it, and overwrite the
  * method {@link #liveByStep(Message)}. This method is called for every received
@@ -67,10 +67,8 @@ import com.distrimind.madkit.kernel.Message;
  * maximum number of threads is reached. The threads are destroyed also
  * progressively.
  * 
- * To change the number of threads managing the AgentFakeThread agents, call the
- * function {@link AbstractAgent#setMaximumAgentsFakeThreadsNumber(int)}. To
- * change the priority of these threads, call the function
- * {@link AbstractAgent#setAgentsFakeThreadsPriority(int)}.
+ * To change the priority of these threads, call the function
+ * {@link #setAgentsFakeThreadsPriority(int)}.
  * 
  * 
  * @author Jason Mahdjoub
@@ -317,12 +315,12 @@ public abstract class AgentFakeThread extends AbstractAgent {
 	 *                to <code>MAX_PRIORITY</code>.
 	 * @exception SecurityException
 	 *                if the current thread cannot modify this thread.
-	 * @see #getTaskManagerAgentPriority
+	 * 
 	 * @see Thread#MAX_PRIORITY
 	 * @see Thread#MIN_PRIORITY
 	 */
-	public void setAgentsFakeThreadsPriority(int _priority) {
-		getMadkitKernel().setThreadPriotityForLifeExecutor(_priority);
+	public void setAgentsFakeThreadsPriority(int newPriority) {
+		getMadkitKernel().setThreadPriotityForLifeExecutor(newPriority);
 	}
 
 }

@@ -70,7 +70,8 @@ public class MadkitClassLoaderTest extends JunitMadkit {
 		addMadkitArgs("--kernelLogLevel", "ALL");
 		launchTest(new AbstractAgent() {
 			@Override
-			protected void activate() {
+			protected void activate() throws InterruptedException {
+				sleep(200);
 				assertFalse(MadkitClassLoader.getAllAgentClasses().isEmpty());
 				System.err.println(MadkitClassLoader.getXMLConfigurations());
 				// ugly : inside and outside Eclipse

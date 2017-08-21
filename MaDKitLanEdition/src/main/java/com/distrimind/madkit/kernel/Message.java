@@ -51,7 +51,7 @@ import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
  * @author Olivier Gutknecht
  * @see AgentAddress
  * @see AbstractAgent#sendMessage(AgentAddress, Message)
- * @see AbstractAgent#sendMessage(String, String, String, Message)
+ * @see AbstractAgent#sendMessage(AbstractGroup, String, Message)
  * 
  */
 
@@ -138,7 +138,7 @@ public class Message implements Cloneable, java.io.Serializable {// TODO message
 	 * @return the message's sender or <code>null</code> if the message has not been
 	 *         sent by an agent, but by any other kind of object.
 	 * @see AbstractAgent#sendMessage(AgentAddress, Message)
-	 * @see AbstractAgent#sendMessage(String, String, String, Message)
+	 * @see AbstractAgent#sendMessage(AbstractGroup, String, Message)
 	 */
 	public AgentAddress getSender() {
 		return sender;
@@ -156,7 +156,7 @@ public class Message implements Cloneable, java.io.Serializable {// TODO message
 	 * Returns a shadow copy of the message. Message subclasses requiring deep
 	 * copies of their object fields should override this method. Especially,
 	 * message cloning is used by
-	 * {@link AbstractAgent#broadcastMessage(String, String, String, Message)} and
+	 * {@link AbstractAgent#broadcastMessage(AbstractGroup, String, Message, boolean)} and
 	 * the like to set different receivers for each cloned message.
 	 * 
 	 * @return a shadow copy of the message.
@@ -221,7 +221,7 @@ public class Message implements Cloneable, java.io.Serializable {// TODO message
 	 *         {@link NetworkProperties#expulsionStatisticDuration}, the distant
 	 *         agent will be banished for a time defined by
 	 *         {@link NetworkProperties#banishmentDuration}. If too much banishment
-	 *         (see {@link NetworkProperties#nbMaxBanishment}) occurs into a time
+	 *         (see {@link NetworkProperties#nbMaxBanishments}) occurs into a time
 	 *         interval (see {@link NetworkProperties#banishmentStatisticDuration},
 	 *         the distant agent will be banished forever. <br>
 	 * 		{@link Integrity#FAIL_AND_CANDIDATE_TO_BAN} if a problem have been
@@ -232,7 +232,7 @@ public class Message implements Cloneable, java.io.Serializable {// TODO message
 	 *         {@link NetworkProperties#nbMaxAnomaliesBeforeTrigeringBanishment}),
 	 *         and for a time defined by
 	 *         {@link NetworkProperties#banishmentDuration}. Moreover, if too much
-	 *         banishment (see {@link NetworkProperties#nbMaxBanishment}) occurs
+	 *         banishment (see {@link NetworkProperties#nbMaxBanishments}) occurs
 	 *         into a time interval (see
 	 *         {@link NetworkProperties#banishmentStatisticDuration}, the distant
 	 *         agent will be banished forever.

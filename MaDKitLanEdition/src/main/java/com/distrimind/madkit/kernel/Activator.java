@@ -75,7 +75,7 @@ public abstract class Activator<A extends AbstractAgent> extends Overlooker<A> {
 	 * Builds a new Activator on the given CGR location of the artificial society
 	 * with multicore mode set to <code>false</code>.
 	 * 
-	 * This has the same effect than {@link #Activator(AbstractGroup, String, true)}
+	 * This has the same effect than <code>Activator(groups, role, true)</code>
 	 * 
 	 * @param groups
 	 * @param role

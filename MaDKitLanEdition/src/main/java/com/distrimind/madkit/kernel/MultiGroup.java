@@ -215,6 +215,7 @@ public class MultiGroup extends AbstractGroup {
 		CONTAINS_ON_FORBIDEN, CONTAINS_ON_AUTHORIZED, NOT_CONTAINS
 	}
 
+	@SuppressWarnings("unlikely-arg-type")
 	CONTAINS contains(AbstractGroup _group) {
 		for (AssociatedGroup ag : m_groups) {
 			if (ag.equals(_group)) {
@@ -340,6 +341,7 @@ public class MultiGroup extends AbstractGroup {
 	 * @see Group
 	 * @since MadKitGroupExtension 1.0
 	 */
+	@SuppressWarnings("unlikely-arg-type")
 	boolean removeGroup(AbstractGroup _g) {
 		Iterator<AssociatedGroup> it = m_groups.iterator();
 		while (it.hasNext()) {

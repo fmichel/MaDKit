@@ -74,7 +74,7 @@ public class TransferSpeedStat {
 	 *            size gives statistics that are more precise, but takes more memory
 	 *            place (array of
 	 *            <code>(_bytes_to_mean-_bytes_to_mean%_segment)/_segment</code>).
-	 * @param durationBeforeObscolescence
+	 * @param durationBeforeObsolescence
 	 *            duration in milliseconds before the stored data becomes obsolete.
 	 */
 	public TransferSpeedStat(long _bytes_to_mean, long _segment, long durationBeforeObsolescence) {
@@ -96,10 +96,6 @@ public class TransferSpeedStat {
 		reset();
 	}
 
-	/**
-	 * 
-	 * @return
-	 */
 	public long getNumberOfBytesUsedForStatComputation() {
 		return bytes_to_mean;
 	}

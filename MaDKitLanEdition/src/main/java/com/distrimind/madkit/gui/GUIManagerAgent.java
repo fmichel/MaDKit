@@ -68,6 +68,7 @@ import javax.swing.event.InternalFrameEvent;
 import com.distrimind.madkit.action.GUIManagerAction;
 import com.distrimind.madkit.action.KernelAction;
 import com.distrimind.madkit.agr.LocalCommunity.Groups;
+import com.distrimind.madkit.agr.LocalCommunity.Roles;
 import com.distrimind.madkit.i18n.Words;
 import com.distrimind.madkit.kernel.AbstractAgent;
 import com.distrimind.madkit.kernel.Agent;
@@ -136,7 +137,7 @@ class GUIManagerAgent extends Agent {
 				getLogger().severeLog(Words.FAILED.toString() + " : UI creation", e);
 			}
 		}
-		createGroup(Groups.GUI);
+		requestRole(Groups.GUI,Roles.GUI);
 	}
 
 	/**
@@ -155,7 +156,8 @@ class GUIManagerAgent extends Agent {
 		} else if (m instanceof KernelMessage) {
 			proceedEnumMessage((KernelMessage) m);
 		} else if (logger != null)
-			logger.warning("I received a message that I do not understand. Discarding " + m);
+				logger.warning("I received a message that I do not understand. Discarding " + m);
+		
 	}
 
 	/**
@@ -189,13 +191,17 @@ class GUIManagerAgent extends Agent {
 		// public void run() {
 		killAgents(); // no need because it closes internal frames too
 		if (myFrame != null) {// TODO swing thread or cleaner shutdown
+			
 			myFrame.dispose();
+			
+			myFrame=null;
+			desktopPane=null;
 		}
 		if (logger != null)
 			logger.finer("Ending: Frames disposed");
 		// }});
 	}
-
+	
 	@SuppressWarnings("unused")
 	private void exit() {
 		shuttedDown = true;
@@ -376,5 +382,6 @@ class GUIManagerAgent extends Agent {
 		myFrame.setResizable(true);
 
 	}
+	
 
 }

@@ -112,18 +112,13 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 	private ConnectionState connection_state = ConnectionState.NOT_CONNECTED;
 	private ConnectionClosedReason connection_close_reason = null;
 	private boolean this_ask_connection = false;
-	protected final ConnectionProtocolProperties<CP> connection_protocol_properties;
+	protected final ConnectionProtocolProperties<?> connection_protocol_properties;
 	protected final NetworkProperties network_properties;
 	protected final DatabaseWrapper sql_connection;
 	protected final ConnectionProtocol<?> subProtocol;
 	private boolean connectionFinishedMessageReceived = false;
 
-	/*
-	 * public static final short RSA_KEY_SIZE_FOR_LOGIN=2048; public static final
-	 * long RSA_KEY_EXPIRATION=5184000000l;
-	 */
-
-	@SuppressWarnings("unchecked")
+	
 	protected ConnectionProtocol(InetSocketAddress _distant_inet_address, InetSocketAddress _local_interface_address,
 			ConnectionProtocol<?> _subProtocol, DatabaseWrapper sql_connection, NetworkProperties _properties,
 			int subProtocolLevel, boolean isServer, boolean mustSupportBidirectionnalConnectionInitiative)
@@ -137,7 +132,7 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 		subProtocol = _subProtocol;
 		network_properties = _properties;
 		try {
-			connection_protocol_properties = (ConnectionProtocolProperties<CP>) _properties
+			connection_protocol_properties =  _properties
 					.getConnectionProtocolProperties(_distant_inet_address, _local_interface_address, subProtocolLevel,
 							isServer, mustSupportBidirectionnalConnectionInitiative);
 		} catch (NIOException e) {
@@ -161,7 +156,7 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 		return sql_connection;
 	}
 
-	public ConnectionProtocolProperties<CP> getProperties() {
+	public ConnectionProtocolProperties<?> getProperties() {
 		return connection_protocol_properties;
 	}
 
@@ -488,10 +483,10 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 
 		It(Iterator<ConnectionProtocol<?>> from_it) {
 			if (from_it instanceof ConnectionProtocol.It) {
-				ConnectionProtocol<CP>.It fi = (ConnectionProtocol<CP>.It) from_it;
+				ConnectionProtocol<?>.It fi = (ConnectionProtocol<?>.It) from_it;
 				current = fi.current;
 			} else if (from_it instanceof ConnectionProtocol.ReverseIt) {
-				ConnectionProtocol<CP>.ReverseIt rfromit = (ConnectionProtocol<CP>.ReverseIt) from_it;
+				ConnectionProtocol<?>.ReverseIt rfromit = (ConnectionProtocol<?>.ReverseIt) from_it;
 
 				int pos = rfromit.current_pos - 1;
 				if (pos >= rfromit.list.size()) {
@@ -553,8 +548,8 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 		ReverseIt(Iterator<ConnectionProtocol<?>> from_it) {
 
 			if (from_it instanceof ConnectionProtocol.It) {
-				ConnectionProtocol<CP>.It fi = (ConnectionProtocol<CP>.It) from_it;
-				ReverseIt it = (ReverseIt) fi.getConnectionProtocolInstance().reverseIterator();
+				ConnectionProtocol<?>.It fi = (ConnectionProtocol<?>.It) from_it;
+				ConnectionProtocol<?>.ReverseIt it = (ConnectionProtocol<?>.ReverseIt) fi.getConnectionProtocolInstance().reverseIterator();
 				list = it.list;
 				current_pos = list.size();
 
@@ -574,7 +569,7 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 								ErrorMessages.CONNECTION_PROTOCOL_AND_ITERATOR_NOT_SAME_INSTANCE.toString());
 				}
 			} else if (from_it instanceof ConnectionProtocol.ReverseIt) {
-				ConnectionProtocol<CP>.ReverseIt rfromit = (ConnectionProtocol<CP>.ReverseIt) from_it;
+				ConnectionProtocol<?>.ReverseIt rfromit = (ConnectionProtocol<?>.ReverseIt) from_it;
 				current_pos = rfromit.current_pos;
 			} else
 				throw new IllegalArgumentException(ErrorMessages.INCOMPATIBLE_ITERATOR.toString());

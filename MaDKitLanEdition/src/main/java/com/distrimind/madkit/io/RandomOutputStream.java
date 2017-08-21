@@ -83,7 +83,7 @@ public abstract class RandomOutputStream extends OutputStream implements AutoClo
 	 *                If an I/O error occurs
 	 * @since 1.2
 	 */
-	public abstract void setLength(long _length) throws IOException;
+	public abstract void setLength(long newLength) throws IOException;
 
 	/**
 	 * Sets the stream source -pointer offset, measured from the beginning of this
@@ -93,7 +93,7 @@ public abstract class RandomOutputStream extends OutputStream implements AutoClo
 	 * will change only by writing after the offset has been set beyond the end of
 	 * the stream source.
 	 *
-	 * @param pos
+	 * @param _pos
 	 *            the offset position, measured in bytes from the beginning of the
 	 *            stream, at which to set the stream source pointer.
 	 * @exception IOException

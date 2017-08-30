@@ -118,8 +118,8 @@ final public class Madkit {
 		Calendar c = Calendar.getInstance();
 		c.set(2015, 4, 22);
 		Calendar c2 = Calendar.getInstance();
-		c2.set(2017, 7, 13);
-		Version VERSION = new Version("MadkitLanEdition", "MKLE", 1, 2, 0, Version.Type.Stable, 1, c.getTime(), c2.getTime());
+		c2.set(2017, 7, 31);
+		Version VERSION = new Version("MadkitLanEdition", "MKLE", 1, 2, 1, Version.Type.Stable, 1, c.getTime(), c2.getTime());
 		try {
 
 			InputStream is = Madkit.class.getResourceAsStream("build.txt");
@@ -141,8 +141,14 @@ final public class Madkit {
 			VERSION.addDeveloper(new PersonDeveloper("Ferber", "Jacques", c.getTime()));
 
 			c = Calendar.getInstance();
+			c.set(2017, 7, 31);
+			Description d = new Description(1, 2, 1, Version.Type.Stable, 1, c.getTime());
+			d.addItem("Including resources in jar files");
+			VERSION.addDescription(d);
+
+			c = Calendar.getInstance();
 			c.set(2017, 7, 5);
-			Description d = new Description(1, 2, 0, Version.Type.Stable, 1, c.getTime());
+			d = new Description(1, 2, 0, Version.Type.Stable, 1, c.getTime());
 			d.addItem("Correction a problem with database");
 			d.addItem("Adding P2PSecuredConnectionProtocolWithECDHAlgorithm connection protocol (speedest)");
 			d.addItem("Adding Client/ServerSecuredConnectionProtocolWithKnwonPublicKeyWithECDHAlgorithm connection protocol (speedest)");

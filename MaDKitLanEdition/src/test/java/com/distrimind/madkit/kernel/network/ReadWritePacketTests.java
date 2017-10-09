@@ -64,11 +64,13 @@ import com.distrimind.madkit.io.RandomFileOutputStream;
 import com.distrimind.madkit.io.RandomInputStream;
 import com.distrimind.madkit.io.RandomOutputStream;
 import com.distrimind.madkit.kernel.JunitMadkit;
+import com.distrimind.madkit.kernel.MadkitProperties;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol;
 import com.distrimind.madkit.kernel.network.connection.unsecured.UnsecuredConnectionProtocolProperties;
 import com.distrimind.util.crypto.MessageDigestType;
 
 import gnu.vm.jgnu.security.NoSuchAlgorithmException;
+import gnu.vm.jgnu.security.NoSuchProviderException;
 
 /**
  * 
@@ -140,7 +142,7 @@ public class ReadWritePacketTests extends JunitMadkit {
 		this.originalData = data;
 		connectionProtocol = new UnsecuredConnectionProtocolProperties().getConnectionProtocolInstance(
 				new InetSocketAddress(InetAddress.getByName("254.168.45.1"), 10),
-				new InetSocketAddress(InetAddress.getByName("192.168.0.1"), 10), null, new NetworkProperties(), false,
+				new InetSocketAddress(InetAddress.getByName("192.168.0.1"), 10), null, new MadkitProperties(), new NetworkProperties(), false,
 				false);
 		synchronizer = new DataSocketSynchronizer();
 		socketAgentInterface = new SAI();
@@ -309,13 +311,13 @@ public class ReadWritePacketTests extends JunitMadkit {
 	}
 
 	@Test
-	public void testReadWritePacket() throws PacketException, NoSuchAlgorithmException, NIOException {
+	public void testReadWritePacket() throws PacketException, NoSuchAlgorithmException, NIOException, NoSuchProviderException {
 		testReadWritePacket(null);
-		testReadWritePacket(MessageDigestType.SHA_512);
+		testReadWritePacket(MessageDigestType.BC_FIPS_SHA3_512);
 	}
 
 	public void testReadWritePacket(MessageDigestType messageDigestType)
-			throws PacketException, NoSuchAlgorithmException, NIOException {
+			throws PacketException, NoSuchAlgorithmException, NIOException, NoSuchProviderException {
 		for (int i = 0; i < 100; i++) {
 			byte val = (byte) rand.nextInt(1 << WritePacket.getMaximumLocalRandomValuesBitsNumber());
 			Assert.assertEquals(val,
@@ -390,7 +392,7 @@ public class ReadWritePacketTests extends JunitMadkit {
 
 	private void testReadWritePacket(int _type, short _max_buffer_size, short random_values_size, long _start_position,
 			long length, boolean _transfert_as_big_data, MessageDigestType messageDigestType)
-			throws PacketException, NoSuchAlgorithmException, NIOException {
+			throws PacketException, NoSuchAlgorithmException, NIOException, NoSuchProviderException {
 		WritePacket output = new WritePacket(_type, idPacket, _max_buffer_size, random_values_size, rand,
 				new RandomByteArrayInputStream(data), _start_position, length, _transfert_as_big_data,
 				messageDigestType);

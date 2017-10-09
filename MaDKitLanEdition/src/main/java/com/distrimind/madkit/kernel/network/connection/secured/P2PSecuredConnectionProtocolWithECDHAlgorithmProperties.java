@@ -40,9 +40,8 @@ package com.distrimind.madkit.kernel.network.connection.secured;
 import com.distrimind.madkit.exceptions.ConnectionException;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocolProperties;
 import com.distrimind.util.crypto.EllipticCurveDiffieHellmanType;
-import com.distrimind.util.crypto.SecureRandomType;
+import com.distrimind.util.crypto.SymmetricAuthentifiedSignatureType;
 import com.distrimind.util.crypto.SymmetricEncryptionType;
-import com.distrimind.util.crypto.SymmetricSignatureType;
 
 /**
  * 
@@ -81,13 +80,12 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithmProperties extends Con
 	/**
 	 * Symmetric signature algorithm
 	 */
-	public SymmetricSignatureType symmetricSignatureType=symmetricEncryptionType.getDefaultSignatureAlgorithm();
-	
+	public SymmetricAuthentifiedSignatureType symmetricSignatureType=symmetricEncryptionType.getDefaultSignatureAlgorithm();
 	
 	/**
-	 * Secure Random Type
+	 * symmetric key size in bits
 	 */
-	public SecureRandomType secureRandomType=SecureRandomType.DEFAULT; 
+	public short symmetricKeySizeBits=symmetricEncryptionType.getDefaultKeySizeBits();
 	
 	/**
 	 * Tells if the current peer can receive an ask for connection.
@@ -101,8 +99,6 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithmProperties extends Con
 			throw new ConnectionException(new NullPointerException("symmetricEncryptionType"));
 		if (symmetricSignatureType==null)
 			throw new ConnectionException(new NullPointerException("symmetricSignatureType"));
-		if (secureRandomType==null)
-			throw new ConnectionException(new NullPointerException("secureRandomType"));
 	}
 
 	@Override

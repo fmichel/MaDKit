@@ -38,30 +38,22 @@
 package com.distrimind.madkit.kernel.network.connection.secured;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.InetSocketAddress;
 
 import gnu.vm.jgnu.security.InvalidAlgorithmParameterException;
 import gnu.vm.jgnu.security.InvalidKeyException;
 import gnu.vm.jgnu.security.NoSuchAlgorithmException;
 import gnu.vm.jgnu.security.NoSuchProviderException;
-import gnu.vm.jgnu.security.SignatureException;
 import gnu.vm.jgnu.security.spec.InvalidKeySpecException;
-import gnu.vm.jgnux.crypto.BadPaddingException;
-import gnu.vm.jgnux.crypto.IllegalBlockSizeException;
 import gnu.vm.jgnux.crypto.NoSuchPaddingException;
-import gnu.vm.jgnux.crypto.ShortBufferException;
 
-import com.distrimind.madkit.database.KeysPairs;
 import com.distrimind.madkit.exceptions.BlockParserException;
 import com.distrimind.madkit.exceptions.ConnectionException;
+import com.distrimind.madkit.kernel.MadkitProperties;
 import com.distrimind.madkit.kernel.network.NetworkProperties;
 import com.distrimind.madkit.kernel.network.SubBlock;
 import com.distrimind.madkit.kernel.network.SubBlockInfo;
 import com.distrimind.madkit.kernel.network.SubBlockParser;
-import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.madkit.kernel.network.connection.AskConnection;
 import com.distrimind.madkit.kernel.network.connection.ConnectionFinished;
 import com.distrimind.madkit.kernel.network.connection.ConnectionMessage;
@@ -69,17 +61,13 @@ import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol;
 import com.distrimind.madkit.kernel.network.connection.TransferedBlockChecker;
 import com.distrimind.madkit.kernel.network.connection.UnexpectedMessage;
 import com.distrimind.ood.database.DatabaseWrapper;
-import com.distrimind.ood.database.exceptions.DatabaseException;
 import com.distrimind.util.Bits;
-import com.distrimind.util.crypto.ASymmetricKeyPair;
+import com.distrimind.util.crypto.ASymmetricKeyWrapperType;
 import com.distrimind.util.crypto.ASymmetricPublicKey;
-import com.distrimind.util.crypto.ASymmetricSignatureCheckerAlgorithm;
-import com.distrimind.util.crypto.ASymmetricSignatureType;
-import com.distrimind.util.crypto.ASymmetricSignerAlgorithm;
 import com.distrimind.util.crypto.AbstractSecureRandom;
-import com.distrimind.util.crypto.AbstractSignature;
 import com.distrimind.util.crypto.ClientASymmetricEncryptionAlgorithm;
-import com.distrimind.util.crypto.SecureRandomType;
+import com.distrimind.util.crypto.SymmetricAuthentifiedSignatureCheckerAlgorithm;
+import com.distrimind.util.crypto.SymmetricAuthentifiedSignerAlgorithm;
 import com.distrimind.util.crypto.SymmetricEncryptionAlgorithm;
 import com.distrimind.util.crypto.SymmetricSecretKey;
 import com.distrimind.util.sizeof.ObjectSizer;
@@ -98,25 +86,26 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 		extends ConnectionProtocol<ClientSecuredConnectionProtocolWithKnownPublicKey> {
 	Step current_step = Step.NOT_CONNECTED;
 
-	private final ASymmetricPublicKey distant_public_key_for_encryption, distant_public_key_for_signature;
-	private SymmetricSecretKey secret_key = null;
+	private final ASymmetricPublicKey distant_public_key_for_encryption;
 	protected final ClientASymmetricEncryptionAlgorithm aSymmetricAlgorithm;
 	protected SymmetricEncryptionAlgorithm symmetricAlgorithm = null;
-	protected ASymmetricSignerAlgorithm signer = null;
-	protected ASymmetricSignatureCheckerAlgorithm signatureChecker=null;
-	protected ASymmetricKeyPair myKeyPairForEncryption = null, myKeyPairForSignature = null;
-	int signature_size;
+	protected SymmetricAuthentifiedSignerAlgorithm signer = null;
+	protected SymmetricAuthentifiedSignatureCheckerAlgorithm signatureChecker=null;
+	protected SymmetricSecretKey mySecretKeyForEncryption=null,mySecretKeyForSignature=null;
+	protected final ASymmetricKeyWrapperType keyWrapper;
+	int signature_size_bytes;
 	private final SubBlockParser parser;
 
 	protected final ClientSecuredProtocolPropertiesWithKnownPublicKey hproperties;
-	private final AbstractSecureRandom random;
+	
 	boolean firstMessageSent = false;
-	private boolean currentBlockCheckerIsNull = true;
+	/*private boolean currentBlockCheckerIsNull = true;*/
 	private boolean needToRefreshTransferBlockChecker = true;
+	private final AbstractSecureRandom approvedRandom, approvedRandomForKeys;
 
 	private ClientSecuredConnectionProtocolWithKnownPublicKey(InetSocketAddress _distant_inet_address,
 			InetSocketAddress _local_interface_address, ConnectionProtocol<?> _subProtocol,
-			DatabaseWrapper sql_connection, NetworkProperties _properties, int subProtocolLevel, boolean isServer,
+			DatabaseWrapper sql_connection, MadkitProperties mkProperties, NetworkProperties _properties, int subProtocolLevel, boolean isServer,
 			boolean mustSupportBidirectionnalConnectionInitiative) throws ConnectionException {
 		super(_distant_inet_address, _local_interface_address, _subProtocol, sql_connection, _properties,
 				subProtocolLevel, isServer, mustSupportBidirectionnalConnectionInitiative);
@@ -125,123 +114,58 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 		hproperties.checkProperties();
 
 		
-
+		this.keyWrapper=hproperties.keyWrapper;
 		try {
-			random = SecureRandomType.DEFAULT.getInstance();
+			approvedRandom=mkProperties.getApprovedSecureRandom();
+			approvedRandomForKeys=mkProperties.getApprovedSecureRandomForKeys();
 			distant_public_key_for_encryption = hproperties.getPublicKeyForEncryption();
-			distant_public_key_for_signature = hproperties.getPublicKeyForSignature();
-			aSymmetricAlgorithm = new ClientASymmetricEncryptionAlgorithm(hproperties.signatureType,
-					distant_public_key_for_encryption);
+			aSymmetricAlgorithm = new ClientASymmetricEncryptionAlgorithm(approvedRandom, distant_public_key_for_encryption);
+			
 		} catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | NoSuchProviderException
 				| InvalidKeySpecException e) {
 			throw new ConnectionException(e);
 		}
-		signature_size = hproperties.signatureType.getSignatureSizeBytes(distant_public_key_for_signature.getKeySize());
+		signature_size_bytes = hproperties.signatureType.getSignatureSizeInBits()/8;
 		
 		generateSecretKey();
 		if (hproperties.enableEncryption)
 			parser = new ParserWithEncryption();
 		else
 			parser = new ParserWithNoEncryption();
-		setPublicPrivateKeys();
 	}
 
-	private void setPublicPrivateKeys() throws ConnectionException {
+	private void generateSecretKey() throws ConnectionException {
+		//needToRefreshTransferBlockChecker |= current_step.compareTo(Step.WAITING_FOR_CONNECTION_CONFIRMATION) >= 0;
 		try {
-			if (sql_connection != null)
+			if (hproperties.enableEncryption)
 			{
-				myKeyPairForEncryption = ((KeysPairs) sql_connection.getTableInstance(KeysPairs.class)).getKeyPair(
-						distant_inet_address.getAddress(), NetworkProperties.connectionProtocolDatabaseUsingCodeForEncryption,
-						hproperties.getPublicKeyForEncryption().getAlgorithmType(), hproperties.getPublicKeyForEncryption().getKeySize(),
-						this.random, hproperties.aSymmetricKeyExpirationMs,
-						network_properties.maximumNumberOfCryptoKeysForIpsSpectrum);
-				myKeyPairForSignature = ((KeysPairs) sql_connection.getTableInstance(KeysPairs.class)).getKeyPair(
-						distant_inet_address.getAddress(), NetworkProperties.connectionProtocolDatabaseUsingCodeForSignature,
-						hproperties.getPublicKeyForSignature().getAlgorithmType(), hproperties.getPublicKeyForSignature().getKeySize(),
-						this.random, hproperties.aSymmetricKeyExpirationMs,
-						network_properties.maximumNumberOfCryptoKeysForIpsSpectrum);
+				mySecretKeyForEncryption=hproperties.getSymmetricEncryptionType().getKeyGenerator(approvedRandomForKeys, hproperties.getSymmetricKeySizeBits()).generateKey();
+				symmetricAlgorithm=new SymmetricEncryptionAlgorithm(approvedRandom, mySecretKeyForEncryption);
 			}
 			else
-			{
-				myKeyPairForEncryption = hproperties.getPublicKeyForEncryption().getAlgorithmType()
-						.getKeyPairGenerator(random, hproperties.getPublicKeyForEncryption().getKeySize()).generateKeyPair();
-				myKeyPairForSignature = hproperties.getPublicKeyForSignature().getAlgorithmType()
-						.getKeyPairGenerator(random, hproperties.getPublicKeyForSignature().getKeySize()).generateKeyPair();
-			}
-			signer = new ASymmetricSignerAlgorithm(hproperties.signatureType, myKeyPairForSignature.getASymmetricPrivateKey());
-			signatureChecker = new ASymmetricSignatureCheckerAlgorithm(hproperties.signatureType, distant_public_key_for_signature);
-		} catch (NoSuchAlgorithmException | DatabaseException e) {
-			myKeyPairForEncryption = null;
-			myKeyPairForSignature=null;
-			signer = null;
-			signatureChecker=null;
-			throw new ConnectionException(e);
-		}
-
-	}
-
-	private void setNewPublicPrivateKeys() throws ConnectionException {
-		needToRefreshTransferBlockChecker |= current_step.compareTo(Step.WAITING_FOR_CONNECTION_CONFIRMATION) >= 0;
-		try {
-			if (sql_connection != null)
-			{
-				myKeyPairForEncryption = (((KeysPairs) sql_connection.getTableInstance(KeysPairs.class)).getNewKeyPair(
-						distant_inet_address.getAddress(), NetworkProperties.connectionProtocolDatabaseUsingCodeForEncryption,
-						hproperties.getPublicKeyForEncryption().getAlgorithmType(), hproperties.getPublicKeyForEncryption().getKeySize(), random,
-						hproperties.aSymmetricKeyExpirationMs,
-						network_properties.maximumNumberOfCryptoKeysForIpsSpectrum));
-				myKeyPairForSignature = (((KeysPairs) sql_connection.getTableInstance(KeysPairs.class)).getNewKeyPair(
-						distant_inet_address.getAddress(), NetworkProperties.connectionProtocolDatabaseUsingCodeForSignature,
-						hproperties.getPublicKeyForSignature().getAlgorithmType(), hproperties.getPublicKeyForSignature().getKeySize(), random,
-						hproperties.aSymmetricKeyExpirationMs,
-						network_properties.maximumNumberOfCryptoKeysForIpsSpectrum));
-			}
-			else
-			{
-				myKeyPairForEncryption = hproperties.getPublicKeyForEncryption().getAlgorithmType()
-						.getKeyPairGenerator(random, hproperties.getPublicKeyForEncryption().getKeySize()).generateKeyPair();
-				myKeyPairForSignature = hproperties.getPublicKeyForSignature().getAlgorithmType()
-						.getKeyPairGenerator(random, hproperties.getPublicKeyForEncryption().getKeySize()).generateKeyPair();
-			}
-			signer = new ASymmetricSignerAlgorithm(hproperties.signatureType, myKeyPairForSignature.getASymmetricPrivateKey());
-			signatureChecker = new ASymmetricSignatureCheckerAlgorithm(hproperties.signatureType, distant_public_key_for_signature);
-		} catch (NoSuchAlgorithmException | DatabaseException e) {
-			myKeyPairForEncryption = null;
-			myKeyPairForSignature=null;
-			signer = null;
-			signatureChecker=null;
+				mySecretKeyForEncryption=null;
+			mySecretKeyForSignature=hproperties.getSignatureType().getKeyGenerator(approvedRandomForKeys, hproperties.getSymmetricKeySizeBits()).generateKey();
+			
+			signer = new SymmetricAuthentifiedSignerAlgorithm(mySecretKeyForSignature);
+			signatureChecker = new SymmetricAuthentifiedSignatureCheckerAlgorithm(mySecretKeyForSignature);
+		} catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeyException | NoSuchPaddingException | InvalidAlgorithmParameterException | InvalidKeySpecException e) {
+			resetKeys();
 			throw new ConnectionException(e);
 		}
 	}
 
-	private void resetPublicPrivateKeys() {
-		myKeyPairForEncryption = null;
-		myKeyPairForSignature=null;
+	private void resetKeys() {
+		mySecretKeyForEncryption = null;
+		mySecretKeyForEncryption=null;
 
 		signer = null;
 		signatureChecker=null;
 		
-		secret_key = null;
 		symmetricAlgorithm = null;
 	}
 
 	private enum Step {
-		NOT_CONNECTED, WAITING_FIRST_MESSAGE, WAITING_FOR_CONNECTION_CONFIRMATION, CONNECTED,
-	}
-
-	private void generateSecretKey() throws ConnectionException {
-		try {
-			secret_key = hproperties.getSymmetricEncryptionType()
-					.getKeyGenerator(random, hproperties.getSymmetricKeySizeBits()).generateKey();
-			byte seed[] = new byte[64];
-			random.nextBytes(seed);
-			symmetricAlgorithm = new SymmetricEncryptionAlgorithm(secret_key, SecureRandomType.DEFAULT, seed);
-		} catch (NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException
-				| InvalidAlgorithmParameterException | NoSuchProviderException | InvalidKeySpecException e) {
-			secret_key = null;
-			symmetricAlgorithm = null;
-			throw new ConnectionException(e);
-		}
+		NOT_CONNECTED, WAITING_FOR_CONNECTION_CONFIRMATION, CONNECTED,
 	}
 
 	/*
@@ -258,15 +182,18 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 	protected ConnectionMessage getNextStep(ConnectionMessage _m) throws ConnectionException {
 		switch (current_step) {
 		case NOT_CONNECTED: {
+			
 			if (_m instanceof AskConnection) {
 				AskConnection ask = (AskConnection) _m;
+
 				if (ask.isYouAreAsking()) {
 					try {
-						current_step = Step.WAITING_FIRST_MESSAGE;
-						
-
-						return new AskClientServerConnection(symmetricAlgorithm, aSymmetricAlgorithm,
-								myKeyPairForEncryption.getASymmetricPublicKey(), myKeyPairForSignature.getASymmetricPublicKey(), distant_public_key_for_encryption, distant_public_key_for_signature);
+						current_step = Step.WAITING_FOR_CONNECTION_CONFIRMATION;
+						generateSecretKey();
+						if (hproperties.enableEncryption)
+							return new AskClientServerConnection(approvedRandom, keyWrapper, mySecretKeyForEncryption, mySecretKeyForSignature, distant_public_key_for_encryption);
+						else
+							return new AskClientServerConnection(approvedRandom, keyWrapper, mySecretKeyForSignature, distant_public_key_for_encryption);
 					} catch (Exception e) {
 						throw new ConnectionException(e);
 					}
@@ -283,28 +210,6 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 			} else {
 				return new UnexpectedMessage(this.getDistantInetSocketAddress());
 			}
-		}
-		case WAITING_FIRST_MESSAGE: {
-			/*
-			 * if (_m instanceof IncomprehensibleSecretKey) { generateSecretKey(); return
-			 * new AskClientServerConnection(encodeSecretKeyAndIV(), myKeyPair.getPublic());
-			 * } else
-			 */if (_m instanceof SimilarPublicKeysError) {
-				try {
-					setNewPublicPrivateKeys();
-					return new AskClientServerConnection(symmetricAlgorithm, aSymmetricAlgorithm,
-							myKeyPairForEncryption.getASymmetricPublicKey(), myKeyPairForSignature.getASymmetricPublicKey(), distant_public_key_for_encryption, distant_public_key_for_signature);
-				} catch (Exception e) {
-					throw new ConnectionException(e);
-				}
-
-			} else if (_m instanceof FirstMessage) {
-				current_step = Step.WAITING_FOR_CONNECTION_CONFIRMATION;
-				return new FirstMessage();
-			} else {
-				return new UnexpectedMessage(this.getDistantInetSocketAddress());
-			}
-
 		}
 		case WAITING_FOR_CONNECTION_CONFIRMATION: {
 			if (_m instanceof ConnectionFinished && ((ConnectionFinished) _m).getState()
@@ -350,7 +255,7 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 	@Override
 	protected void closeConnection(ConnectionClosedReason _reason) {
 		if (_reason.equals(ConnectionClosedReason.CONNECTION_ANOMALY)) {
-			resetPublicPrivateKeys();
+			resetKeys();
 		}
 		current_step = Step.NOT_CONNECTED;
 	}
@@ -363,19 +268,13 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 		@Override
 		public int getBodyOutputSizeForEncryption(int size) throws BlockParserException {
 			try {
-				switch (current_step) {
-				case NOT_CONNECTED:
-				case WAITING_FIRST_MESSAGE:
+				if (current_step==Step.NOT_CONNECTED || current_step==Step.WAITING_FOR_CONNECTION_CONFIRMATION)
 					return size;
-				case WAITING_FOR_CONNECTION_CONFIRMATION:
-				case CONNECTED:
+				else
 					return symmetricAlgorithm.getOutputSizeForEncryption(size);
-				}
-			} catch (InvalidKeyException | InvalidAlgorithmParameterException | NoSuchAlgorithmException
-					| InvalidKeySpecException | NoSuchProviderException e) {
+			} catch (Exception e) {
 				throw new BlockParserException(e);
 			}
-			return size;
 		}
 
 		@Override
@@ -383,7 +282,7 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 			try {
 				switch (current_step) {
 				case NOT_CONNECTED:
-				case WAITING_FIRST_MESSAGE: {
+				{
 					return size;
 				}
 				case WAITING_FOR_CONNECTION_CONFIRMATION:
@@ -392,8 +291,7 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 				}
 				}
 
-			} catch (InvalidKeyException | InvalidAlgorithmParameterException | NoSuchAlgorithmException
-					| InvalidKeySpecException | NoSuchProviderException e) {
+			} catch (Exception e) {
 				throw new BlockParserException(e);
 			}
 			throw new BlockParserException();
@@ -402,24 +300,14 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 		@Override
 		public SubBlockInfo getSubBlock(SubBlock _block) throws BlockParserException {
 
-			switch (current_step) {
-			case NOT_CONNECTED:
-			case WAITING_FIRST_MESSAGE: {
+			if (current_step==Step.NOT_CONNECTED)
+			{
 				SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() + getSizeHead(),
 						getBodyOutputSizeForDecryption(_block.getSize() - getSizeHead()));
-				try {
-					boolean check = signatureChecker.verify(res.getBytes(),
-							res.getOffset(), _block.getSize() - getSizeHead(), _block.getBytes(), _block.getOffset(),
-							signature_size);
-					return new SubBlockInfo(res, check, !check);
-				} catch (SignatureException | InvalidKeyException | NoSuchAlgorithmException
-						| InvalidKeySpecException | ShortBufferException | IllegalStateException e) {
-					return new SubBlockInfo(res, false, true);
-				}
-
+				return new SubBlockInfo(res, true, false);
 			}
-			case WAITING_FOR_CONNECTION_CONFIRMATION:
-			case CONNECTED: {
+			else
+			{
 				try (ByteArrayInputStream bais = new ByteArrayInputStream(_block.getBytes(),
 						_block.getOffset() + getSizeHead(), _block.getSize() - getSizeHead())) {
 					byte[] tmp = symmetricAlgorithm.decode(bais);
@@ -432,34 +320,33 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 
 					boolean check = signatureChecker.verify(_block.getBytes(),
 							res.getOffset(), _block.getSize() - getSizeHead(), _block.getBytes(), _block.getOffset(),
-							signature_size);
+							signature_size_bytes);
 					System.arraycopy(tmp, 0, res.getBytes(), res.getOffset(), tmp.length);
 					return new SubBlockInfo(res, check, !check);
-				} catch (SignatureException | IOException | InvalidKeyException | InvalidAlgorithmParameterException
-						| IllegalBlockSizeException | BadPaddingException | NoSuchAlgorithmException
-						| InvalidKeySpecException | NoSuchProviderException | ShortBufferException | IllegalStateException e) {
+				} catch (Exception e) {
 					SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() + getSizeHead(),
 							getBodyOutputSizeForDecryption(_block.getSize() - getSizeHead()));
 					return new SubBlockInfo(res, false, true);
 				}
 			}
-			}
-			throw new BlockParserException("Unexpected exception");
 		}
 
 		@Override
 		public SubBlock getParentBlock(SubBlock _block) throws BlockParserException {
 			try {
 				switch (current_step) {
-				case NOT_CONNECTED:
-				case WAITING_FIRST_MESSAGE: {
+				case WAITING_FOR_CONNECTION_CONFIRMATION:case NOT_CONNECTED:
+				{
 					SubBlock res = new SubBlock(_block.getBytes().clone(), _block.getOffset() - getSizeHead(),
 							getBodyOutputSizeForEncryption(_block.getSize()) + getSizeHead());
-					Bits.putInt(res.getBytes(), res.getOffset(), hproperties.getEncryptionProfileIndentifier());
-					setFirstMessageSent();
+					if (!firstMessageSent)
+					{
+						Bits.putInt(res.getBytes(), res.getOffset(), hproperties.getEncryptionProfileIndentifier());
+						setFirstMessageSent();
+					}
 					return res;
 				}
-				case WAITING_FOR_CONNECTION_CONFIRMATION:
+				
 				case CONNECTED: {
 					int outputSize = getBodyOutputSizeForEncryption(_block.getSize());
 					SubBlock res = new SubBlock(new byte[_block.getBytes().length], _block.getOffset() - getSizeHead(),
@@ -470,14 +357,12 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 					if (outputSize != tmp.length)
 						throw new BlockParserException("Invalid block size for encoding.");
 					System.arraycopy(tmp, 0, res.getBytes(), _block.getOffset(), tmp.length);
-					signer.sign(tmp, 0, tmp.length, res.getBytes(), res.getOffset(), signature_size);
+					signer.sign(tmp, 0, tmp.length, res.getBytes(), res.getOffset(), signature_size_bytes);
 					return res;
 				}
 				}
 
-			} catch (SignatureException | InvalidKeyException | InvalidAlgorithmParameterException | IOException
-					| IllegalBlockSizeException | BadPaddingException | IllegalStateException | NoSuchAlgorithmException
-					| InvalidKeySpecException | NoSuchProviderException e) {
+			} catch (Exception e) {
 				throw new BlockParserException(e);
 			}
 			throw new BlockParserException("Unexpected exception");
@@ -486,8 +371,9 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 
 		@Override
 		public int getSizeHead() {
+			//return signature_size_bytes;
 			if (firstMessageSent)
-				return signature_size;
+				return signature_size_bytes;
 			else {
 				return ObjectSizer.sizeOf(hproperties.getEncryptionProfileIndentifier());
 			}
@@ -495,7 +381,7 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 
 		@Override
 		public int getMaximumSizeHead() {
-			return signature_size;
+			return signature_size_bytes;
 		}
 
 	}
@@ -512,17 +398,26 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 
 		@Override
 		public SubBlockInfo getSubBlock(SubBlock _block) throws BlockParserException {
-			SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() + getSizeHead(),
-					getBodyOutputSizeForDecryption(_block.getSize() - getSizeHead()));
-
-			try {
-				boolean check = signatureChecker.verify(res.getBytes(),
-						res.getOffset(), _block.getSize() - getSizeHead(), _block.getBytes(), _block.getOffset(),
-						signature_size);
-
-				return new SubBlockInfo(res, check, !check);
-			} catch (SignatureException | InvalidKeyException | NoSuchAlgorithmException | InvalidKeySpecException | ShortBufferException | IllegalStateException e) {
-				return new SubBlockInfo(res, false, true);
+			if (current_step==Step.NOT_CONNECTED)
+			{
+				SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() + getSizeHead(),
+						getBodyOutputSizeForDecryption(_block.getSize() - getSizeHead()));
+				return new SubBlockInfo(res, true, false);
+			}
+			else
+			{
+				SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() + getSizeHead(),
+						getBodyOutputSizeForDecryption(_block.getSize() - getSizeHead()));
+	
+				try {
+					boolean check = signatureChecker.verify(res.getBytes(),
+							res.getOffset(), _block.getSize() - getSizeHead(), _block.getBytes(), _block.getOffset(),
+							signature_size_bytes);
+	
+					return new SubBlockInfo(res, check, !check);
+				} catch (Exception e) {
+					return new SubBlockInfo(res, false, true);
+				}
 			}
 		}
 
@@ -530,26 +425,28 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 		public SubBlock getParentBlock(SubBlock _block) throws BlockParserException {
 			try {
 				switch (current_step) {
-				case NOT_CONNECTED:
-				case WAITING_FIRST_MESSAGE: {
+				case WAITING_FOR_CONNECTION_CONFIRMATION:case NOT_CONNECTED:
+				{
 					SubBlock res = new SubBlock(_block.getBytes().clone(), _block.getOffset() - getSizeHead(),
 							getBodyOutputSizeForEncryption(_block.getSize()) + getSizeHead());
-					Bits.putInt(res.getBytes(), res.getOffset(), hproperties.getEncryptionProfileIndentifier());
-					setFirstMessageSent();
+					if (!firstMessageSent)
+					{
+						Bits.putInt(res.getBytes(), res.getOffset(), hproperties.getEncryptionProfileIndentifier());
+						setFirstMessageSent();
+					}
 					return res;
 				}
-				case WAITING_FOR_CONNECTION_CONFIRMATION:
 				case CONNECTED: {
 					SubBlock res = new SubBlock(_block.getBytes().clone(), _block.getOffset() - getSizeHead(),
 							getBodyOutputSizeForEncryption(_block.getSize()) + getSizeHead());
 
 					signer.sign(_block.getBytes(), _block.getOffset(), getBodyOutputSizeForEncryption(_block.getSize()),
-							res.getBytes(), res.getOffset(), signature_size);
+							res.getBytes(), res.getOffset(), signature_size_bytes);
 					return res;
 				}
 				}
 
-			} catch (SignatureException | InvalidKeyException | NoSuchAlgorithmException | InvalidKeySpecException e) {
+			} catch (Exception e) {
 				throw new BlockParserException(e);
 			}
 			throw new BlockParserException("Unexpected exception");
@@ -558,8 +455,9 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 
 		@Override
 		public int getSizeHead() {
+			//return signature_size_bytes;
 			if (firstMessageSent)
-				return signature_size;
+				return signature_size_bytes;
 			else {
 				return ObjectSizer.sizeOf(hproperties.getEncryptionProfileIndentifier());
 			}
@@ -572,7 +470,7 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 
 		@Override
 		public int getMaximumSizeHead() {
-			return signature_size;
+			return signature_size_bytes;
 		}
 
 	}
@@ -587,15 +485,9 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 			throws ConnectionException {
 		try {
 			needToRefreshTransferBlockChecker = false;
-			if (this.myKeyPairForEncryption==null || this.myKeyPairForSignature == null || current_step.compareTo(Step.WAITING_FOR_CONNECTION_CONFIRMATION) < 0) {
-				currentBlockCheckerIsNull = true;
-				return new ConnectionProtocol.NullBlockChecker(subBlockChercker, this.isCrypted(),
-						(short) parser.getSizeHead());
-			} else {
-				currentBlockCheckerIsNull = false;
-				return new BlockChecker(subBlockChercker, this.hproperties.signatureType,
-						this.myKeyPairForSignature.getASymmetricPublicKey(), this.signature_size, this.isCrypted());
-			}
+			/*currentBlockCheckerIsNull=true;*/
+			return new ConnectionProtocol.NullBlockChecker(subBlockChercker, this.isCrypted(),
+					(short) parser.getSizeHead());
 		} catch (Exception e) {
 			needToRefreshTransferBlockChecker = true;
 			throw new ConnectionException(e);
@@ -604,13 +496,10 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 
 	@Override
 	public boolean isTransferBlockCheckerChangedImpl() {
-		if (this.myKeyPairForEncryption==null || this.myKeyPairForSignature == null || current_step.compareTo(Step.WAITING_FOR_CONNECTION_CONFIRMATION) < 0) {
-			return !currentBlockCheckerIsNull || needToRefreshTransferBlockChecker;
-		} else
-			return currentBlockCheckerIsNull || needToRefreshTransferBlockChecker;
+		return needToRefreshTransferBlockChecker;
 	}
 
-	private static class BlockChecker extends TransferedBlockChecker {
+	/*private static class BlockChecker extends TransferedBlockChecker {
 		private final ASymmetricSignatureType signatureType;
 		private final int signatureSize;
 		private transient AbstractSignature signature;
@@ -675,11 +564,11 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 				throw new BlockParserException(e);
 			}
 		}
-	}
+	}*/
 
 	@Override
 	public boolean needsMadkitLanEditionDatabase() {
-		return true;
+		return false;
 	}
 
 }

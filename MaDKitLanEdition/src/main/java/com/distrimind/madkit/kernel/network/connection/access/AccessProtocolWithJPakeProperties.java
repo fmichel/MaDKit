@@ -41,7 +41,6 @@ import java.net.InetSocketAddress;
 
 import com.distrimind.madkit.kernel.MadkitProperties;
 import com.distrimind.util.crypto.MessageDigestType;
-import com.distrimind.util.crypto.SecureRandomType;
 
 /**
  * Represents properties of a specific connection protocol
@@ -61,12 +60,7 @@ public class AccessProtocolWithJPakeProperties extends AbstractAccessProtocolPro
 	/**
 	 * Message digest type used for anonymization
 	 */
-	public MessageDigestType identifierDigestionTypeUsedForAnonymization=MessageDigestType.SHA_512;
-	
-	/**
-	 * Secure random type used for anonymization
-	 */
-	public SecureRandomType randomTypeUsedForAnonymization=SecureRandomType.DEFAULT;
+	public MessageDigestType identifierDigestionTypeUsedForAnonymization=MessageDigestType.BC_FIPS_SHA3_512;
 	
 	
 	@Override
@@ -75,8 +69,6 @@ public class AccessProtocolWithJPakeProperties extends AbstractAccessProtocolPro
 		{
 			if (identifierDigestionTypeUsedForAnonymization==null)
 				throw new AccessException(new NullPointerException("identifierDigestionTypeUsedForAnonymization can't be null !"));
-			if (randomTypeUsedForAnonymization==null)
-				throw new AccessException(new NullPointerException("randomTypeUsedForAnonymization can't be null !"));
 		}
 		
 	}

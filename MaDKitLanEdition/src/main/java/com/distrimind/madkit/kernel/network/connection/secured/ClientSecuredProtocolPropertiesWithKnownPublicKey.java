@@ -39,8 +39,9 @@ package com.distrimind.madkit.kernel.network.connection.secured;
 
 import com.distrimind.madkit.exceptions.ConnectionException;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocolProperties;
+import com.distrimind.util.crypto.ASymmetricKeyWrapperType;
 import com.distrimind.util.crypto.ASymmetricPublicKey;
-import com.distrimind.util.crypto.ASymmetricSignatureType;
+import com.distrimind.util.crypto.SymmetricAuthentifiedSignatureType;
 import com.distrimind.util.crypto.SymmetricEncryptionType;
 
 /**
@@ -82,11 +83,10 @@ public class ClientSecuredProtocolPropertiesWithKnownPublicKey
 	 * @param publicKeyForSignature
 	 *            the public key for signature
 	 */
-	public void setEncryptionProfile(int identifier, SymmetricEncryptionType symmetricEncryptionType,
-			ASymmetricPublicKey publicKeyForEncryption, ASymmetricPublicKey publicKeyForSignature) {
-		this.setEncryptionProfile(identifier, symmetricEncryptionType,
-				symmetricEncryptionType == null ? -1 : symmetricEncryptionType.getDefaultKeySizeBits(), publicKeyForEncryption,publicKeyForSignature,
-				null);
+	public void setEncryptionProfile(int identifier, ASymmetricPublicKey publicKeyForEncryption, SymmetricEncryptionType symmetricEncryptionType, ASymmetricKeyWrapperType keyWrapper) {
+		this.setEncryptionProfile(identifier, publicKeyForEncryption, symmetricEncryptionType,
+				symmetricEncryptionType == null ? -1 : symmetricEncryptionType.getDefaultKeySizeBits(), keyWrapper, symmetricEncryptionType.getDefaultSignatureAlgorithm()
+						);
 	}
 
 	/**
@@ -107,26 +107,30 @@ public class ClientSecuredProtocolPropertiesWithKnownPublicKey
 	 * @param signatureType
 	 *            the signature type (if null, use default signature type)
 	 */
-	public void setEncryptionProfile(int identifier, SymmetricEncryptionType symmetricEncryptionType,
-			short symmetricKeySizeBits, ASymmetricPublicKey publicKeyForEncryption, ASymmetricPublicKey publicKeyForSignature, ASymmetricSignatureType signatureType) {
+	public void setEncryptionProfile(int identifier, ASymmetricPublicKey publicKeyForEncryption, SymmetricEncryptionType symmetricEncryptionType,
+			short symmetricKeySizeBits, ASymmetricKeyWrapperType keyWrapper, SymmetricAuthentifiedSignatureType signatureType) {
 		if (publicKeyForEncryption == null)
 			throw new NullPointerException("publicKey");
 		if (publicKeyForEncryption.getKeySize() < minASymetricKeySize)
 			throw new IllegalArgumentException("The public key size must be greater than " + minASymetricKeySize);
-		if (publicKeyForSignature == null)
-			throw new NullPointerException("publicKey");
-		if (publicKeyForSignature.getKeySize() < minASymetricKeySize)
-			throw new IllegalArgumentException("The public key size must be greater than " + minASymetricKeySize);
+		if (signatureType==null)
+			throw new NullPointerException("signatureType");
 		this.publicKeyForEncryption = publicKeyForEncryption;
-		this.publicKeyForSignature=publicKeyForSignature;
-		if (signatureType == null)
-			signatureType = publicKeyForSignature.getAlgorithmType().getDefaultSignatureAlgorithm();
 		this.signatureType = signatureType;
 		keyIdentifier = identifier;
 		if (symmetricEncryptionType != null) {
 			this.symmetricEncryptionType = symmetricEncryptionType;
 			this.SymmetricKeySizeBits = symmetricKeySizeBits;
 		}
+		else
+		{
+			this.symmetricEncryptionType=SymmetricEncryptionType.DEFAULT;
+			this.SymmetricKeySizeBits=this.symmetricEncryptionType.getDefaultKeySizeBits();
+		}
+		if (keyWrapper==null)
+			this.keyWrapper=ASymmetricKeyWrapperType.DEFAULT;
+		else
+			this.keyWrapper=keyWrapper;
 	}
 
 	/**
@@ -139,10 +143,10 @@ public class ClientSecuredProtocolPropertiesWithKnownPublicKey
 	public void setEncryptionProfile(ServerSecuredProcotolPropertiesWithKnownPublicKey serverProperties) {
 		enableEncryption = serverProperties.enableEncryption;
 		setEncryptionProfile(serverProperties.getLastEncryptionProfileIdentifier(),
+				serverProperties.getDefaultKeyPairForEncryption().getASymmetricPublicKey(),
 				serverProperties.getDefaultSymmetricEncryptionType(),
 				serverProperties.getDefaultSymmetricEncryptionKeySizeBits(),
-				serverProperties.getDefaultKeyPairForEncryption().getASymmetricPublicKey(),
-				serverProperties.getDefaultKeyPairForSignature().getASymmetricPublicKey(),
+				serverProperties.getDefaultKeyWrapper(),
 				serverProperties.getDefaultSignatureType());
 	}
 
@@ -156,20 +160,11 @@ public class ClientSecuredProtocolPropertiesWithKnownPublicKey
 	}
 
 	/**
-	 * Gets the publicKey attached to this connection protocol
-	 * 
-	 * @return the publicKey attached to this connection protocol
-	 */
-	public ASymmetricPublicKey getPublicKeyForSignature() {
-		return publicKeyForSignature;
-	}
-
-	/**
 	 * Gest the signature attached to this connection protocol
 	 * 
 	 * @return the signature attached to this connection protocol
 	 */
-	public ASymmetricSignatureType getSignature() {
+	public SymmetricAuthentifiedSignatureType getSignatureType() {
 		return signatureType;
 	}
 
@@ -208,11 +203,6 @@ public class ClientSecuredProtocolPropertiesWithKnownPublicKey
 	private ASymmetricPublicKey publicKeyForEncryption;
 
 	/**
-	 * The used public key
-	 */
-	private ASymmetricPublicKey publicKeyForSignature;
-
-	/**
 	 * key identifier
 	 */
 	private int keyIdentifier = 0;
@@ -235,8 +225,13 @@ public class ClientSecuredProtocolPropertiesWithKnownPublicKey
 	/**
 	 * Signature type
 	 */
-	public ASymmetricSignatureType signatureType = null;
+	public SymmetricAuthentifiedSignatureType signatureType = null;
 
+	/**
+	 * Key wrapper
+	 */
+	public ASymmetricKeyWrapperType keyWrapper=null;
+	
 	/**
 	 * Default duration of a public key before being regenerated. Must be greater or
 	 * equal than 0.
@@ -276,9 +271,10 @@ public class ClientSecuredProtocolPropertiesWithKnownPublicKey
 	
 	void checkProperties() throws ConnectionException {
 		checkPublicKey(publicKeyForEncryption);
-		checkPublicKey(publicKeyForSignature);
+		if (symmetricEncryptionType==null)
+			throw new ConnectionException(new NullPointerException());
 		if (signatureType == null)
-			signatureType = publicKeyForSignature.getAlgorithmType().getDefaultSignatureAlgorithm();
+			signatureType = symmetricEncryptionType.getDefaultSignatureAlgorithm();
 		if (symmetricEncryptionType==null)
 			throw new ConnectionException(new NullPointerException());
 

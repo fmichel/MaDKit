@@ -41,6 +41,7 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 
 import com.distrimind.madkit.exceptions.NIOException;
+import com.distrimind.madkit.kernel.MadkitProperties;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocolProperties;
 import com.distrimind.ood.database.DatabaseWrapper;
@@ -237,13 +238,13 @@ public class ConnectionProperties {
 	}
 
 	public ConnectionProtocol<?> getConnectionProtocolsInstances(InetSocketAddress _distant_inet_address,
-			InetSocketAddress _local_interface_address, DatabaseWrapper sql_connection, NetworkProperties _properties,
+			InetSocketAddress _local_interface_address, DatabaseWrapper sql_connection, MadkitProperties mkProperties, NetworkProperties _properties,
 			boolean isServer, boolean needConnectionInitiationAbility) throws NIOException {
 		for (ConnectionProtocolProperties<?> cpp : connection_protocol_properties) {
 			if (cpp.isConcernedBy(_local_interface_address.getAddress(), _local_interface_address.getPort(),
 					_distant_inet_address.getAddress(), isServer, needConnectionInitiationAbility))
 				return cpp.getConnectionProtocolInstance(_distant_inet_address, _local_interface_address,
-						sql_connection, _properties, isServer, needConnectionInitiationAbility);
+						sql_connection, mkProperties, _properties, isServer, needConnectionInitiationAbility);
 		}
 		return null;
 	}

@@ -44,6 +44,7 @@ import com.distrimind.madkit.kernel.KernelAddress;
 import com.distrimind.util.AbstractDecentralizedID;
 
 import gnu.vm.jgnu.security.NoSuchAlgorithmException;
+import gnu.vm.jgnu.security.NoSuchProviderException;
 
 /**
  * This class represents a secured unique identifier for a distant MaDKit
@@ -68,8 +69,9 @@ public class KernelAddressInterfaced extends KernelAddress {
 	 *            the original kernel address to interface
 	 * @throws NoSuchAlgorithmException
 	 *             if the used encryption algorithm does not exists
+	 * @throws NoSuchProviderException 
 	 */
-	public KernelAddressInterfaced(KernelAddress _original_kernel_address) throws NoSuchAlgorithmException {
+	public KernelAddressInterfaced(KernelAddress _original_kernel_address) throws NoSuchAlgorithmException, NoSuchProviderException {
 		this(_original_kernel_address, true);
 	}
 
@@ -80,9 +82,10 @@ public class KernelAddressInterfaced extends KernelAddress {
 	 *            true if the original kernel address do not need to be interfaced.
 	 * @throws NoSuchAlgorithmException
 	 *             if the used encryption algorithm does not exists
+	 * @throws NoSuchProviderException 
 	 */
 	public KernelAddressInterfaced(KernelAddress _original_kernel_address,
-			boolean identical_from_original_kernel_interface) throws NoSuchAlgorithmException {
+			boolean identical_from_original_kernel_interface) throws NoSuchAlgorithmException, NoSuchProviderException {
 		super(false, false);
 		if (_original_kernel_address == null)
 			throw new NullPointerException("_original_kernel_address");

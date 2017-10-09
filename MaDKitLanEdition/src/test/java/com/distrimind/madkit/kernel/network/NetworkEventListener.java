@@ -53,6 +53,7 @@ import com.distrimind.madkit.kernel.network.DoubleIP;
 import com.distrimind.ood.database.EmbeddedHSQLDBDatabaseFactory;
 import com.distrimind.ood.database.exceptions.DatabaseException;
 
+import gnu.vm.jgnu.security.InvalidAlgorithmParameterException;
 import gnu.vm.jgnu.security.NoSuchAlgorithmException;
 import gnu.vm.jgnu.security.NoSuchProviderException;
 
@@ -222,7 +223,7 @@ public class NetworkEventListener implements MadkitEventListener {
 			boolean bindDoubleInetAddress, boolean network, boolean upnpIGDEnabled, boolean databaseEnabled,
 			final boolean canTakeLoginInitiative, boolean includeP2PConnectionPossibilityForClients,
 			final Runnable invalidPassord, int clientNumber, int... loginIndexes)
-			throws UnknownHostException, NoSuchAlgorithmException, NoSuchProviderException {
+			throws UnknownHostException, NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException {
 		ArrayList<Object[]> res = new ArrayList<>();
 
 		for (ConnectionsProtocolsMKEventListener cp : ConnectionsProtocolsMKEventListener

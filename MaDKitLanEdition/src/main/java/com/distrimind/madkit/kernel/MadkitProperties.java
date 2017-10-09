@@ -43,8 +43,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.NetworkInterface;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -68,9 +70,14 @@ import com.distrimind.ood.database.DatabaseFactory;
 import com.distrimind.ood.database.DatabaseWrapper;
 import com.distrimind.ood.database.Table;
 import com.distrimind.ood.database.exceptions.DatabaseException;
+import com.distrimind.util.crypto.AbstractSecureRandom;
+import com.distrimind.util.crypto.SecureRandomType;
 import com.distrimind.util.properties.XMLProperties;
 import com.distrimind.util.properties.XMLPropertiesParseException;
 import com.distrimind.util.version.Version;
+
+import gnu.vm.jgnu.security.NoSuchAlgorithmException;
+import gnu.vm.jgnu.security.NoSuchProviderException;
 
 /**
  * The properties object used within MaDKit.
@@ -520,4 +527,228 @@ public class MadkitProperties extends XMLProperties {
 		mp.save(new File("madkit.xml"));
 	}
 
+	private SecureRandomType approvedRandomType=SecureRandomType.FORTUNA_WITH_BC_FIPS_APPROVED;
+	private SecureRandomType approvedRandomTypeForKeys=SecureRandomType.FORTUNA_WITH_BC_FIPS_APPROVED_FOR_KEYS;
+	private volatile AbstractSecureRandom approvedRandom=null;
+	private volatile AbstractSecureRandom approvedRandomForKeys=null;
+	private String nonceForApprovedRandom="Au courant de l'amour lorsque je m'abandonne,\n" + 
+			"Dans le torrent divin quand je plonge enivré,\n" + 
+			"Et presse éperdument sur mon sein qui frissonne\n" + 
+			"Un être idolâtre.\n" + 
+			"\n" + 
+			"Je sais que je n'étreins qu'une forme fragile,\n" + 
+			"Qu'elle peut à l'instant se glacer sous ma main,\n" + 
+			"Que ce cœur tout à moi, fait de flamme et d'argile,\n" + 
+			"Sera cendre demain ;\n" + 
+			"\n" + 
+			"Qu'il n'en sortira rien, rien, pas une étincelle\n" + 
+			"Qui s'élance et remonte à son foyer lointain :\n" + 
+			"Un peu de terre en hâte, une pierre qu'on scelle,\n" + 
+			"Et tout est bien éteint.\n" + 
+			"\n" + 
+			"Et l'on viendrait serein, à cette heure dernière,\n" + 
+			"Quand des restes humains le souffle a déserté,\n" + 
+			"Devant ces froids débris, devant cette poussière\n" + 
+			"Parler d'éternité !\n";
+	private String nonceForApprovedRandomForKeys="\n" + 
+			"\n" + 
+			"    L ‘Emmuré.\n" + 
+			"\n" + 
+			"    S’il respire il pense à l’encoche\n" + 
+			"    Dans la tendre chaux confidente\n" + 
+			"    Où ses mains du soir étendent ton corps.\n" + 
+			"\n" + 
+			"    Le laurier l’épuise,\n" + 
+			"    La privation le consolide.\n" + 
+			"\n" + 
+			"    O toi, la monotone absente,\n" + 
+			"    La fileuse de salpêtre,\n" + 
+			"    Derrière des épaisseurs fixes\n" + 
+			"    Une échelle sans âge déploie ton voile !\n" + 
+			"\n" + 
+			"    Tu vas nue, constellée d’échardes,\n" + 
+			"    Secrète, tiède et disponible,\n" + 
+			"    Attachée au sol indolent,\n" + 
+			"    Mais l’intime de l’homme abrupt dans sa prison.\n" + 
+			"\n" + 
+			"    A te mordre les jours grandissent,\n" + 
+			"    Plus arides, plus imprenables que les nuages qui se déchirent au fond des os.\n" + 
+			"    J’ai pesé de tout mon désir\n" + 
+			"    Sur ta beauté matinale\n" + 
+			"    Pour qu’elle éclate et se sauve.\n" + 
+			"\n" + 
+			"    L’ont suivie l’alcool sans rois mages,\n" + 
+			"    Le battement de ton triangle,\n" + 
+			"    La main-d’oeuvre de tes yeux\n" + 
+			"    Et le gravier debout sur l’algue.\n" + 
+			"\n" + 
+			"    Un parfum d’insolation\n" + 
+			"    Protège ce qui va éclore.\n" + 
+			"\n" + 
+			"";
+	private String parameterForApprovedRandom="J'ai rencontré trois escargots\n" + 
+			"Qui s'en allaient cartable au dos\n" + 
+			"Et dans le pré trois limaçons\n" + 
+			"Qui disaient par cœur leur leçon.\n" + 
+			"Puis dans un champ, quatre lézards\n" + 
+			"Qui écrivaient un long devoir.\n" + 
+			"\n" + 
+			"Où peut se trouver leur école ?\n" + 
+			"Au milieu des avoines folles ?\n" + 
+			"Et leur maître est-il ce corbeau\n" + 
+			"Que je vois dessiner là-haut\n" + 
+			"De belles lettres au tableau ?";
+	private String parameterForApprovedRandomForKeys="Eh bien ! reprends-le donc ce peu de fange obscure\n" + 
+			"Qui pour quelques instants s'anima sous ta main ;\n" + 
+			"Dans ton dédain superbe, implacable Nature,\n" + 
+			"Brise à jamais le moule humain.\n" + 
+			"\n" + 
+			"De ces tristes débris quand tu verrais, ravie,\n" + 
+			"D'autres créations éclore à grands essaims,\n" + 
+			"Ton Idée éclater en des formes de vie\n" + 
+			"Plus dociles à tes desseins,\n" + 
+			"\n" + 
+			"Est-ce à dire que Lui, ton espoir, ta chimère,\n" + 
+			"Parce qu'il fut rêvé, puisse un jour exister ?\n" + 
+			"Tu crois avoir conçu, tu voudrais être mère ;\n" + 
+			"A l'œuvre ! il s'agit d'enfanter.\n" + 
+			"\n" + 
+			"Change en réalité ton attente sublime.\n" + 
+			"Mais quoi ! pour les franchir, malgré tous tes élans,\n" + 
+			"La distance est trop grande et trop profond l'abîme\n" + 
+			"Entre ta pensée et tes flancs.\n";
+	
+	
+	public SecureRandomType getApprovedRandomType() {
+		return approvedRandomType;
+	}
+
+	public void setApprovedRandomType(SecureRandomType approvedRandomType) {
+		this.approvedRandomType = approvedRandomType;
+		approvedRandom=null;
+	}
+
+	public SecureRandomType getApprovedRandomTypeForKeys() {
+		return approvedRandomTypeForKeys;
+	}
+
+	public void setApprovedRandomTypeForKeys(SecureRandomType approvedRandomTypeForKeys) {
+		this.approvedRandomTypeForKeys = approvedRandomTypeForKeys;
+		approvedRandomTypeForKeys=null;
+	}
+	
+	private static long getMacAddress()
+	{
+		long result = 0;
+		long result2=0;
+		try {
+			final Enumeration<NetworkInterface> e = NetworkInterface.getNetworkInterfaces();
+			if (e != null) {
+				while (e.hasMoreElements()) {
+					final NetworkInterface ni = e.nextElement();
+						
+					
+					if (!ni.isLoopback()) {
+						
+						long val = getHardwareAddress(ni.getHardwareAddress());
+						if (val != 0 && val != 224)
+						{
+							if (ni.isPointToPoint()) {
+								result2=val;
+							}
+							else {
+								result = val;
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		if (result==0)
+			result=result2;
+		return result;
+		
+	}
+	private static long getHardwareAddress(byte hardwareAddress[]) {
+		long result = 0;
+		if (hardwareAddress != null) {
+			for (final byte value : hardwareAddress) {
+				result <<= 8;
+				result |= value & 255;
+			}
+		}
+		return result;
+	}
+	public AbstractSecureRandom getApprovedSecureRandom() throws NoSuchAlgorithmException, NoSuchProviderException
+	{
+		if (approvedRandom==null)
+		{
+			synchronized(this)
+			{
+				if (approvedRandom==null)
+				{
+					approvedRandom=approvedRandomType.getSingleton(((nonceForApprovedRandom+System.currentTimeMillis())+getMacAddress()).getBytes(), parameterForApprovedRandom.getBytes(), true);
+				}
+			}
+		}
+		return approvedRandom;
+	}
+	public AbstractSecureRandom getApprovedSecureRandomForKeys() throws NoSuchAlgorithmException, NoSuchProviderException
+	{
+		if (approvedRandomForKeys==null)
+		{
+			synchronized(this)
+			{
+				if (approvedRandomForKeys==null)
+				{
+					approvedRandomForKeys=approvedRandomTypeForKeys.getSingleton(((nonceForApprovedRandomForKeys+System.currentTimeMillis())+getMacAddress()).getBytes(), parameterForApprovedRandomForKeys.getBytes(), true);
+				}
+			}
+		}
+		return approvedRandomForKeys;
+	}
+
+	public String getNonceForApprovedRandom() {
+		return nonceForApprovedRandom;
+	}
+
+	public void setNonceForApprovedRandom(String nonceForApprovedRandom) {
+		this.nonceForApprovedRandom = nonceForApprovedRandom;
+		approvedRandom=null;
+	}
+
+	public String getNonceForApprovedRandomForKeys() {
+		return nonceForApprovedRandomForKeys;
+	}
+
+	public void setNonceForApprovedRandomForKeys(String nonceForApprovedRandomForKeys) {
+		this.nonceForApprovedRandomForKeys = nonceForApprovedRandomForKeys;
+		approvedRandomForKeys=null;
+	}
+
+	public String getParameterForApprovedRandom() {
+		return parameterForApprovedRandom;
+	}
+
+	public void setParameterForApprovedRandom(String parameterForApprovedRandom) {
+		this.parameterForApprovedRandom = parameterForApprovedRandom;
+		approvedRandom=null;
+	}
+
+	public String getParameterForApprovedRandomKeys() {
+		return parameterForApprovedRandomForKeys;
+	}
+
+	public void setParameterForApprovedRandomKeys(String parameterForApprovedRandomKeys) {
+		this.parameterForApprovedRandomForKeys = parameterForApprovedRandomKeys;
+		approvedRandomForKeys=null;
+	}
+	
+	
+	
 }

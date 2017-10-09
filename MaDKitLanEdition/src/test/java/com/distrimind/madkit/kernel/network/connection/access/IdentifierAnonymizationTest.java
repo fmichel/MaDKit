@@ -42,9 +42,6 @@ import java.util.Random;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.distrimind.madkit.kernel.KernelAddress;
-import com.distrimind.madkit.kernel.KernelAddressTest;
-import com.distrimind.madkit.kernel.network.KernelAddressInterfaced;
 import com.distrimind.util.crypto.AbstractMessageDigest;
 import com.distrimind.util.crypto.AbstractSecureRandom;
 import com.distrimind.util.crypto.MessageDigestType;
@@ -71,12 +68,12 @@ public class IdentifierAnonymizationTest {
 			rand.nextBytes(id);
 			byte[] salt=new byte[rand.nextInt(2000)+20];
 			rand.nextBytes(salt);
-			KernelAddress kernelAddress=KernelAddressTest.getKernelAddressInstance();
 			
-			AbstractSecureRandom srand=SecureRandomType.DEFAULT.getInstance();
+			
+			AbstractSecureRandom srand=SecureRandomType.DEFAULT.getSingleton(null);
 			AbstractMessageDigest messageDigest=MessageDigestType.DEFAULT.getMessageDigestInstance();
-			byte[] encryptedID=AccessProtocolWithJPake.anonimizeIdentifier(id,srand , messageDigest, kernelAddress, salt);
-			Assert.assertTrue(AccessProtocolWithJPake.compareAnonymizedIdentifier(id, encryptedID, messageDigest, kernelAddress, salt));
+			byte[] encryptedID=AccessProtocolWithJPake.anonimizeIdentifier(id,srand , messageDigest, salt);
+			Assert.assertTrue(AccessProtocolWithJPake.compareAnonymizedIdentifier(id, encryptedID, messageDigest, salt));
 		}		
 	}
 	@Test
@@ -98,12 +95,11 @@ public class IdentifierAnonymizationTest {
 			rand.nextBytes(id);
 			byte[] salt=new byte[rand.nextInt(2000)+20];
 			rand.nextBytes(salt);
-			KernelAddress kernelAddress=new KernelAddressInterfaced(KernelAddressTest.getKernelAddressInstance(), keepOriginal);
 			
-			AbstractSecureRandom srand=SecureRandomType.DEFAULT.getInstance();
+			AbstractSecureRandom srand=SecureRandomType.DEFAULT.getSingleton(null);
 			AbstractMessageDigest messageDigest=MessageDigestType.DEFAULT.getMessageDigestInstance();
-			byte[] encryptedID=AccessProtocolWithJPake.anonimizeIdentifier(id,srand , messageDigest, kernelAddress, salt);
-			Assert.assertTrue(AccessProtocolWithJPake.compareAnonymizedIdentifier(id, encryptedID, messageDigest, kernelAddress, salt));
+			byte[] encryptedID=AccessProtocolWithJPake.anonimizeIdentifier(id,srand , messageDigest, salt);
+			Assert.assertTrue(AccessProtocolWithJPake.compareAnonymizedIdentifier(id, encryptedID, messageDigest, salt));
 		}		
 	}
 }

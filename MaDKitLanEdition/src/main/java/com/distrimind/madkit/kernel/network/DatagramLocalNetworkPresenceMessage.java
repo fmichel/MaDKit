@@ -56,6 +56,7 @@ import com.distrimind.util.sizeof.ObjectSizer;
 import com.distrimind.util.version.Version;
 
 import gnu.vm.jgnu.security.NoSuchAlgorithmException;
+import gnu.vm.jgnu.security.NoSuchProviderException;
 
 /**
  * 
@@ -119,7 +120,7 @@ class DatagramLocalNetworkPresenceMessage extends Message {
 	}
 
 	DatagramLocalNetworkPresenceMessage(long onlineTime, Version programVersion, Version madkitVersion,
-			InetAddress inetAddress, KernelAddress kernelAddress) throws NoSuchAlgorithmException {
+			InetAddress inetAddress, KernelAddress kernelAddress) throws NoSuchAlgorithmException, NoSuchProviderException {
 		this.onlineTime = onlineTime;
 		if (programVersion == null)
 			this.programBuildNumber = 0;
@@ -141,8 +142,8 @@ class DatagramLocalNetworkPresenceMessage extends Message {
 		this.hashCode = computeHashCode();
 	}
 
-	private static byte[] digestMessage(byte[] bytes) throws NoSuchAlgorithmException {
-		AbstractMessageDigest mda = MessageDigestType.GNU_SHA_256.getMessageDigestInstance();
+	private static byte[] digestMessage(byte[] bytes) throws NoSuchAlgorithmException, NoSuchProviderException {
+		AbstractMessageDigest mda = MessageDigestType.BC_FIPS_SHA3_256.getMessageDigestInstance();
 		return mda.digest(bytes);
 	}
 
@@ -225,7 +226,7 @@ class DatagramLocalNetworkPresenceMessage extends Message {
 	}
 
 	boolean isCompatibleWith(long localOnlineTime, Version localProgramVersionMinimum,
-			Version localMadkitVersionMinimum, KernelAddress kernelAddress) throws NoSuchAlgorithmException {
+			Version localMadkitVersionMinimum, KernelAddress kernelAddress) throws NoSuchAlgorithmException, NoSuchProviderException {
 		/*
 		 * if (localOnlineTime>=onlineTime) { return false; }
 		 */
@@ -234,7 +235,7 @@ class DatagramLocalNetworkPresenceMessage extends Message {
 	}
 
 	boolean isCompatibleWith(Version localProgramVersionMinimum, Version localMadkitVersionMinimum,
-			KernelAddress kernelAddress) throws NoSuchAlgorithmException {
+			KernelAddress kernelAddress) throws NoSuchAlgorithmException, NoSuchProviderException {
 		if (localMadkitVersionMinimum == null)
 			throw new NullPointerException("localMadkitVersionMinimum");
 

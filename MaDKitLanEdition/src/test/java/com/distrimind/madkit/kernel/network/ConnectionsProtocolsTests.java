@@ -67,6 +67,7 @@ import com.distrimind.madkit.exceptions.PacketException;
 import com.distrimind.madkit.io.RandomByteArrayInputStream;
 import com.distrimind.madkit.io.RandomByteArrayOutputStream;
 import com.distrimind.madkit.kernel.JunitMadkit;
+import com.distrimind.madkit.kernel.MadkitProperties;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.madkit.kernel.network.connection.AskConnection;
 import com.distrimind.madkit.kernel.network.connection.ConnectionMessage;
@@ -76,22 +77,21 @@ import com.distrimind.madkit.kernel.network.connection.ConnectionProtocolPropert
 import com.distrimind.madkit.kernel.network.connection.TransferedBlockChecker;
 import com.distrimind.madkit.kernel.network.connection.UnexpectedMessage;
 import com.distrimind.madkit.kernel.network.connection.secured.ClientSecuredProtocolPropertiesWithKnownPublicKey;
-import com.distrimind.madkit.kernel.network.connection.secured.ClientSecuredProtocolPropertiesWithKnownPublicKeyWithECDHAlgorithm;
 import com.distrimind.madkit.kernel.network.connection.secured.P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties;
 import com.distrimind.madkit.kernel.network.connection.secured.P2PSecuredConnectionProtocolWithECDHAlgorithmProperties;
 import com.distrimind.madkit.kernel.network.connection.secured.ServerSecuredProcotolPropertiesWithKnownPublicKey;
-import com.distrimind.madkit.kernel.network.connection.secured.ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm;
 import com.distrimind.madkit.kernel.network.connection.unsecured.CheckSumConnectionProtocolProperties;
 import com.distrimind.madkit.kernel.network.connection.unsecured.UnsecuredConnectionProtocolProperties;
 import com.distrimind.ood.database.DatabaseConfiguration;
 import com.distrimind.ood.database.EmbeddedHSQLDBWrapper;
 import com.distrimind.util.crypto.ASymmetricEncryptionType;
 import com.distrimind.util.crypto.ASymmetricKeyPair;
-import com.distrimind.util.crypto.EllipticCurveDiffieHellmanType;
+import com.distrimind.util.crypto.ASymmetricKeyWrapperType;
 import com.distrimind.util.crypto.MessageDigestType;
 import com.distrimind.util.crypto.SecureRandomType;
 import com.distrimind.util.crypto.SymmetricEncryptionType;
 
+import gnu.vm.jgnu.security.InvalidAlgorithmParameterException;
 import gnu.vm.jgnu.security.NoSuchAlgorithmException;
 import gnu.vm.jgnu.security.NoSuchProviderException;
 
@@ -141,10 +141,11 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 	private ConnectionProtocol<?> cpreceiver;
 	private final NetworkProperties npasker;
 	private final NetworkProperties npreceiver;
+	private static final MadkitProperties mkProperties=new MadkitProperties();
 	private final static Random rand = new Random(System.currentTimeMillis());
 
 	private static ArrayList<ConnectionProtocolProperties<?>[]> dataWithSubLevel()
-			throws SecurityException, IllegalArgumentException, NoSuchAlgorithmException, NoSuchProviderException {
+			throws SecurityException, IllegalArgumentException, NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException {
 		ArrayList<ConnectionProtocolProperties<?>[]> res = new ArrayList<>();
 
 		ArrayList<ConnectionProtocolProperties<?>[]> firstLevel = dataOneLevel();
@@ -165,7 +166,7 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 	}
 
 	private static ArrayList<ConnectionProtocolProperties<?>[]> dataOneLevel()
-			throws SecurityException, IllegalArgumentException, NoSuchAlgorithmException, NoSuchProviderException {
+			throws SecurityException, IllegalArgumentException, NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException {
 		ArrayList<ConnectionProtocolProperties<?>[]> res = new ArrayList<>();
 
 		ConnectionProtocolProperties<?>[] o = new ConnectionProtocolProperties<?>[2];
@@ -216,10 +217,8 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 		ServerSecuredProcotolPropertiesWithKnownPublicKey sp = new ServerSecuredProcotolPropertiesWithKnownPublicKey();
 		ClientSecuredProtocolPropertiesWithKnownPublicKey cp = new ClientSecuredProtocolPropertiesWithKnownPublicKey();
 		ASymmetricKeyPair kpe = ASymmetricEncryptionType.DEFAULT
-				.getKeyPairGenerator(SecureRandomType.DEFAULT.getInstance(), (short) 1024).generateKeyPair();
-		ASymmetricKeyPair kps = ASymmetricEncryptionType.DEFAULT
-				.getKeyPairGenerator(SecureRandomType.DEFAULT.getInstance(), (short) 1024).generateKeyPair();
-		sp.addEncryptionProfile(kpe, kps, SymmetricEncryptionType.DEFAULT);
+				.getKeyPairGenerator(SecureRandomType.DEFAULT.getSingleton(null), (short) 1024).generateKeyPair();
+		sp.addEncryptionProfile(kpe, SymmetricEncryptionType.DEFAULT, ASymmetricKeyWrapperType.DEFAULT);
 		cp.setEncryptionProfile(sp);
 		o[0] = cp;
 		o[1] = sp;
@@ -228,7 +227,7 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 		o = new ConnectionProtocolProperties<?>[2];
 		sp = new ServerSecuredProcotolPropertiesWithKnownPublicKey();
 		cp = new ClientSecuredProtocolPropertiesWithKnownPublicKey();
-		sp.addEncryptionProfile(kpe,kps, SymmetricEncryptionType.DEFAULT);
+		sp.addEncryptionProfile(kpe, SymmetricEncryptionType.DEFAULT, ASymmetricKeyWrapperType.DEFAULT);
 		cp.setEncryptionProfile(sp);
 		sp.enableEncryption = false;
 		cp.enableEncryption = false;
@@ -236,28 +235,6 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 		o[1] = sp;
 		res.add(o);
 
-		o = new ConnectionProtocolProperties<?>[2];
-		ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm spwe = new ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm();
-		ClientSecuredProtocolPropertiesWithKnownPublicKeyWithECDHAlgorithm cpwe = new ClientSecuredProtocolPropertiesWithKnownPublicKeyWithECDHAlgorithm();
-		kps = ASymmetricEncryptionType.DEFAULT
-				.getKeyPairGenerator(SecureRandomType.DEFAULT.getInstance(), (short) 1024).generateKeyPair();
-		
-		spwe.addEncryptionProfile(kps, SymmetricEncryptionType.DEFAULT, SymmetricEncryptionType.DEFAULT.getDefaultSignatureAlgorithm(), EllipticCurveDiffieHellmanType.BOUNCY_CASTLE_ECDH_128);
-		cpwe.setEncryptionProfile(spwe);
-		o[0] = cpwe;
-		o[1] = spwe;
-		res.add(o);
-		
-		o = new ConnectionProtocolProperties<?>[2];
-		spwe = new ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm();
-		cpwe = new ClientSecuredProtocolPropertiesWithKnownPublicKeyWithECDHAlgorithm();
-		spwe.addEncryptionProfile(kps, SymmetricEncryptionType.DEFAULT, SymmetricEncryptionType.DEFAULT.getDefaultSignatureAlgorithm(), EllipticCurveDiffieHellmanType.BOUNCY_CASTLE_ECDH_128);
-		cpwe.setEncryptionProfile(spwe);
-		spwe.enableEncryption = false;
-		cpwe.enableEncryption = false;
-		o[0] = cpwe;
-		o[1] = spwe;
-		res.add(o);
 
 		o = new ConnectionProtocolProperties<?>[2];
 		UnsecuredConnectionProtocolProperties ucp = new UnsecuredConnectionProtocolProperties();
@@ -277,20 +254,21 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 	}
 
 	public static Collection<Object[]> data(boolean enableDatabase) throws SecurityException, IllegalArgumentException,
-			UnknownHostException, NoSuchAlgorithmException, NIOException, NoSuchProviderException {
+			UnknownHostException, NoSuchAlgorithmException, NIOException, NoSuchProviderException, InvalidAlgorithmParameterException {
 		ArrayList<ConnectionProtocolProperties<?>[]> data = dataOneLevel();
 		data.addAll(dataWithSubLevel());
 		Collection<Object[]> res = new ArrayList<>();
 		for (int i = 0; i < data.size(); i++) {
 			ConnectionProtocolProperties<?>[] base = data.get(i);
 			Object o[] = new Object[4];
+			
 			NetworkProperties np = new NetworkProperties();
 			np.addConnectionProtocol(base[0]);
-			o[0] = getConnectionProtocolInstance(np, enableDatabase ? 1 : 0);
+			o[0] = getConnectionProtocolInstance(mkProperties, np, enableDatabase ? 1 : 0);
 			o[1] = np;
 			np = new NetworkProperties();
 			np.addConnectionProtocol(base[1]);
-			o[2] = getConnectionProtocolInstance(np, enableDatabase ? 2 : 0);
+			o[2] = getConnectionProtocolInstance(mkProperties, np, enableDatabase ? 2 : 0);
 			o[3] = np;
 			res.add(o);
 		}
@@ -299,17 +277,17 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 
 	@Parameters
 	public static Collection<Object[]> data() throws SecurityException, IllegalArgumentException, UnknownHostException,
-			NoSuchAlgorithmException, NIOException, NoSuchProviderException {
+			NoSuchAlgorithmException, NIOException, NoSuchProviderException, InvalidAlgorithmParameterException {
 		Collection<Object[]> res = data(false);
 		res.addAll(data(true));
 		return res;
 	}
 
-	public static ConnectionProtocol<?> getConnectionProtocolInstance(NetworkProperties np, int database)
+	public static ConnectionProtocol<?> getConnectionProtocolInstance(MadkitProperties mkProperties, NetworkProperties np, int database)
 			throws NIOException, UnknownHostException, IllegalArgumentException {
 		return np.getConnectionProtocolInstance(new InetSocketAddress(InetAddress.getByName("56.41.158.221"), 5000),
 				new InetSocketAddress(InetAddress.getByName("192.168.0.55"), 5000),
-				database == 1 ? sql_connection_asker : database == 2 ? sql_connection_recveiver : null, false, false);
+				database == 1 ? sql_connection_asker : database == 2 ? sql_connection_recveiver : null, mkProperties,false, false);
 		// ConnectionProtocolProperties<?> cpp=np.getConnectionProtocolProperties(new
 		// InetSocketAddress(InetAddress.getByName("56.41.158.221"), 5000), new
 		// InetSocketAddress(InetAddress.getByName("192.168.0.55"), 5000));
@@ -437,8 +415,8 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 	public void testIrregularConnectionWithUnkowMessage(int index, boolean asker, boolean enableDatabase)
 			throws ConnectionException, PacketException, NIOException, IOException, ClassNotFoundException,
 			BlockParserException, IllegalArgumentException, NoSuchAlgorithmException, NoSuchProviderException {
-		cpasker = getConnectionProtocolInstance(npasker, enableDatabase ? 1 : 0);
-		cpreceiver = getConnectionProtocolInstance(npreceiver, enableDatabase ? 2 : 0);
+		cpasker = getConnectionProtocolInstance(mkProperties, npasker, enableDatabase ? 1 : 0);
+		cpreceiver = getConnectionProtocolInstance(mkProperties, npreceiver, enableDatabase ? 2 : 0);
 		Assert.assertFalse(cpasker.isConnectionEstablished());
 		Assert.assertFalse(cpreceiver.isConnectionEstablished());
 		Assert.assertEquals(ConnectionState.NOT_CONNECTED, cpasker.getConnectionState());
@@ -524,8 +502,8 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 	public void testIrregularConnectionWithCurrptedMessage(int index, boolean asker, boolean enableDatabase)
 			throws ConnectionException, PacketException, NIOException, IOException, ClassNotFoundException,
 			BlockParserException, NoSuchAlgorithmException, NoSuchProviderException {
-		cpasker = getConnectionProtocolInstance(npasker, enableDatabase ? 1 : 0);
-		cpreceiver = getConnectionProtocolInstance(npreceiver, enableDatabase ? 2 : 0);
+		cpasker = getConnectionProtocolInstance(mkProperties, npasker, enableDatabase ? 1 : 0);
+		cpreceiver = getConnectionProtocolInstance(mkProperties, npreceiver, enableDatabase ? 2 : 0);
 		Assert.assertFalse(cpasker.isConnectionEstablished());
 		Assert.assertFalse(cpreceiver.isConnectionEstablished());
 		Assert.assertEquals(ConnectionState.NOT_CONNECTED, cpasker.getConnectionState());
@@ -617,11 +595,11 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 			NIOException, BlockParserException, NoSuchAlgorithmException, NoSuchProviderException {
 		ArrayList<Block> res = new ArrayList<>();
 		WritePacket wp = new WritePacket(PacketPartHead.TYPE_PACKET, idPacket, np.maxBufferSize,
-				np.maxRandomPacketValues, rand, new RandomByteArrayInputStream(message), MessageDigestType.SHA_512);
+				np.maxRandomPacketValues, rand, new RandomByteArrayInputStream(message), MessageDigestType.BC_FIPS_SHA3_512);
 		Assert.assertEquals(idPacket, wp.getID());
 		while (!wp.isFinished()) {
 			Block b = cp.getBlock(wp, transferType,
-					np.maxRandomPacketValues > 0 ? SecureRandomType.DEFAULT.getInstance() : null);
+					np.maxRandomPacketValues > 0 ? SecureRandomType.DEFAULT.getSingleton(null) : null);
 			Assert.assertEquals(transferType, b.getTransferID());
 			Assert.assertTrue(b.isValid());
 			if (tbc != null) {
@@ -652,7 +630,7 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 		Assert.assertEquals(0, pp.getHead().getStartPosition());
 		RandomByteArrayOutputStream output = new RandomByteArrayOutputStream();
 		ReadPacket rp = new ReadPacket(np.maxBufferSize, np.maxRandomPacketValues, pp, output,
-				MessageDigestType.SHA_512);
+				MessageDigestType.BC_FIPS_SHA3_512);
 		Assert.assertEquals(idPacket, rp.getID());
 		for (int i = 1; i < receivedBytes.size(); i++) {
 			b = new Block(receivedBytes.get(i));

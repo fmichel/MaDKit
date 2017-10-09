@@ -160,6 +160,7 @@ import com.distrimind.util.IDGeneratorInt;
 import com.distrimind.util.crypto.MessageDigestType;
 
 import gnu.vm.jgnu.security.NoSuchAlgorithmException;
+import gnu.vm.jgnu.security.NoSuchProviderException;
 
 /**
  * The brand new MaDKit kernel and it is now a real Agent :)
@@ -347,7 +348,7 @@ class MadkitKernel extends Agent {
 				ka = m.kernelAddress;
 			else
 				ka = new KernelAddress(madkitConfig.isKernelAddressSecured());
-		} catch (NoSuchAlgorithmException e) {
+		} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
 			e.printStackTrace();
 			System.exit(-1);
 		}
@@ -400,6 +401,9 @@ class MadkitKernel extends Agent {
 		lifeExecutor.prestartAllCoreThreads();
 		lifeExecutor.allowCoreThreadTimeOut(true);
 
+		madkitConfig.getApprovedRandomType();
+		madkitConfig.getApprovedRandomTypeForKeys();
+		
 		if (madkitConfig.isDatatabaseEnabled()) {
 			try {
 				madkitConfig.getDatabaseWrapper().loadDatabase(new DatabaseConfiguration(IPBanned.class.getPackage()),

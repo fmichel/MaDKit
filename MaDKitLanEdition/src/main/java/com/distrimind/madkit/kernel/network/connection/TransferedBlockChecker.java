@@ -72,7 +72,9 @@ public abstract class TransferedBlockChecker implements Serializable {
 		if (res.isValid() && subChecker != null) {
 			return subChecker.checkSubBlock(res.getSubBlock());
 		} else
+		{
 			return res;
+		}
 	}
 
 	public abstract Integrity checkDataIntegrity();

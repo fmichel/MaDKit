@@ -120,7 +120,6 @@ import com.distrimind.ood.database.exceptions.DatabaseException;
 import com.distrimind.util.IDGeneratorInt;
 import com.distrimind.util.Timer;
 import com.distrimind.util.crypto.AbstractSecureRandom;
-import com.distrimind.util.crypto.SecureRandomType;
 
 /**
  * 
@@ -251,7 +250,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 		this.distantIP = distantIP;
 		AbstractSecureRandom r = null;
 		try {
-			r = SecureRandomType.DEFAULT.getInstance();
+			r = getMadkitConfig().getApprovedSecureRandom();
 		} catch (Exception e) {
 			if (logger != null)
 				logger.severeLog("Unexpected exception", e);
@@ -322,7 +321,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 						+ local_interface_address + ")");
 
 			connection_protocol = getMadkitConfig().networkProperties.getConnectionProtocolInstance(
-					distant_inet_address, local_interface_address, getMadkitConfig().getDatabaseWrapper(),
+					distant_inet_address, local_interface_address, getMadkitConfig().getDatabaseWrapper(),getMadkitConfig(),
 					!this_ask_connection, this instanceof IndirectAgentSocket);
 
 			if (connection_protocol == null)

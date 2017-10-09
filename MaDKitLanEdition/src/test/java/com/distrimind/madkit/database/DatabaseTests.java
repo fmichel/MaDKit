@@ -79,7 +79,7 @@ public class DatabaseTests {
 		ipExpulsedStat = (IPExpulsedStat) databaseWrapper.getTableInstance(IPExpulsedStat.class);
 		keysPairs = (KeysPairs) databaseWrapper.getTableInstance(KeysPairs.class);
 	}
-
+	
 	@AfterClass
 	public static void closeAndDeleleteDatabase() {
 		if (databaseWrapper != null)
@@ -97,7 +97,7 @@ public class DatabaseTests {
 			NoSuchAlgorithmException, NoSuchProviderException {
 		InetAddress ia1 = InetAddress.getByName("192.168.0.15");
 		InetAddress ia2 = InetAddress.getByName("0.15.100.100");
-		AbstractSecureRandom random = SecureRandomType.DEFAULT.getInstance();
+		AbstractSecureRandom random = SecureRandomType.DEFAULT.getSingleton(null);
 		ASymmetricKeyPair kp1 = keysPairs.getKeyPair(ia1, (byte) 0, ASymmetricEncryptionType.DEFAULT, (short) 1024,
 				random, 500, (short) 100);
 		ASymmetricKeyPair kp2 = keysPairs.getKeyPair(ia1, (byte) 0, ASymmetricEncryptionType.DEFAULT, (short) 1024,

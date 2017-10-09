@@ -50,6 +50,7 @@ import com.distrimind.madkit.kernel.AgentFakeThread;
 import com.distrimind.madkit.kernel.Message;
 
 import gnu.vm.jgnu.security.NoSuchAlgorithmException;
+import gnu.vm.jgnu.security.NoSuchProviderException;
 
 /**
  * @author Jason Mahdjoub
@@ -112,7 +113,7 @@ final class MultiCastListenerAgent extends AgentFakeThread {
 					new DatagramLocalNetworkPresenceMessage(localOnlineTime, getMadkitConfig().projectVersion,
 							getMadkitConfig().madkitVersion, this.networkInterfaceAddress, getKernelAddress()),
 					LocalCommunity.Roles.MULTICAST_LISTENER_ROLE);
-		} catch (NoSuchAlgorithmException e) {
+		} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
 			if (logger != null)
 				logger.severeLog("Impossible to digest kernel address", e);
 		}
@@ -165,7 +166,7 @@ final class MultiCastListenerAgent extends AgentFakeThread {
 					}
 				} else if (logger != null && logger.isLoggable(Level.FINER))
 					logger.finer("Incompatible message received : " + _message);
-			} catch (NoSuchAlgorithmException e) {
+			} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
 				if (logger != null)
 					logger.severeLog("Impossible to digest kernel address", e);
 			}

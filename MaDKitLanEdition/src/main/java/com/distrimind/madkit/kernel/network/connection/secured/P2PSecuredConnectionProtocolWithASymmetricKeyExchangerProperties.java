@@ -39,8 +39,9 @@ package com.distrimind.madkit.kernel.network.connection.secured;
 
 import com.distrimind.madkit.exceptions.ConnectionException;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocolProperties;
+import com.distrimind.util.crypto.ASymmetricAuthentifiedSignatureType;
 import com.distrimind.util.crypto.ASymmetricEncryptionType;
-import com.distrimind.util.crypto.ASymmetricSignatureType;
+import com.distrimind.util.crypto.ASymmetricKeyWrapperType;
 import com.distrimind.util.crypto.SymmetricEncryptionType;
 
 /**
@@ -95,8 +96,13 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties ex
 	/**
 	 * Signature type
 	 */
-	public ASymmetricSignatureType signatureType = aSymetricEncryptionType.getDefaultSignatureAlgorithm();
+	public ASymmetricAuthentifiedSignatureType signatureType = aSymetricEncryptionType.getDefaultSignatureAlgorithm();
 
+	/**
+	 * ASymmetric key wrapper
+	 */
+	public ASymmetricKeyWrapperType keyWrapper=ASymmetricKeyWrapperType.DEFAULT;
+	
 	/**
 	 * Default duration of a public key before being regenerated. Must be greater or
 	 * equal than 0.
@@ -118,6 +124,8 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties ex
 		if (aSymetricKeySize < minASymetricKeySize)
 			throw new ConnectionException("_rsa_key_size must be greater or equal than " + minASymetricKeySize
 					+ " . Moreover, this number must correspond to this schema : _rsa_key_size=2^x.");
+		if (keyWrapper==null)
+			throw new ConnectionException(new NullPointerException());
 		int tmp = aSymetricKeySize;
 		while (tmp != 1) {
 			if (tmp % 2 == 0)

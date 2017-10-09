@@ -42,7 +42,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.distrimind.madkit.kernel.AbstractGroup;
-import com.distrimind.madkit.kernel.KernelAddress;
 import com.distrimind.util.crypto.AbstractMessageDigest;
 import com.distrimind.util.crypto.P2PASymmetricSecretMessageExchanger;
 
@@ -121,7 +120,7 @@ public abstract class LoginData extends AccessData {
 	}
 
 	public Identifier getIdentifier(final EncryptedIdentifier encryptedIdentifier,
-			final AbstractMessageDigest messageDigest, final KernelAddress localKernelAddress, final byte[] localGeneratedSalt) throws AccessException {
+			final AbstractMessageDigest messageDigest, final byte[] localGeneratedSalt) throws AccessException {
 		final AtomicReference<Identifier> res = new AtomicReference<>(null);
 
 		parseIdentifiers(new IdentifierParser() {
@@ -131,7 +130,7 @@ public abstract class LoginData extends AccessData {
 				try {
 					if (encryptedIdentifier.getCloudIdentifier() instanceof EncryptedCloudIdentifier
 							&& ((EncryptedCloudIdentifier) encryptedIdentifier.getCloudIdentifier())
-									.verifyWithLocalCloudIdentifier(_identifier.getCloudIdentifier(), messageDigest, localKernelAddress, localGeneratedSalt)) {
+									.verifyWithLocalCloudIdentifier(_identifier.getCloudIdentifier(), messageDigest, localGeneratedSalt)) {
 						res.set(new Identifier(_identifier.getCloudIdentifier(),
 								encryptedIdentifier.getHostIdentifier()));
 						return false;

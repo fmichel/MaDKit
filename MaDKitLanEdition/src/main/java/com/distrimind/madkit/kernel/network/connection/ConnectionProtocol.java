@@ -341,7 +341,7 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 				}
 			}
 			if (!valid) {
-				throw new NIOException("Invalid block", valid, candidate_to_ban);
+				throw new NIOException("Invalid block with "+cp.getClass(), valid, candidate_to_ban);
 			}
 		}
 		return new PacketPart(sbi.getSubBlock().getEncapsulatedBytes(), properties.maxBufferSize,

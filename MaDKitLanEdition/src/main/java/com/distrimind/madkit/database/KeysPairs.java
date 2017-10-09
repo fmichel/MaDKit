@@ -49,6 +49,7 @@ import com.distrimind.ood.database.annotations.Field;
 import com.distrimind.ood.database.annotations.NotNull;
 import com.distrimind.ood.database.annotations.PrimaryKey;
 import com.distrimind.ood.database.exceptions.DatabaseException;
+import com.distrimind.util.crypto.ASymmetricAuthentifiedSignatureType;
 import com.distrimind.util.crypto.ASymmetricEncryptionType;
 import com.distrimind.util.crypto.ASymmetricKeyPair;
 import com.distrimind.util.crypto.AbstractSecureRandom;
@@ -56,7 +57,7 @@ import com.distrimind.util.crypto.AbstractSecureRandom;
 /**
  * 
  * @author Jason Mahdjoub
- * @version 1.0
+ * @version 1.1
  * @since MadkitLanEdition 1.0
  */
 public final class KeysPairs extends Table<KeysPairs.Record> {
@@ -79,17 +80,26 @@ public final class KeysPairs extends Table<KeysPairs.Record> {
 		return res;
 	}
 
-	protected long getIdentifier(InetAddress address, byte usingTypeId, ASymmetricEncryptionType type, short keysize,
+	protected long getIdentifier(InetAddress address, byte usingTypeId, ASymmetricEncryptionType typeEncryption, ASymmetricAuthentifiedSignatureType typeSignature, short keysize,
 			short maximumNumberOfKeysForIpSpectrum) {
 		int inet_id = (getBigInteger(address.getAddress()).mod(BigInteger.valueOf(maximumNumberOfKeysForIpSpectrum))
 				.intValue() + maximumNumberOfKeysForIpSpectrum * usingTypeId);
 
-		long res = ((long) inet_id) | (((long) (type.ordinal() & 0xFFFF)) << 32) | (((long) keysize) << 48);
+		long res = ((long) inet_id) | (((long) ((typeEncryption==null?(typeSignature.ordinal()+ASymmetricEncryptionType.values().length):typeEncryption.ordinal()) & 0xFFFF)) << 32) | (((long) keysize) << 48);
 		return res;
 	}
-
 	public ASymmetricKeyPair getKeyPair(final InetAddress _inet_address, final byte usingType,
 			final ASymmetricEncryptionType algorithm, final short _key_size, final AbstractSecureRandom random,
+			final long expiration, final short maximumNumberOfKeysForIpSpectrum) throws DatabaseException {
+		return getKeyPair(_inet_address, usingType, algorithm, null, _key_size, random, expiration, maximumNumberOfKeysForIpSpectrum);
+	}
+	public ASymmetricKeyPair getKeyPair(final InetAddress _inet_address, final byte usingType,
+			final ASymmetricAuthentifiedSignatureType algorithm, final short _key_size, final AbstractSecureRandom random,
+			final long expiration, final short maximumNumberOfKeysForIpSpectrum) throws DatabaseException {
+		return getKeyPair(_inet_address, usingType, null, algorithm, _key_size, random, expiration, maximumNumberOfKeysForIpSpectrum);
+	}
+	private ASymmetricKeyPair getKeyPair(final InetAddress _inet_address, final byte usingType,
+			final ASymmetricEncryptionType algorithmForEncryption, final ASymmetricAuthentifiedSignatureType algorithmForSignature, final short _key_size, final AbstractSecureRandom random,
 			final long expiration, final short maximumNumberOfKeysForIpSpectrum) throws DatabaseException {
 		try {
 			return this.getDatabaseWrapper()
@@ -98,21 +108,35 @@ public final class KeysPairs extends Table<KeysPairs.Record> {
 						@Override
 						public ASymmetricKeyPair run() throws Exception {
 							HashMap<String, Object> map = new HashMap<>();
-							map.put("identifier", new Long(getIdentifier(_inet_address, usingType, algorithm, _key_size,
+							map.put("identifier", new Long(getIdentifier(_inet_address, usingType, algorithmForEncryption, algorithmForSignature, _key_size,
 									maximumNumberOfKeysForIpSpectrum)));
 							Record r = getRecord(map);
 							if (r == null) {
-								ASymmetricKeyPair kp = algorithm
+								ASymmetricKeyPair kp=null;
+								if (algorithmForEncryption==null)
+									kp = algorithmForSignature
 										.getKeyPairGenerator(random, _key_size, System.currentTimeMillis() + expiration)
 										.generateKeyPair();
+								else
+									kp = algorithmForEncryption
+									.getKeyPairGenerator(random, _key_size, System.currentTimeMillis() + expiration)
+									.generateKeyPair();
+									
 								map.put("key_pair", kp);
 								// map.put("date_key", new Long(System.currentTimeMillis()));
 								addRecord(map);
 								return kp;
 							} else if (r.key_pair.getTimeExpirationUTC() < System.currentTimeMillis()) {
-								ASymmetricKeyPair kp = algorithm
+								ASymmetricKeyPair kp=null;
+								if (algorithmForEncryption==null)
+									kp = algorithmForSignature
 										.getKeyPairGenerator(random, _key_size, System.currentTimeMillis() + expiration)
 										.generateKeyPair();
+								else
+									kp = algorithmForEncryption
+										.getKeyPairGenerator(random, _key_size, System.currentTimeMillis() + expiration)
+										.generateKeyPair();
+
 								map = new HashMap<>();
 								map.put("key_pair", kp);
 								// map.put("date_key", new Long(System.currentTimeMillis()));
@@ -134,19 +158,33 @@ public final class KeysPairs extends Table<KeysPairs.Record> {
 						public boolean doesWriteData() {
 							return true;
 						}
+
+						@Override
+						public void initOrReset() throws Exception {
+							
+						}
 					});
 		} catch (Exception e) {
 			throw DatabaseException.getDatabaseException(e);
 		}
 
 	}
-
 	public ASymmetricKeyPair getNewKeyPair(InetAddress _inet_address, byte usingType,
 			final ASymmetricEncryptionType algorithm, final short _key_size, final AbstractSecureRandom random,
 			final long expiration, short maximumNumberOfKeysForIpSpectrum) throws DatabaseException {
+		return getNewKeyPair(_inet_address, usingType, algorithm, null, _key_size, random, expiration, maximumNumberOfKeysForIpSpectrum);
+	}
+	public ASymmetricKeyPair getNewKeyPair(InetAddress _inet_address, byte usingType,
+			final ASymmetricAuthentifiedSignatureType algorithm, final short _key_size, final AbstractSecureRandom random,
+			final long expiration, short maximumNumberOfKeysForIpSpectrum) throws DatabaseException {
+		return getNewKeyPair(_inet_address, usingType, null, algorithm, _key_size, random, expiration, maximumNumberOfKeysForIpSpectrum);
+	}	
+	private ASymmetricKeyPair getNewKeyPair(InetAddress _inet_address, byte usingType,
+			final ASymmetricEncryptionType algorithmForEncryption, final ASymmetricAuthentifiedSignatureType algorithmForSignature, final short _key_size, final AbstractSecureRandom random,
+			final long expiration, short maximumNumberOfKeysForIpSpectrum) throws DatabaseException {
 		final HashMap<String, Object> map = new HashMap<>();
 		map.put("identifier", new Long(
-				getIdentifier(_inet_address, usingType, algorithm, _key_size, maximumNumberOfKeysForIpSpectrum)));
+				getIdentifier(_inet_address, usingType, algorithmForEncryption, algorithmForSignature, _key_size, maximumNumberOfKeysForIpSpectrum)));
 
 		try {
 			return this.getDatabaseWrapper()
@@ -155,10 +193,18 @@ public final class KeysPairs extends Table<KeysPairs.Record> {
 						@Override
 						public ASymmetricKeyPair run() throws Exception {
 							Record r = getRecord(map);
-							ASymmetricKeyPair kp = algorithm
+							ASymmetricKeyPair kp=null;
+							if (algorithmForEncryption==null)
+								kp = algorithmForSignature
 									.getKeyPairGenerator(random, _key_size, System.currentTimeMillis() + expiration)
 									.generateKeyPair();
+							else
+								kp = algorithmForEncryption
+								.getKeyPairGenerator(random, _key_size, System.currentTimeMillis() + expiration)
+								.generateKeyPair();
+								
 							map.put("key_pair", kp);
+							
 							// map.put("date_key", new Long(System.currentTimeMillis()));
 							if (r == null) {
 								addRecord(map);
@@ -177,6 +223,11 @@ public final class KeysPairs extends Table<KeysPairs.Record> {
 						@Override
 						public boolean doesWriteData() {
 							return true;
+						}
+
+						@Override
+						public void initOrReset() throws Exception {
+							
 						}
 					});
 		} catch (Exception e) {

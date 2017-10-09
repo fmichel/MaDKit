@@ -97,7 +97,7 @@ class IdPwMessage extends AccessMessage {
 			Collection<PairOfIdentifiers> acceptedIdentifiers, Collection<PairOfIdentifiers> deniedIdentifiers,
 			Collection<IdentifierPassword> localIdentifiersAndPasswords)
 			throws AccessException, InvalidKeyException, IllegalAccessException, IOException, IllegalBlockSizeException,
-			BadPaddingException, NoSuchAlgorithmException, InvalidKeySpecException {
+			BadPaddingException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException {
 		acceptedIdentifiers.clear();
 		deniedIdentifiers.clear();
 		localIdentifiersAndPasswords.clear();

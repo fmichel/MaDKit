@@ -53,7 +53,6 @@ import gnu.vm.jgnux.crypto.BadPaddingException;
 import gnu.vm.jgnux.crypto.IllegalBlockSizeException;
 import gnu.vm.jgnux.crypto.NoSuchPaddingException;
 
-import com.distrimind.madkit.kernel.KernelAddress;
 import com.distrimind.util.crypto.AbstractMessageDigest;
 import com.distrimind.util.crypto.AbstractSecureRandom;
 import com.distrimind.util.crypto.P2PASymmetricSecretMessageExchanger;
@@ -92,7 +91,7 @@ class IdentifiersPropositionMessage extends AccessMessage {
 	}
 
 	public IdentifiersPropositionMessage(Collection<Identifier> _id_pws, AbstractSecureRandom random, AbstractMessageDigest messageDigest,
-			boolean encryptIdentifiers, short nbAnomalies, KernelAddress distantKernelAddress, byte[] distantGeneratedSalt) throws InvalidKeyException, IOException,
+			boolean encryptIdentifiers, short nbAnomalies, byte[] distantGeneratedSalt) throws InvalidKeyException, IOException,
 			IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, InvalidKeySpecException,
 			NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchProviderException, DigestException {
 		identifiers = new Identifier[_id_pws.size()];
@@ -101,7 +100,7 @@ class IdentifiersPropositionMessage extends AccessMessage {
 		for (Identifier ip : _id_pws) {
 			if (encryptIdentifiers)
 			{
-				identifiers[index++] = new EncryptedIdentifier(ip, random, messageDigest, distantKernelAddress, distantGeneratedSalt);
+				identifiers[index++] = new EncryptedIdentifier(ip, random, messageDigest, distantGeneratedSalt);
 			}
 			else
 			{
@@ -135,11 +134,11 @@ class IdentifiersPropositionMessage extends AccessMessage {
 		return res;
 	}
 	public ArrayList<Identifier> getValidDecodedIdentifiers(LoginData loginData,
-			AbstractMessageDigest messageDigest, KernelAddress localKernelAddress, byte[] localGeneratedSalt ) throws AccessException {
+			AbstractMessageDigest messageDigest, byte[] localGeneratedSalt ) throws AccessException {
 		ArrayList<Identifier> res = new ArrayList<>();
 		if (isEncrypted) {
 			for (Identifier id : identifiers) {
-				Identifier i = loginData.getIdentifier((EncryptedIdentifier) id, messageDigest, localKernelAddress, localGeneratedSalt);
+				Identifier i = loginData.getIdentifier((EncryptedIdentifier) id, messageDigest, localGeneratedSalt);
 				if (i != null)
 					res.add(i);
 			}
@@ -165,17 +164,17 @@ class IdentifiersPropositionMessage extends AccessMessage {
 						: (nbAno > Short.MAX_VALUE) ? Short.MAX_VALUE : (short) nbAno);
 	}
 	public IdentifiersPropositionMessage getIdentifiersPropositionMessageAnswer(LoginData loginData,
-			AbstractSecureRandom random, AbstractMessageDigest messageDigest, boolean encryptIdentifiers, List<Identifier> identifiers, KernelAddress distantKernelAddress, byte[] distantGeneratedSalt, KernelAddress localKernelAddress, byte[] localGeneratedSalt)
+			AbstractSecureRandom random, AbstractMessageDigest messageDigest, boolean encryptIdentifiers, List<Identifier> identifiers, byte[] distantGeneratedSalt, byte[] localGeneratedSalt)
 			throws AccessException, InvalidKeyException, IOException, IllegalBlockSizeException, BadPaddingException,
 			NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException,
 			InvalidAlgorithmParameterException, NoSuchProviderException, DigestException {
-		ArrayList<Identifier> validID = getValidDecodedIdentifiers(loginData, messageDigest, localKernelAddress, localGeneratedSalt);
+		ArrayList<Identifier> validID = getValidDecodedIdentifiers(loginData, messageDigest, localGeneratedSalt);
 		identifiers.addAll(validID);
 		int nbAno = this.identifiers.length - validID.size();
 		return new IdentifiersPropositionMessage(validID, random, messageDigest, encryptIdentifiers,
 				loginData.canTakesLoginInitiative()
 						? ((validID.size() == 0 && this.identifiers.length > 0) ? (short) 1 : (short) 0)
-						: (nbAno > Short.MAX_VALUE) ? Short.MAX_VALUE : (short) nbAno, distantKernelAddress, distantGeneratedSalt);
+						: (nbAno > Short.MAX_VALUE) ? Short.MAX_VALUE : (short) nbAno, distantGeneratedSalt);
 	}
 
 	public IdPwMessage getIdPwMessage(LoginData loginData, P2PASymmetricSecretMessageExchanger cipher,
@@ -214,21 +213,19 @@ class IdentifiersPropositionMessage extends AccessMessage {
 						? ((res.size() == 0 && identifiers.length > 0) ? (short) 1 : (short) 0)
 						: (nbAno > Short.MAX_VALUE) ? Short.MAX_VALUE : (short) nbAno);
 }
-	public JPakeMessage getJPakeMessage(LoginData loginData, Map<Identifier, P2PJPAKESecretMessageExchanger> jpakes, AbstractSecureRandom random, AbstractMessageDigest messageDigest,
-			boolean encryptIdentifiers, KernelAddress distantKernelAddress, byte[] distantGeneratedSalt, KernelAddress localKernelAddress, byte[] localGeneratedSalt) throws AccessException, InvalidKeyException, IOException,
-			IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, InvalidKeySpecException,
-			NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchProviderException, DigestException {
+	public JPakeMessage getJPakeMessage(LoginData loginData, Map<Identifier, P2PJPAKESecretMessageExchanger> jpakes, AbstractSecureRandom random, AbstractSecureRandom randomForKeys, AbstractMessageDigest messageDigest,
+			boolean encryptIdentifiers,  byte[] distantGeneratedSalt, byte[] localGeneratedSalt) throws Exception {
 		int nbAno = 0;
 		if (encryptIdentifiers) {
 			for (Identifier id : identifiers) {
-				Identifier i = loginData.getIdentifier((EncryptedIdentifier) id, messageDigest, localKernelAddress, localGeneratedSalt);
+				Identifier i = loginData.getIdentifier((EncryptedIdentifier) id, messageDigest, localGeneratedSalt);
 
 				if (i != null) {
 					Identifier localId = loginData.localiseIdentifier(i);
 					PasswordKey pw = loginData.getPassword(localId);
 					if (pw != null)
 					{
-						P2PJPAKESecretMessageExchanger jpake=new P2PJPAKESecretMessageExchanger(localId, pw.getPasswordBytes(), pw.isKey());
+						P2PJPAKESecretMessageExchanger jpake=new P2PJPAKESecretMessageExchanger(randomForKeys, localId, pw.getPasswordBytes(), pw.isKey());
 						jpakes.put(localId, jpake);
 					}
 					else
@@ -243,7 +240,7 @@ class IdentifiersPropositionMessage extends AccessMessage {
 				PasswordKey pw = loginData.getPassword(localId);
 				if (pw != null)
 				{
-					P2PJPAKESecretMessageExchanger jpake=new P2PJPAKESecretMessageExchanger(localId, pw.getPasswordBytes(), pw.isKey());
+					P2PJPAKESecretMessageExchanger jpake=new P2PJPAKESecretMessageExchanger(randomForKeys, localId, pw.getPasswordBytes(), pw.isKey());
 					jpakes.put(localId, jpake);
 				}
 				else
@@ -253,7 +250,7 @@ class IdentifiersPropositionMessage extends AccessMessage {
 		return new JPakeMessage(jpakes, encryptIdentifiers,
 				loginData.canTakesLoginInitiative()
 						? ((jpakes.size() == 0 && identifiers.length > 0) ? (short) 1 : (short) 0)
-						: (nbAno > Short.MAX_VALUE) ? Short.MAX_VALUE : (short) nbAno, random, messageDigest, distantKernelAddress, distantGeneratedSalt);
+						: (nbAno > Short.MAX_VALUE) ? Short.MAX_VALUE : (short) nbAno, random, messageDigest, distantGeneratedSalt);
 	}
 
 	@Override

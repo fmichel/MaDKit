@@ -81,7 +81,7 @@ public class AccessProtocolWithASymmetricKeyExchangerProperties extends Abstract
 	/**
 	 * Message digest type used for {@link P2PASymmetricSecretMessageExchanger}
 	 */
-	public MessageDigestType messageDigestType = MessageDigestType.SHA_512;
+	public MessageDigestType messageDigestType = MessageDigestType.BC_FIPS_SHA3_512;
 
 	/**
 	 * PasswordDigestType used for {@link P2PASymmetricSecretMessageExchanger}

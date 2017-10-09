@@ -12,7 +12,9 @@ apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
 compileJava.options.fork = true
-compileJava.options.forkOptions.executable = "${javac}"
+compileJava.options.forkOptions.executable = "${jdk}/bin/javac"
+compileJava.options.bootClasspath=fileTree(include: ['*.jar'], dir: "${jdk}/jre/lib").join(File.pathSeparator)
+compileJava.options.extensionDirs = "${jdk}/jre/lib/ext/"
 
 eclipse {
     classpath {
@@ -26,7 +28,15 @@ repositories {
     // You can declare any Maven/Ivy/file repository here.
     
         maven {
-       		url "https://mahdjoub.net/artifactory/DistriMind-Public"
+            credentials {
+              username "${artifactory_user}"
+              password "${artifactory_password}"
+            }
+        
+        	url "${artifactory_contextUrl}/FairCloud-Private"
+   		} 
+        maven {
+        	url "${artifactory_contextUrl}/DistriMind-Public"
    		} 
    		maven
    		{
@@ -38,9 +48,10 @@ repositories {
 dependencies {
      testCompile 'org.testng:testng:+'
      testCompile 'junit:junit:4+'
-     compile(group:'com.distrimind.ood', name: 'OOD', version: '2.0.0-Beta20')
+     compile(group:'com.distrimind.ood', name: 'OOD', version: '2.0.0-Beta48')
      compile(group:'org.fourthline.cling', name: 'cling-core', version: '2.1.1')
      compile(group:'org.fourthline.cling', name: 'cling-support', version: '2.1.1')
+     compile(group:'org.hsqldb', name: 'hsqldb', version: '2.3.4')
      
 }
 
@@ -53,7 +64,7 @@ allprojects {
 
 sourceCompatibility = 1.7
 targetCompatibility=1.7
-version='1.2.1'
+version='1.4.0'
 
 
 task sourcesJar(type: Jar, dependsOn: classes) {
@@ -113,7 +124,7 @@ publishing {
               username "${artifactory_user}"
               password "${artifactory_password}"
             }
-            url "${artifactory_contextUrl}/DistriMind-Public"
+            url "${artifactory_contextUrl}/FairCloud-Restricted"
         }
     }
 }

@@ -46,6 +46,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import com.distrimind.madkit.exceptions.NIOException;
+import com.distrimind.madkit.kernel.MadkitProperties;
 import com.distrimind.madkit.kernel.network.InetAddressFilters;
 import com.distrimind.madkit.kernel.network.NetworkProperties;
 import com.distrimind.madkit.util.XMLObjectParser;
@@ -162,30 +163,30 @@ public abstract class ConnectionProtocolProperties<CP extends ConnectionProtocol
 	}
 
 	public ConnectionProtocol<CP> getConnectionProtocolInstance(InetSocketAddress _distant_inet_address,
-			InetSocketAddress _local_interface_address, DatabaseWrapper sql_connection, NetworkProperties _properties,
+			InetSocketAddress _local_interface_address, DatabaseWrapper sql_connection, MadkitProperties mkProperties, NetworkProperties _properties,
 			boolean isServer, boolean needBiDirectionnalConnectionInitiationAbility) throws NIOException {
 		return getConnectionProtocolInstance(_distant_inet_address, _local_interface_address, sql_connection,
-				_properties, 0, isServer, needBiDirectionnalConnectionInitiationAbility);
+				mkProperties, _properties, 0, isServer, needBiDirectionnalConnectionInitiationAbility);
 	}
 
 	private ConnectionProtocol<CP> getConnectionProtocolInstance(InetSocketAddress _distant_inet_address,
-			InetSocketAddress _local_interface_address, DatabaseWrapper sql_connection, NetworkProperties _properties,
+			InetSocketAddress _local_interface_address, DatabaseWrapper sql_connection, MadkitProperties mkProperties, NetworkProperties _properties,
 			int subProtocolLevel, boolean isServer, boolean needBiDirectionnalConnectionInitiationAbility)
 			throws NIOException {
 		try {
 			Constructor<CP> c = connectionProtocolClass.getDeclaredConstructor(InetSocketAddress.class,
-					InetSocketAddress.class, ConnectionProtocol.class, DatabaseWrapper.class, NetworkProperties.class,
+					InetSocketAddress.class, ConnectionProtocol.class, DatabaseWrapper.class, MadkitProperties.class, NetworkProperties.class,
 					int.class, boolean.class, boolean.class);
 			c.setAccessible(true);
 			ConnectionProtocol<?> sub = null;
 			if (subProtocolProperties != null) {
 				sub = subProtocolProperties.getConnectionProtocolInstance(_distant_inet_address,
-						_local_interface_address, sql_connection, _properties, subProtocolLevel + 1, isServer,
+						_local_interface_address, sql_connection, mkProperties, _properties, subProtocolLevel + 1, isServer,
 						needBiDirectionnalConnectionInitiationAbility);
 				if (sub == null)
 					return null;
 			}
-			return c.newInstance(_distant_inet_address, _distant_inet_address, sub, sql_connection, _properties,
+			return c.newInstance(_distant_inet_address, _distant_inet_address, sub, sql_connection, mkProperties, _properties,
 					new Integer(subProtocolLevel), new Boolean(isServer),
 					new Boolean(needBiDirectionnalConnectionInitiationAbility));
 		} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException

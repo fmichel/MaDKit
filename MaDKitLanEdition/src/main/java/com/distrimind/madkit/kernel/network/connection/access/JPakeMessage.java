@@ -45,7 +45,6 @@ import java.util.Map;
 
 import org.bouncycastle.crypto.CryptoException;
 
-import com.distrimind.madkit.kernel.KernelAddress;
 import com.distrimind.util.crypto.AbstractMessageDigest;
 import com.distrimind.util.crypto.AbstractSecureRandom;
 import com.distrimind.util.crypto.P2PJPAKESecretMessageExchanger;
@@ -80,7 +79,7 @@ class JPakeMessage extends AccessMessage{
 	
 	
 	
-	JPakeMessage(Map<Identifier, P2PJPAKESecretMessageExchanger> jpakes, boolean identifiersIsEncrypted, short nbAnomalies, AbstractSecureRandom random, AbstractMessageDigest messageDigest, KernelAddress distantKernelAddress, byte[] distantGeneratedSalt) throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchProviderException, DigestException, IOException {
+	JPakeMessage(Map<Identifier, P2PJPAKESecretMessageExchanger> jpakes, boolean identifiersIsEncrypted, short nbAnomalies, AbstractSecureRandom random, AbstractMessageDigest messageDigest, byte[] distantGeneratedSalt) throws Exception {
 		super();
 		this.identifiersIsEncrypted=identifiersIsEncrypted;
 		this.identifiers=new Identifier[jpakes.size()];
@@ -90,15 +89,15 @@ class JPakeMessage extends AccessMessage{
 		for (Map.Entry<Identifier, P2PJPAKESecretMessageExchanger> e : jpakes.entrySet())
 		{
 			if (identifiersIsEncrypted)
-				this.identifiers[i] = new EncryptedIdentifier(e.getKey(), random, messageDigest, distantKernelAddress, distantGeneratedSalt);
+				this.identifiers[i] = new EncryptedIdentifier(e.getKey(), random, messageDigest, distantGeneratedSalt);
 			else
 				this.identifiers[i] = e.getKey();
-			jpakeMessages[i]=e.getValue().getStep1Message();
+			jpakeMessages[i]=e.getValue().getDataToSend();
 			++i;
 		}
 		this.nbAnomalies=nbAnomalies;
 	}
-	private JPakeMessage(Map<Identifier, P2PJPAKESecretMessageExchanger> jpakes, boolean identifiersIsEncrypted, short nbAnomalies, AbstractSecureRandom random, AbstractMessageDigest messageDigest, short step, Map<Identifier, byte[]> jakeMessages, KernelAddress distantKernelAddress, byte[] distantGeneratedSalt) throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchProviderException, DigestException, IOException {
+	private JPakeMessage(Map<Identifier, P2PJPAKESecretMessageExchanger> jpakes, boolean identifiersIsEncrypted, short nbAnomalies, AbstractSecureRandom random, AbstractMessageDigest messageDigest, short step, Map<Identifier, byte[]> jakeMessages, byte[] distantGeneratedSalt) throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchProviderException, DigestException, IOException {
 		super();
 		this.identifiersIsEncrypted=identifiersIsEncrypted;
 		this.identifiers=new Identifier[jakeMessages.size()];
@@ -108,7 +107,7 @@ class JPakeMessage extends AccessMessage{
 		for (Map.Entry<Identifier, byte[]> e : jakeMessages.entrySet())
 		{
 			if (identifiersIsEncrypted)
-				this.identifiers[i] = new EncryptedIdentifier(e.getKey(), random, messageDigest, distantKernelAddress, distantGeneratedSalt);
+				this.identifiers[i] = new EncryptedIdentifier(e.getKey(), random, messageDigest, distantGeneratedSalt);
 			else
 				this.identifiers[i] = e.getKey();
 			jpakeMessages[i]=jakeMessages.get(e.getKey());
@@ -117,7 +116,7 @@ class JPakeMessage extends AccessMessage{
 		this.nbAnomalies=nbAnomalies;
 	}
 	
-	JPakeMessage(LoginData loginData, AbstractSecureRandom random, AbstractMessageDigest messageDigest, Map<Identifier, P2PJPAKESecretMessageExchanger> jpakes, boolean encryptIdentifiers, List<Identifier> newIdentifiers, KernelAddress distantKernelAddress, byte[] distantGeneratedSalt) throws AccessException
+	JPakeMessage(LoginData loginData, AbstractSecureRandom random, AbstractSecureRandom randomForKeys, AbstractMessageDigest messageDigest, Map<Identifier, P2PJPAKESecretMessageExchanger> jpakes, boolean encryptIdentifiers, List<Identifier> newIdentifiers, byte[] distantGeneratedSalt) throws Exception
 	{
 		try
 		{
@@ -130,7 +129,7 @@ class JPakeMessage extends AccessMessage{
 				PasswordKey pw = loginData.getPassword(localId);
 				if (pw != null)
 				{
-					P2PJPAKESecretMessageExchanger jpake=new P2PJPAKESecretMessageExchanger(localId, pw.getPasswordBytes(), pw.isKey());
+					P2PJPAKESecretMessageExchanger jpake=new P2PJPAKESecretMessageExchanger(randomForKeys, localId, pw.getPasswordBytes(), pw.isKey());
 					jpakes.put(localId, jpake);
 				}
 				else
@@ -144,10 +143,10 @@ class JPakeMessage extends AccessMessage{
 			for (Map.Entry<Identifier, P2PJPAKESecretMessageExchanger> e : jpakes.entrySet())
 			{
 				if (identifiersIsEncrypted)
-					this.identifiers[i] = new EncryptedIdentifier(e.getKey(), random, messageDigest, distantKernelAddress, distantGeneratedSalt);
+					this.identifiers[i] = new EncryptedIdentifier(e.getKey(), random, messageDigest, distantGeneratedSalt);
 				else
 					this.identifiers[i] = e.getKey();
-				jpakeMessages[i]=e.getValue().getStep1Message();
+				jpakeMessages[i]=e.getValue().getDataToSend();
 				++i;
 			}
 			this.nbAnomalies=0;
@@ -199,9 +198,8 @@ class JPakeMessage extends AccessMessage{
 	
 	
 	public AccessMessage getJPakeMessageNewStep(short newStep, LoginData lp, AbstractSecureRandom random, AbstractMessageDigest messageDigest, Collection<PairOfIdentifiers> deniedIdentifiers,
-			Map<Identifier, P2PJPAKESecretMessageExchanger> jpakes, KernelAddress distantKernelAddress, byte[] distantGeneratedSalt, KernelAddress localKernelAddress, byte[] localGeneratedSalt)
-			throws AccessException, InvalidKeyException, IllegalAccessException, IOException, IllegalBlockSizeException,
-			BadPaddingException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchProviderException, DigestException {
+			Map<Identifier, P2PJPAKESecretMessageExchanger> jpakes, byte[] distantGeneratedSalt, byte[] localGeneratedSalt)
+			throws Exception {
 
 		int nbAno=0;
 		if (step!=newStep-1)
@@ -217,7 +215,7 @@ class JPakeMessage extends AccessMessage{
 			Identifier id = identifiers[i];
 			Identifier decodedID = null;
 			if (identifiersIsEncrypted)
-				decodedID = lp.getIdentifier((EncryptedIdentifier) id, messageDigest, localKernelAddress, localGeneratedSalt);
+				decodedID = lp.getIdentifier((EncryptedIdentifier) id, messageDigest, localGeneratedSalt);
 			else
 				decodedID = id;
 			if (decodedID != null) {
@@ -229,12 +227,10 @@ class JPakeMessage extends AccessMessage{
 						try
 						{
 							byte[] jpakeMessage=null;
-							if (newStep==2)
-								jpakeMessage=jpake.receiveStep1AndGetStep2Message(this.jpakeMessages[i]);
-							else if (newStep==3)
-								jpakeMessage=jpake.receiveStep2AndGetStep3Message(this.jpakeMessages[i]);
-							else 
+							if (newStep!=2 && newStep!=3)
 								throw new IllegalAccessError();
+							jpake.receiveData(this.jpakeMessages[i]);
+							jpakeMessage=jpake.getDataToSend();
 							jpkms.put(localID, jpakeMessage);
 						}
 						catch(IOException | CryptoException | ClassNotFoundException | IllegalStateException e)
@@ -253,13 +249,12 @@ class JPakeMessage extends AccessMessage{
 			}
 		}
 		
-		return new JPakeMessage(jpakes, identifiersIsEncrypted, nbAno > Short.MAX_VALUE ? Short.MAX_VALUE : (short)nbAno, random, messageDigest, newStep, jpkms, distantKernelAddress, distantGeneratedSalt);
+		return new JPakeMessage(jpakes, identifiersIsEncrypted, nbAno > Short.MAX_VALUE ? Short.MAX_VALUE : (short)nbAno, random, messageDigest, newStep, jpkms, distantGeneratedSalt);
 	}
 	
 	public AccessMessage receiveLastMessage(LoginData lp, AbstractMessageDigest messageDigest, Collection<PairOfIdentifiers> acceptedIdentifiers, Collection<PairOfIdentifiers> deniedIdentifiers,
-			Map<Identifier, P2PJPAKESecretMessageExchanger> jpakes, KernelAddress localKernelAddress, byte[] localGeneratedSalt)
-			throws AccessException, InvalidKeyException, IllegalAccessException, IOException, IllegalBlockSizeException,
-			BadPaddingException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchProviderException, DigestException {
+			Map<Identifier, P2PJPAKESecretMessageExchanger> jpakes, byte[] localGeneratedSalt)
+			throws Exception {
 
 		
 		int nbAno=0;
@@ -274,7 +269,7 @@ class JPakeMessage extends AccessMessage{
 			Identifier id = identifiers[i];
 			Identifier decodedID = null;
 			if (identifiersIsEncrypted)
-				decodedID = lp.getIdentifier((EncryptedIdentifier) id, messageDigest, localKernelAddress, localGeneratedSalt);
+				decodedID = lp.getIdentifier((EncryptedIdentifier) id, messageDigest, localGeneratedSalt);
 			else
 				decodedID = id;
 			if (decodedID != null) {
@@ -285,8 +280,8 @@ class JPakeMessage extends AccessMessage{
 					{
 						try
 						{
-							jpake.receiveStep3(this.jpakeMessages[i]);
-							if (jpake.isPassworkOrKeyValid())
+							jpake.receiveData(this.jpakeMessages[i]);
+							if (jpake.isAgreementProcessValid())
 							{
 								acceptedIdentifiers.add(new PairOfIdentifiers(localID, decodedID));
 							}
@@ -308,7 +303,7 @@ class JPakeMessage extends AccessMessage{
 				}
 			}
 		}
-		return new LoginConfirmationMessage(acceptedIdentifiers, deniedIdentifiers, localKernelAddress, nbAno > Short.MAX_VALUE ? Short.MAX_VALUE : (short)nbAno, false);
+		return new LoginConfirmationMessage(acceptedIdentifiers, deniedIdentifiers, nbAno > Short.MAX_VALUE ? Short.MAX_VALUE : (short)nbAno, false);
 	}
 	
 	

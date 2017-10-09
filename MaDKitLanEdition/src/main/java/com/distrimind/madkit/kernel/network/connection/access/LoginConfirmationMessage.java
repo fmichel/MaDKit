@@ -40,7 +40,6 @@ package com.distrimind.madkit.kernel.network.connection.access;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import com.distrimind.madkit.kernel.KernelAddress;
 
 /**
  * 
@@ -57,19 +56,16 @@ class LoginConfirmationMessage extends AccessMessage {
 
 	public final ArrayList<Identifier> accepted_identifiers;
 	public final ArrayList<Identifier> denied_identifiers;
-	public final KernelAddress kernel_address;
 	private final transient short nbAnomalies;
 	private final boolean checkDifferedMessages;
 
 	public LoginConfirmationMessage(Collection<PairOfIdentifiers> _accepted_identifiers,
-			Collection<PairOfIdentifiers> _denied_identifiers, KernelAddress _kernel_address, short nbAnomalies,
+			Collection<PairOfIdentifiers> _denied_identifiers, short nbAnomalies,
 			boolean checkDifferedMessages) {
 		if (_accepted_identifiers == null)
 			throw new NullPointerException("_accepted_identifiers");
 		if (_denied_identifiers == null)
 			throw new NullPointerException("_denied_identifiers");
-		if (_kernel_address == null)
-			throw new NullPointerException("_kernel_address");
 		accepted_identifiers = new ArrayList<>();
 		for (PairOfIdentifiers poi : _accepted_identifiers) {
 			if (poi.getLocalIdentifier() == null)
@@ -82,7 +78,6 @@ class LoginConfirmationMessage extends AccessMessage {
 				throw new NullPointerException();
 			denied_identifiers.add(poi.getLocalIdentifier());
 		}
-		kernel_address = _kernel_address;
 		this.nbAnomalies = nbAnomalies;
 		this.checkDifferedMessages = checkDifferedMessages;
 	}
@@ -97,8 +92,6 @@ class LoginConfirmationMessage extends AccessMessage {
 		if (accepted_identifiers == null)
 			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
 		if (denied_identifiers == null)
-			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		if (kernel_address == null)
 			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
 		for (Identifier id : accepted_identifiers) {
 			if (id == null)

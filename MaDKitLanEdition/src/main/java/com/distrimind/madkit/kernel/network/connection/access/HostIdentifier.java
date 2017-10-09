@@ -46,6 +46,7 @@ import com.distrimind.util.crypto.AbstractSecureRandom;
 import com.distrimind.util.crypto.SecureRandomType;
 
 import gnu.vm.jgnu.security.NoSuchAlgorithmException;
+import gnu.vm.jgnu.security.NoSuchProviderException;
 
 /**
  * This identifier is related to a machine, or more precisely to an specific
@@ -67,7 +68,7 @@ public abstract class HostIdentifier implements Serializable {
 	static {
 		AbstractSecureRandom rand = null;
 		try {
-			rand = SecureRandomType.DEFAULT.getInstance();
+			rand = SecureRandomType.BC_FIPS_APPROVED.getSingleton(null);
 		} catch (Exception e) {
 			System.err.println("Unexpected error :");
 			e.printStackTrace();
@@ -88,8 +89,9 @@ public abstract class HostIdentifier implements Serializable {
 	 * @return a unique host identifier
 	 * @throws NoSuchAlgorithmException
 	 *             if the used encryption algorithm was not found
+	 * @throws NoSuchProviderException 
 	 */
-	public static HostIdentifier generateDefaultHostIdentifier() throws NoSuchAlgorithmException {
+	public static HostIdentifier generateDefaultHostIdentifier() throws NoSuchAlgorithmException, NoSuchProviderException {
 		return new DefaultHostIdentifier();
 	}
 
@@ -105,7 +107,7 @@ public abstract class HostIdentifier implements Serializable {
 		private static final long serialVersionUID = -1122797789837718737L;
 		private final SecuredDecentralizedID id;
 
-		DefaultHostIdentifier() throws NoSuchAlgorithmException {
+		DefaultHostIdentifier() throws NoSuchAlgorithmException, NoSuchProviderException {
 			synchronized (random) {
 				id = new SecuredDecentralizedID(new RenforcedDecentralizedIDGenerator(), random);
 			}

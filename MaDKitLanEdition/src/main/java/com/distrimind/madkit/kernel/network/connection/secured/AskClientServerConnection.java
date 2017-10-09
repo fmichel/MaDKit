@@ -46,11 +46,13 @@ import gnu.vm.jgnu.security.NoSuchProviderException;
 import gnu.vm.jgnu.security.spec.InvalidKeySpecException;
 import gnu.vm.jgnux.crypto.BadPaddingException;
 import gnu.vm.jgnux.crypto.IllegalBlockSizeException;
+import gnu.vm.jgnux.crypto.NoSuchPaddingException;
 
 import com.distrimind.madkit.kernel.network.connection.AskConnection;
+import com.distrimind.util.crypto.ASymmetricKeyWrapperType;
 import com.distrimind.util.crypto.ASymmetricPublicKey;
-import com.distrimind.util.crypto.ClientASymmetricEncryptionAlgorithm;
-import com.distrimind.util.crypto.SymmetricEncryptionAlgorithm;
+import com.distrimind.util.crypto.AbstractSecureRandom;
+import com.distrimind.util.crypto.SymmetricSecretKey;
 
 /**
  * 
@@ -65,59 +67,68 @@ class AskClientServerConnection extends AskConnection {
 	 */
 	private static final long serialVersionUID = 6607916237726396986L;
 
-	private final transient byte[] distantPublicKeyForEncryptionEncoded;
-	private final transient byte[] distantPublicKeyForSignatureEncoded;
-	private final byte[] secretKey;
-	private byte[] publicKeyForEncryptionEncoded, publicKeyForSignatureEncoded;
+	//private final transient byte[] distantPublicKeyForEncryptionEncoded;
+	private byte[] secretKeyForEncryption, secretKeyForSignature;
 
-	AskClientServerConnection(SymmetricEncryptionAlgorithm symmetricAlgo,
-			ClientASymmetricEncryptionAlgorithm asymmetricAlgo, ASymmetricPublicKey publicKeyForEncryption,ASymmetricPublicKey publicKeyForSignature,
-			ASymmetricPublicKey distantPublicKeyForEncryption, ASymmetricPublicKey distantPublicKeyForSignature) throws InvalidKeyException, InvalidAlgorithmParameterException,
+	AskClientServerConnection(AbstractSecureRandom random, ASymmetricKeyWrapperType keyWrapper, SymmetricSecretKey encryptionSecretKey,SymmetricSecretKey signatureSecretKey,			
+			ASymmetricPublicKey distantPublicKeyForEncryption) throws InvalidKeyException, InvalidAlgorithmParameterException,
 			IllegalBlockSizeException, BadPaddingException, IOException, IllegalStateException,
-			NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException {
+			NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException, NoSuchPaddingException {
 		super(false);
-		if (symmetricAlgo == null)
+		if (keyWrapper == null)
 			throw new NullPointerException("symmetricAlgo");
-		if (publicKeyForEncryption == null)
-			throw new NullPointerException("publicKeyForEncryption");
-		if (publicKeyForSignature == null)
-			throw new NullPointerException("publicKeyForSignature");
-		if (asymmetricAlgo == null)
-			throw new NullPointerException("asymmetricAlgo");
-		this.secretKey = symmetricAlgo.encodeKey(asymmetricAlgo);
-		this.publicKeyForEncryptionEncoded = asymmetricAlgo.encode(publicKeyForEncryption.encode());
-		this.publicKeyForSignatureEncoded = asymmetricAlgo.encode(publicKeyForSignature.encode());
-		this.distantPublicKeyForEncryptionEncoded = asymmetricAlgo.encode(distantPublicKeyForEncryption.encode());
-		this.distantPublicKeyForSignatureEncoded = asymmetricAlgo.encode(distantPublicKeyForSignature.encode());
+		if (encryptionSecretKey == null)
+			throw new NullPointerException("encryptionSecretKey");
+		if (signatureSecretKey == null)
+			throw new NullPointerException("signatureSecretKey");
+		if (distantPublicKeyForEncryption == null)
+			throw new NullPointerException("distantPublicKeyForEncryption");
+		
+		this.secretKeyForEncryption=keyWrapper.wrapKey(random, distantPublicKeyForEncryption, encryptionSecretKey);
+		this.secretKeyForSignature=keyWrapper.wrapKey(random, distantPublicKeyForEncryption, signatureSecretKey);
+		//this.distantPublicKeyForEncryptionEncoded = asymmetricAlgo.encode(distantPublicKeyForEncryption.encode());
+	}
+	AskClientServerConnection(AbstractSecureRandom random, ASymmetricKeyWrapperType keyWrapper, SymmetricSecretKey signatureSecretKey,			
+			ASymmetricPublicKey distantPublicKeyForEncryption) throws InvalidKeyException, InvalidAlgorithmParameterException,
+			IllegalBlockSizeException, BadPaddingException, IOException, IllegalStateException,
+			NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException, NoSuchPaddingException {
+		super(false);
+		if (keyWrapper == null)
+			throw new NullPointerException("symmetricAlgo");
+		if (signatureSecretKey == null)
+			throw new NullPointerException("signatureSecretKey");
+		if (distantPublicKeyForEncryption == null)
+			throw new NullPointerException("distantPublicKeyForEncryption");
+		
+		this.secretKeyForEncryption=null;
+		this.secretKeyForSignature=keyWrapper.wrapKey(random, distantPublicKeyForEncryption, signatureSecretKey);
+		//this.distantPublicKeyForEncryptionEncoded = asymmetricAlgo.encode(distantPublicKeyForEncryption.encode());
 	}
 
-	byte[] getSecretKey() {
-		return secretKey;
+	byte[] getSecretKeyForEncryption() {
+		return secretKeyForEncryption;
+	}
+	byte[] getSecretKeyForSignature() {
+		return secretKeyForSignature;
 	}
 
-	byte[] getEncodedPublicKeyForEncryption() {
+	/*byte[] getEncodedPublicKeyForEncryption() {
 		return publicKeyForEncryptionEncoded;
 	}
 	byte[] getEncodedPublicKeyForSignature() {
 		return publicKeyForSignatureEncoded;
-	}
+	}*/
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public Integrity checkDataIntegrity() {
-		if (secretKey == null)
+		if (secretKeyForSignature == null)
 			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		if (secretKey.length == 0)
+		if (secretKeyForEncryption!=null && secretKeyForEncryption.length == 0)
 			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		if (publicKeyForEncryptionEncoded == null)
-			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		if (publicKeyForEncryptionEncoded.length == 0)
-			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		if (publicKeyForSignatureEncoded == null)
-			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		if (publicKeyForSignatureEncoded.length == 0)
+		if (secretKeyForSignature.length == 0)
 			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
 		if (this.isYouAreAsking())
 			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
@@ -126,10 +137,9 @@ class AskClientServerConnection extends AskConnection {
 
 	@Override
 	public void corrupt() {
-		if (distantPublicKeyForEncryptionEncoded != null)
-			publicKeyForEncryptionEncoded = distantPublicKeyForEncryptionEncoded;
-		if (distantPublicKeyForSignatureEncoded != null)
-			publicKeyForSignatureEncoded = distantPublicKeyForSignatureEncoded;
+		byte[] tmp=secretKeyForEncryption;
+		secretKeyForEncryption=secretKeyForSignature;
+		secretKeyForSignature=tmp;
 	}
 
 }

@@ -105,10 +105,11 @@ public class EncryptedPassword extends PasswordKey implements Serializable {
 	 * @throws IllegalBlockSizeException
 	 * @throws InvalidKeySpecException
 	 * @throws NoSuchAlgorithmException
+	 * @throws NoSuchProviderException 
 	 */
 	public boolean verifyWithLocalPassword(PasswordKey originalPassword, P2PASymmetricSecretMessageExchanger cipher)
 			throws InvalidKeyException, IllegalAccessException, IOException, IllegalBlockSizeException,
-			BadPaddingException, NoSuchAlgorithmException, InvalidKeySpecException {
+			BadPaddingException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException {
 		if (originalPassword == null)
 			throw new NullPointerException("originalPassword");
 		if (cipher == null)

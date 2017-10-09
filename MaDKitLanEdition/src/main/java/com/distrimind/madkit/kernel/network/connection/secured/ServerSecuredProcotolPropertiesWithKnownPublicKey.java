@@ -44,11 +44,14 @@ import com.distrimind.madkit.exceptions.ConnectionException;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocolProperties;
 import com.distrimind.util.crypto.ASymmetricEncryptionType;
 import com.distrimind.util.crypto.ASymmetricKeyPair;
-import com.distrimind.util.crypto.ASymmetricSignatureType;
+import com.distrimind.util.crypto.ASymmetricKeyWrapperType;
 import com.distrimind.util.crypto.AbstractSecureRandom;
+import com.distrimind.util.crypto.SymmetricAuthentifiedSignatureType;
 import com.distrimind.util.crypto.SymmetricEncryptionType;
 
+import gnu.vm.jgnu.security.InvalidAlgorithmParameterException;
 import gnu.vm.jgnu.security.NoSuchAlgorithmException;
+import gnu.vm.jgnu.security.NoSuchProviderException;
 
 /**
  * 
@@ -81,10 +84,12 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKey
 	 *            type)
 	 * @return the encryption profile identifier
 	 * @throws NoSuchAlgorithmException
+	 * @throws InvalidAlgorithmParameterException 
+	 * @throws NoSuchProviderException 
 	 */
 	public int generateAndAddEncryptionProfile(AbstractSecureRandom random, ASymmetricEncryptionType as_type,
-			SymmetricEncryptionType s_type) throws NoSuchAlgorithmException {
-		return addEncryptionProfile(as_type.getKeyPairGenerator(random).generateKeyPair(), as_type.getKeyPairGenerator(random).generateKeyPair(), s_type);
+			SymmetricEncryptionType s_type, ASymmetricKeyWrapperType keyWrapper) throws NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException {
+		return addEncryptionProfile(as_type.getKeyPairGenerator(random).generateKeyPair(), s_type, s_type.getDefaultKeySizeBits(), keyWrapper, null);
 	}
 
 	/**
@@ -107,14 +112,15 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKey
 	 *            the symmetric key size in bits
 	 * @return the encryption profile identifier
 	 * @throws NoSuchAlgorithmException
+	 * @throws InvalidAlgorithmParameterException 
+	 * @throws NoSuchProviderException 
 	 */
 	public int generateAndAddEncryptionProfile(AbstractSecureRandom random, ASymmetricEncryptionType as_type,
-			long expirationTimeUTC, short asymmetricKeySizeBits, ASymmetricSignatureType signatureType,
-			SymmetricEncryptionType s_type, short symmetricKeySizeBits) throws NoSuchAlgorithmException {
+			long expirationTimeUTC, short asymmetricKeySizeBits,
+			SymmetricEncryptionType s_type, short symmetricKeySizeBits, ASymmetricKeyWrapperType keyWrapper, SymmetricAuthentifiedSignatureType signatureType) throws NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException {
 		return addEncryptionProfile(
 				as_type.getKeyPairGenerator(random, asymmetricKeySizeBits, expirationTimeUTC).generateKeyPair(),
-				as_type.getKeyPairGenerator(random, asymmetricKeySizeBits, expirationTimeUTC).generateKeyPair(),
-				signatureType, s_type, symmetricKeySizeBits);
+				s_type, symmetricKeySizeBits, keyWrapper, signatureType);
 	}
 
 	/**
@@ -122,16 +128,14 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKey
 	 * 
 	 * @param keyPairForEncryption
 	 *            the key pair for encryption
-	 * @param keyPairForSignature
-	 *            the key pair for signature
 	 * @param symmetricEncryptionType
 	 *            the symmetric encryption type (if null, use default encryption
 	 *            type)
 	 * @return the encryption profile identifier
 	 */
-	public int addEncryptionProfile(ASymmetricKeyPair keyPairForEncryption,ASymmetricKeyPair keyPairForSignature, SymmetricEncryptionType symmetricEncryptionType) {
-		return this.addEncryptionProfile(keyPairForEncryption, keyPairForSignature, null, symmetricEncryptionType,
-				symmetricEncryptionType == null ? (short) -1 : symmetricEncryptionType.getDefaultKeySizeBits());
+	public int addEncryptionProfile(ASymmetricKeyPair keyPairForEncryption, SymmetricEncryptionType symmetricEncryptionType, ASymmetricKeyWrapperType keyWrapper) {
+		return this.addEncryptionProfile(keyPairForEncryption, symmetricEncryptionType,
+				symmetricEncryptionType == null ? (short) -1 : symmetricEncryptionType.getDefaultKeySizeBits(), keyWrapper, null);
 	}
 
 	/**
@@ -139,35 +143,37 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKey
 	 * 
 	 * @param keyPairForEncryption
 	 *            the key pair for encryption
-	 * @param keyPairForSignature
-	 *            the key pair for signature
-	 * @param signatureType
-	 *            the signature type (if null, use default signature type)
 	 * @param symmetricEncryptionType
 	 *            the symmetric encryption type (if null, use default encryption
 	 *            type)
 	 * @param symmetricKeySizeBits
 	 *            the symmetric key size in bits
+	 * @param signatureType
+	 *            the signature type (if null, use default signature type)
 	 * @return the encryption profile identifier
 	 */
-	public int addEncryptionProfile(ASymmetricKeyPair keyPairForEncryption,ASymmetricKeyPair keyPairForSignature, ASymmetricSignatureType signatureType,
-			SymmetricEncryptionType symmetricEncryptionType, short symmetricKeySizeBits) {
+	public int addEncryptionProfile(ASymmetricKeyPair keyPairForEncryption,
+			SymmetricEncryptionType symmetricEncryptionType, short symmetricKeySizeBits, ASymmetricKeyWrapperType keyWrapper, SymmetricAuthentifiedSignatureType signatureType) {
 		if (keyPairForEncryption == null)
 			throw new NullPointerException("keyPairForEncryption");
-		if (keyPairForSignature == null)
-			throw new NullPointerException("keyPairForSignature");
 		keyPairsForEncryption.put(new Integer(generateNewKeyPairIdentifier()), keyPairForEncryption);
-		keyPairsForSignature.put(new Integer(lastIdentifier), keyPairForSignature);
-		if (signatureType == null)
-			signatures.put(new Integer(lastIdentifier), keyPairForSignature.getAlgorithmType().getDefaultSignatureAlgorithm());
-		else
-			signatures.put(new Integer(lastIdentifier), signatureType);
+
 		if (symmetricEncryptionType == null) {
 			symmetricEncryptionType = SymmetricEncryptionType.DEFAULT;
 			symmetricKeySizeBits = symmetricEncryptionType.getDefaultKeySizeBits();
 		}
 		symmetricEncryptionTypes.put(new Integer(lastIdentifier), symmetricEncryptionType);
 		symmetricEncryptionKeySizeBits.put(new Integer(lastIdentifier), new Short(symmetricKeySizeBits));
+		if (signatureType == null)
+			signatures.put(new Integer(lastIdentifier), symmetricEncryptionType.getDefaultSignatureAlgorithm());
+		else
+			signatures.put(new Integer(lastIdentifier), signatureType);
+		
+		if (keyWrapper==null)
+			keyWrapper=ASymmetricKeyWrapperType.DEFAULT;
+		keyWrappers.put(new Integer(lastIdentifier), keyWrapper);
+			
+		
 		return lastIdentifier;
 	}
 
@@ -183,18 +189,6 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKey
 	public ASymmetricKeyPair getKeyPairForEncryption(int profileIdentifier) {
 		return keyPairsForEncryption.get(new Integer(profileIdentifier));
 	}
-	/**
-	 * Gets the key pair used for the message signature and attached to this connection protocol and the given profile
-	 * identifier
-	 * 
-	 * @param profileIdentifier
-	 *            the profile identifier
-	 * @return the key pair attached to this connection protocol and the given
-	 *         profile identifier
-	 */
-	public ASymmetricKeyPair getKeyPairForSignature(int profileIdentifier) {
-		return keyPairsForSignature.get(new Integer(profileIdentifier));
-	}
 
 	/**
 	 * Gets the signature type attached to this connection protocol and the given
@@ -205,14 +199,26 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKey
 	 * @return the signature type attached to this connection protocol and the given
 	 *         profile identifier
 	 */
-	public ASymmetricSignatureType getSignatureType(int profileIdentifier) {
+	public SymmetricAuthentifiedSignatureType getSignatureType(int profileIdentifier) {
 		return signatures.get(new Integer(profileIdentifier));
 	}
+	
+	/**
+	 * Gets the key wrapper attached to this connection protocol and the given profile identifier
+	 * 
+	 * @param profileIdentifier
+	 *            the profile identifier
+	 * @return the key wrapper attached to this connection protocol and the given profile identifier
+	 */
+	public ASymmetricKeyWrapperType getKeyWrapper(int profileIdentifier) {
+		return keyWrappers.get(new Integer(profileIdentifier));
+	}
+	
 
 	public int getMaximumSignatureSizeBits() {
 		int res = -1;
-		for (Map.Entry<Integer, ASymmetricKeyPair> e : keyPairsForSignature.entrySet()) {
-			res = Math.max(res, signatures.get(e.getKey()).getSignatureSizeBits(e.getValue().getKeySize()));
+		for (SymmetricAuthentifiedSignatureType v : signatures.values()) {
+			res = Math.max(res, v.getSignatureSizeInBits());
 		}
 		return res;
 	}
@@ -253,16 +259,6 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKey
 	public ASymmetricKeyPair getDefaultKeyPairForEncryption() {
 		return keyPairsForEncryption.get(new Integer(lastIdentifier));
 	}
-	/**
-	 * Gets the default key pair (for signature) attached to this connection protocol and its
-	 * default profile
-	 * 
-	 * @return the default key pair attached to this connection protocol and its
-	 *         default profile
-	 */
-	public ASymmetricKeyPair getDefaultKeyPairForSignature() {
-		return keyPairsForSignature.get(new Integer(lastIdentifier));
-	}
 
 	/**
 	 * Gets the default signature type attached to this connection protocol and its
@@ -271,8 +267,18 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKey
 	 * @return the default signature type attached to this connection protocol and
 	 *         its default profile
 	 */
-	public ASymmetricSignatureType getDefaultSignatureType() {
+	public SymmetricAuthentifiedSignatureType getDefaultSignatureType() {
 		return signatures.get(new Integer(lastIdentifier));
+	}
+	/**
+	 * Gets the default key wrapper attached to this connection protocol and its
+	 * default profile
+	 * 
+	 * @return the default key wrapper attached to this connection protocol and its
+	 * default profile
+	 */
+	public ASymmetricKeyWrapperType getDefaultKeyWrapper() {
+		return keyWrappers.get(new Integer(lastIdentifier));
 	}
 
 	/**
@@ -334,15 +340,15 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKey
 	private Map<Integer, ASymmetricKeyPair> keyPairsForEncryption = new HashMap<>();
 
 	/**
-	 * The used key pairs for signature
-	 */
-	private Map<Integer, ASymmetricKeyPair> keyPairsForSignature = new HashMap<>();
-
-	/**
 	 * The used signatures
 	 */
-	private Map<Integer, ASymmetricSignatureType> signatures = new HashMap<>();
+	private Map<Integer, SymmetricAuthentifiedSignatureType> signatures = new HashMap<>();
 
+	/**
+	 * The used key wrappers
+	 */
+	private Map<Integer, ASymmetricKeyWrapperType> keyWrappers = new HashMap<>();
+	
 	private int lastIdentifier = 0;
 
 	private int generateNewKeyPairIdentifier() {
@@ -414,7 +420,6 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKey
 	void checkProperties() throws ConnectionException {
 		boolean valid=true;
 		valid|=checkKeyPairs(keyPairsForEncryption);
-		valid|=checkKeyPairs(keyPairsForSignature);
 		
 		if (!valid) {
 			throw new ConnectionException("All given public keys has expired");

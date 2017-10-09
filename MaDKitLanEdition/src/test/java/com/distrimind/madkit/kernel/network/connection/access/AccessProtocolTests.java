@@ -547,9 +547,9 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 		KernelAddress kaasker=KernelAddressTest.getKernelAddressInstance();
 		KernelAddress kareceiver=KernelAddressTest.getKernelAddressInstance();
 		apasker.setKernelAddress(kaasker);
-		apreceiver.setDistantKernelAddress(kaasker);
+		//apreceiver.setDistantKernelAddress(kaasker);
 		apreceiver.setKernelAddress(kareceiver);
-		apasker.setDistantKernelAddress(kareceiver);
+		//apasker.setDistantKernelAddress(kareceiver);
 
 		Assert.assertFalse(apasker.isAccessFinalized());
 		Assert.assertFalse(apreceiver.isAccessFinalized());

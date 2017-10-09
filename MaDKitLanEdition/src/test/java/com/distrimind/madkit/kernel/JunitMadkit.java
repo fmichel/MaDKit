@@ -73,6 +73,7 @@ import com.distrimind.ood.database.exceptions.DatabaseException;
 import com.distrimind.util.Timer;
 
 import gnu.vm.jgnu.security.NoSuchAlgorithmException;
+import gnu.vm.jgnu.security.NoSuchProviderException;
 
 /**
  * @author Fabien Michel
@@ -268,7 +269,7 @@ public class JunitMadkit {
 		});
 	}
 
-	public static KernelAddress getKernelAddressInstance() throws NoSuchAlgorithmException {
+	public static KernelAddress getKernelAddressInstance() throws NoSuchAlgorithmException, NoSuchProviderException {
 		return new KernelAddress(false);
 	}
 
@@ -495,7 +496,7 @@ public class JunitMadkit {
 						checkKilledKernelsNb(agent, m, 10000);
 					}
 					for (Madkit m : helperInstances) {
-						checkEmptyConversationIDTraces(agent, m, 10000);
+						checkEmptyConversationIDTraces(agent, m, 20000);
 					}
 					for (Madkit m : helperInstances) {
 						checkReleasedGroups(agent, m);

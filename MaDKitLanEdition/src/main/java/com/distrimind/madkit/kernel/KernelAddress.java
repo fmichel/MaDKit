@@ -47,10 +47,10 @@ import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.util.AbstractDecentralizedID;
 import com.distrimind.util.RenforcedDecentralizedIDGenerator;
 import com.distrimind.util.SecuredDecentralizedID;
-import com.distrimind.util.crypto.AbstractSecureRandom;
 import com.distrimind.util.crypto.SecureRandomType;
 
 import gnu.vm.jgnu.security.NoSuchAlgorithmException;
+import gnu.vm.jgnu.security.NoSuchProviderException;
 
 /**
  * This class represents a unique identifier for MaDKit kernel. Uniqueness is
@@ -60,7 +60,7 @@ import gnu.vm.jgnu.security.NoSuchAlgorithmException;
  * @author Oliver Gutknecht
  * @author Fabien Michel
  * @author Jason Mahdjoub
- * @version 5.5
+ * @version 5.6
  * @since MaDKit 1.0
  * @since MaDKitLanEdition 1.0
  *
@@ -75,36 +75,24 @@ public class KernelAddress implements Serializable, Cloneable {
 	protected final AbstractDecentralizedID id;
 
 	private transient String name;
-	private final static AbstractSecureRandom random;
-	static {
-		AbstractSecureRandom rand = null;
-		try {
-			rand = SecureRandomType.DEFAULT.getInstance();
-		} catch (Exception e) {
-			System.err.println("Unexpected error :");
-			e.printStackTrace();
-			System.exit(-1);
-		}
-		random = rand;
-	}
+
 
 	/**
 	 * Avoid the default public visibility for denying usage.
 	 * 
 	 * @throws NoSuchAlgorithmException
 	 *             if the used encryption algorithm does not exists
+	 * @throws NoSuchProviderException 
 	 */
-	protected KernelAddress(boolean isSecured) throws NoSuchAlgorithmException {
+	protected KernelAddress(boolean isSecured) throws NoSuchAlgorithmException, NoSuchProviderException {
 		this(isSecured, true);
 	}
 
-	protected KernelAddress(boolean isSecured, boolean initName) throws NoSuchAlgorithmException {
+	protected KernelAddress(boolean isSecured, boolean initName) throws NoSuchAlgorithmException, NoSuchProviderException {
 
 		RenforcedDecentralizedIDGenerator generatedid = new RenforcedDecentralizedIDGenerator();
 		if (isSecured) {
-			synchronized (random) {
-				id = new SecuredDecentralizedID(generatedid, random);
-			}
+			id = new SecuredDecentralizedID(generatedid, SecureRandomType.FORTUNA_WITH_BC_FIPS_APPROVED.getInstance(null));
 		} else
 			id = generatedid;
 

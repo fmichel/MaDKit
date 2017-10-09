@@ -53,6 +53,7 @@ import com.distrimind.util.sizeof.ObjectSizer;
 import com.distrimind.util.version.Version;
 
 import gnu.vm.jgnu.security.NoSuchAlgorithmException;
+import gnu.vm.jgnu.security.NoSuchProviderException;
 
 /**
  * 
@@ -91,7 +92,7 @@ public class DatagramDataTest {
 	}
 
 	@Test
-	public void testOneMessageDatagramData() throws IOException, NoSuchAlgorithmException {
+	public void testOneMessageDatagramData() throws IOException, NoSuchAlgorithmException, NoSuchProviderException {
 		Assert.assertNotNull(inet4);
 		Assert.assertNotNull(inet6);
 		testValidOneMessageDatagramData(
@@ -121,7 +122,7 @@ public class DatagramDataTest {
 	}
 
 	private void testValidOneMessageDatagramData(DatagramLocalNetworkPresenceMessage message, Version programVersion,
-			Version madkitVersion) throws IOException, NoSuchAlgorithmException {
+			Version madkitVersion) throws IOException, NoSuchAlgorithmException, NoSuchProviderException {
 		DatagramData d = new DatagramData(message);
 
 		DatagramData d2 = new DatagramData();
@@ -146,7 +147,7 @@ public class DatagramDataTest {
 	}
 
 	@Test
-	public void testInvalidOneMessageDatagramData() throws IOException, NoSuchAlgorithmException {
+	public void testInvalidOneMessageDatagramData() throws IOException, NoSuchAlgorithmException, NoSuchProviderException {
 		Assert.assertNotNull(inet4);
 		Assert.assertNotNull(inet6);
 		testInvalidOneMessageDatagramData(
@@ -173,7 +174,7 @@ public class DatagramDataTest {
 	}
 
 	@Test
-	public void testMultipleMessageDatagramData() throws IOException, NoSuchAlgorithmException {
+	public void testMultipleMessageDatagramData() throws IOException, NoSuchAlgorithmException, NoSuchProviderException {
 		Assert.assertNotNull(inet4);
 		Assert.assertNotNull(inet6);
 		testMultipleMessageDatagramData(
@@ -187,7 +188,7 @@ public class DatagramDataTest {
 	}
 
 	private void testMultipleMessageDatagramData(DatagramLocalNetworkPresenceMessage message, Version programVersion,
-			Version madkitVersion) throws IOException, NoSuchAlgorithmException {
+			Version madkitVersion) throws IOException, NoSuchAlgorithmException, NoSuchProviderException {
 		DatagramData d = new DatagramData(message);
 
 		DatagramData d2 = new DatagramData();
@@ -210,7 +211,7 @@ public class DatagramDataTest {
 	}
 
 	@Test
-	public void testOneMessageDatagramDataAndRandomData() throws IOException, NoSuchAlgorithmException {
+	public void testOneMessageDatagramDataAndRandomData() throws IOException, NoSuchAlgorithmException, NoSuchProviderException {
 		Assert.assertNotNull(inet4);
 		Assert.assertNotNull(inet6);
 		testOneMessageDatagramDataAndRandomData(
@@ -224,7 +225,7 @@ public class DatagramDataTest {
 	}
 
 	private void testOneMessageDatagramDataAndRandomData(DatagramLocalNetworkPresenceMessage message,
-			Version programVersion, Version madkitVersion) throws IOException, NoSuchAlgorithmException {
+			Version programVersion, Version madkitVersion) throws IOException, NoSuchAlgorithmException, NoSuchProviderException {
 		DatagramData d = new DatagramData(message);
 
 		DatagramData d2 = new DatagramData();

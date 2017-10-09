@@ -43,6 +43,7 @@ import java.net.InetSocketAddress;
 
 import com.distrimind.madkit.exceptions.BlockParserException;
 import com.distrimind.madkit.exceptions.ConnectionException;
+import com.distrimind.madkit.kernel.MadkitProperties;
 import com.distrimind.madkit.kernel.network.NetworkProperties;
 import com.distrimind.madkit.kernel.network.SubBlock;
 import com.distrimind.madkit.kernel.network.SubBlockInfo;
@@ -75,7 +76,7 @@ public class CheckSumConnectionProtocol extends ConnectionProtocol<CheckSumConne
 
 	private CheckSumConnectionProtocol(InetSocketAddress _distant_inet_address,
 			InetSocketAddress _local_interface_address, ConnectionProtocol<?> _subProtocol,
-			DatabaseWrapper _sql_connection, NetworkProperties _properties, int subProtocolLevel, boolean isServer,
+			DatabaseWrapper _sql_connection, MadkitProperties mkProperties, NetworkProperties _properties, int subProtocolLevel, boolean isServer,
 			boolean mustSupportBidirectionnalConnectionInitiative) throws ConnectionException {
 		super(_distant_inet_address, _local_interface_address, _subProtocol, _sql_connection, _properties,
 				subProtocolLevel, isServer, mustSupportBidirectionnalConnectionInitiative);
@@ -250,6 +251,7 @@ public class CheckSumConnectionProtocol extends ConnectionProtocol<CheckSumConne
 		@Override
 		public SubBlockInfo checkSubBlock(SubBlock _block) throws BlockParserException {
 			messageDigest.reset();
+			
 			int dl = messageDigest.getDigestLength();
 			SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() + dl, _block.getSize() - dl);
 			messageDigest.update(res.getBytes(), res.getOffset(), res.getSize());

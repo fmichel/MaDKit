@@ -46,9 +46,7 @@ import com.distrimind.madkit.kernel.MadkitProperties;
 import com.distrimind.madkit.kernel.network.NetworkProperties;
 import com.distrimind.ood.database.exceptions.DatabaseException;
 import com.distrimind.util.crypto.ASymmetricKeyPair;
-import com.distrimind.util.crypto.AbstractSecureRandom;
 import com.distrimind.util.crypto.P2PASymmetricSecretMessageExchanger;
-import com.distrimind.util.crypto.SecureRandomType;
 
 import gnu.vm.jgnu.security.InvalidAlgorithmParameterException;
 import gnu.vm.jgnu.security.InvalidKeyException;
@@ -73,7 +71,8 @@ public class AccessProtocolWithASymmetricKeyExchanger extends AbstractAccessProt
 	private AccessState access_state = AccessState.ACCESS_NOT_INITIALIZED;
 	private ASymmetricKeyPair myKeyPair = null;
 	private P2PASymmetricSecretMessageExchanger cipher;
-	private final AbstractSecureRandom random;
+	private MadkitProperties mkProperties;
+	
 	
 	public AccessProtocolWithASymmetricKeyExchanger(InetSocketAddress _distant_inet_address,
 			InetSocketAddress _local_interface_address, LoginEventsTrigger loginTrigger, MadkitProperties _properties)
@@ -85,44 +84,36 @@ public class AccessProtocolWithASymmetricKeyExchanger extends AbstractAccessProt
 			throw new NullPointerException("No AccessProtocolProperties was found into the MadkitProperties !");
 		
 		cipher = null;
-		try
-		{
-			random = SecureRandomType.DEFAULT.getInstance();
-		}
-		catch(NoSuchProviderException | NoSuchAlgorithmException e)
-		{
-			throw new AccessException(e);
-		}
-		
+		this.mkProperties=_properties;
 	}
 	
 	private static enum AccessState {
 		ACCESS_NOT_INITIALIZED, WAITING_FOR_PUBLIC_KEY, IDENTICAL_PUBLIC_KEY, INVALID_PUBLIC_KEY, ACCESS_INITIALIZED, WAITING_FOR_IDENTIFIERS, WAITING_FOR_PASSWORD, WAITING_FOR_LOGIN_CONFIRMATION, ACCESS_FINALIZED, WAITING_FOR_NEW_LOGIN_PW_FOR_ASKER, WAITING_FOR_NEW_LOGIN_PW_FOR_RECEIVER, WAITING_FOR_NEW_LOGIN_CONFIRMATION_ASKER, WAITING_FOR_NEW_LOGIN_CONFIRMATION_RECEIVER,
 	}
 
-	private void initKeyPair() throws NoSuchAlgorithmException, DatabaseException {
+	private void initKeyPair() throws NoSuchAlgorithmException, DatabaseException, NoSuchProviderException, InvalidAlgorithmParameterException {
 		if (myKeyPair == null) {
 			if (properties.getDatabaseWrapper() == null)
 				myKeyPair = access_protocol_properties.aSymetricEncryptionType
-						.getKeyPairGenerator(random, access_protocol_properties.aSymetricKeySize).generateKeyPair();
+						.getKeyPairGenerator(mkProperties.getApprovedSecureRandomForKeys(), access_protocol_properties.aSymetricKeySize).generateKeyPair();
 			else
 				myKeyPair = (((KeysPairs) properties.getDatabaseWrapper().getTableInstance(KeysPairs.class)).getKeyPair(
 						distant_inet_address.getAddress(), NetworkProperties.accessProtocolDatabaseUsingCode,
 						access_protocol_properties.aSymetricEncryptionType, access_protocol_properties.aSymetricKeySize,
-						random, access_protocol_properties.aSymmetricKeyExpirationMs,
+						mkProperties.getApprovedSecureRandomForKeys(), access_protocol_properties.aSymmetricKeyExpirationMs,
 						properties.networkProperties.maximumNumberOfCryptoKeysForIpsSpectrum));
 		}
 	}
 
-	private void initNewKeyPair() throws NoSuchAlgorithmException, DatabaseException {
+	private void initNewKeyPair() throws NoSuchAlgorithmException, DatabaseException, NoSuchProviderException, InvalidAlgorithmParameterException {
 		if (properties.getDatabaseWrapper() == null)
 			myKeyPair = access_protocol_properties.aSymetricEncryptionType
-					.getKeyPairGenerator(random, access_protocol_properties.aSymetricKeySize).generateKeyPair();
+					.getKeyPairGenerator(mkProperties.getApprovedSecureRandomForKeys(), access_protocol_properties.aSymetricKeySize).generateKeyPair();
 		else
 			myKeyPair = (((KeysPairs) properties.getDatabaseWrapper().getTableInstance(KeysPairs.class)).getNewKeyPair(
 					distant_inet_address.getAddress(), NetworkProperties.accessProtocolDatabaseUsingCode,
 					access_protocol_properties.aSymetricEncryptionType, access_protocol_properties.aSymetricKeySize,
-					random, access_protocol_properties.aSymmetricKeyExpirationMs,
+					mkProperties.getApprovedSecureRandomForKeys(), access_protocol_properties.aSymmetricKeyExpirationMs,
 					properties.networkProperties.maximumNumberOfCryptoKeysForIpsSpectrum));
 	}
 	
@@ -133,8 +124,7 @@ public class AccessProtocolWithASymmetricKeyExchanger extends AbstractAccessProt
 				if (_m instanceof AccessIdenticalPublicKeys) {
 
 					initNewKeyPair();
-
-					this.cipher = new P2PASymmetricSecretMessageExchanger(
+					this.cipher = new P2PASymmetricSecretMessageExchanger(mkProperties.getApprovedSecureRandom(),
 							this.access_protocol_properties.messageDigestType,
 							this.access_protocol_properties.passwordHashType, myKeyPair.getASymmetricPublicKey());
 					this.cipher.setHashIterationsNumber(this.access_protocol_properties.passwordHashIterations);
@@ -148,7 +138,7 @@ public class AccessProtocolWithASymmetricKeyExchanger extends AbstractAccessProt
 				if (_m instanceof AccessAskInitiliazation) {
 					if (access_data instanceof LoginData) {
 						initKeyPair();
-						this.cipher = new P2PASymmetricSecretMessageExchanger(
+						this.cipher = new P2PASymmetricSecretMessageExchanger(mkProperties.getApprovedSecureRandom(),
 								this.access_protocol_properties.messageDigestType,
 								this.access_protocol_properties.passwordHashType, myKeyPair.getASymmetricPublicKey());
 						this.cipher.setHashIterationsNumber(this.access_protocol_properties.passwordHashIterations);
@@ -172,7 +162,7 @@ public class AccessProtocolWithASymmetricKeyExchanger extends AbstractAccessProt
 						this.cipher.setDistantPublicKey(m.getEncodedPublicKey());
 						if (this.cipher.getDistantPublicKey().equals(this.cipher.getMyPublicKey())) {
 							initNewKeyPair();
-							this.cipher = new P2PASymmetricSecretMessageExchanger(
+							this.cipher = new P2PASymmetricSecretMessageExchanger(mkProperties.getApprovedSecureRandom(),
 									this.access_protocol_properties.messageDigestType,
 									this.access_protocol_properties.passwordHashType,
 									myKeyPair.getASymmetricPublicKey());
@@ -180,8 +170,8 @@ public class AccessProtocolWithASymmetricKeyExchanger extends AbstractAccessProt
 
 							access_state = AccessState.IDENTICAL_PUBLIC_KEY;
 							return new AccessIdenticalPublicKeys(true);
-						} else if (!this.cipher.getDistantPublicKey().getAlgorithmType()
-								.equals(this.cipher.getMyPublicKey().getAlgorithmType()))
+						} else if (!this.cipher.getDistantPublicKey().getEncryptionAlgorithmType()
+								.equals(this.cipher.getMyPublicKey().getEncryptionAlgorithmType()))
 							invalid_key = true;
 						else {
 						}
@@ -190,7 +180,7 @@ public class AccessProtocolWithASymmetricKeyExchanger extends AbstractAccessProt
 					}
 
 					if (invalid_key) {
-						this.cipher = new P2PASymmetricSecretMessageExchanger(
+						this.cipher = new P2PASymmetricSecretMessageExchanger(mkProperties.getApprovedSecureRandom(),
 								this.access_protocol_properties.messageDigestType,
 								this.access_protocol_properties.passwordHashType, this.cipher.getMyPublicKey());
 						this.cipher.setHashIterationsNumber(this.access_protocol_properties.passwordHashIterations);
@@ -306,7 +296,7 @@ public class AccessProtocolWithASymmetricKeyExchanger extends AbstractAccessProt
 					access_state = AccessState.WAITING_FOR_LOGIN_CONFIRMATION;
 
 					if (lp.canTakesLoginInitiative()) {
-						return new LoginConfirmationMessage(getAcceptedIdentifiers(), getDeniedIdentifiers(), getKernelAddress(),
+						return new LoginConfirmationMessage(getAcceptedIdentifiers(), getDeniedIdentifiers(), 
 								nbAnomalies, false);
 					} else {
 						return new IdPwMessage(idpws, cipher,
@@ -341,14 +331,14 @@ public class AccessProtocolWithASymmetricKeyExchanger extends AbstractAccessProt
 					setAcceptedIdentifiers(ai);
 					// LoginData lp=(LoginData)access_data;
 
-					setDistantKernelAddress(((LoginConfirmationMessage) _m).kernel_address);
+					//setDistantKernelAddress(((LoginConfirmationMessage) _m).kernel_address);
 					
 					addLastAcceptedAndDeniedIdentifiers(getAcceptedIdentifiers(), denied_identiers);
 
 					access_state = AccessState.ACCESS_FINALIZED;
 					LoginData lp = (LoginData) access_data;
 					AccessMessage am = new LoginConfirmationMessage(getAcceptedIdentifiers(), getDeniedIdentifiers(),
-							getKernelAddress(), (short) 0, false);
+							 (short) 0, false);
 					setAcceptedIdentifiers(null);
 					setDeniedIdentifiers(null);
 					setIdentifiers(null);
@@ -430,7 +420,7 @@ public class AccessProtocolWithASymmetricKeyExchanger extends AbstractAccessProt
 					short nbAno = ipm.getAcceptedIdentifiers(lp, cipher, getAcceptedIdentifiers(), getDeniedIdentifiers(),
 							new ArrayList<IdentifierPassword>());
 					access_state = AccessState.WAITING_FOR_NEW_LOGIN_CONFIRMATION_RECEIVER;
-					return new LoginConfirmationMessage(getAcceptedIdentifiers(), getDeniedIdentifiers(), getKernelAddress(), nbAno,
+					return new LoginConfirmationMessage(getAcceptedIdentifiers(), getDeniedIdentifiers(), nbAno,
 							false);
 				} else if (!differrAccessMessage(_m)) {
 					setIdentifiers(null);
@@ -460,7 +450,7 @@ public class AccessProtocolWithASymmetricKeyExchanger extends AbstractAccessProt
 					setAcceptedIdentifiers(ai);
 					addLastAcceptedAndDeniedIdentifiers(ai, getDeniedIdentifiers());
 					AccessMessage am = new LoginConfirmationMessage(getAcceptedIdentifiers(), getDeniedIdentifiers(),
-							getKernelAddress(), (short) 0, true);
+							(short) 0, true);
 
 					setIdentifiers(null);
 					setAcceptedIdentifiers(null);

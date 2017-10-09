@@ -57,6 +57,7 @@ import com.distrimind.madkit.kernel.KernelAddress;
 import com.distrimind.madkit.kernel.network.KernelAddressInterfaced;
 
 import gnu.vm.jgnu.security.NoSuchAlgorithmException;
+import gnu.vm.jgnu.security.NoSuchProviderException;
 
 /**
  * @author Fabien Michel
@@ -71,12 +72,12 @@ public class KernelAddressTest {
 	protected static List<KernelAddress> kas;
 	private static List<KernelAddress> simultaneous;
 
-	public static KernelAddress getKernelAddressInstance() throws NoSuchAlgorithmException {
+	public static KernelAddress getKernelAddressInstance() throws NoSuchAlgorithmException, NoSuchProviderException {
 		return new KernelAddress(false);
 	}
 
 	@BeforeClass
-	public static void createNewAddresses() throws NoSuchAlgorithmException {
+	public static void createNewAddresses() throws NoSuchAlgorithmException, NoSuchProviderException {
 		kas = new ArrayList<>();
 		simultaneous = new ArrayList<>();
 		for (int i = 0; i < 2000; i++) {
@@ -113,7 +114,7 @@ public class KernelAddressTest {
 								kas.add(new KernelAddress(true));
 							}
 						}
-					} catch (NoSuchAlgorithmException e) {
+					} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
 						e.printStackTrace();
 					}
 
@@ -128,7 +129,7 @@ public class KernelAddressTest {
 	}
 
 	@Test
-	public void testUniqueness() throws InterruptedException, NoSuchAlgorithmException {
+	public void testUniqueness() throws InterruptedException, NoSuchAlgorithmException, NoSuchProviderException {
 		for (int i = 0; i < 1000; i++) {
 			assertFalse(new KernelAddress(true).equals(new KernelAddress(true)));
 		}
@@ -164,7 +165,7 @@ public class KernelAddressTest {
 	// }
 
 	@Test
-	public void testEqualsObject() throws NoSuchAlgorithmException, IOException, ClassNotFoundException {
+	public void testEqualsObject() throws NoSuchAlgorithmException, IOException, ClassNotFoundException, NoSuchProviderException {
 		for (KernelAddress ka : kas) {
 			for (KernelAddress other : kas) {
 				if (ka != other && other.equals(ka)) {

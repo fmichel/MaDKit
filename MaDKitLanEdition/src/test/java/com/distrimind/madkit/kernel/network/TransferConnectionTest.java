@@ -58,11 +58,9 @@ import com.distrimind.madkit.kernel.Madkit;
 import com.distrimind.madkit.kernel.Message;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocolProperties;
 import com.distrimind.madkit.kernel.network.connection.secured.ClientSecuredProtocolPropertiesWithKnownPublicKey;
-import com.distrimind.madkit.kernel.network.connection.secured.ClientSecuredProtocolPropertiesWithKnownPublicKeyWithECDHAlgorithm;
 import com.distrimind.madkit.kernel.network.connection.secured.P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties;
 import com.distrimind.madkit.kernel.network.connection.secured.P2PSecuredConnectionProtocolWithECDHAlgorithmProperties;
 import com.distrimind.madkit.kernel.network.connection.secured.ServerSecuredProcotolPropertiesWithKnownPublicKey;
-import com.distrimind.madkit.kernel.network.connection.secured.ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm;
 import com.distrimind.madkit.kernel.network.connection.unsecured.CheckSumConnectionProtocolProperties;
 import com.distrimind.madkit.kernel.network.connection.unsecured.UnsecuredConnectionProtocolProperties;
 import com.distrimind.madkit.kernel.AgentFakeThread;
@@ -163,7 +161,7 @@ public class TransferConnectionTest extends JunitMadkit {
 		ConnectionProtocolProperties<?> c = res;
 
 		while (c != null) {
-			if (c.getClass() == ClientSecuredProtocolPropertiesWithKnownPublicKey.class || c.getClass()==ClientSecuredProtocolPropertiesWithKnownPublicKeyWithECDHAlgorithm.class)
+			if (c.getClass() == ClientSecuredProtocolPropertiesWithKnownPublicKey.class)
 				return null;
 			else if (cpp.getClass() == P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties.class) {
 				if (!((P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties) cpp).isServer)
@@ -187,13 +185,8 @@ public class TransferConnectionTest extends JunitMadkit {
 		if (cpp.getClass() == ServerSecuredProcotolPropertiesWithKnownPublicKey.class) {
 			ServerSecuredProcotolPropertiesWithKnownPublicKey sold = (ServerSecuredProcotolPropertiesWithKnownPublicKey) cpp;
 			ServerSecuredProcotolPropertiesWithKnownPublicKey s = new ServerSecuredProcotolPropertiesWithKnownPublicKey();
-			s.addEncryptionProfile(sold.getDefaultKeyPairForEncryption(),sold.getDefaultKeyPairForSignature(), sold.getDefaultSignatureType(),
-					sold.getDefaultSymmetricEncryptionType(), sold.getDefaultSymmetricEncryptionKeySizeBits());
-			res = s;
-		} else if (cpp.getClass() == ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm.class) {
-			ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm sold = (ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm) cpp;
-			ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm s = new ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm();
-			s.addEncryptionProfile(sold.getDefaultKeyPairForSignature(), sold.getDefaultSymmetricEncryptionType(),sold.getDefaultSymmetricSignatureType(),sold.getDefaultEllipticCurveDiffieHellmanType());
+			s.addEncryptionProfile(sold.getDefaultKeyPairForEncryption(), 
+					sold.getDefaultSymmetricEncryptionType(), sold.getDefaultSymmetricEncryptionKeySizeBits(), sold.getDefaultKeyWrapper(), sold.getDefaultSignatureType());
 			res = s;
 		} else if (cpp.getClass() == P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties.class) {
 			P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties sold = (P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties) cpp;

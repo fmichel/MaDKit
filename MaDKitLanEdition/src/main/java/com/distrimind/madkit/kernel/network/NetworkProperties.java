@@ -56,6 +56,7 @@ import com.distrimind.madkit.exceptions.NIOException;
 import com.distrimind.madkit.kernel.AbstractAgent;
 import com.distrimind.madkit.kernel.AgentLogger;
 import com.distrimind.madkit.kernel.KernelAddress;
+import com.distrimind.madkit.kernel.MadkitProperties;
 import com.distrimind.madkit.kernel.NetworkAgent;
 import com.distrimind.madkit.kernel.network.LocalNetworkAgent.PossibleAddressForDirectConnnection;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol;
@@ -548,6 +549,7 @@ public class NetworkProperties extends XMLProperties {
 	 *            the local interface address
 	 * @param sql_connection
 	 * 			the sql database wrapper
+	 * @param mkProperties the madkit properties
 	 * @param isServer
 	 * 			true if this peer can receive connection ask from other peer
 	 * @param needBiDirectionnalConnectionInitiationAbility
@@ -558,13 +560,13 @@ public class NetworkProperties extends XMLProperties {
 	 *             if a problem occurs
 	 */
 	public ConnectionProtocol<?> getConnectionProtocolInstance(InetSocketAddress _distant_inet_address,
-			InetSocketAddress _local_interface_address, DatabaseWrapper sql_connection, boolean isServer,
+			InetSocketAddress _local_interface_address, DatabaseWrapper sql_connection, MadkitProperties mkProperties, boolean isServer,
 			boolean needBiDirectionnalConnectionInitiationAbility) throws NIOException {
 		for (ConnectionProtocolProperties<?> cpp : getConnectionProtocolList()) {
 			if (cpp.isConcernedBy(_local_interface_address.getAddress(), _local_interface_address.getPort(),
 					_distant_inet_address.getAddress(), isServer, needBiDirectionnalConnectionInitiationAbility)) {
 				return cpp.getConnectionProtocolInstance(_distant_inet_address, _local_interface_address,
-						sql_connection, this, isServer, needBiDirectionnalConnectionInitiationAbility);
+						sql_connection, mkProperties, this, isServer, needBiDirectionnalConnectionInitiationAbility);
 			}
 		}
 		return null;

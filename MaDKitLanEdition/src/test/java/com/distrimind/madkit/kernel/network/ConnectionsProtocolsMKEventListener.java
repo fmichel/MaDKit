@@ -42,17 +42,18 @@ import java.util.ArrayList;
 import com.distrimind.madkit.kernel.MadkitEventListener;
 import com.distrimind.madkit.kernel.MadkitProperties;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocolProperties;
-import com.distrimind.madkit.kernel.network.connection.secured.ClientSecuredProtocolPropertiesWithKnownPublicKeyWithECDHAlgorithm;
+import com.distrimind.madkit.kernel.network.connection.secured.ClientSecuredProtocolPropertiesWithKnownPublicKey;
 import com.distrimind.madkit.kernel.network.connection.secured.P2PSecuredConnectionProtocolWithECDHAlgorithmProperties;
-import com.distrimind.madkit.kernel.network.connection.secured.ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm;
+import com.distrimind.madkit.kernel.network.connection.secured.ServerSecuredProcotolPropertiesWithKnownPublicKey;
 import com.distrimind.madkit.kernel.network.connection.unsecured.CheckSumConnectionProtocolProperties;
 import com.distrimind.madkit.kernel.network.connection.unsecured.UnsecuredConnectionProtocolProperties;
 import com.distrimind.util.crypto.ASymmetricEncryptionType;
 import com.distrimind.util.crypto.ASymmetricKeyPair;
-import com.distrimind.util.crypto.EllipticCurveDiffieHellmanType;
+import com.distrimind.util.crypto.ASymmetricKeyWrapperType;
 import com.distrimind.util.crypto.SecureRandomType;
 import com.distrimind.util.crypto.SymmetricEncryptionType;
 
+import gnu.vm.jgnu.security.InvalidAlgorithmParameterException;
 import gnu.vm.jgnu.security.NoSuchAlgorithmException;
 import gnu.vm.jgnu.security.NoSuchProviderException;
 
@@ -124,28 +125,28 @@ public class ConnectionsProtocolsMKEventListener implements MadkitEventListener 
 	private static short keyPairSize = 1024;
 	private static int encryptionProfileIdentifier = -1;
 
-	public static ASymmetricKeyPair getKeyPairForEncryption() throws NoSuchAlgorithmException, NoSuchProviderException {
+	public static ASymmetricKeyPair getKeyPairForEncryption() throws NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException {
 		if (keyPairForEncryption == null)
 			keyPairForEncryption = ASymmetricEncryptionType.DEFAULT
-					.getKeyPairGenerator(SecureRandomType.DEFAULT.getInstance(), keyPairSize).generateKeyPair();
+					.getKeyPairGenerator(SecureRandomType.DEFAULT.getSingleton(null), keyPairSize).generateKeyPair();
 		return keyPairForEncryption;
 	}
-	public static ASymmetricKeyPair getKeyPairForSignature() throws NoSuchAlgorithmException, NoSuchProviderException {
+	public static ASymmetricKeyPair getKeyPairForSignature() throws NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException {
 		if (keyPairForSignature == null)
 			keyPairForSignature = ASymmetricEncryptionType.DEFAULT
-					.getKeyPairGenerator(SecureRandomType.DEFAULT.getInstance(), keyPairSize).generateKeyPair();
+					.getKeyPairGenerator(SecureRandomType.DEFAULT.getSingleton(null), keyPairSize).generateKeyPair();
 		return keyPairForSignature;
 	}
 
 	public static ArrayList<ConnectionsProtocolsMKEventListener> getConnectionsProtocolsMKEventListenerForServerConnection(
 			boolean includeP2PConnectionPossibilityForClients)
-			throws NoSuchAlgorithmException, NoSuchProviderException {
+			throws NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException {
 		ArrayList<ConnectionsProtocolsMKEventListener> res = new ArrayList<>();
 		res.add(new ConnectionsProtocolsMKEventListener(new UnsecuredConnectionProtocolProperties()));
 
-		ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm s = new ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm();
-		
-		encryptionProfileIdentifier = s.addEncryptionProfile(getKeyPairForSignature(), SymmetricEncryptionType.DEFAULT, SymmetricEncryptionType.DEFAULT.getDefaultSignatureAlgorithm(), EllipticCurveDiffieHellmanType.ECDH_128);
+		ServerSecuredProcotolPropertiesWithKnownPublicKey s = new ServerSecuredProcotolPropertiesWithKnownPublicKey();
+
+		encryptionProfileIdentifier = s.addEncryptionProfile(getKeyPairForSignature(), SymmetricEncryptionType.DEFAULT, ASymmetricKeyWrapperType.DEFAULT);
 		if (includeP2PConnectionPossibilityForClients) {
 			P2PSecuredConnectionProtocolWithECDHAlgorithmProperties p2p = new P2PSecuredConnectionProtocolWithECDHAlgorithmProperties();
 			p2p.isServer = false;
@@ -154,8 +155,8 @@ public class ConnectionsProtocolsMKEventListener implements MadkitEventListener 
 			res.add(new ConnectionsProtocolsMKEventListener(s));
 
 		ConnectionProtocolProperties<?> cpp = new UnsecuredConnectionProtocolProperties();
-		s = new ServerSecuredProcotolPropertiesWithKnownPublicKeyWithECDHAlgorithm();
-		s.addEncryptionProfile(getKeyPairForSignature(), SymmetricEncryptionType.DEFAULT, SymmetricEncryptionType.DEFAULT.getDefaultSignatureAlgorithm(), EllipticCurveDiffieHellmanType.ECDH_128);
+		s = new ServerSecuredProcotolPropertiesWithKnownPublicKey();
+		encryptionProfileIdentifier = s.addEncryptionProfile(getKeyPairForSignature(), SymmetricEncryptionType.DEFAULT, ASymmetricKeyWrapperType.DEFAULT);
 		cpp.subProtocolProperties = s;
 		if (includeP2PConnectionPossibilityForClients) {
 			ConnectionProtocolProperties<?> cpp2 = new UnsecuredConnectionProtocolProperties();
@@ -173,15 +174,14 @@ public class ConnectionsProtocolsMKEventListener implements MadkitEventListener 
 
 	public static ArrayList<ConnectionsProtocolsMKEventListener> getConnectionsProtocolsMKEventListenerForClientConnection(
 			boolean includeP2PConnectionPossibilityForClients)
-			throws NoSuchAlgorithmException, NoSuchProviderException {
+			throws NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException {
 		ArrayList<ConnectionsProtocolsMKEventListener> res = new ArrayList<>();
 		UnsecuredConnectionProtocolProperties u = new UnsecuredConnectionProtocolProperties();
 		u.isServer = false;
 		res.add(new ConnectionsProtocolsMKEventListener(u));
 
-		ClientSecuredProtocolPropertiesWithKnownPublicKeyWithECDHAlgorithm c = new ClientSecuredProtocolPropertiesWithKnownPublicKeyWithECDHAlgorithm();
-		c.setEncryptionProfile(encryptionProfileIdentifier, SymmetricEncryptionType.DEFAULT,SymmetricEncryptionType.DEFAULT.getDefaultSignatureAlgorithm(),
-				getKeyPairForSignature().getASymmetricPublicKey(), EllipticCurveDiffieHellmanType.ECDH_128);
+		ClientSecuredProtocolPropertiesWithKnownPublicKey c = new ClientSecuredProtocolPropertiesWithKnownPublicKey();
+		c.setEncryptionProfile(encryptionProfileIdentifier, getKeyPairForSignature().getASymmetricPublicKey(), SymmetricEncryptionType.DEFAULT,ASymmetricKeyWrapperType.DEFAULT);
 		if (includeP2PConnectionPossibilityForClients) {
 			P2PSecuredConnectionProtocolWithECDHAlgorithmProperties p2p = new P2PSecuredConnectionProtocolWithECDHAlgorithmProperties();
 			p2p.isServer = false;
@@ -191,9 +191,8 @@ public class ConnectionsProtocolsMKEventListener implements MadkitEventListener 
 
 		ConnectionProtocolProperties<?> cpp = u = new UnsecuredConnectionProtocolProperties();
 		u.isServer = false;
-		c = new ClientSecuredProtocolPropertiesWithKnownPublicKeyWithECDHAlgorithm();
-		c.setEncryptionProfile(encryptionProfileIdentifier, SymmetricEncryptionType.DEFAULT,SymmetricEncryptionType.DEFAULT.getDefaultSignatureAlgorithm(),
-				getKeyPairForSignature().getASymmetricPublicKey(), EllipticCurveDiffieHellmanType.ECDH_128);
+		c = new ClientSecuredProtocolPropertiesWithKnownPublicKey();
+		c.setEncryptionProfile(encryptionProfileIdentifier, getKeyPairForSignature().getASymmetricPublicKey(), SymmetricEncryptionType.DEFAULT,ASymmetricKeyWrapperType.DEFAULT);
 		cpp.subProtocolProperties = c;
 		if (includeP2PConnectionPossibilityForClients) {
 			UnsecuredConnectionProtocolProperties cpp2 = new UnsecuredConnectionProtocolProperties();

@@ -84,6 +84,7 @@ import com.distrimind.madkit.message.ObjectMessage;
 import com.distrimind.util.Timer;
 
 import gnu.vm.jgnu.security.NoSuchAlgorithmException;
+import gnu.vm.jgnu.security.NoSuchProviderException;
 
 /**
  * Represent an server socket selector for {@link SocketChannel}, and
@@ -963,7 +964,7 @@ final class NIOAgent extends Agent {
 		}
 
 		public PersonalSocket(SocketChannel _socketChannel, AgentSocket _agent)
-				throws OverflowException, IOException, NoSuchAlgorithmException {
+				throws OverflowException, IOException, NoSuchAlgorithmException, NoSuchProviderException {
 			socketChannel = _socketChannel;
 			agentSocket = _agent;
 			agentAddress = agentSocket.getAgentAddressIn(LocalCommunity.Groups.NETWORK,

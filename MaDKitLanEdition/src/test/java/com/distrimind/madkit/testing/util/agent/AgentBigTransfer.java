@@ -186,7 +186,7 @@ public class AgentBigTransfer extends AgentFakeThread {
 				RandomByteArrayInputStream inputStream = new RandomByteArrayInputStream(new byte[inputStreamLengh]);
 
 				myTransferID = sendBigDataWithRole(destination, inputStream, 0, inputStream.length(), attachedData,
-						useMessageDigest ? MessageDigestType.SHA_512 : null, thisRole);
+						useMessageDigest ? MessageDigestType.BC_FIPS_SHA3_512 : null, thisRole);
 				ok &= myTransferID != null;
 				Assert.assertTrue(ok);
 

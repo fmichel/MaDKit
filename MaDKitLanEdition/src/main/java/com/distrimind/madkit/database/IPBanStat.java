@@ -165,6 +165,11 @@ public final class IPBanStat extends Table<IPBanStat.Record> {
 				public boolean doesWriteData() {
 					return true;
 				}
+
+				@Override
+				public void initOrReset() throws Exception {
+					
+				}
 			});
 		} catch (Exception e) {
 			throw DatabaseException.getDatabaseException(e);
@@ -330,6 +335,11 @@ public final class IPBanStat extends Table<IPBanStat.Record> {
 				public boolean doesWriteData() {
 					return true;
 				}
+
+				@Override
+				public void initOrReset() throws Exception {
+					
+				}
 			});
 		} catch (Exception e) {
 			throw DatabaseException.getDatabaseException(e);
@@ -365,6 +375,11 @@ public final class IPBanStat extends Table<IPBanStat.Record> {
 				@Override
 				public boolean doesWriteData() {
 					return false;
+				}
+
+				@Override
+				public void initOrReset() throws Exception {
+					
 				}
 			}).booleanValue();
 		} catch (Exception e) {
@@ -405,6 +420,11 @@ public final class IPBanStat extends Table<IPBanStat.Record> {
 				@Override
 				public boolean doesWriteData() {
 					return true;
+				}
+
+				@Override
+				public void initOrReset() throws Exception {
+					
 				}
 			});
 		} catch (Exception e) {

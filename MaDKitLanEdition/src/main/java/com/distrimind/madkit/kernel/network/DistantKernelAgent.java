@@ -99,9 +99,9 @@ import com.distrimind.madkit.message.hook.HookMessage.AgentActionEvent;
 import com.distrimind.util.IDGeneratorInt;
 import com.distrimind.util.crypto.AbstractSecureRandom;
 import com.distrimind.util.crypto.MessageDigestType;
-import com.distrimind.util.crypto.SecureRandomType;
 
 import gnu.vm.jgnu.security.NoSuchAlgorithmException;
+import gnu.vm.jgnu.security.NoSuchProviderException;
 
 /**
  * Represent a distant Madkit kernel
@@ -1136,7 +1136,7 @@ class DistantKernelAgent extends AgentFakeThread {
 				logger.warning("Setting distant kernel address already done (currentDistantKernelAddress="
 						+ distant_kernel_address + ", receivedKernelAddress=" + distant_ka + ")");
 
-		} catch (NoSuchAlgorithmException e) {
+		} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
 			throw new MadkitException(e);
 		}
 	}
@@ -1245,7 +1245,7 @@ class DistantKernelAgent extends AgentFakeThread {
 		// this.requestRole(LocalCommunity.Groups.getDistantKernelAgentGroup(hashCode()),
 		// LocalCommunity.Roles.DISTANT_KERNEL_AGENT_ROLE);
 		try {
-			random = SecureRandomType.DEFAULT.getInstance();
+			random = getMadkitConfig().getApprovedSecureRandom();
 		} catch (Exception e) {
 			if (logger != null)
 				logger.severeLog("Unexpected exception", e);

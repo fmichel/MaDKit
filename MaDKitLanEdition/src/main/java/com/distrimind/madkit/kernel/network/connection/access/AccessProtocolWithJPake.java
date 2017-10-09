@@ -37,7 +37,6 @@
  */
 package com.distrimind.madkit.kernel.network.connection.access;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,22 +44,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.distrimind.madkit.kernel.KernelAddress;
 import com.distrimind.madkit.kernel.MadkitProperties;
-import com.distrimind.madkit.kernel.network.KernelAddressInterfaced;
 import com.distrimind.util.crypto.AbstractMessageDigest;
 import com.distrimind.util.crypto.AbstractSecureRandom;
 import com.distrimind.util.crypto.P2PJPAKESecretMessageExchanger;
 
 import gnu.vm.jgnu.security.DigestException;
-import gnu.vm.jgnu.security.InvalidAlgorithmParameterException;
-import gnu.vm.jgnu.security.InvalidKeyException;
 import gnu.vm.jgnu.security.NoSuchAlgorithmException;
 import gnu.vm.jgnu.security.NoSuchProviderException;
-import gnu.vm.jgnu.security.spec.InvalidKeySpecException;
-import gnu.vm.jgnux.crypto.BadPaddingException;
-import gnu.vm.jgnux.crypto.IllegalBlockSizeException;
-import gnu.vm.jgnux.crypto.NoSuchPaddingException;
 
 /**
  * Represents properties of a specific connection protocol
@@ -75,22 +66,22 @@ public class AccessProtocolWithJPake extends AbstractAccessProtocol {
 	private final AccessProtocolWithJPakeProperties access_protocol_properties;
 	private AccessState access_state = AccessState.ACCESS_NOT_INITIALIZED;
 	private Map<Identifier, P2PJPAKESecretMessageExchanger> jpakes;
-	private final AbstractSecureRandom random;
+	
 	private final AbstractMessageDigest messageDigest;
 	private byte[] localGeneratedSalt=null, distantGeneratedSalt=null;
-	
+	private MadkitProperties mkProperties;
 	public AccessProtocolWithJPake(InetSocketAddress _distant_inet_address,
 			InetSocketAddress _local_interface_address, LoginEventsTrigger loginTrigger, MadkitProperties _properties)
 			throws AccessException {
 		super(_distant_inet_address, _local_interface_address, loginTrigger, _properties);
-		
+		this.mkProperties=_properties;
 		access_protocol_properties = (AccessProtocolWithJPakeProperties)_properties.networkProperties.getAccessProtocolProperties(_distant_inet_address,_local_interface_address);
 		if (access_protocol_properties == null)
 			throw new NullPointerException("No AccessProtocolProperties was found into the MadkitProperties !");
 		
 		try
 		{
-			random = access_protocol_properties.randomTypeUsedForAnonymization.getInstance();
+			
 			messageDigest=access_protocol_properties.identifierDigestionTypeUsedForAnonymization.getMessageDigestInstance();
 		}
 		catch(NoSuchProviderException | NoSuchAlgorithmException e)
@@ -127,13 +118,13 @@ public class AccessProtocolWithJPake extends AbstractAccessProtocol {
 				if (_m instanceof AccessAskInitiliazation) {
 					if (access_data instanceof LoginData) {
 						access_state = AccessState.ACCESS_INITIALIZED;
-						JPakeAccessInitialized res=new JPakeAccessInitialized(((LoginData)access_data).canTakesLoginInitiative(), random);
+						JPakeAccessInitialized res=new JPakeAccessInitialized(((LoginData)access_data).canTakesLoginInitiative(), mkProperties.getApprovedSecureRandomForKeys());
 						localGeneratedSalt=res.getGeneratedSalt();
 						return res;
 						
 					} else {
 						access_state = AccessState.ACCESS_INITIALIZED;
-						JPakeAccessInitialized res=new JPakeAccessInitialized(false, random);
+						JPakeAccessInitialized res=new JPakeAccessInitialized(false, mkProperties.getApprovedSecureRandomForKeys());
 						localGeneratedSalt=res.getGeneratedSalt();
 						return res;
 					}
@@ -159,9 +150,9 @@ public class AccessProtocolWithJPake extends AbstractAccessProtocol {
 							setIdentifiers(null);
 						if (getIdentifiers() != null) {
 							access_state = AccessState.WAITING_FOR_IDENTIFIERS;
-							return new IdentifiersPropositionMessage(getIdentifiers(), random, messageDigest,
+							return new IdentifiersPropositionMessage(getIdentifiers(), mkProperties.getApprovedSecureRandom(), messageDigest,
 									this.access_protocol_properties.encryptIdentifiersBeforeSendingToDistantPeer,
-									(short) 0, getDistantKernelAddress(), distantGeneratedSalt);
+									(short) 0, distantGeneratedSalt);
 						} else {
 							if (!isOtherCanTakesInitiative()) {
 								access_state = AccessState.ACCESS_NOT_INITIALIZED;
@@ -186,15 +177,15 @@ public class AccessProtocolWithJPake extends AbstractAccessProtocol {
 						LoginData lp = (LoginData) access_data;
 						if (getIdentifiers() != null) {
 							access_state = AccessState.WAITING_FOR_PASSWORD_VALIDATION_1;
-							return ((IdentifiersPropositionMessage) _m).getJPakeMessage(lp, jpakes,random, messageDigest,
-									this.access_protocol_properties.encryptIdentifiersBeforeSendingToDistantPeer, getDistantKernelAddress(), distantGeneratedSalt, getKernelAddress(), localGeneratedSalt);
+							return ((IdentifiersPropositionMessage) _m).getJPakeMessage(lp, jpakes,mkProperties.getApprovedSecureRandom(), mkProperties.getApprovedSecureRandomForKeys(), messageDigest,
+									this.access_protocol_properties.encryptIdentifiersBeforeSendingToDistantPeer, distantGeneratedSalt, localGeneratedSalt);
 						} else {
 							access_state = AccessState.WAITING_FOR_PASSWORD_VALIDATION_1;
 							setIdentifiers(new ArrayList<Identifier>());
-							return new AccessMessagesList(((IdentifiersPropositionMessage) _m).getIdentifiersPropositionMessageAnswer(lp, random, messageDigest,
-											this.access_protocol_properties.encryptIdentifiersBeforeSendingToDistantPeer, getIdentifiers(), getDistantKernelAddress(), distantGeneratedSalt, getKernelAddress(), localGeneratedSalt),
-									((IdentifiersPropositionMessage) _m).getJPakeMessage(lp, jpakes,random, messageDigest,
-											this.access_protocol_properties.encryptIdentifiersBeforeSendingToDistantPeer, getDistantKernelAddress(), distantGeneratedSalt, getKernelAddress(), localGeneratedSalt));
+							return new AccessMessagesList(((IdentifiersPropositionMessage) _m).getIdentifiersPropositionMessageAnswer(lp, mkProperties.getApprovedSecureRandom(), messageDigest,
+											this.access_protocol_properties.encryptIdentifiersBeforeSendingToDistantPeer, getIdentifiers(), distantGeneratedSalt,  localGeneratedSalt),
+									((IdentifiersPropositionMessage) _m).getJPakeMessage(lp, jpakes,mkProperties.getApprovedSecureRandom(), mkProperties.getApprovedSecureRandomForKeys(), messageDigest,
+											this.access_protocol_properties.encryptIdentifiersBeforeSendingToDistantPeer, distantGeneratedSalt, localGeneratedSalt));
 							
 						}
 					} else
@@ -219,7 +210,7 @@ public class AccessProtocolWithJPake extends AbstractAccessProtocol {
 					
 					setAcceptedIdentifiers(new ArrayList<PairOfIdentifiers>());
 					setDeniedIdentifiers(new ArrayList<PairOfIdentifiers>());
-					AccessMessage res=jpakem.getJPakeMessageNewStep((short)2, lp, random, messageDigest, getDeniedIdentifiers(), jpakes, getDistantKernelAddress(), distantGeneratedSalt, getKernelAddress(), localGeneratedSalt);
+					AccessMessage res=jpakem.getJPakeMessageNewStep((short)2, lp, mkProperties.getApprovedSecureRandom(), messageDigest, getDeniedIdentifiers(), jpakes, distantGeneratedSalt, localGeneratedSalt);
 					
 					access_state = AccessState.WAITING_FOR_PASSWORD_VALIDATION_2;
 
@@ -239,7 +230,7 @@ public class AccessProtocolWithJPake extends AbstractAccessProtocol {
 						return new AccessErrorMessage(false);
 					}
 					
-					AccessMessage res=jpakem.getJPakeMessageNewStep((short)3, lp, random, messageDigest, getDeniedIdentifiers(), jpakes, getDistantKernelAddress(), distantGeneratedSalt, getKernelAddress(), localGeneratedSalt);
+					AccessMessage res=jpakem.getJPakeMessageNewStep((short)3, lp, mkProperties.getApprovedSecureRandom(), messageDigest, getDeniedIdentifiers(), jpakes, distantGeneratedSalt, localGeneratedSalt);
 					
 					if (res instanceof AccessErrorMessage)
 					{
@@ -265,7 +256,7 @@ public class AccessProtocolWithJPake extends AbstractAccessProtocol {
 						access_state = AccessState.ACCESS_NOT_INITIALIZED;
 						return new AccessErrorMessage(false);
 					}
-					AccessMessage res=jpakem.receiveLastMessage(lp, messageDigest, getAcceptedIdentifiers(), getDeniedIdentifiers(), jpakes, getKernelAddress(), localGeneratedSalt);
+					AccessMessage res=jpakem.receiveLastMessage(lp, messageDigest, getAcceptedIdentifiers(), getDeniedIdentifiers(), jpakes, localGeneratedSalt);
 					if (res!=null && res instanceof AccessErrorMessage)
 					{
 						access_state = AccessState.ACCESS_NOT_INITIALIZED;
@@ -302,7 +293,7 @@ public class AccessProtocolWithJPake extends AbstractAccessProtocol {
 					}
 					setAcceptedIdentifiers(ai);
 
-					setDistantKernelAddress(((LoginConfirmationMessage) _m).kernel_address);
+					//setDistantKernelAddress(((LoginConfirmationMessage) _m).kernel_address);
 					addLastAcceptedAndDeniedIdentifiers(getAcceptedIdentifiers(), denied_identiers);
 
 					access_state = AccessState.ACCESS_FINALIZED;
@@ -319,7 +310,7 @@ public class AccessProtocolWithJPake extends AbstractAccessProtocol {
 			}
 			case ACCESS_FINALIZED: {
 				if (_m instanceof IdentifiersPropositionMessage && access_data instanceof LoginData) {
-					AccessMessage res=((IdentifiersPropositionMessage) _m).getJPakeMessage((LoginData)access_data, jpakes, random, messageDigest, this.access_protocol_properties.encryptIdentifiersBeforeSendingToDistantPeer, getDistantKernelAddress(), distantGeneratedSalt, getKernelAddress(), localGeneratedSalt);
+					AccessMessage res=((IdentifiersPropositionMessage) _m).getJPakeMessage((LoginData)access_data, jpakes, mkProperties.getApprovedSecureRandom(), mkProperties.getApprovedSecureRandomForKeys(), messageDigest, this.access_protocol_properties.encryptIdentifiersBeforeSendingToDistantPeer, distantGeneratedSalt, localGeneratedSalt);
 					access_state = AccessState.WAITING_FOR_NEW_LOGIN_STEP1;
 					return res;
 				} else if (_m instanceof AccessFinalizedMessage) {
@@ -347,7 +338,7 @@ public class AccessProtocolWithJPake extends AbstractAccessProtocol {
 					
 					setAcceptedIdentifiers(new ArrayList<PairOfIdentifiers>());
 					setDeniedIdentifiers(new ArrayList<PairOfIdentifiers>());
-					AccessMessage res=jpakem.getJPakeMessageNewStep((short)2, lp, random, messageDigest, getDeniedIdentifiers(), jpakes, getDistantKernelAddress(), distantGeneratedSalt, getKernelAddress(), localGeneratedSalt);
+					AccessMessage res=jpakem.getJPakeMessageNewStep((short)2, lp, mkProperties.getApprovedSecureRandom(), messageDigest, getDeniedIdentifiers(), jpakes, distantGeneratedSalt, localGeneratedSalt);
 					
 					access_state = AccessState.WAITING_FOR_NEW_LOGIN_STEP2;
 
@@ -372,7 +363,7 @@ public class AccessProtocolWithJPake extends AbstractAccessProtocol {
 						return new AccessErrorMessage(false);
 					}
 					
-					AccessMessage res=jpakem.getJPakeMessageNewStep((short)3, lp, random, messageDigest, getDeniedIdentifiers(), jpakes, getDistantKernelAddress(), distantGeneratedSalt, getKernelAddress(), localGeneratedSalt);
+					AccessMessage res=jpakem.getJPakeMessageNewStep((short)3, lp, mkProperties.getApprovedSecureRandom(), messageDigest, getDeniedIdentifiers(), jpakes, distantGeneratedSalt, localGeneratedSalt);
 					
 					if (res instanceof AccessErrorMessage)
 					{
@@ -403,7 +394,7 @@ public class AccessProtocolWithJPake extends AbstractAccessProtocol {
 						access_state = AccessState.ACCESS_NOT_INITIALIZED;
 						return new AccessErrorMessage(false);
 					}
-					AccessMessage res=jpakem.receiveLastMessage(lp, messageDigest, getAcceptedIdentifiers(), getDeniedIdentifiers(), jpakes, getKernelAddress(), localGeneratedSalt);
+					AccessMessage res=jpakem.receiveLastMessage(lp, messageDigest, getAcceptedIdentifiers(), getDeniedIdentifiers(), jpakes, localGeneratedSalt);
 					if (res!=null && res instanceof AccessErrorMessage)
 					{
 						access_state = AccessState.ACCESS_NOT_INITIALIZED;
@@ -445,7 +436,6 @@ public class AccessProtocolWithJPake extends AbstractAccessProtocol {
 					}
 					setAcceptedIdentifiers(ai);
 
-					setDistantKernelAddress(((LoginConfirmationMessage) _m).kernel_address);
 					addLastAcceptedAndDeniedIdentifiers(getAcceptedIdentifiers(), denied_identiers);
 
 					access_state = AccessState.ACCESS_FINALIZED;
@@ -469,9 +459,7 @@ public class AccessProtocolWithJPake extends AbstractAccessProtocol {
 				throw new IllegalAccessError();
 
 			}
-		} catch (NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException
-				| InvalidAlgorithmParameterException | InvalidKeySpecException | IOException | IllegalAccessException
-				| IllegalBlockSizeException | BadPaddingException | NoSuchProviderException | DigestException e) {
+		} catch (Exception e) {
 			throw new AccessException(e);
 		}
 	}
@@ -490,10 +478,10 @@ public class AccessProtocolWithJPake extends AbstractAccessProtocol {
 					List<Identifier> identifiers = new ArrayList<>();
 					identifiers.addAll(((NewLocalLoginAddedMessage) _m).identifiers);
 					setIdentifiers(identifiers);
-					IdentifiersPropositionMessage m1= new IdentifiersPropositionMessage(identifiers, random, messageDigest,
-							this.access_protocol_properties.encryptIdentifiersBeforeSendingToDistantPeer, (short) 0, getDistantKernelAddress(), distantGeneratedSalt);
+					IdentifiersPropositionMessage m1= new IdentifiersPropositionMessage(identifiers, mkProperties.getApprovedSecureRandom(), messageDigest,
+							this.access_protocol_properties.encryptIdentifiersBeforeSendingToDistantPeer, (short) 0, distantGeneratedSalt);
 					
-					JPakeMessage m2=new JPakeMessage((LoginData)access_data, random, messageDigest, jpakes, access_protocol_properties.encryptIdentifiersBeforeSendingToDistantPeer, identifiers, getDistantKernelAddress(), distantGeneratedSalt);
+					JPakeMessage m2=new JPakeMessage((LoginData)access_data, mkProperties.getApprovedSecureRandom(), mkProperties.getApprovedSecureRandomForKeys(), messageDigest, jpakes, access_protocol_properties.encryptIdentifiersBeforeSendingToDistantPeer, identifiers, distantGeneratedSalt);
 					return new AccessMessagesList(m1, m2);
 				} else
 					return null;
@@ -511,16 +499,14 @@ public class AccessProtocolWithJPake extends AbstractAccessProtocol {
 				return new AccessErrorMessage(false);
 			}
 		}
-		catch(InvalidKeyException | IOException | IllegalBlockSizeException | BadPaddingException |
-				NoSuchAlgorithmException | InvalidKeySpecException | NoSuchPaddingException |
-				InvalidAlgorithmParameterException | NoSuchProviderException | DigestException e)
+		catch(Exception e)
 		{
 			throw new AccessException(e);
 		}
 	}
 
 	
-	static byte[] anonimizeIdentifier(byte[] identifier, AbstractSecureRandom random, AbstractMessageDigest messageDigest, KernelAddress distantKernelAddress, byte[] distantGeneratedSalt) throws DigestException
+	static byte[] anonimizeIdentifier(byte[] identifier, AbstractSecureRandom random, AbstractMessageDigest messageDigest, byte[] distantGeneratedSalt) throws DigestException
 	{
 		if (random==null)
 			throw new NullPointerException();
@@ -530,10 +516,10 @@ public class AccessProtocolWithJPake extends AbstractAccessProtocol {
 		int mds=messageDigest.getDigestLength();
 		byte[] ivParameter=new byte[mds];
 		random.nextBytes(ivParameter);
-		return anonimizeIdentifier(identifier, ivParameter, messageDigest, distantKernelAddress, distantGeneratedSalt);
+		return anonimizeIdentifier(identifier, ivParameter, messageDigest, distantGeneratedSalt);
 	}
 	
-	private static byte[] anonimizeIdentifier(byte[] identifier, byte[] ivParameter, AbstractMessageDigest messageDigest, KernelAddress kernelAddress, byte[] generatedSalt) throws DigestException
+	private static byte[] anonimizeIdentifier(byte[] identifier, byte[] ivParameter, AbstractMessageDigest messageDigest, byte[] generatedSalt) throws DigestException
 	{
 		if (identifier==null)
 			throw new NullPointerException();
@@ -541,18 +527,14 @@ public class AccessProtocolWithJPake extends AbstractAccessProtocol {
 			throw new IllegalArgumentException();
 		if (messageDigest==null)
 			throw new NullPointerException();
-		if (kernelAddress==null)
-			throw new NullPointerException();
 		if (generatedSalt==null)
 			throw new NullPointerException();
 		if (generatedSalt.length==0)
 			throw new IllegalArgumentException();
 		
-		byte[] dkab=(kernelAddress instanceof KernelAddressInterfaced)?((KernelAddressInterfaced)kernelAddress).getOriginalKernelAddress().getAbstractDecentralizedID().getBytes():kernelAddress.getAbstractDecentralizedID().getBytes();
-		byte[] res=new byte[identifier.length+dkab.length+generatedSalt.length];
+		byte[] res=new byte[identifier.length+generatedSalt.length];
 		System.arraycopy(generatedSalt, 0, res, 0, generatedSalt.length);
-		System.arraycopy(dkab, 0, res, generatedSalt.length, dkab.length);
-		System.arraycopy(identifier, 0, res, generatedSalt.length+dkab.length, identifier.length);
+		System.arraycopy(identifier, 0, res, generatedSalt.length, identifier.length);
 		identifier=res;
 		
 		final int mds=messageDigest.getDigestLength();
@@ -580,11 +562,11 @@ public class AccessProtocolWithJPake extends AbstractAccessProtocol {
 		return res;
 	}
 
-	static boolean compareAnonymizedIdentifier(byte[] identifier, byte[] anonymizedIdentifier, AbstractMessageDigest messageDigest, KernelAddress localKernelAddress, byte[] localGeneratedSalt) throws DigestException
+	static boolean compareAnonymizedIdentifier(byte[] identifier, byte[] anonymizedIdentifier, AbstractMessageDigest messageDigest, byte[] localGeneratedSalt) throws DigestException
 	{
 		if (anonymizedIdentifier==null || anonymizedIdentifier.length<messageDigest.getDigestLength()*2)
 			return false;
-		byte[] expectedAnonymizedIdentifier=anonimizeIdentifier(identifier, anonymizedIdentifier, messageDigest, localKernelAddress, localGeneratedSalt);
+		byte[] expectedAnonymizedIdentifier=anonimizeIdentifier(identifier, anonymizedIdentifier, messageDigest, localGeneratedSalt);
 		return Arrays.equals(expectedAnonymizedIdentifier, anonymizedIdentifier);
 	}
 	

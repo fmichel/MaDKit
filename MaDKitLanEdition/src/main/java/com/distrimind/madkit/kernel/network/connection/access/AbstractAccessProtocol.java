@@ -179,20 +179,20 @@ public abstract class AbstractAccessProtocol {
 	 * return new_login_events_waiting.removeFirst(); }
 	 */
 
-	private KernelAddress distant_kernel_address;
+	//private KernelAddress distant_kernel_address;
 	private ArrayList<PairOfIdentifiers> last_accepted_identifiers = new ArrayList<PairOfIdentifiers>();
 	private ArrayList<PairOfIdentifiers> all_accepted_identifiers = new ArrayList<PairOfIdentifiers>();
 	private ArrayList<PairOfIdentifiers> last_denied_identifiers_from_other = new ArrayList<>();
 	private ArrayList<PairOfIdentifiers> last_unlogged_identifiers = new ArrayList<>();
 
-	public KernelAddress getDistantKernelAddress() {
+	/*public KernelAddress getDistantKernelAddress() {
 		return distant_kernel_address;
-	}
+	}*/
 
-	protected void setDistantKernelAddress(KernelAddress ka)
+	/*protected void setDistantKernelAddress(KernelAddress ka)
 	{
 		distant_kernel_address=ka;
-	}
+	}*/
 	
 	protected void addLastAcceptedAndDeniedIdentifiers(ArrayList<PairOfIdentifiers> _accepted_identifiers,
 			ArrayList<PairOfIdentifiers> _denied_identifiers) {

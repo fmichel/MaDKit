@@ -56,7 +56,7 @@ import madkit.kernel.Madkit;
 public class HelpMenuTest {
 
 	@Test
-	//need the release to be deployed to succeed
+	//needs the release to be deployed to succeed
 	public final void testUrls() throws IOException {
 		// HttpURLConnection.setFollowRedirects(false);
 		HelpMenu name = new HelpMenu();

@@ -148,7 +148,7 @@
 	</path>
 
 	<target name="test-init" depends="buildResources">
-		<javac debug="true" includeAntRuntime="false" classpathref="compile.classpath" srcdir="${src.dir}" destdir="${build.dir}" excludes="**/networking/**"/>
+		<javac debug="true" includeAntRuntime="false" classpathref="compile.classpath" srcdir="${src.dir}" destdir="${build.dir}" excludes="**/networking/**" />
 		<mkdir dir="${test.classes.dir}" />
 		<delete dir="${test.data.dir}" />
 		<delete dir="${test.reports.dir}" />
@@ -178,11 +178,50 @@
 		<copy todir="${test.classes.dir}" overwrite="false">
 			<fileset dir="test" excludes="**/*.java" />
 		</copy>
-		<junit printsummary="withOutAndErr" haltonfailure="false" maxmemory="2048m">
+		<junit printsummary="withOutAndErr" haltonfailure="true" maxmemory="2048m">
 			<classpath refid="test.classpath" />
 			<formatter type="brief" usefile="false" />
 			<formatter type="xml" />
-			<batchtest todir="${test.data.dir}" fork="true" >
+			<batchtest todir="${test.data.dir}" fork="true">
+				<fileset dir="${test.classes.dir}" includes="**/*Test.class" />
+			</batchtest>
+		</junit>
+		<junitreport todir="${test.data.dir}">
+			<fileset dir="${test.data.dir}">
+				<include name="TEST-*.xml" />
+			</fileset>
+			<report format="frames" todir="${test.reports.dir}" />
+		</junitreport>
+		<replace dir="${test.reports.dir}" token="Unit Test Result" value="MaDKit ${madkit.version} Unit Test Result" />
+	</target>
+
+	<!-- ================================= 
+          target: junit              
+         ================================= -->
+	<target name="travis_test" depends="clean,test-compile" description="junit">
+		<!-- networking is excluded for now -->
+		<delete>
+			<fileset dir="${test.classes.dir}">
+				<include name="**/DiscoverTest*" />
+				<include name="**/NetworkAgentAddressCoherencyTest*" />
+				<include name="**/sendReplyAfterDeconnection*" />
+				<include name="**/NetworkReplyingSystemTest*" />
+				<include name="**/MadkitClassLoaderTest*" />
+				<include name="**/CreateLogFilesTest*" />
+				<include name="**/DuplicateNamesTest*" />
+				<include name="**/HelpMenuTest*" />
+			</fileset>
+		</delete>
+
+		<!-- copy resources -->
+		<copy todir="${test.classes.dir}" overwrite="false">
+			<fileset dir="test" excludes="**/*.java" />
+		</copy>
+		<junit printsummary="false" haltonfailure="true" maxmemory="2048m">
+			<classpath refid="test.classpath" />
+			<formatter type="brief" usefile="false" />
+			<formatter type="xml" />
+			<batchtest todir="${test.data.dir}" fork="true">
 				<fileset dir="${test.classes.dir}" includes="**/*Test.class" />
 			</batchtest>
 		</junit>
@@ -201,7 +240,7 @@
       TODO fix xdoclint validation
      ================================= -->
 	<target name="javadoc" description="build the javadoc">
-		<tstamp/>
+		<tstamp />
 		<javadoc sourcepath="${src.dir}" destdir="${docs.api.dir}" classpathref="compile.classpath" failonwarning="true" access="protected" docfilessubdirs="true" author="true" version="true" use="true" linksource="no" windowtitle="${project.label}" additionalparam="-Xdoclint:none">
 			<doctitle>
 				<![CDATA[<h1>${project.label}</h1>
@@ -303,7 +342,7 @@
 
 				<echo>Building the desktop webstart archive</echo>
 				<delete>
-					<fileset dir="${build.dir}" includes="VERSION,*.xml,README*,*.php"/>
+					<fileset dir="${build.dir}" includes="VERSION,*.xml,README*,*.php" />
 				</delete>
 
 				<unzip dest="${build.dir}">
@@ -342,7 +381,7 @@
 				<echo>FTP uploading new release files in ${ftp.dir.target}</echo>
 				<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="mkdir" remotedir="${ftp.dir.target}" verbose="yes" />
 				<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="put" remotedir="${ftp.dir.target}">
-					<fileset dir="${release.dir}/web" excludes="LICENSE"/>
+					<fileset dir="${release.dir}/web" excludes="LICENSE" />
 					<fileset dir="${resource.dir}" includes="index.php" />
 					<fileset file="${release.dir}/${distribution.zip.name}" />
 				</ftp>

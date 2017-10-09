@@ -43,6 +43,7 @@ import static madkit.kernel.JunitMadkit.ROLE;
 import java.util.logging.Level;
 
 import madkit.kernel.Madkit.LevelOption;
+
 /**
  * @author Fabien Michel
  * @since MaDKit 5.0.0.7
@@ -51,41 +52,39 @@ import madkit.kernel.Madkit.LevelOption;
  */
 public class FaultyAA extends DoItDuringLifeCycleAbstractAgent {
 
-	/**
-	 * @param inActivate
-	 * @param inEnd
-	 */
-	public FaultyAA(boolean inActivate, boolean inEnd) {
-		super(inActivate, inEnd);
-	}
+    /**
+     * @param inActivate
+     * @param inEnd
+     */
+    public FaultyAA(boolean inActivate, boolean inEnd) {
+	super(inActivate, inEnd);
+    }
 
-	public FaultyAA(boolean inActivate) {
-		super(inActivate);
-	}
+    public FaultyAA(boolean inActivate) {
+	super(inActivate);
+    }
 
-	public FaultyAA() {
-		super();
-	}
-	
-	@Override
-	public void activate() {
-		createGroup(COMMUNITY, GROUP,true);
-		requestRole(COMMUNITY, GROUP, ROLE);
-		super.activate();
-	}
+    public FaultyAA() {
+	super();
+    }
 
-	@SuppressWarnings("null")
-	@Override
-	public void doIt() {
-		getLogger().info("crashing myself");
-		Object o = null;
-		o.toString();
-	}
+    @Override
+    public void activate() {
+	createGroup(COMMUNITY, GROUP, true);
+	requestRole(COMMUNITY, GROUP, ROLE);
+	super.activate();
+    }
 
-	public static void main(String[] args) {
-		String[] myArgs = {LevelOption.agentLogLevel.toString(),Level.ALL.toString()};
-		executeThisAgent(myArgs);
-	}
+    @SuppressWarnings("null")
+    @Override
+    public void doIt() {
+	Object o = null;
+	o.toString();
+    }
 
+    public static void main(String[] args) {
+	String[] myArgs = { LevelOption.agentLogLevel.toString(), Level.ALL.toString() };
+	executeThisAgent(myArgs);
+    }
 
 }

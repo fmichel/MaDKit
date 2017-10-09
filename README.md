@@ -1,6 +1,8 @@
 MaDKit: Multiagent Development Kit
 ================================================
 
+[![Build Status](https://travis-ci.org/fmichel/MaDKit.svg?branch=testingTravis)](https://travis-ci.org/fmichel/MaDKit)
+
 MaDKit is an open source multiagent-based software written in Java.
 
 MaDKit-5 is designed as a lightweight software library for developing distributed applications and simulations using the multiagent paradigm.

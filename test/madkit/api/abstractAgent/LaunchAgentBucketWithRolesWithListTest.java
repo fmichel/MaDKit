@@ -67,152 +67,153 @@ import madkit.testing.util.agent.SimulatedAgentThatLaunchesASimulatedAgent;
 
 public class LaunchAgentBucketWithRolesWithListTest extends JunitMadkit {
 
-	GenericBehaviorActivator<AbstractAgent>	buggy;
-	static int											size	= 1001;
+    GenericBehaviorActivator<AbstractAgent> buggy;
+    static int size = 1001;
 
-	@Before
-	public void setUp() throws Exception {
-		buggy = new GenericBehaviorActivator<>(COMMUNITY, GROUP,
-				ROLE, "doIt");
-	}
+    @Before
+    public void setUp() throws Exception {
+	buggy = new GenericBehaviorActivator<>(COMMUNITY, GROUP, ROLE, "doIt");
+    }
 
-	@Test
-	public void cannotLaunch() {
-//		addMadkitArgs(LevelOption.kernelLogLevel.toString(),"INFO");
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				launchAgentBucket(FaultyAA.class.getName(), size, COMMUNITY + ","	+ GROUP + "," + ROLE);
-			}
-		},ReturnCode.SUCCESS);
-	}
+    @Test
+    public void cannotLaunch() {
+	launchTest(new AbstractAgent() {
 
-	@Test
-	public void nullArg() {
-		addMadkitArgs(LevelOption.kernelLogLevel.toString(),Level.ALL.toString());
-		launchTest(new AbstractAgent() {
+	    protected void activate() {
+		launchAgentBucket(FaultyAA.class.getName(), 2, COMMUNITY + "," + GROUP + "," + ROLE);
+	    }
+	}, ReturnCode.SUCCESS);
+    }
 
-			protected void activate() {
-				List<AbstractAgent> l = new ArrayList<>();
-				for (int i = 0; i < 1; i++) {
-					l.add(null);
-				}
-				launchAgentBucket(l, COMMUNITY + "," + GROUP + "," + ROLE);
-			}
-		}, ReturnCode.AGENT_CRASH);
-	}
+    @Test
+    public void nullArg() {
+	addMadkitArgs(LevelOption.kernelLogLevel.toString(), Level.ALL.toString());
+	launchTest(new AbstractAgent() {
 
-	@Test
-	public void wrongCGR() {
-		launchTest(new AbstractAgent() {
-
-			protected void activate() {
-				try {
-					launchAgentBucket(FaultyAA.class.getName(), size, COMMUNITY
-							+ "," + GROUP + "," + ROLE);
-					JunitMadkit.noExceptionFailure();
-				} catch (IllegalArgumentException e) {
-					throw e;
-				}
-			}
-		}, ReturnCode.AGENT_CRASH);
-	}
-
-	@Test
-	public void returnSuccess() {
-		launchTest(new AbstractAgent() {
-
-			protected void activate() {
-				List<SimulatedAgent> l = new ArrayList<>();
-				for (int i = 0; i < size; i++) {
-					l.add(new SimulatedAgent());
-				}
-				launchAgentBucket(l, COMMUNITY + "," + GROUP + "," + ROLE);
-				testAgents(l);
-				assertEquals(size, getAgentsWithRole(COMMUNITY, GROUP, ROLE).size());
-			}
-		});
-	}
-
-	@Test
-	public void returnSuccessWithInsideLaunches() {
-		launchTest(new AbstractAgent() {
-
-			protected void activate() {
-				List<SimulatedAgent> l = new ArrayList<>();
-				for (int i = 0; i < 2; i++) {
-					l.add(new SimulatedAgentThatLaunchesASimulatedAgent());
-				}
-				launchAgentBucket(l, COMMUNITY + "," + GROUP + "," + ROLE);
-				testAgents(l);
-				assertEquals(4, getAgentsWithRole(COMMUNITY, GROUP, ROLE).size());
-			}
-		});
-	}
-
-	@Test
-	public void testBucketRequestRole() {
-		launchTest(new AbstractAgent() {
-
-			protected void activate() {
-				List<AbstractAgent> l = new ArrayList<>();
-				for (int i = 0; i < 5; i++) {
-					l.add(new AbstractAgent(){
-						@Override
-						protected void activate() {
-							assertEquals(ReturnCode.IGNORED, requestRole(COMMUNITY, GROUP, ROLE2, null));
-							bucketModeCreateGroup(COMMUNITY2, GROUP2,false,null);
-							assertEquals(ReturnCode.SUCCESS,bucketModeRequestRole(COMMUNITY2, GROUP2, ROLE2, null));
-						}
-					});
-				}
-				launchAgentBucket(l, COMMUNITY + "," + GROUP + "," + ROLE);
-				testAgentsRoles(l);
-				assertEquals(5, getAgentsWithRole(COMMUNITY, GROUP, ROLE).size());
-			}
-		});
-	}
-
-	@Test
-	public void inScheduledAgent() {
-		launchTest(new Scheduler() {
-
-			protected void activate() {
-				GenericBehaviorActivator<AbstractAgent> test = new GenericBehaviorActivator<>(
-						COMMUNITY, GROUP, ROLE, "launchAgentBucketWithRoles");
-				launchAgent(new SimulatedAgent());
-				addActivator(test);
-				try {
-					test.execute();
-				} catch (SimulationException e) {
-					e.printStackTrace();
-					throw e;
-				}
-			}
-		}, ReturnCode.SUCCESS);
-	}
-
-	public static void testAgents(List<? extends AbstractAgent> l) {
-		for (AbstractAgent abstractAgent : l) {
-			assertTrue(abstractAgent.isAlive());
-			assertEquals(State.ACTIVATED, abstractAgent.getState());
-			assertTrue(((SimulatedAgent) abstractAgent).goneThroughActivate());
+	    protected void activate() {
+		List<AbstractAgent> l = new ArrayList<>();
+		for (int i = 0; i < 1; i++) {
+		    l.add(null);
 		}
-	}
+		launchAgentBucket(l, COMMUNITY + "," + GROUP + "," + ROLE);
+	    }
+	}, ReturnCode.AGENT_CRASH);
+    }
 
-	public static void testAgentsRoles(List<? extends AbstractAgent> l) {
-		for (AbstractAgent abstractAgent : l) {
-			abstractAgent.getLogger().setLevel(Level.ALL);
-			assertTrue(abstractAgent.isAlive());
-			ReturnCode requestRole = abstractAgent.requestRole(COMMUNITY,GROUP,ROLE);
-			System.err.println(requestRole);
-			assertEquals(ReturnCode.ROLE_ALREADY_HANDLED, requestRole);
-			requestRole = abstractAgent.requestRole(COMMUNITY,GROUP,ROLE2);
-			System.err.println(requestRole);
-			assertEquals(ReturnCode.SUCCESS, requestRole);
-			requestRole = abstractAgent.requestRole(COMMUNITY2,GROUP2,ROLE2);
-			System.err.println(requestRole);
-			assertEquals(ReturnCode.ROLE_ALREADY_HANDLED, requestRole);
+    @Test
+    public void wrongCGR() {
+	launchTest(new AbstractAgent() {
+
+	    protected void activate() {
+		getLogger().setLevel(Level.OFF);
+		try {
+		    launchAgentBucket(FaultyAA.class.getName(), 2, COMMUNITY + "," + GROUP + "," + ROLE);
+		    JunitMadkit.noExceptionFailure();
 		}
+		catch(IllegalArgumentException e) {
+		    throw e;
+		}
+	    }
+	}, ReturnCode.AGENT_CRASH);
+    }
+
+    @Test
+    public void returnSuccess() {
+	launchTest(new AbstractAgent() {
+
+	    protected void activate() {
+		getLogger().setLevel(Level.OFF);
+		List<SimulatedAgent> l = new ArrayList<>();
+		for (int i = 0; i < size; i++) {
+		    l.add(new SimulatedAgent());
+		}
+		launchAgentBucket(l, COMMUNITY + "," + GROUP + "," + ROLE);
+		testAgents(l);
+		assertEquals(size, getAgentsWithRole(COMMUNITY, GROUP, ROLE).size());
+	    }
+	});
+    }
+
+    @Test
+    public void returnSuccessWithInsideLaunches() {
+	launchTest(new AbstractAgent() {
+
+	    protected void activate() {
+		List<SimulatedAgent> l = new ArrayList<>();
+		for (int i = 0; i < 2; i++) {
+		    l.add(new SimulatedAgentThatLaunchesASimulatedAgent());
+		}
+		launchAgentBucket(l, COMMUNITY + "," + GROUP + "," + ROLE);
+		testAgents(l);
+		assertEquals(4, getAgentsWithRole(COMMUNITY, GROUP, ROLE).size());
+	    }
+	});
+    }
+
+    @Test
+    public void testBucketRequestRole() {
+	launchTest(new AbstractAgent() {
+
+	    protected void activate() {
+		List<AbstractAgent> l = new ArrayList<>();
+		for (int i = 0; i < 5; i++) {
+		    l.add(new AbstractAgent() {
+
+			@Override
+			protected void activate() {
+			    assertEquals(ReturnCode.IGNORED, requestRole(COMMUNITY, GROUP, ROLE2, null));
+			    bucketModeCreateGroup(COMMUNITY2, GROUP2, false, null);
+			    assertEquals(ReturnCode.SUCCESS, bucketModeRequestRole(COMMUNITY2, GROUP2, ROLE2, null));
+			}
+		    });
+		}
+		launchAgentBucket(l, COMMUNITY + "," + GROUP + "," + ROLE);
+		testAgentsRoles(l);
+		assertEquals(5, getAgentsWithRole(COMMUNITY, GROUP, ROLE).size());
+	    }
+	});
+    }
+
+    @Test
+    public void inScheduledAgent() {
+	launchTest(new Scheduler() {
+
+	    protected void activate() {
+		GenericBehaviorActivator<AbstractAgent> test = new GenericBehaviorActivator<>(COMMUNITY, GROUP, ROLE, "launchAgentBucketWithRoles");
+		launchAgent(new SimulatedAgent());
+		addActivator(test);
+		try {
+		    test.execute();
+		}
+		catch(SimulationException e) {
+		    e.printStackTrace();
+		    throw e;
+		}
+	    }
+	}, ReturnCode.SUCCESS);
+    }
+
+    public static void testAgents(List<? extends AbstractAgent> l) {
+	for (AbstractAgent abstractAgent : l) {
+	    assertTrue(abstractAgent.isAlive());
+	    assertEquals(State.ACTIVATED, abstractAgent.getState());
+	    assertTrue(((SimulatedAgent) abstractAgent).goneThroughActivate());
 	}
+    }
+
+    public static void testAgentsRoles(List<? extends AbstractAgent> l) {
+	for (AbstractAgent abstractAgent : l) {
+	    assertTrue(abstractAgent.isAlive());
+	    ReturnCode requestRole = abstractAgent.requestRole(COMMUNITY, GROUP, ROLE);
+	    System.err.println(requestRole);
+	    assertEquals(ReturnCode.ROLE_ALREADY_HANDLED, requestRole);
+	    requestRole = abstractAgent.requestRole(COMMUNITY, GROUP, ROLE2);
+	    System.err.println(requestRole);
+	    assertEquals(ReturnCode.SUCCESS, requestRole);
+	    requestRole = abstractAgent.requestRole(COMMUNITY2, GROUP2, ROLE2);
+	    System.err.println(requestRole);
+	    assertEquals(ReturnCode.ROLE_ALREADY_HANDLED, requestRole);
+	}
+    }
 
 }

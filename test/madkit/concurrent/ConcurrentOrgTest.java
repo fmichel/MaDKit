@@ -52,38 +52,41 @@ import org.junit.Test;
  */
 
 public class ConcurrentOrgTest extends JunitMadkit {
-	private int testSize = 8;
 
-	@Test
-	public void noConflictTest() {
-		addMadkitArgs(LevelOption.agentLogLevel.toString(),Level.OFF.toString());
-		addMadkitArgs(LevelOption.kernelLogLevel.toString(),Level.ALL.toString());
-		launchTest(new NormalAgent() {
-			@Override
-			protected void activate() {
-				for (int i = 0; i < testSize; i++) {
-					launchAgent(new ConcurrentTestAgent(), 0);
-				}
-				System.err.println("everything launched");
-				pause(5000);
-			}
-		});
-	}
+    private int testSize = 8;
 
-	@Test
-	public void randomTest() {
-		addMadkitArgs(LevelOption.agentLogLevel.toString(),Level.OFF.toString());
-//		addMadkitArgs(LevelOption.kernelLogLevel.toString(),Level.ALL.toString());
-		launchTest(new NormalAgent() {
-			@Override
-			protected void activate() {
-				for (int i = 0; i < testSize; i++) {
-					launchAgent(new ConcurrentTestAgentBis(), 0);
-				}
-				System.err.println("everything launched");
-				pause(5000);
-			}
-		});
-	}
+    @Test
+    public void noConflictTest() {
+	addMadkitArgs(LevelOption.agentLogLevel.toString(), Level.OFF.toString());
+	addMadkitArgs(LevelOption.kernelLogLevel.toString(), Level.OFF.toString());
+	launchTest(new NormalAgent() {
+
+	    @Override
+	    protected void activate() {
+		for (int i = 0; i < testSize; i++) {
+		    launchAgent(new ConcurrentTestAgent(), 0);
+		}
+		System.err.println("everything launched");
+		pause(5000);
+	    }
+	});
+    }
+
+    @Test
+    public void randomTest() {
+	addMadkitArgs(LevelOption.agentLogLevel.toString(), Level.OFF.toString());
+	// addMadkitArgs(LevelOption.kernelLogLevel.toString(),Level.ALL.toString());
+	launchTest(new NormalAgent() {
+
+	    @Override
+	    protected void activate() {
+		for (int i = 0; i < testSize; i++) {
+		    launchAgent(new ConcurrentTestAgentBis(), 0);
+		}
+		System.err.println("everything launched");
+		pause(5000);
+	    }
+	});
+    }
 
 }

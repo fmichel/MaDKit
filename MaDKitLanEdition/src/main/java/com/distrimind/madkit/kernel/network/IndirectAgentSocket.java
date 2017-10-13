@@ -55,6 +55,8 @@ import com.distrimind.madkit.kernel.TaskID;
 import com.distrimind.madkit.kernel.network.TransferAgent.IDTransfer;
 import com.distrimind.madkit.kernel.network.TransferAgent.InterfacedIDTransfer;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol.ConnectionClosedReason;
+import com.distrimind.madkit.kernel.network.connection.PointToPointTransferedBlockChecker;
+import com.distrimind.madkit.kernel.network.connection.TransferedBlockChecker;
 import com.distrimind.madkit.message.ObjectMessage;
 
 /**
@@ -262,11 +264,26 @@ class IndirectAgentSocket extends AbstractAgentSocket {
 			if (logger != null && logger.isLoggable(Level.FINER))
 				logger.finer("Update and broacast transfer block checker");
 
+			TransferedBlockChecker tbc=this.connection_protocol.getTransferedBlockChecker();
+			if (tbc.isCompletelyInoperant() && getMadkitConfig().networkProperties.canUsePointToPointTransferedBlockChecker)
+			{
+				tbc=new PointToPointTransferedBlockChecker();
+				connection_protocol.setPointToPointTransferedBlockChecker((PointToPointTransferedBlockChecker)tbc);
+			}
+			else
+				connection_protocol.setPointToPointTransferedBlockChecker(null);
+			
 			TransferBlockCheckerSystemMessage tbcm = new TransferBlockCheckerSystemMessage(getTransfertType(),
 					this.kernelAddressDestinationForSystemBroadcast,
-					this.connection_protocol.getTransferedBlockChecker());
+					tbc);
 			tbcm.setMessageLocker(new MessageLocker(null));
+			
 			broadcastDataTowardEachIntermediatePeer(tbcm, true);
+			try {
+				sleep(200);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 

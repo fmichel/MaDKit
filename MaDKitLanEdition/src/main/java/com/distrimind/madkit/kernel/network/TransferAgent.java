@@ -58,6 +58,7 @@ import com.distrimind.madkit.kernel.TaskID;
 import com.distrimind.madkit.kernel.network.AskForTransferMessage.CandidateForTransfer;
 import com.distrimind.madkit.kernel.network.AskForTransferMessage.InitiateTransferConnection;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
+import com.distrimind.madkit.kernel.network.connection.PointToPointTransferedBlockChecker;
 import com.distrimind.madkit.kernel.network.connection.TransferedBlockChecker;
 import com.distrimind.madkit.message.ObjectMessage;
 import com.distrimind.madkit.message.hook.TransferEventMessage;
@@ -587,6 +588,7 @@ class TransferAgent extends AgentFakeThread {
 		private AgentAddress transferToAgentAddress;
 		private final KernelAddress transferToKernelAddress;
 		private TransferedBlockChecker transferBlockChecker;
+		private PointToPointTransferedBlockChecker lastPointToPointTransferedBlockChecker;
 		private long lastAccessUTC;
 
 		InterfacedIDTransfer(IDTransfer local_id, AgentAddress transferToAgentAddress,
@@ -658,6 +660,17 @@ class TransferAgent extends AgentFakeThread {
 			lastAccessUTC = System.currentTimeMillis();
 			transferBlockChecker = _transferBlockChecker;
 		}
+		void setLastPointToPointTransferedBlockChecker(PointToPointTransferedBlockChecker lastPointToPointTransferedBlockChecker) {
+			lastAccessUTC = System.currentTimeMillis();
+			this.lastPointToPointTransferedBlockChecker = lastPointToPointTransferedBlockChecker;
+		}
+		
+		PointToPointTransferedBlockChecker getLastPointToPointTransferedBlockChecker()
+		{
+			return lastPointToPointTransferedBlockChecker;
+		}
+		
+		
 
 		long getLastAccessUTC() {
 			return lastAccessUTC;

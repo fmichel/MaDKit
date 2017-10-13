@@ -141,11 +141,12 @@ final public class Madkit {
 			VERSION.addDeveloper(new PersonDeveloper("Ferber", "Jacques", c.getTime()));
 
 			c = Calendar.getInstance();
-			c.set(2017, 9, 6);
+			c.set(2017, 9, 13);
 			Description d = new Description(1, 4, 0, Version.Type.Stable, 1, c.getTime());
-			d.addItem("Updating OOD to 2.0.0 Beta 44");
+			d.addItem("Updating OOD to 2.0.0 Beta 48");
 			d.addItem("Several modifications into connection and access protocols");
 			d.addItem("Adding approved randoms parameters into MadkitProperties");
+			d.addItem("Adding point to point transfert connection signature and verification");
 			VERSION.addDescription(d);
 
 			c = Calendar.getInstance();

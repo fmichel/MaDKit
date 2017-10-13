@@ -181,6 +181,16 @@ public class UnsecuredConnectionProtocol extends ConnectionProtocol<UnsecuredCon
 			return getSizeHead();
 		}
 
+		@Override
+		public SubBlockInfo checkEntrantPointToPointTransferedBlock(SubBlock _block) throws BlockParserException {
+			return new SubBlockInfo(_block, true, false);
+		}
+
+		@Override
+		public SubBlock signIfPossibleSortantPointToPointTransferedBlock(SubBlock _block) throws BlockParserException {
+			return _block;
+		}
+
 	}
 
 	private static class BlockChecker extends TransferedBlockChecker {

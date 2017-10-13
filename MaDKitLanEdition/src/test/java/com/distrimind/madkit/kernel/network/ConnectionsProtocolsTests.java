@@ -74,6 +74,7 @@ import com.distrimind.madkit.kernel.network.connection.ConnectionMessage;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol.ConnectionState;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocolProperties;
+import com.distrimind.madkit.kernel.network.connection.PointToPointTransferedBlockChecker;
 import com.distrimind.madkit.kernel.network.connection.TransferedBlockChecker;
 import com.distrimind.madkit.kernel.network.connection.UnexpectedMessage;
 import com.distrimind.madkit.kernel.network.connection.secured.ClientSecuredProtocolPropertiesWithKnownPublicKey;
@@ -313,10 +314,31 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 					+ " for asker and " + cpreceiver.getSubProtocol().getClass() + " for receiver (crypted="
 					+ cpasker.getSubProtocol().isCrypted() + ")");
 
-		TransferedBlockChecker tbcasker = this.cpasker.getTransferedBlockChecker();
+		TransferedBlockChecker 	tbcasker = this.cpasker.getTransferedBlockChecker();
+		if (tbcasker.isCompletelyInoperant())
+		{
+			tbcasker=new PointToPointTransferedBlockChecker();
+			this.cpasker.setPointToPointTransferedBlockChecker((PointToPointTransferedBlockChecker)tbcasker);
+		}
+		else
+		{
+			this.cpasker.setPointToPointTransferedBlockChecker(null);
+			tbcasker = (TransferedBlockChecker) unserialize(serialize(tbcasker));
+		}
+
 		TransferedBlockChecker tbreceiver = this.cpreceiver.getTransferedBlockChecker();
-		tbcasker = (TransferedBlockChecker) unserialize(serialize(tbcasker));
-		tbreceiver = (TransferedBlockChecker) unserialize(serialize(tbreceiver));
+		if (tbreceiver.isCompletelyInoperant())
+		{
+			tbreceiver=new PointToPointTransferedBlockChecker();
+			this.cpreceiver.setPointToPointTransferedBlockChecker((PointToPointTransferedBlockChecker)tbreceiver);
+		}
+		else
+		{
+			this.cpreceiver.setPointToPointTransferedBlockChecker(null);
+			tbreceiver = (TransferedBlockChecker) unserialize(serialize(tbreceiver));
+		}
+		
+	
 		Assert.assertEquals(Integrity.OK, tbcasker.checkDataIntegrity());
 		Assert.assertEquals(Integrity.OK, tbreceiver.checkDataIntegrity());
 
@@ -336,7 +358,20 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 			ConnectionMessage masker = cpasker.setAndGetNextMessage(new AskConnection(true));
 
 			if (this.cpasker.isTransferBlockCheckerChanged())
+			{
 				tbcasker = this.cpasker.getTransferedBlockChecker();
+				if (tbcasker.isCompletelyInoperant())
+				{
+					tbcasker=new PointToPointTransferedBlockChecker();
+					this.cpasker.setPointToPointTransferedBlockChecker((PointToPointTransferedBlockChecker)tbcasker);
+				}
+				else
+				{
+					this.cpasker.setPointToPointTransferedBlockChecker(null);
+					tbcasker = (TransferedBlockChecker) unserialize(serialize(tbcasker));
+				}
+				
+			}
 			// testRandomPingPongMessage();
 			ConnectionMessage mreceiver = null;
 			int cycles = 0;
@@ -344,13 +379,27 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 				do {
 					byte[] message = serialize(masker);
 					masker = (ConnectionMessage) unserialize(getMessage(message,
-							getBytesToSend(getBlocks(message, this.cpasker, npasker, 2, -1, tbcasker)), this.cpreceiver,
-							npreceiver, 2, -1));
+							getBytesToSend(getBlocks(message, this.cpasker, npasker, 2, -1, null)), this.cpreceiver,
+							npreceiver, 2, -1, null));
 					Assert.assertEquals(masker.checkDataIntegrity(), Integrity.OK);
 					Assert.assertFalse(cpreceiver.isConnectionEstablished());
 					mreceiver = cpreceiver.setAndGetNextMessage(masker);
 					if (this.cpreceiver.isTransferBlockCheckerChanged())
+					{
 						tbreceiver = this.cpreceiver.getTransferedBlockChecker();
+						if (tbreceiver.isCompletelyInoperant())
+						{
+							tbreceiver=new PointToPointTransferedBlockChecker();
+							this.cpreceiver.setPointToPointTransferedBlockChecker((PointToPointTransferedBlockChecker)tbreceiver);
+						}
+						else
+						{
+							this.cpreceiver.setPointToPointTransferedBlockChecker(null);
+							tbreceiver = (TransferedBlockChecker) unserialize(serialize(tbreceiver));
+							
+						}
+						
+					}
 
 					if (mreceiver == null) {
 						masker = null;
@@ -359,13 +408,27 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 					message = serialize(mreceiver);
 
 					mreceiver = (ConnectionMessage) unserialize(getMessage(message,
-							getBytesToSend(getBlocks(message, this.cpreceiver, npreceiver, 2, -1, tbreceiver)),
-							this.cpasker, npasker, 2, -1));
+							getBytesToSend(getBlocks(message, this.cpreceiver, npreceiver, 2, -1, null)),
+							this.cpasker, npasker, 2, -1, null));
 					Assert.assertEquals(mreceiver.checkDataIntegrity(), Integrity.OK);
 					Assert.assertFalse(cpasker.isConnectionEstablished());
 					masker = cpasker.setAndGetNextMessage(mreceiver);
 					if (this.cpasker.isTransferBlockCheckerChanged())
+					{
 						tbcasker = this.cpasker.getTransferedBlockChecker();
+						if (tbcasker.isCompletelyInoperant())
+						{
+							tbcasker=new PointToPointTransferedBlockChecker();
+							this.cpasker.setPointToPointTransferedBlockChecker((PointToPointTransferedBlockChecker)tbcasker);
+						}
+						else
+						{
+							this.cpasker.setPointToPointTransferedBlockChecker(null);
+							tbcasker = (TransferedBlockChecker) unserialize(serialize(tbcasker));
+							
+						}
+						
+					}
 
 					cycles++;
 				} while ((masker != null && mreceiver != null) && cycles < numberMaxExchange);
@@ -443,7 +506,7 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 				byte[] message = serialize(masker);
 				masker = (ConnectionMessage) unserialize(
 						getMessage(message, getBytesToSend(getBlocks(message, this.cpasker, npasker, 2, -1, null)),
-								this.cpreceiver, npreceiver, 2, -1));
+								this.cpreceiver, npreceiver, 2, -1, null));
 				Assert.assertEquals(masker.checkDataIntegrity(), Integrity.OK);
 				mreceiver = cpreceiver.setAndGetNextMessage(masker);
 				if (mreceiver == null) {
@@ -462,7 +525,7 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 				message = serialize(mreceiver);
 				mreceiver = (ConnectionMessage) unserialize(getMessage(message,
 						getBytesToSend(getBlocks(message, this.cpreceiver, npreceiver, 2, -1, null)), this.cpasker,
-						npasker, 2, -1));
+						npasker, 2, -1, null));
 				Assert.assertEquals(mreceiver.checkDataIntegrity(), Integrity.OK);
 				masker = cpasker.setAndGetNextMessage(mreceiver);
 				if (masker != null && cycles == index && !asker) {
@@ -531,7 +594,7 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 
 				masker = (ConnectionMessage) unserialize(
 						getMessage(message, getBytesToSend(getBlocks(message, this.cpasker, npasker, 2, -1, null)),
-								this.cpreceiver, npreceiver, 2, -1));
+								this.cpreceiver, npreceiver, 2, -1, null));
 				Assert.assertEquals(masker.checkDataIntegrity(), Integrity.OK);
 				mreceiver = cpreceiver.setAndGetNextMessage(masker);
 				if (mreceiver == null) {
@@ -546,7 +609,7 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 				message = serialize(mreceiver);
 				mreceiver = (ConnectionMessage) unserialize(getMessage(message,
 						getBytesToSend(getBlocks(message, this.cpreceiver, npreceiver, 2, -1, null)), this.cpasker,
-						npasker, 2, -1));
+						npasker, 2, -1, null));
 				Assert.assertEquals(mreceiver.checkDataIntegrity(), Integrity.OK);
 				masker = cpasker.setAndGetNextMessage(mreceiver);
 				cycles++;
@@ -598,15 +661,27 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 				np.maxRandomPacketValues, rand, new RandomByteArrayInputStream(message), MessageDigestType.BC_FIPS_SHA3_512);
 		Assert.assertEquals(idPacket, wp.getID());
 		while (!wp.isFinished()) {
+			if (tbc!=null)
+			{
+				if (tbc instanceof PointToPointTransferedBlockChecker)
+				{
+					cp.setPointToPointTransferedBlockChecker((PointToPointTransferedBlockChecker)tbc);
+					cp.getPointToPointTransferedBlockChecker().setConnectionProtocolInput(null);
+					cp.getPointToPointTransferedBlockChecker().setConnectionProtocolOutput(cp);
+				}
+				else
+				{
+					cp.setPointToPointTransferedBlockChecker(null);
+				}
+			}
+			else
+			{
+				cp.setPointToPointTransferedBlockChecker(null);
+			}
 			Block b = cp.getBlock(wp, transferType,
 					np.maxRandomPacketValues > 0 ? SecureRandomType.DEFAULT.getSingleton(null) : null);
 			Assert.assertEquals(transferType, b.getTransferID());
 			Assert.assertTrue(b.isValid());
-			if (tbc != null) {
-				SubBlockInfo sbi = tbc.recursiveCheckSubBlock(new SubBlock(b));
-				Assert.assertTrue(sbi.isValid());
-				Assert.assertFalse(sbi.isCandidateToBan());
-			}
 			res.add(b);
 		}
 		return res;
@@ -620,12 +695,39 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 	}
 
 	public static byte[] getMessage(byte[] originalMessage, ArrayList<byte[]> receivedBytes, ConnectionProtocol<?> cp,
-			NetworkProperties np, int idPacket, int transferType) throws PacketException, NIOException {
+			NetworkProperties np, int idPacket, int transferType, TransferedBlockChecker tbc) throws PacketException, NIOException, BlockParserException {
 		Block b = new Block(receivedBytes.get(0));
 		Assert.assertEquals(transferType, b.getTransferID());
 		Assert.assertTrue(b.isValid());
-		PacketPart pp = cp.getPacketPart(b, np);
-		Assert.assertEquals(idPacket, pp.getHead().getID());
+		if (tbc != null) {
+			if (tbc instanceof PointToPointTransferedBlockChecker)
+			{
+				((PointToPointTransferedBlockChecker)tbc).setConnectionProtocolInput(cp);
+				((PointToPointTransferedBlockChecker)tbc).setConnectionProtocolOutput(null);
+			}
+			SubBlockInfo sbi = tbc.recursiveCheckSubBlock(new SubBlock(b));
+			Assert.assertTrue(tbc.getClass().toString(), sbi.isValid());
+			Assert.assertFalse(sbi.isCandidateToBan());
+			b=new Block(sbi.getSubBlock().getBytes());
+			Assert.assertEquals(transferType, b.getTransferID());
+			Assert.assertTrue(b.isValid());
+		}
+
+		PacketPart pp=null;
+		try
+		{
+			 pp = cp.getPacketPart(b, np);
+		}
+		catch(NIOException e)
+		{
+			if (tbc==null)
+				System.out.println("tbc = "+tbc);
+			else
+				System.out.println("tbc = "+tbc.getClass());
+			
+			throw e;
+		}
+		Assert.assertEquals("tbc = "+tbc, idPacket, pp.getHead().getID());
 		// Assert.assertEquals(originalMessage.length, pp.getHead().getTotalLength());
 		Assert.assertEquals(0, pp.getHead().getStartPosition());
 		RandomByteArrayOutputStream output = new RandomByteArrayOutputStream();
@@ -636,6 +738,21 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 			b = new Block(receivedBytes.get(i));
 			Assert.assertEquals(transferType, b.getTransferID());
 			Assert.assertTrue(b.isValid());
+			if (tbc != null) {
+				if (tbc instanceof PointToPointTransferedBlockChecker)
+				{
+					((PointToPointTransferedBlockChecker)tbc).setConnectionProtocolInput(cp);
+					((PointToPointTransferedBlockChecker)tbc).setConnectionProtocolOutput(null);
+				}
+				SubBlockInfo sbi = tbc.recursiveCheckSubBlock(new SubBlock(b));
+				Assert.assertTrue(sbi.isValid());
+				Assert.assertFalse(sbi.isCandidateToBan());
+				b=new Block(sbi.getSubBlock().getBytes());
+				Assert.assertEquals(transferType, b.getTransferID());
+				Assert.assertTrue(b.isValid());
+				
+			}
+			
 			pp = cp.getPacketPart(b, np);
 			rp.readNewPart(pp);
 		}
@@ -656,11 +773,11 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 		byte[] message = getRandomMessage();
 		byte[] receivedMessage = getMessage(message,
 				getBytesToSend(getBlocks(message, cpasker, npasker, idPacket, transferType, tbcasker)), cpreceiver,
-				npreceiver, idPacket, transferType);
+				npreceiver, idPacket, transferType, tbcasker);
 		Assert.assertArrayEquals(message, receivedMessage);
 		receivedMessage = getMessage(message,
 				getBytesToSend(getBlocks(message, cpreceiver, npreceiver, idPacket, transferType, tbcreceiver)),
-				cpasker, npasker, idPacket, transferType);
+				cpasker, npasker, idPacket, transferType, tbcreceiver);
 		Assert.assertArrayEquals(message, receivedMessage);
 	}
 

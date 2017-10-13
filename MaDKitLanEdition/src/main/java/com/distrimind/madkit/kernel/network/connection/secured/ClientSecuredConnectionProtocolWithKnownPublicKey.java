@@ -384,6 +384,52 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 			return signature_size_bytes;
 		}
 
+		@Override
+		public SubBlockInfo checkEntrantPointToPointTransferedBlock(SubBlock _block) throws BlockParserException {
+			SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() + getSizeHead(),
+					_block.getSize() - getSizeHead());
+			if (current_step==Step.NOT_CONNECTED)
+			{
+				return new SubBlockInfo(res, true, false);
+			}
+			else
+			{
+				
+				try {
+					boolean check = signatureChecker.verify(_block.getBytes(),
+							res.getOffset(), res.getSize(), _block.getBytes(), _block.getOffset(),
+							getSizeHead());
+
+					return new SubBlockInfo(res, check, !check);
+				} catch (Exception e) {
+					return new SubBlockInfo(res, false, true);
+				}
+			}
+		}
+
+		@Override
+		public SubBlock signIfPossibleSortantPointToPointTransferedBlock(SubBlock _block) throws BlockParserException {
+			try {
+				SubBlock res = new SubBlock(_block.getBytes().clone(), _block.getOffset() - getSizeHead(),
+						_block.getSize() + getSizeHead());
+				switch (current_step) {
+				case WAITING_FOR_CONNECTION_CONFIRMATION:case NOT_CONNECTED:
+				{
+					return res;
+				}
+				
+				case CONNECTED: {
+					signer.sign(_block.getBytes(), _block.getOffset(), _block.getSize(), res.getBytes(), res.getOffset(), signature_size_bytes);
+					return res;
+				}
+				}
+
+			} catch (Exception e) {
+				throw new BlockParserException(e);
+			}
+			throw new BlockParserException("Unexpected exception");
+		}
+
 	}
 
 	private class ParserWithNoEncryption extends SubBlockParser {
@@ -472,6 +518,53 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 		public int getMaximumSizeHead() {
 			return signature_size_bytes;
 		}
+		
+		@Override
+		public SubBlockInfo checkEntrantPointToPointTransferedBlock(SubBlock _block) throws BlockParserException {
+			SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() + getSizeHead(),
+					_block.getSize() - getSizeHead());
+			if (current_step==Step.NOT_CONNECTED)
+			{
+				return new SubBlockInfo(res, true, false);
+			}
+			else
+			{
+				
+				try {
+					boolean check = signatureChecker.verify(_block.getBytes(),
+							res.getOffset(), res.getSize(), _block.getBytes(), _block.getOffset(),
+							getSizeHead());
+
+					return new SubBlockInfo(res, check, !check);
+				} catch (Exception e) {
+					return new SubBlockInfo(res, false, true);
+				}
+			}
+		}
+
+		@Override
+		public SubBlock signIfPossibleSortantPointToPointTransferedBlock(SubBlock _block) throws BlockParserException {
+			try {
+				SubBlock res = new SubBlock(_block.getBytes().clone(), _block.getOffset() - getSizeHead(),
+						_block.getSize() + getSizeHead());
+				switch (current_step) {
+				case WAITING_FOR_CONNECTION_CONFIRMATION:case NOT_CONNECTED:
+				{
+					return res;
+				}
+				
+				case CONNECTED: {
+					signer.sign(_block.getBytes(), _block.getOffset(), _block.getSize(), res.getBytes(), res.getOffset(), signature_size_bytes);
+					return res;
+				}
+				}
+
+			} catch (Exception e) {
+				throw new BlockParserException(e);
+			}
+			throw new BlockParserException("Unexpected exception");
+		}
+		
 
 	}
 

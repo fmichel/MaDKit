@@ -117,6 +117,7 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 	protected final DatabaseWrapper sql_connection;
 	protected final ConnectionProtocol<?> subProtocol;
 	private boolean connectionFinishedMessageReceived = false;
+	private volatile PointToPointTransferedBlockChecker pointToPointTransferedBlockChecker=null;
 
 	
 	protected ConnectionProtocol(InetSocketAddress _distant_inet_address, InetSocketAddress _local_interface_address,
@@ -305,6 +306,8 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 	 *         will decipher the primitive data.
 	 */
 	public abstract SubBlockParser getParser();
+	
+	
 
 	public final PacketPart getPacketPart(Block _block, NetworkProperties properties) throws NIOException {
 		if (_block == null)
@@ -348,6 +351,15 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 				properties.maxRandomPacketValues);
 	}
 
+	public final void setPointToPointTransferedBlockChecker(PointToPointTransferedBlockChecker v)
+	{
+		pointToPointTransferedBlockChecker=v;
+	}
+	public final PointToPointTransferedBlockChecker getPointToPointTransferedBlockChecker()
+	{
+		return pointToPointTransferedBlockChecker;
+	}
+	
 	public final Block getBlock(WritePacket _packet, int _transfert_type, AbstractSecureRandom random)
 			throws NIOException {
 
@@ -364,7 +376,11 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 
 				subBlock = sbs.getSubBlockForParent(cp.getParser().getParentBlock(subBlock), i, random);
 			}
-			return new Block(subBlock.getBytes(), sbs, _transfert_type);
+			PointToPointTransferedBlockChecker ptp=pointToPointTransferedBlockChecker;
+			if (ptp==null)
+				return new Block(subBlock.getBytes(), sbs, _transfert_type);
+			else
+				return new Block(ptp.prepareBlockToSend(subBlock).getBytes(), sbs, _transfert_type);
 		} catch (PacketException | BlockParserException e) {
 			throw new NIOException(e);
 		}
@@ -638,6 +654,10 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 				return Integrity.FAIL;
 			return Integrity.OK;
 		}
+		
+		
 	}
+	
+	
 
 }

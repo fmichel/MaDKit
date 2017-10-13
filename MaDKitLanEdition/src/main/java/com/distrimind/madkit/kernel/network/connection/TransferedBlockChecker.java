@@ -43,6 +43,7 @@ import com.distrimind.madkit.exceptions.BlockParserException;
 import com.distrimind.madkit.kernel.network.SubBlock;
 import com.distrimind.madkit.kernel.network.SubBlockInfo;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
+import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol.NullBlockChecker;
 
 /**
  * 
@@ -75,6 +76,11 @@ public abstract class TransferedBlockChecker implements Serializable {
 		{
 			return res;
 		}
+	}
+	
+	public boolean isCompletelyInoperant()
+	{
+		return (this instanceof NullBlockChecker) || (subChecker!=null && subChecker.isCompletelyInoperant()); 
 	}
 
 	public abstract Integrity checkDataIntegrity();

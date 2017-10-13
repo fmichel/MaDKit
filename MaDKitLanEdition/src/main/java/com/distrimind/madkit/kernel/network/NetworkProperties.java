@@ -1141,4 +1141,12 @@ public class NetworkProperties extends XMLProperties {
 	public void cleanWhiteInetAddresses() {
 		whiteInetAddressesList.clear();
 	}
+	
+	/**
+	 * True if the data transfered through several peers can be checked (if necessary) by intermediate peers with their own security process. 
+	 * End to end message checking is also included into this case, regarding the used connection protocols between the end peers. 
+	 * False if only end to end message check are accepted
+	 */
+	public boolean canUsePointToPointTransferedBlockChecker=true;
+	
 }

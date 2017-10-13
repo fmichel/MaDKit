@@ -212,6 +212,34 @@ public class CheckSumConnectionProtocol extends ConnectionProtocol<CheckSumConne
 			return getSizeHead();
 		}
 
+		@Override
+		public SubBlockInfo checkEntrantPointToPointTransferedBlock(SubBlock _block) throws BlockParserException {
+			int sizeHead = getSizeHead();
+			SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() + sizeHead, _block.getSize() - sizeHead);
+			messageDigest.reset();
+			messageDigest.update(res.getBytes(), res.getOffset(), res.getSize());
+			byte[] digest = messageDigest.digest();
+			for (int i = 0; i < sizeHead; i++) {
+				if (digest[i] != _block.getBytes()[i + _block.getOffset()])
+					return new SubBlockInfo(res, false, false);
+			}
+			return new SubBlockInfo(res, true, false);
+		}
+
+		@Override
+		public SubBlock signIfPossibleSortantPointToPointTransferedBlock(SubBlock _block) throws BlockParserException {
+			try {
+				SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() - getSizeHead(),
+						_block.getSize() + getSizeHead());
+				messageDigest.reset();
+				messageDigest.update(res.getBytes(), _block.getOffset(), _block.getSize());
+				messageDigest.digest(res.getBytes(), res.getOffset(), getSizeHead());
+				return res;
+			} catch (Exception e) {
+				throw new BlockParserException(e);
+			}
+		}
+
 	}
 
 	private static class BlockChecker extends TransferedBlockChecker {

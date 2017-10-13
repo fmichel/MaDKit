@@ -478,6 +478,78 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 			return getSizeHead();
 		}
 
+		public SubBlockInfo checkEntrantPointToPointTransferedBlockWithNoEncryptin(SubBlock _block) throws BlockParserException {
+			return new SubBlockInfo(new SubBlock(_block.getBytes(), _block.getOffset() + getSizeHead(),
+					_block.getSize() - getSizeHead()), true, false);
+		}
+
+		public SubBlockInfo checkEntrantPointToPointTransferedBlockWithEncryption(SubBlock _block) throws BlockParserException {
+			SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() + getSizeHead(),
+					_block.getSize() - getSizeHead());
+			try {
+				boolean check = signatureCheckerAlgorithm
+						.verify(_block.getBytes(), res.getOffset(), res.getSize(), _block.getBytes(),
+								_block.getOffset(), signature_size);
+
+				return new SubBlockInfo(res, check, !check);
+			} catch (Exception e) {
+				return new SubBlockInfo(res, false, true);
+			}
+
+		}
+		
+		@Override
+		public SubBlockInfo checkEntrantPointToPointTransferedBlock(SubBlock _block) throws BlockParserException {
+			switch (current_step) {
+			case NOT_CONNECTED:
+			case WAITING_FOR_DATA:
+				return checkEntrantPointToPointTransferedBlockWithNoEncryptin(_block);
+			case WAITING_FOR_CONNECTION_CONFIRMATION:
+			case CONNECTED: {
+				return checkEntrantPointToPointTransferedBlockWithEncryption(_block);
+			}
+
+			}
+			throw new BlockParserException("Unexpected exception");
+		}
+		private SubBlock signIfPossibleSortantPointToPointTransferedBlockWithNoEncryption(SubBlock _block)
+		{
+			return new SubBlock(_block.getBytes().clone(), _block.getOffset() - getSizeHead(),
+					_block.getSize() + getSizeHead());
+		}
+		private SubBlock signIfPossibleSortantPointToPointTransferedBlockWithEncryption(SubBlock _block) throws InvalidKeyException, SignatureException, NoSuchAlgorithmException, InvalidKeySpecException, ShortBufferException, InvalidAlgorithmParameterException, IllegalStateException, IOException
+		{
+			SubBlock res = new SubBlock(_block.getBytes().clone(), _block.getOffset() - getSizeHead(),
+					_block.getSize() + getSizeHead());
+
+			signerAlgorithm.sign(_block.getBytes(), _block.getOffset(), _block.getSize(),
+					res.getBytes(), res.getOffset(), signature_size);
+			return res;			
+		}
+		@Override
+		public SubBlock signIfPossibleSortantPointToPointTransferedBlock(SubBlock _block) throws BlockParserException {
+			try {
+				switch (current_step) {
+				case NOT_CONNECTED:
+				case WAITING_FOR_DATA:
+					return signIfPossibleSortantPointToPointTransferedBlockWithNoEncryption(_block);
+				case WAITING_FOR_CONNECTION_CONFIRMATION: {
+					if (isCurrentServerAskingConnection())
+						return signIfPossibleSortantPointToPointTransferedBlockWithNoEncryption(_block);
+					else
+						return signIfPossibleSortantPointToPointTransferedBlockWithEncryption(_block);
+				}
+				case CONNECTED: {
+					return signIfPossibleSortantPointToPointTransferedBlockWithEncryption(_block);
+				}
+				}
+
+			} catch (Exception e) {
+				throw new BlockParserException(e);
+			}
+			throw new BlockParserException("Unexpected exception");
+		}
+
 	}
 
 	private class ParserWithNoEncryption extends ParserWithEncryption {

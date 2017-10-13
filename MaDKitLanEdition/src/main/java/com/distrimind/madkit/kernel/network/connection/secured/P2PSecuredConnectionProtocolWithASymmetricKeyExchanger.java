@@ -594,6 +594,85 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 			return getSizeHead();
 		}
 
+
+		private SubBlockInfo checkEntrantPointToPointTransferedBlockWithNoEncryption(SubBlock _block) throws BlockParserException
+		{
+			return new SubBlockInfo(new SubBlock(_block.getBytes(), _block.getOffset() + getSizeHead(),
+					_block.getSize() - getSizeHead()), true, false);
+			
+		}
+		private SubBlockInfo checkEntrantPointToPointTransferedBlockWithEncryption(SubBlock _block) throws BlockParserException
+		{
+			try {
+				SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() + getSizeHead(),
+						_block.getSize() - getSizeHead());
+
+				boolean check = signatureChecker
+						.verify(res.getBytes(), res.getOffset(), res.getSize(), _block.getBytes(),
+								_block.getOffset(), P2PSecuredConnectionProtocolWithASymmetricKeyExchanger.this.signature_size);
+				return new SubBlockInfo(res, check, !check);
+			} catch (Exception e) {
+				SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() + getSizeHead(),
+						getBodyOutputSizeForDecryption(_block.getSize() - getSizeHead()));
+				return new SubBlockInfo(res, false, true);
+			}
+			
+		}
+		
+		@Override
+		public SubBlockInfo checkEntrantPointToPointTransferedBlock(SubBlock _block) throws BlockParserException {
+			switch (current_step) {
+			case NOT_CONNECTED:
+			case WAITING_FOR_PUBLIC_KEY:
+			case WAITING_FOR_SECRET_KEY: {
+
+				return checkEntrantPointToPointTransferedBlockWithNoEncryption(_block);
+			}
+			case WAITING_FIRST_MESSAGE:
+				if (isCurrentServerAskingConnection()) {
+					return checkEntrantPointToPointTransferedBlockWithEncryption(_block);
+				} else {
+					return checkEntrantPointToPointTransferedBlockWithNoEncryption(_block);
+				}
+
+			case WAITING_FOR_CONNECTION_CONFIRMATION:
+			case CONNECTED: {
+				return checkEntrantPointToPointTransferedBlockWithEncryption(_block);
+			}
+
+			}
+			throw new BlockParserException("Unexpected exception");
+		}
+
+		@Override
+		public SubBlock signIfPossibleSortantPointToPointTransferedBlock(SubBlock _block) throws BlockParserException {
+			try {
+				SubBlock res = new SubBlock(_block.getBytes().clone(), _block.getOffset() - getSizeHead(),
+						_block.getSize() + getSizeHead());
+				
+				switch (current_step) {
+				case NOT_CONNECTED:
+				case WAITING_FOR_PUBLIC_KEY:
+				case WAITING_FOR_SECRET_KEY:
+				case WAITING_FIRST_MESSAGE: {
+					return res;
+				}
+				case WAITING_FOR_CONNECTION_CONFIRMATION:
+				case CONNECTED: {
+
+					signer.sign(_block.getBytes(), _block.getOffset(), _block.getSize(),
+							res.getBytes(), res.getOffset(), P2PSecuredConnectionProtocolWithASymmetricKeyExchanger.this.signature_size);
+					return res;
+				}
+				}
+
+			} catch (Exception e) {
+				throw new BlockParserException(e);
+			}
+			throw new BlockParserException("Unexpected exception");
+
+		}
+
 	}
 
 	private class ParserWithNoEncryption extends SubBlockParser {
@@ -679,6 +758,79 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 			return getSizeHead();
 		}
 
+		private SubBlockInfo checkEntrantPointToPointTransferedBlockWithNoEncryption(SubBlock _block) throws BlockParserException
+		{
+			return new SubBlockInfo(new SubBlock(_block.getBytes(), _block.getOffset() + getSizeHead(),
+					_block.getSize() - getSizeHead()), true, false);
+			
+		}
+		private SubBlockInfo checkEntrantPointToPointTransferedBlockWithEncryption(SubBlock _block) throws BlockParserException
+		{
+			try {
+				SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() + getSizeHead(),
+						_block.getSize() - getSizeHead());
+
+				boolean check = signatureChecker
+						.verify(res.getBytes(), res.getOffset(), res.getSize(), _block.getBytes(),
+								_block.getOffset(), P2PSecuredConnectionProtocolWithASymmetricKeyExchanger.this.signature_size);
+				return new SubBlockInfo(res, check, !check);
+			} catch (Exception e) {
+				SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() + getSizeHead(),
+						getBodyOutputSizeForDecryption(_block.getSize() - getSizeHead()));
+				return new SubBlockInfo(res, false, true);
+			}
+			
+		}
+		
+		@Override
+		public SubBlockInfo checkEntrantPointToPointTransferedBlock(SubBlock _block) throws BlockParserException {
+			switch (current_step) {
+			case NOT_CONNECTED:
+			case WAITING_FOR_PUBLIC_KEY:
+			case WAITING_FOR_SECRET_KEY: 
+			case WAITING_FIRST_MESSAGE:{
+
+				return checkEntrantPointToPointTransferedBlockWithNoEncryption(_block);
+			}
+			case WAITING_FOR_CONNECTION_CONFIRMATION:
+			case CONNECTED: {
+				return checkEntrantPointToPointTransferedBlockWithEncryption(_block);
+			}
+
+			}
+			throw new BlockParserException("Unexpected exception");
+		}
+
+		@Override
+		public SubBlock signIfPossibleSortantPointToPointTransferedBlock(SubBlock _block) throws BlockParserException {
+			try {
+				SubBlock res = new SubBlock(_block.getBytes().clone(), _block.getOffset() - getSizeHead(),
+						_block.getSize() + getSizeHead());
+				
+				switch (current_step) {
+				case NOT_CONNECTED:
+				case WAITING_FOR_PUBLIC_KEY:
+				case WAITING_FOR_SECRET_KEY:
+				{
+					return res;
+				}
+				case WAITING_FIRST_MESSAGE: 
+				case WAITING_FOR_CONNECTION_CONFIRMATION:
+				case CONNECTED: {
+
+					signer.sign(_block.getBytes(), _block.getOffset(), _block.getSize(),
+							res.getBytes(), res.getOffset(), P2PSecuredConnectionProtocolWithASymmetricKeyExchanger.this.signature_size);
+					return res;
+				}
+				}
+
+			} catch (Exception e) {
+				throw new BlockParserException(e);
+			}
+			throw new BlockParserException("Unexpected exception");
+
+		}
+		
 	}
 
 	@Override

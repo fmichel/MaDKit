@@ -96,6 +96,7 @@ import com.distrimind.madkit.kernel.network.connection.ConnectionMessage;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol.ConnectionClosedReason;
 import com.distrimind.madkit.kernel.network.connection.ErrorConnection;
+import com.distrimind.madkit.kernel.network.connection.PointToPointTransferedBlockChecker;
 import com.distrimind.madkit.kernel.network.connection.access.AccessAbordedMessage;
 import com.distrimind.madkit.kernel.network.connection.access.AccessAskInitiliazation;
 import com.distrimind.madkit.kernel.network.connection.access.AccessErrorMessage;
@@ -173,13 +174,31 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 						if (idt.getTransferToAgentAddress() != null) {
 
 							if (idt.getTransferBlockChecker() == null) {
+								if (idt.getLastPointToPointTransferedBlockChecker()!=null)
+								{
+									SubBlockInfo sbi = idt.getLastPointToPointTransferedBlockChecker()
+											.recursiveCheckSubBlock(new SubBlock(block));
+									
+									if (sbi.isValid()) {
+										block=new Block(sbi.getSubBlock().getBytes());
+										
+									} else {
+										processInvalidBlock(
+												new RouterException("Invalid block with transfer block checker "
+														+ idt.getTransferBlockChecker() + " !"),
+												block, sbi.isCandidateToBan());
+									}
+								}
 								receiveIndirectData(block, idt);
 							} else {
 								SubBlockInfo sbi = idt.getTransferBlockChecker()
 										.recursiveCheckSubBlock(new SubBlock(block));
 
 								if (sbi.isValid()) {
-									receiveDataToResend(block, idt);
+									Block b=new Block(sbi.getSubBlock().getBytes());
+									
+									receiveDataToResend(b, idt);
+									
 								} else {
 									processInvalidBlock(
 											new RouterException("Invalid block with transfer block checker "
@@ -1438,6 +1457,8 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 					|| !getKernelAddress().equals(t.getKernelAddressDestination())) {
 
 				if (justReceivedFromNetwork) {
+					if (t.getTransferBlockChercker() instanceof PointToPointTransferedBlockChecker)
+						((PointToPointTransferedBlockChecker)t.getTransferBlockChercker()).setConnectionProtocolInput(connection_protocol);
 					InterfacedIDTransfer idDist = getValidatedInterfacedIDTransfer(sender,
 							t.getIdTransferDestination());
 
@@ -1458,8 +1479,19 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 
 							broadcastDataTowardEachIntermediatePeer(sender, tn, t.getIdTransferDestination(), d);
 						}
+						else if (t.getTransferBlockChercker() instanceof PointToPointTransferedBlockChecker)
+						{
+							idDist.setLastPointToPointTransferedBlockChecker((PointToPointTransferedBlockChecker)t.getTransferBlockChercker());
+							idLocal.setLastPointToPointTransferedBlockChecker((PointToPointTransferedBlockChecker)t.getTransferBlockChercker());
+						}
 					}
 				} else {
+					if (this instanceof AgentSocket)
+					{
+						if (t.getTransferBlockChercker() instanceof PointToPointTransferedBlockChecker)
+							((PointToPointTransferedBlockChecker)t.getTransferBlockChercker()).setConnectionProtocolOutput(connection_protocol);
+							
+					}
 					ReturnCode rc = broadcastDataTowardEachIntermediatePeer(sender, t, t.getIdTransferDestination(), d);
 					if (!rc.equals(ReturnCode.SUCCESS) && !rc.equals(ReturnCode.TRANSFER_IN_PROGRESS))
 						processInvalidTransferConnectionProcotol(

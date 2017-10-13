@@ -2747,6 +2747,13 @@ class MadkitKernel extends Agent {
 	void terminate() {
 		// AgentLogger.closeLoggersFrom(kernelAddress);
 		super.terminate();
+		if (getMadkitConfig().savePropertiesAfterKernelKill && getMadkitConfig().prepareCurrentRandomSeedsForBackup())
+		{
+			for (File f : getMadkitConfig().configFiles)
+			{
+				getMadkitConfig().save(f);
+			}
+		}
 		if (getMadkitConfig().madkitLogLevel != Level.OFF) {
 			System.out.println("\n-----------------------------------------------------------------------------"
 					+ "\n\t Kernel " + getNetworkID() + "\n\t is shutting down, Bye !"

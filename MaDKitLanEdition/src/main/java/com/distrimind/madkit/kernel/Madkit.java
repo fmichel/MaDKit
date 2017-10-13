@@ -147,6 +147,7 @@ final public class Madkit {
 			d.addItem("Several modifications into connection and access protocols");
 			d.addItem("Adding approved randoms parameters into MadkitProperties");
 			d.addItem("Adding point to point transfert connection signature and verification");
+			d.addItem("Saving automaticaly random's seed to be reload with the next application loading");
 			VERSION.addDescription(d);
 
 			c = Calendar.getInstance();

@@ -8,3 +8,5 @@ logs
 .ant-targets-build.xml
 /sandbox/
 .settings
+/MaDKitLanEdition/test-output
+/test-output

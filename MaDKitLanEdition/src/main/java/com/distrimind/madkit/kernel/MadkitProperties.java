@@ -54,6 +54,7 @@ import javax.management.modelmbean.XMLParseException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import org.apache.commons.codec.binary.Base64;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -172,6 +173,11 @@ public class MadkitProperties extends XMLProperties {
 	 * files
 	 */
 	public ArrayList<File> configFiles = null;
+	
+	/**
+	 * If set to true, this MadKit properties will be saved into all files given by the <code>configFiles</code> list
+	 */
+	public boolean savePropertiesAfterKernelKill=false;
 
 	public Level platformLogLevel = Level.INFO;
 
@@ -527,6 +533,23 @@ public class MadkitProperties extends XMLProperties {
 		mp.save(new File("madkit.xml"));
 	}
 
+	boolean prepareCurrentRandomSeedsForBackup()
+	{
+		boolean change=false;
+		if (approvedRandom!=null)
+		{
+			savedRandomSeedForApprovedRandom=Base64.encodeBase64URLSafeString(approvedRandom.generateSeed(55));
+			change=true;
+		}
+		if (approvedRandomForKeys!=null)
+		{
+			savedRandomSeedForApprovedRandomForKeys=Base64.encodeBase64URLSafeString(approvedRandomForKeys.generateSeed(55));
+			change=true;
+		}
+		return change;
+	}
+	
+	private String savedRandomSeedForApprovedRandom=null, savedRandomSeedForApprovedRandomForKeys=null;
 	private SecureRandomType approvedRandomType=SecureRandomType.FORTUNA_WITH_BC_FIPS_APPROVED;
 	private SecureRandomType approvedRandomTypeForKeys=SecureRandomType.FORTUNA_WITH_BC_FIPS_APPROVED_FOR_KEYS;
 	private volatile AbstractSecureRandom approvedRandom=null;
@@ -684,6 +707,8 @@ public class MadkitProperties extends XMLProperties {
 		}
 		return result;
 	}
+	
+	
 	public AbstractSecureRandom getApprovedSecureRandom() throws NoSuchAlgorithmException, NoSuchProviderException
 	{
 		if (approvedRandom==null)
@@ -692,7 +717,7 @@ public class MadkitProperties extends XMLProperties {
 			{
 				if (approvedRandom==null)
 				{
-					approvedRandom=approvedRandomType.getSingleton(((nonceForApprovedRandom+System.currentTimeMillis())+getMacAddress()).getBytes(), parameterForApprovedRandom.getBytes(), true);
+					approvedRandom=approvedRandomType.getSingleton(((nonceForApprovedRandom+System.currentTimeMillis()+(savedRandomSeedForApprovedRandom==null?"":savedRandomSeedForApprovedRandom))+getMacAddress()).getBytes(), parameterForApprovedRandom.getBytes(), true);
 				}
 			}
 		}
@@ -706,7 +731,7 @@ public class MadkitProperties extends XMLProperties {
 			{
 				if (approvedRandomForKeys==null)
 				{
-					approvedRandomForKeys=approvedRandomTypeForKeys.getSingleton(((nonceForApprovedRandomForKeys+System.currentTimeMillis())+getMacAddress()).getBytes(), parameterForApprovedRandomForKeys.getBytes(), true);
+					approvedRandomForKeys=approvedRandomTypeForKeys.getSingleton(((nonceForApprovedRandomForKeys+System.currentTimeMillis()+(savedRandomSeedForApprovedRandomForKeys==null?"":savedRandomSeedForApprovedRandomForKeys))+getMacAddress()).getBytes(), parameterForApprovedRandomForKeys.getBytes(), true);
 				}
 			}
 		}

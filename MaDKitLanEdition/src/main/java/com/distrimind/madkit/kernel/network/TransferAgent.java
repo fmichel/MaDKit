@@ -234,13 +234,13 @@ class TransferAgent extends AgentFakeThread {
 								new ObjectMessage<>(new TransferConfirmationSystemMessage(null,
 										candidate1.getKernelAddress(), candidate2.getKernelAddress(),
 										confirmation1.getMyIDTransfer(), idTransfer,
-										confirmation1.getNumberOfSubBlocks(), true, candidate2.getInetAddress())),
+										confirmation1.getNumberOfSubBlocks(), true, candidate2.getInetAddress(), null)),
 								LocalCommunity.Roles.TRANSFER_AGENT_ROLE);
 						sendMessageWithRole(candidate2.getAgentAddress(),
 								new ObjectMessage<>(new TransferConfirmationSystemMessage(null,
 										candidate2.getKernelAddress(), candidate1.getKernelAddress(),
 										confirmation2.getMyIDTransfer(), idTransfer,
-										confirmation2.getNumberOfSubBlocks(), true, candidate1.getInetAddress())),
+										confirmation2.getNumberOfSubBlocks(), true, candidate1.getInetAddress(), null)),
 								LocalCommunity.Roles.TRANSFER_AGENT_ROLE);
 						// oneconnectionalreadydone=true;
 						state = State.TRANSFER_ACTIVE;

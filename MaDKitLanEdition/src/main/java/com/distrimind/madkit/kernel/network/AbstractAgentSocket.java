@@ -451,6 +451,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 	}
 
 	protected void initiateConnectionIfNecessaryOnActivation() throws ConnectionException {
+		checkTransferBlockCheckerChangments();
 		if (this_ask_connection) {
 			ConnectionMessage cm = null;
 			for (Iterator<ConnectionProtocol<?>> it = connection_protocol.reverseIterator(); it.hasNext();) {
@@ -1369,7 +1370,18 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 										+ t.getIdTransferDestination() + " in the recieving router agent "
 										+ this.toString());
 					} else {
-
+						if (t.getPointToPointBlockChecker()!=null)
+						{
+							t.getPointToPointBlockChecker().setConnectionProtocolInput(connection_protocol);
+							if (t.isMiddleReached() && t.getKernelAddressDestination().equals(getKernelAddress()))
+							{
+								idDist.setLastPointToPointTransferedBlockChecker(t.getPointToPointBlockChecker());
+							}
+							else
+								idDist.setTransferBlockChecker(t.getPointToPointBlockChecker());
+						}
+						
+						
 						if (t.isMiddleReached()) {
 							validateInterfacedIDTransfer(sender, t.getMyIDTransfer(), false);
 
@@ -1381,7 +1393,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 							TransferConfirmationSystemMessage ti = new TransferConfirmationSystemMessage(
 									idDist.getLocalID(), t.getKernelAddressDestination(), t.getKernelAddressToConnect(),
 									t.getYourIDTransfer(), t.getYourIDTransfer(), t.getNumberOfSubBlocks(), true,
-									t.getDistantInetAddress());
+									t.getDistantInetAddress(), t.getPointToPointBlockChecker());
 							ti.setMessageLocker(t.getMessageLocker());
 							broadcastDataTowardEachIntermediatePeer(sender, ti, t.getIdTransferDestination(), d);
 						} else {
@@ -1398,7 +1410,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 							TransferConfirmationSystemMessage ti = new TransferConfirmationSystemMessage(
 									idDist.getLocalID(), t.getKernelAddressDestination(), t.getKernelAddressToConnect(),
 									t.getYourIDTransfer(), t.getYourIDTransfer(), t.getNumberOfSubBlocks(), false,
-									t.getDistantInetAddress());
+									t.getDistantInetAddress(), t.getPointToPointBlockChecker());
 							ti.setMessageLocker(t.getMessageLocker());
 
 							broadcastDataTowardEachIntermediatePeer(sender, ti, t.getIdTransferDestination(), d);
@@ -1417,6 +1429,11 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 								"Received TransferConfirmationSystemMessage to transfer for internal use 1, but impossible to found the correspondant TransferID "
 										+ t.getYourIDTransfer() + " in the moddile router agent " + this.toString());
 					} else {
+						if (t.getPointToPointBlockChecker()!=null)
+						{
+							t.getPointToPointBlockChecker().setConnectionProtocolOutput(connection_protocol);
+						}
+
 						if (t.isMiddleReached()) {
 							validateInterfacedIDTransfer(sender, t.getYourIDTransfer(), false);
 
@@ -1426,7 +1443,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 								TransferConfirmationSystemMessage ti = new TransferConfirmationSystemMessage(
 										t.getIdTransferDestination(), t.getKernelAddressDestination(),
 										t.getKernelAddressToConnect(), idt.getDistantID(), idt.getLocalID(),
-										t.getNumberOfSubBlocks(), true, t.getDistantInetAddress());
+										t.getNumberOfSubBlocks(), true, t.getDistantInetAddress(), t.getPointToPointBlockChecker());
 								ti.setMessageLocker(t.getMessageLocker());
 								t = ti;
 							}
@@ -1437,7 +1454,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 								TransferConfirmationSystemMessage ti = new TransferConfirmationSystemMessage(
 										t.getIdTransferDestination(), t.getKernelAddressDestination(),
 										t.getKernelAddressToConnect(), idt.getDistantID(), idt.getLocalID(),
-										t.getNumberOfSubBlocks(), false, t.getDistantInetAddress());
+										t.getNumberOfSubBlocks(), false, t.getDistantInetAddress(), t.getPointToPointBlockChecker());
 								ti.setMessageLocker(t.getMessageLocker());
 								t = ti;
 							} else {
@@ -1479,10 +1496,18 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 
 							broadcastDataTowardEachIntermediatePeer(sender, tn, t.getIdTransferDestination(), d);
 						}
-						else if (t.getTransferBlockChercker() instanceof PointToPointTransferedBlockChecker)
+						else 
 						{
-							idDist.setLastPointToPointTransferedBlockChecker((PointToPointTransferedBlockChecker)t.getTransferBlockChercker());
-							idLocal.setLastPointToPointTransferedBlockChecker((PointToPointTransferedBlockChecker)t.getTransferBlockChercker());
+							if (t.getTransferBlockChercker() instanceof PointToPointTransferedBlockChecker)
+							{
+								idDist.setLastPointToPointTransferedBlockChecker((PointToPointTransferedBlockChecker)t.getTransferBlockChercker());
+								idLocal.setLastPointToPointTransferedBlockChecker((PointToPointTransferedBlockChecker)t.getTransferBlockChercker());
+							}
+							else
+							{
+								idDist.setLastPointToPointTransferedBlockChecker(null);
+								idLocal.setLastPointToPointTransferedBlockChecker(null);
+							}
 						}
 					}
 				} else {
@@ -1643,7 +1668,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 						this.distant_kernel_address, getKernelAddress(), idDist.getDistantID(), idDist.getLocalID(),
 						getMadkitConfig().networkProperties.getConnectionProtocolProperties(distant_inet_address,
 								local_interface_address, true, true).getNumberOfSubConnectionProtocols(),
-						false, null);
+						false, null, getMadkitConfig().networkProperties.canUsePointToPointTransferedBlockChecker?new PointToPointTransferedBlockChecker():null);
 				tcsm.setMessageLocker(p.getMessageLocker());
 				broadcastDataTowardEachIntermediatePeer(tcsm, true);
 			} catch (OverflowException | NIOException e) {

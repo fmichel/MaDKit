@@ -41,6 +41,7 @@ import java.net.InetSocketAddress;
 
 import com.distrimind.madkit.kernel.KernelAddress;
 import com.distrimind.madkit.kernel.network.TransferAgent.IDTransfer;
+import com.distrimind.madkit.kernel.network.connection.PointToPointTransferedBlockChecker;
 
 /**
  * 
@@ -62,11 +63,12 @@ class TransferConfirmationSystemMessage extends BroadcastableSystemMessage {
 	private final KernelAddress kernelAddressToConnect;
 	private final boolean middleReached;
 	private final InetSocketAddress distantInetSocketAddress;
+	private final PointToPointTransferedBlockChecker pointToPointBlockChecker;
 
 	TransferConfirmationSystemMessage(IDTransfer idTransferDestinationUsedForBroadcast,
 			KernelAddress kernelAddressDestination, KernelAddress kernelAddressToConnect, IDTransfer yourIDTransfer,
 			IDTransfer myIDTransfer, int numberOfSubBlocks, boolean middleReached,
-			InetSocketAddress distantInetSocketAddress) {
+			InetSocketAddress distantInetSocketAddress, PointToPointTransferedBlockChecker pointToPointBlockChecker) {
 		super(idTransferDestinationUsedForBroadcast, kernelAddressDestination);
 		if (yourIDTransfer == null)
 			throw new NullPointerException("null");
@@ -87,6 +89,7 @@ class TransferConfirmationSystemMessage extends BroadcastableSystemMessage {
 		this.numberOfSubBlocks = numberOfSubBlocks;
 		this.middleReached = middleReached;
 		this.distantInetSocketAddress = distantInetSocketAddress;
+		this.pointToPointBlockChecker=pointToPointBlockChecker;
 	}
 
 	public InetSocketAddress getDistantInetAddress() {
@@ -158,6 +161,10 @@ class TransferConfirmationSystemMessage extends BroadcastableSystemMessage {
 			return i;
 
 		return Integrity.OK;
+	}
+
+	public PointToPointTransferedBlockChecker getPointToPointBlockChecker() {
+		return pointToPointBlockChecker;
 	}
 
 }

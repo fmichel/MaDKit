@@ -209,7 +209,6 @@
 				<include name="**/MadkitClassLoaderTest*" />
 				<include name="**/CreateLogFilesTest*" />
 				<include name="**/DuplicateNamesTest*" />
-				<include name="**/HelpMenuTest*" />
 			</fileset>
 		</delete>
 
@@ -394,20 +393,21 @@
 
 			</target>
 
-			<!-- ================================= 
-          target: update_website              
-		<echo>FTP : updating online LAST version : REMOVE That after several versions</echo>
-		<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="put" remotedir="${madkit.ftp.dir}/..">
-			<fileset dir="${build.dir}" includes="LAST" />
-		</ftp>
-         ================================= -->
-			<target name="update_website" description="update MDK website new release">
+			<target name="update_website" depends="check_urls" description="update MDK website new release">
 				<echo file="${build.dir}/LAST">${madkit.version}</echo>
 				<loadproperties srcFile="${server.info.dir}/MDK.net" />
 				<echo>FTP : updating online LAST version</echo>
 				<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="put" remotedir="${madkit.ftp.dir}">
 					<fileset dir="${build.dir}" includes="LAST" />
 				</ftp>
+			</target>
+
+			<target name="check_urls" description="check main and release urls availability">
+				<get dest="${java.io.tmpdir}">
+					<url url="${madkit.web}/tutorials/index.html" />
+					<url url="${madkit.web}/forum/index.php" />
+					<url url="${madkit.repository.url}docs/api/index.html" />
+				</get>
 			</target>
 
 			<!-- ================================= 

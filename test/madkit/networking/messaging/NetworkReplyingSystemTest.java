@@ -56,84 +56,79 @@ import madkit.testing.util.agent.NormalAgent;
 import madkit.testing.util.agent.OneReplyAndQuitAgent;
 
 /**
-* @author Fabien Michel
-*/
+ * @author Fabien Michel
+ */
 public class NetworkReplyingSystemTest extends JunitMadkit {
-	
-	@Test
-	public void ping() {
-		addMadkitArgs(BooleanOption.network.toString(), LevelOption.kernelLogLevel.toString(), "ALL"
-				,LevelOption.networkLogLevel.toString(), "FINE"
-				);
-		launchTest(new NormalAgent() {
-			protected void activate() {
-				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP, true));
-				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
-				final ForEverAgent agent = new ForEverAgent();
-				launchAgent(agent);
-				getLogger().setLevel(Level.ALL);
-				assertTrue(isKernelOnline());
-				Message m = new Message(); 
-				for (int i = 0; i < 10; i++) {
-					sendMessage(COMMUNITY, GROUP, ROLE, new Message());
-				}
-				killAgent(agent);
-				launchExternalNetworkInstance(NetworkMessageAgent.class);
-				pause(5000);
-				Message message = new Message();
-				sendMessage(COMMUNITY, GROUP, ROLE, message );
-				getLogger().info(message.toString());
-				Message m2 = sendMessageAndWaitForReply(COMMUNITY, GROUP, ROLE, m, 10000);
-				cleanHelperMDKs(1000);
-				System.err.println(m);
-				assertNull(m2);
-				System.err.println(nextMessage());
-				System.err.println(nextMessage());
-				System.err.println(nextMessage());
-				System.err.println(nextMessage());
-			}
-		});
-	}
 
-	@Test
-	public void sendReplyTest() {
-		addMadkitArgs(BooleanOption.network.toString(), LevelOption.kernelLogLevel.toString(), "ALL"
-				,LevelOption.networkLogLevel.toString(), "FINE"
-				);
-		launchTest(new NormalAgent() {
-			protected void activate() {
-				super.activate();
-				assertTrue(isKernelOnline());
-				launchExternalNetworkInstance(ForEverReplierAgent.class);
-				waitNextMessage(10000);
-				Message m = sendMessageAndWaitForReply(COMMUNITY, GROUP, ROLE, new Message());
-				m = sendReplyAndWaitForReply(m, new Message());
-				assertNotNull(m);
-				m = sendReplyAndWaitForReply(m, new Message());
-				assertNotNull(m);
-			}
-		});
-	}
+    @Test
+    public void ping() {
+	addMadkitArgs(BooleanOption.network.toString(), LevelOption.kernelLogLevel.toString(), "ALL", LevelOption.networkLogLevel.toString(), "FINE");
+	launchTest(new NormalAgent() {
 
+	    protected void activate() {
+		assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP, true));
+		assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
+		final ForEverAgent agent = new ForEverAgent();
+		launchAgent(agent);
+		getLogger().setLevel(Level.ALL);
+		assertTrue(isKernelOnline());
+		Message m = new Message();
+		for (int i = 0; i < 10; i++) {
+		    sendMessage(COMMUNITY, GROUP, ROLE, new Message());
+		}
+		killAgent(agent);
+		launchExternalNetworkInstance(NetworkMessageAgent.class);
+		pause(5000);
+		Message message = new Message();
+		sendMessage(COMMUNITY, GROUP, ROLE, message);
+		getLogger().info(message.toString());
+		Message m2 = sendMessageAndWaitForReply(COMMUNITY, GROUP, ROLE, m, 10000);
+		cleanHelperMDKs(1000);
+		System.err.println(m);
+		assertNull(m2);
+		System.err.println(nextMessage());
+		System.err.println(nextMessage());
+		System.err.println(nextMessage());
+		System.err.println(nextMessage());
+	    }
+	});
+    }
 
-	@Test
-	public void sendReplyAfterDeconnection() {
-		addMadkitArgs(BooleanOption.network.toString(), LevelOption.kernelLogLevel.toString(), "ALL"
-				,LevelOption.networkLogLevel.toString(), "FINE"
-				);
-		launchTest(new NormalAgent() {
-			protected void activate() {
-				super.activate();
-				assertTrue(isKernelOnline());
-				launchExternalNetworkInstance(OneReplyAndQuitAgent.class);
-				waitNextMessage(10000);
-				Message m = sendMessageAndWaitForReply(COMMUNITY, GROUP, ROLE, new Message());
-				assertNotNull(m);
-				cleanHelperMDKs(2000);
-				sendMessage(m.getSender(), new Message());
-			}
-		});
-	}
+    @Test
+    public void sendReplyTest() {
+	addMadkitArgs(BooleanOption.network.toString(), LevelOption.kernelLogLevel.toString(), "ALL", LevelOption.networkLogLevel.toString(), "FINE");
+	launchTest(new NormalAgent() {
 
+	    protected void activate() {
+		super.activate();
+		assertTrue(isKernelOnline());
+		launchExternalNetworkInstance(ForEverReplierAgent.class);
+		waitNextMessage(10000);
+		Message m = sendMessageAndWaitForReply(COMMUNITY, GROUP, ROLE, new Message());
+		m = sendReplyAndWaitForReply(m, new Message());
+		assertNotNull(m);
+		m = sendReplyAndWaitForReply(m, new Message());
+		assertNotNull(m);
+	    }
+	});
+    }
+
+    @Test
+    public void sendReplyAfterDeconnection() {
+	addMadkitArgs(BooleanOption.network.toString(), LevelOption.kernelLogLevel.toString(), "ALL", LevelOption.networkLogLevel.toString(), "FINE");
+	launchTest(new NormalAgent() {
+
+	    protected void activate() {
+		super.activate();
+		assertTrue(isKernelOnline());
+		launchExternalNetworkInstance(OneReplyAndQuitAgent.class);
+		waitNextMessage(10000);
+		Message m = sendMessageAndWaitForReply(COMMUNITY, GROUP, ROLE, new Message());
+		assertNotNull(m);
+		cleanHelperMDKs(2000);
+		sendMessage(m.getSender(), new Message());
+	    }
+	});
+    }
 
 }

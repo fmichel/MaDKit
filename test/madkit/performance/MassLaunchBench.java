@@ -57,91 +57,96 @@ import madkit.testing.util.agent.NormalAA;
 
 public class MassLaunchBench extends JunitMadkit {
 
-	@Test
-	public void massAALaunchWithBucketAndNoRoles() {
-		final int tries = 1;//should be at least 100 to bench, this has no use for only testing
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				getLogger().setLevel(Level.INFO);
-				long total = 0;
-				createGroup("test", "group", false, null);
-				for (int i = 0; i < tries; i++) {
-					startTimer();
-					assertNotNull(launchAgentBucket(AbstractAgent.class.getName(), 1000000));
-					total += stopTimer("bucket launch time = ");
-				}
-					getLogger().info("average launch time = "+(total / (tries * 1000000))+" ms");
-			}
-		});
-	}
+    @Test
+    public void massAALaunchWithBucketAndNoRoles() {
+	final int tries = 1;// should be at least 100 to bench, this has no use for only testing
+	launchTest(new AbstractAgent() {
 
-	@Test
-	public void massAALaunchWithBucketRoles() {
-		final int tries = 1;//should be at least 100 to bench, this has no use for only testing
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				getLogger().setLevel(Level.INFO);
-				long total = 0;
-//				createGroup("test", "group", false, null);
-				for (int i = 0; i < tries; i++) {
-					startTimer();
-					assertNotNull(launchAgentBucket(AbstractAgent.class.getName(), 1000000, COMMUNITY+","+GROUP+","+ROLE));
-					total += stopTimer("bucket launch time = ");
-				}
-					getLogger().info("average launch time = "+(total / (tries * 1000000))+" ms");
-			}
-		});
-	}
+	    protected void activate() {
+		getLogger().setLevel(Level.INFO);
+		long total = 0;
+		createGroup("test", "group", false, null);
+		for (int i = 0; i < tries; i++) {
+		    startTimer();
+		    assertNotNull(launchAgentBucket(AbstractAgent.class.getName(), 1000000));
+		    total += stopTimer("bucket launch time = ");
+		}
+		getLogger().info("average launch time = " + (total / (tries * 1000000)) + " ms");
+	    }
+	});
+    }
 
-	@Test
-	public void massAALaunchWithBucketRolesAndRequestIgnored() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				System.err.println("begin");
-				startTimer();
-				List<AbstractAgent> l =  launchAgentBucket(MiniAgent.class.getName(), 1000000,COMMUNITY+","+GROUP+","+ROLE);
-				stopTimer("bucket launch time = ");
-				System.err.println("done\n\n");
-				System.err.println(l.get(0).requestRole(COMMUNITY, GROUP, ROLE));
-			}
-		});
-	}
+    @Test
+    public void massAALaunchWithBucketRoles() {
+	final int tries = 1;// should be at least 100 to bench, this has no use for only testing
+	launchTest(new AbstractAgent() {
 
-	@Test
-	public void massAALaunch() {// TODO more cases
-		addMadkitArgs(LevelOption.agentLogLevel.toString(), "OFF");
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				getLogger().setLevel(Level.OFF);
-				createGroup("test", "group", false, null);
-				System.err.println("begin");
-				long total = 0;
-				int j = 0;
-				for (j = 0; j < 4; j++) {
-					startTimer();
-					for (int i = 0; i < 100000; i++) {
-						launchAgent(new AbstractAgent());
-					}
-					total += stopTimer("launch time = ");
-				}
-				System.err.println("done\n\naverage time is " + (total / (j * 1000000)) + " ms");
-			}
-		});
-	}
+	    protected void activate() {
+		getLogger().setLevel(Level.INFO);
+		long total = 0;
+		// createGroup("test", "group", false, null);
+		for (int i = 0; i < tries; i++) {
+		    startTimer();
+		    assertNotNull(launchAgentBucket(AbstractAgent.class.getName(), 1000000, COMMUNITY + "," + GROUP + "," + ROLE));
+		    total += stopTimer("bucket launch time = ");
+		}
+		getLogger().info("average launch time = " + (total / (tries * 1000000)) + " ms");
+	    }
+	});
+    }
 
-	@Test
-	public void massNormalLifeLaunch() {// TODO more cases
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				AbstractAgent a;
-				getLogger().info("\n******************* STARTING MASS LAUNCH *******************\n");
-				a = launchAgent("madkit.kernel.AbstractAgent");
-				a.createGroup("test", "group", false, null);
-				startTimer();
-				System.err.println("begin");
-				launchAgentBucket(NormalAA.class.getName(), 30100);
-				stopTimer("done ");
-			}
-		});
-	}
+    @Test
+    public void massAALaunchWithBucketRolesAndRequestIgnored() {
+	launchTest(new AbstractAgent() {
+
+	    protected void activate() {
+		System.err.println("begin");
+		startTimer();
+		List<AbstractAgent> l = launchAgentBucket(MiniAgent.class.getName(), 1000000, COMMUNITY + "," + GROUP + "," + ROLE);
+		stopTimer("bucket launch time = ");
+		System.err.println("done\n\n");
+		System.err.println(l.get(0).requestRole(COMMUNITY, GROUP, ROLE));
+	    }
+	});
+    }
+
+    @Test
+    public void massAALaunch() {// TODO more cases
+	addMadkitArgs(LevelOption.agentLogLevel.toString(), "OFF");
+	launchTest(new AbstractAgent() {
+
+	    protected void activate() {
+		getLogger().setLevel(Level.OFF);
+		createGroup("test", "group", false, null);
+		System.err.println("begin");
+		long total = 0;
+		int j = 0;
+		for (j = 0; j < 4; j++) {
+		    startTimer();
+		    for (int i = 0; i < 100000; i++) {
+			launchAgent(new AbstractAgent());
+		    }
+		    total += stopTimer("launch time = ");
+		}
+		System.err.println("done\n\naverage time is " + (total / (j * 1000000)) + " ms");
+	    }
+	});
+    }
+
+    @Test
+    public void massNormalLifeLaunch() {// TODO more cases
+	launchTest(new AbstractAgent() {
+
+	    protected void activate() {
+		AbstractAgent a;
+		getLogger().info("\n******************* STARTING MASS LAUNCH *******************\n");
+		a = launchAgent("madkit.kernel.AbstractAgent");
+		a.createGroup("test", "group", false, null);
+		startTimer();
+		System.err.println("begin");
+		launchAgentBucket(NormalAA.class.getName(), 30100);
+		stopTimer("done ");
+	    }
+	});
+    }
 }

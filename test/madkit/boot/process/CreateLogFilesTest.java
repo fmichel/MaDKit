@@ -65,193 +65,180 @@ import madkit.kernel.Madkit.Option;
 
 public class CreateLogFilesTest extends JunitMadkit {
 
-	File				f;
-	public static FilenameFilter	filter	= new FilenameFilter() {
+    File f;
+    public static FilenameFilter filter = new FilenameFilter() {
 
-										@Override
-										public boolean accept(File dir, String s) {
-											return !s.contains(".lck");
-										}
-									};
-
-	static void delete(File f) throws IOException {
-		if (f.isDirectory()) {
-			for (File c : f.listFiles())
-				delete(c);
-		}
-		if (!f.delete())
-			throw new FileNotFoundException("Failed to delete file: " + f);
+	@Override
+	public boolean accept(File dir, String s) {
+	    return !s.contains(".lck");
 	}
+    };
 
-	/**
-	 * Check that there is one dir per MaDKit instance
-	 * @throws IOException
-	 */
-	@SuppressWarnings("unused")
-	@Test
-	public void logDirectoryUniqueness()  {
-		new JunitMadkit();
-		String dir = System.getProperty("java.io.tmpdir") + File.separatorChar
-				+ name.getMethodName();
-		try {
-			delete(new File(dir));
-		} catch (IOException e) {
-		}
-		String[] args = {
-				LevelOption.madkitLogLevel.toString(),
-				"OFF",
-				BooleanOption.desktop.toString(),
-				"false",
-				Option.launchAgents.toString(),
-				"madkit.kernel.AbstractAgent",// to not have the desktop mode by
-														// default
-														// Option.logDirectory.toString(), getBinTestDir(), LevelOption.agentLogLevel.toString(), "ALL",
-				BooleanOption.createLogFiles.toString(),
-				LevelOption.kernelLogLevel.toString(), "OFF",
-				Option.logDirectory.toString(), dir };
-		for (int i = 0; i < 50; i++) {
-			new Madkit(args);
-		}
-		pause(200);
-		assertEquals(50,new File(dir).listFiles().length);
+    static void delete(File f) throws IOException {
+	if (f.isDirectory()) {
+	    for (File c : f.listFiles())
+		delete(c);
 	}
+	if (!f.delete())
+	    throw new FileNotFoundException("Failed to delete file: " + f);
+    }
 
-	@Test
-	public void defaultLogDirectory() {
-		addMadkitArgs(BooleanOption.createLogFiles.toString(),
-				LevelOption.kernelLogLevel.toString(), "INFO");
-		launchTest(new AbstractAgent() {
+    /**
+     * Check that there is one dir per MaDKit instance
+     * 
+     * @throws IOException
+     */
+    @SuppressWarnings("unused")
+    @Test
+    public void logDirectoryUniqueness() {
+	new JunitMadkit();
+	String dir = System.getProperty("java.io.tmpdir") + File.separatorChar + name.getMethodName();
+	try {
+	    delete(new File(dir));
+	}
+	catch(IOException e) {
+	}
+	String[] args = { LevelOption.madkitLogLevel.toString(), "OFF", BooleanOption.desktop.toString(), "false", 
+		Option.launchAgents.toString(), "madkit.kernel.AbstractAgent",
+		BooleanOption.createLogFiles.toString(), LevelOption.kernelLogLevel.toString(), "OFF", Option.logDirectory.toString(), dir };
+	for (int i = 0; i < 50; i++) {
+	    new Madkit(args);
+	}
+	pause(200);
+	assertEquals(50, new File(dir).listFiles().length);
+    }
 
-			@Override
-			protected void activate() {
-				System.err.println(getMadkitProperty(Option.logDirectory.name()));
-				f = new File(getMadkitProperty(Option.logDirectory.name()));
-			}
-		});
-		pause(100);
+    @Test
+    public void defaultLogDirectory() {
+	f = null;
+	addMadkitArgs(BooleanOption.createLogFiles.toString(), LevelOption.kernelLogLevel.toString(), "INFO");
+	launchTest(new AbstractAgent() {
+
+	    @Override
+	    protected void activate() {
+		f = new File(getMadkitProperty(Option.logDirectory.name()));
+		System.err.println(getMadkitProperty(Option.logDirectory.name()));
+	    }
+	});
+	while (f == null) {
+	    pause(100);
+	}
+	System.err.println(f);
+	assertTrue(f.exists());
+	assertTrue(f.isDirectory());
+	assertSame(2, f.listFiles(filter).length);
+    }
+
+    @Test
+    public void oneAgentLog() {
+	launchTest(new AbstractAgent() {
+
+	    @Override
+	    protected void activate() {
+		f = new File(getMadkitProperty(Option.logDirectory.name()), getLogger().getName());
+		assertFalse(f.exists());
+		getLogger().createLogFile();
 		System.err.println(f);
 		assertTrue(f.exists());
-		assertTrue(f.isDirectory());
-		assertSame(2, f.listFiles(filter).length);
-	}
+		f.delete();
+	    }
+	});
+    }
 
-	@Test
-	public void oneAgentLog() {
-		launchTest(new AbstractAgent() {
+    /**
+     * Creates a log file in {@link Option#logDirectory}
+     */
+    @Test
+    public void oneAgentLogInConstructor() {
+	launchTest(new LogTester() {
 
-			@Override
-			protected void activate() {
-				f = new File(getMadkitProperty(Option.logDirectory.name()),
-						getLogger().getName());
-				assertFalse(f.exists());
-				getLogger().createLogFile();
-				System.err.println(f);
-				assertTrue(f.exists());
-				f.delete();
-			}
-		});
-	}
+	    @Override
+	    protected void activate() {
+		f = new File("logs", "[-" + hashCode() + "]");
+		System.err.println(f);
+		assertTrue(f.exists());
+		f.delete();
+	    }
+	});
+	pause(100);
+    }
 
-	/**
-	 * Creates a log file in {@link Option#logDirectory}
-	 */
-	@Test
-	public void oneAgentLogInConstructor() {
-		launchTest(new LogTester() {
+    @Test
+    public void noLogDirectory() {
+	addMadkitArgs(BooleanOption.createLogFiles.toString(), "false", LevelOption.kernelLogLevel.toString(), "INFO");
+	launchTest(new AbstractAgent() {
 
-			@Override
-			protected void activate() {
-				f = new File("logs", "[-" + hashCode() + "]");
-				System.err.println(f);
-				assertTrue(f.exists());
-				f.delete();
-			}
-		});
-		pause(100);
-	}
+	    @Override
+	    protected void activate() {
+		System.err.println(getMadkitProperty(Option.logDirectory.name()));
+		assertFalse(new File(Option.logDirectory.name()).exists());
+	    }
+	});
+	pause(100);
+    }
 
-	@Test
-	public void noLogDirectory() {
-		addMadkitArgs(BooleanOption.createLogFiles.toString(), "false",
-				LevelOption.kernelLogLevel.toString(), "INFO");
-		launchTest(new AbstractAgent() {
+    @Test
+    public void absoluteLogDirectory() {
+	addMadkitArgs(BooleanOption.createLogFiles.toString(), Option.logDirectory.toString(), System.getProperty("java.io.tmpdir"), LevelOption.kernelLogLevel.toString(), "ALL",
+		LevelOption.madkitLogLevel.toString(), "OFF");
+	launchTest(new AbstractAgent() {
 
-			@Override
-			protected void activate() {
-				System.err.println(getMadkitProperty(Option.logDirectory.name()));
-				assertFalse(new File(Option.logDirectory.name()).exists());
-			}
-		});
-		pause(100);
-	}
+	    @Override
+	    protected void activate() {
+		System.err.println(getMadkitProperty(Option.logDirectory.name()));
+		f = new File(getMadkitProperty(Option.logDirectory.name()));
+	    }
+	});
+	assertTrue(f.exists());
+	assertTrue(f.isDirectory());
+	pause(500);
+	assertSame(2, f.listFiles(filter).length);
+    }
 
-	@Test
-	public void absoluteLogDirectory() {
-		addMadkitArgs(BooleanOption.createLogFiles.toString(),
-				Option.logDirectory.toString(),
-				System.getProperty("java.io.tmpdir"),
-				LevelOption.kernelLogLevel.toString(), "ALL",
-				LevelOption.madkitLogLevel.toString(), "OFF");
-		launchTest(new AbstractAgent() {
-			@Override
-			protected void activate() {
-				System.err.println(getMadkitProperty(Option.logDirectory.name()));
-				f = new File(getMadkitProperty(Option.logDirectory.name()));
-			}
-		});
+    @Test
+    public void noFilesOnLogOFF() {
+	addMadkitArgs(BooleanOption.createLogFiles.toString(), LevelOption.kernelLogLevel.toString(), "OFF", LevelOption.agentLogLevel.toString(), "OFF",
+		LevelOption.madkitLogLevel.toString(), "ALL");
+	launchTest(new AbstractAgent() {
+
+	    @Override
+	    protected void activate() {
+		System.err.println(getMadkitProperty(Option.logDirectory.name()));
+		f = new File(getMadkitProperty(Option.logDirectory.name()));
+	    }
+	});
+	assertFalse(f.exists());
+    }
+
+    @Test
+    public void noKernelFile() {
+	addMadkitArgs(BooleanOption.createLogFiles.toString(), LevelOption.kernelLogLevel.toString(), "OFF");
+	launchTest(new AbstractAgent() {
+
+	    @Override
+	    protected void activate() {
+		System.err.println(getMadkitProperty(Option.logDirectory.name()));
+		f = new File(getMadkitProperty(Option.logDirectory.name()));
 		assertTrue(f.exists());
 		assertTrue(f.isDirectory());
-		pause(500);
-		assertSame(2, f.listFiles(filter).length);
-	}
+	    }
+	});
+	pause(500);
+	assertSame(2, f.listFiles(filter).length);
+    }
 
-	@Test
-	public void noFilesOnLogOFF() {
-		addMadkitArgs(BooleanOption.createLogFiles.toString(),
-				LevelOption.kernelLogLevel.toString(), "OFF",
-				LevelOption.agentLogLevel.toString(), "OFF",
-				LevelOption.madkitLogLevel.toString(), "ALL");
-		launchTest(new AbstractAgent() {
-
-			@Override
-			protected void activate() {
-				System.err.println(getMadkitProperty(Option.logDirectory.name()));
-				f = new File(getMadkitProperty(Option.logDirectory.name()));
-			}
-		});
-		assertFalse(f.exists());
-	}
-
-	@Test
-	public void noKernelFile() {
-		addMadkitArgs(BooleanOption.createLogFiles.toString(),
-				LevelOption.kernelLogLevel.toString(), "OFF");
-		launchTest(new AbstractAgent() {
-
-			@Override
-			protected void activate() {
-				System.err.println(getMadkitProperty(Option.logDirectory.name()));
-				f = new File(getMadkitProperty(Option.logDirectory.name()));
-				assertTrue(f.exists());
-				assertTrue(f.isDirectory());
-			}
-		});
-		pause(500);
-		assertSame(2, f.listFiles(filter).length);
-	}
-
-	@AfterClass
-	public static void clean() {
-		System.err.println(new File("logs").getAbsolutePath());
-		new File("logs").delete();
-	}
+    @AfterClass
+    public static void clean() {
+	System.err.println(new File("logs").getAbsolutePath());
+	new File("logs").delete();
+    }
 
 }
 
 class LogTester extends AbstractAgent {
 
-	public LogTester() {
-		getLogger().createLogFile();
-	}
+    public LogTester() {
+	getLogger().createLogFile();
+    }
 
 }

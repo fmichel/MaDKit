@@ -50,19 +50,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
+import org.junit.Rule;
+import org.junit.rules.TestName;
+
 import madkit.action.KernelAction;
-import madkit.agr.NetworkCommunity;
 import madkit.agr.DefaultMaDKitRoles;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
+import madkit.agr.NetworkCommunity;
 import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Madkit.Option;
 import madkit.testing.util.agent.ForEverAgent;
-
-import org.junit.Rule;
-import org.junit.rules.TestName;
 
 /**
  * @author Fabien Michel
@@ -354,7 +354,7 @@ public class JunitMadkit {
 	}
 	
 	public void launchExternalMDKInstance(String... args){
-		String cmdLince = "java -Xms1024m -cp bin:build/test/classes:lib/junit-4.12.jar:lib/hamcrest-core-1.3.jar madkit.kernel.Madkit";
+		String cmdLince = "java -Xms512m -cp build:bin:build/test/classes:lib/junit-4.12.jar:lib/hamcrest-core-1.3.jar madkit.kernel.Madkit";
 		for (String string : args) {
 			cmdLince += " "+string;
 		}

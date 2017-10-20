@@ -54,24 +54,26 @@ import madkit.kernel.Madkit.LevelOption;
 /**
  * @author Fabien Michel
  * @since MaDKit 5.0.0.10
- * @version 0.9
+ * @version 1
  */
 
 public class MadkitClassLoaderTest extends JunitMadkit {
 
     @Test
     public void scanFolderForMDKConfigFileAgentClassesTest() {
-	addMadkitArgs(LevelOption.kernelLogLevel.toString(), "ALL");
+	addMadkitArgs(LevelOption.kernelLogLevel.toString(), "OFF");
 	launchTest(new AbstractAgent() {
 
 	    @Override
 	    protected void activate() {
 		assertFalse(MadkitClassLoader.getAllAgentClasses().isEmpty());
 		System.err.println(MadkitClassLoader.getMDKFiles());
-		// ugly : inside and outside Eclipse
-		assertTrue(1 == MadkitClassLoader.getMDKFiles().size() || 5 == MadkitClassLoader.getMDKFiles().size());
+		// ugly : inside Eclipse / outside Eclipse / in travis
+		final int numberOfMDKConfigFilesFound = MadkitClassLoader.getMDKFiles().size();
+		assertTrue(1 == numberOfMDKConfigFilesFound || 5 == numberOfMDKConfigFilesFound || 4 == numberOfMDKConfigFilesFound);
 		System.err.println(MadkitClassLoader.getXMLConfigurations());
-		assertTrue(3 == MadkitClassLoader.getXMLConfigurations().size() || 16 == MadkitClassLoader.getXMLConfigurations().size());
+		final int numberOfXmlConfigFilesFound = MadkitClassLoader.getXMLConfigurations().size();
+		assertTrue(3 == numberOfXmlConfigFilesFound || 16 == numberOfXmlConfigFilesFound|| 13 == numberOfXmlConfigFilesFound);
 	    }
 	});
     }

@@ -57,90 +57,86 @@ import madkit.kernel.Madkit.LevelOption;
  */
 
 public class DiscoverTest extends JunitMadkit {
-	
-	protected static final int	OTHERS	= 6;
 
-//	@After
-//	public void clean(){
-//		cleanHelperMDKs();
-//	}
+    protected static final int OTHERS = 6;
 
-	//TODO use junit 4.12
-//   @Rule public final TestRule timeout = Timeout.builder()
-//         .withTimeout(10, TimeUnit.SECONDS)
-//         .withLookingForStuckThread(true)
-//         .build();
+    // @After
+    // public void clean(){
+    // cleanHelperMDKs();
+    // }
 
+    // TODO use junit 4.12
+    // @Rule public final TestRule timeout = Timeout.builder()
+    // .withTimeout(10, TimeUnit.SECONDS)
+    // .withLookingForStuckThread(true)
+    // .build();
 
+    @Test
+    public void multipleConnectionTest() {
+	cleanHelperMDKs(2000);
+	addMadkitArgs(BooleanOption.network.toString(), LevelOption.networkLogLevel.toString(), "FINE", LevelOption.madkitLogLevel.toString(), Level.ALL.toString());
+	launchTest(new AbstractAgent() {
 
-	@Test
-	public void multipleConnectionTest() {
-		cleanHelperMDKs();
-		addMadkitArgs(BooleanOption.network.toString(),LevelOption.networkLogLevel.toString(),"FINE"
-				,LevelOption.madkitLogLevel.toString(),Level.ALL.toString()
-				);
-		launchTest(new AbstractAgent() {
-			@Override
-			protected void activate() {
-				KernelAction.LAUNCH_NETWORK.getActionFor(this).actionPerformed(null);
-				for (int i = 0; i < OTHERS; i++) {
-					launchMKNetworkInstance(Level.OFF);
-				}
-				pause(300);
-				testConnections(this);
-			}
-		});
-	}
-	
-	@Test
-	public void multipleExternalConnectionTest() {
-		cleanHelperMDKs();
-		addMadkitArgs(BooleanOption.network.toString(),LevelOption.networkLogLevel.toString(),"FINE"
-				,LevelOption.madkitLogLevel.toString(),Level.ALL.toString()
-				);
-		launchTest(new AbstractAgent() {
-			@Override
-			protected void activate() {
-				KernelAction.LAUNCH_NETWORK.getActionFor(this).actionPerformed(null);
-				for (int i = 0; i < OTHERS; i++) {
-					launchExternalNetworkInstance();
-				}
-				testConnections(this);
-			}
-		});
-	}
-
-	/**
-	 * @param agent 
-	 * 
-	 */
-	private void testConnections(AbstractAgent agent) {
-		agent.getLogger().setLevel(Level.INFO);
-		checkConnectedIntancesNb(agent, OTHERS+1);
-//		List<AgentAddress> l = agent.getAgentsWithRole(NetworkCommunity.NAME, NetworkCommunity.Groups.NETWORK_AGENTS,
-//				NetworkCommunity.Roles.NET_AGENT);
-//		for (AgentAddress agentAddress : l) {
-//			System.err.println(agentAddress);
-//		}
-//		assertEquals(OTHERS+1, l.size());
-		KernelAction.STOP_NETWORK.getActionFor(agent).actionPerformed(null);
-		startTimer();
-		do {
-			pause(200);
+	    @Override
+	    protected void activate() {
+		KernelAction.LAUNCH_NETWORK.getActionFor(this).actionPerformed(null);
+		for (int i = 0; i < OTHERS; i++) {
+		    launchMKNetworkInstance(Level.OFF);
 		}
-		while (stopTimer("") < 10000 && agent.isCommunity(NetworkCommunity.NAME));
+		pause(1000);
+		testConnections(this);
+	    }
+	});
+    }
 
-//		System.err.println(agent.getOrganizationSnapShot(true));
-		// not connected
-		assertFalse(agent.isCommunity(NetworkCommunity.NAME));
+    @Test
+    public void multipleExternalConnectionTest() {
+	cleanHelperMDKs(2000);
+	addMadkitArgs(BooleanOption.network.toString(), LevelOption.networkLogLevel.toString(), "FINE", LevelOption.madkitLogLevel.toString(), Level.ALL.toString());
+	launchTest(new AbstractAgent() {
 
-		// second round
-		KernelAction.LAUNCH_NETWORK.getActionFor(agent).actionPerformed(null);
-		pause(300);
-		checkConnectedIntancesNb(agent, OTHERS+1);
-		cleanHelperMDKs();
-		checkConnectedIntancesNb(agent, 1);
-		KernelAction.EXIT.getActionFor(agent).actionPerformed(null);
+	    @Override
+	    protected void activate() {
+		KernelAction.LAUNCH_NETWORK.getActionFor(this).actionPerformed(null);
+		for (int i = 0; i < OTHERS; i++) {
+		    launchExternalNetworkInstance();
+		}
+		testConnections(this);
+	    }
+	});
+    }
+
+    /**
+     * @param agent
+     * 
+     */
+    private void testConnections(AbstractAgent agent) {
+	agent.getLogger().setLevel(Level.INFO);
+	checkConnectedIntancesNb(agent, OTHERS + 1);
+	// List<AgentAddress> l = agent.getAgentsWithRole(NetworkCommunity.NAME, NetworkCommunity.Groups.NETWORK_AGENTS,
+	// NetworkCommunity.Roles.NET_AGENT);
+	// for (AgentAddress agentAddress : l) {
+	// System.err.println(agentAddress);
+	// }
+	// assertEquals(OTHERS+1, l.size());
+	KernelAction.STOP_NETWORK.getActionFor(agent).actionPerformed(null);
+	startTimer();
+	do {
+	    pause(500);
 	}
+	while (stopTimer("") < 10000 && agent.isCommunity(NetworkCommunity.NAME));
+
+	// System.err.println(agent.getOrganizationSnapShot(true));
+	// not connected
+	assertFalse(agent.isCommunity(NetworkCommunity.NAME));
+
+	// second round
+	KernelAction.LAUNCH_NETWORK.getActionFor(agent).actionPerformed(null);
+	pause(300);
+	checkConnectedIntancesNb(agent, OTHERS + 1);
+	cleanHelperMDKs();
+	checkConnectedIntancesNb(agent, 1);
+	KernelAction.EXIT.getActionFor(agent).actionPerformed(null);
+    }
 
 }

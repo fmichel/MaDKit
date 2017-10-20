@@ -4,5 +4,5 @@ before_script:
   - sleep 3 # give xvfb some time to start
 
 language: java
-script: ant travis_test
+script: ant test
 

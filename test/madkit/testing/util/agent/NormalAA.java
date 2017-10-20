@@ -41,6 +41,7 @@ import static madkit.kernel.JunitMadkit.COMMUNITY;
 import static madkit.kernel.JunitMadkit.GROUP;
 import static madkit.kernel.JunitMadkit.ROLE;
 import static org.junit.Assert.assertEquals;
+
 import madkit.kernel.AbstractAgent;
 
 /**
@@ -51,16 +52,14 @@ import madkit.kernel.AbstractAgent;
  */
 public class NormalAA extends AbstractAgent {
 
-	@Override
-	protected void activate() {
-		assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
-		assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
-	}
-	
-	
-	public static void main(String[] args) {
-		executeThisAgent();
-	}
+    @Override
+    protected void activate() {
+	assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
+	assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
+    }
 
+    public static void main(String[] args) {
+	executeThisAgent();
+    }
 
 }

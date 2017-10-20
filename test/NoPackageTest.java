@@ -1,3 +1,4 @@
+
 /*
  * Copyright or © or Copr. Fabien Michel, Olivier Gutknecht, Jacques Ferber (1997)
 
@@ -55,21 +56,21 @@ import madkit.kernel.Madkit.BooleanOption;
 
 public class NoPackageTest extends JunitMadkit {
 
-	@Test
-	public void inMenuTest() {
-		addMadkitArgs(BooleanOption.desktop.toString());
-		launchTest(new NoPackageAgent() {
-			protected void activate() {
-				getLogger().info("w");
-				LaunchAgentsMenu m = new LaunchAgentsMenu(this);
-				for (Component iterable_element : m.getMenuComponents()) {
-					if(((AbstractButton) iterable_element).getText().equals(NoPackageAgent.class.getName()))
-						return;
-				}
-				fail("not in menu");
-			}
-		});
-	}
+    @Test
+    public void inMenuTest() {
+	addMadkitArgs(BooleanOption.desktop.toString());
+	launchTest(new NoPackageAgent() {
 
+	    protected void activate() {
+		getLogger().info("w");
+		LaunchAgentsMenu m = new LaunchAgentsMenu(this);
+		for (Component iterable_element : m.getMenuComponents()) {
+		    if (((AbstractButton) iterable_element).getText().equals(NoPackageAgent.class.getName()))
+			return;
+		}
+		fail("not in menu");
+	    }
+	});
+    }
 
 }

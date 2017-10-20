@@ -55,62 +55,64 @@ import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Madkit.Option;
 
 /**
-* @author Fabien Michel
-*/
+ * @author Fabien Michel
+ */
 public class DuplicateNamesTest extends JunitMadkit {
 
-	private File	f;
+    private File f;
 
-	@Before
-	public void init(){
-		addMadkitArgs(LevelOption.agentLogLevel.toString(),Level.OFF.toString());
-	}
+    @Before
+    public void init() {
+	addMadkitArgs(LevelOption.agentLogLevel.toString(), Level.OFF.toString());
+    }
 
-	@Test
-	public void setNameTest() {
-		launchTest(new AbstractAgent() {
-			@Override
-			protected void activate() {
-				setName(COMMUNITY);
-				getLogger().setLevel(Level.ALL);
-				assertEquals(SUCCESS , launchAgent(new SetNameAgent(),true));
-			}
-		});
-	}
+    @Test
+    public void setNameTest() {
+	launchTest(new AbstractAgent() {
 
-	@Test
-	public void setNameTestOnLogFile() {
-		addMadkitArgs(BooleanOption.createLogFiles.toString());
-		addMadkitArgs(LevelOption.guiLogLevel.toString(),Level.ALL.toString());
-		launchTest(new AbstractAgent() {
+	    @Override
+	    protected void activate() {
+		setName(COMMUNITY);
+		getLogger().setLevel(Level.ALL);
+		assertEquals(SUCCESS, launchAgent(new SetNameAgent(), true));
+	    }
+	});
+    }
 
-			@Override
-			protected void activate() {
-				setName(COMMUNITY);
-				getLogger().setLevel(Level.ALL);
-				assertEquals(SUCCESS , launchAgent(new SetNameAgent(),true));
-				f = new File(getMadkitProperty(Option.logDirectory.name()));
-			}
-		});
-		System.err.println(f);
-		assertTrue(f.exists());
-		assertTrue(f.isDirectory());
-		assertSame(2, f.listFiles(CreateLogFilesTest.filter).length);
-	}
+    @Test
+    public void setNameTestOnLogFile() {
+	addMadkitArgs(BooleanOption.createLogFiles.toString());
+	addMadkitArgs(LevelOption.guiLogLevel.toString(), Level.ALL.toString());
+	launchTest(new AbstractAgent() {
+
+	    @Override
+	    protected void activate() {
+		setName(COMMUNITY);
+		getLogger().setLevel(Level.ALL);
+		assertEquals(SUCCESS, launchAgent(new SetNameAgent(), true));
+		f = new File(getMadkitProperty(Option.logDirectory.name()));
+	    }
+	});
+	System.err.println(f);
+	assertTrue(f.exists());
+	assertTrue(f.isDirectory());
+	assertSame(2, f.listFiles(CreateLogFilesTest.filter).length);
+    }
 }
 
-class SetNameAgent extends AbstractAgent{
-	
-	public SetNameAgent() {
-		setName(JunitMadkit.COMMUNITY);
-	}
-	@Override
-	protected void activate() {
-		getLogger().setLevel(Level.ALL);
-		getLogger().info("test");
-		getLogger().setLevel(Level.OFF);
-		getLogger().info("test no display");
-		getLogger().setLevel(Level.ALL);
-		getLogger().info("test 2");
-	}
+class SetNameAgent extends AbstractAgent {
+
+    public SetNameAgent() {
+	setName(JunitMadkit.COMMUNITY);
+    }
+
+    @Override
+    protected void activate() {
+	getLogger().setLevel(Level.ALL);
+	getLogger().info("test");
+	getLogger().setLevel(Level.OFF);
+	getLogger().info("test no display");
+	getLogger().setLevel(Level.ALL);
+	getLogger().info("test 2");
+    }
 }

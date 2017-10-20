@@ -148,7 +148,7 @@
 	</path>
 
 	<target name="test-init" depends="buildResources">
-		<javac debug="true" includeAntRuntime="false" classpathref="compile.classpath" srcdir="${src.dir}" destdir="${build.dir}" excludes="**/networking/**" />
+		<javac debug="true" includeAntRuntime="false" classpathref="compile.classpath" srcdir="${src.dir}" destdir="${build.dir}" />
 		<mkdir dir="${test.classes.dir}" />
 		<delete dir="${test.data.dir}" />
 		<delete dir="${test.reports.dir}" />
@@ -162,18 +162,10 @@
 		</javac>
 	</target>
 
-
 	<!-- ================================= 
           target: junit              
          ================================= -->
-	<target name="junit" depends="clean,test-compile" description="junit">
-		<!-- networking is excluded for now -->
-		<delete>
-			<fileset dir="${test.classes.dir}">
-				<include name="**/networking/**" />
-			</fileset>
-		</delete>
-
+	<target name="test" depends="clean,test-compile" description="junit testing">
 		<!-- copy resources -->
 		<copy todir="${test.classes.dir}" overwrite="false">
 			<fileset dir="test" excludes="**/*.java" />
@@ -195,23 +187,20 @@
 		<replace dir="${test.reports.dir}" token="Unit Test Result" value="MaDKit ${madkit.version} Unit Test Result" />
 	</target>
 
-	<!-- ================================= 
-          target: junit              
-         ================================= -->
-	<target name="travis_test" depends="clean,test-compile" description="junit">
-		<!-- networking is excluded for now -->
+	<target name="oneshot-test-compile" depends="test-init">
+		<javac destdir="${test.classes.dir}" includeAntRuntime="false" debug="on" srcdir="test" includes="**/DuplicateNamesTest*">
+			<classpath refid="test.compile.classpath" />
+		</javac>
+	</target>
+
+	<target name="oneshot-test" depends="clean,oneshot-test-compile" description="junit">
+		<!-- 
 		<delete>
 			<fileset dir="${test.classes.dir}">
-				<include name="**/DiscoverTest*" />
-				<include name="**/NetworkAgentAddressCoherencyTest*" />
-				<include name="**/sendReplyAfterDeconnection*" />
-				<include name="**/NetworkReplyingSystemTest*" />
-				<include name="**/MadkitClassLoaderTest*" />
-				<include name="**/CreateLogFilesTest*" />
-				<include name="**/DuplicateNamesTest*" />
-				<include name="**/HelpMenuTest*" />
 			</fileset>
 		</delete>
+		
+		-->
 
 		<!-- copy resources -->
 		<copy todir="${test.classes.dir}" overwrite="false">
@@ -413,7 +402,7 @@
 			<!-- ================================= 
           target:      ftp-push-test        
          ================================= -->
-			<target name="ftp-push-test" depends="junit">
+			<target name="ftp-push-test" depends="test">
 				<loadproperties srcFile="${server.info.dir}/MDK.net" />
 				<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="mkdir" remotedir="${test.ftp.dir}" verbose="yes" />
 				<ftp server="${ftp.server}" userid="${ftp.user}" password="${ftp.password}" action="put" remotedir="${test.ftp.dir}">

@@ -191,13 +191,13 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 			
 			if (hproperties.enableEncryption)
 			{
-				mySecretKeyForEncryption=keyWrapper.unwrapKey(myKeyPairForEncryption.getASymmetricPrivateKey(), askMessage.getSecretKeyForEncryption(), symmetricEncryptionType, secretKeySizeBits);
+				mySecretKeyForEncryption=keyWrapper.unwrapKey(myKeyPairForEncryption.getASymmetricPrivateKey(), askMessage.getSecretKeyForEncryption());
 				symmetricAlgorithm=new SymmetricEncryptionAlgorithm(approvedRandom, mySecretKeyForEncryption);
 			}
 			else
 				mySecretKeyForEncryption=null;
 			
-			mySecretKeyForSignature=keyWrapper.unwrapKey(myKeyPairForEncryption.getASymmetricPrivateKey(), askMessage.getSecretKeyForSignature(), signatureType, secretKeySizeBits);
+			mySecretKeyForSignature=keyWrapper.unwrapKey(myKeyPairForEncryption.getASymmetricPrivateKey(), askMessage.getSecretKeyForSignature());
 			
 			signer = new SymmetricAuthentifiedSignerAlgorithm(mySecretKeyForSignature);
 			signatureChecker = new SymmetricAuthentifiedSignatureCheckerAlgorithm(mySecretKeyForSignature);

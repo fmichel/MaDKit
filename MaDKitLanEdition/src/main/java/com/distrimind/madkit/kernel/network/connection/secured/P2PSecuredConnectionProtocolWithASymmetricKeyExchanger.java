@@ -277,7 +277,7 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 	private void decodeSecretKey(byte[] _secret_key) throws ConnectionException {
 		try {
 			
-			secret_key = keyWrapper.unwrapKey(myKeyPairForEncryption.getASymmetricPrivateKey(), _secret_key, hproperties.symmetricEncryptionType, hproperties.SymmetricKeySizeBits);
+			secret_key = keyWrapper.unwrapKey(myKeyPairForEncryption.getASymmetricPrivateKey(), _secret_key);
 			symmetricAlgorithm = new SymmetricEncryptionAlgorithm(approvedRandom, secret_key);
 		} catch (InvalidKeyException | InvalidAlgorithmParameterException | IOException | NoSuchAlgorithmException
 				| NoSuchPaddingException | NoSuchProviderException

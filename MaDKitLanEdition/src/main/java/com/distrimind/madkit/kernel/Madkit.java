@@ -118,8 +118,8 @@ final public class Madkit {
 		Calendar c = Calendar.getInstance();
 		c.set(2015, 4, 22);
 		Calendar c2 = Calendar.getInstance();
-		c2.set(2017, 9, 6);
-		Version VERSION = new Version("MadkitLanEdition", "MKLE", 1, 4, 0, Version.Type.Stable, 1, c.getTime(), c2.getTime());
+		c2.set(2017, 9, 23);
+		Version VERSION = new Version("MadkitLanEdition", "MKLE", 1, 4, 1, Version.Type.Stable, 1, c.getTime(), c2.getTime());
 		try {
 
 			InputStream is = Madkit.class.getResourceAsStream("build.txt");
@@ -141,8 +141,14 @@ final public class Madkit {
 			VERSION.addDeveloper(new PersonDeveloper("Ferber", "Jacques", c.getTime()));
 
 			c = Calendar.getInstance();
+			c.set(2017, 9, 23);
+			Description d = new Description(1, 4, 1, Version.Type.Stable, 1, c.getTime());
+			d.addItem("Updating OOD to 2.0.0 Beta 50");
+			VERSION.addDescription(d);
+
+			c = Calendar.getInstance();
 			c.set(2017, 9, 13);
-			Description d = new Description(1, 4, 0, Version.Type.Stable, 1, c.getTime());
+			d = new Description(1, 4, 0, Version.Type.Stable, 1, c.getTime());
 			d.addItem("Updating OOD to 2.0.0 Beta 48");
 			d.addItem("Several modifications into connection and access protocols");
 			d.addItem("Adding approved randoms parameters into MadkitProperties");

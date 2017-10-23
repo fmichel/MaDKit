@@ -1506,7 +1506,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 							else
 							{
 								idDist.setLastPointToPointTransferedBlockChecker(null);
-								idLocal.setLastPointToPointTransferedBlockChecker(null);
+								idLocal.setLastPointToPointTransferedBlockChecker(null);	
 							}
 						}
 					}

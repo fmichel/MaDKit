@@ -48,7 +48,7 @@ import com.distrimind.util.Bits;
  * @since MadkitLanEdition 1.0
  */
 public final class Block {
-	static final int BLOCK_SIZE_LIMIT = 0xFFFF;
+	public static final int BLOCK_SIZE_LIMIT = 0x200000;
 
 	private final byte[] block;
 	private int transfert_type;
@@ -60,14 +60,29 @@ public final class Block {
 					"This block has a size (" + size + ") greater than the size limit : " + BLOCK_SIZE_LIMIT);
 		block = new byte[size];
 		transfert_type = _transfert_type;
-		Bits.putShort(block, 0, (short) block.length);
-		Bits.putInt(block, 2, transfert_type);
+		putShortInt(block, 0, block.length);
+		Bits.putInt(block, 3, transfert_type);
 		try {
 			System.arraycopy(_packet_part.getBytes(), 0, block, _structure.initial_packet_offset,
 					_packet_part.getBytes().length);
 		} catch (Exception e) {
 			throw new PacketException(e);
 		}
+	}
+	
+	
+	
+	static void putShortInt(byte[] b, int off, int val) {
+		if (val>BLOCK_SIZE_LIMIT)
+			throw new IllegalArgumentException("val cannot be greater than "+0xFFFFFF);
+		if (val<0)
+			throw new IllegalArgumentException("val cannot be negative");
+		b[off + 2] = (byte) (val);
+		b[off + 1] = (byte) (val >>> 8);
+		b[off] = (byte) (val >>> 16);
+	}
+	static int getShortInt(byte[] b, int off) {
+		return ((b[off + 2] & 0xFF)) + ((b[off + 1] & 0xFF) << 8) + ((b[off] & 0xFF) << 16);
 	}
 
 	public Block(byte _block[], SubBlocksStructure _structure, int _transfert_type) throws PacketException {
@@ -77,8 +92,8 @@ public final class Block {
 					"This block has a size (" + size + ") greater than the size limit : " + BLOCK_SIZE_LIMIT);
 		block = _block;
 		transfert_type = _transfert_type;
-		Bits.putShort(block, 0, (short) block.length);
-		Bits.putInt(block, 2, transfert_type);
+		putShortInt(block, 0, block.length);
+		Bits.putInt(block, 3, transfert_type);
 	}
 
 	public Block(byte _block[]) throws PacketException {
@@ -93,10 +108,13 @@ public final class Block {
 		if (size > BLOCK_SIZE_LIMIT)
 			throw new PacketException(
 					"This block has a size (" + size + ") greater than the size limit : " + BLOCK_SIZE_LIMIT);
+		if (size < 0)
+			throw new PacketException(
+					"This block has a size (" + size + ") lower than 0");
 		if (size != _block.length)
 			throw new PacketException(
 					"The given block as an invalid size (readed: " + size + "; block size: " + _block.length + ")");
-		transfert_type = Bits.getInt(block, 2);
+		transfert_type = Bits.getInt(block, 3);
 	}
 
 	public Block(int block_size, int _transfert_type) throws PacketException {
@@ -107,8 +125,8 @@ public final class Block {
 			throw new PacketException(
 					"block_size must be greater than getHeadSize() and lower or equal than getMaximumBlockSize()");
 		block = new byte[block_size];
-		Bits.putShort(block, 0, (short) block.length);
-		Bits.putInt(block, 2, _transfert_type);
+		putShortInt(block, 0, block.length);
+		Bits.putInt(block, 3, _transfert_type);
 		transfert_type = _transfert_type;
 	}
 
@@ -117,7 +135,7 @@ public final class Block {
 	}
 
 	public static int getHeadSize() {
-		return 6;
+		return 7;
 	}
 
 	public boolean isDirect() {
@@ -134,7 +152,7 @@ public final class Block {
 
 	public void setTransfertID(int _id) {
 		transfert_type = _id;
-		Bits.putInt(block, 2, _id);
+		Bits.putInt(block, 3, _id);
 	}
 
 	public int getBlockSize() {
@@ -142,12 +160,12 @@ public final class Block {
 	}
 
 	public static int getBlockSize(byte[] _bytes, int offset) {
-		short s = Bits.getShort(_bytes, offset);
-		return s & 0xFFFF;
+		int s = getShortInt(_bytes, offset);
+		return s;
 	}
 
 	public static int getMaximumBlockSize() {
-		return 0xFFFF;
+		return BLOCK_SIZE_LIMIT;
 	}
 
 	public static int getMaximumBlockContentSize() {

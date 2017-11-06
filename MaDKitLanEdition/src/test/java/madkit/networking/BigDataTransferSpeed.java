@@ -35,20 +35,24 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C license and that you accept its terms.
  */
-
 package madkit.networking;
 
+import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
 import org.junit.Test;
+import org.testng.Assert;
 
+import com.distrimind.madkit.io.RandomByteArrayInputStream;
 import com.distrimind.madkit.kernel.AbstractAgent;
 import com.distrimind.madkit.kernel.AgentAddress;
+import com.distrimind.madkit.kernel.BigDataResultMessage;
 import com.distrimind.madkit.kernel.JunitMadkit;
 import com.distrimind.madkit.kernel.MadkitEventListener;
 import com.distrimind.madkit.kernel.MadkitProperties;
@@ -61,26 +65,22 @@ import com.distrimind.madkit.kernel.network.DoubleIP;
 import com.distrimind.madkit.kernel.network.NetworkEventListener;
 import com.distrimind.madkit.kernel.network.connection.access.AbstractAccessProtocolProperties;
 import com.distrimind.madkit.kernel.network.connection.access.AccessProtocolWithJPakeProperties;
-import com.distrimind.madkit.kernel.network.connection.unsecured.UnsecuredConnectionProtocolProperties;
-import com.distrimind.madkit.testing.util.agent.ForEverOnTheSameAASenderAgent;
+import com.distrimind.madkit.kernel.network.connection.secured.P2PSecuredConnectionProtocolWithECDHAlgorithmProperties;
+import com.distrimind.madkit.testing.util.agent.BigDataTransferReceiverAgent;
 import com.distrimind.madkit.testing.util.agent.NormalAgent;
 
 /**
- * @author Fabien Michel
  * @author Jason Mahdjoub
- * @since MaDKit 5.0.0.9
- * @since MadkitLanEdition 1.0
+ * @since MadkitLanEdition 1.5
  * @version 1.0
  * 
  */
-
-public class NetworkSpeed extends JunitMadkit {
-
+public class BigDataTransferSpeed extends JunitMadkit {
 	final MadkitEventListener eventListener1;
 	final NetworkEventListener eventListener2;
-	final ForEverOnTheSameAASenderAgent forEventAgent1;
+	final BigDataTransferReceiverAgent bigDataTransferAgent;
 
-	public NetworkSpeed() throws UnknownHostException {
+	public BigDataTransferSpeed() throws UnknownHostException {
 
 		this.eventListener1 = new MadkitEventListener() {
 
@@ -90,7 +90,7 @@ public class NetworkSpeed extends JunitMadkit {
 
 				try {
 					new NetworkEventListener(true, false, false, null,
-							new ConnectionsProtocolsMKEventListener(new UnsecuredConnectionProtocolProperties()),
+							new ConnectionsProtocolsMKEventListener(new P2PSecuredConnectionProtocolWithECDHAlgorithmProperties()),
 							new AccessProtocolPropertiesMKEventListener(app),
 							new AccessDataMKEventListener(AccessDataMKEventListener.getDefaultAccessData(GROUP)), 5000,
 							null, InetAddress.getByName("0.0.0.0")).onMadkitPropertiesLoaded(_properties);
@@ -98,88 +98,56 @@ public class NetworkSpeed extends JunitMadkit {
 					e.printStackTrace();
 				}
 				_properties.networkProperties.networkLogLevel = Level.INFO;
+				_properties.networkProperties.maxBufferSize=Short.MAX_VALUE;
 			}
 		};
 
-		UnsecuredConnectionProtocolProperties u = new UnsecuredConnectionProtocolProperties();
+		P2PSecuredConnectionProtocolWithECDHAlgorithmProperties u = new P2PSecuredConnectionProtocolWithECDHAlgorithmProperties();
 		u.isServer = false;
 
 		AbstractAccessProtocolProperties app = new AccessProtocolWithJPakeProperties();
-
+		
 		this.eventListener2 = new NetworkEventListener(true, false, false, null,
 				new ConnectionsProtocolsMKEventListener(u), new AccessProtocolPropertiesMKEventListener(app),
 				new AccessDataMKEventListener(AccessDataMKEventListener.getDefaultAccessData(GROUP)), 5000,
 				Arrays.asList((AbstractIP) new DoubleIP(5000, (Inet4Address) InetAddress.getByName("127.0.0.1"),
 						(Inet6Address) InetAddress.getByName("::1"))),
 				InetAddress.getByName("0.0.0.0"));
-		forEventAgent1 = new ForEverOnTheSameAASenderAgent(1000, 1500);
-
+		this.eventListener2.maxBufferSize=Short.MAX_VALUE;
+		bigDataTransferAgent = new BigDataTransferReceiverAgent();
 	}
 
 	@Test
-	public void networkPingPong() {
-
+	public void bigDataTransfer() {
+		final AtomicBoolean transfered=new AtomicBoolean(false);
 		// addMadkitArgs("--kernelLogLevel",Level.INFO.toString(),"--networkLogLevel",Level.FINEST.toString());
 		launchTest(new NormalAgent() {
 			@Override
 			protected void activate() throws InterruptedException {
 				setLogLevel(Level.OFF);
 				requestRole(GROUP, ROLE);
-				launchThreadedMKNetworkInstance(Level.INFO, AbstractAgent.class, forEventAgent1, eventListener2);
-
-				// launchCustomNetworkInstance(Level.OFF, ForEverOnTheSameAASenderAgent.class);
-				AgentAddress aa = waitNextMessage().getSender();
-				Message m = null;
-				for (int i = 0; i < 100; i++) {
-					startTimer();
-					sendMessage(aa, new Message());
-					m = waitNextMessage();
-					stopTimer("");
+				launchThreadedMKNetworkInstance(Level.INFO, AbstractAgent.class, bigDataTransferAgent, eventListener2);
+				sleep(2000);
+				
+				AgentAddress aa=getAgentsWithRole(GROUP, ROLE).iterator().next();
+				
+				try {
+					this.sendBigData(aa, new RandomByteArrayInputStream(new byte[400000000]));
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
-				System.err.println(m);
+				Message m=this.waitNextMessage(60000);
+				transfered.set(m!=null && m instanceof BigDataResultMessage && ((BigDataResultMessage)m).getType()==BigDataResultMessage.Type.BIG_DATA_TRANSFERED);
+				Assert.assertTrue(transfered.get(), ""+m);
 			}
 
 			@Override
-			protected void liveCycle() {
+			protected void liveCycle() throws InterruptedException {
 				this.killAgent(this);
-
 			}
 		}, eventListener1);
+		Assert.assertTrue(transfered.get());
 		cleanHelperMDKs();
 	}
-
-	@Test
-	public void internal() {
-		final int nbOfExchanges = 100000;
-		addMadkitArgs("--network", "false", "--kernelLogLevel", Level.INFO.toString(), "--networkLogLevel",
-				Level.INFO.toString());
-		launchTest(new NormalAgent() {
-			@Override
-			protected void activate() throws InterruptedException {
-				setLogLevel(Level.OFF);
-				requestRole(GROUP, ROLE);
-				ForEverOnTheSameAASenderAgent a;
-				launchAgent(a = new ForEverOnTheSameAASenderAgent(nbOfExchanges, 0));
-				a.setLogLevel(Level.OFF);
-				AgentAddress aa = waitNextMessage().getSender();
-				Message m = null;
-				startTimer();
-				for (int i = 0; i < nbOfExchanges; i++) {
-					sendMessage(aa, new Message());
-					m = waitNextMessage();
-				}
-				stopTimer("for " + nbOfExchanges + " messages exchanged ");
-				System.err.println(m);
-			}
-
-			@Override
-			protected void liveCycle() {
-				this.killAgent(this);
-			}
-
-		});
-	}
-	
-	
 
 }

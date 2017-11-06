@@ -126,4 +126,9 @@ public final class BigDataResultMessage extends Message {
 		 */
 		BIG_DATA_TRANSFER_DENIED
 	}
+	
+	public String toString()
+	{
+		return "BigDataResultMessage[type="+type+", dataTransferedInBytes="+getTransferedDataLength()+", durationInMs="+getTransferDuration()+"]";
+	}
 }

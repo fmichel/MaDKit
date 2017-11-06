@@ -350,7 +350,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 			max_buffer_size = getMadkitConfig().networkProperties.maxBufferSize;
 			if (max_buffer_size <= 0)
 				throw new IllegalArgumentException("The buffer size must be greater than 0");
-			short max = SubBlocksStructure.getAbsoluteMaximumBufferSize(connection_protocol);
+			int max = SubBlocksStructure.getAbsoluteMaximumBufferSize(connection_protocol);
 			if (max <= 0)
 				throw new IllegalArgumentException(
 						String.format(AgentSocketMessage.TO_MUCH_BYTE_CONNEC_PROTOCOL.toString(),
@@ -361,7 +361,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 						String.format(AgentSocketMessage.BUFFER_SIZE_TO_BIG_CONSIDERING_CONNEC_PROTOCOL.toString(),
 								new Integer(max), new Integer(max_buffer_size)));
 			max_block_size = SubBlocksStructure.getAbsoluteMaximumBlockSize(connection_protocol, max_buffer_size);
-			if (max_block_size > 0xFFFF)
+			if (max_block_size > Block.BLOCK_SIZE_LIMIT)
 				throw new NIOException(new UnexpectedException(AgentSocketMessage.UNEXPECTED_EXCEPTION.toString()));
 			// defining the block size and the packet offset
 			boolean nr = false;

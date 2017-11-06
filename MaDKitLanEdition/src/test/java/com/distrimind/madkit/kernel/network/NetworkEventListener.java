@@ -79,6 +79,7 @@ public class NetworkEventListener implements MadkitEventListener {
 	private Integer globalDataAmountAcc = null;
 	private int gatewayDepth = 1;
 	public long durationBeforeCancelingTransferConnection = 20000l;
+	public int maxBufferSize=Short.MAX_VALUE;
 
 	public void setGatewayDepth(int gatewayDepth) {
 		this.gatewayDepth = gatewayDepth;
@@ -194,6 +195,7 @@ public class NetworkEventListener implements MadkitEventListener {
 			this.madkitEventListenerForAccessProtocols.onMadkitPropertiesLoaded(_properties);
 		if (this.madkitEventListenerForAccessData != null)
 			this.madkitEventListenerForAccessData.onMadkitPropertiesLoaded(_properties);
+		_properties.networkProperties.maxBufferSize=maxBufferSize;
 	}
 
 	public static ArrayList<NetworkEventListener> getNetworkEventListenersForPeerToPeerConnectionsWithRandomProperties(

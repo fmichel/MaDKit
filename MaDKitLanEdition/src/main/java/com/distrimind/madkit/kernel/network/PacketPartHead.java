@@ -68,7 +68,7 @@ final class PacketPartHead {
 
 	private final byte type;
 	private final int id;
-	private final short data_size;
+	private final int data_size;
 
 	private final long start_position;
 	private final long total_length;
@@ -76,17 +76,17 @@ final class PacketPartHead {
 	PacketPartHead(byte[] _part) {
 		type = _part[0];
 		id = Bits.getInt(_part, 1);
-		data_size = Bits.getShort(_part, 5);
+		data_size = Block.getShortInt(_part, 5);
 		if (isFirstPacketPart()) {
-			total_length = Bits.getLong(_part, 7);
-			start_position = Bits.getLong(_part, 15);
+			total_length = Bits.getLong(_part, 8);
+			start_position = Bits.getLong(_part, 16);
 		} else {
 			total_length = -1;
 			start_position = -1;
 		}
 	}
 
-	PacketPartHead(byte type, int id, short data_size, long total_length, long start_position) {
+	PacketPartHead(byte type, int id, int data_size, long total_length, long start_position) {
 		this.type = type;
 		this.id = id;
 		this.data_size = data_size;
@@ -108,7 +108,7 @@ final class PacketPartHead {
 			return "PacketPartHead[type=" + getTypePacket(type) + ", id=" + id + ", dataSize" + data_size + "]";
 	}
 
-	public short getDataSize() {
+	public int getDataSize() {
 		return data_size;
 	}
 
@@ -150,9 +150,9 @@ final class PacketPartHead {
 
 	public static int getHeadSize(boolean first_packet) {
 		if (first_packet)
-			return 23;
+			return 24;
 		else
-			return 7;
+			return 8;
 	}
 
 }

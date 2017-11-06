@@ -140,9 +140,10 @@ public class NetworkProperties extends XMLProperties {
 
 	/**
 	 * The maximum buffer size used to make packets. Notice that packet size are
-	 * variable. This value cannot be greater than {@link Short#MAX_VALUE}.
+	 * variable. This value cannot be greater than {@link Block#BLOCK_SIZE_LIMIT}.
 	 */
-	public short maxBufferSize = Short.MAX_VALUE;
+	public int maxBufferSize = Short.MAX_VALUE;
+	
 
 	/**
 	 * The maximum number of random bits introduced into each packet in order to

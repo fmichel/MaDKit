@@ -35,65 +35,66 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C license and that you accept its terms.
  */
-package com.distrimind.madkit.kernel.network.connection.unsecured;
+package com.distrimind.madkit.testing.util.agent;
 
-import com.distrimind.madkit.exceptions.ConnectionException;
-import com.distrimind.madkit.kernel.network.connection.ConnectionProtocolProperties;
-import com.distrimind.util.crypto.MessageDigestType;
+import static com.distrimind.madkit.kernel.JunitMadkit.GROUP;
+import static com.distrimind.madkit.kernel.JunitMadkit.ROLE;
+
+import com.distrimind.madkit.io.RandomByteArrayOutputStream;
+import com.distrimind.madkit.kernel.Agent;
+import com.distrimind.madkit.kernel.BigDataPropositionMessage;
+import com.distrimind.madkit.kernel.BigDataResultMessage;
+import com.distrimind.madkit.kernel.Message;
 
 /**
- * Represents a connection protocol that check the data validity thanks to a
- * message digest
- * 
- * 
  * @author Jason Mahdjoub
+ * @since MadkitLanEdition 1.5
  * @version 1.0
- * @since MadkitLanEdition 1.0
+ * 
  */
-public class CheckSumConnectionProtocolProperties extends ConnectionProtocolProperties<CheckSumConnectionProtocol> {
+public class BigDataTransferReceiverAgent extends Agent {
 
-	public CheckSumConnectionProtocolProperties() {
-		super(CheckSumConnectionProtocol.class);
-	}
+	public BigDataTransferReceiverAgent() {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 8445859392389250136L;
-
-	/**
-	 * Message digest type, used to check the validity of transfered data
-	 */
-	public MessageDigestType messageDigestType = MessageDigestType.BC_BLAKE2B_512;
-
-	/**
-	 * Tells if the current peer can receive an ask for connection.
-	 */
-	public boolean isServer = true;
-
-	@Override
-	protected boolean needsServerSocketImpl() {
-		return isServer;
-	}
-
-	void checkProperties() throws ConnectionException {
-		if (messageDigestType == null)
-			throw new ConnectionException("messageDigestType cannot be null");
 	}
 
 	@Override
-	public boolean canTakeConnectionInitiativeImpl() {
-		return true;
+	protected void activate() throws InterruptedException {
+
+		requestRole(GROUP, ROLE);
 	}
 
 	@Override
-	public boolean supportBidirectionnalConnectionInitiativeImpl() {
-		return true;
-	}
-
-	@Override
-	protected boolean canBeServer() {
-		return isServer;
+	protected void liveCycle() throws InterruptedException {
+		Message m = waitNextMessage(10000);
+		if (m instanceof BigDataPropositionMessage)
+		{
+			System.out.println("receiving big data proposition message");
+			((BigDataPropositionMessage) m).acceptTransfer(new RandomByteArrayOutputStream());
+			m = waitNextMessage(60000);
+			if (m instanceof BigDataResultMessage)
+			{
+				BigDataResultMessage rm=((BigDataResultMessage) m);
+				if (rm.getType()==BigDataResultMessage.Type.BIG_DATA_TRANSFERED)
+				{
+					System.out.println(rm.getTransferedDataLength() +" bytes transfered in "+rm.getTransferDuration()+" ms");
+					System.out.println("Transfer speed (MiO per seconds) : "+(((double)rm.getTransferedDataLength())/(((double)rm.getTransferDuration())/1000.0)/1024.0/1024.0));
+				}
+				else
+					System.err.println("Problem during transfer : "+rm.getType());
+				this.killAgent(this);
+			}
+			else
+			{
+				System.err.println("Unexpected message :"+m);
+				this.killAgent(this);
+			}
+		}
+		else
+		{
+			System.err.println("Unexpected message :"+m);
+			this.killAgent(this);
+		}
 	}
 
 }

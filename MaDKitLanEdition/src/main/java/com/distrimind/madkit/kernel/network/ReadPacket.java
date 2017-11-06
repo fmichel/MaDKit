@@ -76,7 +76,7 @@ final class ReadPacket {
 
 	private final RandomOutputStream output_stream;
 
-	public ReadPacket(short max_buffer_size, short max_random_values, PacketPart _first_part,
+	public ReadPacket(int max_buffer_size, short max_random_values, PacketPart _first_part,
 			RandomOutputStream _output_stream, MessageDigestType messageDigestType) throws PacketException {
 		if (_first_part == null)
 			throw new NullPointerException("_first_part");

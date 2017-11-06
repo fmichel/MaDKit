@@ -46,6 +46,8 @@ import com.distrimind.madkit.exceptions.BlockParserException;
  * @since MadkitLanEdition 1.0
  */
 public abstract class SubBlockParser {
+	
+	
 	public abstract SubBlockInfo getSubBlock(SubBlock _block) throws BlockParserException;
 
 	public abstract SubBlock getParentBlock(SubBlock _block) throws BlockParserException;

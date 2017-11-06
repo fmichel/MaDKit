@@ -51,7 +51,7 @@ public final class PacketPart {
 	private final PacketPartHead head;
 	private final boolean isReadyToSend;
 
-	public PacketPart(byte[] _part, short max_buffer_size, short random_values_size) {
+	public PacketPart(byte[] _part, int max_buffer_size, short random_values_size) {
 		bytes = ReadPacket
 				.getByteTabInputStream(_part, WritePacket.getRandomValueSize(max_buffer_size, random_values_size))
 				.getBytesArray();

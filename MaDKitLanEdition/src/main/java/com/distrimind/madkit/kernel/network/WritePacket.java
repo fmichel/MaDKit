@@ -46,6 +46,7 @@ import com.distrimind.madkit.io.RandomFileInputStream;
 import com.distrimind.madkit.io.RandomInputStream;
 import com.distrimind.util.Bits;
 import com.distrimind.util.crypto.AbstractMessageDigest;
+import com.distrimind.util.crypto.AbstractSecureRandom;
 import com.distrimind.util.crypto.MessageDigestType;
 
 import gnu.vm.jgnu.security.DigestException;
@@ -65,38 +66,38 @@ public final class WritePacket {
 	private final int id_packet;
 	private final long start_position;
 	private volatile long current_pos = 0;
-	protected final short max_buffer_size;
+	protected final int max_buffer_size;
 	private final long data_length;
 	private final long data_length_with_message_digest;
 	private final boolean redownloaded;
 	private boolean finished = false;
 	private final boolean transfert_as_big_data;
 	private final short random_values_size;
-	private final Random random;
+	private final AbstractSecureRandom random;
 
-	public WritePacket(int _type, int _id_packet, short _max_buffer_size, short random_values_size, Random rand,
+	public WritePacket(int _type, int _id_packet, int _max_buffer_size, short random_values_size, AbstractSecureRandom rand,
 			RandomInputStream _input_stream) throws PacketException, IOException {
 		this(_type, _id_packet, _max_buffer_size, random_values_size, rand, _input_stream, 0, _input_stream.length());
 	}
 
-	public WritePacket(int _type, int _id_packet, short _max_buffer_size, short random_values_size, Random rand,
+	public WritePacket(int _type, int _id_packet, int _max_buffer_size, short random_values_size, AbstractSecureRandom rand,
 			RandomInputStream _input_stream, MessageDigestType messageDigestType) throws PacketException, IOException {
 		this(_type, _id_packet, _max_buffer_size, random_values_size, rand, _input_stream, 0, _input_stream.length(),
 				_input_stream instanceof RandomFileInputStream, messageDigestType);
 	}
 
-	public WritePacket(int _type, int _id_packet, short _max_buffer_size, short random_values_size, Random rand,
+	public WritePacket(int _type, int _id_packet, int _max_buffer_size, short random_values_size, AbstractSecureRandom rand,
 			RandomInputStream _input_stream, long _data_length) throws PacketException {
 		this(_type, _id_packet, _max_buffer_size, random_values_size, rand, _input_stream, 0, _data_length);
 	}
 
-	public WritePacket(int _type, int _id_packet, short _max_buffer_size, short random_values_size, Random rand,
+	public WritePacket(int _type, int _id_packet, int _max_buffer_size, short random_values_size, AbstractSecureRandom rand,
 			RandomInputStream _input_stream, long _start_position, long length) throws PacketException {
 		this(_type, _id_packet, _max_buffer_size, random_values_size, rand, _input_stream, _start_position, length,
 				_input_stream instanceof RandomFileInputStream, null);
 	}
 
-	public WritePacket(int _type, int _id_packet, short _max_buffer_size, short random_values_size, Random rand,
+	public WritePacket(int _type, int _id_packet, int _max_buffer_size, short random_values_size, AbstractSecureRandom rand,
 			RandomInputStream _input_stream, long _start_position, long length, boolean _transfert_as_big_data,
 			MessageDigestType messageDigestType) throws PacketException {
 		if ((_type & PacketPartHead.TYPE_PACKET) != PacketPartHead.TYPE_PACKET)
@@ -144,7 +145,7 @@ public final class WritePacket {
 		transfert_as_big_data = _transfert_as_big_data;
 	}
 
-	static short getRandomValueSize(short max_buffer_size, short random_values_size) {
+	static short getRandomValueSize(int max_buffer_size, short random_values_size) {
 		if (random_values_size > getMiniRandomValueSize()) {
 			if (random_values_size < getMaximumGlobalRandomValues(max_buffer_size))
 				return random_values_size;
@@ -154,7 +155,7 @@ public final class WritePacket {
 			return 0;
 	}
 
-	static protected short getMiniRandomValueSize() {
+	static protected int getMiniRandomValueSize() {
 		return 3;
 	}
 
@@ -176,8 +177,8 @@ public final class WritePacket {
 		return (byte) ((val & 255) & ((1 << getMaximumLocalRandomValuesBitsNumber()) - 1));
 	}
 
-	static protected short getMaximumGlobalRandomValues(short _max_buffer_size) {
-		return (short) (_max_buffer_size / 2);
+	static protected short getMaximumGlobalRandomValues(int _max_buffer_size) {
+		return (short) Math.min(_max_buffer_size / 2, Short.MAX_VALUE);
 	}
 
 	public long getDataLengthWithHashIncluded() {
@@ -206,13 +207,15 @@ public final class WritePacket {
 		}
 		if (last_packet)
 			type |= PacketPartHead.TYPE_PACKET_LAST;
-		tab.writeData(type);
+		tab.writeHead(type, this);
+		/*tab.writeData(type);
 		tab.writeInt(id_packet);
-		tab.writeShort(tab.getRealDataSizeWithoutPacketHeadSize());
+		
+		tab.writeShortInt(tab.getRealDataSizeWithoutPacketHeadSize());
 		if (current_pos == start_position) {
 			tab.writeLong(data_length_with_message_digest);
 			tab.writeLong(start_position);
-		}
+		}*/
 		return new PacketPartHead(type, id_packet, tab.getRealDataSizeWithoutPacketHeadSize(), data_length,
 				start_position);
 	}
@@ -322,7 +325,7 @@ public final class WritePacket {
 			this.messageDigest = messageDigest;
 		}
 
-		abstract boolean writeData(byte d);
+		//abstract boolean writeData(byte d);
 
 		abstract int writeData(byte[] d, int offset, int size);
 
@@ -334,9 +337,10 @@ public final class WritePacket {
 
 		abstract int getRealDataSize();
 
-		abstract short getRealDataSizeWithoutPacketHeadSize();
+		abstract int getRealDataSizeWithoutPacketHeadSize();
 
-		boolean writeInt(int _value) {
+		
+		/*boolean writeInt(int _value) {
 			byte b[] = new byte[4];
 			Bits.putInt(b, 0, _value);
 			return writeData(b, 0, 4) == 4;
@@ -347,13 +351,37 @@ public final class WritePacket {
 			Bits.putShort(b, 0, _value);
 			return writeData(b, 0, 2) == 2;
 		}
+		boolean writeShortInt(int _value) {
+			byte b[] = new byte[3];
+			Block.putShortInt(b, 0, _value);
+			return writeData(b, 0, 3) == 3;
+		}
 
 		boolean writeLong(long _value) {
 			byte b[] = new byte[8];
 			Bits.putLong(b, 0, _value);
 			return writeData(b, 0, 8) == 8;
-		}
+		}*/
 
+		private static final byte[] tmpByteTab=new byte[24];
+		
+		void writeHead(byte type, WritePacket wp)
+		{
+			synchronized(tmpByteTab)
+			{
+				tmpByteTab[0]=type;
+				Bits.putInt(tmpByteTab, 1, wp.id_packet);
+				Block.putShortInt(tmpByteTab, 5, getRealDataSizeWithoutPacketHeadSize());
+				if (wp.current_pos == wp.start_position) {
+					Bits.putLong(tmpByteTab, 8, wp.data_length_with_message_digest);
+					Bits.putLong(tmpByteTab, 16, wp.start_position);
+					writeData(tmpByteTab, 0, 24);
+				}
+				else
+					writeData(tmpByteTab, 0, 8);
+			}
+		}
+		
 		void disableMessageDigest() {
 			messageDigest = null;
 		}
@@ -363,7 +391,7 @@ public final class WritePacket {
 	}
 
 	protected static AbstractByteTabOutputStream getByteTabOutputStream(AbstractMessageDigest messageDigest,
-			short max_buffer_size, int packet_head_size, long _data_remaining, short random_values_size, Random rand) {
+			int max_buffer_size, int packet_head_size, long _data_remaining, short random_values_size, AbstractSecureRandom rand) {
 		if (random_values_size == 0)
 			return new ByteTabOutputStream(messageDigest, max_buffer_size, packet_head_size, _data_remaining);
 		else
@@ -374,9 +402,9 @@ public final class WritePacket {
 	protected static class ByteTabOutputStream extends AbstractByteTabOutputStream {
 		private final byte[] tab;
 		private int cursor;
-		private final short realDataSize_WithoutHead;
+		private final int realDataSize_WithoutHead;
 
-		ByteTabOutputStream(AbstractMessageDigest messageDigest, short max_buffer_size, int packet_head_size,
+		ByteTabOutputStream(AbstractMessageDigest messageDigest, int max_buffer_size, int packet_head_size,
 				long _data_remaining) {
 			super(messageDigest);
 			/*
@@ -384,7 +412,7 @@ public final class WritePacket {
 			 * int size=(int)(realDataSize_WithoutHead+packet_head_size); tab=new
 			 * byte[size];
 			 */
-			realDataSize_WithoutHead = (short) Math.min(_data_remaining, max_buffer_size);
+			realDataSize_WithoutHead = (int)Math.min(_data_remaining, max_buffer_size);
 			int size = packet_head_size + ((int) realDataSize_WithoutHead);
 			tab = new byte[size];
 			cursor = 0;
@@ -395,7 +423,7 @@ public final class WritePacket {
 			return cursor;
 		}
 
-		@Override
+		/*@Override
 		boolean writeData(byte _d) {
 			if (cursor >= tab.length)
 				return false;
@@ -403,7 +431,7 @@ public final class WritePacket {
 			if (messageDigest != null)
 				messageDigest.update(_d);
 			return true;
-		}
+		}*/
 
 		@Override
 		int writeData(byte[] _d, int _offset, int size) {
@@ -438,30 +466,30 @@ public final class WritePacket {
 		}
 
 		@Override
-		short getRealDataSizeWithoutPacketHeadSize() {
+		int getRealDataSizeWithoutPacketHeadSize() {
 			return realDataSize_WithoutHead;
 		}
 	}
 
 	protected static class ByteTabOutputStreamWithRandomValues extends AbstractByteTabOutputStream {
-		private final Random random;
+		private final AbstractSecureRandom random;
 		private final byte[] tab;
 		private final short random_values_size;
 		private short random_values_size_remaining;
 		private int data_size;
 		private int cursor;
 		private int nextRandValuePos;
-		private final short realDataSize_WithoutHead;
+		private final int realDataSize_WithoutHead;
 		private int randamValuesWrited = 0;
 
-		ByteTabOutputStreamWithRandomValues(AbstractMessageDigest messageDigest, short max_buffer_size,
-				int packet_head_size, long _data_remaining, short max_random_values_size, Random rand) {
+		ByteTabOutputStreamWithRandomValues(AbstractMessageDigest messageDigest, int max_buffer_size,
+				int packet_head_size, long _data_remaining, short max_random_values_size, AbstractSecureRandom rand) {
 			super(messageDigest);
 
 			this.random = rand;
-			short min = getMiniRandomValueSize();
+			int min = getMiniRandomValueSize();
 			if (max_random_values_size >= min)
-				this.random_values_size = (short) (min + rand.nextInt(
+				this.random_values_size = (short)(min + rand.nextInt(
 						Math.min(getMaximumGlobalRandomValues(max_buffer_size), max_random_values_size) - min + 1));
 			else
 				this.random_values_size = 0;
@@ -475,7 +503,7 @@ public final class WritePacket {
 			 */
 			int size = (int) (Math.min(_data_remaining, max_buffer_size));
 			tab = new byte[size + packet_head_size + this.random_values_size];
-			realDataSize_WithoutHead = (short) (size);
+			realDataSize_WithoutHead = size;
 			data_size = tab.length - this.random_values_size;
 			cursor = 0;
 			nextRandValuePos = 0;
@@ -486,12 +514,12 @@ public final class WritePacket {
 			return cursor - randamValuesWrited;
 		}
 
-		@Override
+		/*@Override
 		boolean writeData(byte d) {
 			byte t[] = new byte[1];
 			t[0] = d;
 			return writeData(t, 0, 1) == 1;
-		}
+		}*/
 
 		@Override
 		int writeData(byte[] d, int offset, int size) {
@@ -592,10 +620,11 @@ public final class WritePacket {
 		}
 
 		@Override
-		short getRealDataSizeWithoutPacketHeadSize() {
+		int getRealDataSizeWithoutPacketHeadSize() {
 			return this.realDataSize_WithoutHead;
 		}
 
 	}
 
+	
 }

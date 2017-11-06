@@ -50,7 +50,6 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Random;
 
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -88,6 +87,7 @@ import com.distrimind.ood.database.EmbeddedHSQLDBWrapper;
 import com.distrimind.util.crypto.ASymmetricEncryptionType;
 import com.distrimind.util.crypto.ASymmetricKeyPair;
 import com.distrimind.util.crypto.ASymmetricKeyWrapperType;
+import com.distrimind.util.crypto.AbstractSecureRandom;
 import com.distrimind.util.crypto.MessageDigestType;
 import com.distrimind.util.crypto.SecureRandomType;
 import com.distrimind.util.crypto.SymmetricEncryptionType;
@@ -143,7 +143,18 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 	private final NetworkProperties npasker;
 	private final NetworkProperties npreceiver;
 	private static final MadkitProperties mkProperties=new MadkitProperties();
-	private final static Random rand = new Random(System.currentTimeMillis());
+	private final static AbstractSecureRandom rand ;
+	static
+	{
+		AbstractSecureRandom r=null;
+		try {
+			r=SecureRandomType.DEFAULT.getInstance(null);
+		} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
+			e.printStackTrace();
+			System.exit(-1);
+		}
+		rand=r;
+	}
 
 	private static ArrayList<ConnectionProtocolProperties<?>[]> dataWithSubLevel()
 			throws SecurityException, IllegalArgumentException, NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException {

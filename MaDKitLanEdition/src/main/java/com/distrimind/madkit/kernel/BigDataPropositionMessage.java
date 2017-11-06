@@ -44,6 +44,7 @@ import java.util.concurrent.ExecutionException;
 
 import com.distrimind.madkit.io.RandomInputStream;
 import com.distrimind.madkit.io.RandomOutputStream;
+import com.distrimind.madkit.kernel.network.Block;
 import com.distrimind.madkit.kernel.network.RealTimeTransfertStat;
 import com.distrimind.util.crypto.MessageDigestType;
 
@@ -86,14 +87,16 @@ public final class BigDataPropositionMessage extends Message {
 	private final MessageDigestType messageDigestType;
 
 	BigDataPropositionMessage(RandomInputStream stream, long pos, long length, Serializable attachedData, boolean local,
-			short maxBufferSize, RealTimeTransfertStat stat, MessageDigestType messageDigestType) throws IOException {
+			int maxBufferSize, RealTimeTransfertStat stat, MessageDigestType messageDigestType) throws IOException {
 		if (stream == null)
 			throw new NullPointerException("stream");
 		if (pos >= stream.length())
 			throw new IllegalArgumentException("pos must be lower than stream.length()");
 		if (length > stream.length() - pos)
 			throw new IllegalArgumentException("length cannot be greater than stream.length()-pos");
-
+		if (maxBufferSize>Block.BLOCK_SIZE_LIMIT)
+			throw new IllegalArgumentException();
+		
 		this.pos = pos;
 		this.length = length;
 		this.attachedData = attachedData;

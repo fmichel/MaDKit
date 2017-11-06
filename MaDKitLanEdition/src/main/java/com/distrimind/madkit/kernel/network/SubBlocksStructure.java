@@ -222,8 +222,8 @@ public class SubBlocksStructure {
 		}
 	}
 
-	public static short getAbsoluteMaximumBufferSize(ConnectionProtocol<?> connection_protocol) throws NIOException {
-		int size = 0xFFFF - Block.getHeadSize() - PacketPartHead.getHeadSize(true);
+	public static int getAbsoluteMaximumBufferSize(ConnectionProtocol<?> connection_protocol) throws NIOException {
+		int size = Block.BLOCK_SIZE_LIMIT - Block.getHeadSize() - PacketPartHead.getHeadSize(true);
 		for (Iterator<ConnectionProtocol<?>> it = connection_protocol.iterator(); it.hasNext();) {
 			ConnectionProtocol<?> cp = it.next();
 			SubBlockParser sbp = cp.getParser();
@@ -242,7 +242,7 @@ public class SubBlocksStructure {
 				throw new NIOException(e);
 			}
 		}
-		return (short) Math.min(size, Short.MAX_VALUE);
+		return Math.min(size, Block.BLOCK_SIZE_LIMIT);
 	}
 
 	public static int getAbsoluteMaximumBlockSize(ConnectionProtocol<?> connection_protocol, int max_buffer_size)

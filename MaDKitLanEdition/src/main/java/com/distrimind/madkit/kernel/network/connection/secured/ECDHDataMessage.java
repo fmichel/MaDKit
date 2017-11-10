@@ -10,12 +10,14 @@ public class ECDHDataMessage extends ConnectionMessage {
 	
 	private byte[] dataForEncryption;
 	private byte[] dataForSignature;
+	private byte[] materialKey;
 
 
-	public ECDHDataMessage(byte[] dataForEncryption, byte[] dataForSignature) {
+	public ECDHDataMessage(byte[] dataForEncryption, byte[] dataForSignature, byte[] materialKey) {
 		super();
 		this.dataForEncryption = dataForEncryption;
 		this.dataForSignature = dataForSignature;
+		this.materialKey=materialKey;
 	}
 
 
@@ -28,6 +30,10 @@ public class ECDHDataMessage extends ConnectionMessage {
 		return dataForSignature;
 	}
 
+	public byte[] getMaterialKey()
+	{
+		return materialKey;
+	}
 
 	@Override
 	public Integrity checkDataIntegrity() {

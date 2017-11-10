@@ -70,7 +70,7 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithmProperties extends Con
 	/**
 	 * Elliptic Curve Diffie Hellman Type
 	 */
-	public EllipticCurveDiffieHellmanType ellipticCurveDiffieHellmanType=EllipticCurveDiffieHellmanType.ECDH_128;
+	public EllipticCurveDiffieHellmanType ellipticCurveDiffieHellmanType=EllipticCurveDiffieHellmanType.BC_FIPS_ECDDH_384_AES128;
 	
 	/**
 	 * Symmetric encryption algorithm

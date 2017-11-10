@@ -100,6 +100,7 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 	private final AbstractSecureRandom approvedRandom, approvedRandomForKeys;
 	private boolean blockCheckerChanged = true;
 	private boolean currentBlockCheckerIsNull = true;
+	private byte[] materialKey=null;
 
 	private P2PSecuredConnectionProtocolWithECDHAlgorithm(InetSocketAddress _distant_inet_address,
 			InetSocketAddress _local_interface_address, ConnectionProtocol<?> _subProtocol,
@@ -199,8 +200,10 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 					try {
 						ellipticCurveDiffieHellmanAlgorithmForEncryption.generateAndSetKeyPair();
 						ellipticCurveDiffieHellmanAlgorithmForSignature.generateAndSetKeyPair();
-						return new ECDHDataMessage(ellipticCurveDiffieHellmanAlgorithmForEncryption.getEncodedPublicKey(), ellipticCurveDiffieHellmanAlgorithmForSignature.getEncodedPublicKey());
-					} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+						materialKey=new byte[64];
+						approvedRandom.nextBytes(materialKey);
+						return new ECDHDataMessage(ellipticCurveDiffieHellmanAlgorithmForEncryption.getEncodedPublicKey(), ellipticCurveDiffieHellmanAlgorithmForSignature.getEncodedPublicKey(), materialKey);
+					} catch (NoSuchAlgorithmException | InvalidKeySpecException | NoSuchProviderException | InvalidAlgorithmParameterException e) {
 						throw new ConnectionException(e);
 					}
 				}
@@ -227,13 +230,16 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 						
 						dataForEncryption = ellipticCurveDiffieHellmanAlgorithmForEncryption.getEncodedPublicKey();
 						dataForSignature = ellipticCurveDiffieHellmanAlgorithmForSignature.getEncodedPublicKey();
-					} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+					} catch (NoSuchAlgorithmException | InvalidKeySpecException | NoSuchProviderException | InvalidAlgorithmParameterException e) {
 						throw new ConnectionException(e);
 					}
 					try
 					{
-						ellipticCurveDiffieHellmanAlgorithmForEncryption.setDistantPublicKey(((ECDHDataMessage) _m).getDataForEncryption(), hproperties.symmetricEncryptionType, hproperties.symmetricKeySizeBits);
-						ellipticCurveDiffieHellmanAlgorithmForSignature.setDistantPublicKey(((ECDHDataMessage) _m).getDataForSignature(), hproperties.symmetricSignatureType, hproperties.symmetricKeySizeBits);
+						materialKey=((ECDHDataMessage) _m).getMaterialKey();
+						if (materialKey==null)
+							return new ConnectionFinished(distant_inet_address, ConnectionClosedReason.CONNECTION_ANOMALY);
+						ellipticCurveDiffieHellmanAlgorithmForEncryption.setDistantPublicKey(((ECDHDataMessage) _m).getDataForEncryption(), hproperties.symmetricEncryptionType, hproperties.symmetricKeySizeBits, materialKey);
+						ellipticCurveDiffieHellmanAlgorithmForSignature.setDistantPublicKey(((ECDHDataMessage) _m).getDataForSignature(), hproperties.symmetricSignatureType, hproperties.symmetricKeySizeBits, materialKey);
 					}
 					catch(Exception e)
 					{
@@ -245,14 +251,14 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 					secret_key_for_signature=ellipticCurveDiffieHellmanAlgorithmForSignature.getDerivedKey();
 					checkSymmetricAlgorithm();
 					current_step=Step.WAITING_FOR_CONNECTION_CONFIRMATION;
-					return new ECDHDataMessage(dataForEncryption, dataForSignature);
+					return new ECDHDataMessage(dataForEncryption, dataForSignature, null);
 				}
 				else
 				{
 					try
 					{
-						ellipticCurveDiffieHellmanAlgorithmForEncryption.setDistantPublicKey(((ECDHDataMessage) _m).getDataForEncryption(), hproperties.symmetricEncryptionType, hproperties.symmetricKeySizeBits);
-						ellipticCurveDiffieHellmanAlgorithmForSignature.setDistantPublicKey(((ECDHDataMessage) _m).getDataForSignature(), hproperties.symmetricSignatureType, hproperties.symmetricKeySizeBits);
+						ellipticCurveDiffieHellmanAlgorithmForEncryption.setDistantPublicKey(((ECDHDataMessage) _m).getDataForEncryption(), hproperties.symmetricEncryptionType, hproperties.symmetricKeySizeBits, materialKey);
+						ellipticCurveDiffieHellmanAlgorithmForSignature.setDistantPublicKey(((ECDHDataMessage) _m).getDataForSignature(), hproperties.symmetricSignatureType, hproperties.symmetricKeySizeBits, materialKey);
 					}
 					catch(Exception e)
 					{

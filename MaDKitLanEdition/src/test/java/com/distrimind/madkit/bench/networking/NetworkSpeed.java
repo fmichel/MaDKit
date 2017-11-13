@@ -36,7 +36,7 @@
  * knowledge of the CeCILL-C license and that you accept its terms.
  */
 
-package madkit.networking;
+package com.distrimind.madkit.bench.networking;
 
 import java.net.Inet4Address;
 import java.net.Inet6Address;

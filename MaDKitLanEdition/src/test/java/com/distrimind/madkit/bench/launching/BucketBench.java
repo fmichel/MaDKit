@@ -35,7 +35,7 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C license and that you accept its terms.
  */
-package madkit.launching;
+package com.distrimind.madkit.bench.launching;
 
 import static com.distrimind.madkit.kernel.JunitMadkit.startTimer;
 import static com.distrimind.madkit.kernel.JunitMadkit.stopTimer;

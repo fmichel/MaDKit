@@ -80,7 +80,7 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithmProperties extends Con
 	/**
 	 * Symmetric signature algorithm
 	 */
-	public SymmetricAuthentifiedSignatureType symmetricSignatureType=symmetricEncryptionType.getDefaultSignatureAlgorithm();
+	public SymmetricAuthentifiedSignatureType symmetricSignatureType=SymmetricAuthentifiedSignatureType.BC_FIPS_HMAC_SHA_512;
 	
 	/**
 	 * symmetric key size in bits

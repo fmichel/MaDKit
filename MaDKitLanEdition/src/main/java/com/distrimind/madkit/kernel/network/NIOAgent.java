@@ -45,6 +45,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.SocketAddress;
+import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.DatagramChannel;
@@ -752,6 +753,8 @@ final class NIOAgent extends Agent {
 		try {
 			InetSocketAddress isaRemote = (InetSocketAddress) socketChannel.getRemoteAddress();
 			InetSocketAddress isaLocal = (InetSocketAddress) socketChannel.getLocalAddress();
+			socketChannel.setOption(StandardSocketOptions.SO_SNDBUF, getMadkitConfig().networkProperties.maxBufferSize);
+			socketChannel.setOption(StandardSocketOptions.SO_RCVBUF, getMadkitConfig().networkProperties.maxBufferSize);
 			if (ip == null)
 				ip = new DoubleIP(isaRemote);
 			try {

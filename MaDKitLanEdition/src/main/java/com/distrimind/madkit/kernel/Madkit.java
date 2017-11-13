@@ -118,7 +118,7 @@ final public class Madkit {
 		Calendar c = Calendar.getInstance();
 		c.set(2015, 4, 22);
 		Calendar c2 = Calendar.getInstance();
-		c2.set(2017, 10, 10);
+		c2.set(2017, 10, 13);
 		Version VERSION = new Version("MadkitLanEdition", "MKLE", 1, 5, 0, Version.Type.Stable, 1, c.getTime(), c2.getTime());
 		try {
 
@@ -141,9 +141,10 @@ final public class Madkit {
 			VERSION.addDeveloper(new PersonDeveloper("Ferber", "Jacques", c.getTime()));
 
 			c = Calendar.getInstance();
-			c.set(2017, 10, 10);
+			c.set(2017, 10, 13);
 			Description d = new Description(1, 5, 0, Version.Type.Stable, 1, c.getTime());
 			d.addItem("Updating OOD to 2.0.0 Beta 55");
+			d.addItem("Packets can now have sizes greater than Short.MAX_VALUE");
 			VERSION.addDescription(d);
 
 			c = Calendar.getInstance();

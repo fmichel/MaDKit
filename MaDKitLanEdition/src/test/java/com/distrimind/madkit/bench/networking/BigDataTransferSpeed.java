@@ -35,7 +35,7 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C license and that you accept its terms.
  */
-package madkit.networking;
+package com.distrimind.madkit.bench.networking;
 
 import java.io.IOException;
 import java.net.Inet4Address;
@@ -50,6 +50,7 @@ import org.junit.Test;
 import org.testng.Assert;
 
 import com.distrimind.madkit.io.RandomByteArrayInputStream;
+import com.distrimind.madkit.io.RandomByteArrayOutputStream;
 import com.distrimind.madkit.kernel.AbstractAgent;
 import com.distrimind.madkit.kernel.AgentAddress;
 import com.distrimind.madkit.kernel.BigDataResultMessage;
@@ -63,11 +64,33 @@ import com.distrimind.madkit.kernel.network.AccessProtocolPropertiesMKEventListe
 import com.distrimind.madkit.kernel.network.ConnectionsProtocolsMKEventListener;
 import com.distrimind.madkit.kernel.network.DoubleIP;
 import com.distrimind.madkit.kernel.network.NetworkEventListener;
+import com.distrimind.madkit.kernel.network.RealTimeTransfertStat;
+import com.distrimind.madkit.kernel.network.TransferSpeedStat;
 import com.distrimind.madkit.kernel.network.connection.access.AbstractAccessProtocolProperties;
 import com.distrimind.madkit.kernel.network.connection.access.AccessProtocolWithJPakeProperties;
 import com.distrimind.madkit.kernel.network.connection.secured.P2PSecuredConnectionProtocolWithECDHAlgorithmProperties;
 import com.distrimind.madkit.testing.util.agent.BigDataTransferReceiverAgent;
 import com.distrimind.madkit.testing.util.agent.NormalAgent;
+import com.distrimind.util.Timer;
+import com.distrimind.util.crypto.SecureRandomType;
+import com.distrimind.util.crypto.SymmetricAuthentifiedSignatureCheckerAlgorithm;
+import com.distrimind.util.crypto.SymmetricAuthentifiedSignatureType;
+import com.distrimind.util.crypto.SymmetricAuthentifiedSignerAlgorithm;
+import com.distrimind.util.crypto.SymmetricEncryptionAlgorithm;
+import com.distrimind.util.crypto.SymmetricEncryptionType;
+import com.distrimind.util.crypto.SymmetricSecretKey;
+
+import gnu.vm.jgnu.security.InvalidAlgorithmParameterException;
+import gnu.vm.jgnu.security.InvalidKeyException;
+import gnu.vm.jgnu.security.NoSuchAlgorithmException;
+import gnu.vm.jgnu.security.NoSuchProviderException;
+import gnu.vm.jgnu.security.SignatureException;
+import gnu.vm.jgnu.security.spec.InvalidKeySpecException;
+import gnu.vm.jgnu.security.spec.InvalidParameterSpecException;
+import gnu.vm.jgnux.crypto.BadPaddingException;
+import gnu.vm.jgnux.crypto.IllegalBlockSizeException;
+import gnu.vm.jgnux.crypto.NoSuchPaddingException;
+import gnu.vm.jgnux.crypto.ShortBufferException;
 
 /**
  * @author Jason Mahdjoub
@@ -148,6 +171,87 @@ public class BigDataTransferSpeed extends JunitMadkit {
 		}, eventListener1);
 		Assert.assertTrue(transfered.get());
 		cleanHelperMDKs();
+	}
+	
+	@Test
+	public void testEncryptionSpeed() throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchProviderException, InvalidKeySpecException, IllegalStateException, IllegalBlockSizeException, BadPaddingException, IOException, SignatureException, ShortBufferException, InvalidParameterSpecException
+	{
+		byte toEncrypt[]=new byte[1024*1024*400];
+		int shift=32*1024;
+		SymmetricEncryptionAlgorithm cipher=new SymmetricEncryptionAlgorithm(SecureRandomType.FORTUNA_WITH_BC_FIPS_APPROVED.getInstance(null), SymmetricEncryptionType.AES.getKeyGenerator(SecureRandomType.FORTUNA_WITH_BC_FIPS_APPROVED_FOR_KEYS.getInstance(null), (short)128).generateKey());
+		SymmetricAuthentifiedSignatureType sigType=SymmetricAuthentifiedSignatureType.BC_FIPS_HMAC_SHA_512;
+		SymmetricSecretKey sks=sigType.getKeyGenerator(SecureRandomType.FORTUNA_WITH_BC_FIPS_APPROVED_FOR_KEYS.getInstance(null), (short)128).generateKey();
+		SymmetricAuthentifiedSignerAlgorithm signer=new SymmetricAuthentifiedSignerAlgorithm(sks);
+		SymmetricAuthentifiedSignatureCheckerAlgorithm checker=new SymmetricAuthentifiedSignatureCheckerAlgorithm(sks);
+		double nb=0;
+
+		RealTimeTransfertStat rtSent=new RealTimeTransfertStat(30000l,3000l);
+		RealTimeTransfertStat rtReceived=new RealTimeTransfertStat(30000l,3000l);
+		
+		TransferSpeedStat tssSent=new TransferSpeedStat(524288l,32768l, 300000l);
+		TransferSpeedStat tssReceived=new TransferSpeedStat(524288l,32768l, 300000l);
+		
+		RandomByteArrayOutputStream os=new RandomByteArrayOutputStream();
+		RandomByteArrayInputStream is=new RandomByteArrayInputStream(toEncrypt);
+		
+		int signatureSize=sigType.getSignatureSizeInBits()/8;
+		byte[] signatures=new byte[signatureSize*(toEncrypt.length/shift)];
+		int indexSignature=0;
+		Timer t=new Timer(true);
+		int sizeEncoded=cipher.getOutputSizeForEncryption(shift);
+		os.setLength(toEncrypt.length/shift*sizeEncoded);
+		
+		while (is.available()>=shift)
+		{
+			byte tmp[]=new byte[shift];
+			int i=is.read(tmp);
+			if (i==shift)
+			{
+				long old=System.currentTimeMillis();
+				byte[] encoded=cipher.encode(tmp);
+				signer.sign(encoded, 0, encoded.length, signatures, indexSignature, signatureSize);
+				os.write(encoded);
+				nb+=shift;
+				indexSignature+=signatureSize;
+				rtSent.newBytesIndentified(shift);
+				tssSent.newBytesIndentified(shift, System.currentTimeMillis()-old);
+			}
+		}
+		double ms=t.getMilid();
+		double speedEncoding=(nb/(ms*1000.0));
+		System.out.println("Encryption speed  : "+speedEncoding+" MiO/s");
+		is.close();
+		
+		
+		is=new RandomByteArrayInputStream(os.getBytes());
+		os.close();
+		os=new RandomByteArrayOutputStream();
+		os.setLength(toEncrypt.length/shift*sizeEncoded);
+		Timer t2=new Timer(true);
+		indexSignature=0;
+		while (is.available()>0)
+		{
+			long old=System.currentTimeMillis();
+			byte tmp[]=new byte[sizeEncoded];
+			is.read(tmp);
+			
+			os.write(cipher.decode(tmp));
+			signer.sign(tmp);
+			Assert.assertTrue(checker.verify(tmp, 0, tmp.length, signatures, indexSignature, signatureSize));
+			indexSignature+=signatureSize;
+			rtReceived.newBytesIndentified(shift);
+			tssReceived.newBytesIndentified(shift, System.currentTimeMillis()-old);
+			
+		}
+		double ms2=t2.getMilid();
+		double speedEncodingAndDecoding=(nb/((ms2+ms)*1000.0));
+		double speedDecoding=(nb/(ms2*1000.0));
+		
+		
+		System.out.println("Decryption speed  : "+speedDecoding+" MiO/s");
+		System.out.println("Encryption and decryption speed  : "+speedEncodingAndDecoding+" MiO/s");
+		is.close();
+		os.close();
 	}
 
 }

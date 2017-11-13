@@ -138,7 +138,7 @@ public class RealTimeTransfertStat {
 	 * @param number
 	 *            the number of transfered bytes
 	 */
-	void newBytesIndentified(int number) {
+	public void newBytesIndentified(int number) {
 		synchronized (this) {
 			update();
 			stats[cursor] += number;

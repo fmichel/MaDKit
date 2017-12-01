@@ -92,7 +92,7 @@ public class OutputPanel extends JPanel {
 	/**
 	 * Builds the panel for the agent
 	 * 
-	 * @param agent
+	 * @param agent the agent
 	 */
 	public OutputPanel(final AbstractAgent agent) {
 		outField = new JTextArea(5, 32);

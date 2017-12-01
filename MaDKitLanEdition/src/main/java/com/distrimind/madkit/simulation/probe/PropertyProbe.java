@@ -80,10 +80,10 @@ public class PropertyProbe<A extends AbstractAgent, T> extends Probe<A>// TODO
 	 * This function has the same effect than <code>#PropertyProbe(groups,
 	 * role, fieldName, true)</code>
 	 * 
-	 * @param groups
-	 * @param role
+	 * @param groups the groups
+	 * @param role the role 
 	 * @param fieldName
-	 *            the name of a field which is encapsulated in the type <A>
+	 *            the name of a field which is encapsulated in the type &lt;A&gt;
 	 */
 	public PropertyProbe(AbstractGroup groups, String role, String fieldName) {
 		this(groups, role, fieldName, true);
@@ -93,10 +93,10 @@ public class PropertyProbe<A extends AbstractAgent, T> extends Probe<A>// TODO
 	 * Builds a new PropertyProbe considering a CGR location and the name of the
 	 * class's field.
 	 * 
-	 * @param groups
-	 * @param role
+	 * @param groups the groups
+	 * @param role the role
 	 * @param fieldName
-	 *            the name of a field which is encapsulated in the type <A>
+	 *            the name of a field which is encapsulated in the type &lt;A&gt;
 	 * @param unique
 	 *            Tells if the function {@link #getCurrentAgentsList()}
 	 *            must returns unique references.
@@ -106,9 +106,7 @@ public class PropertyProbe<A extends AbstractAgent, T> extends Probe<A>// TODO
 		this.fieldName = fieldName;
 	}
 
-	/**
-	 * @param agentClass
-	 */
+
 	private void updateCache(A agent) {
 		@SuppressWarnings("unchecked")
 		final Class<? extends A> agentClass = (Class<? extends A>) agent.getClass();
@@ -147,8 +145,8 @@ public class PropertyProbe<A extends AbstractAgent, T> extends Probe<A>// TODO
 	 * Should be used to work with primitive types or fields which are initially
 	 * <code>null</code>
 	 * 
-	 * @param agent
-	 * @param value
+	 * @param agent the agent
+	 * @param value the new value
 	 */
 	public void setPropertyValue(final A agent, final T value) {
 		updateCache(agent);

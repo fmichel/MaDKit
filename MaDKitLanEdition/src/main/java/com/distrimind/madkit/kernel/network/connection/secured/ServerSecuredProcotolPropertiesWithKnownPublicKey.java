@@ -82,10 +82,11 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKey
 	 * @param s_type
 	 *            the symmetric encryption type (if null, use default encryption
 	 *            type)
+	 * @param keyWrapper the key wrapper type
 	 * @return the encryption profile identifier
-	 * @throws NoSuchAlgorithmException
-	 * @throws InvalidAlgorithmParameterException 
-	 * @throws NoSuchProviderException 
+	 * @throws NoSuchAlgorithmException if the encryption algorithm was not found
+	 * @throws InvalidAlgorithmParameterException if the encryption algorithm parameter was not valid
+	 * @throws NoSuchProviderException if the encryption algorithm provider was not found 
 	 */
 	public int generateAndAddEncryptionProfile(AbstractSecureRandom random, ASymmetricEncryptionType as_type,
 			SymmetricEncryptionType s_type, ASymmetricKeyWrapperType keyWrapper) throws NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException {
@@ -103,17 +104,18 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKey
 	 *            the UTC expiration time of the key pair
 	 * @param asymmetricKeySizeBits
 	 *            the asymmetric key size in bits
-	 * @param signatureType
-	 *            the signature type (if null, use default signature type)
+	 * 
 	 * @param s_type
 	 *            the symmetric encryption type (if null, use default encryption
 	 *            type)
 	 * @param symmetricKeySizeBits
-	 *            the symmetric key size in bits
+	 *            the signature type (if null, use default signature type)
+	 * @param keyWrapper the key wrapper type
+	 * @param signatureType the signature type
 	 * @return the encryption profile identifier
-	 * @throws NoSuchAlgorithmException
-	 * @throws InvalidAlgorithmParameterException 
-	 * @throws NoSuchProviderException 
+	 * @throws NoSuchAlgorithmException if the encryption algorithm was not found
+	 * @throws InvalidAlgorithmParameterException if the encryption algorithm parameter was not valid
+	 * @throws NoSuchProviderException if the encryption algorithm provider was not found
 	 */
 	public int generateAndAddEncryptionProfile(AbstractSecureRandom random, ASymmetricEncryptionType as_type,
 			long expirationTimeUTC, short asymmetricKeySizeBits,
@@ -131,6 +133,7 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKey
 	 * @param symmetricEncryptionType
 	 *            the symmetric encryption type (if null, use default encryption
 	 *            type)
+	 * @param keyWrapper the key wrapper type
 	 * @return the encryption profile identifier
 	 */
 	public int addEncryptionProfile(ASymmetricKeyPair keyPairForEncryption, SymmetricEncryptionType symmetricEncryptionType, ASymmetricKeyWrapperType keyWrapper) {
@@ -148,6 +151,7 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKey
 	 *            type)
 	 * @param symmetricKeySizeBits
 	 *            the symmetric key size in bits
+	 * @param keyWrapper the key wrapper type
 	 * @param signatureType
 	 *            the signature type (if null, use default signature type)
 	 * @return the encryption profile identifier

@@ -75,7 +75,7 @@ public abstract class SubBlockParser {
 	 * cannot change during process
 	 * 
 	 * @return the maximum size head
-	 * @throws BlockParserException
+	 * @throws BlockParserException if the block is invalid
 	 */
 	public abstract int getMaximumSizeHead() throws BlockParserException;
 

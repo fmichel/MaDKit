@@ -77,9 +77,6 @@ public class LaunchAgentsMenu extends ClassPathSensitiveMenu {
 	 *            the agent according to which this menu should be created, i.e. the
 	 *            agent that will be responsible of the launch.
 	 */
-	/**
-	 * @param agent
-	 */
 	public LaunchAgentsMenu(final AbstractAgent agent) {
 		this(agent, "Agents", null);
 	}

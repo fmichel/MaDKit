@@ -51,7 +51,9 @@ public class KQMLMessage extends ActMessage {
 	 */
 	private static final long serialVersionUID = -3534390128191295863L;
 
-	/** Constructor for KQMLMessage class */
+	/** Constructor for KQMLMessage class
+	 * @param performative the performative parameter
+	 *  */
 	public KQMLMessage(String performative) {
 		super(performative);
 	}

@@ -66,32 +66,33 @@ import com.distrimind.util.version.Version;
 
 /**
  * MaDKit 5 booter class.
- * <p>
+ * 
  * <h2>MaDKit v.5 new features</h2>
- * <p>
+ * 
  * <ul>
  * <li>One big change that comes with version 5 is how agents are identified and
  * localized within the artificial society. An agent is no longer binded to a
  * single agent address but has as many agent addresses as holden positions in
  * the artificial society. see {@link AgentAddress} for more information.</li>
- * <br>
+ * 
  * <li>With respect to the previous change, a <code><i>withRole</i></code>
  * version of all the messaging methods has been added. See
  * {@link AbstractAgent#sendMessageWithRole(AgentAddress, Message, String)} for
- * an example of such a method.</li> <br>
+ * an example of such a method.</li>
  * <li>A replying mechanism has been introduced through
  * <code><i>SendReply</i></code> methods. It enables the agent with the
  * possibility of replying directly to a given message. Also, it is now possible
  * to get the reply to a message, or to wait for a reply ( for {@link Agent}
  * subclasses only as they are threaded) See
- * {@link AbstractAgent#sendReply(Message, Message)} for more details.</li> <br>
+ * {@link AbstractAgent#sendReply(Message, Message)} for more details.</li>
  * <li>Agents now have a <i>formal</i> state during a MaDKit session. See the
- * {@link AbstractAgent#getState()} method for detailed information.</li> <br>
+ * {@link AbstractAgent#getState()} method for detailed information.</li>
  * <li>One of the most convenient improvement of v.5 is the logging mechanism
  * which is provided. See the {@link AbstractAgent#logger} attribute for more
- * details.</li> <br>
+ * details.</li>
  * <li>Internationalization is being made (fr_fr and en_us for now).</li>
- * <p>
+ * </ul>
+ * 
  * 
  * @author Fabien Michel
  * @author Jacques Ferber
@@ -145,6 +146,7 @@ final public class Madkit {
 			Description d = new Description(1, 5, 1, Version.Type.Stable, 1, c.getTime());
 			d.addItem("Updating OOD to 2.0.0 Beta 56");
 			d.addItem("Updating Utils to 3.7.0");
+			d.addItem("Debugging JavaDoc");
 			VERSION.addDescription(d);
 
 			c = Calendar.getInstance();

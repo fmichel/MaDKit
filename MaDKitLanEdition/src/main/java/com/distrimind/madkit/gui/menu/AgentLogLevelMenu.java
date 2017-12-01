@@ -75,6 +75,7 @@ public class AgentLogLevelMenu extends JMenu {
 
 	/**
 	 * Builds a menu containing all the log levels which could be set on an agent.
+	 * @param agent the agent 
 	 */
 	public AgentLogLevelMenu(final AbstractAgent agent) {
 		super("Logging");
@@ -136,7 +137,7 @@ public class AgentLogLevelMenu extends JMenu {
 	/**
 	 * Update the menu of this agent
 	 * 
-	 * @param agent
+	 * @param agent the agent
 	 */
 	public static void update(final AbstractAgent agent) {
 		final AgentLogLevelMenu menu = menus.get(agent);

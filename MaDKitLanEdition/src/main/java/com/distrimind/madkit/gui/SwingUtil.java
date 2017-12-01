@@ -68,8 +68,8 @@ final public class SwingUtil {
 	/**
 	 * Creates a labeled panel containing a slider with default size.
 	 * 
-	 * @param slider
-	 * @param label
+	 * @param slider the slider
+	 * @param label the label
 	 * @return a panel for the slider
 	 */
 	public static JPanel createSliderPanel(final JSlider slider, String label) {
@@ -80,8 +80,9 @@ final public class SwingUtil {
 	 * Creates a labeled panel containing a slider and considering a particular
 	 * width
 	 * 
-	 * @param slider
-	 * @param label
+	 * @param slider the slider
+	 * @param label the label
+	 * @param width the width
 	 * @return a panel for the slider
 	 */
 	public static JPanel createSliderPanel(final JSlider slider, String label, int width) {
@@ -97,8 +98,8 @@ final public class SwingUtil {
 	 * Creates a labeled panel containing a slider built using an existing
 	 * {@link DefaultBoundedRangeModel}
 	 * 
-	 * @param model
-	 * @param label
+	 * @param model the model
+	 * @param label the label
 	 * @return a panel for this model
 	 */
 	public static JPanel createSliderPanel(final BoundedRangeModel model, String label) {
@@ -109,7 +110,7 @@ final public class SwingUtil {
 	 * Creates a JSlider built using a {@link DefaultBoundedRangeModel} and
 	 * containing a {@link MouseWheelListener} and some usual default settings
 	 * 
-	 * @param model
+	 * @param model the model
 	 * @return the corresponding {@link JSlider}
 	 */
 	public static JSlider createJSlider(final BoundedRangeModel model) {
@@ -146,7 +147,7 @@ final public class SwingUtil {
 	 * <li>{@link GUIManagerAction#DEICONIFY_ALL}
 	 * <li>{@link GUIManagerAction#KILL_AGENTS}
 	 * </ul>
-	 * 
+	 * @param menuOrToolBar the menu tool bar
 	 * @param agent
 	 *            the agent for which this menu will be built.
 	 */
@@ -193,11 +194,9 @@ final public class SwingUtil {
 	 * Creates a {@link JCheckBoxMenuItem} for a menu or {@link JToggleButton} for a
 	 * tool bar
 	 * 
-	 * @param menuOrToolBar
-	 * @param action
-	 * @throws NoSuchMethodException
-	 * @throws IllegalAccessException
-	 * @throws InvocationTargetException
+	 * @param menuOrToolBar the menu or tool bar
+	 * @param action the action
+	 * 
 	 */
 	public static void addBooleanActionTo(Container menuOrToolBar, Action action) {
 		Method addButton;

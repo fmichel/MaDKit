@@ -66,8 +66,11 @@ public class XMLUtilities {
 	/**
 	 * return the DOM from an xml file.
 	 * 
-	 * @param xmlFile
+	 * @param xmlFile the XML file
 	 * @return the DOM from an xml file or <code>null</code> if not found or invalid
+	 * @throws SAXException if a problem occurs
+	 * @throws IOException if a problem occurs
+	 * @throws ParserConfigurationException if a problem occurs
 	 */
 	public static Document getDOM(File xmlFile) throws SAXException, IOException, ParserConfigurationException {
 		try (final InputStream is = MadkitProperties.getInputStream(xmlFile)) {// for closing the stream

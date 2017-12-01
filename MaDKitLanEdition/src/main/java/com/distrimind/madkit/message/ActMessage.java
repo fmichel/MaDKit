@@ -51,7 +51,9 @@ public class ActMessage extends com.distrimind.madkit.kernel.Message {
 	protected final Hashtable<String, Object> fields;
 	String content;
 
-	/** Constructor for GenericMessage class */
+	/** Constructor for GenericMessage class
+	 * @param actiontype the action type
+	 *  */
 	public ActMessage(String actiontype) {
 		action = actiontype;
 		fields = new Hashtable<>();

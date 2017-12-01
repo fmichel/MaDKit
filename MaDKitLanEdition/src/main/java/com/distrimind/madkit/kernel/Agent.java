@@ -75,9 +75,6 @@ public class Agent extends AbstractAgent {
 	final private AgentExecutor agentExecutor;
 	final private boolean isDaemon;
 
-	/**
-	 * 
-	 */
 	public Agent(boolean isDaemon) {
 		this.isDaemon = isDaemon;
 		agentExecutor = new AgentExecutor(this);
@@ -233,6 +230,7 @@ public class Agent extends AbstractAgent {
 
 	/**
 	 * This method is executed one time just before {@link #liveCycle()}
+	 * @throws InterruptedException if the current thread is interrupted
 	 */
 	protected void preLiveCycle() throws InterruptedException {
 
@@ -247,7 +245,7 @@ public class Agent extends AbstractAgent {
 	 * {@link #killAgent(AbstractAgent, int, KillingType)}.
 	 * <p>
 	 * Here is a typical example:
-	 * <p>
+	 * </p>
 	 * 
 	 * <pre>
 	 *  <tt>      @Override</tt>
@@ -259,6 +257,7 @@ public class Agent extends AbstractAgent {
 	 *  	}
 	 *	}
 	 * </pre>
+	 * @throws InterruptedException if the current thread is interrupted
 	 */
 	protected void liveCycle() throws InterruptedException {
 		setLogLevel(Level.INFO);
@@ -309,6 +308,7 @@ public class Agent extends AbstractAgent {
 	 * @see #sendMessageWithRoleAndWaitForReply(AgentAddress, Message, String,
 	 *      Integer)
 	 * @since MaDKit 5
+	 * @throws InterruptedException if the current thread is interrupted
 	 */
 	public Message sendMessageAndWaitForReply(final AgentAddress receiver, Message messageToSend)
 			throws InterruptedException { // NO_UCD
@@ -331,6 +331,7 @@ public class Agent extends AbstractAgent {
 	 *         message.
 	 * @see #sendMessageWithRoleAndWaitForReply(AgentAddress, Message, String,
 	 *      Integer)
+	 * @throws InterruptedException if the current thread is interrupted
 	 * @since MaDKit 5
 	 */
 	public Message sendMessageAndWaitForReply(final AgentAddress receiver, Message messageToSend,
@@ -353,6 +354,7 @@ public class Agent extends AbstractAgent {
 	 *         message.
 	 * @see #sendMessageWithRoleAndWaitForReply(AgentAddress, Message, String,
 	 *      Integer)
+	 * @throws InterruptedException if the current thread is interrupted
 	 * @since MaDKit 5
 	 */
 	public Message sendMessageWithRoleAndWaitForReply(final AgentAddress receiver, Message messageToSend,
@@ -378,7 +380,7 @@ public class Agent extends AbstractAgent {
 	 *         message, that is any {@link AbstractAgent.ReturnCode} different from
 	 *         {@link AbstractAgent.ReturnCode#SUCCESS} (see
 	 *         {@link AbstractAgent#sendMessageWithRole(AgentAddress, Message, String)}).
-	 * 
+	 * @throws InterruptedException if the current thread is interrupted
 	 * @see #sendMessageWithRole(AgentAddress, Message, String)
 	 * @see AbstractAgent.ReturnCode
 	 * @since MaDKit 5
@@ -410,6 +412,7 @@ public class Agent extends AbstractAgent {
 	 *            indefinitely.
 	 * @return the reply received as soon as available, or <code>null</code> if
 	 *         there was an error when sending the message.
+	 * @throws InterruptedException if the current thread is interrupted
 	 * @see #sendMessageWithRoleAndWaitForReply(AbstractGroup, String, Message, String, Integer)
 	 * @since MaDKitLanEdition 1.0
 	 * @see AbstractGroup
@@ -437,6 +440,7 @@ public class Agent extends AbstractAgent {
 	 *            agent will wait indefinitely.
 	 * @return the reply received as soon as available, or <code>null</code> if
 	 *         there was an error when sending the message.
+	 * @throws InterruptedException if the current thread is interrupted
 	 * @see #sendMessageWithRoleAndWaitForReply(AbstractGroup, String, Message, String, Integer)
 	 * @since MaDKitLanEdition 1.0
 	 * @see AbstractGroup
@@ -470,6 +474,7 @@ public class Agent extends AbstractAgent {
 	 * @see AbstractGroup
 	 * @see Group
 	 * @see MultiGroup
+	 * @throws InterruptedException if the current thread is interrupted
 	 */
 	public Message sendMessageAndWaitForReply(AbstractGroup group, final String role, Message messageToSend,
 			final int timeOutMilliSeconds) throws InterruptedException {
@@ -499,6 +504,7 @@ public class Agent extends AbstractAgent {
 	 * @see AbstractGroup
 	 * @see Group
 	 * @see MultiGroup
+	 * @throws InterruptedException if the current thread is interrupted
 	 */
 	public Message sendMessageWithRoleAndWaitForReply(AbstractGroup group, final String role, Message messageToSend,
 			final String senderRole, final Integer timeOutMilliSeconds) throws InterruptedException {
@@ -527,6 +533,7 @@ public class Agent extends AbstractAgent {
 	 * @return the reply received as soon as available.
 	 * @see #sendReplyWithRoleAndWaitForReply(Message, Message, String, Integer)
 	 * @since MaDKit 5
+	 * @throws InterruptedException if the current thread is interrupted
 	 */
 	public Message sendReplyAndWaitForReply(final Message messageToReplyTo, final Message reply)
 			throws InterruptedException {
@@ -542,7 +549,9 @@ public class Agent extends AbstractAgent {
 	 *            the original message previously received
 	 * @param reply
 	 *            the new message
+	 * @param timeOutMilliSeconds the delay before this function is unlocked when no reply was received
 	 * @return the reply received as soon as available
+	 * @throws InterruptedException if the current thread is interrupted
 	 * @see #sendReplyWithRoleAndWaitForReply(Message, Message, String, Integer)
 	 * @since MaDKit 5
 	 */
@@ -560,7 +569,9 @@ public class Agent extends AbstractAgent {
 	 *            the original message previously received
 	 * @param reply
 	 *            the new message
+	 * @param senderRole the sender role
 	 * @return the reply received as soon as available
+	 * @throws InterruptedException if the current thread is interrupted
 	 * @see #sendReplyWithRoleAndWaitForReply(Message, Message, String, Integer)
 	 * @since MaDKit 5
 	 */
@@ -587,7 +598,7 @@ public class Agent extends AbstractAgent {
 	 *         that is any {@link AbstractAgent.ReturnCode} different from
 	 *         {@link AbstractAgent.ReturnCode#SUCCESS} (see
 	 *         {@link AbstractAgent#sendReplyWithRole(Message, Message, String)}).
-	 * 
+	 * @throws InterruptedException if the current thread is interrupted
 	 * @see #sendReplyWithRole(Message, Message, String)
 	 * @see AbstractAgent.ReturnCode
 	 * @since MaDKit 5
@@ -609,13 +620,13 @@ public class Agent extends AbstractAgent {
 	 * 
 	 * @param group
 	 *            the group(s) and the community(ies) name
-	 * @param role
-	 * @param message
-	 * @param senderRole
-	 * @param timeOutMilliSeconds
+	 * @param role the role
+	 * @param message the message
+	 * @param senderRole the sender role
+	 * @param timeOutMilliSeconds delay before unlocking the function
 	 * @return a list of messages which are answers to the <code>message</code>
 	 *         which has been broadcasted.
-	 * @throws InterruptedException
+	 * @throws InterruptedException if the current thread is interrupted
 	 * @since MaDKitLanEdition 1.0
 	 * @see AbstractGroup
 	 * @see Group
@@ -633,6 +644,7 @@ public class Agent extends AbstractAgent {
 	 *
 	 * @see #waitNextMessage(long)
 	 * @return the first received message
+	 * @throws InterruptedException if the current thread is interrupted
 	 */
 	public Message waitNextMessage() throws InterruptedException {
 		if (logger != null) {
@@ -655,7 +667,7 @@ public class Agent extends AbstractAgent {
 	 * 
 	 * @return the first message in the mailbox, or <code>null</code> if no message
 	 *         has been received before the time out delay is elapsed
-	 * @throws InterruptedException
+	 * @throws InterruptedException if the current thread is interrupted
 	 */
 	public Message waitNextMessage(final long timeOutMilliseconds) throws InterruptedException {
 		AgentLogger logger = this.logger;
@@ -679,9 +691,10 @@ public class Agent extends AbstractAgent {
 	 * Retrieves and removes the next message that complies with the filter, waiting
 	 * for ever if necessary until a matching message becomes available.
 	 * 
-	 * @param filter
+	 * @param filter the filter
 	 * 
 	 * @return the first received message that matches the filter
+	 * @throws InterruptedException if the current thread is interrupted
 	 */
 	public Message waitNextMessage(final MessageFilter filter) throws InterruptedException {
 		final List<Message> receptions = new ArrayList<>();
@@ -707,9 +720,10 @@ public class Agent extends AbstractAgent {
 	 * 
 	 * @param timeOutMilliseconds
 	 *            the maximum time to wait, in milliseconds.
-	 * @param filter
+	 * @param filter the filter
 	 * 
 	 * @return a message that matches or <code>null</code> otherwise.
+	 * @throws InterruptedException if the current thread is interrupted
 	 */
 	public Message waitNextMessage(final Integer timeOutMilliseconds, final MessageFilter filter)
 			throws InterruptedException {
@@ -738,10 +752,7 @@ public class Agent extends AbstractAgent {
 		return answer;
 	}
 
-	/**
-	 * @return message
-	 * @since MaDKit 5
-	 */
+	
 	private Message waitingNextMessageForEver() throws InterruptedException {
 		checkInterruptedExceptionForMessageWaiting();
 		return messageBox.take().markMessageAsRead();
@@ -762,6 +773,7 @@ public class Agent extends AbstractAgent {
 	 *            the message for which a reply is waited for
 	 * 
 	 * @return the first reply to the query message
+	 * @throws InterruptedException if the current thread is interrupted
 	 * @since MadKit 5.0.4
 	 */
 	public Message waitAnswer(final Message query) throws InterruptedException {
@@ -777,6 +789,7 @@ public class Agent extends AbstractAgent {
 	 *            the conversation ID for which a reply is waited for
 	 * 
 	 * @return the first reply to the query message
+	 * @throws InterruptedException if the current thread is interrupted
 	 * @since MadKit 5.0.4
 	 */
 	public Message waitAnswer(final ConversationID id) throws InterruptedException {
@@ -793,6 +806,7 @@ public class Agent extends AbstractAgent {
 	 *            the maximum time to wait, in milliseconds.
 	 * 
 	 * @return the first reply to the query message
+	 * @throws InterruptedException if the current thread is interrupted
 	 * @since MadKit 5.0.4
 	 */
 	public Message waitAnswer(final Message query, final Integer timeOutMilliSeconds) throws InterruptedException {
@@ -810,6 +824,7 @@ public class Agent extends AbstractAgent {
 	 *            the maximum time to wait, in milliseconds.
 	 * 
 	 * @return the first reply to the query message
+	 * @throws InterruptedException if the current thread is interrupted
 	 * @since MadKit 5.0.4
 	 */
 	public Message waitAnswer(final ConversationID id, final Integer timeOutMilliSeconds) throws InterruptedException {
@@ -831,6 +846,7 @@ public class Agent extends AbstractAgent {
 	 * @param _task
 	 *            the task to execute
 	 * @return the confirmation message or null if a problem occurs
+	 * @throws InterruptedException if the current thread is interrupted
 	 * @see #launchTaskManagerAgent(String, int)
 	 * 
 	 * @see Task
@@ -859,7 +875,7 @@ public class Agent extends AbstractAgent {
 	 * @param _task
 	 *            the task to execute
 	 * @return the confirmation message or null if a problem occurs
-	 * 
+	 * @throws InterruptedException if the current thread is interrupted
 	 * @see Task
 	 * @since MadKitLanEdition 1.0
 	 */
@@ -897,6 +913,7 @@ public class Agent extends AbstractAgent {
 	 * @param timeOutMilliSeconds
 	 *            the maximum time to wait, in milliseconds.
 	 * @return the confirmation message or null if a problem occurs
+	 * @throws InterruptedException if the current thread is interrupted
 	 * @see #launchTaskManagerAgent(String, int)
 	 * 
 	 * @see Task
@@ -928,7 +945,7 @@ public class Agent extends AbstractAgent {
 	 * @param timeOutMilliSeconds
 	 *            the maximum time to wait, in milliseconds.
 	 * @return the confirmation message or null if a problem occurs
-	 * 
+	 * @throws InterruptedException if the current thread is interrupted
 	 * @see Task
 	 * @since MadKitLanEdition 1.0
 	 */

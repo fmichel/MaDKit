@@ -59,7 +59,7 @@ public abstract class TaskMessage extends Message {
 	private TaskID taskID;
 
 	/**
-	 * 
+	 * @param taskID the task identifier
 	 * @param _task
 	 *            the concerned task
 	 */

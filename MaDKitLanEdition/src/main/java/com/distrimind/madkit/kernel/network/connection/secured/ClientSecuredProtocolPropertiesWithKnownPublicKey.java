@@ -75,13 +75,13 @@ public class ClientSecuredProtocolPropertiesWithKnownPublicKey
 	 * 
 	 * @param identifier
 	 *            the encryption identifier
+	 * @param publicKeyForEncryption
+	 *            the public key for encryption
 	 * @param symmetricEncryptionType
 	 *            the symmetric encryption type (if null, use default symmetric
 	 *            encryption type and default key size)
-	 * @param publicKeyForEncryption
-	 *            the public key for encryption
-	 * @param publicKeyForSignature
-	 *            the public key for signature
+	 * @param keyWrapper
+	 *            the key wrapper type
 	 */
 	public void setEncryptionProfile(int identifier, ASymmetricPublicKey publicKeyForEncryption, SymmetricEncryptionType symmetricEncryptionType, ASymmetricKeyWrapperType keyWrapper) {
 		this.setEncryptionProfile(identifier, publicKeyForEncryption, symmetricEncryptionType,
@@ -95,15 +95,15 @@ public class ClientSecuredProtocolPropertiesWithKnownPublicKey
 	 * 
 	 * @param identifier
 	 *            the encryption identifier
+	 * @param publicKeyForEncryption
+	 *            the public key for encryption
 	 * @param symmetricEncryptionType
 	 *            the symmetric encryption type (if null, use default symmetric
 	 *            encryption type and default key size)
 	 * @param symmetricKeySizeBits
 	 *            the symmetric encryption key size in bits
-	 * @param publicKeyForEncryption
-	 *            the public key for encryption
-	 * @param publicKeyForSignature
-	 *            the public key for signature
+	 * @param keyWrapper
+	 *            the key wrapper type
 	 * @param signatureType
 	 *            the signature type (if null, use default signature type)
 	 */

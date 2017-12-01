@@ -50,12 +50,7 @@ import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.management.modelmbean.XMLParseException;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
-
 import org.apache.commons.codec.binary.Base64;
-import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -318,8 +313,8 @@ public class MadkitProperties extends XMLProperties {
 	 * recommend to use this wrapper to create all your database.
 	 * 
 	 * @return the database wrapper used by MadkitLanEdition.
-	 * @throws DatabaseException
-	 * @see DatabaseWrapper
+	 * @throws DatabaseException if a problem occurs during the database connection
+	 * @see DatabaseWrapper 
 	 * @see Table
 	 */
 	public DatabaseWrapper getDatabaseWrapper() throws DatabaseException {
@@ -368,7 +363,7 @@ public class MadkitProperties extends XMLProperties {
 	 * 
 	 * @param xml_file
 	 *            can be absolute or relative
-	 * @throws IOException
+	 * @throws IOException if a problem occurs during the XML file loading
 	 */
 	@Override
 	public void load(File xml_file) throws IOException {
@@ -491,13 +486,8 @@ public class MadkitProperties extends XMLProperties {
 	 *            <code>null</code>
 	 * @return an <code>InputStream</code> by opening a connection to an actual
 	 *         file, or <code>null</code> if the file is not found.
-	 * @throws XMLParseException
-	 * @throws TransformerException
-	 * @throws ParserConfigurationException
-	 * @throws DOMException
 	 * 
-	 * @throws NullPointerException
-	 * @throws IOException
+	 * @throws IOException if IO problem occurs
 	 */
 	public static InputStream getInputStream(final File file) throws IOException {
 		// closed when used

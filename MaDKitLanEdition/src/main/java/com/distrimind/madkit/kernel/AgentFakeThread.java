@@ -177,7 +177,7 @@ public abstract class AgentFakeThread extends AbstractAgent {
 	 * 
 	 * @param _message
 	 *            the received message
-	 * @throws Exception
+	 * @throws InterruptedException if the current thread is interrupted
 	 * @since MadKitLanExtension 1.0
 	 */
 	protected abstract void liveByStep(final Message _message) throws InterruptedException;

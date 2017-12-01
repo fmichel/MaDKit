@@ -47,7 +47,7 @@ import java.util.concurrent.TimeUnit;
  * @version 1.0
  * @since MadkitLanEdition 1.0
  * 
- * @param <V>
+ * @param <V> a type
  */
 public class ScheduledFutureWithSpecializedWait<V> extends FutureWithSpecializedWait<V> implements ScheduledFuture<V> {
 	final ScheduledFuture<V> parentFuture;

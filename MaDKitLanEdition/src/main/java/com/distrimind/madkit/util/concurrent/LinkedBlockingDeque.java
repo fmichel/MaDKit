@@ -1213,14 +1213,6 @@ public class LinkedBlockingDeque<E> extends AbstractQueue<E> implements Blocking
 		}
 	}
 
-	/**
-	 * Save the state of this deque to a stream (that is, serialize it).
-	 *
-	 * @serialData The capacity (int), followed by elements (each an {@code Object})
-	 *             in the proper order, followed by a null
-	 * @param s
-	 *            the stream
-	 */
 	private void writeObject(java.io.ObjectOutputStream s) throws java.io.IOException {
 		final ReentrantLock lock = this.lock;
 		lock.lock();
@@ -1237,12 +1229,10 @@ public class LinkedBlockingDeque<E> extends AbstractQueue<E> implements Blocking
 		}
 	}
 
-	/**
-	 * Reconstitute this deque from a stream (that is, deserialize it).
-	 * 
-	 * @param s
-	 *            the stream
-	 */
+
+	
+	
+	
 	private void readObject(java.io.ObjectInputStream s) throws java.io.IOException, ClassNotFoundException {
 		try {
 			s.defaultReadObject();

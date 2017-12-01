@@ -71,7 +71,7 @@ import com.distrimind.util.crypto.AbstractSecureRandom;
  * @author Jason Mahdjoub
  * @version 1.0
  * @since MadkitLanEdition 1.0
- * @param <CP>
+ * @param <CP> the connection protocol type
  */
 public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> implements Iterable<ConnectionProtocol<?>> {
 
@@ -439,6 +439,8 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 	}
 
 	/**
+	 * @param from_it iterator
+	 * 
 	 * @return an iterator that will parse the current connection protocol and its
 	 *         sub protocols
 	 */
@@ -456,7 +458,7 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 	}
 
 	/**
-	 * 
+	 * @param from_it iterator
 	 * @return an iterator that will parse the current connection protocol and its
 	 *         sub protocols in a reverse way
 	 */

@@ -115,7 +115,7 @@ abstract class Overlooker<A extends AbstractAgent> {
 	 * Tells if the function {@link Overlooker#getCurrentAgentsList()} must returns
 	 * unique references.
 	 * 
-	 * @param value
+	 * @param value the value
 	 * @see Overlooker#getCurrentAgentsList()
 	 */
 	public void setUniqueReferences(boolean value) {

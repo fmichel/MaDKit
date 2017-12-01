@@ -175,6 +175,7 @@ public abstract class SwingViewer extends Watcher {
 
 	/**
 	 * Enable or disable the rendering activity
+	 * @param activated true if the rendering must be activated
 	 */
 	public void setRendering(boolean activated) {
 		rendering.putValue(Action.SELECTED_KEY, new Boolean(!activated));
@@ -240,7 +241,7 @@ public abstract class SwingViewer extends Watcher {
 	 * automatically called when the <code>observe</code> method is triggered by a
 	 * Scheduler
 	 * 
-	 * @param g
+	 * @param g the graphics
 	 */
 	protected abstract void render(Graphics g);
 
@@ -326,7 +327,7 @@ public abstract class SwingViewer extends Watcher {
 	 * simulation states will be displayed
 	 * 
 	 * @param interval
-	 *            an int > 0
+	 *            an int greater than 0
 	 */
 	public void setRenderingInterval(int interval) {
 		renderingInterval = interval > 0 ? interval : 1;

@@ -67,9 +67,9 @@ public class KernelAddressInterfaced extends KernelAddress {
 	/**
 	 * @param _original_kernel_address
 	 *            the original kernel address to interface
-	 * @throws NoSuchAlgorithmException
+	 * @throws NoSuchAlgorithmException 
 	 *             if the used encryption algorithm does not exists
-	 * @throws NoSuchProviderException 
+	 * @throws NoSuchProviderException if message digest provider was not found
 	 */
 	public KernelAddressInterfaced(KernelAddress _original_kernel_address) throws NoSuchAlgorithmException, NoSuchProviderException {
 		this(_original_kernel_address, true);
@@ -82,7 +82,8 @@ public class KernelAddressInterfaced extends KernelAddress {
 	 *            true if the original kernel address do not need to be interfaced.
 	 * @throws NoSuchAlgorithmException
 	 *             if the used encryption algorithm does not exists
-	 * @throws NoSuchProviderException 
+	 * @throws NoSuchProviderException if message digest provider was not found
+	 * 				
 	 */
 	public KernelAddressInterfaced(KernelAddress _original_kernel_address,
 			boolean identical_from_original_kernel_interface) throws NoSuchAlgorithmException, NoSuchProviderException {

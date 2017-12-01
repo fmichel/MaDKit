@@ -82,7 +82,7 @@ public class MDKDesktopFrame extends JFrame {
 	/**
 	 * Builds tool bar for the desktop frame. By default it builds a classic MaDKit
 	 * menu bar
-	 * 
+	 * @param guiManager the GUI manager
 	 * @return the menu bar to use in the desktop frame
 	 */
 	public JMenuBar getMenuBar(final AbstractAgent guiManager) {
@@ -102,7 +102,7 @@ public class MDKDesktopFrame extends JFrame {
 	/**
 	 * Builds tool bar for the desktop frame. By default it builds a classic MaDKit
 	 * tool bar
-	 * 
+	 * @param guiManager the GUI manager
 	 * @return the tool bar to use in the desktop frame
 	 */
 	public JToolBar getToolBar(final AbstractAgent guiManager) {

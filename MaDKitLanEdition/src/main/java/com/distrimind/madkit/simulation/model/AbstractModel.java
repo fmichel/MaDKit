@@ -75,6 +75,7 @@ public class AbstractModel extends AbstractAgent {
 	 * 
 	 * @param label
 	 *            the name of the panel
+	 * @param onInstance the agent instance
 	 * @return a panel containing sliders
 	 */
 	@SuppressWarnings("unchecked")

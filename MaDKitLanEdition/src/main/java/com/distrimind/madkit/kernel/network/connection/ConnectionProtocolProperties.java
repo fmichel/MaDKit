@@ -151,6 +151,8 @@ public abstract class ConnectionProtocolProperties<CP extends ConnectionProtocol
 	 *            the local port
 	 * @param _distant_inet_address
 	 *            the distant inet address
+	 * @param isServer true if the current host is a server
+	 * @param needBiDirectionnalConnectionInitiationAbility true if the two peers must be able to initiate the connection
 	 * @return true if the filter accept the connection with the given parameters
 	 */
 	public boolean isConcernedBy(InetAddress _local_inet_address, int _local_port, InetAddress _distant_inet_address,

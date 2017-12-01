@@ -181,12 +181,17 @@ public class ACLMessage extends ActMessage // NO_UCD
 		super(NOT_UNDERSTOOD_STRING);
 	}
 
-	/** Constructor for ACLMessage class */
+	/** Constructor for ACLMessage class 
+	 * @param actType the act type
+	 * */
 	public ACLMessage(String actType) {
 		super(actType.toUpperCase());
 	}
 
-	/** Constructor for ACLMessage class */
+	/** Constructor for ACLMessage class 
+	 * @param actType the act type
+	 * @param cont the message content
+	 * */
 	public ACLMessage(String actType, String cont) {
 		super(actType.toUpperCase(), cont);
 	}
@@ -224,7 +229,7 @@ public class ACLMessage extends ActMessage // NO_UCD
 	}
 
 	/**
-	 * Return the list of receivers..
+	 * @return the list of receivers..
 	 */
 	public List<AgentAddress> getReceivers() {
 		return dests;

@@ -57,14 +57,14 @@ import com.distrimind.madkit.simulation.probe.PropertyProbe;
 public class Probe<A extends AbstractAgent> extends Overlooker<A> {
 
 	/**
-	 * Builds a new Probe<> on the given CGR location of the artificial society.
+	 * Builds a new Probe on the given CGR location of the artificial society.
 	 * Once created, it has to be added by a {@link Watcher} agent using the
 	 * {@link Watcher#addProbe(Probe)} method.
 	 * 
 	 * This has the same effect than <code>#Probe(groups, roleName, true)</code>
 	 * 
-	 * @param groups
-	 * @param roleName
+	 * @param groups the groups
+	 * @param roleName the role name
 	 * @see Watcher
 	 */
 	public Probe(final AbstractGroup groups, final String roleName) {
@@ -72,12 +72,12 @@ public class Probe<A extends AbstractAgent> extends Overlooker<A> {
 	}
 
 	/**
-	 * Builds a new Probe<> on the given CGR location of the artificial society.
+	 * Builds a new Probe on the given CGR location of the artificial society.
 	 * Once created, it has to be added by a {@link Watcher} agent using the
 	 * {@link Watcher#addProbe(Probe)} method.
 	 * 
-	 * @param groups
-	 * @param roleName
+	 * @param groups the groups
+	 * @param roleName the role name
 	 * @param unique
 	 *            Tells if the function {@link Overlooker#getCurrentAgentsList()}
 	 *            must returns unique references.
@@ -96,7 +96,7 @@ public class Probe<A extends AbstractAgent> extends Overlooker<A> {
 	 * @param fieldName
 	 *            the name of the field
 	 * @return the agent's field named <code>fieldName</code>
-	 * @throws NoSuchFieldException
+	 * @throws NoSuchFieldException if the field was not found
 	 */
 	@SuppressWarnings("unchecked")
 	public static Field findFieldOn(Class<? extends AbstractAgent> agentClass, final String fieldName)

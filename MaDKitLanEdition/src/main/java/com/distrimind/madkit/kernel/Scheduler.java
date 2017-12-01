@@ -276,15 +276,18 @@ public class Scheduler extends Agent {
 	 * <pre>
 	 * <tt>@Override</tt>
 	 * 	public void doSimulationStep() {
-	 * 		if (logger != null) {
-	 * 			logger.finer("Doing simulation step " + GVT);
+	 * 		&nbsp;&nbsp; &nbsp; * &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (logger != null) {
+	 * 		&nbsp;&nbsp; &nbsp; * &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;logger.finer("Doing simulation step " + GVT);
+	 * 		&nbsp;&nbsp; &nbsp; * &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}
+	 * 		&nbsp;&nbsp; &nbsp; * &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for (final Activator&lt;? extends AbstractAgent&gt; activator : activators) 
+	 * 		{
+	 * 		&nbsp;&nbsp; &nbsp; * &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (logger != null)
+	 * 		&nbsp;&nbsp; &nbsp; * &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;logger.finer("Activating\n--------&gt; " + activator);
+	 * 		&nbsp;&nbsp; &nbsp; * &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;activator.execute();
+	 * 		&nbsp;&nbsp; &nbsp; * &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;
 	 * 		}
-	 * 		for (final Activator<? extends AbstractAgent> activator : activators) {
-	 * 			if (logger != null)
-	 * 				logger.finer("Activating\n--------> " + activator);
-	 * 			activator.execute();
+	 * 		&nbsp;&nbsp; &nbsp; * &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;setGVT(getGVT() + 1);
 	 * 		}
-	 * 		setGVT(getGVT() + 1);
 	 * </pre>
 	 */
 	public void doSimulationStep() {
@@ -352,37 +355,9 @@ public class Scheduler extends Agent {
 	/**
 	 * Scheduler's default behavior.
 	 * 
-	 * default code is:
 	 * 
-	 * <pre>
 	 * 
-	 * if (GVT &gt; getSimulationDuration()) {
-	 * 	if (logger != null)
-	 * 		logger.info(&quot;Quitting: Simulation has reached end time &quot; + getSimulationDuration());
-	 * 	return;
-	 * }
-	 * pause(getDelay());
-	 * checkMail(nextMessage());
-	 * switch (getSimulationState()) {
-	 * case RUNNING:
-	 * 	doSimulationStep();
-	 * 	break;
-	 * case PAUSED:
-	 * 	paused();
-	 * 	break;
-	 * case STEP:
-	 * 	simulationState = PAUSED;
-	 * 	doSimulationStep();
-	 * 	break;
-	 * case SHUTDOWN:
-	 * 	return; // shutdown
-	 * default:
-	 * 	getLogger().severe(&quot;state not handled &quot; + getSimulationState);
-	 * }
-	 * 
-	 * </pre>
-	 * 
-	 * @throws InterruptedException
+	 * @throws InterruptedException if the current thread was interrupted
 	 * 
 	 * @see com.distrimind.madkit.kernel.Agent#liveCycle()
 	 */
@@ -457,7 +432,7 @@ public class Scheduler extends Agent {
 	/**
 	 * Runs {@link #checkMail(Message)} every 1000 ms.
 	 * 
-	 * @throws InterruptedException
+	 * @throws InterruptedException if the current thread was interrupted
 	 */
 	protected void paused() throws InterruptedException {
 

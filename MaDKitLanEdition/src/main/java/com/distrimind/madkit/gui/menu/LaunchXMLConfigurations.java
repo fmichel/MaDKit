@@ -76,6 +76,7 @@ public class LaunchXMLConfigurations extends ClassPathSensitiveMenu {
 	/**
 	 * Builds a new menu.
 	 * 
+	 * @param agent the agent
 	 * @param title
 	 *            the title to use
 	 */

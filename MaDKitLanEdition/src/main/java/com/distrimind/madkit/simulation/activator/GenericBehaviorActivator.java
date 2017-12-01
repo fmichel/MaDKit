@@ -84,8 +84,8 @@ public class GenericBehaviorActivator<A extends AbstractAgent> extends Activator
 	 * <code>#GenericBehaviorActivator(groups, role, theBehaviorToActivate, true)</code>
 	 * 
 	 * 
-	 * @param groups
-	 * @param role
+	 * @param groups the groups
+	 * @param role the role
 	 * @param theBehaviorToActivate
 	 *            name of the Java method which will be invoked
 	 */
@@ -102,8 +102,8 @@ public class GenericBehaviorActivator<A extends AbstractAgent> extends Activator
 	 * {@link AbstractAgent}
 	 * 
 	 * 
-	 * @param groups
-	 * @param role
+	 * @param groups the groups
+	 * @param role the role
 	 * @param theBehaviorToActivate
 	 *            name of the Java method which will be invoked
 	 * @param unique
@@ -124,7 +124,8 @@ public class GenericBehaviorActivator<A extends AbstractAgent> extends Activator
 	/**
 	 * Triggers the corresponding behavior on all the agents which are at the CGR
 	 * location defined by this activator.
-	 * 
+	 * @param agents the agents
+	 * @param args the arguments
 	 * @see com.distrimind.madkit.kernel.Activator#execute(List, Object...)
 	 */
 	@Override

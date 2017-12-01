@@ -111,11 +111,11 @@ public class EncryptedIdentifier extends Identifier {
 	 *             if a problem occurs
 	 * @throws IOException
 	 *             if a problem occurs
-	 * @throws BadPaddingException
-	 * @throws IllegalBlockSizeException
-	 * @throws InvalidKeySpecException
-	 * @throws NoSuchAlgorithmException
-	 * @throws NoSuchProviderException 
+	 * @throws BadPaddingException if a problem occurs
+	 * @throws IllegalBlockSizeException if a problem occurs
+	 * @throws InvalidKeySpecException if a problem occurs
+	 * @throws NoSuchAlgorithmException if a problem occurs
+	 * @throws NoSuchProviderException if a problem occurs
 	 */
 	public boolean verifyWithLocalIdentifier(Identifier originalIdentifier, P2PASymmetricSecretMessageExchanger cipher)
 			throws InvalidKeyException, IllegalAccessException, IOException, IllegalBlockSizeException,

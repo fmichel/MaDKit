@@ -77,8 +77,8 @@ public abstract class Activator<A extends AbstractAgent> extends Overlooker<A> {
 	 * 
 	 * This has the same effect than <code>Activator(groups, role, true)</code>
 	 * 
-	 * @param groups
-	 * @param role
+	 * @param groups the groups
+	 * @param role the role
 	 * @see Scheduler
 	 */
 	public Activator(AbstractGroup groups, String role) {
@@ -89,8 +89,8 @@ public abstract class Activator<A extends AbstractAgent> extends Overlooker<A> {
 	 * Builds a new Activator on the given CGR location of the artificial society
 	 * with multicore mode set to <code>false</code>.
 	 * 
-	 * @param groups
-	 * @param role
+	 * @param groups the groups
+	 * @param role the role
 	 * @param unique
 	 *            Tells if the function {@link Overlooker#getCurrentAgentsList()}
 	 *            must returns unique references.
@@ -101,7 +101,7 @@ public abstract class Activator<A extends AbstractAgent> extends Overlooker<A> {
 	}
 
 	/**
-	 * Call #execute(List<A> agentsList) on all the agents, i.e. using
+	 * Call #execute(List&lt;A&gt; agentsList) on all the agents, i.e. using
 	 * {@link Overlooker#getCurrentAgentsList()}.
 	 * 
 	 * By default, this is automatically called by the default scheduler's loop once
@@ -132,7 +132,10 @@ public abstract class Activator<A extends AbstractAgent> extends Overlooker<A> {
 	 * care about how the activator's fields are used here to avoid a
 	 * {@link ConcurrentModificationException} for instance.
 	 * 
-	 * @param agentsList
+	 * @param agentsList the agent list
+	 * @param args
+	 *            arguments that could be used by the scheduler to pass information
+	 *            to this activator for an activation
 	 */
 	public abstract void execute(List<A> agentsList, Object... args);
 
@@ -141,13 +144,14 @@ public abstract class Activator<A extends AbstractAgent> extends Overlooker<A> {
 	 * processor cores if available. This call decomposes the execution of the
 	 * activator in {@link #nbOfParallelTasks()} tasks so that there are
 	 * independently performed by the available core of the host.
-	 * <p>
+	 * <br>
 	 * Default implementation Beware that using this call will produce different
 	 * outputs for each run unless a concurrent simulation model is used. That is to
 	 * say, a model supporting concurrent phases in the simulation execution such as
 	 * the <a href=
 	 * "http://www.aamas-conference.org/Proceedings/aamas07/html/pdf/AAMAS07_0179_07a7765250ef7c3551a9eb0f13b75a58.pdf">IRM4S
-	 * model<a/>
+	 * model</a>
+	 * @param args the arguments
 	 * 
 	 */
 	protected void multicoreExecute(final Object... args) {
@@ -186,7 +190,7 @@ public abstract class Activator<A extends AbstractAgent> extends Overlooker<A> {
 
 	/**
 	 * @return <code>true</code> if the multicore mode is on. I.e.
-	 *         {@link #nbOfParallelTasks()} > 1. This method could be used by the
+	 *         {@link #nbOfParallelTasks()} &gt; 1. This method could be used by the
 	 *         default behavior of scheduler agents as they test in which mode each
 	 *         activator has to be used.
 	 */
@@ -241,8 +245,10 @@ public abstract class Activator<A extends AbstractAgent> extends Overlooker<A> {
 	 *            the targeted agent
 	 * @param methodName
 	 *            the name of the method
+	 * @param <T> the class type
 	 * @return the agent's method named <code>methodName</code>
-	 * @throws NoSuchMethodException
+	 * 
+	 * @throws NoSuchMethodException if the method was not found
 	 */
 	// * This also works on <code>private</code> field.
 	@SuppressWarnings("unchecked")
@@ -279,6 +285,7 @@ public abstract class Activator<A extends AbstractAgent> extends Overlooker<A> {
 	 * @param default_generated_exception
 	 *            the exception thrown by this function if the exception
 	 *            <code>e</code> cannot be handled.
+	 * @return true
 	 * @throws SimulationException
 	 *             if the given generated exception <code>e</code> cannot be
 	 *             handled, or if its handle generates another exception.

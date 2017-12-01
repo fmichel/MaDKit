@@ -80,9 +80,10 @@ public class KernelAddress implements Serializable, Cloneable {
 	/**
 	 * Avoid the default public visibility for denying usage.
 	 * 
+	 * @param isSecured if the kernel address must be secured
 	 * @throws NoSuchAlgorithmException
 	 *             if the used encryption algorithm does not exists
-	 * @throws NoSuchProviderException 
+	 * @throws NoSuchProviderException if the provider use to hash kernel address was not found
 	 */
 	protected KernelAddress(boolean isSecured) throws NoSuchAlgorithmException, NoSuchProviderException {
 		this(isSecured, true);

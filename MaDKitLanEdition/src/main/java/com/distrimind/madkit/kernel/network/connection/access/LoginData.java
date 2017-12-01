@@ -187,6 +187,7 @@ public abstract class LoginData extends AccessData {
 	 * 
 	 * @return the list of possible identifiers to initiate
 	 * @see #canTakesLoginInitiative()
+	 * @throws AccessException if an access problem occurs
 	 */
 	public abstract List<Identifier> getIdentifiersToInitiate() throws AccessException;
 
@@ -211,6 +212,7 @@ public abstract class LoginData extends AccessData {
 		 * @param identifier
 		 *            the new identifier parsed
 		 * @return true if the identifier parsing can continue
+		 * @throws AccessException if access problem occurs
 		 */
 		public abstract boolean newIdentifier(Identifier identifier) throws AccessException;
 	}
@@ -236,7 +238,7 @@ public abstract class LoginData extends AccessData {
 	/**
 	 * Transform the given identifier to a local identifier
 	 * 
-	 * @param _identifier
+	 * @param _identifier the identifier
 	 * @return an identifier transformed to be understood locally
 	 */
 	public abstract Identifier localiseIdentifier(Identifier _identifier);
@@ -337,7 +339,7 @@ public abstract class LoginData extends AccessData {
 	/**
 	 * This function must be called when identifiers have been removed
 	 * 
-	 * @param _identifiers
+	 * @param _identifiers the identifiers 
 	 */
 	public final void newIdentifiersRemovedEvent(Collection<Identifier> _identifiers) {
 		LoginEventsTrigger logts[] = login_triggers.get();

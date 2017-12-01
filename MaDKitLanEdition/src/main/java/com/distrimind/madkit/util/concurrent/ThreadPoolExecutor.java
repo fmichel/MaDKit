@@ -2188,30 +2188,7 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
 	 * either the direct cause or the underlying exception if a task has been
 	 * aborted:
 	 *
-	 * <pre>
-	 * {
-	 * 	&#64;code
-	 * 	class ExtendedExecutor extends ThreadPoolExecutor {
-	 * 		// ...
-	 * 		protected void afterExecute(Runnable r, Throwable t) {
-	 * 			super.afterExecute(r, t);
-	 * 			if (t == null && r instanceof Future<?>) {
-	 * 				try {
-	 * 					Object result = ((Future<?>) r).get();
-	 * 				} catch (CancellationException ce) {
-	 * 					t = ce;
-	 * 				} catch (ExecutionException ee) {
-	 * 					t = ee.getCause();
-	 * 				} catch (InterruptedException ie) {
-	 * 					Thread.currentThread().interrupt(); // ignore/reset
-	 * 				}
-	 * 			}
-	 * 			if (t != null)
-	 * 				System.out.println(t);
-	 * 		}
-	 * 	}
-	 * }
-	 * </pre>
+	
 	 *
 	 * @param r
 	 *            the runnable that has completed

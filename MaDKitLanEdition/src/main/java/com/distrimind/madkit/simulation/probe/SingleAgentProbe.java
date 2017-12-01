@@ -75,10 +75,10 @@ public class SingleAgentProbe<A extends AbstractAgent, T> extends Probe<A>// TOD
 	 * <code>#SingleAgentProbe(groups, role, true)</code>
 	 * 
 	 * 
-	 * @param groups
-	 * @param role
+	 * @param groups the groups
+	 * @param role the role name
 	 * @param fieldName
-	 *            the name of a field which is encapsulated in the type <A>
+	 *            the name of a field which is encapsulated in the type &lt;A&gt;
 	 */
 	public SingleAgentProbe(AbstractGroup groups, String role, String fieldName) {
 		super(groups, role);
@@ -90,10 +90,10 @@ public class SingleAgentProbe<A extends AbstractAgent, T> extends Probe<A>// TOD
 	 * class's field.
 	 * 
 	 * 
-	 * @param groups
-	 * @param role
+	 * @param groups the groups
+	 * @param role the role
 	 * @param fieldName
-	 *            the name of a field which is encapsulated in the type <A>
+	 *            the name of a field which is encapsulated in the type &lt;A&gt;
 	 * @param unique
 	 *            Tells if the function {@link #getCurrentAgentsList()}
 	 *            must returns unique references.
@@ -153,7 +153,7 @@ public class SingleAgentProbe<A extends AbstractAgent, T> extends Probe<A>// TOD
 	 * Should be used to work with primitive types or fields which are initially
 	 * <code>null</code>
 	 * 
-	 * @param value
+	 * @param value the property value
 	 */
 	public void setPropertyValue(final T value) {
 		try {

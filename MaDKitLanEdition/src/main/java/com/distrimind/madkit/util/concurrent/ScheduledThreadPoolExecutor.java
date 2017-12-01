@@ -401,6 +401,7 @@ public class ScheduledThreadPoolExecutor extends ThreadPoolExecutor implements S
 	 *            the task created to execute the runnable
 	 * @return a task that can execute the runnable
 	 * @since 1.6
+	 * @param <V> a type
 	 */
 	protected <V> RunnableScheduledFuture<V> decorateTask(Runnable runnable, RunnableScheduledFuture<V> task) {
 		return task;
@@ -417,6 +418,7 @@ public class ScheduledThreadPoolExecutor extends ThreadPoolExecutor implements S
 	 *            the task created to execute the callable
 	 * @return a task that can execute the callable
 	 * @since 1.6
+	 * @param <V> a type
 	 */
 	protected <V> RunnableScheduledFuture<V> decorateTask(Callable<V> callable, RunnableScheduledFuture<V> task) {
 		return task;
@@ -523,12 +525,11 @@ public class ScheduledThreadPoolExecutor extends ThreadPoolExecutor implements S
 		return delay;
 	}
 
-	/**
-	 * @throws RejectedExecutionException
-	 *             {@inheritDoc}
-	 * @throws NullPointerException
-	 *             {@inheritDoc}
-	 */
+	
+	
+	
+	
+	
 	@Override
 	public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit) {
 		if (command == null || unit == null)
@@ -539,12 +540,11 @@ public class ScheduledThreadPoolExecutor extends ThreadPoolExecutor implements S
 		return t;
 	}
 
-	/**
-	 * @throws RejectedExecutionException
-	 *             {@inheritDoc}
-	 * @throws NullPointerException
-	 *             {@inheritDoc}
-	 */
+	
+	
+	
+	
+	
 	@Override
 	public <V> ScheduledFuture<V> schedule(Callable<V> callable, long delay, TimeUnit unit) {
 		if (callable == null || unit == null)
@@ -555,14 +555,11 @@ public class ScheduledThreadPoolExecutor extends ThreadPoolExecutor implements S
 		return t;
 	}
 
-	/**
-	 * @throws RejectedExecutionException
-	 *             {@inheritDoc}
-	 * @throws NullPointerException
-	 *             {@inheritDoc}
-	 * @throws IllegalArgumentException
-	 *             {@inheritDoc}
-	 */
+	
+	
+	
+	
+	
 	@Override
 	public ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit) {
 		if (command == null || unit == null)
@@ -577,14 +574,12 @@ public class ScheduledThreadPoolExecutor extends ThreadPoolExecutor implements S
 		return t;
 	}
 
-	/**
-	 * @throws RejectedExecutionException
-	 *             {@inheritDoc}
-	 * @throws NullPointerException
-	 *             {@inheritDoc}
-	 * @throws IllegalArgumentException
-	 *             {@inheritDoc}
-	 */
+	
+	
+	
+	
+	
+	
 	@Override
 	public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit) {
 		if (command == null || unit == null)
@@ -599,27 +594,7 @@ public class ScheduledThreadPoolExecutor extends ThreadPoolExecutor implements S
 		return t;
 	}
 
-	/**
-	 * Executes {@code command} with zero required delay. This has effect equivalent
-	 * to {@link #schedule(Runnable,long,TimeUnit) schedule(command, 0, anyUnit)}.
-	 * Note that inspections of the queue and of the list returned by
-	 * {@code shutdownNow} will access the zero-delayed {@link ScheduledFuture}, not
-	 * the {@code command} itself.
-	 *
-	 * <p>
-	 * A consequence of the use of {@code ScheduledFuture} objects is that
-	 * {@link ThreadPoolExecutor#afterExecute afterExecute} is always called with a
-	 * null second {@code Throwable} argument, even if the {@code command}
-	 * terminated abruptly. Instead, the {@code Throwable} thrown by such a task can
-	 * be obtained via {@link Future#get}.
-	 *
-	 * @throws RejectedExecutionException
-	 *             at discretion of {@code RejectedExecutionHandler}, if the task
-	 *             cannot be accepted for execution because the executor has been
-	 *             shut down
-	 * @throws NullPointerException
-	 *             {@inheritDoc}
-	 */
+	
 	@Override
 	public void execute(Runnable command) {
 		schedule(command, 0, TimeUnit.NANOSECONDS);
@@ -627,34 +602,16 @@ public class ScheduledThreadPoolExecutor extends ThreadPoolExecutor implements S
 
 	// Override AbstractExecutorService methods
 
-	/**
-	 * @throws RejectedExecutionException
-	 *             {@inheritDoc}
-	 * @throws NullPointerException
-	 *             {@inheritDoc}
-	 */
 	@Override
 	public Future<?> submit(Runnable task) {
 		return schedule(task, 0, TimeUnit.NANOSECONDS);
 	}
 
-	/**
-	 * @throws RejectedExecutionException
-	 *             {@inheritDoc}
-	 * @throws NullPointerException
-	 *             {@inheritDoc}
-	 */
 	@Override
 	public <T> Future<T> submit(Runnable task, T result) {
 		return schedule(Executors.callable(task, result), 0, TimeUnit.NANOSECONDS);
 	}
 
-	/**
-	 * @throws RejectedExecutionException
-	 *             {@inheritDoc}
-	 * @throws NullPointerException
-	 *             {@inheritDoc}
-	 */
 	@Override
 	public <T> Future<T> submit(Callable<T> task) {
 		return schedule(task, 0, TimeUnit.NANOSECONDS);

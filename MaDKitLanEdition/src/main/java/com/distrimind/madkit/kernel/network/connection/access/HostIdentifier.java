@@ -89,7 +89,7 @@ public abstract class HostIdentifier implements Serializable {
 	 * @return a unique host identifier
 	 * @throws NoSuchAlgorithmException
 	 *             if the used encryption algorithm was not found
-	 * @throws NoSuchProviderException 
+	 * @throws NoSuchProviderException  if a problem occurs
 	 */
 	public static HostIdentifier generateDefaultHostIdentifier() throws NoSuchAlgorithmException, NoSuchProviderException {
 		return new DefaultHostIdentifier();

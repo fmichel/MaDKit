@@ -753,6 +753,7 @@ public class NetworkProperties extends XMLProperties {
 	 * 
 	 * @param _distant_inet_address
 	 *            the distant inet address
+	 * @param isServer true if the current host is a server 
 	 * @param _local_interface_address
 	 *            the local inet address
 	 * @param takeConnectionInitiative

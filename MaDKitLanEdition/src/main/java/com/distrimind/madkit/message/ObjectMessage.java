@@ -59,7 +59,7 @@ public class ObjectMessage<T> extends Message {
 	/**
 	 * Builds a message with the specified content
 	 * 
-	 * @param content
+	 * @param content the message content
 	 */
 	public ObjectMessage(final T content) {
 		this.content = content;
@@ -90,6 +90,8 @@ public class ObjectMessage<T> extends Message {
 	 *            the collection of messages whose maximum element is to be
 	 *            determined.
 	 * @return the message containing the maximum element.
+	 * @param <T> the object type to compare. Must implement Comparable
+	 * @param <M> the object message type
 	 * @throws ClassCastException
 	 *             if the content of the messages are not <i>mutually
 	 *             comparable</i>.
@@ -125,6 +127,9 @@ public class ObjectMessage<T> extends Message {
 	 *            the collection of messages whose maximum element is to be
 	 *            determined.
 	 * @return the message containing the minimum element.
+	 * @param <T> the object type to compare. Must implement Comparable
+	 * @param <M> the object message type
+	 * 
 	 * @throws ClassCastException
 	 *             if the content of the messages are not <i>mutually
 	 *             comparable</i>.
@@ -162,6 +167,9 @@ public class ObjectMessage<T> extends Message {
 	 *
 	 * @param list
 	 *            the list to be sorted.
+	 *            
+	 * @param <T> the object type to compare. Must implement Comparable
+	 * @param <M> the object message type
 	 * @throws ClassCastException
 	 *             if the list contains elements that are not <i>mutually
 	 *             comparable</i> (for example, strings and integers).

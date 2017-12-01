@@ -51,8 +51,8 @@ public class SenderRoleFilter implements MessageFilter {
 	/**
 	 * a new filter that acts according to the sender's CGR location.
 	 * 
-	 * @param group
-	 * @param role
+	 * @param group the group
+	 * @param role the role
 	 *            the role that the sender must have
 	 */
 	public SenderRoleFilter(final Group group, final String role) {

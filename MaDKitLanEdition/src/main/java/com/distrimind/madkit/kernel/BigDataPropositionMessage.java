@@ -174,7 +174,7 @@ public final class BigDataPropositionMessage extends Message {
 	 * 
 	 * @param outputStream
 	 *            the output stream to use during the transfer
-	 * @throws InterruptedException
+	 * @throws InterruptedException if the current thread is interrupted
 	 */
 	public void acceptTransfer(final RandomOutputStream outputStream) throws InterruptedException {
 		if (outputStream == null)
@@ -241,7 +241,7 @@ public final class BigDataPropositionMessage extends Message {
 	 * to the agent asking for the transfer, to inform him of the transfer result
 	 * (see {@link BigDataResultMessage.Type}).
 	 * 
-	 * @throws InterruptedException
+	 * @throws InterruptedException if the current thread is interrupted
 	 */
 	public void denyTransfer() throws InterruptedException {
 		final AbstractAgent receiver = getReceiver().getAgent();

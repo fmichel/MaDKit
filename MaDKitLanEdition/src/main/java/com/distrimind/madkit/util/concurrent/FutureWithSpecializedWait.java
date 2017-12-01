@@ -49,7 +49,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @version 1.0
  * @since MadkitLanEdition 1.0
  * 
- * @param <V>
+ * @param <V> a type
  */
 public class FutureWithSpecializedWait<V> implements Future<V> {
 	final Future<V> parentFuture;

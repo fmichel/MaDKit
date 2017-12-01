@@ -71,8 +71,10 @@ public class ActionInfo {
 	 * is from this package, it will be built automatically with values contained in
 	 * the madkit.i18n directory
 	 * 
-	 * @param enumAction
-	 * @param keyEvent
+	 * @param enumAction the enum action
+	 * @param keyEvent the key event
+	 * @param resource the resource bundle
+	 * @param <E> the enum type
 	 */
 	public <E extends Enum<E>> ActionInfo(E enumAction, int keyEvent, ResourceBundle resource) {
 		this(enumAction.name(), keyEvent, resource);
@@ -83,8 +85,8 @@ public class ActionInfo {
 	 * 
 	 * @param codeName
 	 *            the code name of the action as a string. For instance JCONSOLE.
-	 * @param keyEvent
-	 * @param resource
+	 * @param keyEvent the key event
+	 * @param resource the resource bundle
 	 */
 	public ActionInfo(String codeName, int keyEvent, ResourceBundle resource) {
 		name = codeName;
@@ -175,6 +177,7 @@ public class ActionInfo {
 	 * @param e
 	 *            the enum object to convert
 	 * @return a string having a Java standardized method name form.
+	 * @param <E> the enum type
 	 */
 	public static <E extends Enum<E>> String enumToMethodName(final E e) {
 		final String[] tab = e.name().split("_");

@@ -60,7 +60,7 @@ public abstract class MDKAbstractAction extends AbstractAction {
 	/**
 	 * Builds a new action using the passed action's information
 	 * 
-	 * @param actionInfo
+	 * @param actionInfo the action info
 	 */
 	public MDKAbstractAction(final ActionInfo actionInfo) {
 		putValue(Action.NAME, actionInfo.getName());

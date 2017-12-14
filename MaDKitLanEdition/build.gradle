@@ -45,7 +45,7 @@ repositories {
 dependencies {
      testCompile 'org.testng:testng:+'
      testCompile 'junit:junit:4+'
-     compile(group:'com.distrimind.ood', name: 'OOD', version: '2.0.0-Beta56')
+     compile(group:'com.distrimind.ood', name: 'OOD', version: '2.0.0-Beta57')
      compile(group:'org.fourthline.cling', name: 'cling-core', version: '2.1.1')
      compile(group:'org.fourthline.cling', name: 'cling-support', version: '2.1.1')
      compile(group:'org.hsqldb', name: 'hsqldb', version: '2.3.4')
@@ -61,7 +61,7 @@ allprojects {
 
 sourceCompatibility = 1.7
 targetCompatibility=1.7
-version='1.5.1'
+version='1.5.2'
 
 
 task sourcesJar(type: Jar, dependsOn: classes) {

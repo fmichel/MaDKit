@@ -144,7 +144,8 @@ final public class Madkit {
 			c = Calendar.getInstance();
 			c.set(2018, 0, 31);
 			Description d = new Description(1, 6, 0, Version.Type.Stable, 1, c.getTime());
-			d.addItem("Updating OOD to 2.0.0 Beta 58");
+			d.addItem("Updating OOD to 2.0.0 Beta 59");
+			d.addItem("Updating Utils to 3.9.0");
 			d.addItem("Messages can now be atomically non encrypted");
 			VERSION.addDescription(d);
 			

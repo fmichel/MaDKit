@@ -42,7 +42,7 @@ import com.distrimind.madkit.kernel.network.connection.ConnectionMessage;
 /**
  * 
  * @author Jason Mahdjoub
- * @version 1.0
+ * @version 1.1
  * @since MadkitLanEdition 1.0
  */
 class FirstMessage extends ConnectionMessage {
@@ -55,6 +55,11 @@ class FirstMessage extends ConnectionMessage {
 	@Override
 	public Integrity checkDataIntegrity() {
 		return Integrity.OK;
+	}
+
+	@Override
+	public boolean excludedFromEncryption() {
+		return true;
 	}
 
 }

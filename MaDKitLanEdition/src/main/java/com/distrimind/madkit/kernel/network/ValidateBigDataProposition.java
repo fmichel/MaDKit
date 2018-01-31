@@ -40,7 +40,7 @@ package com.distrimind.madkit.kernel.network;
 /**
  * 
  * @author Jason Mahdjoub
- * @version 1.0
+ * @version 1.1
  * @since MadkitLanEdition 1.0
  */
 class ValidateBigDataProposition implements SystemMessage {
@@ -67,6 +67,11 @@ class ValidateBigDataProposition implements SystemMessage {
 	public Integrity checkDataIntegrity() {
 
 		return Integrity.OK;
+	}
+
+	@Override
+	public boolean excludedFromEncryption() {
+		return false;
 	}
 
 }

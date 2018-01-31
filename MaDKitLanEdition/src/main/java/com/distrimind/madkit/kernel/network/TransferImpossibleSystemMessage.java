@@ -43,7 +43,7 @@ import com.distrimind.madkit.kernel.network.TransferAgent.IDTransfer;
 /**
  * 
  * @author Jason Mahdjoub
- * @version 1.0
+ * @version 1.1
  * @since MadkitLanEdition 1.0
  */
 class TransferImpossibleSystemMessage extends BroadcastableSystemMessage {
@@ -89,6 +89,11 @@ class TransferImpossibleSystemMessage extends BroadcastableSystemMessage {
 		if (id == null)
 			throw new IllegalArgumentException("null");
 		yourIDTransfer = id;
+	}
+
+	@Override
+	public boolean excludedFromEncryption() {
+		return false;
 	}
 
 }

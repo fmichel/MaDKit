@@ -42,7 +42,7 @@ import com.distrimind.madkit.exceptions.BlockParserException;
 /**
  * 
  * @author Jason Mahdjoub
- * @version 1.0
+ * @version 1.1
  * @since MadkitLanEdition 1.0
  */
 public abstract class SubBlockParser {
@@ -50,7 +50,7 @@ public abstract class SubBlockParser {
 	
 	public abstract SubBlockInfo getSubBlock(SubBlock _block) throws BlockParserException;
 
-	public abstract SubBlock getParentBlock(SubBlock _block) throws BlockParserException;
+	public abstract SubBlock getParentBlock(SubBlock _block, boolean excludedFromEncryption) throws BlockParserException;
 
 	protected final SubBlock getParentBlockWithNoTreatments(SubBlock _block) throws BlockParserException {
 		return new SubBlock(_block.getBytes(), _block.getOffset() - getSizeHead(),

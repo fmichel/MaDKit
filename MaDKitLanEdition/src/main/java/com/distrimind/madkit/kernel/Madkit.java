@@ -97,7 +97,7 @@ import com.distrimind.util.version.Version;
  * @author Fabien Michel
  * @author Jacques Ferber
  * @since MaDKit 4.0
- * @version 5.2
+ * @version 5.3
  */
 
 final public class Madkit {
@@ -119,8 +119,8 @@ final public class Madkit {
 		Calendar c = Calendar.getInstance();
 		c.set(2015, 4, 22);
 		Calendar c2 = Calendar.getInstance();
-		c2.set(2017, 11, 13);
-		Version VERSION = new Version("MadkitLanEdition", "MKLE", 1, 5, 2, Version.Type.Stable, 1, c.getTime(), c2.getTime());
+		c2.set(2018, 0, 31);
+		Version VERSION = new Version("MadkitLanEdition", "MKLE", 1, 6, 0, Version.Type.Stable, 1, c.getTime(), c2.getTime());
 		try {
 
 			InputStream is = Madkit.class.getResourceAsStream("build.txt");
@@ -142,8 +142,15 @@ final public class Madkit {
 			VERSION.addDeveloper(new PersonDeveloper("Ferber", "Jacques", c.getTime()));
 
 			c = Calendar.getInstance();
+			c.set(2018, 0, 31);
+			Description d = new Description(1, 6, 0, Version.Type.Stable, 1, c.getTime());
+			d.addItem("Updating OOD to 2.0.0 Beta 58");
+			d.addItem("Messages can now be atomically non encrypted");
+			VERSION.addDescription(d);
+			
+			c = Calendar.getInstance();
 			c.set(2017, 11, 13);
-			Description d = new Description(1, 5, 2, Version.Type.Stable, 1, c.getTime());
+			d = new Description(1, 5, 2, Version.Type.Stable, 1, c.getTime());
 			d.addItem("Updating OOD to 2.0.0 Beta 57");
 			d.addItem("Updating Utils to 3.7.1");
 			d.addItem("Debugging JavaDoc");

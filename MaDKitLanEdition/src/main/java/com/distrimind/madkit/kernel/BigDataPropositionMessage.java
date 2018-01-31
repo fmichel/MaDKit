@@ -59,7 +59,7 @@ import com.distrimind.util.crypto.MessageDigestType;
  * transfer will rejected.
  * 
  * @author Jason Mahdjoub
- * @version 1.0
+ * @version 1.1
  * @since MadkitLanEdition 1.0
  * 
  * @see AbstractAgent#sendBigDataWithRole(AgentAddress, RandomInputStream, long, long, Serializable, MessageDigestType, String)
@@ -85,9 +85,10 @@ public final class BigDataPropositionMessage extends Message {
 	protected int idPacket;
 	protected final long timeUTC;
 	private final MessageDigestType messageDigestType;
+	private boolean excludedFromEncryption;
 
 	BigDataPropositionMessage(RandomInputStream stream, long pos, long length, Serializable attachedData, boolean local,
-			int maxBufferSize, RealTimeTransfertStat stat, MessageDigestType messageDigestType) throws IOException {
+			int maxBufferSize, RealTimeTransfertStat stat, MessageDigestType messageDigestType, boolean excludedFromEncryption) throws IOException {
 		if (stream == null)
 			throw new NullPointerException("stream");
 		if (pos >= stream.length())
@@ -112,8 +113,14 @@ public final class BigDataPropositionMessage extends Message {
 		this.stat = stat;
 		timeUTC = System.currentTimeMillis();
 		this.messageDigestType = messageDigestType;
+		this.excludedFromEncryption=excludedFromEncryption;
 	}
 
+	public boolean bigDataExcludedFromEncryption()
+	{
+		return excludedFromEncryption;
+	}
+	
 	/**
 	 * Gets the user customized data attached to this big data transfer proposition
 	 * 

@@ -125,7 +125,7 @@ import com.distrimind.util.crypto.AbstractSecureRandom;
 /**
  * 
  * @author Jason Mahdjoub
- * @version 1.0
+ * @version 1.1
  * @since MadkitLanEdition 1.0
  */
 abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGroupsNotifier {
@@ -677,7 +677,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 			if (d.needNewByteBuffer()) {
 
 				try {
-					d.setNewBlock(getTransfertType(), getBlock(d.packet, getTransfertType().getID()));
+					d.setNewBlock(getTransfertType(), getBlock(d.packet, getTransfertType().getID(), d.excludedFromEncryption));
 					/*
 					 * if (d.needNewByteBuffer()) d.setNewBlock(getTransfertType(),
 					 * getBlock(d.packet, getTransfertType().getID()));
@@ -3008,8 +3008,8 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 		 */
 	}
 
-	protected Block getBlock(WritePacket _packet, int _transfert_type) throws NIOException {
-		return connection_protocol.getBlock(_packet, _transfert_type, need_random ? random : null);
+	protected Block getBlock(WritePacket _packet, int _transfert_type, boolean excludedFromEncryption) throws NIOException {
+		return connection_protocol.getBlock(_packet, _transfert_type, need_random ? random : null, excludedFromEncryption);
 	}
 
 	protected abstract class BlockData extends AbstractData {

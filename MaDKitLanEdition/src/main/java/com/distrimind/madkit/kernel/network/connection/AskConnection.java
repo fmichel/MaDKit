@@ -42,7 +42,7 @@ package com.distrimind.madkit.kernel.network.connection;
  * 
  * @author Jason Mahdjoub
  * @since MadkitLanEdition 1.0
- * @version 1.0
+ * @version 1.1
  */
 public class AskConnection extends ConnectionMessage {
 	/**
@@ -74,5 +74,10 @@ public class AskConnection extends ConnectionMessage {
 		if (you_are_asking)
 			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
 		return Integrity.OK;
+	}
+
+	@Override
+	public boolean excludedFromEncryption() {
+		return true;
 	}
 }

@@ -42,7 +42,7 @@ import com.distrimind.madkit.kernel.Message;
 /**
  * 
  * @author Jason Mahdjoub
- * @version 1.0
+ * @version 1.1
  * @since MadkitLanEdition 1.0
  */
 final class DirectLanMessage extends LanMessage {
@@ -64,6 +64,11 @@ final class DirectLanMessage extends LanMessage {
 		if (message.getReceiver() == null)
 			return Integrity.FAIL;
 		return isuper;
+	}
+
+	@Override
+	public boolean excludedFromEncryption() {
+		return message.excludedFromEncryption();
 	}
 
 }

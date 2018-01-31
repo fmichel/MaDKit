@@ -42,7 +42,7 @@ import com.distrimind.madkit.kernel.network.connection.ErrorConnection;
 /**
  * 
  * @author Jason Mahdjoub
- * @version 1.0
+ * @version 1.1
  * @since MadkitLanEdition 1.0
  */
 class SimilarPublicKeysError extends ErrorConnection {
@@ -62,6 +62,11 @@ class SimilarPublicKeysError extends ErrorConnection {
 			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
 
 		return Integrity.OK;
+	}
+
+	@Override
+	public boolean excludedFromEncryption() {
+		return true;
 	}
 
 }

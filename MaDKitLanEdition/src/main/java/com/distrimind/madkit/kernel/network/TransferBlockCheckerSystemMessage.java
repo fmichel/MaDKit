@@ -44,7 +44,7 @@ import com.distrimind.madkit.kernel.network.connection.TransferedBlockChecker;
 /**
  * 
  * @author Jason Mahdjoub
- * @version 1.0
+ * @version 1.1
  * @since MadkitLanEdition 1.0
  */
 class TransferBlockCheckerSystemMessage extends BroadcastableSystemMessage {
@@ -75,6 +75,11 @@ class TransferBlockCheckerSystemMessage extends BroadcastableSystemMessage {
 		if (transferBlockChercker == null)
 			return Integrity.FAIL;
 		return Integrity.OK;
+	}
+
+	@Override
+	public boolean excludedFromEncryption() {
+		return false;
 	}
 
 }

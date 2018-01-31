@@ -45,7 +45,7 @@ import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
  * needs. This class is quite lightweight, it just defines sender and receivers
  * (expressed with {@link AgentAddress} class).
  * 
- * @version 5.1
+ * @version 5.2
  * @author Fabien Michel
  * @author Jason Mahdjoub
  * @author Olivier Gutknecht
@@ -254,4 +254,12 @@ public class Message implements Cloneable, java.io.Serializable {// TODO message
 		return this;
 	}
 
+	/**
+	 * Tells if the message can be excluded from the lan encryption
+	 * @return true if the message can be excluded from the lan encryption
+	 */
+	public boolean excludedFromEncryption()
+	{
+		return false;
+	}
 }

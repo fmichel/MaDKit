@@ -167,7 +167,7 @@ import gnu.vm.jgnu.security.NoSuchProviderException;
  * 
  * @author Fabien Michel
  * @author Jason Mahdjoub
- * @version 2.0
+ * @version 2.1
  * @since MaDKit 5.0
  * @since MaDKitLanEdition 1.0
  * 
@@ -3320,7 +3320,7 @@ class MadkitKernel extends Agent {
 	}
 
 	BigDataTransferID sendBigData(AbstractAgent requester, AgentAddress agentAddress, RandomInputStream stream,
-			long pos, long length, Serializable attachedData, String senderRole, MessageDigestType messageDigestType)
+			long pos, long length, Serializable attachedData, String senderRole, MessageDigestType messageDigestType, boolean excludeFromEncryption)
 			throws IOException {
 		if (agentAddress == null)
 			throw new NullPointerException("agentAddress");
@@ -3333,7 +3333,7 @@ class MadkitKernel extends Agent {
 					getMadkitConfig().networkProperties.bigDataStatDurationMean / 10);
 			BigDataPropositionMessage message = new BigDataPropositionMessage(stream, pos, length, attachedData,
 					target.isFrom(getKernelAddress()), requester.getMadkitConfig().networkProperties.maxBufferSize,
-					stat, messageDigestType);
+					stat, messageDigestType, excludeFromEncryption);
 			try {
 				ReturnCode rc = buildAndSendMessage(getSenderAgentAddress(requester, target, senderRole), target,
 						message);

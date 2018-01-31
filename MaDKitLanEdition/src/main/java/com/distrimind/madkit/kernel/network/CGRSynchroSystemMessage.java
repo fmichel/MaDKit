@@ -42,7 +42,7 @@ import com.distrimind.madkit.kernel.CGRSynchro;
 /**
  * 
  * @author Jason Mahdjoub
- * @version 1.0
+ * @version 1.1
  * @since MadkitLanEdition 1.0
  */
 final class CGRSynchroSystemMessage implements SystemMessage {
@@ -79,6 +79,11 @@ final class CGRSynchroSystemMessage implements SystemMessage {
 	@Override
 	public String toString() {
 		return CGRSynchro.toString();
+	}
+
+	@Override
+	public boolean excludedFromEncryption() {
+		return false;
 	}
 
 }

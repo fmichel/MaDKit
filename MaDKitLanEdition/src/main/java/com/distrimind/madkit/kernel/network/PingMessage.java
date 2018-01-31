@@ -40,7 +40,7 @@ package com.distrimind.madkit.kernel.network;
 /**
  * 
  * @author Jason Mahdjoub
- * @version 1.0
+ * @version 1.1
  * @since MadkitLanEdition 1.0
  */
 final class PingMessage implements SystemMessage {
@@ -58,6 +58,11 @@ final class PingMessage implements SystemMessage {
 	@Override
 	public String toString() {
 		return getClass().getSimpleName();
+	}
+
+	@Override
+	public boolean excludedFromEncryption() {
+		return true;
 	}
 
 }

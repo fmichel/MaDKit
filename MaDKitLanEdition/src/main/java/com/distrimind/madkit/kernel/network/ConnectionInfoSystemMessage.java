@@ -49,7 +49,7 @@ import com.distrimind.madkit.kernel.network.LocalNetworkAgent.PossibleAddressFor
 /**
  * 
  * @author Jason Mahdjoub
- * @version 1.0
+ * @version 1.1
  * @since MadkitLanEdition 1.0
  *
  */
@@ -222,6 +222,11 @@ class ConnectionInfoSystemMessage implements SystemMessage {
 			localAddresses.checkDataIntegrity();
 
 		return Integrity.OK;
+	}
+
+	@Override
+	public boolean excludedFromEncryption() {
+		return false;
 	}
 
 }

@@ -171,7 +171,7 @@ import com.distrimind.util.crypto.MessageDigestType;
  * @author Fabien Michel
  * @author Olivier Gutknecht
  * @author Jason Mahdjoub
- * @version 6.0
+ * @version 6.1
  * @since MadKitLanEdition 1.0
  */
 public class AbstractAgent implements Comparable<AbstractAgent> {
@@ -4302,7 +4302,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 */
 	public BigDataTransferID sendBigData(AgentAddress agentAddress, RandomInputStream stream, Serializable attachedData)
 			throws IOException {
-		return this.sendBigData(agentAddress, stream, 0, stream.length(), attachedData, null);
+		return this.sendBigData(agentAddress, stream, 0, stream.length(), attachedData, null, false);
 	}
 
 	/**
@@ -4350,7 +4350,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 */
 	public BigDataTransferID sendBigData(AgentAddress agentAddress, RandomInputStream stream, long pos, long length,
 			MessageDigestType messageDigestType) throws IOException {
-		return this.sendBigData(agentAddress, stream, pos, length, null, messageDigestType);
+		return this.sendBigData(agentAddress, stream, pos, length, null, messageDigestType, false);
 	}
 
 	/**
@@ -4384,6 +4384,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * @param messageDigestType
 	 *            message digest type used to check validity of the transfered data.
 	 *            Can be null.
+	 * @param excludeFromEncryption true if the big data to send must be excluded from encryption
 	 * 
 	 * @return a big data transfer ID that identify the transfer, and that gives
 	 *         statistics about the transfer speed in real time. Returns null if the
@@ -4400,8 +4401,8 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * @throws IOException if data can't be read
 	 */
 	public BigDataTransferID sendBigData(AgentAddress agentAddress, RandomInputStream stream, long pos, long length,
-			Serializable attachedData, MessageDigestType messageDigestType) throws IOException {
-		return getKernel().sendBigData(this, agentAddress, stream, pos, length, attachedData, null, messageDigestType);
+			Serializable attachedData, MessageDigestType messageDigestType, boolean excludeFromEncryption) throws IOException {
+		return getKernel().sendBigData(this, agentAddress, stream, pos, length, attachedData, null, messageDigestType, excludeFromEncryption);
 	}
 
 	/**
@@ -4492,7 +4493,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 */
 	public BigDataTransferID sendBigDataWithRole(AgentAddress agentAddress, RandomInputStream stream,
 			Serializable attachedData, String senderRole) throws IOException {
-		return this.sendBigDataWithRole(agentAddress, stream, 0, stream.length(), attachedData, null, senderRole);
+		return this.sendBigDataWithRole(agentAddress, stream, 0, stream.length(), attachedData, null, senderRole, false);
 	}
 
 	/**
@@ -4543,7 +4544,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 */
 	public BigDataTransferID sendBigDataWithRole(AgentAddress agentAddress, RandomInputStream stream, long pos,
 			long length, MessageDigestType messageDigestType, String senderRole) throws IOException {
-		return this.sendBigDataWithRole(agentAddress, stream, pos, length, null, messageDigestType, senderRole);
+		return this.sendBigDataWithRole(agentAddress, stream, pos, length, null, messageDigestType, senderRole, false);
 	}
 
 	/**
@@ -4580,7 +4581,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 *            Can be null.
 	 * @param senderRole
 	 *            the sender role
-	 * 
+	 * @param excludeFromEncryption true if the big data to send must be excluded from encryption
 	 * @return a big data transfer ID that identify the transfer, and that gives
 	 *         statistics about the transfer speed in real time. Returns null if the
 	 *         <code>agentAddress</code> of the <code>senderRole</code> are invalid.
@@ -4596,10 +4597,10 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 *             if <code>pos</code> or <code>length</code> are invalid
 	 */
 	public BigDataTransferID sendBigDataWithRole(AgentAddress agentAddress, RandomInputStream stream, long pos,
-			long length, Serializable attachedData, MessageDigestType messageDigestType, String senderRole)
+			long length, Serializable attachedData, MessageDigestType messageDigestType, String senderRole, boolean excludeFromEncryption)
 			throws IOException {
 		return getKernel().sendBigData(this, agentAddress, stream, pos, length, attachedData, senderRole,
-				messageDigestType);
+				messageDigestType, excludeFromEncryption);
 	}
 
 	/**

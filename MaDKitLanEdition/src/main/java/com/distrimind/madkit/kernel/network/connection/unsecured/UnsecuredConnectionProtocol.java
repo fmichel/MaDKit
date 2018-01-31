@@ -60,7 +60,7 @@ import com.distrimind.ood.database.DatabaseWrapper;
  * any cryptographic algorithm.
  * 
  * @author Jason Mahdjoub
- * @version 1.0
+ * @version 1.1
  * @since MadkitLanEdition 1.0
  */
 public class UnsecuredConnectionProtocol extends ConnectionProtocol<UnsecuredConnectionProtocol> {
@@ -157,7 +157,7 @@ public class UnsecuredConnectionProtocol extends ConnectionProtocol<UnsecuredCon
 		}
 
 		@Override
-		public SubBlock getParentBlock(SubBlock _block) throws BlockParserException {
+		public SubBlock getParentBlock(SubBlock _block, boolean excludeFromEncryption) throws BlockParserException {
 			return getParentBlockWithNoTreatments(_block);
 		}
 

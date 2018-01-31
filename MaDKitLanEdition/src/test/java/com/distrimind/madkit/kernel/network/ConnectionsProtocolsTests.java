@@ -99,7 +99,7 @@ import gnu.vm.jgnu.security.NoSuchProviderException;
 /**
  * 
  * @author Jason Mahdjoub
- * @version 1.0
+ * @version 1.1
  * @since MadkitLanEdition 1.0
  */
 @RunWith(Parameterized.class)
@@ -389,8 +389,9 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 			try {
 				do {
 					byte[] message = serialize(masker);
+					boolean excludeFromEncryption=masker.excludedFromEncryption();
 					masker = (ConnectionMessage) unserialize(getMessage(message,
-							getBytesToSend(getBlocks(message, this.cpasker, npasker, 2, -1, null)), this.cpreceiver,
+							getBytesToSend(getBlocks(message,excludeFromEncryption, this.cpasker, npasker, 2, -1, null)), this.cpreceiver,
 							npreceiver, 2, -1, null));
 					Assert.assertEquals(masker.checkDataIntegrity(), Integrity.OK);
 					Assert.assertFalse(cpreceiver.isConnectionEstablished());
@@ -417,9 +418,9 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 						break;
 					}
 					message = serialize(mreceiver);
-
+					excludeFromEncryption=mreceiver.excludedFromEncryption();
 					mreceiver = (ConnectionMessage) unserialize(getMessage(message,
-							getBytesToSend(getBlocks(message, this.cpreceiver, npreceiver, 2, -1, null)),
+							getBytesToSend(getBlocks(message,excludeFromEncryption, this.cpreceiver, npreceiver, 2, -1, null)),
 							this.cpasker, npasker, 2, -1, null));
 					Assert.assertEquals(mreceiver.checkDataIntegrity(), Integrity.OK);
 					Assert.assertFalse(cpasker.isConnectionEstablished());
@@ -515,8 +516,9 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 					masker = new UnknowConnectionMessage();
 				}
 				byte[] message = serialize(masker);
+				boolean excludeFromEncryption=masker.excludedFromEncryption();
 				masker = (ConnectionMessage) unserialize(
-						getMessage(message, getBytesToSend(getBlocks(message, this.cpasker, npasker, 2, -1, null)),
+						getMessage(message, getBytesToSend(getBlocks(message,excludeFromEncryption, this.cpasker, npasker, 2, -1, null)),
 								this.cpreceiver, npreceiver, 2, -1, null));
 				Assert.assertEquals(masker.checkDataIntegrity(), Integrity.OK);
 				mreceiver = cpreceiver.setAndGetNextMessage(masker);
@@ -534,8 +536,9 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 				}
 
 				message = serialize(mreceiver);
+				excludeFromEncryption=mreceiver.excludedFromEncryption();
 				mreceiver = (ConnectionMessage) unserialize(getMessage(message,
-						getBytesToSend(getBlocks(message, this.cpreceiver, npreceiver, 2, -1, null)), this.cpasker,
+						getBytesToSend(getBlocks(message,excludeFromEncryption, this.cpreceiver, npreceiver, 2, -1, null)), this.cpasker,
 						npasker, 2, -1, null));
 				Assert.assertEquals(mreceiver.checkDataIntegrity(), Integrity.OK);
 				masker = cpasker.setAndGetNextMessage(mreceiver);
@@ -602,9 +605,10 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 					masker.corrupt();
 				}
 				byte[] message = serialize(masker);
+				boolean excludeFromEncryption=masker.excludedFromEncryption();
 
 				masker = (ConnectionMessage) unserialize(
-						getMessage(message, getBytesToSend(getBlocks(message, this.cpasker, npasker, 2, -1, null)),
+						getMessage(message, getBytesToSend(getBlocks(message, excludeFromEncryption, this.cpasker, npasker, 2, -1, null)),
 								this.cpreceiver, npreceiver, 2, -1, null));
 				Assert.assertEquals(masker.checkDataIntegrity(), Integrity.OK);
 				mreceiver = cpreceiver.setAndGetNextMessage(masker);
@@ -618,8 +622,9 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 				}
 
 				message = serialize(mreceiver);
+				excludeFromEncryption=mreceiver.excludedFromEncryption();
 				mreceiver = (ConnectionMessage) unserialize(getMessage(message,
-						getBytesToSend(getBlocks(message, this.cpreceiver, npreceiver, 2, -1, null)), this.cpasker,
+						getBytesToSend(getBlocks(message,excludeFromEncryption, this.cpreceiver, npreceiver, 2, -1, null)), this.cpasker,
 						npasker, 2, -1, null));
 				Assert.assertEquals(mreceiver.checkDataIntegrity(), Integrity.OK);
 				masker = cpasker.setAndGetNextMessage(mreceiver);
@@ -656,6 +661,11 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 			return Integrity.OK;
 		}
 
+		@Override
+		public boolean excludedFromEncryption() {
+			return false;
+		}
+
 	}
 
 	private byte[] getRandomMessage() {
@@ -664,7 +674,7 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 		return message;
 	}
 
-	public static ArrayList<Block> getBlocks(byte message[], ConnectionProtocol<?> cp, NetworkProperties np,
+	public static ArrayList<Block> getBlocks(byte message[], boolean excludeFromEncryption, ConnectionProtocol<?> cp, NetworkProperties np,
 			int idPacket, int transferType, TransferedBlockChecker tbc) throws PacketException, IOException,
 			NIOException, BlockParserException, NoSuchAlgorithmException, NoSuchProviderException {
 		ArrayList<Block> res = new ArrayList<>();
@@ -690,7 +700,7 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 				cp.setPointToPointTransferedBlockChecker(null);
 			}
 			Block b = cp.getBlock(wp, transferType,
-					np.maxRandomPacketValues > 0 ? SecureRandomType.DEFAULT.getSingleton(null) : null);
+					np.maxRandomPacketValues > 0 ? SecureRandomType.DEFAULT.getSingleton(null) : null, excludeFromEncryption);
 			Assert.assertEquals(transferType, b.getTransferID());
 			Assert.assertTrue(b.isValid());
 			res.add(b);
@@ -782,12 +792,13 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 		final int idPacket = rand.nextInt(1000000);
 		int transferType = -1;
 		byte[] message = getRandomMessage();
+		boolean excludeFromEncryption=rand.nextBoolean();
 		byte[] receivedMessage = getMessage(message,
-				getBytesToSend(getBlocks(message, cpasker, npasker, idPacket, transferType, tbcasker)), cpreceiver,
+				getBytesToSend(getBlocks(message, excludeFromEncryption, cpasker, npasker, idPacket, transferType, tbcasker)), cpreceiver,
 				npreceiver, idPacket, transferType, tbcasker);
 		Assert.assertArrayEquals(message, receivedMessage);
 		receivedMessage = getMessage(message,
-				getBytesToSend(getBlocks(message, cpreceiver, npreceiver, idPacket, transferType, tbcreceiver)),
+				getBytesToSend(getBlocks(message, excludeFromEncryption, cpreceiver, npreceiver, idPacket, transferType, tbcreceiver)),
 				cpasker, npasker, idPacket, transferType, tbcreceiver);
 		Assert.assertArrayEquals(message, receivedMessage);
 	}

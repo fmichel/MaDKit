@@ -44,7 +44,7 @@ import com.distrimind.util.Bits;
  * Represent a data block, potentially encrypted
  * 
  * @author Jason Mahdjoub
- * @version 1.0
+ * @version 1.1
  * @since MadkitLanEdition 1.0
  */
 public final class Block {
@@ -72,7 +72,7 @@ public final class Block {
 	
 	
 	
-	static void putShortInt(byte[] b, int off, int val) {
+	public static void putShortInt(byte[] b, int off, int val) {
 		if (val>BLOCK_SIZE_LIMIT)
 			throw new IllegalArgumentException("val cannot be greater than "+0xFFFFFF);
 		if (val<0)
@@ -81,7 +81,7 @@ public final class Block {
 		b[off + 1] = (byte) (val >>> 8);
 		b[off] = (byte) (val >>> 16);
 	}
-	static int getShortInt(byte[] b, int off) {
+	public static int getShortInt(byte[] b, int off) {
 		return ((b[off + 2] & 0xFF)) + ((b[off + 1] & 0xFF) << 8) + ((b[off] & 0xFF) << 16);
 	}
 

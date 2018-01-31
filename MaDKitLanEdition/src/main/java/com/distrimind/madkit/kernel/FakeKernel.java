@@ -61,7 +61,7 @@ import com.distrimind.util.crypto.MessageDigestType;
  * @author Fabien Michel
  * @author Jason Mahdjoub
  * @since MaDKitLanEdition 1.0
- * @version 1.2
+ * @version 1.3
  * 
  */
 class FakeKernel extends MadkitKernel {
@@ -349,7 +349,7 @@ class FakeKernel extends MadkitKernel {
 
 	@Override
 	BigDataTransferID sendBigData(AbstractAgent requester, AgentAddress agentAddress, RandomInputStream stream,
-			long pos, long length, Serializable attachedData, String senderRole, MessageDigestType messageDigestType) {
+			long pos, long length, Serializable attachedData, String senderRole, MessageDigestType messageDigestType, boolean excludeFromEncryption) {
 		throw buildKernelException(requester);
 	}
 

@@ -45,7 +45,7 @@ import com.distrimind.madkit.kernel.network.TransferAgent.IDTransfer;
 /**
  * 
  * @author Jason Mahdjoub
- * @version 1.0
+ * @version 1.1
  * @since MadkitLanEdition 1.0
  */
 class TransferPropositionSystemMessage extends BroadcastableSystemMessage {
@@ -129,6 +129,11 @@ class TransferPropositionSystemMessage extends BroadcastableSystemMessage {
 
 	boolean isYouAskConnection() {
 		return youAskConnection;
+	}
+
+	@Override
+	public boolean excludedFromEncryption() {
+		return false;
 	}
 
 }

@@ -48,13 +48,14 @@ import com.distrimind.madkit.kernel.Message;
  * 
  * @author Fabien Michel
  * @since MaDKit 5.0.0.1
- * @version 0.9
+ * @version 1.0
  *
  */
 public class ObjectMessage<T> extends Message {
 
 	private static final long serialVersionUID = 2061462024105569662L;
 	private final T content;
+	private boolean excludeFromEncryption;
 
 	/**
 	 * Builds a message with the specified content
@@ -62,7 +63,18 @@ public class ObjectMessage<T> extends Message {
 	 * @param content the message content
 	 */
 	public ObjectMessage(final T content) {
+		this(content, false);
+	}
+	
+	/**
+	 * Builds a message with the specified content
+	 * 
+	 * @param content the message content
+	 * @param excludeFromEncryption tells if this message can be excluded from the lan encryption process
+	 */
+	public ObjectMessage(final T content, boolean excludeFromEncryption) {
 		this.content = content;
+		this.excludeFromEncryption=excludeFromEncryption;
 	}
 
 	/**
@@ -200,5 +212,10 @@ public class ObjectMessage<T> extends Message {
 		String s = super.toString();
 		s += "\n" + (getClass().getSimpleName() + getConversationID()).replaceAll(".", " ");
 		return s + "    content: {" + content + "}";
+	}
+
+	@Override
+	public boolean excludedFromEncryption() {
+		return excludeFromEncryption;
 	}
 }

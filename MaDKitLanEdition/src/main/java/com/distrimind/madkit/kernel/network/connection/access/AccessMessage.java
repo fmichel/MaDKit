@@ -42,7 +42,7 @@ import com.distrimind.madkit.kernel.network.SystemMessage;
 /**
  * 
  * @author Jason Mahdjoub
- * @version 1.0
+ * @version 1.1
  * @since MadkitLanEdition 1.0
  */
 public abstract class AccessMessage implements SystemMessage {
@@ -60,5 +60,10 @@ public abstract class AccessMessage implements SystemMessage {
 
 	public void corrupt() {
 
+	}
+	
+	@Override
+	public boolean excludedFromEncryption() {
+		return false;
 	}
 }

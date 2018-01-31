@@ -50,7 +50,7 @@ import java.util.Random;
 /**
  * 
  * @author Jason Mahdjoub
- * @version 1.0
+ * @version 1.1
  * @since MadkitLanEdition 1.0
  */
 public class HostIP extends AbstractIP {
@@ -200,6 +200,11 @@ public class HostIP extends AbstractIP {
 		if (getInetAddress() == null)
 			return Integrity.FAIL;
 		return Integrity.OK;
+	}
+
+	@Override
+	public boolean excludedFromEncryption() {
+		return false;
 	}
 
 }

@@ -43,10 +43,10 @@ import java.io.Serializable;
  * Represent a system message.
  * 
  * @author Jason Mahdjoub
- * @version 1.0
+ * @version 1.1
  * @since MadkitLanEdition 1.0
  */
-public abstract interface SystemMessage extends Serializable {
+public interface SystemMessage extends Serializable {
 
 	public static enum Integrity {
 		/**
@@ -72,4 +72,6 @@ public abstract interface SystemMessage extends Serializable {
 	 * @see Integrity
 	 */
 	public abstract Integrity checkDataIntegrity();
+	
+	public boolean excludedFromEncryption();
 }

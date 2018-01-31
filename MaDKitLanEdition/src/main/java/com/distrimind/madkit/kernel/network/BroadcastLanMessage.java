@@ -46,7 +46,7 @@ import com.distrimind.madkit.kernel.Message;
 /**
  * 
  * @author Jason Mahdjoub
- * @version 1.0
+ * @version 1.1
  * @since MadkitLanEdition 1.0
  */
 final class BroadcastLanMessage extends LanMessage {
@@ -98,6 +98,11 @@ final class BroadcastLanMessage extends LanMessage {
 
 	void setAccetedGroups(AbstractGroup groups) {
 		abstract_group = groups;
+	}
+
+	@Override
+	public boolean excludedFromEncryption() {
+		return message.excludedFromEncryption();
 	}
 
 }

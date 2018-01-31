@@ -64,7 +64,7 @@ import com.distrimind.madkit.kernel.Message;
  * @author Oliver Gutknecht
  * @author Jacques Ferber
  * @author Fabien Michel
- * @version 5.0
+ * @version 5.1
  * @since MaDKit 1.0
  *
  */
@@ -81,6 +81,8 @@ public class XMLMessage extends Message {
 	 * The xml content as a String (null if the content is defined as a Document)
 	 */
 	protected String strcontent = null;
+	
+	private boolean excludeFromEncryption;
 
 	/**
 	 * Setup an XMLMessage with the xml document setup as a string. The string is
@@ -90,8 +92,21 @@ public class XMLMessage extends Message {
 	 *            A valid (i.e. parseable) text XML document
 	 */
 	public XMLMessage(String s) {
+		this(s, false);
+	}
+	
+	/**
+	 * Setup an XMLMessage with the xml document setup as a string. The string is
+	 * not validated at construction
+	 * 
+	 * @param s
+	 *            A valid (i.e. parseable) text XML document
+	 * @param excludeFromEncryption tells if this message can be excluded from the lan encryption process
+	 */
+	public XMLMessage(String s, boolean excludeFromEncryption) {
 		strcontent = s;
 		docContent = null;
+		this.excludeFromEncryption=excludeFromEncryption;
 	}
 
 	/**
@@ -101,8 +116,20 @@ public class XMLMessage extends Message {
 	 *            A well-formed DOM object
 	 */
 	public XMLMessage(Document d) {
+		this(d, false);
+	}
+	
+	/**
+	 * Setup an XMLMessage with the xml document setup as a Document
+	 * 
+	 * @param d
+	 *            A well-formed DOM object
+	 * @param excludeFromEncryption tells if this message can be excluded from the lan encryption process
+	 */
+	public XMLMessage(Document d, boolean excludeFromEncryption) {
 		strcontent = null;
 		docContent = d;
+		this.excludeFromEncryption=excludeFromEncryption;
 	}
 
 	/**
@@ -164,5 +191,10 @@ public class XMLMessage extends Message {
 		if (strcontent != null)
 			return strcontent;
 		return docContent.toString();
+	}
+
+	@Override
+	public boolean excludedFromEncryption() {
+		return excludeFromEncryption;
 	}
 }

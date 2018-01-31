@@ -44,7 +44,7 @@ import com.distrimind.madkit.kernel.AgentAddress;
 /**
  * 
  * @author Jason Mahdjoub
- * @version 1.0
+ * @version 1.1
  * @since MadkitLanEdition 1.0
  */
 final class SecretMessage extends KernelAddressNegociationMessage {
@@ -121,6 +121,11 @@ final class SecretMessage extends KernelAddressNegociationMessage {
 			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
 
 		return Integrity.OK;
+	}
+
+	@Override
+	public boolean excludedFromEncryption() {
+		return false;
 	}
 
 }

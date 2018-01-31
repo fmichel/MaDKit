@@ -65,7 +65,7 @@ import com.distrimind.util.crypto.MessageDigestType;
  * 
  * 
  * @author Jason Mahdjoub
- * @version 1.0
+ * @version 1.1
  * @since MadkitLanEdition 1.0
  */
 public class CheckSumConnectionProtocol extends ConnectionProtocol<CheckSumConnectionProtocol> {
@@ -180,7 +180,7 @@ public class CheckSumConnectionProtocol extends ConnectionProtocol<CheckSumConne
 		}
 
 		@Override
-		public SubBlock getParentBlock(SubBlock _block) throws BlockParserException {
+		public SubBlock getParentBlock(SubBlock _block, boolean excludeFromEncryption) throws BlockParserException {
 			try {
 				SubBlock res = getParentBlockWithNoTreatments(_block);
 				messageDigest.reset();

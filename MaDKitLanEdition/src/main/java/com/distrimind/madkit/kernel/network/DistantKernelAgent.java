@@ -107,7 +107,7 @@ import gnu.vm.jgnu.security.NoSuchProviderException;
  * Represent a distant Madkit kernel
  * 
  * @author Jason Mahdjoub
- * @version 1.0
+ * @version 1.1
  * @since MadkitLanEdition 1.0
  */
 class DistantKernelAgent extends AgentFakeThread {
@@ -740,7 +740,7 @@ class DistantKernelAgent extends AgentFakeThread {
 					getMadkitConfig().networkProperties.maxRandomPacketValues, random, inputStream,
 					bgpm.getStartStreamPosition(), bgpm.getTransferLength(), true, bgpm.getMessageDigestType());
 			BigPacketData packetData = new BigPacketData(choosenSocket.getAgentAddress(), packet, bgpm.getReceiver(),
-					bgpm.getSender(), bgpm.getConversationID(), bgpm.getStatistics());
+					bgpm.getSender(), bgpm.getConversationID(), bgpm.getStatistics(), bgpm.bigDataExcludedFromEncryption());
 			packetsDataInQueue.put(new Integer(id), packetData);
 		}
 	}
@@ -1633,7 +1633,7 @@ class DistantKernelAgent extends AgentFakeThread {
 						+ packet.getID() + ") : " + _data);
 			if (!sendMessage(receiver,
 					new DistKernADataToUpgradeMessage(
-							new PacketData(receiver, _data, packet, _messageLocker, last_message, prioritary)))
+							new PacketData(receiver, _data, packet, _messageLocker, last_message, prioritary, _data.excludedFromEncryption())))
 									.equals(ReturnCode.SUCCESS))
 				logger.warning("Fail sending data (distantInterfacedKernelAddress=" + distant_kernel_address
 						+ ", packetID=" + packet.getID() + ") : " + _data);
@@ -1735,9 +1735,10 @@ class DistantKernelAgent extends AgentFakeThread {
 		protected final AgentAddress firstAgentSocketSender;
 		private final AgentAddress agentReceiver;
 		protected final AtomicBoolean isCanceled = new AtomicBoolean(false);
+		protected final boolean excludedFromEncryption;
 
 		protected AbstractPacketData(boolean priority, AgentAddress firstAgentSocketSender, WritePacket _packet,
-				AgentAddress agentReceiver) {
+				AgentAddress agentReceiver, boolean excludedFromEncryption) {
 			super(priority);
 			if (_packet == null)
 				throw new NullPointerException("_packet");
@@ -1750,6 +1751,7 @@ class DistantKernelAgent extends AgentFakeThread {
 			asking_new_buffer_in_process = true;
 			stat = null;
 			this.agentReceiver = agentReceiver;
+			this.excludedFromEncryption=excludedFromEncryption;
 
 		}
 
@@ -1999,9 +2001,9 @@ class DistantKernelAgent extends AgentFakeThread {
 		private final boolean isSystemMessage;
 
 		protected PacketData(AgentAddress first_receiver, SystemMessage lan_message, WritePacket _packet,
-				MessageLocker _messageLocker, boolean _last_message, boolean pioririty) {
+				MessageLocker _messageLocker, boolean _last_message, boolean pioririty, boolean excludedFromEncryption) {
 			super(pioririty, first_receiver, _packet,
-					(lan_message instanceof LanMessage) ? ((LanMessage) lan_message).message.getReceiver() : null);
+					(lan_message instanceof LanMessage) ? ((LanMessage) lan_message).message.getReceiver() : null, excludedFromEncryption);
 			if (_packet.concernsBigData())
 				throw new IllegalArgumentException("_packet cannot use big data !");
 
@@ -2062,8 +2064,8 @@ class DistantKernelAgent extends AgentFakeThread {
 		private long timeUTC;
 
 		protected BigPacketData(AgentAddress _firstAgentSocketSender, WritePacket _packet, AgentAddress _agentReceiver,
-				AgentAddress asker, ConversationID conversationID, RealTimeTransfertStat stat) {
-			super(false, _firstAgentSocketSender, _packet, _agentReceiver);
+				AgentAddress asker, ConversationID conversationID, RealTimeTransfertStat stat, boolean excludedFromEncryption) {
+			super(false, _firstAgentSocketSender, _packet, _agentReceiver, excludedFromEncryption);
 			if (!_packet.concernsBigData())
 				throw new IllegalArgumentException("_packet has to use big data !");
 			if (asker == null)
@@ -2106,6 +2108,7 @@ class DistantKernelAgent extends AgentFakeThread {
 
 		DistKernADataToUpgradeMessage(AbstractPacketData _data) {
 			dataToUpgrade = _data;
+			
 		}
 	}
 

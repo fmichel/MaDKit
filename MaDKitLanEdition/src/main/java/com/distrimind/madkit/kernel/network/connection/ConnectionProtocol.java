@@ -69,7 +69,7 @@ import com.distrimind.util.crypto.AbstractSecureRandom;
  * 
  * 
  * @author Jason Mahdjoub
- * @version 1.0
+ * @version 1.1
  * @since MadkitLanEdition 1.0
  * @param <CP> the connection protocol type
  */
@@ -360,7 +360,7 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 		return pointToPointTransferedBlockChecker;
 	}
 	
-	public final Block getBlock(WritePacket _packet, int _transfert_type, AbstractSecureRandom random)
+	public final Block getBlock(WritePacket _packet, int _transfert_type, AbstractSecureRandom random, boolean excludedFromEncryption)
 			throws NIOException {
 
 		try {
@@ -374,7 +374,7 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 			for (Iterator<ConnectionProtocol<?>> it = this.reverseIterator(); it.hasNext(); i--) {
 				ConnectionProtocol<?> cp = it.next();
 
-				subBlock = sbs.getSubBlockForParent(cp.getParser().getParentBlock(subBlock), i, random);
+				subBlock = sbs.getSubBlockForParent(cp.getParser().getParentBlock(subBlock, excludedFromEncryption), i, random);
 			}
 			PointToPointTransferedBlockChecker ptp=pointToPointTransferedBlockChecker;
 			if (ptp==null)

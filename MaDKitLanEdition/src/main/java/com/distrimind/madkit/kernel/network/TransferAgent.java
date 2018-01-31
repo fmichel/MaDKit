@@ -68,7 +68,7 @@ import com.distrimind.util.IDGeneratorInt;
 /**
  * 
  * @author Jason Mahdjoub
- * @version 1.0
+ * @version 1.1
  * @since MadkitLanEdition 1.0
  */
 class TransferAgent extends AgentFakeThread {
@@ -749,6 +749,11 @@ class TransferAgent extends AgentFakeThread {
 				return Integrity.FAIL;
 
 			return idTransfer.checkDataIntegrity();
+		}
+
+		@Override
+		public boolean excludedFromEncryption() {
+			return false;
 		}
 	}
 

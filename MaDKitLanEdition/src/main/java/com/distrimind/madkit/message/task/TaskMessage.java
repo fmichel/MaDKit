@@ -45,7 +45,7 @@ import com.distrimind.madkit.kernel.TaskID;
  * 
  * @author Jason Mahdjoub
  * @since MadKitLanEdition 1.0
- * @version 1.0
+ * @version 1.1
  *
  */
 public abstract class TaskMessage extends Message {
@@ -81,4 +81,8 @@ public abstract class TaskMessage extends Message {
 		return taskID;
 	}
 
+	@Override
+	public boolean excludedFromEncryption() {
+		return false;
+	}
 }

@@ -46,7 +46,7 @@ import com.distrimind.madkit.kernel.network.connection.PointToPointTransferedBlo
 /**
  * 
  * @author Jason Mahdjoub
- * @version 1.0
+ * @version 1.1
  * @since MadkitLanEdition 1.0
  */
 class TransferConfirmationSystemMessage extends BroadcastableSystemMessage {
@@ -165,6 +165,11 @@ class TransferConfirmationSystemMessage extends BroadcastableSystemMessage {
 
 	public PointToPointTransferedBlockChecker getPointToPointBlockChecker() {
 		return pointToPointBlockChecker;
+	}
+
+	@Override
+	public boolean excludedFromEncryption() {
+		return false;
 	}
 
 }

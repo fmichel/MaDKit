@@ -42,7 +42,7 @@ import com.distrimind.madkit.kernel.network.connection.ErrorConnection;
 /**
  * 
  * @author Jason Mahdjoub
- * @version 1.0
+ * @version 1.1
  * @since MadkitLanEdition 1.0
  */
 class IncomprehensibleSecretKey extends ErrorConnection {
@@ -61,6 +61,11 @@ class IncomprehensibleSecretKey extends ErrorConnection {
 		if (!candidate_to_ban)
 			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
 		return Integrity.OK;
+	}
+
+	@Override
+	public boolean excludedFromEncryption() {
+		return false;
 	}
 
 }

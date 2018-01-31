@@ -45,7 +45,7 @@ import com.distrimind.madkit.kernel.MultiGroup;
 /**
  * 
  * @author Jason Mahdjoub
- * @version 1.0
+ * @version 1.1
  * @since MadkitLanEdition 1.0
  */
 final class AcceptedGroups implements SystemMessage {
@@ -106,6 +106,11 @@ final class AcceptedGroups implements SystemMessage {
 		if (distant_agent_socket_address == null)
 			return Integrity.FAIL;
 		return Integrity.OK;
+	}
+
+	@Override
+	public boolean excludedFromEncryption() {
+		return false;
 	}
 
 }

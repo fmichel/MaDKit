@@ -45,7 +45,7 @@ import java.net.InetSocketAddress;
 /**
  * 
  * @author Jason Mahdjoub
- * @version 1.0
+ * @version 1.1
  * @since MadkitLanEdition 1.0
  */
 public class DoubleIP extends AbstractIP {
@@ -160,5 +160,10 @@ public class DoubleIP extends AbstractIP {
 		if (inet4Address == null && inet6Address == null)
 			return Integrity.FAIL;
 		return Integrity.OK;
+	}
+
+	@Override
+	public boolean excludedFromEncryption() {
+		return false;
 	}
 }

@@ -40,7 +40,8 @@ import java.util.Hashtable;
  * This class describes a generic speech act message.
  * 
  * @author Ol. Gutknecht 10/03/98 original, revision 1.1 04/2002 J.Ferber
- * @version 1.1
+ * @author Jason Mahdjoub
+ * @version 1.2
  * @since MaDKit 1.0
  */
 
@@ -49,6 +50,7 @@ public class ActMessage extends com.distrimind.madkit.kernel.Message {
 	private static final long serialVersionUID = -2556927686645807800L;
 	protected String action;
 	protected final Hashtable<String, Object> fields;
+	private boolean excludeFromEncryption;
 	String content;
 
 	/** Constructor for GenericMessage class
@@ -57,6 +59,7 @@ public class ActMessage extends com.distrimind.madkit.kernel.Message {
 	public ActMessage(String actiontype) {
 		action = actiontype;
 		fields = new Hashtable<>();
+		excludeFromEncryption=false;
 	}
 
 	public ActMessage(String actiontype, String content) {
@@ -69,9 +72,10 @@ public class ActMessage extends com.distrimind.madkit.kernel.Message {
 		setObject(o);
 	}
 
-	public ActMessage(String actiontype, String content, Object o) {
+	public ActMessage(String actiontype, String content, Object o, boolean excludeFromEncryption) {
 		this(actiontype);
 		this.content = content;
+		this.excludeFromEncryption=excludeFromEncryption;
 		setObject(o);
 	}
 
@@ -113,6 +117,11 @@ public class ActMessage extends com.distrimind.madkit.kernel.Message {
 
 	public void setInReplyTo(String s) {
 		setField(":in-reply-to", s);
+	}
+
+	@Override
+	public boolean excludedFromEncryption() {
+		return excludeFromEncryption;
 	}
 
 }

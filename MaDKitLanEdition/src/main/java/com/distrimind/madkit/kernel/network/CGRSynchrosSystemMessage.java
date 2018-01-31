@@ -50,7 +50,7 @@ import com.distrimind.madkit.kernel.KernelAddress;
 /**
  * 
  * @author Jason Mahdjoub
- * @version 1.0
+ * @version 1.1
  * @since MadkitLanEdition 1.0
  */
 final class CGRSynchrosSystemMessage implements SystemMessage {
@@ -179,6 +179,11 @@ final class CGRSynchrosSystemMessage implements SystemMessage {
 			}
 		}
 		return Integrity.OK;
+	}
+
+	@Override
+	public boolean excludedFromEncryption() {
+		return false;
 	}
 
 }

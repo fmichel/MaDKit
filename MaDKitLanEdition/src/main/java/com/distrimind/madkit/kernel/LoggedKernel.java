@@ -71,7 +71,7 @@ import com.distrimind.util.crypto.MessageDigestType;
 /**
  * @author Fabien Michel
  * @author Jason Mahdjoub
- * @version 0.94
+ * @version 1.0
  * @since MaDKitLanEdition 1.0
  *
  */
@@ -619,10 +619,10 @@ final class LoggedKernel extends MadkitKernel {
 
 	@Override
 	BigDataTransferID sendBigData(AbstractAgent requester, AgentAddress agentAddress, RandomInputStream stream,
-			long pos, long length, Serializable attachedData, String senderRole, MessageDigestType messageDigestType)
+			long pos, long length, Serializable attachedData, String senderRole, MessageDigestType messageDigestType, boolean excludeFromEncryption)
 			throws IOException {
 		BigDataTransferID res = kernel.sendBigData(requester, agentAddress, stream, pos, length, attachedData,
-				senderRole, messageDigestType);
+				senderRole, messageDigestType, excludeFromEncryption);
 		if (requester.isFinestLogOn())
 			requester.logger.log(Level.FINEST,
 					"sendBigData (Agent " + requester + ", agent address " + agentAddress + ", stream type "

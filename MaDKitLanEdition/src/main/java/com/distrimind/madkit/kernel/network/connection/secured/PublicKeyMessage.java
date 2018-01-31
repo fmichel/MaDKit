@@ -43,7 +43,7 @@ import com.distrimind.util.crypto.ASymmetricPublicKey;
 /**
  * 
  * @author Jason Mahdjoub
- * @version 1.0
+ * @version 1.1
  * @since MadkitLanEdition 1.0
  */
 class PublicKeyMessage extends ConnectionMessage {
@@ -105,6 +105,11 @@ class PublicKeyMessage extends ConnectionMessage {
 			public_key_for_encryption_bytes = public_key_bytes_distant_for_encryption;
 		if (public_key_bytes_distant_for_signature != null)
 			public_key_for_signature_bytes = public_key_bytes_distant_for_signature;
+	}
+
+	@Override
+	public boolean excludedFromEncryption() {
+		return false;
 	}
 
 }

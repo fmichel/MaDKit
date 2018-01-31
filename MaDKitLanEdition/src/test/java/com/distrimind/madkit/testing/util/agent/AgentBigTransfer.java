@@ -62,7 +62,7 @@ import com.distrimind.util.crypto.MessageDigestType;
 /**
  * 
  * @author Jason Mahdjoub
- * @version 1.0
+ * @version 1.1
  * @since MadkitLanEdition 1.0
  */
 public class AgentBigTransfer extends AgentFakeThread {
@@ -186,7 +186,7 @@ public class AgentBigTransfer extends AgentFakeThread {
 				RandomByteArrayInputStream inputStream = new RandomByteArrayInputStream(new byte[inputStreamLengh]);
 
 				myTransferID = sendBigDataWithRole(destination, inputStream, 0, inputStream.length(), attachedData,
-						useMessageDigest ? MessageDigestType.BC_FIPS_SHA3_512 : null, thisRole);
+						useMessageDigest ? MessageDigestType.BC_FIPS_SHA3_512 : null, thisRole, false);
 				ok &= myTransferID != null;
 				Assert.assertTrue(ok);
 

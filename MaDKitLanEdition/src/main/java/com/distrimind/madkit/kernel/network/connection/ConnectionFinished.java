@@ -46,7 +46,7 @@ import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol.Connec
  * Message to tells that the connection protocol was terminated.
  * 
  * @author Jason Mahdjoub
- * @version 1.0
+ * @version 1.1
  * @since MadkitLanEdition 1.0
  *
  */
@@ -104,6 +104,11 @@ public class ConnectionFinished extends ConnectionMessage {
 		if (inet_address == null || state == null)
 			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
 		return Integrity.OK;
+	}
+
+	@Override
+	public boolean excludedFromEncryption() {
+		return false;
 	}
 
 }

@@ -114,7 +114,7 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 	public static Collection<Object[]> data(boolean databaseEnabled) {
 		AccessProtocolWithASymmetricKeyExchangerProperties app1=new AccessProtocolWithASymmetricKeyExchangerProperties();
 		app1.aSymetricKeySize = 1024;
-		app1.passwordHashIterations = 1024;
+		app1.passwordHashCost = 7;
 		Collection<Object[]> res=data(databaseEnabled, app1);
 		AccessProtocolWithJPakeProperties app2=new AccessProtocolWithJPakeProperties();
 		res.addAll(data(databaseEnabled, app2));

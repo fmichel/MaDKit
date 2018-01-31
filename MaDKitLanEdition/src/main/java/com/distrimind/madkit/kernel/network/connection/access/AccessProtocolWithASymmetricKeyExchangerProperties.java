@@ -89,9 +89,9 @@ public class AccessProtocolWithASymmetricKeyExchangerProperties extends Abstract
 	public PasswordHashType passwordHashType = PasswordHashType.DEFAULT;
 
 	/**
-	 * Password hash iterations
+	 * Password hash cost (iterations=2^passwordHashCost)
 	 */
-	public int passwordHashIterations = 100000;
+	public byte passwordHashCost = 16;
 
 	/**
 	 * Default duration of a public key before being regenerated. Must be greater or

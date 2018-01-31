@@ -127,7 +127,7 @@ public class AccessProtocolWithASymmetricKeyExchanger extends AbstractAccessProt
 					this.cipher = new P2PASymmetricSecretMessageExchanger(mkProperties.getApprovedSecureRandom(),
 							this.access_protocol_properties.messageDigestType,
 							this.access_protocol_properties.passwordHashType, myKeyPair.getASymmetricPublicKey());
-					this.cipher.setHashIterationsNumber(this.access_protocol_properties.passwordHashIterations);
+					this.cipher.setCost(this.access_protocol_properties.passwordHashCost);
 				}
 				access_state = AccessState.ACCESS_NOT_INITIALIZED;
 			}
@@ -141,7 +141,7 @@ public class AccessProtocolWithASymmetricKeyExchanger extends AbstractAccessProt
 						this.cipher = new P2PASymmetricSecretMessageExchanger(mkProperties.getApprovedSecureRandom(),
 								this.access_protocol_properties.messageDigestType,
 								this.access_protocol_properties.passwordHashType, myKeyPair.getASymmetricPublicKey());
-						this.cipher.setHashIterationsNumber(this.access_protocol_properties.passwordHashIterations);
+						this.cipher.setCost(this.access_protocol_properties.passwordHashCost);
 						access_state = AccessState.WAITING_FOR_PUBLIC_KEY;
 						return new AccessPublicKeyMessage(this.cipher.getMyPublicKey(),
 								this.cipher.getDistantPublicKey(), ((LoginData) access_data).canTakesLoginInitiative());
@@ -166,7 +166,7 @@ public class AccessProtocolWithASymmetricKeyExchanger extends AbstractAccessProt
 									this.access_protocol_properties.messageDigestType,
 									this.access_protocol_properties.passwordHashType,
 									myKeyPair.getASymmetricPublicKey());
-							this.cipher.setHashIterationsNumber(this.access_protocol_properties.passwordHashIterations);
+							this.cipher.setCost(this.access_protocol_properties.passwordHashCost);
 
 							access_state = AccessState.IDENTICAL_PUBLIC_KEY;
 							return new AccessIdenticalPublicKeys(true);
@@ -183,7 +183,7 @@ public class AccessProtocolWithASymmetricKeyExchanger extends AbstractAccessProt
 						this.cipher = new P2PASymmetricSecretMessageExchanger(mkProperties.getApprovedSecureRandom(),
 								this.access_protocol_properties.messageDigestType,
 								this.access_protocol_properties.passwordHashType, this.cipher.getMyPublicKey());
-						this.cipher.setHashIterationsNumber(this.access_protocol_properties.passwordHashIterations);
+						this.cipher.setCost(this.access_protocol_properties.passwordHashCost);
 						return new AccessInvalidKeyMessage(false);
 					} else {
 						access_state = AccessState.ACCESS_INITIALIZED;

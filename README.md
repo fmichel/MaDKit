@@ -44,6 +44,7 @@ The project is not already a Maven project. Please Use Git hub releases to get a
     * Auto-open a router's port to enable direct connection with distant peers.
     * If no opened port is available or if no UPNP IGD rooter is available for two concerned distant peers, the system can choose to make an indirect connection between the two peers, through a dedicated server. This server is not able to decode messages between the two peers if the connection is secured.  
 * enable to send simples messages between agents, or big data transfers (like files) between agents.
+* individual messages can be encrypted or not
 * multiple connections are possible between two same peers (through multiple interfaces). The system will use each connection in parallel by choosing for each packet to send the connection which offer more bandwidth or which is less busy
 * The system detects hot plug of network interfaces
 * middle man is limited by using an interfaced kernel address, when a peer try to use the same kernel address than an other peer.
@@ -128,4 +129,3 @@ To know what last version has been uploaded, please refer to versions availables
 
 
 [1]: http://www.lirmm.fr/~fmichel/publi/pdfs/ferber04ocmas.pdf
->>>>>>> 796d58a Releasing MaDKit 1.1.0

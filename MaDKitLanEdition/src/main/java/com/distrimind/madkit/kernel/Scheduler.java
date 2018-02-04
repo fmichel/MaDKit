@@ -132,7 +132,7 @@ public class Scheduler extends Agent {
 	private Action run, step, speedUp, speedDown;
 
 	// private JLabel timer;
-	private int delay;
+	private int delay=400;
 
 	/**
 	 * specify the delay between 2 steps
@@ -333,6 +333,8 @@ public class Scheduler extends Agent {
 	protected void setSimulationState(final SimulationState newState) {// TODO proceedEnumMessage
 		if (simulationState != newState) {
 			simulationState = newState;
+			if (logger!=null)
+				logger.log(Level.FINE, "New simulation state : "+simulationState);
 			switch (simulationState) {
 			case STEP:
 				run.setEnabled(true);
@@ -366,7 +368,7 @@ public class Scheduler extends Agent {
 		if (GVT > simulationDuration) {
 			if (logger != null)
 				logger.info("Quitting: Simulation has reached end time " + simulationDuration);
-			return;
+			this.killAgent(this);
 		}
 		pause(delay);
 		checkMail(nextMessage());
@@ -382,7 +384,7 @@ public class Scheduler extends Agent {
 			doSimulationStep();
 			break;
 		case SHUTDOWN:
-			return; // shutdown
+			this.killAgent(this);
 		default:
 			getLogger().severe("state not handled " + simulationState);
 		}

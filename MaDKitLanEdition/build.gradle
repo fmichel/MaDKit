@@ -11,16 +11,18 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-compileJava.options.fork = true
-compileJava.options.forkOptions.executable = "${jdk}/bin/javac"
-compileJava.options.bootClasspath=fileTree(include: ['*.jar'], dir: "${jdk}/jre/lib").join(File.pathSeparator)
-compileJava.options.extensionDirs = "${jdk}/jre/lib/ext/"
-
-compileTestJava.options.fork = true
-compileTestJava.options.forkOptions.executable = "${jdk}/bin/javac"
-compileTestJava.options.bootClasspath=fileTree(include: ['*.jar'], dir: "${jdk}/jre/lib").join(File.pathSeparator)
-compileTestJava.options.extensionDirs = "${jdk}/jre/lib/ext/"
-
+if (jdk!=null)
+{
+	compileJava.options.fork = true
+	compileJava.options.forkOptions.executable = "${jdk}/bin/javac"
+	compileJava.options.bootClasspath=fileTree(include: ['*.jar'], dir: "${jdk}/jre/lib").join(File.pathSeparator)
+	compileJava.options.extensionDirs = "${jdk}/jre/lib/ext/"
+	
+	compileTestJava.options.fork = true
+	compileTestJava.options.forkOptions.executable = "${jdk}/bin/javac"
+	compileTestJava.options.bootClasspath=fileTree(include: ['*.jar'], dir: "${jdk}/jre/lib").join(File.pathSeparator)
+	compileTestJava.options.extensionDirs = "${jdk}/jre/lib/ext/"
+}
 eclipse {
     classpath {
        downloadSources=true
@@ -61,7 +63,7 @@ allprojects {
 
 sourceCompatibility = 1.7
 targetCompatibility=1.7
-version='1.6.0'
+version='1.6.1'
 
 
 task sourcesJar(type: Jar, dependsOn: classes) {

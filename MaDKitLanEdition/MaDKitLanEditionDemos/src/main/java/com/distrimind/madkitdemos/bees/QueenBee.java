@@ -36,59 +36,58 @@ import com.distrimind.madkit.message.ObjectMessage;
  */
 public class QueenBee extends AbstractBee {
 
-   
-    static int border = 20;
+	static int border = 20;
 
-    @Override
-    protected void buzz() {
-	Message m = nextMessage();
-	if (m != null) {
-	    sendReply(m, new ObjectMessage<>(myInformation));
+	@Override
+	protected void buzz() {
+		Message m = nextMessage();
+		if (m != null) {
+			sendReply(m, new ObjectMessage<>(myInformation));
+		}
+
+		super.buzz();
+
+		if (beeWorld != null) {
+			// check to see if the queen hits the edge
+			final Point location = myInformation.getCurrentPosition();
+			if (location.x < border || location.x > (beeWorld.getWidth() - border)) {
+				dX = -dX;
+				location.x += (dX);
+			}
+			if (location.y < border || location.y > (beeWorld.getHeight() - border)) {
+				dY = -dY;
+				location.y += (dY);
+			}
+		}
 	}
 
-	super.buzz();
-
-	if (beeWorld != null) {
-	    // check to see if the queen hits the edge
-	    final Point location = myInformation.getCurrentPosition();
-	    if (location.x < border || location.x > (beeWorld.getWidth() - border)) {
-		dX = -dX;
-		location.x += (dX);
-	    }
-	    if (location.y < border || location.y > (beeWorld.getHeight() - border)) {
-		dY = -dY;
-		location.y += (dY);
-	    }
+	@Override
+	protected void activate() {
+		requestRole(SIMU_GROUP, QUEEN_ROLE, null);
+		requestRole(SIMU_GROUP, BEE_ROLE, null);
+		broadcastMessage(SIMU_GROUP, FOLLOWER_ROLE, new ObjectMessage<>(myInformation));
 	}
-    }
 
-    @Override
-    protected void activate() {
-	requestRole(SIMU_GROUP, QUEEN_ROLE, null);
-	requestRole(SIMU_GROUP, BEE_ROLE, null);
-	broadcastMessage(SIMU_GROUP, FOLLOWER_ROLE, new ObjectMessage<>(myInformation));
-    }
-
-    @Override
-    protected void end() {
-	broadcastMessage(SIMU_GROUP, FOLLOWER_ROLE, new ObjectMessage<>(myInformation));
-    }
-
-    @Override
-    protected int getMaxVelocity() {
-	if (beeWorld != null) {
-	    return beeWorld.getQueenVelocity().getValue();
+	@Override
+	protected void end() {
+		broadcastMessage(SIMU_GROUP, FOLLOWER_ROLE, new ObjectMessage<>(myInformation));
 	}
-	return 0;
-    }
 
-    @Override
-    protected void computeNewVelocities() {
-	if (beeWorld != null) {
-	    int acc = beeWorld.getQueenAcceleration().getValue();
-	    dX += randomFromRange(acc);
-	    dY += randomFromRange(acc);
+	@Override
+	protected int getMaxVelocity() {
+		if (beeWorld != null) {
+			return beeWorld.getQueenVelocity().getValue();
+		}
+		return 0;
 	}
-    }
+
+	@Override
+	protected void computeNewVelocities() {
+		if (beeWorld != null) {
+			int acc = beeWorld.getQueenAcceleration().getValue();
+			dX += randomFromRange(acc);
+			dY += randomFromRange(acc);
+		}
+	}
 
 }

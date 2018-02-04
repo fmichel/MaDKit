@@ -41,98 +41,97 @@ import com.distrimind.madkit.message.StringMessage;
  */
 public class Client extends Agent {
 
-    static int nbOfClientsOnScreen = 0;
+	static int nbOfClientsOnScreen = 0;
 
-    private JPanel blinkPanel;
-    private static ImageIcon clientImage = new ImageIcon(new ImageIcon(Client.class.getResource("images/client.png")).getImage().getScaledInstance(70, 70, Image.SCALE_SMOOTH));
-    private final String product = Provider.availableTransports.get((int) (Math.random() * Provider.availableTransports.size()));
+	private JPanel blinkPanel;
+	private static ImageIcon clientImage = new ImageIcon(new ImageIcon(Client.class.getResource("images/client.png"))
+			.getImage().getScaledInstance(70, 70, Image.SCALE_SMOOTH));
+	private final String product = Provider.availableTransports
+			.get((int) (Math.random() * Provider.availableTransports.size()));
 
-    @Override
-    protected void activate() throws InterruptedException {
-	requestRole(MarketOrganization.CLIENT_GROUP, MarketOrganization.CLIENT_ROLE, null);
-	int pause = 1000 + (int) (Math.random() * 2000);
-	getLogger().info("I will be looking for a " + product + " in " + pause + " ms !");
-	pause(pause);
-    }
-
-    private boolean haveTicket = false;
 	@Override
-    protected void liveCycle() throws InterruptedException {
-	
-	
-	    Message brokerAnswer = null;
-	    while (brokerAnswer == null) {
-		brokerAnswer = sendMessageWithRoleAndWaitForReply(
-			MarketOrganization.CLIENT_GROUP, 
-			MarketOrganization.BROKER_ROLE,
-			new StringMessage(product), 
-			MarketOrganization.CLIENT_ROLE, 
-			1000
-			);
-		getLogger().info("For now there is nothing for me :(");
-		pause(500);
-	    }
-	    logFindBroker(brokerAnswer);// I found a broker and he has something for me
-	    haveTicket = buyTicket((StringMessage) brokerAnswer);
-	    if (haveTicket)
-	    		this.killAgent(this);
-    }
-
-    @Override
-    protected void end() throws InterruptedException {
-	getLogger().info("I will quit soon now, buit I will launch another one like me !");
-	pause((int) (Math.random() * 2000 + 500));
-	launchAgent(new Client(), 4, true);
-    }
-
-    private void logFindBroker(Message brokerAnswer) throws InterruptedException {
-	getLogger().info("I found a broker : " + brokerAnswer.getSender());
-	if (blinkPanel != null) {
-	    blinkPanel.setBackground(Color.YELLOW);
-	    pause(1000);
+	protected void activate() throws InterruptedException {
+		requestRole(MarketOrganization.CLIENT_GROUP, MarketOrganization.CLIENT_ROLE, null);
+		int pause = 1000 + (int) (Math.random() * 2000);
+		getLogger().info("I will be looking for a " + product + " in " + pause + " ms !");
+		pause(pause);
 	}
-    }
 
-    private boolean buyTicket(StringMessage brokerAnswer) throws InterruptedException {
-	Group contractGroupID = new Group(MarketOrganization.COMMUNITY, brokerAnswer.getContent());
-	requestRole(contractGroupID, MarketOrganization.CLIENT_ROLE);
-	Message ticket = sendMessageAndWaitForReply(contractGroupID, MarketOrganization.PROVIDER_ROLE, new StringMessage("money"), 4000);
-	if (ticket != null) {
-	    getLogger().info("Yeeeaah: I have my ticket :) ");
-	    if (hasGUI()) {
-		blinkPanel.setBackground(Color.GREEN);
-	    }
-	    leaveGroup(MarketOrganization.CLIENT_GROUP);
-	    pause((int) (1000 + Math.random() * 2000));
-	    return true;
+	private boolean haveTicket = false;
+
+	@Override
+	protected void liveCycle() throws InterruptedException {
+
+		Message brokerAnswer = null;
+		while (brokerAnswer == null) {
+			brokerAnswer = sendMessageWithRoleAndWaitForReply(MarketOrganization.CLIENT_GROUP,
+					MarketOrganization.BROKER_ROLE, new StringMessage(product), MarketOrganization.CLIENT_ROLE, 1000);
+			getLogger().info("For now there is nothing for me :(");
+			pause(500);
+		}
+		logFindBroker(brokerAnswer);// I found a broker and he has something for me
+		haveTicket = buyTicket((StringMessage) brokerAnswer);
+		if (haveTicket)
+			this.killAgent(this);
 	}
-	return false;
-    }
 
-    @Override
-    public void setupFrame(JFrame frame) {
-	JPanel p = new JPanel(new BorderLayout());
-	// customizing but still using the OutputPanel from MaDKit GUI
-	p.add(new OutputPanel(this), BorderLayout.CENTER);
-	blinkPanel = new JPanel();
-	blinkPanel.add(new JLabel(clientImage));
-	blinkPanel.add(new JLabel(new ImageIcon(getClass().getResource("images/" + product + ".png"))));
-	p.add(blinkPanel, BorderLayout.NORTH);
-	p.validate();
-	frame.add(p);
-	int xLocation = nbOfClientsOnScreen++ * 390;
-	if (xLocation + 390 > Toolkit.getDefaultToolkit().getScreenSize().getWidth())
-	    nbOfClientsOnScreen = 0;
-	frame.setLocation(xLocation, 0);
-	frame.setSize(390, 300);
-    }
+	@Override
+	protected void end() throws InterruptedException {
+		getLogger().info("I will quit soon now, buit I will launch another one like me !");
+		pause((int) (Math.random() * 2000 + 500));
+		launchAgent(new Client(), 4, true);
+	}
 
-    /**
-     * @param args
-     */
-    public static void main(String[] args) {
-	nbOfClientsOnScreen = 0;
-	Broker.nbOfBrokersOnScreen = 0;
-	new Madkit("--launchAgents", "{"+Broker.class.getName() + ",true,3;" + Client.class.getName() + ",true,2;" + Provider.class.getName() + ",true,7}");
-    }
+	private void logFindBroker(Message brokerAnswer) throws InterruptedException {
+		getLogger().info("I found a broker : " + brokerAnswer.getSender());
+		if (blinkPanel != null) {
+			blinkPanel.setBackground(Color.YELLOW);
+			pause(1000);
+		}
+	}
+
+	private boolean buyTicket(StringMessage brokerAnswer) throws InterruptedException {
+		Group contractGroupID = new Group(MarketOrganization.COMMUNITY, brokerAnswer.getContent());
+		requestRole(contractGroupID, MarketOrganization.CLIENT_ROLE);
+		Message ticket = sendMessageAndWaitForReply(contractGroupID, MarketOrganization.PROVIDER_ROLE,
+				new StringMessage("money"), 4000);
+		if (ticket != null) {
+			getLogger().info("Yeeeaah: I have my ticket :) ");
+			if (hasGUI()) {
+				blinkPanel.setBackground(Color.GREEN);
+			}
+			leaveGroup(MarketOrganization.CLIENT_GROUP);
+			pause((int) (1000 + Math.random() * 2000));
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public void setupFrame(JFrame frame) {
+		JPanel p = new JPanel(new BorderLayout());
+		// customizing but still using the OutputPanel from MaDKit GUI
+		p.add(new OutputPanel(this), BorderLayout.CENTER);
+		blinkPanel = new JPanel();
+		blinkPanel.add(new JLabel(clientImage));
+		blinkPanel.add(new JLabel(new ImageIcon(getClass().getResource("images/" + product + ".png"))));
+		p.add(blinkPanel, BorderLayout.NORTH);
+		p.validate();
+		frame.add(p);
+		int xLocation = nbOfClientsOnScreen++ * 390;
+		if (xLocation + 390 > Toolkit.getDefaultToolkit().getScreenSize().getWidth())
+			nbOfClientsOnScreen = 0;
+		frame.setLocation(xLocation, 0);
+		frame.setSize(390, 300);
+	}
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		nbOfClientsOnScreen = 0;
+		Broker.nbOfBrokersOnScreen = 0;
+		new Madkit("--launchAgents", "{" + Broker.class.getName() + ",true,3;" + Client.class.getName() + ",true,2;"
+				+ Provider.class.getName() + ",true,7}");
+	}
 }

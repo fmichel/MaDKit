@@ -42,11 +42,11 @@ public class BeeScheduler extends Scheduler {
 	public void activate() throws InterruptedException {
 		super.activate();
 		requestRole(SIMU_GROUP, SCHEDULER_ROLE);
-		
+
 		bees = new GenericBehaviorActivator<>(SIMU_GROUP, BEE_ROLE, "buzz");
 		addActivator(bees);
-		GenericBehaviorActivator<AbstractAgent> viewer = new GenericBehaviorActivator<>(SIMU_GROUP, BeeLauncher.BEE_OBESERVER,
-				"observe");
+		GenericBehaviorActivator<AbstractAgent> viewer = new GenericBehaviorActivator<>(SIMU_GROUP,
+				BeeLauncher.BEE_OBESERVER, "observe");
 		addActivator(viewer);
 		// auto starting myself the agent way
 		receiveMessage(new SchedulingMessage(SchedulingAction.RUN));

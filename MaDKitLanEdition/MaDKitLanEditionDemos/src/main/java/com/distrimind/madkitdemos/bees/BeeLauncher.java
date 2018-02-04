@@ -57,7 +57,7 @@ public class BeeLauncher extends Agent {
 
 	@Override
 	protected void activate() throws InterruptedException {
-		
+
 		getLogger().info("Launching bees simulation...");
 		requestRole(SIMU_GROUP, LAUNCHER_ROLE, null);
 
@@ -65,15 +65,12 @@ public class BeeLauncher extends Agent {
 		launchBees(INITIAL_BEES_NB);
 		getLogger().info("launch time : " + (System.nanoTime() - startTime));
 		BeeScheduler beeScheduler = new BeeScheduler();
-		
+
 		launchAgent(beeScheduler, false);
-		
+
 		BeeViewer beeViewer = new BeeViewer(beeScheduler);
-		
+
 		launchAgent(beeViewer, true);
-		
-		
-		
 
 		pause(3000);
 		launchQueens(1);

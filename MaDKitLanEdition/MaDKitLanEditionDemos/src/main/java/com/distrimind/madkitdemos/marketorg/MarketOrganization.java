@@ -22,13 +22,13 @@ import com.distrimind.madkit.kernel.Group;
 
 public interface MarketOrganization {
 
-	public static final String	COMMUNITY	= "travel";
+	public static final String COMMUNITY = "travel";
 
-	public static final Group	CLIENT_GROUP	= new Group(COMMUNITY, "travel-clients");
-	public static final Group	PROVIDERS_GROUP	= new Group(COMMUNITY, "travel-providers");
-	
-	public static final String	CLIENT_ROLE	= "client";
-	public static final String	BROKER_ROLE	= "broker";
-	public static final String	PROVIDER_ROLE	= "provider";
+	public static final Group CLIENT_GROUP = new Group(COMMUNITY, "travel-clients");
+	public static final Group PROVIDERS_GROUP = new Group(COMMUNITY, "travel-providers");
+
+	public static final String CLIENT_ROLE = "client";
+	public static final String BROKER_ROLE = "broker";
+	public static final String PROVIDER_ROLE = "provider";
 
 }

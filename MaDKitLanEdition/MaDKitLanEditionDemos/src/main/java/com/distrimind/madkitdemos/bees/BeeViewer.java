@@ -102,21 +102,20 @@ public class BeeViewer extends SwingViewer {
 		addProbe(beeProbe);
 	}
 
-	public void observe()
-	{
+	public void observe() {
 		System.out.println("ici");
 		super.observe();
 	}
-	
-	
+
 	@Override
 	protected void end() {
 		removeProbe(beeProbe);
-		
+
 		sendMessage(SIMU_GROUP, SCHEDULER_ROLE, new SchedulingMessage(SchedulingAction.SHUTDOWN));// stopping the
-																						// scheduler
+		// scheduler
 		leaveRole(SIMU_GROUP, BeeLauncher.BEE_OBESERVER);
-		sendMessage(LocalCommunity.Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE, new KernelMessage(KernelAction.EXIT));		
+		sendMessage(LocalCommunity.Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE,
+				new KernelMessage(KernelAction.EXIT));
 	}
 
 	@Override
@@ -167,11 +166,11 @@ public class BeeViewer extends SwingViewer {
 		jmenubar.add(options);
 
 		ActionListener beeLaunchActionListener = new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				sendLaunchMessage(Integer.parseInt(e.getActionCommand()));
-				
+
 			}
 		};
 
@@ -183,13 +182,13 @@ public class BeeViewer extends SwingViewer {
 			JRadioButtonMenuItem item = new JRadioButtonMenuItem("Launch " + i + " bees");
 			item.setActionCommand(new Integer(i).toString().toString());
 			item.addActionListener(new ActionListener() {
-				
+
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					nbOfBeesToLaunch = Integer.parseInt(e.getActionCommand());
 
 				}
-			}); 
+			});
 			JMenuItem it = new JMenuItem("Launch " + i + " bees");
 			it.addActionListener(beeLaunchActionListener);
 			it.setActionCommand("" + i);

@@ -85,6 +85,8 @@ abstract class Overlooker<A extends AbstractAgent> {
 		}
 
 		public List<A> updateAndGet() {
+			
+			
 			List<AbstractAgent> laa = overlookedRole.getAgentsList();
 			if (agents.get() != laa) {
 				filtred_agents.set(convertList(laa));
@@ -99,6 +101,7 @@ abstract class Overlooker<A extends AbstractAgent> {
 				ArrayList<A> res = new ArrayList<>(laa.size());
 				for (AbstractAgent aa : laa) {
 					try {
+						
 						res.add((A) aa);
 					} catch (ClassCastException e) {
 
@@ -108,6 +111,11 @@ abstract class Overlooker<A extends AbstractAgent> {
 			} else
 				return null;
 
+		}
+		
+		boolean needsToBeUpdated()
+		{
+			return agents.get()!=overlookedRole.getAgentsList();
 		}
 	}
 
@@ -238,6 +246,8 @@ abstract class Overlooker<A extends AbstractAgent> {
 
 		// adding roles
 		for (Group g : overlookedRoles_to_add) {
+
+	
 			try {
 				InternalRole ir = mkk.getRole(g, this.role);
 				ir.addOverlooker(this);
@@ -471,7 +481,7 @@ abstract class Overlooker<A extends AbstractAgent> {
 
 		if (!changes) {
 			for (OLR o : olr) {
-				if (o.agents.get() != o.overlookedRole.getAgentsList()) {
+				if (o.needsToBeUpdated()) {
 					changes = true;
 					break;
 				}
@@ -488,7 +498,9 @@ abstract class Overlooker<A extends AbstractAgent> {
 			for (OLR o : olr) {
 				List<A> l = o.updateAndGet();
 				if (l != null)
+				{
 					ra.addAll(l);
+				}
 			}
 			if (unique) {
 				referenced_agents = new ArrayList<>(ra.size());

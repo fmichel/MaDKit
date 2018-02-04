@@ -111,7 +111,7 @@ class InternalRole implements Serializable {// TODO test with arraylist
 			logger.finer(toString() + " created");
 		}
 		overlookers.set(new LinkedHashSet<Overlooker<? extends AbstractAgent>>());
-		initializeOverlookers();
+
 	}
 
 	// @Override
@@ -124,13 +124,24 @@ class InternalRole implements Serializable {// TODO test with arraylist
 	// roleName.equals(other.roleName);
 	// }
 
-	private synchronized void initializeOverlookers() {
+	synchronized void initializeOverlookers() {
 		for (final Overlooker<? extends AbstractAgent> o : myGroup.getCommunityObject().getMyKernel()
 				.getOperatingOverlookers()) {
 			if (o.isConcernedBy(group, roleName)) {
 				addOverlooker(o);
-				o.InternalRoleInitialized(this);
+				o.internalRoleInitialized(this);
 			}
+		}
+	}
+	
+	private synchronized void removeOverlookers()
+	{
+		for (final Overlooker<? extends AbstractAgent> o : myGroup.getCommunityObject().getMyKernel()
+				.getOperatingOverlookers()) {
+			if (o.isConcernedBy(group, roleName)) {
+				o.internalRoleRemoved(this);
+			}
+			overlookers.set(new LinkedHashSet<Overlooker<? extends AbstractAgent>>());
 		}
 	}
 
@@ -539,6 +550,7 @@ class InternalRole implements Serializable {// TODO test with arraylist
 			group.decrementMadKitReferences(this.kernelAddress);
 		}
 		myGroup.removeRole(roleName);
+		removeOverlookers();
 		// overlookers = null;
 		tmpReferenceableAgents = null;
 		// players = null;

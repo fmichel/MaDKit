@@ -182,6 +182,7 @@ abstract class Overlooker<A extends AbstractAgent> {
 				Overlooker.this.potentialChangementInGroups();
 			}
 		};
+
 	}
 
 	void addToKernel(MadkitKernel _madkit_kernel) {
@@ -189,6 +190,7 @@ abstract class Overlooker<A extends AbstractAgent> {
 			_madkit_kernel
 					.bugReport(new IllegalArgumentException("Attempting to add an Overlooker to several kernels."));
 		}
+		this.represented_groups.set(null);
 		Group.addGroupChangementNotifier(group_changement_notifier);
 		potentialChangementInGroups();
 	}
@@ -219,6 +221,7 @@ abstract class Overlooker<A extends AbstractAgent> {
 	}
 
 	private void updateOverlookedRoles() {
+		
 		MadkitKernel mkk = this.madkit_kernel.get();
 		ArrayList<OLR> overlookedRoles = (ArrayList<OLR>) this.overlookedRoles.get().clone();
 		boolean changes = false;
@@ -241,6 +244,19 @@ abstract class Overlooker<A extends AbstractAgent> {
 				olr.overlookedRole.removeOverlooker(this);
 				it.remove();
 				changes = true;
+			}
+		}
+		
+		//do not add roles than are already added
+		for (Iterator<Group> itg = overlookedRoles_to_add.iterator();itg.hasNext();) {
+			Iterator<OLR> it = overlookedRoles.iterator();
+			Group g=itg.next();
+			while (it.hasNext()) {
+				OLR o = it.next();
+				if (o.group.equals(g)) {
+					itg.remove();
+					break;
+				}
 			}
 		}
 
@@ -287,14 +303,28 @@ abstract class Overlooker<A extends AbstractAgent> {
 		}
 	}
 
-	void InternalRoleInitialized(InternalRole ir) {
-		synchronized (this) {
+
+	public void internalRoleInitialized(InternalRole internalRole) {
+		synchronized(this)
+		{
 			if (madkit_kernel.get() != null) {
-				putGroupToAdd(ir.getGroup());
+				putGroupToAdd(internalRole.getGroup());
+				updateOverlookedRoles();
+			}
+			
+		}
+	}
+	
+	public void internalRoleRemoved(InternalRole internalRole) {
+		synchronized(this)
+		{
+			if (madkit_kernel.get() != null) {
+				putGroupToRemove(internalRole.getGroup());
+				updateOverlookedRoles();
 			}
 		}
 	}
-
+	
 	private void compareGroupsTab(Group[] old_group, Group[] new_group) {
 		for (Group og : old_group) {
 			boolean found = false;

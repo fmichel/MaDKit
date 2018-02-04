@@ -51,7 +51,7 @@ public class Client extends Agent {
     protected void activate() throws InterruptedException {
 	requestRole(MarketOrganization.CLIENT_GROUP, MarketOrganization.CLIENT_ROLE, null);
 	int pause = 1000 + (int) (Math.random() * 2000);
-	getLogger().info(() -> "I will be looking for a " + product + " in " + pause + " ms !");
+	getLogger().info("I will be looking for a " + product + " in " + pause + " ms !");
 	pause(pause);
     }
 
@@ -69,7 +69,7 @@ public class Client extends Agent {
 			MarketOrganization.CLIENT_ROLE, 
 			1000
 			);
-		getLogger().info(() -> "For now there is nothing for me :(");
+		getLogger().info("For now there is nothing for me :(");
 		pause(500);
 	    }
 	    logFindBroker(brokerAnswer);// I found a broker and he has something for me
@@ -80,13 +80,13 @@ public class Client extends Agent {
 
     @Override
     protected void end() throws InterruptedException {
-	getLogger().info(() -> "I will quit soon now, buit I will launch another one like me !");
+	getLogger().info("I will quit soon now, buit I will launch another one like me !");
 	pause((int) (Math.random() * 2000 + 500));
 	launchAgent(new Client(), 4, true);
     }
 
     private void logFindBroker(Message brokerAnswer) throws InterruptedException {
-	getLogger().info(() -> "I found a broker : " + brokerAnswer.getSender());
+	getLogger().info("I found a broker : " + brokerAnswer.getSender());
 	if (blinkPanel != null) {
 	    blinkPanel.setBackground(Color.YELLOW);
 	    pause(1000);

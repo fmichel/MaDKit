@@ -58,12 +58,12 @@ public class BeeLauncher extends Agent {
 	@Override
 	protected void activate() throws InterruptedException {
 		
-		getLogger().info(() -> "Launching bees simulation...");
+		getLogger().info("Launching bees simulation...");
 		requestRole(SIMU_GROUP, LAUNCHER_ROLE, null);
 
 		long startTime = System.nanoTime();
 		launchBees(INITIAL_BEES_NB);
-		getLogger().info(() -> "launch time : " + (System.nanoTime() - startTime));
+		getLogger().info("launch time : " + (System.nanoTime() - startTime));
 		BeeScheduler beeScheduler = new BeeScheduler();
 		
 		launchAgent(beeScheduler, false);
@@ -128,7 +128,7 @@ public class BeeLauncher extends Agent {
 	}
 
 	private void launchBees(int numberOfBees) {
-		getLogger().info(() -> "Launching " + numberOfBees + " bees");
+		getLogger().info("Launching " + numberOfBees + " bees");
 		// greatly optimizes the launching time
 		final List<AbstractAgent> beesBucket = launchAgentBucket(Bee.class.getName(), numberOfBees,
 				new Role(SIMU_GROUP, BEE_ROLE), new Role(SIMU_GROUP, FOLLOWER_ROLE));
@@ -137,7 +137,7 @@ public class BeeLauncher extends Agent {
 	}
 
 	private void launchQueens(int numberOfQueens) {
-		getLogger().info(() -> "Launching " + numberOfQueens + " queen bees");
+		getLogger().info("Launching " + numberOfQueens + " queen bees");
 		for (int i = 0; i < numberOfQueens; i++) {
 			final QueenBee newQueen = new QueenBee();
 			launchAgent(newQueen);

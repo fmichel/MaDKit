@@ -166,7 +166,14 @@ public class BeeViewer extends SwingViewer {
 		options.add(launch);
 		jmenubar.add(options);
 
-		ActionListener beeLaunchActionListener = evt -> sendLaunchMessage(Integer.parseInt(evt.getActionCommand()));
+		ActionListener beeLaunchActionListener = new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				sendLaunchMessage(Integer.parseInt(e.getActionCommand()));
+				
+			}
+		};
 
 		JMenu numberOfBees = new JMenu("Number of bees to launch when clicking the icon");
 		JMenu launchBees = new JMenu("Launching");
@@ -175,7 +182,14 @@ public class BeeViewer extends SwingViewer {
 		for (int i = 1000; i <= 1000000; i *= 10) {
 			JRadioButtonMenuItem item = new JRadioButtonMenuItem("Launch " + i + " bees");
 			item.setActionCommand(new Integer(i).toString().toString());
-			item.addActionListener(e -> nbOfBeesToLaunch = Integer.parseInt(e.getActionCommand()));
+			item.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					nbOfBeesToLaunch = Integer.parseInt(e.getActionCommand());
+
+				}
+			}); 
 			JMenuItem it = new JMenuItem("Launch " + i + " bees");
 			it.addActionListener(beeLaunchActionListener);
 			it.setActionCommand("" + i);

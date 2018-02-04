@@ -22,8 +22,9 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Image;
 import java.awt.Toolkit;
-import java.time.Instant;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import javax.swing.ImageIcon;
@@ -78,7 +79,7 @@ public class Broker extends Agent {
 	if (hasGUI()) { // starting the contract net
 	    blinkPanel.setBackground(Color.YELLOW);
 	}
-	getLogger().info(() -> "I received a request for a " + request.getContent() + " \nfrom " + request.getSender());
+	getLogger().info("I received a request for a " + request.getContent() + " \nfrom " + request.getSender());
 	
 	//get proposals from providers
 	List<Message> bids = getBids(request);
@@ -108,7 +109,7 @@ public class Broker extends Agent {
 		900); // I cannot wait the end of the universe
 	List<Message> bids=replies.getReplies();
 	if (bids == null || bids.isEmpty()) { // no reply
-	    getLogger().info(() -> "No bids at all : No one is selling " + request.getContent().toUpperCase() + " !!\nPlease launch other providers !");
+	    getLogger().info("No bids at all : No one is selling " + request.getContent().toUpperCase() + " !!\nPlease launch other providers !");
 	    if (hasGUI()) {
 		blinkPanel.setBackground(Color.LIGHT_GRAY);
 	    }
@@ -124,7 +125,8 @@ public class Broker extends Agent {
      */
     private void makeTransactionHappenBetweenClientAndProvider(StringMessage request, IntegerMessage best) throws InterruptedException {
 	// creating a contract group
-	String contractGroupId = Instant.now().toString();
+    	
+	String contractGroupId = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(new Date());
 
 	// sending the location to the provider
 	Message ack = sendMessageWithRoleAndWaitForReply(
@@ -134,12 +136,12 @@ public class Broker extends Agent {
 		1000); // I cannot wait the end of the universe
 
 	if (ack != null) {// The provider has entered the contract group
-	    getLogger().info(() -> "Provider is ready !\nSending the contract number to client");
+	    getLogger().info("Provider is ready !\nSending the contract number to client");
 	    sendReply(request, new StringMessage(contractGroupId)); // send group's info to the client
 	    pause((int) (Math.random() * 2000 + 1000));// let us celebrate and take vacation!!
 	}
 	else { // no answer from the provider...
-	    getLogger().info(() -> "Provider disappears !!!!");
+	    getLogger().info("Provider disappears !!!!");
 	}
     }
 
@@ -150,7 +152,7 @@ public class Broker extends Agent {
     private IntegerMessage selectBestOffer(List<Message> bids) {
 	final List<IntegerMessage> offers = Arrays.asList(bids.toArray(new IntegerMessage[0]));// casting
 	IntegerMessage best = ObjectMessage.min(offers);
-	getLogger().info(() -> "The best offer is from " + best.getSender() + " " + best.getContent());
+	getLogger().info("The best offer is from " + best.getSender() + " " + best.getContent());
 	return best;
     }
 

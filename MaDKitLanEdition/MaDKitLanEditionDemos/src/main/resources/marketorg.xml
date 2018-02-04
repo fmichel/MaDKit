@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<MDK name="aName" description="test">
+	<Agents>
+		<Agent class="madkit.marketorg.Broker" nbOfInstances="3" GUI="true">
+			 <Attributes nbOfBrokersOnScreen="0"/>
+		 </Agent>
+		<Agent class="madkit.marketorg.Client" nbOfInstances="2" GUI="true">
+			 <Attributes nbOfClientsOnScreen="0"/>
+		 </Agent>
+		<Agent class="madkit.marketorg.Provider" nbOfInstances="7" GUI="true">
+		 </Agent>
+	</Agents>
+</MDK>

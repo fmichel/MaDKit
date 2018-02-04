@@ -587,9 +587,6 @@ public class NetworkProperties extends XMLProperties {
 	 * 			true if the two concerned peers can be interpreted as servers
 	 * @return a connection protocol chain according the distant peer ip, and the
 	 *         local used port. Returns null if no connection protocol was found.
-	 * @return a connection protocol properties according the distant peer ip, and
-	 *         the local used port. Returns null if no connection protocol was
-	 *         found.
 	 * @throws NIOException
 	 *             if a problem occurs
 	 */

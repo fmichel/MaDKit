@@ -8,6 +8,7 @@
 
 // Apply the java-library plugin to add support for Java Library
 apply plugin: 'java'
+apply plugin: 'application'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
@@ -45,25 +46,22 @@ repositories {
 }
 
 dependencies {
-     testCompile 'org.testng:testng:6.13.1'
-     testCompile 'junit:junit:4.12'
-     compile(group:'com.distrimind.ood', name: 'OOD', version: '2.0.0-Beta59')
-     compile(group:'org.fourthline.cling', name: 'cling-core', version: '2.1.1')
-     compile(group:'org.fourthline.cling', name: 'cling-support', version: '2.1.1')
-     compile(group:'org.hsqldb', name: 'hsqldb', version: '2.3.4')
+     compile(group:'com.distrimind.madkit', name: 'MaDKitLanEdition', version: '1.6.1')
+    
      
 }
 
 allprojects {
-	group='com.distrimind.madkit'
+	group='com.distrimind.madkitdemos'
     repositories {
         jcenter() 
     }
+    mainClassName = "com.distrimind.madkitdemos.MKLEDemos"
 }
 
-sourceCompatibility = 1.7
-targetCompatibility=1.7
-version='1.6.1'
+sourceCompatibility = 1.8
+targetCompatibility=1.8
+version='1.0.0'
 
 
 task sourcesJar(type: Jar, dependsOn: classes) {
@@ -86,7 +84,8 @@ artifacts {
 jar {
     manifest {
         attributes('Implementation-Title': project.name,
-                   'Implementation-Version': project.version)
+                   'Implementation-Version': project.version,
+                   'Main-Class': project.mainClassName)
     }
     from "../LICENSE"
 

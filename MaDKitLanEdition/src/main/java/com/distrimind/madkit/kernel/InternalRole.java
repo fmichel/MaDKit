@@ -111,7 +111,7 @@ class InternalRole implements Serializable {// TODO test with arraylist
 			logger.finer(toString() + " created");
 		}
 		overlookers.set(new LinkedHashSet<Overlooker<? extends AbstractAgent>>());
-		initializeOverlookers();
+
 	}
 
 	// @Override
@@ -124,13 +124,24 @@ class InternalRole implements Serializable {// TODO test with arraylist
 	// roleName.equals(other.roleName);
 	// }
 
-	private synchronized void initializeOverlookers() {
+	synchronized void initializeOverlookers() {
 		for (final Overlooker<? extends AbstractAgent> o : myGroup.getCommunityObject().getMyKernel()
 				.getOperatingOverlookers()) {
 			if (o.isConcernedBy(group, roleName)) {
 				addOverlooker(o);
-				o.InternalRoleInitialized(this);
+				o.internalRoleInitialized(this);
 			}
+		}
+	}
+	
+	private synchronized void removeOverlookers()
+	{
+		for (final Overlooker<? extends AbstractAgent> o : myGroup.getCommunityObject().getMyKernel()
+				.getOperatingOverlookers()) {
+			if (o.isConcernedBy(group, roleName)) {
+				o.internalRoleRemoved(this);
+			}
+			overlookers.set(new LinkedHashSet<Overlooker<? extends AbstractAgent>>());
 		}
 	}
 
@@ -295,9 +306,10 @@ class InternalRole implements Serializable {// TODO test with arraylist
 	 */
 	boolean addMember(final AbstractAgent requester, boolean manually_requested) {
 		synchronized (players) {
-			if (players.contains(requester)) {// TODO looks like I should use linkedhashset
-				return false;
-			}
+			for (AbstractAgent aa : players)// TODO looks like I should use linkedhashset
+				if (aa==requester)
+					return false;
+			
 			players.add(requester);
 			if (logger != null) {
 				logger.finest(requester.getName() + " is now playing " + getCGRString(group, roleName));
@@ -314,6 +326,7 @@ class InternalRole implements Serializable {// TODO test with arraylist
 		// So addToOverlookers(requester); has to be called in group
 		if (manually_requested)
 			incrementReferences(null);
+
 
 		return true;
 	}
@@ -359,7 +372,17 @@ class InternalRole implements Serializable {// TODO test with arraylist
 
 	ReturnCode removeMember(final AbstractAgent requester, boolean manually_requested) {
 		synchronized (players) {
-			if (!players.remove(requester)) {
+			boolean removed=false;
+			for (Iterator<AbstractAgent> it=players.iterator();it.hasNext();)
+			{
+				if (it.next()==requester)
+				{
+					it.remove();
+					removed=true;
+					break;
+				}
+			}
+			if (!removed) {
 				if (myGroup.isIn(requester)) {
 					return ROLE_NOT_HANDLED;
 				}
@@ -383,9 +406,22 @@ class InternalRole implements Serializable {// TODO test with arraylist
 	final void removeMembers(final List<AbstractAgent> bucket, boolean manually_requested) {
 		int number = 0;
 		synchronized (players) {
-			number = players.size();
-			players.removeAll(bucket);// is optimized
-			number = players.size() - number;
+			number = 0;
+			for (AbstractAgent aa : bucket)
+			{
+				for (Iterator<AbstractAgent> it=players.iterator();it.hasNext();)
+				{
+				
+					if (it.next()==aa)
+					{
+						it.remove();
+						++number;
+						
+						break;
+					}
+				}
+			}
+			
 			if (agentAddresses != null) {
 
 				for (Iterator<AgentAddress> i = agentAddresses.iterator(); i.hasNext();) {
@@ -514,6 +550,7 @@ class InternalRole implements Serializable {// TODO test with arraylist
 			group.decrementMadKitReferences(this.kernelAddress);
 		}
 		myGroup.removeRole(roleName);
+		removeOverlookers();
 		// overlookers = null;
 		tmpReferenceableAgents = null;
 		// players = null;

@@ -85,6 +85,8 @@ abstract class Overlooker<A extends AbstractAgent> {
 		}
 
 		public List<A> updateAndGet() {
+			
+			
 			List<AbstractAgent> laa = overlookedRole.getAgentsList();
 			if (agents.get() != laa) {
 				filtred_agents.set(convertList(laa));
@@ -99,6 +101,7 @@ abstract class Overlooker<A extends AbstractAgent> {
 				ArrayList<A> res = new ArrayList<>(laa.size());
 				for (AbstractAgent aa : laa) {
 					try {
+						
 						res.add((A) aa);
 					} catch (ClassCastException e) {
 
@@ -108,6 +111,11 @@ abstract class Overlooker<A extends AbstractAgent> {
 			} else
 				return null;
 
+		}
+		
+		boolean needsToBeUpdated()
+		{
+			return agents.get()!=overlookedRole.getAgentsList();
 		}
 	}
 
@@ -174,6 +182,7 @@ abstract class Overlooker<A extends AbstractAgent> {
 				Overlooker.this.potentialChangementInGroups();
 			}
 		};
+
 	}
 
 	void addToKernel(MadkitKernel _madkit_kernel) {
@@ -181,6 +190,7 @@ abstract class Overlooker<A extends AbstractAgent> {
 			_madkit_kernel
 					.bugReport(new IllegalArgumentException("Attempting to add an Overlooker to several kernels."));
 		}
+		this.represented_groups.set(null);
 		Group.addGroupChangementNotifier(group_changement_notifier);
 		potentialChangementInGroups();
 	}
@@ -211,6 +221,7 @@ abstract class Overlooker<A extends AbstractAgent> {
 	}
 
 	private void updateOverlookedRoles() {
+		
 		MadkitKernel mkk = this.madkit_kernel.get();
 		ArrayList<OLR> overlookedRoles = (ArrayList<OLR>) this.overlookedRoles.get().clone();
 		boolean changes = false;
@@ -235,9 +246,24 @@ abstract class Overlooker<A extends AbstractAgent> {
 				changes = true;
 			}
 		}
+		
+		//do not add roles than are already added
+		for (Iterator<Group> itg = overlookedRoles_to_add.iterator();itg.hasNext();) {
+			Iterator<OLR> it = overlookedRoles.iterator();
+			Group g=itg.next();
+			while (it.hasNext()) {
+				OLR o = it.next();
+				if (o.group.equals(g)) {
+					itg.remove();
+					break;
+				}
+			}
+		}
 
 		// adding roles
 		for (Group g : overlookedRoles_to_add) {
+
+	
 			try {
 				InternalRole ir = mkk.getRole(g, this.role);
 				ir.addOverlooker(this);
@@ -277,14 +303,28 @@ abstract class Overlooker<A extends AbstractAgent> {
 		}
 	}
 
-	void InternalRoleInitialized(InternalRole ir) {
-		synchronized (this) {
+
+	public void internalRoleInitialized(InternalRole internalRole) {
+		synchronized(this)
+		{
 			if (madkit_kernel.get() != null) {
-				putGroupToAdd(ir.getGroup());
+				putGroupToAdd(internalRole.getGroup());
+				updateOverlookedRoles();
+			}
+			
+		}
+	}
+	
+	public void internalRoleRemoved(InternalRole internalRole) {
+		synchronized(this)
+		{
+			if (madkit_kernel.get() != null) {
+				putGroupToRemove(internalRole.getGroup());
+				updateOverlookedRoles();
 			}
 		}
 	}
-
+	
 	private void compareGroupsTab(Group[] old_group, Group[] new_group) {
 		for (Group og : old_group) {
 			boolean found = false;
@@ -471,7 +511,7 @@ abstract class Overlooker<A extends AbstractAgent> {
 
 		if (!changes) {
 			for (OLR o : olr) {
-				if (o.agents.get() != o.overlookedRole.getAgentsList()) {
+				if (o.needsToBeUpdated()) {
 					changes = true;
 					break;
 				}
@@ -488,7 +528,9 @@ abstract class Overlooker<A extends AbstractAgent> {
 			for (OLR o : olr) {
 				List<A> l = o.updateAndGet();
 				if (l != null)
+				{
 					ra.addAll(l);
+				}
 			}
 			if (unique) {
 				referenced_agents = new ArrayList<>(ra.size());

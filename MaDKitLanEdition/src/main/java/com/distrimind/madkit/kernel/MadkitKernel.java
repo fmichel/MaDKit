@@ -293,6 +293,7 @@ class MadkitKernel extends Agent {
 
 	private final ConcurrentHashMap<String, Organization> organizations;
 	final private Set<Overlooker<? extends AbstractAgent>> operatingOverlookers;
+	
 	final protected Madkit platform;
 	final private KernelAddress kernelAddress;
 

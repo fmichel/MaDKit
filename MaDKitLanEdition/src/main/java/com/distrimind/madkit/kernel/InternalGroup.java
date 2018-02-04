@@ -225,6 +225,7 @@ final class InternalGroup extends ConcurrentHashMap<String, InternalRole> {
 	InternalRole createRole(final String roleName) {
 		final InternalRole r = new InternalRole(this, roleName);
 		put(roleName, r);
+		r.initializeOverlookers();
 		return r;
 	}
 

@@ -25,8 +25,8 @@ What is MaDKitLanEdition ?
 * MadKitGroupExtension's features in a native way
 * Advanced network futures which enables to connect several peers between them, and emulate a secured multi-agent system that virtually evolves into the same environment, i.e. the same virtual machine. 
 
-Tutorials are not already available (for now, please use Junit tests to find inspiration)
-The project is not already a Maven project. Please Use Git hub releases to get a packaged MKLE usable project. 
+Tutorials are not already available. For now, you can find inspiration with the available demos. Excutable jar files are available on the corresponding section (see below). 
+You can also find inspiration into Junit tests.
 
 ###### Network futures of MaDKitLanEdition :
 * Several network protocols
@@ -127,5 +127,9 @@ Adapt into your pom.xml file, the next code :
 
 To know what last version has been uploaded, please refer to versions availables into [this repository](https://mahdjoub.net/artifactory/DistriMind-Public/com/distrimind/madkit/MaDKitLanEdition)
 
+How to get demos ?
+------------------
+
+To get MaDKitLanEditions demos, please download the lastest [repository](https://mahdjoub.net/artifactory/DistriMind-Public/com/distrimind/madkitdemos/MaDKitLanEditionDemos)
 
 [1]: http://www.lirmm.fr/~fmichel/publi/pdfs/ferber04ocmas.pdf

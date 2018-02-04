@@ -102,11 +102,6 @@ public class BeeViewer extends SwingViewer {
 		addProbe(beeProbe);
 	}
 
-	public void observe() {
-		System.out.println("ici");
-		super.observe();
-	}
-
 	@Override
 	protected void end() {
 		removeProbe(beeProbe);

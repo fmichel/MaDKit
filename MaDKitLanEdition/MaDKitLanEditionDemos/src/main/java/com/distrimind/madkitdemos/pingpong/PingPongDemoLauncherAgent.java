@@ -68,9 +68,7 @@ public class PingPongDemoLauncherAgent extends Agent {
 			this.killAgent(this);
 	}
 
-	/**
-	 * @param args
-	 */
+	
 	public static void main(String[] args) {
 		executeThisAgent(1, false);
 	}

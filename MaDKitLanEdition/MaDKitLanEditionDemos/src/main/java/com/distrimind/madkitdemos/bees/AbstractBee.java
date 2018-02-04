@@ -48,7 +48,7 @@ public abstract class AbstractBee extends AbstractAgent {
 	 * Automatically called by the {@link BeeViewer} when the agent takes its social
 	 * position
 	 * 
-	 * @param environment
+	 * @param environment the environment
 	 */
 	public void setEnvironment(BeeEnvironment environment) {
 		beeWorld = environment;

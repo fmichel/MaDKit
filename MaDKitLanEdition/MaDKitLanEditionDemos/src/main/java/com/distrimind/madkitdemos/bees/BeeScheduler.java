@@ -55,7 +55,7 @@ public class BeeScheduler extends Scheduler {
 	/**
 	 * Overriding just for adding the multicore option
 	 * 
-	 * @see madkit.kernel.Scheduler#checkMail(madkit.kernel.Message)
+	 * @see com.distrimind.madkit.kernel.Scheduler#checkMail(madkit.kernel.Message)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override

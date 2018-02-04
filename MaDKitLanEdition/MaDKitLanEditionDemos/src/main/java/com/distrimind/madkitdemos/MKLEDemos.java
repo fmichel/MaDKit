@@ -11,7 +11,7 @@ import javax.swing.JList;
 
 import com.distrimind.madkitdemos.bees.BeeLauncher;
 import com.distrimind.madkitdemos.marketorg.Client;
-import com.distrimind.madkitdemos.pingpong.PingPong;
+import com.distrimind.madkitdemos.pingpong.PingPongDemoLauncherAgent;
 
 public class MKLEDemos {
 	public static void main(String args[]) {
@@ -19,9 +19,10 @@ public class MKLEDemos {
 
 		frame.setLayout(new FlowLayout(FlowLayout.CENTER));
 		frame.setTitle("MaDKitLanEdition Demos");
-		frame.setSize(new Dimension(300, 200));
+		frame.setSize(new Dimension(300, 100));
 		String demos[] = { "Ping pong demo", "Bees demo", "Market Demo" };
 		final JList<String> list = new JList<>(demos);
+		list.setSelectedIndex(1);
 		frame.add(list);
 		JButton button = new JButton("Select");
 		button.addActionListener(new ActionListener() {
@@ -31,7 +32,7 @@ public class MKLEDemos {
 				frame.setVisible(false);
 				switch (list.getSelectedIndex()) {
 				case 0:
-					PingPong.main(new String[0]);
+					PingPongDemoLauncherAgent.main(new String[0]);
 					break;
 				case 1:
 					BeeLauncher.main(new String[0]);
@@ -43,6 +44,7 @@ public class MKLEDemos {
 				frame.dispose();
 			}
 		});
+		frame.add(button);
 		frame.setVisible(true);
 	}
 

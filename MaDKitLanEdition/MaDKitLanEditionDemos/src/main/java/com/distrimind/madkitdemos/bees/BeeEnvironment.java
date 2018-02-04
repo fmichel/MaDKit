@@ -78,7 +78,7 @@ public class BeeEnvironment {
 	}
 
 	/**
-	 * @param envSize
+	 * @param envSize the environment size
 	 */
 	public BeeEnvironment(Dimension envSize) {
 		this.envSize = envSize;

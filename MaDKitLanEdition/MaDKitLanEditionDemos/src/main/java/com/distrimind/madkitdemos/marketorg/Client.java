@@ -125,9 +125,7 @@ public class Client extends Agent {
 		frame.setSize(390, 300);
 	}
 
-	/**
-	 * @param args
-	 */
+	
 	public static void main(String[] args) {
 		nbOfClientsOnScreen = 0;
 		Broker.nbOfBrokersOnScreen = 0;

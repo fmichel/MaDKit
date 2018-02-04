@@ -8,6 +8,7 @@
 
 // Apply the java-library plugin to add support for Java Library
 apply plugin: 'java'
+apply plugin: 'application'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
@@ -55,6 +56,7 @@ allprojects {
     repositories {
         jcenter() 
     }
+    mainClassName = "com.distrimind.madkitdemos.MKLEDemos"
 }
 
 sourceCompatibility = 1.8

@@ -1,6 +1,5 @@
-=======
-MaDKit: Multiagent Development Kit
-================================================
+MaDKitLanEdition: Multiagent Development Kit (Lan Edition)
+==========================================================
 
 What is MaDKit ?
 -----------------

@@ -11,17 +11,24 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-if (jdk!=null)
+def Properties props = new Properties()
+def propFile = file('gradle.properties')
+if (propFile.canRead())
 {
-	compileJava.options.fork = true
-	compileJava.options.forkOptions.executable = "${jdk}/bin/javac"
-	compileJava.options.bootClasspath=fileTree(include: ['*.jar'], dir: "${jdk}/jre/lib").join(File.pathSeparator)
-	compileJava.options.extensionDirs = "${jdk}/jre/lib/ext/"
+    props.load(new FileInputStream(propFile))
+
+    if (props!=null && props.containsKey('jdk'))
+    {
+		compileJava.options.fork = true
+		compileJava.options.forkOptions.executable = "${jdk}/bin/javac"
+		compileJava.options.bootClasspath=fileTree(include: ['*.jar'], dir: "${jdk}/jre/lib").join(File.pathSeparator)
+		compileJava.options.extensionDirs = "${jdk}/jre/lib/ext/"
 	
-	compileTestJava.options.fork = true
-	compileTestJava.options.forkOptions.executable = "${jdk}/bin/javac"
-	compileTestJava.options.bootClasspath=fileTree(include: ['*.jar'], dir: "${jdk}/jre/lib").join(File.pathSeparator)
-	compileTestJava.options.extensionDirs = "${jdk}/jre/lib/ext/"
+		compileTestJava.options.fork = true
+		compileTestJava.options.forkOptions.executable = "${jdk}/bin/javac"
+		compileTestJava.options.bootClasspath=fileTree(include: ['*.jar'], dir: "${jdk}/jre/lib").join(File.pathSeparator)
+		compileTestJava.options.extensionDirs = "${jdk}/jre/lib/ext/"
+	}
 }
 eclipse {
     classpath {
@@ -47,7 +54,7 @@ repositories {
 dependencies {
      testCompile 'org.testng:testng:6.13.1'
      testCompile 'junit:junit:4.12'
-     compile(group:'com.distrimind.ood', name: 'OOD', version: '2.0.0-Beta65')
+     compile(group:'com.distrimind.ood', name: 'OOD', version: '2.0.0-Beta66')
      compile(group:'org.fourthline.cling', name: 'cling-core', version: '2.1.1')
      compile(group:'org.fourthline.cling', name: 'cling-support', version: '2.1.1')
      compile(group:'org.hsqldb', name: 'hsqldb', version: '2.3.4')
@@ -63,7 +70,7 @@ allprojects {
 
 sourceCompatibility = 1.7
 targetCompatibility=1.7
-version='1.6.2'
+version='1.6.3'
 
 
 task sourcesJar(type: Jar, dependsOn: classes) {

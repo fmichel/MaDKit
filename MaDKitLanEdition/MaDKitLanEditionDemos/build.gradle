@@ -12,17 +12,24 @@ apply plugin: 'application'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-if (jdk!=null)
+def Properties props = new Properties()
+def propFile = file('gradle.properties')
+if (propFile.canRead())
 {
-	compileJava.options.fork = true
-	compileJava.options.forkOptions.executable = "${jdk}/bin/javac"
-	compileJava.options.bootClasspath=fileTree(include: ['*.jar'], dir: "${jdk}/jre/lib").join(File.pathSeparator)
-	compileJava.options.extensionDirs = "${jdk}/jre/lib/ext/"
+    props.load(new FileInputStream(propFile))
+
+    if (props!=null && props.containsKey('jdk'))
+    {
+		compileJava.options.fork = true
+		compileJava.options.forkOptions.executable = "${jdk}/bin/javac"
+		compileJava.options.bootClasspath=fileTree(include: ['*.jar'], dir: "${jdk}/jre/lib").join(File.pathSeparator)
+		compileJava.options.extensionDirs = "${jdk}/jre/lib/ext/"
 	
-	compileTestJava.options.fork = true
-	compileTestJava.options.forkOptions.executable = "${jdk}/bin/javac"
-	compileTestJava.options.bootClasspath=fileTree(include: ['*.jar'], dir: "${jdk}/jre/lib").join(File.pathSeparator)
-	compileTestJava.options.extensionDirs = "${jdk}/jre/lib/ext/"
+		compileTestJava.options.fork = true
+		compileTestJava.options.forkOptions.executable = "${jdk}/bin/javac"
+		compileTestJava.options.bootClasspath=fileTree(include: ['*.jar'], dir: "${jdk}/jre/lib").join(File.pathSeparator)
+		compileTestJava.options.extensionDirs = "${jdk}/jre/lib/ext/"
+	}
 }
 eclipse {
     classpath {
@@ -46,7 +53,7 @@ repositories {
 }
 
 dependencies {
-     compile(group:'com.distrimind.madkit', name: 'MaDKitLanEdition', version: '1.6.2')
+     compile(group:'com.distrimind.madkit', name: 'MaDKitLanEdition', version: '1.6.3')
     
      
 }
@@ -61,7 +68,7 @@ allprojects {
 
 sourceCompatibility = 1.8
 targetCompatibility=1.8
-version='1.0.1'
+version='1.0.2'
 
 
 task sourcesJar(type: Jar, dependsOn: classes) {

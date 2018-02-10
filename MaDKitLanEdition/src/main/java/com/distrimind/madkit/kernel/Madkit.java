@@ -120,7 +120,7 @@ final public class Madkit {
 		c.set(2015, 4, 22);
 		Calendar c2 = Calendar.getInstance();
 		c2.set(2018, 1, 10);
-		Version VERSION = new Version("MadkitLanEdition", "MKLE", 1, 6, 2, Version.Type.Stable, 1, c.getTime(), c2.getTime());
+		Version VERSION = new Version("MadkitLanEdition", "MKLE", 1, 6, 3, Version.Type.Stable, 1, c.getTime(), c2.getTime());
 		try {
 
 			InputStream is = Madkit.class.getResourceAsStream("build.txt");
@@ -140,10 +140,18 @@ final public class Madkit {
 			c = Calendar.getInstance();
 			c.set(1997, 1, 1);
 			VERSION.addDeveloper(new PersonDeveloper("Ferber", "Jacques", c.getTime()));
+
+			c = Calendar.getInstance();
+			c.set(2018, 1, 10);
+			Description d = new Description(1, 6, 3, Version.Type.Stable, 1, c.getTime());
+			d.addItem("Update OOD to 2.0.0 Beta 66.");
+			d.addItem("Update Utils to 3.10.5");
+			d.addItem("Change minimum public key size from 1024 to 2048");
+			VERSION.addDescription(d);			
 			
 			c = Calendar.getInstance();
 			c.set(2018, 1, 10);
-			Description d = new Description(1, 6, 2, Version.Type.Stable, 1, c.getTime());
+			d = new Description(1, 6, 2, Version.Type.Stable, 1, c.getTime());
 			d.addItem("Update OOD to 2.0.0 Beta 65.");
 			d.addItem("Update Utils to 3.10.4");
 			d.addItem("Change minimum public key size from 1024 to 2048");

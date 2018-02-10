@@ -44,6 +44,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetSocketAddress;
 
+import org.bouncycastle.crypto.InvalidWrappingException;
+
 import gnu.vm.jgnu.security.InvalidAlgorithmParameterException;
 import gnu.vm.jgnu.security.InvalidKeyException;
 import gnu.vm.jgnu.security.NoSuchAlgorithmException;
@@ -78,6 +80,7 @@ import com.distrimind.util.crypto.ASymmetricKeyPair;
 import com.distrimind.util.crypto.ASymmetricKeyWrapperType;
 import com.distrimind.util.crypto.ASymmetricPublicKey;
 import com.distrimind.util.crypto.AbstractSecureRandom;
+import com.distrimind.util.crypto.Key;
 import com.distrimind.util.crypto.SymmetricEncryptionAlgorithm;
 import com.distrimind.util.crypto.SymmetricSecretKey;
 
@@ -283,7 +286,7 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 			symmetricAlgorithm = new SymmetricEncryptionAlgorithm(approvedRandom, secret_key);
 		} catch (InvalidKeyException | InvalidAlgorithmParameterException | IOException | NoSuchAlgorithmException
 				| NoSuchPaddingException | NoSuchProviderException
-				| IllegalArgumentException | InvalidKeySpecException e) {
+				| IllegalArgumentException | InvalidKeySpecException | IllegalStateException | InvalidWrappingException e) {
 			throw new ConnectionException(e);
 		}
 	}
@@ -949,7 +952,7 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 				int len = is.readInt();
 				byte encodedPK[] = new byte[len];
 				is.read(encodedPK);
-				publicKey = ASymmetricPublicKey.decode(encodedPK);
+				publicKey = (ASymmetricPublicKey) Key.decode(encodedPK);
 				initSignature();
 			} catch (IOException e) {
 				throw e;

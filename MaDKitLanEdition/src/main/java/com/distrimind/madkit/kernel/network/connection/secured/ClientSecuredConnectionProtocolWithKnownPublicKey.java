@@ -124,7 +124,7 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 			aSymmetricAlgorithm = new ClientASymmetricEncryptionAlgorithm(approvedRandom, distant_public_key_for_encryption);
 			
 		} catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | NoSuchProviderException
-				| InvalidKeySpecException e) {
+				| InvalidKeySpecException | InvalidAlgorithmParameterException e) {
 			throw new ConnectionException(e);
 		}
 		signature_size_bytes = hproperties.signatureType.getSignatureSizeInBits()/8;

@@ -361,6 +361,11 @@ public class NetworkProperties extends XMLProperties {
 	 * @see #timeBetweenEachUpdateOfTransfertSpeedForGatewayConnection
 	 */
 	public boolean upnpIGDEnabled = false;
+	
+	/**
+	 * UPNP IGD Port listener
+	 */
+	public int upnpIDGPort = 0;
 
 	/**
 	 * Log level for UpnpIGD agent

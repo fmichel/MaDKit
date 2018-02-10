@@ -362,7 +362,7 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKey
 	/**
 	 * The minimum asymetric cipher RSA Key size
 	 */
-	public final int minASymetricKeySize = 1024;
+	public final int minASymetricKeySizeBits = 2048;
 
 	/**
 	 * Symmetric encryption algorithm
@@ -399,12 +399,12 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKey
 			if (e.getValue().getTimeExpirationUTC() > System.currentTimeMillis()) {
 				valid = true;
 			}
-			int tmp = e.getValue().getKeySize();
+			int tmp = e.getValue().getKeySizeBits();
 			while (tmp != 1) {
 				if (tmp % 2 == 0)
 					tmp = tmp / 2;
 				else
-					throw new ConnectionException("The RSA key size have a size of " + e.getValue().getKeySize()
+					throw new ConnectionException("The RSA key size have a size of " + e.getValue().getKeySizeBits()
 							+ ". This number must correspond to this schema : _rsa_key_size=2^x.");
 			}
 			if (signatures.get(e.getKey()) == null)
@@ -415,8 +415,8 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKey
 				throw new NullPointerException(
 						"No symmetric encryption key size bits found for identifier " + e.getKey());
 		}
-		if (keyPairs.get(new Integer(this.lastIdentifier)).getKeySize() < minASymetricKeySize)
-			throw new ConnectionException("_rsa_key_size must be greater or equal than " + minASymetricKeySize
+		if (keyPairs.get(new Integer(this.lastIdentifier)).getKeySizeBits() < minASymetricKeySizeBits)
+			throw new ConnectionException("_rsa_key_size must be greater or equal than " + minASymetricKeySizeBits
 					+ " . Moreover, this number must correspond to this schema : _rsa_key_size=2^x.");
 		return valid;
 	}

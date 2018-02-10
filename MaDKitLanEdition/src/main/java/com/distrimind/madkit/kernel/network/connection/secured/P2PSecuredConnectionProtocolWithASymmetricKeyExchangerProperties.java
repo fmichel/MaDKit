@@ -76,7 +76,7 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties ex
 	/**
 	 * The minimum asymetric cipher RSA Key size
 	 */
-	public final int minASymetricKeySize = 1024;
+	public final int minASymetricKeySize = 2048;
 
 	/**
 	 * Symmetric encryption algorithm

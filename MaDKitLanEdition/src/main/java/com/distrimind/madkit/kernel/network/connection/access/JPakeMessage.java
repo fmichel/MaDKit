@@ -43,8 +43,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.bouncycastle.crypto.CryptoException;
-
 import com.distrimind.util.crypto.AbstractMessageDigest;
 import com.distrimind.util.crypto.AbstractSecureRandom;
 import com.distrimind.util.crypto.P2PJPAKESecretMessageExchanger;
@@ -233,7 +231,7 @@ class JPakeMessage extends AccessMessage{
 							jpakeMessage=jpake.getDataToSend();
 							jpkms.put(localID, jpakeMessage);
 						}
-						catch(IOException | CryptoException | ClassNotFoundException | IllegalStateException e)
+						catch(IOException  | ClassNotFoundException | IllegalStateException e)
 						{
 							deniedIdentifiers.add(new PairOfIdentifiers(localID, decodedID));
 							jpakes.remove(localID);
@@ -288,7 +286,7 @@ class JPakeMessage extends AccessMessage{
 							else
 								deniedIdentifiers.add(new PairOfIdentifiers(localID, decodedID));	
 						}
-						catch(IOException | CryptoException | ClassNotFoundException | IllegalStateException e)
+						catch(IOException | ClassNotFoundException | IllegalStateException e)
 						{
 							deniedIdentifiers.add(new PairOfIdentifiers(localID, decodedID));
 							jpakes.remove(localID);

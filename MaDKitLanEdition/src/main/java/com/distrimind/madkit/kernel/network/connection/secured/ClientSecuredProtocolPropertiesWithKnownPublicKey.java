@@ -111,8 +111,8 @@ public class ClientSecuredProtocolPropertiesWithKnownPublicKey
 			short symmetricKeySizeBits, ASymmetricKeyWrapperType keyWrapper, SymmetricAuthentifiedSignatureType signatureType) {
 		if (publicKeyForEncryption == null)
 			throw new NullPointerException("publicKey");
-		if (publicKeyForEncryption.getKeySize() < minASymetricKeySize)
-			throw new IllegalArgumentException("The public key size must be greater than " + minASymetricKeySize);
+		if (publicKeyForEncryption.getKeySizeBits() < minASymetricKeySizeBits)
+			throw new IllegalArgumentException("The public key size must be greater than " + minASymetricKeySizeBits);
 		if (signatureType==null)
 			throw new NullPointerException("signatureType");
 		this.publicKeyForEncryption = publicKeyForEncryption;
@@ -210,7 +210,7 @@ public class ClientSecuredProtocolPropertiesWithKnownPublicKey
 	/**
 	 * The minimum asymetric cipher RSA Key size
 	 */
-	public final int minASymetricKeySize = 1024;
+	public final int minASymetricKeySizeBits = 2048;
 
 	/**
 	 * Symmetric encryption algorithm
@@ -248,8 +248,8 @@ public class ClientSecuredProtocolPropertiesWithKnownPublicKey
 	{
 		if (publicKey == null)
 			throw new ConnectionException("The public key must defined");
-		if (publicKey.getKeySize() < minASymetricKeySize)
-			throw new ConnectionException("_rsa_key_size must be greater or equal than " + minASymetricKeySize
+		if (publicKey.getKeySizeBits() < minASymetricKeySizeBits)
+			throw new ConnectionException("_rsa_key_size must be greater or equal than " + minASymetricKeySizeBits
 					+ " . Moreover, this number must correspond to this schema : _rsa_key_size=2^x.");
 		if (publicKey.getTimeExpirationUTC() < System.currentTimeMillis()) {
 			throw new ConnectionException("The distant public key has expired !");
@@ -258,12 +258,12 @@ public class ClientSecuredProtocolPropertiesWithKnownPublicKey
 		if (publicKey.getTimeExpirationUTC() < System.currentTimeMillis()) {
 			throw new ConnectionException("The given public key has expired");
 		}
-		int tmp = publicKey.getKeySize();
+		int tmp = publicKey.getKeySizeBits();
 		while (tmp != 1) {
 			if (tmp % 2 == 0)
 				tmp = tmp / 2;
 			else
-				throw new ConnectionException("The RSA key size have a size of " + publicKey.getKeySize()
+				throw new ConnectionException("The RSA key size have a size of " + publicKey.getKeySizeBits()
 						+ ". This number must correspond to this schema : _rsa_key_size=2^x.");
 		}
 		

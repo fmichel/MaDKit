@@ -64,7 +64,6 @@ import org.fourthline.cling.UpnpServiceImpl;
 import org.fourthline.cling.binding.xml.DeviceDescriptorBinder;
 import org.fourthline.cling.binding.xml.ServiceDescriptorBinder;
 import org.fourthline.cling.controlpoint.ControlPointImpl;
-import org.fourthline.cling.model.ModelUtil;
 import org.fourthline.cling.model.Namespace;
 import org.fourthline.cling.model.action.ActionInvocation;
 import org.fourthline.cling.model.message.UpnpHeaders;
@@ -106,6 +105,7 @@ import com.distrimind.madkit.kernel.NetworkAgent;
 import com.distrimind.madkit.kernel.Task;
 import com.distrimind.madkit.kernel.TaskID;
 import com.distrimind.madkit.message.KernelMessage;
+import com.distrimind.util.OSValidator;
 
 /**
  * This class agent aims to analyze network interfaces, local networks, and
@@ -824,8 +824,7 @@ class UpnpIGDAgent extends AgentFakeThread {
 		if (getMadkitConfig().networkProperties.upnpIGDEnabled) {
 			synchronized (UpnpIGDAgent.class) {
 				if (upnpService == null) {
-					upnpService = new UpnpServiceImpl(new DefaultUpnpServiceConfiguration());
-
+					upnpService = new UpnpServiceImpl(new DefaultUpnpServiceConfiguration(getMadkitConfig().networkProperties.upnpIDGPort));
 				}
 
 				pointedUpnpServiceNumber++;
@@ -1698,7 +1697,7 @@ class DefaultUpnpServiceConfiguration implements org.fourthline.cling.UpnpServic
 	}
 
 	public DefaultUpnpServiceConfiguration(int streamListenPort) {
-		if (ModelUtil.ANDROID_RUNTIME) {
+		if (OSValidator.getCurrentOS()==OSValidator.ANDROID) {
 			usc = new AndroidUpnpServiceConfiguration(streamListenPort);
 		} else
 			usc = new NONAndroidUpnpServiceConfiguration(streamListenPort);

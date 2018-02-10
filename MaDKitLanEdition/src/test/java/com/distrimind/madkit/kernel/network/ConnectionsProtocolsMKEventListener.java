@@ -122,7 +122,7 @@ public class ConnectionsProtocolsMKEventListener implements MadkitEventListener 
 
 	private static ASymmetricKeyPair keyPairForEncryption = null;
 	private static ASymmetricKeyPair keyPairForSignature = null;
-	private static short keyPairSize = 1024;
+	private static short keyPairSize = 2048;
 	private static int encryptionProfileIdentifier = -1;
 
 	public static ASymmetricKeyPair getKeyPairForEncryption() throws NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException {

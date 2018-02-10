@@ -131,7 +131,7 @@ public class CreateGroupTest extends JunitMadkit {
 			@Override
 			protected void activate() {
 				try {
-					createGroup(new Group(aa(), null), null);
+					createGroup(new Group(aa(), (String)null), null);
 					noExceptionFailure();
 				} catch (NullPointerException e) {
 					throw e;

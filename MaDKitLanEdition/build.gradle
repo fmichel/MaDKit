@@ -47,7 +47,7 @@ repositories {
 dependencies {
      testCompile 'org.testng:testng:6.13.1'
      testCompile 'junit:junit:4.12'
-     compile(group:'com.distrimind.ood', name: 'OOD', version: '2.0.0-Beta59')
+     compile(group:'com.distrimind.ood', name: 'OOD', version: '2.0.0-Beta65')
      compile(group:'org.fourthline.cling', name: 'cling-core', version: '2.1.1')
      compile(group:'org.fourthline.cling', name: 'cling-support', version: '2.1.1')
      compile(group:'org.hsqldb', name: 'hsqldb', version: '2.3.4')
@@ -63,7 +63,7 @@ allprojects {
 
 sourceCompatibility = 1.7
 targetCompatibility=1.7
-version='1.6.1'
+version='1.6.2'
 
 
 task sourcesJar(type: Jar, dependsOn: classes) {
@@ -103,8 +103,13 @@ test {
    // set heap size for the test JVM(s)
    minHeapSize = "256m"
    maxHeapSize = "2g"
-   
-   
+ 
+
+	test {
+    		afterTest { desc, result -> 
+        		logger.quiet "Executing test ${desc.name} [${desc.className}] with result: ${result.resultType}"
+    		}
+	}
    
  }
 

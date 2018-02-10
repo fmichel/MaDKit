@@ -39,6 +39,7 @@ package com.distrimind.madkit.kernel.network.connection.secured;
 
 import com.distrimind.madkit.kernel.network.connection.ConnectionMessage;
 import com.distrimind.util.crypto.ASymmetricPublicKey;
+import com.distrimind.util.crypto.Key;
 
 /**
  * 
@@ -81,7 +82,7 @@ class PublicKeyMessage extends ConnectionMessage {
 		if (public_key_for_encryption_bytes == null)
 			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
 		try {
-			public_key_for_encryption = ASymmetricPublicKey.decode(public_key_for_encryption_bytes);
+			public_key_for_encryption = (ASymmetricPublicKey) Key.decode(public_key_for_encryption_bytes);
 			if (public_key_for_encryption == null)
 				return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
 		} catch (Exception e) {
@@ -90,7 +91,7 @@ class PublicKeyMessage extends ConnectionMessage {
 		if (public_key_for_signature_bytes == null)
 			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
 		try {
-			public_key_for_signature = ASymmetricPublicKey.decode(public_key_for_signature_bytes);
+			public_key_for_signature = (ASymmetricPublicKey) Key.decode(public_key_for_signature_bytes);
 			if (public_key_for_signature == null)
 				return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
 		} catch (Exception e) {

@@ -13,6 +13,9 @@ apply plugin: 'maven-publish'
 
 def Properties props = new Properties()
 def propFile = file('gradle.properties')
+def artifactory_Url="https://mahdjoub.net/artifactory"
+def user=""
+def pwd=""
 if (propFile.canRead())
 {
     props.load(new FileInputStream(propFile))
@@ -29,6 +32,12 @@ if (propFile.canRead())
 		compileTestJava.options.bootClasspath=fileTree(include: ['*.jar'], dir: "${jdk}/jre/lib").join(File.pathSeparator)
 		compileTestJava.options.extensionDirs = "${jdk}/jre/lib/ext/"
 	}
+	if (props!=null && props.containsKey('artifactory_contextUrl'))
+		artifactory_Url="${artifactory_contextUrl}"	
+	if (props!=null && props.containsKey('artifactory_user'))
+		user="${artifactory_user}"	
+	if (props!=null && props.containsKey('artifactory_password'))
+		pwd="${artifactory_password}"	
 }
 eclipse {
     classpath {
@@ -42,7 +51,7 @@ repositories {
     // You can declare any Maven/Ivy/file repository here.
     
         maven {
-        	url "${artifactory_contextUrl}/DistriMind-Public"
+        	url "${artifactory_Url}/DistriMind-Public"
    		} 
    		maven
    		{
@@ -132,10 +141,10 @@ publishing {
     repositories {
         maven {
             credentials {
-              username "${artifactory_user}"
-              password "${artifactory_password}"
+              username "${user}"
+              password "${pwd}"
             }
-            url "${artifactory_contextUrl}/DistriMind-Public"
+            url "${artifactory_Url}/DistriMind-Public"
         }
     }
 }

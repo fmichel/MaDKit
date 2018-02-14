@@ -830,6 +830,23 @@ class LocalNetworkAgent extends AgentFakeThread {
 			return false;
 		}
 	}
+	
+	public static void main(String args[]) throws SocketException
+	{
+		Enumeration<NetworkInterface> nis=NetworkInterface.getNetworkInterfaces();
+		for (;nis.hasMoreElements();)
+		{
+			NetworkInterface ni=nis.nextElement();
+			System.out.println(ni.getDisplayName()+", index="+ni.getIndex()+", loopback="+ni.isLoopback()+", pointtopoint="+ni.isPointToPoint()+", up="+ni.isUp()+", virtual="+ni.isVirtual()+", support multicast="+ni.supportsMulticast());
+			for (InterfaceAddress ia : ni.getInterfaceAddresses()) {
+				if (isValid(ia))
+				{
+					System.out.println("\t"+ia.getAddress()+" anylocaladdress="+ia.getAddress().isAnyLocalAddress()+", sitelocaladdress="+ia.getAddress().isSiteLocalAddress()+", linklocaladdress"+ia.getAddress().isLinkLocalAddress()+", loopback="+ia.getAddress().isLoopbackAddress()+
+							", multicast="+ia.getAddress().isMulticastAddress()+", mgcglobal="+ia.getAddress().isMCGlobal()+", mcorglocal"+ia.getAddress().isMCOrgLocal()+", mcnodelocal="+ia.getAddress().isMCNodeLocal()+", mcsitelocal="+ia.getAddress().isMCSiteLocal()+", mclinklocal="+ia.getAddress().isMCLinkLocal());
+				}
+			}
+		}
+	}
 
 	private ArrayList<BindInetSocketAddressMessage> selectNetworkInterfaces(BindInetSocketAddressMessage bind,
 			ArrayList<NetworkInterface> nis) {

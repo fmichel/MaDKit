@@ -159,6 +159,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 	private boolean distant_kernel_agent_activated = false;
 	private AgentAddress distant_socket_agent_address = null;
 	protected volatile boolean waitingPongMessage = false;
+	//private LCForValidatingKA currentLockUsedToValidateDistantKernelAddress=null;
 
 	private DataSocketSynchronizer.SocketAgentInterface dataSynchronized = new DataSocketSynchronizer.SocketAgentInterface() {
 
@@ -479,6 +480,14 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 	@Override
 	protected void end() {
 		// MadkitKernelAccess.removeGroupChangementNotifier(my_accepted_groups);
+		/*if (currentLockUsedToValidateDistantKernelAddress!=null)
+			currentLockUsedToValidateDistantKernelAddress.cancelLock();
+		currentLockUsedToValidateDistantKernelAddress=null;*/
+		NetworkBlackboard nbb=((NetworkBlackboard) getBlackboard(LocalCommunity.Groups.NETWORK,
+				LocalCommunity.BlackBoards.NETWORK_BLACKBOARD));
+		if (nbb!=null)
+			nbb.unlockSimultaneousConnections(distant_kernel_address);
+
 		cancelTaskTransferNodeChecker();
 		getMadkitConfig().networkProperties.removeStatsBandwitdh(
 				new ConnectionIdentifier(getTransfertType(), distant_inet_address, local_interface_address));
@@ -631,6 +640,10 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 										new Connection(new ConnectionIdentifier(getTransfertType(),
 												distant_inet_address, local_interface_address),
 												distantInterfacedKernelAddress)));
+			/*if (currentLockUsedToValidateDistantKernelAddress!=null)
+				currentLockUsedToValidateDistantKernelAddress.cancelLock();
+			currentLockUsedToValidateDistantKernelAddress=null;*/
+
 			this.killAgent(this);
 		} catch (SelfKillException e) {
 			throw e;
@@ -771,6 +784,8 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 			ReceivedSerializableObject m = (ReceivedSerializableObject) _message;
 			receiveData(m.getContent(), m);
 		} else if (_message.getClass() == KernelAddressValidation.class) {
+			if ( access_protocol.isNotifyAccessGroupChangements())
+				notifyNewAccessChangements();
 			if (((KernelAddressValidation) _message).isKernelAddressInterfaceEnabled()) {
 				if (logger != null && logger.isLoggable(Level.FINER))
 					logger.finer(
@@ -811,15 +826,16 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 					}
 				}, System.currentTimeMillis()
 						+ getMadkitConfig().networkProperties.maxDurationOfDistantKernelAddressCheck));
-				((NetworkBlackboard) getBlackboard(LocalCommunity.Groups.NETWORK,
-						LocalCommunity.BlackBoards.NETWORK_BLACKBOARD))
-								.unlockSimultaneousConnections(distant_kernel_address);
+				
 			} else {
 				// The received distant kernel address is unique into this peer.
 				// The kernel address is validated.
 				// the kernel address is not interfaced
 				currentSecretMessages.set(null);
+				
+				
 			}
+			
 		} else if (_message.getClass() == ExceededDataQueueSize.class) {
 
 			boolean paused = ((ExceededDataQueueSize) _message).isPaused();
@@ -883,6 +899,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 			} else if (o.getClass() == KernelAddressInterfaced.class) {
 				// requestRole(LocalCommunity.Groups.getDistantKernelAgentGroup((KernelAddressInterfaced)o),
 				// LocalCommunity.Roles.SOCKET_AGENT_ROLE);
+				
 				leaveRole(LocalCommunity.Groups.getDistantKernelAgentGroup(agent_for_distant_kernel_aa),
 						LocalCommunity.Roles.SOCKET_AGENT_ROLE);
 
@@ -919,6 +936,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 								LocalCommunity.Roles.SOCKET_AGENT_ROLE);
 						informHooksForConnectionEstablished();
 					}
+
 				} else {
 					this.startDeconnectionProcess(ConnectionClosedReason.CONNECTION_ANOMALY);
 				}
@@ -2227,7 +2245,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 							}
 							if (con_close_reason != null)
 								startDeconnectionProcess(con_close_reason);
-							else if (access_protocol.isNotifyAccessGroupChangements()) {
+							else if (this_ask_connection && access_protocol.isNotifyAccessGroupChangements()) {
 								notifyNewAccessChangements();
 							}
 							State oldState = state;
@@ -2253,12 +2271,18 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 					distant_accepted_and_requested_groups = agm.accepted_groups_and_requested;
 					distant_general_accepted_groups = agm.accepted_groups;
 					if (distant_kernel_address == null) {
+						
 						if (agm.kernelAddress.equals(getKernelAddress())) {
 							processSameDistantKernelAddressWithLocal(agm.kernelAddress, true);
 							return;
 						} else {
 							// receiving distant kernel address
 							distant_kernel_address = agm.kernelAddress;
+							/*if (!this.this_ask_connection)
+							{
+								currentLockUsedToValidateDistantKernelAddress=new LCForValidatingKA();
+								this.wait(currentLockUsedToValidateDistantKernelAddress);
+							}*/
 							if (logger != null && logger.isLoggable(Level.FINEST))
 								logger.finest("Receiving distant kernel address (distant_inet_address="
 										+ distant_inet_address + ", distantInterfacedKernelAddress="
@@ -2269,6 +2293,9 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 									LocalCommunity.Groups.getOriginalDistantKernelAgentGroup(distant_kernel_address),
 									LocalCommunity.Roles.SOCKET_AGENT_ROLE);
 							distant_socket_agent_address = agm.distant_agent_socket_address;
+							
+
+							
 							// send distant kernel address to DistantKernelAddressAgent
 							sendMessageWithRole(agent_for_distant_kernel_aa,
 									new ObjectMessage<KernelAddress>(distant_kernel_address),
@@ -2278,6 +2305,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 									new NetworkLoginAccessEvent(distant_kernel_address, my_accepted_logins.identifiers,
 											my_accepted_logins.identifiers, null, null),
 									LocalCommunity.Roles.SOCKET_AGENT_ROLE);
+							
 						}
 					}
 
@@ -2316,7 +2344,9 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 						logger.warning("Unexpected secret message " + sm);
 
 				} else if (obj.getClass() == DistantKernelAddressValidated.class) {
-
+					/*if (currentLockUsedToValidateDistantKernelAddress!=null)
+						currentLockUsedToValidateDistantKernelAddress.cancelLock();
+					currentLockUsedToValidateDistantKernelAddress=null;*/
 					this.distantKernelAddressValidated.set(true);
 					if (distant_kernel_agent_activated) {
 						informHooksForConnectionEstablished();
@@ -2449,8 +2479,13 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 			if (logger != null)
 				logger.severeLog("Unexpected exception", e);
 		}
+		
 	}
 
+	
+
+	
+	
 	private void informHooksForConnectionEstablished() {
 		if (logger != null)
 			logger.info("Connection established (distant_inet_address=" + distant_inet_address
@@ -2472,6 +2507,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 				// address must be interfaced
 				AbstractAgentSocket.this.sendMessageWithRole(agent_for_distant_kernel_aa,
 						new KernelAddressValidation(true), LocalCommunity.Roles.SOCKET_AGENT_ROLE);
+				
 			} else {
 				// leaveRole(LocalCommunity.Groups.getDistantKernelAgentGroup(agent_for_distant_kernel_aa.getAgentNetworkID()),
 				// LocalCommunity.Roles.SOCKET_AGENT_ROLE);
@@ -2523,14 +2559,19 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 				if (my_accepted_groups != null)
 					my_accepted_groups.notifyDistantKernelAgent();
 
+
 				/*
 				 * if (this.distantConnectionInfo!=null)
 				 * AbstractAgentSocket.this.sendMessageWithRole(agent_for_distant_kernel_aa, new
 				 * ObjectMessage<>(this.distantConnectionInfo),
 				 * LocalCommunity.Roles.SOCKET_AGENT_ROLE);
 				 */
+				/*((NetworkBlackboard) getBlackboard(LocalCommunity.Groups.NETWORK,
+						LocalCommunity.BlackBoards.NETWORK_BLACKBOARD))
+								.unlockSimultaneousConnections(distant_kernel_address);*/
 			}
 		}
+		
 	}
 
 	private void updateState() {
@@ -2548,8 +2589,11 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 
 	@Override
 	public void notifyNewAccessChangements() {
-		my_accepted_groups.updateGroups(access_protocol.getGroupsAccess());
-		my_accepted_logins.updateData();
+		if (this_ask_connection || distant_kernel_address!=null)
+		{
+			my_accepted_groups.updateGroups(access_protocol.getGroupsAccess());
+			my_accepted_logins.updateData();
+		}
 	}
 
 	private Groups my_accepted_groups = null;

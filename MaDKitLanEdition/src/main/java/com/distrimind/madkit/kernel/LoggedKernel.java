@@ -899,6 +899,7 @@ final class LoggedKernel extends MadkitKernel {
 		return kernel.getConnectedNetworkAgents();
 	}
 
+	@Override
 	protected void exit() throws InterruptedException {
 		kernel.exit();
 	}

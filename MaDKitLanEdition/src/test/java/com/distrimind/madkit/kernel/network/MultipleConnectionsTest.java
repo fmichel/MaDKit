@@ -260,6 +260,13 @@ public class MultipleConnectionsTest extends JunitMadkit {
 						}
 					}
 					sleep(400);
+					for (Madkit m : getHelperInstances(5))
+						stopNetwork(m);
+					for (Madkit m : getHelperInstances(5)) {
+						checkConnectedKernelsNb(this, m, 0, timeOut);
+						checkConnectedIntancesNb(this, m, 0, timeOut);
+					}
+					sleep(400);
 					agentsToLaunch1.killAgent(agentsToLaunch1);
 					agentsToLaunch2.killAgent(agentsToLaunch2);
 					agentsToLaunch3.killAgent(agentsToLaunch3);

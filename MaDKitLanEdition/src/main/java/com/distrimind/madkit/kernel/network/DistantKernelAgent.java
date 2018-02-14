@@ -991,6 +991,8 @@ class DistantKernelAgent extends AgentFakeThread {
 				activateDistantKernelAgent();
 				informHooksDistantKernelAgentActivated();
 			}
+			else
+				networkBlacboard.unlockSimultaneousConnections(distant_kernel_address);
 			int nb = getUsableDistantSocketAgentNumber();
 			if (nb > 1
 					&& nb > getMadkitConfig().networkProperties.numberOfMaximumConnectionsBetweenTwoSameKernelsAndMachines)
@@ -1012,6 +1014,7 @@ class DistantKernelAgent extends AgentFakeThread {
 			updateLocalAcceptedGroups();
 			networkBlacboard.addDistantKernelAddressInterfaced(distant_kernel_address);
 			potentialChangementsInGroups();
+			networkBlacboard.unlockSimultaneousConnections(distant_kernel_address);
 		} else {
 			if (logger != null)
 				logger.severe("Unexpected return code during distant kernel agent activation : " + rc);
@@ -1070,6 +1073,7 @@ class DistantKernelAgent extends AgentFakeThread {
 			this.leaveRole(LocalCommunity.Groups.getOriginalDistantKernelAgentGroup(this.distant_kernel_address),
 					LocalCommunity.Roles.DISTANT_KERNEL_AGENT_ROLE);
 		}
+		
 
 	}
 
@@ -1090,6 +1094,7 @@ class DistantKernelAgent extends AgentFakeThread {
 			if (this.distant_kernel_address == null) {
 				if (logger != null && logger.isLoggable(Level.FINER))
 					logger.finer("Setting distant kernel address (distantKernelAddress=" + distant_ka + ")");
+				
 				try {
 
 					networkBlacboard.lockForSimultaneousConnections(this, distant_ka);
@@ -1126,7 +1131,7 @@ class DistantKernelAgent extends AgentFakeThread {
 							LocalCommunity.Roles.DISTANT_KERNEL_AGENT_ROLE);
 					// activate the current distant kernel agent
 					activateDistantKernelAgent(sender, true);
-					networkBlacboard.unlockSimultaneousConnections(distant_ka);
+					//networkBlacboard.unlockSimultaneousConnections(distant_ka);
 				}
 				// send to the concerned agent socket the result of the current agent activation
 				sendMessageWithRole(sender, new KernelAddressValidation(duplicate_group),

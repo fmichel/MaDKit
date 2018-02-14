@@ -67,15 +67,31 @@ class NetworkBlackboard {
 
 	void lockForSimultaneousConnections(DistantKernelAgent agent, KernelAddress kernelAddress)
 			throws InterruptedException {
-		do {
+		//do {
 			final KernelAddress ka = (kernelAddress instanceof KernelAddressInterfaced)
 					? ((KernelAddressInterfaced) kernelAddress).getOriginalKernelAddress()
 					: kernelAddress;
 			LockerCondition lc = new LockerCondition() {
-
+				private boolean alreadyLockedOneTime=true;
 				@Override
 				public boolean isLocked() {
-					return lockerForSimultaneousConnections.get(ka) != null;
+					synchronized(lockerForSimultaneousConnections)
+					{
+						LockerCondition lctmp=lockerForSimultaneousConnections.get(ka);
+						boolean locked=  lctmp!=null;
+						if (locked && lctmp==this)
+						{
+							alreadyLockedOneTime=true;
+							return false;
+						}
+						
+						if (!locked && !alreadyLockedOneTime)
+						{
+							lockerForSimultaneousConnections.put(ka, this);
+						}
+						return false;
+							
+					}
 				}
 			};
 			lc.setLocker(lockerForSimultaneousConnections);
@@ -84,15 +100,16 @@ class NetworkBlackboard {
 				LockerCondition lock = lockerForSimultaneousConnections.get(ka);
 				if (lock == null) {
 					lockerForSimultaneousConnections.put(ka, lc);
-					lc = null;
+					//lc = null;
 				}
 			}
-			if (lc != null) {
+			agent.wait(lc);
+			/*if (lc != null) {
 				agent.wait(lc);
 			} else {
 				return;
 			}
-		} while (true);
+		} while (true);*/
 	}
 
 	void unlockSimultaneousConnections(KernelAddress kernelAddress) {

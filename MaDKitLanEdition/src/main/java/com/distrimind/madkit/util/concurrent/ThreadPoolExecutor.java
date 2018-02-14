@@ -818,6 +818,8 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
 	 * Package-protected for use by ScheduledThreadPoolExecutor.
 	 */
 	final void reject(Runnable command) {
+		if (command instanceof Future)
+			((Future<?>)command).cancel(false);
 		handler.rejectedExecution(command, this);
 	}
 
@@ -1016,15 +1018,24 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
 					int min = allowCoreThreadTimeOut ? 0 : corePoolSize;
 					if (min == 0 && !workQueue.isEmpty())
 						min = 1;
-					workersToAddWhenOtherWaiting = Math.min(0,
-							Math.max(min, workersWaiting + 1) - workers.size() - workersAdding.get());
+					workersToAddWhenOtherWaiting = Math.max(0,
+							Math.max(min, workersWaiting + min>0?1:0) - workers.size() - workersAdding.get());
 					workersAdding.addAndGet(workersToAddWhenOtherWaiting);
 				} else {
 					int min = allowCoreThreadTimeOut ? 0 : corePoolSize;
 					if (min == 0 && !workQueue.isEmpty())
+					{
 						min = 1;
+					}
 					if (workerCountOf(c) >= min)
 						return;
+					else
+					{
+						workersToAddWhenOtherWaiting = Math.max(0,
+								min - workers.size() - workersAdding.get());
+						workersAdding.addAndGet(workersToAddWhenOtherWaiting);
+					}
+					
 
 				}
 			}
@@ -1083,7 +1094,7 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
 
 			// Are workers subject to culling?
 			boolean timed = allowCoreThreadTimeOut || wc > corePoolSize;
-
+			
 			if ((wc > maximumPoolSize || (timed && timedOut)) && (wc > 1 || workQueue.isEmpty())) {
 				if (compareAndDecrementWorkerCount(c))
 					return null;
@@ -1563,15 +1574,20 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
 		 * 3. If we cannot queue task, then we try to add a new thread. If it fails, we
 		 * know we are shut down or saturated and so reject the task.
 		 */
+		//this.mainLock.lock();
+		
 		int c = ctl.get();
+		
 		if (workerCountOf(c) < corePoolSize) {
 			if (addWorker(command, true))
 				return;
 			c = ctl.get();
 		}
+		
 		// this.notifyWaitingWorkers();
 
 		if (isRunning(c)) {
+			
 			/*
 			 * if (workQueue instanceof SynchronousQueue &&
 			 * getWorker(Thread.currentThread())!=null) { addWorker(command); } else
@@ -1579,13 +1595,19 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
 				// this.notifyWaitingWorkers();
 				int recheck = ctl.get();
 				if (!isRunning(recheck) && remove(command))
+				{
 					reject(command);
+				}
 				else if (workerCountOf(recheck) == 0)
+				{
 					addWorker(null, false);
+				}
 				return;
 			} else if (getWorker(Thread.currentThread()) != null) {
 				if (command instanceof Future && addWorker(command))
+				{
 					return;
+				}
 				else {
 					command.run();
 					return;
@@ -1597,10 +1619,10 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
 			 * else if (getWorker(Thread.currentThread())!=null) { command.run(); return; }
 			 */
 		}
-
 		if (!addWorker(command, false)) {
 			reject(command);
 		}
+
 	}
 
 	/**

@@ -1436,6 +1436,7 @@ final class NIOAgent extends Agent {
 								}
 							}
 							data_sended = socketChannel.write(buf);
+
 							if (firstPacketSent)
 								agentSocket.getStatistics().newDataSent(data.getIDTransfer(), data_sended);
 

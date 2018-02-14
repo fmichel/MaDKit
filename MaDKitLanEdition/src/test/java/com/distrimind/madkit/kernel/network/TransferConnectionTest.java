@@ -67,6 +67,7 @@ import com.distrimind.madkit.kernel.AgentFakeThread;
 import com.distrimind.madkit.message.hook.DistantKernelAgentEventMessage;
 import com.distrimind.madkit.message.hook.HookMessage.AgentActionEvent;
 import com.distrimind.madkit.message.hook.TransferEventMessage.TransferEventType;
+import com.distrimind.util.OSValidator;
 import com.distrimind.madkit.message.hook.NetworkEventMessage;
 import com.distrimind.madkit.message.hook.TransferEventMessage;
 
@@ -256,6 +257,7 @@ public class TransferConnectionTest extends JunitMadkit {
 
 	public void indirectConnectionTest(final AskForTransferMessage.Type type,
 			final boolean connectionPerKernelAddress) {
+		System.out.println("JRE Version : "+OSValidator.getCurrentJREVersion());
 		cleanHelperMDKs();
 		// addMadkitArgs(LevelOption.networkLogLevel.toString(),"FINER");
 		launchTest(new AbstractAgent() {
@@ -290,9 +292,15 @@ public class TransferConnectionTest extends JunitMadkit {
 				for (Madkit m : getHelperInstances(4)) {
 					++index;
 					if (index == 0 || index == 2)
+					{
 						checkConnectedKernelsNb(this, m, 2, timeOut);
+						checkConnectedIntancesNb(this, m, 2, timeOut);
+					}
 					else
+					{
 						checkConnectedKernelsNb(this, m, 1, timeOut);
+						checkConnectedIntancesNb(this, m, 1, timeOut);
+					}
 				}
 				System.out
 						.println("**************Try transafert connection between 2 and 3 (through 1)****************");

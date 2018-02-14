@@ -283,12 +283,27 @@ public class TransferConnectionTest extends JunitMadkit {
 				ka2 = TransferConnectionTest.this.getKernelAddress(getHelperInstances(2).get(1));
 				sleep(2000);
 				launchThreadedMKNetworkInstance(Level.INFO, AbstractAgent.class, a2, eventListener2);
+				System.out.println("**************Test connections 1****************");
+				int index = -1;
+				for (Madkit m : getHelperInstances(3)) {
+					++index;
+					if (index == 2)
+					{
+						checkConnectedKernelsNb(this, m, 2, timeOut);
+						checkConnectedIntancesNb(this, m, 2, timeOut);
+					}
+					else
+					{
+						checkConnectedKernelsNb(this, m, 1, timeOut);
+						checkConnectedIntancesNb(this, m, 1, timeOut);
+					}
+				}
 				sleep(1000);
 				launchThreadedMKNetworkInstance(Level.INFO, AbstractAgent.class, null, eventListener3);
 
-				System.out.println("**************Test connections****************");
+				System.out.println("**************Test connections 2****************");
 				// test madkit kernels connection
-				int index = -1;
+				index = -1;
 				for (Madkit m : getHelperInstances(4)) {
 					++index;
 					if (index == 0 || index == 2)

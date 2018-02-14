@@ -186,6 +186,7 @@ public class NetworkEventListener implements MadkitEventListener {
 			for (InetAddress ia : inetAddressesToBind)
 				_properties.networkProperties.localInetAddressesToBind.add(ia);
 		}
+
 		if (connectionsToAttempt != null)
 			_properties.networkProperties.connectionToAttempt = connectionsToAttempt;
 

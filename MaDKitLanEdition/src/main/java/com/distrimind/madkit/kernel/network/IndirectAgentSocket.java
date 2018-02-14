@@ -280,7 +280,7 @@ class IndirectAgentSocket extends AbstractAgentSocket {
 			
 			broadcastDataTowardEachIntermediatePeer(tbcm, true);
 			try {
-				sleep(100);
+				sleep(400);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

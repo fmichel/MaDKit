@@ -264,6 +264,7 @@ final class NIOAgent extends Agent {
 	@Override
 	protected void end() {
 		closeAllNow();
+
 		if (logger != null && logger.isLoggable(Level.FINE))
 			logger.fine("NIOAgent KILLED !");
 
@@ -537,6 +538,8 @@ final class NIOAgent extends Agent {
 					boolean kill = true;
 					stoping = true;
 					NetworkAgent.StopNetworkMessage message = (NetworkAgent.StopNetworkMessage) m;
+					for (Server s : this.serverChannels)
+						s.serverChannels.close();
 					for (PersonalSocket ps : personal_sockets_list) {
 						kill = false;
 						sendMessage(ps.agentAddress,

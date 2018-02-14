@@ -264,7 +264,7 @@ public class NetworkEventListener implements MadkitEventListener {
 						if (bindDoubleInetAddress)
 							o[h] = new NetworkEventListener(network, upnpIGDEnabled, false,
 									databaseEnabled ? new File("tmpfortest" + clientNumber + ".database") : null, cp,
-									app, ad, 5001,
+									app, ad, 5001+h,
 									Arrays.asList(
 											(AbstractIP) new DoubleIP(5001,
 													(Inet4Address) InetAddress.getByName("127.0.0.1")),
@@ -273,7 +273,7 @@ public class NetworkEventListener implements MadkitEventListener {
 						else
 							o[h] = new NetworkEventListener(network, upnpIGDEnabled, false,
 									databaseEnabled ? new File("tmpfortest" + clientNumber + ".database") : null, cp,
-									app, ad, 5001,
+									app, ad, 5001+h,
 									Arrays.asList((AbstractIP) new DoubleIP(5001,
 											(Inet4Address) InetAddress.getByName("127.0.0.1"),
 											(Inet6Address) InetAddress.getByName("::1"))));

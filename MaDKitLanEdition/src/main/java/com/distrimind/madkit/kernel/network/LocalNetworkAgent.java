@@ -137,9 +137,8 @@ class LocalNetworkAgent extends AgentFakeThread {
 		network_interfaces.add(ni);
 	}
 
-	static ArrayList<LocalNetworkAgent> extractLocalNetworkAgents(NetworkInterface ni) {
+	static ArrayList<LocalNetworkAgent> extractLocalNetworkAgents(NetworkInterface ni, ArrayList<InterfaceAddress> list) {
 		ArrayList<LocalNetworkAgent> res = new ArrayList<>();
-		List<InterfaceAddress> list = ni.getInterfaceAddresses();
 		if (list.size() == 1) {
 			res.add(new LocalNetworkAgent(ni, list.iterator().next()));
 		} else if (list.size() == 2) {
@@ -202,9 +201,10 @@ class LocalNetworkAgent extends AgentFakeThread {
 		ArrayList<LocalNetworkAgent> res = new ArrayList<>();
 		ArrayList<InterfaceAddress> not_found_addresses = new ArrayList<InterfaceAddress>();
 		ArrayList<LocalNetworkAgent> found_lna_match = new ArrayList<LocalNetworkAgent>();
-
+		int niValidAddressesNumber=0;
 		for (InterfaceAddress ia : ni.getInterfaceAddresses()) {
 			if (isValid(ia)) {
+				++niValidAddressesNumber;
 				boolean found = false;
 				for (LocalNetworkAgent lna : local_network_agents) {
 					if (lna.isConcernedBy(ia)) {
@@ -229,8 +229,8 @@ class LocalNetworkAgent extends AgentFakeThread {
 				lna.receiveMessage(new NetworkInterfaceAddedMessage(ni));
 		}
 		if (not_found_addresses.size() > 0) {
-			if (not_found_addresses.size() == ni.getInterfaceAddresses().size()) {
-				res.addAll(extractLocalNetworkAgents(ni));
+			if (not_found_addresses.size() == niValidAddressesNumber) {
+				res.addAll(extractLocalNetworkAgents(ni, not_found_addresses));
 			} else {
 				for (InterfaceAddress ia : not_found_addresses) {
 					res.add(new LocalNetworkAgent(ni, ia));

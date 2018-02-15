@@ -75,7 +75,7 @@ import com.distrimind.util.properties.XMLProperties;
  * 
  * @author Jason Mahdjoub
  * @since MaDKitLanEdition 1.0
- * @version 1.0
+ * @version 1.1
  * 
  */
 public class NetworkProperties extends XMLProperties {

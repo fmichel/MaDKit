@@ -53,7 +53,7 @@ import com.distrimind.madkit.kernel.TaskID;
 /**
  * 
  * @author Jason Mahdjoub
- * @version 1.0
+ * @version 1.1
  * @since MadkitLanEdition 1.0
  */
 class NetworkBlackboard {
@@ -72,7 +72,7 @@ class NetworkBlackboard {
 					? ((KernelAddressInterfaced) kernelAddress).getOriginalKernelAddress()
 					: kernelAddress;
 			LockerCondition lc = new LockerCondition() {
-				private boolean alreadyLockedOneTime=true;
+				private boolean alreadyLockedOneTime=false;
 				@Override
 				public boolean isLocked() {
 					synchronized(lockerForSimultaneousConnections)
@@ -88,8 +88,10 @@ class NetworkBlackboard {
 						if (!locked && !alreadyLockedOneTime)
 						{
 							lockerForSimultaneousConnections.put(ka, this);
+							alreadyLockedOneTime=true;
+							return false;
 						}
-						return false;
+						return locked && !alreadyLockedOneTime;
 							
 					}
 				}

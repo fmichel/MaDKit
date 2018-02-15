@@ -142,8 +142,16 @@ final public class Madkit {
 			VERSION.addDeveloper(new PersonDeveloper("Ferber", "Jacques", c.getTime()));
 
 			c = Calendar.getInstance();
+			c.set(2018, 1, 15);
+			Description d = new Description(1, 6, 4, Version.Type.Stable, 1, c.getTime());
+			d.addItem("Fix problem of port unbind with Windows.");
+			d.addItem("Fix problem of simulatenous connections with Mac OS");
+			d.addItem("Fix problem with interface address filtering");
+			VERSION.addDescription(d);	
+			
+			c = Calendar.getInstance();
 			c.set(2018, 1, 10);
-			Description d = new Description(1, 6, 3, Version.Type.Stable, 1, c.getTime());
+			d = new Description(1, 6, 3, Version.Type.Stable, 1, c.getTime());
 			d.addItem("Update OOD to 2.0.0 Beta 66.");
 			d.addItem("Update Utils to 3.10.5");
 			d.addItem("Change minimum public key size from 1024 to 2048");

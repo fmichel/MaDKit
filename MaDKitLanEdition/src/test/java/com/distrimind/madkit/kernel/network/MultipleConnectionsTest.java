@@ -60,7 +60,7 @@ import com.distrimind.util.Timer;
  * 
  * @author Jason Mahdjoub
  * @since MadkitLanEdition 1.0
- * @version 1.0
+ * @version 1.1
  * 
  */
 

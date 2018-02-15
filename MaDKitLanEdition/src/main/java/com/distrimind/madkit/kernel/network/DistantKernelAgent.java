@@ -107,7 +107,7 @@ import gnu.vm.jgnu.security.NoSuchProviderException;
  * Represent a distant Madkit kernel
  * 
  * @author Jason Mahdjoub
- * @version 1.1
+ * @version 1.2
  * @since MadkitLanEdition 1.0
  */
 class DistantKernelAgent extends AgentFakeThread {

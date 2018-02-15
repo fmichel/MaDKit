@@ -82,7 +82,7 @@ import com.distrimind.util.SystemFunctions;
  * interface, according it speed, has to be used to make connections.
  * 
  * @author Jason Mahdjoub
- * @version 1.0
+ * @version 1.1
  * @since MadkitLanEdition 1.0
  */
 class LocalNetworkAgent extends AgentFakeThread {

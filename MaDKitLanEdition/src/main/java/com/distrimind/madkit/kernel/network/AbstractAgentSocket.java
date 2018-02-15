@@ -125,7 +125,7 @@ import com.distrimind.util.crypto.AbstractSecureRandom;
 /**
  * 
  * @author Jason Mahdjoub
- * @version 1.1
+ * @version 1.2
  * @since MadkitLanEdition 1.0
  */
 abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGroupsNotifier {

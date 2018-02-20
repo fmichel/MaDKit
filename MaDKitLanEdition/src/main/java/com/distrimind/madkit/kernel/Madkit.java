@@ -119,8 +119,8 @@ final public class Madkit {
 		Calendar c = Calendar.getInstance();
 		c.set(2015, 4, 22);
 		Calendar c2 = Calendar.getInstance();
-		c2.set(2018, 1, 10);
-		Version VERSION = new Version("MadkitLanEdition", "MKLE", 1, 6, 3, Version.Type.Stable, 1, c.getTime(), c2.getTime());
+		c2.set(2018, 1, 15);
+		Version VERSION = new Version("MadkitLanEdition", "MKLE", 1, 6, 5, Version.Type.Stable, 1, c.getTime(), c2.getTime());
 		try {
 
 			InputStream is = Madkit.class.getResourceAsStream("build.txt");
@@ -142,8 +142,14 @@ final public class Madkit {
 			VERSION.addDeveloper(new PersonDeveloper("Ferber", "Jacques", c.getTime()));
 
 			c = Calendar.getInstance();
+			c.set(2018, 1, 20);
+			Description d = new Description(1, 6, 5, Version.Type.Stable, 1, c.getTime());
+			d.addItem("Debug UPNP connexion with macOS.");
+			VERSION.addDescription(d);	
+			
+			c = Calendar.getInstance();
 			c.set(2018, 1, 15);
-			Description d = new Description(1, 6, 4, Version.Type.Stable, 1, c.getTime());
+			d = new Description(1, 6, 4, Version.Type.Stable, 1, c.getTime());
 			d.addItem("Fix problem of port unbind with Windows.");
 			d.addItem("Fix problem of simulatenous connections with Mac OS");
 			d.addItem("Fix problem with interface address filtering");

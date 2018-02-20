@@ -363,10 +363,15 @@ public class NetworkProperties extends XMLProperties {
 	public boolean upnpIGDEnabled = false;
 	
 	/**
-	 * UPNP IGD Port listener
+	 * UPNP IGD Stream Port listener
 	 */
-	public int upnpIDGPort = 0;
+	public int upnpStreamIDGPort = 0;
 
+	/**
+	 * UPNP IGD Stream Port listener
+	 */
+	public int upnpMulticastIDGPort = 1901;
+	
 	/**
 	 * Log level for UpnpIGD agent
 	 */

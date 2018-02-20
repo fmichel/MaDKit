@@ -348,7 +348,7 @@ class MadkitKernelAccess {
 			if (e.getTargetException() instanceof InterruptedException)
 				throw (InterruptedException) e.getTargetException();
 			else
-				e.printStackTrace();
+				e.getTargetException().printStackTrace();
 		}
 	}
 

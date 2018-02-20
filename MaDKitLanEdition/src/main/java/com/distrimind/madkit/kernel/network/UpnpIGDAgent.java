@@ -61,9 +61,11 @@ import java.util.logging.Logger;
 
 import org.fourthline.cling.UpnpService;
 import org.fourthline.cling.UpnpServiceImpl;
+import org.fourthline.cling.android.AndroidNetworkAddressFactory;
 import org.fourthline.cling.binding.xml.DeviceDescriptorBinder;
 import org.fourthline.cling.binding.xml.ServiceDescriptorBinder;
 import org.fourthline.cling.controlpoint.ControlPointImpl;
+import org.fourthline.cling.model.Constants;
 import org.fourthline.cling.model.Namespace;
 import org.fourthline.cling.model.action.ActionInvocation;
 import org.fourthline.cling.model.message.UpnpHeaders;
@@ -87,6 +89,7 @@ import org.fourthline.cling.support.model.Connection.Status;
 import org.fourthline.cling.support.model.Connection.StatusInfo;
 import org.fourthline.cling.support.model.PortMapping;
 import org.fourthline.cling.support.model.PortMapping.Protocol;
+import org.fourthline.cling.transport.impl.NetworkAddressFactoryImpl;
 import org.fourthline.cling.transport.spi.DatagramIO;
 import org.fourthline.cling.transport.spi.DatagramProcessor;
 import org.fourthline.cling.transport.spi.GENAEventProcessor;
@@ -824,7 +827,7 @@ class UpnpIGDAgent extends AgentFakeThread {
 		if (getMadkitConfig().networkProperties.upnpIGDEnabled) {
 			synchronized (UpnpIGDAgent.class) {
 				if (upnpService == null) {
-					upnpService = new UpnpServiceImpl(new DefaultUpnpServiceConfiguration(getMadkitConfig().networkProperties.upnpIDGPort));
+					upnpService = new UpnpServiceImpl(new DefaultUpnpServiceConfiguration(getMadkitConfig().networkProperties.upnpStreamIDGPort, getMadkitConfig().networkProperties.upnpMulticastIDGPort));
 				}
 
 				pointedUpnpServiceNumber++;
@@ -1656,34 +1659,58 @@ class NONAndroidUpnpServiceConfiguration extends org.fourthline.cling.DefaultUpn
 	/**
 	 * Defaults to port '0', ephemeral.
 	 */
+	private final int multicastPort;
 	public NONAndroidUpnpServiceConfiguration() {
-		super();
+		this(0, Constants.UPNP_MULTICAST_PORT);
 	}
 
-	public NONAndroidUpnpServiceConfiguration(int streamListenPort) {
+	public NONAndroidUpnpServiceConfiguration(int streamListenPort, int multicastPort) {
 		super(streamListenPort);
+		this.multicastPort=multicastPort;
 	}
 
 	protected ExecutorService createDefaultExecutorService() {
 		return UpnpIGDAgent.serviceExecutor;
 	}
+	
+	@Override
+    protected NetworkAddressFactory createNetworkAddressFactory(int streamListenPort) {
+        return new NetworkAddressFactoryImpl(streamListenPort) {
+        		@Override
+        		public int getMulticastPort() {
+                return NONAndroidUpnpServiceConfiguration.this.multicastPort;
+            }
+        };
+    }
 }
 
 class AndroidUpnpServiceConfiguration extends org.fourthline.cling.android.AndroidUpnpServiceConfiguration {
+	private final int multicastPort;
 	/**
 	 * Defaults to port '0', ephemeral.
 	 */
 	public AndroidUpnpServiceConfiguration() {
-		super();
+		this(0, Constants.UPNP_MULTICAST_PORT);
 	}
 
-	public AndroidUpnpServiceConfiguration(int streamListenPort) {
+	public AndroidUpnpServiceConfiguration(int streamListenPort, int multicastPort) {
 		super(streamListenPort);
+		this.multicastPort=multicastPort;
 	}
 
 	protected ExecutorService createDefaultExecutorService() {
 		return UpnpIGDAgent.serviceExecutor;
 	}
+	
+	@Override
+    protected NetworkAddressFactory createNetworkAddressFactory(int streamListenPort) {
+        return new AndroidNetworkAddressFactory(streamListenPort) {
+        		@Override
+        		public int getMulticastPort() {
+                return AndroidUpnpServiceConfiguration.this.multicastPort;
+            }
+        };
+    }
 }
 
 class DefaultUpnpServiceConfiguration implements org.fourthline.cling.UpnpServiceConfiguration {
@@ -1693,14 +1720,14 @@ class DefaultUpnpServiceConfiguration implements org.fourthline.cling.UpnpServic
 	 * Defaults to port '0', ephemeral.
 	 */
 	public DefaultUpnpServiceConfiguration() {
-		this(0);
+		this(0, 1900);
 	}
 
-	public DefaultUpnpServiceConfiguration(int streamListenPort) {
+	public DefaultUpnpServiceConfiguration(int streamListenPort, int multicastPort) {
 		if (OSValidator.getCurrentOS()==OSValidator.ANDROID) {
-			usc = new AndroidUpnpServiceConfiguration(streamListenPort);
+			usc = new AndroidUpnpServiceConfiguration(streamListenPort, multicastPort);
 		} else
-			usc = new NONAndroidUpnpServiceConfiguration(streamListenPort);
+			usc = new NONAndroidUpnpServiceConfiguration(streamListenPort, multicastPort);
 	}
 
 	@Override

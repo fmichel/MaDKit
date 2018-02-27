@@ -1323,6 +1323,41 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
 		}
 	}
 
+	public boolean lockThread()
+	{
+		mainLock.lock();
+		try
+		{
+			if (getWorker(Thread.currentThread()) != null) {
+				++workersWaiting;
+				return true;
+			}
+			else
+				return false;
+		}
+		finally
+		{
+			mainLock.unlock();
+		}
+			
+	}
+	
+	public void unlockThread(boolean previousLocked)
+	{
+		if (previousLocked)
+		{
+			mainLock.lock();
+			try
+			{
+				--workersWaiting;
+			}
+			finally
+			{
+				mainLock.unlock();
+			}
+		}
+	}
+	
 	public boolean wait(LockerCondition locker) throws InterruptedException {
 		mainLock.lock();
 		if (getWorker(Thread.currentThread()) != null) {

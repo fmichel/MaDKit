@@ -70,8 +70,8 @@ import com.distrimind.madkit.kernel.network.UpnpIGDAgent.PortMappingAnswerMessag
 
 public class UPNPIDGTest extends JunitMadkit {
 	static final int internalPort = 32110;
-	static final int portStart = 32152;
-	static final int portEnd = 32162;
+	static final int portStart = 55000;
+	static final int portEnd = 55002;
 
 	@Test
 	public void testUPNPIGDAgent() {
@@ -80,6 +80,7 @@ public class UPNPIDGTest extends JunitMadkit {
 			final AtomicBoolean externalIPReceived = new AtomicBoolean(false);
 			final AtomicBoolean connectionStatus = new AtomicBoolean(false);
 			final AtomicBoolean portMapped = new AtomicBoolean(false);
+			final AtomicBoolean portUnmapped = new AtomicBoolean(false);
 
 			@Override
 			public void activate() {
@@ -91,18 +92,21 @@ public class UPNPIDGTest extends JunitMadkit {
 						protected void liveByStep(Message _message) {
 							try {
 								if (_message instanceof IGDRouterFoundMessage) {
-									Assert.assertFalse(routerAlreadyFound.getAndSet(true));
-									IGDRouterFoundMessage m = (IGDRouterFoundMessage) _message;
-									this.sendMessageWithRole(LocalCommunity.Groups.NETWORK,
-											LocalCommunity.Roles.LOCAL_NETWORK_EXPLORER_ROLE,
-											new AskForConnectionStatusMessage(m.getConcernedRouter(),
-													getMadkitConfig().networkProperties.delayBetweenEachRouterConnectionCheck),
-											LocalCommunity.Roles.LOCAL_NETWORK_ROLE);
-									this.sendMessageWithRole(LocalCommunity.Groups.NETWORK,
-											LocalCommunity.Roles.LOCAL_NETWORK_EXPLORER_ROLE,
-											new AskForExternalIPMessage(m.getConcernedRouter(),
-													getMadkitConfig().networkProperties.delayBetweenEachExternalIPRouterCheck),
-											LocalCommunity.Roles.LOCAL_NETWORK_ROLE);
+									System.out.println(_message);
+									if (!routerAlreadyFound.getAndSet(true))
+									{
+										IGDRouterFoundMessage m = (IGDRouterFoundMessage) _message;
+										this.sendMessageWithRole(LocalCommunity.Groups.NETWORK,
+												LocalCommunity.Roles.LOCAL_NETWORK_EXPLORER_ROLE,
+												new AskForConnectionStatusMessage(m.getConcernedRouter(),
+														getMadkitConfig().networkProperties.delayBetweenEachRouterConnectionCheck),
+												LocalCommunity.Roles.LOCAL_NETWORK_ROLE);
+										this.sendMessageWithRole(LocalCommunity.Groups.NETWORK,
+												LocalCommunity.Roles.LOCAL_NETWORK_EXPLORER_ROLE,
+												new AskForExternalIPMessage(m.getConcernedRouter(),
+														getMadkitConfig().networkProperties.delayBetweenEachExternalIPRouterCheck),
+												LocalCommunity.Roles.LOCAL_NETWORK_ROLE);
+									}
 								} else if (_message instanceof ConnexionStatusMessage) {
 
 									connectionStatus.set(true);
@@ -118,7 +122,7 @@ public class UPNPIDGTest extends JunitMadkit {
 													.hasMoreElements();) {
 												ia = eia.nextElement();
 												if (!ia.isAnyLocalAddress() && !ia.isLoopbackAddress()
-														&& (ia instanceof Inet4Address)) {
+														&& (ia instanceof Inet4Address) /*&& !ni.getName().startsWith("wlan")*/) {
 													break;
 												} else
 													ia = null;
@@ -133,33 +137,52 @@ public class UPNPIDGTest extends JunitMadkit {
 												list_ports.add(new Integer(i));
 											}
 
-											AskForPortMappingAddMessage a = new AskForPortMappingAddMessage(
+											final AskForPortMappingAddMessage a = new AskForPortMappingAddMessage(
 													m.getConcernedRouter(), ia, list_ports, internalPort, "",
 													Protocol.TCP);
-											this.sendMessageWithRole(LocalCommunity.Groups.NETWORK,
+											//this.pause(2000);
+											sendMessageWithRole(LocalCommunity.Groups.NETWORK,
 													LocalCommunity.Roles.LOCAL_NETWORK_EXPLORER_ROLE, a,
 													LocalCommunity.Roles.LOCAL_NETWORK_ROLE);
+											
 										}
+										else
+											Assert.fail();
 									}
 
 								} else if (_message.getClass() == PortMappingAnswerMessage.class) {
-
-									PortMappingAnswerMessage m = (PortMappingAnswerMessage) _message;
-									Assert.assertEquals(Protocol.TCP, m.getProtocol());
-									Assert.assertEquals(internalPort, m.getInternalPort());
-
-									Assert.assertEquals(MappingReturnCode.SUCESS, m.getReturnCode());
-									Assert.assertTrue(
-											m.getExternalPort() <= portEnd && m.getExternalPort() >= portStart);
-
-									portMapped.set(true);
-									AskForPortMappingDeleteMessage m2 = new AskForPortMappingDeleteMessage(
-											m.getConcernedRouter(), m.getExternalPort(), Protocol.TCP);
-									this.sendMessageWithRole(LocalCommunity.Groups.NETWORK,
-											LocalCommunity.Roles.LOCAL_NETWORK_EXPLORER_ROLE, m2,
-											LocalCommunity.Roles.LOCAL_NETWORK_ROLE);
-									JunitMadkit.pause(this, 1000);
-									this.killAgent(this);
+									if (portMapped.get())
+									{
+										PortMappingAnswerMessage m = (PortMappingAnswerMessage) _message;
+										Assert.assertEquals(Protocol.TCP, m.getProtocol());
+										Assert.assertEquals(internalPort, m.getInternalPort());
+	
+										Assert.assertEquals("message="+m.getMessage()+", description="+m.getDescription()+", external port="+m.getExternalPort(), MappingReturnCode.REMOVED, m.getReturnCode());
+										Assert.assertTrue(
+												m.getExternalPort() <= portEnd && m.getExternalPort() >= portStart);
+	
+										portUnmapped.set(true);
+										JunitMadkit.pause(this, 1000);
+										this.killAgent(this);
+									}
+									else
+									{
+										PortMappingAnswerMessage m = (PortMappingAnswerMessage) _message;
+										Assert.assertEquals(Protocol.TCP, m.getProtocol());
+										Assert.assertEquals(internalPort, m.getInternalPort());
+	
+										Assert.assertEquals("message="+m.getMessage()+", description="+m.getDescription()+", external port="+m.getExternalPort(), MappingReturnCode.SUCESS, m.getReturnCode());
+										Assert.assertTrue(
+												m.getExternalPort() <= portEnd && m.getExternalPort() >= portStart);
+	
+										portMapped.set(true);
+										AskForPortMappingDeleteMessage m2 = new AskForPortMappingDeleteMessage(
+												m.getConcernedRouter(), m.getExternalPort(), Protocol.TCP);
+										this.sendMessageWithRole(LocalCommunity.Groups.NETWORK,
+												LocalCommunity.Roles.LOCAL_NETWORK_EXPLORER_ROLE, m2,
+												LocalCommunity.Roles.LOCAL_NETWORK_ROLE);
+										
+									}
 								}
 							} catch (SelfKillException e) {
 								throw e;
@@ -191,12 +214,14 @@ public class UPNPIDGTest extends JunitMadkit {
 						System.out.println("connection status : " + connectionStatus.get());
 						System.out.println("external ip : " + externalIPReceived.get());
 						System.out.println("port mapped : " + portMapped.get());
+						System.out.println("port unmapped : " + portUnmapped.get());
 
-					} while (!(externalIPReceived.get() && connectionStatus.get() && portMapped.get()));
+					} while (!(externalIPReceived.get() && connectionStatus.get() && portMapped.get() && portUnmapped.get()));
 
 					Assert.assertTrue(externalIPReceived.get());
 					Assert.assertTrue(connectionStatus.get());
 					Assert.assertTrue(portMapped.get());
+					Assert.assertTrue(portUnmapped.get());
 				} catch (Exception e) {
 					e.printStackTrace();
 					Assert.fail();

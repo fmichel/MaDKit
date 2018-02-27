@@ -472,7 +472,7 @@ class LocalNetworkAgent extends AgentFakeThread {
 
 				r.changeExternalIp(m.getExternalIP());
 				if (m.getExternalIP() instanceof Inet4Address && r.getExternalPort() < 0
-						&& this.network_interface_ipv4 != null) {
+						&& this.network_interface_ipv4 != null && getMadkitConfig().networkProperties.externalRouterPortsToMap!=null) {
 					AskForPortMappingAddMessage a = new AskForPortMappingAddMessage(m.getConcernedRouter(),
 							network_interface_ipv4.getAddress(),
 							getMadkitConfig().networkProperties.externalRouterPortsToMap,
@@ -980,7 +980,7 @@ class LocalNetworkAgent extends AgentFakeThread {
 		}
 
 		InetSocketAddress getInetSocketAddressForDirectConnection() {
-			if (external_ip != null && status.equals(Status.Connected)) {
+			if (external_ip != null && status!=null && status.equals(Status.Connected)) {
 				if (external_ip instanceof Inet6Address)
 					return new InetSocketAddress(external_ip,
 							getMadkitConfig().networkProperties.portsToBindForAutomaticLocalConnections);

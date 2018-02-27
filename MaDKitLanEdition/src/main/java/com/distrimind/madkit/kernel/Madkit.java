@@ -119,7 +119,7 @@ final public class Madkit {
 		Calendar c = Calendar.getInstance();
 		c.set(2015, 4, 22);
 		Calendar c2 = Calendar.getInstance();
-		c2.set(2018, 1, 15);
+		c2.set(2018, 1, 27);
 		Version VERSION = new Version("MadkitLanEdition", "MKLE", 1, 6, 5, Version.Type.Stable, 1, c.getTime(), c2.getTime());
 		try {
 
@@ -142,9 +142,16 @@ final public class Madkit {
 			VERSION.addDeveloper(new PersonDeveloper("Ferber", "Jacques", c.getTime()));
 
 			c = Calendar.getInstance();
-			c.set(2018, 1, 20);
+			c.set(2018, 1, 27);
 			Description d = new Description(1, 6, 5, Version.Type.Stable, 1, c.getTime());
 			d.addItem("Debug UPNP connexion with macOS.");
+			d.addItem("Fix issue with multiple identical router's messages : do not remove the router to recreate it.");
+			VERSION.addDescription(d);	
+			
+			c = Calendar.getInstance();
+			c.set(2018, 1, 26);
+			d = new Description(1, 6, 5, Version.Type.Stable, 1, c.getTime());
+			d.addItem("Fiw a problem with UPNP connexion under macOS.");
 			VERSION.addDescription(d);	
 			
 			c = Calendar.getInstance();

@@ -68,13 +68,13 @@ You can also find inspiration into Junit tests.
 
 On MadKit, a group contains several agents which plays several roles. In MadKitLanEdition, groups are represented as a hierarchy. So one group can be contained in a parent group, which can be contained in its turn in another parent group. In the same way, a group can contain several sub groups. That can be very usefull for the design of advanced multi-agent systems.
 
-[Partial MadKitGroupExtension UML representation](mkge.png)
+[<img src="mkge.png" align="center" alt="Partial MadKitGroupExtension UML representation"/>](mkge.png)
 
 The class AbstractGroup is the super class of Group and MultiGroup. The class Group can represent one group, or one group and all its subgroups. The class MultiGroup can group several AbstractGroup which can be part of several branches of the group hierarchy. Then it is possible with the class MultiGroup to repesent a group, and all its subgroups, but also a group and another without requiring that must be part of the same branch of the tree of groups.
 
 Note that one agent can't be attached to a MultiGroup or a Group that represents itself and its subgroups. It can be attached to a Group that represent only itself. This choice has been done to not loose the user. Indeed, if the agent could handle a set of groups, it should handle all groups represented by this set. However, this set aims to evolve over the time, especially if it represents subgroups. So the groups of the agent should evolve over the time. We have decided that this is too much ambigous for the user.
 
-[Here you will find examples in the use of classes Group and MultiGroup](groups.png)
+[<img src="groups.png" align="center" alt="Here you will find examples in the use of classes Group and MultiGroup"/>](groups.png)
 
 How to use it ?
 ---------------
@@ -93,7 +93,7 @@ Adapt into your build.gradle file, the next code :
 	...
 	dependencies {
 		...
-		compile(group:'com.distrimind.madkit', name: 'MaDKitLanEdition', version: '1.6.4')
+		compile(group:'com.distrimind.madkit', name: 'MaDKitLanEdition', version: '1.6.5')
 		...
 	}
 	...
@@ -109,7 +109,7 @@ Adapt into your pom.xml file, the next code :
 			<dependency>
 				<groupId>com.distrimind.madkit</groupId>
 				<artifactId>MaDKitLanEdition</artifactId>
-				<version>1.6.4</version>
+				<version>1.6.5</version>
 			</dependency>
 			...
 		</dependencies>

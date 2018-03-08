@@ -13,7 +13,7 @@ apply plugin: 'maven-publish'
 
 def Properties props = new Properties()
 def propFile = file('gradle.properties')
-def artifactory_Url="https://mahdjoub.net/artifactory"
+def artifactory_Url="https://artifactory.distri-mind.fr/artifactory"
 def user=""
 def pwd=""
 if (propFile.canRead())

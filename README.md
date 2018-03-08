@@ -86,7 +86,7 @@ Adapt into your build.gradle file, the next code :
 	repositories {
 		...
 		maven {
-	       		url "https://mahdjoub.net/artifactory/DistriMind-Public"
+	       		url "https://artifactory.distri-mind.fr/artifactory/DistriMind-Public"
 	   	} 
 		...
 	}
@@ -98,7 +98,7 @@ Adapt into your build.gradle file, the next code :
 	}
 	...
 
-To know what last version has been uploaded, please refer to versions availables into [this repository](https://mahdjoub.net/artifactory/DistriMind-Public/com/distrimind/madkit/MaDKitLanEdition)
+To know what last version has been uploaded, please refer to versions availables into [this repository](https://artifactory.distri-mind.fr/artifactory/DistriMind-Public/com/distrimind/madkit/MaDKitLanEdition)
 ### With Maven :
 Adapt into your pom.xml file, the next code :
 
@@ -118,7 +118,7 @@ Adapt into your pom.xml file, the next code :
 			...
 			<repository>
 				<id>DistriMind-Public</id>
-				<url>https://mahdjoub.net/artifactory/DistriMind-Public</url>
+				<url>https://artifactory.distri-mind.fr/artifactory/DistriMind-Public</url>
 			</repository>
 			...
 		</repositories>
@@ -129,6 +129,6 @@ To know what last version has been uploaded, please refer to versions availables
 How to get demos ?
 ------------------
 
-To get MaDKitLanEditions demos, please download the lastest [repository](https://mahdjoub.net/artifactory/DistriMind-Public/com/distrimind/madkitdemos/MaDKitLanEditionDemos)
+To get MaDKitLanEditions demos, please download the lastest [repository](https://artifactory.distri-mind.fr/artifactory/DistriMind-Public/com/distrimind/madkitdemos/MaDKitLanEditionDemos)
 
 [1]: http://www.lirmm.fr/~fmichel/publi/pdfs/ferber04ocmas.pdf

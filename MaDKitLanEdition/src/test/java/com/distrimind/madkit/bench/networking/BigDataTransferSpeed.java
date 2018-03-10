@@ -178,7 +178,7 @@ public class BigDataTransferSpeed extends JunitMadkit {
 	{
 		byte toEncrypt[]=new byte[1024*1024*400];
 		int shift=32*1024;
-		SymmetricEncryptionAlgorithm cipher=new SymmetricEncryptionAlgorithm(SecureRandomType.FORTUNA_WITH_BC_FIPS_APPROVED.getInstance(null), SymmetricEncryptionType.AES.getKeyGenerator(SecureRandomType.FORTUNA_WITH_BC_FIPS_APPROVED_FOR_KEYS.getInstance(null), (short)128).generateKey());
+		SymmetricEncryptionAlgorithm cipher=new SymmetricEncryptionAlgorithm(SecureRandomType.FORTUNA_WITH_BC_FIPS_APPROVED.getInstance(null), SymmetricEncryptionType.AES_CBC_PKCS5Padding.getKeyGenerator(SecureRandomType.FORTUNA_WITH_BC_FIPS_APPROVED_FOR_KEYS.getInstance(null), (short)128).generateKey());
 		SymmetricAuthentifiedSignatureType sigType=SymmetricAuthentifiedSignatureType.BC_FIPS_HMAC_SHA_512;
 		SymmetricSecretKey sks=sigType.getKeyGenerator(SecureRandomType.FORTUNA_WITH_BC_FIPS_APPROVED_FOR_KEYS.getInstance(null), (short)128).generateKey();
 		SymmetricAuthentifiedSignerAlgorithm signer=new SymmetricAuthentifiedSignerAlgorithm(sks);

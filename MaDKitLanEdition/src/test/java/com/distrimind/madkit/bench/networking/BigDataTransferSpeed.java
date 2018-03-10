@@ -79,7 +79,7 @@ import com.distrimind.madkit.testing.util.agent.NormalAgent;
 public class BigDataTransferSpeed extends JunitMadkit {
 	final MadkitEventListener eventListener1;
 	final NetworkEventListener eventListener2;
-	final BigDataTransferReceiverAgent bigDataTransferAgent;
+	
 
 	public BigDataTransferSpeed() throws UnknownHostException {
 
@@ -99,7 +99,7 @@ public class BigDataTransferSpeed extends JunitMadkit {
 					e.printStackTrace();
 				}
 				_properties.networkProperties.networkLogLevel = Level.INFO;
-				_properties.networkProperties.maxBufferSize=Short.MAX_VALUE;
+				_properties.networkProperties.maxBufferSize=Short.MAX_VALUE*2;
 			}
 		};
 
@@ -114,13 +114,13 @@ public class BigDataTransferSpeed extends JunitMadkit {
 				Arrays.asList((AbstractIP) new DoubleIP(5000, (Inet4Address) InetAddress.getByName("127.0.0.1"),
 						(Inet6Address) InetAddress.getByName("::1"))),
 				InetAddress.getByName("0.0.0.0"));
-		this.eventListener2.maxBufferSize=Short.MAX_VALUE;
-		bigDataTransferAgent = new BigDataTransferReceiverAgent();
+		this.eventListener2.maxBufferSize=Short.MAX_VALUE*2;
 	}
-
 	@Test
 	public void bigDataTransfer() {
-		final AtomicBoolean transfered=new AtomicBoolean(false);
+		final BigDataTransferReceiverAgent bigDataTransferAgent = new BigDataTransferReceiverAgent(2);
+		final AtomicBoolean transfered1=new AtomicBoolean(false);
+		final AtomicBoolean transfered2=new AtomicBoolean(false);
 		// addMadkitArgs("--kernelLogLevel",Level.INFO.toString(),"--networkLogLevel",Level.FINEST.toString());
 		launchTest(new NormalAgent() {
 			@Override
@@ -133,13 +133,24 @@ public class BigDataTransferSpeed extends JunitMadkit {
 				AgentAddress aa=getAgentsWithRole(GROUP, ROLE).iterator().next();
 				
 				try {
-					this.sendBigData(aa, new RandomByteArrayInputStream(new byte[400000000]));
+					int size=400000000;
+					this.sendBigData(aa, new RandomByteArrayInputStream(new byte[size]), 0, size, null, null, true);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 				Message m=this.waitNextMessage(60000);
-				transfered.set(m!=null && m instanceof BigDataResultMessage && ((BigDataResultMessage)m).getType()==BigDataResultMessage.Type.BIG_DATA_TRANSFERED);
-				Assert.assertTrue(transfered.get(), ""+m);
+				transfered1.set(m!=null && m instanceof BigDataResultMessage && ((BigDataResultMessage)m).getType()==BigDataResultMessage.Type.BIG_DATA_TRANSFERED);
+				Assert.assertTrue(transfered1.get(), ""+m);
+				
+				try {
+					int size=400000000;
+					this.sendBigData(aa, new RandomByteArrayInputStream(new byte[size]), 0, size, null, null, false);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				m=this.waitNextMessage(60000);
+				transfered2.set(m!=null && m instanceof BigDataResultMessage && ((BigDataResultMessage)m).getType()==BigDataResultMessage.Type.BIG_DATA_TRANSFERED);
+				Assert.assertTrue(transfered2.get(), ""+m);
 			}
 
 			@Override
@@ -147,9 +158,12 @@ public class BigDataTransferSpeed extends JunitMadkit {
 				this.killAgent(this);
 			}
 		}, eventListener1);
-		Assert.assertTrue(transfered.get());
+		Assert.assertTrue(transfered1.get());
+		Assert.assertTrue(transfered2.get());
 		cleanHelperMDKs();
 	}
+	
+	
 	
 
 }

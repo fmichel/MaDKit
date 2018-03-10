@@ -53,9 +53,10 @@ import com.distrimind.madkit.kernel.Message;
  * 
  */
 public class BigDataTransferReceiverAgent extends Agent {
-
-	public BigDataTransferReceiverAgent() {
-
+	private int dataToReceiveNumber; 
+	
+	public BigDataTransferReceiverAgent(int dataToReceiveNumber) {
+		this.dataToReceiveNumber=dataToReceiveNumber;
 	}
 
 	@Override
@@ -77,12 +78,13 @@ public class BigDataTransferReceiverAgent extends Agent {
 				BigDataResultMessage rm=((BigDataResultMessage) m);
 				if (rm.getType()==BigDataResultMessage.Type.BIG_DATA_TRANSFERED)
 				{
-					System.out.println(rm.getTransferedDataLength() +" bytes transfered in "+rm.getTransferDuration()+" ms");
+					System.out.println(rm.getTransferedDataLength() +" bytes transfered in "+rm.getTransferDuration()+" ms"+(rm.excludedFromEncryption()?" without encryption":" with encryption"));
 					System.out.println("Transfer speed (MiO per seconds) : "+(((double)rm.getTransferedDataLength())/(((double)rm.getTransferDuration())/1000.0)/1024.0/1024.0));
 				}
 				else
 					System.err.println("Problem during transfer : "+rm.getType());
-				this.killAgent(this);
+				if (--dataToReceiveNumber<=0)
+					this.killAgent(this);
 			}
 			else
 			{

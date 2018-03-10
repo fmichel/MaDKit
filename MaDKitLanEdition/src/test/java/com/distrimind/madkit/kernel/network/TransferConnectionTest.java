@@ -257,7 +257,7 @@ public class TransferConnectionTest extends JunitMadkit {
 
 	public void indirectConnectionTest(final AskForTransferMessage.Type type,
 			final boolean connectionPerKernelAddress) {
-		System.out.println("JRE Version : "+OSValidator.getCurrentJREVersion());
+		System.out.println("JRE Version : "+OSValidator.getCurrentJREVersionDouble());
 		cleanHelperMDKs();
 		// addMadkitArgs(LevelOption.networkLogLevel.toString(),"FINER");
 		launchTest(new AbstractAgent() {

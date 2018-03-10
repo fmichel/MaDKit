@@ -144,8 +144,8 @@ final public class Madkit {
 			c = Calendar.getInstance();
 			c.set(2018, 2, 10);
 			Description d = new Description(1, 7, 0, Version.Type.Stable, 1, c.getTime());
-			d.addItem("Update OOD to 2.0.0 Beta 67.");
-			d.addItem("Update Utils to 3.11.0.");
+			d.addItem("Update OOD to 2.0.0 Beta 68.");
+			d.addItem("Update Utils to 3.11.1.");
 			VERSION.addDescription(d);	
 
 			

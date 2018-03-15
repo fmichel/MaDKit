@@ -45,25 +45,26 @@ eclipse {
     }
 }
 
-// In this section you declare where to find the dependencies of your project
 repositories {
-    // Use jcenter for resolving your dependencies.
-    // You can declare any Maven/Ivy/file repository here.
-    
-        maven {
-        	url "${artifactory_Url}/DistriMind-Public"
-   		} 
-   		maven
-   		{
-	   		url "http://4thline.org/m2"
-	   	}
-    jcenter()
+
+
+   	maven {
+       		url "${artifactory_Url}/gradle-release"
+       		if (user!="")
+       		{
+	       		credentials {
+	              username "${artifactory_user}"
+	              password "${artifactory_password}"
+	            }
+	         }
+   	} 
 }
+
 
 dependencies {
      testCompile 'org.testng:testng:6.13.1'
      testCompile 'junit:junit:4.12'
-     compile(group:'com.distrimind.ood', name: 'OOD', version: '2.0.0-Beta68')
+     compile(group:'com.distrimind.ood', name: 'OOD', version: '2.0.0-Beta69')
      compile(group:'org.fourthline.cling', name: 'cling-core', version: '2.1.1')
      compile(group:'org.fourthline.cling', name: 'cling-support', version: '2.1.1')
      compile(group:'org.hsqldb', name: 'hsqldb', version: '2.3.4')

@@ -52,6 +52,7 @@ import gnu.vm.jgnu.security.spec.InvalidKeySpecException;
 import gnu.vm.jgnux.crypto.BadPaddingException;
 import gnu.vm.jgnux.crypto.IllegalBlockSizeException;
 import gnu.vm.jgnux.crypto.NoSuchPaddingException;
+import gnu.vm.jgnux.crypto.ShortBufferException;
 
 import com.distrimind.util.crypto.AbstractMessageDigest;
 import com.distrimind.util.crypto.AbstractSecureRandom;
@@ -77,7 +78,7 @@ class IdentifiersPropositionMessage extends AccessMessage {
 	public IdentifiersPropositionMessage(Collection<Identifier> _id_pws, P2PASymmetricSecretMessageExchanger cipher,
 			boolean encryptIdentifiers, short nbAnomalies) throws InvalidKeyException, IOException,
 			IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, InvalidKeySpecException,
-			NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchProviderException {
+			NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchProviderException, IllegalStateException, ShortBufferException {
 		identifiers = new Identifier[_id_pws.size()];
 		isEncrypted = encryptIdentifiers;
 		int index = 0;
@@ -155,7 +156,7 @@ class IdentifiersPropositionMessage extends AccessMessage {
 			P2PASymmetricSecretMessageExchanger cipher, boolean encryptIdentifiers)
 			throws AccessException, InvalidKeyException, IOException, IllegalBlockSizeException, BadPaddingException,
 			NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException,
-			InvalidAlgorithmParameterException, NoSuchProviderException {
+			InvalidAlgorithmParameterException, NoSuchProviderException, IllegalStateException, ShortBufferException {
 		ArrayList<Identifier> validID = getValidDecodedIdentifiers(loginData, cipher);
 		int nbAno = identifiers.length - validID.size();
 		return new IdentifiersPropositionMessage(validID, cipher, encryptIdentifiers,
@@ -180,7 +181,7 @@ class IdentifiersPropositionMessage extends AccessMessage {
 	public IdPwMessage getIdPwMessage(LoginData loginData, P2PASymmetricSecretMessageExchanger cipher,
 			boolean encryptIdentifiers) throws AccessException, InvalidKeyException, IOException,
 			IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, InvalidKeySpecException,
-			NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchProviderException {
+			NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchProviderException, IllegalStateException, ShortBufferException {
 		ArrayList<IdentifierPassword> res = new ArrayList<>();
 		int nbAno = 0;
 		if (isEncrypted) {

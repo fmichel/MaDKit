@@ -56,6 +56,7 @@ import gnu.vm.jgnu.security.spec.InvalidKeySpecException;
 import gnu.vm.jgnux.crypto.BadPaddingException;
 import gnu.vm.jgnux.crypto.IllegalBlockSizeException;
 import gnu.vm.jgnux.crypto.NoSuchPaddingException;
+import gnu.vm.jgnux.crypto.ShortBufferException;
 
 /**
  * Represents properties of a specific connection protocol
@@ -512,7 +513,7 @@ public class AccessProtocolWithASymmetricKeyExchanger extends AbstractAccessProt
 			}
 		} catch (DatabaseException | NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException
 				| InvalidAlgorithmParameterException | InvalidKeySpecException | IOException | IllegalAccessException
-				| IllegalBlockSizeException | BadPaddingException | NoSuchProviderException e) {
+				| IllegalBlockSizeException | BadPaddingException | NoSuchProviderException | IllegalStateException | ShortBufferException e) {
 			throw new AccessException(e);
 }
 	}
@@ -550,7 +551,7 @@ public class AccessProtocolWithASymmetricKeyExchanger extends AbstractAccessProt
 		}
 		catch(InvalidKeyException | IOException | AccessException | IllegalBlockSizeException | BadPaddingException |
 				NoSuchAlgorithmException | InvalidKeySpecException | NoSuchPaddingException |
-				InvalidAlgorithmParameterException | NoSuchProviderException e)
+				InvalidAlgorithmParameterException | NoSuchProviderException | IllegalStateException | ShortBufferException e)
 		{
 			throw new AccessException(e);
 		}

@@ -49,6 +49,7 @@ import gnu.vm.jgnu.security.spec.InvalidKeySpecException;
 import gnu.vm.jgnux.crypto.BadPaddingException;
 import gnu.vm.jgnux.crypto.IllegalBlockSizeException;
 import gnu.vm.jgnux.crypto.NoSuchPaddingException;
+import gnu.vm.jgnux.crypto.ShortBufferException;
 
 import com.distrimind.util.crypto.AbstractMessageDigest;
 import com.distrimind.util.crypto.AbstractSecureRandom;
@@ -76,7 +77,7 @@ public class EncryptedIdentifier extends Identifier {
 	EncryptedIdentifier(CloudIdentifier _cloud_identifier, HostIdentifier _host_identifier,
 			P2PASymmetricSecretMessageExchanger cipher) throws InvalidKeyException, IOException,
 			IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, InvalidKeySpecException,
-			NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchProviderException {
+			NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchProviderException, IllegalStateException, ShortBufferException {
 		super(new EncryptedCloudIdentifier(_cloud_identifier, cipher), _host_identifier);
 
 	}
@@ -91,7 +92,7 @@ public class EncryptedIdentifier extends Identifier {
 	EncryptedIdentifier(Identifier identifier, P2PASymmetricSecretMessageExchanger cipher)
 			throws InvalidKeyException, IOException, IllegalBlockSizeException, BadPaddingException,
 			NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException,
-			InvalidAlgorithmParameterException, NoSuchProviderException {
+			InvalidAlgorithmParameterException, NoSuchProviderException, IllegalStateException, ShortBufferException {
 		super(new EncryptedCloudIdentifier(identifier.getCloudIdentifier(), cipher), identifier.getHostIdentifier());
 	}
 

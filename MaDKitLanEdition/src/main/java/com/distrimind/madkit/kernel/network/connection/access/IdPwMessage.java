@@ -48,6 +48,7 @@ import gnu.vm.jgnu.security.spec.InvalidKeySpecException;
 import gnu.vm.jgnux.crypto.BadPaddingException;
 import gnu.vm.jgnux.crypto.IllegalBlockSizeException;
 import gnu.vm.jgnux.crypto.NoSuchPaddingException;
+import gnu.vm.jgnux.crypto.ShortBufferException;
 
 import com.distrimind.util.crypto.P2PASymmetricSecretMessageExchanger;
 
@@ -72,7 +73,7 @@ class IdPwMessage extends AccessMessage {
 	public IdPwMessage(Collection<IdentifierPassword> _id_pws, P2PASymmetricSecretMessageExchanger cipher,
 			boolean encryptIdentifiers, short nbAnomalies) throws InvalidKeyException, IOException,
 			IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, InvalidKeySpecException,
-			NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchProviderException {
+			NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchProviderException, IllegalStateException, ShortBufferException {
 		identifiersIsEncrypted = encryptIdentifiers;
 		identifiers = new Identifier[_id_pws.size()];
 		passwords = new EncryptedPassword[_id_pws.size()];

@@ -37,6 +37,8 @@
  */
 package com.distrimind.madkit.kernel.network.connection;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -69,12 +71,36 @@ import com.distrimind.util.crypto.AbstractSecureRandom;
  * 
  * 
  * @author Jason Mahdjoub
- * @version 1.1
+ * @version 1.2
  * @since MadkitLanEdition 1.0
  * @param <CP> the connection protocol type
  */
 public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> implements Iterable<ConnectionProtocol<?>> {
 
+	public static class ByteArrayOutputStream extends OutputStream
+	{
+		private final byte tab[];
+		private final int indexStart;
+		private int index;
+		
+		public ByteArrayOutputStream(byte [] tab, int indexStart)
+		{
+			this.tab=tab;
+			this.index=this.indexStart=indexStart;
+		}
+		
+		public int getSize()
+		{
+			return index-indexStart;
+		}
+
+		@Override
+		public void write(int b) throws IOException {
+			tab[index++]=(byte)b;
+		}
+		
+	}
+	
 	public static enum ConnectionClosedReason {
 		/**
 		 * The connection has been closed giving a reason

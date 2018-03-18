@@ -39,9 +39,7 @@ package com.distrimind.madkit.kernel.network.connection.secured;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import com.distrimind.madkit.exceptions.BlockParserException;
 import com.distrimind.madkit.exceptions.ConnectionException;
@@ -81,7 +79,7 @@ import gnu.vm.jgnux.crypto.ShortBufferException;
  * 
  * 
  * @author Jason Mahdjoub
- * @version 1.1
+ * @version 1.2
  * @since MadkitLanEdition 1.2
  */
 public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionProtocol<P2PSecuredConnectionProtocolWithECDHAlgorithm> {
@@ -444,20 +442,10 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 					
 					final byte []tab=new byte[_block.getBytes().length];
 					
-					final AtomicInteger index=new AtomicInteger(off);
-					OutputStream os=new OutputStream()
-					{
-						
-						@Override
-						public void write(int b) throws IOException {
-							tab[index.getAndIncrement()]=(byte)b;
-						}
-						
-				
-					};
+					ConnectionProtocol.ByteArrayOutputStream os=new ConnectionProtocol.ByteArrayOutputStream(tab, off);
 					symmetricAlgorithm.decode(bais, os);
 					final SubBlock res = new SubBlock(tab, off,
-							index.get()-off);
+							os.getSize());
 					boolean check = symmetricAlgorithm.getType().isAuthenticatedAlgorithm()?true:signatureCheckerAlgorithm.verify(_block.getBytes(),
 							res.getOffset(), _block.getSize() - getSizeHead(), _block.getBytes(), _block.getOffset(),
 							signature_size);
@@ -491,16 +479,7 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 				final SubBlock res = new SubBlock(new byte[_block.getBytes().length], _block.getOffset() - getSizeHead(),s);
 				
 				res.getBytes()[res.getOffset()+res.getSize()-1]=0;
-				symmetricAlgorithm.encode(_block.getBytes(), _block.getOffset(), _block.getSize(), null, 0, 0, new OutputStream()
-				{
-					int index=_block.getOffset();
-					@Override
-					public void write(int b) throws IOException {
-
-						res.getBytes()[index++]=(byte)b;
-					}
-			
-				});
+				symmetricAlgorithm.encode(_block.getBytes(), _block.getOffset(), _block.getSize(), null, 0, 0, new ConnectionProtocol.ByteArrayOutputStream(res.getBytes(), _block.getOffset()));
 				
 				//System.arraycopy(tmp, 0, res.getBytes(), _block.getOffset(), tmp.length);
 				if (!symmetricAlgorithm.getType().isAuthenticatedAlgorithm())

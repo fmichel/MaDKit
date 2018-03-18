@@ -39,9 +39,7 @@ package com.distrimind.madkit.kernel.network.connection.secured;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import gnu.vm.jgnu.security.InvalidAlgorithmParameterException;
 import gnu.vm.jgnu.security.InvalidKeyException;
@@ -387,20 +385,11 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 						
 						final byte []tab=new byte[_block.getBytes().length];
 						
-						final AtomicInteger index=new AtomicInteger(off);
-						OutputStream os=new OutputStream()
-						{
-							
-							@Override
-							public void write(int b) throws IOException {
-								tab[index.getAndIncrement()]=(byte)b;
-							}
-							
-					
-						};
+						ConnectionProtocol.ByteArrayOutputStream os=new ConnectionProtocol.ByteArrayOutputStream(tab, off);
 						symmetricAlgorithm.decode(bais, os);
 						final SubBlock res = new SubBlock(tab, off,
-								index.get()-off);
+								os.getSize());
+
 						boolean check = symmetricAlgorithm.getType().isAuthenticatedAlgorithm()?true:signatureChecker.verify(_block.getBytes(),
 								res.getOffset(), _block.getSize() - getSizeHead(), _block.getBytes(), _block.getOffset(),
 								signature_size);
@@ -446,16 +435,7 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 						final SubBlock res = new SubBlock(new byte[_block.getBytes().length], _block.getOffset() - getSizeHead(),s);
 						
 						res.getBytes()[res.getOffset()+res.getSize()-1]=0;
-						symmetricAlgorithm.encode(_block.getBytes(), _block.getOffset(), _block.getSize(), null, 0, 0, new OutputStream()
-						{
-							int index=_block.getOffset();
-							@Override
-							public void write(int b) throws IOException {
-
-								res.getBytes()[index++]=(byte)b;
-							}
-					
-						});
+						symmetricAlgorithm.encode(_block.getBytes(), _block.getOffset(), _block.getSize(), null, 0, 0, new ConnectionProtocol.ByteArrayOutputStream(res.getBytes(), _block.getOffset()));
 						
 						//System.arraycopy(tmp, 0, res.getBytes(), _block.getOffset(), tmp.length);
 						if (!symmetricAlgorithm.getType().isAuthenticatedAlgorithm())

@@ -392,11 +392,24 @@ public final class WritePacket {
 
 	protected static AbstractByteTabOutputStream getByteTabOutputStream(AbstractMessageDigest messageDigest,
 			int max_buffer_size, int packet_head_size, long _data_remaining, short random_values_size, AbstractSecureRandom rand) {
+		if (random_values_size<0)
+			throw new NullPointerException();
 		if (random_values_size == 0)
 			return new ByteTabOutputStream(messageDigest, max_buffer_size, packet_head_size, _data_remaining);
 		else
 			return new ByteTabOutputStreamWithRandomValues(messageDigest, max_buffer_size, packet_head_size,
 					_data_remaining, random_values_size, rand);
+	}
+	
+	static int getMaxOutputSize(int max_buffer_size, int packet_head_size, short random_values_size)
+	{
+		if (random_values_size<0)
+			throw new NullPointerException();
+		
+		if (random_values_size == 0)
+			return ByteTabOutputStream.getMaxOutputSize(max_buffer_size, packet_head_size);
+		else
+			return ByteTabOutputStreamWithRandomValues.getMaxOutputSize(max_buffer_size, random_values_size, packet_head_size);
 	}
 
 	protected static class ByteTabOutputStream extends AbstractByteTabOutputStream {
@@ -417,7 +430,10 @@ public final class WritePacket {
 			tab = new byte[size];
 			cursor = 0;
 		}
-
+		static int getMaxOutputSize(int max_buffer_size, int packet_head_size)
+		{
+			return max_buffer_size+packet_head_size;
+		}
 		@Override
 		int getWritedData() {
 			return cursor;
@@ -507,6 +523,11 @@ public final class WritePacket {
 			data_size = tab.length - this.random_values_size;
 			cursor = 0;
 			nextRandValuePos = 0;
+		}
+		
+		static int getMaxOutputSize(int max_buffer_size, short max_random_values_size, int packet_head_size)
+		{
+			return max_buffer_size+Math.min(getMaximumGlobalRandomValues(max_buffer_size), max_random_values_size)+packet_head_size;
 		}
 
 		@Override

@@ -184,11 +184,26 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 		ConnectionProtocolProperties<?>[] o = new ConnectionProtocolProperties<?>[2];
 		P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties p2pp = new P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties();
 		p2pp.aSymetricKeySize = 2048;
-		p2pp.symmetricEncryptionType = SymmetricEncryptionType.DEFAULT;
+		p2pp.symmetricEncryptionType = SymmetricEncryptionType.AES_CBC_PKCS5Padding;
+		p2pp.enableEncryption=true;
 		o[0] = p2pp;
 		p2pp = new P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties();
 		p2pp.aSymetricKeySize = 2048;
-		p2pp.symmetricEncryptionType = SymmetricEncryptionType.DEFAULT;
+		p2pp.symmetricEncryptionType = SymmetricEncryptionType.AES_CBC_PKCS5Padding;
+		p2pp.enableEncryption=true;
+		o[1] = p2pp;
+		res.add(o);
+		
+		o = new ConnectionProtocolProperties<?>[2];
+		p2pp = new P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties();
+		p2pp.aSymetricKeySize = 2048;
+		p2pp.symmetricEncryptionType = SymmetricEncryptionType.AES_GCM;
+		p2pp.enableEncryption=true;
+		o[0] = p2pp;
+		p2pp = new P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties();
+		p2pp.aSymetricKeySize = 2048;
+		p2pp.enableEncryption=true;
+		p2pp.symmetricEncryptionType = SymmetricEncryptionType.AES_GCM;
 		o[1] = p2pp;
 		res.add(o);
 
@@ -207,10 +222,23 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 
 		o = new ConnectionProtocolProperties<?>[2];
 		P2PSecuredConnectionProtocolWithECDHAlgorithmProperties p2pp_ecdh = new P2PSecuredConnectionProtocolWithECDHAlgorithmProperties();
-		p2pp_ecdh.symmetricEncryptionType = SymmetricEncryptionType.DEFAULT;
+		p2pp_ecdh.symmetricEncryptionType = SymmetricEncryptionType.AES_CBC_PKCS5Padding;
+		p2pp_ecdh.enableEncryption=true;
 		o[0] = p2pp_ecdh;
 		p2pp_ecdh = new P2PSecuredConnectionProtocolWithECDHAlgorithmProperties();
-		p2pp_ecdh.symmetricEncryptionType = SymmetricEncryptionType.DEFAULT;
+		p2pp_ecdh.symmetricEncryptionType = SymmetricEncryptionType.AES_CBC_PKCS5Padding;
+		p2pp_ecdh.enableEncryption=true;
+		o[1] = p2pp_ecdh;
+		res.add(o);
+
+		o = new ConnectionProtocolProperties<?>[2];
+		p2pp_ecdh = new P2PSecuredConnectionProtocolWithECDHAlgorithmProperties();
+		p2pp_ecdh.symmetricEncryptionType = SymmetricEncryptionType.AES_GCM;
+		p2pp_ecdh.enableEncryption=true;
+		o[0] = p2pp_ecdh;
+		p2pp_ecdh = new P2PSecuredConnectionProtocolWithECDHAlgorithmProperties();
+		p2pp_ecdh.symmetricEncryptionType = SymmetricEncryptionType.AES_GCM;
+		p2pp_ecdh.enableEncryption=true;
 		o[1] = p2pp_ecdh;
 		res.add(o);
 
@@ -230,8 +258,24 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 		ClientSecuredProtocolPropertiesWithKnownPublicKey cp = new ClientSecuredProtocolPropertiesWithKnownPublicKey();
 		ASymmetricKeyPair kpe = ASymmetricEncryptionType.DEFAULT
 				.getKeyPairGenerator(SecureRandomType.DEFAULT.getSingleton(null), (short) 2048).generateKeyPair();
-		sp.addEncryptionProfile(kpe, SymmetricEncryptionType.DEFAULT, ASymmetricKeyWrapperType.DEFAULT);
+		sp.addEncryptionProfile(kpe, SymmetricEncryptionType.AES_CBC_PKCS5Padding, ASymmetricKeyWrapperType.DEFAULT);
 		cp.setEncryptionProfile(sp);
+		sp.enableEncryption = true;
+		cp.enableEncryption = true;
+		o[0] = cp;
+		o[1] = sp;
+		res.add(o);
+
+		
+		o = new ConnectionProtocolProperties<?>[2];
+		sp = new ServerSecuredProcotolPropertiesWithKnownPublicKey();
+		cp = new ClientSecuredProtocolPropertiesWithKnownPublicKey();
+		kpe = ASymmetricEncryptionType.DEFAULT
+				.getKeyPairGenerator(SecureRandomType.DEFAULT.getSingleton(null), (short) 2048).generateKeyPair();
+		sp.addEncryptionProfile(kpe, SymmetricEncryptionType.AES_GCM, ASymmetricKeyWrapperType.DEFAULT);
+		cp.setEncryptionProfile(sp);
+		sp.enableEncryption = true;
+		cp.enableEncryption = true;
 		o[0] = cp;
 		o[1] = sp;
 		res.add(o);

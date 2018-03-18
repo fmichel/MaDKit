@@ -38,11 +38,12 @@
 package com.distrimind.madkit.kernel.network.connection.secured;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.bouncycastle.crypto.InvalidWrappingException;
 
@@ -529,48 +530,57 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 		}
 
 		public SubBlockInfo getSubBlockWithEncryption(SubBlock _block) throws BlockParserException {
-			int off=_block.getOffset() + getSizeHead();
-			boolean excludedFromEncryption=_block.getBytes()[off]==1;
+			final int off=_block.getOffset() + getSizeHead();
+			int offr=_block.getOffset()+_block.getSize();
+			boolean excludedFromEncryption=_block.getBytes()[offr-1]==1;
 			if (excludedFromEncryption)
 			{
-				int s=Block.getBlockSize(_block.getBytes(), off+1);
-				if (s>Block.BLOCK_SIZE_LIMIT)
+				int s=Block.getBlockSize(_block.getBytes(), offr-4);
+				if (s>Block.BLOCK_SIZE_LIMIT || s>_block.getSize()-getSizeHead()-4)
 					throw new BlockParserException();
-				
-				try {
-	
-					SubBlock res = new SubBlock(new byte[_block.getBytes().length], _block.getOffset() + getSizeHead(),
+				try{
+					
+					
+
+					SubBlock res = new SubBlock(_block.getBytes(), off,
 							s);
-	
-					boolean check = signatureChecker
-							.verify(_block.getBytes(), res.getOffset(), _block.getSize() - getSizeHead(), _block.getBytes(),
-									_block.getOffset(), P2PSecuredConnectionProtocolWithASymmetricKeyExchanger.this.signature_size);
-					System.arraycopy(_block.getBytes(), off+4, res.getBytes(), res.getOffset(), s);
+
+					boolean check = signatureChecker.verify(_block.getBytes(),
+							off, _block.getSize() - getSizeHead(), _block.getBytes(), _block.getOffset(),
+							signature_size);
 
 					return new SubBlockInfo(res, check, !check);
 				} catch (Exception e) {
-					SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() + getSizeHead(),
+					SubBlock res = new SubBlock(_block.getBytes(), off,
 							getBodyOutputSizeForDecryption(_block.getSize() - getSizeHead()));
 					return new SubBlockInfo(res, false, true);
 				}
 			}
 			else
 			{
+				int s=_block.getSize() - getSizeHead()-1;
+				
 				try (ByteArrayInputStream bais = new ByteArrayInputStream(_block.getBytes(),
-						_block.getOffset() + getSizeHead()+1, _block.getSize() - getSizeHead()-1)) {
-					byte[] tmp = P2PSecuredConnectionProtocolWithASymmetricKeyExchanger.this.symmetricAlgorithm.decode(bais);
-	
-					if (tmp.length > getBodyOutputSizeForDecryption(_block.getSize() - getSizeHead()))
-						throw new BlockParserException("Invalid block size for decoding.");
-	
-					SubBlock res = new SubBlock(new byte[_block.getBytes().length], _block.getOffset() + getSizeHead(),
-							tmp.length);
-	
-					boolean check = signatureChecker
-							.verify(_block.getBytes(), res.getOffset(), _block.getSize() - getSizeHead(), _block.getBytes(),
-									_block.getOffset(), P2PSecuredConnectionProtocolWithASymmetricKeyExchanger.this.signature_size);
-	
-					System.arraycopy(tmp, 0, res.getBytes(), res.getOffset(), tmp.length);
+						off, s)) {
+					final byte []tab=new byte[_block.getBytes().length];
+					
+					final AtomicInteger index=new AtomicInteger(off);
+					OutputStream os=new OutputStream()
+					{
+						
+						@Override
+						public void write(int b) throws IOException {
+							tab[index.getAndIncrement()]=(byte)b;
+						}
+						
+				
+					};
+					symmetricAlgorithm.decode(bais, os);
+					final SubBlock res = new SubBlock(tab, off,
+							index.get()-off);
+					boolean check = signatureChecker.verify(_block.getBytes(),
+							res.getOffset(), _block.getSize() - getSizeHead(), _block.getBytes(), _block.getOffset(),
+							signature_size);
 					return new SubBlockInfo(res, check, !check);
 				} catch (Exception e) {
 					SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() + getSizeHead(),
@@ -582,7 +592,7 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 		}
 
 		@Override
-		public SubBlock getParentBlock(SubBlock _block, boolean excludeFromEncryption) throws BlockParserException {
+		public SubBlock getParentBlock(final SubBlock _block, boolean excludeFromEncryption) throws BlockParserException {
 			try {
 				switch (current_step) {
 				case NOT_CONNECTED:
@@ -595,35 +605,40 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 				case CONNECTED: {
 					
 					
-					int outputSize = getBodyOutputSizeForEncryption(_block.getSize());
-					SubBlock res = new SubBlock(new byte[_block.getBytes().length], _block.getOffset() - getSizeHead(),
-							outputSize + getSizeHead());
+					final int outputSize = getBodyOutputSizeForEncryption(_block.getSize());
+					int s=outputSize + getSizeHead();
 					if (excludeFromEncryption)
 					{
-						res.getBytes()[_block.getOffset()]=1;
-						Block.putShortInt(res.getBytes(), _block.getOffset()+1, _block.getSize());
-						System.arraycopy(_block.getBytes(), _block.getOffset(), res.getBytes(), _block.getOffset()+4, _block.getSize());
-						signer.sign(res.getBytes(), _block.getOffset(), outputSize, res.getBytes(), res.getOffset(), P2PSecuredConnectionProtocolWithASymmetricKeyExchanger.this.signature_size);
+						final SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() - getSizeHead(),s);
+						int offr=res.getOffset()+res.getSize();
+						res.getBytes()[offr-1]=1;
+						Block.putShortInt(res.getBytes(), offr-4, _block.getSize());
+						signer.sign(_block.getBytes(), _block.getOffset(), outputSize, res.getBytes(), res.getOffset(), signature_size);
+
+						return res;
 					}
 					else
 					{
-						byte []tmp=null;
-						try(ByteArrayOutputStream baos=new ByteArrayOutputStream(outputSize))
+						final SubBlock res = new SubBlock(new byte[_block.getBytes().length], _block.getOffset() - getSizeHead(),s);
+						
+						res.getBytes()[res.getOffset()+res.getSize()-1]=0;
+						symmetricAlgorithm.encode(_block.getBytes(), _block.getOffset(), _block.getSize(), null, 0, 0, new OutputStream()
 						{
-							baos.write(0);
-							P2PSecuredConnectionProtocolWithASymmetricKeyExchanger.this.symmetricAlgorithm.encode(_block.getBytes(),
-								_block.getOffset(), _block.getSize(), baos);
-							baos.flush();
-							tmp=baos.toByteArray();
-						}
-						if (outputSize != tmp.length)
-							throw new BlockParserException("Invalid block size for encoding (expected=" + outputSize
-									+ ", found=" + tmp.length + ").");
-						System.arraycopy(tmp, 0, res.getBytes(), _block.getOffset(), tmp.length);
-						signer.sign(tmp, 0, tmp.length,
-								res.getBytes(), res.getOffset(), P2PSecuredConnectionProtocolWithASymmetricKeyExchanger.this.signature_size);
+							int index=_block.getOffset();
+							@Override
+							public void write(int b) throws IOException {
+
+								res.getBytes()[index++]=(byte)b;
+							}
+					
+						});
+						
+						//System.arraycopy(tmp, 0, res.getBytes(), _block.getOffset(), tmp.length);
+						
+						signer.sign(res.getBytes(), _block.getOffset(), outputSize, res.getBytes(), res.getOffset(), signature_size);
+						return res;
 					}
-					return res;
+					
 				}
 				}
 

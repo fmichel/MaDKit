@@ -129,7 +129,30 @@ public final class Block {
 		Bits.putInt(block, 3, _transfert_type);
 		transfert_type = _transfert_type;
 	}
-
+	
+	public void setBlockAttributes(int blockSize, int _transpertType) throws PacketException
+	{
+		if (blockSize <= getHeadSize() || blockSize > block.length)
+			throw new PacketException(
+					"block_size must be greater than getHeadSize() and lower or equal than getMaximumBlockSize()");
+		putShortInt(block, 0, block.length);
+		Bits.putInt(block, 3, _transpertType);
+		transfert_type = _transpertType;
+	}
+	Block(int block_size) throws PacketException {
+		if (block_size > BLOCK_SIZE_LIMIT)
+			throw new PacketException(
+					"This block has a size (" + block_size + ") greater than the size limit : " + BLOCK_SIZE_LIMIT);
+		if (block_size <= getHeadSize() || block_size > getMaximumBlockSize())
+			throw new PacketException(
+					"block_size must be greater than getHeadSize() and lower or equal than getMaximumBlockSize()");
+		block = new byte[block_size];
+		transfert_type = -1;
+	}
+	
+	
+	
+	
 	public byte[] getBytes() {
 		return block;
 	}

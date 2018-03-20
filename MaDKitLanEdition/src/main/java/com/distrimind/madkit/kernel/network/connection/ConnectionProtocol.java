@@ -98,6 +98,11 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 		public void write(int b) throws IOException {
 			tab[index++]=(byte)b;
 		}
+		@Override
+		public void write(byte b[], int off, int len) {
+			System.arraycopy(b, off, tab, index, len);
+			index+=len;
+		}
 		
 	}
 	

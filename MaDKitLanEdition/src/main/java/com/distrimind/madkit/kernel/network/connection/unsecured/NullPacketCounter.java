@@ -35,62 +35,34 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C license and that you accept its terms.
  */
-package com.distrimind.madkit.kernel.network;
+package com.distrimind.madkit.kernel.network.connection.unsecured;
+
+import com.distrimind.madkit.kernel.network.CounterSelector.State;
+import com.distrimind.madkit.kernel.network.PacketCounter;
 
 /**
  * 
+ * 
  * @author Jason Mahdjoub
  * @version 1.0
- * @since MadkitLanEdition 1.0
+ * @since MadkitLanEdition 1.7
+ *
  */
-public class SubBlock {
-	private final byte[] block;
-	private final int offset;
-	private final int size;
-	
-	
-	public SubBlock(Block _block) {
-		block = _block.getBytes();
-		offset = Block.getHeadSize();
-		size = block.length - offset;
+public class NullPacketCounter implements PacketCounter {
+
+	@Override
+	public void incrementOtherCounters() {
+		
 	}
 
-	public SubBlock(byte[] _block) {
-		this(_block, 0, _block.length);
+	@Override
+	public void incrementMyCounters() {
+		
 	}
 
-	public SubBlock(byte[] _block, int _offset, int _size) {
-		block = _block;
-		offset = _offset;
-		size = _size;
+	@Override
+	public void selectMyCounters(State state) {
+		
 	}
-
-	public byte[] getBytes() {
-		return block;
-	}
-
-	public byte[] getEncapsulatedBytes() {
-		if (offset == 0 && size == block.length)
-			return block;
-		else {
-			byte[] res = new byte[size];
-			System.arraycopy(block, offset, res, 0, size);
-			return res;
-		}
-
-	}
-
-	public int getOffset() {
-		return offset;
-	}
-
-	public int getSize() {
-		return size;
-	}
-
-	
-
-	
-	
 
 }

@@ -40,6 +40,7 @@ package com.distrimind.madkit.kernel.network;
 import java.nio.ByteBuffer;
 
 import com.distrimind.madkit.exceptions.MadkitException;
+import com.distrimind.madkit.exceptions.PacketException;
 import com.distrimind.madkit.kernel.network.TransferAgent.IDTransfer;
 
 /**
@@ -66,7 +67,7 @@ abstract class AbstractData {
 
 	abstract boolean isUnlocked();
 
-	abstract ByteBuffer getByteBuffer();
+	abstract ByteBuffer getByteBuffer() throws PacketException;
 
 	abstract boolean isReady();
 

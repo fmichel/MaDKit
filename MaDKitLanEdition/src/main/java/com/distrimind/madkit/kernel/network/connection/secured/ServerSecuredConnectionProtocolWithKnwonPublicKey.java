@@ -38,7 +38,6 @@
 package com.distrimind.madkit.kernel.network.connection.secured;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.net.InetSocketAddress;
 
 import gnu.vm.jgnu.security.InvalidAlgorithmParameterException;
@@ -47,7 +46,7 @@ import gnu.vm.jgnu.security.NoSuchAlgorithmException;
 import gnu.vm.jgnu.security.NoSuchProviderException;
 import gnu.vm.jgnu.security.SignatureException;
 import gnu.vm.jgnu.security.spec.InvalidKeySpecException;
-import gnu.vm.jgnu.security.spec.InvalidParameterSpecException;
+import gnu.vm.jgnux.crypto.NoSuchPaddingException;
 import gnu.vm.jgnux.crypto.ShortBufferException;
 
 import com.distrimind.madkit.exceptions.BlockParserException;
@@ -55,6 +54,7 @@ import com.distrimind.madkit.exceptions.ConnectionException;
 import com.distrimind.madkit.kernel.MadkitProperties;
 import com.distrimind.madkit.kernel.network.Block;
 import com.distrimind.madkit.kernel.network.NetworkProperties;
+import com.distrimind.madkit.kernel.network.PacketCounter;
 import com.distrimind.madkit.kernel.network.SubBlock;
 import com.distrimind.madkit.kernel.network.SubBlockInfo;
 import com.distrimind.madkit.kernel.network.SubBlockParser;
@@ -82,7 +82,7 @@ import com.distrimind.util.sizeof.ObjectSizer;
  * must be known in advance with this protocol.
  * 
  * @author Jason Mahdjoub
- * @version 1.1
+ * @version 1.2
  * @since MadkitLanEdition 1.0
  * @see ClientSecuredConnectionProtocolWithKnownPublicKey
  */
@@ -93,14 +93,14 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 	ASymmetricKeyPair myKeyPairForEncryption;
 
 	protected SymmetricEncryptionType symmetricEncryptionType=null;
-	protected SymmetricEncryptionAlgorithm symmetricAlgorithm = null;
+	protected SymmetricEncryptionAlgorithm symmetricEncryption = null;
 	protected SymmetricAuthentifiedSignerAlgorithm signer = null;
 	protected SymmetricAuthentifiedSignatureCheckerAlgorithm signatureChecker=null;
 	protected SymmetricSecretKey mySecretKeyForEncryption=null,mySecretKeyForSignature=null;
 	protected SymmetricAuthentifiedSignatureType signatureType;
 	protected ASymmetricKeyWrapperType keyWrapper=null;
 	
-	protected int signature_size;
+	protected int signature_size_bytes;
 	protected short secretKeySizeBits;
 	private final SubBlockParser parser;
 
@@ -109,7 +109,9 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 	final int maximumSignatureSize;
 	boolean firstMessageReceived = false;
 	private boolean needToRefreshTransferBlockChecker = true;
-	//private boolean currentBlockCheckerIsNull = true;
+	private final PacketCounterForEncryptionAndSignature packetCounter;
+	private boolean reinitSymmetricAlgorithm=true;
+
 
 	private ServerSecuredConnectionProtocolWithKnwonPublicKey(InetSocketAddress _distant_inet_address,
 			InetSocketAddress _local_interface_address, ConnectionProtocol<?> _subProtocol,
@@ -123,8 +125,8 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 
 		myKeyPairForEncryption = null;
 
-		signature_size = -1;
-		this.symmetricAlgorithm = null;
+		signature_size_bytes = -1;
+		this.symmetricEncryption = null;
 		this.keyWrapper=null;
 		signatureType = null;
 		symmetricEncryptionType=null;
@@ -136,6 +138,7 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 		} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
 			throw new ConnectionException(e);
 		}
+		this.packetCounter=new PacketCounterForEncryptionAndSignature(approvedRandom, hproperties.enableEncryption);
 		if (hproperties.enableEncryption)
 			parser = new ParserWithEncryption();
 		else
@@ -170,7 +173,7 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 								+ identifier);
 			secretKeySizeBits=hproperties.getSymmetricEncryptionKeySizeBits(identifier);
 			
-			signature_size = signatureType.getSignatureSizeInBits()/8;
+			signature_size_bytes = signatureType.getSignatureSizeInBits()/8;
 
 		} catch (Exception e) {
 			if (e instanceof BlockParserException)
@@ -179,7 +182,14 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 				throw new BlockParserException(e);
 		}
 	}
-	
+	private void reinitSymmetricAlgorithmIfNecessary() throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchProviderException, InvalidKeySpecException
+	{
+		if (reinitSymmetricAlgorithm)
+		{
+			reinitSymmetricAlgorithm=false;
+			symmetricEncryption=new SymmetricEncryptionAlgorithm(this.approvedRandom, this.mySecretKeyForEncryption, (byte)packetCounter.getMyEncryptionCounter().length);
+		}
+	}
 	boolean isProfileInitialized()
 	{
 		return firstMessageReceived;
@@ -193,7 +203,7 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 			if (hproperties.enableEncryption)
 			{
 				mySecretKeyForEncryption=keyWrapper.unwrapKey(myKeyPairForEncryption.getASymmetricPrivateKey(), askMessage.getSecretKeyForEncryption());
-				symmetricAlgorithm=new SymmetricEncryptionAlgorithm(approvedRandom, mySecretKeyForEncryption);
+				symmetricEncryption=new SymmetricEncryptionAlgorithm(approvedRandom, mySecretKeyForEncryption);
 			}
 			else
 				mySecretKeyForEncryption=null;
@@ -214,7 +224,7 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 		mySecretKeyForSignature=null;
 		signer = null;
 		signatureChecker=null;
-		symmetricAlgorithm = null;
+		symmetricEncryption = null;
 	}
 
 	private enum Step {
@@ -236,7 +246,7 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 							ConnectionClosedReason.CONNECTION_ANOMALY);
 				}
 				current_step = Step.WAITING_FOR_CONNECTION_CONFIRMATION;
-				return new ConnectionFinished(getDistantInetSocketAddress());
+				return new ConnectionFinished(getDistantInetSocketAddress(), packetCounter.getMyEncodedCounters());
 			} else if (_m instanceof ConnectionFinished) {
 				if (((ConnectionFinished) _m).getState()
 						.equals(ConnectionProtocol.ConnectionState.CONNECTION_ESTABLISHED)) {
@@ -251,6 +261,11 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 		case WAITING_FOR_CONNECTION_CONFIRMATION: {
 			if (_m instanceof ConnectionFinished && ((ConnectionFinished) _m).getState()
 					.equals(ConnectionProtocol.ConnectionState.CONNECTION_ESTABLISHED)) {
+				if (!packetCounter.setDistantCounters(((ConnectionFinished) _m).getInitialCounter()))
+				{
+					current_step=Step.NOT_CONNECTED;
+					return new UnexpectedMessage(this.getDistantInetSocketAddress());
+				}
 				current_step = Step.CONNECTED;
 				return null;
 			} else if (_m instanceof ConnectionFinished) {
@@ -270,6 +285,14 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 					} else {
 						return new ConnectionFinished(this.getDistantInetSocketAddress(),
 								ConnectionClosedReason.CONNECTION_LOST);
+					}
+				}
+				else
+				{
+					if (!packetCounter.setDistantCounters(((ConnectionFinished) _m).getInitialCounter()))
+					{
+						current_step=Step.NOT_CONNECTED;
+						return new UnexpectedMessage(this.getDistantInetSocketAddress());
 					}
 				}
 				return null;
@@ -307,7 +330,7 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 				if (current_step==Step.NOT_CONNECTED)
 					return size;
 				else
-					return symmetricAlgorithm.getOutputSizeForEncryption(size)+1;
+					return symmetricEncryption.getOutputSizeForEncryption(size)+1;
 
 			} catch (Exception e) {
 				throw new BlockParserException(e);
@@ -322,7 +345,7 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 					return size;
 				case WAITING_FOR_CONNECTION_CONFIRMATION:
 				case CONNECTED:
-					return symmetricAlgorithm.getOutputSizeForDecryption(size-1);
+					return symmetricEncryption.getOutputSizeForDecryption(size-1);
 				}
 			} catch (Exception e) {
 				throw new BlockParserException(e);
@@ -359,14 +382,19 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 						throw new BlockParserException();
 					try{
 						
-						
+						SubBlock res = new SubBlock(_block.getBytes(), off, s);
+						signatureChecker.init(_block.getBytes(), _block.getOffset(),
+								signature_size_bytes);
+						if (getCounterSelector().isActivated())
+						{
+							
+							signatureChecker.update(packetCounter.getMySignatureCounter());
+						}
+						signatureChecker.update(_block.getBytes(),
+								off, _block.getSize() - getSizeHead());
+						boolean check = signatureChecker.verify();
 
-						SubBlock res = new SubBlock(_block.getBytes(), off,
-								s);
-
-						boolean check = signatureChecker.verify(_block.getBytes(),
-								off, _block.getSize() - getSizeHead(), _block.getBytes(), _block.getOffset(),
-								signature_size);
+					
 
 						return new SubBlockInfo(res, check, !check);
 					} catch (Exception e) {
@@ -386,13 +414,31 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 						final byte []tab=new byte[_block.getBytes().length];
 						
 						ConnectionProtocol.ByteArrayOutputStream os=new ConnectionProtocol.ByteArrayOutputStream(tab, off);
-						symmetricAlgorithm.decode(bais, os);
-						final SubBlock res = new SubBlock(tab, off,
-								os.getSize());
-
-						boolean check = symmetricAlgorithm.getType().isAuthenticatedAlgorithm()?true:signatureChecker.verify(_block.getBytes(),
-								res.getOffset(), _block.getSize() - getSizeHead(), _block.getBytes(), _block.getOffset(),
-								signature_size);
+						SubBlock res = new SubBlock(_block.getBytes(), off, s);
+						boolean check=true;
+						if (!symmetricEncryption.getType().isAuthenticatedAlgorithm())
+						{
+							signatureChecker.init(_block.getBytes(), _block.getOffset(),
+									signature_size_bytes);
+							if (getCounterSelector().isActivated())
+							{
+								
+								signatureChecker.update(packetCounter.getMySignatureCounter());
+							}
+							signatureChecker.update(_block.getBytes(),
+									off, _block.getSize() - getSizeHead());
+							check = signatureChecker.verify();
+						}
+						if (check)
+						{
+							if (getCounterSelector().isActivated())
+							{
+								reinitSymmetricAlgorithmIfNecessary();
+								symmetricEncryption.decode(bais, os, packetCounter.getMyEncryptionCounter());
+							}
+							else
+								symmetricEncryption.decode(bais, os);
+						}
 						return new SubBlockInfo(res, check, !check);
 					} catch (Exception e) {
 						SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() + getSizeHead(),
@@ -425,7 +471,15 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 						int offr=res.getOffset()+res.getSize();
 						res.getBytes()[offr-1]=1;
 						Block.putShortInt(res.getBytes(), offr-4, _block.getSize());
-						signer.sign(_block.getBytes(), _block.getOffset(), outputSize, res.getBytes(), res.getOffset(), signature_size);
+						signer.init();
+						if (getCounterSelector().isActivated())
+						{
+							signer.update(packetCounter.getOtherSignatureCounter());
+						}
+						signer.update(_block.getBytes(), _block.getOffset(),
+								outputSize);
+						
+						signer.getSignature(res.getBytes(), res.getOffset());
 
 						return res;
 
@@ -435,11 +489,27 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 						final SubBlock res = new SubBlock(new byte[_block.getBytes().length], _block.getOffset() - getSizeHead(),s);
 						
 						res.getBytes()[res.getOffset()+res.getSize()-1]=0;
-						symmetricAlgorithm.encode(_block.getBytes(), _block.getOffset(), _block.getSize(), null, 0, 0, new ConnectionProtocol.ByteArrayOutputStream(res.getBytes(), _block.getOffset()));
+						if (getCounterSelector().isActivated())
+						{
+							reinitSymmetricAlgorithmIfNecessary();
+							symmetricEncryption.encode(_block.getBytes(), _block.getOffset(), _block.getSize(), null, 0, 0, new ConnectionProtocol.ByteArrayOutputStream(res.getBytes(), _block.getOffset()), packetCounter.getOtherEncryptionCounter());
+						}
+						else
+							symmetricEncryption.encode(_block.getBytes(), _block.getOffset(), _block.getSize(), null, 0, 0, new ConnectionProtocol.ByteArrayOutputStream(res.getBytes(), _block.getOffset()));
 						
-						//System.arraycopy(tmp, 0, res.getBytes(), _block.getOffset(), tmp.length);
-						if (!symmetricAlgorithm.getType().isAuthenticatedAlgorithm())
-							signer.sign(res.getBytes(), _block.getOffset(), outputSize, res.getBytes(), res.getOffset(), signature_size);
+						if (!symmetricEncryption.getType().isAuthenticatedAlgorithm())
+						{
+							signer.init();
+							if (getCounterSelector().isActivated())
+							{
+								signer.update(packetCounter.getOtherSignatureCounter());
+							}
+							signer.update(res.getBytes(), _block.getOffset(),
+									outputSize);
+							
+							signer.getSignature(res.getBytes(), res.getOffset());
+						}
+						
 						return res;
 					}
 				}
@@ -454,7 +524,7 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 		public int getSizeHead() {
 			//return signature_size;
 			if (isProfileInitialized())
-				return signature_size;
+				return signature_size_bytes;
 			else
 				return ObjectSizer.sizeOf(hproperties.getLastEncryptionProfileIdentifier());
 		}
@@ -479,7 +549,7 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 				try {
 
 					boolean check = signatureChecker.verify(_block.getBytes(), res.getOffset(),
-							res.getSize(), _block.getBytes(), _block.getOffset(), signature_size);
+							res.getSize(), _block.getBytes(), _block.getOffset(), signature_size_bytes);
 					return new SubBlockInfo(res, check, !check);
 				} catch (Exception e) {
 					return new SubBlockInfo(res, false, true);
@@ -547,11 +617,18 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 				SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() + getSizeHead(),
 						getBodyOutputSizeForDecryption(_block.getSize() - getSizeHead()));
 				try {
-					boolean check = signatureChecker.verify(res.getBytes(), res.getOffset(),
-							_block.getSize() - getSizeHead(), _block.getBytes(), _block.getOffset(), signature_size);
+					signatureChecker.init(_block.getBytes(),
+							_block.getOffset(), signature_size_bytes);
+					if (getCounterSelector().isActivated())
+					{
+						
+						signatureChecker.update(packetCounter.getMySignatureCounter());
+					}
+					signatureChecker.update(res.getBytes(), res.getOffset(), res.getSize());
+					boolean check = signatureChecker.verify();
 					return new SubBlockInfo(res, check, !check);
 				} catch (SignatureException | InvalidKeyException | NoSuchAlgorithmException
-						| InvalidKeySpecException | ShortBufferException | IllegalStateException | NoSuchProviderException | InvalidAlgorithmParameterException | InvalidParameterSpecException | IOException e) {
+						| InvalidKeySpecException | ShortBufferException | IllegalStateException e) {
 					return new SubBlockInfo(res, false, true);
 				}
 			}
@@ -567,12 +644,16 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 		@Override
 		public SubBlock getParentBlock(SubBlock _block, boolean excludeFromEncryption) throws BlockParserException {
 			try {
-				SubBlock res = new SubBlock(_block.getBytes().clone(), _block.getOffset() - getSizeHead(),
-						getBodyOutputSizeForEncryption(_block.getSize()) + getSizeHead());
-				if ((current_step!=Step.NOT_CONNECTED))
-					signer.sign(_block.getBytes(), _block.getOffset(),
-						getBodyOutputSizeForEncryption(_block.getSize()), res.getBytes(), res.getOffset(),
-						signature_size);
+				SubBlock res = getParentBlockWithNoTreatments(_block);
+
+				signer.init();
+				if (getCounterSelector().isActivated())
+				{
+					signer.update(packetCounter.getOtherSignatureCounter());
+				}
+				signer.update(_block.getBytes(), _block.getOffset(), _block.getSize());
+				
+				signer.getSignature(res.getBytes(), res.getOffset());
 				return res;
 			} catch (Exception e) {
 				throw new BlockParserException(e);
@@ -584,7 +665,7 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 		public int getSizeHead() {
 			//return signature_size;
 			if (isProfileInitialized())
-				return signature_size;
+				return signature_size_bytes;
 			else
 				return ObjectSizer.sizeOf(hproperties.getLastEncryptionProfileIdentifier());
 		}
@@ -614,7 +695,7 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 				try {
 
 					boolean check = signatureChecker.verify(_block.getBytes(), res.getOffset(),
-							res.getSize(), _block.getBytes(), _block.getOffset(), signature_size);
+							res.getSize(), _block.getBytes(), _block.getOffset(), signature_size_bytes);
 					return new SubBlockInfo(res, check, !check);
 				} catch (Exception e) {
 					return new SubBlockInfo(res, false, true);
@@ -739,6 +820,11 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 	@Override
 	public boolean needsMadkitLanEditionDatabase() {
 		return false;
+	}
+
+	@Override
+	public PacketCounter getPacketCounter() {
+		return packetCounter;
 	}
 
 }

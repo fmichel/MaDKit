@@ -52,8 +52,12 @@ public final class Block {
 
 	private final byte[] block;
 	private int transfert_type;
-
+	private CounterSelector.State counterState;
+	private byte counterID;
 	public Block(PacketPart _packet_part, SubBlocksStructure _structure, int _transfert_type) throws PacketException {
+		this(_packet_part, _structure, _transfert_type, null, (byte)-1);
+	}
+	public Block(PacketPart _packet_part, SubBlocksStructure _structure, int _transfert_type, CounterSelector counterSelector, byte counterID) throws PacketException {
 		int size = _structure.block_size;
 		if (size > BLOCK_SIZE_LIMIT)
 			throw new PacketException(
@@ -62,6 +66,12 @@ public final class Block {
 		transfert_type = _transfert_type;
 		putShortInt(block, 0, block.length);
 		Bits.putInt(block, 3, transfert_type);
+		if (counterSelector!=null)
+		{
+			block[7]=(counterState=counterSelector.getState(this.counterID=counterID)).getCode();
+		}
+		else
+			this.counterID=-1;
 		try {
 			System.arraycopy(_packet_part.getBytes(), 0, block, _structure.initial_packet_offset,
 					_packet_part.getBytes().length);
@@ -72,6 +82,12 @@ public final class Block {
 	
 	
 	
+	public byte getCounterID() {
+		return counterID;
+	}
+
+
+
 	public static void putShortInt(byte[] b, int off, int val) {
 		if (val>BLOCK_SIZE_LIMIT)
 			throw new IllegalArgumentException("val cannot be greater than "+0xFFFFFF);
@@ -85,7 +101,13 @@ public final class Block {
 		return ((b[off + 2] & 0xFF)) + ((b[off + 1] & 0xFF) << 8) + ((b[off] & 0xFF) << 16);
 	}
 
+	
+	
 	public Block(byte _block[], SubBlocksStructure _structure, int _transfert_type) throws PacketException {
+		this(_block, _structure, _transfert_type, null, (byte)-1);
+	}
+	
+	public Block(byte _block[], SubBlocksStructure _structure, int _transfert_type, CounterSelector counterSelector, byte counterID) throws PacketException {
 		int size = _structure.block_size;
 		if (size > BLOCK_SIZE_LIMIT)
 			throw new PacketException(
@@ -94,8 +116,22 @@ public final class Block {
 		transfert_type = _transfert_type;
 		putShortInt(block, 0, block.length);
 		Bits.putInt(block, 3, transfert_type);
+		if (counterSelector!=null)
+			block[7]=(counterState=counterSelector.getState(this.counterID=counterID)).getCode();
+		else
+			this.counterID=-1;
 	}
 
+	public static int getTransferID(byte [] _block)
+	{
+		return Bits.getInt(_block, 3);
+	}
+	
+	public static CounterSelector.State getCounterState(byte [] _block)
+	{
+		return CounterSelector.getCounterState(_block[7]);
+	}
+	
 	public Block(byte _block[]) throws PacketException {
 		block = _block;
 		if (block.length < getHeadSize())
@@ -114,10 +150,17 @@ public final class Block {
 		if (size != _block.length)
 			throw new PacketException(
 					"The given block as an invalid size (readed: " + size + "; block size: " + _block.length + ")");
-		transfert_type = Bits.getInt(block, 3);
+		transfert_type = getTransferID(block);
+		counterState=getCounterState(block);
+		this.counterID=-1;
+		if (counterState==null)
+			throw new PacketException("Invalid counter state");
+		
 	}
-
 	public Block(int block_size, int _transfert_type) throws PacketException {
+		this(block_size, _transfert_type, null, (byte)-1);
+	}
+	public Block(int block_size, int _transfert_type, CounterSelector counterSelector, byte counterID) throws PacketException {
 		if (block_size > BLOCK_SIZE_LIMIT)
 			throw new PacketException(
 					"This block has a size (" + block_size + ") greater than the size limit : " + BLOCK_SIZE_LIMIT);
@@ -128,9 +171,13 @@ public final class Block {
 		putShortInt(block, 0, block.length);
 		Bits.putInt(block, 3, _transfert_type);
 		transfert_type = _transfert_type;
+		if (counterSelector!=null)
+			block[7]=(counterState=counterSelector.getState(this.counterID=counterID)).getCode();
+		else
+			this.counterID=-1;
 	}
 	
-	public void setBlockAttributes(int blockSize, int _transpertType) throws PacketException
+	public void setBlockAttributes(int blockSize, int _transpertType, CounterSelector counterSelector, byte counterID) throws PacketException
 	{
 		if (blockSize <= getHeadSize() || blockSize > block.length)
 			throw new PacketException(
@@ -138,6 +185,7 @@ public final class Block {
 		putShortInt(block, 0, block.length);
 		Bits.putInt(block, 3, _transpertType);
 		transfert_type = _transpertType;
+		block[7]=(counterState=counterSelector.getState(counterID)).getCode();
 	}
 	Block(int block_size) throws PacketException {
 		if (block_size > BLOCK_SIZE_LIMIT)
@@ -148,8 +196,22 @@ public final class Block {
 					"block_size must be greater than getHeadSize() and lower or equal than getMaximumBlockSize()");
 		block = new byte[block_size];
 		transfert_type = -1;
+		counterState=null;
+		this.counterID=-1;
 	}
 	
+	
+	
+	public void setCounterState(CounterSelector.State counterState) {
+		this.counterState = counterState;
+	}
+
+
+
+	public CounterSelector.State getCounterState()
+	{
+		return counterState;
+	}
 	
 	
 	
@@ -158,7 +220,7 @@ public final class Block {
 	}
 
 	public static int getHeadSize() {
-		return 7;
+		return 8;
 	}
 
 	public boolean isDirect() {

@@ -179,7 +179,7 @@ class DistantKernelAgent extends AgentFakeThread {
 				if (!concerned_groups.isEmpty()) {
 					message.getMessageLocker().lock();
 					sendData(asd.getAgentAddress(), message.getBroadcastMessage(concerned_groups), false,
-							message.getMessageLocker(), false);
+							message.getMessageLocker(), false, asd.getCounterSelector());
 
 					groups_lacking = groups_lacking.minus(concerned_groups);
 					if (groups_lacking.isEmpty()) {
@@ -265,7 +265,7 @@ class DistantKernelAgent extends AgentFakeThread {
 										addBigDataInQueue(asd, bgpm);
 
 										sendData(asd.getAgentAddress(), new DirectLanMessage(bgpm), false,
-												message.getMessageLocker(), false);
+												message.getMessageLocker(), false, asd.getCounterSelector());
 									} catch (PacketException e) {
 										if (logger != null)
 											logger.severeLog("Anomaly detected", e);
@@ -274,7 +274,7 @@ class DistantKernelAgent extends AgentFakeThread {
 									}
 								} else {
 									sendData(asd.getAgentAddress(), new DirectLanMessage(m), false,
-											message.getMessageLocker(), false);
+											message.getMessageLocker(), false, asd.getCounterSelector());
 								}
 
 							} else {
@@ -309,7 +309,7 @@ class DistantKernelAgent extends AgentFakeThread {
 							newCGRSynchroDetected(m);
 							potentialChangementsInGroups();
 							CGRSynchroSystemMessage message = new CGRSynchroSystemMessage(m);
-							sendData(asd.getAgentAddress(), message, true, null, false);
+							sendData(asd.getAgentAddress(), message, true, null, false, asd.getCounterSelector());
 						}
 					}
 				} else if (_message.getClass() == SendDataFromAgentSocket.class) {
@@ -323,7 +323,9 @@ class DistantKernelAgent extends AgentFakeThread {
 					if (ml != null) {
 						ml.lock();
 					}
-					sendData(m.getSender(), m.getContent(), m.prioritary, ml, m.last_message);
+					
+					
+					sendData(m.getSender(), m.getContent(), m.prioritary, ml, m.last_message, getAgentSocketDataFromItsAgentAddress(m.getSender()).getCounterSelector());
 				} else if (_message.getClass() == DistKernADataToUpgradeMessage.class) {
 					DistKernADataToUpgradeMessage m = (DistKernADataToUpgradeMessage) _message;
 					AgentAddress aa = m.dataToUpgrade.getAgentSocketSender();
@@ -628,7 +630,7 @@ class DistantKernelAgent extends AgentFakeThread {
 
 							AgentSocketData asd = getBestAgentSocket(true);
 							if (asd != null && kernelAddressActivated)
-								sendData(asd.getAgentAddress(), sm, true, null, false);
+								sendData(asd.getAgentAddress(), sm, true, null, false, asd.getCounterSelector());
 							else {
 								@SuppressWarnings("unchecked")
 								ObjectMessage<SecretMessage> message = (ObjectMessage<SecretMessage>) _message;
@@ -675,7 +677,7 @@ class DistantKernelAgent extends AgentFakeThread {
 
 								int id = MadkitKernelAccess.getIDPacket(bdpm);
 								current_big_data_readings.put(new Integer(id), new BigDataReading(bdpm));
-								sendData(asd.getAgentAddress(), new ValidateBigDataProposition(id), true, null, false);
+								sendData(asd.getAgentAddress(), new ValidateBigDataProposition(id), true, null, false, asd.getCounterSelector());
 							}
 						}
 					} else if (o.getClass() == ValidateBigDataProposition.class) {
@@ -740,7 +742,7 @@ class DistantKernelAgent extends AgentFakeThread {
 					getMadkitConfig().networkProperties.maxRandomPacketValues, random, inputStream,
 					bgpm.getStartStreamPosition(), bgpm.getTransferLength(), true, bgpm.getMessageDigestType());
 			BigPacketData packetData = new BigPacketData(choosenSocket.getAgentAddress(), packet, bgpm.getReceiver(),
-					bgpm.getSender(), bgpm.getConversationID(), bgpm.getStatistics(), bgpm.bigDataExcludedFromEncryption());
+					bgpm.getSender(), bgpm.getConversationID(), bgpm.getStatistics(), bgpm.bigDataExcludedFromEncryption(), choosenSocket.getCounterSelector());
 			packetsDataInQueue.put(new Integer(id), packetData);
 		}
 	}
@@ -1369,6 +1371,7 @@ class DistantKernelAgent extends AgentFakeThread {
 		final int numberOfIntermediatePeers;
 		ConnectionInfoSystemMessage distantConnectionInfo = null;
 		private boolean distantKernelAddressValidated;
+		private final CounterSelector counterSelector;
 
 		AgentSocketData(AbstractAgentSocket _agent_socket) {
 			global_address = address = _agent_socket.getAgentAddressIn(LocalCommunity.Groups.NETWORK,
@@ -1380,8 +1383,14 @@ class DistantKernelAgent extends AgentFakeThread {
 			distant_inet_socket_address = _agent_socket.getDistantInetSocketAddress();
 			numberOfIntermediatePeers = _agent_socket.getNumberOfIntermediatePeers();
 			distantKernelAddressValidated = false;
+			this.counterSelector=_agent_socket.connection_protocol.getCounterSelector();
 		}
 
+		CounterSelector getCounterSelector()
+		{
+			return counterSelector;
+		}
+		
 		void setUsable(boolean value) {
 			distantKernelAddressValidated = value;
 		}
@@ -1500,7 +1509,7 @@ class DistantKernelAgent extends AgentFakeThread {
 		void potentialChangementInGroups(DistantKernelAgent dka) throws MadkitException {
 			AcceptedGroups ag = getAcceptedLocalGroups().potentialChangementInGroups();
 			if (ag != null) {
-				dka.sendData(this.global_address, ag, true, null, false);
+				dka.sendData(this.global_address, ag, true, null, false, counterSelector);
 			}
 
 		}
@@ -1599,7 +1608,7 @@ class DistantKernelAgent extends AgentFakeThread {
 							removedAcceptedGroups);
 					AgentSocketData asd = getBestAgentSocket(false);
 					if (asd != null) {
-						sendData(asd.getAgentAddress(), message, true, null, false);
+						sendData(asd.getAgentAddress(), message, true, null, false, asd.getCounterSelector());
 					} else if (logger != null)
 						logger.severe("Unexpected access (updateLocalAcceptedGroups)");
 				}
@@ -1622,7 +1631,7 @@ class DistantKernelAgent extends AgentFakeThread {
 	 * _local_lan_message, last_message); }
 	 */
 	protected void sendData(AgentAddress receiver, SystemMessage _data, boolean prioritary,
-			MessageLocker _messageLocker, boolean last_message) throws MadkitException {
+			MessageLocker _messageLocker, boolean last_message, CounterSelector counterSelector) throws MadkitException {
 		try (ByteArrayOutputStream baos = new ByteArrayOutputStream();) {
 			try (ObjectOutputStream oos = new OOS(baos)) {
 				oos.writeObject(_data);
@@ -1636,9 +1645,10 @@ class DistantKernelAgent extends AgentFakeThread {
 			if (logger != null && logger.isLoggable(Level.FINEST))
 				logger.finest("Sending data (distantInterfacedKernelAddress=" + distant_kernel_address + ", packetID="
 						+ packet.getID() + ") : " + _data);
+			
 			if (!sendMessage(receiver,
 					new DistKernADataToUpgradeMessage(
-							new PacketData(receiver, _data, packet, _messageLocker, last_message, prioritary, _data.excludedFromEncryption())))
+							new PacketData(receiver, _data, packet, _messageLocker, last_message, prioritary, _data.excludedFromEncryption(), counterSelector)))
 									.equals(ReturnCode.SUCCESS))
 				logger.warning("Fail sending data (distantInterfacedKernelAddress=" + distant_kernel_address
 						+ ", packetID=" + packet.getID() + ") : " + _data);
@@ -1741,9 +1751,13 @@ class DistantKernelAgent extends AgentFakeThread {
 		private final AgentAddress agentReceiver;
 		protected final AtomicBoolean isCanceled = new AtomicBoolean(false);
 		protected final boolean excludedFromEncryption;
+		private byte counterID=-1;
+		private byte nextCounterID=-1;
+		private boolean currentCounterIDReleased=true;
+		private final CounterSelector counterSelector;
 
 		protected AbstractPacketData(boolean priority, AgentAddress firstAgentSocketSender, WritePacket _packet,
-				AgentAddress agentReceiver, boolean excludedFromEncryption) {
+				AgentAddress agentReceiver, boolean excludedFromEncryption, CounterSelector counterSelector) {
 			super(priority);
 			if (_packet == null)
 				throw new NullPointerException("_packet");
@@ -1757,7 +1771,7 @@ class DistantKernelAgent extends AgentFakeThread {
 			stat = null;
 			this.agentReceiver = agentReceiver;
 			this.excludedFromEncryption=excludedFromEncryption;
-
+			this.counterSelector=counterSelector;
 		}
 
 		@Override
@@ -1793,7 +1807,7 @@ class DistantKernelAgent extends AgentFakeThread {
 		}
 
 		@Override
-		public ByteBuffer getByteBuffer() {
+		public ByteBuffer getByteBuffer() throws PacketException {
 			synchronized (this) {
 				if (currentByteBuffer == null) {
 					if (!asking_new_buffer_in_process) {
@@ -1805,6 +1819,11 @@ class DistantKernelAgent extends AgentFakeThread {
 					return null;
 				}
 				if (currentByteBuffer.remaining() == 0) {
+					if (!currentCounterIDReleased)
+					{
+						currentCounterIDReleased=true;
+						counterSelector.releaseCounterID(counterID);
+					}
 					if (asking_new_buffer_in_process) {
 						return null;
 					} else {
@@ -1812,6 +1831,7 @@ class DistantKernelAgent extends AgentFakeThread {
 							stat.newBytesIndentified(currentByteBuffer.capacity());
 
 						if (nextByteBuffer == null) {
+							
 							currentByteBuffer = null;
 							if (packet.isFinished()) {
 								return null;
@@ -1821,6 +1841,10 @@ class DistantKernelAgent extends AgentFakeThread {
 								return null;
 							}
 						} else {
+							currentCounterIDReleased=false;
+							counterID=nextCounterID;
+							nextCounterID=-1;
+							
 							currentByteBuffer = nextByteBuffer;
 							nextByteBuffer = null;
 
@@ -1849,12 +1873,15 @@ class DistantKernelAgent extends AgentFakeThread {
 			synchronized (this) {
 				idTransfer = id;
 				if (currentByteBuffer == null) {
+					currentCounterIDReleased=false;
+					counterID=_block.getCounterID();
 					currentByteBuffer = ByteBuffer.wrap(_block.getBytes());
 					if (!packet.isFinished())
 						updateNextByteBuffer();
 					else
 						asking_new_buffer_in_process = false;
 				} else if (nextByteBuffer == null) {
+					nextCounterID=_block.getCounterID();
 					nextByteBuffer = ByteBuffer.wrap(_block.getBytes());
 					asking_new_buffer_in_process = false;
 				} else
@@ -1951,6 +1978,11 @@ class DistantKernelAgent extends AgentFakeThread {
 
 		@Override
 		public void unlockMessage() throws MadkitException {
+			if (!currentCounterIDReleased)
+			{
+				currentCounterIDReleased=true;
+				counterSelector.releaseCounterID(counterID);
+			}
 			unlocked.set(true);
 		}
 
@@ -2006,9 +2038,9 @@ class DistantKernelAgent extends AgentFakeThread {
 		private final boolean isSystemMessage;
 
 		protected PacketData(AgentAddress first_receiver, SystemMessage lan_message, WritePacket _packet,
-				MessageLocker _messageLocker, boolean _last_message, boolean pioririty, boolean excludedFromEncryption) {
+				MessageLocker _messageLocker, boolean _last_message, boolean pioririty, boolean excludedFromEncryption, CounterSelector counterSelector) {
 			super(pioririty, first_receiver, _packet,
-					(lan_message instanceof LanMessage) ? ((LanMessage) lan_message).message.getReceiver() : null, excludedFromEncryption);
+					(lan_message instanceof LanMessage) ? ((LanMessage) lan_message).message.getReceiver() : null, excludedFromEncryption, counterSelector);
 			if (_packet.concernsBigData())
 				throw new IllegalArgumentException("_packet cannot use big data !");
 
@@ -2069,8 +2101,8 @@ class DistantKernelAgent extends AgentFakeThread {
 		private long timeUTC;
 
 		protected BigPacketData(AgentAddress _firstAgentSocketSender, WritePacket _packet, AgentAddress _agentReceiver,
-				AgentAddress asker, ConversationID conversationID, RealTimeTransfertStat stat, boolean excludedFromEncryption) {
-			super(false, _firstAgentSocketSender, _packet, _agentReceiver, excludedFromEncryption);
+				AgentAddress asker, ConversationID conversationID, RealTimeTransfertStat stat, boolean excludedFromEncryption, CounterSelector counterSelector) {
+			super(false, _firstAgentSocketSender, _packet, _agentReceiver, excludedFromEncryption, counterSelector);
 			if (!_packet.concernsBigData())
 				throw new IllegalArgumentException("_packet has to use big data !");
 			if (asker == null)

@@ -103,7 +103,7 @@ public class MadkitProperties extends XMLProperties {
 	 * accept. If a distant peer try to connect with a MadkitLanEdition version
 	 * lower than this one, than the connection will be rejected.
 	 */
-	public Version minimumMadkitVersion = Madkit.getNewVersionInstance();
+	public Version minimumMadkitVersion = new Version(madkitVersion.getProgramName(), madkitVersion.getShortProgramName(), 1, 7, 0, Version.Type.Stable, 0, madkitVersion.getProjectStartDate(), madkitVersion.getProjectEndDate());
 
 	public Class<?> madkitMainClass = Madkit.class;
 

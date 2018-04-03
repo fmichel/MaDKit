@@ -177,12 +177,13 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 							if (idt.getTransferBlockChecker() == null) {
 								if (idt.getLastPointToPointTransferedBlockChecker()!=null)
 								{
+									CounterSelector.State counterState=block.getCounterState();
 									SubBlockInfo sbi = idt.getLastPointToPointTransferedBlockChecker()
 											.recursiveCheckSubBlock(new SubBlock(block));
 									
 									if (sbi.isValid()) {
 										block=new Block(sbi.getSubBlock().getBytes());
-										
+										block.setCounterState(counterState);
 									} else {
 										processInvalidBlock(
 												new RouterException("Invalid block with transfer block checker "
@@ -192,12 +193,13 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 								}
 								receiveIndirectData(block, idt);
 							} else {
+								CounterSelector.State counterState=block.getCounterState();
 								SubBlockInfo sbi = idt.getTransferBlockChecker()
 										.recursiveCheckSubBlock(new SubBlock(block));
 
 								if (sbi.isValid()) {
 									Block b=new Block(sbi.getSubBlock().getBytes());
-									
+									block.setCounterState(counterState);
 									receiveDataToResend(b, idt);
 									
 								} else {
@@ -2189,6 +2191,8 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 						checkTransferBlockCheckerChangments();
 						sendConnectionInfoSystemMessage();
 					}
+					if (isConnectionEstablished())
+						this.connection_protocol.getCounterSelector().setActivated();
 				} else if (obj.getClass() == ConnectionInfoSystemMessage.class) {
 					this.distantConnectionInfo = (ConnectionInfoSystemMessage) obj;
 					if (logger != null && logger.isLoggable(Level.FINEST))

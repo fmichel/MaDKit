@@ -84,7 +84,7 @@ public class PointToPointTransferedBlockChecker extends TransferedBlockChecker {
 			}
 			if (cpOutput==null)
 			{
-				SubBlock res=new SubBlock(new Block(sb.getSize()+Block.getHeadSize(), new Block(_block.getBytes()).getTransferID()));
+				SubBlock res=new SubBlock(new Block(sb.getSize()+Block.getHeadSize(), Block.getTransferID(_block.getBytes())));
 				System.arraycopy(sb.getBytes(), sb.getOffset(), res.getBytes(), res.getOffset(), sb.getSize());
 				return new SubBlockInfo(res, true, false);
 			}

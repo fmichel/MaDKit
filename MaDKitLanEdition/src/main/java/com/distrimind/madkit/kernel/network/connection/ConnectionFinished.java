@@ -59,12 +59,14 @@ public class ConnectionFinished extends ConnectionMessage {
 	private final InetSocketAddress inet_address;
 
 	private final ConnectionProtocol.ConnectionState state;
+	private final byte[] initialCounter;
 	private transient final ConnectionClosedReason connection_closed_reason;
 
-	public ConnectionFinished(InetSocketAddress _inet_address) {
+	public ConnectionFinished(InetSocketAddress _inet_address, byte[] initialCounter) {
 		inet_address = _inet_address;
 		state = ConnectionState.CONNECTION_ESTABLISHED;
 		connection_closed_reason = null;
+		this.initialCounter=initialCounter;
 	}
 
 	public ConnectionFinished(InetSocketAddress _inet_address, ConnectionClosedReason _connection_closed_reason) {
@@ -82,6 +84,7 @@ public class ConnectionFinished extends ConnectionMessage {
 		default:
 			state = null;
 		}
+		this.initialCounter=null;
 	}
 
 	public ConnectionProtocol.ConnectionState getState() {
@@ -103,6 +106,8 @@ public class ConnectionFinished extends ConnectionMessage {
 	public Integrity checkDataIntegrity() {
 		if (inet_address == null || state == null)
 			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
+		if (initialCounter!=null && initialCounter.length>Short.MAX_VALUE)
+			return Integrity.FAIL;
 		return Integrity.OK;
 	}
 
@@ -111,4 +116,8 @@ public class ConnectionFinished extends ConnectionMessage {
 		return false;
 	}
 
+	public byte[] getInitialCounter()
+	{
+		return initialCounter;
+	}
 }

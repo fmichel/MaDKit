@@ -52,6 +52,7 @@ import com.distrimind.madkit.exceptions.ConnectionException;
 import com.distrimind.madkit.kernel.MadkitProperties;
 import com.distrimind.madkit.kernel.network.Block;
 import com.distrimind.madkit.kernel.network.NetworkProperties;
+import com.distrimind.madkit.kernel.network.PacketCounter;
 import com.distrimind.madkit.kernel.network.SubBlock;
 import com.distrimind.madkit.kernel.network.SubBlockInfo;
 import com.distrimind.madkit.kernel.network.SubBlockParser;
@@ -79,7 +80,7 @@ import com.distrimind.util.sizeof.ObjectSizer;
  * must be known in advance with this protocol.
  * 
  * @author Jason Mahdjoub
- * @version 1.1
+ * @version 1.2
  * @since MadkitLanEdition 1.0
  * @see ServerSecuredConnectionProtocolWithKnwonPublicKey
  */
@@ -89,7 +90,7 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 
 	private final ASymmetricPublicKey distant_public_key_for_encryption;
 	protected final ClientASymmetricEncryptionAlgorithm aSymmetricAlgorithm;
-	protected SymmetricEncryptionAlgorithm symmetricAlgorithm = null;
+	protected SymmetricEncryptionAlgorithm symmetricEncryption = null;
 	protected SymmetricAuthentifiedSignerAlgorithm signer = null;
 	protected SymmetricAuthentifiedSignatureCheckerAlgorithm signatureChecker=null;
 	protected SymmetricSecretKey mySecretKeyForEncryption=null,mySecretKeyForSignature=null;
@@ -103,7 +104,9 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 	/*private boolean currentBlockCheckerIsNull = true;*/
 	private boolean needToRefreshTransferBlockChecker = true;
 	private final AbstractSecureRandom approvedRandom, approvedRandomForKeys;
-
+	private final PacketCounterForEncryptionAndSignature packetCounter;
+	private boolean reinitSymmetricAlgorithm=true;
+	
 	private ClientSecuredConnectionProtocolWithKnownPublicKey(InetSocketAddress _distant_inet_address,
 			InetSocketAddress _local_interface_address, ConnectionProtocol<?> _subProtocol,
 			DatabaseWrapper sql_connection, MadkitProperties mkProperties, NetworkProperties _properties, int subProtocolLevel, boolean isServer,
@@ -127,21 +130,28 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 			throw new ConnectionException(e);
 		}
 		signature_size_bytes = hproperties.signatureType.getSignatureSizeInBits()/8;
-		
+		this.packetCounter=new PacketCounterForEncryptionAndSignature(approvedRandom, hproperties.enableEncryption);
 		generateSecretKey();
 		if (hproperties.enableEncryption)
 			parser = new ParserWithEncryption();
 		else
 			parser = new ParserWithNoEncryption();
 	}
-
+	private void reinitSymmetricAlgorithmIfNecessary() throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchProviderException, InvalidKeySpecException
+	{
+		if (reinitSymmetricAlgorithm)
+		{
+			reinitSymmetricAlgorithm=false;
+			symmetricEncryption=new SymmetricEncryptionAlgorithm(this.approvedRandom, this.mySecretKeyForEncryption, (byte)packetCounter.getMyEncryptionCounter().length);
+		}
+	}
 	private void generateSecretKey() throws ConnectionException {
 		//needToRefreshTransferBlockChecker |= current_step.compareTo(Step.WAITING_FOR_CONNECTION_CONFIRMATION) >= 0;
 		try {
 			if (hproperties.enableEncryption)
 			{
 				mySecretKeyForEncryption=hproperties.getSymmetricEncryptionType().getKeyGenerator(approvedRandomForKeys, hproperties.getSymmetricKeySizeBits()).generateKey();
-				symmetricAlgorithm=new SymmetricEncryptionAlgorithm(approvedRandom, mySecretKeyForEncryption);
+				symmetricEncryption=new SymmetricEncryptionAlgorithm(approvedRandom, mySecretKeyForEncryption);
 			}
 			else
 				mySecretKeyForEncryption=null;
@@ -162,7 +172,7 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 		signer = null;
 		signatureChecker=null;
 		
-		symmetricAlgorithm = null;
+		symmetricEncryption = null;
 	}
 
 	private enum Step {
@@ -215,8 +225,13 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 		case WAITING_FOR_CONNECTION_CONFIRMATION: {
 			if (_m instanceof ConnectionFinished && ((ConnectionFinished) _m).getState()
 					.equals(ConnectionProtocol.ConnectionState.CONNECTION_ESTABLISHED)) {
+				if (!packetCounter.setDistantCounters(((ConnectionFinished) _m).getInitialCounter()))
+				{
+					current_step=Step.NOT_CONNECTED;
+					return new UnexpectedMessage(this.getDistantInetSocketAddress());
+				}
 				current_step = Step.CONNECTED;
-				return new ConnectionFinished(getDistantInetSocketAddress());
+				return new ConnectionFinished(getDistantInetSocketAddress(), packetCounter.getMyEncodedCounters());
 			} else {
 				return new UnexpectedMessage(this.getDistantInetSocketAddress());
 			}
@@ -234,6 +249,15 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 								ConnectionClosedReason.CONNECTION_LOST);
 					}
 				}
+				else
+				{
+					if (!packetCounter.setDistantCounters(((ConnectionFinished) _m).getInitialCounter()))
+					{
+						current_step=Step.NOT_CONNECTED;
+						return new UnexpectedMessage(this.getDistantInetSocketAddress());
+					}
+				}
+				
 				return null;
 			} else {
 				return new UnexpectedMessage(this.getDistantInetSocketAddress());
@@ -272,7 +296,7 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 				if (current_step==Step.NOT_CONNECTED || current_step==Step.WAITING_FOR_CONNECTION_CONFIRMATION)
 					return size;
 				else
-					return symmetricAlgorithm.getOutputSizeForEncryption(size)+1;
+					return symmetricEncryption.getOutputSizeForEncryption(size)+1;
 			} catch (Exception e) {
 				throw new BlockParserException(e);
 			}
@@ -288,7 +312,7 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 				}
 				case WAITING_FOR_CONNECTION_CONFIRMATION:
 				case CONNECTED: {
-					return symmetricAlgorithm.getOutputSizeForDecryption(size-1);
+					return symmetricEncryption.getOutputSizeForDecryption(size-1);
 				}
 				}
 
@@ -323,11 +347,17 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 
 						SubBlock res = new SubBlock(_block.getBytes(), off,
 								s);
-
-						boolean check = signatureChecker.verify(_block.getBytes(),
-								off, _block.getSize() - getSizeHead(), _block.getBytes(), _block.getOffset(),
+						signatureChecker.init(_block.getBytes(), _block.getOffset(),
 								signature_size_bytes);
-
+						if (getCounterSelector().isActivated())
+						{
+							
+							signatureChecker.update(packetCounter.getMySignatureCounter());
+						}
+						signatureChecker.update(_block.getBytes(),
+								off, _block.getSize() - getSizeHead());
+						boolean check = signatureChecker.verify();
+						
 						return new SubBlockInfo(res, check, !check);
 					} catch (Exception e) {
 
@@ -346,13 +376,32 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 						final byte []tab=new byte[_block.getBytes().length];
 						
 						ConnectionProtocol.ByteArrayOutputStream os=new ConnectionProtocol.ByteArrayOutputStream(tab, off);
-						symmetricAlgorithm.decode(bais, os);
-						final SubBlock res = new SubBlock(tab, off,
-								os.getSize());
+						SubBlock res = new SubBlock(_block.getBytes(), off, s);
+						boolean check=true;
+						if (!symmetricEncryption.getType().isAuthenticatedAlgorithm())
+						{
+							signatureChecker.init(_block.getBytes(), _block.getOffset(),
+									signature_size_bytes);
+							if (getCounterSelector().isActivated())
+							{
+								
+								signatureChecker.update(packetCounter.getMySignatureCounter());
+							}
+							signatureChecker.update(_block.getBytes(),
+									off, _block.getSize() - getSizeHead());
+							check = signatureChecker.verify();
+						}
+						if (check)
+						{
+							if (getCounterSelector().isActivated())
+							{
+								reinitSymmetricAlgorithmIfNecessary();
+								symmetricEncryption.decode(bais, os, packetCounter.getMyEncryptionCounter());
+							}
+							else
+								symmetricEncryption.decode(bais, os);
+						}
 
-						boolean check = symmetricAlgorithm.getType().isAuthenticatedAlgorithm()?true:signatureChecker.verify(_block.getBytes(),
-								res.getOffset(), _block.getSize() - getSizeHead(), _block.getBytes(), _block.getOffset(),
-								signature_size_bytes);
 						return new SubBlockInfo(res, check, !check);
 					} catch (Exception e) {
 						SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() + getSizeHead(),
@@ -390,7 +439,15 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 						int offr=res.getOffset()+res.getSize();
 						res.getBytes()[offr-1]=1;
 						Block.putShortInt(res.getBytes(), offr-4, _block.getSize());
-						signer.sign(_block.getBytes(), _block.getOffset(), outputSize, res.getBytes(), res.getOffset(), signature_size_bytes);
+						signer.init();
+						if (getCounterSelector().isActivated())
+						{
+							signer.update(packetCounter.getOtherSignatureCounter());
+						}
+						signer.update(_block.getBytes(), _block.getOffset(),
+								outputSize);
+						
+						signer.getSignature(res.getBytes(), res.getOffset());
 
 						return res;
 					}
@@ -399,11 +456,27 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 						final SubBlock res = new SubBlock(new byte[_block.getBytes().length], _block.getOffset() - getSizeHead(),s);
 						
 						res.getBytes()[res.getOffset()+res.getSize()-1]=0;
-						symmetricAlgorithm.encode(_block.getBytes(), _block.getOffset(), _block.getSize(), null, 0, 0, new ConnectionProtocol.ByteArrayOutputStream(res.getBytes(), _block.getOffset()));
+						if (getCounterSelector().isActivated())
+						{
+							reinitSymmetricAlgorithmIfNecessary();
+							symmetricEncryption.encode(_block.getBytes(), _block.getOffset(), _block.getSize(), null, 0, 0, new ConnectionProtocol.ByteArrayOutputStream(res.getBytes(), _block.getOffset()), packetCounter.getOtherEncryptionCounter());
+						}
+						else
+							symmetricEncryption.encode(_block.getBytes(), _block.getOffset(), _block.getSize(), null, 0, 0, new ConnectionProtocol.ByteArrayOutputStream(res.getBytes(), _block.getOffset()));
 						
 						//System.arraycopy(tmp, 0, res.getBytes(), _block.getOffset(), tmp.length);
-						if (!symmetricAlgorithm.getType().isAuthenticatedAlgorithm())
-							signer.sign(res.getBytes(), _block.getOffset(), outputSize, res.getBytes(), res.getOffset(), signature_size_bytes);
+						if (!symmetricEncryption.getType().isAuthenticatedAlgorithm())
+						{
+							signer.init();
+							if (getCounterSelector().isActivated())
+							{
+								signer.update(packetCounter.getOtherSignatureCounter());
+							}
+							signer.update(res.getBytes(), _block.getOffset(),
+									outputSize);
+							
+							signer.getSignature(res.getBytes(), res.getOffset());
+						}
 						return res;
 					}
 					
@@ -504,9 +577,15 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 						getBodyOutputSizeForDecryption(_block.getSize() - getSizeHead()));
 	
 				try {
-					boolean check = signatureChecker.verify(res.getBytes(),
-							res.getOffset(), _block.getSize() - getSizeHead(), _block.getBytes(), _block.getOffset(),
-							signature_size_bytes);
+					signatureChecker.init(_block.getBytes(),
+							_block.getOffset(), signature_size_bytes);
+					if (getCounterSelector().isActivated())
+					{
+						
+						signatureChecker.update(packetCounter.getMySignatureCounter());
+					}
+					signatureChecker.update(res.getBytes(), res.getOffset(), res.getSize());
+					boolean check = signatureChecker.verify();
 	
 					return new SubBlockInfo(res, check, !check);
 				} catch (Exception e) {
@@ -531,11 +610,16 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 					return res;
 				}
 				case CONNECTED: {
-					SubBlock res = new SubBlock(_block.getBytes().clone(), _block.getOffset() - getSizeHead(),
-							getBodyOutputSizeForEncryption(_block.getSize()) + getSizeHead());
+					SubBlock res = getParentBlockWithNoTreatments(_block);
 
-					signer.sign(_block.getBytes(), _block.getOffset(), getBodyOutputSizeForEncryption(_block.getSize()),
-							res.getBytes(), res.getOffset(), signature_size_bytes);
+					signer.init();
+					if (getCounterSelector().isActivated())
+					{
+						signer.update(packetCounter.getOtherSignatureCounter());
+					}
+					signer.update(_block.getBytes(), _block.getOffset(), _block.getSize());
+					
+					signer.getSignature(res.getBytes(), res.getOffset());
 					return res;
 				}
 				}
@@ -710,6 +794,10 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 	@Override
 	public boolean needsMadkitLanEditionDatabase() {
 		return false;
+	}
+	@Override
+	public PacketCounter getPacketCounter() {
+		return packetCounter;
 	}
 
 }

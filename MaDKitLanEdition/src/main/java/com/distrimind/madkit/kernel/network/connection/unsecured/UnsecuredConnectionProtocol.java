@@ -43,6 +43,7 @@ import com.distrimind.madkit.exceptions.BlockParserException;
 import com.distrimind.madkit.exceptions.ConnectionException;
 import com.distrimind.madkit.kernel.MadkitProperties;
 import com.distrimind.madkit.kernel.network.NetworkProperties;
+import com.distrimind.madkit.kernel.network.PacketCounter;
 import com.distrimind.madkit.kernel.network.SubBlock;
 import com.distrimind.madkit.kernel.network.SubBlockInfo;
 import com.distrimind.madkit.kernel.network.SubBlockParser;
@@ -60,12 +61,13 @@ import com.distrimind.ood.database.DatabaseWrapper;
  * any cryptographic algorithm.
  * 
  * @author Jason Mahdjoub
- * @version 1.1
+ * @version 1.2
  * @since MadkitLanEdition 1.0
  */
 public class UnsecuredConnectionProtocol extends ConnectionProtocol<UnsecuredConnectionProtocol> {
 	private final Parser parser;
 	private boolean connected = false;
+	private final NullPacketCounter packetCounter=new NullPacketCounter();
 
 	private UnsecuredConnectionProtocol(InetSocketAddress _distant_inet_address,
 			InetSocketAddress _local_interface_address, ConnectionProtocol<?> _subProtocol,
@@ -94,7 +96,7 @@ public class UnsecuredConnectionProtocol extends ConnectionProtocol<UnsecuredCon
 					return new AskConnection(false);
 				else {
 					connected = true;
-					return new ConnectionFinished(getDistantInetSocketAddress());
+					return new ConnectionFinished(getDistantInetSocketAddress(), (byte[])null);
 				}
 			} else if (_m instanceof ConnectionFinished) {
 				ConnectionFinished cf = (ConnectionFinished) _m;
@@ -108,7 +110,7 @@ public class UnsecuredConnectionProtocol extends ConnectionProtocol<UnsecuredCon
 					}
 				} else {
 					connected = true;
-					return new ConnectionFinished(getDistantInetSocketAddress());
+					return new ConnectionFinished(getDistantInetSocketAddress(), (byte[])null);
 				}
 			} else {
 				return new UnexpectedMessage(getDistantInetSocketAddress());
@@ -219,6 +221,11 @@ public class UnsecuredConnectionProtocol extends ConnectionProtocol<UnsecuredCon
 	@Override
 	public boolean isTransferBlockCheckerChangedImpl() {
 		return false;
+	}
+
+	@Override
+	public PacketCounter getPacketCounter() {
+		return packetCounter;
 	}
 
 }

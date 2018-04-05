@@ -415,9 +415,11 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 			}
 			PointToPointTransferedBlockChecker ptp=pointToPointTransferedBlockChecker;
 			if (ptp==null)
-				return new Block(subBlock.getBytes(), sbs, _transfert_type, getCounterSelector(), counter);
+				return new Block(subBlock.getBytes(), sbs, _transfert_type, counter);
 			else
-				return new Block(ptp.prepareBlockToSend(subBlock).getBytes(), sbs, _transfert_type, getCounterSelector(), counter);
+			{
+				return new Block((subBlock=ptp.prepareBlockToSend(subBlock)).getBytes(), sbs, _transfert_type, counter);
+			}
 		} catch (PacketException | BlockParserException e) {
 			throw new NIOException(e);
 		}

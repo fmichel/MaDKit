@@ -1740,9 +1740,11 @@ class DistantKernelAgent extends AgentFakeThread {
 	abstract class AbstractPacketData extends AbstractData {
 		protected final WritePacket packet;
 		protected ByteBuffer currentByteBuffer = null;
+		protected Block currentBlock = null;
 
 		private boolean asking_new_buffer_in_process;
 		protected ByteBuffer nextByteBuffer;
+		protected Block nextBlock = null;
 
 		private RealTimeTransfertStat stat;
 		private IDTransfer idTransfer = null;
@@ -1767,6 +1769,8 @@ class DistantKernelAgent extends AgentFakeThread {
 			packet = _packet;
 			currentByteBuffer = null;
 			nextByteBuffer = null;
+			currentBlock = null;
+			nextBlock = null;
 			asking_new_buffer_in_process = true;
 			stat = null;
 			this.agentReceiver = agentReceiver;
@@ -1833,6 +1837,7 @@ class DistantKernelAgent extends AgentFakeThread {
 						if (nextByteBuffer == null) {
 							
 							currentByteBuffer = null;
+							currentBlock = null;
 							if (packet.isFinished()) {
 								return null;
 							} else {
@@ -1846,8 +1851,11 @@ class DistantKernelAgent extends AgentFakeThread {
 							nextCounterID=-1;
 							
 							currentByteBuffer = nextByteBuffer;
+							currentBlock = null;
 							nextByteBuffer = null;
-
+							nextBlock.setCounterSelector(counterSelector);
+							nextBlock=null;
+							
 							if (!packet.isFinished()) {
 								updateNextByteBuffer();
 							}
@@ -1863,6 +1871,11 @@ class DistantKernelAgent extends AgentFakeThread {
 							updateNextByteBuffer();
 						}
 					}
+					if (currentBlock!=null)
+					{
+						currentBlock.setCounterSelector(counterSelector);
+						currentBlock=null;
+					}
 					return currentByteBuffer;
 
 				}
@@ -1875,14 +1888,14 @@ class DistantKernelAgent extends AgentFakeThread {
 				if (currentByteBuffer == null) {
 					currentCounterIDReleased=false;
 					counterID=_block.getCounterID();
-					currentByteBuffer = ByteBuffer.wrap(_block.getBytes());
+					currentByteBuffer = ByteBuffer.wrap((currentBlock=_block).getBytes());
 					if (!packet.isFinished())
 						updateNextByteBuffer();
 					else
 						asking_new_buffer_in_process = false;
 				} else if (nextByteBuffer == null) {
 					nextCounterID=_block.getCounterID();
-					nextByteBuffer = ByteBuffer.wrap(_block.getBytes());
+					nextByteBuffer = ByteBuffer.wrap((nextBlock=_block).getBytes());
 					asking_new_buffer_in_process = false;
 				} else
 					throw new NIOException("Unexpected exception !");

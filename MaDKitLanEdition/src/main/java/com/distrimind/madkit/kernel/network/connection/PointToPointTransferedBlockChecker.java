@@ -127,7 +127,6 @@ public class PointToPointTransferedBlockChecker extends TransferedBlockChecker {
 		{
 			res=it.next().getParser().signIfPossibleSortantPointToPointTransferedBlock(res);
 		}
-		
 		return res;
 	}
 	

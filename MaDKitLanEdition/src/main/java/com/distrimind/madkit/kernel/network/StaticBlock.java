@@ -58,9 +58,9 @@ public class StaticBlock {
 		subBlock=new SubBlock(block.getBytes(), 0, block.getBytes().length);
 	}
 	
-	public void setBlockAttributes(int blockSize, int _transpertType, CounterSelector counterSelector, byte counterID) throws PacketException
+	public void setBlockAttributes(int blockSize, int _transpertType, byte counterID) throws PacketException
 	{
-		block.setBlockAttributes(blockSize, _transpertType, counterSelector, counterID);
+		block.setBlockAttributes(blockSize, _transpertType, counterID);
 	}
 
 	public Block getBlock() {

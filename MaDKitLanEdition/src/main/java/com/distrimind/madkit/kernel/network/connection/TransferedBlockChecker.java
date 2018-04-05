@@ -71,7 +71,9 @@ public abstract class TransferedBlockChecker implements Serializable {
 	public SubBlockInfo recursiveCheckSubBlock(SubBlock _block) throws BlockParserException {
 		SubBlockInfo res = checkSubBlock(_block);
 		if (res.isValid() && subChecker != null) {
-			return subChecker.checkSubBlock(res.getSubBlock());
+			{
+				return subChecker.checkSubBlock(res.getSubBlock());
+			}
 		} else
 		{
 			return res;

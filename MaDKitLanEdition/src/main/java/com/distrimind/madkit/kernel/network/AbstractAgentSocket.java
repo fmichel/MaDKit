@@ -178,12 +178,14 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 								if (idt.getLastPointToPointTransferedBlockChecker()!=null)
 								{
 									CounterSelector.State counterState=block.getCounterState();
+									
 									SubBlockInfo sbi = idt.getLastPointToPointTransferedBlockChecker()
 											.recursiveCheckSubBlock(new SubBlock(block));
 									
 									if (sbi.isValid()) {
 										block=new Block(sbi.getSubBlock().getBytes());
 										block.setCounterState(counterState);
+
 									} else {
 										processInvalidBlock(
 												new RouterException("Invalid block with transfer block checker "

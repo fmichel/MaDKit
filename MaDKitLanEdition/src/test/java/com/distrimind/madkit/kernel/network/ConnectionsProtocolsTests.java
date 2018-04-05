@@ -194,7 +194,7 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 		o[1] = p2pp;
 		res.add(o);
 		
-		o = new ConnectionProtocolProperties<?>[2];
+		/*o = new ConnectionProtocolProperties<?>[2];
 		p2pp = new P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties();
 		p2pp.aSymetricKeySize = 2048;
 		p2pp.symmetricEncryptionType = SymmetricEncryptionType.AES_GCM;
@@ -304,7 +304,7 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 		o[0] = cs;
 		cs = new CheckSumConnectionProtocolProperties();
 		o[1] = cs;
-		res.add(o);
+		res.add(o);*/
 
 		return res;
 	}
@@ -356,6 +356,8 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 		this.cpreceiver = cpreceiver;
 		this.npasker = npasker;
 		this.npreceiver = npreceiver;
+		this.cpasker.setCounterSelector(new CounterSelector(this.cpasker));
+		this.cpreceiver.setCounterSelector(new CounterSelector(this.cpreceiver));
 	}
 
 	@Test
@@ -502,6 +504,8 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 
 			Assert.assertEquals(ConnectionState.CONNECTION_ESTABLISHED, cpasker.getConnectionState());
 			Assert.assertEquals(ConnectionState.CONNECTION_ESTABLISHED, cpreceiver.getConnectionState());
+			cpasker.getCounterSelector().setActivated();
+			cpreceiver.getCounterSelector().setActivated();
 			testRandomPingPongMessage();
 			testRandomPingPongMessage();
 			testRandomPingPongMessage();
@@ -746,6 +750,7 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 			Block b = cp.getBlock(wp, transferType,
 					np.maxRandomPacketValues > 0 ? SecureRandomType.DEFAULT.getSingleton(null) : null, excludeFromEncryption);
 			Assert.assertEquals(transferType, b.getTransferID());
+			b.setCounterSelector(cp.getCounterSelector());
 			Assert.assertTrue(b.isValid());
 			res.add(b);
 		}
@@ -817,7 +822,6 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 				Assert.assertTrue(b.isValid());
 				
 			}
-			
 			pp = cp.getPacketPart(b, np);
 			rp.readNewPart(pp);
 		}

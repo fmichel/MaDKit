@@ -395,7 +395,13 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 	{
 		return pointToPointTransferedBlockChecker;
 	}
-	
+	public boolean isConnectionEstablishedForAllSubProtocols() {
+		for (ConnectionProtocol<?> cp : this) {
+			if (!cp.isConnectionEstablished())
+				return false;
+		}
+		return true;
+	}
 	public final Block getBlock(WritePacket _packet, int _transfert_type, AbstractSecureRandom random, boolean excludedFromEncryption)
 			throws NIOException {
 
@@ -403,6 +409,7 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 			PacketPart packet_part = _packet.getNextPart();
 			if (packet_part == null)
 				return null;
+			
 			byte counter=getCounterSelector().getNewCounterID();
 			SubBlocksStructure sbs = new SubBlocksStructure(packet_part, this);
 			Block block = new Block(packet_part, sbs, _transfert_type);

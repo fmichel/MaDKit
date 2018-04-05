@@ -599,7 +599,7 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 					
 					ConnectionProtocol.ByteArrayOutputStream os=new ConnectionProtocol.ByteArrayOutputStream(tab, off);
 					
-					SubBlock res = new SubBlock(_block.getBytes(), off, s);
+					SubBlock res = new SubBlock(tab, off, symmetricEncryption.getOutputSizeForDecryption(s));
 					boolean check=true;
 					if (!symmetricEncryption.getType().isAuthenticatedAlgorithm())
 					{

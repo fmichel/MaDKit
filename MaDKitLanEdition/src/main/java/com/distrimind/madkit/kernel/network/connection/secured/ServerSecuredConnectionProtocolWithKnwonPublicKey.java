@@ -414,7 +414,7 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 						final byte []tab=new byte[_block.getBytes().length];
 						
 						ConnectionProtocol.ByteArrayOutputStream os=new ConnectionProtocol.ByteArrayOutputStream(tab, off);
-						SubBlock res = new SubBlock(_block.getBytes(), off, s);
+						SubBlock res = new SubBlock(tab, off, symmetricEncryption.getOutputSizeForDecryption(s));
 						boolean check=true;
 						if (!symmetricEncryption.getType().isAuthenticatedAlgorithm())
 						{

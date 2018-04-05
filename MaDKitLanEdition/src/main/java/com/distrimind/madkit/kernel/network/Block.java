@@ -189,7 +189,7 @@ public final class Block {
 			block[7]=(counterState=counterSelector.getState(this.counterID)).getCode();
 		else
 		{
-			this.counterState=CounterSelector.State.NOT_ACTIVATED;
+			block[7]=(this.counterState=CounterSelector.State.NOT_ACTIVATED).getCode();
 			this.counterID=-1;
 		}
 		
@@ -237,7 +237,7 @@ public final class Block {
 	}
 
 	public static int getHeadSize() {
-		return 9;
+		return 8;
 	}
 
 	public boolean isDirect() {

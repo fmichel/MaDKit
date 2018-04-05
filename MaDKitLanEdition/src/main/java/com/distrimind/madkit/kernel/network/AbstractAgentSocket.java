@@ -159,6 +159,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 	private boolean distant_kernel_agent_activated = false;
 	private AgentAddress distant_socket_agent_address = null;
 	protected volatile boolean waitingPongMessage = false;
+	private CounterSelector counterSelector;
 	//private LCForValidatingKA currentLockUsedToValidateDistantKernelAddress=null;
 
 	private DataSocketSynchronizer.SocketAgentInterface dataSynchronized = new DataSocketSynchronizer.SocketAgentInterface() {
@@ -280,6 +281,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 				logger.severeLog("Unexpected exception", e);
 		}
 		random = r;
+		this.connection_protocol = null;
 	}
 
 	abstract IDTransfer getTransfertType();
@@ -347,11 +349,12 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 			connection_protocol = getMadkitConfig().networkProperties.getConnectionProtocolInstance(
 					distant_inet_address, local_interface_address, getMadkitConfig().getDatabaseWrapper(),getMadkitConfig(),
 					!this_ask_connection, this instanceof IndirectAgentSocket);
-
+			
 			if (connection_protocol == null)
 				throw new IllegalArgumentException(
 						"The properties must have at least one connection protocol comptatible !");
-
+			this.counterSelector=new CounterSelector(connection_protocol);
+			connection_protocol.setCounterSelector(counterSelector);
 			max_buffer_size = getMadkitConfig().networkProperties.maxBufferSize;
 			if (max_buffer_size <= 0)
 				throw new IllegalArgumentException("The buffer size must be greater than 0");
@@ -2777,11 +2780,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 	}
 
 	private boolean isConnectionEstablished() {
-		for (ConnectionProtocol<?> cp : connection_protocol) {
-			if (!cp.isConnectionEstablished())
-				return false;
-		}
-		return true;
+		return connection_protocol.isConnectionEstablishedForAllSubProtocols();
 	}
 
 	/*

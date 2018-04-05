@@ -54,6 +54,7 @@ import java.util.Set;
 import java.util.concurrent.BlockingDeque;
 import java.util.logging.Level;
 
+import com.distrimind.jdkrewrite.concurrent.LockerCondition;
 import com.distrimind.madkit.i18n.Words;
 import com.distrimind.madkit.io.RandomInputStream;
 import com.distrimind.madkit.kernel.ConversationID.InterfacedIDs;
@@ -64,7 +65,7 @@ import com.distrimind.madkit.kernel.network.ConnectionIdentifier;
 import com.distrimind.madkit.kernel.network.LocalLanMessage;
 import com.distrimind.madkit.kernel.network.connection.access.PairOfIdentifiers;
 import com.distrimind.madkit.message.hook.HookMessage.AgentActionEvent;
-import com.distrimind.madkit.util.concurrent.ScheduledThreadPoolExecutor;
+import com.distrimind.jdkrewrite.concurrent.ScheduledThreadPoolExecutor;
 import com.distrimind.util.IDGeneratorInt;
 import com.distrimind.util.crypto.MessageDigestType;
 

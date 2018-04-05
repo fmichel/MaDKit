@@ -41,7 +41,7 @@ import com.distrimind.madkit.kernel.AbstractAgent;
 import com.distrimind.madkit.kernel.AbstractAgent.ReturnCode;
 import com.distrimind.madkit.exceptions.MadkitException;
 import com.distrimind.madkit.kernel.KernelAddress;
-import com.distrimind.madkit.kernel.LockerCondition;
+import com.distrimind.jdkrewrite.concurrent.LockerCondition;
 
 /**
  * 

@@ -79,6 +79,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.distrimind.jdkrewrite.concurrent.LockerCondition;
 import com.distrimind.madkit.action.ActionInfo;
 import com.distrimind.madkit.action.GUIManagerAction;
 import com.distrimind.madkit.agr.LocalCommunity;
@@ -118,7 +119,7 @@ import com.distrimind.madkit.message.hook.OrganizationEvent;
 import com.distrimind.madkit.message.task.TasksExecutionConfirmationMessage;
 import com.distrimind.madkit.message.hook.HookMessage.AgentActionEvent;
 import com.distrimind.madkit.util.XMLUtilities;
-import com.distrimind.madkit.util.concurrent.LinkedBlockingDeque;
+import com.distrimind.jdkrewrite.concurrent.LinkedBlockingDeque;
 import com.distrimind.util.crypto.MessageDigestType;
 
 // * <img src="doc-files/Capture.png" alt=""/>

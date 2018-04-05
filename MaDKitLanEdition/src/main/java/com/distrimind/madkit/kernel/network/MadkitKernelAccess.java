@@ -55,11 +55,11 @@ import com.distrimind.madkit.kernel.ConversationID;
 import com.distrimind.madkit.kernel.Group;
 import com.distrimind.madkit.kernel.GroupChangementNotifier;
 import com.distrimind.madkit.kernel.KernelAddress;
-import com.distrimind.madkit.kernel.LockerCondition;
+import com.distrimind.jdkrewrite.concurrent.LockerCondition;
 import com.distrimind.madkit.kernel.Message;
 import com.distrimind.madkit.kernel.TaskID;
 import com.distrimind.madkit.message.hook.HookMessage;
-import com.distrimind.madkit.util.concurrent.ThreadPoolExecutor;
+import com.distrimind.jdkrewrite.concurrent.ThreadPoolExecutor;
 import com.distrimind.util.IDGeneratorInt;
 
 /**

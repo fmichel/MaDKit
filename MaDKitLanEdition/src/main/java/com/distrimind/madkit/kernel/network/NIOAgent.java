@@ -73,7 +73,7 @@ import com.distrimind.madkit.kernel.Agent;
 import com.distrimind.madkit.kernel.AgentAddress;
 import com.distrimind.madkit.kernel.AgentNetworkID;
 import com.distrimind.madkit.kernel.Group;
-import com.distrimind.madkit.kernel.LockerCondition;
+import com.distrimind.jdkrewrite.concurrent.LockerCondition;
 import com.distrimind.madkit.kernel.Message;
 import com.distrimind.madkit.kernel.NetworkAgent;
 import com.distrimind.madkit.kernel.network.AbstractData.DataTransferType;

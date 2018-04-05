@@ -40,6 +40,7 @@ package com.distrimind.madkit.kernel;
 
 import java.util.concurrent.Callable;
 
+import com.distrimind.jdkrewrite.concurrent.LockerCondition;
 import com.distrimind.madkit.exceptions.SelfKillException;
 import com.distrimind.madkit.kernel.Message;
 

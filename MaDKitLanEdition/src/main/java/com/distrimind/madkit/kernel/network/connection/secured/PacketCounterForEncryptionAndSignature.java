@@ -62,31 +62,49 @@ class PacketCounterForEncryptionAndSignature implements PacketCounter {
 	private static short ENCRYPTION_COUNTER_SIZE_BYTES=2;
 	private static short SIGNATURE_COUNTER_SIZE_BYTES=16;
 	private boolean nextMyCounterSelected=false;
-	PacketCounterForEncryptionAndSignature(AbstractSecureRandom random, boolean encryptionEnabled)
+	PacketCounterForEncryptionAndSignature(AbstractSecureRandom random, boolean encryptionEnabled, boolean signatureEnabled)
 	{
 		if (encryptionEnabled)
 		{
 			myEncryptionCounter=new byte[ENCRYPTION_COUNTER_SIZE_BYTES];
 			random.nextBytes(myEncryptionCounter);
 			this.myNextEncryptionCounter=Arrays.clone(this.myEncryptionCounter);
+			incrementCounter(this.myNextEncryptionCounter);
 		}
 		else 
 		{
 			myEncryptionCounter=null;
 			this.myNextEncryptionCounter=null;
 		}
-		mySignatureCounter=new byte[SIGNATURE_COUNTER_SIZE_BYTES];
+		if (signatureEnabled)
+		{
+			mySignatureCounter=new byte[SIGNATURE_COUNTER_SIZE_BYTES];
+			random.nextBytes(mySignatureCounter);
+			this.myNextSignatureCounter=Arrays.clone(this.mySignatureCounter);
+			incrementCounter(this.myNextSignatureCounter);
+		}
+		else
+		{
+			mySignatureCounter=null;
+			myNextSignatureCounter=null;
+		}
 		
-		random.nextBytes(mySignatureCounter);
-		this.myNextSignatureCounter=Arrays.clone(this.mySignatureCounter);
+		
+		
+		
 		this.otherEncryptionCounter=null;
 		this.otherSignatureCounter=null;
 	}
 	
 	byte[] getMyEncodedCounters()
 	{
+		if (myEncryptionCounter==null && mySignatureCounter==null)
+			return new byte[0];
 		if (myEncryptionCounter==null)
 			return mySignatureCounter;
+		if (mySignatureCounter==null)
+			return myEncryptionCounter;
+		
 		return Bits.concateEncodingWithShortSizedTabs(myEncryptionCounter, mySignatureCounter);
 	}
 	
@@ -96,11 +114,19 @@ class PacketCounterForEncryptionAndSignature implements PacketCounter {
 			return false;
 		try
 		{
+			if (myEncryptionCounter==null && mySignatureCounter==null)
+				return true;
 			if (myEncryptionCounter==null)
 			{
 				if (counters==null || counters.length!=SIGNATURE_COUNTER_SIZE_BYTES)
 					return false;
 				otherSignatureCounter=counters;
+			}
+			else if (mySignatureCounter==null)
+			{
+				if (counters==null || counters.length!=ENCRYPTION_COUNTER_SIZE_BYTES)
+					return false;
+				otherEncryptionCounter=counters;
 			}
 			else
 			{
@@ -126,8 +152,11 @@ class PacketCounterForEncryptionAndSignature implements PacketCounter {
 			incrementCounter(myEncryptionCounter);
 			incrementCounter(myNextEncryptionCounter);
 		}
-		incrementCounter(mySignatureCounter);
-		incrementCounter(myNextSignatureCounter);
+		if (mySignatureCounter!=null)
+		{
+			incrementCounter(mySignatureCounter);
+			incrementCounter(myNextSignatureCounter);
+		}
 	}
 	
 	private void incrementCounter(byte[] counter)
@@ -143,7 +172,8 @@ class PacketCounterForEncryptionAndSignature implements PacketCounter {
 	public void incrementOtherCounters() {
 		if (myEncryptionCounter!=null)
 			incrementCounter(otherEncryptionCounter);
-		incrementCounter(otherSignatureCounter);
+		if (mySignatureCounter!=null)
+			incrementCounter(otherSignatureCounter);
 		
 	}
 
@@ -178,9 +208,14 @@ class PacketCounterForEncryptionAndSignature implements PacketCounter {
 			nextMyCounterSelected=false;
 		else if (state==State.TAKE_NEXT_COUNTER)
 			nextMyCounterSelected=true;
-		else if (state==State.TAKE_NEXT_COUNTER)
+		else if (state==State.VALIDATE_NEXT_COUNTER_AND_TAKE_ACTUAL)
 		{
 			nextMyCounterSelected=false;
+			incrementMyCounters();
+		}
+		else if (state==State.VALIDATE_NEXT_COUNTER_AND_TAKE_NEXT)
+		{
+			nextMyCounterSelected=true;
 			incrementMyCounters();
 		}
 		

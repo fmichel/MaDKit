@@ -37,17 +37,18 @@
  */
 package com.distrimind.madkit.kernel.network;
 
+import com.distrimind.madkit.exceptions.PacketException;
 import com.distrimind.util.Bits;
 
 /**
  * Represent the head the a {@link PacketPart}
  * 
  * @author Jason Mahdjoub
- * @version 1.0
+ * @version 1.1
  * @since MadkitLanEdition 1.0
  * @see PacketPart
  */
-final class PacketPartHead {
+public final class PacketPartHead {
 	public static final byte TYPE_PACKET = 0b001;
 	public static final byte TYPE_PACKET_HEAD = 0b011;
 	public static final byte TYPE_PACKET_REDOWNLOADED = 0b111;
@@ -73,11 +74,15 @@ final class PacketPartHead {
 	private final long start_position;
 	private final long total_length;
 
-	PacketPartHead(byte[] _part) {
+	PacketPartHead(byte[] _part) throws PacketException {
+		if (_part.length<8)
+			throw new PacketException();
 		type = _part[0];
 		id = Bits.getInt(_part, 1);
 		data_size = Block.getShortInt(_part, 5);
 		if (isFirstPacketPart()) {
+			if (_part.length<24)
+				throw new PacketException();
 			total_length = Bits.getLong(_part, 8);
 			start_position = Bits.getLong(_part, 16);
 		} else {

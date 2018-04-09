@@ -136,6 +136,10 @@ public final class Block {
 		return CounterSelector.getCounterState(_block[7]);
 	}
 	
+	public static void setCounterState(byte [] _block, CounterSelector.State state)
+	{
+		_block[7]=state.getCode();
+	}
 	
 	public Block(byte _block[]) throws PacketException {
 		block = _block;
@@ -186,10 +190,10 @@ public final class Block {
 	public void setCounterSelector(CounterSelector counterSelector) throws PacketException
 	{
 		if (counterSelector!=null && this.counterID!=-1)
-			block[7]=(counterState=counterSelector.getState(this.counterID)).getCode();
+			setCounterState(block, counterState=counterSelector.getState(this.counterID));
 		else
 		{
-			block[7]=(this.counterState=CounterSelector.State.NOT_ACTIVATED).getCode();
+			setCounterState(block, this.counterState=CounterSelector.State.NOT_ACTIVATED);
 			this.counterID=-1;
 		}
 		
@@ -226,6 +230,7 @@ public final class Block {
 	
 	public void setCounterState(CounterSelector.State counterState) {
 		this.counterState = counterState;
+		setCounterState(block, counterState);
 	}
 	public CounterSelector.State getCounterState()
 	{

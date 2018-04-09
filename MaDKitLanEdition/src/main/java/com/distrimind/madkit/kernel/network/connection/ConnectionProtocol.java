@@ -349,7 +349,7 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 		if (_block.getTransferID() != -1)
 			throw new NIOException("Unexpected exception !");
 		
-		getPacketCounter().selectMyCounters(_block.getCounterState());
+		
 		SubBlockInfo sbi;
 		try {
 			sbi = new SubBlockInfo(new SubBlock(_block), true, false);
@@ -361,7 +361,7 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 		int i = 0;
 		for (Iterator<ConnectionProtocol<?>> it = this.iterator(); it.hasNext(); i++) {
 			ConnectionProtocol<?> cp = it.next();
-
+			cp.getPacketCounter().selectMyCounters(_block.getCounterState());
 			SubBlockParser sbp = cp.getParser();
 			boolean valid = sbi.isValid();
 			boolean candidate_to_ban = sbi.isCandidateToBan();
@@ -369,6 +369,7 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 				sbi = sbp.getSubBlock(sbi.getSubBlock());
 				valid = sbi.isValid();
 				candidate_to_ban = sbi.isCandidateToBan();
+				
 			} catch (BlockParserException e) {
 				valid = false;
 			}
@@ -383,8 +384,15 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 				throw new NIOException("Invalid block with "+cp.getClass(), valid, candidate_to_ban);
 			}
 		}
-		return new PacketPart(sbi.getSubBlock().getEncapsulatedBytes(), properties.maxBufferSize,
+		try
+		{
+			return new PacketPart(sbi.getSubBlock().getEncapsulatedBytes(), properties.maxBufferSize,
 				properties.maxRandomPacketValues);
+		}
+		catch(PacketException e)
+		{
+			throw new NIOException(e);
+		}
 	}
 
 	public final void setPointToPointTransferedBlockChecker(PointToPointTransferedBlockChecker v)
@@ -425,7 +433,7 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 				return new Block(subBlock.getBytes(), sbs, _transfert_type, counter);
 			else
 			{
-				return new Block((subBlock=ptp.prepareBlockToSend(subBlock)).getBytes(), sbs, _transfert_type, counter);
+				return new Block(ptp.prepareBlockToSend(subBlock).getBytes(), sbs, _transfert_type, counter);
 			}
 		} catch (PacketException | BlockParserException e) {
 			throw new NIOException(e);

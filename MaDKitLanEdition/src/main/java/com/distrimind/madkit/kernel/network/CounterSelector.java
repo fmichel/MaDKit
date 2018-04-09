@@ -60,6 +60,7 @@ public class CounterSelector {
 	private boolean counterIDJustChanged=false;
 	private final ArrayList<PacketCounter> counters;
 	private volatile boolean activated=false;
+	private boolean toIncrement=false;
 	CounterSelector(ConnectionProtocol<?> connectionProtocols)
 	{
 		counters=new ArrayList<>(connectionProtocols.sizeOfSubConnectionProtocols()+1);
@@ -92,6 +93,11 @@ public class CounterSelector {
 			return -1;
 		synchronized(this)
 		{
+			if (toIncrement)
+			{
+				toIncrement=false;
+				incrementCounters();
+			}
 			if (goToNextCounter)
 			{
 				++lockedNextCounterID;
@@ -100,7 +106,7 @@ public class CounterSelector {
 			else
 			{
 
-				incrementCounters();
+				toIncrement=true;
 				goToNextCounter=true;
 				
 				++lockedActualCounterID;
@@ -120,16 +126,28 @@ public class CounterSelector {
 				if (--lockedActualCounterID==0)
 				{
 					counterIDJustChanged=true;
-					actualCounterID=nextCounterID++;
-					if (actualCounterID==-1)
-					{
-						actualCounterID++;
-						nextCounterID++;
-					}
 					lockedActualCounterID=lockedNextCounterID;
 					lockedNextCounterID=0;
-					goToNextCounter=false;
+					actualCounterID=nextCounterID++;
+					if (nextCounterID==-1)
+					{
+						actualCounterID+=2;
+						nextCounterID+=2;
+					}
+					if (lockedActualCounterID==0)
+					{
+						goToNextCounter=false;
+					}
+					else
+					{
+						goToNextCounter=true;
+						toIncrement=true;
+					}
+					
+					
 				}
+				else if (lockedActualCounterID<0)
+					throw new PacketException();
 			}
 			else if (counterID==nextCounterID)
 			{
@@ -146,22 +164,33 @@ public class CounterSelector {
 	
 	public State getState(byte counterID) throws PacketException
 	{
+		if (counterID==-1)
+			return State.NOT_ACTIVATED;
 		synchronized(this)
 		{
 			if (!activated)
 				return State.NOT_ACTIVATED;
-			if (actualCounterID==counterID)
+			
+			else if (actualCounterID==counterID)
 			{
 				if (counterIDJustChanged)
 				{
 					counterIDJustChanged=false;
-					return State.VALIDATE_NEXT_COUNTER;
+					return State.VALIDATE_NEXT_COUNTER_AND_TAKE_ACTUAL;
 				}
 				else
 					return State.KEEP_ACTUAL;
 			}
 			else if (nextCounterID==counterID)
-				return State.TAKE_NEXT_COUNTER;
+			{
+				if (counterIDJustChanged)
+				{
+					counterIDJustChanged=false;
+					return State.VALIDATE_NEXT_COUNTER_AND_TAKE_NEXT;
+				}
+				else
+					return State.TAKE_NEXT_COUNTER;
+			}
 			else
 				throw new PacketException();
 		}
@@ -172,7 +201,8 @@ public class CounterSelector {
 		NOT_ACTIVATED((byte)0),
 		KEEP_ACTUAL((byte)1),
 		TAKE_NEXT_COUNTER((byte)2),
-		VALIDATE_NEXT_COUNTER((byte)3);
+		VALIDATE_NEXT_COUNTER_AND_TAKE_ACTUAL((byte)3),
+		VALIDATE_NEXT_COUNTER_AND_TAKE_NEXT((byte)4);
 		
 		private byte code;
 		private State(byte code)

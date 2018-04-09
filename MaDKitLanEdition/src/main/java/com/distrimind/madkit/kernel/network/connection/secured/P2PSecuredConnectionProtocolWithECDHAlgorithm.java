@@ -41,12 +41,14 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
+
 import com.distrimind.madkit.exceptions.BlockParserException;
 import com.distrimind.madkit.exceptions.ConnectionException;
 import com.distrimind.madkit.kernel.MadkitProperties;
 import com.distrimind.madkit.kernel.network.Block;
 import com.distrimind.madkit.kernel.network.NetworkProperties;
 import com.distrimind.madkit.kernel.network.PacketCounter;
+import com.distrimind.madkit.kernel.network.PacketPartHead;
 import com.distrimind.madkit.kernel.network.SubBlock;
 import com.distrimind.madkit.kernel.network.SubBlockInfo;
 import com.distrimind.madkit.kernel.network.SubBlockParser;
@@ -135,7 +137,7 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 			throw new ConnectionException(e);
 		}
 		signature_size_bytes=sigsize;
-		this.packetCounter=new PacketCounterForEncryptionAndSignature(approvedRandom, hproperties.enableEncryption);
+		this.packetCounter=new PacketCounterForEncryptionAndSignature(approvedRandom, hproperties.enableEncryption, true);
 		
 		if (hproperties.enableEncryption)
 			parser = new ParserWithEncryption();
@@ -434,9 +436,9 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 			boolean excludedFromEncryption=_block.getBytes()[offr-1]==1;
 			if (excludedFromEncryption)
 			{
-				int s=Block.getBlockSize(_block.getBytes(), offr-4);
-				if (s>Block.BLOCK_SIZE_LIMIT || s>_block.getSize()-getSizeHead()-4)
-					throw new BlockParserException();
+				int s=Block.getShortInt(_block.getBytes(), offr-4);
+				if (s>Block.BLOCK_SIZE_LIMIT || s>_block.getSize()-getSizeHead()-4 || s<PacketPartHead.getHeadSize(false))
+					throw new BlockParserException("s="+s);
 				try{
 					
 					
@@ -446,13 +448,12 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 							signature_size_bytes);
 					if (getCounterSelector().isActivated())
 					{
-						
 						signatureChecker.update(packetCounter.getMySignatureCounter());
 					}
 					signatureChecker.update(_block.getBytes(),
 							off, _block.getSize() - getSizeHead());
 					boolean check = signatureChecker.verify();
-
+					
 					return new SubBlockInfo(res, check, !check);
 				} catch (Exception e) {
 
@@ -472,7 +473,7 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 					
 					ConnectionProtocol.ByteArrayOutputStream os=new ConnectionProtocol.ByteArrayOutputStream(tab, off);
 					
-					SubBlock res = new SubBlock(tab, off, symmetricEncryption.getOutputSizeForDecryption(s));
+					
 					boolean check=true;
 					if (!symmetricEncryption.getType().isAuthenticatedAlgorithm())
 					{
@@ -480,13 +481,13 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 								signature_size_bytes);
 						if (getCounterSelector().isActivated())
 						{
-							
 							signatureChecker.update(packetCounter.getMySignatureCounter());
 						}
 						signatureChecker.update(_block.getBytes(),
 								off, _block.getSize() - getSizeHead());
 						check = signatureChecker.verify();
 					}
+					SubBlock res = null;
 					if (check)
 					{
 						if (getCounterSelector().isActivated())
@@ -496,8 +497,12 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 						}
 						else
 							symmetricEncryption.decode(bais, os);
+						res = new SubBlock(tab, off, os.getSize());
 					}
-
+					else 
+					{
+						res = new SubBlock(tab, off, symmetricEncryption.getOutputSizeForDecryption(s));
+					}
 					return new SubBlockInfo(res, check, !check);
 				} catch (Exception e) {
 					SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() + getSizeHead(),
@@ -518,13 +523,13 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 				final SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() - getSizeHead(),s);
 				int offr=res.getOffset()+res.getSize();
 				res.getBytes()[offr-1]=1;
-				Block.putShortInt(_block.getBytes(), _block.getOffset(), outputSize);
+				Block.putShortInt(_block.getBytes(), offr-4, _block.getSize());
 				signer.init();
 				if (getCounterSelector().isActivated())
 				{
 					signer.update(packetCounter.getOtherSignatureCounter());
 				}
-				signer.update(_block.getBytes(), _block.getOffset(),
+				signer.update(res.getBytes(), _block.getOffset(),
 						outputSize);
 				
 				signer.getSignature(res.getBytes(), res.getOffset());
@@ -636,12 +641,12 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 		}
 		private SubBlock signIfPossibleSortantPointToPointTransferedBlockWithNoEncryption(SubBlock _block)
 		{
-			return new SubBlock(_block.getBytes().clone(), _block.getOffset() - getSizeHead(),
+			return new SubBlock(_block.getBytes(), _block.getOffset() - getSizeHead(),
 					_block.getSize() + getSizeHead());
 		}
 		private SubBlock signIfPossibleSortantPointToPointTransferedBlockWithEncryption(SubBlock _block) throws InvalidKeyException, SignatureException, NoSuchAlgorithmException, InvalidKeySpecException, ShortBufferException, InvalidAlgorithmParameterException, IllegalStateException, IOException
 		{
-			SubBlock res = new SubBlock(_block.getBytes().clone(), _block.getOffset() - getSizeHead(),
+			SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() - getSizeHead(),
 					_block.getSize() + getSizeHead());
 
 			signer.sign(_block.getBytes(), _block.getOffset(), _block.getSize(),

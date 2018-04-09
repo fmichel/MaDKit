@@ -194,7 +194,7 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 		o[1] = p2pp;
 		res.add(o);
 		
-		/*o = new ConnectionProtocolProperties<?>[2];
+		o = new ConnectionProtocolProperties<?>[2];
 		p2pp = new P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties();
 		p2pp.aSymetricKeySize = 2048;
 		p2pp.symmetricEncryptionType = SymmetricEncryptionType.AES_GCM;
@@ -304,7 +304,7 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 		o[0] = cs;
 		cs = new CheckSumConnectionProtocolProperties();
 		o[1] = cs;
-		res.add(o);*/
+		res.add(o);
 
 		return res;
 	}
@@ -356,8 +356,7 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 		this.cpreceiver = cpreceiver;
 		this.npasker = npasker;
 		this.npreceiver = npreceiver;
-		this.cpasker.setCounterSelector(new CounterSelector(this.cpasker));
-		this.cpreceiver.setCounterSelector(new CounterSelector(this.cpreceiver));
+		
 	}
 
 	@Test
@@ -370,7 +369,8 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 			System.out.println("\tSub connection protocol with " + cpasker.getSubProtocol().getClass()
 					+ " for asker and " + cpreceiver.getSubProtocol().getClass() + " for receiver (crypted="
 					+ cpasker.getSubProtocol().isCrypted() + ")");
-
+		this.cpasker.setCounterSelector(new CounterSelector(this.cpasker));
+		this.cpreceiver.setCounterSelector(new CounterSelector(this.cpreceiver));
 		TransferedBlockChecker 	tbcasker = this.cpasker.getTransferedBlockChecker();
 		if (tbcasker.isCompletelyInoperant())
 		{
@@ -504,8 +504,11 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 
 			Assert.assertEquals(ConnectionState.CONNECTION_ESTABLISHED, cpasker.getConnectionState());
 			Assert.assertEquals(ConnectionState.CONNECTION_ESTABLISHED, cpreceiver.getConnectionState());
-			cpasker.getCounterSelector().setActivated();
-			cpreceiver.getCounterSelector().setActivated();
+			if (!itasker.hasNext())
+			{
+				this.cpasker.getCounterSelector().setActivated();
+				this.cpreceiver.getCounterSelector().setActivated();
+			}
 			testRandomPingPongMessage();
 			testRandomPingPongMessage();
 			testRandomPingPongMessage();
@@ -517,6 +520,7 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 			testRandomPingPongMessage();
 			totalCycles += cycles;
 		}
+		
 		testRandomPingPongMessage(tbcasker, tbreceiver);
 		testRandomPingPongMessage(tbcasker, tbreceiver);
 		testRandomPingPongMessage(tbcasker, tbreceiver);
@@ -540,6 +544,9 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 			BlockParserException, IllegalArgumentException, NoSuchAlgorithmException, NoSuchProviderException {
 		cpasker = getConnectionProtocolInstance(mkProperties, npasker, enableDatabase ? 1 : 0);
 		cpreceiver = getConnectionProtocolInstance(mkProperties, npreceiver, enableDatabase ? 2 : 0);
+		this.cpasker.setCounterSelector(new CounterSelector(this.cpasker));
+		this.cpreceiver.setCounterSelector(new CounterSelector(this.cpreceiver));
+
 		Assert.assertFalse(cpasker.isConnectionEstablished());
 		Assert.assertFalse(cpreceiver.isConnectionEstablished());
 		Assert.assertEquals(ConnectionState.NOT_CONNECTED, cpasker.getConnectionState());
@@ -603,6 +610,7 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 
 			Assert.assertEquals(ConnectionState.CONNECTION_ESTABLISHED, cpasker.getConnectionState());
 			Assert.assertEquals(ConnectionState.CONNECTION_ESTABLISHED, cpreceiver.getConnectionState());
+
 			testRandomPingPongMessage();
 			testRandomPingPongMessage();
 			testRandomPingPongMessage();
@@ -751,9 +759,11 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 					np.maxRandomPacketValues > 0 ? SecureRandomType.DEFAULT.getSingleton(null) : null, excludeFromEncryption);
 			Assert.assertEquals(transferType, b.getTransferID());
 			b.setCounterSelector(cp.getCounterSelector());
+			cp.getCounterSelector().releaseCounterID(b.getCounterID());
 			Assert.assertTrue(b.isValid());
 			res.add(b);
 		}
+		
 		return res;
 	}
 

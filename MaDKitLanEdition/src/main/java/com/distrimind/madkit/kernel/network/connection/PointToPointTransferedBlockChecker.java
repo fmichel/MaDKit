@@ -69,7 +69,7 @@ public class PointToPointTransferedBlockChecker extends TransferedBlockChecker {
 		
 		try
 		{
-			
+
 			SubBlock sb=_block;
 			if (_block.getOffset()!=Block.getHeadSize())
 				throw new IllegalAccessError();
@@ -86,13 +86,13 @@ public class PointToPointTransferedBlockChecker extends TransferedBlockChecker {
 			{
 				SubBlock res=new SubBlock(new Block(sb.getSize()+Block.getHeadSize(), Block.getTransferID(_block.getBytes())));
 				System.arraycopy(sb.getBytes(), sb.getOffset(), res.getBytes(), res.getOffset(), sb.getSize());
+				Block.setCounterState(res.getBytes(), Block.getCounterState(_block.getBytes()));
 				return new SubBlockInfo(res, true, false);
 			}
 			return new SubBlockInfo(prepareBlock(new SubBlock(sb.getBytes(), Block.getHeadSize(), sb.getBytes().length-Block.getHeadSize()), sb.getOffset()-Block.getHeadSize(), new Block(_block.getBytes()).getTransferID()), true, false);
 		}
 		catch (PacketException e)
 		{
-			e.printStackTrace();
 			throw new IllegalAccessError(e.getMessage());
 		}
 	}
@@ -114,19 +114,21 @@ public class PointToPointTransferedBlockChecker extends TransferedBlockChecker {
 			throw new IllegalAccessError();
 		if (totalInputHeadSize==totalOutputHeadSize)
 		{
-			res=new SubBlock(_block.getBytes().clone(), Block.getHeadSize()+totalInputHeadSize, _block.getBytes().length-Block.getHeadSize()-totalInputHeadSize);
+			res=new SubBlock(_block.getBytes(), Block.getHeadSize()+totalInputHeadSize, _block.getBytes().length-Block.getHeadSize()-totalInputHeadSize);
 		}
 		else
 		{
 			res=new SubBlock(new Block(_block.getBytes().length-totalInputHeadSize+totalOutputHeadSize, transferType));
 			res=new SubBlock(res.getBytes(), res.getOffset()+totalOutputHeadSize, _block.getBytes().length-Block.getHeadSize()-totalInputHeadSize);
 			System.arraycopy(_block.getBytes(), Block.getHeadSize()+totalInputHeadSize, res.getBytes(), res.getOffset(), res.getSize());
+			Block.setCounterState(res.getBytes(), Block.getCounterState(_block.getBytes()));
 		}
 		
 		for (java.util.Iterator<ConnectionProtocol<?>> it=cpOutput.reverseIterator();it.hasNext();)
 		{
 			res=it.next().getParser().signIfPossibleSortantPointToPointTransferedBlock(res);
 		}
+		
 		return res;
 	}
 	

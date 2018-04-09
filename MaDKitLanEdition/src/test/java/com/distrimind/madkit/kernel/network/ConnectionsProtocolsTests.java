@@ -99,7 +99,7 @@ import gnu.vm.jgnu.security.NoSuchProviderException;
 /**
  * 
  * @author Jason Mahdjoub
- * @version 1.1
+ * @version 1.2
  * @since MadkitLanEdition 1.0
  */
 @RunWith(Parameterized.class)

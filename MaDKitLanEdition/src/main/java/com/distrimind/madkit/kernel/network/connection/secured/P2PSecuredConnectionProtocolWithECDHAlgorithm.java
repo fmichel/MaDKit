@@ -378,10 +378,22 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 					if (isCurrentServerAskingConnection())
 						return size;
 					else
+					{
+						if (getCounterSelector().isActivated())
+						{
+							reinitSymmetricAlgorithmIfNecessary();
+						}
 						return symmetricEncryption.getOutputSizeForEncryption(size)+1;
+					}
 				}
 				case CONNECTED:
+				{
+					if (getCounterSelector().isActivated())
+					{
+						reinitSymmetricAlgorithmIfNecessary();
+					}
 					return symmetricEncryption.getOutputSizeForEncryption(size)+1;
+				}
 				}
 			} catch (Exception e) {
 				throw new BlockParserException(e);
@@ -399,8 +411,13 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 					return size;
 				case WAITING_FOR_CONNECTION_CONFIRMATION:
 				case CONNECTED:
+				{
+					if (getCounterSelector().isActivated())
+					{
+						reinitSymmetricAlgorithmIfNecessary();
+					}
 					return symmetricEncryption.getOutputSizeForDecryption(size-1);
-
+				}
 				}
 			} catch (Exception e) {
 				throw new BlockParserException(e);

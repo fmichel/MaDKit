@@ -297,7 +297,13 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 				if (current_step==Step.NOT_CONNECTED || current_step==Step.WAITING_FOR_CONNECTION_CONFIRMATION)
 					return size;
 				else
+				{
+					if (getCounterSelector().isActivated())
+					{
+						reinitSymmetricAlgorithmIfNecessary();
+					}
 					return symmetricEncryption.getOutputSizeForEncryption(size)+1;
+				}
 			} catch (Exception e) {
 				throw new BlockParserException(e);
 			}
@@ -313,6 +319,10 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 				}
 				case WAITING_FOR_CONNECTION_CONFIRMATION:
 				case CONNECTED: {
+					if (getCounterSelector().isActivated())
+					{
+						reinitSymmetricAlgorithmIfNecessary();
+					}
 					return symmetricEncryption.getOutputSizeForDecryption(size-1);
 				}
 				}

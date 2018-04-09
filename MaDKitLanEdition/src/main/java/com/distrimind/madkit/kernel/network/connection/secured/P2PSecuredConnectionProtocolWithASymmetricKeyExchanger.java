@@ -488,6 +488,10 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 				}
 				case WAITING_FOR_CONNECTION_CONFIRMATION:
 				case CONNECTED:
+					if (getCounterSelector().isActivated())
+					{
+						reinitSymmetricAlgorithmIfNecessary();
+					}
 					return symmetricEncryption.getOutputSizeForEncryption(size)+1;
 				}
 			} catch (Exception e) {
@@ -508,12 +512,22 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 				}
 				case WAITING_FIRST_MESSAGE: {
 					if (isCurrentServerAskingConnection())
+					{
+						if (getCounterSelector().isActivated())
+						{
+							reinitSymmetricAlgorithmIfNecessary();
+						}
 						return symmetricEncryption.getOutputSizeForDecryption(size-1);
+					}
 					else
 						return size;
 				}
 				case WAITING_FOR_CONNECTION_CONFIRMATION:
 				case CONNECTED:
+					if (getCounterSelector().isActivated())
+					{
+						reinitSymmetricAlgorithmIfNecessary();
+					}
 					return symmetricEncryption.getOutputSizeForDecryption(size-1);
 
 				}

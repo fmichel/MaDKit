@@ -383,7 +383,7 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 						{
 							reinitSymmetricAlgorithmIfNecessary();
 						}
-						return symmetricEncryption.getOutputSizeForEncryption(size)+1;
+						return symmetricEncryption.getOutputSizeForEncryption(size)+4;
 					}
 				}
 				case CONNECTED:
@@ -392,7 +392,7 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 					{
 						reinitSymmetricAlgorithmIfNecessary();
 					}
-					return symmetricEncryption.getOutputSizeForEncryption(size)+1;
+					return symmetricEncryption.getOutputSizeForEncryption(size)+4;
 				}
 				}
 			} catch (Exception e) {
@@ -416,7 +416,7 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 					{
 						reinitSymmetricAlgorithmIfNecessary();
 					}
-					return symmetricEncryption.getOutputSizeForDecryption(size-1);
+					return symmetricEncryption.getOutputSizeForDecryption(size-4);
 				}
 				}
 			} catch (Exception e) {
@@ -481,7 +481,7 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 			}
 			else
 			{
-				int s=_block.getSize() - getSizeHead()-1;
+				int s=_block.getSize() - getSizeHead()-4;
 				
 				try (ByteArrayInputStream bais = new ByteArrayInputStream(_block.getBytes(),
 						off, s)) {

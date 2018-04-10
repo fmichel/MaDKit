@@ -336,7 +336,7 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 					{
 						reinitSymmetricAlgorithmIfNecessary();
 					}
-					return symmetricEncryption.getOutputSizeForEncryption(size)+1;
+					return symmetricEncryption.getOutputSizeForEncryption(size)+4;
 				}
 
 			} catch (Exception e) {
@@ -356,7 +356,7 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 					{
 						reinitSymmetricAlgorithmIfNecessary();
 					}
-					return symmetricEncryption.getOutputSizeForDecryption(size-1);
+					return symmetricEncryption.getOutputSizeForDecryption(size-4);
 				}
 			} catch (Exception e) {
 				throw new BlockParserException(e);
@@ -417,7 +417,7 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 				}
 				else
 				{
-					int s=_block.getSize() - getSizeHead()-1;
+					int s=_block.getSize() - getSizeHead()-4;
 					
 					try (ByteArrayInputStream bais = new ByteArrayInputStream(_block.getBytes(),
 							off, s)) {

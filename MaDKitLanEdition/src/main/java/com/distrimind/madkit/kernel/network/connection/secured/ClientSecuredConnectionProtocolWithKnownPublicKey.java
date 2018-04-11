@@ -319,7 +319,7 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 				}
 				case WAITING_FOR_CONNECTION_CONFIRMATION:
 				case CONNECTED: {
-					if (getCounterSelector().isActivated())
+					if (getPacketCounter().isDistantActivated())
 					{
 						reinitSymmetricAlgorithmIfNecessary();
 					}
@@ -360,7 +360,7 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 								s);
 						signatureChecker.init(_block.getBytes(), _block.getOffset(),
 								signature_size_bytes);
-						if (getCounterSelector().isActivated())
+						if (getPacketCounter().isDistantActivated())
 						{
 							
 							signatureChecker.update(packetCounter.getMySignatureCounter());
@@ -393,7 +393,7 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 						{
 							signatureChecker.init(_block.getBytes(), _block.getOffset(),
 									signature_size_bytes);
-							if (getCounterSelector().isActivated())
+							if (getPacketCounter().isDistantActivated())
 							{
 								
 								signatureChecker.update(packetCounter.getMySignatureCounter());
@@ -405,7 +405,7 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 						SubBlock res = null;
 						if (check)
 						{
-							if (getCounterSelector().isActivated())
+							if (getPacketCounter().isDistantActivated())
 							{
 								reinitSymmetricAlgorithmIfNecessary();
 								symmetricEncryption.decode(bais, os, packetCounter.getMyEncryptionCounter());
@@ -606,7 +606,7 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 				try {
 					signatureChecker.init(_block.getBytes(),
 							_block.getOffset(), signature_size_bytes);
-					if (getCounterSelector().isActivated())
+					if (getPacketCounter().isDistantActivated())
 					{
 						
 						signatureChecker.update(packetCounter.getMySignatureCounter());

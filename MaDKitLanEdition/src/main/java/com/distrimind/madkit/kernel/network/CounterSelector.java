@@ -128,11 +128,14 @@ public class CounterSelector {
 					counterIDJustChanged=true;
 					lockedActualCounterID=lockedNextCounterID;
 					lockedNextCounterID=0;
-					actualCounterID=nextCounterID++;
-					if (nextCounterID==-1)
+					if (++actualCounterID==-1)
 					{
-						actualCounterID+=2;
-						nextCounterID+=2;
+						++actualCounterID;
+					}
+					
+					if (++nextCounterID==-1)
+					{
+						++nextCounterID;
 					}
 					if (lockedActualCounterID==0)
 					{
@@ -169,7 +172,7 @@ public class CounterSelector {
 		synchronized(this)
 		{
 			if (!activated)
-				return State.NOT_ACTIVATED;
+				throw new PacketException();
 			
 			else if (actualCounterID==counterID)
 			{
@@ -192,7 +195,7 @@ public class CounterSelector {
 					return State.TAKE_NEXT_COUNTER;
 			}
 			else
-				throw new PacketException();
+				throw new PacketException("Invalid counter "+counterID+", actual = "+actualCounterID);
 		}
 	}
 	

@@ -2157,12 +2157,13 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 								State oldState = state;
 								updateState();
 								if (oldState == State.CONNECTION_IN_PROGRESS
-										&& state == State.CONNECTED_INITIALIZING_ACCESS) {
+										&& state != State.CONNECTION_IN_PROGRESS) {
 									if (logger != null && logger.isLoggable(Level.FINER))
 										logger.finer(
 												"Connection protocols successfully initialized (distant_inet_address="
 														+ distant_inet_address + ", distantInterfacedKernelAddress="
 														+ distantInterfacedKernelAddress + ")");
+									this.connection_protocol.getCounterSelector().setActivated();
 									if (state == State.CONNECTED_INITIALIZING_ACCESS) {
 										if (logger != null && logger.isLoggable(Level.FINER))
 											logger.finer("Initializing access protocol !");
@@ -2196,8 +2197,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 						checkTransferBlockCheckerChangments();
 						sendConnectionInfoSystemMessage();
 					}
-					if (isConnectionEstablished())
-						this.connection_protocol.getCounterSelector().setActivated();
+						
 				} else if (obj.getClass() == ConnectionInfoSystemMessage.class) {
 					this.distantConnectionInfo = (ConnectionInfoSystemMessage) obj;
 					if (logger != null && logger.isLoggable(Level.FINEST))

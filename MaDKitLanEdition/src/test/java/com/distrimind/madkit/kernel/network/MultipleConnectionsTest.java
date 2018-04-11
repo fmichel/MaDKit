@@ -51,6 +51,7 @@ import org.testng.Assert;
 import com.distrimind.madkit.kernel.AbstractAgent;
 import com.distrimind.madkit.kernel.JunitMadkit;
 import com.distrimind.madkit.kernel.Madkit;
+import com.distrimind.madkit.kernel.network.connection.ConnectionProtocolProperties;
 import com.distrimind.madkit.testing.util.agent.AgentBigTransfer;
 import com.distrimind.madkit.testing.util.agent.NetworkPongAgent;
 import com.distrimind.ood.database.EmbeddedHSQLDBWrapper;
@@ -144,6 +145,8 @@ public class MultipleConnectionsTest extends JunitMadkit {
 		eventListener4.setGlobalDataAmountAcc(globalDataAmountAcc);
 		eventListener5.setLocalDataAmountAcc(localDataAmountAcc);
 		eventListener5.setGlobalDataAmountAcc(globalDataAmountAcc);
+		for (ConnectionProtocolProperties<?> cpp : eventListener1.madkitEventListenerForConnectionProtocols.getConnectionProtocolProperties())
+			System.out.println(cpp);
 		cleanHelperMDKs();
 		// addMadkitArgs(LevelOption.networkLogLevel.toString(),"FINER");
 		launchTest(new AbstractAgent() {

@@ -71,9 +71,9 @@ abstract class AbstractData {
 
 	abstract boolean isReady();
 
-	abstract boolean isFinished();
+	abstract boolean isFinished() throws PacketException;
 
-	abstract boolean isCurrentByteBufferFinished();
+	abstract boolean isCurrentByteBufferFinished() throws PacketException;
 
 	abstract boolean isCurrentByteBufferStarted();
 
@@ -95,7 +95,7 @@ abstract class AbstractData {
 			if (!isUnlocked())
 				unlockMessage();
 		} catch (Exception e) {
-
+			
 		}
 	}
 

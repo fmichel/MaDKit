@@ -513,7 +513,7 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 				case WAITING_FIRST_MESSAGE: {
 					if (isCurrentServerAskingConnection())
 					{
-						if (getCounterSelector().isActivated())
+						if (getPacketCounter().isDistantActivated())
 						{
 							reinitSymmetricAlgorithmIfNecessary();
 						}
@@ -524,7 +524,7 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 				}
 				case WAITING_FOR_CONNECTION_CONFIRMATION:
 				case CONNECTED:
-					if (getCounterSelector().isActivated())
+					if (getPacketCounter().isDistantActivated())
 					{
 						reinitSymmetricAlgorithmIfNecessary();
 					}
@@ -619,7 +619,7 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 					SubBlock res = null;
 					if (check)
 					{
-						if (getCounterSelector().isActivated())
+						if (getPacketCounter().isDistantActivated())
 						{
 							reinitSymmetricAlgorithmIfNecessary();
 							symmetricEncryption.decode(bais, os, packetCounter.getMyEncryptionCounter());

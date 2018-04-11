@@ -412,7 +412,7 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 				case WAITING_FOR_CONNECTION_CONFIRMATION:
 				case CONNECTED:
 				{
-					if (getCounterSelector().isActivated())
+					if (getPacketCounter().isDistantActivated())
 					{
 						reinitSymmetricAlgorithmIfNecessary();
 					}
@@ -463,7 +463,7 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 					SubBlock res = new SubBlock(_block.getBytes(), off, s);
 					signatureChecker.init(_block.getBytes(), _block.getOffset(),
 							signature_size_bytes);
-					if (getCounterSelector().isActivated())
+					if (getPacketCounter().isDistantActivated())
 					{
 						signatureChecker.update(packetCounter.getMySignatureCounter());
 					}
@@ -496,7 +496,7 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 					{
 						signatureChecker.init(_block.getBytes(), _block.getOffset(),
 								signature_size_bytes);
-						if (getCounterSelector().isActivated())
+						if (getPacketCounter().isDistantActivated())
 						{
 							signatureChecker.update(packetCounter.getMySignatureCounter());
 						}
@@ -507,7 +507,7 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 					SubBlock res = null;
 					if (check)
 					{
-						if (getCounterSelector().isActivated())
+						if (getPacketCounter().isDistantActivated())
 						{
 							reinitSymmetricAlgorithmIfNecessary();
 							symmetricEncryption.decode(bais, os, packetCounter.getMyEncryptionCounter());
@@ -733,7 +733,7 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 						getBodyOutputSizeForDecryption(_block.getSize() - getSizeHead()));
 				signatureChecker.init(_block.getBytes(),
 						_block.getOffset(), signature_size_bytes);
-				if (getCounterSelector().isActivated())
+				if (getPacketCounter().isDistantActivated())
 				{
 					
 					signatureChecker.update(packetCounter.getMySignatureCounter());

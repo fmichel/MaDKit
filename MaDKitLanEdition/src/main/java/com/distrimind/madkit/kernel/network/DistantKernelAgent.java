@@ -1922,7 +1922,7 @@ class DistantKernelAgent extends AgentFakeThread {
 		}
 
 		@Override
-		public boolean isFinished() {
+		public boolean isFinished() throws PacketException {
 			if (isCanceled.get() && isCurrentByteBufferFinished())
 				return true;
 			synchronized (this) {
@@ -1955,9 +1955,15 @@ class DistantKernelAgent extends AgentFakeThread {
 		}
 
 		@Override
-		public boolean isCurrentByteBufferFinished() {
+		public boolean isCurrentByteBufferFinished() throws PacketException {
 			synchronized (this) {
-				return currentByteBuffer == null || currentByteBuffer.remaining() == 0;
+				boolean res=currentByteBuffer == null || currentByteBuffer.remaining() == 0;
+				if (res && !currentCounterIDReleased)
+				{
+					currentCounterIDReleased=true;
+					counterSelector.releaseCounterID(counterID);
+				}
+				return res;
 			}
 		}
 
@@ -1995,6 +2001,10 @@ class DistantKernelAgent extends AgentFakeThread {
 			{
 				currentCounterIDReleased=true;
 				counterSelector.releaseCounterID(counterID);
+				if (nextByteBuffer!=null)
+				{
+					counterSelector.releaseCounterID(nextCounterID);					
+				}
 			}
 			unlocked.set(true);
 		}
@@ -2004,7 +2014,7 @@ class DistantKernelAgent extends AgentFakeThread {
 			return unlocked.get();
 		}
 
-		@Override
+		/*@Override
 		public void finalize() {
 			try {
 				unlockMessage();
@@ -2012,7 +2022,7 @@ class DistantKernelAgent extends AgentFakeThread {
 				if (logger != null)
 					logger.severeLog("Unexpected error", e);
 			}
-		}
+		}*/
 
 		AgentAddress getFirstAgentSocketSender() {
 			return firstAgentSocketSender;
@@ -2092,8 +2102,9 @@ class DistantKernelAgent extends AgentFakeThread {
 							sendLength -= nextByteBuffer.remaining();
 						messageLocker.unlock(distant_kernel_address, new DataTransfertResult(
 								packet.getInputStream().length(), packet.getReadDataLength(), sendLength));
-						super.unlockMessage();
+						
 					}
+					super.unlockMessage();
 				} catch (IOException e) {
 					throw new MadkitException(e);
 				}

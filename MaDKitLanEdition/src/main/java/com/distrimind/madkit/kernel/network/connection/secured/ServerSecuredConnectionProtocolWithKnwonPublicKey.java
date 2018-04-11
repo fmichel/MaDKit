@@ -352,7 +352,7 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 					return size;
 				case WAITING_FOR_CONNECTION_CONFIRMATION:
 				case CONNECTED:
-					if (getCounterSelector().isActivated())
+					if (getPacketCounter().isDistantActivated())
 					{
 						reinitSymmetricAlgorithmIfNecessary();
 					}
@@ -396,7 +396,7 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 						SubBlock res = new SubBlock(_block.getBytes(), off, s);
 						signatureChecker.init(_block.getBytes(), _block.getOffset(),
 								signature_size_bytes);
-						if (getCounterSelector().isActivated())
+						if (getPacketCounter().isDistantActivated())
 						{
 							
 							signatureChecker.update(packetCounter.getMySignatureCounter());
@@ -404,7 +404,7 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 						signatureChecker.update(_block.getBytes(),
 								off, _block.getSize() - getSizeHead());
 						boolean check = signatureChecker.verify();
-
+						
 					
 
 						return new SubBlockInfo(res, check, !check);
@@ -431,7 +431,7 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 						{
 							signatureChecker.init(_block.getBytes(), _block.getOffset(),
 									signature_size_bytes);
-							if (getCounterSelector().isActivated())
+							if (getPacketCounter().isDistantActivated())
 							{
 								
 								signatureChecker.update(packetCounter.getMySignatureCounter());
@@ -443,7 +443,7 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 						SubBlock res = null;
 						if (check)
 						{
-							if (getCounterSelector().isActivated())
+							if (getPacketCounter().isDistantActivated())
 							{
 								reinitSymmetricAlgorithmIfNecessary();
 								symmetricEncryption.decode(bais, os, packetCounter.getMyEncryptionCounter());
@@ -453,7 +453,10 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 							res = new SubBlock(tab, off, os.getSize());
 						}
 						else 
+						{
+							
 							res = new SubBlock(tab, off, symmetricEncryption.getOutputSizeForDecryption(s));
+						}
 						return new SubBlockInfo(res, check, !check);
 					} catch (Exception e) {
 						SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() + getSizeHead(),
@@ -648,7 +651,7 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 				try {
 					signatureChecker.init(_block.getBytes(),
 							_block.getOffset(), signature_size_bytes);
-					if (getCounterSelector().isActivated())
+					if (getPacketCounter().isDistantActivated())
 					{
 						
 						signatureChecker.update(packetCounter.getMySignatureCounter());

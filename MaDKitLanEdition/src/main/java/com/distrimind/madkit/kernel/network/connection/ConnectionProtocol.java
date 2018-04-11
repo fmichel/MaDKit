@@ -349,6 +349,18 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 		if (_block.getTransferID() != -1)
 			throw new NIOException("Unexpected exception !");
 		
+		CounterSelector.State state=_block.getCounterState();
+		for (Iterator<ConnectionProtocol<?>> it = this.iterator(); it.hasNext(); ) {
+			ConnectionProtocol<?> cp=it.next();
+			try
+			{
+				cp.getPacketCounter().selectMyCounters(state);
+			}
+			catch(PacketException e)
+			{
+				throw new NIOException("Invalid block with "+cp.getClass(), false, false);
+			}
+		}
 		
 		SubBlockInfo sbi;
 		try {
@@ -361,10 +373,10 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 		int i = 0;
 		for (Iterator<ConnectionProtocol<?>> it = this.iterator(); it.hasNext(); i++) {
 			ConnectionProtocol<?> cp = it.next();
-			cp.getPacketCounter().selectMyCounters(_block.getCounterState());
+			boolean valid=true;
+			boolean candidate_to_ban =false;
 			SubBlockParser sbp = cp.getParser();
-			boolean valid = sbi.isValid();
-			boolean candidate_to_ban = sbi.isCandidateToBan();
+			
 			try {
 				sbi = sbp.getSubBlock(sbi.getSubBlock());
 				valid = sbi.isValid();

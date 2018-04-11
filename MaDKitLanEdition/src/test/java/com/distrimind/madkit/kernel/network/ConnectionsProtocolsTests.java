@@ -761,10 +761,15 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 			Block b = cp.getBlock(wp, transferType,
 					np.maxRandomPacketValues > 0 ? SecureRandomType.DEFAULT.getSingleton(null) : null, excludeFromEncryption);
 			Assert.assertEquals(transferType, b.getTransferID());
-			b.setCounterSelector(cp.getCounterSelector());
-			cp.getCounterSelector().releaseCounterID(b.getCounterID());
+			
+			
 			Assert.assertTrue(b.isValid());
 			res.add(b);
+		}
+		for (Block b : res)
+		{
+			b.setCounterSelector(cp.getCounterSelector());
+			cp.getCounterSelector().releaseCounterID(b.getCounterID());
 		}
 		
 		return res;

@@ -39,6 +39,7 @@ package com.distrimind.madkit.kernel.network.connection.secured;
 
 import org.bouncycastle.util.Arrays;
 
+import com.distrimind.madkit.exceptions.PacketException;
 import com.distrimind.madkit.kernel.network.CounterSelector.State;
 import com.distrimind.madkit.kernel.network.PacketCounter;
 import com.distrimind.util.Bits;
@@ -62,6 +63,7 @@ class PacketCounterForEncryptionAndSignature implements PacketCounter {
 	private static short ENCRYPTION_COUNTER_SIZE_BYTES=2;
 	private static short SIGNATURE_COUNTER_SIZE_BYTES=16;
 	private boolean nextMyCounterSelected=false;
+	private boolean distantActivated=false;
 	PacketCounterForEncryptionAndSignature(AbstractSecureRandom random, boolean encryptionEnabled, boolean signatureEnabled)
 	{
 		if (encryptionEnabled)
@@ -203,23 +205,41 @@ class PacketCounterForEncryptionAndSignature implements PacketCounter {
 	}
 
 	@Override
-	public void selectMyCounters(State state) {
-		if (state==State.KEEP_ACTUAL)
-			nextMyCounterSelected=false;
-		else if (state==State.TAKE_NEXT_COUNTER)
-			nextMyCounterSelected=true;
-		else if (state==State.VALIDATE_NEXT_COUNTER_AND_TAKE_ACTUAL)
+	public void selectMyCounters(State state) throws PacketException {
+		switch(state)
 		{
+		case KEEP_ACTUAL:
+			distantActivated=true;
+			nextMyCounterSelected=false;
+			break;
+		case NOT_ACTIVATED:
+			if (distantActivated)
+				throw new PacketException();
+			
+			break;
+		case TAKE_NEXT_COUNTER:
+			distantActivated=true;
+			nextMyCounterSelected=true;
+			break;
+		case VALIDATE_NEXT_COUNTER_AND_TAKE_ACTUAL:
+			distantActivated=true;
 			nextMyCounterSelected=false;
 			incrementMyCounters();
-		}
-		else if (state==State.VALIDATE_NEXT_COUNTER_AND_TAKE_NEXT)
-		{
+			break;
+		case VALIDATE_NEXT_COUNTER_AND_TAKE_NEXT:
+			distantActivated=true;
 			nextMyCounterSelected=true;
 			incrementMyCounters();
+			break;
+		
 		}
 		
 		
+	}
+
+	@Override
+	public boolean isDistantActivated() {
+		return distantActivated;
 	}
 	
 	

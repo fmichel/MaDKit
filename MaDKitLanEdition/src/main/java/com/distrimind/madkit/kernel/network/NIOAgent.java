@@ -67,6 +67,7 @@ import com.distrimind.madkit.agr.LocalCommunity;
 import com.distrimind.madkit.exceptions.ConnectionException;
 import com.distrimind.madkit.exceptions.MadkitException;
 import com.distrimind.madkit.exceptions.OverflowException;
+import com.distrimind.madkit.exceptions.PacketException;
 import com.distrimind.madkit.exceptions.SelfKillException;
 import com.distrimind.madkit.exceptions.TransfertException;
 import com.distrimind.madkit.kernel.Agent;
@@ -970,7 +971,7 @@ final class NIOAgent extends Agent {
 		}
 
 		public PersonalSocket(SocketChannel _socketChannel, AgentSocket _agent)
-				throws OverflowException, IOException, NoSuchAlgorithmException, NoSuchProviderException {
+				throws OverflowException, IOException, NoSuchAlgorithmException, NoSuchProviderException, TransfertException {
 			socketChannel = _socketChannel;
 			agentSocket = _agent;
 			agentAddress = agentSocket.getAgentAddressIn(LocalCommunity.Groups.NETWORK,
@@ -1041,7 +1042,7 @@ final class NIOAgent extends Agent {
 			return shortDataToSend.size() > 0 || bigDataToSend.size() > 0 || dataToTransfer.size() > 0;
 		}
 
-		public boolean addDataToSend(AbstractData _data) {
+		public boolean addDataToSend(AbstractData _data) throws TransfertException {
 			if (shortDataToSend != null && bigDataToSend != null) {
 
 				/*
@@ -1136,7 +1137,7 @@ final class NIOAgent extends Agent {
 			}
 		}
 
-		private boolean isTransferTypeChangementPossible() {
+		private boolean isTransferTypeChangementPossible() throws TransfertException {
 			AbstractData data = null;
 			switch (dataTransferType) {
 			case SHORT_DATA:
@@ -1158,11 +1159,15 @@ final class NIOAgent extends Agent {
 					return true;
 				break;
 			}
-			return data == null || data.isCurrentByteBufferFinished() || !data.isCurrentByteBufferStarted();
+			try {
+				return data == null || data.isCurrentByteBufferFinished() || !data.isCurrentByteBufferStarted();
+			} catch (PacketException e) {
+				throw new TransfertException(e);
+			}
 
 		}
 
-		private boolean checkValidTransferType() {
+		private boolean checkValidTransferType() throws TransfertException {
 			boolean changement = isTransferTypeChangementPossible();
 			if (!changement)
 				return true;
@@ -1203,7 +1208,7 @@ final class NIOAgent extends Agent {
 			}
 		}
 
-		private boolean setNextTransferType() {
+		private boolean setNextTransferType() throws TransfertException {
 			switch (dataTransferType) {
 			case SHORT_DATA:
 				dataTransferType = DataTransferType.BIG_DATA;
@@ -1243,66 +1248,73 @@ final class NIOAgent extends Agent {
 		}
 
 		private boolean free(AbstractData d) throws TransfertException {
-			firstPacketSent = true;
-			boolean finished = d.isFinished();
-			switch (dataTransferType) {
-			case SHORT_DATA:
-				if (d.isCurrentByteBufferFinished() || finished) {
-					if (finished) {
-						try {
-							d.unlockMessage();
-						} catch (Exception e) {
-							throw new TransfertException("Unexpected exception !", e);
-						} finally {
-							shortDataToSend.removeFirst();
-							if (d.isLastMessage()) {
-								if (logger != null && logger.isLoggable(Level.FINER))
-									logger.finer("Sending last message (agentSocket=" + agentAddress + ")");
-								this.closeConnection(ConnectionClosedReason.CONNECTION_PROPERLY_CLOSED);
+			try
+			{
+				firstPacketSent = true;
+				boolean finished = d.isFinished();
+				switch (dataTransferType) {
+				case SHORT_DATA:
+					if (d.isCurrentByteBufferFinished() || finished) {
+						if (finished) {
+							try {
+								d.unlockMessage();
+							} catch (Exception e) {
+								throw new TransfertException("Unexpected exception !", e);
+							} finally {
+								shortDataToSend.removeFirst();
+								if (d.isLastMessage()) {
+									if (logger != null && logger.isLoggable(Level.FINER))
+										logger.finer("Sending last message (agentSocket=" + agentAddress + ")");
+									this.closeConnection(ConnectionClosedReason.CONNECTION_PROPERLY_CLOSED);
+								}
 							}
 						}
+						setNextTransferType();
+						return true;
 					}
-					setNextTransferType();
-					return true;
-				}
-				return false;
-
-			case BIG_DATA:
-				if (d.isCurrentByteBufferFinished() || finished) {
-					if (finished) {
-						try {
-							d.unlockMessage();
-						} catch (Exception e) {
-							throw new TransfertException("Unexpected exception !", e);
+					return false;
+	
+				case BIG_DATA:
+					if (d.isCurrentByteBufferFinished() || finished) {
+						if (finished) {
+							try {
+								d.unlockMessage();
+							} catch (Exception e) {
+								throw new TransfertException("Unexpected exception !", e);
+							}
+							bigDataToSend.remove(bigDataToSendIndex);
+							bigDataToSendIndex = bigDataToSend.size() == 0 ? 0 : bigDataToSendIndex % bigDataToSend.size();
+						} else {
+							bigDataToSendIndex = bigDataToSend.size() == 0 ? 0
+									: (bigDataToSendIndex + 1) % bigDataToSend.size();
 						}
-						bigDataToSend.remove(bigDataToSendIndex);
-						bigDataToSendIndex = bigDataToSend.size() == 0 ? 0 : bigDataToSendIndex % bigDataToSend.size();
-					} else {
-						bigDataToSendIndex = bigDataToSend.size() == 0 ? 0
-								: (bigDataToSendIndex + 1) % bigDataToSend.size();
+	
+						setNextTransferType();
+						return true;
 					}
-
-					setNextTransferType();
-					return true;
-				}
-				return false;
-
-			case DATA_TO_TRANSFER:
-				if (d.isCurrentByteBufferFinished() || finished) {
-					if (finished) {
-						try {
-							d.unlockMessage();
-						} catch (Exception e) {
-							throw new TransfertException("Unexpected exception !", e);
+					return false;
+	
+				case DATA_TO_TRANSFER:
+					if (d.isCurrentByteBufferFinished() || finished) {
+						if (finished) {
+							try {
+								d.unlockMessage();
+							} catch (Exception e) {
+								throw new TransfertException("Unexpected exception !", e);
+							}
+							dataToTransfer.removeFirst();
 						}
-						dataToTransfer.removeFirst();
+						setNextTransferType();
+						return true;
 					}
-					setNextTransferType();
-					return true;
+					return false;
 				}
 				return false;
 			}
-			return false;
+			catch(PacketException e)
+			{
+				throw new TransfertException(e);
+			}
 		}
 
 		private Timer timer_send = null;

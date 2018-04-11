@@ -65,4 +65,9 @@ public class NullPacketCounter implements PacketCounter {
 		
 	}
 
+	@Override
+	public boolean isDistantActivated() {
+		return false;
+	}
+
 }

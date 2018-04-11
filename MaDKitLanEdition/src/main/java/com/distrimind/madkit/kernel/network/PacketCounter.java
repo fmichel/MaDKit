@@ -36,6 +36,9 @@
  * knowledge of the CeCILL-C license and that you accept its terms.
  */
 package com.distrimind.madkit.kernel.network;
+
+import com.distrimind.madkit.exceptions.PacketException;
+
 /**
  * 
  * 
@@ -47,5 +50,6 @@ package com.distrimind.madkit.kernel.network;
 public interface PacketCounter {
 	public void incrementOtherCounters();
 	public void incrementMyCounters();
-	public void selectMyCounters(CounterSelector.State state);
+	public void selectMyCounters(CounterSelector.State state) throws PacketException;
+	public boolean isDistantActivated();
 }

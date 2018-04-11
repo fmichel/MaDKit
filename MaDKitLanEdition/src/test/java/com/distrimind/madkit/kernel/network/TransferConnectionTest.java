@@ -59,7 +59,7 @@ import com.distrimind.madkit.kernel.Message;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocolProperties;
 import com.distrimind.madkit.kernel.network.connection.secured.ClientSecuredProtocolPropertiesWithKnownPublicKey;
 import com.distrimind.madkit.kernel.network.connection.secured.P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties;
-import com.distrimind.madkit.kernel.network.connection.secured.P2PSecuredConnectionProtocolWithECDHAlgorithmProperties;
+import com.distrimind.madkit.kernel.network.connection.secured.P2PSecuredConnectionProtocolWithKeyAgreementProperties;
 import com.distrimind.madkit.kernel.network.connection.secured.ServerSecuredProcotolPropertiesWithKnownPublicKey;
 import com.distrimind.madkit.kernel.network.connection.unsecured.CheckSumConnectionProtocolProperties;
 import com.distrimind.madkit.kernel.network.connection.unsecured.UnsecuredConnectionProtocolProperties;
@@ -200,9 +200,9 @@ public class TransferConnectionTest extends JunitMadkit {
 			s.symmetricEncryptionType = sold.symmetricEncryptionType;
 			s.signatureType = sold.signatureType;
 			res = s;
-		} else if (cpp.getClass() == P2PSecuredConnectionProtocolWithECDHAlgorithmProperties.class) {
-			P2PSecuredConnectionProtocolWithECDHAlgorithmProperties sold = (P2PSecuredConnectionProtocolWithECDHAlgorithmProperties) cpp;
-			P2PSecuredConnectionProtocolWithECDHAlgorithmProperties s = new P2PSecuredConnectionProtocolWithECDHAlgorithmProperties();
+		} else if (cpp.getClass() == P2PSecuredConnectionProtocolWithKeyAgreementProperties.class) {
+			P2PSecuredConnectionProtocolWithKeyAgreementProperties sold = (P2PSecuredConnectionProtocolWithKeyAgreementProperties) cpp;
+			P2PSecuredConnectionProtocolWithKeyAgreementProperties s = new P2PSecuredConnectionProtocolWithKeyAgreementProperties();
 			s.enableEncryption = sold.enableEncryption;
 			s.isServer = sold.isServer;
 			s.symmetricEncryptionType = sold.symmetricEncryptionType;

@@ -39,7 +39,7 @@ package com.distrimind.madkit.kernel.network.connection.secured;
 
 import com.distrimind.madkit.exceptions.ConnectionException;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocolProperties;
-import com.distrimind.util.crypto.EllipticCurveDiffieHellmanType;
+import com.distrimind.util.crypto.KeyAgreementType;
 import com.distrimind.util.crypto.SymmetricAuthentifiedSignatureType;
 import com.distrimind.util.crypto.SymmetricEncryptionType;
 
@@ -47,18 +47,18 @@ import com.distrimind.util.crypto.SymmetricEncryptionType;
  * 
  * 
  * @author Jason Mahdjoub
- * @version 1.0
- * @since MadkitLanEdition 1.2
+ * @version 2.0
+ * @since MadkitLanEdition 1.7
  */
-public class P2PSecuredConnectionProtocolWithECDHAlgorithmProperties extends ConnectionProtocolProperties<P2PSecuredConnectionProtocolWithECDHAlgorithm> {
+public class P2PSecuredConnectionProtocolWithKeyAgreementProperties extends ConnectionProtocolProperties<P2PSecuredConnectionProtocolWithKeyAgreementAlgorithm> {
 	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -616754777676015639L;
 
-	public P2PSecuredConnectionProtocolWithECDHAlgorithmProperties() {
-		super(P2PSecuredConnectionProtocolWithECDHAlgorithm.class);
+	public P2PSecuredConnectionProtocolWithKeyAgreementProperties() {
+		super(P2PSecuredConnectionProtocolWithKeyAgreementAlgorithm.class);
 	}
 
 	/**
@@ -68,9 +68,9 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithmProperties extends Con
 	public boolean enableEncryption = true;
 
 	/**
-	 * Elliptic Curve Diffie Hellman Type
+	 * Key agreement type
 	 */
-	public EllipticCurveDiffieHellmanType ellipticCurveDiffieHellmanType=EllipticCurveDiffieHellmanType.BC_ECDDH_384_AES256_CURVE_M_383;
+	public KeyAgreementType keyAgreementType=KeyAgreementType.DEFAULT;
 	
 	/**
 	 * Symmetric encryption algorithm
@@ -80,12 +80,12 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithmProperties extends Con
 	/**
 	 * Symmetric signature algorithm
 	 */
-	public SymmetricAuthentifiedSignatureType symmetricSignatureType=SymmetricAuthentifiedSignatureType.BC_FIPS_HMAC_SHA_512;
+	public SymmetricAuthentifiedSignatureType symmetricSignatureType=SymmetricAuthentifiedSignatureType.DEFAULT;
 	
 	/**
 	 * symmetric key size in bits
 	 */
-	public short symmetricKeySizeBits=symmetricEncryptionType.getDefaultKeySizeBits();
+	public short symmetricKeySizeBits=keyAgreementType.getDefaultKeySizeBits();
 	
 	/**
 	 * Tells if the current peer can receive an ask for connection.
@@ -93,12 +93,16 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithmProperties extends Con
 	public boolean isServer = true;
 
 	void checkProperties() throws ConnectionException {
-		if (ellipticCurveDiffieHellmanType==null)
-			throw new ConnectionException(new NullPointerException("ellipticCurveDiffieHellmanType"));
-		if (symmetricEncryptionType==null)
+		if (keyAgreementType==null)
+			throw new ConnectionException(new NullPointerException("keyAgreementType"));
+		if (symmetricEncryptionType==null && enableEncryption)
 			throw new ConnectionException(new NullPointerException("symmetricEncryptionType"));
 		if (symmetricSignatureType==null)
 			throw new ConnectionException(new NullPointerException("symmetricSignatureType"));
+		if (keyAgreementType.isPostQuantumAlgorithm() && enableEncryption && !symmetricEncryptionType.isPostQuantumAlgorithm(symmetricKeySizeBits))
+			throw new ConnectionException("The key agreement is a post quantum cryptography. However, the given symmetric encryption algorithm associated with the given symmetric key size are not post quantum compatible algorithms.");
+		if (keyAgreementType.isPostQuantumAlgorithm() && !symmetricSignatureType.isPostQuantumAlgorithm(symmetricKeySizeBits))
+			throw new ConnectionException("The key agreement is a post quantum cryptography. However, the given symmetric signature algorithm associated with the given symmetric signature size are not post quantum compatible algorithms.");
 	}
 
 	@Override

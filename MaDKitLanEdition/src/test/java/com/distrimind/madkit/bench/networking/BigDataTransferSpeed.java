@@ -65,7 +65,7 @@ import com.distrimind.madkit.kernel.network.DoubleIP;
 import com.distrimind.madkit.kernel.network.NetworkEventListener;
 import com.distrimind.madkit.kernel.network.connection.access.AbstractAccessProtocolProperties;
 import com.distrimind.madkit.kernel.network.connection.access.AccessProtocolWithJPakeProperties;
-import com.distrimind.madkit.kernel.network.connection.secured.P2PSecuredConnectionProtocolWithECDHAlgorithmProperties;
+import com.distrimind.madkit.kernel.network.connection.secured.P2PSecuredConnectionProtocolWithKeyAgreementProperties;
 import com.distrimind.madkit.testing.util.agent.BigDataTransferReceiverAgent;
 import com.distrimind.madkit.testing.util.agent.NormalAgent;
 
@@ -91,7 +91,7 @@ public class BigDataTransferSpeed extends JunitMadkit {
 
 				try {
 					new NetworkEventListener(true, false, false, null,
-							new ConnectionsProtocolsMKEventListener(new P2PSecuredConnectionProtocolWithECDHAlgorithmProperties()),
+							new ConnectionsProtocolsMKEventListener(new P2PSecuredConnectionProtocolWithKeyAgreementProperties()),
 							new AccessProtocolPropertiesMKEventListener(app),
 							new AccessDataMKEventListener(AccessDataMKEventListener.getDefaultAccessData(GROUP)), 5000,
 							null, InetAddress.getByName("0.0.0.0")).onMadkitPropertiesLoaded(_properties);
@@ -103,7 +103,7 @@ public class BigDataTransferSpeed extends JunitMadkit {
 			}
 		};
 
-		P2PSecuredConnectionProtocolWithECDHAlgorithmProperties u = new P2PSecuredConnectionProtocolWithECDHAlgorithmProperties();
+		P2PSecuredConnectionProtocolWithKeyAgreementProperties u = new P2PSecuredConnectionProtocolWithKeyAgreementProperties();
 		u.isServer = false;
 
 		AbstractAccessProtocolProperties app = new AccessProtocolWithJPakeProperties();

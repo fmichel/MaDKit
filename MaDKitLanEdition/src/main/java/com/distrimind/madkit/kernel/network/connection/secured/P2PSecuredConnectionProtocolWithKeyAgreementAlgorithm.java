@@ -60,8 +60,9 @@ import com.distrimind.madkit.kernel.network.connection.IncomprehensiblePublicKey
 import com.distrimind.madkit.kernel.network.connection.TransferedBlockChecker;
 import com.distrimind.madkit.kernel.network.connection.UnexpectedMessage;
 import com.distrimind.ood.database.DatabaseWrapper;
+import com.distrimind.util.Bits;
 import com.distrimind.util.crypto.AbstractSecureRandom;
-import com.distrimind.util.crypto.EllipticCurveDiffieHellmanAlgorithm;
+import com.distrimind.util.crypto.KeyAgreement;
 import com.distrimind.util.crypto.SymmetricAuthentifiedSignatureCheckerAlgorithm;
 import com.distrimind.util.crypto.SymmetricAuthentifiedSignerAlgorithm;
 import com.distrimind.util.crypto.SymmetricEncryptionAlgorithm;
@@ -82,39 +83,41 @@ import gnu.vm.jgnux.crypto.ShortBufferException;
  * 
  * 
  * @author Jason Mahdjoub
- * @version 1.2
- * @since MadkitLanEdition 1.2
+ * @version 2.0
+ * @since MadkitLanEdition 1.7
  */
-public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionProtocol<P2PSecuredConnectionProtocolWithECDHAlgorithm> {
+public class P2PSecuredConnectionProtocolWithKeyAgreementAlgorithm extends ConnectionProtocol<P2PSecuredConnectionProtocolWithKeyAgreementAlgorithm> {
 	
+	private static final int MATERIAL_KEY_SIZE_BYTES=64;
 	Step current_step = Step.NOT_CONNECTED;
 
 	private SymmetricSecretKey secret_key_for_encryption = null;
 	private SymmetricSecretKey secret_key_for_signature = null;
 	
 	protected SymmetricEncryptionAlgorithm symmetricEncryption = null;
-	protected EllipticCurveDiffieHellmanAlgorithm ellipticCurveDiffieHellmanAlgorithmForEncryption=null;
-	protected EllipticCurveDiffieHellmanAlgorithm ellipticCurveDiffieHellmanAlgorithmForSignature=null;
+	protected KeyAgreement keyAgreementForEncryption=null, keyAgreementForSignature=null;
 	protected SymmetricAuthentifiedSignerAlgorithm signer = null;
 	protected SymmetricAuthentifiedSignatureCheckerAlgorithm signatureChecker = null;
 	final int signature_size_bytes;
 	private final SubBlockParser parser;
 
 	
-	private final P2PSecuredConnectionProtocolWithECDHAlgorithmProperties hproperties;
+	private final P2PSecuredConnectionProtocolWithKeyAgreementProperties hproperties;
 	private final AbstractSecureRandom approvedRandom, approvedRandomForKeys;
 	private boolean blockCheckerChanged = true;
 	private boolean currentBlockCheckerIsNull = true;
-	private byte[] materialKey=null;
+	private byte[] materialKeyForSignature=null, materialKeyForEncryption=null;
 	private final PacketCounterForEncryptionAndSignature packetCounter;
 	private boolean reinitSymmetricAlgorithm=true;
-	private P2PSecuredConnectionProtocolWithECDHAlgorithm(InetSocketAddress _distant_inet_address,
+	private boolean myCounterSent=false;
+	private boolean doNotTakeIntoAccountNextState=true;
+	private P2PSecuredConnectionProtocolWithKeyAgreementAlgorithm(InetSocketAddress _distant_inet_address,
 			InetSocketAddress _local_interface_address, ConnectionProtocol<?> _subProtocol,
 			DatabaseWrapper sql_connection, MadkitProperties mkProperties, NetworkProperties _properties, int subProtocolLevel, boolean isServer,
 			boolean mustSupportBidirectionnalConnectionInitiative) throws ConnectionException {
 		super(_distant_inet_address, _local_interface_address, _subProtocol, sql_connection, _properties,
 				subProtocolLevel, isServer, mustSupportBidirectionnalConnectionInitiative);
-		hproperties = (P2PSecuredConnectionProtocolWithECDHAlgorithmProperties) super.connection_protocol_properties;
+		hproperties = (P2PSecuredConnectionProtocolWithKeyAgreementProperties) super.connection_protocol_properties;
 		hproperties.checkProperties();
 
 		
@@ -145,12 +148,9 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 			parser = new ParserWithNoEncryption();
 	}
 
-	private void checkSymmetricAlgorithm() throws ConnectionException {
+	private void checkSymmetricSignatureAlgorithm() throws ConnectionException {
 		try {
-			if (secret_key_for_encryption != null && secret_key_for_signature!=null) {
-				if (symmetricEncryption == null) {
-					symmetricEncryption = new SymmetricEncryptionAlgorithm(approvedRandom, secret_key_for_encryption);
-				}
+			if (secret_key_for_signature!=null) {
 				if (signer==null || signatureChecker==null)
 				{
 					signer=new SymmetricAuthentifiedSignerAlgorithm(secret_key_for_signature);
@@ -161,6 +161,21 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 				symmetricEncryption = null;
 				signer=null;
 				signatureChecker=null;
+			}
+		} catch (NoSuchAlgorithmException  
+				| NoSuchProviderException  e) {
+			throw new ConnectionException(e);
+		}
+	}
+	private void checkSymmetricEncryptionAlgorithm() throws ConnectionException {
+		try {
+			if (secret_key_for_encryption != null) {
+				if (symmetricEncryption == null) {
+					symmetricEncryption = new SymmetricEncryptionAlgorithm(approvedRandom, secret_key_for_encryption);
+				}
+			} else {
+				symmetricEncryption = null;
+
 			}
 		} catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeySpecException
 				| NoSuchProviderException | InvalidAlgorithmParameterException e) {
@@ -173,21 +188,34 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 		symmetricEncryption=null;
 		secret_key_for_encryption = null;
 		secret_key_for_signature=null;
-		ellipticCurveDiffieHellmanAlgorithmForEncryption=null;
-		ellipticCurveDiffieHellmanAlgorithmForSignature=null;
+		keyAgreementForEncryption=null;
+		keyAgreementForSignature=null;
 		signer=null;
 		signatureChecker=null;
 		
 	}
 
 	private enum Step {
-		NOT_CONNECTED, WAITING_FOR_DATA, WAITING_FOR_CONNECTION_CONFIRMATION, CONNECTED,
+		NOT_CONNECTED, WAITING_FOR_SIGNATURE_DATA, WAITING_FOR_ENCRYPTION_DATA, WAITING_FOR_CONNECTION_CONFIRMATION, CONNECTED,
 	}
 
-	private void initECDHAlgorithm()
+	private void initKeyAgreementAlgorithm() throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException, InvalidAlgorithmParameterException
 	{
-		this.ellipticCurveDiffieHellmanAlgorithmForEncryption=hproperties.ellipticCurveDiffieHellmanType.getInstance(approvedRandomForKeys);
-		this.ellipticCurveDiffieHellmanAlgorithmForSignature=hproperties.ellipticCurveDiffieHellmanType.getInstance(approvedRandomForKeys);
+		if (materialKeyForEncryption==null)
+			throw new InternalError();
+		if (materialKeyForSignature==null)
+			throw new InternalError();
+		if (this.isCurrentServerAskingConnection())
+		{
+			this.keyAgreementForEncryption=hproperties.keyAgreementType.getKeyAgreementServer(this.approvedRandomForKeys, hproperties.symmetricEncryptionType, hproperties.symmetricKeySizeBits, materialKeyForEncryption);
+			this.keyAgreementForSignature=hproperties.keyAgreementType.getKeyAgreementServer(this.approvedRandomForKeys, hproperties.symmetricSignatureType, hproperties.symmetricKeySizeBits, materialKeyForSignature);
+		}
+		else
+		{
+			this.keyAgreementForEncryption=hproperties.keyAgreementType.getKeyAgreementClient(this.approvedRandomForKeys, hproperties.symmetricEncryptionType, hproperties.symmetricKeySizeBits, materialKeyForEncryption);
+			this.keyAgreementForSignature=hproperties.keyAgreementType.getKeyAgreementClient(this.approvedRandomForKeys, hproperties.symmetricSignatureType, hproperties.symmetricKeySizeBits, materialKeyForSignature);
+			
+		}
 	}
 	
 	private void reinitSymmetricAlgorithmIfNecessary() throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchProviderException, InvalidKeySpecException
@@ -205,18 +233,21 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 		case NOT_CONNECTED: {
 			if (_m instanceof AskConnection) {
 				AskConnection ask = (AskConnection) _m;
-				initECDHAlgorithm();
-				current_step = Step.WAITING_FOR_DATA;
+				
+				current_step = Step.WAITING_FOR_SIGNATURE_DATA;
 				if (ask.isYouAreAsking()) {
 					return new AskConnection(false);
 				} else {
 					try {
-						ellipticCurveDiffieHellmanAlgorithmForEncryption.generateAndSetKeyPair();
-						ellipticCurveDiffieHellmanAlgorithmForSignature.generateAndSetKeyPair();
-						materialKey=new byte[64];
-						approvedRandom.nextBytes(materialKey);
-						return new ECDHDataMessage(ellipticCurveDiffieHellmanAlgorithmForEncryption.getEncodedPublicKey(), ellipticCurveDiffieHellmanAlgorithmForSignature.getEncodedPublicKey(), materialKey);
-					} catch (NoSuchAlgorithmException | InvalidKeySpecException | NoSuchProviderException | InvalidAlgorithmParameterException e) {
+						materialKeyForEncryption=new byte[MATERIAL_KEY_SIZE_BYTES];
+						materialKeyForSignature=new byte[MATERIAL_KEY_SIZE_BYTES];
+						approvedRandom.nextBytes(materialKeyForEncryption);
+						approvedRandom.nextBytes(materialKeyForSignature);
+						initKeyAgreementAlgorithm();
+						byte [] material=Bits.concateEncodingWithShortSizedTabs(materialKeyForSignature, materialKeyForEncryption);
+						return new KeyAgreementDataMessage(keyAgreementForSignature.getDataToSend(), material);
+						
+					} catch (Exception e) {
 						throw new ConnectionException(e);
 					}
 				}
@@ -231,67 +262,138 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 				return new UnexpectedMessage(this.getDistantInetSocketAddress());
 			}
 		}
-		case WAITING_FOR_DATA:{
-			if (_m instanceof ECDHDataMessage)
+		case WAITING_FOR_SIGNATURE_DATA:{
+			if (_m instanceof KeyAgreementDataMessage)
 			{
-				if (isCurrentServerAskingConnection())
+				
+					
+				try
 				{
-					byte dataForEncryption[], dataForSignature[];
-					try {
-						ellipticCurveDiffieHellmanAlgorithmForEncryption.generateAndSetKeyPair();
-						ellipticCurveDiffieHellmanAlgorithmForSignature.generateAndSetKeyPair();
+					KeyAgreementDataMessage kadm=(KeyAgreementDataMessage)_m;
+					if (isCurrentServerAskingConnection())
+					{
 						
-						dataForEncryption = ellipticCurveDiffieHellmanAlgorithmForEncryption.getEncodedPublicKey();
-						dataForSignature = ellipticCurveDiffieHellmanAlgorithmForSignature.getEncodedPublicKey();
-					} catch (NoSuchAlgorithmException | InvalidKeySpecException | NoSuchProviderException | InvalidAlgorithmParameterException e) {
-						throw new ConnectionException(e);
+						
+						try
+						{
+							byte[] material=kadm.getMaterialKey();
+							
+							if (material==null || material.length!=MATERIAL_KEY_SIZE_BYTES*2+2)
+								return new ConnectionFinished(distant_inet_address, ConnectionClosedReason.CONNECTION_ANOMALY);
+							byte[][] t=Bits.separateEncodingsWithShortSizedTabs(material);
+							materialKeyForSignature=t[0];
+							materialKeyForEncryption=t[1];
+							if (materialKeyForEncryption==null || materialKeyForEncryption.length!=MATERIAL_KEY_SIZE_BYTES
+									|| materialKeyForSignature==null || materialKeyForSignature.length!=MATERIAL_KEY_SIZE_BYTES)
+								return new ConnectionFinished(distant_inet_address, ConnectionClosedReason.CONNECTION_ANOMALY);
+							initKeyAgreementAlgorithm();
+						}
+						catch(Exception e)
+						{
+							reset();
+							current_step=Step.NOT_CONNECTED;
+							return new IncomprehensiblePublicKey();
+						}
 					}
-					try
-					{
-						materialKey=((ECDHDataMessage) _m).getMaterialKey();
-						if (materialKey==null)
-							return new ConnectionFinished(distant_inet_address, ConnectionClosedReason.CONNECTION_ANOMALY);
-						ellipticCurveDiffieHellmanAlgorithmForEncryption.setDistantPublicKey(((ECDHDataMessage) _m).getDataForEncryption(), hproperties.symmetricEncryptionType, hproperties.symmetricKeySizeBits, materialKey);
-						ellipticCurveDiffieHellmanAlgorithmForSignature.setDistantPublicKey(((ECDHDataMessage) _m).getDataForSignature(), hproperties.symmetricSignatureType, hproperties.symmetricKeySizeBits, materialKey);
-					}
-					catch(Exception e)
+					if (keyAgreementForSignature.hasFinishedReceiption())
 					{
 						reset();
 						current_step=Step.NOT_CONNECTED;
-						return new IncomprehensiblePublicKey();
+						return new ConnectionFinished(distant_inet_address, ConnectionClosedReason.CONNECTION_ANOMALY);
 					}
-					secret_key_for_encryption=ellipticCurveDiffieHellmanAlgorithmForEncryption.getDerivedKey();
-					secret_key_for_signature=ellipticCurveDiffieHellmanAlgorithmForSignature.getDerivedKey();
-					checkSymmetricAlgorithm();
-					current_step=Step.WAITING_FOR_CONNECTION_CONFIRMATION;
-					return new ECDHDataMessage(dataForEncryption, dataForSignature, null);
-				}
-				else
+					keyAgreementForSignature.receiveData(kadm.getData());
+					byte data[]=null;
+					if (!keyAgreementForSignature.hasFinishedSend())
+						data=keyAgreementForSignature.getDataToSend();
+					doNotTakeIntoAccountNextState=false;
+					if (keyAgreementForSignature.hasFinishedReceiption())
+					{
+						doNotTakeIntoAccountNextState=true;
+						current_step=Step.WAITING_FOR_ENCRYPTION_DATA;
+						secret_key_for_signature=keyAgreementForSignature.getDerivedKey();
+						checkSymmetricSignatureAlgorithm();
+					}
+						
+					
+					if (data!=null)
+					{
+						return new KeyAgreementDataMessage(data, null);
+					}
+					else
+					{
+						doNotTakeIntoAccountNextState=false;
+						
+						current_step=Step.WAITING_FOR_ENCRYPTION_DATA;
+						data=keyAgreementForEncryption.getDataToSend();
+						return new KeyAgreementDataMessage(data, null);
+					}
+				}				
+				catch(Exception e)
 				{
-					try
+					reset();
+					current_step=Step.NOT_CONNECTED;
+					return new IncomprehensiblePublicKey();
+				}
+			} else {
+				return new UnexpectedMessage(this.getDistantInetSocketAddress());
+			}
+		}
+		case WAITING_FOR_ENCRYPTION_DATA:{
+			if (_m instanceof KeyAgreementDataMessage)
+			{
+				if (!keyAgreementForSignature.isAgreementProcessValid() || keyAgreementForEncryption.hasFinishedReceiption())
+				{
+					reset();
+					current_step=Step.NOT_CONNECTED;
+					return new ConnectionFinished(distant_inet_address, ConnectionClosedReason.CONNECTION_ANOMALY);
+				}
+				try
+				{
+					KeyAgreementDataMessage kadm=(KeyAgreementDataMessage)_m;
+					keyAgreementForEncryption.receiveData(kadm.getData());
+					byte data[]=null;
+					if (!keyAgreementForEncryption.hasFinishedSend())
+						data=keyAgreementForEncryption.getDataToSend();
+					doNotTakeIntoAccountNextState=false;
+					if (keyAgreementForEncryption.hasFinishedReceiption())
 					{
-						ellipticCurveDiffieHellmanAlgorithmForEncryption.setDistantPublicKey(((ECDHDataMessage) _m).getDataForEncryption(), hproperties.symmetricEncryptionType, hproperties.symmetricKeySizeBits, materialKey);
-						ellipticCurveDiffieHellmanAlgorithmForSignature.setDistantPublicKey(((ECDHDataMessage) _m).getDataForSignature(), hproperties.symmetricSignatureType, hproperties.symmetricKeySizeBits, materialKey);
+						doNotTakeIntoAccountNextState=true;
+						current_step=Step.WAITING_FOR_CONNECTION_CONFIRMATION;
+						secret_key_for_encryption=keyAgreementForEncryption.getDerivedKey();
+						checkSymmetricEncryptionAlgorithm();
 					}
-					catch(Exception e)
+						
+					if (data!=null)
 					{
-						reset();
-						current_step=Step.NOT_CONNECTED;
-						return new IncomprehensiblePublicKey();
+						return new KeyAgreementDataMessage(data, null);
 					}
-					secret_key_for_encryption=ellipticCurveDiffieHellmanAlgorithmForEncryption.getDerivedKey();
-					secret_key_for_signature=ellipticCurveDiffieHellmanAlgorithmForSignature.getDerivedKey();
-					checkSymmetricAlgorithm();
-					current_step=Step.WAITING_FOR_CONNECTION_CONFIRMATION;
-					return new ConnectionFinished(getDistantInetSocketAddress(), packetCounter.getMyEncodedCounters());
+					else
+					{
+						doNotTakeIntoAccountNextState=false;
+						myCounterSent=true;
+						return new ConnectionFinished(getDistantInetSocketAddress(), packetCounter.getMyEncodedCounters());
+					}
+				}				
+				catch(Exception e)
+				{
+					reset();
+					current_step=Step.NOT_CONNECTED;
+					return new IncomprehensiblePublicKey();
 				}
 			} else {
 				return new UnexpectedMessage(this.getDistantInetSocketAddress());
 			}
 		}
 		case WAITING_FOR_CONNECTION_CONFIRMATION:{
+			doNotTakeIntoAccountNextState=false;
 			if (_m instanceof ConnectionFinished)
 			{
+				if (!keyAgreementForEncryption.isAgreementProcessValid())
+				{
+					reset();
+					current_step=Step.NOT_CONNECTED;
+					return new ConnectionFinished(distant_inet_address, ConnectionClosedReason.CONNECTION_ANOMALY);
+				}
 				ConnectionFinished cf=((ConnectionFinished) _m);
 				if (cf.getState()==ConnectionProtocol.ConnectionState.CONNECTION_ESTABLISHED)
 				{
@@ -301,14 +403,13 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 						return new UnexpectedMessage(this.getDistantInetSocketAddress());
 					}
 					current_step=Step.CONNECTED;
-					if (isCurrentServerAskingConnection())
+					if (!myCounterSent)
 					{
+						myCounterSent=true;
 						return new ConnectionFinished(getDistantInetSocketAddress(), packetCounter.getMyEncodedCounters());
 					}
 					else
-					{
 						return null;
-					}
 				} else {
 					reset();
 					current_step=Step.NOT_CONNECTED;
@@ -372,11 +473,15 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 			try {
 				switch (current_step) {
 				case NOT_CONNECTED:
-				case WAITING_FOR_DATA:
-					return size;
-				case WAITING_FOR_CONNECTION_CONFIRMATION: {
-					if (isCurrentServerAskingConnection())
+				case WAITING_FOR_SIGNATURE_DATA:
+				case WAITING_FOR_ENCRYPTION_DATA:
+					if (doNotTakeIntoAccountNextState)
 						return size;
+					else
+						return size+4;
+				case WAITING_FOR_CONNECTION_CONFIRMATION: {
+					if (doNotTakeIntoAccountNextState)
+						return size+4;
 					else
 					{
 						if (getCounterSelector().isActivated())
@@ -407,8 +512,10 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 			try {
 				switch (current_step) {
 				case NOT_CONNECTED:
-				case WAITING_FOR_DATA:
+				case WAITING_FOR_SIGNATURE_DATA:
 					return size;
+				case WAITING_FOR_ENCRYPTION_DATA:
+					return size-4;
 				case WAITING_FOR_CONNECTION_CONFIRMATION:
 				case CONNECTED:
 				{
@@ -431,11 +538,13 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 
 			switch (current_step) {
 			case NOT_CONNECTED:
-			case WAITING_FOR_DATA:
+			case WAITING_FOR_SIGNATURE_DATA:
 				return getSubBlockWithNoEncryption(_block);
+			case WAITING_FOR_ENCRYPTION_DATA:
+				return getSubBlockWithEncryption(_block, false);
 			case WAITING_FOR_CONNECTION_CONFIRMATION:
 			case CONNECTED: {
-				return getSubBlockWithEncryption(_block);
+				return getSubBlockWithEncryption(_block, true);
 			}
 
 			}
@@ -447,11 +556,11 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 					getBodyOutputSizeForDecryption(_block.getSize() - getSizeHead())), true, false);
 		}
 
-		public SubBlockInfo getSubBlockWithEncryption(SubBlock _block) throws BlockParserException {
+		public SubBlockInfo getSubBlockWithEncryption(SubBlock _block, boolean enabledEncryption) throws BlockParserException {
 			int off=_block.getOffset() + getSizeHead();
 			int offr=_block.getOffset()+_block.getSize();
 			boolean excludedFromEncryption=_block.getBytes()[offr-1]==1;
-			if (excludedFromEncryption)
+			if (excludedFromEncryption || !enabledEncryption)
 			{
 				int s=Block.getShortInt(_block.getBytes(), offr-4);
 				if (s>Block.BLOCK_SIZE_LIMIT || s>_block.getSize()-getSizeHead()-4 || s<PacketPartHead.getHeadSize(false))
@@ -596,11 +705,16 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 			try {
 				switch (current_step) {
 				case NOT_CONNECTED:
-				case WAITING_FOR_DATA:
+				case WAITING_FOR_SIGNATURE_DATA:
 					return getParentBlockWithNoTreatments(_block);
-				case WAITING_FOR_CONNECTION_CONFIRMATION: {
-					if (isCurrentServerAskingConnection())
+				case WAITING_FOR_ENCRYPTION_DATA:
+					if (doNotTakeIntoAccountNextState)
 						return getParentBlockWithNoTreatments(_block);
+					else
+						return getParentBlockWithEncryption(_block, true);
+				case WAITING_FOR_CONNECTION_CONFIRMATION: {
+					if (doNotTakeIntoAccountNextState)
+						return getParentBlockWithEncryption(_block, true);
 					else
 						return getParentBlockWithEncryption(_block, excludeFromEncryption);
 				}
@@ -619,7 +733,7 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 
 		@Override
 		public int getSizeHead() {
-			return P2PSecuredConnectionProtocolWithECDHAlgorithm.this.signature_size_bytes;
+			return P2PSecuredConnectionProtocolWithKeyAgreementAlgorithm.this.signature_size_bytes;
 		}
 
 		@Override
@@ -651,8 +765,9 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 		public SubBlockInfo checkEntrantPointToPointTransferedBlock(SubBlock _block) throws BlockParserException {
 			switch (current_step) {
 			case NOT_CONNECTED:
-			case WAITING_FOR_DATA:
+			case WAITING_FOR_SIGNATURE_DATA:
 				return checkEntrantPointToPointTransferedBlockWithNoEncryptin(_block);
+			case WAITING_FOR_ENCRYPTION_DATA:
 			case WAITING_FOR_CONNECTION_CONFIRMATION:
 			case CONNECTED: {
 				return checkEntrantPointToPointTransferedBlockWithEncryption(_block);
@@ -680,14 +795,16 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 			try {
 				switch (current_step) {
 				case NOT_CONNECTED:
-				case WAITING_FOR_DATA:
+				case WAITING_FOR_SIGNATURE_DATA:
 					return signIfPossibleSortantPointToPointTransferedBlockWithNoEncryption(_block);
-				case WAITING_FOR_CONNECTION_CONFIRMATION: {
+				case WAITING_FOR_ENCRYPTION_DATA:
+				{
 					if (isCurrentServerAskingConnection())
 						return signIfPossibleSortantPointToPointTransferedBlockWithNoEncryption(_block);
 					else
 						return signIfPossibleSortantPointToPointTransferedBlockWithEncryption(_block);
 				}
+				case WAITING_FOR_CONNECTION_CONFIRMATION: 
 				case CONNECTED: {
 					return signIfPossibleSortantPointToPointTransferedBlockWithEncryption(_block);
 				}
@@ -714,7 +831,7 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 
 		@Override
 		public int getSizeHead() {
-			return P2PSecuredConnectionProtocolWithECDHAlgorithm.this.signature_size_bytes;
+			return P2PSecuredConnectionProtocolWithKeyAgreementAlgorithm.this.signature_size_bytes;
 		}
 
 		@Override
@@ -727,7 +844,7 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 			return getSizeHead();
 		}
 		@Override
-		public SubBlockInfo getSubBlockWithEncryption(SubBlock _block) throws BlockParserException {
+		public SubBlockInfo getSubBlockWithEncryption(SubBlock _block, boolean enabledEncryption) throws BlockParserException {
 			try {
 				SubBlock res=new SubBlock(_block.getBytes(), _block.getOffset() + getSizeHead(),
 						getBodyOutputSizeForDecryption(_block.getSize() - getSizeHead()));

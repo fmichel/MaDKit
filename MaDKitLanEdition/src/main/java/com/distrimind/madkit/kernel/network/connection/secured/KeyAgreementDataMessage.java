@@ -46,33 +46,27 @@ import com.distrimind.madkit.kernel.network.connection.ConnectionMessage;
  * @since MadkitLanEdition 1.0
  * @see ServerSecuredConnectionProtocolWithKnwonPublicKey
  */
-public class ECDHDataMessage extends ConnectionMessage {
+public class KeyAgreementDataMessage extends ConnectionMessage {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 4560100871284266098L;
 	
-	private byte[] dataForEncryption;
-	private byte[] dataForSignature;
+	private byte[] data;
 	private byte[] materialKey;
 
 
-	public ECDHDataMessage(byte[] dataForEncryption, byte[] dataForSignature, byte[] materialKey) {
+	public KeyAgreementDataMessage(byte[] data, byte[] materialKey) {
 		super();
-		this.dataForEncryption = dataForEncryption;
-		this.dataForSignature = dataForSignature;
+		this.data = data;
 		this.materialKey=materialKey;
 	}
 
 
-	public byte[] getDataForEncryption() {
-		return dataForEncryption;
+	public byte[] getData() {
+		return data;
 	}
 
-
-	public byte[] getDataForSignature() {
-		return dataForSignature;
-	}
 
 	public byte[] getMaterialKey()
 	{
@@ -81,9 +75,7 @@ public class ECDHDataMessage extends ConnectionMessage {
 
 	@Override
 	public Integrity checkDataIntegrity() {
-		if (dataForEncryption==null)
-			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		if (dataForSignature==null)
+		if (data==null)
 			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
 		return Integrity.OK;
 	}

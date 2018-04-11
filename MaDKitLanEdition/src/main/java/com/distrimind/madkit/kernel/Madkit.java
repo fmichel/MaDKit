@@ -119,7 +119,7 @@ final public class Madkit {
 		Calendar c = Calendar.getInstance();
 		c.set(2015, 4, 22);
 		Calendar c2 = Calendar.getInstance();
-		c2.set(2018, 2, 10);
+		c2.set(2018, 3, 11);
 		Version VERSION = new Version("MadkitLanEdition", "MKLE", 1, 7, 0, Version.Type.Stable, 1, c.getTime(), c2.getTime());
 		try {
 
@@ -142,10 +142,20 @@ final public class Madkit {
 			VERSION.addDeveloper(new PersonDeveloper("Ferber", "Jacques", c.getTime()));
 
 			c = Calendar.getInstance();
-			c.set(2018, 2, 10);
+			c.set(2018, 3, 11);
 			Description d = new Description(1, 7, 0, Version.Type.Stable, 1, c.getTime());
-			d.addItem("Update OOD to 2.0.0 Beta 68.");
-			d.addItem("Update Utils to 3.11.1.");
+			d.addItem("Update OOD to 2.0.0 Beta 77.");
+			d.addItem("Update Utils to 3.14.2.");
+			d.addItem("Add P2P connection protocol that support parametrisation of key aggreement.");
+			d.addItem("Support several key agreement (including Post Quantum Cryptography key agreement (New Hope).");
+			d.addItem("Fix security issue : when data is sent without being writed (default memory state), fill it with zeros.");
+			d.addItem("Fix security issue : sign symmetric encryption key into client/server connnection protocol.");
+			d.addItem("Fix security issue : with P2P key agreements, generate signature and encryptions keys with two steps (instead of one), in order to sign the exchanged symmetric encryption key.");
+			d.addItem("Security enhancement : initialisation vectors used with encryption has now a secret part composed of counter that is increased at each data exchange.");
+			d.addItem("Security enhancement : signature process use now a secret message that is increased at each data exchange.");
+			d.addItem("Externalising Java rewrited classes into JDKRewriteUtils project.");
+			d.addItem("Support of authenticated encryption algorithms. When use these algorithms, MKLE do not add a signature with independant MAC.");
+			d.addItem("Add some benchmarks.");
 			VERSION.addDescription(d);	
 
 			

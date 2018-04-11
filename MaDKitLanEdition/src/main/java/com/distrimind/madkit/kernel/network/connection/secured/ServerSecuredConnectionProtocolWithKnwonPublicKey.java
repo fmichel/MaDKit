@@ -292,14 +292,7 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 								ConnectionClosedReason.CONNECTION_LOST);
 					}
 				}
-				else
-				{
-					if (!packetCounter.setDistantCounters(((ConnectionFinished) _m).getInitialCounter()))
-					{
-						current_step=Step.NOT_CONNECTED;
-						return new UnexpectedMessage(this.getDistantInetSocketAddress());
-					}
-				}
+				
 				return null;
 			} else {
 				return new UnexpectedMessage(this.getDistantInetSocketAddress());
@@ -598,12 +591,15 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 		@Override
 		public SubBlock signIfPossibleSortantPointToPointTransferedBlock(SubBlock _block) throws BlockParserException {
 			try {
-				SubBlock res = new SubBlock(_block.getBytes().clone(), _block.getOffset() - getSizeHead(),
+				SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() - getSizeHead(),
 						_block.getSize() + getSizeHead());
 
 				switch (current_step) {
 				case NOT_CONNECTED:
 				{
+					byte[] tab=res.getBytes();
+					for (int i=res.getOffset();i<_block.getOffset();i++)
+						tab[i]=0;
 					return res;
 				}
 				case WAITING_FOR_CONNECTION_CONFIRMATION:
@@ -756,7 +752,7 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 		@Override
 		public SubBlock signIfPossibleSortantPointToPointTransferedBlock(SubBlock _block) throws BlockParserException {
 			try {
-				SubBlock res = new SubBlock(_block.getBytes().clone(), _block.getOffset() - getSizeHead(),
+				SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() - getSizeHead(),
 						_block.getSize() + getSizeHead());
 				signer.sign(_block.getBytes(), _block.getOffset(), _block.getSize(), res.getBytes(), res.getOffset(),
 						getSizeHead());

@@ -51,6 +51,7 @@ import com.distrimind.util.crypto.SymmetricEncryptionType;
  * @version 1.1
  * @since MadkitLanEdition 1.0
  */
+@Deprecated
 public class P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties extends ConnectionProtocolProperties<P2PSecuredConnectionProtocolWithASymmetricKeyExchanger> {
 
 	/**

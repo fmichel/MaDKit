@@ -92,6 +92,7 @@ import com.distrimind.util.crypto.SymmetricSecretKey;
  * @version 1.2
  * @since MadkitLanEdition 1.0
  */
+@Deprecated
 public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends ConnectionProtocol<P2PSecuredConnectionProtocolWithASymmetricKeyExchanger> {
 	Step current_step = Step.NOT_CONNECTED;
 
@@ -775,7 +776,7 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 		@Override
 		public SubBlock signIfPossibleSortantPointToPointTransferedBlock(SubBlock _block) throws BlockParserException {
 			try {
-				SubBlock res = new SubBlock(_block.getBytes().clone(), _block.getOffset() - getSizeHead(),
+				SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() - getSizeHead(),
 						_block.getSize() + getSizeHead());
 				
 				switch (current_step) {
@@ -783,6 +784,10 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 				case WAITING_FOR_PUBLIC_KEY:
 				case WAITING_FOR_SECRET_KEY:
 				case WAITING_FIRST_MESSAGE: {
+					byte[] tab=res.getBytes();
+					for (int i=res.getOffset();i<_block.getOffset();i++)
+						tab[i]=0;
+
 					return res;
 				}
 				case WAITING_FOR_CONNECTION_CONFIRMATION:
@@ -820,10 +825,13 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 			case NOT_CONNECTED:
 			case WAITING_FOR_PUBLIC_KEY:
 			case WAITING_FOR_SECRET_KEY: {
-				return new SubBlockInfo(new SubBlock(_block.getBytes(), _block.getOffset() + getSizeHead(),
-						getBodyOutputSizeForDecryption(_block.getSize() - getSizeHead())), true, false);
+				if (!isCurrentServerAskingConnection()) {
+					return new SubBlockInfo(new SubBlock(_block.getBytes(), _block.getOffset() + getSizeHead(),
+							getBodyOutputSizeForDecryption(_block.getSize() - getSizeHead())), true, false);
+				} 
 			}
 			case WAITING_FIRST_MESSAGE:
+				
 			case WAITING_FOR_CONNECTION_CONFIRMATION:
 			case CONNECTED: {
 				SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() + getSizeHead(),
@@ -949,6 +957,10 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 				case WAITING_FOR_PUBLIC_KEY:
 				case WAITING_FOR_SECRET_KEY:
 				{
+					byte[] tab=res.getBytes();
+					for (int i=res.getOffset();i<_block.getOffset();i++)
+						tab[i]=0;
+
 					return res;
 				}
 				case WAITING_FIRST_MESSAGE: 
@@ -997,6 +1009,11 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 	}
 
 	private static class BlockChecker extends TransferedBlockChecker {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 4833363274931312673L;
+		
 		private final ASymmetricAuthentifiedSignatureType signatureType;
 		private final int signatureSize;
 		private transient ASymmetricAuthentifiedSignatureCheckerAlgorithm signatureChecker;

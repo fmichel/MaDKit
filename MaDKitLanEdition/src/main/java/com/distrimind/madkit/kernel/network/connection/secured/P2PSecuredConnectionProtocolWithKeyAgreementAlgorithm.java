@@ -778,8 +778,13 @@ public class P2PSecuredConnectionProtocolWithKeyAgreementAlgorithm extends Conne
 		}
 		private SubBlock signIfPossibleSortantPointToPointTransferedBlockWithNoEncryption(SubBlock _block)
 		{
-			return new SubBlock(_block.getBytes(), _block.getOffset() - getSizeHead(),
+			SubBlock res= new SubBlock(_block.getBytes(), _block.getOffset() - getSizeHead(),
 					_block.getSize() + getSizeHead());
+			byte[] tab=res.getBytes();
+			for (int i=res.getOffset();i<_block.getOffset();i++)
+				tab[i]=0;
+			return res;
+
 		}
 		private SubBlock signIfPossibleSortantPointToPointTransferedBlockWithEncryption(SubBlock _block) throws InvalidKeyException, SignatureException, NoSuchAlgorithmException, InvalidKeySpecException, ShortBufferException, InvalidAlgorithmParameterException, IllegalStateException, IOException
 		{

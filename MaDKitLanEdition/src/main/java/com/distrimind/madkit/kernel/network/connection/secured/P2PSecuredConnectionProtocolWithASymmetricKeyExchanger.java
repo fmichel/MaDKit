@@ -663,9 +663,14 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 					if (excludeFromEncryption)
 					{
 						final SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() - getSizeHead(),s);
+						int off=_block.getSize()+_block.getOffset();
+						byte[] tab=res.getBytes();
+						for (int i=outputSize+_block.getOffset()-5;i>=off;i--)
+							tab[i]=0;
+						
 						int offr=res.getOffset()+res.getSize();
-						res.getBytes()[offr-1]=1;
-						Block.putShortInt(res.getBytes(), offr-4, _block.getSize());
+						tab[offr-1]=1;
+						Block.putShortInt(tab, offr-4, _block.getSize());
 						signer.init();
 						signer.update(res.getBytes(), _block.getOffset(),
 								outputSize);
@@ -855,6 +860,11 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 					int output=getBodyOutputSizeForEncryption(_block.getSize());
 					SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() - getSizeHead(),
 							output + getSizeHead());
+					int off=_block.getSize()+_block.getOffset();
+					byte[] tab=res.getBytes();
+					for (int i=output+_block.getOffset()-1;i>=off;i--)
+						tab[i]=0;
+					
 					signer.init();
 					signer.update(_block.getBytes(), _block.getOffset(), output);
 					

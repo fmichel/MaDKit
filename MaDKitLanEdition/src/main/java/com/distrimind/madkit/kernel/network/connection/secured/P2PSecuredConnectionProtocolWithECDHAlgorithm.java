@@ -538,9 +538,14 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 			if (excludeFromEncryption)
 			{
 				final SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() - getSizeHead(),s);
+				int off=_block.getSize()+_block.getOffset();
+				byte[] tab=res.getBytes();
+				for (int i=outputSize+_block.getOffset()-5;i>=off;i--)
+					tab[i]=0;
+				
 				int offr=res.getOffset()+res.getSize();
-				res.getBytes()[offr-1]=1;
-				Block.putShortInt(_block.getBytes(), offr-4, _block.getSize());
+				tab[offr-1]=1;
+				Block.putShortInt(tab, offr-4, _block.getSize());
 				signer.init();
 				if (getCounterSelector().isActivated())
 				{
@@ -749,7 +754,14 @@ public class P2PSecuredConnectionProtocolWithECDHAlgorithm extends ConnectionPro
 		@Override
 		public SubBlock getParentBlockWithEncryption(SubBlock _block, boolean excludeFromEncryption) throws InvalidKeyException, SignatureException, NoSuchAlgorithmException, InvalidKeySpecException, ShortBufferException, BlockParserException, InvalidAlgorithmParameterException, IllegalStateException, IllegalBlockSizeException, BadPaddingException, NoSuchProviderException, IOException
 		{
-			SubBlock res = getParentBlockWithNoTreatments(_block);
+			int outputSize=getBodyOutputSizeForEncryption(_block.getSize());
+			SubBlock res= new SubBlock(_block.getBytes(), _block.getOffset() - getSizeHead(),
+					outputSize + getSizeHead());
+			int off=_block.getSize()+_block.getOffset();
+			byte[] tab=res.getBytes();
+			for (int i=outputSize+_block.getOffset()-1;i>=off;i--)
+				tab[i]=0;
+			
 
 			signer.init();
 			if (getCounterSelector().isActivated())

@@ -473,8 +473,17 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 				switch (current_step) {
 				case NOT_CONNECTED:
 				{
-					SubBlock res = new SubBlock(_block.getBytes().clone(), _block.getOffset() - getSizeHead(),
+					
+					SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() - getSizeHead(),
 							outputSize + getSizeHead());
+					
+					
+					int off=_block.getSize()+_block.getOffset();
+					byte[] tab=res.getBytes();
+					for (int i=outputSize+_block.getOffset()-1;i>=off;i--)
+						tab[i]=0;
+					for (int i=res.getOffset();i<_block.getOffset();i++)
+						tab[i]=0;
 					return res;
 				}
 				case WAITING_FOR_CONNECTION_CONFIRMATION:
@@ -483,9 +492,14 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 					if (excludeFromEncryption)
 					{
 						final SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() - getSizeHead(),s);
+						int off=_block.getSize()+_block.getOffset();
+						byte[] tab=res.getBytes();
+						for (int i=outputSize+_block.getOffset()-5;i>=off;i--)
+							tab[i]=0;
+						
 						int offr=res.getOffset()+res.getSize();
-						res.getBytes()[offr-1]=1;
-						Block.putShortInt(res.getBytes(), offr-4, _block.getSize());
+						tab[offr-1]=1;
+						Block.putShortInt(tab, offr-4, _block.getSize());
 						signer.init();
 						if (getCounterSelector().isActivated())
 						{
@@ -662,8 +676,17 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 				int output=getBodyOutputSizeForEncryption(_block.getSize());
 				SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() - getSizeHead(),
 						output + getSizeHead());
+				int off=_block.getSize()+_block.getOffset();
+				byte[] tab=res.getBytes();
+				for (int i=output+_block.getOffset()-1;i>=off;i--)
+					tab[i]=0;
 				if (current_step==Step.NOT_CONNECTED)
+				{
+					for (int i=res.getOffset();i<_block.getOffset();i++)
+						tab[i]=0;
+
 					return res;
+				}
 				signer.init();
 				if (getCounterSelector().isActivated())
 				{

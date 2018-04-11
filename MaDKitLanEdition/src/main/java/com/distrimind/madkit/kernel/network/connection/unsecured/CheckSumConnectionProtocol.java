@@ -66,7 +66,7 @@ import com.distrimind.util.crypto.MessageDigestType;
  * 
  * 
  * @author Jason Mahdjoub
- * @version 1.2
+ * @version 1.3
  * @since MadkitLanEdition 1.0
  */
 public class CheckSumConnectionProtocol extends ConnectionProtocol<CheckSumConnectionProtocol> {
@@ -184,7 +184,10 @@ public class CheckSumConnectionProtocol extends ConnectionProtocol<CheckSumConne
 		@Override
 		public SubBlock getParentBlock(SubBlock _block, boolean excludeFromEncryption) throws BlockParserException {
 			try {
-				SubBlock res = getParentBlockWithNoTreatments(_block);
+				int outputSize=getBodyOutputSizeForEncryption(_block.getSize());
+				SubBlock res= new SubBlock(_block.getBytes(), _block.getOffset() - getSizeHead(),
+						outputSize + getSizeHead());
+				
 				messageDigest.reset();
 				messageDigest.update(res.getBytes(), _block.getOffset(), _block.getSize());
 				messageDigest.digest(res.getBytes(), res.getOffset(), getSizeHead());

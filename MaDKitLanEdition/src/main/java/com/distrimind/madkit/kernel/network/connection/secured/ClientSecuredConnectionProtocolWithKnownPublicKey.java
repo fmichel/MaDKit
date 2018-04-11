@@ -432,13 +432,20 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 				switch (current_step) {
 				case WAITING_FOR_CONNECTION_CONFIRMATION:case NOT_CONNECTED:
 				{
-					SubBlock res = new SubBlock(_block.getBytes().clone(), _block.getOffset() - getSizeHead(),
-							getBodyOutputSizeForEncryption(_block.getSize()) + getSizeHead());
+					int outputSize=getBodyOutputSizeForEncryption(_block.getSize());
+					SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() - getSizeHead(),
+							outputSize + getSizeHead());
 					if (!firstMessageSent)
 					{
 						Bits.putInt(res.getBytes(), res.getOffset(), hproperties.getEncryptionProfileIndentifier());
 						setFirstMessageSent();
 					}
+					int off=_block.getSize()+_block.getOffset();
+					byte[] tab=res.getBytes();
+					for (int i=outputSize+_block.getOffset()-1;i>=off;i--)
+						tab[i]=0;
+					for (int i=res.getOffset()+4;i<_block.getOffset();i++)
+						tab[i]=0;
 					return res;
 				}
 				
@@ -450,9 +457,15 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 					{
 						
 						final SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() - getSizeHead(),s);
+						byte[] tab=res.getBytes();
+						int off=_block.getSize()+_block.getOffset();
+						for (int i=outputSize+_block.getOffset()-5;i>=off;i--)
+							tab[i]=0;
 						int offr=res.getOffset()+res.getSize();
-						res.getBytes()[offr-1]=1;
-						Block.putShortInt(res.getBytes(), offr-4, _block.getSize());
+						tab[offr-1]=1;
+						Block.putShortInt(tab, offr-4, _block.getSize());
+						
+
 						signer.init();
 						if (getCounterSelector().isActivated())
 						{
@@ -614,26 +627,40 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 				switch (current_step) {
 				case WAITING_FOR_CONNECTION_CONFIRMATION:case NOT_CONNECTED:
 				{
-					SubBlock res = new SubBlock(_block.getBytes().clone(), _block.getOffset() - getSizeHead(),
-							getBodyOutputSizeForEncryption(_block.getSize()) + getSizeHead());
+					int outputSize=getBodyOutputSizeForEncryption(_block.getSize());
+
+					SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() - getSizeHead(),
+							outputSize + getSizeHead());
 					if (!firstMessageSent)
 					{
 						Bits.putInt(res.getBytes(), res.getOffset(), hproperties.getEncryptionProfileIndentifier());
 						setFirstMessageSent();
 					}
+					int off=_block.getSize()+_block.getOffset();
+					byte[] tab=res.getBytes();
+					for (int i=outputSize+_block.getOffset()-1;i>=off;i--)
+						tab[i]=0;
+					for (int i=res.getOffset()+4;i<_block.getOffset();i++)
+						tab[i]=0;
 					return res;
+			
 				}
 				case CONNECTED: {
-					int output=getBodyOutputSizeForEncryption(_block.getSize());
+					int outputSize=getBodyOutputSizeForEncryption(_block.getSize());
 					SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() - getSizeHead(),
-							output + getSizeHead());
-
+							outputSize + getSizeHead());
+					
+					int off=_block.getSize()+_block.getOffset();
+					byte[] tab=res.getBytes();
+					for (int i=outputSize+_block.getOffset()-1;i>=off;i--)
+						tab[i]=0;
+					
 					signer.init();
 					if (getCounterSelector().isActivated())
 					{
 						signer.update(packetCounter.getOtherSignatureCounter());
 					}
-					signer.update(_block.getBytes(), _block.getOffset(), output);
+					signer.update(_block.getBytes(), _block.getOffset(), outputSize);
 					
 					signer.getSignature(res.getBytes(), res.getOffset());
 					return res;

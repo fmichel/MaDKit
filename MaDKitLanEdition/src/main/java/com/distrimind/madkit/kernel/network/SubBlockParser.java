@@ -53,20 +53,16 @@ public abstract class SubBlockParser {
 	public abstract SubBlock getParentBlock(SubBlock _block, boolean excludedFromEncryption) throws BlockParserException;
 
 	protected final SubBlock getParentBlockWithNoTreatments(SubBlock _block) throws BlockParserException {
-		return new SubBlock(_block.getBytes(), _block.getOffset() - getSizeHead(),
-				getBodyOutputSizeForEncryption(_block.getSize()) + getSizeHead());
-		/*
-		 * int outputSize=getBodyOutputSize(_block.getSize()); int
-		 * additionalOffset=outputSize-_block.getSize(); if (additionalOffset==0) return
-		 * new SubBlock(_block.getBytes(), _block.getOffset()-getSizeHead(),
-		 * outputSize+getSizeHead()); else { byte[] bytes=new
-		 * byte[_block.getBytes().length]; System.arraycopy(_block.getBytes(),
-		 * _block.getOffset(), bytes, _block.getOffset()-additionalOffset,
-		 * _block.getSize());
-		 * 
-		 * return new SubBlock(bytes, _block.getOffset()-getSizeHead()-additionalOffset,
-		 * outputSize+getSizeHead()); }
-		 */
+		int outputSize=getBodyOutputSizeForEncryption(_block.getSize());
+		SubBlock res= new SubBlock(_block.getBytes(), _block.getOffset() - getSizeHead(),
+				outputSize + getSizeHead());
+		int off=_block.getSize()+_block.getOffset();
+		byte[] tab=res.getBytes();
+		for (int i=outputSize+_block.getOffset()-1;i>=off;i--)
+			tab[i]=0;
+		for (int i=res.getOffset();i<_block.getOffset();i++)
+			tab[i]=0;
+		return res;
 	}
 
 	public abstract int getSizeHead() throws BlockParserException;

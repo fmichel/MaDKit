@@ -824,6 +824,8 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 			switch (current_step) {
 			case NOT_CONNECTED:
 			case WAITING_FOR_PUBLIC_KEY:
+				return new SubBlockInfo(new SubBlock(_block.getBytes(), _block.getOffset() + getSizeHead(),
+						getBodyOutputSizeForDecryption(_block.getSize() - getSizeHead())), true, false);
 			case WAITING_FOR_SECRET_KEY: {
 				if (!isCurrentServerAskingConnection()) {
 					return new SubBlockInfo(new SubBlock(_block.getBytes(), _block.getOffset() + getSizeHead(),

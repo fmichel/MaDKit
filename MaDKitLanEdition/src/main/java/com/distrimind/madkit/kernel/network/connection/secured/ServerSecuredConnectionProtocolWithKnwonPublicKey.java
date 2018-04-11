@@ -201,15 +201,19 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 			if (askMessage.getSecretKeyForEncryption()==null && hproperties.enableEncryption)
 				throw new ConnectionException("Secret key empty !");
 			
+			mySecretKeyForSignature=keyWrapper.unwrapKey(myKeyPairForEncryption.getASymmetricPrivateKey(), askMessage.getSecretKeyForSignature());
+			
 			if (hproperties.enableEncryption)
 			{
 				mySecretKeyForEncryption=keyWrapper.unwrapKey(myKeyPairForEncryption.getASymmetricPrivateKey(), askMessage.getSecretKeyForEncryption());
 				symmetricEncryption=new SymmetricEncryptionAlgorithm(approvedRandom, mySecretKeyForEncryption);
+				if (!askMessage.checkSignedSecretKey(mySecretKeyForSignature))
+					throw new ConnectionException("Signature of secret for encryption is not checked !");
 			}
 			else
 				mySecretKeyForEncryption=null;
 			
-			mySecretKeyForSignature=keyWrapper.unwrapKey(myKeyPairForEncryption.getASymmetricPrivateKey(), askMessage.getSecretKeyForSignature());
+			
 			
 			signer = new SymmetricAuthentifiedSignerAlgorithm(mySecretKeyForSignature);
 			signatureChecker = new SymmetricAuthentifiedSignatureCheckerAlgorithm(mySecretKeyForSignature);

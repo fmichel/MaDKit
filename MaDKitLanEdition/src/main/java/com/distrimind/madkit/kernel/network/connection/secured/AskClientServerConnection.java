@@ -43,15 +43,20 @@ import gnu.vm.jgnu.security.InvalidAlgorithmParameterException;
 import gnu.vm.jgnu.security.InvalidKeyException;
 import gnu.vm.jgnu.security.NoSuchAlgorithmException;
 import gnu.vm.jgnu.security.NoSuchProviderException;
+import gnu.vm.jgnu.security.SignatureException;
 import gnu.vm.jgnu.security.spec.InvalidKeySpecException;
+import gnu.vm.jgnu.security.spec.InvalidParameterSpecException;
 import gnu.vm.jgnux.crypto.BadPaddingException;
 import gnu.vm.jgnux.crypto.IllegalBlockSizeException;
 import gnu.vm.jgnux.crypto.NoSuchPaddingException;
+import gnu.vm.jgnux.crypto.ShortBufferException;
 
 import com.distrimind.madkit.kernel.network.connection.AskConnection;
 import com.distrimind.util.crypto.ASymmetricKeyWrapperType;
 import com.distrimind.util.crypto.ASymmetricPublicKey;
 import com.distrimind.util.crypto.AbstractSecureRandom;
+import com.distrimind.util.crypto.SymmetricAuthentifiedSignatureCheckerAlgorithm;
+import com.distrimind.util.crypto.SymmetricAuthentifiedSignerAlgorithm;
 import com.distrimind.util.crypto.SymmetricSecretKey;
 
 /**
@@ -68,12 +73,12 @@ class AskClientServerConnection extends AskConnection {
 	private static final long serialVersionUID = 6607916237726396986L;
 
 	//private final transient byte[] distantPublicKeyForEncryptionEncoded;
-	private byte[] secretKeyForEncryption, secretKeyForSignature;
+	private byte[] secretKeyForEncryption, secretKeyForSignature, signatureOfSecretKeyForEncryption;
 
 	AskClientServerConnection(AbstractSecureRandom random, ASymmetricKeyWrapperType keyWrapper, SymmetricSecretKey encryptionSecretKey,SymmetricSecretKey signatureSecretKey,			
 			ASymmetricPublicKey distantPublicKeyForEncryption) throws InvalidKeyException, InvalidAlgorithmParameterException,
 			IllegalBlockSizeException, BadPaddingException, IOException, IllegalStateException,
-			NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException, NoSuchPaddingException {
+			NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException, NoSuchPaddingException, SignatureException, ShortBufferException {
 		super(false);
 		if (keyWrapper == null)
 			throw new NullPointerException("symmetricAlgo");
@@ -86,6 +91,8 @@ class AskClientServerConnection extends AskConnection {
 		
 		this.secretKeyForEncryption=keyWrapper.wrapKey(random, distantPublicKeyForEncryption, encryptionSecretKey);
 		this.secretKeyForSignature=keyWrapper.wrapKey(random, distantPublicKeyForEncryption, signatureSecretKey);
+		SymmetricAuthentifiedSignerAlgorithm signer=new SymmetricAuthentifiedSignerAlgorithm(signatureSecretKey);
+		this.signatureOfSecretKeyForEncryption=signer.sign(secretKeyForEncryption);
 		//this.distantPublicKeyForEncryptionEncoded = asymmetricAlgo.encode(distantPublicKeyForEncryption.encode());
 	}
 	AskClientServerConnection(AbstractSecureRandom random, ASymmetricKeyWrapperType keyWrapper, SymmetricSecretKey signatureSecretKey,			
@@ -102,6 +109,7 @@ class AskClientServerConnection extends AskConnection {
 		
 		this.secretKeyForEncryption=null;
 		this.secretKeyForSignature=keyWrapper.wrapKey(random, distantPublicKeyForEncryption, signatureSecretKey);
+		this.signatureOfSecretKeyForEncryption=null;
 		//this.distantPublicKeyForEncryptionEncoded = asymmetricAlgo.encode(distantPublicKeyForEncryption.encode());
 	}
 
@@ -111,6 +119,24 @@ class AskClientServerConnection extends AskConnection {
 	byte[] getSecretKeyForSignature() {
 		return secretKeyForSignature;
 	}
+	
+	boolean checkSignedSecretKey(SymmetricSecretKey signatureSecretKey)
+	{
+		if (secretKeyForEncryption!=null)
+		{
+			
+			try {
+				SymmetricAuthentifiedSignatureCheckerAlgorithm checker=new SymmetricAuthentifiedSignatureCheckerAlgorithm(signatureSecretKey);
+				return checker.verify(this.secretKeyForEncryption, this.signatureOfSecretKeyForEncryption);
+			} catch (InvalidKeyException | SignatureException | NoSuchAlgorithmException | InvalidKeySpecException
+					| ShortBufferException | IllegalStateException | NoSuchProviderException
+					| InvalidAlgorithmParameterException | InvalidParameterSpecException | IOException e) {
+				return false;
+			}
+		}
+		else
+			return false;
+	}
 
 	/*byte[] getEncodedPublicKeyForEncryption() {
 		return publicKeyForEncryptionEncoded;
@@ -119,6 +145,8 @@ class AskClientServerConnection extends AskConnection {
 		return publicKeyForSignatureEncoded;
 	}*/
 
+
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -131,6 +159,8 @@ class AskClientServerConnection extends AskConnection {
 		if (secretKeyForSignature.length == 0)
 			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
 		if (this.isYouAreAsking())
+			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
+		if (secretKeyForEncryption!=null && signatureOfSecretKeyForEncryption==null)
 			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
 		return Integrity.OK;
 	}

@@ -343,7 +343,7 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 				if (excludedFromEncryption)
 				{
 					int s=Block.getShortInt(_block.getBytes(), offr-4);
-					if (s>Block.BLOCK_SIZE_LIMIT || s>_block.getSize()-getSizeHead()-4 || s<PacketPartHead.getHeadSize(true))
+					if (s>Block.BLOCK_SIZE_LIMIT || s>_block.getSize()-getSizeHead()-4 || s<PacketPartHead.getHeadSize(false))
 						throw new BlockParserException();
 					try{
 						

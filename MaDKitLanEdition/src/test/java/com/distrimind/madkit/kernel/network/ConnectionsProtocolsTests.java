@@ -103,7 +103,6 @@ import gnu.vm.jgnu.security.NoSuchProviderException;
  * @version 1.2
  * @since MadkitLanEdition 1.0
  */
-@SuppressWarnings("deprecation")
 @RunWith(Parameterized.class)
 public class ConnectionsProtocolsTests extends JunitMadkit {
 	private static final EmbeddedHSQLDBWrapper sql_connection_asker;

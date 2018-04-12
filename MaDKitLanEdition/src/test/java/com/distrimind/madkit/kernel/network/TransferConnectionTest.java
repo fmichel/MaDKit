@@ -79,7 +79,6 @@ import com.distrimind.madkit.message.hook.TransferEventMessage;
  * 
  */
 
-@SuppressWarnings("deprecation")
 @RunWith(Parameterized.class)
 public class TransferConnectionTest extends JunitMadkit {
 

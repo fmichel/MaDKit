@@ -83,7 +83,7 @@ import gnu.vm.jgnux.crypto.ShortBufferException;
  * 
  * 
  * @author Jason Mahdjoub
- * @version 2.0
+ * @version 2.1
  * @since MadkitLanEdition 1.7
  */
 public class P2PSecuredConnectionProtocolWithKeyAgreementAlgorithm extends ConnectionProtocol<P2PSecuredConnectionProtocolWithKeyAgreementAlgorithm> {

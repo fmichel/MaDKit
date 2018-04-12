@@ -92,7 +92,6 @@ import com.distrimind.util.crypto.SymmetricSecretKey;
  * @version 1.2
  * @since MadkitLanEdition 1.0
  */
-@Deprecated
 public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends ConnectionProtocol<P2PSecuredConnectionProtocolWithASymmetricKeyExchanger> {
 	Step current_step = Step.NOT_CONNECTED;
 
@@ -317,7 +316,7 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 					return new AskConnection(false);
 				} else {
 					current_step = Step.WAITING_FOR_PUBLIC_KEY;
-					return new PublicKeyMessage(myKeyPairForEncryption.getASymmetricPublicKey(), distant_public_key_for_encryption, myKeyPairForSignature.getASymmetricPublicKey(), distant_public_key_for_signature);
+					return new PublicKeyMessage(myKeyPairForEncryption.getASymmetricPublicKey(), distant_public_key_for_encryption, myKeyPairForSignature.getASymmetricPublicKey(), distant_public_key_for_signature, myKeyPairForSignature.getASymmetricPrivateKey());
 				}
 			} else if (_m instanceof ConnectionFinished) {
 				if (((ConnectionFinished) _m).getState()
@@ -343,7 +342,7 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 				//checkAsymetricAlgorithm();
 				if (isCurrentServerAskingConnection()) {
 					current_step = Step.WAITING_FOR_SECRET_KEY;
-					return new PublicKeyMessage(myKeyPairForEncryption.getASymmetricPublicKey(), distant_public_key_for_encryption, myKeyPairForSignature.getASymmetricPublicKey(), distant_public_key_for_signature);
+					return new PublicKeyMessage(myKeyPairForEncryption.getASymmetricPublicKey(), distant_public_key_for_encryption, myKeyPairForSignature.getASymmetricPublicKey(), distant_public_key_for_signature, myKeyPairForSignature.getASymmetricPrivateKey());
 				} else {
 					// generateSecretKey();
 					current_step = Step.WAITING_FIRST_MESSAGE;
@@ -354,7 +353,7 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 			} else if (_m instanceof SimilarPublicKeysError) {
 				current_step = Step.WAITING_FOR_PUBLIC_KEY;
 				setNewPublicPrivateKeys();
-				return new PublicKeyMessage(myKeyPairForEncryption.getASymmetricPublicKey(), distant_public_key_for_encryption, myKeyPairForSignature.getASymmetricPublicKey(), distant_public_key_for_signature);
+				return new PublicKeyMessage(myKeyPairForEncryption.getASymmetricPublicKey(), distant_public_key_for_encryption, myKeyPairForSignature.getASymmetricPublicKey(), distant_public_key_for_signature, myKeyPairForSignature.getASymmetricPrivateKey());
 			} else if (_m instanceof ConnectionFinished) {
 				if (((ConnectionFinished) _m).getState()
 						.equals(ConnectionProtocol.ConnectionState.CONNECTION_ESTABLISHED)) {
@@ -577,7 +576,7 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 			if (excludedFromEncryption)
 			{
 				int s=Block.getShortInt(_block.getBytes(), offr-4);
-				if (s>Block.BLOCK_SIZE_LIMIT || s>_block.getSize()-getSizeHead()-4  || s<PacketPartHead.getHeadSize(true))
+				if (s>Block.BLOCK_SIZE_LIMIT || s>_block.getSize()-getSizeHead()-4  || s<PacketPartHead.getHeadSize(false))
 					throw new BlockParserException();
 				try{
 					
@@ -595,6 +594,7 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 
 					return new SubBlockInfo(res, check, !check);
 				} catch (Exception e) {
+					e.printStackTrace();
 					SubBlock res = new SubBlock(_block.getBytes(), off,
 							getBodyOutputSizeForDecryption(_block.getSize() - getSizeHead()));
 					return new SubBlockInfo(res, false, true);
@@ -637,6 +637,7 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 					
 					return new SubBlockInfo(res, check, !check);
 				} catch (Exception e) {
+					e.printStackTrace();
 					SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() + getSizeHead(),
 							getBodyOutputSizeForDecryption(_block.getSize() - getSizeHead()));
 					return new SubBlockInfo(res, false, true);

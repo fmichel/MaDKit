@@ -37,9 +37,15 @@
  */
 package com.distrimind.madkit.kernel.network.connection.secured;
 
+
+import com.distrimind.madkit.exceptions.ConnectionException;
 import com.distrimind.madkit.kernel.network.connection.ConnectionMessage;
+import com.distrimind.util.crypto.ASymmetricAuthentifiedSignatureCheckerAlgorithm;
+import com.distrimind.util.crypto.ASymmetricAuthentifiedSignerAlgorithm;
+import com.distrimind.util.crypto.ASymmetricPrivateKey;
 import com.distrimind.util.crypto.ASymmetricPublicKey;
 import com.distrimind.util.crypto.Key;
+
 
 /**
  * 
@@ -55,18 +61,29 @@ class PublicKeyMessage extends ConnectionMessage {
 
 	private transient ASymmetricPublicKey public_key_for_encryption = null;
 	private byte[] public_key_for_encryption_bytes;
+	private byte[] signedPublicKey;
 	private transient final byte[] public_key_bytes_distant_for_encryption;
 	private transient ASymmetricPublicKey public_key_for_signature = null;
 	private byte[] public_key_for_signature_bytes;
 	private transient final byte[] public_key_bytes_distant_for_signature;
+	
 
-	public PublicKeyMessage(ASymmetricPublicKey _public_key_for_encryption, ASymmetricPublicKey _public_key_distant_for_encryption, ASymmetricPublicKey _public_key_for_signature, ASymmetricPublicKey _public_key_distant_for_signature) {
-		public_key_for_encryption = _public_key_for_encryption;
-		public_key_for_encryption_bytes = _public_key_for_encryption.encode();
-		public_key_bytes_distant_for_encryption = _public_key_distant_for_encryption == null ? null : _public_key_distant_for_encryption.encode();
-		public_key_for_signature = _public_key_for_signature;
-		public_key_for_signature_bytes = _public_key_for_signature.encode();
-		public_key_bytes_distant_for_signature = _public_key_distant_for_signature == null ? null : _public_key_distant_for_signature.encode();
+	public PublicKeyMessage(ASymmetricPublicKey _public_key_for_encryption, ASymmetricPublicKey _public_key_distant_for_encryption, ASymmetricPublicKey _public_key_for_signature, ASymmetricPublicKey _public_key_distant_for_signature, ASymmetricPrivateKey privateKeyForSignature ) throws ConnectionException {
+		try
+		{
+			public_key_for_encryption = _public_key_for_encryption;
+			public_key_for_encryption_bytes = _public_key_for_encryption.encode();
+			public_key_bytes_distant_for_encryption = _public_key_distant_for_encryption == null ? null : _public_key_distant_for_encryption.encode();
+			public_key_for_signature = _public_key_for_signature;
+			public_key_for_signature_bytes = _public_key_for_signature.encode();
+			public_key_bytes_distant_for_signature = _public_key_distant_for_signature == null ? null : _public_key_distant_for_signature.encode();
+			ASymmetricAuthentifiedSignerAlgorithm signer=new ASymmetricAuthentifiedSignerAlgorithm(privateKeyForSignature);
+			signedPublicKey=signer.sign(public_key_for_encryption_bytes);
+		}
+		catch(Exception e)
+		{
+			throw new ConnectionException(e);
+		}
 	}
 
 	public ASymmetricPublicKey getPublicKeyForEncryption() {
@@ -96,6 +113,18 @@ class PublicKeyMessage extends ConnectionMessage {
 				return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
 		} catch (Exception e) {
 			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
+		}
+		if (signedPublicKey==null)
+			return Integrity.FAIL;
+		try
+		{
+			ASymmetricAuthentifiedSignatureCheckerAlgorithm checker=new ASymmetricAuthentifiedSignatureCheckerAlgorithm(public_key_for_signature);
+			if (!checker.verify(public_key_for_encryption_bytes, signedPublicKey))
+				return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
+		}
+		catch(Throwable e)
+		{
+			return Integrity.FAIL;
 		}
 		return Integrity.OK;
 	}

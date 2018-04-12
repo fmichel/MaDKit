@@ -383,12 +383,14 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 				candidate_to_ban = sbi.isCandidateToBan();
 				
 			} catch (BlockParserException e) {
+				e.printStackTrace();
 				valid = false;
 			}
 			if (valid) {
 				try {
 					sbi = new SubBlockInfo(sbs.getSubBlockForChild(sbi.getSubBlock(), i), true, false);
 				} catch (BlockParserException e) {
+					e.printStackTrace();
 					valid = false;
 				}
 			}

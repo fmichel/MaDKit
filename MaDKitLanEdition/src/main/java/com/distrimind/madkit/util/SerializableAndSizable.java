@@ -35,60 +35,16 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C license and that you accept its terms.
  */
-package com.distrimind.madkit.kernel.network;
+package com.distrimind.madkit.util;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
-
-
 /**
- * Represent a system message.
  * 
  * @author Jason Mahdjoub
- * @version 1.1
- * @since MadkitLanEdition 1.0
+ * @since MaDKitLanEdition 1.7
+ * @version 1.0
+ * 
  */
-public abstract class SystemMessage implements Serializable {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 2276302273108206568L;
-	
-	public static enum Integrity {
-		/**
-		 * The data integrity is good.
-		 */
-		OK,
-
-		/**
-		 * Anomalies occur during the data integrity check.
-		 */
-		FAIL,
-
-		/**
-		 * Anomalies of security occur during the data integrity check.
-		 */
-		FAIL_AND_CANDIDATE_TO_BAN
-	}
-
-	
-	//public abstract Integrity checkDataIntegrity();
-	
-	public abstract boolean excludedFromEncryption();
-
-	protected abstract void readAndCheckObject(final ObjectInputStream in) throws IOException, ClassNotFoundException;
-	protected abstract void writeAndCheckObject(final ObjectOutputStream oos) throws IOException;
-	
-	
-	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
-	{
-		readAndCheckObject(in);
-	}
-	private void writeObject(final ObjectOutputStream oos) throws IOException
-	{
-		writeAndCheckObject(oos);
-	}
+public interface SerializableAndSizable extends Serializable {
+	public int getInternalSerializedSize();
 }

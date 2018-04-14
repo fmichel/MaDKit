@@ -129,7 +129,7 @@ import com.distrimind.util.crypto.AbstractSecureRandom;
  * @since MadkitLanEdition 1.0
  */
 abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGroupsNotifier {
-
+	
 	enum State {
 		CONNECTION_IN_PROGRESS, CONNECTED_INITIALIZING_ACCESS, CONNECTED, DISCONNECTION_IN_PROGRESS, DISCONNECTION;
 	}
@@ -355,6 +355,9 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 						"The properties must have at least one connection protocol comptatible !");
 			this.counterSelector=new CounterSelector(connection_protocol);
 			connection_protocol.setCounterSelector(counterSelector);
+			if (NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE<getMadkitConfig().networkProperties.maxShortDataSize)
+				NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE=getMadkitConfig().networkProperties.maxShortDataSize;
+			
 			max_buffer_size = getMadkitConfig().networkProperties.maxBufferSize;
 			if (max_buffer_size <= 0)
 				throw new IllegalArgumentException("The buffer size must be greater than 0");

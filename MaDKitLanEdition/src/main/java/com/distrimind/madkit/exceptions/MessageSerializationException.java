@@ -35,60 +35,37 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C license and that you accept its terms.
  */
-package com.distrimind.madkit.kernel.network;
+package com.distrimind.madkit.exceptions;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
 
+import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 
 /**
- * Represent a system message.
+ * Represents a message destined for connections protocol.
  * 
  * @author Jason Mahdjoub
- * @version 1.1
- * @since MadkitLanEdition 1.0
+ * @version 1.0
+ * @since MadkitLanEdition 1.7
  */
-public abstract class SystemMessage implements Serializable {
-
+public class MessageSerializationException extends IOException{
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 2276302273108206568L;
+	private static final long serialVersionUID = 5325540568268332652L;
 	
-	public static enum Integrity {
-		/**
-		 * The data integrity is good.
-		 */
-		OK,
-
-		/**
-		 * Anomalies occur during the data integrity check.
-		 */
-		FAIL,
-
-		/**
-		 * Anomalies of security occur during the data integrity check.
-		 */
-		FAIL_AND_CANDIDATE_TO_BAN
-	}
-
-	
-	//public abstract Integrity checkDataIntegrity();
-	
-	public abstract boolean excludedFromEncryption();
-
-	protected abstract void readAndCheckObject(final ObjectInputStream in) throws IOException, ClassNotFoundException;
-	protected abstract void writeAndCheckObject(final ObjectOutputStream oos) throws IOException;
-	
-	
-	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
+	private final Integrity integrity;
+	public MessageSerializationException(Integrity integrity)
 	{
-		readAndCheckObject(in);
+		this(integrity, null);
 	}
-	private void writeObject(final ObjectOutputStream oos) throws IOException
+	public MessageSerializationException(Integrity integrity, Exception e)
 	{
-		writeAndCheckObject(oos);
+		super(integrity.toString(), e);
+		this.integrity=integrity;
 	}
+	public Integrity getIntegrity() {
+		return integrity;
+	}
+	
 }

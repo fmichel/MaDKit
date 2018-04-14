@@ -37,13 +37,13 @@
  */
 package com.distrimind.madkit.kernel;
 
-import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
+import com.distrimind.madkit.util.SerializableAndSizable;
 
 /**
  * 
@@ -61,7 +61,7 @@ import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
  * @version 2.0
  * @since MadKitLanEdition 1.0
  */
-public class ConversationID implements Serializable, Cloneable {
+public class ConversationID implements SerializableAndSizable, Cloneable {
 
 	/**
 	 * 
@@ -131,7 +131,7 @@ public class ConversationID implements Serializable, Cloneable {
 	Integrity checkDataIntegrity() {
 		if (origin == null)
 			return Integrity.FAIL;
-		return origin.checkDataIntegrity();
+		return Integrity.OK;
 	}
 
 	private static class OriginalID {
@@ -323,5 +323,11 @@ public class ConversationID implements Serializable, Cloneable {
 		} else {
 			return new ConversationID();
 		}
+	}
+
+	@Override
+	public int getInternalSerializedSize() {
+		
+		return 4;
 	}
 }

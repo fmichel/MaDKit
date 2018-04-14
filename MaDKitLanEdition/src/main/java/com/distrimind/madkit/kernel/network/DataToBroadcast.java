@@ -37,6 +37,10 @@
  */
 package com.distrimind.madkit.kernel.network;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 import com.distrimind.madkit.kernel.KernelAddress;
 import com.distrimind.madkit.kernel.network.TransferAgent.IDTransfer;
 
@@ -117,4 +121,12 @@ final class DataToBroadcast implements SystemMessage {
 		return false;
 	}
 
+	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
+	{
+		readAndCheckObject(in);
+	}
+	private void writeObject(final ObjectOutputStream oos) throws IOException
+	{
+		writeAndCheckObject(oos);
+	}
 }

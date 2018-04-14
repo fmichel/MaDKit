@@ -38,6 +38,8 @@
 
 package com.distrimind.madkit.kernel.network;
 
+import java.io.ObjectInputStream;
+import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
@@ -1159,4 +1161,32 @@ public class NetworkProperties extends XMLProperties {
 	public boolean canUsePointToPointTransferedBlockChecker=true;
 	
 	static volatile int GLOBAL_MAX_SHORT_DATA_SIZE=20971520;
+	
+	private static final HashMap<Class<?>, Boolean> checkedSystemMessageClasses=new HashMap<>();
+	
+	static boolean checkSystemMessageCompatibility(SystemMessage sm)
+	{
+		if (sm==null)
+			throw new NullPointerException();
+		synchronized(checkedSystemMessageClasses)
+		{
+			Boolean valid=checkedSystemMessageClasses.get(sm.getClass());
+			if (valid==null)
+			{
+				try
+				{
+					Method m=sm.getClass().getDeclaredMethod("readObject", ObjectInputStream.class);
+					valid=Boolean.valueOf(m!=null);
+				}
+				catch(Exception e)
+				{
+					valid=Boolean.valueOf(false);
+				}
+				checkedSystemMessageClasses.put(sm.getClass(), valid);
+			}
+			return valid.booleanValue();
+		}			
+	}
+	
+	
 }

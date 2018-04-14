@@ -54,7 +54,7 @@ import com.distrimind.util.sizeof.ObjectSizer;
  * @version 1.1
  * @since MadkitLanEdition 1.0
  */
-final class AcceptedGroups extends SystemMessage {
+final class AcceptedGroups implements SystemMessage {
 
 	/**
 	 * 
@@ -85,7 +85,7 @@ final class AcceptedGroups extends SystemMessage {
 	}
 	
 	@Override
-	protected void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
 		oos.writeInt(accepted_groups_and_requested.length);
 		for (Group g : accepted_groups_and_requested)
 		{
@@ -98,7 +98,7 @@ final class AcceptedGroups extends SystemMessage {
 	}
 	
 	@Override
-	protected void readAndCheckObject(ObjectInputStream in)
+	public void readAndCheckObject(ObjectInputStream in)
 			throws ClassNotFoundException, IOException {
 		int totalSize=0;
 		int size=in.readInt();
@@ -154,6 +154,14 @@ final class AcceptedGroups extends SystemMessage {
 		
 	}
 
+	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
+	{
+		readAndCheckObject(in);
+	}
+	private void writeObject(final ObjectOutputStream oos) throws IOException
+	{
+		writeAndCheckObject(oos);
+	}
 	
 
 	@Override

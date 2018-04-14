@@ -1,5 +1,9 @@
 package com.distrimind.madkit.kernel.network.connection.access;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 public class AccessMessagesList extends AccessMessage {
 	/**
 	 * 
@@ -26,4 +30,12 @@ public class AccessMessagesList extends AccessMessage {
 		return false;
 	}
 
+	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
+	{
+		readAndCheckObject(in);
+	}
+	private void writeObject(final ObjectOutputStream oos) throws IOException
+	{
+		writeAndCheckObject(oos);
+	}
 }

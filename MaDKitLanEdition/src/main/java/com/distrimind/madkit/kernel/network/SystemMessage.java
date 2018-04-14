@@ -50,12 +50,8 @@ import java.io.Serializable;
  * @version 1.1
  * @since MadkitLanEdition 1.0
  */
-public abstract class SystemMessage implements Serializable {
+public interface SystemMessage extends Serializable {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 2276302273108206568L;
 	
 	public static enum Integrity {
 		/**
@@ -79,16 +75,10 @@ public abstract class SystemMessage implements Serializable {
 	
 	public abstract boolean excludedFromEncryption();
 
-	protected abstract void readAndCheckObject(final ObjectInputStream in) throws IOException, ClassNotFoundException;
-	protected abstract void writeAndCheckObject(final ObjectOutputStream oos) throws IOException;
 	
 	
-	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
-	{
-		readAndCheckObject(in);
-	}
-	private void writeObject(final ObjectOutputStream oos) throws IOException
-	{
-		writeAndCheckObject(oos);
-	}
+	public void readAndCheckObject(final ObjectInputStream in) throws IOException, ClassNotFoundException;
+	public void writeAndCheckObject(final ObjectOutputStream oos) throws IOException;
+	
+	
 }

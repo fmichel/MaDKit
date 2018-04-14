@@ -37,6 +37,10 @@
  */
 package com.distrimind.madkit.kernel.network;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 /**
  * 
  * @author Jason Mahdjoub
@@ -65,4 +69,12 @@ final class PingMessage implements SystemMessage {
 		return true;
 	}
 
+	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
+	{
+		readAndCheckObject(in);
+	}
+	private void writeObject(final ObjectOutputStream oos) throws IOException
+	{
+		writeAndCheckObject(oos);
+	}
 }

@@ -1631,7 +1631,9 @@ class DistantKernelAgent extends AgentFakeThread {
 	 * _local_lan_message, last_message); }
 	 */
 	protected void sendData(AgentAddress receiver, SystemMessage _data, boolean prioritary,
-			MessageLocker _messageLocker, boolean last_message, CounterSelector counterSelector) throws MadkitException {
+			MessageLocker _messageLocker, boolean last_message, CounterSelector counterSelector) throws NIOException {
+		if (!NetworkProperties.checkSystemMessageCompatibility(_data))
+			throw new NIOException("The system message of type "+_data.getClass()+" does not contain readObject and writeObject functions.");
 		try (ByteArrayOutputStream baos = new ByteArrayOutputStream();) {
 			try (ObjectOutputStream oos = new OOS(baos)) {
 				oos.writeObject(_data);

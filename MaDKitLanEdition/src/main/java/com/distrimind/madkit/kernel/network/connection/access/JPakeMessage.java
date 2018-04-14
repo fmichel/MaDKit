@@ -38,6 +38,8 @@
 package com.distrimind.madkit.kernel.network.connection.access;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -304,5 +306,13 @@ class JPakeMessage extends AccessMessage{
 		return new LoginConfirmationMessage(acceptedIdentifiers, deniedIdentifiers, nbAno > Short.MAX_VALUE ? Short.MAX_VALUE : (short)nbAno, false);
 	}
 	
+	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
+	{
+		readAndCheckObject(in);
+	}
+	private void writeObject(final ObjectOutputStream oos) throws IOException
+	{
+		writeAndCheckObject(oos);
+	}
 	
 }

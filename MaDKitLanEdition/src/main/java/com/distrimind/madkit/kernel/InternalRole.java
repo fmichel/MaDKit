@@ -41,7 +41,9 @@ import static com.distrimind.madkit.i18n.I18nUtilities.getCGRString;
 import static com.distrimind.madkit.kernel.AbstractAgent.ReturnCode.ROLE_NOT_HANDLED;
 import static com.distrimind.madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 
-import java.io.Serializable;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -57,8 +59,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.distrimind.madkit.agr.Organization;
+import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.AbstractAgent.ReturnCode;
+import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.madkit.message.hook.HookMessage.AgentActionEvent;
+import com.distrimind.madkit.util.SerializableAndSizable;
 
 /**
  * /** Reifying the notion of Role in AGR
@@ -69,7 +74,7 @@ import com.distrimind.madkit.message.hook.HookMessage.AgentActionEvent;
  * @version 5.2
  * 
  */
-class InternalRole implements Serializable {// TODO test with arraylist
+class InternalRole implements SerializableAndSizable {// TODO test with arraylist
 
 	private static final long serialVersionUID = 4447153943733812916L;
 
@@ -85,8 +90,8 @@ class InternalRole implements Serializable {// TODO test with arraylist
 	private final transient AtomicLong number_of_manually_requested_role;
 	private final transient HashMap<KernelAddress, AtomicInteger> number_of_manually_distant_requested_role;
 
-	private final Group group;
-	private final String roleName;
+	private Group group;
+	private String roleName;
 
 	/**
 	 * @return the kernelAddress
@@ -94,7 +99,37 @@ class InternalRole implements Serializable {// TODO test with arraylist
 	KernelAddress getKernelAddress() {
 		return kernelAddress;
 	}
-
+	
+	
+	private void writeObject(ObjectOutputStream oos) throws IOException {
+		oos.writeObject(group);
+		if (roleName.length()>Group.MAX_ROLE_NAME_LENGTH)
+			throw new IOException();
+		oos.writeShort(roleName.length());
+		oos.writeChars(roleName);
+	}
+	private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+		Object o=ois.readObject();
+		if (o instanceof Group)
+		{
+			group=(Group)o;
+			short size=ois.readShort();
+			if (size<=0 || size>Group.MAX_ROLE_NAME_LENGTH)
+				throw new MessageSerializationException(Integrity.FAIL);
+			char chars[]=new char[size];
+			for (int i=0;i<size;i++)
+				chars[i]=ois.readChar();
+			roleName=new String(chars);
+		}
+		else
+			throw new IOException();
+	}
+	
+	@Override
+	public int getInternalSerializedSize() {
+		
+		return group.getInternalSerializedSize()+2+roleName.length()*2;
+	}
 	InternalRole(final InternalGroup groupObject, final String roleName) {
 		players = new ArrayList<>();
 		tmpReferenceableAgents = new ArrayList<>();// should not be necessary but ...

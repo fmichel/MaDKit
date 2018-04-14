@@ -38,9 +38,12 @@
 package com.distrimind.madkit.kernel.network;
 
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.KernelAddress;
+import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.util.AbstractDecentralizedID;
 
 import gnu.vm.jgnu.security.NoSuchAlgorithmException;
@@ -61,9 +64,12 @@ import gnu.vm.jgnu.security.NoSuchProviderException;
 public class KernelAddressInterfaced extends KernelAddress {
 	private static final long serialVersionUID = -8597071860059314028L;
 
-	private final KernelAddress original_external_kernel_address;
-	private final AtomicBoolean interfaced;
+	private KernelAddress original_external_kernel_address;
+	private AtomicBoolean interfaced;
 
+	
+	
+	
 	/**
 	 * @param _original_kernel_address
 	 *            the original kernel address to interface
@@ -93,6 +99,7 @@ public class KernelAddressInterfaced extends KernelAddress {
 		original_external_kernel_address = _original_kernel_address;
 		interfaced = new AtomicBoolean(!identical_from_original_kernel_interface);
 		initName();
+		internalSize+=original_external_kernel_address.getInternalSerializedSize()+1;
 	}
 
 	private KernelAddressInterfaced(KernelAddressInterfaced toClone) {
@@ -100,21 +107,53 @@ public class KernelAddressInterfaced extends KernelAddress {
 		original_external_kernel_address = toClone.original_external_kernel_address.clone();
 		interfaced = new AtomicBoolean(toClone.interfaced.get());
 		initName();
+		internalSize+=original_external_kernel_address.getInternalSerializedSize()+1;
 	}
+
+	
 
 	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
 		try {
-			in.defaultReadObject();
+			internalSize=in.readShort();
+			if (internalSize<128 || internalSize>513)
+				throw new MessageSerializationException(Integrity.FAIL);
+			byte[] tab=new byte[internalSize];
+			if (internalSize!=in.read(tab))
+				throw new IOException();
+			try
+			{
+				id=AbstractDecentralizedID.instanceOf(tab);
+			}
+			catch(Throwable t)
+			{
+				throw new IOException(t);
+			}
+			if (id==null)
+				throw new IOException();
+			++internalSize;
 			initName();
+			
+			Object o=in.readObject();
+			if (!(o instanceof KernelAddress))
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			original_external_kernel_address=(KernelAddress)o;
+			internalSize+=original_external_kernel_address.getInternalSerializedSize();
+			interfaced=new AtomicBoolean(in.readBoolean());
+				
 		} catch (IOException e) {
-			throw e;
-		} catch (ClassNotFoundException e) {
 			throw e;
 		} catch (Exception e) {
 			throw new IOException(e);
 		}
 	}
-
+	private void writeObject(ObjectOutputStream oos) throws IOException {
+		byte[] tab=id.getBytes();
+		oos.writeShort(tab.length);
+		oos.write(tab);
+		
+		oos.writeObject(original_external_kernel_address);
+		oos.writeBoolean(interfaced.get());
+	}
 	/**
 	 * 
 	 * @param identical_from_original_kernel_interface

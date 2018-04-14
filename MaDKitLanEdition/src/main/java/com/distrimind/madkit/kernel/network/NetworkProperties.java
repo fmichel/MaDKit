@@ -1158,4 +1158,5 @@ public class NetworkProperties extends XMLProperties {
 	 */
 	public boolean canUsePointToPointTransferedBlockChecker=true;
 	
+	static volatile int GLOBAL_MAX_SHORT_DATA_SIZE=20971520;
 }

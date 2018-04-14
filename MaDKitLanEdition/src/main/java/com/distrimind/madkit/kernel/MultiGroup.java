@@ -118,7 +118,20 @@ public class MultiGroup extends AbstractGroup {
 		for (int i = 0; i < forbiden; i++)
 			addForbidenGroup((AbstractGroup) ois.readObject());
 	}
+	@Override
+	public int getInternalSerializedSize() {
+		int res=8;
+		for (AssociatedGroup ag : m_groups) {
+			if (!ag.m_forbiden)
+				res+=ag.m_group.getInternalSerializedSize();
+		}
+		for (AssociatedGroup ag : m_groups) {
+			if (ag.m_forbiden)
+				res+=ag.m_group.getInternalSerializedSize();
+		}
+		return res;
 
+	}
 	private void writeObject(ObjectOutputStream oos) throws IOException {
 
 		int forbiden = 0;
@@ -579,4 +592,6 @@ public class MultiGroup extends AbstractGroup {
 				return true;
 		}
 	}
+
+	
 }

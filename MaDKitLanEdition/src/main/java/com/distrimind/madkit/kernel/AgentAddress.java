@@ -37,7 +37,14 @@
  */
 package com.distrimind.madkit.kernel;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 import com.distrimind.madkit.agr.Organization;
+import com.distrimind.madkit.exceptions.MessageSerializationException;
+import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
+import com.distrimind.madkit.util.SerializableAndSizable;
 
 /**
  * Identifies an agent within the artificial society.
@@ -60,7 +67,7 @@ import com.distrimind.madkit.agr.Organization;
  * @since MaDKitLanEdition 1.0
  * @version 5.2
  */
-public class AgentAddress implements java.io.Serializable, Cloneable {
+public class AgentAddress implements SerializableAndSizable, Cloneable {
 
 	private static final long serialVersionUID = -5109274890965282440L;
 
@@ -68,12 +75,12 @@ public class AgentAddress implements java.io.Serializable, Cloneable {
 	transient private AbstractAgent agent;
 
 	// these are the identifying parts over the net
-	final private KernelAddress kernelAddress;
-	final private long agentID;
+	private KernelAddress kernelAddress;
+	private long agentID;
 	private InternalRole roleObject;
 
 	private String cgr;// This is necessary to keep info in agent addresses that do not exist anymore
-	private final boolean manually_requested;
+	private boolean manually_requested;
 
 	/**
 	 * @param agt
@@ -97,6 +104,57 @@ public class AgentAddress implements java.io.Serializable, Cloneable {
 		return agent;
 	}
 
+	private void writeObject(ObjectOutputStream oos) throws IOException {
+		oos.writeObject(kernelAddress);
+		oos.writeLong(agentID);
+		oos.writeObject(roleObject);
+		
+		int size=cgr.length();
+		if (size>Group.MAX_CGR_LENGTH)
+			throw new IOException();
+		oos.writeInt(size);
+		oos.writeChars(cgr);
+		oos.writeBoolean(manually_requested);
+	}
+	@Override
+	public int getInternalSerializedSize() {
+		
+		return kernelAddress.getInternalSerializedSize()+13+roleObject.getInternalSerializedSize()+cgr.length()*2;
+	}
+	private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+		
+		Object o=ois.readObject();
+		if (o instanceof KernelAddress)
+		{
+			kernelAddress=(KernelAddress)o;
+			agentID=ois.readLong();
+			o=ois.readObject();
+			if (o instanceof InternalRole)
+			{
+				roleObject=(InternalRole)o;
+				int size=ois.readInt();
+				if (size<=0 || size>Group.MAX_CGR_LENGTH)
+				{
+					throw new MessageSerializationException(Integrity.FAIL); 
+				}
+				char chars[]=new char[size];
+				for (int i=0;i<size;i++)
+					chars[i]=ois.readChar();
+				cgr=new String(chars);
+				manually_requested=ois.readBoolean();
+			}
+			else
+				throw new MessageSerializationException(Integrity.FAIL);
+			
+		}
+		else
+		{
+			throw new MessageSerializationException(Integrity.FAIL);
+		}
+		
+	}
+	
+	
 	/*
 	 * public AgentAddress getOriginalAgentAddesss(KernelAddressInterfaced kai) { if
 	 * (!kernelAddress.equals(kai)) throw new
@@ -287,6 +345,8 @@ public class AgentAddress implements java.io.Serializable, Cloneable {
 	public AgentAddress clone() {
 		return this;
 	}
+
+	
 }
 
 final class CandidateAgentAddress extends AgentAddress {

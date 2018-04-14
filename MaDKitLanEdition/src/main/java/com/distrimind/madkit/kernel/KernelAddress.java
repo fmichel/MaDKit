@@ -38,12 +38,13 @@
 package com.distrimind.madkit.kernel;
 
 import java.io.IOException;
-import java.io.Serializable;
+import java.io.ObjectOutputStream;
 
 import org.apache.commons.codec.binary.Base64;
 
-import com.distrimind.madkit.kernel.network.KernelAddressInterfaced;
+import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
+import com.distrimind.madkit.util.SerializableAndSizable;
 import com.distrimind.util.AbstractDecentralizedID;
 import com.distrimind.util.RenforcedDecentralizedIDGenerator;
 import com.distrimind.util.SecuredDecentralizedID;
@@ -65,16 +66,17 @@ import gnu.vm.jgnu.security.NoSuchProviderException;
  * @since MaDKitLanEdition 1.0
  *
  */
-public class KernelAddress implements Serializable, Cloneable {
+public class KernelAddress implements SerializableAndSizable, Cloneable {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -8558944358948665656L;
 
-	protected final AbstractDecentralizedID id;
+	protected AbstractDecentralizedID id;
 
 	private transient String name;
+	protected transient short internalSize;
 
 
 	/**
@@ -96,7 +98,7 @@ public class KernelAddress implements Serializable, Cloneable {
 			id = new SecuredDecentralizedID(generatedid, SecureRandomType.FORTUNA_WITH_BC_FIPS_APPROVED.getInstance(null));
 		} else
 			id = generatedid;
-
+		internalSize=(short)(id.getBytes().length+1);
 		if (initName)
 			initName();
 		else
@@ -111,7 +113,7 @@ public class KernelAddress implements Serializable, Cloneable {
 		if (id == null)
 			throw new NullPointerException("id");
 		this.id = id;
-
+		internalSize=(short)(id.getBytes().length+1);
 		if (initName)
 			initName();
 		else
@@ -120,18 +122,47 @@ public class KernelAddress implements Serializable, Cloneable {
 
 	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
 		try {
-			in.defaultReadObject();
-			if (!(this instanceof KernelAddressInterfaced))
-				initName();
+			internalSize=in.readShort();
+			if (internalSize<128 || internalSize>513)
+				throw new MessageSerializationException(Integrity.FAIL);
+			byte[] tab=new byte[internalSize];
+			if (internalSize!=in.read(tab))
+				throw new IOException();
+			try
+			{
+				id=AbstractDecentralizedID.instanceOf(tab);
+			}
+			catch(Throwable t)
+			{
+				throw new IOException(t);
+			}
+			++internalSize;
+			
+			try {
+				if (id == null)
+					throw new MessageSerializationException(Integrity.FAIL);
+				if (id.getBytes() == null)
+					throw new MessageSerializationException(Integrity.FAIL);
+				if (!id.equals(id))
+					throw new MessageSerializationException(Integrity.FAIL);
+				
+			} catch (Exception e) {
+				throw new MessageSerializationException(Integrity.FAIL);
+			}
+			
+			
+			initName();
 		} catch (IOException e) {
-			throw e;
-		} catch (ClassNotFoundException e) {
 			throw e;
 		} catch (Exception e) {
 			throw new IOException(e);
 		}
 	}
-
+	private void writeObject(ObjectOutputStream oos) throws IOException {
+		byte[] tab=id.getBytes();
+		oos.writeShort(tab.length);
+		oos.write(tab);
+	}
 	private String getKernelName() {
 		return "@" + Madkit.getVersion().getShortProgramName() + "-" + getNetworkID();
 	}
@@ -176,29 +207,16 @@ public class KernelAddress implements Serializable, Cloneable {
 		return name;
 	}
 
-	public Integrity checkDataIntegrity() {
-		try {
-			if (id == null)
-				return Integrity.FAIL;
-			if (id.getBytes() == null)
-				return Integrity.FAIL;
-			if (!id.equals(id))
-				return Integrity.FAIL;
-			if (getAbstractDecentralizedID() == null)
-				return Integrity.FAIL;
-			if (getAbstractDecentralizedID().getBytes() == null)
-				return Integrity.FAIL;
-			if (!getAbstractDecentralizedID().equals(getAbstractDecentralizedID()))
-				return Integrity.FAIL;
-			return Integrity.OK;
-		} catch (Exception e) {
-			return Integrity.FAIL;
-		}
-	}
+
 
 	@Override
 	public KernelAddress clone() {
 		return this;
+	}
+
+	@Override
+	public int getInternalSerializedSize() {
+		return internalSize;
 	}
 
 }

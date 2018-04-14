@@ -48,8 +48,10 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.distrimind.madkit.agr.LocalCommunity;
+import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.Gatekeeper;
 import com.distrimind.madkit.kernel.KernelAddress;
+import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 
 /**
  * MadKitGroupExtension aims to encapsulate MadKit in order to extends the
@@ -71,6 +73,12 @@ public final class Group extends AbstractGroup implements Comparable<Group> {
 	 */
 	private static final long serialVersionUID = 2926497540140504602L;
 
+	public static final short MAX_COMMUNITY_LENGTH=8192;
+	public static final int MAX_PATH_LENGTH=65536;
+	public static final short MAX_ROLE_NAME_LENGTH=16384;
+	
+	public static final int MAX_CGR_LENGTH=MAX_COMMUNITY_LENGTH+MAX_PATH_LENGTH+MAX_ROLE_NAME_LENGTH+3;
+	
 	private transient GroupTree m_group;
 	private transient boolean m_use_sub_groups;
 	private volatile transient GroupTree[] m_sub_groups_tree = null;
@@ -418,8 +426,23 @@ public final class Group extends AbstractGroup implements Comparable<Group> {
 	private void readObject(ObjectInputStream ois) throws IOException {
 
 		try {
-			String com = ois.readUTF();
-			String path = ois.readUTF();
+			int size=ois.readInt();
+			if (size<0 || size>MAX_COMMUNITY_LENGTH)
+				throw new MessageSerializationException(Integrity.FAIL);
+			char chars[]=new char[size];
+			for (int i=0;i<size;i++)
+				chars[i]=ois.readChar();
+			String com=new String(chars);
+			
+			size=ois.readInt();
+			if (size<0 || size>MAX_PATH_LENGTH)
+				throw new MessageSerializationException(Integrity.FAIL);
+			chars=new char[size];
+			for (int i=0;i<size;i++)
+				chars[i]=ois.readChar();
+			
+			String path=new String(chars);
+
 			this.m_use_sub_groups = ois.readBoolean();
 			boolean dist = ois.readBoolean();
 			boolean isReserved = ois.readBoolean();
@@ -428,6 +451,7 @@ public final class Group extends AbstractGroup implements Comparable<Group> {
 			this.m_represented_groups = null;
 			this.m_sub_groups = null;
 			this.m_sub_groups_tree = null;
+			
 
 			m_group = getRoot(com).getGroup(dist, null, isReserved, true, getGroupsStringFromPath(path));
 
@@ -439,10 +463,28 @@ public final class Group extends AbstractGroup implements Comparable<Group> {
 		} catch (Exception e) {
 			throw new IOException(e);
 		}
+		
 	}
 
+	@Override
+	public int getInternalSerializedSize() {
+		
+		return 9+this.getCommunity().length()*2+this.getPath().length()*2;
+	}
+	
+	
 	private void writeObject(ObjectOutputStream oos) throws IOException {
 		try {
+			
+			if (this.getCommunity().length()>MAX_COMMUNITY_LENGTH)
+				throw new IOException();
+			oos.writeShort(this.getCommunity().length());
+			oos.writeChars(this.getCommunity());
+			if (this.getPath().length()>MAX_PATH_LENGTH)
+				throw new IOException();
+			oos.writeInt(this.getPath().length());
+			oos.writeChars(this.getPath());
+			
 			oos.writeUTF(this.getCommunity());
 			oos.writeUTF(this.getPath());
 			oos.writeBoolean(this.m_use_sub_groups);
@@ -1327,6 +1369,11 @@ public final class Group extends AbstractGroup implements Comparable<Group> {
 		public int hashCode() {
 			return 0;
 		}
+
+		@Override
+		public int getInternalSerializedSize() {
+			return 0;
+		}
 	}
 
 	static final Universe universe = new Universe();
@@ -1958,5 +2005,7 @@ public final class Group extends AbstractGroup implements Comparable<Group> {
 		}
 
 	}
+
+	
 
 }

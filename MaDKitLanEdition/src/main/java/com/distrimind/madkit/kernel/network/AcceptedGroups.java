@@ -37,10 +37,16 @@
  */
 package com.distrimind.madkit.kernel.network;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.AgentAddress;
 import com.distrimind.madkit.kernel.Group;
 import com.distrimind.madkit.kernel.KernelAddress;
 import com.distrimind.madkit.kernel.MultiGroup;
+import com.distrimind.util.sizeof.ObjectSizer;
 
 /**
  * 
@@ -48,17 +54,17 @@ import com.distrimind.madkit.kernel.MultiGroup;
  * @version 1.1
  * @since MadkitLanEdition 1.0
  */
-final class AcceptedGroups implements SystemMessage {
+final class AcceptedGroups extends SystemMessage {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -6092464713298140517L;
 
-	public final Group[] accepted_groups_and_requested;
-	public final MultiGroup accepted_groups;
-	public final KernelAddress kernelAddress;
-	public final AgentAddress distant_agent_socket_address;
+	public Group[] accepted_groups_and_requested;
+	public MultiGroup accepted_groups;
+	public KernelAddress kernelAddress;
+	public AgentAddress distant_agent_socket_address;
 
 	public AcceptedGroups(MultiGroup accepted_groups, Group[] accepted_groups_and_requested,
 			KernelAddress _kernel_address, AgentAddress my_agent_socket_address) {
@@ -77,6 +83,78 @@ final class AcceptedGroups implements SystemMessage {
 		kernelAddress = _kernel_address;
 		distant_agent_socket_address = my_agent_socket_address;
 	}
+	
+	@Override
+	protected void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		oos.writeInt(accepted_groups_and_requested.length);
+		for (Group g : accepted_groups_and_requested)
+		{
+			oos.writeObject(g);
+		}
+		oos.writeObject(accepted_groups);
+		oos.writeObject(kernelAddress);
+		oos.writeObject(distant_agent_socket_address);
+		
+	}
+	
+	@Override
+	protected void readAndCheckObject(ObjectInputStream in)
+			throws ClassNotFoundException, IOException {
+		int totalSize=0;
+		int size=in.readInt();
+		if (size<0)
+			throw new MessageSerializationException(Integrity.FAIL);
+		totalSize+=size*ObjectSizer.OBJREF_SIZE+ObjectSizer.OBJREF_SIZE;
+		if (totalSize>NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		accepted_groups_and_requested=new Group[size];
+		for (int i=0;i<size;i++)
+		{
+			Object o=in.readObject();
+			if (!(o instanceof Group))
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			accepted_groups_and_requested[i]=(Group)o;
+			totalSize+=accepted_groups_and_requested[i].getInternalSerializedSize();
+			if (totalSize>NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE)
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		}
+		Object o=in.readObject();
+		if (!(o instanceof MultiGroup))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		accepted_groups=(MultiGroup)o;
+		totalSize+=accepted_groups.getInternalSerializedSize();
+		if (totalSize>NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		
+		o=in.readObject();
+		if (!(o instanceof KernelAddress))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		kernelAddress=(KernelAddress)o;
+		totalSize+=kernelAddress.getInternalSerializedSize();
+		if (totalSize>NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+
+		o=in.readObject();
+		if (!(o instanceof AgentAddress))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		distant_agent_socket_address=(AgentAddress)o;
+		totalSize+=distant_agent_socket_address.getInternalSerializedSize();
+		if (totalSize>NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+
+		
+		if (accepted_groups.isEmpty())
+			throw new MessageSerializationException(Integrity.FAIL);
+		for (Group g : accepted_groups_and_requested) {
+			if (g == null)
+				throw new MessageSerializationException(Integrity.FAIL);
+			if (g.isUsedSubGroups())
+				throw new MessageSerializationException(Integrity.FAIL);
+		}
+		
+	}
+
+	
 
 	@Override
 	public String toString() {
@@ -84,33 +162,13 @@ final class AcceptedGroups implements SystemMessage {
 				+ distant_agent_socket_address + ", accepted_groups=" + accepted_groups + "]";
 	}
 
-	@Override
-	public Integrity checkDataIntegrity() {
-		if (accepted_groups == null)
-			return Integrity.FAIL;
-		if (accepted_groups_and_requested == null)
-			return Integrity.FAIL;
-		if (kernelAddress == null)
-			return Integrity.FAIL;
-		if (accepted_groups.isEmpty())
-			return Integrity.FAIL;
-		Integrity i = kernelAddress.checkDataIntegrity();
-		if (i != Integrity.OK)
-			return i;
-		for (Group g : accepted_groups_and_requested) {
-			if (g == null)
-				return Integrity.FAIL;
-			if (g.isUsedSubGroups())
-				return Integrity.FAIL;
-		}
-		if (distant_agent_socket_address == null)
-			return Integrity.FAIL;
-		return Integrity.OK;
-	}
+
 
 	@Override
 	public boolean excludedFromEncryption() {
 		return false;
 	}
+
+	
 
 }

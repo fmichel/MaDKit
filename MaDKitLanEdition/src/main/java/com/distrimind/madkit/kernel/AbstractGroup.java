@@ -38,7 +38,6 @@
 
 package com.distrimind.madkit.kernel;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -46,6 +45,7 @@ import java.util.Iterator;
 
 import com.distrimind.madkit.kernel.KernelAddress;
 import com.distrimind.madkit.kernel.MultiGroup.AssociatedGroup;
+import com.distrimind.madkit.util.SerializableAndSizable;
 
 /**
  * MadKitGroupExtension aims to encapsulate MadKit in order to extends the
@@ -65,7 +65,7 @@ import com.distrimind.madkit.kernel.MultiGroup.AssociatedGroup;
  * @see MultiGroup
  * @see AbstractGroup#getUniverse()
  */
-public abstract class AbstractGroup implements Serializable, Cloneable {
+public abstract class AbstractGroup implements SerializableAndSizable, Cloneable {
 
 	/**
 	 * 

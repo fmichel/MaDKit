@@ -207,12 +207,18 @@ public class P2PSecuredConnectionProtocolWithKeyAgreementAlgorithm extends Conne
 			throw new InternalError();
 		if (this.isCurrentServerAskingConnection())
 		{
-			this.keyAgreementForEncryption=hproperties.keyAgreementType.getKeyAgreementServer(this.approvedRandomForKeys, hproperties.symmetricEncryptionType, hproperties.symmetricKeySizeBits, materialKeyForEncryption);
+			if (hproperties.enableEncryption)
+				this.keyAgreementForEncryption=hproperties.keyAgreementType.getKeyAgreementServer(this.approvedRandomForKeys, hproperties.symmetricEncryptionType, hproperties.symmetricKeySizeBits, materialKeyForEncryption);
+			else
+				this.keyAgreementForEncryption=null;
 			this.keyAgreementForSignature=hproperties.keyAgreementType.getKeyAgreementServer(this.approvedRandomForKeys, hproperties.symmetricSignatureType, hproperties.symmetricKeySizeBits, materialKeyForSignature);
 		}
 		else
 		{
-			this.keyAgreementForEncryption=hproperties.keyAgreementType.getKeyAgreementClient(this.approvedRandomForKeys, hproperties.symmetricEncryptionType, hproperties.symmetricKeySizeBits, materialKeyForEncryption);
+			if (hproperties.enableEncryption)
+				this.keyAgreementForEncryption=hproperties.keyAgreementType.getKeyAgreementClient(this.approvedRandomForKeys, hproperties.symmetricEncryptionType, hproperties.symmetricKeySizeBits, materialKeyForEncryption);
+			else
+				this.keyAgreementForEncryption=null;
 			this.keyAgreementForSignature=hproperties.keyAgreementType.getKeyAgreementClient(this.approvedRandomForKeys, hproperties.symmetricSignatureType, hproperties.symmetricKeySizeBits, materialKeyForSignature);
 			
 		}
@@ -239,12 +245,19 @@ public class P2PSecuredConnectionProtocolWithKeyAgreementAlgorithm extends Conne
 					return new AskConnection(false);
 				} else {
 					try {
-						materialKeyForEncryption=new byte[MATERIAL_KEY_SIZE_BYTES];
+						
 						materialKeyForSignature=new byte[MATERIAL_KEY_SIZE_BYTES];
-						approvedRandom.nextBytes(materialKeyForEncryption);
 						approvedRandom.nextBytes(materialKeyForSignature);
 						initKeyAgreementAlgorithm();
-						byte [] material=Bits.concateEncodingWithShortSizedTabs(materialKeyForSignature, materialKeyForEncryption);
+						byte [] material=null;
+						if (hproperties.enableEncryption)
+						{
+							materialKeyForEncryption=new byte[MATERIAL_KEY_SIZE_BYTES];
+							approvedRandom.nextBytes(materialKeyForEncryption);
+							material=Bits.concateEncodingWithShortSizedTabs(materialKeyForSignature, materialKeyForEncryption);
+						}
+						else
+							material=materialKeyForSignature;
 						return new KeyAgreementDataMessage(keyAgreementForSignature.getDataToSend(), material);
 						
 					} catch (Exception e) {
@@ -277,15 +290,26 @@ public class P2PSecuredConnectionProtocolWithKeyAgreementAlgorithm extends Conne
 						try
 						{
 							byte[] material=kadm.getMaterialKey();
-							
-							if (material==null || material.length!=MATERIAL_KEY_SIZE_BYTES*2+2)
-								return new ConnectionFinished(distant_inet_address, ConnectionClosedReason.CONNECTION_ANOMALY);
-							byte[][] t=Bits.separateEncodingsWithShortSizedTabs(material);
-							materialKeyForSignature=t[0];
-							materialKeyForEncryption=t[1];
-							if (materialKeyForEncryption==null || materialKeyForEncryption.length!=MATERIAL_KEY_SIZE_BYTES
-									|| materialKeyForSignature==null || materialKeyForSignature.length!=MATERIAL_KEY_SIZE_BYTES)
-								return new ConnectionFinished(distant_inet_address, ConnectionClosedReason.CONNECTION_ANOMALY);
+							if (hproperties.enableEncryption)
+							{
+								if (material==null || material.length!=MATERIAL_KEY_SIZE_BYTES*2+2)
+									return new ConnectionFinished(distant_inet_address, ConnectionClosedReason.CONNECTION_ANOMALY);
+								byte[][] t=Bits.separateEncodingsWithShortSizedTabs(material);
+								materialKeyForSignature=t[0];
+								materialKeyForEncryption=t[1];
+								if (materialKeyForEncryption==null || materialKeyForEncryption.length!=MATERIAL_KEY_SIZE_BYTES
+										|| materialKeyForSignature==null || materialKeyForSignature.length!=MATERIAL_KEY_SIZE_BYTES)
+									return new ConnectionFinished(distant_inet_address, ConnectionClosedReason.CONNECTION_ANOMALY);
+							}
+							else
+							{
+								if (material==null || material.length!=MATERIAL_KEY_SIZE_BYTES)
+									return new ConnectionFinished(distant_inet_address, ConnectionClosedReason.CONNECTION_ANOMALY);
+								materialKeyForSignature=material;
+								
+								if (materialKeyForSignature==null || materialKeyForSignature.length!=MATERIAL_KEY_SIZE_BYTES)
+									return new ConnectionFinished(distant_inet_address, ConnectionClosedReason.CONNECTION_ANOMALY);
+							}
 							initKeyAgreementAlgorithm();
 						}
 						catch(Exception e)
@@ -309,7 +333,10 @@ public class P2PSecuredConnectionProtocolWithKeyAgreementAlgorithm extends Conne
 					if (keyAgreementForSignature.hasFinishedReceiption())
 					{
 						doNotTakeIntoAccountNextState=true;
-						current_step=Step.WAITING_FOR_ENCRYPTION_DATA;
+						if (hproperties.enableEncryption)
+							current_step=Step.WAITING_FOR_ENCRYPTION_DATA;
+						else
+							current_step=Step.WAITING_FOR_CONNECTION_CONFIRMATION;
 						secret_key_for_signature=keyAgreementForSignature.getDerivedKey();
 						checkSymmetricSignatureAlgorithm();
 					}
@@ -323,7 +350,10 @@ public class P2PSecuredConnectionProtocolWithKeyAgreementAlgorithm extends Conne
 					{
 						doNotTakeIntoAccountNextState=false;
 						
-						current_step=Step.WAITING_FOR_ENCRYPTION_DATA;
+						if (hproperties.enableEncryption)
+							current_step=Step.WAITING_FOR_ENCRYPTION_DATA;
+						else
+							current_step=Step.WAITING_FOR_CONNECTION_CONFIRMATION;
 						data=keyAgreementForEncryption.getDataToSend();
 						return new KeyAgreementDataMessage(data, null);
 					}
@@ -341,7 +371,7 @@ public class P2PSecuredConnectionProtocolWithKeyAgreementAlgorithm extends Conne
 		case WAITING_FOR_ENCRYPTION_DATA:{
 			if (_m instanceof KeyAgreementDataMessage)
 			{
-				if (!keyAgreementForSignature.isAgreementProcessValid() || keyAgreementForEncryption.hasFinishedReceiption())
+				if (!keyAgreementForSignature.isAgreementProcessValid() || (keyAgreementForEncryption!=null && keyAgreementForEncryption.hasFinishedReceiption()))
 				{
 					reset();
 					current_step=Step.NOT_CONNECTED;
@@ -388,7 +418,7 @@ public class P2PSecuredConnectionProtocolWithKeyAgreementAlgorithm extends Conne
 			doNotTakeIntoAccountNextState=false;
 			if (_m instanceof ConnectionFinished)
 			{
-				if (!keyAgreementForEncryption.isAgreementProcessValid())
+				if (!keyAgreementForSignature.isAgreementProcessValid() || (keyAgreementForEncryption!=null && !keyAgreementForEncryption.hasFinishedReceiption()))
 				{
 					reset();
 					current_step=Step.NOT_CONNECTED;

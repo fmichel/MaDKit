@@ -39,6 +39,7 @@
 package com.distrimind.madkit.kernel.network;
 
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -1177,6 +1178,8 @@ public class NetworkProperties extends XMLProperties {
 				{
 					Method m=sm.getClass().getDeclaredMethod("readObject", ObjectInputStream.class);
 					valid=Boolean.valueOf(m!=null);
+					m=sm.getClass().getDeclaredMethod("writeObject", ObjectOutputStream.class);
+					valid=Boolean.valueOf(valid.booleanValue() && m!=null);
 				}
 				catch(Exception e)
 				{

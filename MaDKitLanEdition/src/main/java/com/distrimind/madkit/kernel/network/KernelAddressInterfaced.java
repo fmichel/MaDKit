@@ -117,19 +117,30 @@ public class KernelAddressInterfaced extends KernelAddress {
 			internalSize=in.readShort();
 			if (internalSize<128 || internalSize>513)
 				throw new MessageSerializationException(Integrity.FAIL);
-			byte[] tab=new byte[internalSize];
-			if (internalSize!=in.read(tab))
-				throw new IOException();
-			try
+			synchronized(tab)
 			{
-				id=AbstractDecentralizedID.instanceOf(tab);
+				if (internalSize!=in.read(tab, 0, internalSize))
+					throw new IOException();
+				try
+				{
+					id=AbstractDecentralizedID.instanceOf(tab);
+				}
+				catch(Throwable t)
+				{
+					throw new IOException(t);
+				}
 			}
-			catch(Throwable t)
-			{
-				throw new IOException(t);
+			try {
+				if (id == null)
+					throw new MessageSerializationException(Integrity.FAIL);
+				if (id.getBytes() == null)
+					throw new MessageSerializationException(Integrity.FAIL);
+				if (!id.equals(id))
+					throw new MessageSerializationException(Integrity.FAIL);
+				
+			} catch (Exception e) {
+				throw new MessageSerializationException(Integrity.FAIL);
 			}
-			if (id==null)
-				throw new IOException();
 			++internalSize;
 			initName();
 			

@@ -36,6 +36,7 @@ package com.distrimind.madkit.message;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
+
 /**
  * This class describes a generic speech act message.
  * 
@@ -48,11 +49,16 @@ import java.util.Hashtable;
 public class ActMessage extends com.distrimind.madkit.kernel.Message {
 
 	private static final long serialVersionUID = -2556927686645807800L;
+	static final int MAX_ACTION_LENGTH=Short.MAX_VALUE;
+	
 	protected String action;
 	protected final Hashtable<String, Object> fields;
 	private boolean excludeFromEncryption;
 	String content;
 
+	
+	
+	
 	/** Constructor for GenericMessage class
 	 * @param actiontype the action type
 	 *  */
@@ -123,5 +129,7 @@ public class ActMessage extends com.distrimind.madkit.kernel.Message {
 	public boolean excludedFromEncryption() {
 		return excludeFromEncryption;
 	}
+	
+	
 
 }

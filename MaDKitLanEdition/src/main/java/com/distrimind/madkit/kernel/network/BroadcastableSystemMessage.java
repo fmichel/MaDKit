@@ -106,7 +106,7 @@ abstract class BroadcastableSystemMessage implements SystemMessage {
 		writeAndCheckObject(oos);
 	}
 	
-	@Override
+	
 	public Integrity checkDataIntegrity() {
 		if (idTransferDestination != null) {
 			Integrity i = idTransferDestination.checkDataIntegrity();
@@ -116,9 +116,6 @@ abstract class BroadcastableSystemMessage implements SystemMessage {
 		if (kernelAddressDestination == null)
 			return Integrity.FAIL;
 
-		Integrity i = kernelAddressDestination.checkDataIntegrity();
-		if (i != Integrity.OK)
-			return i;
 		return Integrity.OK;
 	}
 

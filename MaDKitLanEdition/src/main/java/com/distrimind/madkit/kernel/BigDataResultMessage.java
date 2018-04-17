@@ -37,6 +37,15 @@
  */
 package com.distrimind.madkit.kernel;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+import com.distrimind.madkit.exceptions.MessageSerializationException;
+import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
+import com.distrimind.madkit.util.OOSUtils;
+import com.distrimind.madkit.util.SerializableAndSizable;
+
 /**
  * Gives the result of a big data transfer
  * 
@@ -44,18 +53,47 @@ package com.distrimind.madkit.kernel;
  * @version 1.0
  * @since MadkitLanEdition 1.0
  */
-public final class BigDataResultMessage extends Message {
+public final class BigDataResultMessage extends Message implements SerializableAndSizable {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 5848565025339803364L;
 
-	private final long transferedData;
-	private final Type type;
-	private final int idPacket;
-	private final long duration;
+	private long transferedData;
+	private Type type;
+	private int idPacket;
+	private long duration;
 
+	@Override
+	public int getInternalSerializedSize() {
+		return super.getInternalSerializedSizeImpl()+22+(type.name().length()*2);
+	}
+	
+	@Override
+	protected void readAndCheckObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
+	{
+		super.readAndCheckObjectImpl(in);
+		
+			
+		transferedData=in.readLong();
+		type=Type.valueOf(OOSUtils.readString(in, 1000, false));
+		if (type==null)
+			throw new MessageSerializationException(Integrity.FAIL);
+		idPacket=in.readInt();
+		duration=in.readLong();
+		
+	}
+	@Override
+	protected void writeAndCheckObject(final ObjectOutputStream oos) throws IOException{
+		super.writeAndCheckObjectImpl(oos);
+		oos.writeLong(transferedData);
+		OOSUtils.writeString(oos, type.name(), 1000, false);
+		oos.writeInt(idPacket);
+		oos.writeLong(duration);
+	}	
+	
+	
 	BigDataResultMessage(Type type, long transferedData, int idPacket, long duration) {
 		if (type == null)
 			throw new NullPointerException("type");

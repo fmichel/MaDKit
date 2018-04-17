@@ -37,6 +37,11 @@
  */
 package com.distrimind.madkit.kernel;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.network.NetworkProperties;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 
@@ -45,7 +50,7 @@ import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
  * needs. This class is quite lightweight, it just defines sender and receivers
  * (expressed with {@link AgentAddress} class).
  * 
- * @version 5.2
+ * @version 5.3
  * @author Fabien Michel
  * @author Jason Mahdjoub
  * @author Olivier Gutknecht
@@ -71,12 +76,8 @@ import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 // of the original object/content used to build a message.
 // * @see SecuredMessage
 
-public class Message implements Cloneable, java.io.Serializable {// TODO message already sent warning !!!
+public class Message implements Cloneable {// TODO message already sent warning !!!
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -7343412576480540415L;
 	/**
 	 * 
 	 */
@@ -261,5 +262,52 @@ public class Message implements Cloneable, java.io.Serializable {// TODO message
 	public boolean excludedFromEncryption()
 	{
 		return false;
+	}
+	
+	protected void readAndCheckObjectImpl(final ObjectInputStream in) throws IOException, ClassNotFoundException
+	{
+		Object o=in.readObject();
+		if (!(o instanceof AgentAddress))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		this.receiver=(AgentAddress)o;
+		o=in.readObject();
+		if (!(o instanceof AgentAddress))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		this.sender=(AgentAddress)o;
+		o=in.readObject();
+		if (!(o instanceof ConversationID))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		this.conversationID=(ConversationID)o;
+		this.needReply=in.readBoolean();
+
+	}
+	protected void writeAndCheckObjectImpl(final ObjectOutputStream oos) throws IOException{
+		oos.writeObject(this.receiver);
+		oos.writeObject(this.sender);
+		oos.writeObject(conversationID);
+		oos.writeBoolean(this.needReply);
+	}
+	
+	protected void readAndCheckObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
+	{
+		in.defaultReadObject();
+
+	}
+	protected void writeAndCheckObject(final ObjectOutputStream oos) throws IOException{
+		oos.defaultWriteObject();
+	}
+
+	
+	protected int getInternalSerializedSizeImpl() {
+		return receiver.getInternalSerializedSize()+sender.getInternalSerializedSize()+conversationID.getInternalSerializedSize()+1;
+	}
+	
+	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
+	{
+		readAndCheckObject(in);
+	}
+	private void writeObject(final ObjectOutputStream oos) throws IOException
+	{
+		writeAndCheckObject(oos);
 	}
 }

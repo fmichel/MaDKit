@@ -38,14 +38,21 @@
 package com.distrimind.madkit.kernel;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
+import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.io.RandomInputStream;
 import com.distrimind.madkit.io.RandomOutputStream;
 import com.distrimind.madkit.kernel.network.Block;
+import com.distrimind.madkit.kernel.network.NetworkProperties;
+import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.madkit.kernel.network.RealTimeTransfertStat;
+import com.distrimind.madkit.util.OOSUtils;
+import com.distrimind.madkit.util.SerializableAndSizable;
 import com.distrimind.util.crypto.MessageDigestType;
 
 /**
@@ -59,13 +66,13 @@ import com.distrimind.util.crypto.MessageDigestType;
  * transfer will rejected.
  * 
  * @author Jason Mahdjoub
- * @version 1.1
+ * @version 1.2
  * @since MadkitLanEdition 1.0
  * 
  * @see AbstractAgent#sendBigDataWithRole(AgentAddress, RandomInputStream, long, long, Serializable, MessageDigestType, String, boolean)
  * @see BigDataResultMessage
  */
-public final class BigDataPropositionMessage extends Message {
+public final class BigDataPropositionMessage extends Message implements SerializableAndSizable {
 
 	/**
 	 * 
@@ -77,17 +84,74 @@ public final class BigDataPropositionMessage extends Message {
 	protected final transient RandomInputStream inputStream;
 	protected transient RandomOutputStream outputStream = null;
 	private transient RealTimeTransfertStat stat = null;
-	protected final long pos;
-	protected final long length;
-	private final Serializable attachedData;
-	private final byte[] data;
-	private final boolean isLocal;
+	protected long pos;
+	protected long length;
+	private SerializableAndSizable attachedData;
+	private byte[] data;
+	private boolean isLocal;
 	protected int idPacket;
-	protected final long timeUTC;
-	private final MessageDigestType messageDigestType;
+	protected long timeUTC;
+	private MessageDigestType messageDigestType;
 	private boolean excludedFromEncryption;
-
-	BigDataPropositionMessage(RandomInputStream stream, long pos, long length, Serializable attachedData, boolean local,
+	
+	@Override
+	public int getInternalSerializedSize() {
+		return super.getInternalSerializedSizeImpl()+37+(attachedData==null?0:attachedData.getInternalSerializedSize())+(data==null?0:data.length)+(messageDigestType==null?0:messageDigestType.name().length()*2);
+	}
+	
+	@Override
+	protected void readAndCheckObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
+	{
+		super.readAndCheckObjectImpl(in);
+		pos=in.readLong();
+		length=in.readLong();
+		Object o=in.readObject();
+		if (o==null)
+			attachedData=null;
+		else if (o instanceof SerializableAndSizable)
+			attachedData=((SerializableAndSizable)o);
+		else
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		data=OOSUtils.readBytes(in, NetworkProperties.GLOBAL_MAX_BUFFER_SIZE, true);
+		isLocal=in.readBoolean();
+		idPacket=in.readInt();
+		timeUTC=in.readLong();
+		String s=OOSUtils.readString(in, 1000, true);
+		if (s==null)
+			messageDigestType=null;
+		else 
+		{	
+			messageDigestType=MessageDigestType.valueOf(s);
+			if (messageDigestType==null)
+				throw new MessageSerializationException(Integrity.FAIL);
+		}
+		
+		excludedFromEncryption=in.readBoolean();
+			
+		
+	}
+	@Override
+	protected void writeAndCheckObject(final ObjectOutputStream oos) throws IOException{
+		super.writeAndCheckObjectImpl(oos);
+		oos.writeLong(pos);
+		oos.writeLong(length);
+		
+		oos.writeBoolean(attachedData!=null);
+		if (attachedData!=null)
+			oos.writeObject(attachedData);
+		
+		OOSUtils.writeBytes(oos, data, NetworkProperties.GLOBAL_MAX_BUFFER_SIZE, true);
+		oos.writeBoolean(isLocal);
+		oos.writeInt(idPacket);
+		oos.writeLong(timeUTC);
+		OOSUtils.writeString(oos, messageDigestType==null?null:messageDigestType.name(), 1000, true);
+		
+		oos.writeBoolean(excludedFromEncryption);
+	}	
+	
+	
+	
+	BigDataPropositionMessage(RandomInputStream stream, long pos, long length, SerializableAndSizable attachedData, boolean local,
 			int maxBufferSize, RealTimeTransfertStat stat, MessageDigestType messageDigestType, boolean excludedFromEncryption) throws IOException {
 		if (stream == null)
 			throw new NullPointerException("stream");
@@ -320,4 +384,6 @@ public final class BigDataPropositionMessage extends Message {
 	RandomOutputStream getOutputStream() {
 		return outputStream;
 	}
+	
+	
 }

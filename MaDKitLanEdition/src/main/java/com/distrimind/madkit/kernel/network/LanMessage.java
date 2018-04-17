@@ -68,7 +68,7 @@ abstract class LanMessage implements SystemMessage {
 		message = _message;
 	}
 
-	@Override
+	
 	public Integrity checkDataIntegrity() {
 		if (message == null)
 			return Integrity.FAIL;

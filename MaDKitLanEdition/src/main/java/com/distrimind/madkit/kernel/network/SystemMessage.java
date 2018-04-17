@@ -42,6 +42,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
+import com.distrimind.madkit.exceptions.MessageSerializationException;
+
 
 /**
  * Represent a system message.
@@ -79,6 +81,7 @@ public interface SystemMessage extends Serializable {
 	
 	public void readAndCheckObject(final ObjectInputStream in) throws IOException, ClassNotFoundException;
 	public void writeAndCheckObject(final ObjectOutputStream oos) throws IOException;
+	
 	
 	
 }

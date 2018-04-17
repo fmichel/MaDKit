@@ -117,4 +117,16 @@ final class BroadcastLanMessage extends LanMessage {
 		writeAndCheckObject(oos);
 	}
 
+	@Override
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

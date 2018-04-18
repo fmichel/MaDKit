@@ -100,12 +100,13 @@ final class AcceptedGroups implements SystemMessage {
 	@Override
 	public void readAndCheckObject(ObjectInputStream in)
 			throws ClassNotFoundException, IOException {
+		int globalSize=NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE;
 		int totalSize=0;
 		int size=in.readInt();
 		if (size<0)
 			throw new MessageSerializationException(Integrity.FAIL);
 		totalSize+=size*ObjectSizer.OBJREF_SIZE+ObjectSizer.OBJREF_SIZE;
-		if (totalSize>NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE)
+		if (totalSize>globalSize)
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		accepted_groups_and_requested=new Group[size];
 		for (int i=0;i<size;i++)
@@ -115,7 +116,7 @@ final class AcceptedGroups implements SystemMessage {
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 			accepted_groups_and_requested[i]=(Group)o;
 			totalSize+=accepted_groups_and_requested[i].getInternalSerializedSize();
-			if (totalSize>NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE)
+			if (totalSize>globalSize)
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		}
 		Object o=in.readObject();
@@ -123,7 +124,7 @@ final class AcceptedGroups implements SystemMessage {
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		accepted_groups=(MultiGroup)o;
 		totalSize+=accepted_groups.getInternalSerializedSize();
-		if (totalSize>NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE)
+		if (totalSize>globalSize)
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		
 		o=in.readObject();
@@ -131,7 +132,7 @@ final class AcceptedGroups implements SystemMessage {
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		kernelAddress=(KernelAddress)o;
 		totalSize+=kernelAddress.getInternalSerializedSize();
-		if (totalSize>NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE)
+		if (totalSize>globalSize)
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 
 		o=in.readObject();
@@ -139,7 +140,7 @@ final class AcceptedGroups implements SystemMessage {
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		distant_agent_socket_address=(AgentAddress)o;
 		totalSize+=distant_agent_socket_address.getInternalSerializedSize();
-		if (totalSize>NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE)
+		if (totalSize>globalSize)
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 
 		

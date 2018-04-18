@@ -40,9 +40,11 @@ package com.distrimind.madkit.util;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Date;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
+import com.distrimind.util.sizeof.ObjectSizer;
 
 /**
  * 
@@ -169,5 +171,80 @@ public class OOSUtils {
 	}
 	
 	
+	public static void writeObject(final ObjectOutputStream oos, Object o, int sizeMax, boolean supportNull) throws IOException
+	{
+		if (o==null)
+		{
+			if (!supportNull)
+				throw new IOException();
+			if (sizeMax>Short.MAX_VALUE)
+				oos.write(0);
+			else
+				oos.write(0);
+			return;
+			
+		}
+		if (o instanceof String)
+		{
+			oos.write(1);
+			writeString(oos, (String)o, sizeMax, false);
+		}
+		else if (o instanceof byte[])
+		{
+			oos.write(2);
+			writeBytes(oos, (byte[])o, sizeMax, false);
+		}
+		else
+		{
+			oos.write(3);
+			oos.writeObject(o);
+		}
+	}
+	
+	public static Object readObject(final ObjectInputStream ois, int sizeMax, boolean supportNull) throws IOException, ClassNotFoundException
+	{
+		byte type=ois.readByte();
+		switch(type)
+		{
+		case 0:
+			if (!supportNull)
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			return null;
+		case 1:
+			return readString(ois, sizeMax, false);
+			
+		case 2:
+			return readBytes(ois, sizeMax, false);
+		case 3:
+			return ois.readObject();
+		default:
+			throw new MessageSerializationException(Integrity.FAIL);
+		}
+		
+	}
+	
+	public static int getInternalSize(Object o, int sizeMax)
+	{
+		if (o ==null)
+			return 0;
+		if (o instanceof String)
+		{
+			return ((String)o).length()*2+sizeMax>Short.MAX_VALUE?4:2;
+		}
+		else if (o instanceof byte[])
+		{
+			return ((byte[])o).length+sizeMax>Short.MAX_VALUE?4:2;
+		}
+		else if (o instanceof SerializableAndSizable)
+		{
+			return ((SerializableAndSizable)o).getInternalSerializedSize();
+		}
+		else if (o instanceof Date)
+		{
+			return 8;
+		}
+		else
+			return ObjectSizer.sizeOf(o);
+	}
 	
 }

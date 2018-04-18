@@ -42,7 +42,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
-import com.distrimind.madkit.exceptions.MessageSerializationException;
 
 
 /**

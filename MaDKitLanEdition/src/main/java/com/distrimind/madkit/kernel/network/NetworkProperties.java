@@ -47,6 +47,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -118,10 +119,11 @@ public class NetworkProperties extends XMLProperties {
 		}
 		
 		loadPatternsForAcceptedAndDeniedClasses();
-		addAcceptedSerializedClassWithRegex("^java\\.lang");
+		addAcceptedSerializedClassWithRegex("^java.*");
 		addAcceptedSerializedClassWithRegex("^com\\.distrimind.*");
 		addAcceptedSerializedClass(Number.class);
 		addAcceptedSerializedClass(SerializableAndSizable.class);
+		addAcceptedSerializedClass(Date.class);
 		addDeniedSerializedClassWithRegex("^org\\.apache\\.commons\\.collections\\.functors\\.InvokerTransformer$");
 		addDeniedSerializedClassWithRegex("^org\\.apache\\.commons\\.collections\\.functors\\.InstantiateTransformer$");
 		addDeniedSerializedClassWithRegex("^org\\.apache\\.commons\\.collections4\\.functors\\.InvokerTransformer$");

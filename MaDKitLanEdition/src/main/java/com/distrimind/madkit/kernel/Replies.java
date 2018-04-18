@@ -91,7 +91,7 @@ public class Replies extends Message implements SerializableAndSizable{
 				if (!acceptSerialization)
 					throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 				acceptSerialization=false;
-			
+				int globalSize=NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE;
 				super.readAndCheckObjectImpl(in);
 				int totalSize=super.getInternalSerializedSizeImpl();
 				
@@ -100,17 +100,17 @@ public class Replies extends Message implements SerializableAndSizable{
 					throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 				originalMessage=(Message)o;
 				totalSize+=((SerializableAndSizable)originalMessage).getInternalSerializedSize();
-				if (totalSize>NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE)
+				if (totalSize>globalSize)
 					throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 				numberOfReplies=new AtomicInteger(in.readInt());
 				if (numberOfReplies.get()<0)
 					throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 				int size=in.readInt();
-				if (size<0 || size>NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE/4)
+				if (size<0 || size>globalSize/4)
 					throw new MessageSerializationException(Integrity.FAIL);
 				replies=new ArrayList<>(size);
 				totalSize+=size*4;
-				if (totalSize>NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE)
+				if (totalSize>globalSize)
 					throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 				for (int i=0;i<size;i++)
 				{
@@ -118,7 +118,7 @@ public class Replies extends Message implements SerializableAndSizable{
 					if (!(o instanceof Message))
 						throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 					totalSize+=((SerializableAndSizable)originalMessage).getInternalSerializedSize();
-					if (totalSize>NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE)
+					if (totalSize>globalSize)
 						throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 					replies.add((Message)o);
 				}

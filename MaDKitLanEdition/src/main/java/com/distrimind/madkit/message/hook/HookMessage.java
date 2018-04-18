@@ -54,11 +54,6 @@ import com.distrimind.madkit.message.ObjectMessage;
 public class HookMessage extends ObjectMessage<HookMessage.AgentActionEvent> {
 
 	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 3008390114345525272L;
-
-	/**
 	 * This message should be used to request or release a hook on an agent action.
 	 * The message should be sent to the kernel (which is the manager of the SYSTEM
 	 * group in the local community), here is an example :

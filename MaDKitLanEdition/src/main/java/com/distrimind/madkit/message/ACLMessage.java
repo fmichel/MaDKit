@@ -33,20 +33,28 @@
  */
 package com.distrimind.madkit.message;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.AgentAddress;
+import com.distrimind.madkit.kernel.network.NetworkProperties;
+import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 
 /**
  * This class describes an ACL message. It provides accessors for all message
  * parameters defined in the FIPA 97 specification part 2. Note that the
  * :receiver and :sender are automatically mapped to the MaDKit AgentAddress.
  * 
- * @author Ol. Gutknecht, J. Ferber
- * @version 1.1
+ * @author Ol. Gutknecht
+ * @author J. Ferber
+ * @author Jason Mhdjoub
+ * @version 1.2
  * @since MaDKit 1.0
  */
 
@@ -176,6 +184,79 @@ public class ACLMessage extends ActMessage // NO_UCD
 	 */
 	private final ArrayList<AgentAddress> reply_to = new ArrayList<>();
 
+	@Override
+	public int getInternalSerializedSize() {
+		int res=super.getInternalSerializedSize()+8;
+		for (AgentAddress aa : dests)
+			res+=aa.getInternalSerializedSize();
+		for (AgentAddress aa : reply_to)
+			res+=aa.getInternalSerializedSize();
+		return res;
+	}
+	
+	@Override
+	protected void readAndCheckObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
+	{
+		super.readAndCheckObject(in);
+		int totalSize=super.getInternalSerializedSize();
+		int globalSize=NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE;
+		int size=in.readInt();
+		totalSize+=4;
+		if (size<0)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		if (totalSize+size*4>globalSize)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		dests.ensureCapacity(size);
+		for (int i=0;i<size;i++)
+		{
+			Object o=in.readObject();
+			if (o instanceof AgentAddress)
+			{
+				AgentAddress aa=(AgentAddress)o;
+				totalSize+=aa.getInternalSerializedSize();
+				if (totalSize>globalSize)
+					throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+				dests.add(aa);
+			}
+			else
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		}
+		size=in.readInt();
+		totalSize+=4;
+		if (size<0)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		if (totalSize+size*4>globalSize)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		reply_to.ensureCapacity(size);
+		for (int i=0;i<size;i++)
+		{
+			Object o=in.readObject();
+			if (o instanceof AgentAddress)
+			{
+				AgentAddress aa=(AgentAddress)o;
+				totalSize+=aa.getInternalSerializedSize();
+				if (totalSize>globalSize)
+					throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+				reply_to.add(aa);
+			}
+			else
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		}
+	}
+	@Override
+	protected void writeAndCheckObject(final ObjectOutputStream oos) throws IOException{
+		super.writeAndCheckObject(oos);
+		oos.writeInt(dests.size());
+		for (AgentAddress aa : dests)
+			oos.writeObject(aa);
+		oos.writeInt(reply_to.size());
+		for (AgentAddress aa : reply_to)
+			oos.writeObject(aa);
+		
+			
+	}
+	
+	
 	/** Default constructor for ACLMessage class */
 	public ACLMessage() {
 		super(NOT_UNDERSTOOD_STRING);

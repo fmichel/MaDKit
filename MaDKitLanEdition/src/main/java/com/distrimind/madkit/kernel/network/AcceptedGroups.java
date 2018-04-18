@@ -105,8 +105,8 @@ final class AcceptedGroups implements SystemMessage {
 		int size=in.readInt();
 		if (size<0)
 			throw new MessageSerializationException(Integrity.FAIL);
-		totalSize+=size*ObjectSizer.OBJREF_SIZE+ObjectSizer.OBJREF_SIZE;
-		if (totalSize>globalSize)
+		
+		if (totalSize+size*ObjectSizer.OBJREF_SIZE+ObjectSizer.OBJREF_SIZE>globalSize)
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		accepted_groups_and_requested=new Group[size];
 		for (int i=0;i<size;i++)

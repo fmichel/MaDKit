@@ -124,6 +124,7 @@ public class NetworkProperties extends XMLProperties {
 		addAcceptedSerializedClass(Number.class);
 		addAcceptedSerializedClass(SerializableAndSizable.class);
 		addAcceptedSerializedClass(Date.class);
+		addAcceptedSerializedClass(SystemMessage.class);
 		addDeniedSerializedClassWithRegex("^org\\.apache\\.commons\\.collections\\.functors\\.InvokerTransformer$");
 		addDeniedSerializedClassWithRegex("^org\\.apache\\.commons\\.collections\\.functors\\.InstantiateTransformer$");
 		addDeniedSerializedClassWithRegex("^org\\.apache\\.commons\\.collections4\\.functors\\.InvokerTransformer$");

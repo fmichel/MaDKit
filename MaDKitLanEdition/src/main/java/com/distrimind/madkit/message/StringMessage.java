@@ -33,21 +33,30 @@
  */
 package com.distrimind.madkit.message;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+import com.distrimind.madkit.util.SerializableAndSizable;
+
 /**
  * A message class that conveys a string.
  * 
  * @author Fabien Michel
+ * @author Jason Mahdjoub
  * @since MaDKit 5.0.0.14
- * @version 0.9
+ * @version 0.10
  * 
  */
-public class StringMessage extends ObjectMessage<String> {
+public class StringMessage extends ObjectMessage<String> implements SerializableAndSizable {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 3111467569749360801L;
 
+	public static int MAX_CONTENT_LENGTH=Short.MAX_VALUE*10;	
+	
 	/**
 	 * Builds a new message containing the string s
 	 * 
@@ -56,6 +65,23 @@ public class StringMessage extends ObjectMessage<String> {
 	 */
 	public StringMessage(String s) {
 		super(s);
+	}
+
+	@Override
+	public int getInternalSerializedSize() {
+		return super.getInternalSerializedSizeImpl(MAX_CONTENT_LENGTH);
+	}
+	
+	@Override
+	protected void readAndCheckObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
+	{
+		super.readAndCheckObjectImpl(in, MAX_CONTENT_LENGTH);
+		
+		
+	}
+	@Override
+	protected void writeAndCheckObject(final ObjectOutputStream oos) throws IOException{
+		super.writeAndCheckObjectImpl(oos, MAX_CONTENT_LENGTH);
 	}
 
 }

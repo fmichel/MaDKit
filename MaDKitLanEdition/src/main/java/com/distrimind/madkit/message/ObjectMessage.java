@@ -33,6 +33,9 @@
  */
 package com.distrimind.madkit.message;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
@@ -40,7 +43,10 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
+import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.Message;
+import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
+import com.distrimind.madkit.util.OOSUtils;
 
 /**
  * This parameterizable class could be used to convey any Java Object between
@@ -53,8 +59,8 @@ import com.distrimind.madkit.kernel.Message;
  */
 public class ObjectMessage<T> extends Message {
 
-	private static final long serialVersionUID = 2061462024105569662L;
-	private final T content;
+	
+	private T content;
 	private boolean excludeFromEncryption;
 
 	/**
@@ -64,6 +70,36 @@ public class ObjectMessage<T> extends Message {
 	 */
 	public ObjectMessage(final T content) {
 		this(content, false);
+	}
+	
+	
+	public int getInternalSerializedSizeImpl(int maxContentLength) {
+		return super.getInternalSerializedSizeImpl()+1+OOSUtils.getInternalSize(content, maxContentLength);
+	}	
+	
+	@SuppressWarnings("unchecked")
+	
+	protected void readAndCheckObjectImpl(final ObjectInputStream in, int maxContentLength) throws IOException, ClassNotFoundException
+	{
+		super.readAndCheckObjectImpl(in);
+		try
+		{
+			content=(T)OOSUtils.readObject(in, maxContentLength, true);
+		}
+		catch(ClassCastException e)
+		{
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN, e);
+			
+		}
+		excludeFromEncryption=in.readBoolean();
+		
+		
+	}
+	
+	protected void writeAndCheckObjectImpl(final ObjectOutputStream oos, int maxContentLength) throws IOException{
+		super.writeAndCheckObjectImpl(oos);
+		OOSUtils.writeObject(oos, content, maxContentLength, true);
+		oos.writeBoolean(excludeFromEncryption);
 	}
 	
 	/**

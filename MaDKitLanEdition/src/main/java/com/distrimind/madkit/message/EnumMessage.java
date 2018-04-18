@@ -33,7 +33,16 @@
  */
 package com.distrimind.madkit.message;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Arrays;
+
+import com.distrimind.madkit.exceptions.MessageSerializationException;
+import com.distrimind.madkit.kernel.MadkitClassLoader;
+import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
+import com.distrimind.madkit.util.OOSUtils;
+import com.distrimind.madkit.util.SerializableAndSizable;
 
 /**
  * This parameterizable class could be used to build a message tagged with an
@@ -44,14 +53,65 @@ import java.util.Arrays;
  * @since MaDKit 5.0.0.14
  *
  */
-public class EnumMessage<E extends Enum<E>> extends ObjectMessage<Object[]> {
+public class EnumMessage<E extends Enum<E>> extends ObjectMessage<Object[]> implements SerializableAndSizable{
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 2129358510239154730L;
-	private final E code;
+	private static final int MAX_PARAMETERS_LENGTH=1000;
+	private E code;
 
+	@Override
+	public int getInternalSerializedSize() {
+		return super.getInternalSerializedSizeImpl(MAX_PARAMETERS_LENGTH)+(code==null?1:(code.name().length()*2+5+code.getClass().getName().length()*2));
+	}	
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	protected void readAndCheckObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
+	{
+		super.readAndCheckObjectImpl(in, MAX_PARAMETERS_LENGTH);
+		boolean ok=in.readBoolean();
+		if (ok)
+		{
+			String clazz=OOSUtils.readString(in, 16396, false);
+			String value=OOSUtils.readString(in, 1000, false);
+			@SuppressWarnings("rawtypes")
+			Class c=Class.forName(clazz, false, MadkitClassLoader.getSystemClassLoader());
+			if (!c.isEnum())
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			c=Class.forName(clazz, true, MadkitClassLoader.getSystemClassLoader());
+			try
+			{
+				code=(E)Enum.valueOf(c, value);
+				if (code==null)
+					throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			}
+			catch(ClassCastException e)
+			{
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN, e); 
+			}
+		}
+		else
+			code=null;
+		
+		
+	}
+	@Override
+	protected void writeAndCheckObject(final ObjectOutputStream oos) throws IOException{
+		super.writeAndCheckObjectImpl(oos, MAX_PARAMETERS_LENGTH);
+		if (code==null)
+			oos.writeBoolean(false);
+		else
+		{
+			oos.writeBoolean(true);
+			OOSUtils.writeString(oos, code.getClass().getName(), 16396, false);
+			OOSUtils.writeString(oos, code.name(), 1000, false);
+		}
+	}
+	
+	
 	/**
 	 * Builds a message with the specified content
 	 * 

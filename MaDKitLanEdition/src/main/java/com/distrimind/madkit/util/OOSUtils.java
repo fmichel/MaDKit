@@ -40,7 +40,6 @@ package com.distrimind.madkit.util;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.Date;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
@@ -170,6 +169,58 @@ public class OOSUtils {
 		
 	}
 	
+	public static void writeObjects(final ObjectOutputStream oos, Object tab[], int sizeMax, boolean supportNull) throws IOException
+	{
+		if (tab==null)
+		{
+			if (!supportNull)
+				throw new IOException();
+			if (sizeMax>Short.MAX_VALUE)
+				oos.writeInt(-1);
+			else
+				oos.writeShort(-1);
+			return;
+			
+		}
+		if (tab.length>sizeMax)
+			throw new IOException();
+		if (sizeMax>Short.MAX_VALUE)
+			oos.writeInt(tab.length);
+		else
+			oos.writeShort(tab.length);
+		sizeMax-=tab.length;
+		for (Object o : tab)
+		{
+			writeObject(oos, o, sizeMax, true);
+		}
+	}
+	
+	public static Object[] readObjects(final ObjectInputStream ois, int sizeMax, boolean supportNull) throws IOException, ClassNotFoundException
+	{
+		int size;
+		if (sizeMax>Short.MAX_VALUE)
+			size=ois.readInt();
+		else
+			size=ois.readShort();
+		if (size==-1)
+		{
+			if (!supportNull)
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			return null;
+		}
+		if (size<0 || size>sizeMax)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		
+		Object []tab=new Object[size];
+		sizeMax-=tab.length;
+		for (int i=0;i<size;i++)
+		{
+			tab[i]=readObject(ois, sizeMax, true);
+		}
+		
+		return tab;
+		
+	}
 	
 	public static void writeObject(final ObjectOutputStream oos, Object o, int sizeMax, boolean supportNull) throws IOException
 	{
@@ -194,9 +245,14 @@ public class OOSUtils {
 			oos.write(2);
 			writeBytes(oos, (byte[])o, sizeMax, false);
 		}
-		else
+		else if (o instanceof Object[])
 		{
 			oos.write(3);
+			writeObjects(oos, (Object[])o, sizeMax, false);
+		}
+		else
+		{
+			oos.write(Byte.MAX_VALUE);
 			oos.writeObject(o);
 		}
 	}
@@ -216,6 +272,8 @@ public class OOSUtils {
 		case 2:
 			return readBytes(ois, sizeMax, false);
 		case 3:
+			return readObjects(ois, sizeMax, false);
+		case Byte.MAX_VALUE:
 			return ois.readObject();
 		default:
 			throw new MessageSerializationException(Integrity.FAIL);
@@ -239,9 +297,15 @@ public class OOSUtils {
 		{
 			return ((SerializableAndSizable)o).getInternalSerializedSize();
 		}
-		else if (o instanceof Date)
+		else if (o instanceof Object[])
 		{
-			return 8;
+			Object tab[]=(Object[])o;
+			int size=sizeMax>Short.MAX_VALUE?4:2;
+			for (Object so : tab)
+			{
+				size+=getInternalSize(so, sizeMax-tab.length);
+			}
+			return size;
 		}
 		else
 			return ObjectSizer.sizeOf(o);

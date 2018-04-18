@@ -50,11 +50,6 @@ import com.distrimind.madkit.kernel.TaskID;
  */
 public abstract class TaskMessage extends Message {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -1717902927415214422L;
-
 	protected final Task<?> task;
 	private TaskID taskID;
 

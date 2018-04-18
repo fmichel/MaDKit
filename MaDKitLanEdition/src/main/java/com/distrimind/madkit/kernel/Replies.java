@@ -84,6 +84,7 @@ public class Replies extends Message implements SerializableAndSizable{
 	@Override
 	protected void readAndCheckObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
 	{
+		
 		synchronized(Replies.class)
 		{
 			try

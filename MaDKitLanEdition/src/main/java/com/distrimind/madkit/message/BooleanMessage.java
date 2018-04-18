@@ -31,15 +31,22 @@
  */
 package com.distrimind.madkit.message;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+import com.distrimind.madkit.util.SerializableAndSizable;
+
 /**
  * A message class that conveys a boolean value.
  * 
  * @author Fabien Michel
+ * @author Jason Mahdjoub
  * @since MadKit 5.0.0.20
  * @version 0.9
  * 
  */
-public class BooleanMessage extends ObjectMessage<Boolean> {
+public class BooleanMessage extends ObjectMessage<Boolean> implements SerializableAndSizable{
 
 	/**
 	 * 
@@ -56,4 +63,22 @@ public class BooleanMessage extends ObjectMessage<Boolean> {
 		super(b);
 	}
 
+	@Override
+	public int getInternalSerializedSize() {
+		return super.getInternalSerializedSizeImpl(0);
+	}
+	
+	@Override
+	protected void readAndCheckObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
+	{
+		super.readAndCheckObjectImpl(in, 0);
+		
+		
+	}
+	@Override
+	protected void writeAndCheckObject(final ObjectOutputStream oos) throws IOException{
+		super.writeAndCheckObjectImpl(oos, 0);
+	}
+
+	
 }

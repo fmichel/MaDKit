@@ -69,10 +69,7 @@ import com.distrimind.madkit.kernel.Message;
  *
  */
 public class XMLMessage extends Message {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1266801281341621595L;
+	
 	/**
 	 * The xml content as a Document (null if the content is defined as a string)
 	 */

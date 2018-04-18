@@ -71,13 +71,13 @@ public class CGRSynchro extends ObjectMessage<AgentAddress> implements Serializa
 
 	@Override
 	public int getInternalSerializedSize() {
-		return super.getInternalSerializedSizeImpl()+code.name().length()*2+3;
+		return super.getInternalSerializedSizeImpl(0)+code.name().length()*2+3;
 	}	
 	
 	@Override
 	protected void readAndCheckObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
 	{
-		super.readAndCheckObjectImpl(in);
+		super.readAndCheckObjectImpl(in, 0);
 		code=Code.valueOf(OOSUtils.readString(in, 1000, false));
 		if (code==null)
 			throw new MessageSerializationException(Integrity.FAIL);
@@ -86,7 +86,7 @@ public class CGRSynchro extends ObjectMessage<AgentAddress> implements Serializa
 	}
 	@Override
 	protected void writeAndCheckObject(final ObjectOutputStream oos) throws IOException{
-		super.writeAndCheckObjectImpl(oos);
+		super.writeAndCheckObjectImpl(oos, 0);
 		OOSUtils.writeString(oos, code.name(), 1000, false);
 		oos.writeBoolean(manual);
 	}

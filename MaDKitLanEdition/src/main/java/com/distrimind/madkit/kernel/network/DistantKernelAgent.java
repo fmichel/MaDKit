@@ -1662,35 +1662,16 @@ class DistantKernelAgent extends AgentFakeThread {
 		}
 	}
 
-	private class OOS extends ObjectOutputStream {
-		private NetworkProperties np=getMadkitConfig().networkProperties;
+	private class OOS extends FilteredObjectOutputStream {
+		
 		OOS(java.io.OutputStream _out) throws IOException {
-			super(_out);
+			super(_out, getMadkitConfig().networkProperties);
 			enableReplaceObject(true);
 		}
 		
 	
 		
-		@Override
-		protected void annotateClass(Class<?> cl) throws IOException {
-			if (np.isAcceptedClassForSerializationUsingPatterns(cl.getName()))
-			{
-				if (np.isAcceptedClassForSerializationUsingWhiteClassList(cl))
-					return;
-			}
-			throw new IOException("The class "+cl+" is not authorized to be serialized. See NetworkProperties class to add new classes to be authorized to be serialized.");
-	    }
-		@Override
-		protected void annotateProxyClass(Class<?> cl) throws IOException {
-			annotateClass(cl);
-			for (Class<?> c : cl.getInterfaces())
-			{
-				if (np.isDeniedClassForSerializationUsingPatterns(c.getName()) || np.isDeniedClassForSerializationUsingBlackClassList(c))
-				{
-					throw new IOException("The class "+c+" is not authorized to be serialized. See NetworkProperties class to add new classes to be authorized to be serialized.");
-				}
-			}
-	    }
+		
 
 		@Override
 		protected Object replaceObject(Object obj) {
@@ -1716,46 +1697,14 @@ class DistantKernelAgent extends AgentFakeThread {
 		}
 	}
 
-	private class OIS extends ObjectInputStream {
+	private class OIS extends FilteredObjectInputStream {
 
-		private NetworkProperties np=getMadkitConfig().networkProperties;
+		
 		public OIS(InputStream _in) throws IOException {
-			super(_in);
+			super(_in, getMadkitConfig().networkProperties);
 			enableResolveObject(true);
 
 		}
-		
-		@Override
-		protected Class<?> resolveClass(ObjectStreamClass desc) throws ClassNotFoundException, IOException
-		{
-			if (np.isAcceptedClassForSerializationUsingPatterns(desc.getName()))
-			{
-				Class<?> c=super.resolveClass(desc);
-				if (c==null)
-					return null;
-				if (np.isAcceptedClassForSerializationUsingWhiteClassList(c))
-					return c;
-			}
-			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN, new ClassNotFoundException(desc.getName()));
-		}
-		
-		@Override
-	    protected Class<?> resolveProxyClass(String[] interfaces)
-	            throws IOException, ClassNotFoundException{
-			for (String s : interfaces)
-			{
-				if (np.isDeniedClassForSerializationUsingPatterns(s))
-					throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN, new ClassNotFoundException(s));
-			}
-			Class<?> c=super.resolveProxyClass(interfaces);
-			if (c==null)
-				return null;
-			if (np.isDeniedClassForSerializationUsingBlackClassList(c))
-				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN, new ClassNotFoundException(c.getName()));
-			return c;
-		}
-	            
-
 		
 
 		@Override

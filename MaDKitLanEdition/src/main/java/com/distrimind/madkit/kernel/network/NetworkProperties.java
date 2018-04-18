@@ -50,7 +50,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.logging.Level;
+import java.util.regex.Pattern;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -66,10 +68,12 @@ import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocolProperties;
 import com.distrimind.madkit.kernel.network.connection.access.AccessData;
 import com.distrimind.madkit.kernel.network.connection.access.AbstractAccessProtocolProperties;
+import com.distrimind.madkit.util.SerializableAndSizable;
 import com.distrimind.madkit.util.XMLObjectParser;
 import com.distrimind.madkit.util.XMLUtilities;
 import com.distrimind.ood.database.DatabaseWrapper;
 import com.distrimind.util.properties.XMLProperties;
+import com.distrimind.util.properties.XMLPropertiesParseException;
 
 /**
  * MaDKit network options which are valued with a long, an int, or a short
@@ -112,8 +116,24 @@ public class NetworkProperties extends XMLProperties {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		loadPatternsForAcceptedAndDeniedClasses();
+		addAcceptedSerializedClassWithRegex("^java\\.lang");
+		addAcceptedSerializedClassWithRegex("^com\\.distrimind.*");
+		addAcceptedSerializedClass(Number.class);
+		addAcceptedSerializedClass(SerializableAndSizable.class);
+		addDeniedSerializedClassWithRegex("^org\\.apache\\.commons\\.collections\\.functors\\.InvokerTransformer$");
+		addDeniedSerializedClassWithRegex("^org\\.apache\\.commons\\.collections\\.functors\\.InstantiateTransformer$");
+		addDeniedSerializedClassWithRegex("^org\\.apache\\.commons\\.collections4\\.functors\\.InvokerTransformer$");
+		addDeniedSerializedClassWithRegex("^org\\.apache\\.commons\\.collections4\\.functors\\.InstantiateTransformer$");
+		addDeniedSerializedClassWithRegex("^org\\.codehaus\\.groovy\\.runtime\\.ConvertedClosure$");
+		addDeniedSerializedClassWithRegex("^org\\.codehaus\\.groovy\\.runtime\\.MethodClosure$");
+		addDeniedSerializedClassWithRegex("^org\\.springframework\\.beans\\.factory\\.ObjectFactory$");
+		addDeniedSerializedClassWithRegex("^com\\.sun\\.org\\.apache\\.xalan\\.internal\\.xsltc\\.trax\\.TemplatesImpl$");
+		
 	}
 
+	
 	public Class<? extends AbstractAgent> networkAgent = NetworkAgent.class;
 
 	/**
@@ -1162,7 +1182,7 @@ public class NetworkProperties extends XMLProperties {
 	public boolean canUsePointToPointTransferedBlockChecker=true;
 	
 	static volatile int GLOBAL_MAX_SHORT_DATA_SIZE=20971520;
-	public static volatile int GLOBAL_MAX_BUFFER_SIZE=Short.MAX_VALUE;
+	//public static volatile int GLOBAL_MAX_BUFFER_SIZE=Short.MAX_VALUE;
 	
 	private static final HashMap<Class<?>, Boolean> checkedSystemMessageClasses=new HashMap<>();
 	
@@ -1193,4 +1213,138 @@ public class NetworkProperties extends XMLProperties {
 	}
 	
 	
+	private ArrayList<String> whiteListRegexIncludingClassesForDeserialization=new ArrayList<>();
+	private ArrayList<Pattern> whiteListPatternIncludingClassesForDeserialization=null;
+	private ArrayList<Class<?>> whiteListIncludingClassesForDeserialization=new ArrayList<>();
+	private ArrayList<String> blackListRegexExcludingClassesForDeserialization=new ArrayList<>();
+	private ArrayList<Pattern> blackListPatternExcludingClassesForDeserialization=new ArrayList<>();
+	private ArrayList<Class<?>> blackListExcludingClassesForDeserialization=new ArrayList<>();
+	
+	private void loadPatternsForAcceptedAndDeniedClasses()
+	{
+		if (whiteListPatternIncludingClassesForDeserialization==null)
+		{
+			whiteListPatternIncludingClassesForDeserialization=new ArrayList<>();
+			for (String s : whiteListRegexIncludingClassesForDeserialization)
+			{
+				Pattern p=Pattern.compile(s);
+				whiteListPatternIncludingClassesForDeserialization.add(p);
+			}
+		}
+		if (blackListPatternExcludingClassesForDeserialization==null)
+		{
+			blackListPatternExcludingClassesForDeserialization=new ArrayList<>();
+			for (String s : blackListRegexExcludingClassesForDeserialization)
+			{
+				Pattern p=Pattern.compile(s);
+				blackListPatternExcludingClassesForDeserialization.add(p);
+			}
+		}
+	}
+	
+	public void addAcceptedSerializedClassWithRegex(String pattern)
+	{
+		if (pattern==null)
+			throw new NullPointerException();
+		whiteListRegexIncludingClassesForDeserialization.add(pattern);
+		Pattern p=Pattern.compile(pattern);
+		whiteListPatternIncludingClassesForDeserialization.add(p);
+	}
+	public void addDeniedSerializedClassWithRegex(String pattern)
+	{
+		if (pattern==null)
+			throw new NullPointerException();
+		blackListRegexExcludingClassesForDeserialization.add(pattern);
+		Pattern p=Pattern.compile(pattern);
+		blackListPatternExcludingClassesForDeserialization.add(p);
+	}
+	public void addAcceptedSerializedClass(Class<?> c)
+	{
+		if (c==null)
+			throw new NullPointerException();
+		whiteListIncludingClassesForDeserialization.add(c);
+	}
+	public void addDeniedSerializedClass(Class<?> c)
+	{
+		if (c==null)
+			throw new NullPointerException();
+		blackListExcludingClassesForDeserialization.add(c);
+	}
+	
+	public void clearAcceptedAndDeniedSerializedClasses()
+	{
+		whiteListRegexIncludingClassesForDeserialization.clear();
+		whiteListPatternIncludingClassesForDeserialization=null;
+		blackListRegexExcludingClassesForDeserialization.clear();
+		blackListPatternExcludingClassesForDeserialization=null;
+		whiteListIncludingClassesForDeserialization.clear();
+		blackListExcludingClassesForDeserialization.clear();		
+		loadPatternsForAcceptedAndDeniedClasses();
+	}
+	
+	public boolean isAcceptedClassForSerializationUsingPatterns(String className)
+	{
+		if (isDeniedClassForSerializationUsingPatterns(className))
+			return false;
+		if (whiteListPatternIncludingClassesForDeserialization.isEmpty())
+			return true;
+		for (Pattern p : whiteListPatternIncludingClassesForDeserialization)
+		{
+			if (p.matcher(className).matches())
+				return true;
+		}
+		return false;
+	}
+	
+	public boolean isDeniedClassForSerializationUsingPatterns(String className)
+	{
+		for (Pattern p : blackListPatternExcludingClassesForDeserialization)
+		{
+			if (p.matcher(className).matches())
+				return true;
+		}
+		return false;
+		
+	}
+	
+	public boolean isAcceptedClassForSerializationUsingWhiteClassList(Class<?> clazz)
+	{
+		if (isDeniedClassForSerializationUsingBlackClassList(clazz))
+			return false;
+		if (whiteListIncludingClassesForDeserialization.isEmpty())
+			return true;
+		for (Class<?> c : whiteListIncludingClassesForDeserialization)
+		{
+			if (c.isAssignableFrom(clazz))
+				return true;
+		}
+		return false;
+		
+	}
+	
+	public boolean isDeniedClassForSerializationUsingBlackClassList(Class<?> clazz)
+	{
+		for (Class<?> c : blackListExcludingClassesForDeserialization)
+		{
+			if (c.isAssignableFrom(clazz))
+				return true;
+		}
+		return false;
+		
+	}
+	
+	@Override
+	public void load(Document document) throws XMLPropertiesParseException {
+		super.load(document);
+		whiteListPatternIncludingClassesForDeserialization=null;
+		blackListPatternExcludingClassesForDeserialization=null;
+		loadPatternsForAcceptedAndDeniedClasses();
+	}
+	@Override
+	public void loadFromProperties(Properties properties) throws IllegalArgumentException {
+		super.loadFromProperties(properties);
+		whiteListPatternIncludingClassesForDeserialization=null;
+		blackListPatternExcludingClassesForDeserialization=null;
+		loadPatternsForAcceptedAndDeniedClasses();
+	}
 }

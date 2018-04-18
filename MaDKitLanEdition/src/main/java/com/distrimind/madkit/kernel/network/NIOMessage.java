@@ -47,9 +47,5 @@ import com.distrimind.madkit.kernel.Message;
  */
 abstract class NIOMessage extends Message {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 528840723374074703L;
 
 }

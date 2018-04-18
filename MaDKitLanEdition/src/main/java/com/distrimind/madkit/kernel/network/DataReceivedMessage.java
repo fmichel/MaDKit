@@ -45,10 +45,6 @@ package com.distrimind.madkit.kernel.network;
  */
 class DataReceivedMessage extends NIOMessage {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 7368126223072005764L;
 
 	public final byte[] received_data;
 

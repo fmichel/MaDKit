@@ -47,11 +47,6 @@ import com.distrimind.madkit.kernel.Message;
  */
 class KernelAddressValidation extends Message {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 5227661622216291301L;
-
 	private final boolean isKernelAddressInterfaced;
 
 	KernelAddressValidation(boolean isKernelAddressInterfaced) {

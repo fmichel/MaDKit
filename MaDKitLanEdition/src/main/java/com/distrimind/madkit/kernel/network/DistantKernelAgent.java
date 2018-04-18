@@ -42,7 +42,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.ObjectStreamClass;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -62,7 +61,6 @@ import java.util.logging.Level;
 
 import com.distrimind.madkit.agr.LocalCommunity;
 import com.distrimind.madkit.exceptions.MadkitException;
-import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.exceptions.NIOException;
 import com.distrimind.madkit.exceptions.PacketException;
 import com.distrimind.madkit.exceptions.SelfKillException;
@@ -90,7 +88,6 @@ import com.distrimind.madkit.kernel.TaskID;
 import com.distrimind.madkit.kernel.network.AbstractAgentSocket.AgentSocketKilled;
 import com.distrimind.madkit.kernel.network.AbstractAgentSocket.Groups;
 import com.distrimind.madkit.kernel.network.AbstractAgentSocket.ReceivedBlockData;
-import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.madkit.kernel.network.TransferAgent.IDTransfer;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol.ConnectionClosedReason;
 import com.distrimind.madkit.kernel.network.connection.access.PairOfIdentifiers;
@@ -789,10 +786,6 @@ class DistantKernelAgent extends AgentFakeThread {
 	}
 
 	static class ExceededDataQueueSize extends Message {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -7103634976795661665L;
 
 		private final boolean paused;
 		private final boolean purge;
@@ -1084,10 +1077,6 @@ class DistantKernelAgent extends AgentFakeThread {
 
 	static class KillYou extends Message {
 
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -7848872227308730056L;
 
 	}
 
@@ -2171,11 +2160,6 @@ class DistantKernelAgent extends AgentFakeThread {
 
 	static class DistKernADataToUpgradeMessage extends NIOMessage {
 
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -4831211172007935978L;
-
 		final AbstractPacketData dataToUpgrade;
 
 		DistKernADataToUpgradeMessage(AbstractPacketData _data) {
@@ -2185,10 +2169,6 @@ class DistantKernelAgent extends AgentFakeThread {
 	}
 
 	static class SendDataFromAgentSocket extends ObjectMessage<SystemMessage> {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -3463059956980205683L;
 
 		final boolean last_message;
 		final boolean prioritary;
@@ -2543,10 +2523,6 @@ class DistantKernelAgent extends AgentFakeThread {
 
 	class ReceivedSerializableObject extends ObjectMessage<SystemMessage> {
 
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 91965364117774967L;
 
 		private final long dataIncrement;
 		private final AtomicLong dataSize = new AtomicLong(0);

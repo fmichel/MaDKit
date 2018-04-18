@@ -47,11 +47,6 @@ import com.distrimind.madkit.kernel.network.AbstractAgentSocket.BlockDataToTrans
  */
 final class ResendData extends NIOMessage {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -4878634633372660419L;
-
 	public final BlockDataToTransfer block_data;
 
 	public ResendData(BlockDataToTransfer _block_data) {

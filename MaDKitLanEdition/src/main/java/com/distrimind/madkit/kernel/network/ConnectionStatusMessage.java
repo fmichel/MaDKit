@@ -51,10 +51,6 @@ import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol.Connec
  */
 public class ConnectionStatusMessage extends Message {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 574243058721666652L;
 
 	private final AbstractIP address;
 	final Type type;

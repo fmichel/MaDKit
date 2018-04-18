@@ -47,10 +47,6 @@ import java.nio.channels.SocketChannel;
  */
 class UnlockReadMessage extends NIOMessage {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -7327204348072498127L;
 
 	public final SocketChannel socket;
 

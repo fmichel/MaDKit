@@ -51,10 +51,6 @@ import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol;
  */
 class ConnectionClosed extends NIOMessage {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 4994464506556909825L;
 
 	final AgentNetworkID socket;
 	final ConnectionProtocol.ConnectionClosedReason reason;

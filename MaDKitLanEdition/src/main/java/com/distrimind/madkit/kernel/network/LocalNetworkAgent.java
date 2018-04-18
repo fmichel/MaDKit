@@ -266,10 +266,6 @@ class LocalNetworkAgent extends AgentFakeThread {
 	}
 
 	static class ActivateAskConnection extends Message {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -7127554650681077601L;
 
 		final boolean askConnectionActivated;
 
@@ -922,11 +918,6 @@ class LocalNetworkAgent extends AgentFakeThread {
 
 	class PossibleInetAddressesUsedForDirectConnectionChanged extends Message {
 
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 3247059035995491429L;
-
 		protected PossibleInetAddressesUsedForDirectConnectionChanged(InetSocketAddress oldIP,
 				InetSocketAddress newIP) {
 			if (oldIP != null)
@@ -1047,10 +1038,6 @@ class LocalNetworkAgent extends AgentFakeThread {
 
 	static abstract class NetworkInterfaceChangedMessage extends Message {
 
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -4064954141729288644L;
 
 		private final NetworkInterface network_interface_changed;
 
@@ -1065,10 +1052,6 @@ class LocalNetworkAgent extends AgentFakeThread {
 
 	static class NetworkInterfaceAddedMessage extends NetworkInterfaceChangedMessage {
 
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -3064424111658577003L;
 
 		NetworkInterfaceAddedMessage(NetworkInterface network_interface_changed) {
 			super(network_interface_changed);
@@ -1078,10 +1061,6 @@ class LocalNetworkAgent extends AgentFakeThread {
 
 	static class NetworkInterfaceRemovedMessage extends NetworkInterfaceChangedMessage {
 
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -1740120758614753232L;
 
 		NetworkInterfaceRemovedMessage(NetworkInterface network_interface_changed) {
 			super(network_interface_changed);

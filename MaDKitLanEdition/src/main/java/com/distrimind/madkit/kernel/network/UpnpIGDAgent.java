@@ -1256,10 +1256,6 @@ class UpnpIGDAgent extends AgentFakeThread {
 	}
 
 	public static abstract class AbstractRouterMessage extends Message {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 6352496613545768242L;
 
 		private final InetAddress concerned_router;
 		private String message;
@@ -1290,10 +1286,6 @@ class UpnpIGDAgent extends AgentFakeThread {
 	}
 
 	public static class AskForPortMappingAddMessage extends AbstractRouterMessage {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 178159584387889945L;
 
 		private final InetAddress concerned_local_ip;
 		private final int external_ports_range[];
@@ -1361,10 +1353,6 @@ class UpnpIGDAgent extends AgentFakeThread {
 	}
 
 	public static class AskForPortMappingDeleteMessage extends AbstractRouterMessage {
-		/**
-		* 
-		*/
-		private static final long serialVersionUID = -1710573952608534629L;
 
 		private final int external_port;
 		private final Protocol protocol;
@@ -1392,10 +1380,6 @@ class UpnpIGDAgent extends AgentFakeThread {
 	}
 
 	public static class PortMappingAnswerMessage extends AbstractRouterMessage {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 8432675044477908723L;
 
 		private final InetAddress concerned_local_ip;
 		private final int external_port;
@@ -1449,10 +1433,6 @@ class UpnpIGDAgent extends AgentFakeThread {
 	}
 
 	public static abstract class RepetitiveRouterRequest extends AbstractRouterMessage {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -8856616652000136067L;
 
 		private long delay;
 
@@ -1480,10 +1460,6 @@ class UpnpIGDAgent extends AgentFakeThread {
 	}
 
 	public static class AskForConnectionStatusMessage extends RepetitiveRouterRequest {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 703616198132746998L;
 
 		public AskForConnectionStatusMessage(InetAddress _concerned_router) {
 			super(_concerned_router);
@@ -1496,10 +1472,6 @@ class UpnpIGDAgent extends AgentFakeThread {
 	}
 
 	public static class ConnexionStatusMessage extends AbstractRouterMessage {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 8819060658814969370L;
 
 		private final StatusInfo status;
 		private final StatusInfo old_status;
@@ -1527,10 +1499,6 @@ class UpnpIGDAgent extends AgentFakeThread {
 	}
 
 	public static class AskForExternalIPMessage extends RepetitiveRouterRequest {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 3525681704187524583L;
 
 		public AskForExternalIPMessage(InetAddress _concerned_router) {
 			super(_concerned_router);
@@ -1542,10 +1510,6 @@ class UpnpIGDAgent extends AgentFakeThread {
 	}
 
 	public static class ExternalIPMessage extends AbstractRouterMessage {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -3902169716732967854L;
 
 		private final InetAddress external_ip, old_ip;
 
@@ -1573,11 +1537,6 @@ class UpnpIGDAgent extends AgentFakeThread {
 
 	public static class AskForNetworkInterfacesMessage extends Message {
 
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 6619851730772542543L;
-
 		private final long delay;
 
 		public AskForNetworkInterfacesMessage(long _delay_between_each_check) {
@@ -1601,10 +1560,6 @@ class UpnpIGDAgent extends AgentFakeThread {
 
 	public static class NetworkInterfaceInformationMessage extends Message {
 
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1978259818362981706L;
 
 		private final Collection<NetworkInterface> connected_interfaces, new_connected_interfaces,
 				new_disconnected_interfaces;
@@ -1656,11 +1611,6 @@ class UpnpIGDAgent extends AgentFakeThread {
 
 	public static class AskForRouterDetectionInformation extends Message {
 
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -1692219215996867194L;
-
 		final boolean permanent_request;
 
 		public AskForRouterDetectionInformation(boolean permanent_request) {
@@ -1675,10 +1625,6 @@ class UpnpIGDAgent extends AgentFakeThread {
 
 	public static class IGDRouterFoundMessage extends AbstractRouterMessage {
 
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 4787334473964343304L;
 
 		public IGDRouterFoundMessage(InetAddress _concerned_router) {
 			super(_concerned_router);
@@ -1686,11 +1632,6 @@ class UpnpIGDAgent extends AgentFakeThread {
 	}
 
 	public static class IGDRouterLostMessage extends AbstractRouterMessage {
-
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -5839981501136915354L;
 
 		protected IGDRouterLostMessage(InetAddress _concerned_router) {
 			super(_concerned_router);

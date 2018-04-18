@@ -54,10 +54,6 @@ import com.distrimind.madkit.kernel.Message;
  */
 public class CGRSynchros extends Message {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -6566041890173779268L;
 
 	private final Map<String, Map<Group, Map<String, Set<AgentAddress>>>> organization_snap_shot;
 	private final ArrayList<Group> removedGroups;

@@ -54,10 +54,6 @@ import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol.Connec
  */
 public class AskForConnectionMessage extends ConnectionStatusMessage {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1451440654086443752L;
 
 	final boolean now;
 	private Object joinedPiece = null;

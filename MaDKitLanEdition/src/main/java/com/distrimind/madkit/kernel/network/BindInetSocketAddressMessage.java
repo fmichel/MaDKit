@@ -55,11 +55,7 @@ import com.distrimind.madkit.kernel.Message;
  */
 public class BindInetSocketAddressMessage extends Message {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 2744872107965228806L;
-
+	
 	private final InetSocketAddress address;
 	private final Type type;
 	final long networkInterfaceSpeed;

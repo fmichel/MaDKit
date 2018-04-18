@@ -45,9 +45,5 @@ package com.distrimind.madkit.kernel.network;
  */
 class SendPingMessage extends NIOMessage {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 3463333352037203292L;
 
 }

@@ -60,10 +60,6 @@ import com.distrimind.madkit.kernel.network.TransferAgent.IDTransfer;
  * @since MadkitKanEdition 1.0
  */
 public class AskForTransferMessage extends Message {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 7901487043739090425L;
 
 	private final Type type;
 	private InetSocketAddress inetSocketAddress1;

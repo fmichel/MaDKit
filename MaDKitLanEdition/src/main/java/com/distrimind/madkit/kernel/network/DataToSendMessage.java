@@ -47,10 +47,6 @@ import com.distrimind.madkit.kernel.AgentNetworkID;
  */
 class DataToSendMessage extends NIOMessage {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -224677238366814210L;
 
 	public final AbstractData data;
 	public final AgentNetworkID socket;

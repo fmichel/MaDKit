@@ -47,9 +47,5 @@ import com.distrimind.madkit.kernel.Message;
  */
 public class MulticastListenerDeconnectionMessage extends Message {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -1944310736431882752L;
 
 }

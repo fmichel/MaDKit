@@ -56,11 +56,6 @@ import com.distrimind.madkit.kernel.Message;
  */
 class MulticastListenerConnectionMessage extends Message {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 4940187517215504243L;
-
 	private final NetworkInterface networkInterface;
 	private final InetAddress networkInterfaceAddress;
 	private final int port;

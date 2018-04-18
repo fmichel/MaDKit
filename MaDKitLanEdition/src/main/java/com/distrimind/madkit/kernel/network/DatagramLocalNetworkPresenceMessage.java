@@ -67,11 +67,6 @@ import gnu.vm.jgnu.security.NoSuchProviderException;
  */
 class DatagramLocalNetworkPresenceMessage extends Message {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 7615549849705610339L;
-
 	final long onlineTime;
 	final int programBuildNumber;
 	final int madkitBuildNumber;

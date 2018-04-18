@@ -48,10 +48,6 @@ import com.distrimind.madkit.kernel.network.DistantKernelAgent.ReceivedSerializa
  */
 public class LocalLanMessage extends Message {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -5966169182717107783L;
 
 	private final Message message;
 

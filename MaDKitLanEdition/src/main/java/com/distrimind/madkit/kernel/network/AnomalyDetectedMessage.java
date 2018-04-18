@@ -54,10 +54,6 @@ import com.distrimind.madkit.kernel.Message;
  * 
  */
 public class AnomalyDetectedMessage extends Message {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 5396999073321069707L;
 
 	private final boolean candidateToBan;
 	private final InetSocketAddress inetSocketAddress;

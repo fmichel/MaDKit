@@ -48,11 +48,6 @@ import com.distrimind.madkit.kernel.network.DistantKernelAgent.ReceivedSerializa
  */
 public class DirectLocalLanMessage extends LocalLanMessage {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 4289770905293541139L;
-
 	DirectLocalLanMessage(Message _message, ReceivedSerializableObject originalMessage) {
 		super(_message, originalMessage);
 	}

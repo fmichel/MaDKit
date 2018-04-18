@@ -47,10 +47,6 @@ import java.nio.channels.SocketChannel;
  */
 class LockReadMessage extends NIOMessage {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -2857135490078912601L;
 
 	public final SocketChannel socket;
 

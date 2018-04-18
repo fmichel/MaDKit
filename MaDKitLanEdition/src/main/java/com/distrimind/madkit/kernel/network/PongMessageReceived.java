@@ -47,11 +47,6 @@ import com.distrimind.madkit.kernel.AgentNetworkID;
  */
 class PongMessageReceived extends NIOMessage {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1963976230518617951L;
-
 	public final AgentNetworkID socket;
 
 	public PongMessageReceived(AgentNetworkID _socket) {

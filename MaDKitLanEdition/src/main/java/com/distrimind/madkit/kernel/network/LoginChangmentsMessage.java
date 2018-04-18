@@ -56,10 +56,6 @@ import com.distrimind.madkit.message.hook.HookMessage.AgentActionEvent;
  */
 public class LoginChangmentsMessage extends Message {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 871957735959151008L;
 
 	public final ArrayList<PairOfIdentifiers> new_accepted_identifiers;
 	public final ArrayList<PairOfIdentifiers> new_removed_identifiers;

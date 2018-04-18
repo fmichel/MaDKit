@@ -52,10 +52,6 @@ import com.distrimind.madkit.kernel.network.DistantKernelAgent.ReceivedSerializa
  */
 public class BroadcastLocalLanMessage extends LocalLanMessage {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 6048753783274411638L;
 
 	AbstractGroup abstract_group;
 	String role;

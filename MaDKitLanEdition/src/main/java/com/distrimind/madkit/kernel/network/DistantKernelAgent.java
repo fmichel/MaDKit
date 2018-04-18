@@ -42,6 +42,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.ObjectStreamClass;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -61,6 +62,7 @@ import java.util.logging.Level;
 
 import com.distrimind.madkit.agr.LocalCommunity;
 import com.distrimind.madkit.exceptions.MadkitException;
+import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.exceptions.NIOException;
 import com.distrimind.madkit.exceptions.PacketException;
 import com.distrimind.madkit.exceptions.SelfKillException;
@@ -88,6 +90,7 @@ import com.distrimind.madkit.kernel.TaskID;
 import com.distrimind.madkit.kernel.network.AbstractAgentSocket.AgentSocketKilled;
 import com.distrimind.madkit.kernel.network.AbstractAgentSocket.Groups;
 import com.distrimind.madkit.kernel.network.AbstractAgentSocket.ReceivedBlockData;
+import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.madkit.kernel.network.TransferAgent.IDTransfer;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol.ConnectionClosedReason;
 import com.distrimind.madkit.kernel.network.connection.access.PairOfIdentifiers;
@@ -1660,11 +1663,34 @@ class DistantKernelAgent extends AgentFakeThread {
 	}
 
 	private class OOS extends ObjectOutputStream {
-
+		private NetworkProperties np=getMadkitConfig().networkProperties;
 		OOS(java.io.OutputStream _out) throws IOException {
 			super(_out);
 			enableReplaceObject(true);
 		}
+		
+	
+		
+		@Override
+		protected void annotateClass(Class<?> cl) throws IOException {
+			if (np.isAcceptedClassForSerializationUsingPatterns(cl.getName()))
+			{
+				if (np.isAcceptedClassForSerializationUsingWhiteClassList(cl))
+					return;
+			}
+			throw new IOException("The class "+cl+" is not authorized to be serialized. See NetworkProperties class to add new classes to be authorized to be serialized.");
+	    }
+		@Override
+		protected void annotateProxyClass(Class<?> cl) throws IOException {
+			annotateClass(cl);
+			for (Class<?> c : cl.getInterfaces())
+			{
+				if (np.isDeniedClassForSerializationUsingPatterns(c.getName()) || np.isDeniedClassForSerializationUsingBlackClassList(c))
+				{
+					throw new IOException("The class "+c+" is not authorized to be serialized. See NetworkProperties class to add new classes to be authorized to be serialized.");
+				}
+			}
+	    }
 
 		@Override
 		protected Object replaceObject(Object obj) {
@@ -1692,11 +1718,45 @@ class DistantKernelAgent extends AgentFakeThread {
 
 	private class OIS extends ObjectInputStream {
 
+		private NetworkProperties np=getMadkitConfig().networkProperties;
 		public OIS(InputStream _in) throws IOException {
 			super(_in);
 			enableResolveObject(true);
 
 		}
+		
+		@Override
+		protected Class<?> resolveClass(ObjectStreamClass desc) throws ClassNotFoundException, IOException
+		{
+			if (np.isAcceptedClassForSerializationUsingPatterns(desc.getName()))
+			{
+				Class<?> c=super.resolveClass(desc);
+				if (c==null)
+					return null;
+				if (np.isAcceptedClassForSerializationUsingWhiteClassList(c))
+					return c;
+			}
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN, new ClassNotFoundException(desc.getName()));
+		}
+		
+		@Override
+	    protected Class<?> resolveProxyClass(String[] interfaces)
+	            throws IOException, ClassNotFoundException{
+			for (String s : interfaces)
+			{
+				if (np.isDeniedClassForSerializationUsingPatterns(s))
+					throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN, new ClassNotFoundException(s));
+			}
+			Class<?> c=super.resolveProxyClass(interfaces);
+			if (c==null)
+				return null;
+			if (np.isDeniedClassForSerializationUsingBlackClassList(c))
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN, new ClassNotFoundException(c.getName()));
+			return c;
+		}
+	            
+
+		
 
 		@Override
 		protected Object resolveObject(Object obj) {

@@ -40,7 +40,8 @@ package com.distrimind.madkit.kernel.network;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
+
+import com.distrimind.madkit.util.SerializableAndSizable;
 
 
 
@@ -51,7 +52,7 @@ import java.io.Serializable;
  * @version 1.1
  * @since MadkitLanEdition 1.0
  */
-public interface SystemMessage extends Serializable {
+public interface SystemMessage extends SerializableAndSizable {
 
 	
 	public static enum Integrity {

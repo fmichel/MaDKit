@@ -71,7 +71,7 @@ public class ActMessage extends com.distrimind.madkit.kernel.Message implements 
 
 	@Override
 	public int getInternalSerializedSize() {
-		int res=super.getInternalSerializedSizeImpl()+OOSUtils.getInternalSize(action, MAX_ACTION_LENGTH)+5+fields.size()*4+OOSUtils.getInternalSize(content, MAX_STRING_CONTENT_LENGTH);
+		int res=super.getInternalSerializedSizeImpl()+OOSUtils.getInternalSize(action, MAX_ACTION_LENGTH)+5+OOSUtils.getInternalSize(content, MAX_STRING_CONTENT_LENGTH);
 		for (Map.Entry<String, Object> e : fields.entrySet())
 		{
 			res+=OOSUtils.getInternalSize(e.getKey(), MAX_FIELD_LENGTH)+OOSUtils.getInternalSize(e.getValue(), MAX_STRING_VALUE_LENGTH);
@@ -92,7 +92,7 @@ public class ActMessage extends com.distrimind.madkit.kernel.Message implements 
 		if (totalSize>globalSize)
 			throw new MessageSerializationException(Integrity.FAIL);
 		int size=in.readInt();
-		totalSize+=4+size*4;
+		totalSize+=4;
 		if (totalSize>globalSize)
 			throw new MessageSerializationException(Integrity.FAIL);
 		if (size<0)

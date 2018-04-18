@@ -75,7 +75,7 @@ public class Replies extends Message implements SerializableAndSizable{
 
 	@Override
 	public int getInternalSerializedSize() {
-		int size=super.getInternalSerializedSizeImpl()+originalMessage.getInternalSerializedSizeImpl()+replies.size()*4+9;
+		int size=super.getInternalSerializedSizeImpl()+originalMessage.getInternalSerializedSizeImpl()+9;
 		for (Message m : replies)
 			size+=m.getInternalSerializedSizeImpl();
 		return size;
@@ -108,10 +108,10 @@ public class Replies extends Message implements SerializableAndSizable{
 				int size=in.readInt();
 				if (size<0 || size>globalSize/4)
 					throw new MessageSerializationException(Integrity.FAIL);
-				replies=new ArrayList<>(size);
-				totalSize+=size*4;
-				if (totalSize>globalSize)
+				if (totalSize+size*4>globalSize)
 					throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+				replies=new ArrayList<>(size);
+				
 				for (int i=0;i<size;i++)
 				{
 					o=in.readObject();

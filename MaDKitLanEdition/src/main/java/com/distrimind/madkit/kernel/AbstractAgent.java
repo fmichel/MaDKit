@@ -46,7 +46,6 @@ import static com.distrimind.madkit.kernel.AbstractAgent.State.TERMINATED;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -118,6 +117,7 @@ import com.distrimind.madkit.message.hook.MessageEvent;
 import com.distrimind.madkit.message.hook.OrganizationEvent;
 import com.distrimind.madkit.message.task.TasksExecutionConfirmationMessage;
 import com.distrimind.madkit.message.hook.HookMessage.AgentActionEvent;
+import com.distrimind.madkit.util.SerializableAndSizable;
 import com.distrimind.madkit.util.XMLUtilities;
 import com.distrimind.jdkrewrite.concurrent.LinkedBlockingDeque;
 import com.distrimind.util.crypto.MessageDigestType;
@@ -172,7 +172,7 @@ import com.distrimind.util.crypto.MessageDigestType;
  * @author Fabien Michel
  * @author Olivier Gutknecht
  * @author Jason Mahdjoub
- * @version 6.1
+ * @version 6.2
  * @since MadKitLanEdition 1.0
  */
 public class AbstractAgent implements Comparable<AbstractAgent> {
@@ -1639,7 +1639,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * 
 	 * @since MaDKitLanEdition 1.0
 	 */
-	public ReturnCode requestRole(final Group group, final String role, final Object passKey) {
+	public ReturnCode requestRole(final Group group, final String role, final SerializableAndSizable passKey) {
 		if (getState() == INITIALIZING) {
 			if (isWarningOn()) {
 				handleException(Influence.REQUEST_ROLE, new OrganizationWarning(ReturnCode.IGNORED, group, role));
@@ -1687,7 +1687,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * 
 	 * @since MaDKitLanEdition 1.0
 	 */
-	public ReturnCode bucketModeRequestRole(Group _group, final String role, final Object passKey) {
+	public ReturnCode bucketModeRequestRole(Group _group, final String role, final SerializableAndSizable passKey) {
 		return kernel.requestRole(this, _group, role, passKey, true);
 	}
 
@@ -4099,7 +4099,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * @see AbstractAgent#leaveAutoRequestedRole(AbstractGroup, String)
 	 * @see AbstractAgent#leaveAllAutoRequestedGroups()
 	 */
-	public void autoRequestRole(AbstractGroup _group, String _role, Object _passKey) {
+	public void autoRequestRole(AbstractGroup _group, String _role, SerializableAndSizable _passKey) {
 		if (_group == null || _role == null)
 			return;
 		getKernel().autoRequesteRole(this, _group, _role, _passKey);
@@ -4301,7 +4301,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 *             if <code>pos</code> or <code>length</code> are invalid
 	 * @throws IOException if data can't be read
 	 */
-	public BigDataTransferID sendBigData(AgentAddress agentAddress, RandomInputStream stream, Serializable attachedData)
+	public BigDataTransferID sendBigData(AgentAddress agentAddress, RandomInputStream stream, SerializableAndSizable attachedData)
 			throws IOException {
 		return this.sendBigData(agentAddress, stream, 0, stream.length(), attachedData, null, false);
 	}
@@ -4402,7 +4402,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * @throws IOException if data can't be read
 	 */
 	public BigDataTransferID sendBigData(AgentAddress agentAddress, RandomInputStream stream, long pos, long length,
-			Serializable attachedData, MessageDigestType messageDigestType, boolean excludeFromEncryption) throws IOException {
+			SerializableAndSizable attachedData, MessageDigestType messageDigestType, boolean excludeFromEncryption) throws IOException {
 		return getKernel().sendBigData(this, agentAddress, stream, pos, length, attachedData, null, messageDigestType, excludeFromEncryption);
 	}
 
@@ -4493,7 +4493,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 *             if <code>pos</code> or <code>length</code> are invalid
 	 */
 	public BigDataTransferID sendBigDataWithRole(AgentAddress agentAddress, RandomInputStream stream,
-			Serializable attachedData, String senderRole) throws IOException {
+			SerializableAndSizable attachedData, String senderRole) throws IOException {
 		return this.sendBigDataWithRole(agentAddress, stream, 0, stream.length(), attachedData, null, senderRole, false);
 	}
 
@@ -4598,7 +4598,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 *             if <code>pos</code> or <code>length</code> are invalid
 	 */
 	public BigDataTransferID sendBigDataWithRole(AgentAddress agentAddress, RandomInputStream stream, long pos,
-			long length, Serializable attachedData, MessageDigestType messageDigestType, String senderRole, boolean excludeFromEncryption)
+			long length, SerializableAndSizable attachedData, MessageDigestType messageDigestType, String senderRole, boolean excludeFromEncryption)
 			throws IOException {
 		return getKernel().sendBigData(this, agentAddress, stream, pos, length, attachedData, senderRole,
 				messageDigestType, excludeFromEncryption);

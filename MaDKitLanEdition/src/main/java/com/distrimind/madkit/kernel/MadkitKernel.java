@@ -65,7 +65,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
@@ -149,6 +148,7 @@ import com.distrimind.madkit.message.hook.IPBannedEvent;
 import com.distrimind.madkit.message.hook.NetworkGroupsAccessEvent;
 import com.distrimind.madkit.message.hook.NetworkLoginAccessEvent;
 import com.distrimind.madkit.message.task.TasksExecutionConfirmationMessage;
+import com.distrimind.madkit.util.SerializableAndSizable;
 import com.distrimind.madkit.util.XMLUtilities;
 import com.distrimind.jdkrewrite.concurrent.FutureWithSpecializedWait;
 import com.distrimind.jdkrewrite.concurrent.LockerCondition;
@@ -168,7 +168,7 @@ import gnu.vm.jgnu.security.NoSuchProviderException;
  * 
  * @author Fabien Michel
  * @author Jason Mahdjoub
- * @version 2.1
+ * @version 2.2
  * @since MaDKit 5.0
  * @since MaDKitLanEdition 1.0
  * 
@@ -1137,7 +1137,7 @@ class MadkitKernel extends Agent {
 	 * @throws RequestRoleException
 	 */
 
-	ReturnCode requestRole(AbstractAgent requester, Group group, String role, Object memberCard,
+	ReturnCode requestRole(AbstractAgent requester, Group group, String role, SerializableAndSizable memberCard,
 			boolean manually_requested) {
 		if (group.isUsedSubGroups())
 			return ReturnCode.MULTI_GROUP_NOT_ACCEPTED;
@@ -3305,7 +3305,7 @@ class MadkitKernel extends Agent {
 
 	}
 
-	void autoRequesteRole(AbstractAgent requester, AbstractGroup _groups, String role, Object passKey) {
+	void autoRequesteRole(AbstractAgent requester, AbstractGroup _groups, String role, SerializableAndSizable passKey) {
 		AutoRequestedGroups args = null;
 		boolean addNotifier = false;
 		synchronized (auto_requested_groups) {
@@ -3322,7 +3322,7 @@ class MadkitKernel extends Agent {
 	}
 
 	BigDataTransferID sendBigData(AbstractAgent requester, AgentAddress agentAddress, RandomInputStream stream,
-			long pos, long length, Serializable attachedData, String senderRole, MessageDigestType messageDigestType, boolean excludeFromEncryption)
+			long pos, long length, SerializableAndSizable attachedData, String senderRole, MessageDigestType messageDigestType, boolean excludeFromEncryption)
 			throws IOException {
 		if (agentAddress == null)
 			throw new NullPointerException("agentAddress");
@@ -3459,11 +3459,11 @@ class MadkitKernel extends Agent {
 		private final AbstractAgent agent;
 		private AbstractGroup group;
 		private final String role;
-		private final Object passKey;
+		private final SerializableAndSizable passKey;
 		private final AtomicReference<Group[]> groups = new AtomicReference<>(null);
 		private final MadkitKernel kernel;
 
-		AutoRequestedGroup(AbstractAgent _agent, AbstractGroup _group, String _role, Object _passKey) {
+		AutoRequestedGroup(AbstractAgent _agent, AbstractGroup _group, String _role, SerializableAndSizable _passKey) {
 			agent = _agent;
 			group = _group.clone();
 			role = _role;

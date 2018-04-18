@@ -58,6 +58,7 @@ import com.distrimind.madkit.i18n.ErrorMessages;
 import com.distrimind.madkit.i18n.I18nUtilities;
 import com.distrimind.madkit.kernel.AbstractAgent.ReturnCode;
 import com.distrimind.madkit.message.ObjectMessage;
+import com.distrimind.madkit.util.SerializableAndSizable;
 
 /**
  * @author Oliver Gutknecht
@@ -152,7 +153,7 @@ final class InternalGroup extends ConcurrentHashMap<String, InternalRole> {
 	 * @param memberCard
 	 * @return
 	 */
-	ReturnCode requestRole(final AbstractAgent requester, final String roleName, final Object memberCard,
+	ReturnCode requestRole(final AbstractAgent requester, final String roleName, final SerializableAndSizable memberCard,
 			boolean manually_requested) {
 		if (roleName == null)
 			throw new NullPointerException(ErrorMessages.R_NULL.toString());

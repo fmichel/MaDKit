@@ -172,10 +172,6 @@ public final class NetworkAgent extends AgentFakeThread {
 
 	public static class StopNetworkMessage extends Message {
 
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -4483194613994108556L;
 		private final NetworkCloseReason reason;
 
 		StopNetworkMessage(NetworkCloseReason reason) {

@@ -37,11 +37,18 @@
  */
 package com.distrimind.madkit.kernel;
 
-public final class EmptyMessage extends Message {
+import com.distrimind.madkit.util.SerializableAndSizable;
+
+public final class EmptyMessage extends Message implements SerializableAndSizable {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -4730211067144743668L;
 
+	@Override
+	public int getInternalSerializedSize() {
+		return super.getInternalSerializedSizeImpl();
+	}	
+	
 }

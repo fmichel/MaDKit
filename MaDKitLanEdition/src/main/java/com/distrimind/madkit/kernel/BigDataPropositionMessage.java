@@ -48,7 +48,6 @@ import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.io.RandomInputStream;
 import com.distrimind.madkit.io.RandomOutputStream;
 import com.distrimind.madkit.kernel.network.Block;
-import com.distrimind.madkit.kernel.network.NetworkProperties;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.madkit.kernel.network.RealTimeTransfertStat;
 import com.distrimind.madkit.util.OOSUtils;
@@ -112,7 +111,7 @@ public final class BigDataPropositionMessage extends Message implements Serializ
 			attachedData=((SerializableAndSizable)o);
 		else
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
-		data=OOSUtils.readBytes(in, NetworkProperties.GLOBAL_MAX_BUFFER_SIZE, true);
+		data=OOSUtils.readBytes(in, Block.BLOCK_SIZE_LIMIT, true);
 		isLocal=in.readBoolean();
 		idPacket=in.readInt();
 		timeUTC=in.readLong();
@@ -140,7 +139,7 @@ public final class BigDataPropositionMessage extends Message implements Serializ
 		if (attachedData!=null)
 			oos.writeObject(attachedData);
 		
-		OOSUtils.writeBytes(oos, data, NetworkProperties.GLOBAL_MAX_BUFFER_SIZE, true);
+		OOSUtils.writeBytes(oos, data, Block.BLOCK_SIZE_LIMIT, true);
 		oos.writeBoolean(isLocal);
 		oos.writeInt(idPacket);
 		oos.writeLong(timeUTC);

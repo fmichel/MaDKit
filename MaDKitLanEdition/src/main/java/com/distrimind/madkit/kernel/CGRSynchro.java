@@ -37,7 +37,15 @@
  */
 package com.distrimind.madkit.kernel;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+import com.distrimind.madkit.exceptions.MessageSerializationException;
+import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.madkit.message.ObjectMessage;
+import com.distrimind.madkit.util.OOSUtils;
+import com.distrimind.madkit.util.SerializableAndSizable;
 
 /**
  * @author Fabien Michel
@@ -46,7 +54,7 @@ import com.distrimind.madkit.message.ObjectMessage;
  * @since MaDKitLanEdition 1.0
  *
  */
-public class CGRSynchro extends ObjectMessage<AgentAddress> {
+public class CGRSynchro extends ObjectMessage<AgentAddress> implements SerializableAndSizable {
 
 	/**
 	 * 
@@ -58,9 +66,32 @@ public class CGRSynchro extends ObjectMessage<AgentAddress> {
 		// LEAVE_ORG
 	}
 
-	final private Code code;
-	final private boolean manual;
+	private Code code;
+	private boolean manual;
 
+	@Override
+	public int getInternalSerializedSize() {
+		return super.getInternalSerializedSizeImpl()+code.name().length()*2+3;
+	}	
+	
+	@Override
+	protected void readAndCheckObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
+	{
+		super.readAndCheckObjectImpl(in);
+		code=Code.valueOf(OOSUtils.readString(in, 1000, false));
+		if (code==null)
+			throw new MessageSerializationException(Integrity.FAIL);
+		manual=in.readBoolean();
+		
+	}
+	@Override
+	protected void writeAndCheckObject(final ObjectOutputStream oos) throws IOException{
+		super.writeAndCheckObjectImpl(oos);
+		OOSUtils.writeString(oos, code.name(), 1000, false);
+		oos.writeBoolean(manual);
+	}
+	
+	
 	/**
 	 * @param code
 	 * @param aa
@@ -92,20 +123,58 @@ public class CGRSynchro extends ObjectMessage<AgentAddress> {
 		return manual;
 	}
 
+	
+
 }
 
-class RequestRoleSecure extends ObjectMessage<Object> {
+class RequestRoleSecure extends ObjectMessage<SerializableAndSizable> implements SerializableAndSizable {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1661974372588706717L;
-	final private Class<? extends AbstractAgent> requesterClass;
-	final private AgentAddress requester;
-	final private String roleName;
+	private Class<? extends AbstractAgent> requesterClass;
+	private AgentAddress requester;
+	private String roleName;
 
+	@Override
+	public int getInternalSerializedSize() {
+		return super.getInternalSerializedSizeImpl()+requesterClass.getName().length()*2+2+requester.getInternalSerializedSize()+roleName.length()*2+2;
+	}	
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	protected void readAndCheckObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
+	{
+		super.readAndCheckObjectImpl(in);
+		String clazz=OOSUtils.readString(in, Short.MAX_VALUE, false);
+		
+		Class<?> c=Class.forName(clazz, false, MadkitClassLoader.getSystemClassLoader());
+		if (c==null)
+			throw new MessageSerializationException(Integrity.FAIL);
+		if (!AbstractAgent.class.isAssignableFrom(c))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		c=Class.forName(clazz, true, MadkitClassLoader.getSystemClassLoader());
+		requesterClass=(Class<? extends AbstractAgent>)c;
+		
+		Object o=in.readObject();
+		if (!(o instanceof AgentAddress))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		requester=(AgentAddress)o;
+		roleName=OOSUtils.readString(in, Group.MAX_ROLE_NAME_LENGTH, false);
+		
+	}
+	@Override
+	protected void writeAndCheckObject(final ObjectOutputStream oos) throws IOException{
+		super.writeAndCheckObjectImpl(oos);
+		OOSUtils.writeString(oos, requesterClass.getName(), Short.MAX_VALUE, false);
+		oos.writeObject(requester);
+		OOSUtils.writeString(oos, roleName, Group.MAX_ROLE_NAME_LENGTH, false);
+	}
+	
+	
 	public RequestRoleSecure(Class<? extends AbstractAgent> requesterClass, AgentAddress requester, String roleName,
-			Object key) {
+			SerializableAndSizable key) {
 		super(key);
 		this.requesterClass = requesterClass;
 		this.requester = requester;

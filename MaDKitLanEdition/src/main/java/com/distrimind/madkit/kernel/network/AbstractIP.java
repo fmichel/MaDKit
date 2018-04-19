@@ -37,10 +37,14 @@
  */
 package com.distrimind.madkit.kernel.network;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 
+import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.util.SerializableAndSizable;
 import com.distrimind.madkit.util.XMLObjectParser;
 import com.distrimind.util.properties.XMLProperties;
@@ -65,6 +69,22 @@ public abstract class AbstractIP extends XMLProperties implements SystemMessage,
 
 	public abstract InetAddress[] getInetAddresses();
 
+	@Override
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		port=in.readInt();
+		if (port<0)
+			throw new MessageSerializationException(Integrity.FAIL);
+	}
+
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		oos.writeInt(port);
+	}
+	@Override
+	public int getInternalSerializedSize() {
+		return 4;
+	}
+	
 	public InetAddressFilter[] getInetAddressFilters() {
 		InetAddress[] ias = getInetAddresses();
 		InetAddressFilter[] res = new InetAddressFilter[ias.length];

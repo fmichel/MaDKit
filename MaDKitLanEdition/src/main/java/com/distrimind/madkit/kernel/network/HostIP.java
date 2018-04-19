@@ -50,10 +50,13 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Random;
 
+import com.distrimind.madkit.exceptions.MessageSerializationException;
+import com.distrimind.madkit.util.OOSUtils;
+
 /**
  * 
  * @author Jason Mahdjoub
- * @version 1.1
+ * @version 1.2
  * @since MadkitLanEdition 1.0
  */
 public class HostIP extends AbstractIP {
@@ -65,6 +68,28 @@ public class HostIP extends AbstractIP {
 	private String host;
 	private final transient Random random = new Random(System.currentTimeMillis());
 
+	@Override
+	public int getInternalSerializedSize() {
+		return super.getInternalSerializedSize()+OOSUtils.getInternalSize(host, OOSUtils.MAX_URL_LENGTH);
+	}
+	
+	@Override
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		super.readAndCheckObject(in);
+		host=OOSUtils.readString(in, OOSUtils.MAX_URL_LENGTH, false);
+		if (getInetAddress() == null)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		
+	}
+
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		
+		super.writeAndCheckObject(oos);
+		OOSUtils.writeString(oos, host, OOSUtils.MAX_URL_LENGTH, false);
+		
+	}
+	
 	protected HostIP() {
 		super(-1);
 		host = null;
@@ -196,14 +221,6 @@ public class HostIP extends AbstractIP {
 		}
 	}
 
-	@Override
-	public Integrity checkDataIntegrity() {
-		if (getPort() < 0)
-			return Integrity.FAIL;
-		if (getInetAddress() == null)
-			return Integrity.FAIL;
-		return Integrity.OK;
-	}
 
 	@Override
 	public boolean excludedFromEncryption() {

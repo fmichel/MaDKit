@@ -42,9 +42,12 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
+import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.AbstractGroup;
 import com.distrimind.madkit.kernel.AgentAddress;
+import com.distrimind.madkit.kernel.Group;
 import com.distrimind.madkit.kernel.Message;
+import com.distrimind.madkit.util.OOSUtils;
 
 /**
  * 
@@ -60,9 +63,55 @@ final class BroadcastLanMessage extends LanMessage {
 	private static final long serialVersionUID = -1688077541837766083L;
 
 	public AbstractGroup abstract_group;
-	public final String role;
+	public String role;
 	public ArrayList<AgentAddress> agentAddressesSender;
 
+	@Override
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		
+		super.readAndCheckObject(in);
+		int globalSize=NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE;
+		int totalSize=0;
+		Object o=in.readObject();
+		if (!(o instanceof AbstractGroup))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		abstract_group=(AbstractGroup)o;
+		totalSize+=abstract_group.getInternalSerializedSize();
+		role=OOSUtils.readString(in, Group.MAX_ROLE_NAME_LENGTH, false);
+		totalSize+=OOSUtils.getInternalSize(role, Group.MAX_ROLE_NAME_LENGTH);
+		if (totalSize>globalSize)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		int size=in.readInt();
+		totalSize+=4;
+		if (size<=0 || totalSize+size*4>globalSize)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		agentAddressesSender=new ArrayList<>(size);
+		for (int i=0;i<size;i++)
+		{
+			o=in.readObject();
+			if (!(o instanceof AgentAddress))
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			AgentAddress aa=(AgentAddress)o;
+			totalSize+=aa.getInternalSerializedSize();
+			if (totalSize>globalSize)
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+
+			agentAddressesSender.add(aa);
+			
+		}
+	}
+
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		super.writeAndCheckObject(oos);
+		oos.writeObject(abstract_group);
+		OOSUtils.writeString(oos, role, Group.MAX_ROLE_NAME_LENGTH, false);
+		oos.writeInt(agentAddressesSender.size());
+		for (AgentAddress aa : agentAddressesSender)
+			oos.writeObject(aa);
+	}
+
+	
 	BroadcastLanMessage(Message _message, AbstractGroup _abstract_group, String _role,
 			ArrayList<AgentAddress> _agentAddressesSender) {
 		super(_message);
@@ -83,21 +132,7 @@ final class BroadcastLanMessage extends LanMessage {
 		agentAddressesSender = _agentAddressesSender;
 	}
 
-	@Override
-	public Integrity checkDataIntegrity() {
-		Integrity isuper = super.checkDataIntegrity();
-		if (isuper.equals(Integrity.OK)) {
-			if (abstract_group == null || role == null || agentAddressesSender == null
-					|| agentAddressesSender.size() == 0)
-				return Integrity.FAIL;
-			for (AgentAddress aa : agentAddressesSender) {
-				if (aa == null)
-					return Integrity.FAIL;
-			}
-			return Integrity.OK;
-		} else
-			return isuper;
-	}
+	
 
 	void setAccetedGroups(AbstractGroup groups) {
 		abstract_group = groups;
@@ -117,16 +152,6 @@ final class BroadcastLanMessage extends LanMessage {
 		writeAndCheckObject(oos);
 	}
 
-	@Override
-	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
-		// TODO Auto-generated method stub
-		
-	}
+	
 
 }

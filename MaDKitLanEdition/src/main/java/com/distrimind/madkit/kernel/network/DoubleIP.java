@@ -45,6 +45,9 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
+import com.distrimind.madkit.exceptions.MessageSerializationException;
+import com.distrimind.madkit.util.OOSUtils;
+
 /**
  * 
  * @author Jason Mahdjoub
@@ -60,6 +63,37 @@ public class DoubleIP extends AbstractIP {
 	private Inet4Address inet4Address;
 	private Inet6Address inet6Address;
 
+	@Override
+	public int getInternalSerializedSize() {
+		return super.getInternalSerializedSize()+OOSUtils.getInternalSize(inet4Address, 0)+OOSUtils.getInternalSize(inet6Address, 0);
+	}
+	
+	@Override
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		super.readAndCheckObject(in);
+		InetAddress ia=OOSUtils.readInetAddress(in, true);
+		if (ia!=null && !(ia instanceof Inet4Address))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		inet4Address=(Inet4Address)ia;
+		ia=OOSUtils.readInetAddress(in, true);
+		if (ia!=null && !(ia instanceof Inet6Address))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		inet6Address=(Inet6Address)ia;
+		if (inet4Address==null && inet6Address==null)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		
+	}
+
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		
+		if (inet4Address==null && inet6Address==null)
+			throw new IOException();
+		super.writeAndCheckObject(oos);
+		OOSUtils.writeInetAddress(oos, inet4Address, true);
+		OOSUtils.writeInetAddress(oos, inet6Address, true);
+	}
+	
 	protected DoubleIP() {
 		super(-1);
 		this.inet4Address = null;
@@ -156,14 +190,7 @@ public class DoubleIP extends AbstractIP {
 			return new Inet4Address[0];
 	}
 
-	@Override
-	public Integrity checkDataIntegrity() {
-		if (getPort() < 0)
-			return Integrity.FAIL;
-		if (inet4Address == null && inet6Address == null)
-			return Integrity.FAIL;
-		return Integrity.OK;
-	}
+
 
 	@Override
 	public boolean excludedFromEncryption() {
@@ -177,4 +204,6 @@ public class DoubleIP extends AbstractIP {
 	{
 		writeAndCheckObject(oos);
 	}
+
+	
 }

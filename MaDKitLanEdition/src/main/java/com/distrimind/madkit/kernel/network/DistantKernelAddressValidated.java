@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+
 /**
  * 
  * @author Jason Mahdjoub
@@ -52,12 +53,18 @@ public class DistantKernelAddressValidated implements SystemMessage {
 	/**
 	 * 
 	 */
+
 	private static final long serialVersionUID = 2752671312631816393L;
+	@Override
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		
+	}
 
 	@Override
-	public Integrity checkDataIntegrity() {
-		return Integrity.OK;
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		
 	}
+	
 
 	@Override
 	public boolean excludedFromEncryption() {

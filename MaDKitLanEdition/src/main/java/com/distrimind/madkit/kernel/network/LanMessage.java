@@ -41,7 +41,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.Message;
+import com.distrimind.madkit.util.SerializableAndSizable;
 
 /**
  * 
@@ -56,24 +58,38 @@ abstract class LanMessage implements SystemMessage {
 	 */
 	private static final long serialVersionUID = 1587533730897839993L;
 
-	public final Message message;
+	public Message message;
 
 	LanMessage(Message _message) {
 		if (_message == null)
 			throw new NullPointerException("_message");
+		if (!(_message instanceof SerializableAndSizable))
+			throw new IllegalArgumentException("message must implements SerializableAndSizable");
 		Integrity i = _message.checkDataIntegrity();
 		if (i != Integrity.OK)
 			throw new IllegalArgumentException(
 					"The integrity of the given message (" + _message.getClass() + ") is incorrect : " + i);
 		message = _message;
 	}
+	
+	@Override
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		
+		Object o=in.readObject();
+		if (!(o instanceof Message) || !(o instanceof SerializableAndSizable))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		message=(Message)o;
+		Integrity i=message.checkDataIntegrity();
+		if (i!=Integrity.OK)
+			throw new MessageSerializationException(i);
+	}
+
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		oos.writeObject(message);
+	}
 
 	
-	public Integrity checkDataIntegrity() {
-		if (message == null)
-			return Integrity.FAIL;
-		return message.checkDataIntegrity();
-	}
 
 	@Override
 	public String toString() {

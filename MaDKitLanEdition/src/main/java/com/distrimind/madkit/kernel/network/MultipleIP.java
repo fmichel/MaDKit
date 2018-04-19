@@ -47,6 +47,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Random;
 
+import com.distrimind.madkit.exceptions.MessageSerializationException;
+import com.distrimind.madkit.util.OOSUtils;
+
 /**
  * 
  * @author Jason Mahdjoub
@@ -69,11 +72,72 @@ public class MultipleIP extends AbstractIP {
 		this.inet4Adresses = new ArrayList<>();
 		this.inet6Adresses = new ArrayList<>();
 	}
-
-	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException {
-		in.defaultReadObject();
-		random = new Random(System.currentTimeMillis());
+	@Override
+	public int getInternalSerializedSize() {
+		int res=super.getInternalSerializedSize()+8;
+		for (InetAddress ia : inet4Adresses)
+			res+=OOSUtils.getInternalSize(ia, 0);
+		for (InetAddress ia : inet6Adresses)
+			res+=OOSUtils.getInternalSize(ia, 0);
+		return res;
 	}
+	
+	@Override
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		super.readAndCheckObject(in);
+		random = new Random(System.currentTimeMillis());
+		int globalSize=NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE;
+		int totalSize=4;
+		int size=in.readInt();
+		if (size<0 || totalSize+size*4>globalSize)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		this.inet4Adresses = new ArrayList<>(size);
+		for (int i=0;i<size;i++)
+		{
+			InetAddress o=OOSUtils.readInetAddress(in, false);
+			if (!(o instanceof Inet4Address))
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);	
+			Inet4Address ia=(Inet4Address)o;
+			totalSize+=OOSUtils.getInternalSize(ia,0);
+			if (totalSize>globalSize)
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			inet4Adresses.add(ia);
+		}
+		size=in.readInt();
+		totalSize+=4;
+		if (size<0 || totalSize+size*4>globalSize)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		this.inet6Adresses = new ArrayList<>(size);
+		if (inet4Adresses.isEmpty() && inet6Adresses.isEmpty())
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		for (int i=0;i<size;i++)
+		{
+			InetAddress o=OOSUtils.readInetAddress(in, false);
+			if (!(o instanceof Inet6Address))
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);	
+			Inet6Address ia=(Inet6Address)o;
+			totalSize+=OOSUtils.getInternalSize(ia,0);
+			if (totalSize>globalSize)
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			inet6Adresses.add(ia);
+		}
+	}
+
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		
+		super.writeAndCheckObject(oos);
+		if (inet4Adresses.isEmpty() && inet6Adresses.isEmpty())
+			throw new IOException();
+		oos.writeInt(inet4Adresses.size());
+		for (InetAddress ia : inet4Adresses)
+			OOSUtils.writeInetAddress(oos, ia, false);
+		oos.writeInt(inet6Adresses.size());
+		for (InetAddress ia : inet6Adresses)
+			OOSUtils.writeInetAddress(oos, ia, false);
+		
+	}
+	
 
 	public MultipleIP(int port, Collection<Inet4Address> inet4Adresses, Collection<Inet6Address> inet6Adresses) {
 		super(port);
@@ -189,22 +253,6 @@ public class MultipleIP extends AbstractIP {
 		return res;
 	}
 
-	@Override
-	public Integrity checkDataIntegrity() {
-		if (getPort() < 0)
-			return Integrity.FAIL;
-		if (inet4Adresses.isEmpty() && inet6Adresses.isEmpty())
-			return Integrity.FAIL;
-		for (Inet4Address ia : inet4Adresses) {
-			if (ia == null)
-				return Integrity.FAIL;
-		}
-		for (Inet6Address ia : inet6Adresses) {
-			if (ia == null)
-				return Integrity.FAIL;
-		}
-		return Integrity.OK;
-	}
 
 	@Override
 	public boolean excludedFromEncryption() {

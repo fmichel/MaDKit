@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.Message;
 
 /**
@@ -61,13 +62,12 @@ final class DirectLanMessage extends LanMessage {
 		if (_message.getReceiver() == null)
 			throw new IllegalArgumentException("_message has no defined receiver !");
 	}
-
 	@Override
-	public Integrity checkDataIntegrity() {
-		Integrity isuper = super.checkDataIntegrity();
-		if (message.getReceiver() == null)
-			return Integrity.FAIL;
-		return isuper;
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		
+		super.readAndCheckObject(in);
+		if (message.getSender()==null)
+			throw new MessageSerializationException(Integrity.FAIL);
 	}
 
 	@Override

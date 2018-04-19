@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.KernelAddress;
 import com.distrimind.madkit.kernel.network.TransferAgent.IDTransfer;
 
@@ -57,15 +58,26 @@ final class DataToBroadcast implements SystemMessage {
 	 */
 	private static final long serialVersionUID = -15635014186350690L;
 
-	private final BroadcastableSystemMessage messageToBroadcast;
-	private final KernelAddress sender;
-	private final boolean prioritary;
-	private final IDTransfer transferID;
+	private BroadcastableSystemMessage messageToBroadcast;
+	private KernelAddress sender;
+	private boolean prioritary;
+	private IDTransfer transferID;
 
 	@Override
 	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		// TODO Auto-generated method stub
-		
+		Object o=in.readObject();
+		if (!(o instanceof BroadcastableSystemMessage))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		messageToBroadcast=(BroadcastableSystemMessage)o;
+		o=in.readObject();
+		if (!(o instanceof KernelAddress))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		sender=(KernelAddress)o;
+		prioritary=in.readBoolean();
+		o=in.readObject();
+		if (!(o instanceof IDTransfer))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		transferID=(IDTransfer)o;
 	}
 
 	@Override
@@ -113,23 +125,6 @@ final class DataToBroadcast implements SystemMessage {
 		return prioritary;
 	}
 
-	@Override
-	public Integrity checkDataIntegrity() {
-		if (messageToBroadcast == null)
-			return Integrity.FAIL;
-		Integrity i = messageToBroadcast.checkDataIntegrity();
-		if (i != Integrity.OK)
-			return i;
-		if (sender == null)
-			return Integrity.FAIL;
-		i = sender.checkDataIntegrity();
-		if (i != Integrity.OK)
-			return i;
-		if (transferID == null)
-			return Integrity.FAIL;
-
-		return Integrity.OK;
-	}
 
 	@Override
 	public boolean excludedFromEncryption() {

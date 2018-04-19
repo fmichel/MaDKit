@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.KernelAddress;
 import com.distrimind.madkit.kernel.network.TransferAgent.IDTransfer;
 import com.distrimind.madkit.kernel.network.connection.TransferedBlockChecker;
@@ -70,16 +71,29 @@ class TransferBlockCheckerSystemMessage extends BroadcastableSystemMessage {
 	TransferedBlockChecker getTransferBlockChercker() {
 		return transferBlockChercker;
 	}
+	
+	@Override
+	public int getInternalSerializedSize() {
+		
+		return super.getInternalSerializedSize()+transferBlockChercker.getInternalSerializedSize();
+	}
+
 
 	@Override
-	public Integrity checkDataIntegrity() {
-		Integrity s = super.checkDataIntegrity();
-		if (s != Integrity.OK)
-			return s;
-		if (transferBlockChercker == null)
-			return Integrity.FAIL;
-		return Integrity.OK;
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		super.readAndCheckObject(in);
+		Object o=in.readObject();
+		if (!(o instanceof TransferedBlockChecker))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		transferBlockChercker=(TransferedBlockChecker)o;
 	}
+
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		super.writeAndCheckObject(oos);
+		oos.writeObject(transferBlockChercker);
+	}
+	
 
 	@Override
 	public boolean excludedFromEncryption() {
@@ -95,4 +109,5 @@ class TransferBlockCheckerSystemMessage extends BroadcastableSystemMessage {
 	{
 		writeAndCheckObject(oos);
 	}
+
 }

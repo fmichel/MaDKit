@@ -37,13 +37,18 @@
  */
 package com.distrimind.madkit.kernel.network;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.KernelAddress;
 import com.distrimind.madkit.kernel.network.TransferAgent.IDTransfer;
 
 /**
  * 
  * @author Jason Mahdjoub
- * @version 1.0
+ * @version 1.1
  * @since MadkitLanEdition 1.0
  */
 class TransferImpossibleSystemMessageFromMiddlePeer extends TransferImpossibleSystemMessage {
@@ -52,7 +57,7 @@ class TransferImpossibleSystemMessageFromMiddlePeer extends TransferImpossibleSy
 	 */
 	private static final long serialVersionUID = -1215456454674917040L;
 
-	private final IDTransfer myIDTransfer;
+	private IDTransfer myIDTransfer;
 
 	TransferImpossibleSystemMessageFromMiddlePeer(IDTransfer _idTransferDestination,
 			KernelAddress _kernelAddressDestination, IDTransfer yourIDTransfer, IDTransfer myIDTransfer) {
@@ -64,22 +69,30 @@ class TransferImpossibleSystemMessageFromMiddlePeer extends TransferImpossibleSy
 
 		this.myIDTransfer = myIDTransfer;
 	}
+	@Override
+	public int getInternalSerializedSize() {
+		
+		return super.getInternalSerializedSize()+myIDTransfer.getInternalSerializedSize();
+	}
+
 
 	@Override
-	public Integrity checkDataIntegrity() {
-		Integrity i = super.checkDataIntegrity();
-		if (i != Integrity.OK)
-			return i;
-		if (myIDTransfer == null)
-			return Integrity.FAIL;
-		i = myIDTransfer.checkDataIntegrity();
-		if (i != Integrity.OK)
-			return i;
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		super.readAndCheckObject(in);
+		Object o=in.readObject();
+		if (!(o instanceof IDTransfer))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		myIDTransfer=(IDTransfer)o;
 		if (myIDTransfer.equals(TransferAgent.NullIDTransfer))
-			return Integrity.FAIL;
-
-		return Integrity.OK;
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 	}
+
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		super.writeAndCheckObject(oos);
+		oos.writeObject(myIDTransfer);
+	}
+	
 
 	IDTransfer getMyIDTransfer() {
 		return myIDTransfer;

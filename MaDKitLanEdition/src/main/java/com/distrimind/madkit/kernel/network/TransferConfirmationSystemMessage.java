@@ -42,9 +42,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetSocketAddress;
 
+import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.KernelAddress;
 import com.distrimind.madkit.kernel.network.TransferAgent.IDTransfer;
 import com.distrimind.madkit.kernel.network.connection.PointToPointTransferedBlockChecker;
+import com.distrimind.madkit.util.OOSUtils;
 
 /**
  * 
@@ -62,12 +64,72 @@ class TransferConfirmationSystemMessage extends BroadcastableSystemMessage {
 	private IDTransfer yourIDTransfer;
 	private IDTransfer myIDTransfer;
 	// private final TransferedBlockChecker transferBlockChercker;
-	private final int numberOfSubBlocks;
-	private final KernelAddress kernelAddressToConnect;
-	private final boolean middleReached;
-	private final InetSocketAddress distantInetSocketAddress;
-	private final PointToPointTransferedBlockChecker pointToPointBlockChecker;
+	private int numberOfSubBlocks;
+	private KernelAddress kernelAddressToConnect;
+	private boolean middleReached;
+	private InetSocketAddress distantInetSocketAddress;
+	private PointToPointTransferedBlockChecker pointToPointBlockChecker;
 
+	@Override
+	public int getInternalSerializedSize() {
+		
+		return super.getInternalSerializedSize()+yourIDTransfer.getInternalSerializedSize()+myIDTransfer.getInternalSerializedSize()+5+kernelAddressToConnect.getInternalSerializedSize()+OOSUtils.getInternalSize(distantInetSocketAddress, 0)+(pointToPointBlockChecker==null?1:pointToPointBlockChecker.getInternalSerializedSize());
+	}
+
+
+	@Override
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		super.readAndCheckObject(in);
+		Object o=in.readObject();
+		if (!(o instanceof IDTransfer))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		yourIDTransfer=(IDTransfer)o;
+		o=in.readObject();
+		if (!(o instanceof IDTransfer))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		myIDTransfer=(IDTransfer)o;
+		numberOfSubBlocks=in.readInt();
+		o=in.readObject();
+		if (!(o instanceof KernelAddress))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		kernelAddressToConnect=(KernelAddress)o;
+		middleReached=in.readBoolean();
+		distantInetSocketAddress=OOSUtils.readInetSocketAddress(in, true);
+		if (in.readBoolean())
+		{
+			o=in.readObject();
+			if (!(o instanceof PointToPointTransferedBlockChecker))
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			pointToPointBlockChecker=(PointToPointTransferedBlockChecker)o;
+			
+		}
+		else
+			pointToPointBlockChecker=null;
+		if (numberOfSubBlocks < 0)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		
+	}
+
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		super.writeAndCheckObject(oos);
+		oos.writeObject(yourIDTransfer);
+		oos.writeObject(myIDTransfer);
+		oos.writeInt(numberOfSubBlocks);
+		oos.writeObject(kernelAddressToConnect);
+		oos.writeBoolean(middleReached);
+		OOSUtils.writeInetSocketAddress(oos, distantInetSocketAddress, true);
+		if (pointToPointBlockChecker==null)
+			oos.writeBoolean(false);
+		else
+		{
+			oos.writeBoolean(true);
+			oos.writeObject(pointToPointBlockChecker);
+		}
+		
+	}
+	
+	
 	TransferConfirmationSystemMessage(IDTransfer idTransferDestinationUsedForBroadcast,
 			KernelAddress kernelAddressDestination, KernelAddress kernelAddressToConnect, IDTransfer yourIDTransfer,
 			IDTransfer myIDTransfer, int numberOfSubBlocks, boolean middleReached,
@@ -132,39 +194,7 @@ class TransferConfirmationSystemMessage extends BroadcastableSystemMessage {
 		return numberOfSubBlocks;
 	}
 
-	@Override
-	public Integrity checkDataIntegrity() {
-		Integrity i = super.checkDataIntegrity();
-		if (i != Integrity.OK)
-			return i;
 
-		if (yourIDTransfer == null)
-			return Integrity.FAIL;
-		i = yourIDTransfer.checkDataIntegrity();
-		if (i != Integrity.OK)
-			return i;
-		if (myIDTransfer == null)
-			return Integrity.FAIL;
-		i = myIDTransfer.checkDataIntegrity();
-		if (i != Integrity.OK)
-			return i;
-		if (numberOfSubBlocks < 0)
-			return Integrity.FAIL;
-		/*
-		 * if (transferBlockChercker==null) return Integrity.FAIL;
-		 * i=transferBlockChercker.checkDataIntegrity();
-		 */
-		if (i != Integrity.OK)
-			return i;
-
-		if (kernelAddressToConnect == null)
-			return Integrity.FAIL;
-		i = kernelAddressToConnect.checkDataIntegrity();
-		if (i != Integrity.OK)
-			return i;
-
-		return Integrity.OK;
-	}
 
 	public PointToPointTransferedBlockChecker getPointToPointBlockChecker() {
 		return pointToPointBlockChecker;

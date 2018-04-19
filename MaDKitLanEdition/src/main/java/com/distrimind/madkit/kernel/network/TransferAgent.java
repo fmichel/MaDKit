@@ -37,7 +37,9 @@
  */
 package com.distrimind.madkit.kernel.network;
 
-import java.io.Serializable;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;
@@ -45,6 +47,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 
 import com.distrimind.madkit.agr.LocalCommunity;
+import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.exceptions.OverflowException;
 import com.distrimind.madkit.kernel.AbstractAgent;
 import com.distrimind.madkit.kernel.AgentAddress;
@@ -57,12 +60,13 @@ import com.distrimind.madkit.kernel.Task;
 import com.distrimind.madkit.kernel.TaskID;
 import com.distrimind.madkit.kernel.network.AskForTransferMessage.CandidateForTransfer;
 import com.distrimind.madkit.kernel.network.AskForTransferMessage.InitiateTransferConnection;
-import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.madkit.kernel.network.connection.PointToPointTransferedBlockChecker;
 import com.distrimind.madkit.kernel.network.connection.TransferedBlockChecker;
 import com.distrimind.madkit.message.ObjectMessage;
 import com.distrimind.madkit.message.hook.TransferEventMessage;
 import com.distrimind.madkit.message.hook.TransferEventMessage.TransferEventType;
+import com.distrimind.madkit.util.OOSUtils;
+import com.distrimind.madkit.util.SerializableAndSizable;
 import com.distrimind.util.IDGeneratorInt;
 
 /**
@@ -484,7 +488,7 @@ class TransferAgent extends AgentFakeThread {
 		}
 	}
 
-	final static class IDTransfer implements Serializable {
+	final static class IDTransfer implements SerializableAndSizable {
 		/**
 		 * 
 		 */
@@ -574,8 +578,9 @@ class TransferAgent extends AgentFakeThread {
 			}
 		}
 
-		public Integrity checkDataIntegrity() {
-			return Integrity.OK;
+		@Override
+		public int getInternalSerializedSize() {
+			return 4;
 		}
 
 	}
@@ -685,7 +690,7 @@ class TransferAgent extends AgentFakeThread {
 		 */
 		private static final long serialVersionUID = -6680419937761208277L;
 
-		private final InetSocketAddress inetSocketAddress;
+		private InetSocketAddress inetSocketAddress;
 
 		protected TryDirectConnection(IDTransfer idTransfer, InetSocketAddress inetSocketAddress) {
 			super(idTransfer);
@@ -708,16 +713,21 @@ class TransferAgent extends AgentFakeThread {
 					+ "]";
 		}
 
+		
+		
 		@Override
-		public Integrity checkDataIntegrity() {
-			if (inetSocketAddress == null)
-				return Integrity.FAIL;
-			if (inetSocketAddress.getAddress() == null)
-				return Integrity.FAIL;
-			if (inetSocketAddress.getPort() < 0)
-				return Integrity.FAIL;
+		public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+			super.readAndCheckObject(in);
+			inetSocketAddress=OOSUtils.readInetSocketAddress(in, false);
+		}
 
-			return super.checkDataIntegrity();
+		@Override
+		public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+			super.writeAndCheckObject(oos);
+			OOSUtils.writeInetSocketAddress(oos, inetSocketAddress, false);
+			if (inetSocketAddress.getPort() < 0)
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			
 		}
 	}
 
@@ -726,7 +736,7 @@ class TransferAgent extends AgentFakeThread {
 		 * 
 		 */
 		private static final long serialVersionUID = -9091617361664811235L;
-		protected final IDTransfer idTransfer;
+		protected IDTransfer idTransfer;
 
 		DirectConnection(IDTransfer idTransfer) {
 			if (idTransfer == null)
@@ -743,17 +753,27 @@ class TransferAgent extends AgentFakeThread {
 			return getClass().getSimpleName() + "[idTransfer=" + idTransfer + "]";
 		}
 
-		@Override
-		public Integrity checkDataIntegrity() {
-			if (idTransfer == null)
-				return Integrity.FAIL;
-
-			return idTransfer.checkDataIntegrity();
-		}
+		
 
 		@Override
 		public boolean excludedFromEncryption() {
 			return false;
+		}
+
+		@Override
+		public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+			Object o=in.readObject();
+			if (!(o instanceof IDTransfer))
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			idTransfer=(IDTransfer)o;
+			
+		}
+
+		@Override
+		public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+			oos.writeObject(idTransfer);
+
+			
 		}
 	}
 

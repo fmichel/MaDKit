@@ -47,6 +47,7 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.network.LocalNetworkAgent.PossibleAddressForDirectConnnection;
 
 /**
@@ -68,6 +69,66 @@ class ConnectionInfoSystemMessage implements SystemMessage {
 	private int localPortToConnect;
 	private boolean canBeDirectServer;
 
+	@Override
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		int globalSize=NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE;
+		int size=in.readInt();
+		int totalSize=4;
+		if (size<0 || totalSize+size*4>globalSize)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		addresses=new ArrayList<>(size);
+		for (int i=0;i<size;i++)
+		{
+			Object o=in.readObject();
+			if (!(o instanceof AbstractIP))
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			AbstractIP aip=(AbstractIP)o;
+			totalSize+=aip.getInternalSerializedSize();
+			if (totalSize>globalSize)
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			addresses.add(aip);
+		}
+		if (in.readBoolean())
+		{
+			Object o=in.readObject();
+			if (!(o instanceof AbstractIP))
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			localAddresses=(AbstractIP)o;
+			totalSize+=localAddresses.getInternalSerializedSize();
+			if (totalSize>globalSize)
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			
+		}
+		else 
+			localAddresses=null;
+		manualPortToConnect=in.readInt();
+		localPortToConnect=in.readInt();
+		canBeDirectServer=in.readBoolean();
+		if (localPortToConnect < 0)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+
+	}
+
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		oos.writeInt(addresses.size());
+		for (AbstractIP aip:addresses)
+			oos.writeObject(aip);
+		if (localAddresses==null)
+			oos.writeBoolean(false);
+		else
+		{
+			oos.writeBoolean(true);
+			oos.writeObject(localAddresses);
+		}
+		oos.writeInt(manualPortToConnect);
+		oos.writeInt(localPortToConnect);
+		oos.writeBoolean(canBeDirectServer);
+			
+		
+	}
+	
+	
 	ConnectionInfoSystemMessage(List<PossibleAddressForDirectConnnection> inet_socket_addresses,
 			InetAddress local_interface_address, int manualPortToConnect, int localPortToConnect,
 			boolean canBeDirectServer, AbstractIP localAddresses) {
@@ -208,24 +269,7 @@ class ConnectionInfoSystemMessage implements SystemMessage {
 		return null;
 	}
 
-	@Override
-	public Integrity checkDataIntegrity() {
-
-		if (addresses == null)
-			return Integrity.FAIL;
-		for (AbstractIP ip : addresses) {
-			Integrity i = ip.checkDataIntegrity();
-			if (i != Integrity.OK)
-				return i;
-		}
-		if (localPortToConnect < 0)
-			return Integrity.FAIL;
-
-		if (localAddresses != null)
-			localAddresses.checkDataIntegrity();
-
-		return Integrity.OK;
-	}
+	
 
 	@Override
 	public boolean excludedFromEncryption() {
@@ -240,4 +284,6 @@ class ConnectionInfoSystemMessage implements SystemMessage {
 	{
 		writeAndCheckObject(oos);
 	}
+
+	
 }

@@ -41,17 +41,19 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.KernelAddress;
 import com.distrimind.madkit.kernel.network.TransferAgent.IDTransfer;
+import com.distrimind.madkit.util.SerializableAndSizable;
 
 /**
  * 
  * 
  * @author Jason Mahdjoub
- * @version 1.0
+ * @version 1.1
  * @since MadkitLanEdition 1.0
  */
-abstract class BroadcastableSystemMessage implements SystemMessage {
+abstract class BroadcastableSystemMessage implements SystemMessage, SerializableAndSizable {
 
 	/**
 	 * 
@@ -61,7 +63,41 @@ abstract class BroadcastableSystemMessage implements SystemMessage {
 	private IDTransfer idTransferDestination;
 	private KernelAddress kernelAddressDestination;
 	private transient MessageLocker messageLocker = null;
+	@Override
+	public int getInternalSerializedSize() {
+		
+		return (idTransferDestination==null?1:1+idTransferDestination.getInternalSerializedSize())+kernelAddressDestination.getInternalSerializedSize();
+	}
+	@Override
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		if (in.readBoolean())
+		{
+			Object o=in.readObject();
+			if (!(o instanceof IDTransfer))
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			idTransferDestination=(IDTransfer)o;
+		}
+		else
+			idTransferDestination=null;
+		Object o=in.readObject();
+		if (!(o instanceof KernelAddress))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		kernelAddressDestination=(KernelAddress)o;
+	}
 
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		if (idTransferDestination==null)
+			oos.writeBoolean(false);
+		else
+		{
+			oos.writeBoolean(true);
+			oos.writeObject(idTransferDestination);
+		}
+		oos.writeObject(kernelAddressDestination);
+	}
+	
+	
 	BroadcastableSystemMessage(IDTransfer idTransferDestination, KernelAddress kernelAddressDestination) {
 		if (kernelAddressDestination == null)
 			throw new NullPointerException("kernelAddressDestination");
@@ -107,16 +143,6 @@ abstract class BroadcastableSystemMessage implements SystemMessage {
 	}
 	
 	
-	public Integrity checkDataIntegrity() {
-		if (idTransferDestination != null) {
-			Integrity i = idTransferDestination.checkDataIntegrity();
-			if (i != Integrity.OK)
-				return i;
-		}
-		if (kernelAddressDestination == null)
-			return Integrity.FAIL;
-
-		return Integrity.OK;
-	}
+	
 
 }

@@ -62,6 +62,21 @@ final class DataToBroadcast implements SystemMessage {
 	private final boolean prioritary;
 	private final IDTransfer transferID;
 
+	@Override
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		
+		oos.writeObject(messageToBroadcast);
+		oos.writeObject(sender);
+		oos.writeBoolean(prioritary);
+		oos.writeObject(transferID);
+	}
+	
 	DataToBroadcast(BroadcastableSystemMessage messageToBroadcast, KernelAddress sender, boolean prioritary,
 			IDTransfer transferID) {
 		if (messageToBroadcast == null)
@@ -129,4 +144,6 @@ final class DataToBroadcast implements SystemMessage {
 	{
 		writeAndCheckObject(oos);
 	}
+
+	
 }

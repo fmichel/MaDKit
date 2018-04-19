@@ -40,10 +40,11 @@ package com.distrimind.madkit.kernel.network;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 
+import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.KernelAddress;
 import com.distrimind.madkit.kernel.network.TransferAgent.IDTransfer;
+import com.distrimind.madkit.util.SerializableAndSizable;
 
 /**
  * 
@@ -58,16 +59,82 @@ class TransferPropositionSystemMessage extends BroadcastableSystemMessage {
 	 */
 	private static final long serialVersionUID = -5392984162781863410L;
 
-	private final KernelAddress kernelAddressToConnect;
-	private final Serializable attachedData;
-	private final IDTransfer idTransfer;
-	private final int numberOfIntermediatePeers;
+	private KernelAddress kernelAddressToConnect;
+	private SerializableAndSizable attachedData;
+	private IDTransfer idTransfer;
+	private int numberOfIntermediatePeers;
 	private boolean finalTestResult = true;
-	private final boolean youAskConnection;
+	private boolean youAskConnection;
 
+	@Override
+	public int getInternalSerializedSize() {
+		
+		return super.getInternalSerializedSize()+kernelAddressToConnect.getInternalSerializedSize()+(attachedData==null?1:attachedData.getInternalSerializedSize()+1)+idTransfer.getInternalSerializedSize()+6;
+	}
+
+
+	@Override
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		super.readAndCheckObject(in);
+		int totalSize=0;
+		int globalSize=NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE;
+		
+		Object o=in.readObject();
+		if (!(o instanceof KernelAddress))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		kernelAddressToConnect=(KernelAddress)o;
+		totalSize+=kernelAddressToConnect.getInternalSerializedSize()+1;
+		if (in.readBoolean())
+		{
+			o=in.readObject();
+			if (!(o instanceof SerializableAndSizable))
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			attachedData=(SerializableAndSizable)o;
+			totalSize+=attachedData.getInternalSerializedSize();
+			
+		}
+		if (totalSize>globalSize)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		o=in.readObject();
+		if (!(o instanceof IDTransfer))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		idTransfer=(IDTransfer)o;
+		totalSize+=idTransfer.getInternalSerializedSize();
+		
+		if (idTransfer.equals(TransferAgent.NullIDTransfer))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		numberOfIntermediatePeers=in.readInt();
+		finalTestResult=in.readBoolean();
+		youAskConnection=in.readBoolean();
+		if (numberOfIntermediatePeers < 0)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		totalSize+=6;
+		if (totalSize>globalSize)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+
+	}
+
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		super.writeAndCheckObject(oos);
+		oos.writeObject(kernelAddressToConnect);
+		if (attachedData==null)
+			oos.writeBoolean(false);
+		else
+		{
+			oos.writeBoolean(true);
+			oos.writeObject(attachedData);
+		}
+		oos.writeObject(idTransfer);
+		oos.writeInt(numberOfIntermediatePeers);
+		oos.writeBoolean(finalTestResult);
+		oos.writeBoolean(youAskConnection);
+	}
+	
+	
 	TransferPropositionSystemMessage(IDTransfer idTransferDestinationUsedForBroadcast, IDTransfer idTransfer,
 			KernelAddress kernelAddressToConnect, KernelAddress kernelAddressDestination, int numberOfIntermediatePeers,
-			Serializable attachedData, boolean youAskConnection) {
+			SerializableAndSizable attachedData, boolean youAskConnection) {
 		super(idTransferDestinationUsedForBroadcast, kernelAddressDestination);
 		if (idTransfer == null)
 			throw new NullPointerException("idTransfer");
@@ -103,32 +170,11 @@ class TransferPropositionSystemMessage extends BroadcastableSystemMessage {
 		return kernelAddressToConnect;
 	}
 
-	Serializable getAttachedDataForConnection() {
+	SerializableAndSizable getAttachedDataForConnection() {
 		return attachedData;
 	}
 
-	@Override
-	public Integrity checkDataIntegrity() {
-		Integrity i = super.checkDataIntegrity();
-		if (i != Integrity.OK)
-			return i;
-		if (kernelAddressToConnect == null)
-			return Integrity.FAIL;
-		i = kernelAddressToConnect.checkDataIntegrity();
-		if (i != Integrity.OK)
-			return i;
-		if (idTransfer == null)
-			return Integrity.FAIL;
-		i = idTransfer.checkDataIntegrity();
-		if (i != Integrity.OK)
-			return i;
-		if (idTransfer.equals(TransferAgent.NullIDTransfer))
-			return Integrity.FAIL;
-		if (numberOfIntermediatePeers < 0)
-			return Integrity.FAIL;
-
-		return Integrity.OK;
-	}
+	
 
 	boolean isYouAskConnection() {
 		return youAskConnection;

@@ -41,13 +41,14 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.KernelAddress;
 import com.distrimind.madkit.kernel.network.TransferAgent.IDTransfer;
 
 /**
  * 
  * @author Jason Mahdjoub
- * @version 1.1
+ * @version 1.2
  * @since MadkitLanEdition 1.0
  */
 class TransferImpossibleSystemMessage extends BroadcastableSystemMessage {
@@ -67,23 +68,30 @@ class TransferImpossibleSystemMessage extends BroadcastableSystemMessage {
 			throw new IllegalArgumentException("yourIDTransfer cannot be equals to TransferAgent.NullIDTransfer");
 		this.yourIDTransfer = yourIDTransfer;
 	}
+	@Override
+	public int getInternalSerializedSize() {
+		
+		return super.getInternalSerializedSize()+yourIDTransfer.getInternalSerializedSize();
+	}
+
 
 	@Override
-	public Integrity checkDataIntegrity() {
-		Integrity i = super.checkDataIntegrity();
-		if (i != Integrity.OK)
-			return i;
-		if (yourIDTransfer == null)
-			return Integrity.FAIL;
-		i = yourIDTransfer.checkDataIntegrity();
-		if (i != Integrity.OK)
-			return i;
-
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		super.readAndCheckObject(in);
+		Object o=in.readObject();
+		if (!(o instanceof IDTransfer))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		yourIDTransfer=(IDTransfer)o;
 		if (yourIDTransfer.equals(TransferAgent.NullIDTransfer))
-			return Integrity.FAIL;
-
-		return Integrity.OK;
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 	}
+
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		super.writeAndCheckObject(oos);
+		oos.writeObject(yourIDTransfer);
+	}
+	
 
 	IDTransfer getYourIDTransfer() {
 		return yourIDTransfer;

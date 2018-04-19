@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.KernelAddress;
 import com.distrimind.madkit.kernel.network.TransferAgent.IDTransfer;
 
@@ -56,7 +57,7 @@ class TransferClosedSystemMessage extends BroadcastableSystemMessage {
 	 */
 	private static final long serialVersionUID = 7387851356039905328L;
 
-	private final IDTransfer idTransfer;
+	private IDTransfer idTransfer;
 	private boolean lastPass;
 
 	TransferClosedSystemMessage(IDTransfer _idTransferDestination, KernelAddress _kernelAddressDestination,
@@ -68,8 +69,33 @@ class TransferClosedSystemMessage extends BroadcastableSystemMessage {
 			throw new IllegalArgumentException("idTransfer cannot be equals to TransferAgent.NullIDTransfer");
 		this.idTransfer = idTransfer;
 		this.lastPass = lastPass;
+		
+	}
+	@Override
+	public int getInternalSerializedSize() {
+		
+		return super.getInternalSerializedSize()+idTransfer.getInternalSerializedSize()+1;
 	}
 
+
+	@Override
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		super.readAndCheckObject(in);
+		Object o=in.readObject();
+		if (!(o instanceof IDTransfer))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		idTransfer=(IDTransfer)o;
+		lastPass=in.readBoolean();
+		if (idTransfer.equals(TransferAgent.NullIDTransfer))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+	}
+
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		super.writeAndCheckObject(oos);
+		oos.writeObject(idTransfer);
+		oos.writeBoolean(lastPass);
+	}
 	boolean isLastPass() {
 		return lastPass;
 	}
@@ -84,21 +110,7 @@ class TransferClosedSystemMessage extends BroadcastableSystemMessage {
 				+ ", kernelAddressDestination=" + getKernelAddressDestination() + ", idTransfer=" + idTransfer + "]";
 	}
 
-	@Override
-	public Integrity checkDataIntegrity() {
-		Integrity i = super.checkDataIntegrity();
-		if (i != Integrity.OK)
-			return i;
-		if (idTransfer == null)
-			return Integrity.FAIL;
-		i = idTransfer.checkDataIntegrity();
-		if (i != Integrity.OK)
-			return i;
-		if (idTransfer.equals(TransferAgent.NullIDTransfer))
-			return Integrity.FAIL;
-
-		return Integrity.OK;
-	}
+	
 
 	@Override
 	public boolean excludedFromEncryption() {

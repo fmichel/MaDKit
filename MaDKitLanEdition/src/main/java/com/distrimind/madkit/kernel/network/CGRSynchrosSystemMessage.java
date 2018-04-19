@@ -41,14 +41,17 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.AgentAddress;
 import com.distrimind.madkit.kernel.Group;
 import com.distrimind.madkit.kernel.KernelAddress;
+import com.distrimind.madkit.util.OOSUtils;
 
 /**
  * 
@@ -62,8 +65,8 @@ final class CGRSynchrosSystemMessage implements SystemMessage {
 	 */
 	private static final long serialVersionUID = -3042115120223245895L;
 
-	private final Map<String, Map<Group, Map<String, Set<AgentAddress>>>> organization_snap_shot;
-	private final ArrayList<Group> removedGroups;
+	private Map<String, Map<Group, Map<String, Set<AgentAddress>>>> organization_snap_shot;
+	private ArrayList<Group> removedGroups;
 
 	CGRSynchrosSystemMessage(Map<String, Map<Group, Map<String, Set<AgentAddress>>>> organization_snap_shop,
 			KernelAddress from, ArrayList<Group> removedGroups) {
@@ -73,6 +76,126 @@ final class CGRSynchrosSystemMessage implements SystemMessage {
 			throw new NullPointerException();
 		this.organization_snap_shot = cleanUp(organization_snap_shop, from);
 		this.removedGroups = removedGroups;
+	}
+	
+	@Override
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+
+		
+		
+		
+		int globalSize=NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE;
+		int totalSize=4;
+		organization_snap_shot=new HashMap<String, Map<Group, Map<String, Set<AgentAddress>>>>();
+		int size=in.readInt();
+		if (size<0)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		for (int i=0;i<size;i++)
+		{
+			String comunity=OOSUtils.readString(in, Group.MAX_COMMUNITY_LENGTH, false);
+			int size2=in.readInt();
+			if (size2<0)
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			totalSize+=4+OOSUtils.getInternalSize(comunity, Group.MAX_COMMUNITY_LENGTH);
+			if (totalSize>globalSize)
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			Map<Group, Map<String, Set<AgentAddress>>> groups=new HashMap<Group, Map<String, Set<AgentAddress>>>();
+			for (int j=0;j<size2;j++)
+			{
+				Object o=in.readObject();
+				if (!(o instanceof Group))
+					throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);					
+				Group group=(Group)o;
+				totalSize+=group.getInternalSerializedSize()+4;
+				if (totalSize>globalSize)
+					throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+				int size3=in.readInt();
+				if (size3<0)
+					throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+				Map<String, Set<AgentAddress>> roles=new HashMap<String, Set<AgentAddress>>();
+				for (int k=0;k<size3;k++)
+				{
+					String role=OOSUtils.readString(in, Group.MAX_ROLE_NAME_LENGTH, false);
+					totalSize+=4+OOSUtils.getInternalSize(comunity, Group.MAX_ROLE_NAME_LENGTH);
+					int size4=in.readInt();
+					if (totalSize>globalSize)
+						throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+					if (size4<0)
+						throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+					HashSet<AgentAddress> agentAddresses=new HashSet<>();
+					for (int l=0;l<size4;l++)
+					{
+						o=in.readObject();
+						if (!(o instanceof AgentAddress))
+							throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+						AgentAddress aa=(AgentAddress)o;
+						totalSize+=aa.getInternalSerializedSize();
+						if (totalSize>globalSize)
+							throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+						
+						agentAddresses.add(aa);
+					}
+					roles.put(role, agentAddresses);
+				}
+				groups.put(group, roles);
+			}
+			organization_snap_shot.put(comunity, groups);
+		}
+		size=in.readInt();
+		totalSize+=size;
+		if (size<0 || totalSize+size*4>globalSize)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		removedGroups=new ArrayList<>(size);
+		for (int i=0;i<size;i++)
+		{
+			Object o=in.readObject();
+			if (!(o instanceof Group))
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			Group g=(Group)o;
+			totalSize+=g.getInternalSerializedSize();
+			if (totalSize>globalSize)
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			removedGroups.add(g);
+		}
+		for (Map.Entry<String, Map<Group, Map<String, Set<AgentAddress>>>> e0 : organization_snap_shot.entrySet()) {
+			for (Map.Entry<Group, Map<String, Set<AgentAddress>>> e : e0.getValue().entrySet()) {
+				for (Map.Entry<String, Set<AgentAddress>> e2 : e.getValue().entrySet()) {
+					for (AgentAddress aa : e2.getValue()) {
+						for (Group g : removedGroups)
+							if (aa.getGroup().equals(g))
+								throw new MessageSerializationException(Integrity.FAIL);
+					}
+				}
+			}
+		}
+		
+	}
+
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		
+		oos.writeInt(organization_snap_shot.size());
+		for (Map.Entry<String, Map<Group, Map<String, Set<AgentAddress>>>> e : organization_snap_shot.entrySet())
+		{
+			OOSUtils.writeString(oos, e.getKey(), Group.MAX_COMMUNITY_LENGTH, false);
+			oos.writeInt(e.getValue().size());
+			for (Map.Entry<Group, Map<String, Set<AgentAddress>>> e2 : e.getValue().entrySet())
+			{
+				oos.writeObject(e2.getKey());
+				oos.writeInt(e2.getValue().size());
+				for (Map.Entry<String, Set<AgentAddress>> e3 : e2.getValue().entrySet())
+				{
+					OOSUtils.writeString(oos, e.getKey(), Group.MAX_ROLE_NAME_LENGTH, false);
+					oos.writeInt(e3.getValue().size());
+					for (AgentAddress aa : e3.getValue())
+						oos.writeObject(aa);
+				}
+			}
+		}
+		oos.writeInt(removedGroups.size());
+		for (Group g : removedGroups)
+			oos.writeObject(g);
+		
 	}
 
 	private static Map<String, Map<Group, Map<String, Set<AgentAddress>>>> cleanUp(
@@ -145,45 +268,7 @@ final class CGRSynchrosSystemMessage implements SystemMessage {
 		return new CGRSynchros(org, distantKernelAddress, cleanUp(org, removedGroups));
 	}
 
-	@Override
-	public Integrity checkDataIntegrity() {
-		if (organization_snap_shot == null)
-			return Integrity.FAIL;
-
-		if (removedGroups == null)
-			return Integrity.FAIL;
-		for (Group g : removedGroups)
-			if (g == null)
-				return Integrity.FAIL;
-
-		for (Map.Entry<String, Map<Group, Map<String, Set<AgentAddress>>>> e0 : organization_snap_shot.entrySet()) {
-			if (e0.getKey() == null)
-				return Integrity.FAIL;
-			if (e0.getValue() == null)
-				return Integrity.FAIL;
-			for (Map.Entry<Group, Map<String, Set<AgentAddress>>> e : e0.getValue().entrySet()) {
-				if (e.getKey() == null)
-					return Integrity.FAIL;
-				if (e.getValue() == null)
-					return Integrity.FAIL;
-				for (Map.Entry<String, Set<AgentAddress>> e2 : e.getValue().entrySet()) {
-					if (e2.getKey() == null)
-						return Integrity.FAIL;
-					if (e2.getValue() == null)
-						return Integrity.FAIL;
-					for (AgentAddress aa : e2.getValue()) {
-						if (aa == null)
-							return Integrity.FAIL;
-						for (Group g : removedGroups)
-							if (aa.getGroup().equals(g))
-								return Integrity.FAIL;
-					}
-				}
-			}
-		}
-		return Integrity.OK;
-	}
-
+	
 	@Override
 	public boolean excludedFromEncryption() {
 		return false;
@@ -197,4 +282,6 @@ final class CGRSynchrosSystemMessage implements SystemMessage {
 	{
 		writeAndCheckObject(oos);
 	}
+
+	
 }

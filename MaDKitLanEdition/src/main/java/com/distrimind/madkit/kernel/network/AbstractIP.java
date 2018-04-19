@@ -41,6 +41,7 @@ import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 
+import com.distrimind.madkit.util.SerializableAndSizable;
 import com.distrimind.madkit.util.XMLObjectParser;
 import com.distrimind.util.properties.XMLProperties;
 
@@ -50,7 +51,7 @@ import com.distrimind.util.properties.XMLProperties;
  * @version 1.0
  * @since MadkitLanEdition 1.0
  */
-public abstract class AbstractIP extends XMLProperties implements SystemMessage {
+public abstract class AbstractIP extends XMLProperties implements SystemMessage, SerializableAndSizable{
 	/**
 	 * 
 	 */

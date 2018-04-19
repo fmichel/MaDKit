@@ -37,13 +37,13 @@
  */
 package com.distrimind.madkit.kernel.network.connection;
 
-import java.io.Serializable;
 
 import com.distrimind.madkit.exceptions.BlockParserException;
 import com.distrimind.madkit.kernel.network.SubBlock;
 import com.distrimind.madkit.kernel.network.SubBlockInfo;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol.NullBlockChecker;
+import com.distrimind.madkit.util.SerializableAndSizable;
 
 /**
  * 
@@ -51,7 +51,7 @@ import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol.NullBl
  * @version 1.0
  * @since MadkitLanEdition 1.0
  */
-public abstract class TransferedBlockChecker implements Serializable {
+public abstract class TransferedBlockChecker implements SerializableAndSizable {
 	/**
 	 * 
 	 */

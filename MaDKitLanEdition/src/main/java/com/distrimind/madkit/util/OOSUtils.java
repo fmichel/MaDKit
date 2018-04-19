@@ -40,6 +40,8 @@ package com.distrimind.madkit.util;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
@@ -221,6 +223,79 @@ public class OOSUtils {
 		return tab;
 		
 	}
+	public static int MAX_URL_LENGTH=8000;
+	public static void writeInetAddress(final ObjectOutputStream oos, InetAddress inetAddress, boolean supportNull) throws IOException
+	{
+		if (inetAddress==null)
+		{
+			if (!supportNull)
+				throw new IOException();
+			oos.writeBoolean(false);
+			return;
+			
+		}
+		oos.writeBoolean(true);
+		writeBytes(oos, inetAddress.getAddress(), 20, false);
+	}
+	
+	public static InetAddress readInetAddress(final ObjectInputStream ois, boolean supportNull) throws IOException, ClassNotFoundException
+	{
+		if (ois.readBoolean())
+		{
+			byte[] address=readBytes(ois, 20, false);
+			try
+			{
+				return InetAddress.getByAddress(address);
+			}
+			catch(Exception e)
+			{
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN, e);
+			}
+		}
+		else if (!supportNull)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		else
+			return null;
+		
+	}
+	
+	public static void writeInetSocketAddress(final ObjectOutputStream oos, InetSocketAddress inetSocketAddress, boolean supportNull) throws IOException
+	{
+		if (inetSocketAddress==null)
+		{
+			if (!supportNull)
+				throw new IOException();
+			oos.writeBoolean(false);
+			return;
+			
+		}
+		oos.writeBoolean(true);
+		oos.writeInt(inetSocketAddress.getPort());
+		writeInetAddress(oos, inetSocketAddress.getAddress(), false);
+	}
+	
+	public static InetSocketAddress readInetSocketAddress(final ObjectInputStream ois, boolean supportNull) throws IOException, ClassNotFoundException
+	{
+		if (ois.readBoolean())
+		{
+			int port=ois.readInt();
+			InetAddress ia=readInetAddress(ois, false);
+			
+			try
+			{
+				return new InetSocketAddress(ia, port);
+			}
+			catch(Exception e)
+			{
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN, e);
+			}
+		}
+		else if (!supportNull)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		else
+			return null;
+		
+	}
 	
 	public static void writeObject(final ObjectOutputStream oos, Object o, int sizeMax, boolean supportNull) throws IOException
 	{
@@ -250,6 +325,16 @@ public class OOSUtils {
 			oos.write(3);
 			writeObjects(oos, (Object[])o, sizeMax, false);
 		}
+		else if (o instanceof InetSocketAddress)
+		{
+			oos.write(4);
+			writeInetSocketAddress(oos, (InetSocketAddress)o, supportNull);
+		}
+		else if (o instanceof InetAddress)
+		{
+			oos.write(5);
+			writeInetAddress(oos, (InetAddress)o, supportNull);
+		}
 		else
 		{
 			oos.write(Byte.MAX_VALUE);
@@ -273,6 +358,10 @@ public class OOSUtils {
 			return readBytes(ois, sizeMax, false);
 		case 3:
 			return readObjects(ois, sizeMax, false);
+		case 4:
+			return readInetSocketAddress(ois, false);
+		case 5:
+			return readInetAddress(ois, false);
 		case Byte.MAX_VALUE:
 			return ois.readObject();
 		default:
@@ -306,6 +395,14 @@ public class OOSUtils {
 				size+=getInternalSize(so, sizeMax-tab.length);
 			}
 			return size;
+		}
+		else if (o instanceof InetAddress)
+		{
+			return ((InetAddress)o).getAddress().length+3;
+		}
+		else if (o instanceof InetSocketAddress)
+		{
+			return ((InetSocketAddress)o).getAddress().getAddress().length+7;
 		}
 		else
 			return ObjectSizer.sizeOf(o);

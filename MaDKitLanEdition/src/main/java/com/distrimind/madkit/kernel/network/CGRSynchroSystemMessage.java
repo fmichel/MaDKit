@@ -41,12 +41,13 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.CGRSynchro;
 
 /**
  * 
  * @author Jason Mahdjoub
- * @version 1.1
+ * @version 1.2
  * @since MadkitLanEdition 1.0
  */
 final class CGRSynchroSystemMessage implements SystemMessage {
@@ -56,7 +57,7 @@ final class CGRSynchroSystemMessage implements SystemMessage {
 	 */
 	private static final long serialVersionUID = -8079647044062480359L;
 
-	private final CGRSynchro CGRSynchro;
+	private CGRSynchro CGRSynchro;
 
 	CGRSynchroSystemMessage(CGRSynchro CGRSynchro) {
 		if (CGRSynchro == null)
@@ -69,16 +70,6 @@ final class CGRSynchroSystemMessage implements SystemMessage {
 		return CGRSynchro;
 	}
 
-	@Override
-	public Integrity checkDataIntegrity() {
-		if (CGRSynchro == null)
-			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		if (CGRSynchro.getCode() == null)
-			return Integrity.FAIL;
-		if (CGRSynchro.getContent() == null)
-			return Integrity.FAIL;
-		return Integrity.OK;
-	}
 
 	@Override
 	public String toString() {
@@ -97,5 +88,26 @@ final class CGRSynchroSystemMessage implements SystemMessage {
 	private void writeObject(final ObjectOutputStream oos) throws IOException
 	{
 		writeAndCheckObject(oos);
+	}
+
+	@Override
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		Object o=in.readObject();
+		if (!(o instanceof CGRSynchro))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		CGRSynchro=(CGRSynchro)o;
+		if (CGRSynchro.getInternalSerializedSize()>NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		if (CGRSynchro.getCode() == null)
+			throw new MessageSerializationException(Integrity.FAIL);
+		if (CGRSynchro.getContent() == null)
+			throw new MessageSerializationException(Integrity.FAIL);
+
+	}
+
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		oos.writeObject(CGRSynchro);
+		
 	}
 }

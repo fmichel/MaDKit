@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+
 /**
  * 
  * @author Jason Mahdjoub
@@ -52,7 +53,7 @@ class ValidateBigDataProposition implements SystemMessage {
 	 * 
 	 */
 	private static final long serialVersionUID = 9027528563984879917L;
-	private final int packetID;
+	private int packetID;
 
 	ValidateBigDataProposition(int packetID) {
 		this.packetID = packetID;
@@ -67,11 +68,7 @@ class ValidateBigDataProposition implements SystemMessage {
 		return packetID;
 	}
 
-	@Override
-	public Integrity checkDataIntegrity() {
-
-		return Integrity.OK;
-	}
+	
 
 	@Override
 	public boolean excludedFromEncryption() {
@@ -85,6 +82,16 @@ class ValidateBigDataProposition implements SystemMessage {
 	private void writeObject(final ObjectOutputStream oos) throws IOException
 	{
 		writeAndCheckObject(oos);
+	}
+	
+	@Override
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		packetID=in.readInt();
+	}
+
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		oos.writeInt(packetID);
 	}
 
 }

@@ -42,7 +42,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.security.SecureRandom;
 
+import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.AgentAddress;
+import com.distrimind.madkit.util.OOSUtils;
 
 /**
  * 
@@ -58,10 +60,27 @@ final class SecretMessage extends KernelAddressNegociationMessage {
 
 	private static final int secretMessageSize = 100;
 
-	private final byte[] secretMessage;
+	private byte[] secretMessage;
 	private AgentAddress agent_socket_address;
 	private transient AgentAddress originalDistantKernelAgent = null;
 
+	@Override
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		secretMessage=OOSUtils.readBytes(in, secretMessageSize, false);
+		if (secretMessage == null || secretMessage.length != secretMessageSize)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		Object o=in.readObject();
+		if (!(o instanceof AgentAddress))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		agent_socket_address=(AgentAddress)o;
+	}
+
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		OOSUtils.writeBytes(oos, secretMessage, secretMessageSize, false);
+		oos.writeObject(agent_socket_address);
+	}
+	
 	SecretMessage(SecureRandom random, AgentAddress agent_socket_address, AgentAddress originalDistantKernelAgent) {
 		if (random == null)
 			throw new NullPointerException("random");
@@ -118,13 +137,7 @@ final class SecretMessage extends KernelAddressNegociationMessage {
 		return false;
 	}
 
-	@Override
-	public Integrity checkDataIntegrity() {
-		if (secretMessage == null || secretMessage.length != secretMessageSize)
-			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-
-		return Integrity.OK;
-	}
+	
 
 	@Override
 	public boolean excludedFromEncryption() {

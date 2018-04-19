@@ -55,8 +55,13 @@ final class PongMessage implements SystemMessage {
 	private static final long serialVersionUID = 6073814051145577489L;
 
 	@Override
-	public Integrity checkDataIntegrity() {
-		return Integrity.OK;
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		
+	}
+
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		
 	}
 
 	@Override

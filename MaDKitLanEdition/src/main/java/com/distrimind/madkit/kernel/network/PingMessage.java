@@ -54,10 +54,6 @@ final class PingMessage implements SystemMessage {
 	 */
 	private static final long serialVersionUID = -7424237718651292573L;
 
-	@Override
-	public Integrity checkDataIntegrity() {
-		return Integrity.OK;
-	}
 
 	@Override
 	public String toString() {
@@ -76,5 +72,15 @@ final class PingMessage implements SystemMessage {
 	private void writeObject(final ObjectOutputStream oos) throws IOException
 	{
 		writeAndCheckObject(oos);
+	}
+
+	@Override
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		
+	}
+
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		
 	}
 }

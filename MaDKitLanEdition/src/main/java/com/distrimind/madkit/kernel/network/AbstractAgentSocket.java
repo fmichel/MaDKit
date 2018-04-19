@@ -84,7 +84,6 @@ import com.distrimind.madkit.kernel.network.DistantKernelAgent.DistKernADataToUp
 import com.distrimind.madkit.kernel.network.DistantKernelAgent.ReceivedSerializableObject;
 import com.distrimind.madkit.kernel.network.LocalNetworkAgent.PossibleInetAddressesUsedForDirectConnectionChanged;
 import com.distrimind.madkit.kernel.network.DistantKernelAgent.ExceededDataQueueSize;
-import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.madkit.kernel.network.TransferAgent.DirectConnectionFailed;
 import com.distrimind.madkit.kernel.network.TransferAgent.DirectConnectionSuceeded;
 import com.distrimind.madkit.kernel.network.TransferAgent.IDTransfer;
@@ -666,10 +665,6 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 
 	class AgentSocketKilled extends Message {
 
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -3421377471500152881L;
 
 		protected final Collection<AbstractData> shortDataNotSent;
 		protected final ArrayList<AbstractData> bigDataNotSent;
@@ -1753,10 +1748,6 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 	}
 
 	class FailedCreateIndirectAgentSocket extends Message {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -743854093128636515L;
 
 		private final Exception e;
 		private final InterfacedIDTransfer idLocal;
@@ -2031,10 +2022,6 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 
 	static class ReceivedBlockData extends ObjectMessage<PacketPart> {
 
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 3172797115031982660L;
 
 		public ReceivedBlockData(PacketPart _content) {
 			super(_content);
@@ -2070,15 +2057,6 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 				originalMessage.markDataAsRead();
 
 			if (obj instanceof SystemMessage) {
-				Integrity integrity = ((SystemMessage) obj).checkDataIntegrity();
-				if (!integrity.equals(Integrity.OK)) {
-					processInvalidSerializedObject(null, obj,
-							"intigrity test for message " + obj.getClass() + " FAILED",
-							integrity.equals(Integrity.FAIL_AND_CANDIDATE_TO_BAN));
-					// startDeconnectionProcess(ConnectionClosedReason.CONNECTION_ANOMALY);
-
-					return;
-				}
 
 				if (obj instanceof ConnectionMessage) {
 					boolean sendAskConnectionMessage = false;
@@ -2893,10 +2871,6 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 	}
 
 	class DataToSendMessageFromAgentSocket extends ObjectMessage<SystemMessage> {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -5947895434314589098L;
 
 		final boolean last_message;
 		final boolean prioritary;
@@ -3601,10 +3575,6 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 
 	protected static class CheckDeadTransferNodes extends Message {
 
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 4796209575192698417L;
 
 	}
 

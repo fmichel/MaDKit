@@ -61,6 +61,7 @@ import java.util.logging.Level;
 
 import com.distrimind.madkit.agr.LocalCommunity;
 import com.distrimind.madkit.exceptions.MadkitException;
+import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.exceptions.NIOException;
 import com.distrimind.madkit.exceptions.PacketException;
 import com.distrimind.madkit.exceptions.SelfKillException;
@@ -88,6 +89,7 @@ import com.distrimind.madkit.kernel.TaskID;
 import com.distrimind.madkit.kernel.network.AbstractAgentSocket.AgentSocketKilled;
 import com.distrimind.madkit.kernel.network.AbstractAgentSocket.Groups;
 import com.distrimind.madkit.kernel.network.AbstractAgentSocket.ReceivedBlockData;
+import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.madkit.kernel.network.TransferAgent.IDTransfer;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol.ConnectionClosedReason;
 import com.distrimind.madkit.kernel.network.connection.access.PairOfIdentifiers;
@@ -2485,10 +2487,17 @@ class DistantKernelAgent extends AgentFakeThread {
 									receiveData(agent_socket_sender, obj, sr.getDataSize());
 
 								}
-							} catch (IOException | ClassNotFoundException e) {
+							}
+							catch(MessageSerializationException e)
+							{
+								sr.freeDataSize();
+								processInvalidSerializedObject(agent_socket_sender, e, bytes, e.getIntegrity().equals(Integrity.FAIL_AND_CANDIDATE_TO_BAN));
+							}
+							catch (IOException | ClassNotFoundException e) {
 								sr.freeDataSize();
 								processInvalidSerializedData(agent_socket_sender, e, sr.read_packet, bytes);
 							}
+							
 						} catch (IOException e) {
 
 							sr.freeDataSize();

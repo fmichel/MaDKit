@@ -37,7 +37,6 @@
  */
 package com.distrimind.madkit.kernel.network;
 
-import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
@@ -45,6 +44,7 @@ import com.distrimind.madkit.kernel.AgentAddress;
 import com.distrimind.madkit.kernel.KernelAddress;
 import com.distrimind.madkit.kernel.Message;
 import com.distrimind.madkit.kernel.network.TransferAgent.IDTransfer;
+import com.distrimind.madkit.util.SerializableAndSizable;
 
 /**
  * This class represents a message that asks for a transfer/disconnection
@@ -66,7 +66,7 @@ public class AskForTransferMessage extends Message {
 	private InetSocketAddress inetSocketAddress2;
 	private KernelAddress kernelAddress1;
 	private KernelAddress kernelAddress2;
-	private Serializable attachedData;
+	private SerializableAndSizable attachedData;
 
 	/**
 	 * Ask for a transfer connection between two inet socket addresses
@@ -83,7 +83,7 @@ public class AskForTransferMessage extends Message {
 	 *            each intermediate peer.
 	 */
 	public AskForTransferMessage(Type type, InetSocketAddress inetSocketAddress1, InetSocketAddress inetSocketAddress2,
-			Serializable attachedData) {
+			SerializableAndSizable attachedData) {
 
 		if (type == null)
 			throw new NullPointerException("type");
@@ -176,7 +176,7 @@ public class AskForTransferMessage extends Message {
 	 *            attached data used to add more information to each peer
 	 */
 	public AskForTransferMessage(Type type, KernelAddress kernelAddress1, KernelAddress kernelAddress2,
-			Serializable attachedData) {
+			SerializableAndSizable attachedData) {
 		if (type == null)
 			throw new NullPointerException("type");
 		if (kernelAddress1 == null)
@@ -193,7 +193,7 @@ public class AskForTransferMessage extends Message {
 		this.attachedData = attachedData;
 	}
 
-	public Serializable getAttachedData() {
+	public SerializableAndSizable getAttachedData() {
 		return attachedData;
 	}
 

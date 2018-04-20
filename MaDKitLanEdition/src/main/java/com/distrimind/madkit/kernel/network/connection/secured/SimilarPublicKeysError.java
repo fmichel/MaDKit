@@ -37,6 +37,10 @@
  */
 package com.distrimind.madkit.kernel.network.connection.secured;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+
+import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.network.connection.ErrorConnection;
 
 /**
@@ -57,11 +61,10 @@ class SimilarPublicKeysError extends ErrorConnection {
 	}
 
 	@Override
-	public Integrity checkDataIntegrity() {
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		super.readAndCheckObject(in);
 		if (!candidate_to_ban)
-			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-
-		return Integrity.OK;
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 	}
 
 	@Override

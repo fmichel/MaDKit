@@ -44,6 +44,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
+import com.distrimind.madkit.kernel.MadkitClassLoader;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.util.sizeof.ObjectSizer;
 
@@ -274,6 +275,7 @@ public class OOSUtils {
 		writeInetAddress(oos, inetSocketAddress.getAddress(), false);
 	}
 	
+	
 	public static InetSocketAddress readInetSocketAddress(final ObjectInputStream ois, boolean supportNull) throws IOException, ClassNotFoundException
 	{
 		if (ois.readBoolean())
@@ -296,7 +298,47 @@ public class OOSUtils {
 			return null;
 		
 	}
-	
+	public static void writeEnum(final ObjectOutputStream oos, Enum<?> e, boolean supportNull) throws IOException
+	{
+		if (e==null)
+		{
+			if (!supportNull)
+				throw new IOException();
+			oos.writeBoolean(false);
+			return;
+			
+		}
+		oos.writeBoolean(true);
+		OOSUtils.writeString(oos, e.getClass().getName(), 16396, false);
+		OOSUtils.writeString(oos, e.name(), 1000, false);
+	}
+	@SuppressWarnings("unchecked")
+	public static Enum<?> readEnum(final ObjectInputStream ois, boolean supportNull) throws IOException, ClassNotFoundException
+	{
+		if (ois.readBoolean())
+		{
+			String clazz=OOSUtils.readString(ois, 16396, false);
+			String value=OOSUtils.readString(ois, 1000, false);
+			@SuppressWarnings("rawtypes")
+			Class c=Class.forName(clazz, false, MadkitClassLoader.getSystemClassLoader());
+			if (!c.isEnum())
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			try
+			{
+				return Enum.valueOf(c, value);
+			}
+			catch(ClassCastException e)
+			{
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			}
+			
+		}
+		else if (!supportNull)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		else
+			return null;
+		
+	}
 	public static void writeObject(final ObjectOutputStream oos, Object o, int sizeMax, boolean supportNull) throws IOException
 	{
 		if (o==null)

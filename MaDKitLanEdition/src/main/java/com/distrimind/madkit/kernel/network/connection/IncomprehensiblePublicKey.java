@@ -58,10 +58,8 @@ public class IncomprehensiblePublicKey extends ErrorConnection {
 	 */
 	private static final long serialVersionUID = -1180929297420147671L;
 
-	@Override
-	public Integrity checkDataIntegrity() {
-		return Integrity.OK;
-	}
+	
+
 
 	@Override
 	public boolean excludedFromEncryption() {

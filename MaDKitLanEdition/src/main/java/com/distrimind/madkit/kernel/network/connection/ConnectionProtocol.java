@@ -724,6 +724,13 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 				return Integrity.FAIL;
 			return Integrity.OK;
 		}
+
+		@Override
+		public int getInternalSerializedSize() {
+			return 2;
+		}
+		
+		
 		
 		
 	}

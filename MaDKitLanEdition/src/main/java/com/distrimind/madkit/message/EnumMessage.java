@@ -39,7 +39,6 @@ import java.io.ObjectOutputStream;
 import java.util.Arrays;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
-import com.distrimind.madkit.kernel.MadkitClassLoader;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.madkit.util.OOSUtils;
 import com.distrimind.madkit.util.SerializableAndSizable;
@@ -72,43 +71,22 @@ public class EnumMessage<E extends Enum<E>> extends ObjectMessage<Object[]> impl
 	protected void readAndCheckObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
 	{
 		super.readAndCheckObjectImpl(in, MAX_PARAMETERS_LENGTH);
-		boolean ok=in.readBoolean();
-		if (ok)
+		try
 		{
-			String clazz=OOSUtils.readString(in, 16396, false);
-			String value=OOSUtils.readString(in, 1000, false);
-			@SuppressWarnings("rawtypes")
-			Class c=Class.forName(clazz, false, MadkitClassLoader.getSystemClassLoader());
-			if (!c.isEnum())
-				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
-			c=Class.forName(clazz, true, MadkitClassLoader.getSystemClassLoader());
-			try
-			{
-				code=(E)Enum.valueOf(c, value);
-				if (code==null)
-					throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
-			}
-			catch(ClassCastException e)
-			{
-				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN, e); 
-			}
+			code=(E)OOSUtils.readEnum(in, true);
 		}
-		else
-			code=null;
+		catch(Exception e)
+		{
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN, e);
+		}
 		
 		
 	}
 	@Override
 	protected void writeAndCheckObject(final ObjectOutputStream oos) throws IOException{
 		super.writeAndCheckObjectImpl(oos, MAX_PARAMETERS_LENGTH);
-		if (code==null)
-			oos.writeBoolean(false);
-		else
-		{
-			oos.writeBoolean(true);
-			OOSUtils.writeString(oos, code.getClass().getName(), 16396, false);
-			OOSUtils.writeString(oos, code.name(), 1000, false);
-		}
+		OOSUtils.writeEnum(oos, code, true);
+		
 	}
 	
 	

@@ -86,7 +86,7 @@ public class ObjectMessage<T> extends Message {
 		{
 			content=(T)OOSUtils.readObject(in, maxContentLength, true);
 		}
-		catch(ClassCastException e)
+		catch(Exception e)
 		{
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN, e);
 			

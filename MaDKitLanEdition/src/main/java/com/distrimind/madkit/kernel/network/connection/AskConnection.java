@@ -41,6 +41,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import com.distrimind.madkit.exceptions.MessageSerializationException;
+
 /**
  * This message represents a connection to open.
  * 
@@ -54,8 +56,21 @@ public class AskConnection extends ConnectionMessage {
 	 */
 	private static final long serialVersionUID = 4638974797225665L;
 
-	private final boolean you_are_asking;
+	private boolean you_are_asking;
 
+	@Override
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		you_are_asking=in.readBoolean();
+		if (you_are_asking)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+	}
+
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		oos.writeBoolean(you_are_asking);
+		
+	}
+	
 	/**
 	 * 
 	 * @param _you_are_asking
@@ -70,15 +85,7 @@ public class AskConnection extends ConnectionMessage {
 		return you_are_asking;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Integrity checkDataIntegrity() {
-		if (you_are_asking)
-			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		return Integrity.OK;
-	}
+	
 
 	@Override
 	public boolean excludedFromEncryption() {
@@ -93,4 +100,6 @@ public class AskConnection extends ConnectionMessage {
 	{
 		writeAndCheckObject(oos);
 	}
+
+	
 }

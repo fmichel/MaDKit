@@ -37,6 +37,11 @@
  */
 package com.distrimind.madkit.kernel.network.connection;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+
 /**
  * Message generated when an error occured during the connection protocol.
  * 
@@ -61,6 +66,17 @@ public abstract class ErrorConnection extends ConnectionMessage {
 	 */
 	public ErrorConnection(boolean _candidate_to_ban) {
 		candidate_to_ban = _candidate_to_ban;
+	}
+	
+	
+	@Override
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		candidate_to_ban=in.readBoolean();
+	}
+
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		oos.writeBoolean(candidate_to_ban);
 	}
 
 }

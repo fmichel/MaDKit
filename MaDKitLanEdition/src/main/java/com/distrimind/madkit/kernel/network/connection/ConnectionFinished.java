@@ -42,8 +42,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetSocketAddress;
 
+import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol.ConnectionClosedReason;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol.ConnectionState;
+import com.distrimind.madkit.util.OOSUtils;
 
 /**
  * Message to tells that the connection protocol was terminated.
@@ -59,12 +61,36 @@ public class ConnectionFinished extends ConnectionMessage {
 	 */
 	private static final long serialVersionUID = -7511529487957825982L;
 
-	private final InetSocketAddress inet_address;
+	private InetSocketAddress inet_address;
 
-	private final ConnectionProtocol.ConnectionState state;
-	private final byte[] initialCounter;
+	private ConnectionProtocol.ConnectionState state;
+	private byte[] initialCounter;
 	private transient final ConnectionClosedReason connection_closed_reason;
+	private final static int MAX_INITIAL_COUNTER_LENGTH=74;
 
+	
+	@Override
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		inet_address=OOSUtils.readInetSocketAddress(in, false);
+		try
+		{
+			state=(ConnectionProtocol.ConnectionState)OOSUtils.readEnum(in, false);
+			
+			initialCounter=OOSUtils.readBytes(in, MAX_INITIAL_COUNTER_LENGTH, true);
+		}
+		catch(Exception e)
+		{
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		}
+	}
+
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		OOSUtils.writeInetSocketAddress(oos, inet_address, false);
+		OOSUtils.writeEnum(oos, state, false);
+		OOSUtils.writeBytes(oos, initialCounter, MAX_INITIAL_COUNTER_LENGTH, true);
+	}
+	
 	public ConnectionFinished(InetSocketAddress _inet_address, byte[] initialCounter) {
 		inet_address = _inet_address;
 		state = ConnectionState.CONNECTION_ESTABLISHED;
@@ -102,17 +128,7 @@ public class ConnectionFinished extends ConnectionMessage {
 		return connection_closed_reason;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Integrity checkDataIntegrity() {
-		if (inet_address == null || state == null)
-			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		if (initialCounter!=null && initialCounter.length>Short.MAX_VALUE)
-			return Integrity.FAIL;
-		return Integrity.OK;
-	}
+	
 
 	@Override
 	public boolean excludedFromEncryption() {

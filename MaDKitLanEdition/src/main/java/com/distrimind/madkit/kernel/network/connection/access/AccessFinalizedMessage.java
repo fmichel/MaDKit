@@ -54,10 +54,7 @@ class AccessFinalizedMessage extends AccessMessage {
 	 */
 	private static final long serialVersionUID = 1583685274389751912L;
 
-	@Override
-	public Integrity checkDataIntegrity() {
-		return Integrity.OK;
-	}
+	
 
 	@Override
 	public boolean checkDifferedMessages() {
@@ -72,5 +69,15 @@ class AccessFinalizedMessage extends AccessMessage {
 	private void writeObject(final ObjectOutputStream oos) throws IOException
 	{
 		writeAndCheckObject(oos);
+	}
+
+	@Override
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		
+	}
+
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		
 	}
 }

@@ -60,10 +60,6 @@ public class AccessErrorMessage extends AccessMessage {
 		candidate_to_ban = _candidate_to_ban;
 	}
 
-	@Override
-	public Integrity checkDataIntegrity() {
-		return Integrity.OK;
-	}
 
 	@Override
 	public boolean checkDifferedMessages() {
@@ -77,6 +73,19 @@ public class AccessErrorMessage extends AccessMessage {
 	private void writeObject(final ObjectOutputStream oos) throws IOException
 	{
 		writeAndCheckObject(oos);
+	}
+
+
+	@Override
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		candidate_to_ban=in.readBoolean();
+	}
+
+
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		oos.writeBoolean(candidate_to_ban);
+		
 	}
 
 }

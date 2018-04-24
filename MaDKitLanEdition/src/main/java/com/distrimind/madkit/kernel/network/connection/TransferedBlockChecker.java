@@ -38,10 +38,13 @@
 package com.distrimind.madkit.kernel.network.connection;
 
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 import com.distrimind.madkit.exceptions.BlockParserException;
 import com.distrimind.madkit.kernel.network.SubBlock;
 import com.distrimind.madkit.kernel.network.SubBlockInfo;
-import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol.NullBlockChecker;
 import com.distrimind.madkit.util.SerializableAndSizable;
 
@@ -85,11 +88,24 @@ public abstract class TransferedBlockChecker implements SerializableAndSizable {
 		return (this instanceof NullBlockChecker) || (subChecker!=null && subChecker.isCompletelyInoperant()); 
 	}
 
-	public abstract Integrity checkDataIntegrity();
+	//public abstract Integrity checkDataIntegrity();
 
 	@Override
 	public String toString() {
 		return this.getClass().getName() + (subChecker == null ? "" : " with sub checker" + subChecker.toString());
+	}
+
+	public abstract void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException;
+
+	public abstract void writeAndCheckObject(ObjectOutputStream oos) throws IOException;
+	
+	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
+	{
+		readAndCheckObject(in);
+	}
+	private void writeObject(final ObjectOutputStream oos) throws IOException
+	{
+		writeAndCheckObject(oos);
 	}
 
 }

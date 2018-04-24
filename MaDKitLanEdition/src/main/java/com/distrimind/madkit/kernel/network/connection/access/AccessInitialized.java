@@ -54,16 +54,12 @@ class AccessInitialized extends AccessMessage {
 	 */
 	private static final long serialVersionUID = -2227104960414577743L;
 
-	public final boolean can_takes_login_initiative;
+	public boolean can_takes_login_initiative;
 	
 	public AccessInitialized(boolean _can_takes_login_initiative) {
 		can_takes_login_initiative = _can_takes_login_initiative;
 	}
 
-	@Override
-	public Integrity checkDataIntegrity() {
-		return Integrity.OK;
-	}
 
 	@Override
 	public boolean checkDifferedMessages() {
@@ -77,5 +73,18 @@ class AccessInitialized extends AccessMessage {
 	private void writeObject(final ObjectOutputStream oos) throws IOException
 	{
 		writeAndCheckObject(oos);
+	}
+
+
+	@Override
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		can_takes_login_initiative=in.readBoolean();
+	}
+
+
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		oos.writeBoolean(can_takes_login_initiative);
+		
 	}
 }

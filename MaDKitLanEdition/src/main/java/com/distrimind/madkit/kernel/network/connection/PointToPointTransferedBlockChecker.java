@@ -36,12 +36,15 @@ package com.distrimind.madkit.kernel.network.connection;
 
 
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 import com.distrimind.madkit.exceptions.BlockParserException;
 import com.distrimind.madkit.exceptions.PacketException;
 import com.distrimind.madkit.kernel.network.Block;
 import com.distrimind.madkit.kernel.network.SubBlock;
 import com.distrimind.madkit.kernel.network.SubBlockInfo;
-import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 
 /**
  * 
@@ -143,15 +146,26 @@ public class PointToPointTransferedBlockChecker extends TransferedBlockChecker {
 		this.cpOutput=cpOuput;
 	}
 	
-	@Override
-	public Integrity checkDataIntegrity() {
-		return Integrity.OK;
-	}
 	
 	
 	public SubBlock prepareBlockToSend(SubBlock _block) throws BlockParserException, PacketException
 	{
 		return prepareBlock(_block, 0, -1);
+	}
+
+	@Override
+	public int getInternalSerializedSize() {
+		return 0;
+	}
+
+	@Override
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		
+	}
+
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		
 	}
 	
 

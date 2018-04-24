@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import com.distrimind.madkit.exceptions.MessageSerializationException;
+
 public class AccessMessagesList extends AccessMessage {
 	/**
 	 * 
@@ -20,10 +22,6 @@ public class AccessMessagesList extends AccessMessage {
 		return messages;
 	}
 	
-	@Override
-	public Integrity checkDataIntegrity() {
-		return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-	}
 
 	@Override
 	public boolean checkDifferedMessages() {
@@ -37,5 +35,14 @@ public class AccessMessagesList extends AccessMessage {
 	private void writeObject(final ObjectOutputStream oos) throws IOException
 	{
 		writeAndCheckObject(oos);
+	}
+	@Override
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+	}
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		oos.defaultWriteObject();
+		
 	}
 }

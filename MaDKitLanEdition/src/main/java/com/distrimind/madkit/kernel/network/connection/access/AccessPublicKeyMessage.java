@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import com.distrimind.madkit.util.OOSUtils;
 import com.distrimind.util.crypto.ASymmetricPublicKey;
 
 /**
@@ -59,7 +60,21 @@ class AccessPublicKeyMessage extends AccessMessage {
 	private byte[] public_key_bytes;
 	private final transient byte[] distant_public_key;
 	private boolean otherCanTakeLoginInitiative;
+	private static final int MAX_DISTANT_PUBLIC_KEY_LENGTH=16392; 
+	
 
+	@Override
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		public_key_bytes=OOSUtils.readBytes(in, MAX_DISTANT_PUBLIC_KEY_LENGTH, false);
+		otherCanTakeLoginInitiative=in.readBoolean();
+	}
+
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		OOSUtils.writeBytes(oos, public_key_bytes, MAX_DISTANT_PUBLIC_KEY_LENGTH, false);
+		oos.writeBoolean(otherCanTakeLoginInitiative);
+	}
+	
 	public AccessPublicKeyMessage(ASymmetricPublicKey _public_key, ASymmetricPublicKey _distant_public_key,
 			boolean otherCanTakeLoginInitiative) {
 		public_key_bytes = _public_key.encode();
@@ -81,12 +96,6 @@ class AccessPublicKeyMessage extends AccessMessage {
 			public_key_bytes = distant_public_key;
 	}
 
-	@Override
-	public Integrity checkDataIntegrity() {
-		if (public_key_bytes == null)
-			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		return Integrity.OK;
-	}
 
 	@Override
 	public boolean checkDifferedMessages() {
@@ -101,4 +110,5 @@ class AccessPublicKeyMessage extends AccessMessage {
 	{
 		writeAndCheckObject(oos);
 	}
+
 }

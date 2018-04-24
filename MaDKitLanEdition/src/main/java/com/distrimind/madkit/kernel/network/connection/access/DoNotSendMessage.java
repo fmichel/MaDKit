@@ -41,6 +41,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import com.distrimind.madkit.exceptions.MessageSerializationException;
+
 /**
  * 
  * @author Jason Mahdjoub
@@ -54,10 +56,6 @@ public class DoNotSendMessage extends AccessMessage {
 	 */
 	private static final long serialVersionUID = -219459267206505419L;
 
-	@Override
-	public Integrity checkDataIntegrity() {
-		return Integrity.OK;
-	}
 
 	@Override
 	public boolean checkDifferedMessages() {
@@ -71,5 +69,16 @@ public class DoNotSendMessage extends AccessMessage {
 	private void writeObject(final ObjectOutputStream oos) throws IOException
 	{
 		writeAndCheckObject(oos);
+	}
+
+	@Override
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		
+	}
+
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		throw new IOException();
 	}
 }

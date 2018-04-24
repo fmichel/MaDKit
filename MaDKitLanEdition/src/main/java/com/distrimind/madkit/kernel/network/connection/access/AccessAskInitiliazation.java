@@ -54,10 +54,7 @@ public class AccessAskInitiliazation extends AccessMessage {
 	 */
 	private static final long serialVersionUID = -2294233367590774628L;
 
-	@Override
-	public Integrity checkDataIntegrity() {
-		return Integrity.OK;
-	}
+	
 
 	@Override
 	public boolean checkDifferedMessages() {
@@ -71,5 +68,15 @@ public class AccessAskInitiliazation extends AccessMessage {
 	private void writeObject(final ObjectOutputStream oos) throws IOException
 	{
 		writeAndCheckObject(oos);
+	}
+
+	@Override
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		
+	}
+
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		
 	}
 }

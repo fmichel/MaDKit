@@ -41,7 +41,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.AbstractGroup;
+import com.distrimind.madkit.kernel.network.NetworkProperties;
 
 /**
  * 
@@ -56,7 +58,7 @@ class AccessEstablished extends AccessMessage {
 	 */
 	private static final long serialVersionUID = -104989635184841353L;
 
-	private final AbstractGroup concerned_groups;
+	private AbstractGroup concerned_groups;
 
 	public AccessEstablished(AbstractGroup _concerned_groups) {
 		concerned_groups = _concerned_groups;
@@ -66,12 +68,7 @@ class AccessEstablished extends AccessMessage {
 		return concerned_groups;
 	}
 
-	@Override
-	public Integrity checkDataIntegrity() {
-		if (concerned_groups == null)
-			return Integrity.FAIL;
-		return Integrity.OK;
-	}
+	
 
 	@Override
 	public boolean checkDifferedMessages() {
@@ -86,5 +83,22 @@ class AccessEstablished extends AccessMessage {
 	private void writeObject(final ObjectOutputStream oos) throws IOException
 	{
 		writeAndCheckObject(oos);
+	}
+
+	@Override
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		Object o=in.readObject();
+		if (!(o instanceof AbstractGroup))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		concerned_groups=(AbstractGroup)o;
+		if (concerned_groups.getInternalSerializedSize()>NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE)
+			throw new MessageSerializationException(Integrity.FAIL);
+		
+	}
+
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		oos.writeObject(concerned_groups);
+		
 	}
 }

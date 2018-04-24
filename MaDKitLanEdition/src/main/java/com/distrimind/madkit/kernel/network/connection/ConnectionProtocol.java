@@ -38,6 +38,8 @@
 package com.distrimind.madkit.kernel.network.connection;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -46,6 +48,7 @@ import java.util.NoSuchElementException;
 
 import com.distrimind.madkit.exceptions.BlockParserException;
 import com.distrimind.madkit.exceptions.ConnectionException;
+import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.exceptions.NIOException;
 import com.distrimind.madkit.exceptions.PacketException;
 import com.distrimind.madkit.i18n.ErrorMessages;
@@ -719,18 +722,21 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 		}
 
 		@Override
-		public Integrity checkDataIntegrity() {
-			if (headSize < 0)
-				return Integrity.FAIL;
-			return Integrity.OK;
-		}
-
-		@Override
 		public int getInternalSerializedSize() {
 			return 2;
 		}
 		
-		
+		@Override
+		public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+			headSize=in.readShort();
+			if (headSize < 0)
+				throw new MessageSerializationException(Integrity.FAIL);
+		}
+
+		@Override
+		public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+			oos.writeShort(headSize);
+		}
 		
 		
 	}

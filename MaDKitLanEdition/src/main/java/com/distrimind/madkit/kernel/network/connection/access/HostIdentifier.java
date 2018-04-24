@@ -37,8 +37,14 @@
  */
 package com.distrimind.madkit.kernel.network.connection.access;
 
-import java.io.Serializable;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
+import com.distrimind.madkit.exceptions.MessageSerializationException;
+import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
+import com.distrimind.madkit.util.OOSUtils;
+import com.distrimind.madkit.util.SerializableAndSizable;
 import com.distrimind.util.AbstractDecentralizedID;
 import com.distrimind.util.RenforcedDecentralizedIDGenerator;
 import com.distrimind.util.SecuredDecentralizedID;
@@ -58,7 +64,7 @@ import gnu.vm.jgnu.security.NoSuchProviderException;
  * @see Identifier
  * @see CloudIdentifier
  */
-public abstract class HostIdentifier implements Serializable {
+public abstract class HostIdentifier implements SerializableAndSizable {
 	/**
 	 * 
 	 */
@@ -105,7 +111,7 @@ public abstract class HostIdentifier implements Serializable {
 
 	private static class DefaultHostIdentifier extends HostIdentifier {
 		private static final long serialVersionUID = -1122797789837718737L;
-		private final SecuredDecentralizedID id;
+		private SecuredDecentralizedID id;
 
 		DefaultHostIdentifier() throws NoSuchAlgorithmException, NoSuchProviderException {
 			synchronized (random) {
@@ -134,6 +140,25 @@ public abstract class HostIdentifier implements Serializable {
 		public int hashCode() {
 			return id.hashCode();
 		}
+		@Override
+		public int getInternalSerializedSize() {
+			return OOSUtils.getInternalSize(id, 0);
+		}
+
+		
+		private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
+		{
+			AbstractDecentralizedID a=OOSUtils.readDecentralizedID(in, false);
+			if (!(a instanceof SecuredDecentralizedID))
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			id=(SecuredDecentralizedID)a;
+		}
+		private void writeObject(final ObjectOutputStream oos) throws IOException
+		{
+			
+			OOSUtils.writeDecentralizedID(oos, id, false);
+		}
+		
 	}
 
 }

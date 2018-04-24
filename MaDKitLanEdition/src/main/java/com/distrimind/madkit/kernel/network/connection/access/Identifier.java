@@ -37,7 +37,13 @@
  */
 package com.distrimind.madkit.kernel.network.connection.access;
 
-import java.io.Serializable;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+import com.distrimind.madkit.exceptions.MessageSerializationException;
+import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
+import com.distrimind.madkit.util.SerializableAndSizable;
 
 /**
  * This identifier associates a {@link HostIdentifier} and a
@@ -50,15 +56,15 @@ import java.io.Serializable;
  * @see CloudIdentifier
  * @see HostIdentifier
  */
-public class Identifier implements Serializable {
+public class Identifier implements SerializableAndSizable {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -4973368971188622492L;
 
-	private final CloudIdentifier cloud_identifier;
-	private final HostIdentifier host_identifier;
+	private CloudIdentifier cloud_identifier;
+	private HostIdentifier host_identifier;
 
 	public Identifier(CloudIdentifier _cloud_identifier, HostIdentifier _host_identifier) {
 		if (_cloud_identifier == null)
@@ -133,4 +139,30 @@ public class Identifier implements Serializable {
 		return host_identifier;
 	}
 
+	@Override
+	public int getInternalSerializedSize() {
+		return cloud_identifier.getInternalSerializedSize()+host_identifier.getInternalSerializedSize();
+	}
+
+	
+	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
+	{
+		Object o=in.readObject();
+		if (!(o instanceof CloudIdentifier))
+		{
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		}
+		cloud_identifier=(CloudIdentifier)o;
+		o=in.readObject();
+		if (!(o instanceof HostIdentifier))
+		{
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		}
+		host_identifier=(HostIdentifier)o;
+	}
+	private void writeObject(final ObjectOutputStream oos) throws IOException
+	{
+		oos.writeObject(cloud_identifier);
+		oos.writeObject(host_identifier);
+	}
 }

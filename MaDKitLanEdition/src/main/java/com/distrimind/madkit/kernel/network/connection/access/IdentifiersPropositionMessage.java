@@ -56,6 +56,10 @@ import gnu.vm.jgnux.crypto.IllegalBlockSizeException;
 import gnu.vm.jgnux.crypto.NoSuchPaddingException;
 import gnu.vm.jgnux.crypto.ShortBufferException;
 
+import com.distrimind.madkit.exceptions.MessageSerializationException;
+import com.distrimind.madkit.kernel.network.NetworkProperties;
+import com.distrimind.madkit.util.OOSUtils;
+import com.distrimind.madkit.util.SerializableAndSizable;
 import com.distrimind.util.crypto.AbstractMessageDigest;
 import com.distrimind.util.crypto.AbstractSecureRandom;
 import com.distrimind.util.crypto.P2PASymmetricSecretMessageExchanger;
@@ -73,10 +77,33 @@ class IdentifiersPropositionMessage extends AccessMessage {
 	 */
 	private static final long serialVersionUID = 1409236452371137326L;
 
-	private final Identifier identifiers[];
-	private final boolean isEncrypted;
+	private Identifier identifiers[];
+	private boolean isEncrypted;
 	private final transient short nbAnomalies;
 
+	@Override
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		isEncrypted=in.readBoolean();
+		SerializableAndSizable[] s=OOSUtils.readSerializableAndSizables(in, NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE, false);
+		if (!(s instanceof Identifier[]))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		identifiers=(Identifier[])s;
+		for (Identifier id : identifiers)
+		{
+			if (isEncrypted && !(id instanceof EncryptedIdentifier))
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		}
+		
+	}
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		oos.writeBoolean(isEncrypted);
+		OOSUtils.writeSerializableAndSizables(oos, identifiers, NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE, false);
+		
+		
+	}
+	
+	
 	public IdentifiersPropositionMessage(Collection<Identifier> _id_pws, P2PASymmetricSecretMessageExchanger cipher,
 			boolean encryptIdentifiers, short nbAnomalies) throws InvalidKeyException, IOException,
 			IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, InvalidKeySpecException,
@@ -256,18 +283,7 @@ class IdentifiersPropositionMessage extends AccessMessage {
 						: (nbAno > Short.MAX_VALUE) ? Short.MAX_VALUE : (short) nbAno, random, messageDigest, distantGeneratedSalt);
 	}
 
-	@Override
-	public Integrity checkDataIntegrity() {
-		if (identifiers == null)
-			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		for (Identifier id : identifiers) {
-			if (id == null)
-				return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-			if (isEncrypted && !(id instanceof EncryptedIdentifier))
-				return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		}
-		return Integrity.OK;
-	}
+	
 
 	@Override
 	public boolean checkDifferedMessages() {

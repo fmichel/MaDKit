@@ -38,6 +38,8 @@
 package com.distrimind.madkit.kernel.network.connection.access;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 import gnu.vm.jgnu.security.DigestException;
 import gnu.vm.jgnu.security.InvalidAlgorithmParameterException;
@@ -50,6 +52,7 @@ import gnu.vm.jgnux.crypto.IllegalBlockSizeException;
 import gnu.vm.jgnux.crypto.NoSuchPaddingException;
 import gnu.vm.jgnux.crypto.ShortBufferException;
 
+import com.distrimind.madkit.util.OOSUtils;
 import com.distrimind.util.crypto.AbstractMessageDigest;
 import com.distrimind.util.crypto.AbstractSecureRandom;
 import com.distrimind.util.crypto.P2PASymmetricSecretMessageExchanger;
@@ -67,7 +70,9 @@ public final class EncryptedCloudIdentifier extends CloudIdentifier {
 	 * 
 	 */
 	private static final long serialVersionUID = -72758697578022420L;
-	private final byte[] bytes;
+	public final static int MAX_ENCRYPTED_CLOUD_IDENTIFIER_LENGTH=CloudIdentifier.MAX_CLOUD_IDENTIFIER_LENGTH+512;
+	
+	private byte[] bytes;
 
 	EncryptedCloudIdentifier(CloudIdentifier cloudIdentifier, P2PASymmetricSecretMessageExchanger cipher)
 			throws InvalidKeyException, IOException, IllegalBlockSizeException, BadPaddingException,
@@ -182,6 +187,21 @@ public final class EncryptedCloudIdentifier extends CloudIdentifier {
 	@Override
 	public byte[] getSaltBytes() {
 		return null;
+	}
+	
+	@Override
+	public int getInternalSerializedSize() {
+		return OOSUtils.getInternalSize(bytes, MAX_ENCRYPTED_CLOUD_IDENTIFIER_LENGTH);
+	}
+
+	
+	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
+	{
+		bytes=OOSUtils.readBytes(in, MAX_ENCRYPTED_CLOUD_IDENTIFIER_LENGTH, false);
+	}
+	private void writeObject(final ObjectOutputStream oos) throws IOException
+	{
+		OOSUtils.writeBytes(oos, bytes, MAX_ENCRYPTED_CLOUD_IDENTIFIER_LENGTH, false);
 	}
 
 }

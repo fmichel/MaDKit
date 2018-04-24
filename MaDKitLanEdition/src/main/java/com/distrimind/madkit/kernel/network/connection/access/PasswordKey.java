@@ -46,6 +46,7 @@ package com.distrimind.madkit.kernel.network.connection.access;
  * @see Identifier
  */
 public abstract class PasswordKey {
+	public static final int MAX_PASSWORD_LENGTH=16392;
 	/**
 	 * Gets the password with a byte tab format.
 	 * 

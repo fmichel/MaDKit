@@ -37,7 +37,8 @@
  */
 package com.distrimind.madkit.kernel.network.connection.access;
 
-import java.io.Serializable;
+
+import com.distrimind.madkit.util.SerializableAndSizable;
 
 /**
  * This identifier is related to a cloud associated to a user, or an entity.
@@ -50,13 +51,15 @@ import java.io.Serializable;
  * @see Identifier
  * @see HostIdentifier
  */
-public abstract class CloudIdentifier implements Serializable {
+public abstract class CloudIdentifier implements SerializableAndSizable {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -5227781145002645024L;
 
+	public static int MAX_CLOUD_IDENTIFIER_LENGTH=4096;
+	
 	@Override
 	public abstract boolean equals(Object _cloud_identifier);
 

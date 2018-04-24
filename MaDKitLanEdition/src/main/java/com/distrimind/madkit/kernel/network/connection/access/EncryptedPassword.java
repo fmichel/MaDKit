@@ -38,7 +38,8 @@
 package com.distrimind.madkit.kernel.network.connection.access;
 
 import java.io.IOException;
-import java.io.Serializable;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 import gnu.vm.jgnu.security.InvalidAlgorithmParameterException;
 import gnu.vm.jgnu.security.InvalidKeyException;
@@ -50,6 +51,8 @@ import gnu.vm.jgnux.crypto.IllegalBlockSizeException;
 import gnu.vm.jgnux.crypto.NoSuchPaddingException;
 import gnu.vm.jgnux.crypto.ShortBufferException;
 
+import com.distrimind.madkit.util.OOSUtils;
+import com.distrimind.madkit.util.SerializableAndSizable;
 import com.distrimind.util.crypto.P2PASymmetricSecretMessageExchanger;
 
 /**
@@ -60,15 +63,29 @@ import com.distrimind.util.crypto.P2PASymmetricSecretMessageExchanger;
  * @since MadKitLanEdition 1.0
  * @see PasswordKey
  */
-public class EncryptedPassword extends PasswordKey implements Serializable {
+public class EncryptedPassword extends PasswordKey implements SerializableAndSizable {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 6317231184237274381L;
 
-	private final byte[] bytes;
+	public static final int MAX_ENCRYPTED_PASSWORD_LENGTH=MAX_PASSWORD_LENGTH+512;
+	
+	private byte[] bytes;
 
+
+	
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		bytes=OOSUtils.readBytes(in, MAX_ENCRYPTED_PASSWORD_LENGTH, false);
+		
+	}
+
+	
+	private void writeObject(ObjectOutputStream oos) throws IOException {
+		OOSUtils.writeBytes(oos, bytes, MAX_ENCRYPTED_PASSWORD_LENGTH, false);
+	}
+	
 	public EncryptedPassword(PasswordKey password, P2PASymmetricSecretMessageExchanger cipher)
 			throws InvalidKeyException, IOException, IllegalBlockSizeException, BadPaddingException,
 			NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException,
@@ -80,6 +97,7 @@ public class EncryptedPassword extends PasswordKey implements Serializable {
 		bytes = cipher.encode(password.getPasswordBytes(), password.getSaltBytes(), password.isKey());
 
 	}
+	
 
 	@Override
 	public byte[] getPasswordBytes() {
@@ -127,6 +145,12 @@ public class EncryptedPassword extends PasswordKey implements Serializable {
 	@Override
 	public boolean isKey() {
 		return true;
+	}
+
+
+	@Override
+	public int getInternalSerializedSize() {
+		return OOSUtils.getInternalSize(bytes, MAX_ENCRYPTED_PASSWORD_LENGTH);
 	}
 
 }

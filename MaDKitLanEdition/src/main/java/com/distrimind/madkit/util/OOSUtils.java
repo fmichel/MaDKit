@@ -46,6 +46,7 @@ import java.net.InetSocketAddress;
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.MadkitClassLoader;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
+import com.distrimind.util.AbstractDecentralizedID;
 import com.distrimind.util.sizeof.ObjectSizer;
 
 /**
@@ -224,6 +225,59 @@ public class OOSUtils {
 		return tab;
 		
 	}
+	public static void writeSerializableAndSizables(final ObjectOutputStream oos, SerializableAndSizable tab[], int sizeMaxBytes, boolean supportNull) throws IOException
+	{
+		if (tab==null)
+		{
+			if (!supportNull)
+				throw new IOException();
+			oos.writeInt(-1);
+			return;
+			
+		}
+		if (tab.length*4>sizeMaxBytes)
+			throw new IOException();
+		oos.writeInt(tab.length);
+		int total=4;
+		
+		for (SerializableAndSizable o : tab)
+		{
+			writeObject(oos, o, sizeMaxBytes-total, true);
+			total+=o.getInternalSerializedSize();
+			
+			if (total>=sizeMaxBytes)
+				throw new IOException();
+		}
+	}
+	
+	public static SerializableAndSizable[] readSerializableAndSizables(final ObjectInputStream ois, int sizeMaxBytes, boolean supportNull) throws IOException, ClassNotFoundException
+	{
+		int size=ois.readInt();
+		if (size==-1)
+		{
+			if (!supportNull)
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			return null;
+		}
+		if (size<0 || size*4>sizeMaxBytes)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		
+		SerializableAndSizable []tab=new SerializableAndSizable[size];
+		sizeMaxBytes-=4;
+		for (int i=0;i<size;i++)
+		{
+			Object o=readObject(ois, sizeMaxBytes, true);
+			if (!(o instanceof SerializableAndSizable))
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			SerializableAndSizable s=(SerializableAndSizable)o;
+			sizeMaxBytes-=s.getInternalSerializedSize();
+			if (sizeMaxBytes<0)
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		}
+		
+		return tab;
+		
+	}
 	public static int MAX_URL_LENGTH=8000;
 	public static void writeInetAddress(final ObjectOutputStream oos, InetAddress inetAddress, boolean supportNull) throws IOException
 	{
@@ -237,6 +291,37 @@ public class OOSUtils {
 		}
 		oos.writeBoolean(true);
 		writeBytes(oos, inetAddress.getAddress(), 20, false);
+	}
+	
+	public static void writeDecentralizedID(final ObjectOutputStream oos, AbstractDecentralizedID id, boolean supportNull) throws IOException
+	{
+		if (id==null)
+		{
+			if (!supportNull)
+				throw new IOException();
+			oos.writeBoolean(false);
+			return;
+			
+		}
+		oos.writeBoolean(true);
+		writeBytes(oos, id.getBytes(), 513, false);
+	}
+	public static AbstractDecentralizedID readDecentralizedID(final ObjectInputStream in, boolean supportNull) throws IOException
+	{
+		if (in.readBoolean())
+		{
+			try
+			{
+				return AbstractDecentralizedID.instanceOf(readBytes(in, 513, false));
+			}
+			catch(Exception e)
+			{
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			}
+		}
+		if (!supportNull)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		return null;
 	}
 	
 	public static InetAddress readInetAddress(final ObjectInputStream ois, boolean supportNull) throws IOException, ClassNotFoundException
@@ -362,20 +447,30 @@ public class OOSUtils {
 			oos.write(2);
 			writeBytes(oos, (byte[])o, sizeMax, false);
 		}
-		else if (o instanceof Object[])
+		else if (o instanceof SerializableAndSizable[])
 		{
 			oos.write(3);
+			writeSerializableAndSizables(oos, (SerializableAndSizable[])o, sizeMax, supportNull);
+		}
+		else if (o instanceof Object[])
+		{
+			oos.write(4);
 			writeObjects(oos, (Object[])o, sizeMax, false);
 		}
 		else if (o instanceof InetSocketAddress)
 		{
-			oos.write(4);
+			oos.write(5);
 			writeInetSocketAddress(oos, (InetSocketAddress)o, supportNull);
 		}
 		else if (o instanceof InetAddress)
 		{
-			oos.write(5);
+			oos.write(6);
 			writeInetAddress(oos, (InetAddress)o, supportNull);
+		}
+		else if (o instanceof AbstractDecentralizedID)
+		{
+			oos.write(7);
+			writeDecentralizedID(oos, (AbstractDecentralizedID)o, supportNull);
 		}
 		else
 		{
@@ -399,11 +494,15 @@ public class OOSUtils {
 		case 2:
 			return readBytes(ois, sizeMax, false);
 		case 3:
-			return readObjects(ois, sizeMax, false);
+			return readSerializableAndSizables(ois, sizeMax, false);
 		case 4:
-			return readInetSocketAddress(ois, false);
+			return readObjects(ois, sizeMax, false);
 		case 5:
+			return readInetSocketAddress(ois, false);
+		case 6:
 			return readInetAddress(ois, false);
+		case 7:
+			return readDecentralizedID(ois, false);
 		case Byte.MAX_VALUE:
 			return ois.readObject();
 		default:
@@ -428,6 +527,13 @@ public class OOSUtils {
 		{
 			return ((SerializableAndSizable)o).getInternalSerializedSize();
 		}
+		else if (o instanceof SerializableAndSizable[])
+		{
+			int size=4;
+			for (SerializableAndSizable s : (SerializableAndSizable[])o)
+				size+=s.getInternalSerializedSize();
+			return size;
+		}
 		else if (o instanceof Object[])
 		{
 			Object tab[]=(Object[])o;
@@ -445,6 +551,10 @@ public class OOSUtils {
 		else if (o instanceof InetSocketAddress)
 		{
 			return ((InetSocketAddress)o).getAddress().getAddress().length+7;
+		}
+		else if (o instanceof AbstractDecentralizedID)
+		{
+			return ((AbstractDecentralizedID) o).getBytes().length+2;
 		}
 		else
 			return ObjectSizer.sizeOf(o);

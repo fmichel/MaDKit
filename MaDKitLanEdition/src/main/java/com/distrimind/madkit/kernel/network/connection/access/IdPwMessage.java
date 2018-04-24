@@ -52,6 +52,10 @@ import gnu.vm.jgnux.crypto.IllegalBlockSizeException;
 import gnu.vm.jgnux.crypto.NoSuchPaddingException;
 import gnu.vm.jgnux.crypto.ShortBufferException;
 
+import com.distrimind.madkit.exceptions.MessageSerializationException;
+import com.distrimind.madkit.kernel.network.NetworkProperties;
+import com.distrimind.madkit.util.OOSUtils;
+import com.distrimind.madkit.util.SerializableAndSizable;
 import com.distrimind.util.crypto.P2PASymmetricSecretMessageExchanger;
 
 /**
@@ -67,11 +71,43 @@ class IdPwMessage extends AccessMessage {
 	 */
 	private static final long serialVersionUID = -4294113307376791980L;
 
-	private final boolean identifiersIsEncrypted;
-	private final Identifier[] identifiers;
-	private final EncryptedPassword[] passwords;
+	private boolean identifiersIsEncrypted;
+	private Identifier[] identifiers;
+	private EncryptedPassword[] passwords;
 	private final transient short nbAnomalies;
 
+	@Override
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		identifiersIsEncrypted=in.readBoolean();
+		SerializableAndSizable[] s=OOSUtils.readSerializableAndSizables(in, NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE, false);
+		if (!(s instanceof Identifier[]))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		identifiers=(Identifier[])s;
+		int total=5;
+		for (Identifier id : identifiers)
+		{
+			if (identifiersIsEncrypted && !(id instanceof EncryptedIdentifier))
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			total+=id.getInternalSerializedSize();
+		}
+		s=OOSUtils.readSerializableAndSizables(in, NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE-total, false);
+		if (!(s instanceof EncryptedPassword[]))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		passwords=(EncryptedPassword[])s;
+		if (identifiers.length != passwords.length)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+
+		
+	}
+
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		oos.writeBoolean(identifiersIsEncrypted);
+		OOSUtils.writeSerializableAndSizables(oos, identifiers, NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE, false);
+		OOSUtils.writeSerializableAndSizables(oos, passwords, NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE, false);
+
+	}
+	
 	public IdPwMessage(Collection<IdentifierPassword> _id_pws, P2PASymmetricSecretMessageExchanger cipher,
 			boolean encryptIdentifiers, short nbAnomalies) throws InvalidKeyException, IOException,
 			IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, InvalidKeySpecException,
@@ -95,6 +131,8 @@ class IdPwMessage extends AccessMessage {
 	public short getNbAnomalies() {
 		return nbAnomalies;
 	}
+	
+	
 
 	public short getAcceptedIdentifiers(LoginData lp, P2PASymmetricSecretMessageExchanger cipher,
 			Collection<PairOfIdentifiers> acceptedIdentifiers, Collection<PairOfIdentifiers> deniedIdentifiers,
@@ -136,25 +174,6 @@ class IdPwMessage extends AccessMessage {
 				: (short) (identifiers.length - acceptedIdentifiers.size());
 	}
 
-	@Override
-	public Integrity checkDataIntegrity() {
-		if (identifiers == null)
-			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		if (passwords == null)
-			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		if (identifiers.length != passwords.length)
-			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		for (int i = 0; i < identifiers.length; i++) {
-			if (identifiers[i] == null)
-				return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-			if (identifiersIsEncrypted && !(identifiers[i] instanceof EncryptedIdentifier))
-				return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-			if (passwords[i] == null)
-				return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		}
-
-		return Integrity.OK;
-	}
 
 	@Override
 	public boolean checkDifferedMessages() {
@@ -169,4 +188,6 @@ class IdPwMessage extends AccessMessage {
 	{
 		writeAndCheckObject(oos);
 	}
+
+	
 }

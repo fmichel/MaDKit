@@ -147,7 +147,56 @@ public class OOSUtils {
 			oos.writeShort(tab.length);
 		oos.write(tab, off, size);
 	}
-	
+	public static void writeBytes2D(final ObjectOutputStream oos, byte tab[][], int sizeMax1,int sizeMax2, boolean supportNull1, boolean supportNull2) throws IOException
+	{
+		writeBytes2D(oos, tab, 0, tab==null?0:tab.length, sizeMax1, sizeMax2, supportNull1, supportNull2);
+	}
+	public static void writeBytes2D(final ObjectOutputStream oos, byte tab[][], int off, int size, int sizeMax1, int sizeMax2,  boolean supportNull1, boolean supportNull2) throws IOException
+	{
+		if (tab==null)
+		{
+			if (!supportNull1)
+				throw new IOException();
+			if (sizeMax1>Short.MAX_VALUE)
+				oos.writeInt(-1);
+			else
+				oos.writeShort(-1);
+			return;
+			
+		}
+		if (tab.length>sizeMax1)
+			throw new IOException();
+		if (sizeMax1>Short.MAX_VALUE)
+			oos.writeInt(tab.length);
+		else
+			oos.writeShort(tab.length);
+		for (byte[] b : tab)
+			OOSUtils.writeBytes(oos, b, sizeMax2, supportNull2);
+	}
+	public static byte[][] readBytes2D(final ObjectInputStream ois, int sizeMax1, int sizeMax2,  boolean supportNull1, boolean supportNull2) throws IOException
+	{
+		int size;
+		if (sizeMax1>Short.MAX_VALUE)
+			size=ois.readInt();
+		else
+			size=ois.readShort();
+		if (size==-1)
+		{
+			if (!supportNull1)
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			return null;
+		}
+		if (size<0 || size>sizeMax1)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		
+		byte [][]tab=new byte[size][];
+		for (int i=0;i<size;i++)
+			tab[i]=readBytes(ois, sizeMax2, supportNull2);
+		
+		
+		return tab;
+		
+	}
 	public static byte[] readBytes(final ObjectInputStream ois, int sizeMax, boolean supportNull) throws IOException
 	{
 		int size;
@@ -447,29 +496,34 @@ public class OOSUtils {
 			oos.write(2);
 			writeBytes(oos, (byte[])o, sizeMax, false);
 		}
-		else if (o instanceof SerializableAndSizable[])
+		else if (o instanceof byte[][])
 		{
 			oos.write(3);
+			writeBytes2D(oos, (byte[][])o, sizeMax, sizeMax, false, false);
+		}
+		else if (o instanceof SerializableAndSizable[])
+		{
+			oos.write(4);
 			writeSerializableAndSizables(oos, (SerializableAndSizable[])o, sizeMax, supportNull);
 		}
 		else if (o instanceof Object[])
 		{
-			oos.write(4);
+			oos.write(5);
 			writeObjects(oos, (Object[])o, sizeMax, false);
 		}
 		else if (o instanceof InetSocketAddress)
 		{
-			oos.write(5);
+			oos.write(6);
 			writeInetSocketAddress(oos, (InetSocketAddress)o, supportNull);
 		}
 		else if (o instanceof InetAddress)
 		{
-			oos.write(6);
+			oos.write(7);
 			writeInetAddress(oos, (InetAddress)o, supportNull);
 		}
 		else if (o instanceof AbstractDecentralizedID)
 		{
-			oos.write(7);
+			oos.write(8);
 			writeDecentralizedID(oos, (AbstractDecentralizedID)o, supportNull);
 		}
 		else
@@ -494,14 +548,16 @@ public class OOSUtils {
 		case 2:
 			return readBytes(ois, sizeMax, false);
 		case 3:
-			return readSerializableAndSizables(ois, sizeMax, false);
+			return readBytes2D(ois, sizeMax, sizeMax, false, false);
 		case 4:
-			return readObjects(ois, sizeMax, false);
+			return readSerializableAndSizables(ois, sizeMax, false);
 		case 5:
-			return readInetSocketAddress(ois, false);
+			return readObjects(ois, sizeMax, false);
 		case 6:
-			return readInetAddress(ois, false);
+			return readInetSocketAddress(ois, false);
 		case 7:
+			return readInetAddress(ois, false);
+		case 8:
 			return readDecentralizedID(ois, false);
 		case Byte.MAX_VALUE:
 			return ois.readObject();
@@ -522,6 +578,14 @@ public class OOSUtils {
 		else if (o instanceof byte[])
 		{
 			return ((byte[])o).length+sizeMax>Short.MAX_VALUE?4:2;
+		}
+		else if (o instanceof byte[][])
+		{
+			byte tab[][]=((byte[][])o);
+			int res=sizeMax>Short.MAX_VALUE?4:2;
+			for (byte[] b : tab)
+				res+=2+(b==null?0:b.length);
+			return res;
 		}
 		else if (o instanceof SerializableAndSizable)
 		{

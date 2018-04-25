@@ -37,6 +37,12 @@
  */
 package com.distrimind.madkit.kernel.network.connection.access;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+import com.distrimind.madkit.exceptions.MessageSerializationException;
+import com.distrimind.madkit.util.OOSUtils;
 import com.distrimind.util.crypto.AbstractSecureRandom;
 
 /**
@@ -51,23 +57,27 @@ public class JPakeAccessInitialized extends AccessInitialized {
 	 */
 	private static final long serialVersionUID = -7094989210668214156L;
 	
-	public final byte[] generatedSalt;
+	public byte[] generatedSalt;
 	public static final int generatedSaltSize=32;
 	public JPakeAccessInitialized(boolean _can_takes_login_initiative, AbstractSecureRandom random) {
 		super(_can_takes_login_initiative);
 		generatedSalt=new byte[generatedSaltSize];
 		random.nextBytes(generatedSalt);
 	}
-	
 	@Override
-	public Integrity checkDataIntegrity() {
-		Integrity i=super.checkDataIntegrity();
-		if (i!=Integrity.OK)
-			return i;
-		if (generatedSalt!=null && generatedSalt.length!=generatedSaltSize)
-			return Integrity.FAIL;
-		return Integrity.OK;
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		super.readAndCheckObject(in);
+		generatedSalt=OOSUtils.readBytes(in, generatedSaltSize, false);
+		if (generatedSalt.length!=generatedSaltSize)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 	}
+
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		super.writeAndCheckObject(oos);
+		OOSUtils.writeBytes(oos, generatedSalt, generatedSaltSize, false);
+	}
+	
 
 	public byte[] getGeneratedSalt() {
 		return generatedSalt;

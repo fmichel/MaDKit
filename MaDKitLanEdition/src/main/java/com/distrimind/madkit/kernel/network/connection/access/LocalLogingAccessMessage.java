@@ -54,10 +54,7 @@ class LocalLogingAccessMessage extends AccessMessage {
 	 */
 	private static final long serialVersionUID = -6586802620520487224L;
 
-	@Override
-	public Integrity checkDataIntegrity() {
-		return Integrity.OK;
-	}
+	
 
 	@Override
 	public boolean checkDifferedMessages() {
@@ -71,5 +68,17 @@ class LocalLogingAccessMessage extends AccessMessage {
 	private void writeObject(final ObjectOutputStream oos) throws IOException
 	{
 		writeAndCheckObject(oos);
+	}
+
+	@Override
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		
+	}
+
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		oos.defaultWriteObject();
+		
 	}
 }

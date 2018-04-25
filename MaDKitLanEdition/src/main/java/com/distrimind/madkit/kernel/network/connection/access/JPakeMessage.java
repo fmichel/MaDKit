@@ -45,6 +45,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.distrimind.madkit.exceptions.MessageSerializationException;
+import com.distrimind.madkit.kernel.network.NetworkProperties;
+import com.distrimind.madkit.util.OOSUtils;
+import com.distrimind.madkit.util.SerializableAndSizable;
 import com.distrimind.util.crypto.AbstractMessageDigest;
 import com.distrimind.util.crypto.AbstractSecureRandom;
 import com.distrimind.util.crypto.P2PJPAKESecretMessageExchanger;
@@ -69,14 +73,51 @@ class JPakeMessage extends AccessMessage{
 	/**
 	 * 
 	 */
+	public static final int MAX_JPAKE_MESSAGE_LENGTH=16392;
 	private static final long serialVersionUID = 7717334330741162319L;
-	private final boolean identifiersIsEncrypted;
-	private final Identifier[] identifiers;
-	private final byte[][] jpakeMessages;
-	private final short step;
+	private boolean identifiersIsEncrypted;
+	private Identifier[] identifiers;
+	private byte[][] jpakeMessages;
+	private short step;
 	private final transient short nbAnomalies;
 	
 	
+	public void readAndCheckObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
+	{
+		identifiersIsEncrypted=in.readBoolean();
+		int globalSize=NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE;
+		SerializableAndSizable tab[]=OOSUtils.readSerializableAndSizables(in, globalSize, false);
+		int totalSize=1;
+		for (SerializableAndSizable s : tab)
+		{
+			if (!(s instanceof Identifier))
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			totalSize+=s.getInternalSerializedSize();
+		}
+		if (totalSize>globalSize)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		if (!(tab instanceof Identifier[]))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		identifiers=(Identifier[])tab;
+		jpakeMessages=OOSUtils.readBytes2D(in, identifiers.length, MAX_JPAKE_MESSAGE_LENGTH, false, false);
+		step=in.readShort();
+		totalSize+=OOSUtils.getInternalSize(jpakeMessages, identifiers.length);
+		if (totalSize>globalSize)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		for (byte[] b : jpakeMessages)
+			if (b==null || b.length==0)
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		if (step<1 || step>3)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		
+	}
+	public void writeAndCheckObject(final ObjectOutputStream oos) throws IOException
+	{
+		oos.writeBoolean(identifiersIsEncrypted);
+		OOSUtils.writeSerializableAndSizables(oos, identifiers, NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE, false);
+		OOSUtils.writeBytes2D(oos, jpakeMessages, identifiers.length, MAX_JPAKE_MESSAGE_LENGTH, false, false);
+		oos.writeShort(step);
+	}
 	
 	
 	JPakeMessage(Map<Identifier, P2PJPAKESecretMessageExchanger> jpakes, boolean identifiersIsEncrypted, short nbAnomalies, AbstractSecureRandom random, AbstractMessageDigest messageDigest, byte[] distantGeneratedSalt) throws Exception {
@@ -178,19 +219,7 @@ class JPakeMessage extends AccessMessage{
 		return identifiersIsEncrypted;
 	}
 	
-	@Override
-	public Integrity checkDataIntegrity() {
-		if (identifiers==null)
-			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		if (jpakeMessages==null || jpakeMessages.length!=identifiers.length)
-			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		for (byte[] b : jpakeMessages)
-			if (b==null || b.length==0)
-				return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		if (step<1 || step>3)
-			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		return Integrity.OK;
-	}
+	
 	@Override
 	public boolean checkDifferedMessages() {
 		return false;

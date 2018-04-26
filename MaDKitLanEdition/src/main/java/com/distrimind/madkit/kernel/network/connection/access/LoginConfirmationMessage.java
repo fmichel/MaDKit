@@ -43,6 +43,9 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import com.distrimind.madkit.exceptions.MessageSerializationException;
+import com.distrimind.madkit.kernel.network.NetworkProperties;
+
 
 /**
  * 
@@ -57,11 +60,62 @@ class LoginConfirmationMessage extends AccessMessage {
 	 */
 	private static final long serialVersionUID = -296815844676424978L;
 
-	public final ArrayList<Identifier> accepted_identifiers;
-	public final ArrayList<Identifier> denied_identifiers;
-	private final transient short nbAnomalies;
-	private final boolean checkDifferedMessages;
+	public ArrayList<Identifier> accepted_identifiers;
+	public ArrayList<Identifier> denied_identifiers;
+	private transient short nbAnomalies;
+	private boolean checkDifferedMessages;
 
+	@Override
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		int size=in.readInt();
+		int totalSize=4;
+		int globalSize=NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE;
+		if (size<0 || totalSize+size*4>globalSize)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		accepted_identifiers=new ArrayList<>(size);
+		for (int i=0;i<size;i++)
+		{
+			Object o=in.readObject();
+			if (!(o instanceof Identifier))
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			Identifier id=(Identifier)o;
+			totalSize+=id.getInternalSerializedSize();
+			if (totalSize>globalSize)
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			accepted_identifiers.add(id);
+		}
+		size=in.readInt();
+		totalSize+=4;
+		if (size<0 || totalSize+size*4>globalSize)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		denied_identifiers=new ArrayList<>(size);
+		for (int i=0;i<size;i++)
+		{
+			Object o=in.readObject();
+			if (!(o instanceof Identifier))
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			Identifier id=(Identifier)o;
+			totalSize+=id.getInternalSerializedSize();
+			if (totalSize>globalSize)
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			denied_identifiers.add(id);
+		}
+		checkDifferedMessages=in.readBoolean();
+	}
+
+
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		oos.writeInt(accepted_identifiers.size()); 
+		for (Identifier id : accepted_identifiers)
+			oos.writeObject(id);
+		oos.writeInt(denied_identifiers.size()); 
+		for (Identifier id : denied_identifiers)
+			oos.writeObject(id);
+		oos.writeBoolean(checkDifferedMessages);
+		
+	}
+	
 	public LoginConfirmationMessage(Collection<PairOfIdentifiers> _accepted_identifiers,
 			Collection<PairOfIdentifiers> _denied_identifiers, short nbAnomalies,
 			boolean checkDifferedMessages) {
@@ -90,23 +144,7 @@ class LoginConfirmationMessage extends AccessMessage {
 		return nbAnomalies;
 	}
 
-	@Override
-	public Integrity checkDataIntegrity() {
-		if (accepted_identifiers == null)
-			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		if (denied_identifiers == null)
-			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		for (Identifier id : accepted_identifiers) {
-			if (id == null)
-				return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		}
-		for (Identifier id : denied_identifiers) {
-			if (id == null)
-				return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		}
-
-		return Integrity.OK;
-	}
+	
 
 	@Override
 	public boolean checkDifferedMessages() {

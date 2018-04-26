@@ -37,6 +37,10 @@
  */
 package com.distrimind.madkit.kernel.network.connection.secured;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 import com.distrimind.madkit.kernel.network.connection.ConnectionMessage;
 
 /**
@@ -52,14 +56,22 @@ class FirstMessage extends ConnectionMessage {
 	 */
 	private static final long serialVersionUID = 4087005915722458526L;
 
-	@Override
-	public Integrity checkDataIntegrity() {
-		return Integrity.OK;
-	}
-
+	
 	@Override
 	public boolean excludedFromEncryption() {
 		return true;
+	}
+
+
+	@Override
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		
+	}
+
+
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		
 	}
 
 }

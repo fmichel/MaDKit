@@ -38,6 +38,8 @@
 package com.distrimind.madkit.kernel.network.connection.secured;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 import gnu.vm.jgnu.security.InvalidAlgorithmParameterException;
 import gnu.vm.jgnu.security.InvalidKeyException;
@@ -51,7 +53,9 @@ import gnu.vm.jgnux.crypto.IllegalBlockSizeException;
 import gnu.vm.jgnux.crypto.NoSuchPaddingException;
 import gnu.vm.jgnux.crypto.ShortBufferException;
 
+import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.network.connection.AskConnection;
+import com.distrimind.madkit.util.OOSUtils;
 import com.distrimind.util.crypto.ASymmetricKeyWrapperType;
 import com.distrimind.util.crypto.ASymmetricPublicKey;
 import com.distrimind.util.crypto.AbstractSecureRandom;
@@ -75,6 +79,33 @@ class AskClientServerConnection extends AskConnection {
 	//private final transient byte[] distantPublicKeyForEncryptionEncoded;
 	private byte[] secretKeyForEncryption, secretKeyForSignature, signatureOfSecretKeyForEncryption;
 
+	@Override
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		super.readAndCheckObject(in);
+		secretKeyForEncryption=OOSUtils.readBytes(in, MAX_SECRET_KEY_LENGTH, true);
+		secretKeyForSignature=OOSUtils.readBytes(in, MAX_SECRET_KEY_LENGTH, false);
+		signatureOfSecretKeyForEncryption=OOSUtils.readBytes(in, MAX_SIGNATURE_LENGTH, true);
+		if (secretKeyForEncryption!=null && secretKeyForEncryption.length == 0)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		if (secretKeyForSignature.length == 0)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		if (this.isYouAreAsking())
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		if (secretKeyForEncryption!=null && signatureOfSecretKeyForEncryption==null)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+	}
+
+
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		super.writeAndCheckObject(oos);
+		OOSUtils.writeBytes(oos, secretKeyForEncryption, MAX_SECRET_KEY_LENGTH, true);
+		OOSUtils.writeBytes(oos, secretKeyForSignature, MAX_SECRET_KEY_LENGTH, false);
+		OOSUtils.writeBytes(oos, signatureOfSecretKeyForEncryption, MAX_SIGNATURE_LENGTH, true);
+		
+	}
+	
+	
 	AskClientServerConnection(AbstractSecureRandom random, ASymmetricKeyWrapperType keyWrapper, SymmetricSecretKey encryptionSecretKey,SymmetricSecretKey signatureSecretKey,			
 			ASymmetricPublicKey distantPublicKeyForEncryption) throws InvalidKeyException, InvalidAlgorithmParameterException,
 			IllegalBlockSizeException, BadPaddingException, IOException, IllegalStateException,
@@ -147,23 +178,7 @@ class AskClientServerConnection extends AskConnection {
 
 
 	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Integrity checkDataIntegrity() {
-		if (secretKeyForSignature == null)
-			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		if (secretKeyForEncryption!=null && secretKeyForEncryption.length == 0)
-			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		if (secretKeyForSignature.length == 0)
-			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		if (this.isYouAreAsking())
-			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		if (secretKeyForEncryption!=null && signatureOfSecretKeyForEncryption==null)
-			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		return Integrity.OK;
-	}
+	
 
 	@Override
 	public void corrupt() {

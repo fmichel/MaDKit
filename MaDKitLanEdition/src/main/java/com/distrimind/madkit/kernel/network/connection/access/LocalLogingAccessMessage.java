@@ -72,13 +72,13 @@ class LocalLogingAccessMessage extends AccessMessage {
 
 	@Override
 	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		in.defaultReadObject();
+		
 		
 	}
 
 	@Override
 	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
-		oos.defaultWriteObject();
+		
 		
 	}
 }

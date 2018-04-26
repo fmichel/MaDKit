@@ -47,6 +47,11 @@ import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.MadkitClassLoader;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.util.AbstractDecentralizedID;
+import com.distrimind.util.crypto.ASymmetricKeyPair;
+import com.distrimind.util.crypto.ASymmetricPrivateKey;
+import com.distrimind.util.crypto.ASymmetricPublicKey;
+import com.distrimind.util.crypto.Key;
+import com.distrimind.util.crypto.SymmetricSecretKey;
 import com.distrimind.util.sizeof.ObjectSizer;
 
 /**
@@ -222,6 +227,82 @@ public class OOSUtils {
 		
 	}
 	
+	public static final int MAX_KEY_SIZE=Short.MAX_VALUE;
+	public static void writeKey(final ObjectOutputStream oos, Key key, boolean supportNull) throws IOException
+	{
+		
+		if (key==null)
+		{
+			if (!supportNull)
+				throw new IOException();
+			oos.writeBoolean(false);
+			return;
+			
+		}
+		oos.writeBoolean(true);
+		writeBytes(oos, key.encode(), MAX_KEY_SIZE, false);
+	}
+
+	public static Key readKey(final ObjectInputStream in, boolean supportNull) throws IOException
+	{
+		if (in.readBoolean())
+		{
+			byte[] k=readBytes(in, MAX_KEY_SIZE, false);
+			try
+			{
+				return Key.decode(k);
+			}
+			catch(Exception e)
+			{
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			}
+		}
+		else
+		{
+			if (!supportNull)
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			return null;
+		}
+	}
+	
+	
+	public static void writeKeyPair(final ObjectOutputStream oos, ASymmetricKeyPair keyPair, boolean supportNull) throws IOException
+	{
+		
+		if (keyPair==null)
+		{
+			if (!supportNull)
+				throw new IOException();
+			oos.writeBoolean(false);
+			return;
+			
+		}
+		oos.writeBoolean(true);
+		
+		writeBytes(oos, keyPair.encode(), MAX_KEY_SIZE*2, false);
+	}
+
+	public static ASymmetricKeyPair readKeyPair(final ObjectInputStream in, boolean supportNull) throws IOException
+	{
+		if (in.readBoolean())
+		{
+			byte[] k=readBytes(in, MAX_KEY_SIZE*2, false);
+			try
+			{
+				return ASymmetricKeyPair.decode(k);
+			}
+			catch(Exception e)
+			{
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			}
+		}
+		else
+		{
+			if (!supportNull)
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			return null;
+		}
+	}
 	public static void writeObjects(final ObjectOutputStream oos, Object tab[], int sizeMax, boolean supportNull) throws IOException
 	{
 		if (tab==null)
@@ -526,6 +607,21 @@ public class OOSUtils {
 			oos.write(8);
 			writeDecentralizedID(oos, (AbstractDecentralizedID)o, supportNull);
 		}
+		else if (o instanceof Key)
+		{
+			oos.write(9);
+			writeKey(oos, (Key)o, supportNull);
+		}
+		else if (o instanceof ASymmetricKeyPair)
+		{
+			oos.write(10);
+			writeKeyPair(oos, (ASymmetricKeyPair)o, supportNull);
+		}
+		else if (o instanceof Enum<?>)
+		{
+			oos.write(11);
+			writeEnum(oos, (Enum<?>)o, supportNull);
+		}
 		else
 		{
 			oos.write(Byte.MAX_VALUE);
@@ -559,6 +655,12 @@ public class OOSUtils {
 			return readInetAddress(ois, false);
 		case 8:
 			return readDecentralizedID(ois, false);
+		case 9:
+			return readKey(ois, false);
+		case 10:
+			return readKeyPair(ois, false);
+		case 11:
+			return readEnum(ois, false);
 		case Byte.MAX_VALUE:
 			return ois.readObject();
 		default:
@@ -578,6 +680,14 @@ public class OOSUtils {
 		else if (o instanceof byte[])
 		{
 			return ((byte[])o).length+sizeMax>Short.MAX_VALUE?4:2;
+		}
+		else if (o instanceof Key)
+		{
+			return 3+((Key)o).encode().length;
+		}
+		else if (o instanceof ASymmetricKeyPair)
+		{
+			return 3+((ASymmetricKeyPair)o).encode().length;
 		}
 		else if (o instanceof byte[][])
 		{
@@ -619,6 +729,10 @@ public class OOSUtils {
 		else if (o instanceof AbstractDecentralizedID)
 		{
 			return ((AbstractDecentralizedID) o).getBytes().length+2;
+		}
+		else if (o instanceof Enum<?>)
+		{
+			return 5+((Enum<?>)o).name().length()*2+o.getClass().getName().length()*2;
 		}
 		else
 			return ObjectSizer.sizeOf(o);

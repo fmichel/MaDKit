@@ -56,6 +56,7 @@ import gnu.vm.jgnux.crypto.NoSuchPaddingException;
 import com.distrimind.madkit.database.KeysPairs;
 import com.distrimind.madkit.exceptions.BlockParserException;
 import com.distrimind.madkit.exceptions.ConnectionException;
+import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.MadkitProperties;
 import com.distrimind.madkit.kernel.network.Block;
 import com.distrimind.madkit.kernel.network.NetworkProperties;
@@ -71,6 +72,7 @@ import com.distrimind.madkit.kernel.network.connection.ConnectionMessage;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol;
 import com.distrimind.madkit.kernel.network.connection.TransferedBlockChecker;
 import com.distrimind.madkit.kernel.network.connection.UnexpectedMessage;
+import com.distrimind.madkit.util.OOSUtils;
 import com.distrimind.ood.database.DatabaseWrapper;
 
 import com.distrimind.ood.database.exceptions.DatabaseException;
@@ -1017,11 +1019,37 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 		 */
 		private static final long serialVersionUID = 4833363274931312673L;
 		
-		private final ASymmetricAuthentifiedSignatureType signatureType;
-		private final int signatureSize;
+		private ASymmetricAuthentifiedSignatureType signatureType;
+		private int signatureSize;
 		private transient ASymmetricAuthentifiedSignatureCheckerAlgorithm signatureChecker;
-		private transient ASymmetricPublicKey publicKey;
+		private ASymmetricPublicKey publicKey;
 
+		@Override
+		public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+			Enum<?> e=OOSUtils.readEnum(in, false);
+			if (!(e instanceof ASymmetricAuthentifiedSignatureType))
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			signatureType=(ASymmetricAuthentifiedSignatureType)e;
+			signatureSize=in.readInt();
+			Key k=OOSUtils.readKey(in, false);
+			if (!(k instanceof ASymmetricPublicKey))
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			publicKey=(ASymmetricPublicKey)k;
+			
+		}
+
+		@Override
+		public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+			OOSUtils.writeEnum(oos, signatureType, false);
+			oos.writeInt(signatureSize);
+			OOSUtils.writeKey(oos, publicKey, false);
+		}
+		
+		@Override
+		public int getInternalSerializedSize() {
+			return OOSUtils.getInternalSize(signatureType, 0)+4+OOSUtils.getInternalSize(publicKey, 0);
+		}
+		
 		protected BlockChecker(TransferedBlockChecker _subChecker, ASymmetricAuthentifiedSignatureType signatureType,
 				ASymmetricPublicKey publicKey, int signatureSize, boolean isCrypted) throws NoSuchAlgorithmException, NoSuchProviderException {
 			super(_subChecker, !isCrypted);
@@ -1031,42 +1059,13 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 			initSignature();
 		}
 
-		@Override
-		public Integrity checkDataIntegrity() {
-			if (signatureType == null)
-				return Integrity.FAIL;
-			if (signatureChecker == null)
-				return Integrity.FAIL;
-			if (publicKey == null)
-				return Integrity.FAIL;
-			return Integrity.OK;
-		}
+		
 
 		private void initSignature() throws NoSuchAlgorithmException, NoSuchProviderException {
 			this.signatureChecker = new ASymmetricAuthentifiedSignatureCheckerAlgorithm(publicKey);
 		}
 
-		private void writeObject(ObjectOutputStream os) throws IOException {
-			os.defaultWriteObject();
-			byte encodedPK[] = publicKey.encode();
-			os.writeInt(encodedPK.length);
-			os.write(encodedPK);
-		}
-
-		private void readObject(ObjectInputStream is) throws IOException {
-			try {
-				is.defaultReadObject();
-				int len = is.readInt();
-				byte encodedPK[] = new byte[len];
-				is.read(encodedPK);
-				publicKey = (ASymmetricPublicKey) Key.decode(encodedPK);
-				initSignature();
-			} catch (IOException e) {
-				throw e;
-			} catch (Exception e) {
-				throw new IOException(e);
-			}
-		}
+	
 
 		@Override
 		public SubBlockInfo checkSubBlock(SubBlock _block) throws BlockParserException {
@@ -1082,6 +1081,10 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 				throw new BlockParserException(e);
 			}
 		}
+
+		
+
+		
 
 	}
 

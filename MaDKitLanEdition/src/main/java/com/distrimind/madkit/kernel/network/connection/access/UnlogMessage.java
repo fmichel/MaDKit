@@ -42,6 +42,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
+import com.distrimind.madkit.exceptions.MessageSerializationException;
+import com.distrimind.madkit.kernel.network.NetworkProperties;
+
 /**
  * 
  * @author Jason Mahdjoub
@@ -55,22 +58,42 @@ class UnlogMessage extends AccessMessage {
 	 */
 	private static final long serialVersionUID = -8306056318587612516L;
 
-	public final ArrayList<Identifier> identifier_to_unlog;
+	public ArrayList<Identifier> identifier_to_unlog;
 
 	public UnlogMessage(ArrayList<Identifier> _identifiers) {
 		identifier_to_unlog = _identifiers;
 	}
+	@Override
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		int size=in.readInt();
+		int totalSize=4;
+		int globalSize=NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE;
+		if (size<0 || totalSize+size*4>globalSize)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		identifier_to_unlog=new ArrayList<>(size);
+		for (int i=0;i<size;i++)
+		{
+			Object o=in.readObject();
+			if (!(o instanceof Identifier))
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			Identifier id=(Identifier)o;
+			totalSize+=id.getInternalSerializedSize();
+			if (totalSize>globalSize)
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			identifier_to_unlog.add(id);
+		}
+	}
+
 
 	@Override
-	public Integrity checkDataIntegrity() {
-		if (identifier_to_unlog == null)
-			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		for (Identifier id : identifier_to_unlog) {
-			if (id == null)
-				return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		}
-		return Integrity.OK;
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		oos.writeInt(identifier_to_unlog.size()); 
+		for (Identifier id : identifier_to_unlog)
+			oos.writeObject(id);
+		
+		
 	}
+	
 
 	@Override
 	public boolean checkDifferedMessages() {

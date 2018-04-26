@@ -37,6 +37,9 @@
  */
 package com.distrimind.madkit.kernel.network.connection.unsecured;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.InetSocketAddress;
 
 import com.distrimind.madkit.exceptions.BlockParserException;
@@ -47,7 +50,6 @@ import com.distrimind.madkit.kernel.network.PacketCounter;
 import com.distrimind.madkit.kernel.network.SubBlock;
 import com.distrimind.madkit.kernel.network.SubBlockInfo;
 import com.distrimind.madkit.kernel.network.SubBlockParser;
-import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.madkit.kernel.network.connection.AskConnection;
 import com.distrimind.madkit.kernel.network.connection.ConnectionFinished;
 import com.distrimind.madkit.kernel.network.connection.ConnectionMessage;
@@ -212,9 +214,20 @@ public class UnsecuredConnectionProtocol extends ConnectionProtocol<UnsecuredCon
 		}
 
 		@Override
-		public Integrity checkDataIntegrity() {
-			return Integrity.OK;
+		public int getInternalSerializedSize() {
+			return 0;
 		}
+
+		@Override
+		public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+			
+		}
+
+		@Override
+		public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+			
+		}
+
 
 	}
 

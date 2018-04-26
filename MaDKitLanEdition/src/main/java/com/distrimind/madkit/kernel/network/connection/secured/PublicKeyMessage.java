@@ -38,8 +38,15 @@
 package com.distrimind.madkit.kernel.network.connection.secured;
 
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 import com.distrimind.madkit.exceptions.ConnectionException;
+import com.distrimind.madkit.exceptions.MessageSerializationException;
+import com.distrimind.madkit.kernel.network.connection.AskConnection;
 import com.distrimind.madkit.kernel.network.connection.ConnectionMessage;
+import com.distrimind.madkit.util.OOSUtils;
 import com.distrimind.util.crypto.ASymmetricAuthentifiedSignatureCheckerAlgorithm;
 import com.distrimind.util.crypto.ASymmetricAuthentifiedSignerAlgorithm;
 import com.distrimind.util.crypto.ASymmetricPrivateKey;
@@ -67,7 +74,39 @@ class PublicKeyMessage extends ConnectionMessage {
 	private byte[] public_key_for_signature_bytes;
 	private transient final byte[] public_key_bytes_distant_for_signature;
 	
+	@Override
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		public_key_for_encryption_bytes=OOSUtils.readBytes(in, OOSUtils.MAX_KEY_SIZE, false);
+		signedPublicKey=OOSUtils.readBytes(in, AskConnection.MAX_SIGNATURE_LENGTH, false);
+		public_key_for_signature_bytes=OOSUtils.readBytes(in, AskConnection.MAX_SIGNATURE_LENGTH, false);
+	}
 
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		OOSUtils.writeBytes(oos, public_key_for_encryption_bytes, OOSUtils.MAX_KEY_SIZE, false);
+		OOSUtils.writeBytes(oos, signedPublicKey, AskConnection.MAX_SIGNATURE_LENGTH, false);
+		OOSUtils.writeBytes(oos, public_key_for_signature_bytes, AskConnection.MAX_SIGNATURE_LENGTH, false);
+		try
+		{
+			public_key_for_encryption = (ASymmetricPublicKey) Key.decode(public_key_for_encryption_bytes);
+			
+			if (public_key_for_encryption == null)
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			
+			public_key_for_signature = (ASymmetricPublicKey) Key.decode(public_key_for_signature_bytes);
+			if (public_key_for_signature == null)
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			ASymmetricAuthentifiedSignatureCheckerAlgorithm checker=new ASymmetricAuthentifiedSignatureCheckerAlgorithm(public_key_for_signature);
+			if (!checker.verify(public_key_for_encryption_bytes, signedPublicKey))
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			
+		} catch (Exception e) {
+			if (e instanceof MessageSerializationException)
+				throw (MessageSerializationException)e;
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		}
+	}
+	
 	public PublicKeyMessage(ASymmetricPublicKey _public_key_for_encryption, ASymmetricPublicKey _public_key_distant_for_encryption, ASymmetricPublicKey _public_key_for_signature, ASymmetricPublicKey _public_key_distant_for_signature, ASymmetricPrivateKey privateKeyForSignature ) throws ConnectionException {
 		try
 		{
@@ -86,6 +125,8 @@ class PublicKeyMessage extends ConnectionMessage {
 		}
 	}
 
+	
+	
 	public ASymmetricPublicKey getPublicKeyForEncryption() {
 		return public_key_for_encryption;
 	}
@@ -94,40 +135,6 @@ class PublicKeyMessage extends ConnectionMessage {
 	}
 
 	
-	@Override
-	public Integrity checkDataIntegrity() {
-		if (public_key_for_encryption_bytes == null)
-			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		try {
-			public_key_for_encryption = (ASymmetricPublicKey) Key.decode(public_key_for_encryption_bytes);
-			if (public_key_for_encryption == null)
-				return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		} catch (Exception e) {
-			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		}
-		if (public_key_for_signature_bytes == null)
-			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		try {
-			public_key_for_signature = (ASymmetricPublicKey) Key.decode(public_key_for_signature_bytes);
-			if (public_key_for_signature == null)
-				return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		} catch (Exception e) {
-			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		}
-		if (signedPublicKey==null)
-			return Integrity.FAIL;
-		try
-		{
-			ASymmetricAuthentifiedSignatureCheckerAlgorithm checker=new ASymmetricAuthentifiedSignatureCheckerAlgorithm(public_key_for_signature);
-			if (!checker.verify(public_key_for_encryption_bytes, signedPublicKey))
-				return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		}
-		catch(Throwable e)
-		{
-			return Integrity.FAIL;
-		}
-		return Integrity.OK;
-	}
 
 	@Override
 	public void corrupt() {
@@ -141,5 +148,7 @@ class PublicKeyMessage extends ConnectionMessage {
 	public boolean excludedFromEncryption() {
 		return false;
 	}
+
+	
 
 }

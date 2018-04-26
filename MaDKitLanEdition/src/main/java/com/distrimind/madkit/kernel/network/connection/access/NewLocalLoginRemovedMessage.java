@@ -37,7 +37,13 @@
  */
 package com.distrimind.madkit.kernel.network.connection.access;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+
+import com.distrimind.madkit.exceptions.MessageSerializationException;
+import com.distrimind.madkit.kernel.network.NetworkProperties;
 
 /**
  * 
@@ -52,24 +58,43 @@ public class NewLocalLoginRemovedMessage extends LocalLogingAccessMessage {
 	 */
 	private static final long serialVersionUID = 3544737278801279830L;
 
-	public final ArrayList<Identifier> removed_identifiers;
+	public ArrayList<Identifier> removed_identifiers;
 
 	public NewLocalLoginRemovedMessage(ArrayList<Identifier> _removed_identifiers) {
 		removed_identifiers = _removed_identifiers;
 	}
+	@Override
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		super.readAndCheckObject(in);
+		int size=in.readInt();
+		int totalSize=4;
+		int globalSize=NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE;
+		if (size<0 || totalSize+size*4>globalSize)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		removed_identifiers=new ArrayList<>(size);
+		for (int i=0;i<size;i++)
+		{
+			Object o=in.readObject();
+			if (!(o instanceof Identifier))
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			Identifier id=(Identifier)o;
+			totalSize+=id.getInternalSerializedSize();
+			if (totalSize>globalSize)
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			removed_identifiers.add(id);
+		}
+	}
+
 
 	@Override
-	public Integrity checkDataIntegrity() {
-		Integrity res = super.checkDataIntegrity();
-		if (res.equals(Integrity.OK) || res.equals(Integrity.FAIL)) {
-			if (removed_identifiers == null)
-				return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-			for (Identifier id : removed_identifiers) {
-				if (id == null)
-					return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-			}
-		}
-		return res;
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		super.writeAndCheckObject(oos);
+		oos.writeInt(removed_identifiers.size()); 
+		for (Identifier id : removed_identifiers)
+			oos.writeObject(id);
+		
+		
 	}
+	
 
 }

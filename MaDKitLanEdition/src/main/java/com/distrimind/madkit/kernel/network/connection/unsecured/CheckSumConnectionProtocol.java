@@ -39,10 +39,12 @@ package com.distrimind.madkit.kernel.network.connection.unsecured;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.InetSocketAddress;
 
 import com.distrimind.madkit.exceptions.BlockParserException;
 import com.distrimind.madkit.exceptions.ConnectionException;
+import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.MadkitProperties;
 import com.distrimind.madkit.kernel.network.NetworkProperties;
 import com.distrimind.madkit.kernel.network.PacketCounter;
@@ -56,6 +58,7 @@ import com.distrimind.madkit.kernel.network.connection.ConnectionMessage;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol;
 import com.distrimind.madkit.kernel.network.connection.TransferedBlockChecker;
 import com.distrimind.madkit.kernel.network.connection.UnexpectedMessage;
+import com.distrimind.madkit.util.OOSUtils;
 import com.distrimind.ood.database.DatabaseWrapper;
 import com.distrimind.util.crypto.AbstractMessageDigest;
 import com.distrimind.util.crypto.MessageDigestType;
@@ -253,9 +256,38 @@ public class CheckSumConnectionProtocol extends ConnectionProtocol<CheckSumConne
 		 * 
 		 */
 		private static final long serialVersionUID = 5028832920052128043L;
-		private final MessageDigestType messageDigestType;
+		private MessageDigestType messageDigestType;
 		private transient AbstractMessageDigest messageDigest = null;
 
+		@Override
+		public int getInternalSerializedSize() {
+			return OOSUtils.getInternalSize(messageDigestType, 0);
+		}
+
+		@Override
+		public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+			Enum<?> e=OOSUtils.readEnum(in, false);
+			if (!(e instanceof MessageDigestType))
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			messageDigestType=(MessageDigestType)e;
+			try
+			{
+				messageDigest = messageDigestType.getMessageDigestInstance();
+			}
+			catch(Exception e2)
+			{
+				throw new MessageSerializationException(Integrity.FAIL);
+			}
+			
+			
+		}
+
+		@Override
+		public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+			OOSUtils.writeEnum(oos, messageDigestType, false);
+			
+		}
+		
 		protected BlockChecker(TransferedBlockChecker _subChecker, MessageDigestType messageDigestType)
 				throws ConnectionException {
 			super(_subChecker, true);
@@ -269,17 +301,7 @@ public class CheckSumConnectionProtocol extends ConnectionProtocol<CheckSumConne
 			}
 		}
 
-		private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
-			try {
-				ois.defaultReadObject();
-				messageDigest = messageDigestType.getMessageDigestInstance();
-			} catch (IOException | ClassNotFoundException e) {
-				throw e;
-			} catch (Exception e) {
-				throw new IOException(e);
-			}
-
-		}
+		
 
 		@Override
 		public SubBlockInfo checkSubBlock(SubBlock _block) throws BlockParserException {
@@ -297,14 +319,8 @@ public class CheckSumConnectionProtocol extends ConnectionProtocol<CheckSumConne
 			return new SubBlockInfo(res, true, false);
 		}
 
-		@Override
-		public Integrity checkDataIntegrity() {
-			if (messageDigestType == null)
-				return Integrity.FAIL;
-			if (messageDigest == null)
-				return Integrity.FAIL;
-			return Integrity.OK;
-		}
+
+		
 
 	}
 

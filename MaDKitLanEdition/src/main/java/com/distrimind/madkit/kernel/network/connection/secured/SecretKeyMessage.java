@@ -37,7 +37,13 @@
  */
 package com.distrimind.madkit.kernel.network.connection.secured;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+import com.distrimind.madkit.kernel.network.connection.AskConnection;
 import com.distrimind.madkit.kernel.network.connection.ConnectionMessage;
+import com.distrimind.madkit.util.OOSUtils;
 
 /**
  * 
@@ -51,22 +57,29 @@ class SecretKeyMessage extends ConnectionMessage {
 	 */
 	private static final long serialVersionUID = -4455941962314905794L;
 
-	public final byte[] secret_key;
+	public byte[] secret_key;
 
 	public SecretKeyMessage(byte[] _secret_key) {
 		secret_key = _secret_key;
 	}
 
-	@Override
-	public Integrity checkDataIntegrity() {
-		if (secret_key == null)
-			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		return Integrity.OK;
-	}
+	
 
 	@Override
 	public boolean excludedFromEncryption() {
 		return false;
+	}
+
+	@Override
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		secret_key=OOSUtils.readBytes(in, AskConnection.MAX_SECRET_KEY_LENGTH, false);
+		
+	}
+
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		OOSUtils.writeBytes(oos, secret_key, AskConnection.MAX_SECRET_KEY_LENGTH, false);
+		
 	}
 
 }

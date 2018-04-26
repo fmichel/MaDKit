@@ -37,7 +37,13 @@
  */
 package com.distrimind.madkit.kernel.network.connection.secured;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+import com.distrimind.madkit.kernel.network.NetworkProperties;
 import com.distrimind.madkit.kernel.network.connection.ConnectionMessage;
+import com.distrimind.madkit.util.OOSUtils;
 
 /**
 
@@ -55,6 +61,22 @@ public class KeyAgreementDataMessage extends ConnectionMessage {
 	private byte[] data;
 	private byte[] materialKey;
 
+	@Override
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		int totalSize=NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE;
+		data=OOSUtils.readBytes(in, totalSize, false);
+		materialKey=OOSUtils.readBytes(in, totalSize-data.length, true);
+	}
+
+
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		int totalSize=NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE;
+		OOSUtils.writeBytes(oos, data, totalSize, false);
+		OOSUtils.writeBytes(oos, materialKey, totalSize-data.length, true);
+		
+	}
+	
 
 	public KeyAgreementDataMessage(byte[] data, byte[] materialKey) {
 		super();
@@ -73,17 +95,15 @@ public class KeyAgreementDataMessage extends ConnectionMessage {
 		return materialKey;
 	}
 
-	@Override
-	public Integrity checkDataIntegrity() {
-		if (data==null)
-			return Integrity.FAIL_AND_CANDIDATE_TO_BAN;
-		return Integrity.OK;
-	}
+	
 
 
 	@Override
 	public boolean excludedFromEncryption() {
 		return false;
 	}
+
+
+	
 	
 }

@@ -56,6 +56,9 @@ public class AskConnection extends ConnectionMessage {
 	 */
 	private static final long serialVersionUID = 4638974797225665L;
 
+	public static final int MAX_SECRET_KEY_LENGTH=64;
+	public static final int MAX_SIGNATURE_LENGTH=512000;
+	
 	private boolean you_are_asking;
 
 	@Override

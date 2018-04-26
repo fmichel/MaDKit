@@ -54,10 +54,7 @@ import com.distrimind.madkit.kernel.network.ConnectionIdentifier;
  * @see AbstractAgent#anomalyDetectedWithOneDistantKernel(boolean, KernelAddress, String)
  */
 public class NetworkAnomalyEvent extends HookMessage {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 6038551641008163648L;
+
 
 	private final KernelAddress kernelAddress;
 	private final InetAddress inetAddress;

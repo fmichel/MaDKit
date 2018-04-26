@@ -50,10 +50,7 @@ import com.distrimind.madkit.kernel.network.AskForTransferMessage;
  * @see TransferEventType
  */
 public class TransferEventMessage extends HookMessage {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -272409605979165451L;
+
 
 	private final TransferEventType eventType;
 	private final AskForTransferMessage originalMessage;

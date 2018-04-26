@@ -34,10 +34,7 @@ import com.distrimind.madkit.kernel.AgentAddress;
  */
 public class OrganizationEvent extends CGREvent {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -7030965928934873405L;
+
 	final private AgentAddress source;
 
 	public OrganizationEvent(AgentActionEvent agentAction, AgentAddress source) {

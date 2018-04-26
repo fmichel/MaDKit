@@ -55,10 +55,6 @@ import com.distrimind.madkit.kernel.TaskID;
  *
  */
 public class TasksExecutionConfirmationMessage extends TaskMessage {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -6839396508892345541L;
 
 	private final long date_begin_execution;
 	private final long date_end_execution;

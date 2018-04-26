@@ -53,10 +53,7 @@ import com.distrimind.madkit.kernel.network.ConnectionIdentifier;
  * @see AbstractAgent#anomalyDetectedWithOneDistantKernel(boolean, KernelAddress, String)
  */
 public class IPBannedEvent extends HookMessage {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -4600718896934108322L;
+	
 
 	private final InetAddress inetAddress;
 	private final long banExpirationUTC;

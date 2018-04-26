@@ -45,10 +45,7 @@ import com.distrimind.madkit.kernel.AbstractAgent;
  */
 public class AgentLifeEvent extends HookMessage {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -5737575514238878308L;
+	
 	final private AbstractAgent source;
 
 	public AgentLifeEvent(AgentActionEvent agentAction, AbstractAgent agent) {

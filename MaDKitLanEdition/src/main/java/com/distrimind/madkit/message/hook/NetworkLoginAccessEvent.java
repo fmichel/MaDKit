@@ -59,10 +59,7 @@ import com.distrimind.madkit.message.hook.HookMessage.AgentActionEvent;
  * @see AgentActionEvent#LOGGED_IDENTIFIERS_UPDATE
  */
 public class NetworkLoginAccessEvent extends HookMessage {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -8035035560264843015L;
+
 
 	private final KernelAddress concernedKernelAddress;
 	private final List<PairOfIdentifiers> currentIdentifiers;

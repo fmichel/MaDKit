@@ -53,10 +53,6 @@ import com.distrimind.madkit.message.hook.HookMessage.AgentActionEvent;
  */
 public class NetworkEventMessage extends HookMessage {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 5183651413579513636L;
 
 	private final Connection connection;
 

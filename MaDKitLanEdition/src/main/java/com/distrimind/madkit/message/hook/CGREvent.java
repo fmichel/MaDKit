@@ -44,10 +44,7 @@ import com.distrimind.madkit.kernel.AgentAddress;
  */
 public abstract class CGREvent extends HookMessage {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 6722477889792374461L;
+	
 
 	CGREvent(AgentActionEvent event) {
 		super(event);

@@ -62,10 +62,7 @@ import com.distrimind.madkit.message.hook.HookMessage.AgentActionEvent;
  */
 public class NetworkGroupsAccessEvent extends HookMessage {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 5016613245114203599L;
+
 
 	private final List<Group> effective_accessible_groups;
 	private final AbstractGroup general_accessible_groups;

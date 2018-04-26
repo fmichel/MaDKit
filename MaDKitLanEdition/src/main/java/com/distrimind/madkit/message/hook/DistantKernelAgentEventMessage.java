@@ -51,10 +51,7 @@ import com.distrimind.madkit.message.hook.HookMessage.AgentActionEvent;
  * 
  */
 public class DistantKernelAgentEventMessage extends HookMessage {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 2073618739610287169L;
+	
 
 	private final KernelAddress kernelAddress;
 

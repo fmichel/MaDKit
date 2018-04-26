@@ -51,10 +51,7 @@ import com.distrimind.madkit.kernel.Message;
  */
 public class MessageEvent extends CGREvent {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -6352327799349902517L;
+	
 
 	final private Message message;
 

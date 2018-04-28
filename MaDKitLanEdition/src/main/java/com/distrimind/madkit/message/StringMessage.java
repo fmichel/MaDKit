@@ -37,7 +37,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import com.distrimind.madkit.util.SerializableAndSizable;
+import com.distrimind.madkit.util.NetworkMessage;
 
 /**
  * A message class that conveys a string.
@@ -48,7 +48,7 @@ import com.distrimind.madkit.util.SerializableAndSizable;
  * @version 0.10
  * 
  */
-public class StringMessage extends ObjectMessage<String> implements SerializableAndSizable {
+public class StringMessage extends ObjectMessage<String> implements NetworkMessage {
 
 	/**
 	 * 

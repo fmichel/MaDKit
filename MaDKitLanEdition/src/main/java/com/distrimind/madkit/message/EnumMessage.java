@@ -41,7 +41,7 @@ import java.util.Arrays;
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.madkit.util.SerializationTools;
-import com.distrimind.madkit.util.SerializableAndSizable;
+import com.distrimind.madkit.util.NetworkMessage;
 
 /**
  * This parameterizable class could be used to build a message tagged with an
@@ -52,7 +52,7 @@ import com.distrimind.madkit.util.SerializableAndSizable;
  * @since MaDKit 5.0.0.14
  *
  */
-public class EnumMessage<E extends Enum<E>> extends ObjectMessage<Object[]> implements SerializableAndSizable{
+public class EnumMessage<E extends Enum<E>> extends ObjectMessage<Object[]> implements NetworkMessage{
 
 	/**
 	 * 

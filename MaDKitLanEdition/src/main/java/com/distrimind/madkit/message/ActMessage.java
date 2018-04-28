@@ -44,7 +44,7 @@ import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.network.NetworkProperties;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.madkit.util.SerializationTools;
-import com.distrimind.madkit.util.SerializableAndSizable;
+import com.distrimind.madkit.util.NetworkMessage;
 
 
 /**
@@ -56,7 +56,7 @@ import com.distrimind.madkit.util.SerializableAndSizable;
  * @since MaDKit 1.0
  */
 
-public class ActMessage extends com.distrimind.madkit.kernel.Message implements SerializableAndSizable {
+public class ActMessage extends com.distrimind.madkit.kernel.Message implements NetworkMessage {
 
 	private static final long serialVersionUID = -2556927686645807800L;
 	static final int MAX_ACTION_LENGTH=Short.MAX_VALUE;

@@ -35,7 +35,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import com.distrimind.madkit.util.SerializableAndSizable;
+import com.distrimind.madkit.util.NetworkMessage;
 
 /**
  * A message class that conveys a boolean value.
@@ -46,7 +46,7 @@ import com.distrimind.madkit.util.SerializableAndSizable;
  * @version 0.9
  * 
  */
-public class BooleanMessage extends ObjectMessage<Boolean> implements SerializableAndSizable{
+public class BooleanMessage extends ObjectMessage<Boolean> implements NetworkMessage{
 
 	/**
 	 * 

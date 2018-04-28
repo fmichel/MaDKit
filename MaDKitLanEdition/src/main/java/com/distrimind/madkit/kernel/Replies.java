@@ -48,7 +48,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.network.NetworkProperties;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
-import com.distrimind.madkit.util.SerializableAndSizable;
+
 
 /**
  * Represents replies for one conversation
@@ -57,7 +57,7 @@ import com.distrimind.madkit.util.SerializableAndSizable;
  * @version 1.0
  * @since MadkitLanEdition 1.0
  */
-public class Replies extends Message implements SerializableAndSizable{
+public class Replies extends Message implements com.distrimind.madkit.util.NetworkMessage{
 
 	
 	/**
@@ -100,7 +100,7 @@ public class Replies extends Message implements SerializableAndSizable{
 				if (!(o instanceof Message))
 					throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 				originalMessage=(Message)o;
-				totalSize+=((SerializableAndSizable)originalMessage).getInternalSerializedSize();
+				totalSize+=((com.distrimind.madkit.util.NetworkMessage)originalMessage).getInternalSerializedSize();
 				if (totalSize>globalSize)
 					throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 				numberOfReplies=new AtomicInteger(in.readInt());
@@ -118,7 +118,7 @@ public class Replies extends Message implements SerializableAndSizable{
 					o=in.readObject();
 					if (!(o instanceof Message))
 						throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
-					totalSize+=((SerializableAndSizable)originalMessage).getInternalSerializedSize();
+					totalSize+=((com.distrimind.madkit.util.NetworkMessage)originalMessage).getInternalSerializedSize();
 					if (totalSize>globalSize)
 						throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 					replies.add((Message)o);
@@ -155,7 +155,7 @@ public class Replies extends Message implements SerializableAndSizable{
 		this.originalMessage = originalMessage;
 		super.setIDFrom(originalMessage);
 		// this.originalConversationID=originalMessage.getConversationID();
-		if (!(originalMessage instanceof SerializableAndSizable))
+		if (!(originalMessage instanceof com.distrimind.madkit.util.NetworkMessage))
 			serializable=false;
 		replies = new ArrayList<>();
 	}
@@ -164,7 +164,7 @@ public class Replies extends Message implements SerializableAndSizable{
 		if (originalMessage == null)
 			throw new NullPointerException("originalMessage");
 		this.originalMessage = originalMessage;
-		if (!(originalMessage instanceof SerializableAndSizable))
+		if (!(originalMessage instanceof com.distrimind.madkit.util.NetworkMessage))
 			serializable=false;
 
 		super.setIDFrom(originalMessage);
@@ -176,7 +176,7 @@ public class Replies extends Message implements SerializableAndSizable{
 			this.replies = new ArrayList<>(replies.size());
 			for (Message m : replies) {
 				if (m.getClass() != EmptyMessage.class)
-					if (!(m instanceof SerializableAndSizable))
+					if (!(m instanceof com.distrimind.madkit.util.NetworkMessage))
 						serializable=false;
 
 					this.replies.add(m);
@@ -233,7 +233,7 @@ public class Replies extends Message implements SerializableAndSizable{
 		synchronized (this) {
 			if (m != null && m.getClass() != EmptyMessage.class)
 			{
-				if (!(m instanceof SerializableAndSizable))
+				if (!(m instanceof com.distrimind.madkit.util.NetworkMessage))
 					serializable=false;
 
 				replies.add(m);

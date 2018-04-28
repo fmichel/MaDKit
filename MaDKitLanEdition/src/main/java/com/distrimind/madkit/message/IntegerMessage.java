@@ -37,7 +37,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import com.distrimind.madkit.util.SerializableAndSizable;
+import com.distrimind.madkit.util.NetworkMessage;
 
 /**
  * A message class that conveys an integer.
@@ -47,7 +47,7 @@ import com.distrimind.madkit.util.SerializableAndSizable;
  * @version 0.9
  * 
  */
-public class IntegerMessage extends ObjectMessage<Integer> implements SerializableAndSizable{
+public class IntegerMessage extends ObjectMessage<Integer> implements NetworkMessage{
 
 	/**
 	 * 

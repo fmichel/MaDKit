@@ -1666,6 +1666,9 @@ class DistantKernelAgent extends AgentFakeThread {
 
 		@Override
 		protected Object replaceObject(Object obj) {
+			Object o=super.replaceObject(obj);
+			if (o==null)
+				return null;
 			if (obj instanceof KernelAddressInterfaced) {
 				return ((KernelAddressInterfaced) obj).getOriginalKernelAddress();
 			} else if (obj instanceof ConversationID) {

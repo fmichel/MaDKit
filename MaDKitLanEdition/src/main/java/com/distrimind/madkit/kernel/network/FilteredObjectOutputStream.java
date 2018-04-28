@@ -57,13 +57,40 @@ public class FilteredObjectOutputStream extends ObjectOutputStream{
 	}
 	
 	@Override
+	protected Object replaceObject(Object obj) {
+		if (obj instanceof IOException)
+			return null;
+		return obj;
+	}
+	private Class<?> nextAuthorizedSubClass=null;
+	
+	@Override
 	protected void annotateClass(Class<?> cl) throws IOException {
+		if (nextAuthorizedSubClass!=null)
+		{
+			if (cl==nextAuthorizedSubClass)
+			{
+				nextAuthorizedSubClass=cl.getSuperclass();
+				if (nextAuthorizedSubClass==Object.class)
+					nextAuthorizedSubClass=null;
+				return;
+			}
+			else
+				throw new IOException("Illegal access error");
+		}
 		if (np.isAcceptedClassForSerializationUsingPatterns(cl.getName()))
 		{
 			if (np.isAcceptedClassForSerializationUsingWhiteClassList(cl))
+			{
+				nextAuthorizedSubClass=cl.getSuperclass();
+				if (nextAuthorizedSubClass==Object.class)
+					nextAuthorizedSubClass=null;
+					
 				return;
+			}
 		}
-		throw new IOException("The class "+cl+" is not authorized to be serialized. See NetworkProperties class to add new classes to be authorized to be serialized.");
+		if (!Throwable.class.isAssignableFrom(cl))
+			throw new IOException("The class "+cl.getName()+" is not authorized to be serialized. See NetworkProperties class to add new classes to be authorized to be serialized.");
     }
 	@Override
 	protected void annotateProxyClass(Class<?> cl) throws IOException {

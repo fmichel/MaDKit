@@ -59,17 +59,35 @@ public class FilteredObjectInputStream extends ObjectInputStream {
 		super(_in);
 		this.np=np;
 	}
-	
+	private Class<?> nextAutorizedSubClass=null;
 	@Override
 	protected Class<?> resolveClass(ObjectStreamClass desc) throws ClassNotFoundException, IOException
 	{
+		if (nextAutorizedSubClass!=null)
+		{
+			Class<?> c=super.resolveClass(desc);
+			if (c==nextAutorizedSubClass)
+			{
+				nextAutorizedSubClass=c.getSuperclass();
+				if (nextAutorizedSubClass==Object.class)
+					nextAutorizedSubClass=null;
+				return c;
+			}
+			else
+				throw new IOException("Illegal access error");
+		}
 		if (np.isAcceptedClassForSerializationUsingPatterns(desc.getName()))
 		{
 			Class<?> c=super.resolveClass(desc);
 			if (c==null)
 				return null;
 			if (np.isAcceptedClassForSerializationUsingWhiteClassList(c))
+			{
+				nextAutorizedSubClass=c.getSuperclass();
+				if (nextAutorizedSubClass==Object.class)
+					nextAutorizedSubClass=null;
 				return c;
+			}
 		}
 		throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN, new ClassNotFoundException(desc.getName()));
 	}

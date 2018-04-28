@@ -85,12 +85,13 @@ class IdentifiersPropositionMessage extends AccessMessage {
 	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
 		isEncrypted=in.readBoolean();
 		SerializableAndSizable[] s=SerializationTools.readSerializableAndSizables(in, NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE, false);
-		if (!(s instanceof Identifier[]))
-			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
-		identifiers=(Identifier[])s;
-		for (Identifier id : identifiers)
+		identifiers=new Identifier[s.length];
+		for (int i=0;i<s.length;i++)
 		{
-			if (isEncrypted && !(id instanceof EncryptedIdentifier))
+			if (!(s[i] instanceof Identifier))
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			identifiers[i]=(Identifier)s[i];
+			if (isEncrypted && !(identifiers[i] instanceof EncryptedIdentifier))
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		}
 		

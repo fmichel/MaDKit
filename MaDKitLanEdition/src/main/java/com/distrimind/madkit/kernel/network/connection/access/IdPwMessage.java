@@ -80,20 +80,28 @@ class IdPwMessage extends AccessMessage {
 	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
 		identifiersIsEncrypted=in.readBoolean();
 		SerializableAndSizable[] s=SerializationTools.readSerializableAndSizables(in, NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE, false);
-		if (!(s instanceof Identifier[]))
-			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
-		identifiers=(Identifier[])s;
+		identifiers=new Identifier[s.length];
 		int total=5;
-		for (Identifier id : identifiers)
+		for (int i=0;i<s.length;i++)
 		{
-			if (identifiersIsEncrypted && !(id instanceof EncryptedIdentifier))
+			if (identifiersIsEncrypted)
+			{
+				if (!(s[i] instanceof EncryptedIdentifier))
+					throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			}
+			else if (!(s[i] instanceof Identifier))
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
-			total+=id.getInternalSerializedSize();
+			identifiers[i]=(Identifier)s[i];
+			total+=identifiers[i].getInternalSerializedSize();
 		}
 		s=SerializationTools.readSerializableAndSizables(in, NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE-total, false);
-		if (!(s instanceof EncryptedPassword[]))
-			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
-		passwords=(EncryptedPassword[])s;
+		passwords=new EncryptedPassword[s.length];
+		for (int i=0;i<s.length;i++)
+		{
+			if (!(s[i] instanceof EncryptedPassword))
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			passwords[i]=(EncryptedPassword)s[i];
+		}
 		if (identifiers.length != passwords.length)
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 

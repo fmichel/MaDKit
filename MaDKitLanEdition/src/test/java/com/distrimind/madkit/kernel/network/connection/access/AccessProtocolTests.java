@@ -114,7 +114,7 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 
 	public static Collection<Object[]> data(boolean databaseEnabled) {
 		AccessProtocolWithASymmetricKeyExchangerProperties app1=new AccessProtocolWithASymmetricKeyExchangerProperties();
-		app1.aSymetricKeySize = 1024;
+		app1.aSymetricKeySize = 2048;
 		app1.passwordHashCost = 7;
 		Collection<Object[]> res=data(databaseEnabled, app1);
 		AccessProtocolWithJPakeProperties app2=new AccessProtocolWithJPakeProperties();
@@ -475,7 +475,14 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 			
 		}
 
-		
+		private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
+		{
+			readAndCheckObject(in);
+		}
+		private void writeObject(final ObjectOutputStream oos) throws IOException
+		{
+			writeAndCheckObject(oos);
+		}
 
 	}
 

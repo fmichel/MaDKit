@@ -407,6 +407,7 @@ public class SerializationTools {
 			sizeMaxBytes-=s.getInternalSerializedSize();
 			if (sizeMaxBytes<0)
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			tab[i]=s;
 		}
 		
 		return tab;
@@ -570,61 +571,62 @@ public class SerializationTools {
 		}
 		else if (o instanceof SerializableAndSizable)
 		{
+			oos.write(1);
 			oos.writeObject(o);
 		}
 		else if (o instanceof String)
 		{
-			oos.write(1);
+			oos.write(2);
 			writeString(oos, (String)o, sizeMax, false);
 		}
 		else if (o instanceof byte[])
 		{
-			oos.write(2);
+			oos.write(3);
 			writeBytes(oos, (byte[])o, sizeMax, false);
 		}
 		else if (o instanceof byte[][])
 		{
-			oos.write(3);
+			oos.write(4);
 			writeBytes2D(oos, (byte[][])o, sizeMax, sizeMax, false, false);
 		}
 		else if (o instanceof SerializableAndSizable[])
 		{
-			oos.write(4);
+			oos.write(5);
 			writeSerializableAndSizables(oos, (SerializableAndSizable[])o, sizeMax, supportNull);
 		}
 		else if (o instanceof Object[])
 		{
-			oos.write(5);
+			oos.write(6);
 			writeObjects(oos, (Object[])o, sizeMax, false);
 		}
 		else if (o instanceof InetSocketAddress)
 		{
-			oos.write(6);
+			oos.write(7);
 			writeInetSocketAddress(oos, (InetSocketAddress)o, supportNull);
 		}
 		else if (o instanceof InetAddress)
 		{
-			oos.write(7);
+			oos.write(8);
 			writeInetAddress(oos, (InetAddress)o, supportNull);
 		}
 		else if (o instanceof AbstractDecentralizedID)
 		{
-			oos.write(8);
+			oos.write(9);
 			writeDecentralizedID(oos, (AbstractDecentralizedID)o, supportNull);
 		}
 		else if (o instanceof Key)
 		{
-			oos.write(9);
+			oos.write(10);
 			writeKey(oos, (Key)o, supportNull);
 		}
 		else if (o instanceof ASymmetricKeyPair)
 		{
-			oos.write(10);
+			oos.write(11);
 			writeKeyPair(oos, (ASymmetricKeyPair)o, supportNull);
 		}
 		else if (o instanceof Enum<?>)
 		{
-			oos.write(11);
+			oos.write(12);
 			writeEnum(oos, (Enum<?>)o, supportNull);
 		}
 		else 
@@ -644,27 +646,28 @@ public class SerializationTools {
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 			return null;
 		case 1:
-			return readString(ois, sizeMax, false);
-			
+			return ois.readObject();
 		case 2:
-			return readBytes(ois, sizeMax, false);
+			return readString(ois, sizeMax, false);
 		case 3:
-			return readBytes2D(ois, sizeMax, sizeMax, false, false);
+			return readBytes(ois, sizeMax, false);
 		case 4:
-			return readSerializableAndSizables(ois, sizeMax, false);
+			return readBytes2D(ois, sizeMax, sizeMax, false, false);
 		case 5:
-			return readObjects(ois, sizeMax, false);
+			return readSerializableAndSizables(ois, sizeMax, false);
 		case 6:
-			return readInetSocketAddress(ois, false);
+			return readObjects(ois, sizeMax, false);
 		case 7:
-			return readInetAddress(ois, false);
+			return readInetSocketAddress(ois, false);
 		case 8:
-			return readDecentralizedID(ois, false);
+			return readInetAddress(ois, false);
 		case 9:
-			return readKey(ois, false);
+			return readDecentralizedID(ois, false);
 		case 10:
-			return readKeyPair(ois, false);
+			return readKey(ois, false);
 		case 11:
+			return readKeyPair(ois, false);
+		case 12:
 			return readEnum(ois, false);
 		case Byte.MAX_VALUE:
 			return ois.readObject();

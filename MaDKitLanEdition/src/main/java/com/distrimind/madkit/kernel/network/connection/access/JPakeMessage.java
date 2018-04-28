@@ -88,17 +88,18 @@ class JPakeMessage extends AccessMessage{
 		int globalSize=NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE;
 		SerializableAndSizable tab[]=SerializationTools.readSerializableAndSizables(in, globalSize, false);
 		int totalSize=1;
-		for (SerializableAndSizable s : tab)
+		identifiers=new Identifier[tab.length];
+		for (int i=0;i<tab.length;i++)
 		{
-			if (!(s instanceof Identifier))
+			if (!(tab[i] instanceof Identifier))
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
-			totalSize+=s.getInternalSerializedSize();
+			identifiers[i]=(Identifier)tab[i];
+			totalSize+=tab[i].getInternalSerializedSize();
 		}
+		
 		if (totalSize>globalSize)
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
-		if (!(tab instanceof Identifier[]))
-			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
-		identifiers=(Identifier[])tab;
+		
 		jpakeMessages=SerializationTools.readBytes2D(in, identifiers.length, MAX_JPAKE_MESSAGE_LENGTH, false, false);
 		step=in.readShort();
 		totalSize+=SerializationTools.getInternalSize(jpakeMessages, identifiers.length);

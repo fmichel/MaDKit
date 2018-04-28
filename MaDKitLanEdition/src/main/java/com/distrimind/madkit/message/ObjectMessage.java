@@ -53,8 +53,9 @@ import com.distrimind.madkit.util.SerializationTools;
  * MaDKit agents.
  * 
  * @author Fabien Michel
+ * @author Jason Mahdjoub
  * @since MaDKit 5.0.0.1
- * @version 1.0
+ * @version 1.1
  *
  */
 public class ObjectMessage<T> extends Message {

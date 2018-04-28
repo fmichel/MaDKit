@@ -93,11 +93,11 @@ import com.distrimind.util.version.Version;
  * <li>Internationalization is being made (fr_fr and en_us for now).</li>
  * </ul>
  * 
- * 
+ * @author Jason Mahdjoub
  * @author Fabien Michel
  * @author Jacques Ferber
  * @since MaDKit 4.0
- * @version 5.3
+ * @version 5.4
  */
 
 final public class Madkit {
@@ -151,6 +151,8 @@ final public class Madkit {
 			d.addItem("Fix security issue : when data is sent without being writed (default memory state), fill it with zeros.");
 			d.addItem("Fix security issue : sign symmetric encryption key into client/server connnection protocol.");
 			d.addItem("Fix security issue : with P2P key agreements, generate signature and encryptions keys with two steps (instead of one), in order to sign the exchanged symmetric encryption key.");
+			d.addItem("Fix security issue : class serialization are now filtered with white list and black list. Classes that are not into white list must implement the interfance 'SerializableAndSizable'. Messages sent to the network must implement the interface NetworkMessage.");
+			d.addItem("Fix security issue : deserialized classes processes control now the allocated memory during deserialization phase.");
 			d.addItem("Security enhancement : initialisation vectors used with encryption has now a secret part composed of counter that is increased at each data exchange.");
 			d.addItem("Security enhancement : signature process use now a secret message that is increased at each data exchange.");
 			d.addItem("Externalising Java rewrited classes into JDKRewriteUtils project.");

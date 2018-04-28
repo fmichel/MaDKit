@@ -43,7 +43,7 @@ import java.io.ObjectOutputStream;
 
 import com.distrimind.madkit.kernel.network.connection.AskConnection;
 import com.distrimind.madkit.kernel.network.connection.ConnectionMessage;
-import com.distrimind.madkit.util.OOSUtils;
+import com.distrimind.madkit.util.SerializationTools;
 
 /**
  * 
@@ -72,13 +72,13 @@ class SecretKeyMessage extends ConnectionMessage {
 
 	@Override
 	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		secret_key=OOSUtils.readBytes(in, AskConnection.MAX_SECRET_KEY_LENGTH, false);
+		secret_key=SerializationTools.readBytes(in, AskConnection.MAX_SECRET_KEY_LENGTH, false);
 		
 	}
 
 	@Override
 	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
-		OOSUtils.writeBytes(oos, secret_key, AskConnection.MAX_SECRET_KEY_LENGTH, false);
+		SerializationTools.writeBytes(oos, secret_key, AskConnection.MAX_SECRET_KEY_LENGTH, false);
 		
 	}
 

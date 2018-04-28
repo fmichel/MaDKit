@@ -43,7 +43,7 @@ import java.util.Map;
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.network.NetworkProperties;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
-import com.distrimind.madkit.util.OOSUtils;
+import com.distrimind.madkit.util.SerializationTools;
 import com.distrimind.madkit.util.SerializableAndSizable;
 
 
@@ -71,10 +71,10 @@ public class ActMessage extends com.distrimind.madkit.kernel.Message implements 
 
 	@Override
 	public int getInternalSerializedSize() {
-		int res=super.getInternalSerializedSizeImpl()+OOSUtils.getInternalSize(action, MAX_ACTION_LENGTH)+5+OOSUtils.getInternalSize(content, MAX_STRING_CONTENT_LENGTH);
+		int res=super.getInternalSerializedSizeImpl()+SerializationTools.getInternalSize(action, MAX_ACTION_LENGTH)+5+SerializationTools.getInternalSize(content, MAX_STRING_CONTENT_LENGTH);
 		for (Map.Entry<String, Object> e : fields.entrySet())
 		{
-			res+=OOSUtils.getInternalSize(e.getKey(), MAX_FIELD_LENGTH)+OOSUtils.getInternalSize(e.getValue(), MAX_STRING_VALUE_LENGTH);
+			res+=SerializationTools.getInternalSize(e.getKey(), MAX_FIELD_LENGTH)+SerializationTools.getInternalSize(e.getValue(), MAX_STRING_VALUE_LENGTH);
 		}
 		return res;
 	}
@@ -87,8 +87,8 @@ public class ActMessage extends com.distrimind.madkit.kernel.Message implements 
 		int totalSize=super.getInternalSerializedSizeImpl();
 		if (totalSize>globalSize)
 			throw new MessageSerializationException(Integrity.FAIL);
-		action=OOSUtils.readString(in, MAX_ACTION_LENGTH, true);
-		totalSize+=OOSUtils.getInternalSize(action, MAX_ACTION_LENGTH);
+		action=SerializationTools.readString(in, MAX_ACTION_LENGTH, true);
+		totalSize+=SerializationTools.getInternalSize(action, MAX_ACTION_LENGTH);
 		if (totalSize>globalSize)
 			throw new MessageSerializationException(Integrity.FAIL);
 		int size=in.readInt();
@@ -100,32 +100,32 @@ public class ActMessage extends com.distrimind.madkit.kernel.Message implements 
 		fields=new Hashtable<>();
 		for (int i=0;i<size;i++)
 		{
-			String k=OOSUtils.readString(in, MAX_FIELD_LENGTH, true);
-			Object v=OOSUtils.readObject(in, MAX_STRING_VALUE_LENGTH, true);
-			totalSize+=OOSUtils.getInternalSize(k, MAX_FIELD_LENGTH)+OOSUtils.getInternalSize(v, MAX_STRING_VALUE_LENGTH);
+			String k=SerializationTools.readString(in, MAX_FIELD_LENGTH, true);
+			Object v=SerializationTools.readObject(in, MAX_STRING_VALUE_LENGTH, true);
+			totalSize+=SerializationTools.getInternalSize(k, MAX_FIELD_LENGTH)+SerializationTools.getInternalSize(v, MAX_STRING_VALUE_LENGTH);
 			fields.put(k, v);
 			if (totalSize>globalSize)
 				throw new MessageSerializationException(Integrity.FAIL);
 		}
 		excludeFromEncryption=in.readBoolean();
 		totalSize+=1;
-		content=OOSUtils.readString(in, MAX_STRING_CONTENT_LENGTH, true);
-		totalSize+=OOSUtils.getInternalSize(content, MAX_STRING_CONTENT_LENGTH);
+		content=SerializationTools.readString(in, MAX_STRING_CONTENT_LENGTH, true);
+		totalSize+=SerializationTools.getInternalSize(content, MAX_STRING_CONTENT_LENGTH);
 		if (totalSize>globalSize)
 			throw new MessageSerializationException(Integrity.FAIL);
 	}
 	@Override
 	protected void writeAndCheckObject(final ObjectOutputStream oos) throws IOException{
 		super.writeAndCheckObjectImpl(oos);
-		OOSUtils.writeString(oos, action, MAX_ACTION_LENGTH, true);
+		SerializationTools.writeString(oos, action, MAX_ACTION_LENGTH, true);
 		oos.writeInt(fields.size());
 		for (Map.Entry<String, Object> e : fields.entrySet())
 		{
-			OOSUtils.writeString(oos, e.getKey(), MAX_FIELD_LENGTH, true);
-			OOSUtils.writeObject(oos, e.getValue(), MAX_STRING_VALUE_LENGTH, true);
+			SerializationTools.writeString(oos, e.getKey(), MAX_FIELD_LENGTH, true);
+			SerializationTools.writeObject(oos, e.getValue(), MAX_STRING_VALUE_LENGTH, true);
 		}
 		oos.writeBoolean(excludeFromEncryption);
-		OOSUtils.writeString(oos, content, MAX_STRING_CONTENT_LENGTH, true);
+		SerializationTools.writeString(oos, content, MAX_STRING_CONTENT_LENGTH, true);
 	}
 	
 	

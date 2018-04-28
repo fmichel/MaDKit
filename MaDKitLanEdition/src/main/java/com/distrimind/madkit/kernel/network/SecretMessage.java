@@ -44,7 +44,7 @@ import java.security.SecureRandom;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.AgentAddress;
-import com.distrimind.madkit.util.OOSUtils;
+import com.distrimind.madkit.util.SerializationTools;
 
 /**
  * 
@@ -66,7 +66,7 @@ final class SecretMessage extends KernelAddressNegociationMessage {
 
 	@Override
 	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		secretMessage=OOSUtils.readBytes(in, secretMessageSize, false);
+		secretMessage=SerializationTools.readBytes(in, secretMessageSize, false);
 		if (secretMessage == null || secretMessage.length != secretMessageSize)
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		Object o=in.readObject();
@@ -77,7 +77,7 @@ final class SecretMessage extends KernelAddressNegociationMessage {
 
 	@Override
 	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
-		OOSUtils.writeBytes(oos, secretMessage, secretMessageSize, false);
+		SerializationTools.writeBytes(oos, secretMessage, secretMessageSize, false);
 		oos.writeObject(agent_socket_address);
 	}
 	

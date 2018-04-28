@@ -42,7 +42,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import com.distrimind.madkit.kernel.network.connection.access.HostIdentifier;
-import com.distrimind.madkit.util.OOSUtils;
+import com.distrimind.madkit.util.SerializationTools;
 
 /**
  * 
@@ -60,16 +60,16 @@ public class CustumHostIdentifier extends HostIdentifier {
 
 	@Override
 	public int getInternalSerializedSize() {
-		return OOSUtils.getInternalSize(name, 1000);
+		return SerializationTools.getInternalSize(name, 1000);
 	}
 	
 	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
 	{
-		name=OOSUtils.readString(in, 1000, false);
+		name=SerializationTools.readString(in, 1000, false);
 	}
 	private void writeObject(final ObjectOutputStream oos) throws IOException
 	{
-		OOSUtils.writeString(oos, name, 1000, false);
+		SerializationTools.writeString(oos, name, 1000, false);
 	}
 	
 	CustumHostIdentifier(String name) {

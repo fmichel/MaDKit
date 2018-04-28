@@ -51,7 +51,7 @@ import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.AgentAddress;
 import com.distrimind.madkit.kernel.Group;
 import com.distrimind.madkit.kernel.KernelAddress;
-import com.distrimind.madkit.util.OOSUtils;
+import com.distrimind.madkit.util.SerializationTools;
 
 /**
  * 
@@ -92,11 +92,11 @@ final class CGRSynchrosSystemMessage implements SystemMessage {
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		for (int i=0;i<size;i++)
 		{
-			String comunity=OOSUtils.readString(in, Group.MAX_COMMUNITY_LENGTH, false);
+			String comunity=SerializationTools.readString(in, Group.MAX_COMMUNITY_LENGTH, false);
 			int size2=in.readInt();
 			if (size2<0)
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
-			totalSize+=4+OOSUtils.getInternalSize(comunity, Group.MAX_COMMUNITY_LENGTH);
+			totalSize+=4+SerializationTools.getInternalSize(comunity, Group.MAX_COMMUNITY_LENGTH);
 			if (totalSize>globalSize)
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 			Map<Group, Map<String, Set<AgentAddress>>> groups=new HashMap<Group, Map<String, Set<AgentAddress>>>();
@@ -115,8 +115,8 @@ final class CGRSynchrosSystemMessage implements SystemMessage {
 				Map<String, Set<AgentAddress>> roles=new HashMap<String, Set<AgentAddress>>();
 				for (int k=0;k<size3;k++)
 				{
-					String role=OOSUtils.readString(in, Group.MAX_ROLE_NAME_LENGTH, false);
-					totalSize+=4+OOSUtils.getInternalSize(comunity, Group.MAX_ROLE_NAME_LENGTH);
+					String role=SerializationTools.readString(in, Group.MAX_ROLE_NAME_LENGTH, false);
+					totalSize+=4+SerializationTools.getInternalSize(comunity, Group.MAX_ROLE_NAME_LENGTH);
 					int size4=in.readInt();
 					if (totalSize>globalSize)
 						throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
@@ -177,7 +177,7 @@ final class CGRSynchrosSystemMessage implements SystemMessage {
 		oos.writeInt(organization_snap_shot.size());
 		for (Map.Entry<String, Map<Group, Map<String, Set<AgentAddress>>>> e : organization_snap_shot.entrySet())
 		{
-			OOSUtils.writeString(oos, e.getKey(), Group.MAX_COMMUNITY_LENGTH, false);
+			SerializationTools.writeString(oos, e.getKey(), Group.MAX_COMMUNITY_LENGTH, false);
 			oos.writeInt(e.getValue().size());
 			for (Map.Entry<Group, Map<String, Set<AgentAddress>>> e2 : e.getValue().entrySet())
 			{
@@ -185,7 +185,7 @@ final class CGRSynchrosSystemMessage implements SystemMessage {
 				oos.writeInt(e2.getValue().size());
 				for (Map.Entry<String, Set<AgentAddress>> e3 : e2.getValue().entrySet())
 				{
-					OOSUtils.writeString(oos, e.getKey(), Group.MAX_ROLE_NAME_LENGTH, false);
+					SerializationTools.writeString(oos, e.getKey(), Group.MAX_ROLE_NAME_LENGTH, false);
 					oos.writeInt(e3.getValue().size());
 					for (AgentAddress aa : e3.getValue())
 						oos.writeObject(aa);

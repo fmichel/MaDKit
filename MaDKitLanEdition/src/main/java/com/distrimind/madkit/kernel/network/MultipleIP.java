@@ -48,7 +48,7 @@ import java.util.Collection;
 import java.util.Random;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
-import com.distrimind.madkit.util.OOSUtils;
+import com.distrimind.madkit.util.SerializationTools;
 
 /**
  * 
@@ -76,9 +76,9 @@ public class MultipleIP extends AbstractIP {
 	public int getInternalSerializedSize() {
 		int res=super.getInternalSerializedSize()+8;
 		for (InetAddress ia : inet4Adresses)
-			res+=OOSUtils.getInternalSize(ia, 0);
+			res+=SerializationTools.getInternalSize(ia, 0);
 		for (InetAddress ia : inet6Adresses)
-			res+=OOSUtils.getInternalSize(ia, 0);
+			res+=SerializationTools.getInternalSize(ia, 0);
 		return res;
 	}
 	
@@ -94,11 +94,11 @@ public class MultipleIP extends AbstractIP {
 		this.inet4Adresses = new ArrayList<>(size);
 		for (int i=0;i<size;i++)
 		{
-			InetAddress o=OOSUtils.readInetAddress(in, false);
+			InetAddress o=SerializationTools.readInetAddress(in, false);
 			if (!(o instanceof Inet4Address))
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);	
 			Inet4Address ia=(Inet4Address)o;
-			totalSize+=OOSUtils.getInternalSize(ia,0);
+			totalSize+=SerializationTools.getInternalSize(ia,0);
 			if (totalSize>globalSize)
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 			inet4Adresses.add(ia);
@@ -112,11 +112,11 @@ public class MultipleIP extends AbstractIP {
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		for (int i=0;i<size;i++)
 		{
-			InetAddress o=OOSUtils.readInetAddress(in, false);
+			InetAddress o=SerializationTools.readInetAddress(in, false);
 			if (!(o instanceof Inet6Address))
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);	
 			Inet6Address ia=(Inet6Address)o;
-			totalSize+=OOSUtils.getInternalSize(ia,0);
+			totalSize+=SerializationTools.getInternalSize(ia,0);
 			if (totalSize>globalSize)
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 			inet6Adresses.add(ia);
@@ -131,10 +131,10 @@ public class MultipleIP extends AbstractIP {
 			throw new IOException();
 		oos.writeInt(inet4Adresses.size());
 		for (InetAddress ia : inet4Adresses)
-			OOSUtils.writeInetAddress(oos, ia, false);
+			SerializationTools.writeInetAddress(oos, ia, false);
 		oos.writeInt(inet6Adresses.size());
 		for (InetAddress ia : inet6Adresses)
-			OOSUtils.writeInetAddress(oos, ia, false);
+			SerializationTools.writeInetAddress(oos, ia, false);
 		
 	}
 	

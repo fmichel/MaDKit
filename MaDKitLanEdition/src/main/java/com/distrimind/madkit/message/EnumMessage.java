@@ -40,7 +40,7 @@ import java.util.Arrays;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
-import com.distrimind.madkit.util.OOSUtils;
+import com.distrimind.madkit.util.SerializationTools;
 import com.distrimind.madkit.util.SerializableAndSizable;
 
 /**
@@ -73,7 +73,7 @@ public class EnumMessage<E extends Enum<E>> extends ObjectMessage<Object[]> impl
 		super.readAndCheckObjectImpl(in, MAX_PARAMETERS_LENGTH);
 		try
 		{
-			code=(E)OOSUtils.readEnum(in, true);
+			code=(E)SerializationTools.readEnum(in, true);
 		}
 		catch(Exception e)
 		{
@@ -85,7 +85,7 @@ public class EnumMessage<E extends Enum<E>> extends ObjectMessage<Object[]> impl
 	@Override
 	protected void writeAndCheckObject(final ObjectOutputStream oos) throws IOException{
 		super.writeAndCheckObjectImpl(oos, MAX_PARAMETERS_LENGTH);
-		OOSUtils.writeEnum(oos, code, true);
+		SerializationTools.writeEnum(oos, code, true);
 		
 	}
 	

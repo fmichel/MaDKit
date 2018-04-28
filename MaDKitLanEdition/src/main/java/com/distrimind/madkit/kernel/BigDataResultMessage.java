@@ -43,7 +43,7 @@ import java.io.ObjectOutputStream;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
-import com.distrimind.madkit.util.OOSUtils;
+import com.distrimind.madkit.util.SerializationTools;
 import com.distrimind.madkit.util.SerializableAndSizable;
 
 /**
@@ -77,7 +77,7 @@ public final class BigDataResultMessage extends Message implements SerializableA
 		
 			
 		transferedData=in.readLong();
-		type=Type.valueOf(OOSUtils.readString(in, 1000, false));
+		type=Type.valueOf(SerializationTools.readString(in, 1000, false));
 		if (type==null)
 			throw new MessageSerializationException(Integrity.FAIL);
 		idPacket=in.readInt();
@@ -88,7 +88,7 @@ public final class BigDataResultMessage extends Message implements SerializableA
 	protected void writeAndCheckObject(final ObjectOutputStream oos) throws IOException{
 		super.writeAndCheckObjectImpl(oos);
 		oos.writeLong(transferedData);
-		OOSUtils.writeString(oos, type.name(), 1000, false);
+		SerializationTools.writeString(oos, type.name(), 1000, false);
 		oos.writeInt(idPacket);
 		oos.writeLong(duration);
 	}	

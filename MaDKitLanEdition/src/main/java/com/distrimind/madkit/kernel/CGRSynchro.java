@@ -44,7 +44,7 @@ import java.io.ObjectOutputStream;
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.madkit.message.ObjectMessage;
-import com.distrimind.madkit.util.OOSUtils;
+import com.distrimind.madkit.util.SerializationTools;
 import com.distrimind.madkit.util.SerializableAndSizable;
 
 /**
@@ -78,7 +78,7 @@ public class CGRSynchro extends ObjectMessage<AgentAddress> implements Serializa
 	protected void readAndCheckObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
 	{
 		super.readAndCheckObjectImpl(in, 0);
-		code=Code.valueOf(OOSUtils.readString(in, 1000, false));
+		code=Code.valueOf(SerializationTools.readString(in, 1000, false));
 		if (code==null)
 			throw new MessageSerializationException(Integrity.FAIL);
 		manual=in.readBoolean();
@@ -87,7 +87,7 @@ public class CGRSynchro extends ObjectMessage<AgentAddress> implements Serializa
 	@Override
 	protected void writeAndCheckObject(final ObjectOutputStream oos) throws IOException{
 		super.writeAndCheckObjectImpl(oos, 0);
-		OOSUtils.writeString(oos, code.name(), 1000, false);
+		SerializationTools.writeString(oos, code.name(), 1000, false);
 		oos.writeBoolean(manual);
 	}
 	
@@ -147,7 +147,7 @@ class RequestRoleSecure extends ObjectMessage<SerializableAndSizable> implements
 	protected void readAndCheckObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
 	{
 		super.readAndCheckObjectImpl(in);
-		String clazz=OOSUtils.readString(in, Short.MAX_VALUE, false);
+		String clazz=SerializationTools.readString(in, Short.MAX_VALUE, false);
 		
 		Class<?> c=Class.forName(clazz, false, MadkitClassLoader.getSystemClassLoader());
 		if (c==null)
@@ -161,15 +161,15 @@ class RequestRoleSecure extends ObjectMessage<SerializableAndSizable> implements
 		if (!(o instanceof AgentAddress))
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		requester=(AgentAddress)o;
-		roleName=OOSUtils.readString(in, Group.MAX_ROLE_NAME_LENGTH, false);
+		roleName=SerializationTools.readString(in, Group.MAX_ROLE_NAME_LENGTH, false);
 		
 	}
 	@Override
 	protected void writeAndCheckObject(final ObjectOutputStream oos) throws IOException{
 		super.writeAndCheckObjectImpl(oos);
-		OOSUtils.writeString(oos, requesterClass.getName(), Short.MAX_VALUE, false);
+		SerializationTools.writeString(oos, requesterClass.getName(), Short.MAX_VALUE, false);
 		oos.writeObject(requester);
-		OOSUtils.writeString(oos, roleName, Group.MAX_ROLE_NAME_LENGTH, false);
+		SerializationTools.writeString(oos, roleName, Group.MAX_ROLE_NAME_LENGTH, false);
 	}
 	
 	

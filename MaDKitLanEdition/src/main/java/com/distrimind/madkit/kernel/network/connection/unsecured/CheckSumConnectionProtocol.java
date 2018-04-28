@@ -58,7 +58,7 @@ import com.distrimind.madkit.kernel.network.connection.ConnectionMessage;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol;
 import com.distrimind.madkit.kernel.network.connection.TransferedBlockChecker;
 import com.distrimind.madkit.kernel.network.connection.UnexpectedMessage;
-import com.distrimind.madkit.util.OOSUtils;
+import com.distrimind.madkit.util.SerializationTools;
 import com.distrimind.ood.database.DatabaseWrapper;
 import com.distrimind.util.crypto.AbstractMessageDigest;
 import com.distrimind.util.crypto.MessageDigestType;
@@ -261,12 +261,12 @@ public class CheckSumConnectionProtocol extends ConnectionProtocol<CheckSumConne
 
 		@Override
 		public int getInternalSerializedSize() {
-			return OOSUtils.getInternalSize(messageDigestType, 0);
+			return SerializationTools.getInternalSize(messageDigestType, 0);
 		}
 
 		@Override
 		public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-			Enum<?> e=OOSUtils.readEnum(in, false);
+			Enum<?> e=SerializationTools.readEnum(in, false);
 			if (!(e instanceof MessageDigestType))
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 			messageDigestType=(MessageDigestType)e;
@@ -284,7 +284,7 @@ public class CheckSumConnectionProtocol extends ConnectionProtocol<CheckSumConne
 
 		@Override
 		public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
-			OOSUtils.writeEnum(oos, messageDigestType, false);
+			SerializationTools.writeEnum(oos, messageDigestType, false);
 			
 		}
 		

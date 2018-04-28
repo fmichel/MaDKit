@@ -51,7 +51,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
-import com.distrimind.madkit.util.OOSUtils;
+import com.distrimind.madkit.util.SerializationTools;
 
 /**
  * 
@@ -70,13 +70,13 @@ public class HostIP extends AbstractIP {
 
 	@Override
 	public int getInternalSerializedSize() {
-		return super.getInternalSerializedSize()+OOSUtils.getInternalSize(host, OOSUtils.MAX_URL_LENGTH);
+		return super.getInternalSerializedSize()+SerializationTools.getInternalSize(host, SerializationTools.MAX_URL_LENGTH);
 	}
 	
 	@Override
 	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
 		super.readAndCheckObject(in);
-		host=OOSUtils.readString(in, OOSUtils.MAX_URL_LENGTH, false);
+		host=SerializationTools.readString(in, SerializationTools.MAX_URL_LENGTH, false);
 		if (getInetAddress() == null)
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		
@@ -86,7 +86,7 @@ public class HostIP extends AbstractIP {
 	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
 		
 		super.writeAndCheckObject(oos);
-		OOSUtils.writeString(oos, host, OOSUtils.MAX_URL_LENGTH, false);
+		SerializationTools.writeString(oos, host, SerializationTools.MAX_URL_LENGTH, false);
 		
 	}
 	

@@ -58,7 +58,7 @@ import gnu.vm.jgnux.crypto.ShortBufferException;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.network.NetworkProperties;
-import com.distrimind.madkit.util.OOSUtils;
+import com.distrimind.madkit.util.SerializationTools;
 import com.distrimind.madkit.util.SerializableAndSizable;
 import com.distrimind.util.crypto.AbstractMessageDigest;
 import com.distrimind.util.crypto.AbstractSecureRandom;
@@ -84,7 +84,7 @@ class IdentifiersPropositionMessage extends AccessMessage {
 	@Override
 	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
 		isEncrypted=in.readBoolean();
-		SerializableAndSizable[] s=OOSUtils.readSerializableAndSizables(in, NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE, false);
+		SerializableAndSizable[] s=SerializationTools.readSerializableAndSizables(in, NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE, false);
 		if (!(s instanceof Identifier[]))
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		identifiers=(Identifier[])s;
@@ -98,7 +98,7 @@ class IdentifiersPropositionMessage extends AccessMessage {
 	@Override
 	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
 		oos.writeBoolean(isEncrypted);
-		OOSUtils.writeSerializableAndSizables(oos, identifiers, NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE, false);
+		SerializationTools.writeSerializableAndSizables(oos, identifiers, NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE, false);
 		
 		
 	}

@@ -43,7 +43,7 @@ import java.io.ObjectOutputStream;
 
 import com.distrimind.madkit.kernel.network.NetworkProperties;
 import com.distrimind.madkit.kernel.network.connection.ConnectionMessage;
-import com.distrimind.madkit.util.OOSUtils;
+import com.distrimind.madkit.util.SerializationTools;
 
 /**
 
@@ -64,16 +64,16 @@ public class KeyAgreementDataMessage extends ConnectionMessage {
 	@Override
 	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
 		int totalSize=NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE;
-		data=OOSUtils.readBytes(in, totalSize, false);
-		materialKey=OOSUtils.readBytes(in, totalSize-data.length, true);
+		data=SerializationTools.readBytes(in, totalSize, false);
+		materialKey=SerializationTools.readBytes(in, totalSize-data.length, true);
 	}
 
 
 	@Override
 	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
 		int totalSize=NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE;
-		OOSUtils.writeBytes(oos, data, totalSize, false);
-		OOSUtils.writeBytes(oos, materialKey, totalSize-data.length, true);
+		SerializationTools.writeBytes(oos, data, totalSize, false);
+		SerializationTools.writeBytes(oos, materialKey, totalSize-data.length, true);
 		
 	}
 	

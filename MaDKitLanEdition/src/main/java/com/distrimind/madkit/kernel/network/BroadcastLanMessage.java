@@ -47,7 +47,7 @@ import com.distrimind.madkit.kernel.AbstractGroup;
 import com.distrimind.madkit.kernel.AgentAddress;
 import com.distrimind.madkit.kernel.Group;
 import com.distrimind.madkit.kernel.Message;
-import com.distrimind.madkit.util.OOSUtils;
+import com.distrimind.madkit.util.SerializationTools;
 
 /**
  * 
@@ -77,8 +77,8 @@ final class BroadcastLanMessage extends LanMessage {
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		abstract_group=(AbstractGroup)o;
 		totalSize+=abstract_group.getInternalSerializedSize();
-		role=OOSUtils.readString(in, Group.MAX_ROLE_NAME_LENGTH, false);
-		totalSize+=OOSUtils.getInternalSize(role, Group.MAX_ROLE_NAME_LENGTH);
+		role=SerializationTools.readString(in, Group.MAX_ROLE_NAME_LENGTH, false);
+		totalSize+=SerializationTools.getInternalSize(role, Group.MAX_ROLE_NAME_LENGTH);
 		if (totalSize>globalSize)
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		int size=in.readInt();
@@ -105,7 +105,7 @@ final class BroadcastLanMessage extends LanMessage {
 	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
 		super.writeAndCheckObject(oos);
 		oos.writeObject(abstract_group);
-		OOSUtils.writeString(oos, role, Group.MAX_ROLE_NAME_LENGTH, false);
+		SerializationTools.writeString(oos, role, Group.MAX_ROLE_NAME_LENGTH, false);
 		oos.writeInt(agentAddressesSender.size());
 		for (AgentAddress aa : agentAddressesSender)
 			oos.writeObject(aa);

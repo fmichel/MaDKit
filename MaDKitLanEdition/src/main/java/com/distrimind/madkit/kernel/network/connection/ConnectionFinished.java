@@ -45,7 +45,7 @@ import java.net.InetSocketAddress;
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol.ConnectionClosedReason;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol.ConnectionState;
-import com.distrimind.madkit.util.OOSUtils;
+import com.distrimind.madkit.util.SerializationTools;
 
 /**
  * Message to tells that the connection protocol was terminated.
@@ -71,12 +71,12 @@ public class ConnectionFinished extends ConnectionMessage {
 	
 	@Override
 	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		inet_address=OOSUtils.readInetSocketAddress(in, false);
+		inet_address=SerializationTools.readInetSocketAddress(in, false);
 		try
 		{
-			state=(ConnectionProtocol.ConnectionState)OOSUtils.readEnum(in, false);
+			state=(ConnectionProtocol.ConnectionState)SerializationTools.readEnum(in, false);
 			
-			initialCounter=OOSUtils.readBytes(in, MAX_INITIAL_COUNTER_LENGTH, true);
+			initialCounter=SerializationTools.readBytes(in, MAX_INITIAL_COUNTER_LENGTH, true);
 		}
 		catch(Exception e)
 		{
@@ -86,9 +86,9 @@ public class ConnectionFinished extends ConnectionMessage {
 
 	@Override
 	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
-		OOSUtils.writeInetSocketAddress(oos, inet_address, false);
-		OOSUtils.writeEnum(oos, state, false);
-		OOSUtils.writeBytes(oos, initialCounter, MAX_INITIAL_COUNTER_LENGTH, true);
+		SerializationTools.writeInetSocketAddress(oos, inet_address, false);
+		SerializationTools.writeEnum(oos, state, false);
+		SerializationTools.writeBytes(oos, initialCounter, MAX_INITIAL_COUNTER_LENGTH, true);
 	}
 	
 	public ConnectionFinished(InetSocketAddress _inet_address, byte[] initialCounter) {

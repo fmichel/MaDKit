@@ -72,7 +72,7 @@ import com.distrimind.madkit.kernel.network.connection.ConnectionMessage;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol;
 import com.distrimind.madkit.kernel.network.connection.TransferedBlockChecker;
 import com.distrimind.madkit.kernel.network.connection.UnexpectedMessage;
-import com.distrimind.madkit.util.OOSUtils;
+import com.distrimind.madkit.util.SerializationTools;
 import com.distrimind.ood.database.DatabaseWrapper;
 
 import com.distrimind.ood.database.exceptions.DatabaseException;
@@ -1026,12 +1026,12 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 
 		@Override
 		public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-			Enum<?> e=OOSUtils.readEnum(in, false);
+			Enum<?> e=SerializationTools.readEnum(in, false);
 			if (!(e instanceof ASymmetricAuthentifiedSignatureType))
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 			signatureType=(ASymmetricAuthentifiedSignatureType)e;
 			signatureSize=in.readInt();
-			Key k=OOSUtils.readKey(in, false);
+			Key k=SerializationTools.readKey(in, false);
 			if (!(k instanceof ASymmetricPublicKey))
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 			publicKey=(ASymmetricPublicKey)k;
@@ -1040,14 +1040,14 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 
 		@Override
 		public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
-			OOSUtils.writeEnum(oos, signatureType, false);
+			SerializationTools.writeEnum(oos, signatureType, false);
 			oos.writeInt(signatureSize);
-			OOSUtils.writeKey(oos, publicKey, false);
+			SerializationTools.writeKey(oos, publicKey, false);
 		}
 		
 		@Override
 		public int getInternalSerializedSize() {
-			return OOSUtils.getInternalSize(signatureType, 0)+4+OOSUtils.getInternalSize(publicKey, 0);
+			return SerializationTools.getInternalSize(signatureType, 0)+4+SerializationTools.getInternalSize(publicKey, 0);
 		}
 		
 		protected BlockChecker(TransferedBlockChecker _subChecker, ASymmetricAuthentifiedSignatureType signatureType,

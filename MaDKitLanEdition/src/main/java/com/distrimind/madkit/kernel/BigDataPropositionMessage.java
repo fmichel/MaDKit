@@ -50,7 +50,7 @@ import com.distrimind.madkit.io.RandomOutputStream;
 import com.distrimind.madkit.kernel.network.Block;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.madkit.kernel.network.RealTimeTransfertStat;
-import com.distrimind.madkit.util.OOSUtils;
+import com.distrimind.madkit.util.SerializationTools;
 import com.distrimind.madkit.util.SerializableAndSizable;
 import com.distrimind.util.crypto.MessageDigestType;
 
@@ -111,11 +111,11 @@ public final class BigDataPropositionMessage extends Message implements Serializ
 			attachedData=((SerializableAndSizable)o);
 		else
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
-		data=OOSUtils.readBytes(in, Block.BLOCK_SIZE_LIMIT, true);
+		data=SerializationTools.readBytes(in, Block.BLOCK_SIZE_LIMIT, true);
 		isLocal=in.readBoolean();
 		idPacket=in.readInt();
 		timeUTC=in.readLong();
-		String s=OOSUtils.readString(in, 1000, true);
+		String s=SerializationTools.readString(in, 1000, true);
 		if (s==null)
 			messageDigestType=null;
 		else 
@@ -139,11 +139,11 @@ public final class BigDataPropositionMessage extends Message implements Serializ
 		if (attachedData!=null)
 			oos.writeObject(attachedData);
 		
-		OOSUtils.writeBytes(oos, data, Block.BLOCK_SIZE_LIMIT, true);
+		SerializationTools.writeBytes(oos, data, Block.BLOCK_SIZE_LIMIT, true);
 		oos.writeBoolean(isLocal);
 		oos.writeInt(idPacket);
 		oos.writeLong(timeUTC);
-		OOSUtils.writeString(oos, messageDigestType==null?null:messageDigestType.name(), 1000, true);
+		SerializationTools.writeString(oos, messageDigestType==null?null:messageDigestType.name(), 1000, true);
 		
 		oos.writeBoolean(excludedFromEncryption);
 	}	

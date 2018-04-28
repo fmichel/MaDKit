@@ -46,7 +46,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
-import com.distrimind.madkit.util.OOSUtils;
+import com.distrimind.madkit.util.SerializationTools;
 
 /**
  * 
@@ -65,17 +65,17 @@ public class DoubleIP extends AbstractIP {
 
 	@Override
 	public int getInternalSerializedSize() {
-		return super.getInternalSerializedSize()+OOSUtils.getInternalSize(inet4Address, 0)+OOSUtils.getInternalSize(inet6Address, 0);
+		return super.getInternalSerializedSize()+SerializationTools.getInternalSize(inet4Address, 0)+SerializationTools.getInternalSize(inet6Address, 0);
 	}
 	
 	@Override
 	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
 		super.readAndCheckObject(in);
-		InetAddress ia=OOSUtils.readInetAddress(in, true);
+		InetAddress ia=SerializationTools.readInetAddress(in, true);
 		if (ia!=null && !(ia instanceof Inet4Address))
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		inet4Address=(Inet4Address)ia;
-		ia=OOSUtils.readInetAddress(in, true);
+		ia=SerializationTools.readInetAddress(in, true);
 		if (ia!=null && !(ia instanceof Inet6Address))
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		inet6Address=(Inet6Address)ia;
@@ -90,8 +90,8 @@ public class DoubleIP extends AbstractIP {
 		if (inet4Address==null && inet6Address==null)
 			throw new IOException();
 		super.writeAndCheckObject(oos);
-		OOSUtils.writeInetAddress(oos, inet4Address, true);
-		OOSUtils.writeInetAddress(oos, inet6Address, true);
+		SerializationTools.writeInetAddress(oos, inet4Address, true);
+		SerializationTools.writeInetAddress(oos, inet6Address, true);
 	}
 	
 	protected DoubleIP() {

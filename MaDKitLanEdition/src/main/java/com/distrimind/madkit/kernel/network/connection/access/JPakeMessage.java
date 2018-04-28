@@ -47,7 +47,7 @@ import java.util.Map;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.network.NetworkProperties;
-import com.distrimind.madkit.util.OOSUtils;
+import com.distrimind.madkit.util.SerializationTools;
 import com.distrimind.madkit.util.SerializableAndSizable;
 import com.distrimind.util.crypto.AbstractMessageDigest;
 import com.distrimind.util.crypto.AbstractSecureRandom;
@@ -86,7 +86,7 @@ class JPakeMessage extends AccessMessage{
 	{
 		identifiersIsEncrypted=in.readBoolean();
 		int globalSize=NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE;
-		SerializableAndSizable tab[]=OOSUtils.readSerializableAndSizables(in, globalSize, false);
+		SerializableAndSizable tab[]=SerializationTools.readSerializableAndSizables(in, globalSize, false);
 		int totalSize=1;
 		for (SerializableAndSizable s : tab)
 		{
@@ -99,9 +99,9 @@ class JPakeMessage extends AccessMessage{
 		if (!(tab instanceof Identifier[]))
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		identifiers=(Identifier[])tab;
-		jpakeMessages=OOSUtils.readBytes2D(in, identifiers.length, MAX_JPAKE_MESSAGE_LENGTH, false, false);
+		jpakeMessages=SerializationTools.readBytes2D(in, identifiers.length, MAX_JPAKE_MESSAGE_LENGTH, false, false);
 		step=in.readShort();
-		totalSize+=OOSUtils.getInternalSize(jpakeMessages, identifiers.length);
+		totalSize+=SerializationTools.getInternalSize(jpakeMessages, identifiers.length);
 		if (totalSize>globalSize)
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		for (byte[] b : jpakeMessages)
@@ -114,8 +114,8 @@ class JPakeMessage extends AccessMessage{
 	public void writeAndCheckObject(final ObjectOutputStream oos) throws IOException
 	{
 		oos.writeBoolean(identifiersIsEncrypted);
-		OOSUtils.writeSerializableAndSizables(oos, identifiers, NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE, false);
-		OOSUtils.writeBytes2D(oos, jpakeMessages, identifiers.length, MAX_JPAKE_MESSAGE_LENGTH, false, false);
+		SerializationTools.writeSerializableAndSizables(oos, identifiers, NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE, false);
+		SerializationTools.writeBytes2D(oos, jpakeMessages, identifiers.length, MAX_JPAKE_MESSAGE_LENGTH, false, false);
 		oos.writeShort(step);
 	}
 	

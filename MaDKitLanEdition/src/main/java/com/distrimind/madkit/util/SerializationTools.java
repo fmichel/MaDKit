@@ -59,7 +59,7 @@ import com.distrimind.util.sizeof.ObjectSizer;
  * 
  */
 
-public class OOSUtils {
+public class SerializationTools {
 	private static final int MAX_CHAR_BUFFER_SIZE=Short.MAX_VALUE*5;
 	
 	public static void writeString(final ObjectOutputStream oos, String s, int sizeMax, boolean supportNull) throws IOException
@@ -173,7 +173,7 @@ public class OOSUtils {
 		else
 			oos.writeShort(tab.length);
 		for (byte[] b : tab)
-			OOSUtils.writeBytes(oos, b, sizeMax2, supportNull2);
+			SerializationTools.writeBytes(oos, b, sizeMax2, supportNull2);
 	}
 	public static byte[][] readBytes2D(final ObjectInputStream ois, int sizeMax1, int sizeMax2,  boolean supportNull1, boolean supportNull2) throws IOException
 	{
@@ -521,8 +521,8 @@ public class OOSUtils {
 			
 		}
 		oos.writeBoolean(true);
-		OOSUtils.writeString(oos, e.getClass().getName(), MAX_CLASS_LENGTH, false);
-		OOSUtils.writeString(oos, e.name(), 1000, false);
+		SerializationTools.writeString(oos, e.getClass().getName(), MAX_CLASS_LENGTH, false);
+		SerializationTools.writeString(oos, e.name(), 1000, false);
 	}
 	public final static int MAX_CLASS_LENGTH=16396;
 	@SuppressWarnings("unchecked")
@@ -530,8 +530,8 @@ public class OOSUtils {
 	{
 		if (ois.readBoolean())
 		{
-			String clazz=OOSUtils.readString(ois, MAX_CLASS_LENGTH, false);
-			String value=OOSUtils.readString(ois, 1000, false);
+			String clazz=SerializationTools.readString(ois, MAX_CLASS_LENGTH, false);
+			String value=SerializationTools.readString(ois, 1000, false);
 			@SuppressWarnings("rawtypes")
 			Class c=Class.forName(clazz, false, MadkitClassLoader.getSystemClassLoader());
 			if (!c.isEnum())

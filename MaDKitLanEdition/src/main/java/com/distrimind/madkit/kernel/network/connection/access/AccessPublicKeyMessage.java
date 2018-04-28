@@ -41,7 +41,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import com.distrimind.madkit.util.OOSUtils;
+import com.distrimind.madkit.util.SerializationTools;
 import com.distrimind.util.crypto.ASymmetricPublicKey;
 
 /**
@@ -65,13 +65,13 @@ class AccessPublicKeyMessage extends AccessMessage {
 
 	@Override
 	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		public_key_bytes=OOSUtils.readBytes(in, MAX_DISTANT_PUBLIC_KEY_LENGTH, false);
+		public_key_bytes=SerializationTools.readBytes(in, MAX_DISTANT_PUBLIC_KEY_LENGTH, false);
 		otherCanTakeLoginInitiative=in.readBoolean();
 	}
 
 	@Override
 	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
-		OOSUtils.writeBytes(oos, public_key_bytes, MAX_DISTANT_PUBLIC_KEY_LENGTH, false);
+		SerializationTools.writeBytes(oos, public_key_bytes, MAX_DISTANT_PUBLIC_KEY_LENGTH, false);
 		oos.writeBoolean(otherCanTakeLoginInitiative);
 	}
 	

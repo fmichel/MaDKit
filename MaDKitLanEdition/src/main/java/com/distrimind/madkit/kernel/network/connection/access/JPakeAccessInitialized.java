@@ -42,7 +42,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
-import com.distrimind.madkit.util.OOSUtils;
+import com.distrimind.madkit.util.SerializationTools;
 import com.distrimind.util.crypto.AbstractSecureRandom;
 
 /**
@@ -67,7 +67,7 @@ public class JPakeAccessInitialized extends AccessInitialized {
 	@Override
 	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
 		super.readAndCheckObject(in);
-		generatedSalt=OOSUtils.readBytes(in, generatedSaltSize, false);
+		generatedSalt=SerializationTools.readBytes(in, generatedSaltSize, false);
 		if (generatedSalt.length!=generatedSaltSize)
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 	}
@@ -75,7 +75,7 @@ public class JPakeAccessInitialized extends AccessInitialized {
 	@Override
 	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
 		super.writeAndCheckObject(oos);
-		OOSUtils.writeBytes(oos, generatedSalt, generatedSaltSize, false);
+		SerializationTools.writeBytes(oos, generatedSalt, generatedSaltSize, false);
 	}
 	
 

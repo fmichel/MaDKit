@@ -65,7 +65,7 @@ import com.distrimind.madkit.kernel.network.connection.TransferedBlockChecker;
 import com.distrimind.madkit.message.ObjectMessage;
 import com.distrimind.madkit.message.hook.TransferEventMessage;
 import com.distrimind.madkit.message.hook.TransferEventMessage.TransferEventType;
-import com.distrimind.madkit.util.OOSUtils;
+import com.distrimind.madkit.util.SerializationTools;
 import com.distrimind.madkit.util.SerializableAndSizable;
 import com.distrimind.util.IDGeneratorInt;
 
@@ -718,13 +718,13 @@ class TransferAgent extends AgentFakeThread {
 		@Override
 		public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
 			super.readAndCheckObject(in);
-			inetSocketAddress=OOSUtils.readInetSocketAddress(in, false);
+			inetSocketAddress=SerializationTools.readInetSocketAddress(in, false);
 		}
 
 		@Override
 		public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
 			super.writeAndCheckObject(oos);
-			OOSUtils.writeInetSocketAddress(oos, inetSocketAddress, false);
+			SerializationTools.writeInetSocketAddress(oos, inetSocketAddress, false);
 			if (inetSocketAddress.getPort() < 0)
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 			

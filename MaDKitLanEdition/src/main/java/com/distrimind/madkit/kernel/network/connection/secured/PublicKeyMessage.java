@@ -46,7 +46,7 @@ import com.distrimind.madkit.exceptions.ConnectionException;
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.network.connection.AskConnection;
 import com.distrimind.madkit.kernel.network.connection.ConnectionMessage;
-import com.distrimind.madkit.util.OOSUtils;
+import com.distrimind.madkit.util.SerializationTools;
 import com.distrimind.util.crypto.ASymmetricAuthentifiedSignatureCheckerAlgorithm;
 import com.distrimind.util.crypto.ASymmetricAuthentifiedSignerAlgorithm;
 import com.distrimind.util.crypto.ASymmetricPrivateKey;
@@ -76,16 +76,16 @@ class PublicKeyMessage extends ConnectionMessage {
 	
 	@Override
 	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		public_key_for_encryption_bytes=OOSUtils.readBytes(in, OOSUtils.MAX_KEY_SIZE, false);
-		signedPublicKey=OOSUtils.readBytes(in, AskConnection.MAX_SIGNATURE_LENGTH, false);
-		public_key_for_signature_bytes=OOSUtils.readBytes(in, AskConnection.MAX_SIGNATURE_LENGTH, false);
+		public_key_for_encryption_bytes=SerializationTools.readBytes(in, SerializationTools.MAX_KEY_SIZE, false);
+		signedPublicKey=SerializationTools.readBytes(in, AskConnection.MAX_SIGNATURE_LENGTH, false);
+		public_key_for_signature_bytes=SerializationTools.readBytes(in, AskConnection.MAX_SIGNATURE_LENGTH, false);
 	}
 
 	@Override
 	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
-		OOSUtils.writeBytes(oos, public_key_for_encryption_bytes, OOSUtils.MAX_KEY_SIZE, false);
-		OOSUtils.writeBytes(oos, signedPublicKey, AskConnection.MAX_SIGNATURE_LENGTH, false);
-		OOSUtils.writeBytes(oos, public_key_for_signature_bytes, AskConnection.MAX_SIGNATURE_LENGTH, false);
+		SerializationTools.writeBytes(oos, public_key_for_encryption_bytes, SerializationTools.MAX_KEY_SIZE, false);
+		SerializationTools.writeBytes(oos, signedPublicKey, AskConnection.MAX_SIGNATURE_LENGTH, false);
+		SerializationTools.writeBytes(oos, public_key_for_signature_bytes, AskConnection.MAX_SIGNATURE_LENGTH, false);
 		try
 		{
 			public_key_for_encryption = (ASymmetricPublicKey) Key.decode(public_key_for_encryption_bytes);

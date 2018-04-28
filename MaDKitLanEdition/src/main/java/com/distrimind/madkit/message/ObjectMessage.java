@@ -46,7 +46,7 @@ import java.util.NoSuchElementException;
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.Message;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
-import com.distrimind.madkit.util.OOSUtils;
+import com.distrimind.madkit.util.SerializationTools;
 
 /**
  * This parameterizable class could be used to convey any Java Object between
@@ -74,7 +74,7 @@ public class ObjectMessage<T> extends Message {
 	
 	
 	public int getInternalSerializedSizeImpl(int maxContentLength) {
-		return super.getInternalSerializedSizeImpl()+1+OOSUtils.getInternalSize(content, maxContentLength);
+		return super.getInternalSerializedSizeImpl()+1+SerializationTools.getInternalSize(content, maxContentLength);
 	}	
 	
 	@SuppressWarnings("unchecked")
@@ -84,7 +84,7 @@ public class ObjectMessage<T> extends Message {
 		super.readAndCheckObjectImpl(in);
 		try
 		{
-			content=(T)OOSUtils.readObject(in, maxContentLength, true);
+			content=(T)SerializationTools.readObject(in, maxContentLength, true);
 		}
 		catch(Exception e)
 		{
@@ -98,7 +98,7 @@ public class ObjectMessage<T> extends Message {
 	
 	protected void writeAndCheckObjectImpl(final ObjectOutputStream oos, int maxContentLength) throws IOException{
 		super.writeAndCheckObjectImpl(oos);
-		OOSUtils.writeObject(oos, content, maxContentLength, true);
+		SerializationTools.writeObject(oos, content, maxContentLength, true);
 		oos.writeBoolean(excludeFromEncryption);
 	}
 	

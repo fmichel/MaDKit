@@ -46,7 +46,7 @@ import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.KernelAddress;
 import com.distrimind.madkit.kernel.network.TransferAgent.IDTransfer;
 import com.distrimind.madkit.kernel.network.connection.PointToPointTransferedBlockChecker;
-import com.distrimind.madkit.util.OOSUtils;
+import com.distrimind.madkit.util.SerializationTools;
 
 /**
  * 
@@ -73,7 +73,7 @@ class TransferConfirmationSystemMessage extends BroadcastableSystemMessage {
 	@Override
 	public int getInternalSerializedSize() {
 		
-		return super.getInternalSerializedSize()+yourIDTransfer.getInternalSerializedSize()+myIDTransfer.getInternalSerializedSize()+5+kernelAddressToConnect.getInternalSerializedSize()+OOSUtils.getInternalSize(distantInetSocketAddress, 0)+(pointToPointBlockChecker==null?1:pointToPointBlockChecker.getInternalSerializedSize());
+		return super.getInternalSerializedSize()+yourIDTransfer.getInternalSerializedSize()+myIDTransfer.getInternalSerializedSize()+5+kernelAddressToConnect.getInternalSerializedSize()+SerializationTools.getInternalSize(distantInetSocketAddress, 0)+(pointToPointBlockChecker==null?1:pointToPointBlockChecker.getInternalSerializedSize());
 	}
 
 
@@ -94,7 +94,7 @@ class TransferConfirmationSystemMessage extends BroadcastableSystemMessage {
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		kernelAddressToConnect=(KernelAddress)o;
 		middleReached=in.readBoolean();
-		distantInetSocketAddress=OOSUtils.readInetSocketAddress(in, true);
+		distantInetSocketAddress=SerializationTools.readInetSocketAddress(in, true);
 		if (in.readBoolean())
 		{
 			o=in.readObject();
@@ -118,7 +118,7 @@ class TransferConfirmationSystemMessage extends BroadcastableSystemMessage {
 		oos.writeInt(numberOfSubBlocks);
 		oos.writeObject(kernelAddressToConnect);
 		oos.writeBoolean(middleReached);
-		OOSUtils.writeInetSocketAddress(oos, distantInetSocketAddress, true);
+		SerializationTools.writeInetSocketAddress(oos, distantInetSocketAddress, true);
 		if (pointToPointBlockChecker==null)
 			oos.writeBoolean(false);
 		else

@@ -55,7 +55,7 @@ import gnu.vm.jgnux.crypto.ShortBufferException;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.network.connection.AskConnection;
-import com.distrimind.madkit.util.OOSUtils;
+import com.distrimind.madkit.util.SerializationTools;
 import com.distrimind.util.crypto.ASymmetricKeyWrapperType;
 import com.distrimind.util.crypto.ASymmetricPublicKey;
 import com.distrimind.util.crypto.AbstractSecureRandom;
@@ -82,9 +82,9 @@ class AskClientServerConnection extends AskConnection {
 	@Override
 	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
 		super.readAndCheckObject(in);
-		secretKeyForEncryption=OOSUtils.readBytes(in, MAX_SECRET_KEY_LENGTH, true);
-		secretKeyForSignature=OOSUtils.readBytes(in, MAX_SECRET_KEY_LENGTH, false);
-		signatureOfSecretKeyForEncryption=OOSUtils.readBytes(in, MAX_SIGNATURE_LENGTH, true);
+		secretKeyForEncryption=SerializationTools.readBytes(in, MAX_SECRET_KEY_LENGTH, true);
+		secretKeyForSignature=SerializationTools.readBytes(in, MAX_SECRET_KEY_LENGTH, false);
+		signatureOfSecretKeyForEncryption=SerializationTools.readBytes(in, MAX_SIGNATURE_LENGTH, true);
 		if (secretKeyForEncryption!=null && secretKeyForEncryption.length == 0)
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		if (secretKeyForSignature.length == 0)
@@ -99,9 +99,9 @@ class AskClientServerConnection extends AskConnection {
 	@Override
 	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
 		super.writeAndCheckObject(oos);
-		OOSUtils.writeBytes(oos, secretKeyForEncryption, MAX_SECRET_KEY_LENGTH, true);
-		OOSUtils.writeBytes(oos, secretKeyForSignature, MAX_SECRET_KEY_LENGTH, false);
-		OOSUtils.writeBytes(oos, signatureOfSecretKeyForEncryption, MAX_SIGNATURE_LENGTH, true);
+		SerializationTools.writeBytes(oos, secretKeyForEncryption, MAX_SECRET_KEY_LENGTH, true);
+		SerializationTools.writeBytes(oos, secretKeyForSignature, MAX_SECRET_KEY_LENGTH, false);
+		SerializationTools.writeBytes(oos, signatureOfSecretKeyForEncryption, MAX_SIGNATURE_LENGTH, true);
 		
 	}
 	

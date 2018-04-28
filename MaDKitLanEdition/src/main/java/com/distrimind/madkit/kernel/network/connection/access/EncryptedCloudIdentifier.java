@@ -52,7 +52,7 @@ import gnu.vm.jgnux.crypto.IllegalBlockSizeException;
 import gnu.vm.jgnux.crypto.NoSuchPaddingException;
 import gnu.vm.jgnux.crypto.ShortBufferException;
 
-import com.distrimind.madkit.util.OOSUtils;
+import com.distrimind.madkit.util.SerializationTools;
 import com.distrimind.util.crypto.AbstractMessageDigest;
 import com.distrimind.util.crypto.AbstractSecureRandom;
 import com.distrimind.util.crypto.P2PASymmetricSecretMessageExchanger;
@@ -191,17 +191,17 @@ public final class EncryptedCloudIdentifier extends CloudIdentifier {
 	
 	@Override
 	public int getInternalSerializedSize() {
-		return OOSUtils.getInternalSize(bytes, MAX_ENCRYPTED_CLOUD_IDENTIFIER_LENGTH);
+		return SerializationTools.getInternalSize(bytes, MAX_ENCRYPTED_CLOUD_IDENTIFIER_LENGTH);
 	}
 
 	
 	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
 	{
-		bytes=OOSUtils.readBytes(in, MAX_ENCRYPTED_CLOUD_IDENTIFIER_LENGTH, false);
+		bytes=SerializationTools.readBytes(in, MAX_ENCRYPTED_CLOUD_IDENTIFIER_LENGTH, false);
 	}
 	private void writeObject(final ObjectOutputStream oos) throws IOException
 	{
-		OOSUtils.writeBytes(oos, bytes, MAX_ENCRYPTED_CLOUD_IDENTIFIER_LENGTH, false);
+		SerializationTools.writeBytes(oos, bytes, MAX_ENCRYPTED_CLOUD_IDENTIFIER_LENGTH, false);
 	}
 
 }

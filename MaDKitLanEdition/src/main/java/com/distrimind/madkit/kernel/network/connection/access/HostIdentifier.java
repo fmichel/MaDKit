@@ -43,7 +43,7 @@ import java.io.ObjectOutputStream;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
-import com.distrimind.madkit.util.OOSUtils;
+import com.distrimind.madkit.util.SerializationTools;
 import com.distrimind.madkit.util.SerializableAndSizable;
 import com.distrimind.util.AbstractDecentralizedID;
 import com.distrimind.util.RenforcedDecentralizedIDGenerator;
@@ -142,13 +142,13 @@ public abstract class HostIdentifier implements SerializableAndSizable {
 		}
 		@Override
 		public int getInternalSerializedSize() {
-			return OOSUtils.getInternalSize(id, 0);
+			return SerializationTools.getInternalSize(id, 0);
 		}
 
 		
 		private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
 		{
-			AbstractDecentralizedID a=OOSUtils.readDecentralizedID(in, false);
+			AbstractDecentralizedID a=SerializationTools.readDecentralizedID(in, false);
 			if (!(a instanceof SecuredDecentralizedID))
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 			id=(SecuredDecentralizedID)a;
@@ -156,7 +156,7 @@ public abstract class HostIdentifier implements SerializableAndSizable {
 		private void writeObject(final ObjectOutputStream oos) throws IOException
 		{
 			
-			OOSUtils.writeDecentralizedID(oos, id, false);
+			SerializationTools.writeDecentralizedID(oos, id, false);
 		}
 		
 	}

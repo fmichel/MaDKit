@@ -42,7 +42,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import com.distrimind.madkit.kernel.network.connection.access.CloudIdentifier;
-import com.distrimind.madkit.util.OOSUtils;
+import com.distrimind.madkit.util.SerializationTools;
 
 /**
  * 
@@ -61,18 +61,18 @@ public class CustumCloudIdentifier extends CloudIdentifier {
 
 	@Override
 	public int getInternalSerializedSize() {
-		return OOSUtils.getInternalSize(name, 1000)+OOSUtils.getInternalSize(salt, 64);
+		return SerializationTools.getInternalSize(name, 1000)+SerializationTools.getInternalSize(salt, 64);
 	}
 	
 	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
 	{
-		name=OOSUtils.readString(in, 1000, false);
-		salt=OOSUtils.readBytes(in, 64, false);
+		name=SerializationTools.readString(in, 1000, false);
+		salt=SerializationTools.readBytes(in, 64, false);
 	}
 	private void writeObject(final ObjectOutputStream oos) throws IOException
 	{
-		OOSUtils.writeString(oos, name, 1000, false);
-		OOSUtils.writeBytes(oos, salt, 64, false);
+		SerializationTools.writeString(oos, name, 1000, false);
+		SerializationTools.writeBytes(oos, salt, 64, false);
 	}
 	
 	CustumCloudIdentifier(String name, byte[] salt) {

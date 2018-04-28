@@ -68,7 +68,7 @@ import com.distrimind.util.crypto.MessageDigestType;
  * @version 1.2
  * @since MadkitLanEdition 1.0
  * 
- * @see AbstractAgent#sendBigDataWithRole(AgentAddress, RandomInputStream, long, long, Serializable, MessageDigestType, String, boolean)
+ * @see AbstractAgent#sendBigDataWithRole(AgentAddress, RandomInputStream, long, long, SerializableAndSizable, MessageDigestType, String, boolean)
  * @see BigDataResultMessage
  */
 public final class BigDataPropositionMessage extends Message implements SerializableAndSizable {

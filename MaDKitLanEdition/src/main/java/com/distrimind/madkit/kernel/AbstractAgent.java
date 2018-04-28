@@ -967,7 +967,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * Additionally, in order to avoid to change the code of the agent considering
 	 * how they will be launched (using the bucket mode or not). One should use the
 	 * following alternative of the usual request method :
-	 * {@link #bucketModeRequestRole(Group, String, Object)}: If used in
+	 * {@link #bucketModeRequestRole(Group, String, SerializableAndSizable)}: If used in
 	 * {@link AbstractAgent#activate()}, these requests will be ignored when the
 	 * bucket mode is used or normally proceeded otherwise.
 	 * <p>
@@ -1594,7 +1594,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 *         {@link AbstractAgent#launchAgentBucket(List, int, Role...)} with non
 	 *         <code>null</code> roles. This for optimization purposes.</li>
 	 *         </ul> 
-	 * @see #requestRole(Group, String, Object)
+	 * @see #requestRole(Group, String, SerializableAndSizable)
 	 * @since MadKitLanEdition 1.0
 	 * @see Group
 	 * 
@@ -3627,7 +3627,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 		NO_RECIPIENT_FOUND,
 		/**
 		 * Returned when
-		 * {@link AbstractAgent#requestRole(Group, String, Object)} or
+		 * {@link AbstractAgent#requestRole(Group, String, SerializableAndSizable)} or
 		 * {@link AbstractAgent#createGroup(Group, Object)} is
 		 * used in activate and that the agent has been launched using
 		 * {@link AbstractAgent#launchAgentBucket(List, int, Role...)} or
@@ -4134,7 +4134,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 *            the role to request
 	 * @return true if this agent automically request the given group/role if
 	 *         another another has requested this group/role.
-	 * @see AbstractAgent#autoRequestRole(AbstractGroup, String, Object)
+	 * @see AbstractAgent#autoRequestRole(AbstractGroup, String, SerializableAndSizable)
 	 */
 	public boolean isConcernedByAutoRequestRole(Group _group, String _role) {
 		return getKernel().isConcernedByAutoRequestRole(this, _group, _role);
@@ -4146,7 +4146,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * 
 	 * @param role
 	 *            the role name
-	 * @see AbstractAgent#autoRequestRole(AbstractGroup, String, Object)
+	 * @see AbstractAgent#autoRequestRole(AbstractGroup, String, SerializableAndSizable)
 	 */
 	public void leaveAutoRequestedRole(String role) {
 		getKernel().leaveAutoRequestedRole(this, role);
@@ -4159,7 +4159,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * @param group the group name
 	 * @param role
 	 *            the role name
-	 * @see #autoRequestRole(AbstractGroup, String, Object)
+	 * @see #autoRequestRole(AbstractGroup, String, SerializableAndSizable)
 	 */
 	public void leaveAutoRequestedRole(AbstractGroup group, String role) {
 		getKernel().leaveAutoRequestedRole(this, group, role);
@@ -4171,7 +4171,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * 
 	 * @param _group
 	 *            the given group
-	 * @see #autoRequestRole(AbstractGroup, String, Object)
+	 * @see #autoRequestRole(AbstractGroup, String, SerializableAndSizable)
 	 */
 	public void leaveAutoRequestedGroup(AbstractGroup _group) {
 		getKernel().leaveAutoRequestedGroup(this, _group);
@@ -4181,7 +4181,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * Remove all groups from automatically requested groups. But does not leave the
 	 * groups. For this, please refer to {@link #leaveGroup(Group)}.
 	 * 
-	 * @see #autoRequestRole(AbstractGroup, String, Object)
+	 * @see #autoRequestRole(AbstractGroup, String, SerializableAndSizable)
 	 */
 	public void leaveAllAutoRequestedGroups() {
 		getKernel().removeAllAutoRequestedGroups(this);

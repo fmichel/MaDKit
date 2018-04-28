@@ -335,7 +335,7 @@ public class AgentAddress implements SerializableAndSizable, Cloneable {
 	 * Tells if this agent address was automatically requested or manually requested
 	 * 
 	 * @return true if this agent address was manually requested
-	 * @see AbstractAgent#autoRequestRole(AbstractGroup, String, Object)
+	 * @see AbstractAgent#autoRequestRole(AbstractGroup, String, SerializableAndSizable)
 	 */
 	public boolean isManuallyRequested() {
 		return manually_requested;

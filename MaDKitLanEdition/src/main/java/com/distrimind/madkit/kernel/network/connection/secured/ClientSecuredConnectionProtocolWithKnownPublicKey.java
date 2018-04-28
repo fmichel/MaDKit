@@ -39,6 +39,7 @@ package com.distrimind.madkit.kernel.network.connection.secured;
 
 import java.io.ByteArrayInputStream;
 import java.net.InetSocketAddress;
+import java.util.Arrays;
 
 import gnu.vm.jgnu.security.InvalidAlgorithmParameterException;
 import gnu.vm.jgnu.security.InvalidKeyException;
@@ -435,10 +436,8 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 					}
 					int off=_block.getSize()+_block.getOffset();
 					byte[] tab=res.getBytes();
-					for (int i=outputSize+_block.getOffset()-1;i>=off;i--)
-						tab[i]=0;
-					for (int i=res.getOffset()+4;i<_block.getOffset();i++)
-						tab[i]=0;
+					Arrays.fill(tab, off, outputSize+_block.getOffset(), (byte)0);
+					Arrays.fill(tab, res.getOffset()+4, _block.getOffset(), (byte)0);
 					return res;
 				}
 				
@@ -452,8 +451,7 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 						final SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() - getSizeHead(),s);
 						byte[] tab=res.getBytes();
 						int off=_block.getSize()+_block.getOffset();
-						for (int i=outputSize+_block.getOffset()-5;i>=off;i--)
-							tab[i]=0;
+						Arrays.fill(tab, off, outputSize+_block.getOffset()-4, (byte)0);
 						int offr=res.getOffset()+res.getSize();
 						tab[offr-1]=1;
 						Block.putShortInt(tab, offr-4, _block.getSize());
@@ -635,10 +633,9 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 					}
 					int off=_block.getSize()+_block.getOffset();
 					byte[] tab=res.getBytes();
-					for (int i=outputSize+_block.getOffset()-1;i>=off;i--)
-						tab[i]=0;
-					for (int i=res.getOffset()+4;i<_block.getOffset();i++)
-						tab[i]=0;
+					Arrays.fill(tab, off, outputSize+_block.getOffset(), (byte)0);
+					Arrays.fill(tab, res.getOffset()+4, _block.getOffset(), (byte)0);
+
 					return res;
 			
 				}
@@ -649,8 +646,7 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 					
 					int off=_block.getSize()+_block.getOffset();
 					byte[] tab=res.getBytes();
-					for (int i=outputSize+_block.getOffset()-1;i>=off;i--)
-						tab[i]=0;
+					Arrays.fill(tab, off, outputSize+_block.getOffset(), (byte)0);
 					
 					signer.init();
 					if (getCounterSelector().isActivated())

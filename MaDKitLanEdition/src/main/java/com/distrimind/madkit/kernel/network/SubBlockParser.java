@@ -37,6 +37,8 @@
  */
 package com.distrimind.madkit.kernel.network;
 
+import java.util.Arrays;
+
 import com.distrimind.madkit.exceptions.BlockParserException;
 
 /**
@@ -58,10 +60,8 @@ public abstract class SubBlockParser {
 				outputSize + getSizeHead());
 		int off=_block.getSize()+_block.getOffset();
 		byte[] tab=res.getBytes();
-		for (int i=outputSize+_block.getOffset()-1;i>=off;i--)
-			tab[i]=0;
-		for (int i=res.getOffset();i<_block.getOffset();i++)
-			tab[i]=0;
+		Arrays.fill(tab, off, outputSize+_block.getOffset(), (byte)0);
+		Arrays.fill(tab, res.getOffset(), _block.getOffset(), (byte)0);
 		return res;
 	}
 

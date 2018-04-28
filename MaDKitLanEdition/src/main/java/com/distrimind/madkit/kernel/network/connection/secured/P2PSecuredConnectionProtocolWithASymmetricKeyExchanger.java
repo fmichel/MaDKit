@@ -42,6 +42,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetSocketAddress;
+import java.util.Arrays;
 
 import org.bouncycastle.crypto.InvalidWrappingException;
 
@@ -669,8 +670,7 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 						final SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() - getSizeHead(),s);
 						int off=_block.getSize()+_block.getOffset();
 						byte[] tab=res.getBytes();
-						for (int i=outputSize+_block.getOffset()-5;i>=off;i--)
-							tab[i]=0;
+						Arrays.fill(tab, off, outputSize+_block.getOffset()-4, (byte)0);
 						
 						int offr=res.getOffset()+res.getSize();
 						tab[offr-1]=1;
@@ -875,8 +875,7 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 							output + getSizeHead());
 					int off=_block.getSize()+_block.getOffset();
 					byte[] tab=res.getBytes();
-					for (int i=output+_block.getOffset()-1;i>=off;i--)
-						tab[i]=0;
+					Arrays.fill(tab, off, output+_block.getOffset(), (byte)0);
 					
 					signer.init();
 					signer.update(_block.getBytes(), _block.getOffset(), output);

@@ -64,7 +64,7 @@ repositories {
 dependencies {
      testCompile 'org.testng:testng:6.13.1'
      testCompile 'junit:junit:4.12'
-     compile(group:'com.distrimind.ood', name: 'OOD', version: '2.0.0-Beta77')
+     compile(group:'com.distrimind.ood', name: 'OOD', version: '2.0.0-Beta78')
      compile(group:'com.distrimind.jdkrewrite', name: 'JDKRewriteUtils', version: '1.0.0')
      compile(group:'org.fourthline.cling', name: 'cling-core', version: '2.1.1')
      compile(group:'org.fourthline.cling', name: 'cling-support', version: '2.1.1')
@@ -88,6 +88,25 @@ task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'
     from sourceSets.main.allSource
     from "../LICENSE"
+    
+    
+    def versionBuildFile = file('src/main/resources/com/distrimind/madkit/kernel/build.txt')
+    
+    /*Wrapping inside a method avoids auto incrementing on every gradle task run. Now it runs only when we build apk*/
+    if (versionBuildFile.canRead())
+    {
+    	def line  
+    	versionBuildFile.withReader { line = it.readLine() } 
+		def buildNumber =line.toInteger()+1
+		versionBuildFile.withWriter { out ->
+	    	out.println buildNumber
+		}
+	}
+	else {
+		versionBuildFile.withWriter { out ->
+	    	out.println 1
+		}
+	}
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {

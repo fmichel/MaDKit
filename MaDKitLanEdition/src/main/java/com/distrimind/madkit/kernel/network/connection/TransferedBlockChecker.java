@@ -117,6 +117,7 @@ public abstract class TransferedBlockChecker implements SerializableAndSizable {
 			oos.writeBoolean(false);
 		else
 		{
+			oos.writeBoolean(true);
 			oos.writeObject(subChecker);
 		}
 	}

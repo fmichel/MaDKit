@@ -64,7 +64,7 @@ repositories {
 dependencies {
      testCompile 'org.testng:testng:6.13.1'
      testCompile 'junit:junit:4.12'
-     compile(group:'com.distrimind.ood', name: 'OOD', version: '2.0.0-Beta78')
+     compile(group:'com.distrimind.ood', name: 'OOD', version: '2.0.0-Beta79')
      compile(group:'com.distrimind.jdkrewrite', name: 'JDKRewriteUtils', version: '1.0.0')
      compile(group:'org.fourthline.cling', name: 'cling-core', version: '2.1.1')
      compile(group:'org.fourthline.cling', name: 'cling-support', version: '2.1.1')
@@ -102,7 +102,7 @@ task generateVersionsFile(type:JavaExec, dependsOn: classes) {
 		}
 	}
 	
-   main = 'com.distrimind.distrimind.madkit.kernel.VersionsFileGenerator'
+   main = 'com.distrimind.madkit.kernel.VersionsFileGenerator'
    classpath = sourceSets.main.runtimeClasspath
 }
 

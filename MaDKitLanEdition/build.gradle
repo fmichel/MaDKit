@@ -83,14 +83,8 @@ sourceCompatibility = 1.7
 targetCompatibility=1.7
 version='1.7.0'
 
-
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-    from "../LICENSE"
-    
-    
-    def versionBuildFile = file('src/main/resources/com/distrimind/madkit/kernel/build.txt')
+task generateVersionsFile(type:JavaExec, dependsOn: classes) {
+  def versionBuildFile = file('src/main/resources/com/distrimind/madkit/kernel/build.txt')
     
     /*Wrapping inside a method avoids auto incrementing on every gradle task run. Now it runs only when we build apk*/
     if (versionBuildFile.canRead())
@@ -107,12 +101,23 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 	    	out.println 1
 		}
 	}
+	
+   main = 'com.distrimind.distrimind.madkit.kernel.VersionsFileGenerator'
+   classpath = sourceSets.main.runtimeClasspath
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+    from "../LICENSE"
+    from "../versions.html"
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
     from javadoc.destinationDir
     from "../LICENSE"
+    from "../versions.html"
 }
 
 artifacts {
@@ -120,14 +125,20 @@ artifacts {
     archives javadocJar
 }
 
-jar {
+
+
+jar{
+	dependsOn generateVersionsFile
     manifest {
         attributes('Implementation-Title': project.name,
                    'Implementation-Version': project.version)
     }
     from "../LICENSE"
+    from "../versions.html"
 
 }
+
+
 
 test {
 	

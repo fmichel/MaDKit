@@ -67,7 +67,6 @@ import com.distrimind.madkit.io.RandomByteArrayInputStream;
 import com.distrimind.madkit.io.RandomByteArrayOutputStream;
 import com.distrimind.madkit.kernel.JunitMadkit;
 import com.distrimind.madkit.kernel.MadkitProperties;
-import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.madkit.kernel.network.connection.AskConnection;
 import com.distrimind.madkit.kernel.network.connection.ConnectionMessage;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol;
@@ -420,9 +419,6 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 		}
 		
 	
-		Assert.assertEquals(Integrity.OK, tbcasker.checkDataIntegrity());
-		Assert.assertEquals(Integrity.OK, tbreceiver.checkDataIntegrity());
-
 		Iterator<ConnectionProtocol<?>> itasker = this.cpasker.reverseIterator();
 		Iterator<ConnectionProtocol<?>> itreceiver = this.cpreceiver.reverseIterator();
 		int totalCycles = 0;
@@ -463,7 +459,7 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 					masker = (ConnectionMessage) unserialize(getMessage(message,
 							getBytesToSend(getBlocks(message,excludeFromEncryption, this.cpasker, npasker, 2, -1, null)), this.cpreceiver,
 							npreceiver, 2, -1, null));
-					Assert.assertEquals(masker.checkDataIntegrity(), Integrity.OK);
+					
 					Assert.assertFalse(cpreceiver.isConnectionEstablished());
 					mreceiver = cpreceiver.setAndGetNextMessage(masker);
 					if (this.cpreceiver.isTransferBlockCheckerChanged())
@@ -492,7 +488,7 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 					mreceiver = (ConnectionMessage) unserialize(getMessage(message,
 							getBytesToSend(getBlocks(message,excludeFromEncryption, this.cpreceiver, npreceiver, 2, -1, null)),
 							this.cpasker, npasker, 2, -1, null));
-					Assert.assertEquals(mreceiver.checkDataIntegrity(), Integrity.OK);
+					
 					Assert.assertFalse(cpasker.isConnectionEstablished());
 					masker = cpasker.setAndGetNextMessage(mreceiver);
 					if (this.cpasker.isTransferBlockCheckerChanged())
@@ -599,7 +595,7 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 				masker = (ConnectionMessage) unserialize(
 						getMessage(message, getBytesToSend(getBlocks(message,excludeFromEncryption, this.cpasker, npasker, 2, -1, null)),
 								this.cpreceiver, npreceiver, 2, -1, null));
-				Assert.assertEquals(masker.checkDataIntegrity(), Integrity.OK);
+				
 				mreceiver = cpreceiver.setAndGetNextMessage(masker);
 				if (mreceiver == null) {
 					masker = null;
@@ -619,7 +615,7 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 				mreceiver = (ConnectionMessage) unserialize(getMessage(message,
 						getBytesToSend(getBlocks(message,excludeFromEncryption, this.cpreceiver, npreceiver, 2, -1, null)), this.cpasker,
 						npasker, 2, -1, null));
-				Assert.assertEquals(mreceiver.checkDataIntegrity(), Integrity.OK);
+				
 				masker = cpasker.setAndGetNextMessage(mreceiver);
 				if (masker != null && cycles == index && !asker) {
 					Assert.assertEquals(masker.getClass(), UnexpectedMessage.class);
@@ -690,7 +686,7 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 				masker = (ConnectionMessage) unserialize(
 						getMessage(message, getBytesToSend(getBlocks(message, excludeFromEncryption, this.cpasker, npasker, 2, -1, null)),
 								this.cpreceiver, npreceiver, 2, -1, null));
-				Assert.assertEquals(masker.checkDataIntegrity(), Integrity.OK);
+				
 				mreceiver = cpreceiver.setAndGetNextMessage(masker);
 				if (mreceiver == null) {
 					masker = null;
@@ -706,7 +702,7 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 				mreceiver = (ConnectionMessage) unserialize(getMessage(message,
 						getBytesToSend(getBlocks(message,excludeFromEncryption, this.cpreceiver, npreceiver, 2, -1, null)), this.cpasker,
 						npasker, 2, -1, null));
-				Assert.assertEquals(mreceiver.checkDataIntegrity(), Integrity.OK);
+				
 				masker = cpasker.setAndGetNextMessage(mreceiver);
 				cycles++;
 			} while ((masker != null && mreceiver != null) && cycles < numberMaxExchange);
@@ -736,14 +732,35 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 		 */
 		private static final long serialVersionUID = -1881592582213193045L;
 
-		@Override
-		public Integrity checkDataIntegrity() {
-			return Integrity.OK;
-		}
+		
 
 		@Override
 		public boolean excludedFromEncryption() {
 			return false;
+		}
+
+
+
+		@Override
+		public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+			
+			
+		}
+
+
+
+		@Override
+		public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+			
+		}
+		
+		private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
+		{
+			readAndCheckObject(in);
+		}
+		private void writeObject(final ObjectOutputStream oos) throws IOException
+		{
+			writeAndCheckObject(oos);
 		}
 
 	}

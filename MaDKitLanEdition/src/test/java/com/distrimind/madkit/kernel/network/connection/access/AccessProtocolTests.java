@@ -39,6 +39,8 @@ package com.distrimind.madkit.kernel.network.connection.access;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -61,7 +63,6 @@ import com.distrimind.madkit.kernel.KernelAddressTest;
 import com.distrimind.madkit.kernel.MadkitProperties;
 import com.distrimind.madkit.kernel.network.AccessDataMKEventListener;
 import com.distrimind.madkit.kernel.network.ConnectionsProtocolsTests;
-import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.madkit.kernel.network.connection.access.AccessData;
 import com.distrimind.madkit.kernel.network.connection.access.AccessException;
 import com.distrimind.madkit.kernel.network.connection.access.AccessGroupsNotifier;
@@ -465,9 +466,16 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 		}
 
 		@Override
-		public Integrity checkDataIntegrity() {
-			return Integrity.OK;
+		public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+			
 		}
+
+		@Override
+		public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+			
+		}
+
+		
 
 	}
 
@@ -579,7 +587,6 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 	
 					m = (AccessMessage) ConnectionsProtocolsTests
 							.unserialize(ConnectionsProtocolsTests.serialize(m));
-					Assert.assertEquals(m.checkDataIntegrity(), Integrity.OK);
 					mreceiver2.addAll(Arrays.asList(getAccessMessages(apreceiver.setAndGetNextMessage(m))));
 					receiverAsNotifiedGroupsChangements |= apreceiver.isNotifyAccessGroupChangements();
 				}
@@ -595,7 +602,6 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 					}
 					m = (AccessMessage) ConnectionsProtocolsTests
 							.unserialize(ConnectionsProtocolsTests.serialize(m));
-					Assert.assertEquals(m.checkDataIntegrity(), Integrity.OK);
 					masker2.addAll(Arrays.asList(getAccessMessages(apasker.setAndGetNextMessage(m))));
 					askerAsNotifiedGroupsChangements |= apasker.isNotifyAccessGroupChangements();
 				}
@@ -814,7 +820,6 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 				if (masker != null && !(masker instanceof DoNotSendMessage)) {
 					masker = (AccessMessage) ConnectionsProtocolsTests
 							.unserialize(ConnectionsProtocolsTests.serialize(masker));
-					Assert.assertEquals(masker.checkDataIntegrity(), Integrity.OK);
 					mreceiverl = getAccessMessages(apreceiver.setAndGetNextMessage(masker), mreceiverl);
 				}
 			}
@@ -828,7 +833,6 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 				if (mreceiver != null && !(mreceiver instanceof DoNotSendMessage)) {
 					mreceiver = (AccessMessage) ConnectionsProtocolsTests
 							.unserialize(ConnectionsProtocolsTests.serialize(mreceiver));
-					Assert.assertEquals(mreceiver.checkDataIntegrity(), Integrity.OK);
 					maskerl = getAccessMessages(apasker.setAndGetNextMessage(mreceiver), maskerl);
 				}
 			}

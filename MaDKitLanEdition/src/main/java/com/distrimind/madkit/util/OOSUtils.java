@@ -40,8 +40,18 @@ package com.distrimind.madkit.util;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.ObjectStreamClass;
+import java.io.Serializable;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.MadkitClassLoader;
@@ -524,15 +534,16 @@ public class OOSUtils {
 			
 		}
 		oos.writeBoolean(true);
-		OOSUtils.writeString(oos, e.getClass().getName(), 16396, false);
+		OOSUtils.writeString(oos, e.getClass().getName(), MAX_CLASS_LENGTH, false);
 		OOSUtils.writeString(oos, e.name(), 1000, false);
 	}
+	public final static int MAX_CLASS_LENGTH=16396;
 	@SuppressWarnings("unchecked")
 	public static Enum<?> readEnum(final ObjectInputStream ois, boolean supportNull) throws IOException, ClassNotFoundException
 	{
 		if (ois.readBoolean())
 		{
-			String clazz=OOSUtils.readString(ois, 16396, false);
+			String clazz=OOSUtils.readString(ois, MAX_CLASS_LENGTH, false);
 			String value=OOSUtils.readString(ois, 1000, false);
 			@SuppressWarnings("rawtypes")
 			Class c=Class.forName(clazz, false, MadkitClassLoader.getSystemClassLoader());
@@ -560,14 +571,14 @@ public class OOSUtils {
 		{
 			if (!supportNull)
 				throw new IOException();
-			if (sizeMax>Short.MAX_VALUE)
-				oos.write(0);
-			else
-				oos.write(0);
-			return;
 			
+			oos.write(0);
 		}
-		if (o instanceof String)
+		else if (o instanceof SerializableAndSizable)
+		{
+			oos.writeObject(o);
+		}
+		else if (o instanceof String)
 		{
 			oos.write(1);
 			writeString(oos, (String)o, sizeMax, false);
@@ -622,7 +633,7 @@ public class OOSUtils {
 			oos.write(11);
 			writeEnum(oos, (Enum<?>)o, supportNull);
 		}
-		else
+		else 
 		{
 			oos.write(Byte.MAX_VALUE);
 			oos.writeObject(o);

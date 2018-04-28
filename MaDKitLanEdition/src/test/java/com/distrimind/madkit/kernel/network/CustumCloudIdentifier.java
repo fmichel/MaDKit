@@ -37,7 +37,12 @@
  */
 package com.distrimind.madkit.kernel.network;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 import com.distrimind.madkit.kernel.network.connection.access.CloudIdentifier;
+import com.distrimind.madkit.util.OOSUtils;
 
 /**
  * 
@@ -51,9 +56,25 @@ public class CustumCloudIdentifier extends CloudIdentifier {
 	 */
 	private static final long serialVersionUID = -7232545935955618992L;
 
-	private final String name;
-	private final byte[] salt;
+	private String name;
+	private byte[] salt;
 
+	@Override
+	public int getInternalSerializedSize() {
+		return OOSUtils.getInternalSize(name, 1000)+OOSUtils.getInternalSize(salt, 64);
+	}
+	
+	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
+	{
+		name=OOSUtils.readString(in, 1000, false);
+		salt=OOSUtils.readBytes(in, 64, false);
+	}
+	private void writeObject(final ObjectOutputStream oos) throws IOException
+	{
+		OOSUtils.writeString(oos, name, 1000, false);
+		OOSUtils.writeBytes(oos, salt, 64, false);
+	}
+	
 	CustumCloudIdentifier(String name, byte[] salt) {
 		this.name = name;
 		this.salt = salt;
@@ -88,5 +109,7 @@ public class CustumCloudIdentifier extends CloudIdentifier {
 	public String toString() {
 		return name;
 	}
+
+	
 
 }

@@ -56,6 +56,7 @@ import com.distrimind.madkit.kernel.Message;
 import com.distrimind.madkit.kernel.network.NetworkProperties;
 import com.distrimind.madkit.kernel.network.RealTimeTransfertStat;
 import com.distrimind.madkit.message.hook.OrganizationEvent;
+import com.distrimind.madkit.util.SerializableAndSizable;
 import com.distrimind.madkit.message.hook.HookMessage.AgentActionEvent;
 import com.distrimind.util.crypto.MessageDigestType;
 
@@ -67,7 +68,18 @@ import com.distrimind.util.crypto.MessageDigestType;
  */
 public class AgentBigTransfer extends AgentFakeThread {
 	public static final String bigTransferRole = "Big Transfer Role";
-	public static final String attachedData = "attached data";
+	public static final SerializableAndSizable attachedData = new SerializableAndSizable() {
+		
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 4592969255297924312L;
+
+		@Override
+		public int getInternalSerializedSize() {
+			return 0;
+		}
+	};
 	private final HashMap<AgentAddress, Boolean> otherConnected = new HashMap<>();
 	private HashMap<ConversationID, RandomByteArrayInputStream> inputStreams = new HashMap<>();
 	private final HashMap<ConversationID, RealTimeTransfertStat> myStats = new HashMap<>(),

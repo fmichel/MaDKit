@@ -37,7 +37,6 @@
  */
 package com.distrimind.madkit.kernel.network;
 
-import java.io.Serializable;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -67,6 +66,7 @@ import com.distrimind.madkit.kernel.AgentFakeThread;
 import com.distrimind.madkit.message.hook.DistantKernelAgentEventMessage;
 import com.distrimind.madkit.message.hook.HookMessage.AgentActionEvent;
 import com.distrimind.madkit.message.hook.TransferEventMessage.TransferEventType;
+import com.distrimind.madkit.util.SerializableAndSizable;
 import com.distrimind.util.OSValidator;
 import com.distrimind.madkit.message.hook.NetworkEventMessage;
 import com.distrimind.madkit.message.hook.TransferEventMessage;
@@ -229,7 +229,20 @@ public class TransferConnectionTest extends JunitMadkit {
 	}
 
 	private static final long timeOut = 180000;
-	final static String attachedData = "attachedData";
+	final static SerializableAndSizable attachedData = new SerializableAndSizable() {
+		
+		
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 8915309751368682145L;
+
+		@Override
+		public int getInternalSerializedSize() {
+			
+			return 0;
+		}
+	};
 
 	@Test
 	public void tryDirectConnectionTestWithKernelAddressReference() {
@@ -487,7 +500,7 @@ class AgentToLaunch extends AgentFakeThread {
 	volatile Connection connection2 = null;
 	volatile Connection connection3 = null;
 	private AskForTransferMessage.Type type;
-	private Serializable attachedData;
+	private SerializableAndSizable attachedData;
 	private volatile int transferConnectionFinished = 0;
 	private volatile int transferDeconnected = 0;
 	private volatile int directConnectionFinished = 0;
@@ -627,7 +640,7 @@ class AgentToLaunch extends AgentFakeThread {
 		}
 	}
 
-	public void askForTransferConnection(AskForTransferMessage.Type type, Serializable attachedData) {
+	public void askForTransferConnection(AskForTransferMessage.Type type, SerializableAndSizable attachedData) {
 		synchronized (this) {
 			this.type = type;
 			this.attachedData = attachedData;

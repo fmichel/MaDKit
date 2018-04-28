@@ -37,7 +37,12 @@
  */
 package com.distrimind.madkit.kernel.network;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 import com.distrimind.madkit.kernel.network.connection.access.HostIdentifier;
+import com.distrimind.madkit.util.OOSUtils;
 
 /**
  * 
@@ -51,8 +56,22 @@ public class CustumHostIdentifier extends HostIdentifier {
 	 */
 	private static final long serialVersionUID = -6217098004734389347L;
 
-	private final String name;
+	private String name;
 
+	@Override
+	public int getInternalSerializedSize() {
+		return OOSUtils.getInternalSize(name, 1000);
+	}
+	
+	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
+	{
+		name=OOSUtils.readString(in, 1000, false);
+	}
+	private void writeObject(final ObjectOutputStream oos) throws IOException
+	{
+		OOSUtils.writeString(oos, name, 1000, false);
+	}
+	
 	CustumHostIdentifier(String name) {
 		this.name = name;
 	}

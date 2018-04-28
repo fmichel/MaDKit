@@ -54,6 +54,7 @@ import com.distrimind.madkit.kernel.AgentNetworkID;
 import com.distrimind.madkit.kernel.Gatekeeper;
 import com.distrimind.madkit.kernel.Group;
 import com.distrimind.madkit.kernel.JunitMadkit;
+import com.distrimind.madkit.util.SerializableAndSizable;
 
 /**
  * @author Fabien Michel
@@ -265,7 +266,18 @@ public class RequestRoleTest extends JunitMadkit {
 					e.printStackTrace();
 				}
 				try {
-					assertEquals(SUCCESS, requestRole(GROUP, null, new Object()));
+					assertEquals(SUCCESS, requestRole(GROUP, null, new SerializableAndSizable() {
+						
+						/**
+						 * 
+						 */
+						private static final long serialVersionUID = 6344115606412187437L;
+
+						@Override
+						public int getInternalSerializedSize() {
+							return 0;
+						}
+					}));
 					noExceptionFailure();
 				} catch (NullPointerException e) {
 					e.printStackTrace();

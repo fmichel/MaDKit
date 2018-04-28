@@ -266,6 +266,7 @@ public class CheckSumConnectionProtocol extends ConnectionProtocol<CheckSumConne
 
 		@Override
 		public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+			super.readAndCheckObject(in);
 			Enum<?> e=SerializationTools.readEnum(in, false);
 			if (!(e instanceof MessageDigestType))
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
@@ -284,6 +285,7 @@ public class CheckSumConnectionProtocol extends ConnectionProtocol<CheckSumConne
 
 		@Override
 		public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+			super.writeAndCheckObject(oos);
 			SerializationTools.writeEnum(oos, messageDigestType, false);
 			
 		}

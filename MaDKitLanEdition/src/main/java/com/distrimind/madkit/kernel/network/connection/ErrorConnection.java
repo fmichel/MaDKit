@@ -78,5 +78,7 @@ public abstract class ErrorConnection extends ConnectionMessage {
 	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
 		oos.writeBoolean(candidate_to_ban);
 	}
+	
+	
 
 }

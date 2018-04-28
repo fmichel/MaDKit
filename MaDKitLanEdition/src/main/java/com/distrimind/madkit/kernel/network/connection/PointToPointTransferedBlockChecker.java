@@ -160,12 +160,12 @@ public class PointToPointTransferedBlockChecker extends TransferedBlockChecker {
 
 	@Override
 	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		
+		super.readAndCheckObject(in);
 	}
 
 	@Override
 	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
-		
+		super.writeAndCheckObject(oos);
 	}
 	
 

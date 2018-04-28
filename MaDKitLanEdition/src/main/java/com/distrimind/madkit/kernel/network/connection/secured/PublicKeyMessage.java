@@ -79,13 +79,6 @@ class PublicKeyMessage extends ConnectionMessage {
 		public_key_for_encryption_bytes=SerializationTools.readBytes(in, SerializationTools.MAX_KEY_SIZE, false);
 		signedPublicKey=SerializationTools.readBytes(in, AskConnection.MAX_SIGNATURE_LENGTH, false);
 		public_key_for_signature_bytes=SerializationTools.readBytes(in, AskConnection.MAX_SIGNATURE_LENGTH, false);
-	}
-
-	@Override
-	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
-		SerializationTools.writeBytes(oos, public_key_for_encryption_bytes, SerializationTools.MAX_KEY_SIZE, false);
-		SerializationTools.writeBytes(oos, signedPublicKey, AskConnection.MAX_SIGNATURE_LENGTH, false);
-		SerializationTools.writeBytes(oos, public_key_for_signature_bytes, AskConnection.MAX_SIGNATURE_LENGTH, false);
 		try
 		{
 			public_key_for_encryption = (ASymmetricPublicKey) Key.decode(public_key_for_encryption_bytes);
@@ -105,6 +98,14 @@ class PublicKeyMessage extends ConnectionMessage {
 				throw (MessageSerializationException)e;
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		}
+	}
+
+	@Override
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		SerializationTools.writeBytes(oos, public_key_for_encryption_bytes, SerializationTools.MAX_KEY_SIZE, false);
+		SerializationTools.writeBytes(oos, signedPublicKey, AskConnection.MAX_SIGNATURE_LENGTH, false);
+		SerializationTools.writeBytes(oos, public_key_for_signature_bytes, AskConnection.MAX_SIGNATURE_LENGTH, false);
+		
 	}
 	
 	public PublicKeyMessage(ASymmetricPublicKey _public_key_for_encryption, ASymmetricPublicKey _public_key_distant_for_encryption, ASymmetricPublicKey _public_key_for_signature, ASymmetricPublicKey _public_key_distant_for_signature, ASymmetricPrivateKey privateKeyForSignature ) throws ConnectionException {
@@ -149,6 +150,13 @@ class PublicKeyMessage extends ConnectionMessage {
 		return false;
 	}
 
-	
+	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
+	{
+		readAndCheckObject(in);
+	}
+	private void writeObject(final ObjectOutputStream oos) throws IOException
+	{
+		writeAndCheckObject(oos);
+	}
 
 }

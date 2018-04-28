@@ -201,7 +201,7 @@ public class P2PSecuredConnectionProtocolWithKeyAgreementAlgorithm extends Conne
 
 	private void initKeyAgreementAlgorithm() throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException, InvalidAlgorithmParameterException
 	{
-		if (materialKeyForEncryption==null)
+		if (hproperties.enableEncryption && materialKeyForEncryption==null)
 			throw new InternalError();
 		if (materialKeyForSignature==null)
 			throw new InternalError();
@@ -248,7 +248,7 @@ public class P2PSecuredConnectionProtocolWithKeyAgreementAlgorithm extends Conne
 						
 						materialKeyForSignature=new byte[MATERIAL_KEY_SIZE_BYTES];
 						approvedRandom.nextBytes(materialKeyForSignature);
-						initKeyAgreementAlgorithm();
+						
 						byte [] material=null;
 						if (hproperties.enableEncryption)
 						{
@@ -258,6 +258,7 @@ public class P2PSecuredConnectionProtocolWithKeyAgreementAlgorithm extends Conne
 						}
 						else
 							material=materialKeyForSignature;
+						initKeyAgreementAlgorithm();
 						return new KeyAgreementDataMessage(keyAgreementForSignature.getDataToSend(), material);
 						
 					} catch (Exception e) {
@@ -351,11 +352,17 @@ public class P2PSecuredConnectionProtocolWithKeyAgreementAlgorithm extends Conne
 						doNotTakeIntoAccountNextState=false;
 						
 						if (hproperties.enableEncryption)
+						{
 							current_step=Step.WAITING_FOR_ENCRYPTION_DATA;
+							data=keyAgreementForEncryption.getDataToSend();
+							return new KeyAgreementDataMessage(data, null);
+						}
 						else
+						{
 							current_step=Step.WAITING_FOR_CONNECTION_CONFIRMATION;
-						data=keyAgreementForEncryption.getDataToSend();
-						return new KeyAgreementDataMessage(data, null);
+							myCounterSent=true;
+							return new ConnectionFinished(getDistantInetSocketAddress(), packetCounter.getMyEncodedCounters());
+						}
 					}
 				}				
 				catch(Exception e)
@@ -744,9 +751,16 @@ public class P2PSecuredConnectionProtocolWithKeyAgreementAlgorithm extends Conne
 						return getParentBlockWithEncryption(_block, true);
 				case WAITING_FOR_CONNECTION_CONFIRMATION: {
 					if (doNotTakeIntoAccountNextState)
-						return getParentBlockWithEncryption(_block, true);
+					{
+						if (!hproperties.enableEncryption)
+							return getParentBlockWithNoTreatments(_block);
+						else
+							return getParentBlockWithEncryption(_block, true);
+					}
 					else
+					{
 						return getParentBlockWithEncryption(_block, excludeFromEncryption);
+					}
 				}
 				case CONNECTED: {
 					return getParentBlockWithEncryption(_block, excludeFromEncryption);
@@ -892,7 +906,6 @@ public class P2PSecuredConnectionProtocolWithKeyAgreementAlgorithm extends Conne
 				}
 				signatureChecker.update(res.getBytes(), res.getOffset(), res.getSize());
 				boolean check = signatureChecker.verify();
-				
 				
 
 				return new SubBlockInfo(res, check, !check);

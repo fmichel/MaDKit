@@ -39,6 +39,7 @@ package com.distrimind.madkit.kernel.network.connection.secured;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.network.connection.ErrorConnection;
@@ -73,6 +74,15 @@ class IncomprehensibleSecretKey extends ErrorConnection {
 	@Override
 	public boolean excludedFromEncryption() {
 		return false;
+	}
+	
+	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
+	{
+		readAndCheckObject(in);
+	}
+	private void writeObject(final ObjectOutputStream oos) throws IOException
+	{
+		writeAndCheckObject(oos);
 	}
 
 }

@@ -386,14 +386,12 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 				candidate_to_ban = sbi.isCandidateToBan();
 				
 			} catch (BlockParserException e) {
-				e.printStackTrace();
 				valid = false;
 			}
 			if (valid) {
 				try {
 					sbi = new SubBlockInfo(sbs.getSubBlockForChild(sbi.getSubBlock(), i), true, false);
 				} catch (BlockParserException e) {
-					e.printStackTrace();
 					valid = false;
 				}
 			}
@@ -728,6 +726,7 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 		
 		@Override
 		public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+			super.readAndCheckObject(in);
 			headSize=in.readShort();
 			if (headSize < 0)
 				throw new MessageSerializationException(Integrity.FAIL);
@@ -735,6 +734,7 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 
 		@Override
 		public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+			super.writeAndCheckObject(oos);
 			oos.writeShort(headSize);
 		}
 		

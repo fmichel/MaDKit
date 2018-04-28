@@ -103,7 +103,14 @@ public class KeyAgreementDataMessage extends ConnectionMessage {
 		return false;
 	}
 
-
+	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
+	{
+		readAndCheckObject(in);
+	}
+	private void writeObject(final ObjectOutputStream oos) throws IOException
+	{
+		writeAndCheckObject(oos);
+	}
 	
 	
 }

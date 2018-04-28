@@ -216,8 +216,15 @@ public class SerializationTools {
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		
 		byte []tab=new byte[size];
-		if (ois.read(tab)!=size)
-			throw new IOException();
+		
+		int s=0;
+		while (s!=size)
+		{
+			int l=ois.read(tab, s, size-s);
+			if (l==-1)
+				throw new IOException();
+			s+=l;
+		}
 		
 		
 		return tab;

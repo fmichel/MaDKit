@@ -43,8 +43,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import com.distrimind.madkit.exceptions.BlockParserException;
+import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.network.SubBlock;
 import com.distrimind.madkit.kernel.network.SubBlockInfo;
+import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol.NullBlockChecker;
 import com.distrimind.madkit.util.SerializableAndSizable;
 
@@ -95,9 +97,29 @@ public abstract class TransferedBlockChecker implements SerializableAndSizable {
 		return this.getClass().getName() + (subChecker == null ? "" : " with sub checker" + subChecker.toString());
 	}
 
-	public abstract void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException;
+	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException
+	{
+		if (in.readBoolean())
+		{
+			Object o=in.readObject();
+			if (!(o instanceof TransferedBlockChecker))
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			subChecker=(TransferedBlockChecker)o;
+		}
+		else
+			subChecker=null;
+	}
+	
 
-	public abstract void writeAndCheckObject(ObjectOutputStream oos) throws IOException;
+	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException
+	{
+		if (subChecker==null)
+			oos.writeBoolean(false);
+		else
+		{
+			oos.writeObject(subChecker);
+		}
+	}
 	
 	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
 	{

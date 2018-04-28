@@ -261,6 +261,20 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 		p2pp_ecdh.enableEncryption=false;
 		o[1] = p2pp_ecdh;
 		res.add(o);
+		o = new ConnectionProtocolProperties<?>[2];
+		p2pp_ecdh = new P2PSecuredConnectionProtocolWithKeyAgreementProperties();
+		p2pp_ecdh.symmetricEncryptionType = SymmetricEncryptionType.DEFAULT;
+		p2pp_ecdh.keyAgreementType=KeyAgreementType.BCPQC_NEW_HOPE;
+		p2pp_ecdh.enableEncryption=true;
+		p2pp_ecdh.symmetricKeySizeBits=256;
+		o[0] = p2pp_ecdh;
+		p2pp_ecdh = new P2PSecuredConnectionProtocolWithKeyAgreementProperties();
+		p2pp_ecdh.symmetricEncryptionType = SymmetricEncryptionType.DEFAULT;
+		p2pp_ecdh.keyAgreementType=KeyAgreementType.BCPQC_NEW_HOPE;
+		p2pp_ecdh.enableEncryption=true;
+		p2pp_ecdh.symmetricKeySizeBits=256;
+		o[1] = p2pp_ecdh;
+		res.add(o);
 
 		o = new ConnectionProtocolProperties<?>[2];
 		p2pp_ecdh = new P2PSecuredConnectionProtocolWithKeyAgreementProperties();
@@ -485,9 +499,17 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 					}
 					message = serialize(mreceiver);
 					excludeFromEncryption=mreceiver.excludedFromEncryption();
-					mreceiver = (ConnectionMessage) unserialize(getMessage(message,
+					try
+					{
+						mreceiver = (ConnectionMessage) unserialize(getMessage(message,
 							getBytesToSend(getBlocks(message,excludeFromEncryption, this.cpreceiver, npreceiver, 2, -1, null)),
 							this.cpasker, npasker, 2, -1, null));
+					}
+					catch(IOException e)
+					{
+						System.err.println(mreceiver.getClass().getName());
+						throw e;
+					}
 					
 					Assert.assertFalse(cpasker.isConnectionEstablished());
 					masker = cpasker.setAndGetNextMessage(mreceiver);
@@ -908,6 +930,10 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 	}
 
 	public static byte[] serialize(Serializable message) throws IOException {
+		if (message instanceof SystemMessage)
+		{
+			Assert.assertTrue(message.getClass().getName(), NetworkProperties.checkSystemMessageCompatibility((SystemMessage)message));
+		}
 		try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
 			try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
 				oos.writeObject(message);

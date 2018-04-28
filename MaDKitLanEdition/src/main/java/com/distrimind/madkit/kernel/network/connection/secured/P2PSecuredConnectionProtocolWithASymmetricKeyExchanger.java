@@ -1026,6 +1026,7 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 
 		@Override
 		public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+			super.readAndCheckObject(in);
 			Enum<?> e=SerializationTools.readEnum(in, false);
 			if (!(e instanceof ASymmetricAuthentifiedSignatureType))
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
@@ -1035,11 +1036,19 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 			if (!(k instanceof ASymmetricPublicKey))
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 			publicKey=(ASymmetricPublicKey)k;
-			
+			try
+			{
+				initSignature();
+			}
+			catch(Exception e2)
+			{
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN, e2);
+			}
 		}
 
 		@Override
 		public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+			super.writeAndCheckObject(oos);
 			SerializationTools.writeEnum(oos, signatureType, false);
 			oos.writeInt(signatureSize);
 			SerializationTools.writeKey(oos, publicKey, false);

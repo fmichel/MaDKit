@@ -41,9 +41,4 @@ import com.distrimind.madkit.kernel.Message;
 
 public class EmptyMessage extends Message {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 }

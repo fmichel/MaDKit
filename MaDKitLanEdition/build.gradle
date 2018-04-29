@@ -20,18 +20,7 @@ if (propFile.canRead())
 {
     props.load(new FileInputStream(propFile))
 
-    if (props!=null && props.containsKey('jdk'))
-    {
-		compileJava.options.fork = true
-		compileJava.options.forkOptions.executable = "${jdk}/bin/javac"
-		compileJava.options.bootClasspath=fileTree(include: ['*.jar'], dir: "${jdk}/jre/lib").join(File.pathSeparator)
-		compileJava.options.extensionDirs = "${jdk}/jre/lib/ext/"
-	
-		compileTestJava.options.fork = true
-		compileTestJava.options.forkOptions.executable = "${jdk}/bin/javac"
-		compileTestJava.options.bootClasspath=fileTree(include: ['*.jar'], dir: "${jdk}/jre/lib").join(File.pathSeparator)
-		compileTestJava.options.extensionDirs = "${jdk}/jre/lib/ext/"
-	}
+
 	if (props!=null && props.containsKey('artifactory_contextUrl'))
 		artifactory_Url="${artifactory_contextUrl}"	
 	if (props!=null && props.containsKey('artifactory_user'))
@@ -77,6 +66,9 @@ allprojects {
     repositories {
         jcenter() 
     }
+    //compileJava.options.compilerArgs << "-Xlint"
+    if (project.hasProperty('javaHomeVersion') && javaHomeVersion.toFloat()>1.8)
+    	javadoc.options.addStringOption("html5", "-quiet")
 }
 
 sourceCompatibility = 1.7

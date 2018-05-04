@@ -39,8 +39,8 @@
 package com.distrimind.madkit.kernel;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -423,7 +423,8 @@ public final class Group extends AbstractGroup implements Comparable<Group> {
 		return this;
 	}
 
-	private void readObject(ObjectInputStream ois) throws IOException {
+	@Override
+	public void readExternal(ObjectInput ois) throws IOException {
 
 		try {
 			int size=ois.readInt();
@@ -472,8 +473,8 @@ public final class Group extends AbstractGroup implements Comparable<Group> {
 		return 9+this.getCommunity().length()*2+this.getPath().length()*2;
 	}
 	
-	
-	private void writeObject(ObjectOutputStream oos) throws IOException {
+	@Override
+	public void writeExternal(ObjectOutput oos) throws IOException {
 		try {
 			
 			if (this.getCommunity().length()>MAX_COMMUNITY_LENGTH)
@@ -1373,6 +1374,16 @@ public final class Group extends AbstractGroup implements Comparable<Group> {
 		@Override
 		public int getInternalSerializedSize() {
 			return 0;
+		}
+
+		@Override
+		public void writeExternal(ObjectOutput out) throws IOException {
+			
+		}
+
+		@Override
+		public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+			
 		}
 	}
 

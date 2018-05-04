@@ -39,8 +39,8 @@ package com.distrimind.madkit.kernel.network.connection.access;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -466,23 +466,16 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 		}
 
 		@Override
-		public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		public void writeExternal(ObjectOutput out) throws IOException {
 			
 		}
 
 		@Override
-		public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 			
 		}
 
-		private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
-		{
-			readAndCheckObject(in);
-		}
-		private void writeObject(final ObjectOutputStream oos) throws IOException
-		{
-			writeAndCheckObject(oos);
-		}
+		
 
 	}
 

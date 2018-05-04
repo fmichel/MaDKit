@@ -38,12 +38,14 @@
 package com.distrimind.madkit.kernel.network;
 
 import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.KernelAddress;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
+import com.distrimind.madkit.util.SerializationTools;
 import com.distrimind.util.AbstractDecentralizedID;
 
 import gnu.vm.jgnu.security.NoSuchAlgorithmException;
@@ -111,8 +113,8 @@ public class KernelAddressInterfaced extends KernelAddress {
 	}
 
 	
-
-	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		try {
 			internalSize=in.readShort();
 			if (internalSize<128 || internalSize>513)
@@ -144,7 +146,7 @@ public class KernelAddressInterfaced extends KernelAddress {
 			++internalSize;
 			initName();
 			
-			Object o=in.readObject();
+			Object o=SerializationTools.readExternalizableAndSizable(in, false);
 			if (!(o instanceof KernelAddress))
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 			original_external_kernel_address=(KernelAddress)o;
@@ -157,12 +159,12 @@ public class KernelAddressInterfaced extends KernelAddress {
 			throw new IOException(e);
 		}
 	}
-	private void writeObject(ObjectOutputStream oos) throws IOException {
+	@Override
+	public void writeExternal(ObjectOutput oos) throws IOException {
 		byte[] tab=id.getBytes();
 		oos.writeShort(tab.length);
 		oos.write(tab);
-		
-		oos.writeObject(original_external_kernel_address);
+		SerializationTools.writeExternalizableAndSizable(oos, original_external_kernel_address, false);
 		oos.writeBoolean(interfaced.get());
 	}
 	/**

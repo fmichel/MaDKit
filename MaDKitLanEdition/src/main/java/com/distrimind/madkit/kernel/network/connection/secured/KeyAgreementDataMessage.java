@@ -38,8 +38,8 @@
 package com.distrimind.madkit.kernel.network.connection.secured;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 import com.distrimind.madkit.kernel.network.NetworkProperties;
 import com.distrimind.madkit.kernel.network.connection.ConnectionMessage;
@@ -62,7 +62,7 @@ public class KeyAgreementDataMessage extends ConnectionMessage {
 	private byte[] materialKey;
 
 	@Override
-	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		int totalSize=NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE;
 		data=SerializationTools.readBytes(in, totalSize, false);
 		materialKey=SerializationTools.readBytes(in, totalSize-data.length, true);
@@ -70,7 +70,7 @@ public class KeyAgreementDataMessage extends ConnectionMessage {
 
 
 	@Override
-	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+	public void writeExternal(ObjectOutput oos) throws IOException {
 		int totalSize=NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE;
 		SerializationTools.writeBytes(oos, data, totalSize, false);
 		SerializationTools.writeBytes(oos, materialKey, totalSize-data.length, true);
@@ -103,14 +103,7 @@ public class KeyAgreementDataMessage extends ConnectionMessage {
 		return false;
 	}
 
-	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
-	{
-		readAndCheckObject(in);
-	}
-	private void writeObject(final ObjectOutputStream oos) throws IOException
-	{
-		writeAndCheckObject(oos);
-	}
+
 	
 	
 }

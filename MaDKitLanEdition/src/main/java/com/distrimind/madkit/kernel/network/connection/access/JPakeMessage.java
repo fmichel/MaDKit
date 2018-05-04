@@ -38,8 +38,8 @@
 package com.distrimind.madkit.kernel.network.connection.access;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -48,7 +48,7 @@ import java.util.Map;
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.network.NetworkProperties;
 import com.distrimind.madkit.util.SerializationTools;
-import com.distrimind.madkit.util.SerializableAndSizable;
+import com.distrimind.madkit.util.ExternalizableAndSizable;
 import com.distrimind.util.crypto.AbstractMessageDigest;
 import com.distrimind.util.crypto.AbstractSecureRandom;
 import com.distrimind.util.crypto.P2PJPAKESecretMessageExchanger;
@@ -81,12 +81,12 @@ class JPakeMessage extends AccessMessage{
 	private short step;
 	private final transient short nbAnomalies;
 	
-	
-	public void readAndCheckObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
+	@Override
+	public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException
 	{
 		identifiersIsEncrypted=in.readBoolean();
 		int globalSize=NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE;
-		SerializableAndSizable tab[]=SerializationTools.readSerializableAndSizables(in, globalSize, false);
+		ExternalizableAndSizable tab[]=SerializationTools.readExternalizableAndSizables(in, globalSize, false);
 		int totalSize=1;
 		identifiers=new Identifier[tab.length];
 		for (int i=0;i<tab.length;i++)
@@ -112,10 +112,11 @@ class JPakeMessage extends AccessMessage{
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		
 	}
-	public void writeAndCheckObject(final ObjectOutputStream oos) throws IOException
+	@Override
+	public void writeExternal(final ObjectOutput oos) throws IOException
 	{
 		oos.writeBoolean(identifiersIsEncrypted);
-		SerializationTools.writeSerializableAndSizables(oos, identifiers, NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE, false);
+		SerializationTools.writeExternalizableAndSizables(oos, identifiers, NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE, false);
 		SerializationTools.writeBytes2D(oos, jpakeMessages, identifiers.length, MAX_JPAKE_MESSAGE_LENGTH, false, false);
 		oos.writeShort(step);
 	}
@@ -336,13 +337,5 @@ class JPakeMessage extends AccessMessage{
 		return new LoginConfirmationMessage(acceptedIdentifiers, deniedIdentifiers, nbAno > Short.MAX_VALUE ? Short.MAX_VALUE : (short)nbAno, false);
 	}
 	
-	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
-	{
-		readAndCheckObject(in);
-	}
-	private void writeObject(final ObjectOutputStream oos) throws IOException
-	{
-		writeAndCheckObject(oos);
-	}
 	
 }

@@ -46,6 +46,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+
 import org.junit.Test;
 
 import com.distrimind.madkit.agr.Organization;
@@ -54,7 +58,7 @@ import com.distrimind.madkit.kernel.AgentNetworkID;
 import com.distrimind.madkit.kernel.Gatekeeper;
 import com.distrimind.madkit.kernel.Group;
 import com.distrimind.madkit.kernel.JunitMadkit;
-import com.distrimind.madkit.util.SerializableAndSizable;
+import com.distrimind.madkit.util.ExternalizableAndSizable;
 
 /**
  * @author Fabien Michel
@@ -266,7 +270,7 @@ public class RequestRoleTest extends JunitMadkit {
 					e.printStackTrace();
 				}
 				try {
-					assertEquals(SUCCESS, requestRole(GROUP, null, new SerializableAndSizable() {
+					assertEquals(SUCCESS, requestRole(GROUP, null, new ExternalizableAndSizable() {
 						
 						/**
 						 * 
@@ -276,6 +280,16 @@ public class RequestRoleTest extends JunitMadkit {
 						@Override
 						public int getInternalSerializedSize() {
 							return 0;
+						}
+
+						@Override
+						public void writeExternal(ObjectOutput out) throws IOException {
+							
+						}
+
+						@Override
+						public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+							
 						}
 					}));
 					noExceptionFailure();

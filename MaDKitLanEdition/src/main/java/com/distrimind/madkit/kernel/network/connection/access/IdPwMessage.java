@@ -38,8 +38,8 @@
 package com.distrimind.madkit.kernel.network.connection.access;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.Collection;
 
 import gnu.vm.jgnu.security.InvalidAlgorithmParameterException;
@@ -55,7 +55,7 @@ import gnu.vm.jgnux.crypto.ShortBufferException;
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.network.NetworkProperties;
 import com.distrimind.madkit.util.SerializationTools;
-import com.distrimind.madkit.util.SerializableAndSizable;
+import com.distrimind.madkit.util.ExternalizableAndSizable;
 import com.distrimind.util.crypto.P2PASymmetricSecretMessageExchanger;
 
 /**
@@ -77,9 +77,9 @@ class IdPwMessage extends AccessMessage {
 	private final transient short nbAnomalies;
 
 	@Override
-	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		identifiersIsEncrypted=in.readBoolean();
-		SerializableAndSizable[] s=SerializationTools.readSerializableAndSizables(in, NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE, false);
+		ExternalizableAndSizable[] s=SerializationTools.readExternalizableAndSizables(in, NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE, false);
 		identifiers=new Identifier[s.length];
 		int total=5;
 		for (int i=0;i<s.length;i++)
@@ -94,7 +94,7 @@ class IdPwMessage extends AccessMessage {
 			identifiers[i]=(Identifier)s[i];
 			total+=identifiers[i].getInternalSerializedSize();
 		}
-		s=SerializationTools.readSerializableAndSizables(in, NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE-total, false);
+		s=SerializationTools.readExternalizableAndSizables(in, NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE-total, false);
 		passwords=new EncryptedPassword[s.length];
 		for (int i=0;i<s.length;i++)
 		{
@@ -109,10 +109,10 @@ class IdPwMessage extends AccessMessage {
 	}
 
 	@Override
-	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+	public void writeExternal(ObjectOutput oos) throws IOException {
 		oos.writeBoolean(identifiersIsEncrypted);
-		SerializationTools.writeSerializableAndSizables(oos, identifiers, NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE, false);
-		SerializationTools.writeSerializableAndSizables(oos, passwords, NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE, false);
+		SerializationTools.writeExternalizableAndSizables(oos, identifiers, NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE, false);
+		SerializationTools.writeExternalizableAndSizables(oos, passwords, NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE, false);
 
 	}
 	
@@ -188,14 +188,7 @@ class IdPwMessage extends AccessMessage {
 		return false;
 	}
 
-	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
-	{
-		readAndCheckObject(in);
-	}
-	private void writeObject(final ObjectOutputStream oos) throws IOException
-	{
-		writeAndCheckObject(oos);
-	}
+	
 
 	
 }

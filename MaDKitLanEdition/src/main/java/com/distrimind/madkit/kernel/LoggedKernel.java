@@ -64,7 +64,7 @@ import com.distrimind.madkit.kernel.network.ConnectionIdentifier;
 import com.distrimind.madkit.kernel.network.LocalLanMessage;
 import com.distrimind.madkit.kernel.network.connection.access.PairOfIdentifiers;
 import com.distrimind.madkit.message.hook.HookMessage.AgentActionEvent;
-import com.distrimind.madkit.util.SerializableAndSizable;
+import com.distrimind.madkit.util.ExternalizableAndSizable;
 import com.distrimind.jdkrewrite.concurrent.ScheduledThreadPoolExecutor;
 import com.distrimind.util.IDGeneratorInt;
 import com.distrimind.util.crypto.MessageDigestType;
@@ -109,7 +109,7 @@ final class LoggedKernel extends MadkitKernel {
 	}
 
 	@Override
-	ReturnCode requestRole(AbstractAgent requester, Group group, String role, SerializableAndSizable memberCard,
+	ReturnCode requestRole(AbstractAgent requester, Group group, String role, ExternalizableAndSizable memberCard,
 			boolean manual_request) {
 		final ReturnCode r = kernel.requestRole(requester, group, role, memberCard, manual_request);
 		if (r == SUCCESS) {
@@ -592,7 +592,7 @@ final class LoggedKernel extends MadkitKernel {
 	}
 
 	@Override
-	void autoRequesteRole(AbstractAgent requester, AbstractGroup group, String role, SerializableAndSizable passKey) {
+	void autoRequesteRole(AbstractAgent requester, AbstractGroup group, String role, ExternalizableAndSizable passKey) {
 		kernel.autoRequesteRole(requester, group, role, passKey);
 		if (requester.isFinestLogOn())
 			requester.logger.log(Level.FINEST,
@@ -620,7 +620,7 @@ final class LoggedKernel extends MadkitKernel {
 
 	@Override
 	BigDataTransferID sendBigData(AbstractAgent requester, AgentAddress agentAddress, RandomInputStream stream,
-			long pos, long length, SerializableAndSizable attachedData, String senderRole, MessageDigestType messageDigestType, boolean excludeFromEncryption)
+			long pos, long length, ExternalizableAndSizable attachedData, String senderRole, MessageDigestType messageDigestType, boolean excludeFromEncryption)
 			throws IOException {
 		BigDataTransferID res = kernel.sendBigData(requester, agentAddress, stream, pos, length, attachedData,
 				senderRole, messageDigestType, excludeFromEncryption);

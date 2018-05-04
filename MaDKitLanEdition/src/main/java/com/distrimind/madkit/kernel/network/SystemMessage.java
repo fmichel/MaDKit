@@ -37,10 +37,8 @@
  */
 package com.distrimind.madkit.kernel.network;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
+import java.io.Externalizable;
+
 
 
 
@@ -51,7 +49,7 @@ import java.io.Serializable;
  * @version 1.1
  * @since MadkitLanEdition 1.0
  */
-public interface SystemMessage extends Serializable {
+public interface SystemMessage extends Externalizable {
 
 	
 	public static enum Integrity {
@@ -76,10 +74,7 @@ public interface SystemMessage extends Serializable {
 	
 	public abstract boolean excludedFromEncryption();
 
-	
-	
-	public void readAndCheckObject(final ObjectInputStream in) throws IOException, ClassNotFoundException;
-	public void writeAndCheckObject(final ObjectOutputStream oos) throws IOException;
+
 	
 	
 	

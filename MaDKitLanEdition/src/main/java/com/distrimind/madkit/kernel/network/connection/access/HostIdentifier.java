@@ -38,13 +38,13 @@
 package com.distrimind.madkit.kernel.network.connection.access;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.madkit.util.SerializationTools;
-import com.distrimind.madkit.util.SerializableAndSizable;
+import com.distrimind.madkit.util.ExternalizableAndSizable;
 import com.distrimind.util.AbstractDecentralizedID;
 import com.distrimind.util.RenforcedDecentralizedIDGenerator;
 import com.distrimind.util.SecuredDecentralizedID;
@@ -64,7 +64,7 @@ import gnu.vm.jgnu.security.NoSuchProviderException;
  * @see Identifier
  * @see CloudIdentifier
  */
-public abstract class HostIdentifier implements SerializableAndSizable {
+public abstract class HostIdentifier implements ExternalizableAndSizable {
 	/**
 	 * 
 	 */
@@ -145,15 +145,16 @@ public abstract class HostIdentifier implements SerializableAndSizable {
 			return SerializationTools.getInternalSize(id, 0);
 		}
 
-		
-		private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
+		@Override
+		public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException
 		{
 			AbstractDecentralizedID a=SerializationTools.readDecentralizedID(in, false);
 			if (!(a instanceof SecuredDecentralizedID))
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 			id=(SecuredDecentralizedID)a;
 		}
-		private void writeObject(final ObjectOutputStream oos) throws IOException
+		@Override
+		public void writeExternal(final ObjectOutput oos) throws IOException
 		{
 			
 			SerializationTools.writeDecentralizedID(oos, id, false);

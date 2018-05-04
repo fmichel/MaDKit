@@ -38,8 +38,8 @@
 package com.distrimind.madkit.kernel.network;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 import com.distrimind.madkit.kernel.network.connection.access.HostIdentifier;
 import com.distrimind.madkit.util.SerializationTools;
@@ -63,11 +63,11 @@ public class CustumHostIdentifier extends HostIdentifier {
 		return SerializationTools.getInternalSize(name, 1000);
 	}
 	
-	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
+	public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException
 	{
 		name=SerializationTools.readString(in, 1000, false);
 	}
-	private void writeObject(final ObjectOutputStream oos) throws IOException
+	public void writeExternal(final ObjectOutput oos) throws IOException
 	{
 		SerializationTools.writeString(oos, name, 1000, false);
 	}

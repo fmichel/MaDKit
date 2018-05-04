@@ -34,8 +34,8 @@
 package com.distrimind.madkit.message;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -45,6 +45,7 @@ import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.AgentAddress;
 import com.distrimind.madkit.kernel.network.NetworkProperties;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
+import com.distrimind.madkit.util.SerializationTools;
 
 /**
  * This class describes an ACL message. It provides accessors for all message
@@ -195,9 +196,9 @@ public class ACLMessage extends ActMessage // NO_UCD
 	}
 	
 	@Override
-	protected void readAndCheckObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
+	public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException
 	{
-		super.readAndCheckObject(in);
+		super.readExternal(in);
 		int totalSize=super.getInternalSerializedSize();
 		int globalSize=NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE;
 		int size=in.readInt();
@@ -209,7 +210,7 @@ public class ACLMessage extends ActMessage // NO_UCD
 		dests.ensureCapacity(size);
 		for (int i=0;i<size;i++)
 		{
-			Object o=in.readObject();
+			Object o=SerializationTools.readExternalizableAndSizable(in, false);
 			if (o instanceof AgentAddress)
 			{
 				AgentAddress aa=(AgentAddress)o;
@@ -230,7 +231,7 @@ public class ACLMessage extends ActMessage // NO_UCD
 		reply_to.ensureCapacity(size);
 		for (int i=0;i<size;i++)
 		{
-			Object o=in.readObject();
+			Object o=SerializationTools.readExternalizableAndSizable(in, false);
 			if (o instanceof AgentAddress)
 			{
 				AgentAddress aa=(AgentAddress)o;
@@ -244,14 +245,15 @@ public class ACLMessage extends ActMessage // NO_UCD
 		}
 	}
 	@Override
-	protected void writeAndCheckObject(final ObjectOutputStream oos) throws IOException{
-		super.writeAndCheckObject(oos);
+	public void writeExternal(final ObjectOutput oos) throws IOException{
+		super.writeExternal(oos);
 		oos.writeInt(dests.size());
 		for (AgentAddress aa : dests)
-			oos.writeObject(aa);
+			SerializationTools.writeExternalizableAndSizable(oos, aa, false);
 		oos.writeInt(reply_to.size());
 		for (AgentAddress aa : reply_to)
-			oos.writeObject(aa);
+			SerializationTools.writeExternalizableAndSizable(oos, aa, false);
+
 		
 			
 	}

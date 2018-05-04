@@ -47,6 +47,8 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import com.distrimind.madkit.util.SerializationTools;
+
 /**
  * 
  * @author Jason Mahdjoub
@@ -155,7 +157,7 @@ public class GroupTest {
 
 		try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
 			try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
-				oos.writeObject(g);
+				SerializationTools.writeExternalizableAndSizable(oos, g, false);
 			}
 			array = baos.toByteArray();
 		}
@@ -163,7 +165,7 @@ public class GroupTest {
 		Group g2 = null;
 		try (ByteArrayInputStream bais = new ByteArrayInputStream(array)) {
 			try (ObjectInputStream ois = new ObjectInputStream(bais)) {
-				g2 = (Group) ois.readObject();
+				g2 = (Group) SerializationTools.readExternalizableAndSizable(ois, false);
 			}
 		}
 

@@ -38,11 +38,12 @@
 package com.distrimind.madkit.kernel.network;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.CGRSynchro;
+import com.distrimind.madkit.util.SerializationTools;
 
 /**
  * 
@@ -81,18 +82,10 @@ final class CGRSynchroSystemMessage implements SystemMessage {
 		return false;
 	}
 
-	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
-	{
-		readAndCheckObject(in);
-	}
-	private void writeObject(final ObjectOutputStream oos) throws IOException
-	{
-		writeAndCheckObject(oos);
-	}
 
 	@Override
-	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		Object o=in.readObject();
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		Object o=SerializationTools.readExternalizableAndSizable(in, false);
 		if (!(o instanceof CGRSynchro))
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		CGRSynchro=(CGRSynchro)o;
@@ -106,8 +99,8 @@ final class CGRSynchroSystemMessage implements SystemMessage {
 	}
 
 	@Override
-	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
-		oos.writeObject(CGRSynchro);
+	public void writeExternal(ObjectOutput oos) throws IOException {
+		SerializationTools.writeExternalizableAndSizable(oos, CGRSynchro, false);
 		
 	}
 }

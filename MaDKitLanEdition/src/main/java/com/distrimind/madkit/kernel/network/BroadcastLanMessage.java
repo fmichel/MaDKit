@@ -38,8 +38,8 @@
 package com.distrimind.madkit.kernel.network;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.ArrayList;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
@@ -67,12 +67,12 @@ final class BroadcastLanMessage extends LanMessage {
 	public ArrayList<AgentAddress> agentAddressesSender;
 
 	@Override
-	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		
-		super.readAndCheckObject(in);
+		super.readExternal(in);
 		int globalSize=NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE;
 		int totalSize=0;
-		Object o=in.readObject();
+		Object o=SerializationTools.readExternalizableAndSizable(in, false);
 		if (!(o instanceof AbstractGroup))
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		abstract_group=(AbstractGroup)o;
@@ -88,7 +88,7 @@ final class BroadcastLanMessage extends LanMessage {
 		agentAddressesSender=new ArrayList<>(size);
 		for (int i=0;i<size;i++)
 		{
-			o=in.readObject();
+			o=SerializationTools.readExternalizableAndSizable(in, false);
 			if (!(o instanceof AgentAddress))
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 			AgentAddress aa=(AgentAddress)o;
@@ -102,13 +102,13 @@ final class BroadcastLanMessage extends LanMessage {
 	}
 
 	@Override
-	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
-		super.writeAndCheckObject(oos);
-		oos.writeObject(abstract_group);
+	public void writeExternal(ObjectOutput oos) throws IOException {
+		super.writeExternal(oos);
+		SerializationTools.writeExternalizableAndSizable(oos, abstract_group, false);
 		SerializationTools.writeString(oos, role, Group.MAX_ROLE_NAME_LENGTH, false);
 		oos.writeInt(agentAddressesSender.size());
 		for (AgentAddress aa : agentAddressesSender)
-			oos.writeObject(aa);
+			SerializationTools.writeExternalizableAndSizable(oos, aa, false);
 	}
 
 	
@@ -142,15 +142,7 @@ final class BroadcastLanMessage extends LanMessage {
 	public boolean excludedFromEncryption() {
 		return message.excludedFromEncryption();
 	}
-	
-	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
-	{
-		readAndCheckObject(in);
-	}
-	private void writeObject(final ObjectOutputStream oos) throws IOException
-	{
-		writeAndCheckObject(oos);
-	}
+
 
 	
 

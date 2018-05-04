@@ -50,6 +50,7 @@ import com.distrimind.madkit.exceptions.OverflowException;
 import com.distrimind.madkit.kernel.AbstractAgent;
 import com.distrimind.madkit.kernel.JunitMadkit;
 import com.distrimind.madkit.kernel.network.TransferAgent.IDTransfer;
+import com.distrimind.madkit.util.SerializationTools;
 
 /**
  * @author Jason Mahdjoub
@@ -82,11 +83,11 @@ public class IDTransferTest extends JunitMadkit {
 						try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
 							try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
 								Assert.assertTrue(ids[i].isGenerated());
-								oos.writeObject(ids[i]);
+								SerializationTools.writeExternalizableAndSizable(oos, ids[i], false);
 							}
 							try (ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray())) {
 								try (ObjectInputStream ois = new ObjectInputStream(bais)) {
-									IDTransfer id = (IDTransfer) ois.readObject();
+									IDTransfer id = (IDTransfer) SerializationTools.readExternalizableAndSizable(ois, false);
 									Assert.assertFalse(id.isGenerated());
 									Assert.assertEquals(id, ids[i]);
 								}

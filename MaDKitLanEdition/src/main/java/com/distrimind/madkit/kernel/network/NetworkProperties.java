@@ -38,9 +38,7 @@
 
 package com.distrimind.madkit.kernel.network;
 
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.lang.reflect.Method;
+
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
@@ -69,7 +67,7 @@ import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocolProperties;
 import com.distrimind.madkit.kernel.network.connection.access.AccessData;
 import com.distrimind.madkit.kernel.network.connection.access.AbstractAccessProtocolProperties;
-import com.distrimind.madkit.util.SerializableAndSizable;
+import com.distrimind.madkit.util.ExternalizableAndSizable;
 import com.distrimind.madkit.util.XMLObjectParser;
 import com.distrimind.madkit.util.XMLUtilities;
 import com.distrimind.ood.database.DatabaseWrapper;
@@ -122,7 +120,7 @@ public class NetworkProperties extends XMLProperties {
 		addAcceptedSerializedClassWithRegex("^java.*");
 		addAcceptedSerializedClassWithRegex("^com\\.distrimind.*");
 		addAcceptedSerializedClass(Number.class);
-		addAcceptedSerializedClass(SerializableAndSizable.class);
+		addAcceptedSerializedClass(ExternalizableAndSizable.class);
 		addAcceptedSerializedClass(Date.class);
 		addAcceptedSerializedClass(SystemMessage.class);
 		addDeniedSerializedClassWithRegex("^org\\.apache\\.commons\\.collections\\.functors\\.InvokerTransformer$");
@@ -1187,33 +1185,7 @@ public class NetworkProperties extends XMLProperties {
 	public static volatile int GLOBAL_MAX_SHORT_DATA_SIZE=20971520;
 	//public static volatile int GLOBAL_MAX_BUFFER_SIZE=Short.MAX_VALUE;
 	
-	private static final HashMap<Class<?>, Boolean> checkedSystemMessageClasses=new HashMap<>();
 	
-	static boolean checkSystemMessageCompatibility(SystemMessage sm)
-	{
-		if (sm==null)
-			throw new NullPointerException();
-		synchronized(checkedSystemMessageClasses)
-		{
-			Boolean valid=checkedSystemMessageClasses.get(sm.getClass());
-			if (valid==null)
-			{
-				try
-				{
-					Method m=sm.getClass().getDeclaredMethod("readObject", ObjectInputStream.class);
-					valid=Boolean.valueOf(m!=null);
-					m=sm.getClass().getDeclaredMethod("writeObject", ObjectOutputStream.class);
-					valid=Boolean.valueOf(valid.booleanValue() && m!=null);
-				}
-				catch(Exception e)
-				{
-					valid=Boolean.valueOf(false);
-				}
-				checkedSystemMessageClasses.put(sm.getClass(), valid);
-			}
-			return valid.booleanValue();
-		}			
-	}
 	
 	
 	private ArrayList<String> whiteListRegexIncludingClassesForDeserialization=new ArrayList<>();

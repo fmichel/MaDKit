@@ -38,8 +38,8 @@
 package com.distrimind.madkit.kernel.network.connection.access;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -59,7 +59,7 @@ import gnu.vm.jgnux.crypto.ShortBufferException;
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.network.NetworkProperties;
 import com.distrimind.madkit.util.SerializationTools;
-import com.distrimind.madkit.util.SerializableAndSizable;
+import com.distrimind.madkit.util.ExternalizableAndSizable;
 import com.distrimind.util.crypto.AbstractMessageDigest;
 import com.distrimind.util.crypto.AbstractSecureRandom;
 import com.distrimind.util.crypto.P2PASymmetricSecretMessageExchanger;
@@ -82,9 +82,9 @@ class IdentifiersPropositionMessage extends AccessMessage {
 	private final transient short nbAnomalies;
 
 	@Override
-	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		isEncrypted=in.readBoolean();
-		SerializableAndSizable[] s=SerializationTools.readSerializableAndSizables(in, NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE, false);
+		ExternalizableAndSizable[] s=SerializationTools.readExternalizableAndSizables(in, NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE, false);
 		identifiers=new Identifier[s.length];
 		for (int i=0;i<s.length;i++)
 		{
@@ -97,9 +97,9 @@ class IdentifiersPropositionMessage extends AccessMessage {
 		
 	}
 	@Override
-	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+	public void writeExternal(ObjectOutput oos) throws IOException {
 		oos.writeBoolean(isEncrypted);
-		SerializationTools.writeSerializableAndSizables(oos, identifiers, NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE, false);
+		SerializationTools.writeExternalizableAndSizables(oos, identifiers, NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE, false);
 		
 		
 	}
@@ -291,12 +291,4 @@ class IdentifiersPropositionMessage extends AccessMessage {
 		return false;
 	}
 
-	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
-	{
-		readAndCheckObject(in);
-	}
-	private void writeObject(final ObjectOutputStream oos) throws IOException
-	{
-		writeAndCheckObject(oos);
-	}
 }

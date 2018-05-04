@@ -38,8 +38,8 @@
 package com.distrimind.madkit.kernel;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.io.Serializable;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -51,7 +51,7 @@ import com.distrimind.madkit.kernel.network.Block;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.madkit.kernel.network.RealTimeTransfertStat;
 import com.distrimind.madkit.util.SerializationTools;
-import com.distrimind.madkit.util.SerializableAndSizable;
+import com.distrimind.madkit.util.ExternalizableAndSizable;
 import com.distrimind.util.crypto.MessageDigestType;
 
 /**
@@ -68,10 +68,10 @@ import com.distrimind.util.crypto.MessageDigestType;
  * @version 1.2
  * @since MadkitLanEdition 1.0
  * 
- * @see AbstractAgent#sendBigDataWithRole(AgentAddress, RandomInputStream, long, long, SerializableAndSizable, MessageDigestType, String, boolean)
+ * @see AbstractAgent#sendBigDataWithRole(AgentAddress, RandomInputStream, long, long, ExternalizableAndSizable, MessageDigestType, String, boolean)
  * @see BigDataResultMessage
  */
-public final class BigDataPropositionMessage extends Message implements SerializableAndSizable {
+public final class BigDataPropositionMessage extends Message implements ExternalizableAndSizable {
 
 	/**
 	 * 
@@ -85,7 +85,7 @@ public final class BigDataPropositionMessage extends Message implements Serializ
 	private transient RealTimeTransfertStat stat = null;
 	protected long pos;
 	protected long length;
-	private SerializableAndSizable attachedData;
+	private ExternalizableAndSizable attachedData;
 	private byte[] data;
 	private boolean isLocal;
 	protected int idPacket;
@@ -99,18 +99,16 @@ public final class BigDataPropositionMessage extends Message implements Serializ
 	}
 	
 	@Override
-	protected void readAndCheckObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
+	public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException
 	{
-		super.readAndCheckObjectImpl(in);
+		super.readExternal(in);
 		pos=in.readLong();
 		length=in.readLong();
-		Object o=in.readObject();
-		if (o==null)
-			attachedData=null;
-		else if (o instanceof SerializableAndSizable)
-			attachedData=((SerializableAndSizable)o);
-		else
+		Object o=SerializationTools.readExternalizableAndSizable(in, true);
+		if (o!=null && !(o instanceof ExternalizableAndSizable))
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		attachedData=((ExternalizableAndSizable)o);
+
 		data=SerializationTools.readBytes(in, Block.BLOCK_SIZE_LIMIT, true);
 		isLocal=in.readBoolean();
 		idPacket=in.readInt();
@@ -130,14 +128,12 @@ public final class BigDataPropositionMessage extends Message implements Serializ
 		
 	}
 	@Override
-	protected void writeAndCheckObject(final ObjectOutputStream oos) throws IOException{
-		super.writeAndCheckObjectImpl(oos);
+	public void writeExternal(final ObjectOutput oos) throws IOException{
+		super.writeExternal(oos);
 		oos.writeLong(pos);
 		oos.writeLong(length);
 		
-		oos.writeBoolean(attachedData!=null);
-		if (attachedData!=null)
-			oos.writeObject(attachedData);
+		SerializationTools.writeExternalizableAndSizable(oos, attachedData, true);
 		
 		SerializationTools.writeBytes(oos, data, Block.BLOCK_SIZE_LIMIT, true);
 		oos.writeBoolean(isLocal);
@@ -150,7 +146,7 @@ public final class BigDataPropositionMessage extends Message implements Serializ
 	
 	
 	
-	BigDataPropositionMessage(RandomInputStream stream, long pos, long length, SerializableAndSizable attachedData, boolean local,
+	BigDataPropositionMessage(RandomInputStream stream, long pos, long length, ExternalizableAndSizable attachedData, boolean local,
 			int maxBufferSize, RealTimeTransfertStat stat, MessageDigestType messageDigestType, boolean excludedFromEncryption) throws IOException {
 		if (stream == null)
 			throw new NullPointerException("stream");

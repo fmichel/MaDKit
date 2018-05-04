@@ -38,13 +38,14 @@
 package com.distrimind.madkit.kernel.network;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.KernelAddress;
 import com.distrimind.madkit.kernel.network.TransferAgent.IDTransfer;
-import com.distrimind.madkit.util.SerializableAndSizable;
+import com.distrimind.madkit.util.ExternalizableAndSizable;
+import com.distrimind.madkit.util.SerializationTools;
 
 /**
  * 
@@ -60,7 +61,7 @@ class TransferPropositionSystemMessage extends BroadcastableSystemMessage {
 	private static final long serialVersionUID = -5392984162781863410L;
 
 	private KernelAddress kernelAddressToConnect;
-	private SerializableAndSizable attachedData;
+	private ExternalizableAndSizable attachedData;
 	private IDTransfer idTransfer;
 	private int numberOfIntermediatePeers;
 	private boolean finalTestResult = true;
@@ -74,28 +75,28 @@ class TransferPropositionSystemMessage extends BroadcastableSystemMessage {
 
 
 	@Override
-	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		super.readAndCheckObject(in);
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		super.readExternal(in);
 		int totalSize=0;
 		int globalSize=NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE;
 		
-		Object o=in.readObject();
+		Object o=SerializationTools.readExternalizableAndSizable(in, false);
 		if (!(o instanceof KernelAddress))
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		kernelAddressToConnect=(KernelAddress)o;
 		totalSize+=kernelAddressToConnect.getInternalSerializedSize()+1;
 		if (in.readBoolean())
 		{
-			o=in.readObject();
-			if (!(o instanceof SerializableAndSizable))
+			o=SerializationTools.readExternalizableAndSizable(in, false);
+			if (!(o instanceof ExternalizableAndSizable))
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
-			attachedData=(SerializableAndSizable)o;
+			attachedData=(ExternalizableAndSizable)o;
 			totalSize+=attachedData.getInternalSerializedSize();
 			
 		}
 		if (totalSize>globalSize)
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
-		o=in.readObject();
+		o=SerializationTools.readExternalizableAndSizable(in, false);
 		if (!(o instanceof IDTransfer))
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		idTransfer=(IDTransfer)o;
@@ -115,17 +116,11 @@ class TransferPropositionSystemMessage extends BroadcastableSystemMessage {
 	}
 
 	@Override
-	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
-		super.writeAndCheckObject(oos);
-		oos.writeObject(kernelAddressToConnect);
-		if (attachedData==null)
-			oos.writeBoolean(false);
-		else
-		{
-			oos.writeBoolean(true);
-			oos.writeObject(attachedData);
-		}
-		oos.writeObject(idTransfer);
+	public void writeExternal(ObjectOutput oos) throws IOException {
+		super.writeExternal(oos);
+		SerializationTools.writeExternalizableAndSizable(oos, kernelAddressToConnect, false);
+		SerializationTools.writeExternalizableAndSizable(oos, attachedData, true);
+		SerializationTools.writeExternalizableAndSizable(oos, idTransfer, false);
 		oos.writeInt(numberOfIntermediatePeers);
 		oos.writeBoolean(finalTestResult);
 		oos.writeBoolean(youAskConnection);
@@ -134,7 +129,7 @@ class TransferPropositionSystemMessage extends BroadcastableSystemMessage {
 	
 	TransferPropositionSystemMessage(IDTransfer idTransferDestinationUsedForBroadcast, IDTransfer idTransfer,
 			KernelAddress kernelAddressToConnect, KernelAddress kernelAddressDestination, int numberOfIntermediatePeers,
-			SerializableAndSizable attachedData, boolean youAskConnection) {
+			ExternalizableAndSizable attachedData, boolean youAskConnection) {
 		super(idTransferDestinationUsedForBroadcast, kernelAddressDestination);
 		if (idTransfer == null)
 			throw new NullPointerException("idTransfer");
@@ -170,7 +165,7 @@ class TransferPropositionSystemMessage extends BroadcastableSystemMessage {
 		return kernelAddressToConnect;
 	}
 
-	SerializableAndSizable getAttachedDataForConnection() {
+	ExternalizableAndSizable getAttachedDataForConnection() {
 		return attachedData;
 	}
 
@@ -186,12 +181,5 @@ class TransferPropositionSystemMessage extends BroadcastableSystemMessage {
 	}
 
 	
-	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
-	{
-		readAndCheckObject(in);
-	}
-	private void writeObject(final ObjectOutputStream oos) throws IOException
-	{
-		writeAndCheckObject(oos);
-	}
+	
 }

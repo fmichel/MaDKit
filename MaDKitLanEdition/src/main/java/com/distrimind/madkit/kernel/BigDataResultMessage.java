@@ -38,13 +38,13 @@
 package com.distrimind.madkit.kernel;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.madkit.util.SerializationTools;
-import com.distrimind.madkit.util.SerializableAndSizable;
+import com.distrimind.madkit.util.ExternalizableAndSizable;
 
 /**
  * Gives the result of a big data transfer
@@ -53,7 +53,7 @@ import com.distrimind.madkit.util.SerializableAndSizable;
  * @version 1.0
  * @since MadkitLanEdition 1.0
  */
-public final class BigDataResultMessage extends Message implements SerializableAndSizable {
+public final class BigDataResultMessage extends Message implements ExternalizableAndSizable {
 
 	/**
 	 * 
@@ -71,9 +71,9 @@ public final class BigDataResultMessage extends Message implements SerializableA
 	}
 	
 	@Override
-	protected void readAndCheckObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
+	public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException
 	{
-		super.readAndCheckObjectImpl(in);
+		super.readExternal(in);
 		
 			
 		transferedData=in.readLong();
@@ -85,8 +85,8 @@ public final class BigDataResultMessage extends Message implements SerializableA
 		
 	}
 	@Override
-	protected void writeAndCheckObject(final ObjectOutputStream oos) throws IOException{
-		super.writeAndCheckObjectImpl(oos);
+	public void writeExternal(final ObjectOutput oos) throws IOException{
+		super.writeExternal(oos);
 		oos.writeLong(transferedData);
 		SerializationTools.writeString(oos, type.name(), 1000, false);
 		oos.writeInt(idPacket);

@@ -38,14 +38,14 @@
 package com.distrimind.madkit.kernel.network;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
-import com.distrimind.madkit.util.SerializableAndSizable;
+import com.distrimind.madkit.util.ExternalizableAndSizable;
 import com.distrimind.madkit.util.XMLObjectParser;
 import com.distrimind.util.properties.XMLProperties;
 
@@ -55,7 +55,7 @@ import com.distrimind.util.properties.XMLProperties;
  * @version 1.0
  * @since MadkitLanEdition 1.0
  */
-public abstract class AbstractIP extends XMLProperties implements SystemMessage, SerializableAndSizable{
+public abstract class AbstractIP extends XMLProperties implements SystemMessage, ExternalizableAndSizable{
 	/**
 	 * 
 	 */
@@ -70,14 +70,14 @@ public abstract class AbstractIP extends XMLProperties implements SystemMessage,
 	public abstract InetAddress[] getInetAddresses();
 
 	@Override
-	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		port=in.readInt();
 		if (port<0)
 			throw new MessageSerializationException(Integrity.FAIL);
 	}
 
 	@Override
-	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+	public void writeExternal(ObjectOutput oos) throws IOException {
 		oos.writeInt(port);
 	}
 	@Override

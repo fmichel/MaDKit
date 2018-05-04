@@ -38,12 +38,14 @@
 package com.distrimind.madkit.kernel;
 
 import java.io.IOException;
+import java.io.ObjectInput;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
-import com.distrimind.madkit.kernel.network.NetworkProperties;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
+import com.distrimind.madkit.util.SerializationTools;
 
 /**
  * The generic MaDKit message class. Create Subclasses to adapt it to your
@@ -98,7 +100,29 @@ public class Message implements Cloneable {// TODO message already sent warning 
 		this.conversationID = m.conversationID;
 		this.needReply = m.needReply;
 	}
+	public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException
+	{
+		Object o=SerializationTools.readExternalizableAndSizable(in, true);
+		if (o!=null && !(o instanceof AgentAddress))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		receiver=(AgentAddress)o;
+		o=SerializationTools.readExternalizableAndSizable(in, false);
+		if (!(o instanceof AgentAddress))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		sender=(AgentAddress)o;
+		o=SerializationTools.readExternalizableAndSizable(in, false);
+		if (!(o instanceof ConversationID))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		conversationID=(ConversationID)o;
+		needReply=in.readBoolean();
 
+	}
+	public void writeExternal(final ObjectOutput oos) throws IOException{
+		SerializationTools.writeExternalizableAndSizable(oos, receiver, true);
+		SerializationTools.writeExternalizableAndSizable(oos, sender, false);
+		SerializationTools.writeExternalizableAndSizable(oos, conversationID, false);
+		oos.writeBoolean(needReply);
+	}
 	void setNeedReply(boolean value) {
 		needReply = value;
 	}
@@ -201,50 +225,7 @@ public class Message implements Cloneable {// TODO message already sent warning 
 		return conversationID;
 	}
 
-	/**
-	 * Check the data integrity. This function is used by the kernel to check if the
-	 * data sent by a distant peer is not a compromised data. Override this function
-	 * to tell to the kernel if this data is corrupted, and eventually say to the
-	 * kernel if the distant peer is candidate to be banished.
-	 * 
-	 * @return <br>
-	 * 		{@link Integrity#OK} if no problem have been detected with this
-	 *         message <br>
-	 * 		{@link Integrity#FAIL} if a problem have been detected with this
-	 *         message. In this case, the message will not be received by the
-	 *         targeted agent, and the distant peer can eventually be temporary
-	 *         forced out if too much anomalies have been detected (see
-	 *         {@link NetworkProperties#nbMaxAnomaliesBeforeTrigeringExpulsion}),
-	 *         and for a time defined by
-	 *         {@link NetworkProperties#expulsionDuration}. Moreover, if too much
-	 *         expulsions (see {@link NetworkProperties#nbMaxExpulsions}) occurs
-	 *         into a time interval (see
-	 *         {@link NetworkProperties#expulsionStatisticDuration}, the distant
-	 *         agent will be banished for a time defined by
-	 *         {@link NetworkProperties#banishmentDuration}. If too much banishment
-	 *         (see {@link NetworkProperties#nbMaxBanishments}) occurs into a time
-	 *         interval (see {@link NetworkProperties#banishmentStatisticDuration},
-	 *         the distant agent will be banished forever. <br>
-	 * 		{@link Integrity#FAIL_AND_CANDIDATE_TO_BAN} if a problem have been
-	 *         detected with this message and if the distant peer must be candidate
-	 *         for banishment. In this case, the message will not be received by the
-	 *         targeted agent, and the distant peer can eventually be temporary
-	 *         banished if too much anomalies have been detected (see
-	 *         {@link NetworkProperties#nbMaxAnomaliesBeforeTrigeringBanishment}),
-	 *         and for a time defined by
-	 *         {@link NetworkProperties#banishmentDuration}. Moreover, if too much
-	 *         banishment (see {@link NetworkProperties#nbMaxBanishments}) occurs
-	 *         into a time interval (see
-	 *         {@link NetworkProperties#banishmentStatisticDuration}, the distant
-	 *         agent will be banished forever.
-	 * @see Integrity
-	 * @see NetworkProperties
-	 */
-	public Integrity checkDataIntegrity() {
-		if (getSender() == null || getConversationID() == null)
-			return Integrity.FAIL;
-		return Integrity.OK;
-	}
+
 
 	/**
 	 * This function is called when the agent receiver read this message
@@ -266,15 +247,15 @@ public class Message implements Cloneable {// TODO message already sent warning 
 	
 	protected void readAndCheckObjectImpl(final ObjectInputStream in) throws IOException, ClassNotFoundException
 	{
-		Object o=in.readObject();
-		if (!(o instanceof AgentAddress))
+		Object o=SerializationTools.readExternalizableAndSizable(in, true);
+		if (o!=null && !(o instanceof AgentAddress))
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		this.receiver=(AgentAddress)o;
-		o=in.readObject();
+		o=SerializationTools.readExternalizableAndSizable(in, false);
 		if (!(o instanceof AgentAddress))
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		this.sender=(AgentAddress)o;
-		o=in.readObject();
+		o=SerializationTools.readExternalizableAndSizable(in, false);
 		if (!(o instanceof ConversationID))
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		this.conversationID=(ConversationID)o;
@@ -282,32 +263,18 @@ public class Message implements Cloneable {// TODO message already sent warning 
 
 	}
 	protected void writeAndCheckObjectImpl(final ObjectOutputStream oos) throws IOException{
-		oos.writeObject(this.receiver);
-		oos.writeObject(this.sender);
-		oos.writeObject(conversationID);
+		SerializationTools.writeExternalizableAndSizable(oos, this.receiver, true);
+		SerializationTools.writeExternalizableAndSizable(oos, this.sender, false);
+		SerializationTools.writeExternalizableAndSizable(oos, conversationID, false);
 		oos.writeBoolean(this.needReply);
 	}
 	
-	protected void readAndCheckObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
-	{
-		in.defaultReadObject();
-
-	}
-	protected void writeAndCheckObject(final ObjectOutputStream oos) throws IOException{
-		oos.defaultWriteObject();
-	}
+	
 
 	
 	protected int getInternalSerializedSizeImpl() {
 		return receiver.getInternalSerializedSize()+sender.getInternalSerializedSize()+conversationID.getInternalSerializedSize()+1;
 	}
 	
-	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
-	{
-		readAndCheckObject(in);
-	}
-	private void writeObject(final ObjectOutputStream oos) throws IOException
-	{
-		writeAndCheckObject(oos);
-	}
+	
 }

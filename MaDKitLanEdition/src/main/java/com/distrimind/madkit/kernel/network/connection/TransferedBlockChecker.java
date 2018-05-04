@@ -39,8 +39,8 @@ package com.distrimind.madkit.kernel.network.connection;
 
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 import com.distrimind.madkit.exceptions.BlockParserException;
 import com.distrimind.madkit.exceptions.MessageSerializationException;
@@ -48,7 +48,8 @@ import com.distrimind.madkit.kernel.network.SubBlock;
 import com.distrimind.madkit.kernel.network.SubBlockInfo;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol.NullBlockChecker;
-import com.distrimind.madkit.util.SerializableAndSizable;
+import com.distrimind.madkit.util.ExternalizableAndSizable;
+import com.distrimind.madkit.util.SerializationTools;
 
 /**
  * 
@@ -56,7 +57,7 @@ import com.distrimind.madkit.util.SerializableAndSizable;
  * @version 1.0
  * @since MadkitLanEdition 1.0
  */
-public abstract class TransferedBlockChecker implements SerializableAndSizable {
+public abstract class TransferedBlockChecker implements ExternalizableAndSizable {
 	/**
 	 * 
 	 */
@@ -97,38 +98,26 @@ public abstract class TransferedBlockChecker implements SerializableAndSizable {
 		return this.getClass().getName() + (subChecker == null ? "" : " with sub checker" + subChecker.toString());
 	}
 
-	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
 	{
-		if (in.readBoolean())
-		{
-			Object o=in.readObject();
-			if (!(o instanceof TransferedBlockChecker))
-				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
-			subChecker=(TransferedBlockChecker)o;
-		}
-		else
-			subChecker=null;
+		Object o=SerializationTools.readExternalizableAndSizable(in, true);
+		if (o!=null && !(o instanceof TransferedBlockChecker))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		subChecker=(TransferedBlockChecker)o;
 	}
 	
-
-	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException
+	@Override
+	public void writeExternal(ObjectOutput oos) throws IOException
 	{
 		if (subChecker==null)
 			oos.writeBoolean(false);
 		else
 		{
 			oos.writeBoolean(true);
-			oos.writeObject(subChecker);
+			SerializationTools.writeExternalizableAndSizable(oos, subChecker, false);
 		}
 	}
 	
-	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
-	{
-		readAndCheckObject(in);
-	}
-	private void writeObject(final ObjectOutputStream oos) throws IOException
-	{
-		writeAndCheckObject(oos);
-	}
 
 }

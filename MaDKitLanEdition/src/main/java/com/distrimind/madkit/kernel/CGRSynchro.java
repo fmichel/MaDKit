@@ -38,14 +38,14 @@
 package com.distrimind.madkit.kernel;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.madkit.message.ObjectMessage;
 import com.distrimind.madkit.util.SerializationTools;
-import com.distrimind.madkit.util.SerializableAndSizable;
+import com.distrimind.madkit.util.ExternalizableAndSizable;
 
 /**
  * @author Fabien Michel
@@ -54,7 +54,7 @@ import com.distrimind.madkit.util.SerializableAndSizable;
  * @since MaDKitLanEdition 1.0
  *
  */
-public class CGRSynchro extends ObjectMessage<AgentAddress> implements SerializableAndSizable {
+public class CGRSynchro extends ObjectMessage<AgentAddress> implements ExternalizableAndSizable {
 
 	/**
 	 * 
@@ -75,9 +75,9 @@ public class CGRSynchro extends ObjectMessage<AgentAddress> implements Serializa
 	}	
 	
 	@Override
-	protected void readAndCheckObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
+	public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException
 	{
-		super.readAndCheckObjectImpl(in, 0);
+		super.readExternal(in, 0);
 		code=Code.valueOf(SerializationTools.readString(in, 1000, false));
 		if (code==null)
 			throw new MessageSerializationException(Integrity.FAIL);
@@ -85,8 +85,8 @@ public class CGRSynchro extends ObjectMessage<AgentAddress> implements Serializa
 		
 	}
 	@Override
-	protected void writeAndCheckObject(final ObjectOutputStream oos) throws IOException{
-		super.writeAndCheckObjectImpl(oos, 0);
+	public void writeExternal(final ObjectOutput oos) throws IOException{
+		super.writeExternal(oos, 0);
 		SerializationTools.writeString(oos, code.name(), 1000, false);
 		oos.writeBoolean(manual);
 	}
@@ -127,7 +127,7 @@ public class CGRSynchro extends ObjectMessage<AgentAddress> implements Serializa
 
 }
 
-class RequestRoleSecure extends ObjectMessage<SerializableAndSizable> implements SerializableAndSizable {
+class RequestRoleSecure extends ObjectMessage<ExternalizableAndSizable> implements ExternalizableAndSizable {
 
 	/**
 	 * 
@@ -144,9 +144,9 @@ class RequestRoleSecure extends ObjectMessage<SerializableAndSizable> implements
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	protected void readAndCheckObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
+	public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException
 	{
-		super.readAndCheckObjectImpl(in);
+		super.readExternal(in);
 		String clazz=SerializationTools.readString(in, Short.MAX_VALUE, false);
 		
 		Class<?> c=Class.forName(clazz, false, MadkitClassLoader.getSystemClassLoader());
@@ -157,7 +157,7 @@ class RequestRoleSecure extends ObjectMessage<SerializableAndSizable> implements
 		c=Class.forName(clazz, true, MadkitClassLoader.getSystemClassLoader());
 		requesterClass=(Class<? extends AbstractAgent>)c;
 		
-		Object o=in.readObject();
+		Object o=SerializationTools.readExternalizableAndSizable(in, false);
 		if (!(o instanceof AgentAddress))
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		requester=(AgentAddress)o;
@@ -165,16 +165,17 @@ class RequestRoleSecure extends ObjectMessage<SerializableAndSizable> implements
 		
 	}
 	@Override
-	protected void writeAndCheckObject(final ObjectOutputStream oos) throws IOException{
-		super.writeAndCheckObjectImpl(oos);
+	public void writeExternal(final ObjectOutput oos) throws IOException{
+		super.writeExternal(oos);
 		SerializationTools.writeString(oos, requesterClass.getName(), Short.MAX_VALUE, false);
-		oos.writeObject(requester);
+		SerializationTools.writeExternalizableAndSizable(oos, requester, false);
+		
 		SerializationTools.writeString(oos, roleName, Group.MAX_ROLE_NAME_LENGTH, false);
 	}
 	
 	
 	public RequestRoleSecure(Class<? extends AbstractAgent> requesterClass, AgentAddress requester, String roleName,
-			SerializableAndSizable key) {
+			ExternalizableAndSizable key) {
 		super(key);
 		this.requesterClass = requesterClass;
 		this.requester = requester;

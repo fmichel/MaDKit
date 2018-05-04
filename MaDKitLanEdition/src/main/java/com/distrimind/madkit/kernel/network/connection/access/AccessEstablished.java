@@ -38,12 +38,13 @@
 package com.distrimind.madkit.kernel.network.connection.access;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.AbstractGroup;
 import com.distrimind.madkit.kernel.network.NetworkProperties;
+import com.distrimind.madkit.util.SerializationTools;
 
 /**
  * 
@@ -76,18 +77,11 @@ class AccessEstablished extends AccessMessage {
 	}
 
 	
-	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
-	{
-		readAndCheckObject(in);
-	}
-	private void writeObject(final ObjectOutputStream oos) throws IOException
-	{
-		writeAndCheckObject(oos);
-	}
+
 
 	@Override
-	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		Object o=in.readObject();
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		Object o=SerializationTools.readExternalizableAndSizable(in, false);
 		if (!(o instanceof AbstractGroup))
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		concerned_groups=(AbstractGroup)o;
@@ -97,8 +91,8 @@ class AccessEstablished extends AccessMessage {
 	}
 
 	@Override
-	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
-		oos.writeObject(concerned_groups);
+	public void writeExternal(ObjectOutput oos) throws IOException {
+		SerializationTools.writeExternalizableAndSizable(oos, concerned_groups, false);
 		
 	}
 }

@@ -37,6 +37,9 @@
  */
 package com.distrimind.madkit.testing.util.agent;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.HashMap;
 
 import org.junit.Assert;
@@ -56,7 +59,7 @@ import com.distrimind.madkit.kernel.Message;
 import com.distrimind.madkit.kernel.network.NetworkProperties;
 import com.distrimind.madkit.kernel.network.RealTimeTransfertStat;
 import com.distrimind.madkit.message.hook.OrganizationEvent;
-import com.distrimind.madkit.util.SerializableAndSizable;
+import com.distrimind.madkit.util.ExternalizableAndSizable;
 import com.distrimind.madkit.message.hook.HookMessage.AgentActionEvent;
 import com.distrimind.util.crypto.MessageDigestType;
 
@@ -68,7 +71,7 @@ import com.distrimind.util.crypto.MessageDigestType;
  */
 public class AgentBigTransfer extends AgentFakeThread {
 	public static final String bigTransferRole = "Big Transfer Role";
-	public static final SerializableAndSizable attachedData = new SerializableAndSizable() {
+	public static final ExternalizableAndSizable attachedData = new ExternalizableAndSizable() {
 		
 		/**
 		 * 
@@ -78,6 +81,16 @@ public class AgentBigTransfer extends AgentFakeThread {
 		@Override
 		public int getInternalSerializedSize() {
 			return 0;
+		}
+
+		@Override
+		public void writeExternal(ObjectOutput out) throws IOException {
+			
+		}
+
+		@Override
+		public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+			
 		}
 	};
 	private final HashMap<AgentAddress, Boolean> otherConnected = new HashMap<>();

@@ -38,8 +38,8 @@
 package com.distrimind.madkit.kernel.network;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -74,8 +74,8 @@ public class HostIP extends AbstractIP {
 	}
 	
 	@Override
-	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		super.readAndCheckObject(in);
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		super.readExternal(in);
 		host=SerializationTools.readString(in, SerializationTools.MAX_URL_LENGTH, false);
 		if (getInetAddress() == null)
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
@@ -83,9 +83,9 @@ public class HostIP extends AbstractIP {
 	}
 
 	@Override
-	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+	public void writeExternal(ObjectOutput oos) throws IOException {
 		
-		super.writeAndCheckObject(oos);
+		super.writeExternal(oos);
 		SerializationTools.writeString(oos, host, SerializationTools.MAX_URL_LENGTH, false);
 		
 	}
@@ -227,12 +227,5 @@ public class HostIP extends AbstractIP {
 		return false;
 	}
 
-	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
-	{
-		readAndCheckObject(in);
-	}
-	private void writeObject(final ObjectOutputStream oos) throws IOException
-	{
-		writeAndCheckObject(oos);
-	}
+
 }

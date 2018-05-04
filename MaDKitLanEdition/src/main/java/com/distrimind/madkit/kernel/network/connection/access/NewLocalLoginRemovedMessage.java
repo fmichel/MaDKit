@@ -38,12 +38,13 @@
 package com.distrimind.madkit.kernel.network.connection.access;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.ArrayList;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.network.NetworkProperties;
+import com.distrimind.madkit.util.SerializationTools;
 
 /**
  * 
@@ -64,8 +65,8 @@ public class NewLocalLoginRemovedMessage extends LocalLogingAccessMessage {
 		removed_identifiers = _removed_identifiers;
 	}
 	@Override
-	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		super.readAndCheckObject(in);
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		super.readExternal(in);
 		int size=in.readInt();
 		int totalSize=4;
 		int globalSize=NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE;
@@ -74,7 +75,7 @@ public class NewLocalLoginRemovedMessage extends LocalLogingAccessMessage {
 		removed_identifiers=new ArrayList<>(size);
 		for (int i=0;i<size;i++)
 		{
-			Object o=in.readObject();
+			Object o=SerializationTools.readExternalizableAndSizable(in, false);
 			if (!(o instanceof Identifier))
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 			Identifier id=(Identifier)o;
@@ -87,11 +88,11 @@ public class NewLocalLoginRemovedMessage extends LocalLogingAccessMessage {
 
 
 	@Override
-	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
-		super.writeAndCheckObject(oos);
+	public void writeExternal(ObjectOutput oos) throws IOException {
+		super.writeExternal(oos);
 		oos.writeInt(removed_identifiers.size()); 
 		for (Identifier id : removed_identifiers)
-			oos.writeObject(id);
+			SerializationTools.writeExternalizableAndSizable(oos, id, false);
 		
 		
 	}

@@ -38,8 +38,8 @@
 package com.distrimind.madkit.kernel.network;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -79,7 +79,7 @@ final class CGRSynchrosSystemMessage implements SystemMessage {
 	}
 	
 	@Override
-	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 
 		
 		
@@ -102,7 +102,7 @@ final class CGRSynchrosSystemMessage implements SystemMessage {
 			Map<Group, Map<String, Set<AgentAddress>>> groups=new HashMap<Group, Map<String, Set<AgentAddress>>>();
 			for (int j=0;j<size2;j++)
 			{
-				Object o=in.readObject();
+				Object o=SerializationTools.readExternalizableAndSizable(in, false);
 				if (!(o instanceof Group))
 					throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);					
 				Group group=(Group)o;
@@ -125,7 +125,7 @@ final class CGRSynchrosSystemMessage implements SystemMessage {
 					HashSet<AgentAddress> agentAddresses=new HashSet<>();
 					for (int l=0;l<size4;l++)
 					{
-						o=in.readObject();
+						o=SerializationTools.readExternalizableAndSizable(in, false);
 						if (!(o instanceof AgentAddress))
 							throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 						AgentAddress aa=(AgentAddress)o;
@@ -148,7 +148,7 @@ final class CGRSynchrosSystemMessage implements SystemMessage {
 		removedGroups=new ArrayList<>(size);
 		for (int i=0;i<size;i++)
 		{
-			Object o=in.readObject();
+			Object o=SerializationTools.readExternalizableAndSizable(in, false);
 			if (!(o instanceof Group))
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 			Group g=(Group)o;
@@ -172,7 +172,7 @@ final class CGRSynchrosSystemMessage implements SystemMessage {
 	}
 
 	@Override
-	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+	public void writeExternal(ObjectOutput oos) throws IOException {
 		
 		oos.writeInt(organization_snap_shot.size());
 		for (Map.Entry<String, Map<Group, Map<String, Set<AgentAddress>>>> e : organization_snap_shot.entrySet())
@@ -181,20 +181,20 @@ final class CGRSynchrosSystemMessage implements SystemMessage {
 			oos.writeInt(e.getValue().size());
 			for (Map.Entry<Group, Map<String, Set<AgentAddress>>> e2 : e.getValue().entrySet())
 			{
-				oos.writeObject(e2.getKey());
+				SerializationTools.writeExternalizableAndSizable(oos, e2.getKey(), false);
 				oos.writeInt(e2.getValue().size());
 				for (Map.Entry<String, Set<AgentAddress>> e3 : e2.getValue().entrySet())
 				{
 					SerializationTools.writeString(oos, e.getKey(), Group.MAX_ROLE_NAME_LENGTH, false);
 					oos.writeInt(e3.getValue().size());
 					for (AgentAddress aa : e3.getValue())
-						oos.writeObject(aa);
+						SerializationTools.writeExternalizableAndSizable(oos, aa, false);
 				}
 			}
 		}
 		oos.writeInt(removedGroups.size());
 		for (Group g : removedGroups)
-			oos.writeObject(g);
+			SerializationTools.writeExternalizableAndSizable(oos, g, false);
 		
 	}
 
@@ -272,15 +272,6 @@ final class CGRSynchrosSystemMessage implements SystemMessage {
 	@Override
 	public boolean excludedFromEncryption() {
 		return false;
-	}
-
-	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
-	{
-		readAndCheckObject(in);
-	}
-	private void writeObject(final ObjectOutputStream oos) throws IOException
-	{
-		writeAndCheckObject(oos);
 	}
 
 	

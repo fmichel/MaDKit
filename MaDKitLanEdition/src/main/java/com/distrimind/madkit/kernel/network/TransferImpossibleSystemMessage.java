@@ -38,12 +38,13 @@
 package com.distrimind.madkit.kernel.network;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.KernelAddress;
 import com.distrimind.madkit.kernel.network.TransferAgent.IDTransfer;
+import com.distrimind.madkit.util.SerializationTools;
 
 /**
  * 
@@ -76,9 +77,9 @@ class TransferImpossibleSystemMessage extends BroadcastableSystemMessage {
 
 
 	@Override
-	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		super.readAndCheckObject(in);
-		Object o=in.readObject();
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		super.readExternal(in);
+		Object o=SerializationTools.readExternalizableAndSizable(in, false);
 		if (!(o instanceof IDTransfer))
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		yourIDTransfer=(IDTransfer)o;
@@ -87,9 +88,9 @@ class TransferImpossibleSystemMessage extends BroadcastableSystemMessage {
 	}
 
 	@Override
-	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
-		super.writeAndCheckObject(oos);
-		oos.writeObject(yourIDTransfer);
+	public void writeExternal(ObjectOutput oos) throws IOException {
+		super.writeExternal(oos);
+		SerializationTools.writeExternalizableAndSizable(oos, yourIDTransfer, false);
 	}
 	
 
@@ -108,13 +109,6 @@ class TransferImpossibleSystemMessage extends BroadcastableSystemMessage {
 		return false;
 	}
 	
-	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
-	{
-		readAndCheckObject(in);
-	}
-	private void writeObject(final ObjectOutputStream oos) throws IOException
-	{
-		writeAndCheckObject(oos);
-	}
+
 
 }

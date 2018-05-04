@@ -37,17 +37,13 @@
  */
 package com.distrimind.madkit.kernel;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.distrimind.madkit.exceptions.MessageSerializationException;
-import com.distrimind.madkit.kernel.network.NetworkProperties;
-import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
+
 
 
 /**
@@ -57,96 +53,18 @@ import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
  * @version 1.0
  * @since MadkitLanEdition 1.0
  */
-public class Replies extends Message implements com.distrimind.madkit.util.NetworkMessage{
+public class Replies extends Message {
 
-	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -7150401429825091371L;
 
 	private Message originalMessage;
 	// private final ConversationID originalConversationID;
 	private AtomicInteger numberOfReplies = new AtomicInteger(0);
 	private List<Message> replies;
 	private AtomicBoolean allMessagesSent = new AtomicBoolean(false);
-	private transient boolean serializable=true;
-	private boolean acceptSerialization=true;
 
-	@Override
-	public int getInternalSerializedSize() {
-		int size=super.getInternalSerializedSizeImpl()+originalMessage.getInternalSerializedSizeImpl()+9;
-		for (Message m : replies)
-			size+=m.getInternalSerializedSizeImpl();
-		return size;
-	}	
 	
-	@Override
-	protected void readAndCheckObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
-	{
-		
-		synchronized(Replies.class)
-		{
-			try
-			{
-				if (!acceptSerialization)
-					throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
-				acceptSerialization=false;
-				int globalSize=NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE;
-				super.readAndCheckObjectImpl(in);
-				int totalSize=super.getInternalSerializedSizeImpl();
-				
-				Object o=in.readObject();
-				if (!(o instanceof Message))
-					throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
-				originalMessage=(Message)o;
-				totalSize+=((com.distrimind.madkit.util.NetworkMessage)originalMessage).getInternalSerializedSize();
-				if (totalSize>globalSize)
-					throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
-				numberOfReplies=new AtomicInteger(in.readInt());
-				if (numberOfReplies.get()<0)
-					throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
-				int size=in.readInt();
-				if (size<0 || size>globalSize/4)
-					throw new MessageSerializationException(Integrity.FAIL);
-				if (totalSize+size*4>globalSize)
-					throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
-				replies=new ArrayList<>(size);
-				
-				for (int i=0;i<size;i++)
-				{
-					o=in.readObject();
-					if (!(o instanceof Message))
-						throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
-					totalSize+=((com.distrimind.madkit.util.NetworkMessage)originalMessage).getInternalSerializedSize();
-					if (totalSize>globalSize)
-						throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
-					replies.add((Message)o);
-				}
-				allMessagesSent=new AtomicBoolean(in.readBoolean());
-			}
-			finally
-			{
-				acceptSerialization=true;
-			}
-		}		
-	}
-	@Override
-	protected void writeAndCheckObject(final ObjectOutputStream oos) throws IOException{
-		if (!serializable)
-			throw new IOException("Non serializable message");
-		super.writeAndCheckObjectImpl(oos);
-		oos.writeObject(originalMessage);
-		oos.writeInt(numberOfReplies.get());
-		if (replies.size()>NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE/4)
-			throw new IOException();
-		oos.writeInt(replies.size());
-		for (Message m : replies)
-		{
-			oos.writeObject(m);
-		}
-		oos.writeBoolean(allMessagesSent.get());
-	}
+	
+	
 	
 	
 	Replies(Message originalMessage) {
@@ -155,8 +73,7 @@ public class Replies extends Message implements com.distrimind.madkit.util.Netwo
 		this.originalMessage = originalMessage;
 		super.setIDFrom(originalMessage);
 		// this.originalConversationID=originalMessage.getConversationID();
-		if (!(originalMessage instanceof com.distrimind.madkit.util.NetworkMessage))
-			serializable=false;
+	
 		replies = new ArrayList<>();
 	}
 
@@ -164,8 +81,7 @@ public class Replies extends Message implements com.distrimind.madkit.util.Netwo
 		if (originalMessage == null)
 			throw new NullPointerException("originalMessage");
 		this.originalMessage = originalMessage;
-		if (!(originalMessage instanceof com.distrimind.madkit.util.NetworkMessage))
-			serializable=false;
+		
 
 		super.setIDFrom(originalMessage);
 		// this.originalConversationID=originalMessage.getConversationID();
@@ -176,8 +92,7 @@ public class Replies extends Message implements com.distrimind.madkit.util.Netwo
 			this.replies = new ArrayList<>(replies.size());
 			for (Message m : replies) {
 				if (m.getClass() != EmptyMessage.class)
-					if (!(m instanceof com.distrimind.madkit.util.NetworkMessage))
-						serializable=false;
+			
 
 					this.replies.add(m);
 			}
@@ -233,8 +148,7 @@ public class Replies extends Message implements com.distrimind.madkit.util.Netwo
 		synchronized (this) {
 			if (m != null && m.getClass() != EmptyMessage.class)
 			{
-				if (!(m instanceof com.distrimind.madkit.util.NetworkMessage))
-					serializable=false;
+			
 
 				replies.add(m);
 			}

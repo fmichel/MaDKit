@@ -37,9 +37,9 @@
  */
 package com.distrimind.madkit.kernel;
 
-import com.distrimind.madkit.util.SerializableAndSizable;
+import com.distrimind.madkit.util.ExternalizableAndSizable;
 
-public final class EmptyMessage extends Message implements SerializableAndSizable {
+public final class EmptyMessage extends Message implements ExternalizableAndSizable {
 
 	/**
 	 * 

@@ -38,8 +38,8 @@
 package com.distrimind.madkit.kernel.network;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.security.SecureRandom;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
@@ -65,20 +65,21 @@ final class SecretMessage extends KernelAddressNegociationMessage {
 	private transient AgentAddress originalDistantKernelAgent = null;
 
 	@Override
-	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		secretMessage=SerializationTools.readBytes(in, secretMessageSize, false);
 		if (secretMessage == null || secretMessage.length != secretMessageSize)
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
-		Object o=in.readObject();
+		Object o=SerializationTools.readExternalizableAndSizable(in, false);
 		if (!(o instanceof AgentAddress))
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		agent_socket_address=(AgentAddress)o;
 	}
 
 	@Override
-	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+	public void writeExternal(ObjectOutput oos) throws IOException {
 		SerializationTools.writeBytes(oos, secretMessage, secretMessageSize, false);
-		oos.writeObject(agent_socket_address);
+		SerializationTools.writeExternalizableAndSizable(oos, agent_socket_address, false);
+		
 	}
 	
 	SecretMessage(SecureRandom random, AgentAddress agent_socket_address, AgentAddress originalDistantKernelAgent) {
@@ -144,13 +145,6 @@ final class SecretMessage extends KernelAddressNegociationMessage {
 		return false;
 	}
 	
-	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
-	{
-		readAndCheckObject(in);
-	}
-	private void writeObject(final ObjectOutputStream oos) throws IOException
-	{
-		writeAndCheckObject(oos);
-	}
+
 
 }

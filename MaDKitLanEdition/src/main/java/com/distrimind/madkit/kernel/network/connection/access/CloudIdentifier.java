@@ -38,7 +38,7 @@
 package com.distrimind.madkit.kernel.network.connection.access;
 
 
-import com.distrimind.madkit.util.SerializableAndSizable;
+import com.distrimind.madkit.util.ExternalizableAndSizable;
 
 /**
  * This identifier is related to a cloud associated to a user, or an entity.
@@ -51,7 +51,7 @@ import com.distrimind.madkit.util.SerializableAndSizable;
  * @see Identifier
  * @see HostIdentifier
  */
-public abstract class CloudIdentifier implements SerializableAndSizable {
+public abstract class CloudIdentifier implements ExternalizableAndSizable {
 
 	/**
 	 * 

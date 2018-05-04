@@ -38,8 +38,7 @@
 package com.distrimind.madkit.kernel.network.connection.secured;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.network.connection.ErrorConnection;
@@ -62,8 +61,8 @@ class SimilarPublicKeysError extends ErrorConnection {
 	}
 
 	@Override
-	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		super.readAndCheckObject(in);
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		super.readExternal(in);
 		if (!candidate_to_ban)
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 	}
@@ -74,12 +73,5 @@ class SimilarPublicKeysError extends ErrorConnection {
 	}
 	
 	
-	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
-	{
-		readAndCheckObject(in);
-	}
-	private void writeObject(final ObjectOutputStream oos) throws IOException
-	{
-		writeAndCheckObject(oos);
-	}
+	
 }

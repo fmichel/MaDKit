@@ -35,8 +35,8 @@
 package com.distrimind.madkit.message;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.io.Serializable;
 
 import com.distrimind.madkit.kernel.network.NetworkProperties;
@@ -68,23 +68,16 @@ public class NetworkObjectMessage<T extends Serializable> extends ObjectMessage<
 	}	
 	
 	@Override
-	protected void readAndCheckObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
+	public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException
 	{
-		super.readAndCheckObjectImpl(in, NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE);
+		super.readExternal(in, NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE);
 	}
 	@Override
-	protected void writeAndCheckObject(final ObjectOutputStream oos) throws IOException{
-		super.writeAndCheckObjectImpl(oos, NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE);
+	public void writeExternal(final ObjectOutput oos) throws IOException{
+		super.writeExternal(oos, NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE);
 	}
 	
-	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
-	{
-		readAndCheckObject(in);
-	}
-	private void writeObject(final ObjectOutputStream oos) throws IOException
-	{
-		writeAndCheckObject(oos);
-	}
+	
 	
 	/**
 	 * Builds a message with the specified content

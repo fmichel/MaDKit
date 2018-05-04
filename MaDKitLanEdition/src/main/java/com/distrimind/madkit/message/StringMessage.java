@@ -34,8 +34,8 @@
 package com.distrimind.madkit.message;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 import com.distrimind.madkit.util.NetworkMessage;
 
@@ -73,15 +73,15 @@ public class StringMessage extends ObjectMessage<String> implements NetworkMessa
 	}
 	
 	@Override
-	protected void readAndCheckObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
+	public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException
 	{
-		super.readAndCheckObjectImpl(in, MAX_CONTENT_LENGTH);
+		super.readExternal(in, MAX_CONTENT_LENGTH);
 		
 		
 	}
 	@Override
-	protected void writeAndCheckObject(final ObjectOutputStream oos) throws IOException{
-		super.writeAndCheckObjectImpl(oos, MAX_CONTENT_LENGTH);
+	public void writeExternal(final ObjectOutput oos) throws IOException{
+		super.writeExternal(oos, MAX_CONTENT_LENGTH);
 	}
 
 }

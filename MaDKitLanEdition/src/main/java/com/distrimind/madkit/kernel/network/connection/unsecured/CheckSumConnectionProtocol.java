@@ -38,8 +38,8 @@
 package com.distrimind.madkit.kernel.network.connection.unsecured;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.net.InetSocketAddress;
 
 import com.distrimind.madkit.exceptions.BlockParserException;
@@ -265,8 +265,8 @@ public class CheckSumConnectionProtocol extends ConnectionProtocol<CheckSumConne
 		}
 
 		@Override
-		public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-			super.readAndCheckObject(in);
+		public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+			super.readExternal(in);
 			Enum<?> e=SerializationTools.readEnum(in, false);
 			if (!(e instanceof MessageDigestType))
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
@@ -284,8 +284,8 @@ public class CheckSumConnectionProtocol extends ConnectionProtocol<CheckSumConne
 		}
 
 		@Override
-		public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
-			super.writeAndCheckObject(oos);
+		public void writeExternal(ObjectOutput oos) throws IOException {
+			super.writeExternal(oos);
 			SerializationTools.writeEnum(oos, messageDigestType, false);
 			
 		}

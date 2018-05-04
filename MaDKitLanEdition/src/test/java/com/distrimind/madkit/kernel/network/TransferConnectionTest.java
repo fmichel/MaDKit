@@ -37,6 +37,9 @@
  */
 package com.distrimind.madkit.kernel.network;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -66,7 +69,7 @@ import com.distrimind.madkit.kernel.AgentFakeThread;
 import com.distrimind.madkit.message.hook.DistantKernelAgentEventMessage;
 import com.distrimind.madkit.message.hook.HookMessage.AgentActionEvent;
 import com.distrimind.madkit.message.hook.TransferEventMessage.TransferEventType;
-import com.distrimind.madkit.util.SerializableAndSizable;
+import com.distrimind.madkit.util.ExternalizableAndSizable;
 import com.distrimind.util.OSValidator;
 import com.distrimind.madkit.message.hook.NetworkEventMessage;
 import com.distrimind.madkit.message.hook.TransferEventMessage;
@@ -229,7 +232,7 @@ public class TransferConnectionTest extends JunitMadkit {
 	}
 
 	private static final long timeOut = 180000;
-	final static SerializableAndSizable attachedData = new SerializableAndSizable() {
+	final static ExternalizableAndSizable attachedData = new ExternalizableAndSizable() {
 		
 		
 		/**
@@ -241,6 +244,16 @@ public class TransferConnectionTest extends JunitMadkit {
 		public int getInternalSerializedSize() {
 			
 			return 0;
+		}
+
+		@Override
+		public void writeExternal(ObjectOutput out) throws IOException {
+			
+		}
+
+		@Override
+		public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+			
 		}
 	};
 
@@ -500,7 +513,7 @@ class AgentToLaunch extends AgentFakeThread {
 	volatile Connection connection2 = null;
 	volatile Connection connection3 = null;
 	private AskForTransferMessage.Type type;
-	private SerializableAndSizable attachedData;
+	private ExternalizableAndSizable attachedData;
 	private volatile int transferConnectionFinished = 0;
 	private volatile int transferDeconnected = 0;
 	private volatile int directConnectionFinished = 0;
@@ -640,7 +653,7 @@ class AgentToLaunch extends AgentFakeThread {
 		}
 	}
 
-	public void askForTransferConnection(AskForTransferMessage.Type type, SerializableAndSizable attachedData) {
+	public void askForTransferConnection(AskForTransferMessage.Type type, ExternalizableAndSizable attachedData) {
 		synchronized (this) {
 			this.type = type;
 			this.attachedData = attachedData;

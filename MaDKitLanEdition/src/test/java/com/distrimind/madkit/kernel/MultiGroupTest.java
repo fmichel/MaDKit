@@ -47,6 +47,8 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import com.distrimind.madkit.util.SerializationTools;
+
 /**
  * 
  * @author Jason Mahdjoub
@@ -96,7 +98,7 @@ public class MultiGroupTest {
 
 		try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
 			try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
-				oos.writeObject(g);
+				SerializationTools.writeExternalizableAndSizable(oos, g, false);
 			}
 			array = baos.toByteArray();
 		}

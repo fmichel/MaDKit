@@ -39,8 +39,8 @@ package com.distrimind.madkit.kernel.network.connection.secured;
 
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 import com.distrimind.madkit.exceptions.ConnectionException;
 import com.distrimind.madkit.exceptions.MessageSerializationException;
@@ -75,7 +75,7 @@ class PublicKeyMessage extends ConnectionMessage {
 	private transient final byte[] public_key_bytes_distant_for_signature;
 	
 	@Override
-	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		public_key_for_encryption_bytes=SerializationTools.readBytes(in, SerializationTools.MAX_KEY_SIZE, false);
 		signedPublicKey=SerializationTools.readBytes(in, AskConnection.MAX_SIGNATURE_LENGTH, false);
 		public_key_for_signature_bytes=SerializationTools.readBytes(in, AskConnection.MAX_SIGNATURE_LENGTH, false);
@@ -101,7 +101,7 @@ class PublicKeyMessage extends ConnectionMessage {
 	}
 
 	@Override
-	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+	public void writeExternal(ObjectOutput oos) throws IOException {
 		SerializationTools.writeBytes(oos, public_key_for_encryption_bytes, SerializationTools.MAX_KEY_SIZE, false);
 		SerializationTools.writeBytes(oos, signedPublicKey, AskConnection.MAX_SIGNATURE_LENGTH, false);
 		SerializationTools.writeBytes(oos, public_key_for_signature_bytes, AskConnection.MAX_SIGNATURE_LENGTH, false);
@@ -150,13 +150,6 @@ class PublicKeyMessage extends ConnectionMessage {
 		return false;
 	}
 
-	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
-	{
-		readAndCheckObject(in);
-	}
-	private void writeObject(final ObjectOutputStream oos) throws IOException
-	{
-		writeAndCheckObject(oos);
-	}
+
 
 }

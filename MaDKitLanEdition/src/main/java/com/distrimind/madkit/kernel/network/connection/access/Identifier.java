@@ -38,12 +38,13 @@
 package com.distrimind.madkit.kernel.network.connection.access;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
-import com.distrimind.madkit.util.SerializableAndSizable;
+import com.distrimind.madkit.util.ExternalizableAndSizable;
+import com.distrimind.madkit.util.SerializationTools;
 
 /**
  * This identifier associates a {@link HostIdentifier} and a
@@ -56,7 +57,7 @@ import com.distrimind.madkit.util.SerializableAndSizable;
  * @see CloudIdentifier
  * @see HostIdentifier
  */
-public class Identifier implements SerializableAndSizable {
+public class Identifier implements ExternalizableAndSizable {
 
 	/**
 	 * 
@@ -144,25 +145,26 @@ public class Identifier implements SerializableAndSizable {
 		return cloud_identifier.getInternalSerializedSize()+host_identifier.getInternalSerializedSize();
 	}
 
-	
-	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
+	@Override
+	public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException
 	{
-		Object o=in.readObject();
+		Object o=SerializationTools.readExternalizableAndSizable(in, false);
 		if (!(o instanceof CloudIdentifier))
 		{
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		}
 		cloud_identifier=(CloudIdentifier)o;
-		o=in.readObject();
+		o=SerializationTools.readExternalizableAndSizable(in, false);
 		if (!(o instanceof HostIdentifier))
 		{
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		}
 		host_identifier=(HostIdentifier)o;
 	}
-	private void writeObject(final ObjectOutputStream oos) throws IOException
+	@Override
+	public void writeExternal(final ObjectOutput oos) throws IOException
 	{
-		oos.writeObject(cloud_identifier);
-		oos.writeObject(host_identifier);
+		SerializationTools.writeExternalizableAndSizable(oos, cloud_identifier, false);
+		SerializationTools.writeExternalizableAndSizable(oos, host_identifier, false);
 	}
 }

@@ -38,8 +38,8 @@
 package com.distrimind.madkit.kernel.network;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -49,6 +49,7 @@ import java.util.List;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.network.LocalNetworkAgent.PossibleAddressForDirectConnnection;
+import com.distrimind.madkit.util.SerializationTools;
 
 /**
  * 
@@ -70,7 +71,7 @@ class ConnectionInfoSystemMessage implements SystemMessage {
 	private boolean canBeDirectServer;
 
 	@Override
-	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		int globalSize=NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE;
 		int size=in.readInt();
 		int totalSize=4;
@@ -79,7 +80,7 @@ class ConnectionInfoSystemMessage implements SystemMessage {
 		addresses=new ArrayList<>(size);
 		for (int i=0;i<size;i++)
 		{
-			Object o=in.readObject();
+			Object o=SerializationTools.readExternalizableAndSizable(in, false);
 			if (!(o instanceof AbstractIP))
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 			AbstractIP aip=(AbstractIP)o;
@@ -90,7 +91,7 @@ class ConnectionInfoSystemMessage implements SystemMessage {
 		}
 		if (in.readBoolean())
 		{
-			Object o=in.readObject();
+			Object o=SerializationTools.readExternalizableAndSizable(in, false);
 			if (!(o instanceof AbstractIP))
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 			localAddresses=(AbstractIP)o;
@@ -110,17 +111,12 @@ class ConnectionInfoSystemMessage implements SystemMessage {
 	}
 
 	@Override
-	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+	public void writeExternal(ObjectOutput oos) throws IOException {
 		oos.writeInt(addresses.size());
 		for (AbstractIP aip:addresses)
-			oos.writeObject(aip);
-		if (localAddresses==null)
-			oos.writeBoolean(false);
-		else
-		{
-			oos.writeBoolean(true);
-			oos.writeObject(localAddresses);
-		}
+			SerializationTools.writeExternalizableAndSizable(oos, aip, false);
+		SerializationTools.writeExternalizableAndSizable(oos, localAddresses, true);
+
 		oos.writeInt(manualPortToConnect);
 		oos.writeInt(localPortToConnect);
 		oos.writeBoolean(canBeDirectServer);
@@ -274,15 +270,6 @@ class ConnectionInfoSystemMessage implements SystemMessage {
 	@Override
 	public boolean excludedFromEncryption() {
 		return false;
-	}
-
-	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
-	{
-		readAndCheckObject(in);
-	}
-	private void writeObject(final ObjectOutputStream oos) throws IOException
-	{
-		writeAndCheckObject(oos);
 	}
 
 	

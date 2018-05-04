@@ -98,6 +98,7 @@ import com.distrimind.madkit.message.hook.NetworkGroupsAccessEvent;
 import com.distrimind.madkit.message.hook.NetworkLoginAccessEvent;
 import com.distrimind.madkit.message.hook.DistantKernelAgentEventMessage;
 import com.distrimind.madkit.message.hook.HookMessage.AgentActionEvent;
+import com.distrimind.madkit.util.SerializationTools;
 import com.distrimind.util.IDGeneratorInt;
 import com.distrimind.util.crypto.AbstractSecureRandom;
 import com.distrimind.util.crypto.MessageDigestType;
@@ -1626,11 +1627,9 @@ class DistantKernelAgent extends AgentFakeThread {
 	 */
 	protected void sendData(AgentAddress receiver, SystemMessage _data, boolean prioritary,
 			MessageLocker _messageLocker, boolean last_message, CounterSelector counterSelector) throws NIOException {
-		if (!NetworkProperties.checkSystemMessageCompatibility(_data))
-			throw new NIOException("The system message of type "+_data.getClass()+" does not contain readObject and writeObject functions.");
 		try (ByteArrayOutputStream baos = new ByteArrayOutputStream();) {
 			try (ObjectOutputStream oos = new OOS(baos)) {
-				oos.writeObject(_data);
+				SerializationTools.writeExternalizableAndSizable(oos, _data, false);
 			}
 			baos.flush();
 

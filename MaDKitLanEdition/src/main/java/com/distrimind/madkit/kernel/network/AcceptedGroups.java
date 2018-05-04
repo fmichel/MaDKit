@@ -38,14 +38,15 @@
 package com.distrimind.madkit.kernel.network;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.AgentAddress;
 import com.distrimind.madkit.kernel.Group;
 import com.distrimind.madkit.kernel.KernelAddress;
 import com.distrimind.madkit.kernel.MultiGroup;
+import com.distrimind.madkit.util.SerializationTools;
 import com.distrimind.util.sizeof.ObjectSizer;
 
 /**
@@ -85,20 +86,20 @@ final class AcceptedGroups implements SystemMessage {
 	}
 	
 	@Override
-	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+	public void writeExternal(ObjectOutput oos) throws IOException {
 		oos.writeInt(accepted_groups_and_requested.length);
 		for (Group g : accepted_groups_and_requested)
 		{
-			oos.writeObject(g);
+			SerializationTools.writeExternalizableAndSizable(oos, g, false);
 		}
-		oos.writeObject(accepted_groups);
-		oos.writeObject(kernelAddress);
-		oos.writeObject(distant_agent_socket_address);
+		SerializationTools.writeExternalizableAndSizable(oos, accepted_groups, false);
+		SerializationTools.writeExternalizableAndSizable(oos, kernelAddress, false);
+		SerializationTools.writeExternalizableAndSizable(oos, distant_agent_socket_address, false);
 		
 	}
 	
 	@Override
-	public void readAndCheckObject(ObjectInputStream in)
+	public void readExternal(ObjectInput in)
 			throws ClassNotFoundException, IOException {
 		int globalSize=NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE;
 		int totalSize=0;
@@ -111,7 +112,7 @@ final class AcceptedGroups implements SystemMessage {
 		accepted_groups_and_requested=new Group[size];
 		for (int i=0;i<size;i++)
 		{
-			Object o=in.readObject();
+			Object o=SerializationTools.readExternalizableAndSizable(in, false);
 			if (!(o instanceof Group))
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 			accepted_groups_and_requested[i]=(Group)o;
@@ -119,7 +120,7 @@ final class AcceptedGroups implements SystemMessage {
 			if (totalSize>globalSize)
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		}
-		Object o=in.readObject();
+		Object o=SerializationTools.readExternalizableAndSizable(in, false);
 		if (!(o instanceof MultiGroup))
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		accepted_groups=(MultiGroup)o;
@@ -127,7 +128,7 @@ final class AcceptedGroups implements SystemMessage {
 		if (totalSize>globalSize)
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		
-		o=in.readObject();
+		o=SerializationTools.readExternalizableAndSizable(in, false);
 		if (!(o instanceof KernelAddress))
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		kernelAddress=(KernelAddress)o;
@@ -135,7 +136,7 @@ final class AcceptedGroups implements SystemMessage {
 		if (totalSize>globalSize)
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 
-		o=in.readObject();
+		o=SerializationTools.readExternalizableAndSizable(in, false);
 		if (!(o instanceof AgentAddress))
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		distant_agent_socket_address=(AgentAddress)o;
@@ -155,14 +156,6 @@ final class AcceptedGroups implements SystemMessage {
 		
 	}
 
-	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
-	{
-		readAndCheckObject(in);
-	}
-	private void writeObject(final ObjectOutputStream oos) throws IOException
-	{
-		writeAndCheckObject(oos);
-	}
 	
 
 	@Override

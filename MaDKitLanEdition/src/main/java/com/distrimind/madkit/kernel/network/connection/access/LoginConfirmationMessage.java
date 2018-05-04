@@ -38,13 +38,14 @@
 package com.distrimind.madkit.kernel.network.connection.access;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.Collection;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.network.NetworkProperties;
+import com.distrimind.madkit.util.SerializationTools;
 
 
 /**
@@ -66,7 +67,7 @@ class LoginConfirmationMessage extends AccessMessage {
 	private boolean checkDifferedMessages;
 
 	@Override
-	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		int size=in.readInt();
 		int totalSize=4;
 		int globalSize=NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE;
@@ -75,7 +76,7 @@ class LoginConfirmationMessage extends AccessMessage {
 		accepted_identifiers=new ArrayList<>(size);
 		for (int i=0;i<size;i++)
 		{
-			Object o=in.readObject();
+			Object o=SerializationTools.readExternalizableAndSizable(in, false);
 			if (!(o instanceof Identifier))
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 			Identifier id=(Identifier)o;
@@ -91,7 +92,7 @@ class LoginConfirmationMessage extends AccessMessage {
 		denied_identifiers=new ArrayList<>(size);
 		for (int i=0;i<size;i++)
 		{
-			Object o=in.readObject();
+			Object o=SerializationTools.readExternalizableAndSizable(in, false);
 			if (!(o instanceof Identifier))
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 			Identifier id=(Identifier)o;
@@ -105,13 +106,15 @@ class LoginConfirmationMessage extends AccessMessage {
 
 
 	@Override
-	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+	public void writeExternal(ObjectOutput oos) throws IOException {
 		oos.writeInt(accepted_identifiers.size()); 
 		for (Identifier id : accepted_identifiers)
-			oos.writeObject(id);
+			SerializationTools.writeExternalizableAndSizable(oos, id, false);
+
 		oos.writeInt(denied_identifiers.size()); 
 		for (Identifier id : denied_identifiers)
-			oos.writeObject(id);
+			SerializationTools.writeExternalizableAndSizable(oos, id, false);
+			
 		oos.writeBoolean(checkDifferedMessages);
 		
 	}
@@ -151,12 +154,4 @@ class LoginConfirmationMessage extends AccessMessage {
 		return checkDifferedMessages;
 	}
 
-	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
-	{
-		readAndCheckObject(in);
-	}
-	private void writeObject(final ObjectOutputStream oos) throws IOException
-	{
-		writeAndCheckObject(oos);
-	}
 }

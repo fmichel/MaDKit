@@ -38,8 +38,8 @@
 package com.distrimind.madkit.kernel.network.connection.access;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 import gnu.vm.jgnu.security.InvalidAlgorithmParameterException;
 import gnu.vm.jgnu.security.InvalidKeyException;
@@ -52,7 +52,7 @@ import gnu.vm.jgnux.crypto.NoSuchPaddingException;
 import gnu.vm.jgnux.crypto.ShortBufferException;
 
 import com.distrimind.madkit.util.SerializationTools;
-import com.distrimind.madkit.util.SerializableAndSizable;
+import com.distrimind.madkit.util.ExternalizableAndSizable;
 import com.distrimind.util.crypto.P2PASymmetricSecretMessageExchanger;
 
 /**
@@ -63,7 +63,7 @@ import com.distrimind.util.crypto.P2PASymmetricSecretMessageExchanger;
  * @since MadKitLanEdition 1.0
  * @see PasswordKey
  */
-public class EncryptedPassword extends PasswordKey implements SerializableAndSizable {
+public class EncryptedPassword extends PasswordKey implements ExternalizableAndSizable {
 
 	/**
 	 * 
@@ -75,14 +75,14 @@ public class EncryptedPassword extends PasswordKey implements SerializableAndSiz
 	private byte[] bytes;
 
 
-	
-	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		bytes=SerializationTools.readBytes(in, MAX_ENCRYPTED_PASSWORD_LENGTH, false);
 		
 	}
 
-	
-	private void writeObject(ObjectOutputStream oos) throws IOException {
+	@Override
+	public void writeExternal(ObjectOutput oos) throws IOException {
 		SerializationTools.writeBytes(oos, bytes, MAX_ENCRYPTED_PASSWORD_LENGTH, false);
 	}
 	

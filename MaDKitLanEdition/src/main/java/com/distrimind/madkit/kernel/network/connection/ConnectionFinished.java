@@ -38,8 +38,8 @@
 package com.distrimind.madkit.kernel.network.connection;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.net.InetSocketAddress;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
@@ -70,7 +70,7 @@ public class ConnectionFinished extends ConnectionMessage {
 
 	
 	@Override
-	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		inet_address=SerializationTools.readInetSocketAddress(in, false);
 		try
 		{
@@ -85,7 +85,7 @@ public class ConnectionFinished extends ConnectionMessage {
 	}
 
 	@Override
-	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+	public void writeExternal(ObjectOutput oos) throws IOException {
 		SerializationTools.writeInetSocketAddress(oos, inet_address, false);
 		SerializationTools.writeEnum(oos, state, false);
 		SerializationTools.writeBytes(oos, initialCounter, MAX_INITIAL_COUNTER_LENGTH, true);
@@ -140,12 +140,5 @@ public class ConnectionFinished extends ConnectionMessage {
 		return initialCounter;
 	}
 	
-	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
-	{
-		readAndCheckObject(in);
-	}
-	private void writeObject(final ObjectOutputStream oos) throws IOException
-	{
-		writeAndCheckObject(oos);
-	}
+	
 }

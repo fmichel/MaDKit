@@ -38,12 +38,13 @@
 package com.distrimind.madkit.kernel.network;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.KernelAddress;
 import com.distrimind.madkit.kernel.network.TransferAgent.IDTransfer;
+import com.distrimind.madkit.util.SerializationTools;
 
 /**
  * 
@@ -64,29 +65,28 @@ final class DataToBroadcast implements SystemMessage {
 	private IDTransfer transferID;
 
 	@Override
-	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		Object o=in.readObject();
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		Object o=SerializationTools.readExternalizableAndSizable(in, false);
 		if (!(o instanceof BroadcastableSystemMessage))
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		messageToBroadcast=(BroadcastableSystemMessage)o;
-		o=in.readObject();
+		o=SerializationTools.readExternalizableAndSizable(in, false);
 		if (!(o instanceof KernelAddress))
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		sender=(KernelAddress)o;
 		prioritary=in.readBoolean();
-		o=in.readObject();
+		o=SerializationTools.readExternalizableAndSizable(in, false);
 		if (!(o instanceof IDTransfer))
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		transferID=(IDTransfer)o;
 	}
 
 	@Override
-	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
-		
-		oos.writeObject(messageToBroadcast);
-		oos.writeObject(sender);
+	public void writeExternal(ObjectOutput oos) throws IOException {
+		SerializationTools.writeExternalizableAndSizable(oos, messageToBroadcast, false);
+		SerializationTools.writeExternalizableAndSizable(oos, sender, false);
 		oos.writeBoolean(prioritary);
-		oos.writeObject(transferID);
+		SerializationTools.writeExternalizableAndSizable(oos, transferID, false);
 	}
 	
 	DataToBroadcast(BroadcastableSystemMessage messageToBroadcast, KernelAddress sender, boolean prioritary,
@@ -131,14 +131,6 @@ final class DataToBroadcast implements SystemMessage {
 		return false;
 	}
 
-	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
-	{
-		readAndCheckObject(in);
-	}
-	private void writeObject(final ObjectOutputStream oos) throws IOException
-	{
-		writeAndCheckObject(oos);
-	}
 
 	
 }

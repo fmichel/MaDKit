@@ -34,8 +34,8 @@
 package com.distrimind.madkit.message;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
@@ -80,9 +80,9 @@ public class ObjectMessage<T> extends Message {
 	
 	@SuppressWarnings("unchecked")
 	
-	protected void readAndCheckObjectImpl(final ObjectInputStream in, int maxContentLength) throws IOException, ClassNotFoundException
+	public void readExternal(final ObjectInput in, int maxContentLength) throws IOException, ClassNotFoundException
 	{
-		super.readAndCheckObjectImpl(in);
+		super.readExternal(in);
 		try
 		{
 			content=(T)SerializationTools.readObject(in, maxContentLength, true);
@@ -97,8 +97,8 @@ public class ObjectMessage<T> extends Message {
 		
 	}
 	
-	protected void writeAndCheckObjectImpl(final ObjectOutputStream oos, int maxContentLength) throws IOException{
-		super.writeAndCheckObjectImpl(oos);
+	public void writeExternal(final ObjectOutput oos, int maxContentLength) throws IOException{
+		super.writeExternal(oos);
 		SerializationTools.writeObject(oos, content, maxContentLength, true);
 		oos.writeBoolean(excludeFromEncryption);
 	}

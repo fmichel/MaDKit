@@ -42,8 +42,8 @@ import static com.distrimind.madkit.kernel.AbstractAgent.ReturnCode.ROLE_NOT_HAN
 import static com.distrimind.madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -63,7 +63,8 @@ import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.AbstractAgent.ReturnCode;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.madkit.message.hook.HookMessage.AgentActionEvent;
-import com.distrimind.madkit.util.SerializableAndSizable;
+import com.distrimind.madkit.util.ExternalizableAndSizable;
+import com.distrimind.madkit.util.SerializationTools;
 
 /**
  * /** Reifying the notion of Role in AGR
@@ -74,7 +75,7 @@ import com.distrimind.madkit.util.SerializableAndSizable;
  * @version 5.2
  * 
  */
-class InternalRole implements SerializableAndSizable {// TODO test with arraylist
+class InternalRole implements ExternalizableAndSizable {// TODO test with arraylist
 
 	private static final long serialVersionUID = 4447153943733812916L;
 
@@ -100,16 +101,17 @@ class InternalRole implements SerializableAndSizable {// TODO test with arraylis
 		return kernelAddress;
 	}
 	
-	
-	private void writeObject(ObjectOutputStream oos) throws IOException {
-		oos.writeObject(group);
+	@Override
+	public void writeExternal(ObjectOutput oos) throws IOException {
+		SerializationTools.writeExternalizableAndSizable(oos, group, false);
 		if (roleName.length()>Group.MAX_ROLE_NAME_LENGTH)
 			throw new IOException();
 		oos.writeShort(roleName.length());
 		oos.writeChars(roleName);
 	}
-	private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
-		Object o=ois.readObject();
+	@Override
+	public void readExternal(ObjectInput ois) throws IOException, ClassNotFoundException {
+		Object o=SerializationTools.readExternalizableAndSizable(ois, false);
 		if (o instanceof Group)
 		{
 			group=(Group)o;

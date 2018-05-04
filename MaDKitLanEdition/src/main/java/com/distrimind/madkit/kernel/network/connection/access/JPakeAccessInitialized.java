@@ -38,8 +38,8 @@
 package com.distrimind.madkit.kernel.network.connection.access;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.util.SerializationTools;
@@ -65,16 +65,16 @@ public class JPakeAccessInitialized extends AccessInitialized {
 		random.nextBytes(generatedSalt);
 	}
 	@Override
-	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		super.readAndCheckObject(in);
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		super.readExternal(in);
 		generatedSalt=SerializationTools.readBytes(in, generatedSaltSize, false);
 		if (generatedSalt.length!=generatedSaltSize)
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 	}
 
 	@Override
-	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
-		super.writeAndCheckObject(oos);
+	public void writeExternal(ObjectOutput oos) throws IOException {
+		super.writeExternal(oos);
 		SerializationTools.writeBytes(oos, generatedSalt, generatedSaltSize, false);
 	}
 	
@@ -83,12 +83,5 @@ public class JPakeAccessInitialized extends AccessInitialized {
 		return generatedSalt;
 	}
 
-	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
-	{
-		readAndCheckObject(in);
-	}
-	private void writeObject(final ObjectOutputStream oos) throws IOException
-	{
-		writeAndCheckObject(oos);
-	}
+
 }

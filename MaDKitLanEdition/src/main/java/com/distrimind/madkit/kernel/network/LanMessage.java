@@ -38,12 +38,14 @@
 package com.distrimind.madkit.kernel.network;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.Message;
-import com.distrimind.madkit.util.SerializableAndSizable;
+import com.distrimind.madkit.util.ExternalizableAndSizable;
+import com.distrimind.madkit.util.NetworkMessage;
+import com.distrimind.madkit.util.SerializationTools;
 
 /**
  * 
@@ -63,30 +65,24 @@ abstract class LanMessage implements SystemMessage {
 	LanMessage(Message _message) {
 		if (_message == null)
 			throw new NullPointerException("_message");
-		if (!(_message instanceof SerializableAndSizable))
-			throw new IllegalArgumentException("message must implements SerializableAndSizable");
-		Integrity i = _message.checkDataIntegrity();
-		if (i != Integrity.OK)
-			throw new IllegalArgumentException(
-					"The integrity of the given message (" + _message.getClass() + ") is incorrect : " + i);
+		if (!(_message instanceof NetworkMessage))
+			throw new IllegalArgumentException("message must implements NetworkMessage");
 		message = _message;
 	}
 	
 	@Override
-	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		
-		Object o=in.readObject();
-		if (!(o instanceof Message) || !(o instanceof SerializableAndSizable))
+		Object o=SerializationTools.readExternalizableAndSizable(in, false);
+		if (!(o instanceof Message) || !(o instanceof ExternalizableAndSizable))
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		message=(Message)o;
-		Integrity i=message.checkDataIntegrity();
-		if (i!=Integrity.OK)
-			throw new MessageSerializationException(i);
 	}
 
 	@Override
-	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
-		oos.writeObject(message);
+	public void writeExternal(ObjectOutput oos) throws IOException {
+		SerializationTools.writeExternalizableAndSizable(oos, (NetworkMessage)message, false);
+		
 	}
 
 	
@@ -96,12 +92,5 @@ abstract class LanMessage implements SystemMessage {
 		return getClass().getSimpleName();
 	}
 
-	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
-	{
-		readAndCheckObject(in);
-	}
-	private void writeObject(final ObjectOutputStream oos) throws IOException
-	{
-		writeAndCheckObject(oos);
-	}
+
 }

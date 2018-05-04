@@ -39,9 +39,12 @@ package com.distrimind.madkit.kernel.network;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.Externalizable;
 import java.io.File;
 import java.io.IOException;
+import java.io.ObjectInput;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.InetAddress;
@@ -81,6 +84,7 @@ import com.distrimind.madkit.kernel.network.connection.secured.P2PSecuredConnect
 import com.distrimind.madkit.kernel.network.connection.secured.ServerSecuredProcotolPropertiesWithKnownPublicKey;
 import com.distrimind.madkit.kernel.network.connection.unsecured.CheckSumConnectionProtocolProperties;
 import com.distrimind.madkit.kernel.network.connection.unsecured.UnsecuredConnectionProtocolProperties;
+import com.distrimind.madkit.util.SerializationTools;
 import com.distrimind.ood.database.DatabaseConfiguration;
 import com.distrimind.ood.database.EmbeddedHSQLDBWrapper;
 import com.distrimind.util.crypto.ASymmetricEncryptionType;
@@ -764,26 +768,20 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 
 
 		@Override
-		public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-			
+		public void writeExternal(ObjectOutput out) throws IOException {
 			
 		}
 
 
 
 		@Override
-		public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+		public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 			
 		}
+
+
+
 		
-		private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
-		{
-			readAndCheckObject(in);
-		}
-		private void writeObject(final ObjectOutputStream oos) throws IOException
-		{
-			writeAndCheckObject(oos);
-		}
 
 	}
 
@@ -929,14 +927,11 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 		Assert.assertArrayEquals(message, receivedMessage);
 	}
 
-	public static byte[] serialize(Serializable message) throws IOException {
-		if (message instanceof SystemMessage)
-		{
-			Assert.assertTrue(message.getClass().getName(), NetworkProperties.checkSystemMessageCompatibility((SystemMessage)message));
-		}
+	public static byte[] serialize(Externalizable message) throws IOException {
+		
 		try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
 			try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
-				oos.writeObject(message);
+				SerializationTools.writeExternalizableAndSizable(oos, message, false);
 			}
 			return baos.toByteArray();
 		}

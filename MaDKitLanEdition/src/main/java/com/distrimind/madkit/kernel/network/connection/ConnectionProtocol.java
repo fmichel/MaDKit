@@ -38,8 +38,8 @@
 package com.distrimind.madkit.kernel.network.connection;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -725,16 +725,16 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 		}
 		
 		@Override
-		public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-			super.readAndCheckObject(in);
+		public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+			super.readExternal(in);
 			headSize=in.readShort();
 			if (headSize < 0)
 				throw new MessageSerializationException(Integrity.FAIL);
 		}
 
 		@Override
-		public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
-			super.writeAndCheckObject(oos);
+		public void writeExternal(ObjectOutput oos) throws IOException {
+			super.writeExternal(oos);
 			oos.writeShort(headSize);
 		}
 		

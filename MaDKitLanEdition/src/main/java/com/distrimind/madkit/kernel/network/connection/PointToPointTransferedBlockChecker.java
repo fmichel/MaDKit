@@ -36,10 +36,6 @@ package com.distrimind.madkit.kernel.network.connection;
 
 
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-
 import com.distrimind.madkit.exceptions.BlockParserException;
 import com.distrimind.madkit.exceptions.PacketException;
 import com.distrimind.madkit.kernel.network.Block;
@@ -158,15 +154,6 @@ public class PointToPointTransferedBlockChecker extends TransferedBlockChecker {
 		return 0;
 	}
 
-	@Override
-	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		super.readAndCheckObject(in);
-	}
-
-	@Override
-	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
-		super.writeAndCheckObject(oos);
-	}
 	
 
 }

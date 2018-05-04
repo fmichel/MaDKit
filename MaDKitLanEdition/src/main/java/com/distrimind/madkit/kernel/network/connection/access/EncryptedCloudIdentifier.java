@@ -38,8 +38,8 @@
 package com.distrimind.madkit.kernel.network.connection.access;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 import gnu.vm.jgnu.security.DigestException;
 import gnu.vm.jgnu.security.InvalidAlgorithmParameterException;
@@ -194,12 +194,13 @@ public final class EncryptedCloudIdentifier extends CloudIdentifier {
 		return SerializationTools.getInternalSize(bytes, MAX_ENCRYPTED_CLOUD_IDENTIFIER_LENGTH);
 	}
 
-	
-	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
+	@Override
+	public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException
 	{
 		bytes=SerializationTools.readBytes(in, MAX_ENCRYPTED_CLOUD_IDENTIFIER_LENGTH, false);
 	}
-	private void writeObject(final ObjectOutputStream oos) throws IOException
+	@Override
+	public void writeExternal(final ObjectOutput oos) throws IOException
 	{
 		SerializationTools.writeBytes(oos, bytes, MAX_ENCRYPTED_CLOUD_IDENTIFIER_LENGTH, false);
 	}

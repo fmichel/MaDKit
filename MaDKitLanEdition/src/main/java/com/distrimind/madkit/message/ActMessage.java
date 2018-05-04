@@ -34,8 +34,8 @@
 package com.distrimind.madkit.message;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Map;
@@ -80,9 +80,9 @@ public class ActMessage extends com.distrimind.madkit.kernel.Message implements 
 	}
 	
 	@Override
-	protected void readAndCheckObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
+	public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException
 	{
-		super.readAndCheckObjectImpl(in);
+		super.readExternal(in);
 		int globalSize=NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE;
 		int totalSize=super.getInternalSerializedSizeImpl();
 		if (totalSize>globalSize)
@@ -115,8 +115,8 @@ public class ActMessage extends com.distrimind.madkit.kernel.Message implements 
 			throw new MessageSerializationException(Integrity.FAIL);
 	}
 	@Override
-	protected void writeAndCheckObject(final ObjectOutputStream oos) throws IOException{
-		super.writeAndCheckObjectImpl(oos);
+	public void writeExternal(final ObjectOutput oos) throws IOException{
+		super.writeExternal(oos);
 		SerializationTools.writeString(oos, action, MAX_ACTION_LENGTH, true);
 		oos.writeInt(fields.size());
 		for (Map.Entry<String, Object> e : fields.entrySet())

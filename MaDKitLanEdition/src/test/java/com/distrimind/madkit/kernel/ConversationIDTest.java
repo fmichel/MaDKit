@@ -50,6 +50,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.distrimind.madkit.kernel.ConversationID.InterfacedIDs;
+import com.distrimind.madkit.util.SerializationTools;
 
 /**
  * 
@@ -89,11 +90,11 @@ public class ConversationIDTest extends JunitMadkit {
 							Assert.assertNotEquals(id, other);
 						try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
 							try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
-								oos.writeObject(id);
+								SerializationTools.writeExternalizableAndSizable(oos, id, false);
 							}
 							try (ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray())) {
 								try (ObjectInputStream ois = new ObjectInputStream(bais)) {
-									ConversationID deserializedID = (ConversationID) ois.readObject();
+									ConversationID deserializedID = (ConversationID) SerializationTools.readExternalizableAndSizable(ois, false);
 									Assert.assertEquals(id, deserializedID);
 									for (ConversationID other : ids)
 										Assert.assertNotEquals(deserializedID, other);
@@ -116,7 +117,7 @@ public class ConversationIDTest extends JunitMadkit {
 							Assert.assertNotEquals(id, other);
 						try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
 							try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
-								oos.writeObject(id);
+								SerializationTools.writeExternalizableAndSizable(oos, id, false);
 							}
 							try (ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray())) {
 								try (ObjectInputStream ois = new ObjectInputStream(bais)) {
@@ -147,7 +148,7 @@ public class ConversationIDTest extends JunitMadkit {
 						}
 						try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
 							try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
-								oos.writeObject(interfacedToOther);
+								SerializationTools.writeExternalizableAndSizable(oos, interfacedToOther, false);
 							}
 							try (ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray())) {
 								try (ObjectInputStream ois = new ObjectInputStream(bais)) {
@@ -173,7 +174,7 @@ public class ConversationIDTest extends JunitMadkit {
 						}
 						try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
 							try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
-								oos.writeObject(interfacedByOther);
+								SerializationTools.writeExternalizableAndSizable(oos, interfacedByOther, false);
 							}
 							try (ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray())) {
 								try (ObjectInputStream ois = new ObjectInputStream(bais)) {
@@ -197,7 +198,7 @@ public class ConversationIDTest extends JunitMadkit {
 						}
 						try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
 							try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
-								oos.writeObject(interfacedFromOther);
+								SerializationTools.writeExternalizableAndSizable(oos, interfacedFromOther, false);
 							}
 							try (ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray())) {
 								try (ObjectInputStream ois = new ObjectInputStream(bais)) {
@@ -223,7 +224,7 @@ public class ConversationIDTest extends JunitMadkit {
 						}
 						try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
 							try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
-								oos.writeObject(interfacedByCurrent);
+								SerializationTools.writeExternalizableAndSizable(oos, interfacedByCurrent, false);
 							}
 							try (ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray())) {
 								try (ObjectInputStream ois = new ObjectInputStream(bais)) {

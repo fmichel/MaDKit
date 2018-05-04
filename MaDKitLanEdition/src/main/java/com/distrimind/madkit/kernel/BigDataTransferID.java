@@ -41,7 +41,7 @@ import java.util.Map;
 
 import com.distrimind.madkit.kernel.network.RealTimeTransfertStat;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
-import com.distrimind.madkit.util.SerializableAndSizable;
+import com.distrimind.madkit.util.ExternalizableAndSizable;
 
 /**
  * Represent an identifier for a big data transfer.
@@ -49,7 +49,7 @@ import com.distrimind.madkit.util.SerializableAndSizable;
  * @author Jason Mahdjoub
  * @version 1.0
  * @since MadkitLanEdition 1.0
- * @see AbstractAgent#sendBigDataWithRole(AgentAddress, com.distrimind.madkit.io.RandomInputStream, long, long, SerializableAndSizable, com.distrimind.util.crypto.MessageDigestType, String, boolean)
+ * @see AbstractAgent#sendBigDataWithRole(AgentAddress, com.distrimind.madkit.io.RandomInputStream, long, long, ExternalizableAndSizable, com.distrimind.util.crypto.MessageDigestType, String, boolean)
  */
 public class BigDataTransferID extends ConversationID {
 	/**

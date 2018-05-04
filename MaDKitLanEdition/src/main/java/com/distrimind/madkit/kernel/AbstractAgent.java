@@ -117,7 +117,7 @@ import com.distrimind.madkit.message.hook.MessageEvent;
 import com.distrimind.madkit.message.hook.OrganizationEvent;
 import com.distrimind.madkit.message.task.TasksExecutionConfirmationMessage;
 import com.distrimind.madkit.message.hook.HookMessage.AgentActionEvent;
-import com.distrimind.madkit.util.SerializableAndSizable;
+import com.distrimind.madkit.util.ExternalizableAndSizable;
 import com.distrimind.madkit.util.XMLUtilities;
 import com.distrimind.jdkrewrite.concurrent.LinkedBlockingDeque;
 import com.distrimind.util.crypto.MessageDigestType;
@@ -967,7 +967,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * Additionally, in order to avoid to change the code of the agent considering
 	 * how they will be launched (using the bucket mode or not). One should use the
 	 * following alternative of the usual request method :
-	 * {@link #bucketModeRequestRole(Group, String, SerializableAndSizable)}: If used in
+	 * {@link #bucketModeRequestRole(Group, String, ExternalizableAndSizable)}: If used in
 	 * {@link AbstractAgent#activate()}, these requests will be ignored when the
 	 * bucket mode is used or normally proceeded otherwise.
 	 * <p>
@@ -1594,7 +1594,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 *         {@link AbstractAgent#launchAgentBucket(List, int, Role...)} with non
 	 *         <code>null</code> roles. This for optimization purposes.</li>
 	 *         </ul> 
-	 * @see #requestRole(Group, String, SerializableAndSizable)
+	 * @see #requestRole(Group, String, ExternalizableAndSizable)
 	 * @since MadKitLanEdition 1.0
 	 * @see Group
 	 * 
@@ -1639,7 +1639,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * 
 	 * @since MaDKitLanEdition 1.0
 	 */
-	public ReturnCode requestRole(final Group group, final String role, final SerializableAndSizable passKey) {
+	public ReturnCode requestRole(final Group group, final String role, final ExternalizableAndSizable passKey) {
 		if (getState() == INITIALIZING) {
 			if (isWarningOn()) {
 				handleException(Influence.REQUEST_ROLE, new OrganizationWarning(ReturnCode.IGNORED, group, role));
@@ -1687,7 +1687,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * 
 	 * @since MaDKitLanEdition 1.0
 	 */
-	public ReturnCode bucketModeRequestRole(Group _group, final String role, final SerializableAndSizable passKey) {
+	public ReturnCode bucketModeRequestRole(Group _group, final String role, final ExternalizableAndSizable passKey) {
 		return kernel.requestRole(this, _group, role, passKey, true);
 	}
 
@@ -4099,7 +4099,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * @see AbstractAgent#leaveAutoRequestedRole(AbstractGroup, String)
 	 * @see AbstractAgent#leaveAllAutoRequestedGroups()
 	 */
-	public void autoRequestRole(AbstractGroup _group, String _role, SerializableAndSizable _passKey) {
+	public void autoRequestRole(AbstractGroup _group, String _role, ExternalizableAndSizable _passKey) {
 		if (_group == null || _role == null)
 			return;
 		getKernel().autoRequesteRole(this, _group, _role, _passKey);
@@ -4134,7 +4134,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 *            the role to request
 	 * @return true if this agent automically request the given group/role if
 	 *         another another has requested this group/role.
-	 * @see AbstractAgent#autoRequestRole(AbstractGroup, String, SerializableAndSizable)
+	 * @see AbstractAgent#autoRequestRole(AbstractGroup, String, ExternalizableAndSizable)
 	 */
 	public boolean isConcernedByAutoRequestRole(Group _group, String _role) {
 		return getKernel().isConcernedByAutoRequestRole(this, _group, _role);
@@ -4146,7 +4146,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * 
 	 * @param role
 	 *            the role name
-	 * @see AbstractAgent#autoRequestRole(AbstractGroup, String, SerializableAndSizable)
+	 * @see AbstractAgent#autoRequestRole(AbstractGroup, String, ExternalizableAndSizable)
 	 */
 	public void leaveAutoRequestedRole(String role) {
 		getKernel().leaveAutoRequestedRole(this, role);
@@ -4159,7 +4159,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * @param group the group name
 	 * @param role
 	 *            the role name
-	 * @see #autoRequestRole(AbstractGroup, String, SerializableAndSizable)
+	 * @see #autoRequestRole(AbstractGroup, String, ExternalizableAndSizable)
 	 */
 	public void leaveAutoRequestedRole(AbstractGroup group, String role) {
 		getKernel().leaveAutoRequestedRole(this, group, role);
@@ -4171,7 +4171,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * 
 	 * @param _group
 	 *            the given group
-	 * @see #autoRequestRole(AbstractGroup, String, SerializableAndSizable)
+	 * @see #autoRequestRole(AbstractGroup, String, ExternalizableAndSizable)
 	 */
 	public void leaveAutoRequestedGroup(AbstractGroup _group) {
 		getKernel().leaveAutoRequestedGroup(this, _group);
@@ -4181,7 +4181,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * Remove all groups from automatically requested groups. But does not leave the
 	 * groups. For this, please refer to {@link #leaveGroup(Group)}.
 	 * 
-	 * @see #autoRequestRole(AbstractGroup, String, SerializableAndSizable)
+	 * @see #autoRequestRole(AbstractGroup, String, ExternalizableAndSizable)
 	 */
 	public void leaveAllAutoRequestedGroups() {
 		getKernel().removeAllAutoRequestedGroups(this);
@@ -4301,7 +4301,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 *             if <code>pos</code> or <code>length</code> are invalid
 	 * @throws IOException if data can't be read
 	 */
-	public BigDataTransferID sendBigData(AgentAddress agentAddress, RandomInputStream stream, SerializableAndSizable attachedData)
+	public BigDataTransferID sendBigData(AgentAddress agentAddress, RandomInputStream stream, ExternalizableAndSizable attachedData)
 			throws IOException {
 		return this.sendBigData(agentAddress, stream, 0, stream.length(), attachedData, null, false);
 	}
@@ -4402,7 +4402,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * @throws IOException if data can't be read
 	 */
 	public BigDataTransferID sendBigData(AgentAddress agentAddress, RandomInputStream stream, long pos, long length,
-			SerializableAndSizable attachedData, MessageDigestType messageDigestType, boolean excludeFromEncryption) throws IOException {
+			ExternalizableAndSizable attachedData, MessageDigestType messageDigestType, boolean excludeFromEncryption) throws IOException {
 		return getKernel().sendBigData(this, agentAddress, stream, pos, length, attachedData, null, messageDigestType, excludeFromEncryption);
 	}
 
@@ -4493,7 +4493,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 *             if <code>pos</code> or <code>length</code> are invalid
 	 */
 	public BigDataTransferID sendBigDataWithRole(AgentAddress agentAddress, RandomInputStream stream,
-			SerializableAndSizable attachedData, String senderRole) throws IOException {
+			ExternalizableAndSizable attachedData, String senderRole) throws IOException {
 		return this.sendBigDataWithRole(agentAddress, stream, 0, stream.length(), attachedData, null, senderRole, false);
 	}
 
@@ -4598,7 +4598,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 *             if <code>pos</code> or <code>length</code> are invalid
 	 */
 	public BigDataTransferID sendBigDataWithRole(AgentAddress agentAddress, RandomInputStream stream, long pos,
-			long length, SerializableAndSizable attachedData, MessageDigestType messageDigestType, String senderRole, boolean excludeFromEncryption)
+			long length, ExternalizableAndSizable attachedData, MessageDigestType messageDigestType, String senderRole, boolean excludeFromEncryption)
 			throws IOException {
 		return getKernel().sendBigData(this, agentAddress, stream, pos, length, attachedData, senderRole,
 				messageDigestType, excludeFromEncryption);

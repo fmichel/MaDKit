@@ -39,8 +39,8 @@
 package com.distrimind.madkit.kernel;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -48,7 +48,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.KernelAddress;
+import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
+import com.distrimind.madkit.util.SerializationTools;
 
 /**
  * MadKitGroupExtension aims to encapsulate MadKit in order to extends the
@@ -106,7 +109,8 @@ public class MultiGroup extends AbstractGroup {
 	private transient ArrayList<RepresentedGroupsDuplicated> m_represented_groups_by_kernel_duplicated = new ArrayList<RepresentedGroupsDuplicated>();
 	private transient volatile Group m_global_represented_groups[] = null;
 
-	private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+	@Override
+	public void readExternal(ObjectInput ois) throws IOException, ClassNotFoundException {
 		m_groups = new ArrayList<>();
 		m_represented_groups_by_kernel_duplicated = new ArrayList<>();
 		m_global_represented_groups = null;
@@ -114,9 +118,20 @@ public class MultiGroup extends AbstractGroup {
 		int notforbiden = ois.readInt();
 		int forbiden = ois.readInt();
 		for (int i = 0; i < notforbiden; i++)
-			addGroup((AbstractGroup) ois.readObject());
+		{
+			Object o=SerializationTools.readExternalizableAndSizable(ois, false);
+			if (!(o instanceof AbstractGroup))
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			addGroup((AbstractGroup)o);
+		}
 		for (int i = 0; i < forbiden; i++)
-			addForbidenGroup((AbstractGroup) ois.readObject());
+		{
+			Object o=SerializationTools.readExternalizableAndSizable(ois, false);
+			if (!(o instanceof AbstractGroup))
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			addForbidenGroup((AbstractGroup) o);
+		}
+			
 	}
 	@Override
 	public int getInternalSerializedSize() {
@@ -132,7 +147,8 @@ public class MultiGroup extends AbstractGroup {
 		return res;
 
 	}
-	private void writeObject(ObjectOutputStream oos) throws IOException {
+	@Override
+	public void writeExternal(ObjectOutput oos) throws IOException {
 
 		int forbiden = 0;
 		int notforbiden = 0;
@@ -146,11 +162,11 @@ public class MultiGroup extends AbstractGroup {
 		oos.writeInt(forbiden);
 		for (AssociatedGroup ag : m_groups) {
 			if (!ag.m_forbiden)
-				oos.writeObject(ag.m_group);
+				SerializationTools.writeExternalizableAndSizable(oos, ag.m_group, false);
 		}
 		for (AssociatedGroup ag : m_groups) {
 			if (ag.m_forbiden)
-				oos.writeObject(ag.m_group);
+				SerializationTools.writeExternalizableAndSizable(oos, ag.m_group, false);
 		}
 	}
 

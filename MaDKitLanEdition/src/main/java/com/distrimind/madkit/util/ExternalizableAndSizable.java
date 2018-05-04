@@ -37,7 +37,7 @@
  */
 package com.distrimind.madkit.util;
 
-import java.io.Serializable;
+import java.io.Externalizable;
 /**
  * 
  * @author Jason Mahdjoub
@@ -45,6 +45,6 @@ import java.io.Serializable;
  * @version 1.0
  * 
  */
-public interface SerializableAndSizable extends Serializable {
+public interface ExternalizableAndSizable extends Externalizable {
 	public int getInternalSerializedSize();
 }

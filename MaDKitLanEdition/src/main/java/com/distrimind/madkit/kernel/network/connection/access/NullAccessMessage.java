@@ -38,8 +38,8 @@
 package com.distrimind.madkit.kernel.network.connection.access;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 
 
@@ -57,13 +57,12 @@ class NullAccessMessage extends DoNotSendMessage {
 	private static final long serialVersionUID = 956985643732153966L;
 
 	@Override
-	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		
+	public void writeExternal(ObjectOutput out) throws IOException {
 		
 	}
 
 	@Override
-	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		
 	}
 

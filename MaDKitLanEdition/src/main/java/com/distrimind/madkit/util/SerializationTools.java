@@ -37,14 +37,20 @@
  */
 package com.distrimind.madkit.util;
 
+import java.io.Externalizable;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.lang.reflect.Constructor;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.HashMap;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.MadkitClassLoader;
+import com.distrimind.madkit.kernel.network.SystemMessage;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.util.AbstractDecentralizedID;
 import com.distrimind.util.crypto.ASymmetricKeyPair;
@@ -62,7 +68,7 @@ import com.distrimind.util.sizeof.ObjectSizer;
 public class SerializationTools {
 	private static final int MAX_CHAR_BUFFER_SIZE=Short.MAX_VALUE*5;
 	
-	public static void writeString(final ObjectOutputStream oos, String s, int sizeMax, boolean supportNull) throws IOException
+	public static void writeString(final ObjectOutput oos, String s, int sizeMax, boolean supportNull) throws IOException
 	{
 		if (s==null)
 		{
@@ -88,7 +94,7 @@ public class SerializationTools {
 	
 	private static char[] chars=null;
 	
-	public static String readString(final ObjectInputStream ois, int sizeMax, boolean supportNull) throws IOException
+	public static String readString(final ObjectInput ois, int sizeMax, boolean supportNull) throws IOException
 	{
 		int size;
 		if (sizeMax>Short.MAX_VALUE)
@@ -124,11 +130,11 @@ public class SerializationTools {
 		}
 	}
 	
-	public static void writeBytes(final ObjectOutputStream oos, byte tab[], int sizeMax, boolean supportNull) throws IOException
+	public static void writeBytes(final ObjectOutput oos, byte tab[], int sizeMax, boolean supportNull) throws IOException
 	{
 		writeBytes(oos, tab, 0, tab==null?0:tab.length, sizeMax, supportNull);
 	}
-	public static void writeBytes(final ObjectOutputStream oos, byte tab[], int off, int size, int sizeMax, boolean supportNull) throws IOException
+	public static void writeBytes(final ObjectOutput oos, byte tab[], int off, int size, int sizeMax, boolean supportNull) throws IOException
 	{
 		if (tab==null)
 		{
@@ -149,11 +155,11 @@ public class SerializationTools {
 			oos.writeShort(tab.length);
 		oos.write(tab, off, size);
 	}
-	public static void writeBytes2D(final ObjectOutputStream oos, byte tab[][], int sizeMax1,int sizeMax2, boolean supportNull1, boolean supportNull2) throws IOException
+	public static void writeBytes2D(final ObjectOutput oos, byte tab[][], int sizeMax1,int sizeMax2, boolean supportNull1, boolean supportNull2) throws IOException
 	{
 		writeBytes2D(oos, tab, 0, tab==null?0:tab.length, sizeMax1, sizeMax2, supportNull1, supportNull2);
 	}
-	public static void writeBytes2D(final ObjectOutputStream oos, byte tab[][], int off, int size, int sizeMax1, int sizeMax2,  boolean supportNull1, boolean supportNull2) throws IOException
+	public static void writeBytes2D(final ObjectOutput oos, byte tab[][], int off, int size, int sizeMax1, int sizeMax2,  boolean supportNull1, boolean supportNull2) throws IOException
 	{
 		if (tab==null)
 		{
@@ -175,7 +181,7 @@ public class SerializationTools {
 		for (byte[] b : tab)
 			SerializationTools.writeBytes(oos, b, sizeMax2, supportNull2);
 	}
-	public static byte[][] readBytes2D(final ObjectInputStream ois, int sizeMax1, int sizeMax2,  boolean supportNull1, boolean supportNull2) throws IOException
+	public static byte[][] readBytes2D(final ObjectInput ois, int sizeMax1, int sizeMax2,  boolean supportNull1, boolean supportNull2) throws IOException
 	{
 		int size;
 		if (sizeMax1>Short.MAX_VALUE)
@@ -199,7 +205,7 @@ public class SerializationTools {
 		return tab;
 		
 	}
-	public static byte[] readBytes(final ObjectInputStream ois, int sizeMax, boolean supportNull) throws IOException
+	public static byte[] readBytes(final ObjectInput ois, int sizeMax, boolean supportNull) throws IOException
 	{
 		int size;
 		if (sizeMax>Short.MAX_VALUE)
@@ -232,7 +238,7 @@ public class SerializationTools {
 	}
 	
 	public static final int MAX_KEY_SIZE=Short.MAX_VALUE;
-	public static void writeKey(final ObjectOutputStream oos, Key key, boolean supportNull) throws IOException
+	public static void writeKey(final ObjectOutput oos, Key key, boolean supportNull) throws IOException
 	{
 		
 		if (key==null)
@@ -247,7 +253,7 @@ public class SerializationTools {
 		writeBytes(oos, key.encode(), MAX_KEY_SIZE, false);
 	}
 
-	public static Key readKey(final ObjectInputStream in, boolean supportNull) throws IOException
+	public static Key readKey(final ObjectInput in, boolean supportNull) throws IOException
 	{
 		if (in.readBoolean())
 		{
@@ -270,7 +276,7 @@ public class SerializationTools {
 	}
 	
 	
-	public static void writeKeyPair(final ObjectOutputStream oos, ASymmetricKeyPair keyPair, boolean supportNull) throws IOException
+	public static void writeKeyPair(final ObjectOutput oos, ASymmetricKeyPair keyPair, boolean supportNull) throws IOException
 	{
 		
 		if (keyPair==null)
@@ -286,7 +292,7 @@ public class SerializationTools {
 		writeBytes(oos, keyPair.encode(), MAX_KEY_SIZE*2, false);
 	}
 
-	public static ASymmetricKeyPair readKeyPair(final ObjectInputStream in, boolean supportNull) throws IOException
+	public static ASymmetricKeyPair readKeyPair(final ObjectInput in, boolean supportNull) throws IOException
 	{
 		if (in.readBoolean())
 		{
@@ -307,7 +313,7 @@ public class SerializationTools {
 			return null;
 		}
 	}
-	public static void writeObjects(final ObjectOutputStream oos, Object tab[], int sizeMax, boolean supportNull) throws IOException
+	public static void writeObjects(final ObjectOutput oos, Object tab[], int sizeMax, boolean supportNull) throws IOException
 	{
 		if (tab==null)
 		{
@@ -333,7 +339,7 @@ public class SerializationTools {
 		}
 	}
 	
-	public static Object[] readObjects(final ObjectInputStream ois, int sizeMax, boolean supportNull) throws IOException, ClassNotFoundException
+	public static Object[] readObjects(final ObjectInput ois, int sizeMax, boolean supportNull) throws IOException, ClassNotFoundException
 	{
 		int size;
 		if (sizeMax>Short.MAX_VALUE)
@@ -359,7 +365,7 @@ public class SerializationTools {
 		return tab;
 		
 	}
-	public static void writeSerializableAndSizables(final ObjectOutputStream oos, SerializableAndSizable tab[], int sizeMaxBytes, boolean supportNull) throws IOException
+	public static void writeExternalizableAndSizables(final ObjectOutput oos, ExternalizableAndSizable tab[], int sizeMaxBytes, boolean supportNull) throws IOException
 	{
 		if (tab==null)
 		{
@@ -374,7 +380,7 @@ public class SerializationTools {
 		oos.writeInt(tab.length);
 		int total=4;
 		
-		for (SerializableAndSizable o : tab)
+		for (ExternalizableAndSizable o : tab)
 		{
 			writeObject(oos, o, sizeMaxBytes-total, true);
 			total+=o.getInternalSerializedSize();
@@ -384,7 +390,7 @@ public class SerializationTools {
 		}
 	}
 	
-	public static SerializableAndSizable[] readSerializableAndSizables(final ObjectInputStream ois, int sizeMaxBytes, boolean supportNull) throws IOException, ClassNotFoundException
+	public static ExternalizableAndSizable[] readExternalizableAndSizables(final ObjectInput ois, int sizeMaxBytes, boolean supportNull) throws IOException, ClassNotFoundException
 	{
 		int size=ois.readInt();
 		if (size==-1)
@@ -396,14 +402,14 @@ public class SerializationTools {
 		if (size<0 || size*4>sizeMaxBytes)
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		
-		SerializableAndSizable []tab=new SerializableAndSizable[size];
+		ExternalizableAndSizable []tab=new ExternalizableAndSizable[size];
 		sizeMaxBytes-=4;
 		for (int i=0;i<size;i++)
 		{
 			Object o=readObject(ois, sizeMaxBytes, true);
-			if (!(o instanceof SerializableAndSizable))
+			if (!(o instanceof ExternalizableAndSizable))
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
-			SerializableAndSizable s=(SerializableAndSizable)o;
+			ExternalizableAndSizable s=(ExternalizableAndSizable)o;
 			sizeMaxBytes-=s.getInternalSerializedSize();
 			if (sizeMaxBytes<0)
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
@@ -414,7 +420,7 @@ public class SerializationTools {
 		
 	}
 	public static int MAX_URL_LENGTH=8000;
-	public static void writeInetAddress(final ObjectOutputStream oos, InetAddress inetAddress, boolean supportNull) throws IOException
+	public static void writeInetAddress(final ObjectOutput oos, InetAddress inetAddress, boolean supportNull) throws IOException
 	{
 		if (inetAddress==null)
 		{
@@ -428,7 +434,7 @@ public class SerializationTools {
 		writeBytes(oos, inetAddress.getAddress(), 20, false);
 	}
 	
-	public static void writeDecentralizedID(final ObjectOutputStream oos, AbstractDecentralizedID id, boolean supportNull) throws IOException
+	public static void writeDecentralizedID(final ObjectOutput oos, AbstractDecentralizedID id, boolean supportNull) throws IOException
 	{
 		if (id==null)
 		{
@@ -441,7 +447,7 @@ public class SerializationTools {
 		oos.writeBoolean(true);
 		writeBytes(oos, id.getBytes(), 513, false);
 	}
-	public static AbstractDecentralizedID readDecentralizedID(final ObjectInputStream in, boolean supportNull) throws IOException
+	public static AbstractDecentralizedID readDecentralizedID(final ObjectInput in, boolean supportNull) throws IOException
 	{
 		if (in.readBoolean())
 		{
@@ -459,7 +465,7 @@ public class SerializationTools {
 		return null;
 	}
 	
-	public static InetAddress readInetAddress(final ObjectInputStream ois, boolean supportNull) throws IOException, ClassNotFoundException
+	public static InetAddress readInetAddress(final ObjectInput ois, boolean supportNull) throws IOException, ClassNotFoundException
 	{
 		if (ois.readBoolean())
 		{
@@ -480,7 +486,7 @@ public class SerializationTools {
 		
 	}
 	
-	public static void writeInetSocketAddress(final ObjectOutputStream oos, InetSocketAddress inetSocketAddress, boolean supportNull) throws IOException
+	public static void writeInetSocketAddress(final ObjectOutput oos, InetSocketAddress inetSocketAddress, boolean supportNull) throws IOException
 	{
 		if (inetSocketAddress==null)
 		{
@@ -496,7 +502,7 @@ public class SerializationTools {
 	}
 	
 	
-	public static InetSocketAddress readInetSocketAddress(final ObjectInputStream ois, boolean supportNull) throws IOException, ClassNotFoundException
+	public static InetSocketAddress readInetSocketAddress(final ObjectInput ois, boolean supportNull) throws IOException, ClassNotFoundException
 	{
 		if (ois.readBoolean())
 		{
@@ -518,7 +524,7 @@ public class SerializationTools {
 			return null;
 		
 	}
-	public static void writeEnum(final ObjectOutputStream oos, Enum<?> e, boolean supportNull) throws IOException
+	public static void writeEnum(final ObjectOutput oos, Enum<?> e, boolean supportNull) throws IOException
 	{
 		if (e==null)
 		{
@@ -534,7 +540,7 @@ public class SerializationTools {
 	}
 	public final static int MAX_CLASS_LENGTH=16396;
 	@SuppressWarnings("unchecked")
-	public static Enum<?> readEnum(final ObjectInputStream ois, boolean supportNull) throws IOException, ClassNotFoundException
+	public static Enum<?> readEnum(final ObjectInput ois, boolean supportNull) throws IOException, ClassNotFoundException
 	{
 		if (ois.readBoolean())
 		{
@@ -560,7 +566,80 @@ public class SerializationTools {
 			return null;
 		
 	}
-	public static void writeObject(final ObjectOutputStream oos, Object o, int sizeMax, boolean supportNull) throws IOException
+	public static void writeExternalizableAndSizable(final ObjectOutput oos, Externalizable e, boolean supportNull) throws IOException
+	{
+		if (e==null)
+		{
+			if (!supportNull)
+				throw new IOException();
+			oos.writeBoolean(false);
+			return;
+			
+		}
+		if (!SystemMessage.class.isAssignableFrom(e.getClass()))
+			throw new IOException();
+		oos.writeBoolean(true);
+		SerializationTools.writeString(oos, e.getClass().getName(), MAX_CLASS_LENGTH, false);
+		e.writeExternal(oos);
+		
+	}
+	private static final HashMap<Class<?>, Constructor<?>> constructors=new HashMap<>();
+	
+	private static Constructor<?> getDefaultConstructor(final Class<?> clazz) throws NoSuchMethodException, SecurityException
+	{
+		synchronized(constructors)
+		{
+			Constructor<?> c=constructors.get(clazz);
+			if (c==null)
+			{
+				final Constructor<?> cons=clazz.getDeclaredConstructor();
+				c=AccessController.doPrivileged(new PrivilegedAction<Constructor<?>>() {
+
+					@Override
+					public Constructor<?> run() {
+						
+						cons.setAccessible(true);
+						return cons;
+					}
+				});
+				constructors.put(clazz, c);
+			}
+			return c;
+		}
+	}
+	
+	
+	public static Externalizable readExternalizableAndSizable(final ObjectInput ois, boolean supportNull) throws IOException, ClassNotFoundException
+	{
+		if (ois.readBoolean())
+		{
+			String clazz=SerializationTools.readString(ois, MAX_CLASS_LENGTH, false);
+			@SuppressWarnings("rawtypes")
+			Class c=Class.forName(clazz, false, MadkitClassLoader.getSystemClassLoader());
+			if (!Externalizable.class.isAssignableFrom(c) && !SystemMessage.class.isAssignableFrom(c))
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			
+			
+			try
+			{
+				Constructor<?> cons=getDefaultConstructor(c);
+				Externalizable res=(Externalizable)cons.newInstance();
+				res.readExternal(ois);
+				return res;
+			}
+			catch(Exception e)
+			{
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			}
+			
+		}
+		else if (!supportNull)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		else
+			return null;
+		
+	}
+	public static void writeObject(final ObjectOutput oos, Object o, int sizeMax, boolean supportNull) throws IOException
 	{
 		if (o==null)
 		{
@@ -569,10 +648,10 @@ public class SerializationTools {
 			
 			oos.write(0);
 		}
-		else if (o instanceof SerializableAndSizable)
+		else if (o instanceof ExternalizableAndSizable)
 		{
 			oos.write(1);
-			oos.writeObject(o);
+			writeExternalizableAndSizable(oos, (ExternalizableAndSizable)o, supportNull);
 		}
 		else if (o instanceof String)
 		{
@@ -589,10 +668,10 @@ public class SerializationTools {
 			oos.write(4);
 			writeBytes2D(oos, (byte[][])o, sizeMax, sizeMax, false, false);
 		}
-		else if (o instanceof SerializableAndSizable[])
+		else if (o instanceof ExternalizableAndSizable[])
 		{
 			oos.write(5);
-			writeSerializableAndSizables(oos, (SerializableAndSizable[])o, sizeMax, supportNull);
+			writeExternalizableAndSizables(oos, (ExternalizableAndSizable[])o, sizeMax, supportNull);
 		}
 		else if (o instanceof Object[])
 		{
@@ -636,7 +715,7 @@ public class SerializationTools {
 		}
 	}
 	
-	public static Object readObject(final ObjectInputStream ois, int sizeMax, boolean supportNull) throws IOException, ClassNotFoundException
+	public static Object readObject(final ObjectInput ois, int sizeMax, boolean supportNull) throws IOException, ClassNotFoundException
 	{
 		byte type=ois.readByte();
 		switch(type)
@@ -646,7 +725,7 @@ public class SerializationTools {
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 			return null;
 		case 1:
-			return ois.readObject();
+			return readExternalizableAndSizable(ois, supportNull);
 		case 2:
 			return readString(ois, sizeMax, false);
 		case 3:
@@ -654,7 +733,7 @@ public class SerializationTools {
 		case 4:
 			return readBytes2D(ois, sizeMax, sizeMax, false, false);
 		case 5:
-			return readSerializableAndSizables(ois, sizeMax, false);
+			return readExternalizableAndSizables(ois, sizeMax, false);
 		case 6:
 			return readObjects(ois, sizeMax, false);
 		case 7:
@@ -705,14 +784,14 @@ public class SerializationTools {
 				res+=2+(b==null?0:b.length);
 			return res;
 		}
-		else if (o instanceof SerializableAndSizable)
+		else if (o instanceof ExternalizableAndSizable)
 		{
-			return ((SerializableAndSizable)o).getInternalSerializedSize();
+			return ((ExternalizableAndSizable)o).getInternalSerializedSize();
 		}
-		else if (o instanceof SerializableAndSizable[])
+		else if (o instanceof ExternalizableAndSizable[])
 		{
 			int size=4;
-			for (SerializableAndSizable s : (SerializableAndSizable[])o)
+			for (ExternalizableAndSizable s : (ExternalizableAndSizable[])o)
 				size+=s.getInternalSerializedSize();
 			return size;
 		}

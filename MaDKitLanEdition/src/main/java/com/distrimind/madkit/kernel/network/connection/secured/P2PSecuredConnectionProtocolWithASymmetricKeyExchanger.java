@@ -39,8 +39,8 @@ package com.distrimind.madkit.kernel.network.connection.secured;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
 
@@ -597,7 +597,6 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 
 					return new SubBlockInfo(res, check, !check);
 				} catch (Exception e) {
-					e.printStackTrace();
 					SubBlock res = new SubBlock(_block.getBytes(), off,
 							getBodyOutputSizeForDecryption(_block.getSize() - getSizeHead()));
 					return new SubBlockInfo(res, false, true);
@@ -640,7 +639,6 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 					
 					return new SubBlockInfo(res, check, !check);
 				} catch (Exception e) {
-					e.printStackTrace();
 					SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() + getSizeHead(),
 							getBodyOutputSizeForDecryption(_block.getSize() - getSizeHead()));
 					return new SubBlockInfo(res, false, true);
@@ -1024,8 +1022,8 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 		private ASymmetricPublicKey publicKey;
 
 		@Override
-		public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-			super.readAndCheckObject(in);
+		public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+			super.readExternal(in);
 			Enum<?> e=SerializationTools.readEnum(in, false);
 			if (!(e instanceof ASymmetricAuthentifiedSignatureType))
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
@@ -1046,8 +1044,8 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 		}
 
 		@Override
-		public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
-			super.writeAndCheckObject(oos);
+		public void writeExternal(ObjectOutput oos) throws IOException {
+			super.writeExternal(oos);
 			SerializationTools.writeEnum(oos, signatureType, false);
 			oos.writeInt(signatureSize);
 			SerializationTools.writeKey(oos, publicKey, false);

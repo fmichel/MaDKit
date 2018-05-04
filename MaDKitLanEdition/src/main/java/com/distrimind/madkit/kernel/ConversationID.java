@@ -37,13 +37,16 @@
  */
 package com.distrimind.madkit.kernel;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
-import com.distrimind.madkit.util.SerializableAndSizable;
+import com.distrimind.madkit.util.ExternalizableAndSizable;
 
 /**
  * 
@@ -61,7 +64,7 @@ import com.distrimind.madkit.util.SerializableAndSizable;
  * @version 2.0
  * @since MadKitLanEdition 1.0
  */
-public class ConversationID implements SerializableAndSizable, Cloneable {
+public class ConversationID implements ExternalizableAndSizable, Cloneable {
 
 	/**
 	 * 
@@ -329,5 +332,17 @@ public class ConversationID implements SerializableAndSizable, Cloneable {
 	public int getInternalSerializedSize() {
 		
 		return 4;
+	}
+
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeInt(this.id);
+		
+	}
+
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		this.id=in.readInt();
+		
 	}
 }

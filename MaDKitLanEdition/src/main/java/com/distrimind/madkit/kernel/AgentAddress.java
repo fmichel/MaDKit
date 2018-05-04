@@ -38,13 +38,14 @@
 package com.distrimind.madkit.kernel;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 import com.distrimind.madkit.agr.Organization;
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
-import com.distrimind.madkit.util.SerializableAndSizable;
+import com.distrimind.madkit.util.ExternalizableAndSizable;
+import com.distrimind.madkit.util.SerializationTools;
 
 /**
  * Identifies an agent within the artificial society.
@@ -67,7 +68,7 @@ import com.distrimind.madkit.util.SerializableAndSizable;
  * @since MaDKitLanEdition 1.0
  * @version 5.2
  */
-public class AgentAddress implements SerializableAndSizable, Cloneable {
+public class AgentAddress implements ExternalizableAndSizable, Cloneable {
 
 	private static final long serialVersionUID = -5109274890965282440L;
 
@@ -104,11 +105,11 @@ public class AgentAddress implements SerializableAndSizable, Cloneable {
 		return agent;
 	}
 
-	private void writeObject(ObjectOutputStream oos) throws IOException {
-		oos.writeObject(kernelAddress);
+	@Override
+	public void writeExternal(ObjectOutput oos) throws IOException {
+		SerializationTools.writeExternalizableAndSizable(oos, kernelAddress, false);
 		oos.writeLong(agentID);
-		oos.writeObject(roleObject);
-		
+		SerializationTools.writeExternalizableAndSizable(oos, roleObject, false);
 		int size=cgr.length();
 		if (size>Group.MAX_CGR_LENGTH)
 			throw new IOException();
@@ -121,14 +122,15 @@ public class AgentAddress implements SerializableAndSizable, Cloneable {
 		
 		return kernelAddress.getInternalSerializedSize()+13+roleObject.getInternalSerializedSize()+cgr.length()*2;
 	}
-	private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+	@Override
+	public void readExternal(ObjectInput ois) throws IOException, ClassNotFoundException {
 		
-		Object o=ois.readObject();
+		Object o=SerializationTools.readExternalizableAndSizable(ois, false);
 		if (o instanceof KernelAddress)
 		{
 			kernelAddress=(KernelAddress)o;
 			agentID=ois.readLong();
-			o=ois.readObject();
+			o=SerializationTools.readExternalizableAndSizable(ois, false);
 			if (o instanceof InternalRole)
 			{
 				roleObject=(InternalRole)o;
@@ -335,7 +337,7 @@ public class AgentAddress implements SerializableAndSizable, Cloneable {
 	 * Tells if this agent address was automatically requested or manually requested
 	 * 
 	 * @return true if this agent address was manually requested
-	 * @see AbstractAgent#autoRequestRole(AbstractGroup, String, SerializableAndSizable)
+	 * @see AbstractAgent#autoRequestRole(AbstractGroup, String, ExternalizableAndSizable)
 	 */
 	public boolean isManuallyRequested() {
 		return manually_requested;
@@ -345,6 +347,8 @@ public class AgentAddress implements SerializableAndSizable, Cloneable {
 	public AgentAddress clone() {
 		return this;
 	}
+
+	
 
 	
 }

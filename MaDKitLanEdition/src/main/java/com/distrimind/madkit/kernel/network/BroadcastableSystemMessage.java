@@ -38,13 +38,14 @@
 package com.distrimind.madkit.kernel.network;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.KernelAddress;
 import com.distrimind.madkit.kernel.network.TransferAgent.IDTransfer;
-import com.distrimind.madkit.util.SerializableAndSizable;
+import com.distrimind.madkit.util.ExternalizableAndSizable;
+import com.distrimind.madkit.util.SerializationTools;
 
 /**
  * 
@@ -53,7 +54,7 @@ import com.distrimind.madkit.util.SerializableAndSizable;
  * @version 1.1
  * @since MadkitLanEdition 1.0
  */
-abstract class BroadcastableSystemMessage implements SystemMessage, SerializableAndSizable {
+abstract class BroadcastableSystemMessage implements SystemMessage, ExternalizableAndSizable {
 
 	/**
 	 * 
@@ -69,32 +70,22 @@ abstract class BroadcastableSystemMessage implements SystemMessage, Serializable
 		return (idTransferDestination==null?1:1+idTransferDestination.getInternalSerializedSize())+kernelAddressDestination.getInternalSerializedSize();
 	}
 	@Override
-	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		if (in.readBoolean())
-		{
-			Object o=in.readObject();
-			if (!(o instanceof IDTransfer))
-				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
-			idTransferDestination=(IDTransfer)o;
-		}
-		else
-			idTransferDestination=null;
-		Object o=in.readObject();
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		Object o=SerializationTools.readExternalizableAndSizable(in, true);
+		if (o!=null && !(o instanceof IDTransfer))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		idTransferDestination=(IDTransfer)o;
+		
+		o=SerializationTools.readExternalizableAndSizable(in, false);
 		if (!(o instanceof KernelAddress))
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		kernelAddressDestination=(KernelAddress)o;
 	}
 
 	@Override
-	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
-		if (idTransferDestination==null)
-			oos.writeBoolean(false);
-		else
-		{
-			oos.writeBoolean(true);
-			oos.writeObject(idTransferDestination);
-		}
-		oos.writeObject(kernelAddressDestination);
+	public void writeExternal(ObjectOutput oos) throws IOException {
+		SerializationTools.writeExternalizableAndSizable(oos, idTransferDestination, true);
+		SerializationTools.writeExternalizableAndSizable(oos, kernelAddressDestination, false);
 	}
 	
 	
@@ -133,14 +124,6 @@ abstract class BroadcastableSystemMessage implements SystemMessage, Serializable
 		return kernelAddressDestination;
 	}
 
-	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
-	{
-		readAndCheckObject(in);
-	}
-	private void writeObject(final ObjectOutputStream oos) throws IOException
-	{
-		writeAndCheckObject(oos);
-	}
 	
 	
 	

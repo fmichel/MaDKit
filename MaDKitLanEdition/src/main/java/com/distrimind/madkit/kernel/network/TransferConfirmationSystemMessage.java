@@ -38,8 +38,8 @@
 package com.distrimind.madkit.kernel.network;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.net.InetSocketAddress;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
@@ -78,18 +78,18 @@ class TransferConfirmationSystemMessage extends BroadcastableSystemMessage {
 
 
 	@Override
-	public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		super.readAndCheckObject(in);
-		Object o=in.readObject();
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		super.readExternal(in);
+		Object o=SerializationTools.readExternalizableAndSizable(in, false);
 		if (!(o instanceof IDTransfer))
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		yourIDTransfer=(IDTransfer)o;
-		o=in.readObject();
+		o=SerializationTools.readExternalizableAndSizable(in, false);
 		if (!(o instanceof IDTransfer))
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		myIDTransfer=(IDTransfer)o;
 		numberOfSubBlocks=in.readInt();
-		o=in.readObject();
+		o=SerializationTools.readExternalizableAndSizable(in, false);
 		if (!(o instanceof KernelAddress))
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		kernelAddressToConnect=(KernelAddress)o;
@@ -97,7 +97,7 @@ class TransferConfirmationSystemMessage extends BroadcastableSystemMessage {
 		distantInetSocketAddress=SerializationTools.readInetSocketAddress(in, true);
 		if (in.readBoolean())
 		{
-			o=in.readObject();
+			o=SerializationTools.readExternalizableAndSizable(in, false);
 			if (!(o instanceof PointToPointTransferedBlockChecker))
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 			pointToPointBlockChecker=(PointToPointTransferedBlockChecker)o;
@@ -111,21 +111,15 @@ class TransferConfirmationSystemMessage extends BroadcastableSystemMessage {
 	}
 
 	@Override
-	public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
-		super.writeAndCheckObject(oos);
-		oos.writeObject(yourIDTransfer);
-		oos.writeObject(myIDTransfer);
+	public void writeExternal(ObjectOutput oos) throws IOException {
+		super.writeExternal(oos);
+		SerializationTools.writeExternalizableAndSizable(oos, yourIDTransfer, false);
+		SerializationTools.writeExternalizableAndSizable(oos, myIDTransfer, false);
 		oos.writeInt(numberOfSubBlocks);
-		oos.writeObject(kernelAddressToConnect);
+		SerializationTools.writeExternalizableAndSizable(oos, kernelAddressToConnect, false);
 		oos.writeBoolean(middleReached);
 		SerializationTools.writeInetSocketAddress(oos, distantInetSocketAddress, true);
-		if (pointToPointBlockChecker==null)
-			oos.writeBoolean(false);
-		else
-		{
-			oos.writeBoolean(true);
-			oos.writeObject(pointToPointBlockChecker);
-		}
+		SerializationTools.writeExternalizableAndSizable(oos, pointToPointBlockChecker, true);		
 		
 	}
 	
@@ -205,13 +199,6 @@ class TransferConfirmationSystemMessage extends BroadcastableSystemMessage {
 		return false;
 	}
 	
-	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
-	{
-		readAndCheckObject(in);
-	}
-	private void writeObject(final ObjectOutputStream oos) throws IOException
-	{
-		writeAndCheckObject(oos);
-	}
+
 
 }

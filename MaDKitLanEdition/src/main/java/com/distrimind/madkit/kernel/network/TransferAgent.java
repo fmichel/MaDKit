@@ -38,8 +38,8 @@
 package com.distrimind.madkit.kernel.network;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;
@@ -66,7 +66,7 @@ import com.distrimind.madkit.message.ObjectMessage;
 import com.distrimind.madkit.message.hook.TransferEventMessage;
 import com.distrimind.madkit.message.hook.TransferEventMessage.TransferEventType;
 import com.distrimind.madkit.util.SerializationTools;
-import com.distrimind.madkit.util.SerializableAndSizable;
+import com.distrimind.madkit.util.ExternalizableAndSizable;
 import com.distrimind.util.IDGeneratorInt;
 
 /**
@@ -488,14 +488,14 @@ class TransferAgent extends AgentFakeThread {
 		}
 	}
 
-	final static class IDTransfer implements SerializableAndSizable {
+	final static class IDTransfer implements ExternalizableAndSizable {
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 6820580619502727187L;
 
 		private final transient IDGeneratorInt generator_id_transfert;
-		private final int id;
+		private int id;
 
 		private IDTransfer() {
 			generator_id_transfert = null;
@@ -581,6 +581,16 @@ class TransferAgent extends AgentFakeThread {
 		@Override
 		public int getInternalSerializedSize() {
 			return 4;
+		}
+
+		@Override
+		public void writeExternal(ObjectOutput out) throws IOException {
+			out.writeInt(id);
+		}
+
+		@Override
+		public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+			id=in.read();
 		}
 
 	}
@@ -716,14 +726,14 @@ class TransferAgent extends AgentFakeThread {
 		
 		
 		@Override
-		public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-			super.readAndCheckObject(in);
+		public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+			super.readExternal(in);
 			inetSocketAddress=SerializationTools.readInetSocketAddress(in, false);
 		}
 
 		@Override
-		public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
-			super.writeAndCheckObject(oos);
+		public void writeExternal(ObjectOutput oos) throws IOException {
+			super.writeExternal(oos);
 			SerializationTools.writeInetSocketAddress(oos, inetSocketAddress, false);
 			if (inetSocketAddress.getPort() < 0)
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
@@ -761,8 +771,8 @@ class TransferAgent extends AgentFakeThread {
 		}
 
 		@Override
-		public void readAndCheckObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-			Object o=in.readObject();
+		public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+			Object o=SerializationTools.readExternalizableAndSizable(in, false);
 			if (!(o instanceof IDTransfer))
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 			idTransfer=(IDTransfer)o;
@@ -770,8 +780,8 @@ class TransferAgent extends AgentFakeThread {
 		}
 
 		@Override
-		public void writeAndCheckObject(ObjectOutputStream oos) throws IOException {
-			oos.writeObject(idTransfer);
+		public void writeExternal(ObjectOutput oos) throws IOException {
+			SerializationTools.writeExternalizableAndSizable(oos, idTransfer, false);
 
 			
 		}

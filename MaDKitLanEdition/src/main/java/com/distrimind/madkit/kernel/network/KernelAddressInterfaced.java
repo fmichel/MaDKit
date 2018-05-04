@@ -117,7 +117,7 @@ public class KernelAddressInterfaced extends KernelAddress {
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		try {
 			internalSize=in.readShort();
-			if (internalSize<128 || internalSize>513)
+			if (internalSize<16 || internalSize>65)
 				throw new MessageSerializationException(Integrity.FAIL);
 			synchronized(tab)
 			{

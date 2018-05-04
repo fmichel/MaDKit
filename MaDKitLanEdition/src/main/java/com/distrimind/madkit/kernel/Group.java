@@ -48,10 +48,9 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.distrimind.madkit.agr.LocalCommunity;
-import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.Gatekeeper;
 import com.distrimind.madkit.kernel.KernelAddress;
-import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
+import com.distrimind.madkit.util.SerializationTools;
 
 /**
  * MadKitGroupExtension aims to encapsulate MadKit in order to extends the
@@ -132,6 +131,11 @@ public final class Group extends AbstractGroup implements Comparable<Group> {
 	 */
 	public Group(String _community, String... _groups) {
 		this(DEFAULT_GATEKEEPER | DEFAULT_DISTRIBUTED_VALUE, false, false, null, false, _community, _groups);
+	}
+	
+	Group()
+	{
+		
 	}
 
 	/**
@@ -427,23 +431,8 @@ public final class Group extends AbstractGroup implements Comparable<Group> {
 	public void readExternal(ObjectInput ois) throws IOException {
 
 		try {
-			int size=ois.readInt();
-			if (size<0 || size>MAX_COMMUNITY_LENGTH)
-				throw new MessageSerializationException(Integrity.FAIL);
-			char chars[]=new char[size];
-			for (int i=0;i<size;i++)
-				chars[i]=ois.readChar();
-			String com=new String(chars);
-			
-			size=ois.readInt();
-			if (size<0 || size>MAX_PATH_LENGTH)
-				throw new MessageSerializationException(Integrity.FAIL);
-			chars=new char[size];
-			for (int i=0;i<size;i++)
-				chars[i]=ois.readChar();
-			
-			String path=new String(chars);
-
+			String com=SerializationTools.readString(ois, MAX_COMMUNITY_LENGTH, false);
+			String path=SerializationTools.readString(ois, MAX_COMMUNITY_LENGTH, false);
 			this.m_use_sub_groups = ois.readBoolean();
 			boolean dist = ois.readBoolean();
 			boolean isReserved = ois.readBoolean();
@@ -476,18 +465,8 @@ public final class Group extends AbstractGroup implements Comparable<Group> {
 	@Override
 	public void writeExternal(ObjectOutput oos) throws IOException {
 		try {
-			
-			if (this.getCommunity().length()>MAX_COMMUNITY_LENGTH)
-				throw new IOException();
-			oos.writeShort(this.getCommunity().length());
-			oos.writeChars(this.getCommunity());
-			if (this.getPath().length()>MAX_PATH_LENGTH)
-				throw new IOException();
-			oos.writeInt(this.getPath().length());
-			oos.writeChars(this.getPath());
-			
-			oos.writeUTF(this.getCommunity());
-			oos.writeUTF(this.getPath());
+			SerializationTools.writeString(oos, this.getCommunity(), MAX_COMMUNITY_LENGTH, false);
+			SerializationTools.writeString(oos, this.getPath(), MAX_COMMUNITY_LENGTH, false);
 			oos.writeBoolean(this.m_use_sub_groups);
 			oos.writeBoolean(this.isDistributed());
 			oos.writeBoolean(isReserved());

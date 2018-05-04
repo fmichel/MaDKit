@@ -50,6 +50,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.KernelAddress;
+import com.distrimind.madkit.kernel.network.NetworkProperties;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.madkit.util.SerializationTools;
 
@@ -117,19 +118,31 @@ public class MultiGroup extends AbstractGroup {
 
 		int notforbiden = ois.readInt();
 		int forbiden = ois.readInt();
+		int total=8;
+		int globalSize=NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE;
+		if (notforbiden<0 || forbiden<0 || total+notforbiden*4+total+forbiden*4>globalSize)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		for (int i = 0; i < notforbiden; i++)
 		{
 			Object o=SerializationTools.readExternalizableAndSizable(ois, false);
 			if (!(o instanceof AbstractGroup))
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
-			addGroup((AbstractGroup)o);
+			AbstractGroup ag=(AbstractGroup)o;
+			total+=ag.getInternalSerializedSize();
+			if (total>globalSize)
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			addGroup(ag);
 		}
 		for (int i = 0; i < forbiden; i++)
 		{
 			Object o=SerializationTools.readExternalizableAndSizable(ois, false);
 			if (!(o instanceof AbstractGroup))
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
-			addForbidenGroup((AbstractGroup) o);
+			AbstractGroup ag=(AbstractGroup)o;
+			total+=ag.getInternalSerializedSize();
+			if (total>globalSize)
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			addForbidenGroup(ag);
 		}
 			
 	}
@@ -169,7 +182,10 @@ public class MultiGroup extends AbstractGroup {
 				SerializationTools.writeExternalizableAndSizable(oos, ag.m_group, false);
 		}
 	}
-
+	MultiGroup()
+	{
+		
+	}
 	// private Group[] m_represented_groups_duplicated=null;
 	/**
 	 * Construct a MultiGroup which combine the different groups (Group and

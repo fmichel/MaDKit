@@ -107,7 +107,7 @@ final class AcceptedGroups implements SystemMessage {
 	public void readExternal(ObjectInput in)
 			throws ClassNotFoundException, IOException {
 		int globalSize=NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE;
-		int totalSize=0;
+		int totalSize=4;
 		int size=in.readInt();
 		if (size<0)
 			throw new MessageSerializationException(Integrity.FAIL);

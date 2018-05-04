@@ -108,7 +108,7 @@ public class SerializationTools {
 			return null;
 		}
 		if (size<0 || size>sizeMax)
-			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN, "size="+size+", sizeMax="+sizeMax);
 		if (sizeMax<MAX_CHAR_BUFFER_SIZE)
 		{
 			synchronized(stringLocker)

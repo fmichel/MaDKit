@@ -82,7 +82,10 @@ public class AgentAddress implements ExternalizableAndSizable, Cloneable {
 
 	private String cgr;// This is necessary to keep info in agent addresses that do not exist anymore
 	private boolean manually_requested;
-
+	AgentAddress()
+	{
+		
+	}
 	/**
 	 * @param agt
 	 *            the agent represented by this AA
@@ -110,17 +113,13 @@ public class AgentAddress implements ExternalizableAndSizable, Cloneable {
 		SerializationTools.writeExternalizableAndSizable(oos, kernelAddress, false);
 		oos.writeLong(agentID);
 		SerializationTools.writeExternalizableAndSizable(oos, roleObject, false);
-		int size=cgr.length();
-		if (size>Group.MAX_CGR_LENGTH)
-			throw new IOException();
-		oos.writeInt(size);
-		oos.writeChars(cgr);
+		SerializationTools.writeString(oos, cgr, Group.MAX_CGR_LENGTH, true);
 		oos.writeBoolean(manually_requested);
 	}
 	@Override
 	public int getInternalSerializedSize() {
 		
-		return kernelAddress.getInternalSerializedSize()+13+roleObject.getInternalSerializedSize()+cgr.length()*2;
+		return kernelAddress.getInternalSerializedSize()+13+roleObject.getInternalSerializedSize()+(cgr==null?0:cgr.length()*2);
 	}
 	@Override
 	public void readExternal(ObjectInput ois) throws IOException, ClassNotFoundException {
@@ -134,15 +133,7 @@ public class AgentAddress implements ExternalizableAndSizable, Cloneable {
 			if (o instanceof InternalRole)
 			{
 				roleObject=(InternalRole)o;
-				int size=ois.readInt();
-				if (size<=0 || size>Group.MAX_CGR_LENGTH)
-				{
-					throw new MessageSerializationException(Integrity.FAIL); 
-				}
-				char chars[]=new char[size];
-				for (int i=0;i<size;i++)
-					chars[i]=ois.readChar();
-				cgr=new String(chars);
+				cgr=SerializationTools.readString(ois, Group.MAX_CGR_LENGTH, true);
 				manually_requested=ois.readBoolean();
 			}
 			else
@@ -365,6 +356,11 @@ final class CandidateAgentAddress extends AgentAddress {
 	CandidateAgentAddress(AbstractAgent agt, InternalRole role, KernelAddress ka, boolean manually_requested) {
 		super(agt, role, ka, manually_requested);
 	}
+	
+	CandidateAgentAddress()
+	{
+		
+	}
 
 	/**
 	 * q
@@ -384,8 +380,11 @@ final class GroupManagerAddress extends AgentAddress {
 	 * 
 	 */
 	private static final long serialVersionUID = -5757376397376189866L;
-	private final boolean securedGroup;
-
+	private boolean securedGroup;
+	GroupManagerAddress()
+	{
+		
+	}
 	GroupManagerAddress(AbstractAgent agt, InternalRole role, KernelAddress ka, boolean manually_requested,
 			boolean securedGroup) {
 		super(agt, role, ka, manually_requested);
@@ -395,5 +394,18 @@ final class GroupManagerAddress extends AgentAddress {
 	boolean isGroupSecured() {
 		return securedGroup;
 	}
+	@Override
+	public void readExternal(ObjectInput in) throws ClassNotFoundException, IOException
+	{
+		super.readExternal(in);
+		securedGroup=in.readBoolean();
+	}
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException
+	{
+		super.writeExternal(out);
+		out.writeBoolean(securedGroup);
+	}
+	
 
 }

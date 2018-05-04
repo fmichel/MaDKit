@@ -79,21 +79,24 @@ class InternalRole implements ExternalizableAndSizable {// TODO test with arrayl
 
 	private static final long serialVersionUID = 4447153943733812916L;
 
-	protected final transient List<AbstractAgent> players;// TODO test copyonarraylist and linkedhashset
+	protected transient List<AbstractAgent> players;// TODO test copyonarraylist and linkedhashset
 	private transient List<AbstractAgent> tmpReferenceableAgents;
 	protected volatile transient Set<AgentAddress> agentAddresses;
 	protected transient boolean modified = true;
-	private final transient AtomicReference<Set<Overlooker<? extends AbstractAgent>>> overlookers = new AtomicReference<>(
+	private transient AtomicReference<Set<Overlooker<? extends AbstractAgent>>> overlookers = new AtomicReference<>(
 			null);
-	protected final transient InternalGroup myGroup;
-	final transient private Logger logger;
-	private final transient KernelAddress kernelAddress;
-	private final transient AtomicLong number_of_manually_requested_role;
-	private final transient HashMap<KernelAddress, AtomicInteger> number_of_manually_distant_requested_role;
+	protected transient InternalGroup myGroup;
+	transient private Logger logger;
+	private transient KernelAddress kernelAddress;
+	private transient AtomicLong number_of_manually_requested_role;
+	private transient HashMap<KernelAddress, AtomicInteger> number_of_manually_distant_requested_role;
 
 	private Group group;
 	private String roleName;
-
+	InternalRole()
+	{
+		
+	}
 	/**
 	 * @return the kernelAddress
 	 */

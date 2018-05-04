@@ -2484,7 +2484,8 @@ class DistantKernelAgent extends AgentFakeThread {
 							try (java.io.ByteArrayInputStream bais = new java.io.ByteArrayInputStream(bytes)) {
 
 								try (ObjectInputStream ois = new OIS(bais)) {
-									Object obj = ois.readObject();
+									
+									Object obj = SerializationTools.readExternalizableAndSizable(ois, false);
 
 									receiveData(agent_socket_sender, obj, sr.getDataSize());
 

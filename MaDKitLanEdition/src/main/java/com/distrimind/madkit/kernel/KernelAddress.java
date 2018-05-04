@@ -91,6 +91,11 @@ public class KernelAddress implements ExternalizableAndSizable, Cloneable {
 	protected KernelAddress(boolean isSecured) throws NoSuchAlgorithmException, NoSuchProviderException {
 		this(isSecured, true);
 	}
+	KernelAddress()
+	{
+		
+	}
+	
 
 	protected KernelAddress(boolean isSecured, boolean initName) throws NoSuchAlgorithmException, NoSuchProviderException {
 
@@ -126,8 +131,8 @@ public class KernelAddress implements ExternalizableAndSizable, Cloneable {
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		try {
 			internalSize=in.readShort();
-			if (internalSize<128 || internalSize>513)
-				throw new MessageSerializationException(Integrity.FAIL);
+			if (internalSize<16 || internalSize>65)
+				throw new MessageSerializationException(Integrity.FAIL, "internalSize="+internalSize);
 			synchronized(tab)
 			{
 				if (internalSize!=in.read(tab, 0, internalSize))

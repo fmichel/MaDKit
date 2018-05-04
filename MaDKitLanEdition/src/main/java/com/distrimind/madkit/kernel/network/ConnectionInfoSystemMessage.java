@@ -94,9 +94,10 @@ class ConnectionInfoSystemMessage implements SystemMessage {
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 			addresses.add(aip);
 		}
-		if (in.readBoolean())
+		Object o=SerializationTools.readExternalizableAndSizable(in, true);
+		if (o!=null)
 		{
-			Object o=SerializationTools.readExternalizableAndSizable(in, false);
+			
 			if (!(o instanceof AbstractIP))
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 			localAddresses=(AbstractIP)o;

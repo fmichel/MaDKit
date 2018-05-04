@@ -57,11 +57,19 @@ public class MessageSerializationException extends IOException{
 	private final Integrity integrity;
 	public MessageSerializationException(Integrity integrity)
 	{
-		this(integrity, null);
+		this(integrity, null, null);
+	}
+	public MessageSerializationException(Integrity integrity, String message)
+	{
+		this(integrity, message, null);
 	}
 	public MessageSerializationException(Integrity integrity, Exception e)
 	{
-		super(integrity.toString(), e);
+		this(integrity, null, e);
+	}
+	public MessageSerializationException(Integrity integrity, String message, Exception e)
+	{
+		super(integrity.toString()+" : "+message, e);
 		this.integrity=integrity;
 	}
 	public Integrity getIntegrity() {

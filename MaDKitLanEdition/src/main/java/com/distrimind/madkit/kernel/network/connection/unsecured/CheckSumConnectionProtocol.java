@@ -250,7 +250,7 @@ public class CheckSumConnectionProtocol extends ConnectionProtocol<CheckSumConne
 
 	}
 
-	private static class BlockChecker extends TransferedBlockChecker {
+	static class BlockChecker extends TransferedBlockChecker {
 
 		/**
 		 * 
@@ -258,7 +258,10 @@ public class CheckSumConnectionProtocol extends ConnectionProtocol<CheckSumConne
 		private static final long serialVersionUID = 5028832920052128043L;
 		private MessageDigestType messageDigestType;
 		private transient AbstractMessageDigest messageDigest = null;
-
+		BlockChecker()
+		{
+			
+		}
 		@Override
 		public int getInternalSerializedSize() {
 			return SerializationTools.getInternalSize(messageDigestType, 0);

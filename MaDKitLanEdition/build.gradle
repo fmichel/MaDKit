@@ -60,20 +60,22 @@ dependencies {
      compile(group:'org.hsqldb', name: 'hsqldb', version: '2.3.4')
      
 }
-
+def javaVersion=7
+sourceCompatibility = javaVersion
+targetCompatibility= javaVersion
+version='1.7.0'
 allprojects {
 	group='com.distrimind.madkit'
     repositories {
         jcenter() 
     }
     //compileJava.options.compilerArgs << "-Xlint"
+    compileJava.options.compilerArgs.addAll(['--release', javaVersion])
     if (project.hasProperty('javaHomeVersion') && javaHomeVersion.toFloat()>1.8)
     	javadoc.options.addStringOption("html5", "-quiet")
 }
 
-sourceCompatibility = 1.7
-targetCompatibility=1.7
-version='1.7.0'
+
 
 task generateVersionsFile(type:JavaExec, dependsOn: classes) {
   def versionBuildFile = file('src/main/resources/com/distrimind/madkit/kernel/build.txt')

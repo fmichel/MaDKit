@@ -74,6 +74,11 @@ public final class EncryptedCloudIdentifier extends CloudIdentifier {
 	
 	private byte[] bytes;
 
+	EncryptedCloudIdentifier()
+	{
+		
+	}
+	
 	EncryptedCloudIdentifier(CloudIdentifier cloudIdentifier, P2PASymmetricSecretMessageExchanger cipher)
 			throws InvalidKeyException, IOException, IllegalBlockSizeException, BadPaddingException,
 			NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException,

@@ -56,6 +56,11 @@ class AccessInitialized extends AccessMessage {
 
 	public boolean can_takes_login_initiative;
 	
+	AccessInitialized()
+	{
+		
+	}
+	
 	public AccessInitialized(boolean _can_takes_login_initiative) {
 		can_takes_login_initiative = _can_takes_login_initiative;
 	}

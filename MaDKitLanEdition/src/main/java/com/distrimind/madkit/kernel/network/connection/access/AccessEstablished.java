@@ -61,6 +61,11 @@ class AccessEstablished extends AccessMessage {
 
 	private AbstractGroup concerned_groups;
 
+	AccessEstablished()
+	{
+		
+	}
+	
 	public AccessEstablished(AbstractGroup _concerned_groups) {
 		concerned_groups = _concerned_groups;
 	}

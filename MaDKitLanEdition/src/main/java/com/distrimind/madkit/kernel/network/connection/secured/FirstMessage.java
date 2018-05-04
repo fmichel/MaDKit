@@ -74,7 +74,10 @@ class FirstMessage extends ConnectionMessage {
 		
 	}
 
-
+	FirstMessage()
+	{
+		
+	}
 
 
 }

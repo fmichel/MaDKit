@@ -70,6 +70,11 @@ public class EncryptedIdentifier extends Identifier {
 	 */
 	private static final long serialVersionUID = -1396620582869308278L;
 
+	EncryptedIdentifier()
+	{
+		
+	}
+	
 	EncryptedIdentifier(EncryptedCloudIdentifier _cloud_identifier, HostIdentifier _host_identifier) {
 		super(_cloud_identifier, _host_identifier);
 	}

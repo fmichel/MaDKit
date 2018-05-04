@@ -54,7 +54,10 @@ public class UnexpectedMessage extends ConnectionFinished {
 	 * 
 	 */
 	private static final long serialVersionUID = 5813253270740660753L;
-
+	UnexpectedMessage()
+	{
+		
+	}
 	public UnexpectedMessage(InetSocketAddress _inet_address) {
 		super(_inet_address, ConnectionClosedReason.CONNECTION_ANOMALY);
 	}

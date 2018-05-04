@@ -197,7 +197,7 @@ public class UnsecuredConnectionProtocol extends ConnectionProtocol<UnsecuredCon
 
 	}
 
-	private static class BlockChecker extends TransferedBlockChecker {
+	static class BlockChecker extends TransferedBlockChecker {
 
 		protected BlockChecker(TransferedBlockChecker _subChecker) {
 			super(_subChecker, true);
@@ -207,6 +207,10 @@ public class UnsecuredConnectionProtocol extends ConnectionProtocol<UnsecuredCon
 		 * 
 		 */
 		private static final long serialVersionUID = -6848501726603093585L;
+		BlockChecker()
+		{
+			
+		}
 
 		@Override
 		public SubBlockInfo checkSubBlock(SubBlock _block) throws BlockParserException {

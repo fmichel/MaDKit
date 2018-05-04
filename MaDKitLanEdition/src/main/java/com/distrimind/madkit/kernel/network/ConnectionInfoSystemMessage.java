@@ -70,6 +70,11 @@ class ConnectionInfoSystemMessage implements SystemMessage {
 	private int localPortToConnect;
 	private boolean canBeDirectServer;
 
+	ConnectionInfoSystemMessage()
+	{
+		
+	}
+	
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		int globalSize=NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE;

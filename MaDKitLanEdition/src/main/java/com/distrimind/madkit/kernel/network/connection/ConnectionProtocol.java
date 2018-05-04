@@ -699,7 +699,10 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 		private static final long serialVersionUID = 2817204112884547039L;
 
 		private short headSize;
-
+		NullBlockChecker()
+		{
+			
+		}
 		public NullBlockChecker(TransferedBlockChecker _subChecker, boolean isCrypted, short headSize) {
 			super(_subChecker, !isCrypted);
 			if (headSize < 0)

@@ -1010,7 +1010,7 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 		}
 	}
 
-	private static class BlockChecker extends TransferedBlockChecker {
+	static class BlockChecker extends TransferedBlockChecker {
 		/**
 		 * 
 		 */
@@ -1020,7 +1020,10 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 		private int signatureSize;
 		private transient ASymmetricAuthentifiedSignatureCheckerAlgorithm signatureChecker;
 		private ASymmetricPublicKey publicKey;
-
+		BlockChecker()
+		{
+			
+		}
 		@Override
 		public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 			super.readExternal(in);

@@ -66,6 +66,11 @@ final class BroadcastLanMessage extends LanMessage {
 	public String role;
 	public ArrayList<AgentAddress> agentAddressesSender;
 
+	BroadcastLanMessage()
+	{
+		
+	}
+	
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		

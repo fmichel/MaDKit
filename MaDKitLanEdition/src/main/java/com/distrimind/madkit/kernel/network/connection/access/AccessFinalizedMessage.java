@@ -54,7 +54,6 @@ class AccessFinalizedMessage extends AccessMessage {
 	 */
 	private static final long serialVersionUID = 1583685274389751912L;
 
-	
 
 	@Override
 	public boolean checkDifferedMessages() {

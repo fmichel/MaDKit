@@ -69,6 +69,11 @@ class TransferConfirmationSystemMessage extends BroadcastableSystemMessage {
 	private boolean middleReached;
 	private InetSocketAddress distantInetSocketAddress;
 	private PointToPointTransferedBlockChecker pointToPointBlockChecker;
+	
+	TransferConfirmationSystemMessage()
+	{
+		
+	}
 
 	@Override
 	public int getInternalSerializedSize() {

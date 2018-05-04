@@ -55,6 +55,10 @@ class TooMuchConnectionWithTheSamePeers extends ConnectionFinished {
 	 * 
 	 */
 	private static final long serialVersionUID = 2299918422764559485L;
+	TooMuchConnectionWithTheSamePeers()
+	{
+		
+	}
 
 	public TooMuchConnectionWithTheSamePeers(InetSocketAddress _inet_address) {
 		super(_inet_address, ConnectionClosedReason.CONNECTION_PROPERLY_CLOSED);

@@ -67,6 +67,11 @@ public class Identifier implements ExternalizableAndSizable {
 	private CloudIdentifier cloud_identifier;
 	private HostIdentifier host_identifier;
 
+	Identifier()
+	{
+		
+	}
+	
 	public Identifier(CloudIdentifier _cloud_identifier, HostIdentifier _host_identifier) {
 		if (_cloud_identifier == null)
 			throw new NullPointerException("_cloud_identifier");

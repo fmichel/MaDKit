@@ -66,7 +66,10 @@ class TransferPropositionSystemMessage extends BroadcastableSystemMessage {
 	private int numberOfIntermediatePeers;
 	private boolean finalTestResult = true;
 	private boolean youAskConnection;
-
+	TransferPropositionSystemMessage()
+	{
+		
+	}
 	@Override
 	public int getInternalSerializedSize() {
 		

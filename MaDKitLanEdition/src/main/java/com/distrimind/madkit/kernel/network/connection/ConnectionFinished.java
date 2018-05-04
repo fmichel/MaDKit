@@ -65,10 +65,13 @@ public class ConnectionFinished extends ConnectionMessage {
 
 	private ConnectionProtocol.ConnectionState state;
 	private byte[] initialCounter;
-	private transient final ConnectionClosedReason connection_closed_reason;
+	private transient ConnectionClosedReason connection_closed_reason;
 	private final static int MAX_INITIAL_COUNTER_LENGTH=74;
 
-	
+	protected ConnectionFinished()
+	{
+		
+	}
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		inet_address=SerializationTools.readInetSocketAddress(in, false);

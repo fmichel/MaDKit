@@ -64,6 +64,11 @@ class UnlogMessage extends AccessMessage {
 	public UnlogMessage(ArrayList<Identifier> _identifiers) {
 		identifier_to_unlog = _identifiers;
 	}
+	
+	UnlogMessage()
+	{
+		
+	}
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		int size=in.readInt();

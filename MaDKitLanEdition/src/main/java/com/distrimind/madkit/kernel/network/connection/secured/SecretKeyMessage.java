@@ -64,6 +64,11 @@ class SecretKeyMessage extends ConnectionMessage {
 	}
 
 	
+	SecretKeyMessage()
+	{
+		
+	}
+	
 
 	@Override
 	public boolean excludedFromEncryption() {

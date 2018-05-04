@@ -59,7 +59,11 @@ class TransferImpossibleSystemMessageFromMiddlePeer extends TransferImpossibleSy
 	private static final long serialVersionUID = -1215456454674917040L;
 
 	private IDTransfer myIDTransfer;
-
+	TransferImpossibleSystemMessageFromMiddlePeer()
+	{
+		
+	}
+	
 	TransferImpossibleSystemMessageFromMiddlePeer(IDTransfer _idTransferDestination,
 			KernelAddress _kernelAddressDestination, IDTransfer yourIDTransfer, IDTransfer myIDTransfer) {
 		super(_idTransferDestination, _kernelAddressDestination, yourIDTransfer);

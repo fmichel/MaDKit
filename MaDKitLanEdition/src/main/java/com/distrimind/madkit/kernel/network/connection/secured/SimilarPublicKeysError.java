@@ -71,7 +71,6 @@ class SimilarPublicKeysError extends ErrorConnection {
 	public boolean excludedFromEncryption() {
 		return true;
 	}
-	
-	
+
 	
 }

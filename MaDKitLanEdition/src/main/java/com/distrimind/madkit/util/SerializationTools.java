@@ -576,10 +576,11 @@ public class SerializationTools {
 			return;
 			
 		}
-		if (!SystemMessage.class.isAssignableFrom(e.getClass()))
+		Class<?> clazz=e.getClass();
+		if (!ExternalizableAndSizable.class.isAssignableFrom(clazz) && !SystemMessage.class.isAssignableFrom(clazz))
 			throw new IOException();
 		oos.writeBoolean(true);
-		SerializationTools.writeString(oos, e.getClass().getName(), MAX_CLASS_LENGTH, false);
+		SerializationTools.writeString(oos, clazz.getName(), MAX_CLASS_LENGTH, false);
 		e.writeExternal(oos);
 		
 	}
@@ -616,7 +617,7 @@ public class SerializationTools {
 			String clazz=SerializationTools.readString(ois, MAX_CLASS_LENGTH, false);
 			@SuppressWarnings("rawtypes")
 			Class c=Class.forName(clazz, false, MadkitClassLoader.getSystemClassLoader());
-			if (!Externalizable.class.isAssignableFrom(c) && !SystemMessage.class.isAssignableFrom(c))
+			if (!ExternalizableAndSizable.class.isAssignableFrom(c) && !SystemMessage.class.isAssignableFrom(c))
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 			
 			
@@ -629,7 +630,7 @@ public class SerializationTools {
 			}
 			catch(Exception e)
 			{
-				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN, e);
 			}
 			
 		}

@@ -76,6 +76,12 @@ class IdPwMessage extends AccessMessage {
 	private EncryptedPassword[] passwords;
 	private final transient short nbAnomalies;
 
+	IdPwMessage()
+	{
+		nbAnomalies=0;
+	}
+	
+	
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		identifiersIsEncrypted=in.readBoolean();

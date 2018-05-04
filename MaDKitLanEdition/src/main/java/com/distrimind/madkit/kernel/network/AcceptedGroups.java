@@ -67,6 +67,11 @@ final class AcceptedGroups implements SystemMessage {
 	public KernelAddress kernelAddress;
 	public AgentAddress distant_agent_socket_address;
 
+	AcceptedGroups()
+	{
+		
+	}
+	
 	public AcceptedGroups(MultiGroup accepted_groups, Group[] accepted_groups_and_requested,
 			KernelAddress _kernel_address, AgentAddress my_agent_socket_address) {
 		if (accepted_groups == null)

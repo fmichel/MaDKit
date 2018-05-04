@@ -61,7 +61,10 @@ abstract class LanMessage implements SystemMessage {
 	private static final long serialVersionUID = 1587533730897839993L;
 
 	public Message message;
-
+	LanMessage()
+	{
+		
+	}
 	LanMessage(Message _message) {
 		if (_message == null)
 			throw new NullPointerException("_message");

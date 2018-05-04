@@ -45,6 +45,11 @@ package com.distrimind.madkit.kernel.network.connection.access;
  */
 class AccessIdenticalPublicKeys extends AccessErrorMessage {
 
+	AccessIdenticalPublicKeys()
+	{
+		
+	}
+	
 	public AccessIdenticalPublicKeys(boolean _candidate_to_ban) {
 		super(_candidate_to_ban);
 	}

@@ -79,6 +79,11 @@ class AskClientServerConnection extends AskConnection {
 	//private final transient byte[] distantPublicKeyForEncryptionEncoded;
 	private byte[] secretKeyForEncryption, secretKeyForSignature, signatureOfSecretKeyForEncryption;
 
+	AskClientServerConnection()
+	{
+		
+	}
+	
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		super.readExternal(in);

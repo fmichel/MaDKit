@@ -57,6 +57,11 @@ public class CustumHostIdentifier extends HostIdentifier {
 	private static final long serialVersionUID = -6217098004734389347L;
 
 	private String name;
+	
+	CustumHostIdentifier()
+	{
+		
+	}
 
 	@Override
 	public int getInternalSerializedSize() {

@@ -59,7 +59,11 @@ final class CGRSynchroSystemMessage implements SystemMessage {
 	private static final long serialVersionUID = -8079647044062480359L;
 
 	private CGRSynchro CGRSynchro;
-
+	CGRSynchroSystemMessage()
+	{
+		
+	}
+	
 	CGRSynchroSystemMessage(CGRSynchro CGRSynchro) {
 		if (CGRSynchro == null)
 			throw new NullPointerException("CGRSynchro");

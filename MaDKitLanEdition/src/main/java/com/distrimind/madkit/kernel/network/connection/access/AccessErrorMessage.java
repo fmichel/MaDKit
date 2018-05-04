@@ -56,6 +56,12 @@ public class AccessErrorMessage extends AccessMessage {
 
 	public boolean candidate_to_ban;
 
+	AccessErrorMessage()
+	{
+		
+	}
+	
+	
 	public AccessErrorMessage(boolean _candidate_to_ban) {
 		candidate_to_ban = _candidate_to_ban;
 	}

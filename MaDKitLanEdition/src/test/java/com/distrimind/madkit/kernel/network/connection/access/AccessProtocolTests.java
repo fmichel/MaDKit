@@ -73,6 +73,7 @@ import com.distrimind.ood.database.DatabaseConfiguration;
 import com.distrimind.ood.database.EmbeddedHSQLDBDatabaseFactory;
 import com.distrimind.ood.database.EmbeddedHSQLDBWrapper;
 import com.distrimind.ood.database.exceptions.DatabaseException;
+import com.distrimind.util.OSValidator;
 
 import gnu.vm.jgnu.security.NoSuchAlgorithmException;
 import gnu.vm.jgnu.security.NoSuchProviderException;

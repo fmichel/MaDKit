@@ -702,6 +702,10 @@ class TransferAgent extends AgentFakeThread {
 
 		private InetSocketAddress inetSocketAddress;
 
+		TryDirectConnection()
+		{
+			
+		}
 		protected TryDirectConnection(IDTransfer idTransfer, InetSocketAddress inetSocketAddress) {
 			super(idTransfer);
 			if (inetSocketAddress == null)
@@ -753,6 +757,10 @@ class TransferAgent extends AgentFakeThread {
 				throw new NullPointerException("idTransfer");
 			this.idTransfer = idTransfer;
 		}
+		DirectConnection()
+		{
+			
+		}
 
 		IDTransfer getIDTransfer() {
 			return idTransfer;
@@ -797,6 +805,10 @@ class TransferAgent extends AgentFakeThread {
 		DirectConnectionFailed(IDTransfer _idTransfer) {
 			super(_idTransfer);
 		}
+		
+		DirectConnectionFailed(){
+			
+		}
 
 	}
 
@@ -809,6 +821,10 @@ class TransferAgent extends AgentFakeThread {
 
 		DirectConnectionSuceeded(IDTransfer _idTransfer) {
 			super(_idTransfer);
+		}
+		DirectConnectionSuceeded()
+		{
+			
 		}
 	}
 

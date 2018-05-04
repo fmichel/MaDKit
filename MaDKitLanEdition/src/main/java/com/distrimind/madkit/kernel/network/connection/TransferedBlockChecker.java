@@ -64,7 +64,10 @@ public abstract class TransferedBlockChecker implements ExternalizableAndSizable
 	private static final long serialVersionUID = 2143778142838474232L;
 
 	private TransferedBlockChecker subChecker;
-
+	protected TransferedBlockChecker()
+	{
+		
+	}
 	protected TransferedBlockChecker(TransferedBlockChecker subChecker, boolean supportSubBlock) {
 		if (supportSubBlock)
 			this.subChecker = subChecker;
@@ -110,13 +113,7 @@ public abstract class TransferedBlockChecker implements ExternalizableAndSizable
 	@Override
 	public void writeExternal(ObjectOutput oos) throws IOException
 	{
-		if (subChecker==null)
-			oos.writeBoolean(false);
-		else
-		{
-			oos.writeBoolean(true);
-			SerializationTools.writeExternalizableAndSizable(oos, subChecker, false);
-		}
+		SerializationTools.writeExternalizableAndSizable(oos, subChecker, true);
 	}
 	
 

@@ -53,6 +53,8 @@ public abstract class ConnectionMessage implements SystemMessage {
 	 */
 	private static final long serialVersionUID = -5691512249563096179L;
 
+
+	
 	public void corrupt() {
 
 	}

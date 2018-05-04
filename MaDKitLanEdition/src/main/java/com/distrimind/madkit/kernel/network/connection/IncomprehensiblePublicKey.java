@@ -46,6 +46,7 @@ package com.distrimind.madkit.kernel.network.connection;
  */
 public class IncomprehensiblePublicKey extends ErrorConnection {
 
+	
 	public IncomprehensiblePublicKey() {
 		super(true);
 	}

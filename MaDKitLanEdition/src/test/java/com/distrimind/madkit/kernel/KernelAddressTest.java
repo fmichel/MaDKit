@@ -42,7 +42,6 @@ import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -56,7 +55,6 @@ import org.junit.Test;
 
 import com.distrimind.madkit.kernel.KernelAddress;
 import com.distrimind.madkit.kernel.network.KernelAddressInterfaced;
-import com.distrimind.madkit.kernel.network.SystemMessage;
 import com.distrimind.madkit.util.SerializationTools;
 
 import gnu.vm.jgnu.security.NoSuchAlgorithmException;

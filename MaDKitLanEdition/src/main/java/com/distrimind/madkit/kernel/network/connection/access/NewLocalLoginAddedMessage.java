@@ -61,6 +61,11 @@ public class NewLocalLoginAddedMessage extends LocalLogingAccessMessage {
 
 	public ArrayList<Identifier> identifiers;
 
+	NewLocalLoginAddedMessage()
+	{
+		
+	}
+	
 	public NewLocalLoginAddedMessage(ArrayList<Identifier> _identifiers) {
 		identifiers = _identifiers;
 	}

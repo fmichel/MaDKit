@@ -60,6 +60,11 @@ class TransferClosedSystemMessage extends BroadcastableSystemMessage {
 
 	private IDTransfer idTransfer;
 	private boolean lastPass;
+	
+	TransferClosedSystemMessage()
+	{
+		
+	}
 
 	TransferClosedSystemMessage(IDTransfer _idTransferDestination, KernelAddress _kernelAddressDestination,
 			IDTransfer idTransfer, boolean lastPass) {

@@ -64,6 +64,11 @@ abstract class BroadcastableSystemMessage implements SystemMessage, Externalizab
 	private IDTransfer idTransferDestination;
 	private KernelAddress kernelAddressDestination;
 	private transient MessageLocker messageLocker = null;
+	
+	BroadcastableSystemMessage()
+	{
+		
+	}
 	@Override
 	public int getInternalSerializedSize() {
 		

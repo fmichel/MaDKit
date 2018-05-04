@@ -63,7 +63,10 @@ final class SecretMessage extends KernelAddressNegociationMessage {
 	private byte[] secretMessage;
 	private AgentAddress agent_socket_address;
 	private transient AgentAddress originalDistantKernelAgent = null;
-
+	SecretMessage()
+	{
+		
+	}
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		secretMessage=SerializationTools.readBytes(in, secretMessageSize, false);

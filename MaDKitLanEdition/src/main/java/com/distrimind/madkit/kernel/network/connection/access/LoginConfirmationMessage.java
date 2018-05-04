@@ -66,6 +66,11 @@ class LoginConfirmationMessage extends AccessMessage {
 	private transient short nbAnomalies;
 	private boolean checkDifferedMessages;
 
+	LoginConfirmationMessage()
+	{
+		
+	}
+	
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		int size=in.readInt();

@@ -60,6 +60,11 @@ class TransferImpossibleSystemMessage extends BroadcastableSystemMessage {
 
 	private IDTransfer yourIDTransfer;
 
+	TransferImpossibleSystemMessage()
+	{
+		
+	}
+	
 	TransferImpossibleSystemMessage(IDTransfer _idTransferDestination, KernelAddress _kernelAddressDestination,
 			IDTransfer yourIDTransfer) {
 		super(_idTransferDestination, _kernelAddressDestination);

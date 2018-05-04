@@ -940,7 +940,8 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 	public static Serializable unserialize(byte[] message) throws IOException, ClassNotFoundException {
 		try (ByteArrayInputStream bais = new ByteArrayInputStream(message)) {
 			try (ObjectInputStream ois = new ObjectInputStream(bais)) {
-				return (Serializable) ois.readObject();
+				return (Serializable) SerializationTools.readExternalizableAndSizable(ois, false);
+				
 			}
 		}
 	}

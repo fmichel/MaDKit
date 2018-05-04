@@ -56,6 +56,11 @@ final class DirectLanMessage extends LanMessage {
 	 */
 	private static final long serialVersionUID = -7184941708009374257L;
 
+	DirectLanMessage()
+	{
+		
+	}
+	
 	DirectLanMessage(Message _message) {
 		super(_message);
 		if (_message.getReceiver() == null)

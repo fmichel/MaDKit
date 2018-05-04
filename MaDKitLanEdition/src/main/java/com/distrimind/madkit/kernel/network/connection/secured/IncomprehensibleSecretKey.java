@@ -76,5 +76,4 @@ class IncomprehensibleSecretKey extends ErrorConnection {
 		return false;
 	}
 	
-
 }

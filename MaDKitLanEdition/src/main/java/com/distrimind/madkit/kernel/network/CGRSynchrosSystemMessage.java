@@ -67,7 +67,10 @@ final class CGRSynchrosSystemMessage implements SystemMessage {
 
 	private Map<String, Map<Group, Map<String, Set<AgentAddress>>>> organization_snap_shot;
 	private ArrayList<Group> removedGroups;
-
+	CGRSynchrosSystemMessage()
+	{
+		
+	}
 	CGRSynchrosSystemMessage(Map<String, Map<Group, Map<String, Set<AgentAddress>>>> organization_snap_shop,
 			KernelAddress from, ArrayList<Group> removedGroups) {
 		if (organization_snap_shop == null)

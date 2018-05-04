@@ -45,6 +45,12 @@ package com.distrimind.madkit.kernel.network.connection.access;
  */
 class AccessInvalidKeyMessage extends AccessErrorMessage {
 
+	AccessInvalidKeyMessage()
+	{
+		
+	}
+	
+	
 	public AccessInvalidKeyMessage(boolean _candidate_to_ban) {
 		super(_candidate_to_ban);
 	}

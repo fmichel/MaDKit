@@ -61,6 +61,11 @@ public class AskConnection extends ConnectionMessage {
 	
 	private boolean you_are_asking;
 
+	protected AskConnection()
+	{
+		
+	}
+	
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		you_are_asking=in.readBoolean();

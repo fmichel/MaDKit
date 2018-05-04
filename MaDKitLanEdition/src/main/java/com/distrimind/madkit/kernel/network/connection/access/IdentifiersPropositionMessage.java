@@ -81,6 +81,11 @@ class IdentifiersPropositionMessage extends AccessMessage {
 	private boolean isEncrypted;
 	private final transient short nbAnomalies;
 
+	IdentifiersPropositionMessage()
+	{
+		nbAnomalies=0;
+	}
+	
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		isEncrypted=in.readBoolean();

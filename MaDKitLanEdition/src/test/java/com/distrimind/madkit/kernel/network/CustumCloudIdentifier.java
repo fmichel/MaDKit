@@ -59,6 +59,11 @@ public class CustumCloudIdentifier extends CloudIdentifier {
 	private String name;
 	private byte[] salt;
 
+	CustumCloudIdentifier()
+	{
+		
+	}
+	
 	@Override
 	public int getInternalSerializedSize() {
 		return SerializationTools.getInternalSize(name, 1000)+SerializationTools.getInternalSize(salt, 64);

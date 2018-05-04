@@ -64,6 +64,10 @@ final class DataToBroadcast implements SystemMessage {
 	private boolean prioritary;
 	private IDTransfer transferID;
 
+	DataToBroadcast()
+	{
+		
+	}
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		Object o=SerializationTools.readExternalizableAndSizable(in, false);

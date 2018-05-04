@@ -59,6 +59,12 @@ public class JPakeAccessInitialized extends AccessInitialized {
 	
 	public byte[] generatedSalt;
 	public static final int generatedSaltSize=32;
+	
+	JPakeAccessInitialized()
+	{
+		
+	}
+	
 	public JPakeAccessInitialized(boolean _can_takes_login_initiative, AbstractSecureRandom random) {
 		super(_can_takes_login_initiative);
 		generatedSalt=new byte[generatedSaltSize];

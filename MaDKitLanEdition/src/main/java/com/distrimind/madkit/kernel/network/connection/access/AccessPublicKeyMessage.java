@@ -58,11 +58,14 @@ class AccessPublicKeyMessage extends AccessMessage {
 	private static final long serialVersionUID = 7286093160114607968L;
 
 	private byte[] public_key_bytes;
-	private final transient byte[] distant_public_key;
+	private transient byte[] distant_public_key;
 	private boolean otherCanTakeLoginInitiative;
 	private static final int MAX_DISTANT_PUBLIC_KEY_LENGTH=16392; 
 	
-
+	AccessPublicKeyMessage()
+	{
+		
+	}
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		public_key_bytes=SerializationTools.readBytes(in, MAX_DISTANT_PUBLIC_KEY_LENGTH, false);

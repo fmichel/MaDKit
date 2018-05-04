@@ -81,6 +81,11 @@ class JPakeMessage extends AccessMessage{
 	private short step;
 	private final transient short nbAnomalies;
 	
+	JPakeMessage()
+	{
+		nbAnomalies=0;
+	}
+	
 	@Override
 	public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException
 	{

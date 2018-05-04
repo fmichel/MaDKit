@@ -60,6 +60,11 @@ class TransferBlockCheckerSystemMessage extends BroadcastableSystemMessage {
 	private static final long serialVersionUID = -7222037483254579571L;
 
 	private TransferedBlockChecker transferBlockChercker;
+	
+	TransferBlockCheckerSystemMessage()
+	{
+		
+	}
 
 	TransferBlockCheckerSystemMessage(IDTransfer _idTransferDestination, KernelAddress _kernelAddressDestination,
 			TransferedBlockChecker transferBlockChercker) {

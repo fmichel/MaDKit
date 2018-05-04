@@ -61,6 +61,12 @@ public class NewLocalLoginRemovedMessage extends LocalLogingAccessMessage {
 
 	public ArrayList<Identifier> removed_identifiers;
 
+	NewLocalLoginRemovedMessage()
+	{
+		
+	}
+	
+	
 	public NewLocalLoginRemovedMessage(ArrayList<Identifier> _removed_identifiers) {
 		removed_identifiers = _removed_identifiers;
 	}

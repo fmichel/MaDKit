@@ -74,7 +74,10 @@ public class EncryptedPassword extends PasswordKey implements ExternalizableAndS
 	
 	private byte[] bytes;
 
-
+	EncryptedPassword()
+	{
+		
+	}
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		bytes=SerializationTools.readBytes(in, MAX_ENCRYPTED_PASSWORD_LENGTH, false);

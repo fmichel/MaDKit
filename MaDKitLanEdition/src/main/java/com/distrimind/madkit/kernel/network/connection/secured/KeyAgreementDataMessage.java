@@ -60,6 +60,11 @@ public class KeyAgreementDataMessage extends ConnectionMessage {
 	
 	private byte[] data;
 	private byte[] materialKey;
+	
+	KeyAgreementDataMessage()
+	{
+		
+	}
 
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {

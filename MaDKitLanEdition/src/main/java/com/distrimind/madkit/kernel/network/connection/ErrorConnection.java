@@ -68,6 +68,11 @@ public abstract class ErrorConnection extends ConnectionMessage {
 		candidate_to_ban = _candidate_to_ban;
 	}
 	
+	ErrorConnection()
+	{
+		
+	}
+	
 	
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {

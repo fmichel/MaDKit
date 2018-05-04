@@ -55,6 +55,11 @@ class ValidateBigDataProposition implements SystemMessage {
 	private static final long serialVersionUID = 9027528563984879917L;
 	private int packetID;
 
+	ValidateBigDataProposition()
+	{
+		
+	}
+	
 	ValidateBigDataProposition(int packetID) {
 		this.packetID = packetID;
 	}

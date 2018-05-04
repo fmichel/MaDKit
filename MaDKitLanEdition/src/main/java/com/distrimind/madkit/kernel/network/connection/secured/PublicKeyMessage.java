@@ -69,10 +69,15 @@ class PublicKeyMessage extends ConnectionMessage {
 	private transient ASymmetricPublicKey public_key_for_encryption = null;
 	private byte[] public_key_for_encryption_bytes;
 	private byte[] signedPublicKey;
-	private transient final byte[] public_key_bytes_distant_for_encryption;
+	private transient byte[] public_key_bytes_distant_for_encryption;
 	private transient ASymmetricPublicKey public_key_for_signature = null;
 	private byte[] public_key_for_signature_bytes;
-	private transient final byte[] public_key_bytes_distant_for_signature;
+	private transient byte[] public_key_bytes_distant_for_signature;
+	
+	PublicKeyMessage()
+	{
+		
+	}
 	
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {

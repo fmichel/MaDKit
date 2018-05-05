@@ -58,12 +58,12 @@ class NullAccessMessage extends DoNotSendMessage {
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
-		
+		super.writeExternal(out);
 	}
 
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		
+		super.readExternal(in);
 	}
 
 }

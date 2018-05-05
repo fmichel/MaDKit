@@ -37,8 +37,15 @@
  */
 package com.distrimind.madkit.kernel;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledFuture;
+
+import com.distrimind.madkit.exceptions.MessageSerializationException;
+import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
+import com.distrimind.madkit.util.SerializationTools;
 
 /**
  * 
@@ -101,5 +108,16 @@ public class TaskID extends ConversationID {
 	 */
 	public boolean isDone() {
 		return future.isDone();
+	}
+	
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		throw new IOException();
+		
+	}
+
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		throw new IOException();
 	}
 }

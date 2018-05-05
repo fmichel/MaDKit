@@ -37,11 +37,16 @@
  */
 package com.distrimind.madkit.kernel;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.Map;
 
+import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.network.RealTimeTransfertStat;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.madkit.util.ExternalizableAndSizable;
+import com.distrimind.madkit.util.SerializationTools;
 
 /**
  * Represent an identifier for a big data transfer.
@@ -60,6 +65,23 @@ public class BigDataTransferID extends ConversationID {
 	private transient RealTimeTransfertStat stat = null;
 	private ConversationID cid;
 
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		super.writeExternal(out);
+		SerializationTools.writeExternalizableAndSizable(out, cid, false);
+		
+	}
+
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		super.readExternal(in);
+		Object o=SerializationTools.readExternalizableAndSizable(in, false);
+		if (!(o instanceof ConversationID))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		cid=(ConversationID)o;
+	}
+	
+	
 	BigDataTransferID(ConversationID cid, RealTimeTransfertStat stat) {
 		super(-1, null);
 		if (cid == null)
@@ -93,10 +115,6 @@ public class BigDataTransferID extends ConversationID {
 		return cid.hashCode();
 	}
 
-	@Override
-	Integrity checkDataIntegrity() {
-		return cid.checkDataIntegrity();
-	}
 
 	@Override
 	ConversationID getInterfacedConversationIDToDistantPeer(Map<KernelAddress, InterfacedIDs> global_interfaced_ids,

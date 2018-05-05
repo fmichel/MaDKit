@@ -133,11 +133,7 @@ public class ConversationID implements ExternalizableAndSizable, Cloneable {
 		return origin;
 	}
 
-	Integrity checkDataIntegrity() {
-		if (origin == null)
-			return Integrity.FAIL;
-		return Integrity.OK;
-	}
+	
 
 	private static class OriginalID {
 		final int originalID;
@@ -339,15 +335,15 @@ public class ConversationID implements ExternalizableAndSizable, Cloneable {
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 		out.writeInt(this.id);
-		SerializationTools.writeExternalizableAndSizable(out, this.origin, true);
+		SerializationTools.writeExternalizableAndSizable(out, this.origin, false);
 		
 	}
 
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		this.id=in.readInt();
-		Object o=SerializationTools.readExternalizableAndSizable(in, true);
-		if (o!=null && !(o instanceof KernelAddress))
+		Object o=SerializationTools.readExternalizableAndSizable(in, false);
+		if (!(o instanceof KernelAddress))
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		this.origin=(KernelAddress)o;
 	}

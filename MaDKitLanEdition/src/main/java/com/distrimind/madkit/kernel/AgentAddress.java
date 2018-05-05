@@ -112,14 +112,14 @@ public class AgentAddress implements ExternalizableAndSizable, Cloneable {
 	public void writeExternal(ObjectOutput oos) throws IOException {
 		SerializationTools.writeExternalizableAndSizable(oos, kernelAddress, false);
 		oos.writeLong(agentID);
-		SerializationTools.writeExternalizableAndSizable(oos, roleObject, false);
+		SerializationTools.writeExternalizableAndSizable(oos, roleObject, true);
 		SerializationTools.writeString(oos, cgr, Group.MAX_CGR_LENGTH, true);
 		oos.writeBoolean(manually_requested);
 	}
 	@Override
 	public int getInternalSerializedSize() {
 		
-		return kernelAddress.getInternalSerializedSize()+13+roleObject.getInternalSerializedSize()+(cgr==null?0:cgr.length()*2);
+		return kernelAddress.getInternalSerializedSize()+13+(roleObject==null?0:roleObject.getInternalSerializedSize())+(cgr==null?0:cgr.length()*2);
 	}
 	@Override
 	public void readExternal(ObjectInput ois) throws IOException, ClassNotFoundException {
@@ -129,16 +129,14 @@ public class AgentAddress implements ExternalizableAndSizable, Cloneable {
 		{
 			kernelAddress=(KernelAddress)o;
 			agentID=ois.readLong();
-			o=SerializationTools.readExternalizableAndSizable(ois, false);
-			if (o instanceof InternalRole)
+			o=SerializationTools.readExternalizableAndSizable(ois, true);
+			if (o!=null && !(o instanceof InternalRole))
 			{
-				roleObject=(InternalRole)o;
-				cgr=SerializationTools.readString(ois, Group.MAX_CGR_LENGTH, true);
-				manually_requested=ois.readBoolean();
-			}
-			else
 				throw new MessageSerializationException(Integrity.FAIL);
-			
+			}
+			roleObject=(InternalRole)o;
+			cgr=SerializationTools.readString(ois, Group.MAX_CGR_LENGTH, true);
+			manually_requested=ois.readBoolean();
 		}
 		else
 		{

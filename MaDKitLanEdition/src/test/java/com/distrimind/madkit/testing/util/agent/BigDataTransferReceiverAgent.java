@@ -71,14 +71,15 @@ public class BigDataTransferReceiverAgent extends Agent {
 		if (m instanceof BigDataPropositionMessage)
 		{
 			System.out.println("receiving big data proposition message");
-			((BigDataPropositionMessage) m).acceptTransfer(new RandomByteArrayOutputStream());
+			BigDataPropositionMessage bdpm=((BigDataPropositionMessage) m);
+			bdpm.acceptTransfer(new RandomByteArrayOutputStream());
 			m = waitNextMessage(60000);
 			if (m instanceof BigDataResultMessage)
 			{
 				BigDataResultMessage rm=((BigDataResultMessage) m);
 				if (rm.getType()==BigDataResultMessage.Type.BIG_DATA_TRANSFERED)
 				{
-					System.out.println(rm.getTransferedDataLength() +" bytes transfered in "+rm.getTransferDuration()+" ms"+(rm.excludedFromEncryption()?" without encryption":" with encryption"));
+					System.out.println(rm.getTransferedDataLength() +" bytes transfered in "+rm.getTransferDuration()+" ms"+(bdpm.bigDataExcludedFromEncryption()?" without encryption":" with encryption"));
 					System.out.println("Transfer speed (MiO per seconds) : "+(((double)rm.getTransferedDataLength())/(((double)rm.getTransferDuration())/1000.0)/1024.0/1024.0));
 				}
 				else

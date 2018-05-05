@@ -52,6 +52,7 @@ import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.madkit.kernel.network.RealTimeTransfertStat;
 import com.distrimind.madkit.util.SerializationTools;
 import com.distrimind.madkit.util.ExternalizableAndSizable;
+import com.distrimind.madkit.util.NetworkMessage;
 import com.distrimind.util.crypto.MessageDigestType;
 
 /**
@@ -71,7 +72,7 @@ import com.distrimind.util.crypto.MessageDigestType;
  * @see AbstractAgent#sendBigDataWithRole(AgentAddress, RandomInputStream, long, long, ExternalizableAndSizable, MessageDigestType, String, boolean)
  * @see BigDataResultMessage
  */
-public final class BigDataPropositionMessage extends Message implements ExternalizableAndSizable {
+public final class BigDataPropositionMessage extends Message implements NetworkMessage {
 
 	/**
 	 * 
@@ -92,7 +93,11 @@ public final class BigDataPropositionMessage extends Message implements External
 	protected long timeUTC;
 	private MessageDigestType messageDigestType;
 	private boolean excludedFromEncryption;
-	
+	@SuppressWarnings("unused")
+	private BigDataPropositionMessage()
+	{
+		inputStream=null;
+	}
 	@Override
 	public int getInternalSerializedSize() {
 		return super.getInternalSerializedSizeImpl()+37+(attachedData==null?0:attachedData.getInternalSerializedSize())+(data==null?0:data.length)+(messageDigestType==null?0:messageDigestType.name().length()*2);

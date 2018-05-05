@@ -18,7 +18,15 @@
  */
 package com.distrimind.madkit.message.hook;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+
+import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.AgentAddress;
+import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
+import com.distrimind.madkit.util.NetworkMessage;
+import com.distrimind.madkit.util.SerializationTools;
 
 /**
  * A message which is sent to agents that have requested a hook on
@@ -32,11 +40,16 @@ import com.distrimind.madkit.kernel.AgentAddress;
  * @version 0.9
  * 
  */
-public class OrganizationEvent extends CGREvent {
+public class OrganizationEvent extends CGREvent implements NetworkMessage {
 
 
-	final private AgentAddress source;
-
+	private AgentAddress source;
+	
+	private OrganizationEvent()
+	{
+		super(null);
+	}
+	
 	public OrganizationEvent(AgentActionEvent agentAction, AgentAddress source) {
 		super(agentAction);
 		this.source = source;
@@ -44,5 +57,26 @@ public class OrganizationEvent extends CGREvent {
 
 	public AgentAddress getSourceAgent() {
 		return source;
+	}
+
+	@Override
+	public int getInternalSerializedSize() {
+		
+		return super.getInternalSerializedSizeImpl()+source.getInternalSerializedSize();
+	}
+	@Override
+	public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException
+	{
+		super.readExternal(in, 1000);
+		Object o=SerializationTools.readExternalizableAndSizable(in, false);
+		if (!(o instanceof AgentAddress))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		source=(AgentAddress)o;
+		
+	}
+	@Override
+	public void writeExternal(final ObjectOutput oos) throws IOException{
+		super.writeExternal(oos, 1000);
+		SerializationTools.writeExternalizableAndSizable(oos, source, false);
 	}
 }

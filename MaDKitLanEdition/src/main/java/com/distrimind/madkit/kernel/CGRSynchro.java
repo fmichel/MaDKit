@@ -69,6 +69,11 @@ public class CGRSynchro extends ObjectMessage<AgentAddress> implements Externali
 	private Code code;
 	private boolean manual;
 
+	private CGRSynchro()
+	{
+		super(null, false);
+	}
+	
 	@Override
 	public int getInternalSerializedSize() {
 		return super.getInternalSerializedSizeImpl(0)+code.name().length()*2+3;
@@ -91,6 +96,10 @@ public class CGRSynchro extends ObjectMessage<AgentAddress> implements Externali
 		oos.writeBoolean(manual);
 	}
 	
+	@Override
+	public CGRSynchro clone() {
+		return new CGRSynchro(code, getContent(), this.manual);
+	}
 	
 	/**
 	 * @param code

@@ -43,9 +43,6 @@ import java.io.ObjectOutput;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledFuture;
 
-import com.distrimind.madkit.exceptions.MessageSerializationException;
-import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
-import com.distrimind.madkit.util.SerializationTools;
 
 /**
  * 

@@ -42,6 +42,7 @@ import org.junit.Assert;
 import com.distrimind.madkit.kernel.AgentAddress;
 import com.distrimind.madkit.kernel.JunitMadkit;
 import com.distrimind.madkit.kernel.Message;
+import com.distrimind.madkit.message.NetworkObjectMessage;
 import com.distrimind.madkit.message.ObjectMessage;
 import com.distrimind.madkit.message.hook.DistantKernelAgentEventMessage;
 import com.distrimind.madkit.message.hook.HookMessage.AgentActionEvent;
@@ -134,7 +135,7 @@ public class NetworkPongAgent extends AgentAddressAgentTester {
 
 			}
 			Assert.assertEquals(ReturnCode.SUCCESS, sendReply(_message,
-					new ObjectMessage<Object[]>(new Object[] { NetworkPingAgent.messagePong, aa })));
+					new NetworkObjectMessage<Object[]>(new Object[] { NetworkPingAgent.messagePong, aa })));
 		} else {
 			System.out.println("incomprehensible message  : " + getKernelAddress());
 			Assert.assertFalse(true);

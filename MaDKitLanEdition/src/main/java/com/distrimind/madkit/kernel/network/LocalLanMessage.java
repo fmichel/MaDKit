@@ -37,8 +37,10 @@
  */
 package com.distrimind.madkit.kernel.network;
 
+
 import com.distrimind.madkit.kernel.Message;
 import com.distrimind.madkit.kernel.network.DistantKernelAgent.ReceivedSerializableObject;
+import com.distrimind.madkit.util.NetworkMessage;
 
 /**
  * 
@@ -56,7 +58,12 @@ public class LocalLanMessage extends Message {
 	protected boolean readyForInjection = false;
 	// int id_packet=-1;
 
+	
+	
+	
 	protected LocalLanMessage(Message _message, ReceivedSerializableObject originalMessage) {
+		if (!(_message instanceof NetworkMessage))
+			throw new IllegalArgumentException("The message to send me implements NetworkMessage interface");
 		message = _message;
 		locker = new MessageLocker(this);
 		this.originalMessage = originalMessage;
@@ -65,6 +72,9 @@ public class LocalLanMessage extends Message {
 	protected LocalLanMessage(LocalLanMessage This, Message _message, ReceivedSerializableObject originalMessage,
 			MessageLocker locker) {
 		super(This);
+		if (!(_message instanceof NetworkMessage))
+			throw new IllegalArgumentException("The message to send me implements NetworkMessage interface");
+
 		message = _message;
 		this.locker = locker;
 		this.originalMessage = originalMessage;
@@ -124,5 +134,6 @@ public class LocalLanMessage extends Message {
 	public Message getOriginalMessage() {
 		return message;
 	}
+
 
 }

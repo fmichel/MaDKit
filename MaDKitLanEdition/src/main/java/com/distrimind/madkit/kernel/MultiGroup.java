@@ -182,7 +182,8 @@ public class MultiGroup extends AbstractGroup {
 				SerializationTools.writeExternalizableAndSizable(oos, ag.m_group, false);
 		}
 	}
-	MultiGroup()
+	@SuppressWarnings("unused")
+	private MultiGroup()
 	{
 		
 	}

@@ -988,6 +988,7 @@ class DistantKernelAgent extends AgentFakeThread {
 		if (asd != null) {
 			boolean hasPreviousUsableSocketsAgents = hasUsableDistantSocketAgent();
 			asd.setUsable(true);
+			
 			if (!hasPreviousUsableSocketsAgents && kernelAddressActivated) {
 				activateDistantKernelAgent();
 				informHooksDistantKernelAgentActivated();
@@ -1007,6 +1008,7 @@ class DistantKernelAgent extends AgentFakeThread {
 	}
 
 	private void activateDistantKernelAgent() throws MadkitException {
+		
 		ReturnCode rc = this.requestRole(LocalCommunity.Groups.DISTANT_KERNEL_AGENTS_GROUPS,
 				LocalCommunity.Roles.DISTANT_KERNEL_AGENT_ROLE);
 		if (rc.equals(ReturnCode.SUCCESS)) {
@@ -1041,6 +1043,7 @@ class DistantKernelAgent extends AgentFakeThread {
 				stats = getMadkitConfig().networkProperties.addIfNecessaryAndGetStatsBandwitdh(distant_kernel_address);
 
 				if (hasUsableDistantSocketAgent()) {
+					
 					activateDistantKernelAgent();
 					inform_hooks = true;
 				}
@@ -2497,7 +2500,6 @@ class DistantKernelAgent extends AgentFakeThread {
 								processInvalidSerializedObject(agent_socket_sender, e, bytes, e.getIntegrity().equals(Integrity.FAIL_AND_CANDIDATE_TO_BAN));
 							}
 							catch (IOException | ClassNotFoundException e) {
-								e.printStackTrace();
 								sr.freeDataSize();
 								processInvalidSerializedData(agent_socket_sender, e, sr.read_packet, bytes);
 							}

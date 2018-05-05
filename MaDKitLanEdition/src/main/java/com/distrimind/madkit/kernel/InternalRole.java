@@ -105,7 +105,7 @@ class InternalRole implements ExternalizableAndSizable {// TODO test with arrayl
 	@Override
 	public void writeExternal(ObjectOutput oos) throws IOException {
 		SerializationTools.writeExternalizableAndSizable(oos, group, false);
-		SerializationTools.writeString(oos, roleName, Group.MAX_ROLE_NAME_LENGTH, false);
+		SerializationTools.writeString(oos, roleName, Group.MAX_ROLE_NAME_LENGTH, true);
 	}
 	@Override
 	public void readExternal(ObjectInput ois) throws IOException, ClassNotFoundException {
@@ -113,7 +113,7 @@ class InternalRole implements ExternalizableAndSizable {// TODO test with arrayl
 		if (o instanceof Group)
 		{
 			group=(Group)o;
-			roleName=SerializationTools.readString(ois, Group.MAX_ROLE_NAME_LENGTH, false);
+			roleName=SerializationTools.readString(ois, Group.MAX_ROLE_NAME_LENGTH, true);
 		}
 		else
 			throw new IOException();
@@ -122,7 +122,7 @@ class InternalRole implements ExternalizableAndSizable {// TODO test with arrayl
 	@Override
 	public int getInternalSerializedSize() {
 		
-		return group.getInternalSerializedSize()+2+roleName.length()*2;
+		return group.getInternalSerializedSize()+2+(roleName==null?0:roleName.length()*2);
 	}
 	InternalRole(final InternalGroup groupObject, final String roleName) {
 		players = new ArrayList<>();

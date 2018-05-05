@@ -188,7 +188,7 @@ final class CGRSynchrosSystemMessage implements SystemMessage {
 				oos.writeInt(e2.getValue().size());
 				for (Map.Entry<String, Set<AgentAddress>> e3 : e2.getValue().entrySet())
 				{
-					SerializationTools.writeString(oos, e.getKey(), Group.MAX_ROLE_NAME_LENGTH, false);
+					SerializationTools.writeString(oos, e3.getKey(), Group.MAX_ROLE_NAME_LENGTH, false);
 					oos.writeInt(e3.getValue().size());
 					for (AgentAddress aa : e3.getValue())
 						SerializationTools.writeExternalizableAndSizable(oos, aa, false);

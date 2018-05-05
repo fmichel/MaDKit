@@ -92,6 +92,14 @@ public class AgentBigTransfer extends AgentFakeThread {
 		public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 			
 		}
+		
+		@Override
+		public boolean equals(Object o)
+		{
+			if (o==null)
+				return false;
+			return o.getClass()==this.getClass();
+		}
 	};
 	private final HashMap<AgentAddress, Boolean> otherConnected = new HashMap<>();
 	private HashMap<ConversationID, RandomByteArrayInputStream> inputStreams = new HashMap<>();
@@ -286,7 +294,8 @@ public class AgentBigTransfer extends AgentFakeThread {
 				}
 			} else {
 				System.err.println(this);
-				System.err.println(otherConnected.keySet().iterator().next() + " ; " + m.getSender());
+				if (otherConnected.keySet().size()>0)
+					System.err.println(otherConnected.keySet().iterator().next() + " ; " + m.getSender());
 				m.denyTransfer();
 				ok = false;
 				Assert.fail();

@@ -2312,7 +2312,6 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 					if (logger != null && logger.isLoggable(Level.FINER))
 						logger.finer("Receiving secret message (distant_inet_address=" + distant_inet_address
 								+ ", distantInterfacedKernelAddress=" + distantInterfacedKernelAddress + ")");
-
 					SecretMessage sm = (SecretMessage) obj;
 					if (sm.getAgentSocketAddress() == null)// if the received secret message must be transfered or
 															// tested
@@ -2322,6 +2321,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 						if (secretMessages != null) {
 							for (Map.Entry<AgentAddress, SecretMessage> entry : secretMessages.entrySet()) {
 								if (sm.equals(entry.getValue())) {
+
 									validateKernelAddress(entry.getKey());
 									break;
 								}
@@ -2491,13 +2491,13 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 	protected abstract void checkTransferBlockCheckerChangments() throws ConnectionException;
 
 	void validateKernelAddress(AgentAddress concernedDistantKernelAgent) {
+		
 		if (currentSecretMessages.getAndSet(null) != null) {
-			if (concernedDistantKernelAgent == this.agent_for_distant_kernel_aa) {
+			if (concernedDistantKernelAgent.equals(this.agent_for_distant_kernel_aa)) {
 				// the default DistantKernelAgent can be activated, and the distant kernel
 				// address must be interfaced
 				AbstractAgentSocket.this.sendMessageWithRole(agent_for_distant_kernel_aa,
 						new KernelAddressValidation(true), LocalCommunity.Roles.SOCKET_AGENT_ROLE);
-				
 			} else {
 				// leaveRole(LocalCommunity.Groups.getDistantKernelAgentGroup(agent_for_distant_kernel_aa.getAgentNetworkID()),
 				// LocalCommunity.Roles.SOCKET_AGENT_ROLE);
@@ -2528,27 +2528,36 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 									.getDistantKernelAgentGroup(agent_for_distant_kernel_aa.getAgentNetworkID())
 							+ " and role " + LocalCommunity.Roles.SOCKET_AGENT_ROLE);
 				// send data to distant kernel agent
-				sendMessageWithRole(this.agent_for_distant_kernel_aa,
+				ReturnCode rc=sendMessageWithRole(this.agent_for_distant_kernel_aa,
 						new ObjectMessage<AgentSocketData>(new AgentSocketData(this)),
 						LocalCommunity.Roles.SOCKET_AGENT_ROLE);
-				sendMessageWithRole(this.agent_for_distant_kernel_aa,
+				if (!rc.equals(ReturnCode.SUCCESS) && logger!=null)
+					logger.severe("Unable to send message to distant kernel agent");
+				rc=sendMessageWithRole(this.agent_for_distant_kernel_aa,
 						new NetworkGroupsAccessEvent(AgentActionEvent.ACCESSIBLE_LAN_GROUPS_GIVEN_BY_DISTANT_PEER,
 								distant_general_accepted_groups, distant_accepted_and_requested_groups,
 								distant_kernel_address),
 						LocalCommunity.Roles.SOCKET_AGENT_ROLE);
-				sendMessageWithRole(
+				if (!rc.equals(ReturnCode.SUCCESS) && logger!=null)
+					logger.severe("Unable to send message to distant kernel agent");
+				rc=sendMessageWithRole(
 						this.agent_for_distant_kernel_aa, new NetworkLoginAccessEvent(distant_kernel_address,
 								my_accepted_logins.identifiers, my_accepted_logins.identifiers, null, null),
 						LocalCommunity.Roles.SOCKET_AGENT_ROLE);
-				sendMessageWithRole(agent_for_distant_kernel_aa, new KernelAddressValidation(true),
+				if (!rc.equals(ReturnCode.SUCCESS) && logger!=null)
+					logger.severe("Unable to send message to distant kernel agent");
+				rc=sendMessageWithRole(agent_for_distant_kernel_aa, new KernelAddressValidation(true),
 						LocalCommunity.Roles.SOCKET_AGENT_ROLE);
+				if (!rc.equals(ReturnCode.SUCCESS) && logger!=null)
+					logger.severe("Unable to send message to distant kernel agent");
 				// validate kernel address
-				this.sendMessageWithRole(aa, new KernelAddressValidation(false),
+				rc=this.sendMessageWithRole(aa, new KernelAddressValidation(false),
 						LocalCommunity.Roles.SOCKET_AGENT_ROLE);
+				if (!rc.equals(ReturnCode.SUCCESS) && logger!=null)
+					logger.severe("Unable to send message to distant kernel agent");
 
 				if (my_accepted_groups != null)
 					my_accepted_groups.notifyDistantKernelAgent();
-
 
 				/*
 				 * if (this.distantConnectionInfo!=null)

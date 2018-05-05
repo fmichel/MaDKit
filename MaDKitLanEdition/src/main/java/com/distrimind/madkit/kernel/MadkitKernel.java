@@ -1612,7 +1612,7 @@ class MadkitKernel extends Agent {
 	final ReturnCode sendNetworkCGRSynchroMessageWithRole(CGRSynchro m) {
 		updateNetworkAgent();
 		if (netAgent != null) {
-			((Message) m).getConversationID().setOrigin(getKernelAddress());
+			m.getConversationID().setOrigin(getKernelAddress());
 			((Message) m).setSender(netUpdater);
 			((Message) m).setReceiver(netAgent);
 			netAgent.getAgent().receiveMessage(m);

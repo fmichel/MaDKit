@@ -273,7 +273,7 @@ public class Message implements Cloneable {// TODO message already sent warning 
 
 	
 	protected int getInternalSerializedSizeImpl() {
-		return receiver.getInternalSerializedSize()+sender.getInternalSerializedSize()+conversationID.getInternalSerializedSize()+1;
+		return (receiver==null?0:receiver.getInternalSerializedSize())+sender.getInternalSerializedSize()+conversationID.getInternalSerializedSize()+1;
 	}
 	
 	

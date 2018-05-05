@@ -45,6 +45,8 @@ import java.util.ArrayList;
 import com.distrimind.madkit.kernel.network.AskForConnectionMessage;
 import com.distrimind.madkit.kernel.network.BroadcastLocalLanMessage;
 import com.distrimind.madkit.kernel.network.DirectLocalLanMessage;
+import com.distrimind.madkit.util.NetworkMessage;
+
 import static com.distrimind.madkit.util.ReflectionTools.*;
 
 /**
@@ -116,6 +118,9 @@ class MadkitNetworkAccess {
 
 	static DirectLocalLanMessage getDirectLocalLanMessageInstance(Message m) {
 		try {
+			if (!(m instanceof NetworkMessage))
+				throw new IllegalArgumentException("The message to send me implements NetworkMessage interface");
+
 			return (DirectLocalLanMessage) direct_local_lan_message.newInstance(m);
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e) {
@@ -130,6 +135,9 @@ class MadkitNetworkAccess {
 	static BroadcastLocalLanMessage getBroadcastLocalLanMessage(Message m, AbstractGroup _destination_groups,
 			String _destination_role, ArrayList<AgentAddress> _agentAddressesSender) {
 		try {
+			if (!(m instanceof NetworkMessage))
+				throw new IllegalArgumentException("The message to send me implements NetworkMessage interface");
+
 			return (BroadcastLocalLanMessage) broadcast_local_lan_message.newInstance(m, _destination_groups,
 					_destination_role, _agentAddressesSender);
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException

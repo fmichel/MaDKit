@@ -89,9 +89,20 @@ public class NetworkObjectMessage<T extends Serializable> extends ObjectMessage<
 		super(content, excludeFromEncryption);
 	}
 
+	/**
+	 * Builds a message with the specified content
+	 * 
+	 * @param content the message content
+	 */
+	public NetworkObjectMessage(final T content) {
+		this(content, false);
+	}
 
 	
-
+	private NetworkObjectMessage()
+	{
+		super(null, false);
+	}
 
 	
 }

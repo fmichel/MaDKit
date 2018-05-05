@@ -43,7 +43,6 @@ import java.io.ObjectOutput;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.Message;
-import com.distrimind.madkit.util.ExternalizableAndSizable;
 import com.distrimind.madkit.util.NetworkMessage;
 import com.distrimind.madkit.util.SerializationTools;
 
@@ -77,9 +76,11 @@ abstract class LanMessage implements SystemMessage {
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		
 		Object o=SerializationTools.readExternalizableAndSizable(in, false);
-		if (!(o instanceof Message) || !(o instanceof ExternalizableAndSizable))
+		if (!(o instanceof Message) || !(o instanceof NetworkMessage))
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		message=(Message)o;
+		if (((NetworkMessage)o).getInternalSerializedSize()>NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 	}
 
 	@Override

@@ -697,10 +697,10 @@ public class SerializationTools {
 			
 			oos.write(0);
 		}
-		else if (o instanceof ExternalizableAndSizable)
+		else if (o instanceof ExternalizableAndSizable || o instanceof SystemMessage)
 		{
 			oos.write(1);
-			writeExternalizableAndSizable(oos, (ExternalizableAndSizable)o, supportNull);
+			writeExternalizableAndSizable(oos, (Externalizable)o, supportNull);
 		}
 		else if (o instanceof String)
 		{
@@ -759,8 +759,9 @@ public class SerializationTools {
 		}
 		else 
 		{
-			oos.write(Byte.MAX_VALUE);
-			oos.writeObject(o);
+			throw new IOException();
+			/*oos.write(Byte.MAX_VALUE);
+			oos.writeObject(o);*/
 		}
 	}
 	
@@ -797,8 +798,8 @@ public class SerializationTools {
 			return readKeyPair(ois, false);
 		case 12:
 			return readEnum(ois, false);
-		case Byte.MAX_VALUE:
-			return ois.readObject();
+		/*case Byte.MAX_VALUE:
+			return ois.readObject();*/
 		default:
 			throw new MessageSerializationException(Integrity.FAIL);
 		}

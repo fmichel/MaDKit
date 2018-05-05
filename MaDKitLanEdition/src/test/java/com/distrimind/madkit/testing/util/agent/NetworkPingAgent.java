@@ -42,6 +42,7 @@ import org.junit.Assert;
 import com.distrimind.madkit.kernel.AgentAddress;
 import com.distrimind.madkit.kernel.JunitMadkit;
 import com.distrimind.madkit.kernel.Message;
+import com.distrimind.madkit.message.NetworkObjectMessage;
 import com.distrimind.madkit.message.ObjectMessage;
 
 /**
@@ -75,7 +76,7 @@ public class NetworkPingAgent extends AgentAddressAgentTester {
 				this.requestRole(JunitMadkit.DEFAULT_NETWORK_GROUP_FOR_ACCESS_DATA, pingRole));
 
 		ReturnCode rc = broadcastMessage(JunitMadkit.DEFAULT_NETWORK_GROUP_FOR_ACCESS_DATA, pongRole,
-				new ObjectMessage<Object[]>(new Object[] { messagePing,
+				new NetworkObjectMessage<Object[]>(new Object[] { messagePing,
 						getAgentAddressIn(JunitMadkit.DEFAULT_NETWORK_GROUP_FOR_ACCESS_DATA, pingRole) }));
 		Assert.assertTrue(rc.toString(), ReturnCode.SUCCESS == rc || ReturnCode.TRANSFER_IN_PROGRESS == rc);
 		System.out.println("Ping activated : " + getKernelAddress());

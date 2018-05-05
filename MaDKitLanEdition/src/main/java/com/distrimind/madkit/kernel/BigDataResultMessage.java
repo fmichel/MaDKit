@@ -44,7 +44,6 @@ import java.io.ObjectOutput;
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.madkit.util.SerializationTools;
-import com.distrimind.madkit.util.ExternalizableAndSizable;
 
 /**
  * Gives the result of a big data transfer
@@ -53,7 +52,7 @@ import com.distrimind.madkit.util.ExternalizableAndSizable;
  * @version 1.0
  * @since MadkitLanEdition 1.0
  */
-public final class BigDataResultMessage extends Message implements ExternalizableAndSizable {
+public final class BigDataResultMessage extends Message implements com.distrimind.madkit.util.NetworkMessage {
 
 	/**
 	 * 
@@ -93,7 +92,11 @@ public final class BigDataResultMessage extends Message implements Externalizabl
 		oos.writeLong(duration);
 	}	
 	
-	
+	@SuppressWarnings("unused")
+	private BigDataResultMessage()
+	{
+		
+	}
 	BigDataResultMessage(Type type, long transferedData, int idPacket, long duration) {
 		if (type == null)
 			throw new NullPointerException("type");

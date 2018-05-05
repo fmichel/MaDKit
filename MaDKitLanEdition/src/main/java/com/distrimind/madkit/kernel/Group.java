@@ -432,7 +432,7 @@ public final class Group extends AbstractGroup implements Comparable<Group> {
 
 		try {
 			String com=SerializationTools.readString(ois, MAX_COMMUNITY_LENGTH, false);
-			String path=SerializationTools.readString(ois, MAX_COMMUNITY_LENGTH, false);
+			String path=SerializationTools.readString(ois, MAX_PATH_LENGTH, false);
 			this.m_use_sub_groups = ois.readBoolean();
 			boolean dist = ois.readBoolean();
 			boolean isReserved = ois.readBoolean();
@@ -466,7 +466,7 @@ public final class Group extends AbstractGroup implements Comparable<Group> {
 	public void writeExternal(ObjectOutput oos) throws IOException {
 		try {
 			SerializationTools.writeString(oos, this.getCommunity(), MAX_COMMUNITY_LENGTH, false);
-			SerializationTools.writeString(oos, this.getPath(), MAX_COMMUNITY_LENGTH, false);
+			SerializationTools.writeString(oos, this.getPath(), MAX_PATH_LENGTH, false);
 			oos.writeBoolean(this.m_use_sub_groups);
 			oos.writeBoolean(this.isDistributed());
 			oos.writeBoolean(isReserved());

@@ -182,7 +182,7 @@ public class KernelAddressTest {
 				}
 				try (ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray())) {
 					try (ObjectInputStream ois = new ObjectInputStream(bais)) {
-						kas = (KernelAddress) ois.readObject();
+						kas = (KernelAddress) SerializationTools.readExternalizableAndSizable(ois, false);
 					}
 
 				}
@@ -197,7 +197,7 @@ public class KernelAddressTest {
 				}
 				try (ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray())) {
 					try (ObjectInputStream ois = new ObjectInputStream(bais)) {
-						kais = (KernelAddressInterfaced) ois.readObject();
+						kais = (KernelAddressInterfaced) SerializationTools.readExternalizableAndSizable(ois, false);
 					}
 
 				}
@@ -223,7 +223,7 @@ public class KernelAddressTest {
 				}
 				try (ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray())) {
 					try (ObjectInputStream ois = new ObjectInputStream(bais)) {
-						kais = (KernelAddressInterfaced) ois.readObject();
+						kais = (KernelAddressInterfaced) SerializationTools.readExternalizableAndSizable(ois, false);
 					}
 
 				}

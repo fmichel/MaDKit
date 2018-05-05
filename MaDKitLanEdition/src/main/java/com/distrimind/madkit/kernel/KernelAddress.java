@@ -91,7 +91,7 @@ public class KernelAddress implements ExternalizableAndSizable, Cloneable {
 	protected KernelAddress(boolean isSecured) throws NoSuchAlgorithmException, NoSuchProviderException {
 		this(isSecured, true);
 	}
-	KernelAddress()
+	protected KernelAddress()
 	{
 		
 	}
@@ -126,20 +126,27 @@ public class KernelAddress implements ExternalizableAndSizable, Cloneable {
 			name = null;
 	}
 
-	protected static final byte tab[]=new byte[513];
-	@Override
-	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+	protected static final byte tab[]=new byte[65];
+	
+	protected void readExternal(ObjectInput in, boolean initName) throws IOException
+	{
 		try {
 			internalSize=in.readShort();
-			if (internalSize<16 || internalSize>65)
+			if (internalSize<16 || internalSize>tab.length)
 				throw new MessageSerializationException(Integrity.FAIL, "internalSize="+internalSize);
 			synchronized(tab)
 			{
-				if (internalSize!=in.read(tab, 0, internalSize))
-					throw new IOException();
+				int pos=0;
+				do
+				{
+					int v=in.read(tab, pos, internalSize-pos);
+					if (v<0)
+						throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+					pos+=v;
+				} while(pos<internalSize);
 				try
 				{
-					id=AbstractDecentralizedID.instanceOf(tab);
+					id=AbstractDecentralizedID.instanceOf(tab, 0, internalSize);
 				}
 				catch(Throwable t)
 				{
@@ -160,13 +167,18 @@ public class KernelAddress implements ExternalizableAndSizable, Cloneable {
 				throw new MessageSerializationException(Integrity.FAIL);
 			}
 			
-			
-			initName();
+			if (initName)
+				initName();
 		} catch (IOException e) {
 			throw e;
 		} catch (Exception e) {
 			throw new IOException(e);
 		}
+	}
+	
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		readExternal(in, true);
 	}
 	@Override
 	public void writeExternal(ObjectOutput oos) throws IOException {

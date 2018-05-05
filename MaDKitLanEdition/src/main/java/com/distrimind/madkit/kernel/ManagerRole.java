@@ -59,7 +59,10 @@ final class ManagerRole extends InternalRole {
 	 * 
 	 */
 	private static final long serialVersionUID = 1919401829672949296L;
-
+	ManagerRole()
+	{
+		
+	}
 	ManagerRole(final InternalGroup groupObject, AbstractAgent requester, boolean securedGroup) {
 		super(groupObject, Organization.GROUP_MANAGER_ROLE);
 		synchronized (players) {

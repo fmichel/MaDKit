@@ -42,6 +42,8 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.security.AccessController;
@@ -50,12 +52,14 @@ import java.util.HashMap;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.MadkitClassLoader;
+import com.distrimind.madkit.kernel.network.FilteredObjectInputStream;
 import com.distrimind.madkit.kernel.network.SystemMessage;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.util.AbstractDecentralizedID;
 import com.distrimind.util.crypto.ASymmetricKeyPair;
 import com.distrimind.util.crypto.Key;
 import com.distrimind.util.sizeof.ObjectSizer;
+import static com.distrimind.madkit.util.ReflectionTools.*;
 
 /**
  * 
@@ -382,7 +386,7 @@ public class SerializationTools {
 		
 		for (ExternalizableAndSizable o : tab)
 		{
-			writeObject(oos, o, sizeMaxBytes-total, true);
+			writeExternalizableAndSizable(oos, o, true);
 			total+=o.getInternalSerializedSize();
 			
 			if (total>=sizeMaxBytes)
@@ -406,7 +410,7 @@ public class SerializationTools {
 		sizeMaxBytes-=4;
 		for (int i=0;i<size;i++)
 		{
-			Object o=readObject(ois, sizeMaxBytes, true);
+			Externalizable o=readExternalizableAndSizable(ois, true);
 			if (!(o instanceof ExternalizableAndSizable))
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 			ExternalizableAndSizable s=(ExternalizableAndSizable)o;
@@ -580,6 +584,19 @@ public class SerializationTools {
 		if (!ExternalizableAndSizable.class.isAssignableFrom(clazz) && !SystemMessage.class.isAssignableFrom(clazz))
 			throw new IOException();
 		oos.writeBoolean(true);
+		if (oos.getClass()==oosClazz)
+		{
+			try
+			{
+				e=(Externalizable)invoke(replaceObject, oos, e);
+				if (e!=null)
+					clazz=e.getClass();
+			}
+			catch(Exception e2)
+			{
+				throw new IOException(e2);
+			}
+		}
 		SerializationTools.writeString(oos, clazz.getName(), MAX_CLASS_LENGTH, false);
 		e.writeExternal(oos);
 		
@@ -608,6 +625,26 @@ public class SerializationTools {
 			return c;
 		}
 	}
+	private final static Class<?> oosClazz;
+	private final static Class<?> oisClazz;
+	private final static Method replaceObject;
+	private final static Method resolveObject;
+	
+	
+	
+	
+	static
+	{
+	
+		oosClazz=loadClass("com.distrimind.madkit.kernel.network.DistantKernelAgent$OOS");
+		oisClazz=loadClass("com.distrimind.madkit.kernel.network.DistantKernelAgent$OIS");
+		resolveObject=getMethod(oisClazz, "resolveObject", Object.class);
+		replaceObject=getMethod(oosClazz, "replaceObject", Object.class);
+		
+	}
+	
+	
+	
 	
 	
 	public static Externalizable readExternalizableAndSizable(final ObjectInput ois, boolean supportNull) throws IOException, ClassNotFoundException
@@ -615,20 +652,31 @@ public class SerializationTools {
 		if (ois.readBoolean())
 		{
 			String clazz=SerializationTools.readString(ois, MAX_CLASS_LENGTH, false);
-			@SuppressWarnings("rawtypes")
-			Class c=Class.forName(clazz, false, MadkitClassLoader.getSystemClassLoader());
-			if (!ExternalizableAndSizable.class.isAssignableFrom(c) && !SystemMessage.class.isAssignableFrom(c))
-				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+			
+			
 			
 			
 			try
 			{
+				Class<?> c=null;
+				boolean isOIS=ois.getClass()==oisClazz;
+				if (isOIS)
+					c=(Class<?>)((FilteredObjectInputStream)ois).resolveClass(clazz);
+				else
+					c=(Class<?>)Class.forName(clazz, false, MadkitClassLoader.getSystemClassLoader());
+				if (!ExternalizableAndSizable.class.isAssignableFrom(c) && !SystemMessage.class.isAssignableFrom(c))
+					throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 				Constructor<?> cons=getDefaultConstructor(c);
 				Externalizable res=(Externalizable)cons.newInstance();
+				
 				res.readExternal(ois);
+				if (isOIS)
+				{
+					res=(Externalizable)invoke(resolveObject, ois, res);
+				}
 				return res;
 			}
-			catch(Exception e)
+			catch(InvocationTargetException | NoSuchMethodException | IllegalAccessException | InstantiationException e)
 			{
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN, e);
 			}

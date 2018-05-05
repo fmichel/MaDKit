@@ -59,9 +59,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.distrimind.madkit.agr.Organization;
-import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.AbstractAgent.ReturnCode;
-import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.madkit.message.hook.HookMessage.AgentActionEvent;
 import com.distrimind.madkit.util.ExternalizableAndSizable;
 import com.distrimind.madkit.util.SerializationTools;
@@ -107,10 +105,7 @@ class InternalRole implements ExternalizableAndSizable {// TODO test with arrayl
 	@Override
 	public void writeExternal(ObjectOutput oos) throws IOException {
 		SerializationTools.writeExternalizableAndSizable(oos, group, false);
-		if (roleName.length()>Group.MAX_ROLE_NAME_LENGTH)
-			throw new IOException();
-		oos.writeShort(roleName.length());
-		oos.writeChars(roleName);
+		SerializationTools.writeString(oos, roleName, Group.MAX_ROLE_NAME_LENGTH, false);
 	}
 	@Override
 	public void readExternal(ObjectInput ois) throws IOException, ClassNotFoundException {
@@ -118,13 +113,7 @@ class InternalRole implements ExternalizableAndSizable {// TODO test with arrayl
 		if (o instanceof Group)
 		{
 			group=(Group)o;
-			short size=ois.readShort();
-			if (size<=0 || size>Group.MAX_ROLE_NAME_LENGTH)
-				throw new MessageSerializationException(Integrity.FAIL);
-			char chars[]=new char[size];
-			for (int i=0;i<size;i++)
-				chars[i]=ois.readChar();
-			roleName=new String(chars);
+			roleName=SerializationTools.readString(ois, Group.MAX_ROLE_NAME_LENGTH, false);
 		}
 		else
 			throw new IOException();

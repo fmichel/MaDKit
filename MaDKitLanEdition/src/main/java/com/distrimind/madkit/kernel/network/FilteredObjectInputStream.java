@@ -43,6 +43,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectStreamClass;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
+import com.distrimind.madkit.kernel.MadkitClassLoader;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 
 /**
@@ -90,6 +91,29 @@ public class FilteredObjectInputStream extends ObjectInputStream {
 			}
 		}
 		throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN, new ClassNotFoundException(desc.getName()));
+	}
+	
+	public Class<?> resolveClass(String clazz) throws MessageSerializationException
+	{
+		try
+		{
+			if (np.isAcceptedClassForSerializationUsingPatterns(clazz))
+			{
+				Class<?> c=Class.forName(clazz, true, MadkitClassLoader.getSystemClassLoader());
+				if (c==null)
+					new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN, new ClassNotFoundException(clazz));
+				if (np.isAcceptedClassForSerializationUsingWhiteClassList(c))
+				{
+					return c;
+				}
+			}
+		}
+		catch(Exception e)
+		{
+			new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN, new ClassNotFoundException(clazz));
+		}
+		throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN, new ClassNotFoundException(clazz));
+
 	}
 	
 	@Override

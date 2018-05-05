@@ -61,6 +61,7 @@ import com.distrimind.madkit.kernel.TaskID;
 import com.distrimind.madkit.message.hook.HookMessage;
 import com.distrimind.jdkrewrite.concurrent.ThreadPoolExecutor;
 import com.distrimind.util.IDGeneratorInt;
+import static com.distrimind.madkit.util.ReflectionTools.*;
 
 /**
  * Gives access to Madkit Kernel methods
@@ -446,58 +447,5 @@ class MadkitKernelAccess {
 		c_task_id = getConstructor(TaskID.class, ConversationID.class);
 	}
 
-	private static Object invoke(Method m, Object o, Object... args) throws InvocationTargetException {
-		try {
-			return m.invoke(o, args);
-		} catch (IllegalAccessException | IllegalArgumentException e) {
-			System.err.println("Impossible to access to the function " + m.getName() + " of the class "
-					+ m.getDeclaringClass()
-					+ ". This is an inner bug of MadKitLanEdition. Please contact the developers. Impossible to continue. See the next error :");
-			e.printStackTrace();
-			System.exit(-1);
-			return null;
-		}
-	}
-
-	private static Method getMethod(Class<?> c, String method_name, Class<?>... parameters) {
-		try {
-			Method m = c.getDeclaredMethod(method_name, parameters);
-			m.setAccessible(true);
-			return m;
-		} catch (SecurityException | NoSuchMethodException e) {
-			System.err.println("Impossible to access to the function " + method_name + " of the class "
-					+ c.getCanonicalName()
-					+ ". This is an inner bug of MadKitLanEdition. Please contact the developers. Impossible to continue. See the next error :");
-			e.printStackTrace();
-			System.exit(-1);
-			return null;
-		}
-	}
-
-	private static <E> Constructor<E> getConstructor(Class<E> c, Class<?>... parameters) {
-		try {
-			Constructor<E> m = c.getDeclaredConstructor(parameters);
-			m.setAccessible(true);
-			return m;
-		} catch (SecurityException | NoSuchMethodException e) {
-			System.err.println("Impossible to access to the constructor of the class " + c.getCanonicalName()
-					+ ". This is an inner bug of MadKitLanEdition. Please contact the developers. Impossible to continue. See the next error :");
-			e.printStackTrace();
-			System.exit(-1);
-			return null;
-		}
-	}
-
-	private static Class<?> loadClass(String class_name) {
-		try {
-			return Class.forName(class_name);
-		} catch (SecurityException | ClassNotFoundException e) {
-			System.err.println("Impossible to access to the class " + class_name
-					+ ". This is an inner bug of MadKitLanEdition. Please contact the developers. Impossible to continue. See the next error :");
-			e.printStackTrace();
-			System.exit(-1);
-			return null;
-		}
-	}
 
 }

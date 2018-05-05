@@ -70,7 +70,10 @@ public class KernelAddressInterfaced extends KernelAddress {
 	private AtomicBoolean interfaced;
 
 	
-	
+	KernelAddressInterfaced()
+	{
+		
+	}
 	
 	/**
 	 * @param _original_kernel_address
@@ -116,42 +119,17 @@ public class KernelAddressInterfaced extends KernelAddress {
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		try {
-			internalSize=in.readShort();
-			if (internalSize<16 || internalSize>65)
-				throw new MessageSerializationException(Integrity.FAIL);
-			synchronized(tab)
-			{
-				if (internalSize!=in.read(tab, 0, internalSize))
-					throw new IOException();
-				try
-				{
-					id=AbstractDecentralizedID.instanceOf(tab);
-				}
-				catch(Throwable t)
-				{
-					throw new IOException(t);
-				}
-			}
-			try {
-				if (id == null)
-					throw new MessageSerializationException(Integrity.FAIL);
-				if (id.getBytes() == null)
-					throw new MessageSerializationException(Integrity.FAIL);
-				if (!id.equals(id))
-					throw new MessageSerializationException(Integrity.FAIL);
-				
-			} catch (Exception e) {
-				throw new MessageSerializationException(Integrity.FAIL);
-			}
-			++internalSize;
-			initName();
-			
+			super.readExternal(in, false);
+
 			Object o=SerializationTools.readExternalizableAndSizable(in, false);
 			if (!(o instanceof KernelAddress))
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 			original_external_kernel_address=(KernelAddress)o;
 			internalSize+=original_external_kernel_address.getInternalSerializedSize();
 			interfaced=new AtomicBoolean(in.readBoolean());
+			
+			initName();
+			
 				
 		} catch (IOException e) {
 			throw e;
@@ -161,9 +139,7 @@ public class KernelAddressInterfaced extends KernelAddress {
 	}
 	@Override
 	public void writeExternal(ObjectOutput oos) throws IOException {
-		byte[] tab=id.getBytes();
-		oos.writeShort(tab.length);
-		oos.write(tab);
+		super.writeExternal(oos);
 		SerializationTools.writeExternalizableAndSizable(oos, original_external_kernel_address, false);
 		oos.writeBoolean(interfaced.get());
 	}

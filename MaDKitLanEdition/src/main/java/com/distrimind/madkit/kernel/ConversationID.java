@@ -45,8 +45,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.madkit.util.ExternalizableAndSizable;
+import com.distrimind.madkit.util.SerializationTools;
 
 /**
  * 
@@ -337,12 +339,16 @@ public class ConversationID implements ExternalizableAndSizable, Cloneable {
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 		out.writeInt(this.id);
+		SerializationTools.writeExternalizableAndSizable(out, this.origin, true);
 		
 	}
 
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		this.id=in.readInt();
-		
+		Object o=SerializationTools.readExternalizableAndSizable(in, true);
+		if (o!=null && !(o instanceof KernelAddress))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		this.origin=(KernelAddress)o;
 	}
 }

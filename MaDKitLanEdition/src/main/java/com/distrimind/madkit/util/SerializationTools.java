@@ -583,7 +583,7 @@ public class SerializationTools {
 		Class<?> clazz=e.getClass();
 		if (!ExternalizableAndSizable.class.isAssignableFrom(clazz) && !SystemMessage.class.isAssignableFrom(clazz))
 			throw new IOException();
-		oos.writeBoolean(true);
+		
 		if (oos.getClass()==oosClazz)
 		{
 			try
@@ -597,6 +597,7 @@ public class SerializationTools {
 				throw new IOException(e2);
 			}
 		}
+		oos.writeBoolean(true);
 		SerializationTools.writeString(oos, clazz.getName(), MAX_CLASS_LENGTH, false);
 		e.writeExternal(oos);
 		

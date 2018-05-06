@@ -590,7 +590,7 @@ class TransferAgent extends AgentFakeThread {
 
 		@Override
 		public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-			id=in.read();
+			id=in.readInt();
 		}
 
 	}
@@ -733,14 +733,14 @@ class TransferAgent extends AgentFakeThread {
 		public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 			super.readExternal(in);
 			inetSocketAddress=SerializationTools.readInetSocketAddress(in, false);
+			if (inetSocketAddress.getPort() < 0)
+				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		}
 
 		@Override
 		public void writeExternal(ObjectOutput oos) throws IOException {
 			super.writeExternal(oos);
 			SerializationTools.writeInetSocketAddress(oos, inetSocketAddress, false);
-			if (inetSocketAddress.getPort() < 0)
-				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 			
 		}
 	}

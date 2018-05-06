@@ -100,16 +100,10 @@ class TransferConfirmationSystemMessage extends BroadcastableSystemMessage {
 		kernelAddressToConnect=(KernelAddress)o;
 		middleReached=in.readBoolean();
 		distantInetSocketAddress=SerializationTools.readInetSocketAddress(in, true);
-		if (in.readBoolean())
-		{
-			o=SerializationTools.readExternalizableAndSizable(in, false);
-			if (!(o instanceof PointToPointTransferedBlockChecker))
-				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
-			pointToPointBlockChecker=(PointToPointTransferedBlockChecker)o;
-			
-		}
-		else
-			pointToPointBlockChecker=null;
+		o=SerializationTools.readExternalizableAndSizable(in, true);
+		if (o!=null && !(o instanceof PointToPointTransferedBlockChecker))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		pointToPointBlockChecker=(PointToPointTransferedBlockChecker)o;
 		if (numberOfSubBlocks < 0)
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		

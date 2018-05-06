@@ -88,15 +88,11 @@ class TransferPropositionSystemMessage extends BroadcastableSystemMessage {
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		kernelAddressToConnect=(KernelAddress)o;
 		totalSize+=kernelAddressToConnect.getInternalSerializedSize()+1;
-		if (in.readBoolean())
-		{
-			o=SerializationTools.readExternalizableAndSizable(in, false);
-			if (!(o instanceof ExternalizableAndSizable))
-				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
-			attachedData=(ExternalizableAndSizable)o;
-			totalSize+=attachedData.getInternalSerializedSize();
-			
-		}
+		o=SerializationTools.readExternalizableAndSizable(in, true);
+		if (o!=null && !(o instanceof ExternalizableAndSizable))
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
+		attachedData=(ExternalizableAndSizable)o;
+		totalSize+=attachedData.getInternalSerializedSize();
 		if (totalSize>globalSize)
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		o=SerializationTools.readExternalizableAndSizable(in, false);

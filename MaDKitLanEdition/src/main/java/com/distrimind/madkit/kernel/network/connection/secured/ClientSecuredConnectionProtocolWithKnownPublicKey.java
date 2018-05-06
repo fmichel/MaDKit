@@ -302,7 +302,19 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 				throw new BlockParserException(e);
 			}
 		}
-
+		private SymmetricEncryptionAlgorithm maxAlgo=null;
+		@Override
+		public int getMaximumBodyOutputSizeForEncryption(int size) throws BlockParserException {
+			try {
+				if (maxAlgo==null)
+				{
+					maxAlgo=new SymmetricEncryptionAlgorithm(approvedRandom, hproperties.getSymmetricEncryptionType().getKeyGenerator(approvedRandom, hproperties.getSymmetricKeySizeBits()).generateKey());
+				}
+				return maxAlgo.getOutputSizeForEncryption(size)+4;
+			} catch (Exception e) {
+				throw new BlockParserException(e);
+			}
+		}
 		@Override
 		public int getBodyOutputSizeForDecryption(int size) throws BlockParserException {
 			try {
@@ -735,6 +747,11 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 				throw new BlockParserException(e);
 			}
 			throw new BlockParserException("Unexpected exception");
+		}
+
+		@Override
+		public int getMaximumBodyOutputSizeForEncryption(int size) throws BlockParserException {
+			return size;
 		}
 		
 

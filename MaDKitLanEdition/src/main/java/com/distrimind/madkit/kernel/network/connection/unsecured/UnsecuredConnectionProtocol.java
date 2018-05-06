@@ -195,6 +195,11 @@ public class UnsecuredConnectionProtocol extends ConnectionProtocol<UnsecuredCon
 			return _block;
 		}
 
+		@Override
+		public int getMaximumBodyOutputSizeForEncryption(int size) throws BlockParserException {
+			return size;
+		}
+
 	}
 
 	static class BlockChecker extends TransferedBlockChecker {

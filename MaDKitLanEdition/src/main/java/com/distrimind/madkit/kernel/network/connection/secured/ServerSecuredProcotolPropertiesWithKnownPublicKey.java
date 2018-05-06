@@ -40,13 +40,16 @@ package com.distrimind.madkit.kernel.network.connection.secured;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.distrimind.madkit.exceptions.BlockParserException;
 import com.distrimind.madkit.exceptions.ConnectionException;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocolProperties;
 import com.distrimind.util.crypto.ASymmetricEncryptionType;
 import com.distrimind.util.crypto.ASymmetricKeyPair;
 import com.distrimind.util.crypto.ASymmetricKeyWrapperType;
 import com.distrimind.util.crypto.AbstractSecureRandom;
+import com.distrimind.util.crypto.SecureRandomType;
 import com.distrimind.util.crypto.SymmetricAuthentifiedSignatureType;
+import com.distrimind.util.crypto.SymmetricEncryptionAlgorithm;
 import com.distrimind.util.crypto.SymmetricEncryptionType;
 
 import gnu.vm.jgnu.security.InvalidAlgorithmParameterException;
@@ -450,5 +453,31 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKey
 	protected boolean canBeServer() {
 		return true;
 	}
-
+	private SymmetricEncryptionAlgorithm maxAlgo=null;
+	int getMaximumOutputLengthForEncryption(int size) throws BlockParserException
+	{
+		try {
+			if (maxAlgo==null)
+			{
+				int res=0;
+				SymmetricEncryptionAlgorithm maxAlgo=null;
+				
+				for (Map.Entry<Integer, SymmetricEncryptionType> e : this.symmetricEncryptionTypes.entrySet())
+				{
+					maxAlgo=new SymmetricEncryptionAlgorithm(SecureRandomType.DEFAULT.getInstance(null), e.getValue().getKeyGenerator(SecureRandomType.DEFAULT.getInstance(null), this.symmetricEncryptionKeySizeBits.get(e.getKey())).generateKey());
+					int v=maxAlgo.getOutputSizeForEncryption(size);
+					if (v>=res)
+					{
+						res=v;
+						this.maxAlgo=maxAlgo;
+					}
+				}
+				return res;
+			}
+			return maxAlgo.getOutputSizeForEncryption(size);
+		} catch (Exception e) {
+			throw new BlockParserException(e);
+		}
+	}
+	
 }

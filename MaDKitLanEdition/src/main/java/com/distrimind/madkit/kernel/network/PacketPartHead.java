@@ -38,6 +38,8 @@
 package com.distrimind.madkit.kernel.network;
 
 import com.distrimind.madkit.exceptions.PacketException;
+import com.distrimind.madkit.kernel.network.WritePacket.ByteTabOutputStream;
+import com.distrimind.madkit.kernel.network.WritePacket.ByteTabOutputStreamWithRandomValues;
 import com.distrimind.util.Bits;
 
 /**
@@ -158,6 +160,17 @@ public final class PacketPartHead {
 			return 24;
 		else
 			return 8;
+	}
+	
+	static int getMaxOutputSize(int max_buffer_size, int packet_head_size, short random_values_size)
+	{
+		if (random_values_size<0)
+			throw new NullPointerException();
+		
+		if (random_values_size == 0)
+			return ByteTabOutputStream.getMaxOutputSize(max_buffer_size, packet_head_size);
+		else
+			return ByteTabOutputStreamWithRandomValues.getMaxOutputSize(max_buffer_size, random_values_size, packet_head_size);
 	}
 
 }

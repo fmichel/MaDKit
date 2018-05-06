@@ -245,9 +245,9 @@ public class SubBlocksStructure {
 		return Math.min(size, Block.BLOCK_SIZE_LIMIT);
 	}
 
-	public static int getAbsoluteMaximumBlockSize(ConnectionProtocol<?> connection_protocol, int max_buffer_size)
+	public static int getAbsoluteMaximumBlockSize(ConnectionProtocol<?> connection_protocol, int max_buffer_size, short random_values_size)
 			throws NIOException {
-		int size = max_buffer_size + PacketPartHead.getHeadSize(true);
+		int size = PacketPartHead.getMaxOutputSize(max_buffer_size, PacketPartHead.getHeadSize(true), random_values_size);
 
 		for (Iterator<ConnectionProtocol<?>> it = connection_protocol.reverseIterator(); it.hasNext();) {
 			ConnectionProtocol<?> cp = it.next();
@@ -261,7 +261,8 @@ public class SubBlocksStructure {
 				if (sbp.getMaximumSizeHead() < 0)
 					throw new BlockParserException(
 							"The parser " + sbp + " returns a head size lower than 0: " + sbp.getMaximumSizeHead());
-				int outputSize = sbp.getBodyOutputSizeForEncryption(size);
+				
+				int outputSize = sbp.getMaximumBodyOutputSizeForEncryption(size);
 				if (outputSize < 0)
 					throw new BlockParserException(
 							"The parser " + sbp + " returns an ouput size lower than 0: " + outputSize);

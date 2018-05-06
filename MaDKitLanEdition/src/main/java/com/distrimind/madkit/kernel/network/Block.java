@@ -242,7 +242,12 @@ public final class Block {
 	}
 
 	public static int getHeadSize() {
-		return 8;
+		return getBlockSizeLength()+5;
+	}
+	
+	public static int getBlockSizeLength()
+	{
+		return 3;
 	}
 
 	public boolean isDirect() {
@@ -267,8 +272,7 @@ public final class Block {
 	}
 
 	public static int getBlockSize(byte[] _bytes, int offset) {
-		int s = getShortInt(_bytes, offset);
-		return s;
+		return getShortInt(_bytes, offset);
 	}
 
 	public static int getMaximumBlockSize() {

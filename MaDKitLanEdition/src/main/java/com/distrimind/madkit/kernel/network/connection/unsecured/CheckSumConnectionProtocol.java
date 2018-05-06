@@ -248,6 +248,11 @@ public class CheckSumConnectionProtocol extends ConnectionProtocol<CheckSumConne
 			}
 		}
 
+		@Override
+		public int getMaximumBodyOutputSizeForEncryption(int size) throws BlockParserException {
+			return size;
+		}
+
 	}
 
 	static class BlockChecker extends TransferedBlockChecker {

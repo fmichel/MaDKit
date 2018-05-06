@@ -77,6 +77,7 @@ public abstract class SubBlockParser {
 
 	// public int getSizeBlockModulus() throws BlockParserExcetion;
 	public abstract int getBodyOutputSizeForEncryption(int size) throws BlockParserException;
+	public abstract int getMaximumBodyOutputSizeForEncryption(int size) throws BlockParserException;
 
 	public abstract int getBodyOutputSizeForDecryption(int size) throws BlockParserException;
 	

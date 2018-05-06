@@ -543,6 +543,20 @@ public class P2PSecuredConnectionProtocolWithKeyAgreementAlgorithm extends Conne
 			return size;
 
 		}
+		
+		private SymmetricEncryptionAlgorithm maxAlgo=null;
+		@Override
+		public int getMaximumBodyOutputSizeForEncryption(int size) throws BlockParserException {
+			try {
+				if (maxAlgo==null)
+				{
+					maxAlgo=new SymmetricEncryptionAlgorithm(approvedRandom, hproperties.symmetricEncryptionType.getKeyGenerator(approvedRandom, hproperties.symmetricKeySizeBits).generateKey());
+				}
+				return maxAlgo.getOutputSizeForEncryption(size)+4;
+			} catch (Exception e) {
+				throw new BlockParserException(e);
+			}
+		}
 
 		@Override
 		public int getBodyOutputSizeForDecryption(int size) throws BlockParserException {
@@ -876,6 +890,10 @@ public class P2PSecuredConnectionProtocolWithKeyAgreementAlgorithm extends Conne
 			return size;
 		}
 
+		@Override
+		public int getMaximumBodyOutputSizeForEncryption(int size) throws BlockParserException {
+			return size;
+		}
 
 		@Override
 		public int getSizeHead() {

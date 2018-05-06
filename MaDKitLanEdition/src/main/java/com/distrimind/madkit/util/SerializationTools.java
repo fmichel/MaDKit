@@ -37,6 +37,8 @@
  */
 package com.distrimind.madkit.util;
 
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -72,7 +74,7 @@ import static com.distrimind.madkit.util.ReflectionTools.*;
 public class SerializationTools {
 	private static final int MAX_CHAR_BUFFER_SIZE=Short.MAX_VALUE*5;
 	
-	public static void writeString(final ObjectOutput oos, String s, int sizeMax, boolean supportNull) throws IOException
+	public static void writeString(final DataOutput oos, String s, int sizeMax, boolean supportNull) throws IOException
 	{
 		if (s==null)
 		{
@@ -98,7 +100,7 @@ public class SerializationTools {
 	
 	private static char[] chars=null;
 	
-	public static String readString(final ObjectInput ois, int sizeMax, boolean supportNull) throws IOException
+	public static String readString(final DataInput ois, int sizeMax, boolean supportNull) throws IOException
 	{
 		int size;
 		if (sizeMax>Short.MAX_VALUE)
@@ -134,11 +136,11 @@ public class SerializationTools {
 		}
 	}
 	
-	public static void writeBytes(final ObjectOutput oos, byte tab[], int sizeMax, boolean supportNull) throws IOException
+	public static void writeBytes(final DataOutput oos, byte tab[], int sizeMax, boolean supportNull) throws IOException
 	{
 		writeBytes(oos, tab, 0, tab==null?0:tab.length, sizeMax, supportNull);
 	}
-	public static void writeBytes(final ObjectOutput oos, byte tab[], int off, int size, int sizeMax, boolean supportNull) throws IOException
+	public static void writeBytes(final DataOutput oos, byte tab[], int off, int size, int sizeMax, boolean supportNull) throws IOException
 	{
 		if (tab==null)
 		{
@@ -159,11 +161,11 @@ public class SerializationTools {
 			oos.writeShort(tab.length);
 		oos.write(tab, off, size);
 	}
-	public static void writeBytes2D(final ObjectOutput oos, byte tab[][], int sizeMax1,int sizeMax2, boolean supportNull1, boolean supportNull2) throws IOException
+	public static void writeBytes2D(final DataOutput oos, byte tab[][], int sizeMax1,int sizeMax2, boolean supportNull1, boolean supportNull2) throws IOException
 	{
 		writeBytes2D(oos, tab, 0, tab==null?0:tab.length, sizeMax1, sizeMax2, supportNull1, supportNull2);
 	}
-	public static void writeBytes2D(final ObjectOutput oos, byte tab[][], int off, int size, int sizeMax1, int sizeMax2,  boolean supportNull1, boolean supportNull2) throws IOException
+	public static void writeBytes2D(final DataOutput oos, byte tab[][], int off, int size, int sizeMax1, int sizeMax2,  boolean supportNull1, boolean supportNull2) throws IOException
 	{
 		if (tab==null)
 		{
@@ -185,7 +187,7 @@ public class SerializationTools {
 		for (byte[] b : tab)
 			SerializationTools.writeBytes(oos, b, sizeMax2, supportNull2);
 	}
-	public static byte[][] readBytes2D(final ObjectInput ois, int sizeMax1, int sizeMax2,  boolean supportNull1, boolean supportNull2) throws IOException
+	public static byte[][] readBytes2D(final DataInput ois, int sizeMax1, int sizeMax2,  boolean supportNull1, boolean supportNull2) throws IOException
 	{
 		int size;
 		if (sizeMax1>Short.MAX_VALUE)
@@ -209,7 +211,7 @@ public class SerializationTools {
 		return tab;
 		
 	}
-	public static byte[] readBytes(final ObjectInput ois, int sizeMax, boolean supportNull) throws IOException
+	public static byte[] readBytes(final DataInput ois, int sizeMax, boolean supportNull) throws IOException
 	{
 		int size;
 		if (sizeMax>Short.MAX_VALUE)
@@ -226,23 +228,14 @@ public class SerializationTools {
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		
 		byte []tab=new byte[size];
-		
-		int s=0;
-		while (s!=size)
-		{
-			int l=ois.read(tab, s, size-s);
-			if (l==-1)
-				throw new IOException();
-			s+=l;
-		}
-		
+		ois.readFully(tab);
 		
 		return tab;
 		
 	}
 	
 	public static final int MAX_KEY_SIZE=Short.MAX_VALUE;
-	public static void writeKey(final ObjectOutput oos, Key key, boolean supportNull) throws IOException
+	public static void writeKey(final DataOutput oos, Key key, boolean supportNull) throws IOException
 	{
 		
 		if (key==null)
@@ -257,7 +250,7 @@ public class SerializationTools {
 		writeBytes(oos, key.encode(), MAX_KEY_SIZE, false);
 	}
 
-	public static Key readKey(final ObjectInput in, boolean supportNull) throws IOException
+	public static Key readKey(final DataInput in, boolean supportNull) throws IOException
 	{
 		if (in.readBoolean())
 		{
@@ -280,7 +273,7 @@ public class SerializationTools {
 	}
 	
 	
-	public static void writeKeyPair(final ObjectOutput oos, ASymmetricKeyPair keyPair, boolean supportNull) throws IOException
+	public static void writeKeyPair(final DataOutput oos, ASymmetricKeyPair keyPair, boolean supportNull) throws IOException
 	{
 		
 		if (keyPair==null)
@@ -296,7 +289,7 @@ public class SerializationTools {
 		writeBytes(oos, keyPair.encode(), MAX_KEY_SIZE*2, false);
 	}
 
-	public static ASymmetricKeyPair readKeyPair(final ObjectInput in, boolean supportNull) throws IOException
+	public static ASymmetricKeyPair readKeyPair(final DataInput in, boolean supportNull) throws IOException
 	{
 		if (in.readBoolean())
 		{
@@ -424,7 +417,7 @@ public class SerializationTools {
 		
 	}
 	public static int MAX_URL_LENGTH=8000;
-	public static void writeInetAddress(final ObjectOutput oos, InetAddress inetAddress, boolean supportNull) throws IOException
+	public static void writeInetAddress(final DataOutput oos, InetAddress inetAddress, boolean supportNull) throws IOException
 	{
 		if (inetAddress==null)
 		{
@@ -438,7 +431,7 @@ public class SerializationTools {
 		writeBytes(oos, inetAddress.getAddress(), 20, false);
 	}
 	
-	public static void writeDecentralizedID(final ObjectOutput oos, AbstractDecentralizedID id, boolean supportNull) throws IOException
+	public static void writeDecentralizedID(final DataOutput oos, AbstractDecentralizedID id, boolean supportNull) throws IOException
 	{
 		if (id==null)
 		{
@@ -451,7 +444,7 @@ public class SerializationTools {
 		oos.writeBoolean(true);
 		writeBytes(oos, id.getBytes(), 513, false);
 	}
-	public static AbstractDecentralizedID readDecentralizedID(final ObjectInput in, boolean supportNull) throws IOException
+	public static AbstractDecentralizedID readDecentralizedID(final DataInput in, boolean supportNull) throws IOException
 	{
 		if (in.readBoolean())
 		{
@@ -469,7 +462,7 @@ public class SerializationTools {
 		return null;
 	}
 	
-	public static InetAddress readInetAddress(final ObjectInput ois, boolean supportNull) throws IOException, ClassNotFoundException
+	public static InetAddress readInetAddress(final DataInput ois, boolean supportNull) throws IOException, ClassNotFoundException
 	{
 		if (ois.readBoolean())
 		{
@@ -490,7 +483,7 @@ public class SerializationTools {
 		
 	}
 	
-	public static void writeInetSocketAddress(final ObjectOutput oos, InetSocketAddress inetSocketAddress, boolean supportNull) throws IOException
+	public static void writeInetSocketAddress(final DataOutput oos, InetSocketAddress inetSocketAddress, boolean supportNull) throws IOException
 	{
 		if (inetSocketAddress==null)
 		{
@@ -506,7 +499,7 @@ public class SerializationTools {
 	}
 	
 	
-	public static InetSocketAddress readInetSocketAddress(final ObjectInput ois, boolean supportNull) throws IOException, ClassNotFoundException
+	public static InetSocketAddress readInetSocketAddress(final DataInput ois, boolean supportNull) throws IOException, ClassNotFoundException
 	{
 		if (ois.readBoolean())
 		{
@@ -528,7 +521,7 @@ public class SerializationTools {
 			return null;
 		
 	}
-	public static void writeEnum(final ObjectOutput oos, Enum<?> e, boolean supportNull) throws IOException
+	public static void writeEnum(final DataOutput oos, Enum<?> e, boolean supportNull) throws IOException
 	{
 		if (e==null)
 		{
@@ -544,7 +537,7 @@ public class SerializationTools {
 	}
 	public final static int MAX_CLASS_LENGTH=16396;
 	@SuppressWarnings("unchecked")
-	public static Enum<?> readEnum(final ObjectInput ois, boolean supportNull) throws IOException, ClassNotFoundException
+	public static Enum<?> readEnum(final DataInput ois, boolean supportNull) throws IOException, ClassNotFoundException
 	{
 		if (ois.readBoolean())
 		{

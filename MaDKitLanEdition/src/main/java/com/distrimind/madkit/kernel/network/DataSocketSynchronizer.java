@@ -37,8 +37,6 @@
  */
 package com.distrimind.madkit.kernel.network;
 
-import java.util.ConcurrentModificationException;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.distrimind.madkit.exceptions.PacketException;
 
@@ -49,18 +47,26 @@ import com.distrimind.madkit.exceptions.PacketException;
  * @since MadkitLanEdition 1.0
  */
 class DataSocketSynchronizer {
-	private byte buffer[] = null;
-	private int cursor_buffer = 0;
-	private final AtomicBoolean dataInProgress = new AtomicBoolean(false);
+	/*private byte buffer[] = null;
+	private int cursor_buffer = 0;*/
+	//private final AtomicBoolean dataInProgress = new AtomicBoolean(false);
 
 	void receiveData(byte[] _bytes, SocketAgentInterface socketAgentInterface) {
-		if (!dataInProgress.compareAndSet(false, true))
+		/*if (!dataInProgress.compareAndSet(false, true))
 			throw new ConcurrentModificationException();
 
-		try {
+		try {*/
 			if (_bytes == null)
 				return;
-			if (buffer != null && buffer.length < Block.getHeadSize()) {
+			try {
+				Block block = new Block(_bytes);
+				socketAgentInterface.receivedBlock(block);
+			} catch (PacketException e) {
+				socketAgentInterface.processInvalidBlock(e, null, false);
+			} 
+			if (socketAgentInterface.isBannedOrExpulsed())
+				return;
+			/*if (buffer != null && buffer.length < Block.getHeadSize()) {
 				byte[] b = new byte[buffer.length + _bytes.length];
 				System.arraycopy(buffer, 0, b, 0, buffer.length);
 				System.arraycopy(_bytes, 0, b, buffer.length, _bytes.length);
@@ -121,7 +127,7 @@ class DataSocketSynchronizer {
 			}
 		} finally {
 			dataInProgress.set(false);
-		}
+		}*/
 	}
 
 	static interface SocketAgentInterface {

@@ -37,6 +37,7 @@
  */
 package com.distrimind.madkit.kernel.network;
 
+import java.io.UnsupportedEncodingException;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -113,7 +114,7 @@ final class MultiCastListenerAgent extends AgentFakeThread {
 					new DatagramLocalNetworkPresenceMessage(localOnlineTime, getMadkitConfig().projectVersion,
 							getMadkitConfig().madkitVersion, this.networkInterfaceAddress, getKernelAddress()),
 					LocalCommunity.Roles.MULTICAST_LISTENER_ROLE);
-		} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
+		} catch (NoSuchAlgorithmException | NoSuchProviderException | UnsupportedEncodingException e) {
 			if (logger != null)
 				logger.severeLog("Impossible to digest kernel address", e);
 		}
@@ -166,7 +167,7 @@ final class MultiCastListenerAgent extends AgentFakeThread {
 					}
 				} else if (logger != null && logger.isLoggable(Level.FINER))
 					logger.finer("Incompatible message received : " + _message);
-			} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
+			} catch (NoSuchAlgorithmException | NoSuchProviderException | UnsupportedEncodingException e) {
 				if (logger != null)
 					logger.severeLog("Impossible to digest kernel address", e);
 			}

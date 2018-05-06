@@ -364,13 +364,13 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 			if (max <= 0)
 				throw new IllegalArgumentException(
 						String.format(AgentSocketMessage.TO_MUCH_BYTE_CONNEC_PROTOCOL.toString(),
-								new Integer(SubBlocksStructure.getAbsoluteMaximumBlockSize(connection_protocol, 1)),
+								new Integer(SubBlocksStructure.getAbsoluteMaximumBlockSize(connection_protocol, 1, getMadkitConfig().networkProperties.maxRandomPacketValues)),
 								new Integer(0xFFFF)));
 			if (max_buffer_size > max)
 				throw new IllegalArgumentException(
 						String.format(AgentSocketMessage.BUFFER_SIZE_TO_BIG_CONSIDERING_CONNEC_PROTOCOL.toString(),
 								new Integer(max), new Integer(max_buffer_size)));
-			max_block_size = SubBlocksStructure.getAbsoluteMaximumBlockSize(connection_protocol, max_buffer_size);
+			max_block_size = SubBlocksStructure.getAbsoluteMaximumBlockSize(connection_protocol, max_buffer_size, getMadkitConfig().networkProperties.maxRandomPacketValues);
 			if (max_block_size > Block.BLOCK_SIZE_LIMIT)
 				throw new NIOException(new UnexpectedException(AgentSocketMessage.UNEXPECTED_EXCEPTION.toString()));
 			// defining the block size and the packet offset
@@ -2990,16 +2990,10 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 		return false;
 	}
 
-	boolean processInvalidProcess(String message, Exception e, boolean candidate_to_ban) {
-		if (logger != null) {
-			if (e == null)
-				logger.severeLog(message == null ? "Invalid process" : message);
-			else
-				logger.severeLog(message == null ? "Invalid process" : message, e);
-		}
-		MadkitKernelAccess.informHooks(this, new NetworkAnomalyEvent(distantInterfacedKernelAddress,
-				distant_inet_address.getAddress(), candidate_to_ban, message));
-		try {
+	boolean proceedEventualBan(boolean candidate_to_ban) 
+	{
+		try
+		{
 			if (getMadkitConfig().getDatabaseWrapper() != null) {
 				IPBanned.Record r = ((IPBanStat) getMadkitConfig().getDatabaseWrapper()
 						.getTableInstance(IPBanStat.class)).processExpulsion(distant_inet_address.getAddress(),
@@ -3017,17 +3011,35 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 						MadkitKernelAccess.informHooks(this,
 								new IPBannedEvent(distant_inet_address.getAddress(), r.expiration_time));
 					}
-					startDeconnectionProcess(ConnectionClosedReason.CONNECTION_ANOMALY);
+					
 					return true;
 				}
-			} else if (candidate_to_ban) {
-				startDeconnectionProcess(ConnectionClosedReason.CONNECTION_ANOMALY);
-				return true;
-			}
+			} 
+			return false;
 		} catch (DatabaseException e2) {
 			if (logger != null)
 				logger.severeLog("Database exception", e2);
+			return false;
 		}
+	}
+	
+	boolean processInvalidProcess(String message, Exception e, boolean candidate_to_ban) {
+		if (logger != null) {
+			if (e == null)
+				logger.severeLog(message == null ? "Invalid process" : message);
+			else
+				logger.severeLog(message == null ? "Invalid process" : message, e);
+		}
+		MadkitKernelAccess.informHooks(this, new NetworkAnomalyEvent(distantInterfacedKernelAddress,
+				distant_inet_address.getAddress(), candidate_to_ban, message));
+		
+		proceedEventualBan(candidate_to_ban);
+		
+		if (candidate_to_ban) {
+			startDeconnectionProcess(ConnectionClosedReason.CONNECTION_ANOMALY);
+			return true;
+		}
+		
 
 		return false;
 	}

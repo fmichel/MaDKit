@@ -125,7 +125,7 @@ final class NIOAgent extends Agent {
 	protected final Selector selector;
 
 	// The buffer into which we'll read data when it's available
-	public ByteBuffer readBuffer = null;
+	
 
 	protected HashMap<AgentNetworkID, PersonalSocket> personal_sockets = new HashMap<>();
 	protected ArrayList<PersonalSocket> personal_sockets_list = new ArrayList<>(100);
@@ -777,9 +777,9 @@ final class NIOAgent extends Agent {
 						clientKey.attach(ps);
 						personal_sockets.put(agent.getNetworkID(), ps);
 						personal_sockets_list.add(ps);
-						int max_block_size = agent.getMaxBlockSize();
+						/*int max_block_size = agent.getMaxBlockSize();
 						if (readBuffer == null || readBuffer.capacity() < max_block_size)
-							readBuffer = ByteBuffer.allocate(max_block_size);
+							readBuffer = ByteBuffer.allocate(max_block_size);*/
 
 						broadcastMessageWithRole(LocalCommunity.Groups.LOCAL_NETWORKS,
 								LocalCommunity.Roles.LOCAL_NETWORK_ROLE,
@@ -965,7 +965,9 @@ final class NIOAgent extends Agent {
 		private boolean is_closed = false;
 		private DatagramData firstReceivedData = new DatagramData();
 		private boolean firstPacketSent = false;
-
+		private final ByteBuffer readSizeBlock = ByteBuffer.allocate(Block.getBlockSizeLength());
+		private ByteBuffer readBuffer = null; 
+		private final int maxBlockSize;
 		public boolean isClosed() {
 			return is_closed;
 		}
@@ -977,6 +979,7 @@ final class NIOAgent extends Agent {
 			agentAddress = agentSocket.getAgentAddressIn(LocalCommunity.Groups.NETWORK,
 					LocalCommunity.Roles.SOCKET_AGENT_ROLE);
 			last_data_writed_utc = time_sending_ping_message = System.currentTimeMillis();
+			maxBlockSize=_agent.getMaxBlockSize();
 			addDataToSend(new FirstData(NIOAgent.this,
 					new DatagramLocalNetworkPresenceMessage(System.currentTimeMillis(),
 							getMadkitConfig().projectVersion, getMadkitConfig().madkitVersion, null,
@@ -1327,11 +1330,37 @@ final class NIOAgent extends Agent {
 			if (isReadLocked())
 				return;
 			// Clear out our read buffer so it's ready for new data
-			NIOAgent.this.readBuffer.clear();
+			
 			int data_read = -1;
 			try {
-
-				data_read = socketChannel.read(NIOAgent.this.readBuffer);
+				if (this.readBuffer==null)
+				{
+					data_read = socketChannel.read(readSizeBlock);
+					
+					if (!readSizeBlock.hasRemaining())
+					{
+						int size=Block.getBlockSize(readSizeBlock.array(), 0);
+						if (size<=0 || size>maxBlockSize)
+						{
+							if (logger != null)
+								logger.severe("Invalid block size "+size+" (max="+maxBlockSize+"). Impossible to receive new bytes (connection closed).");
+							this.agentSocket.proceedEventualBan(true);
+							closeConnection(ConnectionClosedReason.CONNECTION_ANOMALY);
+							key.cancel();
+							return;
+						}
+						readBuffer=ByteBuffer.allocate(size);
+						readBuffer.put(readSizeBlock.array());
+						readSizeBlock.clear();
+						int s=socketChannel.read(readBuffer);
+						if (s<0)
+							data_read=s;
+						else
+							data_read+=s;
+					}
+				}
+				else
+					data_read = socketChannel.read(readBuffer);
 
 				if (data_read < 0) {
 					// Remote entity shut the socket down cleanly. Do the
@@ -1357,9 +1386,11 @@ final class NIOAgent extends Agent {
 				key.cancel();
 				return;
 			}
+			
 			// boolean hasRemaining=readBuffer.hasRemaining();
-			if (data_read > 0) {
+			if (readBuffer!=null && !readBuffer.hasRemaining()) {
 				receivedData(key, readBuffer, data_read);
+				readBuffer=null;
 			}
 			/*
 			 * if (((key.interestOps() & SelectionKey.OP_WRITE) != SelectionKey.OP_WRITE) &&
@@ -1376,6 +1407,7 @@ final class NIOAgent extends Agent {
 				if (!firstReceivedData.isValid()) {
 					if (logger != null && logger.isLoggable(Level.FINER))
 						logger.finer("first received data invalid : " + firstReceivedData);
+					this.agentSocket.proceedEventualBan(true);
 					closeConnection(ConnectionClosedReason.CONNECTION_ANOMALY);
 					key.cancel();
 					return;
@@ -1396,6 +1428,9 @@ final class NIOAgent extends Agent {
 							return;
 						}
 					} catch (Exception e) {
+						if (logger!=null)
+							logger.severeLog("Invalid first packet", e);
+						this.agentSocket.proceedEventualBan(true);
 						closeConnection(ConnectionClosedReason.CONNECTION_ANOMALY);
 						key.cancel();
 						return;
@@ -1406,11 +1441,9 @@ final class NIOAgent extends Agent {
 					logger.finest("Receiving new initial bytes (" + data_read + " bytes) from "
 							+ this.agentSocket.getDistantInetSocketAddress());
 			} else {
-				byte[] res = new byte[data_read];
-				data.get(res);
-				NIOAgent.this.sendMessage(agentAddress, new DataReceivedMessage(res));
+				NIOAgent.this.sendMessage(agentAddress, new DataReceivedMessage(data.array()));
 				if (logger != null && logger.isLoggable(Level.FINEST))
-					logger.finest("Receiving new bytes (" + res.length + " bytes) from "
+					logger.finest("Receiving new bytes (" + data.array().length + " bytes) from "
 							+ this.agentSocket.getDistantInetSocketAddress());
 			}
 		}
@@ -1559,7 +1592,6 @@ final class NIOAgent extends Agent {
 				if (logger != null)
 					logger.log(Level.SEVERE, "Unexpected exception", e);
 			}
-
 			NIOAgent.this.sendMessageWithRole(agentAddress, new ConnectionClosed(this.agentAddress.getAgentNetworkID(),
 					cs, shortDataToSend, bigDataToSend, dataToTransfer), LocalCommunity.Roles.NIO_ROLE);
 			shortDataToSend = new LinkedList<>();

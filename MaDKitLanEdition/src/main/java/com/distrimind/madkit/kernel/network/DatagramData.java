@@ -41,8 +41,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import com.distrimind.util.Bits;
-import com.distrimind.util.sizeof.ObjectSizer;
 
 /**
  * 
@@ -60,18 +58,22 @@ class DatagramData {
 			message.writeTo(baos);
 			byte[] b = baos.toByteArray();
 			int size = b.length;
-			byte res[] = new byte[ObjectSizer.sizeOf(size) + size];
-			Bits.putInt(res, 0, size);
-			System.arraycopy(b, 0, res, ObjectSizer.sizeOf(size), size);
+			if (size>DatagramLocalNetworkPresenceMessage.getMaxDatagramMessageLength())
+				throw new IllegalArgumentException();
+			byte res[] = new byte[Block.getBlockSizeLength() + size];
+			
+			Block.putShortInt(res, 0, res.length);
+			//Bits.putInt(res, 0, size);
+			System.arraycopy(b, 0, res, Block.getBlockSizeLength(), size);
 			data = ByteBuffer.wrap(res);
 		}
 	}
 
-	DatagramData(byte[] data) {
+	/*DatagramData(byte[] data) {
 		if (data == null)
 			throw new NullPointerException("data");
 		this.data = ByteBuffer.wrap(data);
-	}
+	}*/
 
 	DatagramData() {
 		this.data = ByteBuffer.allocate(DatagramLocalNetworkPresenceMessage.getMaxDatagramMessageLength());
@@ -80,7 +82,7 @@ class DatagramData {
 	void put(byte[] data, int offset, int length) {
 		if (this.data.remaining() < length) {
 			ByteBuffer nd = ByteBuffer.allocate(this.data.position() + length);
-			nd.put(this.data.array(), 0, this.data.position());
+			nd.put(this.data.array(), this.data.arrayOffset(), this.data.arrayOffset()+this.data.position());
 			this.data = nd;
 		}
 		this.data.put(data, offset, length);
@@ -94,7 +96,7 @@ class DatagramData {
 		ByteBuffer next = getUnusedReceivedData();
 		if (next != null) {
 			DatagramData res = new DatagramData();
-			res.put(next.array(), 0, next.capacity());
+			res.put(next.array(), next.arrayOffset(), next.capacity());
 			return res;
 		} else
 			return null;
@@ -103,12 +105,12 @@ class DatagramData {
 	ByteBuffer getUnusedReceivedData() {
 		if (isComplete() && isValid()) {
 			ByteBuffer next = null;
-			int length = data.getInt(0);
-			length += ObjectSizer.sizeOf(length);
+			int length = Block.getShortInt(data.array(), data.arrayOffset());
+			//length += Block.getBlockSizeLength();
 			int nLength = data.position() - length;
 			if (nLength > 0) {
 				next = ByteBuffer.allocate(nLength);
-				next.put(data.array(), length, nLength);
+				next.put(data.array(), length+data.arrayOffset(), nLength);
 			}
 			return next;
 		} else
@@ -117,27 +119,23 @@ class DatagramData {
 	}
 
 	boolean isComplete() {
-		int sizeInt = 0;
-		sizeInt = ObjectSizer.sizeOf(sizeInt);
-		if (data.position() < sizeInt)
+		if (data.position() < Block.getBlockSizeLength())
 			return false;
 		else
-			return data.position() >= data.getInt(0) + sizeInt;
+			return data.position() >= Block.getShortInt(data.array(), data.arrayOffset());
 	}
 
 	DatagramLocalNetworkPresenceMessage getDatagramLocalNetworkPresenceMessage() throws IOException {
 		if (isComplete() && isValid()) {
-			int size = 0;
-			return DatagramLocalNetworkPresenceMessage.readFrom(data.array(), ObjectSizer.sizeOf(size), data.getInt(0));
+			return DatagramLocalNetworkPresenceMessage.readFrom(data.array(), Block.getBlockSizeLength()+data.arrayOffset(), Block.getBlockSize(data.array(), data.arrayOffset())-Block.getBlockSizeLength());
 		} else
 			throw new IOException("Invalid or incomplete buffer !");
 	}
 
 	boolean isValid() {
-		int sizeInt = 0;
-		sizeInt = ObjectSizer.sizeOf(sizeInt);
+		int sizeInt = Block.getBlockSizeLength();
 
 		return data.position() < sizeInt
-				|| data.getInt(0) <= DatagramLocalNetworkPresenceMessage.getMaxDatagramMessageLength();
+				|| Block.getShortInt(data.array(), data.arrayOffset())-sizeInt <= DatagramLocalNetworkPresenceMessage.getMaxDatagramMessageLength();
 	}
 }

@@ -401,16 +401,7 @@ public final class WritePacket {
 					_data_remaining, random_values_size, rand);
 	}
 	
-	static int getMaxOutputSize(int max_buffer_size, int packet_head_size, short random_values_size)
-	{
-		if (random_values_size<0)
-			throw new NullPointerException();
-		
-		if (random_values_size == 0)
-			return ByteTabOutputStream.getMaxOutputSize(max_buffer_size, packet_head_size);
-		else
-			return ByteTabOutputStreamWithRandomValues.getMaxOutputSize(max_buffer_size, random_values_size, packet_head_size);
-	}
+	
 
 	protected static class ByteTabOutputStream extends AbstractByteTabOutputStream {
 		private final byte[] tab;

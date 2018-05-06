@@ -341,6 +341,11 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 				throw new BlockParserException(e);
 			}
 		}
+		
+		@Override
+		public int getMaximumBodyOutputSizeForEncryption(int size) throws BlockParserException {
+			return hproperties.getMaximumOutputLengthForEncryption(size);
+		}
 
 		@Override
 		public int getBodyOutputSizeForDecryption(int size) throws BlockParserException {
@@ -622,6 +627,10 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 
 		@Override
 		public int getBodyOutputSizeForEncryption(int size) {
+			return size;
+		}
+		@Override
+		public int getMaximumBodyOutputSizeForEncryption(int size) throws BlockParserException {
 			return size;
 		}
 

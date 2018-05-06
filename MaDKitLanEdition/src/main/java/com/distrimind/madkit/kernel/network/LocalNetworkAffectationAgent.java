@@ -42,6 +42,7 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.logging.Level;
 
 import com.distrimind.madkit.agr.LocalCommunity;
@@ -49,6 +50,7 @@ import com.distrimind.madkit.kernel.AgentAddress;
 import com.distrimind.madkit.kernel.AgentFakeThread;
 import com.distrimind.madkit.kernel.Message;
 import com.distrimind.madkit.kernel.NetworkAgent;
+import com.distrimind.madkit.kernel.Task;
 import com.distrimind.madkit.kernel.network.UpnpIGDAgent.NetworkInterfaceInformationMessage;
 import com.distrimind.madkit.kernel.network.BindInetSocketAddressMessage.Type;
 import com.distrimind.madkit.kernel.network.UpnpIGDAgent.AskForNetworkInterfacesMessage;
@@ -101,9 +103,31 @@ class LocalNetworkAffectationAgent extends AgentFakeThread {
 					getMadkitConfig().networkProperties.portsToBindForAutomaticLocalConnections)));
 
 		if (getMadkitConfig().networkProperties.connectionToAttempt != null) {
-			for (AbstractIP isa : getMadkitConfig().networkProperties.connectionToAttempt) {
+			boolean first=true;
+			long timeUTC=0;
+			for (final AbstractIP isa : getMadkitConfig().networkProperties.connectionToAttempt) {
 				if (isa != null)
-					receiveMessage(new AskForConnectionMessage(ConnectionStatusMessage.Type.CONNECT, isa));
+				{
+					if (first)
+					{
+						first=false;
+						receiveMessage(new AskForConnectionMessage(ConnectionStatusMessage.Type.CONNECT, isa));
+						timeUTC=System.currentTimeMillis();
+					}
+					else
+					{
+						timeUTC+=getMadkitConfig().networkProperties.delayInMsBetweenEachConnectionAsk;
+						scheduleTask(new Task<>(new Callable<Void>() {
+
+							@Override
+							public Void call() throws Exception {
+								if (isAlive())
+									receiveMessage(new AskForConnectionMessage(ConnectionStatusMessage.Type.CONNECT, isa));
+								return null;
+							}
+						}, timeUTC));
+					}
+				}
 			}
 		}
 

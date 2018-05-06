@@ -550,7 +550,16 @@ public class NetworkProperties extends XMLProperties {
 		return addressesToConnect;
 	}
 
+	/**
+	 * The connections to attempt when LAN become available
+	 */
 	public List<AbstractIP> connectionToAttempt = null;
+	
+	/**
+	 * Delay in milliseconds between each connection to attempt
+	 * @see connectionToAttempt
+	 */
+	public long delayInMsBetweenEachConnectionAsk=10;
 
 	/**
 	 * Represents properties of each used connection protocol and each sub network

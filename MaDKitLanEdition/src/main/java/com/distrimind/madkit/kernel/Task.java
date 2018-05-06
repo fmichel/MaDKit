@@ -136,7 +136,7 @@ public final class Task<V> implements Cloneable {
 	 * @param _callable
 	 *            the runnable to execute
 	 * @param _time
-	 *            the moment when the TaskAgent must execute this task
+	 *            the moment in UTC when the TaskAgent must execute this task
 	 * @throws NullPointerException
 	 *             if _runnable is null
 	 * @see AbstractAgent#scheduleTask(Task, boolean)
@@ -152,7 +152,7 @@ public final class Task<V> implements Cloneable {
 	 * @param _callable
 	 *            the runnable to execute
 	 * @param _time
-	 *            the moment when the TaskAgent must execute this task
+	 *            the moment in UTC when the TaskAgent must execute this task
 	 * @param _duration_between_each_repetition
 	 *            the duration between each execution
 	 * @throws NullPointerException

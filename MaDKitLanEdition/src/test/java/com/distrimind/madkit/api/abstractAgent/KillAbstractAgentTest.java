@@ -420,9 +420,14 @@ public class KillAbstractAgentTest extends JunitMadkit {
 				AbstractAgent unstopableAgent = new UnstopableAbstractAgent();
 				ReturnCode r = launchAgent(unstopableAgent, 2);
 				assertTrue(TIMEOUT == r || SUCCESS == r);
-				r = unstopableAgent.killAgent(unstopableAgent, 2);
+				r = unstopableAgent.killAgent(unstopableAgent, 1);
 				assertTrue(TIMEOUT == r || SUCCESS == r);
-				assertAgentIsZombie(unstopableAgent);
+				if (r==SUCCESS)
+					assertAgentIsTerminated(unstopableAgent);
+				else
+					assertAgentIsZombie(unstopableAgent);
+				
+					
 			}
 		});
 		// printAllStacks();

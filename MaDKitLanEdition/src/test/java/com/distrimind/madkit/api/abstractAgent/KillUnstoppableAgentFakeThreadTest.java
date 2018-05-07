@@ -70,7 +70,7 @@ public class KillUnstoppableAgentFakeThreadTest extends JunitMadkit {
 				assertEquals(TIMEOUT, killAgent(unstopableAgent, 0));
 				JunitMadkit.pause(this, 100);
 				assertAgentIsZombie(unstopableAgent);
-				JunitMadkit.pause(this, 4000);
+				JunitMadkit.pause(this, 6000);
 				assertAgentIsTerminated(unstopableAgent);
 
 			}

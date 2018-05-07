@@ -52,7 +52,7 @@ public class UnstoppableAgentFakeThread extends DoItDuringLifeCycleAgentFakeThre
 	public void doIt() throws InterruptedException {
 		super.doIt();
 		long i = 0;
-		while (i < 1000000000l) {
+		while (i < 2000000000l) {
 			i++;
 			if (i % 10000000 == 0) {
 				if (logger != null)

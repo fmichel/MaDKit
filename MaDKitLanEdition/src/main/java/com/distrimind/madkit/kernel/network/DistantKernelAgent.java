@@ -2268,8 +2268,8 @@ class DistantKernelAgent extends AgentFakeThread {
 		public SerializedReading(AgentAddress initialSocketAgent, PacketPart _part) throws PacketException {
 			super(null, _part, new RandomByteArrayOutputStream());
 			this.initialSocketAgent = initialSocketAgent;
-			dataSize = _part.getBytes().length;
-			incrementTotalDataQueue(_part.getBytes().length);
+			dataSize = _part.getSubBlock().getSize();
+			incrementTotalDataQueue(dataSize);
 		}
 
 		public byte[] getBytes() {
@@ -2278,8 +2278,8 @@ class DistantKernelAgent extends AgentFakeThread {
 
 		@Override
 		public void readNewPart(PacketPart _part) throws PacketException {
-			dataSize += _part.getBytes().length;
-			incrementTotalDataQueue(_part.getBytes().length);
+			dataSize += _part.getSubBlock().getSize();
+			incrementTotalDataQueue(_part.getSubBlock().getSize());
 			super.readNewPart(_part);
 		}
 
@@ -2317,8 +2317,8 @@ class DistantKernelAgent extends AgentFakeThread {
 
 		@Override
 		public void readNewPart(PacketPart _part) throws PacketException {
-			data += _part.getBytes().length;
-			incrementTotalDataQueue(_part.getBytes().length);
+			data += _part.getSubBlock().getSize();
+			incrementTotalDataQueue(_part.getSubBlock().getSize());
 			if (read_packet == null)
 				read_packet = new ReadPacket(getMadkitConfig().networkProperties.maxBufferSize,
 						getMadkitConfig().networkProperties.maxRandomPacketValues, _part, output_stream,
@@ -2363,7 +2363,7 @@ class DistantKernelAgent extends AgentFakeThread {
 			if (sr.isValid() || (sr.isTemporaryInvalid() && p.getHead().isRedownloadedPacketPart())) {
 				try {
 					sr.readNewPart(p);
-					sr.getStatistics().newBytesIndentified(p.getBytes().length);
+					sr.getStatistics().newBytesIndentified(p.getSubBlock().getSize());
 					if (sr.isInvalid()) {
 						MadkitKernelAccess.dataCorrupted(sr.getOriginalMessage(),
 								sr.getReadPacket().getWritedDataLength());

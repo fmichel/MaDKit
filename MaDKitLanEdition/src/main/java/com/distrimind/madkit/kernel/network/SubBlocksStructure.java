@@ -59,9 +59,11 @@ public class SubBlocksStructure {
 	final boolean need_random = false;
 	final int block_content_size;
 	final int block_size;
-
 	public SubBlocksStructure(PacketPart _packet, ConnectionProtocol<?> connection_protocol) throws NIOException {
-		int size = _packet.getBytes().length;
+		this(_packet.getSubBlock().getSize(), connection_protocol);
+	}
+	public SubBlocksStructure(int packetSize, ConnectionProtocol<?> connection_protocol) throws NIOException {
+		int size = packetSize;
 		int inipacketsize = -1;
 		int offsets[] = new int[connection_protocol.sizeOfSubConnectionProtocols() + 1];
 		sub_block_sizes = new int[offsets.length];

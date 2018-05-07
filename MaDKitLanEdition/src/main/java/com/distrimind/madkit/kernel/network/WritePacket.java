@@ -40,10 +40,12 @@ package com.distrimind.madkit.kernel.network;
 import java.io.IOException;
 import java.util.Random;
 
+import com.distrimind.madkit.exceptions.NIOException;
 import com.distrimind.madkit.exceptions.PacketException;
 import com.distrimind.madkit.exceptions.UnknownPacketTypeException;
 import com.distrimind.madkit.io.RandomFileInputStream;
 import com.distrimind.madkit.io.RandomInputStream;
+import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol;
 import com.distrimind.util.Bits;
 import com.distrimind.util.crypto.AbstractMessageDigest;
 import com.distrimind.util.crypto.AbstractSecureRandom;
@@ -236,13 +238,13 @@ public final class WritePacket {
 		return Math.min(current_pos - start_position, data_length);
 	}
 
-	public final PacketPart getNextPart() throws PacketException {
+	public final PacketPart getNextPart(ConnectionProtocol<?> conProto) throws PacketException, NIOException {
 		try {
 			if (finished)
 				return null;
 			boolean first_packet = (current_pos == start_position);
 			int headSize = PacketPartHead.getHeadSize(first_packet);
-			AbstractByteTabOutputStream res = getByteTabOutputStream(
+			AbstractByteTabOutputStream res = getByteTabOutputStream(conProto,
 					data_length + start_position <= current_pos ? null : messageDigest, max_buffer_size, headSize,
 					data_length_with_message_digest - (current_pos - start_position), random_values_size, random);
 			boolean last_packet = (current_pos
@@ -312,7 +314,7 @@ public final class WritePacket {
 						"The length returned by the input stream does not corresponds to the effective contained data.");
 			}
 
-			return new PacketPart(res.getBytesArray(), pph);
+			return new PacketPart(res.getSubBlock(), pph);
 		} catch (IOException | DigestException | IllegalAccessError e) {
 			throw new PacketException(e);
 		}
@@ -333,7 +335,8 @@ public final class WritePacket {
 
 		abstract void finilizeTab();
 
-		abstract byte[] getBytesArray();
+		//abstract byte[] getBytesArray();
+		abstract SubBlock getSubBlock();
 
 		abstract int getRealDataSize();
 
@@ -390,14 +393,14 @@ public final class WritePacket {
 
 	}
 
-	protected static AbstractByteTabOutputStream getByteTabOutputStream(AbstractMessageDigest messageDigest,
-			int max_buffer_size, int packet_head_size, long _data_remaining, short random_values_size, AbstractSecureRandom rand) {
+	protected static AbstractByteTabOutputStream getByteTabOutputStream(ConnectionProtocol<?> conProto, AbstractMessageDigest messageDigest,
+			int max_buffer_size, int packet_head_size, long _data_remaining, short random_values_size, AbstractSecureRandom rand) throws NIOException {
 		if (random_values_size<0)
 			throw new NullPointerException();
 		if (random_values_size == 0)
-			return new ByteTabOutputStream(messageDigest, max_buffer_size, packet_head_size, _data_remaining);
+			return new ByteTabOutputStream(conProto, messageDigest, max_buffer_size, packet_head_size, _data_remaining);
 		else
-			return new ByteTabOutputStreamWithRandomValues(messageDigest, max_buffer_size, packet_head_size,
+			return new ByteTabOutputStreamWithRandomValues(conProto, messageDigest, max_buffer_size, packet_head_size,
 					_data_remaining, random_values_size, rand);
 	}
 	
@@ -405,11 +408,12 @@ public final class WritePacket {
 
 	protected static class ByteTabOutputStream extends AbstractByteTabOutputStream {
 		private final byte[] tab;
+		private final SubBlock subBlock;
 		private int cursor;
 		private final int realDataSize_WithoutHead;
 
-		ByteTabOutputStream(AbstractMessageDigest messageDigest, int max_buffer_size, int packet_head_size,
-				long _data_remaining) {
+		ByteTabOutputStream(ConnectionProtocol<?> connectionProtocol, AbstractMessageDigest messageDigest, int max_buffer_size, int packet_head_size,
+				long _data_remaining) throws NIOException {
 			super(messageDigest);
 			/*
 			 * realDataSize_WithoutHead=(short)Math.min(_data_remaining, max_buffer_size);
@@ -418,8 +422,10 @@ public final class WritePacket {
 			 */
 			realDataSize_WithoutHead = (int)Math.min(_data_remaining, max_buffer_size);
 			int size = packet_head_size + ((int) realDataSize_WithoutHead);
-			tab = new byte[size];
-			cursor = 0;
+			subBlock=connectionProtocol.initSubBlock(size);
+			//tab = new byte[size];
+			tab=subBlock.getBytes();
+			cursor = subBlock.getOffset();
 		}
 		static int getMaxOutputSize(int max_buffer_size, int packet_head_size)
 		{
@@ -427,7 +433,7 @@ public final class WritePacket {
 		}
 		@Override
 		int getWritedData() {
-			return cursor;
+			return cursor-subBlock.getOffset();
 		}
 
 		/*@Override
@@ -462,14 +468,20 @@ public final class WritePacket {
 		void finilizeTab() {
 		}
 
-		@Override
+		/*@Override
 		byte[] getBytesArray() {
 			return tab;
-		}
+		}*/
 
 		@Override
+		SubBlock getSubBlock()
+		{
+			return subBlock;
+		}
+		
+		@Override
 		int getRealDataSize() {
-			return tab.length;
+			return subBlock.getSize();
 		}
 
 		@Override
@@ -479,6 +491,7 @@ public final class WritePacket {
 	}
 
 	protected static class ByteTabOutputStreamWithRandomValues extends AbstractByteTabOutputStream {
+		private final SubBlock subBlock;
 		private final AbstractSecureRandom random;
 		private final byte[] tab;
 		private final short random_values_size;
@@ -488,9 +501,10 @@ public final class WritePacket {
 		private int nextRandValuePos;
 		private final int realDataSize_WithoutHead;
 		private int randamValuesWrited = 0;
+		private final int shiftedTabLength;
 
-		ByteTabOutputStreamWithRandomValues(AbstractMessageDigest messageDigest, int max_buffer_size,
-				int packet_head_size, long _data_remaining, short max_random_values_size, AbstractSecureRandom rand) {
+		ByteTabOutputStreamWithRandomValues(ConnectionProtocol<?> conProto, AbstractMessageDigest messageDigest, int max_buffer_size,
+				int packet_head_size, long _data_remaining, short max_random_values_size, AbstractSecureRandom rand) throws NIOException {
 			super(messageDigest);
 
 			this.random = rand;
@@ -509,11 +523,14 @@ public final class WritePacket {
 			 * packet_head_size); data_size=(short)(tab.length-this.random_values_size);
 			 */
 			int size = (int) (Math.min(_data_remaining, max_buffer_size));
-			tab = new byte[size + packet_head_size + this.random_values_size];
+			subBlock=conProto.initSubBlock(size + packet_head_size + this.random_values_size);
+			//tab = new byte[size + packet_head_size + this.random_values_size];
+			tab=subBlock.getBytes();
 			realDataSize_WithoutHead = size;
 			data_size = tab.length - this.random_values_size;
-			cursor = 0;
-			nextRandValuePos = 0;
+			cursor = subBlock.getOffset();
+			nextRandValuePos = cursor;
+			shiftedTabLength=subBlock.getOffset()+subBlock.getSize();
 		}
 		
 		static int getMaxOutputSize(int max_buffer_size, short max_random_values_size, int packet_head_size)
@@ -523,7 +540,7 @@ public final class WritePacket {
 
 		@Override
 		int getWritedData() {
-			return cursor - randamValuesWrited;
+			return cursor - randamValuesWrited - subBlock.getOffset();
 		}
 
 		/*@Override
@@ -549,7 +566,7 @@ public final class WritePacket {
 					size -= length;
 					total += length;
 					writeRandomValues();
-				} else if (cursor >= tab.length)
+				} else if (cursor >= shiftedTabLength)
 					return total;
 				else
 					writeRandomValues();
@@ -576,7 +593,7 @@ public final class WritePacket {
 					if (readLength != length)
 						return total;
 					writeRandomValues();
-				} else if (cursor >= tab.length)
+				} else if (cursor >= shiftedTabLength)
 					return total;
 				else
 					writeRandomValues();
@@ -586,10 +603,10 @@ public final class WritePacket {
 
 		private void writeRandomValues() {
 			if (cursor == nextRandValuePos) {
-				random_values_size_remaining = (short) Math.min(tab.length - cursor, random_values_size_remaining);
+				random_values_size_remaining = (short) Math.min(shiftedTabLength - cursor, random_values_size_remaining);
 				if (random_values_size_remaining < getMiniRandomValueSize()) {
 					random_values_size_remaining = 0;
-					nextRandValuePos = tab.length;
+					nextRandValuePos = shiftedTabLength;
 					return;
 				}
 
@@ -607,7 +624,7 @@ public final class WritePacket {
 				tab[cursor++] = nextRand;
 				randamValuesWrited += 2 + tabrand.length;
 				if (nextRand == -1)
-					nextRandValuePos = tab.length;
+					nextRandValuePos = shiftedTabLength;
 				else
 					nextRandValuePos = cursor + nextRand;
 				random_values_size_remaining -= (nbrand + 2);
@@ -616,14 +633,19 @@ public final class WritePacket {
 
 		@Override
 		void finilizeTab() {
-			byte b[] = new byte[tab.length - cursor];
+			byte b[] = new byte[shiftedTabLength - cursor];
 			random.nextBytes(b);
 			System.arraycopy(b, 0, tab, cursor, b.length);
 		}
 
-		@Override
+		/*@Override
 		byte[] getBytesArray() {
 			return tab;
+		}*/
+		@Override
+		SubBlock getSubBlock()
+		{
+			return subBlock;
 		}
 
 		@Override

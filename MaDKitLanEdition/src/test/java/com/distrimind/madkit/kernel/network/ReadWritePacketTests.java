@@ -316,85 +316,89 @@ public class ReadWritePacketTests extends JunitMadkit {
 
 	@Test
 	public void testReadWritePacket() throws PacketException, NoSuchAlgorithmException, NIOException, NoSuchProviderException {
-		testReadWritePacket(null);
-		testReadWritePacket(MessageDigestType.BC_BLAKE2B_512);
+		NetworkProperties np=new NetworkProperties();
+		np.addConnectionProtocol(new UnsecuredConnectionProtocolProperties());
+		ConnectionProtocol<?> conProto=np.getConnectionProtocolInstance(new InetSocketAddress(InetAddress.getLoopbackAddress(), 1000), new InetSocketAddress(InetAddress.getLoopbackAddress(), 1001), null, new MadkitProperties(), true, false);
+
+		testReadWritePacket(conProto, null);
+		testReadWritePacket(conProto, MessageDigestType.BC_BLAKE2B_512);
 	}
 
-	public void testReadWritePacket(MessageDigestType messageDigestType)
+	public void testReadWritePacket(ConnectionProtocol<?> conProto, MessageDigestType messageDigestType)
 			throws PacketException, NoSuchAlgorithmException, NIOException, NoSuchProviderException {
 		for (int i = 0; i < 100; i++) {
 			byte val = (byte) rand.nextInt(1 << WritePacket.getMaximumLocalRandomValuesBitsNumber());
 			Assert.assertEquals(val,
 					WritePacket.decodeLocalNumberRandomVal(WritePacket.encodeLocalNumberRandomVal(val, rand)));
 		}
-		testReadWritePacket(PacketPartHead.TYPE_PACKET, (short) 50, (short) 0, 0, data.length, false,
+		testReadWritePacket(conProto, PacketPartHead.TYPE_PACKET, (short) 50, (short) 0, 0, data.length, false,
 				messageDigestType);
-		testReadWritePacket(PacketPartHead.TYPE_PACKET, (short) 200, (short) 0, 0, data.length, false,
+		testReadWritePacket(conProto, PacketPartHead.TYPE_PACKET, (short) 200, (short) 0, 0, data.length, false,
 				messageDigestType);
-		testReadWritePacket(PacketPartHead.TYPE_PACKET, (short) 50, (short) 10, 0, data.length, false,
+		testReadWritePacket(conProto, PacketPartHead.TYPE_PACKET, (short) 50, (short) 10, 0, data.length, false,
 				messageDigestType);
-		testReadWritePacket(PacketPartHead.TYPE_PACKET, (short) 200, (short) 10, 0, data.length, false,
+		testReadWritePacket(conProto, PacketPartHead.TYPE_PACKET, (short) 200, (short) 10, 0, data.length, false,
 				messageDigestType);
-		testReadWritePacket(PacketPartHead.TYPE_PACKET, (short) 50, (short) 0, 10, data.length - 50, false,
+		testReadWritePacket(conProto, PacketPartHead.TYPE_PACKET, (short) 50, (short) 0, 10, data.length - 50, false,
 				messageDigestType);
-		testReadWritePacket(PacketPartHead.TYPE_PACKET, (short) 200, (short) 0, 10, data.length - 50, false,
+		testReadWritePacket(conProto, PacketPartHead.TYPE_PACKET, (short) 200, (short) 0, 10, data.length - 50, false,
 				messageDigestType);
-		testReadWritePacket(PacketPartHead.TYPE_PACKET, (short) 50, (short) 10, 10, data.length - 50, false,
+		testReadWritePacket(conProto, PacketPartHead.TYPE_PACKET, (short) 50, (short) 10, 10, data.length - 50, false,
 				messageDigestType);
-		testReadWritePacket(PacketPartHead.TYPE_PACKET, (short) 200, (short) 10, 10, data.length - 50, false,
+		testReadWritePacket(conProto, PacketPartHead.TYPE_PACKET, (short) 200, (short) 10, 10, data.length - 50, false,
 				messageDigestType);
-		testReadWritePacket(PacketPartHead.TYPE_PACKET, (short) 50, (short) 0, 0, data.length, true, messageDigestType);
-		testReadWritePacket(PacketPartHead.TYPE_PACKET, (short) 200, (short) 0, 0, data.length, true,
+		testReadWritePacket(conProto, PacketPartHead.TYPE_PACKET, (short) 50, (short) 0, 0, data.length, true, messageDigestType);
+		testReadWritePacket(conProto, PacketPartHead.TYPE_PACKET, (short) 200, (short) 0, 0, data.length, true,
 				messageDigestType);
-		testReadWritePacket(PacketPartHead.TYPE_PACKET, (short) 50, (short) 10, 0, data.length, true,
+		testReadWritePacket(conProto, PacketPartHead.TYPE_PACKET, (short) 50, (short) 10, 0, data.length, true,
 				messageDigestType);
-		testReadWritePacket(PacketPartHead.TYPE_PACKET, (short) 200, (short) 10, 0, data.length, true,
+		testReadWritePacket(conProto, PacketPartHead.TYPE_PACKET, (short) 200, (short) 10, 0, data.length, true,
 				messageDigestType);
-		testReadWritePacket(PacketPartHead.TYPE_PACKET, (short) 50, (short) 0, 10, data.length - 50, true,
+		testReadWritePacket(conProto, PacketPartHead.TYPE_PACKET, (short) 50, (short) 0, 10, data.length - 50, true,
 				messageDigestType);
-		testReadWritePacket(PacketPartHead.TYPE_PACKET, (short) 200, (short) 0, 10, data.length - 50, true,
+		testReadWritePacket(conProto, PacketPartHead.TYPE_PACKET, (short) 200, (short) 0, 10, data.length - 50, true,
 				messageDigestType);
-		testReadWritePacket(PacketPartHead.TYPE_PACKET, (short) 50, (short) 10, 10, data.length - 50, true,
+		testReadWritePacket(conProto, PacketPartHead.TYPE_PACKET, (short) 50, (short) 10, 10, data.length - 50, true,
 				messageDigestType);
-		testReadWritePacket(PacketPartHead.TYPE_PACKET, (short) 200, (short) 10, 10, data.length - 50, true,
+		testReadWritePacket(conProto, PacketPartHead.TYPE_PACKET, (short) 200, (short) 10, 10, data.length - 50, true,
 				messageDigestType);
 
-		testReadWritePacket(PacketPartHead.TYPE_PACKET, (short) Short.MAX_VALUE*2, (short) 0, 0, data.length, false,
+		testReadWritePacket(conProto, PacketPartHead.TYPE_PACKET, (short) Short.MAX_VALUE*2, (short) 0, 0, data.length, false,
 				messageDigestType);
-		testReadWritePacket(PacketPartHead.TYPE_PACKET, (short) Short.MAX_VALUE*2, (short) 0, 0, data.length, false,
+		testReadWritePacket(conProto, PacketPartHead.TYPE_PACKET, (short) Short.MAX_VALUE*2, (short) 0, 0, data.length, false,
 				messageDigestType);
-		testReadWritePacket(PacketPartHead.TYPE_PACKET, (short) Short.MAX_VALUE*2, (short) 10, 0, data.length, false,
+		testReadWritePacket(conProto, PacketPartHead.TYPE_PACKET, (short) Short.MAX_VALUE*2, (short) 10, 0, data.length, false,
 				messageDigestType);
-		testReadWritePacket(PacketPartHead.TYPE_PACKET, (short) Short.MAX_VALUE*2, (short) 10, 0, data.length, false,
+		testReadWritePacket(conProto, PacketPartHead.TYPE_PACKET, (short) Short.MAX_VALUE*2, (short) 10, 0, data.length, false,
 				messageDigestType);
-		testReadWritePacket(PacketPartHead.TYPE_PACKET, (short) Short.MAX_VALUE*2, (short) 0, 10, data.length - 50, false,
+		testReadWritePacket(conProto, PacketPartHead.TYPE_PACKET, (short) Short.MAX_VALUE*2, (short) 0, 10, data.length - 50, false,
 				messageDigestType);
-		testReadWritePacket(PacketPartHead.TYPE_PACKET, (short) Short.MAX_VALUE*2, (short) 0, 10, data.length - 50, false,
+		testReadWritePacket(conProto, PacketPartHead.TYPE_PACKET, (short) Short.MAX_VALUE*2, (short) 0, 10, data.length - 50, false,
 				messageDigestType);
-		testReadWritePacket(PacketPartHead.TYPE_PACKET, (short) Short.MAX_VALUE*2, (short) 10, 10, data.length - 50,
+		testReadWritePacket(conProto, PacketPartHead.TYPE_PACKET, (short) Short.MAX_VALUE*2, (short) 10, 10, data.length - 50,
 				false, messageDigestType);
-		testReadWritePacket(PacketPartHead.TYPE_PACKET, (short) Short.MAX_VALUE*2, (short) 10, 10, data.length - 50,
+		testReadWritePacket(conProto, PacketPartHead.TYPE_PACKET, (short) Short.MAX_VALUE*2, (short) 10, 10, data.length - 50,
 				false, messageDigestType);
-		testReadWritePacket(PacketPartHead.TYPE_PACKET, (short) Short.MAX_VALUE*2, (short) 0, 0, data.length, true,
+		testReadWritePacket(conProto, PacketPartHead.TYPE_PACKET, (short) Short.MAX_VALUE*2, (short) 0, 0, data.length, true,
 				messageDigestType);
-		testReadWritePacket(PacketPartHead.TYPE_PACKET, (short) Short.MAX_VALUE*2, (short) 0, 0, data.length, true,
+		testReadWritePacket(conProto, PacketPartHead.TYPE_PACKET, (short) Short.MAX_VALUE*2, (short) 0, 0, data.length, true,
 				messageDigestType);
-		testReadWritePacket(PacketPartHead.TYPE_PACKET, (short) Short.MAX_VALUE*2, (short) 10, 0, data.length, true,
+		testReadWritePacket(conProto, PacketPartHead.TYPE_PACKET, (short) Short.MAX_VALUE*2, (short) 10, 0, data.length, true,
 				messageDigestType);
-		testReadWritePacket(PacketPartHead.TYPE_PACKET, (short) Short.MAX_VALUE*2, (short) 10, 0, data.length, true,
+		testReadWritePacket(conProto, PacketPartHead.TYPE_PACKET, (short) Short.MAX_VALUE*2, (short) 10, 0, data.length, true,
 				messageDigestType);
-		testReadWritePacket(PacketPartHead.TYPE_PACKET, (short) Short.MAX_VALUE*2, (short) 0, 10, data.length - 50, true,
+		testReadWritePacket(conProto, PacketPartHead.TYPE_PACKET, (short) Short.MAX_VALUE*2, (short) 0, 10, data.length - 50, true,
 				messageDigestType);
-		testReadWritePacket(PacketPartHead.TYPE_PACKET, (short) Short.MAX_VALUE*2, (short) 0, 10, data.length - 50, true,
+		testReadWritePacket(conProto, PacketPartHead.TYPE_PACKET, (short) Short.MAX_VALUE*2, (short) 0, 10, data.length - 50, true,
 				messageDigestType);
-		testReadWritePacket(PacketPartHead.TYPE_PACKET, (short) Short.MAX_VALUE*2, (short) 10, 10, data.length - 50, true,
+		testReadWritePacket(conProto, PacketPartHead.TYPE_PACKET, (short) Short.MAX_VALUE*2, (short) 10, 10, data.length - 50, true,
 				messageDigestType);
-		testReadWritePacket(PacketPartHead.TYPE_PACKET, (short) Short.MAX_VALUE*2, (short) 10, 10, data.length - 50, true,
+		testReadWritePacket(conProto, PacketPartHead.TYPE_PACKET, (short) Short.MAX_VALUE*2, (short) 10, 10, data.length - 50, true,
 				messageDigestType);
 
 	}
 
-	private void testReadWritePacket(int _type, int _max_buffer_size, short random_values_size, long _start_position,
+	private void testReadWritePacket(ConnectionProtocol<?> conProto, int _type, int _max_buffer_size, short random_values_size, long _start_position,
 			long length, boolean _transfert_as_big_data, MessageDigestType messageDigestType)
 			throws PacketException, NoSuchAlgorithmException, NIOException, NoSuchProviderException {
 		WritePacket output = new WritePacket(_type, idPacket, _max_buffer_size, random_values_size, rand,
@@ -410,8 +414,10 @@ public class ReadWritePacketTests extends JunitMadkit {
 		Assert.assertFalse(output.isFinished());
 		ReadPacket read = null;
 		RandomByteArrayOutputStream outputStream = new RandomByteArrayOutputStream();
+		
+		
 		do {
-			PacketPart pp = output.getNextPart();
+			PacketPart pp = output.getNextPart(conProto);
 			Assert.assertTrue(pp.getHead().isPacketPart());
 			Assert.assertFalse(pp.isReadyToBeRead());
 			Assert.assertTrue(pp.isReadyToBeSent());
@@ -424,10 +430,10 @@ public class ReadWritePacketTests extends JunitMadkit {
 
 			}
 
-			byte bpp[] = testDataSynchronizer(pp);
+			SubBlock bpp = testDataSynchronizer(pp);
 
 			if (!output.isFinished())
-				Assert.assertTrue(bpp.length >= _max_buffer_size);
+				Assert.assertTrue(bpp.getSize() >= _max_buffer_size);
 			pp = new PacketPart(bpp, _max_buffer_size, random_values_size);
 			Assert.assertTrue(pp.isReadyToBeRead());
 			Assert.assertFalse(pp.isReadyToBeSent());
@@ -467,24 +473,25 @@ public class ReadWritePacketTests extends JunitMadkit {
 			Assert.assertEquals(data[(int) _start_position + i], res[(int) _start_position + i]);
 	}
 
-	private byte[] testDataSynchronizer(PacketPart pp) throws NIOException, PacketException {
+	private SubBlock testDataSynchronizer(PacketPart pp) throws NIOException, PacketException {
 
 		SubBlocksStructure sbs = new SubBlocksStructure(pp, connectionProtocol);
-		byte[] ppb = pp.getBytes();
+		byte[] ppb = pp.getSubBlock().getEncapsulatedBytes();
 		byte[] b = new byte[ppb.length + Block.getHeadSize()];
 		System.arraycopy(ppb, 0, b, Block.getHeadSize(), ppb.length);
 		final Block block = new Block(b, sbs, -1);
 		socketAgentInterface.setOriginalBlock(block);
-		int index = 0;
+		/*int index = 0;
 		while (index < b.length) {
 			int nb = rand.nextInt(b.length - index) + 1;
 			byte tmpb[] = new byte[nb];
 			System.arraycopy(b, index, tmpb, 0, nb);
 			index += nb;
 			synchronizer.receiveData(tmpb, socketAgentInterface);
-		}
+		}*/
+		synchronizer.receiveData(b, socketAgentInterface);
 		Assert.assertTrue(socketAgentInterface.isReceived());
-		return ppb;
+		return new SubBlock(ppb, 0, ppb.length);
 	}
 
 	public static byte[] getData() {

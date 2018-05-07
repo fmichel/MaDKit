@@ -54,10 +54,10 @@ public final class Block {
 	private int transfert_type;
 	private CounterSelector.State counterState;
 	private byte counterID;
-	public Block(PacketPart _packet_part, SubBlocksStructure _structure, int _transfert_type) throws PacketException {
+	/*public Block(PacketPart _packet_part, SubBlocksStructure _structure, int _transfert_type) throws PacketException {
 		this(_packet_part, _structure, _transfert_type, (byte)-1);
-	}
-	public Block(PacketPart _packet_part, SubBlocksStructure _structure, int _transfert_type, byte counterID) throws PacketException {
+	}*/
+	/*public Block(PacketPart _packet_part, SubBlocksStructure _structure, int _transfert_type, byte counterID) throws PacketException {
 		int size = _structure.block_size;
 		if (size > BLOCK_SIZE_LIMIT)
 			throw new PacketException(
@@ -68,20 +68,23 @@ public final class Block {
 		Bits.putInt(block, 3, transfert_type);
 		this.counterID=counterID;
 		counterState=null;
-		/*if (counterSelector!=null)
-		{
-			block[7]=(counterState=counterSelector.getState(this.counterID=counterID)).getCode();
-		}
-		else
-			this.counterID=-1;*/
 		try {
 			System.arraycopy(_packet_part.getBytes(), 0, block, _structure.initial_packet_offset,
 					_packet_part.getBytes().length);
 		} catch (Exception e) {
 			throw new PacketException(e);
 		}
+	}*/
+	public Block(SubBlocksStructure _structure) throws PacketException {
+		int size = _structure.block_size;
+		if (size > BLOCK_SIZE_LIMIT)
+			throw new PacketException(
+					"This block has a size (" + size + ") greater than the size limit : " + BLOCK_SIZE_LIMIT);
+		block = new byte[size];
+		
+		putShortInt(block, 0, block.length);
+		Bits.putInt(block, 3, transfert_type);
 	}
-	
 	
 	
 	public byte getCounterID() {

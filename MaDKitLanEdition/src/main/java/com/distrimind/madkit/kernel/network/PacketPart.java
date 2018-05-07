@@ -49,20 +49,22 @@ import com.distrimind.madkit.exceptions.PacketException;
  */
 public final class PacketPart {
 
-	private byte[] bytes;
+	//private byte[] bytes;
+	private SubBlock subBlock;
 	private final PacketPartHead head;
 	private final boolean isReadyToSend;
 
-	public PacketPart(byte[] _part, int max_buffer_size, short random_values_size) throws PacketException {
-		bytes = ReadPacket
-				.getByteTabInputStream(_part, WritePacket.getRandomValueSize(max_buffer_size, random_values_size))
-				.getBytesArray();
-		head = new PacketPartHead(bytes);
+	public PacketPart(SubBlock subBlock, int max_buffer_size, short random_values_size) throws PacketException {
+		this.subBlock = ReadPacket
+				.getByteTabInputStream(subBlock, WritePacket.getRandomValueSize(max_buffer_size, random_values_size))
+				.getSubBlock();
+		head = new PacketPartHead(this.subBlock);
 		isReadyToSend = false;
 	}
 
-	PacketPart(byte[] _part, PacketPartHead head) {
-		bytes = _part;
+	PacketPart(SubBlock subBlock, PacketPartHead head) {
+		//bytes = _part;
+		this.subBlock=subBlock;
 		if (head == null)
 			throw new NullPointerException("head");
 		this.head = head;
@@ -74,9 +76,14 @@ public final class PacketPart {
 		return "PacketPart[head=" + head + "]";
 	}
 
-	public byte[] getBytes() {
-		return bytes;
+	public SubBlock getSubBlock()
+	{
+		return subBlock;
 	}
+	
+	/*public byte[] getBytes() {
+		return bytes;
+	}*/
 
 	public PacketPartHead getHead() {
 		return head;

@@ -401,7 +401,7 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 		}
 		try
 		{
-			return new PacketPart(sbi.getSubBlock().getEncapsulatedBytes(), properties.maxBufferSize,
+			return new PacketPart(sbi.getSubBlock(), properties.maxBufferSize,
 				properties.maxRandomPacketValues);
 		}
 		catch(PacketException e)
@@ -429,28 +429,45 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 			throws NIOException {
 
 		try {
-			PacketPart packet_part = _packet.getNextPart();
+			PacketPart packet_part = _packet.getNextPart(this);
 			if (packet_part == null)
 				return null;
 			
 			byte counter=getCounterSelector().getNewCounterID();
-			SubBlocksStructure sbs = new SubBlocksStructure(packet_part, this);
-			Block block = new Block(packet_part, sbs, _transfert_type);
-			SubBlock subBlock = new SubBlock(block.getBytes(), sbs.initial_packet_offset, sbs.initial_packet_size);
+			
+			//SubBlocksStructure sbs = new SubBlocksStructure(packet_part, this);
+			/*Block block = new Block(packet_part, sbs, _transfert_type);
+			SubBlock subBlock = new SubBlock(block.getBytes(), sbs.initial_packet_offset, sbs.initial_packet_size);*/
+			SubBlock subBlock= packet_part.getSubBlock();
 			int i = this.sizeOfSubConnectionProtocols();
 			for (Iterator<ConnectionProtocol<?>> it = this.reverseIterator(); it.hasNext(); i--) {
 				ConnectionProtocol<?> cp = it.next();
 
-				subBlock = sbs.getSubBlockForParent(cp.getParser().getParentBlock(subBlock, excludedFromEncryption), i, random);
+				subBlock = lastSBS.getSubBlockForParent(cp.getParser().getParentBlock(subBlock, excludedFromEncryption), i, random);
 			}
 			PointToPointTransferedBlockChecker ptp=pointToPointTransferedBlockChecker;
 			if (ptp==null)
-				return new Block(subBlock.getBytes(), sbs, _transfert_type, counter);
+				return new Block(subBlock.getBytes(), lastSBS, _transfert_type, counter);
 			else
 			{
-				return new Block(ptp.prepareBlockToSend(subBlock).getBytes(), sbs, _transfert_type, counter);
+				return new Block(ptp.prepareBlockToSend(subBlock).getBytes(), lastSBS, _transfert_type, counter);
 			}
 		} catch (PacketException | BlockParserException e) {
+			throw new NIOException(e);
+		}
+		finally
+		{
+			lastSBS=null;
+		}
+	}
+	private SubBlocksStructure lastSBS;
+	public SubBlock initSubBlock(int packetSize) throws NIOException
+	{
+		try {
+			lastSBS = new SubBlocksStructure(packetSize, this);
+			Block block = new Block(lastSBS);
+			return new SubBlock(block.getBytes(), lastSBS.initial_packet_offset, lastSBS.initial_packet_size);
+		} catch (PacketException e) {
 			throw new NIOException(e);
 		}
 	}

@@ -76,17 +76,19 @@ public final class PacketPartHead {
 	private final long start_position;
 	private final long total_length;
 
-	PacketPartHead(byte[] _part) throws PacketException {
-		if (_part.length<8)
+	PacketPartHead(SubBlock subBlock) throws PacketException {
+		if (subBlock.getSize()<8)
 			throw new PacketException();
-		type = _part[0];
-		id = Bits.getInt(_part, 1);
-		data_size = Block.getShortInt(_part, 5);
+		byte[] _part=subBlock.getBytes();
+		int off=subBlock.getOffset();
+		type = _part[off];
+		id = Bits.getInt(_part, off+1);
+		data_size = Block.getShortInt(_part, off+5);
 		if (isFirstPacketPart()) {
-			if (_part.length<24)
+			if (subBlock.getSize()<24)
 				throw new PacketException();
-			total_length = Bits.getLong(_part, 8);
-			start_position = Bits.getLong(_part, 16);
+			total_length = Bits.getLong(_part, 8+off);
+			start_position = Bits.getLong(_part, 16+off);
 		} else {
 			total_length = -1;
 			start_position = -1;

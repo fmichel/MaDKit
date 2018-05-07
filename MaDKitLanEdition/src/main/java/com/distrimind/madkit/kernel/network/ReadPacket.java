@@ -178,10 +178,13 @@ final class ReadPacket {
 									+ _part.getHead().isLastPacket());
 				}
 				int currentPacketDataSize = (int) Math.max(Math.min(attempted_lenth, length - current_pos), 0);
-				byte bytes[] = _part.getBytes();
+				SubBlock subBlock=_part.getSubBlock();
+				byte bytes[] = subBlock.getBytes();
+				
 				if (messageDigest != null)
-					messageDigest.update(bytes, 0, offset);
+					messageDigest.update(bytes, subBlock.getOffset(), offset);
 
+				offset+=subBlock.getOffset();
 				if (currentPacketDataSize > 0) {
 					output_stream.write(bytes, offset, currentPacketDataSize);
 					if (messageDigest != null)
@@ -280,66 +283,70 @@ final class ReadPacket {
 
 	static abstract class AbstractByteTabInputStream {
 
-		abstract byte[] getBytesArray();
+		//abstract byte[] getBytesArray();
+		abstract SubBlock getSubBlock();
 
 		abstract int getRealDataSize();
 	}
 
-	static AbstractByteTabInputStream getByteTabInputStream(byte[] tab, short random_values_size) {
+	static AbstractByteTabInputStream getByteTabInputStream(SubBlock subBlock, short random_values_size) {
 		if (random_values_size == 0)
-			return new ByteTabInputStream(tab);
+			return new ByteTabInputStream(subBlock);
 		else
-			return new ByteTabInputStreamWithRandomValues(tab);
+			return new ByteTabInputStreamWithRandomValues(subBlock);
 	}
 
 	static class ByteTabInputStream extends AbstractByteTabInputStream {
-		private final byte[] tab;
+		private final SubBlock subBlock;
 
-		ByteTabInputStream(byte[] tab) {
-			this.tab = tab;
+		ByteTabInputStream(SubBlock subBlock) {
+			this.subBlock = subBlock;
 		}
 
 		@Override
-		byte[] getBytesArray() {
-			return tab;
+		SubBlock getSubBlock()
+		{
+			return subBlock;
 		}
 
 		@Override
 		int getRealDataSize() {
-			return tab.length;
+			return subBlock.getSize();
 		}
 
 	}
 
 	static class ByteTabInputStreamWithRandomValues extends AbstractByteTabInputStream {
-		private final byte[] tab;
-		private byte[] tabRes = null;
+		private final SubBlock subBlock;
+		private SubBlock subBlockRes = null;
 		private int realSize = 0;
 
-		ByteTabInputStreamWithRandomValues(byte[] tab) {
-			this.tab = tab;
+		ByteTabInputStreamWithRandomValues(SubBlock subBlock) {
+			this.subBlock = subBlock;
 		}
 
 		@Override
-		byte[] getBytesArray() {
-			if (tabRes == null) {
-				tabRes = new byte[tab.length];
-				int cursor = 0;
+		SubBlock getSubBlock() {
+			if (subBlockRes == null) {
+				byte tabRes[] = new byte[subBlock.getSize()];
+				byte tab[] = subBlock.getBytes();
+				int cursor = subBlock.getOffset();
+				int shiftTabLength=subBlock.getOffset()+subBlock.getSize();
 				int tabResCursor = 0;
-				while (cursor < tab.length) {
+				while (cursor < shiftTabLength) {
 					byte nbrand = WritePacket.decodeLocalNumberRandomVal(tab[cursor++]);
 					cursor += nbrand;
-					if (cursor >= tab.length)
+					if (cursor >= shiftTabLength)
 						break;
 					byte nextRandVals = tab[cursor++];
 					int nextRandomValuesPos;
 					if (nextRandVals == -1)
-						nextRandomValuesPos = tab.length;
+						nextRandomValuesPos = shiftTabLength;
 					else
 						nextRandomValuesPos = cursor + nextRandVals;
-					if (cursor >= tab.length)
+					if (cursor >= shiftTabLength)
 						break;
-					int size = Math.max(Math.min(nextRandomValuesPos - cursor, tab.length - cursor), 0);
+					int size = Math.max(Math.min(nextRandomValuesPos - cursor, shiftTabLength - cursor), 0);
 					if (size > 0)
 						System.arraycopy(tab, cursor, tabRes, tabResCursor, size);
 					cursor += size;
@@ -347,13 +354,14 @@ final class ReadPacket {
 				}
 
 				realSize = tabResCursor;
+				subBlockRes=new SubBlock(tabRes, 0, tabRes.length);
 			}
-			return tabRes;
+			return subBlockRes;
 		}
 
 		@Override
 		int getRealDataSize() {
-			getBytesArray();
+			getSubBlock();
 			return realSize;
 		}
 	}

@@ -51,62 +51,75 @@ import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol;
  * @since MadkitLanEdition 1.0
  */
 public class SubBlocksStructure {
-	final int sub_block_sizes[];
+	int sub_block_sizes[];
 	// final int sub_block_sizes_for_parent[];
-	final int sub_block_offsets[];
-	public final int initial_packet_offset;
-	public final int initial_packet_size;
-	final boolean need_random = false;
-	final int block_content_size;
-	final int block_size;
+	int sub_block_offsets[];
+	private int offsets[]=null;
+	public int initial_packet_offset;
+	public int initial_packet_size;
+	boolean need_random = false;
+	int block_content_size;
+	int block_size;
 	public SubBlocksStructure(PacketPart _packet, ConnectionProtocol<?> connection_protocol) throws NIOException {
 		this(_packet.getSubBlock().getSize(), connection_protocol);
 	}
 	public SubBlocksStructure(int packetSize, ConnectionProtocol<?> connection_protocol) throws NIOException {
-		int size = packetSize;
-		int inipacketsize = -1;
-		int offsets[] = new int[connection_protocol.sizeOfSubConnectionProtocols() + 1];
-		sub_block_sizes = new int[offsets.length];
-		// sub_block_sizes_for_parent=new int[offsets.length];
-		int i = offsets.length - 1;
-		for (Iterator<ConnectionProtocol<?>> it = connection_protocol.reverseIterator(); it.hasNext(); i--) {
-			ConnectionProtocol<?> cp = it.next();
-			SubBlockParser sbp = cp.getParser();
+		init(packetSize, connection_protocol);
+	}
+	public void init(PacketPart _packet, ConnectionProtocol<?> connection_protocol) throws NIOException
+	{
+		init(_packet.getSubBlock().getSize(), connection_protocol);
+	}
+		public void init(int packetSize, ConnectionProtocol<?> connection_protocol) throws NIOException
+		{
+			int size = packetSize;
+			int inipacketsize = -1;
+			int s=connection_protocol.sizeOfSubConnectionProtocols() + 1;
+			if (offsets==null || offsets.length!=s)
+				offsets = new int[s];
+			if (sub_block_sizes==null || sub_block_sizes.length!=offsets.length)
+				sub_block_sizes = new int[offsets.length];
+			// sub_block_sizes_for_parent=new int[offsets.length];
+			int i = offsets.length - 1;
+			for (Iterator<ConnectionProtocol<?>> it = connection_protocol.reverseIterator(); it.hasNext(); i--) {
+				ConnectionProtocol<?> cp = it.next();
+				SubBlockParser sbp = cp.getParser();
 
-			try {
-				/*
-				 * if (sbp.getSizeBlockModulus()<1) throw new BlockParserException("The parser "
-				 * +sbp+" returns a block modulus lower than 1: "+sbp.getSizeBlockModulus());
-				 */
+				try {
+					/*
+					 * if (sbp.getSizeBlockModulus()<1) throw new BlockParserException("The parser "
+					 * +sbp+" returns a block modulus lower than 1: "+sbp.getSizeBlockModulus());
+					 */
 
-				int headSize = sbp.getSizeHead();
-				if (headSize < 0)
-					throw new BlockParserException(
-							"The parser " + sbp + " returns a head size lower than 0: " + sbp.getSizeHead());
+					int headSize = sbp.getSizeHead();
+					if (headSize < 0)
+						throw new BlockParserException(
+								"The parser " + sbp + " returns a head size lower than 0: " + sbp.getSizeHead());
 
-				int outputSize = sbp.getBodyOutputSizeForEncryption(size);
-				if (outputSize < 0)
-					throw new BlockParserException(
-							"The parser " + sbp + " returns an ouput size lower than 0: " + outputSize);
+					int outputSize = sbp.getBodyOutputSizeForEncryption(size);
+					if (outputSize < 0)
+						throw new BlockParserException(
+								"The parser " + sbp + " returns an ouput size lower than 0: " + outputSize);
 
-				/*
-				 * int mod=size%sbp.getSizeBlockModulus(); if (mod!=0)
-				 * size=size+(sbp.getSizeBlockModulus()-size%sbp.getSizeBlockModulus());
-				 */
-				if (inipacketsize == -1)
-					inipacketsize = size;
-				/*
-				 * else { sub_block_sizes_for_parent[i+1]=size; }
-				 */
-				size = outputSize + headSize;
+					/*
+					 * int mod=size%sbp.getSizeBlockModulus(); if (mod!=0)
+					 * size=size+(sbp.getSizeBlockModulus()-size%sbp.getSizeBlockModulus());
+					 */
+					if (inipacketsize == -1)
+						inipacketsize = size;
+					/*
+					 * else { sub_block_sizes_for_parent[i+1]=size; }
+					 */
+					size = outputSize + headSize;
 
-				// size+=sbp.getSizeHead();
+					// size+=sbp.getSizeHead();
 
-				offsets[i] = headSize;
-				sub_block_sizes[i] = size;
-			} catch (BlockParserException e) {
-				throw new NIOException(e);
-			}
+					offsets[i] = headSize;
+					sub_block_sizes[i] = size;
+				} catch (BlockParserException e) {
+					throw new NIOException(e);
+				}
+
 		}
 
 		// sub_block_sizes_for_parent[0]=sub_block_sizes[0]+Block.getHeadSize();
@@ -123,14 +136,19 @@ public class SubBlocksStructure {
 		initial_packet_offset = offset + offsets[offsets.length - 1];
 		block_size = block_content_size + Block.getHeadSize();
 	}
-
-	public SubBlocksStructure(Block _block, ConnectionProtocol<?> connection_protocol) throws NIOException {
+		public SubBlocksStructure(Block _block, ConnectionProtocol<?> connection_protocol) throws NIOException {
+			init(_block, connection_protocol);
+		}
+	public void init(Block _block, ConnectionProtocol<?> connection_protocol) throws NIOException {
 		int size = block_content_size = (block_size = _block.getBlockSize()) - Block.getHeadSize();
 		if (size <= 0)
 			throw new NIOException("Invalid block (too little size)");
 		int offset = Block.getHeadSize();
-		sub_block_sizes = new int[connection_protocol.sizeOfSubConnectionProtocols() + 1];
-		sub_block_offsets = new int[sub_block_sizes.length];
+		int s=connection_protocol.sizeOfSubConnectionProtocols() + 1;
+		if (sub_block_sizes==null || sub_block_sizes.length!=s)
+			sub_block_sizes = new int[s];
+		if (sub_block_offsets==null || sub_block_offsets.length!=s)
+			sub_block_offsets = new int[sub_block_sizes.length];
 		// sub_block_sizes_for_parent=new int[sub_block_sizes.length];
 		// sub_block_sizes_for_parent[0]=_block.getBlockSize();
 		int i = 0;

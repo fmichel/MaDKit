@@ -371,8 +371,10 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 		} catch (BlockParserException e) {
 			throw new NIOException("Unexpected exception", e);
 		}
-
-		SubBlocksStructure sbs = new SubBlocksStructure(_block, this);
+		if (lastSBS==null)
+			lastSBS = new SubBlocksStructure(_block, this);
+		else
+			lastSBS.init(_block, this);
 		int i = 0;
 		for (Iterator<ConnectionProtocol<?>> it = this.iterator(); it.hasNext(); i++) {
 			ConnectionProtocol<?> cp = it.next();
@@ -390,7 +392,7 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 			}
 			if (valid) {
 				try {
-					sbi = new SubBlockInfo(sbs.getSubBlockForChild(sbi.getSubBlock(), i), true, false);
+					sbi = new SubBlockInfo(lastSBS.getSubBlockForChild(sbi.getSubBlock(), i), true, false);
 				} catch (BlockParserException e) {
 					valid = false;
 				}
@@ -455,16 +457,16 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 		} catch (PacketException | BlockParserException e) {
 			throw new NIOException(e);
 		}
-		finally
-		{
-			lastSBS=null;
-		}
+		
 	}
 	private SubBlocksStructure lastSBS;
 	public SubBlock initSubBlock(int packetSize) throws NIOException
 	{
 		try {
-			lastSBS = new SubBlocksStructure(packetSize, this);
+			if (lastSBS==null)
+				lastSBS = new SubBlocksStructure(packetSize, this);
+			else
+				lastSBS.init(packetSize, this);
 			Block block = new Block(lastSBS);
 			return new SubBlock(block.getBytes(), lastSBS.initial_packet_offset, lastSBS.initial_packet_size);
 		} catch (PacketException e) {

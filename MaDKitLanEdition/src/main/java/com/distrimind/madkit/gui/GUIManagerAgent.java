@@ -133,9 +133,9 @@ class GUIManagerAgent extends Agent {
 			} catch (HeadlessException e) {
 				headlessLog(e);
 				return;
-			} catch (InstantiationException | IllegalAccessException | NullPointerException e) {
+			} catch (InstantiationException | IllegalAccessException | NullPointerException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 				getLogger().severeLog(Words.FAILED.toString() + " : UI creation", e);
-			}
+			} 
 		}
 		requestRole(Groups.GUI,Roles.GUI);
 	}
@@ -350,8 +350,8 @@ class GUIManagerAgent extends Agent {
 		guis.clear();
 	}
 
-	private void buildUI() throws InstantiationException, IllegalAccessException, NullPointerException {
-		myFrame = (MDKDesktopFrame) getMadkitConfig().desktopFrameClass.newInstance();
+	private void buildUI() throws InstantiationException, IllegalAccessException, NullPointerException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+		myFrame = (MDKDesktopFrame) getMadkitConfig().desktopFrameClass.getDeclaredConstructor().newInstance();
 		desktopPane = myFrame.getDesktopPane();
 		// {
 		// @Override

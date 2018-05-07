@@ -65,7 +65,7 @@ public class MadkitPropertiesTest {
 			System.err.println(madkitProperties);
 			assertEquals(madkitProperties.getFreeStringProperties().getProperty("test"), "yes");
 			assertEquals(madkitProperties.getFreeStringProperties().getProperty("test2"), "good");
-			assertEquals(new Boolean(madkitProperties.desktop), new Boolean(true));
+			assertEquals(Boolean.valueOf(madkitProperties.desktop), Boolean.valueOf(true));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

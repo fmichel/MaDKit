@@ -580,7 +580,7 @@ class MadkitKernel extends Agent {
 			final Constructor<?> c = MadkitClassLoader.getLoader()
 					.loadClass("com.distrimind.madkit.gui.GUIManagerAgent").getDeclaredConstructor(boolean.class);
 			c.setAccessible(true);
-			final AbstractAgent a = (AbstractAgent) c.newInstance(new Boolean(!getMadkitConfig().desktop));
+			final AbstractAgent a = (AbstractAgent) c.newInstance(Boolean.valueOf(!getMadkitConfig().desktop));
 			// c.setAccessible(false); //useless
 			a.setLogLevel(getMadkitConfig().guiLogLevel);
 			launchAgent(a);
@@ -735,7 +735,7 @@ class MadkitKernel extends Agent {
 						public void run() {
 							if (!shuttedDown) {
 								try {
-									launchAgent(atl.getClassAgent().newInstance(), 0, atl.isWithGUI());
+									launchAgent(atl.getClassAgent().getDeclaredConstructor().newInstance(), 0, atl.isWithGUI());
 								} catch (Exception e) {
 									cannotLaunchAgent(atl.getClassAgent().getCanonicalName(), e, null);
 								}
@@ -840,7 +840,7 @@ class MadkitKernel extends Agent {
 		} catch (CGRNotAvailable e) {
 		}
 		sendReply(m,
-				new BooleanMessage(new Boolean(g != null
+				new BooleanMessage(Boolean.valueOf(g != null
 						&& g.getGatekeeper().allowAgentToTakeRole(requesterAddress.getGroup(), m.getRoleName(),
 								m.getRequesterClass(), requesterAddress.getAgentNetworkID(), m.getContent()))));
 	}
@@ -1783,9 +1783,13 @@ class MadkitKernel extends Agent {
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
 	 * @throws ClassNotFoundException
+	 * @throws SecurityException 
+	 * @throws NoSuchMethodException 
+	 * @throws InvocationTargetException 
+	 * @throws IllegalArgumentException 
 	 */
 	List<AbstractAgent> createBucket(final String agentClass, int bucketSize, int cpuCoreNb)
-			throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+			throws InstantiationException, IllegalAccessException, ClassNotFoundException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
 		if (agentClass == null)
 			throw new NullPointerException("agentClass");
 		@SuppressWarnings("unchecked")
@@ -1798,10 +1802,10 @@ class MadkitKernel extends Agent {
 		final CompletionService<List<AbstractAgent>> ecs = new ExecutorCompletionService<>(serviceExecutor);
 		for (int i = 0; i < cpuCoreNb; i++) {
 			ecs.submit(new Callable<List<AbstractAgent>>() {
-				public List<AbstractAgent> call() throws InstantiationException, IllegalAccessException {
+				public List<AbstractAgent> call() throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
 					final List<AbstractAgent> list = new ArrayList<>(nbOfAgentsPerTask);
 					for (int j = nbOfAgentsPerTask; j > 0; j--) {
-						list.add(constructor.newInstance());
+						list.add(constructor.getDeclaredConstructor().newInstance());
 					}
 					return list;
 				}
@@ -1809,7 +1813,7 @@ class MadkitKernel extends Agent {
 		}
 		// adding the missing ones when the division results as a real number
 		for (int i = bucketSize - nbOfAgentsPerTask * cpuCoreNb; i > 0; i--) {
-			result.add(constructor.newInstance());
+			result.add(constructor.getConstructor().newInstance());
 		}
 		for (int i = 0; i < cpuCoreNb; ++i) {
 			try {
@@ -2191,7 +2195,7 @@ class MadkitKernel extends Agent {
 			final Future<Boolean> endAttempt = new FutureWithSpecializedWait<>(serviceExecutor, lifeExecutor,
 					executor.submit(new Callable<Boolean>() {
 						public Boolean call() {
-							return new Boolean(target.ending());
+							return Boolean.valueOf(target.ending());
 						}
 
 					}));
@@ -3019,7 +3023,7 @@ class MadkitKernel extends Agent {
 		if (m != null) {
 			LockerCondition curLock = null;
 			synchronized (agentsSendingNetworkMessage) {
-				curLock = agentsSendingNetworkMessage.remove(new Long(requester.getAgentID()));
+				curLock = agentsSendingNetworkMessage.remove(Long.valueOf(requester.getAgentID()));
 				if (curLock != null)
 					curLock.cancelLock();
 
@@ -3033,7 +3037,7 @@ class MadkitKernel extends Agent {
 		if (locker.getAttachment() != null && locker.getAttachment() instanceof LocalLanMessage) {
 			mustCancelLock = true;
 			synchronized (agentsSendingNetworkMessage) {
-				LockerCondition l = agentsSendingNetworkMessage.put(new Long(requester.getAgentID()), locker);
+				LockerCondition l = agentsSendingNetworkMessage.put(Long.valueOf(requester.getAgentID()), locker);
 				if (l != null)
 					l.cancelLock();
 			}
@@ -3043,9 +3047,9 @@ class MadkitKernel extends Agent {
 		} finally {
 			if (mustCancelLock) {
 				synchronized (agentsSendingNetworkMessage) {
-					LockerCondition l = agentsSendingNetworkMessage.remove(new Long(requester.getAgentID()));
+					LockerCondition l = agentsSendingNetworkMessage.remove(Long.valueOf(requester.getAgentID()));
 					if (l != locker && l != null)
-						agentsSendingNetworkMessage.put(new Long(requester.getAgentID()), l);
+						agentsSendingNetworkMessage.put(Long.valueOf(requester.getAgentID()), l);
 				}
 
 			}

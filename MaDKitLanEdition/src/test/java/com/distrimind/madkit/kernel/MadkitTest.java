@@ -136,7 +136,7 @@ public class MadkitTest {
 	public void doActionLaunchAgentWithDesktop() throws InterruptedException {
 		Madkit m = new Madkit();
 		Agent a = new Agent();
-		m.doAction(KernelAction.LAUNCH_AGENT, a, new Boolean(true));
+		m.doAction(KernelAction.LAUNCH_AGENT, a, Boolean.valueOf(true));
 		Thread.sleep(100);
 		assertTrue(a.isAlive());
 		Thread.sleep(1000);
@@ -146,11 +146,11 @@ public class MadkitTest {
 	public void doActionLaunchAgentNoDesktop() throws InterruptedException {
 		Madkit m = new Madkit("--desktop", "false", "--forceDesktop", "true");
 		Agent a = new Agent();
-		m.doAction(KernelAction.LAUNCH_AGENT, a, new Boolean(true));
+		m.doAction(KernelAction.LAUNCH_AGENT, a, Boolean.valueOf(true));
 		Thread.sleep(100);
 		assertTrue(a.isAlive());
 		Thread.sleep(1000);
-		m.doAction(KernelAction.LAUNCH_AGENT, a = new Agent(), new Boolean(true));
+		m.doAction(KernelAction.LAUNCH_AGENT, a = new Agent(), Boolean.valueOf(true));
 		Thread.sleep(2000);
 		assertTrue(a.isAlive());
 	}

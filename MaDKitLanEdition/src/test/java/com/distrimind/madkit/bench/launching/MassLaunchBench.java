@@ -37,6 +37,7 @@
  */
 package com.distrimind.madkit.bench.launching;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -147,7 +148,7 @@ public class MassLaunchBench extends JunitMadkit {
 
 	@SuppressWarnings("unchecked")
 	@Test
-	public void massInstantiation() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+	public void massInstantiation() throws ClassNotFoundException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
 		final Class<? extends AbstractAgent> constructor = (Class<? extends AbstractAgent>) MadkitClassLoader
 				.getLoader().loadClass(AbstractAgent.class.getName());
 		int nbOfAgentsPerTask = 1_000_000;
@@ -159,7 +160,7 @@ public class MassLaunchBench extends JunitMadkit {
 			startTimer();
 			final List<AbstractAgent> list = new ArrayList<>(nbOfAgentsPerTask);
 			for (int j = nbOfAgentsPerTask; j > 0; j--) {
-				list.add(constructor.newInstance());
+				list.add(constructor.getDeclaredConstructor().newInstance());
 			}
 			if (i > 1) {
 				long delta = stopTimer("done ");

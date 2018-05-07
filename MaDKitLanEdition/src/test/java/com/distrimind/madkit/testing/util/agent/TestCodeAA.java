@@ -38,6 +38,7 @@
 package com.distrimind.madkit.testing.util.agent;
 
 import java.io.PrintStream;
+import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.JFrame;
 
@@ -76,9 +77,9 @@ public class TestCodeAA extends AbstractAgent {
 	protected void activate() {
 		try {
 			Class<?> cl = Class.forName("java.lang.Thread");
-			Object o = cl.newInstance();
+			Object o = cl.getDeclaredConstructor().newInstance();
 			o.toString();
-		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e1) {
+		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e1) {
 			e1.printStackTrace();
 		}
 
@@ -97,7 +98,7 @@ public class TestCodeAA extends AbstractAgent {
 		sendMessage(LocalCommunity.Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE, m);
 		System.err.println(m);
 
-		m = new EnumMessage<>(KernelAction.COPY, "kj", new Integer(3));
+		m = new EnumMessage<>(KernelAction.COPY, "kj", Integer.valueOf(3));
 		System.err.println(m);
 		sendMessage(LocalCommunity.Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE, m);
 		System.err.println(m);

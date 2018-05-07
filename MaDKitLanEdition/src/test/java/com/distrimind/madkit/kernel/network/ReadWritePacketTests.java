@@ -404,7 +404,7 @@ public class ReadWritePacketTests extends JunitMadkit {
 		WritePacket output = new WritePacket(_type, idPacket, _max_buffer_size, random_values_size, rand,
 				new RandomByteArrayInputStream(data), _start_position, length, _transfert_as_big_data,
 				messageDigestType);
-		Assert.assertEquals(new Boolean(_transfert_as_big_data), new Boolean(output.concernsBigData()));
+		Assert.assertEquals(Boolean.valueOf(_transfert_as_big_data), Boolean.valueOf(output.concernsBigData()));
 		Assert.assertEquals(length, output.getDataLength());
 		int messageDigestSize = messageDigestType == null ? 0
 				: messageDigestType.getMessageDigestInstance().getDigestLength();

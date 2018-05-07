@@ -378,7 +378,7 @@ public class JunitMadkit {
 
 	static public void printMemoryUsage() {
 		// System.gc();
-		Long mem = new Long((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()));
+		Long mem = Long.valueOf((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()));
 		System.err.println("\n----used memory: " + mem.toString().substring(0, 3) + " Mo\n");
 	}
 

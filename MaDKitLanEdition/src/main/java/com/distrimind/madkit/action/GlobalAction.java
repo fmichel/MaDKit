@@ -119,7 +119,7 @@ public class GlobalAction {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (e == null) { // programmatically triggered
-				putValue(Action.SELECTED_KEY, new Boolean(!((Boolean) getValue(Action.SELECTED_KEY)).booleanValue()));
+				putValue(Action.SELECTED_KEY, Boolean.valueOf(!((Boolean) getValue(Action.SELECTED_KEY)).booleanValue()));
 			}
 			if (((Boolean) getValue(Action.SELECTED_KEY)).booleanValue()) {
 				AgentLogger.setAllLogLevels(Level.ALL);

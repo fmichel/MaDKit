@@ -300,7 +300,7 @@ public class GroupTest {
 				return false;
 			}
 		};
-		return new Object[][] { { new Boolean(true), gk1, new Boolean(false) } };
+		return new Object[][] { { Boolean.valueOf(true), gk1, Boolean.valueOf(false) } };
 		/*
 		 * Gatekeeper gk2=new Gatekeeper() {
 		 * 

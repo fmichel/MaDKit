@@ -189,7 +189,7 @@ public class ConversationID implements ExternalizableAndSizable, Cloneable {
 			OriginalID res = distant_ids.get(original);
 			if (res == null) {
 				res = new OriginalID(getAndIncrementIDCounter());
-				original_ids.put(new Integer(res.originalID), new OriginalID(original.intValue(), res.getNbPointers()));
+				original_ids.put(Integer.valueOf(res.originalID), new OriginalID(original.intValue(), res.getNbPointers()));
 				distant_ids.put(original, res);
 			}
 			res.incrementPointerToThisOriginalID();
@@ -197,13 +197,13 @@ public class ConversationID implements ExternalizableAndSizable, Cloneable {
 		}
 
 		OriginalID getOriginalID(int distant_id) {
-			return original_ids.get(new Integer(distant_id));
+			return original_ids.get(Integer.valueOf(distant_id));
 		}
 
 		void removeDistantID(Integer distantid) {
 			OriginalID oi = original_ids.get(distantid);
 			if (oi.remove())
-				distant_ids.remove(new Integer(original_ids.remove(distantid).originalID));
+				distant_ids.remove(Integer.valueOf(original_ids.remove(distantid).originalID));
 		}
 
 		boolean isEmpty() {
@@ -230,7 +230,7 @@ public class ConversationID implements ExternalizableAndSizable, Cloneable {
 					try {
 						for (Map.Entry<KernelAddress, OriginalID> kpi : myInterfacedIDs.entrySet()) {
 							InterfacedIDs i2 = global_interfaced_ids.get(kpi.getKey());
-							i2.removeDistantID(new Integer(kpi.getValue().originalID));
+							i2.removeDistantID(Integer.valueOf(kpi.getValue().originalID));
 							if (i2.isEmpty()) {
 								global_interfaced_ids.remove(kpi.getKey());
 							}
@@ -265,7 +265,7 @@ public class ConversationID implements ExternalizableAndSizable, Cloneable {
 						i = new InterfacedIDs();
 						global_interfaced_ids.put(distantKernelAddress, i);
 					}
-					distantid = i.getNewID(new Integer(this.id));
+					distantid = i.getNewID(Integer.valueOf(this.id));
 				}
 				myInterfacedIDs.put(distantKernelAddress, distantid);
 			}
@@ -311,7 +311,7 @@ public class ConversationID implements ExternalizableAndSizable, Cloneable {
 						cid.global_interfaced_ids = global_interfaced_ids;
 						cid.myInterfacedIDs = Collections
 								.synchronizedMap(new HashMap<KernelAddress, ConversationID.OriginalID>());
-						cid.myInterfacedIDs.put(distantKernelAddress, i.getNewID(new Integer(o.getOriginalID())));
+						cid.myInterfacedIDs.put(distantKernelAddress, i.getNewID(Integer.valueOf(o.getOriginalID())));
 						/*
 						 * if (myInterfacedIDs==null) myInterfacedIDs=new HashMap<>();
 						 * myInterfacedIDs.put(distantKernelAddress, i.getNewID(new

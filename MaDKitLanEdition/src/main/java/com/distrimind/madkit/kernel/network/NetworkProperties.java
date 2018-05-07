@@ -966,7 +966,7 @@ public class NetworkProperties extends XMLProperties {
 		synchronized (transfer_stat_per_id_transfer) {
 			if (transferIdentifier == TransferAgent.NullIDTransfer.getID())
 				throw new NullPointerException("transferIdentifier is a NullIDTransfer");
-			Integer i = new Integer(transferIdentifier);
+			Integer i = Integer.valueOf(transferIdentifier);
 
 			StatsBandwidth sb = transfer_stat_per_id_transfer.get(i);
 			if (sb != null)
@@ -987,7 +987,7 @@ public class NetworkProperties extends XMLProperties {
 	 */
 	public StatsBandwidth getStatsBandwith(int transferIdentifier) {
 		synchronized (transfer_stat_per_id_transfer) {
-			return transfer_stat_per_id_transfer.get(new Integer(transferIdentifier));
+			return transfer_stat_per_id_transfer.get(Integer.valueOf(transferIdentifier));
 		}
 	}
 
@@ -1001,7 +1001,7 @@ public class NetworkProperties extends XMLProperties {
 	 */
 	StatsBandwidth removeStatsBandwitdh(int transferIdentifier) {
 		synchronized (transfer_stat_per_id_transfer) {
-			Integer i = new Integer(transferIdentifier);
+			Integer i = Integer.valueOf(transferIdentifier);
 			return transfer_stat_per_id_transfer.remove(i);
 		}
 	}

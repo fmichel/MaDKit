@@ -336,7 +336,7 @@ public class Agent extends AbstractAgent {
 	 */
 	public Message sendMessageAndWaitForReply(final AgentAddress receiver, Message messageToSend,
 			final int timeOutMilliSeconds) throws InterruptedException {
-		return sendMessageWithRoleAndWaitForReply(receiver, messageToSend, null, new Integer(timeOutMilliSeconds));
+		return sendMessageWithRoleAndWaitForReply(receiver, messageToSend, null, Integer.valueOf(timeOutMilliSeconds));
 	}
 
 	/**
@@ -478,7 +478,7 @@ public class Agent extends AbstractAgent {
 	 */
 	public Message sendMessageAndWaitForReply(AbstractGroup group, final String role, Message messageToSend,
 			final int timeOutMilliSeconds) throws InterruptedException {
-		return sendMessageWithRoleAndWaitForReply(group, role, messageToSend, null, new Integer(timeOutMilliSeconds));
+		return sendMessageWithRoleAndWaitForReply(group, role, messageToSend, null, Integer.valueOf(timeOutMilliSeconds));
 	}
 
 	/**
@@ -557,7 +557,7 @@ public class Agent extends AbstractAgent {
 	 */
 	public Message sendReplyAndWaitForReply(final Message messageToReplyTo, final Message reply,
 			int timeOutMilliSeconds) throws InterruptedException {
-		return sendReplyWithRoleAndWaitForReply(messageToReplyTo, reply, null, new Integer(timeOutMilliSeconds));
+		return sendReplyWithRoleAndWaitForReply(messageToReplyTo, reply, null, Integer.valueOf(timeOutMilliSeconds));
 	}
 
 	/**

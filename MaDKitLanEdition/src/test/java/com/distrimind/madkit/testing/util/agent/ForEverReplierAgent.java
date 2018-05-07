@@ -40,6 +40,8 @@ package com.distrimind.madkit.testing.util.agent;
 import static com.distrimind.madkit.kernel.JunitMadkit.GROUP;
 import static com.distrimind.madkit.kernel.JunitMadkit.ROLE;
 
+import java.lang.reflect.InvocationTargetException;
+
 import com.distrimind.madkit.kernel.Message;
 
 /**
@@ -77,8 +79,8 @@ public class ForEverReplierAgent extends NormalAgent {
 	 */
 	private Message getNewMessage() {
 		try {
-			return type == null ? new Message() : type.newInstance();
-		} catch (InstantiationException | IllegalAccessException e) {
+			return type == null ? new Message() : type.getDeclaredConstructor().newInstance();
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();
 		}
 		return null;

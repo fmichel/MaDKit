@@ -679,7 +679,7 @@ class DistantKernelAgent extends AgentFakeThread {
 											+ o);
 
 								int id = MadkitKernelAccess.getIDPacket(bdpm);
-								current_big_data_readings.put(new Integer(id), new BigDataReading(bdpm));
+								current_big_data_readings.put(Integer.valueOf(id), new BigDataReading(bdpm));
 								sendData(asd.getAgentAddress(), new ValidateBigDataProposition(id), true, null, false, asd.getCounterSelector());
 							}
 						}
@@ -746,7 +746,7 @@ class DistantKernelAgent extends AgentFakeThread {
 					bgpm.getStartStreamPosition(), bgpm.getTransferLength(), true, bgpm.getMessageDigestType());
 			BigPacketData packetData = new BigPacketData(choosenSocket.getAgentAddress(), packet, bgpm.getReceiver(),
 					bgpm.getSender(), bgpm.getConversationID(), bgpm.getStatistics(), bgpm.bigDataExcludedFromEncryption(), choosenSocket.getCounterSelector());
-			packetsDataInQueue.put(new Integer(id), packetData);
+			packetsDataInQueue.put(Integer.valueOf(id), packetData);
 		}
 	}
 
@@ -754,11 +754,11 @@ class DistantKernelAgent extends AgentFakeThread {
 		if (logger != null && logger.isLoggable(Level.FINEST))
 			logger.finest("Cancel big data in queue (distantInterfacedKernelAddress=" + distant_kernel_address
 					+ ", idTransfer=" + idTransfer + ")");
-		return packetsDataInQueue.remove(new Integer(idTransfer));
+		return packetsDataInQueue.remove(Integer.valueOf(idTransfer));
 	}
 
 	private boolean validatePacketDataInQueue(int idTransfer) {
-		BigPacketData bpd = packetsDataInQueue.remove(new Integer(idTransfer));
+		BigPacketData bpd = packetsDataInQueue.remove(Integer.valueOf(idTransfer));
 		if (bpd == null) {
 			if (logger != null)
 				logger.warning("Big data in queue not valid (distantInterfacedKernelAddress=" + distant_kernel_address
@@ -1790,9 +1790,9 @@ class DistantKernelAgent extends AgentFakeThread {
 			return getClass().getSimpleName() + "[idPacket=" + packet.getID() + ", unlocked=" + unlocked.get()
 					+ ", canceled=" + isCanceled.get() + ", totalDataToSendLenght(Without connection protocol)="
 					+ this.packet.getDataLengthWithHashIncluded() + ", currentByteBuffer="
-					+ (currentByteBuffer == null ? null : new Integer(currentByteBuffer.capacity()))
+					+ (currentByteBuffer == null ? null : Integer.valueOf(currentByteBuffer.capacity()))
 					+ ", currentByteBufferRemaining="
-					+ (currentByteBuffer == null ? null : new Integer(currentByteBuffer.remaining())) + ", dataSent="
+					+ (currentByteBuffer == null ? null : Integer.valueOf(currentByteBuffer.remaining())) + ", dataSent="
 					+ this.packet.getReadDataLengthIncludingHash() + "]";
 		}
 
@@ -2346,9 +2346,9 @@ class DistantKernelAgent extends AgentFakeThread {
 
 		boolean bigData = false;
 
-		Reading reading = current_short_readings.get(new Integer(p.getHead().getID()));
+		Reading reading = current_short_readings.get(Integer.valueOf(p.getHead().getID()));
 		if (reading == null) {
-			reading = current_big_data_readings.get(new Integer(p.getHead().getID()));
+			reading = current_big_data_readings.get(Integer.valueOf(p.getHead().getID()));
 
 			if (reading != null)
 				bigData = true;
@@ -2367,7 +2367,7 @@ class DistantKernelAgent extends AgentFakeThread {
 					if (sr.isInvalid()) {
 						MadkitKernelAccess.dataCorrupted(sr.getOriginalMessage(),
 								sr.getReadPacket().getWritedDataLength());
-						current_big_data_readings.remove(new Integer(reading.getIdentifier()));
+						current_big_data_readings.remove(Integer.valueOf(reading.getIdentifier()));
 						processInvalidPacketPart(agent_socket_sender,
 								new PacketException("The given packet is not valid."), p, false);
 						try {
@@ -2379,11 +2379,11 @@ class DistantKernelAgent extends AgentFakeThread {
 						sr.closeStream();
 						MadkitKernelAccess.transferCompleted(sr.getOriginalMessage(),
 								sr.getReadPacket().getWritedDataLength());
-						current_big_data_readings.remove(new Integer(reading.getIdentifier()));
+						current_big_data_readings.remove(Integer.valueOf(reading.getIdentifier()));
 					}
 				} catch (PacketException | IOException e) {
 					MadkitKernelAccess.dataCorrupted(sr.getOriginalMessage(), sr.getReadPacket().getWritedDataLength());
-					current_big_data_readings.remove(new Integer(reading.getIdentifier()));
+					current_big_data_readings.remove(Integer.valueOf(reading.getIdentifier()));
 					processInvalidPacketPart(agent_socket_sender, e, p, false);
 					try {
 						sr.closeStream();
@@ -2395,7 +2395,7 @@ class DistantKernelAgent extends AgentFakeThread {
 				sr.freeDataSize();
 			} else if (sr.isInvalid()) {
 				MadkitKernelAccess.dataCorrupted(sr.getOriginalMessage(), sr.getReadPacket().getWritedDataLength());
-				current_big_data_readings.remove(new Integer(reading.getIdentifier()));
+				current_big_data_readings.remove(Integer.valueOf(reading.getIdentifier()));
 				processInvalidPacketPart(agent_socket_sender, new PacketException("The given packet is not valid."), p,
 						false);
 				try {
@@ -2446,7 +2446,7 @@ class DistantKernelAgent extends AgentFakeThread {
 						if (tooMuch) {
 							processTooMuchSimutaneousShortDataSent();
 						} else {
-							current_short_readings.put(new Integer(p.getHead().getID()), sr);
+							current_short_readings.put(Integer.valueOf(p.getHead().getID()), sr);
 
 						}
 					} catch (PacketException e) {
@@ -2513,7 +2513,7 @@ class DistantKernelAgent extends AgentFakeThread {
 									LocalCommunity.Roles.DISTANT_KERNEL_AGENT_ROLE);
 						}
 					}
-					Integer id = new Integer(reading.getIdentifier());
+					Integer id = Integer.valueOf(reading.getIdentifier());
 					current_short_readings.remove(id);
 					setOneSocketPurged(id, sr);
 

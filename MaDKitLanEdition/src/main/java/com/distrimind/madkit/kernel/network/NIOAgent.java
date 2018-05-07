@@ -180,7 +180,7 @@ final class NIOAgent extends Agent {
 				&& nb + 1 > getMadkitConfig().networkProperties.numberOfMaximumConnectionsFromOneIPV6) {
 			return false;
 		}
-		numberOfConnectionsPerIP.put(inetAddress, new Integer(nb + 1));
+		numberOfConnectionsPerIP.put(inetAddress, Integer.valueOf(nb + 1));
 		return true;
 	}
 
@@ -192,7 +192,7 @@ final class NIOAgent extends Agent {
 		int nb = i == null ? 0 : i.intValue();
 		--nb;
 		if (nb > 0)
-			numberOfConnectionsPerIP.put(inetAddress, new Integer(nb));
+			numberOfConnectionsPerIP.put(inetAddress, Integer.valueOf(nb));
 	}
 
 	@Override

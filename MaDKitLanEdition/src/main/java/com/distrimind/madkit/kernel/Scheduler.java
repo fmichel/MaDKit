@@ -188,7 +188,7 @@ public class Scheduler extends Agent {
 	public void setGVT(final double GVT) {
 		this.GVT = GVT;
 		if (gvtModel != null) {
-			gvtModel.notifyObservers(new Integer((int) GVT));
+			gvtModel.notifyObservers(Integer.valueOf((int) GVT));
 		}
 	}
 

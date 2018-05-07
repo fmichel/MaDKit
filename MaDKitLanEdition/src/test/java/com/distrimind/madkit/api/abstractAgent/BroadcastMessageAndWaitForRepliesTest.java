@@ -146,7 +146,7 @@ public class BroadcastMessageAndWaitForRepliesTest extends JunitMadkit {
 				assertEquals(SUCCESS, requestRole(GROUP, ROLE));
 				assertEquals(SUCCESS, launchAgent(target3));
 				assertEquals(1,
-						broadcastMessageWithRoleAndWaitForReplies(GROUP, ROLE, new Message(), null, new Integer(100))
+						broadcastMessageWithRoleAndWaitForReplies(GROUP, ROLE, new Message(), null, Integer.valueOf(100))
 								.getReplies().size());
 			}
 		});
@@ -162,10 +162,10 @@ public class BroadcastMessageAndWaitForRepliesTest extends JunitMadkit {
 				assertEquals(SUCCESS, launchAgent(new sendReplyInLiveAgent()));
 				assertEquals(SUCCESS, launchAgent(new sendReplyInLiveAgent()));
 				assertEquals(2,
-						broadcastMessageWithRoleAndWaitForReplies(GROUP, ROLE, new Message(), null, new Integer(100))
+						broadcastMessageWithRoleAndWaitForReplies(GROUP, ROLE, new Message(), null, Integer.valueOf(100))
 								.getReplies().size());
 				assertEquals(2,
-						broadcastMessageWithRoleAndWaitForReplies(GROUP, ROLE, new Message(), null, new Integer(100))
+						broadcastMessageWithRoleAndWaitForReplies(GROUP, ROLE, new Message(), null, Integer.valueOf(100))
 								.getReplies().size());
 			}
 		});
@@ -182,10 +182,10 @@ public class BroadcastMessageAndWaitForRepliesTest extends JunitMadkit {
 				assertEquals(SUCCESS, launchAgent(new sendEmptyReplyInLiveAgent()));
 				assertEquals(SUCCESS, launchAgent(new sendEmptyReplyInLiveAgent()));
 				assertEquals(1,
-						broadcastMessageWithRoleAndWaitForReplies(GROUP, ROLE, new Message(), null, new Integer(100))
+						broadcastMessageWithRoleAndWaitForReplies(GROUP, ROLE, new Message(), null, Integer.valueOf(100))
 								.getReplies().size());
 				assertEquals(1,
-						broadcastMessageWithRoleAndWaitForReplies(GROUP, ROLE, new Message(), null, new Integer(100))
+						broadcastMessageWithRoleAndWaitForReplies(GROUP, ROLE, new Message(), null, Integer.valueOf(100))
 								.getReplies().size());
 			}
 		});
@@ -201,10 +201,10 @@ public class BroadcastMessageAndWaitForRepliesTest extends JunitMadkit {
 				assertEquals(SUCCESS, launchAgent(new sendEmptyReplyInLiveAgent()));
 				assertEquals(SUCCESS, launchAgent(new sendEmptyReplyInLiveAgent()));
 				assertEquals(0,
-						broadcastMessageWithRoleAndWaitForReplies(GROUP, ROLE, new Message(), null, new Integer(100))
+						broadcastMessageWithRoleAndWaitForReplies(GROUP, ROLE, new Message(), null, Integer.valueOf(100))
 								.getReplies().size());
 				assertEquals(0,
-						broadcastMessageWithRoleAndWaitForReplies(GROUP, ROLE, new Message(), null, new Integer(100))
+						broadcastMessageWithRoleAndWaitForReplies(GROUP, ROLE, new Message(), null, Integer.valueOf(100))
 								.getReplies().size());
 			}
 		});
@@ -220,10 +220,10 @@ public class BroadcastMessageAndWaitForRepliesTest extends JunitMadkit {
 				assertEquals(SUCCESS, launchAgent(new sendReplyInLiveAgent()));
 				assertEquals(SUCCESS, launchAgent(new sendReplyInLiveAgent()));
 				assertEquals(0,
-						broadcastMessageWithRoleAndWaitForReplies(GROUP, ROLE, new Message(), null, new Integer(0))
+						broadcastMessageWithRoleAndWaitForReplies(GROUP, ROLE, new Message(), null, Integer.valueOf(0))
 								.getReplies().size());
 				assertEquals(0,
-						broadcastMessageWithRoleAndWaitForReplies(GROUP, ROLE, new Message(), null, new Integer(-1))
+						broadcastMessageWithRoleAndWaitForReplies(GROUP, ROLE, new Message(), null, Integer.valueOf(-1))
 								.getReplies().size());
 			}
 		});
@@ -239,10 +239,10 @@ public class BroadcastMessageAndWaitForRepliesTest extends JunitMadkit {
 				assertEquals(SUCCESS, launchAgent(new sendReplyInLiveAgent()));
 				assertEquals(SUCCESS, launchAgent(new sendReplyInLiveAgent(1000)));
 				assertEquals(1,
-						broadcastMessageWithRoleAndWaitForReplies(GROUP, ROLE, new Message(), null, new Integer(100))
+						broadcastMessageWithRoleAndWaitForReplies(GROUP, ROLE, new Message(), null, Integer.valueOf(100))
 								.getReplies().size());
 				assertEquals(1,
-						broadcastMessageWithRoleAndWaitForReplies(GROUP, ROLE, new Message(), null, new Integer(100))
+						broadcastMessageWithRoleAndWaitForReplies(GROUP, ROLE, new Message(), null, Integer.valueOf(100))
 								.getReplies().size());
 			}
 		});
@@ -288,13 +288,13 @@ public class BroadcastMessageAndWaitForRepliesTest extends JunitMadkit {
 				@SuppressWarnings("unused")
 				AgentAddress aa = getAgentWithRole(GROUP, ROLE);
 				assertEquals(0,
-						broadcastMessageWithRoleAndWaitForReplies(GROUP, ROLE, new Message(), aa(), new Integer(100))
+						broadcastMessageWithRoleAndWaitForReplies(GROUP, ROLE, new Message(), aa(), Integer.valueOf(100))
 								.getReplies().size());// not
 														// role
 														// warning
 				assertEquals(SUCCESS, leaveGroup(GROUP));
 				assertEquals(0,
-						broadcastMessageWithRoleAndWaitForReplies(GROUP, ROLE, new Message(), aa(), new Integer(100))
+						broadcastMessageWithRoleAndWaitForReplies(GROUP, ROLE, new Message(), aa(), Integer.valueOf(100))
 								.getReplies().size());// not
 														// role
 														// warning
@@ -315,16 +315,16 @@ public class BroadcastMessageAndWaitForRepliesTest extends JunitMadkit {
 				@SuppressWarnings("unused")
 				AgentAddress aa = getAgentWithRole(GROUP, ROLE);
 				assertEquals(0, broadcastMessageWithRoleAndWaitForReplies(new Group(aa(), G), ROLE, new Message(), null,
-						new Integer(100)).getReplies().size());
+						Integer.valueOf(100)).getReplies().size());
 				assertEquals(SUCCESS, leaveGroup(GROUP));
 				assertEquals(0, broadcastMessageWithRoleAndWaitForReplies(new Group(C, aa()), ROLE, new Message(), null,
-						new Integer(100)).getReplies().size());
+						Integer.valueOf(100)).getReplies().size());
 				assertEquals(0,
-						broadcastMessageWithRoleAndWaitForReplies(GROUP, aa(), new Message(), null, new Integer(100))
+						broadcastMessageWithRoleAndWaitForReplies(GROUP, aa(), new Message(), null, Integer.valueOf(100))
 								.getReplies().size());
 				assertEquals(SUCCESS, requestRole(GROUP, ROLE));
 				assertEquals(0,
-						broadcastMessageWithRoleAndWaitForReplies(GROUP, ROLE, new Message(), aa(), new Integer(100))
+						broadcastMessageWithRoleAndWaitForReplies(GROUP, ROLE, new Message(), aa(), Integer.valueOf(100))
 								.getReplies().size());
 
 			}
@@ -338,7 +338,7 @@ public class BroadcastMessageAndWaitForRepliesTest extends JunitMadkit {
 			protected void activate() throws InterruptedException {
 				try {
 					broadcastMessageWithRoleAndWaitForReplies(new Group(null, aa()), aa(), new Message(), null,
-							new Integer(0));
+							Integer.valueOf(0));
 					noExceptionFailure();
 				} catch (NullPointerException e) {
 					throw e;
@@ -356,7 +356,7 @@ public class BroadcastMessageAndWaitForRepliesTest extends JunitMadkit {
 				assertEquals(SUCCESS, requestRole(GROUP, ROLE));
 				assertEquals(SUCCESS, launchAgent(target));
 				try {
-					broadcastMessageWithRoleAndWaitForReplies(null, aa(), new Message(), null, new Integer(0));
+					broadcastMessageWithRoleAndWaitForReplies(null, aa(), new Message(), null, Integer.valueOf(0));
 					noExceptionFailure();
 				} catch (NullPointerException e) {
 					throw e;
@@ -374,7 +374,7 @@ public class BroadcastMessageAndWaitForRepliesTest extends JunitMadkit {
 				assertEquals(SUCCESS, requestRole(GROUP, ROLE));
 				assertEquals(SUCCESS, launchAgent(target));
 				try {
-					broadcastMessageWithRoleAndWaitForReplies(GROUP, null, new Message(), null, new Integer(0));
+					broadcastMessageWithRoleAndWaitForReplies(GROUP, null, new Message(), null, Integer.valueOf(0));
 					noExceptionFailure();
 				} catch (NullPointerException e) {
 					throw e;
@@ -392,7 +392,7 @@ public class BroadcastMessageAndWaitForRepliesTest extends JunitMadkit {
 				assertEquals(SUCCESS, requestRole(GROUP, ROLE));
 				assertEquals(SUCCESS, launchAgent(target));
 				try {
-					broadcastMessageWithRoleAndWaitForReplies(GROUP, ROLE, null, null, new Integer(0));
+					broadcastMessageWithRoleAndWaitForReplies(GROUP, ROLE, null, null, Integer.valueOf(0));
 					noExceptionFailure();
 				} catch (NullPointerException e) {
 					throw e;

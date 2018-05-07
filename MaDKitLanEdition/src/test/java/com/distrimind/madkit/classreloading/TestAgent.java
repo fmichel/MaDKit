@@ -37,6 +37,7 @@
  */
 package com.distrimind.madkit.classreloading;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.logging.Level;
 
 import com.distrimind.madkit.classreloading.anotherPackage.Fake;
@@ -91,12 +92,20 @@ public class TestAgent extends Agent {
 				System.err.println(System.getProperty("java.class.path"));
 				MadkitClassLoader.reloadClass("madkit.classreloading.anotherPackage.Fake");
 				logger.info("after reload : " + MadkitClassLoader.getLoader()
-						.loadClass("madkit.classreloading.anotherPackage.Fake").newInstance().toString());
+						.loadClass("madkit.classreloading.anotherPackage.Fake").getDeclaredConstructor().newInstance().toString());
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			} catch (InstantiationException e) {
 				e.printStackTrace();
 			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				e.printStackTrace();
+			} catch (NoSuchMethodException e) {
+				e.printStackTrace();
+			} catch (SecurityException e) {
 				e.printStackTrace();
 			}
 			logger.info("\nfake3 is " + (new Fake().toString()));

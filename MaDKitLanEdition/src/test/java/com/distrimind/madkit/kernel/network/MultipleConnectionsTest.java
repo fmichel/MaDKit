@@ -77,12 +77,12 @@ public class MultipleConnectionsTest extends JunitMadkit {
 			res.addAll(data(NetworkEventListener.getNetworkEventListenersForLocalClientServerConnection(true, true,
 					false, true, true, false, null, HOST_NUMBERS - 1, 1, 2, 3, 4, 5), null, null));
 			res.addAll(data(NetworkEventListener.getNetworkEventListenersForLocalClientServerConnection(true, true,
-					false, true, true, false, null, HOST_NUMBERS - 1, 1, 2, 3, 4, 5), new Integer(100), null));
+					false, true, true, false, null, HOST_NUMBERS - 1, 1, 2, 3, 4, 5), Integer.valueOf(100), null));
 			res.addAll(data(NetworkEventListener.getNetworkEventListenersForLocalClientServerConnection(true, true,
-					false, true, true, false, null, HOST_NUMBERS - 1, 1, 2, 3, 4, 5), null, new Integer(200)));
+					false, true, true, false, null, HOST_NUMBERS - 1, 1, 2, 3, 4, 5), null, Integer.valueOf(200)));
 			res.addAll(data(NetworkEventListener.getNetworkEventListenersForLocalClientServerConnection(true, true,
-					false, true, true, false, null, HOST_NUMBERS - 1, 1, 2, 3, 4, 5), new Integer(100),
-					new Integer(200)));
+					false, true, true, false, null, HOST_NUMBERS - 1, 1, 2, 3, 4, 5), Integer.valueOf(100),
+					Integer.valueOf(200)));
 			return res;
 		} catch (Exception e) {
 			e.printStackTrace();

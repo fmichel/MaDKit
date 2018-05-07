@@ -109,7 +109,7 @@ public class BindsTest {
 	 */
 	private void testKey(int i, String name) {
 		if (i != KeyEvent.VK_DOLLAR) {
-			String e = keys.put(new Integer(i), name);
+			String e = keys.put(Integer.valueOf(i), name);
 			if (e != null) {
 				fail(name + " has same key (" + i + ") as " + e);
 			}

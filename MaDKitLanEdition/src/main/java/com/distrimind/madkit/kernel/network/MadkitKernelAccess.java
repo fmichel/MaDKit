@@ -257,7 +257,7 @@ class MadkitKernelAccess {
 
 	static void setIDPacket(BigDataPropositionMessage m, int idPacket) {
 		try {
-			invoke(m_set_big_data_id_packet, m, new Integer(idPacket));
+			invoke(m_set_big_data_id_packet, m, Integer.valueOf(idPacket));
 		} catch (InvocationTargetException e) {
 			System.err.println("Unexpected error :");
 			e.printStackTrace();
@@ -267,7 +267,7 @@ class MadkitKernelAccess {
 
 	static void connectionLost(BigDataPropositionMessage m, long dataTransfered) {
 		try {
-			invoke(m_big_data_connection_lost, m, new Long(dataTransfered));
+			invoke(m_big_data_connection_lost, m, Long.valueOf(dataTransfered));
 		} catch (InvocationTargetException e) {
 			System.err.println("Unexpected error :");
 			e.printStackTrace();
@@ -277,7 +277,7 @@ class MadkitKernelAccess {
 
 	static void dataCorrupted(BigDataPropositionMessage m, long dataTransfered) {
 		try {
-			invoke(m_big_data_data_corrupted, m, new Long(dataTransfered));
+			invoke(m_big_data_data_corrupted, m, Long.valueOf(dataTransfered));
 		} catch (InvocationTargetException e) {
 			System.err.println("Unexpected error :");
 			e.printStackTrace();
@@ -287,7 +287,7 @@ class MadkitKernelAccess {
 
 	static void transferCompleted(BigDataPropositionMessage m, long dataTransfered) {
 		try {
-			invoke(m_big_data_complete, m, new Long(dataTransfered));
+			invoke(m_big_data_complete, m, Long.valueOf(dataTransfered));
 		} catch (InvocationTargetException e) {
 			System.err.println("Unexpected error :");
 			e.printStackTrace();
@@ -334,7 +334,7 @@ class MadkitKernelAccess {
 			AgentAddress sender, AgentAddress receiver, long readDataLength, long duration) {
 		try {
 			invoke(m_connectionLostForBigDataTransfer, getMadkitKernel(requester), requester, conversationID,
-					new Integer(idPacket), sender, receiver, new Long(readDataLength), new Long(duration));
+					Integer.valueOf(idPacket), sender, receiver, Long.valueOf(readDataLength), Long.valueOf(duration));
 		} catch (InvocationTargetException e) {
 			System.err.println("Unexpected error :");
 			e.printStackTrace();

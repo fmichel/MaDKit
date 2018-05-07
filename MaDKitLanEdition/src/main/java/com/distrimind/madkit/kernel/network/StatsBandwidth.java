@@ -76,7 +76,7 @@ public class StatsBandwidth {
 		if (transfer_agents_bandwidth.containsKey(id.getID()))
 			return;
 		synchronized (this) {
-			transfer_agents_bandwidth.put(new Integer(id.getID()), stats);
+			transfer_agents_bandwidth.put(Integer.valueOf(id.getID()), stats);
 		}
 	}
 
@@ -84,7 +84,7 @@ public class StatsBandwidth {
 		if (id == null)
 			throw new NullPointerException("id");
 		synchronized (this) {
-			StatsBandwidth sb = transfer_agents_bandwidth.remove(new Integer(id.getID()));
+			StatsBandwidth sb = transfer_agents_bandwidth.remove(Integer.valueOf(id.getID()));
 			/*
 			 * if (sb==null) throw new IllegalArgumentException();
 			 */

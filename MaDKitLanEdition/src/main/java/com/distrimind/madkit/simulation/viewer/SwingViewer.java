@@ -163,7 +163,7 @@ public abstract class SwingViewer extends Watcher {
 				comboBox.setVisible(synchronousPainting);
 			}
 		});
-		rendering.putValue(Action.SELECTED_KEY, new Boolean(!synchronousPainting));
+		rendering.putValue(Action.SELECTED_KEY, Boolean.valueOf(!synchronousPainting));
 	}
 
 	/**
@@ -178,7 +178,7 @@ public abstract class SwingViewer extends Watcher {
 	 * @param activated true if the rendering must be activated
 	 */
 	public void setRendering(boolean activated) {
-		rendering.putValue(Action.SELECTED_KEY, new Boolean(!activated));
+		rendering.putValue(Action.SELECTED_KEY, Boolean.valueOf(!activated));
 	}
 
 	/**
@@ -267,7 +267,7 @@ public abstract class SwingViewer extends Watcher {
 	 *            the synchronousPainting mode to set
 	 */
 	public void setSynchronousPainting(boolean synchronousPainting) {
-		synchroPainting.putValue(Action.SELECTED_KEY, new Boolean(!synchronousPainting));
+		synchroPainting.putValue(Action.SELECTED_KEY, Boolean.valueOf(!synchronousPainting));
 	}
 
 	/**
@@ -332,16 +332,16 @@ public abstract class SwingViewer extends Watcher {
 	public void setRenderingInterval(int interval) {
 		renderingInterval = interval > 0 ? interval : 1;
 		if ((int) ((Integer) comboBox.getSelectedItem()).intValue() != renderingInterval) {
-			comboBox.setSelectedItem(new Integer(renderingInterval));
+			comboBox.setSelectedItem(Integer.valueOf(renderingInterval));
 		}
 	}
 
 	@SuppressWarnings("serial")
 	private void initRenderingIntervalComboBox(String titleAndTooltip) {
-		final Integer[] defaultValues = { new Integer(1), new Integer(5), new Integer(10), new Integer(20),
-				new Integer(50), new Integer(100), new Integer(200), new Integer(500), new Integer(1000),
-				new Integer(5000), new Integer(10000), new Integer(50000), new Integer(100000), new Integer(200000),
-				new Integer(500000) };
+		final Integer[] defaultValues = { Integer.valueOf(1), Integer.valueOf(5), Integer.valueOf(10), Integer.valueOf(20),
+				Integer.valueOf(50), Integer.valueOf(100), Integer.valueOf(200), Integer.valueOf(500), Integer.valueOf(1000),
+				Integer.valueOf(5000), Integer.valueOf(10000), Integer.valueOf(50000), Integer.valueOf(100000), Integer.valueOf(200000),
+				Integer.valueOf(500000) };
 		comboBox = new JComboBox<Integer>(defaultValues) {
 			public java.awt.Dimension getMaximumSize() {
 				return new Dimension(125, 38);
@@ -358,7 +358,7 @@ public abstract class SwingViewer extends Watcher {
 				try {
 					setRenderingInterval((int) ((Integer) comboBox.getSelectedItem()).intValue());
 				} catch (ClassCastException e1) {
-					comboBox.setSelectedItem(new Integer(1));
+					comboBox.setSelectedItem(Integer.valueOf(1));
 				}
 			}
 		});

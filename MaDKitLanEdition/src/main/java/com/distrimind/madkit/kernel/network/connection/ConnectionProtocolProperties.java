@@ -189,8 +189,8 @@ public abstract class ConnectionProtocolProperties<CP extends ConnectionProtocol
 					return null;
 			}
 			return c.newInstance(_distant_inet_address, _distant_inet_address, sub, sql_connection, mkProperties, _properties,
-					new Integer(subProtocolLevel), new Boolean(isServer),
-					new Boolean(needBiDirectionnalConnectionInitiationAbility));
+					Integer.valueOf(subProtocolLevel), Boolean.valueOf(isServer),
+					Boolean.valueOf(needBiDirectionnalConnectionInitiationAbility));
 		} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException e) {
 			throw new NIOException("Impossible to instantiate class " + connectionProtocolClass.getCanonicalName(), e);

@@ -179,7 +179,7 @@ public class AgentBigTransfer extends AgentFakeThread {
 							thisRole);
 					AgentBigTransfer agb = new AgentBigTransfer(thisPeerNumber, accept, useMessageDigest, sendShortData,
 							otherSendData, true, 1, isLocal, false, null);
-					agb.otherConnected.put(myAgentAddress, new Boolean(true));
+					agb.otherConnected.put(myAgentAddress, Boolean.valueOf(true));
 					// agb.otherNumber++;
 					launchAgent(agb);
 					ok &= agb.getKernelAddress().equals(this.getKernelAddress());
@@ -189,7 +189,7 @@ public class AgentBigTransfer extends AgentFakeThread {
 							.getAgentAddressIn(JunitMadkit.DEFAULT_NETWORK_GROUP_FOR_ACCESS_DATA, thisRole);
 					ok &= otherAgentAddress != null;
 					Assert.assertNotNull(otherAgentAddress);
-					otherConnected.put(otherAgentAddress, new Boolean(true));
+					otherConnected.put(otherAgentAddress, Boolean.valueOf(true));
 					/*
 					 * if (otherSendData) otherNumber++;
 					 */
@@ -245,7 +245,7 @@ public class AgentBigTransfer extends AgentFakeThread {
 				// thisRole) ))
 				if (m.getSourceAgent().getRole().equals(thisRole) && (!m.getSourceAgent().representsSameAgentThan(
 						getAgentAddressIn(JunitMadkit.DEFAULT_NETWORK_GROUP_FOR_ACCESS_DATA, thisRole)) && !isLocal)) {
-					if (otherConnected.put(m.getSourceAgent(), new Boolean(true)) == null) {
+					if (otherConnected.put(m.getSourceAgent(), Boolean.valueOf(true)) == null) {
 						sendMessageWithRole(m.getSourceAgent(),
 								new OrganizationEvent(AgentActionEvent.REQUEST_ROLE,
 										getAgentAddressIn(JunitMadkit.DEFAULT_NETWORK_GROUP_FOR_ACCESS_DATA, thisRole)),
@@ -427,15 +427,15 @@ public class AgentBigTransfer extends AgentFakeThread {
 		for (ConversationID s : ((HashMap<ConversationID, RealTimeTransfertStat>) myStats.clone()).keySet()) {
 			RealTimeTransfertStat myStat = myStats.get(s);
 
-			res += ", upload(" + s + ")=" + (myStat == null ? new Double(-1)
-					: new Double((((double) myStat.getNumberOfIndentifiedBytes()) / ((double) myStat.getDuration()))));
+			res += ", upload(" + s + ")=" + (myStat == null ? Double.valueOf(-1)
+					: Double.valueOf((((double) myStat.getNumberOfIndentifiedBytes()) / ((double) myStat.getDuration()))));
 		}
 		res += "\n\t";
 		for (ConversationID s : ((HashMap<ConversationID, RealTimeTransfertStat>) otherStats.clone()).keySet()) {
 			RealTimeTransfertStat otherStat = otherStats.get(s);
 
-			res += ", download(" + s + ")=" + (otherStat == null ? new Double(-1)
-					: new Double(
+			res += ", download(" + s + ")=" + (otherStat == null ? Double.valueOf(-1)
+					: Double.valueOf(
 							(((double) otherStat.getNumberOfIndentifiedBytes()) / ((double) otherStat.getDuration()))));
 		}
 		return res;

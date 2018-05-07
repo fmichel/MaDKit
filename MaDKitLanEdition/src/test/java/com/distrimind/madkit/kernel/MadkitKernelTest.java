@@ -39,6 +39,8 @@ package com.distrimind.madkit.kernel;
 
 import static org.junit.Assert.assertEquals;
 
+import java.lang.reflect.InvocationTargetException;
+
 import org.junit.Test;
 
 import com.distrimind.madkit.kernel.AbstractAgent;
@@ -55,7 +57,7 @@ public class MadkitKernelTest extends JunitMadkit {
 						assertEquals(i, getKernel().createBucket(AbstractAgent.class.getName(), i, 6).size());
 					}
 					assertEquals(0, getKernel().createBucket(AbstractAgent.class.getName(), 0, 6).size());
-				} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+				} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 					e.printStackTrace();
 				}
 			}

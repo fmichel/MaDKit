@@ -362,9 +362,9 @@ public final class IPBanStat extends Table<IPBanStat.Record> {
 					hm.put("inet_address", inet_address.getAddress());
 					IPBanned.Record r = ipb.getRecord(hm);
 					if (r == null) {
-						return new Boolean(false);
+						return Boolean.valueOf(false);
 					}
-					return new Boolean(r.expiration_time > System.currentTimeMillis());
+					return Boolean.valueOf(r.expiration_time > System.currentTimeMillis());
 				}
 
 				@Override

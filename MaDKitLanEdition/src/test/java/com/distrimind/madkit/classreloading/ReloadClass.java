@@ -37,6 +37,8 @@
  */
 package com.distrimind.madkit.classreloading;
 
+import java.lang.reflect.InvocationTargetException;
+
 import com.distrimind.madkit.classreloading.anotherPackage.Fake;
 import com.distrimind.madkit.kernel.Agent;
 import com.distrimind.madkit.kernel.MadkitClassLoader;
@@ -60,13 +62,21 @@ public class ReloadClass extends Agent {
 		try {
 			MadkitClassLoader.reloadClass(Fake.class.getName());
 			final Class<?> newestClassVersion = MadkitClassLoader.getLoader().loadClass(Fake.class.getName());
-			logger.info(newestClassVersion.newInstance().toString());
+			logger.info(newestClassVersion.getDeclaredConstructor().newInstance().toString());
 			this.killAgent(this);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} catch (InstantiationException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+		} catch (SecurityException e) {
 			e.printStackTrace();
 		}
 	}

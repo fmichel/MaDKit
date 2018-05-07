@@ -72,6 +72,7 @@ import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -1005,7 +1006,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 		try {
 			bucket = getMadkitKernel().createBucket(agentClassName, bucketSize, cpuCoreNb);
 			launchAgentBucket(bucket, cpuCoreNb, roles);
-		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 			cannotLaunchAgent(agentClassName, e, null);
 		}
 		return bucket;
@@ -3064,8 +3065,8 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 															// parameterized timeout
 				}
 			}
-		} catch (NullPointerException | ClassNotFoundException | NoSuchFieldException | NumberFormatException
-				| InstantiationException | IllegalAccessException e) {
+		} catch (NullPointerException | ClassNotFoundException | NoSuchFieldException 
+				| InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException | DOMException e) {
 			getLogger().severeLog("launchNode " + Words.FAILED + " : " + XMLUtilities.nodeToString(agentXmlNode), e);
 			return ReturnCode.SEVERE;
 		}
@@ -3121,22 +3122,22 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 		} else if (type == Integer.class) {
 			int value = Integer.parseInt(stringValue);
 			for (AbstractAgent a : l) {
-				f.set(a, new Integer(value));
+				f.set(a, Integer.valueOf(value));
 			}
 		} else if (type == Boolean.class) {
 			boolean value = Boolean.parseBoolean(stringValue);
 			for (AbstractAgent a : l) {
-				f.set(a, new Boolean(value));
+				f.set(a, Boolean.valueOf(value));
 			}
 		} else if (type == Float.class) {
 			float value = Float.parseFloat(stringValue);
 			for (AbstractAgent a : l) {
-				f.set(a, new Float(value));
+				f.set(a, Float.valueOf(value));
 			}
 		} else if (type == Double.class) {
 			double value = Double.parseDouble(stringValue);
 			for (AbstractAgent a : l) {
-				f.set(a, new Double(value));
+				f.set(a, Double.valueOf(value));
 			}
 		} else if (type == String.class) {
 			for (AbstractAgent a : l) {
@@ -3145,17 +3146,17 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 		} else if (type == Byte.class) {
 			byte value = Byte.parseByte(stringValue);
 			for (AbstractAgent a : l) {
-				f.set(a, new Byte(value));
+				f.set(a, Byte.valueOf(value));
 			}
 		} else if (type == Short.class) {
 			short value = Short.parseShort(stringValue);
 			for (AbstractAgent a : l) {
-				f.set(a, new Short(value));
+				f.set(a, Short.valueOf(value));
 			}
 		} else if (type == Long.class) {
 			long value = Long.parseLong(stringValue);
 			for (AbstractAgent a : l) {
-				f.set(a, new Long(value));
+				f.set(a, Long.valueOf(value));
 			}
 		} else {
 			if (logger != null)

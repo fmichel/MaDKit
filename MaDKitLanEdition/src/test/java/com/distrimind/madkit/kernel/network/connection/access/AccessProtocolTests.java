@@ -142,7 +142,7 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 		o[3] = acceptedReceiverIdentifiers;
 		o[4] = identifierPassordsAsker;
 		o[5] = identifierPassordsReceiver;
-		o[6] = new Boolean(databaseEnabled);
+		o[6] = Boolean.valueOf(databaseEnabled);
 		o[7] = accessProtocolProperties;
 		res.add(o);
 
@@ -185,7 +185,7 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 		o[3] = acceptedReceiverIdentifiers;
 		o[4] = identifierPassordsAsker;
 		o[5] = identifierPassordsReceiver;
-		o[6] = new Boolean(databaseEnabled);
+		o[6] = Boolean.valueOf(databaseEnabled);
 		o[7] = accessProtocolProperties;
 		res.add(o);
 
@@ -228,7 +228,7 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 		o[3] = acceptedReceiverIdentifiers;
 		o[4] = identifierPassordsAsker;
 		o[5] = identifierPassordsReceiver;
-		o[6] = new Boolean(databaseEnabled);
+		o[6] = Boolean.valueOf(databaseEnabled);
 		o[7] = accessProtocolProperties;
 		res.add(o);
 
@@ -273,7 +273,7 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 		o[3] = acceptedReceiverIdentifiers;
 		o[4] = identifierPassordsAsker;
 		o[5] = identifierPassordsReceiver;
-		o[6] = new Boolean(databaseEnabled);
+		o[6] = Boolean.valueOf(databaseEnabled);
 		o[7] = accessProtocolProperties;
 		res.add(o);
 
@@ -318,7 +318,7 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 		o[3] = acceptedReceiverIdentifiers;
 		o[4] = identifierPassordsAsker;
 		o[5] = identifierPassordsReceiver;
-		o[6] = new Boolean(databaseEnabled);
+		o[6] = Boolean.valueOf(databaseEnabled);
 		o[7] = accessProtocolProperties;
 		res.add(o);
 
@@ -363,7 +363,7 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 		o[3] = acceptedReceiverIdentifiers;
 		o[4] = identifierPassordsAsker;
 		o[5] = identifierPassordsReceiver;
-		o[6] = new Boolean(databaseEnabled);
+		o[6] = Boolean.valueOf(databaseEnabled);
 		o[7] = accessProtocolProperties;
 		res.add(o);
 

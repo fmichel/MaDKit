@@ -45,6 +45,7 @@ import static com.distrimind.madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static com.distrimind.madkit.kernel.AbstractAgent.ReturnCode.TIMEOUT;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -881,7 +882,7 @@ final class LoggedKernel extends MadkitKernel {
 
 	@Override
 	List<AbstractAgent> createBucket(final String agentClass, int bucketSize, int cpuCoreNb)
-			throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+			throws InstantiationException, IllegalAccessException, ClassNotFoundException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
 		return kernel.createBucket(agentClass, bucketSize, cpuCoreNb);
 	}
 

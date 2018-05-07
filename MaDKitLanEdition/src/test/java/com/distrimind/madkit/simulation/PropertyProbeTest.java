@@ -224,8 +224,8 @@ public class PropertyProbeTest extends JunitMadkit {
 				Watcher s = new Watcher();
 				assertEquals(SUCCESS, launchAgent(s));
 				s.addProbe(fp);
-				assertEquals(new Double(9d), fp.getMaxValue());
-				assertEquals(new Double(0d), fp.getMinValue());
+				assertEquals(Double.valueOf(9d), fp.getMaxValue());
+				assertEquals(Double.valueOf(0d), fp.getMinValue());
 			}
 		}, ReturnCode.SUCCESS);
 	}

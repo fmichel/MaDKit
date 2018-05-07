@@ -108,7 +108,7 @@ public final class KeysPairs extends Table<KeysPairs.Record> {
 						@Override
 						public ASymmetricKeyPair run() throws Exception {
 							HashMap<String, Object> map = new HashMap<>();
-							map.put("identifier", new Long(getIdentifier(_inet_address, usingType, algorithmForEncryption, algorithmForSignature, _key_size,
+							map.put("identifier", Long.valueOf(getIdentifier(_inet_address, usingType, algorithmForEncryption, algorithmForSignature, _key_size,
 									maximumNumberOfKeysForIpSpectrum)));
 							Record r = getRecord(map);
 							if (r == null) {
@@ -183,7 +183,7 @@ public final class KeysPairs extends Table<KeysPairs.Record> {
 			final ASymmetricEncryptionType algorithmForEncryption, final ASymmetricAuthentifiedSignatureType algorithmForSignature, final short _key_size, final AbstractSecureRandom random,
 			final long expiration, short maximumNumberOfKeysForIpSpectrum) throws DatabaseException {
 		final HashMap<String, Object> map = new HashMap<>();
-		map.put("identifier", new Long(
+		map.put("identifier", Long.valueOf(
 				getIdentifier(_inet_address, usingType, algorithmForEncryption, algorithmForSignature, _key_size, maximumNumberOfKeysForIpSpectrum)));
 
 		try {

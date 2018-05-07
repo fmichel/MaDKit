@@ -69,7 +69,7 @@ public class AgentActionTest extends JunitMadkit {
 				 */
 
 				AbstractAgent a = new Agent();
-				EnumMessage<AgentAction> m = new EnumMessage<>(AgentAction.LAUNCH_AGENT, a, new Boolean(true));
+				EnumMessage<AgentAction> m = new EnumMessage<>(AgentAction.LAUNCH_AGENT, a, Boolean.valueOf(true));
 				proceedEnumMessage(m);
 				assertTrue(a.isAlive());
 				assertTrue(a.hasGUI());
@@ -105,7 +105,7 @@ public class AgentActionTest extends JunitMadkit {
 				assertFalse(a.hasGUI());
 
 				a = new Agent();
-				m = new EnumMessage<>(AgentAction.LAUNCH_AGENT, new Object(), new Boolean(true));
+				m = new EnumMessage<>(AgentAction.LAUNCH_AGENT, new Object(), Boolean.valueOf(true));
 				proceedEnumMessage(m);
 				assertFalse(a.hasGUI());
 			}
@@ -129,7 +129,7 @@ public class AgentActionTest extends JunitMadkit {
 				assertFalse(a.hasGUI());
 
 				a = new Agent();
-				m = new EnumMessage<>(AgentAction.LAUNCH_AGENT, null, new Boolean(true));
+				m = new EnumMessage<>(AgentAction.LAUNCH_AGENT, null, Boolean.valueOf(true));
 				proceedEnumMessage(m);
 				assertFalse(a.hasGUI());
 			}

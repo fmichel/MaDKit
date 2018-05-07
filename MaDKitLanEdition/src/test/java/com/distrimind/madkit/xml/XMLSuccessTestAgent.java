@@ -52,7 +52,7 @@ import com.distrimind.madkit.kernel.AbstractAgent;
  */
 public class XMLSuccessTestAgent extends AbstractAgent {
 	private int speed = 0;
-	private Integer i = new Integer(10);
+	private Integer i = Integer.valueOf(10);
 	private String s = "t";
 
 	/**

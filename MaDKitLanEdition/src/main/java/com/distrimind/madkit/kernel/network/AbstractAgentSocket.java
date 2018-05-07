@@ -364,12 +364,12 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 			if (max <= 0)
 				throw new IllegalArgumentException(
 						String.format(AgentSocketMessage.TO_MUCH_BYTE_CONNEC_PROTOCOL.toString(),
-								new Integer(SubBlocksStructure.getAbsoluteMaximumBlockSize(connection_protocol, 1, getMadkitConfig().networkProperties.maxRandomPacketValues)),
-								new Integer(0xFFFF)));
+								Integer.valueOf(SubBlocksStructure.getAbsoluteMaximumBlockSize(connection_protocol, 1, getMadkitConfig().networkProperties.maxRandomPacketValues)),
+								Integer.valueOf(0xFFFF)));
 			if (max_buffer_size > max)
 				throw new IllegalArgumentException(
 						String.format(AgentSocketMessage.BUFFER_SIZE_TO_BIG_CONSIDERING_CONNEC_PROTOCOL.toString(),
-								new Integer(max), new Integer(max_buffer_size)));
+								Integer.valueOf(max), Integer.valueOf(max_buffer_size)));
 			max_block_size = SubBlocksStructure.getAbsoluteMaximumBlockSize(connection_protocol, max_buffer_size, getMadkitConfig().networkProperties.maxRandomPacketValues);
 			if (max_block_size > Block.BLOCK_SIZE_LIMIT)
 				throw new NIOException(new UnexpectedException(AgentSocketMessage.UNEXPECTED_EXCEPTION.toString()));
@@ -1985,10 +1985,10 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 			if (timer_read == null)
 				timer_read = new Timer(true);
 			else
-				getStatistics().newDataReceived(new Integer(_block.getTransferID()), dataRead,
+				getStatistics().newDataReceived(Integer.valueOf(_block.getTransferID()), dataRead,
 						timer_read.getDeltaMili());
 			dataRead = _block.getBlockSize();
-			getStatistics().newDataReceived(new Integer(_block.getTransferID()), _block.getBlockSize());
+			getStatistics().newDataReceived(Integer.valueOf(_block.getTransferID()), _block.getBlockSize());
 			_block.setTransfertID(TransferAgent.NullIDTransfer.getID());
 			PacketPart p = getPacketPart(_block);
 			ReturnCode rc = sendMessageWithRole(this.agent_for_distant_kernel_aa, new ReceivedBlockData(p),
@@ -3187,7 +3187,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 			for (Iterator<Map.Entry<Integer, InterfacedIDTransfer>> it = data.entrySet().iterator(); it.hasNext();) {
 				Map.Entry<Integer, InterfacedIDTransfer> e = it.next();
 				if (e.getValue().getLastAccessUTC() < timeOut) {
-					AgentAddress aa = transfer_agents.remove(new Integer(e.getValue().getLocalID().getID()));
+					AgentAddress aa = transfer_agents.remove(Integer.valueOf(e.getValue().getLocalID().getID()));
 
 					if (!getTransfertType().equals(e.getValue().getLocalID()) && aa != null && checkAgentAddress(aa)) {
 						TransferClosedSystemMessage t = new TransferClosedSystemMessage(e.getValue().getLocalID(),
@@ -3198,7 +3198,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 								LocalCommunity.Roles.SOCKET_AGENT_ROLE);
 					}
 
-					propositions_in_progress.remove(new Integer(e.getValue().getLocalID().getID()));
+					propositions_in_progress.remove(Integer.valueOf(e.getValue().getLocalID().getID()));
 					it.remove();
 				}
 			}
@@ -3214,7 +3214,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 				for (InterfacedIDTransfer idt : hm.values()) {
 					if (idt.getLastAccessUTC() < timeOut) {
 						remove = true;
-						AgentAddress aa = transfer_agents.remove(new Integer(idt.getLocalID().getID()));
+						AgentAddress aa = transfer_agents.remove(Integer.valueOf(idt.getLocalID().getID()));
 
 						if (!getTransfertType().equals(idt.getLocalID()) && aa != null && checkAgentAddress(aa)) {
 							TransferClosedSystemMessage t = new TransferClosedSystemMessage(idt.getLocalID(),
@@ -3224,7 +3224,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 											idt.getTransferToKernelAddress(), true, idt.getLocalID())),
 									LocalCommunity.Roles.SOCKET_AGENT_ROLE);
 						}
-						propositions_in_progress.remove(new Integer(idt.getLocalID().getID()));
+						propositions_in_progress.remove(Integer.valueOf(idt.getLocalID().getID()));
 						break;
 					}
 				}
@@ -3346,7 +3346,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 		protected void putTransferPropositionSystemMessage(int id, TransferPropositionSystemMessage proposition) {
 			if (proposition == null)
 				throw new NullPointerException("null");
-			propositions_in_progress.put(new Integer(id), proposition);
+			propositions_in_progress.put(Integer.valueOf(id), proposition);
 		}
 
 		protected TransferPropositionSystemMessage getTransferPropositionSystemMessage(InterfacedIDTransfer id) {
@@ -3358,7 +3358,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 		}
 
 		protected TransferPropositionSystemMessage getTransferPropositionSystemMessage(int id) {
-			return propositions_in_progress.get(new Integer(id));
+			return propositions_in_progress.get(Integer.valueOf(id));
 		}
 
 		protected TransferPropositionSystemMessage removeTransferPropositionSystemMessage(InterfacedIDTransfer id) {
@@ -3370,7 +3370,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 		}
 
 		protected TransferPropositionSystemMessage removeTransferPropositionSystemMessage(int id) {
-			return propositions_in_progress.remove(new Integer(id));
+			return propositions_in_progress.remove(Integer.valueOf(id));
 		}
 
 		protected void putTransferAgentAddress(InterfacedIDTransfer id, AgentAddress transferAgentAddress) {
@@ -3384,7 +3384,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 		protected void putTransferAgentAddress(int id, AgentAddress transferAgentAddress) {
 			if (transferAgentAddress == null)
 				throw new NullPointerException("null");
-			transfer_agents.put(new Integer(id), transferAgentAddress);
+			transfer_agents.put(Integer.valueOf(id), transferAgentAddress);
 		}
 
 		protected AgentAddress getTransferAgentAddress(InterfacedIDTransfer id) {
@@ -3396,7 +3396,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 		}
 
 		protected AgentAddress getTransferAgentAddress(int id) {
-			return transfer_agents.get(new Integer(id));
+			return transfer_agents.get(Integer.valueOf(id));
 		}
 
 		protected AgentAddress removeTransferAgentAddress(InterfacedIDTransfer id) {
@@ -3408,11 +3408,11 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 		}
 
 		protected AgentAddress removeTransferAgentAddress(int id) {
-			return transfer_agents.remove(new Integer(id));
+			return transfer_agents.remove(Integer.valueOf(id));
 		}
 
 		protected HashMap<AgentAddress, InterfacedIDTransfer> getMiddle(int id) {
-			return middle_transfer_ids.get(new Integer(id));
+			return middle_transfer_ids.get(Integer.valueOf(id));
 		}
 
 		protected InterfacedIDTransfer getMiddle(IDTransfer id, AgentAddress comingFrom) {
@@ -3420,7 +3420,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 		}
 
 		protected InterfacedIDTransfer getMiddle(int id, AgentAddress comingFrom) {
-			HashMap<AgentAddress, InterfacedIDTransfer> hm = middle_transfer_ids.get(new Integer(id));
+			HashMap<AgentAddress, InterfacedIDTransfer> hm = middle_transfer_ids.get(Integer.valueOf(id));
 			if (hm == null)
 				return null;
 			else
@@ -3428,7 +3428,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 		}
 
 		protected InterfacedIDTransfer removeMiddleGoingTo(int id, AgentAddress goingTo) {
-			HashMap<AgentAddress, InterfacedIDTransfer> hm = middle_transfer_ids.get(new Integer(id));
+			HashMap<AgentAddress, InterfacedIDTransfer> hm = middle_transfer_ids.get(Integer.valueOf(id));
 			if (hm == null)
 				return null;
 			else {
@@ -3437,7 +3437,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 					if (idt.getTransferToAgentAddress().equals(goingTo)) {
 						it.remove();
 						if (hm.size() == 0)
-							middle_transfer_ids.remove(new Integer(id));
+							middle_transfer_ids.remove(Integer.valueOf(id));
 						AbstractAgentSocket.this.removeTaskTransferCheckerIfNecessary();
 						return idt;
 					}
@@ -3453,7 +3453,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 		}
 
 		protected InterfacedIDTransfer getMiddleGoingTo(int id, AgentAddress goingTo) {
-			HashMap<AgentAddress, InterfacedIDTransfer> hm = middle_transfer_ids.get(new Integer(id));
+			HashMap<AgentAddress, InterfacedIDTransfer> hm = middle_transfer_ids.get(Integer.valueOf(id));
 			if (hm == null)
 				return null;
 			else {
@@ -3472,17 +3472,17 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 		protected void putMiddle(int id, HashMap<AgentAddress, InterfacedIDTransfer> middle) {
 			if (middle == null)
 				throw new NullPointerException("middle");
-			middle_transfer_ids.put(new Integer(id), middle);
+			middle_transfer_ids.put(Integer.valueOf(id), middle);
 		}
 
 		protected void putMiddle(AgentAddress comingFrom, InterfacedIDTransfer idTransfer) {
 			if (idTransfer == null)
 				throw new NullPointerException("idTransfer");
 			HashMap<AgentAddress, InterfacedIDTransfer> hm = middle_transfer_ids
-					.get(new Integer(idTransfer.getLocalID().getID()));
+					.get(Integer.valueOf(idTransfer.getLocalID().getID()));
 			if (hm == null) {
 				hm = new HashMap<>();
-				middle_transfer_ids.put(new Integer(idTransfer.getLocalID().getID()), hm);
+				middle_transfer_ids.put(Integer.valueOf(idTransfer.getLocalID().getID()), hm);
 			}
 			hm.put(comingFrom, idTransfer);
 			AbstractAgentSocket.this.addTaskTransferCheckerIfNecessary();
@@ -3493,7 +3493,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 		}
 
 		protected HashMap<AgentAddress, InterfacedIDTransfer> removeMiddle(int id) {
-			return middle_transfer_ids.remove(new Integer(id));
+			return middle_transfer_ids.remove(Integer.valueOf(id));
 		}
 
 		protected HashMap<AgentAddress, InterfacedIDTransfer> removeMiddleFromDistantID(int id) {
@@ -3515,7 +3515,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 		}
 
 		protected InterfacedIDTransfer getLocal(int id) {
-			return local_transfer_ids.get(new Integer(id));
+			return local_transfer_ids.get(Integer.valueOf(id));
 		}
 
 		protected InterfacedIDTransfer getLocal(IDTransfer id) {
@@ -3525,12 +3525,12 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 		protected void putLocal(InterfacedIDTransfer idTransfer) {
 			if (idTransfer == null)
 				throw new NullPointerException("idTransfer");
-			local_transfer_ids.put(new Integer(idTransfer.getLocalID().getID()), idTransfer);
+			local_transfer_ids.put(Integer.valueOf(idTransfer.getLocalID().getID()), idTransfer);
 			AbstractAgentSocket.this.addTaskTransferCheckerIfNecessary();
 		}
 
 		protected InterfacedIDTransfer removeLocal(int id) {
-			return local_transfer_ids.remove(new Integer(id));
+			return local_transfer_ids.remove(Integer.valueOf(id));
 		}
 
 		protected InterfacedIDTransfer removeLocal(IDTransfer id) {
@@ -3558,13 +3558,13 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 		}
 
 		protected InterfacedIDTransfer getDistant(int id) {
-			return distant_transfer_ids.get(new Integer(id));
+			return distant_transfer_ids.get(Integer.valueOf(id));
 		}
 
 		protected void putDistant(InterfacedIDTransfer idTransfer) {
 			if (idTransfer == null)
 				throw new NullPointerException("idTransfer");
-			distant_transfer_ids.put(new Integer(idTransfer.getDistantID().getID()), idTransfer);
+			distant_transfer_ids.put(Integer.valueOf(idTransfer.getDistantID().getID()), idTransfer);
 			AbstractAgentSocket.this.addTaskTransferCheckerIfNecessary();
 		}
 
@@ -3573,7 +3573,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 		}
 
 		protected InterfacedIDTransfer removeDistant(int id) {
-			return distant_transfer_ids.remove(new Integer(id));
+			return distant_transfer_ids.remove(Integer.valueOf(id));
 		}
 
 		protected InterfacedIDTransfer removeDistantFromLocalID(int id) {

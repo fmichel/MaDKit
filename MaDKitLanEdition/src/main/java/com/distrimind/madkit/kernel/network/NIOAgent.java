@@ -61,6 +61,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 
 import com.distrimind.madkit.agr.LocalCommunity;
@@ -885,7 +886,7 @@ final class NIOAgent extends Agent {
 
 	private static class FirstData extends AbstractData {
 
-		final ByteBuffer data;
+		ByteBuffer data;
 		private boolean unlocked = false;
 		private final IDTransfer id;
 
@@ -893,6 +894,12 @@ final class NIOAgent extends Agent {
 			super(true);
 			data = new DatagramData(message).getByteBuffer();
 			id = IDTransfer.generateIDTransfer(MadkitKernelAccess.getIDTransferGenerator(agent));
+		}
+		
+		@Override
+		boolean isDataBuildInProgress()
+		{
+			return false;
 		}
 
 		@Override
@@ -907,7 +914,14 @@ final class NIOAgent extends Agent {
 
 		@Override
 		ByteBuffer getByteBuffer() {
-			return data;
+			try
+			{
+				return data;
+			}
+			finally
+			{
+				data=null;
+			}
 		}
 
 		@Override
@@ -917,12 +931,12 @@ final class NIOAgent extends Agent {
 
 		@Override
 		boolean isFinished() {
-			return data.remaining() == 0;
+			return data==null;//data.remaining() == 0;
 		}
 
 		@Override
 		boolean isCurrentByteBufferFinished() {
-			return data.remaining() == 0;
+			return data==null;//data.remaining() == 0;
 		}
 
 		@Override
@@ -940,13 +954,103 @@ final class NIOAgent extends Agent {
 			data.clear();
 		}
 
-		@Override
+		/*@Override
 		boolean isCurrentByteBufferStarted() {
 			return data.position() > 0;
-		}
+		}*/
 
 	}
 
+	private class NoBackData 
+	{
+		private PersonalSocket personalSocket;
+		private AbstractData data;
+		private ByteBuffer buffer;
+		private TransfertException pendingExcetion=null;
+		private IDTransfer idTransfer=null;
+		
+		
+		private NoBackData(PersonalSocket personalSocket, AbstractData data) throws TransfertException
+		{
+			if (data==null)
+				throw new NullPointerException();
+			this.personalSocket=personalSocket;
+			this.data=data;
+			this.personalSocket.canPrepareNextData=false;
+		}
+		
+		boolean isReady() throws TransfertException
+		{
+			throwPendingException();
+
+			takeNextData();
+			
+			return buffer!=null;
+		}
+		
+		
+		
+		void takeNextData() throws TransfertException
+		{
+			try
+			{
+				if (buffer==null)
+				{
+					buffer=this.data.getByteBuffer();
+					if (buffer!=null)
+					{
+						idTransfer=this.data.getIDTransfer();
+						if (idTransfer==null)
+							throw new NullPointerException();
+						personalSocket.free(this.data);
+						personalSocket.canPrepareNextData=true;
+						personalSocket.prepareNextDataToNextIfNecessary();
+					}
+				}
+			}
+			catch(PacketException e)
+			{
+				if (logger != null && logger.isLoggable(Level.FINER))
+					logger.finer("Unexpected exception during write process : " + e);
+
+				personalSocket.closeConnection(ConnectionClosedReason.CONNECTION_LOST);
+			}
+			
+		}
+		private void throwPendingException() throws TransfertException
+		{
+			if (pendingExcetion!=null)
+			{
+				try
+				{
+					throw pendingExcetion;
+				}
+				finally
+				{
+					pendingExcetion=null;
+				}
+			}
+		}
+		ByteBuffer getBuffer() throws TransfertException
+		{
+			throwPendingException();
+			return buffer;
+		}
+		
+		boolean isFinished() 
+		{
+			return buffer!=null && buffer.remaining()==0;
+		}
+		
+		IDTransfer getIDTransfer()
+		{
+			return idTransfer;
+		}
+
+
+		
+	}
+	
 	private class PersonalSocket {
 		public final SocketChannel socketChannel;
 		public final AgentAddress agentAddress;
@@ -955,6 +1059,7 @@ final class NIOAgent extends Agent {
 		protected LinkedList<AbstractData> shortDataToSend = new LinkedList<>();
 		protected ArrayList<AbstractData> bigDataToSend = new ArrayList<>();
 		protected LinkedList<AbstractData> dataToTransfer = new LinkedList<>();
+		private LinkedList<NoBackData> noBackDataToSend=new LinkedList<>();
 		// private LinkedList<FileData> bigDataWaiting=new LinkedList<>();
 		private DataTransferType dataTransferType = DataTransferType.SHORT_DATA;
 		protected int bigDataToSendIndex = 0;
@@ -968,6 +1073,7 @@ final class NIOAgent extends Agent {
 		private final ByteBuffer readSizeBlock = ByteBuffer.allocate(Block.getBlockSizeLength());
 		private ByteBuffer readBuffer = null; 
 		private final int maxBlockSize;
+		private volatile boolean canPrepareNextData=true;
 		public boolean isClosed() {
 			return is_closed;
 		}
@@ -985,7 +1091,46 @@ final class NIOAgent extends Agent {
 							getMadkitConfig().projectVersion, getMadkitConfig().madkitVersion, null,
 							getKernelAddress())));
 		}
+		
+		void prepareNextDataToNextIfNecessary() throws TransfertException
+		{
 
+			
+			if (canPrepareNextData && noBackDataToSend.size()<3)
+			{
+				AbstractData ad=getNextData();
+				if (ad!=null)
+				{
+					NoBackData nbd=new NoBackData(this, ad);
+					noBackDataToSend.add(nbd);
+					nbd.takeNextData();
+					waitDataReady();
+				}
+			}
+		}
+
+		NoBackData getNextNoBackData() throws TransfertException
+		{
+			if (noBackDataToSend.size()==0)
+				return null;
+			NoBackData res=noBackDataToSend.getFirst();
+			if (!res.isReady())
+				if (!waitDataReady())
+					return null;
+			return res;
+		}
+		private boolean freeNoBackData() throws PacketException, TransfertException
+		{
+			if (noBackDataToSend.getFirst().isFinished())
+			{
+				firstPacketSent = true;
+				noBackDataToSend.removeFirst();
+				prepareNextDataToNextIfNecessary();
+				return true;
+			}
+			else
+				return false;
+		}
 		long getLastDataWritedUTC() {
 			return last_data_writed_utc;
 		}
@@ -1042,7 +1187,7 @@ final class NIOAgent extends Agent {
 		}
 
 		public boolean hasDataToSend() {
-			return shortDataToSend.size() > 0 || bigDataToSend.size() > 0 || dataToTransfer.size() > 0;
+			return shortDataToSend.size()>0 || bigDataToSend.size()>0 || dataToTransfer.size()>0;
 		}
 
 		public boolean addDataToSend(AbstractData _data) throws TransfertException {
@@ -1090,11 +1235,14 @@ final class NIOAgent extends Agent {
 					dataToTransfer.addLast(_data);
 					break;
 				}
+				
 				checkValidTransferType();
+				prepareNextDataToNextIfNecessary();
+				
 				SelectionKey sk = socketChannel.keyFor(NIOAgent.this.selector);
 				if (!is_closed && (sk.interestOps() & SelectionKey.OP_WRITE) != SelectionKey.OP_WRITE)
 					sk.interestOps(SelectionKey.OP_CONNECT | SelectionKey.OP_WRITE | SelectionKey.OP_READ);
-
+				
 				return true;
 			} else
 				return false;
@@ -1104,7 +1252,7 @@ final class NIOAgent extends Agent {
 			return shortDataToSend.size() > 0 && shortDataToSend.get(0).isPriority();
 		}
 
-		private boolean waitDataReady() {
+		/*private boolean waitDataReady() {
 			try {
 				synchronized (myAgentAddress) {
 					final AtomicBoolean hasData = new AtomicBoolean(hasDataToSend());
@@ -1138,8 +1286,44 @@ final class NIOAgent extends Agent {
 			} catch (InterruptedException e) {
 				return false;
 			}
-		}
+		}*/
+		private boolean waitDataReady() throws TransfertException {
+			try {
+				synchronized (myAgentAddress) {
+					final AtomicBoolean hasData = new AtomicBoolean(this.noBackDataToSend.size()>0);
+					final AtomicBoolean validData = new AtomicBoolean(this.noBackDataToSend.size()>0 && this.noBackDataToSend.getFirst().isReady());
+					final AtomicReference<TransfertException> exception=new AtomicReference<>();
+					if (!hasData.get() || validData.get())
+						return hasData.get();
 
+					NIOAgent.this.wait(new LockerCondition(myAgentAddress) {
+
+						@Override
+						public boolean isLocked() {
+							return exception.get()==null && hasData.get() && !validData.get();
+						}
+
+						@Override
+						public void afterCycleLocking() {
+							try
+							{
+								hasData.set(noBackDataToSend.size()>0);
+								validData.set(noBackDataToSend.size()>0 && noBackDataToSend.getFirst().isReady());
+							}
+							catch(TransfertException e)
+							{
+								exception.set(e);
+							}
+						}
+					});
+					if (exception.get()!=null)
+						throw exception.get();
+					return validData.get();
+				}
+			} catch (InterruptedException e) {
+				return false;
+			}
+		}
 		private boolean isTransferTypeChangementPossible() throws TransfertException {
 			AbstractData data = null;
 			switch (dataTransferType) {
@@ -1163,7 +1347,7 @@ final class NIOAgent extends Agent {
 				break;
 			}
 			try {
-				return data == null || data.isCurrentByteBufferFinished() || !data.isCurrentByteBufferStarted();
+				return data == null || data.isCurrentByteBufferFinished();
 			} catch (PacketException e) {
 				throw new TransfertException(e);
 			}
@@ -1174,7 +1358,8 @@ final class NIOAgent extends Agent {
 			boolean changement = isTransferTypeChangementPossible();
 			if (!changement)
 				return true;
-			boolean valid_data = waitDataReady();
+			boolean valid_data=hasDataToSend();
+			//boolean valid_data = waitDataReady();
 			// boolean valid_data=(shortDataToSend.size()>0 &&
 			// shortDataToSend.getFirst().isReady()) ||
 			// (bigDataToSend.size()>bigDataToSendIndex &&
@@ -1188,19 +1373,19 @@ final class NIOAgent extends Agent {
 				while (!valid_data) {
 					switch (dataTransferType) {
 					case SHORT_DATA:
-						if (shortDataToSend.size() == 0 || !shortDataToSend.getFirst().isReady())
+						if (shortDataToSend.size() == 0)
 							dataTransferType = DataTransferType.BIG_DATA;
 						else
 							valid_data = true;
 						break;
 					case BIG_DATA:
-						if (bigDataToSend.size() == 0 || !bigDataToSend.get(bigDataToSendIndex).isReady())
+						if (bigDataToSend.size() == 0)
 							dataTransferType = DataTransferType.DATA_TO_TRANSFER;
 						else
 							valid_data = true;
 						break;
 					case DATA_TO_TRANSFER:
-						if (dataToTransfer.size() == 0 || !dataToTransfer.getFirst().isReady())
+						if (dataToTransfer.size() == 0)
 							dataTransferType = DataTransferType.SHORT_DATA;
 						else
 							valid_data = true;
@@ -1232,17 +1417,32 @@ final class NIOAgent extends Agent {
 			switch (dataTransferType) {
 			case SHORT_DATA:
 				if (shortDataToSend.size() > 0)
-					return shortDataToSend.getFirst();
+				{
+					AbstractData ad=shortDataToSend.getFirst();
+					if (ad.isDataBuildInProgress())
+						return null;
+					return ad;
+				}
 				else
 					return null;
 			case BIG_DATA:
 				if (bigDataToSend.size() > 0)
-					return bigDataToSend.get(bigDataToSendIndex);
+				{
+					AbstractData ad=bigDataToSend.get(bigDataToSendIndex);
+					if (ad.isDataBuildInProgress())
+						return null;
+					return ad;
+				}
 				else
 					throw new TransfertException("Unexpected exception !");
 			case DATA_TO_TRANSFER:
 				if (dataToTransfer.size() > 0)
-					return dataToTransfer.getFirst();
+				{
+					AbstractData ad=dataToTransfer.getFirst();
+					if (ad.isDataBuildInProgress())
+						return null;
+					return ad;
+				}
 				else
 					throw new TransfertException("Unexpected exception !");
 			}
@@ -1253,7 +1453,7 @@ final class NIOAgent extends Agent {
 		private boolean free(AbstractData d) throws TransfertException {
 			try
 			{
-				firstPacketSent = true;
+				
 				boolean finished = d.isFinished();
 				switch (dataTransferType) {
 				case SHORT_DATA:
@@ -1264,7 +1464,9 @@ final class NIOAgent extends Agent {
 							} catch (Exception e) {
 								throw new TransfertException("Unexpected exception !", e);
 							} finally {
-								shortDataToSend.removeFirst();
+								AbstractData removed=shortDataToSend.removeFirst();
+								if (removed!=d)
+									throw new InternalError();
 								if (d.isLastMessage()) {
 									if (logger != null && logger.isLoggable(Level.FINER))
 										logger.finer("Sending last message (agentSocket=" + agentAddress + ")");
@@ -1285,7 +1487,10 @@ final class NIOAgent extends Agent {
 							} catch (Exception e) {
 								throw new TransfertException("Unexpected exception !", e);
 							}
-							bigDataToSend.remove(bigDataToSendIndex);
+							AbstractData removed=bigDataToSend.remove(bigDataToSendIndex);
+							if (removed!=d)
+								throw new InternalError();
+
 							bigDataToSendIndex = bigDataToSend.size() == 0 ? 0 : bigDataToSendIndex % bigDataToSend.size();
 						} else {
 							bigDataToSendIndex = bigDataToSend.size() == 0 ? 0
@@ -1305,7 +1510,10 @@ final class NIOAgent extends Agent {
 							} catch (Exception e) {
 								throw new TransfertException("Unexpected exception !", e);
 							}
-							dataToTransfer.removeFirst();
+							AbstractData removed=dataToTransfer.removeFirst();
+							if (removed!=d)
+								throw new InternalError();
+
 						}
 						setNextTransferType();
 						return true;
@@ -1452,17 +1660,17 @@ final class NIOAgent extends Agent {
 			try {
 				if (is_closed)
 					return;
-				AbstractData data = getNextData();
+				
+				NoBackData data = getNextNoBackData();
 
 				while (data != null) {
 					boolean datafinished = false;
 					int remaining = -1;
 					if ((datafinished = data.isFinished()) || !data.isReady()) {
 						if (datafinished) {
-							free(data);
+							freeNoBackData();
 						} else {
-
-							if (!checkValidTransferType()) {
+							if (!waitDataReady()) {
 								if (logger != null && logger.isLoggable(Level.FINEST))
 									logger.finest("Invalid transfer type detected !");
 								return;
@@ -1470,7 +1678,7 @@ final class NIOAgent extends Agent {
 						}
 
 					} else {
-						ByteBuffer buf = data.getByteBuffer();
+						ByteBuffer buf = data.getBuffer();
 
 						if (buf == null) {
 							throw new TransfertException("Unexpected exception !");
@@ -1489,7 +1697,7 @@ final class NIOAgent extends Agent {
 								agentSocket.getStatistics().newDataSent(data.getIDTransfer(), data_sended);
 
 							remaining = buf.remaining();
-							if (free(data) && remaining > 0)
+							if (freeNoBackData() && remaining > 0)
 								throw new IllegalAccessError();
 
 							if (data_sended > 0) {
@@ -1503,7 +1711,7 @@ final class NIOAgent extends Agent {
 					}
 					if (remaining > 0)
 						return;
-					data = getNextData();
+					data = getNextNoBackData();
 					if (data == null) {
 						timer_send = null;
 
@@ -1605,7 +1813,7 @@ final class NIOAgent extends Agent {
 			ArrayList<AbstractData> transferedDataCanceled = new ArrayList<>();
 			for (Iterator<AbstractData> it = this.dataToTransfer.iterator(); it.hasNext();) {
 				AbstractData ad = it.next();
-				if (!ad.isCurrentByteBufferStarted() && ad.getIDTransfer().equals(transferID)) {
+				if (ad.getIDTransfer().equals(transferID)) {
 					transferedDataCanceled.add(ad);
 					it.remove();
 				}

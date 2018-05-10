@@ -51,6 +51,7 @@ import com.distrimind.madkit.kernel.network.TransferAgent.IDTransfer;
  */
 abstract class AbstractData {
 	private final boolean priority;
+	
 
 	AbstractData(boolean priority) {
 		this.priority = priority;
@@ -75,12 +76,12 @@ abstract class AbstractData {
 
 	abstract boolean isCurrentByteBufferFinished() throws PacketException;
 
-	abstract boolean isCurrentByteBufferStarted();
+	//abstract boolean isCurrentByteBufferStarted();
 
 	abstract DataTransferType getDataTransferType();
 
 	abstract IDTransfer getIDTransfer();
-
+	
 	abstract void reset();
 
 	@Override
@@ -111,4 +112,5 @@ abstract class AbstractData {
 		SHORT_DATA, BIG_DATA, DATA_TO_TRANSFER
 	}
 
+	abstract boolean isDataBuildInProgress();
 }

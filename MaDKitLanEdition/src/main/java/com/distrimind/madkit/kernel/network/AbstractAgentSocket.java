@@ -690,11 +690,11 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 		if (_message.getClass() == DistKernADataToUpgradeMessage.class) {
 
 			AbstractPacketData d = ((DistKernADataToUpgradeMessage) _message).dataToUpgrade;
-			boolean sendMessage = d.getReadDataLengthIncludingHash() == 0;
+			
 			// d.setStat(getBytesPerSecondsStat());
-			if (d.needNewByteBuffer()) {
-
+			if (d.isDataBuildInProgress()) {
 				try {
+						
 					d.setNewBlock(getTransfertType(), getBlock(d.packet, getTransfertType().getID(), d.excludedFromEncryption));
 					/*
 					 * if (d.needNewByteBuffer()) d.setNewBlock(getTransfertType(),
@@ -709,14 +709,14 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 						logger.severeLog("Impossible to send packet " + d.getIDPacket(), e);
 					d.cancel();
 				}
-				if (!sendMessage) {
-					synchronized (this.nio_agent_address) {
-						this.nio_agent_address.notifyAll();
-					}
+					
+				synchronized (this.nio_agent_address) {
+					this.nio_agent_address.notifyAll();
 				}
 			} else if (logger != null && logger.isLoggable(Level.FINEST))
 				logger.finest("Sending data buffer (distant_inet_address=" + distant_inet_address
 						+ ", distantInterfacedKernelAddress=" + distantInterfacedKernelAddress + ") : " + d);
+			boolean sendMessage = d.getReadDataLengthIncludingHash() == 0;
 			if (sendMessage) {
 				if (sendMessageWithRole(nio_agent_address, new DataToSendMessage(d, getSocketID()),
 						LocalCommunity.Roles.SOCKET_AGENT_ROLE).equals(ReturnCode.SUCCESS)) {
@@ -3061,8 +3061,9 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 
 	protected abstract class BlockData extends AbstractData {
 		private final IDTransfer id_transfert;
-		private final ByteBuffer buffer;
+		private ByteBuffer buffer;
 		private Block block;
+		
 
 		BlockData(boolean priority, Block _block, IDTransfer id) {
 			super(priority);
@@ -3071,6 +3072,12 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 			id_transfert = id;
 		}
 
+		@Override
+		boolean isDataBuildInProgress()
+		{
+			return false;
+		}
+		
 		Block getBlock() {
 			return block;
 		}
@@ -3086,7 +3093,14 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 
 		@Override
 		public ByteBuffer getByteBuffer() {
-			return buffer;
+			try
+			{
+				return buffer;
+			}
+			finally
+			{
+				buffer=null;
+			}
 		}
 
 		@Override
@@ -3096,12 +3110,12 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 
 		@Override
 		public boolean isFinished() {
-			return buffer.remaining() == 0;
+			return buffer==null;//buffer.remaining() == 0;
 		}
 
 		@Override
 		public boolean isCurrentByteBufferFinished() {
-			return buffer.remaining() == 0;
+			return buffer==null;//buffer.remaining() == 0;
 		}
 
 		@Override
@@ -3114,10 +3128,10 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 			return id_transfert;
 		}
 
-		@Override
+		/*@Override
 		boolean isCurrentByteBufferStarted() {
 			return buffer.position() > 0;
-		}
+		}*/
 
 	}
 

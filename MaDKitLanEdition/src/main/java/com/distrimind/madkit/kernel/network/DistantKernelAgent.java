@@ -1750,8 +1750,6 @@ class DistantKernelAgent extends AgentFakeThread {
 		protected Block currentBlock = null;
 
 		private boolean asking_new_buffer_in_process;
-		protected ByteBuffer nextByteBuffer;
-		protected Block nextBlock = null;
 
 		private RealTimeTransfertStat stat;
 		private IDTransfer idTransfer = null;
@@ -1761,7 +1759,6 @@ class DistantKernelAgent extends AgentFakeThread {
 		protected final AtomicBoolean isCanceled = new AtomicBoolean(false);
 		protected final boolean excludedFromEncryption;
 		private byte counterID=-1;
-		private byte nextCounterID=-1;
 		private boolean currentCounterIDReleased=true;
 		private final CounterSelector counterSelector;
 
@@ -1775,10 +1772,8 @@ class DistantKernelAgent extends AgentFakeThread {
 			this.firstAgentSocketSender = firstAgentSocketSender;
 			packet = _packet;
 			currentByteBuffer = null;
-			nextByteBuffer = null;
 			currentBlock = null;
-			nextBlock = null;
-			asking_new_buffer_in_process = true;
+			asking_new_buffer_in_process = false;
 			stat = null;
 			this.agentReceiver = agentReceiver;
 			this.excludedFromEncryption=excludedFromEncryption;
@@ -1811,18 +1806,55 @@ class DistantKernelAgent extends AgentFakeThread {
 			}
 		}
 
-		public boolean needNewByteBuffer() {
+		
+		@Override
+		public ByteBuffer getByteBuffer() throws PacketException {
+			
 			synchronized (this) {
-				return asking_new_buffer_in_process;
+				if (isCanceled.get())
+				{	
+					try
+					{
+						return currentByteBuffer;
+					}
+					finally
+					{
+						currentByteBuffer=null;
+					}
+				}
+				if (currentByteBuffer == null) {
+					if (!asking_new_buffer_in_process) {
+						if (!packet.isFinished()) {
+							updateNextByteBuffer();
+						}
+						else
+							new Exception(""+packet.getDataLengthWithHashIncluded()).printStackTrace();
+					}
+					
+					return null;
+				}
+				try
+				{
+					if (currentBlock!=null)
+					{
+						currentBlock.setCounterSelector(counterSelector);
+						currentBlock=null;
+					}
+					return currentByteBuffer;
+				}
+				finally
+				{
+					currentByteBuffer=null;
+				}
+				
 			}
 		}
-
-		@Override
+		/*@Override
 		public ByteBuffer getByteBuffer() throws PacketException {
 			synchronized (this) {
 				if (currentByteBuffer == null) {
 					if (!asking_new_buffer_in_process) {
-						if (nextByteBuffer == null && !packet.isFinished()) {
+						if (!packet.isFinished()) {
 							updateNextByteBuffer();
 							asking_new_buffer_in_process = true;
 						}
@@ -1841,43 +1873,18 @@ class DistantKernelAgent extends AgentFakeThread {
 						if (stat != null)
 							stat.newBytesIndentified(currentByteBuffer.capacity());
 
-						if (nextByteBuffer == null) {
-							
-							currentByteBuffer = null;
-							currentBlock = null;
-							if (packet.isFinished()) {
-								return null;
-							} else {
-
-								updateNextByteBuffer();
-								return null;
-							}
+						currentByteBuffer = null;
+						currentBlock = null;
+						if (packet.isFinished()) {
+							return null;
 						} else {
-							currentCounterIDReleased=false;
-							counterID=nextCounterID;
-							nextCounterID=-1;
-							
-							currentByteBuffer = nextByteBuffer;
-							currentBlock = null;
-							nextByteBuffer = null;
-							nextBlock.setCounterSelector(counterSelector);
-							nextBlock=null;
-							
-							if (!packet.isFinished()) {
-								updateNextByteBuffer();
-							}
 
-							return currentByteBuffer;
+							updateNextByteBuffer();
+							return null;
 						}
 
 					}
 				} else {
-					if (!asking_new_buffer_in_process) {
-						ByteBuffer bb = nextByteBuffer;
-						if (bb == null && !packet.isFinished()) {
-							updateNextByteBuffer();
-						}
-					}
 					if (currentBlock!=null)
 					{
 						currentBlock.setCounterSelector(counterSelector);
@@ -1887,7 +1894,7 @@ class DistantKernelAgent extends AgentFakeThread {
 
 				}
 			}
-		}
+		}*/
 
 		protected void setNewBlock(IDTransfer id, Block _block) throws NIOException {
 			synchronized (this) {
@@ -1896,15 +1903,9 @@ class DistantKernelAgent extends AgentFakeThread {
 					currentCounterIDReleased=false;
 					counterID=_block.getCounterID();
 					currentByteBuffer = ByteBuffer.wrap((currentBlock=_block).getBytes());
-					if (!packet.isFinished())
-						updateNextByteBuffer();
-					else
-						asking_new_buffer_in_process = false;
-				} else if (nextByteBuffer == null) {
-					nextCounterID=_block.getCounterID();
-					nextByteBuffer = ByteBuffer.wrap((nextBlock=_block).getBytes());
 					asking_new_buffer_in_process = false;
-				} else
+					//observer.update(null, null);
+				}  else
 					throw new NIOException("Unexpected exception !");
 			}
 		}
@@ -1920,7 +1921,7 @@ class DistantKernelAgent extends AgentFakeThread {
 					if (asking_new_buffer_in_process) {
 						return false;
 					} else {
-						return nextByteBuffer != null;
+						return false;
 					}
 				} else {
 					return true;
@@ -1929,6 +1930,15 @@ class DistantKernelAgent extends AgentFakeThread {
 		}
 
 		@Override
+		boolean isDataBuildInProgress()
+		{
+			synchronized(this)
+			{
+				return asking_new_buffer_in_process;
+			}
+		}
+		
+		@Override
 		public boolean isFinished() throws PacketException {
 			if (isCanceled.get() && isCurrentByteBufferFinished())
 				return true;
@@ -1936,10 +1946,7 @@ class DistantKernelAgent extends AgentFakeThread {
 				if (asking_new_buffer_in_process) {
 					return false;
 				} else if (currentByteBuffer == null || currentByteBuffer.remaining() == 0) {
-					if (nextByteBuffer == null) {
-						return true;
-					} else
-						return false;
+					return this.packet.isFinished();
 				} else {
 					return false;
 				}
@@ -1954,12 +1961,12 @@ class DistantKernelAgent extends AgentFakeThread {
 			}
 		}
 
-		@Override
+		/*@Override
 		public boolean isCurrentByteBufferStarted() {
 			synchronized (this) {
 				return currentByteBuffer != null && currentByteBuffer.position() > 0;
 			}
-		}
+		}*/
 
 		@Override
 		public boolean isCurrentByteBufferFinished() throws PacketException {
@@ -2008,10 +2015,6 @@ class DistantKernelAgent extends AgentFakeThread {
 			{
 				currentCounterIDReleased=true;
 				counterSelector.releaseCounterID(counterID);
-				if (nextByteBuffer!=null)
-				{
-					counterSelector.releaseCounterID(nextCounterID);					
-				}
 			}
 			unlocked.set(true);
 		}
@@ -2105,8 +2108,6 @@ class DistantKernelAgent extends AgentFakeThread {
 						long sendLength = packet.getReadDataLengthIncludingHash();
 						if (currentByteBuffer != null)
 							sendLength -= currentByteBuffer.remaining();
-						if (nextByteBuffer != null)
-							sendLength -= nextByteBuffer.remaining();
 						messageLocker.unlock(distant_kernel_address, new DataTransfertResult(
 								packet.getInputStream().length(), packet.getReadDataLength(), sendLength));
 						

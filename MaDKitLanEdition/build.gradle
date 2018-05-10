@@ -53,8 +53,8 @@ repositories {
 dependencies {
      testCompile 'org.testng:testng:6.13.1'
      testCompile 'junit:junit:4.12'
-     compile(group:'com.distrimind.ood', name: 'OOD', version: '2.0.0-Beta80')
-     compile(group:'com.distrimind.jdkrewrite', name: 'JDKRewriteUtils', version: '1.0.0')
+     compile(group:'com.distrimind.ood', name: 'OOD', version: '2.0.0-Beta81')
+     compile(group:'com.distrimind.jdkrewrite', name: 'JDKRewriteUtils', version: '1.0.1')
      compile(group:'org.fourthline.cling', name: 'cling-core', version: '2.1.1')
      compile(group:'org.fourthline.cling', name: 'cling-support', version: '2.1.1')
      compile(group:'org.hsqldb', name: 'hsqldb', version: '2.3.4')
@@ -66,9 +66,7 @@ targetCompatibility= javaVersion
 version='1.7.0'
 allprojects {
 	group='com.distrimind.madkit'
-    repositories {
-        jcenter() 
-    }
+    
     //compileJava.options.compilerArgs << "-Xlint"
     compileJava.options.compilerArgs.addAll(['--release', javaVersion])
     if (project.hasProperty('javaHomeVersion') && javaHomeVersion.toFloat()>1.8)

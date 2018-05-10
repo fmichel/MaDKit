@@ -59,9 +59,7 @@ dependencies {
 
 allprojects {
 	group='com.distrimind.madkitdemos'
-    repositories {
-        jcenter() 
-    }
+    
     mainClassName = "com.distrimind.madkitdemos.MKLEDemos"
     //compileJava.options.compilerArgs << "-Xlint"
     if (project.hasProperty('javaHomeVersion') && javaHomeVersion.toFloat()>1.8)

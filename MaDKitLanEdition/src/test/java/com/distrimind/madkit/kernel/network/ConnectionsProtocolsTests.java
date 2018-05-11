@@ -191,6 +191,19 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 		ConnectionProtocolProperties<?>[] o = new ConnectionProtocolProperties<?>[2];
 		P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties p2pp = new P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties();
 		p2pp.aSymetricKeySize = 2048;
+		p2pp.symmetricEncryptionType = SymmetricEncryptionType.AES_GCM;
+		p2pp.enableEncryption=true;
+		o[0] = p2pp;
+		p2pp = new P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties();
+		p2pp.aSymetricKeySize = 2048;
+		p2pp.enableEncryption=true;
+		p2pp.symmetricEncryptionType = SymmetricEncryptionType.AES_GCM;
+		o[1] = p2pp;
+		res.add(o);
+		
+		o = new ConnectionProtocolProperties<?>[2];
+		p2pp = new P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties();
+		p2pp.aSymetricKeySize = 2048;
 		p2pp.symmetricEncryptionType = SymmetricEncryptionType.AES_CBC_PKCS5Padding;
 		p2pp.enableEncryption=true;
 		o[0] = p2pp;
@@ -201,18 +214,7 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 		o[1] = p2pp;
 		res.add(o);
 		
-		o = new ConnectionProtocolProperties<?>[2];
-		p2pp = new P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties();
-		p2pp.aSymetricKeySize = 2048;
-		p2pp.symmetricEncryptionType = SymmetricEncryptionType.AES_GCM;
-		p2pp.enableEncryption=true;
-		o[0] = p2pp;
-		p2pp = new P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties();
-		p2pp.aSymetricKeySize = 2048;
-		p2pp.enableEncryption=true;
-		p2pp.symmetricEncryptionType = SymmetricEncryptionType.AES_GCM;
-		o[1] = p2pp;
-		res.add(o);
+		
 
 		o = new ConnectionProtocolProperties<?>[2];
 		p2pp = new P2PSecuredConnectionProtocolWithASymmetricKeyExchangerProperties();
@@ -410,8 +412,8 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 			System.out.println("\tSub connection protocol with " + cpasker.getSubProtocol().getClass()
 					+ " for asker and " + cpreceiver.getSubProtocol().getClass() + " for receiver (crypted="
 					+ cpasker.getSubProtocol().isCrypted() + ")");
-		this.cpasker.setCounterSelector(new CounterSelector(this.cpasker));
-		this.cpreceiver.setCounterSelector(new CounterSelector(this.cpreceiver));
+		/*this.cpasker.setCounterSelector(new CounterSelector(this.cpasker));
+		this.cpreceiver.setCounterSelector(new CounterSelector(this.cpreceiver));*/
 		TransferedBlockChecker 	tbcasker = this.cpasker.getTransferedBlockChecker();
 		if (tbcasker.isCompletelyInoperant())
 		{
@@ -550,11 +552,11 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 
 			Assert.assertEquals(ConnectionState.CONNECTION_ESTABLISHED, cpasker.getConnectionState());
 			Assert.assertEquals(ConnectionState.CONNECTION_ESTABLISHED, cpreceiver.getConnectionState());
-			if (!itasker.hasNext())
+			/*if (!itasker.hasNext())
 			{
 				this.cpasker.getCounterSelector().setActivated();
 				this.cpreceiver.getCounterSelector().setActivated();
-			}
+			}*/
 			testRandomPingPongMessage();
 			testRandomPingPongMessage();
 			testRandomPingPongMessage();
@@ -590,8 +592,8 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 			BlockParserException, IllegalArgumentException, NoSuchAlgorithmException, NoSuchProviderException {
 		cpasker = getConnectionProtocolInstance(mkProperties, npasker, enableDatabase ? 1 : 0);
 		cpreceiver = getConnectionProtocolInstance(mkProperties, npreceiver, enableDatabase ? 2 : 0);
-		this.cpasker.setCounterSelector(new CounterSelector(this.cpasker));
-		this.cpreceiver.setCounterSelector(new CounterSelector(this.cpreceiver));
+		/*this.cpasker.setCounterSelector(new CounterSelector(this.cpasker));
+		this.cpreceiver.setCounterSelector(new CounterSelector(this.cpreceiver));*/
 
 		Assert.assertFalse(cpasker.isConnectionEstablished());
 		Assert.assertFalse(cpreceiver.isConnectionEstablished());
@@ -824,11 +826,11 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 			Assert.assertTrue(b.isValid());
 			res.add(b);
 		}
-		for (Block b : res)
+		/*for (Block b : res)
 		{
 			b.setCounterSelector(cp.getCounterSelector());
 			cp.getCounterSelector().releaseCounterID(b.getCounterID());
-		}
+		}*/
 		
 		return res;
 	}
@@ -836,7 +838,16 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 	public static ArrayList<byte[]> getBytesToSend(ArrayList<Block> blocks) {
 		ArrayList<byte[]> res = new ArrayList<>(blocks.size());
 		for (Block b : blocks)
-			res.add(b.getBytes());
+		{
+			if (b.getBlockSize()!=b.getBytes().length)
+			{
+				byte[] tab=new byte[b.getBlockSize()];
+				System.arraycopy(b.getBytes(), 0, tab, 0, tab.length);
+				res.add(tab);
+			}
+			else
+				res.add(b.getBytes());
+		}
 		return res;
 	}
 

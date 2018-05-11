@@ -53,7 +53,6 @@ import com.distrimind.madkit.exceptions.NIOException;
 import com.distrimind.madkit.exceptions.PacketException;
 import com.distrimind.madkit.i18n.ErrorMessages;
 import com.distrimind.madkit.kernel.network.Block;
-import com.distrimind.madkit.kernel.network.CounterSelector;
 import com.distrimind.madkit.kernel.network.NetworkProperties;
 import com.distrimind.madkit.kernel.network.PacketCounter;
 import com.distrimind.madkit.kernel.network.PacketPart;
@@ -154,7 +153,7 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 	protected final ConnectionProtocol<?> subProtocol;
 	private boolean connectionFinishedMessageReceived = false;
 	private volatile PointToPointTransferedBlockChecker pointToPointTransferedBlockChecker=null;
-	private CounterSelector counterSelector=null;
+	//private CounterSelector counterSelector=null;
 
 	
 	protected ConnectionProtocol(InetSocketAddress _distant_inet_address, InetSocketAddress _local_interface_address,
@@ -352,7 +351,7 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 		if (_block.getTransferID() != -1)
 			throw new NIOException("Unexpected exception !");
 		
-		CounterSelector.State state=_block.getCounterState();
+		/*CounterSelector.State state=_block.getCounterState();
 		for (Iterator<ConnectionProtocol<?>> it = this.iterator(); it.hasNext(); ) {
 			ConnectionProtocol<?> cp=it.next();
 			try
@@ -363,7 +362,7 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 			{
 				throw new NIOException("Invalid block with "+cp.getClass(), false, false);
 			}
-		}
+		}*/
 		
 		SubBlockInfo sbi;
 		try {
@@ -378,6 +377,7 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 		int i = 0;
 		for (Iterator<ConnectionProtocol<?>> it = this.iterator(); it.hasNext(); i++) {
 			ConnectionProtocol<?> cp = it.next();
+			cp.getPacketCounter().incrementMyCounters();
 			boolean valid=true;
 			boolean candidate_to_ban =false;
 			SubBlockParser sbp = cp.getParser();
@@ -435,7 +435,7 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 			if (packet_part == null)
 				return null;
 			
-			byte counter=getCounterSelector().getNewCounterID();
+			//byte counter=getCounterSelector().getNewCounterID();
 			
 			//SubBlocksStructure sbs = new SubBlocksStructure(packet_part, this);
 			/*Block block = new Block(packet_part, sbs, _transfert_type);
@@ -444,16 +444,15 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 			int i = this.sizeOfSubConnectionProtocols();
 			for (Iterator<ConnectionProtocol<?>> it = this.reverseIterator(); it.hasNext(); i--) {
 				ConnectionProtocol<?> cp = it.next();
-
+				cp.getPacketCounter().incrementOtherCounters();
 				subBlock = lastSBS.getSubBlockForParent(cp.getParser().getParentBlock(subBlock, excludedFromEncryption), i, random);
 			}
 			PointToPointTransferedBlockChecker ptp=pointToPointTransferedBlockChecker;
-			if (ptp==null)
-				return new Block(subBlock.getBytes(), lastSBS, _transfert_type, counter);
-			else
+			if (ptp!=null)
 			{
-				return new Block(ptp.prepareBlockToSend(subBlock).getBytes(), lastSBS, _transfert_type, counter);
+				subBlock=ptp.prepareBlockToSend(subBlock);
 			}
+			return new Block(subBlock.getBytes(), subBlock.getSize()+subBlock.getOffset(), lastSBS, _transfert_type);
 		} catch (PacketException | BlockParserException e) {
 			throw new NIOException(e);
 		}
@@ -766,7 +765,7 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 	
 	public abstract PacketCounter getPacketCounter();
 
-	public CounterSelector getCounterSelector() {
+	/*public CounterSelector getCounterSelector() {
 		return counterSelector;
 	}
 
@@ -774,7 +773,7 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 		this.counterSelector = counterSelector;
 		if (this.subProtocol!=null)
 			subProtocol.setCounterSelector(counterSelector);
-	}
+	}*/
 	
 	
 }

@@ -158,7 +158,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 	private boolean distant_kernel_agent_activated = false;
 	private AgentAddress distant_socket_agent_address = null;
 	protected volatile boolean waitingPongMessage = false;
-	private CounterSelector counterSelector;
+	//private CounterSelector counterSelector;
 	//private LCForValidatingKA currentLockUsedToValidateDistantKernelAddress=null;
 
 	private DataSocketSynchronizer.SocketAgentInterface dataSynchronized = new DataSocketSynchronizer.SocketAgentInterface() {
@@ -177,14 +177,14 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 							if (idt.getTransferBlockChecker() == null) {
 								if (idt.getLastPointToPointTransferedBlockChecker()!=null)
 								{
-									CounterSelector.State counterState=block.getCounterState();
+									//CounterSelector.State counterState=block.getCounterState();
 									
 									SubBlockInfo sbi = idt.getLastPointToPointTransferedBlockChecker()
 											.recursiveCheckSubBlock(new SubBlock(block));
 									
 									if (sbi.isValid()) {
 										block=new Block(sbi.getSubBlock().getBytes());
-										block.setCounterState(counterState);
+										//block.setCounterState(counterState);
 
 									} else {
 										processInvalidBlock(
@@ -195,13 +195,13 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 								}
 								receiveIndirectData(block, idt);
 							} else {
-								CounterSelector.State counterState=block.getCounterState();
+								//CounterSelector.State counterState=block.getCounterState();
 								SubBlockInfo sbi = idt.getTransferBlockChecker()
 										.recursiveCheckSubBlock(new SubBlock(block));
 
 								if (sbi.isValid()) {
 									Block b=new Block(sbi.getSubBlock().getBytes());
-									block.setCounterState(counterState);
+									//block.setCounterState(counterState);
 									receiveDataToResend(b, idt);
 									
 								} else {
@@ -352,8 +352,8 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 			if (connection_protocol == null)
 				throw new IllegalArgumentException(
 						"The properties must have at least one connection protocol comptatible !");
-			this.counterSelector=new CounterSelector(connection_protocol);
-			connection_protocol.setCounterSelector(counterSelector);
+			/*this.counterSelector=new CounterSelector(connection_protocol);
+			connection_protocol.setCounterSelector(counterSelector);*/
 			if (NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE<getMadkitConfig().networkProperties.maxShortDataSize)
 				NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE=getMadkitConfig().networkProperties.maxShortDataSize;
 			
@@ -2151,7 +2151,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 												"Connection protocols successfully initialized (distant_inet_address="
 														+ distant_inet_address + ", distantInterfacedKernelAddress="
 														+ distantInterfacedKernelAddress + ")");
-									this.connection_protocol.getCounterSelector().setActivated();
+									//this.connection_protocol.getCounterSelector().setActivated();
 									if (state == State.CONNECTED_INITIALIZING_ACCESS) {
 										if (logger != null && logger.isLoggable(Level.FINER))
 											logger.finer("Initializing access protocol !");
@@ -3075,7 +3075,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 		BlockData(boolean priority, Block _block, IDTransfer id) {
 			super(priority);
 			block = _block;
-			buffer = ByteBuffer.wrap(_block.getBytes());
+			buffer = ByteBuffer.wrap(_block.getBytes(), 0, _block.getBlockSize());
 			id_transfert = id;
 		}
 

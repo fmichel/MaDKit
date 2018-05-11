@@ -76,6 +76,7 @@ public class PointToPointTransferedBlockChecker extends TransferedBlockChecker {
 			for (java.util.Iterator<ConnectionProtocol<?>> it=cpInput.iterator();it.hasNext();)
 			{
 				ConnectionProtocol<?> cp=it.next();
+				//cp.getPacketCounter().incrementMyCounters();
 				SubBlockInfo checkedBlock=cp.getParser().checkEntrantPointToPointTransferedBlock(sb);
 				if (!checkedBlock.isValid())
 					return checkedBlock;
@@ -83,9 +84,11 @@ public class PointToPointTransferedBlockChecker extends TransferedBlockChecker {
 			}
 			if (cpOutput==null)
 			{
+				if (sb.getOffset()==Block.getHeadSize())
+					return new SubBlockInfo(sb, true, false);
 				SubBlock res=new SubBlock(new Block(sb.getSize()+Block.getHeadSize(), Block.getTransferID(_block.getBytes())));
 				System.arraycopy(sb.getBytes(), sb.getOffset(), res.getBytes(), res.getOffset(), sb.getSize());
-				Block.setCounterState(res.getBytes(), Block.getCounterState(_block.getBytes()));
+				//Block.setCounterState(res.getBytes(), Block.getCounterState(_block.getBytes()));
 				return new SubBlockInfo(res, true, false);
 			}
 			return new SubBlockInfo(prepareBlock(new SubBlock(sb.getBytes(), Block.getHeadSize(), sb.getBytes().length-Block.getHeadSize()), sb.getOffset()-Block.getHeadSize(), new Block(_block.getBytes()).getTransferID()), true, false);
@@ -111,21 +114,23 @@ public class PointToPointTransferedBlockChecker extends TransferedBlockChecker {
 		SubBlock res=null;
 		if (_block.getOffset()!=Block.getHeadSize())
 			throw new IllegalAccessError();
-		if (totalInputHeadSize==totalOutputHeadSize)
+		if (totalInputHeadSize>=totalOutputHeadSize)
 		{
-			res=new SubBlock(_block.getBytes(), Block.getHeadSize()+totalInputHeadSize, _block.getBytes().length-Block.getHeadSize()-totalInputHeadSize);
+			res=new SubBlock(_block.getBytes(), Block.getHeadSize()+totalOutputHeadSize, _block.getBytes().length-Block.getHeadSize()-totalInputHeadSize);
 		}
 		else
 		{
 			res=new SubBlock(new Block(_block.getBytes().length-totalInputHeadSize+totalOutputHeadSize, transferType));
 			res=new SubBlock(res.getBytes(), res.getOffset()+totalOutputHeadSize, _block.getBytes().length-Block.getHeadSize()-totalInputHeadSize);
 			System.arraycopy(_block.getBytes(), Block.getHeadSize()+totalInputHeadSize, res.getBytes(), res.getOffset(), res.getSize());
-			Block.setCounterState(res.getBytes(), Block.getCounterState(_block.getBytes()));
+			//Block.setCounterState(res.getBytes(), Block.getCounterState(_block.getBytes()));
 		}
 		
 		for (java.util.Iterator<ConnectionProtocol<?>> it=cpOutput.reverseIterator();it.hasNext();)
 		{
-			res=it.next().getParser().signIfPossibleSortantPointToPointTransferedBlock(res);
+			ConnectionProtocol<?> cp=it.next();
+			//cp.getPacketCounter().incrementOtherCounters();
+			res=cp.getParser().signIfPossibleSortantPointToPointTransferedBlock(res);
 		}
 		
 		return res;

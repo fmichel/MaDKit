@@ -479,7 +479,7 @@ public class ReadWritePacketTests extends JunitMadkit {
 		byte[] ppb = pp.getSubBlock().getEncapsulatedBytes();
 		byte[] b = new byte[ppb.length + Block.getHeadSize()];
 		System.arraycopy(ppb, 0, b, Block.getHeadSize(), ppb.length);
-		final Block block = new Block(b, sbs, -1);
+		final Block block = new Block(b, b.length, sbs, -1);
 		socketAgentInterface.setOriginalBlock(block);
 		/*int index = 0;
 		while (index < b.length) {

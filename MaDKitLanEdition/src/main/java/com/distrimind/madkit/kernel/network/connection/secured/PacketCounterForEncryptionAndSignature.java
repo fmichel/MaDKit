@@ -37,10 +37,7 @@
  */
 package com.distrimind.madkit.kernel.network.connection.secured;
 
-import org.bouncycastle.util.Arrays;
 
-import com.distrimind.madkit.exceptions.PacketException;
-import com.distrimind.madkit.kernel.network.CounterSelector.State;
 import com.distrimind.madkit.kernel.network.PacketCounter;
 import com.distrimind.util.Bits;
 import com.distrimind.util.crypto.AbstractSecureRandom;
@@ -58,37 +55,38 @@ class PacketCounterForEncryptionAndSignature implements PacketCounter {
 	private final byte[] mySignatureCounter;
 	private byte[] otherEncryptionCounter;
 	private byte[] otherSignatureCounter;
-	private byte[] myNextEncryptionCounter;
-	private byte[] myNextSignatureCounter;
+	/*private byte[] myNextEncryptionCounter;
+	private byte[] myNextSignatureCounter;*/
 	private static short ENCRYPTION_COUNTER_SIZE_BYTES=2;
 	private static short SIGNATURE_COUNTER_SIZE_BYTES=16;
-	private boolean nextMyCounterSelected=false;
+	//private boolean nextMyCounterSelected=false;
 	private boolean distantActivated=false;
+	private boolean localActivated=false;
 	PacketCounterForEncryptionAndSignature(AbstractSecureRandom random, boolean encryptionEnabled, boolean signatureEnabled)
 	{
 		if (encryptionEnabled)
 		{
 			myEncryptionCounter=new byte[ENCRYPTION_COUNTER_SIZE_BYTES];
 			random.nextBytes(myEncryptionCounter);
-			this.myNextEncryptionCounter=Arrays.clone(this.myEncryptionCounter);
-			incrementCounter(this.myNextEncryptionCounter);
+			/*this.myNextEncryptionCounter=Arrays.clone(this.myEncryptionCounter);
+			incrementCounter(this.myNextEncryptionCounter);*/
 		}
 		else 
 		{
 			myEncryptionCounter=null;
-			this.myNextEncryptionCounter=null;
+			//this.myNextEncryptionCounter=null;
 		}
 		if (signatureEnabled)
 		{
 			mySignatureCounter=new byte[SIGNATURE_COUNTER_SIZE_BYTES];
 			random.nextBytes(mySignatureCounter);
-			this.myNextSignatureCounter=Arrays.clone(this.mySignatureCounter);
-			incrementCounter(this.myNextSignatureCounter);
+			/*this.myNextSignatureCounter=Arrays.clone(this.mySignatureCounter);
+			incrementCounter(this.myNextSignatureCounter);*/
 		}
 		else
 		{
 			mySignatureCounter=null;
-			myNextSignatureCounter=null;
+			//myNextSignatureCounter=null;
 		}
 		
 		
@@ -100,6 +98,7 @@ class PacketCounterForEncryptionAndSignature implements PacketCounter {
 	
 	byte[] getMyEncodedCounters()
 	{
+		localActivated=true;
 		if (myEncryptionCounter==null && mySignatureCounter==null)
 			return new byte[0];
 		if (myEncryptionCounter==null)
@@ -117,7 +116,10 @@ class PacketCounterForEncryptionAndSignature implements PacketCounter {
 		try
 		{
 			if (myEncryptionCounter==null && mySignatureCounter==null)
+			{
+				distantActivated=true;
 				return true;
+			}
 			if (myEncryptionCounter==null)
 			{
 				if (counters==null || counters.length!=SIGNATURE_COUNTER_SIZE_BYTES)
@@ -138,7 +140,7 @@ class PacketCounterForEncryptionAndSignature implements PacketCounter {
 				this.otherEncryptionCounter=tab[0];
 				this.otherSignatureCounter=tab[1];
 			}
-			
+			distantActivated=true;
 			return true;
 		}
 		catch(Exception e)
@@ -149,15 +151,17 @@ class PacketCounterForEncryptionAndSignature implements PacketCounter {
 	
 	@Override
 	public void incrementMyCounters() {
+		if (!isLocalActivated())
+			return;
 		if (myEncryptionCounter!=null)
 		{
 			incrementCounter(myEncryptionCounter);
-			incrementCounter(myNextEncryptionCounter);
+			//incrementCounter(myNextEncryptionCounter);
 		}
 		if (mySignatureCounter!=null)
 		{
 			incrementCounter(mySignatureCounter);
-			incrementCounter(myNextSignatureCounter);
+			//incrementCounter(myNextSignatureCounter);
 		}
 	}
 	
@@ -172,6 +176,8 @@ class PacketCounterForEncryptionAndSignature implements PacketCounter {
 
 	@Override
 	public void incrementOtherCounters() {
+		if (!isDistantActivated())
+			return;
 		if (myEncryptionCounter!=null)
 			incrementCounter(otherEncryptionCounter);
 		if (mySignatureCounter!=null)
@@ -180,17 +186,17 @@ class PacketCounterForEncryptionAndSignature implements PacketCounter {
 	}
 
 	public byte[] getMyEncryptionCounter() {
-		if (nextMyCounterSelected)
+		/*if (nextMyCounterSelected)
 			return myNextEncryptionCounter;
-		else
+		else*/
 			return myEncryptionCounter;
 		
 	}
 
 	public byte[] getMySignatureCounter() {
-		if (nextMyCounterSelected)
+		/*if (nextMyCounterSelected)
 			return myNextSignatureCounter;
-		else 
+		else*/ 
 			return mySignatureCounter;
 		
 	}
@@ -204,7 +210,7 @@ class PacketCounterForEncryptionAndSignature implements PacketCounter {
 		return otherSignatureCounter;
 	}
 
-	@Override
+	/*@Override
 	public void selectMyCounters(State state) throws PacketException {
 		switch(state)
 		{
@@ -235,12 +241,23 @@ class PacketCounterForEncryptionAndSignature implements PacketCounter {
 		}
 		
 		
-	}
+	}*/
 
 	@Override
 	public boolean isDistantActivated() {
 		return distantActivated;
 	}
+
+	@Override
+	public boolean isLocalActivated() {
+		return localActivated;
+	}
+
+	
+
+
+
+
 	
 	
 }

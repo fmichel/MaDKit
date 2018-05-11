@@ -52,8 +52,7 @@ public final class Block {
 
 	private final byte[] block;
 	private int transfert_type;
-	private CounterSelector.State counterState;
-	private byte counterID;
+	private int size;
 	/*public Block(PacketPart _packet_part, SubBlocksStructure _structure, int _transfert_type) throws PacketException {
 		this(_packet_part, _structure, _transfert_type, (byte)-1);
 	}*/
@@ -76,20 +75,16 @@ public final class Block {
 		}
 	}*/
 	public Block(SubBlocksStructure _structure) throws PacketException {
-		int size = _structure.block_size;
+		size = _structure.block_size;
 		if (size > BLOCK_SIZE_LIMIT)
 			throw new PacketException(
 					"This block has a size (" + size + ") greater than the size limit : " + BLOCK_SIZE_LIMIT);
 		block = new byte[size];
 		
-		putShortInt(block, 0, block.length);
+		putShortInt(block, 0, size);
 		Bits.putInt(block, 3, transfert_type);
 	}
-	
-	
-	public byte getCounterID() {
-		return counterID;
-	}
+
 
 	
 
@@ -108,21 +103,15 @@ public final class Block {
 
 	
 	
-	public Block(byte _block[], SubBlocksStructure _structure, int _transfert_type) throws PacketException {
-		this(_block, _structure, _transfert_type, (byte)-1);
-	}
-	
-	public Block(byte _block[], SubBlocksStructure _structure, int _transfert_type, byte counterID) throws PacketException {
-		int size = _structure.block_size;
+	public Block(byte[] tab, int size, SubBlocksStructure _structure, int _transfert_type) throws PacketException {
+		this.size=size;
 		if (size > BLOCK_SIZE_LIMIT)
 			throw new PacketException(
 					"This block has a size (" + size + ") greater than the size limit : " + BLOCK_SIZE_LIMIT);
-		block = _block;
+		block = tab;
 		transfert_type = _transfert_type;
-		putShortInt(block, 0, block.length);
+		putShortInt(block, 0, size);
 		Bits.putInt(block, 3, transfert_type);
-		this.counterID=counterID;
-		counterState=null;
 		/*if (counterSelector!=null)
 			block[7]=(counterState=counterSelector.getState(this.counterID=counterID)).getCode();
 		else
@@ -134,15 +123,7 @@ public final class Block {
 		return Bits.getInt(_block, 3);
 	}
 	
-	public static CounterSelector.State getCounterState(byte [] _block)
-	{
-		return CounterSelector.getCounterState(_block[7]);
-	}
 	
-	public static void setCounterState(byte [] _block, CounterSelector.State state)
-	{
-		_block[7]=state.getCode();
-	}
 	
 	public Block(byte _block[]) throws PacketException {
 		block = _block;
@@ -152,7 +133,7 @@ public final class Block {
 		if (block.length > getMaximumBlockSize())
 			throw new PacketException(
 					"the size _block.length (" + block.length + ") must be lower or equal than getMaximumBlockSize()");
-		int size = getBlockSize(block, 0);
+		size = getBlockSize(block, 0);
 		if (size > BLOCK_SIZE_LIMIT)
 			throw new PacketException(
 					"This block has a size (" + size + ") greater than the size limit : " + BLOCK_SIZE_LIMIT);
@@ -163,16 +144,10 @@ public final class Block {
 			throw new PacketException(
 					"The given block as an invalid size (readed: " + size + "; block size: " + _block.length + ")");
 		transfert_type = getTransferID(block);
-		counterState=getCounterState(block);
-		this.counterID=-1;
-		if (counterState==null)
-			throw new PacketException("Invalid counter state");
 		
 	}
 	public Block(int block_size, int _transfert_type) throws PacketException {
-		this(block_size, _transfert_type, (byte)-1);
-	}
-	public Block(int block_size, int _transfert_type, byte counterID) throws PacketException {
+		this.size=block_size;
 		if (block_size > BLOCK_SIZE_LIMIT)
 			throw new PacketException(
 					"This block has a size (" + block_size + ") greater than the size limit : " + BLOCK_SIZE_LIMIT);
@@ -180,43 +155,26 @@ public final class Block {
 			throw new PacketException(
 					"block_size must be greater than getHeadSize() and lower or equal than getMaximumBlockSize()");
 		block = new byte[block_size];
-		putShortInt(block, 0, block.length);
+		putShortInt(block, 0, this.size);
 		Bits.putInt(block, 3, _transfert_type);
 		transfert_type = _transfert_type;
-		this.counterID=counterID;
-		counterState=null;
-		/*if (counterSelector!=null)
-			block[7]=(counterState=counterSelector.getState(this.counterID=counterID)).getCode();
-		else
-			this.counterID=-1;*/
-	}
-	public void setCounterSelector(CounterSelector counterSelector) throws PacketException
-	{
-		if (counterSelector!=null && this.counterID!=-1)
-			setCounterState(block, counterState=counterSelector.getState(this.counterID));
-		else
-		{
-			setCounterState(block, this.counterState=CounterSelector.State.NOT_ACTIVATED);
-			this.counterID=-1;
-		}
-		
 	}
 	
-	public void setBlockAttributes(int blockSize, int _transpertType, byte counterID) throws PacketException
+	
+	public void setBlockAttributes(int blockSize, int _transpertType) throws PacketException
 	{
+		this.size=blockSize;
 		if (blockSize <= getHeadSize() || blockSize > block.length)
 			throw new PacketException(
 					"block_size must be greater than getHeadSize() and lower or equal than getMaximumBlockSize()");
-		putShortInt(block, 0, block.length);
+		putShortInt(block, 0, this.size);
 		Bits.putInt(block, 3, _transpertType);
 		transfert_type = _transpertType;
-		this.counterState=null;
-		this.counterID=counterID;
-		//block[7]=(counterState=counterSelector.getState(counterID)).getCode();
 	}
 	
 	
 	Block(int block_size) throws PacketException {
+		this.size=block_size;
 		if (block_size > BLOCK_SIZE_LIMIT)
 			throw new PacketException(
 					"This block has a size (" + block_size + ") greater than the size limit : " + BLOCK_SIZE_LIMIT);
@@ -225,27 +183,17 @@ public final class Block {
 					"block_size must be greater than getHeadSize() and lower or equal than getMaximumBlockSize()");
 		block = new byte[block_size];
 		transfert_type = -1;
-		counterState=null;
-		this.counterID=-1;
 	}
 	
 	
 	
-	public void setCounterState(CounterSelector.State counterState) {
-		this.counterState = counterState;
-		setCounterState(block, counterState);
-	}
-	public CounterSelector.State getCounterState()
-	{
-		return counterState;
-	}
 	
 	public byte[] getBytes() {
 		return block;
 	}
 
 	public static int getHeadSize() {
-		return getBlockSizeLength()+5;
+		return getBlockSizeLength()+4;
 	}
 	
 	public static int getBlockSizeLength()
@@ -271,7 +219,7 @@ public final class Block {
 	}
 
 	public int getBlockSize() {
-		return block.length;
+		return size;
 	}
 
 	public static int getBlockSize(byte[] _bytes, int offset) {

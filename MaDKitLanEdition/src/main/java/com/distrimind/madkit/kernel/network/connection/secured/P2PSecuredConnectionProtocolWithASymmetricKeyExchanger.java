@@ -421,7 +421,7 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 					current_step=Step.NOT_CONNECTED;
 					return new UnexpectedMessage(this.getDistantInetSocketAddress());
 				}
-					
+				
 				if (!isCurrentServerAskingConnection())
 					return new ConnectionFinished(getDistantInetSocketAddress(), packetCounter.getMyEncodedCounters());
 				else
@@ -491,7 +491,7 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 				}
 				case WAITING_FOR_CONNECTION_CONFIRMATION:
 				case CONNECTED:
-					if (getCounterSelector().isActivated())
+					if (packetCounter.isDistantActivated())
 					{
 						reinitSymmetricAlgorithmIfNecessary();
 					}
@@ -530,7 +530,7 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 				case WAITING_FIRST_MESSAGE: {
 					if (isCurrentServerAskingConnection())
 					{
-						if (getPacketCounter().isDistantActivated())
+						if (getPacketCounter().isLocalActivated())
 						{
 							reinitSymmetricAlgorithmIfNecessary();
 						}
@@ -541,7 +541,7 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 				}
 				case WAITING_FOR_CONNECTION_CONFIRMATION:
 				case CONNECTED:
-					if (getPacketCounter().isDistantActivated())
+					if (getPacketCounter().isLocalActivated())
 					{
 						reinitSymmetricAlgorithmIfNecessary();
 					}
@@ -636,7 +636,7 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 					SubBlock res = null;
 					if (check)
 					{
-						if (getPacketCounter().isDistantActivated())
+						if (getPacketCounter().isLocalActivated())
 						{
 							reinitSymmetricAlgorithmIfNecessary();
 							symmetricEncryption.decode(bais, os, packetCounter.getMyEncryptionCounter());
@@ -700,7 +700,7 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 						final SubBlock res = new SubBlock(new byte[_block.getBytes().length], _block.getOffset() - getSizeHead(),s);
 						
 						res.getBytes()[res.getOffset()+res.getSize()-1]=0;
-						if (getCounterSelector().isActivated())
+						if (packetCounter.isDistantActivated())
 						{
 							reinitSymmetricAlgorithmIfNecessary();
 							symmetricEncryption.encode(_block.getBytes(), _block.getOffset(), _block.getSize(), null, 0, 0, new ConnectionProtocol.ByteArrayOutputStream(res.getBytes(), _block.getOffset()), packetCounter.getOtherEncryptionCounter());

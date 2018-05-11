@@ -292,7 +292,7 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 					return size;
 				else
 				{
-					if (getCounterSelector().isActivated())
+					if (packetCounter.isDistantActivated())
 					{
 						reinitSymmetricAlgorithmIfNecessary();
 					}
@@ -325,7 +325,7 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 				}
 				case WAITING_FOR_CONNECTION_CONFIRMATION:
 				case CONNECTED: {
-					if (getPacketCounter().isDistantActivated())
+					if (getPacketCounter().isLocalActivated())
 					{
 						reinitSymmetricAlgorithmIfNecessary();
 					}
@@ -366,7 +366,7 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 								s);
 						signatureChecker.init(_block.getBytes(), _block.getOffset(),
 								signature_size_bytes);
-						if (getPacketCounter().isDistantActivated())
+						if (getPacketCounter().isLocalActivated())
 						{
 							
 							signatureChecker.update(packetCounter.getMySignatureCounter());
@@ -399,7 +399,7 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 						{
 							signatureChecker.init(_block.getBytes(), _block.getOffset(),
 									signature_size_bytes);
-							if (getPacketCounter().isDistantActivated())
+							if (getPacketCounter().isLocalActivated())
 							{
 								
 								signatureChecker.update(packetCounter.getMySignatureCounter());
@@ -411,7 +411,7 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 						SubBlock res = null;
 						if (check)
 						{
-							if (getPacketCounter().isDistantActivated())
+							if (getPacketCounter().isLocalActivated())
 							{
 								reinitSymmetricAlgorithmIfNecessary();
 								symmetricEncryption.decode(bais, os, packetCounter.getMyEncryptionCounter());
@@ -455,7 +455,7 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 				
 				case CONNECTED: {
 					final int outputSize = getBodyOutputSizeForEncryption(_block.getSize());
-					
+					boolean counterActivated=packetCounter.isDistantActivated();
 					int s=outputSize + getSizeHead();
 					if (excludeFromEncryption)
 					{
@@ -470,7 +470,7 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 						
 
 						signer.init();
-						if (getCounterSelector().isActivated())
+						if (counterActivated)
 						{
 							signer.update(packetCounter.getOtherSignatureCounter());
 						}
@@ -486,7 +486,7 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 						final SubBlock res = new SubBlock(new byte[_block.getBytes().length], _block.getOffset() - getSizeHead(),s);
 						
 						res.getBytes()[res.getOffset()+res.getSize()-1]=0;
-						if (getCounterSelector().isActivated())
+						if (counterActivated)
 						{
 							reinitSymmetricAlgorithmIfNecessary();
 							symmetricEncryption.encode(_block.getBytes(), _block.getOffset(), _block.getSize(), null, 0, 0, new ConnectionProtocol.ByteArrayOutputStream(res.getBytes(), _block.getOffset()), packetCounter.getOtherEncryptionCounter());
@@ -498,7 +498,7 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 						if (!symmetricEncryption.getType().isAuthenticatedAlgorithm())
 						{
 							signer.init();
-							if (getCounterSelector().isActivated())
+							if (counterActivated)
 							{
 								signer.update(packetCounter.getOtherSignatureCounter());
 							}
@@ -613,7 +613,7 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 				try {
 					signatureChecker.init(_block.getBytes(),
 							_block.getOffset(), signature_size_bytes);
-					if (getPacketCounter().isDistantActivated())
+					if (getPacketCounter().isLocalActivated())
 					{
 						
 						signatureChecker.update(packetCounter.getMySignatureCounter());
@@ -652,6 +652,7 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 			
 				}
 				case CONNECTED: {
+					boolean counterActivated=packetCounter.isDistantActivated();
 					int outputSize=getBodyOutputSizeForEncryption(_block.getSize());
 					SubBlock res = new SubBlock(_block.getBytes(), _block.getOffset() - getSizeHead(),
 							outputSize + getSizeHead());
@@ -661,7 +662,7 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 					Arrays.fill(tab, off, outputSize+_block.getOffset(), (byte)0);
 					
 					signer.init();
-					if (getCounterSelector().isActivated())
+					if (counterActivated)
 					{
 						signer.update(packetCounter.getOtherSignatureCounter());
 					}

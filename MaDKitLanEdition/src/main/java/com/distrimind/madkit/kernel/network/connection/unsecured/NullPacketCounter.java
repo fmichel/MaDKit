@@ -37,7 +37,6 @@
  */
 package com.distrimind.madkit.kernel.network.connection.unsecured;
 
-import com.distrimind.madkit.kernel.network.CounterSelector.State;
 import com.distrimind.madkit.kernel.network.PacketCounter;
 
 /**
@@ -60,14 +59,18 @@ public class NullPacketCounter implements PacketCounter {
 		
 	}
 
-	@Override
-	public void selectMyCounters(State state) {
-		
-	}
+
 
 	@Override
 	public boolean isDistantActivated() {
 		return false;
 	}
+
+	@Override
+	public boolean isLocalActivated() {
+		return false;
+	}
+
+	
 
 }

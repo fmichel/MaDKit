@@ -1156,7 +1156,7 @@ final class NIOAgent extends Agent {
 		NoBackData getNextNoBackData() throws TransfertException
 		{
 			NoBackData res=null;
-			boolean takeNextData=false;
+			
 			do
 			{
 				if (noBackDataToSend.size()==0)
@@ -1167,8 +1167,8 @@ final class NIOAgent extends Agent {
 					if (res.isDataLoadingCanceled())
 					{
 						noBackDataToSend.removeFirst();
-						takeNextData=true;
 						res=null;
+						prepareNextDataToNextIfNecessary();
 					}
 				}
 				catch(MadkitException e)
@@ -1176,8 +1176,7 @@ final class NIOAgent extends Agent {
 					throw new TransfertException(e);
 				}
 			} while(res==null);
-			if (takeNextData)
-				prepareNextDataToNextIfNecessary();
+			
 				
 			if (!res.isReady())
 				if (!waitDataReady())

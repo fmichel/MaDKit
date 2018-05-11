@@ -502,6 +502,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 				new ConnectionIdentifier(getTransfertType(), distant_inet_address, local_interface_address));
 		if (logger != null && logger.isLoggable(Level.FINE))
 			logger.fine(this.getClass().getName() + " (" + this.distant_inet_address + ") killed !");
+		this.notifyAll();
 
 	}
 
@@ -708,14 +709,18 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 					if (logger != null)
 						logger.severeLog("Impossible to send packet " + d.getIDPacket(), e);
 					d.cancel();
+					
 				}
 					
-				synchronized (this.nio_agent_address) {
-					this.nio_agent_address.notifyAll();
-				}
-			} else if (logger != null && logger.isLoggable(Level.FINEST))
-				logger.finest("Sending data buffer (distant_inet_address=" + distant_inet_address
+				
+			} 
+			else
+			{
+				d.agentSocket=this;
+				if (logger != null && logger.isLoggable(Level.FINEST))
+					logger.finest("Sending data buffer (distant_inet_address=" + distant_inet_address
 						+ ", distantInterfacedKernelAddress=" + distantInterfacedKernelAddress + ") : " + d);
+			}
 			boolean sendMessage = d.getReadDataLengthIncludingHash() == 0;
 			if (sendMessage) {
 				if (sendMessageWithRole(nio_agent_address, new DataToSendMessage(d, getSocketID()),
@@ -3177,6 +3182,11 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 			// TODO manage connection closed
 		}
 
+		@Override 
+		Object getLocker()
+		{
+			return null;
+		}
 	}
 
 	protected class TransferIDs {

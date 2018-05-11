@@ -329,13 +329,18 @@ class DistantKernelAgent extends AgentFakeThread {
 					
 					
 					sendData(m.getSender(), m.getContent(), m.prioritary, ml, m.last_message, getAgentSocketDataFromItsAgentAddress(m.getSender()).getCounterSelector());
-				} else if (_message.getClass() == DistKernADataToUpgradeMessage.class) {
+				} /*else if (_message.getClass() == DistKernADataToUpgradeMessage.class) {
 					DistKernADataToUpgradeMessage m = (DistKernADataToUpgradeMessage) _message;
 					AgentAddress aa = m.dataToUpgrade.getAgentSocketSender();
 					if ((aa == null || !sendMessage(aa, new DistKernADataToUpgradeMessage(m.dataToUpgrade))
 							.equals(ReturnCode.SUCCESS)) && !m.dataToUpgrade.isUnlocked())
+					{
+						if (logger!=null)
+							logger.warning("Impossible to send message to "+aa);
 						m.dataToUpgrade.unlockMessage();
-				} else if (_message.getClass() == NetworkGroupsAccessEvent.class) {
+						m.dataToUpgrade.cancel();
+					}
+				} */else if (_message.getClass() == NetworkGroupsAccessEvent.class) {
 					if (distant_kernel_address == null)
 						return;
 
@@ -1100,6 +1105,7 @@ class DistantKernelAgent extends AgentFakeThread {
 					networkBlacboard.lockForSimultaneousConnections(this, distant_ka);
 
 				} catch (InterruptedException e) {
+					e.printStackTrace();
 					this.killAgent(this);
 				}
 
@@ -1761,6 +1767,7 @@ class DistantKernelAgent extends AgentFakeThread {
 		private byte counterID=-1;
 		private boolean currentCounterIDReleased=true;
 		private final CounterSelector counterSelector;
+		AbstractAgentSocket agentSocket;
 
 		protected AbstractPacketData(boolean priority, AgentAddress firstAgentSocketSender, WritePacket _packet,
 				AgentAddress agentReceiver, boolean excludedFromEncryption, CounterSelector counterSelector) {
@@ -1793,6 +1800,16 @@ class DistantKernelAgent extends AgentFakeThread {
 
 		void cancel() {
 			isCanceled.set(true);
+			synchronized(agentSocket)
+			{
+				agentSocket.notifyAll();
+			}
+		}
+		
+		@Override
+		Object getLocker()
+		{
+			return agentSocket;
 		}
 
 		@Override
@@ -1801,7 +1818,6 @@ class DistantKernelAgent extends AgentFakeThread {
 				if (currentByteBuffer != null) {
 					currentByteBuffer.rewind();
 					asking_new_buffer_in_process = false;
-					DistantKernelAgent.this.receiveMessage(new DistKernADataToUpgradeMessage(this));
 				}
 			}
 		}
@@ -1822,13 +1838,12 @@ class DistantKernelAgent extends AgentFakeThread {
 						currentByteBuffer=null;
 					}
 				}
-				if (currentByteBuffer == null) {
+				if (currentByteBuffer == null || currentByteBuffer.remaining()==0) {
+					currentByteBuffer=null;
 					if (!asking_new_buffer_in_process) {
 						if (!packet.isFinished()) {
 							updateNextByteBuffer();
 						}
-						else
-							new Exception(""+packet.getDataLengthWithHashIncluded()).printStackTrace();
 					}
 					
 					return null;
@@ -1897,6 +1912,7 @@ class DistantKernelAgent extends AgentFakeThread {
 		}*/
 
 		protected void setNewBlock(IDTransfer id, Block _block) throws NIOException {
+			NIOException e=null;
 			synchronized (this) {
 				idTransfer = id;
 				if (currentByteBuffer == null) {
@@ -1906,8 +1922,15 @@ class DistantKernelAgent extends AgentFakeThread {
 					asking_new_buffer_in_process = false;
 					//observer.update(null, null);
 				}  else
-					throw new NIOException("Unexpected exception !");
+					e=new NIOException("Unexpected exception !");
 			}
+			synchronized(agentSocket)
+			{
+				agentSocket.notifyAll();
+			}
+			if (e!=null)
+				throw e;
+			
 		}
 
 		@Override
@@ -1915,15 +1938,9 @@ class DistantKernelAgent extends AgentFakeThread {
 			if (isCanceled.get())
 				return true;
 			synchronized (this) {
-				if (currentByteBuffer == null)
+				if (currentByteBuffer == null || currentByteBuffer.remaining() == 0)
 					return false;
-				if (currentByteBuffer.remaining() == 0) {
-					if (asking_new_buffer_in_process) {
-						return false;
-					} else {
-						return false;
-					}
-				} else {
+				else {
 					return true;
 				}
 			}
@@ -1990,10 +2007,28 @@ class DistantKernelAgent extends AgentFakeThread {
 			return packet.getID();
 		}
 
-		private void updateNextByteBuffer() {
+		private void updateNextByteBuffer() throws PacketException  {
 			synchronized (this) {
-				asking_new_buffer_in_process = true;
-				DistantKernelAgent.this.receiveMessage(new DistKernADataToUpgradeMessage(this));
+				try
+				{
+					asking_new_buffer_in_process = true;
+					if ((agentSocket == null || !agentSocket.isAlive())
+							&& !isUnlocked())
+					{
+						if (logger!=null)
+							logger.warning("Impossible to send message to "+this.getAgentSocketSender());
+						unlockMessage();
+						cancel();
+						return;
+					}
+					agentSocket.receiveMessage(new DistKernADataToUpgradeMessage(this));
+				}
+				catch(MadkitException e)
+				{
+					throw new PacketException(e);
+				}
+				
+				//DistantKernelAgent.this.receiveMessage(new DistKernADataToUpgradeMessage(this));
 			}
 		}
 

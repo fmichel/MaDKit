@@ -108,7 +108,7 @@ class LocalNetworkAffectationAgent extends AgentFakeThread {
 			for (final AbstractIP isa : getMadkitConfig().networkProperties.connectionToAttempt) {
 				if (isa != null)
 				{
-					if (first)
+					if (first || getMadkitConfig().networkProperties.delayInMsBetweenEachConnectionAsk==0)
 					{
 						first=false;
 						receiveMessage(new AskForConnectionMessage(ConnectionStatusMessage.Type.CONNECT, isa));
@@ -116,11 +116,13 @@ class LocalNetworkAffectationAgent extends AgentFakeThread {
 					}
 					else
 					{
+						System.out.println("ici1");
 						timeUTC+=getMadkitConfig().networkProperties.delayInMsBetweenEachConnectionAsk;
 						scheduleTask(new Task<>(new Callable<Void>() {
 
 							@Override
 							public Void call() throws Exception {
+								System.out.println("ici2");
 								if (isAlive())
 									receiveMessage(new AskForConnectionMessage(ConnectionStatusMessage.Type.CONNECT, isa));
 								return null;

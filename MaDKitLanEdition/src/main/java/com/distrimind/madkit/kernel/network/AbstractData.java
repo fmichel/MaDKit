@@ -103,6 +103,8 @@ abstract class AbstractData {
 	long timeToSend() {
 		return Long.MIN_VALUE;
 	}
+	
+	abstract Object getLocker();
 
 	boolean isLastMessage() {
 		return false;

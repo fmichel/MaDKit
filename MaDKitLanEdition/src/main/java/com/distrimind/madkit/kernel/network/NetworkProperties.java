@@ -559,7 +559,7 @@ public class NetworkProperties extends XMLProperties {
 	 * Delay in milliseconds between each connection to attempt
 	 * @see connectionToAttempt
 	 */
-	public long delayInMsBetweenEachConnectionAsk=10;
+	public long delayInMsBetweenEachConnectionAsk=0;
 
 	/**
 	 * Represents properties of each used connection protocol and each sub network

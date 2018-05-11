@@ -1019,6 +1019,12 @@ final class NIOAgent extends Agent {
 			return data.isUnlocked();
 		}
 		
+		boolean isDataLoadingCanceled() throws TransfertException, PacketException
+		{
+			takeNextData();
+			return buffer==null && data.isFinished();
+		}
+		
 		Object getLocker()
 		{
 			return data.getLocker();
@@ -1149,9 +1155,30 @@ final class NIOAgent extends Agent {
 
 		NoBackData getNextNoBackData() throws TransfertException
 		{
-			if (noBackDataToSend.size()==0)
-				return null;
-			NoBackData res=noBackDataToSend.getFirst();
+			NoBackData res=null;
+			boolean takeNextData=false;
+			do
+			{
+				if (noBackDataToSend.size()==0)
+					return null;
+				res=noBackDataToSend.getFirst();
+				try
+				{
+					if (res.isDataLoadingCanceled())
+					{
+						noBackDataToSend.removeFirst();
+						takeNextData=true;
+						res=null;
+					}
+				}
+				catch(MadkitException e)
+				{
+					throw new TransfertException(e);
+				}
+			} while(res==null);
+			if (takeNextData)
+				prepareNextDataToNextIfNecessary();
+				
 			if (!res.isReady())
 				if (!waitDataReady())
 					return null;

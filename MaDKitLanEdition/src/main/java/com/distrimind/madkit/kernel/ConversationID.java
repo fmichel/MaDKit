@@ -329,7 +329,7 @@ public class ConversationID implements ExternalizableAndSizable, Cloneable {
 	@Override
 	public int getInternalSerializedSize() {
 		
-		return 4;
+		return 4+this.origin.getInternalSerializedSize();
 	}
 
 	@Override

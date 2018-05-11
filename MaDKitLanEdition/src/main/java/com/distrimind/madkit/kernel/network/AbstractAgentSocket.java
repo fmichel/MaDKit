@@ -1184,6 +1184,8 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 			idt = transfer_ids.removeDistant(id);
 			transfer_ids.removeLocal(idt.getLocalID());
 		}
+		if (idt==null)
+			return null;
 		transfer_ids.removeTransferPropositionSystemMessage(idt.getLocalID());
 		transfer_ids.removeTransferAgentAddress(idt.getLocalID());
 		getMadkitConfig().networkProperties.removeStatsBandwitdh(idt.getLocalID().getID());

@@ -1850,6 +1850,9 @@ class DistantKernelAgent extends AgentFakeThread {
 				}
 				try
 				{
+					if (currentByteBuffer!=null && stat != null)
+						stat.newBytesIndentified(currentByteBuffer.capacity());
+
 					if (currentBlock!=null)
 					{
 						currentBlock.setCounterSelector(counterSelector);
@@ -1977,6 +1980,8 @@ class DistantKernelAgent extends AgentFakeThread {
 				}
 			}
 		}
+		
+		
 
 		/*@Override
 		public boolean isCurrentByteBufferStarted() {

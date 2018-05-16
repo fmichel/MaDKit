@@ -54,6 +54,7 @@ import gnu.vm.jgnux.crypto.ShortBufferException;
 import com.distrimind.madkit.util.SerializationTools;
 import com.distrimind.madkit.util.ExternalizableAndSizable;
 import com.distrimind.util.crypto.P2PASymmetricSecretMessageExchanger;
+import com.distrimind.util.crypto.SymmetricSecretKey;
 
 /**
  * Represent an encrypted password
@@ -154,6 +155,10 @@ public class EncryptedPassword extends PasswordKey implements ExternalizableAndS
 	@Override
 	public int getInternalSerializedSize() {
 		return SerializationTools.getInternalSize(bytes, MAX_ENCRYPTED_PASSWORD_LENGTH);
+	}
+	@Override
+	public SymmetricSecretKey getSecretKeyForSignature() {
+		return null;
 	}
 
 }

@@ -63,7 +63,8 @@ import com.distrimind.madkit.util.ExternalizableAndSizable;
 import com.distrimind.util.crypto.AbstractMessageDigest;
 import com.distrimind.util.crypto.AbstractSecureRandom;
 import com.distrimind.util.crypto.P2PASymmetricSecretMessageExchanger;
-import com.distrimind.util.crypto.P2PJPAKESecretMessageExchanger;
+import com.distrimind.util.crypto.P2PLoginAgreement;
+import com.distrimind.util.crypto.P2PLoginAgreementType;
 
 /**
  * 
@@ -249,7 +250,7 @@ class IdentifiersPropositionMessage extends AccessMessage {
 						? ((res.size() == 0 && identifiers.length > 0) ? (short) 1 : (short) 0)
 						: (nbAno > Short.MAX_VALUE) ? Short.MAX_VALUE : (short) nbAno);
 }
-	public JPakeMessage getJPakeMessage(LoginData loginData, Map<Identifier, P2PJPAKESecretMessageExchanger> jpakes, AbstractSecureRandom random, AbstractSecureRandom randomForKeys, AbstractMessageDigest messageDigest,
+	public JPakeMessage getJPakeMessage(LoginData loginData, Map<Identifier, P2PLoginAgreement> agreements, P2PLoginAgreementType agreementType, AbstractSecureRandom random, AbstractSecureRandom randomForKeys, AbstractMessageDigest messageDigest,
 			boolean encryptIdentifiers,  byte[] distantGeneratedSalt, byte[] localGeneratedSalt) throws Exception {
 		int nbAno = 0;
 		if (encryptIdentifiers) {
@@ -261,8 +262,8 @@ class IdentifiersPropositionMessage extends AccessMessage {
 					PasswordKey pw = loginData.getPassword(localId);
 					if (pw != null)
 					{
-						P2PJPAKESecretMessageExchanger jpake=new P2PJPAKESecretMessageExchanger(randomForKeys, localId, pw.getPasswordBytes(), pw.isKey());
-						jpakes.put(localId, jpake);
+						P2PLoginAgreement agreement=agreementType.getAgreementAlgorithm(random, localId, pw.getPasswordBytes(), pw.isKey(), pw.getSecretKeyForSignature());
+						agreements.put(localId, agreement);
 					}
 					else
 						++nbAno;
@@ -276,16 +277,16 @@ class IdentifiersPropositionMessage extends AccessMessage {
 				PasswordKey pw = loginData.getPassword(localId);
 				if (pw != null)
 				{
-					P2PJPAKESecretMessageExchanger jpake=new P2PJPAKESecretMessageExchanger(randomForKeys, localId, pw.getPasswordBytes(), pw.isKey());
-					jpakes.put(localId, jpake);
+					P2PLoginAgreement agreement=agreementType.getAgreementAlgorithm(random, localId, pw.getPasswordBytes(), pw.isKey(), pw.getSecretKeyForSignature());
+					agreements.put(localId, agreement);
 				}
 				else
 					++nbAno;
 			}
 		}
-		return new JPakeMessage(jpakes, encryptIdentifiers,
+		return new JPakeMessage(agreements, encryptIdentifiers,
 				loginData.canTakesLoginInitiative()
-						? ((jpakes.size() == 0 && identifiers.length > 0) ? (short) 1 : (short) 0)
+						? ((agreements.size() == 0 && identifiers.length > 0) ? (short) 1 : (short) 0)
 						: (nbAno > Short.MAX_VALUE) ? Short.MAX_VALUE : (short) nbAno, random, messageDigest, distantGeneratedSalt);
 	}
 

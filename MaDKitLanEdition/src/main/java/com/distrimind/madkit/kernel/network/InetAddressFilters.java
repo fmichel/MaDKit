@@ -43,9 +43,9 @@ import java.util.ArrayList;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import com.distrimind.madkit.util.XMLObjectParser;
+import com.distrimind.madkit.util.MultiFormatPropertiesObjectParser;
 import com.distrimind.madkit.util.XMLUtilities;
-import com.distrimind.util.properties.XMLProperties;
+import com.distrimind.util.properties.MultiFormatProperties;
 
 /**
  * Represents allowed and forbidden lan
@@ -56,9 +56,9 @@ import com.distrimind.util.properties.XMLProperties;
  * @see InetAddressFilter
  *
  */
-public class InetAddressFilters extends XMLProperties {
+public class InetAddressFilters extends MultiFormatProperties {
 	public InetAddressFilters() {
-		super(new XMLObjectParser());
+		super(new MultiFormatPropertiesObjectParser());
 	}
 
 	public InetAddressFilters(ArrayList<InetAddressFilter> allowFilters, ArrayList<InetAddressFilter> denyFilters) {

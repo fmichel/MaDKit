@@ -60,7 +60,7 @@ import com.distrimind.madkit.kernel.network.ConnectionsProtocolsMKEventListener;
 import com.distrimind.madkit.kernel.network.DoubleIP;
 import com.distrimind.madkit.kernel.network.NetworkEventListener;
 import com.distrimind.madkit.kernel.network.connection.access.AbstractAccessProtocolProperties;
-import com.distrimind.madkit.kernel.network.connection.access.AccessProtocolWithJPakeProperties;
+import com.distrimind.madkit.kernel.network.connection.access.AccessProtocolWithP2PAgreementProperties;
 import com.distrimind.madkit.kernel.network.connection.unsecured.UnsecuredConnectionProtocolProperties;
 import com.distrimind.madkit.testing.util.agent.ForEverOnTheSameAASenderAgent;
 import com.distrimind.madkit.testing.util.agent.NormalAgent;
@@ -86,7 +86,7 @@ public class NetworkSpeed extends JunitMadkit {
 
 			@Override
 			public void onMadkitPropertiesLoaded(MadkitProperties _properties) {
-				AbstractAccessProtocolProperties app = new AccessProtocolWithJPakeProperties();
+				AbstractAccessProtocolProperties app = new AccessProtocolWithP2PAgreementProperties();
 
 				try {
 					new NetworkEventListener(true, false, false, null,
@@ -104,7 +104,7 @@ public class NetworkSpeed extends JunitMadkit {
 		UnsecuredConnectionProtocolProperties u = new UnsecuredConnectionProtocolProperties();
 		u.isServer = false;
 
-		AbstractAccessProtocolProperties app = new AccessProtocolWithJPakeProperties();
+		AbstractAccessProtocolProperties app = new AccessProtocolWithP2PAgreementProperties();
 
 		this.eventListener2 = new NetworkEventListener(true, false, false, null,
 				new ConnectionsProtocolsMKEventListener(u), new AccessProtocolPropertiesMKEventListener(app),

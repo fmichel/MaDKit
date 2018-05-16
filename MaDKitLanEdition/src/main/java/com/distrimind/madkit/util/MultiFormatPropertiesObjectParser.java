@@ -44,7 +44,7 @@ import com.distrimind.madkit.kernel.AgentToLaunch;
 import com.distrimind.madkit.kernel.MadkitClassLoader;
 import com.distrimind.madkit.kernel.network.InetAddressFilter;
 import com.distrimind.madkit.kernel.network.KernelAddressPriority;
-import com.distrimind.util.properties.AbstractXMLObjectParser;
+import com.distrimind.util.properties.AbstractMultiFormatObjectParser;
 
 /**
  * 
@@ -52,7 +52,7 @@ import com.distrimind.util.properties.AbstractXMLObjectParser;
  * @version 1.0
  * @since MadkitLanEdition 1.0
  */
-public class XMLObjectParser extends AbstractXMLObjectParser {
+public class MultiFormatPropertiesObjectParser extends AbstractMultiFormatObjectParser {
 
 	/**
 	 * 
@@ -63,7 +63,7 @@ public class XMLObjectParser extends AbstractXMLObjectParser {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Object convertXMLToObject(Class<?> field_type, String nodeValue) throws Exception {
+	public Object convertStringToObject(Class<?> field_type, String nodeValue) throws Exception {
 		if (nodeValue == null)
 			return null;
 		nodeValue = nodeValue.trim();
@@ -90,7 +90,7 @@ public class XMLObjectParser extends AbstractXMLObjectParser {
 	}
 
 	@Override
-	public String convertObjectToXML(Class<?> field_type, Object object) throws Exception {
+	public String convertObjectToString(Class<?> field_type, Object object) throws Exception {
 		if (field_type == AgentToLaunch.class) {
 			return object.toString();
 		} else if (field_type == KernelAddressPriority.class) {
@@ -119,9 +119,30 @@ public class XMLObjectParser extends AbstractXMLObjectParser {
 
 	@Override
 	public boolean isValid(Class<?> _field_type) {
-		return _field_type == AgentToLaunch.class || _field_type == KernelAddressPriority.class
-				|| _field_type == InetAddressFilter.class || _field_type == Class.class
-				|| _field_type == Properties.class;
+		for (Class<?> c : supportedClasses)
+			if (c.equals(_field_type))
+				return true;
+		return false;
+	}
+
+	private static final Class<?> supportedClasses[]=new Class<?>[] {
+			AgentToLaunch.class,
+			KernelAddressPriority.class,
+			InetAddressFilter.class,
+			Properties.class
+	};
+	private static final Class<?> supportedMultiClasses[]=new Class<?>[] {
+	
+	};
+	
+	@Override
+	public Class<?>[] getSupportedClasses() {
+		return supportedClasses;
+	}
+
+	@Override
+	public Class<?>[] getSupportedMultiClasses() {
+		return supportedMultiClasses;
 	}
 
 }

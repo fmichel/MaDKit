@@ -38,6 +38,7 @@
 package com.distrimind.madkit.kernel.network;
 
 import com.distrimind.madkit.kernel.network.connection.access.PasswordKey;
+import com.distrimind.util.crypto.SymmetricSecretKey;
 
 /**
  * 
@@ -49,11 +50,13 @@ public class CustumPassword extends PasswordKey {
 	private final String password;
 	private final byte[] salt;
 	private final boolean isKey;
+	private final SymmetricSecretKey secretKey;
 
-	CustumPassword(String password, byte[] salt) {
+	CustumPassword(String password, byte[] salt, SymmetricSecretKey secretKey) {
 		this.password = password;
 		this.salt = salt;
 		isKey = Math.abs(((int) Math.random())) % 2 == 0;
+		this.secretKey=secretKey;
 	}
 
 	@Override
@@ -85,5 +88,10 @@ public class CustumPassword extends PasswordKey {
 	@Override
 	public boolean isKey() {
 		return isKey;
+	}
+
+	@Override
+	public SymmetricSecretKey getSecretKeyForSignature() {
+		return secretKey;
 	}
 }

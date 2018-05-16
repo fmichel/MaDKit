@@ -37,6 +37,8 @@
  */
 package com.distrimind.madkit.kernel.network.connection.access;
 
+import com.distrimind.util.crypto.SymmetricSecretKey;
+
 /**
  * Represent a password.
  * 
@@ -70,5 +72,13 @@ public abstract class PasswordKey {
 	 *         standard password.
 	 */
 	public abstract boolean isKey();
+	
+	/**
+	 * Gets a symmetric secret key used to sign a message and identify the two peers. 
+	 * This protocol is used in addition with the password authentication.
+	 * However, this function can return a null reference. In this case, only password authentication will be functional
+	 * @return the symmetric secret ke for signature or null if no secret key is available
+	 */
+	public abstract SymmetricSecretKey getSecretKeyForSignature();
 
 }

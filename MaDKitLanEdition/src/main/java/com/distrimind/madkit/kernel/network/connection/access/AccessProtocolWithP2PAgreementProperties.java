@@ -41,6 +41,7 @@ import java.net.InetSocketAddress;
 
 import com.distrimind.madkit.kernel.MadkitProperties;
 import com.distrimind.util.crypto.MessageDigestType;
+import com.distrimind.util.crypto.P2PLoginAgreementType;
 
 /**
  * Represents properties of a specific connection protocol
@@ -50,7 +51,7 @@ import com.distrimind.util.crypto.MessageDigestType;
  * @since MadkitLanEdition 1.2
  *
  */
-public class AccessProtocolWithJPakeProperties extends AbstractAccessProtocolProperties{
+public class AccessProtocolWithP2PAgreementProperties extends AbstractAccessProtocolProperties{
 
 	/**
 	 * 
@@ -61,6 +62,12 @@ public class AccessProtocolWithJPakeProperties extends AbstractAccessProtocolPro
 	 * Message digest type used for anonymization
 	 */
 	public MessageDigestType identifierDigestionTypeUsedForAnonymization=MessageDigestType.BC_FIPS_SHA3_512;
+	
+	
+	/**
+	 * P2P Login agreement type
+	 */
+	public P2PLoginAgreementType p2pLoginAgreementType=P2PLoginAgreementType.JPAKE_AND_AGREEMENT_WITH_SIGNATURE;
 	
 	
 	@Override

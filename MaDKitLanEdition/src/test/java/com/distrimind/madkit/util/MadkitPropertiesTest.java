@@ -61,7 +61,7 @@ public class MadkitPropertiesTest {
 	public void testLoadPropertiesFromMaDKitXML() {
 		try {
 			final MadkitProperties madkitProperties = new MadkitProperties();
-			madkitProperties.load(new File("com/distrimind/madkit/xml/success.xml"));
+			madkitProperties.loadXML(new File("com/distrimind/madkit/xml/success.xml"));
 			System.err.println(madkitProperties);
 			assertEquals(madkitProperties.getFreeStringProperties().getProperty("test"), "yes");
 			assertEquals(madkitProperties.getFreeStringProperties().getProperty("test2"), "good");
@@ -72,21 +72,31 @@ public class MadkitPropertiesTest {
 	}
 
 	@Test
-	public void testLoadPropertiesFromPropertiesFile() {
+	public void testLoadPropertiesFromXMLPropertiesFile() {
 		try {
 			final MadkitProperties madkitProperties = new MadkitProperties();
-			madkitProperties.load(new File("com/distrimind/madkit/boot/process/madkit2.xml"));
+			madkitProperties.loadXML(new File("com/distrimind/madkit/boot/process/madkit2.xml"));
 			System.err.println(madkitProperties);
 			assertEquals(new URL("http://madkitlanedition.test.com"), madkitProperties.madkitWeb);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-
+	@Test
+	public void testLoadPropertiesFromYAMLPropertiesFile() {
+		try {
+			final MadkitProperties madkitProperties = new MadkitProperties();
+			madkitProperties.loadYAML(new File("com/distrimind/madkit/boot/process/madkit2.yaml"));
+			System.err.println(madkitProperties);
+			assertEquals(new URL("http://madkitlanedition.test.com"), madkitProperties.madkitWeb);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 	@Test
 	public void testLoadPropertiesFromFile() {
 		try {
-			new MadkitProperties().load(new File("notExist"));
+			new MadkitProperties().loadXML(new File("notExist"));
 			JunitMadkit.noExceptionFailure();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -100,7 +110,7 @@ public class MadkitPropertiesTest {
 	public void testLoadPropertiesFromPropertiesFileFailFromWrongFileContent() {
 		try {
 			final MadkitProperties madkitProperties = new MadkitProperties();
-			madkitProperties.load(new File("com/distrimind/madkit/xml/bench.xml"));
+			madkitProperties.loadXML(new File("com/distrimind/madkit/xml/bench.xml"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

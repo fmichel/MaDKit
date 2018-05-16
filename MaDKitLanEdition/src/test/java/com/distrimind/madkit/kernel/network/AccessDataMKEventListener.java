@@ -51,6 +51,13 @@ import com.distrimind.madkit.kernel.network.connection.access.Identifier;
 import com.distrimind.madkit.kernel.network.connection.access.IdentifierPassword;
 import com.distrimind.madkit.kernel.network.connection.access.LoginData;
 import com.distrimind.madkit.kernel.network.connection.access.PasswordKey;
+import com.distrimind.util.crypto.AbstractSecureRandom;
+import com.distrimind.util.crypto.SecureRandomType;
+import com.distrimind.util.crypto.SymmetricAuthentifiedSignatureType;
+import com.distrimind.util.crypto.SymmetricSecretKey;
+
+import gnu.vm.jgnu.security.NoSuchAlgorithmException;
+import gnu.vm.jgnu.security.NoSuchProviderException;
 
 /**
  * 
@@ -95,10 +102,21 @@ public class AccessDataMKEventListener implements MadkitEventListener {
 	private static final CustumPassword paswordIdentifiers[];
 	static {
 		paswordIdentifiers = new CustumPassword[cloudIdentifiers.length];
-		for (int i = 0; i < paswordIdentifiers.length; i++) {
-			String pw = "pw" + i;
-			paswordIdentifiers[i] = new CustumPassword(pw, SALT);
+		AbstractSecureRandom random;
+		try {
+			random = SecureRandomType.DEFAULT.getSingleton(null);
+			for (int i = 0; i < paswordIdentifiers.length; i++) {
+				String pw = "pw" + i;
+				SymmetricSecretKey sk=null;
+				if (random.nextBoolean())
+					sk=SymmetricAuthentifiedSignatureType.BC_FIPS_HMAC_SHA2_512.getKeyGenerator(random).generateKey();
+				paswordIdentifiers[i] = new CustumPassword(pw, SALT, sk);
+			}
+		} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
+			e.printStackTrace();
+			System.exit(-1);
 		}
+		
 	}
 
 	public static CustumHostIdentifier getCustumHostIdentifier(int hostNumber) {

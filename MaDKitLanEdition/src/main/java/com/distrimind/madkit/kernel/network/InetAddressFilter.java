@@ -42,7 +42,7 @@ import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 
-import com.distrimind.util.properties.XMLProperties;
+import com.distrimind.util.properties.MultiFormatProperties;
 
 /**
  * This class represent a network through an IP and a mask;
@@ -51,7 +51,7 @@ import com.distrimind.util.properties.XMLProperties;
  * @version 1.0
  * @since MadkitLanEdition 1.0
  */
-public class InetAddressFilter extends XMLProperties {
+public class InetAddressFilter extends MultiFormatProperties {
 
 	/**
 	 * 

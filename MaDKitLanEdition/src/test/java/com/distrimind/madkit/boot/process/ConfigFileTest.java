@@ -70,9 +70,27 @@ public class ConfigFileTest extends JunitMadkit {
 	 */
 
 	@Test
-	public void multiConfigFile() {
+	public void multiConfigFileXML() {
 		addMadkitArgs("--configFiles",
-				"{src/test/java/com/distrimind/madkit/boot/process/madkit.xml;src/test/java/com/distrimind/madkit/boot/process/madkit2.xml}",
+				"{src/test/resources/com/distrimind/madkit/boot/process/madkit.xml;src/test/resources/com/distrimind/madkit/boot/process/madkit2.xml}",
+				"--madkitLogLevel", Level.ALL.toString());
+		launchTest(new AbstractAgent() {
+			@Override
+			protected void activate() {
+				try {
+					// assertEquals(new File("mkledbtest"),getMadkitConfig().databaseFile);
+					assertEquals(new URL("http://madkitlanedition.test.com"), getMadkitConfig().madkitWeb);
+				} catch (Exception e) {
+					assertEquals(-1, 0);
+				}
+			}
+		});
+	}
+	
+	@Test
+	public void multiConfigFileYAML() {
+		addMadkitArgs("--configFiles",
+				"{src/test/resources/com/distrimind/madkit/boot/process/madkit.yaml;src/test/resources/com/distrimind/madkit/boot/process/madkit2.yaml}",
 				"--madkitLogLevel", Level.ALL.toString());
 		launchTest(new AbstractAgent() {
 			@Override
@@ -100,9 +118,27 @@ public class ConfigFileTest extends JunitMadkit {
 	// }
 
 	@Test
-	public void multiConfigOptions() {
+	public void multiConfigOptionsXML() {
 		addMadkitArgs("--configFiles",
-				"{src/test/java/com/distrimind/madkit/boot/process/madkit.xml;src/test/java/com/distrimind/madkit/boot/process/madkit2.xml}",
+				"{src/test/resources/com/distrimind/madkit/boot/process/madkit.xml;src/test/resources/com/distrimind/madkit/boot/process/madkit2.xml}",
+				"--networkProperties.network", "true", "--madkitLogLevel", Level.ALL.toString());
+		launchTest(new AbstractAgent() {
+			@Override
+			protected void activate() {
+				try {
+					// assertEquals(new File("mkledbtest"),getMadkitConfig().databaseFile);
+					assertEquals(new URL("http://madkitlanedition.test.com"), getMadkitConfig().madkitWeb);
+				} catch (Exception e) {
+					assertEquals(-1, 0);
+				}
+			}
+		});
+	}
+	
+	@Test
+	public void multiConfigOptionsYAML() {
+		addMadkitArgs("--configFiles",
+				"{src/test/resources/com/distrimind/madkit/boot/process/madkit.yaml;src/test/resources/com/distrimind/madkit/boot/process/madkit2.yaml}",
 				"--networkProperties.network", "true", "--madkitLogLevel", Level.ALL.toString());
 		launchTest(new AbstractAgent() {
 			@Override

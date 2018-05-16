@@ -68,11 +68,11 @@ import com.distrimind.madkit.kernel.network.connection.ConnectionProtocolPropert
 import com.distrimind.madkit.kernel.network.connection.access.AccessData;
 import com.distrimind.madkit.kernel.network.connection.access.AbstractAccessProtocolProperties;
 import com.distrimind.madkit.util.ExternalizableAndSizable;
-import com.distrimind.madkit.util.XMLObjectParser;
+import com.distrimind.madkit.util.MultiFormatPropertiesObjectParser;
 import com.distrimind.madkit.util.XMLUtilities;
 import com.distrimind.ood.database.DatabaseWrapper;
-import com.distrimind.util.properties.XMLProperties;
-import com.distrimind.util.properties.XMLPropertiesParseException;
+import com.distrimind.util.properties.MultiFormatProperties;
+import com.distrimind.util.properties.PropertiesParseException;
 
 /**
  * MaDKit network options which are valued with a long, an int, or a short
@@ -84,14 +84,14 @@ import com.distrimind.util.properties.XMLPropertiesParseException;
  * @version 1.1
  * 
  */
-public class NetworkProperties extends XMLProperties {
+public class NetworkProperties extends MultiFormatProperties {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -4437074500457055696L;
 
 	public NetworkProperties() {
-		super(new XMLObjectParser());
+		super(new MultiFormatPropertiesObjectParser());
 		globalStatBandwith = new StatsBandwidth();
 
 		globalStatBandwith.putBytesDownloadedInRealTime(DEFAULT_TRANSFERT_STAT_IN_REAL_TIME_PER_30_SECONDS_SEGMENTS,
@@ -1318,8 +1318,8 @@ public class NetworkProperties extends XMLProperties {
 	}
 	
 	@Override
-	public void load(Document document) throws XMLPropertiesParseException {
-		super.load(document);
+	public void loadXML(Document document) throws PropertiesParseException {
+		super.loadXML(document);
 		whiteListPatternIncludingClassesForDeserialization=null;
 		blackListPatternExcludingClassesForDeserialization=null;
 		loadPatternsForAcceptedAndDeniedClasses();

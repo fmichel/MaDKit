@@ -42,7 +42,7 @@ import java.util.ArrayList;
 import com.distrimind.madkit.kernel.MadkitEventListener;
 import com.distrimind.madkit.kernel.MadkitProperties;
 import com.distrimind.madkit.kernel.network.connection.access.AbstractAccessProtocolProperties;
-import com.distrimind.madkit.kernel.network.connection.access.AccessProtocolWithJPakeProperties;
+import com.distrimind.madkit.kernel.network.connection.access.AccessProtocolWithP2PAgreementProperties;
 
 /**
  * 
@@ -74,7 +74,7 @@ public class AccessProtocolPropertiesMKEventListener implements MadkitEventListe
 
 	public static ArrayList<AccessProtocolPropertiesMKEventListener> getConnectionsProtocolsMKEventListenerForPeerToPeerConnections() {
 		ArrayList<AccessProtocolPropertiesMKEventListener> res = new ArrayList<>();
-		AbstractAccessProtocolProperties app = new AccessProtocolWithJPakeProperties();
+		AbstractAccessProtocolProperties app = new AccessProtocolWithP2PAgreementProperties();
 		res.add(new AccessProtocolPropertiesMKEventListener(app));
 		return res;
 	}

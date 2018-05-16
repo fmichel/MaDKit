@@ -60,7 +60,7 @@ import com.distrimind.madkit.gui.MDKDesktopFrame;
 import com.distrimind.madkit.i18n.ErrorMessages;
 import com.distrimind.madkit.i18n.SuccessMessages;
 import com.distrimind.madkit.kernel.network.NetworkProperties;
-import com.distrimind.madkit.util.XMLObjectParser;
+import com.distrimind.madkit.util.MultiFormatPropertiesObjectParser;
 import com.distrimind.madkit.util.XMLUtilities;
 import com.distrimind.ood.database.DatabaseFactory;
 import com.distrimind.ood.database.DatabaseWrapper;
@@ -68,8 +68,8 @@ import com.distrimind.ood.database.Table;
 import com.distrimind.ood.database.exceptions.DatabaseException;
 import com.distrimind.util.crypto.AbstractSecureRandom;
 import com.distrimind.util.crypto.SecureRandomType;
-import com.distrimind.util.properties.XMLProperties;
-import com.distrimind.util.properties.XMLPropertiesParseException;
+import com.distrimind.util.properties.MultiFormatProperties;
+import com.distrimind.util.properties.PropertiesParseException;
 import com.distrimind.util.version.Version;
 
 import gnu.vm.jgnu.security.NoSuchAlgorithmException;
@@ -84,7 +84,7 @@ import gnu.vm.jgnu.security.NoSuchProviderException;
  * @version 1.0
  * 
  */
-public class MadkitProperties extends XMLProperties {
+public class MadkitProperties extends MultiFormatProperties {
 
 	/**
 	 * 
@@ -327,7 +327,7 @@ public class MadkitProperties extends XMLProperties {
 
 	public NetworkProperties networkProperties = new NetworkProperties();
 
-	public ArrayList<XMLProperties> freeProperties = null;
+	public ArrayList<MultiFormatProperties> freeProperties = null;
 
 	public static final String defaultProjectCodeName = "Unknown Project Name";
 
@@ -344,7 +344,7 @@ public class MadkitProperties extends XMLProperties {
 	public Version minimumProjectVersion = null;
 
 	public MadkitProperties() {
-		super(new XMLObjectParser());
+		super(new MultiFormatPropertiesObjectParser());
 		try {
 			madkitWeb = new URL("https://github.com/JazZ51/MaDKitLanEdition");
 			madkitRepositoryURL = new URL("https://github.com/JazZ51/MaDKitLanEdition");// new
@@ -354,7 +354,7 @@ public class MadkitProperties extends XMLProperties {
 		}
 	}
 
-	public void addProperty(XMLProperties _property) {
+	public void addProperty(MultiFormatProperties _property) {
 		freeProperties.add(_property);
 	}
 
@@ -366,11 +366,11 @@ public class MadkitProperties extends XMLProperties {
 	 * @throws IOException if a problem occurs during the XML file loading
 	 */
 	@Override
-	public void load(File xml_file) throws IOException {
+	public void loadXML(File xml_file) throws IOException {
 		try {
-			super.load(xml_file);
+			super.loadXML(xml_file);
 			logger.fine(String.format(SuccessMessages.CONFIG_LOAD_SUCCESS.toString(), xml_file.toString()));
-		} catch (XMLPropertiesParseException e) {
+		} catch (PropertiesParseException e) {
 			logger.log(Level.WARNING,
 					String.format(ErrorMessages.CANT_LOAD_CONFIG_FILE.toString(), xml_file.toString()), e);
 		}
@@ -380,27 +380,75 @@ public class MadkitProperties extends XMLProperties {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void load(Document document) {
+	public void loadXML(Document document) {
 		try {
-			super.load(document);
+			super.loadXML(document);
 			logger.fine(String.format(SuccessMessages.CONFIG_LOAD_SUCCESS.toString(), document.toString()));
-		} catch (XMLPropertiesParseException e) {
+		} catch (PropertiesParseException e) {
 			logger.log(Level.WARNING,
 					String.format(ErrorMessages.CANT_LOAD_CONFIG_FILE.toString(), document.toString()), e);
 		}
 	}
+	
+	/**
+	 * Loads properties from an YAML file.
+	 * 
+	 * @param yaml_file
+	 *            can be absolute or relative
+	 * @throws IOException if a problem occurs during the XML file loading
+	 */
+	@Override
+	public void loadYAML(File yaml_file) throws IOException {
+		try {
+			super.loadYAML(yaml_file);
+			logger.fine(String.format(SuccessMessages.CONFIG_LOAD_SUCCESS.toString(), yaml_file.toString()));
+		} catch (PropertiesParseException e) {
+			logger.log(Level.WARNING,
+					String.format(ErrorMessages.CANT_LOAD_CONFIG_FILE.toString(), yaml_file.toString()), e);
+		}
+	}
+
+	public void load(File file) throws IOException {
+		if (file.getName().endsWith(".xml"))
+			loadXML(file);
+		else if (file.getName().endsWith(".yaml"))
+			loadYAML(file);
+	}
+
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void save(File xml_file) {
+	public void saveXML(File xml_file) {
 		try {
-			super.save(xml_file);
+			super.saveXML(xml_file);
 			logger.fine(String.format(SuccessMessages.CONFIG_SAVE_SUCCESS.toString(), xml_file.toString()));
-		} catch (XMLPropertiesParseException e) {
+		} catch (PropertiesParseException e) {
 			logger.log(Level.WARNING,
 					String.format(ErrorMessages.CANT_SAVE_CONFIG_FILE.toString(), xml_file.toString()), e);
+		}
+	}
+	
+	public void save(File file)
+	{
+		if (file.getName().endsWith(".xml"))
+			saveXML(file);
+		else if (file.getName().endsWith(".yaml"))
+			saveYAML(file);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void saveYAML(File yaml_file) {
+		try {
+			super.saveYAML(yaml_file);
+			logger.fine(String.format(SuccessMessages.CONFIG_SAVE_SUCCESS.toString(), yaml_file.toString()));
+		} catch (IOException e) {
+			logger.log(Level.WARNING,
+					String.format(ErrorMessages.CANT_SAVE_CONFIG_FILE.toString(), yaml_file.toString()), e);
 		}
 	}
 
@@ -408,11 +456,11 @@ public class MadkitProperties extends XMLProperties {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void save(Document doc) {
+	public void saveXML(Document doc) {
 		try {
-			super.save(doc);
+			super.saveXML(doc);
 			logger.fine(String.format(SuccessMessages.CONFIG_SAVE_SUCCESS.toString(), doc.toString()));
-		} catch (XMLPropertiesParseException e) {
+		} catch (PropertiesParseException e) {
 			logger.log(Level.WARNING, String.format(ErrorMessages.CANT_SAVE_CONFIG_FILE.toString(), doc.toString()), e);
 		}
 
@@ -520,8 +568,10 @@ public class MadkitProperties extends XMLProperties {
 
 	public static void main(String args[]) {
 		MadkitProperties mp = new MadkitProperties();
-		mp.save(new File("madkit.xml"));
+		mp.saveYAML(new File("madkit.yaml"));
 	}
+	
+	
 
 	boolean prepareCurrentRandomSeedsForBackup()
 	{

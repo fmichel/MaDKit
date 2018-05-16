@@ -45,9 +45,9 @@ import org.w3c.dom.Node;
 
 import com.distrimind.madkit.kernel.MadkitProperties;
 import com.distrimind.madkit.kernel.network.InetAddressFilters;
-import com.distrimind.madkit.util.XMLObjectParser;
+import com.distrimind.madkit.util.MultiFormatPropertiesObjectParser;
 import com.distrimind.madkit.util.XMLUtilities;
-import com.distrimind.util.properties.XMLProperties;
+import com.distrimind.util.properties.MultiFormatProperties;
 
 /**
  * Represents properties of a specific connection protocol
@@ -57,7 +57,7 @@ import com.distrimind.util.properties.XMLProperties;
  * @since MadkitLanEdition 1.2
  *
  */
-public abstract class AbstractAccessProtocolProperties extends XMLProperties {
+public abstract class AbstractAccessProtocolProperties extends MultiFormatProperties {
 
 	/**
 	 * 
@@ -83,7 +83,7 @@ public abstract class AbstractAccessProtocolProperties extends XMLProperties {
 	abstract void checkProperties() throws AccessException;
 	
 	public AbstractAccessProtocolProperties() {
-		super(new XMLObjectParser());
+		super(new MultiFormatPropertiesObjectParser());
 	}
 
 	/**

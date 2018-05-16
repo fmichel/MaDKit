@@ -58,7 +58,6 @@ import com.distrimind.madkit.action.KernelAction;
 import com.distrimind.madkit.i18n.I18nUtilities;
 import com.distrimind.madkit.kernel.network.NetworkProperties;
 import com.distrimind.madkit.message.KernelMessage;
-import com.distrimind.util.properties.XMLPropertiesParseException;
 import com.distrimind.util.version.Description;
 import com.distrimind.util.version.Person;
 import com.distrimind.util.version.PersonDeveloper;
@@ -119,7 +118,7 @@ final public class Madkit {
 		Calendar c = Calendar.getInstance();
 		c.set(2015, 4, 22);
 		Calendar c2 = Calendar.getInstance();
-		c2.set(2018, 3, 11);
+		c2.set(2018, 4, 16);
 		Version VERSION = new Version("MadkitLanEdition", "MKLE", 1, 7, 0, Version.Type.Stable, 1, c.getTime(), c2.getTime());
 		try {
 
@@ -142,10 +141,10 @@ final public class Madkit {
 			VERSION.addDeveloper(new PersonDeveloper("Ferber", "Jacques", c.getTime()));
 
 			c = Calendar.getInstance();
-			c.set(2018, 3, 11);
+			c.set(2018, 4, 16);
 			Description d = new Description(1, 7, 0, Version.Type.Stable, 1, c.getTime());
-			d.addItem("Update OOD to 2.0.0 Beta 81.");
-			d.addItem("Update Utils to 3.14.6.");
+			d.addItem("Update OOD to 2.0.0 Beta 82.");
+			d.addItem("Update Utils to 3.15.0.");
 			d.addItem("Add P2P connection protocol that support parametrisation of key aggreement.");
 			d.addItem("Support several key agreement (including Post Quantum Cryptography key agreement (New Hope).");
 			d.addItem("Fix security issue : when data is sent without being writed (default memory state), fill it with zeros.");
@@ -352,7 +351,7 @@ final public class Madkit {
 					});
 					// no need to externalize because it is used only here
 					try {
-						defaultConfig.load(new File("com/distrimind/madkit/kernel/madkit.xml"));
+						defaultConfig.loadYAML(new File("com/distrimind/madkit/kernel/madkit.yaml"));
 					} catch (IOException e) {
 					}
 					WEB=defaultConfig.madkitWeb;
@@ -493,11 +492,12 @@ final public class Madkit {
 			this.args = argsList.toArray(new String[argsList.size()]);
 		}
 
-		try {
-			madkitConfig.load(getClass().getResourceAsStream("madkit.xml"));
-		} catch (IOException | XMLPropertiesParseException e) {
+		/*try {
+			madkitConfig.loadYAML(getClass().getResourceAsStream("madkit.yaml"));
+		} catch (PropertiesParseException | IOException e) {
 			e.printStackTrace();
 		}
+		*/
 		final Properties fromArgs = buildConfigFromArgs(args);
 		try {
 			madkitConfig.loadFromProperties(fromArgs);

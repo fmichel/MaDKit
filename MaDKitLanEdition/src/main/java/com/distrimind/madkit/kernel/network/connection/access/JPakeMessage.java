@@ -51,7 +51,8 @@ import com.distrimind.madkit.util.SerializationTools;
 import com.distrimind.madkit.util.ExternalizableAndSizable;
 import com.distrimind.util.crypto.AbstractMessageDigest;
 import com.distrimind.util.crypto.AbstractSecureRandom;
-import com.distrimind.util.crypto.P2PJPAKESecretMessageExchanger;
+import com.distrimind.util.crypto.P2PLoginAgreement;
+import com.distrimind.util.crypto.P2PLoginAgreementType;
 
 import gnu.vm.jgnu.security.DigestException;
 import gnu.vm.jgnu.security.InvalidAlgorithmParameterException;
@@ -80,7 +81,7 @@ class JPakeMessage extends AccessMessage{
 	private byte[][] jpakeMessages;
 	private short step;
 	private final transient short nbAnomalies;
-	
+	private transient int maxSteps;
 	JPakeMessage()
 	{
 		nbAnomalies=0;
@@ -127,14 +128,15 @@ class JPakeMessage extends AccessMessage{
 	}
 	
 	
-	JPakeMessage(Map<Identifier, P2PJPAKESecretMessageExchanger> jpakes, boolean identifiersIsEncrypted, short nbAnomalies, AbstractSecureRandom random, AbstractMessageDigest messageDigest, byte[] distantGeneratedSalt) throws Exception {
+	JPakeMessage(Map<Identifier, P2PLoginAgreement> agreements, boolean identifiersIsEncrypted, short nbAnomalies, AbstractSecureRandom random, AbstractMessageDigest messageDigest, byte[] distantGeneratedSalt) throws Exception {
 		super();
 		this.identifiersIsEncrypted=identifiersIsEncrypted;
-		this.identifiers=new Identifier[jpakes.size()];
-		this.jpakeMessages=new byte[jpakes.size()][];
+		this.identifiers=new Identifier[agreements.size()];
+		this.jpakeMessages=new byte[agreements.size()][];
 		this.step = 1;
 		int i=0;
-		for (Map.Entry<Identifier, P2PJPAKESecretMessageExchanger> e : jpakes.entrySet())
+		maxSteps=0;
+		for (Map.Entry<Identifier, P2PLoginAgreement> e : agreements.entrySet())
 		{
 			if (identifiersIsEncrypted)
 				this.identifiers[i] = new EncryptedIdentifier(e.getKey(), random, messageDigest, distantGeneratedSalt);
@@ -142,10 +144,18 @@ class JPakeMessage extends AccessMessage{
 				this.identifiers[i] = e.getKey();
 			jpakeMessages[i]=e.getValue().getDataToSend();
 			++i;
+			if (e.getValue().getStepsNumberForSend()>maxSteps)
+				maxSteps=e.getValue().getStepsNumberForSend();
 		}
 		this.nbAnomalies=nbAnomalies;
+		
 	}
-	private JPakeMessage(Map<Identifier, P2PJPAKESecretMessageExchanger> jpakes, boolean identifiersIsEncrypted, short nbAnomalies, AbstractSecureRandom random, AbstractMessageDigest messageDigest, short step, Map<Identifier, byte[]> jakeMessages, byte[] distantGeneratedSalt) throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchProviderException, DigestException, IOException {
+	
+	public int getMaxSteps()
+	{
+		return maxSteps;
+	}
+	private JPakeMessage(Map<Identifier, P2PLoginAgreement> agreements, boolean identifiersIsEncrypted, short nbAnomalies, AbstractSecureRandom random, AbstractMessageDigest messageDigest, short step, Map<Identifier, byte[]> jakeMessages, byte[] distantGeneratedSalt) throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchProviderException, DigestException, IOException {
 		super();
 		this.identifiersIsEncrypted=identifiersIsEncrypted;
 		this.identifiers=new Identifier[jakeMessages.size()];
@@ -158,13 +168,13 @@ class JPakeMessage extends AccessMessage{
 				this.identifiers[i] = new EncryptedIdentifier(e.getKey(), random, messageDigest, distantGeneratedSalt);
 			else
 				this.identifiers[i] = e.getKey();
-			jpakeMessages[i]=jakeMessages.get(e.getKey());
+			jpakeMessages[i]=e.getValue();
 			++i;
 		}
 		this.nbAnomalies=nbAnomalies;
 	}
 	
-	JPakeMessage(LoginData loginData, AbstractSecureRandom random, AbstractSecureRandom randomForKeys, AbstractMessageDigest messageDigest, Map<Identifier, P2PJPAKESecretMessageExchanger> jpakes, boolean encryptIdentifiers, List<Identifier> newIdentifiers, byte[] distantGeneratedSalt) throws Exception
+	JPakeMessage(LoginData loginData, AbstractSecureRandom random, AbstractSecureRandom randomForKeys, AbstractMessageDigest messageDigest, Map<Identifier, P2PLoginAgreement> agreements, P2PLoginAgreementType agreementType, boolean encryptIdentifiers, List<Identifier> newIdentifiers, byte[] distantGeneratedSalt) throws Exception
 	{
 		try
 		{
@@ -177,18 +187,18 @@ class JPakeMessage extends AccessMessage{
 				PasswordKey pw = loginData.getPassword(localId);
 				if (pw != null)
 				{
-					P2PJPAKESecretMessageExchanger jpake=new P2PJPAKESecretMessageExchanger(randomForKeys, localId, pw.getPasswordBytes(), pw.isKey());
-					jpakes.put(localId, jpake);
+					P2PLoginAgreement agreement=agreementType.getAgreementAlgorithm(random, localId, pw.getPasswordBytes(), pw.isKey(), pw.getSecretKeyForSignature());
+					agreements.put(localId, agreement);
 				}
 				else
 					throw new IllegalAccessError();
 			}
 			this.identifiersIsEncrypted=encryptIdentifiers;
-			this.identifiers=new Identifier[jpakes.size()];
-			this.jpakeMessages=new byte[jpakes.size()][];
+			this.identifiers=new Identifier[agreements.size()];
+			this.jpakeMessages=new byte[agreements.size()][];
 			this.step = 1;
 			int i=0;
-			for (Map.Entry<Identifier, P2PJPAKESecretMessageExchanger> e : jpakes.entrySet())
+			for (Map.Entry<Identifier, P2PLoginAgreement> e : agreements.entrySet())
 			{
 				if (identifiersIsEncrypted)
 					this.identifiers[i] = new EncryptedIdentifier(e.getKey(), random, messageDigest, distantGeneratedSalt);
@@ -234,7 +244,7 @@ class JPakeMessage extends AccessMessage{
 	
 	
 	public AccessMessage getJPakeMessageNewStep(short newStep, LoginData lp, AbstractSecureRandom random, AbstractMessageDigest messageDigest, Collection<PairOfIdentifiers> deniedIdentifiers,
-			Map<Identifier, P2PJPAKESecretMessageExchanger> jpakes, byte[] distantGeneratedSalt, byte[] localGeneratedSalt)
+			Map<Identifier, P2PLoginAgreement> jpakes, byte[] distantGeneratedSalt, byte[] localGeneratedSalt)
 			throws Exception {
 
 		int nbAno=0;
@@ -257,19 +267,30 @@ class JPakeMessage extends AccessMessage{
 			if (decodedID != null) {
 				Identifier localID = lp.localiseIdentifier(decodedID);
 				if (localID != null) {
-					P2PJPAKESecretMessageExchanger jpake=jpakes.get(localID);
+					P2PLoginAgreement jpake=jpakes.get(localID);
 					if (jpake!=null)
 					{
 						try
 						{
-							byte[] jpakeMessage=null;
-							if (newStep!=2 && newStep!=3)
-								throw new IllegalAccessError();
-							jpake.receiveData(this.jpakeMessages[i]);
-							jpakeMessage=jpake.getDataToSend();
-							jpkms.put(localID, jpakeMessage);
+							if (!jpake.hasFinishedReceiption())
+							{
+								jpake.receiveData(this.jpakeMessages[i]);
+							}
+							else if (this.jpakeMessages[i]!=null)
+							{
+								deniedIdentifiers.add(new PairOfIdentifiers(localID, decodedID));
+								jpakes.remove(localID);
+								++nbAno;
+							}
+							if (!jpake.hasFinishedSend())
+							{
+								byte[] jpakeMessage=jpake.getDataToSend();
+								jpkms.put(localID, jpakeMessage);
+							}
+							else
+								jpkms.put(localID, null);
 						}
-						catch(IOException  | ClassNotFoundException | IllegalStateException e)
+						catch(Exception e)
 						{
 							deniedIdentifiers.add(new PairOfIdentifiers(localID, decodedID));
 							jpakes.remove(localID);
@@ -289,17 +310,18 @@ class JPakeMessage extends AccessMessage{
 	}
 	
 	public AccessMessage receiveLastMessage(LoginData lp, AbstractMessageDigest messageDigest, Collection<PairOfIdentifiers> acceptedIdentifiers, Collection<PairOfIdentifiers> deniedIdentifiers,
-			Map<Identifier, P2PJPAKESecretMessageExchanger> jpakes, byte[] localGeneratedSalt)
+			Map<Identifier, P2PLoginAgreement> jpakes, byte[] localGeneratedSalt)
 			throws Exception {
 
 		
 		int nbAno=0;
-		if (step!=3)
+		
+		/*if (step!=maxSteps)
 		{
 			nbAno+=jpakes.size();
 			jpakes.clear();
 			return new AccessErrorMessage(true);
-		}
+		}*/
 
 		for (int i = 0; i < identifiers.length; i++) {
 			Identifier id = identifiers[i];
@@ -311,12 +333,21 @@ class JPakeMessage extends AccessMessage{
 			if (decodedID != null) {
 				Identifier localID = lp.localiseIdentifier(decodedID);
 				if (localID != null) {
-					P2PJPAKESecretMessageExchanger jpake=jpakes.get(localID);
+					P2PLoginAgreement jpake=jpakes.get(localID);
 					if (jpake!=null)
 					{
 						try
 						{
-							jpake.receiveData(this.jpakeMessages[i]);
+							if (!jpake.hasFinishedReceiption())
+							{
+								jpake.receiveData(this.jpakeMessages[i]);
+							}
+							else if (this.jpakeMessages[i]!=null)
+							{
+								deniedIdentifiers.add(new PairOfIdentifiers(localID, decodedID));
+								jpakes.remove(localID);
+								++nbAno;
+							}
 							if (jpake.isAgreementProcessValid())
 							{
 								acceptedIdentifiers.add(new PairOfIdentifiers(localID, decodedID));
@@ -324,7 +355,7 @@ class JPakeMessage extends AccessMessage{
 							else
 								deniedIdentifiers.add(new PairOfIdentifiers(localID, decodedID));	
 						}
-						catch(IOException | ClassNotFoundException | IllegalStateException e)
+						catch(Exception e)
 						{
 							deniedIdentifiers.add(new PairOfIdentifiers(localID, decodedID));
 							jpakes.remove(localID);

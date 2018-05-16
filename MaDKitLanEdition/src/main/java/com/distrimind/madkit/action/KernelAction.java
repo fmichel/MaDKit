@@ -114,6 +114,10 @@ public enum KernelAction {
 	 */
 	LAUNCH_XML(VK_DOLLAR),
 	/**
+	 * Launch an XML configuration
+	 */
+	LAUNCH_YAML(VK_DOLLAR),
+	/**
 	 * Kill an agent
 	 */
 	KILL_AGENT(VK_DOLLAR),

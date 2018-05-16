@@ -700,9 +700,30 @@ class MadkitKernel extends Agent {
 			 */
 			try {
 				Document document = XMLUtilities.getDOM(xmlFile);
-				mkCfg.load(document);
+				mkCfg.loadXML(document);
 				launchXmlAgents(document);
 			} catch (IOException | SAXException | ParserConfigurationException e) {
+				getLogger().severeLog("", e);
+			}
+			// mkCfg.putAll(currentConfig);
+		}
+	}
+	@SuppressWarnings("unused")
+	private void launchYAML(File yalmFile, boolean inNewMadkit) {
+		if (logger != null && logger.isLoggable(Level.FINER))
+			logger.finer("** LAUNCHING YAML CONFIG " + yalmFile);
+		if (inNewMadkit) {
+			new Madkit("configFiles", yalmFile.toString());
+		} else {
+			MadkitProperties mkCfg = platform.getConfigOption().clone();
+			/*
+			 * MadkitProperties currentConfig = mkCfg.clone(); currentConfig.putAll(mkCfg);
+			 */
+			try {
+				
+				mkCfg.loadYAML(yalmFile);
+				
+			} catch (IOException e) {
 				getLogger().severeLog("", e);
 			}
 			// mkCfg.putAll(currentConfig);

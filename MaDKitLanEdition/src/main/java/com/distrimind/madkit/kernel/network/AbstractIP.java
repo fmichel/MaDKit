@@ -46,8 +46,8 @@ import java.net.InetAddress;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.util.ExternalizableAndSizable;
-import com.distrimind.madkit.util.XMLObjectParser;
-import com.distrimind.util.properties.XMLProperties;
+import com.distrimind.madkit.util.MultiFormatPropertiesObjectParser;
+import com.distrimind.util.properties.MultiFormatProperties;
 
 /**
  * 
@@ -55,7 +55,7 @@ import com.distrimind.util.properties.XMLProperties;
  * @version 1.0
  * @since MadkitLanEdition 1.0
  */
-public abstract class AbstractIP extends XMLProperties implements SystemMessage, ExternalizableAndSizable{
+public abstract class AbstractIP extends MultiFormatProperties implements SystemMessage, ExternalizableAndSizable{
 	/**
 	 * 
 	 */
@@ -117,7 +117,7 @@ public abstract class AbstractIP extends XMLProperties implements SystemMessage,
 	}
 
 	protected AbstractIP(int port) {
-		super(new XMLObjectParser());
+		super(new MultiFormatPropertiesObjectParser());
 		this.port = port;
 	}
 

@@ -117,7 +117,7 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 		app1.aSymetricKeySize = 2048;
 		app1.passwordHashCost = 7;
 		Collection<Object[]> res=data(databaseEnabled, app1);
-		AccessProtocolWithJPakeProperties app2=new AccessProtocolWithJPakeProperties();
+		AccessProtocolWithP2PAgreementProperties app2=new AccessProtocolWithP2PAgreementProperties();
 		res.addAll(data(databaseEnabled, app2));
 		return res;
 	}

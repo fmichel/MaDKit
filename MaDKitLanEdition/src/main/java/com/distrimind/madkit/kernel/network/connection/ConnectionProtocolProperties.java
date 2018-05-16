@@ -49,10 +49,10 @@ import com.distrimind.madkit.exceptions.NIOException;
 import com.distrimind.madkit.kernel.MadkitProperties;
 import com.distrimind.madkit.kernel.network.InetAddressFilters;
 import com.distrimind.madkit.kernel.network.NetworkProperties;
-import com.distrimind.madkit.util.XMLObjectParser;
+import com.distrimind.madkit.util.MultiFormatPropertiesObjectParser;
 import com.distrimind.madkit.util.XMLUtilities;
 import com.distrimind.ood.database.DatabaseWrapper;
-import com.distrimind.util.properties.XMLProperties;
+import com.distrimind.util.properties.MultiFormatProperties;
 
 /**
  * Represents properties of a specific connection protocol
@@ -62,7 +62,7 @@ import com.distrimind.util.properties.XMLProperties;
  * @since MadkitLanEdition
  *
  */
-public abstract class ConnectionProtocolProperties<CP extends ConnectionProtocol<CP>> extends XMLProperties {
+public abstract class ConnectionProtocolProperties<CP extends ConnectionProtocol<CP>> extends MultiFormatProperties {
 
 	/**
 	 * 
@@ -96,7 +96,7 @@ public abstract class ConnectionProtocolProperties<CP extends ConnectionProtocol
 	public ConnectionProtocolProperties<?> subProtocolProperties = null;
 
 	protected ConnectionProtocolProperties(Class<CP> _connectionProtocolClass) {
-		super(new XMLObjectParser());
+		super(new MultiFormatPropertiesObjectParser());
 		connectionProtocolClass = _connectionProtocolClass;
 	}
 

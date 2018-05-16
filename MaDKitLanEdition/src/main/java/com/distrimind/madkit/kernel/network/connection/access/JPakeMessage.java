@@ -81,7 +81,7 @@ class JPakeMessage extends AccessMessage{
 	private byte[][] jpakeMessages;
 	private short step;
 	private final transient short nbAnomalies;
-	private transient int maxSteps;
+	private transient final int maxSteps=5;
 	JPakeMessage()
 	{
 		nbAnomalies=0;
@@ -106,15 +106,15 @@ class JPakeMessage extends AccessMessage{
 		if (totalSize>globalSize)
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		
-		jpakeMessages=SerializationTools.readBytes2D(in, identifiers.length, MAX_JPAKE_MESSAGE_LENGTH, false, false);
+		jpakeMessages=SerializationTools.readBytes2D(in, identifiers.length, MAX_JPAKE_MESSAGE_LENGTH, false, true);
 		step=in.readShort();
 		totalSize+=SerializationTools.getInternalSize(jpakeMessages, identifiers.length);
 		if (totalSize>globalSize)
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		for (byte[] b : jpakeMessages)
-			if (b==null || b.length==0)
+			if (b!=null && b.length==0)
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
-		if (step<1 || step>3)
+		if (step<1 || step>5)
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		
 	}
@@ -123,7 +123,7 @@ class JPakeMessage extends AccessMessage{
 	{
 		oos.writeBoolean(identifiersIsEncrypted);
 		SerializationTools.writeExternalizableAndSizables(oos, identifiers, NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE, false);
-		SerializationTools.writeBytes2D(oos, jpakeMessages, identifiers.length, MAX_JPAKE_MESSAGE_LENGTH, false, false);
+		SerializationTools.writeBytes2D(oos, jpakeMessages, identifiers.length, MAX_JPAKE_MESSAGE_LENGTH, false, true);
 		oos.writeShort(step);
 	}
 	
@@ -135,7 +135,6 @@ class JPakeMessage extends AccessMessage{
 		this.jpakeMessages=new byte[agreements.size()][];
 		this.step = 1;
 		int i=0;
-		maxSteps=0;
 		for (Map.Entry<Identifier, P2PLoginAgreement> e : agreements.entrySet())
 		{
 			if (identifiersIsEncrypted)
@@ -144,8 +143,7 @@ class JPakeMessage extends AccessMessage{
 				this.identifiers[i] = e.getKey();
 			jpakeMessages[i]=e.getValue().getDataToSend();
 			++i;
-			if (e.getValue().getStepsNumberForSend()>maxSteps)
-				maxSteps=e.getValue().getStepsNumberForSend();
+			
 		}
 		this.nbAnomalies=nbAnomalies;
 		
@@ -205,6 +203,7 @@ class JPakeMessage extends AccessMessage{
 				else
 					this.identifiers[i] = e.getKey();
 				jpakeMessages[i]=e.getValue().getDataToSend();
+				
 				++i;
 			}
 			this.nbAnomalies=0;

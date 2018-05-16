@@ -1,0 +1,561 @@
+!!com.distrimind.madkit.kernel.MadkitProperties
+MadkitLogFile: null
+agentFrameClass: !!class 'com.distrimind.madkit.gui.AgentFrame'
+agentLogLevel: !!logLevel 'INFO'
+approvedRandom: null
+approvedRandomForKeys: null
+approvedRandomType: FORTUNA_WITH_BC_FIPS_APPROVED
+approvedRandomTypeForKeys: FORTUNA_WITH_BC_FIPS_APPROVED_FOR_KEYS
+autoConnectMadkitWebsite: false
+configFiles: null
+console: false
+createLogFiles: false
+databaseFactory: null
+desktop: false
+desktopFrameClass: !!class 'com.distrimind.madkit.gui.MDKDesktopFrame'
+forceDesktop: false
+freeProperties: null
+freeStringProperties: null
+guiLogLevel: !!logLevel 'OFF'
+i18nDirectory: !!file 'com/distrimind/madkit/i18n'
+isKernelAddressSecured: true
+kernelLogLevel: !!logLevel 'OFF'
+launchAgents: null
+loadLocalDemos: false
+logDirectory: !!file 'logs'
+madkitLogLevel: !!logLevel 'INFO'
+madkitMainClass: !!class 'com.distrimind.madkit.kernel.Madkit'
+madkitRepositoryURL: !!url 'https://github.com/JazZ51/MaDKitLanEdition'
+madkitVersion:
+    freeStringProperties: null
+    m_alpha_beta_version: 1
+    m_build_number: 82
+    m_creators:
+    - {freeStringProperties: null, m_first_name: Jason, m_name: MAHDJOUB}
+    m_date_end_project: !!java.util.Date '1526476105743'
+    m_date_start_project: !!java.util.Date '1432300105743'
+    m_descriptions:
+    -   freeStringProperties: null
+        m_alpha_beta_version: 1
+        m_date: !!java.util.Date '1526476105749'
+        m_items: [Update OOD to 2.0.0 Beta 82., Update Utils to 3.15.0., Add P2P connection
+                protocol that support parametrisation of key aggreement., Support
+                several key agreement (including Post Quantum Cryptography key agreement
+                (New Hope)., 'Fix security issue : when data is sent without being
+                writed (default memory state), fill it with zeros.', 'Fix security
+                issue : sign symmetric encryption key into client/server connnection
+                protocol.', 'Fix security issue : with P2P key agreements, generate
+                signature and encryptions keys with two steps (instead of one), in
+                order to sign the exchanged symmetric encryption key.', 'Fix security
+                issue : class serialization are now filtered with white list and black
+                list. Classes that are not into white list must implement the interfance
+                ''SerializableAndSizable''. Messages sent to the network must implement
+                the interface NetworkMessage.', 'Optimization : use externalization
+                process instead of desialization process during lan transfer.', 'Fix
+                security issue : classes externlization processes control now the
+                allocated memory during de-externalization phase.', 'Security enhancement
+                : initialisation vectors used with encryption has now a secret part
+                composed of counter that is increased at each data exchange.', 'Security
+                enhancement : signature process use now a secret message that is increased
+                at each data exchange.', Fix issue with dual connection between two
+                same kernels., Externalising Java rewrited classes into JDKRewriteUtils
+                project., 'Support of authenticated encryption algorithms. When use
+                these algorithms, MKLE do not add a signature with independant MAC.',
+            Add some benchmarks.]
+        m_major: 1
+        m_minor: 7
+        m_revision: 0
+        m_type: Stable
+    -   freeStringProperties: null
+        m_alpha_beta_version: 1
+        m_date: !!java.util.Date '1519740505750'
+        m_items: [Debug UPNP connexion with macOS., 'Fix issue with multiple identical
+                router''s messages : do not remove the router to recreate it.']
+        m_major: 1
+        m_minor: 6
+        m_revision: 5
+        m_type: Stable
+    -   freeStringProperties: null
+        m_alpha_beta_version: 1
+        m_date: !!java.util.Date '1519654105750'
+        m_items: [Fiw a problem with UPNP connexion under macOS.]
+        m_major: 1
+        m_minor: 6
+        m_revision: 5
+        m_type: Stable
+    -   freeStringProperties: null
+        m_alpha_beta_version: 1
+        m_date: !!java.util.Date '1518703705750'
+        m_items: [Fix problem of port unbind with Windows., Fix problem of simulatenous
+                connections with Mac OS, Fix problem with interface address filtering]
+        m_major: 1
+        m_minor: 6
+        m_revision: 4
+        m_type: Stable
+    -   freeStringProperties: null
+        m_alpha_beta_version: 1
+        m_date: !!java.util.Date '1518271705750'
+        m_items: [Update OOD to 2.0.0 Beta 66., Update Utils to 3.10.5, Change minimum
+                public key size from 1024 to 2048]
+        m_major: 1
+        m_minor: 6
+        m_revision: 3
+        m_type: Stable
+    -   freeStringProperties: null
+        m_alpha_beta_version: 1
+        m_date: !!java.util.Date '1518271705750'
+        m_items: [Update OOD to 2.0.0 Beta 65., Update Utils to 3.10.4, Change minimum
+                public key size from 1024 to 2048]
+        m_major: 1
+        m_minor: 6
+        m_revision: 2
+        m_type: Stable
+    -   freeStringProperties: null
+        m_alpha_beta_version: 1
+        m_date: !!java.util.Date '1517753305750'
+        m_items: [Overlookers were not aware from new roles adding. Fix this issue.,
+            Add MadKit demos]
+        m_major: 1
+        m_minor: 6
+        m_revision: 1
+        m_type: Stable
+    -   freeStringProperties: null
+        m_alpha_beta_version: 1
+        m_date: !!java.util.Date '1517407705751'
+        m_items: [Updating OOD to 2.0.0 Beta 59, Updating Utils to 3.9.0, Messages
+                can now be atomically non encrypted]
+        m_major: 1
+        m_minor: 6
+        m_revision: 0
+        m_type: Stable
+    -   freeStringProperties: null
+        m_alpha_beta_version: 1
+        m_date: !!java.util.Date '1513174105751'
+        m_items: [Updating OOD to 2.0.0 Beta 57, Updating Utils to 3.7.1, Debugging
+                JavaDoc]
+        m_major: 1
+        m_minor: 5
+        m_revision: 2
+        m_type: Stable
+    -   freeStringProperties: null
+        m_alpha_beta_version: 1
+        m_date: !!java.util.Date '1510582105751'
+        m_items: [Updating OOD to 2.0.0 Beta 55, Packets can now have sizes greater
+                than Short.MAX_VALUE]
+        m_major: 1
+        m_minor: 5
+        m_revision: 0
+        m_type: Stable
+    -   freeStringProperties: null
+        m_alpha_beta_version: 1
+        m_date: !!java.util.Date '1509631705751'
+        m_items: [Updating OOD to 2.0.0 Beta 54]
+        m_major: 1
+        m_minor: 4
+        m_revision: 5
+        m_type: Stable
+    -   freeStringProperties: null
+        m_alpha_beta_version: 1
+        m_date: !!java.util.Date '1507900105751'
+        m_items: [Updating OOD to 2.0.0 Beta 48, Several modifications into connection
+                and access protocols, Adding approved randoms parameters into MadkitProperties,
+            Adding point to point transfert connection signature and verification,
+            Saving automaticaly random's seed to be reload with the next application
+                loading]
+        m_major: 1
+        m_minor: 4
+        m_revision: 0
+        m_type: Stable
+    -   freeStringProperties: null
+        m_alpha_beta_version: 1
+        m_date: !!java.util.Date '1504184905751'
+        m_items: [Including resources in jar files]
+        m_major: 1
+        m_minor: 2
+        m_revision: 1
+        m_type: Stable
+    -   freeStringProperties: null
+        m_alpha_beta_version: 1
+        m_date: !!java.util.Date '1501938505751'
+        m_items: [Correction a problem with database, Adding P2PSecuredConnectionProtocolWithECDHAlgorithm
+                connection protocol (speedest), Adding Client/ServerSecuredConnectionProtocolWithKnwonPublicKeyWithECDHAlgorithm
+                connection protocol (speedest), Now all connection protocols use different
+                keys for encryption and for signature, Adding AccessProtocolWithJPake
+                (speedest), Debugging desktop Jframe closing (however the JMV still
+                become opened when all windows are closed), Several minimal bug fix,
+            Correction of JavaDoc, Updating OOD to 2.0.0 Beta 20 version]
+        m_major: 1
+        m_minor: 2
+        m_revision: 0
+        m_type: Stable
+    -   freeStringProperties: null
+        m_alpha_beta_version: 1
+        m_date: !!java.util.Date '1501938505751'
+        m_items: [Updating OOD to 2.0.0 Beta 15]
+        m_major: 1
+        m_minor: 1
+        m_revision: 3
+        m_type: Stable
+    -   freeStringProperties: null
+        m_alpha_beta_version: 1
+        m_date: !!java.util.Date '1501938505751'
+        m_items: [Updating OOD to 2.0.0 Beta 14, Optimizing some memory leak tests]
+        m_major: 1
+        m_minor: 1
+        m_revision: 2
+        m_type: Stable
+    -   freeStringProperties: null
+        m_alpha_beta_version: 1
+        m_date: !!java.util.Date '1501852105751'
+        m_items: [Convert project to Gradle project]
+        m_major: 1
+        m_minor: 1
+        m_revision: 0
+        m_type: Stable
+    -   freeStringProperties: null
+        m_alpha_beta_version: 1
+        m_date: !!java.util.Date '1496581705751'
+        m_items: [Correction of a bug with database deconnection, Debugging indirect
+                connections, Solving a memory leak problem with ConversationID, Solving
+                a memory leak problem with TransferAgent (not killed), Solbing problem
+                when deny BigDataProposition and kill agent just after, Indirect connection
+                send now ping message, Adding white list for inet addresses in network
+                properties, Correcting problems of internal group/role references/dereferences]
+        m_major: 1
+        m_minor: 0
+        m_revision: 0
+        m_type: Stable
+    -   freeStringProperties: null
+        m_alpha_beta_version: 4
+        m_date: !!java.util.Date '1495890505751'
+        m_items: [Agents are now identified by a long (and not int), Adding the function
+                AbstractAgent.getAgentID(), Removing static elements in Conversation
+                ID]
+        m_major: 1
+        m_minor: 0
+        m_revision: 0
+        m_type: Beta
+    -   freeStringProperties: null
+        m_alpha_beta_version: 3
+        m_date: !!java.util.Date '1495544905751'
+        m_items: [Update Utils to 2.7.1, Update OOD to 2.0.0 Beta 1, JDK 7 compatible]
+        m_major: 1
+        m_minor: 0
+        m_revision: 0
+        m_type: Beta
+    -   freeStringProperties: null
+        m_alpha_beta_version: 2
+        m_date: !!java.util.Date '1488895705751'
+        m_items: [Renforce secret identifier/password exchange, Add agent to launch
+                into MKDesktop windows]
+        m_major: 1
+        m_minor: 0
+        m_revision: 0
+        m_type: Beta
+    -   freeStringProperties: null
+        m_alpha_beta_version: 0
+        m_date: !!java.util.Date '1488636505751'
+        m_items: ['First MadkitLanEdition release, based on Madkit']
+        m_major: 1
+        m_minor: 0
+        m_revision: 0
+        m_type: Beta
+    m_developers:
+    - {freeStringProperties: null, m_date_begin_development: !!java.util.Date '1432300105749',
+        m_first_name: Jason, m_name: MAHDJOUB}
+    - {freeStringProperties: null, m_date_begin_development: !!java.util.Date '854806105749',
+        m_first_name: Fabien, m_name: MICHEL}
+    - {freeStringProperties: null, m_date_begin_development: !!java.util.Date '854806105749',
+        m_first_name: Olivier, m_name: GUTKNECHT}
+    - {freeStringProperties: null, m_date_begin_development: !!java.util.Date '854806105749',
+        m_first_name: Jacques, m_name: FERBER}
+    m_frame: null
+    m_major: 1
+    m_minor: 7
+    m_program_name: MadkitLanEdition
+    m_revision: 0
+    m_short_program_name: MKLE
+    m_type: Stable
+madkitWeb: !!url 'https://github.com/JazZ51/MaDKitLanEdition'
+minimumMadkitVersion:
+    freeStringProperties: null
+    m_alpha_beta_version: 0
+    m_build_number: 1
+    m_creators: []
+    m_date_end_project: !!java.util.Date '1526476105743'
+    m_date_start_project: !!java.util.Date '1432300105743'
+    m_descriptions: []
+    m_developers: []
+    m_frame: null
+    m_major: 1
+    m_minor: 7
+    m_program_name: MadkitLanEdition
+    m_revision: 0
+    m_short_program_name: MKLE
+    m_type: Stable
+minimumProjectVersion: null
+networkProperties:
+    IPV4MulticastGroupForPeerDiscovery: !!ip '239.54.8.89'
+    IPV6MulticastGroupForPeerDiscovery: !!ip 'ff05:5d6e:89fa:5fbc:589f:fc57:c459:ab79'
+    UpnpIGDLogLevel: !!logLevel 'INFO'
+    accessDataList: []
+    accessProtocolProperties: []
+    addressesToConnect: []
+    autoConnectWithLocalSitePeers: true
+    banishmentDuration: 43200000
+    banishmentStatisticDuration: 1728000000
+    bigDataStatDurationMean: 1000
+    blackListExcludingClassesForDeserialization: []
+    blackListPatternExcludingClassesForDeserialization:
+    - {flags: 0, pattern: ^org\.apache\.commons\.collections\.functors\.InvokerTransformer$}
+    - {flags: 0, pattern: ^org\.apache\.commons\.collections\.functors\.InstantiateTransformer$}
+    - {flags: 0, pattern: ^org\.apache\.commons\.collections4\.functors\.InvokerTransformer$}
+    - {flags: 0, pattern: ^org\.apache\.commons\.collections4\.functors\.InstantiateTransformer$}
+    - {flags: 0, pattern: ^org\.codehaus\.groovy\.runtime\.ConvertedClosure$}
+    - {flags: 0, pattern: ^org\.codehaus\.groovy\.runtime\.MethodClosure$}
+    - {flags: 0, pattern: ^org\.springframework\.beans\.factory\.ObjectFactory$}
+    - {flags: 0, pattern: ^com\.sun\.org\.apache\.xalan\.internal\.xsltc\.trax\.TemplatesImpl$}
+    blackListRegexExcludingClassesForDeserialization: [^org\.apache\.commons\.collections\.functors\.InvokerTransformer$,
+        ^org\.apache\.commons\.collections\.functors\.InstantiateTransformer$, ^org\.apache\.commons\.collections4\.functors\.InvokerTransformer$,
+        ^org\.apache\.commons\.collections4\.functors\.InstantiateTransformer$, ^org\.codehaus\.groovy\.runtime\.ConvertedClosure$,
+        ^org\.codehaus\.groovy\.runtime\.MethodClosure$, ^org\.springframework\.beans\.factory\.ObjectFactory$,
+        ^com\.sun\.org\.apache\.xalan\.internal\.xsltc\.trax\.TemplatesImpl$]
+    canUsePointToPointTransferedBlockChecker: true
+    connectionProtocolProperties: []
+    connectionTimeOut: 30000
+    connectionToAttempt: null
+    delayBetweenEachAgentSocketOptimization: 10000
+    delayBetweenEachExternalIPRouterCheck: 3600000
+    delayBetweenEachNetworkInterfaceScan: 30000
+    delayBetweenEachRouterConnectionCheck: 10000
+    delayInMsBetweenEachConnectionAsk: 0
+    distantKernelAddressPriority: priorityIfCertifiedConnection
+    durationBeforeCancelingTransferConnection: 120000
+    expulsionDuration: 600000
+    expulsionStatisticDuration: 7200000
+    externalRouterPortsToMap: null
+    freeStringProperties: null
+    gatewayConnection: false
+    gatewayDepth: 1
+    globalRealTimeTransferStatPer30SecondsForDownload: &id002
+        cursor: 0
+        duration: 30000
+        one_cycle_done: {value: 0}
+        segment: 3000
+        stats: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        timer: {m_paused: false, m_previous_pause_time: 0, m_previous_time: 1526476106659,
+            m_stoped: false}
+        totalBytes: 0
+    globalRealTimeTransferStatPer30SecondsForUpload: &id004
+        cursor: 0
+        duration: 30000
+        one_cycle_done: {value: 0}
+        segment: 3000
+        stats: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        timer: {m_paused: false, m_previous_pause_time: 0, m_previous_time: 1526476106659,
+            m_stoped: false}
+        totalBytes: 0
+    globalRealTimeTransferStatPer5MinutesForDownload: &id001
+        cursor: 0
+        duration: 300000
+        one_cycle_done: {value: 0}
+        segment: 3000
+        stats: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0]
+        timer: {m_paused: false, m_previous_pause_time: 0, m_previous_time: 1526476106659,
+            m_stoped: false}
+        totalBytes: 0
+    globalRealTimeTransferStatPer5MinutesForUpload: &id003
+        cursor: 0
+        duration: 300000
+        one_cycle_done: {value: 0}
+        segment: 3000
+        stats: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0]
+        timer: {m_paused: false, m_previous_pause_time: 0, m_previous_time: 1526476106659,
+            m_stoped: false}
+        totalBytes: 0
+    globalStatBandwith:
+        bytes_downloaded_in_real_bytes:
+            ~~DEFAULT_UPLOAD_STAT_PER_BYTES_SEGMENTS: &id005
+                bytes_for_current_cycle: 0
+                bytes_per_second: 0.0
+                bytes_to_mean: 524288
+                durationBeforeObsolescence: 300000
+                one_cycle_done: {value: 0}
+                segment: 32768
+                stats: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                    0.0, 0.0, 0.0, 0.0]
+                timeElapsed:
+                    value: !!com.distrimind.util.Timer {m_paused: false, m_previous_pause_time: 0,
+                        m_previous_time: 1526476106659, m_stoped: false}
+        bytes_downloaded_in_real_time:
+            ~~DEFAULT_TRANSFERT_STAT_IN_REAL_TIME_PER_5_MINUTES_SEGMENTS: *id001
+            ~~DEFAULT_TRANSFERT_STAT_IN_REAL_TIME_PER_30_SECONDS_SEGMENTS: *id002
+        bytes_uploaded_in_real_bytes:
+            ~~DEFAULT_UPLOAD_STAT_PER_BYTES_SEGMENTS: &id006
+                bytes_for_current_cycle: 0
+                bytes_per_second: 0.0
+                bytes_to_mean: 524288
+                durationBeforeObsolescence: 300000
+                one_cycle_done: {value: 0}
+                segment: 32768
+                stats: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                    0.0, 0.0, 0.0, 0.0]
+                timeElapsed:
+                    value: !!com.distrimind.util.Timer {m_paused: false, m_previous_pause_time: 0,
+                        m_previous_time: 1526476106659, m_stoped: false}
+        bytes_uploaded_in_real_time:
+            ~~DEFAULT_TRANSFERT_STAT_IN_REAL_TIME_PER_5_MINUTES_SEGMENTS: *id003
+            ~~DEFAULT_TRANSFERT_STAT_IN_REAL_TIME_PER_30_SECONDS_SEGMENTS: *id004
+        statsForDistantKernelAddress: {value: null}
+        transfer_agents_bandwidth: {}
+    globalTransferSpeedStatPer512SegmentsForDownload: *id005
+    globalTransferSpeedStatPer512SegmentsForUpload: *id006
+    localInetAddressesToBind: null
+    maxBufferSize: 32767
+    maxDurationBeforeClosingObsoleteNetworkInterfaces: 60000
+    maxDurationOfDistantKernelAddressCheck: 60000
+    maxRandomPacketValues: 0
+    maxShortDataSize: 20971520
+    maxSizeForUnreadShortDataFromAllConnections: 419430400
+    maxSizeForUnreadShortDataFromOneDistantKernel: 41943040
+    maximumNumberOfCryptoKeysForIpsSpectrum: 1000
+    nbMaxAnomaliesBeforeTrigeringBanishment: 1
+    nbMaxAnomaliesBeforeTrigeringExpulsion: 7
+    nbMaxBanishments: 100
+    nbMaxExpulsions: 20
+    network: false
+    networkAgent: !!class 'com.distrimind.madkit.kernel.NetworkAgent'
+    networkInterfaceScan: true
+    networkLogLevel: !!logLevel 'INFO'
+    numberOfCachedBytesToTransferBeforeBlockingSocket: 41943040
+    numberOfMaximumConnectionsBetweenTwoSameKernelsAndMachines: 3
+    numberOfMaximumConnectionsFromOneIPV4: 256
+    numberOfMaximumConnectionsFromOneIPV6: 8
+    portForMulticastDiffusionMessage: 5000
+    portsToBindForAutomaticLocalConnections: 5001
+    portsToBindForManualDirectConnections: -1
+    selectorTimeOut: 30000
+    selectorTimeOutWhenWaitingPendingConnections: 300
+    timeBetweenEachUpdateOfTransfertSpeedForGatewayConnection: 30000
+    transferTriggers: null
+    transfer_stat_per_id_transfer: {}
+    transfer_stat_per_kernel_address: {}
+    transfer_stat_per_network_interface: {}
+    upnpIGDEnabled: false
+    upnpMulticastIDGPort: 1901
+    upnpStreamIDGPort: 0
+    whiteInetAddressesList: [!!ip '0.0.0.0', !!ip '127.0.0.1', !!ip '0:0:0:0:0:0:0:1',
+        !!ip '127.0.0.1']
+    whiteListIncludingClassesForDeserialization: [!!class 'java.lang.Number', !!class 'com.distrimind.madkit.util.ExternalizableAndSizable',
+        !!class 'java.util.Date', !!class 'com.distrimind.madkit.kernel.network.SystemMessage']
+    whiteListPatternIncludingClassesForDeserialization:
+    - {flags: 0, pattern: ^java.*}
+    - {flags: 0, pattern: ^com\.distrimind.*}
+    whiteListRegexIncludingClassesForDeserialization: [^java.*, ^com\.distrimind.*]
+noAgentConsoleLog: false
+noMadkitConsoleLog: false
+noOrgConsolLog: false
+nonceForApprovedRandom: |
+    Au courant de l'amour lorsque je m'abandonne,
+    Dans le torrent divin quand je plonge enivré,
+    Et presse éperdument sur mon sein qui frissonne
+    Un être idolâtre.
+
+    Je sais que je n'étreins qu'une forme fragile,
+    Qu'elle peut à l'instant se glacer sous ma main,
+    Que ce cœur tout à moi, fait de flamme et d'argile,
+    Sera cendre demain ;
+
+    Qu'il n'en sortira rien, rien, pas une étincelle
+    Qui s'élance et remonte à son foyer lointain :
+    Un peu de terre en hâte, une pierre qu'on scelle,
+    Et tout est bien éteint.
+
+    Et l'on viendrait serein, à cette heure dernière,
+    Quand des restes humains le souffle a déserté,
+    Devant ces froids débris, devant cette poussière
+    Parler d'éternité !
+nonceForApprovedRandomForKeys: |4+
+
+
+        L ‘Emmuré.
+
+        S’il respire il pense à l’encoche
+        Dans la tendre chaux confidente
+        Où ses mains du soir étendent ton corps.
+
+        Le laurier l’épuise,
+        La privation le consolide.
+
+        O toi, la monotone absente,
+        La fileuse de salpêtre,
+        Derrière des épaisseurs fixes
+        Une échelle sans âge déploie ton voile !
+
+        Tu vas nue, constellée d’échardes,
+        Secrète, tiède et disponible,
+        Attachée au sol indolent,
+        Mais l’intime de l’homme abrupt dans sa prison.
+
+        A te mordre les jours grandissent,
+        Plus arides, plus imprenables que les nuages qui se déchirent au fond des os.
+        J’ai pesé de tout mon désir
+        Sur ta beauté matinale
+        Pour qu’elle éclate et se sauve.
+
+        L’ont suivie l’alcool sans rois mages,
+        Le battement de ton triangle,
+        La main-d’oeuvre de tes yeux
+        Et le gravier debout sur l’algue.
+
+        Un parfum d’insolation
+        Protège ce qui va éclore.
+
+orgLogLevel: !!logLevel 'OFF'
+parameterForApprovedRandom: |-
+    J'ai rencontré trois escargots
+    Qui s'en allaient cartable au dos
+    Et dans le pré trois limaçons
+    Qui disaient par cœur leur leçon.
+    Puis dans un champ, quatre lézards
+    Qui écrivaient un long devoir.
+
+    Où peut se trouver leur école ?
+    Au milieu des avoines folles ?
+    Et leur maître est-il ce corbeau
+    Que je vois dessiner là-haut
+    De belles lettres au tableau ?
+parameterForApprovedRandomForKeys: |
+    Eh bien ! reprends-le donc ce peu de fange obscure
+    Qui pour quelques instants s'anima sous ta main ;
+    Dans ton dédain superbe, implacable Nature,
+    Brise à jamais le moule humain.
+
+    De ces tristes débris quand tu verrais, ravie,
+    D'autres créations éclore à grands essaims,
+    Ton Idée éclater en des formes de vie
+    Plus dociles à tes desseins,
+
+    Est-ce à dire que Lui, ton espoir, ta chimère,
+    Parce qu'il fut rêvé, puisse un jour exister ?
+    Tu crois avoir conçu, tu voudrais être mère ;
+    A l'œuvre ! il s'agit d'enfanter.
+
+    Change en réalité ton attente sublime.
+    Mais quoi ! pour les franchir, malgré tous tes élans,
+    La distance est trop grande et trop profond l'abîme
+    Entre ta pensée et tes flancs.
+platformLogLevel: !!logLevel 'INFO'
+projectVersion: null
+savePropertiesAfterKernelKill: false
+savedRandomSeedForApprovedRandom: null
+savedRandomSeedForApprovedRandomForKeys: null
+warningLogLevel: !!logLevel 'FINE'

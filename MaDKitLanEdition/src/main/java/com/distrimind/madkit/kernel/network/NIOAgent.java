@@ -60,6 +60,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.ListIterator;
+import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
@@ -79,6 +80,7 @@ import com.distrimind.madkit.kernel.Group;
 import com.distrimind.jdkrewrite.concurrent.LockerCondition;
 import com.distrimind.madkit.kernel.Message;
 import com.distrimind.madkit.kernel.NetworkAgent;
+import com.distrimind.madkit.kernel.Task;
 import com.distrimind.madkit.kernel.network.AbstractData.DataTransferType;
 import com.distrimind.madkit.kernel.network.TransferAgent.IDTransfer;
 import com.distrimind.madkit.kernel.network.TransferAgent.TryDirectConnection;
@@ -562,7 +564,12 @@ final class NIOAgent extends Agent {
 					Object c=((ObjectMessage<?>) m).getContent();
 					if (c instanceof PersonalSocket)
 						((PersonalSocket) c).finishCloseConnection();
+					else if (logger!=null)
+						logger.warning("Unexpected message "+m);
+						
 				}
+				else if (logger!=null)
+					logger.warning("Unexpected message "+m);
 				m = nextMessage();
 			}
 			m = null;
@@ -1192,7 +1199,7 @@ final class NIOAgent extends Agent {
 				if (d.isLastMessage()) {
 					if (logger != null && logger.isLoggable(Level.FINER))
 						logger.finer("Sending last message (agentSocket=" + agentAddress + ")");
-					this.closeConnection(ConnectionClosedReason.CONNECTION_PROPERLY_CLOSED);
+					this.closeConnection(ConnectionClosedReason.CONNECTION_PROPERLY_CLOSED, true);
 					return true;
 				}
 
@@ -1826,30 +1833,53 @@ final class NIOAgent extends Agent {
 		 * ConnectionClosed(socketChannel, cs, dataToSend, bigDataToSend),
 		 * LocalCommunity.Roles.NIO_ROLE); }
 		 */
-
-		public void closeConnection(ConnectionClosedReason cs) {
+		public void closeConnection(ConnectionClosedReason cs)
+		{
+			closeConnection(cs, false);
+		}
+		public void closeConnection(ConnectionClosedReason cs, boolean delaying) {
 			if (logger != null)
 				logger.finer("Closing connection : " + this);
 			this.cs=cs;
-			personal_sockets.remove(this.agentAddress.getAgentNetworkID());
-			personal_sockets_list.remove(this);
-
 			is_closed = true;
-			finishCloseConnection();
-			/*NIOAgent.this.scheduleTask(new Task<Void>(new Callable<Void>() {
-
-				@Override
-				public Void call() throws Exception {
-					receiveMessage(new ObjectMessage<>(NIOAgent.PersonalSocket.this));
-					return null;
-				}
-			}, 200+System.currentTimeMillis()));*/
-			
+			try
+			{
+				if (this.socketChannel.isOpen())
+					this.socketChannel.socket().getOutputStream().flush();
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace();
+			}
+			delaying&=getMadkitConfig().networkProperties.delayInMsBeforeClosingConnectionNormally>0;
+			if (delaying)
+			{
+				NIOAgent.this.scheduleTask(new Task<Void>(new Callable<Void>() {
+	
+					@Override
+					public Void call() throws Exception {
+						if (isAlive())
+							receiveMessage(new ObjectMessage<>(NIOAgent.PersonalSocket.this));
+						else
+							finishCloseConnection();
+						return null;
+					}
+				}, getMadkitConfig().networkProperties.delayInMsBeforeClosingConnectionNormally+System.currentTimeMillis()));
+			}
+			else
+				finishCloseConnection();
 
 		}
 
 		public void finishCloseConnection()
 		{
+			
+			
+			personal_sockets.remove(this.agentAddress.getAgentNetworkID());
+			personal_sockets_list.remove(this);
+
+			
+
 			InetSocketAddress isa=null;
 			try {
 				isa = (InetSocketAddress) this.socketChannel.getRemoteAddress();

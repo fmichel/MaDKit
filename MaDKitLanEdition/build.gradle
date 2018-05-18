@@ -119,6 +119,7 @@ artifacts {
 
 
 
+
 jar{
 	dependsOn generateVersionsFile
     manifest {

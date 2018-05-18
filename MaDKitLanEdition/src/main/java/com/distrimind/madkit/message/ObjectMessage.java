@@ -127,10 +127,10 @@ public class ObjectMessage<T> extends Message {
 	/**
 	 * Returns the message containing the maximum element of the given collection,
 	 * according to the <i>natural ordering</i> of the elements contained in the
-	 * message. All elements in the messages must implement the <tt>Comparable</tt>
+	 * message. All elements in the messages must implement the <code>Comparable</code>
 	 * interface. Furthermore, all elements must be <i>mutually comparable</i> (that
-	 * is, <tt>e1.compareTo(e2)</tt> must not throw a <tt>ClassCastException</tt>
-	 * for any elements <tt>e1</tt> and <tt>e2</tt> in the collection).
+	 * is, <code>e1.compareTo(e2)</code> must not throw a <code>ClassCastException</code>
+	 * for any elements <code>e1</code> and <code>e2</code> in the collection).
 	 * <p>
 	 *
 	 * This method iterates over the entire collection, hence it requires time
@@ -164,10 +164,10 @@ public class ObjectMessage<T> extends Message {
 	/**
 	 * Returns the message containing the minimum element of the given collection,
 	 * according to the <i>natural ordering</i> of the elements contained in the
-	 * message. All elements in the messages must implement the <tt>Comparable</tt>
+	 * message. All elements in the messages must implement the <code>Comparable</code>
 	 * interface. Furthermore, all elements must be <i>mutually comparable</i> (that
-	 * is, <tt>e1.compareTo(e2)</tt> must not throw a <tt>ClassCastException</tt>
-	 * for any elements <tt>e1</tt> and <tt>e2</tt> in the collection).
+	 * is, <code>e1.compareTo(e2)</code> must not throw a <code>ClassCastException</code>
+	 * for any elements <code>e1</code> and <code>e2</code> in the collection).
 	 * <p>
 	 *
 	 * This method iterates over the entire collection, hence it requires time

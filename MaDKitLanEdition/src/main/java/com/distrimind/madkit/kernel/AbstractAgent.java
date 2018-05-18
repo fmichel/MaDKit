@@ -563,7 +563,8 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * </p>
 	 * 
 	 * <pre>
-	 * <tt>@Override</tt>
+	 * <code>
+	 * 
 	 * protected void activate()
 	 * {
 	 * 	AbstractAgent.ReturnCode returnCode = requestRole("a community", "a group", "my role");
@@ -576,7 +577,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * 			logger.warning("something wrong, return code is "+returnCode);
 	 * 	}
 	 * }
-	 * 
+	 * </code>
 	 * </pre>
 	 * 
 	 * @throws InterruptedException
@@ -696,7 +697,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * </p>
 	 * 
 	 * <pre>
-	 * <tt>@Override</tt>
+	 * 
 	 * protected void end()
 	 * {
 	 * 	AbstractAgent.ReturnCode returnCode = leaveRole("a community", "a group", "my role");
@@ -3628,7 +3629,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 		NO_RECIPIENT_FOUND,
 		/**
 		 * Returned when
-		 * {@link AbstractAgent#requestRole(Group, String, SerializableAndSizable)} or
+		 * {@link AbstractAgent#requestRole(Group, String, ExternalizableAndSizable)} or
 		 * {@link AbstractAgent#createGroup(Group, Object)} is
 		 * used in activate and that the agent has been launched using
 		 * {@link AbstractAgent#launchAgentBucket(List, int, Role...)} or

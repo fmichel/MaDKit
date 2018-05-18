@@ -248,7 +248,7 @@ public class Agent extends AbstractAgent {
 	 * </p>
 	 * 
 	 * <pre>
-	 *  <tt>      @Override</tt>
+	 *  
 	 *	protected void liveCycle()
 	 *	{
 	 *		Message m = waitNextMessage();

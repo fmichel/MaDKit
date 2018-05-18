@@ -274,7 +274,7 @@ public class Scheduler extends Agent {
 	 * policy. So default implementation is :
 	 * 
 	 * <pre>
-	 * <tt>@Override</tt>
+	 * 
 	 * 	public void doSimulationStep() {
 	 * 		&nbsp;&nbsp; &nbsp; * &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (logger != null) {
 	 * 		&nbsp;&nbsp; &nbsp; * &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;logger.finer("Doing simulation step " + GVT);

@@ -38,10 +38,9 @@
 
 package com.distrimind.madkit.kernel;
 
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 
 /**
@@ -54,11 +53,11 @@ import java.io.IOException;
 public class VersionsFileGenerator {
 	public static void main(String args[]) throws FileNotFoundException, IOException
 	{
-		String html=Madkit.getVersion().getHTMLCode();
-		try(FileOutputStream fos=new FileOutputStream(new File("../versions.html"));DataOutputStream dos=new DataOutputStream(fos))
+		String markdown=Madkit.getVersion().getMarkdownCode();
+		try(FileWriter fr = new FileWriter(new File("../versions.md")))
 		{
-			dos.writeChars(html);
-			dos.flush();
+			fr.write(markdown);
+			fr.flush();
 		}
 	}
 }

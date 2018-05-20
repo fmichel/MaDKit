@@ -47,7 +47,7 @@ public class AutomaticLocalConnectionTest extends JunitMadkit {
 					checkConnectedKernelsNb(this, m, 1, timeOut);
 				}
 				for (Madkit m : getHelperInstances(2)) {
-					checkConnectedIntancesNb(this, m, 2, timeOut);
+					checkConnectedIntancesNb(this, m, 3, timeOut);
 				}
 				sleep(400);
 				cleanHelperMDKs(this);

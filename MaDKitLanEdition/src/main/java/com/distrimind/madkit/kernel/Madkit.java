@@ -156,6 +156,7 @@ final public class Madkit {
 			d.addItem("Security enhancement : initialisation vectors used with encryption has now a secret part composed of counter that is increased at each data exchange.");
 			d.addItem("Security enhancement : signature and encryption process use now a secret message that is increased at each data exchange.");
 			d.addItem("Security enhancement : P2P login agreement use now JPAKE and a signature authentication if secret key for signature is available (PassworKey.getSecretKeyForSignature()).");
+			d.addItem("Fix issue with dead lock into indirect connection process.");
 			d.addItem("Fix issue with dual connection between two same kernels.");
 			d.addItem("Externalising Java rewrited classes into JDKRewriteUtils project.");
 			d.addItem("Support of authenticated encryption algorithms. When use these algorithms, MKLE do not add a signature with independant MAC.");

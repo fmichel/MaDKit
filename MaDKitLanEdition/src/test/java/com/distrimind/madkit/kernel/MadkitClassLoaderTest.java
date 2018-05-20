@@ -38,9 +38,7 @@
 package com.distrimind.madkit.kernel;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
@@ -65,7 +63,7 @@ import com.distrimind.madkit.kernel.AbstractAgent.ReturnCode;
 
 public class MadkitClassLoaderTest extends JunitMadkit {
 
-	@Test
+	/*@Test
 	public void scanFolderForMDKConfigFileAgentClassesTest() {
 		addMadkitArgs("--kernelLogLevel", "ALL");
 		launchTest(new AbstractAgent() {
@@ -79,7 +77,7 @@ public class MadkitClassLoaderTest extends JunitMadkit {
 						|| 7 == MadkitClassLoader.getXMLConfigurations().size());
 			}
 		});
-	}
+	}*/
 
 	/*
 	 * @Test //TODO public void testLoadJarsFromPath() { launchTest(new
@@ -104,9 +102,9 @@ public class MadkitClassLoaderTest extends JunitMadkit {
 			protected void activate() {
 				MadkitClassLoader mcl = MadkitClassLoader.getLoader();
 				try {
-					MadkitClassLoader.loadUrl(new File(".").toURI().toURL());
+					MadkitClassLoader.loadUrl(new File("./bin").toURI().toURL());
 					int n = mcl.getURLs().length;
-					MadkitClassLoader.loadUrl(new File(".").toURI().toURL());
+					MadkitClassLoader.loadUrl(new File("./bin").toURI().toURL());
 					assertEquals(n, mcl.getURLs().length);
 					System.err.println(Arrays.deepToString(mcl.getURLs()));
 				} catch (MalformedURLException e) {

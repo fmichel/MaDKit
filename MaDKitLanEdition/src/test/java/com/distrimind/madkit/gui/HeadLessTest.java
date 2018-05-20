@@ -69,6 +69,7 @@ public class HeadLessTest extends JunitMadkit {
 				super.setupFrame(frame);
 			}
 		}, ReturnCode.SUCCESS, true);
+		
 		pause(null, 100);
 		// testAgent();
 

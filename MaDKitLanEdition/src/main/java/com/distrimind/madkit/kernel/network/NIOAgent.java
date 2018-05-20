@@ -1136,8 +1136,8 @@ final class NIOAgent extends Agent {
 					LocalCommunity.Roles.SOCKET_AGENT_ROLE);
 			last_data_writed_utc = time_sending_ping_message = System.currentTimeMillis();
 			maxBlockSize=_agent.getMaxBlockSize();
-			socketChannel.setOption(StandardSocketOptions.SO_SNDBUF, maxBlockSize);
-			socketChannel.setOption(StandardSocketOptions.SO_RCVBUF, maxBlockSize);
+			/*socketChannel.setOption(StandardSocketOptions.SO_SNDBUF, maxBlockSize);
+			socketChannel.setOption(StandardSocketOptions.SO_RCVBUF, maxBlockSize);*/
 
 			addDataToSend(new FirstData(NIOAgent.this,
 					new DatagramLocalNetworkPresenceMessage(System.currentTimeMillis(),

@@ -451,13 +451,16 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 	private static boolean check(String args) {
 		return args != null && !args.trim().isEmpty();
 	}
-
+	//private static final String excludeForderToScan="MaDKitLanEditionDemos/bin/main/com/distrimind/madkitdemos".replaceAll("/", File.separator);
+	
+	
 	private static void scanFolderForAgentClasses(final File file, final String pckName, String currentUrlPath) {
 		final File[] files = file.listFiles();
 		if (files != null) {
 			for (File f : files) {
 				final String fileName = f.getName();
 				if (f.isDirectory()) {
+					
 					scanFolderForAgentClasses(f, pckName == null ? fileName : pckName + "." + fileName, currentUrlPath);
 				} else {
 					if (fileName.endsWith(".class")) {

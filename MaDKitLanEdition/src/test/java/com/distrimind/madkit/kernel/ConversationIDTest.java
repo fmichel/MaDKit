@@ -84,7 +84,7 @@ public class ConversationIDTest extends JunitMadkit {
 					ArrayList<ConversationID> ids = new ArrayList<>();
 					for (int i = 0; i < nb; i++) {
 						ConversationID id = new ConversationID();
-
+						
 						Assert.assertEquals(id, id);
 						for (ConversationID other : ids)
 							Assert.assertNotEquals(id, other);
@@ -304,6 +304,7 @@ public class ConversationIDTest extends JunitMadkit {
 			}
 
 		});
+		pause(null, 1000);
 
 	}
 }

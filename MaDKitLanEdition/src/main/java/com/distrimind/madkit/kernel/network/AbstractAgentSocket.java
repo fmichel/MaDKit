@@ -164,10 +164,44 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 	private DataSocketSynchronizer.SocketAgentInterface dataSynchronized = new DataSocketSynchronizer.SocketAgentInterface() {
 
 		@Override
-		public void receivedBlock(Block block) {
+		public void receivedBlock(final Block block)
+		{
+			receivedBlock(block, true);
+		}
+		
+		
+		private void receivedBlock(Block block, boolean firstTime) {
 			try {
 				try {
-					InterfacedIDTransfer idt = routesData(block);
+					InterfacedIDTransfer idt = null;
+					try
+					{
+						idt = routesData(block);
+					}
+					catch(RouterException e)
+					{ 
+						if (firstTime)
+						{
+							final Block f=block;
+							scheduleTask(new Task<>(new Callable<Void>() {
+
+								@Override
+								public Void call() throws Exception {
+									if (isAlive())
+									{
+										receivedBlock(f, false);
+									}
+									return null;
+								}
+							}, System.currentTimeMillis()+400));
+							return;
+						}
+						else
+						{
+							processInvalidBlock(e, null, false);
+							return;
+						}
+					}
 					if (idt == null)
 						receiveData(block);
 					else {
@@ -265,6 +299,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 			throw new NullPointerException("_distant_inet_address");
 		if (_local_interface_address == null)
 			throw new NullPointerException("_local_interface_address");
+		
 		distant_inet_address = _distant_inet_address;
 		local_interface_address = _local_interface_address;
 		this_ask_connection = _this_ask_connection;
@@ -1028,7 +1063,7 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 			for (Enumeration<InetAddress> it = NetworkInterface.getByInetAddress(local_interface_address.getAddress())
 					.getInetAddresses(); it.hasMoreElements();) {
 				InetAddress ia = it.nextElement();
-				if (getMadkitConfig().networkProperties.needsServerSocket(new InetSocketAddress(ia,
+				if (LocalNetworkAgent.isValid(ia) && getMadkitConfig().networkProperties.needsServerSocket(new InetSocketAddress(ia,
 						getMadkitConfig().networkProperties.portsToBindForAutomaticLocalConnections))) {
 					ias.add(ia);
 				}

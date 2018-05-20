@@ -772,8 +772,6 @@ final class NIOAgent extends Agent {
 		try {
 			InetSocketAddress isaRemote = (InetSocketAddress) socketChannel.getRemoteAddress();
 			InetSocketAddress isaLocal = (InetSocketAddress) socketChannel.getLocalAddress();
-			socketChannel.setOption(StandardSocketOptions.SO_SNDBUF, getMadkitConfig().networkProperties.maxBufferSize);
-			socketChannel.setOption(StandardSocketOptions.SO_RCVBUF, getMadkitConfig().networkProperties.maxBufferSize);
 			if (ip == null)
 				ip = new DoubleIP(isaRemote);
 			try {
@@ -788,6 +786,7 @@ final class NIOAgent extends Agent {
 							local_asking);
 					this.launchAgent(agent);
 					if (agent.getState().equals(State.LIVING) && dka.getState().equals(State.LIVING)) {
+
 						PersonalSocket ps = new PersonalSocket(socketChannel, agent);
 						clientKey.attach(ps);
 						personal_sockets.put(agent.getNetworkID(), ps);
@@ -1137,6 +1136,9 @@ final class NIOAgent extends Agent {
 					LocalCommunity.Roles.SOCKET_AGENT_ROLE);
 			last_data_writed_utc = time_sending_ping_message = System.currentTimeMillis();
 			maxBlockSize=_agent.getMaxBlockSize();
+			socketChannel.setOption(StandardSocketOptions.SO_SNDBUF, maxBlockSize);
+			socketChannel.setOption(StandardSocketOptions.SO_RCVBUF, maxBlockSize);
+
 			addDataToSend(new FirstData(NIOAgent.this,
 					new DatagramLocalNetworkPresenceMessage(System.currentTimeMillis(),
 							getMadkitConfig().projectVersion, getMadkitConfig().madkitVersion, null,

@@ -117,7 +117,7 @@ class TransferAgent extends AgentFakeThread {
 	}
 
 	@Override
-	protected void liveByStep(Message _message) {
+	protected void liveByStep(Message _message) throws InterruptedException {
 		if (_message == null)
 			return;
 
@@ -174,11 +174,14 @@ class TransferAgent extends AgentFakeThread {
 						InetSocketAddress isa = null;
 						if (originalAskMessage.getType()
 								.equals(AskForTransferMessage.Type.TRY_DIRECT_CONNECTION_FIRST_OR_TRANSFER)) {
+							
 							isa = candidate1.getInetSocketAddress(candidate2.getInetAddress().getAddress());
 							if (isa == null) {
+								
 								isa = candidate2.getInetSocketAddress(candidate1.getInetAddress().getAddress());
 								directConnection2Tried = true;
 							}
+							
 						}
 
 						if (isa == null) {
@@ -186,8 +189,8 @@ class TransferAgent extends AgentFakeThread {
 						} else {
 							if (logger != null && logger.isLoggable(Level.FINER))
 								logger.finer("Try direct connection first : " + originalAskMessage);
-
 							if (directConnection2Tried) {
+								
 								sendMessageWithRole(candidate1.getAgentAddress(),
 										new ObjectMessage<>(new TryDirectConnection(idTransfer, isa)),
 										LocalCommunity.Roles.TRANSFER_AGENT_ROLE);

@@ -551,7 +551,6 @@ class LocalNetworkAgent extends AgentFakeThread {
 								found = isConcernedBy(b, con, local);
 								if (found) {
 									con = con.clone();
-
 									con.interface_address = b.getInetSocketAddress();
 									if (this.broadcastMessageWithRole(LocalCommunity.Groups.LOCAL_NETWORKS,
 											LocalCommunity.Roles.NIO_ROLE, con, LocalCommunity.Roles.LOCAL_NETWORK_ROLE)
@@ -818,7 +817,7 @@ class LocalNetworkAgent extends AgentFakeThread {
 		return ia != null && isValid(ia.getAddress());
 	}
 
-	private static boolean isValid(InetAddress ia) {
+	static boolean isValid(InetAddress ia) {
 		try {
 			return !ia.isLinkLocalAddress() && !ia.isAnyLocalAddress() && !ia.isMulticastAddress()
 					&& ia.isReachable(500);

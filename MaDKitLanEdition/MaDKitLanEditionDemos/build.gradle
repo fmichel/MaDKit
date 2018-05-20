@@ -52,7 +52,7 @@ repositories {
 
 
 dependencies {
-     compile(group:'com.distrimind.madkit', name: 'MaDKitLanEdition', version: '1.6.5')
+     compile(group:'com.distrimind.madkit', name: 'MaDKitLanEdition', version: '1.7.0')
     
      
 }
@@ -70,7 +70,7 @@ allprojects {
 }
 
 
-version='1.0.3'
+version='1.0.4'
 
 
 task sourcesJar(type: Jar, dependsOn: classes) {

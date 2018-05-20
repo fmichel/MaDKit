@@ -1,6 +1,6 @@
 MadkitLanEdition
 ================
-1.7.0 Stable (Build: 88) (from 22/05/2015 to 16/05/2018)
+1.7.0 Stable (Build: 90) (from 22/05/2015 to 20/05/2018)
 
 # Creator(s):
 Jason MAHDJOUB
@@ -14,7 +14,7 @@ Jacques FERBER (Entred in the team at 01/02/1997)
 # Modifications:
 
 
-### 1.7.0 Stable (16/05/2018)
+### 1.7.0 Stable (20/05/2018)
 * Update OOD to 2.0.0 Beta 82.
 * Update Utils to 3.15.0.
 * Add P2P connection protocol that support parametrisation of key aggreement.
@@ -24,10 +24,11 @@ Jacques FERBER (Entred in the team at 01/02/1997)
 * Fix security issue : with P2P key agreements, generate signature and encryptions keys with two steps (instead of one), in order to sign the exchanged symmetric encryption key.
 * Fix security issue : class serialization are now filtered with white list and black list. Classes that are not into white list must implement the interfance 'SerializableAndSizable'. Messages sent to the network must implement the interface NetworkMessage.
 * Optimization : use externalization process instead of desialization process during lan transfer.
-* Fix security issue : classes externlization processes control now the allocated memory during de-externalization phase.
+* Fix security issue : classes exterlization processes control now the allocated memory during de-externalization phase.
 * Security enhancement : initialisation vectors used with encryption has now a secret part composed of counter that is increased at each data exchange.
 * Security enhancement : signature and encryption process use now a secret message that is increased at each data exchange.
 * Security enhancement : P2P login agreement use now JPAKE and a signature authentication if secret key for signature is available (PassworKey.getSecretKeyForSignature()).
+* Fix issue with dead lock into indirect connection process.
 * Fix issue with dual connection between two same kernels.
 * Externalising Java rewrited classes into JDKRewriteUtils project.
 * Support of authenticated encryption algorithms. When use these algorithms, MKLE do not add a signature with independant MAC.

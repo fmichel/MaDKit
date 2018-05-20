@@ -118,7 +118,7 @@ final public class Madkit {
 		Calendar c = Calendar.getInstance();
 		c.set(2015, 4, 22);
 		Calendar c2 = Calendar.getInstance();
-		c2.set(2018, 4, 16);
+		c2.set(2018, 4, 20);
 		Version VERSION = new Version("MadkitLanEdition", "MKLE", 1, 7, 0, Version.Type.Stable, 1, c.getTime(), c2.getTime());
 		try {
 
@@ -141,7 +141,7 @@ final public class Madkit {
 			VERSION.addDeveloper(new PersonDeveloper("Ferber", "Jacques", c.getTime()));
 
 			c = Calendar.getInstance();
-			c.set(2018, 4, 16);
+			c.set(2018, 4, 20);
 			Description d = new Description(1, 7, 0, Version.Type.Stable, 1, c.getTime());
 			d.addItem("Update OOD to 2.0.0 Beta 82.");
 			d.addItem("Update Utils to 3.15.0.");
@@ -152,7 +152,7 @@ final public class Madkit {
 			d.addItem("Fix security issue : with P2P key agreements, generate signature and encryptions keys with two steps (instead of one), in order to sign the exchanged symmetric encryption key.");
 			d.addItem("Fix security issue : class serialization are now filtered with white list and black list. Classes that are not into white list must implement the interfance 'SerializableAndSizable'. Messages sent to the network must implement the interface NetworkMessage.");
 			d.addItem("Optimization : use externalization process instead of desialization process during lan transfer.");
-			d.addItem("Fix security issue : classes externlization processes control now the allocated memory during de-externalization phase.");
+			d.addItem("Fix security issue : classes exterlization processes control now the allocated memory during de-externalization phase.");
 			d.addItem("Security enhancement : initialisation vectors used with encryption has now a secret part composed of counter that is increased at each data exchange.");
 			d.addItem("Security enhancement : signature and encryption process use now a secret message that is increased at each data exchange.");
 			d.addItem("Security enhancement : P2P login agreement use now JPAKE and a signature authentication if secret key for signature is available (PassworKey.getSecretKeyForSignature()).");

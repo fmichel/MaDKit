@@ -31,8 +31,13 @@ You can also find inspiration into Junit tests.
 * Several network protocols
     * Peer to peer secured or unsecured connections
     * Client/server secured or unsecured connections
-    * Several encryption algorithms
-* Access protocol manage peer to peer login and gives rights to specified groups of agents. A specific login protocol has been established in order to exchange password or secret keys, without compromising them if the distant peer is not a trusting peer. Same thing with the user login.
+    * Several encryption algorithms, including authenticated encryption algorithms and Post Quantum Cryptography encryptions
+    * Several signature algorithms, including  Post Quantum Cryptography signers
+    * There is a possibility to choose between several key agreement algorithms, including Post Quantum Cryptography agreements
+    * Sending the same packet is impossible :
+    	* Initialization vectors used with encryption has a secret part composed of counter that is increased at each data exchange. 
+    	* More over, signatures are computed with a secret part composed of counter that is increased at each data exchange.     	
+* Access protocol manage peer to peer login and gives rights to specified groups of agents. A specific login protocol has been established in order to exchange password or secret keys, without compromising them if the distant peer is not a trusting peer. Same thing with the user login. More over, if the user provide a symmetric secret key for signature, it is used to authentifie random messages during the authentication process.
 * possibility to connect randomly to one of the given servers (simple load balancing)
 * ability to ban IP's that generates a number of anomalies above a threshold. Banned IP's are stored into a database. A white ip list is possible.
 * several levels of ban duration
@@ -52,7 +57,11 @@ You can also find inspiration into Junit tests.
 * possibility to get metrics for each connection, and for each big data transfer. 
 * Connections are automatically closed if the distant peer does not answer to ping messages. Lost messages are identified, and messages which have not been sent are returned to sender agents. 
 * large scale conception
-
+* Serialization of classes are now externalized. More over, there is a white list of classes that can be externalized and a black list that cannot. Moreover, over memory allocation (arrays or strings) is controlled during the deserialization process. 
+* Configuration files can be in several formats :
+	* YAML format (default)
+	* XML format
+	* Properties format
 
 
 

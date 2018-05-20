@@ -106,7 +106,7 @@ public class XmlFeaturesTest extends JunitMadkit {
 
 	@Test
 	public void launchNodeBenchFromConfig() {
-		addMadkitArgs("--configFiles", "{src/test/java/com/distrimind/madkit/xml/bench.xml}");
+		addMadkitArgs("--configFiles", "{src/test/resources/com/distrimind/madkit/xml/bench.xml}");
 		addMadkitArgs("--agentLogLevel", "INFO");
 		addMadkitArgs("--kernelLogLevel", "FINER");
 		launchTest(new AbstractAgent() {

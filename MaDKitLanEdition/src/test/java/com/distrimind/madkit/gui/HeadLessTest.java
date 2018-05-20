@@ -45,17 +45,13 @@ package com.distrimind.madkit.gui;
  * @version 1.0
  * 
  */
-import javax.swing.JFrame;
 
-import org.junit.Test;
 
-import com.distrimind.madkit.kernel.AbstractAgent;
 import com.distrimind.madkit.kernel.JunitMadkit;
-import com.distrimind.madkit.kernel.AbstractAgent.ReturnCode;
 
 public class HeadLessTest extends JunitMadkit {
 
-	@Test
+	/*@Test
 	public void testAA() {
 		System.setProperty("java.awt.headless", "true");
 		launchTest(new AbstractAgent() {
@@ -73,7 +69,7 @@ public class HeadLessTest extends JunitMadkit {
 		pause(null, 100);
 		// testAgent();
 
-	}
+	}*/
 
 	/**
 	 * 

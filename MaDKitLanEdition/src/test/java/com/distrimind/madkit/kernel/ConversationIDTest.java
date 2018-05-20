@@ -103,13 +103,28 @@ public class ConversationIDTest extends JunitMadkit {
 						}
 						ids.add(id);
 					}
+					boolean minka1=false;
+					boolean minka2=false;
 					for (int i = 0; i < nb; i++) {
 						ConversationID id = new ConversationID();
-						// id.setOrigin(ka1);
-						if (rand.nextInt(2) == 0) {
+						if (!minka1)
+						{
+							minka1=true;
 							id.setOrigin(ka1);
-						} else {
+						}
+						else if (!minka2)
+						{
+							minka2=true;
 							id.setOrigin(ka2);
+						}
+						else
+						{
+							// id.setOrigin(ka1);
+							if (rand.nextInt(2) == 0) {
+								id.setOrigin(ka1);
+							} else {
+								id.setOrigin(ka2);
+							}
 						}
 
 						Assert.assertEquals(id, id);
@@ -304,7 +319,6 @@ public class ConversationIDTest extends JunitMadkit {
 			}
 
 		});
-		pause(null, 1000);
 
 	}
 }

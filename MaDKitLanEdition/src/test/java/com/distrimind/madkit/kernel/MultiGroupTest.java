@@ -58,27 +58,27 @@ import com.distrimind.madkit.util.SerializationTools;
 public class MultiGroupTest {
 	@Test
 	void testMultiGroup() {
-		MultiGroup mg = new MultiGroup(new Group("C1", "G1", "G2"), new Group("C1", "G1", "G3"),
-				new Group("C1", "G1", "G3", "G4"));
-		Assert.assertTrue(mg.includes(new Group("C1", "G1", "G2")));
-		Assert.assertFalse(mg.includes(new Group("C1", "G1", "G2", "G3")));
-		Assert.assertFalse(mg.includes(new Group("C2", "G1", "G2")));
-		Assert.assertTrue(mg.addGroup(new Group("C1", "G1", "G2", "G3")));
-		Assert.assertTrue(mg.includes(new Group("C1", "G1", "G2", "G3")));
-		mg.addGroup(new Group(true, "C1", "G1", "G3"));
-		Assert.assertTrue(mg.includes(new Group("C1", "G1", "G3", "G5")));
-		mg.addForbidenGroup(new Group("C1", "G1", "G3", "G5"));
-		Assert.assertFalse(mg.includes(new Group("C1", "G1", "G3", "G5")));
-		Assert.assertTrue(mg.includes(new Group("C1", "G1", "G3", "G6")));
-		Assert.assertTrue(mg.getComplementary().includes(new Group("C1", "G1", "G3", "G5")));
+		MultiGroup mg = new MultiGroup(new Group("MGC1", "G1", "G2"), new Group("MGC1", "G1", "G3"),
+				new Group("MGC1", "G1", "G3", "G4"));
+		Assert.assertTrue(mg.includes(new Group("MGC1", "G1", "G2")));
+		Assert.assertFalse(mg.includes(new Group("MGC1", "G1", "G2", "G3")));
+		Assert.assertFalse(mg.includes(new Group("MGC2", "G1", "G2")));
+		Assert.assertTrue(mg.addGroup(new Group("MGC1", "G1", "G2", "G3")));
+		Assert.assertTrue(mg.includes(new Group("MGC1", "G1", "G2", "G3")));
+		mg.addGroup(new Group(true, "MGC1", "G1", "G3"));
+		Assert.assertTrue(mg.includes(new Group("MGC1", "G1", "G3", "G5")));
+		mg.addForbidenGroup(new Group("MGC1", "G1", "G3", "G5"));
+		Assert.assertFalse(mg.includes(new Group("MGC1", "G1", "G3", "G5")));
+		Assert.assertTrue(mg.includes(new Group("MGC1", "G1", "G3", "G6")));
+		Assert.assertTrue(mg.getComplementary().includes(new Group("MGC1", "G1", "G3", "G5")));
 		Assert.assertTrue(AbstractGroup.getUniverse().includes(mg.union(mg.getComplementary())));
 		Assert.assertTrue(mg.union(mg.getComplementary()).includes(AbstractGroup.getUniverse()));
 		Assert.assertEquals(mg.union(mg.getComplementary()), AbstractGroup.getUniverse());
-		Assert.assertTrue(mg.union(new Group("C1", "G1", "G3", "G5")).includes(new Group("C1", "G1", "G3", "G5")));
-		Assert.assertTrue(mg.intersect(new Group(true, "C1", "G1", "G3")).includes(new Group("C1", "G1", "G3", "G10")));
-		Assert.assertTrue(mg.intersect(new Group(true, "C1", "G1", "G3")).includes(new Group("C1", "G1", "G3")));
-		Assert.assertTrue(mg.includes(new Group("C1", "G1", "G2")));
-		Assert.assertFalse(mg.intersect(new Group(true, "C1", "G1", "G3")).includes(new Group("C1", "G1", "G2")));
+		Assert.assertTrue(mg.union(new Group("MGC1", "G1", "G3", "G5")).includes(new Group("MGC1", "G1", "G3", "G5")));
+		Assert.assertTrue(mg.intersect(new Group(true, "MGC1", "G1", "G3")).includes(new Group("MGC1", "G1", "G3", "G10")));
+		Assert.assertTrue(mg.intersect(new Group(true, "MGC1", "G1", "G3")).includes(new Group("MGC1", "G1", "G3")));
+		Assert.assertTrue(mg.includes(new Group("MGC1", "G1", "G2")));
+		Assert.assertFalse(mg.intersect(new Group(true, "MGC1", "G1", "G3")).includes(new Group("MGC1", "G1", "G2")));
 		// Assert.assertTrue(mg.intersect(mg.getComplementary()).isEmpty());//TODO
 		new MultiGroup();
 	}
@@ -106,7 +106,7 @@ public class MultiGroupTest {
 		MultiGroup g2 = null;
 		try (ByteArrayInputStream bais = new ByteArrayInputStream(array)) {
 			try (ObjectInputStream ois = new ObjectInputStream(bais)) {
-				g2 = (MultiGroup) ois.readObject();
+				g2 = (MultiGroup)SerializationTools.readExternalizableAndSizable(ois, false);
 			}
 		}
 
@@ -116,10 +116,10 @@ public class MultiGroupTest {
 	@DataProvider(name = "getGroups", parallel = true)
 	AbstractGroup[][] getGroups() {
 		return new AbstractGroup[][] {
-				{ new Group("C1", "G1", "G2"), new Group("C1", "G1", "G3"), new Group("C1", "G1", "G3", "G4"), },
-				{ new Group("C1", "G1", "G2"), new Group("C1", "G1", "G3"), new Group("C2", "G1", "G3", "G4"), },
-				{ new Group("C1", "G1", "G2"), new MultiGroup(new Group("C1", "G1", "G3"), new Group("C1", "G5", "G3")),
-						new Group("C2", "G1", "G3", "G4"), } };
+				{ new Group("MGC1", "G1", "G2"), new Group("MGC1", "G1", "G3"), new Group("MGC1", "G1", "G3", "G4"), },
+				{ new Group("MGC1", "G1", "G2"), new Group("MGC1", "G1", "G3"), new Group("MGC2", "G1", "G3", "G4"), },
+				{ new Group("MGC1", "G1", "G2"), new MultiGroup(new Group("MGC1", "G1", "G3"), new Group("MGC1", "G5", "G3")),
+						new Group("MGC2", "G1", "G3", "G4"), } };
 	}
 
 }

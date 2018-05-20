@@ -89,6 +89,7 @@ public class GUITest extends JunitMadkit {
 
 	@Test
 	public void setupFrameTest() {
+		System.setProperty("java.awt.headless", "false");
 		launchTest(new AbstractAgent() {
 			@Override
 			protected void activate() {

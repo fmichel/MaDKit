@@ -1182,7 +1182,8 @@ abstract class AbstractAgentSocket extends AgentFakeThread implements AccessGrou
 				transfer_ids.removeDistant(idt.getDistantID());
 		} else {
 			idt = transfer_ids.removeDistant(id);
-			transfer_ids.removeLocal(idt.getLocalID());
+			if (idt!=null)
+				transfer_ids.removeLocal(idt.getLocalID());
 		}
 		if (idt==null)
 			return null;

@@ -279,11 +279,11 @@ class IndirectAgentSocket extends AbstractAgentSocket {
 			tbcm.setMessageLocker(new MessageLocker(null));
 			
 			broadcastDataTowardEachIntermediatePeer(tbcm, true);
-			/*try {
+			try {
 				sleep(400);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
-			}*/
+			}
 		}
 	}
 

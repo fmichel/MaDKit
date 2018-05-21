@@ -43,9 +43,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import org.testng.Assert;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 import com.distrimind.madkit.util.SerializationTools;
 
@@ -57,7 +56,41 @@ import com.distrimind.madkit.util.SerializationTools;
  */
 public class GroupTest {
 
-	@Test(dataProvider = "provideGroupList", dependsOnMethods = "testGroupConstructorDistributed")
+	@Test
+	public void testAll() throws ClassNotFoundException, IOException
+	{
+		for (Object[] o : provideCompleteGroupArgumentsList())
+		{
+			String s[]=new String[o.length-4];
+			for (int i=4;i<o.length;i++)
+				s[i-4]=(String)o[i];
+			testGroupConstructorDistributed((Boolean)o[0], (Gatekeeper)o[1], (Boolean)o[2], (String)o[3], s );
+		}
+		for (Object[] o : provideGroupList())
+		{
+			String s[]=new String[o.length-1];
+			for (int i=1;i<o.length;i++)
+				s[i-1]=(String)o[i];
+			testGroupConstructor((String)o[0], s );
+		}
+		for (Object[] o : provideCompleteGroupArgumentsList())
+		{
+			String s[]=new String[o.length-4];
+			for (int i=4;i<o.length;i++)
+				s[i-4]=(String)o[i];
+			testCloneGroup((Boolean)o[0], (Gatekeeper)o[1], (Boolean)o[2], (String)o[3], s );
+		}
+		for (Object[] o : provideCompleteGroupArgumentsList())
+		{
+			String s[]=new String[o.length-4];
+			for (int i=4;i<o.length;i++)
+				s[i-4]=(String)o[i];
+			testGroupSerialization((Boolean)o[0], (Gatekeeper)o[1], (Boolean)o[2], (String)o[3], s );
+		}
+		
+		testGroupsOperator();
+	}
+	
 	public void testGroupConstructor(String community, String... groups) {
 		Group g = new Group(community, groups);
 		Assert.assertEquals(g.getCommunity(), community);
@@ -69,7 +102,6 @@ public class GroupTest {
 		new Group(community, groups);
 	}
 
-	@Test(dataProvider = "provideCompleteGroupArgumentsList", dependsOnMethods = "testNullEmptyAndInvalidArguments")
 	public void testGroupConstructorDistributed(boolean isDistributed, Gatekeeper gateKeeper, boolean _isReserved,
 			String community, String... groups) {
 		Group g = new Group(isDistributed, gateKeeper, _isReserved, community, groups);
@@ -119,7 +151,6 @@ public class GroupTest {
 
 	}
 
-	@Test(dependsOnMethods = "testGroupConstructor")
 	public void testGroupsOperator() {
 		Group g = new Group("C1", "G2");
 		Assert.assertTrue(AbstractGroup.getUniverse().includes(g));
@@ -133,7 +164,6 @@ public class GroupTest {
 
 	}
 
-	@Test(dataProvider = "provideCompleteGroupArgumentsList", dependsOnMethods = "testGroupConstructorDistributed")
 	public void testCloneGroup(boolean isDistributed, Gatekeeper gateKeeper, boolean _isReserved, String community,
 			String... groups) {
 		Group g = new Group(isDistributed, gateKeeper, _isReserved, community, groups);
@@ -148,7 +178,6 @@ public class GroupTest {
 		}
 	}
 
-	@Test(dataProvider = "provideCompleteGroupArgumentsList", dependsOnMethods = "testGroupConstructorDistributed")
 	public void testGroupSerialization(boolean isDistributed, Gatekeeper gateKeeper, boolean _isReserved,
 			String community, String... groups) throws IOException, ClassNotFoundException {
 		Group g = new Group(isDistributed, gateKeeper, _isReserved, community, groups);
@@ -225,7 +254,6 @@ public class GroupTest {
 		}
 	}
 
-	@DataProvider(name = "provideGroupList", parallel = true)
 	public static Object[][] provideGroupList() {
 		return new Object[][] { { "C1", "G1" }, { "C1", "G1", "G2" }, { "C1", "G2", "G3" }, { "C2", "G4" } };
 	}
@@ -250,7 +278,6 @@ public class GroupTest {
 
 	}
 
-	@DataProvider(name = "provideCompleteGroupArgumentsList", parallel = true)
 	public static Object[][] provideCompleteGroupArgumentsList() {
 		return mixArguments(provideGroupParameters(),
 				concatArgs(provideGroupList(), transformAGroupSetToOneString(provideGroupList())));

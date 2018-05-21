@@ -43,9 +43,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import org.testng.Assert;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+
+import org.junit.Test;
 
 import com.distrimind.madkit.util.SerializationTools;
 
@@ -57,7 +57,7 @@ import com.distrimind.madkit.util.SerializationTools;
  */
 public class MultiGroupTest {
 	@Test
-	void testMultiGroup() {
+	public void testMultiGroup() throws ClassNotFoundException, IOException {
 		MultiGroup mg = new MultiGroup(new Group("MGC1", "G1", "G2"), new Group("MGC1", "G1", "G3"),
 				new Group("MGC1", "G1", "G3", "G4"));
 		Assert.assertTrue(mg.includes(new Group("MGC1", "G1", "G2")));
@@ -81,16 +81,22 @@ public class MultiGroupTest {
 		Assert.assertFalse(mg.intersect(new Group(true, "MGC1", "G1", "G3")).includes(new Group("MGC1", "G1", "G2")));
 		// Assert.assertTrue(mg.intersect(mg.getComplementary()).isEmpty());//TODO
 		new MultiGroup();
+		for( AbstractGroup ag[] : getGroups())
+		{
+			testCloneGroup(ag);
+		}
+		for( AbstractGroup ag[] : getGroups())
+		{
+			testGroupSerialization(ag);
+		}
 	}
 
-	@Test(dataProvider = "getGroups", dependsOnMethods = "testMultiGroup")
 	public void testCloneGroup(AbstractGroup... groups) {
 		MultiGroup g = new MultiGroup(groups);
 		MultiGroup g2 = g.clone();
 		Assert.assertEquals(g, g2);
 	}
 
-	@Test(dataProvider = "getGroups", dependsOnMethods = "testMultiGroup")
 	public void testGroupSerialization(AbstractGroup... groups) throws IOException, ClassNotFoundException {
 		MultiGroup g = new MultiGroup(groups);
 
@@ -113,7 +119,6 @@ public class MultiGroupTest {
 		Assert.assertEquals(g, g2);
 	}
 
-	@DataProvider(name = "getGroups", parallel = true)
 	AbstractGroup[][] getGroups() {
 		return new AbstractGroup[][] {
 				{ new Group("MGC1", "G1", "G2"), new Group("MGC1", "G1", "G3"), new Group("MGC1", "G1", "G3", "G4"), },

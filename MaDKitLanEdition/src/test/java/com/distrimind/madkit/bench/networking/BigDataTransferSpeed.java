@@ -47,7 +47,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
 import org.junit.Test;
-import org.testng.Assert;
+import org.junit.Assert;
 
 import com.distrimind.madkit.io.RandomByteArrayInputStream;
 import com.distrimind.madkit.kernel.AbstractAgent;
@@ -140,7 +140,7 @@ public class BigDataTransferSpeed extends JunitMadkit {
 				}
 				Message m=this.waitNextMessage(60000);
 				transfered1.set(m!=null && m instanceof BigDataResultMessage && ((BigDataResultMessage)m).getType()==BigDataResultMessage.Type.BIG_DATA_TRANSFERED);
-				Assert.assertTrue(transfered1.get(), ""+m);
+				Assert.assertTrue(""+m, transfered1.get());
 				
 				try {
 					int size=400000000;
@@ -150,7 +150,7 @@ public class BigDataTransferSpeed extends JunitMadkit {
 				}
 				m=this.waitNextMessage(60000);
 				transfered2.set(m!=null && m instanceof BigDataResultMessage && ((BigDataResultMessage)m).getType()==BigDataResultMessage.Type.BIG_DATA_TRANSFERED);
-				Assert.assertTrue(transfered2.get(), ""+m);
+				Assert.assertTrue(""+m, transfered2.get());
 			}
 
 			@Override

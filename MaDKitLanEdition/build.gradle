@@ -51,7 +51,7 @@ repositories {
 
 
 dependencies {
-     testCompile 'org.testng:testng:6.13.1'
+     //testCompile 'org.testng:testng:6.13.1'
      testCompile 'junit:junit:4.12'
      compile(group:'com.distrimind.ood', name: 'OOD', version: '2.0.0-Beta82')
      compile(group:'com.distrimind.jdkrewrite', name: 'JDKRewriteUtils', version: '1.0.1')

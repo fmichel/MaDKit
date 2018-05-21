@@ -55,7 +55,7 @@ import java.util.logging.Level;
 
 import org.junit.Rule;
 import org.junit.rules.TestName;
-import org.testng.Assert;
+import org.junit.Assert;
 
 import com.distrimind.madkit.action.KernelAction;
 import com.distrimind.madkit.agr.LocalCommunity;
@@ -232,7 +232,8 @@ public class JunitMadkit {
 			e.printStackTrace();
 			System.err.println("------------------------------------\n\n\n");
 			oneFailed = true;
-			Assert.fail(JunitMadkit.class.getSimpleName(), e);
+
+			Assert.fail(JunitMadkit.class.getSimpleName()+" ; "+e.getMessage());
 
 		} finally {
 			System.err.println("\n\n------------------------ " + name.getMethodName()

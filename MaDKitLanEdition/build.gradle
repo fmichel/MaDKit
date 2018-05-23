@@ -10,6 +10,7 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
+apply plugin: 'idea'
 
 def Properties props = new Properties()
 def propFile = file('gradle.properties')
@@ -73,7 +74,12 @@ allprojects {
     	javadoc.options.addStringOption("html5", "-quiet")
 }
 
-
+idea {
+    project {
+        jdkName = javaVersion
+        languageLevel = javaVersion
+    }
+}
 
 task generateVersionsFile(type:JavaExec, dependsOn: classes) {
   def versionBuildFile = file('src/main/resources/com/distrimind/madkit/kernel/build.txt')

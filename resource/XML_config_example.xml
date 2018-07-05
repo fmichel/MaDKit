@@ -11,16 +11,16 @@ Attributes should exist in the agent's class, the type of the attribute is match
 	<!-- The <Agents> element is just about structuring this example, i.e. using only the <Agent> element is sufficient -->
 	<Agents>
 
-		<Agent class="myPackage.myAgent" nbOfInstances="5" GUI="true" logLevel="FINEST">
+		<Agent class="mypackage.MyAgent" nbOfInstances="5" GUI="true" logLevel="FINEST">
 			<Attributes aNbAsAnInteger="3" aReal="5.5" aString="blabla" />
 		</Agent>
 
 		﻿<!-- nbOfInstances="1" is the default value -->
-		<Agent class="myPackage.myAgent">
+		<Agent class="mypackage.MyAgent">
 			<Attributes speed="3" i="5" s="blabla" />
 		</Agent>
 
-		<Agent class="myPackage.myAgentBis" nbOfInstances="10">
+		<Agent class="mypackage.MyAgentBis" nbOfInstances="10">
 			<Attributes speed="3" i="5" s="blabla" />
 		</Agent>
 	</Agents>

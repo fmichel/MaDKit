@@ -474,13 +474,13 @@ public final class Madkit {
 	 */
 	console,
 	/**
-	 * Loads all the jar files which are in the demos directory on startup. Default value is "false".
+	 * Loads on startup all the jar files found in a "demos" directory placed in the working directory. Default value is "false".
 	 */
+	loadLocalDemos,
 	/**
 	 * activates CGR warnings for the logging of the agents. see {@link AgentLogger#enableCGRWarnings()}
 	 * @see AgentLogger
 	 */
-	loadLocalDemos,
 	cgrWarnings;
 
 	/**

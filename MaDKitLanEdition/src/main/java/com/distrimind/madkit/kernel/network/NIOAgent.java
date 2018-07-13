@@ -1140,7 +1140,7 @@ final class NIOAgent extends Agent {
 
 			addDataToSend(new FirstData(NIOAgent.this,
 					new DatagramLocalNetworkPresenceMessage(System.currentTimeMillis(),
-							getMadkitConfig().projectVersion, getMadkitConfig().madkitVersion, null,
+							getMadkitConfig().projectVersion, getMadkitConfig().madkitVersion, getMadkitConfig().minimumProjectVersion, getMadkitConfig().minimumMadkitVersion, null,
 							getKernelAddress())));
 		}
 		
@@ -1699,7 +1699,7 @@ final class NIOAgent extends Agent {
 					return;
 				} else if (firstReceivedData.isComplete()) {
 					try {
-						if (firstReceivedData.getDatagramLocalNetworkPresenceMessage().isCompatibleWith(
+						if (firstReceivedData.getDatagramLocalNetworkPresenceMessage().isCompatibleWith(getMadkitConfig().projectVersion, getMadkitConfig().madkitVersion,
 								getMadkitConfig().minimumProjectVersion, getMadkitConfig().minimumMadkitVersion,
 								getKernelAddress())) {
 							ByteBuffer bb = firstReceivedData.getUnusedReceivedData();

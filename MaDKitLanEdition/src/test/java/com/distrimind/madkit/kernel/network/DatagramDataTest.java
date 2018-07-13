@@ -95,27 +95,27 @@ public class DatagramDataTest {
 		Assert.assertNotNull(inet6);
 		testValidOneMessageDatagramData(
 				new DatagramLocalNetworkPresenceMessage(System.currentTimeMillis(), getVersionBase(programName),
-						getVersionBase(programName), inet4, kernelAddress),
+						getVersionBase(programName), getVersionBase(programName), getVersionBase(programName), inet4, kernelAddress),
 				getVersionBase(programName), getVersionBase(programName));
 		testValidOneMessageDatagramData(
 				new DatagramLocalNetworkPresenceMessage(System.currentTimeMillis(), getVersionBase(programName),
-						getVersionBase(programName), inet6, kernelAddress),
+						getVersionBase(programName), getVersionBase(programName), getVersionBase(programName), inet6, kernelAddress),
 				getVersionBase(programName), getVersionBase(programName));
 		Version v1 = getVersionBase(programName);
 		v1.incrementBuildNumber();
 		testValidOneMessageDatagramData(new DatagramLocalNetworkPresenceMessage(System.currentTimeMillis(), v1,
-				getVersionBase(programName), inet4, kernelAddress), getVersionBase(programName),
+				getVersionBase(programName), getVersionBase(programName), getVersionBase(programName), inet4, kernelAddress), getVersionBase(programName),
 				getVersionBase(programName));
 		testValidOneMessageDatagramData(new DatagramLocalNetworkPresenceMessage(System.currentTimeMillis(), v1,
-				getVersionBase(programName), inet6, kernelAddress), getVersionBase(programName),
+				getVersionBase(programName), getVersionBase(programName), getVersionBase(programName), inet6, kernelAddress), getVersionBase(programName),
 				getVersionBase(programName));
 		Version v2 = getVersionBase(programName);
 		v2.incrementBuildNumber();
 		testValidOneMessageDatagramData(new DatagramLocalNetworkPresenceMessage(System.currentTimeMillis(),
-				getVersionBase(programName), v2, inet4, kernelAddress), getVersionBase(programName),
+				getVersionBase(programName), getVersionBase(programName), getVersionBase(programName), v2, inet4, kernelAddress), getVersionBase(programName),
 				getVersionBase(programName));
 		testValidOneMessageDatagramData(new DatagramLocalNetworkPresenceMessage(System.currentTimeMillis(),
-				getVersionBase(programName), v2, inet6, kernelAddress), getVersionBase(programName),
+				getVersionBase(programName), getVersionBase(programName), getVersionBase(programName), v2, inet6, kernelAddress), getVersionBase(programName),
 				getVersionBase(programName));
 	}
 
@@ -130,17 +130,17 @@ public class DatagramDataTest {
 		Assert.assertTrue(d2.isComplete());
 		Assert.assertTrue(d2.isValid());
 		DatagramLocalNetworkPresenceMessage m = d2.getDatagramLocalNetworkPresenceMessage();
-		Assert.assertTrue(m.isCompatibleWith(0, programVersion, madkitVersion, kernelAddressReceiver));
-		Assert.assertFalse(m.isCompatibleWith(0, programVersion, madkitVersion, kernelAddress));
+		Assert.assertTrue(m.isCompatibleWith(0, programVersion, madkitVersion, programVersion, madkitVersion, kernelAddressReceiver));
+		Assert.assertFalse(m.isCompatibleWith(0, programVersion, madkitVersion, programVersion, madkitVersion, kernelAddress));
 		Assert.assertNull(d2.getUnusedReceivedData());
 		Assert.assertNull(d2.getNextDatagramData());
 		programVersion.incrementBuildNumber();
 		programVersion.incrementBuildNumber();
-		Assert.assertFalse(m.isCompatibleWith(0, programVersion, madkitVersion, kernelAddressReceiver));
+		Assert.assertFalse(m.isCompatibleWith(0, programVersion, madkitVersion, programVersion, madkitVersion, kernelAddressReceiver));
 		programVersion = getVersionBase(programName);
 		madkitVersion.incrementBuildNumber();
 		madkitVersion.incrementBuildNumber();
-		Assert.assertFalse(m.isCompatibleWith(0, programVersion, madkitVersion, kernelAddressReceiver));
+		Assert.assertFalse(m.isCompatibleWith(0, programVersion, madkitVersion, programVersion, madkitVersion, kernelAddressReceiver));
 
 	}
 
@@ -150,11 +150,11 @@ public class DatagramDataTest {
 		Assert.assertNotNull(inet6);
 		testInvalidOneMessageDatagramData(
 				new DatagramLocalNetworkPresenceMessage(System.currentTimeMillis(), getVersionBase(programName),
-						getVersionBase(programName), inet4, kernelAddress),
+						getVersionBase(programName), getVersionBase(programName), getVersionBase(programName), inet4, kernelAddress),
 				getVersionBase(programName), getVersionBase(programName));
 		testInvalidOneMessageDatagramData(
 				new DatagramLocalNetworkPresenceMessage(System.currentTimeMillis(), getVersionBase(programName),
-						getVersionBase(programName), inet6, kernelAddress),
+						getVersionBase(programName), getVersionBase(programName), getVersionBase(programName), inet6, kernelAddress),
 				getVersionBase(programName), getVersionBase(programName));
 	}
 
@@ -179,11 +179,11 @@ public class DatagramDataTest {
 		Assert.assertNotNull(inet6);
 		testMultipleMessageDatagramData(
 				new DatagramLocalNetworkPresenceMessage(System.currentTimeMillis(), getVersionBase(programName),
-						getVersionBase(programName), inet4, kernelAddress),
+						getVersionBase(programName), getVersionBase(programName), getVersionBase(programName), inet4, kernelAddress),
 				getVersionBase(programName), getVersionBase(programName));
 		testMultipleMessageDatagramData(
 				new DatagramLocalNetworkPresenceMessage(System.currentTimeMillis(), getVersionBase(programName),
-						getVersionBase(programName), inet6, kernelAddress),
+						getVersionBase(programName), getVersionBase(programName), getVersionBase(programName), inet6, kernelAddress),
 				getVersionBase(programName), getVersionBase(programName));
 	}
 
@@ -198,15 +198,15 @@ public class DatagramDataTest {
 		d2.put(d.getByteBuffer().array(), 0, d.getByteBuffer().array().length);
 		Assert.assertTrue(d2.isComplete());
 		Assert.assertTrue(d2.isValid());
-		Assert.assertTrue(d2.getDatagramLocalNetworkPresenceMessage().isCompatibleWith(0, programVersion, madkitVersion,
+		Assert.assertTrue(d2.getDatagramLocalNetworkPresenceMessage().isCompatibleWith(0, programVersion, madkitVersion,programVersion, madkitVersion,
 				kernelAddressReceiver));
 		Assert.assertFalse(d2.getDatagramLocalNetworkPresenceMessage().isCompatibleWith(0, programVersion,
-				madkitVersion, kernelAddress));
+				madkitVersion, programVersion, madkitVersion, kernelAddress));
 		d2 = d2.getNextDatagramData();
 		Assert.assertNotNull(d2);
 		Assert.assertTrue(d2.isComplete());
 		Assert.assertTrue(d2.isValid());
-		Assert.assertTrue(d2.getDatagramLocalNetworkPresenceMessage().isCompatibleWith(0, programVersion, madkitVersion,
+		Assert.assertTrue(d2.getDatagramLocalNetworkPresenceMessage().isCompatibleWith(0, programVersion, madkitVersion,programVersion, madkitVersion,
 				kernelAddressReceiver));
 	}
 
@@ -216,16 +216,16 @@ public class DatagramDataTest {
 		Assert.assertNotNull(inet6);
 		testOneMessageDatagramDataAndRandomData(
 				new DatagramLocalNetworkPresenceMessage(System.currentTimeMillis(), getVersionBase(programName),
-						getVersionBase(programName), inet4, kernelAddress),
+						getVersionBase(programName), getVersionBase(programName), getVersionBase(programName), inet4, kernelAddress),
 				getVersionBase(programName), getVersionBase(programName));
 		testOneMessageDatagramDataAndRandomData(
 				new DatagramLocalNetworkPresenceMessage(System.currentTimeMillis(), getVersionBase(programName),
-						getVersionBase(programName), inet6, kernelAddress),
+						getVersionBase(programName), getVersionBase(programName), getVersionBase(programName), inet6, kernelAddress),
 				getVersionBase(programName), getVersionBase(programName));
 	}
 
 	private void testOneMessageDatagramDataAndRandomData(DatagramLocalNetworkPresenceMessage message,
-			Version programVersion, Version madkitVersion) throws IOException, NoSuchAlgorithmException, NoSuchProviderException {
+			Version programVersion, Version madkitVersion) throws IOException, NoSuchProviderException, NoSuchAlgorithmException {
 		DatagramData d = new DatagramData(message);
 
 		DatagramData d2 = new DatagramData();
@@ -243,7 +243,7 @@ public class DatagramDataTest {
 		
 		Assert.assertTrue(d2.isComplete());
 		Assert.assertTrue(d2.isValid());
-		Assert.assertTrue(d2.getDatagramLocalNetworkPresenceMessage().isCompatibleWith(0, programVersion, madkitVersion,
+		Assert.assertTrue(d2.getDatagramLocalNetworkPresenceMessage().isCompatibleWith(0, programVersion, madkitVersion,programVersion, madkitVersion,
 				kernelAddressReceiver));
 		Assert.assertEquals(randData.length, d2.getByteBuffer().position()
 				- (Block.getShortInt(d2.getByteBuffer().array(), 0)));

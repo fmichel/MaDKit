@@ -46,6 +46,7 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
+import com.distrimind.util.crypto.SymmetricEncryptionType;
 import org.junit.Test;
 import org.junit.Assert;
 
@@ -90,8 +91,10 @@ public class BigDataTransferSpeed extends JunitMadkit {
 				AbstractAccessProtocolProperties app = new AccessProtocolWithP2PAgreementProperties();
 
 				try {
+					P2PSecuredConnectionProtocolWithKeyAgreementProperties p2pprotocol=new P2PSecuredConnectionProtocolWithKeyAgreementProperties();
+					p2pprotocol.symmetricEncryptionType=SymmetricEncryptionType.AES_CTR;
 					new NetworkEventListener(true, false, false, null,
-							new ConnectionsProtocolsMKEventListener(new P2PSecuredConnectionProtocolWithKeyAgreementProperties()),
+							new ConnectionsProtocolsMKEventListener(p2pprotocol),
 							new AccessProtocolPropertiesMKEventListener(app),
 							new AccessDataMKEventListener(AccessDataMKEventListener.getDefaultAccessData(GROUP)), 5000,
 							null, InetAddress.getByName("0.0.0.0")).onMadkitPropertiesLoaded(_properties);
@@ -105,6 +108,7 @@ public class BigDataTransferSpeed extends JunitMadkit {
 
 		P2PSecuredConnectionProtocolWithKeyAgreementProperties u = new P2PSecuredConnectionProtocolWithKeyAgreementProperties();
 		u.isServer = false;
+        u.symmetricEncryptionType=SymmetricEncryptionType.AES_CTR;
 
 		AbstractAccessProtocolProperties app = new AccessProtocolWithP2PAgreementProperties();
 		

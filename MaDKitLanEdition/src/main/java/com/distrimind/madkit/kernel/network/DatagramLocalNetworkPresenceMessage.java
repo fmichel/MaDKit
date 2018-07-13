@@ -71,8 +71,10 @@ import gnu.vm.jgnu.security.NoSuchProviderException;
 class DatagramLocalNetworkPresenceMessage extends Message {
 
 	final long onlineTime;
-	final int programBuildNumber;
-	final int madkitBuildNumber;
+	final long programBuildNumber;
+	final long madkitBuildNumber;
+    final long programMinimumBuildNumber;
+    final long madkitMinimumBuildNumber;
 
 	final byte[] programName;
 	final byte[] inetAddress;
@@ -86,13 +88,34 @@ class DatagramLocalNetworkPresenceMessage extends Message {
 		InetAddress ia = null;
 		try {
 			ia = InetAddress.getByAddress(inetAddress);
-		} catch (Exception e) {
+		} catch (Exception ignored) {
 
 		}
 		return "DatagramLocalNetworkPresenceMessage[onlineTime=" + onlineTime + ", programBuildNumber="
-				+ programBuildNumber + ", madkitBuildNumber" + madkitBuildNumber + ", programName"
+				+ programBuildNumber + ", madkitBuildNumber" + madkitBuildNumber + ", programMinimumBuildNumber="
+                + programMinimumBuildNumber + ", madkitMinimumBuildNumber" + madkitMinimumBuildNumber + ", programName"
 				+ new String(programName) + ", inetAddress=" + ia;
 	}
+
+	private static long getVersionLong(Version version)
+    {
+        if (version.getMajor()>0xFFF)
+            throw new IllegalArgumentException();
+        if (version.getMinor()>0xFFFF)
+            throw new IllegalArgumentException();
+        if (version.getRevision()>0xFFFF)
+            throw new IllegalArgumentException();
+        if (version.getAlphaBetaVersion()>0xFFFF)
+            throw new IllegalArgumentException();
+
+
+        return ((long)(version.getMajor() & 0xFFF)<<50
+                & ((long)(version.getMinor() & 0xFFFF))<<34
+                & ((long)(version.getRevision() & 0xFFFF))<<18
+                & ((long)(version.getType()==Version.Type.Stable?2:(version.getType()==Version.Type.Beta?1:0)))<<16
+                &  ((long)(version.getAlphaBetaVersion() & 0xFFFF)));
+    }
+
 
 	@Override
 	public int hashCode() {
@@ -117,16 +140,26 @@ class DatagramLocalNetworkPresenceMessage extends Message {
 		return false;
 	}
 
-	DatagramLocalNetworkPresenceMessage(long onlineTime, Version programVersion, Version madkitVersion,
+	DatagramLocalNetworkPresenceMessage(long onlineTime, Version programVersion, Version madkitVersion, Version programMinimumVersion, Version madkitMinimumVersion,
 			InetAddress inetAddress, KernelAddress kernelAddress) throws NoSuchAlgorithmException, NoSuchProviderException, UnsupportedEncodingException {
 		this.onlineTime = onlineTime;
+
 		if (programVersion == null)
-			this.programBuildNumber = 0;
+			this.programBuildNumber = -1;
 		else
-			this.programBuildNumber = programVersion.getBuildNumber();
+			this.programBuildNumber = getVersionLong(programVersion);
 		if (madkitVersion == null)
 			throw new NullPointerException("madkitVersion");
-		this.madkitBuildNumber = madkitVersion.getBuildNumber();
+		this.madkitBuildNumber = getVersionLong(madkitVersion);
+
+		if (programVersion == null)
+			this.programMinimumBuildNumber = -1;
+		else
+			this.programMinimumBuildNumber = getVersionLong(programMinimumVersion);
+		if (madkitMinimumVersion == null)
+			throw new NullPointerException("madkitVersion");
+		this.madkitMinimumBuildNumber = getVersionLong(madkitMinimumVersion);
+
 		if (programVersion == null)
 			programName = getProgramNameInBytes(MadkitProperties.defaultProjectCodeName);
 		else
@@ -145,11 +178,13 @@ class DatagramLocalNetworkPresenceMessage extends Message {
 		return mda.digest(bytes);
 	}
 
-	private DatagramLocalNetworkPresenceMessage(long onlineTime, int programBuildNumber, int madkitBuildNumber,
+	private DatagramLocalNetworkPresenceMessage(long onlineTime, long programBuildNumber, long madkitBuildNumber, long programMinimumBuildNumber, long madkitMinimumBuildNumber,
 			byte[] programName, byte[] inetAddress, byte[] kernelAddress) {
 		this.onlineTime = onlineTime;
 		this.programBuildNumber = programBuildNumber;
 		this.madkitBuildNumber = madkitBuildNumber;
+        this.programMinimumBuildNumber = programMinimumBuildNumber;
+        this.madkitMinimumBuildNumber = madkitMinimumBuildNumber;
 		this.programName = programName;
 		this.inetAddress = inetAddress;
 		this.kernelAddress = kernelAddress;
@@ -159,8 +194,10 @@ class DatagramLocalNetworkPresenceMessage extends Message {
 	void writeTo(OutputStream os) throws IOException {
 		try (DataOutputStream dos = new DataOutputStream(os)) {
 			dos.writeLong(onlineTime);
-			dos.writeInt(programBuildNumber);
-			dos.writeInt(madkitBuildNumber);
+			dos.writeLong(programBuildNumber);
+			dos.writeLong(madkitBuildNumber);
+            dos.writeLong(programMinimumBuildNumber);
+            dos.writeLong(madkitMinimumBuildNumber);
 			SerializationTools.writeBytes(dos, inetAddress, 20, true);
 			SerializationTools.writeBytes(dos, kernelAddress, maxKernelAddressLengthLength, false);
 			SerializationTools.writeBytes(dos, programName, maxProgramNameLength, false);
@@ -169,7 +206,7 @@ class DatagramLocalNetworkPresenceMessage extends Message {
 
 	static byte[] getProgramNameInBytes(String programName) throws UnsupportedEncodingException {
 		byte[] b = programName.getBytes("UTF8");
-		byte[] res = null;
+		byte[] res;
 		if (b.length > maxProgramNameLength) {
 			res = new byte[maxProgramNameLength];
 			System.arraycopy(b, 0, res, 0, maxProgramNameLength);
@@ -187,14 +224,17 @@ class DatagramLocalNetworkPresenceMessage extends Message {
 	static DatagramLocalNetworkPresenceMessage readFrom(InputStream is) throws IOException {
 		try (DataInputStream dis = new DataInputStream(is)) {
 			long onlineTime = dis.readLong();
-			int programBuildNumber = dis.readInt();
-			int madkitBuildNumber = dis.readInt();
-			
+			long programBuildNumber = dis.readLong();
+            long madkitBuildNumber = dis.readLong();
+            long programMinimumBuildNumber = dis.readLong();
+            long madkitMinimumBuildNumber = dis.readLong();
+
 			byte inetAddress[] = SerializationTools.readBytes(dis, 20, true);
 			
 			if (inetAddress != null) {
 				try {
-					InetAddress.getByAddress(inetAddress);
+                    //noinspection ResultOfMethodCallIgnored
+                    InetAddress.getByAddress(inetAddress);
 				} catch (UnknownHostException e) {
 					throw new IOException(e);
 				}
@@ -203,34 +243,46 @@ class DatagramLocalNetworkPresenceMessage extends Message {
 			
 			byte programName[] =SerializationTools.readBytes(dis, maxProgramNameLength, false);
 			
-			return new DatagramLocalNetworkPresenceMessage(onlineTime, programBuildNumber, madkitBuildNumber,
+			return new DatagramLocalNetworkPresenceMessage(onlineTime, programBuildNumber, madkitBuildNumber, programMinimumBuildNumber, madkitMinimumBuildNumber,
 					programName, inetAddress, kernelAddress);
 		}
 	}
 
-	boolean isCompatibleWith(long localOnlineTime, Version localProgramVersionMinimum,
-			Version localMadkitVersionMinimum, KernelAddress kernelAddress) throws NoSuchAlgorithmException, NoSuchProviderException, UnsupportedEncodingException {
-		/*
-		 * if (localOnlineTime>=onlineTime) { return false; }
-		 */
+    boolean isCompatibleWith(long localOnlineTime, Version localProgramVersion, Version localMadkitVersion, Version localProgramVersionMinimum, Version localMadkitVersionMinimum
+            , KernelAddress kernelAddress) throws NoSuchAlgorithmException, NoSuchProviderException, UnsupportedEncodingException {
+        /*
+         * if (localOnlineTime>=onlineTime) { return false; }
+         */
 
-		return isCompatibleWith(localProgramVersionMinimum, localMadkitVersionMinimum, kernelAddress);
-	}
+        return isCompatibleWith(localProgramVersion, localMadkitVersion, localProgramVersionMinimum, localMadkitVersionMinimum, kernelAddress);
+    }
 
-	boolean isCompatibleWith(Version localProgramVersionMinimum, Version localMadkitVersionMinimum,
+
+    private boolean isNotCompatibleWith(long programBuildNumber, long madkitBuildNumber, long localProgramVersionMinimum, long localMadkitVersionMinimum) {
+
+        if (localMadkitVersionMinimum > madkitBuildNumber)
+            return true;
+
+        return localProgramVersionMinimum != -1 && localProgramVersionMinimum > programBuildNumber;
+
+
+    }
+
+	boolean isCompatibleWith(Version localProgramVersion, Version localMadkitVersion, Version localProgramVersionMinimum, Version localMadkitVersionMinimum,
 			KernelAddress kernelAddress) throws NoSuchAlgorithmException, NoSuchProviderException, UnsupportedEncodingException {
+        if (localMadkitVersion == null)
+            throw new NullPointerException("localMadkitVersion");
 		if (localMadkitVersionMinimum == null)
 			throw new NullPointerException("localMadkitVersionMinimum");
 		if (kernelAddress == null)
 			throw new NullPointerException("kernelAddress");
 
-		if (localMadkitVersionMinimum.getBuildNumber() > madkitBuildNumber)
-			return false;
+		if (isNotCompatibleWith(localProgramVersion == null ? -1 : getVersionLong(localProgramVersion), getVersionLong(localMadkitVersion), this.programMinimumBuildNumber, this.madkitMinimumBuildNumber))
+		    return false;
+        if (isNotCompatibleWith(this.programBuildNumber, this.madkitBuildNumber, localProgramVersionMinimum == null ? -1 : getVersionLong(localProgramVersionMinimum), getVersionLong(localMadkitVersionMinimum)))
+            return false;
 
-		if (localProgramVersionMinimum != null && localProgramVersionMinimum.getBuildNumber() > programBuildNumber)
-			return false;
-
-		byte[] lpn = null;
+		byte[] lpn;
 		if (localProgramVersionMinimum == null)
 			lpn = getProgramNameInBytes(MadkitProperties.defaultProjectCodeName);
 		else
@@ -249,11 +301,8 @@ class DatagramLocalNetworkPresenceMessage extends Message {
 			}
 
 		byte[] ka = digestMessage(kernelAddress.getAbstractDecentralizedID().getBytes());
-		if (Arrays.equals(ka, this.kernelAddress))
-			return false;
-
-		return true;
-	}
+        return !Arrays.equals(ka, this.kernelAddress);
+    }
 
 	InetAddress getConcernedInetAddress() throws UnknownHostException {
 		return inetAddress == null ? null : InetAddress.getByAddress(inetAddress);
@@ -268,6 +317,6 @@ class DatagramLocalNetworkPresenceMessage extends Message {
 		int iv = 0;
 		short is = 0;
 		return ObjectSizer.sizeOf(lv) + ObjectSizer.sizeOf(iv) * 2 + ObjectSizer.sizeOf(new byte[maxProgramNameLength])
-				+ 16 + is;
+				+ 48 + is;
 	}
 }

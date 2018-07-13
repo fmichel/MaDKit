@@ -667,7 +667,7 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 					boolean check = signatureChecker.verify();
 					return new SubBlockInfo(res, check, !check);
 				} catch (SignatureException | InvalidKeyException | NoSuchAlgorithmException
-						| InvalidKeySpecException | ShortBufferException | IllegalStateException e) {
+						| InvalidKeySpecException | IllegalStateException e) {
 					return new SubBlockInfo(res, false, true);
 				}
 			}

@@ -112,7 +112,7 @@ final class MultiCastListenerAgent extends AgentFakeThread {
 		try {
 			sendMessageWithRole(LocalCommunity.Groups.NETWORK, LocalCommunity.Roles.NIO_ROLE,
 					new DatagramLocalNetworkPresenceMessage(localOnlineTime, getMadkitConfig().projectVersion,
-							getMadkitConfig().madkitVersion, this.networkInterfaceAddress, getKernelAddress()),
+							getMadkitConfig().madkitVersion, getMadkitConfig().minimumProjectVersion, getMadkitConfig().minimumMadkitVersion, this.networkInterfaceAddress, getKernelAddress()),
 					LocalCommunity.Roles.MULTICAST_LISTENER_ROLE);
 		} catch (NoSuchAlgorithmException | NoSuchProviderException | UnsupportedEncodingException e) {
 			if (logger != null)
@@ -129,7 +129,7 @@ final class MultiCastListenerAgent extends AgentFakeThread {
 			DatagramLocalNetworkPresenceMessage m = (DatagramLocalNetworkPresenceMessage) _message;
 			try {
 				if (m.isCompatibleWith(localOnlineTime, getMadkitConfig().projectVersion,
-						getMadkitConfig().madkitVersion, getKernelAddress())) {
+						getMadkitConfig().madkitVersion, getMadkitConfig().minimumProjectVersion, getMadkitConfig().minimumMadkitVersion, getKernelAddress())) {
 
 					try {
 						InetAddress ia = m.getConcernedInetAddress();

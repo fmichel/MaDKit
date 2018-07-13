@@ -103,7 +103,7 @@ public class MadkitProperties extends MultiFormatProperties {
 	 * accept. If a distant peer try to connect with a MadkitLanEdition version
 	 * lower than this one, than the connection will be rejected.
 	 */
-	public Version minimumMadkitVersion = new Version(madkitVersion.getProgramName(), madkitVersion.getShortProgramName(), 1, 7, 0, Version.Type.Stable, 0, madkitVersion.getProjectStartDate(), madkitVersion.getProjectEndDate());
+	public Version minimumMadkitVersion;
 
 	public Class<?> madkitMainClass = Madkit.class;
 
@@ -345,6 +345,8 @@ public class MadkitProperties extends MultiFormatProperties {
 
 	public MadkitProperties() {
 		super(new MultiFormatPropertiesObjectParser());
+		this.minimumMadkitVersion=new Version(madkitVersion.getProgramName(), madkitVersion.getShortProgramName(), 1, 7, 1, Version.Type.Stable, 0, madkitVersion.getProjectStartDate(), madkitVersion.getProjectEndDate());
+		this.minimumMadkitVersion.setBuildNumber(100);
 		try {
 			madkitWeb = new URL("https://github.com/JazZ51/MaDKitLanEdition");
 			madkitRepositoryURL = new URL("https://github.com/JazZ51/MaDKitLanEdition");// new
@@ -399,13 +401,8 @@ public class MadkitProperties extends MultiFormatProperties {
 	 */
 	@Override
 	public void loadYAML(File yaml_file) throws IOException {
-		try {
-			super.loadYAML(yaml_file);
-			logger.fine(String.format(SuccessMessages.CONFIG_LOAD_SUCCESS.toString(), yaml_file.toString()));
-		} catch (PropertiesParseException e) {
-			logger.log(Level.WARNING,
-					String.format(ErrorMessages.CANT_LOAD_CONFIG_FILE.toString(), yaml_file.toString()), e);
-		}
+		super.loadYAML(yaml_file);
+		logger.fine(String.format(SuccessMessages.CONFIG_LOAD_SUCCESS.toString(), yaml_file.toString()));
 	}
 
 	public void load(File file) throws IOException {

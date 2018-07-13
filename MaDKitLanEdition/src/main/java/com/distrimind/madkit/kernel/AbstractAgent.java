@@ -3596,9 +3596,10 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 		private TransfersReturnsCodes returns_code = null;
 		private int numberOfConcernedAgents = -1;
 
-		/*void setReturnsCode(TransfersReturnsCodes returns_Code) {
+		@SuppressWarnings("unused")
+		void setReturnsCode(TransfersReturnsCodes returns_Code) {
 			this.returns_code = returns_Code;
-		}*/
+		}
 
 		/**
 		 * Gets the set of returns code with there data transfer reports, associated to

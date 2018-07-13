@@ -72,7 +72,7 @@ import com.distrimind.util.crypto.MessageDigestType;
  * @see AbstractAgent#sendBigDataWithRole(AgentAddress, RandomInputStream, long, long, ExternalizableAndSizable, MessageDigestType, String, boolean)
  * @see BigDataResultMessage
  */
-@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
+@SuppressWarnings({"ExternalizableWithoutPublicNoArgConstructor", "unused"})
 public final class BigDataPropositionMessage extends Message implements NetworkMessage {
 
 	/**
@@ -337,7 +337,7 @@ public final class BigDataPropositionMessage extends Message implements NetworkM
 
 	}
 
-	/*void connectionLost(long dataTransfered) {
+	void connectionLost(long dataTransfered) {
 		sendBidirectionalReply(BigDataResultMessage.Type.BIG_DATA_PARTIALLY_TRANSFERED, dataTransfered);
 	}
 
@@ -347,7 +347,7 @@ public final class BigDataPropositionMessage extends Message implements NetworkM
 
 	void transferCompleted(long dataTransfered) {
 		sendBidirectionalReply(BigDataResultMessage.Type.BIG_DATA_TRANSFERED, dataTransfered);
-	}*/
+	}
 
 	protected void sendBidirectionalReply(final BigDataResultMessage.Type type, final long length) {
 		final AbstractAgent receiver = getReceiver().getAgent();
@@ -370,21 +370,21 @@ public final class BigDataPropositionMessage extends Message implements NetworkM
 		receiver.receiveMessage(m);
 	}
 
-	/*RandomInputStream getInputStream() {
+	RandomInputStream getInputStream() {
 		return inputStream;
 	}
 
 	void setIDPacket(int idPacket) {
 		this.idPacket = idPacket;
-	}*/
+	}
 
 	int getIDPacket() {
 		return idPacket;
 	}
 
-	/*RandomOutputStream getOutputStream() {
+	RandomOutputStream getOutputStream() {
 		return outputStream;
-	}*/
+	}
 	
 	
 }

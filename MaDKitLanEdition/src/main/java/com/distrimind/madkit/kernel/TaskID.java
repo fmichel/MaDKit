@@ -68,9 +68,10 @@ public class TaskID extends ConversationID {
 		super();
 	}
 
-	/*TaskID(ConversationID id) {
+	@SuppressWarnings("unused")
+	TaskID(ConversationID id) {
 		super(id.getID(), id.getOrigin());
-	}*/
+	}
 
 	void setFuture(ScheduledFuture<?> future) {
 		this.future = future;

@@ -133,9 +133,10 @@ public final class BigDataResultMessage extends Message implements com.distrimin
 		return transferedData;
 	}
 
-	/*int getIDPacket() {
+	@SuppressWarnings("unused")
+	int getIDPacket() {
 		return idPacket;
-	}*/
+	}
 
 	public enum Type {
 		/**

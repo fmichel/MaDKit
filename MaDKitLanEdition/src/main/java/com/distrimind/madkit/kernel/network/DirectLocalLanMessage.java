@@ -57,9 +57,10 @@ public class DirectLocalLanMessage extends LocalLanMessage {
 		super(This, _message, originalMessage, locker);
 	}
 
-	/*DirectLocalLanMessage(Message _message) {
+	@SuppressWarnings("unused")
+	DirectLocalLanMessage(Message _message) {
 		super(_message, null);
-	}*/
+	}
 
 	@Override
 	public DirectLocalLanMessage clone() {

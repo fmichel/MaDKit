@@ -68,7 +68,7 @@ public class AskForConnectionMessage extends ConnectionStatusMessage {
 	}
 
 	void chooseIP(boolean enableIPv6) {
-		InetAddress ia = null;
+		InetAddress ia;
 		if (enableIPv6)
 			ia = getIP().getInetAddress();
 		else
@@ -139,6 +139,7 @@ public class AskForConnectionMessage extends ConnectionStatusMessage {
 		return originalSender;
 	}
 
+	@SuppressWarnings("MethodDoesntCallSuperMethod")
 	@Override
 	public AskForConnectionMessage clone() {
 		return new AskForConnectionMessage(this);

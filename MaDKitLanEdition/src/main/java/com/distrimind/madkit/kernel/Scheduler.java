@@ -188,7 +188,7 @@ public class Scheduler extends Agent {
 	public void setGVT(final double GVT) {
 		this.GVT = GVT;
 		if (gvtModel != null) {
-			gvtModel.notifyObservers(Integer.valueOf((int) GVT));
+			gvtModel.notifyObservers((int) GVT);
 		}
 	}
 
@@ -528,10 +528,7 @@ public class Scheduler extends Agent {
 		return toolBar;
 	}
 
-	/**
-	 * @param p
-	 * @param sp
-	 */
+
 	void updateToolTip(final JPanel p, final JSlider sp) {
 		final String text = "pause = " + getDelay() + " ms";
 		sp.setToolTipText(text);

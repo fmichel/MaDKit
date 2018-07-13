@@ -51,6 +51,7 @@ import com.distrimind.util.crypto.AbstractSecureRandom;
  * @version 1.0
  * @since MadkitLanEdition 1.0
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 public class JPakeAccessInitialized extends AccessInitialized {
 	/**
 	 * 
@@ -60,6 +61,7 @@ public class JPakeAccessInitialized extends AccessInitialized {
 	public byte[] generatedSalt;
 	public static final int generatedSaltSize=32;
 	
+	@SuppressWarnings("unused")
 	JPakeAccessInitialized()
 	{
 		
@@ -74,6 +76,7 @@ public class JPakeAccessInitialized extends AccessInitialized {
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		super.readExternal(in);
 		generatedSalt=SerializationTools.readBytes(in, generatedSaltSize, false);
+		assert generatedSalt != null;
 		if (generatedSalt.length!=generatedSaltSize)
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 	}

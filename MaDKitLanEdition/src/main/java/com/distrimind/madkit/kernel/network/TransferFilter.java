@@ -68,8 +68,8 @@ public interface TransferFilter {
 	 *            the attached customized data
 	 * @return true is the transferConnection can be accepted
 	 */
-	public boolean newTransferConnectionPropositionToFinalPeers(NetworkProperties properties,
-			KernelAddress distantKernelAddress, int numberOfIntermediatePeers, Serializable attachedData);
+	boolean newTransferConnectionPropositionToFinalPeers(NetworkProperties properties,
+														 KernelAddress distantKernelAddress, int numberOfIntermediatePeers, Serializable attachedData);
 
 	/**
 	 * Ask to intermediate peers if the given indirect connection can be accepted
@@ -87,7 +87,7 @@ public interface TransferFilter {
 	 *            the attached customized data
 	 * @return true is the transferConnection can be accepted
 	 */
-	public boolean newTransferConnectionPropositionToIntermediatePeers(NetworkProperties properties,
-			KernelAddress distantKernelAddress1, KernelAddress distantKernelAddress2, int numberOfIntermediatePeers,
-			Serializable attachedData);
+	boolean newTransferConnectionPropositionToIntermediatePeers(NetworkProperties properties,
+																KernelAddress distantKernelAddress1, KernelAddress distantKernelAddress2, int numberOfIntermediatePeers,
+																Serializable attachedData);
 }

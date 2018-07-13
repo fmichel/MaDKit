@@ -55,12 +55,13 @@ import com.distrimind.madkit.kernel.MultiGroup;
  * @version 1.0
  * @since MadkitLanEdition 1.0
  */
+@SuppressWarnings({"SameParameterValue", "BooleanMethodIsAlwaysInverted"})
 public abstract class AbstractAccessProtocol {
 	protected final AccessData access_data;
 	protected final MadkitProperties properties;
 
 
-	private AtomicReference<MultiGroup> groups_access = new AtomicReference<MultiGroup>();
+	private AtomicReference<MultiGroup> groups_access = new AtomicReference<>();
 	private boolean other_can_takes_initiative;
 
 	private List<Identifier> identifiers = null;
@@ -128,7 +129,7 @@ public abstract class AbstractAccessProtocol {
 		identifiers=null;
 		acceptedIdentifiers=null;
 		deniedIdentifiers=null;
-		groups_access.set(null);;
+		groups_access.set(null);
 	}
 
 
@@ -143,7 +144,7 @@ public abstract class AbstractAccessProtocol {
 	public abstract AccessMessage subSetAndGetNextMessage(AccessMessage _m) throws AccessException;
 
 	protected boolean differrAccessMessage(AccessMessage m) {
-		if (m != null && ((m instanceof NewLocalLoginAddedMessage) || (m instanceof NewLocalLoginRemovedMessage))) {
+		if (((m instanceof NewLocalLoginAddedMessage) || (m instanceof NewLocalLoginRemovedMessage))) {
 
 			differedAccessMessages.offer(m);
 			return true;
@@ -180,8 +181,8 @@ public abstract class AbstractAccessProtocol {
 	 */
 
 	//private KernelAddress distant_kernel_address;
-	private ArrayList<PairOfIdentifiers> last_accepted_identifiers = new ArrayList<PairOfIdentifiers>();
-	private ArrayList<PairOfIdentifiers> all_accepted_identifiers = new ArrayList<PairOfIdentifiers>();
+	private ArrayList<PairOfIdentifiers> last_accepted_identifiers = new ArrayList<>();
+	private ArrayList<PairOfIdentifiers> all_accepted_identifiers = new ArrayList<>();
 	private ArrayList<PairOfIdentifiers> last_denied_identifiers_from_other = new ArrayList<>();
 	private ArrayList<PairOfIdentifiers> last_unlogged_identifiers = new ArrayList<>();
 
@@ -203,7 +204,7 @@ public abstract class AbstractAccessProtocol {
 
 	protected UnlogMessage removeAcceptedIdentifiers(ArrayList<Identifier> _identifiers) {
 
-		ArrayList<PairOfIdentifiers> toRemove = new ArrayList<PairOfIdentifiers>(_identifiers.size());
+		ArrayList<PairOfIdentifiers> toRemove = new ArrayList<>(_identifiers.size());
 		ArrayList<Identifier> res = new ArrayList<>(_identifiers.size());
 		for (Identifier id : _identifiers) {
 			for (PairOfIdentifiers id2 : all_accepted_identifiers) {
@@ -223,7 +224,7 @@ public abstract class AbstractAccessProtocol {
 	protected void updateGroupAccess() throws AccessException {
 
 		AbstractGroup defaultGroup = access_data.getDefaultGroupsAccess();
-		MultiGroup mg = null;
+		MultiGroup mg;
 		if (defaultGroup == null)
 			mg = new MultiGroup();
 		else

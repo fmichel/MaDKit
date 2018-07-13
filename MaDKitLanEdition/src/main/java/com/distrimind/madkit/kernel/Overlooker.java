@@ -57,14 +57,14 @@ import java.util.concurrent.atomic.AtomicReference;
  * 
  */
 @SuppressWarnings("unchecked")
-abstract class Overlooker<A extends AbstractAgent> {
+public abstract class Overlooker<A extends AbstractAgent> {
 
 	final private AbstractGroup groups;
 	final private String role;
 	final AtomicReference<MadkitKernel> madkit_kernel = new AtomicReference<>(null);
 	private final AtomicReference<Group[]> represented_groups = new AtomicReference<>(null);
 
-	private final AtomicReference<ArrayList<OLR>> overlookedRoles = new AtomicReference<ArrayList<OLR>>(
+	private final AtomicReference<ArrayList<OLR>> overlookedRoles = new AtomicReference<>(
 			new ArrayList<OLR>());
 	private final ArrayList<Group> overlookedRoles_to_add = new ArrayList<>();
 	private final ArrayList<Group> overlookedRoles_to_remove = new ArrayList<>();
@@ -103,7 +103,7 @@ abstract class Overlooker<A extends AbstractAgent> {
 					try {
 						
 						res.add((A) aa);
-					} catch (ClassCastException e) {
+					} catch (ClassCastException ignored) {
 
 					}
 				}
@@ -142,28 +142,14 @@ abstract class Overlooker<A extends AbstractAgent> {
 		return unique_references.get();
 	}
 
-	/**
-	 * Builds a new Activator or Probe on the given CGR location of the artificial
-	 * society.
-	 * 
-	 * @param _groups
-	 * @param roleName
-	 */
+
+
 	Overlooker(AbstractGroup _groups, final String _roleName)// TODO nullPointerEx here ?
 	{
 		this(_groups, _roleName, true);
 	}
 
-	/**
-	 * Builds a new Activator or Probe on the given CGR location of the artificial
-	 * society.
-	 * 
-	 * @param _groups
-	 * @param roleName
-	 * @param unique
-	 *            Tells if the function {@link Overlooker#getCurrentAgentsList()}
-	 *            must returns unique references.
-	 */
+
 	Overlooker(AbstractGroup _groups, final String _roleName, final boolean unique)// TODO nullPointerEx here ?
 	{
 		if (_groups == null)
@@ -270,7 +256,7 @@ abstract class Overlooker<A extends AbstractAgent> {
 				overlookedRoles.add(new OLR(ir, g));
 				addAgents(ir.getAgentsList());
 				changes = true;
-			} catch (CGRNotAvailable e) {
+			} catch (CGRNotAvailable ignored) {
 			}
 		}
 
@@ -518,7 +504,7 @@ abstract class Overlooker<A extends AbstractAgent> {
 			}
 		}
 		if (changes) {
-			Collection<A> ra = null;
+			Collection<A> ra;
 			boolean unique = unique_references.get();
 			if (unique) {
 				ra = new HashSet<>();
@@ -573,14 +559,14 @@ abstract class Overlooker<A extends AbstractAgent> {
 	final void addAgent(final AbstractAgent a) {
 		try {
 			adding((A) a);
-		} catch (ClassCastException e) {
+		} catch (ClassCastException ignored) {
 		}
 	}
 
 	final void removeAgent(final AbstractAgent a) {
 		try {
 			removing((A) a);
-		} catch (ClassCastException e) {
+		} catch (ClassCastException ignored) {
 		}
 	}
 
@@ -607,7 +593,7 @@ abstract class Overlooker<A extends AbstractAgent> {
 		for (AbstractAgent aa : laa) {
 			try {
 				res.add((A) aa);
-			} catch (ClassCastException e) {
+			} catch (ClassCastException ignored) {
 
 			}
 		}

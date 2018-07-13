@@ -49,6 +49,7 @@ import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol.Connec
  * @since MadkitLanEdition 1.0
  *
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 class TooMuchConnectionWithTheSamePeers extends ConnectionFinished {
 
 	/**

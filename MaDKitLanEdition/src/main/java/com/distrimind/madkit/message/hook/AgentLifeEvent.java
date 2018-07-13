@@ -62,14 +62,14 @@ public class AgentLifeEvent extends HookMessage {
 		return source;
 	}
 
-	/**
+	/*
 	 * Return the ID of the agent, i.e. its hashCode value
 	 * 
 	 * @return the ID of the agent
 	 */
-	String getSourceAgentID() {
+	/*String getSourceAgentID() {
 		return "" + source.getAgentID();
-	}
+	}*/
 
 	@Override
 	public String toString() {

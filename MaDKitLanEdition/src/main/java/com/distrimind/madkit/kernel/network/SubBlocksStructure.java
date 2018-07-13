@@ -57,7 +57,7 @@ public class SubBlocksStructure {
 	private int offsets[]=null;
 	public int initial_packet_offset;
 	public int initial_packet_size;
-	boolean need_random = false;
+	//boolean need_random = false;
 	int block_content_size;
 	int block_size;
 	public SubBlocksStructure(PacketPart _packet, ConnectionProtocol<?> connection_protocol) throws NIOException {
@@ -155,7 +155,7 @@ public class SubBlocksStructure {
 		for (Iterator<ConnectionProtocol<?>> it = connection_protocol.iterator(); it.hasNext(); i++) {
 			ConnectionProtocol<?> cp = it.next();
 			SubBlockParser sbp = cp.getParser();
-			int sizeHead = -1;
+			int sizeHead;
 			/*
 			 * if (i<sub_block_sizes_for_parent.length-1)
 			 * sub_block_sizes_for_parent[i+1]=size;
@@ -174,7 +174,7 @@ public class SubBlocksStructure {
 				 * int s=size-sbp.getSizeHead(); s=s-s%sbp.getSizeBlockModulus();
 				 * size=s+sbp.getSizeHead();
 				 */
-				if (size <= 0 || offset > _block.getBlockSize() || _block.getBlockSize() - offset < size)
+				if (offset > _block.getBlockSize() || _block.getBlockSize() - offset < size)
 					throw new BlockParserException("Invalid block");
 			} catch (BlockParserException e) {
 				throw new NIOException(e);
@@ -244,8 +244,7 @@ public class SubBlocksStructure {
 
 	public static int getAbsoluteMaximumBufferSize(ConnectionProtocol<?> connection_protocol) throws NIOException {
 		int size = Block.BLOCK_SIZE_LIMIT - Block.getHeadSize() - PacketPartHead.getHeadSize(true);
-		for (Iterator<ConnectionProtocol<?>> it = connection_protocol.iterator(); it.hasNext();) {
-			ConnectionProtocol<?> cp = it.next();
+		for (ConnectionProtocol<?> cp : connection_protocol) {
 			SubBlockParser sbp = cp.getParser();
 			try {
 				/*

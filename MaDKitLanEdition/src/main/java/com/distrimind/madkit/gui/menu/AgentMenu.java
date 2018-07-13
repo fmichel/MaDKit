@@ -73,10 +73,10 @@ public class AgentMenu extends JMenu {
 		try {
 			if (agent.getClass().getConstructor((Class<?>[]) null) != null) {
 				add(AgentAction.RELOAD.getActionFor(agent));
-				add(AgentAction.LAUNCH_AGENT.getActionFor(agent, agent.getClass().getName(), Integer.valueOf(0),
-						Boolean.valueOf(true)));
+				add(AgentAction.LAUNCH_AGENT.getActionFor(agent, agent.getClass().getName(), 0,
+						Boolean.TRUE));
 			}
-		} catch (SecurityException | NoSuchMethodException e) {
+		} catch (SecurityException | NoSuchMethodException ignored) {
 		}
 		add(AgentAction.KILL_AGENT.getActionFor(agent, agent));
 	}

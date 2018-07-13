@@ -37,14 +37,6 @@
  */
 package com.distrimind.madkit.kernel.network.connection;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
-import com.distrimind.madkit.kernel.AbstractAgent;
-import com.distrimind.madkit.kernel.Agent;
-import com.distrimind.madkit.message.hook.HookMessage;
-import com.distrimind.madkit.message.hook.NetworkEventMessage;
-
 /**
  * Gives access to Madkit Kernel methods
  * 
@@ -53,7 +45,7 @@ import com.distrimind.madkit.message.hook.NetworkEventMessage;
  */
 class MadkitKernelAccess {
 
-	static Agent getMadkitKernel(AbstractAgent _requester) {
+	/*static Agent getMadkitKernel(AbstractAgent _requester) {
 		try {
 			return (Agent) invoke(m_get_madkit_kernel, _requester);
 		} catch (InvocationTargetException e) {
@@ -62,9 +54,9 @@ class MadkitKernelAccess {
 			System.exit(-1);
 			return null;
 		}
-	}
+	}*/
 
-	static void informHooks(AbstractAgent _requester, NetworkEventMessage hook_message) {
+	/*static void informHooks(AbstractAgent _requester, NetworkEventMessage hook_message) {
 		try {
 			invoke(m_inform_hooks, getMadkitKernel(_requester), hook_message);
 		} catch (InvocationTargetException e) {
@@ -72,21 +64,21 @@ class MadkitKernelAccess {
 			e.printStackTrace();
 			System.exit(-1);
 		}
-	}
+	}*/
 
-	private static final String package_name;
-	private static final Class<?> c_madkit_kernel;
-	private static final Method m_get_madkit_kernel;
-	private static final Method m_inform_hooks;
+	//private static final String package_name;
+	//private static final Class<?> c_madkit_kernel;
+	//private static final Method m_get_madkit_kernel;
+	//private static final Method m_inform_hooks;
 
-	static {
-		package_name = AbstractAgent.class.getPackage().getName();
-		c_madkit_kernel = loadClass(package_name + ".MadkitKernel");
-		m_get_madkit_kernel = getMethod(AbstractAgent.class, "getMadkitKernel");
-		m_inform_hooks = getMethod(c_madkit_kernel, "informHooks", HookMessage.class);
-	}
+	/*static {
+		//package_name = AbstractAgent.class.getPackage().getName();
+		//c_madkit_kernel = loadClass(package_name + ".MadkitKernel");
+		//m_get_madkit_kernel = getMethod(AbstractAgent.class, "getMadkitKernel");
+		//m_inform_hooks = getMethod(c_madkit_kernel, "informHooks", HookMessage.class);
+	}*/
 
-	private static Object invoke(Method m, Object o, Object... args) throws InvocationTargetException {
+	/*private static Object invoke(Method m, Object o, Object... args) throws InvocationTargetException {
 		try {
 			return m.invoke(o, args);
 		} catch (IllegalAccessException | IllegalArgumentException e) {
@@ -97,9 +89,9 @@ class MadkitKernelAccess {
 			System.exit(-1);
 			return null;
 		}
-	}
+	}*/
 
-	private static Method getMethod(Class<?> c, String method_name, Class<?>... parameters) {
+	/*private static Method getMethod(Class<?> c, String method_name, Class<?>... parameters) {
 		try {
 			Method m = c.getDeclaredMethod(method_name, parameters);
 			m.setAccessible(true);
@@ -112,9 +104,9 @@ class MadkitKernelAccess {
 			System.exit(-1);
 			return null;
 		}
-	}
+	}*/
 
-	private static Class<?> loadClass(String class_name) {
+	/*private static Class<?> loadClass(String class_name) {
 		try {
 			return Class.forName(class_name);
 		} catch (SecurityException | ClassNotFoundException e) {
@@ -124,6 +116,6 @@ class MadkitKernelAccess {
 			System.exit(-1);
 			return null;
 		}
-	}
+	}*/
 
 }

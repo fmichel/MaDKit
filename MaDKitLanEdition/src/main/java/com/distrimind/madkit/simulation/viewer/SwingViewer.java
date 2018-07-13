@@ -144,7 +144,7 @@ public abstract class SwingViewer extends Watcher {
 		rendering.addPropertyChangeListener(new PropertyChangeListener() {
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
-				renderingOn = !(boolean) ((Boolean) rendering.getValue(Action.SELECTED_KEY)).booleanValue();
+				renderingOn = !(boolean) (Boolean) rendering.getValue(Action.SELECTED_KEY);
 			}
 		});
 		setRendering(renderingOn);
@@ -158,12 +158,11 @@ public abstract class SwingViewer extends Watcher {
 		synchroPainting.addPropertyChangeListener(new PropertyChangeListener() {
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
-				synchronousPainting = !(boolean) ((Boolean) synchroPainting.getValue(Action.SELECTED_KEY))
-						.booleanValue();
+				synchronousPainting = !(boolean) (Boolean) synchroPainting.getValue(Action.SELECTED_KEY);
 				comboBox.setVisible(synchronousPainting);
 			}
 		});
-		rendering.putValue(Action.SELECTED_KEY, Boolean.valueOf(!synchronousPainting));
+		rendering.putValue(Action.SELECTED_KEY, !synchronousPainting);
 	}
 
 	/**
@@ -178,7 +177,7 @@ public abstract class SwingViewer extends Watcher {
 	 * @param activated true if the rendering must be activated
 	 */
 	public void setRendering(boolean activated) {
-		rendering.putValue(Action.SELECTED_KEY, Boolean.valueOf(!activated));
+		rendering.putValue(Action.SELECTED_KEY, !activated);
 	}
 
 	/**
@@ -267,7 +266,7 @@ public abstract class SwingViewer extends Watcher {
 	 *            the synchronousPainting mode to set
 	 */
 	public void setSynchronousPainting(boolean synchronousPainting) {
-		synchroPainting.putValue(Action.SELECTED_KEY, Boolean.valueOf(!synchronousPainting));
+		synchroPainting.putValue(Action.SELECTED_KEY, !synchronousPainting);
 	}
 
 	/**
@@ -329,19 +328,20 @@ public abstract class SwingViewer extends Watcher {
 	 * @param interval
 	 *            an int greater than 0
 	 */
-	public void setRenderingInterval(int interval) {
+	@SuppressWarnings("ConstantConditions")
+    public void setRenderingInterval(int interval) {
 		renderingInterval = interval > 0 ? interval : 1;
-		if ((int) ((Integer) comboBox.getSelectedItem()).intValue() != renderingInterval) {
-			comboBox.setSelectedItem(Integer.valueOf(renderingInterval));
+		if ((Integer) comboBox.getSelectedItem() != renderingInterval) {
+			comboBox.setSelectedItem(renderingInterval);
 		}
 	}
 
 	@SuppressWarnings("serial")
 	private void initRenderingIntervalComboBox(String titleAndTooltip) {
-		final Integer[] defaultValues = { Integer.valueOf(1), Integer.valueOf(5), Integer.valueOf(10), Integer.valueOf(20),
-				Integer.valueOf(50), Integer.valueOf(100), Integer.valueOf(200), Integer.valueOf(500), Integer.valueOf(1000),
-				Integer.valueOf(5000), Integer.valueOf(10000), Integer.valueOf(50000), Integer.valueOf(100000), Integer.valueOf(200000),
-				Integer.valueOf(500000) };
+		final Integer[] defaultValues = new Integer[]{1, 5, 10, 20,
+				50, 100, 200, 500, 1000,
+				5000, 10000, 50000, 100000, 200000,
+				500000};
 		comboBox = new JComboBox<Integer>(defaultValues) {
 			public java.awt.Dimension getMaximumSize() {
 				return new Dimension(125, 38);
@@ -353,12 +353,13 @@ public abstract class SwingViewer extends Watcher {
 		comboBox.setEditable(true);
 		comboBox.addActionListener(new ActionListener() {
 
-			@Override
+			@SuppressWarnings("ConstantConditions")
+            @Override
 			public void actionPerformed(ActionEvent e) {
 				try {
-					setRenderingInterval((int) ((Integer) comboBox.getSelectedItem()).intValue());
+					setRenderingInterval((Integer) comboBox.getSelectedItem());
 				} catch (ClassCastException e1) {
-					comboBox.setSelectedItem(Integer.valueOf(1));
+					comboBox.setSelectedItem(1);
 				}
 			}
 		});

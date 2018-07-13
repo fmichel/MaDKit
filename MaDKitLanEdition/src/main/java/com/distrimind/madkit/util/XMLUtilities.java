@@ -75,20 +75,18 @@ public class XMLUtilities {
 	public static Document getDOM(File xmlFile) throws SAXException, IOException, ParserConfigurationException {
 		try (final InputStream is = MadkitProperties.getInputStream(xmlFile)) {// for closing the stream
 			return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);
-		} catch (SAXException | IOException | ParserConfigurationException e) {
-			throw e;
 		}
 	}
 
 	public static String nodeToString(Node node) {
-		String s = node.getNodeName() + "( ";
+		StringBuilder s = new StringBuilder(node.getNodeName() + "( ");
 		NamedNodeMap map = node.getAttributes();
 		if (map != null) {
 			for (int i = 0; i < map.getLength(); i++) {
-				s += map.item(i).getNodeName() + "=" + map.item(i).getNodeValue() + " ";
+				s.append(map.item(i).getNodeName()).append("=").append(map.item(i).getNodeValue()).append(" ");
 			}
 		}
-		return s += " )";
+		return s.append(" )").toString();
 	}
 
 	/**

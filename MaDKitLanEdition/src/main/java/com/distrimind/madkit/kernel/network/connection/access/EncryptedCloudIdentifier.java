@@ -40,6 +40,7 @@ package com.distrimind.madkit.kernel.network.connection.access;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.Arrays;
 
 import gnu.vm.jgnu.security.DigestException;
 import gnu.vm.jgnu.security.InvalidAlgorithmParameterException;
@@ -65,6 +66,7 @@ import com.distrimind.util.crypto.P2PASymmetricSecretMessageExchanger;
  * @since MadKitLanEdition 1.0
  * @see CloudIdentifier
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 public final class EncryptedCloudIdentifier extends CloudIdentifier {
 	/**
 	 * 
@@ -74,6 +76,7 @@ public final class EncryptedCloudIdentifier extends CloudIdentifier {
 	
 	private byte[] bytes;
 
+	@SuppressWarnings("unused")
 	EncryptedCloudIdentifier()
 	{
 		
@@ -91,9 +94,8 @@ public final class EncryptedCloudIdentifier extends CloudIdentifier {
 		bytes = cipher.encode(cloudIdentifier.getIdentifierBytes(), cloudIdentifier.getSaltBytes(), false);
 	}
 	EncryptedCloudIdentifier(CloudIdentifier cloudIdentifier, AbstractSecureRandom random, AbstractMessageDigest messageDigest, byte[] distantGeneratedSalt)
-			throws InvalidKeyException, IOException, IllegalBlockSizeException, BadPaddingException,
-			NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException,
-			InvalidAlgorithmParameterException, NoSuchProviderException, DigestException {
+			throws
+			DigestException {
 		if (cloudIdentifier == null)
 			throw new NullPointerException("cloudIdentifier");
 		if (random == null)
@@ -138,7 +140,7 @@ public final class EncryptedCloudIdentifier extends CloudIdentifier {
 
 	@Override
 	public int hashCode() {
-		return bytes.hashCode();
+		return Arrays.hashCode(bytes);
 	}
 
 	@Override
@@ -180,8 +182,8 @@ public final class EncryptedCloudIdentifier extends CloudIdentifier {
 	}
 
 	public boolean verifyWithLocalCloudIdentifier(CloudIdentifier originalCloudIdentifier,
-			AbstractMessageDigest messageDigest, byte[] localGeneratedSalt) throws InvalidKeyException, IllegalAccessException, IOException,
-			IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, InvalidKeySpecException, DigestException {
+			AbstractMessageDigest messageDigest, byte[] localGeneratedSalt) throws
+			DigestException {
 		if (originalCloudIdentifier == null)
 			throw new NullPointerException("originalCloudIdentifier");
 		if (messageDigest == null)
@@ -200,8 +202,7 @@ public final class EncryptedCloudIdentifier extends CloudIdentifier {
 	}
 
 	@Override
-	public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException
-	{
+	public void readExternal(final ObjectInput in) throws IOException {
 		bytes=SerializationTools.readBytes(in, MAX_ENCRYPTED_CLOUD_IDENTIFIER_LENGTH, false);
 	}
 	@Override

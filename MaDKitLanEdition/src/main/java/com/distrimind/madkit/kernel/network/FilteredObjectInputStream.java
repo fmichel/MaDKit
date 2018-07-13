@@ -101,7 +101,7 @@ public class FilteredObjectInputStream extends ObjectInputStream {
 			{
 				Class<?> c=Class.forName(clazz, true, MadkitClassLoader.getSystemClassLoader());
 				if (c==null)
-					new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN, new ClassNotFoundException(clazz));
+					throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN, new ClassNotFoundException(clazz));
 				if (np.isAcceptedClassForSerializationUsingWhiteClassList(c))
 				{
 					return c;
@@ -110,7 +110,7 @@ public class FilteredObjectInputStream extends ObjectInputStream {
 		}
 		catch(Exception e)
 		{
-			new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN, new ClassNotFoundException(clazz));
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN, new ClassNotFoundException(clazz));
 		}
 		throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN, new ClassNotFoundException(clazz));
 

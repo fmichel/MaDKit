@@ -63,9 +63,10 @@ public class LoginChangmentsMessage extends Message {
 	final KernelAddressInterfaced concerned_kernel_address_interfaced;
 	final ConnectionProperties connection_properties;
 
+	@SuppressWarnings("unused")
 	LoginChangmentsMessage(ArrayList<PairOfIdentifiers> _new_accepted_identifiers,
-			ArrayList<PairOfIdentifiers> _new_denied_identifiers, KernelAddress _concerned_kernel_address,
-			KernelAddressInterfaced _concerned_kernel_address_interfaced, ConnectionProperties _connection_properties) {
+						   ArrayList<PairOfIdentifiers> _new_denied_identifiers, KernelAddress _concerned_kernel_address,
+						   KernelAddressInterfaced _concerned_kernel_address_interfaced, ConnectionProperties _connection_properties) {
 		new_accepted_identifiers = _new_accepted_identifiers;
 		new_removed_identifiers = _new_denied_identifiers;
 		concerned_kernel_address = _concerned_kernel_address;

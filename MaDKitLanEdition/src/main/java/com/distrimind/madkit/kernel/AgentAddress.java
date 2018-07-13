@@ -68,6 +68,7 @@ import com.distrimind.madkit.util.SerializationTools;
  * @since MaDKitLanEdition 1.0
  * @version 5.2
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 public class AgentAddress implements ExternalizableAndSizable, Cloneable {
 
 	private static final long serialVersionUID = -5109274890965282440L;
@@ -161,7 +162,7 @@ public class AgentAddress implements ExternalizableAndSizable, Cloneable {
 	 */
 
 	/**
-	 * @param roleObject
+	 * @param newRole
 	 *            the roleObject to set
 	 */
 	final void setRoleObject(InternalRole newRole) {
@@ -249,7 +250,7 @@ public class AgentAddress implements ExternalizableAndSizable, Cloneable {
 	public boolean equals(final Object agentAddress) throws ClassCastException {
 		if (this == agentAddress)
 			return true;
-		if (agentAddress == null || !(agentAddress instanceof AgentAddress))
+		if (!(agentAddress instanceof AgentAddress))
 			return false;
 
 		final AgentAddress aa = (AgentAddress) agentAddress;
@@ -332,6 +333,7 @@ public class AgentAddress implements ExternalizableAndSizable, Cloneable {
 		return manually_requested;
 	}
 
+	@SuppressWarnings("MethodDoesntCallSuperMethod")
 	@Override
 	public AgentAddress clone() {
 		return this;
@@ -342,19 +344,17 @@ public class AgentAddress implements ExternalizableAndSizable, Cloneable {
 	
 }
 
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 final class CandidateAgentAddress extends AgentAddress {
 
 	private static final long serialVersionUID = -4139216463718732678L;
 
-	/**
-	 * @param agt
-	 * @param role
-	 * @param ka
-	 */
+
 	CandidateAgentAddress(AbstractAgent agt, InternalRole role, KernelAddress ka, boolean manually_requested) {
 		super(agt, role, ka, manually_requested);
 	}
 	
+	@SuppressWarnings("unused")
 	CandidateAgentAddress()
 	{
 		
@@ -372,6 +372,7 @@ final class CandidateAgentAddress extends AgentAddress {
 
 }
 
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 final class GroupManagerAddress extends AgentAddress {
 
 	/**
@@ -379,6 +380,7 @@ final class GroupManagerAddress extends AgentAddress {
 	 */
 	private static final long serialVersionUID = -5757376397376189866L;
 	private boolean securedGroup;
+	@SuppressWarnings("unused")
 	GroupManagerAddress()
 	{
 		

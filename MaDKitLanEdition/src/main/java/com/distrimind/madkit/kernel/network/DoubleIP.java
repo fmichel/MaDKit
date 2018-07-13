@@ -54,6 +54,7 @@ import com.distrimind.madkit.util.SerializationTools;
  * @version 1.1
  * @since MadkitLanEdition 1.0
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 public class DoubleIP extends AbstractIP {
 	/**
 	 * 
@@ -166,7 +167,7 @@ public class DoubleIP extends AbstractIP {
 		if (inet4Address != null)
 			res[size++] = inet4Address;
 		if (inet6Address != null)
-			res[size++] = inet6Address;
+			res[size] = inet6Address;
 		return res;
 	}
 

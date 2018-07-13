@@ -58,6 +58,7 @@ import com.distrimind.madkit.util.SerializationTools;
  * @since MadkitLanEdition 1.0
  *
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 class ConnectionInfoSystemMessage implements SystemMessage {
 	/**
 	 * 
@@ -70,6 +71,7 @@ class ConnectionInfoSystemMessage implements SystemMessage {
 	private int localPortToConnect;
 	private boolean canBeDirectServer;
 
+	@SuppressWarnings("unused")
 	ConnectionInfoSystemMessage()
 	{
 		
@@ -153,9 +155,9 @@ class ConnectionInfoSystemMessage implements SystemMessage {
 		this.localAddresses = localAddresses;
 	}
 
-	int getManualPortToConnect() {
+	/*int getManualPortToConnect() {
 		return manualPortToConnect;
-	}
+	}*/
 
 	boolean hasManualPortToConnect() {
 		return manualPortToConnect >= 0;
@@ -210,10 +212,10 @@ class ConnectionInfoSystemMessage implements SystemMessage {
 			return isa;
 	}
 
-	public boolean canBeDirectServer() {
+	/*public boolean canBeDirectServer() {
 		return canBeDirectServer;
 	}
-
+*/
 	private InetSocketAddress getInetSocketAddress(boolean connectionFromIPV6, Inet4Address perceivedDistantInetAddress,
 			boolean isLocalToLocal) {
 		if (isLocalToLocal && !connectionFromIPV6 && this.canBeDirectServer)

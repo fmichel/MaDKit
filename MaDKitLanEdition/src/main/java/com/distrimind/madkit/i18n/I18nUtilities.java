@@ -52,7 +52,7 @@ public class I18nUtilities {
 
 	public static File i18nDirectory = new File("com/distrimind/madkit/i18n/");
 
-	public final static ResourceBundle getResourceBundle(String baseName) {
+	public static ResourceBundle getResourceBundle(String baseName) {
 		return ResourceBundle.getBundle(i18nDirectory.toString() + File.separator + baseName);
 	}
 
@@ -92,7 +92,7 @@ public class I18nUtilities {
 	 * @param i18nDirectory
 	 *            the i18nDirectory to set
 	 */
-	public static final void setI18nDirectory(File i18nDirectory) {
+	public static void setI18nDirectory(File i18nDirectory) {
 		I18nUtilities.i18nDirectory = i18nDirectory;
 		ResourceBundle.clearCache();
 	}

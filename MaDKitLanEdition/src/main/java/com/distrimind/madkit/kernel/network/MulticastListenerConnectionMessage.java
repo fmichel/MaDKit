@@ -81,7 +81,7 @@ class MulticastListenerConnectionMessage extends Message {
 				.open(inet6 ? StandardProtocolFamily.INET6 : StandardProtocolFamily.INET);
 
 		datagramChannel.configureBlocking(false);
-		datagramChannel.setOption(StandardSocketOptions.SO_REUSEADDR, Boolean.valueOf(true));
+		datagramChannel.setOption(StandardSocketOptions.SO_REUSEADDR, Boolean.TRUE);
 		// datagramChannel.setOption(StandardSocketOptions.SO_BROADCAST, new
 		// Boolean(true));
 		datagramChannel.socket().setReuseAddress(true);

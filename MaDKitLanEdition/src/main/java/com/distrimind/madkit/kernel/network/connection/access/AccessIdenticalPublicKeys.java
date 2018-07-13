@@ -43,8 +43,11 @@ package com.distrimind.madkit.kernel.network.connection.access;
  * @version 1.0
  * @since MadkitLanEdition 1.0
  */
+
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 class AccessIdenticalPublicKeys extends AccessErrorMessage {
 
+	@SuppressWarnings("unused")
 	AccessIdenticalPublicKeys()
 	{
 		

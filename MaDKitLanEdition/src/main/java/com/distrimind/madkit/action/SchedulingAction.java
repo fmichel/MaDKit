@@ -68,7 +68,7 @@ public enum SchedulingAction {
 	private ActionInfo actionInfo;
 	final private int keyEvent;
 
-	private SchedulingAction(int keyEvent) {
+	SchedulingAction(int keyEvent) {
 		this.keyEvent = keyEvent;
 	}
 

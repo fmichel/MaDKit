@@ -59,6 +59,7 @@ import com.distrimind.madkit.util.SerializationTools;
  * @version 1.1
  * @since MadkitLanEdition 1.0
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 final class CGRSynchrosSystemMessage implements SystemMessage {
 	/**
 	 * 
@@ -67,6 +68,7 @@ final class CGRSynchrosSystemMessage implements SystemMessage {
 
 	private Map<String, Map<Group, Map<String, Set<AgentAddress>>>> organization_snap_shot;
 	private ArrayList<Group> removedGroups;
+	@SuppressWarnings("unused")
 	CGRSynchrosSystemMessage()
 	{
 		
@@ -89,7 +91,7 @@ final class CGRSynchrosSystemMessage implements SystemMessage {
 		
 		int globalSize=NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE;
 		int totalSize=4;
-		organization_snap_shot=new HashMap<String, Map<Group, Map<String, Set<AgentAddress>>>>();
+		organization_snap_shot= new HashMap<>();
 		int size=in.readInt();
 		if (size<0)
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
@@ -102,7 +104,7 @@ final class CGRSynchrosSystemMessage implements SystemMessage {
 			totalSize+=4+SerializationTools.getInternalSize(comunity, Group.MAX_COMMUNITY_LENGTH);
 			if (totalSize>globalSize)
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
-			Map<Group, Map<String, Set<AgentAddress>>> groups=new HashMap<Group, Map<String, Set<AgentAddress>>>();
+			Map<Group, Map<String, Set<AgentAddress>>> groups= new HashMap<>();
 			for (int j=0;j<size2;j++)
 			{
 				Object o=SerializationTools.readExternalizableAndSizable(in, false);
@@ -115,7 +117,7 @@ final class CGRSynchrosSystemMessage implements SystemMessage {
 				int size3=in.readInt();
 				if (size3<0)
 					throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
-				Map<String, Set<AgentAddress>> roles=new HashMap<String, Set<AgentAddress>>();
+				Map<String, Set<AgentAddress>> roles= new HashMap<>();
 				for (int k=0;k<size3;k++)
 				{
 					String role=SerializationTools.readString(in, Group.MAX_ROLE_NAME_LENGTH, false);
@@ -257,13 +259,13 @@ final class CGRSynchrosSystemMessage implements SystemMessage {
 		return res;
 	}
 
-	public Map<String, Map<Group, Map<String, Set<AgentAddress>>>> getOrganisationSnapShot() {
+	/*public Map<String, Map<Group, Map<String, Set<AgentAddress>>>> getOrganisationSnapShot() {
 		return organization_snap_shot;
-	}
+	}*/
 
-	public ArrayList<Group> getRemovedGroups() {
+	/*public ArrayList<Group> getRemovedGroups() {
 		return removedGroups;
-	}
+	}*/
 
 	CGRSynchros getCGRSynchros(KernelAddress distantKernelAddress) {
 		Map<String, Map<Group, Map<String, Set<AgentAddress>>>> org = cleanUp(organization_snap_shot,

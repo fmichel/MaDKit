@@ -56,6 +56,7 @@ import com.distrimind.madkit.util.SerializationTools;
  * @version 1.1
  * @since MadkitLanEdition 1.0
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 public class MultipleIP extends AbstractIP {
 	/**
 	 * 
@@ -206,6 +207,7 @@ public class MultipleIP extends AbstractIP {
 		}
 	}
 
+	@SuppressWarnings("SynchronizeOnNonFinalField")
 	@Override
 	public Inet6Address getInet6Address() {
 		synchronized (random) {
@@ -215,6 +217,7 @@ public class MultipleIP extends AbstractIP {
 		}
 	}
 
+	@SuppressWarnings("SynchronizeOnNonFinalField")
 	@Override
 	public Inet4Address getInet4Address() {
 		synchronized (random) {

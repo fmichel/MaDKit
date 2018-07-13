@@ -176,6 +176,7 @@ import com.distrimind.util.crypto.MessageDigestType;
  * @version 6.2
  * @since MadKitLanEdition 1.0
  */
+@SuppressWarnings({"StaticInitializerReferencesSubClass", "SameParameterValue", "UnusedReturnValue"})
 public class AbstractAgent implements Comparable<AbstractAgent> {
 
 	private final static transient AtomicLong agentCounter = new AtomicLong(
@@ -282,10 +283,11 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
 	/**
 	 * for building fake kernels
-	 * 
-	 * @param fake
+	 *
+	 * @param ignored fake
 	 */
-	AbstractAgent(Object fake) {
+    @SuppressWarnings("unused")
+    AbstractAgent(Object ignored) {
 		agentID = -1;
 	}
 
@@ -445,7 +447,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	// throw new AgentLifeException(message,e);
 	// }
 
-	private final void activationFirstStage() {
+	private void activationFirstStage() {
 		synchronized (state) {
 			if (!state.compareAndSet(INITIALIZING, State.ACTIVATING))// TODO remove it when OK
 				throw new AssertionError("not init in activation");
@@ -472,7 +474,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 		logMethod(true);
 	}
 
-	private final void postActivate() {
+	private void postActivate() {
 		synchronized (state) {
 			if (!state.compareAndSet(State.ACTIVATING, State.ACTIVATED))
 				throw new AssertionError("not init in activation");
@@ -483,8 +485,8 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	}
 
 	/**
-	 * @param myThread
-	 *            the myThread to set
+	 * @param thread
+	 *            the thread to set
 	 * @since MaDKit 5
 	 */
 	void setMyThread(final Thread thread) {
@@ -547,9 +549,6 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 					"** " + (entering ? Words.ENTERING : Words.EXITING) + " " + getState().lifeCycleMethod() + " **");
 	}
 
-	/**
-	 * @param e
-	 */
 	void suicide(SelfKillException e) {
 		getMadkitKernel().startEndBehavior(this, true, true);
 	}
@@ -597,7 +596,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 			}
 			try {
 				end();
-			} catch (InterruptedException e) {
+			} catch (InterruptedException ignored) {
 			} catch (Throwable e) {
 				validateDeathOnException(e, TERMINATED);
 			}
@@ -606,7 +605,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 				Thread.currentThread().setName(getAgentThreadName(TERMINATED));
 			}
 
-		} catch (KilledException e) {
+		} catch (KilledException ignored) {
 
 		}
 		logMethod(false);
@@ -623,7 +622,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 			if (!alive.compareAndSet(true, false)) {
 				try {
 					Thread.sleep(1);
-				} catch (InterruptedException e1) {
+				} catch (InterruptedException ignored) {
 				} // answer the kill
 			}
 		}
@@ -938,10 +937,8 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 		return null;
 	}
 
-	/**
-	 * @param agentClass
-	 * @param e
-	 */
+
+
 	final void cannotLaunchAgent(String agentClass, Throwable e, String infos) {
 		getLogger().severeLog(ErrorMessages.CANT_LAUNCH + " " + agentClass + " : " + (infos != null ? infos : ""), e);
 	}
@@ -1737,11 +1734,11 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 		if (stackTrace.length > 0) {
 			final List<StackTraceElement> stack = new ArrayList<>();
 			final String agentClassName = getClass().getName();
-			for (int i = 0; i < stackTrace.length; i++) {
-				final String trace = stackTrace[i].getClassName();
+			for (StackTraceElement aStackTrace : stackTrace) {
+				final String trace = aStackTrace.getClassName();
 				if (!(trace.startsWith("madkit.kernel") || trace.startsWith("java.") || trace.startsWith("sun."))
 						|| trace.contains(agentClassName)) {
-					stack.add(stackTrace[i]);
+					stack.add(aStackTrace);
 				}
 			}
 			e.setStackTrace(stack.toArray(new StackTraceElement[0]));
@@ -2484,11 +2481,11 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 		Message messageTaken = m;
 		Replies r = getConversation(m);
 		if (r != null) {
+			//noinspection SynchronizationOnLocalVariableOrMethodParameter
 			synchronized (r) {
 				if (r.addReply(m) && removeConversation(r)) {
 					messageTaken = r;
-					r = null;
-				} else {
+                } else {
 					messageTaken = null;
 				}
 			}
@@ -2802,10 +2799,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	// //////////////////////////
 	// /////////////////////////////////////////////////////////////////////////////
 
-	/**
-	 * @throws InterruptedException
-	 * @since MaDKit 5.0.0.9
-	 */
+
 	Message waitingNextMessage(final long timeout, final TimeUnit unit) throws InterruptedException {
 		checkInterruptedExceptionForMessageWaiting();
 		Message m = messageBox.poll(timeout, unit);
@@ -2860,14 +2854,10 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
 	}
 
-	/**
-	 * @throws InterruptedException
-	 * @since MaDKit 5.0.0.9
-	 */
 	List<Message> waitAnswers(final Message message, final int size, final Integer timeOutMilliSeconds)
 			throws InterruptedException {
 		checkInterruptedExceptionForMessageWaiting();
-		final long endTime = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(timeOutMilliSeconds.intValue());
+		final long endTime = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(timeOutMilliSeconds);
 		final ConversationID conversationID = message.getConversationID();
 		int missing = size;
 		final List<Message> receptions = new ArrayList<>(messageBox.size());
@@ -2892,9 +2882,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 		return null;
 	}
 
-	/**
-	 * @param receptions
-	 */
+
 	void addAllToMessageBox(final List<Message> receptions) {
 		messageBox.getLocker().lock();
 		try {
@@ -2904,50 +2892,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 		}
 	}
 
-	/**
-	 * Logs and propagates the exception so that agents properly leave when
-	 * interrupted. When you have to deal with such an exception and do not want to
-	 * add <code>throws InterruptedException</code> in your code, it is both
-	 * important for the responsiveness of your application and a good practice to
-	 * not swallow it by doing something like.
-	 * 
-	 * <pre>
-	 * <code>
-	 * try {
-	 * 	...something that can throw an InterruptedException
-	 * } catch (InterruptedException e) {
-	 * 	e.printStackTrace(); //swallowing it
-	 * }
-	 * </code>
-	 * </pre>
-	 * 
-	 * So this method is a shortcut for :
-	 * 
-	 * <pre>
-	 * <code>		
-	 * if(logger != null){
-	 * 	logger.log(Level.WARNING," Interrupted (killed) by ",e);
-	 * }
-	 * Thread.currentThread().interrupt();
-	 * </code>
-	 * </pre>
-	 * 
-	 * and should be used like this :
-	 * 
-	 * <pre>
-	 * <code>		
-	 * try {
-	 * 	...something that can throw an InterruptedException
-	 * } catch (InterruptedException e) {
-	 * 	handleInterruptedException(e);
-	 * }
-	 * </code>
-	 * </pre>
-	 * 
-	 * @param e
-	 *            the InterruptedException which has to be propagated
-	 * @since MaDKit 5.0.0.12
-	 */
+
 	/*
 	 * final void handleInterruptedException() {// TODO if
 	 * (Thread.currentThread().getName().equals(getAgentThreadName(getState())) &&
@@ -2963,12 +2908,8 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	 * @param document
 	 *            the XML document to parse
 	 * @return {@link ReturnCode#SEVERE} if the launch failed
-	 * @throws ParserConfigurationException if a problem occurs
-	 * @throws IOException if a problem occurs
-	 * @throws SAXException if a problem occurs
 	 */
-	public ReturnCode launchXmlAgents(Document document)
-			throws SAXException, IOException, ParserConfigurationException {
+	public ReturnCode launchXmlAgents(Document document) {
 		final NodeList nodes = document.getElementsByTagName(XMLUtilities.AGENT);
 		ReturnCode r = ReturnCode.SEVERE;
 		for (int i = 0; i < nodes.getLength(); i++) {
@@ -3006,11 +2947,11 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 			logger.finest("launchNode " + XMLUtilities.nodeToString(agentXmlNode));
 		final NamedNodeMap namesMap = agentXmlNode.getAttributes();
 		try {
-			List<AbstractAgent> list = null;
+			List<AbstractAgent> list;
 			int nbOfInstances = 1;
 			try {
 				nbOfInstances = Integer.parseInt(namesMap.getNamedItem(XMLUtilities.NB_OF_INSTANCES).getNodeValue());
-			} catch (NullPointerException e) {
+			} catch (NullPointerException ignored) {
 			}
 			list = getKernel().createBucket(namesMap.getNamedItem(XMLUtilities.CLASS).getNodeValue(), nbOfInstances, 1);
 
@@ -3018,7 +2959,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 			boolean bucketMode = false;
 			try {
 				bucketMode = Boolean.parseBoolean(namesMap.getNamedItem(XMLUtilities.BUCKET_MODE).getNodeValue());
-			} catch (NullPointerException e) {
+			} catch (NullPointerException ignored) {
 			}
 
 			NodeList attributes = agentXmlNode.getChildNodes();
@@ -3046,20 +2987,20 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 			}
 
 			if (bucketMode) {
-				launchAgentBucket(list, roles.toArray(new Role[roles.size()]));
+				launchAgentBucket(list, roles.toArray(new Role[0]));
 			} else {
 				try {
 					Level logLevel = Level.parse(namesMap.getNamedItem(XMLUtilities.LOG_LEVEL).getNodeValue());
 					for (AbstractAgent abstractAgent : list) {
 						abstractAgent.setLogLevel(logLevel);
 					}
-				} catch (NullPointerException e) {
+				} catch (NullPointerException ignored) {
 				}
 
 				boolean guiMode = false;
 				try {
 					guiMode = Boolean.parseBoolean(namesMap.getNamedItem(XMLUtilities.GUI).getNodeValue());
-				} catch (NullPointerException e) {
+				} catch (NullPointerException ignored) {
 				}
 				for (final AbstractAgent abstractAgent : list) {
 					launchAgent(abstractAgent, 0, guiMode);// TODO check return code -> only to here, do a version with
@@ -3074,12 +3015,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 		return ReturnCode.SUCCESS;
 	}
 
-	/**
-	 * @param stringValue
-	 * @param type
-	 * @throws InstantiationException
-	 * @throws IllegalAccessException
-	 */
+
 	private void setAgentValues(final Field f, final String stringValue, List<AbstractAgent> l)
 			throws IllegalAccessException {
 		final Class<?> type = f.getType();
@@ -3123,22 +3059,22 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 		} else if (type == Integer.class) {
 			int value = Integer.parseInt(stringValue);
 			for (AbstractAgent a : l) {
-				f.set(a, Integer.valueOf(value));
+				f.set(a, value);
 			}
 		} else if (type == Boolean.class) {
 			boolean value = Boolean.parseBoolean(stringValue);
 			for (AbstractAgent a : l) {
-				f.set(a, Boolean.valueOf(value));
+				f.set(a, value);
 			}
 		} else if (type == Float.class) {
 			float value = Float.parseFloat(stringValue);
 			for (AbstractAgent a : l) {
-				f.set(a, Float.valueOf(value));
+				f.set(a, value);
 			}
 		} else if (type == Double.class) {
 			double value = Double.parseDouble(stringValue);
 			for (AbstractAgent a : l) {
-				f.set(a, Double.valueOf(value));
+				f.set(a, value);
 			}
 		} else if (type == String.class) {
 			for (AbstractAgent a : l) {
@@ -3147,17 +3083,17 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 		} else if (type == Byte.class) {
 			byte value = Byte.parseByte(stringValue);
 			for (AbstractAgent a : l) {
-				f.set(a, Byte.valueOf(value));
+				f.set(a, value);
 			}
 		} else if (type == Short.class) {
 			short value = Short.parseShort(stringValue);
 			for (AbstractAgent a : l) {
-				f.set(a, Short.valueOf(value));
+				f.set(a, value);
 			}
 		} else if (type == Long.class) {
 			long value = Long.parseLong(stringValue);
 			for (AbstractAgent a : l) {
-				f.set(a, Long.valueOf(value));
+				f.set(a, value);
 			}
 		} else {
 			if (logger != null)
@@ -3330,7 +3266,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 		 */
 		WAIT_AGENT_PURGE_ITS_MESSAGES_BOX_BEFORE_KILLING_IT,
 
-		/**
+		/*
 		 * Before killing the considered agent, each unread message contained into its
 		 * message box is returned to its sender, thanks to the
 		 * {@link UndelievredMessage} class. After that, the agent is killed just after
@@ -3416,8 +3352,6 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 		try {
 			m = findMethodFromParameters(ActionInfo.enumToMethodName(message.getCode()), parameters);
 			m.invoke(this, parameters);
-		} catch (Error e) {
-			throw e;
 		} catch (NoSuchMethodException e) {
 			if (logger != null)
 				logger.warning("I do not know how to " + ActionInfo.enumToMethodName(message.getCode())
@@ -3516,22 +3450,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 		primitiveTypes.put(long.class, Long.class);
 	}
 
-	/**
-	 * replaced by {@link MadkitClassLoader#getLoader()}
-	 * 
-	 * @return
-	 */
-	// @Deprecated
-	// public MadkitClassLoader MadkitClassLoader.getLoader() {
-	// return MadkitClassLoader.getLoader();
-	// }
 
-	// /**
-	// * @return an Executor which could be used to do tasks asynchronously
-	// */
-	// public Executor getMadkitExecutor(){
-	// return kernel.getMadkitKernel().getMadkitExecutor();
-	// }
 
 	// //////////////////////////////////////////////////////////////////////////////
 	// /////////////////////////////////// Return codes
@@ -3677,9 +3596,9 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 		private TransfersReturnsCodes returns_code = null;
 		private int numberOfConcernedAgents = -1;
 
-		void setReturnsCode(TransfersReturnsCodes returns_Code) {
+		/*void setReturnsCode(TransfersReturnsCodes returns_Code) {
 			this.returns_code = returns_Code;
-		}
+		}*/
 
 		/**
 		 * Gets the set of returns code with there data transfer reports, associated to
@@ -3799,12 +3718,13 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 			}
 		}
 
-		final ArrayList<String> arguments = new ArrayList<>(Arrays.asList("--launchAgents",
+        assert element != null;
+        final ArrayList<String> arguments = new ArrayList<>(Arrays.asList("--launchAgents",
 				"{" + element.getClassName() + "," + createFrame + "," + nbOfInstances + "}"));
 		if (args != null) {
 			arguments.addAll(Arrays.asList(args));
 		}
-		return new Madkit(arguments.toArray(new String[arguments.size()]));
+		return new Madkit(arguments.toArray(new String[0]));
 	}
 
 	/**
@@ -3844,150 +3764,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 		return executeThisAgent(1, true);
 	}
 
-	/**
-	 * Launch a Task Manager Service Executor whose given name is a unique
-	 * identifier. The task executor service aims to execute tasks at defined times.
-	 * Tasks can also be repetitive.
-	 * 
-	 * This function has the same effect than
-	 * <code>launchTaskExectutorService(name, 1, MadkitKernel.DEFAULT_THREAD_PRIORITY, -1)</code>.
-	 * 
-	 * @param name
-	 *            the name of the service executor
-	 * @return
-	 *         <ul>
-	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the operation has
-	 *         succeeded.</li>
-	 *         <li><code>{@link ReturnCode#SEVERE}</code>: If a problem occurs.</li>
-	 *         </ul>
-	 * @see AbstractAgent#launchTaskExectutorService(String, int)
-	 * @see AbstractAgent#killTaskExectutorService(String)
-	 * @see AbstractAgent#scheduleTask(String, Task, boolean)
-	 * @since MadKitLanEdition 1.0
-	 */
-	/*
-	 * public ReturnCode launchTaskExectutorService(String name) { return
-	 * launchTaskExectutorService(name, 1, MadkitKernel.DEFAULT_THREAD_PRIORITY,
-	 * -1); }
-	 */
 
-	/**
-	 * Launch a Task Manager Service Executor whose given name is a unique
-	 * identifier. The task executor service aims to execute tasks at defined times.
-	 * Tasks can also be repetitive.
-	 * 
-	 * This function has the same effect than
-	 * <code>launchTaskExectutorService(name, 1)</code>.
-	 * 
-	 * @param name
-	 *            the name of the service executor
-	 * @param corePoolSize
-	 *            the number of threads to keep in the pool, even if they are idle,
-	 *            unless timeOutSeconds is greater than 0
-	 * @param newPriority
-	 *            priority to set this thread to
-	 * @param timeOutSeconds
-	 *            the time to wait in seconds. A time value of zero will cause
-	 *            excess threads to terminate immediately after executing tasks.
-	 * @return
-	 *         <ul>
-	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the operation has
-	 *         succeeded.</li>
-	 *         <li><code>{@link ReturnCode#SEVERE}</code>: If a problem occurs.</li>
-	 *         </ul>
-	 * @see AbstractAgent#killTaskExectutorService(String)
-	 * @see AbstractAgent#scheduleTask(String, Task, boolean)
-	 * @since MadKitLanEdition 1.0
-	 */
-	/*
-	 * public ReturnCode launchTaskExectutorService(String name, int
-	 * minimumPoolSize, int newPriority, long timeOutSeconds) { if
-	 * (getMadkitKernel().launchAndOrGetScheduledExecutorService(this, name,
-	 * minimumPoolSize, newPriority, timeOutSeconds)!=null) return
-	 * ReturnCode.SUCCESS; else return ReturnCode.SEVERE; }
-	 */
-
-	/**
-	 * Kill the Task Manager Service Executor that corresponds to the given name.
-	 * The Task Manager Service Executor aims to execute tasks at defined times.
-	 * Tasks can also be repetitive.
-	 * 
-	 * @param name
-	 *            the name of the TaskAgent
-	 * @return if the service executor was found and killed.
-	 * 
-	 * @see AbstractAgent#launchTaskExectutorService(String, int, int, long)
-	 * @since MadKitLanEdition 1.0
-	 */
-	/*
-	 * public boolean killTaskExectutorService(String name) { return
-	 * getMadkitKernel().killScheduledExecutorService(this, name)!=null; }
-	 */
-
-	/**
-	 * Returns true if there is an existing Task Manager Service Executor which
-	 * corresponds to the given name
-	 * 
-	 * @param name
-	 *            the TaskAgent name
-	 * @return true, if there is an existing Task Manager Service Executor which
-	 *         corresponds to the given name. False else.
-	 * @since MadKitLanEdition 1.0
-	 */
-	/*
-	 * public boolean isTaskManagerAgentExisting(String name) { return
-	 * getKernel().getScheduledExecutorService(this, name)!=null; }
-	 */
-
-	/**
-	 * Add a new task to be executed at a specific time by the task agent which
-	 * correspond to the given task task executor service name. The task agent aims
-	 * to execute tasks at defined times. Tasks can also be repetitive.
-	 * 
-	 * @param _task_agent_name
-	 *            the TaskAgent name
-	 * @param _task
-	 *            the task to execute
-	 * @param ask_for_execution_confirmation
-	 *            if set to 'true', means that a confirmation message
-	 *            {@link TaskExecutionConfirmationMessage} will be sent to the
-	 *            requester for every execution of the given task.
-	 * @return a task ID that reference the task, or null if a problem occurs
-	 * @see AbstractAgent#launchTaskManagerAgent(String, int)
-	 * @see AbstractAgent#cancelTask(String, Task)
-	 * @see TaskExecutionConfirmationMessage
-	 * @see Task
-	 * @see TaskID
-	 * @since MadKitLanEdition 1.0
-	 */
-	/*
-	 * public TaskID scheduleTask(String _task_agent_name, Task<?> _task, boolean
-	 * ask_for_execution_confirmation) { return getKernel().scheduleTask(this,
-	 * _task_agent_name, _task, ask_for_execution_confirmation); }
-	 */
-
-	/**
-	 * Add a new task to be executed at a specific time by the task agent which
-	 * correspond to the given task executor service name. The task agent aims to
-	 * execute tasks at defined times. Tasks can also be repetitive.
-	 * 
-	 * this function is equivalent than
-	 * <code>this.scheduleTask(_task_agent_name, _task, false);</code>
-	 * 
-	 * @param _task_agent_name
-	 *            the TaskAgent name
-	 * @param _task
-	 *            the task to execute
-	 * @return a task ID that reference the task, or null if a problem occurs
-	 * @see AbstractAgent#launchTaskManagerAgent(String, int)
-	 * @see AbstractAgent#cancelTask(String, Task)
-	 * @see Task
-	 * @since MadKitLanEdition 1.0
-	 */
-	/*
-	 * public TaskID scheduleTask(String _task_agent_name, Task<?> _task) { return
-	 * this.scheduleTask(_task_agent_name, _task, false); }
-	 */
 
 	/**
 	 * Cancel a programmed execution of a task.

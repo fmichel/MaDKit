@@ -101,7 +101,7 @@ public class Probe<A extends AbstractAgent> extends Overlooker<A> {
 	@SuppressWarnings("unchecked")
 	public static Field findFieldOn(Class<? extends AbstractAgent> agentClass, final String fieldName)
 			throws NoSuchFieldException {
-		Field f = null;
+		Field f;
 		while (true) {
 			try {
 				f = agentClass.getDeclaredField(fieldName);

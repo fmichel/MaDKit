@@ -47,6 +47,7 @@ import java.io.ObjectOutput;
  * @version 1.0
  * @since MadkitLanEdition 1.0
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 class AccessFinalizedMessage extends AccessMessage {
 
 	/**
@@ -54,6 +55,10 @@ class AccessFinalizedMessage extends AccessMessage {
 	 */
 	private static final long serialVersionUID = 1583685274389751912L;
 
+	AccessFinalizedMessage()
+	{
+
+	}
 
 	@Override
 	public boolean checkDifferedMessages() {

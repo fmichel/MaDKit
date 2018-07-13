@@ -64,6 +64,7 @@ import com.distrimind.util.crypto.SymmetricSecretKey;
  * @since MadKitLanEdition 1.0
  * @see PasswordKey
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 public class EncryptedPassword extends PasswordKey implements ExternalizableAndSizable {
 
 	/**
@@ -75,6 +76,7 @@ public class EncryptedPassword extends PasswordKey implements ExternalizableAndS
 	
 	private byte[] bytes;
 
+	@SuppressWarnings("unused")
 	EncryptedPassword()
 	{
 		

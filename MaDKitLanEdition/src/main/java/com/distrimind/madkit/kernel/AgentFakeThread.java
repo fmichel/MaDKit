@@ -38,11 +38,10 @@
 
 package com.distrimind.madkit.kernel;
 
-import java.util.concurrent.Callable;
-
 import com.distrimind.jdkrewrite.concurrent.LockerCondition;
 import com.distrimind.madkit.exceptions.SelfKillException;
-import com.distrimind.madkit.kernel.Message;
+
+import java.util.concurrent.Callable;
 
 /**
  * This type of agent is between an AbstractAgent type and an Agent type. It is
@@ -104,7 +103,7 @@ public abstract class AgentFakeThread extends AbstractAgent {
 		// MadkitKernel.DEFAULT_THREAD_PRIORITY, -1);
 	}
 
-	/**
+	/*
 	 * Construct an AgentFakeThread and associate it to a given arbitrary task
 	 * manager agent name. All agents constructed with the same task agent name will
 	 * be managed with the same task manager agent.
@@ -138,7 +137,7 @@ public abstract class AgentFakeThread extends AbstractAgent {
 	// defaultThreadPriotity);
 	// }
 
-	/**
+	/*
 	 * Construct an AgentFakeThread and associate it to a given arbitrary task
 	 * manager agent name. All agents constructed with the same task agent name will
 	 * be managed with the same task manager agent.
@@ -231,10 +230,10 @@ public abstract class AgentFakeThread extends AbstractAgent {
 			getMadkitKernel().getMadkitServiceExecutor().submit(new Callable<Void>() {
 
 				@Override
-				public Void call() throws Exception {
+				public Void call() {
 					if (canContinueToManageMessages()) {
 						messageBox.getLocker().lock();
-						Message m = null;
+						Message m;
 						try {
 							messageReadAlreadyInProgress = true;
 							m = nextMessage();
@@ -259,7 +258,7 @@ public abstract class AgentFakeThread extends AbstractAgent {
 								} else
 									getKernel().killAgent(AgentFakeThread.this, AgentFakeThread.this, e.timeOutSeconds,
 											e.killing_type);
-							} catch (InterruptedException e) {
+							} catch (InterruptedException ignored) {
 
 							} catch (Throwable e) {
 								logLifeException(e);

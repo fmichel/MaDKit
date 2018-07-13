@@ -88,7 +88,7 @@ public class AccessProtocolWithASymmetricKeyExchanger extends AbstractAccessProt
 		this.mkProperties=_properties;
 	}
 	
-	private static enum AccessState {
+	private enum AccessState {
 		ACCESS_NOT_INITIALIZED, WAITING_FOR_PUBLIC_KEY, IDENTICAL_PUBLIC_KEY, INVALID_PUBLIC_KEY, ACCESS_INITIALIZED, WAITING_FOR_IDENTIFIERS, WAITING_FOR_PASSWORD, WAITING_FOR_LOGIN_CONFIRMATION, ACCESS_FINALIZED, WAITING_FOR_NEW_LOGIN_PW_FOR_ASKER, WAITING_FOR_NEW_LOGIN_PW_FOR_RECEIVER, WAITING_FOR_NEW_LOGIN_CONFIRMATION_ASKER, WAITING_FOR_NEW_LOGIN_CONFIRMATION_RECEIVER,
 	}
 
@@ -174,8 +174,6 @@ public class AccessProtocolWithASymmetricKeyExchanger extends AbstractAccessProt
 						} else if (!this.cipher.getDistantPublicKey().getEncryptionAlgorithmType()
 								.equals(this.cipher.getMyPublicKey().getEncryptionAlgorithmType()))
 							invalid_key = true;
-						else {
-						}
 					} catch (Exception e) {
 						invalid_key = true;
 					}
@@ -190,9 +188,6 @@ public class AccessProtocolWithASymmetricKeyExchanger extends AbstractAccessProt
 						access_state = AccessState.ACCESS_INITIALIZED;
 						return new AccessInitialized(((LoginData) access_data).canTakesLoginInitiative());
 					}
-				} else if (_m instanceof AccessInvalidKeyMessage) {
-					return new AccessPublicKeyMessage(this.cipher.getMyPublicKey(), this.cipher.getDistantPublicKey(),
-							((LoginData) access_data).canTakesLoginInitiative());
 				} else {
 					access_state = AccessState.ACCESS_NOT_INITIALIZED;
 					return new AccessErrorMessage(true);
@@ -201,14 +196,8 @@ public class AccessProtocolWithASymmetricKeyExchanger extends AbstractAccessProt
 			}
 
 			case IDENTICAL_PUBLIC_KEY: {
-				if (_m instanceof AccessIdenticalPublicKeys) {
-					access_state = AccessState.WAITING_FOR_PUBLIC_KEY;
-					return new AccessPublicKeyMessage(this.cipher.getMyPublicKey(), this.cipher.getDistantPublicKey(),
-							((LoginData) access_data).canTakesLoginInitiative());
-				} else {
-					access_state = AccessState.ACCESS_NOT_INITIALIZED;
-					return new AccessErrorMessage(false);
-				}
+				access_state = AccessState.ACCESS_NOT_INITIALIZED;
+				return new AccessErrorMessage(false);
 			}
 			case ACCESS_INITIALIZED: {
 				if (_m instanceof AccessInitialized) {
@@ -253,9 +242,6 @@ public class AccessProtocolWithASymmetricKeyExchanger extends AbstractAccessProt
 						access_state = AccessState.ACCESS_FINALIZED;
 						return new AccessFinalizedMessage();
 					}
-				} else if (_m instanceof AccessInvalidKeyMessage) {
-					return new AccessPublicKeyMessage(this.cipher.getMyPublicKey(), this.cipher.getDistantPublicKey(),
-							((LoginData) access_data).canTakesLoginInitiative());
 				} else {
 					access_state = AccessState.ACCESS_NOT_INITIALIZED;
 					return new AccessErrorMessage(false);
@@ -271,10 +257,9 @@ public class AccessProtocolWithASymmetricKeyExchanger extends AbstractAccessProt
 									this.access_protocol_properties.encryptIdentifiersBeforeSendingToDistantPeer);
 						} else {
 							access_state = AccessState.WAITING_FOR_PASSWORD;
-							IdentifiersPropositionMessage res = ((IdentifiersPropositionMessage) _m)
+							return ((IdentifiersPropositionMessage) _m)
 									.getIdentifiersPropositionMessageAnswer(lp, cipher,
 											this.access_protocol_properties.encryptIdentifiersBeforeSendingToDistantPeer);
-							return res;
 						}
 					} else
 						return new AccessErrorMessage(true);

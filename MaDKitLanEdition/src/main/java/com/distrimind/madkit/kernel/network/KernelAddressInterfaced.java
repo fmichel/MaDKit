@@ -63,6 +63,7 @@ import gnu.vm.jgnu.security.NoSuchProviderException;
  * @since MadKitLanEdition 1.0
  *
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 public class KernelAddressInterfaced extends KernelAddress {
 	private static final long serialVersionUID = -8597071860059314028L;
 
@@ -70,6 +71,7 @@ public class KernelAddressInterfaced extends KernelAddress {
 	private AtomicBoolean interfaced;
 
 	
+	@SuppressWarnings("unused")
 	KernelAddressInterfaced()
 	{
 		

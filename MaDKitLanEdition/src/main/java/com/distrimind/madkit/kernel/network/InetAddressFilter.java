@@ -170,9 +170,8 @@ public class InetAddressFilter extends MultiFormatProperties {
 				return true;
 			}
 
-			if (interA2 != null && InetAddressFilter.isSameLocalNetwork(ia1.getAddress(), ia2.getAddress(),
-					interA2.getNetworkPrefixLength()))
-				return true;
+			return interA2 != null && InetAddressFilter.isSameLocalNetwork(ia1.getAddress(), ia2.getAddress(),
+					interA2.getNetworkPrefixLength());
 		}
 		return false;
 

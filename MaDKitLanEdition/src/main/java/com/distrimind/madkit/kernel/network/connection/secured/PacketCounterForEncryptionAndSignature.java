@@ -109,6 +109,7 @@ class PacketCounterForEncryptionAndSignature implements PacketCounter {
 		return Bits.concateEncodingWithShortSizedTabs(myEncryptionCounter, mySignatureCounter);
 	}
 	
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	boolean setDistantCounters(byte[] counters)
 	{
 		if (counters==null)
@@ -122,20 +123,20 @@ class PacketCounterForEncryptionAndSignature implements PacketCounter {
 			}
 			if (myEncryptionCounter==null)
 			{
-				if (counters==null || counters.length!=SIGNATURE_COUNTER_SIZE_BYTES)
+				if (counters.length != SIGNATURE_COUNTER_SIZE_BYTES)
 					return false;
 				otherSignatureCounter=counters;
 			}
 			else if (mySignatureCounter==null)
 			{
-				if (counters==null || counters.length!=ENCRYPTION_COUNTER_SIZE_BYTES)
+				if (counters.length != ENCRYPTION_COUNTER_SIZE_BYTES)
 					return false;
 				otherEncryptionCounter=counters;
 			}
 			else
 			{
 				byte tab[][]=Bits.separateEncodingsWithShortSizedTabs(counters);
-				if (tab==null || tab.length!=2 || tab[0]==null || tab[1]==null || tab[0].length!=ENCRYPTION_COUNTER_SIZE_BYTES || tab[1].length!=SIGNATURE_COUNTER_SIZE_BYTES)
+				if (tab.length != 2 || tab[0] == null || tab[1] == null || tab[0].length != ENCRYPTION_COUNTER_SIZE_BYTES || tab[1].length != SIGNATURE_COUNTER_SIZE_BYTES)
 					return false;
 				this.otherEncryptionCounter=tab[0];
 				this.otherSignatureCounter=tab[1];

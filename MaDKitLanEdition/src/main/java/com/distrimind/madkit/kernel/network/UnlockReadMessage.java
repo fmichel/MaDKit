@@ -45,11 +45,13 @@ import java.nio.channels.SocketChannel;
  * @version 1.0
  * @since MadkitLanEdition 1.0
  */
+@SuppressWarnings("unused")
 class UnlockReadMessage extends NIOMessage {
 
 
 	public final SocketChannel socket;
 
+	@SuppressWarnings("unused")
 	public UnlockReadMessage(SocketChannel _socket) {
 		socket = _socket;
 	}

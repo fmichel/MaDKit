@@ -260,7 +260,7 @@ public abstract class LoginData extends AccessData {
 			LoginEventsTrigger logts[] = login_triggers.get();
 			if (containsTrigger(logts, _trigger))
 				return;
-			LoginEventsTrigger new_logts[] = null;
+			LoginEventsTrigger new_logts[];
 			if (logts == null)
 				new_logts = new LoginEventsTrigger[1];
 			else {
@@ -272,7 +272,7 @@ public abstract class LoginData extends AccessData {
 		}
 	}
 
-	void removeTrigger(LoginEventsTrigger _trigger) {
+	/*void removeTrigger(LoginEventsTrigger _trigger) {
 		if (_trigger == null)
 			return;
 		synchronized (this) {
@@ -292,7 +292,7 @@ public abstract class LoginData extends AccessData {
 			}
 			login_triggers.set(new_logts);
 		}
-	}
+	}*/
 
 	/**
 	 * This function must be called when an identifier has been added

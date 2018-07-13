@@ -62,7 +62,7 @@ public class BigDataTransferID extends ConversationID {
 	 */
 	private static final long serialVersionUID = 6390953335913117132L;
 
-	private transient RealTimeTransfertStat stat = null;
+	private transient RealTimeTransfertStat stat;
 	private ConversationID cid;
 
 	@Override
@@ -130,7 +130,8 @@ public class BigDataTransferID extends ConversationID {
 				distantKernelAddress);
 	}
 
-	@Override
+	@SuppressWarnings("MethodDoesntCallSuperMethod")
+    @Override
 	protected void finalize() {
 	}
 

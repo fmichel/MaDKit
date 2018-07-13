@@ -37,14 +37,12 @@
  */
 package com.distrimind.madkit.message.hook;
 
+import com.distrimind.madkit.kernel.KernelAddress;
+import com.distrimind.madkit.kernel.network.connection.access.PairOfIdentifiers;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import com.distrimind.madkit.kernel.KernelAddress;
-import com.distrimind.madkit.kernel.network.connection.access.PairOfIdentifiers;
-import com.distrimind.madkit.message.hook.HookMessage;
-import com.distrimind.madkit.message.hook.HookMessage.AgentActionEvent;
 
 /**
  * Notification message about accessible logins into the network, concerning one

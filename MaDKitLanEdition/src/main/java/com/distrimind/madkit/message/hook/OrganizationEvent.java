@@ -40,11 +40,13 @@ import com.distrimind.madkit.util.SerializationTools;
  * @version 0.9
  * 
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 public class OrganizationEvent extends CGREvent implements NetworkMessage {
 
 
 	private AgentAddress source;
 	
+	@SuppressWarnings("unused")
 	private OrganizationEvent()
 	{
 		super(null);

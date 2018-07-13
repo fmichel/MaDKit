@@ -91,6 +91,7 @@ import com.distrimind.madkit.message.KernelMessage;
 // * extremely light weight, it is possible to tell the kernel to not launch it
 // * by using the {@link BooleanOption#noGUIManager} option when launching
 // MaDKit.
+@SuppressWarnings("unused")
 class GUIManagerAgent extends Agent {
 
 	final private ConcurrentMap<AbstractAgent, JFrame> guis;
@@ -101,6 +102,8 @@ class GUIManagerAgent extends Agent {
 	private MDKDesktopFrame myFrame;
 	private Constructor<? extends AgentFrame> agentFrameConstrutor;
 
+
+	@SuppressWarnings("unused")
 	GUIManagerAgent(boolean asDaemon) { // NO_UCD use by reflection
 		super(asDaemon);
 		guis = new ConcurrentHashMap<>();
@@ -115,8 +118,8 @@ class GUIManagerAgent extends Agent {
 		} catch (NoSuchMethodException | SecurityException | ClassCastException | NullPointerException e1) {
 			e1.printStackTrace();
 			try {
-				agentFrameConstrutor = AgentFrame.class.getConstructor(AbstractAgent.class);
-			} catch (NoSuchMethodException | SecurityException e) {
+				agentFrameConstrutor = AgentFrame.class.getDeclaredConstructor(AbstractAgent.class);
+			} catch (NoSuchMethodException | SecurityException ignored) {
 			}
 		}
 		// setThreadPriority(Thread.MAX_PRIORITY);
@@ -140,9 +143,7 @@ class GUIManagerAgent extends Agent {
 		requestRole(Groups.GUI,Roles.GUI);
 	}
 
-	/**
-	 * @param e
-	 */
+
 	private void headlessLog(HeadlessException e) {
 		getLogger().severe("\t" + e.getMessage() + "\n\tNo graphic environment, quitting");
 		shuttedDown = true;
@@ -247,7 +248,8 @@ class GUIManagerAgent extends Agent {
 						jf.setLocation(checkLocation(jf));
 						jf.setVisible(true);
 					} else {
-						af.setLocation(checkLocation(af));
+                        assert af != null;
+                        af.setLocation(checkLocation(af));
 						af.setVisible(true);
 					}
 				}

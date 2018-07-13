@@ -60,6 +60,7 @@ import com.distrimind.util.crypto.Key;
  * @version 1.1
  * @since MadkitLanEdition 1.0
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 class PublicKeyMessage extends ConnectionMessage {
 	/**
 	 * 
@@ -74,6 +75,7 @@ class PublicKeyMessage extends ConnectionMessage {
 	private byte[] public_key_for_signature_bytes;
 	private transient byte[] public_key_bytes_distant_for_signature;
 	
+	@SuppressWarnings("unused")
 	PublicKeyMessage()
 	{
 		
@@ -87,13 +89,9 @@ class PublicKeyMessage extends ConnectionMessage {
 		try
 		{
 			public_key_for_encryption = (ASymmetricPublicKey) Key.decode(public_key_for_encryption_bytes);
-			
-			if (public_key_for_encryption == null)
-				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
-			
+
+			assert public_key_for_signature_bytes != null;
 			public_key_for_signature = (ASymmetricPublicKey) Key.decode(public_key_for_signature_bytes);
-			if (public_key_for_signature == null)
-				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 			ASymmetricAuthentifiedSignatureCheckerAlgorithm checker=new ASymmetricAuthentifiedSignatureCheckerAlgorithm(public_key_for_signature);
 			if (!checker.verify(public_key_for_encryption_bytes, signedPublicKey))
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);

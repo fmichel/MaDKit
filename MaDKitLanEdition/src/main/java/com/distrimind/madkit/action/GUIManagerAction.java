@@ -133,7 +133,7 @@ public enum GUIManagerAction {
 	final static private ResourceBundle messages = I18nUtilities
 			.getResourceBundle(GUIManagerAction.class.getSimpleName());
 
-	private GUIManagerAction(int keyEvent) {
+	GUIManagerAction(int keyEvent) {
 		this.keyEvent = keyEvent;
 	}
 

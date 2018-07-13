@@ -75,7 +75,7 @@ public enum AgentAction {
 		return actionInfo;
 	}
 
-	private AgentAction(int keyEvent) {
+	AgentAction(int keyEvent) {
 		this.keyEvent = keyEvent;
 	}
 

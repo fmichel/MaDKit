@@ -133,7 +133,7 @@ final class MultiCastListenerAgent extends AgentFakeThread {
 
 					try {
 						InetAddress ia = m.getConcernedInetAddress();
-						NetworkInterface ni = null;
+						NetworkInterface ni;
 						try {
 							ni = NetworkInterface.getByInetAddress(ia);
 						} catch (Exception e) {

@@ -106,7 +106,7 @@ public class OutputPanel extends JPanel {
 			out = new PipedOutputStream(inPipe);
 			new SwingWorker<Void, String>() {
 				@Override
-				protected Void doInBackground() throws Exception {
+				protected Void doInBackground() {
 					Scanner s = new Scanner(inPipe);
 					while (s.hasNextLine()) {
 						String line = s.nextLine();

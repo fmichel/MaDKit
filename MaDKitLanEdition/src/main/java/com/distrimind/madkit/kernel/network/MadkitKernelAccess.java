@@ -37,30 +37,19 @@
  */
 package com.distrimind.madkit.kernel.network;
 
+import com.distrimind.jdkrewrite.concurrent.LockerCondition;
+import com.distrimind.madkit.io.RandomInputStream;
+import com.distrimind.madkit.io.RandomOutputStream;
+import com.distrimind.madkit.kernel.*;
+import com.distrimind.madkit.kernel.AbstractAgent.ReturnCode;
+import com.distrimind.madkit.message.hook.HookMessage;
+import com.distrimind.util.IDGeneratorInt;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
 
-import com.distrimind.madkit.io.RandomInputStream;
-import com.distrimind.madkit.io.RandomOutputStream;
-import com.distrimind.madkit.kernel.AbstractAgent;
-import com.distrimind.madkit.kernel.AbstractAgent.ReturnCode;
-import com.distrimind.madkit.kernel.Agent;
-import com.distrimind.madkit.kernel.AgentAddress;
-import com.distrimind.madkit.kernel.BigDataPropositionMessage;
-import com.distrimind.madkit.kernel.BigDataResultMessage;
-import com.distrimind.madkit.kernel.BigDataTransferID;
-import com.distrimind.madkit.kernel.ConversationID;
-import com.distrimind.madkit.kernel.Group;
-import com.distrimind.madkit.kernel.GroupChangementNotifier;
-import com.distrimind.madkit.kernel.KernelAddress;
-import com.distrimind.jdkrewrite.concurrent.LockerCondition;
-import com.distrimind.madkit.kernel.Message;
-import com.distrimind.madkit.kernel.TaskID;
-import com.distrimind.madkit.message.hook.HookMessage;
-import com.distrimind.jdkrewrite.concurrent.ThreadPoolExecutor;
-import com.distrimind.util.IDGeneratorInt;
 import static com.distrimind.madkit.util.ReflectionTools.*;
 
 /**
@@ -69,6 +58,7 @@ import static com.distrimind.madkit.util.ReflectionTools.*;
  * @author Jason Mahdjoub
  * @version 1.0
  */
+@SuppressWarnings("ConstantConditions")
 class MadkitKernelAccess {
 
 	static Agent getMadkitKernel(AbstractAgent _requester) {
@@ -84,7 +74,7 @@ class MadkitKernelAccess {
 
 	static int numberOfValidGeneratedID(AbstractAgent _requester) {
 		try {
-			return ((Integer) invoke(m_nb_valid_generated_id, getMadkitKernel(_requester))).intValue();
+			return (Integer) invoke(m_nb_valid_generated_id, getMadkitKernel(_requester));
 		} catch (InvocationTargetException e) {
 			System.err.println("Unexpected error :");
 			e.printStackTrace();
@@ -114,7 +104,7 @@ class MadkitKernelAccess {
 		}
 	}
 
-	static ThreadPoolExecutor getMadkitLifeExecutor(AbstractAgent _requester) {
+	/*static ThreadPoolExecutor getMadkitLifeExecutor(AbstractAgent _requester) {
 		try {
 			return (ThreadPoolExecutor) invoke(m_get_madkit_life_executor, getMadkitKernel(_requester));
 		} catch (InvocationTargetException e) {
@@ -123,7 +113,7 @@ class MadkitKernelAccess {
 			System.exit(-1);
 			return null;
 		}
-	}
+	}*/
 
 	static void setReturnsCode(ReturnCode rc, TransfersReturnsCodes returns_Code) {
 		try {
@@ -155,7 +145,7 @@ class MadkitKernelAccess {
 		}
 	}
 
-	static void setOrigin(ConversationID conversation_id, KernelAddress ka) {
+	/*static void setOrigin(ConversationID conversation_id, KernelAddress ka) {
 		try {
 			invoke(m_set_message_ka_origin, conversation_id, ka);
 		} catch (InvocationTargetException e) {
@@ -194,7 +184,7 @@ class MadkitKernelAccess {
 			e.printStackTrace();
 			System.exit(-1);
 		}
-	}
+	}*/
 
 	static ConversationID getInterfacedConversationIDToDistantPeer(ConversationID conversationID,
 			AbstractAgent requester, KernelAddress currentKernelAddress, KernelAddress distantKernelAddress) {
@@ -235,7 +225,7 @@ class MadkitKernelAccess {
 
 	static int getIDPacket(BigDataPropositionMessage m) {
 		try {
-			return ((Integer) invoke(m_get_big_data_id_packet, m)).intValue();
+			return (Integer) invoke(m_get_big_data_id_packet, m);
 		} catch (InvocationTargetException e) {
 			System.err.println("Unexpected error :");
 			e.printStackTrace();
@@ -257,7 +247,7 @@ class MadkitKernelAccess {
 
 	static void setIDPacket(BigDataPropositionMessage m, int idPacket) {
 		try {
-			invoke(m_set_big_data_id_packet, m, Integer.valueOf(idPacket));
+			invoke(m_set_big_data_id_packet, m, idPacket);
 		} catch (InvocationTargetException e) {
 			System.err.println("Unexpected error :");
 			e.printStackTrace();
@@ -265,7 +255,7 @@ class MadkitKernelAccess {
 		}
 	}
 
-	static void connectionLost(BigDataPropositionMessage m, long dataTransfered) {
+	/*static void connectionLost(BigDataPropositionMessage m, long dataTransfered) {
 		try {
 			invoke(m_big_data_connection_lost, m, Long.valueOf(dataTransfered));
 		} catch (InvocationTargetException e) {
@@ -273,11 +263,11 @@ class MadkitKernelAccess {
 			e.printStackTrace();
 			System.exit(-1);
 		}
-	}
+	}*/
 
 	static void dataCorrupted(BigDataPropositionMessage m, long dataTransfered) {
 		try {
-			invoke(m_big_data_data_corrupted, m, Long.valueOf(dataTransfered));
+			invoke(m_big_data_data_corrupted, m, dataTransfered);
 		} catch (InvocationTargetException e) {
 			System.err.println("Unexpected error :");
 			e.printStackTrace();
@@ -287,7 +277,7 @@ class MadkitKernelAccess {
 
 	static void transferCompleted(BigDataPropositionMessage m, long dataTransfered) {
 		try {
-			invoke(m_big_data_complete, m, Long.valueOf(dataTransfered));
+			invoke(m_big_data_complete, m, dataTransfered);
 		} catch (InvocationTargetException e) {
 			System.err.println("Unexpected error :");
 			e.printStackTrace();
@@ -297,7 +287,7 @@ class MadkitKernelAccess {
 
 	static int getIDPacket(BigDataResultMessage m) {
 		try {
-			return ((Integer) invoke(m_get_big_data_result_id_packet, m)).intValue();
+			return (Integer) invoke(m_get_big_data_result_id_packet, m);
 		} catch (InvocationTargetException e) {
 			System.err.println("Unexpected error :");
 			e.printStackTrace();
@@ -334,7 +324,7 @@ class MadkitKernelAccess {
 			AgentAddress sender, AgentAddress receiver, long readDataLength, long duration) {
 		try {
 			invoke(m_connectionLostForBigDataTransfer, getMadkitKernel(requester), requester, conversationID,
-					Integer.valueOf(idPacket), sender, receiver, Long.valueOf(readDataLength), Long.valueOf(duration));
+					idPacket, sender, receiver, readDataLength, duration);
 		} catch (InvocationTargetException e) {
 			System.err.println("Unexpected error :");
 			e.printStackTrace();
@@ -384,23 +374,23 @@ class MadkitKernelAccess {
 	private static final Method m_set_returns_code;
 	private static final Method m_set_message_receiver;
 	private static final Method m_set_message_sender;
-	private static final Method m_set_message_ka_origin;
+	/*private static final Method m_set_message_ka_origin;
 	private static final Method m_get_message_ka_origin;
 	private static final Method m_add_group_changement_notifier;
-	private static final Method m_remove_group_changement_notifier;
+	private static final Method m_remove_group_changement_notifier;*/
 	private static final Method m_get_interfaced_conversation_id_from_distant;
 	private static final Method m_get_interfaced_conversation_id_to_distant;
 	private static final Method m_get_big_data_stream;
 	private static final Method m_get_big_data_id_packet;
 	private static final Method m_get_big_data_output_stream;
 	private static final Method m_set_big_data_id_packet;
-	private static final Method m_big_data_connection_lost;
+	//private static final Method m_big_data_connection_lost;
 	private static final Method m_big_data_data_corrupted;
 	private static final Method m_big_data_complete;
 	private static final Method m_get_big_data_result_id_packet;
 	private static final Method m_connectionLostForBigDataTransfer;
 	private static final Method m_message_mark_as_read;
-	private static final Method m_get_madkit_life_executor;
+	//private static final Method m_get_madkit_life_executor;
 	private static final Method m_wait_message_sent;
 	private static final Method m_get_global_interfaced_ids;
 
@@ -417,12 +407,12 @@ class MadkitKernelAccess {
 		m_set_returns_code = getMethod(AbstractAgent.ReturnCode.class, "setReturnsCode", TransfersReturnsCodes.class);
 		m_set_message_receiver = getMethod(Message.class, "setReceiver", AgentAddress.class);
 		m_set_message_sender = getMethod(Message.class, "setSender", AgentAddress.class);
-		m_set_message_ka_origin = getMethod(ConversationID.class, "setOrigin", KernelAddress.class);
+		/*m_set_message_ka_origin = getMethod(ConversationID.class, "setOrigin", KernelAddress.class);
 		m_get_message_ka_origin = getMethod(ConversationID.class, "getOrigin");
 		m_add_group_changement_notifier = getMethod(Group.class, "addGroupChangementNotifier",
 				GroupChangementNotifier.class);
 		m_remove_group_changement_notifier = getMethod(Group.class, "removeGroupChangementNotifier",
-				GroupChangementNotifier.class);
+				GroupChangementNotifier.class);*/
 		m_get_interfaced_conversation_id_to_distant = getMethod(ConversationID.class,
 				"getInterfacedConversationIDToDistantPeer", Map.class, KernelAddress.class, KernelAddress.class);
 		m_get_interfaced_conversation_id_from_distant = getMethod(ConversationID.class,
@@ -432,14 +422,14 @@ class MadkitKernelAccess {
 		m_get_big_data_output_stream = getMethod(BigDataPropositionMessage.class, "getOutputStream");
 		m_set_big_data_id_packet = getMethod(BigDataPropositionMessage.class, "setIDPacket", int.class);
 		m_get_big_data_result_id_packet = getMethod(BigDataResultMessage.class, "getIDPacket");
-		m_big_data_connection_lost = getMethod(BigDataPropositionMessage.class, "connectionLost", long.class);
+		//m_big_data_connection_lost = getMethod(BigDataPropositionMessage.class, "connectionLost", long.class);
 		m_big_data_data_corrupted = getMethod(BigDataPropositionMessage.class, "dataCorrupted", long.class);
 		m_big_data_complete = getMethod(BigDataPropositionMessage.class, "transferCompleted", long.class);
 		m_connectionLostForBigDataTransfer = getMethod(c_madkit_kernel, "connectionLostForBigDataTransfer",
 				AbstractAgent.class, ConversationID.class, int.class, AgentAddress.class, AgentAddress.class,
 				long.class, long.class);
 		m_message_mark_as_read = getMethod(Message.class, "markMessageAsRead");
-		m_get_madkit_life_executor = getMethod(c_madkit_kernel, "getLifeExecutor");
+		//m_get_madkit_life_executor = getMethod(c_madkit_kernel, "getLifeExecutor");
 		m_wait_message_sent = getMethod(c_madkit_kernel, "waitMessageSent", AbstractAgent.class, LockerCondition.class);
 		m_get_global_interfaced_ids = getMethod(c_madkit_kernel, "getGlobalInterfacedIDs");
 		c_big_data_transfer_id = getConstructor(BigDataTransferID.class, ConversationID.class,

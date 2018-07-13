@@ -33,25 +33,22 @@
  */
 package com.distrimind.madkit.message;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
+import com.distrimind.madkit.kernel.Message;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
-import com.distrimind.madkit.kernel.Message;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 
 /**
  * A message that carries an XML document.
@@ -146,8 +143,6 @@ public class XMLMessage extends Message {
 			Transformer serializer = TransformerFactory.newInstance().newTransformer();
 			serializer.setOutputProperty(OutputKeys.INDENT, "yes");
 			serializer.transform(domSource, streamResult);
-		} catch (TransformerConfigurationException e) {
-			e.printStackTrace();
 		} catch (TransformerException e) {
 			e.printStackTrace();
 		}
@@ -167,11 +162,7 @@ public class XMLMessage extends Message {
 		try {
 			return DocumentBuilderFactory.newInstance().newDocumentBuilder()
 					.parse((new InputSource(new StringReader(strcontent))));
-		} catch (SAXException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ParserConfigurationException e) {
+		} catch (SAXException | IOException | ParserConfigurationException e) {
 			e.printStackTrace();
 		}
 		return null;

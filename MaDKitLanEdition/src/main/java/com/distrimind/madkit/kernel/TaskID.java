@@ -55,6 +55,7 @@ import java.util.concurrent.ScheduledFuture;
  * @version 1.0
  * @since MadKitLanEdition 1.0
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 public class TaskID extends ConversationID {
 	/**
 	 * 
@@ -67,9 +68,9 @@ public class TaskID extends ConversationID {
 		super();
 	}
 
-	TaskID(ConversationID id) {
+	/*TaskID(ConversationID id) {
 		super(id.getID(), id.getOrigin());
-	}
+	}*/
 
 	void setFuture(ScheduledFuture<?> future) {
 		this.future = future;

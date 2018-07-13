@@ -55,7 +55,6 @@ final public class KernelException extends RuntimeException {
 
 	KernelException(final String message) {
 		super(message);// TODO clean stack trace
-		setStackTrace(Arrays.asList(getStackTrace()).subList(3, getStackTrace().length - 1)
-				.toArray(new StackTraceElement[0]));
+		setStackTrace(Arrays.copyOfRange(getStackTrace(), 3, getStackTrace().length - 1));
 	}
 }

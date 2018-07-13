@@ -48,6 +48,7 @@ import java.io.ObjectOutput;
  * @version 1.1
  * @since MadkitLanEdition 1.0
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 class ValidateBigDataProposition implements SystemMessage {
 	/**
 	 * 
@@ -55,6 +56,7 @@ class ValidateBigDataProposition implements SystemMessage {
 	private static final long serialVersionUID = 9027528563984879917L;
 	private int packetID;
 
+	@SuppressWarnings("unused")
 	ValidateBigDataProposition()
 	{
 		

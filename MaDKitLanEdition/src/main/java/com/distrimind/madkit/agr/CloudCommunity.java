@@ -105,7 +105,7 @@ public class CloudCommunity implements Organization {// TODO check groups protec
 		 * LAN_RECEPTION_ROLE="~~LAN_RECEPTION_ROLE";
 		 */
 
-		/**
+		/*
 		 * Identify the agent responsible of the discovery of the local infrastructure
 		 * (UPNP IGD routers, network interfaces).
 		 */
@@ -134,12 +134,12 @@ public class CloudCommunity implements Organization {// TODO check groups protec
 
 		// public static final String NET_AGENT="~~NET_AGENT";
 
-		/**
+		/*
 		 * Role taken by distant kernel
 		 */
 		// public static final String DISTANT_KERNEL_ROLE="~~DISTANT_KERNEL";
 
-		/**
+		/*
 		 * Role taken by socket agents
 		 */
 		// public static final String

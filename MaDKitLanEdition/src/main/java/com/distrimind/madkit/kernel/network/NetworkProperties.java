@@ -84,6 +84,7 @@ import com.distrimind.util.properties.PropertiesParseException;
  * @version 1.1
  * 
  */
+@SuppressWarnings("UnusedReturnValue")
 public class NetworkProperties extends MultiFormatProperties {
 	/**
 	 * 
@@ -193,13 +194,13 @@ public class NetworkProperties extends MultiFormatProperties {
 	 * short data (not big data). This threshold concerns all connected distants
 	 * kernels.
 	 */
-	public long maxSizeForUnreadShortDataFromAllConnections = 419430400l;
+	public long maxSizeForUnreadShortDataFromAllConnections = 419430400L;
 
 	/**
 	 * A file transfer is computed in bytes per second according the average of data
 	 * transfered during the last specified milliseconds (this variable).
 	 */
-	public long bigDataStatDurationMean = 1000l;
+	public long bigDataStatDurationMean = 1000L;
 
 	/**
 	 * When received data are incorrect or when an anomaly has been detected through
@@ -207,7 +208,7 @@ public class NetworkProperties extends MultiFormatProperties {
 	 * system can temporary expel the distant host temporary. This variable
 	 * correspond to the duration in milliseconds of this expulsion.
 	 */
-	public long expulsionDuration = 600000l;
+	public long expulsionDuration = 600000L;
 
 	/**
 	 * When received data are incorrect or when an anomaly has been detected through
@@ -237,7 +238,7 @@ public class NetworkProperties extends MultiFormatProperties {
 	 * the distant concerned host. This variable correspond to the duration of this
 	 * banishment.
 	 */
-	public long banishmentDuration = 43200000l;
+	public long banishmentDuration = 43200000L;
 
 	/**
 	 * When a problem of security is detected, the system decide to ban temporary
@@ -258,13 +259,13 @@ public class NetworkProperties extends MultiFormatProperties {
 	 * Duration of the statistics concerning the temporary expulsion of a computer.
 	 * After this duration, the statistics are reseted.
 	 */
-	public long expulsionStatisticDuration = 7200000l;
+	public long expulsionStatisticDuration = 7200000L;
 
 	/**
 	 * Duration of the statistics concerning the banishment of a computer. After
 	 * this duration, the statistics are reseted.
 	 */
-	public long banishmentStatisticDuration = 1728000000l;
+	public long banishmentStatisticDuration = 1728000000L;
 
 	/**
 	 * If set to true, this connection can enable to make a gateway between two
@@ -300,7 +301,7 @@ public class NetworkProperties extends MultiFormatProperties {
 	 * 
 	 * @see #gatewayConnection
 	 */
-	public long timeBetweenEachUpdateOfTransfertSpeedForGatewayConnection = 30000l;
+	public long timeBetweenEachUpdateOfTransfertSpeedForGatewayConnection = 30000L;
 
 	/**
 	 * Define the number of cached blocks in bytes to transfer to another machine.
@@ -349,7 +350,7 @@ public class NetworkProperties extends MultiFormatProperties {
 	 * Gives the duration after what the system will consider as obsolete a transfer
 	 * connection between two peers with the current peer as intermediate peer.
 	 */
-	public long durationBeforeCancelingTransferConnection = 120000l;
+	public long durationBeforeCancelingTransferConnection = 120000L;
 
 	/**
 	 * Distant Ip addresses are divided into IP range. Each IP range is associated
@@ -363,23 +364,23 @@ public class NetworkProperties extends MultiFormatProperties {
 	 * Delay after a channel selector returns 0 network event and gives hand to the
 	 * system for eventual data refresh
 	 */
-	public long selectorTimeOut = 30000l;
+	public long selectorTimeOut = 30000L;
 	
 	/**
 	 * Delay to wait in milliseconds before closing a connection, and in order to being sure to send the last packet.
 	 */
-	public long delayInMsBeforeClosingConnectionNormally=0;
+	public long delayInMsBeforeClosingConnectionNormally=200;
 
 	/**
 	 * Delay after a channel selector returns 0 network event and gives hand to the
 	 * system for eventual data refresh
 	 */
-	public long selectorTimeOutWhenWaitingPendingConnections = 300l;
+	public long selectorTimeOutWhenWaitingPendingConnections = 300L;
 
 	/**
 	 * Delay after a connection is considered obsolete if no data was transfered.
 	 */
-	public long connectionTimeOut = 30000l;
+	public long connectionTimeOut = 30000L;
 
 	/**
 	 * Tells if the UPNP IGD protocol is activated.
@@ -412,7 +413,7 @@ public class NetworkProperties extends MultiFormatProperties {
 	 * 
 	 * @see #upnpIGDEnabled
 	 */
-	public long delayBetweenEachRouterConnectionCheck = 10000l;
+	public long delayBetweenEachRouterConnectionCheck = 10000L;
 
 	/**
 	 * This value represents the time between each scan of external ip of each local
@@ -420,7 +421,7 @@ public class NetworkProperties extends MultiFormatProperties {
 	 * 
 	 * @see #upnpIGDEnabled
 	 */
-	public long delayBetweenEachExternalIPRouterCheck = 3600000l;
+	public long delayBetweenEachExternalIPRouterCheck = 3600000L;
 
 	/**
 	 * Tells if the network interfaces availability can be scanned (does not work if
@@ -434,24 +435,24 @@ public class NetworkProperties extends MultiFormatProperties {
 	 * This value represents the time between each local network interface scan,
 	 * this in order to update data about available and connected network interface.
 	 */
-	public long delayBetweenEachNetworkInterfaceScan = 30000l;
+	public long delayBetweenEachNetworkInterfaceScan = 30000L;
 
 	/**
 	 * Delay before routing kernel optimize the choice of agents sockets for packets
 	 * sending.
 	 */
-	public long delayBetweenEachAgentSocketOptimization = 10000l;
+	public long delayBetweenEachAgentSocketOptimization = 10000L;
 
 	/**
 	 * Delay before distant kernel address checking becomes obsolete.
 	 */
-	public long maxDurationOfDistantKernelAddressCheck = 60000l;
+	public long maxDurationOfDistantKernelAddressCheck = 60000L;
 
 	/**
 	 * Delay before closing connections using a network interface slowest than
 	 * others.
 	 */
-	public long maxDurationBeforeClosingObsoleteNetworkInterfaces = 60000l;
+	public long maxDurationBeforeClosingObsoleteNetworkInterfaces = 60000L;
 
 	/**
 	 * for internal use
@@ -562,7 +563,7 @@ public class NetworkProperties extends MultiFormatProperties {
 	
 	/**
 	 * Delay in milliseconds between each connection to attempt
-	 * @see connectionToAttempt
+	 *
 	 */
 	public long delayInMsBetweenEachConnectionAsk=0;
 
@@ -635,12 +636,10 @@ public class NetworkProperties extends MultiFormatProperties {
 	 * 			true if the two concerned peers can be interpreted as servers
 	 * @return a connection protocol chain according the distant peer ip, and the
 	 *         local used port. Returns null if no connection protocol was found.
-	 * @throws NIOException
-	 *             if a problem occurs
-	 */
+     */
 	public ConnectionProtocolProperties<?> getConnectionProtocolProperties(InetSocketAddress _distant_inet_address,
 			InetSocketAddress _local_interface_address, boolean isServer,
-			boolean mustSupportBidirectionnalConnectionInitiative) throws NIOException {
+			boolean mustSupportBidirectionnalConnectionInitiative) {
 		return this.getConnectionProtocolProperties(_distant_inet_address, _local_interface_address, 0, isServer,
 				mustSupportBidirectionnalConnectionInitiative);
 	}
@@ -662,12 +661,10 @@ public class NetworkProperties extends MultiFormatProperties {
 	 * @return a connection protocol properties according the distant peer ip, and
 	 *         the local used port. Returns null if no connection protocol was
 	 *         found.
-	 * @throws NIOException
-	 *             if a problem occurs
-	 */
+     */
 	public ConnectionProtocolProperties<?> getConnectionProtocolProperties(InetSocketAddress _distant_inet_address,
 			InetSocketAddress _local_interface_address, int subProtocolLevel, boolean isServer,
-			boolean mustSupportBidirectionnalConnectionInitiative) throws NIOException {
+			boolean mustSupportBidirectionnalConnectionInitiative) {
 		for (ConnectionProtocolProperties<?> cpp : getConnectionProtocolList()) {
 			int l = subProtocolLevel;
 			while (l > 0 && cpp.subProtocolProperties != null) {
@@ -709,7 +706,7 @@ public class NetworkProperties extends MultiFormatProperties {
 		return connectionProtocolProperties.size() > 0;
 	}
 
-	private final ArrayList<AccessData> accessDataList = new ArrayList<AccessData>();
+	private final ArrayList<AccessData> accessDataList = new ArrayList<>();
 
 	/**
 	 * Add an AccessData protocol according its InetAddress filters
@@ -833,14 +830,10 @@ public class NetworkProperties extends MultiFormatProperties {
 		}
 		if (!found)
 			return false;
-		found = false;
-		for (ConnectionProtocolProperties<?> cpp : getConnectionProtocolList()) {
+        for (ConnectionProtocolProperties<?> cpp : getConnectionProtocolList()) {
 			if (cpp.isConcernedBy(_local_interface_address.getAddress(), _local_interface_address.getPort(),
 					_distant_inet_address.getAddress(), isServer, mustSupportBidirectionnalConnectionInitiative)) {
-				if (((takeConnectionInitiative && cpp.canTakeConnectionInitiative()) || !takeConnectionInitiative))
-					return true;
-				else
-					return false;
+                return (!takeConnectionInitiative || cpp.canTakeConnectionInitiative());
 			}
 		}
 		return false;
@@ -894,33 +887,33 @@ public class NetworkProperties extends MultiFormatProperties {
 	 */
 	public static final String DEFAULT_TRANSFERT_STAT_IN_REAL_TIME_PER_5_MINUTES_SEGMENTS = "~~DEFAULT_TRANSFERT_STAT_IN_REAL_TIME_PER_5_MINUTES_SEGMENTS";
 
-	private final TransferSpeedStat globalTransferSpeedStatPer512SegmentsForDownload = new TransferSpeedStat(524288l,
-			32768l, 300000l);
-	private final TransferSpeedStat globalTransferSpeedStatPer512SegmentsForUpload = new TransferSpeedStat(524288l,
-			32768l, 300000l);
+	private final TransferSpeedStat globalTransferSpeedStatPer512SegmentsForDownload = new TransferSpeedStat(524288L,
+            32768L, 300000L);
+	private final TransferSpeedStat globalTransferSpeedStatPer512SegmentsForUpload = new TransferSpeedStat(524288L,
+            32768L, 300000L);
 	private final RealTimeTransfertStat globalRealTimeTransferStatPer30SecondsForDownload = new RealTimeTransfertStat(
-			30000l, 3000l);
+            30000L, 3000L);
 	private final RealTimeTransfertStat globalRealTimeTransferStatPer30SecondsForUpload = new RealTimeTransfertStat(
-			30000l, 3000l);
+            30000L, 3000L);
 	private final RealTimeTransfertStat globalRealTimeTransferStatPer5MinutesForDownload = new RealTimeTransfertStat(
-			300000l, 3000l);
+            300000L, 3000L);
 	private final RealTimeTransfertStat globalRealTimeTransferStatPer5MinutesForUpload = new RealTimeTransfertStat(
-			300000l, 3000l);
+            300000L, 3000L);
 	private final StatsBandwidth globalStatBandwith;
 
 	private void initializeStatsBandwitdh(StatsBandwidth stats) {
 		stats.putBytesDownloadedInRealTime(DEFAULT_TRANSFERT_STAT_IN_REAL_TIME_PER_30_SECONDS_SEGMENTS,
-				new RealTimeTransfertStat(30000l, 3000l));
+				new RealTimeTransfertStat(30000L, 3000L));
 		stats.putBytesDownloadedInRealTime(DEFAULT_TRANSFERT_STAT_IN_REAL_TIME_PER_5_MINUTES_SEGMENTS,
-				new RealTimeTransfertStat(300000l, 3000l));
+				new RealTimeTransfertStat(300000L, 3000L));
 		stats.putBytesUploadedInRealTime(DEFAULT_TRANSFERT_STAT_IN_REAL_TIME_PER_30_SECONDS_SEGMENTS,
-				new RealTimeTransfertStat(30000l, 3000l));
+				new RealTimeTransfertStat(30000L, 3000L));
 		stats.putBytesUploadedInRealTime(DEFAULT_TRANSFERT_STAT_IN_REAL_TIME_PER_5_MINUTES_SEGMENTS,
-				new RealTimeTransfertStat(300000l, 3000l));
+				new RealTimeTransfertStat(300000L, 3000L));
 		stats.putBytesUploadedInRealBytes(DEFAULT_STAT_PER_512KB_SEGMENTS,
-				new TransferSpeedStat(524288l, 32768l, 300000l));
+				new TransferSpeedStat(524288L, 32768L, 300000L));
 		stats.putBytesDownloadedInRealBytes(DEFAULT_STAT_PER_512KB_SEGMENTS,
-				new TransferSpeedStat(524288l, 32768l, 300000l));
+				new TransferSpeedStat(524288L, 32768L, 300000L));
 
 		String globalStats = "(For global statistics)";
 		stats.putBytesDownloadedInRealTime(DEFAULT_TRANSFERT_STAT_IN_REAL_TIME_PER_30_SECONDS_SEGMENTS + globalStats,
@@ -971,7 +964,7 @@ public class NetworkProperties extends MultiFormatProperties {
 		synchronized (transfer_stat_per_id_transfer) {
 			if (transferIdentifier == TransferAgent.NullIDTransfer.getID())
 				throw new NullPointerException("transferIdentifier is a NullIDTransfer");
-			Integer i = Integer.valueOf(transferIdentifier);
+			Integer i = transferIdentifier;
 
 			StatsBandwidth sb = transfer_stat_per_id_transfer.get(i);
 			if (sb != null)
@@ -992,7 +985,7 @@ public class NetworkProperties extends MultiFormatProperties {
 	 */
 	public StatsBandwidth getStatsBandwith(int transferIdentifier) {
 		synchronized (transfer_stat_per_id_transfer) {
-			return transfer_stat_per_id_transfer.get(Integer.valueOf(transferIdentifier));
+			return transfer_stat_per_id_transfer.get(transferIdentifier);
 		}
 	}
 
@@ -1006,7 +999,7 @@ public class NetworkProperties extends MultiFormatProperties {
 	 */
 	StatsBandwidth removeStatsBandwitdh(int transferIdentifier) {
 		synchronized (transfer_stat_per_id_transfer) {
-			Integer i = Integer.valueOf(transferIdentifier);
+			Integer i = transferIdentifier;
 			return transfer_stat_per_id_transfer.remove(i);
 		}
 	}

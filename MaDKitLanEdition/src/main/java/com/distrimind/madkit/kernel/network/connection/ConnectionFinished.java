@@ -55,6 +55,7 @@ import com.distrimind.madkit.util.SerializationTools;
  * @since MadkitLanEdition 1.0
  *
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 public class ConnectionFinished extends ConnectionMessage {
 	/**
 	 * 

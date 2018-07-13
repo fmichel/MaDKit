@@ -181,12 +181,12 @@ public class ActionInfo {
 	 */
 	public static <E extends Enum<E>> String enumToMethodName(final E e) {
 		final String[] tab = e.name().split("_");
-		String methodName = tab[0].toLowerCase();
+		StringBuilder methodName = new StringBuilder(tab[0].toLowerCase());
 		for (int i = 1; i < tab.length; i++) {
 			final String s = tab[i];
-			methodName += s.charAt(0) + s.substring(1).toLowerCase();
+			methodName.append(s.charAt(0)).append(s.substring(1).toLowerCase());
 		}
-		return methodName;
+		return methodName.toString();
 	}
 
 }

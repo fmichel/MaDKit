@@ -47,6 +47,7 @@ import java.io.ObjectOutput;
  * @version 1.0
  * @since MadkitLanEdition 1.0
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 public class AccessErrorMessage extends AccessMessage {
 
 	/**
@@ -62,7 +63,7 @@ public class AccessErrorMessage extends AccessMessage {
 	}
 	
 	
-	public AccessErrorMessage(boolean _candidate_to_ban) {
+	AccessErrorMessage(boolean _candidate_to_ban) {
 		candidate_to_ban = _candidate_to_ban;
 	}
 

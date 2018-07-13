@@ -84,6 +84,7 @@ import gnu.vm.jgnu.security.NoSuchProviderException;
  * @version 1.0
  * 
  */
+@SuppressWarnings("UnusedReturnValue")
 public class MadkitProperties extends MultiFormatProperties {
 
 	/**
@@ -473,7 +474,8 @@ public class MadkitProperties extends MultiFormatProperties {
 		}
 	}
 
-	/**
+	/*
+	 *
 	 * Loads properties from an XML file.
 	 * 
 	 * @param filePath
@@ -496,7 +498,7 @@ public class MadkitProperties extends MultiFormatProperties {
 	 * filePath, e); } }
 	 */
 
-	/**
+	/*
 	 * Loads properties from a regular properties formatted file.
 	 * 
 	 * @param pathname
@@ -508,7 +510,7 @@ public class MadkitProperties extends MultiFormatProperties {
 	 * catch (IOException e) { throw e; } }
 	 */
 
-	/**
+	/*
 	 * Loads properties from a properties file (classic or XML).
 	 * 
 	 * @param pathname
@@ -694,8 +696,7 @@ public class MadkitProperties extends MultiFormatProperties {
 
 	public void setApprovedRandomTypeForKeys(SecureRandomType approvedRandomTypeForKeys) {
 		this.approvedRandomTypeForKeys = approvedRandomTypeForKeys;
-		approvedRandomTypeForKeys=null;
-	}
+    }
 	
 	private static long getMacAddress()
 	{
@@ -703,28 +704,26 @@ public class MadkitProperties extends MultiFormatProperties {
 		long result2=0;
 		try {
 			final Enumeration<NetworkInterface> e = NetworkInterface.getNetworkInterfaces();
-			if (e != null) {
-				while (e.hasMoreElements()) {
-					final NetworkInterface ni = e.nextElement();
-						
-					
-					if (!ni.isLoopback()) {
-						
-						long val = getHardwareAddress(ni.getHardwareAddress());
-						if (val != 0 && val != 224)
-						{
-							if (ni.isPointToPoint()) {
-								result2=val;
-							}
-							else {
-								result = val;
-								break;
-							}
-						}
-					}
-				}
-			}
-		}
+            while (e.hasMoreElements()) {
+                final NetworkInterface ni = e.nextElement();
+
+
+                if (!ni.isLoopback()) {
+
+                    long val = getHardwareAddress(ni.getHardwareAddress());
+                    if (val != 0 && val != 224)
+                    {
+                        if (ni.isPointToPoint()) {
+                            result2=val;
+                        }
+                        else {
+                            result = val;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
 		catch(Exception e)
 		{
 			e.printStackTrace();

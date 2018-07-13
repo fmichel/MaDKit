@@ -54,6 +54,7 @@ import com.distrimind.madkit.util.SerializationTools;
  * @version 1.0
  * @since MadkitLanEdition 1.0
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 class LoginConfirmationMessage extends AccessMessage {
 
 	/**
@@ -66,6 +67,8 @@ class LoginConfirmationMessage extends AccessMessage {
 	private transient short nbAnomalies;
 	private boolean checkDifferedMessages;
 
+
+	@SuppressWarnings("unused")
 	LoginConfirmationMessage()
 	{
 		

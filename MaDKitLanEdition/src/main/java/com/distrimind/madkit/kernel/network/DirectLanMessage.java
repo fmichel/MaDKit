@@ -49,6 +49,7 @@ import com.distrimind.madkit.kernel.Message;
  * @version 1.1
  * @since MadkitLanEdition 1.0
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 final class DirectLanMessage extends LanMessage {
 
 	/**
@@ -56,6 +57,7 @@ final class DirectLanMessage extends LanMessage {
 	 */
 	private static final long serialVersionUID = -7184941708009374257L;
 
+	@SuppressWarnings("unused")
 	DirectLanMessage()
 	{
 		

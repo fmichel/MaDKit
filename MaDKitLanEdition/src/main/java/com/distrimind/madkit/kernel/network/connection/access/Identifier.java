@@ -57,6 +57,7 @@ import com.distrimind.madkit.util.SerializationTools;
  * @see CloudIdentifier
  * @see HostIdentifier
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 public class Identifier implements ExternalizableAndSizable {
 
 	/**
@@ -86,7 +87,7 @@ public class Identifier implements ExternalizableAndSizable {
 		if (this == o)
 			return true;
 
-		if (o != null && o instanceof Identifier) {
+		if (o instanceof Identifier) {
 			Identifier id = (Identifier) o;
 			return cloud_identifier.equals(id.cloud_identifier) && host_identifier.equals(id.host_identifier);
 		}

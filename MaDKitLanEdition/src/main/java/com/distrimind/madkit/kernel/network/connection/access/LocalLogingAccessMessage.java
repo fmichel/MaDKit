@@ -47,6 +47,7 @@ import java.io.ObjectOutput;
  * @version 1.0
  * @since MadkitLanEdition 1.0
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 class LocalLogingAccessMessage extends AccessMessage {
 
 	/**

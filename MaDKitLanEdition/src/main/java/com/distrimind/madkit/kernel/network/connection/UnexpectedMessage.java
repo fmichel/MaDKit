@@ -48,12 +48,14 @@ import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol.Connec
  * @version 1.0
  * @since MadkitLanEdition 1.0
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 public class UnexpectedMessage extends ConnectionFinished {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 5813253270740660753L;
+	@SuppressWarnings("unused")
 	UnexpectedMessage()
 	{
 		

@@ -37,32 +37,31 @@
  */
 package com.distrimind.madkit.kernel.network.connection.access;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.network.NetworkProperties;
-import com.distrimind.madkit.util.SerializationTools;
 import com.distrimind.madkit.util.ExternalizableAndSizable;
+import com.distrimind.madkit.util.SerializationTools;
 import com.distrimind.util.crypto.AbstractMessageDigest;
 import com.distrimind.util.crypto.AbstractSecureRandom;
 import com.distrimind.util.crypto.P2PLoginAgreement;
 import com.distrimind.util.crypto.P2PLoginAgreementType;
-
 import gnu.vm.jgnu.security.DigestException;
-import gnu.vm.jgnu.security.InvalidAlgorithmParameterException;
-import gnu.vm.jgnu.security.InvalidKeyException;
 import gnu.vm.jgnu.security.NoSuchAlgorithmException;
-import gnu.vm.jgnu.security.NoSuchProviderException;
-import gnu.vm.jgnu.security.spec.InvalidKeySpecException;
-import gnu.vm.jgnux.crypto.BadPaddingException;
-import gnu.vm.jgnux.crypto.IllegalBlockSizeException;
-import gnu.vm.jgnux.crypto.NoSuchPaddingException;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchProviderException;
+import java.security.spec.InvalidKeySpecException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 
@@ -70,6 +69,7 @@ import gnu.vm.jgnux.crypto.NoSuchPaddingException;
  * @version 1.0
  * @since MadkitLanEdition 1.2
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 class JPakeMessage extends AccessMessage{
 	/**
 	 * 
@@ -81,7 +81,8 @@ class JPakeMessage extends AccessMessage{
 	private byte[][] jpakeMessages;
 	private short step;
 	private final transient short nbAnomalies;
-	private transient final int maxSteps=5;
+
+	@SuppressWarnings("unused")
 	JPakeMessage()
 	{
 		nbAnomalies=0;
@@ -94,6 +95,7 @@ class JPakeMessage extends AccessMessage{
 		int globalSize=NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE;
 		ExternalizableAndSizable tab[]=SerializationTools.readExternalizableAndSizables(in, globalSize, false);
 		int totalSize=1;
+		assert tab != null;
 		identifiers=new Identifier[tab.length];
 		for (int i=0;i<tab.length;i++)
 		{
@@ -151,9 +153,9 @@ class JPakeMessage extends AccessMessage{
 	
 	public int getMaxSteps()
 	{
-		return maxSteps;
+		return 5;
 	}
-	private JPakeMessage(Map<Identifier, P2PLoginAgreement> agreements, boolean identifiersIsEncrypted, short nbAnomalies, AbstractSecureRandom random, AbstractMessageDigest messageDigest, short step, Map<Identifier, byte[]> jakeMessages, byte[] distantGeneratedSalt) throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchProviderException, DigestException, IOException {
+	private JPakeMessage(boolean identifiersIsEncrypted, short nbAnomalies, AbstractSecureRandom random, AbstractMessageDigest messageDigest, short step, Map<Identifier, byte[]> jakeMessages, byte[] distantGeneratedSalt) throws DigestException {
 		super();
 		this.identifiersIsEncrypted=identifiersIsEncrypted;
 		this.identifiers=new Identifier[jakeMessages.size()];
@@ -172,7 +174,7 @@ class JPakeMessage extends AccessMessage{
 		this.nbAnomalies=nbAnomalies;
 	}
 	
-	JPakeMessage(LoginData loginData, AbstractSecureRandom random, AbstractSecureRandom randomForKeys, AbstractMessageDigest messageDigest, Map<Identifier, P2PLoginAgreement> agreements, P2PLoginAgreementType agreementType, boolean encryptIdentifiers, List<Identifier> newIdentifiers, byte[] distantGeneratedSalt) throws Exception
+	JPakeMessage(LoginData loginData, AbstractSecureRandom random, AbstractMessageDigest messageDigest, Map<Identifier, P2PLoginAgreement> agreements, P2PLoginAgreementType agreementType, boolean encryptIdentifiers, List<Identifier> newIdentifiers, byte[] distantGeneratedSalt) throws Exception
 	{
 		try
 		{
@@ -220,9 +222,9 @@ class JPakeMessage extends AccessMessage{
 		return nbAnomalies;
 	}
 	
-	public byte[][] getJpakeMessages() {
+	/*public byte[][] getJpakeMessages() {
 		return jpakeMessages;
-	}
+	}*/
 	public short getStep() {
 		return step;
 	}
@@ -230,10 +232,10 @@ class JPakeMessage extends AccessMessage{
 	{
 		return identifiers;
 	}
-	public boolean areIdentifiersEncrypted()
+	/*public boolean areIdentifiersEncrypted()
 	{
 		return identifiersIsEncrypted;
-	}
+	}*/
 	
 	
 	@Override
@@ -249,7 +251,7 @@ class JPakeMessage extends AccessMessage{
 		int nbAno=0;
 		if (step!=newStep-1)
 		{
-			nbAno+=jpakes.size();
+			//nbAno+=jpakes.size();
 			jpakes.clear();
 			return new AccessErrorMessage(true);
 		}
@@ -258,7 +260,7 @@ class JPakeMessage extends AccessMessage{
 		
 		for (int i = 0; i < identifiers.length; i++) {
 			Identifier id = identifiers[i];
-			Identifier decodedID = null;
+			Identifier decodedID;
 			if (identifiersIsEncrypted)
 				decodedID = lp.getIdentifier((EncryptedIdentifier) id, messageDigest, localGeneratedSalt);
 			else
@@ -305,7 +307,7 @@ class JPakeMessage extends AccessMessage{
 			}
 		}
 		
-		return new JPakeMessage(jpakes, identifiersIsEncrypted, nbAno > Short.MAX_VALUE ? Short.MAX_VALUE : (short)nbAno, random, messageDigest, newStep, jpkms, distantGeneratedSalt);
+		return new JPakeMessage(identifiersIsEncrypted, nbAno > Short.MAX_VALUE ? Short.MAX_VALUE : (short)nbAno, random, messageDigest, newStep, jpkms, distantGeneratedSalt);
 	}
 	
 	public AccessMessage receiveLastMessage(LoginData lp, AbstractMessageDigest messageDigest, Collection<PairOfIdentifiers> acceptedIdentifiers, Collection<PairOfIdentifiers> deniedIdentifiers,
@@ -324,7 +326,7 @@ class JPakeMessage extends AccessMessage{
 
 		for (int i = 0; i < identifiers.length; i++) {
 			Identifier id = identifiers[i];
-			Identifier decodedID = null;
+			Identifier decodedID;
 			if (identifiersIsEncrypted)
 				decodedID = lp.getIdentifier((EncryptedIdentifier) id, messageDigest, localGeneratedSalt);
 			else

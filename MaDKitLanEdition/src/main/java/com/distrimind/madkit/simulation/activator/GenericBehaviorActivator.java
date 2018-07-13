@@ -153,6 +153,7 @@ public class GenericBehaviorActivator<A extends AbstractAgent> extends Activator
 				}
 				try {
 					Thread.currentThread().setName(a.getAgentThreadName(a.getState()));
+					assert cachedM != null;
 					cachedM.invoke(a);
 				} catch (IllegalAccessException e) {
 					throw new SimulationException(toString(), e);

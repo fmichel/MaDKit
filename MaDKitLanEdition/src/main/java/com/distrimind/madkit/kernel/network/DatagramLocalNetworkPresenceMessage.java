@@ -248,6 +248,7 @@ class DatagramLocalNetworkPresenceMessage extends Message {
 		}
 	}
 
+    @SuppressWarnings("unused")
     boolean isCompatibleWith(long localOnlineTime, Version localProgramVersion, Version localMadkitVersion, Version localProgramVersionMinimum, Version localMadkitVersionMinimum
             , KernelAddress kernelAddress) throws NoSuchAlgorithmException, NoSuchProviderException, UnsupportedEncodingException {
         /*

@@ -50,6 +50,6 @@ public interface MessageFilter {
 	 *            the message to test.
 	 * @return <code>true</code> if and only if the message matches the requirement.
 	 */
-	public boolean accept(Message m);
+	boolean accept(Message m);
 
 }

@@ -76,7 +76,7 @@ public class StatsBandwidth {
 		if (transfer_agents_bandwidth.containsKey(id.getID()))
 			return;
 		synchronized (this) {
-			transfer_agents_bandwidth.put(Integer.valueOf(id.getID()), stats);
+			transfer_agents_bandwidth.put(id.getID(), stats);
 		}
 	}
 
@@ -84,11 +84,8 @@ public class StatsBandwidth {
 		if (id == null)
 			throw new NullPointerException("id");
 		synchronized (this) {
-			StatsBandwidth sb = transfer_agents_bandwidth.remove(Integer.valueOf(id.getID()));
-			/*
-			 * if (sb==null) throw new IllegalArgumentException();
-			 */
-			return sb;
+
+			return transfer_agents_bandwidth.remove(id.getID());
 		}
 	}
 
@@ -347,7 +344,7 @@ public class StatsBandwidth {
 		synchronized (this) {
 			for (RealTimeTransfertStat s : bytes_downloaded_in_real_time.values())
 				s.newBytesIndentified(size);
-			if (id != null && id.intValue() != TransferAgent.NullIDTransfer.getID()) {
+			if (id != null && id != TransferAgent.NullIDTransfer.getID()) {
 				sb = transfer_agents_bandwidth.get(id);
 				if (sb == null)
 					throw new IllegalArgumentException("Impossible to found stats for IDTransfer " + id);
@@ -370,7 +367,7 @@ public class StatsBandwidth {
 		synchronized (this) {
 			for (TransferSpeedStat s : bytes_downloaded_in_real_bytes.values())
 				s.newBytesIndentified(size, duration);
-			if (id != null && id.intValue() != TransferAgent.NullIDTransfer.getID()) {
+			if (id != null && id != TransferAgent.NullIDTransfer.getID()) {
 				sb = transfer_agents_bandwidth.get(id);
 				if (sb == null)
 					throw new IllegalArgumentException("Impossible to found stats for IDTransfer " + id);

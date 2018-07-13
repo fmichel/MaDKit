@@ -52,6 +52,7 @@ import com.distrimind.madkit.util.SerializationTools;
  * @version 1.1
  * @since MadkitLanEdition 1.0
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 final class DataToBroadcast implements SystemMessage {
 
 	/**
@@ -64,6 +65,7 @@ final class DataToBroadcast implements SystemMessage {
 	private boolean prioritary;
 	private IDTransfer transferID;
 
+	@SuppressWarnings("unused")
 	DataToBroadcast()
 	{
 		

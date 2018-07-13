@@ -57,6 +57,7 @@ import com.distrimind.madkit.i18n.ErrorMessages;
  * @since MadKitLanEdition 1.0
  * @version 5.1
  */
+@SuppressWarnings("SameParameterValue")
 final class Organization extends ConcurrentHashMap<Group, InternalGroup> {
 
 	/**
@@ -74,10 +75,7 @@ final class Organization extends ConcurrentHashMap<Group, InternalGroup> {
 		return myKernel;
 	}
 
-	/**
-	 * @param setLogging
-	 * @param string
-	 */
+
 	Organization(final String string, final MadkitKernel madkitKernel) {
 		if (string == null)
 			throw new NullPointerException(ErrorMessages.C_NULL.toString());
@@ -85,25 +83,13 @@ final class Organization extends ConcurrentHashMap<Group, InternalGroup> {
 		myKernel = madkitKernel;
 		// logger = madkitKernel.getLogger();
 		logger = null;
-		if (logger != null)
-			logger.finer(getCGRString(communityName) + "created");
 	}
 
 	String getName() {
 		return communityName;
 	}
 
-	/**
-	 * Group adding. Guarded by this in
-	 * {@link MadkitKernel#createGroup(AbstractAgent, String, String, Gatekeeper, boolean)}
-	 * 
-	 * @param creator
-	 * @param gatekeeper
-	 * @param group
-	 * @param gatekeeper
-	 * @param isDistributed
-	 * @return true if the group has been created
-	 */
+
 	boolean addGroup(final AbstractAgent creator, Group group, boolean manually_created) {
 
 		synchronized (this) {
@@ -126,9 +112,7 @@ final class Organization extends ConcurrentHashMap<Group, InternalGroup> {
 		}
 	}
 
-	/**
-	 * @param group
-	 */
+
 	void removeGroup(final Group group) {
 		synchronized (this) {
 			if (logger != null)
@@ -148,11 +132,7 @@ final class Organization extends ConcurrentHashMap<Group, InternalGroup> {
 		}
 	}
 
-	/**
-	 * @param theAgent
-	 * @param manually_requested
-	 * @return all the groups that are distributed and that contained the agent
-	 */
+
 	ArrayList<Group> removeAgentFromAllGroups(final AbstractAgent theAgent, boolean manually_requested) {
 		final ArrayList<Group> groups = new ArrayList<>();
 		for (final Iterator<Map.Entry<Group, InternalGroup>> e = this.entrySet().iterator(); e.hasNext();) {
@@ -170,10 +150,7 @@ final class Organization extends ConcurrentHashMap<Group, InternalGroup> {
 
 	}
 
-	/**
-	 * @param b
-	 * @return
-	 */
+
 	Map<Group, Map<String, Set<AgentAddress>>> getOrgMap(boolean global) {
 		Map<Group, Map<String, Set<AgentAddress>>> export = new TreeMap<>();
 		for (Map.Entry<Group, InternalGroup> org : entrySet()) {
@@ -195,22 +172,21 @@ final class Organization extends ConcurrentHashMap<Group, InternalGroup> {
 						if (!m.isEmpty()) {
 							export.put(org.getKey(), m);
 						}
+						break;
 					}
-					break;
+
 				}
 			}
 		}
 		return export;
 	}
 
-	/**
-	 * @param hashMap
-	 */
+
 	void importDistantOrg(Map<Group, Map<String, Set<AgentAddress>>> map, MadkitKernel madkitKernel) {
 		for (Group groupName : map.keySet()) {
 			InternalGroup group = get(groupName);
 			if (group == null) {
-				AgentAddress manager = null;
+				AgentAddress manager;
 				try {
 					manager = map.get(groupName).get(com.distrimind.madkit.agr.Organization.GROUP_MANAGER_ROLE)
 							.iterator().next();
@@ -225,16 +201,13 @@ final class Organization extends ConcurrentHashMap<Group, InternalGroup> {
 		}
 	}
 
-	/**
-	 * @param kernelAddress2
-	 */
-	void removeAgentsFromDistantKernel(KernelAddress kernelAddress2, MadkitKernel madkitKernel) {
+	/*void removeAgentsFromDistantKernel(KernelAddress kernelAddress2, MadkitKernel madkitKernel) {
 		for (InternalGroup group : values()) {
 			if (group.isDistributed()) {
 				group.removeAgentsFromDistantKernel(kernelAddress2, madkitKernel);
 			}
 		}
-	}
+	}*/
 
 	void removeDistantGroup(KernelAddress distantKernelAddress, Group distantGroup, MadkitKernel madkitKernel) {
 		for (InternalGroup group : values()) {

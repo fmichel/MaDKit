@@ -176,7 +176,7 @@ public enum KernelAction {
 
 	final static private ResourceBundle messages = I18nUtilities.getResourceBundle(KernelAction.class.getSimpleName());
 
-	private KernelAction(int keyEvent) {
+	KernelAction(int keyEvent) {
 		this.keyEvent = keyEvent;
 	}
 

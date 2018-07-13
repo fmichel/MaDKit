@@ -52,6 +52,7 @@ import com.distrimind.madkit.util.SerializationTools;
  * @since MadkitLanEdition 1.0
  * @see ServerSecuredConnectionProtocolWithKnwonPublicKey
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 public class KeyAgreementDataMessage extends ConnectionMessage {
 	/**
 	 * 
@@ -61,6 +62,7 @@ public class KeyAgreementDataMessage extends ConnectionMessage {
 	private byte[] data;
 	private byte[] materialKey;
 	
+	@SuppressWarnings("unused")
 	KeyAgreementDataMessage()
 	{
 		
@@ -70,6 +72,7 @@ public class KeyAgreementDataMessage extends ConnectionMessage {
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		int totalSize=NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE;
 		data=SerializationTools.readBytes(in, totalSize, false);
+		assert data != null;
 		materialKey=SerializationTools.readBytes(in, totalSize-data.length, true);
 	}
 

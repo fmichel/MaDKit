@@ -52,6 +52,7 @@ import com.distrimind.madkit.util.SerializationTools;
  * @version 1.1
  * @since MadkitLanEdition 1.0
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 class TransferClosedSystemMessage extends BroadcastableSystemMessage {
 	/**
 	 * 
@@ -61,6 +62,7 @@ class TransferClosedSystemMessage extends BroadcastableSystemMessage {
 	private IDTransfer idTransfer;
 	private boolean lastPass;
 	
+	@SuppressWarnings("unused")
 	TransferClosedSystemMessage()
 	{
 		

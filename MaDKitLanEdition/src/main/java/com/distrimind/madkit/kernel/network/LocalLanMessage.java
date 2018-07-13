@@ -106,6 +106,7 @@ public class LocalLanMessage extends Message {
 		readyForInjection = true;
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void finalize() {
 		if (originalMessage != null) {
@@ -119,6 +120,7 @@ public class LocalLanMessage extends Message {
 	 * message=_message; locker=_message_locker; locker.lock(); }
 	 */
 
+	@SuppressWarnings("MethodDoesntCallSuperMethod")
 	@Override
 	public LocalLanMessage clone() {
 		return this;

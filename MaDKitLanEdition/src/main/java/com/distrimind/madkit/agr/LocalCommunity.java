@@ -72,11 +72,9 @@ public class LocalCommunity implements Organization {// TODO check groups protec
 			public boolean allowAgentToCreateSubGroup(Group _parent_group, Group _sub_group,
 					final Class<? extends AbstractAgent> requesterClass, AgentNetworkID _agentNetworkID,
 					Object _memberCard) {
-				if (_sub_group.equals(SYSTEM) || _sub_group.equals(KERNELS) || _sub_group.equals(NETWORK)
-						|| _sub_group.equals(GUI))
-					return true;
-				else
-					return false;
+
+				return _sub_group.equals(SYSTEM) || _sub_group.equals(KERNELS) || _sub_group.equals(NETWORK)
+						|| _sub_group.equals(GUI);
 			}
 
 			@Override

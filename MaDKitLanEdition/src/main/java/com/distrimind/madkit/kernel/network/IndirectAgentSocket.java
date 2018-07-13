@@ -134,7 +134,7 @@ class IndirectAgentSocket extends AbstractAgentSocket {
 		pingTaskID = scheduleTask(new Task<>(new Callable<Void>() {
 
 			@Override
-			public Void call() throws Exception {
+			public Void call() {
 				if (!isAlive())
 					return null;
 				long threshold = System.currentTimeMillis() - getMadkitConfig().networkProperties.connectionTimeOut;
@@ -182,8 +182,8 @@ class IndirectAgentSocket extends AbstractAgentSocket {
 			logger.finest("Broadcasting indirect data toward each intermediate peer (distant_inet_address="
 					+ distant_inet_address + ", distantInterfacedKernelAddress=" + distantInterfacedKernelAddress
 					+ ", prioritary=" + prioritary + ") : " + _data);
-		return sendMessageWithRole(agentSocketRequester, new ObjectMessage<DataToBroadcast>(
-				new DataToBroadcast(_data.getMessageToBroadcast(), _data.getSender(), prioritary, getTransfertType())),
+		return sendMessageWithRole(agentSocketRequester, new ObjectMessage<>(
+						new DataToBroadcast(_data.getMessageToBroadcast(), _data.getSender(), prioritary, getTransfertType())),
 				LocalCommunity.Roles.SOCKET_AGENT_ROLE);
 	}
 
@@ -192,7 +192,7 @@ class IndirectAgentSocket extends AbstractAgentSocket {
 		if (_data == null)
 			throw new NullPointerException("_data");
 		DataToBroadcast d = new DataToBroadcast(_data, getKernelAddress(), prioritary, getTransfertType());
-		ReturnCode rc = sendMessageWithRole(agentSocketRequester, new ObjectMessage<DataToBroadcast>(d),
+		ReturnCode rc = sendMessageWithRole(agentSocketRequester, new ObjectMessage<>(d),
 				LocalCommunity.Roles.SOCKET_AGENT_ROLE);
 
 		if (rc != ReturnCode.SUCCESS || _data.getMessageLocker() == null) {
@@ -221,7 +221,7 @@ class IndirectAgentSocket extends AbstractAgentSocket {
 			return ReturnCode.NO_RECIPIENT_FOUND;
 		}
 		return sendMessageWithRole(idt.getTransferToAgentAddress(),
-				new ObjectMessage<DataToBroadcast>(
+				new ObjectMessage<>(
 						new DataToBroadcast(_data, kaServer, isPrioritary, _data.getIdTransferDestination())),
 				LocalCommunity.Roles.SOCKET_AGENT_ROLE);
 	}

@@ -68,6 +68,7 @@ public abstract class ErrorConnection extends ConnectionMessage {
 		candidate_to_ban = _candidate_to_ban;
 	}
 	
+	@SuppressWarnings("unused")
 	ErrorConnection()
 	{
 		

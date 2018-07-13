@@ -37,7 +37,6 @@
  */
 package com.distrimind.madkit.kernel.network;
 
-import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
@@ -47,6 +46,7 @@ import java.io.ObjectOutput;
  * @version 1.1
  * @since MadkitLanEdition 1.0
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 final class PingMessage implements SystemMessage {
 
 	/**
@@ -67,12 +67,12 @@ final class PingMessage implements SystemMessage {
 
 
 	@Override
-	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+	public void readExternal(ObjectInput in) {
 		
 	}
 
 	@Override
-	public void writeExternal(ObjectOutput oos) throws IOException {
+	public void writeExternal(ObjectOutput oos) {
 		
 	}
 }

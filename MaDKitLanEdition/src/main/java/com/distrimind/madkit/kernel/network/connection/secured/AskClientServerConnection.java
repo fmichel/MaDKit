@@ -37,31 +37,20 @@
  */
 package com.distrimind.madkit.kernel.network.connection.secured;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-
-import gnu.vm.jgnu.security.InvalidAlgorithmParameterException;
-import gnu.vm.jgnu.security.InvalidKeyException;
-import gnu.vm.jgnu.security.NoSuchAlgorithmException;
-import gnu.vm.jgnu.security.NoSuchProviderException;
-import gnu.vm.jgnu.security.SignatureException;
+import com.distrimind.madkit.exceptions.MessageSerializationException;
+import com.distrimind.madkit.kernel.network.connection.AskConnection;
+import com.distrimind.madkit.util.SerializationTools;
+import com.distrimind.util.crypto.*;
+import gnu.vm.jgnu.security.*;
 import gnu.vm.jgnu.security.spec.InvalidKeySpecException;
 import gnu.vm.jgnu.security.spec.InvalidParameterSpecException;
-import gnu.vm.jgnux.crypto.BadPaddingException;
 import gnu.vm.jgnux.crypto.IllegalBlockSizeException;
 import gnu.vm.jgnux.crypto.NoSuchPaddingException;
 import gnu.vm.jgnux.crypto.ShortBufferException;
 
-import com.distrimind.madkit.exceptions.MessageSerializationException;
-import com.distrimind.madkit.kernel.network.connection.AskConnection;
-import com.distrimind.madkit.util.SerializationTools;
-import com.distrimind.util.crypto.ASymmetricKeyWrapperType;
-import com.distrimind.util.crypto.ASymmetricPublicKey;
-import com.distrimind.util.crypto.AbstractSecureRandom;
-import com.distrimind.util.crypto.SymmetricAuthentifiedSignatureCheckerAlgorithm;
-import com.distrimind.util.crypto.SymmetricAuthentifiedSignerAlgorithm;
-import com.distrimind.util.crypto.SymmetricSecretKey;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 /**
  * 
@@ -69,6 +58,7 @@ import com.distrimind.util.crypto.SymmetricSecretKey;
  * @version 1.0
  * @since MadkitLanEdition 1.0
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 class AskClientServerConnection extends AskConnection {
 
 	/**
@@ -79,6 +69,8 @@ class AskClientServerConnection extends AskConnection {
 	//private final transient byte[] distantPublicKeyForEncryptionEncoded;
 	private byte[] secretKeyForEncryption, secretKeyForSignature, signatureOfSecretKeyForEncryption;
 
+
+	@SuppressWarnings("unused")
 	AskClientServerConnection()
 	{
 		
@@ -113,7 +105,7 @@ class AskClientServerConnection extends AskConnection {
 	
 	AskClientServerConnection(AbstractSecureRandom random, ASymmetricKeyWrapperType keyWrapper, SymmetricSecretKey encryptionSecretKey,SymmetricSecretKey signatureSecretKey,			
 			ASymmetricPublicKey distantPublicKeyForEncryption) throws InvalidKeyException, InvalidAlgorithmParameterException,
-			IllegalBlockSizeException, BadPaddingException, IOException, IllegalStateException,
+			IllegalBlockSizeException, IOException, IllegalStateException,
 			NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException, NoSuchPaddingException, SignatureException, ShortBufferException {
 		super(false);
 		if (keyWrapper == null)
@@ -133,7 +125,7 @@ class AskClientServerConnection extends AskConnection {
 	}
 	AskClientServerConnection(AbstractSecureRandom random, ASymmetricKeyWrapperType keyWrapper, SymmetricSecretKey signatureSecretKey,			
 			ASymmetricPublicKey distantPublicKeyForEncryption) throws InvalidKeyException, InvalidAlgorithmParameterException,
-			IllegalBlockSizeException, BadPaddingException, IOException, IllegalStateException,
+			IllegalBlockSizeException, IOException, IllegalStateException,
 			NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException, NoSuchPaddingException {
 		super(false);
 		if (keyWrapper == null)

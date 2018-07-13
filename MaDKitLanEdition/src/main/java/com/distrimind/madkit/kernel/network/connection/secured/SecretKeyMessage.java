@@ -51,6 +51,7 @@ import com.distrimind.madkit.util.SerializationTools;
  * @version 1.1
  * @since MadkitLanEdition 1.0
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 class SecretKeyMessage extends ConnectionMessage {
 	/**
 	 * 
@@ -64,6 +65,7 @@ class SecretKeyMessage extends ConnectionMessage {
 	}
 
 	
+	@SuppressWarnings("unused")
 	SecretKeyMessage()
 	{
 		

@@ -145,7 +145,7 @@ class NetworkBlackboard {
 		}
 	}
 
-	boolean checkDistantKernelAgentCandidateForPurgeEmpty() {
+	/*boolean checkDistantKernelAgentCandidateForPurgeEmpty() {
 		if (totalDataInQueueForAllDistantKernelAgent.get() != 0) {
 			new Exception("" + totalDataInQueueForAllDistantKernelAgent.get()).printStackTrace();
 			return false;
@@ -173,11 +173,11 @@ class NetworkBlackboard {
 		} else
 			return true;
 
-	}
+	}*/
 
-	boolean checkBlackboardEmpty() {
+	/*boolean checkBlackboardEmpty() {
 		return checkDistantKernelAddressPurged() && checkDistantKernelAgentCandidateForPurgeEmpty();
-	}
+	}*/
 
 	protected TaskID taskIDToRemoveDatatagramMessages = null;
 	protected final HashSet<DatagramLocalNetworkPresenceMessage> datagramMessages = new HashSet<>();
@@ -192,7 +192,7 @@ class NetworkBlackboard {
 					taskIDToRemoveDatatagramMessages = agent.scheduleTask(new Task<>(new Callable<Void>() {
 
 						@Override
-						public Void call() throws Exception {
+						public Void call() {
 							synchronized (datagramMessages) {
 								for (Iterator<DatagramLocalNetworkPresenceMessage> it = datagramMessages.iterator(); it
 										.hasNext();) {

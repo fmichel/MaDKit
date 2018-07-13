@@ -37,46 +37,22 @@
  */
 package com.distrimind.madkit.kernel.network.connection.secured;
 
-import java.io.ByteArrayInputStream;
-import java.net.InetSocketAddress;
-import java.util.Arrays;
-
-import gnu.vm.jgnu.security.InvalidAlgorithmParameterException;
-import gnu.vm.jgnu.security.InvalidKeyException;
-import gnu.vm.jgnu.security.NoSuchAlgorithmException;
-import gnu.vm.jgnu.security.NoSuchProviderException;
-import gnu.vm.jgnu.security.SignatureException;
-import gnu.vm.jgnu.security.spec.InvalidKeySpecException;
-import gnu.vm.jgnux.crypto.NoSuchPaddingException;
-import gnu.vm.jgnux.crypto.ShortBufferException;
-
 import com.distrimind.madkit.exceptions.BlockParserException;
 import com.distrimind.madkit.exceptions.ConnectionException;
 import com.distrimind.madkit.kernel.MadkitProperties;
-import com.distrimind.madkit.kernel.network.Block;
-import com.distrimind.madkit.kernel.network.NetworkProperties;
-import com.distrimind.madkit.kernel.network.PacketCounter;
-import com.distrimind.madkit.kernel.network.PacketPartHead;
-import com.distrimind.madkit.kernel.network.SubBlock;
-import com.distrimind.madkit.kernel.network.SubBlockInfo;
-import com.distrimind.madkit.kernel.network.SubBlockParser;
-import com.distrimind.madkit.kernel.network.connection.ConnectionFinished;
-import com.distrimind.madkit.kernel.network.connection.ConnectionMessage;
-import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol;
-import com.distrimind.madkit.kernel.network.connection.TransferedBlockChecker;
-import com.distrimind.madkit.kernel.network.connection.UnexpectedMessage;
+import com.distrimind.madkit.kernel.network.*;
+import com.distrimind.madkit.kernel.network.connection.*;
 import com.distrimind.ood.database.DatabaseWrapper;
 import com.distrimind.util.Bits;
-import com.distrimind.util.crypto.ASymmetricKeyPair;
-import com.distrimind.util.crypto.ASymmetricKeyWrapperType;
-import com.distrimind.util.crypto.AbstractSecureRandom;
-import com.distrimind.util.crypto.SymmetricAuthentifiedSignatureCheckerAlgorithm;
-import com.distrimind.util.crypto.SymmetricAuthentifiedSignatureType;
-import com.distrimind.util.crypto.SymmetricAuthentifiedSignerAlgorithm;
-import com.distrimind.util.crypto.SymmetricEncryptionAlgorithm;
-import com.distrimind.util.crypto.SymmetricEncryptionType;
-import com.distrimind.util.crypto.SymmetricSecretKey;
+import com.distrimind.util.crypto.*;
 import com.distrimind.util.sizeof.ObjectSizer;
+import gnu.vm.jgnu.security.*;
+import gnu.vm.jgnu.security.spec.InvalidKeySpecException;
+import gnu.vm.jgnux.crypto.NoSuchPaddingException;
+
+import java.io.ByteArrayInputStream;
+import java.net.InetSocketAddress;
+import java.util.Arrays;
 
 /**
  * Represents a connection protocol used between a client and a server. This
@@ -94,13 +70,13 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 
 	ASymmetricKeyPair myKeyPairForEncryption;
 
-	protected SymmetricEncryptionType symmetricEncryptionType=null;
-	protected SymmetricEncryptionAlgorithm symmetricEncryption = null;
+	protected SymmetricEncryptionType symmetricEncryptionType;
+	protected SymmetricEncryptionAlgorithm symmetricEncryption;
 	protected SymmetricAuthentifiedSignerAlgorithm signer = null;
 	protected SymmetricAuthentifiedSignatureCheckerAlgorithm signatureChecker=null;
 	protected SymmetricSecretKey mySecretKeyForEncryption=null,mySecretKeyForSignature=null;
 	protected SymmetricAuthentifiedSignatureType signatureType;
-	protected ASymmetricKeyWrapperType keyWrapper=null;
+	protected ASymmetricKeyWrapperType keyWrapper;
 	
 	protected int signature_size_bytes;
 	protected short secretKeySizeBits;
@@ -443,7 +419,7 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 									off, _block.getSize() - getSizeHead());
 							check = signatureChecker.verify();
 						}
-						SubBlock res = null;
+						SubBlock res;
 						if (check)
 						{
 							if (getPacketCounter().isLocalActivated())
@@ -630,7 +606,7 @@ public class ServerSecuredConnectionProtocolWithKnwonPublicKey
 			return size;
 		}
 		@Override
-		public int getMaximumBodyOutputSizeForEncryption(int size) throws BlockParserException {
+		public int getMaximumBodyOutputSizeForEncryption(int size) {
 			return size;
 		}
 

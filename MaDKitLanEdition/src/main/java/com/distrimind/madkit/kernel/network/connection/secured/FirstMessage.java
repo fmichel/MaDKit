@@ -49,6 +49,7 @@ import com.distrimind.madkit.kernel.network.connection.ConnectionMessage;
  * @version 1.1
  * @since MadkitLanEdition 1.0
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 class FirstMessage extends ConnectionMessage {
 
 	/**

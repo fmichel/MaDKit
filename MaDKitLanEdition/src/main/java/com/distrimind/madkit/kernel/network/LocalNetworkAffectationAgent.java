@@ -61,6 +61,7 @@ import com.distrimind.madkit.kernel.network.UpnpIGDAgent.AskForNetworkInterfaces
  * @version 1.0
  * @since MadkitLanEdition 1.0
  */
+@SuppressWarnings("unused")
 class LocalNetworkAffectationAgent extends AgentFakeThread {
 
 	// private ArrayList<LocalNetworkAgent> local_networks_agents=new ArrayList<>();
@@ -72,6 +73,7 @@ class LocalNetworkAffectationAgent extends AgentFakeThread {
 	private ArrayList<AskForConnectionMessage> askedConnections = new ArrayList<>();
 	private boolean networkStoped = false;
 
+	@SuppressWarnings("unused")
 	LocalNetworkAffectationAgent() {
 
 	}

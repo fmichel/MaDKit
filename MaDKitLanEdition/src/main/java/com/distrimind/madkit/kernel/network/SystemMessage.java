@@ -52,7 +52,7 @@ import java.io.Externalizable;
 public interface SystemMessage extends Externalizable {
 
 	
-	public static enum Integrity {
+	enum Integrity {
 		/**
 		 * The data integrity is good.
 		 */
@@ -72,7 +72,7 @@ public interface SystemMessage extends Externalizable {
 	
 	//public abstract Integrity checkDataIntegrity();
 	
-	public abstract boolean excludedFromEncryption();
+	boolean excludedFromEncryption();
 
 
 	

@@ -67,6 +67,7 @@ import gnu.vm.jgnu.security.NoSuchProviderException;
  * @since MaDKitLanEdition 1.0
  *
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 public class KernelAddress implements ExternalizableAndSizable, Cloneable {
 
 	/**
@@ -160,6 +161,7 @@ public class KernelAddress implements ExternalizableAndSizable, Cloneable {
 					throw new MessageSerializationException(Integrity.FAIL);
 				if (id.getBytes() == null)
 					throw new MessageSerializationException(Integrity.FAIL);
+				//noinspection EqualsWithItself
 				if (!id.equals(id))
 					throw new MessageSerializationException(Integrity.FAIL);
 				
@@ -232,6 +234,7 @@ public class KernelAddress implements ExternalizableAndSizable, Cloneable {
 
 
 
+	@SuppressWarnings("MethodDoesntCallSuperMethod")
 	@Override
 	public KernelAddress clone() {
 		return this;

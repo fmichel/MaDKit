@@ -103,18 +103,18 @@ public class KQMLMessage extends ActMessage {
 	}
 
 	public String toString() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 
-		buffer.append("(" + getPerformative());
+		buffer.append("(").append(getPerformative());
 		for (Enumeration<String> e = fields.keys(); e.hasMoreElements();) {
 			Object field = e.nextElement();
-			buffer.append(" :" + field + " ");
+			buffer.append(" :").append(field).append(" ");
 			buffer.append(getFieldValue((String) field));
 		}
 		if (getSender() != null)
-			buffer.append(" :sender \"" + getSender() + "\"");
+			buffer.append(" :sender \"").append(getSender()).append("\"");
 		if (getReceiver() != null)
-			buffer.append(" :receiver \"" + getReceiver() + "\"");
+			buffer.append(" :receiver \"").append(getReceiver()).append("\"");
 
 		buffer.append(")");
 		return new String(buffer);

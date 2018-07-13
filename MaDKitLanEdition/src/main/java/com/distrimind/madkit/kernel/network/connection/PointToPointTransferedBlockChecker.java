@@ -72,15 +72,13 @@ public class PointToPointTransferedBlockChecker extends TransferedBlockChecker {
 			SubBlock sb=_block;
 			if (_block.getOffset()!=Block.getHeadSize())
 				throw new IllegalAccessError();
-			
-			for (java.util.Iterator<ConnectionProtocol<?>> it=cpInput.iterator();it.hasNext();)
-			{
-				ConnectionProtocol<?> cp=it.next();
+
+			for (ConnectionProtocol<?> cp : cpInput) {
 				//cp.getPacketCounter().incrementMyCounters();
-				SubBlockInfo checkedBlock=cp.getParser().checkEntrantPointToPointTransferedBlock(sb);
+				SubBlockInfo checkedBlock = cp.getParser().checkEntrantPointToPointTransferedBlock(sb);
 				if (!checkedBlock.isValid())
 					return checkedBlock;
-				sb=checkedBlock.getSubBlock();
+				sb = checkedBlock.getSubBlock();
 			}
 			if (cpOutput==null)
 			{
@@ -105,13 +103,11 @@ public class PointToPointTransferedBlockChecker extends TransferedBlockChecker {
 			throw new NullPointerException();
 		
 		int totalOutputHeadSize=0;
-		
-		for (java.util.Iterator<ConnectionProtocol<?>> it=cpOutput.iterator();it.hasNext();)
-		{
-			ConnectionProtocol<?> cp=it.next();
-			totalOutputHeadSize+=cp.getParser().getSizeHead();
+
+		for (ConnectionProtocol<?> cp : cpOutput) {
+			totalOutputHeadSize += cp.getParser().getSizeHead();
 		}
-		SubBlock res=null;
+		SubBlock res;
 		if (_block.getOffset()!=Block.getHeadSize())
 			throw new IllegalAccessError();
 		if (totalInputHeadSize>=totalOutputHeadSize)

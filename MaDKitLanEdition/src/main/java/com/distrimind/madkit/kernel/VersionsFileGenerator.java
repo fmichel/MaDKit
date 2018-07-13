@@ -39,7 +39,6 @@
 package com.distrimind.madkit.kernel;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -51,7 +50,7 @@ import java.io.IOException;
  * @since MadkitLanEdition 1.7
  */
 public class VersionsFileGenerator {
-	public static void main(String args[]) throws FileNotFoundException, IOException
+	public static void main(String args[]) throws IOException
 	{
 		String markdown=Madkit.getVersion().getMarkdownCode();
 		try(FileWriter fr = new FileWriter(new File("../versions.md")))

@@ -91,7 +91,7 @@ public class TransferSpeedStat {
 		if (bytes_to_mean / segment < 3)
 			throw new IllegalArgumentException("The value '_duration/_segment' must be greater than 3");
 		stats = new float[(int) (bytes_to_mean / segment)];
-		timeElapsed = new AtomicReference<Timer>(new Timer(true));
+		timeElapsed = new AtomicReference<>(new Timer(true));
 		this.durationBeforeObsolescence = durationBeforeObsolescence;
 		reset();
 	}

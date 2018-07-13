@@ -53,12 +53,14 @@ import com.distrimind.madkit.kernel.AbstractAgent.ReturnCode;
  * @since MaDKitLanEdition 1.0
  *
  */
+@SuppressWarnings({"ExternalizableWithoutPublicNoArgConstructor", "SynchronizeOnNonFinalField"})
 final class ManagerRole extends InternalRole {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1919401829672949296L;
+	@SuppressWarnings("unused")
 	ManagerRole()
 	{
 		

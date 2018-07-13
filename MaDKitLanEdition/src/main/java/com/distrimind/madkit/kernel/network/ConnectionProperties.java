@@ -64,7 +64,7 @@ public class ConnectionProperties {
 	 * The expiration of the RSA key used for the login process (different from the
 	 * connection process and the eventual global data encryption process)
 	 */
-	public long RSA_KEY_EXPIRATION_FOR_LOGIN = 5184000000l;
+	public long RSA_KEY_EXPIRATION_FOR_LOGIN = 5184000000L;
 
 	/**
 	 * The maximum buffer size used to make packets. Notice that packet size are
@@ -76,7 +76,7 @@ public class ConnectionProperties {
 	 * The maximum data size (in bytes) for a message which is not sent with big
 	 * data transfer functionality.
 	 */
-	public long MAX_SHORT_DATA_SIZE = 20971520l;
+	public long MAX_SHORT_DATA_SIZE = 20971520L;
 
 	/**
 	 * When received data are incorrect or when an anomaly has been detected through
@@ -177,7 +177,7 @@ public class ConnectionProperties {
 	 * 
 	 * @see #ENABLE_GATEWAY_CONNECTION
 	 */
-	public long TIME_BETWEEN_EACH_UPDATE_OF_TRANSFERT_SPEED_FOR_GATEWAY_CONNECTION = 30000l;
+	public long TIME_BETWEEN_EACH_UPDATE_OF_TRANSFERT_SPEED_FOR_GATEWAY_CONNECTION = 30000L;
 
 	/**
 	 * Define the number of cached blocks to transfer to another machine. If this
@@ -200,7 +200,7 @@ public class ConnectionProperties {
 	 */
 	public KERNEL_ADDRESS_PRIORITY DISTANT_KERNEL_ADDRESS_PRIORITY = KERNEL_ADDRESS_PRIORITY.PRIORITY_IF_CERTIFIED_CONNECTION;
 
-	public static enum KERNEL_ADDRESS_PRIORITY {
+	public enum KERNEL_ADDRESS_PRIORITY {
 		NON_PRIORITY, PRIORITY_IF_CERTIFIED_CONNECTION, PRIORITY
 	}
 

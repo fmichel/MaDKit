@@ -112,6 +112,6 @@ public class Role {
 
 	@Override
 	public boolean equals(Object _r) {
-		return _r == null ? false : ((_r instanceof Role) ? m_group_role.equals(((Role)_r).m_group_role) : false);
+		return _r != null && ((_r instanceof Role) && m_group_role.equals(((Role) _r).m_group_role));
 	}
 }

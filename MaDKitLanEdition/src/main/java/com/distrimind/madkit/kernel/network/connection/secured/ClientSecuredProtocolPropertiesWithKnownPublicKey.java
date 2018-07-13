@@ -84,8 +84,9 @@ public class ClientSecuredProtocolPropertiesWithKnownPublicKey
 	 *            the key wrapper type
 	 */
 	public void setEncryptionProfile(int identifier, ASymmetricPublicKey publicKeyForEncryption, SymmetricEncryptionType symmetricEncryptionType, ASymmetricKeyWrapperType keyWrapper) {
+		assert symmetricEncryptionType != null;
 		this.setEncryptionProfile(identifier, publicKeyForEncryption, symmetricEncryptionType,
-				symmetricEncryptionType == null ? -1 : symmetricEncryptionType.getDefaultKeySizeBits(), keyWrapper, symmetricEncryptionType.getDefaultSignatureAlgorithm()
+				symmetricEncryptionType.getDefaultKeySizeBits(), keyWrapper, symmetricEncryptionType.getDefaultSignatureAlgorithm()
 						);
 	}
 
@@ -236,7 +237,7 @@ public class ClientSecuredProtocolPropertiesWithKnownPublicKey
 	 * Default duration of a public key before being regenerated. Must be greater or
 	 * equal than 0.
 	 */
-	public final long defaultASymmetricKeyExpirationMs = 15552000000l;
+	public final long defaultASymmetricKeyExpirationMs = 15552000000L;
 
 	/**
 	 * The duration of a public key before being regenerated. Must be greater or
@@ -275,8 +276,6 @@ public class ClientSecuredProtocolPropertiesWithKnownPublicKey
 			throw new ConnectionException(new NullPointerException());
 		if (signatureType == null)
 			signatureType = symmetricEncryptionType.getDefaultSignatureAlgorithm();
-		if (symmetricEncryptionType==null)
-			throw new ConnectionException(new NullPointerException());
 
 	}
 

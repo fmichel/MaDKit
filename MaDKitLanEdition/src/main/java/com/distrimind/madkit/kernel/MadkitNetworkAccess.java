@@ -57,6 +57,7 @@ import static com.distrimind.madkit.util.ReflectionTools.*;
  */
 class MadkitNetworkAccess {
 
+	@SuppressWarnings("unused")
 	static AbstractAgent getNIOAgent(AbstractAgent _requester) {
 		try {
 			return (AbstractAgent) nio_constructor.newInstance();
@@ -81,9 +82,10 @@ class MadkitNetworkAccess {
 		}
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	static boolean checkNetworkBlackboardEmpty(Object networkBlackboard) {
 		try {
-			return ((Boolean) invoke(check_network_blackboard_memory_leak, networkBlackboard)).booleanValue();
+			return (Boolean) invoke(check_network_blackboard_memory_leak, networkBlackboard);
 		} catch (InvocationTargetException e) {
 			System.err.println("Unexpected error :");
 			e.printStackTrace();
@@ -93,6 +95,7 @@ class MadkitNetworkAccess {
 
 	}
 
+	@SuppressWarnings("unused")
 	static AbstractAgent getLocalNetworkAffectationAgent(AbstractAgent _requester) {
 		try {
 			return (AbstractAgent) local_network_affectation_agent_constructor.newInstance();
@@ -105,6 +108,7 @@ class MadkitNetworkAccess {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	static AbstractAgent getUpngIDGAgent(AbstractAgent _requester) {
 		try {
 			return (AbstractAgent) invoke(get_upnpigd_agent_instance, null);
@@ -121,7 +125,7 @@ class MadkitNetworkAccess {
 			if (!(m instanceof NetworkMessage))
 				throw new IllegalArgumentException("The message to send me implements NetworkMessage interface");
 
-			return (DirectLocalLanMessage) direct_local_lan_message.newInstance(m);
+			return direct_local_lan_message.newInstance(m);
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e) {
 			System.err.println("Unexpected error :");
@@ -138,7 +142,7 @@ class MadkitNetworkAccess {
 			if (!(m instanceof NetworkMessage))
 				throw new IllegalArgumentException("The message to send me implements NetworkMessage interface");
 
-			return (BroadcastLocalLanMessage) broadcast_local_lan_message.newInstance(m, _destination_groups,
+			return broadcast_local_lan_message.newInstance(m, _destination_groups,
 					_destination_role, _agentAddressesSender);
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e) {

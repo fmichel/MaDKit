@@ -152,8 +152,7 @@ class LocalNetworkAgent extends AgentFakeThread {
 				res.add(new LocalNetworkAgent(ni, it.next()));
 			}
 		} else {
-			for (Iterator<InterfaceAddress> it = list.iterator(); it.hasNext();)
-				res.add(new LocalNetworkAgent(ni, it.next()));
+			for (InterfaceAddress aList : list) res.add(new LocalNetworkAgent(ni, aList));
 		}
 		return res;
 	}
@@ -161,7 +160,7 @@ class LocalNetworkAgent extends AgentFakeThread {
 	static ArrayList<LocalNetworkAgent> putNetworkInterfaces(List<LocalNetworkAgent> _local_network_agents,
 			Collection<NetworkInterface> nis) {
 		ArrayList<LocalNetworkAgent> res = new ArrayList<>();
-		ArrayList<LocalNetworkAgent> local_network_agents = new ArrayList<LocalNetworkAgent>(
+		ArrayList<LocalNetworkAgent> local_network_agents = new ArrayList<>(
 				_local_network_agents.size());
 		local_network_agents.addAll(_local_network_agents);
 		for (NetworkInterface ni : nis) {
@@ -172,14 +171,6 @@ class LocalNetworkAgent extends AgentFakeThread {
 		return res;
 	}
 
-	/**
-	 * 
-	 * @param _local_network_agents
-	 * @param nis_to_add
-	 * @param nis_to_remove
-	 * @return agents which has to be launch (if they are not) and the agents that
-	 *         must be killed (if they are launched)
-	 */
 	static ArrayList<LocalNetworkAgent> putAndRemoveNetworkInterfaces(
 			ArrayList<LocalNetworkAgent> _local_network_agents, Collection<NetworkInterface> nis_to_add,
 			Collection<NetworkInterface> nis_to_remove) {
@@ -199,8 +190,8 @@ class LocalNetworkAgent extends AgentFakeThread {
 			throw new NullPointerException("local_network_agents");
 
 		ArrayList<LocalNetworkAgent> res = new ArrayList<>();
-		ArrayList<InterfaceAddress> not_found_addresses = new ArrayList<InterfaceAddress>();
-		ArrayList<LocalNetworkAgent> found_lna_match = new ArrayList<LocalNetworkAgent>();
+		ArrayList<InterfaceAddress> not_found_addresses = new ArrayList<>();
+		ArrayList<LocalNetworkAgent> found_lna_match = new ArrayList<>();
 		int niValidAddressesNumber=0;
 		for (InterfaceAddress ia : ni.getInterfaceAddresses()) {
 			if (isValid(ia)) {
@@ -372,8 +363,7 @@ class LocalNetworkAgent extends AgentFakeThread {
 
 	private boolean insertBind(BindInetSocketAddressMessage bind_message) {
 
-		for (Iterator<BindInetSocketAddressMessage> it = socket_binds.iterator(); it.hasNext();) {
-			BindInetSocketAddressMessage m = it.next();
+		for (BindInetSocketAddressMessage m : socket_binds) {
 			if (m.include(bind_message))
 				return false;
 		}
@@ -484,7 +474,7 @@ class LocalNetworkAgent extends AgentFakeThread {
 		} else if (_message instanceof BindInetSocketAddressMessage) {
 			BindInetSocketAddressMessage bind = (BindInetSocketAddressMessage) _message;
 			if (isConcernedBy(bind)) {
-				boolean changed = false;
+				boolean changed;
 				if (bind.getType().equals(Type.BIND))
 					changed = insertBind(bind);
 				else
@@ -790,7 +780,7 @@ class LocalNetworkAgent extends AgentFakeThread {
 		scheduleTask(new Task<>(new Callable<Void>() {
 
 			@Override
-			public Void call() throws Exception {
+			public Void call() {
 				synchronized (LocalNetworkAgent.class) {
 					if (isAlive()) {
 						for (BindInetSocketAddressMessage o : removed_binds) {
@@ -927,6 +917,7 @@ class LocalNetworkAgent extends AgentFakeThread {
 						new PossibleAddressForDirectConnnection(new DoubleIP(newIP)));
 		}
 
+		@SuppressWarnings("MethodDoesntCallSuperMethod")
 		@Override
 		public PossibleInetAddressesUsedForDirectConnectionChanged clone() {
 			return this;
@@ -974,16 +965,13 @@ class LocalNetworkAgent extends AgentFakeThread {
 				if (external_ip instanceof Inet6Address)
 					return new InetSocketAddress(external_ip,
 							getMadkitConfig().networkProperties.portsToBindForAutomaticLocalConnections);
-				else if (external_ip instanceof Inet6Address && getExternalPort() >= 0)
-					return new InetSocketAddress(external_ip, getExternalPort());
-				else
-					return null;
+				else return null;
 			}
 			return null;
 		}
 
 		protected void changeExternalIp(InetAddress address) {
-			if (external_ip == null || address == null || !external_ip.equals(address)) {
+			if (external_ip == null || !external_ip.equals(address)) {
 				if ((external_ip == null && address != null) || (external_ip != null && address == null))
 					externalIPChanged = true;
 				InetSocketAddress old_isa = getInetSocketAddressForDirectConnection();
@@ -1007,9 +995,9 @@ class LocalNetworkAgent extends AgentFakeThread {
 			return r;
 		}
 
-		InetAddress getExternalIP() {
+		/*InetAddress getExternalIP() {
 			return external_ip;
-		}
+		}*/
 
 		Status getStatus() {
 			return status;
@@ -1026,9 +1014,9 @@ class LocalNetworkAgent extends AgentFakeThread {
 			}
 		}
 
-		boolean hasExternalPort() {
+		/*boolean hasExternalPort() {
 			return externalPort > 0;
-		}
+		}*/
 
 		int getExternalPort() {
 			return externalPort;

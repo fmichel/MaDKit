@@ -69,9 +69,9 @@ public interface Gatekeeper {
 	 *         the group, or <code>false</code> otherwise associated with this
 	 *         {@link Gatekeeper}
 	 */
-	public boolean allowAgentToTakeRole(final Group _group, final String roleName,
-			final Class<? extends AbstractAgent> requesterClass, final AgentNetworkID agentNetworkID,
-			final Object memberCard);
+	boolean allowAgentToTakeRole(final Group _group, final String roleName,
+								 final Class<? extends AbstractAgent> requesterClass, final AgentNetworkID agentNetworkID,
+								 final Object memberCard);
 
 	/**
 	 * @param parent_group
@@ -89,8 +89,8 @@ public interface Gatekeeper {
 	 *         group into the group, or <code>false</code> otherwise associated with
 	 *         this {@link Gatekeeper}
 	 */
-	public boolean allowAgentToCreateSubGroup(final Group parent_group, final Group sub_group,
-			final Class<? extends AbstractAgent> requesterClass, final AgentNetworkID agentNetworkID,
-			final Object memberCard);
+	boolean allowAgentToCreateSubGroup(final Group parent_group, final Group sub_group,
+									   final Class<? extends AbstractAgent> requesterClass, final AgentNetworkID agentNetworkID,
+									   final Object memberCard);
 
 }

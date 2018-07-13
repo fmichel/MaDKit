@@ -41,12 +41,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -65,7 +60,6 @@ import org.fourthline.cling.android.AndroidNetworkAddressFactory;
 import org.fourthline.cling.binding.xml.DeviceDescriptorBinder;
 import org.fourthline.cling.binding.xml.ServiceDescriptorBinder;
 import org.fourthline.cling.controlpoint.ControlPointImpl;
-import org.fourthline.cling.model.Constants;
 import org.fourthline.cling.model.Namespace;
 import org.fourthline.cling.model.action.ActionInvocation;
 import org.fourthline.cling.model.message.UpnpHeaders;
@@ -115,11 +109,11 @@ import com.distrimind.util.OSValidator;
  * local routers. Than to the UPNP IGD protocol, it is able to give external ip
  * address behind a router, open ports, and get connection status.
  * 
- * When a router is detected, a message {@link NewDeviceReceived} is sent to the
+ * When a router is detected, a message {@link IGDRouterFoundMessage} is sent to the
  * agents taking the role
- * {@link LocalCommunity.Roles.LOCAL_NETWORK_AFFECTATION#ROLE} and the group
+ * {@link LocalCommunity.Roles#LOCAL_NETWORK_AFFECTATION_ROLE} and the group
  * {@link LocalCommunity.Groups#NETWORK}. When a router is removed, a message
- * {@link NewDeviceRemoved} is sent to the same agents.
+ * {@link IGDRouterFoundMessage} is sent to the same agents.
  * 
  * To ask for a connection status message, you need to send a
  * {@link AskForConnectionStatusMessage} message to the group
@@ -138,13 +132,14 @@ import com.distrimind.util.OSValidator;
  * {@link PortMappingAnswerMessage} will be returned.
  * 
  * To remove a port mapping into a specific router, you need to send a
- * {@link AskForPortMappingRemoveMessage} to the same agent.
+ * {@link AskForPortMappingDeleteMessage} to the same agent.
  * 
  * @author Jason Mahdjoub
  * @since MadKitLanEdition 1.0
  * @version 1.0
  *
  */
+@SuppressWarnings({"SameParameterValue", "UnusedReturnValue"})
 class UpnpIGDAgent extends AgentFakeThread {
 
 	private static final String[] sub_loggers_names = { Registry.class.getName(), UpnpServiceImpl.class.getName(),
@@ -273,16 +268,16 @@ class UpnpIGDAgent extends AgentFakeThread {
 		if (getLogger1() != null && getLogger1().isLoggable(Level.FINE))
 			getLogger1().fine("Using first discovered WAN connection device: " + connectionDevice);
 
-		RemoteService ipConnectionService = (RemoteService) connectionDevice.findService(IP_SERVICE_TYPE);
+		RemoteService ipConnectionService = connectionDevice.findService(IP_SERVICE_TYPE);
 		if (ipConnectionService == null)
-			ipConnectionService = (RemoteService) connectionDevice.findService(IP_SERVICE_TYPE_BIS);
+			ipConnectionService = connectionDevice.findService(IP_SERVICE_TYPE_BIS);
 		if (ipConnectionService == null)
-			ipConnectionService = (RemoteService) connectionDevice.findService(IP_SERVICE_TYPE2);
+			ipConnectionService = connectionDevice.findService(IP_SERVICE_TYPE2);
 		if (ipConnectionService == null)
-			ipConnectionService = (RemoteService) connectionDevice.findService(IP_SERVICE_TYPE_BIS2);
-		RemoteService pppConnectionService = (RemoteService) connectionDevice.findService(PPP_SERVICE_TYPE);
+			ipConnectionService = connectionDevice.findService(IP_SERVICE_TYPE_BIS2);
+		RemoteService pppConnectionService = connectionDevice.findService(PPP_SERVICE_TYPE);
 		if (pppConnectionService==null)
-			pppConnectionService = (RemoteService) connectionDevice.findService(PPP_SERVICE_TYPE2);
+			pppConnectionService = connectionDevice.findService(PPP_SERVICE_TYPE2);
 
 		if (ipConnectionService == null && pppConnectionService == null && getLogger1() != null
 				&& getLogger1().isLoggable(Level.FINE)) {
@@ -292,7 +287,7 @@ class UpnpIGDAgent extends AgentFakeThread {
 		return ipConnectionService != null ? ipConnectionService : pppConnectionService;
 	}
 
-	protected Router getRouter(RemoteDevice d) {
+	/*protected Router getRouter(RemoteDevice d) {
 		synchronized (upnp_igd_routers) {
 			for (Router r : upnp_igd_routers.values())
 				if (r.concerns(d))
@@ -314,10 +309,10 @@ class UpnpIGDAgent extends AgentFakeThread {
 		if (res != null)
 			res.setRemoved(manual);
 		return res;
-	}
+	}*/
 
 	protected Router removeRouter(InetAddress ia, boolean manual) {
-		Router res = null;
+		Router res;
 		synchronized (upnp_igd_routers) {
 			res = upnp_igd_routers.remove(ia);
 		}
@@ -375,11 +370,11 @@ class UpnpIGDAgent extends AgentFakeThread {
 				return false;
 		}
 
-		public boolean concerns(RemoteDevice device) {
+		/*public boolean concerns(RemoteDevice device) {
 			if (device == null)
 				return false;
 			return this.device.equals(device);
-		}
+		}*/
 
 		@Override
 		public int hashCode() {
@@ -464,7 +459,6 @@ class UpnpIGDAgent extends AgentFakeThread {
 								status_task_updater = null;
 							}
 							if (asks_for_status.size() > 0) {
-								referenced_delay = -1;
 								for (AskForConnectionStatusMessage tmpm : asks_for_status) {
 									if (tmpm.getDelay() > referenced_delay)
 										referenced_delay = tmpm.getDelay();
@@ -478,7 +472,7 @@ class UpnpIGDAgent extends AgentFakeThread {
 					status_task_updater = new Task<>(new Callable<Object>() {
 
 						@Override
-						public Object call() throws Exception {
+						public Object call() {
 							upnpService.getControlPoint().execute(new GetStatusInfo(service) {
 
 								@Override
@@ -578,7 +572,6 @@ class UpnpIGDAgent extends AgentFakeThread {
 								external_address_task_updater = null;
 							}
 							if (asks_for_external_ip.size() > 0) {
-								referenced_delay = -1;
 								for (AskForExternalIPMessage tmpm : asks_for_external_ip) {
 									if (tmpm.getDelay() > referenced_delay)
 										referenced_delay = tmpm.getDelay();
@@ -592,7 +585,7 @@ class UpnpIGDAgent extends AgentFakeThread {
 					external_address_task_updater = new Task<>(new Callable<Object>() {
 
 						@Override
-						public Object call() throws Exception {
+						public Object call() {
 							upnpService.getControlPoint().execute(new GetExternalIP(service) {
 
 								@Override
@@ -668,12 +661,12 @@ class UpnpIGDAgent extends AgentFakeThread {
 			if (UpnpIGDAgent.upnpService != null && !removed.get()) {
 				synchronized (desired_mappings) {
 					for (PortMapping pm : desired_mappings) {
-						if (pm.getInternalPort().getValue().longValue() == m.getInternalPort()) {
+						if (pm.getInternalPort().getValue() == m.getInternalPort()) {
 							for (int i : m.getExternalPortsRange()) {
-								if (i == pm.getExternalPort().getValue().longValue()) {
+								if (i == pm.getExternalPort().getValue()) {
 									UpnpIGDAgent.this.sendReply(m,
 											new PortMappingAnswerMessage(m.getConcernedRouter(),
-													m.getConcernedLocalAddress(), i, m.getInternalPort(),
+													i, m.getInternalPort(),
 													m.getDescription(), m.getProtocol(), MappingReturnCode.SUCESS));
 									return;
 								}
@@ -698,7 +691,7 @@ class UpnpIGDAgent extends AgentFakeThread {
 							desired_mappings.add(pm);
 						}
 						UpnpIGDAgent.this.sendReply(m,
-								new PortMappingAnswerMessage(m.getConcernedRouter(), m.getConcernedLocalAddress(),
+								new PortMappingAnswerMessage(m.getConcernedRouter(),
 										m.getExternalPortsRange()[index.get() - 1], m.getInternalPort(),
 										m.getDescription(), m.getProtocol(), MappingReturnCode.SUCESS));
 					}
@@ -714,11 +707,11 @@ class UpnpIGDAgent extends AgentFakeThread {
 							if (_defaultMsg.toLowerCase().contains("authorized"))
 								UpnpIGDAgent.this.sendReply(m,
 										new PortMappingAnswerMessage(m.getConcernedRouter(),
-												m.getConcernedLocalAddress(), -1, m.getInternalPort(),
+												-1, m.getInternalPort(),
 												m.getDescription(), _defaultMsg, m.getProtocol(), MappingReturnCode.ACCESS_DENIED));
 							else
 								UpnpIGDAgent.this.sendReply(m, new PortMappingAnswerMessage(m.getConcernedRouter(),
-										m.getConcernedLocalAddress(), -1, m.getInternalPort(), m.getDescription(),_defaultMsg,
+										-1, m.getInternalPort(), m.getDescription(),_defaultMsg,
 										m.getProtocol(), MappingReturnCode.CONFLICTUAL_PORT_AND_IP));
 						}
 
@@ -761,7 +754,7 @@ class UpnpIGDAgent extends AgentFakeThread {
 				synchronized (desired_mappings) {
 
 					for (PortMapping pm : desired_mappings) {
-						if (pm.getExternalPort().getValue().longValue() == m.getExternalPort()
+						if (pm.getExternalPort().getValue() == m.getExternalPort()
 								&& pm.getProtocol().equals(m.getProtocol())) {
 							pmfound = pm;
 							break;
@@ -780,7 +773,7 @@ class UpnpIGDAgent extends AgentFakeThread {
 							try
 							{
 								UpnpIGDAgent.this.sendReply(m,
-									new PortMappingAnswerMessage(m.getConcernedRouter(), InetAddress.getByName(pm.getInternalClient()), 
+									new PortMappingAnswerMessage(m.getConcernedRouter(),
 											m.getExternalPort(), pm.getInternalPort().getValue().intValue(),
 											null, m.getProtocol(), MappingReturnCode.REMOVED));
 							}
@@ -798,7 +791,7 @@ class UpnpIGDAgent extends AgentFakeThread {
 							try
 							{
 								UpnpIGDAgent.this.sendReply(m,
-									new PortMappingAnswerMessage(m.getConcernedRouter(), InetAddress.getByName(pm.getInternalClient()), 
+									new PortMappingAnswerMessage(m.getConcernedRouter(),
 											m.getExternalPort(), pm.getInternalPort().getValue().intValue(),
 											_defaultMsg, m.getProtocol(), MappingReturnCode.UNKNOWN));
 							}
@@ -813,7 +806,7 @@ class UpnpIGDAgent extends AgentFakeThread {
 			}
 		}
 
-		public void removeAllPortMappings() {
+		/*public void removeAllPortMappings() {
 			if (UpnpIGDAgent.upnpService != null && !removed.get()) {
 				synchronized (desired_mappings) {
 					for (final PortMapping pm : desired_mappings) {
@@ -835,7 +828,7 @@ class UpnpIGDAgent extends AgentFakeThread {
 					}
 				}
 			}
-		}
+		}*/
 
 	}
 
@@ -959,7 +952,7 @@ class UpnpIGDAgent extends AgentFakeThread {
 					}
 				}
 				return network_interfaces;
-			} catch (SocketException e1) {
+			} catch (SocketException ignored) {
 			}
 			return new ArrayList<>();
 		}
@@ -1002,10 +995,10 @@ class UpnpIGDAgent extends AgentFakeThread {
 					}
 
 					if (min_delay != -1) {
-						task = new Task<Object>(new Callable<Object>() {
+						task = new Task<>(new Callable<Object>() {
 
 							@Override
-							public Object call() throws Exception {
+							public Object call() {
 								synchronized (UpnpIGDAgent.NetworkInterfaceInfo.this) {
 									ArrayList<NetworkInterface> cur_nis = init();
 									ArrayList<NetworkInterface> new_nis = new ArrayList<>();
@@ -1038,9 +1031,9 @@ class UpnpIGDAgent extends AgentFakeThread {
 									network_interfaces = cur_nis;
 									if (new_nis.size() != 0 || del_nis.size() != 0) {
 										for (Iterator<AskForNetworkInterfacesMessage> it = askers.values()
-												.iterator(); it.hasNext();) {
+												.iterator(); it.hasNext(); ) {
 											AskForNetworkInterfacesMessage m = it.next();
-											if (!sendReply(m, new NetworkInterfaceInformationMessage(network_interfaces,
+											if (!sendReply(m, new NetworkInterfaceInformationMessage(
 													new_nis, del_nis)).equals(ReturnCode.SUCCESS))
 												it.remove();
 
@@ -1055,12 +1048,12 @@ class UpnpIGDAgent extends AgentFakeThread {
 				}
 
 				if (_message.isRepetitive()) {
-					UpnpIGDAgent.this.sendReply(_message, new NetworkInterfaceInformationMessage(network_interfaces,
+					UpnpIGDAgent.this.sendReply(_message, new NetworkInterfaceInformationMessage(
 							network_interfaces, new ArrayList<NetworkInterface>()));
 				} else if (!removed) {
 					Collection<NetworkInterface> c = init();
 					UpnpIGDAgent.this.sendReply(_message,
-							new NetworkInterfaceInformationMessage(c, c, new ArrayList<NetworkInterface>()));
+							new NetworkInterfaceInformationMessage(c, new ArrayList<NetworkInterface>()));
 				}
 			}
 		}
@@ -1084,6 +1077,7 @@ class UpnpIGDAgent extends AgentFakeThread {
 		return logger;
 	}
 
+	@SuppressWarnings("unused")
 	void stopNetwork() {
 		if (this.getState().compareTo(State.ENDING) < 0)
 			this.killAgent(this);
@@ -1098,7 +1092,7 @@ class UpnpIGDAgent extends AgentFakeThread {
 		} else if (_message instanceof UpnpIGDAgent.AskForConnectionStatusMessage) {
 			AskForConnectionStatusMessage m = (AskForConnectionStatusMessage) _message;
 
-			Router r = null;
+			Router r;
 			synchronized (upnp_igd_routers) {
 				r = upnp_igd_routers.get(m.getConcernedRouter());
 			}
@@ -1113,7 +1107,7 @@ class UpnpIGDAgent extends AgentFakeThread {
 			}
 		} else if (_message instanceof UpnpIGDAgent.AskForExternalIPMessage) {
 			AskForExternalIPMessage m = (AskForExternalIPMessage) _message;
-			Router r = null;
+			Router r;
 			synchronized (upnp_igd_routers) {
 				r = upnp_igd_routers.get(m.getConcernedRouter());
 			}
@@ -1132,7 +1126,7 @@ class UpnpIGDAgent extends AgentFakeThread {
 			network_interface_info.addAsker((UpnpIGDAgent.AskForNetworkInterfacesMessage) _message);
 		} else if (_message instanceof UpnpIGDAgent.AskForPortMappingAddMessage) {
 			AskForPortMappingAddMessage m = (AskForPortMappingAddMessage) _message;
-			Router r = null;
+			Router r;
 			synchronized (upnp_igd_routers) {
 				r = upnp_igd_routers.get(m.getConcernedRouter());
 			}
@@ -1143,13 +1137,13 @@ class UpnpIGDAgent extends AgentFakeThread {
 				r.newMessage(m);
 			} else {
 				handleFailureMessage("Trying to add a port mapping considering a router which does not exists : " + m);
-				sendReply(m, new PortMappingAnswerMessage(m.getConcernedRouter(), m.getConcernedLocalAddress(), -1,
+				sendReply(m, new PortMappingAnswerMessage(m.getConcernedRouter(), -1,
 						m.getInternalPort(), m.getDescription(), m.getProtocol(), MappingReturnCode.UNKNOWN));
 			}
 
 		} else if (_message instanceof UpnpIGDAgent.AskForPortMappingDeleteMessage) {
 			AskForPortMappingDeleteMessage m = (AskForPortMappingDeleteMessage) _message;
-			Router r = null;
+			Router r;
 			synchronized (upnp_igd_routers) {
 				r = upnp_igd_routers.get(m.getConcernedRouter());
 			}
@@ -1199,8 +1193,6 @@ class UpnpIGDAgent extends AgentFakeThread {
 	}
 
 	protected static final String IGD = "InternetGatewayDevice";
-	protected static final DeviceType IGD_DEVICE_TYPE_1 = new UDADeviceType(IGD, 1);
-	protected static final DeviceType IGD_DEVICE_TYPE_2 = new UDADeviceType("InternetGatewayDevice", 2);
 	protected static final DeviceType CONNECTION_DEVICE_TYPE = new UDADeviceType("WANConnectionDevice", 1);
 
 	protected static final ServiceType IP_SERVICE_TYPE = new UDAServiceType("WANIPConnection", 1);
@@ -1229,11 +1221,10 @@ class UpnpIGDAgent extends AgentFakeThread {
 
 		@Override
 		public void remoteDeviceRemoved(Registry registry, RemoteDevice device) {
-			if (device instanceof RemoteDevice) {
-				RemoteDevice rd = (RemoteDevice) device;
+			if (device != null) {
 
 				try {
-					InetAddress ia = InetAddress.getByName(rd.getIdentity().getDescriptorURL().getHost());
+					InetAddress ia = InetAddress.getByName(device.getIdentity().getDescriptorURL().getHost());
 					removeRouter(ia, false);
 				} catch (UnknownHostException e) {
 					if (getLogger1() != null)
@@ -1297,7 +1288,7 @@ class UpnpIGDAgent extends AgentFakeThread {
 		public String toString() {
 			return getClass().getSimpleName() + "[concernedRouter=" + getConcernedRouter() + ", message=" + getMessage()
 					+ ", concerned_local_ip" + concerned_local_ip + ", internalPort=" + internal_port + ", protocol="
-					+ protocol + ", externalPortRange=" + external_ports_range + "]";
+					+ protocol + ", externalPortRange=" + Arrays.toString(external_ports_range) + "]";
 		}
 
 		public AskForPortMappingAddMessage(InetAddress _concerned_router, InetAddress _concerned_local_ip,
@@ -1322,7 +1313,7 @@ class UpnpIGDAgent extends AgentFakeThread {
 			int index = 0;
 			for (Integer i : external_ports_range) {
 				if (i != null)
-					this.external_ports_range[index++] = i.intValue();
+					this.external_ports_range[index++] = i;
 			}
 
 			internal_port = _internal_port;
@@ -1381,24 +1372,22 @@ class UpnpIGDAgent extends AgentFakeThread {
 
 	public static class PortMappingAnswerMessage extends AbstractRouterMessage {
 
-		private final InetAddress concerned_local_ip;
 		private final int external_port;
 		private final int internal_port;
 		private final String description;
 		private final MappingReturnCode return_code;
 		private final Protocol protocol;
 
-		public PortMappingAnswerMessage(InetAddress _concerned_router, InetAddress _concerned_local_ip,
-				int _external_port, int _internal_port, String _description, Protocol _protocol,
-				MappingReturnCode _return_code) {
-			this(_concerned_router, _concerned_local_ip, _external_port, _internal_port, _description, null, _protocol, _return_code);
+		public PortMappingAnswerMessage(InetAddress _concerned_router,
+										int _external_port, int _internal_port, String _description, Protocol _protocol,
+										MappingReturnCode _return_code) {
+			this(_concerned_router, _external_port, _internal_port, _description, null, _protocol, _return_code);
 		}
 			
-		public PortMappingAnswerMessage(InetAddress _concerned_router, InetAddress _concerned_local_ip,
-				int _external_port, int _internal_port, String _description, String message, Protocol _protocol,
-				MappingReturnCode _return_code) {
+		public PortMappingAnswerMessage(InetAddress _concerned_router,
+										int _external_port, int _internal_port, String _description, String message, Protocol _protocol,
+										MappingReturnCode _return_code) {
 			super(_concerned_router);
-			concerned_local_ip = _concerned_local_ip;
 			external_port = _external_port;
 			internal_port = _internal_port;
 			description = _description;
@@ -1407,9 +1396,9 @@ class UpnpIGDAgent extends AgentFakeThread {
 			this.setMessage(message);
 		}
 
-		public InetAddress getConcernedLocalAddress() {
+		/*public InetAddress getConcernedLocalAddress() {
 			return concerned_local_ip;
-		}
+		}*/
 
 		public int getInternalPort() {
 			return internal_port;
@@ -1436,10 +1425,6 @@ class UpnpIGDAgent extends AgentFakeThread {
 
 		private long delay;
 
-		protected RepetitiveRouterRequest(InetAddress _concerned_router) {
-			this(_concerned_router, -1);
-		}
-
 		protected RepetitiveRouterRequest(InetAddress _concerned_router, long _delay_between_each_check) {
 			super(_concerned_router);
 			delay = _delay_between_each_check;
@@ -1461,9 +1446,9 @@ class UpnpIGDAgent extends AgentFakeThread {
 
 	public static class AskForConnectionStatusMessage extends RepetitiveRouterRequest {
 
-		public AskForConnectionStatusMessage(InetAddress _concerned_router) {
+		/*public AskForConnectionStatusMessage(InetAddress _concerned_router) {
 			super(_concerned_router);
-		}
+		}*/
 
 		public AskForConnectionStatusMessage(InetAddress _concerned_router, long _delay_between_each_check) {
 			super(_concerned_router, _delay_between_each_check);
@@ -1486,9 +1471,9 @@ class UpnpIGDAgent extends AgentFakeThread {
 			return status;
 		}
 
-		public StatusInfo getOldStatus() {
+		/*public StatusInfo getOldStatus() {
 			return old_status;
-		}
+		}*/
 
 		@Override
 		public String toString() {
@@ -1499,10 +1484,6 @@ class UpnpIGDAgent extends AgentFakeThread {
 	}
 
 	public static class AskForExternalIPMessage extends RepetitiveRouterRequest {
-
-		public AskForExternalIPMessage(InetAddress _concerned_router) {
-			super(_concerned_router);
-		}
 
 		public AskForExternalIPMessage(InetAddress _concerned_router, long _delay_between_each_check) {
 			super(_concerned_router, _delay_between_each_check);
@@ -1523,9 +1504,9 @@ class UpnpIGDAgent extends AgentFakeThread {
 			return external_ip;
 		}
 
-		public InetAddress getOldIP() {
+		/*public InetAddress getOldIP() {
 			return old_ip;
-		}
+		}*/
 
 		@Override
 		public String toString() {
@@ -1561,20 +1542,18 @@ class UpnpIGDAgent extends AgentFakeThread {
 	public static class NetworkInterfaceInformationMessage extends Message {
 
 
-		private final Collection<NetworkInterface> connected_interfaces, new_connected_interfaces,
-				new_disconnected_interfaces;
+		private final Collection<NetworkInterface> new_connected_interfaces;
+		private final Collection<NetworkInterface> new_disconnected_interfaces;
 
-		public NetworkInterfaceInformationMessage(Collection<NetworkInterface> _connected_interfaces,
-				Collection<NetworkInterface> _new_connected_interfaces,
-				Collection<NetworkInterface> _new_disconnected_interfaces) {
-			connected_interfaces = _connected_interfaces;
+		public NetworkInterfaceInformationMessage(Collection<NetworkInterface> _new_connected_interfaces,
+												  Collection<NetworkInterface> _new_disconnected_interfaces) {
 			new_connected_interfaces = _new_connected_interfaces;
 			new_disconnected_interfaces = _new_disconnected_interfaces;
 		}
 
-		public Collection<NetworkInterface> getConnectedInterfaces() {
+		/*public Collection<NetworkInterface> getConnectedInterfaces() {
 			return connected_interfaces;
-		}
+		}*/
 
 		public Collection<NetworkInterface> getNewConnectedInterfaces() {
 			return new_connected_interfaces;
@@ -1646,9 +1625,9 @@ class NONAndroidUpnpServiceConfiguration extends org.fourthline.cling.DefaultUpn
 	 * Defaults to port '0', ephemeral.
 	 */
 	private final int multicastPort;
-	public NONAndroidUpnpServiceConfiguration() {
+	/*public NONAndroidUpnpServiceConfiguration() {
 		this(0, Constants.UPNP_MULTICAST_PORT);
-	}
+	}*/
 
 	public NONAndroidUpnpServiceConfiguration(int streamListenPort, int multicastPort) {
 		super(streamListenPort);
@@ -1672,12 +1651,6 @@ class NONAndroidUpnpServiceConfiguration extends org.fourthline.cling.DefaultUpn
 
 class AndroidUpnpServiceConfiguration extends org.fourthline.cling.android.AndroidUpnpServiceConfiguration {
 	private final int multicastPort;
-	/**
-	 * Defaults to port '0', ephemeral.
-	 */
-	public AndroidUpnpServiceConfiguration() {
-		this(0, Constants.UPNP_MULTICAST_PORT);
-	}
 
 	public AndroidUpnpServiceConfiguration(int streamListenPort, int multicastPort) {
 		super(streamListenPort);
@@ -1705,9 +1678,9 @@ class DefaultUpnpServiceConfiguration implements org.fourthline.cling.UpnpServic
 	/**
 	 * Defaults to port '0', ephemeral.
 	 */
-	public DefaultUpnpServiceConfiguration() {
+	/*public DefaultUpnpServiceConfiguration() {
 		this(0, 1900);
-	}
+	}*/
 
 	public DefaultUpnpServiceConfiguration(int streamListenPort, int multicastPort) {
 		if (OSValidator.getCurrentOS()==OSValidator.ANDROID) {

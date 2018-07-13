@@ -37,13 +37,11 @@
  */
 package com.distrimind.madkit.kernel;
 
+import com.distrimind.madkit.util.SerializationTools;
+
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-
-import com.distrimind.madkit.exceptions.MessageSerializationException;
-import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
-import com.distrimind.madkit.util.SerializationTools;
 
 /**
  * Gives the result of a big data transfer
@@ -52,6 +50,7 @@ import com.distrimind.madkit.util.SerializationTools;
  * @version 1.0
  * @since MadkitLanEdition 1.0
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 public final class BigDataResultMessage extends Message implements com.distrimind.madkit.util.NetworkMessage {
 
 	/**
@@ -77,8 +76,6 @@ public final class BigDataResultMessage extends Message implements com.distrimin
 			
 		transferedData=in.readLong();
 		type=Type.valueOf(SerializationTools.readString(in, 1000, false));
-		if (type==null)
-			throw new MessageSerializationException(Integrity.FAIL);
 		idPacket=in.readInt();
 		duration=in.readLong();
 		
@@ -136,9 +133,9 @@ public final class BigDataResultMessage extends Message implements com.distrimin
 		return transferedData;
 	}
 
-	int getIDPacket() {
+	/*int getIDPacket() {
 		return idPacket;
-	}
+	}*/
 
 	public enum Type {
 		/**

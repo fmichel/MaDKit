@@ -46,12 +46,12 @@ import java.util.Collection;
  * @since MadkitLanEdition 1.0
  */
 public interface LoginEventsTrigger {
-	public void addingIdentifier(Identifier _identifier);
+	void addingIdentifier(Identifier _identifier);
 
-	public void addingIdentifiers(Collection<Identifier> _identifiers);
+	void addingIdentifiers(Collection<Identifier> _identifiers);
 
-	public void removingIdentifier(Identifier _identifier);
+	void removingIdentifier(Identifier _identifier);
 
-	public void removingIdentifiers(Collection<Identifier> _identifiers);
+	void removingIdentifiers(Collection<Identifier> _identifiers);
 
 }

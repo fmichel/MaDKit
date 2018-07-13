@@ -44,5 +44,5 @@ package com.distrimind.madkit.kernel.network.connection.access;
  * @since MadkitLanEdition 1.0
  */
 public interface AccessGroupsNotifier {
-	public void notifyNewAccessChangements();
+	void notifyNewAccessChangements();
 }

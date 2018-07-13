@@ -49,7 +49,8 @@ import com.distrimind.madkit.exceptions.KilledException;
  * @since MadkitLanEdition 1.0
  * 
  */
-final class AgentThreadFactory extends Object implements ThreadFactory {
+
+final class AgentThreadFactory implements ThreadFactory {
 
 	final private static int MKRA_PRIORITY = Thread.NORM_PRIORITY - 1;
 	final private static int MKDA_PRIORITY = Thread.MAX_PRIORITY;

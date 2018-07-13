@@ -38,14 +38,10 @@
 
 package com.distrimind.madkit.kernel;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-
-import com.distrimind.madkit.kernel.KernelAddress;
 import com.distrimind.madkit.kernel.MultiGroup.AssociatedGroup;
 import com.distrimind.madkit.util.ExternalizableAndSizable;
+
+import java.util.*;
 
 /**
  * MadKitGroupExtension aims to encapsulate MadKit in order to extends the
@@ -186,12 +182,8 @@ public abstract class AbstractGroup implements ExternalizableAndSizable, Cloneab
 		Group gs2[] = _group.getRepresentedGroups(ka);
 		HashSet<Group> groups = new HashSet<>();
 
-		for (Group g1 : gs1) {
-			groups.add(g1);
-		}
-		for (Group g2 : gs2) {
-			groups.add(g2);
-		}
+		groups.addAll(Arrays.asList(gs1));
+		groups.addAll(Arrays.asList(gs2));
 		return groups;
 	}
 
@@ -432,9 +424,10 @@ public abstract class AbstractGroup implements ExternalizableAndSizable, Cloneab
 				ArrayList<AbstractGroup> forbiden = new ArrayList<>();
 				synchronized (this) {
 					MultiGroup group = (MultiGroup) _group;
-					ArrayList<AbstractGroup> AThis = new ArrayList<AbstractGroup>();
+					ArrayList<AbstractGroup> AThis = new ArrayList<>();
 					MultiGroup AGroup = new MultiGroup();
 
+					//noinspection SynchronizationOnLocalVariableOrMethodParameter
 					synchronized (group) {
 						for (AssociatedGroup ag : This.m_groups) {
 							if (ag.m_forbiden) {
@@ -698,9 +691,9 @@ public abstract class AbstractGroup implements ExternalizableAndSizable, Cloneab
 			return groups_eliminated;
 		}
 
-		public ArrayList<Group> getGeneratedGroups() {
+		/*public ArrayList<Group> getGeneratedGroups() {
 			return groups_generated;
-		}
+		}*/
 
 		public void addEliminatedGroup(Group _group, Group _replaced_group) {
 			groups_eliminated.add(_group);
@@ -732,11 +725,7 @@ public abstract class AbstractGroup implements ExternalizableAndSizable, Cloneab
 							add = true;
 						}
 					} else if (_group.getPath().startsWith(g.getPath())) {
-						if (g.isUsedSubGroups()) {
-							add = false;
-						} else {
-							add = true;
-						}
+						add = !g.isUsedSubGroups();
 					} else
 						add = true;
 				} else
@@ -748,7 +737,7 @@ public abstract class AbstractGroup implements ExternalizableAndSizable, Cloneab
 
 		public void mergeWithSurvivors(Groups _groups) {
 			ArrayList<Group> grps_eliminated = new ArrayList<>();
-			ArrayList<Group> grps_not_eliminated = new ArrayList<>();
+			//ArrayList<Group> grps_not_eliminated = new ArrayList<>();
 			ArrayList<Group> grps_generated = new ArrayList<>();
 			grps_generated.addAll(_groups.groups_generated);
 			grps_generated.addAll(groups_generated);
@@ -757,7 +746,7 @@ public abstract class AbstractGroup implements ExternalizableAndSizable, Cloneab
 				if (groups_eliminated.remove(g)) {
 					grps_eliminated.add(g);
 				} else {
-					grps_not_eliminated.add(g);
+					//grps_not_eliminated.add(g);
 					if (g.isUsedSubGroups()) {
 						Iterator<Group> it = grps_generated.iterator();
 						while (it.hasNext()) {
@@ -771,7 +760,7 @@ public abstract class AbstractGroup implements ExternalizableAndSizable, Cloneab
 				}
 			}
 			for (Group g : groups_eliminated) {
-				grps_not_eliminated.add(g);
+				//grps_not_eliminated.add(g);
 				if (g.isUsedSubGroups()) {
 					Iterator<Group> it = grps_generated.iterator();
 					while (it.hasNext()) {
@@ -805,7 +794,7 @@ public abstract class AbstractGroup implements ExternalizableAndSizable, Cloneab
 		}
 
 		public ArrayList<Group> eliminates(ArrayList<Group> groups) {
-			ArrayList<Group> res = new ArrayList<Group>(groups.size());
+			ArrayList<Group> res = new ArrayList<>(groups.size());
 			for (Group g : groups) {
 				boolean eliminated = false;
 				for (Group g2 : groups_eliminated) {
@@ -873,7 +862,7 @@ public abstract class AbstractGroup implements ExternalizableAndSizable, Cloneab
 
 		}
 
-		public ArrayList<Group> getNotEliminated(ArrayList<Group> authorized) {
+		/*public ArrayList<Group> getNotEliminated(ArrayList<Group> authorized) {
 			ArrayList<Group> res = new ArrayList<>(authorized.size());
 			for (Group g : authorized) {
 				boolean add = true;
@@ -894,7 +883,7 @@ public abstract class AbstractGroup implements ExternalizableAndSizable, Cloneab
 			}
 			res.addAll(groups_generated);
 			return res;
-		}
+		}*/
 
 		private void addEliminatedGroup(Group g) {
 			this.groups_eliminated.add(g);

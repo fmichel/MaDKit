@@ -105,7 +105,7 @@ public class EnumMessage<E extends Enum<E>> extends ObjectMessage<Object[]> impl
 
 	@Override
 	public String toString() {
-		String s = super.toString() + "\n" + (getClass().getSimpleName() + getConversationID()).replaceAll(".", " ");
+		String s = super.toString() + "\n" + (getClass().getSimpleName() + getConversationID()).replaceAll("\\.", " ");
 		return s + "    command: " + code.name() + " {" + Arrays.deepToString(getContent()) + "}";
 	}
 

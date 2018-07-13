@@ -53,6 +53,7 @@ import com.distrimind.madkit.util.SerializationTools;
  * @version 1.1
  * @since MadkitLanEdition 1.0
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 class TransferBlockCheckerSystemMessage extends BroadcastableSystemMessage {
 	/**
 	 * 
@@ -61,6 +62,7 @@ class TransferBlockCheckerSystemMessage extends BroadcastableSystemMessage {
 
 	private TransferedBlockChecker transferBlockChercker;
 	
+	@SuppressWarnings("unused")
 	TransferBlockCheckerSystemMessage()
 	{
 		

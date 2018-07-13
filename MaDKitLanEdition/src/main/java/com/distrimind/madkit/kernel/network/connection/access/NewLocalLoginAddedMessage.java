@@ -52,6 +52,7 @@ import com.distrimind.madkit.util.SerializationTools;
  * @version 1.0
  * @since MadkitLanEdition 1.0
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 public class NewLocalLoginAddedMessage extends LocalLogingAccessMessage {
 
 	/**
@@ -61,6 +62,7 @@ public class NewLocalLoginAddedMessage extends LocalLogingAccessMessage {
 
 	public ArrayList<Identifier> identifiers;
 
+	@SuppressWarnings("unused")
 	NewLocalLoginAddedMessage()
 	{
 		

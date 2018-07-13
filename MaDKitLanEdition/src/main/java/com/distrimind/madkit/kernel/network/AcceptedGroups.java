@@ -55,6 +55,7 @@ import com.distrimind.util.sizeof.ObjectSizer;
  * @version 1.1
  * @since MadkitLanEdition 1.0
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 final class AcceptedGroups implements SystemMessage {
 
 	/**
@@ -67,6 +68,7 @@ final class AcceptedGroups implements SystemMessage {
 	public KernelAddress kernelAddress;
 	public AgentAddress distant_agent_socket_address;
 
+	@SuppressWarnings("unused")
 	AcceptedGroups()
 	{
 		

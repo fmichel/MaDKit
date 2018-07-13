@@ -444,7 +444,7 @@ public class ReadWritePacketTests extends JunitMadkit {
 				Assert.assertEquals(length + messageDigestSize, pp.getHead().getTotalLength());
 				Assert.assertEquals(_start_position, pp.getHead().getStartPosition());
 
-				read = new ReadPacket(_max_buffer_size, random_values_size, pp, outputStream, messageDigestType);
+				read = new ReadPacket(pp, outputStream, messageDigestType);
 				// Assert.assertEquals(read.getCurrentPosition(), 0);
 				Assert.assertEquals(idPacket, read.getID());
 				if (output.isFinished())

@@ -46,5 +46,5 @@ import java.io.Externalizable;
  * 
  */
 public interface ExternalizableAndSizable extends Externalizable {
-	public int getInternalSerializedSize();
+	int getInternalSerializedSize();
 }

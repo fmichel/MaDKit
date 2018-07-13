@@ -38,21 +38,17 @@
 
 package com.distrimind.madkit.kernel;
 
+import com.distrimind.madkit.exceptions.MessageSerializationException;
+import com.distrimind.madkit.kernel.network.NetworkProperties;
+import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
+import com.distrimind.madkit.util.SerializationTools;
+
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
-
-import com.distrimind.madkit.exceptions.MessageSerializationException;
-import com.distrimind.madkit.kernel.KernelAddress;
-import com.distrimind.madkit.kernel.network.NetworkProperties;
-import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
-import com.distrimind.madkit.util.SerializationTools;
 
 /**
  * MadKitGroupExtension aims to encapsulate MadKit in order to extends the
@@ -89,6 +85,7 @@ import com.distrimind.madkit.util.SerializationTools;
  * @see Group
  * @see AbstractGroup#getUniverse()
  */
+@SuppressWarnings({"UnusedReturnValue", "ExternalizableWithoutPublicNoArgConstructor"})
 public class MultiGroup extends AbstractGroup {
 
 	/**
@@ -99,15 +96,15 @@ public class MultiGroup extends AbstractGroup {
 	transient ArrayList<AssociatedGroup> m_groups;
 
 	private static final class RepresentedGroupsDuplicated {
-		public final AtomicReference<Group[]> m_represented_groups_duplicated = new AtomicReference<Group[]>(null);
-		public KernelAddress m_kernel = null;
+		public final AtomicReference<Group[]> m_represented_groups_duplicated = new AtomicReference<>(null);
+		public KernelAddress m_kernel;
 
 		public RepresentedGroupsDuplicated(KernelAddress ka) {
 			m_kernel = ka;
 		}
 	}
 
-	private transient ArrayList<RepresentedGroupsDuplicated> m_represented_groups_by_kernel_duplicated = new ArrayList<RepresentedGroupsDuplicated>();
+	private transient ArrayList<RepresentedGroupsDuplicated> m_represented_groups_by_kernel_duplicated = new ArrayList<>();
 	private transient volatile Group m_global_represented_groups[] = null;
 
 	@Override
@@ -198,7 +195,7 @@ public class MultiGroup extends AbstractGroup {
 	 * @since MadKitGroupExtension 1.0
 	 */
 	public MultiGroup(AbstractGroup... _groups) {
-		m_groups = new ArrayList<AssociatedGroup>(_groups.length);
+		m_groups = new ArrayList<>(_groups.length);
 
 		for (AbstractGroup g : _groups) {
 			addGroup(g);
@@ -206,7 +203,7 @@ public class MultiGroup extends AbstractGroup {
 	}
 
 	public MultiGroup(Collection<? extends AbstractGroup> _groups) {
-		m_groups = new ArrayList<AssociatedGroup>(_groups.size());
+		m_groups = new ArrayList<>(_groups.size());
 
 		for (AbstractGroup g : _groups) {
 			addGroup(g);
@@ -221,11 +218,10 @@ public class MultiGroup extends AbstractGroup {
 	@Override
 	synchronized public MultiGroup clone() {
 		synchronized (this) {
-			ArrayList<AssociatedGroup> groups = new ArrayList<AssociatedGroup>(m_groups.size());
-			for (int i = 0; i < m_groups.size(); i++) {
-				AssociatedGroup ag = m_groups.get(i);
+			ArrayList<AssociatedGroup> groups = new ArrayList<>(m_groups.size());
+			for (AssociatedGroup ag : m_groups) {
 				if (ag.m_group instanceof MultiGroup) {
-					groups.add(new AssociatedGroup((AbstractGroup) (((MultiGroup) ag.m_group).clone()), ag.m_forbiden));
+					groups.add(new AssociatedGroup(((MultiGroup) ag.m_group).clone(), ag.m_forbiden));
 				} else
 					groups.add(new AssociatedGroup(ag.m_group, ag.m_forbiden));
 			}
@@ -236,7 +232,7 @@ public class MultiGroup extends AbstractGroup {
 	@Override
 	public String toString() {
 		synchronized (this) {
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			sb.append("MultiGroup[");
 			int s1 = m_groups.size() - 1;
 			if (s1 >= 0) {
@@ -261,7 +257,7 @@ public class MultiGroup extends AbstractGroup {
 		CONTAINS_ON_FORBIDEN, CONTAINS_ON_AUTHORIZED, NOT_CONTAINS
 	}
 
-	@SuppressWarnings("unlikely-arg-type")
+	@SuppressWarnings({"unlikely-arg-type", "EqualsBetweenInconvertibleTypes"})
 	CONTAINS contains(AbstractGroup _group) {
 		for (AssociatedGroup ag : m_groups) {
 			if (ag.equals(_group)) {
@@ -387,7 +383,7 @@ public class MultiGroup extends AbstractGroup {
 	 * @see Group
 	 * @since MadKitGroupExtension 1.0
 	 */
-	@SuppressWarnings("unlikely-arg-type")
+	@SuppressWarnings({"unlikely-arg-type", "EqualsBetweenInconvertibleTypes"})
 	boolean removeGroup(AbstractGroup _g) {
 		Iterator<AssociatedGroup> it = m_groups.iterator();
 		while (it.hasNext()) {
@@ -487,17 +483,15 @@ public class MultiGroup extends AbstractGroup {
 		if (rdg.m_represented_groups_duplicated.get() == null) {
 			synchronized (this) {
 				HashSet<Group> l = new HashSet<>();
-				ArrayList<Group> f = new ArrayList<Group>(10);
-				ArrayList<Group> l2 = null;
+				ArrayList<Group> f = new ArrayList<>(10);
+				ArrayList<Group> l2;
 
 				if (m_groups.size() > 0) {
 					for (AssociatedGroup ag : m_groups) {
 						if (ag.m_forbiden) {
-							for (Group g : ag.m_group.getRepresentedGroups(ka))
-								f.add(g);
+							f.addAll(Arrays.asList(ag.m_group.getRepresentedGroups(ka)));
 						} else {
-							for (Group g : ag.m_group.getRepresentedGroups(ka))
-								l.add(g);
+							l.addAll(Arrays.asList(ag.m_group.getRepresentedGroups(ka)));
 						}
 					}
 
@@ -538,17 +532,15 @@ public class MultiGroup extends AbstractGroup {
 		if (res == null) {
 			synchronized (this) {
 				HashSet<Group> l = new HashSet<>();
-				ArrayList<Group> f = new ArrayList<Group>(10);
-				ArrayList<Group> l2 = null;
+				ArrayList<Group> f = new ArrayList<>(10);
+				ArrayList<Group> l2;
 
 				if (m_groups.size() > 0) {
 					for (AssociatedGroup ag : m_groups) {
 						if (ag.m_forbiden) {
-							for (Group g : ag.m_group.getRepresentedGroups())
-								f.add(g);
+							Collections.addAll(f, ag.m_group.getRepresentedGroups());
 						} else {
-							for (Group g : ag.m_group.getRepresentedGroups())
-								l.add(g);
+							l.addAll(Arrays.asList(ag.m_group.getRepresentedGroups()));
 						}
 					}
 
@@ -616,13 +608,13 @@ public class MultiGroup extends AbstractGroup {
 				return m_group.equals(((AssociatedGroup) o).m_group);
 			} else if (o instanceof AbstractGroup) {
 				if (o instanceof Group)
-					return ((Group) o).equals(m_group);
+					return o.equals(m_group);
 				else if (m_group instanceof Group)
 					return false;
 				else
 					return o == m_group;
 			} else
-				return true;
+				return false;
 		}
 	}
 

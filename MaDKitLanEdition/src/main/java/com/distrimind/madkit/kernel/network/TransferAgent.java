@@ -37,6 +37,21 @@
  */
 package com.distrimind.madkit.kernel.network;
 
+import com.distrimind.madkit.agr.LocalCommunity;
+import com.distrimind.madkit.exceptions.MessageSerializationException;
+import com.distrimind.madkit.exceptions.OverflowException;
+import com.distrimind.madkit.kernel.*;
+import com.distrimind.madkit.kernel.NetworkAgent.StopNetworkMessage;
+import com.distrimind.madkit.kernel.network.AskForTransferMessage.CandidateForTransfer;
+import com.distrimind.madkit.kernel.network.connection.PointToPointTransferedBlockChecker;
+import com.distrimind.madkit.kernel.network.connection.TransferedBlockChecker;
+import com.distrimind.madkit.message.ObjectMessage;
+import com.distrimind.madkit.message.hook.TransferEventMessage;
+import com.distrimind.madkit.message.hook.TransferEventMessage.TransferEventType;
+import com.distrimind.madkit.util.ExternalizableAndSizable;
+import com.distrimind.madkit.util.SerializationTools;
+import com.distrimind.util.IDGeneratorInt;
+
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -46,35 +61,13 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 
-import com.distrimind.madkit.agr.LocalCommunity;
-import com.distrimind.madkit.exceptions.MessageSerializationException;
-import com.distrimind.madkit.exceptions.OverflowException;
-import com.distrimind.madkit.kernel.AbstractAgent;
-import com.distrimind.madkit.kernel.AgentAddress;
-import com.distrimind.madkit.kernel.AgentFakeThread;
-import com.distrimind.madkit.kernel.KernelAddress;
-import com.distrimind.madkit.kernel.Message;
-import com.distrimind.madkit.kernel.NetworkAgent.StopNetworkMessage;
-import com.distrimind.madkit.kernel.Replies;
-import com.distrimind.madkit.kernel.Task;
-import com.distrimind.madkit.kernel.TaskID;
-import com.distrimind.madkit.kernel.network.AskForTransferMessage.CandidateForTransfer;
-import com.distrimind.madkit.kernel.network.AskForTransferMessage.InitiateTransferConnection;
-import com.distrimind.madkit.kernel.network.connection.PointToPointTransferedBlockChecker;
-import com.distrimind.madkit.kernel.network.connection.TransferedBlockChecker;
-import com.distrimind.madkit.message.ObjectMessage;
-import com.distrimind.madkit.message.hook.TransferEventMessage;
-import com.distrimind.madkit.message.hook.TransferEventMessage.TransferEventType;
-import com.distrimind.madkit.util.SerializationTools;
-import com.distrimind.madkit.util.ExternalizableAndSizable;
-import com.distrimind.util.IDGeneratorInt;
-
 /**
  * 
  * @author Jason Mahdjoub
  * @version 1.1
  * @since MadkitLanEdition 1.0
  */
+@SuppressWarnings("SameParameterValue")
 class TransferAgent extends AgentFakeThread {
 	protected final AskForTransferMessage originalAskMessage;
 	private CandidateForTransfer candidate1 = null, candidate2 = null;
@@ -84,12 +77,12 @@ class TransferAgent extends AgentFakeThread {
 	private State state = State.TRANSFER_NOT_ACTIVE;
 	protected IDTransfer idTransfer = null;
 	// private boolean oneconnectionalreadydone=false;
-	protected AtomicReference<TaskID> timeElapsedTask = new AtomicReference<TaskID>(null);
+	protected AtomicReference<TaskID> timeElapsedTask = new AtomicReference<>(null);
 	protected final AtomicLong timeElapsed = new AtomicLong(-1);
 	private boolean stopNetwork = false;
 
 	private enum State {
-		TRANSFER_NOT_ACTIVE, TRANSFER_CONNEXION_IN_PROGRESS, TRANSFER_CLOSING, TRANSFER_ACTIVE;
+		TRANSFER_NOT_ACTIVE, TRANSFER_CONNEXION_IN_PROGRESS, TRANSFER_CLOSING, TRANSFER_ACTIVE
 	}
 
 	TransferAgent(AskForTransferMessage message) {
@@ -117,7 +110,7 @@ class TransferAgent extends AgentFakeThread {
 	}
 
 	@Override
-	protected void liveByStep(Message _message) throws InterruptedException {
+	protected void liveByStep(Message _message) {
 		if (_message == null)
 			return;
 
@@ -367,7 +360,7 @@ class TransferAgent extends AgentFakeThread {
 		timeElapsedTask.set(scheduleTask(new Task<>(new Callable<Void>() {
 
 			@Override
-			public Void call() throws Exception {
+			public Void call() {
 				if (timeElapsedTask.getAndSet(null) != null) {
 					long duration = timeElapsed.getAndSet(-1);
 					if (duration != -1 && duration >= System.currentTimeMillis()) {
@@ -395,7 +388,7 @@ class TransferAgent extends AgentFakeThread {
 		}
 
 		if (source == null) {
-			sendMessageWithRole(source,
+			sendMessageWithRole(null,
 					new AnomalyDetectedMessage(candidate_to_ban, candidate1.getKernelAddress(), message),
 					LocalCommunity.Roles.DISTANT_KERNEL_AGENT_ROLE);
 		} else {
@@ -421,12 +414,12 @@ class TransferAgent extends AgentFakeThread {
 			logger.finer("Initiate transfer connection : " + originalAskMessage);
 		
 		sendMessageWithRole(candidate2.getAgentAddress(),
-				new ObjectMessage<InitiateTransferConnection>(
+				new ObjectMessage<>(
 						originalAskMessage.getIntiateConnectionMessage(candidate1.getAgentAddress(),
 								candidate1.getKernelAddress(), idTransfer, numberOfIntermediatePeers, false)),
 				LocalCommunity.Roles.TRANSFER_AGENT_ROLE);
 		sendMessageWithRole(candidate1.getAgentAddress(),
-				new ObjectMessage<InitiateTransferConnection>(
+				new ObjectMessage<>(
 						originalAskMessage.getIntiateConnectionMessage(candidate2.getAgentAddress(),
 								candidate2.getKernelAddress(), idTransfer, numberOfIntermediatePeers, true)),
 				LocalCommunity.Roles.TRANSFER_AGENT_ROLE);
@@ -491,6 +484,7 @@ class TransferAgent extends AgentFakeThread {
 		}
 	}
 
+	@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 	final static class IDTransfer implements ExternalizableAndSizable {
 		/**
 		 * 
@@ -519,6 +513,7 @@ class TransferAgent extends AgentFakeThread {
 			this.id = getNewIDTransfer();
 		}
 
+		@SuppressWarnings("deprecation")
 		@Override
 		public void finalize() {
 			if (generator_id_transfert != null)
@@ -554,11 +549,11 @@ class TransferAgent extends AgentFakeThread {
 			return this.id == id;
 		}
 
-		int numberOfValidGeneratedID() {
+		/*int numberOfValidGeneratedID() {
 			synchronized (generator_id_transfert) {
 				return generator_id_transfert.getNumberOfMemorizedIds();
 			}
-		}
+		}*/
 
 		private int getNewIDTransfer() throws OverflowException {
 			synchronized (generator_id_transfert) {
@@ -575,6 +570,7 @@ class TransferAgent extends AgentFakeThread {
 			}
 		}
 
+		@SuppressWarnings("UnusedReturnValue")
 		private boolean removeIDTransfer(int _id) {
 			synchronized (generator_id_transfert) {
 				return generator_id_transfert.removeID(_id);
@@ -592,7 +588,7 @@ class TransferAgent extends AgentFakeThread {
 		}
 
 		@Override
-		public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		public void readExternal(ObjectInput in) throws IOException {
 			id=in.readInt();
 		}
 
@@ -626,6 +622,7 @@ class TransferAgent extends AgentFakeThread {
 			this.transferToKernelAddress = id.transferToKernelAddress;
 			this.transferBlockChecker = id.transferBlockChecker;
 			this.lastAccessUTC = id.lastAccessUTC;
+			this.lastPointToPointTransferedBlockChecker=null;
 		}
 
 		@Override
@@ -634,7 +631,8 @@ class TransferAgent extends AgentFakeThread {
 					+ transferToKernelAddress + "]";
 		}
 
-		@Override
+		@SuppressWarnings("MethodDoesntCallSuperMethod")
+        @Override
 		public InterfacedIDTransfer clone() {
 			return new InterfacedIDTransfer(this);
 		}
@@ -696,7 +694,8 @@ class TransferAgent extends AgentFakeThread {
 
 	}
 
-	static class TryDirectConnection extends DirectConnection {
+	@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
+    static class TryDirectConnection extends DirectConnection {
 
 		/**
 		 * 
@@ -705,7 +704,8 @@ class TransferAgent extends AgentFakeThread {
 
 		private InetSocketAddress inetSocketAddress;
 
-		TryDirectConnection()
+		@SuppressWarnings("unused")
+        TryDirectConnection()
 		{
 			
 		}
@@ -736,7 +736,8 @@ class TransferAgent extends AgentFakeThread {
 		public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 			super.readExternal(in);
 			inetSocketAddress=SerializationTools.readInetSocketAddress(in, false);
-			if (inetSocketAddress.getPort() < 0)
+            assert inetSocketAddress != null;
+            if (inetSocketAddress.getPort() < 0)
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		}
 
@@ -748,7 +749,8 @@ class TransferAgent extends AgentFakeThread {
 		}
 	}
 
-	static class DirectConnection implements SystemMessage {
+	@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
+    static class DirectConnection implements SystemMessage {
 		/**
 		 * 
 		 */
@@ -798,7 +800,8 @@ class TransferAgent extends AgentFakeThread {
 		}
 	}
 
-	static class DirectConnectionFailed extends DirectConnection {
+	@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
+    static class DirectConnectionFailed extends DirectConnection {
 
 		/**
 		 * 
@@ -809,13 +812,15 @@ class TransferAgent extends AgentFakeThread {
 			super(_idTransfer);
 		}
 		
-		DirectConnectionFailed(){
+		@SuppressWarnings("unused")
+        DirectConnectionFailed(){
 			
 		}
 
 	}
 
-	static class DirectConnectionSuceeded extends DirectConnection {
+	@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
+    static class DirectConnectionSuceeded extends DirectConnection {
 
 		/**
 		 * 
@@ -825,7 +830,8 @@ class TransferAgent extends AgentFakeThread {
 		DirectConnectionSuceeded(IDTransfer _idTransfer) {
 			super(_idTransfer);
 		}
-		DirectConnectionSuceeded()
+		@SuppressWarnings("unused")
+        DirectConnectionSuceeded()
 		{
 			
 		}

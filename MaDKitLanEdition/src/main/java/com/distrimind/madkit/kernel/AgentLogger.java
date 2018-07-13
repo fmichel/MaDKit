@@ -75,7 +75,7 @@ final public class AgentLogger extends Logger {
 
 	private Level warningLogLevel = Madkit.getDefaultConfig().warningLogLevel;
 
-	final static AgentLogger getLogger(final AbstractAgent agent) {
+	static AgentLogger getLogger(final AbstractAgent agent) {
 		AgentLogger al = agentLoggers.get(agent);
 		if (al == null) {
 			al = new AgentLogger(agent);

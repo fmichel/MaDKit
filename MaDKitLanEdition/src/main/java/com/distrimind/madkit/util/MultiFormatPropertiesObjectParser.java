@@ -90,7 +90,7 @@ public class MultiFormatPropertiesObjectParser extends AbstractMultiFormatObject
 	}
 
 	@Override
-	public String convertObjectToString(Class<?> field_type, Object object) throws Exception {
+	public String convertObjectToString(Class<?> field_type, Object object) {
 		if (field_type == AgentToLaunch.class) {
 			return object.toString();
 		} else if (field_type == KernelAddressPriority.class) {
@@ -104,7 +104,7 @@ public class MultiFormatPropertiesObjectParser extends AbstractMultiFormatObject
 				return "";
 			Properties p = (Properties) object;
 
-			StringBuffer res = new StringBuffer();
+			StringBuilder res = new StringBuilder();
 			for (Map.Entry<Object, Object> e : p.entrySet()) {
 				res.append(e.getKey().toString());
 				res.append(" ");

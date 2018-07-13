@@ -146,10 +146,6 @@ public class AgentLogLevelMenu extends JMenu {
 		}
 	}
 
-	/**
-	 * @param group
-	 * @param logLevel
-	 */
 	private void updateButtonGroup(final ButtonGroup group, final Level logLevel) {
 		for (Enumeration<AbstractButton> buttons = group.getElements(); buttons.hasMoreElements();) {
 			final AbstractButton button = buttons.nextElement();
@@ -160,10 +156,7 @@ public class AgentLogLevelMenu extends JMenu {
 		}
 	}
 
-	/**
-	 * @param logItem
-	 * @param listener
-	 */
+
 	private void initMenuItem(JRadioButtonMenuItem logItem, ActionListener listener, String actionCommand,
 			ButtonGroup group, JMenu menu) {
 		menu.add(logItem);

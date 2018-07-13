@@ -50,6 +50,7 @@ import com.distrimind.util.crypto.ASymmetricPublicKey;
  * @version 1.0
  * @since MadkitLanEdition 1.0
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 class AccessPublicKeyMessage extends AccessMessage {
 
 	/**
@@ -62,6 +63,7 @@ class AccessPublicKeyMessage extends AccessMessage {
 	private boolean otherCanTakeLoginInitiative;
 	private static final int MAX_DISTANT_PUBLIC_KEY_LENGTH=16392; 
 	
+	@SuppressWarnings("unused")
 	AccessPublicKeyMessage()
 	{
 		

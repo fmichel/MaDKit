@@ -70,7 +70,7 @@ abstract class AbstractData {
 
 	abstract ByteBuffer getByteBuffer() throws PacketException;
 
-	abstract boolean isReady();
+	//abstract boolean isReady();
 
 	abstract boolean isFinished() throws PacketException;
 
@@ -90,19 +90,20 @@ abstract class AbstractData {
 				+ ", idTransfer=" + getIDTransfer() + ", lastMessage=" + isLastMessage() + "]";
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void finalize() {
 		try {
 			if (!isUnlocked())
 				unlockMessage();
-		} catch (Exception e) {
+		} catch (Exception ignored) {
 			
 		}
 	}
 
-	long timeToSend() {
+	/*long timeToSend() {
 		return Long.MIN_VALUE;
-	}
+	}*/
 	
 	abstract Object getLocker();
 

@@ -158,8 +158,6 @@ public class LaunchAgentsMenu extends ClassPathSensitiveMenu {
 				iterator.remove();
 		}
 
-		if (filter != null) {
-		}
 		if (classesToLaunch.size() < 20) {
 			for (String string : classesToLaunch) {
 				addTomenu(myAction, this, string, false);

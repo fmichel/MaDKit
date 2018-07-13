@@ -39,6 +39,7 @@ package com.distrimind.madkit.kernel.network;
 
 import java.io.IOException;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicLong;
 
 import com.distrimind.madkit.exceptions.NIOException;
 import com.distrimind.madkit.exceptions.PacketException;
@@ -67,7 +68,7 @@ public final class WritePacket {
 	protected final RandomInputStream input_stream;
 	private final int id_packet;
 	private final long start_position;
-	private volatile long current_pos = 0;
+	private AtomicLong current_pos = new AtomicLong(0);
 	protected final int max_buffer_size;
 	private final long data_length;
 	private final long data_length_with_message_digest;
@@ -121,7 +122,7 @@ public final class WritePacket {
 
 		input_stream = _input_stream;
 		id_packet = _id_packet;
-		start_position = current_pos = _start_position;
+		current_pos.set(start_position=_start_position);
 		max_buffer_size = _max_buffer_size;
 		this.random_values_size = getRandomValueSize(max_buffer_size, random_values_size);
 
@@ -199,9 +200,9 @@ public final class WritePacket {
 		return transfert_as_big_data;
 	}
 
-	private final PacketPartHead setHeadPart(boolean last_packet, AbstractByteTabOutputStream tab) {
+	private PacketPartHead setHeadPart(boolean last_packet, AbstractByteTabOutputStream tab) {
 		byte type = PacketPartHead.TYPE_PACKET;
-		if (current_pos == start_position) {
+		if (current_pos.get() == start_position) {
 			if (redownloaded)
 				type |= PacketPartHead.TYPE_PACKET_REDOWNLOADED;
 			else
@@ -231,28 +232,28 @@ public final class WritePacket {
 	}
 
 	public long getReadDataLengthIncludingHash() {
-		return current_pos - start_position;
+		return current_pos.get() - start_position;
 	}
 
 	public long getReadDataLength() {
-		return Math.min(current_pos - start_position, data_length);
+		return Math.min(current_pos.get() - start_position, data_length);
 	}
 
 	public final PacketPart getNextPart(ConnectionProtocol<?> conProto) throws PacketException, NIOException {
 		try {
 			if (finished)
 				return null;
-			boolean first_packet = (current_pos == start_position);
+			boolean first_packet = (current_pos.get() == start_position);
 			int headSize = PacketPartHead.getHeadSize(first_packet);
 			AbstractByteTabOutputStream res = getByteTabOutputStream(conProto,
-					data_length + start_position <= current_pos ? null : messageDigest, max_buffer_size, headSize,
-					data_length_with_message_digest - (current_pos - start_position), random_values_size, random);
-			boolean last_packet = (current_pos
+					data_length + start_position <= current_pos.get() ? null : messageDigest, max_buffer_size, headSize,
+					data_length_with_message_digest - (current_pos.get() - start_position), random_values_size, random);
+			boolean last_packet = (current_pos.get()
 					+ res.getRealDataSizeWithoutPacketHeadSize()) == (data_length_with_message_digest + start_position);
 			PacketPartHead pph = setHeadPart(last_packet, res);
 
 			int currentPacketDataSize = (int) Math.max(
-					Math.min(res.getRealDataSizeWithoutPacketHeadSize(), data_length - (current_pos - start_position)),
+					Math.min(res.getRealDataSizeWithoutPacketHeadSize(), data_length - (current_pos.get() - start_position)),
 					0);
 
 			// byte[] res=new byte[PacketPartHead.getHeadSize(first_packet)+size];
@@ -264,11 +265,11 @@ public final class WritePacket {
 							+ currentPacketDataSize);
 				// int readed_data=input_stream.read(res, offset, size);
 
-				current_pos += readed_data;
+				current_pos.addAndGet(readed_data);
 
 			}
 			if (messageDigest != null) {
-				if (current_pos == data_length + start_position && digestResultPos < 0) {
+				if (current_pos.get() == data_length + start_position && digestResultPos < 0) {
 					int dl = messageDigest.digest(digestResult, 0, digestResult.length);
 					if (dl != digestResult.length)
 						throw new IllegalAccessError("Invalid signature size !");
@@ -276,7 +277,7 @@ public final class WritePacket {
 					res.disableMessageDigest();
 				}
 
-				if (current_pos >= data_length + start_position) {
+				if (current_pos.get() >= data_length + start_position) {
 					if (digestResultPos < 0)
 						throw new IllegalAccessError();
 					int currentDigestSize = res.getRealDataSizeWithoutPacketHeadSize() - currentPacketDataSize;
@@ -286,12 +287,12 @@ public final class WritePacket {
 							throw new IllegalAccessError("Illegal writed hash data quantity : writed=" + readed_data
 									+ ", expected=" + currentDigestSize);
 						digestResultPos += readed_data;
-						current_pos += readed_data;
+						current_pos.addAndGet(readed_data);
 					}
 
 				}
 			}
-			if (current_pos == data_length_with_message_digest + start_position) {
+			if (current_pos.get() == data_length_with_message_digest + start_position) {
 				finished = true;
 			}
 			res.finilizeTab();
@@ -308,7 +309,7 @@ public final class WritePacket {
 			 * +readed_data+") does not corresponds to the effective contained data ("+res.
 			 * getRealDataSizeWithoutPacketHeadSize()+")."); }
 			 */
-			if (current_pos > data_length_with_message_digest + start_position) {
+			if (current_pos.get() > data_length_with_message_digest + start_position) {
 				finished = true;
 				throw new IllegalAccessError(
 						"The length returned by the input stream does not corresponds to the effective contained data.");
@@ -338,7 +339,7 @@ public final class WritePacket {
 		//abstract byte[] getBytesArray();
 		abstract SubBlock getSubBlock();
 
-		abstract int getRealDataSize();
+		//abstract int getRealDataSize();
 
 		abstract int getRealDataSizeWithoutPacketHeadSize();
 
@@ -375,7 +376,7 @@ public final class WritePacket {
 				tmpByteTab[0]=type;
 				Bits.putInt(tmpByteTab, 1, wp.id_packet);
 				Block.putShortInt(tmpByteTab, 5, getRealDataSizeWithoutPacketHeadSize());
-				if (wp.current_pos == wp.start_position) {
+				if (wp.current_pos.get() == wp.start_position) {
 					Bits.putLong(tmpByteTab, 8, wp.data_length_with_message_digest);
 					Bits.putLong(tmpByteTab, 16, wp.start_position);
 					writeData(tmpByteTab, 0, 24);
@@ -421,7 +422,7 @@ public final class WritePacket {
 			 * byte[size];
 			 */
 			realDataSize_WithoutHead = (int)Math.min(_data_remaining, max_buffer_size);
-			int size = packet_head_size + ((int) realDataSize_WithoutHead);
+			int size = packet_head_size + realDataSize_WithoutHead;
 			subBlock=connectionProtocol.initSubBlock(size);
 			//tab = new byte[size];
 			tab=subBlock.getBytes();
@@ -479,10 +480,10 @@ public final class WritePacket {
 			return subBlock;
 		}
 		
-		@Override
+		/*@Override
 		int getRealDataSize() {
 			return subBlock.getSize();
-		}
+		}*/
 
 		@Override
 		int getRealDataSizeWithoutPacketHeadSize() {
@@ -496,7 +497,6 @@ public final class WritePacket {
 		private final byte[] tab;
 		private final short random_values_size;
 		private short random_values_size_remaining;
-		private int data_size;
 		private int cursor;
 		private int nextRandValuePos;
 		private final int realDataSize_WithoutHead;
@@ -527,7 +527,6 @@ public final class WritePacket {
 			//tab = new byte[size + packet_head_size + this.random_values_size];
 			tab=subBlock.getBytes();
 			realDataSize_WithoutHead = size;
-			data_size = tab.length - this.random_values_size;
 			cursor = subBlock.getOffset();
 			nextRandValuePos = cursor;
 			shiftedTabLength=subBlock.getOffset()+subBlock.getSize();
@@ -619,8 +618,7 @@ public final class WritePacket {
 				if (random_values_size_remaining - getMiniRandomValueSize() * 2 + 1 - nbrand >= 0)
 					nextRand = (byte) (random.nextInt(64) + 64);
 				tab[cursor++] = encodeLocalNumberRandomVal(nbrand, random);
-				for (int i = 0; i < tabrand.length; i++)
-					tab[cursor++] = tabrand[i];
+				for (byte aTabrand : tabrand) tab[cursor++] = aTabrand;
 				tab[cursor++] = nextRand;
 				randamValuesWrited += 2 + tabrand.length;
 				if (nextRand == -1)
@@ -648,10 +646,10 @@ public final class WritePacket {
 			return subBlock;
 		}
 
-		@Override
+		/*@Override
 		int getRealDataSize() {
 			return data_size;
-		}
+		}*/
 
 		@Override
 		int getRealDataSizeWithoutPacketHeadSize() {

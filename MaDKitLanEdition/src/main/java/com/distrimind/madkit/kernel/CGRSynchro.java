@@ -54,6 +54,7 @@ import com.distrimind.madkit.util.ExternalizableAndSizable;
  * @since MaDKitLanEdition 1.0
  *
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 public class CGRSynchro extends ObjectMessage<AgentAddress> implements ExternalizableAndSizable {
 
 	/**
@@ -69,6 +70,7 @@ public class CGRSynchro extends ObjectMessage<AgentAddress> implements Externali
 	private Code code;
 	private boolean manual;
 
+	@SuppressWarnings("unused")
 	private CGRSynchro()
 	{
 		super(null, false);
@@ -84,8 +86,6 @@ public class CGRSynchro extends ObjectMessage<AgentAddress> implements Externali
 	{
 		super.readExternal(in, 0);
 		code=Code.valueOf(SerializationTools.readString(in, 1000, false));
-		if (code==null)
-			throw new MessageSerializationException(Integrity.FAIL);
 		manual=in.readBoolean();
 		
 	}
@@ -96,15 +96,12 @@ public class CGRSynchro extends ObjectMessage<AgentAddress> implements Externali
 		oos.writeBoolean(manual);
 	}
 	
+	@SuppressWarnings("MethodDoesntCallSuperMethod")
 	@Override
 	public CGRSynchro clone() {
 		return new CGRSynchro(code, getContent(), this.manual);
 	}
 	
-	/**
-	 * @param code
-	 * @param aa
-	 */
 	CGRSynchro(final Code code, final AgentAddress aa, boolean manual_operation) {
 		super(aa);
 		if (code == null)
@@ -136,6 +133,7 @@ public class CGRSynchro extends ObjectMessage<AgentAddress> implements Externali
 
 }
 
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 class RequestRoleSecure extends ObjectMessage<ExternalizableAndSizable> implements ExternalizableAndSizable {
 
 	/**

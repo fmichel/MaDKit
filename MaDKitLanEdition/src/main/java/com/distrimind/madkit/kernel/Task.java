@@ -87,20 +87,14 @@ public final class Task<V> implements Cloneable {
 		public boolean allowAgentToTakeRole(Group _group, String _roleName,
 				final Class<? extends AbstractAgent> requesterClass, AgentNetworkID _agentNetworkID,
 				Object _memberCard) {
-			if (_memberCard != null && _memberCard instanceof MemberCard && _memberCard == memberCard)
-				return true;
-			else
-				return false;
+			return _memberCard instanceof MemberCard && _memberCard == memberCard;
 		}
 
 		@Override
 		public boolean allowAgentToCreateSubGroup(Group _parent_group, Group _sub_group,
 				final Class<? extends AbstractAgent> requesterClass, AgentNetworkID _agentNetworkID,
 				Object _memberCard) {
-			if (_memberCard != null && _memberCard instanceof MemberCard && _memberCard == memberCard)
-				return true;
-			else
-				return false;
+			return _memberCard instanceof MemberCard && _memberCard == memberCard;
 		}
 	}, true, "~~Tasks Agent");
 
@@ -168,9 +162,10 @@ public final class Task<V> implements Cloneable {
 		duration_between_each_repetition = _duration_between_each_repetition;
 	}
 
+	@SuppressWarnings("MethodDoesntCallSuperMethod")
 	@Override
 	public Task<V> clone() {
-		return new Task<V>(callable, time, duration_between_each_repetition);
+		return new Task<>(callable, time, duration_between_each_repetition);
 	}
 
 	public void run() throws Exception {

@@ -75,13 +75,13 @@ public class BroadcastLocalLanMessage extends LocalLanMessage {
 		agentAddressesSender = _agentAddressesSender;
 	}
 
-	BroadcastLocalLanMessage(Message _message, AbstractGroup _destination_groups, String _destination_role,
+	/*BroadcastLocalLanMessage(Message _message, AbstractGroup _destination_groups, String _destination_role,
 			ArrayList<AgentAddress> _agentAddressesSender) {
 		super(_message, null);
 		abstract_group = _destination_groups;
 		role = _destination_role;
 		agentAddressesSender = _agentAddressesSender;
-	}
+	}*/
 
 	@Override
 	public String toString() {

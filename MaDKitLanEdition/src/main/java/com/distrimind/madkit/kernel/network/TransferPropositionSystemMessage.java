@@ -53,6 +53,7 @@ import com.distrimind.madkit.util.SerializationTools;
  * @version 1.1
  * @since MadkitLanEdition 1.0
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 class TransferPropositionSystemMessage extends BroadcastableSystemMessage {
 
 	/**
@@ -66,6 +67,7 @@ class TransferPropositionSystemMessage extends BroadcastableSystemMessage {
 	private int numberOfIntermediatePeers;
 	private boolean finalTestResult = true;
 	private boolean youAskConnection;
+	@SuppressWarnings("unused")
 	TransferPropositionSystemMessage()
 	{
 		
@@ -92,6 +94,8 @@ class TransferPropositionSystemMessage extends BroadcastableSystemMessage {
 		if (o!=null && !(o instanceof ExternalizableAndSizable))
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		attachedData=(ExternalizableAndSizable)o;
+		if (attachedData==null)
+			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		totalSize+=attachedData.getInternalSerializedSize();
 		if (totalSize>globalSize)
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);

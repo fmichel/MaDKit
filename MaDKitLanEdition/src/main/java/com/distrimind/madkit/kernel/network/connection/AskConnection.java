@@ -50,6 +50,7 @@ import com.distrimind.madkit.exceptions.MessageSerializationException;
  * @since MadkitLanEdition 1.0
  * @version 1.1
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 public class AskConnection extends ConnectionMessage {
 	/**
 	 * 

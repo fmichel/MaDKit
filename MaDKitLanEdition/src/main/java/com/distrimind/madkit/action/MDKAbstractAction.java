@@ -72,10 +72,10 @@ public abstract class MDKAbstractAction extends AbstractAction {
 		}
 		if (actionInfo.getKeyEvent() != KeyEvent.VK_DOLLAR) {
 			putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(actionInfo.getKeyEvent(), InputEvent.CTRL_MASK));
-			putValue(Action.MNEMONIC_KEY, Integer.valueOf(actionInfo.getKeyEvent()));
+			putValue(Action.MNEMONIC_KEY, actionInfo.getKeyEvent());
 		}
 		putValue(Action.ACTION_COMMAND_KEY, actionInfo.getName());
-		putValue(Action.SELECTED_KEY, Boolean.valueOf(false));
+		putValue(Action.SELECTED_KEY, Boolean.FALSE);
 	}
 
 }

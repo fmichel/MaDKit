@@ -52,6 +52,7 @@ import com.distrimind.madkit.util.SerializationTools;
  * @version 1.0
  * @since MadkitLanEdition 1.0
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 class UnlogMessage extends AccessMessage {
 
 	/**
@@ -65,6 +66,7 @@ class UnlogMessage extends AccessMessage {
 		identifier_to_unlog = _identifiers;
 	}
 	
+	@SuppressWarnings("unused")
 	UnlogMessage()
 	{
 		

@@ -85,10 +85,7 @@ public final class IPBanStat extends Table<IPBanStat.Record> {
 
 						@Override
 						public boolean nextRecord(IPBanned.Record _record) {
-							if (_record.expiration_time < System.currentTimeMillis()) {
-								return true;
-							}
-							return false;
+							return _record.expiration_time < System.currentTimeMillis();
 						}
 					});
 					ipes.updateRecords(new AlterRecordFilter<IPExpulsedStat.Record>() {
@@ -167,7 +164,7 @@ public final class IPBanStat extends Table<IPBanStat.Record> {
 				}
 
 				@Override
-				public void initOrReset() throws Exception {
+				public void initOrReset() {
 					
 				}
 			});
@@ -211,11 +208,11 @@ public final class IPBanStat extends Table<IPBanStat.Record> {
 							.getTableInstance(IPExpulsedStat.class);
 
 					byte key[] = add.getAddress();
-					IPBanned.Record ripbstat = ipb.getRecord(new Object[] { "inet_address", key });
+					IPBanned.Record ripbstat = ipb.getRecord("inet_address", key);
 					if (ripbstat != null && ripbstat.expiration_time == Long.MAX_VALUE)
 						return ripbstat;
 					IPExpulsedStat.Record ripesstat = candidate_to_ban ? null
-							: ipes.getRecord(new Object[] { "inet_address", key });
+							: ipes.getRecord("inet_address", key);
 
 					short nbAnomalies = nbAno;
 					/*
@@ -251,7 +248,7 @@ public final class IPBanStat extends Table<IPBanStat.Record> {
 					}
 
 					if (candidate_to_ban) {
-						IPBanStat.Record ripbsstat = IPBanStat.this.getRecord(new Object[] { "inet_address", key });
+						IPBanStat.Record ripbsstat = IPBanStat.this.getRecord("inet_address", key);
 						boolean toAdd = false;
 						if (ripbsstat == null) {
 							ripbsstat = new IPBanStat.Record();
@@ -337,7 +334,7 @@ public final class IPBanStat extends Table<IPBanStat.Record> {
 				}
 
 				@Override
-				public void initOrReset() throws Exception {
+				public void initOrReset() {
 					
 				}
 			});
@@ -362,9 +359,9 @@ public final class IPBanStat extends Table<IPBanStat.Record> {
 					hm.put("inet_address", inet_address.getAddress());
 					IPBanned.Record r = ipb.getRecord(hm);
 					if (r == null) {
-						return Boolean.valueOf(false);
+						return Boolean.FALSE;
 					}
-					return Boolean.valueOf(r.expiration_time > System.currentTimeMillis());
+					return r.expiration_time > System.currentTimeMillis();
 				}
 
 				@Override
@@ -378,10 +375,10 @@ public final class IPBanStat extends Table<IPBanStat.Record> {
 				}
 
 				@Override
-				public void initOrReset() throws Exception {
-					
+				public void initOrReset() {
+
 				}
-			}).booleanValue();
+			});
 		} catch (Exception e) {
 			throw DatabaseException.getDatabaseException(e);
 		}
@@ -394,7 +391,7 @@ public final class IPBanStat extends Table<IPBanStat.Record> {
 
 				@Override
 				public Void run() throws Exception {
-					HashMap<String, Object> hm = new HashMap<String, Object>();
+					HashMap<String, Object> hm = new HashMap<>();
 					hm.put("inet_address", inet_address.getAddress());
 					Record r1 = getRecord(hm);
 					if (r1 != null)
@@ -423,7 +420,7 @@ public final class IPBanStat extends Table<IPBanStat.Record> {
 				}
 
 				@Override
-				public void initOrReset() throws Exception {
+				public void initOrReset() {
 					
 				}
 			});

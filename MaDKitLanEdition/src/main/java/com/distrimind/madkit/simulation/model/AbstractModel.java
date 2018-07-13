@@ -83,23 +83,19 @@ public class AbstractModel extends AbstractAgent {
 		final JPanel all = new JPanel();
 		all.setBorder(new TitledBorder(label));
 		Class<? extends AbstractAgent> agentClass = onInstance.getClass();
-		while (true) {
+		do {
 			for (Field f : agentClass.getDeclaredFields()) {
 				if (BoundedRangeModel.class.isAssignableFrom(f.getType())) {
 					f.setAccessible(true);
 					try {
 						all.add(SwingUtil.createSliderPanel((BoundedRangeModel) f.get(onInstance), f.getName()));
-					} catch (IllegalArgumentException e) {
-						e.printStackTrace();
-					} catch (IllegalAccessException e) {
+					} catch (IllegalArgumentException | IllegalAccessException e) {
 						e.printStackTrace();
 					}
 				}
 			}
 			agentClass = (Class<? extends AbstractAgent>) agentClass.getSuperclass();
-			if (agentClass == AbstractAgent.class)
-				break;
-		}
+		} while (agentClass != AbstractAgent.class);
 		return all;
 	}
 

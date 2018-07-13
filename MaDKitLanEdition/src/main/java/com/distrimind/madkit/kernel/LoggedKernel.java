@@ -84,11 +84,7 @@ final class LoggedKernel extends MadkitKernel {
 		loggedKernel = this;
 	}
 
-	/**
-	 * @see com.distrimind.madkit.kernel.MadkitKernel#createGroup(com.distrimind.madkit.kernel.AbstractAgent,
-	 *      java.lang.String, java.lang.String,
-	 *      com.distrimind.madkit.kernel.Gatekeeper, boolean)
-	 */
+
 	@Override
 	ReturnCode createGroup(AbstractAgent requester, Group group, Object passKey, boolean manually_created) {
 		final ReturnCode r = kernel.createGroup(requester, group, passKey, manually_created);
@@ -126,10 +122,7 @@ final class LoggedKernel extends MadkitKernel {
 		return r;
 	}
 
-	/**
-	 * @see com.distrimind.madkit.kernel.MadkitKernel#leaveGroup(com.distrimind.madkit.kernel.AbstractAgent,
-	 *      java.lang.String, java.lang.String)
-	 */
+
 	@Override
 	ReturnCode leaveGroup(AbstractAgent requester, Group group, boolean manually_requested) {
 		final ReturnCode r = kernel.leaveGroup(requester, group, manually_requested);
@@ -145,10 +138,7 @@ final class LoggedKernel extends MadkitKernel {
 		return r;
 	}
 
-	/**
-	 * @see com.distrimind.madkit.kernel.MadkitKernel#leaveRole(com.distrimind.madkit.kernel.AbstractAgent,
-	 *      java.lang.String, java.lang.String, java.lang.String)
-	 */
+
 	@Override
 	ReturnCode leaveRole(AbstractAgent requester, Group group, String role, boolean manual_request) {
 		ReturnCode r = kernel.leaveRole(requester, group, role, manual_request);
@@ -164,10 +154,7 @@ final class LoggedKernel extends MadkitKernel {
 		return r;
 	}
 
-	/**
-	 * @see com.distrimind.madkit.kernel.MadkitKernel#getAgentsWithRole(com.distrimind.madkit.kernel.AbstractAgent,
-	 *      java.lang.String, java.lang.String, java.lang.String)
-	 */
+
 	@Override
 	Set<AgentAddress> getAgentsWithRole(AbstractAgent requester, AbstractGroup group, String role,
 			boolean callerIncluded) {
@@ -185,10 +172,7 @@ final class LoggedKernel extends MadkitKernel {
 		}
 	}
 
-	/**
-	 * @see com.distrimind.madkit.kernel.MadkitKernel#getAgentWithRole(com.distrimind.madkit.kernel.AbstractAgent,
-	 *      java.lang.String, java.lang.String, java.lang.String)
-	 */
+
 	@Override
 	AgentAddress getAgentWithRole(AbstractAgent requester, AbstractGroup group, String role) {
 		try {

@@ -59,6 +59,7 @@ import com.distrimind.madkit.util.SerializationTools;
  * @version 1.2
  * @since MadkitLanEdition 1.0
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 public class HostIP extends AbstractIP {
 	/**
 	 * 
@@ -122,6 +123,7 @@ public class HostIP extends AbstractIP {
 		return host.hashCode();
 	}
 
+	@SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
 	@Override
 	public boolean equals(Object o) {
 		return this.toString().equals(o.toString());
@@ -132,6 +134,7 @@ public class HostIP extends AbstractIP {
 		try {
 			InetAddress ias[] = InetAddress.getAllByName(host);
 			ArrayList<Inet6Address> res = new ArrayList<>(ias == null ? 0 : ias.length);
+			assert ias != null;
 			for (InetAddress ia : ias) {
 				if (ia instanceof Inet6Address)
 					res.add((Inet6Address) ia);
@@ -143,7 +146,7 @@ public class HostIP extends AbstractIP {
 					return res.get(random.nextInt(res.size()));
 				}
 			}
-		} catch (UnknownHostException e) {
+		} catch (UnknownHostException ignored) {
 		}
 		return null;
 	}
@@ -153,6 +156,7 @@ public class HostIP extends AbstractIP {
 		try {
 			InetAddress ias[] = InetAddress.getAllByName(host);
 			ArrayList<Inet4Address> res = new ArrayList<>(ias == null ? 0 : ias.length);
+			assert ias != null;
 			for (InetAddress ia : ias) {
 				if (ia instanceof Inet4Address)
 					res.add((Inet4Address) ia);
@@ -164,7 +168,7 @@ public class HostIP extends AbstractIP {
 					return res.get(random.nextInt(res.size()));
 				}
 			}
-		} catch (UnknownHostException e) {
+		} catch (UnknownHostException ignored) {
 		}
 		return null;
 	}

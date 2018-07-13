@@ -38,19 +38,14 @@
 
 package com.distrimind.madkit.kernel;
 
+import com.distrimind.madkit.agr.LocalCommunity;
+import com.distrimind.madkit.util.SerializationTools;
+
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
-
-import com.distrimind.madkit.agr.LocalCommunity;
-import com.distrimind.madkit.kernel.Gatekeeper;
-import com.distrimind.madkit.kernel.KernelAddress;
-import com.distrimind.madkit.util.SerializationTools;
 
 /**
  * MadKitGroupExtension aims to encapsulate MadKit in order to extends the
@@ -66,6 +61,7 @@ import com.distrimind.madkit.util.SerializationTools;
  * @see AbstractGroup
  * @see MultiGroup
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 public final class Group extends AbstractGroup implements Comparable<Group> {
 	/**
 	 * 
@@ -412,6 +408,7 @@ public final class Group extends AbstractGroup implements Comparable<Group> {
 
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public final void finalize() {
 		m_group.decrementReferences();
@@ -441,8 +438,10 @@ public final class Group extends AbstractGroup implements Comparable<Group> {
 			this.m_represented_groups = null;
 			this.m_sub_groups = null;
 			this.m_sub_groups_tree = null;
-			
 
+
+			if (path==null)
+				throw new IOException();
 			m_group = getRoot(com).getGroup(dist, null, isReserved, true, getGroupsStringFromPath(path));
 
 			if (!m_use_sub_groups) {
@@ -900,12 +899,12 @@ public final class Group extends AbstractGroup implements Comparable<Group> {
 	public Group[] getSubGroups(KernelAddress ka) {
 		GroupTree[] sub_groups = m_group.getSubGroups(ka);
 		if (m_sub_groups_tree != sub_groups) {
-			ArrayList<Group> res = new ArrayList<Group>();
+			ArrayList<Group> res = new ArrayList<>();
 
-			for (int i = 0; i < sub_groups.length; i++) {
-				if (!sub_groups[i].isReserved())
-					res.add(new Group(sub_groups[i], false, true));
-			}
+            for (GroupTree sub_group : sub_groups) {
+                if (!sub_group.isReserved())
+                    res.add(new Group(sub_group, false, true));
+            }
 
 			synchronized (m_group.m_root) {
 				m_represented_groups = null;
@@ -929,7 +928,7 @@ public final class Group extends AbstractGroup implements Comparable<Group> {
 	public Group[] getSubGroups() {
 		GroupTree[] sub_groups = m_group.getSubGroups();
 		if (m_global_groups_tree != sub_groups) {
-			ArrayList<Group> res = new ArrayList<Group>();
+			ArrayList<Group> res = new ArrayList<>();
 			for (GroupTree gt : sub_groups) {
 				if (!gt.isReserved())
 					res.add(new Group(gt, false, true));
@@ -958,10 +957,10 @@ public final class Group extends AbstractGroup implements Comparable<Group> {
 		if (m_parent_groups_tree != parent_groups) {
 			ArrayList<Group> res = new ArrayList<>(parent_groups.length);
 
-			for (int i = 0; i < parent_groups.length; i++) {
-				if (!parent_groups[i].isReserved())
-					res.add(new Group(parent_groups[i], false, true));
-			}
+            for (GroupTree parent_group : parent_groups) {
+                if (!parent_group.isReserved())
+                    res.add(new Group(parent_group, false, true));
+            }
 
 			synchronized (m_group.m_root) {
 				m_parent_groups = new Group[res.size()];
@@ -1020,9 +1019,9 @@ public final class Group extends AbstractGroup implements Comparable<Group> {
 		return m_group.isAnyRoleRequested(ka);
 	}
 
-	boolean isAnyRoleRequestedRecursive(KernelAddress ka) {
+	/*boolean isAnyRoleRequestedRecursive(KernelAddress ka) {
 		return m_group.isAnyRoleRequestedRecursive(ka);
-	}
+	}*/
 
 	boolean isAnyRoleRequested() {
 		return m_group.isAnyRoleRequested();
@@ -1195,7 +1194,7 @@ public final class Group extends AbstractGroup implements Comparable<Group> {
 
 	static String[] getGroupsStringFromPath(String _path) {
 		String[] r = _path.split("/");
-		if (r == null || r.length == 0)
+		if (r.length == 0)
 			return null;
 		int size = 0;
 		for (int i = 0; i < r.length; i++) {
@@ -1210,12 +1209,12 @@ public final class Group extends AbstractGroup implements Comparable<Group> {
 		else {
 			r2 = new String[size];
 			int j = 0;
-			for (int i = 0; i < r.length; i++) {
-				if (r[i] != null) {
-					r2[j] = r[i];
-					j++;
-				}
-			}
+            for (String aR : r) {
+                if (aR != null) {
+                    r2[j] = aR;
+                    j++;
+                }
+            }
 		}
 		return r2;
 	}
@@ -1240,8 +1239,8 @@ public final class Group extends AbstractGroup implements Comparable<Group> {
 				Group.getGroupsStringFromPath(_path));
 	}
 
-	static private final ArrayList<GroupChangementNotifier> m_objects_to_notify = new ArrayList<GroupChangementNotifier>(
-			100);
+	static private final ArrayList<GroupChangementNotifier> m_objects_to_notify = new ArrayList<>(
+            100);
 
 	static void addGroupChangementNotifier(GroupChangementNotifier _gcn) {
 		synchronized (m_objects_to_notify) {
@@ -1258,7 +1257,7 @@ public final class Group extends AbstractGroup implements Comparable<Group> {
 
 	@SuppressWarnings("unchecked")
 	static void notifyChangements() {
-		ArrayList<GroupChangementNotifier> list = null;
+		ArrayList<GroupChangementNotifier> list;
 		synchronized (m_objects_to_notify) {
 			list = (ArrayList<GroupChangementNotifier>) m_objects_to_notify.clone();
 		}
@@ -1267,7 +1266,8 @@ public final class Group extends AbstractGroup implements Comparable<Group> {
 		}
 	}
 
-	final static class Universe extends AbstractGroup {
+	@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
+    final static class Universe extends AbstractGroup {
 		/**
 		 * 
 		 */
@@ -1277,11 +1277,11 @@ public final class Group extends AbstractGroup implements Comparable<Group> {
 		public Group[] getRepresentedGroups(KernelAddress _ka) {
 			if (_ka == null)
 				return new Group[0];
-			AtomicReference<Group[]> rp = null;
+			AtomicReference<Group[]> rp;
 			synchronized (represented_groups_universe) {
 				rp = represented_groups_universe.get(_ka);
 				if (rp == null) {
-					rp = new AtomicReference<Group[]>(null);
+					rp = new AtomicReference<>(null);
 					represented_groups_universe.put(_ka, rp);
 				}
 			}
@@ -1290,8 +1290,7 @@ public final class Group extends AbstractGroup implements Comparable<Group> {
 				ArrayList<Group> lst = new ArrayList<>(50);
 				synchronized (m_groups_root) {
 					for (GroupTree gt : m_groups_root.values()) {
-						for (Group g : gt.getRepresentedGroups(_ka))
-							lst.add(g);
+                        lst.addAll(Arrays.asList(gt.getRepresentedGroups(_ka)));
 					}
 				}
 				res = new Group[lst.size()];
@@ -1309,8 +1308,7 @@ public final class Group extends AbstractGroup implements Comparable<Group> {
 					ArrayList<Group> lst = new ArrayList<>(50);
 					synchronized (m_groups_root) {
 						for (GroupTree gt : m_groups_root.values()) {
-							for (Group g : gt.getRepresentedGroups())
-								lst.add(g);
+                            Collections.addAll(lst, gt.getRepresentedGroups());
 						}
 					}
 					res = new Group[lst.size()];
@@ -1356,18 +1354,18 @@ public final class Group extends AbstractGroup implements Comparable<Group> {
 		}
 
 		@Override
-		public void writeExternal(ObjectOutput out) throws IOException {
+		public void writeExternal(ObjectOutput out) {
 			
 		}
 
 		@Override
-		public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		public void readExternal(ObjectInput in) {
 			
 		}
 	}
 
 	static final Universe universe = new Universe();
-	static final Map<KernelAddress, AtomicReference<Group[]>> represented_groups_universe = new HashMap<KernelAddress, AtomicReference<Group[]>>();
+	static final Map<KernelAddress, AtomicReference<Group[]>> represented_groups_universe = new HashMap<>();
 	static volatile Group[] global_represented_groups_universe = null;
 
 	static void resetRepresentedGroupsOfUniverse(KernelAddress ka) {
@@ -1378,7 +1376,7 @@ public final class Group extends AbstractGroup implements Comparable<Group> {
 		}
 	}
 
-	static protected final Map<String, GroupTree> m_groups_root = new HashMap<String, GroupTree>();
+	static protected final Map<String, GroupTree> m_groups_root = new HashMap<>();
 
 	static protected GroupTree getRoot(String _community) {
 		if (_community == null)
@@ -1405,10 +1403,10 @@ public final class Group extends AbstractGroup implements Comparable<Group> {
 	private final static class GroupTree {
 		private static final class KernelReferences {
 			public int m_madkit_references = 0;
-			public KernelAddress m_kernel = null;
-			public LinkedList<GroupTree> m_all_sub_groups = new LinkedList<GroupTree>();
-			public final AtomicReference<GroupTree[]> m_all_sub_groups_duplicated = new AtomicReference<GroupTree[]>(
-					new GroupTree[0]);
+			public KernelAddress m_kernel;
+			public LinkedList<GroupTree> m_all_sub_groups = new LinkedList<>();
+			public final AtomicReference<GroupTree[]> m_all_sub_groups_duplicated = new AtomicReference<>(
+                    new GroupTree[0]);
 
 			public KernelReferences(KernelAddress ka) {
 				m_kernel = ka;
@@ -1431,7 +1429,7 @@ public final class Group extends AbstractGroup implements Comparable<Group> {
 			return isReserved;
 		}
 
-		private final ArrayList<GroupTree> m_sub_groups = new ArrayList<GroupTree>();
+		private final ArrayList<GroupTree> m_sub_groups = new ArrayList<>();
 		protected final String m_community;
 		private final String m_group;
 		private final String m_path;
@@ -1440,7 +1438,7 @@ public final class Group extends AbstractGroup implements Comparable<Group> {
 		private final boolean m_is_distributed;
 		private final Gatekeeper m_identifier;
 		private int m_references = 0;
-		private HashMap<KernelAddress, KernelReferences> m_kernel_references = new HashMap<KernelAddress, KernelReferences>();
+		private HashMap<KernelAddress, KernelReferences> m_kernel_references = new HashMap<>();
 		private boolean isReserved;
 		private volatile GroupTree m_global_sub_groups_duplicated[] = null;
 
@@ -1448,9 +1446,9 @@ public final class Group extends AbstractGroup implements Comparable<Group> {
 		// LinkedList<GroupTree>();
 		// private GroupTree[] m_all_sub_groups_duplicated=new GroupTree[0];
 
-		private final LinkedList<GroupTree> m_parent_groups = new LinkedList<GroupTree>();
-		private final AtomicReference<GroupTree[]> m_parent_groups_duplicated = new AtomicReference<GroupTree[]>(
-				new GroupTree[0]);
+		private final LinkedList<GroupTree> m_parent_groups = new LinkedList<>();
+		private final AtomicReference<GroupTree[]> m_parent_groups_duplicated = new AtomicReference<>(
+                new GroupTree[0]);
 
 		/*
 		 * private final LinkedList<String> m_sub_group_paths=new LinkedList<String>();
@@ -1502,7 +1500,8 @@ public final class Group extends AbstractGroup implements Comparable<Group> {
 				return this;
 			if (_group.length == 1 && _group[0].contains("/"))
 				_group = getGroupsStringFromPath(_group[0]);
-			return getGroup(_isDistributed, _theIdentifier, 0, _isReserved, forceReserved, _group);
+            assert _group != null;
+            return getGroup(_isDistributed, _theIdentifier, 0, _isReserved, forceReserved, _group);
 		}
 
 		private GroupTree getGroup(boolean _isDistributed, Gatekeeper _theIdentifier, int i, boolean _isReserved,
@@ -1517,9 +1516,9 @@ public final class Group extends AbstractGroup implements Comparable<Group> {
 					if (gt.m_group.equals(g)) {
 						if (i == _group.length - 1) {
 							if (!forceReserved && ((_isReserved && gt.getNbReferences() > 0) || gt.isReserved)) {
-								String err = "";
+								StringBuilder err = new StringBuilder();
 								for (String s : _group)
-									err += s + "/";
+									err.append(s).append("/");
 								if (gt.isReserved)
 									throw new IllegalArgumentException("The group " + err + " is reserved !");
 								else
@@ -1536,7 +1535,7 @@ public final class Group extends AbstractGroup implements Comparable<Group> {
 					}
 				}
 				GroupTree gt = new GroupTree(g, m_root, this, _isDistributed, _theIdentifier,
-						(i == _group.length - 1) ? _isReserved : false);
+                        (i == _group.length - 1) && _isReserved);
 				GroupTree res;
 				if (i == _group.length - 1)
 					res = gt;
@@ -1590,8 +1589,7 @@ public final class Group extends AbstractGroup implements Comparable<Group> {
 						for (GroupTree gt : m_sub_groups) {
 							if (gt.isAnyRoleRequested()) {
 								r.add(gt);
-								for (GroupTree gt2 : gt.getSubGroups())
-									r.add(gt2);
+                                Collections.addAll(r, gt.getSubGroups());
 							}
 						}
 					}
@@ -1801,7 +1799,7 @@ public final class Group extends AbstractGroup implements Comparable<Group> {
 			}
 		}
 
-		public boolean isAnyRoleRequestedRecursive(KernelAddress ka) {
+		/*public boolean isAnyRoleRequestedRecursive(KernelAddress ka) {
 			synchronized (m_root) {
 				KernelReferences kr = m_kernel_references.get(ka);
 
@@ -1815,7 +1813,7 @@ public final class Group extends AbstractGroup implements Comparable<Group> {
 				return false;
 			}
 		}
-
+*/
 		public boolean isAnyMadkitCreatedRecursive(KernelAddress ka) {
 			synchronized (m_root) {
 				KernelReferences kr = m_kernel_references.get(ka);

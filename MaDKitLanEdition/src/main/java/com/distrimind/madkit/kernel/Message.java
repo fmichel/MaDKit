@@ -123,6 +123,7 @@ public class Message implements Cloneable {// TODO message already sent warning 
 		SerializationTools.writeExternalizableAndSizable(oos, conversationID, false);
 		oos.writeBoolean(needReply);
 	}
+	@SuppressWarnings("SameParameterValue")
 	void setNeedReply(boolean value) {
 		needReply = value;
 	}
@@ -133,16 +134,12 @@ public class Message implements Cloneable {// TODO message already sent warning 
 
 	// public Message(){//TODO id when sending ?
 	// }
-	/**
-	 * @param atargetedRole
-	 */
+
 	final void setReceiver(AgentAddress a) {
 		receiver = a;
 	}
 
-	/**
-	 * @param agentAddressOf
-	 */
+
 	final void setSender(final AgentAddress agentAddressOf) {
 		sender = agentAddressOf;
 	}
@@ -195,18 +192,12 @@ public class Message implements Cloneable {// TODO message already sent warning 
 		}
 	}
 
-	/**
-	 * @param iD
-	 *            the iD to set
-	 */
+
 	final void setIDFrom(final Message from) {
 		conversationID = from.conversationID;
 	}
 
-	/**
-	 * @param iD
-	 *            the iD to set
-	 */
+
 	final void setIDFrom(final ConversationID from) {
 		conversationID = from;
 	}

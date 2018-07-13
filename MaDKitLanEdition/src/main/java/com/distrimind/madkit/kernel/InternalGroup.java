@@ -37,28 +37,19 @@
  */
 package com.distrimind.madkit.kernel;
 
-import static com.distrimind.madkit.kernel.AbstractAgent.ReturnCode.ACCESS_DENIED;
-import static com.distrimind.madkit.kernel.AbstractAgent.ReturnCode.NOT_IN_GROUP;
-import static com.distrimind.madkit.kernel.AbstractAgent.ReturnCode.ROLE_ALREADY_HANDLED;
-import static com.distrimind.madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.distrimind.madkit.agr.LocalCommunity;
 import com.distrimind.madkit.i18n.ErrorMessages;
 import com.distrimind.madkit.i18n.I18nUtilities;
 import com.distrimind.madkit.kernel.AbstractAgent.ReturnCode;
 import com.distrimind.madkit.message.ObjectMessage;
 import com.distrimind.madkit.util.ExternalizableAndSizable;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static com.distrimind.madkit.kernel.AbstractAgent.ReturnCode.*;
 
 /**
  * @author Oliver Gutknecht
@@ -82,13 +73,8 @@ final class InternalGroup extends ConcurrentHashMap<String, InternalRole> {
 
 	private final boolean distributed;
 	private final boolean manually_created;
-	private Map<String, Object> blackboard = new HashMap<>();
+	private final Map<String, Object> blackboard = new HashMap<>();
 
-	/**
-	 * @param _group
-	 * @param creator
-	 * @param organization
-	 */
 	InternalGroup(Group _group, AbstractAgent creator, Organization organization, boolean manually_created) {
 		if (_group.isUsedSubGroups())
 			throw new IllegalAccessError();
@@ -109,16 +95,8 @@ final class InternalGroup extends ConcurrentHashMap<String, InternalRole> {
 		return communityObject;
 	}
 
-	/**
-	 * for distant creation
-	 * 
-	 * @param log
-	 * @param community
-	 * @param group
-	 * @param manager
-	 * @param gatekeeper
-	 * @param communityObject
-	 */
+
+
 	InternalGroup(Group _group, AgentAddress manager, Organization communityObject, boolean manually_created) {
 		// manager = creator;
 		distributed = true;
@@ -147,12 +125,7 @@ final class InternalGroup extends ConcurrentHashMap<String, InternalRole> {
 		return group;
 	}
 
-	/**
-	 * @param requester
-	 * @param roleName
-	 * @param memberCard
-	 * @return
-	 */
+
 	ReturnCode requestRole(final AbstractAgent requester, final String roleName, final ExternalizableAndSizable memberCard,
 			boolean manually_requested) {
 		if (roleName == null)
@@ -187,7 +160,7 @@ final class InternalGroup extends ConcurrentHashMap<String, InternalRole> {
 						}
 					}
 				});
-				if (!ma.getResult().booleanValue())
+				if (!ma.getResult())
 					return ACCESS_DENIED;
 			} else {
 				try {
@@ -230,9 +203,6 @@ final class InternalGroup extends ConcurrentHashMap<String, InternalRole> {
 		return r;
 	}
 
-	/**
-	 * @param roleName
-	 */
 	void removeRole(String roleName) {
 		synchronized (this) {
 			remove(roleName);
@@ -249,11 +219,7 @@ final class InternalGroup extends ConcurrentHashMap<String, InternalRole> {
 		}
 	}
 
-	/**
-	 * @param requester
-	 * @return a list of affected roles, or <code>null</code> if none of them are
-	 *         affected
-	 */
+
 	List<InternalRole> leaveGroup(final AbstractAgent requester, boolean manually_requested) {
 		List<InternalRole> affectedRoles = null;
 		synchronized (this) {
@@ -297,10 +263,6 @@ final class InternalGroup extends ConcurrentHashMap<String, InternalRole> {
 	// }
 	// }
 
-	/**
-	 * @param abstractAgent
-	 * @return
-	 */
 	AgentAddress getAgentAddressOf(AbstractAgent abstractAgent) {
 		for (final InternalRole r : values()) {
 			final AgentAddress aa = r.getAgentAddressOf(abstractAgent);
@@ -310,10 +272,6 @@ final class InternalGroup extends ConcurrentHashMap<String, InternalRole> {
 		return null;
 	}
 
-	/**
-	 * @param abstractAgent
-	 * @return
-	 */
 	AgentAddress getAgentAddressInGroupOrInParentGroups(AbstractAgent abstractAgent) {
 		for (final InternalRole r : values()) {
 			final AgentAddress aa = r.getAgentAddressOf(abstractAgent);
@@ -331,10 +289,7 @@ final class InternalGroup extends ConcurrentHashMap<String, InternalRole> {
 		return null;
 	}
 
-	/**
-	 * @param abstractAgent
-	 * @return
-	 */
+
 	AgentAddress getAgentAddressInGroupOrInParentGroupsWithRole(AbstractAgent abstractAgent, String role) {
 
 		final InternalRole r = get(role);
@@ -372,9 +327,6 @@ final class InternalGroup extends ConcurrentHashMap<String, InternalRole> {
 		return false;
 	}
 
-	/**
-	 * @return
-	 */
 	Map<String, Set<AgentAddress>> getGroupMap() {
 		final Map<String, Set<AgentAddress>> export = new TreeMap<>();
 		for (final Map.Entry<String, InternalRole> org : entrySet()) {
@@ -383,9 +335,7 @@ final class InternalGroup extends ConcurrentHashMap<String, InternalRole> {
 		return export;
 	}
 
-	/**
-	 * @param hashMap
-	 */
+
 	void importDistantOrg(final Map<String, Set<AgentAddress>> map, MadkitKernel madkitKernel) {
 		for (final String roleName : map.keySet()) {
 			final Set<AgentAddress> list = map.get(roleName);
@@ -397,9 +347,6 @@ final class InternalGroup extends ConcurrentHashMap<String, InternalRole> {
 		}
 	}
 
-	/**
-	 * @param content
-	 */
 	void addDistantMember(AgentAddress content) {
 		final String roleName = content.getRole();
 		final InternalRole r;
@@ -416,9 +363,7 @@ final class InternalGroup extends ConcurrentHashMap<String, InternalRole> {
 		return r;
 	}
 
-	/**
-	 * @param aa
-	 */
+
 	void removeDistantMember(final AgentAddress aa, boolean manually_requested) {
 		// boolean in = false;
 		for (final InternalRole r : values()) {
@@ -453,14 +398,13 @@ final class InternalGroup extends ConcurrentHashMap<String, InternalRole> {
 		synchronized (this) {
 			if (!isEmpty()) {
 				for (final InternalRole r : values()) {
-					for (Iterator<AbstractAgent> iterator = r.getPlayers().iterator(); iterator.hasNext();) {
-						AbstractAgent a = iterator.next();
-						if (a != oldManager) {
-							put(com.distrimind.madkit.agr.Organization.GROUP_MANAGER_ROLE,
-									new ManagerRole(this, a, false));
-							return;
-						}
-					}
+                    for (AbstractAgent a : r.getPlayers()) {
+                        if (a != oldManager) {
+                            put(com.distrimind.madkit.agr.Organization.GROUP_MANAGER_ROLE,
+                                    new ManagerRole(this, a, false));
+                            return;
+                        }
+                    }
 				}
 			}
 		}

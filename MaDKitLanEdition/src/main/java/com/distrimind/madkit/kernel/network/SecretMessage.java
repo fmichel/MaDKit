@@ -52,6 +52,7 @@ import com.distrimind.madkit.util.SerializationTools;
  * @version 1.1
  * @since MadkitLanEdition 1.0
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 final class SecretMessage extends KernelAddressNegociationMessage {
 	/**
 	 * 
@@ -63,6 +64,7 @@ final class SecretMessage extends KernelAddressNegociationMessage {
 	private byte[] secretMessage;
 	private AgentAddress agent_socket_address;
 	private transient AgentAddress originalDistantKernelAgent = null;
+	@SuppressWarnings("unused")
 	SecretMessage()
 	{
 		
@@ -70,6 +72,7 @@ final class SecretMessage extends KernelAddressNegociationMessage {
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		secretMessage=SerializationTools.readBytes(in, secretMessageSize, false);
+		assert secretMessage != null;
 		if (secretMessage.length != secretMessageSize)
 			throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 		Object o=SerializationTools.readExternalizableAndSizable(in, true);
@@ -108,9 +111,9 @@ final class SecretMessage extends KernelAddressNegociationMessage {
 		return originalDistantKernelAgent;
 	}
 
-	byte[] getSecretMessage() {
+	/*byte[] getSecretMessage() {
 		return secretMessage;
-	}
+	}*/
 
 	AgentAddress getAgentSocketAddress() {
 		return agent_socket_address;

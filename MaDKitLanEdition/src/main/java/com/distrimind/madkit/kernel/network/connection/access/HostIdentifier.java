@@ -113,7 +113,7 @@ public abstract class HostIdentifier implements ExternalizableAndSizable {
 		private static final long serialVersionUID = -1122797789837718737L;
 		private SecuredDecentralizedID id;
 
-		DefaultHostIdentifier() throws NoSuchAlgorithmException, NoSuchProviderException {
+		public DefaultHostIdentifier() throws NoSuchAlgorithmException, NoSuchProviderException {
 			synchronized (random) {
 				id = new SecuredDecentralizedID(new RenforcedDecentralizedIDGenerator(), random);
 			}

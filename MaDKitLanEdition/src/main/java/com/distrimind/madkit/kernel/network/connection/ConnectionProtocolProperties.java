@@ -88,7 +88,7 @@ public abstract class ConnectionProtocolProperties<CP extends ConnectionProtocol
 	 * Duration in millisecond after what secured random generator are
 	 * reinitialized.
 	 */
-	public long renewRandomInterval = 600000l;
+	public long renewRandomInterval = 600000L;
 
 	/**
 	 * The sub protocol to instantiate when this one is terminated
@@ -161,7 +161,7 @@ public abstract class ConnectionProtocolProperties<CP extends ConnectionProtocol
 				&& isConcernedByDistantPeer(_distant_inet_address, _local_port)
 				&& ((needBiDirectionnalConnectionInitiationAbility && this.supportBidirectionnalConnectionInitiative())
 						|| !needBiDirectionnalConnectionInitiationAbility
-								&& ((isServer && this.canBeServer()) || !isServer));
+								&& (!isServer || this.canBeServer()));
 	}
 
 	public ConnectionProtocol<CP> getConnectionProtocolInstance(InetSocketAddress _distant_inet_address,
@@ -171,9 +171,10 @@ public abstract class ConnectionProtocolProperties<CP extends ConnectionProtocol
 				mkProperties, _properties, 0, isServer, needBiDirectionnalConnectionInitiationAbility);
 	}
 
+	@SuppressWarnings("unused")
 	private ConnectionProtocol<CP> getConnectionProtocolInstance(InetSocketAddress _distant_inet_address,
-			InetSocketAddress _local_interface_address, DatabaseWrapper sql_connection, MadkitProperties mkProperties, NetworkProperties _properties,
-			int subProtocolLevel, boolean isServer, boolean needBiDirectionnalConnectionInitiationAbility)
+																 InetSocketAddress _local_interface_address, DatabaseWrapper sql_connection, MadkitProperties mkProperties, NetworkProperties _properties,
+																 int subProtocolLevel, boolean isServer, boolean needBiDirectionnalConnectionInitiationAbility)
 			throws NIOException {
 		try {
 			Constructor<CP> c = connectionProtocolClass.getDeclaredConstructor(InetSocketAddress.class,
@@ -189,8 +190,8 @@ public abstract class ConnectionProtocolProperties<CP extends ConnectionProtocol
 					return null;
 			}
 			return c.newInstance(_distant_inet_address, _distant_inet_address, sub, sql_connection, mkProperties, _properties,
-					Integer.valueOf(subProtocolLevel), Boolean.valueOf(isServer),
-					Boolean.valueOf(needBiDirectionnalConnectionInitiationAbility));
+					subProtocolLevel, isServer,
+					needBiDirectionnalConnectionInitiationAbility);
 		} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException e) {
 			throw new NIOException("Impossible to instantiate class " + connectionProtocolClass.getCanonicalName(), e);

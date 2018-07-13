@@ -63,6 +63,7 @@ import com.distrimind.util.crypto.P2PASymmetricSecretMessageExchanger;
  * @since MadKitLanEdition 1.0
  * @see Identifier
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 public class EncryptedIdentifier extends Identifier {
 
 	/**
@@ -70,12 +71,13 @@ public class EncryptedIdentifier extends Identifier {
 	 */
 	private static final long serialVersionUID = -1396620582869308278L;
 
+	@SuppressWarnings("unused")
 	EncryptedIdentifier()
 	{
 		
 	}
 	
-	EncryptedIdentifier(EncryptedCloudIdentifier _cloud_identifier, HostIdentifier _host_identifier) {
+	/*EncryptedIdentifier(EncryptedCloudIdentifier _cloud_identifier, HostIdentifier _host_identifier) {
 		super(_cloud_identifier, _host_identifier);
 	}
 
@@ -85,12 +87,11 @@ public class EncryptedIdentifier extends Identifier {
 			NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchProviderException, IllegalStateException, ShortBufferException {
 		super(new EncryptedCloudIdentifier(_cloud_identifier, cipher), _host_identifier);
 
-	}
+	}*/
 
 	EncryptedIdentifier(Identifier identifier, AbstractSecureRandom random, AbstractMessageDigest messageDigest, byte[] distantGeneratedSalt)
-			throws InvalidKeyException, IOException, IllegalBlockSizeException, BadPaddingException,
-			NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException,
-			InvalidAlgorithmParameterException, NoSuchProviderException, DigestException {
+			throws
+			DigestException {
 		super(new EncryptedCloudIdentifier(identifier.getCloudIdentifier(), random, messageDigest, distantGeneratedSalt), identifier.getHostIdentifier());
 	}
 

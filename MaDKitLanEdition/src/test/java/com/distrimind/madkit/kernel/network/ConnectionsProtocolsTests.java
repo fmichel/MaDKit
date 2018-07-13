@@ -888,7 +888,7 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 		// Assert.assertEquals(originalMessage.length, pp.getHead().getTotalLength());
 		Assert.assertEquals(0, pp.getHead().getStartPosition());
 		RandomByteArrayOutputStream output = new RandomByteArrayOutputStream();
-		ReadPacket rp = new ReadPacket(np.maxBufferSize, np.maxRandomPacketValues, pp, output,
+		ReadPacket rp = new ReadPacket(pp, output,
 				MessageDigestType.BC_FIPS_SHA3_512);
 		Assert.assertEquals(idPacket, rp.getID());
 		for (int i = 1; i < receivedBytes.size(); i++) {

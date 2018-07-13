@@ -51,6 +51,7 @@ import com.distrimind.madkit.util.NetworkMessage;
  * @version 1.0
  *
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 public class NetworkObjectMessage<T extends Serializable> extends ObjectMessage<T> implements NetworkMessage {
 
 	
@@ -99,6 +100,7 @@ public class NetworkObjectMessage<T extends Serializable> extends ObjectMessage<
 	}
 
 	
+	@SuppressWarnings("unused")
 	private NetworkObjectMessage()
 	{
 		super(null, false);

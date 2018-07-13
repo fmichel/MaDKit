@@ -39,6 +39,7 @@ package com.distrimind.madkit.kernel.network;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -94,28 +95,24 @@ public class InetAddressFilters extends MultiFormatProperties {
 
 	public void setAllowFilters(InetAddressFilter... allowFilters) {
 		this.allowFilters = new ArrayList<>();
-		for (InetAddressFilter iaf : allowFilters)
-			this.allowFilters.add(iaf);
+		Collections.addAll(this.allowFilters, allowFilters);
 	}
 
 	public void setDenyFilters(InetAddressFilter... denyFilters) {
 		this.denyFilters = new ArrayList<>();
-		for (InetAddressFilter iaf : denyFilters)
-			this.denyFilters.add(iaf);
+		Collections.addAll(this.denyFilters, denyFilters);
 	}
 
 	public void setAllowFilters(AbstractIP... allowFilters) {
 		this.allowFilters = new ArrayList<>();
 		for (AbstractIP aip : allowFilters)
-			for (InetAddressFilter iaf : aip.getInetAddressFilters())
-				this.allowFilters.add(iaf);
+			Collections.addAll(this.allowFilters, aip.getInetAddressFilters());
 	}
 
 	public void setDenyFilters(AbstractIP... denyFilters) {
 		this.denyFilters = new ArrayList<>();
 		for (AbstractIP aip : denyFilters)
-			for (InetAddressFilter iaf : aip.getInetAddressFilters())
-				this.denyFilters.add(iaf);
+			Collections.addAll(this.denyFilters, aip.getInetAddressFilters());
 	}
 
 	public ArrayList<InetAddressFilter> getAllowFilters() {

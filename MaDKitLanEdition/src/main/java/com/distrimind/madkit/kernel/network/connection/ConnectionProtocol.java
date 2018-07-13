@@ -99,7 +99,7 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 		}
 
 		@Override
-		public void write(int b) throws IOException {
+		public void write(int b) {
 			tab[index++]=(byte)b;
 		}
 		@Override
@@ -110,7 +110,7 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 		
 	}
 	
-	public static enum ConnectionClosedReason {
+	public enum ConnectionClosedReason {
 		/**
 		 * The connection has been closed giving a reason
 		 */
@@ -129,7 +129,7 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 
 		private final AgentActionEvent agentAgentEvent;
 
-		private ConnectionClosedReason(AgentActionEvent _agentAgentEvent) {
+		ConnectionClosedReason(AgentActionEvent _agentAgentEvent) {
 			agentAgentEvent = _agentAgentEvent;
 		}
 
@@ -138,7 +138,7 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 		}
 	}
 
-	public static enum ConnectionState {
+	public enum ConnectionState {
 		NOT_CONNECTED, CONNECTION_ESTABLISHED, CONNECTION_ABORDED, CONNECTION_CLOSED
 	}
 
@@ -168,13 +168,9 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 		local_interface_address = _local_interface_address;
 		subProtocol = _subProtocol;
 		network_properties = _properties;
-		try {
-			connection_protocol_properties =  _properties
-					.getConnectionProtocolProperties(_distant_inet_address, _local_interface_address, subProtocolLevel,
-							isServer, mustSupportBidirectionnalConnectionInitiative);
-		} catch (NIOException e) {
-			throw new ConnectionException(e);
-		}
+		connection_protocol_properties =  _properties
+				.getConnectionProtocolProperties(_distant_inet_address, _local_interface_address, subProtocolLevel,
+						isServer, mustSupportBidirectionnalConnectionInitiative);
 		if (mustSupportBidirectionnalConnectionInitiative
 				&& !connection_protocol_properties.supportBidirectionnalConnectionInitiative())
 			throw new ConnectionException(
@@ -226,17 +222,14 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 	 */
 	public final ConnectionMessage setAndGetNextMessage(ConnectionMessage _m) throws ConnectionException {
 		if (_m instanceof AskConnection) {
-			if (((AskConnection) _m).isYouAreAsking())
-				this_ask_connection = true;
-			else
-				this_ask_connection = false;
+			this_ask_connection = ((AskConnection) _m).isYouAreAsking();
 		}
 		if (_m instanceof ConnectionFinished) {
 			if (((ConnectionFinished) _m).getState().equals(ConnectionState.CONNECTION_ESTABLISHED))
 				connectionFinishedMessageReceived = true;
 			else {
 				ConnectionMessage res = getNextStep(_m);
-				if (res != null && res instanceof ConnectionFinished) {
+				if (res instanceof ConnectionFinished) {
 					ConnectionFinished cf = (ConnectionFinished) res;
 					if (cf.getConnectionClosedReason() == null)
 						setConnectionClosed(ConnectionClosedReason.CONNECTION_ANOMALY);
@@ -378,7 +371,7 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 		for (Iterator<ConnectionProtocol<?>> it = this.iterator(); it.hasNext(); i++) {
 			ConnectionProtocol<?> cp = it.next();
 			cp.getPacketCounter().incrementMyCounters();
-			boolean valid=true;
+			boolean valid;
 			boolean candidate_to_ban =false;
 			SubBlockParser sbp = cp.getParser();
 			
@@ -398,7 +391,7 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 				}
 			}
 			if (!valid) {
-				throw new NIOException("Invalid block with "+cp.getClass(), valid, candidate_to_ban);
+				throw new NIOException("Invalid block with "+cp.getClass(), false, candidate_to_ban);
 			}
 		}
 		try
@@ -496,6 +489,7 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 	 * 
 	 * @return true if the connection was established but closed for now.
 	 */
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	public final boolean isConnectionFinishedButClosed() {
 		return connection_state.equals(ConnectionState.CONNECTION_ABORDED)
 				|| connection_state.equals(ConnectionState.CONNECTION_CLOSED);
@@ -697,9 +691,9 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 			}
 		}
 
-		protected ConnectionProtocol<CP> getConnectionProtocolInstance() {
+		/*protected ConnectionProtocol<CP> getConnectionProtocolInstance() {
 			return ConnectionProtocol.this;
-		}
+		}*/
 
 		@Override
 		public void remove() {
@@ -709,6 +703,7 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 
 	}
 
+	@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 	public static class NullBlockChecker extends TransferedBlockChecker {
 
 		/**
@@ -717,6 +712,7 @@ public abstract class ConnectionProtocol<CP extends ConnectionProtocol<CP>> impl
 		private static final long serialVersionUID = 2817204112884547039L;
 
 		private short headSize;
+		@SuppressWarnings("unused")
 		NullBlockChecker()
 		{
 			

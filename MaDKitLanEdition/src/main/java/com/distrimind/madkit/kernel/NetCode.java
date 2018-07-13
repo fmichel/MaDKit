@@ -46,9 +46,10 @@ import com.distrimind.madkit.message.EnumMessage;
  * 
  */
 enum NetCode {
-	NEW_PEER_DETECTED, PEER_DECONNECTED, NEW_PEER_REQUEST;
+	NEW_PEER_DETECTED, PEER_DECONNECTED, NEW_PEER_REQUEST
 }
 
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 class NetworkMessage extends EnumMessage<NetCode> {
 
 	/**

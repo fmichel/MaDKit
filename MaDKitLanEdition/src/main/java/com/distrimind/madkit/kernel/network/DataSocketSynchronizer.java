@@ -63,9 +63,8 @@ class DataSocketSynchronizer {
 				socketAgentInterface.receivedBlock(block);
 			} catch (PacketException e) {
 				socketAgentInterface.processInvalidBlock(e, null, false);
-			} 
-			if (socketAgentInterface.isBannedOrExpulsed())
-				return;
+			}
+		socketAgentInterface.isBannedOrExpulsed();
 			/*if (buffer != null && buffer.length < Block.getHeadSize()) {
 				byte[] b = new byte[buffer.length + _bytes.length];
 				System.arraycopy(buffer, 0, b, 0, buffer.length);
@@ -130,12 +129,13 @@ class DataSocketSynchronizer {
 		}*/
 	}
 
-	static interface SocketAgentInterface {
-		public void receivedBlock(Block _block);
+	@SuppressWarnings("UnusedReturnValue")
+	interface SocketAgentInterface {
+		void receivedBlock(Block _block);
 
-		public boolean processInvalidBlock(Exception _e, Block _block, boolean _candidate_to_ban);
+		boolean processInvalidBlock(Exception _e, Block _block, boolean _candidate_to_ban);
 
-		public boolean isBannedOrExpulsed();
+		boolean isBannedOrExpulsed();
 
 	}
 

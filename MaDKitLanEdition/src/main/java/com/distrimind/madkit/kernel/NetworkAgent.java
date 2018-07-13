@@ -37,27 +37,17 @@
  */
 package com.distrimind.madkit.kernel;
 
-import java.util.HashMap;
-import java.util.logging.Level;
-
 import com.distrimind.madkit.action.KernelAction;
 import com.distrimind.madkit.agr.LocalCommunity;
 import com.distrimind.madkit.agr.LocalCommunity.Roles;
 import com.distrimind.madkit.gui.AgentStatusPanel;
-import com.distrimind.madkit.kernel.AgentAddress;
-import com.distrimind.madkit.kernel.CGRSynchro;
-import com.distrimind.madkit.kernel.Message;
-import com.distrimind.madkit.kernel.network.AnomalyDetectedMessage;
-import com.distrimind.madkit.kernel.network.AskForConnectionMessage;
-import com.distrimind.madkit.kernel.network.AskForTransferMessage;
-import com.distrimind.madkit.kernel.network.BroadcastLocalLanMessage;
-import com.distrimind.madkit.kernel.network.CGRSynchros;
-import com.distrimind.madkit.kernel.network.DirectLocalLanMessage;
-import com.distrimind.madkit.kernel.network.LocalLanMessage;
-import com.distrimind.madkit.kernel.network.MessageLocker;
+import com.distrimind.madkit.kernel.network.*;
 import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol.ConnectionClosedReason;
 import com.distrimind.madkit.message.EnumMessage;
 import com.distrimind.madkit.message.KernelMessage;
+
+import java.util.HashMap;
+import java.util.logging.Level;
 
 /**
  * @author Jason Mahdjoub
@@ -66,6 +56,7 @@ import com.distrimind.madkit.message.KernelMessage;
  * @since MaDKitLanEdition 1.0
  *
  */
+@SuppressWarnings("UnusedReturnValue")
 public final class NetworkAgent extends AgentFakeThread {
 
 	// final static String
@@ -120,14 +111,17 @@ public final class NetworkAgent extends AgentFakeThread {
 		if (getMadkitConfig().networkProperties.upnpIGDEnabled
 				|| getMadkitConfig().networkProperties.networkInterfaceScan) {
 			AbstractAgent aa = MadkitNetworkAccess.getUpngIDGAgent(this);
+			assert aa != null;
 			if (aa.getState() == State.NOT_LAUNCHED)
 				launchAgent(aa);
 		}
 		AbstractAgent aa = MadkitNetworkAccess.getNIOAgent(this);
 		launchAgent(aa);
+		assert aa != null;
 		NIOAgentAddress = aa.getAgentAddressIn(LocalCommunity.Groups.NETWORK, LocalCommunity.Roles.NIO_ROLE);
 		aa = MadkitNetworkAccess.getLocalNetworkAffectationAgent(this);
 		launchAgent(aa);
+		assert aa != null;
 		LocalNetworkAffectationAgentAddress = aa.getAgentAddressIn(LocalCommunity.Groups.NETWORK,
 				LocalCommunity.Roles.LOCAL_NETWORK_AFFECTATION_ROLE);
 		if (logger != null && logger.isLoggable(Level.FINE))
@@ -183,13 +177,13 @@ public final class NetworkAgent extends AgentFakeThread {
 		}
 	}
 
-	public static enum NetworkCloseReason {
+	public enum NetworkCloseReason {
 		NORMAL_DETECTION(ConnectionClosedReason.CONNECTION_PROPERLY_CLOSED), ANOMALY_DETECTED(
 				ConnectionClosedReason.CONNECTION_ANOMALY);
 
 		private ConnectionClosedReason reason;
 
-		private NetworkCloseReason(ConnectionClosedReason reason) {
+		NetworkCloseReason(ConnectionClosedReason reason) {
 			this.reason = reason;
 		}
 

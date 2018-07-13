@@ -37,31 +37,21 @@
  */
 package com.distrimind.madkit.kernel.network.connection.unsecured;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-import java.net.InetSocketAddress;
-
 import com.distrimind.madkit.exceptions.BlockParserException;
 import com.distrimind.madkit.exceptions.ConnectionException;
 import com.distrimind.madkit.exceptions.MessageSerializationException;
-import com.distrimind.madkit.kernel.MadkitProperties;
-import com.distrimind.madkit.kernel.network.NetworkProperties;
-import com.distrimind.madkit.kernel.network.PacketCounter;
-import com.distrimind.madkit.kernel.network.SubBlock;
-import com.distrimind.madkit.kernel.network.SubBlockInfo;
-import com.distrimind.madkit.kernel.network.SubBlockParser;
+import com.distrimind.madkit.kernel.network.*;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
-import com.distrimind.madkit.kernel.network.connection.AskConnection;
-import com.distrimind.madkit.kernel.network.connection.ConnectionFinished;
-import com.distrimind.madkit.kernel.network.connection.ConnectionMessage;
-import com.distrimind.madkit.kernel.network.connection.ConnectionProtocol;
-import com.distrimind.madkit.kernel.network.connection.TransferedBlockChecker;
-import com.distrimind.madkit.kernel.network.connection.UnexpectedMessage;
+import com.distrimind.madkit.kernel.network.connection.*;
 import com.distrimind.madkit.util.SerializationTools;
 import com.distrimind.ood.database.DatabaseWrapper;
 import com.distrimind.util.crypto.AbstractMessageDigest;
 import com.distrimind.util.crypto.MessageDigestType;
+
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.net.InetSocketAddress;
 
 /**
  * Represents a connection protocol that check the data validity thanks to a
@@ -80,9 +70,9 @@ public class CheckSumConnectionProtocol extends ConnectionProtocol<CheckSumConne
 	private final NullPacketCounter packetCounter=new NullPacketCounter();
 
 	private CheckSumConnectionProtocol(InetSocketAddress _distant_inet_address,
-			InetSocketAddress _local_interface_address, ConnectionProtocol<?> _subProtocol,
-			DatabaseWrapper _sql_connection, MadkitProperties mkProperties, NetworkProperties _properties, int subProtocolLevel, boolean isServer,
-			boolean mustSupportBidirectionnalConnectionInitiative) throws ConnectionException {
+									   InetSocketAddress _local_interface_address, ConnectionProtocol<?> _subProtocol,
+									   DatabaseWrapper _sql_connection, NetworkProperties _properties, int subProtocolLevel, boolean isServer,
+									   boolean mustSupportBidirectionnalConnectionInitiative) throws ConnectionException {
 		super(_distant_inet_address, _local_interface_address, _subProtocol, _sql_connection, _properties,
 				subProtocolLevel, isServer, mustSupportBidirectionnalConnectionInitiative);
 		parser = new Parser();
@@ -249,12 +239,13 @@ public class CheckSumConnectionProtocol extends ConnectionProtocol<CheckSumConne
 		}
 
 		@Override
-		public int getMaximumBodyOutputSizeForEncryption(int size) throws BlockParserException {
+		public int getMaximumBodyOutputSizeForEncryption(int size) {
 			return size;
 		}
 
 	}
 
+	@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 	static class BlockChecker extends TransferedBlockChecker {
 
 		/**
@@ -263,6 +254,7 @@ public class CheckSumConnectionProtocol extends ConnectionProtocol<CheckSumConne
 		private static final long serialVersionUID = 5028832920052128043L;
 		private MessageDigestType messageDigestType;
 		private transient AbstractMessageDigest messageDigest = null;
+		@SuppressWarnings("unused")
 		BlockChecker()
 		{
 			

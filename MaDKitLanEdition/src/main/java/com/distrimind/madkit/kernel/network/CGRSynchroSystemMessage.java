@@ -51,6 +51,7 @@ import com.distrimind.madkit.util.SerializationTools;
  * @version 1.2
  * @since MadkitLanEdition 1.0
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 final class CGRSynchroSystemMessage implements SystemMessage {
 
 	/**
@@ -59,6 +60,7 @@ final class CGRSynchroSystemMessage implements SystemMessage {
 	private static final long serialVersionUID = -8079647044062480359L;
 
 	private CGRSynchro CGRSynchro;
+	@SuppressWarnings("unused")
 	CGRSynchroSystemMessage()
 	{
 		

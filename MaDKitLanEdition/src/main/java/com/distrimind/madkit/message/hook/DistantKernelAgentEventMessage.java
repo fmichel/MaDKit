@@ -38,7 +38,6 @@
 package com.distrimind.madkit.message.hook;
 
 import com.distrimind.madkit.kernel.KernelAddress;
-import com.distrimind.madkit.message.hook.HookMessage.AgentActionEvent;
 
 /**
  * This message is sent to agents that requested kernel's hook related to

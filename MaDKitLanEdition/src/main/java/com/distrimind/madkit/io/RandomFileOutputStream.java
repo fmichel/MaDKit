@@ -71,7 +71,7 @@ public class RandomFileOutputStream extends RandomOutputStream {
 
 		private String mode;
 
-		private AccessMode(String mode) {
+		AccessMode(String mode) {
 			this.mode = mode;
 		}
 

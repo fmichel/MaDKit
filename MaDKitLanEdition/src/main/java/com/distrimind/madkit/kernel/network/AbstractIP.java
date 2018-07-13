@@ -143,6 +143,7 @@ public abstract class AbstractIP extends MultiFormatProperties implements System
 			return ia.toString() + ":" + port;
 	}
 
+	@SuppressWarnings("MethodDoesntCallSuperMethod")
 	@Override
 	public AbstractIP clone() {
 		return this;

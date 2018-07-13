@@ -71,13 +71,13 @@ public final class MessageLocker extends LockerCondition {
 		}
 	}
 
-	int getLockNumber() {
+	public int getLockNumber() {
 		synchronized (getLocker()) {
 			return lock_number;
 		}
 	}
 
-	boolean isFirstLockDone() {
+	public boolean isFirstLockDone() {
 		synchronized (getLocker()) {
 			return firstLockDone;
 		}

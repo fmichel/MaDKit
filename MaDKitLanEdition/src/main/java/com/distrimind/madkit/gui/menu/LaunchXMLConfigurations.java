@@ -99,7 +99,7 @@ public class LaunchXMLConfigurations extends ClassPathSensitiveMenu {
 				if (myAgent.isAlive()) {
 					myAgent.sendMessage(LocalCommunity.Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE,
 							new KernelMessage(KernelAction.LAUNCH_XML, e.getActionCommand(),
-									Boolean.valueOf(cbox.getState())));
+									cbox.getState()));
 				}
 			}
 		};

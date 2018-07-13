@@ -44,14 +44,7 @@ import static com.distrimind.madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -73,6 +66,7 @@ import com.distrimind.madkit.util.SerializationTools;
  * @version 5.2
  * 
  */
+@SuppressWarnings({"SynchronizeOnNonFinalField", "ExternalizableWithoutPublicNoArgConstructor", "SameParameterValue"})
 class InternalRole implements ExternalizableAndSizable {// TODO test with arraylist
 
 	private static final long serialVersionUID = 4447153943733812916L;
@@ -251,11 +245,6 @@ class InternalRole implements ExternalizableAndSizable {// TODO test with arrayl
 		}
 	}
 
-	/**
-	 * this is dirty but... This represents a Group
-	 * 
-	 * @param group
-	 */
 	InternalRole(Group _group) {
 		group = _group;
 		roleName = null;
@@ -291,8 +280,7 @@ class InternalRole implements ExternalizableAndSizable {// TODO test with arrayl
 
 	final void addOverlooker(final Overlooker<? extends AbstractAgent> o) {
 		synchronized (overlookers) {
-			Set<Overlooker<? extends AbstractAgent>> co = new LinkedHashSet<Overlooker<? extends AbstractAgent>>();
-			co.addAll(overlookers.get());
+			Set<Overlooker<? extends AbstractAgent>> co = new LinkedHashSet<>(overlookers.get());
 			co.add(o);
 			overlookers.set(co);
 		}
@@ -300,8 +288,7 @@ class InternalRole implements ExternalizableAndSizable {// TODO test with arrayl
 
 	final void removeOverlooker(final Overlooker<? extends AbstractAgent> o) {
 		synchronized (overlookers) {
-			Set<Overlooker<? extends AbstractAgent>> co = new LinkedHashSet<Overlooker<? extends AbstractAgent>>();
-			co.addAll(overlookers.get());
+			Set<Overlooker<? extends AbstractAgent>> co = new LinkedHashSet<>(overlookers.get());
 			co.remove(o);
 			overlookers.set(co);
 		}
@@ -320,19 +307,7 @@ class InternalRole implements ExternalizableAndSizable {// TODO test with arrayl
 		return getCGRString(group, roleName);
 	}
 
-	/**
-	 * add the agent to the role
-	 * 
-	 * @param roleName
-	 * @param groupName
-	 * @param communityName
-	 * 
-	 * @param agent
-	 *            the agent
-	 * @return
-	 * 
-	 * @return true, if the agent has been added.
-	 */
+
 	boolean addMember(final AbstractAgent requester, boolean manually_requested) {
 		synchronized (players) {
 			for (AbstractAgent aa : players)// TODO looks like I should use linkedhashset
@@ -386,11 +361,8 @@ class InternalRole implements ExternalizableAndSizable {// TODO test with arrayl
 		}
 	}
 
-	/**
-	 * @param content
-	 */
 	final void addDistantMember(final AgentAddress content) {
-		boolean ok = false;
+		boolean ok;
 		synchronized (players) {
 			content.setRoleObject(this);// required for equals to work
 			ok = buildAndGetAddresses().add(content);
@@ -418,7 +390,7 @@ class InternalRole implements ExternalizableAndSizable {// TODO test with arrayl
 				return ReturnCode.NOT_IN_GROUP;
 			}
 			if (agentAddresses != null) {
-				removeAgentAddressOf(requester, agentAddresses).setRoleObject(null);
+				Objects.requireNonNull(removeAgentAddressOf(requester, agentAddresses)).setRoleObject(null);
 			}
 			if (logger != null) {
 				logger.finest(requester.getName() + " has leaved role " + getCGRString(group, roleName) + "\n");
@@ -433,7 +405,7 @@ class InternalRole implements ExternalizableAndSizable {// TODO test with arrayl
 	}
 
 	final void removeMembers(final List<AbstractAgent> bucket, boolean manually_requested) {
-		int number = 0;
+		int number;
 		synchronized (players) {
 			number = 0;
 			for (AbstractAgent aa : bucket)
@@ -469,23 +441,11 @@ class InternalRole implements ExternalizableAndSizable {// TODO test with arrayl
 		removeFromOverlookers(bucket);
 	}
 
-	// /**
-	// * @param requester the agent by which I am now empty
-	// *
-	// */
-	// private void deleteMySelfFromOrg(AbstractAgent requester) {
-	// for (final Overlooker<? extends AbstractAgent> o : overlookers) {
-	// o.setOverlookedRole(null);
-	// }
-	// myGroup.removeRole(roleName);
-	// }
 
-	/**
-	 * @param content
-	 */
+	@SuppressWarnings("unused")
 	void removeDistantMember(final AgentAddress content, boolean manually_requested) {
 		if (agentAddresses != null) {
-			AgentAddress aa = null;
+			AgentAddress aa;
 			synchronized (players) {
 				aa = removeAgentAddress(content);
 			}
@@ -509,7 +469,7 @@ class InternalRole implements ExternalizableAndSizable {// TODO test with arrayl
 		return agentAddresses;
 	}
 
-	final private AgentAddress getAndRemove(AgentAddress aa) {
+	private AgentAddress getAndRemove(AgentAddress aa) {
 		for (Iterator<AgentAddress> it = agentAddresses.iterator(); it.hasNext();) {
 			AgentAddress a = it.next();
 			if (a.equals(aa)) {
@@ -520,7 +480,7 @@ class InternalRole implements ExternalizableAndSizable {// TODO test with arrayl
 		return null;
 	}
 
-	final private AgentAddress removeAgentAddress(AgentAddress aa) {
+	private AgentAddress removeAgentAddress(AgentAddress aa) {
 		AgentAddress a = getAndRemove(aa);
 		if (a != null) {
 			if (logger != null) {
@@ -531,9 +491,7 @@ class InternalRole implements ExternalizableAndSizable {// TODO test with arrayl
 		return a;
 	}
 
-	/**
-	 * @param kernelAddress2
-	 */
+
 	void removeAgentsFromDistantKernel(final KernelAddress kernelAddress2, MadkitKernel madkitKernel) {
 		if (agentAddresses != null) {
 			if (logger != null)
@@ -612,9 +570,7 @@ class InternalRole implements ExternalizableAndSizable {// TODO test with arrayl
 		}
 	}
 
-	/**
-	 * @param requester
-	 */
+
 	static AgentAddress removeAgentAddressOf(final AbstractAgent requester,
 			final Collection<AgentAddress> agentAddresses2) {
 		// if(requester == null)
@@ -647,10 +603,7 @@ class InternalRole implements ExternalizableAndSizable {// TODO test with arrayl
 	// return agentAddresses;
 	// }
 
-	/**
-	 * @param abstractAgent
-	 * @return the AA of the abstractAgent in this Role
-	 */
+
 	final AgentAddress getAgentAddressInGroup(final AbstractAgent abstractAgent) {
 		final AgentAddress aa = getAgentAddressOf(abstractAgent);
 		if (aa != null)
@@ -658,10 +611,7 @@ class InternalRole implements ExternalizableAndSizable {// TODO test with arrayl
 		return myGroup.getAgentAddressOf(abstractAgent);
 	}
 
-	/**
-	 * @param abstractAgent
-	 * @return the AA of the abstractAgent in this Role or into a parent group
-	 */
+
 	final AgentAddress getAgentAddressInGroupOrParentGroups(final AbstractAgent abstractAgent) {
 		final AgentAddress aa = getAgentAddressOf(abstractAgent);
 		if (aa != null)
@@ -691,7 +641,7 @@ class InternalRole implements ExternalizableAndSizable {// TODO test with arrayl
 		}
 	}
 
-	final private void addToOverlookers(List<AbstractAgent> l) {
+	private void addToOverlookers(List<AbstractAgent> l) {
 		for (final Overlooker<? extends AbstractAgent> o : overlookers.get()) {
 			o.addAgents(l);
 		}
@@ -703,17 +653,13 @@ class InternalRole implements ExternalizableAndSizable {// TODO test with arrayl
 		}
 	}
 
-	final private void removeFromOverlookers(List<AbstractAgent> l) {
+	private void removeFromOverlookers(List<AbstractAgent> l) {
 		for (final Overlooker<? extends AbstractAgent> o : overlookers.get()) {
 			o.removeAgents(l);
 		}
 	}
 
-	/**
-	 * importation when connecting to other kernel
-	 * 
-	 * @param list
-	 */
+
 	void importDistantOrg(Set<AgentAddress> list, MadkitKernel madkitKernel) {
 		synchronized (players) {
 			buildAndGetAddresses();
@@ -747,11 +693,7 @@ class InternalRole implements ExternalizableAndSizable {// TODO test with arrayl
 		return null;
 	}
 
-	/**
-	 * @param aa
-	 * @return the AbstractAgent corresponding to the aa agentAddress in this role,
-	 *         null if it does no longer play this role
-	 */
+
 	AbstractAgent getAbstractAgentWithAddress(AgentAddress aa) {
 		if (players != null) {
 			final int hash = aa.hashCode();
@@ -771,12 +713,7 @@ class InternalRole implements ExternalizableAndSizable {// TODO test with arrayl
 		}
 	}
 
-	/**
-	 * Return the reference agent address
-	 * 
-	 * @param aa
-	 * @return <code>null</code> if it is not contained in this role anymore
-	 */
+
 	final AgentAddress resolveAgentAddress(AgentAddress anAA) {
 		for (final AgentAddress aa : buildAndGetAddresses()) {
 			if (aa.equals(anAA)) {

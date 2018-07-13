@@ -46,11 +46,7 @@ import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 
@@ -116,11 +112,6 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 		currentMCL = new MadkitClassLoader(urls, MadkitClassLoader.class.getClassLoader(), null);
 	}
 
-	/**
-	 * @param urls
-	 * @param parent
-	 * @throws ClassNotFoundException
-	 */
 	private MadkitClassLoader(URL[] urls, final ClassLoader parent, Collection<String> toReload) {
 		super(urls, parent);
 		if (toReload != null)
@@ -215,7 +206,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 		final File demoDir = new File(directoryPath);
 		boolean hasLoadSomething = false;
 		if (demoDir.isDirectory()) {
-			for (final File f : demoDir.listFiles()) {
+			for (final File f : Objects.requireNonNull(demoDir.listFiles())) {
 				if (f.getName().endsWith(".jar")) {
 					try {
 						if (loadUrl(f.toURI().toURL()))
@@ -249,7 +240,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 			packageName = packageName == null ? "" : packageName + '.';// need this to rebuild
 			final String urlPath = url.getPath();
 			final File packageDir = new File(urlPath.substring(0, urlPath.lastIndexOf('/')));
-			for (final String fileName : packageDir.list()) {
+			for (final String fileName : Objects.requireNonNull(packageDir.list())) {
 				if (fileName.endsWith(".class")) {
 					try {
 						final String className = packageName + fileName.substring(0, fileName.length() - 6);
@@ -368,7 +359,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 		return new TreeSet<>(agentClasses);
 	}
 
-	/**
+	/*
 	 * Returns the names of all the mdk properties files available
 	 * 
 	 * @return All the mdk files available on the class path
@@ -396,14 +387,10 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 		return new TreeSet<>(mains);
 	}
 
-	void addMASConfig(MASModel session) {
+	/*void addMASConfig(MASModel session) {
 		demos.add(session);
-	}
+	}*/
 
-	/**
-	 * @param jarFile
-	 * @return <code>true</code> if the jar contains MDK files
-	 */
 	private static void scanJarFileForLaunchConfig(final JarFile jarFile) {
 		Attributes projectInfo = null;
 		try {
@@ -443,11 +430,6 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 		}
 	}
 
-	/**
-	 * @param args
-	 * @return <code>true</code> if <code>args</code> is not <code>null</code> and
-	 *         not empty
-	 */
 	private static boolean check(String args) {
 		return args != null && !args.trim().isEmpty();
 	}
@@ -499,7 +481,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 				try {
 					cl.getDeclaredMethod("main", String[].class);
 					mains.add(className);// if previous line succeeded
-				} catch (NoSuchMethodException e) {
+				} catch (NoSuchMethodException ignored) {
 				}
 				return true;
 			}
@@ -509,15 +491,10 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 		return false;
 	}
 
-	/**
-	 * @param dir
-	 * @param executable
-	 *            the name of the program to look for
-	 */
 	private static String findJExecutable(File dir, String executable) {
 		dir = new File(dir, "bin");
 		if (dir.exists()) {
-			for (File candidate : dir.listFiles()) {
+			for (File candidate : Objects.requireNonNull(dir.listFiles())) {
 				if (candidate.getName().contains(executable)) {
 					return candidate.getAbsolutePath();
 				}
@@ -544,7 +521,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 		if (exe != null)// was jre dir in jdk
 			return exe;
 		while (lookupDir != null) {
-			for (final File dir : lookupDir.listFiles(new FileFilter() {
+			for (final File dir : Objects.requireNonNull(lookupDir.listFiles(new FileFilter() {
 				@Override
 				public boolean accept(File pathname) {
 					if (pathname.isDirectory()) {
@@ -553,7 +530,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 					}
 					return false;
 				}
-			})) {
+			}))) {
 				exe = MadkitClassLoader.findJExecutable(dir, executable);
 				if (exe != null)
 					return exe;
@@ -563,7 +540,7 @@ final public class MadkitClassLoader extends URLClassLoader { // NO_UCD
 		return null;
 	}
 
-	/**
+	/*
 	 * This is only used by ant scripts for building MDK jar files. This will create
 	 * a file in java.io.tmpdir named agents.classes containing the agent classes
 	 * which are on the class path and other information

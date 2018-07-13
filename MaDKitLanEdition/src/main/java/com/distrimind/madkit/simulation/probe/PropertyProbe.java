@@ -152,9 +152,7 @@ public class PropertyProbe<A extends AbstractAgent, T> extends Probe<A>// TODO
 		updateCache(agent);
 		try {
 			cachedField.set(agent, value);
-		} catch (IllegalArgumentException e) {
-			throw new SimulationException(toString() + " on " + agent, e);
-		} catch (IllegalAccessException e) {
+		} catch (IllegalArgumentException | IllegalAccessException e) {
 			throw new SimulationException(toString() + " on " + agent, e);
 		}
 	}

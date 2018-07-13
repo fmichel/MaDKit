@@ -135,7 +135,7 @@ public class Agent extends AbstractAgent {
 	/**
 	 * pretty dirty solution for fake and terminated kernel
 	 * 
-	 * @param o
+	 * @param o fake
 	 */
 	Agent(Object o) {
 		super(o);
@@ -160,9 +160,6 @@ public class Agent extends AbstractAgent {
 		return agentExecutor;
 	}
 
-	/**
-	 * @param e
-	 */
 	final void suicide(SelfKillException e) {
 		getAgentExecutor().getLiveProcess().cancel(false);
 		/*
@@ -178,6 +175,7 @@ public class Agent extends AbstractAgent {
 				|| (s == State.ZOMBIE && s.getPreviousState() == State.LIVING_BUG_WAIT_FOR_KILL);
 	}
 
+	@SuppressWarnings("UnusedReturnValue")
 	final boolean living() {
 		try {
 			state.set(State.LIVING);
@@ -202,7 +200,7 @@ public class Agent extends AbstractAgent {
 							}
 						}
 					}
-				} catch (InterruptedException e) {
+				} catch (InterruptedException ignored) {
 				}
 
 				/*
@@ -230,9 +228,8 @@ public class Agent extends AbstractAgent {
 
 	/**
 	 * This method is executed one time just before {@link #liveCycle()}
-	 * @throws InterruptedException if the current thread is interrupted
 	 */
-	protected void preLiveCycle() throws InterruptedException {
+	protected void preLiveCycle() {
 
 	}
 
@@ -336,7 +333,7 @@ public class Agent extends AbstractAgent {
 	 */
 	public Message sendMessageAndWaitForReply(final AgentAddress receiver, Message messageToSend,
 			final int timeOutMilliSeconds) throws InterruptedException {
-		return sendMessageWithRoleAndWaitForReply(receiver, messageToSend, null, Integer.valueOf(timeOutMilliSeconds));
+		return sendMessageWithRoleAndWaitForReply(receiver, messageToSend, null, timeOutMilliSeconds);
 	}
 
 	/**
@@ -478,7 +475,7 @@ public class Agent extends AbstractAgent {
 	 */
 	public Message sendMessageAndWaitForReply(AbstractGroup group, final String role, Message messageToSend,
 			final int timeOutMilliSeconds) throws InterruptedException {
-		return sendMessageWithRoleAndWaitForReply(group, role, messageToSend, null, Integer.valueOf(timeOutMilliSeconds));
+		return sendMessageWithRoleAndWaitForReply(group, role, messageToSend, null, timeOutMilliSeconds);
 	}
 
 	/**
@@ -513,7 +510,7 @@ public class Agent extends AbstractAgent {
 					+ I18nUtilities.getCGRString(group, role)
 					+ (timeOutMilliSeconds == null ? ""
 							: ", and waiting reply for "
-									+ TimeUnit.MILLISECONDS.toSeconds(timeOutMilliSeconds.intValue()) + " s..."));
+									+ TimeUnit.MILLISECONDS.toSeconds(timeOutMilliSeconds) + " s..."));
 		ReturnCode rc = getKernel().sendMessage(this, group, role, messageToSend, senderRole);
 		if (rc != SUCCESS && rc != ReturnCode.TRANSFER_IN_PROGRESS) {
 			return null;
@@ -557,7 +554,7 @@ public class Agent extends AbstractAgent {
 	 */
 	public Message sendReplyAndWaitForReply(final Message messageToReplyTo, final Message reply,
 			int timeOutMilliSeconds) throws InterruptedException {
-		return sendReplyWithRoleAndWaitForReply(messageToReplyTo, reply, null, Integer.valueOf(timeOutMilliSeconds));
+		return sendReplyWithRoleAndWaitForReply(messageToReplyTo, reply, null, timeOutMilliSeconds);
 	}
 
 	/**
@@ -731,7 +728,7 @@ public class Agent extends AbstractAgent {
 			return waitNextMessage(filter);
 		}
 		// conversion
-		final long timeOutNanos = TimeUnit.MILLISECONDS.toNanos(timeOutMilliseconds.intValue());
+		final long timeOutNanos = TimeUnit.MILLISECONDS.toNanos(timeOutMilliseconds);
 		final List<Message> receptions = new ArrayList<>();
 		final long endTime = System.nanoTime() + timeOutNanos;
 		Message answer = waitingNextMessage(timeOutNanos, TimeUnit.NANOSECONDS);
@@ -831,37 +828,7 @@ public class Agent extends AbstractAgent {
 		return waitNextMessage(timeOutMilliSeconds, new ConversationFilter(id));
 	}
 
-	/**
-	 * Add a new task to be executed at a specific time by the task agent which
-	 * correspond to the given task agent name. The function ends when the task is
-	 * finished. The task agent aims to execute tasks at defined times. Tasks can
-	 * also be repetitive. The task agent must be initialized through the function
-	 * launchTaskManagerAgent(String, int)
-	 * 
-	 * this function is equivalent than
-	 * <code>this.scheduleTask(_task_agent_name, _task, false);</code>
-	 * 
-	 * @param _task_agent_name
-	 *            the TaskAgent name
-	 * @param _task
-	 *            the task to execute
-	 * @return the confirmation message or null if a problem occurs
-	 * @throws InterruptedException if the current thread is interrupted
-	 * @see #launchTaskManagerAgent(String, int)
-	 * 
-	 * @see Task
-	 * @since MadKitLanEdition 1.0
-	 */
-	/*
-	 * public TasksExecutionConfirmationMessage
-	 * scheduleTaskAndWaitForConfirmation(String _task_agent_name, Task<?> _task)
-	 * throws InterruptedException { TaskID cid=scheduleTask(_task_agent_name,
-	 * _task, true); if (cid==null) return null; Message m = waitAnswer(cid); if
-	 * (m==null) return null; if (m instanceof TasksExecutionConfirmationMessage)
-	 * return (TasksExecutionConfirmationMessage)m; else
-	 * getMadkitKernel().handleException(Influence.EXECUTE_TASK, new
-	 * IllegalAccessError("the message "+m+" is unexpected.")); return null; }
-	 */
+
 
 	/**
 	 * Add a new task to be executed at a specific time by the default task agent.
@@ -896,40 +863,6 @@ public class Agent extends AbstractAgent {
 
 	}
 
-	/**
-	 * Add a new task to be executed at a specific time by the task agent which
-	 * correspond to the given task agent name. The function ends when the task is
-	 * finished. The task agent aims to execute tasks at defined times. Tasks can
-	 * also be repetitive. The task agent must be initialized through the function
-	 * launchTaskManagerAgent(String, int)
-	 * 
-	 * this function is equivalent than
-	 * <code>this.scheduleTask(_task_agent_name, _task, false);</code>
-	 * 
-	 * @param _task_agent_name
-	 *            the TaskAgent name
-	 * @param _task
-	 *            the task to execute
-	 * @param timeOutMilliSeconds
-	 *            the maximum time to wait, in milliseconds.
-	 * @return the confirmation message or null if a problem occurs
-	 * @throws InterruptedException if the current thread is interrupted
-	 * @see #launchTaskManagerAgent(String, int)
-	 * 
-	 * @see Task
-	 * @since MadKitLanEdition 1.0
-	 */
-	/*
-	 * public TasksExecutionConfirmationMessage
-	 * scheduleTaskAndWaitForConfirmation(String _task_agent_name, Task<?> _task,
-	 * final Integer timeOutMilliSeconds) throws InterruptedException { TaskID
-	 * cid=scheduleTask(_task_agent_name, _task, true); if (cid==null) return null;
-	 * Message m = waitAnswer(cid, timeOutMilliSeconds); if (m==null) return null;
-	 * if (m instanceof TasksExecutionConfirmationMessage) return
-	 * (TasksExecutionConfirmationMessage)m; else
-	 * getMadkitKernel().handleException(Influence.EXECUTE_TASK, new
-	 * IllegalAccessError("the message "+m+" is unexpected.")); return null; }
-	 */
 
 	/**
 	 * Add a new task to be executed at a specific time by the default task agent.

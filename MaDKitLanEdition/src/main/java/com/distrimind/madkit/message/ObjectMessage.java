@@ -236,9 +236,9 @@ public class ObjectMessage<T> extends Message {
 		Object[] a = list.toArray();
 		Arrays.sort(a);
 		ListIterator<M> i = list.listIterator();
-		for (int j = 0; j < a.length; j++) {
+		for (Object anA : a) {
 			i.next();
-			i.set((M) a[j]);
+			i.set((M) anA);
 		}
 	}
 
@@ -248,7 +248,7 @@ public class ObjectMessage<T> extends Message {
 	@Override
 	public String toString() {
 		String s = super.toString();
-		s += "\n" + (getClass().getSimpleName() + getConversationID()).replaceAll(".", " ");
+		s += "\n" + (getClass().getSimpleName() + getConversationID()).replaceAll("\\.", " ");
 		return s + "    content: {" + content + "}";
 	}
 

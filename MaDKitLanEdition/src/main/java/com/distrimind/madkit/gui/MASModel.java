@@ -69,7 +69,10 @@ final public class MASModel implements Comparable<MASModel> {
 
 	@Override
 	public boolean equals(Object obj) {
-		return name.equals(((MASModel) obj).getName());
+		if (obj instanceof MASModel)
+			return name.equals(((MASModel) obj).getName());
+		else
+			return false;
 	}
 
 	@Override

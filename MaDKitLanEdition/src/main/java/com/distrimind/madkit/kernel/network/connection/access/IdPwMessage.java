@@ -64,6 +64,7 @@ import com.distrimind.util.crypto.P2PASymmetricSecretMessageExchanger;
  * @version 1.0
  * @since MadkitLanEdition 1.0
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 class IdPwMessage extends AccessMessage {
 
 	/**
@@ -76,6 +77,7 @@ class IdPwMessage extends AccessMessage {
 	private EncryptedPassword[] passwords;
 	private final transient short nbAnomalies;
 
+	@SuppressWarnings("unused")
 	IdPwMessage()
 	{
 		nbAnomalies=0;
@@ -86,6 +88,7 @@ class IdPwMessage extends AccessMessage {
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		identifiersIsEncrypted=in.readBoolean();
 		ExternalizableAndSizable[] s=SerializationTools.readExternalizableAndSizables(in, NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE, false);
+		assert s != null;
 		identifiers=new Identifier[s.length];
 		int total=5;
 		for (int i=0;i<s.length;i++)
@@ -101,6 +104,7 @@ class IdPwMessage extends AccessMessage {
 			total+=identifiers[i].getInternalSerializedSize();
 		}
 		s=SerializationTools.readExternalizableAndSizables(in, NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE-total, false);
+		assert s != null;
 		passwords=new EncryptedPassword[s.length];
 		for (int i=0;i<s.length;i++)
 		{
@@ -159,7 +163,7 @@ class IdPwMessage extends AccessMessage {
 
 		for (int i = 0; i < identifiers.length; i++) {
 			Identifier id = identifiers[i];
-			Identifier decodedID = null;
+			Identifier decodedID;
 			if (identifiersIsEncrypted)
 				decodedID = lp.getIdentifier((EncryptedIdentifier) id, cipher);
 			else

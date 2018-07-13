@@ -190,11 +190,6 @@ class FakeKernel extends MadkitKernel {
 		throw buildKernelException(agent);
 	}
 
-	/**
-	 * @param agent
-	 * @return
-	 * @throws KernelException
-	 */
 	private KernelException buildKernelException(final AbstractAgent agent) {
 		final KernelException ke = new KernelException(buildFailString(agent));
 		ke.printStackTrace();
@@ -211,9 +206,7 @@ class FakeKernel extends MadkitKernel {
 		throw buildKernelException(agent);
 	}
 
-	/**
-	 * @return
-	 */
+
 	@Override
 	final public KernelAddress getKernelAddress() {
 		throw buildKernelException(null);

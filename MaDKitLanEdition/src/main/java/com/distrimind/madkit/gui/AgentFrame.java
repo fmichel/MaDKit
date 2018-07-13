@@ -182,13 +182,11 @@ public class AgentFrame extends JFrame {
 		}
 	}
 
-	/**
-	 * @param agent
-	 */
+
 	static void killAgent(final AbstractAgent agent, int timeOutSeconds) {// TODO move that
 		if (agent.isAlive()) {
 			agent.sendMessage(LocalCommunity.Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE,
-					new KernelMessage(KernelAction.KILL_AGENT, agent, Integer.valueOf(timeOutSeconds)));
+					new KernelMessage(KernelAction.KILL_AGENT, agent, timeOutSeconds));
 		}
 	}
 

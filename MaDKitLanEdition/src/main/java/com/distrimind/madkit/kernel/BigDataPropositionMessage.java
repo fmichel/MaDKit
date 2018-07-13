@@ -72,6 +72,7 @@ import com.distrimind.util.crypto.MessageDigestType;
  * @see AbstractAgent#sendBigDataWithRole(AgentAddress, RandomInputStream, long, long, ExternalizableAndSizable, MessageDigestType, String, boolean)
  * @see BigDataResultMessage
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 public final class BigDataPropositionMessage extends Message implements NetworkMessage {
 
 	/**
@@ -124,8 +125,6 @@ public final class BigDataPropositionMessage extends Message implements NetworkM
 		else 
 		{	
 			messageDigestType=MessageDigestType.valueOf(s);
-			if (messageDigestType==null)
-				throw new MessageSerializationException(Integrity.FAIL);
 		}
 		
 		excludedFromEncryption=in.readBoolean();
@@ -171,7 +170,8 @@ public final class BigDataPropositionMessage extends Message implements NetworkM
 		} else {
 			this.inputStream = null;
 			this.data = new byte[(int) stream.length()];
-			stream.read(this.data);
+			if (stream.read(this.data)!=data.length)
+				throw new IOException();
 		}
 		this.isLocal = local;
 		this.stat = stat;
@@ -266,7 +266,8 @@ public final class BigDataPropositionMessage extends Message implements NetworkM
 							outputStream.setLength(length);
 							while (remaining > 0) {
 								int s = (int) Math.min(buffer.length, remaining);
-								inputStream.read(buffer, 0, s);
+								if (inputStream.read(buffer, 0, s)!=s)
+								    throw new IOException();
 								outputStream.write(buffer, 0, s);
 								remaining -= s;
 							}
@@ -320,7 +321,7 @@ public final class BigDataPropositionMessage extends Message implements NetworkM
 			receiver.scheduleTask(new Task<>(new Callable<Void>() {
 
 				@Override
-				public Void call() throws Exception {
+				public Void call() {
 					if (receiver.isAlive()) {
 						Message m = new BigDataResultMessage(BigDataResultMessage.Type.BIG_DATA_TRANSFER_DENIED, 0,
 								idPacket, System.currentTimeMillis() - timeUTC);
@@ -336,7 +337,7 @@ public final class BigDataPropositionMessage extends Message implements NetworkM
 
 	}
 
-	void connectionLost(long dataTransfered) {
+	/*void connectionLost(long dataTransfered) {
 		sendBidirectionalReply(BigDataResultMessage.Type.BIG_DATA_PARTIALLY_TRANSFERED, dataTransfered);
 	}
 
@@ -346,7 +347,7 @@ public final class BigDataPropositionMessage extends Message implements NetworkM
 
 	void transferCompleted(long dataTransfered) {
 		sendBidirectionalReply(BigDataResultMessage.Type.BIG_DATA_TRANSFERED, dataTransfered);
-	}
+	}*/
 
 	protected void sendBidirectionalReply(final BigDataResultMessage.Type type, final long length) {
 		final AbstractAgent receiver = getReceiver().getAgent();
@@ -354,7 +355,7 @@ public final class BigDataPropositionMessage extends Message implements NetworkM
 		receiver.scheduleTask(new Task<>(new Callable<Void>() {
 
 			@Override
-			public Void call() throws Exception {
+			public Void call() {
 				Message m = new BigDataResultMessage(type, length, idPacket, System.currentTimeMillis() - timeUTC);
 				m.setIDFrom(BigDataPropositionMessage.this);
 				receiver.sendMessage(getSender(), m);
@@ -369,21 +370,21 @@ public final class BigDataPropositionMessage extends Message implements NetworkM
 		receiver.receiveMessage(m);
 	}
 
-	RandomInputStream getInputStream() {
+	/*RandomInputStream getInputStream() {
 		return inputStream;
 	}
 
 	void setIDPacket(int idPacket) {
 		this.idPacket = idPacket;
-	}
+	}*/
 
 	int getIDPacket() {
 		return idPacket;
 	}
 
-	RandomOutputStream getOutputStream() {
+	/*RandomOutputStream getOutputStream() {
 		return outputStream;
-	}
+	}*/
 	
 	
 }

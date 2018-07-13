@@ -163,22 +163,22 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKey
 			SymmetricEncryptionType symmetricEncryptionType, short symmetricKeySizeBits, ASymmetricKeyWrapperType keyWrapper, SymmetricAuthentifiedSignatureType signatureType) {
 		if (keyPairForEncryption == null)
 			throw new NullPointerException("keyPairForEncryption");
-		keyPairsForEncryption.put(Integer.valueOf(generateNewKeyPairIdentifier()), keyPairForEncryption);
+		keyPairsForEncryption.put(generateNewKeyPairIdentifier(), keyPairForEncryption);
 
 		if (symmetricEncryptionType == null) {
 			symmetricEncryptionType = SymmetricEncryptionType.DEFAULT;
 			symmetricKeySizeBits = symmetricEncryptionType.getDefaultKeySizeBits();
 		}
-		symmetricEncryptionTypes.put(Integer.valueOf(lastIdentifier), symmetricEncryptionType);
-		symmetricEncryptionKeySizeBits.put(Integer.valueOf(lastIdentifier), Short.valueOf(symmetricKeySizeBits));
+		symmetricEncryptionTypes.put(lastIdentifier, symmetricEncryptionType);
+		symmetricEncryptionKeySizeBits.put(lastIdentifier, symmetricKeySizeBits);
 		if (signatureType == null)
-			signatures.put(Integer.valueOf(lastIdentifier), symmetricEncryptionType.getDefaultSignatureAlgorithm());
+			signatures.put(lastIdentifier, symmetricEncryptionType.getDefaultSignatureAlgorithm());
 		else
-			signatures.put(Integer.valueOf(lastIdentifier), signatureType);
+			signatures.put(lastIdentifier, signatureType);
 		
 		if (keyWrapper==null)
 			keyWrapper=ASymmetricKeyWrapperType.DEFAULT;
-		keyWrappers.put(Integer.valueOf(lastIdentifier), keyWrapper);
+		keyWrappers.put(lastIdentifier, keyWrapper);
 			
 		
 		return lastIdentifier;
@@ -194,7 +194,7 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKey
 	 *         profile identifier
 	 */
 	public ASymmetricKeyPair getKeyPairForEncryption(int profileIdentifier) {
-		return keyPairsForEncryption.get(Integer.valueOf(profileIdentifier));
+		return keyPairsForEncryption.get(profileIdentifier);
 	}
 
 	/**
@@ -207,7 +207,7 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKey
 	 *         profile identifier
 	 */
 	public SymmetricAuthentifiedSignatureType getSignatureType(int profileIdentifier) {
-		return signatures.get(Integer.valueOf(profileIdentifier));
+		return signatures.get(profileIdentifier);
 	}
 	
 	/**
@@ -218,7 +218,7 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKey
 	 * @return the key wrapper attached to this connection protocol and the given profile identifier
 	 */
 	public ASymmetricKeyWrapperType getKeyWrapper(int profileIdentifier) {
-		return keyWrappers.get(Integer.valueOf(profileIdentifier));
+		return keyWrappers.get(profileIdentifier);
 	}
 	
 
@@ -240,7 +240,7 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKey
 	 *         and the given profile identifier
 	 */
 	public SymmetricEncryptionType getSymmetricEncryptionType(int profileIdentifier) {
-		return symmetricEncryptionTypes.get(Integer.valueOf(profileIdentifier));
+		return symmetricEncryptionTypes.get(profileIdentifier);
 	}
 
 	/**
@@ -253,7 +253,7 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKey
 	 *         protocol and the given profile identifier
 	 */
 	public short getSymmetricEncryptionKeySizeBits(int profileIdentifier) {
-		return symmetricEncryptionKeySizeBits.get(Integer.valueOf(profileIdentifier)).shortValue();
+		return symmetricEncryptionKeySizeBits.get(profileIdentifier);
 	}
 
 	/**
@@ -264,7 +264,7 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKey
 	 *         default profile
 	 */
 	public ASymmetricKeyPair getDefaultKeyPairForEncryption() {
-		return keyPairsForEncryption.get(Integer.valueOf(lastIdentifier));
+		return keyPairsForEncryption.get(lastIdentifier);
 	}
 
 	/**
@@ -275,7 +275,7 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKey
 	 *         its default profile
 	 */
 	public SymmetricAuthentifiedSignatureType getDefaultSignatureType() {
-		return signatures.get(Integer.valueOf(lastIdentifier));
+		return signatures.get(lastIdentifier);
 	}
 	/**
 	 * Gets the default key wrapper attached to this connection protocol and its
@@ -285,7 +285,7 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKey
 	 * default profile
 	 */
 	public ASymmetricKeyWrapperType getDefaultKeyWrapper() {
-		return keyWrappers.get(Integer.valueOf(lastIdentifier));
+		return keyWrappers.get(lastIdentifier);
 	}
 
 	/**
@@ -296,7 +296,7 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKey
 	 *         protocol and its default profile
 	 */
 	public SymmetricEncryptionType getDefaultSymmetricEncryptionType() {
-		return symmetricEncryptionTypes.get(Integer.valueOf(lastIdentifier));
+		return symmetricEncryptionTypes.get(lastIdentifier);
 	}
 
 	/**
@@ -307,7 +307,7 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKey
 	 *         connection protocol and its default profile
 	 */
 	public short getDefaultSymmetricEncryptionKeySizeBits() {
-		return symmetricEncryptionKeySizeBits.get(Integer.valueOf(lastIdentifier)).shortValue();
+		return symmetricEncryptionKeySizeBits.get(lastIdentifier);
 	}
 
 	/**
@@ -336,10 +336,6 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKey
 	 */
 	public boolean enableEncryption = true;
 
-	/**
-	 * The used key pair
-	 */
-	// ASymmetricKeyPair keyPair=null;
 
 	/**
 	 * The used key pairs for encryption
@@ -381,7 +377,7 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKey
 	 * Default duration of a public key before being regenerated. Must be greater or
 	 * equal than 0.
 	 */
-	public final long defaultASymmetricKeyExpirationMs = 15552000000l;
+	public final long defaultASymmetricKeyExpirationMs = 15552000000L;
 
 	/**
 	 * The duration of a public key before being regenerated. Must be greater or
@@ -418,15 +414,14 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKey
 				throw new NullPointerException(
 						"No symmetric encryption key size bits found for identifier " + e.getKey());
 		}
-		if (keyPairs.get(Integer.valueOf(this.lastIdentifier)).getKeySizeBits() < minASymetricKeySizeBits)
+		if (keyPairs.get(this.lastIdentifier).getKeySizeBits() < minASymetricKeySizeBits)
 			throw new ConnectionException("_rsa_key_size must be greater or equal than " + minASymetricKeySizeBits
 					+ " . Moreover, this number must correspond to this schema : _rsa_key_size=2^x.");
 		return valid;
 	}
 	
 	void checkProperties() throws ConnectionException {
-		boolean valid=true;
-		valid|=checkKeyPairs(keyPairsForEncryption);
+		boolean valid = checkKeyPairs(keyPairsForEncryption);
 		
 		if (!valid) {
 			throw new ConnectionException("All given public keys has expired");
@@ -460,7 +455,7 @@ public class ServerSecuredProcotolPropertiesWithKnownPublicKey
 			if (maxAlgo==null)
 			{
 				int res=0;
-				SymmetricEncryptionAlgorithm maxAlgo=null;
+				SymmetricEncryptionAlgorithm maxAlgo;
 				
 				for (Map.Entry<Integer, SymmetricEncryptionType> e : this.symmetricEncryptionTypes.entrySet())
 				{

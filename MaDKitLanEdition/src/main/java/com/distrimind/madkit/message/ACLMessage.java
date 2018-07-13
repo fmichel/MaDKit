@@ -33,19 +33,18 @@
  */
 package com.distrimind.madkit.message;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.AgentAddress;
 import com.distrimind.madkit.kernel.network.NetworkProperties;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.madkit.util.SerializationTools;
+
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * This class describes an ACL message. It provides accessors for all message
@@ -451,16 +450,16 @@ public class ACLMessage extends ActMessage // NO_UCD
 	}
 
 	public String toString() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 
-		buffer.append("(" + getAct() + " ");
+		buffer.append("(").append(getAct()).append(" ");
 		if (getSender() != null)
-			buffer.append(SENDER_KEY + " " + getSender());
+			buffer.append(SENDER_KEY + " ").append(getSender());
 		if (getReceiver() != null)
-			buffer.append(" " + RECEIVER_KEY + " " + getReceiver());
+			buffer.append(" " + RECEIVER_KEY + " ").append(getReceiver());
 		if (content != null)
 			if (content.length() > 0)
-				buffer.append(" " + CONTENT_KEY + " " + content + "\n");
+				buffer.append(" " + CONTENT_KEY + " ").append(content).append("\n");
 
 		buffer.append(")");
 		return new String(buffer);
@@ -480,8 +479,8 @@ public class ACLMessage extends ActMessage // NO_UCD
 		if (reply_to.isEmpty()) {
 			m.addReceiver(getSender());
 		} else
-			for (Iterator<AgentAddress> it = reply_to.iterator(); it.hasNext();) {
-				m.addReceiver(it.next());
+			for (AgentAddress aReply_to : reply_to) {
+				m.addReceiver(aReply_to);
 			}
 		return m;
 	}

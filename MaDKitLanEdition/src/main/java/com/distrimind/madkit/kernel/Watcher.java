@@ -38,6 +38,7 @@
 
 package com.distrimind.madkit.kernel;
 
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.logging.Level;
@@ -110,7 +111,7 @@ public class Watcher extends AbstractAgent {
 
 	@SuppressWarnings("unchecked")
 	public Probe<AbstractAgent>[] allProbes() {
-		return probes.toArray(new Probe[probes.size()]);
+		return probes.toArray(new Probe[0]);
 		// return (Probe<AbstractAgent>[]) probes.toArray();
 	}
 
@@ -125,7 +126,7 @@ public class Watcher extends AbstractAgent {
 
 	@Override
 	public String toString() {
-		return getName() + " " + allProbes();
+		return getName() + " " + Arrays.toString(allProbes());
 	}
 
 }

@@ -113,13 +113,14 @@ import gnu.vm.jgnu.security.NoSuchProviderException;
  * @version 1.2
  * @since MadkitLanEdition 1.0
  */
+@SuppressWarnings("UnusedReturnValue")
 class DistantKernelAgent extends AgentFakeThread {
 
 	private final ArrayList<AgentSocketData> agents_socket = new ArrayList<>();
 	private final ArrayList<AgentSocketData> indirect_agents_socket = new ArrayList<>();
 
 	protected KernelAddressInterfaced distant_kernel_address = null;
-	private IDGeneratorInt packet_id_generator = new IDGeneratorInt();
+	private final IDGeneratorInt packet_id_generator = new IDGeneratorInt();
 	private Group distant_accepted_groups[] = new Group[0];
 	private AbstractSecureRandom random;
 	private boolean kernelAddressActivated = false;
@@ -175,8 +176,7 @@ class DistantKernelAgent extends AgentFakeThread {
 	private boolean broadcastLocalLanMessage(ArrayList<AgentSocketData> agents_socket, BroadcastLocalLanMessage message,
 			AbstractGroup groups_lacking) throws MadkitException {
 
-		for (int i = 0; i < agents_socket.size(); i++) {
-			AgentSocketData asd = agents_socket.get(i);
+		for (AgentSocketData asd : agents_socket) {
 			if (asd.isUsable()) {
 				AbstractGroup concerned_groups = asd.distant_accessible_and_requested_groups.intersect(groups_lacking);
 				if (!concerned_groups.isEmpty()) {
@@ -215,7 +215,9 @@ class DistantKernelAgent extends AgentFakeThread {
 	 */
 	private volatile boolean concurrent = false;
 
-	@Override
+
+	@SuppressWarnings({"SynchronizeOnNonFinalField", "ConstantConditions"})
+    @Override
 	protected void liveByStep(Message _message) {
 		if (concurrent)
 			throw new ConcurrentModificationException();
@@ -472,7 +474,7 @@ class DistantKernelAgent extends AgentFakeThread {
 												taskForPurgeCheck = scheduleTask(new Task<>(new Callable<Void>() {
 
 													@Override
-													public Void call() throws Exception {
+													public Void call() {
 														ExceededDataQueueSize e = globalExeceededDataQueueSize.get();
 														if (isAlive() && e != null && e.isPaused() && e.mustPurge()) {
 															if (getMadkitConfig().networkProperties
@@ -541,7 +543,7 @@ class DistantKernelAgent extends AgentFakeThread {
 							AgentSocketData asd = getBestAgentSocketCompatibleForTransfer();
 							if (asd != null)
 								sendReplyWithRole(m,
-										new ObjectMessage<AskForTransferMessage.CandidateForTransfer>(
+										new ObjectMessage<>(
 												m.getCandidate(asd.getGlobalAgentAddress(), this.distant_kernel_address,
 														asd.distant_inet_socket_address, asd.numberOfIntermediatePeers,
 														asd.getConnectionInfo())),
@@ -557,7 +559,7 @@ class DistantKernelAgent extends AgentFakeThread {
 							candidate = getAgentSocketDataForTransfer(this.indirect_agents_socket, m);
 						if (candidate != null) {
 							sendReplyWithRole(m,
-									new ObjectMessage<AskForTransferMessage.CandidateForTransfer>(m.getCandidate(
+									new ObjectMessage<>(m.getCandidate(
 											candidate.getGlobalAgentAddress(), this.distant_kernel_address,
 											candidate.distant_inet_socket_address, candidate.numberOfIntermediatePeers,
 											candidate.getConnectionInfo())),
@@ -578,7 +580,7 @@ class DistantKernelAgent extends AgentFakeThread {
 						else
 							this.indirect_agents_socket.add(asd);
 						if (this.kernelAddressActivated)
-							sendReplyWithRole(_message, new ObjectMessage<StatsBandwidth>(stats),
+							sendReplyWithRole(_message, new ObjectMessage<>(stats),
 									LocalCommunity.Roles.DISTANT_KERNEL_AGENT_ROLE);
 					} else if (o instanceof KernelAddress) {
 						// distant kernel address received
@@ -684,7 +686,7 @@ class DistantKernelAgent extends AgentFakeThread {
 											+ o);
 
 								int id = MadkitKernelAccess.getIDPacket(bdpm);
-								current_big_data_readings.put(Integer.valueOf(id), new BigDataReading(bdpm));
+								current_big_data_readings.put(id, new BigDataReading(bdpm));
 								sendData(asd.getAgentAddress(), new ValidateBigDataProposition(id), true, null, false);
 							}
 						}
@@ -751,7 +753,7 @@ class DistantKernelAgent extends AgentFakeThread {
 					bgpm.getStartStreamPosition(), bgpm.getTransferLength(), true, bgpm.getMessageDigestType());
 			BigPacketData packetData = new BigPacketData(choosenSocket.getAgentAddress(), packet, bgpm.getReceiver(),
 					bgpm.getSender(), bgpm.getConversationID(), bgpm.getStatistics(), bgpm.bigDataExcludedFromEncryption());
-			packetsDataInQueue.put(Integer.valueOf(id), packetData);
+			packetsDataInQueue.put(id, packetData);
 		}
 	}
 
@@ -759,11 +761,11 @@ class DistantKernelAgent extends AgentFakeThread {
 		if (logger != null && logger.isLoggable(Level.FINEST))
 			logger.finest("Cancel big data in queue (distantInterfacedKernelAddress=" + distant_kernel_address
 					+ ", idTransfer=" + idTransfer + ")");
-		return packetsDataInQueue.remove(Integer.valueOf(idTransfer));
+		return packetsDataInQueue.remove(idTransfer);
 	}
 
 	private boolean validatePacketDataInQueue(int idTransfer) {
-		BigPacketData bpd = packetsDataInQueue.remove(Integer.valueOf(idTransfer));
+		BigPacketData bpd = packetsDataInQueue.remove(idTransfer);
 		if (bpd == null) {
 			if (logger != null)
 				logger.warning("Big data in queue not valid (distantInterfacedKernelAddress=" + distant_kernel_address
@@ -868,7 +870,7 @@ class DistantKernelAgent extends AgentFakeThread {
 			}
 		}
 
-		boolean isPurging(DistantKernelAgent asker) {
+		/*boolean isPurging(DistantKernelAgent asker) {
 			if (isPaused() && mustPurge()) {
 				synchronized (networkBlacboard.candidatesForPurge) {
 					if (networkBlacboard.currentCandidateForPurge == asker) {
@@ -877,7 +879,7 @@ class DistantKernelAgent extends AgentFakeThread {
 				}
 			}
 			return false;
-		}
+		}*/
 
 		// @SuppressWarnings("synthetic-access")
 		void purgeFinished(DistantKernelAgent asker) {
@@ -956,9 +958,9 @@ class DistantKernelAgent extends AgentFakeThread {
 			return !readingToPurge.isEmpty();
 		}
 
-		boolean hasMoreThanOneReadingsToPurge() {
+		/*boolean hasMoreThanOneReadingsToPurge() {
 			return readingToPurge.size() > 1;
-		}
+		}*/
 
 	}
 
@@ -1056,10 +1058,10 @@ class DistantKernelAgent extends AgentFakeThread {
 
 			}
 
-			sendMessageWithRole(sender, new ObjectMessage<KernelAddressInterfaced>(this.distant_kernel_address),
+			sendMessageWithRole(sender, new ObjectMessage<>(this.distant_kernel_address),
 					LocalCommunity.Roles.DISTANT_KERNEL_AGENT_ROLE);
 
-			sendMessageWithRole(sender, new ObjectMessage<StatsBandwidth>(stats),
+			sendMessageWithRole(sender, new ObjectMessage<>(stats),
 					LocalCommunity.Roles.DISTANT_KERNEL_AGENT_ROLE);
 
 			/*
@@ -1156,8 +1158,7 @@ class DistantKernelAgent extends AgentFakeThread {
 			Set<Group> groups) {
 		for (AgentSocketData a : agents_socket) {
 			if (a.distant_accessible_and_requested_groups2 != null) {
-				for (Group g : a.distant_accessible_and_requested_groups2)
-					groups.add(g);
+				groups.addAll(a.distant_accessible_and_requested_groups2);
 				general.addGroup(a.distant_general_accessible_groups);
 			}
 		}
@@ -1188,14 +1189,10 @@ class DistantKernelAgent extends AgentFakeThread {
 	private void updateLoginData(ArrayList<AgentSocketData> agents_socket, Set<PairOfIdentifiers> ids,
 			Set<PairOfIdentifiers> idsnewa, Set<PairOfIdentifiers> idsnewd, Set<PairOfIdentifiers> idsnewu) {
 		for (AgentSocketData a : agents_socket) {
-			for (PairOfIdentifiers poi : a.getAcceptedPairOfIdentifiers())
-				ids.add(poi);
-			for (PairOfIdentifiers poi : a.getLastAcceptedPairOfIdentifiers())
-				idsnewa.add(poi);
-			for (PairOfIdentifiers poi : a.getLastDeniedPairOfIdentifiers())
-				idsnewd.add(poi);
-			for (PairOfIdentifiers poi : a.getLastUnloggedPairOfIdentifiers())
-				idsnewu.add(poi);
+			ids.addAll(a.getAcceptedPairOfIdentifiers());
+			idsnewa.addAll(a.getLastAcceptedPairOfIdentifiers());
+			idsnewd.addAll(a.getLastDeniedPairOfIdentifiers());
+			idsnewu.addAll(a.getLastUnloggedPairOfIdentifiers());
 		}
 	}
 
@@ -1275,13 +1272,13 @@ class DistantKernelAgent extends AgentFakeThread {
 		}
 	}
 
+	@SuppressWarnings("SameParameterValue")
 	protected AgentSocketData getBestAgentSocket(AgentAddress _receiver, boolean testOnlyRequestedGroups) {
 		return getBestAgentSocket(_receiver.getKernelAddress(), _receiver.getGroup(), testOnlyRequestedGroups);
 	}
 
 	private void potentialChangementsInGroups(ArrayList<AgentSocketData> agents_socket) throws MadkitException {
-		for (int i = 0; i < agents_socket.size(); i++) {
-			AgentSocketData asd = agents_socket.get(i);
+		for (AgentSocketData asd : agents_socket) {
 			if (asd.isUsable())
 				asd.potentialChangementInGroups(this);
 		}
@@ -1300,18 +1297,18 @@ class DistantKernelAgent extends AgentFakeThread {
 			return null;
 		}
 
-		AgentSocketData asd = getFirstValidAgentSocketData(agents_socket, distantKernelAddress, group,
+		AgentSocketData asd = getFirstValidAgentSocketData(agents_socket, group,
 				testOnlyRequestedGroups);
 		if (asd == null)
-			asd = getFirstValidAgentSocketData(indirect_agents_socket, distantKernelAddress, group,
+			asd = getFirstValidAgentSocketData(indirect_agents_socket, group,
 					testOnlyRequestedGroups);
 		return asd;
 	}
 
+
 	private AgentSocketData getFirstValidAgentSocketData(ArrayList<AgentSocketData> agents_socket,
-			KernelAddress distantKernelAddress, Group group, boolean testOnlyRequestedGroups) {
-		for (Iterator<AgentSocketData> it = agents_socket.iterator(); it.hasNext();) {
-			AgentSocketData asd = it.next();
+														 Group group, boolean testOnlyRequestedGroups) {
+		for (AgentSocketData asd : agents_socket) {
 			if (asd.isUsable() && asd.contains(group, testOnlyRequestedGroups)
 					&& asd.getAcceptedLocalGroups().getGroups().includes(getKernelAddress(), group))
 				return asd;
@@ -1330,8 +1327,7 @@ class DistantKernelAgent extends AgentFakeThread {
 
 	private AgentSocketData getFirstValidAgentSocketData(boolean includeNotUsable,
 			ArrayList<AgentSocketData> agents_socket) {
-		for (Iterator<AgentSocketData> it = agents_socket.iterator(); it.hasNext();) {
-			AgentSocketData asd = it.next();
+		for (AgentSocketData asd : agents_socket) {
 			if (includeNotUsable || asd.isUsable())
 				return asd;
 		}
@@ -1340,8 +1336,7 @@ class DistantKernelAgent extends AgentFakeThread {
 
 	private AgentSocketData getFirstValidAgentSocketDataCompatibleForTransfer(
 			ArrayList<AgentSocketData> agents_socket) {
-		for (Iterator<AgentSocketData> it = agents_socket.iterator(); it.hasNext();) {
-			AgentSocketData asd = it.next();
+		for (AgentSocketData asd : agents_socket) {
 			if (asd.isUsable() && asd.numberOfIntermediatePeers + 1 <= getMadkitConfig().networkProperties.gatewayDepth)
 				return asd;
 		}
@@ -1395,6 +1390,7 @@ class DistantKernelAgent extends AgentFakeThread {
 			return counterSelector;
 		}*/
 		
+		@SuppressWarnings("SameParameterValue")
 		void setUsable(boolean value) {
 			distantKernelAddressValidated = value;
 		}
@@ -1429,11 +1425,7 @@ class DistantKernelAgent extends AgentFakeThread {
 			}
 
 			double v = t1.getBytesPerSecond() - t2.getBytesPerSecond();
-			if (v < 0.0)
-				return -1;
-			if (v > 0.0)
-				return 1;
-			return 0;
+			return Double.compare(v, 0.0);
 		}
 
 		void setConnectionInfo(ConnectionInfoSystemMessage distantConnectionInfo) {
@@ -1567,8 +1559,7 @@ class DistantKernelAgent extends AgentFakeThread {
 				Group[] gs = g.getGroups().getRepresentedGroups(getKernelAddress());
 				if (gs != null) {
 					ag.ensureCapacity(gs.length);
-					for (Group ggs : gs)
-						ag.add(ggs);
+					Collections.addAll(ag, gs);
 				}
 			}
 		}
@@ -1636,7 +1627,7 @@ class DistantKernelAgent extends AgentFakeThread {
 	 */
 	protected void sendData(AgentAddress receiver, SystemMessage _data, boolean prioritary,
 			MessageLocker _messageLocker, boolean last_message) throws NIOException {
-		try (ByteArrayOutputStream baos = new ByteArrayOutputStream();) {
+		try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
 			try (ObjectOutputStream oos = new OOS(baos)) {
 				SerializationTools.writeExternalizableAndSizable(oos, _data, false);
 			}
@@ -1750,10 +1741,11 @@ class DistantKernelAgent extends AgentFakeThread {
 		}
 	}
 
+	@SuppressWarnings("SynchronizeOnNonFinalField")
 	abstract class AbstractPacketData extends AbstractData {
 		protected final WritePacket packet;
-		protected ByteBuffer currentByteBuffer = null;
-		protected Block currentBlock = null;
+		protected ByteBuffer currentByteBuffer;
+		protected Block currentBlock;
 
 		private boolean asking_new_buffer_in_process;
 
@@ -1792,9 +1784,9 @@ class DistantKernelAgent extends AgentFakeThread {
 			return getClass().getSimpleName() + "[idPacket=" + packet.getID() + ", unlocked=" + unlocked.get()
 					+ ", canceled=" + isCanceled.get() + ", totalDataToSendLenght(Without connection protocol)="
 					+ this.packet.getDataLengthWithHashIncluded() + ", currentByteBuffer="
-					+ (currentByteBuffer == null ? null : Integer.valueOf(currentByteBuffer.capacity()))
+					+ (currentByteBuffer == null ? null : currentByteBuffer.capacity())
 					+ ", currentByteBufferRemaining="
-					+ (currentByteBuffer == null ? null : Integer.valueOf(currentByteBuffer.remaining())) + ", dataSent="
+					+ (currentByteBuffer == null ? null : currentByteBuffer.remaining()) + ", dataSent="
 					+ this.packet.getReadDataLengthIncludingHash() + "]";
 		}
 
@@ -1850,7 +1842,7 @@ class DistantKernelAgent extends AgentFakeThread {
 				}
 				try
 				{
-					if (currentByteBuffer!=null && stat != null)
+					if (stat != null)
 						stat.newBytesIndentified(currentByteBuffer.capacity());
 
 					/*if (currentBlock!=null)
@@ -1936,7 +1928,7 @@ class DistantKernelAgent extends AgentFakeThread {
 			
 		}
 
-		@Override
+		/*@Override
 		public boolean isReady() {
 			if (isCanceled.get())
 				return true;
@@ -1947,7 +1939,7 @@ class DistantKernelAgent extends AgentFakeThread {
 					return true;
 				}
 			}
-		}
+		}*/
 
 		@Override
 		boolean isDataBuildInProgress()
@@ -1959,7 +1951,7 @@ class DistantKernelAgent extends AgentFakeThread {
 		}
 		
 		@Override
-		public boolean isFinished() throws PacketException {
+		public boolean isFinished() {
 			if (isCanceled.get() && isCurrentByteBufferFinished())
 				return true;
 			synchronized (this) {
@@ -1991,7 +1983,7 @@ class DistantKernelAgent extends AgentFakeThread {
 		}*/
 
 		@Override
-		public boolean isCurrentByteBufferFinished() throws PacketException {
+		public boolean isCurrentByteBufferFinished() {
 			synchronized (this) {
 				return currentByteBuffer == null || currentByteBuffer.remaining() == 0;
 				/*if (res && !currentCounterIDReleased)
@@ -2047,7 +2039,7 @@ class DistantKernelAgent extends AgentFakeThread {
 			}
 		}
 
-		abstract boolean isSystemMessage();
+		//abstract boolean isSystemMessage();
 
 		@Override
 		public void unlockMessage() throws MadkitException {
@@ -2129,10 +2121,10 @@ class DistantKernelAgent extends AgentFakeThread {
 			 */
 		}
 
-		@Override
+		/*@Override
 		boolean isSystemMessage() {
 			return isSystemMessage;
-		}
+		}*/
 
 		@Override
 		public boolean isLastMessage() {
@@ -2187,10 +2179,10 @@ class DistantKernelAgent extends AgentFakeThread {
 			timeUTC = System.currentTimeMillis();
 		}
 
-		@Override
+		/*@Override
 		boolean isSystemMessage() {
 			return false;
-		}
+		}*/
 
 		AgentAddress getAsker() {
 			return asker;
@@ -2259,8 +2251,8 @@ class DistantKernelAgent extends AgentFakeThread {
 				throw new NullPointerException("os");
 			this.messageDigestType = messageDigestType;
 			output_stream = os;
-			read_packet = new ReadPacket(getMadkitConfig().networkProperties.maxBufferSize,
-					getMadkitConfig().networkProperties.maxRandomPacketValues, _first_part, output_stream,
+			read_packet = new ReadPacket(
+					_first_part, output_stream,
 					messageDigestType);
 		}
 
@@ -2278,8 +2270,7 @@ class DistantKernelAgent extends AgentFakeThread {
 
 		public void readNewPart(PacketPart _part) throws PacketException {
 			if (read_packet == null)
-				read_packet = new ReadPacket(getMadkitConfig().networkProperties.maxBufferSize,
-						getMadkitConfig().networkProperties.maxRandomPacketValues, _part, output_stream,
+				read_packet = new ReadPacket(_part, output_stream,
 						messageDigestType);
 			read_packet.readNewPart(_part);
 		}
@@ -2361,8 +2352,7 @@ class DistantKernelAgent extends AgentFakeThread {
 			data += _part.getSubBlock().getSize();
 			incrementTotalDataQueue(_part.getSubBlock().getSize());
 			if (read_packet == null)
-				read_packet = new ReadPacket(getMadkitConfig().networkProperties.maxBufferSize,
-						getMadkitConfig().networkProperties.maxRandomPacketValues, _part, output_stream,
+				read_packet = new ReadPacket(_part, output_stream,
 						messageDigestType);
 			else
 				read_packet.readNewPart(_part);
@@ -2387,9 +2377,9 @@ class DistantKernelAgent extends AgentFakeThread {
 
 		boolean bigData = false;
 
-		Reading reading = current_short_readings.get(Integer.valueOf(p.getHead().getID()));
+		Reading reading = current_short_readings.get(p.getHead().getID());
 		if (reading == null) {
-			reading = current_big_data_readings.get(Integer.valueOf(p.getHead().getID()));
+			reading = current_big_data_readings.get(p.getHead().getID());
 
 			if (reading != null)
 				bigData = true;
@@ -2408,27 +2398,27 @@ class DistantKernelAgent extends AgentFakeThread {
 					if (sr.isInvalid()) {
 						MadkitKernelAccess.dataCorrupted(sr.getOriginalMessage(),
 								sr.getReadPacket().getWritedDataLength());
-						current_big_data_readings.remove(Integer.valueOf(reading.getIdentifier()));
+						current_big_data_readings.remove(reading.getIdentifier());
 						processInvalidPacketPart(agent_socket_sender,
 								new PacketException("The given packet is not valid."), p, false);
 						try {
 							sr.closeStream();
-						} catch (Exception e2) {
+						} catch (Exception ignored) {
 
 						}
 					} else if (sr.isFinished()) {
 						sr.closeStream();
 						MadkitKernelAccess.transferCompleted(sr.getOriginalMessage(),
 								sr.getReadPacket().getWritedDataLength());
-						current_big_data_readings.remove(Integer.valueOf(reading.getIdentifier()));
+						current_big_data_readings.remove(reading.getIdentifier());
 					}
 				} catch (PacketException | IOException e) {
 					MadkitKernelAccess.dataCorrupted(sr.getOriginalMessage(), sr.getReadPacket().getWritedDataLength());
-					current_big_data_readings.remove(Integer.valueOf(reading.getIdentifier()));
+					current_big_data_readings.remove(reading.getIdentifier());
 					processInvalidPacketPart(agent_socket_sender, e, p, false);
 					try {
 						sr.closeStream();
-					} catch (Exception e2) {
+					} catch (Exception ignored) {
 
 					}
 
@@ -2436,12 +2426,12 @@ class DistantKernelAgent extends AgentFakeThread {
 				sr.freeDataSize();
 			} else if (sr.isInvalid()) {
 				MadkitKernelAccess.dataCorrupted(sr.getOriginalMessage(), sr.getReadPacket().getWritedDataLength());
-				current_big_data_readings.remove(Integer.valueOf(reading.getIdentifier()));
+				current_big_data_readings.remove(reading.getIdentifier());
 				processInvalidPacketPart(agent_socket_sender, new PacketException("The given packet is not valid."), p,
 						false);
 				try {
 					sr.closeStream();
-				} catch (Exception e2) {
+				} catch (Exception ignored) {
 
 				}
 			}
@@ -2469,7 +2459,7 @@ class DistantKernelAgent extends AgentFakeThread {
 									new PacketException("The given packet is not valid."), p, false);
 							try {
 								sr.closeStream();
-							} catch (Exception e2) {
+							} catch (Exception ignored) {
 
 							}
 						}
@@ -2487,7 +2477,7 @@ class DistantKernelAgent extends AgentFakeThread {
 						if (tooMuch) {
 							processTooMuchSimutaneousShortDataSent();
 						} else {
-							current_short_readings.put(Integer.valueOf(p.getHead().getID()), sr);
+							current_short_readings.put(p.getHead().getID(), sr);
 
 						}
 					} catch (PacketException e) {
@@ -2508,7 +2498,7 @@ class DistantKernelAgent extends AgentFakeThread {
 										new PacketException("The given packet is not valid."), p, false);
 								try {
 									sr.closeStream();
-								} catch (Exception e2) {
+								} catch (Exception ignored) {
 
 								}
 							}
@@ -2554,7 +2544,7 @@ class DistantKernelAgent extends AgentFakeThread {
 									LocalCommunity.Roles.DISTANT_KERNEL_AGENT_ROLE);
 						}
 					}
-					Integer id = Integer.valueOf(reading.getIdentifier());
+					Integer id = reading.getIdentifier();
 					current_short_readings.remove(id);
 					setOneSocketPurged(id, sr);
 
@@ -2589,9 +2579,9 @@ class DistantKernelAgent extends AgentFakeThread {
 			this.dataIncrement = dataSize;
 		}
 
-		KernelAddressInterfaced getKernelAddressInterfaced() {
+		/*KernelAddressInterfaced getKernelAddressInterfaced() {
 			return DistantKernelAgent.this.distant_kernel_address;
-		}
+		}*/
 
 		void markDataAsRead() {
 			if (dataSize.addAndGet(-dataIncrement) >= 0) {
@@ -2603,7 +2593,8 @@ class DistantKernelAgent extends AgentFakeThread {
 			}
 		}
 
-		@Override
+		@SuppressWarnings("MethodDoesntCallSuperMethod")
+        @Override
 		public ReceivedSerializableObject clone() {
 			incrementTotalDataQueue(dataIncrement);
 			dataSize.addAndGet(dataIncrement);
@@ -2622,10 +2613,7 @@ class DistantKernelAgent extends AgentFakeThread {
 			if (e != null) {
 				synchronized (networkBlacboard.candidatesForPurge) {
 					if (e.isPaused()) {
-						if (!e.mustPurge())
-							value = true;
-						else
-							value = false;
+                        value = !e.mustPurge();
 					}
 				}
 			}
@@ -2789,23 +2777,27 @@ class DistantKernelAgent extends AgentFakeThread {
 		}
 	}
 
-	private void processInvalidSerializedData(AgentAddress source, Exception e, ReadPacket _read_packet, byte data[]) {
+	@SuppressWarnings("unused")
+    private void processInvalidSerializedData(AgentAddress source, Exception e, ReadPacket _read_packet, byte data[]) {
 		processInvalidProcess(source, "Invalid serialized data from Kernel Address " + distant_kernel_address, e,
 				false);
 	}
 
-	private void processInvalidMessage(Message _message, boolean candidate_to_ban) {
+	@SuppressWarnings("SameParameterValue")
+    private void processInvalidMessage(Message _message, boolean candidate_to_ban) {
 		processInvalidProcess(null, "Invalid message " + _message, candidate_to_ban);
 	}
 
-	private void processInvalidPacketPart(AgentAddress source, Exception e, PacketPart _part,
-			boolean candidate_to_ban) {
+	@SuppressWarnings({"SameParameterValue", "unused"})
+    private void processInvalidPacketPart(AgentAddress source, Exception e, PacketPart _part,
+                                          boolean candidate_to_ban) {
 		processInvalidProcess(source, "Invalid packet part from Kernel Address " + distant_kernel_address, e,
 				candidate_to_ban);
 	}
 
-	private void processInvalidSerializedObject(AgentAddress source, Exception e, Object data,
-			boolean candidate_to_ban) {
+	@SuppressWarnings("unused")
+    private void processInvalidSerializedObject(AgentAddress source, Exception e, Object data,
+                                                boolean candidate_to_ban) {
 		processInvalidProcess(source, "Invalid serialized object from Kernel Address " + distant_kernel_address, e,
 				candidate_to_ban);
 	}
@@ -2832,7 +2824,8 @@ class DistantKernelAgent extends AgentFakeThread {
 					"Detected potential DDOS from " + this.distant_kernel_address + ". Killing related connections.");
 	}
 
-	private void processInvalidProcess(AgentAddress source, String message, boolean candidate_to_ban) {
+	@SuppressWarnings("SameParameterValue")
+    private void processInvalidProcess(AgentAddress source, String message, boolean candidate_to_ban) {
 		processInvalidProcess(source, message, null, candidate_to_ban);
 	}
 

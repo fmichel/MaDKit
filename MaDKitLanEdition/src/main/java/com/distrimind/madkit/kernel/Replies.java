@@ -139,11 +139,7 @@ public class Replies extends Message {
 		return replies;
 	}
 
-	/**
-	 * 
-	 * @param m
-	 * @return true if all replies has been got
-	 */
+
 	boolean addReply(Message m) {
 		synchronized (this) {
 			if (m != null && m.getClass() != EmptyMessage.class)

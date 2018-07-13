@@ -54,6 +54,7 @@ import com.distrimind.madkit.util.SerializationTools;
  * @version 1.1
  * @since MadkitLanEdition 1.0
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 class TransferConfirmationSystemMessage extends BroadcastableSystemMessage {
 
 	/**
@@ -70,6 +71,7 @@ class TransferConfirmationSystemMessage extends BroadcastableSystemMessage {
 	private InetSocketAddress distantInetSocketAddress;
 	private PointToPointTransferedBlockChecker pointToPointBlockChecker;
 	
+	@SuppressWarnings("unused")
 	TransferConfirmationSystemMessage()
 	{
 		

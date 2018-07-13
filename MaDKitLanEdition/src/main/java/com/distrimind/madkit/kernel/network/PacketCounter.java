@@ -47,11 +47,11 @@ package com.distrimind.madkit.kernel.network;
  *
  */
 public interface PacketCounter {
-	public void incrementOtherCounters();
-	public void incrementMyCounters();
+	void incrementOtherCounters();
+	void incrementMyCounters();
 	//public void selectMyCounters(CounterSelector.State state) throws PacketException;
-	public boolean isDistantActivated();
-	public boolean isLocalActivated();
+	boolean isDistantActivated();
+	boolean isLocalActivated();
 	
 	
 }

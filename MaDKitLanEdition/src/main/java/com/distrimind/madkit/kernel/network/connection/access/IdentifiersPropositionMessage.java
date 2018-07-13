@@ -40,10 +40,7 @@ package com.distrimind.madkit.kernel.network.connection.access;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import gnu.vm.jgnu.security.DigestException;
 import gnu.vm.jgnu.security.InvalidAlgorithmParameterException;
@@ -72,6 +69,7 @@ import com.distrimind.util.crypto.P2PLoginAgreementType;
  * @version 1.0
  * @since MadkitLanEdition 1.0
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 class IdentifiersPropositionMessage extends AccessMessage {
 	/**
 	 * 
@@ -82,6 +80,7 @@ class IdentifiersPropositionMessage extends AccessMessage {
 	private boolean isEncrypted;
 	private final transient short nbAnomalies;
 
+	@SuppressWarnings("unused")
 	IdentifiersPropositionMessage()
 	{
 		nbAnomalies=0;
@@ -91,6 +90,7 @@ class IdentifiersPropositionMessage extends AccessMessage {
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		isEncrypted=in.readBoolean();
 		ExternalizableAndSizable[] s=SerializationTools.readExternalizableAndSizables(in, NetworkProperties.GLOBAL_MAX_SHORT_DATA_SIZE, false);
+		assert s != null;
 		identifiers=new Identifier[s.length];
 		for (int i=0;i<s.length;i++)
 		{
@@ -128,9 +128,7 @@ class IdentifiersPropositionMessage extends AccessMessage {
 	}
 
 	public IdentifiersPropositionMessage(Collection<Identifier> _id_pws, AbstractSecureRandom random, AbstractMessageDigest messageDigest,
-			boolean encryptIdentifiers, short nbAnomalies, byte[] distantGeneratedSalt) throws InvalidKeyException, IOException,
-			IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, InvalidKeySpecException,
-			NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchProviderException, DigestException {
+			boolean encryptIdentifiers, short nbAnomalies, byte[] distantGeneratedSalt) throws  DigestException {
 		identifiers = new Identifier[_id_pws.size()];
 		isEncrypted = encryptIdentifiers;
 		int index = 0;
@@ -163,9 +161,7 @@ class IdentifiersPropositionMessage extends AccessMessage {
 					res.add(i);
 			}
 		} else {
-			for (Identifier id : identifiers) {
-				res.add(id);
-			}
+			res.addAll(Arrays.asList(identifiers));
 		}
 
 		return res;
@@ -180,9 +176,7 @@ class IdentifiersPropositionMessage extends AccessMessage {
 					res.add(i);
 			}
 		} else {
-			for (Identifier id : identifiers) {
-				res.add(id);
-			}
+			res.addAll(Arrays.asList(identifiers));
 		}
 
 		return res;
@@ -202,9 +196,7 @@ class IdentifiersPropositionMessage extends AccessMessage {
 	}
 	public IdentifiersPropositionMessage getIdentifiersPropositionMessageAnswer(LoginData loginData,
 			AbstractSecureRandom random, AbstractMessageDigest messageDigest, boolean encryptIdentifiers, List<Identifier> identifiers, byte[] distantGeneratedSalt, byte[] localGeneratedSalt)
-			throws AccessException, InvalidKeyException, IOException, IllegalBlockSizeException, BadPaddingException,
-			NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException,
-			InvalidAlgorithmParameterException, NoSuchProviderException, DigestException {
+			throws AccessException,  DigestException {
 		ArrayList<Identifier> validID = getValidDecodedIdentifiers(loginData, messageDigest, localGeneratedSalt);
 		identifiers.addAll(validID);
 		int nbAno = this.identifiers.length - validID.size();
@@ -250,8 +242,8 @@ class IdentifiersPropositionMessage extends AccessMessage {
 						? ((res.size() == 0 && identifiers.length > 0) ? (short) 1 : (short) 0)
 						: (nbAno > Short.MAX_VALUE) ? Short.MAX_VALUE : (short) nbAno);
 }
-	public JPakeMessage getJPakeMessage(LoginData loginData, Map<Identifier, P2PLoginAgreement> agreements, P2PLoginAgreementType agreementType, AbstractSecureRandom random, AbstractSecureRandom randomForKeys, AbstractMessageDigest messageDigest,
-			boolean encryptIdentifiers,  byte[] distantGeneratedSalt, byte[] localGeneratedSalt) throws Exception {
+	public JPakeMessage getJPakeMessage(LoginData loginData, Map<Identifier, P2PLoginAgreement> agreements, P2PLoginAgreementType agreementType, AbstractSecureRandom random, AbstractMessageDigest messageDigest,
+										boolean encryptIdentifiers, byte[] distantGeneratedSalt, byte[] localGeneratedSalt) throws Exception {
 		int nbAno = 0;
 		if (encryptIdentifiers) {
 			for (Identifier id : identifiers) {

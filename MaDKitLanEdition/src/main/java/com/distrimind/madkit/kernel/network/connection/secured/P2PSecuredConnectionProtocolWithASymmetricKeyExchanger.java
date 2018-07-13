@@ -354,7 +354,6 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 					return new SecretKeyMessage(encoded_secret_key);
 				}
 			} else if (_m instanceof SimilarPublicKeysError) {
-				current_step = Step.WAITING_FOR_PUBLIC_KEY;
 				setNewPublicPrivateKeys();
 				return new PublicKeyMessage(myKeyPairForEncryption.getASymmetricPublicKey(), distant_public_key_for_encryption, myKeyPairForSignature.getASymmetricPublicKey(), distant_public_key_for_signature, myKeyPairForSignature.getASymmetricPrivateKey());
 			} else if (_m instanceof ConnectionFinished) {
@@ -627,13 +626,13 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 					ConnectionProtocol.ByteArrayOutputStream os=new ConnectionProtocol.ByteArrayOutputStream(tab, off);
 					
 					
-					boolean check=true;
+					boolean check;
 					signatureChecker.init(_block.getBytes(), _block.getOffset(),
 							signature_size_bytes);
 					signatureChecker.update(_block.getBytes(),
 							off, _block.getSize() - getSizeHead());
 					check = signatureChecker.verify();
-					SubBlock res = null;
+					SubBlock res;
 					if (check)
 					{
 						if (getPacketCounter().isLocalActivated())
@@ -997,7 +996,7 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 		}
 
 		@Override
-		public int getMaximumBodyOutputSizeForEncryption(int size) throws BlockParserException {
+		public int getMaximumBodyOutputSizeForEncryption(int size) {
 			return size;
 		}
 		
@@ -1029,6 +1028,7 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 		}
 	}
 
+	@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 	static class BlockChecker extends TransferedBlockChecker {
 		/**
 		 * 
@@ -1039,6 +1039,7 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 		private int signatureSize;
 		private transient ASymmetricAuthentifiedSignatureCheckerAlgorithm signatureChecker;
 		private ASymmetricPublicKey publicKey;
+		@SuppressWarnings("unused")
 		BlockChecker()
 		{
 			
@@ -1103,7 +1104,7 @@ public class P2PSecuredConnectionProtocolWithASymmetricKeyExchanger extends Conn
 				
 				
 				
-				boolean check = signatureChecker.verify(res.getBytes(), res.getOffset(), res.getSize(), _block.getBytes(), _block.getOffset(), signatureSize);;
+				boolean check = signatureChecker.verify(res.getBytes(), res.getOffset(), res.getSize(), _block.getBytes(), _block.getOffset(), signatureSize);
 				return new SubBlockInfo(res, check, !check);
 			} catch (Exception e) {
 				throw new BlockParserException(e);

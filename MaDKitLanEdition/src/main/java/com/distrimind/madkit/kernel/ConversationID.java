@@ -66,6 +66,7 @@ import com.distrimind.madkit.util.SerializationTools;
  * @version 2.0
  * @since MadKitLanEdition 1.0
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 public class ConversationID implements ExternalizableAndSizable, Cloneable {
 
 	/**
@@ -92,6 +93,7 @@ public class ConversationID implements ExternalizableAndSizable, Cloneable {
 		this.origin = origin;
 	}
 
+	@SuppressWarnings("MethodDoesntCallSuperMethod")
 	@Override
 	public ConversationID clone() {
 		return this;
@@ -106,7 +108,7 @@ public class ConversationID implements ExternalizableAndSizable, Cloneable {
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (obj != null && (obj instanceof ConversationID)) {// obj necessarily comes from the network or is different,
+		if ((obj instanceof ConversationID)) {// obj necessarily comes from the network or is different,
 																// so origin should have been set priorly if there is a
 																// chance of equality
 			final ConversationID ci = (ConversationID) obj;// no check is intentional
@@ -189,7 +191,7 @@ public class ConversationID implements ExternalizableAndSizable, Cloneable {
 			OriginalID res = distant_ids.get(original);
 			if (res == null) {
 				res = new OriginalID(getAndIncrementIDCounter());
-				original_ids.put(Integer.valueOf(res.originalID), new OriginalID(original.intValue(), res.getNbPointers()));
+				original_ids.put(res.originalID, new OriginalID(original, res.getNbPointers()));
 				distant_ids.put(original, res);
 			}
 			res.incrementPointerToThisOriginalID();
@@ -197,22 +199,22 @@ public class ConversationID implements ExternalizableAndSizable, Cloneable {
 		}
 
 		OriginalID getOriginalID(int distant_id) {
-			return original_ids.get(Integer.valueOf(distant_id));
+			return original_ids.get(distant_id);
 		}
 
 		void removeDistantID(Integer distantid) {
 			OriginalID oi = original_ids.get(distantid);
 			if (oi.remove())
-				distant_ids.remove(Integer.valueOf(original_ids.remove(distantid).originalID));
+				distant_ids.remove(original_ids.remove(distantid).originalID);
 		}
 
 		boolean isEmpty() {
 			return original_ids.isEmpty();
 		}
 
-		int getOriginalIDsNumber() {
+		/*int getOriginalIDsNumber() {
 			return original_ids.size();
-		}
+		}*/
 	}
 
 	private transient volatile Map<KernelAddress, InterfacedIDs> global_interfaced_ids = null;
@@ -222,6 +224,7 @@ public class ConversationID implements ExternalizableAndSizable, Cloneable {
 		return this.global_interfaced_ids;
 	}
 
+	@SuppressWarnings({"SynchronizeOnNonFinalField", "deprecation"})
 	@Override
 	protected void finalize() {
 		if (myInterfacedIDs != null) {
@@ -230,7 +233,7 @@ public class ConversationID implements ExternalizableAndSizable, Cloneable {
 					try {
 						for (Map.Entry<KernelAddress, OriginalID> kpi : myInterfacedIDs.entrySet()) {
 							InterfacedIDs i2 = global_interfaced_ids.get(kpi.getKey());
-							i2.removeDistantID(Integer.valueOf(kpi.getValue().originalID));
+							i2.removeDistantID(kpi.getValue().originalID);
 							if (i2.isEmpty()) {
 								global_interfaced_ids.remove(kpi.getKey());
 							}
@@ -258,6 +261,7 @@ public class ConversationID implements ExternalizableAndSizable, Cloneable {
 			if (distantid == null) {
 				if (myInterfacedIDs == null)
 					myInterfacedIDs = Collections.synchronizedMap(new HashMap<KernelAddress, OriginalID>());
+				//noinspection SynchronizationOnLocalVariableOrMethodParameter
 				synchronized (global_interfaced_ids) {
 					this.global_interfaced_ids = global_interfaced_ids;
 					InterfacedIDs i = global_interfaced_ids.get(distantKernelAddress);
@@ -265,7 +269,7 @@ public class ConversationID implements ExternalizableAndSizable, Cloneable {
 						i = new InterfacedIDs();
 						global_interfaced_ids.put(distantKernelAddress, i);
 					}
-					distantid = i.getNewID(Integer.valueOf(this.id));
+					distantid = i.getNewID(this.id);
 				}
 				myInterfacedIDs.put(distantKernelAddress, distantid);
 			}
@@ -286,8 +290,9 @@ public class ConversationID implements ExternalizableAndSizable, Cloneable {
 		}
 	}
 
+	@SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
 	ConversationID getInterfacedConversationIDFromDistantPeer(Map<KernelAddress, InterfacedIDs> global_interfaced_ids,
-			KernelAddress currentKernelAddress, KernelAddress distantKernelAddress) {
+															  KernelAddress currentKernelAddress, KernelAddress distantKernelAddress) {
 		if (origin == null) {
 			return new ConversationID();
 		} else if (origin.equals(distantKernelAddress)) {
@@ -311,7 +316,7 @@ public class ConversationID implements ExternalizableAndSizable, Cloneable {
 						cid.global_interfaced_ids = global_interfaced_ids;
 						cid.myInterfacedIDs = Collections
 								.synchronizedMap(new HashMap<KernelAddress, ConversationID.OriginalID>());
-						cid.myInterfacedIDs.put(distantKernelAddress, i.getNewID(Integer.valueOf(o.getOriginalID())));
+						cid.myInterfacedIDs.put(distantKernelAddress, i.getNewID(o.getOriginalID()));
 						/*
 						 * if (myInterfacedIDs==null) myInterfacedIDs=new HashMap<>();
 						 * myInterfacedIDs.put(distantKernelAddress, i.getNewID(new

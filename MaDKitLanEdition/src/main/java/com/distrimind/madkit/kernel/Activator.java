@@ -67,6 +67,7 @@ import com.distrimind.madkit.simulation.activator.GenericBehaviorActivator;
  * @version 6.0
  * 
  */
+@SuppressWarnings("UnusedReturnValue")
 public abstract class Activator<A extends AbstractAgent> extends Overlooker<A> {
 
 	private int nbOfsimultaneousTasks = 1;
@@ -163,7 +164,7 @@ public abstract class Activator<A extends AbstractAgent> extends Overlooker<A> {
 		for (int i = 0; i < cpuCoreNb; i++) {
 			final int index = i;
 			workers.add(new Callable<Void>() {
-				public Void call() throws Exception {
+				public Void call() {
 					int firstIndex = nbOfAgentsPerTask * index;// TODO check that using junit
 					execute(list.subList(firstIndex, firstIndex + nbOfAgentsPerTask), args);
 					return null;
@@ -171,7 +172,7 @@ public abstract class Activator<A extends AbstractAgent> extends Overlooker<A> {
 			});
 		}
 		workers.add(new Callable<Void>() {
-			public Void call() throws Exception {
+			public Void call() {
 				execute(list.subList(nbOfAgentsPerTask * cpuCoreNb, list.size()), args);
 				return null;
 			}
@@ -297,7 +298,7 @@ public abstract class Activator<A extends AbstractAgent> extends Overlooker<A> {
 			try {
 				ske.agent.tryToCompleteKill(ske);
 			} catch (Exception e2) {
-				new SimulationException(toString() + " on kill process of agent " + ske.agent, e2);
+				throw new SimulationException(toString() + " on kill process of agent " + ske.agent, e2);
 			}
 			return true;
 		} else

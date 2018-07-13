@@ -52,6 +52,7 @@ import com.distrimind.madkit.util.SerializationTools;
  * @version 1.1
  * @since MadkitLanEdition 1.0
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 class TransferImpossibleSystemMessageFromMiddlePeer extends TransferImpossibleSystemMessage {
 	/**
 	 * 
@@ -59,6 +60,7 @@ class TransferImpossibleSystemMessageFromMiddlePeer extends TransferImpossibleSy
 	private static final long serialVersionUID = -1215456454674917040L;
 
 	private IDTransfer myIDTransfer;
+	@SuppressWarnings("unused")
 	TransferImpossibleSystemMessageFromMiddlePeer()
 	{
 		

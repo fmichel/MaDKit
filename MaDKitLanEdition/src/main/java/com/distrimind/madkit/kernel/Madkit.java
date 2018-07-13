@@ -99,6 +99,7 @@ import com.distrimind.util.version.Version;
  * @version 5.4
  */
 
+@SuppressWarnings("SameParameterValue")
 final public class Madkit {
 
 	private final static String MDK_LOGGER_NAME = "[* MADKIT *] ";
@@ -116,10 +117,10 @@ final public class Madkit {
 	static Version getNewVersionInstance()
 	{
 		Calendar c = Calendar.getInstance();
-		c.set(2015, 4, 22);
+		c.set(2015, Calendar.MAY, 22);
 		Calendar c2 = Calendar.getInstance();
-		c2.set(2018, 4, 20);
-		Version VERSION = new Version("MadkitLanEdition", "MKLE", 1, 7, 0, Version.Type.Stable, 1, c.getTime(), c2.getTime());
+		c2.set(2018, Calendar.JULY, 13);
+		Version VERSION = new Version("MadkitLanEdition", "MKLE", 1, 7, 1, Version.Type.Stable, 1, c.getTime(), c2.getTime());
 		try {
 
 			InputStream is = Madkit.class.getResourceAsStream("build.txt");
@@ -128,21 +129,31 @@ final public class Madkit {
 
 			VERSION.addCreator(new Person("mahdjoub", "jason"));
 			c = Calendar.getInstance();
-			c.set(2015, 4, 22);
+			c.set(2015, Calendar.MAY, 22);
 			VERSION.addDeveloper(new PersonDeveloper("mahdjoub", "jason", c.getTime()));
 			c = Calendar.getInstance();
-			c.set(1997, 1, 1);
+			c.set(1997, Calendar.FEBRUARY, 1);
 			VERSION.addDeveloper(new PersonDeveloper("michel", "fabien", c.getTime()));
 			c = Calendar.getInstance();
-			c.set(1997, 1, 1);
+			c.set(1997, Calendar.FEBRUARY, 1);
 			VERSION.addDeveloper(new PersonDeveloper("Gutknecht", "Olivier", c.getTime()));
 			c = Calendar.getInstance();
-			c.set(1997, 1, 1);
+			c.set(1997, Calendar.FEBRUARY, 1);
 			VERSION.addDeveloper(new PersonDeveloper("Ferber", "Jacques", c.getTime()));
 
 			c = Calendar.getInstance();
-			c.set(2018, 4, 20);
-			Description d = new Description(1, 7, 0, Version.Type.Stable, 1, c.getTime());
+			c.set(2018, Calendar.JULY, 13);
+			Description d = new Description(1, 7, 1, Version.Type.Stable, 1, c.getTime());
+			d.addItem("Update OOD to 2.0.0 Beta 83.");
+            d.addItem("Update Utils to 3.16.1.");
+            d.addItem("Improve version's control of distant peer.");
+            d.addItem("Clean code.");
+			VERSION.addDescription(d);
+
+
+			c = Calendar.getInstance();
+			c.set(2018, Calendar.MAY, 20);
+			d = new Description(1, 7, 0, Version.Type.Stable, 1, c.getTime());
 			d.addItem("Update OOD to 2.0.0 Beta 82.");
 			d.addItem("Update Utils to 3.15.0.");
 			d.addItem("Add P2P connection protocol that support parametrisation of key aggreement.");
@@ -166,20 +177,20 @@ final public class Madkit {
 
 			
 			c = Calendar.getInstance();
-			c.set(2018, 1, 27);
+			c.set(2018, Calendar.FEBRUARY, 27);
 			d = new Description(1, 6, 5, Version.Type.Stable, 1, c.getTime());
 			d.addItem("Debug UPNP connexion with macOS.");
 			d.addItem("Fix issue with multiple identical router's messages : do not remove the router to recreate it.");
 			VERSION.addDescription(d);	
 			
 			c = Calendar.getInstance();
-			c.set(2018, 1, 26);
+			c.set(2018, Calendar.FEBRUARY, 26);
 			d = new Description(1, 6, 5, Version.Type.Stable, 1, c.getTime());
 			d.addItem("Fiw a problem with UPNP connexion under macOS.");
 			VERSION.addDescription(d);	
 			
 			c = Calendar.getInstance();
-			c.set(2018, 1, 15);
+			c.set(2018, Calendar.FEBRUARY, 15);
 			d = new Description(1, 6, 4, Version.Type.Stable, 1, c.getTime());
 			d.addItem("Fix problem of port unbind with Windows.");
 			d.addItem("Fix problem of simulatenous connections with Mac OS");
@@ -187,7 +198,7 @@ final public class Madkit {
 			VERSION.addDescription(d);	
 			
 			c = Calendar.getInstance();
-			c.set(2018, 1, 10);
+			c.set(2018, Calendar.FEBRUARY, 10);
 			d = new Description(1, 6, 3, Version.Type.Stable, 1, c.getTime());
 			d.addItem("Update OOD to 2.0.0 Beta 66.");
 			d.addItem("Update Utils to 3.10.5");
@@ -195,7 +206,7 @@ final public class Madkit {
 			VERSION.addDescription(d);			
 			
 			c = Calendar.getInstance();
-			c.set(2018, 1, 10);
+			c.set(2018, Calendar.FEBRUARY, 10);
 			d = new Description(1, 6, 2, Version.Type.Stable, 1, c.getTime());
 			d.addItem("Update OOD to 2.0.0 Beta 65.");
 			d.addItem("Update Utils to 3.10.4");
@@ -203,14 +214,14 @@ final public class Madkit {
 			VERSION.addDescription(d);
 			
 			c = Calendar.getInstance();
-			c.set(2018, 1, 4);
+			c.set(2018, Calendar.FEBRUARY, 4);
 			d = new Description(1, 6, 1, Version.Type.Stable, 1, c.getTime());
 			d.addItem("Overlookers were not aware from new roles adding. Fix this issue.");
 			d.addItem("Add MadKit demos");
 			VERSION.addDescription(d);
 			
 			c = Calendar.getInstance();
-			c.set(2018, 0, 31);
+			c.set(2018, Calendar.JANUARY, 31);
 			d = new Description(1, 6, 0, Version.Type.Stable, 1, c.getTime());
 			d.addItem("Updating OOD to 2.0.0 Beta 59");
 			d.addItem("Updating Utils to 3.9.0");
@@ -218,7 +229,7 @@ final public class Madkit {
 			VERSION.addDescription(d);
 			
 			c = Calendar.getInstance();
-			c.set(2017, 11, 13);
+			c.set(2017, Calendar.DECEMBER, 13);
 			d = new Description(1, 5, 2, Version.Type.Stable, 1, c.getTime());
 			d.addItem("Updating OOD to 2.0.0 Beta 57");
 			d.addItem("Updating Utils to 3.7.1");
@@ -226,20 +237,20 @@ final public class Madkit {
 			VERSION.addDescription(d);
 
 			c = Calendar.getInstance();
-			c.set(2017, 10, 13);
+			c.set(2017, Calendar.NOVEMBER, 13);
 			d = new Description(1, 5, 0, Version.Type.Stable, 1, c.getTime());
 			d.addItem("Updating OOD to 2.0.0 Beta 55");
 			d.addItem("Packets can now have sizes greater than Short.MAX_VALUE");
 			VERSION.addDescription(d);
 
 			c = Calendar.getInstance();
-			c.set(2017, 10, 2);
+			c.set(2017, Calendar.NOVEMBER, 2);
 			d = new Description(1, 4, 5, Version.Type.Stable, 1, c.getTime());
 			d.addItem("Updating OOD to 2.0.0 Beta 54");
 			VERSION.addDescription(d);
 
 			c = Calendar.getInstance();
-			c.set(2017, 9, 13);
+			c.set(2017, Calendar.OCTOBER, 13);
 			d = new Description(1, 4, 0, Version.Type.Stable, 1, c.getTime());
 			d.addItem("Updating OOD to 2.0.0 Beta 48");
 			d.addItem("Several modifications into connection and access protocols");
@@ -249,13 +260,13 @@ final public class Madkit {
 			VERSION.addDescription(d);
 
 			c = Calendar.getInstance();
-			c.set(2017, 7, 31);
+			c.set(2017, Calendar.AUGUST, 31);
 			d = new Description(1, 2, 1, Version.Type.Stable, 1, c.getTime());
 			d.addItem("Including resources in jar files");
 			VERSION.addDescription(d);
 
 			c = Calendar.getInstance();
-			c.set(2017, 7, 5);
+			c.set(2017, Calendar.AUGUST, 5);
 			d = new Description(1, 2, 0, Version.Type.Stable, 1, c.getTime());
 			d.addItem("Correction a problem with database");
 			d.addItem("Adding P2PSecuredConnectionProtocolWithECDHAlgorithm connection protocol (speedest)");
@@ -269,26 +280,26 @@ final public class Madkit {
 			VERSION.addDescription(d);
 
 			c = Calendar.getInstance();
-			c.set(2017, 7, 5);
+			c.set(2017, Calendar.AUGUST, 5);
 			d = new Description(1, 1, 3, Version.Type.Stable, 1, c.getTime());
 			d.addItem("Updating OOD to 2.0.0 Beta 15");
 			VERSION.addDescription(d);
 
 			c = Calendar.getInstance();
-			c.set(2017, 7, 5);
+			c.set(2017, Calendar.AUGUST, 5);
 			d = new Description(1, 1, 2, Version.Type.Stable, 1, c.getTime());
 			d.addItem("Updating OOD to 2.0.0 Beta 14");
 			d.addItem("Optimizing some memory leak tests");
 			VERSION.addDescription(d);
 
 			c = Calendar.getInstance();
-			c.set(2017, 7, 4);
+			c.set(2017, Calendar.AUGUST, 4);
 			d = new Description(1, 1, 0, Version.Type.Stable, 1, c.getTime());
 			d.addItem("Convert project to Gradle project");
 			VERSION.addDescription(d);
 
 			c = Calendar.getInstance();
-			c.set(2017, 5, 4);
+			c.set(2017, Calendar.JUNE, 4);
 			d = new Description(1, 0, 0, Version.Type.Stable, 1, c.getTime());
 			d.addItem("Correction of a bug with database deconnection");
 			d.addItem("Debugging indirect connections");
@@ -301,7 +312,7 @@ final public class Madkit {
 			VERSION.addDescription(d);
 
 			c = Calendar.getInstance();
-			c.set(2017, 4, 27);
+			c.set(2017, Calendar.MAY, 27);
 			d = new Description(1, 0, 0, Version.Type.Beta, 4, c.getTime());
 			d.addItem("Agents are now identified by a long (and not int)");
 			d.addItem("Adding the function AbstractAgent.getAgentID()");
@@ -309,7 +320,7 @@ final public class Madkit {
 			VERSION.addDescription(d);
 
 			c = Calendar.getInstance();
-			c.set(2017, 4, 23);
+			c.set(2017, Calendar.MAY, 23);
 			d = new Description(1, 0, 0, Version.Type.Beta, 3, c.getTime());
 			d.addItem("Update Utils to 2.7.1");
 			d.addItem("Update OOD to 2.0.0 Beta 1");
@@ -317,14 +328,14 @@ final public class Madkit {
 			VERSION.addDescription(d);
 
 			c = Calendar.getInstance();
-			c.set(2017, 2, 7);
+			c.set(2017, Calendar.MARCH, 7);
 			d = new Description(1, 0, 0, Version.Type.Beta, 2, c.getTime());
 			d.addItem("Renforce secret identifier/password exchange");
 			d.addItem("Add agent to launch into MKDesktop windows");
 			VERSION.addDescription(d);
 
 			c = Calendar.getInstance();
-			c.set(2017, 2, 4);
+			c.set(2017, Calendar.MARCH, 4);
 			d = new Description(1, 0, 0, Version.Type.Beta, 0, c.getTime());
 			d.addItem("First MadkitLanEdition release, based on Madkit");
 			VERSION.addDescription(d);
@@ -355,7 +366,7 @@ final public class Madkit {
 					// no need to externalize because it is used only here
 					try {
 						defaultConfig.loadYAML(new File("com/distrimind/madkit/kernel/madkit.yaml"));
-					} catch (IOException e) {
+					} catch (IOException ignored) {
 					}
 					WEB=defaultConfig.madkitWeb;
 				}
@@ -492,7 +503,7 @@ final public class Madkit {
 			for (String string : options) {
 				argsList.addAll(Arrays.asList(string.trim().split("\\s+")));
 			}
-			this.args = argsList.toArray(new String[argsList.size()]);
+			this.args = argsList.toArray(new String[0]);
 		}
 
 		/*try {
@@ -553,7 +564,7 @@ final public class Madkit {
 	 * 
 	 */
 	private void loadJarFileArguments() {
-		String[] options = null;
+		String[] options;
 		logger.fine("** LOADING JAR FILE ARGUMENTS **");
 		try {
 			for (Enumeration<URL> urls = Madkit.class.getClassLoader().getResources("META-INF/MANIFEST.MF"); urls
@@ -643,11 +654,11 @@ final public class Madkit {
 	}
 
 	private void logSessionConfig(MadkitProperties session, Level lvl) {
-		StringBuffer message = new StringBuffer("MaDKit current configuration is\n\n");
+		StringBuilder message = new StringBuilder("MaDKit current configuration is\n\n");
 		message.append("\t--- MaDKit regular options ---\n");
 		Properties properties = session.convertToStringProperties();
 		for (Entry<Object, Object> option : properties.entrySet()) {
-			message.append("\t" + String.format("%-" + 30 + "s", option.getKey()) + option.getValue() + "\n");
+			message.append("\t").append(String.format("%-" + 30 + "s", option.getKey())).append(option.getValue()).append("\n");
 		}
 		logger.log(lvl, message.toString());
 	}
@@ -655,14 +666,14 @@ final public class Madkit {
 	Properties buildConfigFromArgs(final String[] options) {
 		Properties currentMap = new Properties();
 		if (options != null && options.length > 0) {
-			String parameters = "";
+			StringBuilder parameters = new StringBuilder();
 			String currentOption = null;
 			for (int i = 0; i < options.length; i++) {
 				if (!options[i].trim().isEmpty()) {
 					if (options[i].startsWith("--")) {
 						currentOption = options[i].substring(2).trim();
 						currentMap.put(currentOption, "true");
-						parameters = "";
+						parameters = new StringBuilder();
 					} else {
 						if (currentOption == null) {
 							System.err.println(
@@ -670,20 +681,20 @@ final public class Madkit {
 											+ Arrays.deepToString(options));
 							return currentMap;
 						}
-						parameters += options[i];
+						parameters.append(options[i]);
 						if (i + 1 == options.length || options[i + 1].startsWith("--")) {
 							String currentValue = currentMap.getProperty(currentOption);
 							if (currentOption.equals("configFiles") && !currentValue.equals("true")) {
-								currentMap.put(currentOption, currentValue + ';' + parameters.trim());// TODO bug on "-"
+								currentMap.put(currentOption, currentValue + ';' + parameters.toString().trim());// TODO bug on "-"
 																										// use
 							} else {
-								currentMap.put(currentOption, parameters.trim());// TODO bug on "-" use
+								currentMap.put(currentOption, parameters.toString().trim());// TODO bug on "-" use
 							}
 						} else {
 							if (currentOption.equals("launchAgents")) {
-								parameters += ",";
+								parameters.append(",");
 							} else
-								parameters += " ";
+								parameters.append(" ");
 						}
 
 					}

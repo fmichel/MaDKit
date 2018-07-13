@@ -55,7 +55,7 @@ import com.distrimind.util.crypto.MessageDigestType;
  * @see WritePacket
  */
 final class ReadPacket {
-	static enum Validity {
+	enum Validity {
 		VALID, TEMPORARY_INVALID, INVALID
 	}
 
@@ -76,8 +76,8 @@ final class ReadPacket {
 
 	private final RandomOutputStream output_stream;
 
-	public ReadPacket(int max_buffer_size, short max_random_values, PacketPart _first_part,
-			RandomOutputStream _output_stream, MessageDigestType messageDigestType) throws PacketException {
+	public ReadPacket(PacketPart _first_part,
+					  RandomOutputStream _output_stream, MessageDigestType messageDigestType) throws PacketException {
 		if (_first_part == null)
 			throw new NullPointerException("_first_part");
 		if (_output_stream == null)
@@ -265,9 +265,9 @@ final class ReadPacket {
 		validity = Validity.INVALID;
 	}
 
-	public long getCurrentPosition() {
+	/*public long getCurrentPosition() {
 		return current_pos + start_position;
-	}
+	}*/
 
 	public boolean isFinished() {
 		return current_pos == data_length_with_message_digest;
@@ -286,7 +286,7 @@ final class ReadPacket {
 		//abstract byte[] getBytesArray();
 		abstract SubBlock getSubBlock();
 
-		abstract int getRealDataSize();
+		//abstract int getRealDataSize();
 	}
 
 	static AbstractByteTabInputStream getByteTabInputStream(SubBlock subBlock, short random_values_size) {
@@ -309,17 +309,16 @@ final class ReadPacket {
 			return subBlock;
 		}
 
-		@Override
+		/*@Override
 		int getRealDataSize() {
 			return subBlock.getSize();
-		}
+		}*/
 
 	}
 
 	static class ByteTabInputStreamWithRandomValues extends AbstractByteTabInputStream {
 		private final SubBlock subBlock;
 		private SubBlock subBlockRes = null;
-		private int realSize = 0;
 
 		ByteTabInputStreamWithRandomValues(SubBlock subBlock) {
 			this.subBlock = subBlock;
@@ -353,17 +352,16 @@ final class ReadPacket {
 					tabResCursor += size;
 				}
 
-				realSize = tabResCursor;
 				subBlockRes=new SubBlock(tabRes, 0, tabRes.length);
 			}
 			return subBlockRes;
 		}
 
-		@Override
+		/*@Override
 		int getRealDataSize() {
 			getSubBlock();
 			return realSize;
-		}
+		}*/
 	}
 
 }

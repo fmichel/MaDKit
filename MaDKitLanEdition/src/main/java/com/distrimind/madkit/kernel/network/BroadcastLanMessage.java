@@ -55,6 +55,7 @@ import com.distrimind.madkit.util.SerializationTools;
  * @version 1.1
  * @since MadkitLanEdition 1.0
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 final class BroadcastLanMessage extends LanMessage {
 
 	/**
@@ -66,6 +67,7 @@ final class BroadcastLanMessage extends LanMessage {
 	public String role;
 	public ArrayList<AgentAddress> agentAddressesSender;
 
+	@SuppressWarnings("unused")
 	BroadcastLanMessage()
 	{
 		

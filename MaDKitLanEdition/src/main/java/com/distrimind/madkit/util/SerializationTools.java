@@ -51,6 +51,7 @@ import java.net.InetSocketAddress;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.HashMap;
+import java.util.Objects;
 
 import com.distrimind.madkit.exceptions.MessageSerializationException;
 import com.distrimind.madkit.kernel.MadkitClassLoader;
@@ -257,6 +258,7 @@ public class SerializationTools {
 			byte[] k=readBytes(in, MAX_KEY_SIZE, false);
 			try
 			{
+				assert k != null;
 				return Key.decode(k);
 			}
 			catch(Exception e)
@@ -296,6 +298,7 @@ public class SerializationTools {
 			byte[] k=readBytes(in, MAX_KEY_SIZE*2, false);
 			try
 			{
+				assert k != null;
 				return ASymmetricKeyPair.decode(k);
 			}
 			catch(Exception e)
@@ -450,7 +453,7 @@ public class SerializationTools {
 		{
 			try
 			{
-				return AbstractDecentralizedID.instanceOf(readBytes(in, 513, false));
+				return AbstractDecentralizedID.instanceOf(Objects.requireNonNull(readBytes(in, 513, false)));
 			}
 			catch(Exception e)
 			{
@@ -462,13 +465,13 @@ public class SerializationTools {
 		return null;
 	}
 	
-	public static InetAddress readInetAddress(final DataInput ois, boolean supportNull) throws IOException, ClassNotFoundException
-	{
+	public static InetAddress readInetAddress(final DataInput ois, boolean supportNull) throws IOException {
 		if (ois.readBoolean())
 		{
 			byte[] address=readBytes(ois, 20, false);
 			try
 			{
+				assert address != null;
 				return InetAddress.getByAddress(address);
 			}
 			catch(Exception e)
@@ -499,8 +502,7 @@ public class SerializationTools {
 	}
 	
 	
-	public static InetSocketAddress readInetSocketAddress(final DataInput ois, boolean supportNull) throws IOException, ClassNotFoundException
-	{
+	public static InetSocketAddress readInetSocketAddress(final DataInput ois, boolean supportNull) throws IOException {
 		if (ois.readBoolean())
 		{
 			int port=ois.readInt();
@@ -549,6 +551,7 @@ public class SerializationTools {
 				throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 			try
 			{
+				assert value != null;
 				return Enum.valueOf(c, value);
 			}
 			catch(ClassCastException e)
@@ -592,6 +595,7 @@ public class SerializationTools {
 		}
 		oos.writeBoolean(true);
 		SerializationTools.writeString(oos, clazz.getName(), MAX_CLASS_LENGTH, false);
+		assert e != null;
 		e.writeExternal(oos);
 		
 	}
@@ -652,12 +656,12 @@ public class SerializationTools {
 			
 			try
 			{
-				Class<?> c=null;
+				Class<?> c;
 				boolean isOIS=ois.getClass()==oisClazz;
 				if (isOIS)
-					c=(Class<?>)((FilteredObjectInputStream)ois).resolveClass(clazz);
+					c= ((FilteredObjectInputStream)ois).resolveClass(clazz);
 				else
-					c=(Class<?>)Class.forName(clazz, false, MadkitClassLoader.getSystemClassLoader());
+					c= Class.forName(clazz, false, MadkitClassLoader.getSystemClassLoader());
 				if (!ExternalizableAndSizable.class.isAssignableFrom(c) && !SystemMessage.class.isAssignableFrom(c))
 					throw new MessageSerializationException(Integrity.FAIL_AND_CANDIDATE_TO_BAN);
 				Constructor<?> cons=getDefaultConstructor(c);

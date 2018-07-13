@@ -71,10 +71,11 @@ public class UnsecuredConnectionProtocol extends ConnectionProtocol<UnsecuredCon
 	private boolean connected = false;
 	private final NullPacketCounter packetCounter=new NullPacketCounter();
 
+	@SuppressWarnings("unused")
 	private UnsecuredConnectionProtocol(InetSocketAddress _distant_inet_address,
-			InetSocketAddress _local_interface_address, ConnectionProtocol<?> _subProtocol,
-			DatabaseWrapper _sql_connection, MadkitProperties mkProperties, NetworkProperties _properties, int subProtocolLevel, boolean isServer,
-			boolean mustSupportBidirectionnalConnectionInitiative) throws ConnectionException {
+										InetSocketAddress _local_interface_address, ConnectionProtocol<?> _subProtocol,
+										DatabaseWrapper _sql_connection, MadkitProperties mkProperties, NetworkProperties _properties, int subProtocolLevel, boolean isServer,
+										boolean mustSupportBidirectionnalConnectionInitiative) throws ConnectionException {
 		super(_distant_inet_address, _local_interface_address, _subProtocol, _sql_connection, _properties,
 				subProtocolLevel, isServer, mustSupportBidirectionnalConnectionInitiative);
 		parser = new Parser();
@@ -191,17 +192,18 @@ public class UnsecuredConnectionProtocol extends ConnectionProtocol<UnsecuredCon
 		}
 
 		@Override
-		public SubBlock signIfPossibleSortantPointToPointTransferedBlock(SubBlock _block) throws BlockParserException {
+		public SubBlock signIfPossibleSortantPointToPointTransferedBlock(SubBlock _block) {
 			return _block;
 		}
 
 		@Override
-		public int getMaximumBodyOutputSizeForEncryption(int size) throws BlockParserException {
+		public int getMaximumBodyOutputSizeForEncryption(int size) {
 			return size;
 		}
 
 	}
 
+	@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 	static class BlockChecker extends TransferedBlockChecker {
 
 		protected BlockChecker(TransferedBlockChecker _subChecker) {
@@ -212,6 +214,7 @@ public class UnsecuredConnectionProtocol extends ConnectionProtocol<UnsecuredCon
 		 * 
 		 */
 		private static final long serialVersionUID = -6848501726603093585L;
+		@SuppressWarnings("unused")
 		BlockChecker()
 		{
 			

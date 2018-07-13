@@ -52,13 +52,13 @@ public interface Organization {
 	 * This role is automatically given to agents that create a group The value of
 	 * this constant is {@value}.
 	 */
-	public static final String GROUP_MANAGER_ROLE = "~~GROUP_MANAGER";
+	String GROUP_MANAGER_ROLE = "~~GROUP_MANAGER";
 
 	/**
 	 * This role is a temporary role used to exchange messages with a group's
 	 * manager that one agent is not part of. The value of this constant is
 	 * {@value}.
 	 */
-	public static final String GROUP_CANDIDATE_ROLE = "~~GROUP_CANDIDATE";
+	String GROUP_CANDIDATE_ROLE = "~~GROUP_CANDIDATE";
 
 }

@@ -105,7 +105,6 @@ public class P2PSecuredConnectionProtocolWithKeyAgreementAlgorithm extends Conne
 	private final P2PSecuredConnectionProtocolWithKeyAgreementProperties hproperties;
 	private final AbstractSecureRandom approvedRandom, approvedRandomForKeys;
 	private boolean blockCheckerChanged = true;
-	private boolean currentBlockCheckerIsNull = true;
 	private byte[] materialKeyForSignature=null, materialKeyForEncryption=null;
 	private final PacketCounterForEncryptionAndSignature packetCounter;
 	private boolean reinitSymmetricAlgorithm=true;
@@ -129,7 +128,7 @@ public class P2PSecuredConnectionProtocolWithKeyAgreementAlgorithm extends Conne
 			throw new ConnectionException(e);
 		}
 		
-		int sigsize=0;
+		int sigsize;
 		try {
 			
 			SymmetricAuthentifiedSignerAlgorithm signerTmp = new SymmetricAuthentifiedSignerAlgorithm(hproperties.symmetricSignatureType.getKeyGenerator(approvedRandomForKeys, hproperties.symmetricEncryptionType.getDefaultKeySizeBits()).generateKey());
@@ -199,7 +198,7 @@ public class P2PSecuredConnectionProtocolWithKeyAgreementAlgorithm extends Conne
 		NOT_CONNECTED, WAITING_FOR_SIGNATURE_DATA, WAITING_FOR_ENCRYPTION_DATA, WAITING_FOR_CONNECTION_CONFIRMATION, CONNECTED,
 	}
 
-	private void initKeyAgreementAlgorithm() throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException, InvalidAlgorithmParameterException
+	private void initKeyAgreementAlgorithm() throws NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException
 	{
 		if (hproperties.enableEncryption && materialKeyForEncryption==null)
 			throw new InternalError();
@@ -249,7 +248,7 @@ public class P2PSecuredConnectionProtocolWithKeyAgreementAlgorithm extends Conne
 						materialKeyForSignature=new byte[MATERIAL_KEY_SIZE_BYTES];
 						approvedRandom.nextBytes(materialKeyForSignature);
 						
-						byte [] material=null;
+						byte [] material;
 						if (hproperties.enableEncryption)
 						{
 							materialKeyForEncryption=new byte[MATERIAL_KEY_SIZE_BYTES];
@@ -308,7 +307,7 @@ public class P2PSecuredConnectionProtocolWithKeyAgreementAlgorithm extends Conne
 									return new ConnectionFinished(distant_inet_address, ConnectionClosedReason.CONNECTION_ANOMALY);
 								materialKeyForSignature=material;
 								
-								if (materialKeyForSignature==null || materialKeyForSignature.length!=MATERIAL_KEY_SIZE_BYTES)
+								if (materialKeyForSignature.length != MATERIAL_KEY_SIZE_BYTES)
 									return new ConnectionFinished(distant_inet_address, ConnectionClosedReason.CONNECTION_ANOMALY);
 							}
 							initKeyAgreementAlgorithm();
@@ -387,6 +386,7 @@ public class P2PSecuredConnectionProtocolWithKeyAgreementAlgorithm extends Conne
 				try
 				{
 					KeyAgreementDataMessage kadm=(KeyAgreementDataMessage)_m;
+					assert keyAgreementForEncryption != null;
 					keyAgreementForEncryption.receiveData(kadm.getData());
 					byte data[]=null;
 					if (!keyAgreementForEncryption.hasFinishedSend())
@@ -664,7 +664,7 @@ public class P2PSecuredConnectionProtocolWithKeyAgreementAlgorithm extends Conne
 								off, _block.getSize() - getSizeHead());
 						check = signatureChecker.verify();
 					}
-					SubBlock res = null;
+					SubBlock res;
 					if (check)
 					{
 						if (getPacketCounter().isLocalActivated())
@@ -891,7 +891,7 @@ public class P2PSecuredConnectionProtocolWithKeyAgreementAlgorithm extends Conne
 		}
 
 		@Override
-		public int getMaximumBodyOutputSizeForEncryption(int size) throws BlockParserException {
+		public int getMaximumBodyOutputSizeForEncryption(int size) {
 			return size;
 		}
 
@@ -934,7 +934,7 @@ public class P2PSecuredConnectionProtocolWithKeyAgreementAlgorithm extends Conne
 		}
 
 		@Override
-		public SubBlock getParentBlockWithEncryption(SubBlock _block, boolean excludeFromEncryption) throws InvalidKeyException, SignatureException, NoSuchAlgorithmException, InvalidKeySpecException, ShortBufferException, BlockParserException, InvalidAlgorithmParameterException, IllegalStateException, IllegalBlockSizeException, BadPaddingException, NoSuchProviderException, IOException
+		public SubBlock getParentBlockWithEncryption(SubBlock _block, boolean excludeFromEncryption) throws InvalidKeyException, SignatureException, NoSuchAlgorithmException, InvalidKeySpecException, ShortBufferException, IllegalStateException
 		{
 			int outputSize=getBodyOutputSizeForEncryption(_block.getSize());
 			SubBlock res= new SubBlock(_block.getBytes(), _block.getOffset() - getSizeHead(),
@@ -1062,10 +1062,11 @@ public class P2PSecuredConnectionProtocolWithKeyAgreementAlgorithm extends Conne
 
 	@Override
 	public boolean isTransferBlockCheckerChangedImpl() {
+		//boolean currentBlockCheckerIsNull = true;
 		if (secret_key_for_encryption == null || secret_key_for_signature==null || current_step.compareTo(Step.WAITING_FOR_CONNECTION_CONFIRMATION) <= 0) {
-			return !currentBlockCheckerIsNull || blockCheckerChanged;
+			return blockCheckerChanged;
 		} else
-			return currentBlockCheckerIsNull || blockCheckerChanged;
+			return true;
 
 	}
 

@@ -147,7 +147,7 @@ public class AskForTransferMessage extends Message {
 		return inetSocketAddress1 == null || inetSocketAddress2 == null;
 	}
 
-	void setInetSocketAddress1(InetSocketAddress _inetSocketAddress1) {
+	/*void setInetSocketAddress1(InetSocketAddress _inetSocketAddress1) {
 		inetSocketAddress1 = _inetSocketAddress1;
 	}
 
@@ -161,7 +161,7 @@ public class AskForTransferMessage extends Message {
 
 	void setKernelAddress2(KernelAddress _kernelAddress2) {
 		kernelAddress2 = _kernelAddress2;
-	}
+	}*/
 
 	/**
 	 * Ask for a transfer connection between two kernel addresses
@@ -197,6 +197,7 @@ public class AskForTransferMessage extends Message {
 		return attachedData;
 	}
 
+	@SuppressWarnings("MethodDoesntCallSuperMethod")
 	@Override
 	public Message clone() {
 		return new AskForTransferMessage(this);
@@ -268,10 +269,7 @@ public class AskForTransferMessage extends Message {
 			return false;
 		if (kernelAddress1 != null && !kernelAddress1.equals(m.kernelAddress1))
 			return false;
-		if (kernelAddress2 != null && !kernelAddress2.equals(m.kernelAddress2))
-			return false;
-
-		return true;
+		return kernelAddress2 == null || kernelAddress2.equals(m.kernelAddress2);
 	}
 
 	/**
@@ -280,7 +278,7 @@ public class AskForTransferMessage extends Message {
 	 * @author Jason Mahdjoub
 	 *
 	 */
-	public static enum Type {
+	public enum Type {
 		/**
 		 * Ask for a transfer connection between the two given peers with the current
 		 * peer as intermediate peer.

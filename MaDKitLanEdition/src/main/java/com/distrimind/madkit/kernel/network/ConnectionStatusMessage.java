@@ -108,7 +108,7 @@ public class ConnectionStatusMessage extends Message {
 		return type;
 	}
 
-	public static enum Type {
+	public enum Type {
 		CONNECT, DISCONNECT
 	}
 }

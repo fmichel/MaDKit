@@ -37,15 +37,14 @@
  */
 package com.distrimind.madkit.message.hook;
 
+import com.distrimind.madkit.kernel.AbstractGroup;
+import com.distrimind.madkit.kernel.Group;
+import com.distrimind.madkit.kernel.KernelAddress;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
-import com.distrimind.madkit.kernel.AbstractGroup;
-import com.distrimind.madkit.kernel.Group;
-import com.distrimind.madkit.kernel.KernelAddress;
-import com.distrimind.madkit.message.hook.HookMessage.AgentActionEvent;
 
 /**
  * Notification message about accessible groups from the network or toward the

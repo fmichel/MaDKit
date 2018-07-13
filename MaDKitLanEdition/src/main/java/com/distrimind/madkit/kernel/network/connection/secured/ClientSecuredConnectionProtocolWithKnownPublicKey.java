@@ -169,7 +169,6 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 
 	private void resetKeys() {
 		mySecretKeyForEncryption = null;
-		mySecretKeyForEncryption=null;
 
 		signer = null;
 		signatureChecker=null;
@@ -408,7 +407,7 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 									off, _block.getSize() - getSizeHead());
 							check = signatureChecker.verify();
 						}
-						SubBlock res = null;
+						SubBlock res;
 						if (check)
 						{
 							if (getPacketCounter().isLocalActivated())
@@ -751,7 +750,7 @@ public class ClientSecuredConnectionProtocolWithKnownPublicKey
 		}
 
 		@Override
-		public int getMaximumBodyOutputSizeForEncryption(int size) throws BlockParserException {
+		public int getMaximumBodyOutputSizeForEncryption(int size) {
 			return size;
 		}
 		

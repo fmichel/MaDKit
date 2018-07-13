@@ -137,7 +137,7 @@ public class TransfersReturnsCodes {
 					rc = ReturnCode.TRANSFERS_PARTIALLY_FAILED;
 			}
 		}
-		if (rc.equals(ReturnCode.TRANSFERS_FAILED) && returns_code.size() == 1)
+		if (rc==null || (rc.equals(ReturnCode.TRANSFERS_FAILED) && returns_code.size() == 1))
 			rc = ReturnCode.TRANSFER_FAILED;
 		MadkitKernelAccess.setReturnsCode(rc, this);
 		return rc;

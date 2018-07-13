@@ -82,13 +82,13 @@ public class BindInetSocketAddressMessage extends Message {
 		this.networkInterfaceSpeed = networkInterfaceSpeed;
 	}
 
-	BindInetSocketAddressMessage(Type _type, InetAddress _address, int _port) {
+	/*BindInetSocketAddressMessage(Type _type, InetAddress _address, int _port) {
 		this(_type, new InetSocketAddress(_address, _port));
 	}
 
 	BindInetSocketAddressMessage(Type _type, int _port) {
 		this(_type, new InetSocketAddress(_port));
-	}
+	}*/
 
 	InetSocketAddress getInetSocketAddress() {
 		return address;

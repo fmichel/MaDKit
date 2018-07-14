@@ -45,9 +45,7 @@ public class SchedulerGUI extends Scheduler {
 		setDelay(500);
 	}
 
-	/**
-	 * @param args
-	 */
+
 	public static void main(String[] args) {
 		executeThisAgent();
 	}

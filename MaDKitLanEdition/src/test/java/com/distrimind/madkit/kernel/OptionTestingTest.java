@@ -68,7 +68,7 @@ public class OptionTestingTest extends JunitMadkit {
 			@Override
 			protected void activate() {
 				assertEquals(Level.INFO, getMadkitConfig().kernelLogLevel);
-				assertEquals(Boolean.valueOf(true), Boolean.valueOf(getMadkitConfig().autoConnectMadkitWebsite));
+				assertEquals(Boolean.TRUE, getMadkitConfig().autoConnectMadkitWebsite);
 			}
 		});
 	}

@@ -55,7 +55,7 @@ import com.distrimind.madkit.testing.util.agent.NormalAgent;
  */
 
 public class ConcurrentOrgTest extends JunitMadkit {
-	protected int testSize = 8;
+	protected final int testSize = 8;
 
 	@Test
 	public void noConflictTest() {

@@ -37,11 +37,6 @@
  */
 package com.distrimind.madkit.kernel;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -51,6 +46,8 @@ import com.distrimind.madkit.kernel.CGRNotAvailable;
 import com.distrimind.madkit.kernel.InternalRole;
 import com.distrimind.madkit.kernel.Madkit;
 import com.distrimind.madkit.kernel.MadkitKernel;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Fabien Michel
@@ -85,11 +82,7 @@ public class AgentAddressTest {
 		assertNotNull(aa);
 	}
 
-	/**
-	 * Test method for
-	 * {@link com.distrimind.madkit.kernel.AgentAddress#AgentAddress(com.distrimind.madkit.kernel.AbstractAgent, com.distrimind.madkit.kernel.InternalRole, com.distrimind.madkit.kernel.KernelAddress)}
-	 * .
-	 */
+
 	@Test
 	public void testAgentAddress() {
 		assertTrue(a.checkAgentAddress(aa));
@@ -149,10 +142,7 @@ public class AgentAddressTest {
 		assertTrue(aa.toString().contains("@(Group(c:/g/),r)"));
 	}
 
-	/**
-	 * Test method for
-	 * {@link com.distrimind.madkit.kernel.AgentAddress#getAgentCode()}.
-	 */
+
 	@Test
 	public void testHashCode() {
 		assertEquals(a.hashCode(), aa.hashCode());
@@ -166,16 +156,14 @@ public class AgentAddressTest {
 	@Test
 	public void testEqualsObject() {
 		AgentAddress other = new AgentAddress(new AbstractAgent(), r, r.getKernelAddress(), true);
-		assertFalse(other.equals(aa));
+        assertNotEquals(other, aa);
 		other = new AgentAddress(a, r, r.getKernelAddress(), true);
 		System.err.println(aa.toString() + aa.getKernelAddress());
 		System.err.println(other.toString() + other.getKernelAddress());
-		assertTrue(other.equals(aa));
+        assertEquals(other, aa);
 	}
 
-	/**
-	 * Test method for {@link com.distrimind.madkit.kernel.AgentAddress#exists()}.
-	 */
+
 	@Test
 	public void testExists() {
 		assertTrue(a.checkAgentAddress(aa));
@@ -183,9 +171,7 @@ public class AgentAddressTest {
 		assertFalse(a.checkAgentAddress(aa));
 	}
 
-	/**
-	 * Test method for {@link com.distrimind.madkit.kernel.AgentAddress#isFrom()}.
-	 */
+
 	@Test
 	public void testIsLocal() {
 		// AgentAddress other = new AgentAddress(new AbstractAgent(), r,

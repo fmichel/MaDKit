@@ -57,7 +57,7 @@ public class RootKernelTest {
 	static FakeKernel fakeKernel;
 
 	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
+	public static void setUpBeforeClass() {
 		fakeKernel = new FakeKernel();
 	}
 

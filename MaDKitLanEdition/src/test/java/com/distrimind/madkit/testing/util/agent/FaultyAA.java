@@ -50,10 +50,7 @@ import java.util.logging.Level;
  */
 public class FaultyAA extends DoItDuringLifeCycleAbstractAgent {
 
-	/**
-	 * @param inActivate
-	 * @param inEnd
-	 */
+
 	public FaultyAA(boolean inActivate, boolean inEnd) {
 		super(inActivate, inEnd);
 	}

@@ -61,13 +61,13 @@ import gnu.vm.jgnu.security.NoSuchAlgorithmException;
 import gnu.vm.jgnu.security.NoSuchProviderException;
 
 public class DatabaseTests {
-	static File databaseFile = new File("tmpfortest.database");
+	static final File databaseFile = new File("tmpfortest.database");
 	static DatabaseWrapper databaseWrapper;
 	static IPBanned ipbanned;
 	static IPBanStat ipbanstat;
 	static IPExpulsedStat ipExpulsedStat;
 	static KeysPairs keysPairs;
-	Collection<InetAddress> whiteInetAddressesList = new NetworkProperties().getWhiteInetAddressesList();
+	final Collection<InetAddress> whiteInetAddressesList = new NetworkProperties().getWhiteInetAddressesList();
 
 	@BeforeClass
 	public static void loadDatabase() throws IllegalArgumentException, DatabaseException {
@@ -245,7 +245,7 @@ public class DatabaseTests {
 		}
 		for (IPBanned.Record ipb : ipbanned.getRecords()) {
 			Assert.assertArrayEquals(ia1.getAddress(), ipb.inet_address);
-			Assert.assertTrue(ipb.expiration_time == Long.MAX_VALUE);
+			Assert.assertEquals(ipb.expiration_time, Long.MAX_VALUE);
 		}
 
 		Thread.sleep(500);

@@ -67,7 +67,7 @@ public class NetworkPongAgent extends AgentAddressAgentTester {
 	private volatile boolean testSender = true;
 	private volatile boolean testTraveledAgentAddress = true;
 
-	protected NetworkPingAgent networkPingAgent;
+	protected final NetworkPingAgent networkPingAgent;
 
 	public NetworkPongAgent(int destinationNumber) {
 		networkPingAgent = new NetworkPingAgent(destinationNumber);
@@ -135,10 +135,10 @@ public class NetworkPongAgent extends AgentAddressAgentTester {
 
 			}
 			Assert.assertEquals(ReturnCode.SUCCESS, sendReply(_message,
-					new NetworkObjectMessage<Object[]>(new Object[] { NetworkPingAgent.messagePong, aa })));
+					new NetworkObjectMessage<>(new Object[]{NetworkPingAgent.messagePong, aa})));
 		} else {
 			System.out.println("incomprehensible message  : " + getKernelAddress());
-			Assert.assertFalse(true);
+			Assert.fail();
 		}
 
 	}

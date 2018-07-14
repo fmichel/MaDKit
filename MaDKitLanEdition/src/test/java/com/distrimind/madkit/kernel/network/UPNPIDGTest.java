@@ -134,7 +134,7 @@ public class UPNPIDGTest extends JunitMadkit {
 										if (ia != null) {
 											ArrayList<Integer> list_ports = new ArrayList<>();
 											for (int i = portStart; i <= portEnd; i++) {
-												list_ports.add(Integer.valueOf(i));
+												list_ports.add(i);
 											}
 
 											final AskForPortMappingAddMessage a = new AskForPortMappingAddMessage(

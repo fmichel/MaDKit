@@ -65,7 +65,7 @@ public class UnstopableAgent extends DoItDuringLifeCycleAgent {
 	public void doIt() throws InterruptedException {
 		super.doIt();
 		long i = 0;
-		while (i < 2000000000l) {
+		while (i < 2000000000L) {
 			i++;
 			if (i % 10000000 == 0) {
 				if (logger != null)

@@ -50,11 +50,7 @@ import com.distrimind.madkit.kernel.AbstractAgent;
 
 public class FaultyAgent extends DoItDuringLifeCycleAgent {
 
-	/**
-	 * @param inActivate
-	 * @param inLive
-	 * @param inEnd
-	 */
+
 	public FaultyAgent(boolean inActivate, boolean inLive, boolean inEnd) {
 		super(inActivate, inLive, inEnd);
 	}

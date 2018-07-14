@@ -93,22 +93,10 @@ public class TestAgent extends Agent {
 				MadkitClassLoader.reloadClass("madkit.classreloading.anotherPackage.Fake");
 				logger.info("after reload : " + MadkitClassLoader.getLoader()
 						.loadClass("madkit.classreloading.anotherPackage.Fake").getDeclaredConstructor().newInstance().toString());
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-			} catch (InstantiationException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				e.printStackTrace();
-			} catch (NoSuchMethodException e) {
-				e.printStackTrace();
-			} catch (SecurityException e) {
+			} catch (ClassNotFoundException | SecurityException | NoSuchMethodException | InvocationTargetException | IllegalArgumentException | IllegalAccessException | InstantiationException e) {
 				e.printStackTrace();
 			}
-			logger.info("\nfake3 is " + (new Fake().toString()));
+            logger.info("\nfake3 is " + (new Fake().toString()));
 			pause(8000);
 			try {
 				MadkitClassLoader.reloadClass("madkit.classreloading.anotherPackage.Fake");
@@ -119,10 +107,7 @@ public class TestAgent extends Agent {
 		}
 	}
 
-	/**
-	 * @throws InterruptedException
-	 * 
-	 */
+
 	@Override
 	protected void liveCycle() throws InterruptedException {
 		if (logger != null)

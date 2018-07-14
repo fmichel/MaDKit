@@ -43,10 +43,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -84,6 +81,7 @@ import gnu.vm.jgnu.security.spec.InvalidKeySpecException;
  * @version 1.2
  * @since MadkitLanEdition 1.0
  */
+@SuppressWarnings("SameParameterValue")
 @RunWith(Parameterized.class)
 public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTrigger {
 	private static final int numberMaxExchange = 100;
@@ -95,8 +93,8 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 	AbstractAccessProtocol apreceiver;
 	ArrayList<Identifier> acceptedAskerIdentifiers;
 	ArrayList<Identifier> acceptedReceiverIdentifiers;
-	ArrayList<IdentifierPassword> identifierPassordsAsker;
-	ArrayList<IdentifierPassword> identifierPassordsReceiver;
+	final ArrayList<IdentifierPassword> identifierPassordsAsker;
+	final ArrayList<IdentifierPassword> identifierPassordsReceiver;
 	final ArrayList<Identifier> initialAcceptedAskerIdentifiers;
 	final ArrayList<Identifier> initialAcceptedReceiverIdentifiers;
 	final ArrayList<IdentifierPassword> initialIdentifierPassordsAsker;
@@ -130,8 +128,8 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 		ArrayList<AccessData> adreceiver = new ArrayList<>();
 		ArrayList<Identifier> acceptedAskerIdentifiers = new ArrayList<>();
 		ArrayList<Identifier> acceptedReceiverIdentifiers = new ArrayList<>();
-		ArrayList<IdentifierPassword> identifierPassordsAsker = null;
-		ArrayList<IdentifierPassword> identifierPassordsReceiver = null;
+		ArrayList<IdentifierPassword> identifierPassordsAsker;
+		ArrayList<IdentifierPassword> identifierPassordsReceiver;
 		Object[] o = new Object[8];
 		adasker.add(AccessDataMKEventListener.getDefaultAccessData(JunitMadkit.DEFAULT_NETWORK_GROUP_FOR_ACCESS_DATA));
 		adreceiver
@@ -140,9 +138,9 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 		o[1] = adreceiver;
 		o[2] = acceptedAskerIdentifiers;
 		o[3] = acceptedReceiverIdentifiers;
-		o[4] = identifierPassordsAsker;
-		o[5] = identifierPassordsReceiver;
-		o[6] = Boolean.valueOf(databaseEnabled);
+		o[4] = null;
+		o[5] = null;
+		o[6] = databaseEnabled;
 		o[7] = accessProtocolProperties;
 		res.add(o);
 
@@ -158,7 +156,7 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 
 					@Override
 					public void run() {
-						Assert.assertFalse(true);
+						Assert.fail();
 					}
 				}));
 		adreceiver.add(AccessDataMKEventListener.getDefaultLoginData(
@@ -168,7 +166,7 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 
 					@Override
 					public void run() {
-						Assert.assertFalse(true);
+						Assert.fail();
 					}
 				}));
 		acceptedAskerIdentifiers
@@ -185,7 +183,7 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 		o[3] = acceptedReceiverIdentifiers;
 		o[4] = identifierPassordsAsker;
 		o[5] = identifierPassordsReceiver;
-		o[6] = Boolean.valueOf(databaseEnabled);
+		o[6] = databaseEnabled;
 		o[7] = accessProtocolProperties;
 		res.add(o);
 
@@ -201,7 +199,7 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 
 					@Override
 					public void run() {
-						Assert.assertFalse(true);
+						Assert.fail();
 					}
 				}));
 		adreceiver.add(AccessDataMKEventListener.getDefaultLoginData(
@@ -211,7 +209,7 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 
 					@Override
 					public void run() {
-						Assert.assertFalse(true);
+						Assert.fail();
 					}
 				}));
 		acceptedAskerIdentifiers
@@ -228,7 +226,7 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 		o[3] = acceptedReceiverIdentifiers;
 		o[4] = identifierPassordsAsker;
 		o[5] = identifierPassordsReceiver;
-		o[6] = Boolean.valueOf(databaseEnabled);
+		o[6] = databaseEnabled;
 		o[7] = accessProtocolProperties;
 		res.add(o);
 
@@ -245,7 +243,7 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 
 					@Override
 					public void run() {
-						Assert.assertFalse(true);
+						Assert.fail();
 					}
 				}));
 		adreceiver.add(AccessDataMKEventListener.getDefaultLoginData(
@@ -256,7 +254,7 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 
 					@Override
 					public void run() {
-						Assert.assertFalse(true);
+						Assert.fail();
 					}
 				}));
 		acceptedAskerIdentifiers
@@ -273,7 +271,7 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 		o[3] = acceptedReceiverIdentifiers;
 		o[4] = identifierPassordsAsker;
 		o[5] = identifierPassordsReceiver;
-		o[6] = Boolean.valueOf(databaseEnabled);
+		o[6] = databaseEnabled;
 		o[7] = accessProtocolProperties;
 		res.add(o);
 
@@ -290,7 +288,7 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 
 					@Override
 					public void run() {
-						Assert.assertFalse(true);
+						Assert.fail();
 					}
 				}));
 		adreceiver.add(AccessDataMKEventListener.getDefaultLoginData(
@@ -301,7 +299,7 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 
 					@Override
 					public void run() {
-						Assert.assertFalse(true);
+						Assert.fail();
 					}
 				}));
 		acceptedAskerIdentifiers
@@ -318,7 +316,7 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 		o[3] = acceptedReceiverIdentifiers;
 		o[4] = identifierPassordsAsker;
 		o[5] = identifierPassordsReceiver;
-		o[6] = Boolean.valueOf(databaseEnabled);
+		o[6] = databaseEnabled;
 		o[7] = accessProtocolProperties;
 		res.add(o);
 
@@ -335,7 +333,7 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 
 					@Override
 					public void run() {
-						Assert.assertFalse(true);
+						Assert.fail();
 					}
 				}));
 		adreceiver.add(AccessDataMKEventListener.getDefaultLoginData(
@@ -346,7 +344,7 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 
 					@Override
 					public void run() {
-						Assert.assertFalse(true);
+						Assert.fail();
 					}
 				}));
 		acceptedAskerIdentifiers
@@ -363,7 +361,7 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 		o[3] = acceptedReceiverIdentifiers;
 		o[4] = identifierPassordsAsker;
 		o[5] = identifierPassordsReceiver;
-		o[6] = Boolean.valueOf(databaseEnabled);
+		o[6] = databaseEnabled;
 		o[7] = accessProtocolProperties;
 		res.add(o);
 
@@ -394,14 +392,12 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 		this.initialIdentifierPassordsAsker=identifierPassordsAsker==null?null:new ArrayList<IdentifierPassword>();
 		if (initialIdentifierPassordsAsker!=null)
 		{
-			for (IdentifierPassword idpw : identifierPassordsAsker)
-				initialIdentifierPassordsAsker.add(idpw);
+			initialIdentifierPassordsAsker.addAll(identifierPassordsAsker);
 		}
 		this.initialIdentifierPassordsReceiver=identifierPassordsAsker==null?null:new ArrayList<IdentifierPassword>();
 		if (initialIdentifierPassordsReceiver!=null)
 		{
-			for (IdentifierPassword idpw : identifierPassordsReceiver)
-				initialIdentifierPassordsReceiver.add(idpw);
+			initialIdentifierPassordsReceiver.addAll(identifierPassordsReceiver);
 		}
 		if (databaseEnabled) {
 			mpasker.setDatabaseFactory(new EmbeddedHSQLDBDatabaseFactory(dbfileasker));
@@ -466,12 +462,12 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 		}
 
 		@Override
-		public void writeExternal(ObjectOutput out) throws IOException {
+		public void writeExternal(ObjectOutput out) {
 			
 		}
 
 		@Override
-		public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		public void readExternal(ObjectInput in) {
 			
 		}
 
@@ -484,12 +480,10 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 		ArrayList<AccessMessage> res=new ArrayList<>();
 		if (m==null)
 			return old;
-		for (AccessMessage am : old)
-			res.add(am);
+		Collections.addAll(res, old);
 		if (m instanceof AccessMessagesList)
 		{
-			for (AccessMessage am : ((AccessMessagesList) m).getMessages())
-				res.add(am);
+			Collections.addAll(res, ((AccessMessagesList) m).getMessages());
 		}
 		else
 			res.add(m);
@@ -518,23 +512,19 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 			throws AccessException, ClassNotFoundException, IOException, NoSuchAlgorithmException,
 			InvalidKeySpecException, NoSuchProviderException {
 		
-		this.acceptedAskerIdentifiers=new ArrayList<Identifier>();
-		for (Identifier id : this.initialAcceptedAskerIdentifiers)
-			this.acceptedAskerIdentifiers.add(id);
-		this.acceptedReceiverIdentifiers=new ArrayList<Identifier>();
-		for (Identifier id : this.initialAcceptedReceiverIdentifiers)
-			this.acceptedReceiverIdentifiers.add(id);
+		this.acceptedAskerIdentifiers= new ArrayList<>();
+		this.acceptedAskerIdentifiers.addAll(this.initialAcceptedAskerIdentifiers);
+		this.acceptedReceiverIdentifiers= new ArrayList<>();
+		this.acceptedReceiverIdentifiers.addAll(this.initialAcceptedReceiverIdentifiers);
 		if (identifierPassordsAsker!=null)
 		{
 			this.identifierPassordsAsker.clear();
-			for (IdentifierPassword id : this.initialIdentifierPassordsAsker)
-				this.identifierPassordsAsker.add(id);
+			this.identifierPassordsAsker.addAll(this.initialIdentifierPassordsAsker);
 		}
 		if (identifierPassordsReceiver!=null)
 		{
 			this.identifierPassordsReceiver.clear();
-			for (IdentifierPassword id : this.initialIdentifierPassordsReceiver)
-				this.identifierPassordsReceiver.add(id);
+			this.identifierPassordsReceiver.addAll(this.initialIdentifierPassordsReceiver);
 		}
 		
 		boolean allCannotTakeInitiatives = identifierPassordsAsker != null
@@ -810,8 +800,7 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 	}
 
 	private void testSubNewAddingRemovingIdentifier(AccessMessage maskerl[], AccessMessage mreceiverl[])
-			throws ClassNotFoundException, IOException, AccessException, NoSuchAlgorithmException,
-			InvalidKeySpecException {
+			throws ClassNotFoundException, IOException, AccessException {
 		int cycles = 0;
 		do {
 
@@ -907,7 +896,7 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 			if (masker.length==0)
 				Assert.assertTrue((masker = am).length>0);
 			else
-				Assert.assertTrue(am.length==0);
+				Assert.assertEquals(0, am.length);
 		}
 		AccessMessage mreceiver[] = new AccessMessage[0];
 		testSubNewAddingRemovingIdentifier(masker, mreceiver);
@@ -927,7 +916,7 @@ public class AccessProtocolTests implements AccessGroupsNotifier, LoginEventsTri
 			if (masker.length==0)
 				Assert.assertTrue((masker = am).length>0);
 			else
-				Assert.assertTrue(am.length==0);
+				Assert.assertEquals(0, am.length);
 		}
 		AccessMessage mreceiver[] = new AccessMessage[0];
 		testSubNewAddingRemovingIdentifier(masker, mreceiver);

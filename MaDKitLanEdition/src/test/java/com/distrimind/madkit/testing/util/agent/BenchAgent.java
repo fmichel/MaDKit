@@ -49,9 +49,7 @@ import com.distrimind.madkit.action.KernelAction;
  */
 public class BenchAgent extends DoItDuringLifeCycleAgent {
 
-	private JMenu name;
-
-	public BenchAgent(boolean inActivate, boolean inLive, boolean inEnd) {
+    public BenchAgent(boolean inActivate, boolean inLive, boolean inEnd) {
 		super(inActivate, inLive, inEnd);
 	}
 
@@ -69,7 +67,7 @@ public class BenchAgent extends DoItDuringLifeCycleAgent {
 
 	@Override
 	public void doIt() {
-		name = new JMenu();
+        JMenu name = new JMenu();
 		if (logger != null)
 			logger.severe("action creation");
 		for (int i = 0; i < 1000; i++) {

@@ -131,10 +131,8 @@ public class MadkitClassLoaderTest extends JunitMadkit {
 				} catch (ClassNotFoundException e) {
 					fail("Not the one");
 					e.printStackTrace();
-				} catch (NullPointerException e) {
-					throw e;
 				}
-			}
+            }
 		}, ReturnCode.AGENT_CRASH);
 	}
 

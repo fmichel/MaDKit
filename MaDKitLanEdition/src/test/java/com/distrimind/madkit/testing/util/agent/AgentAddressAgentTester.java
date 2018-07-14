@@ -37,15 +37,14 @@
  */
 package com.distrimind.madkit.testing.util.agent;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Assert;
 
 import com.distrimind.madkit.kernel.AgentAddress;
 import com.distrimind.madkit.kernel.AgentFakeThread;
 import com.distrimind.madkit.kernel.Group;
 import com.distrimind.madkit.kernel.Message;
+
+import static org.junit.Assert.*;
 
 /**
  * 
@@ -60,7 +59,7 @@ public abstract class AgentAddressAgentTester extends AgentFakeThread {
 			AgentAddress local = getAgentAddressIn(group, role);
 			assertTrue(local.isFrom(getKernelAddress()));
 			final AgentAddress receiver = _message.getReceiver();
-			assertTrue(receiver.equals(local));
+            assertEquals(receiver, local);
 			assertTrue(receiver.isFrom(getKernelAddress()));
 			Assert.assertTrue(checkAgentAddress(_message.getReceiver()));
 			return true;

@@ -88,11 +88,7 @@ public class I18nFileTest {
 		}
 	}
 
-	/**
-	 * @param e
-	 * @param set
-	 * @throws IOException
-	 */
+
 	private <E extends Enum<E>> void testKeys(Class<E> e, EnumSet<E> set, String lang) throws IOException {
 		System.err.println("\n----------------testing " + e + lang);
 		Properties defaultConfig = new Properties();

@@ -62,7 +62,7 @@ public class FakeKernelTest {
 	AbstractAgent a;
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		a = new AbstractAgent();
 	}
 

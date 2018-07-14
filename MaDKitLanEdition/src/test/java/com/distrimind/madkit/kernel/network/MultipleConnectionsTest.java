@@ -39,7 +39,6 @@ package com.distrimind.madkit.kernel.network;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.logging.Level;
 
 import org.junit.Test;
@@ -68,7 +67,7 @@ import com.distrimind.util.Timer;
 @RunWith(Parameterized.class)
 public class MultipleConnectionsTest extends JunitMadkit {
 
-	public static int HOST_NUMBERS = 5;
+	public static final int HOST_NUMBERS = 5;
 
 	@Parameters
 	public static Collection<Object[]> data() {
@@ -77,12 +76,12 @@ public class MultipleConnectionsTest extends JunitMadkit {
 			res.addAll(data(NetworkEventListener.getNetworkEventListenersForLocalClientServerConnection(true, true,
 					false, true, true, false, null, HOST_NUMBERS - 1, 1, 2, 3, 4, 5), null, null));
 			res.addAll(data(NetworkEventListener.getNetworkEventListenersForLocalClientServerConnection(true, true,
-					false, true, true, false, null, HOST_NUMBERS - 1, 1, 2, 3, 4, 5), Integer.valueOf(100), null));
+					false, true, true, false, null, HOST_NUMBERS - 1, 1, 2, 3, 4, 5), 100, null));
 			res.addAll(data(NetworkEventListener.getNetworkEventListenersForLocalClientServerConnection(true, true,
-					false, true, true, false, null, HOST_NUMBERS - 1, 1, 2, 3, 4, 5), null, Integer.valueOf(200)));
+					false, true, true, false, null, HOST_NUMBERS - 1, 1, 2, 3, 4, 5), null, 200));
 			res.addAll(data(NetworkEventListener.getNetworkEventListenersForLocalClientServerConnection(true, true,
-					false, true, true, false, null, HOST_NUMBERS - 1, 1, 2, 3, 4, 5), Integer.valueOf(100),
-					Integer.valueOf(200)));
+					false, true, true, false, null, HOST_NUMBERS - 1, 1, 2, 3, 4, 5), 100,
+					200));
 			return res;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -94,13 +93,11 @@ public class MultipleConnectionsTest extends JunitMadkit {
 			Integer globalDataAmountAcc) {
 		try {
 			ArrayList<Object[]> res = new ArrayList<>(c.size());
-			for (Iterator<Object[]> it = c.iterator(); it.hasNext();) {
-				Object[] o = it.next();
+			for (Object[] o : c) {
 				Object[] o2 = new Object[o.length + 2];
 				o2[0] = localDataAmountAcc;
 				o2[1] = globalDataAmountAcc;
-				for (int i = 0; i < o.length; i++)
-					o2[i + 2] = o[i];
+				System.arraycopy(o, 0, o2, 2, o.length);
 				res.add(o2);
 			}
 			return res;
@@ -275,12 +272,6 @@ public class MultipleConnectionsTest extends JunitMadkit {
 					agentsToLaunch3.killAgent(agentsToLaunch3);
 					agentsToLaunch4.killAgent(agentsToLaunch4);
 					agentsToLaunch5.killAgent(agentsToLaunch5);
-
-					agentsToLaunch1 = null;
-					agentsToLaunch2 = null;
-					agentsToLaunch3 = null;
-					agentsToLaunch4 = null;
-					agentsToLaunch5 = null;
 
 					cleanHelperMDKs(this);
 					Assert.assertEquals(getHelperInstances(0).size(), 0);

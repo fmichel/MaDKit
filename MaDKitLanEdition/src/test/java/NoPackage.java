@@ -47,9 +47,7 @@ public class NoPackage extends AbstractAgent {
 			logger.info("test");
 	}
 
-	/**
-	 * @param args
-	 */
+
 	public static void main(String[] args) {
 		new Madkit("--launchAgents", "{" + AbstractAgent.class.getName() + ",true}", "--desktop");
 	}

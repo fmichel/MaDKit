@@ -52,11 +52,7 @@ import com.distrimind.madkit.kernel.Role;
  */
 public class MemoryBench extends AbstractAgent {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see madkit.kernel.AbstractAgent#activate()
-	 */
+
 	@Override
 	protected void activate() {
 		System.err.println(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory());
@@ -66,9 +62,7 @@ public class MemoryBench extends AbstractAgent {
 		System.err.println(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory());
 	}
 
-	/**
-	 * @param args
-	 */
+
 	public static void main(String[] args) {
 		String[] argss = { "--agentLogLevel", "OFF", "--" + "--madkitLogLevel", "OFF", "--orgLogLevel", "OFF",
 				"--launchAgents", "{" + MemoryBench.class.getCanonicalName() + "}", ",false" };

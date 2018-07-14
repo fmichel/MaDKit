@@ -141,7 +141,7 @@ public class GUITest extends JunitMadkit {
 			protected void activate() {
 				AbstractAgent a = launchAgent(AlwaysInCGRNormalAA.class.getName());
 				assertEquals(1, getAgentsWithRole(GROUP, ROLE).size());
-				AgentAction.LAUNCH_AGENT.getActionFor(a, a.getClass().getName(), Boolean.valueOf(true))
+				AgentAction.LAUNCH_AGENT.getActionFor(a, a.getClass().getName(), Boolean.TRUE)
 						.actionPerformed(null);
 				assertEquals(2, getAgentsWithRole(GROUP, ROLE).size());
 			}

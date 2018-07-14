@@ -64,7 +64,7 @@ public class SimpleAgentFakeThread extends AgentFakeThread {
 	}
 
 	@Override
-	protected void end() throws InterruptedException {
+	protected void end() {
 		if (logger != null)
 			logger.fine("end function");
 	}

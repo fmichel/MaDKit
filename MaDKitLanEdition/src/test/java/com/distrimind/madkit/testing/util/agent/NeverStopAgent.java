@@ -49,9 +49,7 @@ import com.distrimind.madkit.kernel.Madkit;
  * 
  */
 public class NeverStopAgent extends Agent {
-	@SuppressWarnings("unused")
-	private AgentAddress currentPartner = null;
-	private int cycles = 100000;
+    private int cycles = 100000;
 
 	@Override
 	public void activate() {
@@ -66,7 +64,7 @@ public class NeverStopAgent extends Agent {
 	}
 
 	private void playing() {
-		currentPartner = getAgentWithRole(new Group("ping-pong", "room"), "player");
+        AgentAddress currentPartner = getAgentWithRole(new Group("ping-pong", "room"), "player");
 	}
 
 	@Override

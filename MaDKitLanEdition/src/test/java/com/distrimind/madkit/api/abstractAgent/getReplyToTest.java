@@ -107,13 +107,9 @@ public class getReplyToTest extends JunitMadkit {
 		launchTest(new NormalAgent() {
 			@Override
 			protected void activate() {
-				try {
-					getReplyTo(null);
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					throw e;
-				}
-			}
+                getReplyTo(null);
+                noExceptionFailure();
+            }
 		}, AGENT_CRASH);
 	}
 

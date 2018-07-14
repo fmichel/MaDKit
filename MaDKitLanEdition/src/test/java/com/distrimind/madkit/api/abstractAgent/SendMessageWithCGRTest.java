@@ -204,13 +204,9 @@ public class SendMessageWithCGRTest extends JunitMadkit {
 			@Override
 			protected void activate() {
 				assertEquals(SUCCESS, launchAgent(target));
-				try {
-					sendMessage(new Group(null, aa()), aa(), new Message());
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					throw e;
-				}
-			}
+                sendMessage(new Group(null, aa()), aa(), new Message());
+                noExceptionFailure();
+            }
 		}, AGENT_CRASH);
 	}
 
@@ -220,13 +216,9 @@ public class SendMessageWithCGRTest extends JunitMadkit {
 			@Override
 			protected void activate() {
 				assertEquals(SUCCESS, launchAgent(target));
-				try {
-					sendMessage(null, aa(), new Message());
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					throw e;
-				}
-			}
+                sendMessage(null, aa(), new Message());
+                noExceptionFailure();
+            }
 		}, AGENT_CRASH);
 	}
 
@@ -236,13 +228,9 @@ public class SendMessageWithCGRTest extends JunitMadkit {
 			@Override
 			protected void activate() {
 				assertEquals(SUCCESS, launchAgent(target));
-				try {
-					sendMessage(GROUP, null, new Message());
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					throw e;
-				}
-			}
+                sendMessage(GROUP, null, new Message());
+                noExceptionFailure();
+            }
 		}, AGENT_CRASH);
 	}
 
@@ -253,13 +241,9 @@ public class SendMessageWithCGRTest extends JunitMadkit {
 			protected void activate() {
 				assertEquals(SUCCESS, launchAgent(target));
 				assertEquals(SUCCESS, requestRole(GROUP, ROLE));
-				try {
-					sendMessage(GROUP, ROLE, null);
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					throw e;
-				}
-			}
+                sendMessage(GROUP, ROLE, null);
+                noExceptionFailure();
+            }
 		}, AGENT_CRASH);
 	}
 

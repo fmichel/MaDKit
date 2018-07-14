@@ -40,11 +40,9 @@ package com.distrimind.madkit.testing.util.agent;
 import com.distrimind.madkit.kernel.AgentFakeThread;
 
 public class KillTargetAgentFakeThread extends DoItDuringLifeCycleAgentFakeThread {
-	AgentFakeThread toKill;
+	final AgentFakeThread toKill;
 
-	/**
-	 * @param a
-	 */
+
 	public KillTargetAgentFakeThread(AgentFakeThread a) {
 		this(a, false, false, false);
 	}

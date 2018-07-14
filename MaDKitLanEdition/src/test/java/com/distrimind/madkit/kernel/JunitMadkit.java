@@ -47,7 +47,6 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -108,7 +107,7 @@ public class JunitMadkit {
 
 	public static String testTitle;
 	protected Madkit madkit;
-	private static ArrayList<Madkit> helperInstances = new ArrayList<Madkit>();
+	private static final ArrayList<Madkit> helperInstances = new ArrayList<>();
 
 	public void addHelperInstance(Madkit m) {
 		synchronized (helperInstances) {
@@ -120,8 +119,7 @@ public class JunitMadkit {
 	ArrayList<Madkit> getHelperInstances() {
 		synchronized (helperInstances) {
 			ArrayList<Madkit> res = new ArrayList<>();
-			for (Iterator<Madkit> it = helperInstances.iterator(); it.hasNext();)
-				res.add(it.next());
+			res.addAll(helperInstances);
 			return res;
 		}
 	}
@@ -140,8 +138,7 @@ public class JunitMadkit {
 			}
 			Assert.assertEquals(helperInstances.size(), nb);
 			ArrayList<Madkit> res = new ArrayList<>();
-			for (Iterator<Madkit> it = helperInstances.iterator(); it.hasNext();)
-				res.add(it.next());
+			res.addAll(helperInstances);
 			return res;
 		}
 	}
@@ -162,7 +159,7 @@ public class JunitMadkit {
 			// default
 			"--logDirectory", getBinTestDir(), "--agentLogLevel", "ALL", "--madkitLogLevel", "INFO"));
 
-	private static List<Process> externalProcesses = new ArrayList<>();
+	private static final List<Process> externalProcesses = new ArrayList<>();
 
 	public Madkit launchTest(AbstractAgent a, ReturnCode expected, boolean gui) {
 		return launchTest(a, expected, gui, new MadkitEventListener() {
@@ -206,7 +203,7 @@ public class JunitMadkit {
 		try {
 			String[] args = null;
 			if (mkArgs != null) {
-				args = mkArgs.toArray(new String[mkArgs.size()]);
+				args = mkArgs.toArray(new String[0]);
 			}
 
 			this.madkit = madkit = new Madkit(eventListener, args);
@@ -310,6 +307,7 @@ public class JunitMadkit {
 		}
 	}
 
+	@SuppressWarnings("UnusedReturnValue")
 	public Madkit launchTest(AbstractAgent a, boolean all) {
 		if (all) {
 			addMadkitArgs("--agentLogLevel", "ALL");
@@ -333,6 +331,7 @@ public class JunitMadkit {
 		mkArgs.addAll(Arrays.asList(string));
 	}
 
+	@SuppressWarnings("SameReturnValue")
 	public static String getBinTestDir() {
 		return "bin";
 	}
@@ -355,10 +354,7 @@ public class JunitMadkit {
 		time = System.nanoTime();
 	}
 
-	/**
-	 * @param message
-	 * @return the total time in ms
-	 */
+
 	public static long stopTimer(String message) {
 		final long t = System.nanoTime() - time;
 		System.err.println(message + (t / 1000000) + " ms");
@@ -379,13 +375,11 @@ public class JunitMadkit {
 
 	static public void printMemoryUsage() {
 		// System.gc();
-		Long mem = Long.valueOf((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()));
+		Long mem = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory());
 		System.err.println("\n----used memory: " + mem.toString().substring(0, 3) + " Mo\n");
 	}
 
-	/**
-	 * @param i
-	 */
+
 	public static void pause(AbstractAgent agent, int millis) {
 		try {
 			if (agent != null)
@@ -581,12 +575,12 @@ public class JunitMadkit {
 	}
 
 	public void launchExternalMDKInstance(String... args) {
-		String cmdLince = "java -Xms1024m -cp bin:build/test/classes:lib/junit-4.12.jar:lib/hamcrest-core-1.3.jar madkit.kernel.Madkit";
+		StringBuilder cmdLince = new StringBuilder("java -Xms1024m -cp bin:build/test/classes:lib/junit-4.12.jar:lib/hamcrest-core-1.3.jar madkit.kernel.Madkit");
 		for (String string : args) {
-			cmdLince += " " + string;
+			cmdLince.append(" ").append(string);
 		}
 		try {
-			Process p = Runtime.getRuntime().exec(cmdLince);
+			Process p = Runtime.getRuntime().exec(cmdLince.toString());
 			externalProcesses.add(p);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -610,7 +604,7 @@ public class JunitMadkit {
 	}
 
 	public void checkConnectedIntancesNb(AbstractAgent agent, Madkit m, int nb, long timeout) {
-		Set<Connection> l = null;
+		Set<Connection> l;
 		Timer t = new Timer(true);
 
 		do {
@@ -630,7 +624,7 @@ public class JunitMadkit {
 	}
 
 	public void checkConnectedKernelsNb(AbstractAgent agent, Madkit m, int nb, long timeout) {
-		Set<KernelAddress> l = null;
+		Set<KernelAddress> l;
 		Timer t = new Timer(true);
 
 		do {
@@ -646,7 +640,7 @@ public class JunitMadkit {
 	}
 
 	public void checkNumberOfNetworkAgents(AbstractAgent agent, Madkit m, int nbExpected, long timeout) {
-		int nb = 0;
+		int nb;
 		Timer t = new Timer(true);
 
 		do {

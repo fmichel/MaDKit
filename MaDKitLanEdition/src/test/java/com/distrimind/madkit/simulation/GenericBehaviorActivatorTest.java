@@ -44,7 +44,6 @@ import com.distrimind.madkit.kernel.AbstractAgent;
 import com.distrimind.madkit.kernel.JunitMadkit;
 import com.distrimind.madkit.kernel.Scheduler;
 import com.distrimind.madkit.kernel.AbstractAgent.ReturnCode;
-import com.distrimind.madkit.simulation.SimulationException;
 import com.distrimind.madkit.simulation.activator.GenericBehaviorActivator;
 import com.distrimind.madkit.testing.util.agent.FaultyAA;
 import com.distrimind.madkit.testing.util.agent.NormalAA;
@@ -66,7 +65,7 @@ public class GenericBehaviorActivatorTest extends JunitMadkit {
 	protected static GenericBehaviorActivator<AbstractAgent> buggy;
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		buggy = new GenericBehaviorActivator<>(GROUP, ROLE, "doIt");
 	}
 
@@ -77,12 +76,8 @@ public class GenericBehaviorActivatorTest extends JunitMadkit {
 			protected void activate() {
 				launchAgent(new NormalAA());
 				addActivator(buggy);
-				try {
-					buggy.execute();
-					noExceptionFailure();
-				} catch (SimulationException e) {
-					throw e;
-				}
+				buggy.execute();
+				noExceptionFailure();
 				this.killAgent(this);
 			}
 		}, ReturnCode.AGENT_CRASH);
@@ -100,12 +95,8 @@ public class GenericBehaviorActivatorTest extends JunitMadkit {
 					}
 				});
 				addActivator(buggy);
-				try {
-					buggy.execute();
-					noExceptionFailure();
-				} catch (SimulationException e) {
-					throw e;
-				}
+				buggy.execute();
+				noExceptionFailure();
 				this.killAgent(this);
 			}
 		}, ReturnCode.AGENT_CRASH);

@@ -63,7 +63,7 @@ public class setLogLevelTest extends com.distrimind.madkit.kernel.JunitMadkit {
 				try {
 					setLogLevel(null);
 					fail("execption not launched");
-				} catch (NullPointerException e) {
+				} catch (NullPointerException ignored) {
 				}
 			}
 		});

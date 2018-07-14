@@ -113,25 +113,25 @@ public class GroupTest {
 		if (groups.length == 1 && groups[0].contains("/")) {
 			groups = groups[0].split("/");
 		}
-		String path = "/";
+		StringBuilder path = new StringBuilder("/");
 		for (int i = groups.length - 1; i >= 0; i--) {
 			Assert.assertEquals(g.getName(), groups[i]);
-			path = path + groups[groups.length - i - 1] + "/";
+			path.append(groups[groups.length - i - 1]).append("/");
 			Group g2 = g;
 			g = g.getParent();
 
 			Assert.assertEquals(g.getSubGroup(g2.getName()), g2);
 		}
-		Assert.assertEquals(gpath, path);
-		for (int i = 0; i < groups.length; i++) {
-			g = g.getSubGroup(groups[i]);
-			Assert.assertEquals(g.getName(), groups[i]);
+		Assert.assertEquals(gpath, path.toString());
+		for (String group : groups) {
+			g = g.getSubGroup(group);
+			Assert.assertEquals(g.getName(), group);
 		}
 
 		try {
 			new Group(community, groups);
 			if (_isReserved)
-				Assert.assertTrue(false);
+				Assert.fail();
 		} catch (Exception e) {
 			if (!_isReserved)
 				throw e;
@@ -145,7 +145,7 @@ public class GroupTest {
 			Group g = new Group(true, null, true, "CR", "GR");
 			Group g2 = new Group("CR", "GR");
 			Assert.fail();
-		} catch (IllegalArgumentException e) {
+		} catch (IllegalArgumentException ignored) {
 
 		}
 
@@ -182,7 +182,7 @@ public class GroupTest {
 			String community, String... groups) throws IOException, ClassNotFoundException {
 		Group g = new Group(isDistributed, gateKeeper, _isReserved, community, groups);
 		System.out.println("Test group serialization : " + g);
-		byte[] array = null;
+		byte[] array;
 
 		try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
 			try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
@@ -191,7 +191,7 @@ public class GroupTest {
 			array = baos.toByteArray();
 		}
 
-		Group g2 = null;
+		Group g2;
 		try (ByteArrayInputStream bais = new ByteArrayInputStream(array)) {
 			try (ObjectInputStream ois = new ObjectInputStream(bais)) {
 				g2 = (Group) SerializationTools.readExternalizableAndSizable(ois, false);
@@ -212,44 +212,44 @@ public class GroupTest {
 	public void testNullEmptyAndInvalidArguments() {
 		try {
 			new Group(null, "GE1");
-			Assert.assertTrue(false);
-		} catch (NullPointerException e) {
+			Assert.fail();
+		} catch (NullPointerException ignored) {
 
 		}
 		try {
 			new Group("", "GE1");
-			Assert.assertTrue(false);
-		} catch (IllegalArgumentException e) {
+			Assert.fail();
+		} catch (IllegalArgumentException ignored) {
 
 		}
 
 		try {
 			new Group("CE1");
 		} catch (Exception e) {
-			Assert.assertTrue(false);
+			Assert.fail();
 		}
 		try {
 			new Group("CE1", "GE1", null, "GE3");
-			Assert.assertTrue(false);
-		} catch (NullPointerException e) {
+			Assert.fail();
+		} catch (NullPointerException ignored) {
 
 		}
 		try {
 			new Group("CE1", "GE1", "", "GE3");
-			Assert.assertTrue(false);
-		} catch (IllegalArgumentException e) {
+			Assert.fail();
+		} catch (IllegalArgumentException ignored) {
 
 		}
 		try {
 			new Group("CE1", "GE1", "sf;gs", "GE3");
-			Assert.assertTrue(false);
-		} catch (IllegalArgumentException e) {
+			Assert.fail();
+		} catch (IllegalArgumentException ignored) {
 
 		}
 		try {
 			new Group("CE1", "sf;gs", "GE3");
-			Assert.assertTrue(false);
-		} catch (IllegalArgumentException e) {
+			Assert.fail();
+		} catch (IllegalArgumentException ignored) {
 
 		}
 	}
@@ -261,15 +261,15 @@ public class GroupTest {
 	public static Object[][] mixArguments(Object[][] args1, Object[][] args2) {
 		Object[][] res = new Object[args2.length * args1.length][];
 		int index = 0;
-		for (int i = 0; i < args2.length; i++) {
-			for (int j = 0; j < args1.length; j++) {
-				Object v[] = new Object[args2[i].length + args1[j].length];
+		for (Object[] anArgs2 : args2) {
+			for (Object[] anArgs1 : args1) {
+				Object v[] = new Object[anArgs2.length + anArgs1.length];
 				int iv = 0;
-				for (int k = 0; k < args1[j].length; k++)
-					v[iv++] = args1[j][k];
+				for (int k = 0; k < anArgs1.length; k++)
+					v[iv++] = anArgs1[k];
 
-				for (int k = 0; k < args2[i].length; k++)
-					v[iv++] = args2[i][k];
+				for (int k = 0; k < anArgs2.length; k++)
+					v[iv++] = anArgs2[k];
 
 				res[index++] = v;
 			}
@@ -286,10 +286,8 @@ public class GroupTest {
 	public static Object[][] concatArgs(Object[][] arg1, Object[][] arg2) {
 		Object[][] res = new Object[arg1.length + arg2.length][];
 		int index = 0;
-		for (int i = 0; i < arg1.length; i++)
-			res[index++] = arg1[i];
-		for (int i = 0; i < arg2.length; i++)
-			res[index++] = arg2[i];
+		for (Object[] anArg1 : arg1) res[index++] = anArg1;
+		for (Object[] anArg2 : arg2) res[index++] = anArg2;
 		return res;
 	}
 
@@ -298,14 +296,14 @@ public class GroupTest {
 		for (int i = 0; i < res.length; i++) {
 			res[i] = new Object[2];
 			res[i][0] = arg[i][0];
-			String g = null;
+			StringBuilder g = null;
 			for (int k = 1; k < arg[i].length; k++) {
 				if (g == null)
-					g = arg[i][k].toString();
+					g = new StringBuilder(arg[i][k].toString());
 				else
-					g = g + "/" + arg[i][k];
+					g.append("/").append(arg[i][k]);
 			}
-			res[i][1] = g;
+			res[i][1] = g.toString();
 		}
 		return res;
 	}
@@ -327,7 +325,7 @@ public class GroupTest {
 				return false;
 			}
 		};
-		return new Object[][] { { Boolean.valueOf(true), gk1, Boolean.valueOf(false) } };
+		return new Object[][] { {Boolean.TRUE, gk1, Boolean.FALSE} };
 		/*
 		 * Gatekeeper gk2=new Gatekeeper() {
 		 * 

@@ -130,42 +130,26 @@ public class LaunchAbstractAgentTest extends JunitMadkit {
 		launchTest(new AbstractAgent() {
 			@Override
 			protected void activate() {
-				try {
-					assertEquals(SUCCESS, launchAgent((AbstractAgent) null));
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					throw e;
-				}
+				assertEquals(SUCCESS, launchAgent((AbstractAgent) null));
+				noExceptionFailure();
 			}
 		}, AGENT_CRASH);
 		launchTest(new AbstractAgent() {
 			protected void activate() {
-				try {
-					assertEquals(SUCCESS, launchAgent((AbstractAgent) null, true));
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					throw e;
-				}
+				assertEquals(SUCCESS, launchAgent((AbstractAgent) null, true));
+				noExceptionFailure();
 			}
 		}, AGENT_CRASH);
 		launchTest(new AbstractAgent() {
 			protected void activate() {
-				try {
-					assertEquals(SUCCESS, launchAgent((AbstractAgent) null, 1));
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					throw e;
-				}
+				assertEquals(SUCCESS, launchAgent((AbstractAgent) null, 1));
+				noExceptionFailure();
 			}
 		}, AGENT_CRASH);
 		launchTest(new AbstractAgent() {
 			protected void activate() {
-				try {
-					assertEquals(SUCCESS, launchAgent((AbstractAgent) null, 1, true));
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					throw e;
-				}
+				assertEquals(SUCCESS, launchAgent((AbstractAgent) null, 1, true));
+				noExceptionFailure();
 			}
 		}, AGENT_CRASH);
 	}
@@ -199,7 +183,7 @@ public class LaunchAbstractAgentTest extends JunitMadkit {
 	public void massLaunch() {
 		addMadkitArgs("--" + "agentLogLevel", "OFF");
 		launchTest(new AbstractAgent() {
-			int number = 1000;
+			final int number = 1000;
 
 			@Override
 			protected void activate() {
@@ -223,7 +207,7 @@ public class LaunchAbstractAgentTest extends JunitMadkit {
 	public void massLaunchWithGUI() {
 		addMadkitArgs("--" + "agentLogLevel", "OFF");
 		launchTest(new AbstractAgent() {
-			int number = 10;
+			final int number = 10;
 
 			@Override
 			protected void activate() {

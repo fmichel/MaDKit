@@ -63,7 +63,7 @@ import com.distrimind.madkit.action.SchedulingAction;
  */
 public class BindsTest {
 
-	static Map<Integer, String> keys = new HashMap<>();
+	static final Map<Integer, String> keys = new HashMap<>();
 
 	@Test
 	public void KernelActionConflicts() {
@@ -91,25 +91,22 @@ public class BindsTest {
 		for (Field f : GlobalAction.class.getDeclaredFields()) {
 			try {
 				final Object object = f.get(null);
-				final Class<? extends Object> cl = object.getClass();
+				final Class<?> cl = object.getClass();
 				if (Action.class.isAssignableFrom(cl)) {
 					final Object key = ((Action) object).getValue(Action.MNEMONIC_KEY);
 					if (key != null) {
-						testKey(((Integer) key).intValue(), f.getName());
+						testKey((Integer) key, f.getName());
 					}
 				}
-			} catch (IllegalAccessException e) {
+			} catch (IllegalAccessException ignored) {
 			}
 		}
 	}
 
-	/**
-	 * @param i
-	 * @param name
-	 */
+
 	private void testKey(int i, String name) {
 		if (i != KeyEvent.VK_DOLLAR) {
-			String e = keys.put(Integer.valueOf(i), name);
+			String e = keys.put(i, name);
 			if (e != null) {
 				fail(name + " has same key (" + i + ") as " + e);
 			}

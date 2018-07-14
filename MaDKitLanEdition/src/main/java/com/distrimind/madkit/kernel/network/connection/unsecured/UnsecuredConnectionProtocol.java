@@ -75,7 +75,8 @@ public class UnsecuredConnectionProtocol extends ConnectionProtocol<UnsecuredCon
 	private UnsecuredConnectionProtocol(InetSocketAddress _distant_inet_address,
 										InetSocketAddress _local_interface_address, ConnectionProtocol<?> _subProtocol,
 										DatabaseWrapper _sql_connection, MadkitProperties mkProperties, NetworkProperties _properties, int subProtocolLevel, boolean isServer,
-										boolean mustSupportBidirectionnalConnectionInitiative) throws ConnectionException {
+										boolean mustSupportBidirectionnalConnectionInitiative
+										) throws ConnectionException {
 		super(_distant_inet_address, _local_interface_address, _subProtocol, _sql_connection, _properties,
 				subProtocolLevel, isServer, mustSupportBidirectionnalConnectionInitiative);
 		parser = new Parser();

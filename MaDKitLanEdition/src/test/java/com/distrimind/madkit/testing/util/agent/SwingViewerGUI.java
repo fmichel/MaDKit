@@ -43,9 +43,7 @@ import com.distrimind.madkit.simulation.viewer.SwingViewer;
 
 public class SwingViewerGUI extends SwingViewer {
 
-	/**
-	 * @param args
-	 */
+
 	public static void main(String[] args) {
 		executeThisAgent();
 	}

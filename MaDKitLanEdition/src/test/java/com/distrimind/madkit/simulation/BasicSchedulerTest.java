@@ -101,7 +101,7 @@ public class BasicSchedulerTest extends JunitMadkit {
 				try {
 					new EmptyActivator(null, null);
 					noExceptionFailure();
-				} catch (NullPointerException e) {
+				} catch (NullPointerException ignored) {
 
 				}
 			}

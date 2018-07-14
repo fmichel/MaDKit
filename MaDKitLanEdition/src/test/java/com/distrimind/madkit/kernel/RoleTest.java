@@ -105,10 +105,7 @@ public class RoleTest {
 		assertEquals(0, r.getPlayers().size());
 	}
 
-	/**
-	 * Test method for
-	 * {@link com.distrimind.madkit.kernel.InternalRole#getCommunityName()}.
-	 */
+
 	@Test
 	public final void testGetAgentAddressOf() {
 		assertTrue(r.addMember(a, true));
@@ -119,20 +116,14 @@ public class RoleTest {
 		assertFalse(a.checkAgentAddress(aa));
 	}
 
-	/**
-	 * Test method for
-	 * {@link com.distrimind.madkit.kernel.InternalRole#addMember(com.distrimind.madkit.kernel.AbstractAgent)}.
-	 */
+
 	@Test
 	public final void testAddMember() {
 		assertTrue(r.addMember(a, true));
 		assertFalse(r.addMember(a, true));
 	}
 
-	/**
-	 * Test method for
-	 * {@link com.distrimind.madkit.kernel.InternalRole#removeMember(com.distrimind.madkit.kernel.AbstractAgent)}.
-	 */
+
 	@Test
 	public final void testRemoveMember() {
 		assertTrue(mk.isGroup(null, new Group("c", "g")));

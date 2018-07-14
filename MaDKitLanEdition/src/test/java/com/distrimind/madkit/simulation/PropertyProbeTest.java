@@ -39,7 +39,6 @@ package com.distrimind.madkit.simulation;
 
 import static com.distrimind.madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -73,12 +72,12 @@ public class PropertyProbeTest extends JunitMadkit {
 				assertEquals(SUCCESS, launchAgent(agent = new SimulatedAgent()));
 				PropertyProbe<AbstractAgent, Integer> fp = new PropertyProbe<>(GROUP, ROLE, "privatePrimitiveField");
 				addProbe(fp);
-				assertTrue(1 == fp.getPropertyValue(agent).intValue());
+				assertEquals(1, fp.getPropertyValue(agent).intValue());
 				PropertyProbe<AbstractAgent, Double> fp2 = new PropertyProbe<>(GROUP, ROLE, "publicPrimitiveField");
 				addProbe(fp2);
-				assertTrue(2 == fp2.getPropertyValue(agent).intValue());
+				assertEquals(2, fp2.getPropertyValue(agent).intValue());
 				agent.setPrivatePrimitiveField(10);
-				assertTrue(10 == fp.getPropertyValue(agent).intValue());
+				assertEquals(10, fp.getPropertyValue(agent).intValue());
 				assertEquals(SUCCESS, launchAgent(agent = new SimulatedAgent() {
 
 					@Override
@@ -88,7 +87,7 @@ public class PropertyProbeTest extends JunitMadkit {
 				}));
 				agent.setPrivatePrimitiveField(10);
 				assertEquals(2, fp.size());
-				assertTrue(100 == fp.getPropertyValue(agent).intValue());
+				assertEquals(100, fp.getPropertyValue(agent).intValue());
 			}
 		});
 	}
@@ -104,15 +103,15 @@ public class PropertyProbeTest extends JunitMadkit {
 				assertEquals(SUCCESS, launchAgent(agentBis = new SimulatedAgentBis()));
 				PropertyProbe<AbstractAgent, Integer> fp = new PropertyProbe<>(GROUP, ROLE, "privatePrimitiveField");
 				addProbe(fp);
-				assertTrue(1 == fp.getPropertyValue(agent).intValue());
-				assertTrue(1 == fp.getPropertyValue(agentBis).intValue());
+				assertEquals(1, fp.getPropertyValue(agent).intValue());
+				assertEquals(1, fp.getPropertyValue(agentBis).intValue());
 				PropertyProbe<AbstractAgent, Double> fp2 = new PropertyProbe<>(GROUP, ROLE, "publicPrimitiveField");
 				addProbe(fp2);
-				double i = fp2.getPropertyValue(agent).doubleValue();
+				double i = fp2.getPropertyValue(agent);
 				System.err.println(i);
-				assertTrue(2 == fp2.getPropertyValue(agent).intValue());
+				assertEquals(2, fp2.getPropertyValue(agent).intValue());
 				agent.setPrivatePrimitiveField(10);
-				assertTrue(10 == fp.getPropertyValue(agent).intValue());
+				assertEquals(10, fp.getPropertyValue(agent).intValue());
 				assertEquals(SUCCESS, launchAgent(agent = new SimulatedAgent() {
 
 					@Override
@@ -122,7 +121,7 @@ public class PropertyProbeTest extends JunitMadkit {
 				}));
 				agent.setPrivatePrimitiveField(10);
 				assertEquals(3, fp.size());
-				assertTrue(100 == fp.getPropertyValue(agent).intValue());
+				assertEquals(100, fp.getPropertyValue(agent).intValue());
 			}
 		});
 	}
@@ -136,13 +135,9 @@ public class PropertyProbeTest extends JunitMadkit {
 				assertEquals(SUCCESS, launchAgent(agent = new SimulatedAgent()));
 				PropertyProbe<AbstractAgent, String> fp = new PropertyProbe<>(GROUP, ROLE, "privatePrimitiveField");
 				addProbe(fp);
-				try {
-					System.err.println(fp.getPropertyValue(agent));
-					noExceptionFailure();
-				} catch (ClassCastException e) {
-					throw e;
-				}
-			}
+                System.err.println(fp.getPropertyValue(agent));
+                noExceptionFailure();
+            }
 		}, ReturnCode.AGENT_CRASH);
 	}
 
@@ -155,18 +150,14 @@ public class PropertyProbeTest extends JunitMadkit {
 				assertEquals(SUCCESS, launchAgent(new SimulatedAgent()));
 				PropertyProbe<AbstractAgent, Integer> fp = new PropertyProbe<>(GROUP, ROLE, "privatePrimitiveField");
 				addProbe(fp);
-				try {
-					NormalAA normalAA = new NormalAA() {
+                NormalAA normalAA = new NormalAA() {
 
-						String privatePrimitiveField = "test";
-					};
-					System.err.println(fp.getPropertyValue(normalAA));
-					int i = fp.getPropertyValue(normalAA).intValue();
-					noExceptionFailure();
-				} catch (ClassCastException e) {
-					throw e;
-				}
-			}
+                    String privatePrimitiveField = "test";
+                };
+                System.err.println(fp.getPropertyValue(normalAA));
+                int i = fp.getPropertyValue(normalAA);
+                noExceptionFailure();
+            }
 		}, ReturnCode.AGENT_CRASH);
 	}
 
@@ -179,13 +170,9 @@ public class PropertyProbeTest extends JunitMadkit {
 				assertEquals(SUCCESS, launchAgent(agent = new SimulatedAgent()));
 				PropertyProbe<AbstractAgent, Object> fp = new PropertyProbe<>(GROUP, ROLE, "privatePrimitiveField");
 				addProbe(fp);
-				try {
-					fp.setPropertyValue(agent, "a");
-					noExceptionFailure();
-				} catch (SimulationException e) {
-					throw e;
-				}
-			}
+                fp.setPropertyValue(agent, "a");
+                noExceptionFailure();
+            }
 		}, ReturnCode.AGENT_CRASH);
 	}
 
@@ -199,13 +186,9 @@ public class PropertyProbeTest extends JunitMadkit {
 				Watcher s = new Watcher();
 				assertEquals(SUCCESS, launchAgent(s));
 				s.addProbe(fp);
-				try {
-					System.err.println(fp.getPropertyValue(fp.getCurrentAgentsList().get(0)));
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					throw e;
-				}
-			}
+                System.err.println(fp.getPropertyValue(fp.getCurrentAgentsList().get(0)));
+                noExceptionFailure();
+            }
 		}, ReturnCode.AGENT_CRASH);
 	}
 
@@ -224,8 +207,8 @@ public class PropertyProbeTest extends JunitMadkit {
 				Watcher s = new Watcher();
 				assertEquals(SUCCESS, launchAgent(s));
 				s.addProbe(fp);
-				assertEquals(Double.valueOf(9d), fp.getMaxValue());
-				assertEquals(Double.valueOf(0d), fp.getMinValue());
+				assertEquals(9d, fp.getMaxValue());
+				assertEquals(0d, fp.getMinValue());
 			}
 		}, ReturnCode.SUCCESS);
 	}

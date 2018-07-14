@@ -68,7 +68,7 @@ public class ActivatorTest {
 	Agent agt;
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		a = new EmptyActivator(new Group("t", "t"), "t");
 		agt = new Agent();
 	}
@@ -89,16 +89,10 @@ public class ActivatorTest {
 			m = Activator.findMethodOn(NormalLife.class, "privateMethod");// private
 			System.err.println(m);
 			m.invoke(new NormalLife());
-		} catch (NoSuchMethodException e) {
+		} catch (NoSuchMethodException | IllegalAccessException | IllegalArgumentException e) {
 			e.printStackTrace();
 			fail("Oo");
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-			fail("Oo");
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-			fail("Oo");
-		} catch (InvocationTargetException e) {
+		} catch (InvocationTargetException ignored) {
 		}
 	}
 

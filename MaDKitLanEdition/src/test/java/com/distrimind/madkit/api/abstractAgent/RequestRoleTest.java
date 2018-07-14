@@ -46,7 +46,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
@@ -176,7 +175,7 @@ public class RequestRoleTest extends JunitMadkit {
 			@Override
 			protected void activate() {
 				Group g = new Group(false, alwaysDeny, false, GROUP.getCommunity(), "GD");
-				assertEquals(SUCCESS, createGroup(new Group(false, alwaysDeny, false, GROUP.getCommunity(), "GD")));
+				assertEquals(SUCCESS, createGroup(g));
 				g = new Group(false, GROUP.getCommunity(), "GD");
 				assertEquals(ACCESS_DENIED, requestRole(g, ROLE));
 				assertEquals(ACCESS_DENIED, requestRole(g, ROLE, null));
@@ -192,8 +191,8 @@ public class RequestRoleTest extends JunitMadkit {
 				Group g = new Group(false, alwaysAccept, false, GROUP.getCommunity(), "GA");
 				assertEquals(SUCCESS, createGroup(g));
 				g = new Group(GROUP.getCommunity(), "GA");
-				assertEquals(SUCCESS, requestRole(GROUP, ROLE));
-				assertEquals(SUCCESS, requestRole(GROUP, aa(), null));
+				assertEquals(SUCCESS, requestRole(g, ROLE));
+				assertEquals(SUCCESS, requestRole(g, aa(), null));
 			}
 		});
 	}
@@ -283,12 +282,12 @@ public class RequestRoleTest extends JunitMadkit {
 						}
 
 						@Override
-						public void writeExternal(ObjectOutput out) throws IOException {
+						public void writeExternal(ObjectOutput out) {
 							
 						}
 
 						@Override
-						public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+						public void readExternal(ObjectInput in) {
 							
 						}
 					}));

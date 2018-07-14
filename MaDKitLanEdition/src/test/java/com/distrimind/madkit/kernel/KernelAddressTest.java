@@ -37,9 +37,6 @@
  */
 package com.distrimind.madkit.kernel;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -59,6 +56,8 @@ import com.distrimind.madkit.util.SerializationTools;
 
 import gnu.vm.jgnu.security.NoSuchAlgorithmException;
 import gnu.vm.jgnu.security.NoSuchProviderException;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Fabien Michel
@@ -132,7 +131,7 @@ public class KernelAddressTest {
 	@Test
 	public void testUniqueness() throws InterruptedException, NoSuchAlgorithmException, NoSuchProviderException {
 		for (int i = 0; i < 1000; i++) {
-			assertFalse(new KernelAddress(true).equals(new KernelAddress(true)));
+            assertNotEquals(new KernelAddress(true), new KernelAddress(true));
 		}
 		for (KernelAddress ka : kas) {
 			for (KernelAddress other : simultaneous) {
@@ -175,7 +174,7 @@ public class KernelAddressTest {
 			}
 		}
 		for (KernelAddress ka : kas) {
-			KernelAddress kas = null;
+			KernelAddress kas;
 			try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
 				try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
 					SerializationTools.writeExternalizableAndSizable(oos, ka, false);
@@ -190,7 +189,7 @@ public class KernelAddressTest {
 			Assert.assertEquals(ka, ka);
 			Assert.assertEquals(ka, kas);
 			KernelAddressInterfaced kai = new KernelAddressInterfaced(ka, true);
-			KernelAddressInterfaced kais = null;
+			KernelAddressInterfaced kais;
 			try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
 				try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
 					SerializationTools.writeExternalizableAndSizable(oos, kai, false);

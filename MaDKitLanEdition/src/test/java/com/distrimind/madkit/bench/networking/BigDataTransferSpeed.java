@@ -42,7 +42,7 @@ import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
@@ -115,7 +115,7 @@ public class BigDataTransferSpeed extends JunitMadkit {
 		this.eventListener2 = new NetworkEventListener(true, false, false, null,
 				new ConnectionsProtocolsMKEventListener(u), new AccessProtocolPropertiesMKEventListener(app),
 				new AccessDataMKEventListener(AccessDataMKEventListener.getDefaultAccessData(GROUP)), 5000,
-				Arrays.asList((AbstractIP) new DoubleIP(5000, (Inet4Address) InetAddress.getByName("127.0.0.1"),
+				Collections.singletonList((AbstractIP) new DoubleIP(5000, (Inet4Address) InetAddress.getByName("127.0.0.1"),
 						(Inet6Address) InetAddress.getByName("::1"))),
 				InetAddress.getByName("0.0.0.0"));
 		this.eventListener2.maxBufferSize=Short.MAX_VALUE*2;
@@ -143,7 +143,7 @@ public class BigDataTransferSpeed extends JunitMadkit {
 					e.printStackTrace();
 				}
 				Message m=this.waitNextMessage(60000);
-				transfered1.set(m!=null && m instanceof BigDataResultMessage && ((BigDataResultMessage)m).getType()==BigDataResultMessage.Type.BIG_DATA_TRANSFERED);
+				transfered1.set(m instanceof BigDataResultMessage && ((BigDataResultMessage) m).getType() == BigDataResultMessage.Type.BIG_DATA_TRANSFERED);
 				Assert.assertTrue(""+m, transfered1.get());
 				
 				try {
@@ -153,12 +153,12 @@ public class BigDataTransferSpeed extends JunitMadkit {
 					e.printStackTrace();
 				}
 				m=this.waitNextMessage(60000);
-				transfered2.set(m!=null && m instanceof BigDataResultMessage && ((BigDataResultMessage)m).getType()==BigDataResultMessage.Type.BIG_DATA_TRANSFERED);
+				transfered2.set(m instanceof BigDataResultMessage && ((BigDataResultMessage) m).getType() == BigDataResultMessage.Type.BIG_DATA_TRANSFERED);
 				Assert.assertTrue(""+m, transfered2.get());
 			}
 
 			@Override
-			protected void liveCycle() throws InterruptedException {
+			protected void liveCycle() {
 				this.killAgent(this);
 			}
 		}, eventListener1);

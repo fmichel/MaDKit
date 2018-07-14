@@ -60,7 +60,7 @@ public class BigDataTransferReceiverAgent extends Agent {
 	}
 
 	@Override
-	protected void activate() throws InterruptedException {
+	protected void activate() {
 
 		requestRole(GROUP, ROLE);
 	}

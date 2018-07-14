@@ -77,9 +77,7 @@ public class BroadcastPongAgent extends Agent {
 			logger.info("bye");
 	}
 
-	/**
-	 * @param args
-	 */
+
 	public static void main(String[] args) {
 		if (args == null) {
 			args = Arrays.asList("--network", "--agentLogLevel", "ALL", "--launchAgents",

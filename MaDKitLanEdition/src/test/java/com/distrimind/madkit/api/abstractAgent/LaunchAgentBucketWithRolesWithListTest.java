@@ -71,10 +71,10 @@ import com.distrimind.madkit.testing.util.agent.SimulatedAgentThatLaunchesASimul
 public class LaunchAgentBucketWithRolesWithListTest extends JunitMadkit {
 
 	GenericBehaviorActivator<AbstractAgent> buggy;
-	static int size = 1001;
+	static final int size = 1001;
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		buggy = new GenericBehaviorActivator<>(GROUP, ROLE, "doIt");
 	}
 
@@ -108,12 +108,8 @@ public class LaunchAgentBucketWithRolesWithListTest extends JunitMadkit {
 		launchTest(new AbstractAgent() {
 			@Override
 			protected void activate() {
-				try {
-					launchAgentBucket(FaultyAA.class.getName(), size, new Role(GROUP, ROLE));
-					JunitMadkit.noExceptionFailure();
-				} catch (IllegalArgumentException e) {
-					throw e;
-				}
+				launchAgentBucket(FaultyAA.class.getName(), size, new Role(GROUP, ROLE));
+				JunitMadkit.noExceptionFailure();
 			}
 		}, ReturnCode.AGENT_CRASH);
 	}

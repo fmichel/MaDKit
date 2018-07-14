@@ -121,6 +121,7 @@ public class DatagramDataTest {
 
 	private void testValidOneMessageDatagramData(DatagramLocalNetworkPresenceMessage message, Version programVersion,
 			Version madkitVersion) throws IOException, NoSuchAlgorithmException, NoSuchProviderException {
+
 		DatagramData d = new DatagramData(message);
 
 		DatagramData d2 = new DatagramData();
@@ -134,12 +135,12 @@ public class DatagramDataTest {
 		Assert.assertFalse(m.isCompatibleWith(0, programVersion, madkitVersion, programVersion, madkitVersion, kernelAddress));
 		Assert.assertNull(d2.getUnusedReceivedData());
 		Assert.assertNull(d2.getNextDatagramData());
-		programVersion.incrementBuildNumber();
-		programVersion.incrementBuildNumber();
+        programVersion=new Version(programVersion.getProgramName(), programVersion.getShortProgramName(), programVersion.getMajor(), programVersion.getMinor()+1, programVersion.getRevision(), programVersion.getType(), programVersion.getAlphaBetaVersion(), programVersion.getProjectStartDate(), programVersion.getProjectEndDate());
+
+
 		Assert.assertFalse(m.isCompatibleWith(0, programVersion, madkitVersion, programVersion, madkitVersion, kernelAddressReceiver));
 		programVersion = getVersionBase(programName);
-		madkitVersion.incrementBuildNumber();
-		madkitVersion.incrementBuildNumber();
+        madkitVersion=new Version(madkitVersion.getProgramName(), madkitVersion.getShortProgramName(), madkitVersion.getMajor(), madkitVersion.getMinor()+1, madkitVersion.getRevision(), madkitVersion.getType(), madkitVersion.getAlphaBetaVersion(), madkitVersion.getProjectStartDate(), madkitVersion.getProjectEndDate());
 		Assert.assertFalse(m.isCompatibleWith(0, programVersion, madkitVersion, programVersion, madkitVersion, kernelAddressReceiver));
 
 	}

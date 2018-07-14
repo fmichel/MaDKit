@@ -40,6 +40,7 @@ package com.distrimind.madkit.kernel.network.connection.unsecured;
 import com.distrimind.madkit.exceptions.BlockParserException;
 import com.distrimind.madkit.exceptions.ConnectionException;
 import com.distrimind.madkit.exceptions.MessageSerializationException;
+import com.distrimind.madkit.kernel.MadkitProperties;
 import com.distrimind.madkit.kernel.network.*;
 import com.distrimind.madkit.kernel.network.SystemMessage.Integrity;
 import com.distrimind.madkit.kernel.network.connection.*;
@@ -71,8 +72,9 @@ public class CheckSumConnectionProtocol extends ConnectionProtocol<CheckSumConne
 
 	private CheckSumConnectionProtocol(InetSocketAddress _distant_inet_address,
 									   InetSocketAddress _local_interface_address, ConnectionProtocol<?> _subProtocol,
-									   DatabaseWrapper _sql_connection, NetworkProperties _properties, int subProtocolLevel, boolean isServer,
-									   boolean mustSupportBidirectionnalConnectionInitiative) throws ConnectionException {
+									   DatabaseWrapper _sql_connection, @SuppressWarnings("unused") MadkitProperties mkProperties, NetworkProperties _properties, int subProtocolLevel, boolean isServer,
+									   boolean mustSupportBidirectionnalConnectionInitiative
+	) throws ConnectionException {
 		super(_distant_inet_address, _local_interface_address, _subProtocol, _sql_connection, _properties,
 				subProtocolLevel, isServer, mustSupportBidirectionnalConnectionInitiative);
 		parser = new Parser();

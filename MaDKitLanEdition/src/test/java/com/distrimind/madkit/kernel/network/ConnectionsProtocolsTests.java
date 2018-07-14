@@ -357,10 +357,9 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 		ArrayList<ConnectionProtocolProperties<?>[]> data = dataOneLevel();
 		data.addAll(dataWithSubLevel());
 		Collection<Object[]> res = new ArrayList<>();
-		for (int i = 0; i < data.size(); i++) {
-			ConnectionProtocolProperties<?>[] base = data.get(i);
+		for (ConnectionProtocolProperties<?>[] base : data) {
 			Object o[] = new Object[4];
-			
+
 			NetworkProperties np = new NetworkProperties();
 			np.addConnectionProtocol(base[0]);
 			o[0] = getConnectionProtocolInstance(mkProperties, np, enableDatabase ? 1 : 0);
@@ -470,7 +469,7 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 				
 			}
 			// testRandomPingPongMessage();
-			ConnectionMessage mreceiver = null;
+			ConnectionMessage mreceiver;
 			int cycles = 0;
 			try {
 				do {
@@ -612,7 +611,7 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 			ConnectionMessage masker = cpasker.setAndGetNextMessage(new AskConnection(true));
 
 			// testRandomPingPongMessage();
-			ConnectionMessage mreceiver = null;
+			ConnectionMessage mreceiver;
 
 			do {
 				if (cycles == index && asker) {
@@ -702,7 +701,7 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 			ConnectionMessage masker = cpasker.setAndGetNextMessage(new AskConnection(true));
 
 			testRandomPingPongMessage();
-			ConnectionMessage mreceiver = null;
+			ConnectionMessage mreceiver;
 
 			do {
 				if (cycles == index && asker) {
@@ -770,14 +769,14 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 
 
 		@Override
-		public void writeExternal(ObjectOutput out) throws IOException {
+		public void writeExternal(ObjectOutput out) {
 			
 		}
 
 
 
 		@Override
-		public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		public void readExternal(ObjectInput in) {
 			
 		}
 
@@ -795,7 +794,7 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 
 	public static ArrayList<Block> getBlocks(byte message[], boolean excludeFromEncryption, ConnectionProtocol<?> cp, NetworkProperties np,
 			int idPacket, int transferType, TransferedBlockChecker tbc) throws PacketException, IOException,
-			NIOException, BlockParserException, NoSuchAlgorithmException, NoSuchProviderException {
+			NIOException, NoSuchAlgorithmException, NoSuchProviderException {
 		ArrayList<Block> res = new ArrayList<>();
 		WritePacket wp = new WritePacket(PacketPartHead.TYPE_PACKET, idPacket, np.maxBufferSize,
 				np.maxRandomPacketValues, rand, new RandomByteArrayInputStream(message), MessageDigestType.BC_FIPS_SHA3_512);
@@ -870,7 +869,7 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 			Assert.assertTrue(b.isValid());
 		}
 
-		PacketPart pp=null;
+		PacketPart pp;
 		try
 		{
 			 pp = cp.getPacketPart(b, np);
@@ -951,7 +950,7 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 	public static Serializable unserialize(byte[] message) throws IOException, ClassNotFoundException {
 		try (ByteArrayInputStream bais = new ByteArrayInputStream(message)) {
 			try (ObjectInputStream ois = new ObjectInputStream(bais)) {
-				return (Serializable) SerializationTools.readExternalizableAndSizable(ois, false);
+				return SerializationTools.readExternalizableAndSizable(ois, false);
 				
 			}
 		}

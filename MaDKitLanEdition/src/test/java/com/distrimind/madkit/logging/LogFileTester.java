@@ -57,9 +57,7 @@ public class LogFileTester extends Agent {
 		this.killAgent(this);
 	}
 
-	/**
-	 * @param args
-	 */
+
 	public static void main(String[] args) {
 		new Madkit("createLogFiles", "true", "launchAgents", LogFileTester.class.getName());
 	}

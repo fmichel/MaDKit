@@ -63,7 +63,8 @@ public class IDTransferTest extends JunitMadkit {
 	@Test
 	public void testIDTransfer() {
 		launchTest(new AbstractAgent() {
-			@Override
+			@SuppressWarnings("UnusedAssignment")
+            @Override
 			protected void activate() throws InterruptedException {
 				try {
 					int idNumber = 100;
@@ -76,7 +77,7 @@ public class IDTransferTest extends JunitMadkit {
 					for (int i = 0; i < idNumber; i++) {
 						for (int j = 0; j < idNumber; j++) {
 							if (i == j) {
-								Assert.assertTrue(ids[i].equals(ids[j]));
+                                Assert.assertEquals(ids[i], ids[j]);
 							} else
 								Assert.assertNotEquals(ids[i], ids[j]);
 						}
@@ -94,8 +95,8 @@ public class IDTransferTest extends JunitMadkit {
 							}
 						}
 					}
-					ids = null;
-					System.gc();
+					ids=null;
+                    System.gc();
 					System.gc();
 					Thread.sleep(500);
 					Assert.assertEquals(0, MadkitKernelAccess.numberOfValidGeneratedID(this));

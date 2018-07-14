@@ -74,15 +74,13 @@ public class XMLUtilitiesTest {
 	public void testGetFailFromIOException() {
 		try {
 			assertNull(XMLUtilities.getDOM(new File("com/distrimind/madkit/xml/notExist.xml")));
-		} catch (SAXException e) {
+		} catch (SAXException | ParserConfigurationException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 			return;
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
 		}
-		JunitMadkit.noExceptionFailure();
+        JunitMadkit.noExceptionFailure();
 	}
 
 	@Test

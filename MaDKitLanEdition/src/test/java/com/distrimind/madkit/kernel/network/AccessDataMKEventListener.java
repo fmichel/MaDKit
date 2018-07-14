@@ -38,6 +38,7 @@
 package com.distrimind.madkit.kernel.network;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -70,8 +71,7 @@ public class AccessDataMKEventListener implements MadkitEventListener {
 
 	public AccessDataMKEventListener(AccessData... accessData) {
 		this.accessData = new ArrayList<>(accessData.length);
-		for (AccessData ad : accessData)
-			this.accessData.add(ad);
+        Collections.addAll(this.accessData, accessData);
 	}
 
 	public AccessDataMKEventListener(ArrayList<AccessData> accessData) {

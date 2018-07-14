@@ -44,6 +44,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import com.distrimind.madkit.kernel.MadkitEventListener;
@@ -78,7 +79,7 @@ public class NetworkEventListener implements MadkitEventListener {
 	private Integer localDataAmountAcc = null;
 	private Integer globalDataAmountAcc = null;
 	private int gatewayDepth = 1;
-	public long durationBeforeCancelingTransferConnection = 20000l;
+	public long durationBeforeCancelingTransferConnection = 20000L;
 	public int maxBufferSize=Short.MAX_VALUE;
 
 	public void setGatewayDepth(int gatewayDepth) {
@@ -98,9 +99,7 @@ public class NetworkEventListener implements MadkitEventListener {
 		if (connectionsToAttempt == null)
 			connectionsToAttempt = new ArrayList<>();
 		else if (!(connectionsToAttempt instanceof ArrayList)) {
-			ArrayList<AbstractIP> al = new ArrayList<>();
-			al.addAll(connectionsToAttempt);
-			connectionsToAttempt = al;
+            connectionsToAttempt = new ArrayList<>(connectionsToAttempt);
 		}
 		connectionsToAttempt.add(ip);
 	}
@@ -162,9 +161,9 @@ public class NetworkEventListener implements MadkitEventListener {
 	@Override
 	public void onMadkitPropertiesLoaded(MadkitProperties _properties) {
 		if (globalDataAmountAcc != null)
-			_properties.networkProperties.maxSizeForUnreadShortDataFromAllConnections = globalDataAmountAcc.intValue();
+			_properties.networkProperties.maxSizeForUnreadShortDataFromAllConnections = globalDataAmountAcc;
 		if (localDataAmountAcc != null)
-			_properties.networkProperties.maxSizeForUnreadShortDataFromOneDistantKernel = localDataAmountAcc.intValue();
+			_properties.networkProperties.maxSizeForUnreadShortDataFromOneDistantKernel = localDataAmountAcc;
 
 		_properties.networkProperties.durationBeforeCancelingTransferConnection = durationBeforeCancelingTransferConnection;
 		_properties.networkProperties.connectionTimeOut = durationBeforeCancelingTransferConnection;
@@ -183,8 +182,7 @@ public class NetworkEventListener implements MadkitEventListener {
 			// _properties.networkProperties.portsToBindForManualDirectConnections=localPortToBind;
 			_properties.networkProperties.portsToBindForAutomaticLocalConnections = localPortToBind;
 			_properties.networkProperties.localInetAddressesToBind = new ArrayList<>();
-			for (InetAddress ia : inetAddressesToBind)
-				_properties.networkProperties.localInetAddressesToBind.add(ia);
+			Collections.addAll(_properties.networkProperties.localInetAddressesToBind, inetAddressesToBind);
 		}
 
 		if (connectionsToAttempt != null)
@@ -261,24 +259,25 @@ public class NetworkEventListener implements MadkitEventListener {
 							.getAccessDataMKEventListenerForClientConnections(canTakeLoginInitiative, invalidPassord,
 									AccessDataMKEventListener.getCustumHostIdentifier(h), loginIndexes)) {
 						Object o[] = res.get(index++);
-						if (bindDoubleInetAddress)
-							o[h] = new NetworkEventListener(network, upnpIGDEnabled, false,
-									databaseEnabled ? new File("tmpfortest" + clientNumber + ".database") : null, cp,
-									app, ad, 5001+h,
-									Arrays.asList(
-											(AbstractIP) new DoubleIP(5001,
-													(Inet4Address) InetAddress.getByName("127.0.0.1")),
-											(AbstractIP) new DoubleIP(5001,
-													(Inet6Address) InetAddress.getByName("::1"))));
-						else
-							o[h] = new NetworkEventListener(network, upnpIGDEnabled, false,
-									databaseEnabled ? new File("tmpfortest" + clientNumber + ".database") : null, cp,
-									app, ad, 5001+h,
-									Arrays.asList((AbstractIP) new DoubleIP(5001,
-											(Inet4Address) InetAddress.getByName("127.0.0.1"),
-											(Inet6Address) InetAddress.getByName("::1"))));
+                        if (bindDoubleInetAddress)
+                            o[h] = new NetworkEventListener(network, upnpIGDEnabled, false,
+                                    databaseEnabled ? new File("tmpfortest" + clientNumber + ".database") : null, cp,
+                                    app, ad, 5001+h,
+                                    Arrays.asList(
+                                            (AbstractIP) new DoubleIP(5001,
+                                                    (Inet4Address) InetAddress.getByName("127.0.0.1")),
+                                            (AbstractIP) new DoubleIP(5001,
+                                                    (Inet6Address) InetAddress.getByName("::1"))));
+                        else
+                            o[h] = new NetworkEventListener(network, upnpIGDEnabled, false,
+                                    databaseEnabled ? new File("tmpfortest" + clientNumber + ".database") : null, cp,
+                                    app, ad, 5001+h,
+                                    Arrays.asList((AbstractIP) new DoubleIP(5001,
+                                            (Inet4Address) InetAddress.getByName("127.0.0.1"),
+                                            (Inet6Address) InetAddress.getByName("::1"))));
 
-					}
+
+                    }
 				}
 			}
 		}

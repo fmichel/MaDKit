@@ -69,7 +69,7 @@ import com.distrimind.madkit.testing.util.agent.SimulatedAgent;
 
 public class LaunchAgentBucketTest extends JunitMadkit {
 
-	static int size = 1001;
+	static final int size = 1001;
 
 	@Test
 	public void returnSuccess() {
@@ -164,12 +164,8 @@ public class LaunchAgentBucketTest extends JunitMadkit {
 		launchTest(new AbstractAgent() {
 			@Override
 			protected void activate() {
-				try {
-					launchAgentBucket((String) null, size);
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					throw e;
-				}
+				launchAgentBucket((String) null, size);
+				noExceptionFailure();
 			}
 
 		}, ReturnCode.AGENT_CRASH);
@@ -254,7 +250,7 @@ public class LaunchAgentBucketTest extends JunitMadkit {
 				assertEquals(size, getAgentsWithRole(GROUP, ROLE).size());
 				// I am the manager
 				assertEquals(0, getAgentsWithRole(GROUP, Organization.GROUP_MANAGER_ROLE).size());
-				Assert.assertFalse(0 == getAgentsWithRole(GROUP, Organization.GROUP_MANAGER_ROLE, true).size());
+				Assert.assertNotEquals(0, getAgentsWithRole(GROUP, Organization.GROUP_MANAGER_ROLE, true).size());
 				testAgents(l);
 			}
 		});

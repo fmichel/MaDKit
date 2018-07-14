@@ -103,37 +103,25 @@ public class SendReplyTest extends JunitMadkit {
 		launchTest(new Replier() {
 			@Override
 			protected void activate() {
-				try {
-					assertEquals(SUCCESS, sendReply(nextMessage(), null));
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					throw e;
-				}
-			}
+                assertEquals(SUCCESS, sendReply(nextMessage(), null));
+                noExceptionFailure();
+            }
 		}, ReturnCode.AGENT_CRASH);
 
 		launchTest(new Replier() {
 			@Override
 			protected void activate() {
-				try {
-					assertEquals(SUCCESS, sendReply(null, new Message()));
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					throw e;
-				}
-			}
+                assertEquals(SUCCESS, sendReply(null, new Message()));
+                noExceptionFailure();
+            }
 		}, ReturnCode.AGENT_CRASH);
 
 		launchTest(new Replier() {
 			@Override
 			protected void activate() {
-				try {
-					assertEquals(SUCCESS, sendReply(null, null));
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					throw e;
-				}
-			}
+                assertEquals(SUCCESS, sendReply(null, null));
+                noExceptionFailure();
+            }
 		}, ReturnCode.AGENT_CRASH);
 	}
 

@@ -64,26 +64,12 @@ public class ReloadClass extends Agent {
 			final Class<?> newestClassVersion = MadkitClassLoader.getLoader().loadClass(Fake.class.getName());
 			logger.info(newestClassVersion.getDeclaredConstructor().newInstance().toString());
 			this.killAgent(this);
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
-		} catch (SecurityException e) {
+		} catch (ClassNotFoundException | SecurityException | NoSuchMethodException | InvocationTargetException | IllegalArgumentException | IllegalAccessException | InstantiationException e) {
 			e.printStackTrace();
 		}
-	}
+    }
 
-	/**
-	 * @param args
-	 */
+
 	public static void main(String[] args) {
 		executeThisAgent();
 	}

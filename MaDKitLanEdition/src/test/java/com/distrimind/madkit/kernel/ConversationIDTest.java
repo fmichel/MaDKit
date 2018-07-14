@@ -1,14 +1,14 @@
 /*
  * MadKitLanEdition (created by Jason MAHDJOUB (jason.mahdjoub@distri-mind.fr)) Copyright (c)
- * 2015 is a fork of MadKit and MadKitGroupExtension. 
- * 
+ * 2015 is a fork of MadKit and MadKitGroupExtension.
+ *
  * Copyright or © or Copr. Jason Mahdjoub, Fabien Michel, Olivier Gutknecht, Jacques Ferber (1997)
- * 
+ *
  * jason.mahdjoub@distri-mind.fr
  * fmichel@lirmm.fr
  * olg@no-distance.net
  * ferber@lirmm.fr
- * 
+ *
  * This software is a computer program whose purpose is to
  * provide a lightweight Java library for designing and simulating Multi-Agent Systems (MAS).
  * This software is governed by the CeCILL-C license under French law and
@@ -21,7 +21,7 @@
  * with a limited warranty  and the software's author,  the holder of the
  * economic rights,  and the successive licensors  have only  limited
  * liability.
- * 
+ *
  * In this respect, the user's attention is drawn to the risks associated
  * with loading,  using,  modifying and/or developing or reproducing the
  * software by the user in light of its specific status of free software,
@@ -53,11 +53,12 @@ import com.distrimind.madkit.kernel.ConversationID.InterfacedIDs;
 import com.distrimind.madkit.util.SerializationTools;
 
 /**
- * 
+ *
  * @author Jason Mahdjoub
  * @version 1.0
  * @since MadkitLanEdition 1.0
  */
+@SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
 public class ConversationIDTest extends JunitMadkit {
 	static final Random rand = new Random(System.currentTimeMillis());
 
@@ -73,6 +74,7 @@ public class ConversationIDTest extends JunitMadkit {
 	public void testConversationID() {
 
 		launchTest(new AbstractAgent() {
+			@SuppressWarnings("UnusedAssignment")
 			@Override
 			protected void activate() {
 				try {
@@ -84,7 +86,7 @@ public class ConversationIDTest extends JunitMadkit {
 					ArrayList<ConversationID> ids = new ArrayList<>();
 					for (int i = 0; i < nb; i++) {
 						ConversationID id = new ConversationID();
-						
+
 						Assert.assertEquals(id, id);
 						for (ConversationID other : ids)
 							Assert.assertNotEquals(id, other);
@@ -135,7 +137,7 @@ public class ConversationIDTest extends JunitMadkit {
 								SerializationTools.writeExternalizableAndSizable(oos, id, false);
 								oos.flush();
 							}
-							
+
 							try (ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray())) {
 								try (ObjectInputStream ois = new ObjectInputStream(bais)) {
 									ConversationID deserializedID = (ConversationID) SerializationTools.readExternalizableAndSizable(ois, false);
@@ -257,28 +259,27 @@ public class ConversationIDTest extends JunitMadkit {
 
 					ArrayList<BigDataTransferID> bigDataTransferID = new ArrayList<>();
 					int i = 0;
-					for (int index = 0; index < ids.size(); index++) {
-						ConversationID idOriginal = ids.get(index);
-						if (idOriginal.getOrigin() == null)
-							continue;
-						if (idOriginal.getOrigin().equals(ka2))
-							continue;
+                    for (ConversationID idOriginal : ids) {
+                        if (idOriginal.getOrigin() == null)
+                            continue;
+                        if (idOriginal.getOrigin().equals(ka2))
+                            continue;
 
-						int nbFound = 0;
-						Assert.assertEquals(interfacedByCurrentIds.get(i++), idOriginal);
+                        int nbFound = 0;
+                        Assert.assertEquals(interfacedByCurrentIds.get(i++), idOriginal);
 
-						for (ConversationID id : interfacedByCurrentIds) {
-							if (id.equals(idOriginal))
-								nbFound++;
-						}
-						Assert.assertEquals(1, nbFound);
-						BigDataTransferID bdtid = new BigDataTransferID(idOriginal, null);
+                        for (ConversationID id : interfacedByCurrentIds) {
+                            if (id.equals(idOriginal))
+                                nbFound++;
+                        }
+                        Assert.assertEquals(1, nbFound);
+                        BigDataTransferID bdtid = new BigDataTransferID(idOriginal, null);
 
-						bigDataTransferID.add(bdtid);
-						Assert.assertEquals(idOriginal, bdtid);
-						Assert.assertEquals(bdtid, idOriginal);
+                        bigDataTransferID.add(bdtid);
+                        Assert.assertEquals(idOriginal, bdtid);
+                        Assert.assertEquals(bdtid, idOriginal);
 
-					}
+                    }
 
 					Assert.assertFalse("size=" + globaInterfacedIDs1.size(), globaInterfacedIDs1.isEmpty());
 					Assert.assertTrue("size=" + globaInterfacedIDs2.size(), globaInterfacedIDs2.isEmpty());
@@ -289,6 +290,8 @@ public class ConversationIDTest extends JunitMadkit {
 					interfacedFromOtherIds = null;
 					interfacedToOtherIds = null;
 
+
+
 					sleep(200);
 					System.gc();
 					System.gc();
@@ -298,8 +301,8 @@ public class ConversationIDTest extends JunitMadkit {
 					System.gc();
 					Assert.assertTrue("size=" + globaInterfacedIDs2.size(), globaInterfacedIDs2.isEmpty());
 
-					bigDataTransferID = null;
-					sleep(200);
+                    bigDataTransferID = null;
+                    sleep(200);
 					System.gc();
 					System.gc();
 

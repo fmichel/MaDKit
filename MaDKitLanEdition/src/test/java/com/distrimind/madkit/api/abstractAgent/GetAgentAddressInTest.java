@@ -113,13 +113,9 @@ public class GetAgentAddressInTest extends JunitMadkit {
 			@Override
 			protected void activate() {
 				createDefaultCGR(this);
-				try {
-					assertNotNull(getAgentAddressIn(new Group(null, G), ROLE));
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					throw e;
-				}
-			}
+                assertNotNull(getAgentAddressIn(new Group(null, G), ROLE));
+                noExceptionFailure();
+            }
 		}, ReturnCode.AGENT_CRASH);
 	}
 
@@ -129,13 +125,9 @@ public class GetAgentAddressInTest extends JunitMadkit {
 			@Override
 			protected void activate() {
 				createDefaultCGR(this);
-				try {
-					assertNotNull(getAgentAddressIn(null, ROLE));
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					throw e;
-				}
-			}
+                assertNotNull(getAgentAddressIn(null, ROLE));
+                noExceptionFailure();
+            }
 		}, ReturnCode.AGENT_CRASH);
 	}
 
@@ -145,13 +137,9 @@ public class GetAgentAddressInTest extends JunitMadkit {
 			@Override
 			protected void activate() {
 				createDefaultCGR(this);
-				try {
-					assertNotNull(getAgentAddressIn(GROUP, null));
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					throw e;
-				}
-			}
+                assertNotNull(getAgentAddressIn(GROUP, null));
+                noExceptionFailure();
+            }
 		}, ReturnCode.AGENT_CRASH);
 	}
 

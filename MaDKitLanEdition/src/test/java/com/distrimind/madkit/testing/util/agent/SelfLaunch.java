@@ -48,11 +48,7 @@ import static org.junit.Assert.assertEquals;
 
 public class SelfLaunch extends DoItDuringLifeCycleAgent {
 
-	/**
-	 * @param inActivate
-	 * @param inLive
-	 * @param inEnd
-	 */
+
 	public SelfLaunch(boolean inActivate, boolean inLive, boolean inEnd) {
 		super(inActivate, inLive, inEnd);
 	}

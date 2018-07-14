@@ -179,13 +179,9 @@ public class sendMessageWithAgentFakeThreadTest extends JunitMadkit {
 		launchTest(new AbstractAgent() {
 			@Override
 			protected void activate() {
-				try {
-					sendMessage(null, null);
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					throw e;
-				}
-			}
+                sendMessage(null, null);
+                noExceptionFailure();
+            }
 		}, ReturnCode.AGENT_CRASH);
 	}
 
@@ -194,13 +190,9 @@ public class sendMessageWithAgentFakeThreadTest extends JunitMadkit {
 		launchTest(new AbstractAgent() {
 			@Override
 			protected void activate() {
-				try {
-					sendMessage(null, new Message());
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					throw e;
-				}
-			}
+                sendMessage(null, new Message());
+                noExceptionFailure();
+            }
 		}, ReturnCode.AGENT_CRASH);
 	}
 
@@ -212,13 +204,9 @@ public class sendMessageWithAgentFakeThreadTest extends JunitMadkit {
 				assertEquals(SUCCESS, launchAgent(target));
 				assertEquals(SUCCESS, requestRole(GROUP, ROLE));
 				AgentAddress aa = getAgentWithRole(GROUP, ROLE);
-				try {
-					sendMessage(aa, null);
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					throw e;
-				}
-			}
+                sendMessage(aa, null);
+                noExceptionFailure();
+            }
 		}, ReturnCode.AGENT_CRASH);
 	}
 

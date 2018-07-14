@@ -63,10 +63,11 @@ import com.distrimind.madkit.kernel.Madkit;
  * 
  */
 
+@SuppressWarnings("ResultOfMethodCallIgnored")
 public class CreateLogFilesTest extends JunitMadkit {
 
 	File f;
-	public static FilenameFilter filter = new FilenameFilter() {
+	public static final FilenameFilter filter = new FilenameFilter() {
 
 		@Override
 		public boolean accept(File dir, String s) {
@@ -83,18 +84,14 @@ public class CreateLogFilesTest extends JunitMadkit {
 			throw new FileNotFoundException("Failed to delete file: " + f);
 	}
 
-	/**
-	 * Check that there is one dir per MaDKit instance
-	 * 
-	 * @throws IOException
-	 */
+
 	@Test
 	public void logDirectoryUniqueness() {
 		new JunitMadkit();
 		String dir = System.getProperty("java.io.tmpdir") + File.separatorChar + name.getMethodName();
 		try {
 			delete(new File(dir));
-		} catch (IOException e) {
+		} catch (IOException ignored) {
 		}
 
 		String[] args = { "--madkitLogLevel", "OFF", "--desktop", "false", "--forceDesktop", "true", "--launchAgents",
@@ -146,9 +143,6 @@ public class CreateLogFilesTest extends JunitMadkit {
 		});
 	}
 
-	/**
-	 * Creates a log file in {@link Option#logDirectory}
-	 */
 	@Test
 	public void oneAgentLogInConstructor() {
 		launchTest(new LogTester() {

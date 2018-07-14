@@ -96,13 +96,9 @@ public class LaunchAgentClassTest extends JunitMadkit {
 		launchTest(new AbstractAgent() {
 			@Override
 			protected void activate() {
-				try {
-					launchAgent((String) null);
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					throw e;
-				}
-			}
+                launchAgent((String) null);
+                noExceptionFailure();
+            }
 		}, AGENT_CRASH);
 	}
 

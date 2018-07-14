@@ -38,6 +38,7 @@
 package com.distrimind.madkit.kernel.network;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import com.distrimind.madkit.kernel.MadkitEventListener;
 import com.distrimind.madkit.kernel.MadkitProperties;
@@ -68,8 +69,7 @@ public class ConnectionsProtocolsMKEventListener implements MadkitEventListener 
 
 	public ConnectionsProtocolsMKEventListener(ConnectionProtocolProperties<?>... connectionProtocolsProperties) {
 		this.connectionProtocolsProperties = new ArrayList<>(connectionProtocolsProperties.length);
-		for (ConnectionProtocolProperties<?> cpp : connectionProtocolsProperties)
-			this.connectionProtocolsProperties.add(cpp);
+		Collections.addAll(this.connectionProtocolsProperties, connectionProtocolsProperties);
 	}
 
 	public ConnectionsProtocolsMKEventListener(
@@ -122,7 +122,7 @@ public class ConnectionsProtocolsMKEventListener implements MadkitEventListener 
 
 	private static ASymmetricKeyPair keyPairForEncryption = null;
 	private static ASymmetricKeyPair keyPairForSignature = null;
-	private static short keyPairSize = 2048;
+	private static final short keyPairSize = 2048;
 	private static int encryptionProfileIdentifier = -1;
 
 	public static ASymmetricKeyPair getKeyPairForEncryption() throws NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException {
@@ -160,8 +160,7 @@ public class ConnectionsProtocolsMKEventListener implements MadkitEventListener 
 		cpp.subProtocolProperties = s;
 		if (includeP2PConnectionPossibilityForClients) {
 			ConnectionProtocolProperties<?> cpp2 = new UnsecuredConnectionProtocolProperties();
-			P2PSecuredConnectionProtocolWithKeyAgreementProperties p2p = new P2PSecuredConnectionProtocolWithKeyAgreementProperties();
-			cpp2.subProtocolProperties = p2p;
+            cpp2.subProtocolProperties = new P2PSecuredConnectionProtocolWithKeyAgreementProperties();
 			res.add(new ConnectionsProtocolsMKEventListener(cpp, cpp2));
 		} else
 			res.add(new ConnectionsProtocolsMKEventListener(cpp));

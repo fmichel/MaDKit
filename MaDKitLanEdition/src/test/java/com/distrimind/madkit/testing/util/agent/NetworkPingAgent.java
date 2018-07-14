@@ -53,7 +53,7 @@ import com.distrimind.madkit.message.ObjectMessage;
  */
 public class NetworkPingAgent extends AgentAddressAgentTester {
 
-	private int destinationNumber;
+	private final int destinationNumber;
 	public static final String messagePing = "message ping";
 	public static final String messagePong = "message pong";
 	public static final String pingRole = "ping role";
@@ -76,8 +76,8 @@ public class NetworkPingAgent extends AgentAddressAgentTester {
 				this.requestRole(JunitMadkit.DEFAULT_NETWORK_GROUP_FOR_ACCESS_DATA, pingRole));
 
 		ReturnCode rc = broadcastMessage(JunitMadkit.DEFAULT_NETWORK_GROUP_FOR_ACCESS_DATA, pongRole,
-				new NetworkObjectMessage<Object[]>(new Object[] { messagePing,
-						getAgentAddressIn(JunitMadkit.DEFAULT_NETWORK_GROUP_FOR_ACCESS_DATA, pingRole) }));
+				new NetworkObjectMessage<>(new Object[]{messagePing,
+						getAgentAddressIn(JunitMadkit.DEFAULT_NETWORK_GROUP_FOR_ACCESS_DATA, pingRole)}));
 		Assert.assertTrue(rc.toString(), ReturnCode.SUCCESS == rc || ReturnCode.TRANSFER_IN_PROGRESS == rc);
 		System.out.println("Ping activated : " + getKernelAddress());
 		/*
@@ -117,17 +117,13 @@ public class NetworkPingAgent extends AgentAddressAgentTester {
 
 		} else {
 			System.out.println("Uncomprehensible message !");
-			Assert.assertFalse(true);
+			Assert.fail();
 		}
 	}
 
 	public boolean isOK() {
-		if (destinationNumber == distantPongReceived && localPongReceived == 1 && testReceiver
-				&& testTraveledAgentAddress && testSender)
-			return true;
-		else {
-			return false;
-		}
+		return destinationNumber == distantPongReceived && localPongReceived == 1 && testReceiver
+				&& testTraveledAgentAddress && testSender;
 	}
 
 	public void printOK() {

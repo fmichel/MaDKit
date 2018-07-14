@@ -37,7 +37,6 @@
  */
 package com.distrimind.madkit.testing.util.agent;
 
-import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.HashMap;
@@ -84,12 +83,12 @@ public class AgentBigTransfer extends AgentFakeThread {
 		}
 
 		@Override
-		public void writeExternal(ObjectOutput out) throws IOException {
+		public void writeExternal(ObjectOutput out) {
 			
 		}
 
 		@Override
-		public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		public void readExternal(ObjectInput in) {
 			
 		}
 		
@@ -102,7 +101,7 @@ public class AgentBigTransfer extends AgentFakeThread {
 		}
 	};
 	private final HashMap<AgentAddress, Boolean> otherConnected = new HashMap<>();
-	private HashMap<ConversationID, RandomByteArrayInputStream> inputStreams = new HashMap<>();
+	private final HashMap<ConversationID, RandomByteArrayInputStream> inputStreams = new HashMap<>();
 	private final HashMap<ConversationID, RealTimeTransfertStat> myStats = new HashMap<>(),
 			otherStats = new HashMap<>();
 	// private final HashMap<String, ConversationID> otherConversationIDs=new
@@ -179,7 +178,7 @@ public class AgentBigTransfer extends AgentFakeThread {
 							thisRole);
 					AgentBigTransfer agb = new AgentBigTransfer(thisPeerNumber, accept, useMessageDigest, sendShortData,
 							otherSendData, true, 1, isLocal, false, null);
-					agb.otherConnected.put(myAgentAddress, Boolean.valueOf(true));
+					agb.otherConnected.put(myAgentAddress, Boolean.TRUE);
 					// agb.otherNumber++;
 					launchAgent(agb);
 					ok &= agb.getKernelAddress().equals(this.getKernelAddress());
@@ -189,7 +188,7 @@ public class AgentBigTransfer extends AgentFakeThread {
 							.getAgentAddressIn(JunitMadkit.DEFAULT_NETWORK_GROUP_FOR_ACCESS_DATA, thisRole);
 					ok &= otherAgentAddress != null;
 					Assert.assertNotNull(otherAgentAddress);
-					otherConnected.put(otherAgentAddress, Boolean.valueOf(true));
+					otherConnected.put(otherAgentAddress, Boolean.TRUE);
 					/*
 					 * if (otherSendData) otherNumber++;
 					 */
@@ -214,7 +213,7 @@ public class AgentBigTransfer extends AgentFakeThread {
 			// getAgentAddressIn(JunitMadkit.DEFAULT_NETWORK_GROUP_FOR_ACCESS_DATA,
 			// thisRole)), thisRole);
 			try {
-				BigDataTransferID myTransferID = null;
+				BigDataTransferID myTransferID;
 
 				RandomByteArrayInputStream inputStream = new RandomByteArrayInputStream(new byte[inputStreamLengh]);
 
@@ -245,7 +244,7 @@ public class AgentBigTransfer extends AgentFakeThread {
 				// thisRole) ))
 				if (m.getSourceAgent().getRole().equals(thisRole) && (!m.getSourceAgent().representsSameAgentThan(
 						getAgentAddressIn(JunitMadkit.DEFAULT_NETWORK_GROUP_FOR_ACCESS_DATA, thisRole)) && !isLocal)) {
-					if (otherConnected.put(m.getSourceAgent(), Boolean.valueOf(true)) == null) {
+					if (otherConnected.put(m.getSourceAgent(), Boolean.TRUE) == null) {
 						sendMessageWithRole(m.getSourceAgent(),
 								new OrganizationEvent(AgentActionEvent.REQUEST_ROLE,
 										getAgentAddressIn(JunitMadkit.DEFAULT_NETWORK_GROUP_FOR_ACCESS_DATA, thisRole)),
@@ -315,7 +314,7 @@ public class AgentBigTransfer extends AgentFakeThread {
 				ConversationID myTransferID = inputStream == null ? null : m.getConversationID();
 				ConversationID otherConversationID = otherStat == null ? null : m.getConversationID();
 				ok &= myTransferID != otherConversationID;
-				Assert.assertFalse(m.toString(), myTransferID == otherConversationID);
+				Assert.assertNotSame(m.toString(), myTransferID, otherConversationID);
 				if (accept) {
 
 					ok &= (inputStream == null || m.getTransferedDataLength() == inputStream.length())
@@ -418,27 +417,23 @@ public class AgentBigTransfer extends AgentFakeThread {
 
 	@SuppressWarnings("unchecked")
 	public String getStatString() {
-		String res = "";
-		res += ", other number=" + otherNumber + " other sent finished=" + otherSentManaged + "/" + otherSendDataNumber
-				+ " other replied finished=" + otherRepliedManaged + "/" + otherReplieNumber + ", otherStatSize="
-				+ otherStats.size() + ", alive=" + this.isAlive() + ", myTransferFinished=" + myTransferFinished
-				+ ", otherTransferFinished=" + otherTransferFinished + ", hasReceivedProposition="
-				+ hasReceivedProposition + "\n\t";
+		StringBuilder res = new StringBuilder();
+		res.append(", other number=").append(otherNumber).append(" other sent finished=").append(otherSentManaged).append("/").append(otherSendDataNumber).append(" other replied finished=").append(otherRepliedManaged).append("/").append(otherReplieNumber).append(", otherStatSize=").append(otherStats.size()).append(", alive=").append(this.isAlive()).append(", myTransferFinished=").append(myTransferFinished).append(", otherTransferFinished=").append(otherTransferFinished).append(", hasReceivedProposition=").append(hasReceivedProposition).append("\n\t");
 		for (ConversationID s : ((HashMap<ConversationID, RealTimeTransfertStat>) myStats.clone()).keySet()) {
 			RealTimeTransfertStat myStat = myStats.get(s);
 
-			res += ", upload(" + s + ")=" + (myStat == null ? Double.valueOf(-1)
+			res.append(", upload(").append(s).append(")=").append(myStat == null ? Double.valueOf(-1)
 					: Double.valueOf((((double) myStat.getNumberOfIndentifiedBytes()) / ((double) myStat.getDuration()))));
 		}
-		res += "\n\t";
+		res.append("\n\t");
 		for (ConversationID s : ((HashMap<ConversationID, RealTimeTransfertStat>) otherStats.clone()).keySet()) {
 			RealTimeTransfertStat otherStat = otherStats.get(s);
 
-			res += ", download(" + s + ")=" + (otherStat == null ? Double.valueOf(-1)
+			res.append(", download(").append(s).append(")=").append(otherStat == null ? Double.valueOf(-1)
 					: Double.valueOf(
-							(((double) otherStat.getNumberOfIndentifiedBytes()) / ((double) otherStat.getDuration()))));
+					(((double) otherStat.getNumberOfIndentifiedBytes()) / ((double) otherStat.getDuration()))));
 		}
-		return res;
+		return res.toString();
 	}
 
 	public boolean isFinished() {

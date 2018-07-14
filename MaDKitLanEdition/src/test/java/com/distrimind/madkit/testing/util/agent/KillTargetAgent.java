@@ -47,11 +47,9 @@ import com.distrimind.madkit.kernel.Agent;
  */
 public class KillTargetAgent extends DoItDuringLifeCycleAgent {
 
-	Agent toKill;
+	final Agent toKill;
 
-	/**
-	 * @param a
-	 */
+
 	public KillTargetAgent(Agent a) {
 		this(a, false, false, false);
 	}

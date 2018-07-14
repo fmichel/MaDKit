@@ -72,11 +72,7 @@ public class ForEverReplierAgent extends NormalAgent {
 		sendMessage(GROUP, ROLE, getNewMessage());
 	}
 
-	/**
-	 * @return
-	 * @throws InstantiationException
-	 * @throws IllegalAccessException
-	 */
+
 	private Message getNewMessage() {
 		try {
 			return type == null ? new Message() : type.getDeclaredConstructor().newInstance();

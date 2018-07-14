@@ -37,15 +37,6 @@
  */
 package com.distrimind.madkit.gui;
 
-/**
- * @author Fabien Michel
- * @author Jason Mahdjoub
- * @since MadKit 5.0.1
- * @since MadkitLanEdition 1.0
- * @version 1.0
- * 
- */
-
 
 import com.distrimind.madkit.kernel.JunitMadkit;
 
@@ -71,9 +62,6 @@ public class HeadLessTest extends JunitMadkit {
 
 	}*/
 
-	/**
-	 * 
-	 */
 	/*
 	 * @Test //TODO does not pass public void testAgent() {
 	 * System.setProperty("java.awt.headless", "true"); launchTest(new

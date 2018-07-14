@@ -133,7 +133,7 @@ public class MassLaunchBench extends JunitMadkit {
 				setLogLevel(Level.OFF);
 				System.err.println("begin");
 				long total = 0;
-				int j = 0;
+				int j;
 				for (j = 0; j < 4; j++) {
 					startTimer();
 					for (int i = 0; i < 100000; i++) {

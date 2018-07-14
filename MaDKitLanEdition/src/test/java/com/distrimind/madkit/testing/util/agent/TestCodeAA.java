@@ -98,7 +98,7 @@ public class TestCodeAA extends AbstractAgent {
 		sendMessage(LocalCommunity.Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE, m);
 		System.err.println(m);
 
-		m = new EnumMessage<>(KernelAction.COPY, "kj", Integer.valueOf(3));
+		m = new EnumMessage<>(KernelAction.COPY, "kj", 3);
 		System.err.println(m);
 		sendMessage(LocalCommunity.Groups.SYSTEM, Organization.GROUP_MANAGER_ROLE, m);
 		System.err.println(m);

@@ -69,8 +69,7 @@ public class CustumCloudIdentifier extends CloudIdentifier {
 		return SerializationTools.getInternalSize(name, 1000)+SerializationTools.getInternalSize(salt, 64);
 	}
 	
-	public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException
-	{
+	public void readExternal(final ObjectInput in) throws IOException {
 		name=SerializationTools.readString(in, 1000, false);
 		salt=SerializationTools.readBytes(in, 64, false);
 	}

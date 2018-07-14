@@ -46,6 +46,8 @@ import com.distrimind.madkit.action.KernelAction;
 import com.distrimind.madkit.kernel.Agent;
 import com.distrimind.madkit.kernel.Madkit;
 
+import java.util.Arrays;
+
 /**
  * @author Fabien Michel
  * @author Jason Mahdjoub
@@ -81,7 +83,7 @@ public class MadkitTest {
 	@Test
 	public void noArg() {
 		Madkit m = new Madkit();
-		System.err.println(m.args);
+		System.err.println(Arrays.toString(m.args));
 	}
 
 	@Test
@@ -136,7 +138,7 @@ public class MadkitTest {
 	public void doActionLaunchAgentWithDesktop() throws InterruptedException {
 		Madkit m = new Madkit();
 		Agent a = new Agent();
-		m.doAction(KernelAction.LAUNCH_AGENT, a, Boolean.valueOf(true));
+		m.doAction(KernelAction.LAUNCH_AGENT, a, Boolean.TRUE);
 		Thread.sleep(100);
 		assertTrue(a.isAlive());
 		Thread.sleep(1000);
@@ -146,11 +148,11 @@ public class MadkitTest {
 	public void doActionLaunchAgentNoDesktop() throws InterruptedException {
 		Madkit m = new Madkit("--desktop", "false", "--forceDesktop", "true");
 		Agent a = new Agent();
-		m.doAction(KernelAction.LAUNCH_AGENT, a, Boolean.valueOf(true));
+		m.doAction(KernelAction.LAUNCH_AGENT, a, Boolean.TRUE);
 		Thread.sleep(100);
 		assertTrue(a.isAlive());
 		Thread.sleep(1000);
-		m.doAction(KernelAction.LAUNCH_AGENT, a = new Agent(), Boolean.valueOf(true));
+		m.doAction(KernelAction.LAUNCH_AGENT, a = new Agent(), Boolean.TRUE);
 		Thread.sleep(2000);
 		assertTrue(a.isAlive());
 	}

@@ -38,6 +38,7 @@
 package com.distrimind.madkit.kernel.network;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import com.distrimind.madkit.kernel.MadkitEventListener;
 import com.distrimind.madkit.kernel.MadkitProperties;
@@ -55,9 +56,7 @@ public class AccessProtocolPropertiesMKEventListener implements MadkitEventListe
 
 	public AccessProtocolPropertiesMKEventListener(AbstractAccessProtocolProperties... accessProtocolProperties) {
 		this.accessProtocolProperties = new ArrayList<>(accessProtocolProperties.length);
-		for (AbstractAccessProtocolProperties ad : accessProtocolProperties) {
-			this.accessProtocolProperties.add(ad);
-		}
+        Collections.addAll(this.accessProtocolProperties, accessProtocolProperties);
 	}
 
 	public AccessProtocolPropertiesMKEventListener(ArrayList<AbstractAccessProtocolProperties> accessProtocolProperties) {

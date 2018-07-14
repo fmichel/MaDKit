@@ -43,9 +43,7 @@ import static com.distrimind.madkit.kernel.AbstractAgent.ReturnCode.ALREADY_LAUN
 import static com.distrimind.madkit.kernel.AbstractAgent.ReturnCode.NOT_YET_LAUNCHED;
 import static com.distrimind.madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static com.distrimind.madkit.kernel.AbstractAgent.ReturnCode.TIMEOUT;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -359,7 +357,7 @@ public class KillAgentTest extends JunitMadkit {
 				if (logger != null) {
 					logger.info("******************* STARTING RANDOM LAUNCH & AGENT_KILL *******************\n");
 				}
-				Agent a = (Agent) launchAgent(NormalLife.class.getName(), Math.random() < .5 ? true : false);
+				Agent a = (Agent) launchAgent(NormalLife.class.getName(), Math.random() < .5);
 				assertNotNull(a);
 				ReturnCode r = killAgent(a, (int) (Math.random() * 2));
 				assertTrue(SUCCESS == r || TIMEOUT == r);
@@ -369,7 +367,7 @@ public class KillAgentTest extends JunitMadkit {
 					public void run() {
 						for (int i = 0; i < 20; i++) {
 							Agent agt = (Agent) launchAgent(NormalLife.class.getName(),
-									Math.random() < .5 ? true : false);
+                                    Math.random() < .5);
 							assertNotNull(agt);
 							JunitMadkit.pause(This, (int) (Math.random() * 1000));
 							ReturnCode r2 = killAgent(agt, (int) (Math.random() * 2));
@@ -416,7 +414,7 @@ public class KillAgentTest extends JunitMadkit {
 				assertNotNull(a);
 				assertEquals(SUCCESS, killAgent(a, 1));
 				ReturnCode res = killAgent(a, 2);
-				assertTrue(ALREADY_KILLED == res);
+				assertSame(ALREADY_KILLED, res);
 				JunitMadkit.pause(this, 1500);
 				assertAgentIsTerminated(a);
 			}

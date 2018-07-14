@@ -139,25 +139,17 @@ public class SendReplyWithRoleTest extends JunitMadkit {
 		launchTest(new Replier() {
 			@Override
 			protected void activate() {
-				try {
-					assertEquals(SUCCESS, sendReplyWithRole(nextMessage(), null, ROLE));
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					throw e;
-				}
-			}
+                assertEquals(SUCCESS, sendReplyWithRole(nextMessage(), null, ROLE));
+                noExceptionFailure();
+            }
 		}, ReturnCode.AGENT_CRASH);
 
 		launchTest(new Replier() {
 			@Override
 			protected void activate() {
-				try {
-					assertEquals(SUCCESS, sendReplyWithRole(null, new Message(), ROLE));
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					throw e;
-				}
-			}
+                assertEquals(SUCCESS, sendReplyWithRole(null, new Message(), ROLE));
+                noExceptionFailure();
+            }
 		}, ReturnCode.AGENT_CRASH);
 
 	}

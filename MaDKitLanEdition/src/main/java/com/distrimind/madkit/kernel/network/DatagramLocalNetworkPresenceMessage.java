@@ -109,11 +109,11 @@ class DatagramLocalNetworkPresenceMessage extends Message {
             throw new IllegalArgumentException();
 
 
-        return ((long)(version.getMajor() & 0xFFF)<<50
-                & ((long)(version.getMinor() & 0xFFFF))<<34
-                & ((long)(version.getRevision() & 0xFFFF))<<18
-                & ((long)(version.getType()==Version.Type.Stable?2:(version.getType()==Version.Type.Beta?1:0)))<<16
-                &  ((long)(version.getAlphaBetaVersion() & 0xFFFF)));
+        return ((long)(version.getMajor() & 0xFFF))<<50
+                | ((long)(version.getMinor() & 0xFFFF))<<34
+                | ((long)(version.getRevision() & 0xFFFF))<<18
+                | ((long)(version.getType()==Version.Type.Stable?2:(version.getType()==Version.Type.Beta?1:0)))<<16
+                |  ((long)(version.getAlphaBetaVersion() & 0xFFFF));
     }
 
 
@@ -259,7 +259,7 @@ class DatagramLocalNetworkPresenceMessage extends Message {
     }
 
 
-    private boolean isNotCompatibleWith(long programBuildNumber, long madkitBuildNumber, long localProgramVersionMinimum, long localMadkitVersionMinimum) {
+    private static boolean isNotCompatibleWith(long programBuildNumber, long madkitBuildNumber, long localProgramVersionMinimum, long localMadkitVersionMinimum) {
 
         if (localMadkitVersionMinimum > madkitBuildNumber)
             return true;

@@ -75,7 +75,7 @@ class TaskAgentTester extends AbstractAgent {
 		Callable<Void> callable = new Callable<Void>() {
 
 			@Override
-			public Void call() throws Exception {
+			public Void call() {
 				taskExecutionNumber.incrementAndGet();
 				return null;
 			}
@@ -83,30 +83,30 @@ class TaskAgentTester extends AbstractAgent {
 
 		taskExecutionNumber.set(0);
 
-		SC(new Task<Void>(callable), false);
+		SC(new Task<>(callable), false);
 
 		JunitMadkit.pause(this, 20);
 		Assert.assertEquals(1, taskExecutionNumber.get());
-		TaskID id = SC(new Task<Void>(callable), true);
+		TaskID id = SC(new Task<>(callable), true);
 		JunitMadkit.pause(this, 20);
 		Assert.assertEquals(2, taskExecutionNumber.get());
 		Message m = nextMessage();
 		Assert.assertNotNull(m);
 		Assert.assertEquals(TasksExecutionConfirmationMessage.class, m.getClass());
-		Assert.assertEquals(id, ((TasksExecutionConfirmationMessage) m).getConversationID());
+		Assert.assertEquals(id, m.getConversationID());
 
-		SC(new Task<Void>(callable, System.currentTimeMillis() + 1000), false);
+		SC(new Task<>(callable, System.currentTimeMillis() + 1000), false);
 		JunitMadkit.pause(this, 100);
 		Assert.assertEquals(2, taskExecutionNumber.get());
 		JunitMadkit.pause(this, 1000);
 		Assert.assertEquals(3, taskExecutionNumber.get());
-		id = SC(new Task<Void>(callable, System.currentTimeMillis() + 1000), false);
+		id = SC(new Task<>(callable, System.currentTimeMillis() + 1000), false);
 		JunitMadkit.pause(this, 100);
 		Assert.assertEquals(3, taskExecutionNumber.get());
 		CT(id);
 		JunitMadkit.pause(this, 1000);
 		Assert.assertEquals(3, taskExecutionNumber.get());
-		id = SC(new Task<Void>(callable, System.currentTimeMillis() + 500, 500), false);
+		id = SC(new Task<>(callable, System.currentTimeMillis() + 500, 500), false);
 		JunitMadkit.pause(this, 100);
 		Assert.assertEquals(3, taskExecutionNumber.get());
 		JunitMadkit.pause(this, 500);
@@ -117,11 +117,11 @@ class TaskAgentTester extends AbstractAgent {
 		JunitMadkit.pause(this, 1200);
 		Assert.assertEquals(5, taskExecutionNumber.get());
 		for (int i = 0; i < 100; i++)
-			SC(new Task<Void>(callable), false);
+			SC(new Task<>(callable), false);
 		JunitMadkit.pause(this, 200);
 		Assert.assertEquals(105, taskExecutionNumber.get());
 		for (int i = 0; i < 100; i++)
-			SC(new Task<Void>(callable, System.currentTimeMillis() + ((long) (Math.random() * 200.0))), false);
+			SC(new Task<>(callable, System.currentTimeMillis() + ((long) (Math.random() * 200.0))), false);
 		JunitMadkit.pause(this, 1000);
 		Assert.assertEquals(205, taskExecutionNumber.get());
 

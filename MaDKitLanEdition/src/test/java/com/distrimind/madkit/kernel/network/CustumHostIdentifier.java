@@ -68,8 +68,7 @@ public class CustumHostIdentifier extends HostIdentifier {
 		return SerializationTools.getInternalSize(name, 1000);
 	}
 	
-	public void readExternal(final ObjectInput in) throws IOException, ClassNotFoundException
-	{
+	public void readExternal(final ObjectInput in) throws IOException {
 		name=SerializationTools.readString(in, 1000, false);
 	}
 	public void writeExternal(final ObjectOutput oos) throws IOException

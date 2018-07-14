@@ -111,10 +111,7 @@ public class ConcurrentTestAgent extends Agent {
 			this.killAgent(this);
 	}
 
-	/**
-	 * @param code
-	 * 
-	 */
+
 	private void failed(ReturnCode code) {
 		final AgentAddress agentAddressIn = getAgentAddressIn(GROUP, ROLE);
 		testFails(new Exception(

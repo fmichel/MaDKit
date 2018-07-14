@@ -54,9 +54,7 @@ public class BucketBench extends AbstractAgent {
 		}
 	}
 
-	/**
-	 * @param args
-	 */
+
 	public static void main(String[] args) {
 		executeThisAgent(1, false);
 	}

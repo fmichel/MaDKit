@@ -83,7 +83,7 @@ public class AgentFakeThreadTest {
 		try {
 			b.launchAgent(new SimpleAgentFakeThread(), 0, true);
 			fail("exception not thrown");
-		} catch (KernelException e) {
+		} catch (KernelException ignored) {
 		}
 	}
 
@@ -206,7 +206,7 @@ public class AgentFakeThreadTest {
 	public final void testCompareTo() {
 		assertTrue(a.compareTo(b) < 0);
 		assertTrue(b.compareTo(a) > 0);
-		assertTrue(a.compareTo(a) == 0);
+		assertEquals(0, a.compareTo(a));
 	}
 
 	/**
@@ -215,10 +215,10 @@ public class AgentFakeThreadTest {
 	 */
 	@Test
 	public final void testEqualsObject() {
-		assertFalse(a.equals(b));
+		assertNotEquals(a, b);
 		assertFalse(a.equals(null));
-		assertTrue(a.equals(a));
-		assertTrue(b.equals(b));
+		assertEquals(a, a);
+		assertEquals(b, b);
 	}
 
 	/**
@@ -263,7 +263,7 @@ public class AgentFakeThreadTest {
 	public final void testSetName() {
 		assertNotNull(a.getName());
 		a.setName("test");
-		assertTrue(a.getName().equals("test"));
+		assertEquals("test", a.getName());
 		// assertNull
 	}
 
@@ -288,13 +288,10 @@ public class AgentFakeThreadTest {
 		assertNull(a.logger);
 	}
 
-	/**
-	 * Test method for
-	 * {@link com.distrimind.madkit.kernel.AbstractAgent#getRunState()}.
-	 */
+
 	@Test
 	public final void testGetRunState() {
-		assertTrue(a.getState() == AbstractAgent.State.NOT_LAUNCHED);
+		assertSame(a.getState(), State.NOT_LAUNCHED);
 	}
 
 	/**
@@ -311,8 +308,8 @@ public class AgentFakeThreadTest {
 	 */
 	@Test
 	public final void testEqualsObject1() {
-		assertFalse(b.equals(a));
-		assertTrue(a.equals(a));
+		assertNotEquals(b, a);
+		assertEquals(a, a);
 	}
 
 }

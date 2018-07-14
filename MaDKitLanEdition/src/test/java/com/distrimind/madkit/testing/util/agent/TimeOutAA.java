@@ -47,10 +47,7 @@ import java.util.logging.Level;
  */
 public class TimeOutAA extends DoItDuringLifeCycleAbstractAgent {
 
-	/**
-	 * @param inActivate
-	 * @param inEnd
-	 */
+
 	public TimeOutAA(boolean inActivate, boolean inEnd) {
 		super(inActivate, inEnd);
 		setLogLevel(Level.ALL);

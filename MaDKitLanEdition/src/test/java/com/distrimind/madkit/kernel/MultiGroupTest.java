@@ -100,7 +100,7 @@ public class MultiGroupTest {
 	public void testGroupSerialization(AbstractGroup... groups) throws IOException, ClassNotFoundException {
 		MultiGroup g = new MultiGroup(groups);
 
-		byte[] array = null;
+		byte[] array;
 
 		try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
 			try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
@@ -109,7 +109,7 @@ public class MultiGroupTest {
 			array = baos.toByteArray();
 		}
 
-		MultiGroup g2 = null;
+		MultiGroup g2;
 		try (ByteArrayInputStream bais = new ByteArrayInputStream(array)) {
 			try (ObjectInputStream ois = new ObjectInputStream(bais)) {
 				g2 = (MultiGroup)SerializationTools.readExternalizableAndSizable(ois, false);

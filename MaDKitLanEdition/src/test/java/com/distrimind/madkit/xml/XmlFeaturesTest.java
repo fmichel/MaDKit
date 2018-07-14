@@ -79,7 +79,7 @@ public class XmlFeaturesTest extends JunitMadkit {
 					for (int i = 0; i < nodes.getLength(); i++) {
 						assertEquals(ReturnCode.SUCCESS, launchNode(nodes.item(i)));
 					}
-					nodes = dom.getElementsByTagName("Agents");
+					dom.getElementsByTagName("Agents");
 				} catch (SAXException | IOException | ParserConfigurationException e) {
 					fail();
 				}

@@ -37,7 +37,6 @@
  */
 package com.distrimind.madkit.kernel.network;
 
-import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.net.Inet4Address;
@@ -85,7 +84,7 @@ import com.distrimind.madkit.message.hook.TransferEventMessage;
 @RunWith(Parameterized.class)
 public class TransferConnectionTest extends JunitMadkit {
 
-	public static int HOST_NUMBERS = 4;
+	public static final int HOST_NUMBERS = 4;
 
 	@Parameters
 	public static Collection<Object[]> data() {
@@ -100,9 +99,7 @@ public class TransferConnectionTest extends JunitMadkit {
 				Object a[] = res.get(i);
 				Object b[] = tmp.get(i);
 				Object c[] = new Object[a.length + 1];
-				for (int j = 0; j < a.length; j++) {
-					c[j] = a[j];
-				}
+				System.arraycopy(a, 0, c, 0, a.length);
 				c[a.length] = b[0];
 				l.add(c);
 			}
@@ -247,12 +244,12 @@ public class TransferConnectionTest extends JunitMadkit {
 		}
 
 		@Override
-		public void writeExternal(ObjectOutput out) throws IOException {
+		public void writeExternal(ObjectOutput out) {
 			
 		}
 
 		@Override
-		public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		public void readExternal(ObjectInput in) {
 			
 		}
 	};
@@ -539,8 +536,7 @@ class AgentToLaunch extends AgentFakeThread {
 	protected void liveByStep(Message _message) {
 		if (_message instanceof DistantKernelAgentEventMessage) {
 			DistantKernelAgentEventMessage m = (DistantKernelAgentEventMessage) _message;
-			if ((tryMultiplePeerConnection && !m.getDistantKernelAddress().equals(TransferConnectionTest.ka1))
-					|| !tryMultiplePeerConnection) {
+			if (!tryMultiplePeerConnection || !m.getDistantKernelAddress().equals(TransferConnectionTest.ka1)) {
 				if (kernelAddress1 == null)
 					kernelAddress1 = m.getDistantKernelAddress();
 				else {
@@ -560,9 +556,7 @@ class AgentToLaunch extends AgentFakeThread {
 			}
 		} else if (_message instanceof NetworkEventMessage) {
 			NetworkEventMessage m = (NetworkEventMessage) _message;
-			if ((tryMultiplePeerConnection
-					&& m.getConnection().getConnectionIdentifier().getDistantInetSocketAddress().getPort() != 5001)
-					|| !tryMultiplePeerConnection) {
+			if (!tryMultiplePeerConnection || m.getConnection().getConnectionIdentifier().getDistantInetSocketAddress().getPort() != 5001) {
 				if (connection1 == null)
 					connection1 = m.getConnection();
 				else if (connection2 == null) {

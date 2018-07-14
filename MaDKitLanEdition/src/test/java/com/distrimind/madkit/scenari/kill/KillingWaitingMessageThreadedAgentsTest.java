@@ -175,11 +175,7 @@ public class KillingWaitingMessageThreadedAgentsTest extends JunitMadkit {
 
 class WaitingMessageAgent extends DoItDuringLifeCycleAgent {
 
-	/**
-	 * @param inActivate
-	 * @param inLive
-	 * @param inEnd
-	 */
+
 	public WaitingMessageAgent(boolean inActivate, boolean inLive, boolean inEnd) {
 		super(inActivate, inLive, inEnd);
 	}

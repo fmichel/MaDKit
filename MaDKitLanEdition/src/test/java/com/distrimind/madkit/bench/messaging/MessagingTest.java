@@ -63,9 +63,7 @@ public class MessagingTest extends AbstractAgent {
 	}
 	// 86 ms on beltegeuse
 
-	/**
-	 * @param args
-	 */
+
 	public static void main(String[] args) {
 		executeThisAgent(1, false);
 	}

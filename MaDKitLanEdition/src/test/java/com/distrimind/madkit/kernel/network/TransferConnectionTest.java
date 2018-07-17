@@ -46,6 +46,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.logging.Level;
 
+import com.distrimind.util.OS;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -69,7 +70,6 @@ import com.distrimind.madkit.message.hook.DistantKernelAgentEventMessage;
 import com.distrimind.madkit.message.hook.HookMessage.AgentActionEvent;
 import com.distrimind.madkit.message.hook.TransferEventMessage.TransferEventType;
 import com.distrimind.madkit.util.ExternalizableAndSizable;
-import com.distrimind.util.OSValidator;
 import com.distrimind.madkit.message.hook.NetworkEventMessage;
 import com.distrimind.madkit.message.hook.TransferEventMessage;
 
@@ -280,7 +280,7 @@ public class TransferConnectionTest extends JunitMadkit {
 
 	public void indirectConnectionTest(final AskForTransferMessage.Type type,
 			final boolean connectionPerKernelAddress) {
-		System.out.println("JRE Version : "+OSValidator.getCurrentJREVersionDouble());
+		System.out.println("JRE Version : "+OS.getCurrentJREVersionDouble());
 		cleanHelperMDKs();
 		// addMadkitArgs(LevelOption.networkLogLevel.toString(),"FINER");
 		launchTest(new AbstractAgent() {

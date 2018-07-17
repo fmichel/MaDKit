@@ -12,7 +12,7 @@ apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 apply plugin: 'idea'
 
-def Properties props = new Properties()
+Properties props = new Properties()
 def propFile = file('gradle.properties')
 def artifactory_Url="https://artifactory.distri-mind.fr/artifactory"
 def user=""
@@ -54,7 +54,7 @@ repositories {
 dependencies {
      //testCompile 'org.testng:testng:6.13.1'
      testCompile 'junit:junit:4.12'
-     compile(group:'com.distrimind.ood', name: 'OOD', version: '2.0.0-Beta83')
+     compile(group:'com.distrimind.ood', name: 'OOD', version: '2.0.0-Beta84')
      compile(group:'com.distrimind.jdkrewrite', name: 'JDKRewriteUtils', version: '1.0.1')
      compile(group:'org.fourthline.cling', name: 'cling-core', version: '2.1.1')
      compile(group:'org.fourthline.cling', name: 'cling-support', version: '2.1.1')
@@ -64,12 +64,12 @@ dependencies {
 def javaVersion=7
 sourceCompatibility = javaVersion
 targetCompatibility= javaVersion
-version='1.7.1'
+version='1.7.2'
 allprojects {
 	group='com.distrimind.madkit'
     
     //compileJava.options.compilerArgs << "-Xlint"
-    compileJava.options.compilerArgs.addAll(['--release', javaVersion])
+    compileJava.options.compilerArgs.addAll(['--release', javaVersion] as Collection<? extends String>)
     if (project.hasProperty('javaHomeVersion') && javaHomeVersion.toFloat()>1.8)
     	javadoc.options.addStringOption("html5", "-quiet")
 }
@@ -88,7 +88,7 @@ task generateVersionsFile(type:JavaExec, dependsOn: classes) {
     if (versionBuildFile.canRead())
     {
     	def line  
-    	versionBuildFile.withReader { line = it.readLine() } 
+    	versionBuildFile.withReader { line = it.readLine() }
 		def buildNumber =line.toInteger()+1
 		versionBuildFile.withWriter { out ->
 	    	out.println buildNumber

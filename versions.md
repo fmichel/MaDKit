@@ -1,6 +1,6 @@
 MadkitLanEdition
 ================
-1.7.1 Stable (Build: 105) (from 22/05/2015 to 13/07/2018)
+1.7.1 Stable (Build: 115) (from 22/05/2015 to 13/07/2018)
 
 # Creator(s):
 Jason MAHDJOUB

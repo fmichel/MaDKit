@@ -54,6 +54,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.distrimind.util.OS;
+import com.distrimind.util.OSVersion;
 import org.fourthline.cling.UpnpService;
 import org.fourthline.cling.UpnpServiceImpl;
 import org.fourthline.cling.android.AndroidNetworkAddressFactory;
@@ -102,7 +104,6 @@ import com.distrimind.madkit.kernel.NetworkAgent;
 import com.distrimind.madkit.kernel.Task;
 import com.distrimind.madkit.kernel.TaskID;
 import com.distrimind.madkit.message.KernelMessage;
-import com.distrimind.util.OSValidator;
 
 /**
  * This class agent aims to analyze network interfaces, local networks, and
@@ -1683,7 +1684,7 @@ class DefaultUpnpServiceConfiguration implements org.fourthline.cling.UpnpServic
 	}*/
 
 	public DefaultUpnpServiceConfiguration(int streamListenPort, int multicastPort) {
-		if (OSValidator.getCurrentOS()==OSValidator.ANDROID) {
+		if (OSVersion.getCurrentOSVersion().getOS()==OS.ANDROID) {
 			usc = new AndroidUpnpServiceConfiguration(streamListenPort, multicastPort);
 		} else
 			usc = new NONAndroidUpnpServiceConfiguration(streamListenPort, multicastPort);

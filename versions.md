@@ -1,6 +1,6 @@
 MadkitLanEdition
 ================
-1.7.1 Stable (Build: 115) (from 22/05/2015 to 13/07/2018)
+1.7.3 Stable (Build: 119) (from 22/05/2015 to 20/07/2018)
 
 # Creator(s):
 Jason MAHDJOUB
@@ -12,6 +12,12 @@ Olivier GUTKNECHT (Entred in the team at 01/02/1997)
 Jacques FERBER (Entred in the team at 01/02/1997)
 
 # Modifications:
+
+
+### 1.7.3 Stable (20/07/2018)
+* Update OOD to 2.0.0 Beta 84.
+* Update Utils to 3.17.0.
+* Correct version's control of distant peer.
 
 
 ### 1.7.1 Stable (13/07/2018)

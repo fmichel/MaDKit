@@ -15,6 +15,17 @@
         <option name="useAutoImport" value="true" />
       </GradleProjectSettings>
       <GradleProjectSettings>
+        <option name="distributionType" value="DEFAULT_WRAPPED" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/MaDKitLanEditionDemos" />
+        <option name="gradleHome" value="/usr/local/Cellar/gradle/4.7/libexec" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/MaDKitLanEditionDemos" />
+          </set>
+        </option>
+        <option name="useAutoImport" value="true" />
+      </GradleProjectSettings>
+      <GradleProjectSettings>
         <option name="distributionType" value="LOCAL" />
         <option name="externalProjectPath" value="$PROJECT_DIR$/../../OOD/OOD" />
         <option name="gradleHome" value="/usr/local/Cellar/gradle/4.7/libexec" />

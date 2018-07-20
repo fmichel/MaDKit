@@ -112,7 +112,7 @@ class DatagramLocalNetworkPresenceMessage extends Message {
         return ((long)(version.getMajor() & 0xFFF))<<50
                 | ((long)(version.getMinor() & 0xFFFF))<<34
                 | ((long)(version.getRevision() & 0xFFFF))<<18
-                | ((long)(version.getType()==Version.Type.Stable?2:(version.getType()==Version.Type.Beta?1:0)))<<16
+                | ((long)(version.getType()==Version.Type.Stable?3:(version.getType()==Version.Type.RC?2:(version.getType()==Version.Type.Beta?1:0))))<<16
                 |  ((long)(version.getAlphaBetaVersion() & 0xFFFF));
     }
 

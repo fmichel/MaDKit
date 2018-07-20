@@ -119,8 +119,8 @@ final public class Madkit {
 		Calendar c = Calendar.getInstance();
 		c.set(2015, Calendar.MAY, 22);
 		Calendar c2 = Calendar.getInstance();
-		c2.set(2018, Calendar.JULY, 13);
-		Version VERSION = new Version("MadkitLanEdition", "MKLE", 1, 7, 1, Version.Type.Stable, 1, c.getTime(), c2.getTime());
+		c2.set(2018, Calendar.JULY, 20);
+		Version VERSION = new Version("MadkitLanEdition", "MKLE", 1, 7, 3, Version.Type.Stable, 1, c.getTime(), c2.getTime());
 		try {
 
 			InputStream is = Madkit.class.getResourceAsStream("build.txt");
@@ -142,8 +142,16 @@ final public class Madkit {
 			VERSION.addDeveloper(new PersonDeveloper("Ferber", "Jacques", c.getTime()));
 
 			c = Calendar.getInstance();
+			c.set(2018, Calendar.JULY, 20);
+			Description d = new Description(1, 7, 3, Version.Type.Stable, 1, c.getTime());
+			d.addItem("Update OOD to 2.0.0 Beta 84.");
+			d.addItem("Update Utils to 3.17.0.");
+			d.addItem("Correct version's control of distant peer.");
+			VERSION.addDescription(d);
+
+			c = Calendar.getInstance();
 			c.set(2018, Calendar.JULY, 13);
-			Description d = new Description(1, 7, 1, Version.Type.Stable, 1, c.getTime());
+			d = new Description(1, 7, 1, Version.Type.Stable, 1, c.getTime());
 			d.addItem("Update OOD to 2.0.0 Beta 83.");
             d.addItem("Update Utils to 3.16.1.");
             d.addItem("Improve version's control of distant peer.");

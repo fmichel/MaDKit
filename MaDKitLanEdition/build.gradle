@@ -64,7 +64,7 @@ dependencies {
 def javaVersion=7
 sourceCompatibility = javaVersion
 targetCompatibility= javaVersion
-version='1.7.2'
+version='1.7.3'
 allprojects {
 	group='com.distrimind.madkit'
     

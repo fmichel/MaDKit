@@ -126,7 +126,7 @@ final public class Madkit {
 		c.set(2015, Calendar.MAY, 22);
 		Calendar c2 = Calendar.getInstance();
 		c2.set(2018, Calendar.JULY, 27);
-		Version VERSION = new Version("MadkitLanEdition", "MKLE", 1, 7, 4, Version.Type.Stable, 1, c.getTime(), c2.getTime());
+		Version VERSION = new Version("MadkitLanEdition", "MKLE", 1, 7, 5, Version.Type.Stable, 1, c.getTime(), c2.getTime());
 		try {
 
 			InputStream is = Madkit.class.getResourceAsStream("build.txt");
@@ -149,10 +149,10 @@ final public class Madkit {
 
 			c = Calendar.getInstance();
 			c.set(2018, Calendar.JULY, 27);
-			Description d = new Description(1, 7, 4, Version.Type.Stable, 1, c.getTime());
+			Description d = new Description(1, 7, 5, Version.Type.Stable, 1, c.getTime());
 			d.addItem("Update OOD to 2.0.0 Beta 85.");
 			d.addItem("Update Utils to 3.18.0.");
-			d.addItem("Save MKLE properties that are different from a reference. Other properties are not saved.");
+			d.addItem("Save MKLE configuration that are different from a reference configuration. Other properties are not saved.");
 			VERSION.addDescription(d);
 
 			c = Calendar.getInstance();
@@ -524,7 +524,7 @@ final public class Madkit {
 	 * @see NetworkProperties
 	 */
 	public Madkit(MadkitEventListener eventListener, String... options) {
-		this(getDefaultConfig(), null, eventListener, options);
+		this(generateDefaultMadkitConfig(), null, eventListener, options);
 	}
     /**
      * Launch a new kernel with predefined options. The call returns when the new

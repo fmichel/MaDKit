@@ -1,6 +1,6 @@
 MadkitLanEdition
 ================
-1.7.3 Stable (Build: 119) (from 22/05/2015 to 20/07/2018)
+1.7.5 Stable (Build: 128) (from 22/05/2015 to 27/07/2018)
 
 # Creator(s):
 Jason MAHDJOUB
@@ -12,6 +12,12 @@ Olivier GUTKNECHT (Entred in the team at 01/02/1997)
 Jacques FERBER (Entred in the team at 01/02/1997)
 
 # Modifications:
+
+
+### 1.7.5 Stable (27/07/2018)
+* Update OOD to 2.0.0 Beta 85.
+* Update Utils to 3.18.0.
+* Save MKLE configuration that are different from a reference configuration. Other properties are not saved.
 
 
 ### 1.7.3 Stable (20/07/2018)

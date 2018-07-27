@@ -152,7 +152,7 @@ import gnu.vm.jgnu.security.NoSuchProviderException;
  * 
  * @author Fabien Michel
  * @author Jason Mahdjoub
- * @version 2.2
+ * @version 2.3
  * @since MaDKit 5.0
  * @since MaDKitLanEdition 1.0
  * 
@@ -2666,11 +2666,12 @@ class MadkitKernel extends Agent {
 	void terminate() {
 		// AgentLogger.closeLoggersFrom(kernelAddress);
 		super.terminate();
-		if (getMadkitConfig().savePropertiesAfterKernelKill && getMadkitConfig().prepareCurrentRandomSeedsForBackup())
+		if (getMadkitConfig().savePropertiesAfterKernelKill)
 		{
+			getMadkitConfig().prepareCurrentRandomSeedsForBackup();
 			for (File f : getMadkitConfig().configFiles)
 			{
-				getMadkitConfig().save(f);
+				getMadkitConfig().save(f, Madkit.getReferenceMaDKitConfiguration());
 			}
 		}
 		if (getMadkitConfig().madkitLogLevel != Level.OFF) {

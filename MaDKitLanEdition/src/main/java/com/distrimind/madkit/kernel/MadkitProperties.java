@@ -81,7 +81,7 @@ import gnu.vm.jgnu.security.NoSuchProviderException;
  * 
  * @author Jasopn Mahdjoub
  * @since MadKitLanEdition 1.0
- * @version 1.0
+ * @version 1.1
  * 
  */
 @SuppressWarnings("UnusedReturnValue")
@@ -406,6 +406,8 @@ public class MadkitProperties extends MultiFormatProperties {
 		logger.fine(String.format(SuccessMessages.CONFIG_LOAD_SUCCESS.toString(), yaml_file.toString()));
 	}
 
+
+
 	public void load(File file) throws IOException {
 		if (file.getName().endsWith(".xml"))
 			loadXML(file);
@@ -413,50 +415,71 @@ public class MadkitProperties extends MultiFormatProperties {
 			loadYAML(file);
 	}
 
-
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public void saveXML(File xml_file) {
+		saveXML(xml_file, null);
+	}
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void saveXML(File xml_file, MultiFormatProperties referenceProperties) {
 		try {
-			super.saveXML(xml_file);
+			super.saveXML(xml_file, referenceProperties);
 			logger.fine(String.format(SuccessMessages.CONFIG_SAVE_SUCCESS.toString(), xml_file.toString()));
 		} catch (PropertiesParseException e) {
 			logger.log(Level.WARNING,
 					String.format(ErrorMessages.CANT_SAVE_CONFIG_FILE.toString(), xml_file.toString()), e);
 		}
 	}
-	
 	public void save(File file)
 	{
-		if (file.getName().endsWith(".xml"))
-			saveXML(file);
-		else if (file.getName().endsWith(".yaml"))
-			saveYAML(file);
+		save(file, null);
 	}
-	
+	public void save(File file, MultiFormatProperties referenceProperties)
+	{
+		if (file.getName().endsWith(".xml"))
+			saveXML(file, referenceProperties);
+		else if (file.getName().endsWith(".yaml"))
+			saveYAML(file, referenceProperties);
+	}
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public void saveYAML(File yaml_file) {
+		saveYAML(yaml_file, null);
+	}
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void saveYAML(File yaml_file, MultiFormatProperties referenceProperties) {
 		try {
-			super.saveYAML(yaml_file);
+			super.saveYAML(yaml_file, referenceProperties);
 			logger.fine(String.format(SuccessMessages.CONFIG_SAVE_SUCCESS.toString(), yaml_file.toString()));
 		} catch (IOException e) {
 			logger.log(Level.WARNING,
 					String.format(ErrorMessages.CANT_SAVE_CONFIG_FILE.toString(), yaml_file.toString()), e);
 		}
 	}
-
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public void saveXML(Document doc) {
+		saveXML(doc, null);
+	}
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void saveXML(Document doc, MultiFormatProperties referenceProperties) {
 		try {
-			super.saveXML(doc);
+			super.saveXML(doc, referenceProperties);
 			logger.fine(String.format(SuccessMessages.CONFIG_SAVE_SUCCESS.toString(), doc.toString()));
 		} catch (PropertiesParseException e) {
 			logger.log(Level.WARNING, String.format(ErrorMessages.CANT_SAVE_CONFIG_FILE.toString(), doc.toString()), e);

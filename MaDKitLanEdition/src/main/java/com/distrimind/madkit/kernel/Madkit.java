@@ -58,6 +58,7 @@ import com.distrimind.madkit.action.KernelAction;
 import com.distrimind.madkit.i18n.I18nUtilities;
 import com.distrimind.madkit.kernel.network.NetworkProperties;
 import com.distrimind.madkit.message.KernelMessage;
+import com.distrimind.util.properties.PropertiesParseException;
 import com.distrimind.util.version.Description;
 import com.distrimind.util.version.Person;
 import com.distrimind.util.version.PersonDeveloper;
@@ -96,7 +97,7 @@ import com.distrimind.util.version.Version;
  * @author Fabien Michel
  * @author Jacques Ferber
  * @since MaDKit 4.0
- * @version 5.4
+ * @version 5.5
  */
 
 @SuppressWarnings("SameParameterValue")
@@ -105,6 +106,37 @@ final public class Madkit {
 	private final static String MDK_LOGGER_NAME = "[* MADKIT *] ";
 	private volatile static MadkitProperties defaultConfig;
 	final static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
+
+    /**
+     * Set the MaDKit configuration reference.
+     * @param dc the MaDKit configuration reference
+     * @see #getReferenceMaDKitConfiguration()
+     * @see #saveConfiguration(File)
+     */
+	public static void setReferenceMaDKitConfig(MadkitProperties dc)
+    {
+        assert dc!=null;
+        synchronized(Madkit.class) {
+            Madkit.defaultConfig = dc;
+            // System.setProperty("sun.java2d.xrender", "True"); //TODO
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+
+                @Override
+                public void run() {// just in case (like ctrl+c)
+                    AgentLogger.resetLoggers();
+                }
+            });
+
+
+            WEB=defaultConfig.madkitWeb;
+        }
+    }
+
+    public static MadkitProperties getReferenceMaDKitConfiguration()
+    {
+        return getDefaultConfig();
+    }
+
 
 	static MadkitProperties getDefaultConfig()
 	{
@@ -119,8 +151,8 @@ final public class Madkit {
 		Calendar c = Calendar.getInstance();
 		c.set(2015, Calendar.MAY, 22);
 		Calendar c2 = Calendar.getInstance();
-		c2.set(2018, Calendar.JULY, 20);
-		Version VERSION = new Version("MadkitLanEdition", "MKLE", 1, 7, 3, Version.Type.Stable, 1, c.getTime(), c2.getTime());
+		c2.set(2018, Calendar.JULY, 27);
+		Version VERSION = new Version("MadkitLanEdition", "MKLE", 1, 7, 4, Version.Type.Stable, 1, c.getTime(), c2.getTime());
 		try {
 
 			InputStream is = Madkit.class.getResourceAsStream("build.txt");
@@ -142,8 +174,16 @@ final public class Madkit {
 			VERSION.addDeveloper(new PersonDeveloper("Ferber", "Jacques", c.getTime()));
 
 			c = Calendar.getInstance();
+			c.set(2018, Calendar.JULY, 27);
+			Description d = new Description(1, 7, 4, Version.Type.Stable, 1, c.getTime());
+			d.addItem("Update OOD to 2.0.0 Beta 85.");
+			d.addItem("Update Utils to 3.18.0.");
+			d.addItem("Save MKLE properties that are different from a reference. Other properties are not saved.");
+			VERSION.addDescription(d);
+
+			c = Calendar.getInstance();
 			c.set(2018, Calendar.JULY, 20);
-			Description d = new Description(1, 7, 3, Version.Type.Stable, 1, c.getTime());
+			d = new Description(1, 7, 3, Version.Type.Stable, 1, c.getTime());
 			d.addItem("Update OOD to 2.0.0 Beta 84.");
 			d.addItem("Update Utils to 3.17.0.");
 			d.addItem("Correct version's control of distant peer.");
@@ -362,21 +402,20 @@ final public class Madkit {
 				if (VERSION==null)
 				{
 					VERSION=getNewVersionInstance();
-					defaultConfig = new MadkitProperties();
-					// System.setProperty("sun.java2d.xrender", "True"); //TODO
-					Runtime.getRuntime().addShutdownHook(new Thread() {
+					if (defaultConfig==null) {
+                        MadkitProperties mp=new MadkitProperties();
+					    try {
+                            mp.loadYAML(new File("com/distrimind/madkit/kernel/madkit.yaml"));
+                        } catch (Exception ignored) {
+                            try {
+                                mp.loadYAML(Madkit.class.getResourceAsStream("madkit.yaml"));
+                            } catch (Exception ignored2) {
+                            }
+                        }
 
-						@Override
-						public void run() {// just in case (like ctrl+c)
-							AgentLogger.resetLoggers();
-						}
-					});
-					// no need to externalize because it is used only here
-					try {
-						defaultConfig.loadYAML(new File("com/distrimind/madkit/kernel/madkit.yaml"));
-					} catch (IOException ignored) {
-					}
-					WEB=defaultConfig.madkitWeb;
+                        setReferenceMaDKitConfig(mp);
+                    }
+
 				}
 			}
 		}
@@ -390,7 +429,7 @@ final public class Madkit {
 		return WEB;
 	}
 	
-	final private MadkitProperties madkitConfig = new MadkitProperties();
+	final MadkitProperties madkitConfig;
 	// private Element madkitXMLConfigFile = null;
 	// private FileHandler madkitLogFileHandler;
 	final private MadkitKernel myKernel;
@@ -498,10 +537,60 @@ final public class Madkit {
 	 * @see NetworkProperties
 	 */
 	public Madkit(MadkitEventListener eventListener, String... options) {
-		this(null, eventListener, options);
+		this(getDefaultConfig(), null, eventListener, options);
 	}
+    /**
+     * Launch a new kernel with predefined options. The call returns when the new
+     * kernel has finished to take care of all options. Moreover the kernel
+     * automatically ends when all the agents living on this kernel are done.
+     * <p>
+     *
+     * Here is an example of use:
+     * <p>
+     *
+     * @param madkitConfig the initial MadKit configuration
+     * @param eventListener
+     *            the event listener called when events occurs during Madkit life
+     *            cycle
+     * @param options
+     *            the options which should be used to launch Madkit. If
+     *            <code>null</code>, the dektop mode is automatically used.
+     *
+     * @see MadkitProperties
+     * @see NetworkProperties
+     */
+    public Madkit(MadkitProperties madkitConfig, MadkitEventListener eventListener, String... options) {
+        this(madkitConfig, null, eventListener, options);
+    }
+    /**
+     * Launch a new kernel with predefined options. The call returns when the new
+     * kernel has finished to take care of all options. Moreover the kernel
+     * automatically ends when all the agents living on this kernel are done.
+     * <p>
+     *
+     * Here is an example of use:
+     * <p>
+     *
+     *
+     * @param madkitConfig
+     *            the initial MadKit configuration
+     * @param options
+     *            the options which should be used to launch Madkit. If
+     *            <code>null</code>, the dektop mode is automatically used.
+     *
+     * @see MadkitProperties
+     * @see NetworkProperties
+     */
+    public Madkit(MadkitProperties madkitConfig, String... options) {
+        this(madkitConfig, null, new MadkitEventListener() {
 
-	Madkit(KernelAddress kernelAddress, MadkitEventListener eventListener, String... options) {
+            @Override
+            public void onMadkitPropertiesLoaded(MadkitProperties _properties) {
+
+            }
+        }, options);
+    }
+	Madkit(MadkitProperties madkitProperties, KernelAddress kernelAddress, MadkitEventListener eventListener, String... options) {
 		if (eventListener == null)
 			throw new NullPointerException("eventListener");
 		this.kernelAddress = kernelAddress;
@@ -520,6 +609,7 @@ final public class Madkit {
 			e.printStackTrace();
 		}
 		*/
+		this.madkitConfig=madkitProperties.clone();
 		final Properties fromArgs = buildConfigFromArgs(args);
 		try {
 			madkitConfig.loadFromProperties(fromArgs);
@@ -567,6 +657,19 @@ final public class Madkit {
 
 		startKernel();
 	}
+
+    /**
+     * Save MadKit config into the given file.
+     * Save only the differences between the current MaDKit config and the reference MaDKit configuration
+     * @see #setReferenceMaDKitConfig(MadkitProperties)
+     * @see #getReferenceMaDKitConfiguration()
+     * @param file the file path
+     */
+	public void saveConfiguration(File file)
+    {
+        madkitConfig.prepareCurrentRandomSeedsForBackup();
+        madkitConfig.save(file, getReferenceMaDKitConfiguration());
+    }
 
 	/**
 	 * 
@@ -664,10 +767,16 @@ final public class Madkit {
 	private void logSessionConfig(MadkitProperties session, Level lvl) {
 		StringBuilder message = new StringBuilder("MaDKit current configuration is\n\n");
 		message.append("\t--- MaDKit regular options ---\n");
-		Properties properties = session.convertToStringProperties();
-		for (Entry<Object, Object> option : properties.entrySet()) {
-			message.append("\t").append(String.format("%-" + 30 + "s", option.getKey())).append(option.getValue()).append("\n");
-		}
+        Properties properties;
+        try {
+            properties = session.convertToStringProperties();
+            for (Entry<Object, Object> option : properties.entrySet()) {
+                message.append("\t").append(String.format("%-" + 30 + "s", option.getKey())).append(option.getValue()).append("\n");
+            }
+        } catch (PropertiesParseException e) {
+            e.printStackTrace();
+        }
+
 		logger.log(lvl, message.toString());
 	}
 

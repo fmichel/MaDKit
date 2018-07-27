@@ -2671,7 +2671,7 @@ class MadkitKernel extends Agent {
 			getMadkitConfig().prepareCurrentRandomSeedsForBackup();
 			for (File f : getMadkitConfig().configFiles)
 			{
-				getMadkitConfig().save(f, Madkit.getReferenceMaDKitConfiguration());
+				getMadkitConfig().save(f, platform.getReferenceMaDKitConfiguration());
 			}
 		}
 		if (getMadkitConfig().madkitLogLevel != Level.OFF) {

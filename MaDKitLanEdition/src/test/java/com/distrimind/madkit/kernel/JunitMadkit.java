@@ -544,7 +544,7 @@ public class JunitMadkit {
 	public Madkit launchCustomNetworkInstance(final Level l, final Class<? extends AbstractAgent> agentTolaunch,
 			final AbstractAgent agentToLaunch, final NetworkEventListener networkEventListener,
 			KernelAddress kernelAddress) {
-		Madkit m = new Madkit(Madkit.getDefaultConfig(), kernelAddress, new MadkitEventListener() {
+		Madkit m = new Madkit(Madkit.generateDefaultMadkitConfig(), kernelAddress, new MadkitEventListener() {
 
 			@Override
 			public void onMadkitPropertiesLoaded(MadkitProperties _properties) {

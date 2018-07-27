@@ -104,38 +104,12 @@ import com.distrimind.util.version.Version;
 final public class Madkit {
 
 	private final static String MDK_LOGGER_NAME = "[* MADKIT *] ";
-	private volatile static MadkitProperties defaultConfig;
+	private volatile static MadkitProperties defaultConfig=null;
 	final static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
 
-    /**
-     * Set the MaDKit configuration reference.
-     * @param dc the MaDKit configuration reference
-     * @see #getReferenceMaDKitConfiguration()
-     * @see #saveConfiguration(File)
-     */
-	public static void setReferenceMaDKitConfig(MadkitProperties dc)
-    {
-        assert dc!=null;
-        synchronized(Madkit.class) {
-            Madkit.defaultConfig = dc;
-            // System.setProperty("sun.java2d.xrender", "True"); //TODO
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-
-                @Override
-                public void run() {// just in case (like ctrl+c)
-                    AgentLogger.resetLoggers();
-                }
-            });
 
 
-            WEB=defaultConfig.madkitWeb;
-        }
-    }
 
-    public static MadkitProperties getReferenceMaDKitConfiguration()
-    {
-        return getDefaultConfig();
-    }
 
 
 	static MadkitProperties getDefaultConfig()
@@ -392,7 +366,21 @@ final public class Madkit {
 		}
 		return VERSION;
 	}
-	
+	static MadkitProperties generateDefaultMadkitConfig()
+    {
+        MadkitProperties res=new MadkitProperties();
+
+        try {
+            res.loadYAML(new File("com/distrimind/madkit/kernel/madkit.yaml"));
+        } catch (Exception ignored) {
+            try {
+                res.loadYAML(Madkit.class.getResourceAsStream("madkit.yaml"));
+            } catch (Exception ignored2) {
+
+            }
+        }
+        return res;
+    }
 	public static Version getVersion()
 	{
 		if (VERSION==null)
@@ -402,19 +390,18 @@ final public class Madkit {
 				if (VERSION==null)
 				{
 					VERSION=getNewVersionInstance();
-					if (defaultConfig==null) {
-                        MadkitProperties mp=new MadkitProperties();
-					    try {
-                            mp.loadYAML(new File("com/distrimind/madkit/kernel/madkit.yaml"));
-                        } catch (Exception ignored) {
-                            try {
-                                mp.loadYAML(Madkit.class.getResourceAsStream("madkit.yaml"));
-                            } catch (Exception ignored2) {
-                            }
-                        }
+					defaultConfig=generateDefaultMadkitConfig();
 
-                        setReferenceMaDKitConfig(mp);
-                    }
+                    Runtime.getRuntime().addShutdownHook(new Thread() {
+
+                        @Override
+                        public void run() {// just in case (like ctrl+c)
+                            AgentLogger.resetLoggers();
+                        }
+                    });
+
+                    WEB=defaultConfig.madkitWeb;
+
 
 				}
 			}
@@ -429,7 +416,7 @@ final public class Madkit {
 		return WEB;
 	}
 	
-	final MadkitProperties madkitConfig;
+	final private MadkitProperties madkitConfig, referenceConfig;
 	// private Element madkitXMLConfigFile = null;
 	// private FileHandler madkitLogFileHandler;
 	final private MadkitKernel myKernel;
@@ -609,6 +596,7 @@ final public class Madkit {
 			e.printStackTrace();
 		}
 		*/
+		this.referenceConfig=madkitProperties;
 		this.madkitConfig=madkitProperties.clone();
 		final Properties fromArgs = buildConfigFromArgs(args);
 		try {
@@ -658,10 +646,14 @@ final public class Madkit {
 		startKernel();
 	}
 
+    public MadkitProperties getReferenceMaDKitConfiguration()
+    {
+        return referenceConfig;
+    }
+
     /**
      * Save MadKit config into the given file.
-     * Save only the differences between the current MaDKit config and the reference MaDKit configuration
-     * @see #setReferenceMaDKitConfig(MadkitProperties)
+     * Save only the differences between the current MaDKit config and the reference MaDKit configuration, given at the MaDKit construction
      * @see #getReferenceMaDKitConfiguration()
      * @param file the file path
      */

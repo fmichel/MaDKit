@@ -37,16 +37,13 @@
  */
 package com.distrimind.madkit.kernel;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.NetworkInterface;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -346,7 +343,7 @@ public class MadkitProperties extends MultiFormatProperties {
 
 	public MadkitProperties() {
 		super(new MultiFormatPropertiesObjectParser());
-		this.minimumMadkitVersion=new Version(madkitVersion.getProgramName(), madkitVersion.getShortProgramName(), 1, 7, 3, Version.Type.Stable, 0, madkitVersion.getProjectStartDate(), madkitVersion.getProjectEndDate());
+		this.minimumMadkitVersion=new Version(madkitVersion.getProgramName(), madkitVersion.getShortProgramName(), (short)1, (short)7, (short)6, Version.Type.Stable, (short)0, madkitVersion.getProjectStartDate(), madkitVersion.getProjectEndDate());
 		this.minimumMadkitVersion.setBuildNumber(100);
 		try {
 			madkitWeb = new URL("https://github.com/JazZ51/MaDKitLanEdition");
@@ -413,6 +410,13 @@ public class MadkitProperties extends MultiFormatProperties {
 			loadXML(file);
 		else if (file.getName().endsWith(".yaml"))
 			loadYAML(file);
+		else if (file.getName().endsWith(".properties")) {
+			try(FileReader fr=new FileReader(file);BufferedReader br=new BufferedReader(fr)) {
+				Properties p=new Properties();
+				p.load(br);
+				loadFromProperties(p);
+			}
+		}
 	}
 
 	/**
@@ -435,16 +439,19 @@ public class MadkitProperties extends MultiFormatProperties {
 					String.format(ErrorMessages.CANT_SAVE_CONFIG_FILE.toString(), xml_file.toString()), e);
 		}
 	}
-	public void save(File file)
-	{
+	public void save(File file) throws IOException, PropertiesParseException {
 		save(file, null);
 	}
-	public void save(File file, MultiFormatProperties referenceProperties)
-	{
+	public void save(File file, MultiFormatProperties referenceProperties) throws IOException, PropertiesParseException {
 		if (file.getName().endsWith(".xml"))
 			saveXML(file, referenceProperties);
 		else if (file.getName().endsWith(".yaml"))
 			saveYAML(file, referenceProperties);
+		else if (file.getName().endsWith(".properties")) {
+			try(FileWriter fw=new FileWriter(file);BufferedWriter bw=new BufferedWriter(fw)) {
+				convertToStringProperties(reference).store(bw, "Madkit properties");
+			}
+		}
 	}
 	/**
 	 * {@inheritDoc}
@@ -833,6 +840,38 @@ public class MadkitProperties extends MultiFormatProperties {
 		approvedRandomForKeys=null;
 	}
 	
-	
-	
+	private transient MadkitProperties reference=null;
+
+	void setReference(MadkitProperties reference) {
+		this.reference = reference;
+	}
+
+	public MadkitProperties getReference() {
+		return reference;
+	}
+    /**
+     * Save MadKit config into the given file.
+     * Save only the differences between the current MaDKit config and the reference MaDKit configuration, given at the MaDKit construction
+     * @see #getReference()
+     * @param file the file path
+     */
+	public void saveConfiguration(File file) throws IOException, PropertiesParseException {
+		assert file!=null;
+        prepareCurrentRandomSeedsForBackup();
+		save(file, reference);
+	}
+
+    /**
+     * Save MadKit config into the file given by {@link #configFiles}.
+     * Save only the differences between the current MaDKit config and the reference MaDKit configuration, given at the MaDKit construction
+     * @see #getReference()
+     *
+     */
+    public void saveConfiguration() throws IOException, PropertiesParseException {
+	    if (configFiles==null)
+	        return;
+        prepareCurrentRandomSeedsForBackup();
+	    for (File f : configFiles)
+            save(f, reference);
+    }
 }

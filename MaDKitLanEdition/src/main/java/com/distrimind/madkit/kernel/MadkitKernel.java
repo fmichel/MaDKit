@@ -90,6 +90,7 @@ import java.util.logging.Level;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import com.distrimind.util.properties.PropertiesParseException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -2668,11 +2669,13 @@ class MadkitKernel extends Agent {
 		super.terminate();
 		if (getMadkitConfig().savePropertiesAfterKernelKill)
 		{
-			getMadkitConfig().prepareCurrentRandomSeedsForBackup();
-			for (File f : getMadkitConfig().configFiles)
-			{
-				getMadkitConfig().save(f, platform.getReferenceMaDKitConfiguration());
+			try {
+				getMadkitConfig().saveConfiguration();
+			} catch (IOException | PropertiesParseException e) {
+				if (logger!=null)
+					logger.severeLog("Unable to save config file", e);
 			}
+
 		}
 		if (getMadkitConfig().madkitLogLevel != Level.OFF) {
 			System.out.println("\n-----------------------------------------------------------------------------"

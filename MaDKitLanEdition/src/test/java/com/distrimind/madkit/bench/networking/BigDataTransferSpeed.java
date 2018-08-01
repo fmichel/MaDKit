@@ -133,28 +133,29 @@ public class BigDataTransferSpeed extends JunitMadkit {
 				requestRole(GROUP, ROLE);
 				launchThreadedMKNetworkInstance(Level.INFO, AbstractAgent.class, bigDataTransferAgent, eventListener2);
 				sleep(2000);
-				
+
 				AgentAddress aa=getAgentsWithRole(GROUP, ROLE).iterator().next();
-				
+				assert aa!=null;
 				try {
 					int size=400000000;
-					this.sendBigData(aa, new RandomByteArrayInputStream(new byte[size]), 0, size, null, null, true);
+					Assert.assertNotNull(this.sendBigData(aa, new RandomByteArrayInputStream(new byte[size]), 0, size, null, null, true));
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 				Message m=this.waitNextMessage(60000);
 				transfered1.set(m instanceof BigDataResultMessage && ((BigDataResultMessage) m).getType() == BigDataResultMessage.Type.BIG_DATA_TRANSFERED);
 				Assert.assertTrue(""+m, transfered1.get());
-				
+
 				try {
 					int size=400000000;
-					this.sendBigData(aa, new RandomByteArrayInputStream(new byte[size]), 0, size, null, null, false);
+					Assert.assertNotNull(this.sendBigData(aa, new RandomByteArrayInputStream(new byte[size]), 0, size, null, null, false));
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 				m=this.waitNextMessage(60000);
 				transfered2.set(m instanceof BigDataResultMessage && ((BigDataResultMessage) m).getType() == BigDataResultMessage.Type.BIG_DATA_TRANSFERED);
 				Assert.assertTrue(""+m, transfered2.get());
+
 			}
 
 			@Override

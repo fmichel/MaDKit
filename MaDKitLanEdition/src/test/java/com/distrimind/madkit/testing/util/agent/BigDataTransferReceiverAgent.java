@@ -84,18 +84,22 @@ public class BigDataTransferReceiverAgent extends Agent {
 				}
 				else
 					System.err.println("Problem during transfer : "+rm.getType());
-				if (--dataToReceiveNumber<=0)
+				if (--dataToReceiveNumber<=0) {
+					this.sleep(1000);
 					this.killAgent(this);
+				}
 			}
 			else
 			{
 				System.err.println("Unexpected message :"+m);
+				this.sleep(1000);
 				this.killAgent(this);
 			}
 		}
 		else
 		{
 			System.err.println("Unexpected message :"+m);
+			this.sleep(1000);
 			this.killAgent(this);
 		}
 	}

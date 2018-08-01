@@ -153,6 +153,7 @@ final public class Madkit {
 			d.addItem("Update OOD to 2.0.0 Beta 86.");
 			d.addItem("Update Utils to 3.19.0.");
 			d.addItem("Add save functions into MadKit Properties.");
+			d.addItem("Fiw network messages serialization problem.");
 			VERSION.addDescription(d);
 
 			c = Calendar.getInstance();

@@ -48,6 +48,7 @@ import com.distrimind.madkit.util.NetworkMessage;
  * @version 0.10
  * 
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 public class StringMessage extends ObjectMessage<String> implements NetworkMessage {
 
 	/**
@@ -58,7 +59,7 @@ public class StringMessage extends ObjectMessage<String> implements NetworkMessa
 	public static int MAX_CONTENT_LENGTH=Short.MAX_VALUE*10;
 
 	@SuppressWarnings("unused")
-	StringMessage()
+	protected StringMessage()
 	{
 		super("");
 	}

@@ -45,6 +45,7 @@ import com.distrimind.madkit.action.KernelAction;
  * @since MaDKit 1.0
  *
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 public class KernelMessage extends EnumMessage<KernelAction> {
 
 	/**
@@ -54,5 +55,8 @@ public class KernelMessage extends EnumMessage<KernelAction> {
 
 	public KernelMessage(KernelAction code, Object... commandOptions) {
 		super(code, commandOptions);
+	}
+	protected KernelMessage(){
+
 	}
 }

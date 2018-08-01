@@ -46,6 +46,7 @@ import com.distrimind.madkit.util.NetworkMessage;
  * @version 0.9
  * 
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 public class BooleanMessage extends ObjectMessage<Boolean> implements NetworkMessage{
 
 	/**
@@ -53,6 +54,10 @@ public class BooleanMessage extends ObjectMessage<Boolean> implements NetworkMes
 	 */
 	private static final long serialVersionUID = 6520364212151479221L;
 
+	protected BooleanMessage()
+	{
+		super(false);
+	}
 	/**
 	 * Builds a new message containing the boolean b
 	 * 

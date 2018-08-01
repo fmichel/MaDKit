@@ -49,6 +49,7 @@ import com.distrimind.madkit.action.SchedulingAction;
  * @version 0.9
  * 
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 public class SchedulingMessage extends EnumMessage<SchedulingAction> {
 
 	/**
@@ -58,6 +59,10 @@ public class SchedulingMessage extends EnumMessage<SchedulingAction> {
 
 	public SchedulingMessage(SchedulingAction schedulerAction, Object... info) {
 		super(schedulerAction, info);
+	}
+	protected SchedulingMessage()
+	{
+
 	}
 
 }

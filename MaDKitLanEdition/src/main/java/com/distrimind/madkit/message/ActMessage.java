@@ -56,6 +56,7 @@ import com.distrimind.madkit.util.NetworkMessage;
  * @since MaDKit 1.0
  */
 
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 public class ActMessage extends com.distrimind.madkit.kernel.Message implements NetworkMessage {
 
 	private static final long serialVersionUID = -2556927686645807800L;
@@ -68,6 +69,11 @@ public class ActMessage extends com.distrimind.madkit.kernel.Message implements 
 	protected Hashtable<String, Object> fields;
 	private boolean excludeFromEncryption;
 	String content;
+
+	protected ActMessage()
+	{
+
+	}
 
 	@Override
 	public int getInternalSerializedSize() {

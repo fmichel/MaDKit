@@ -47,13 +47,17 @@ import com.distrimind.madkit.util.NetworkMessage;
  * @version 0.9
  * 
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 public class IntegerMessage extends ObjectMessage<Integer> implements NetworkMessage{
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
+	protected IntegerMessage()
+	{
+		super(0);
+	}
 	/**
 	 * Builds a new message containing the integer i
 	 * 

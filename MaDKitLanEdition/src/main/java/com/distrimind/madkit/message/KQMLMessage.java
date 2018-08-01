@@ -43,13 +43,17 @@ import java.util.Enumeration;
  * @author Olivier Gutknecht
  * @version MaDKit 1.0
  */
-
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 public class KQMLMessage extends ActMessage {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -3534390128191295863L;
+	protected KQMLMessage()
+	{
+
+	}
 
 	/** Constructor for KQMLMessage class
 	 * @param performative the performative parameter

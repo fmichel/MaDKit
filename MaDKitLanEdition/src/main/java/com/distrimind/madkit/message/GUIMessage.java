@@ -44,6 +44,8 @@ import com.distrimind.madkit.action.GUIManagerAction;
  * @version 0.9
  * 
  */
+
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 public class GUIMessage extends EnumMessage<GUIManagerAction> {
 
 	/**
@@ -53,5 +55,9 @@ public class GUIMessage extends EnumMessage<GUIManagerAction> {
 
 	public GUIMessage(GUIManagerAction code, Object... object) {
 		super(code, object);
+	}
+	protected GUIMessage()
+	{
+
 	}
 }

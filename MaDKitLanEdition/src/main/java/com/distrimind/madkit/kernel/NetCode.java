@@ -61,6 +61,11 @@ class NetworkMessage extends EnumMessage<NetCode> {
 		super(code, commandOptions);
 	}
 
+	protected NetworkMessage()
+	{
+
+	}
+
 }
 // class NewPeerMessage extends NetCode<DatagramPacket>{
 // /**

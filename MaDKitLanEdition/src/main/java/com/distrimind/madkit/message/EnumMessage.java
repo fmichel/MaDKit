@@ -52,6 +52,7 @@ import com.distrimind.madkit.util.NetworkMessage;
  * @since MaDKit 5.0.0.14
  *
  */
+@SuppressWarnings("ExternalizableWithoutPublicNoArgConstructor")
 public class EnumMessage<E extends Enum<E>> extends ObjectMessage<Object[]> implements NetworkMessage{
 
 	/**
@@ -61,6 +62,10 @@ public class EnumMessage<E extends Enum<E>> extends ObjectMessage<Object[]> impl
 	private static final int MAX_PARAMETERS_LENGTH=1000;
 	private E code;
 
+	protected EnumMessage()
+	{
+		super(null);
+	}
 	@Override
 	public int getInternalSerializedSize() {
 		return super.getInternalSerializedSizeImpl(MAX_PARAMETERS_LENGTH)+(code==null?1:(code.name().length()*2+5+code.getClass().getName().length()*2));

@@ -37,12 +37,13 @@
  */
 package com.distrimind.madkit.testing.util.agent;
 
-import static com.distrimind.madkit.kernel.JunitMadkit.GROUP;
-import static com.distrimind.madkit.kernel.JunitMadkit.ROLE;
-
 import com.distrimind.madkit.kernel.Agent;
 import com.distrimind.madkit.kernel.AgentAddress;
 import com.distrimind.madkit.kernel.Message;
+import com.distrimind.madkit.message.StringMessage;
+
+import static com.distrimind.madkit.kernel.JunitMadkit.GROUP;
+import static com.distrimind.madkit.kernel.JunitMadkit.ROLE;
 
 /**
  * @author Fabien Michel
@@ -72,7 +73,7 @@ public class ForEverOnTheSameAASenderAgent extends Agent {
 		requestRole(GROUP, ROLE);
 		if (waitDuration > 0)
 			sleep(waitDuration);
-		sendMessage(GROUP, ROLE, new Message());
+		sendMessage(GROUP, ROLE, new StringMessage("empty message"));
 	}
 
 	@Override
@@ -81,7 +82,7 @@ public class ForEverOnTheSameAASenderAgent extends Agent {
 			Message m = waitNextMessage(3000);
 			aa = m.getSender();
 			if (aa != null) {
-				sendMessage(aa, new Message());
+				sendMessage(aa, new StringMessage("test message"));
 				first = false;
 			} else
 				this.killAgent(this);
@@ -89,7 +90,7 @@ public class ForEverOnTheSameAASenderAgent extends Agent {
 
 		if (waitNextMessage(3000) == null)
 			this.killAgent(this);
-		sendMessage(aa, new Message());
+		sendMessage(aa, new StringMessage("test message"));
 		if (cycle-- == 0)
 			this.killAgent(this);
 	}

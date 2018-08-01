@@ -45,6 +45,7 @@ import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.logging.Level;
 
+import com.distrimind.madkit.message.StringMessage;
 import org.junit.Test;
 
 import com.distrimind.madkit.kernel.AbstractAgent;
@@ -132,7 +133,7 @@ public class NetworkSpeed extends JunitMadkit {
 				Message m = null;
 				for (int i = 0; i < 100; i++) {
 					startTimer();
-					sendMessage(aa, new Message());
+					sendMessage(aa, new StringMessage("test message"));
 					m = waitNextMessage();
 					stopTimer("");
 				}

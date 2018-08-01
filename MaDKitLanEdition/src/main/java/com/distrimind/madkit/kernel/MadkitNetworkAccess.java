@@ -123,7 +123,7 @@ class MadkitNetworkAccess {
 	static DirectLocalLanMessage getDirectLocalLanMessageInstance(Message m) {
 		try {
 			if (!(m instanceof NetworkMessage))
-				throw new IllegalArgumentException("The message to send me implements NetworkMessage interface");
+				throw new IllegalArgumentException("The message to send "+m.getClass()+" me implements NetworkMessage interface");
 
 			return direct_local_lan_message.newInstance(m);
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException

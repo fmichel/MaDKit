@@ -55,8 +55,14 @@ public class StringMessage extends ObjectMessage<String> implements NetworkMessa
 	 */
 	private static final long serialVersionUID = 3111467569749360801L;
 
-	public static int MAX_CONTENT_LENGTH=Short.MAX_VALUE*10;	
-	
+	public static int MAX_CONTENT_LENGTH=Short.MAX_VALUE*10;
+
+	@SuppressWarnings("unused")
+	StringMessage()
+	{
+		super("");
+	}
+
 	/**
 	 * Builds a new message containing the string s
 	 * 

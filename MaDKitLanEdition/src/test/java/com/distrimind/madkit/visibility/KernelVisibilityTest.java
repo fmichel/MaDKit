@@ -61,7 +61,7 @@ public class KernelVisibilityTest {
 
 	@Test
 	public void testMadkitVisibility() {
-		Assert.assertEquals(2, Madkit.class.getConstructors().length);
+		Assert.assertEquals(4, Madkit.class.getConstructors().length);
 	}
 
 	@Test

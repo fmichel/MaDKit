@@ -125,8 +125,8 @@ final public class Madkit {
 		Calendar c = Calendar.getInstance();
 		c.set(2015, Calendar.MAY, 22);
 		Calendar c2 = Calendar.getInstance();
-		c2.set(2018, Calendar.JULY, 27);
-		Version VERSION = new Version("MadkitLanEdition", "MKLE", 1, 7, 5, Version.Type.Stable, 1, c.getTime(), c2.getTime());
+		c2.set(2018, Calendar.AUGUST, 1);
+		Version VERSION = new Version("MadkitLanEdition", "MKLE", (short)1, (short)7, (short)6, Version.Type.Stable, (short)1, c.getTime(), c2.getTime());
 		try {
 
 			InputStream is = Madkit.class.getResourceAsStream("build.txt");
@@ -148,8 +148,16 @@ final public class Madkit {
 			VERSION.addDeveloper(new PersonDeveloper("Ferber", "Jacques", c.getTime()));
 
 			c = Calendar.getInstance();
+			c.set(2018, Calendar.AUGUST, 1);
+			Description d = new Description((short)1, (short)7, (short)6, Version.Type.Stable, (short)1, c.getTime());
+			d.addItem("Update OOD to 2.0.0 Beta 86.");
+			d.addItem("Update Utils to 3.19.0.");
+			d.addItem("Add save functions into MadKit Properties.");
+			VERSION.addDescription(d);
+
+			c = Calendar.getInstance();
 			c.set(2018, Calendar.JULY, 27);
-			Description d = new Description(1, 7, 5, Version.Type.Stable, 1, c.getTime());
+			d = new Description((short)1, (short)7, (short)5, Version.Type.Stable, (short)1, c.getTime());
 			d.addItem("Update OOD to 2.0.0 Beta 85.");
 			d.addItem("Update Utils to 3.18.0.");
 			d.addItem("Save MKLE configuration that are different from a reference configuration. Other properties are not saved.");
@@ -157,7 +165,7 @@ final public class Madkit {
 
 			c = Calendar.getInstance();
 			c.set(2018, Calendar.JULY, 20);
-			d = new Description(1, 7, 3, Version.Type.Stable, 1, c.getTime());
+			d = new Description((short)1, (short)7, (short)3, Version.Type.Stable, (short)1, c.getTime());
 			d.addItem("Update OOD to 2.0.0 Beta 84.");
 			d.addItem("Update Utils to 3.17.0.");
 			d.addItem("Correct version's control of distant peer.");
@@ -165,7 +173,7 @@ final public class Madkit {
 
 			c = Calendar.getInstance();
 			c.set(2018, Calendar.JULY, 13);
-			d = new Description(1, 7, 1, Version.Type.Stable, 1, c.getTime());
+			d = new Description((short)1, (short)7, (short)1, Version.Type.Stable, (short)1, c.getTime());
 			d.addItem("Update OOD to 2.0.0 Beta 83.");
             d.addItem("Update Utils to 3.16.1.");
             d.addItem("Improve version's control of distant peer.");
@@ -175,7 +183,7 @@ final public class Madkit {
 
 			c = Calendar.getInstance();
 			c.set(2018, Calendar.MAY, 20);
-			d = new Description(1, 7, 0, Version.Type.Stable, 1, c.getTime());
+			d = new Description((short)1, (short)7, (short)0, Version.Type.Stable, (short)1, c.getTime());
 			d.addItem("Update OOD to 2.0.0 Beta 82.");
 			d.addItem("Update Utils to 3.15.0.");
 			d.addItem("Add P2P connection protocol that support parametrisation of key aggreement.");
@@ -200,20 +208,20 @@ final public class Madkit {
 			
 			c = Calendar.getInstance();
 			c.set(2018, Calendar.FEBRUARY, 27);
-			d = new Description(1, 6, 5, Version.Type.Stable, 1, c.getTime());
+			d = new Description((short)1, (short)6, (short)5, Version.Type.Stable, (short)1, c.getTime());
 			d.addItem("Debug UPNP connexion with macOS.");
 			d.addItem("Fix issue with multiple identical router's messages : do not remove the router to recreate it.");
 			VERSION.addDescription(d);	
 			
 			c = Calendar.getInstance();
 			c.set(2018, Calendar.FEBRUARY, 26);
-			d = new Description(1, 6, 5, Version.Type.Stable, 1, c.getTime());
+			d = new Description((short)1, (short)6, (short)5, Version.Type.Stable, (short)1, c.getTime());
 			d.addItem("Fiw a problem with UPNP connexion under macOS.");
 			VERSION.addDescription(d);	
 			
 			c = Calendar.getInstance();
 			c.set(2018, Calendar.FEBRUARY, 15);
-			d = new Description(1, 6, 4, Version.Type.Stable, 1, c.getTime());
+			d = new Description((short)1, (short)6, (short)4, Version.Type.Stable, (short)1, c.getTime());
 			d.addItem("Fix problem of port unbind with Windows.");
 			d.addItem("Fix problem of simulatenous connections with Mac OS");
 			d.addItem("Fix problem with interface address filtering");
@@ -221,7 +229,7 @@ final public class Madkit {
 			
 			c = Calendar.getInstance();
 			c.set(2018, Calendar.FEBRUARY, 10);
-			d = new Description(1, 6, 3, Version.Type.Stable, 1, c.getTime());
+			d = new Description((short)1, (short)6, (short)3, Version.Type.Stable, (short)1, c.getTime());
 			d.addItem("Update OOD to 2.0.0 Beta 66.");
 			d.addItem("Update Utils to 3.10.5");
 			d.addItem("Change minimum public key size from 1024 to 2048");
@@ -229,7 +237,7 @@ final public class Madkit {
 			
 			c = Calendar.getInstance();
 			c.set(2018, Calendar.FEBRUARY, 10);
-			d = new Description(1, 6, 2, Version.Type.Stable, 1, c.getTime());
+			d = new Description((short)1, (short)6, (short)2, Version.Type.Stable, (short)1, c.getTime());
 			d.addItem("Update OOD to 2.0.0 Beta 65.");
 			d.addItem("Update Utils to 3.10.4");
 			d.addItem("Change minimum public key size from 1024 to 2048");
@@ -237,14 +245,14 @@ final public class Madkit {
 			
 			c = Calendar.getInstance();
 			c.set(2018, Calendar.FEBRUARY, 4);
-			d = new Description(1, 6, 1, Version.Type.Stable, 1, c.getTime());
+			d = new Description((short)1, (short)6, (short)1, Version.Type.Stable, (short)1, c.getTime());
 			d.addItem("Overlookers were not aware from new roles adding. Fix this issue.");
 			d.addItem("Add MadKit demos");
 			VERSION.addDescription(d);
 			
 			c = Calendar.getInstance();
 			c.set(2018, Calendar.JANUARY, 31);
-			d = new Description(1, 6, 0, Version.Type.Stable, 1, c.getTime());
+			d = new Description((short)1, (short)6, (short)0, Version.Type.Stable, (short)1, c.getTime());
 			d.addItem("Updating OOD to 2.0.0 Beta 59");
 			d.addItem("Updating Utils to 3.9.0");
 			d.addItem("Messages can now be atomically non encrypted");
@@ -252,7 +260,7 @@ final public class Madkit {
 			
 			c = Calendar.getInstance();
 			c.set(2017, Calendar.DECEMBER, 13);
-			d = new Description(1, 5, 2, Version.Type.Stable, 1, c.getTime());
+			d = new Description((short)1, (short)5, (short)2, Version.Type.Stable, (short)1, c.getTime());
 			d.addItem("Updating OOD to 2.0.0 Beta 57");
 			d.addItem("Updating Utils to 3.7.1");
 			d.addItem("Debugging JavaDoc");
@@ -260,20 +268,20 @@ final public class Madkit {
 
 			c = Calendar.getInstance();
 			c.set(2017, Calendar.NOVEMBER, 13);
-			d = new Description(1, 5, 0, Version.Type.Stable, 1, c.getTime());
+			d = new Description((short)1, (short)5, (short)0, Version.Type.Stable, (short)1, c.getTime());
 			d.addItem("Updating OOD to 2.0.0 Beta 55");
 			d.addItem("Packets can now have sizes greater than Short.MAX_VALUE");
 			VERSION.addDescription(d);
 
 			c = Calendar.getInstance();
 			c.set(2017, Calendar.NOVEMBER, 2);
-			d = new Description(1, 4, 5, Version.Type.Stable, 1, c.getTime());
+			d = new Description((short)1, (short)4, (short)5, Version.Type.Stable, (short)1, c.getTime());
 			d.addItem("Updating OOD to 2.0.0 Beta 54");
 			VERSION.addDescription(d);
 
 			c = Calendar.getInstance();
 			c.set(2017, Calendar.OCTOBER, 13);
-			d = new Description(1, 4, 0, Version.Type.Stable, 1, c.getTime());
+			d = new Description((short)1, (short)4, (short)0, Version.Type.Stable, (short)1, c.getTime());
 			d.addItem("Updating OOD to 2.0.0 Beta 48");
 			d.addItem("Several modifications into connection and access protocols");
 			d.addItem("Adding approved randoms parameters into MadkitProperties");
@@ -283,13 +291,13 @@ final public class Madkit {
 
 			c = Calendar.getInstance();
 			c.set(2017, Calendar.AUGUST, 31);
-			d = new Description(1, 2, 1, Version.Type.Stable, 1, c.getTime());
+			d = new Description((short)1, (short)2, (short)1, Version.Type.Stable, (short)1, c.getTime());
 			d.addItem("Including resources in jar files");
 			VERSION.addDescription(d);
 
 			c = Calendar.getInstance();
 			c.set(2017, Calendar.AUGUST, 5);
-			d = new Description(1, 2, 0, Version.Type.Stable, 1, c.getTime());
+			d = new Description((short)1, (short)2, (short)0, Version.Type.Stable, (short)1, c.getTime());
 			d.addItem("Correction a problem with database");
 			d.addItem("Adding P2PSecuredConnectionProtocolWithECDHAlgorithm connection protocol (speedest)");
 			d.addItem("Adding Client/ServerSecuredConnectionProtocolWithKnwonPublicKeyWithECDHAlgorithm connection protocol (speedest)");
@@ -303,26 +311,26 @@ final public class Madkit {
 
 			c = Calendar.getInstance();
 			c.set(2017, Calendar.AUGUST, 5);
-			d = new Description(1, 1, 3, Version.Type.Stable, 1, c.getTime());
+			d = new Description((short)1, (short)1, (short)3, Version.Type.Stable, (short)1, c.getTime());
 			d.addItem("Updating OOD to 2.0.0 Beta 15");
 			VERSION.addDescription(d);
 
 			c = Calendar.getInstance();
 			c.set(2017, Calendar.AUGUST, 5);
-			d = new Description(1, 1, 2, Version.Type.Stable, 1, c.getTime());
+			d = new Description((short)1, (short)1, (short)2, Version.Type.Stable, (short)1, c.getTime());
 			d.addItem("Updating OOD to 2.0.0 Beta 14");
 			d.addItem("Optimizing some memory leak tests");
 			VERSION.addDescription(d);
 
 			c = Calendar.getInstance();
 			c.set(2017, Calendar.AUGUST, 4);
-			d = new Description(1, 1, 0, Version.Type.Stable, 1, c.getTime());
+			d = new Description((short)1, (short)1, (short)0, Version.Type.Stable, (short)1, c.getTime());
 			d.addItem("Convert project to Gradle project");
 			VERSION.addDescription(d);
 
 			c = Calendar.getInstance();
 			c.set(2017, Calendar.JUNE, 4);
-			d = new Description(1, 0, 0, Version.Type.Stable, 1, c.getTime());
+			d = new Description((short)1, (short)0, (short)0, Version.Type.Stable, (short)1, c.getTime());
 			d.addItem("Correction of a bug with database deconnection");
 			d.addItem("Debugging indirect connections");
 			d.addItem("Solving a memory leak problem with ConversationID");
@@ -335,7 +343,7 @@ final public class Madkit {
 
 			c = Calendar.getInstance();
 			c.set(2017, Calendar.MAY, 27);
-			d = new Description(1, 0, 0, Version.Type.Beta, 4, c.getTime());
+			d = new Description((short)1, (short)0, (short)0, Version.Type.Beta, (short)4, c.getTime());
 			d.addItem("Agents are now identified by a long (and not int)");
 			d.addItem("Adding the function AbstractAgent.getAgentID()");
 			d.addItem("Removing static elements in Conversation ID");
@@ -343,7 +351,7 @@ final public class Madkit {
 
 			c = Calendar.getInstance();
 			c.set(2017, Calendar.MAY, 23);
-			d = new Description(1, 0, 0, Version.Type.Beta, 3, c.getTime());
+			d = new Description((short)1, (short)0, (short)0, Version.Type.Beta, (short)3, c.getTime());
 			d.addItem("Update Utils to 2.7.1");
 			d.addItem("Update OOD to 2.0.0 Beta 1");
 			d.addItem("JDK 7 compatible");
@@ -351,14 +359,14 @@ final public class Madkit {
 
 			c = Calendar.getInstance();
 			c.set(2017, Calendar.MARCH, 7);
-			d = new Description(1, 0, 0, Version.Type.Beta, 2, c.getTime());
+			d = new Description((short)1, (short)0, (short)0, Version.Type.Beta, (short)2, c.getTime());
 			d.addItem("Renforce secret identifier/password exchange");
 			d.addItem("Add agent to launch into MKDesktop windows");
 			VERSION.addDescription(d);
 
 			c = Calendar.getInstance();
 			c.set(2017, Calendar.MARCH, 4);
-			d = new Description(1, 0, 0, Version.Type.Beta, 0, c.getTime());
+			d = new Description((short)1, (short)0, (short)0, Version.Type.Beta, (short)0, c.getTime());
 			d.addItem("First MadkitLanEdition release, based on Madkit");
 			VERSION.addDescription(d);
 		} catch (Exception e) {
@@ -416,7 +424,7 @@ final public class Madkit {
 		return WEB;
 	}
 	
-	final private MadkitProperties madkitConfig, referenceConfig;
+	final private MadkitProperties madkitConfig;
 	// private Element madkitXMLConfigFile = null;
 	// private FileHandler madkitLogFileHandler;
 	final private MadkitKernel myKernel;
@@ -596,8 +604,8 @@ final public class Madkit {
 			e.printStackTrace();
 		}
 		*/
-		this.referenceConfig=madkitProperties;
 		this.madkitConfig=madkitProperties.clone();
+		this.madkitConfig.setReference(madkitProperties);
 		final Properties fromArgs = buildConfigFromArgs(args);
 		try {
 			madkitConfig.loadFromProperties(fromArgs);
@@ -646,22 +654,9 @@ final public class Madkit {
 		startKernel();
 	}
 
-    public MadkitProperties getReferenceMaDKitConfiguration()
-    {
-        return referenceConfig;
-    }
 
-    /**
-     * Save MadKit config into the given file.
-     * Save only the differences between the current MaDKit config and the reference MaDKit configuration, given at the MaDKit construction
-     * @see #getReferenceMaDKitConfiguration()
-     * @param file the file path
-     */
-	public void saveConfiguration(File file)
-    {
-        madkitConfig.prepareCurrentRandomSeedsForBackup();
-        madkitConfig.save(file, getReferenceMaDKitConfiguration());
-    }
+
+
 
 	/**
 	 * 

@@ -135,12 +135,12 @@ public class DatagramDataTest {
 		Assert.assertFalse(m.isCompatibleWith(0, programVersion, madkitVersion, programVersion, madkitVersion, kernelAddress));
 		Assert.assertNull(d2.getUnusedReceivedData());
 		Assert.assertNull(d2.getNextDatagramData());
-        programVersion=new Version(programVersion.getProgramName(), programVersion.getShortProgramName(), programVersion.getMajor(), programVersion.getMinor()+1, programVersion.getRevision(), programVersion.getType(), programVersion.getAlphaBetaVersion(), programVersion.getProjectStartDate(), programVersion.getProjectEndDate());
+        programVersion=new Version(programVersion.getProgramName(), programVersion.getShortProgramName(), programVersion.getMajor(), (short)(programVersion.getMinor()+1), programVersion.getRevision(), programVersion.getType(), programVersion.getAlphaBetaVersion(), programVersion.getProjectStartDate(), programVersion.getProjectEndDate());
 
 
 		Assert.assertFalse(m.isCompatibleWith(0, programVersion, madkitVersion, programVersion, madkitVersion, kernelAddressReceiver));
 		programVersion = getVersionBase(programName);
-        madkitVersion=new Version(madkitVersion.getProgramName(), madkitVersion.getShortProgramName(), madkitVersion.getMajor(), madkitVersion.getMinor()+1, madkitVersion.getRevision(), madkitVersion.getType(), madkitVersion.getAlphaBetaVersion(), madkitVersion.getProjectStartDate(), madkitVersion.getProjectEndDate());
+        madkitVersion=new Version(madkitVersion.getProgramName(), madkitVersion.getShortProgramName(), madkitVersion.getMajor(), (short)(madkitVersion.getMinor()+1), madkitVersion.getRevision(), madkitVersion.getType(), madkitVersion.getAlphaBetaVersion(), madkitVersion.getProjectStartDate(), madkitVersion.getProjectEndDate());
 		Assert.assertFalse(m.isCompatibleWith(0, programVersion, madkitVersion, programVersion, madkitVersion, kernelAddressReceiver));
 
 	}
@@ -256,7 +256,7 @@ public class DatagramDataTest {
 	}
 
 	Version getVersionBase(String programeName) {
-		Version res = new Version(programName + "long", programName, 1, 0, 0, Version.Type.Stable, 0,
+		Version res = new Version(programName + "long", programName, (short)1, (short)0, (short)0, Version.Type.Stable, (short)0,
 				new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()));
 		res.setBuildNumber(0);
 		return res;

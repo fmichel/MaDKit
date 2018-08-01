@@ -232,12 +232,12 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 		o = new ConnectionProtocolProperties<?>[2];
 		P2PSecuredConnectionProtocolWithKeyAgreementProperties p2pp_ecdh = new P2PSecuredConnectionProtocolWithKeyAgreementProperties();
 		p2pp_ecdh.symmetricEncryptionType = SymmetricEncryptionType.AES_CBC_PKCS5Padding;
-		p2pp_ecdh.keyAgreementType=KeyAgreementType.BC_ECCDH_384_CURVE_M_511;
+		p2pp_ecdh.keyAgreementType=KeyAgreementType.BC_ECCDH_512_CURVE_25519;
 		p2pp_ecdh.enableEncryption=true;
 		o[0] = p2pp_ecdh;
 		p2pp_ecdh = new P2PSecuredConnectionProtocolWithKeyAgreementProperties();
 		p2pp_ecdh.symmetricEncryptionType = SymmetricEncryptionType.AES_CBC_PKCS5Padding;
-		p2pp_ecdh.keyAgreementType=KeyAgreementType.BC_ECCDH_384_CURVE_M_511;
+		p2pp_ecdh.keyAgreementType=KeyAgreementType.BC_ECCDH_512_CURVE_25519;
 		p2pp_ecdh.enableEncryption=true;
 		o[1] = p2pp_ecdh;
 		res.add(o);
@@ -245,12 +245,12 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 		o = new ConnectionProtocolProperties<?>[2];
 		p2pp_ecdh = new P2PSecuredConnectionProtocolWithKeyAgreementProperties();
 		p2pp_ecdh.symmetricEncryptionType = SymmetricEncryptionType.AES_GCM;
-		p2pp_ecdh.keyAgreementType=KeyAgreementType.BC_ECCDH_384_CURVE_M_511;
+		p2pp_ecdh.keyAgreementType=KeyAgreementType.BC_ECCDH_512_CURVE_25519;
 		p2pp_ecdh.enableEncryption=true;
 		o[0] = p2pp_ecdh;
 		p2pp_ecdh = new P2PSecuredConnectionProtocolWithKeyAgreementProperties();
 		p2pp_ecdh.symmetricEncryptionType = SymmetricEncryptionType.AES_GCM;
-		p2pp_ecdh.keyAgreementType=KeyAgreementType.BC_ECCDH_384_CURVE_M_511;
+		p2pp_ecdh.keyAgreementType=KeyAgreementType.BC_ECCDH_512_CURVE_25519;
 		p2pp_ecdh.enableEncryption=true;
 		o[1] = p2pp_ecdh;
 		res.add(o);
@@ -258,12 +258,12 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 		o = new ConnectionProtocolProperties<?>[2];
 		p2pp_ecdh = new P2PSecuredConnectionProtocolWithKeyAgreementProperties();
 		p2pp_ecdh.symmetricEncryptionType = SymmetricEncryptionType.DEFAULT;
-		p2pp_ecdh.keyAgreementType=KeyAgreementType.BC_ECCDH_384_CURVE_M_511;
+		p2pp_ecdh.keyAgreementType=KeyAgreementType.BC_ECCDH_512_CURVE_25519;
 		p2pp_ecdh.enableEncryption=false;
 		o[0] = p2pp_ecdh;
 		p2pp_ecdh = new P2PSecuredConnectionProtocolWithKeyAgreementProperties();
 		p2pp_ecdh.symmetricEncryptionType = SymmetricEncryptionType.DEFAULT;
-		p2pp_ecdh.keyAgreementType=KeyAgreementType.BC_ECCDH_384_CURVE_M_511;
+		p2pp_ecdh.keyAgreementType=KeyAgreementType.BC_ECCDH_512_CURVE_25519;
 		p2pp_ecdh.enableEncryption=false;
 		o[1] = p2pp_ecdh;
 		res.add(o);
@@ -545,7 +545,7 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 				throw e;
 			}
 			Assert.assertTrue(cycles < numberMaxExchange);
-			Assert.assertTrue(masker == null || mreceiver == null);
+			Assert.assertNull(masker);
 			Assert.assertTrue(cpreceiver.isConnectionEstablished());
 			Assert.assertTrue(cpasker.isConnectionEstablished());
 
@@ -644,14 +644,14 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 						npasker, 2, -1, null));
 				
 				masker = cpasker.setAndGetNextMessage(mreceiver);
-				if (masker != null && cycles == index && !asker) {
+				if (masker != null && cycles == index) {
 					Assert.assertEquals(masker.getClass(), UnexpectedMessage.class);
 					return;
 				}
 				cycles++;
 			} while ((masker != null && mreceiver != null) && cycles < numberMaxExchange);
 			Assert.assertTrue(cycles < numberMaxExchange);
-			Assert.assertTrue(masker == null || mreceiver == null);
+			Assert.assertNull(masker);
 			Assert.assertTrue(cpreceiver.isConnectionEstablished());
 			Assert.assertTrue(cpasker.isConnectionEstablished());
 
@@ -734,7 +734,7 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 				cycles++;
 			} while ((masker != null && mreceiver != null) && cycles < numberMaxExchange);
 			Assert.assertTrue(cycles < numberMaxExchange);
-			Assert.assertTrue(masker == null || mreceiver == null);
+			Assert.assertNull(masker);
 			Assert.assertTrue(cpreceiver.isConnectionEstablished());
 			Assert.assertTrue(cpasker.isConnectionEstablished());
 
@@ -759,7 +759,9 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 		 */
 		private static final long serialVersionUID = -1881592582213193045L;
 
-		
+		public UnknowConnectionMessage() {
+		}
+
 
 		@Override
 		public boolean excludedFromEncryption() {
@@ -819,6 +821,7 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 			}
 			Block b = cp.getBlock(wp, transferType,
 					np.maxRandomPacketValues > 0 ? SecureRandomType.DEFAULT.getSingleton(null) : null, excludeFromEncryption);
+			assert b != null;
 			Assert.assertEquals(transferType, b.getTransferID());
 			
 			
@@ -877,7 +880,7 @@ public class ConnectionsProtocolsTests extends JunitMadkit {
 		catch(NIOException e)
 		{
 			if (tbc==null)
-				System.out.println("tbc = "+tbc);
+				System.out.println("tbc = null");
 			else
 				System.out.println("tbc = "+tbc.getClass());
 			

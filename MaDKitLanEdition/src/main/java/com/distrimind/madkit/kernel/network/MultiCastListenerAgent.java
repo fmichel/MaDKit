@@ -114,7 +114,7 @@ final class MultiCastListenerAgent extends AgentFakeThread {
 					new DatagramLocalNetworkPresenceMessage(localOnlineTime, getMadkitConfig().projectVersion,
 							getMadkitConfig().madkitVersion, getMadkitConfig().minimumProjectVersion, getMadkitConfig().minimumMadkitVersion, this.networkInterfaceAddress, getKernelAddress()),
 					LocalCommunity.Roles.MULTICAST_LISTENER_ROLE);
-		} catch (NoSuchAlgorithmException | NoSuchProviderException | UnsupportedEncodingException e) {
+		} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
 			if (logger != null)
 				logger.severeLog("Impossible to digest kernel address", e);
 		}
@@ -167,7 +167,7 @@ final class MultiCastListenerAgent extends AgentFakeThread {
 					}
 				} else if (logger != null && logger.isLoggable(Level.FINER))
 					logger.finer("Incompatible message received : " + _message);
-			} catch (NoSuchAlgorithmException | NoSuchProviderException | UnsupportedEncodingException e) {
+			} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
 				if (logger != null)
 					logger.severeLog("Impossible to digest kernel address", e);
 			}

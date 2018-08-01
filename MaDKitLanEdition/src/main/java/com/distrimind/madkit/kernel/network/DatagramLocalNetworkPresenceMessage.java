@@ -37,18 +37,6 @@
  */
 package com.distrimind.madkit.kernel.network;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Arrays;
-
-
 import com.distrimind.madkit.kernel.KernelAddress;
 import com.distrimind.madkit.kernel.MadkitProperties;
 import com.distrimind.madkit.kernel.Message;
@@ -57,9 +45,14 @@ import com.distrimind.util.crypto.AbstractMessageDigest;
 import com.distrimind.util.crypto.MessageDigestType;
 import com.distrimind.util.sizeof.ObjectSizer;
 import com.distrimind.util.version.Version;
-
 import gnu.vm.jgnu.security.NoSuchAlgorithmException;
 import gnu.vm.jgnu.security.NoSuchProviderException;
+
+import java.io.*;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 /**
  * 
@@ -101,12 +94,7 @@ class DatagramLocalNetworkPresenceMessage extends Message {
     {
         if (version.getMajor()>0xFFF)
             throw new IllegalArgumentException();
-        if (version.getMinor()>0xFFFF)
-            throw new IllegalArgumentException();
-        if (version.getRevision()>0xFFFF)
-            throw new IllegalArgumentException();
-        if (version.getAlphaBetaVersion()>0xFFFF)
-            throw new IllegalArgumentException();
+
 
 
         return ((long)(version.getMajor() & 0xFFF))<<50
@@ -141,7 +129,7 @@ class DatagramLocalNetworkPresenceMessage extends Message {
 	}
 
 	DatagramLocalNetworkPresenceMessage(long onlineTime, Version programVersion, Version madkitVersion, Version programMinimumVersion, Version madkitMinimumVersion,
-			InetAddress inetAddress, KernelAddress kernelAddress) throws NoSuchAlgorithmException, NoSuchProviderException, UnsupportedEncodingException {
+			InetAddress inetAddress, KernelAddress kernelAddress) throws NoSuchAlgorithmException, NoSuchProviderException {
 		this.onlineTime = onlineTime;
 
 		if (programVersion == null)
@@ -204,8 +192,8 @@ class DatagramLocalNetworkPresenceMessage extends Message {
 		}
 	}
 
-	static byte[] getProgramNameInBytes(String programName) throws UnsupportedEncodingException {
-		byte[] b = programName.getBytes("UTF8");
+	static byte[] getProgramNameInBytes(String programName) {
+		byte[] b = programName.getBytes(StandardCharsets.UTF_8);
 		byte[] res;
 		if (b.length > maxProgramNameLength) {
 			res = new byte[maxProgramNameLength];
@@ -250,7 +238,7 @@ class DatagramLocalNetworkPresenceMessage extends Message {
 
     @SuppressWarnings("unused")
     boolean isCompatibleWith(long localOnlineTime, Version localProgramVersion, Version localMadkitVersion, Version localProgramVersionMinimum, Version localMadkitVersionMinimum
-            , KernelAddress kernelAddress) throws NoSuchAlgorithmException, NoSuchProviderException, UnsupportedEncodingException {
+            , KernelAddress kernelAddress) throws NoSuchAlgorithmException, NoSuchProviderException {
         /*
          * if (localOnlineTime>=onlineTime) { return false; }
          */
@@ -270,7 +258,7 @@ class DatagramLocalNetworkPresenceMessage extends Message {
     }
 
 	boolean isCompatibleWith(Version localProgramVersion, Version localMadkitVersion, Version localProgramVersionMinimum, Version localMadkitVersionMinimum,
-			KernelAddress kernelAddress) throws NoSuchAlgorithmException, NoSuchProviderException, UnsupportedEncodingException {
+			KernelAddress kernelAddress) throws NoSuchAlgorithmException, NoSuchProviderException {
         if (localMadkitVersion == null)
             throw new NullPointerException("localMadkitVersion");
 		if (localMadkitVersionMinimum == null)

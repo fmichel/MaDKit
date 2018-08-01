@@ -854,6 +854,8 @@ public class MadkitProperties extends MultiFormatProperties {
      * Save only the differences between the current MaDKit config and the reference MaDKit configuration, given at the MaDKit construction
      * @see #getReference()
      * @param file the file path
+     * @throws IOException if a problem occurs
+     * @throws PropertiesParseException if the property file parsing failed
      */
 	public void saveConfiguration(File file) throws IOException, PropertiesParseException {
 		assert file!=null;
@@ -865,7 +867,8 @@ public class MadkitProperties extends MultiFormatProperties {
      * Save MadKit config into the file given by {@link #configFiles}.
      * Save only the differences between the current MaDKit config and the reference MaDKit configuration, given at the MaDKit construction
      * @see #getReference()
-     *
+     * @throws IOException if a problem occurs
+     * @throws PropertiesParseException if the property file parsing failed
      */
     public void saveConfiguration() throws IOException, PropertiesParseException {
 	    if (configFiles==null)

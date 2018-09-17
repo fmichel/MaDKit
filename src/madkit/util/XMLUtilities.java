@@ -48,6 +48,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import madkit.kernel.AbstractAgent;
+import madkit.kernel.MadkitProperties;
 import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Madkit.Option;

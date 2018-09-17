@@ -34,14 +34,16 @@ same conditions as regards security.
 The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-C license and that you accept its terms.
  */
-package madkit.util;
+package madkit.kernel;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -52,7 +54,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import madkit.i18n.ErrorMessages;
-import madkit.kernel.MadkitClassLoader;
+import madkit.util.XMLUtilities;
 
 /**
  * The properties object used within MaDKit.
@@ -75,6 +77,11 @@ public class MadkitProperties extends Properties {
      */
     public static final boolean JAVAWS_IS_ON = System.getProperty("javawebstart.version") != null;
 
+    
+    
+    MadkitProperties() {
+    }
+ 
     /**
      * Loads properties from an XML file.
      * 
@@ -145,4 +152,22 @@ public class MadkitProperties extends Properties {
 	    throw new FileNotFoundException(pathname);
 	return is;
     }
+    
+    @Override
+    public synchronized String toString() {
+	String message = "MaDKit current configuration is\n\n";
+	message += "\t--- MaDKit regular options ---\n";
+	for (String option : Madkit.DEFAULT_CONFIG.stringPropertyNames()) {
+	    message += "\t" + String.format("%-" + 30 + "s", option) + getProperty(option) + "\n";
+	}
+	Set<Object> tmp = new HashSet<>(keySet());
+	tmp.removeAll(Madkit.DEFAULT_CONFIG.keySet());
+	if (tmp.size() > 0) {
+	    message += "\n\t--- Additional non MaDKit options ---\n";
+	    for (Object o : tmp)
+		message += "\t" + String.format("%-" + 25 + "s", o) + get(o) + "\n";
+	}
+        return message;
+    }
+    
 }

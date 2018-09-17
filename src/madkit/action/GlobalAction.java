@@ -46,7 +46,7 @@ import madkit.kernel.Madkit;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Madkit.Option;
 import madkit.kernel.MadkitClassLoader;
-import madkit.util.MadkitProperties;
+import madkit.kernel.MadkitProperties;
 
 /**
  * Global actions that can be triggered from anywhere during execution.

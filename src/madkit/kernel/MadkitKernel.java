@@ -111,7 +111,6 @@ import madkit.message.hook.HookMessage;
 import madkit.message.hook.HookMessage.AgentActionEvent;
 import madkit.message.hook.MessageEvent;
 import madkit.message.hook.OrganizationEvent;
-import madkit.util.MadkitProperties;
 
 /**
  * The brand new MaDKit kernel and it is now a real Agent :)

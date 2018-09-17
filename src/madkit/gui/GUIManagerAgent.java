@@ -70,10 +70,10 @@ import madkit.kernel.Madkit.BooleanOption;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Madkit.Option;
 import madkit.kernel.MadkitClassLoader;
+import madkit.kernel.MadkitProperties;
 import madkit.kernel.Message;
 import madkit.message.GUIMessage;
 import madkit.message.KernelMessage;
-import madkit.util.MadkitProperties;
 
 /**
  * The GUI manager agent is responsible for setting and managing agents UI which are created by the default mechanism of

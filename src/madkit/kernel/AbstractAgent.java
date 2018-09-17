@@ -96,7 +96,6 @@ import madkit.message.EnumMessage;
 import madkit.message.GUIMessage;
 import madkit.message.MessageFilter;
 import madkit.message.hook.HookMessage.AgentActionEvent;
-import madkit.util.MadkitProperties;
 import madkit.util.XMLUtilities;
 
 // * <img src="doc-files/Capture.png" alt=""/>

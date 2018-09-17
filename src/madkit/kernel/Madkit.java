@@ -30,10 +30,8 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.logging.ConsoleHandler;
@@ -48,7 +46,6 @@ import madkit.gui.MDKDesktopFrame;
 import madkit.i18n.ErrorMessages;
 import madkit.i18n.I18nUtilities;
 import madkit.message.KernelMessage;
-import madkit.util.MadkitProperties;
 
 /**
  * MaDKit 5 booter class.
@@ -345,19 +342,7 @@ public final class Madkit {
     }
 
     private void logSessionConfig(Properties session, Level lvl) {
-	String message = "MaDKit current configuration is\n\n";
-	message += "\t--- MaDKit regular options ---\n";
-	for (String option : DEFAULT_CONFIG.stringPropertyNames()) {
-	    message += "\t" + String.format("%-" + 30 + "s", option) + session.getProperty(option) + "\n";
-	}
-	Set<Object> tmp = new HashSet<>(session.keySet());
-	tmp.removeAll(DEFAULT_CONFIG.keySet());
-	if (tmp.size() > 0) {
-	    message += "\n\t--- Additional non MaDKit options ---\n";
-	    for (Object o : tmp)
-		message += "\t" + String.format("%-" + 25 + "s", o) + session.get(o) + "\n";
-	}
-	logger.log(lvl, message);
+	logger.log(lvl, session.toString());
     }
 
     Properties buildConfigFromArgs(final String[] options) {

@@ -44,7 +44,7 @@ import javax.swing.JMenuItem;
 
 import madkit.action.GlobalAction;
 import madkit.kernel.MadkitClassLoader;
-import madkit.util.MadkitProperties;
+import madkit.kernel.MadkitProperties;
 
 /**
  * This class builds a {@link JMenu} containing all the MDK configuration files found on the class path. Each item will

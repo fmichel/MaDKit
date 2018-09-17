@@ -39,7 +39,6 @@ package madkit.kernel;
 import java.util.List;
 
 import madkit.i18n.ErrorMessages;
-import madkit.util.MadkitProperties;
 
 /**
  * @author Fabien Michel

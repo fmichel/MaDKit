@@ -47,6 +47,7 @@ import java.io.InputStream;
 import org.junit.Test;
 
 import madkit.kernel.JunitMadkit;
+import madkit.kernel.MadkitProperties;
 
 /**
 * @author Fabien Michel

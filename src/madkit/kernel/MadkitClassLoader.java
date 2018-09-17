@@ -65,7 +65,6 @@ import com.sun.jnlp.JNLPClassLoader;
 
 import madkit.gui.MASModel;
 import madkit.gui.menu.ClassPathSensitiveMenu;
-import madkit.util.MadkitProperties;
 import madkit.util.XMLUtilities;
 
 /**

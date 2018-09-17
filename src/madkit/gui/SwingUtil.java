@@ -63,7 +63,7 @@ import madkit.action.GUIManagerAction;
 import madkit.action.GlobalAction;
 import madkit.action.KernelAction;
 import madkit.kernel.AbstractAgent;
-import madkit.util.MadkitProperties;
+import madkit.kernel.MadkitProperties;
 
 /**
  * This class provides some utilities for building swing components.

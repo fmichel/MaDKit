@@ -39,6 +39,7 @@ package madkit.simulation.deadlock;
 import static madkit.kernel.JunitMadkit.COMMUNITY;
 import static madkit.kernel.JunitMadkit.GROUP;
 import static madkit.kernel.JunitMadkit.ROLE;
+
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Scheduler;
@@ -78,7 +79,7 @@ public class DeadLock extends Scheduler {
 	@Override
 	public void doSimulationStep() {
 		super.doSimulationStep();
-		if(getGVT() > 5){
+		if(getSimulationTime().getActualTime().intValue() > 5){
 			killAgent(simulatedAgents.getCurrentAgentsList().get(0));
 		}
 	}

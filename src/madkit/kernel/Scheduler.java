@@ -42,6 +42,7 @@ import java.awt.BorderLayout;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.math.BigDecimal;
 import java.util.LinkedHashSet;
 import java.util.Observable;
 import java.util.Observer;
@@ -95,25 +96,25 @@ public class Scheduler extends Agent {
      * @see #getSimulationState
      */
     public enum SimulationState {
-	/**
-	 * The simulation process is running normally.
-	 */
-	RUNNING,
+    /**
+     * The simulation process is running normally.
+     */
+    RUNNING,
 
-	/**
-	 * The scheduler will process one simulation step and then will be in the {@link #PAUSED} state.
-	 */
-	STEP,
+    /**
+     * The scheduler will process one simulation step and then will be in the {@link #PAUSED} state.
+     */
+    STEP,
 
-	/**
-	 * The simulation is paused.
-	 */
-	PAUSED,
+    /**
+     * The simulation is paused.
+     */
+    PAUSED,
 
-	/**
-	 * The simulation is ending
-	 */
-	SHUTDOWN
+    /**
+     * The simulation is ending
+     */
+    SHUTDOWN
     }
 
     private static final Preferences SCHEDULER_UI_PREFERENCES = Preferences.userRoot().node(Scheduler.class.getName());
@@ -126,6 +127,11 @@ public class Scheduler extends Agent {
 
     // private JLabel timer;
     private int delay;
+
+    /**
+     * @deprecated as of MaDKit 5.3, replaced by {@link #getSimulationTime()}
+     */
+    private double GVT = 0; // simulation global virtual time
 
     /**
      * specify the delay between 2 steps
@@ -151,22 +157,21 @@ public class Scheduler extends Agent {
     }
 
     /**
-     * Sets the delay between two simulation steps. That is the pause time between to call to {@link #doSimulationStep()}.
-     * The value is automatically adjusted between 0 and 400.
+     * Sets the delay between two simulation steps. That is the real time pause between two calls of
+     * {@link #doSimulationStep()}. Using the Scheduler's GUI, the value can be adjusted from 0 to 400.
      * 
      * @param delay
-     *            the pause between two steps in milliseconds, an integer between 0 and 400: O is max speed.
+     *            the real time pause between two steps in milliseconds, an integer between 0 and 400: O is max speed.
      */
     public void setDelay(final int delay) {
 	speedModel.setValue(speedModel.getMaximum() - delay);
     }
 
-    private double GVT = 0; // simulation global virtual time
-
     /**
      * Returns the simulation global virtual time.
      * 
      * @return the gVT
+     * @deprecated
      */
     public double getGVT() {
 	return GVT;
@@ -177,6 +182,8 @@ public class Scheduler extends Agent {
      * 
      * @param GVT
      *            the actual simulation time
+     * 
+     * @deprecated
      */
     public void setGVT(final double GVT) {
 	this.GVT = GVT;
@@ -187,7 +194,7 @@ public class Scheduler extends Agent {
 
     private double simulationDuration;
 
-    private GVTModel gvtModel;
+    private SimulationTimeModel gvtModel;
 
     /**
      * This constructor is equivalent to <code>Scheduler(Double.MAX_VALUE)</code>
@@ -195,10 +202,6 @@ public class Scheduler extends Agent {
     public Scheduler() {
 	this(Double.MAX_VALUE);
     }
-
-    // public Scheduler(boolean multicore) {
-    // this(0, Double.MAX_VALUE);
-    // }
 
     /**
      * Constructor specifying the time at which the simulation ends.
@@ -209,6 +212,8 @@ public class Scheduler extends Agent {
     public Scheduler(final double endTime) {
 	buildActions();
 	setSimulationDuration(endTime);
+	setSimulationTime(new SimulationTime());
+	// simulationTime = new SimulationTime();
     }
 
     /**
@@ -221,7 +226,7 @@ public class Scheduler extends Agent {
 	super.setupFrame(frame);
 	frame.add(getSchedulerToolBar(), BorderLayout.PAGE_START);
 	frame.add(getSchedulerStatusLabel(), BorderLayout.PAGE_END);
-	setGVT(GVT);
+	getSimulationTime().setActualTime(getSimulationTime().getActualTime());
 	frame.getJMenuBar().add(getSchedulerMenu(), 2);
 	speedModel.setValue(SCHEDULER_UI_PREFERENCES.getInt(getName() + "speed", speedModel.getValue()));
 	setSimulationState(SCHEDULER_UI_PREFERENCES.getBoolean(getName() + "autostart", false) ? SimulationState.RUNNING : SimulationState.PAUSED);
@@ -236,8 +241,10 @@ public class Scheduler extends Agent {
      * @since MaDKit 5.0.0.8
      */
     public void addActivator(final Activator<? extends AbstractAgent> activator) {
-	if (kernel.addOverlooker(this, activator))
+	if (kernel.addOverlooker(this, activator)) {
 	    activators.add(activator);
+	    activator.setSimulationTime(getSimulationTime());
+	}
 	getLogger().fine(() -> "Activator added: " + activator);
     }
 
@@ -255,8 +262,8 @@ public class Scheduler extends Agent {
 
     /**
      * Executes all the activators in the order they have been added, using {@link Activator#execute(Object...)}, and then
-     * increments the global virtual time of this scheduler by one unit. This also automatically calls the multicore mode of
-     * the activator if it is set so. This method should be overridden to define customized scheduling policy. So default
+     * increments the simulation time of this scheduler by one unit. This also automatically calls the multicore mode of the
+     * activator if it is set so. This method should be overridden to define customized scheduling policy. So default
      * implementation is :
      * 
      * <pre>
@@ -270,11 +277,11 @@ public class Scheduler extends Agent {
      * 				logger.finer("Activating\n--------> " + activator);
      * 			activator.execute();
      * 		}
-     * 		setGVT(getGVT() + 1);
+     * 		simulationTime.addDeltaTime(BigDecimal.ONE);
      * </pre>
      */
     public void doSimulationStep() {
-	getLogger().finer(() -> "Doing simulation step " + GVT);
+	getLogger().finer(() -> "Doing step timestamped " + getSimulationTime().getActualTime());
 	for (final Activator<? extends AbstractAgent> activator : activators) {
 	    executeAndLog(activator);
 	    // try {
@@ -283,7 +290,8 @@ public class Scheduler extends Agent {
 	    // getLogger().log(Level.SEVERE, e.getMessage(), e);
 	    // }
 	}
-	setGVT(GVT + 1);
+	// setGVT(GVT + 1);
+	getSimulationTime().addDeltaTime(BigDecimal.ONE);
     }
 
     /**
@@ -299,11 +307,11 @@ public class Scheduler extends Agent {
     @Override
     protected void end() {
 	simulationState = PAUSED;
-	getLogger().info(() -> "Simulation stopped at time = " + getGVT());
+	getLogger().info(() -> "Simulation stopped at time = " + getSimulationTime().getActualTime());
     }
 
     /**
-     * The state of the simualtion.
+     * The state of the simulation.
      * 
      * @return the state in which the simulation is.
      * @see SimulationState
@@ -572,10 +580,10 @@ public class Scheduler extends Agent {
      */
     public JLabel getSchedulerStatusLabel() {
 	if (gvtModel == null) {
-	    gvtModel = new GVTModel();
+	    gvtModel = new SimulationTimeModel();
 	}
 	@SuppressWarnings("serial")
-	GVTJLabel timer = new GVTJLabel() {
+	SimulationTimeJLabel timer = new SimulationTimeJLabel() {
 
 	    @Override
 	    public void update(Observable o, Object arg) {
@@ -586,7 +594,7 @@ public class Scheduler extends Agent {
 	gvtModel.addObserver(timer);
 	timer.setBorder(new EmptyBorder(4, 4, 4, 4));
 	timer.setHorizontalAlignment(JLabel.LEADING);
-	setGVT(getGVT());
+	getSimulationTime().setActualTime(getSimulationTime().getActualTime());
 	return timer;
     }
 
@@ -597,20 +605,76 @@ public class Scheduler extends Agent {
      */
     public JLabel getGVTLabel() {
 	if (gvtModel == null) {
-	    gvtModel = new GVTModel();
+	    gvtModel = new SimulationTimeModel();
 	}
-	final GVTJLabel timer = new GVTJLabel();
+	final SimulationTimeJLabel timer = new SimulationTimeJLabel();
 	timer.setText("0");
 	gvtModel.addObserver(timer);
 	timer.setBorder(new EmptyBorder(4, 4, 4, 4));
 	timer.setHorizontalAlignment(JLabel.LEADING);
-	setGVT(getGVT());
+	getSimulationTime().setActualTime(getSimulationTime().getActualTime());
 	return timer;
+    }
+
+    /**
+     * This class encapsulates a {@link BigDecimal} modeling the time of the simulation. Its purpose is that it can be
+     * passed across objects without problem. That is, {@link BigDecimal} is immutable and therefore creates a new instance
+     * for each modification.
+     * 
+     * @author Fabien Michel
+     * @since MaDKit 5.3
+     * @see Scheduler BigDecimal
+     */
+    public class SimulationTime {
+
+	private BigDecimal actualTime;
+
+	/**
+	 * Creates a new instance using a specific {@link BigDecimal}
+	 * 
+	 * @param initialTime
+	 *            a {@link BigDecimal} to start with
+	 * @see BigDecimal
+	 */
+	SimulationTime(BigDecimal initialTime) {
+	    actualTime = initialTime;
+	}
+
+	/**
+	 * Creates a new instance whose time is {@link BigDecimal#ZERO};
+	 * 
+	 */
+	SimulationTime() {
+	    this(BigDecimal.ZERO);
+	}
+
+	public void setActualTime(BigDecimal actualTime) {
+	    this.actualTime = actualTime;
+	    if (gvtModel != null)
+		gvtModel.notifyObservers(actualTime);
+	}
+
+	public BigDecimal getActualTime() {
+	    return actualTime;
+	}
+
+	/**
+	 * Shortcut for <code>setActualTime(getActualTime().add(delta));</code>
+	 * 
+	 * @param delta
+	 *            specifies how much time should be added
+	 * @return the new actual time
+	 */
+	public BigDecimal addDeltaTime(BigDecimal delta) {
+	    setActualTime(getActualTime().add(delta));
+	    return getActualTime();
+	}
+
     }
 
 }
 
-final class GVTModel extends Observable {
+final class SimulationTimeModel extends Observable {
 
     @Override
     public void notifyObservers(Object arg) {
@@ -619,7 +683,7 @@ final class GVTModel extends Observable {
     }
 }
 
-class GVTJLabel extends JLabel implements Observer {
+class SimulationTimeJLabel extends JLabel implements Observer {
 
     private static final long serialVersionUID = 2320718202738802489L;
 

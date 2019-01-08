@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
+import madkit.kernel.Scheduler.SimulationTime;
 import madkit.simulation.activator.GenericBehaviorActivator;
 
 /**
@@ -62,6 +63,8 @@ import madkit.simulation.activator.GenericBehaviorActivator;
 public abstract class Activator<A extends AbstractAgent> extends Overlooker<A> {
 
     private int nbOfsimultaneousTasks = 1;
+    
+    private Scheduler.SimulationTime simulationTime;
 
     /**
      * Builds a new Activator on the given CGR location of the artificial society with multicore mode set to
@@ -91,6 +94,11 @@ public abstract class Activator<A extends AbstractAgent> extends Overlooker<A> {
 	else {
 	    execute(getCurrentAgentsList(), args);
 	}
+    }
+    
+    @Override
+    protected void adding(A agent) {
+        agent.setSimulationTime(getSimulationTime());
     }
 
     /**
@@ -228,5 +236,21 @@ public abstract class Activator<A extends AbstractAgent> extends Overlooker<A> {
 		}
 	    }
 	}
+    }
+
+    /**
+     * Get the {@link SimulationTime} associated with the simulation
+     * 
+     * @return the simulationTime associated with the simulation
+     */
+    public Scheduler.SimulationTime getSimulationTime() {
+	return simulationTime;
+    }
+
+    /**
+     * @param simulationTime the simulationTime to set
+     */
+    final void setSimulationTime(Scheduler.SimulationTime simulationTime) {
+	this.simulationTime = simulationTime;
     }
 }

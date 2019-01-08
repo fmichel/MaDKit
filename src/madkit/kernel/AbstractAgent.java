@@ -91,6 +91,7 @@ import madkit.i18n.ErrorMessages;
 import madkit.i18n.I18nUtilities;
 import madkit.i18n.Words;
 import madkit.kernel.Madkit.Option;
+import madkit.kernel.Scheduler.SimulationTime;
 import madkit.message.ConversationFilter;
 import madkit.message.EnumMessage;
 import madkit.message.GUIMessage;
@@ -175,6 +176,28 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
      * @see java.util.logging.Logger
      */
     AgentLogger logger;
+    
+    private SimulationTime simulationTime;
+
+    
+    /**
+     * Returns the {@link SimulationTime} of the current simulation.
+     * This is automatically initialized when the agent is associated with an activator for the first time. 
+     * So it stays <code>null</code> if the agent is not related to any kind of simulation
+     * 
+     * @return the simulationTime of the simulation in which the agent participates 
+     */
+    public SimulationTime getSimulationTime() {
+        return simulationTime;
+    }
+
+    
+    /**
+     * @param simulationTime the simulationTime to set
+     */
+    void setSimulationTime(SimulationTime simulationTime) {
+        this.simulationTime = simulationTime;
+    }
 
     public AbstractAgent() {
 	hashCode = agentCounter.getAndIncrement();
@@ -1178,7 +1201,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
      * Requests a role even if the agent has been launched using one of the <code>launchAgentBucket</code> methods with no
      * <code>null</code> roles. For instance, this is useful if you launch one million of agents and when only some of them
      * have to take a specific role which cannot be defined in the parameters of
-     * {@link #launchAgentBucket(List, int, String...)} because they are priorly unknown and build at runtime.
+     * {@link #launchAgentBucket(List, int, String...)} because they are priorly unknown and built at runtime.
      * 
      * @param community
      *            the group's community.

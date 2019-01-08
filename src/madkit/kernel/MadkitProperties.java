@@ -78,10 +78,6 @@ public class MadkitProperties extends Properties {
     public static final boolean JAVAWS_IS_ON = System.getProperty("javawebstart.version") != null;
 
     
-    
-    MadkitProperties() {
-    }
- 
     /**
      * Loads properties from an XML file.
      * 

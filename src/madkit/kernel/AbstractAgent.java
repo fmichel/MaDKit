@@ -2546,6 +2546,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	Method m = null;
 	try {
 	    m = findMethodFromParameters(ActionInfo.enumToMethodName(message.getCode()), parameters);
+//	    m = Activator.findMethodOnFromArgsSample(getClass(), ActionInfo.enumToMethodName(message.getCode()), parameters);
 	    m.invoke(this, parameters);
 	}
 	catch(Error e) {
@@ -2650,6 +2651,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	primitiveTypes.put(double.class, Double.class);
 	primitiveTypes.put(long.class, Long.class);
     }
+
 
     // //////////////////////////////////////////////////////////////////////////////
     // /////////////////////////////////// Return codes

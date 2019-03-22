@@ -106,7 +106,7 @@ public class GenericBehaviorActivator<A extends AbstractAgent> extends Activator
 		    cachedM = methods.get(agentClass);
 		    if (cachedM == null) {
 			try {
-			    cachedM = findMethodOn(agentClass, methodName);
+			    cachedM = findMethodOnFromArgsSample(agentClass, methodName, args);
 			}
 			catch(NoSuchMethodException e) {
 			    throw new SimulationException(toString(), e);
@@ -117,7 +117,7 @@ public class GenericBehaviorActivator<A extends AbstractAgent> extends Activator
 		    }
 		}
 		try {
-		    cachedM.invoke(a);
+		    cachedM.invoke(a,args);
 		}
 		catch(IllegalAccessException e) {
 		    throw new SimulationException(toString(), e);

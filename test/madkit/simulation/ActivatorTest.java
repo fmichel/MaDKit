@@ -44,13 +44,13 @@ import static org.junit.Assert.fail;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import org.junit.Before;
+import org.junit.Test;
+
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.Activator;
 import madkit.kernel.Agent;
 import madkit.testing.util.agent.NormalLife;
-
-import org.junit.Before;
-import org.junit.Test;
 
 /**
  * Has to be outside of madkit.kernel for really testing visibility
@@ -87,16 +87,41 @@ public class ActivatorTest {
 			m = Activator.findMethodOn(NormalLife.class, "privateMethod");//private
 			System.err.println(m);
 			m.invoke(new NormalLife());
-		} catch (NoSuchMethodException e) {
+			m = Activator.findMethodOn(NormalLife.class, "privateMethodWithArgs",String.class, Object.class);//private
+			System.err.println(m);
+			m.invoke(new NormalLife(), "test", new Integer(15));
+		} catch (NoSuchMethodException | IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
 			e.printStackTrace();
 			fail("Oo");
-		} catch (IllegalArgumentException e) {
+		}
+	}
+
+	@Test
+	public void testFindMethodOnFromArgsSample() {
+		try {
+			Method m;
+			m = Activator.findMethodOnFromArgsSample(AbstractAgent.class, "activate");
+			System.err.println(m);
+			m = Activator.findMethodOnFromArgsSample(NormalLife.class, "live");//protected
+			System.err.println(m);
+			m = Activator.findMethodOnFromArgsSample(NormalLife.class, "privateMethod");//private
+			System.err.println(m);
+			m.invoke(new NormalLife());
+			m = Activator.findMethodOnFromArgsSample(NormalLife.class, "privateMethodWithArgs","test", new Integer(15));//private
+			System.err.println(m);
+			m.invoke(new NormalLife(), "test", new Integer(15));
+			m = Activator.findMethodOnFromArgsSample(NormalLife.class, "privateMethodWithArgs","test", new Object());
+			System.err.println(m);
+			m.invoke(new NormalLife(), "test", new Integer(15));
+			m = Activator.findMethodOnFromArgsSample(NormalLife.class, "privateMethodWithPrimitiveArgs","test", new Integer(15));//private
+			System.err.println(m);
+			m.invoke(new NormalLife(), "test", new Integer(15));
+			m = Activator.findMethodOnFromArgsSample(NormalLife.class, "privateMethodWithPrimitiveArgs","test", 4);
+			System.err.println(m);
+			m.invoke(new NormalLife(), "test", 2);
+		} catch (NoSuchMethodException | IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
 			e.printStackTrace();
 			fail("Oo");
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-			fail("Oo");
-		} catch (InvocationTargetException e) {
 		}
 	}
 

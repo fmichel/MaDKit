@@ -44,6 +44,8 @@ import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
 
+import madkit.simulation.activator.GenericBehaviorActivator;
+
 /**
 * @author Fabien Michel
 */
@@ -262,7 +264,7 @@ public class FakeKernelTest {
 	@Test
 	public final void testAddOverlooker() {
 		try {
-			new Scheduler().addActivator(null);
+			new Scheduler().addActivator(new GenericBehaviorActivator<>("t", "t", "t", "t"));
 			fail("exception not thrown");
 		} catch (KernelException e) {
 			assertEquals(a.getKernel(), AbstractAgent.FAKE_KERNEL);

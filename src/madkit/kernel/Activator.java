@@ -39,7 +39,9 @@ package madkit.kernel;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
@@ -63,7 +65,7 @@ import madkit.simulation.activator.GenericBehaviorActivator;
 public abstract class Activator<A extends AbstractAgent> extends Overlooker<A> {
 
     private int nbOfsimultaneousTasks = 1;
-    
+
     private Scheduler.SimulationTime simulationTime;
 
     /**
@@ -89,16 +91,16 @@ public abstract class Activator<A extends AbstractAgent> extends Overlooker<A> {
      */
     public void execute(Object... args) {
 	if (isMulticoreModeOn()) {
-	    multicoreExecute();
+	    multicoreExecute(args);
 	}
 	else {
 	    execute(getCurrentAgentsList(), args);
 	}
     }
-    
+
     @Override
     protected void adding(A agent) {
-        agent.setSimulationTime(getSimulationTime());
+	agent.setSimulationTime(getSimulationTime());
     }
 
     /**
@@ -142,17 +144,13 @@ public abstract class Activator<A extends AbstractAgent> extends Overlooker<A> {
 	}
 	workers.add(new Callable<Void>() {
 
-	    public Void call() throws Exception {
-		execute(list.subList(nbOfAgentsPerTask * cpuCoreNb, list.size()), args);
-		return null;
-	    }
-	});
-	try {
-	    Activator.getMadkitServiceExecutor().invokeAll(workers);
-	}
-	catch(InterruptedException e) {
-	    Thread.currentThread().interrupt();// do not swallow it !
-	}
+    public Void call() throws Exception {
+	execute(list.subList(nbOfAgentsPerTask * cpuCoreNb, list.size()), args);
+	return null;
+    }});try{Activator.getMadkitServiceExecutor().invokeAll(workers);}catch(InterruptedException e)
+    {
+	Thread.currentThread().interrupt();// do not swallow it !
+    }
     }
 
     @Override
@@ -202,23 +200,25 @@ public abstract class Activator<A extends AbstractAgent> extends Overlooker<A> {
     }
 
     /**
-     * Returns the agent's method named <code>methodName</code> considering a given agentClass. This also works for the
-     * private methods of the class, even inherited ones.
+     * Returns the agent's method named <code>methodName</code> considering a given agentClass. This also works for private
+     * and inherited methods.
      * 
      * @param agentClass
-     *            the targeted agent
+     *            the class wherein the search has to be made
      * @param methodName
      *            the name of the method
+     * @param parameterTypes
+     *            the parameter types of the targeted method
      * @return the agent's method named <code>methodName</code>
      * @throws NoSuchMethodException
      */
     // * This also works on <code>private</code> field.
     @SuppressWarnings("unchecked")
-    public static <T> Method findMethodOn(Class<T> agentClass, final String methodName) throws NoSuchMethodException {
+    public static <T> Method findMethodOn(Class<T> agentClass, final String methodName, Class<?>... parameterTypes) throws NoSuchMethodException {
 	Method m;
 	while (true) {
 	    try {
-		m = agentClass.getDeclaredMethod(methodName);
+		m = agentClass.getDeclaredMethod(methodName, parameterTypes);
 		if (m != null) {
 		    if (!m.isAccessible()) {// TODO seems to be always the case the first time
 			m.setAccessible(true);
@@ -230,10 +230,54 @@ public abstract class Activator<A extends AbstractAgent> extends Overlooker<A> {
 		e.printStackTrace();
 	    }
 	    catch(NoSuchMethodException e) {
-		agentClass = (Class<T>) agentClass.getSuperclass();// TODO not go further than A
-		if (agentClass == AbstractAgent.class) {// TODO bench vs local variable
+		agentClass = (Class<T>) agentClass.getSuperclass();
+		if (agentClass == Object.class) {
 		    throw e;
 		}
+	    }
+	}
+    }
+
+    /**
+     * Returns the agent's method named <code>methodName</code> considering a given agentClass and a sample of 
+     * the arguments which could be passed to it. The purpose of this method is restricted to a limited number of
+     * use cases since {@link #findMethodOn(Class, String, Class...)} should be preferred is the exact signature of the 
+     * searched method is known. A typical use case of this method 
+     * is when the only information available is the arguments which are passed, for instance when overriding 
+     * the {@link #execute(List, Object...)} method and the like in {@link Activator} subclasses. This also works for private
+     * and inherited methods.
+     * 
+     * 
+     * @param agentClass
+     *            the class wherein the search has to be made
+     * @param methodName
+     *            the name of the method
+     * @param argsSample
+     *            a sample of the args which can be passed to the method
+     * @return the agent's method named <code>methodName</code>
+     * @throws NoSuchMethodException
+     *             if a matching method cannot be found
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> Method findMethodOnFromArgsSample(Class<T> agentClass, final String methodName, Object... argsSample) throws NoSuchMethodException {
+	Method m;
+	final Class<?>[] parameterTypes = getParameterTypes(argsSample);
+	try {
+	    return findMethodOn(agentClass, methodName, parameterTypes);
+	}
+	catch(NoSuchMethodException e) {
+	}
+	while (true) {
+	    m = findMethodIn(methodName, agentClass.getDeclaredMethods(), parameterTypes);
+	    if (m != null) {
+		if(! m.isAccessible()) {
+		    m.setAccessible(true);
+		}
+		return m;
+	    }
+	    agentClass = (Class<T>) agentClass.getSuperclass();
+	    if (agentClass == Object.class) {
+		throw new NoSuchMethodException();
 	    }
 	}
     }
@@ -248,9 +292,73 @@ public abstract class Activator<A extends AbstractAgent> extends Overlooker<A> {
     }
 
     /**
-     * @param simulationTime the simulationTime to set
+     * @param simulationTime
+     *            the simulationTime to set
      */
     final void setSimulationTime(Scheduler.SimulationTime simulationTime) {
 	this.simulationTime = simulationTime;
     }
+
+    private static Class<?>[] getParameterTypes(final Object[] parameters) {
+	final Class<?>[] paramTypes = new Class<?>[parameters.length];
+	for (int i = 0; i < paramTypes.length; i++) {
+	    if (parameters[i] != null) {
+		paramTypes[i] = parameters[i].getClass();
+	    }
+	}
+	return paramTypes;
+    }
+
+    private static boolean checkTypesCompatibility(Class<?>[] methodTypes, Class<?>[] parametersTypes) {
+	if (parametersTypes.length == methodTypes.length) {
+	    for (int i = 0; i < methodTypes.length; i++) {
+		if (parametersTypes[i] != null && ! methodTypes[i].isAssignableFrom(parametersTypes[i])) {
+		    return false;
+		}
+	    }
+	    return true;
+	}
+	return false;
+    }
+    
+    private static Class<?>[] convertPrimitiveToObjectTypes(final Class<?>[] parameters) {
+	for (int i = 0; i < parameters.length; i++) {
+	    final Class<?> paramCl = parameters[i];
+	    if (paramCl != null && paramCl.isPrimitive()) {
+		parameters[i] = primitiveTypes.get(paramCl);
+	    }
+	}
+	return parameters;
+    }
+
+    /**
+     * Find a method by searching all methods and testing parameters types
+     * 
+     * @param methodName
+     * @param methods
+     * @param parameters
+     * @return
+     */
+    private static Method findMethodIn(String methodName, Method[] methods, Class<?>[] parameters) {
+	for (Method method : methods) {
+	    if (method.getName().equals(methodName) && checkTypesCompatibility(convertPrimitiveToObjectTypes(method.getParameterTypes()), parameters)) {
+		return method;
+	    }
+	}
+	return null;
+    }
+
+    private static final Map<Class<?>, Class<?>> primitiveTypes = new HashMap<>();
+    static {
+	primitiveTypes.put(int.class, Integer.class);
+	primitiveTypes.put(boolean.class, Boolean.class);
+	primitiveTypes.put(byte.class, Byte.class);
+	primitiveTypes.put(char.class, Character.class);
+	primitiveTypes.put(float.class, Float.class);
+	primitiveTypes.put(void.class, Void.class);
+	primitiveTypes.put(short.class, Short.class);
+	primitiveTypes.put(double.class, Double.class);
+	primitiveTypes.put(long.class, Long.class);
+    }
+
 }

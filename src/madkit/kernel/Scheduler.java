@@ -241,9 +241,9 @@ public class Scheduler extends Agent {
      * @since MaDKit 5.0.0.8
      */
     public void addActivator(final Activator<? extends AbstractAgent> activator) {
+	activator.setSimulationTime(getSimulationTime());
 	if (kernel.addOverlooker(this, activator)) {
 	    activators.add(activator);
-	    activator.setSimulationTime(getSimulationTime());
 	}
 	getLogger().fine(() -> "Activator added: " + activator);
     }
@@ -297,11 +297,12 @@ public class Scheduler extends Agent {
     /**
      * Triggers the execute method of this <code>activator</code> and logs it using the {@link Level#FINER} logging level
      * 
-     * @param activator
+     * @param activator the activator to trigger
+     * @param args the args that will be passed to the targeted method
      */
-    public void executeAndLog(final Activator<? extends AbstractAgent> activator) {
+    public void executeAndLog(final Activator<? extends AbstractAgent> activator, Object... args) {
 	getLogger().finer(() -> "Activating --------> " + activator);
-	activator.execute();
+	activator.execute(args);
     }
 
     @Override
@@ -384,7 +385,7 @@ public class Scheduler extends Agent {
     @Override
     protected void live() {
 	while (isAlive()) {
-	    if (GVT > simulationDuration) {
+	    if (getSimulationTime().getActualTime().intValue() > simulationDuration) {
 		getLogger().info(() -> "Quitting: Simulation has reached end time " + simulationDuration);
 		return;
 	    }

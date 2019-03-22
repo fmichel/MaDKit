@@ -60,6 +60,18 @@ public abstract class DoItDuringLifeCycleAgent extends Agent {
 	private void privateMethod() {
 	}
 
+	@SuppressWarnings("unused")
+	private void privateMethodWithArgs(String s, Object o) {
+	    System.err.println(s);
+	    System.err.println(o);
+	}
+
+	@SuppressWarnings("unused")
+	private void privateMethodWithPrimitiveArgs(String s, int i) {
+	    System.err.println(s);
+	    System.err.println(i);
+	}
+
 	public DoItDuringLifeCycleAgent(boolean inActivate, boolean inLive) {
 		this(inActivate, inLive, false);
 	}

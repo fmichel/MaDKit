@@ -39,11 +39,24 @@ package madkit.classreloading;
 import madkit.kernel.Agent;
 
 /**
-* @author Fabien Michel
-*/
+ * @author Fabien Michel
+ */
 public class AgentToReload extends Agent {
-	@Override
-	public String toString() {
-		return "a";
+
+    @Override
+    protected void live() {
+	while(true) {
+	    pause(1000);
+	    getLogger().info("testing");
 	}
+    }
+
+    @Override
+    public String toString() {
+	return "a";
+    }
+    
+    public static void main(String[] args) {
+	executeThisAgent();
+    }
 }

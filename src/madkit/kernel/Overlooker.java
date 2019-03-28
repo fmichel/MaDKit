@@ -191,11 +191,12 @@ abstract class Overlooker<A extends AbstractAgent> {
     }
 
     /**
-     * This method is automatically called when an agent leaves the corresponding group and role. This method is empty by
-     * default. Override this method when you want to do some work when an agent leaves the group/role.
+     * This method is automatically called when an agent leaves the corresponding group and role. 
+     * This method is empty by default. 
+     * Override this method when you want to do some work when an agent leaves the group/role. 
+     * Note that the role is still handled by the agent when invoked.
      * 
-     * @param agent
-     *            which has been removed from this group/role
+     * @param agent the agent which is being removed from this group/role
      */
     protected void removing(final A agent) {
     }

@@ -113,7 +113,7 @@ final class Group extends ConcurrentHashMap<String, Role> {
 	 * @param gatekeeper
 	 * @param communityObject
 	 */
-	Group(String community, String group, AgentAddress manager,	Organization communityObject) {
+	Group(String community, String group, AgentAddress manager, Organization communityObject) {
 		// manager = creator;
 		distributed = true;
 		this.communityObject = communityObject;

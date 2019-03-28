@@ -756,9 +756,9 @@ class MadkitKernel extends Agent {
 	    affectedRoles = g.leaveGroup(requester);
 	}
 	if (affectedRoles != null) {// success
-	    for (final Role role : affectedRoles) {
-		role.removeFromOverlookers(requester);
-	    }
+//	    for (final Role role : affectedRoles) {
+//		role.removeFromOverlookers(requester);
+//	    }
 	    if (g.isDistributed()) {
 		sendNetworkMessageWithRole(new CGRSynchro(LEAVE_GROUP, new AgentAddress(requester, new Role(community, group), kernelAddress)), netUpdater);
 	    }
@@ -792,6 +792,7 @@ class MadkitKernel extends Agent {
 		AgentAddress leaver = r.getAgentAddressOf(requester);
 		if (leaver == null)
 		    return ReturnCode.ROLE_NOT_HANDLED;
+		r.removeFromOverlookers(requester);
 		rc = r.removeMember(requester);
 		if (rc != SUCCESS)// TODO remove that
 		    throw new AssertionError("cannot remove " + requester + " from " + r.buildAndGetAddresses());
@@ -801,7 +802,6 @@ class MadkitKernel extends Agent {
 		rc = r.removeMember(requester);
 	    }
 	    if (rc == SUCCESS) {
-		r.removeFromOverlookers(requester);
 		if (hooks != null) {
 		    informHooks(AgentActionEvent.LEAVE_ROLE, new AgentAddress(requester, r, kernelAddress));
 		}

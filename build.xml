@@ -146,6 +146,26 @@
 		<pathelement location="${basedir}" />
 		<!--for images -->
 	</path>
+	
+	<!-- ================================= 
+          target: mdk-junit-jar              
+         ================================= -->
+    <target name="mdk-junit-jar" depends="clean,compile" description="build the jar for using the MDK junit classes">
+		<javac destdir="${build.dir}" includeAntRuntime="false" debug="on" srcdir="test">
+			<classpath refid="test.compile.classpath" />
+		</javac>
+		<jar destfile="${mdk-junit-jar.file}" level="1">
+			<fileset dir="${build.dir}">
+				<exclude name="**/package-info.class" />
+				<exclude name="**/doc-files/**" />
+			</fileset>
+		</jar>
+
+		<chmod file="${mdk-junit-jar.name}" perm="ugo+x" />
+		<echo>${jar.file} created !${line.separator}</echo>
+    	
+    </target>
+
 
 	<target name="test-init" depends="buildResources">
 		<javac debug="true" includeAntRuntime="false" classpathref="compile.classpath" srcdir="${src.dir}" destdir="${build.dir}" excludes="**/networking/**" />

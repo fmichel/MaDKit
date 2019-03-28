@@ -250,13 +250,19 @@ class Role implements Serializable {// TODO test with arraylist
     }
 
     ReturnCode removeMember(final AbstractAgent requester) {
+	int index;
 	synchronized (players) {
-	    if (!players.remove(requester)) {
+	    index = players.indexOf(requester);
+	    if (index < 0) {
 		if (myGroup.isIn(requester)) {
 		    return ROLE_NOT_HANDLED;
 		}
 		return ReturnCode.NOT_IN_GROUP;
 	    }
+	}
+	removeFromOverlookers(requester);
+	synchronized (players) {
+	    players.remove(index);
 	    if (agentAddresses != null) {
 		removeAgentAddressOf(requester, agentAddresses).setRoleObject(null);
 	    }
@@ -265,13 +271,13 @@ class Role implements Serializable {// TODO test with arraylist
 	    }
 	    modified = true;
 	}
-	removeFromOverlookers(requester);// TODO put that in the synchronized ?
 	checkEmptyness();
 	return SUCCESS;
     }
 
     final void removeMembers(final List<AbstractAgent> bucket) {
 	synchronized (players) {
+	    removeFromOverlookers(bucket);
 	    players.removeAll(bucket);// is optimized
 	    if (agentAddresses != null) {
 		for (Iterator<AgentAddress> i = agentAddresses.iterator(); i.hasNext();) {
@@ -285,7 +291,6 @@ class Role implements Serializable {// TODO test with arraylist
 	    }
 	    modified = true;
 	}
-	removeFromOverlookers(bucket);
     }
 
     /**

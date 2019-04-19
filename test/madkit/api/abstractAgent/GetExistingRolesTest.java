@@ -39,12 +39,12 @@ package madkit.api.abstractAgent;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import org.junit.Test;
+
 import madkit.agr.DefaultMaDKitRoles;
 import madkit.agr.LocalCommunity;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadkit;
-
-import org.junit.Test;
 
 /**
  * @author Fabien Michel
@@ -55,38 +55,38 @@ import org.junit.Test;
 @SuppressWarnings("all")
 public class GetExistingRolesTest extends JunitMadkit {
 
-	@Test
-	public void onlyLocal() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				System.err.println(getExistingRoles(LocalCommunity.NAME,LocalCommunity.Groups.SYSTEM));
-				assertEquals(1, getExistingRoles(LocalCommunity.NAME,LocalCommunity.Groups.SYSTEM).size());
-				assertEquals(DefaultMaDKitRoles.GROUP_MANAGER_ROLE, getExistingRoles(LocalCommunity.NAME,LocalCommunity.Groups.SYSTEM).first());
-			}
-		});
-	}
-	
-	@Test
-	public void notFound(){
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				assertNull(getExistingRoles(aa(),aa()));
-			}
-		});
-	}
+    @Test
+    public void onlyLocal() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		System.err.println(getExistingRoles(LocalCommunity.NAME,LocalCommunity.Groups.SYSTEM));
+		assertEquals(1, getExistingRoles(LocalCommunity.NAME,LocalCommunity.Groups.SYSTEM).size());
+		assertEquals(DefaultMaDKitRoles.GROUP_MANAGER_ROLE, getExistingRoles(LocalCommunity.NAME,LocalCommunity.Groups.SYSTEM).first());
+	    }
+	});
+    }
 
-	@Test
-	public void createNewAndLeave() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				createGroup(COMMUNITY, GROUP);
-				assertEquals(1, getExistingRoles(COMMUNITY,GROUP).size());
-				assertEquals(DefaultMaDKitRoles.GROUP_MANAGER_ROLE, getExistingRoles(COMMUNITY,GROUP).first());
-				requestRole(COMMUNITY, GROUP, ROLE);
-				assertEquals(2, getExistingRoles(COMMUNITY,GROUP).size());
-				assertEquals(ROLE, getExistingRoles(COMMUNITY,GROUP).first());
-			}
-		});
-	}
+    @Test
+    public void notFound(){
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		assertNull(getExistingRoles(dontExist(),dontExist()));
+	    }
+	});
+    }
+
+    @Test
+    public void createNewAndLeave() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		createGroup(COMMUNITY, GROUP);
+		assertEquals(1, getExistingRoles(COMMUNITY,GROUP).size());
+		assertEquals(DefaultMaDKitRoles.GROUP_MANAGER_ROLE, getExistingRoles(COMMUNITY,GROUP).first());
+		requestRole(COMMUNITY, GROUP, ROLE);
+		assertEquals(2, getExistingRoles(COMMUNITY,GROUP).size());
+		assertEquals(ROLE, getExistingRoles(COMMUNITY,GROUP).first());
+	    }
+	});
+    }
 
 }

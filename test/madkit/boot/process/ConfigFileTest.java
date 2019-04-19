@@ -55,56 +55,56 @@ import madkit.kernel.Madkit;
 
 public class ConfigFileTest extends JunitMadkit {
 
-	@Test
-	public void configFile() {
-		addMadkitArgs(Madkit.Option.configFile.toString(),"madkit/boot/process/test.prop",Madkit.LevelOption.madkitLogLevel.toString(),Level.ALL.toString());
-		launchTest(new AbstractAgent() {
-			@Override
-			protected void activate() {
-				assertEquals("ok",getMadkitProperty("test"));
-			}
-		});
-	}
-	
-		@Test
-		public void multiConfigFile() {
-			addMadkitArgs(Madkit.Option.configFile.toString(),"madkit/boot/process/test.prop;madkit/boot/process/test2.prop",Madkit.LevelOption.madkitLogLevel.toString(),Level.ALL.toString());
-			launchTest(new AbstractAgent() {
-				@Override
-				protected void activate() {
-					assertEquals("overridden",getMadkitProperty("test"));
-					assertEquals("ok",getMadkitProperty("test2"));
-				}
-			});
-		}
+    @Test
+    public void configFile() {
+	addMadkitArgs(Madkit.Option.configFile.toString(),"madkit/boot/process/test.prop",Madkit.LevelOption.madkitLogLevel.toString(),Level.ALL.toString());
+	launchTestV2(new AbstractAgent() {
+	    @Override
+	    protected void activate() {
+		assertEquals("ok",getMadkitProperty("test"));
+	    }
+	});
+    }
+
+    @Test
+    public void multiConfigFile() {
+	addMadkitArgs(Madkit.Option.configFile.toString(),"madkit/boot/process/test.prop;madkit/boot/process/test2.prop",Madkit.LevelOption.madkitLogLevel.toString(),Level.ALL.toString());
+	launchTestV2(new AbstractAgent() {
+	    @Override
+	    protected void activate() {
+		assertEquals("overridden",getMadkitProperty("test"));
+		assertEquals("ok",getMadkitProperty("test2"));
+	    }
+	});
+    }
 
 
-//		@Test
-//		public void xmlConfigFile() {
-//			addMadkitArgs(Madkit.Option.configFile.toString(),"madkit/boot/process/test.xml",Madkit.LevelOption.madkitLogLevel.toString(),Level.ALL.toString());
-//			launchTest(new AbstractAgent() {
-//				@Override
-//				protected void activate() {
-//					assertEquals("false",getMadkitProperty("test"));
-//					assertEquals("ok",getMadkitProperty("test2"));
-//				}
-//			});
-//		}
+    //		@Test
+    //		public void xmlConfigFile() {
+    //			addMadkitArgs(Madkit.Option.configFile.toString(),"madkit/boot/process/test.xml",Madkit.LevelOption.madkitLogLevel.toString(),Level.ALL.toString());
+    //			launchTestV2(new AbstractAgent() {
+    //				@Override
+    //				protected void activate() {
+    //					assertEquals("false",getMadkitProperty("test"));
+    //					assertEquals("ok",getMadkitProperty("test2"));
+    //				}
+    //			});
+    //		}
 
-		@Test
-		public void multiConfigOptions() {
-			addMadkitArgs(
-					Madkit.Option.configFile.toString(),"madkit/boot/process/test.prop",
-					Madkit.BooleanOption.network.toString(),"true",
-					Madkit.Option.configFile.toString(),"madkit/boot/process/test2.prop",
-					Madkit.LevelOption.madkitLogLevel.toString(),Level.ALL.toString());
-			launchTest(new AbstractAgent() {
-				@Override
-				protected void activate() {
-					assertEquals("OK",getMadkitProperty("file1"));
-					assertEquals("overridden",getMadkitProperty("test"));
-					assertEquals("ok",getMadkitProperty("test2"));
-				}
-			});
-		}
+    @Test
+    public void multiConfigOptions() {
+	addMadkitArgs(
+		Madkit.Option.configFile.toString(),"madkit/boot/process/test.prop",
+		Madkit.BooleanOption.network.toString(),"true",
+		Madkit.Option.configFile.toString(),"madkit/boot/process/test2.prop",
+		Madkit.LevelOption.madkitLogLevel.toString(),Level.ALL.toString());
+	launchTestV2(new AbstractAgent() {
+	    @Override
+	    protected void activate() {
+		assertEquals("OK",getMadkitProperty("file1"));
+		assertEquals("overridden",getMadkitProperty("test"));
+		assertEquals("ok",getMadkitProperty("test2"));
+	    }
+	});
+    }
 }

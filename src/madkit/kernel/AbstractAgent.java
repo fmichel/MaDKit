@@ -2038,6 +2038,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
     // /////////////////////////////////////////////////////////////////////////////
 
     final boolean logLifeException(final Throwable e) {
+	logAssertionWithJUnitMadkit(e);
 	if (e instanceof ThreadDeath || e instanceof IllegalMonitorStateException) {
 	    if (logger != null)
 		logger.finer(() -> "-*-GET KILLED in " + getState().lifeCycleMethod() + "-*-");
@@ -2054,6 +2055,23 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
     // /////////////////////////////////// Synchronization
     // //////////////////////////
     // /////////////////////////////////////////////////////////////////////////////
+
+    @SuppressWarnings("unchecked")
+    private void logAssertionWithJUnitMadkit(Throwable e) {
+	if (e instanceof AssertionError) {
+	    Map<AbstractAgent, AssertionError> m = null;
+	    try {
+		m = (Map<AbstractAgent, AssertionError>) Class.forName("madkit.kernel.JunitMadkit").getMethod("getAssertionErrors").invoke(null);
+	    }
+	    catch(IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException | ClassNotFoundException e1) {
+		//not in a MDK JUnit context
+	    }
+	    if (m != null) {
+		m.put(this, (AssertionError) e);
+	    }
+	}
+    }
+
 
     /**
      * @since MaDKit 5.0.0.9

@@ -51,19 +51,19 @@ import madkit.kernel.AbstractAgent;
 
 public class setLogLevelTest extends madkit.kernel.JunitMadkit {
 
-	@Test
-	public void nullArgs() {
-		addMadkitArgs("--agentLogLevel", "OFF");
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				try {
-					getLogger().setLevel(null);
-					fail("execption not launched");
-				} catch (NullPointerException e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+    @Test
+    public void nullArgs() {
+	addMadkitArgs("--agentLogLevel", "OFF");
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		try {
+		    getLogger().setLevel(null);
+		    fail("execption not launched");
+		} catch (NullPointerException e) {
+		    e.printStackTrace();
+		}
+	    }
+	});
+    }
 
 }

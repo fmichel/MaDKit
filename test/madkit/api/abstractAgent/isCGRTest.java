@@ -41,11 +41,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import org.junit.Test;
+
 import madkit.agr.DefaultMaDKitRoles;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadkit;
-
-import org.junit.Test;
 
 /**
  * @author Fabien Michel
@@ -55,72 +55,72 @@ import org.junit.Test;
  */
 public class isCGRTest extends JunitMadkit {
 
-	@Test
-	public void nullCommunity() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				try {
-					assertFalse(isCommunity(null));
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+    @Test
+    public void nullCommunity() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		try {
+		    assertFalse(isCommunity(null));
+		    noExceptionFailure();
+		} catch (NullPointerException e) {
+		    e.printStackTrace();
+		}
+	    }
+	});
+    }
 
-	@Test
-	public void nullGroup() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
-				try {
-					assertFalse(isGroup(COMMUNITY, null));
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+    @Test
+    public void nullGroup() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
+		try {
+		    assertFalse(isGroup(COMMUNITY, null));
+		    noExceptionFailure();
+		} catch (NullPointerException e) {
+		    e.printStackTrace();
+		}
+	    }
+	});
+    }
 
-	@Test
-	public void nullRole() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
-				try {
-					assertFalse(isRole(COMMUNITY, GROUP, null));
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+    @Test
+    public void nullRole() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
+		try {
+		    assertFalse(isRole(COMMUNITY, GROUP, null));
+		    noExceptionFailure();
+		} catch (NullPointerException e) {
+		    e.printStackTrace();
+		}
+	    }
+	});
+    }
 
-	@Test
-	public void existTrue() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
-				assertTrue(isCommunity(COMMUNITY));
-				assertTrue(isGroup(COMMUNITY, GROUP));
-				assertTrue(isRole(COMMUNITY, GROUP, DefaultMaDKitRoles.GROUP_MANAGER_ROLE));
-			}
-		});
-	}
+    @Test
+    public void existTrue() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
+		assertTrue(isCommunity(COMMUNITY));
+		assertTrue(isGroup(COMMUNITY, GROUP));
+		assertTrue(isRole(COMMUNITY, GROUP, DefaultMaDKitRoles.GROUP_MANAGER_ROLE));
+	    }
+	});
+    }
 
-	@Test
-	public void notExist() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
-				assertFalse(isCommunity(aa()));
-				assertFalse(isGroup(COMMUNITY, aa()));
-				assertFalse(isRole(COMMUNITY, GROUP, aa()));
-			}
-		});
-	}
+    @Test
+    public void notExist() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
+		assertFalse(isCommunity(dontExist()));
+		assertFalse(isGroup(COMMUNITY, dontExist()));
+		assertFalse(isRole(COMMUNITY, GROUP, dontExist()));
+	    }
+	});
+    }
 
 }

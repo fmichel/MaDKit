@@ -44,10 +44,11 @@ import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import madkit.kernel.AbstractAgent;
-import madkit.kernel.JunitMadkit;
 
 import org.junit.Test;
+
+import madkit.kernel.AbstractAgent;
+import madkit.kernel.JunitMadkit;
 
 /**
  * @author Fabien Michel
@@ -58,102 +59,102 @@ import org.junit.Test;
 
 public class LeaveGroupTest extends JunitMadkit {
 
-	final AbstractAgent target = new AbstractAgent() {
-		protected void activate() {
-			assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
+    final AbstractAgent target = new AbstractAgent() {
+	protected void activate() {
+	    assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
+	}
+    };
+
+    @Test
+    public void nullArgs() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
+		try {
+		    assertEquals(NOT_COMMUNITY, leaveGroup(null, null));
+		    noExceptionFailure();
+		} catch (NullPointerException e) {
+		    e.printStackTrace();
 		}
-	};
+		try {
+		    assertEquals(NOT_COMMUNITY, leaveGroup(COMMUNITY, null));
+		    noExceptionFailure();
+		} catch (NullPointerException e) {
+		    e.printStackTrace();
+		}
+		try {
+		    assertEquals(NOT_COMMUNITY, leaveGroup(null, GROUP));
+		    noExceptionFailure();
+		} catch (NullPointerException e) {
+		    e.printStackTrace();
+		}
+		assertEquals(NOT_COMMUNITY, leaveGroup(dontExist(), dontExist()));
+	    }
+	});
+    }
 
-	@Test
-	public void nullArgs() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
-				try {
-					assertEquals(NOT_COMMUNITY, leaveGroup(null, null));
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					e.printStackTrace();
-				}
-				try {
-					assertEquals(NOT_COMMUNITY, leaveGroup(COMMUNITY, null));
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					e.printStackTrace();
-				}
-				try {
-					assertEquals(NOT_COMMUNITY, leaveGroup(null, GROUP));
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					e.printStackTrace();
-				}
-				assertEquals(NOT_COMMUNITY, leaveGroup(aa(), aa()));
-			}
-		});
-	}
+    @Test
+    public void notInGroup() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		launchAgent(target);
+		assertTrue(isCommunity(COMMUNITY));
+		assertTrue(isGroup(COMMUNITY, GROUP));
+		assertEquals(NOT_IN_GROUP, leaveGroup(COMMUNITY, GROUP));
+	    }
+	});
+    }
 
-	@Test
-	public void notInGroup() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				launchAgent(target);
-				assertTrue(isCommunity(COMMUNITY));
-				assertTrue(isGroup(COMMUNITY, GROUP));
-				assertEquals(NOT_IN_GROUP, leaveGroup(COMMUNITY, GROUP));
-			}
-		});
-	}
+    @Test
+    public void notGroupNotCommunity() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
+		assertEquals(NOT_GROUP, leaveGroup(COMMUNITY, dontExist()));
+		assertEquals(NOT_COMMUNITY, leaveGroup(dontExist(), GROUP));
+	    }
+	});
+    }
 
-	@Test
-	public void notGroupNotCommunity() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
-				assertEquals(NOT_GROUP, leaveGroup(COMMUNITY, aa()));
-				assertEquals(NOT_COMMUNITY, leaveGroup(aa(), GROUP));
-			}
-		});
-	}
+    @Test
+    public void leaveGroup() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		assertFalse(isGroup(COMMUNITY, GROUP));
+		assertEquals(NOT_COMMUNITY, leaveGroup(COMMUNITY, GROUP));
+		assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
+		assertTrue(isGroup(COMMUNITY, GROUP));
+		assertEquals(SUCCESS, leaveGroup(COMMUNITY, GROUP));
+		assertFalse(isCommunity(COMMUNITY));
+		assertFalse(isGroup(COMMUNITY, GROUP));
 
-	@Test
-	public void leaveGroup() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				assertFalse(isGroup(COMMUNITY, GROUP));
-				assertEquals(NOT_COMMUNITY, leaveGroup(COMMUNITY, GROUP));
-				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
-				assertTrue(isGroup(COMMUNITY, GROUP));
-				assertEquals(SUCCESS, leaveGroup(COMMUNITY, GROUP));
-				assertFalse(isCommunity(COMMUNITY));
-				assertFalse(isGroup(COMMUNITY, GROUP));
+		// second run
+		assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
+		assertTrue(isGroup(COMMUNITY, GROUP));
+		assertEquals(SUCCESS, leaveGroup(COMMUNITY, GROUP));
+		assertFalse(isCommunity(COMMUNITY));
+		assertFalse(isGroup(COMMUNITY, GROUP));
+	    }
+	});
+    }
 
-				// second run
-				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
-				assertTrue(isGroup(COMMUNITY, GROUP));
-				assertEquals(SUCCESS, leaveGroup(COMMUNITY, GROUP));
-				assertFalse(isCommunity(COMMUNITY));
-				assertFalse(isGroup(COMMUNITY, GROUP));
-			}
-		});
-	}
+    @Test
+    public void killBeforeLeaveGroup() {
 
-	@Test
-	public void killBeforeLeaveGroup() {
-
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				assertFalse(isCommunity(COMMUNITY));
-				launchAgent(target);
-				assertEquals(ALREADY_GROUP, createGroup(COMMUNITY, GROUP));
-				assertEquals(SUCCESS, target.leaveGroup(COMMUNITY, GROUP));
-				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
-				assertEquals(NOT_IN_GROUP, target.leaveGroup(COMMUNITY, GROUP));
-				assertEquals(SUCCESS, leaveGroup(COMMUNITY, GROUP));
-				assertEquals(SUCCESS, target.createGroup(COMMUNITY, GROUP));
-				killAgent(target);
-				assertFalse(isCommunity(COMMUNITY));
-			}
-		});
-	}
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		assertFalse(isCommunity(COMMUNITY));
+		launchAgent(target);
+		assertEquals(ALREADY_GROUP, createGroup(COMMUNITY, GROUP));
+		assertEquals(SUCCESS, target.leaveGroup(COMMUNITY, GROUP));
+		assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
+		assertEquals(NOT_IN_GROUP, target.leaveGroup(COMMUNITY, GROUP));
+		assertEquals(SUCCESS, leaveGroup(COMMUNITY, GROUP));
+		assertEquals(SUCCESS, target.createGroup(COMMUNITY, GROUP));
+		killAgent(target);
+		assertFalse(isCommunity(COMMUNITY));
+	    }
+	});
+    }
 
 }

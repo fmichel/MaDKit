@@ -37,11 +37,12 @@ knowledge of the CeCILL-C license and that you accept its terms.
 package madkit.api.abstractAgent;
 
 import static org.junit.Assert.fail;
+
+import org.junit.Test;
+
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.MadkitClassLoader;
-
-import org.junit.Test;
 
 /**
  * @author Fabien Michel
@@ -52,55 +53,55 @@ import org.junit.Test;
 
 public class ReloadClassTest extends JunitMadkit {
 
-	@Test
-	public void nullArgs() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				try {
-					try {
-						MadkitClassLoader.reloadClass(null);
-						noExceptionFailure();
-					} catch (ClassNotFoundException e) {
-						fail("wrong exception");
-					}
-				} catch (NullPointerException e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+    @Test
+    public void nullArgs() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		try {
+		    try {
+			MadkitClassLoader.reloadClass(null);
+			noExceptionFailure();
+		    } catch (ClassNotFoundException e) {
+			fail("wrong exception");
+		    }
+		} catch (NullPointerException e) {
+		    e.printStackTrace();
+		}
+	    }
+	});
+    }
 
-	@Test
-	public void classNotFound() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				try {
-					MadkitClassLoader.reloadClass(aa());
-					noExceptionFailure();
-				} catch (ClassNotFoundException e) {
-					e.printStackTrace();
-				}
-				try {
-					MadkitClassLoader.reloadClass(aa() + "." + aa());
-					noExceptionFailure();
-				} catch (ClassNotFoundException e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+    @Test
+    public void classNotFound() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		try {
+		    MadkitClassLoader.reloadClass(dontExist());
+		    noExceptionFailure();
+		} catch (ClassNotFoundException e) {
+		    e.printStackTrace();
+		}
+		try {
+		    MadkitClassLoader.reloadClass(dontExist() + "." + dontExist());
+		    noExceptionFailure();
+		} catch (ClassNotFoundException e) {
+		    e.printStackTrace();
+		}
+	    }
+	});
+    }
 
-	@Test
-	public void success() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				try {
-					MadkitClassLoader.reloadClass(getClass().getName());
-				} catch (ClassNotFoundException e) {
-					fail("exception thrown");
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+    @Test
+    public void success() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		try {
+		    MadkitClassLoader.reloadClass(getClass().getName());
+		} catch (ClassNotFoundException e) {
+		    fail("exception thrown");
+		    e.printStackTrace();
+		}
+	    }
+	});
+    }
 }

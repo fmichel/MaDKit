@@ -83,6 +83,7 @@ public class KillAgentTest extends JunitMadkit {
 	}
     };
 
+
     final AbstractAgent timeOutAgent = new AbstractAgent() {
 
 	protected void activate() {
@@ -97,7 +98,7 @@ public class KillAgentTest extends JunitMadkit {
 
     @Test
     public void returnSuccess() {
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    protected void activate() {
 		assertEquals(SUCCESS, launchAgent(target));
@@ -108,7 +109,7 @@ public class KillAgentTest extends JunitMadkit {
 
     @Test
     public void returnSuccessAfterLaunchTimeOut() {
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    protected void activate() {
 		assertEquals(TIMEOUT, launchAgent(timeOutAgent, 1));
@@ -119,7 +120,7 @@ public class KillAgentTest extends JunitMadkit {
 
     @Test
     public void selfKillInActivate() {
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    protected void activate() {
 		SelfKillAgent a = new SelfKillAgent(true);
@@ -132,7 +133,7 @@ public class KillAgentTest extends JunitMadkit {
 
     @Test
     public void selfKillInActivateAndEnd() {
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    protected void activate() {
 		SelfKillAgent a = new SelfKillAgent(true, false, true);
@@ -144,7 +145,7 @@ public class KillAgentTest extends JunitMadkit {
 
     @Test
     public void selfKillInEnd() {
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    protected void activate() {
 		SelfKillAgent a = new SelfKillAgent(false, false, true);
@@ -158,7 +159,7 @@ public class KillAgentTest extends JunitMadkit {
 
     @Test
     public void selfKill() {
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    protected void activate() {
 		assertEquals(SUCCESS, launchAgent(new SelfKillAgent(true), 1));
@@ -171,7 +172,7 @@ public class KillAgentTest extends JunitMadkit {
 
     @Test
     public void returnNOT_YET_LAUNCHEDAfterImmediateLaunch() {
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    protected void activate() {
 		assertEquals(TIMEOUT, launchAgent(timeOutAgent, 0));
@@ -187,7 +188,7 @@ public class KillAgentTest extends JunitMadkit {
 
     @Test
     public void returnAlreadyKilled() {
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    protected void activate() {
 		AbstractAgent a = new FaultyAgent(true);
@@ -203,7 +204,7 @@ public class KillAgentTest extends JunitMadkit {
 
     @Test
     public void agentCrash() {
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    protected void activate() {
 		AbstractAgent a = new FaultyAgent(true);
@@ -217,7 +218,7 @@ public class KillAgentTest extends JunitMadkit {
     public void massKill() {
 	addMadkitArgs(LevelOption.agentLogLevel.toString(), "OFF");
 	addMadkitArgs(LevelOption.kernelLogLevel.toString(), "OFF");
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    protected void activate() {
 		getLogger().setLevel(Level.INFO);
@@ -240,7 +241,7 @@ public class KillAgentTest extends JunitMadkit {
 
     @Test
     public void returnTimeOut() {
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    protected void activate() {
 		assertEquals(TIMEOUT, launchAgent(timeOutAgent, 1));
@@ -253,7 +254,7 @@ public class KillAgentTest extends JunitMadkit {
 
     @Test
     public void returnAleradyLaunch() {
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    protected void activate() {
 		assertEquals(TIMEOUT, launchAgent(timeOutAgent, 1));
@@ -265,7 +266,7 @@ public class KillAgentTest extends JunitMadkit {
     @Test
     public void randomLaunchAndKill() {
 	addMadkitArgs(LevelOption.agentLogLevel.toString(), "OFF", LevelOption.kernelLogLevel.toString(), "OFF", LevelOption.guiLogLevel.toString(), "OFF");
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    protected void activate() {
 		getLogger().info("******************* STARTING RANDOM LAUNCH & AGENT_KILL *******************\n");
@@ -304,7 +305,7 @@ public class KillAgentTest extends JunitMadkit {
     @Test
     public void cascadeKills() {// TODO more cases
 	addMadkitArgs(LevelOption.agentLogLevel.toString(), "OFF");
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    protected void activate() {
 		Agent a = new NormalLife(false, true);
@@ -321,7 +322,7 @@ public class KillAgentTest extends JunitMadkit {
 
     @Test
     public void immediateKillWithTimeOut() {
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    protected void activate() {
 		Agent a = new NormalLife(false, true);
@@ -338,7 +339,7 @@ public class KillAgentTest extends JunitMadkit {
 
     @Test
     public void immediateKill() {
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    protected void activate() {
 		Agent a = new NormalLife(false, true);
@@ -358,7 +359,7 @@ public class KillAgentTest extends JunitMadkit {
     @Test
     public void randomTesting() {
 	RandomT.killingOn = false;
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    protected void activate() {
 		ArrayList<AbstractAgent> agents = new ArrayList<>();
@@ -387,7 +388,7 @@ public class KillAgentTest extends JunitMadkit {
 	    }
 	}, false);
 	RandomT.killingOn = true;
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    protected void activate() {
 		ArrayList<AbstractAgent> agents = new ArrayList<>();

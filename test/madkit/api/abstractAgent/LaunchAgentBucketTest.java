@@ -71,7 +71,7 @@ public class LaunchAgentBucketTest extends JunitMadkit {
     public void returnSuccess() {
 	for (int i = 0; i < 100; i++) {
 	    // addMadkitArgs(LevelOption.kernelLogLevel.toString(),Level.ALL.toString());
-	    launchTest(new AbstractAgent() {
+	    launchTestV2(new AbstractAgent() {
 
 		protected void activate() {
 		    getLogger().setLevel(Level.OFF);
@@ -87,7 +87,7 @@ public class LaunchAgentBucketTest extends JunitMadkit {
 
     @Test
     public void withAnAgentClass() {
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    protected void activate() {
 		List<AbstractAgent> l = launchAgentBucket(Agent.class.getName(), size);
@@ -99,7 +99,7 @@ public class LaunchAgentBucketTest extends JunitMadkit {
 
     @Test
     public void withAnAAClass() {
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    protected void activate() {
 		List<AbstractAgent> l = launchAgentBucket(SimulatedAgent.class.getName(), size);
@@ -111,7 +111,7 @@ public class LaunchAgentBucketTest extends JunitMadkit {
 
     @Test
     public void massAALaunchWithBucketRoles() {
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    protected void activate() {
 		createGroup(COMMUNITY, GROUP);
@@ -155,7 +155,7 @@ public class LaunchAgentBucketTest extends JunitMadkit {
 
     @Test
     public void nullArg() {
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    protected void activate() {
 		try {
@@ -173,7 +173,7 @@ public class LaunchAgentBucketTest extends JunitMadkit {
     @Test
     public void classNotExist() {
 	addMadkitArgs(LevelOption.kernelLogLevel.toString(), Level.ALL.toString());
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    protected void activate() {
 		launchAgentBucket("fake.fake", 2);
@@ -192,7 +192,7 @@ public class LaunchAgentBucketTest extends JunitMadkit {
 
     @Test
     public void returnSuccessOn0() {
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    protected void activate() {
 		// getLogger().setLevel(Level.ALL);
@@ -206,7 +206,7 @@ public class LaunchAgentBucketTest extends JunitMadkit {
 
     @Test
     public void returnSuccessOn1() {
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    protected void activate() {
 		List<AbstractAgent> l = launchAgentBucket(SimulatedAgent.class.getName(), 1);
@@ -219,7 +219,7 @@ public class LaunchAgentBucketTest extends JunitMadkit {
 
     @Test
     public void moreCPUThanAgents() {
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    protected void activate() {
 		int nbOfAgents = 50;
@@ -241,7 +241,7 @@ public class LaunchAgentBucketTest extends JunitMadkit {
 
     @Test
     public void returnSuccessWithName() {
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    protected void activate() {
 		getLogger().setLevel(Level.OFF);

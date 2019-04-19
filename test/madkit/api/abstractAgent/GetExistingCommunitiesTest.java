@@ -38,11 +38,12 @@ package madkit.api.abstractAgent;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+
+import org.junit.Test;
+
 import madkit.agr.LocalCommunity;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadkit;
-
-import org.junit.Test;
 
 /**
  * @author Fabien Michel
@@ -53,37 +54,37 @@ import org.junit.Test;
 @SuppressWarnings("all")
 public class GetExistingCommunitiesTest extends JunitMadkit {
 
-	@Test
-	public void onlyLocal() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				assertEquals(1, getExistingCommunities().size());
-				assertEquals(LocalCommunity.NAME, getExistingCommunities().first());
-			}
-		});
-	}
+    @Test
+    public void onlyLocal() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		assertEquals(1, getExistingCommunities().size());
+		assertEquals(LocalCommunity.NAME, getExistingCommunities().first());
+	    }
+	});
+    }
 
-	@Test
-	public void atLeastOneCommunity(){
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				assertNotNull(getExistingCommunities());
-			}
-		});
-	}
+    @Test
+    public void atLeastOneCommunity(){
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		assertNotNull(getExistingCommunities());
+	    }
+	});
+    }
 
-	@Test
-	public void createNewAndLeave() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				createGroup("aa", "g");
-				assertEquals(2, getExistingCommunities().size());
-				assertEquals("aa", getExistingCommunities().first());
-				leaveGroup("aa", "g");
-				assertEquals(1, getExistingCommunities().size());
-				assertEquals(LocalCommunity.NAME, getExistingCommunities().first());
-			}
-		});
-	}
+    @Test
+    public void createNewAndLeave() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		createGroup("aa", "g");
+		assertEquals(2, getExistingCommunities().size());
+		assertEquals("aa", getExistingCommunities().first());
+		leaveGroup("aa", "g");
+		assertEquals(1, getExistingCommunities().size());
+		assertEquals(LocalCommunity.NAME, getExistingCommunities().first());
+	    }
+	});
+    }
 
 }

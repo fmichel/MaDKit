@@ -62,154 +62,154 @@ import madkit.kernel.Message;
 
 public class sendMessageWithAATest extends JunitMadkit {
 
-	final AbstractAgent target = new AbstractAgent() {
-		protected void activate() {
-			assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
-			assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
+    final AbstractAgent target = new AbstractAgent() {
+	protected void activate() {
+	    assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
+	    assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
+	}
+    };
+
+    @Test
+    public void returnSuccess() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		assertEquals(SUCCESS, launchAgent(target));
+		assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
+
+		AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, ROLE);
+		assertNotNull(aa);
+
+		// Without role
+		assertEquals(SUCCESS, sendMessage(aa, new Message()));
+		Message m = target.nextMessage();
+		assertNotNull(m);
+		assertEquals(ROLE, m.getReceiver().getRole());
+
+		// With role
+		assertEquals(SUCCESS, sendMessageWithRole(aa, new Message(), ROLE));
+		m = target.nextMessage();
+		assertNotNull(m);
+		assertEquals(ROLE, m.getReceiver().getRole());
+	    }
+	});
+    }
+
+    @Test
+    public void returnSuccessOnCandidateRole() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		assertEquals(SUCCESS, launchAgent(target));
+
+		// Without role
+		AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, DefaultMaDKitRoles.GROUP_MANAGER_ROLE);
+		assertNotNull(aa);
+		assertEquals(SUCCESS, sendMessage(aa, new Message()));
+		Message m = target.nextMessage();
+		assertNotNull(m);
+		assertEquals(DefaultMaDKitRoles.GROUP_MANAGER_ROLE, m.getReceiver().getRole());
+		assertEquals(DefaultMaDKitRoles.GROUP_CANDIDATE_ROLE, m.getSender().getRole());
+
+		// With role
+		aa = getAgentWithRole(COMMUNITY, GROUP, DefaultMaDKitRoles.GROUP_MANAGER_ROLE);
+		assertNotNull(aa);
+		assertEquals(SUCCESS, sendMessageWithRole(aa, new Message(), DefaultMaDKitRoles.GROUP_CANDIDATE_ROLE));
+		m = target.nextMessage();
+		assertNotNull(m);
+		assertEquals(DefaultMaDKitRoles.GROUP_MANAGER_ROLE, m.getReceiver().getRole());
+		assertEquals(DefaultMaDKitRoles.GROUP_CANDIDATE_ROLE, m.getSender().getRole());
+	    }
+	});
+    }
+
+    @Test
+    public void returnInvalidAA() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		assertEquals(SUCCESS, launchAgent(target));
+		assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
+		AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, ROLE);
+		assertEquals(SUCCESS, target.leaveRole(COMMUNITY, GROUP, ROLE));
+		assertEquals(INVALID_AGENT_ADDRESS, sendMessage(aa, new Message()));
+
+		// With role
+		assertEquals(INVALID_AGENT_ADDRESS, sendMessageWithRole(aa, new Message(), ROLE));
+	    }
+	});
+    }
+
+    @Test
+    public void returnNotInGroup() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		assertEquals(SUCCESS, launchAgent(target));
+		AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, ROLE);
+		assertEquals(NOT_IN_GROUP, sendMessageWithRole(aa, new Message(), ROLE));
+		assertEquals(SUCCESS, target.leaveRole(COMMUNITY, GROUP, ROLE));
+		assertEquals(INVALID_AGENT_ADDRESS, sendMessage(aa, new Message()));
+		assertEquals(NOT_ROLE, sendMessage(COMMUNITY, GROUP, ROLE, new Message()));
+
+		// With role
+	    }
+	});
+    }
+
+    @Test
+    public void returnRoleNotHandled() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		assertEquals(SUCCESS, launchAgent(target));
+		assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
+
+		AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, ROLE);
+		assertEquals(ROLE_NOT_HANDLED, sendMessageWithRole(aa, new Message(), dontExist()));
+
+	    }
+	});
+    }
+
+    @Test
+    public void nullArgs() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		try {
+		    sendMessage(null, null);
+		    noExceptionFailure();
+		} catch (NullPointerException e) {
+		    throw e;
 		}
-	};
+	    }
+	}, ReturnCode.AGENT_CRASH);
+    }
 
-	@Test
-	public void returnSuccess() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				assertEquals(SUCCESS, launchAgent(target));
-				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
+    @Test
+    public void nullAA() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		try {
+		    sendMessage(null, new Message());
+		    noExceptionFailure();
+		} catch (NullPointerException e) {
+		    throw e;
+		}
+	    }
+	}, ReturnCode.AGENT_CRASH);
+    }
 
-				AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, ROLE);
-				assertNotNull(aa);
-
-				// Without role
-				assertEquals(SUCCESS, sendMessage(aa, new Message()));
-				Message m = target.nextMessage();
-				assertNotNull(m);
-				assertEquals(ROLE, m.getReceiver().getRole());
-
-				// With role
-				assertEquals(SUCCESS, sendMessageWithRole(aa, new Message(), ROLE));
-				m = target.nextMessage();
-				assertNotNull(m);
-				assertEquals(ROLE, m.getReceiver().getRole());
-			}
-		});
-	}
-
-	@Test
-	public void returnSuccessOnCandidateRole() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				assertEquals(SUCCESS, launchAgent(target));
-
-				// Without role
-				AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, DefaultMaDKitRoles.GROUP_MANAGER_ROLE);
-				assertNotNull(aa);
-				assertEquals(SUCCESS, sendMessage(aa, new Message()));
-				Message m = target.nextMessage();
-				assertNotNull(m);
-				assertEquals(DefaultMaDKitRoles.GROUP_MANAGER_ROLE, m.getReceiver().getRole());
-				assertEquals(DefaultMaDKitRoles.GROUP_CANDIDATE_ROLE, m.getSender().getRole());
-
-				// With role
-				aa = getAgentWithRole(COMMUNITY, GROUP, DefaultMaDKitRoles.GROUP_MANAGER_ROLE);
-				assertNotNull(aa);
-				assertEquals(SUCCESS, sendMessageWithRole(aa, new Message(), DefaultMaDKitRoles.GROUP_CANDIDATE_ROLE));
-				m = target.nextMessage();
-				assertNotNull(m);
-				assertEquals(DefaultMaDKitRoles.GROUP_MANAGER_ROLE, m.getReceiver().getRole());
-				assertEquals(DefaultMaDKitRoles.GROUP_CANDIDATE_ROLE, m.getSender().getRole());
-			}
-		});
-	}
-
-	@Test
-	public void returnInvalidAA() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				assertEquals(SUCCESS, launchAgent(target));
-				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
-				AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, ROLE);
-				assertEquals(SUCCESS, target.leaveRole(COMMUNITY, GROUP, ROLE));
-				assertEquals(INVALID_AGENT_ADDRESS, sendMessage(aa, new Message()));
-
-				// With role
-				assertEquals(INVALID_AGENT_ADDRESS, sendMessageWithRole(aa, new Message(), ROLE));
-			}
-		});
-	}
-
-	@Test
-	public void returnNotInGroup() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				assertEquals(SUCCESS, launchAgent(target));
-				AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, ROLE);
-				assertEquals(NOT_IN_GROUP, sendMessageWithRole(aa, new Message(), ROLE));
-				assertEquals(SUCCESS, target.leaveRole(COMMUNITY, GROUP, ROLE));
-				assertEquals(INVALID_AGENT_ADDRESS, sendMessage(aa, new Message()));
-				assertEquals(NOT_ROLE, sendMessage(COMMUNITY, GROUP, ROLE, new Message()));
-
-				// With role
-			}
-		});
-	}
-
-	@Test
-	public void returnRoleNotHandled() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				assertEquals(SUCCESS, launchAgent(target));
-				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
-
-				AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, ROLE);
-				assertEquals(ROLE_NOT_HANDLED, sendMessageWithRole(aa, new Message(), aa()));
-
-			}
-		});
-	}
-
-	@Test
-	public void nullArgs() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				try {
-					sendMessage(null, null);
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					throw e;
-				}
-			}
-		}, ReturnCode.AGENT_CRASH);
-	}
-
-	@Test
-	public void nullAA() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				try {
-					sendMessage(null, new Message());
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					throw e;
-				}
-			}
-		}, ReturnCode.AGENT_CRASH);
-	}
-
-	@Test
-	public void nullMessage() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				assertEquals(SUCCESS, launchAgent(target));
-				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
-				AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, ROLE);
-				try {
-					sendMessage(aa, null);
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					throw e;
-				}
-			}
-		}, ReturnCode.AGENT_CRASH);
-	}
+    @Test
+    public void nullMessage() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		assertEquals(SUCCESS, launchAgent(target));
+		assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
+		AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, ROLE);
+		try {
+		    sendMessage(aa, null);
+		    noExceptionFailure();
+		} catch (NullPointerException e) {
+		    throw e;
+		}
+	    }
+	}, ReturnCode.AGENT_CRASH);
+    }
 
 }

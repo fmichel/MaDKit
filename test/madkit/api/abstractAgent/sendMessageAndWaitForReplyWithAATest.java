@@ -45,6 +45,8 @@ import static org.junit.Assert.assertNull;
 
 import java.util.logging.Level;
 
+import org.junit.Test;
+
 import madkit.agr.DefaultMaDKitRoles;
 import madkit.kernel.Agent;
 import madkit.kernel.AgentAddress;
@@ -55,8 +57,6 @@ import madkit.message.StringMessage;
 import madkit.testing.util.agent.ForEverReplierAgent;
 import madkit.testing.util.agent.NormalAgent;
 
-import org.junit.Test;
-
 /**
  * @author Fabien Michel
  * @since MaDKit 5.0.0.8
@@ -66,245 +66,237 @@ import org.junit.Test;
 @SuppressWarnings("all")
 public class sendMessageAndWaitForReplyWithAATest extends JunitMadkit {
 
-	final Agent target = new Agent() {
-		AgentAddress aa;
+    final Agent target = new Agent() {
+	AgentAddress aa;
 
-		protected void activate() {
-			assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
-			aa = getAgentWithRole(COMMUNITY, GROUP, ROLE);
-			assertNotNull(aa);
-			assertEquals(SUCCESS, sendMessage(aa, new Message()));
-			assertEquals(SUCCESS, sendMessage(aa, new Message()));
+	protected void activate() {
+	    assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
+	    aa = getAgentWithRole(COMMUNITY, GROUP, ROLE);
+	    assertNotNull(aa);
+	    assertEquals(SUCCESS, sendMessage(aa, new Message()));
+	    assertEquals(SUCCESS, sendMessage(aa, new Message()));
+	}
+
+	protected void live() {
+	    waitNextMessage();// waiting the start signal
+	    sendReply(waitNextMessage(), new StringMessage("reply"));
+	    assertEquals(SUCCESS, sendMessage(aa, new Message()));
+	    assertEquals(SUCCESS, sendMessage(aa, new Message()));
+	    sendReply(waitNextMessage(), new StringMessage("reply2"));
+	}
+    };
+
+    // sends the same message as reply
+    final Agent target3 = new Agent() {
+	protected void activate() {
+	    assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
+	}
+
+	protected void live() {
+	    Message m = waitNextMessage();
+	    sendReply(m, m);
+	    waitNextMessage();// do not die !
+	}
+    };
+
+    final Agent target2 = new Agent() {
+	protected void activate() {
+	    assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
+	}
+
+	protected void live() {
+	    sendReply(waitNextMessage(), new StringMessage("reply"));
+	    sendReply(waitNextMessage(), new StringMessage("reply2"));
+	}
+    };
+
+    @Test
+    public void replyWithSameMessage() {
+	launchTestV2(new NormalAgent() {
+	    protected void activate() {
+		getLogger().setLevel(Level.ALL);
+		assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
+		// assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,ROLE));
+		assertEquals(SUCCESS, launchAgent(target3));
+
+		assertEquals(SUCCESS, sendMessage(COMMUNITY, GROUP, ROLE, new Message()));
+		assertNotNull(waitNextMessage(100));
+		cleanHelperAgents();
+	    }
+	});
+    }
+
+    @Test
+    public void sendReplyAndWaitForReply() {
+	addMadkitArgs(LevelOption.kernelLogLevel.toString(),"ALL");
+	launchTestV2(new NormalAgent() {
+	    protected void activate() {
+		super.activate();
+		assertEquals(SUCCESS, launchAgent(new ForEverReplierAgent()));
+		Message m = sendMessageAndWaitForReply(COMMUNITY, GROUP, ROLE, new Message());
+		m = sendReplyAndWaitForReply(m, new Message());
+		assertNotNull(m);
+		m = sendReplyAndWaitForReply(m, new Message());
+		assertNotNull(m);
+		cleanHelperAgents();
+	    }
+	});
+    }
+
+    @Test
+    public void sendReplyOnWaitNextMessage() {
+	addMadkitArgs(LevelOption.kernelLogLevel.toString(),"ALL");
+	launchTestV2(new NormalAgent() {
+	    protected void activate() {
+		super.activate();
+		assertEquals(SUCCESS, launchAgent(new ForEverReplierAgent()));
+		sendReply(waitNextMessage(), new Message());
+		sendReply(waitNextMessage(), new Message());
+		Message m = waitNextMessage();
+		assertEquals(getAgentAddressIn(COMMUNITY, GROUP, ROLE), m.getReceiver());
+		cleanHelperAgents();
+	    }
+	});
+    }
+
+    @Test
+    public void returnSuccess() {
+	launchTestV2(new NormalAgent() {
+	    protected void activate() {
+		assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
+		assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
+		assertEquals(SUCCESS, launchAgent(target));
+
+		assertFalse(this.isMessageBoxEmpty());
+		AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, ROLE);
+		assertNotNull(aa);
+
+		// time out but gives the start signal
+		assertNull(sendMessageAndWaitForReply(aa, new Message(), 100));
+
+		// Without role
+		Message m = sendMessageAndWaitForReply(aa, new Message());
+		assertNotNull(m);
+		assertEquals("reply", ((StringMessage) m).getContent());
+		assertEquals(ROLE, m.getReceiver().getRole());
+
+		assertFalse(this.isMessageBoxEmpty());
+
+		// With role
+		m = sendMessageAndWaitForReply(aa, new Message());
+		assertNotNull(m);
+		assertEquals("reply2", ((StringMessage) m).getContent());
+		assertEquals(ROLE, m.getReceiver().getRole());
+
+		assertNotNull(nextMessage());
+		assertNotNull(nextMessage());
+		assertNotNull(nextMessage());
+		assertNotNull(nextMessage());
+		assertNull(nextMessage());
+		pause(100);
+		assertEquals(INVALID_AGENT_ADDRESS, sendMessage(aa, new Message()));
+		assertNull(sendMessageAndWaitForReply(aa, new Message()));
+		cleanHelperAgents();
+	    }
+	});
+    }
+
+    @Test
+    public void returnSuccessOnCandidateRole() {
+	launchTestV2(new NormalAgent() {
+	    protected void activate() {
+		assertEquals(SUCCESS, launchAgent(target2));
+
+		// Without role
+		AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, DefaultMaDKitRoles.GROUP_MANAGER_ROLE);
+		assertNotNull(aa);
+		Message m = sendMessageAndWaitForReply(aa, new Message());
+		assertNotNull(m);
+		assertEquals("reply", ((StringMessage) m).getContent());
+		assertEquals(DefaultMaDKitRoles.GROUP_CANDIDATE_ROLE, m.getReceiver().getRole());
+		assertEquals(DefaultMaDKitRoles.GROUP_MANAGER_ROLE, m.getSender().getRole());
+
+		// With role
+		m = sendMessageWithRoleAndWaitForReply(aa, new Message(), DefaultMaDKitRoles.GROUP_CANDIDATE_ROLE);
+		assertNotNull(m);
+		assertEquals("reply2", ((StringMessage) m).getContent());
+		assertEquals(DefaultMaDKitRoles.GROUP_CANDIDATE_ROLE, m.getReceiver().getRole());
+		assertEquals(DefaultMaDKitRoles.GROUP_MANAGER_ROLE, m.getSender().getRole());
+		cleanHelperAgents();
+	    }
+	});
+    }
+
+    @Test
+    public void returnInvalidAA() {
+	launchTestV2(new NormalAgent() {
+	    protected void activate() {
+		assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
+		assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
+		assertEquals(SUCCESS, launchAgent(target));
+		AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, ROLE);
+		assertEquals(SUCCESS, target.leaveRole(COMMUNITY, GROUP, ROLE));
+		assertNull(sendMessageAndWaitForReply(aa, new Message()));// INVALID_AGENT_ADDRESS
+		// warning
+		assertEquals(INVALID_AGENT_ADDRESS, sendMessage(aa, new Message()));
+
+		// With role
+		assertNull(sendMessageWithRoleAndWaitForReply(aa, new Message(), ROLE));// INVALID_AGENT_ADDRESS
+		cleanHelperAgents();
+	    }
+	});
+    }
+
+    @Test
+    public void returnBadCGR() {
+	launchTestV2(new NormalAgent() {
+	    protected void activate() {
+		assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
+		assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
+		assertEquals(SUCCESS, launchAgent(target));
+
+		AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, ROLE);
+		assertNull(sendMessageWithRoleAndWaitForReply(aa, new Message(), dontExist()));// not
+		// role
+		// warning
+		assertEquals(SUCCESS, leaveGroup(COMMUNITY, GROUP));
+		assertNull(sendMessageAndWaitForReply(aa, new Message()));// not in
+		// group
+		// warning
+		cleanHelperAgents();
+	    }
+	});
+    }
+
+    @Test
+    public void nullArgs() {
+	launchTestV2(new NormalAgent() {
+	    protected void activate() {
+		assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
+		assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
+		assertEquals(SUCCESS, launchAgent(target));
+		AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, ROLE);
+		try {
+		    sendMessageAndWaitForReply(null, null);
+		    noExceptionFailure();
+		} catch (NullPointerException e) {
+		    e.printStackTrace();
 		}
-
-		protected void live() {
-			waitNextMessage();// waiting the start signal
-			sendReply(waitNextMessage(), new StringMessage("reply"));
-			assertEquals(SUCCESS, sendMessage(aa, new Message()));
-			assertEquals(SUCCESS, sendMessage(aa, new Message()));
-			sendReply(waitNextMessage(), new StringMessage("reply2"));
+		try {
+		    sendMessageAndWaitForReply(aa, null);
+		    noExceptionFailure();
+		} catch (NullPointerException e) {
+		    e.printStackTrace();
 		}
-	};
-
-	// sends the same message as reply
-	final Agent target3 = new Agent() {
-		protected void activate() {
-			assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
+		try {
+		    sendMessageAndWaitForReply(null, new Message());
+		    noExceptionFailure();
+		} catch (NullPointerException e) {
+		    e.printStackTrace();
 		}
-
-		protected void live() {
-			Message m = waitNextMessage();
-			sendReply(m, m);
-			waitNextMessage();// do not die !
-		}
-	};
-
-	final Agent target2 = new Agent() {
-		protected void activate() {
-			assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
-		}
-
-		protected void live() {
-			sendReply(waitNextMessage(), new StringMessage("reply"));
-			sendReply(waitNextMessage(), new StringMessage("reply2"));
-		}
-	};
-
-	@Test
-	public void replyWithSameMessage() {
-		launchTest(new NormalAgent() {
-			protected void activate() {
-				getLogger().setLevel(Level.ALL);
-				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
-				// assertEquals(SUCCESS, requestRole(COMMUNITY,GROUP,ROLE));
-				assertEquals(SUCCESS, launchAgent(target3));
-
-				assertEquals(SUCCESS, sendMessage(COMMUNITY, GROUP, ROLE, new Message()));
-				assertNotNull(waitNextMessage(100));
-			}
-		});
-	}
-
-	@Test
-	public void sendReplyAndWaitForReply() {
-		addMadkitArgs(LevelOption.kernelLogLevel.toString(),"ALL");
-		launchTest(new NormalAgent() {
-			protected void activate() {
-				super.activate();
-				assertEquals(SUCCESS, launchAgent(new ForEverReplierAgent()));
-				Message m = sendMessageAndWaitForReply(COMMUNITY, GROUP, ROLE, new Message());
-				m = sendReplyAndWaitForReply(m, new Message());
-				assertNotNull(m);
-				m = sendReplyAndWaitForReply(m, new Message());
-				assertNotNull(m);
-			}
-		});
-	}
-
-	@Test
-	public void sendReplyOnWaitNextMessage() {
-		addMadkitArgs(LevelOption.kernelLogLevel.toString(),"ALL");
-		launchTest(new NormalAgent() {
-			protected void activate() {
-				super.activate();
-				assertEquals(SUCCESS, launchAgent(new ForEverReplierAgent()));
-				sendReply(waitNextMessage(), new Message());
-				sendReply(waitNextMessage(), new Message());
-				Message m = waitNextMessage();
-				assertEquals(getAgentAddressIn(COMMUNITY, GROUP, ROLE), m.getReceiver());
-			}
-		});
-	}
-
-	@Test
-	public void returnSuccess() {
-		launchTest(new NormalAgent() {
-			protected void activate() {
-				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
-				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
-				assertEquals(SUCCESS, launchAgent(target));
-
-				assertFalse(this.isMessageBoxEmpty());
-				AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, ROLE);
-				assertNotNull(aa);
-
-				// time out but gives the start signal
-				assertNull(sendMessageAndWaitForReply(aa, new Message(), 100));
-
-				// Without role
-				Message m = sendMessageAndWaitForReply(aa, new Message());
-				assertNotNull(m);
-				assertEquals("reply", ((StringMessage) m).getContent());
-				assertEquals(ROLE, m.getReceiver().getRole());
-
-				assertFalse(this.isMessageBoxEmpty());
-
-				// With role
-				m = sendMessageAndWaitForReply(aa, new Message());
-				assertNotNull(m);
-				assertEquals("reply2", ((StringMessage) m).getContent());
-				assertEquals(ROLE, m.getReceiver().getRole());
-
-				assertNotNull(nextMessage());
-				assertNotNull(nextMessage());
-				assertNotNull(nextMessage());
-				assertNotNull(nextMessage());
-				assertNull(nextMessage());
-				pause(100);
-				assertEquals(INVALID_AGENT_ADDRESS, sendMessage(aa, new Message()));// the
-																							// target
-																							// has
-																							// gone:
-																							// AgentAddress
-																							// no
-																							// longer
-																							// valid
-				assertNull(sendMessageAndWaitForReply(aa, new Message()));// the
-																								// target
-																								// has
-																								// gone:
-																								// AgentAddress
-																								// no
-																								// longer
-																								// valid
-			}
-		});
-	}
-
-	@Test
-	public void returnSuccessOnCandidateRole() {
-		launchTest(new NormalAgent() {
-			protected void activate() {
-				assertEquals(SUCCESS, launchAgent(target2));
-
-				// Without role
-				AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, DefaultMaDKitRoles.GROUP_MANAGER_ROLE);
-				assertNotNull(aa);
-				Message m = sendMessageAndWaitForReply(aa, new Message());
-				assertNotNull(m);
-				assertEquals("reply", ((StringMessage) m).getContent());
-				assertEquals(DefaultMaDKitRoles.GROUP_CANDIDATE_ROLE, m.getReceiver().getRole());
-				assertEquals(DefaultMaDKitRoles.GROUP_MANAGER_ROLE, m.getSender().getRole());
-
-				// With role
-				m = sendMessageWithRoleAndWaitForReply(aa, new Message(), DefaultMaDKitRoles.GROUP_CANDIDATE_ROLE);
-				assertNotNull(m);
-				assertEquals("reply2", ((StringMessage) m).getContent());
-				assertEquals(DefaultMaDKitRoles.GROUP_CANDIDATE_ROLE, m.getReceiver().getRole());
-				assertEquals(DefaultMaDKitRoles.GROUP_MANAGER_ROLE, m.getSender().getRole());
-			}
-		});
-	}
-
-	@Test
-	public void returnInvalidAA() {
-		launchTest(new NormalAgent() {
-			protected void activate() {
-				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
-				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
-				assertEquals(SUCCESS, launchAgent(target));
-				AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, ROLE);
-				assertEquals(SUCCESS, target.leaveRole(COMMUNITY, GROUP, ROLE));
-				assertNull(sendMessageAndWaitForReply(aa, new Message()));// INVALID_AGENT_ADDRESS
-																								// warning
-				assertEquals(INVALID_AGENT_ADDRESS, sendMessage(aa, new Message()));
-
-				// With role
-				assertNull(sendMessageWithRoleAndWaitForReply(aa, new Message(), ROLE));// INVALID_AGENT_ADDRESS
-																												// warning
-			}
-		});
-	}
-
-	@Test
-	public void returnBadCGR() {
-		launchTest(new NormalAgent() {
-			protected void activate() {
-				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
-				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
-				assertEquals(SUCCESS, launchAgent(target));
-
-				AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, ROLE);
-				assertNull(sendMessageWithRoleAndWaitForReply(aa, new Message(), aa()));// not
-																												// role
-																												// warning
-				assertEquals(SUCCESS, leaveGroup(COMMUNITY, GROUP));
-				assertNull(sendMessageAndWaitForReply(aa, new Message()));// not in
-																								// group
-																								// warning
-
-			}
-		});
-	}
-
-	@Test
-	public void nullArgs() {
-		launchTest(new NormalAgent() {
-			protected void activate() {
-				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
-				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
-				assertEquals(SUCCESS, launchAgent(target));
-				AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, ROLE);
-				try {
-					sendMessageAndWaitForReply(null, null);
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					e.printStackTrace();
-				}
-				try {
-					sendMessageAndWaitForReply(aa, null);
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					e.printStackTrace();
-				}
-				try {
-					sendMessageAndWaitForReply(null, new Message());
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+		cleanHelperAgents();
+	    }
+	});
+    }
 
 }

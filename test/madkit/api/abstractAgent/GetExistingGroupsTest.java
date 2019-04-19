@@ -38,11 +38,12 @@ package madkit.api.abstractAgent;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+
+import org.junit.Test;
+
 import madkit.agr.LocalCommunity;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadkit;
-
-import org.junit.Test;
 
 /**
  * @author Fabien Michel
@@ -53,43 +54,43 @@ import org.junit.Test;
 @SuppressWarnings("all")
 public class GetExistingGroupsTest extends JunitMadkit {
 
-	@Test
-	public void onlyLocal() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				System.err.println(getExistingGroups(LocalCommunity.NAME));
-				assertEquals(4, getExistingGroups(LocalCommunity.NAME).size());
-				assertEquals(LocalCommunity.Groups.GUI, getExistingGroups(LocalCommunity.NAME).first());
-			}
-		});
-	}
-	
-	@Test
-	public void notFound(){
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				assertNull(getExistingGroups(aa()));
-			}
-		});
-	}
+    @Test
+    public void onlyLocal() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		System.err.println(getExistingGroups(LocalCommunity.NAME));
+		assertEquals(4, getExistingGroups(LocalCommunity.NAME).size());
+		assertEquals(LocalCommunity.Groups.GUI, getExistingGroups(LocalCommunity.NAME).first());
+	    }
+	});
+    }
 
-	@Test
-	public void createNewAndLeave() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				createGroup("aa", "g");
-				assertEquals(1, getExistingGroups("aa").size());
-				assertEquals("g", getExistingGroups("aa").first());
-				createGroup("aa", "g2");
-				assertEquals(2, getExistingGroups("aa").size());
-				leaveGroup("aa", "g");
-				assertEquals(1, getExistingGroups("aa").size());
-				assertEquals("g2", getExistingGroups("aa").first());
-				leaveGroup("aa", "g2");
-				assertEquals(1, getExistingCommunities().size());
-				assertEquals(LocalCommunity.NAME, getExistingCommunities().first());
-			}
-		});
-	}
+    @Test
+    public void notFound(){
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		assertNull(getExistingGroups(dontExist()));
+	    }
+	});
+    }
+
+    @Test
+    public void createNewAndLeave() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		createGroup("aa", "g");
+		assertEquals(1, getExistingGroups("aa").size());
+		assertEquals("g", getExistingGroups("aa").first());
+		createGroup("aa", "g2");
+		assertEquals(2, getExistingGroups("aa").size());
+		leaveGroup("aa", "g");
+		assertEquals(1, getExistingGroups("aa").size());
+		assertEquals("g2", getExistingGroups("aa").first());
+		leaveGroup("aa", "g2");
+		assertEquals(1, getExistingCommunities().size());
+		assertEquals(LocalCommunity.NAME, getExistingCommunities().first());
+	    }
+	});
+    }
 
 }

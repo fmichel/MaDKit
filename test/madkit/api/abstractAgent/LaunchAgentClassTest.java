@@ -42,12 +42,13 @@ import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+
+import org.junit.Test;
+
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadkit;
 import madkit.testing.util.agent.NoPublicConstructorAA;
 import madkit.testing.util.agent.SelfLaunchAA;
-
-import org.junit.Test;
 
 /**
  * @author Fabien Michel
@@ -58,93 +59,93 @@ import org.junit.Test;
 
 public class LaunchAgentClassTest extends JunitMadkit {
 
-	final AbstractAgent target = new AbstractAgent() {
-		protected void activate() {
-			assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
-			assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
-			assertEquals(ALREADY_LAUNCHED, launchAgent(this));
+    final AbstractAgent target = new AbstractAgent() {
+	protected void activate() {
+	    assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
+	    assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
+	    assertEquals(ALREADY_LAUNCHED, launchAgent(this));
+	}
+    };
+
+    final AbstractAgent timeOutAgent = new AbstractAgent() {
+	protected void activate() {
+	    try {
+		Thread.sleep(2000);
+	    } catch (InterruptedException e) {
+		e.printStackTrace();
+	    }
+	}
+    };
+
+    final AbstractAgent faulty = new AbstractAgent() {
+	@SuppressWarnings("null")
+	protected void activate() {
+	    Object o = null;
+	    o.toString();
+	}
+    };
+
+    @Test
+    public void launchFailed() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		try {
+		    launchAgent((String) null);
+		    noExceptionFailure();
+		} catch (NullPointerException e) {
+		    throw e;
 		}
-	};
+	    }
+	}, AGENT_CRASH);
+    }
 
-	final AbstractAgent timeOutAgent = new AbstractAgent() {
-		protected void activate() {
-			try {
-				Thread.sleep(2000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-	};
+    @Test
+    public void launchNotFound() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		assertNull(launchAgent("a"));
+	    }
+	});
+    }
 
-	final AbstractAgent faulty = new AbstractAgent() {
-		@SuppressWarnings("null")
-		protected void activate() {
-			Object o = null;
-			o.toString();
-		}
-	};
+    @Test
+    public void NoDefaultConstructor() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		assertNull(launchAgent(SelfLaunchAA.class.getName()));
+	    }
+	});
+    }
 
-	@Test
-	public void launchFailed() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				try {
-					launchAgent((String) null);
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					throw e;
-				}
-			}
-		}, AGENT_CRASH);
-	}
+    @Test
+    public void NoPublicConstructor() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		assertNotNull(launchAgent(NoPublicConstructorAA.class.getName()));
+	    }
+	});
+    }
 
-	@Test
-	public void launchNotFound() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				assertNull(launchAgent("a"));
-			}
-		});
-	}
+    @Test
+    public void NotPublic() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		assertNotNull(launchAgent(NotPublicAgent.class.getName()));
+	    }
+	});
+    }
 
-	@Test
-	public void NoDefaultConstructor() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				assertNull(launchAgent(SelfLaunchAA.class.getName()));
-			}
-		});
-	}
-
-	@Test
-	public void NoPublicConstructor() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				assertNotNull(launchAgent(NoPublicConstructorAA.class.getName()));
-			}
-		});
-	}
-
-	@Test
-	public void NotPublic() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				assertNotNull(launchAgent(NotPublicAgent.class.getName()));
-			}
-		});
-	}
-
-	@Test
-	public void NotAnAgentClass() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				assertNull(launchAgent(Object.class.getName()));
-			}
-		});
-	}
+    @Test
+    public void NotAnAgentClass() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		assertNull(launchAgent(Object.class.getName()));
+	    }
+	});
+    }
 
 }
 
 class NotPublicAgent extends AbstractAgent{
-	
+
 }

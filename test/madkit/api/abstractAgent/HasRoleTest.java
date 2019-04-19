@@ -40,11 +40,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import org.junit.Test;
+
 import madkit.agr.DefaultMaDKitRoles;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadkit;
-
-import org.junit.Test;
 
 /**
  * @author Fabien Michel
@@ -55,18 +55,19 @@ import org.junit.Test;
 @SuppressWarnings("all")
 public class HasRoleTest extends JunitMadkit {
 
-	@Test
-	public void hasRoleTest() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				assertFalse(hasRole(COMMUNITY, GROUP, ROLE));
-				assertEquals(ReturnCode.SUCCESS, createGroup(COMMUNITY, GROUP));
-				assertTrue(hasRole(COMMUNITY, GROUP, DefaultMaDKitRoles.GROUP_MANAGER_ROLE));
-				assertEquals(ReturnCode.SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
-				assertTrue(hasRole(COMMUNITY, GROUP, ROLE));
-				assertEquals(ReturnCode.SUCCESS, leaveRole(COMMUNITY, GROUP, ROLE));
-				assertFalse(hasRole(COMMUNITY, GROUP, ROLE));
-			}
-		});
-	}
+    @Test
+    public void hasRoleTest() {
+	launchTestV2(new AbstractAgent() {
+
+	    protected void activate() {
+		assertFalse(hasRole(COMMUNITY, GROUP, ROLE));
+		assertEquals(ReturnCode.SUCCESS, createGroup(COMMUNITY, GROUP));
+		assertTrue(hasRole(COMMUNITY, GROUP, DefaultMaDKitRoles.GROUP_MANAGER_ROLE));
+		assertEquals(ReturnCode.SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
+		assertTrue(hasRole(COMMUNITY, GROUP, ROLE));
+		assertEquals(ReturnCode.SUCCESS, leaveRole(COMMUNITY, GROUP, ROLE));
+		assertFalse(hasRole(COMMUNITY, GROUP, ROLE));
+	    }
+	});
+    }
 }

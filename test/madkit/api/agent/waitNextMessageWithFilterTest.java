@@ -41,14 +41,15 @@ import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+
+import org.junit.Test;
+
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Message;
 import madkit.message.MessageFilter;
 import madkit.testing.util.agent.ForEverReplierAgent;
 import madkit.testing.util.agent.NormalAgent;
 import madkit.util.message.EmptyMessage;
-
-import org.junit.Test;
 
 /**
  * @author Fabien Michel
@@ -59,59 +60,61 @@ import org.junit.Test;
 @SuppressWarnings("all")
 public class waitNextMessageWithFilterTest extends JunitMadkit {
 
-	protected MessageFilter	filter = new MessageFilter() {
-		@Override
-		public boolean accept(Message m) {
-			return m instanceof EmptyMessage;
+    protected MessageFilter	filter = new MessageFilter() {
+	@Override
+	public boolean accept(Message m) {
+	    return m instanceof EmptyMessage;
+	}
+    };
+
+    @Test
+    public void waitSuccess() {
+	launchTestV2(new NormalAgent() {
+	    protected void activate() {
+		super.activate();
+		receiveMessage(new Message());
+		assertEquals(SUCCESS, launchAgent(new ForEverReplierAgent(EmptyMessage.class)));
+		sendMessage(COMMUNITY, GROUP, ROLE, new Message());
+		pause(20);
+		receiveMessage(new Message());
+		assertNotNull(waitNextMessage(filter));
+		assertEquals(3, nextMessages(null).size());
+		cleanHelperAgents();
+	    }
+	});
+    }
+
+    @Test
+    public void waitReturnNull() {
+	launchTestV2(new NormalAgent() {
+	    protected void activate() {
+		super.activate();
+		receiveMessage(new Message());
+		assertEquals(SUCCESS, launchAgent(new ForEverReplierAgent()));
+		sendMessage(COMMUNITY, GROUP, ROLE, new Message());
+		pause(20);
+		receiveMessage(new Message());
+		assertNull(waitNextMessage(100,filter));
+		assertEquals(4, nextMessages(null).size());
+		cleanHelperAgents();
+	    }
+	});
+    }
+
+    @Test
+    public void nullArg() {
+	launchTestV2(new NormalAgent() {
+	    protected void activate() {
+		waitNextMessage(1,null);//not fail when messagebox is empty
+		try {
+		    receiveMessage(new Message());
+		    waitNextMessage(1,null);
+		    noExceptionFailure();
+		} catch (NullPointerException e) {
+		    throw e;
 		}
-	};
-
-	@Test
-	public void waitSuccess() {
-		launchTest(new NormalAgent() {
-			protected void activate() {
-				super.activate();
-				receiveMessage(new Message());
-				assertEquals(SUCCESS, launchAgent(new ForEverReplierAgent(EmptyMessage.class)));
-				sendMessage(COMMUNITY, GROUP, ROLE, new Message());
-				pause(20);
-				receiveMessage(new Message());
-				assertNotNull(waitNextMessage(filter));
-				assertEquals(3, nextMessages(null).size());
-			}
-		});
-	}
-
-	@Test
-	public void waitReturnNull() {
-		launchTest(new NormalAgent() {
-			protected void activate() {
-				super.activate();
-				receiveMessage(new Message());
-				assertEquals(SUCCESS, launchAgent(new ForEverReplierAgent()));
-				sendMessage(COMMUNITY, GROUP, ROLE, new Message());
-				pause(20);
-				receiveMessage(new Message());
-				assertNull(waitNextMessage(100,filter));
-				assertEquals(4, nextMessages(null).size());
-			}
-		});
-	}
-
-	@Test
-	public void nullArg() {
-		launchTest(new NormalAgent() {
-			protected void activate() {
-				waitNextMessage(1,null);//not fail when messagebox is empty
-				try {
-					receiveMessage(new Message());
-					waitNextMessage(1,null);
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					throw e;
-				}
-			}
-		}, AGENT_CRASH);
-	}
+	    }
+	}, AGENT_CRASH);
+    }
 
 }

@@ -46,11 +46,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import org.junit.Test;
+
 import madkit.agr.DefaultMaDKitRoles;
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.JunitMadkit;
-
-import org.junit.Test;
 
 /**
  * @author Fabien Michel
@@ -61,86 +61,86 @@ import org.junit.Test;
 
 public class LeaveRoleTest extends JunitMadkit {
 
-	@Test
-	public void returnSuccess() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
-				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
-				assertEquals(SUCCESS, leaveRole(COMMUNITY, GROUP, ROLE));
-				assertTrue(isGroup(COMMUNITY, GROUP));
-				assertEquals(SUCCESS, leaveRole(COMMUNITY, GROUP, DefaultMaDKitRoles.GROUP_MANAGER_ROLE));
-				// leaveGroup by leaving roles
-				assertFalse(isCommunity(COMMUNITY));
-				assertFalse(isGroup(COMMUNITY, GROUP));
-			}
-		});
-	}
+    @Test
+    public void returnSuccess() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
+		assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
+		assertEquals(SUCCESS, leaveRole(COMMUNITY, GROUP, ROLE));
+		assertTrue(isGroup(COMMUNITY, GROUP));
+		assertEquals(SUCCESS, leaveRole(COMMUNITY, GROUP, DefaultMaDKitRoles.GROUP_MANAGER_ROLE));
+		// leaveGroup by leaving roles
+		assertFalse(isCommunity(COMMUNITY));
+		assertFalse(isGroup(COMMUNITY, GROUP));
+	    }
+	});
+    }
 
-	@Test
-	public void returnNotCgr() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
-				assertEquals(NOT_COMMUNITY, leaveRole(aa(), GROUP, ROLE));
-				assertEquals(NOT_GROUP, leaveRole(COMMUNITY, aa(), ROLE));
-				assertEquals(NOT_ROLE, leaveRole(COMMUNITY, GROUP, aa()));
-				assertEquals(SUCCESS, launchAgent(new AbstractAgent() {
-					@Override
-					protected void activate() {
-						requestRole(COMMUNITY, GROUP, ROLE);
-					}
-				}));
-				assertEquals(ROLE_NOT_HANDLED, leaveRole(COMMUNITY, GROUP, ROLE));
-				assertEquals(SUCCESS, leaveGroup(COMMUNITY, GROUP));
-				assertEquals(NOT_IN_GROUP, leaveRole(COMMUNITY, GROUP, ROLE));
-			}
-		});
-	}
+    @Test
+    public void returnNotCgr() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
+		assertEquals(NOT_COMMUNITY, leaveRole(dontExist(), GROUP, ROLE));
+		assertEquals(NOT_GROUP, leaveRole(COMMUNITY, dontExist(), ROLE));
+		assertEquals(NOT_ROLE, leaveRole(COMMUNITY, GROUP, dontExist()));
+		assertEquals(SUCCESS, launchAgent(new AbstractAgent() {
+		    @Override
+		    protected void activate() {
+			requestRole(COMMUNITY, GROUP, ROLE);
+		    }
+		}));
+		assertEquals(ROLE_NOT_HANDLED, leaveRole(COMMUNITY, GROUP, ROLE));
+		assertEquals(SUCCESS, leaveGroup(COMMUNITY, GROUP));
+		assertEquals(NOT_IN_GROUP, leaveRole(COMMUNITY, GROUP, ROLE));
+	    }
+	});
+    }
 
-	@Test
-	public void nullArgs() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
-				try {
-					assertEquals(NOT_COMMUNITY, leaveRole(null, null, null));
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					e.printStackTrace();
-				}
-				try {
-					assertEquals(NOT_GROUP, leaveRole(COMMUNITY, null, null));
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					e.printStackTrace();
-				}
-				try {
-					assertEquals(ROLE_NOT_HANDLED, leaveRole(COMMUNITY, GROUP, null));
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					e.printStackTrace();
-				}
-				try {
-					assertEquals(NOT_COMMUNITY, leaveRole(null, GROUP, null));
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					e.printStackTrace();
-				}
-				try {
-					assertEquals(NOT_COMMUNITY, leaveRole(null, GROUP, ROLE));
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					e.printStackTrace();
-				}
-				try {
-					assertEquals(NOT_COMMUNITY, leaveRole(null, null, ROLE));
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+    @Test
+    public void nullArgs() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
+		try {
+		    assertEquals(NOT_COMMUNITY, leaveRole(null, null, null));
+		    noExceptionFailure();
+		} catch (NullPointerException e) {
+		    e.printStackTrace();
+		}
+		try {
+		    assertEquals(NOT_GROUP, leaveRole(COMMUNITY, null, null));
+		    noExceptionFailure();
+		} catch (NullPointerException e) {
+		    e.printStackTrace();
+		}
+		try {
+		    assertEquals(ROLE_NOT_HANDLED, leaveRole(COMMUNITY, GROUP, null));
+		    noExceptionFailure();
+		} catch (NullPointerException e) {
+		    e.printStackTrace();
+		}
+		try {
+		    assertEquals(NOT_COMMUNITY, leaveRole(null, GROUP, null));
+		    noExceptionFailure();
+		} catch (NullPointerException e) {
+		    e.printStackTrace();
+		}
+		try {
+		    assertEquals(NOT_COMMUNITY, leaveRole(null, GROUP, ROLE));
+		    noExceptionFailure();
+		} catch (NullPointerException e) {
+		    e.printStackTrace();
+		}
+		try {
+		    assertEquals(NOT_COMMUNITY, leaveRole(null, null, ROLE));
+		    noExceptionFailure();
+		} catch (NullPointerException e) {
+		    e.printStackTrace();
+		}
+	    }
+	});
+    }
 
 }

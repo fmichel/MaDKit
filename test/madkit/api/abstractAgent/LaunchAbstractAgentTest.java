@@ -95,7 +95,7 @@ public class LaunchAbstractAgentTest extends JunitMadkit {
 
     @Test
     public void returnSuccessAndAlreadyNoGUI() {
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    protected void activate() {
 		assertEquals(SUCCESS, launchAgent(target));
@@ -107,7 +107,7 @@ public class LaunchAbstractAgentTest extends JunitMadkit {
 
     @Test
     public void launchBuggedFrameAgent() {
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    protected void activate() {
 		launchAgent(new BuggedFrameAgent(), true);
@@ -117,7 +117,7 @@ public class LaunchAbstractAgentTest extends JunitMadkit {
 
     @Test
     public void launchBuggedConstructorAgent() {
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    protected void activate() {
 		launchAgent(new BuggedConstructorAgent());
@@ -128,11 +128,10 @@ public class LaunchAbstractAgentTest extends JunitMadkit {
     @Test
     public void nullArgs() {
 	addMadkitArgs(LevelOption.agentLogLevel.toString(), "OFF");
-	launchTest(new AbstractAgent() {
-
+	launchTestV2(new AbstractAgent() {
 	    protected void activate() {
 		try {
-		    assertEquals(SUCCESS, launchAgent((AbstractAgent) null));
+		    launchAgent((AbstractAgent) null);
 		    noExceptionFailure();
 		}
 		catch(NullPointerException e) {
@@ -140,8 +139,7 @@ public class LaunchAbstractAgentTest extends JunitMadkit {
 		}
 	    }
 	}, AGENT_CRASH);
-	launchTest(new AbstractAgent() {
-
+	launchTestV2(new AbstractAgent() {
 	    protected void activate() {
 		try {
 		    assertEquals(SUCCESS, launchAgent((AbstractAgent) null, true));
@@ -152,8 +150,7 @@ public class LaunchAbstractAgentTest extends JunitMadkit {
 		}
 	    }
 	}, AGENT_CRASH);
-	launchTest(new AbstractAgent() {
-
+	launchTestV2(new AbstractAgent() {
 	    protected void activate() {
 		try {
 		    assertEquals(SUCCESS, launchAgent((AbstractAgent) null, 1));
@@ -164,8 +161,7 @@ public class LaunchAbstractAgentTest extends JunitMadkit {
 		}
 	    }
 	}, AGENT_CRASH);
-	launchTest(new AbstractAgent() {
-
+	launchTestV2(new AbstractAgent() {
 	    protected void activate() {
 		try {
 		    assertEquals(SUCCESS, launchAgent((AbstractAgent) null, 1, true));
@@ -180,7 +176,7 @@ public class LaunchAbstractAgentTest extends JunitMadkit {
 
     @Test
     public void returnSuccessAndAlreadyLaunchWithGUI() {
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    protected void activate() {
 		assertEquals(SUCCESS, launchAgent(target, true));
@@ -192,7 +188,7 @@ public class LaunchAbstractAgentTest extends JunitMadkit {
 
     @Test
     public void returntTimeOut() {
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    protected void activate() {
 		assertEquals(TIMEOUT, launchAgent(timeOutAgent, 1));
@@ -205,12 +201,11 @@ public class LaunchAbstractAgentTest extends JunitMadkit {
 
     @Test
     public void returntTimeOutOnActivate() {
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    protected void activate() {
 		assertEquals(TIMEOUT, launchAgent(new BlockedInActivateAgent(), 1));
 		assertEquals(TIMEOUT, launchAgent(new BlockedInActivateAgent() {
-
 		    @Override
 		    public void setupFrame(AgentFrame frame) {
 			super.setupFrame(frame);
@@ -224,7 +219,7 @@ public class LaunchAbstractAgentTest extends JunitMadkit {
     @Test
     public void massLaunch() {
 	addMadkitArgs(LevelOption.agentLogLevel.toString(), "OFF");
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    int number = 1000;
 
@@ -248,7 +243,7 @@ public class LaunchAbstractAgentTest extends JunitMadkit {
     @Test
     public void massLaunchWithGUI() {
 	addMadkitArgs(LevelOption.agentLogLevel.toString(), "OFF");
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    int number = 10;
 
@@ -271,7 +266,7 @@ public class LaunchAbstractAgentTest extends JunitMadkit {
 
     @Test
     public void returnAleradyLaunch() {
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    protected void activate() {
 		assertEquals(SUCCESS, launchAgent(target));
@@ -287,7 +282,7 @@ public class LaunchAbstractAgentTest extends JunitMadkit {
 
     @Test
     public void returnAgentCrash() {
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    protected void activate() {
 		assertEquals(AGENT_CRASH, launchAgent(faulty));
@@ -298,7 +293,7 @@ public class LaunchAbstractAgentTest extends JunitMadkit {
 
     @Test
     public void SelfLaunching() {
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    protected void activate() {
 		SelfLaunchAA a = new SelfLaunchAA(true);
@@ -312,7 +307,7 @@ public class LaunchAbstractAgentTest extends JunitMadkit {
     @Test
     public void chainLaunching() {
 	addMadkitArgs(LevelOption.agentLogLevel.toString(), "OFF");
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    protected void activate() {
 		for (int i = 0; i < 100; i++) {

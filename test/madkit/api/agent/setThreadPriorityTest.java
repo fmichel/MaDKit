@@ -37,10 +37,11 @@ knowledge of the CeCILL-C license and that you accept its terms.
 package madkit.api.agent;
 
 import static org.junit.Assert.assertEquals;
-import madkit.kernel.JunitMadkit;
-import madkit.testing.util.agent.NormalAgent;
 
 import org.junit.Test;
+
+import madkit.kernel.JunitMadkit;
+import madkit.testing.util.agent.NormalAgent;
 
 /**
  * @author Fabien Michel
@@ -50,35 +51,35 @@ import org.junit.Test;
  */
 public class setThreadPriorityTest extends JunitMadkit {
 
-	@Test
-	public void nullCommunity() {
-		launchTest(new NormalAgent() {
-			protected void activate() {
-				assertEquals(Thread.NORM_PRIORITY -1, getThreadPriority());
-				setThreadPriority(2);
-				assertEquals(2, getThreadPriority());
-			}
-			
-			@Override
-			protected void live() {
-				try {
-					assertEquals(2, getThreadPriority());
-					setThreadPriority(3);
-				} catch (AssertionError e) {
-					testFails(e);
-				}
-			}
-			
-			@Override
-			protected void end() {
-				try {
-					assertEquals(3, getThreadPriority());
-				} catch (AssertionError e) {
-					testFails(e);
-				}
-			}
-		});
-		pause(100);
-		everythingOK();
-	}
+    @Test
+    public void nullCommunity() {
+	launchTestV2(new NormalAgent() {
+	    protected void activate() {
+		assertEquals(Thread.NORM_PRIORITY -1, getThreadPriority());
+		setThreadPriority(2);
+		assertEquals(2, getThreadPriority());
+	    }
+
+	    @Override
+	    protected void live() {
+		try {
+		    assertEquals(2, getThreadPriority());
+		    setThreadPriority(3);
+		} catch (AssertionError e) {
+		    testFails(e);
+		}
+	    }
+
+	    @Override
+	    protected void end() {
+		try {
+		    assertEquals(3, getThreadPriority());
+		} catch (AssertionError e) {
+		    testFails(e);
+		}
+	    }
+	});
+	pause(100);
+	everythingOK();
+    }
 }

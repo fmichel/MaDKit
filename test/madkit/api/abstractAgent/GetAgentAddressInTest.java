@@ -40,12 +40,13 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+
+import org.junit.Test;
+
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.AgentAddress;
 import madkit.kernel.JunitMadkit;
-
-import org.junit.Test;
 
 /**
  * @author Fabien Michel
@@ -57,140 +58,140 @@ import org.junit.Test;
 
 public class GetAgentAddressInTest extends JunitMadkit {
 
-	@Test
-	public void success() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				createDefaultCGR(this);
-				assertNotNull(getAgentAddressIn(COMMUNITY, GROUP, ROLE));
-			}
+    @Test
+    public void success() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		createDefaultCGR(this);
+		assertNotNull(getAgentAddressIn(COMMUNITY, GROUP, ROLE));
+	    }
+	});
+    }
+
+    @Test
+    public void nullAfterLeaveRole() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		createDefaultCGR(this);
+		AgentAddress aa = getAgentAddressIn(COMMUNITY, GROUP, ROLE);
+		assertNotNull(aa);
+		assertTrue(checkAgentAddress(aa));
+		leaveRole(COMMUNITY, GROUP, ROLE);
+		assertFalse(checkAgentAddress(aa));
+		aa = getAgentAddressIn(COMMUNITY, GROUP, ROLE);
+		assertNull(aa);
+	    }
+	});
+    }
+
+    @Test
+    public void nullAfterLeaveGroup() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		createDefaultCGR(this);
+		AgentAddress aa = getAgentAddressIn(COMMUNITY, GROUP, ROLE);
+		assertNotNull(aa);
+		assertTrue(checkAgentAddress(aa));
+		leaveGroup(COMMUNITY, GROUP);
+		assertFalse(checkAgentAddress(aa));
+		aa = getAgentAddressIn(COMMUNITY, GROUP, ROLE);
+		assertNull(aa);
+	    }
+	});
+    }
+
+    @Test
+    public void nullCommunity() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		createDefaultCGR(this);
+		try {
+		    assertNotNull(getAgentAddressIn(null, GROUP, ROLE));
+		    noExceptionFailure();
+		} catch (NullPointerException e) {
+		    throw e;
+		}
+	    }
+	}, ReturnCode.AGENT_CRASH);
+    }
+
+    @Test
+    public void nullGroup() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		createDefaultCGR(this);
+		try {
+		    assertNotNull(getAgentAddressIn(COMMUNITY, null, ROLE));
+		    noExceptionFailure();
+		} catch (NullPointerException e) {
+		    throw e;
+		}
+	    }
+	}, ReturnCode.AGENT_CRASH);
+    }
+
+    @Test
+    public void nullRole() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		createDefaultCGR(this);
+		try {
+		    assertNotNull(getAgentAddressIn(COMMUNITY, GROUP, null));
+		    noExceptionFailure();
+		} catch (NullPointerException e) {
+		    throw e;
+		}
+	    }
+	}, ReturnCode.AGENT_CRASH);
+    }
+
+    @Test
+    public void roleNotExist() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		createDefaultCGR(this);
+		assertNull(getAgentAddressIn(COMMUNITY, GROUP, dontExist()));
+	    }
+	});
+    }
+
+    @Test
+    public void roleNotHandled() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		createDefaultCGR(this);
+		launchAgent(new AbstractAgent(){
+		    @Override
+		    protected void activate() {
+			requestRole(COMMUNITY, GROUP, "a");
+			createGroup(COMMUNITY, "a");
+			requestRole(COMMUNITY, "a", "a");
+		    }
 		});
-	}
+		assertNull(getAgentAddressIn(COMMUNITY, GROUP, "a"));
+		assertNull(getAgentAddressIn(COMMUNITY, "a", "a"));
+	    }
+	});
+    }
 
-	@Test
-	public void nullAfterLeaveRole() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				createDefaultCGR(this);
-				AgentAddress aa = getAgentAddressIn(COMMUNITY, GROUP, ROLE);
-				assertNotNull(aa);
-				assertTrue(checkAgentAddress(aa));
-				leaveRole(COMMUNITY, GROUP, ROLE);
-				assertFalse(checkAgentAddress(aa));
-				aa = getAgentAddressIn(COMMUNITY, GROUP, ROLE);
-				assertNull(aa);
-			}
-		});
-	}
+    @Test
+    public void groupNotExist() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		createDefaultCGR(this);
+		assertNull(getAgentAddressIn(COMMUNITY, dontExist(), dontExist()));
+	    }
+	});
+    }
 
-	@Test
-	public void nullAfterLeaveGroup() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				createDefaultCGR(this);
-				AgentAddress aa = getAgentAddressIn(COMMUNITY, GROUP, ROLE);
-				assertNotNull(aa);
-				assertTrue(checkAgentAddress(aa));
-				leaveGroup(COMMUNITY, GROUP);
-				assertFalse(checkAgentAddress(aa));
-				aa = getAgentAddressIn(COMMUNITY, GROUP, ROLE);
-				assertNull(aa);
-			}
-		});
-	}
-
-	@Test
-	public void nullCommunity() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				createDefaultCGR(this);
-				try {
-					assertNotNull(getAgentAddressIn(null, GROUP, ROLE));
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					throw e;
-				}
-			}
-		}, ReturnCode.AGENT_CRASH);
-	}
-
-	@Test
-	public void nullGroup() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				createDefaultCGR(this);
-				try {
-					assertNotNull(getAgentAddressIn(COMMUNITY, null, ROLE));
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					throw e;
-				}
-			}
-		}, ReturnCode.AGENT_CRASH);
-	}
-
-	@Test
-	public void nullRole() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				createDefaultCGR(this);
-				try {
-					assertNotNull(getAgentAddressIn(COMMUNITY, GROUP, null));
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					throw e;
-				}
-			}
-		}, ReturnCode.AGENT_CRASH);
-	}
-
-	@Test
-	public void roleNotExist() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				createDefaultCGR(this);
-				assertNull(getAgentAddressIn(COMMUNITY, GROUP, aa()));
-			}
-		}, ReturnCode.SUCCESS);
-	}
-
-	@Test
-	public void roleNotHandled() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				createDefaultCGR(this);
-				launchAgent(new AbstractAgent(){
-					@Override
-					protected void activate() {
-						requestRole(COMMUNITY, GROUP, "a");
-						createGroup(COMMUNITY, "a");
-						requestRole(COMMUNITY, "a", "a");
-					}
-				});
-				assertNull(getAgentAddressIn(COMMUNITY, GROUP, "a"));
-				assertNull(getAgentAddressIn(COMMUNITY, "a", "a"));
-			}
-		}, ReturnCode.SUCCESS);
-	}
-
-	@Test
-	public void groupNotExist() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				createDefaultCGR(this);
-				assertNull(getAgentAddressIn(COMMUNITY, aa(), aa()));
-			}
-		}, ReturnCode.SUCCESS);
-	}
-
-	@Test
-	public void communityNotExist() {
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				createDefaultCGR(this);
-				assertNull(getAgentAddressIn(aa(), aa(), aa()));
-			}
-		}, ReturnCode.SUCCESS);
-	}
+    @Test
+    public void communityNotExist() {
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		createDefaultCGR(this);
+		assertNull(getAgentAddressIn(dontExist(), dontExist(), dontExist()));
+	    }
+	});
+    }
 
 }

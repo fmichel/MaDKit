@@ -41,7 +41,7 @@ import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static madkit.kernel.AbstractAgent.ReturnCode.TIMEOUT;
 import static madkit.kernel.JunitMadkit.COMMUNITY;
 import static madkit.kernel.JunitMadkit.GROUP;
-import static madkit.kernel.JunitMadkit.aa;
+import static madkit.kernel.JunitMadkit.dontExist;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -75,7 +75,7 @@ public class SelfAbstractKill extends DoItDuringLifeCycleAbstractAgent {
 		} else
 			assertEquals(timeOut == 0 ? SUCCESS : TIMEOUT, killAgent(this, timeOut));
 		for (int i = 0; i < 5; i++) {
-			requestRole(COMMUNITY, GROUP, aa(), null);
+			requestRole(COMMUNITY, GROUP, dontExist(), null);
 			System.err.println("doing in " + getState() + " " + i);
 		}
 	}

@@ -77,7 +77,7 @@ public class LaunchAgentBucketWithRolesWithListTest extends JunitMadkit {
 
     @Test
     public void cannotLaunch() {
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    protected void activate() {
 		launchAgentBucket(FaultyAA.class.getName(), 2, COMMUNITY + "," + GROUP + "," + ROLE);
@@ -88,7 +88,7 @@ public class LaunchAgentBucketWithRolesWithListTest extends JunitMadkit {
     @Test
     public void nullArg() {
 	addMadkitArgs(LevelOption.kernelLogLevel.toString(), Level.ALL.toString());
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    protected void activate() {
 		List<AbstractAgent> l = new ArrayList<>();
@@ -101,14 +101,14 @@ public class LaunchAgentBucketWithRolesWithListTest extends JunitMadkit {
     }
 
     @Test
-    public void wrongCGR() {
+    public void wrongCGRFormat() {
 	launchTest(new AbstractAgent() {
 
 	    protected void activate() {
 		getLogger().setLevel(Level.OFF);
 		try {
-		    launchAgentBucket(FaultyAA.class.getName(), 2, COMMUNITY + "," + GROUP + "," + ROLE);
-		    JunitMadkit.noExceptionFailure();
+		    launchAgentBucket(FaultyAA.class.getName(), 2, COMMUNITY + ";" + GROUP + "," + ROLE);
+		    noExceptionFailure();
 		}
 		catch(IllegalArgumentException e) {
 		    throw e;
@@ -119,7 +119,7 @@ public class LaunchAgentBucketWithRolesWithListTest extends JunitMadkit {
 
     @Test
     public void returnSuccess() {
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    protected void activate() {
 		getLogger().setLevel(Level.OFF);
@@ -136,7 +136,7 @@ public class LaunchAgentBucketWithRolesWithListTest extends JunitMadkit {
 
     @Test
     public void returnSuccessWithInsideLaunches() {
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    protected void activate() {
 		List<SimulatedAgent> l = new ArrayList<>();
@@ -152,7 +152,7 @@ public class LaunchAgentBucketWithRolesWithListTest extends JunitMadkit {
 
     @Test
     public void testBucketRequestRole() {
-	launchTest(new AbstractAgent() {
+	launchTestV2(new AbstractAgent() {
 
 	    protected void activate() {
 		List<AbstractAgent> l = new ArrayList<>();
@@ -176,7 +176,7 @@ public class LaunchAgentBucketWithRolesWithListTest extends JunitMadkit {
 
     @Test
     public void inScheduledAgent() {
-	launchTest(new Scheduler() {
+	launchTestV2(new Scheduler() {
 
 	    protected void activate() {
 		GenericBehaviorActivator<AbstractAgent> test = new GenericBehaviorActivator<>(COMMUNITY, GROUP, ROLE, "launchAgentBucketWithRoles");
@@ -189,6 +189,9 @@ public class LaunchAgentBucketWithRolesWithListTest extends JunitMadkit {
 		    e.printStackTrace();
 		    throw e;
 		}
+	    }
+	    @Override
+	    protected void live() {
 	    }
 	}, ReturnCode.SUCCESS);
     }

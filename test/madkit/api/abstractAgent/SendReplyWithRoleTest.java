@@ -41,13 +41,14 @@ import static madkit.kernel.AbstractAgent.ReturnCode.NOT_IN_GROUP;
 import static madkit.kernel.AbstractAgent.ReturnCode.ROLE_NOT_HANDLED;
 import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
+
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.kernel.Message;
-
-import org.junit.Test;
 
 /**
  * @author Fabien Michel
@@ -58,103 +59,103 @@ import org.junit.Test;
 
 public class SendReplyWithRoleTest extends JunitMadkit {
 
-	@Test
-	public void returnNotInGroup() {
-		launchTest(new Replier() {
+    @Test
+    public void returnNotInGroup() {
+	launchTestV2(new Replier() {
 
-			protected void activate() {
-				super.activate();
-				assertEquals(SUCCESS, leaveRole(COMMUNITY, GROUP, ROLE));
-				assertEquals(NOT_IN_GROUP, sendReplyWithRole(nextMessage(), new Message(), ROLE));
-			}
-		});
-	}
+	    protected void activate() {
+		super.activate();
+		assertEquals(SUCCESS, leaveRole(COMMUNITY, GROUP, ROLE));
+		assertEquals(NOT_IN_GROUP, sendReplyWithRole(nextMessage(), new Message(), ROLE));
+	    }
+	});
+    }
 
-	@Test
-	public void returnInvalidAA() {
-		launchTest(new Replier() {
+    @Test
+    public void returnInvalidAA() {
+	launchTestV2(new Replier() {
 
-			protected void activate() {
-				super.activate();
-				target.leaveGroup(COMMUNITY, GROUP);
-				assertEquals(INVALID_AGENT_ADDRESS, sendReplyWithRole(nextMessage(), new Message(), ROLE));
-			}
-		});
-	}
+	    protected void activate() {
+		super.activate();
+		target.leaveGroup(COMMUNITY, GROUP);
+		assertEquals(INVALID_AGENT_ADDRESS, sendReplyWithRole(nextMessage(), new Message(), ROLE));
+	    }
+	});
+    }
 
-	@Test
-	public void returnSuccess() {
-		launchTest(new Replier() {
+    @Test
+    public void returnSuccess() {
+	launchTestV2(new Replier() {
 
-			protected void activate() {
-				super.activate();
-				assertEquals(SUCCESS, sendReplyWithRole(nextMessage(), new Message(), ROLE));
-			}
-		});
-	}
+	    protected void activate() {
+		super.activate();
+		assertEquals(SUCCESS, sendReplyWithRole(nextMessage(), new Message(), ROLE));
+	    }
+	});
+    }
 
-	@Test
-	public void returnRoleNotHandled() {
-		launchTest(new Replier() {
+    @Test
+    public void returnRoleNotHandled() {
+	launchTestV2(new Replier() {
 
-			protected void activate() {
-				super.activate();
-				assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE2));
-				assertEquals(SUCCESS, leaveRole(COMMUNITY, GROUP, ROLE));
-				assertEquals(ROLE_NOT_HANDLED, sendReplyWithRole(nextMessage(), new Message(), ROLE));
-			}
-		});
-	}
+	    protected void activate() {
+		super.activate();
+		assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE2));
+		assertEquals(SUCCESS, leaveRole(COMMUNITY, GROUP, ROLE));
+		assertEquals(ROLE_NOT_HANDLED, sendReplyWithRole(nextMessage(), new Message(), ROLE));
+	    }
+	});
+    }
 
-	@Test
-	public void wrongArg() {
-		addMadkitArgs(LevelOption.kernelLogLevel.toString(),"ALL");
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				createDefaultCGR(this);
-				assertEquals(ReturnCode.CANT_REPLY, sendReplyWithRole(new Message(), new Message(), ROLE));
-			}
-		});
-	}
+    @Test
+    public void wrongArg() {
+	addMadkitArgs(LevelOption.kernelLogLevel.toString(),"ALL");
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		createDefaultCGR(this);
+		assertEquals(ReturnCode.CANT_REPLY, sendReplyWithRole(new Message(), new Message(), ROLE));
+	    }
+	});
+    }
 
-	@Test
-	public void wrongArgFromMessageSentFromAnObject() {
-		addMadkitArgs(LevelOption.kernelLogLevel.toString(),"ALL");
-		launchTest(new AbstractAgent() {
-			protected void activate() {
-				createDefaultCGR(this);
-				receiveMessage(new Message());
-				assertEquals(ReturnCode.CANT_REPLY, sendReplyWithRole(nextMessage(), new Message(), ROLE));
-			}
-		});
-	}
+    @Test
+    public void wrongArgFromMessageSentFromAnObject() {
+	addMadkitArgs(LevelOption.kernelLogLevel.toString(),"ALL");
+	launchTestV2(new AbstractAgent() {
+	    protected void activate() {
+		createDefaultCGR(this);
+		receiveMessage(new Message());
+		assertEquals(ReturnCode.CANT_REPLY, sendReplyWithRole(nextMessage(), new Message(), ROLE));
+	    }
+	});
+    }
 
-	@Test
-	public void nullArg() {
-		launchTest(new Replier() {
+    @Test
+    public void nullArg() {
+	launchTestV2(new Replier() {
 
-			protected void activate() {
-				try {
-					assertEquals(SUCCESS, sendReplyWithRole(nextMessage(), null, ROLE));
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					throw e;
-				}
-			}
-		}, ReturnCode.AGENT_CRASH);
+	    protected void activate() {
+		try {
+		    assertEquals(SUCCESS, sendReplyWithRole(nextMessage(), null, ROLE));
+		    noExceptionFailure();
+		} catch (NullPointerException e) {
+		    throw e;
+		}
+	    }
+	}, ReturnCode.AGENT_CRASH);
 
-		launchTest(new Replier() {
+	launchTestV2(new Replier() {
 
-			protected void activate() {
-				try {
-					assertEquals(SUCCESS, sendReplyWithRole(null, new Message(), ROLE));
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					throw e;
-				}
-			}
-		}, ReturnCode.AGENT_CRASH);
+	    protected void activate() {
+		try {
+		    assertEquals(SUCCESS, sendReplyWithRole(null, new Message(), ROLE));
+		    noExceptionFailure();
+		} catch (NullPointerException e) {
+		    throw e;
+		}
+	    }
+	}, ReturnCode.AGENT_CRASH);
 
-	}
+    }
 
 }

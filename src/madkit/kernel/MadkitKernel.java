@@ -169,12 +169,20 @@ class MadkitKernel extends Agent {
     protected MadkitKernel loggedKernel;
     private volatile boolean shuttedDown = false;
     private final AgentThreadFactory normalAgentThreadFactory;
+    
+    /**
+     * @return the normalAgentThreadFactory
+     */
+    AgentThreadFactory getNormalAgentThreadFactory() {
+        return normalAgentThreadFactory;
+    }
+
     private final AgentThreadFactory daemonAgentThreadFactory;
 
     private AgentAddress netAgent;
     // my private addresses for optimizing the message building
     private AgentAddress netUpdater, netEmmiter, kernelRole;
-    private final Set<Agent> threadedAgents;
+    final Set<Agent> threadedAgents;
 
     private EnumMap<AgentActionEvent, Set<AbstractAgent>> hooks;
 
@@ -756,9 +764,6 @@ class MadkitKernel extends Agent {
 	    affectedRoles = g.leaveGroup(requester);
 	}
 	if (affectedRoles != null) {// success
-//	    for (final Role role : affectedRoles) {
-//		role.removeFromOverlookers(requester);
-//	    }
 	    if (g.isDistributed()) {
 		sendNetworkMessageWithRole(new CGRSynchro(LEAVE_GROUP, new AgentAddress(requester, new Role(community, group), kernelAddress)), netUpdater);
 	    }
@@ -1159,6 +1164,7 @@ class MadkitKernel extends Agent {
     }
 
     ReturnCode launchAgent(final AbstractAgent requester, final AbstractAgent agent, final int timeOutSeconds, final boolean defaultGUI) {
+	Objects.requireNonNull(agent);
 	try {
 	    if (logger != null) {
 		logger.finest(() -> requester + " launching " + agent + " by " + Thread.currentThread());
@@ -1176,8 +1182,7 @@ class MadkitKernel extends Agent {
 	    }
 	    return returnCode;
 	}
-	catch(InterruptedException e) {// requester has been killed or
-				       // something
+	catch(InterruptedException e) {// requester has been killed or something
 	    requester.handleInterruptedException();
 	    return TIMEOUT;
 	}
@@ -1827,7 +1832,7 @@ class MadkitKernel extends Agent {
 	// pause(10);//be sure that last executors have started
 	if (logger != null)
 	    logger.finer(() -> "***** SHUTINGDOWN MADKIT ********\n");
-	killAgents(true);
+	killThreadedAgents(true);
 	killAgent(this);
     }
 
@@ -1874,7 +1879,7 @@ class MadkitKernel extends Agent {
     // }
     // }
 
-    private void killAgents(boolean untilEmpty) {
+    void killThreadedAgents(boolean untilEmpty) {
 	threadedAgents.remove(this);
 	// Do not do what follows because it throws interruption on awt threads !
 	// //TODO why ?

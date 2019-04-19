@@ -45,6 +45,7 @@ import java.util.concurrent.TimeUnit;
 
 import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.AbstractAgent.State;
+import madkit.message.hook.HookMessage.AgentActionEvent;
 
 /**
  * @author Fabien Michel
@@ -124,6 +125,8 @@ final class AgentExecutor extends ThreadPoolExecutor {
 				MadkitKernel k = myAgent.getMadkitKernel();
 				myAgent.terminate();
 				k.removeThreadedAgent(myAgent);
+				if (k.isHooked())
+				    k.informHooks(AgentActionEvent.AGENT_TERMINATED, myAgent);
 			} catch (KernelException e) {
 				System.err.println(myAgent.getKernel());
 				e.printStackTrace();
@@ -134,6 +137,7 @@ final class AgentExecutor extends ThreadPoolExecutor {
 	Future<?> getEndProcess() {
 		return end;
 	}
+	
 	Future<?> getLiveProcess() {
 		return live;
 	}

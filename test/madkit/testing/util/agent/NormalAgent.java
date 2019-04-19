@@ -68,10 +68,11 @@ public class NormalAgent extends Agent {
 	@Override
 	protected void live() {//need the override !
 		getLogger().setLevel(Level.ALL);
+		System.err.println(Thread.currentThread().getThreadGroup().isDestroyed());
 	}
 	
 	public static void main(String[] args) {
-		executeThisAgent("--agentLogLevel","ALL","--createLogFiles","--debug");
+		executeThisAgent("--kernelLogLevel","ALL","--agentLogLevel","ALL","--createLogFiles","--debug");
 	}
 	
 }

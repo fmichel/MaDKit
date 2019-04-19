@@ -52,6 +52,15 @@
 		</zip>
 	</target>
 
+	<!-- ================================= 
+          target: junit-src-zip              
+         ================================= -->
+	<target name="junit-src-zip" depends="src-zip" description="the junit src zip">
+		<zip destfile="${src.zip.location}" update="true" level="9">
+			<zipfileset dir="test" includes="**/*.java" excludes="**/package-info.java" />
+		</zip>
+	</target>
+
 	<path id="compile.classpath">
 		<fileset dir="${java.home}/lib">
 			<include name="deploy.jar" />
@@ -150,18 +159,18 @@
 	<!-- ================================= 
           target: mdk-junit-jar              
          ================================= -->
-    <target name="mdk-junit-jar" depends="clean,compile" description="build the jar for using the MDK junit classes">
+    <target name="junit-mdk-jar" depends="clean,compile" description="build the jar for using the MDK junit classes">
 		<javac destdir="${build.dir}" includeAntRuntime="false" debug="on" srcdir="test">
 			<classpath refid="test.compile.classpath" />
 		</javac>
-		<jar destfile="${mdk-junit-jar.file}" level="1">
+		<jar destfile="${jar.file}" update="true" level="1">
 			<fileset dir="${build.dir}">
 				<exclude name="**/package-info.class" />
 				<exclude name="**/doc-files/**" />
 			</fileset>
 		</jar>
 
-		<chmod file="${mdk-junit-jar.name}" perm="ugo+x" />
+		<chmod file="${jar.file}" perm="ugo+x" />
 		<echo>${jar.file} created !${line.separator}</echo>
     	
     </target>
@@ -315,6 +324,19 @@
 					<arg value="clean" />
 				</exec>
 			</target>
+	
+	<!-- ================================= 
+          target: junit-release              
+         ================================= -->
+    <target name="junit-release" depends="release,junit-mdk-jar,junit-src-zip" description="junit featured release">
+		<zip destfile="${release.dir}/${distribution.zip.name}" update="true" level="9">
+			<zipfileset file="${jar.file}" filemode="755" />
+			<zipfileset file="${docs.dir}/${src.zip.name}" prefix="${docs.dir}" filemode="755" />
+		</zip>
+    </target>
+
+	
+	
 
 
 			<!-- ================================= 

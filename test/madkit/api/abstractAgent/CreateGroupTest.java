@@ -41,12 +41,13 @@ import static madkit.kernel.AbstractAgent.ReturnCode.SUCCESS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import org.junit.Test;
+
 import madkit.kernel.AbstractAgent;
 import madkit.kernel.AbstractAgent.ReturnCode;
 import madkit.kernel.Gatekeeper;
 import madkit.kernel.JunitMadkit;
-
-import org.junit.Test;
 
 /**
  * @author Fabien Michel
@@ -66,15 +67,15 @@ public class CreateGroupTest extends JunitMadkit {
 
 	@Test
 	public void createGroup() {
-		launchTest(new AbstractAgent() {
+		launchTestV2(new AbstractAgent() {
 			protected void activate() {
 				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
 				assertTrue(isCommunity(COMMUNITY));
 				assertTrue(isGroup(COMMUNITY, GROUP));
-				assertEquals(SUCCESS, createGroup(aa(), aa(), true));
-				assertEquals(SUCCESS, createGroup(aa(), aa(), false));
-				assertEquals(SUCCESS, createGroup(aa(), aa(), true, gi));
-				assertEquals(SUCCESS, createGroup(aa(), aa(), false, gi));
+				assertEquals(SUCCESS, createGroup(dontExist(), dontExist(), true));
+				assertEquals(SUCCESS, createGroup(dontExist(), dontExist(), false));
+				assertEquals(SUCCESS, createGroup(dontExist(), dontExist(), true, gi));
+				assertEquals(SUCCESS, createGroup(dontExist(), dontExist(), false, gi));
 			}
 		});
 	}
@@ -82,7 +83,7 @@ public class CreateGroupTest extends JunitMadkit {
 	@Test
 	public void createGroupAlreadyDone() {
 		addMadkitArgs("--kernelLogLevel", "ALL");
-		launchTest(new AbstractAgent() {
+		launchTestV2(new AbstractAgent() {
 			protected void activate() {
 				assertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
 				assertEquals(ALREADY_GROUP, createGroup(COMMUNITY, GROUP));
@@ -94,10 +95,10 @@ public class CreateGroupTest extends JunitMadkit {
 	@Test
 	public void communityIsNull() {
 		addMadkitArgs("--kernelLogLevel", "ALL");
-		launchTest(new AbstractAgent() {
+		launchTestV2(new AbstractAgent() {
 			protected void activate() {
 				try {
-					createGroup(null, aa());
+					createGroup(null, dontExist());
 					noExceptionFailure();
 				} catch (NullPointerException e) {
 					throw e;
@@ -109,10 +110,10 @@ public class CreateGroupTest extends JunitMadkit {
 	@Test
 	public void nullArgs() {
 		addMadkitArgs("--kernelLogLevel", "ALL");
-		launchTest(new AbstractAgent() {
+		launchTestV2(new AbstractAgent() {
 			protected void activate() {
 				try {
-					createGroup(aa(), null, false, null);
+					createGroup(dontExist(), null, false, null);
 					noExceptionFailure();
 				} catch (NullPointerException e) {
 					throw e;
@@ -123,7 +124,7 @@ public class CreateGroupTest extends JunitMadkit {
 
 	@Test
 	public void createGroupAndLeaveAndCreate() {
-		launchTest(new AbstractAgent() {
+		launchTestV2(new AbstractAgent() {
 			protected void activate() {
 				assertFalse(isCommunity(COMMUNITY));
 				assertFalse(isGroup(COMMUNITY, GROUP));

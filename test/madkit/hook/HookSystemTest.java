@@ -55,7 +55,7 @@ public class HookSystemTest extends JunitMadkit {
 	addMadkitArgs(LevelOption.agentLogLevel.toString(), Level.ALL.toString()
 	// ,LevelOption.kernelLogLevel.toString(),Level.ALL.toString()
 	);
-	launchTest(new NormalAgent() {
+	launchTestV2(new NormalAgent() {
 
 	    @Override
 	    protected void activate() {
@@ -69,7 +69,6 @@ public class HookSystemTest extends JunitMadkit {
 		assertEquals(DefaultMaDKitRoles.GROUP_MANAGER_ROLE, m.getSourceAgent().getRole());
 	    }
 	});
-	pause(100);
     }
 
     @Test
@@ -77,7 +76,7 @@ public class HookSystemTest extends JunitMadkit {
 	addMadkitArgs(LevelOption.agentLogLevel.toString(), Level.ALL.toString()
 	// ,LevelOption.kernelLogLevel.toString(),Level.ALL.toString()
 	);
-	launchTest(new NormalAgent() {
+	launchTestV2(new NormalAgent() {
 
 	    @Override
 	    protected void activate() {
@@ -88,7 +87,6 @@ public class HookSystemTest extends JunitMadkit {
 		assertNull(nextMessage());
 	    }
 	});
-	pause(100);
     }
 
     @Test
@@ -96,7 +94,7 @@ public class HookSystemTest extends JunitMadkit {
 	addMadkitArgs(LevelOption.agentLogLevel.toString(), Level.ALL.toString()
 	// ,LevelOption.kernelLogLevel.toString(),Level.ALL.toString()
 	);
-	launchTest(new NormalAgent() {
+	launchTestV2(new NormalAgent() {
 
 	    @Override
 	    protected void activate() {
@@ -112,7 +110,6 @@ public class HookSystemTest extends JunitMadkit {
 		assertEquals(ROLE, m.getSourceAgent().getRole());
 	    }
 	});
-	pause(100);
     }
 
     @Test
@@ -120,7 +117,7 @@ public class HookSystemTest extends JunitMadkit {
 	addMadkitArgs(LevelOption.agentLogLevel.toString(), Level.ALL.toString()
 	// ,LevelOption.kernelLogLevel.toString(),Level.ALL.toString()
 	);
-	launchTest(new NormalAgent() {
+	launchTestV2(new NormalAgent() {
 
 	    @Override
 	    protected void activate() {
@@ -144,7 +141,7 @@ public class HookSystemTest extends JunitMadkit {
 	addMadkitArgs(LevelOption.agentLogLevel.toString(), Level.ALL.toString()
 	// ,LevelOption.kernelLogLevel.toString(),Level.ALL.toString()
 	);
-	launchTest(new NormalAgent() {
+	launchTestV2(new NormalAgent() {
 
 	    @Override
 	    protected void activate() {
@@ -167,7 +164,7 @@ public class HookSystemTest extends JunitMadkit {
 	addMadkitArgs(LevelOption.agentLogLevel.toString(), Level.ALL.toString()
 	// ,LevelOption.kernelLogLevel.toString(),Level.ALL.toString()
 	);
-	launchTest(new NormalAgent() {
+	launchTestV2(new NormalAgent() {
 
 	    @Override
 	    protected void activate() {
@@ -188,7 +185,7 @@ public class HookSystemTest extends JunitMadkit {
 	addMadkitArgs(LevelOption.agentLogLevel.toString(), Level.ALL.toString()
 	// ,LevelOption.kernelLogLevel.toString(),Level.ALL.toString()
 	);
-	launchTest(new NormalAgent() {
+	launchTestV2(new NormalAgent() {
 
 	    @Override
 	    protected void activate() {
@@ -207,7 +204,7 @@ public class HookSystemTest extends JunitMadkit {
     @Test
     public void agentStarted() {
 	addMadkitArgs(LevelOption.agentLogLevel.toString(), Level.ALL.toString(), LevelOption.kernelLogLevel.toString(), Level.OFF.toString());
-	launchTest(new NormalAgent() {
+	launchTestV2(new NormalAgent() {
 
 	    @Override
 	    protected void activate() {
@@ -232,7 +229,7 @@ public class HookSystemTest extends JunitMadkit {
 	addMadkitArgs(LevelOption.agentLogLevel.toString(), Level.ALL.toString()
 	// ,LevelOption.kernelLogLevel.toString(),Level.ALL.toString()
 	);
-	launchTest(new NormalAgent() {
+	launchTestV2(new NormalAgent() {
 
 	    @Override
 	    protected void activate() {

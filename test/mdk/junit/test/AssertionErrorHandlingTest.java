@@ -27,7 +27,6 @@ public class AssertionErrorHandlingTest extends JunitMadkit{
                         base.evaluate();
                     } catch (Throwable e) {
                         if (description.getAnnotation(Deprecated.class) != null) {
-                            // you can do whatever you like here.
                             System.err.println("test failed, but that's ok:");
                         } else {
                             throw e;

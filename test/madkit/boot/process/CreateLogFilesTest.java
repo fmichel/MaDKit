@@ -126,7 +126,7 @@ public class CreateLogFilesTest extends JunitMadkit {
 	System.err.println(f);
 	assertTrue(f.exists());
 	assertTrue(f.isDirectory());
-	assertSame(2, f.listFiles(filter).length);
+	assertEquals(1, f.listFiles(filter).length);
     }
 
     @Test
@@ -192,7 +192,7 @@ public class CreateLogFilesTest extends JunitMadkit {
 	assertTrue(f.exists());
 	assertTrue(f.isDirectory());
 	pause(500);
-	assertSame(2, f.listFiles(filter).length);
+	assertSame(1, f.listFiles(filter).length);
     }
 
     @Test
@@ -224,7 +224,7 @@ public class CreateLogFilesTest extends JunitMadkit {
 	    }
 	});
 	pause(500);
-	assertSame(2, f.listFiles(filter).length);
+	assertSame(1, f.listFiles(filter).length);
     }
 
     @AfterClass

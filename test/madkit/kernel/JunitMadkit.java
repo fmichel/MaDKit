@@ -110,8 +110,6 @@ public class JunitMadkit {
     private MadkitKernel kernelAgent;
     protected static List<Madkit> helperInstances = new ArrayList<>();
 
-    protected static Map<AbstractAgent,AssertionError> assertionErrors;
-
     //	static{
     //		Runtime.getRuntime().addShutdownHook(new Thread(){
     //			@Override
@@ -122,18 +120,28 @@ public class JunitMadkit {
     //	}
 
 
+    private static AssertionError firstFailure;
+    protected static Map<AbstractAgent,AssertionError> assertionErrors;
+    
     /**
      * @return the assertionErrors
      */
+    @SuppressWarnings("serial")
     public static Map<AbstractAgent, AssertionError> getAssertionErrors() {
 	if(assertionErrors == null) {
-	    assertionErrors = new HashMap<>();
+	    assertionErrors = new HashMap<AbstractAgent, AssertionError>() {
+		@Override
+		public AssertionError put(AbstractAgent key, AssertionError value) {
+		    if(firstFailure == null) {
+			firstFailure = value;
+		    }
+		    return super.put(key, value);
+		}
+	    };
 	}
 	return assertionErrors;
     }
 
-
-    
     @Before
     public void beforeOneTest() {
 	lock = new ReentrantLock();
@@ -141,18 +149,15 @@ public class JunitMadkit {
 	assertionErrors = null;
     }
 
-    @SuppressWarnings("null")
     @After
     public void checkAssertions() {
 	if (assertionErrors != null) {
-	    AssertionError last = null;
 	    System.err.println("\n\n------------------------ " + name.getMethodName() + " TEST FAILED ---------------------\n\nFAILURES SUMMARY-------->");
 	    for (Map.Entry<AbstractAgent, AssertionError> failure : assertionErrors.entrySet()) {
 		System.err.println("\n<--------------- Agent \"" + failure.getKey().getName() + "\" fails test ------>");
-		last = failure.getValue();
-		last.printStackTrace();
+		failure.getValue().printStackTrace();
 	    }
-	    throw last;
+	    throw firstFailure;
 	    //		    fail(name.getMethodName()+" fails");
 	}
 	System.err.println("\n\n------------------------ " + name.getMethodName() + " TEST PASSED ---------------------\n\n");
@@ -528,7 +533,7 @@ public class JunitMadkit {
     }
     
     
-    private void printMKThreadsStates() {
+    protected void printMKThreadsStates() {
 	    System.err.println("threaded agents -> "+kernelAgent.threadedAgents.size()+" "+kernelAgent.threadedAgents);
 	    final ThreadGroup threadGroup = kernelAgent.getNormalAgentThreadFactory().getThreadGroup();
 	    System.err.println("active threads -> "+threadGroup.activeCount());

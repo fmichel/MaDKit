@@ -43,6 +43,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.temporal.TemporalUnit;
 import java.util.LinkedHashSet;
 import java.util.Observable;
 import java.util.Observer;
@@ -197,25 +199,39 @@ public class Scheduler extends Agent {
     private SimulationTimeModel gvtModel;
 
     /**
-     * This constructor is equivalent to <code>Scheduler(Double.MAX_VALUE)</code>
+     * Construct a <code>Scheduler</code> using a tick-based {@link SimulationTime}.
      */
     public Scheduler() {
-	this(Double.MAX_VALUE);
+	buildActions();
+	setSimulationTime(new SimulationTime());
+	getSimulationTime().setSimulationEnd(BigDecimal.valueOf(Double.MAX_VALUE));
     }
 
     /**
-     * Constructor specifying the time at which the simulation ends.
+     * Constructor specifying the tick at which the simulation should end.
      * 
-     * @param endTime
-     *            the GVT at which the simulation will automatically stop
+     * @param endTick
+     *            the tick at which the simulation will automatically stop
      */
-    public Scheduler(final double endTime) {
-	buildActions();
-	setSimulationDuration(endTime);
-	setSimulationTime(new SimulationTime());
+    @Deprecated
+    public Scheduler(final double endTick) {
+	this();
+	getSimulationTime().setSimulationEnd(BigDecimal.valueOf(endTick));
 	// simulationTime = new SimulationTime();
     }
 
+    /**
+     * Constructor specifying the "human" actualDate at which the simulation should start.
+     * 
+     * @param endTick
+     *            the initial date of the simulation
+     */
+    public Scheduler(final LocalDateTime initialDate) {
+	this();
+	setSimulationTime(new SimulationTime(initialDate));
+	getSimulationTime().setSimulationEnd(LocalDateTime.MAX);
+    }
+    
     /**
      * Setup the default Scheduler GUI when launched with the default MaDKit GUI mechanism.
      * 
@@ -226,7 +242,7 @@ public class Scheduler extends Agent {
 	super.setupFrame(frame);
 	frame.add(getSchedulerToolBar(), BorderLayout.PAGE_START);
 	frame.add(getSchedulerStatusLabel(), BorderLayout.PAGE_END);
-	getSimulationTime().setActualTime(getSimulationTime().getActualTime());
+	getSimulationTime().setActualTick(getSimulationTime().getActualTime());
 	frame.getJMenuBar().add(getSchedulerMenu(), 2);
 	speedModel.setValue(SCHEDULER_UI_PREFERENCES.getInt(getName() + "speed", speedModel.getValue()));
 	setSimulationState(SCHEDULER_UI_PREFERENCES.getBoolean(getName() + "autostart", false) ? SimulationState.RUNNING : SimulationState.PAUSED);
@@ -308,7 +324,7 @@ public class Scheduler extends Agent {
     @Override
     protected void end() {
 	simulationState = PAUSED;
-	getLogger().info(() -> "Simulation stopped at time = " + getSimulationTime().getActualTime());
+	getLogger().fine(() -> "Simulation stopped at time = " + getSimulationTime());
     }
 
     /**
@@ -356,7 +372,7 @@ public class Scheduler extends Agent {
      * while (isAlive()) {
      *     if (GVT &gt; getSimulationDuration()) {
      * 	if (logger != null)
-     * 	    logger.info(&quot;Quitting: Simulation has reached end time &quot; + getSimulationDuration());
+     * 	    logger.info(&quot;Simulation has reached end time -> &quot; + getSimulationDuration());
      * 	return;
      *     }
      *     pause(getDelay());
@@ -385,8 +401,8 @@ public class Scheduler extends Agent {
     @Override
     protected void live() {
 	while (isAlive()) {
-	    if (getSimulationTime().getActualTime().intValue() > simulationDuration) {
-		getLogger().info(() -> "Quitting: Simulation has reached end time " + simulationDuration);
+	    if (getSimulationTime().hasPassedEnd()) {
+		getLogger().info(() -> "Simulation has reached end time -> " + getSimulationTime());
 		return;
 	    }
 	    pause(delay);
@@ -479,16 +495,21 @@ public class Scheduler extends Agent {
     /**
      * Sets the simulation time for which the scheduler should end the simulation.
      * 
+     * @deprecated as of MDK 5.3, replaced by
+     * 
      * @param endTime
      *            the end time to set
      */
+    @Deprecated 
     public void setSimulationDuration(final double endTime) {
 	this.simulationDuration = endTime;
+	getSimulationTime().setSimulationEnd(BigDecimal.valueOf(endTime));
     }
-
+    
     /**
      * @return the simulationDuration
      */
+    @Deprecated
     public double getSimulationDuration() {
 	return simulationDuration;
     }
@@ -588,14 +609,13 @@ public class Scheduler extends Agent {
 
 	    @Override
 	    public void update(Observable o, Object arg) {
-		setText("Simulation " + simulationState + ", time is " + arg);
+		setText(arg+"\t\t\t  -  " + simulationState);
 	    }
 	};
 	timer.setText("GVT");
 	gvtModel.addObserver(timer);
 	timer.setBorder(new EmptyBorder(4, 4, 4, 4));
 	timer.setHorizontalAlignment(JLabel.LEADING);
-	getSimulationTime().setActualTime(getSimulationTime().getActualTime());
 	return timer;
     }
 
@@ -609,16 +629,14 @@ public class Scheduler extends Agent {
 	    gvtModel = new SimulationTimeModel();
 	}
 	final SimulationTimeJLabel timer = new SimulationTimeJLabel();
-	timer.setText("0");
 	gvtModel.addObserver(timer);
 	timer.setBorder(new EmptyBorder(4, 4, 4, 4));
 	timer.setHorizontalAlignment(JLabel.LEADING);
-	getSimulationTime().setActualTime(getSimulationTime().getActualTime());
 	return timer;
     }
 
     /**
-     * This class encapsulates a {@link BigDecimal} modeling the time of the simulation. Its purpose is that it can be
+     * This class encapsulates a the time of the simulation. Its purpose is that it can be
      * passed across objects without problem. That is, {@link BigDecimal} is immutable and therefore creates a new instance
      * for each modification.
      * 
@@ -628,35 +646,74 @@ public class Scheduler extends Agent {
      */
     public class SimulationTime {
 
-	private BigDecimal actualTime;
+	private BigDecimal actualTick;
+	private BigDecimal endTick;
+	
+	private LocalDateTime actualDate;
+	private LocalDateTime endDate;
 
 	/**
-	 * Creates a new instance using a specific {@link BigDecimal}
+	/**
+	 * Creates a calendar-based instance using a specific {@link LocalDateTime}
 	 * 
-	 * @param initialTime
-	 *            a {@link BigDecimal} to start with
-	 * @see BigDecimal
+	 * @param initialDate
+	 *            a {@link LocalDateTime} to start with
+	 * @see LocalDateTime
 	 */
-	SimulationTime(BigDecimal initialTime) {
-	    actualTime = initialTime;
+	SimulationTime(LocalDateTime initialDate) {
+	    this(BigDecimal.ZERO, initialDate);
 	}
 
 	/**
-	 * Creates a new instance whose time is {@link BigDecimal#ZERO};
+	 * Creates a tick-based instance whose initial tick value is {@link BigDecimal#ZERO};
 	 * 
 	 */
 	SimulationTime() {
-	    this(BigDecimal.ZERO);
+	    this(BigDecimal.ZERO, null);
 	}
 
-	public void setActualTime(BigDecimal actualTime) {
-	    this.actualTime = actualTime;
+	private SimulationTime(BigDecimal initialTick, LocalDateTime initialDate) {
+	    actualTick = initialTick;
+	    actualDate = initialDate;
+	}
+
+	public void setActualTick(BigDecimal actualTick) {
+	    this.actualTick = actualTick;
+	    updateUIs();
+	}
+
+	public void setActualDate(LocalDateTime actualDate) {
+	    this.actualDate = actualDate;
+	    updateUIs();
+	}
+
+	private void updateUIs() {
 	    if (gvtModel != null)
-		gvtModel.notifyObservers(actualTime);
+		gvtModel.notifyObservers(this);
 	}
 
 	public BigDecimal getActualTime() {
-	    return actualTime;
+	    return actualTick;
+	}
+	
+	public LocalDateTime getActualDate() {
+	    return actualDate;
+	}
+	
+	public void setSimulationEnd(BigDecimal endTick) {
+	    this.endTick = endTick;
+	}
+
+	public void setSimulationEnd(LocalDateTime endDate) {
+	    this.endDate = endDate;
+	    this.endTick = null;
+	}
+	
+	public boolean hasPassedEnd() {
+	    if(endTick != null) {
+		return endTick.compareTo(actualTick) < 0;
+	    }
+	    return endDate.compareTo(actualDate) < 0;
 	}
 
 	/**
@@ -667,22 +724,59 @@ public class Scheduler extends Agent {
 	 * @return the new actual time
 	 */
 	public BigDecimal addDeltaTime(BigDecimal delta) {
-	    setActualTime(getActualTime().add(delta));
+	    setActualTick(getActualTime().add(delta));
 	    return getActualTime();
 	}
+	
+	/**
+	 * Shortcut for <code>setActualDate(getActualDate().plus(amountToAdd, unit));</code>
+	 * 
+	 * @param amountToAdd  the amount of the unit to add to the result, may be negative
+	 * @param unit  the unit of the amount to add, not null
+	 * 
+	 * @return the new current date
+	 */
+	public LocalDateTime addDuration(long amountToAdd, TemporalUnit unit) {
+	    setActualDate(getActualDate().plus(amountToAdd, unit));
+	    return getActualDate();
+	}
+	
+	/**
+	 * @return the endTick
+	 */
+	public BigDecimal getEndTick() {
+	    return endTick;
+	}
 
+	
+	/**
+	 * @param endTick the endTick to set
+	 */
+	public void setEndTick(BigDecimal endTick) {
+	    this.endTick = endTick;
+	}
+	
+	@Override
+	public String toString() {
+	    if(actualDate != null) {
+		return actualDate.toString();
+	    }
+	    return actualTick.toString();
+	}
     }
+    
+    final class SimulationTimeModel extends Observable {
+	
+	@Override
+	public void notifyObservers(Object arg) {
+	    setChanged();
+	    super.notifyObservers(arg);
+	}
+    }
+    
 
 }
 
-final class SimulationTimeModel extends Observable {
-
-    @Override
-    public void notifyObservers(Object arg) {
-	setChanged();
-	super.notifyObservers(arg);
-    }
-}
 
 class SimulationTimeJLabel extends JLabel implements Observer {
 

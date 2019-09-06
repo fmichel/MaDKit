@@ -79,7 +79,7 @@ public class DeadLock extends Scheduler {
 	@Override
 	public void doSimulationStep() {
 		super.doSimulationStep();
-		if(getSimulationTime().getActualTime().intValue() > 5){
+		if(getSimulationTime().getCurrentTick().intValue() > 5){
 			killAgent(simulatedAgents.getCurrentAgentsList().get(0));
 		}
 	}

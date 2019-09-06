@@ -44,7 +44,7 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.temporal.TemporalUnit;
+import java.time.temporal.ChronoUnit;
 import java.util.LinkedHashSet;
 import java.util.Observable;
 import java.util.Observer;
@@ -72,12 +72,37 @@ import madkit.gui.SwingUtil;
 import madkit.message.SchedulingMessage;
 
 /**
- * This class defines a generic threaded scheduler agent. It holds a collection of activators. The default state of a
- * scheduler is {@link SimulationState#PAUSED}. The default delay between two steps is 0 ms (max speed).
+ * <pre>
+ * Scheduler is the core agent for defining multi-agent based simulations.
+ * 
+ * This class defines a generic threaded agent which is in charge of activating the simulated agents using {@link Activator}.
+ * {@link Activator} are tool objects which are able to trigger any available method belonging to the agents that have a role within a group.
+ * 
+ * The purpose of this approach is to allow the manipulation of agents regardless of their concrete Java classes.
+ *  
+ * So a scheduler holds a collection of activators that target specific groups and roles and thus allow to define 
+ * very complex scheduling policies if required. A default behavior is implemented and corresponds to the triggering
+ * of the activators according to the order in which they have been added to the scheduler engine using {@link #addActivator(Activator)}.
+ * 
+ * The default state of a scheduler is {@link SimulationState#PAUSED}. 
+ * 
+ * The default delay between two simulation steps is 0 milliseconds (max speed).
+ * 
+ * Default GUI components are defined for this agent and they could be easily integrated in any GUI.
+ * 
+ * As of MaDKit 5.3, two different temporal schemes could used: 
+ * <li>tick-based: The time is represented as a number which is incremented at will. 
+ * This is the preferred choice if the simulation is based on simple loop following a discrete time approach.
+ * 
+ * <li> date-based: The time is represented using {@link LocalDateTime}. This is far more convenient when the model refers 
+ * to a real-world case for which representing usual temporal units such as hours or weeks is required (the default used unit is {@link ChronoUnit#SECONDS}). 
+ * This mode also allow to handle agents that evolve considering different time scales or during specific period of the day.
+ * 
+ * Those two modes are exclusive and can be selected using the corresponding constructor of the scheduler
  * 
  * @author Fabien Michel
  * @since MaDKit 2.0
- * @version 5.2
+ * @version 5.3
  * @see Activator
  */
 public class Scheduler extends Agent {
@@ -131,12 +156,7 @@ public class Scheduler extends Agent {
     private int delay;
 
     /**
-     * @deprecated as of MaDKit 5.3, replaced by {@link #getSimulationTime()}
-     */
-    private double GVT = 0; // simulation global virtual time
-
-    /**
-     * specify the delay between 2 steps
+     * speed model, especially useful for the GUI
      */
     @SuppressWarnings("serial")
     private final DefaultBoundedRangeModel speedModel = new DefaultBoundedRangeModel(400, 0, 0, 400) {
@@ -170,66 +190,57 @@ public class Scheduler extends Agent {
     }
 
     /**
-     * Returns the simulation global virtual time.
+     * Returns the simulation current tick.
      * 
      * @return the gVT
-     * @deprecated
+     * @deprecated as of MaDKit 5.3, replaced by {@link #getSimulationTime()}
      */
     public double getGVT() {
-	return GVT;
+	return getSimulationTime().getCurrentTick().doubleValue();
     }
 
     /**
      * Sets the simulation global virtual time.
      * 
-     * @param GVT
-     *            the actual simulation time
+     * @param value
+     *            the current simulation time
      * 
-     * @deprecated
+     * @deprecated as of MaDKit 5.3, replaced by {@link #getSimulationTime()}
      */
-    public void setGVT(final double GVT) {
-	this.GVT = GVT;
-	if (gvtModel != null) {
-	    gvtModel.notifyObservers((int) GVT);
-	}
+    public void setGVT(final double value) {
+	getSimulationTime().setCurrentTick(value);
     }
-
-    private double simulationDuration;
 
     private SimulationTimeModel gvtModel;
 
     /**
-     * Construct a <code>Scheduler</code> using a tick-based {@link SimulationTime}.
+     * Constructs a <code>Scheduler</code> using a tick-based {@link SimulationTime}.
      */
     public Scheduler() {
+	setSimulationTime(new TickBasedTime());//This needs to be set first and will be overridden if required 
 	buildActions();
-	setSimulationTime(new SimulationTime());
-	getSimulationTime().setSimulationEnd(BigDecimal.valueOf(Double.MAX_VALUE));
     }
 
     /**
-     * Constructor specifying the tick at which the simulation should end.
+     * Constructs a <code>Scheduler</code> using a tick-based that will end the simulation for the specified tick.
      * 
      * @param endTick
      *            the tick at which the simulation will automatically stop
      */
-    @Deprecated
     public Scheduler(final double endTick) {
 	this();
-	getSimulationTime().setSimulationEnd(BigDecimal.valueOf(endTick));
-	// simulationTime = new SimulationTime();
+	getSimulationTime().setEndTick(BigDecimal.valueOf(endTick));
     }
 
     /**
-     * Constructor specifying the "human" actualDate at which the simulation should start.
+     * Constructs a <code>Scheduler</code> using a date-based time which relies on {@link LocalDateTime}
      * 
-     * @param endTick
+     * @param initialDate the date at which the simulation should begin e.g. <code>LocalDateTime.of(1, 1, 1, 0, 0)</code> 
      *            the initial date of the simulation
      */
     public Scheduler(final LocalDateTime initialDate) {
 	this();
-	setSimulationTime(new SimulationTime(initialDate));
-	getSimulationTime().setSimulationEnd(LocalDateTime.MAX);
+	setSimulationTime(new DateBasedTime(initialDate));
     }
     
     /**
@@ -242,7 +253,7 @@ public class Scheduler extends Agent {
 	super.setupFrame(frame);
 	frame.add(getSchedulerToolBar(), BorderLayout.PAGE_START);
 	frame.add(getSchedulerStatusLabel(), BorderLayout.PAGE_END);
-	getSimulationTime().setActualTick(getSimulationTime().getActualTime());
+//	getSimulationTime().setCurrentTick(getSimulationTime().getCurrentTick());
 	frame.getJMenuBar().add(getSchedulerMenu(), 2);
 	speedModel.setValue(SCHEDULER_UI_PREFERENCES.getInt(getName() + "speed", speedModel.getValue()));
 	setSimulationState(SCHEDULER_UI_PREFERENCES.getBoolean(getName() + "autostart", false) ? SimulationState.RUNNING : SimulationState.PAUSED);
@@ -250,7 +261,7 @@ public class Scheduler extends Agent {
     }
 
     /**
-     * Adds an activator to the kernel engine. This has to be done to make an activator work properly
+     * Adds an activator to the simulation engine. This has to be done to make an activator work properly
      * 
      * @param activator
      *            an activator.
@@ -265,7 +276,7 @@ public class Scheduler extends Agent {
     }
 
     /**
-     * Removes an activator from the kernel engine.
+     * Removes an activator from the simulation engine.
      * 
      * @param activator
      *            an activator.
@@ -277,37 +288,38 @@ public class Scheduler extends Agent {
     }
 
     /**
-     * Executes all the activators in the order they have been added, using {@link Activator#execute(Object...)}, and then
-     * increments the simulation time of this scheduler by one unit. This also automatically calls the multicore mode of the
-     * activator if it is set so. This method should be overridden to define customized scheduling policy. So default
-     * implementation is :
+     * Defines a default simulation loop which is automatically during the scheduler's life.
+     * 
+     * This method should be overridden to define a customized scheduling policy.
+     * 
+     * By default, it executes all the activators in the order they have been added, using
+     * {@link Activator#execute(Object...)}, and then increments the simulation time by one unit. Default implementation is:
      * 
      * <pre>
-     * <tt>@Override</tt>
-     * 	public void doSimulationStep() {
-     * 		if (logger != null) {
-     * 			logger.finer("Doing simulation step " + GVT);
-     * 		}
-     * 		for (final Activator<? extends AbstractAgent> activator : activators) {
-     * 			if (logger != null)
-     * 				logger.finer("Activating\n--------> " + activator);
-     * 			activator.execute();
-     * 		}
-     * 		simulationTime.addDeltaTime(BigDecimal.ONE);
+     * logActivationStep();
+     * for (final Activator<? extends AbstractAgent> activator : activators) {
+     *     executeAndLog(activator);
+     * }
+     * getSimulationTime().addOneTimeUnit();
      * </pre>
+     * 
+     * By default logs are displayed only if {@link #getLogger()} is set above {@link Level#FINER}.
      */
     public void doSimulationStep() {
-	getLogger().finer(() -> "Doing step timestamped " + getSimulationTime().getActualTime());
+	logActivationStep();
 	for (final Activator<? extends AbstractAgent> activator : activators) {
 	    executeAndLog(activator);
-	    // try {
-	    // } catch (SimulationException e) {//TODO is it better ?
-	    // setSimulationState(SimulationState.SHUTDOWN);
-	    // getLogger().log(Level.SEVERE, e.getMessage(), e);
-	    // }
 	}
-	// setGVT(GVT + 1);
-	getSimulationTime().addDeltaTime(BigDecimal.ONE);
+	getSimulationTime().addOneTimeUnit();
+    }
+
+    /**
+     * Logs the current simulation step value.
+     * 
+     * logs are displayed only if {@link #getLogger()} is set above {@link Level#FINER}.
+     */
+    public void logActivationStep() {
+	getLogger().finer(() -> "Current simulation step -> " + getSimulationTime());
     }
 
     /**
@@ -401,7 +413,7 @@ public class Scheduler extends Agent {
     @Override
     protected void live() {
 	while (isAlive()) {
-	    if (getSimulationTime().hasPassedEnd()) {
+	    if (getSimulationTime().hasReachedEndTime()) {
 		getLogger().info(() -> "Simulation has reached end time -> " + getSimulationTime());
 		return;
 	    }
@@ -495,23 +507,23 @@ public class Scheduler extends Agent {
     /**
      * Sets the simulation time for which the scheduler should end the simulation.
      * 
-     * @deprecated as of MDK 5.3, replaced by
+     * @deprecated as of MDK 5.3, replaced by {@link #getSimulationTime()} available methods
      * 
      * @param endTime
      *            the end time to set
      */
     @Deprecated 
     public void setSimulationDuration(final double endTime) {
-	this.simulationDuration = endTime;
-	getSimulationTime().setSimulationEnd(BigDecimal.valueOf(endTime));
+	getSimulationTime().setEndTick(BigDecimal.valueOf(endTime));
     }
     
     /**
      * @return the simulationDuration
+     * 
+     * @deprecated as of MDK 5.3, replaced by {@link #getSimulationTime()} available methods
      */
-    @Deprecated
     public double getSimulationDuration() {
-	return simulationDuration;
+	return getSimulationTime().getEndTick().doubleValue();
     }
 
     private void buildActions() {
@@ -612,7 +624,7 @@ public class Scheduler extends Agent {
 		setText(arg+"\t\t\t  -  " + simulationState);
 	    }
 	};
-	timer.setText("GVT");
+//	timer.setText("GVT");
 	gvtModel.addObserver(timer);
 	timer.setBorder(new EmptyBorder(4, 4, 4, 4));
 	timer.setHorizontalAlignment(JLabel.LEADING);
@@ -634,7 +646,143 @@ public class Scheduler extends Agent {
 	timer.setHorizontalAlignment(JLabel.LEADING);
 	return timer;
     }
+    
+    public interface SimulationTime{
+	
+	final static String TICK_BASED_MODE_REQUIRED = "This can only be used in a tick-based simulation. See Scheduler constructors doc";
+	
+	final static String DATE_BASED_MODE_REQUIRED = "This can only be used in a date-based simulation. See Scheduler constructors doc";
+	
+	public default void setCurrentTick(@SuppressWarnings("unused") BigDecimal value){
+	    throw new UnsupportedOperationException(TICK_BASED_MODE_REQUIRED);
+	}
+	
+	/**
+	 * Shortcut for <code>setCurrentTick(BigDdecimal.valuof(value));</code>
+	 * 
+	 * @param value
+	 *            specifies the current tick value
+	 */
+	public default void setCurrentTick(@SuppressWarnings("unused") double value){
+	    throw new UnsupportedOperationException(TICK_BASED_MODE_REQUIRED);
+	}
+	
+	/**
+	 * Shortcut for <code>setCurrentDate(getCurrentDate().plus(amountToAdd, unit));</code>
+	 * 
+	 * @param date  the date to set as current date
+	 * 
+	 */
+	public default void setCurrentDate(LocalDateTime date) {
+	    throw new UnsupportedOperationException(DATE_BASED_MODE_REQUIRED);
+	}
 
+	/**
+	 * @return the current tick of the simulation
+	 */
+	public default BigDecimal getCurrentTick() {
+	    throw new UnsupportedOperationException(TICK_BASED_MODE_REQUIRED);
+	}
+	
+	/**
+	 * @return the current date of the simulation
+	 */
+	public default LocalDateTime getCurrentDate() {
+	    throw new UnsupportedOperationException(DATE_BASED_MODE_REQUIRED);
+	}
+	
+	/**
+	 * Adds one time unit to the simulation current time
+	 */
+	abstract public void addOneTimeUnit();
+	
+	/**
+	 * Checks if the simulation has reached the specified end time
+	 * 
+	 * @return <code>true</code> if the simulation should be stopped.
+	 */
+	abstract public boolean hasReachedEndTime();
+
+	/**
+	 * Shortcut for <code>setCurrentTick(getCurrentTick().add(delta));</code>
+	 * 
+	 * @param delta specifies how much time should be added
+	 */
+	public default void incrementCurrentTick(BigDecimal delta) {
+	    throw new UnsupportedOperationException(TICK_BASED_MODE_REQUIRED);
+	}
+	
+	/**
+	 * Shortcut for <code>setCurrentTick(getCurrentTick().add(BigDecimal.valueOf(delta)));</code>
+	 * 
+	 * @param delta specifies how much time should be added
+	 */
+	public default void incrementCurrentTick(double delta) {
+	    throw new UnsupportedOperationException(TICK_BASED_MODE_REQUIRED);
+	}
+	
+	/**
+	 * Shortcut for <code>setCurrentDate(getCurrentDate().plus(amountToAdd, unit));</code>
+	 * 
+	 * @param amountToAdd  the amount of the unit to add to the result, may be negative
+	 * @param unit  the unit of the amount to add, not null
+	 * 
+	 */
+	public default void incrementCurrentDate(long amountToAdd, ChronoUnit unit) {
+	    throw new UnsupportedOperationException(DATE_BASED_MODE_REQUIRED);
+	}
+	
+	/**
+	 * 
+	 * @param amountToAdd  the amount of default temporal unit to add 
+	 * @see #setDefaultTemporalUnit(ChronoUnit)
+	 */
+	public default void incrementCurrentDate(long amountToAdd) {
+	    throw new UnsupportedOperationException(DATE_BASED_MODE_REQUIRED);
+	}
+	
+	/**
+	 * Sets the default temporal unit which will be used by {@link #addOneTimeUnit()}
+	 * and {@link #incrementCurrentDate(long)} in a date-based mode
+	 * 
+	 * @param unit a temporal unit as defined in {@link ChronoUnit}
+	 */
+	public default LocalDateTime setDefaultTemporalUnit(ChronoUnit unit) {
+	    throw new UnsupportedOperationException(DATE_BASED_MODE_REQUIRED);
+	}
+	
+	/**
+	 * returns the tick for which the simulation should end.
+	 * 
+	 * @return the endTick
+	 */
+	public default BigDecimal getEndTick() {
+	    throw new UnsupportedOperationException(TICK_BASED_MODE_REQUIRED);
+	}
+
+	
+	/**
+	 * @param endTick the endTick to set
+	 */
+	public default void setEndTick(BigDecimal endTick) {
+	    throw new UnsupportedOperationException(TICK_BASED_MODE_REQUIRED);
+	}
+	
+	/**
+	 * @param endDate the date at which the simulation should stop
+	 */
+	public default void setEndDate(LocalDateTime endDate) {
+	    throw new UnsupportedOperationException(DATE_BASED_MODE_REQUIRED);
+	}
+    }
+    
+    abstract class SimuTime implements SimulationTime{
+	protected void updateUIs() {
+	    if (gvtModel != null)
+		gvtModel.notifyObservers(this);
+	}
+    }
+    
     /**
      * This class encapsulates a the time of the simulation. Its purpose is that it can be
      * passed across objects without problem. That is, {@link BigDecimal} is immutable and therefore creates a new instance
@@ -642,126 +790,134 @@ public class Scheduler extends Agent {
      * 
      * @author Fabien Michel
      * @since MaDKit 5.3
-     * @see Scheduler BigDecimal
+     * @see Scheduler LocalDateTime
      */
-    public class SimulationTime {
+    final class DateBasedTime extends SimuTime {
 
-	private BigDecimal actualTick;
-	private BigDecimal endTick;
-	
-	private LocalDateTime actualDate;
+	private LocalDateTime currentDate;
 	private LocalDateTime endDate;
+	private ChronoUnit defaultUnit;
 
 	/**
 	/**
-	 * Creates a calendar-based instance using a specific {@link LocalDateTime}
+	 * Creates a date-based instance using a specific {@link LocalDateTime} as starting point.
 	 * 
 	 * @param initialDate
 	 *            a {@link LocalDateTime} to start with
 	 * @see LocalDateTime
 	 */
-	SimulationTime(LocalDateTime initialDate) {
-	    this(BigDecimal.ZERO, initialDate);
+	DateBasedTime(LocalDateTime initialDate) {
+	    currentDate = initialDate;
+	    endDate = LocalDateTime.MAX;
+	    defaultUnit = ChronoUnit.SECONDS;
 	}
 
 	/**
-	 * Creates a tick-based instance whose initial tick value is {@link BigDecimal#ZERO};
+	 * Creates a date-based time which value is <code>LocalDateTime.of(1, 1, 1, 0, 0)</code>;
 	 * 
 	 */
-	SimulationTime() {
-	    this(BigDecimal.ZERO, null);
+	DateBasedTime() {
+	    this(LocalDateTime.of(1, 1, 1, 0, 0));
 	}
 
-	private SimulationTime(BigDecimal initialTick, LocalDateTime initialDate) {
-	    actualTick = initialTick;
-	    actualDate = initialDate;
-	}
-
-	public void setActualTick(BigDecimal actualTick) {
-	    this.actualTick = actualTick;
+	public void setCurrentDate(LocalDateTime date) {
+	    this.currentDate = date;
 	    updateUIs();
 	}
 
-	public void setActualDate(LocalDateTime actualDate) {
-	    this.actualDate = actualDate;
-	    updateUIs();
-	}
-
-	private void updateUIs() {
-	    if (gvtModel != null)
-		gvtModel.notifyObservers(this);
-	}
-
-	public BigDecimal getActualTime() {
-	    return actualTick;
+	public LocalDateTime getCurrentDate() {
+	    return currentDate;
 	}
 	
-	public LocalDateTime getActualDate() {
-	    return actualDate;
+	@Override
+	public void setEndDate(LocalDateTime endDate) {
+	    this.endDate = endDate;
+	}
+	
+	public boolean hasReachedEndTime() {
+	    return endDate.compareTo(currentDate) < 0;
+	}
+
+	public void incrementCurrentDate(long amountToAdd, ChronoUnit unit) {
+	    setCurrentDate(getCurrentDate().plus(amountToAdd, unit));
+	}
+	
+	public void incrementCurrentDate(long amountToAdd) {
+	    incrementCurrentDate(amountToAdd, defaultUnit);
+	}
+	
+	@Override
+	public String toString() {
+		return currentDate.toString();
+	}
+
+	@Override
+	public void addOneTimeUnit() {
+	    incrementCurrentDate(1, defaultUnit);
+	}
+    }
+    
+    final class TickBasedTime extends SimuTime {
+
+	private BigDecimal currentTick;
+	private BigDecimal endTick;
+	
+	/**
+	 * Creates a tick-based time whose initial tick value is {@link BigDecimal#ZERO};
+	 * 
+	 */
+	TickBasedTime() {
+	    currentTick = BigDecimal.ZERO;
+	    endTick = BigDecimal.valueOf(Double.MAX_VALUE);
+	}
+	
+	public void setCurrentTick(BigDecimal value) {
+	    this.currentTick = value;
+	    updateUIs();
+	}
+	
+	@Override
+	public void incrementCurrentTick(double delta) {
+	    incrementCurrentTick(BigDecimal.valueOf(delta));
+	}
+	
+	public BigDecimal getCurrentTick() {
+	    return currentTick;
 	}
 	
 	public void setSimulationEnd(BigDecimal endTick) {
 	    this.endTick = endTick;
 	}
 
-	public void setSimulationEnd(LocalDateTime endDate) {
-	    this.endDate = endDate;
-	    this.endTick = null;
-	}
-	
-	public boolean hasPassedEnd() {
-	    if(endTick != null) {
-		return endTick.compareTo(actualTick) < 0;
-	    }
-	    return endDate.compareTo(actualDate) < 0;
+	public boolean hasReachedEndTime() {
+	    return endTick.compareTo(currentTick) < 0;
 	}
 
 	/**
-	 * Shortcut for <code>setActualTime(getActualTime().add(delta));</code>
+	 * Shortcut for <code>setCurrentTick(getCurrentTick().add(delta));</code>
 	 * 
 	 * @param delta
 	 *            specifies how much time should be added
-	 * @return the new actual time
 	 */
-	public BigDecimal addDeltaTime(BigDecimal delta) {
-	    setActualTick(getActualTime().add(delta));
-	    return getActualTime();
+	public void addDeltaTime(BigDecimal delta) {
+	    setCurrentTick(getCurrentTick().add(delta));
 	}
-	
-	/**
-	 * Shortcut for <code>setActualDate(getActualDate().plus(amountToAdd, unit));</code>
-	 * 
-	 * @param amountToAdd  the amount of the unit to add to the result, may be negative
-	 * @param unit  the unit of the amount to add, not null
-	 * 
-	 * @return the new current date
-	 */
-	public LocalDateTime addDuration(long amountToAdd, TemporalUnit unit) {
-	    setActualDate(getActualDate().plus(amountToAdd, unit));
-	    return getActualDate();
-	}
-	
+
 	/**
 	 * @return the endTick
 	 */
 	public BigDecimal getEndTick() {
 	    return endTick;
 	}
-
-	
-	/**
-	 * @param endTick the endTick to set
-	 */
-	public void setEndTick(BigDecimal endTick) {
-	    this.endTick = endTick;
-	}
 	
 	@Override
 	public String toString() {
-	    if(actualDate != null) {
-		return actualDate.toString();
-	    }
-	    return actualTick.toString();
+	    return currentTick.toString();
+	}
+
+	@Override
+	public void addOneTimeUnit() {
+	    addDeltaTime(BigDecimal.ONE);
 	}
     }
     
@@ -773,8 +929,6 @@ public class Scheduler extends Agent {
 	    super.notifyObservers(arg);
 	}
     }
-    
-
 }
 
 

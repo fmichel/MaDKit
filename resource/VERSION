@@ -16,6 +16,16 @@ It also contains generic MAS simulation authoring tools.
 
 
 ----------------------------------------------------------------------------------
+------------------------------- MaDKit 5.3 ---------------------------------------
+----------------------------------------------------------------------------------
+
+Changes:
+	+ Adding a possibility of defining date-based time simulations
+	see madkit.kernel.Scheduler for more information
+	+ the test framework has been reworked so that failures are more easy to track
+
+
+----------------------------------------------------------------------------------
 ------------------------------- MaDKit 5.2 ---------------------------------------
 ----------------------------------------------------------------------------------
 

@@ -91,7 +91,8 @@ import madkit.message.SchedulingMessage;
  * Default GUI components are defined for this agent and they could be easily integrated in any GUI.
  * 
  * As of MaDKit 5.3, two different temporal schemes could used: 
- * <li>tick-based: The time is represented as a number which is incremented at will. 
+ * <li>tick-based: The time is represented as a {@link BigDecimal} which is incremented at will. {@link BigDecimal} is used to avoid
+ * rounding errors that may happen when working with double values. 
  * This is the preferred choice if the simulation is based on simple loop following a discrete time approach.
  * 
  * <li> date-based: The time is represented using {@link LocalDateTime}. This is far more convenient when the model refers 
@@ -103,7 +104,9 @@ import madkit.message.SchedulingMessage;
  * @author Fabien Michel
  * @since MaDKit 2.0
  * @version 5.3
- * @see Activator
+ * @see Activator 
+ * @see BigDecimal 
+ * @see LocalDateTime
  */
 public class Scheduler extends Agent {
 
@@ -653,6 +656,11 @@ public class Scheduler extends Agent {
 	
 	final static String DATE_BASED_MODE_REQUIRED = "This can only be used in a date-based simulation. See Scheduler constructors doc";
 	
+	/**
+	 * Sets the current tick a the simulation to the specified value
+	 * 
+	 * @param value
+	 */
 	public default void setCurrentTick(@SuppressWarnings("unused") BigDecimal value){
 	    throw new UnsupportedOperationException(TICK_BASED_MODE_REQUIRED);
 	}
@@ -678,6 +686,8 @@ public class Scheduler extends Agent {
 	}
 
 	/**
+	 * Gets the current tick
+	 * 
 	 * @return the current tick of the simulation
 	 */
 	public default BigDecimal getCurrentTick() {
@@ -685,6 +695,8 @@ public class Scheduler extends Agent {
 	}
 	
 	/**
+	 * Gets the current date
+	 * 
 	 * @return the current date of the simulation
 	 */
 	public default LocalDateTime getCurrentDate() {
@@ -762,6 +774,8 @@ public class Scheduler extends Agent {
 
 	
 	/**
+	 * Sets the tick at which the simulation should end
+	 * 
 	 * @param endTick the endTick to set
 	 */
 	public default void setEndTick(BigDecimal endTick) {
@@ -769,6 +783,8 @@ public class Scheduler extends Agent {
 	}
 	
 	/**
+	 * Sets the date at which the simulation should stop
+	 * 
 	 * @param endDate the date at which the simulation should stop
 	 */
 	public default void setEndDate(LocalDateTime endDate) {
@@ -881,18 +897,22 @@ public class Scheduler extends Agent {
 	    incrementCurrentTick(BigDecimal.valueOf(delta));
 	}
 	
+	public void incrementCurrentTick(BigDecimal delta) {
+	    setCurrentTick(getCurrentTick().add(delta));
+	}
+	
 	public BigDecimal getCurrentTick() {
 	    return currentTick;
 	}
 	
-	public void setSimulationEnd(BigDecimal endTick) {
+	public void setEndTick(BigDecimal endTick) {
 	    this.endTick = endTick;
 	}
 
 	public boolean hasReachedEndTime() {
 	    return endTick.compareTo(currentTick) < 0;
 	}
-
+	
 	/**
 	 * Shortcut for <code>setCurrentTick(getCurrentTick().add(delta));</code>
 	 * 

@@ -5,20 +5,20 @@ fmichel@lirmm.fr
 olg@no-distance.net
 ferber@lirmm.fr
 
-This software is a computer program whose purpose is to 
+This software is a computer program whose purpose is to
 provide a lightweight Java library for designing and simulating Multi-Agent Systems (MAS).
 
 This software is governed by the CeCILL-C license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
+abiding by the rules of distribution of free software.  You can  use,
 modify and/ or redistribute the software under the terms of the CeCILL-C
 license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+"http://www.cecill.info".
 
 As a counterpart to the access to the source code and  rights to copy,
 modify and redistribute granted by the license, users are provided only
 with a limited warranty  and the software's author,  the holder of the
 economic rights,  and the successive licensors  have only  limited
-liability. 
+liability.
 
 In this respect, the user's attention is drawn to the risks associated
 with loading,  using,  modifying and/or developing or reproducing the
@@ -27,9 +27,9 @@ that may mean  that it is complicated to manipulate,  and  that  also
 therefore means  that it is reserved for developers  and  experienced
 professionals having in-depth computer knowledge. Users are therefore
 encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
-same conditions as regards security. 
+requirements in conditions enabling the security of their systems and/or
+data to be ensured and,  more generally, to use and operate it in the
+same conditions as regards security.
 
 The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-C license and that you accept its terms.
@@ -49,6 +49,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -59,6 +61,7 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -97,6 +100,8 @@ import madkit.message.EnumMessage;
 import madkit.message.GUIMessage;
 import madkit.message.MessageFilter;
 import madkit.message.hook.HookMessage.AgentActionEvent;
+import madkit.simulation.activator.DateBasedDiscreteEventActivator;
+import madkit.simulation.activator.DiscreteEventAgentsActivator;
 import madkit.util.XMLUtilities;
 
 // * <img src="doc-files/Capture.png" alt=""/>
@@ -136,10 +141,10 @@ import madkit.util.XMLUtilities;
  * <li>One of the most convenient improvement of v.5 is the logging mechanism which is provided. See the
  * {@link #getLogger()} method for more details.</li>
  * <p>
- * 
+ *
  * @author Fabien Michel
  * @author Olivier Gutknecht
- * @version 5.7
+ * @version 5.8
  */
 public class AbstractAgent implements Comparable<AbstractAgent> {
 
@@ -164,34 +169,48 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
      * {@link Logger} is set to <code>null</code> when {@link AgentLogger#setLevel(Level)} is used with {@link Level#OFF}.
      * This allows to efficiently optimize the runtime speed when they are a lot of agents (e.g. in a simulation mode).
      * Indeed, thanks to this idiom, useless strings will not be built, thus saving a lot of time.
-     * 
+     *
      * <pre>
      * if (logger != null)
      *     logger.info(&quot;info message&quot;);
      * </pre>
-     * 
+     *
      * {@link #getLogger()} should not be used here because it always returns a non <code>null</code> logger.
-     * 
+     *
      * @see java.util.logging.Level
      * @see java.util.logging.Logger
      */
     AgentLogger logger;
-    
+
     private SimulationTime simulationTime;
 
-    
+
     /**
      * Returns the {@link SimulationTime} of the current simulation.
-     * This is automatically initialized when the agent is associated with an activator for the first time. 
+     * This is automatically initialized when the agent is associated with an activator for the first time.
      * So it stays <code>null</code> if the agent is not related to any kind of simulation
-     * 
-     * @return the simulationTime of the simulation in which the agent participates 
+     *
+     * @return the simulationTime of the simulation in which the agent participates
      */
     public SimulationTime getSimulationTime() {
         return simulationTime;
     }
 
-    
+    /**
+     * Method which is used by discrete-event simulation activators for doing fine-grained simulations.
+     * By default, this method returns an event which is one second ahead of the current date of
+     * the simulation. So, this method can be overridden to fulfil the simulation requirement
+     *
+     * @return the date of the next event for this agent.
+     *
+     * @see DiscreteEventAgentsActivator
+     * @see DateBasedDiscreteEventActivator
+     */
+    public LocalDateTime getNextEventDate() {
+	return getSimulationTime().getCurrentDate().plus(Duration.ofSeconds(1));
+    }
+
+
     /**
      * @param simulationTime the simulationTime to set
      */
@@ -205,7 +224,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
     /**
      * for building fake kernels
-     * 
+     *
      * @param fake
      */
     AbstractAgent(Object fake) {
@@ -233,7 +252,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
     /**
      * Tells if this agent has a GUI automatically built by the kernel
-     * 
+     *
      * @return <code>true</code> if this agent has a GUI built by the kernel
      */
     public boolean hasGUI() {
@@ -244,7 +263,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
      * The ID of an agent. All the agents have different hashCode value in one kernel. Thus it can be used to identify one
      * agent. In a networked environment, this value should be used in combination with the kernelAddress of the agent for
      * unique identification. This also holds when multiple MaDKit kernels are launched within the same JVM.
-     * 
+     *
      * @return the agent's unique ID in the MaDKit kernel
      */
     @Override
@@ -254,7 +273,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
     /**
      * Return a string representing a unique identifier for the agent over the network.
-     * 
+     *
      * @return the agent's network identifier
      */
     public final String getNetworkID() {
@@ -264,7 +283,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
     /**
      * Return a string representing a shorter version of the unique identifier of the agent over the network. As a
      * simplified version, this string may not be unique.
-     * 
+     *
      * @return a simplified version of the agent's network identifier
      * @see #getNetworkID()
      */
@@ -324,7 +343,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
     /**
      * This is only called by MK threads and cannot be interrupted
-     * 
+     *
      * @return <code>true</code> if the agent did not crash
      */
     final ReturnCode activation() {
@@ -374,7 +393,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
      * <p>
      * Here is a typical example:
      * <p>
-     * 
+     *
      * <pre>
      * <tt>@Override</tt>
      * protected void activate()
@@ -479,7 +498,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
      * <p>
      * Here is a typical example:
      * <p>
-     * 
+     *
      * <pre>
      * <tt>@Override</tt>
      * protected void end()
@@ -505,7 +524,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
     /**
      * Launches a new agent in the MaDKit platform. This has the same effect as
      * <code>launchAgent(agent,Integer.MAX_VALUE,false)</code>
-     * 
+     *
      * @param agent
      *            the agent to launch.
      * @return
@@ -527,7 +546,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
     /**
      * Launches a new agent in the MaDKit platform. This has the same effect as
      * <code>launchAgent(agent,timeOutSeconds,false)</code>
-     * 
+     *
      * @param agent
      *            the agent to launch.
      * @param timeOutSeconds
@@ -550,7 +569,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
     /**
      * Launches a new agent in the MaDKit platform. This has the same effect as
      * <code>launchAgent(agent,Integer.MAX_VALUE,withGUIManagedByTheBooter)</code>
-     * 
+     *
      * @param agent
      *            the agent to launch.
      * @param createFrame
@@ -584,7 +603,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
      * <li>2. the agent does not override it so that MaDKit will setup the JFrame with the default Graphical component
      * delivered by the MaDKit platform: {@link OutputPanel}
      * </ul>
-     * 
+     *
      * @param agent
      *            the agent to launch.
      * @param timeOutSeconds
@@ -610,7 +629,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
     /**
      * Launches a new agent using its full class name. <br>
      * This has the same effect as <code>launchAgent(agentClass, Integer.MAX_VALUE, false)</code>.
-     * 
+     *
      * @param agentClass
      *            the full class name of the agent to launch
      * @return the instance of the launched agent or <code>null</code> if the operation times out or failed.
@@ -622,7 +641,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
     /**
      * Launches a new agent using its full class name. <br>
      * This has the same effect as <code>launchAgent(agentClass, timeOutSeconds, false)</code>.
-     * 
+     *
      * @param timeOutSeconds
      *            time to wait the end of the agent's activation until returning <code>null</code>
      * @param agentClass
@@ -636,7 +655,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
     /**
      * Launches a new agent using its full class name. <br>
      * This has the same effect as <code>launchAgent(agentClass, Integer.MAX_VALUE, defaultGUI)</code>.
-     * 
+     *
      * @param createFrame
      *            if <code>true</code> a default GUI will be associated with the launched agent
      * @param agentClass
@@ -655,7 +674,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
      * the last compiled byte code of the corresponding class if it has been reloaded using
      * {@link MadkitClassLoader#reloadClass(String)}. Finally, if the launch timely succeeded, this method returns the
      * instance of the created agent.
-     * 
+     *
      * @param timeOutSeconds
      *            time to wait the end of the agent's activation until returning <code>null</code>
      * @param createFrame
@@ -695,11 +714,11 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
      * by <code>cgrLocations</code>. Each string of the <code>cgrLocations</code> array defines a complete CGR location. So
      * for example, <code>cgrLocations</code> could be defined and used with code such as :
      * <p>
-     * 
+     *
      * <pre>
      * launchAgentBucketWithRoles("madkit.bees.Bee", 1000000, "community,group,role", "anotherC,anotherG,anotherR")
      * </pre>
-     * 
+     *
      * In this example all the agents created by this process will have these two roles in the artificial society, even if
      * they do not request them in their {@link #activate()} method.
      * <p>
@@ -711,7 +730,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
      * <p>
      * If some of the corresponding groups do not exist before this call, the caller agent will automatically become the
      * manager of these groups.
-     * 
+     *
      * @param agentClass
      *            the name of the class from which the agents should be built.
      * @param bucketSize
@@ -744,7 +763,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
     /**
      * This has the same effect as <code>launchAgentBucket(agentClass, bucketSize, 1, roles)</code>.
-     * 
+     *
      * @param agentClass
      *            the name of the class from which the agents should be built.
      * @param bucketSize
@@ -763,7 +782,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
     /**
      * This call is equivalent to This has the same effect as <code>launchAgentBucket(bucket, 1, roles)</code>, That is only
      * one core will be used for the launch.
-     * 
+     *
      * @param bucket
      *            the list of agents to launch
      * @param roles
@@ -779,7 +798,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
     /**
      * Similar to {@link #launchAgentBucket(String, int, String...)} except that the list of agents to launch is given.
      * Especially, this could be used when the agents have no default constructor.
-     * 
+     *
      * @param bucket
      *            the list of agents to launch
      * @param nbOfParallelTasks
@@ -799,7 +818,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
     /**
      * Kills the targeted agent. This has the same effect as <code>killAgent(target,Integer.MAX_VALUE)</code> so that the
      * targeted agent has a lot of time to complete its {@link #end()} method.
-     * 
+     *
      * @return
      *         <ul>
      *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the target's end method has completed normally.</li>
@@ -826,7 +845,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
      * the caller can be blocked. Using a timeout thus ensures that the caller will be blocked only a certain amount of
      * time. Using 0 as timeout will stop the target as soon as possible, eventually brutally stop the its life cycle. In
      * such a case, if its end method has not been started, it will never run.
-     * 
+     *
      * @return
      *         <ul>
      *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the target's end method has completed normally.</li>
@@ -871,7 +890,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
     /**
      * The agent's name.
-     * 
+     *
      * @return the name to display in logger info, GUI title and so on. Default is "<i>class name + internal ID</i>"
      */
     public String getName() {
@@ -882,7 +901,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
     /**
      * Changes the agent's name
-     * 
+     *
      * @param name
      *            the name to display in logger info, GUI title and so on, default is "class name + internal ID"
      */
@@ -893,7 +912,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
     /**
      * Sets the agent's log level. This should be used instead of directly {@link AgentLogger#setLevel(Level)} because this
      * also works when {@link #logger} is <code>null</code> and allows to set it to <code>null</code> to save cpu time.
-     * 
+     *
      * @param newLevel
      *            The log level under which log messages are displayed. If {@link Level#OFF} is used then {@link #logger} is
      *            set to <code>null</code>
@@ -908,7 +927,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
     /**
      * Returns the agent's logger. It is lazily created so that if {@link #getLogger()} is not used, there is no memory foot
      * print at all, which could be crucial when working with thousands of abstract agents in simulation mode.
-     * 
+     *
      * @return the agent's logger.
      * @see AgentLogger
      * @since MaDKit 5.0.0.6
@@ -922,7 +941,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
     /**
      * Compares this agent with the specified agent for order with respect to instantiation time.
-     * 
+     *
      * @param other
      *            the agent to be compared.
      * @return a negative integer, a positive integer or zero as this agent has been instantiated before, after or is the
@@ -939,7 +958,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
     /**
      * Creates a new Group within a community. This has the same effect as
      * <code>createGroup(community, group, false, null)</code>
-     * 
+     *
      * @param community
      *            the community within which the group will be created. If this community does not exist it will be created.
      * @param group
@@ -963,7 +982,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
     /**
      * Creates a new Group within a community. This has the same effect as
      * <code>createGroup(community, group, isDistributed, null)</code>
-     * 
+     *
      * @param community
      *            the community within which the group will be created. If this community does not exist it will be created.
      * @param group
@@ -999,7 +1018,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
      * {@value madkit.agr.DefaultMaDKitRoles#GROUP_MANAGER_ROLE}</i> using the role defined by
      * {@link DefaultMaDKitRoles#GROUP_CANDIDATE_ROLE}, which value is <i>
      * {@value madkit.agr.DefaultMaDKitRoles#GROUP_CANDIDATE_ROLE}</i>.
-     * 
+     *
      * @param community
      *            the community within which the group will be created. If this community does not exist it will be created.
      * @param group
@@ -1037,7 +1056,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
      * <p>
      * For instance, this is useful if you launch one million of agents and when only some of them have to create a specific
      * group, not defined in the parameters of {@link #launchAgentBucket(List, int, String...)}
-     * 
+     *
      * @param community
      *            the community within which the group will be created. If this community does not exist it will be created.
      * @param group
@@ -1066,7 +1085,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
     /**
      * Creates a new Group within a community but does not produce any warning if the group already exists. This has the
      * same effect as <code>createGroupIfAbsent(community, group, false, null)</code>
-     * 
+     *
      * @param community
      *            the community within which the group will be created. If this community does not exist it will be created.
      * @param group
@@ -1082,7 +1101,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
     /**
      * Creates a new Group within a community but does not produce any warning if the group already exists. This has the
      * same effect as <code>createGroupIfAbsent(community, group, isDistributed, null)</code>
-     * 
+     *
      * @param community
      *            the community within which the group will be created. If this community does not exist it will be created.
      * @param group
@@ -1100,7 +1119,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
     /**
      * Creates a new Group within a community but does not produce any warning if the group already exists. If this
      * operation succeed, the agent will automatically handle the role of <i>group manager</i> in the created group.
-     * 
+     *
      * @param community
      *            the community within which the group will be created. If this community does not exist it will be created.
      * @param group
@@ -1122,7 +1141,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
     /**
      * Makes this agent leaves the group of a particular community.
-     * 
+     *
      * @param community
      *            the community name
      * @param group
@@ -1145,7 +1164,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
      * Requests a role within a group of a particular community. This has the same effect as
      * <code>requestRole(community, group, role, null, false)</code>. So the passKey is <code>null</code> and the group must
      * not be secured for this to succeed.
-     * 
+     *
      * @param community
      *            the group's community.
      * @param group
@@ -1161,7 +1180,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
     /**
      * Requests a role within a group of a particular community using a passKey.
-     * 
+     *
      * @param community
      *            the group's community.
      * @param group
@@ -1202,7 +1221,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
      * <code>null</code> roles. For instance, this is useful if you launch one million of agents and when only some of them
      * have to take a specific role which cannot be defined in the parameters of
      * {@link #launchAgentBucket(List, int, String...)} because they are priorly unknown and built at runtime.
-     * 
+     *
      * @param community
      *            the group's community.
      * @param group
@@ -1232,7 +1251,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
     /**
      * Abandons an handled role within a group of a particular community.
-     * 
+     *
      * @param community
      *            the community name
      * @param group
@@ -1282,7 +1301,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
     /**
      * Agent's address at this CGR location.
-     * 
+     *
      * @param community
      * @param group
      * @param role
@@ -1296,7 +1315,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
     /**
      * Returns an {@link AgentAddress} corresponding to an agent having this position in the organization. The caller is
      * excluded from the search.
-     * 
+     *
      * @param community
      *            the community name
      * @param group
@@ -1313,7 +1332,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
     /**
      * {@link AgentAddress} corresponding to an agent having this position in the organization on a particular kernel. The
      * caller is excluded from the search.
-     * 
+     *
      * @param community
      *            the community name
      * @param group
@@ -1331,7 +1350,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
     /**
      * A list containing other agents playing this role in the organization. The caller is excluded from this list.
-     * 
+     *
      * @param community
      *            the community name
      * @param group
@@ -1347,7 +1366,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
     /**
      * A list containing all the agents playing this role in the organization.
-     * 
+     *
      * @param community
      *            the community name
      * @param group
@@ -1365,7 +1384,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
     /**
      * Retrieves and removes the oldest received message contained in the mailbox.
-     * 
+     *
      * @return The next message or <code>null</code> if the message box is empty.
      */
     public Message nextMessage() {
@@ -1379,7 +1398,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
     /**
      * Retrieves and removes the first oldest message of the mailbox that matches the filter.
-     * 
+     *
      * @return The next acceptable message or <code>null</code> if such message has not been found.
      */
     public Message nextMessage(final MessageFilter filter) {
@@ -1397,7 +1416,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
     /**
      * Retrieves and removes all the messages of the mailbox that match the filter, in the order they were received.
-     * 
+     *
      * @param filter
      *            if <code>null</code> all the messages are returned and removed from the mailbox.
      * @return the ordered list of matching messages, or an empty list if none has been found.
@@ -1425,7 +1444,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
     /**
      * Gets the last received message.
-     * 
+     *
      * @return the last received message or <code>null</code> if the mailbox is empty.
      */
     public Message getLastReceivedMessage() {
@@ -1434,7 +1453,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
     /**
      * Gets the last received message according to a filter.
-     * 
+     *
      * @param filter
      *            the message filter to use
      * @return the last received message that matches the filter or <code>null</code> if such message has not been found.
@@ -1452,7 +1471,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
     /**
      * Purges the mailbox and returns the most recent received message at that time.
-     * 
+     *
      * @return the most recent received message or <code>null</code> if the mailbox is already empty.
      */
     public Message purgeMailbox() {
@@ -1465,7 +1484,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
     /**
      * Tells if there is a message in the mailbox
-     * 
+     *
      * @return <code>true</code> if there is no message in the mailbox.
      */
     public boolean isMessageBoxEmpty() {
@@ -1475,7 +1494,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
     /**
      * Sends a message to an agent using an agent address. This has the same effect as
      * <code>sendMessageWithRole(receiver, messageToSend, null)</code>.
-     * 
+     *
      * @param receiver
      * @param messageToSend
      * @return
@@ -1498,7 +1517,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
     // * is down.</li>
     /**
      * Sends a message, using an agent address, specifying explicitly the role used to send it.
-     * 
+     *
      * @param receiver
      *            the targeted agent
      * @param message
@@ -1524,7 +1543,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
      * Sends a message to an agent having this position in the organization, specifying explicitly the role used to send it.
      * This has the same effect as sendMessageWithRole(community, group, role, messageToSend,null). If several agents match,
      * the target is chosen randomly. The sender is excluded from this search.
-     * 
+     *
      * @param community
      *            the community name
      * @param group
@@ -1553,7 +1572,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
      * Sends a message to an agent having this position in the organization. This has the same effect as
      * <code>sendMessageWithRole(community, group, role, messageToSend,null)</code> . If several agents match, the target is
      * chosen randomly. The sender is excluded from this search.
-     * 
+     *
      * @param community
      *            the community name
      * @param group
@@ -1584,7 +1603,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
     /**
      * Broadcasts a message to every agent having a role in a group in a community, but not to the sender.
-     * 
+     *
      * @param community
      *            the community name
      * @param group
@@ -1611,7 +1630,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
     /**
      * Broadcasts a message to every agent having a role in a group in a community using a specific role for the sender. The
      * sender is excluded from the search.
-     * 
+     *
      * @param community
      *            the community name
      * @param group
@@ -1639,7 +1658,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
     /**
      * Sends a message by replying to a previously received message. The sender is excluded from this search.
-     * 
+     *
      * @param messageToReplyTo
      *            the previously received message.
      * @param reply
@@ -1670,7 +1689,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
     /**
      * Sends a message by replying to a previously received message. This has the same effect as
      * <code>sendReplyWithRole(messageToReplyTo, reply, null)</code>.
-     * 
+     *
      * @param messageToReplyTo
      *            the previously received message.
      * @param reply
@@ -1692,7 +1711,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
     /**
      * Gets the next message which is a reply to the <i>originalMessage</i>.
-     * 
+     *
      * @param originalMessage
      *            the message to which a reply is searched.
      * @return a reply to the <i>originalMessage</i> or <code>null</code> if no reply to this message has been received.
@@ -1704,7 +1723,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
     /**
      * This method offers a convenient way for regular object to send messages to Agents, especially threaded agents. For
      * instance when a GUI wants to discuss with its linked agent: This allows to enqueue work to do in their life cycle
-     * 
+     *
      * @param m
      */
     public void receiveMessage(final Message m) {
@@ -1717,7 +1736,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
     /**
      * Gets the MaDKit session property indicated by the specified key. This call is equivalent to
      * <code>getMadkitConfig().getProperty(key)</code>
-     * 
+     *
      * @param key
      *            the name of the MaDKit property
      * @return the string value of the MaDKit property, or <code>null</code> if there is no property with that key.
@@ -1731,7 +1750,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
     /**
      * Shortcut for <code>getMadkitProperty(option.name())</code>. Runtime options could be represented using enumeration
      * constants, as it is the case for MaDKit's, so this is a convenient method for retrieving the value of an option.
-     * 
+     *
      * @param option
      *            the constant representing a MaDKit option
      * @return the corresponding value as a String, or <code>null</code> if there is no property having the corresponding
@@ -1745,7 +1764,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
     /**
      * Set the MaDKit session property indicated by the specified key.
-     * 
+     *
      * @param key
      *            the name of the MaDKit property
      * @see #getMadkitProperty(String)
@@ -1757,7 +1776,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
     /**
      * Set the MaDKit session property indicated by the specified constant representing a MaDKit option.
-     * 
+     *
      * @param option
      *            the constant representing a MaDKit option
      * @see #getMadkitProperty(String)
@@ -1769,7 +1788,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
     /**
      * Shortcut for <code>Boolean.parseBoolean(getMadkitProperty(option))</code>
-     * 
+     *
      * @param option
      *            the constant representing a runtime option
      * @return <code>true</code> if the option has been set to <code>true</code>
@@ -1790,7 +1809,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
      * <li>location = center of the screen</li>
      * <li>a JMenuBar with: {@link MadkitMenu}, {@link AgentMenu} and {@link AgentLogLevelMenu}</li>
      * </ul>
-     * 
+     *
      * @param frame
      *            the default frame which has been created by MaDKit for this agent.
      * @since MaDKit 5.1.1
@@ -1807,7 +1826,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
     /**
      * Returns a snapshot view of all the current organization for debugging purpose. Community -> Group -> Role ->
      * AgentAddress
-     * 
+     *
      * @param global
      *            if <code>true</code> this takes into account agents coming from other connected kernels
      * @return a data containing all the organization structure
@@ -1818,7 +1837,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
     /**
      * Returns the names of the communities that exist.
-     * 
+     *
      * @return an alphanumerically ordered set containing the names of the communities which exist.
      * @since MaDKit 5.0.0.20
      */
@@ -1828,7 +1847,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
     /**
      * Returns the names of the groups that exist in this community.
-     * 
+     *
      * @param community
      *            the community's name
      * @return an alphanumerically ordered set containing the names of the groups which exist in this community, or
@@ -1841,7 +1860,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
     /**
      * Gets the names of the groups the agent is in according to a community
-     * 
+     *
      * @param community
      * @return a set containing the names of the groups the agent is in, or <code>null</code> if this community does not
      *         exist. This set could be empty.
@@ -1852,7 +1871,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
     /**
      * Gets the names of the roles that the agent has in a specific group
-     * 
+     *
      * @param community
      * @param group
      * @return a sorted set containing the names of the roles the agent has in a group, or <code>null</code> if the
@@ -1864,7 +1883,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
     /**
      * Returns the names of the roles that exist in this group.
-     * 
+     *
      * @param community
      *            the community's name
      * @param group
@@ -1879,7 +1898,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
     /**
      * Checks if this agent address is still valid. I.e. the corresponding agent is still playing this role.
-     * 
+     *
      * @return <code>true</code> if the address still exists in the organization.
      * @since MaDKit 5.0.4
      */
@@ -1889,7 +1908,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
     /**
      * Tells if a community exists in the artificial society.
-     * 
+     *
      * @param community
      *            the name of the community
      * @return <code>true</code> If a community with this name exists, <code>false</code> otherwise.
@@ -1900,7 +1919,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
     /**
      * Tells if a group exists in the artificial society.
-     * 
+     *
      * @param community
      *            the name of the community the group is in
      * @param group
@@ -1913,7 +1932,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
     /**
      * Tells if the agent is currently playing a specific role.
-     * 
+     *
      * @param community
      * @param group
      * @param role
@@ -1931,7 +1950,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
     /**
      * Tells if a role exists in the artificial society.
-     * 
+     *
      * @param community
      *            the name of the community the group is in
      * @param group
@@ -2005,7 +2024,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
      * </tr>
      * </table>
      * <p>
-     * 
+     *
      * @return the Properties object defining the values of each MaDKit options in the current session.
      * @see Option LevelOption BooleanOption
      * @since MaDKit 5.0.0.10
@@ -2016,7 +2035,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
     /**
      * The kernel's address on which this agent is running.
-     * 
+     *
      * @return the kernel address representing the MaDKit kernel on which the agent is running
      */
     public KernelAddress getKernelAddress() {
@@ -2025,7 +2044,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
     /**
      * Returns the server's info, IP and port, if the kernel is online.
-     * 
+     *
      * @return server's info: e.g. /192.168.1.14:4444
      */
     public String getServerInfo() {
@@ -2089,7 +2108,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
     /**
      * Wipes out an entire community at once. Mostly useful when doing simulated systems. This greatly optimizes the time
      * required to make all the agents leave a community.
-     * 
+     *
      * @since MaDKit 5.0.0.9
      * @param community
      *            the community to destroy
@@ -2101,7 +2120,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
     /**
      * Wipes out an entire group at once. Mostly useful when doing simulated systems. This greatly optimizes the time
      * required to make all the agents leave a group.
-     * 
+     *
      * @since MaDKit 5.0.0.10
      * @param community
      *            the community
@@ -2115,7 +2134,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
     /**
      * Wipes out an entire role at once. Mostly useful when doing simulated systems. This greatly optimizes the time
      * required to make all the agents leave a role.
-     * 
+     *
      * @since MaDKit 5.0.0.10
      * @param community
      *            the community
@@ -2167,7 +2186,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
      * Logs and propagates the exception so that agents properly leave when interrupted. When you have to deal with such an
      * exception and do not want to add <code>throws InterruptedException</code> in your code, it is both important for the
      * responsiveness of your application and a good practice to not swallow it by doing something like.
-     * 
+     *
      * <pre>
      * <code>
      * try {
@@ -2177,22 +2196,22 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
      * }
      * </code>
      * </pre>
-     * 
+     *
      * So this method is a shortcut for :
-     * 
+     *
      * <pre>
-     * <code>		
+     * <code>
      * if(logger != null){
      * 	logger.log(Level.WARNING," Interrupted (killed) by ",e);
      * }
      * Thread.currentThread().interrupt();
      * </code>
      * </pre>
-     * 
+     *
      * and should be used like this :
-     * 
+     *
      * <pre>
-     * <code>		
+     * <code>
      * try {
      * 	...something that can throw an InterruptedException
      * } catch (InterruptedException e) {
@@ -2200,7 +2219,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
      * }
      * </code>
      * </pre>
-     * 
+     *
      * @param e
      *            the InterruptedException which has to be propagated
      * @since MaDKit 5.0.0.12
@@ -2213,7 +2232,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
     /**
      * launch all the agents defined in an xml configuration file
-     * 
+     *
      * @param xmlFile
      *            the XML file to parse
      * @return {@link ReturnCode#SEVERE} if the launch failed
@@ -2233,7 +2252,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
     /**
      * Launch agents by parsing an XML node. The method immediately returns without waiting the end of the agents'
      * activation,
-     * 
+     *
      * @param agentXmlNode
      *            the XML node
      * @return {@link ReturnCode#SEVERE} if the launch failed
@@ -2448,7 +2467,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
      * </ul>
      * <p>
      * An agent can be in only one state at a given point in time.
-     * 
+     *
      * @author Fabien Michel
      * @since MaDKit 5.0
      * @see #getState
@@ -2509,7 +2528,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
      * Returns the current state of the agent in the MaDKit platform. This method provides a way of knowing what is the
      * current state of the agent regarding its life cycle. This could be convenient when you design a method that could
      * work differently depending on the actual state of the agent.
-     * 
+     *
      * @return the current state of the agent:
      *         <ul>
      *         <li><code>{@link State#NOT_LAUNCHED}</code>: the agent has not been launched yet. This especially means that
@@ -2551,7 +2570,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
     /**
      * Proceeds an {@link EnumMessage} so that if it is correctly built, the agent will trigger its corresponding behavior
      * using the parameters of the message.
-     * 
+     *
      * @param message
      *            the message to proceed
      * @since MaDKit 5.0.0.14
@@ -2604,14 +2623,20 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
     private Method findMethodFromParameters(String name2, Object[] parameters) throws NoSuchMethodException {
 	Method m;
 	final Class<?>[] types = convertToObjectTypes(convertToTypes(parameters));
+	m = findAvailableMethod(name2, types);
+	if (m == null)
+	    throw new NoSuchMethodException(name2);
+	return m;
+    }
+
+    private Method findAvailableMethod(String name2, final Class<?>[] types) {
+	Method m;
 	m = findMethodIn(name2, getClass().getMethods(), types);
 	if (m == null) {
 	    m = findMethodIn(name2, getClass().getDeclaredMethods(), types);
 	    if (m != null)
 		m.setAccessible(true);
 	}
-	if (m == null)
-	    throw new NoSuchMethodException();
 	return m;
     }
 
@@ -2657,6 +2682,31 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	return false;
     }
 
+    /**
+     * maps methods signature to method objects for each Agent class
+     */
+    private final static ConcurrentHashMap<Class<? extends AbstractAgent>, ConcurrentHashMap<String, Method>> methodsTable = new ConcurrentHashMap<>();
+
+
+    void executeBehavior(String methodName, Object... args) throws NoSuchMethodException {
+	ConcurrentHashMap<String, Method> methods = methodsTable.computeIfAbsent(getClass(), table -> new ConcurrentHashMap<String, Method>());
+	final Class<?>[] types = convertToObjectTypes(convertToTypes(args));
+	final StringBuffer methodSignature = new StringBuffer(methodName);
+	for(Class<?> c : types) {
+	    methodSignature.append(c.getName());
+	}
+	Method method = methods.computeIfAbsent(methodSignature.toString(), m -> findAvailableMethod(methodName, types));
+	if(method == null) {
+	    throw new NoSuchMethodException(methodName);
+	}
+	try {
+	    method.invoke(this, args);
+	}
+	catch( IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+	    e.printStackTrace();
+	}
+    }
+
     private static final Map<Class<?>, Class<?>> primitiveTypes = new HashMap<>();
     static {
 	primitiveTypes.put(int.class, Integer.class);
@@ -2679,7 +2729,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
     /**
      * This class enumerates all the return codes which could be obtained with essential methods of the
      * {@link AbstractAgent} and {@link Agent} classes.
-     * 
+     *
      * @author Fabien Michel
      * @since MaDKit 5.0
      */
@@ -2813,7 +2863,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 
     /**
      * Tells if the kernel on which this agent is running is online.
-     * 
+     *
      * @return <code>true</code> if the kernel is online.
      */
     public boolean isKernelOnline() {
@@ -2825,7 +2875,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
      * This offers a convenient way to create main a main method that launches the agent class under development. The agent
      * is launched in a new instance MaDKit. This call only works in the main method of the agent's class. MaDKit. Here is
      * an example of use that will work in any subclass of {@link AbstractAgent}:
-     * 
+     *
      * <pre>
      * <code>
      * public static void main(String[] args) {
@@ -2833,15 +2883,15 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
      * }
      * </code>
      * </pre>
-     * 
+     *
      * Still, the agent must have a default constructor for that to work.
-     * 
+     *
      * @param nbOfInstances
      *            specify how many of this kind should be launched
      * @param createFrame
      * @param args
      *            MaDKit options. For example, this will launch the agent in desktop mode :
-     * 
+     *
      *            <pre>
      *            <code>
      * public static void main(String[] args) {
@@ -2873,7 +2923,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
      * This offers a convenient way to create a main method that launches the agent class under development. This call only
      * works in the main method of the agent's class. This call is equivalent to
      * <code>executeThisAgent(1, true, args)</code>
-     * 
+     *
      * @param args
      *            MaDKit options
      * @return the kernel instance that actually launches this agent, so that it is possible to do other actions after the
@@ -2889,7 +2939,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
      * This offers a convenient way to create a main method that launches the agent class under development. This call only
      * works in the main method of the agent's class. This call is equivalent to
      * <code>executeThisAgent(null, 1, true)</code>
-     * 
+     *
      * @return the kernel instance that actually launches this agent, so that it is possible to do other actions after the
      *         launch using {@link Madkit#doAction(madkit.action.KernelAction, Object...)}
      * @see #executeThisAgent(int, boolean, String...)

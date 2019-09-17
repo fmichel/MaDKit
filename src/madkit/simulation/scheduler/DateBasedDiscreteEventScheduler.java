@@ -11,7 +11,7 @@ import madkit.simulation.activator.DateBasedDiscreteEventActivator;
 
 public class DateBasedDiscreteEventScheduler extends Scheduler {
     
-    private PriorityQueue<DateBasedDiscreteEventActivator<? extends AbstractAgent>> activationList = new PriorityQueue<>();
+    private PriorityQueue<DateBasedDiscreteEventActivator<? extends AbstractAgent>> activatorActivationList = new PriorityQueue<>();
 
     public DateBasedDiscreteEventScheduler() {
     }
@@ -44,7 +44,7 @@ public class DateBasedDiscreteEventScheduler extends Scheduler {
     }
 
     public PriorityQueue<DateBasedDiscreteEventActivator<? extends AbstractAgent>> getActivationList() {
-	return activationList;
+	return activatorActivationList;
     }
 
 }

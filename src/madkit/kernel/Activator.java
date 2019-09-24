@@ -129,9 +129,16 @@ public abstract class Activator<A extends AbstractAgent> extends Overlooker<A> {
 	}
     }
 
-    public void executeBehaviorOf(AbstractAgent a, String behaviorName, Object... args) {
+    /**
+     * Executes a specific method on a targeted agent.
+     *
+     * @param agent the targeted agent.
+     * @param behaviorName the name of a method belonging to the agents (even private or inherited ones)
+     * @param args parameters to be passed for the invocation
+     */
+    public void executeBehaviorOf(AbstractAgent agent, String behaviorName, Object... args) {
 	try {
-	    a.executeBehavior(behaviorName, args);
+	    agent.executeBehavior(behaviorName, args);
 	}
 	catch(NoSuchMethodException e) {
 	    e.printStackTrace();

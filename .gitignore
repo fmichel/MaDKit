@@ -8,3 +8,4 @@ logs
 .ant-targets-build.xml
 /sandbox/
 .settings
+/target/

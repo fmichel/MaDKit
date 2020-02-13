@@ -45,10 +45,12 @@ import madkit.kernel.AbstractAgent;
  * 
  */
 public class UnstopableAbstractAgent extends AbstractAgent {
+	@Override
 	protected void activate() {
 		int i = 0;
 		while (i < 990000000) {
 			i++;
+			Math.cos(i);
 			if (i % 10000000 == 0)
 				getLogger().info("activate " + getState() + " " + i);
 		}
@@ -57,6 +59,7 @@ public class UnstopableAbstractAgent extends AbstractAgent {
 	/**
 	 * 
 	 */
+	@Override
 	protected void end() {
 		int i = 0;
 		while (true) {

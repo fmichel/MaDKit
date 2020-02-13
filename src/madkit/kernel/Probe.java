@@ -95,10 +95,10 @@ public class Probe<A extends AbstractAgent> extends Overlooker<A> {
 		return null;
 	    }
 	    catch(NoSuchFieldException e) {
-		agentClass = (Class<? extends AbstractAgent>) agentClass.getSuperclass();
 		if (agentClass == AbstractAgent.class) { // not found
 		    throw e;
 		}
+		agentClass = (Class<? extends AbstractAgent>) agentClass.getSuperclass();
 	    }
 	}
     }

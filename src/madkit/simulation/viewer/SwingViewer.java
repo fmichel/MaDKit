@@ -117,27 +117,23 @@ public abstract class SwingViewer extends Watcher {
 	final ResourceBundle messages = I18nUtilities.getResourceBundle(SwingViewer.class.getSimpleName());
 	initRenderingIntervalComboBox(messages.getString("UPDATE_INTERVAL"));
 	rendering = new BooleanAction(new ActionInfo("DISABLE", KeyEvent.VK_A, messages)) {
-
 	    private static final long serialVersionUID = 1L;
-
 	    @Override
 	    public void onUpdate(boolean isSelected) {
-		renderingOn = isSelected;
+		renderingOn = ! isSelected;
 	    }
 	};
 	setRendering(renderingOn);
 
 	synchroPainting = new BooleanAction(new ActionInfo("SYNCHRO_PAINTING", KeyEvent.VK_Z, messages)) {
-
 	    private static final long serialVersionUID = 1L;
-
 	    @Override
 	    public void onUpdate(boolean isSelected) {
 		synchronousPainting = !isSelected;
 		comboBox.setVisible(synchronousPainting);
 	    }
 	};
-	rendering.putValue(Action.SELECTED_KEY, !synchronousPainting);
+	synchroPainting.putValue(Action.SELECTED_KEY, !synchronousPainting);
     }
 
     /**

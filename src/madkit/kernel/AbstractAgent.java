@@ -188,7 +188,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
     /**
      * Returns the {@link SimulationTime} of the current simulation.
      * This is automatically initialized when the agent is associated with an activator for the first time.
-     * So it stays <code>null</code> if the agent is not related to any kind of simulation
+     * So it stays <code>null</code> if the agent is not related to a simulation
      *
      * @return the simulationTime of the simulation in which the agent participates
      */

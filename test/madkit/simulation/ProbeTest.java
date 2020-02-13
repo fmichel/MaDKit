@@ -117,8 +117,10 @@ public class ProbeTest {
 	Field m = a.findFieldOn(agt.getClass(), "something");
 	assertNotNull(m);
 	System.err.println(m.get(agt));
+	m = a.findFieldOn(agt.getClass(), "simulationTime");
+	assertNotNull(m);
+	System.err.println(m.get(agt));
     }
-
 }
 
 @SuppressWarnings("all")

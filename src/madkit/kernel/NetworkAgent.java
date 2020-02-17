@@ -56,6 +56,7 @@ import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.agr.LocalCommunity.Roles;
 import madkit.agr.NetworkCommunity;
+import madkit.agr.OrganizationSnapshot;
 import madkit.gui.AgentStatusPanel;
 import madkit.kernel.Madkit.LevelOption;
 import madkit.message.EnumMessage;
@@ -414,8 +415,8 @@ final class NetworkAgent extends Agent {
 	return true;
     }
 
-    private Map<String, Map<String, Map<String, Set<AgentAddress>>>> cleanUp(Map<String, Map<String, Map<String, Set<AgentAddress>>>> organizationSnapShot, KernelAddress from) {
-	for (Iterator<Entry<String, Map<String, Map<String, Set<AgentAddress>>>>> iterator = organizationSnapShot.entrySet().iterator(); iterator.hasNext();) {
+    private OrganizationSnapshot cleanUp(OrganizationSnapshot organizationSnapshot, KernelAddress from) {
+	for (Iterator<Entry<String, Map<String, Map<String, Set<AgentAddress>>>>> iterator = organizationSnapshot.entrySet().iterator(); iterator.hasNext();) {
 	    Entry<String, Map<String, Map<String, Set<AgentAddress>>>> org = iterator.next();
 	    for (Iterator<Entry<String, Map<String, Set<AgentAddress>>>> iterator2 = org.getValue().entrySet().iterator(); iterator2.hasNext();) {
 		Entry<String, Map<String, Set<AgentAddress>>> group = iterator2.next();
@@ -438,7 +439,7 @@ final class NetworkAgent extends Agent {
 		iterator.remove();
 	    }
 	}
-	return organizationSnapShot;
+	return organizationSnapshot;
     }
 
     /**

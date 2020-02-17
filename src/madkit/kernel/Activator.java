@@ -84,7 +84,7 @@ public abstract class Activator<A extends AbstractAgent> extends Overlooker<A> {
     }
 
     /**
-     * The priority of this activator when {@link #getNextActivationDate()} is conflicting with another Activator. A
+     * The priority of this activator when conflicting with another Activator. A
      * lesser priority means that the activator will be triggered first.
      * When the activator's priority is not set, a default priority is defined using the order in which the
      * activators are added to the simulation engine using {@link Scheduler#addActivator(Activator)}, that is
@@ -182,6 +182,7 @@ public abstract class Activator<A extends AbstractAgent> extends Overlooker<A> {
 	    final int index = i;
 	    workers.add(new Callable<Void>() {
 
+		@Override
 		public Void call() throws Exception {
 		    int firstIndex = nbOfAgentsPerTask * index;// TODO check that using junit
 		    execute(list.subList(firstIndex, firstIndex + nbOfAgentsPerTask), args);
@@ -191,6 +192,7 @@ public abstract class Activator<A extends AbstractAgent> extends Overlooker<A> {
 	}
 	workers.add(new Callable<Void>() {
 
+	    @Override
 	    public Void call() throws Exception {
 		execute(list.subList(nbOfAgentsPerTask * cpuCoreNb, list.size()), args);
 		return null;

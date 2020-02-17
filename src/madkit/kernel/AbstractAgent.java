@@ -58,7 +58,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.ConcurrentHashMap;
@@ -84,6 +83,7 @@ import madkit.agr.DefaultMaDKitRoles;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.agr.NetworkCommunity;
+import madkit.agr.OrganizationSnapshot;
 import madkit.gui.AgentFrame;
 import madkit.gui.AgentStatusPanel;
 import madkit.gui.OutputPanel;
@@ -919,6 +919,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
      * @see #logger
      * @deprecated as of MaDKit 5.2, {@link AgentLogger#setLevel(Level)} should now be used through {@link #getLogger()}
      */
+    @Deprecated
     public void setLogLevel(final Level newLevel) {
 	getLogger().setLevel(newLevel);
 	// setKernel(kernel.getLoggedKernel());//TODO
@@ -1831,7 +1832,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
      *            if <code>true</code> this takes into account agents coming from other connected kernels
      * @return a data containing all the organization structure
      */
-    public Map<String, Map<String, Map<String, Set<AgentAddress>>>> getOrganizationSnapShot(boolean global) {
+    public OrganizationSnapshot getOrganizationSnapShot(boolean global) {
 	return getKernel().getOrganizationSnapShot(global);
     }
 
@@ -2827,6 +2828,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
 	// static ResourceBundle messages =
 	// I18nUtilities.getResourceBundle(ReturnCode.class);
 
+	@Override
 	public String toString() {
 	    return messages.getString(name());
 	}

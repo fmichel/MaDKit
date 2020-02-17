@@ -69,7 +69,6 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TimerTask;
-import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
@@ -96,6 +95,7 @@ import madkit.action.KernelAction;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.agr.LocalCommunity.Roles;
+import madkit.agr.OrganizationSnapshot;
 import madkit.gui.ConsoleAgent;
 import madkit.gui.MASModel;
 import madkit.i18n.ErrorMessages;
@@ -123,6 +123,7 @@ class MadkitKernel extends Agent {
 
     private static final ThreadGroup SYSTEM = new ThreadGroup("MK_SYSTEM") {
 
+	@Override
 	public void uncaughtException(Thread t, Throwable e) {
 	    System.err.println("\n------------uncaught exception on " + t);
 	}
@@ -132,6 +133,7 @@ class MadkitKernel extends Agent {
 	    // Runtime.getRuntime().availableProcessors() + 1,
 	    2, Integer.MAX_VALUE, 2L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), new ThreadFactory() {
 
+		@Override
 		public Thread newThread(Runnable r) {
 		    final Thread t = new Thread(SYSTEM, r);
 		    t.setPriority(Thread.MAX_PRIORITY);
@@ -219,6 +221,7 @@ class MadkitKernel extends Agent {
 	daemonAgentThreadFactory = new AgentThreadFactory(kernelAddress, true);
 	lifeExecutor = new ThreadPoolExecutor(2, Integer.MAX_VALUE, 1L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), new ThreadFactory() {
 
+	    @Override
 	    public Thread newThread(Runnable r) {
 		final Thread t = new Thread(normalAgentThreadFactory.getThreadGroup(), r);
 		// t.setPriority(Thread.MIN_PRIORITY);
@@ -485,6 +488,7 @@ class MadkitKernel extends Agent {
 		    for (int i = 0; i < number; i++) {
 			lifeExecutor.execute(new Runnable() {
 
+			    @Override
 			    public void run() {
 				if (!shuttedDown) {
 				    try {
@@ -1126,6 +1130,7 @@ class MadkitKernel extends Agent {
 	for (int i = 0; i < cpuCoreNb; i++) {
 	    ecs.submit(new Callable<List<AbstractAgent>>() {
 
+		@Override
 		public List<AbstractAgent> call() throws InvocationTargetException, InstantiationException, IllegalAccessException {
 		    final List<AbstractAgent> list = new ArrayList<>(nbOfAgentsPerTask);
 		    for (int j = nbOfAgentsPerTask; j > 0; j--) {
@@ -1173,6 +1178,7 @@ class MadkitKernel extends Agent {
 	    // holds for Integer.MAX_VALUE
 	    final ReturnCode returnCode = lifeExecutor.submit(new Callable<ReturnCode>() {
 
+		@Override
 		public ReturnCode call() {
 		    return launchingAgent(agent, defaultGUI);
 		}
@@ -1217,6 +1223,7 @@ class MadkitKernel extends Agent {
 	    ReturnCode r = AGENT_CRASH;
 	    final Future<ReturnCode> activationAttempt = lifeExecutor.submit(new Callable<ReturnCode>() {
 
+		@Override
 		public ReturnCode call() {
 		    return agent.activation();
 		}
@@ -1275,6 +1282,7 @@ class MadkitKernel extends Agent {
 	}
 	final Future<ReturnCode> killAttempt = serviceExecutor.submit(new Callable<ReturnCode>() {
 
+	    @Override
 	    public ReturnCode call() {
 		return killingAgent(target, timeOutSeconds);
 	    }
@@ -1365,6 +1373,7 @@ class MadkitKernel extends Agent {
 	if (timeOutSeconds != 0) {
 	    final Future<Boolean> endAttempt = executor.submit(new Callable<Boolean>() {
 
+		@Override
 		public Boolean call() {
 		    return target.ending();
 		}
@@ -1603,6 +1612,7 @@ class MadkitKernel extends Agent {
 	return platform.getConfigOption();
     }
 
+    @Override
     MadkitKernel getMadkitKernel() {
 	return this;
     }
@@ -1659,7 +1669,7 @@ class MadkitKernel extends Agent {
 	}
     }
 
-    final void importDistantOrg(final Map<String, Map<String, Map<String, Set<AgentAddress>>>> distantOrg) {
+    final void importDistantOrg(final OrganizationSnapshot distantOrg) {
 	if (logger != null)
 	    logger.finer(() -> "Importing org..." + distantOrg);
 	synchronized (organizations) {
@@ -1675,8 +1685,8 @@ class MadkitKernel extends Agent {
     }
 
     @Override
-    public final Map<String, Map<String, Map<String, Set<AgentAddress>>>> getOrganizationSnapShot(boolean global) {
-	Map<String, Map<String, Map<String, Set<AgentAddress>>>> export = new TreeMap<>();
+    public final OrganizationSnapshot getOrganizationSnapShot(boolean global) {
+	OrganizationSnapshot export = new OrganizationSnapshot();
 	synchronized (organizations) {
 	    for (Map.Entry<String, Organization> org : organizations.entrySet()) {
 		Map<String, Map<String, Set<AgentAddress>>> currentOrg = org.getValue().getOrgMap(global);

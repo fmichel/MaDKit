@@ -8,7 +8,7 @@ import madkit.kernel.AbstractAgent;
 import madkit.simulation.scheduler.DateBasedDiscreteEventScheduler;
 
 /**
- * A behavior activator that is designed to work with an {@link DateBasedDiscreteEventScheduler},
+ * A behavior activator that is designed to work with a {@link DateBasedDiscreteEventScheduler},
  *  that is following a discrete-event simulation scheme.
  *  This activator activates all the agents of the corresponding CGR for each specific date for
  *  which it is activated.

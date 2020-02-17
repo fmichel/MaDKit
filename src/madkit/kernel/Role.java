@@ -53,7 +53,7 @@ import java.util.logging.Logger;
 import madkit.kernel.AbstractAgent.ReturnCode;
 
 /**
- * /** Reifying the notion of Role in AGR
+ * Reifying the notion of Role in AGR
  * 
  * @author Fabien Michel
  * @since MaDKit 3.0

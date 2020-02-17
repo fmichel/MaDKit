@@ -44,9 +44,9 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
+
+import madkit.agr.OrganizationSnapshot;
 
 /**
  * @author Fabien Michel
@@ -100,8 +100,8 @@ final class KernelConnection extends Thread{
 	 * @throws IOException 
 	 */
 	@SuppressWarnings("unchecked")
-	Map<String, Map<String, Map<String, Set<AgentAddress>>>> waitForDistantOrg() throws IOException, ClassNotFoundException {
-			return (Map<String, Map<String, Map<String, Set<AgentAddress>>>>) ois.readObject();
+	OrganizationSnapshot waitForDistantOrg() throws IOException, ClassNotFoundException {
+			return (OrganizationSnapshot) ois.readObject();
 	}
 	
 	/**
@@ -119,7 +119,7 @@ final class KernelConnection extends Thread{
 	 * @param map
 	 * @throws IOException 
 	 */
-	void sendConnectionInfo(KernelAddress myKA, Map<String, Map<String, Map<String, Set<AgentAddress>>>> map) throws IOException {
+	void sendConnectionInfo(KernelAddress myKA, OrganizationSnapshot map) throws IOException {
 			oos.writeObject(myKA);
 			oos.writeObject(map);
 	}

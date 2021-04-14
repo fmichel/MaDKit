@@ -1448,7 +1448,6 @@ class MadkitKernel extends Agent {
     }
 
     final Group getGroup(final String community, final String group) throws CGRNotAvailable {
-	// System.err.println("HHHHHHHHHHHHHHHHHHHH "+community);
 	Group g = getCommunity(community).get(group);
 	if (g == null)
 	    throw new CGRNotAvailable(NOT_GROUP);

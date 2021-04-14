@@ -843,7 +843,7 @@ public class AbstractAgent implements Comparable<AbstractAgent> {
      * <p>
      * The method returns only when the targeted agent actually ends its life. So if the target contains a infinite loop,
      * the caller can be blocked. Using a timeout thus ensures that the caller will be blocked only a certain amount of
-     * time. Using 0 as timeout will stop the target as soon as possible, eventually brutally stop the its life cycle. In
+     * time. Using 0 as timeout will stop the target as soon as possible, eventually brutally stop its life cycle. In
      * such a case, if its end method has not been started, it will never run.
      *
      * @return

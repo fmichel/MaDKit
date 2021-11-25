@@ -7,6 +7,7 @@
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="lib" path="/usr/lib/jvm/java-8-jdk/jre/lib/javaws.jar"/>
 	<classpathentry kind="lib" path="/usr/lib/jvm/java-8-jdk/jre/lib/deploy.jar"/>
+	<classpathentry kind="lib" path="lib/maven-resolver-ant-tasks-1.3.1-uber.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

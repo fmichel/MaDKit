@@ -26,6 +26,17 @@
 
 	<import file="${madkit.ant.targets.file}" />
 
+	<!-- defining project general properties -->
+	<!-- define Maven coordinates -->
+	<property name="groupId" value="io.github.fmichel" />
+	<property name="artifactId" value="MaDKit" />
+	<property name="version" value="${madkit.version}" />
+	<!-- define artifacts' name, which follows the convention of Maven -->
+	<property name="jar" value="${jar.file}" />
+	<property name="javadoc-jar" value="${release.dir}/${artifactId}-${version}-javadoc.jar" />
+	<property name="sources-jar" value="${src.zip.location}" />
+
+
 	<echo>using ${ant.version}</echo>
 	<echo>using Java ${java.runtime.version} from ${java.home}</echo>
 
@@ -49,6 +60,24 @@
 			<zipfileset dir="${src.dir}" includes="**/*.java" excludes="**/package-info.java" />
 			<zipfileset dir="${demo.dir}" includes="**/*.java" excludes="**/package-info.java" />
 		</zip>
+	</target>
+
+	<!-- ================================= 
+          target: src-jar          
+         ================================= -->
+	<target name="src-jar" description="the src jar">
+		<jar jarfile="${sources-jar}">
+			<fileset dir="${src.dir}" includes="**/*.java" excludes="**/package-info.java" />
+		</jar>
+	</target>
+
+	<!-- ================================= 
+          target: javadoc-jar              
+         ================================= -->
+	<target name="javadoc-jar" depends="javadoc" description="the src zip">
+		<jar jarfile="${javadoc-jar}">
+			<fileset dir="${docs.api.dir}" />
+		</jar>
 	</target>
 
 	<!-- ================================= 
@@ -154,11 +183,11 @@
 		<pathelement location="${basedir}" />
 		<!--for images -->
 	</path>
-	
+
 	<!-- ================================= 
           target: mdk-junit-jar              
          ================================= -->
-    <target name="junit-mdk-jar" depends="clean,compile" description="build the jar for using the MDK junit classes">
+	<target name="junit-mdk-jar" depends="clean,compile" description="build the jar for using the MDK junit classes">
 		<javac destdir="${build.dir}" includeAntRuntime="false" debug="on" srcdir="test">
 			<classpath refid="test.compile.classpath" />
 		</javac>
@@ -171,8 +200,8 @@
 
 		<chmod file="${jar.file}" perm="ugo+x" />
 		<echo>${jar.file} created !${line.separator}</echo>
-    	
-    </target>
+
+	</target>
 
 
 	<target name="test-init" depends="buildResources">
@@ -323,19 +352,16 @@
 					<arg value="clean" />
 				</exec>
 			</target>
-	
-	<!-- ================================= 
+
+			<!-- ================================= 
           target: junit-release              
          ================================= -->
-    <target name="junit-release" depends="release,junit-mdk-jar,junit-src-zip" description="junit featured release">
-		<zip destfile="${release.dir}/${distribution.zip.name}" update="true" level="9">
-			<zipfileset file="${jar.file}" filemode="755" />
-			<zipfileset file="${docs.dir}/${src.zip.name}" prefix="${docs.dir}" filemode="755" />
-		</zip>
-    </target>
-
-	
-	
+			<target name="junit-release" depends="release,junit-mdk-jar,junit-src-zip" description="junit featured release">
+				<zip destfile="${release.dir}/${distribution.zip.name}" update="true" level="9">
+					<zipfileset file="${jar.file}" filemode="755" />
+					<zipfileset file="${docs.dir}/${src.zip.name}" prefix="${docs.dir}" filemode="755" />
+				</zip>
+			</target>
 
 
 			<!-- ================================= 
@@ -455,5 +481,43 @@
 					<fileset dir="${test.reports.dir}" />
 				</ftp>
 			</target>
+
+
+			<!-- ================================= 
+			OSSRH deployment        
+	  <target name="deploy" depends="release" description="deploy snapshot version to Maven snapshot repository">
+	    <artifact:mvn>
+	      <arg value="org.apache.maven.plugins:maven-deploy-plugin:2.6:deploy-file" />
+	      <arg value="-Durl=${ossrh-snapshots-repository-url}" />
+	      <arg value="-DrepositoryId=${ossrh-server-id}" />
+	      <arg value="-DpomFile=pom.xml" />
+	      <arg value="-Dfile=${jar}" />
+	    </artifact:mvn>
+	  </target>
+ ================================= -->
+
+			<taskdef uri="antlib:org.apache.maven.resolver.ant" resource="org/apache/maven/resolver/ant/antlib.xml" classpath="/usr/share/ant/lib/maven-resolver-ant-tasks-1.3.1-uber.jar" />
+
+			<!-- defined maven snapshots and staging repository id and url -->
+			<property name="ossrh-snapshots-repository-url" value="https://s01.oss.sonatype.org/content/repositories/snapshots/" />
+			<property name="ossrh-staging-repository-url" value="https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/" />
+			<!-- there server id in the Maven settings.xml -->
+			<property name="ossrh-server-id" value="ossrh" />
+
+	<!-- ================================= 
+
+			<target name="deploy" depends="release">
+				<resolver:artifacts id="output">
+					<artifact file="${build.dir}/maven-resolver-ant-tasks-${pom.version}.jar" />
+					<artifact file="${build.dir}/maven-resolver-ant-tasks-${pom.version}-sources.jar" classifier="sources" />
+				</resolver:artifacts>
+				<resolver:deploy artifactsref="outputd">
+					<remoteRepo id="dist" url="file:///${build.dir}/dist-repo" />
+				</resolver:deploy>
+			</target>
+
+ ================================= -->
+
+
 
 		</project>

@@ -146,7 +146,7 @@ public class Agent extends AbstractAgent{
 	}
 	
 	@Override
-	final void suicide(SelfKillException e) {
+	final void suicide(SelfKillError e) {
 		getAgentExecutor().getLiveProcess().cancel(false);
 		getAgentExecutor().getEndProcess().cancel(false);
 		super.suicide(e);
@@ -161,7 +161,7 @@ public class Agent extends AbstractAgent{
 			logMethod(true);
 			try {
 				live();
-			} catch (SelfKillException e) {
+			} catch (SelfKillError e) {
 				suicide(e);
 			} catch (Throwable e) {
 				synchronized (state) {
@@ -216,7 +216,7 @@ public class Agent extends AbstractAgent{
 	public ReturnCode killAgent(AbstractAgent target, int timeOutSeconds) {
 		//if this is a self kill done by the agent itself, not an object which has access to the agent
 		if(target == this && myThread == Thread.currentThread() && alive.compareAndSet(true, false)){
-			throw new SelfKillException(timeOutSeconds);
+			throw new SelfKillError(timeOutSeconds);
 		}
 		return super.killAgent(target, timeOutSeconds);
 	}
@@ -563,11 +563,6 @@ public class Agent extends AbstractAgent{
 			answer = waitingNextMessage(endTime - System.nanoTime(), TimeUnit.NANOSECONDS);
 		}
 		addAllToMessageBox(receptions);
-//		if (!receptions.isEmpty()) {
-//			synchronized (messageBox) {
-//				messageBox.addAll(receptions);
-//			}
-//		}
 		if(logger != null){
 			final Message answerFinal = answer;
 			logger.finest(() -> (answerFinal == null) ? "...Waiting time out, no compliant message received" : "...a match has arrived : " + answerFinal);
@@ -600,8 +595,6 @@ public class Agent extends AbstractAgent{
 			return messageBox.take();
 		} catch (InterruptedException e) {
 			handleInterruptedException();
-			//		} catch (IllegalMonitorStateException e) {
-			//			throw e;
 		}
 		return null;
 	}

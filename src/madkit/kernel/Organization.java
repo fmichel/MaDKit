@@ -175,7 +175,7 @@ final class Organization extends ConcurrentHashMap<String, Group> {
 				try {
 					manager = map.get(groupName).get(madkit.agr.DefaultMaDKitRoles.GROUP_MANAGER_ROLE).iterator()
 							.next();
-				} catch (NullPointerException e) {// TODO a clean protocol to get the groupManager
+				} catch (NullPointerException e) {
 					manager = map.get(groupName).values().iterator().next().iterator().next();
 				}
 				group = new Group(communityName, groupName, manager, this);

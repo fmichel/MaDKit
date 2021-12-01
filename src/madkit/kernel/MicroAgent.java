@@ -51,7 +51,7 @@ abstract class MicroAgent<T> extends Agent {
 	
 	@Override
 	protected void activate() {
-		requestRole(LocalCommunity.NAME, "kernels", "ma");//TODO
+		requestRole(LocalCommunity.NAME, "kernels", "ma");
 	}
 	
 	@Override

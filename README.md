@@ -1,7 +1,7 @@
 MultiAgent Development Kit - MaDKit 5 
 ================================================
 
-[![Build Status](https://travis-ci.org/fmichel/MaDKit.svg?branch=master)](https://travis-ci.org/fmichel/MaDKit)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.fmichel/MaDKit.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22io.github.fmichel%22%20AND%20a:%22MaDKit%22)
 
 MaDKit is an open source multiagent-based software written in Java.
 
@@ -25,6 +25,22 @@ Especially, MaDKit does not enforce any consideration about the internal structu
 So, MaDKit is built upon the AGR (Agent/Group/Role) organizational model: Agents play roles in groups and thus create artificial societies.
  
 [1]: http://www.lirmm.fr/~fmichel/publi/pdfs/ferber04ocmas.pdf
+
+## Programming with MaDKit
+
+Programming with MaDKit can be done by either :
+
+- Downloading the zip distribution and using the provided jar file.
+
+- Declare MaDKit as a dependency using your favorite build tool : [https://mvnrepository.com/artifact/io.github.fmichel/MaDKit](https://mvnrepository.com/artifact/io.github.fmichel/MaDKit)
+
+For instance, with Gradle:
+
+```groovy
+implementation "io.github.fmichel:MaDKit:5.x.y"
+```
+
+JDK 8+ is required. 
 
 ## More information
 

@@ -63,29 +63,3 @@ class NetworkMessage extends EnumMessage<NetCode> {
 
 
 }
-//class NewPeerMessage extends NetCode<DatagramPacket>{
-//	/**
-//	 * 
-//	 */
-//	private static final long serialVersionUID = -1804809279823744173L;
-//
-//	/**
-//	 * @param content
-//	 */
-//	public NewPeerMessage(DatagramPacket content) {
-//		super(NetCode.NEW_PEER_DETECTED, content);
-//	}
-//}
-//
-//class NewPeerConnectionRequest extends NetCode<Socket>{
-//
-//	private static final long serialVersionUID = 6092436677566809561L;
-//
-//	/**
-//	 * @param content
-//	 */
-//	public NewPeerConnectionRequest(Socket content) {
-//		super(NetCode.NEW_PEER_REQUEST,content);
-//	}
-//	
-//}

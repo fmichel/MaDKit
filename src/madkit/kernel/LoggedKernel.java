@@ -244,23 +244,10 @@ final class LoggedKernel extends MadkitKernel {
 		return result;
 	}
 
-	// /**
-	// * @see madkit.kernel.MadkitKernel#launchAgentBucketWithRoles(madkit.kernel.AbstractAgent, java.lang.String, int, java.util.Collection)
-	// */
-	// @Override
-	// List<AbstractAgent> launchAgentBucketWithRoles(AbstractAgent requester, String agentClassName, int bucketSize, String... CGRLocations) {
-	// if(requester.isFinestLogOn())
-	// requester.logger.finest(() -> "launchAgentBucketWithRoles <" + agentClassName + "," + bucketSize + "," + CGRLocations + ">");
-	// final List<AbstractAgent> l = kernel.launchAgentBucketWithRoles(requester, agentClassName, bucketSize, CGRLocations);
-	// if(requester.isFinestLogOn())
-	// requester.logger.finest(() -> "launchAgentBucketWithRoles done !");
-	// return l;
-	// }
-
 	@Override
 	void launchAgentBucketWithRoles(AbstractAgent requester, List<AbstractAgent> bucket, int cpuCoreNb, String... CGRLocations) {
 		requester.logger.finest(() -> "launchAgentBucketWithRoles : " + bucket.size() + " "
-				+ (bucket.size() > 0 ? bucket.get(0).getClass().getName() : "agents !!!") + " "
+				+ (!bucket.isEmpty() ? bucket.get(0).getClass().getName() : "agents !!!") + " "
 				+ (CGRLocations.length > 0 ? Arrays.deepToString(CGRLocations) : ""));
 		kernel.launchAgentBucketWithRoles(requester, bucket, cpuCoreNb, CGRLocations);
 		requester.logger.finest(() -> "launchAgentBucketWithRoles Done !");
@@ -320,19 +307,6 @@ final class LoggedKernel extends MadkitKernel {
 	MadkitKernel getMadkitKernel() {
 		return kernel;
 	}
-
-	// @Override //TODO think about this log
-	// ReturnCode reloadClass(AbstractAgent requester, String name) throws ClassNotFoundException {
-	// final ReturnCode r = kernel.reloadClass(requester, name);
-	// if(requester.isFinestLogOn())
-	// requester.logger.finest(() -> Words.RELOAD.toString() + name);
-	// if(r == SUCCESS)
-	// return SUCCESS;
-	// else if(requester.isWarningOn()){
-	// requester.handleException(Influence.RELOAD_CLASS, new MadkitWarning(name, r));
-	// }
-	// return r;
-	// }
 
 	@Override
 	synchronized boolean removeOverlooker(AbstractAgent requester, Overlooker<? extends AbstractAgent> o) {

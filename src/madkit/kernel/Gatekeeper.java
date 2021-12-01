@@ -46,7 +46,6 @@ package madkit.kernel;
  * @since MaDKit 3.0
  * @version 2.0
 */
-//TODO put an example of use
 public interface Gatekeeper {
 
 	/**

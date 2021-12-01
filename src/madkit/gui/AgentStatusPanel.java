@@ -57,42 +57,42 @@ import madkit.kernel.AbstractAgent;
  */
 public class AgentStatusPanel extends JPanel {
 
-    private static final long serialVersionUID = -5745998699827681837L;
-    private static final Map<AbstractAgent, AgentStatusPanel> agentsToPanels = new ConcurrentHashMap<>();
-    private static final ImageIcon image = new ImageIcon(KernelAction.LAUNCH_NETWORK.getActionInfo().getBigIcon().getImage().getScaledInstance(10, 10, Image.SCALE_SMOOTH));
+	private static final long serialVersionUID = -5745998699827681837L;
+	private static final Map<AbstractAgent, AgentStatusPanel> agentsToPanels = new ConcurrentHashMap<>();
+	private static final ImageIcon image = new ImageIcon(KernelAction.LAUNCH_NETWORK.getActionInfo().getBigIcon()
+			.getImage().getScaledInstance(10, 10, Image.SCALE_SMOOTH));
 
-    private final transient AbstractAgent myAgent;
-    private final JLabel network;
+	private final transient AbstractAgent myAgent;
+	private final JLabel network;
 
-    public AgentStatusPanel(AbstractAgent a) {
-	super(new FlowLayout(FlowLayout.RIGHT));
-	myAgent = a;
-	network = new JLabel();
-	add(network);
-	update();
-	agentsToPanels.put(myAgent, this);
-    }
-
-    public static void updateAll() {
-	for (AgentStatusPanel panel : agentsToPanels.values()) {
-	    panel.update();
+	public AgentStatusPanel(AbstractAgent a) {
+		super(new FlowLayout(FlowLayout.RIGHT));
+		myAgent = a;
+		network = new JLabel();
+		add(network);
+		update();
+		agentsToPanels.put(myAgent, this);
 	}
-    }
 
-    private void update() {
-	if (myAgent.isAlive() && myAgent.isKernelOnline()) {
-	    network.setIcon(image);
-	    network.setText(myAgent.getKernelAddress().toString());
-	    network.setToolTipText(network.getText() + " online @ " + myAgent.getServerInfo());
+	public static void updateAll() {
+		for (AgentStatusPanel panel : agentsToPanels.values()) {
+			panel.update();
+		}
 	}
-	else {
-	    network.setIcon(null);
-	    network.setText(null);
-	}
-    }
 
-    public static void remove(AbstractAgent abstractAgent) {
-	agentsToPanels.remove(abstractAgent);
-    }
+	private void update() {
+		if (myAgent.isAlive() && myAgent.isKernelOnline()) {
+			network.setIcon(image);
+			network.setText(myAgent.getKernelAddress().toString());
+			network.setToolTipText(network.getText() + " online @ " + myAgent.getServerInfo());
+		} else {
+			network.setIcon(null);
+			network.setText(null);
+		}
+	}
+
+	public static void remove(AbstractAgent abstractAgent) {
+		agentsToPanels.remove(abstractAgent);
+	}
 
 }

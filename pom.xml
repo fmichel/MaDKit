@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+
+	<groupId>io.github.fmichel</groupId>
+	<artifactId>MaDKit</artifactId>
+	<version>5.3.2</version>
+
+	<name>${project.groupId}:${project.artifactId}</name>
+	<description>A lightweight Java library for designing and simulating Multi-Agent Systems</description>
+	<url>http://www.madkit.net</url>
+
+	<licenses>
+		<license>
+			<name>CeCILL-C</name>
+			<url>https://cecill.info/licences/Licence_CeCILL-C_V1-en.html</url>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<name>Fabien Michel</name>
+			<email>fmichel@lirmm.fr</email>
+			<organization>LIRMM - University Montpellier</organization>
+			<organizationUrl>http://www.lirmm.fr/~fmichel</organizationUrl>
+		</developer>
+	</developers>
+
+	<scm>
+		<connection>scm:git:git://github.com/fmichel/MaDKit.git</connection>
+		<developerConnection>scm:git:ssh://github.com:fmichel/MaDKit.git</developerConnection>
+		<url>https://github.com/fmichel/MaDKit/tree/master</url>
+	</scm>
+
+</project>

@@ -79,394 +79,399 @@ import madkit.kernel.Madkit.Option;
  */
 public final class AgentLogger extends Logger {
 
-    /**
-     * Defines the default formatter as : [agent's name] LOG_LEVEL : message
-     */
-    public static final Formatter AGENT_FORMATTER = new AgentFormatter();
-    /**
-     * Defines the default file formatter as : LOG_LEVEL : message
-     */
-    public static final Formatter AGENT_FILE_FORMATTER = new AgentFormatter() {
-
-	@Override
-	protected String getHeader(final LogRecord record) {
-	    return "";
-	}
-    };
-
-    static final Level TALK = Level.parse("1100");
-
-    private static Map<AbstractAgent, AgentLogger> agentLoggers = new ConcurrentHashMap<>();
-    private static List<AgentLogger> debugModeBlackList = new ArrayList<>();
-
-    private final AbstractAgent myAgent;
-    private BooleanAction agentCGRWarningsOnAction;
-
-    static final AgentLogger getLogger(final AbstractAgent agent) {
-	AgentLogger al = agentLoggers.get(agent);
-	if (al == null) {
-	    al = new AgentLogger(agent);
-	    agentLoggers.put(agent, al);
-	}
-	return al;
-    }
-
-    private AgentLogger(final AbstractAgent agent) {
-	super("[" + agent.getName() + "]", null);
-	myAgent = agent;
-	setUseParentHandlers(false);
-	final Properties madkitConfig = myAgent.getMadkitConfig();
-	setLevel(LevelOption.agentLogLevel.getValue(madkitConfig));
-	if (BooleanOption.cgrWarnings.isActivated(madkitConfig)) {
-	    enableCGRWarnings();
-	}
-	if (!BooleanOption.noAgentConsoleLog.isActivated(madkitConfig)) {
-	    ConsoleHandler ch = new ConsoleHandler();
-	    addHandler(ch);
-	    ch.setFormatter(AGENT_FORMATTER);
-	}
-	if (BooleanOption.createLogFiles.isActivated(madkitConfig) && agent.getMadkitKernel() != agent) {
-	    createLogFile();
-	}
-    }
-
-    /**
-     * Set the log level for the corresponding agent. If <code>newLevel</code> is {@link Level#ALL} then
-     * {@link #enableCGRWarnings()} is automatically triggered.
-     */
-    @Override
-    public void setLevel(final Level newLevel) {
-	super.setLevel(Objects.requireNonNull(newLevel));
-	for (Handler h : getHandlers()) {
-	    h.setLevel(newLevel);
-	}
-	if (myAgent == myAgent.getKernel())// a bit dirty, isn't it ?
-	    return;
-	if (myAgent.hasGUI()) {
-	    AgentLogLevelMenu.update(myAgent);// TODO level model
-	}
-	if (newLevel != Level.OFF) {
-	    myAgent.setKernel(myAgent.getKernel().getLoggedKernel());
-	    if (newLevel == Level.ALL) {
-		enableCGRWarnings();
-	    }
-	}
-	else {
-	    myAgent.setKernel(myAgent.getMadkitKernel());
-	}
-    }
-    
-    /**
-     * Prevents this logger to change its level when {@link #setAllLoggersAtLevelAll()}
-     * or {@link #setAllLogLevels(Level)} are used.
-     */
-    public void doNotReactToDebugMode() {
-	debugModeBlackList.add(this);
-    }
-
-    /**
-     * Tells if CGR warnings (Community, Group, Role) are enabled.
-     * 
-     * @see #enableCGRWarnings()
-     * @return <code>true</code> if CGR warnings are enabled for this logger
-     */
-    public boolean isCGRWarningsOn() {
-	return agentCGRWarningsOnAction != null && (boolean) agentCGRWarningsOnAction.getValue(Action.SELECTED_KEY);
-    }
-
-    /**
-     * Enables the logging of {@link Level#WARNING} messages related with failed queries over the artificial
-     * society. For instance, if an agent tries to get agent addresses using
-     * {@link AbstractAgent#getAgentsWithRole(String, String, String)} over a CGR location which does not exist then there
-     * will be a warning about that. Since such results could be obtained by agents on purpose, this method provides a
-     * convenient way of enabling these kind of traces as will.
-     * 
-     */
-    public void enableCGRWarnings() {
-	getEnableCGRWarningsAction().putValue(Action.SELECTED_KEY, true);
-    }
-
-    /**
-     * Disables the logging of {@link Level#WARNING} messages related with failed queries over the artificial
-     * society.
-     * @see #enableCGRWarnings()
-     */
-    public void disableCGRWarnings() {
-	if (agentCGRWarningsOnAction != null) {
-	    getEnableCGRWarningsAction().putValue(Action.SELECTED_KEY, false);
-	}
-    }
-
-    /**
-     * @return an {@link Action} for building UI with this feature
-     */
-    public BooleanAction getEnableCGRWarningsAction() {
-	if (agentCGRWarningsOnAction == null) {
-	    agentCGRWarningsOnAction = (BooleanAction) LoggingAction.CGR_WARNINGS.getActionFor(myAgent);
-	}
-	return agentCGRWarningsOnAction;
-    }
-
-    /**
-     * Creates a default log file for this logger. This call is equivalent to
-     * <code>addLogFile(null, null, false, true)</code> This file will be located in the directory specified by the MaDKit
-     * property {@link Option#logDirectory}, which is set to "logs" by default.
-     * 
-     * @see #addFileHandler(Path, String, boolean, boolean)
-     */
-    public void createLogFile() {
-	addFileHandler(null, null, false, true);
-    }
-
-    /**
-     * Adds a new {@link FileHandler} to this logger. This method provides an easy way of creating a new file handler with
-     * an agent formatting and with a corresponding file located in a specified directory. The related file will be located
-     * in the directory specified by the MaDKit property {@link Option#logDirectory}, which is set to "logs" followed by a
-     * directory named according to the date of the run.
-     * 
-     * @param logDirectory
-     *            the logDirectory to be used may be {@code null}, in which case the file will be located in the directory
-     *            specified by the MaDKit property {@link Option#logDirectory} which is set to "logs" by default.
-     * @param fileName
-     *            may be {@code null}, in which case {@link #getName()} is used
-     * @param append
-     *            if <code>true</code>, then bytes will be written to the end of the file rather than the beginning
-     * @param includeDefaultComment
-     *            if <code>true</code>, includes comments displaying creation and closing dates
-     * @see FileHandler
-     */
-    public void addFileHandler(Path logDirectory, String fileName, boolean append, boolean includeDefaultComment) {
-	if (fileName == null) {
-	    fileName = getName();// NOSONAR argument was null
-	}
-	if (logDirectory == null) {
-	    logDirectory = FileSystems.getDefault().getPath(myAgent.getMadkitConfig().getProperty(Option.logDirectory.name()));// NOSONAR
-	}
-	try {
-	    Files.createDirectories(logDirectory);
-	    final Path pathToFile = Paths.get(logDirectory.toString(), fileName);
-
-	    final String lineSeparator = "--------------------------------------------------------------------------\n";
-	    final String logSession = lineSeparator + "-- Log session for " + getName();
-	    final String logEnd = " --\n" + lineSeparator + "\n";
-
-	    final FileHandler fh = new FileHandler(pathToFile.toString(), append) {
+	/**
+	 * Defines the default formatter as : [agent's name] LOG_LEVEL : message
+	 */
+	public static final Formatter AGENT_FORMATTER = new AgentFormatter();
+	/**
+	 * Defines the default file formatter as : LOG_LEVEL : message
+	 */
+	public static final Formatter AGENT_FILE_FORMATTER = new AgentFormatter() {
 
 		@Override
-		public synchronized void close() {
-		    if (includeDefaultComment) {
-			String closeString = "\n\n" + logSession + " closed on  " + Madkit.DATE_FORMATTER.format(Instant.now()) + logEnd;
-			publish(new LogRecord(TALK, closeString));
-		    }
-		    super.close();
+		protected String getHeader(final LogRecord record) {
+			return "";
 		}
-	    };
-	    fh.setFormatter(AGENT_FILE_FORMATTER);
-	    addHandler(fh);
-	    if (includeDefaultComment) {
-		final String startComments = logSession + " started on " + Madkit.DATE_FORMATTER.format(Instant.now()) + logEnd;
-		fh.publish(new LogRecord(TALK, startComments));
-	    }
+	};
+
+	static final Level TALK = Level.parse("1100");
+
+	private static Map<AbstractAgent, AgentLogger> agentLoggers = new ConcurrentHashMap<>();
+	private static List<AgentLogger> debugModeBlackList = new ArrayList<>();
+
+	private final AbstractAgent myAgent;
+	private BooleanAction agentCGRWarningsOnAction;
+
+	static final AgentLogger getLogger(final AbstractAgent agent) {
+		return agentLoggers.computeIfAbsent(agent, AgentLogger::new);
 	}
-	catch(SecurityException | IOException e) {
-	    e.printStackTrace();// NOSONAR
+
+	private AgentLogger(final AbstractAgent agent) {
+		super("[" + agent.getName() + "]", null);
+		myAgent = agent;
+		setUseParentHandlers(false);
+		final Properties madkitConfig = myAgent.getMadkitConfig();
+		setLevel(LevelOption.agentLogLevel.getValue(madkitConfig));
+		if (BooleanOption.cgrWarnings.isActivated(madkitConfig)) {
+			enableCGRWarnings();
+		}
+		if (!BooleanOption.noAgentConsoleLog.isActivated(madkitConfig)) {
+			ConsoleHandler ch = new ConsoleHandler();
+			addHandler(ch);
+			ch.setFormatter(AGENT_FORMATTER);
+		}
+		if (BooleanOption.createLogFiles.isActivated(madkitConfig) && agent.getMadkitKernel() != agent) {
+			createLogFile();
+		}
 	}
-    }
 
-    final synchronized void close() {
-	for (final Handler h : getHandlers()) {
-	    removeHandler(h);
-	    h.close();
+	/**
+	 * Set the log level for the corresponding agent. If <code>newLevel</code> is
+	 * {@link Level#ALL} then {@link #enableCGRWarnings()} is automatically
+	 * triggered.
+	 */
+	@Override
+	public void setLevel(final Level newLevel) {
+		super.setLevel(Objects.requireNonNull(newLevel));
+		for (Handler h : getHandlers()) {
+			h.setLevel(newLevel);
+		}
+		if (myAgent == myAgent.getKernel())// a bit dirty, isn't it ?
+			return;
+		if (myAgent.hasGUI()) {
+			AgentLogLevelMenu.update(myAgent);
+		}
+		if (newLevel != Level.OFF) {
+			myAgent.setKernel(myAgent.getKernel().getLoggedKernel());
+			if (newLevel == Level.ALL) {
+				enableCGRWarnings();
+			}
+		} else {
+			myAgent.setKernel(myAgent.getMadkitKernel());
+		}
 	}
-	agentLoggers.remove(myAgent);
-    }
 
-    @Override
-    public synchronized void addHandler(final Handler handler) {
-	super.addHandler(handler);
-	handler.setLevel(getLevel());
-    }
-
-    static void resetLoggers() {
-	for (final AgentLogger l : agentLoggers.values()) {
-	    l.close();
+	/**
+	 * Prevents this logger to change its level when
+	 * {@link #setAllLoggersAtLevelAll()} or {@link #setAllLogLevels(Level)} are
+	 * used.
+	 */
+	public void doNotReactToDebugMode() {
+		debugModeBlackList.add(this);
 	}
-    }
 
-    /**
-     * Logs a {@link #TALK} message. This uses a special level which could be used to produce messages that will be
-     * rendered as they are, without any formatting work nor end-of-line character.
-     * <p>
-     * If the logger's level is not {@link Level#OFF} then the given message is forwarded to all the registered output
-     * Handler objects.
-     * <p>
-     * If the logger's level is {@link Level#OFF} then the message is only printed to {@link System#out}
-     * 
-     * @param msg
-     *            The string message
-     */
-    public void talk(final String msg) {
-	if (getLevel() == Level.OFF)
-	    System.out.print(msg);// NOSONAR
-	else
-	    log(TALK, msg);
-    }
-
-    @Override
-    public String toString() {
-	return getName() + " logger: \n\tlevel " + getLevel() + "\n\tcgrWarnings " + isCGRWarningsOn();
-    }
-
-    @Override
-    public void log(final LogRecord record) {
-	Throwable t = record.getThrown();
-	if (t != null) {
-	    final StringWriter sw = new StringWriter();
-	    final PrintWriter pw = new PrintWriter(sw);
-	    t.printStackTrace(pw);
-	    pw.close();
-	    record.setMessage(record.getMessage() + "\n ** " + sw);
+	/**
+	 * Tells if CGR warnings (Community, Group, Role) are enabled.
+	 * 
+	 * @see #enableCGRWarnings()
+	 * @return <code>true</code> if CGR warnings are enabled for this logger
+	 */
+	public boolean isCGRWarningsOn() {
+		return agentCGRWarningsOnAction != null && (boolean) agentCGRWarningsOnAction.getValue(Action.SELECTED_KEY);
 	}
-	super.log(record);
-    }
-    
-    /**
-     * Check if a message of the given level would actually be logged
-     * by this logger.  This check is based on the Loggers effective level,
-     * which may be inherited from its parent.
-     *
-     * @param   level   a message logging level
-     * @return  true if the given message level is currently being logged.
-     */
-    @Override
-    public boolean isLoggable(Level level) {//override for performance: Level.OFF -> performance
-        return ! (level == Level.OFF || level.intValue() < getLevel().intValue());
-    }
 
-
-    /**
-     * This call bypasses any settings and always produces severe log messages displaying the stack trace of the throwable
-     * if it is not <code>null</code>
-     * 
-     * @param message
-     *            the message to display
-     * @param t
-     *            the related exception if any. It can be <code>null</code>
-     */
-    public void severeLog(final String message, final Throwable t) {
-	// This will also be logged by the kernel at FINEST
-	final AgentLogger kernelLogger = myAgent.getMadkitKernel().logger;
-	if (kernelLogger != null) {
-	    kernelLogger.log(Level.WARNING, t, () -> "log for " + myAgent + "\n" + message);
+	/**
+	 * Enables the logging of {@link Level#WARNING} messages related with failed
+	 * queries over the artificial society. For instance, if an agent tries to get
+	 * agent addresses using
+	 * {@link AbstractAgent#getAgentsWithRole(String, String, String)} over a CGR
+	 * location which does not exist then there will be a warning about that. Since
+	 * such results could be obtained by agents on purpose, this method provides a
+	 * convenient way of enabling these kind of traces as will.
+	 * 
+	 */
+	public void enableCGRWarnings() {
+		getEnableCGRWarningsAction().putValue(Action.SELECTED_KEY, true);
 	}
-	if (t != null) {
-	    myAgent.filterAgentStackTrace(t);
-	}
-	if (getLevel() == Level.OFF) {
-	    setLevel(Level.SEVERE);
-	}
-	log(Level.SEVERE, message, t);
-    }
 
-    /**
-     * This call bypasses any settings and always produces severe log messages whatever the logger's current level.
-     * 
-     * @param message
-     *            the message to display
-     */
-    public void severeLog(final String message) {
-	severeLog(message, null);
-    }
-
-    /**
-     * Set all the agents' loggers to the specified level
-     * 
-     * @param level
-     *            the new level
-     */
-    public static void setAllLogLevels(final Level level) {
-	for (AbstractAgent loggedAgent : agentLoggers.keySet()) {
-	    final AgentLogger logger = loggedAgent.getLogger();
-	    if (! debugModeBlackList.contains(logger)) {
-		logger.setLevel(level);
-	    }
-	    else
-		loggedAgent.setMadkitProperty(LevelOption.agentLogLevel, level.toString());
+	/**
+	 * Disables the logging of {@link Level#WARNING} messages related with failed
+	 * queries over the artificial society.
+	 * 
+	 * @see #enableCGRWarnings()
+	 */
+	public void disableCGRWarnings() {
+		if (agentCGRWarningsOnAction != null) {
+			getEnableCGRWarningsAction().putValue(Action.SELECTED_KEY, false);
+		}
 	}
-    }
-    
-    /**
-     * A convenient way of activating a debug session
-     */
-    public static void setAllLoggersAtLevelAll() {
-	setAllLogLevels(Level.ALL);
-    }
 
-    /**
-     * reset all loggers to the level specified by {@link LevelOption#agentLogLevel}
-     * 
-     */
-    public static void resetAllLoggersToDefaultLevel() {
-	String level = agentLoggers.keySet().iterator().next().getMadkitProperty(LevelOption.agentLogLevel);
-	setAllLogLevels(Level.parse(level));
-    }
-
-    /**
-     * Create a log file for each agent having a non <code>null</code> logger.
-     * 
-     * @see AgentLogger#createLogFile()
-     */
-    public static void createLogFiles() {
-	try {
-	    AbstractAgent a = new ArrayList<>(agentLoggers.keySet()).get(0);
-	    a.setMadkitProperty(BooleanOption.createLogFiles.name(), "true");
-	    JOptionPane.showMessageDialog(null, Words.DIRECTORY + " " + new File(a.getMadkitProperty(Option.logDirectory)).getAbsolutePath() + " " + Words.CREATED, "OK",
-		    JOptionPane.INFORMATION_MESSAGE);
-	    for (AgentLogger logger : agentLoggers.values()) {
-		logger.createLogFile();
-	    }
+	/**
+	 * @return an {@link Action} for building UI with this feature
+	 */
+	public BooleanAction getEnableCGRWarningsAction() {
+		if (agentCGRWarningsOnAction == null) {
+			agentCGRWarningsOnAction = (BooleanAction) LoggingAction.CGR_WARNINGS.getActionFor(myAgent);
+		}
+		return agentCGRWarningsOnAction;
 	}
-	catch(IndexOutOfBoundsException e) {
-	    JOptionPane.showMessageDialog(null, "No active agents yet", Words.FAILED.toString(), JOptionPane.WARNING_MESSAGE);
-	}
-    }
 
-    /**
-     * now useless.
-     * 
-     * @deprecated as of MaDKit 5.2, replaced by {@link AgentLogger#enableCGRWarnings()}
-     */
-    @Deprecated
-    public Level getWarningLogLevel() {
-	return Level.ALL;
-    }
-
-    /**
-     * now useless.
-     * 
-     * @deprecated as of MaDKit 5.2, replaced by {@link AgentLogger#enableCGRWarnings()}
-     */
-    @Deprecated
-    public void setWarningLogLevel(final Level warningLogLevel) {
-	if (warningLogLevel != Level.OFF) {
-	    enableCGRWarnings();
+	/**
+	 * Creates a default log file for this logger. This call is equivalent to
+	 * <code>addLogFile(null, null, false, true)</code> This file will be located in
+	 * the directory specified by the MaDKit property {@link Option#logDirectory},
+	 * which is set to "logs" by default.
+	 * 
+	 * @see #addFileHandler(Path, String, boolean, boolean)
+	 */
+	public void createLogFile() {
+		addFileHandler(null, null, false, true);
 	}
-    }
+
+	/**
+	 * Adds a new {@link FileHandler} to this logger. This method provides an easy
+	 * way of creating a new file handler with an agent formatting and with a
+	 * corresponding file located in a specified directory. The related file will be
+	 * located in the directory specified by the MaDKit property
+	 * {@link Option#logDirectory}, which is set to "logs" followed by a directory
+	 * named according to the date of the run.
+	 * 
+	 * @param logDirectory          the logDirectory to be used may be {@code null},
+	 *                              in which case the file will be located in the
+	 *                              directory specified by the MaDKit property
+	 *                              {@link Option#logDirectory} which is set to
+	 *                              "logs" by default.
+	 * @param fileName              may be {@code null}, in which case
+	 *                              {@link #getName()} is used
+	 * @param append                if <code>true</code>, then bytes will be written
+	 *                              to the end of the file rather than the beginning
+	 * @param includeDefaultComment if <code>true</code>, includes comments
+	 *                              displaying creation and closing dates
+	 * @see FileHandler
+	 */
+	public void addFileHandler(Path logDirectory, String fileName, boolean append, boolean includeDefaultComment) {
+		if (fileName == null) {
+			fileName = getName();// NOSONAR argument was null
+		}
+		if (logDirectory == null) {
+			logDirectory = FileSystems.getDefault()
+					.getPath(myAgent.getMadkitConfig().getProperty(Option.logDirectory.name()));// NOSONAR
+		}
+		try {
+			Files.createDirectories(logDirectory);
+			final Path pathToFile = Paths.get(logDirectory.toString(), fileName);
+
+			final String lineSeparator = "--------------------------------------------------------------------------\n";
+			final String logSession = lineSeparator + "-- Log session for " + getName();
+			final String logEnd = " --\n" + lineSeparator + "\n";
+
+			final FileHandler fh = new FileHandler(pathToFile.toString(), append) {
+
+				@Override
+				public synchronized void close() {
+					if (includeDefaultComment) {
+						String closeString = "\n\n" + logSession + " closed on  "
+								+ Madkit.DATE_FORMATTER.format(Instant.now()) + logEnd;
+						publish(new LogRecord(TALK, closeString));
+					}
+					super.close();
+				}
+			};
+			fh.setFormatter(AGENT_FILE_FORMATTER);
+			addHandler(fh);
+			if (includeDefaultComment) {
+				final String startComments = logSession + " started on " + Madkit.DATE_FORMATTER.format(Instant.now())
+						+ logEnd;
+				fh.publish(new LogRecord(TALK, startComments));
+			}
+		} catch (SecurityException | IOException e) {
+			e.printStackTrace();// NOSONAR
+		}
+	}
+
+	final synchronized void close() {
+		for (final Handler h : getHandlers()) {
+			removeHandler(h);
+			h.close();
+		}
+		agentLoggers.remove(myAgent);
+	}
+
+	@Override
+	public synchronized void addHandler(final Handler handler) {
+		super.addHandler(handler);
+		handler.setLevel(getLevel());
+	}
+
+	static void resetLoggers() {
+		for (final AgentLogger l : agentLoggers.values()) {
+			l.close();
+		}
+	}
+
+	/**
+	 * Logs a {@link #TALK} message. This uses a special level which could be used
+	 * to produce messages that will be rendered as they are, without any formatting
+	 * work nor end-of-line character.
+	 * <p>
+	 * If the logger's level is not {@link Level#OFF} then the given message is
+	 * forwarded to all the registered output Handler objects.
+	 * <p>
+	 * If the logger's level is {@link Level#OFF} then the message is only printed
+	 * to {@link System#out}
+	 * 
+	 * @param msg The string message
+	 */
+	public void talk(final String msg) {
+		if (getLevel() == Level.OFF)
+			System.out.print(msg);// NOSONAR
+		else
+			log(TALK, msg);
+	}
+
+	@Override
+	public String toString() {
+		return getName() + " logger: \n\tlevel " + getLevel() + "\n\tcgrWarnings " + isCGRWarningsOn();
+	}
+
+	@Override
+	public void log(final LogRecord record) {
+		Throwable t = record.getThrown();
+		if (t != null) {
+			final StringWriter sw = new StringWriter();
+			final PrintWriter pw = new PrintWriter(sw);
+			t.printStackTrace(pw);
+			pw.close();
+			record.setMessage(record.getMessage() + "\n ** " + sw);
+		}
+		super.log(record);
+	}
+
+	/**
+	 * Check if a message of the given level would actually be logged by this
+	 * logger. This check is based on the Loggers effective level, which may be
+	 * inherited from its parent.
+	 *
+	 * @param level a message logging level
+	 * @return true if the given message level is currently being logged.
+	 */
+	@Override
+	public boolean isLoggable(Level level) {// override for performance: Level.OFF -> performance
+		return !(level == Level.OFF || level.intValue() < getLevel().intValue());
+	}
+
+	/**
+	 * This call bypasses any settings and always produces severe log messages
+	 * displaying the stack trace of the throwable if it is not <code>null</code>
+	 * 
+	 * @param message the message to display
+	 * @param t       the related exception if any. It can be <code>null</code>
+	 */
+	public void severeLog(final String message, final Throwable t) {
+		// This will also be logged by the kernel at FINEST
+		final AgentLogger kernelLogger = myAgent.getMadkitKernel().logger;
+		if (kernelLogger != null) {
+			kernelLogger.log(Level.WARNING, t, () -> "log for " + myAgent + "\n" + message);
+		}
+		if (t != null) {
+			myAgent.filterAgentStackTrace(t);
+		}
+		if (getLevel() == Level.OFF) {
+			setLevel(Level.SEVERE);
+		}
+		log(Level.SEVERE, message, t);
+	}
+
+	/**
+	 * This call bypasses any settings and always produces severe log messages
+	 * whatever the logger's current level.
+	 * 
+	 * @param message the message to display
+	 */
+	public void severeLog(final String message) {
+		severeLog(message, null);
+	}
+
+	/**
+	 * Set all the agents' loggers to the specified level
+	 * 
+	 * @param level the new level
+	 */
+	public static void setAllLogLevels(final Level level) {
+		for (AbstractAgent loggedAgent : agentLoggers.keySet()) {
+			final AgentLogger logger = loggedAgent.getLogger();
+			if (!debugModeBlackList.contains(logger)) {
+				logger.setLevel(level);
+			} else
+				loggedAgent.setMadkitProperty(LevelOption.agentLogLevel, level.toString());
+		}
+	}
+
+	/**
+	 * A convenient way of activating a debug session
+	 */
+	public static void setAllLoggersAtLevelAll() {
+		setAllLogLevels(Level.ALL);
+	}
+
+	/**
+	 * reset all loggers to the level specified by {@link LevelOption#agentLogLevel}
+	 * 
+	 */
+	public static void resetAllLoggersToDefaultLevel() {
+		String level = agentLoggers.keySet().iterator().next().getMadkitProperty(LevelOption.agentLogLevel);
+		setAllLogLevels(Level.parse(level));
+	}
+
+	/**
+	 * Create a log file for each agent having a non <code>null</code> logger.
+	 * 
+	 * @see AgentLogger#createLogFile()
+	 */
+	public static void createLogFiles() {
+		try {
+			AbstractAgent a = new ArrayList<>(agentLoggers.keySet()).get(0);
+			a.setMadkitProperty(BooleanOption.createLogFiles.name(), "true");
+			JOptionPane.showMessageDialog(null, Words.DIRECTORY + " "
+					+ new File(a.getMadkitProperty(Option.logDirectory)).getAbsolutePath() + " " + Words.CREATED, "OK",
+					JOptionPane.INFORMATION_MESSAGE);
+			for (AgentLogger logger : agentLoggers.values()) {
+				logger.createLogFile();
+			}
+		} catch (IndexOutOfBoundsException e) {
+			JOptionPane.showMessageDialog(null, "No active agents yet", Words.FAILED.toString(),
+					JOptionPane.WARNING_MESSAGE);
+		}
+	}
+
+	/**
+	 * now useless.
+	 * 
+	 * @deprecated as of MaDKit 5.2, replaced by
+	 *             {@link AgentLogger#enableCGRWarnings()}
+	 */
+	@Deprecated
+	public Level getWarningLogLevel() {
+		return Level.ALL;
+	}
+
+	/**
+	 * now useless.
+	 * 
+	 * @deprecated as of MaDKit 5.2, replaced by
+	 *             {@link AgentLogger#enableCGRWarnings()}
+	 */
+	@Deprecated
+	public void setWarningLogLevel(final Level warningLogLevel) {
+		if (warningLogLevel != Level.OFF) {
+			enableCGRWarnings();
+		}
+	}
 }
 
 class AgentFormatter extends Formatter {
 
-    @Override
-    public String format(final LogRecord record) {
-	final Level lvl = record.getLevel();
-	if (lvl.equals(AgentLogger.TALK)) {
-	    return record.getMessage();
+	@Override
+	public String format(final LogRecord record) {
+		final Level lvl = record.getLevel();
+		if (lvl.equals(AgentLogger.TALK)) {
+			return record.getMessage();
+		}
+		return getHeader(record) + lvl.getLocalizedName() + " : " + record.getMessage() + "\n";
 	}
-	return getHeader(record) + lvl.getLocalizedName() + " : " + record.getMessage() + "\n";
-    }
 
-    protected String getHeader(final LogRecord record) {
-	return record.getLoggerName() + " ";
-    }
+	protected String getHeader(final LogRecord record) {
+		return record.getLoggerName() + " ";
+	}
 
 }

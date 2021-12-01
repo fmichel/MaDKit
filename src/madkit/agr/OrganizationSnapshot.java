@@ -50,6 +50,7 @@ import madkit.kernel.AgentAddress;
  * @since MaDKit 5.3.1
  * @version 5.0
  */
+@SuppressWarnings("serial")
 public class OrganizationSnapshot extends TreeMap<String, Map<String, Map<String, Set<AgentAddress>>>> {
 
 }

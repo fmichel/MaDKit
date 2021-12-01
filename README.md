@@ -1,8 +1,7 @@
 MultiAgent Development Kit - MaDKit 5 
 ================================================
 
-[![Build Status](https://travis-ci.org/fmichel/MaDKit.svg?branch=master)](https://travis-ci.org/fmichel/MaDKit)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.fmichel/MaDKit/badge.svg)]https://maven-badges.herokuapp.com/maven-central/io.github.fmichel/MaDKit/badge.(svg|png)?style={style})
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.fmichel/MaDKit.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/io.github.fmichel/MaDKit)
 
 MaDKit is an open source multiagent-based software written in Java.
 
@@ -33,9 +32,7 @@ Programming with MaDKit can be done by either :
 
 - Downloading the zip distribution and using the provided jar file.
 
-- Declare MaDKit as a dependency using your favorite build tool 
-
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.fmichel/MaDKit/badge.svg)]https://maven-badges.herokuapp.com/maven-central/io.github.fmichel/MaDKit/badge.(svg|png)?style={style})
+- Declare MaDKit as a dependency using your favorite build tool : [https://mvnrepository.com/artifact/io.github.fmichel/MaDKit](https://mvnrepository.com/artifact/io.github.fmichel/MaDKit)
 
 For instance, with Gradle:
 

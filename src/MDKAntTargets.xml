@@ -136,13 +136,13 @@
           target: sign-jar
          - - - - - - - - - - - - - - - - - -->
 	<target name="sign-jar" depends="scan-class-path,probe-for-jarsigner,jarsigner-message,get-password" if="jarsigner.present">
-		<exec executable="pack200" dir=".">
+		<exec executable="/usr/lib/jvm/java-8-jdk/jre/bin/pack200" dir=".">
 			<arg value="-r" />
 			<arg value="${jar.file}" />
 		</exec>
 		<signjar jar="${jar.file}" signedjar="${jnlp.jar}" preservelastmodified="true" alias="${keystore.alias}" storepass="${keystore.password}" keystore="${keystore}" />
 		<echo>Creating ${jnlp.jar}.pack.gz !${line.separator}</echo>
-		<exec executable="pack200" dir=".">
+		<exec executable="/usr/lib/jvm/java-8-jdk/jre/bin/pack200" dir=".">
 			<arg value="-Pfile=madkit/action/images" />
 			<arg value="--deflate-hint=true" />
 			<arg value="--effort=1" />

@@ -36,10 +36,7 @@ knowledge of the CeCILL-C license and that you accept its terms.
  */
 package madkit.kernel;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -219,12 +216,11 @@ public class FakeKernelTest {
 			assertEquals(a.getKernel(), AbstractAgent.FAKE_KERNEL);
 
 		}
-
 	}
 
 	@Test
 	public final void testLaunchAgentBucketWithRolesAbstractAgentStringIntCollectionOfString() {
-			assertNull(a.launchAgentBucket("t", 20));
+			assertTrue(a.launchAgentBucket("t", 20).isEmpty());
 	}
 
 	@Test

@@ -54,9 +54,6 @@ import madkit.kernel.AbstractAgent.ReturnCode;
  */
 final class ManagerRole extends Role{
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1919401829672949296L;
 
 	ManagerRole(final Group groupObject, AbstractAgent requester, boolean securedGroup) {
@@ -65,8 +62,6 @@ final class ManagerRole extends Role{
 			players.add(requester);
 			agentAddresses = new HashSet<>(1,1);
 			agentAddresses.add(new GroupManagerAddress(requester, this, getKernelAddress(), securedGroup));
-//			System.err.println(requester.getName() + " is now playing " + getCGRString(communityName, groupName, roleName));
-//			System.err.println(this+" current players---\n"+players+"\n\n");
 			modified = true;
 		}
 	}
@@ -80,17 +75,11 @@ final class ManagerRole extends Role{
 		}
 	}
 	
-	/* (non-Javadoc)
-	 * @see madkit.kernel.Role#addMember(madkit.kernel.AbstractAgent)
-	 */
 	@Override
 	boolean addMember(AbstractAgent requester) {// manager is never changed from outside
 		return false;
 	}
 	
-	/* (non-Javadoc)
-	 * @see madkit.kernel.Role#removeMember(madkit.kernel.AbstractAgent)
-	 */
 	@Override
 	ReturnCode removeMember(final AbstractAgent requester) {
 		if(super.removeMember(requester) == SUCCESS){
@@ -100,14 +89,4 @@ final class ManagerRole extends Role{
 		return ROLE_NOT_HANDLED;
 	}
 	
-//	@Override
-//	void checkEmptyness() {
-//		if(buildAndGetAddresses().isEmpty()){
-//			myGroup.chooseNewManager(oldManager);
-//		}
-//		super.checkEmptyness();
-//	}
-	
-	
-
 }

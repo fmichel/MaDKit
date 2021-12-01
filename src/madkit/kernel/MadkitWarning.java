@@ -48,11 +48,8 @@ import madkit.kernel.AbstractAgent.ReturnCode;
  */
 class MadkitWarning extends Exception {
 
-	/**
-	 * 
-	 */
-	private static final long	serialVersionUID	= -5977801961418382065L;
-	protected final ReturnCode	code;
+	private static final long serialVersionUID = -5977801961418382065L;
+	protected final ReturnCode code;
 
 	MadkitWarning(String message, ReturnCode code) {
 		super(message);
@@ -76,8 +73,10 @@ final class OrganizationWarning extends MadkitWarning {
 	/**
 	 * 
 	 */
-	private static final long	serialVersionUID	= -1096664441558015062L;
-	private final String			community, group, role;
+	private static final long serialVersionUID = -1096664441558015062L;
+	private final String community;
+	private final String group;
+	private final String role;
 
 	public OrganizationWarning(ReturnCode code, String community, String group, String role) {
 		super(code);
@@ -110,9 +109,8 @@ final class OrganizationWarning extends MadkitWarning {
 	}
 }
 
-final class SelfKillException extends ThreadDeath {
+final class SelfKillError extends ThreadDeath {
 
-	
 	/**
 	 * @return the timeOut
 	 */
@@ -120,11 +118,11 @@ final class SelfKillException extends ThreadDeath {
 		return timeOut;
 	}
 
-	private static final long	serialVersionUID	= -6883135491234461609L;
+	private static final long serialVersionUID = -6883135491234461609L;
 	private final int timeOut;
 
-	public SelfKillException(int timeOut) {
+	public SelfKillError(int timeOut) {
 		this.timeOut = timeOut;
 	}
-	
+
 }

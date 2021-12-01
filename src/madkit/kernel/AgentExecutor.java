@@ -55,19 +55,11 @@ import madkit.message.hook.HookMessage.AgentActionEvent;
  */
 final class AgentExecutor extends ThreadPoolExecutor {
 
-	//	private boolean started = false;
 	private final Agent myAgent;
 	private final FutureTask<ReturnCode> activate;
 	private final FutureTask<Void> live;
 	private final FutureTask<Void> end;
 
-//	public AgentExecutor(Agent a, ThreadFactory threadFactory) {
-//		super(1, Integer.MAX_VALUE, 0, TimeUnit.NANOSECONDS, new ArrayBlockingQueue<Runnable>(4, false), threadFactory);
-//		myAgent = a;
-////		myAgent.setAgentExecutor(this);
-//		setThreadFactory(threadFactory);
-//	}
-	
 	public AgentExecutor(Agent a) {
 		super(1, 1, 0, TimeUnit.NANOSECONDS, new ArrayBlockingQueue<Runnable>(4, false));
 		myAgent = a;

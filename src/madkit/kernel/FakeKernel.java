@@ -81,6 +81,7 @@ class FakeKernel extends MadkitKernel{
 		throw buildKernelException(agent);
 	}
 	
+	@Override
 	AgentAddress getAgentAddressIn(AbstractAgent agent, String community, String group, String role) {
 		throw buildKernelException(agent);
 	}
@@ -158,7 +159,7 @@ class FakeKernel extends MadkitKernel{
 	}
 
 	@Override
-	void launchAgentBucketWithRoles(AbstractAgent requester, List<AbstractAgent> bucket, int cpuCoreNb, String... CGRLocations) {
+	void launchAgentBucketWithRoles(AbstractAgent requester, List<AbstractAgent> bucket, int cpuCoreNb, String... cgrLocations) {
 		throw buildKernelException(requester);
 	}
 

@@ -63,6 +63,7 @@ import javax.swing.JMenu;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JToolBar;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
@@ -171,9 +172,11 @@ public class Scheduler extends Agent {
 
 	private SimulationState simulationState = SimulationState.PAUSED;
 
-	private Action run, step, speedUp, speedDown;
+	private Action run;
+	private Action step;
+	private Action speedUp;
+	private Action speedDown;
 
-	// private JLabel timer;
 	private int delay;
 
 	/**
@@ -278,12 +281,10 @@ public class Scheduler extends Agent {
 		super.setupFrame(frame);
 		frame.add(getSchedulerToolBar(), BorderLayout.PAGE_START);
 		frame.add(getSchedulerStatusLabel(), BorderLayout.PAGE_END);
-//	getSimulationTime().setCurrentTick(getSimulationTime().getCurrentTick());
 		frame.getJMenuBar().add(getSchedulerMenu(), 2);
 		speedModel.setValue(SCHEDULER_UI_PREFERENCES.getInt(getName() + "speed", speedModel.getValue()));
 		setSimulationState(SCHEDULER_UI_PREFERENCES.getBoolean(getName() + "autostart", false) ? SimulationState.RUNNING
 				: SimulationState.PAUSED);
-		// TODO make startSimu an action
 	}
 
 	/**
@@ -401,7 +402,7 @@ public class Scheduler extends Agent {
 	 *
 	 * @param newState the new state
 	 */
-	protected void setSimulationState(final SimulationState newState) {// TODO proceedEnumMessage
+	protected void setSimulationState(final SimulationState newState) {
 		if (simulationState != newState) {
 			simulationState = newState;
 			switch (simulationState) {
@@ -614,13 +615,8 @@ public class Scheduler extends Agent {
 
 		});
 		updateToolTip(p, sp);
-		// p.setPreferredSize(new Dimension(150, 25));
 		p.add(sp);
-		// toolBar.addSeparator();
-		// toolBar.add(Box.createRigidArea(new Dimension(40,5)));
-		// toolBar.add(Box.createHorizontalGlue());
 		toolBar.add(p);
-		// toolBar.add(getGVTLabel());
 		SwingUtil.scaleAllAbstractButtonIconsOf(toolBar, 24);
 		return toolBar;
 	}
@@ -672,10 +668,9 @@ public class Scheduler extends Agent {
 				setText(arg + "\t\t\t  -  " + simulationState);
 			}
 		};
-//	timer.setText("GVT");
 		gvtModel.addObserver(timer);
 		timer.setBorder(new EmptyBorder(4, 4, 4, 4));
-		timer.setHorizontalAlignment(JLabel.LEADING);
+		timer.setHorizontalAlignment(SwingConstants.LEADING);
 		return timer;
 	}
 
@@ -691,7 +686,7 @@ public class Scheduler extends Agent {
 		final SimulationTimeJLabel timer = new SimulationTimeJLabel();
 		gvtModel.addObserver(timer);
 		timer.setBorder(new EmptyBorder(4, 4, 4, 4));
-		timer.setHorizontalAlignment(JLabel.LEADING);
+		timer.setHorizontalAlignment(SwingConstants.LEADING);
 		return timer;
 	}
 
@@ -899,6 +894,7 @@ public class Scheduler extends Agent {
 			updateUIs();
 		}
 
+		@Override
 		public LocalDateTime getCurrentDate() {
 			return currentDate;
 		}
@@ -912,10 +908,12 @@ public class Scheduler extends Agent {
 			return endDate.compareTo(currentDate) < 0;
 		}
 
+		@Override
 		public void incrementCurrentDate(long amountToAdd, ChronoUnit unit) {
 			setCurrentDate(getCurrentDate().plus(amountToAdd, unit));
 		}
 
+		@Override
 		public void incrementCurrentDate(long amountToAdd) {
 			incrementCurrentDate(amountToAdd, defaultUnit);
 		}
@@ -956,6 +954,7 @@ public class Scheduler extends Agent {
 			endTick = BigDecimal.valueOf(Double.MAX_VALUE);
 		}
 
+		@Override
 		public void setCurrentTick(BigDecimal value) {
 			this.currentTick = value;
 			updateUIs();
@@ -966,10 +965,12 @@ public class Scheduler extends Agent {
 			incrementCurrentTick(BigDecimal.valueOf(delta));
 		}
 
+		@Override
 		public void incrementCurrentTick(BigDecimal delta) {
 			setCurrentTick(getCurrentTick().add(delta));
 		}
 
+		@Override
 		public BigDecimal getCurrentTick() {
 			return currentTick;
 		}
@@ -981,11 +982,11 @@ public class Scheduler extends Agent {
 		public boolean hasReachedEndTime() {
 			return endTick.compareTo(currentTick) < 0;
 		}
-		
+
+		@Override
 		public void setCurrentTick(@SuppressWarnings("unused") double value) {
 			setCurrentTick(BigDecimal.valueOf(value));
 		}
-
 
 		/**
 		 * Shortcut for <code>setCurrentTick(getCurrentTick().add(delta));</code>

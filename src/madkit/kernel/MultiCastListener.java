@@ -58,80 +58,74 @@ import madkit.message.KernelMessage;
  */
 final class MultiCastListener {
 
-    static InetAddress ipAddress;
+	static InetAddress ipAddress;
 
-    private final MulticastSocket ms;
-    private final DatagramSocket ds;
-    private boolean running = true;
+	private final MulticastSocket ms;
+	private final DatagramSocket ds;
+	private boolean running = true;
 
-    /**
-     * @param ms2
-     */
-    private MultiCastListener(MulticastSocket ms2, DatagramSocket ds2) {
-	ms = ms2;
-	ds = ds2;
-    }
-
-    @SuppressWarnings("resource")
-    static MultiCastListener getNewMultiCastListener(final int localPort) throws IOException, UnknownHostException {
-	MulticastSocket ms = null;
-	DatagramSocket ds = null;
-	final int multiCastPort = 2009;
-	if (ipAddress == null) {
-	    ipAddress = InetAddress.getByName("239.29.08.58");
+	/**
+	 * @param ms2
+	 */
+	private MultiCastListener(MulticastSocket ms2, DatagramSocket ds2) {
+		ms = ms2;
+		ds = ds2;
 	}
-	ms = new MulticastSocket(multiCastPort);
-	ms.joinGroup(ipAddress);
-	ds = new DatagramSocket(localPort);
-	return new MultiCastListener(ms, ds);
-    }
 
-    /**
-     * Activate the listener and broadcast existence
-     * 
-     * @param networkAgent
-     * @param localIP
-     * @param localPort
-     * @throws IOException
-     */
-    void activate(final NetworkAgent networkAgent) throws IOException {
-	final ByteArrayOutputStream bos = new ByteArrayOutputStream();
-	final DataOutputStream dos = new DataOutputStream(bos);
-	final long onlineTime = System.nanoTime();
-	dos.writeLong(onlineTime);
-	dos.close();
-	final byte[] data = bos.toByteArray();
-	ds.send(new DatagramPacket(data, 8, ipAddress, 2009));
-	final Thread t = new Thread(new Runnable() { // TODO problem if two arrive at the time
-
-	    @Override
-	    public void run() {
-		while (running) {
-		    try {
-			final DatagramPacket peerRequest = new DatagramPacket(data, 8);
-			ms.receive(peerRequest);
-			final DataInputStream dis = new DataInputStream(new ByteArrayInputStream(data));
-			if (onlineTime < dis.readLong())
-			    networkAgent.receiveMessage(new NetworkMessage(NetCode.NEW_PEER_DETECTED, peerRequest));
-		    }
-		    catch(IOException e) {
-			if (running) {// socket failure
-			    networkAgent.receiveMessage(new KernelMessage(KernelAction.EXIT));
-			}
-			break;
-		    }
+	static MultiCastListener getNewMultiCastListener(final int localPort) throws IOException {
+		MulticastSocket ms = null;
+		DatagramSocket ds = null;
+		final int multiCastPort = 2009;
+		if (ipAddress == null) {
+			ipAddress = InetAddress.getByName("239.29.08.58");
 		}
-		stop();
-	    }
-	});
-	t.setName("MCL " + networkAgent.getName());
-	t.start();
-    }
+		ms = new MulticastSocket(multiCastPort);
+		ms.joinGroup(ipAddress);
+		ds = new DatagramSocket(localPort);
+		return new MultiCastListener(ms, ds);
+	}
 
-    void stop() {
-	running = false;
-	ms.close();
-	ds.close();
-    }
+	/**
+	 * Activate the listener and broadcast existence
+	 * 
+	 * @param networkAgent
+	 * @param localIP
+	 * @param localPort
+	 * @throws IOException
+	 */
+	void activate(final NetworkAgent networkAgent) throws IOException {
+		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		final DataOutputStream dos = new DataOutputStream(bos);
+		final long onlineTime = System.nanoTime();
+		dos.writeLong(onlineTime);
+		dos.close();
+		final byte[] data = bos.toByteArray();
+		ds.send(new DatagramPacket(data, 8, ipAddress, 2009));
+		final Thread t = new Thread(() -> {
+			while (running) {
+				try {
+					final DatagramPacket peerRequest = new DatagramPacket(data, 8);
+					ms.receive(peerRequest);
+					final DataInputStream dis = new DataInputStream(new ByteArrayInputStream(data));
+					if (onlineTime < dis.readLong())
+						networkAgent.receiveMessage(new NetworkMessage(NetCode.NEW_PEER_DETECTED, peerRequest));
+				} catch (IOException e) {
+					if (running) {// socket failure
+						networkAgent.receiveMessage(new KernelMessage(KernelAction.EXIT));
+					}
+					break;
+				}
+			}
+			stop();
+		});
+		t.setName("MCL " + networkAgent.getName());
+		t.start();
+	}
+
+	void stop() {
+		running = false;
+		ms.close();
+		ds.close();
+	}
 
 }

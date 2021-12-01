@@ -82,8 +82,7 @@ final class KernelConnection extends Thread{
 		return distantKernelAddress;
 	}
 
-	@SuppressWarnings("resource")
-	public KernelConnection(NetworkAgent netAgent, InetAddress address, int port) throws UnknownHostException,IOException {
+	public KernelConnection(NetworkAgent netAgent, InetAddress address, int port) throws IOException {
 		this(netAgent,new Socket(address, port));
 	}
 
@@ -99,7 +98,6 @@ final class KernelConnection extends Thread{
 	 * @throws ClassNotFoundException 
 	 * @throws IOException 
 	 */
-	@SuppressWarnings("unchecked")
 	OrganizationSnapshot waitForDistantOrg() throws IOException, ClassNotFoundException {
 			return (OrganizationSnapshot) ois.readObject();
 	}

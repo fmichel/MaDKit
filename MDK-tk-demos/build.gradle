@@ -1,0 +1,148 @@
+plugins {
+	id 'buildlogic.madkit-common-conventions'
+	id 'org.openjfx.javafxplugin' version '0.1.0'
+	id 'application'
+    id 'org.gradlex.extra-java-module-info'
+}
+
+ext.moduleName = 'turtlekit.models'
+
+application {
+    mainClass = 'turtlekit.toys.PheroEmmiter'
+    mainModule = 'turtlekit.models'
+}
+
+tasks.withType(JavaExec) {
+    jvmArgs '--add-modules', 'ALL-MODULE-PATH'
+    systemProperty 'java.library.path', '/tmp/tklib/lib'
+}
+
+
+// Apply a specific Java toolchain to ease working on different environments.
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+    withSourcesJar()
+    withJavadocJar()
+}
+
+javafx {
+	version = '17'
+	modules = ['javafx.base', 'javafx.controls', 'javafx.graphics']
+    configuration = 'api'
+}
+
+extraJavaModuleInfo {
+    module("org.jcuda:jcuda","jcuda") {
+        exportAllPackages() // Adds an `exports` for each package found in the Jar
+        requires("java.logging")        
+    }
+    module("org.jcuda:jcuda-natives","jcuda.natives") {
+        exportAllPackages() // Adds an `exports` for each package found in the Jar
+        //requireAllDefinedDependencies() // Adds `requires (transitive|static)` directives based on dependencies defined in the component's metadata    
+    }
+    module("commons-beanutils:commons-beanutils", "org.apache.commons.beanutils") {
+        requiresTransitive("org.apache.commons.logging")
+        requires("java.sql")
+        requires("java.desktop")
+        exportAllPackages() 
+    }
+    automaticModule("commons-collections:commons-collections", "org.apache.commons.collections")
+}
+
+dependencies {
+	api project(':MDK-turtlekit')
+	api 'info.picocli:picocli:4.6.3'
+	implementation 'net.jodah:typetools:0.6.3'
+	annotationProcessor 'info.picocli:picocli-codegen:4.6.3'
+	api 'info.picocli:picocli:4.6.3'
+	implementation 'net.jodah:typetools:0.6.3'
+	annotationProcessor 'info.picocli:picocli-codegen:4.6.3'
+
+    // JCuda dependencies are below
+    def classifier = getOsString() + "-" + getArchString()
+
+    // Set JCuda version here, or if multiple modules use JCuda, 
+    // you should set a global variable like so:
+    //
+    // ext {
+    //  jCudaVersion = "11.0.0"
+    // }
+    //
+    // In your *top level* build gradle, and use
+    // rootProject.ext.jCudaVersion instead of jCudaVersion when you need to access it
+
+    def jCudaVersion = "12.0.0"
+
+    // JCuda Java libraries
+
+    implementation(group: 'org.jcuda', name: 'jcuda', version: jCudaVersion) {
+	    transitive = false
+    }
+    
+    // JCuda native libraries
+
+    implementation group: 'org.jcuda', name: 'jcuda-natives', classifier: classifier, version: jCudaVersion
+    
+}
+
+jar {
+    manifest {
+    	attributes 'Main-Class': 'turtlekit.digitalart.PheromoneDiffusion'
+	}
+}
+
+
+def static getOsString() {
+    String vendor = System.getProperty("java.vendor");
+    if ("The Android Project" == vendor) {
+    return "android";
+    } else {
+    String osName = System.getProperty("os.name");
+    osName = osName.toLowerCase(Locale.ENGLISH);
+    if (osName.startsWith("windows")) {
+        return "windows";
+    } else if (osName.startsWith("mac os")) {
+        return "apple";
+    } else if (osName.startsWith("linux")) {
+        return "linux";
+    } else if (osName.startsWith("sun")) {
+        return "sun"
+    }
+    return "unknown"
+    }
+}
+
+def static getArchString() {
+    String osArch = System.getProperty("os.arch");
+    osArch = osArch.toLowerCase(Locale.ENGLISH);
+    if ("i386" == osArch || "x86" == osArch || "i686" == osArch) {
+    return "x86";
+    } else if (osArch.startsWith("amd64") || osArch.startsWith("x86_64")) {
+    return "x86_64";
+    } else if (osArch.startsWith("arm64")) {
+    return "arm64";
+    } else if (osArch.startsWith("arm")) {
+    return "arm";
+    } else if ("ppc" == osArch || "powerpc" == osArch) {
+    return "ppc";
+    } else if (osArch.startsWith("ppc")) {
+    return "ppc_64";
+    } else if (osArch.startsWith("sparc")) {
+    return "sparc";
+    } else if (osArch.startsWith("mips64")) {
+    return "mips64";
+    } else if (osArch.startsWith("mips")) {
+    return "mips";
+    } else if (osArch.contains("risc")) {
+    return "risc";
+    }
+    return "unknown";
+}
+
+repositories {
+    // Use Maven Central for resolving dependencies.
+    mavenCentral()
+}
+

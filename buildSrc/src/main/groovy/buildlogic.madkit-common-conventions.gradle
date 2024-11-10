@@ -1,0 +1,79 @@
+plugins {
+	id 'buildlogic.java-common-conventions'
+    id("org.gradlex.extra-java-module-info")
+}
+
+//compileJava {
+//    options.compilerArgs += ["-Aproject=${project.group}/${project.name}"]
+//}
+
+extraJavaModuleInfo {
+
+    automaticModule("net.jodah:concurrentunit", "net.jodah.concurrentunit")
+
+    automaticModule("com.beust:jcommander", "com.beust.jcommander")
+
+    automaticModule("org.webjars:jquery", "org.webjars.jquery")
+
+    automaticModule("commons-collections:commons-collections", "org.apache.commons.collections")
+//    automaticModule("info.picocli:picocli", "info.picocli")
+  
+    module("commons-beanutils:commons-beanutils", "org.apache.commons.beanutils") {
+        requiresTransitive("org.apache.commons.logging")
+        requires("java.sql")
+        requires("java.desktop")
+        exportAllPackages() 
+    }
+    
+    module("org.apache.commons:commons-configuration2","org.apache.commons.configuration2") {
+        patchRealModule()
+        requires ("org.apache.commons.beanutils")
+        requires ("org.apache.commons.text")
+        requires ("org.apache.commons.lang3")
+        exportAllPackages() 
+    }
+    
+    module("org.apache.commons:commons-text", "org.apache.commons.text"){
+        patchRealModule()
+        requires("org.apache.commons.lang3")
+        exportAllPackages() 
+    }
+
+//    module("commons-logging:commons-logging", "org.apache.commons.logging"){
+//        patchRealModule()
+//        requires ("org.slf4j")
+//        exportAllPackages() 
+//    }
+
+//    module("org.slf4j:slf4j-api", "org.slf4j"){     
+//        patchRealModule()
+//        exportAllPackages() 
+//    }
+
+    module("org.apache.commons:commons-lang3", "org.apache.commons.lang3"){
+        patchRealModule()
+        exportAllPackages() 
+
+    }
+
+    // failOnMissingModuleInfo.set(false)
+}
+
+
+////hack for working with automatic modules
+eclipse {
+    classpath {
+        file {
+            whenMerged { classpath ->
+                def moduleDependencies = ['slf4j-api']
+                classpath.entries.each { entry ->
+                    moduleDependencies.each { String name ->
+                        if (entry.path.contains(name)) {
+                            entry.entryAttributes.put('module', 'true')
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

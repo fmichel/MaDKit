@@ -1,0 +1,20 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="Messaging">
+	<test name="Messaging">
+
+		<groups>
+			<run>
+				<include name="messaging" />
+			</run>
+		</groups>
+		<classes>
+			<class name="madkit.kernel.sendMessageTest" />
+			<class name="madkit.kernel.SendReplyTest" />
+			<class name="madkit.kernel.SendReplyWithRoleTest" />
+			<class name="madkit.kernel.SendWithCGRTest" />
+		</classes>
+
+	</test>
+</suite>

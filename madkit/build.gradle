@@ -1,0 +1,121 @@
+plugins {
+	id 'buildlogic.madkit-common-conventions'
+	id 'application'
+	id 'maven-publish'
+   	id 'signing'
+	id 'org.openjfx.javafxplugin' version '0.1.0'
+   	id 'jacoco'
+   	id "org.sonarqube" version "4.2.1.3168"
+   	id 'org.gradlex.java-module-testing'
+}
+
+group = 'io.github.fmichel'
+version = '6.0.0-SNAPSHOT'
+ext.moduleName = 'madkit.base'
+ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
+
+application {
+    mainClass = 'madkit.kernel.Madkit'
+    mainModule = 'madkit.base'
+}
+
+tasks.withType(JavaExec) {
+    jvmArgs '--add-modules', 'ALL-MODULE-PATH'
+}
+
+javaModuleTesting.whitebox(testing.suites.getByName("test")){
+	requires.add("org.testng")
+	opensTo.add("org.testng")
+}
+
+jacocoTestReport {
+    reports {
+        xml.required = true
+    }
+}
+
+sonar {
+  properties {
+    property "sonar.projectKey", "Madkit"
+    property "sonar.projectName", "Madkit"
+    property("sonar.sources", "src/main")
+    property "sonar.tests", "src/test"
+   // property "sonar.qualitygate.wait", true 
+  }
+}
+
+javafx {
+	version = '21.0.4'
+	modules = ['javafx.base', 'javafx.controls', 'javafx.graphics']
+    configuration = 'implementation'
+}
+
+dependencies {
+    api libs.controlsfx
+    api libs.commonsConfiguration2
+    api libs.commonsBeanutils
+    
+    implementation libs.picocli
+    implementation libs.fastutil
+    implementation libs.typetools
+    
+    testImplementation libs.testng
+    testImplementation libs.concurrentunit
+    testImplementation libs.slf4j
+}
+//api files('libs/controlsfx-11.1.1-SNAPSHOT.jar')
+//	annotationProcessor 'info.picocli:picocli-codegen:4.7.6'
+
+jar {
+    manifest {
+    	attributes 'Main-Class': 'madkit.kernel.Madkit'
+	}
+}
+
+publishing {
+
+    publications {
+        mavenJava(MavenPublication) {
+                 artifactId = 'madkit'
+               from(components.java)
+            pom {
+                name = 'MaDKit'
+                description = 'Java library for designing and simulating Multi-Agent Systems'
+                url = 'http://www.madkit.net'
+                licenses {
+                    license {
+                        name = 'CeCILL-C'
+                        url = 'https://cecill.info/licences/Licence_CeCILL-C_V1-en.html'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'fmichel'
+                        name = 'Fabien Michel'
+                        email = 'fmichel@lirmm.fr'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/fmichel/MaDKit.git'
+                    developerConnection = 'scm:git:ssh://github.com:fmichel/MaDKit.git'
+                    url = 'https://www.madkit.net/madkit/'
+                }
+                
+            }
+        }
+    }
+}
+
+signing {
+  useGpgCmd()
+  sign publishing.publications
+}
+
+////////////////////////////////////////// FOR TESTING
+tasks.named('test') {
+    // Use TestNG for unit tests.
+    useTestNG()
+    maxParallelForks = "9"
+    minHeapSize = "1024m"
+    maxHeapSize = "4096m"
+}

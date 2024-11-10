@@ -1,0 +1,29 @@
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build
+
+
+# IntelliJ IDEA
+.idea/
+out/
+controlsfx.iml
+
+# Netbeans
+.nb-gradle/
+.nb-gradle-properties
+
+# Eclipse
+.settings/
+.project
+.classpath
+bin/
+test-output/
+
+# MacOS
+.DS_Store
+
+# work in progress
+MDK-benchmark
+MDK-simu-template

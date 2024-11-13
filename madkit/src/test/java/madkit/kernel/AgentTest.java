@@ -3,6 +3,7 @@ package madkit.kernel;
 import static madkit.kernel.Agent.ReturnCode.AGENT_CRASH;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 import org.testng.annotations.Test;
 
@@ -41,6 +42,20 @@ public class AgentTest extends JunitMadkit{
 	void givenAgentNotLaunched_whenNoKernel_thenThrowsNullPointerException(){
 		Agent a = new Agent();
 		a.getKernelAddress();
+	}
+	
+	@Test
+	void givenLaunchedAgentLaunched_whenLaunchAgentAgent_thenThrowsIllegalArgumentException(){
+		testBehavior(agent -> {
+			Agent a = new Agent();
+			launchTestedAgent(a);
+			try {
+				launchTestedAgent(a);
+				fail();
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+			}
+		});
 	}
 	
 	@Test

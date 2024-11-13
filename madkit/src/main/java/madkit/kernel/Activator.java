@@ -119,7 +119,7 @@ public abstract class Activator extends Overlooker implements Comparable<Activat
 	 * this method is called.
 	 * 
 	 * @param args arguments that could be passed by the scheduler
-	 * @see Scheduler#doSimulationStep()
+	 * @see Scheduler#onSimulationStep()
 	 */
 	public abstract void execute(Object... args);
 

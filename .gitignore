@@ -27,3 +27,7 @@ test-output/
 # work in progress
 MDK-benchmark
 MDK-simu-template
+madkit/TIPS
+madkit/find-deps.sh
+madkit/trash/
+

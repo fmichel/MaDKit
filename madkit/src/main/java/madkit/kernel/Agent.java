@@ -216,7 +216,7 @@ public class Agent {
 		if (simuEngine != null) {
 			a.simuEngine = simuEngine;
 		}
-		return kernel.launchAgent(this, a, timeout);
+		return kernel.launchAgent(a, timeout);
 	}
 
 	/**

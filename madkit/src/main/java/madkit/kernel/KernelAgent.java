@@ -206,18 +206,13 @@ class KernelAgent extends Agent implements DaemonAgent{
 //		Object o = null;		o.toString();
 	}
 
-	ReturnCode launchAgent(final Agent requester, final Agent agent, final int timeOutSeconds) {
+	@Override
+	protected ReturnCode launchAgent(final Agent agent, final int timeOutSeconds) {
 		Objects.requireNonNull(agent);
 		if (agent.kernel != null) {
-			requester.getLogger().log(Level.SEVERE, Influence.LAUNCH_AGENT.failedString(),
-					new MadkitWarning(agent.toString(), ALREADY_LAUNCHED));
-			return ALREADY_LAUNCHED;
+			throw new IllegalArgumentException(agent+" ALREADY_LAUNCHED");
 		}
 		agent.kernel = this;
-//		if (defaultGUI) {
-////			agent.setupGUI();
-//			FXManager.startAgentGUI(agent);
-//		}
 		CompletableFuture<ReturnCode> activationPromise = new CompletableFuture<>();
 		agent.startAgentLifeCycle(activationPromise);
 		try {

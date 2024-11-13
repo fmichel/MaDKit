@@ -24,15 +24,15 @@ import madkit.i18n.ErrorMessages;
 public final class Organization {
 
 	private final Map<String, Community> communities;
-	private final Set<Overlooker> operatingOverlookers;
+	private final Set<Overlooker> registeredOverlookers;
 	private final Logger logger;
 	private final KernelAgent kernel;
 
 	/**
-	 * @return the operatingOverlookers
+	 * @return the registeredOverlookers
 	 */
 	Set<Overlooker> getOperatingOverlookers() {
-		return operatingOverlookers;
+		return registeredOverlookers;
 	}
 
 	/**
@@ -44,13 +44,13 @@ public final class Organization {
 
 	/**
 	 * @param communities
-	 * @param operatingOverlookers
+	 * @param registeredOverlookers
 	 */
 	Organization(KernelAgent kernel) {
 		super();
 		this.kernel = kernel;
 		communities = new ConcurrentHashMap<>();
-		operatingOverlookers = new LinkedHashSet<>();
+		registeredOverlookers = new LinkedHashSet<>();
 		logger = Logger.getLogger("[ORG]");
 		logger.setUseParentHandlers(false);
 	}
@@ -171,7 +171,7 @@ public final class Organization {
 	}
 
 	/**
-	 * Returns a {@link List} containing all the other agents having this position
+	 * Returns a {@link List} containing all other agents having this position
 	 * in the organization. The caller is excluded from the search.
 	 *
 	 * @param community the community name
@@ -193,7 +193,7 @@ public final class Organization {
 	// /////////////////////////////////////////////////////////////////////////
 
 	synchronized boolean addOverlooker(Overlooker o) {
-		if (operatingOverlookers.add(o)) {
+		if (registeredOverlookers.add(o)) {
 			try {
 				getRole(o.getCommunity(), o.getGroup(), o.getRole()).addOverlooker(o);
 			} catch (CGRNotAvailable e) {// the role does not exist yet
@@ -213,7 +213,7 @@ public final class Organization {
 		if (r != null) {
 			r.removeOverlooker(o);
 		}
-		return operatingOverlookers.remove(o);
+		return registeredOverlookers.remove(o);
 	}
 
 }

@@ -211,7 +211,7 @@ public class Madkit {
 	private void start() {
 		printWelcomeString();
 		kernelAgent = new KernelAgent(this);
-		kernelAgent.launchAgent(kernelAgent, kernelAgent, Integer.MAX_VALUE);
+		kernelAgent.launchAgent(kernelAgent, Integer.MAX_VALUE);
 		mdkLogger.fine("** Kernel launched **");
 	}
 

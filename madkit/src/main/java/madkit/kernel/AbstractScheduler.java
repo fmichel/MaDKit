@@ -174,14 +174,14 @@ public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends Ag
 			exitOnKill();
 			switch (simulationState) {
 			case RUNNING:
-				doSimulationStep();
+				onSimulationStep();
 				break;
 			case PAUSED:
 				paused();
 				break;
 			case STEP:
 				simulationState = SimulationState.PAUSED;
-				doSimulationStep();
+				onSimulationStep();
 				break;
 			case SHUTDOWN:
 				return; // shutdown
@@ -208,7 +208,7 @@ public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends Ag
 		getLogger().fine("------- Starting simulation --------");
 		getLogger().finer(" -- reseting time");
 		getSimuTimer().reset();
-		getLogger().finer(() -> " -- Calling onStart on " + getEnvironment());
+		getLogger().fine(() -> " -- Calling onStart on " + getEnvironment());
 		getEnvironment().onStart();
 	}
 
@@ -288,7 +288,7 @@ public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends Ag
 	}
 
 	/**
-	 * Defines a default simulation loop which is automatically during the
+	 * Defines a default simulation step which is automatically during the
 	 * scheduler's life.
 	 *
 	 * This method should be overridden to define a customized scheduling policy.
@@ -308,7 +308,7 @@ public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends Ag
 	 * By default logs are displayed only if {@link #getLogger()} is set above
 	 * {@link Level#FINER}.
 	 */
-	public abstract void doSimulationStep();
+	public abstract void onSimulationStep();
 
 	/**
 	 * Returns the delay between two simulation steps
@@ -422,11 +422,12 @@ public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends Ag
 	 */
 	public void addActivator(final Activator activator) {
 		activator.setScheduler(this);
-		if (getOrgnization().addOverlooker(activator)) {
+		if (activator.addToOrganization(getOrgnization())) {
 			activators.add(activator);
 			Collections.sort(activators, activatorComparator);
-		}
-		getLogger().fine(() -> "Activator added: " + activator);
+			getLogger().fine(() -> activator+" added");
+		} else
+			getLogger().warning(() -> activator+" already added");
 	}
 
 	/**

@@ -127,7 +127,7 @@ public class JunitMadkit extends ConcurrentTestCase {
 	 * @param gui
 	 */
 	public void launchTestedAgent(Agent a, ReturnCode expected, boolean gui, int launchTimeOut, int testTimeOut) {
-		final ReturnCode returnCode = kernelAgent.launchAgent(kernelAgent, a, launchTimeOut);
+		final ReturnCode returnCode = kernelAgent.launchAgent(a, launchTimeOut);
 		if (expected != null) {
 			threadAssertEquals(expected, returnCode);
 			resume();

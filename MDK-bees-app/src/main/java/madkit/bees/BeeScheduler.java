@@ -71,7 +71,7 @@ public class BeeScheduler extends AbstractScheduler<DateBasedTimer> {
 	}
 	
 	@Override
-	public void doSimulationStep() {
+	public void onSimulationStep() {
 		logCurrrentStep();
 		executeActivators();
 		getSimuTimer().addOneTimeUnit();

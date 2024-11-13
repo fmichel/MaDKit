@@ -286,5 +286,9 @@ abstract class Overlooker {
 			overlookedRole.removeMembers(getCurrentAgentsList());
 		}
 	}
+	
+	public boolean addToOrganization(Organization org) {
+		return org.addOverlooker(this);
+	}
 
 }

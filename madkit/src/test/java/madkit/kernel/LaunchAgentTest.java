@@ -31,19 +31,6 @@ public class LaunchAgentTest extends JunitMadkit {
 
     
     @Test
-    public void returnAlreadyLaunchedOnLaunchNormalAgent() {
-		launchTestedAgent(new Agent() {
-			@Override
-			protected void onActivation() {
-				Agent a = new Agent();
-				threadAssertEquals(SUCCESS, launchAgent(a));
-				threadAssertEquals(ALREADY_LAUNCHED, launchAgent(a));
-			}
-		},SUCCESS);
-    }
-
-    
-    @Test
     public void returnSuccessOnLaunchThreadedAgent() {
     	Agent a = new ThreadedAgentBlockedInLive();
     	assertFalse(a.alive.get());

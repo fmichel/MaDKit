@@ -79,7 +79,7 @@ public class Role implements Serializable {
 	private synchronized void initializeOverlookers() {
 		myGroup.getOrganization().getOperatingOverlookers().stream().filter(o -> o.getRole().equals(name)
 				&& o.getGroup().equals(groupName) && o.getCommunity().equals(communityName))
-				.forEach(o -> addOverlooker(o));
+				.forEach(this::addOverlooker);
 	}
 
 	/**

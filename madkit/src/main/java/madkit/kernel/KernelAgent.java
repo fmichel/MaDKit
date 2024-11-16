@@ -587,7 +587,7 @@ class KernelAgent extends Agent implements DaemonAgent{
 //		Class<?> launcherClass = getMadkit().launcherClass;
 		
 		String[] args = getMadkit().getLauncherArgs();
-		Class<?> launcherClass = getMadkit().getLauncherClass();
+		Class<?> launcherClass = getMadkit().getOneFileLauncherClass();
 		
 		if (logger != null)
 			logger.config(() -> "starting new MaDKit session with " + Arrays.deepToString(args));// +
@@ -605,9 +605,17 @@ class KernelAgent extends Agent implements DaemonAgent{
 				e.printStackTrace();
 			}
 		} else {
-			System.err.println(Arrays.deepToString(getMadkit().startingArgs));
 			final Thread t = new Thread(() -> {
-				new Madkit(getMadkit().startingArgs);
+				try {
+					Method c = getMadkit().getLauncherClassMainMethod();
+					c.invoke(null, (Object) getMadkit().startingArgs);
+				} catch (IllegalAccessException | IllegalArgumentException
+						| InvocationTargetException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+//				new Madkit(getMadkit().startingArgs);
+				
 //				try {
 //					if(getMadkit().oneFileLauncher != null) {
 //						Method m = launcherClass.getMethod("main", String[].class);

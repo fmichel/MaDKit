@@ -66,7 +66,7 @@ public class SimulationEngine extends Agent implements SimuParticipant {
 
 	@Override
 	protected void onActivation() {
-		getLogger().setLevel(Level.ALL);
+		getLogger().setLevel(Level.INFO);
 		initCommunityName();
 		createGroup(getCommunity(), getEngineGroup());
 		createGroup(getCommunity(), getModelGroup());

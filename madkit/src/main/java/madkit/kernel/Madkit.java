@@ -34,7 +34,9 @@
 package madkit.kernel;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -64,18 +66,7 @@ import picocli.CommandLine.PropertiesDefaultProvider;
 public class Madkit {
 
 	static final Logger MDK_ROOT_LOGGER = Logger.getLogger("[MADKIT] ");
-
-	static final String LAUNCHER = "launcherClass";
-
-	static final String LAUNCHER_CLASS = "lc";
-
-	public static String BUILD_ID;
-	public static String WEB;
-	public static String VERSION = "INIT";
-
-	static String oneFileLauncher;
-	static String[] oneFileLauncherArgs;
-
+	
 	static {
 		final ConsoleHandler ch = new ConsoleHandler();
 		ch.setFormatter(AgentLogger.AGENT_FORMATTER);
@@ -84,6 +75,16 @@ public class Madkit {
 		MDK_ROOT_LOGGER.setLevel(Level.OFF);
 		MDK_ROOT_LOGGER.setUseParentHandlers(false);
 	}
+
+	static final String LAUNCHER = "launcherClass";
+	static final String LAUNCHER_CLASS = "lc";
+
+	public static String BUILD_ID;
+	public static String WEB;
+	public static String VERSION = "INIT";
+
+	static String oneFileLauncher;
+	static String[] oneFileLauncherArgs;
 
 	@Mixin
 	private MDKCommandLine mdkOptions = new MDKCommandLine();
@@ -96,11 +97,12 @@ public class Madkit {
 
 	final String[] startingArgs;
 
-	Class<? extends Madkit> launcherClass;
+	final Class<? extends Madkit> launcherClass;
 
 	private KernelAgent kernelAgent;
 
 	public Madkit(String... args) {
+		launcherClass = getClass();
 		startingArgs = args;
 		initConfiguration(args);
 		if (parseCommanLine(args)) {
@@ -118,8 +120,7 @@ public class Madkit {
 			for (Field f : c.getDeclaredFields()) {
 				if (f.getAnnotation(Mixin.class) != null) {
 					try {
-						// NO-SONAR
-						f.setAccessible(true);
+						f.setAccessible(true);// NOSONAR
 						config.addPropertiesFromFields(f.get(this));
 					} catch (IllegalArgumentException | IllegalAccessException e) {
 						e.printStackTrace();
@@ -132,6 +133,15 @@ public class Madkit {
 	
 	public void launchAgent(Agent a) {
 		kernelAgent.launchAgent(a);
+	}
+	
+	Method getLauncherClassMainMethod(){
+		try {
+			return launcherClass.getDeclaredMethod("main",String[].class);
+		} catch (NoSuchMethodException | SecurityException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	/**
@@ -158,7 +168,6 @@ public class Madkit {
 			e.printStackTrace();
 		}
 		config.addProperty(commandLine, args);
-		launcherClass = getClass();
 		VERSION = config.getString("madkit.version");
 		BUILD_ID = config.getString("build.id");
 		WEB = config.getString("madkit.web");
@@ -179,14 +188,14 @@ public class Madkit {
 				cmd.usage(System.out);
 			} else if (result.isVersionHelpRequested()) {
 				// NO-SONAR
-				cmd.printVersionHelp(System.out);
+				cmd.printVersionHelp(System.out);// NOSONAR
 			} else {
 				return true;
 			}
 		} catch (ParameterException e) {
-//			e.printStackTrace();
+			e.printStackTrace();
 			// NO-SONAR
-			e.getCommandLine().usage(System.err);
+			e.getCommandLine().usage(System.err);// NOSONAR
 //			throw e;
 		}
 		return false;
@@ -197,14 +206,14 @@ public class Madkit {
 			new Madkit(args);
 		else
 			new Madkit(new String[0]);
-      try {
-         List<Class<? extends Agent>> subclasses = ClassScanner.findSubclasses(Agent.class);
-         for (Class<? extends Agent> subclass : subclasses) {
-             System.out.println(subclass.getName());
-         }
-     } catch (IOException | ClassNotFoundException e) {
-         e.printStackTrace();
-     }
+//      try {
+//         List<Class<? extends Agent>> subclasses = ClassScanner.findSubclasses(Agent.class);
+//         for (Class<? extends Agent> subclass : subclasses) {
+//             System.out.println(subclass.getName());
+//         }
+//     } catch (IOException | ClassNotFoundException e) {
+//         e.printStackTrace();
+//     }
 
 	}
 
@@ -224,7 +233,7 @@ public class Madkit {
 		}
 	}
 
-	Class<?> getLauncherClass() {
+	Class<?> getOneFileLauncherClass() {
 		if (oneFileLauncher != null)
 			try {
 				return Class.forName(oneFileLauncher);

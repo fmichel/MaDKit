@@ -13,14 +13,14 @@ public class EmptyActivator extends Activator {
 	}
 
 	@Override
-	protected void adding(Agent agent) {
-		super.adding(agent);
+	protected void onAdding(Agent agent) {
+		super.onAdding(agent);
 		System.err.println(this + " adding agent -> " + agent);
 	}
 
 	@Override
-	protected void removing(Agent agent) {
-		super.removing(agent);
+	protected void onRemoving(Agent agent) {
+		super.onRemoving(agent);
 		System.err.println(this + " removing agent -> " + agent);
 	}
 

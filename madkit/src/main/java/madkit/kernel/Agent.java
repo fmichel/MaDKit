@@ -5,7 +5,6 @@ import static madkit.kernel.Agent.ReturnCode.NO_RECIPIENT_FOUND;
 import static madkit.kernel.Agent.ReturnCode.SUCCESS;
 import static java.util.logging.Level.*;
 
-import java.lang.StackWalker.Option;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.time.Duration;

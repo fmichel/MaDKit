@@ -124,7 +124,7 @@ public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends Ag
 	@Override
 	protected void onActivation() {
 		requestRole(getCommunity(), getEngineGroup(), SCHEDULER_ROLE);
-		getSimuEngine().setScheduler(this);
+//		getSimuEngine().setScheduler(this);
 	}
 
 	/**
@@ -402,14 +402,21 @@ public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends Ag
 		return v;
 	}
 
+//	/**
+//	 * Sets the priority of an {@link Activator}.
+//	 *
+//	 * @param activator
+//	 * @param priority
+//	 */
+//	public void setActivatorPriority(Activator activator, int priority) {
+//		activator.setPriority(priority);
+//		updateActivatorsSchedule();
+//	}
+
 	/**
-	 * Sets the priority of an {@link Activator}.
-	 *
-	 * @param activator
-	 * @param priority
+	 * Updates the activators schedule according to their priorities
 	 */
-	public void setActivatorPriority(Activator activator, int priority) {
-		activator.setPriority(priority);
+	public void updateActivatorsSchedule() {
 		Collections.sort(activators, activatorComparator);
 	}
 
@@ -424,7 +431,7 @@ public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends Ag
 		activator.setScheduler(this);
 		if (activator.addToOrganization(getOrgnization())) {
 			activators.add(activator);
-			Collections.sort(activators, activatorComparator);
+			updateActivatorsSchedule();
 			getLogger().fine(() -> activator+" added");
 		} else
 			getLogger().warning(() -> activator+" already added");

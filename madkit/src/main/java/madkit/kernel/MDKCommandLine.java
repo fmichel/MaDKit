@@ -62,6 +62,10 @@ List<String> agents = Collections.emptyList();
 	@Option(names = { "--headless" }, defaultValue = "false", description = "inhibit UI")
 	private boolean headless;
 
+
+	@Option(names = "--start", description = "Automatically start the simulation")
+	boolean start = false;
+
 	@Option(names = "-D", fallbackValue = "") // allow -Dkey
 	void setProperty(Map<String, String> props) {
 		props.forEach((k, v) -> System.setProperty(k, v));

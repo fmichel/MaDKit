@@ -76,7 +76,7 @@ abstract class Overlooker {
 		overlookedRole = theRole;
 		if (theRole != null)
 			try {
-				initialize();
+				onInit();
 			} catch (Throwable e) {
 				throw new SimulationException("initialize problem on " + this, e);
 			}
@@ -124,15 +124,15 @@ abstract class Overlooker {
 	}
 
 	/**
-	 * Called by the MaDKit kernel when the Activator or Probe is first added.
+	 * Automatically called when first added to the organization.
 	 * Default behavior is: <code>adding(getCurrentAgentsList());</code>
 	 */
-	public void initialize() {
+	void onInit() {
 		adding(getCurrentAgentsList());
 	}
 
 	/**
-	 * Called when a list of agents joins the corresponding group and role. This
+	 * Automatically called when a list of agents joins the corresponding group and role. This
 	 * method is automatically called by the MaDKit kernel when agents enter a role
 	 * due to the use of {@link Agent#launchAgentBucket(String, int, String...)}.
 	 * Override this method when you want to do some initialization on the agents
@@ -150,22 +150,22 @@ abstract class Overlooker {
 	 * @param agents the list of agents which have been added to this group/role at
 	 *               once.
 	 */
-	protected void adding(final List<Agent> agents) {
-		agents.stream().forEach(this::adding);
+	void adding(final List<Agent> agents) {
+		agents.stream().forEach(this::onAdding);
 	}
 
 	/**
-	 * This method is automatically called when an agent joins the corresponding
-	 * group and role. This method is empty by default. Override this method when
+	 * Automatically called when an agent joins the corresponding
+	 * group and role. Override this method when
 	 * you want to do some initialization when an agent enters the group/role.
 	 *
 	 * @param agent which has been added to this group/role
 	 */
-	protected void adding(final Agent agent) {
+	protected void onAdding(final Agent agent) {
 	}
 
 	/**
-	 * This method is automatically called when a list of agents has leaved the
+	 * Automatically called when a list of agents has leaved the
 	 * corresponding group and role. This method is empty by default. Override this
 	 * method when you want to do some initialization on the agents that enter the
 	 * group/role. Default implementation is:
@@ -181,19 +181,19 @@ abstract class Overlooker {
 	 *
 	 * @param agents the list of agents which have been removed from this group/role
 	 */
-	protected void removing(final List<Agent> agents) {
-		agents.stream().forEach(this::removeAgent);
+	void removing(final List<Agent> agents) {
+		agents.stream().forEach(this::onRemoving);
 	}
 
 	/**
-	 * This method is automatically called when an agent leaves the corresponding
-	 * group and role. This method is empty by default. Override this method when
+	 * Automatically called when an agent leaves the corresponding
+	 * group and role. Override this method when
 	 * you want to do some work when an agent leaves the group/role. Note that the
 	 * role is still handled by the agent when invoked.
 	 *
 	 * @param agent the agent which is being removed from this group/role
 	 */
-	protected void removing(final Agent agent) {
+	protected void onRemoving(final Agent agent) {
 	}
 
 	/**
@@ -253,18 +253,18 @@ abstract class Overlooker {
 	}
 	
 	
-
-	final void addAgent(final Agent a) {
-		adding(a);
-	}
-
-	final void removeAgent(final Agent a) {
-		removing(a);
-	}
-
-	final void addAgents(final List<Agent> l) {
-		adding(l);
-	}
+//
+//	final void addAgent(final Agent a) {
+//		onAdding(a);
+//	}
+//
+//	final void removeAgent(final Agent a) {
+//		onRemoving(a);
+//	}
+//
+//	final void addAgents(final List<Agent> l) {
+//		adding(l);
+//	}
 
 //	final void removeAgents(final List<Agent> l) {
 //		removing(l);

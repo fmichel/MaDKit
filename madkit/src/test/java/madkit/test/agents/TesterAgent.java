@@ -31,11 +31,12 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C license and that you accept its terms.
  *******************************************************************************/
-package madkit.kernel;
+package madkit.test.agents;
 
 import java.util.logging.Level;
 
 import madkit.action.KernelAction;
+import madkit.kernel.Agent;
 
 /**
  * @author Fabien Michel

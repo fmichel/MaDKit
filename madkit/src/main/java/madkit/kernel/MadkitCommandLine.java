@@ -64,6 +64,9 @@ class MadkitCommandLine implements Callable<Integer> {
 			"--launchAgents" }, arity = "0..*", fallbackValue = "madkit.kernel.Madkit", description = "launch agents classes")
 	List<String> agentClassToLaunch;
 
+	@Option(names = "--start", description = "Automatically start the simulation")
+	boolean start = false;
+
 	/**
 	 * 
 	 */

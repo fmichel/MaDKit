@@ -86,7 +86,7 @@ public class SimulationEngine extends Agent implements SimuParticipant {
 	 * launchConfigTurtles : launchXmlTurtles -> launch args turtles 3. launch
 	 * viewers 4. launch xml Agent tag
 	 */
-	protected void createSimulationInstance() {
+	private void createSimulationInstance() {
 		launchModel();
 		getLogger().fine(() -> getModel() + " launched");
 		getLogger().fine(() -> "Launching environment ");
@@ -98,6 +98,9 @@ public class SimulationEngine extends Agent implements SimuParticipant {
 		launchViewers();
 		getLogger().fine(() -> getViewers() + " launched");
 		onInitialization();
+		if (getKernelConfig().getBoolean("start")) {
+			startSimulation();
+		}
 	}
 
 	@Override
@@ -110,22 +113,23 @@ public class SimulationEngine extends Agent implements SimuParticipant {
 		getScheduler().onInitialization();
 	}
 
-	protected void launchModel() {
+	private void launchModel() {
 		launchAgent(getEngineClass(ENGINE.MODEL), Integer.MAX_VALUE);
 	}
 
-	protected <E extends Environment> E launchEnvironment() {
+	private <E extends Environment> E launchEnvironment() {
 		return launchAgent(getEngineClass(ENGINE.ENVIRONMENT), Integer.MAX_VALUE);
 	}
 
-	protected void launchScheduler() {
-		launchAgent(getEngineClass(ENGINE.SCHEDULER), Integer.MAX_VALUE);
+	private void launchScheduler() {
+		scheduler = launchAgent(getEngineClass(ENGINE.SCHEDULER), Integer.MAX_VALUE);
 	}
 
 	/**
 	 * 
 	 */
 	protected void launchSimulatedAgents() {
+		
 	}
 
 	/**
@@ -280,7 +284,7 @@ public class SimulationEngine extends Agent implements SimuParticipant {
 	/**
 	 * @param scheduler the scheduler to set
 	 */
-	public void setScheduler(AbstractScheduler<? extends SimulationTimer<?>> scheduler) {
+	void setScheduler(AbstractScheduler<? extends SimulationTimer<?>> scheduler) {
 		this.scheduler = scheduler;
 	}
 

@@ -23,7 +23,7 @@ public class DiscreteEventAgentsActivator extends DateBasedDiscreteEventActivato
 	}
 
 	@Override
-	protected void adding(Agent agent) {
+	protected void onAdding(Agent agent) {
 		LocalDateTime currentDate = getNextActivationDate();
 		LocalDateTime date = agent.getNextEventDate();
 		activationList.add(agent);
@@ -38,7 +38,7 @@ public class DiscreteEventAgentsActivator extends DateBasedDiscreteEventActivato
 	}
 
 	@Override
-	protected void removing(Agent agent) {
+	protected void onRemoving(Agent agent) {
 		LocalDateTime currentDate = getNextActivationDate();
 		activationList.remove(agent);
 		if(activationList.isEmpty()) {
@@ -55,7 +55,7 @@ public class DiscreteEventAgentsActivator extends DateBasedDiscreteEventActivato
 				Agent a = activationList.poll();
 				executeBehaviorOf(a, getMethod(), args);
 				if (! activationList.contains(a) && getCurrentAgentsList().contains(a)) {
-					adding(a);
+					onAdding(a);
 				} 
 			}
 	}

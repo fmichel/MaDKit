@@ -43,7 +43,7 @@ public abstract class Activator extends Overlooker implements Comparable<Activat
 	 * @param role
 	 * @see Scheduler
 	 */
-	public Activator(String community, String group, String role) {
+	protected Activator(String community, String group, String role) {
 		super(community, group, role);
 	}
 
@@ -100,17 +100,19 @@ public abstract class Activator extends Overlooker implements Comparable<Activat
 	/**
 	 * @return the scheduler
 	 */
-	public AbstractScheduler<? extends SimulationTimer<?>> getScheduler() {
-		return scheduler;
+	@SuppressWarnings("unchecked")
+	public <S extends AbstractScheduler<?>> S getScheduler() {
+		return (S) scheduler;
 	}
 
 	/**
 	 * Sets the priority of the activator
 	 *
-	 * @param priority an int defining the activator's priority
+	 * @param priority an int defining the activator's priority//TODO explain priorities
 	 */
-	void setPriority(int priority) {
+	public void setPriority(int priority) {
 		this.priority = priority;
+		scheduler.updateActivatorsSchedule();
 	}
 
 	/**

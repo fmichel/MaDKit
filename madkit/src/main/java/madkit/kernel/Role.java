@@ -390,15 +390,15 @@ public class Role implements Serializable {
 	}
 
 	final void addToOverlookers(Agent a) {
-		overlookers.parallelStream().forEach(o -> o.addAgent(a));
+		overlookers.parallelStream().forEach(o -> o.onAdding(a));
 	}
 
 	private final void addToOverlookers(List<Agent> l) {
-		overlookers.parallelStream().forEach(o -> o.addAgents(l));
+		overlookers.parallelStream().forEach(o -> o.adding(l));
 	}
 
 	final void removeFromOverlookers(Agent a) {
-		overlookers.parallelStream().forEach(o -> o.removeAgent(a));
+		overlookers.parallelStream().forEach(o -> o.onRemoving(a));
 	}
 
 	private final void removeFromOverlookers(List<Agent> l) {

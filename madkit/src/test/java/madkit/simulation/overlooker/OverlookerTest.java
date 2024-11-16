@@ -16,7 +16,7 @@ public class OverlookerTest extends JunitMadkit {
 	public void setUp() throws Exception {
 		buggy = new MethodActivator(COMMUNITY, GROUP, ROLE, "doIt") {
 		  @Override
-		protected void removing(Agent agent) {
+		protected void onRemoving(Agent agent) {
 		      AgentAddress address = agent.getOrgnization().getRole(COMMUNITY, GROUP, ROLE).getAgentAddressOf(agent);
 		      System.err.println("agent addreess "+address);
 		      threadAssertNotNull(address);

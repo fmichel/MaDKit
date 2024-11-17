@@ -54,6 +54,6 @@ public @interface EngineAgents {
 	Class<? extends AbstractScheduler<?>> scheduler() default TickBasedScheduler.class;
 	Class<? extends Environment> environment() default Environment.class;
 	Class<? extends SimulationModel> model() default SimulationModel.class;
-	Class<? extends SimuParticipant>[] viewers() default {};
+	Class<? extends SimuAgent>[] viewers() default {};
 	
 }

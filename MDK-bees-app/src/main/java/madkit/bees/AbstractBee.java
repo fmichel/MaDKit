@@ -22,14 +22,13 @@ import java.awt.Point;
 import java.util.Random;
 
 import javafx.scene.paint.Color;
-import madkit.kernel.Agent;
-import madkit.simulation.SimuParticipant;
+import madkit.simulation.SimuAgent;
 
 /**
  * @version 2.3
  * @author Fabien Michel
  */
-public abstract class AbstractBee extends Agent implements SimuParticipant {
+public abstract class AbstractBee extends SimuAgent {
 
 	protected static final Random generator = new Random(System.currentTimeMillis());
 
@@ -54,7 +53,7 @@ public abstract class AbstractBee extends Agent implements SimuParticipant {
 	@SuppressWarnings("unchecked")
 	@Override
 	public BeeEnvironment getEnvironment() {
-		return SimuParticipant.super.getEnvironment();
+		return super.getEnvironment();
 	}
 
 	public void setEnvironment() {

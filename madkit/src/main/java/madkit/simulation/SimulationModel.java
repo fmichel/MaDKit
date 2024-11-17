@@ -9,7 +9,7 @@ import madkit.simulation.SimulationEngine.ENGINE;
  * @author Fabien Michel
  *
  */
-public class SimulationModel extends Agent implements SimuParticipant{
+public class SimulationModel extends SimuAgent {
 
 	@Override
 	protected void onActivation() {

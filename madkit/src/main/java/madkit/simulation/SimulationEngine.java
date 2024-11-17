@@ -31,7 +31,7 @@ import madkit.simulation.scheduler.TickBasedScheduler;
  *
  */
 @EngineAgents
-public class SimulationEngine extends Agent implements SimuParticipant {
+public class SimulationEngine extends SimuAgent {
 
 	/**
 	 * @author Fabien Michel
@@ -47,20 +47,21 @@ public class SimulationEngine extends Agent implements SimuParticipant {
 	private SimulationModel model;
 	private Environment environment;
 	private AbstractScheduler<? extends SimulationTimer<?>> scheduler;
-	private List<SimuParticipant> viewers;
+	private List<SimuAgent> viewers;
 
 	/**
 	 * 
 	 */
 	public SimulationEngine() {
 		simuCommunity = getClass().getSimpleName();
-		try {
-			Field f = Agent.class.getDeclaredField("simuEngine");
-			f.setAccessible(true);
-			f.set(this, this);
-		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-			e.printStackTrace();
-		}
+		simuEngine = this;
+//		try {
+//			Field f = SimuAgent.class.getDeclaredField("simuEngine");
+//			f.setAccessible(true);
+//			f.set(this, this);
+//		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+//			e.printStackTrace();
+//		}
 		viewers = new ArrayList<>();
 	}
 
@@ -107,7 +108,7 @@ public class SimulationEngine extends Agent implements SimuParticipant {
 	public void onInitialization() {
 		getModel().onInitialization();
 		getEnvironment().onInitialization();
-		for (SimuParticipant viewer : getViewers()) {
+		for (SimuAgent viewer : getViewers()) {
 			viewer.onInitialization();
 		}
 		getScheduler().onInitialization();
@@ -156,7 +157,7 @@ public class SimulationEngine extends Agent implements SimuParticipant {
 	protected void launchViewers() {
 		if (!getKernelConfig().getBoolean("headless")) {
 			for (String viewer : getViewerClasses()) {
-				SimuParticipant v = launchAgent(viewer, Integer.MAX_VALUE);
+				SimuAgent v = launchAgent(viewer, Integer.MAX_VALUE);
 				viewers.add(v);
 			}
 		}
@@ -165,8 +166,8 @@ public class SimulationEngine extends Agent implements SimuParticipant {
 	private List<String> getViewerClasses() {
 		List<String> viewersClasses = getKernelConfig().getList(String.class, "viewers", Collections.emptyList());
 		if (viewersClasses.isEmpty()) {
-			Class<? extends SimuParticipant>[] classes = getEngineAgentsAnnotation().viewers();
-			for (Class<? extends SimuParticipant> target : classes) {
+			Class<? extends SimuAgent>[] classes = getEngineAgentsAnnotation().viewers();
+			for (Class<? extends SimuAgent> target : classes) {
 				viewersClasses.add(target.getName());
 			}
 		}
@@ -226,8 +227,8 @@ public class SimulationEngine extends Agent implements SimuParticipant {
 					l.add(cName);
 				}
 			}
-			Class<? extends SimuParticipant>[] viewersList = annotation.viewers();
-			for (Class<? extends SimuParticipant> targetClass : viewersList) {
+			Class<? extends SimuAgent>[] viewersList = annotation.viewers();
+			for (Class<? extends SimuAgent> targetClass : viewersList) {
 				l.add("-v");
 				l.add(targetClass.getName());
 			}
@@ -295,8 +296,7 @@ public class SimulationEngine extends Agent implements SimuParticipant {
 		this.model = model;
 	}
 
-	@Override
-	public List<SimuParticipant> getViewers() {
+	public List<SimuAgent> getViewers() {
 		return viewers;
 	}
 

@@ -32,7 +32,6 @@ import javafx.scene.input.ScrollEvent;
 import madkit.action.SchedulingAction;
 import madkit.messages.SchedulingMessage;
 import madkit.simulation.*;
-import madkit.simulation.SimuParticipant;
 import madkit.simulation.SimulationTimer;
 import madkit.simulation.activator.MethodActivator;
 import net.jodah.typetools.TypeResolver;
@@ -89,7 +88,7 @@ import net.jodah.typetools.TypeResolver;
  * @see BigDecimal
  * @see LocalDateTime
  */
-public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends Agent implements SimuParticipant {
+public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends SimuAgent{
 
 	private final List<Activator> activators = new ArrayList<>();
 
@@ -216,7 +215,9 @@ public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends Ag
 	protected void onEnding() {
 		simulationState = SimulationState.PAUSED;
 		getLogger().info(() -> "------- Simulation stopped! Time was = " + getSimuTimer());
-
+		getLogger().finest("removing all activators");
+		removeAllActivators();
+		super.onEnding();
 	}
 
 	/**
@@ -480,16 +481,6 @@ public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends Ag
 	public void removeAllActivators() {
 		activators.stream().forEach(a -> getOrgnization().removeOverlooker(a));
 		activators.clear();
-	}
-
-	/**
-	 * @see madkit.kernel.Agent#terminate()
-	 */
-	@Override
-	final void terminate() {
-		getLogger().finest("removing all activators");
-		removeAllActivators();
-		super.terminate();
 	}
 
 	/**

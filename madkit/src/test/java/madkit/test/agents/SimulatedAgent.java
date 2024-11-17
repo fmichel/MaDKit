@@ -1,6 +1,7 @@
 package madkit.test.agents;
 
-import madkit.simulation.SimuParticipant;
+import madkit.simulation.SimuAgent;
+import static madkit.kernel.JunitMadkit.*;
 
 /**
  * @author Fabien Michel
@@ -8,7 +9,7 @@ import madkit.simulation.SimuParticipant;
  * @version 0.9
  * 
  */
-public class SimulatedAgent extends CGRAgent implements SimuParticipant{
+public class SimulatedAgent extends SimuAgent{
 
 	private int privatePrimitiveField = 1;
 	public double publicPrimitiveField = 2;
@@ -16,6 +17,11 @@ public class SimulatedAgent extends CGRAgent implements SimuParticipant{
 	private Object objectField = new Object();
 	private boolean activated = false;
 
+	@Override
+	protected void onActivation() {
+		createGroup(COMMUNITY, GROUP);
+		requestRole(COMMUNITY, GROUP, ROLE);
+	}
 	
 	public void doIt() {
 //		getLogger().info("doing it");

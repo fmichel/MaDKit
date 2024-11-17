@@ -3,7 +3,7 @@ package madkit.kernel;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import madkit.simulation.SimuParticipant;
+import madkit.simulation.SimuAgent;
 
 /**
  * This class defines a generic watcher agent. It holds a collection of probes
@@ -14,7 +14,7 @@ import madkit.simulation.SimuParticipant;
  * @since MaDKit 2.0
  * @version 5.0
  */
-public class Watcher extends Agent implements SimuParticipant{
+public class Watcher extends SimuAgent {
 
 	private final Set<Probe> probes = new LinkedHashSet<>();
 
@@ -40,14 +40,11 @@ public class Watcher extends Agent implements SimuParticipant{
 		getOrgnization().removeOverlooker(probe);
 		probes.remove(probe);
 	}
-
-	/**
-	 * @see madkit.kernel.Agent#terminate()
-	 */
+	
 	@Override
-	final void terminate() {
+	protected void onEnding() {
 		removeAllProbes();
-		super.terminate();
+		super.onEnding();
 	}
 
 	/**

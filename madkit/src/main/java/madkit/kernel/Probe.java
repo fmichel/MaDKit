@@ -24,7 +24,7 @@ public class Probe extends Overlooker {
 	/**
 	 * Class -> <fieldName -> Field>
 	 */
-	private final static Reference2ReferenceMap<Class<?>, Reference2ReferenceMap<String, Field>> fieldsTable = new Reference2ReferenceArrayMap<>();
+	private static final Reference2ReferenceMap<Class<?>, Reference2ReferenceMap<String, Field>> fieldsTable = new Reference2ReferenceArrayMap<>();
 
 	/**
 	 * Builds a new Probe<> on the given CGR location of the artificial society.
@@ -57,7 +57,7 @@ public class Probe extends Overlooker {
 		return field;
 	}
 
-	static private Map<String, Field> getFieldTable(Class<?> agentClass) {
+	private static Map<String, Field> getFieldTable(Class<?> agentClass) {
 		return fieldsTable.computeIfAbsent(agentClass, table -> new Reference2ReferenceArrayMap<String, Field>());
 	}
 

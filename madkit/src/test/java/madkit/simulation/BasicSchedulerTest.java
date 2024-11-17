@@ -3,6 +3,7 @@ package madkit.simulation;
 
 import static madkit.kernel.Agent.ReturnCode.ALREADY_GROUP;
 import static madkit.kernel.Agent.ReturnCode.SUCCESS;
+import static org.testng.Assert.assertEquals;
 
 import java.util.logging.Level;
 
@@ -24,6 +25,13 @@ import madkit.test.agents.CGRAgent;
 
 public class BasicSchedulerTest extends JunitMadkit {
 
+	
+	@Test
+	public void givenSimulationEngine_whenLaunchScheduler_works(){
+    	TickBasedScheduler s = new TickBasedScheduler();
+		assertEquals(SUCCESS, launchTestScheduler(s));
+	}
+	
 	@Test
 	public void addingNullActivator() {
 		launchTestedAgent(new CGRAgent() {

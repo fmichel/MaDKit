@@ -7,6 +7,8 @@ import static madkit.kernel.JunitMadkit.ROLE;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 
+import java.time.LocalDateTime;
+
 /**
  * @author Fabien Michel
  *
@@ -107,6 +109,12 @@ public class GenericTestAgent extends Agent implements TestHelpAgent {
 	 */
 	public void setOneMethodHasBeenActivated(boolean oneMethodHasBeenActivated) {
 		this.oneMethodHasBeenActivated = oneMethodHasBeenActivated;
+	}
+
+	@Override
+	public LocalDateTime getNextEventDate() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

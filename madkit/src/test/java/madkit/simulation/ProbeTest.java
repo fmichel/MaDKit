@@ -1,6 +1,8 @@
 
 package madkit.simulation;
 
+import static madkit.kernel.Agent.ReturnCode.SUCCESS;
+import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.fail;
 
@@ -10,7 +12,11 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import madkit.kernel.Agent;
+import madkit.kernel.JunitMadkit;
 import madkit.kernel.Probe;
+import madkit.kernel.Watcher;
+import madkit.simulation.probe.PropertyProbe;
+import madkit.test.agents.SimulatedAgent;
 
 /**
  * Has to be outside of madkit.kernel for really testing visibility
@@ -20,7 +26,7 @@ import madkit.kernel.Probe;
  * @version 0.9
  */
 @SuppressWarnings("all")
-public class ProbeTest {
+public class ProbeTest  extends JunitMadkit {
 
 	Probe a;
 	TestAgent agt;
@@ -29,9 +35,36 @@ public class ProbeTest {
 	public void setUp() throws Exception {
 		a = new Probe("t", "t", "t");
 		agt = new TestAgent() {
-
 			boolean bool2 = false;
 		};
+	}
+	
+	@Test
+	public void givenNewProbe_whenAddedBeforeAgentsJoin_thenSizeIsCorrect() {
+		launchTestedAgent(new Watcher() {
+			@Override
+			protected void onActivation() {
+				Probe p = new Probe(COMMUNITY, GROUP, ROLE);
+				addProbe(p);
+				assertEquals(p.size(),0);
+				threadAssertEquals(SUCCESS, launchAgent(new SimulatedAgent()));
+				assertEquals(p.size(),1);
+			}
+		});
+	}
+
+	
+	@Test
+	public void givenNewProbe_whenAddedAfterAgentsJoined_thenSizeIsCorrect() {
+		launchTestedAgent(new Watcher() {
+			@Override
+			protected void onActivation() {
+				threadAssertEquals(SUCCESS, launchAgent(new SimulatedAgent()));
+				Probe p = new Probe(COMMUNITY, GROUP, ROLE);
+				addProbe(p);
+				assertEquals(p.size(),1);
+			}
+		});
 	}
 
 	@Test
@@ -82,7 +115,7 @@ public class ProbeTest {
 		Field m = a.findFieldOn(agt.getClass(), "something");
 		assertNotNull(m);
 		System.err.println(m.get(agt));
-		m = a.findFieldOn(agt.getClass(), "simuEngine");
+		m = a.findFieldOn(agt.getClass(), "alive");
 		assertNotNull(m);
 		System.err.println(m.get(agt));
 	}

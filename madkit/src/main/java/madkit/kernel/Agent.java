@@ -54,7 +54,6 @@ public class Agent {
 	volatile KernelAgent kernel;
 
 	private Mailbox mailbox;
-	private SimulationEngine simuEngine;
 
 	AgentLogger logger;
 
@@ -69,13 +68,6 @@ public class Agent {
 	}
 
 	protected void onEnding() {
-	}
-
-	/**
-	 * @return the simuEngine
-	 */
-	public SimulationEngine getSimuEngine() {
-		return simuEngine;
 	}
 
 	final boolean isThreaded() {
@@ -208,13 +200,6 @@ public class Agent {
 	 * @return
 	 */
 	protected ReturnCode launchAgent(Agent a, int timeout) {
-		/*
-		 * any agent launched by an agent linked to a simuEngine becomes part of this
-		 * engine. The root one being a SimuEgine itself
-		 */
-		if (simuEngine != null) {
-			a.simuEngine = simuEngine;
-		}
 		return kernel.launchAgent(a, timeout);
 	}
 
@@ -1269,47 +1254,6 @@ public class Agent {
 			stage.show();
 		});
 	}
-
-	///////////////////////////////////////////////////////////////////// SIMULATION
-
-	/**
-	 * Returns the {@link SimulationTimer} of the current simulation. This is
-	 * automatically initialized when the agent is associated with an activator for
-	 * the first time. So it stays <code>null</code> if the agent is not related to
-	 * a simulation
-	 *
-	 * @return the simulationTime of the simulation in which the agent participates
-	 * @throws NullPointerException if this agent is not part of a simulation
-	 */
-	@SuppressWarnings("unchecked")
-	public <T extends SimulationTimer<?>> T getSimuTimer() {//TODO move this in SimuParticipant
-		return simuEngine != null ? (T) simuEngine.getScheduler().getSimuTimer() : null;
-	}
-
-	/**
-	 * Method which is used by discrete-event simulation activators for doing
-	 * fine-grained simulations. By default, this method returns an event which is
-	 * one second ahead of the current date of the simulation. So, this method can
-	 * be overridden to fulfill the simulation requirement
-	 *
-	 * @return the date of the next event for this agent.
-	 *
-	 * @see DiscreteEventAgentsActivator
-	 * @see DateBasedDiscreteEventActivator
-	 * @throws ClassCastException if the agent is not part a simulation whose
-	 *                            scheduling is based on a {@link DateBasedTimer}
-	 */
-	public LocalDateTime getNextEventDate() throws ClassCastException {
-		DateBasedTimer time = getSimuTimer();
-		return time.getCurrentTime().plus(Duration.ofSeconds(1));
-	}
-
-//	/**
-//	 * @param simulationTime the simulationTime to set
-//	 */
-//	void setSimulationTime(SimulationTime simulationTime) {
-//		this.simulationTime = simulationTime;
-//	}
 
 	/**
 	 * This class enumerates all the return codes which could be obtained with

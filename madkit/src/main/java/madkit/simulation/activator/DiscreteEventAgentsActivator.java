@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.PriorityQueue;
 
 import madkit.kernel.Agent;
+import madkit.simulation.SimuAgent;
 
 /**
  * An activator that works using a discrete-event simulation scheme.
@@ -14,8 +15,8 @@ import madkit.kernel.Agent;
  */
 public class DiscreteEventAgentsActivator extends DateBasedDiscreteEventActivator {
 
-	protected PriorityQueue<Agent> activationList = new PriorityQueue<>(
-			(Agent o1, Agent o2) -> o1.getNextEventDate().compareTo(o2.getNextEventDate()));
+	protected PriorityQueue<SimuAgent> activationList = new PriorityQueue<>(
+			(SimuAgent o1, SimuAgent o2) -> o1.getNextEventDate().compareTo(o2.getNextEventDate()));
 
 	public DiscreteEventAgentsActivator(String community, String group, String role, String theBehaviorToActivate) {
 		super(community, group, role, theBehaviorToActivate);
@@ -25,8 +26,9 @@ public class DiscreteEventAgentsActivator extends DateBasedDiscreteEventActivato
 	@Override
 	protected void onAdding(Agent agent) {
 		LocalDateTime currentDate = getNextActivationDate();
-		LocalDateTime date = agent.getNextEventDate();
-		activationList.add(agent);
+		SimuAgent sa = (SimuAgent) agent;
+		LocalDateTime date = sa.getNextEventDate();
+		activationList.add(sa);
 		if(date.compareTo(currentDate) < 0) {
 			getScheduler().updateActivatorRanking(this);
 		}

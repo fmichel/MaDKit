@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 import madkit.kernel.Agent.ReturnCode;
+import madkit.simulation.SimuAgent;
 import madkit.i18n.ErrorMessages;
 
 /**
@@ -192,7 +193,8 @@ public final class Organization {
 	// //////////////////////// Simulation
 	// /////////////////////////////////////////////////////////////////////////
 
-	synchronized boolean addOverlooker(Overlooker o) {
+	synchronized boolean addOverlooker(SimuAgent owner, Overlooker o) {
+		o.setCommunity(owner.getCommunity());
 		if (registeredOverlookers.add(o)) {
 			try {
 				getRole(o.getCommunity(), o.getGroup(), o.getRole()).addOverlooker(o);

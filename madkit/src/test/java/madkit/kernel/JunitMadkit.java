@@ -21,7 +21,9 @@ import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.BeforeMethod;
 
 import madkit.kernel.Agent.ReturnCode;
+import madkit.simulation.SimuAgent;
 import madkit.simulation.SimulationEngine;
+import madkit.test.agents.SimulatedAgent;
 import net.jodah.concurrentunit.ConcurrentTestCase;
 
 /**
@@ -175,10 +177,14 @@ public class JunitMadkit extends ConcurrentTestCase {
 		launchTestedAgent(a, ReturnCode.SUCCESS, false, Integer.MAX_VALUE, Integer.MAX_VALUE);
 	}
 	
-	public ReturnCode launchTestScheduler(AbstractScheduler<?> sch) {
-		SimulationEngine s = new SimulationEngine();
-		launchTestedAgent(s);
-		return s.launchAgent(sch);
+	public void launchSimuAgentTest(SimuAgent sa) {
+		launchTestedAgent(new SimulationEngine() {
+			@Override
+			protected void onActivation() {
+				super.onActivation();
+				threadAssertEquals(SUCCESS, launchAgent(sa));
+			}
+		});
 	}
 
 	public void lineBreak() {

@@ -10,13 +10,13 @@ import madkit.kernel.Agent;
 import madkit.kernel.GenericTestAgent;
 import madkit.kernel.JunitMadkit;
 
-public class MethodHandleActivatorTest extends JunitMadkit {
+public class MethodActivatorTest extends JunitMadkit {
 
 	@Test
 	public void executeTest() {
 		testBehavior(a -> {
 			List<GenericTestAgent> agents = getNewAgentsList(a);
-			MethodHandleActivator activator = new MethodHandleActivator("test", "test", "test", "privateMethod");
+			MethodActivator activator = new MethodActivator("test", "test", "privateMethod");
 			activator.execute(agents);
 			checkActivation(agents);
 		});
@@ -26,7 +26,7 @@ public class MethodHandleActivatorTest extends JunitMadkit {
 	public void givenAnActivatorWithTypes_whenExecute_thenShouldWorks() {
 		testBehavior(a -> {
 			List<GenericTestAgent> agents = getNewAgentsList(a);
-			MethodHandleActivator activator = new MethodHandleActivator("test", "test", "test",
+			MethodActivator activator = new MethodActivator("test", "test",
 					"privateMethodWithPrimitiveArgs", String.class, int.class);
 			activator.execute(agents, "hello", 1);
 			checkActivation(agents);
@@ -37,7 +37,7 @@ public class MethodHandleActivatorTest extends JunitMadkit {
 	public void givenAnActivatorNoTypesAtCreation_whenExecute_thenShouldWorks() {
 		testBehavior(a -> {
 			List<GenericTestAgent> agents = getNewAgentsList(a);
-			MethodHandleActivator activator = new MethodHandleActivator("test", "test", "test",
+			MethodActivator activator = new MethodActivator("test", "test",
 					"privateMethodWithPrimitiveArgs");
 			activator.execute(agents, "hello", 1);
 			checkActivation(agents);
@@ -48,7 +48,7 @@ public class MethodHandleActivatorTest extends JunitMadkit {
 	public void givenAgentList_whenExecuteInParallel_shouldWorks() {
 		testBehavior(a -> {
 			List<GenericTestAgent> agents = getNewAgentsList(a);
-			MethodHandleActivator activator = new MethodHandleActivator("test", "test", "test", "privateMethod");
+			MethodActivator activator = new MethodActivator("test", "test", "privateMethod");
 			activator.executeInParallel(agents);
 			checkActivation(agents);
 		});
@@ -58,7 +58,7 @@ public class MethodHandleActivatorTest extends JunitMadkit {
 	public void givenAnActivatorNoTypesAtCreation_whenExecuteInParallel_thenShouldWorks() {
 		testBehavior(a -> {
 			List<GenericTestAgent> agents = getNewAgentsList(a);
-			MethodHandleActivator activator = new MethodHandleActivator("test", "test", "test",
+			MethodActivator activator = new MethodActivator("test", "test",
 					"privateMethodWithPrimitiveArgs");
 			activator.executeInParallel(agents, "hello", 1);
 			checkActivation(agents);

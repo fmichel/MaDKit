@@ -93,7 +93,7 @@ public class BeeViewer extends Viewer2D {
 		env = getSimuEngine().getEnvironment();
 		super.onActivation();
 //		getLogger().setLevel(Level.ALL);
-		beeProbe = new PropertyProbe<>(getCommunity(), getModelGroup(), AbstractBee.BEE_ROLE, "myInformation");
+		beeProbe = new PropertyProbe<>(getModelGroup(), AbstractBee.BEE_ROLE, "myInformation");
 		addProbe(beeProbe);
 	}
 

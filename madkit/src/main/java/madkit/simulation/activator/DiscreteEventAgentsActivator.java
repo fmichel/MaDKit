@@ -18,8 +18,8 @@ public class DiscreteEventAgentsActivator extends DateBasedDiscreteEventActivato
 	protected PriorityQueue<SimuAgent> activationList = new PriorityQueue<>(
 			(SimuAgent o1, SimuAgent o2) -> o1.getNextEventDate().compareTo(o2.getNextEventDate()));
 
-	public DiscreteEventAgentsActivator(String community, String group, String role, String theBehaviorToActivate) {
-		super(community, group, role, theBehaviorToActivate);
+	public DiscreteEventAgentsActivator(String group, String role, String theBehaviorToActivate) {
+		super(group, role, theBehaviorToActivate);
 		setNextActivationDate(LocalDateTime.MAX);
 	}
 

@@ -13,8 +13,6 @@ import madkit.simulation.scheduler.DateBasedDiscreteEventScheduler;
  *
  * It encapsulates an activation date which is coded using a {@link LocalDateTime} object.
  *
- * @param <A>
- *           The most common class of the simulated agents
  *
  * @author Fabien Michel
  */
@@ -23,8 +21,8 @@ public class DateBasedDiscreteEventActivator extends MethodActivator {
 	private LocalDateTime nextActivationDate;
 	private Duration defaultInterval = Duration.ofSeconds(1);
 
-	public DateBasedDiscreteEventActivator(String community, String group, String role, String theBehaviorToActivate) {
-		super(community, group, role, theBehaviorToActivate);
+	public DateBasedDiscreteEventActivator(String group, String role, String theBehaviorToActivate) {
+		super(group, role, theBehaviorToActivate);
 	}
 
 	public LocalDateTime getCurrentTime() {
@@ -35,7 +33,7 @@ public class DateBasedDiscreteEventActivator extends MethodActivator {
 	 * Defines an ordering so that the scheduler can classify activators according to their date and priority.
 	 */
 	@Override
-	public int compareTo(Activator o) {// FIXME
+	public int compareTo(Activator o) {
 		if (o instanceof DateBasedDiscreteEventActivator dba) {
 			int result = getNextActivationDate().compareTo(dba.getNextActivationDate());
 			if (result != 0) {

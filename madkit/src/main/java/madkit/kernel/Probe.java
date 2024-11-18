@@ -41,6 +41,22 @@ public class Probe extends Overlooker {
 	}
 
 	/**
+	 * Builds a new Probe<> on the given CGR location, without specifying the community.
+	 * This constructor is used to simplify declaration when used with the default implementation 
+	 * of a simulation engine provided in the madkit.simulation package.
+	 * Once created, it has to be added by a {@link Watcher} agent using the
+	 * {@link Watcher#addProbe(Probe)} method.
+	 * 
+	 * @param communityName
+	 * @param groupName
+	 * @param roleName
+	 * @see Watcher
+	 */
+	public Probe(final String groupName, final String roleName) {
+		this(null, groupName, roleName);
+	}
+
+	/**
 	 * Returns the agent's field named <code>fieldName</code>. This also works on
 	 * <code>private</code> fields, even inherited ones.
 	 * 
@@ -61,7 +77,7 @@ public class Probe extends Overlooker {
 		return fieldsTable.computeIfAbsent(agentClass, table -> new Reference2ReferenceArrayMap<String, Field>());
 	}
 
-	static private Field getField(Class<?> agentClass, String fieldName) {
+	private static Field getField(Class<?> agentClass, String fieldName) {
 		while (agentClass != Object.class) {
 			try {
 				Field f = agentClass.getDeclaredField(fieldName);

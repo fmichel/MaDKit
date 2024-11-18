@@ -25,7 +25,7 @@ public class Watcher extends SimuAgent {
 	 * @param probe the probe to add
 	 */
 	public void addProbe(final Probe probe) {
-		if (getOrgnization().addOverlooker(probe))
+		if (getOrgnization().addOverlooker(this, probe))
 			probes.add(probe);
 		getLogger().fine(() -> "Probe added: " + probe);
 	}

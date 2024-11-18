@@ -25,12 +25,12 @@ public class ActivatorTest {
 	public void initActivator() {
 		emptyAgent = new Agent();
 		emptyAgent = new GenericTestAgent();
-	noSuchMethodActivator = new Activator("test", "test", "test") {
+	noSuchMethodActivator = new Activator("test", "test") {
 			@Override
 			public void execute(Object... args) {
 			};
 		};
-		getLoggerActivator = new Activator("test", "test", "privateMethod") {
+		getLoggerActivator = new Activator("test", "test") {
 			@Override
 			public void execute(Object... args) {
 				executeBehaviorOf(emptyAgent, getCommunity(), args);

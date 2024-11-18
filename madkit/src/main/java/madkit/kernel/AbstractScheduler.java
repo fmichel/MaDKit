@@ -122,8 +122,8 @@ public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends Si
 
 	@Override
 	protected void onActivation() {
-		requestRole(getCommunity(), getEngineGroup(), SCHEDULER_ROLE);
 //		getSimuEngine().setScheduler(this);
+		requestRole(getCommunity(), getEngineGroup(), SCHEDULER_ROLE);
 	}
 
 	/**
@@ -392,27 +392,16 @@ public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends Si
 	}
 
 	public MethodActivator addViewersActivator() {
-		MethodActivator v = new MethodActivator(getCommunity(), getEngineGroup(), VIEWER_ROLE, "observe");
+		MethodActivator v = new MethodActivator(getEngineGroup(), VIEWER_ROLE, "observe");
 		addActivator(v);
 		return v;
 	}
 
 	public MethodActivator addEnvironmentActivator() {
-		MethodActivator v = new MethodActivator(getCommunity(), getEngineGroup(), ENVIRONMENT_ROLE, "update");
+		MethodActivator v = new MethodActivator(getEngineGroup(), ENVIRONMENT_ROLE, "update");
 		addActivator(v);
 		return v;
 	}
-
-//	/**
-//	 * Sets the priority of an {@link Activator}.
-//	 *
-//	 * @param activator
-//	 * @param priority
-//	 */
-//	public void setActivatorPriority(Activator activator, int priority) {
-//		activator.setPriority(priority);
-//		updateActivatorsSchedule();
-//	}
 
 	/**
 	 * Updates the activators schedule according to their priorities
@@ -422,7 +411,8 @@ public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends Si
 	}
 
 	/**
-	 * Adds an activator to the simulation engine. This has to be done to make an
+	 * Adds an activator to the simulation engine. 
+	 * This has to be done to make an
 	 * activator work properly.
 	 *
 	 * @param activator an activator.
@@ -430,7 +420,7 @@ public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends Si
 	 */
 	public void addActivator(final Activator activator) {
 		activator.setScheduler(this);
-		if (activator.addToOrganization(getOrgnization())) {
+		if (getOrgnization().addOverlooker(this, activator)) {
 			activators.add(activator);
 			updateActivatorsSchedule();
 			getLogger().fine(() -> activator+" added");

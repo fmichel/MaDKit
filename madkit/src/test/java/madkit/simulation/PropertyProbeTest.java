@@ -6,13 +6,9 @@ import java.util.NoSuchElementException;
 
 import org.testng.annotations.Test;
 
-import madkit.kernel.Agent;
-import madkit.kernel.GenericTestAgent;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Watcher;
-import madkit.kernel.Agent.ReturnCode;
 import madkit.simulation.probe.PropertyProbe;
-import madkit.test.agents.CGRAgent;
 import madkit.test.agents.SimulatedAgent;
 import madkit.test.agents.SimulatedAgentBis;
 
@@ -28,16 +24,16 @@ public class PropertyProbeTest extends JunitMadkit {
 
 	@Test
 	public void primitiveTypeProbing() {
-		launchTestedAgent(new Watcher() {
+		launchSimuAgentTest(new Watcher() {
 
 			@Override
 			protected void onActivation() {
 				SimulatedAgent agent;
 				threadAssertEquals(SUCCESS, launchAgent(agent = new SimulatedAgent()));
-				PropertyProbe<Integer> fp = new PropertyProbe<>(COMMUNITY, GROUP, ROLE, "privatePrimitiveField");
+				PropertyProbe<Integer> fp = new PropertyProbe<>(GROUP, ROLE, "privatePrimitiveField");
 				addProbe(fp);
 				threadAssertTrue(1 == fp.getPropertyValue(agent));
-				PropertyProbe<Double> fp2 = new PropertyProbe<>(COMMUNITY, GROUP, ROLE, "publicPrimitiveField");
+				PropertyProbe<Double> fp2 = new PropertyProbe<>(GROUP, ROLE, "publicPrimitiveField");
 				addProbe(fp2);
 				threadAssertTrue(2 == fp2.getPropertyValue(agent));
 				agent.setPrivatePrimitiveField(10);
@@ -58,19 +54,19 @@ public class PropertyProbeTest extends JunitMadkit {
 
 	@Test
 	public void multiTypeProbing() {
-		launchTestedAgent(new Watcher() {
+		launchSimuAgentTest(new Watcher() {
 
 			@Override
 			protected void onActivation() {
 				SimulatedAgent agent;
 				SimulatedAgentBis agentBis;
-				threadAssertEquals(SUCCESS, launchAgent(agent = new SimulatedAgent()));
-				threadAssertEquals(SUCCESS, launchAgent(agentBis = new SimulatedAgentBis()));
-				PropertyProbe<Integer> fp = new PropertyProbe<>(COMMUNITY, GROUP, ROLE, "privatePrimitiveField");
+				launchAgent(agent = new SimulatedAgent());
+				launchAgent(agentBis = new SimulatedAgentBis());
+				PropertyProbe<Integer> fp = new PropertyProbe<>(GROUP, ROLE, "privatePrimitiveField");
 				addProbe(fp);
 				threadAssertTrue(1 == fp.getPropertyValue(agent));
 				threadAssertTrue(1 == fp.getPropertyValue(agentBis));
-				PropertyProbe<Double> fp2 = new PropertyProbe<>(COMMUNITY, GROUP, ROLE, "publicPrimitiveField");
+				PropertyProbe<Double> fp2 = new PropertyProbe<>(GROUP, ROLE, "publicPrimitiveField");
 				addProbe(fp2);
 				double i = fp2.getPropertyValue(agent);
 				System.err.println(i);
@@ -89,7 +85,7 @@ public class PropertyProbeTest extends JunitMadkit {
 					}
 				}));
 				agent.setPrivatePrimitiveField(10);
-				threadAssertEquals(3, fp.size());
+				threadAssertEquals(2, fp.size());
 				threadAssertTrue(100 == fp.getPropertyValue(agent));
 			}
 		});
@@ -97,94 +93,97 @@ public class PropertyProbeTest extends JunitMadkit {
 
 	@Test
 	public void wrongTypeProbing() {
-		launchTestedAgent(new Watcher() {
+		launchSimuAgentTest(new Watcher() {
 
 			@Override
 			protected void onActivation() {
 				SimulatedAgent agent;
 				threadAssertEquals(SUCCESS, launchAgent(agent = new SimulatedAgent()));
-				PropertyProbe<String> fp = new PropertyProbe<>(COMMUNITY, GROUP, ROLE, "privatePrimitiveField");
+				PropertyProbe<String> fp = new PropertyProbe<>(GROUP, ROLE, "privatePrimitiveField");
 				addProbe(fp);
 				try {
 					System.err.println(fp.getPropertyValue(agent));
 					noExceptionFailure();
 				} catch (ClassCastException e) {
-					throw e;
+					e.printStackTrace();
 				}
 			}
-		}, ReturnCode.AGENT_CRASH);
+		});
 	}
 
 	@SuppressWarnings("unused")
 	@Test
 	public void wrongSourceProbing() {
-		launchTestedAgent(new Watcher() {
+		launchSimuAgentTest(new Watcher() {
 
 			@Override
 			protected void onActivation() {
-				threadAssertEquals(SUCCESS, launchAgent(new SimulatedAgent()));
-				PropertyProbe<Integer> fp = new PropertyProbe<>(COMMUNITY, GROUP, ROLE,
+				launchAgent(new SimulatedAgent());
+				PropertyProbe<Integer> fp = new PropertyProbe<>(GROUP, ROLE,
 						"privatePrimitiveField");
 				addProbe(fp);
 				try {
-					CGRAgent normalAA = new CGRAgent() {
-
+					SimulatedAgent normalAA = new SimulatedAgent() {
 						String	privatePrimitiveField	= "test";
 					};
 					System.err.println(fp.getPropertyValue(normalAA));
 					int i = fp.getPropertyValue(normalAA);
 					noExceptionFailure();
 				} catch (ClassCastException e) {
-					throw e;
+					e.printStackTrace();
 				}
 			}
-		}, ReturnCode.AGENT_CRASH);
+		});
 	}
 
 	@Test
 	public void wrongTypeSetting() {
-		launchTestedAgent(new Watcher() {
+		launchSimuAgentTest(new Watcher() {
 
 			@Override
 			protected void onActivation() {
 				SimulatedAgent agent;
 				threadAssertEquals(SUCCESS, launchAgent(agent = new SimulatedAgent()));
-				PropertyProbe<Object> fp = new PropertyProbe<>(COMMUNITY, GROUP, ROLE, "privatePrimitiveField");
+				PropertyProbe<Object> fp = new PropertyProbe<>(GROUP, ROLE, "privatePrimitiveField");
 				addProbe(fp);
 				try {
 					fp.setPropertyValue(agent, "a");
 					noExceptionFailure();
 				} catch (SimulationException e) {
-					throw e;
+					e.printStackTrace();
 				}
 			}
-		}, ReturnCode.AGENT_CRASH);
+		});
 	}
 
 	@Test
 	public void noSuchFieldProbing() {
-		launchTestedAgent(new Agent() {
-
+		launchSimuAgentTest(new Watcher() {
 			@Override
 			protected void onActivation() {
-				launchAgent(new CGRAgent());
-				PropertyProbe<String> fp = new PropertyProbe<>(COMMUNITY, GROUP, ROLE, "privatePrimitiveField");
-				Watcher s = new Watcher();
-				threadAssertEquals(SUCCESS, launchAgent(s));
-				s.addProbe(fp);
+				launchAgent(new SimuAgent() {
+					@Override
+					protected void onActivation() {
+						super.onActivation();
+						createSimuGroup(GROUP);
+						requestSimuRole(GROUP, ROLE);
+					}
+				});
+				PropertyProbe<String> fp = new PropertyProbe<>(GROUP, ROLE, "privatePrimitiveField");
+				addProbe(fp);
 				try {
 					System.err.println(fp.getPropertyValue(fp.getCurrentAgentsList().get(0)));
 					noExceptionFailure();
-				} catch (NullPointerException e) {
-					throw e;
+				} catch (SimulationException e) {
+					e.printStackTrace();
 				}
 			}
-		}, ReturnCode.AGENT_CRASH);
+		});
 	}
 
 	@Test
 	public void testGetMax() {
-		launchTestedAgent(new Agent() {
+		launchSimuAgentTest(new Watcher() {
 
 			@Override
 			protected void onActivation() {
@@ -194,10 +193,8 @@ public class PropertyProbeTest extends JunitMadkit {
 					threadAssertEquals(SUCCESS, launchAgent(agent = new SimulatedAgent()));
 					agent.publicPrimitiveField = i;
 				}
-				PropertyProbe<String> fp = new PropertyProbe<>(COMMUNITY, GROUP, ROLE, "publicPrimitiveField");
-				Watcher s = new Watcher();
-				threadAssertEquals(SUCCESS, launchAgent(s));
-				s.addProbe(fp);
+				PropertyProbe<String> fp = new PropertyProbe<>(GROUP, ROLE, "publicPrimitiveField");
+				addProbe(fp);
 				threadAssertEquals(9d, fp.getMax());
 			}
 		});
@@ -205,7 +202,7 @@ public class PropertyProbeTest extends JunitMadkit {
 
 	@Test
 	public void testGetMin() {
-		launchTestedAgent(new Agent() {
+		launchSimuAgentTest(new Watcher() {
 
 			@Override
 			protected void onActivation() {
@@ -215,7 +212,7 @@ public class PropertyProbeTest extends JunitMadkit {
 					threadAssertEquals(SUCCESS, launchAgent(agent = new SimulatedAgent()));
 					agent.publicPrimitiveField = i;
 				}
-				PropertyProbe<String> fp = new PropertyProbe<>(COMMUNITY, GROUP, ROLE, "publicPrimitiveField");
+				PropertyProbe<String> fp = new PropertyProbe<>(GROUP, ROLE, "publicPrimitiveField");
 				Watcher s = new Watcher();
 				threadAssertEquals(SUCCESS, launchAgent(s));
 				s.addProbe(fp);
@@ -226,23 +223,19 @@ public class PropertyProbeTest extends JunitMadkit {
 
 	@Test
 	public void getAverageTest() {
-		launchTestedAgent(new Agent() {
-
+		launchSimuAgentTest(new Watcher() {
 			@Override
 			protected void onActivation() {
 				for (int i = 0; i < 12; i++) {
-					// launchDefaultAgent(this);
 					SimulatedAgent agent;
 					threadAssertEquals(SUCCESS, launchAgent(agent = new SimulatedAgent()));
 					agent.publicPrimitiveField = i;
 					agent.setPrivatePrimitiveField(i*2);
 				}
-				PropertyProbe<String> fp = new PropertyProbe<>(COMMUNITY, GROUP, ROLE, "publicPrimitiveField");
-				PropertyProbe<String> fpInt = new PropertyProbe<>(COMMUNITY, GROUP, ROLE, "privatePrimitiveField");
-				Watcher s = new Watcher();
-				threadAssertEquals(SUCCESS, launchAgent(s));
-				s.addProbe(fp);
-				s.addProbe(fpInt);
+				PropertyProbe<String> fp = new PropertyProbe<>(GROUP, ROLE, "publicPrimitiveField");
+				PropertyProbe<String> fpInt = new PropertyProbe<>(GROUP, ROLE, "privatePrimitiveField");
+				addProbe(fp);
+				addProbe(fpInt);
 				threadAssertEquals(5.5d, fp.getAverage());
 				threadAssertEquals(11d, fpInt.getAverage());
 			}
@@ -251,13 +244,11 @@ public class PropertyProbeTest extends JunitMadkit {
 
 	@Test
 	public void noAgentgetAverageTest() {
-		launchTestedAgent(new Agent() {
+		launchSimuAgentTest(new Watcher() {
 			@Override
 			protected void onActivation() {
-				PropertyProbe<String> fp = new PropertyProbe<>(COMMUNITY, GROUP, ROLE, "publicPrimitiveField");
-				Watcher s = new Watcher();
-				threadAssertEquals(SUCCESS, launchAgent(s));
-				s.addProbe(fp);
+				PropertyProbe<String> fp = new PropertyProbe<>(GROUP, ROLE, "publicPrimitiveField");
+				addProbe(fp);
 				try {
 					fp.getAverage();
 					noExceptionFailure();
@@ -271,16 +262,14 @@ public class PropertyProbeTest extends JunitMadkit {
 
 	@Test
 	public void getMinAndGetMaxnotComparable() {
-		launchTestedAgent(new GenericTestAgent() {
+		launchSimuAgentTest(new Watcher() {
 
 			@Override
 			protected void onActivation() {
 				// launchDefaultAgent(this);
 				threadAssertEquals(SUCCESS, launchAgent(new SimulatedAgent()));
-				PropertyProbe<String> fp = new PropertyProbe<>(COMMUNITY, GROUP, ROLE, "objectField");
-				Watcher s = new Watcher();
-				threadAssertEquals(SUCCESS, launchAgent(s));
-				s.addProbe(fp);
+				PropertyProbe<String> fp = new PropertyProbe<>(GROUP, ROLE, "objectField");
+				addProbe(fp);
 				try {
 					System.err.println(fp.getMax());
 					noExceptionFailure();

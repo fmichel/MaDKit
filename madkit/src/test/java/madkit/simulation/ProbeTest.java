@@ -41,10 +41,10 @@ public class ProbeTest  extends JunitMadkit {
 	
 	@Test
 	public void givenNewProbe_whenAddedBeforeAgentsJoin_thenSizeIsCorrect() {
-		launchTestedAgent(new Watcher() {
+		launchSimuAgentTest(new Watcher() {
 			@Override
 			protected void onActivation() {
-				Probe p = new Probe(COMMUNITY, GROUP, ROLE);
+				Probe p = new Probe(getCommunity(), GROUP, ROLE);
 				addProbe(p);
 				assertEquals(p.size(),0);
 				threadAssertEquals(SUCCESS, launchAgent(new SimulatedAgent()));
@@ -56,11 +56,11 @@ public class ProbeTest  extends JunitMadkit {
 	
 	@Test
 	public void givenNewProbe_whenAddedAfterAgentsJoined_thenSizeIsCorrect() {
-		launchTestedAgent(new Watcher() {
+		launchSimuAgentTest(new Watcher() {
 			@Override
 			protected void onActivation() {
 				threadAssertEquals(SUCCESS, launchAgent(new SimulatedAgent()));
-				Probe p = new Probe(COMMUNITY, GROUP, ROLE);
+				Probe p = new Probe(getCommunity(), GROUP, ROLE);
 				addProbe(p);
 				assertEquals(p.size(),1);
 			}

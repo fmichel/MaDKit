@@ -8,8 +8,8 @@ import madkit.kernel.Activator;
  */
 public class EmptyActivator extends Activator {
 
-	public EmptyActivator(String community, String group, String role) {
-		super(community, group, role);
+	public EmptyActivator(String group, String role) {
+		super(group, role);
 	}
 
 	@Override

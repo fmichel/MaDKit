@@ -34,9 +34,9 @@ public abstract class Activator extends Overlooker implements Comparable<Activat
 	private AbstractScheduler<?> scheduler;
 
 	/**
-	 * Builds a new Activator on the given CGR location of the artificial society
-	 * with multicore mode set to <code>false</code>. This has the same effect as
-	 * <code>Activator(community, group, role, false)</code>.
+	 * Builds a new Activator on the given CGR location of the artificial society.
+	 * Once created, it has to be added by a {@link AbstractScheduler} agent using the
+	 * {@link AbstractScheduler#addActivator(Activator)}.
 	 *
 	 * @param community
 	 * @param group
@@ -45,6 +45,22 @@ public abstract class Activator extends Overlooker implements Comparable<Activat
 	 */
 	protected Activator(String community, String group, String role) {
 		super(community, group, role);
+	}
+
+	/**
+	 * Builds a new Activator on the given CGR location of the artificial society, without specifying the community.
+	 * This constructor is used to simplify declaration when used with the default implementation 
+	 * of a simulation engine provided in the madkit.simulation package.
+	 * with multicore mode set to <code>false</code>. This has the same effect as
+	 * <code>Activator(community, group, role, false)</code>.
+	 *
+	 * @param community
+	 * @param group
+	 * @param role
+	 * @see Scheduler
+	 */
+	protected Activator(String group, String role) {
+		this(null, group, role);
 	}
 
 	@Override
@@ -67,13 +83,6 @@ public abstract class Activator extends Overlooker implements Comparable<Activat
 	 */
 	public void setMulticoreOn(boolean multicoreOn) {
 		this.multicoreOn = multicoreOn;
-	}
-
-	/**
-	 * @param scheduler the scheduler to set
-	 */
-	public void setScheduler(AbstractScheduler<?> scheduler) {
-		this.scheduler = scheduler;
 	}
 
 	/**
@@ -159,7 +168,7 @@ public abstract class Activator extends Overlooker implements Comparable<Activat
 
 	@Override
 	public String toString() {
-		return "P(" + getPriority() + ") " + super.toString();
+		return "A(" + getPriority() + ") " + super.toString();
 	}
 
 	/**
@@ -169,5 +178,12 @@ public abstract class Activator extends Overlooker implements Comparable<Activat
 	 */
 	public SimulationTimer<?> getSimuTimer() {
 		return getScheduler().getSimuTimer();
+	}
+
+	/**
+	 * @param scheduler the scheduler to set
+	 */
+	void setScheduler(AbstractScheduler<?> scheduler) {
+		this.scheduler = scheduler;
 	}
 }

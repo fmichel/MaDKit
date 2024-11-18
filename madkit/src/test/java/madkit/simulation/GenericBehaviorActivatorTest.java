@@ -30,7 +30,7 @@ public class GenericBehaviorActivatorTest extends JunitMadkit {
 			@Override
 			protected void onActivation() {
 				launchAgent(new CGRAgent());
-				buggy = new MethodActivator(COMMUNITY, GROUP, ROLE, "doIt");
+				buggy = new MethodActivator(GROUP, ROLE, "doIt");
 				addActivator(buggy);
 				try {
 					buggy.execute();
@@ -48,7 +48,7 @@ public class GenericBehaviorActivatorTest extends JunitMadkit {
 			@Override
 			protected void onActivation() {
 				launchAgent(new CGRAgent());
-				buggy = new MethodActivator(COMMUNITY, GROUP, ROLE, "doIt");
+				buggy = new MethodActivator(GROUP, ROLE, "doIt");
 				addActivator(buggy);
 				try {
 					buggy.execute();

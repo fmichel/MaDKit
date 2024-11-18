@@ -19,8 +19,8 @@ public class SimulatedAgent extends SimuAgent{
 
 	@Override
 	protected void onActivation() {
-		createGroup(COMMUNITY, GROUP);
-		requestRole(COMMUNITY, GROUP, ROLE);
+		createSimuGroup(GROUP);
+		requestSimuRole(GROUP, ROLE);
 	}
 	
 	public void doIt() {

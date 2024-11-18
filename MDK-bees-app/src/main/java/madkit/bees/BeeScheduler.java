@@ -24,7 +24,6 @@ import madkit.kernel.AbstractScheduler;
 import madkit.simulation.DateBasedTimer;
 import madkit.simulation.Parameter;
 import madkit.simulation.activator.MethodActivator;
-import madkit.simulation.activator.MethodHandleActivator;
 
 /**
  * @version 6
@@ -32,7 +31,7 @@ import madkit.simulation.activator.MethodHandleActivator;
  */
 public class BeeScheduler extends AbstractScheduler<DateBasedTimer> {
 
-	private static MethodHandleActivator bees;
+	private static MethodActivator bees;
 
 	@Parameter(category = "engine", displayName = "multicore")
 	private static boolean multicore = false;
@@ -63,9 +62,9 @@ public class BeeScheduler extends AbstractScheduler<DateBasedTimer> {
 	public void onActivation() {
 //		getLogger().setLevel(Level.ALL);
 		super.onActivation();
-		bees = new MethodHandleActivator(getCommunity(), getModelGroup(), AbstractBee.BEE_ROLE, "buzz");
+		bees = new MethodActivator(getModelGroup(), AbstractBee.BEE_ROLE, "buzz");
 		addActivator(bees);
-		MethodActivator viewer = new MethodActivator(getCommunity(), getEngineGroup(), VIEWER_ROLE, "observe");
+		MethodActivator viewer = new MethodActivator(getEngineGroup(), VIEWER_ROLE, "observe");
 		addActivator(viewer);
 		// auto starting myself the agent way
 	}

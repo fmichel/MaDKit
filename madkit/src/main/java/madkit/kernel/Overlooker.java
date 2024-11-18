@@ -54,7 +54,7 @@ import madkit.simulation.SimulationException;
 abstract class Overlooker {
 
 	private Role overlookedRole;
-	private final String community;
+	private String community;
 	private final String group;
 	private final String role;
 
@@ -67,7 +67,8 @@ abstract class Overlooker {
 	 * @param roleName
 	 */
 	Overlooker(final String communityName, final String groupName, final String roleName) {
-		community = Objects.requireNonNull(communityName, ErrorMessages.C_NULL.toString());
+//		community = Objects.requireNonNull(communityName, ErrorMessages.C_NULL.toString());
+		community = communityName;
 		group = Objects.requireNonNull(groupName, ErrorMessages.G_NULL.toString());
 		role = Objects.requireNonNull(roleName, ErrorMessages.R_NULL.toString());
 	}
@@ -197,9 +198,9 @@ abstract class Overlooker {
 	}
 
 	/**
-	 * Returns the number of the agents handling the group/role couple
+	 * Returns the number of targeted agents.
 	 *
-	 * @return the number of the agents that handle the group/role couple
+	 * @return the number of targeted agents
 	 */
 	public int size() {
 		return getCurrentAgentsList().size();
@@ -287,8 +288,13 @@ abstract class Overlooker {
 		}
 	}
 	
-	public boolean addToOrganization(Organization org) {
-		return org.addOverlooker(this);
+	/**
+	 * @param communityName the community to set
+	 */
+	void setCommunity(String communityName) {
+		if (community == null) {
+			community = communityName;
+		}
 	}
 
 }

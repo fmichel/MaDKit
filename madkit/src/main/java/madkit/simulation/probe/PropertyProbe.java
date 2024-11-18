@@ -11,13 +11,13 @@ import madkit.kernel.Probe;
 import madkit.simulation.SimulationException;
 
 /**
- * This probe inspects fields of type T on agents of type A and its subclasses.
+ * This probe inspects a field of type T on a group of agents.
  * 
  * @param <T> the type of the property, i.e. Integer (this works if the field is
  *            an int, i.e. a inspected primitive type should use its wrapper)
  * @author Fabien Michel
  * @since MaDKit 5.0.0.13
- * @version 5.1
+ * @version 6.0
  */
 public class PropertyProbe<T> extends Probe {
 
@@ -38,8 +38,8 @@ public class PropertyProbe<T> extends Probe {
 	 * @param role
 	 * @param fieldName the name of a field which is encapsulated in type <A>
 	 */
-	public PropertyProbe(String community, String group, String role, String fieldName) {
-		super(community, group, role);
+	public PropertyProbe(String group, String role, String fieldName) {
+		super(group, role);
 		this.fieldName = fieldName;
 	}
 
@@ -89,7 +89,7 @@ public class PropertyProbe<T> extends Probe {
 	public void setPropertyValue(final Agent agent, final T value) {
 		updateCache(agent);
 		try {
-			cachedField.set(agent, value);
+			cachedField.set(agent, value);//NOSONAR
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			throw new SimulationException(toString() + " on " + agent, e);
 		}

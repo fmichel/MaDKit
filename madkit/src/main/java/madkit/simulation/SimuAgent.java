@@ -92,6 +92,10 @@ public class SimuAgent extends Agent {
 		return leaveRole(getCommunity(), group, role);
 	}
 
+	protected ReturnCode leaveSimuGroup(String group) {
+		return leaveGroup(getCommunity(), group);
+	}
+
 	/**
 	 * Returns the {@link SimulationTimer} of the current simulation. This is
 	 * automatically initialized when the agent is associated with an activator for

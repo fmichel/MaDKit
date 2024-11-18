@@ -6,7 +6,6 @@ import static madkit.kernel.Agent.ReturnCode.SUCCESS;
 
 import org.testng.annotations.Test;
 
-import madkit.kernel.Agent;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Watcher;
 import madkit.kernel.Probe;
@@ -44,7 +43,7 @@ public class BasicWatcherTest extends JunitMadkit {
 					e.printStackTrace();
 				}
 				try {
-					Probe a = new Probe(COMMUNITY, GROUP, null);
+					Probe a = new Probe(GROUP, null);
 					s.addProbe(a);
 					noExceptionFailure();
 				} catch (NullPointerException e) {
@@ -70,65 +69,61 @@ public class BasicWatcherTest extends JunitMadkit {
 
 	@Test
 	public void addingAndRemovingProbes() {
-		launchTestedAgent(new CGRAgent() {
+		launchSimuAgentTest(new Watcher() {
 			@Override
 			protected void onActivation() {
 				super.onActivation();
-				Watcher s = new Watcher();
-				threadAssertEquals(SUCCESS, launchAgent(s));
-				ReturnCode code;
 				// ///////////////////////// REQUEST ROLE ////////////////////////
-				Probe a = new Probe(COMMUNITY, GROUP, ROLE);
-				s.addProbe(a);
+				threadAssertEquals(SUCCESS, createSimuGroup(GROUP));
+				threadAssertEquals(SUCCESS, requestSimuRole(GROUP, ROLE));
+				Probe a = new Probe(GROUP, ROLE);
+				addProbe(a);
 				threadAssertEquals(1, a.size());
 
-				code = leaveRole(COMMUNITY, GROUP, ROLE);
+				ReturnCode code = leaveSimuRole(GROUP, ROLE);
 				threadAssertEquals(SUCCESS, code);
 				threadAssertEquals(0, a.size());
 
-				threadAssertEquals(ALREADY_GROUP, createGroup(COMMUNITY, GROUP, false, null));
-				threadAssertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE, null));
+				threadAssertEquals(ALREADY_GROUP, createSimuGroup(GROUP));
+				threadAssertEquals(SUCCESS, requestSimuRole(GROUP, ROLE));
 
 				threadAssertEquals(1, a.size());
 
-				threadAssertEquals(SUCCESS, leaveGroup(COMMUNITY, GROUP));
+				threadAssertEquals(SUCCESS, leaveSimuGroup(GROUP));
 				threadAssertEquals(0, a.size());
 
 				// Adding and removing while group does not exist
-				s.removeProbe(a);
+				removeProbe(a);
 				threadAssertEquals(0, a.size());
-				s.addProbe(a);
+				addProbe(a);
 				threadAssertEquals(0, a.size());
 
-				threadAssertEquals(SUCCESS, createGroup(COMMUNITY, GROUP, false, null));
-				threadAssertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE, null));
-				Agent other = new Agent() {
+				threadAssertEquals(SUCCESS, createSimuGroup(GROUP));
+				threadAssertEquals(SUCCESS, requestSimuRole(GROUP, ROLE));
+				SimuAgent other = new SimuAgent() {
 					@Override
 					protected void onActivation() {
-						threadAssertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE, null));
+						threadAssertEquals(SUCCESS, requestSimuRole(GROUP, ROLE));
 					}
 				};
 				threadAssertEquals(SUCCESS, launchAgent(other));
 
 				threadAssertEquals(2, a.size());
-				s.removeProbe(a);
+				removeProbe(a);
 				threadAssertEquals(0, a.size());
 
-				s.addProbe(a);
+				addProbe(a);
 				threadAssertEquals(2, a.size());
 
-				threadAssertEquals(SUCCESS, leaveGroup(COMMUNITY, GROUP));
+				threadAssertEquals(SUCCESS, leaveSimuGroup(GROUP));
 				threadAssertEquals(1, a.size());
-				threadAssertEquals(SUCCESS, other.leaveGroup(COMMUNITY, GROUP));
+				threadAssertEquals(SUCCESS, other.leaveSimuGroup(GROUP));
 				threadAssertEquals(0, a.size());
 
-				threadAssertEquals(SUCCESS, createGroup(COMMUNITY, GROUP, false, null));
-				threadAssertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE, null));
-				threadAssertEquals(SUCCESS, other.requestRole(COMMUNITY, GROUP, ROLE, null));
+				threadAssertEquals(SUCCESS, createSimuGroup(GROUP));
+				threadAssertEquals(SUCCESS, requestSimuRole(GROUP, ROLE));
+				threadAssertEquals(SUCCESS, other.requestSimuRole(GROUP, ROLE));
 				threadAssertEquals(2, a.size());
-
-				killAgent(s);
-				threadAssertEquals(0, a.size());
 			}
 		});
 	}

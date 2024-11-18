@@ -107,7 +107,7 @@ public class MethodFinderTest {
 	@Test(expectedExceptions = RuntimeException.class)
 	public void noSuchMethod() {
 		Agent a = new Agent();
-		Activator activator = new Activator("test", "test", "test") {
+		Activator activator = new Activator("test", "test") {
 			@Override
 			public void execute(Object... args) {
 			};

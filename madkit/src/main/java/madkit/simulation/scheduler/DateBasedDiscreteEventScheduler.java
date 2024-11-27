@@ -17,7 +17,7 @@ public class DateBasedDiscreteEventScheduler extends AbstractScheduler<DateBased
 	}
 
 	@Override
-	public void onSimulationStep() {
+	public void doSimulationStep() {
 		DateBasedDiscreteEventActivator nextActivator = getActivationList().poll();
 		getSimuTimer().setCurrentTime(nextActivator.getNextActivationDate());
 		nextActivator.execute();

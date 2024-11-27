@@ -21,8 +21,6 @@ package madkit.bees;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
-import java.util.logging.Level;
 import java.util.stream.IntStream;
 
 import madkit.kernel.Agent;
@@ -49,7 +47,6 @@ public class BeeLauncher extends SimulationEngine {
 	private static int beesNumber = 200_000;
 
 
-	private static Random prng = new Random();
 	private ArrayList<Agent> queensList = new ArrayList<>();
 	private ArrayList<Agent> beesList = new ArrayList<>(beesNumber * 2);
 	private boolean randomMode = true;
@@ -77,27 +74,27 @@ public class BeeLauncher extends SimulationEngine {
 	@Override
 	protected void onLiving() {
 		while (isAlive() && getScheduler().isAlive()) {
-			Message m = waitNextMessage(prng.nextInt(500, 4500));
+			Message m = waitNextMessage(prng().nextInt(500, 4500));
 			if (m != null) {
 //				proceedEnumMessage((EnumMessage<?>) m);
 			}
 			if (randomMode) {
 				killBees(false, 150);
-				if (Math.random() < .8) {
-					if (Math.random() < .5) {
+				if (prng().nextDouble() < .8) {
+					if (prng().nextDouble() < .5) {
 						if (queensList.size() > 1)
 							if (queensList.size() > 7)
-								killBees(true, (int) (Math.random() * 7) + 1);
+								killBees(true, prng().nextInt(1,7));
 							else
-								killBees(true, (int) (Math.random() * 2) + 1);
+								killBees(true, prng().nextInt(1,2));
 					} else if (queensList.size() < 10)
-						launchQueens((int) (Math.random() * 2) + 1);
-				} else if (Math.random() < .3) {
+						launchQueens(prng().nextInt(1,2));
+				} else if (prng().nextDouble() < .3) {
 					if (beesList.size() < 200000 && Runtime.getRuntime().freeMemory() > 100000) {
-						launchBees((int) (Math.random() * 15000) + 5000);
+						launchBees(prng().nextInt(5000,15000));
 					}
 				} else {
-					killBees(false, (int) (Math.random() * 500) + 1);
+					killBees(false, prng().nextInt(1,500));
 				}
 			}
 		}

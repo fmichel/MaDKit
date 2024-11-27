@@ -1,6 +1,7 @@
 package madkit.simulation.activator;
 
 import java.lang.invoke.MethodHandle;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,6 +43,7 @@ public class MethodActivator extends Activator {
 	private Class<?>[] argTypes;
 	private MethodHandle cachedMethod;
 	private Class<?> cachedClass;
+	private boolean shufflingMode;
 
 	/**
 	 * Builds a new GenericBehaviorActivator on the given CGR location of the
@@ -68,10 +70,14 @@ public class MethodActivator extends Activator {
 
 	@Override
 	public void execute(Object... args) {
+		List<Agent> currentAgentsList = getCurrentAgentsList();
 		if (isMulticoreOn()) {
-			executeInParallel(getCurrentAgentsList(), args);
+			executeInParallel(currentAgentsList, args);
 		} else {
-			execute(getCurrentAgentsList(), args);
+			if (isShufflingMode()) {
+				Collections.shuffle(currentAgentsList, getScheduler().prng());
+			}
+			execute(currentAgentsList, args);
 		}
 	}
 
@@ -193,6 +199,23 @@ public class MethodActivator extends Activator {
 	 */
 	public String getMethod() {
 		return method;
+	}
+	
+	/**
+	 * @return the shufflingMode
+	 */
+	public boolean isShufflingMode() {
+		return shufflingMode;
+	}
+
+	/**
+	 * When set to <code>true</code>, the agents activation list is randomized
+	 * for each call to execute 
+	 * 
+	 * @param shufflingMode the shufflingMode to set
+	 */
+	public void setShufflingMode(boolean shufflingMode) {
+		this.shufflingMode = shufflingMode;
 	}
 
 }

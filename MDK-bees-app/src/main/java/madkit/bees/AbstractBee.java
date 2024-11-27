@@ -30,7 +30,7 @@ import madkit.simulation.SimuAgent;
  */
 public abstract class AbstractBee extends SimuAgent {
 
-	protected static final Random generator = new Random(System.currentTimeMillis());
+//	protected static final Random generator = new Random(System.currentTimeMillis());
 
 	protected int xVelocity;
 	protected int yVelocity;
@@ -60,8 +60,9 @@ public abstract class AbstractBee extends SimuAgent {
 		final Point myLocation = myInformation.getCurrentPosition();
 		if (myLocation.x > getEnvironment().getWidth() || myLocation.y > getEnvironment().getHeight() || myLocation.x <= 0
 				|| myLocation.y <= 0) {
-			myLocation.setLocation(generator.nextInt((int) (getEnvironment().getWidth() - 20)) + 10,
-					generator.nextInt((int) (getEnvironment().getHeight() - 20)) + 10);
+			myLocation.setLocation(
+					prng().nextInt((getEnvironment().getWidth() - 20)) + 10,
+					prng().nextInt((getEnvironment().getHeight() - 20)) + 10);
 			myInformation.getPreviousPosition().setLocation(myLocation);
 		}
 		int beeMAcceleration = (int) getEnvironment().getBeeAcceleration();
@@ -105,7 +106,8 @@ public abstract class AbstractBee extends SimuAgent {
 
 	public int randomFromRange(int val) {
 		val /= 2;
-		return generator.nextInt(val * 2 + 1) - val;
+		return prng().nextInt(val * 2 + 1) - val;
+//		return generator.nextInt(val * 2 + 1) - val;
 //		return generator.nextInt(val /2, val + 1);
 	}
 

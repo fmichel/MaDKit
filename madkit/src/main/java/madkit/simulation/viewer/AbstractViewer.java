@@ -253,7 +253,7 @@ public abstract class AbstractViewer extends Watcher {
 	}
 
 	@Override
-	public void onInitialization() {
+	public void onSimuStartup() {
 		observe();
 	}
 

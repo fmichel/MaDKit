@@ -32,7 +32,7 @@ public abstract class Activator extends Overlooker implements Comparable<Activat
 	private boolean multicoreOn = false;
 
 	private AbstractScheduler<?> scheduler;
-
+	
 	/**
 	 * Builds a new Activator on the given CGR location of the artificial society.
 	 * Once created, it has to be added by a {@link AbstractScheduler} agent using the
@@ -130,7 +130,7 @@ public abstract class Activator extends Overlooker implements Comparable<Activat
 	 * this method is called.
 	 * 
 	 * @param args arguments that could be passed by the scheduler
-	 * @see Scheduler#onSimulationStep()
+	 * @see Scheduler#doSimulationStep()
 	 */
 	public abstract void execute(Object... args);
 
@@ -186,4 +186,5 @@ public abstract class Activator extends Overlooker implements Comparable<Activat
 	void setScheduler(AbstractScheduler<?> scheduler) {
 		this.scheduler = scheduler;
 	}
+
 }

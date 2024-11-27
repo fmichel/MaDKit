@@ -60,7 +60,7 @@ public class Bee extends AbstractBee {
 				followNewLeader(m);
 			else {
 				List<AgentAddress> queens = getAgentsWithRole(getCommunity(), getModelGroup(), AbstractBee.QUEEN_ROLE);
-				if (queens != null && generator.nextDouble() < (1.0 / queens.size())) {// change leader randomly
+				if (queens != null && prng().nextDouble() < (1.0 / queens.size())) {// change leader randomly
 					followNewLeader(m);
 				}
 			}
@@ -87,9 +87,9 @@ public class Bee extends AbstractBee {
 			dtx = leaderLocation.x - location.x;
 			dty = leaderLocation.y - location.y;
 		} else {
-			dtx = generator.nextInt(5);
-			dty = generator.nextInt(5);
-			if (generator.nextBoolean()) {
+			dtx = prng().nextInt(5);
+			dty = prng().nextInt(5);
+			if (prng().nextBoolean()) {
 				dtx = -dtx;
 				dty = -dty;
 			}

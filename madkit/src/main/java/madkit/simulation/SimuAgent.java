@@ -6,6 +6,7 @@ package madkit.simulation;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.random.RandomGenerator;
 
 import madkit.kernel.AbstractScheduler;
 import madkit.kernel.Agent;
@@ -21,6 +22,9 @@ public class SimuAgent extends Agent {
 	SimulationEngine simuEngine;
 
 	public SimulationEngine getSimuEngine() {
+		if (simuEngine == null) {
+			throw new IllegalStateException("Agent not yet launched, or not launched by a SimuAgent");
+		}
 		return simuEngine;
 	}
 
@@ -70,16 +74,20 @@ public class SimuAgent extends Agent {
 		return getSimuEngine().getEnvironment();
 	}
 
+	/**
+	 * @return the randomGnerator
+	 */
+	public RandomGenerator prng() {
+		return getModel().prng();
+	}
+
 	public List<SimuAgent> getViewers() {
 		return getSimuEngine().getViewers();
 	}
 
-	public void onInitialization() {
+	public void onSimuStartup() {
 	}
 
-	public void onSimulationStart() {
-	}
-	
 	protected ReturnCode requestSimuRole(String group, String role) {
 		return requestRole(getCommunity(), group, role);
 	}

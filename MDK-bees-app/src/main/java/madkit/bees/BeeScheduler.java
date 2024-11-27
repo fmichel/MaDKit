@@ -63,6 +63,7 @@ public class BeeScheduler extends AbstractScheduler<DateBasedTimer> {
 //		getLogger().setLevel(Level.ALL);
 		super.onActivation();
 		bees = new MethodActivator(getModelGroup(), AbstractBee.BEE_ROLE, "buzz");
+		bees.setShufflingMode(false);
 		addActivator(bees);
 		MethodActivator viewer = new MethodActivator(getEngineGroup(), VIEWER_ROLE, "observe");
 		addActivator(viewer);
@@ -70,7 +71,7 @@ public class BeeScheduler extends AbstractScheduler<DateBasedTimer> {
 	}
 	
 	@Override
-	public void onSimulationStep() {
+	public void doSimulationStep() {
 		logCurrrentStep();
 		executeActivators();
 		getSimuTimer().addOneTimeUnit();

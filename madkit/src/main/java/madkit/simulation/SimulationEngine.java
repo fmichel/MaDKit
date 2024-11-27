@@ -55,13 +55,6 @@ public class SimulationEngine extends SimuAgent {
 	public SimulationEngine() {
 		simuCommunity = getClass().getSimpleName();
 		simuEngine = this;
-//		try {
-//			Field f = SimuAgent.class.getDeclaredField("simuEngine");
-//			f.setAccessible(true);
-//			f.set(this, this);
-//		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-//			e.printStackTrace();
-//		}
 		viewers = new ArrayList<>();
 	}
 
@@ -88,42 +81,42 @@ public class SimulationEngine extends SimuAgent {
 	 * viewers 4. launch xml Agent tag
 	 */
 	private void createSimulationInstance() {
-		launchModel();
+		onLaunchModel();
 		getLogger().fine(() -> getModel() + " launched");
 		getLogger().fine(() -> "Launching environment ");
-		launchEnvironment();
+		onLaunchEnvironment();
 		getLogger().fine(() -> getEnvironment() + " launched");
-		launchScheduler();
+		onLaunchScheduler();
 		getLogger().fine(() -> getScheduler() + " launched");
 		launchSimulatedAgents();
 		launchViewers();
 		getLogger().fine(() -> getViewers() + " launched");
-		onInitialization();
+		onSimuStartup();
 		if (getKernelConfig().getBoolean("start")) {
 			startSimulation();
 		}
 	}
 
 	@Override
-	public void onInitialization() {
-		getModel().onInitialization();
-		getEnvironment().onInitialization();
+	public void onSimuStartup() {
+		getModel().onSimuStartup();
+		getEnvironment().onSimuStartup();
 		for (SimuAgent viewer : getViewers()) {
-			viewer.onInitialization();
+			viewer.onSimuStartup();
 		}
-		getScheduler().onInitialization();
+		getScheduler().onSimuStartup();
 	}
 
-	private void launchModel() {
-		launchAgent(getEngineClass(ENGINE.MODEL), Integer.MAX_VALUE);
+	protected <M extends SimulationModel> M  onLaunchModel() {
+		return launchAgent(getEngineClass(ENGINE.MODEL), Integer.MAX_VALUE);
 	}
 
-	private <E extends Environment> E launchEnvironment() {
+	protected <E extends Environment> E onLaunchEnvironment() {
 		return launchAgent(getEngineClass(ENGINE.ENVIRONMENT), Integer.MAX_VALUE);
 	}
 
-	private void launchScheduler() {
-		scheduler = launchAgent(getEngineClass(ENGINE.SCHEDULER), Integer.MAX_VALUE);
+	protected <S extends AbstractScheduler<?>> S  onLaunchScheduler() {
+		return launchAgent(getEngineClass(ENGINE.SCHEDULER), Integer.MAX_VALUE);
 	}
 
 	/**

@@ -23,45 +23,45 @@ public class Environment extends Watcher {
 		requestRole(getCommunity(), getEngineGroup(), ENVIRONMENT_ROLE);
 	}
 	
-	public static void setInitializeProcedure(Consumer<Environment> r) {
-		initialize = r;
-	}
-
-	/**
-	 * @return the initialize
-	 */
-	public static Consumer<Environment> getInitialize() {
-		return initialize;
-	}
-	
-	/**
-	 * 
-	 */
-	public void onInit() {
-		initialize = onStart;
-		if (initialize != null) {
-			initialize.accept(this);
-		}
-	}
-
-	/**
-	 * @return the onStart
-	 */
-	public static Consumer<Environment> getOnStart() {
-		return onStart;
-	}
-	
-	public void onStart() {
-		if(onStart != null) {
-			onStart.accept(this);
-		}
-	}
-
-	/**
-	 * @param onStart the onStart to set
-	 */
-	public static void setOnStart(Consumer<Environment> onStart) {
-		Environment.onStart = onStart;
-	}
+//	public static void setInitializeProcedure(Consumer<Environment> r) {
+//		initialize = r;
+//	}
+//
+//	/**
+//	 * @return the initialize
+//	 */
+//	public static Consumer<Environment> getInitialize() {
+//		return initialize;
+//	}
+//	
+//	/**
+//	 * 
+//	 */
+//	public void onInit() {
+//		initialize = onStart;
+//		if (initialize != null) {
+//			initialize.accept(this);
+//		}
+//	}
+//
+//	/**
+//	 * @return the onStart
+//	 */
+//	public static Consumer<Environment> getOnStart() {
+//		return onStart;
+//	}
+//	
+//	public void onStart() {
+//		if(onStart != null) {
+//			onStart.accept(this);
+//		}
+//	}
+//
+//	/**
+//	 * @param onStart the onStart to set
+//	 */
+//	public static void setOnStart(Consumer<Environment> onStart) {
+//		Environment.onStart = onStart;
+//	}
 
 }

@@ -58,7 +58,7 @@ public abstract class AbstractObserver extends Watcher {
 	/**
 	 * Intended to be invoked by a scheduler's activator for triggering the
 	 * observation. When the observer is used with the default engine settings, it
-	 * is triggerred each time the {@link Scheduler#onSimulationStep()} is called.
+	 * is triggerred each time the {@link Scheduler#doSimulationStep()} is called.
 	 */
 	protected abstract void observe();
 	

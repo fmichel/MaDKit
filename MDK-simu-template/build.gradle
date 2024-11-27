@@ -1,0 +1,28 @@
+plugins {
+	id 'buildlogic.madkit-common-conventions'
+	id 'org.openjfx.javafxplugin' version '0.1.0'
+	id 'application'
+}
+
+ext.moduleName = 'madkit.simu.template'
+
+application {
+    mainClass = 'madkit.simu.template.MyEngine'
+    mainModule = 'madkit.simu.template'
+}
+
+javafx {
+	version = '15'
+	modules = ['javafx.base', 'javafx.controls', 'javafx.graphics']
+}
+
+
+tasks.withType(JavaExec) {
+    jvmArgs '--add-modules', 'ALL-MODULE-PATH'
+}
+
+
+dependencies {
+	api project(':madkit')
+//	implementation files('libs/controlsfx-11.1.1-SNAPSHOT.jar')
+}

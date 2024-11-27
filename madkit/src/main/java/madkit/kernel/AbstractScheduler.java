@@ -1,5 +1,6 @@
 package madkit.kernel;
 
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -88,7 +89,7 @@ import net.jodah.typetools.TypeResolver;
  * @see BigDecimal
  * @see LocalDateTime
  */
-public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends SimuAgent{
+public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends SimuAgent {
 
 	private final List<Activator> activators = new ArrayList<>();
 
@@ -122,7 +123,13 @@ public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends Si
 
 	@Override
 	protected void onActivation() {
-//		getSimuEngine().setScheduler(this);
+		try {
+			Field f = SimulationEngine.class.getDeclaredField("scheduler");
+			f.setAccessible(true);//NOSONAR
+			f.set(getSimuEngine(), this);//NOSONAR
+		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+			e.printStackTrace();
+		}
 		requestRole(getCommunity(), getEngineGroup(), SCHEDULER_ROLE);
 	}
 
@@ -161,7 +168,6 @@ public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends Si
 	 */
 	@Override
 	protected void onLiving() {
-		onInitialization();
 		waitStartingMessage();
 		while (!Thread.currentThread().isInterrupted()) {
 			if (getSimuTimer().hasReachedEndTime()) {
@@ -173,14 +179,14 @@ public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends Si
 			exitOnKill();
 			switch (simulationState) {
 			case RUNNING:
-				onSimulationStep();
+				doSimulationStep();
 				break;
 			case PAUSED:
 				paused();
 				break;
 			case STEP:
 				simulationState = SimulationState.PAUSED;
-				onSimulationStep();
+				doSimulationStep();
 				break;
 			case SHUTDOWN:
 				return; // shutdown
@@ -208,7 +214,6 @@ public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends Si
 		getLogger().finer(" -- reseting time");
 		getSimuTimer().reset();
 		getLogger().fine(() -> " -- Calling onStart on " + getEnvironment());
-		getEnvironment().onStart();
 	}
 
 	@Override
@@ -309,7 +314,7 @@ public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends Si
 	 * By default logs are displayed only if {@link #getLogger()} is set above
 	 * {@link Level#FINER}.
 	 */
-	public abstract void onSimulationStep();
+	public abstract void doSimulationStep();
 
 	/**
 	 * Returns the delay between two simulation steps
@@ -411,8 +416,7 @@ public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends Si
 	}
 
 	/**
-	 * Adds an activator to the simulation engine. 
-	 * This has to be done to make an
+	 * Adds an activator to the simulation engine. This has to be done to make an
 	 * activator work properly.
 	 *
 	 * @param activator an activator.
@@ -423,9 +427,9 @@ public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends Si
 		if (getOrgnization().addOverlooker(this, activator)) {
 			activators.add(activator);
 			updateActivatorsSchedule();
-			getLogger().fine(() -> activator+" added");
+			getLogger().fine(() -> activator + " added");
 		} else
-			getLogger().warning(() -> activator+" already added");
+			getLogger().warning(() -> activator + " already added");
 	}
 
 	/**

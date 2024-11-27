@@ -44,7 +44,7 @@ import madkit.simulation.TickBasedTimer;
 public class TickBasedScheduler extends AbstractScheduler<TickBasedTimer> {
 
 	@Override
-	public void onSimulationStep() {
+	public void doSimulationStep() {
 		// TODO Auto-generated method stub
 		
 	}

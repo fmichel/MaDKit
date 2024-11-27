@@ -19,6 +19,8 @@
 package madkit.bees;
 
 import java.awt.Point;
+import java.util.Collections;
+import java.util.List;
 
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
@@ -119,7 +121,9 @@ public class BeeViewer extends Viewer2D {
 		// 10);
 		Color lastColor = null;
 //    	final boolean trailMode = (Boolean) trailModeAction.getValue(Action.SELECTED_KEY);
-		for (final Agent arg0 : beeProbe.getCurrentAgentsList()) {
+		List<Agent> currentAgentsList = beeProbe.getCurrentAgentsList();
+//		Collections.shuffle(currentAgentsList,prng());
+		for (final Agent arg0 : currentAgentsList) {
 			final BeeInformation b = beeProbe.getPropertyValue(arg0);
 			final Color c = b.getBeeColor();
 			if (c != lastColor) {

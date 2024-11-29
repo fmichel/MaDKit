@@ -5,14 +5,12 @@ plugins {
    	id 'signing'
 	id 'org.openjfx.javafxplugin' version '0.1.0'
    	id 'jacoco'
-   	id "org.sonarqube" version "4.2.1.3168"
+   	id "org.sonarqube" version "6.0.1.5171"
    	id 'org.gradlex.java-module-testing'
 }
 
 group = 'io.github.fmichel'
-version = '6.0.0-SNAPSHOT'
 ext.moduleName = 'madkit.base'
-ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
 
 application {
     mainClass = 'madkit.kernel.Madkit'
@@ -33,14 +31,13 @@ jacocoTestReport {
         xml.required = true
     }
 }
+test.finalizedBy jacocoTestReport
 
 sonar {
   properties {
-    property "sonar.projectKey", "Madkit"
-    property "sonar.projectName", "Madkit"
-    property("sonar.sources", "src/main")
-    property "sonar.tests", "src/test"
-   // property "sonar.qualitygate.wait", true 
+    property "sonar.projectKey", "michel_madkit-6_AZN4XF4qdA3gHXvO4xzd"
+    property "sonar.projectName", "MaDKit-6"
+    property "sonar.qualitygate.wait", true 
   }
 }
 
@@ -113,7 +110,6 @@ signing {
 
 ////////////////////////////////////////// FOR TESTING
 tasks.named('test') {
-    // Use TestNG for unit tests.
     useTestNG()
     maxParallelForks = "9"
     minHeapSize = "1024m"

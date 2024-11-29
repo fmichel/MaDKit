@@ -101,12 +101,14 @@ public class Agent {
 	 * 
 	 */
 	void terminate() {
+		logIfLoggerNotNull(FINER, () -> "- - -> TERMINATED **");
+		if (logger != null)
+			logger.close();
 		synchronized (alive) {
 			getOrgnization().removeAgent(this);
 			kernel = KernelAgent.deadKernel;
 			alive.notifyAll();
 		}
-		logIfLoggerNotNull(FINER, () -> "- - -> TERMINATED **");
 	}
 
 	/**

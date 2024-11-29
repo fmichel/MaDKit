@@ -14,6 +14,12 @@ import picocli.CommandLine.Option;
  */
 class MDKCommandLine {
 
+
+	private static final String SWITCH = "--";
+
+	static final String AGENT_LOG_LEVEL = "agentLogLevel";
+	static final String CREATE_LOG_FILES = "createLogFiles";
+
 	//////////////////// OPTIONS
 
 	@Option(names = { "-d", "--debug" }, description = "activate the debug mode")
@@ -26,10 +32,10 @@ class MDKCommandLine {
 	boolean noLog;
 
 	@Option(names = { "-la",
-	"--agents" }, arity = "1", fallbackValue = "madkit.kernel.Madkit", description = "launch agents on startup")
-List<String> agents = Collections.emptyList();
+			"--agents" }, arity = "1", fallbackValue = "madkit.kernel.Madkit", description = "launch agents on startup")
+	List<String> agents = Collections.emptyList();
 
-	@Option(names = "--agentLogLevel", defaultValue = "INFO", description = "agents initial log level (default: ${DEFAULT-VALUE})")
+	@Option(names = SWITCH + AGENT_LOG_LEVEL, defaultValue = "INFO", description = "agents initial log level (default: ${DEFAULT-VALUE})")
 	Level agentLogLevel;
 
 	@Option(names = "--kernelLogLevel", defaultValue = "OFF", description = "Kernel log level (default: ${DEFAULT-VALUE})")
@@ -38,19 +44,18 @@ List<String> agents = Collections.emptyList();
 	@Option(names = "--madkitLogLevel", defaultValue = "INFO", description = "MaDKit log level (default: ${DEFAULT-VALUE})")
 	Level madkitLogLevel;
 
-	@Option(names = "--createLogFiles", description = "creates log files for each agent")
+	@Option(names = SWITCH + CREATE_LOG_FILES, description = "creates log files for each agent")
 	boolean createLogFiles;
 
 	@Option(names = "--logDirectory", description = "specifies the directory wherein log files are cretaed")
 	private String logDirectory;
 
-	@Option(names = "--scheduler", 
-			//fallbackValue = "madkit.kernel.Scheduler", 
+	@Option(names = "--scheduler",
+			// fallbackValue = "madkit.kernel.Scheduler",
 			description = "specifies the class that should be used as Scheduler")
 	private String scheduler;
 
-	@Option(names = { "-v", "--viewers" }, arity = "1", 
-			description = "specifies the viewer classes in simulation mode")
+	@Option(names = { "-v", "--viewers" }, arity = "1", description = "specifies the viewer classes in simulation mode")
 	List<String> viewers = Collections.emptyList();
 
 	@Option(names = "--environment", description = "specifies the class that should be used as Environment")
@@ -62,13 +67,12 @@ List<String> agents = Collections.emptyList();
 	@Option(names = { "--headless" }, defaultValue = "false", description = "inhibit UI")
 	private boolean headless;
 
-
 	@Option(names = "--start", description = "Automatically start the simulation")
 	boolean start = false;
 
 	@Option(names = "-D", fallbackValue = "") // allow -Dkey
 	void setProperty(Map<String, String> props) {
-		props.forEach((k, v) -> System.setProperty(k, v));
+		props.forEach(System::setProperty);
 	}
 
 	void feedConfiguration(KernelConfig config) {

@@ -145,7 +145,15 @@ public class JunitMadkit extends ConcurrentTestCase {
 		launchTestedAgent(new Agent() {
 			@Override
 			protected void onActivation() {
-				getLogger().setLevel(Level.ALL);
+				behavior.accept(this);
+			}
+		},SUCCESS);
+	}
+
+	public void testThreadedBehavior(Consumer<Agent> behavior) {
+		launchTestedAgent(new Agent() {
+			@Override
+			protected void onLiving() {
 				behavior.accept(this);
 			}
 		},SUCCESS);

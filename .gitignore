@@ -4,7 +4,6 @@
 # Ignore Gradle build output directory
 build
 
-
 # IntelliJ IDEA
 .idea/
 out/
@@ -30,3 +29,7 @@ madkit/TIPS
 madkit/find-deps.sh
 madkit/trash/
 
+#MaDKit build dirs
+Logs
+MDK-turtlekit
+MDK-tk-demos

@@ -23,6 +23,6 @@ tasks.withType(JavaExec) {
 
 
 dependencies {
-	api project(':madkit')
+	api project(':MaDKit')
 //	implementation files('libs/controlsfx-11.1.1-SNAPSHOT.jar')
 }

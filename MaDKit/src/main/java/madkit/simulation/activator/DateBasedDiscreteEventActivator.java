@@ -1,0 +1,143 @@
+
+package madkit.simulation.activator;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
+
+import madkit.kernel.Activator;
+import madkit.simulation.scheduler.DateBasedDiscreteEventScheduler;
+
+/**
+ * A behavior activator that is designed to work with a
+ * {@link DateBasedDiscreteEventScheduler}, that is following a discrete-event
+ * simulation scheme. This activator activates all the agents of the
+ * corresponding CGR for each specific date for which it is activated.
+ *
+ * It encapsulates an activation date which is coded using a
+ * {@link LocalDateTime} object.
+ *
+ * @see DateBasedDiscreteEventScheduler
+ * @see LocalDateTime
+ * @see Activator
+ * @see Duration
+ * @see MethodActivator
+ * 
+ * @author Fabien Michel
+ */
+public class DateBasedDiscreteEventActivator extends MethodActivator {
+
+	/** The next date at which this activator should be triggered. */
+	private LocalDateTime nextActivationDate;
+
+	/** The default interval between activations. */
+	private Duration defaultInterval = Duration.ofSeconds(1);
+
+	/**
+	 * Constructs a new DateBasedDiscreteEventActivator with the specified group,
+	 * role, and behavior to activate.
+	 *
+	 * @param group                 the group of the agents
+	 * @param role                  the role of the agents
+	 * @param theBehaviorToActivate the behavior to activate
+	 */
+	public DateBasedDiscreteEventActivator(String group, String role, String theBehaviorToActivate) {
+		super(group, role, theBehaviorToActivate);
+	}
+
+	/**
+	 * Returns the current simulation time.
+	 *
+	 * @return the current simulation time
+	 */
+	public LocalDateTime getCurrentTime() {
+		return (LocalDateTime) getSimuTimer().getCurrentTime();
+	}
+
+	/**
+	 * Defines an ordering so that the scheduler can classify activators according
+	 * to their date and priority.
+	 *
+	 * @param o the activator to compare to
+	 * @return a negative integer, zero, or a positive integer as this activator is
+	 *         less than, equal to, or greater than the specified activator
+	 */
+	@Override
+	public int compareTo(Activator o) {
+		if (o instanceof DateBasedDiscreteEventActivator dba) {
+			int result = getNextActivationDate().compareTo(dba.getNextActivationDate());
+			if (result != 0) {
+				return result;
+			}
+		}
+		return super.compareTo(o);
+	}
+
+	/**
+	 * Returns the scheduler associated with this activator.
+	 *
+	 * @return the scheduler associated with this activator
+	 */
+	@Override
+	public DateBasedDiscreteEventScheduler getScheduler() {
+		return (DateBasedDiscreteEventScheduler) super.getScheduler();
+	}
+
+	/**
+	 * Returns the next date at which this activator should be triggered.
+	 *
+	 * @return the next date at which this activator should be triggered
+	 */
+	public LocalDateTime getNextActivationDate() {
+		return nextActivationDate;
+	}
+
+	/**
+	 * Sets the next date at which the activator will be triggered.
+	 *
+	 * @param nextActivationDate a {@link LocalDateTime} which should be greater
+	 *                           than the current simulation time
+	 */
+	public void setNextActivationDate(LocalDateTime nextActivationDate) {
+		this.nextActivationDate = nextActivationDate;
+	}
+
+	/**
+	 * Executes the behavior of the activator and updates the next activation date.
+	 *
+	 * @param args the arguments to pass to the behavior
+	 */
+	@Override
+	public void execute(Object... args) {
+		super.execute(args);
+		setNextActivationDate(getCurrentTime().plus(defaultInterval));
+	}
+
+	/**
+	 * Returns a string representation of the activator, including the next
+	 * activation date.
+	 *
+	 * @return a string representation of the activator
+	 */
+	@Override
+	public String toString() {
+		return getNextActivationDate().toString() + " ->" + super.toString();
+	}
+
+	/**
+	 * Returns the default interval between activations.
+	 *
+	 * @return the default interval between activations
+	 */
+	public Duration getDefaultInterval() {
+		return defaultInterval;
+	}
+
+	/**
+	 * Sets the default interval between activations.
+	 *
+	 * @param defaultInterval the default interval between activations
+	 */
+	public void setDefaultInterval(Duration defaultInterval) {
+		this.defaultInterval = defaultInterval;
+	}
+}

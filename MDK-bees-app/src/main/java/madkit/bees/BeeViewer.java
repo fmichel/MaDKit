@@ -72,17 +72,6 @@ public class BeeViewer extends Viewer2D {
 		return trailMode;
 	}
 
-//	@Override
-//	public void setupGUI() {
-//		super.setupGUI();
-//		FXManager.runAndWait(() -> {
-//			VBox name = new VBox();
-//			name.getChildren().add(ParametersSheetFactory.getSheet(this, BeeScheduler.class));
-//			name.getChildren().add(ParametersSheetFactory.getSheet(getSimuEngine().getEnvironment()));
-//			getMainPane().setRight(name);
-//		});
-//	}
-
 	/**
 	 * @param trailMode the trailMode to set
 	 */

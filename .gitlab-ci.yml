@@ -1,5 +1,5 @@
 variables:
-  VERSION: "6.0.4"
+  VERSION: "6.0"
 
 stages:
   - build
@@ -19,17 +19,11 @@ default:
   before_script:
     - *gradle_script
   cache: &global_cache
-    key:
-      files:
-        - gradle/wrapper/gradle-wrapper.properties
+    key: MaDKit-$CI_PROJECT_ID
     paths:
-      - madkit/build
+      - MaDKit/build
       - gradle/wrapper/
       - .gradle
-
-  cache: &pull_cache
-    <<: *global_cache
-    policy: pull
 
 build:
   stage: build
@@ -41,12 +35,13 @@ test:
   artifacts:
     when: on_failure
     reports:
-      junit: madkit/build/test-results/test/**/TEST-*.xml
+      junit: MaDKit/build/test-results/test/**/TEST-*.xml
 
 sonarqube-check:
   stage: check
   cache:
-    <<: *pull_cache
+    <<: *global_cache
+    policy: pull
   variables:
     SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
     GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
@@ -63,7 +58,7 @@ deploy-javadoc:
     policy: pull
   script:
     - apk add --no-cache lftp #install the lftp package
-    - lftp -u $WEB_USER,$WEB_PASS -e "set ftp:ssl-allow 0; mkdir -p web/javadoc/$VERSION; mirror -R madkit/build/docs/javadoc web/javadoc/$VERSION; bye;" sftp://cwbq.ftp.infomaniak.com  
+    - lftp -u $WEB_USER,$WEB_PASS -e "set ftp:ssl-allow 0; mkdir -p web/javadoc/$VERSION; mirror -R MaDKit/build/docs/javadoc web/javadoc/$VERSION; bye;" sftp://cwbq.ftp.infomaniak.com  
   environment: production
   rules:
     - if: $CI_COMMIT_BRANCH == 'main'

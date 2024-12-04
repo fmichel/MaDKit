@@ -3,10 +3,6 @@ plugins {
     id("org.gradlex.extra-java-module-info")
 }
 
-//compileJava {
-//    options.compilerArgs += ["-Aproject=${project.group}/${project.name}"]
-//}
-
 extraJavaModuleInfo {
 
     automaticModule("net.jodah:concurrentunit", "net.jodah.concurrentunit")

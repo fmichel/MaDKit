@@ -49,7 +49,7 @@ public class ParametersSheetFactory {
 	public static PropertySheet getSheet(Object o) {
 		ObservableList<Item> parameters = FXCollections.observableArrayList();
 		addParameters(o, o.getClass(), parameters, false);
-		for (Class<?> c : getObservedClasses(o.getClass())) {
+		for (Class<?> c : getWatchedClasses(o.getClass())) {
 			addParameters(o, c, parameters, true);
 		}
 		return new PropertySheet(parameters);
@@ -67,7 +67,7 @@ public class ParametersSheetFactory {
 		ObservableList<Item> parameters = FXCollections.observableArrayList();
 		addParameters(o, o.getClass(), parameters, false);
 		if (classes == null || classes.length == 0) {
-			classes = getObservedClasses(o.getClass());
+			classes = getWatchedClasses(o.getClass());
 		}
 		for (Class<?> c : classes) {
 			addParameters(o, c, parameters, true);
@@ -75,6 +75,15 @@ public class ParametersSheetFactory {
 		return new PropertySheet(parameters);
 	}
 
+	/**
+	 * Returns a titled pane containing the object's parameters annotated with
+	 * {@link Parameter} or {@link SliderAnnotation} annotations.
+	 * 
+	 * @param o       the object from which to take fields
+	 * @param title   the title of the titled pane
+	 * @param classes the classes from which to take static fields
+	 * @return a titled pane containing the object's parameters
+	 */
 	public static TitledPane getTitledPaneSheet(Object o, String title, Class<?>... classes) {
 		PropertySheet sheet = ParametersSheetFactory.getSheet(o, classes);
 		if (sheet.getItems().isEmpty()) {
@@ -83,11 +92,19 @@ public class ParametersSheetFactory {
 		return new TitledPane(title, sheet);
 	}
 
+	/**
+	 * Returns a titled pane containing the object's parameters annotated with
+	 * {@link Parameter} or {@link SliderAnnotation} annotations.
+	 * 
+	 * 
+	 * @param o the object from which to take fields
+	 * @return a titled pane containing the object's parameters
+	 */
 	public static TitledPane getTitledPaneSheet(Object o) {
 		return getTitledPaneSheet(o, o.getClass().getSimpleName());
 	}
 
-	private static Class<?>[] getObservedClasses(Class<?> c) {
+	private static Class<?>[] getWatchedClasses(Class<?> c) {
 		PropertySheetAgents annotation = c.getDeclaredAnnotation(PropertySheetAgents.class);
 		if (annotation == null) {
 			return new Class<?>[0];
@@ -95,6 +112,14 @@ public class ParametersSheetFactory {
 		return annotation.classesToBuildUIWith();
 	}
 
+	/**
+	 * Get a VBox containing the object's parameters annotated with
+	 * {@link Parameter} or {@link SliderAnnotation} annotations.
+	 * 
+	 * @param objects the objects from which to take fields as properties to display
+	 *                in the VBox
+	 * @return a VBox containing the object's parameters
+	 */
 	public static VBox getVBoxProperties(Object... objects) {
 		VBox vbox = new VBox();
 		for (Object o : objects) {
@@ -107,6 +132,7 @@ public class ParametersSheetFactory {
 	}
 
 	/**
+	 * 
 	 * @param o
 	 * @param c
 	 * @param parameters
@@ -152,9 +178,8 @@ public class ParametersSheetFactory {
 		Slider s = new Slider(a.minValue(), a.maxValue(), a.minValue());
 		s.setShowTickMarks(true);
 		s.setShowTickLabels(true);
-		s.setOnScroll((ScrollEvent event) -> {
-			s.setValue(s.getValue() + (event.getDeltaY() > 0 ? a.scrollPrecision() : -a.scrollPrecision()));
-		});
+		s.setOnScroll((ScrollEvent event) -> s
+				.setValue(s.getValue() + (event.getDeltaY() > 0 ? a.scrollPrecision() : -a.scrollPrecision())));
 		return s;
 	}
 

@@ -1,8 +1,8 @@
 package madkit.kernel;
 
-import static madkit.kernel.AbstractScheduler.SimulationState.RUNNING;
-import static madkit.kernel.AbstractScheduler.SimulationState.SHUTDOWN;
-import static madkit.kernel.AbstractScheduler.SimulationState.STEP;
+import static madkit.kernel.Scheduler.SimulationState.RUNNING;
+import static madkit.kernel.Scheduler.SimulationState.SHUTDOWN;
+import static madkit.kernel.Scheduler.SimulationState.STEP;
 import static madkit.simulation.DefaultOrganization.ENVIRONMENT_ROLE;
 import static madkit.simulation.DefaultOrganization.SCHEDULER_ROLE;
 import static madkit.simulation.DefaultOrganization.VIEWER_ROLE;
@@ -42,31 +42,35 @@ import net.jodah.typetools.TypeResolver;
 
 /**
  * <pre>
- * Scheduler is the core agent for defining multi-agent based simulations.
- *
+ * Scheduler is the core agent for defining multi-agent based simulations in MaDKit.
+ * <p>
  * This class defines a generic threaded agent which is in charge of activating
  * the simulated agents using {@link Activator}. {@link Activator} are tool
- * objects which are able to trigger any available method belonging to the
- * agents that have a role within a group.
- *
- * The purpose of this approach is to allow the manipulation of agents
- * regardless of their concrete Java classes.
- *
+ * objects which are able to trigger any available method belonging to 
+ * agents having a role within a group.
+ * <p>
+ * The interest of this approach is twofold:
+ * <ul>
+ * <li> Firstly it allows the manipulation of agents regardless of their concrete Java classes.
+ * <li> Secondly it allows to define complex scheduling policies by defining different activators.
+ * </ul>
+ *<p>
  * So a scheduler holds a collection of activators that target specific groups
  * and roles and thus allow to define very complex scheduling policies if
  * required. A default behavior is implemented and corresponds to the triggering
  * of the activators according to the order in which they have been added to the
  * scheduler engine using {@link #addActivator(Activator)}.
- *
+ *<p>
  * The default state of a scheduler is {@link SimulationState#PAUSED}.
- *
+ *<p>
  * The default delay between two simulation steps is 0 milliseconds (max speed).
- *
+ * <p>
  * Default GUI components are defined for this agent and they could be easily
  * integrated in any GUI.
- * </pre>
  *
- * As of MaDKit 5.3, two different temporal schemes could used:
+ * @param <T> the type of the simulation time. It should be a subclass of either
+ *            a {@link DateBasedTimer} or a {@link TickBasedTimer}.
+ * Two different temporal schemes could used:
  * <ul>
  * <li>tick-based: The time is represented as a {@link BigDecimal} which is
  * incremented at will. {@link BigDecimal} is used to avoid rounding errors that
@@ -82,19 +86,12 @@ import net.jodah.typetools.TypeResolver;
  * specific period of the day.</li>
  * </ul>
  *
- * Those two modes are exclusive and can be selected using the corresponding
- * constructor of the scheduler
- *
- * @param <T> the type of the simulation time. It should be a subclass of either
- *            a {@link DateBasedTimer} or a {@link TickBasedTimer}.
- * @author Fabien Michel
- * @since MaDKit 2.0
- * @version 5.3
+ * @version 6.0
  * @see Activator
  * @see BigDecimal
  * @see LocalDateTime
  */
-public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends SimuAgent {
+public abstract class Scheduler<T extends SimulationTimer<?>> extends SimuAgent {
 
 	private final List<Activator> activators = new ArrayList<>();
 
@@ -113,12 +110,12 @@ public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends Si
 	private ActionGroup shedulingActions;
 
 	/**
-	 * Constructs a <code>Scheduler</code> using a tick-based
-	 * {@link SimulationTimer}.
+	 * Default constructor. It automatically initializes the simulation time
+	 * according to the type of the simulation time.
 	 */
 	@SuppressWarnings("unchecked")
-	protected AbstractScheduler() {
-		Class<?> timeClass = TypeResolver.resolveRawArguments(AbstractScheduler.class, this.getClass())[0];
+	protected Scheduler() {
+		Class<?> timeClass = TypeResolver.resolveRawArguments(Scheduler.class, this.getClass())[0];
 		if (DateBasedTimer.class.isAssignableFrom(timeClass)) {
 			setSimulationTime((T) new DateBasedTimer());
 		} else {
@@ -126,6 +123,10 @@ public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends Si
 		}
 	}
 
+	/**
+	 * On activation, by default the scheduler requests the role {@link DefaultOrganization#SCHEDULER_ROLE}
+	 *  in the group {@link DefaultOrganization#ENGINE_GROUP}.
+	 */
 	@Override
 	protected void onActivation() {
 		try {
@@ -139,12 +140,17 @@ public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends Si
 	}
 
 	/**
-	 * Scheduler's default behavior.
+	 * The main loop of the scheduler agent. It is automatically called by the
+	 * MaDKit kernel once the agent is activated.
+	 * Firstly, the scheduler waits for the first message to start the simulation.
+	 * Then, it enters an infinite loop where it waits for messages, checks the
+	 * simulation state, and processes the simulation step accordingly. The loop is
+	 * interrupted when the simulation reaches the end time or when a SHUTDOWN
+	 * message is received. 
 	 *
-	 * @see madkit.kernel.Agent#onLiving()
 	 */
 	@Override
-	protected void onLiving() {
+	protected void onLive() {
 		waitStartingMessage();
 		while (!Thread.currentThread().isInterrupted()) {
 			if (getSimuTimer().hasReachedEndTime()) {
@@ -184,9 +190,11 @@ public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends Si
 	}
 
 	/**
-	 * Called when the very first RUN message is received.
+	 * Called when the simulation starts. By default, it resets the simulation time and
+	 * calls the {@link #onStart()} method of the environment agent
+	 * 
 	 */
-	public void onStart() {
+	protected void onStart() {
 		getLogger().fine("------- Starting simulation --------");
 		getLogger().finer(" -- reseting time");
 		getSimuTimer().reset();
@@ -197,12 +205,12 @@ public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends Si
 	 * Called when the simulation ends
 	 */
 	@Override
-	protected void onEnding() {
+	protected void onEnd() {
 		simulationState = SimulationState.PAUSED;
 		getLogger().info(() -> "------- Simulation stopped! Time was = " + getSimuTimer());
 		getLogger().finest("removing all activators");
 		removeAllActivators();
-		super.onEnding();
+		super.onEnd();
 	}
 
 	/**
@@ -211,7 +219,7 @@ public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends Si
 	 *
 	 * @param m the received message
 	 */
-	protected void checkMail(final Message m) {
+	private void checkMail(Message m) {
 		if (m != null) {
 			try {
 				SchedulingAction code = ((SchedulingMessage) m).getCode();
@@ -243,7 +251,7 @@ public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends Si
 	/**
 	 * Runs {@link #checkMail(Message)} every 1000 ms.
 	 */
-	protected void paused() {
+	private void paused() {
 		checkMail(waitNextMessage(1000));
 	}
 
@@ -252,7 +260,7 @@ public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends Si
 	 *
 	 * @param newState the new state
 	 */
-	protected void setSimulationState(final SimulationState newState) {
+	private void setSimulationState(final SimulationState newState) {
 		if (simulationState != newState) {
 			simulationState = newState;
 			switch (simulationState) {
@@ -274,27 +282,12 @@ public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends Si
 	}
 
 	/**
-	 * Defines a default simulation step which is automatically during the
-	 * scheduler's life.
+	 * Defines a simulation step.
 	 *
 	 * This method should be overridden to define a customized scheduling policy.
 	 *
-	 * By default, it executes all the activators in the order they have been added,
-	 * using {@link Activator#execute(Object...)}, and then increments the
-	 * simulation time by one unit. Default implementation is:
-	 *
-	 * <pre>
-	 * logActivationStep();
-	 * for (final Activator activator : activators) {
-	 * 	executeAndLog(activator);
-	 * }
-	 * getSimulationTime().addOneTimeUnit();
-	 * </pre>
-	 *
-	 * By default logs are displayed only if {@link #getLogger()} is set above
-	 * {@link Level#FINER}.
 	 */
-	public abstract void doSimulationStep();
+	protected abstract void doSimulationStep();
 
 	/**
 	 * Returns the delay between two simulation steps
@@ -315,11 +308,11 @@ public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends Si
 	}
 
 	/**
-	 * Gets a new slider to change the pause between two simulation steps
+	 * Gets a {@link Slider} that can manipulate the pause between two simulation steps.
 	 * 
-	 * @return a slider to change the pause between two simulation steps
+	 * @return a {@link Slider} to change the pause between two simulation steps
 	 */
-	public Slider getNewPauseSlider() {
+	public Slider getPauseSlider() {
 		Slider slider = new Slider(0, 400, getPause());
 		slider.setMinWidth(200);
 		slider.setShowTickLabels(true);
@@ -335,26 +328,42 @@ public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends Si
 	}
 
 	/**
-	 * Returns the toolbar with the default scheduling actions.
+	 * Returns a {@link ToolBar} made of scheduling actions, a pause slider and a
+	 * label displaying the current simulation time.
 	 * 
-	 * @return a toolbar with the default scheduling actions
+	 * @return a {@link ToolBar} made of common scheduling actions.
 	 */
 	public ToolBar getToolBar() {
 		ToolBar tb = ActionUtils.createToolBar(getActions(), ActionTextBehavior.HIDE);
-		tb.getItems().add(getNewPauseSlider());
+		tb.getItems().add(getPauseSlider());
 		tb.getItems().add(getTimeLabel());
 		return tb;
 	}
 
 	/**
-	 * Gets the list of actions as a list of nodes that can be used to control the
-	 * simulation.
+	 * Returns the actions group that can be used to control the simulation.
 	 * 
-	 * @return a list of actions to be displayed in the GUI
+	 * @return the shedulingActions as an ActionGroup
 	 */
-	public List<Node> getActionListFor() {
-		return List.of(ActionUtils.createButton(run, ActionTextBehavior.HIDE), ActionUtils.createButton(step),
-				getNewPauseSlider(), getTimeLabel());
+	public ActionGroup getShedulerActions() {
+		if (shedulingActions == null) {
+			run = SchedulingAction.RUN.getFxActionFrom(this);
+			step = SchedulingAction.STEP.getFxActionFrom(this);
+			Collection<Action> actions = new ArrayList<>();
+			actions.add(run);
+			actions.add(step);
+			shedulingActions = new ActionGroup("Scheduling", actions);
+		}
+		return shedulingActions;
+	}
+
+	/**
+	 * Returns the actions that can be used to control the simulation.
+	 * 
+	 * @return the actions as a List
+	 */
+	public List<Action> getActions() {
+		return getShedulerActions().getActions();
 	}
 
 	/**
@@ -376,42 +385,46 @@ public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends Si
 	}
 
 	/**
-	 * Returns the {@link SimulationTimer} of the current simulation. This is
-	 * automatically initialized when the agent is associated with an activator for
-	 * the first time. So it stays <code>null</code> if the agent is not related to
-	 * a simulation
+	 * Returns the {@link SimulationTimer} of the scheduler 
 	 *
-	 * @return the simulationTime of the simulation in which the agent participates
+	 * @return the {@link SimulationTimer} of the scheduler 
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public T getSimuTimer() {
 		return simuTime;
 	}
 
 	/**
-	 * Gets the list of activators.
+	 * Gets the list of activators that are currently added to the simulation engine by this scheduler. 
 	 * 
-	 * @return the activators
+	 * @return a list of activators.
 	 */
 	public List<Activator> getActivators() {
 		return activators;
 	}
 
 	/**
-	 * Adds the default activator for viewers
+	 * Adds the default activator for viewers and returns it.
+	 * The default activator for viewers is an activator that triggers the method
+	 * {@link #display()} of agents playing the role {@link DefaultOrganization#VIEWER_ROLE} in the group
+	 * {@link DefaultOrganization#ENGINE_GROUP}
 	 * 
-	 * @return the activator
+	 * @return an activator that triggers viewers display method
 	 */
 	public MethodActivator addViewersActivator() {
-		MethodActivator v = new MethodActivator(getEngineGroup(), VIEWER_ROLE, "observe");
+		MethodActivator v = new MethodActivator(getEngineGroup(), VIEWER_ROLE, "display");
 		addActivator(v);
 		return v;
 	}
 
 	/**
-	 * Adds the default activator for environments
+	 * Adds the default activator for environment and returns it.
+	 * The default activator for environment is an activator that triggers the method
+	 * {@link Environment#update()} of agents playing the role {@link DefaultOrganization#ENVIRONMENT_ROLE} in the group
+	 * {@link DefaultOrganization#ENGINE_GROUP
 	 * 
-	 * @return the activator
+	 * @return an activator that triggers the environment update method
 	 */
 	public MethodActivator addEnvironmentActivator() {
 		MethodActivator v = new MethodActivator(getEngineGroup(), ENVIRONMENT_ROLE, "update");
@@ -422,18 +435,20 @@ public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends Si
 	/**
 	 * Updates the activators schedule according to their priorities
 	 */
-	public void updateActivatorsSchedule() {
+	void updateActivatorsSchedule() {
 		Collections.sort(activators, activatorComparator);
 	}
 
 	/**
-	 * Adds an activator to the simulation engine. This has to be done to make an
-	 * activator work properly.
+	 * Adds an activator to the simulation engine. 
+	 * This has to be done before the simulation starts.
+	 * It is possible to add several activators to the simulation engine.
+	 * Once added, the activator can be triggered by the scheduler agent using the
+	 * {@link Activator#execute(Object...)} method. 
 	 *
-	 * @param activator an activator.
-	 * @since MaDKit 5.0.0.8
+	 * @param activator an activator to add to the simulation engine.
 	 */
-	public void addActivator(final Activator activator) {
+	public void addActivator(Activator activator) {
 		activator.setScheduler(this);
 		if (getOrganization().addOverlooker(this, activator)) {
 			activators.add(activator);
@@ -448,29 +463,20 @@ public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends Si
 	 *
 	 * @param activator an activator.
 	 */
-	public void removeActivator(final Activator activator) {
+	public void removeActivator(Activator activator) {
 		getOrganization().removeOverlooker(activator);
 		activators.remove(activator);
 		getLogger().fine(() -> "Activator removed: " + activator);
 	}
 
 	/**
-	 * Executes all the activators that have been added to the simulation engine
-	 * 
-	 * @param args the arguments that will be passed to the targeted method
-	 */
-	public void executeActivators(Object... args) {
-		activators.stream().forEach(a -> executeAndLog(a, args));
-	}
-
-	/**
-	 * Logs the current simulation step time value.
+	 * Logs the current simulation time value.
 	 *
 	 * logs are displayed only if {@link #getLogger()} is set above
-	 * {@link Level#FINER}.
+	 * {@link Level#FINE}.
 	 */
-	public void logCurrrentStep() {
-		getLogger().finer(() -> "Current simulation time -> " + getSimuTimer());
+	public void logCurrrentTime() {
+		getLogger().fine(() -> "Current simulation time -> " + getSimuTimer());
 	}
 
 	/**
@@ -480,7 +486,7 @@ public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends Si
 	 * @param activator the activator to trigger
 	 * @param args      the args that will be passed to the targeted method
 	 */
-	public void executeAndLog(final Activator activator, Object... args) {
+	protected void executeAndLog(Activator activator, Object... args) {
 		getLogger().finer(() -> "Activating--> " + activator);
 		activator.execute(args);
 	}
@@ -489,7 +495,7 @@ public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends Si
 	 * Remove all the activators which have been previously added
 	 */
 	public void removeAllActivators() {
-		activators.stream().forEach(a -> getOrganization().removeOverlooker(a));
+		activators.forEach(a -> getOrganization().removeOverlooker(a));
 		activators.clear();
 	}
 
@@ -527,7 +533,7 @@ public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends Si
 		PAUSED,
 
 		/**
-		 * The simulation is ending
+		 * The simulation is stopped.
 		 */
 		SHUTDOWN
 	}
@@ -539,31 +545,5 @@ public abstract class AbstractScheduler<T extends SimulationTimer<?>> extends Si
 			return Integer.compare(o1.getPriority(), o2.getPriority());
 
 		}
-	}
-
-	/**
-	 * Returns the actions group that can be used to control the simulation.
-	 * 
-	 * @return the shedulingActions as an ActionGroup
-	 */
-	public ActionGroup getShedulingActions() {
-		if (shedulingActions == null) {
-			run = SchedulingAction.RUN.getFxActionFrom(this);
-			step = SchedulingAction.STEP.getFxActionFrom(this);
-			Collection<Action> actions = new ArrayList<>();
-			actions.add(run);
-			actions.add(step);
-			shedulingActions = new ActionGroup("Scheduling", actions);
-		}
-		return shedulingActions;
-	}
-
-	/**
-	 * Returns the actions that can be used to control the simulation.
-	 * 
-	 * @return the actions as a List
-	 */
-	public List<Action> getActions() {
-		return getShedulingActions().getActions();
 	}
 }

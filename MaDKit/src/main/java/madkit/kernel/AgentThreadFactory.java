@@ -22,9 +22,9 @@ final class AgentThreadFactory extends Object implements ThreadFactory {
 
 			@Override
 			public void uncaughtException(Thread t, Throwable e) {
-				System.err.println("--------------internal BUG--------------------");
-				System.err.println("\n-----------------uncaught exception on " + t);// TODO
-				e.printStackTrace();
+//				System.err.println("--------------internal BUG--------------------");
+//				System.err.println("\n-----------------uncaught exception on " + t);
+//				e.printStackTrace();
 			}
 		};
 		if (daemonThreadFactory) {

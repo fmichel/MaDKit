@@ -1,6 +1,9 @@
 package madkit.kernel;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotNull;
+
 import org.testng.annotations.Test;
 
 public class CommunityTest {

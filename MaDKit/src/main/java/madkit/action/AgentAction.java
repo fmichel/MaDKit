@@ -11,7 +11,7 @@ import java.util.Collection;
 import org.controlsfx.control.action.Action;
 import org.controlsfx.control.action.ActionGroup;
 
-import madkit.gui.fx.FXAction;
+import madkit.gui.FXAction;
 import madkit.kernel.Agent;
 import madkit.messages.EnumMessage;
 
@@ -34,10 +34,9 @@ import madkit.messages.EnumMessage;
  * @version 0.9
  * 
  * @see madkit.kernel.Agent
- * @see madkit.gui.fx.FXAction
+ * @see madkit.gui.FXAction
  * @see madkit.messages.EnumMessage
  * 
- * @author Fabien Michel
  */
 public enum AgentAction {
 
@@ -99,7 +98,7 @@ public enum AgentAction {
 	 * @param parameters the parameters for the action
 	 * @return the new corresponding action
 	 */
-	public Action newActionFor(final Agent agent, final Object... parameters) {
+	public Action getActionFor(Agent agent, Object... parameters) {
 		return new FXAction(actionInfo, ae -> {
 			if (agent.isAlive()) {
 				agent.proceedEnumMessage(new EnumMessage<>(AgentAction.this, parameters));
@@ -114,17 +113,17 @@ public enum AgentAction {
 	 * @param agent the agent for which to create the action group
 	 * @return an ActionGroup containing the actions for the agent
 	 */
-	public static final ActionGroup createAgentFxActionGroup(Agent agent) {
+	public static ActionGroup createAgentFxActionGroup(Agent agent) {
 		Collection<Action> actions = new ArrayList<>();
 		try {
 			if (agent.getClass().getConstructor((Class<?>[]) null) != null) {
-				actions.add(RELOAD.newActionFor(agent));
-				actions.add(LAUNCH_AGENT.newActionFor(agent, agent.getClass().getName(), true, 0));
+				actions.add(RELOAD.getActionFor(agent));
+				actions.add(LAUNCH_AGENT.getActionFor(agent, agent.getClass().getName(), true, 0));
 			}
 		} catch (SecurityException | NoSuchMethodException e) {
 			agent.getLogger().finest(() -> "No default constructor -> Cannot create all FX actions");
 		}
-		actions.add(KILL_AGENT.newActionFor(agent, agent, 2));
+		actions.add(KILL_AGENT.getActionFor(agent, agent, 2));
 		actions.add(KernelAction.EXIT.newActionFor(agent));
 		return new ActionGroup("Agent", actions);
 	}

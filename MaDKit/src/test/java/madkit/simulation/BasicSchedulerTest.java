@@ -2,18 +2,12 @@ package madkit.simulation;
 
 import static madkit.kernel.Agent.ReturnCode.ALREADY_GROUP;
 import static madkit.kernel.Agent.ReturnCode.SUCCESS;
-import static org.testng.Assert.assertEquals;
-
-import java.util.function.Consumer;
-import java.util.logging.Level;
 
 import org.testng.annotations.Test;
 
-import madkit.kernel.Agent;
-import madkit.kernel.JunitMadkit;
-import madkit.kernel.Watcher;
-import madkit.kernel.Agent.ReturnCode;
 import madkit.kernel.Activator;
+import madkit.kernel.Agent.ReturnCode;
+import madkit.kernel.JunitMadkit;
 import madkit.simulation.scheduler.TickBasedScheduler;
 import madkit.test.agents.CGRAgent;
 import madkit.test.agents.SimulatedAgent;

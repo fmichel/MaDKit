@@ -49,6 +49,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
@@ -58,13 +59,15 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
 
+import javafx.application.Platform;
+import javafx.stage.Window;
 import madkit.agr.DefaultMaDKitRoles;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.agr.LocalCommunity.Roles;
-import madkit.gui.ConsoleAgent;
-import madkit.gui.fx.FXManager;
+import madkit.gui.FXManager;
 import madkit.i18n.ErrorMessages;
 import madkit.messages.KernelMessage;
 
@@ -95,6 +98,10 @@ class KernelAgent extends Agent implements DaemonAgent {
 
 	private final AgentsExecutors agentExecutors;
 
+	private boolean exitRequested = false;
+
+	private static Set<KernelAgent> kernerls = new HashSet<>();
+
 	/**
 	 * @return the madkit
 	 */
@@ -114,6 +121,7 @@ class KernelAgent extends Agent implements DaemonAgent {
 		logger = new AgentLogger(this);
 		logger.setLevel(getKernelConfig().getLevel("kernelLogLevel"));
 		threadedAgents = Collections.synchronizedList(new ArrayList<>());
+		kernerls.add(this);
 	}
 
 	KernelAgent() {// for alternative kernels
@@ -137,36 +145,42 @@ class KernelAgent extends Agent implements DaemonAgent {
 //		} else if (m instanceof RequestRoleSecure) {
 //			handleRequestRoleSecure((RequestRoleSecure) m);
 		} else {
-			if (logger != null)
+			if (message != null)
 				logger.warning(() -> "I received a message that I do not understand. Discarding " + message);
 		}
 	}
 
+	/**
+	 * main loop of the kernel. As a daemon, a timeout is not required
+	 */
 	@Override
-	protected void onLiving() {
-//		getLogger().info(threadFactory.toString());
-		while (true) {
-			handleMessage(waitNextMessage());// As a daemon, a timeout is not required
+	protected void onLive() {
+		while (!exitRequested) {
+			handleMessage(waitNextMessage(2000));
+			if (threadedAgents.isEmpty() && FXManager.isStarted()
+					&& FxAgentStage.getAgentsWithStage(kernelAddress).isEmpty()) {
+				logIfLoggerNotNull(Level.FINE,
+						() -> "No more activity within kernel " + getKernelAddress() + " -> Quitting");
+				if (Window.getWindows().isEmpty())
+					Platform.exit();
+				return;
+			}
 		}
-//		while (true) {
-//			waitNextMessage(3000);
-//			getLogger().info("alive");
-//			getLogger().info("agents thread -------------------> " + threadFactory.toString());
-////			getLogger().info("daemons thread -------------------> " + daemonThreadFactory.toString());
-//		}
+	}
+
+	@Override
+	protected void onEnd() {
+		kernerls.remove(this);
 	}
 
 	@Override
 	protected void onActivation() {
-//		getLogger().setLevel(Level.ALL);
 		FXManager.setHeadlessMode(getKernelConfig().getBoolean("headless") || GraphicsEnvironment.isHeadless());
 		FXManager.startFX();
-//		GraphicsEnvironment.getLocalGraphicsEnvironment();
-//		getLogger().info(() -> "headless graphics environment-> "+GraphicsEnvironment.isHeadless());
 		createGroup(LocalCommunity.NAME, Groups.SYSTEM, false, (req, ro, card) -> {
 			return false;
 		});
-		createGroup(LocalCommunity.NAME, "kernels", true);// TODO
+		createGroup(LocalCommunity.NAME, "kernels", true);
 
 		// building the network group
 		createGroup(LocalCommunity.NAME, Groups.NETWORK, false);
@@ -224,9 +238,7 @@ class KernelAgent extends Agent implements DaemonAgent {
 		if (a.isThreaded()) {
 			hardKillAgent(a, seconds);
 		} else {
-			CompletableFuture<Void> killing = CompletableFuture.runAsync(() -> {
-				a.killed();
-			}, a.getExecutor());
+			CompletableFuture<Void> killing = CompletableFuture.runAsync(a::killed, a.getExecutor());
 			try {
 				killing.get(seconds, TimeUnit.SECONDS);
 			} catch (InterruptedException | ExecutionException e) {
@@ -248,7 +260,8 @@ class KernelAgent extends Agent implements DaemonAgent {
 				tryInterruption(a, seconds, t);
 			}
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			logIfLoggerNotNull(Level.FINE, () -> a + " KILLED");
+			Thread.currentThread().interrupt();
 		}
 		synchronized (a.alive) {
 			if (a.kernel != deadKernel) {
@@ -552,14 +565,20 @@ class KernelAgent extends Agent implements DaemonAgent {
 		}
 	}
 
-	@SuppressWarnings("unused")
-	private void console() {
-		launchAgent(ConsoleAgent.class.getName(), 0);
-	}
+//	@SuppressWarnings("unused")
+//	private void console() {
+//		launchAgent(ConsoleAgent.class.getName(), 0);
+//	}
 
-	private void exit() {
+	void exit() {
+		getLogger().fine(() -> "***** SHUTINGDOWN MADKIT ********\n");
 		threadedAgents.parallelStream().forEach(a -> killAgent(a, 2));
-		getLogger().fine(() -> "***** SHUTINGDOWN MY KERNEL ********\n");
+		Collection<Agent> c = FxAgentStage.getAgentsWithStage(getKernelAddress());
+		c.forEach(a -> killAgent(a, 1));
+		exitRequested = true;
+		kernerls.remove(this);
+		if (kernerls.isEmpty())
+			Platform.exit();
 	}
 
 	private void copy() {
@@ -567,9 +586,6 @@ class KernelAgent extends Agent implements DaemonAgent {
 	}
 
 	private void startSession(boolean externalVM) {
-//		String[] args = getKernelConfiguration().get(String[].class, "CMD_LINE");
-//		Class<?> launcherClass = getMadkit().launcherClass;
-
 		String[] args = getMadkit().getLauncherArgs();
 		Class<?> launcherClass = getMadkit().getOneFileLauncherClass();
 
@@ -589,38 +605,24 @@ class KernelAgent extends Agent implements DaemonAgent {
 				e.printStackTrace();
 			}
 		} else {
-			Thread t = new Thread(() -> {
-				try {
-					Method c = getMadkit().getLauncherClassMainMethod();
-					c.invoke(null, (Object) getMadkit().startingArgs);
-				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-//				new Madkit(getMadkit().startingArgs);
-
-//				try {
-//					if(getMadkit().oneFileLauncher != null) {
-//						Method m = launcherClass.getMethod("main", String[].class);
-//						m.invoke(null, (Object) args);
-//					} else {
-//						Constructor<? extends Madkit> cons = (Constructor<? extends Madkit>) launcherClass.getConstructor(String[].class);
-//						cons.newInstance((Object) args);
-//					}
-//				} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
-//						| IllegalArgumentException | InvocationTargetException e) {
-//					e.printStackTrace();
-//				}
-			});
-			t.setDaemon(false);
-			t.start();
+			try {
+				Method c = getMadkit().getLauncherClassMainMethod();
+				c.invoke(null, (Object) getMadkit().startingArgs);
+			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
 	@SuppressWarnings("unused")
 	private void restart() {
-		startSession(false);
-		pause(500);
+		try {
+			Thread.ofVirtual().start(() -> {
+				startSession(false);
+			}).join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		exit();
 	}
 

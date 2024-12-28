@@ -7,8 +7,9 @@ import static madkit.kernel.JunitMadkit.ROLE;
 import static madkit.kernel.JunitMadkit.ROLE2;
 
 import madkit.kernel.Agent;
-import madkit.kernel.Watcher;
 import madkit.kernel.Probe;
+import madkit.kernel.Watcher;
+import madkit.test.agents.EmptyAgent;
 
 /**
  * @author Fabien Michel
@@ -37,7 +38,7 @@ public class PerceptionAgent extends Watcher {
 
 		public void adding(SAgent a) {
 			System.out.println("ici1");
-			launchAgent(new Agent());
+			launchAgent(new EmptyAgent());
 			System.out.println("ici2");
 			if (Math.random() < 0.01) {
 				java.util.List<SAgent> l = agents2probe.getCurrentAgentsList();
@@ -51,7 +52,7 @@ public class PerceptionAgent extends Watcher {
 				java.util.List<SAgent> l = agents2probe.getCurrentAgentsList();
 				killAgent(l.get((int) (Math.random() * l.size())));
 				if (Math.random() < 0.01) {
-					launchAgent(new Agent());
+					launchAgent(new EmptyAgent());
 				}
 			}
 

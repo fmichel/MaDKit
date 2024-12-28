@@ -38,7 +38,7 @@ import java.util.Formatter;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.Label;
-import madkit.gui.fx.FXManager;
+import madkit.gui.FXManager;
 
 /**
  * 

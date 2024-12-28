@@ -36,18 +36,14 @@ knowledge of the CeCILL-C license and that you accept its terms.
  */
 package madkit.gui;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.IntStream;
 
 import javafx.scene.Scene;
-import madkit.gui.fx.FXManager;
-import madkit.gui.fx.FXOutputPane;
 import madkit.kernel.Agent;
-import madkit.kernel.AgentFxStage;
+import madkit.kernel.FxAgentStage;
 
 /**
  * This agent displays standard out and err prints in its GUI. This agent is
@@ -58,7 +54,7 @@ import madkit.kernel.AgentFxStage;
  * @since MaDKit 5.0.0.14
  * @version 6.0
  */
-public class ConsoleAgent extends Agent {
+class ConsoleAgent extends Agent {
 
 	private static final PrintStream systemOut = System.out;// NOSONAR
 	private static final PrintStream systemErr = System.err;// NOSONAR
@@ -66,13 +62,14 @@ public class ConsoleAgent extends Agent {
 	@Override
 	protected void onActivation() {
 		setupGUI();
+		getLogger().info("hello");
+		System.err.println("test");
 	}
 
-	@SuppressWarnings("resource")
 	@Override
 	public void setupGUI() {
 		FXManager.runAndWait(() -> {
-			AgentFxStage stage = new AgentFxStage(this);
+			FxAgentStage stage = new FxAgentStage(this);
 			FXOutputPane outP = new FXOutputPane(this);
 			Scene scene = new Scene(outP);
 			System.setOut(new PrintStream(new StreamCapturer(outP, systemOut)));
@@ -84,9 +81,13 @@ public class ConsoleAgent extends Agent {
 	}
 
 	@Override
-	protected void onEnding() {
+	protected void onEnd() {
 		System.setErr(systemErr);
 		System.setOut(systemOut);
+	}
+
+	public static void main(String[] args) {
+		executeThisAgent();
 	}
 
 }
@@ -95,24 +96,43 @@ class StreamCapturer extends OutputStream {
 
 	private FXOutputPane panel;
 	private PrintStream capturedStream;
-	private List<Byte> bytesList;
+	private ByteArrayOutputStream buffer;
 
 	public StreamCapturer(FXOutputPane consumer, PrintStream old) {
-		bytesList = new ArrayList<>(128);
 		this.capturedStream = old;
 		this.panel = consumer;
+		this.buffer = new ByteArrayOutputStream(128);
 	}
 
 	@Override
 	public void write(int b) throws IOException {
-		capturedStream.write(b);
-		bytesList.add((byte) b);
-		if ((char) b == '\n') {
-			final Byte[] array = bytesList.toArray(new Byte[bytesList.size()]);
-			byte[] byteArray = new byte[array.length];
-			IntStream.range(0, array.length).forEach(i -> byteArray[i] = array[i]);
-			panel.writeToTextArea(new String(byteArray));
-			bytesList.clear();
-		}
+			capturedStream.write(b);
+			buffer.write(b);
+			if ((char) b == '\n') {
+				byte[] byteArray = buffer.toByteArray();
+				panel.writeToTextArea(new String(byteArray));
+				buffer.reset();
+			}
+	}
+
+	@Override
+    public void write(byte[] b, int off, int len) throws IOException {
+        capturedStream.write(b, off, len);
+        buffer.write(b, off, len);
+        if (new String(b, off, len).contains("\n")) {
+            byte[] byteArray = buffer.toByteArray();
+            panel.writeToTextArea(new String(byteArray));
+            buffer.reset();
+        }
+	}
+
+	@Override
+	public void flush() throws IOException {
+			capturedStream.flush();
+	}
+
+	@Override
+	public void close() throws IOException {
+			capturedStream.close();
 	}
 }

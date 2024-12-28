@@ -1,7 +1,9 @@
 package madkit.kernel;
 
+import static org.testng.Assert.assertNotEquals;
+import static org.testng.Assert.assertNotNull;
+
 import org.testng.annotations.Test;
-import static org.testng.Assert.*;
 
 public class KernelAddressTest {
 

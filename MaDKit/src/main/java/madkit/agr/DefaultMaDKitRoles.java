@@ -9,6 +9,7 @@ import madkit.kernel.Agent;
  * 
  * @author Fabien Michel
  * @since MaDKit 5.2
+ * @version 6.0
  */
 public class DefaultMaDKitRoles {
 
@@ -16,6 +17,7 @@ public class DefaultMaDKitRoles {
 	 * Utility class
 	 */
 	private DefaultMaDKitRoles() {
+		throw new IllegalStateException("Utility class");
 	}
 
 	/**

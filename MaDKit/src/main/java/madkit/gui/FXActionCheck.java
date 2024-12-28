@@ -1,5 +1,5 @@
 
-package madkit.gui.fx;
+package madkit.gui;
 
 import java.util.function.Consumer;
 
@@ -14,7 +14,7 @@ import madkit.action.ActionData;
  * performed.
  */
 @ActionCheck
-public class MDKFXActionCheck extends FXAction {
+public class FXActionCheck extends FXAction {
 
 	/**
 	 * Builds a new action using {@link ActionData}.
@@ -23,7 +23,7 @@ public class MDKFXActionCheck extends FXAction {
 	 * @param eventHandler the event handler to be executed when the action is
 	 *                     performed
 	 */
-	public MDKFXActionCheck(final ActionData actionInfo, Consumer<ActionEvent> eventHandler) {
+	public FXActionCheck(final ActionData actionInfo, Consumer<ActionEvent> eventHandler) {
 		super(actionInfo, eventHandler);
 	}
 

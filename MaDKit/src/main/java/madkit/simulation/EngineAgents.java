@@ -39,23 +39,67 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import madkit.kernel.AbstractScheduler;
+import madkit.kernel.Scheduler;
 import madkit.simulation.scheduler.TickBasedScheduler;
 
 /**
- * Annotation to specify the engine agents of a simulation. since MaDKit 6.0
+ * 
+ * Annotation to specify the engine agents of a simulation.
+ * <p>
+ * The annotation can be used on a class that extends {@link SimulationEngine}.
+ * The annotation specifies the scheduler, environment, model, and viewers of the
+ * simulation. The annotation has the following attributes:
+ * <ul>
+ * <li>{@code scheduler} (optional): the scheduler class of the simulation. The
+ * default value is {@link TickBasedScheduler}.
+ * <li>{@code environment} (optional): the environment class of the simulation.
+ * The default value is {@link Environment}.
+ * <li>{@code model} (optional): the model class of the simulation. The default
+ * value is {@link SimulationModel}.
+ * <li>{@code viewers} (optional): the viewer classes of the simulation. The
+ * default value is an empty array.
+ * </ul>
+ * 
+ * 
+ * @see SimulationEngine
+ * @see SimulationModel
+ * @see Environment
+ * @see Scheduler
+ * 
+ * @since MaDKit 6.0
  */
 @Inherited
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface EngineAgents {
 
-	Class<? extends AbstractScheduler<?>> scheduler() default TickBasedScheduler.class;
+	/**
+	 * The scheduler class of the simulation.
+	 * 
+	 * @return the scheduler class.
+	 */
+	Class<? extends Scheduler<?>> scheduler() default TickBasedScheduler.class;
 
+	/**
+	 * The environment class of the simulation.
+	 * 
+	 * @return the environment class.
+	 */
 	Class<? extends Environment> environment() default Environment.class;
 
+
+	/**
+	 * The model class of the simulation.
+	 * 
+	 * @return the model class.
+	 */
 	Class<? extends SimulationModel> model() default SimulationModel.class;
 
+	/**
+	 * The viewers classes of the simulation.
+	 * 
+	 * @return the viewers classes.
+	 */
 	Class<? extends SimuAgent>[] viewers() default {};
 
 }

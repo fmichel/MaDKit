@@ -1,10 +1,12 @@
 package madkit.kernel;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
@@ -12,12 +14,14 @@ import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.net.URLConnection;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.jar.JarFile;
+import java.util.logging.Logger;
 
 /**
  * The MadkitClassLoader is the class loader used by MaDKit. It enables some
@@ -31,7 +35,8 @@ import java.util.jar.JarFile;
 //FIXME
 public final class MadkitClassLoader extends URLClassLoader {
 
-	private Collection<String> classesToReload;
+	static final ClassLoader parentClassLoader = MadkitClassLoader.class.getClassLoader().getSystemClassLoader();
+	private Collection<String> classesToReload = new HashSet<>();
 	// private final Madkit madkit;
 	private static Set<String> agentClasses;
 	private static Set<String> mdkFiles;
@@ -40,12 +45,12 @@ public final class MadkitClassLoader extends URLClassLoader {
 //	private static Set<MASModel> demos;
 	private static Set<URL> scannedURLs;
 	private static MadkitClassLoader currentMCL;
+	private static Logger logger = madkit.kernel.Madkit.MDK_ROOT_LOGGER;
 
 	static {
 
 		final URL[] urls;
 		final String[] urlsName = System.getProperty("java.class.path").split(File.pathSeparator);
-//		System.err.println(Arrays.deepToString(urlsName));
 		urls = new URL[urlsName.length];
 		for (int i = 0; i < urlsName.length; i++) {
 			try {
@@ -57,7 +62,7 @@ public final class MadkitClassLoader extends URLClassLoader {
 		// final ClassLoader systemCL = MadkitClassLoader.class.getClassLoader();
 		// final ClassLoader systemCL = Thread.currentThread().getContextClassLoader();
 		// System.err.println(systemCL);
-		currentMCL = new MadkitClassLoader(urls, MadkitClassLoader.class.getClassLoader(), null);
+		currentMCL = new MadkitClassLoader(urls, parentClassLoader, null);
 	}
 
 	/**
@@ -82,37 +87,69 @@ public final class MadkitClassLoader extends URLClassLoader {
 		return currentMCL;
 	}
 
-	@Override
-	protected synchronized Class<?> loadClass(final String name, final boolean resolve) throws ClassNotFoundException {
-		Class<?> c;
-		// synchronized (getClassLoadingLock(name)) {
-		if (classesToReload != null && classesToReload.contains(name)) {
-			c = findLoadedClass(name);
-			if (c != null) {
-				// Logger l = madkit.getKernel().logger;
-				// if (l != null) {
-				// l.log(Level.FINE, "Already defined " + name + " : NEED NEW MCL");
-				// }
-				@SuppressWarnings("resource")
-				MadkitClassLoader mcl = new MadkitClassLoader(getURLs(), this, classesToReload);
-				classesToReload.remove(name);
-				c = mcl.loadClass(name, resolve);
-			} else {// Never defined nor reloaded : go for defining
-				addUrlAndloadClasses(name);
-				// findClass(name);
-				classesToReload = null;
-				return loadClass(name, resolve);// I should now find it on this next try
+//	@Override
+//	protected synchronized Class<?> loadClass(final String name, final boolean resolve) throws ClassNotFoundException {
+//		Class<?> c;
+//		// synchronized (getClassLoadingLock(name)) {
+//		if (classesToReload != null && classesToReload.contains(name)) {
+//			c = findLoadedClass(name);
+//			if (c != null) {
+//				// Logger l = madkit.getKernel().logger;
+//				// if (l != null) {
+//				// l.log(Level.FINE, "Already defined " + name + " : NEED NEW MCL");
+//				// }
+//				@SuppressWarnings("resource")
+//				MadkitClassLoader mcl = new MadkitClassLoader(getURLs(), this, classesToReload);
+//				classesToReload.remove(name);
+//				c = mcl.loadClass(name, resolve);
+//			} else {// Never defined nor reloaded : go for defining
+//				addUrlAndloadClasses(name);
+//				// findClass(name);
+//				classesToReload = null;
+//				return loadClass(name, resolve);// I should now find it on this next try
+//			}
+//		} else {
+//			c = findLoadedClass(name);
+//		}
+//		if (c == null) {
+//			return super.loadClass(name, resolve);
+//		}
+//		if (resolve)
+//			resolveClass(c);
+//		// }
+//		return c;
+//	}
+//	
+
+	public Class<?> loadClass(String name) throws ClassNotFoundException {
+		if (!classesToReload.contains(name))
+			return super.loadClass(name);
+
+		try {
+			URL myUrl = getSystemResource(name.replace('.', '/') + ".class");
+			URLConnection connection = myUrl.openConnection();
+			InputStream input = connection.getInputStream();
+			ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+			int data = input.read();
+
+			while (data != -1) {
+				buffer.write(data);
+				data = input.read();
 			}
-		} else {
-			c = findLoadedClass(name);
+
+			input.close();
+
+			byte[] classData = buffer.toByteArray();
+
+			return defineClass(name, classData, 0, classData.length);
+
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-		if (c == null) {
-			return super.loadClass(name, resolve);
-		}
-		if (resolve)
-			resolveClass(c);
-		// }
-		return c;
+
+		return null;
 	}
 
 	/**
@@ -139,6 +176,7 @@ public final class MadkitClassLoader extends URLClassLoader {
 			currentMCL.classesToReload = new HashSet<>();
 		}
 		currentMCL.classesToReload.add(name);
+		currentMCL = new MadkitClassLoader(currentMCL.getURLs(),parentClassLoader, currentMCL.classesToReload);
 	}
 
 	/**
@@ -501,14 +539,15 @@ public final class MadkitClassLoader extends URLClassLoader {
 	 * @return an instance of the class or <code>null</code> if the class cannot be
 	 *         found.
 	 */
-	public static <T extends Agent> T getInstance(String agentClass) {
+	public static <T extends Agent> T getAgentInstance(String agentClass) {
 		try {
-			final Constructor<? extends Agent> c = (Constructor<? extends Agent>) getLoader().loadClass(agentClass)
-					.getDeclaredConstructor();// NOSONAR mcl must not be closed
-			return (T) c.newInstance();
+			Class<?> targetClass = getLoader().loadClass(agentClass);
+			Constructor<T> c = (Constructor<T>) targetClass.getDeclaredConstructor();// mcl must not be closed
+			return c.newInstance();
 		} catch (InvocationTargetException | InstantiationException | IllegalAccessException | IllegalArgumentException
 				| NoSuchMethodException | SecurityException | ClassNotFoundException e) {
-			Madkit.MDK_ROOT_LOGGER.severe(() -> "Cannot create agent " + agentClass);
+			logger.severe(() -> "Cannot create agent instance " + agentClass);
+			e.printStackTrace();
 		}
 		return null;
 	}

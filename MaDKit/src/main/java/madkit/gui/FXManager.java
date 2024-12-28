@@ -1,5 +1,5 @@
 
-package madkit.gui.fx;
+package madkit.gui;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.FutureTask;
@@ -86,10 +86,10 @@ public class FXManager extends Application {
 	public static synchronized void startFX() {
 		if (!(isStarted || headlessMode)) {
 			FX_ROOT_LOGGER.log(Level.FINEST, () -> "FX Started!");
-			Platform.setImplicitExit(true);
+			Platform.setImplicitExit(false);
 			Thread thread = new Thread(() -> Application.launch(FXManager.class));
 			isStarted = true;
-			thread.setDaemon(true);
+			thread.setDaemon(false);
 			thread.start();
 			FXManager.waitForFxInitialization();
 		}
@@ -113,6 +113,7 @@ public class FXManager extends Application {
 					futureTask.get();
 				}
 			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
 				throw new AgentInterruptedException();
 			} catch (Exception e) {
 				FX_ROOT_LOGGER.log(Level.WARNING, "FX problem...", e);
@@ -149,5 +150,12 @@ public class FXManager extends Application {
 	 */
 	public static boolean isHeadlessMode() {
 		return headlessMode;
+	}
+
+	/**
+	 * @return the isStarted
+	 */
+	public static boolean isStarted() {
+		return isStarted;
 	}
 }

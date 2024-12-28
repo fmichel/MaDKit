@@ -11,7 +11,7 @@ import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCombination;
-import madkit.gui.fx.FXAction;
+import madkit.gui.FXAction;
 import madkit.i18n.I18nUtilities;
 
 /**
@@ -36,7 +36,6 @@ import madkit.i18n.I18nUtilities;
  * }
  * </pre>
  * 
- * @author Fabien Michel
  */
 public class ActionData {
 

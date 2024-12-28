@@ -6,6 +6,7 @@ import org.testng.annotations.Test;
 import madkit.kernel.Activator;
 import madkit.kernel.Agent;
 import madkit.kernel.GenericTestAgent;
+import madkit.test.agents.EmptyAgent;
 
 /**
  * Has to be outside of madkit.kernel for really testing visibility
@@ -23,7 +24,7 @@ public class ActivatorTest {
 
 	@BeforeMethod
 	public void initActivator() {
-		emptyAgent = new Agent();
+		emptyAgent = new EmptyAgent();
 		emptyAgent = new GenericTestAgent();
 		noSuchMethodActivator = new Activator("test", "test") {
 			@Override

@@ -8,8 +8,8 @@ import madkit.simulation.Environment;
  */
 public class Environment2D extends Environment {
 
-	private int width = 600;
-	private int height = 600;
+	private int width = 100;
+	private int height = 100;
 
 	/**
 	 * Constructs an Environment2D with the specified width and height.

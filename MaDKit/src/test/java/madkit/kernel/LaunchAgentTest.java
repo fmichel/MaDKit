@@ -1,7 +1,6 @@
 
 package madkit.kernel;
 
-import static madkit.kernel.Agent.ReturnCode.ALREADY_LAUNCHED;
 import static madkit.kernel.Agent.ReturnCode.SUCCESS;
 import static madkit.kernel.Agent.ReturnCode.TIMEOUT;
 import static org.testng.Assert.assertFalse;
@@ -9,6 +8,7 @@ import static org.testng.Assert.assertTrue;
 
 import org.testng.annotations.Test;
 
+import madkit.test.agents.EmptyAgent;
 import madkit.test.agents.ThreadedAgentBlockedInActivate;
 import madkit.test.agents.ThreadedAgentBlockedInLive;
 
@@ -23,7 +23,7 @@ public class LaunchAgentTest extends JunitMadkit {
 
 	@Test
 	public void returnSuccessOnLaunchNormalAgent() {
-		Agent a = new Agent();
+		Agent a = new EmptyAgent();
 		assertFalse(a.alive.get());
 		launchTestedAgent(a, SUCCESS);
 		assertTrue(a.alive.get());

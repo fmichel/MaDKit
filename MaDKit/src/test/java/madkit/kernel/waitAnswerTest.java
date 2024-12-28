@@ -29,7 +29,7 @@ public class waitAnswerTest extends JunitMadkit {
 			threadAssertEquals(SUCCESS, send(new Message(), aa));
 		}
 
-		protected void onLiving() {
+		protected void onLive() {
 			waitNextMessage();// waiting the start signal
 			reply(new StringMessage("reply"), waitNextMessage());
 			threadAssertEquals(SUCCESS, send(new Message(), aa));
@@ -44,7 +44,7 @@ public class waitAnswerTest extends JunitMadkit {
 			threadAssertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
 		}
 
-		protected void onLiving() {
+		protected void onLive() {
 			Message m = waitNextMessage();
 			reply(m, m);
 			waitNextMessage();// do not die !
@@ -56,7 +56,7 @@ public class waitAnswerTest extends JunitMadkit {
 			threadAssertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
 		}
 
-		protected void onLiving() {
+		protected void onLive() {
 			reply(new StringMessage("reply"), waitNextMessage());
 			reply(new StringMessage("reply2"), waitNextMessage());
 		}

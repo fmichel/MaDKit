@@ -62,6 +62,7 @@ public class LocalCommunity {
 		 * Utility class
 		 */
 		private Groups() {
+			throw new IllegalStateException("Utility class");
 		}
 
 		/**
@@ -72,10 +73,6 @@ public class LocalCommunity {
 		 * The value of this constant is {@value}.
 		 */
 		public static final String SYSTEM = "system";
-		/**
-		 * The value of this constant is {@value}.
-		 */
-		public static final String GUI = "gui";
 	}
 
 	/**
@@ -89,6 +86,7 @@ public class LocalCommunity {
 		 * Utility class
 		 */
 		private Roles() {
+			throw new IllegalStateException("Utility class");
 		}
 
 		/**

@@ -9,7 +9,7 @@ import madkit.kernel.GenericTestAgent;
 public class ThreadedTestAgent extends GenericTestAgent {
 
 	@Override
-	protected void onLiving() {
+	protected void onLive() {
 		orgInLive();
 		behaviorInLive();
 	}

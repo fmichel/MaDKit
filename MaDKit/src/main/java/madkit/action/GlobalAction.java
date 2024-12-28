@@ -28,7 +28,6 @@ import madkit.kernel.MadkitClassLoader;
 /**
  * Global actions that can be triggered from anywhere during execution.
  * 
- * @author Fabien Michel
  * @since MaDKit 6.0
  * @version 6.0
  */
@@ -57,9 +56,9 @@ public class GlobalAction {
 					try {
 						new ProcessBuilder(jconsolePath, pid.substring(0, pid.indexOf('@'))).start();
 					} catch (IOException e1) {
-						e1.printStackTrace();// NOSONAR
+						e1.printStackTrace();
 					}
-				};
+				}
 			};
 		}
 	}

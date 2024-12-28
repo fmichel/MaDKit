@@ -26,7 +26,7 @@ public final class Mailbox {
 
 	final BlockingDeque<Message> messageBox;
 
-	protected Mailbox() {
+	Mailbox() {
 		messageBox = new LinkedBlockingDeque<>();
 	}
 
@@ -333,7 +333,7 @@ public final class Mailbox {
 		} catch (InterruptedException e) {
 			throw new AgentInterruptedException();
 		} finally {
-			receptions.stream().forEach(messageBox::offerFirst);
+			receptions.forEach(messageBox::offerFirst);
 		}
 		return t;
 	}
@@ -366,7 +366,7 @@ public final class Mailbox {
 			receptions.add(0, incoming);
 			timeOutNanos = endTime - System.nanoTime();
 		}
-		receptions.stream().forEach(messageBox::offerFirst);
+		receptions.forEach(messageBox::offerFirst);
 		return answer;
 	}
 
@@ -400,7 +400,7 @@ public final class Mailbox {
 			}
 			timeOutNanos = endTime - System.nanoTime();
 		}
-		receptions.stream().forEach(messageBox::offerFirst);
+		receptions.forEach(messageBox::offerFirst);
 		return answers;
 	}
 

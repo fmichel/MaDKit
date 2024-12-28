@@ -15,7 +15,6 @@ import madkit.kernel.Agent;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Probe;
 import madkit.kernel.Watcher;
-import madkit.simulation.probe.PropertyProbe;
 import madkit.test.agents.SimulatedAgent;
 
 /**

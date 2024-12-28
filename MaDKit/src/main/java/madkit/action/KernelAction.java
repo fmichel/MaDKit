@@ -15,7 +15,7 @@ import org.controlsfx.control.action.Action;
 import madkit.agr.DefaultMaDKitRoles;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
-import madkit.gui.fx.FXAction;
+import madkit.gui.FXAction;
 import madkit.kernel.Agent;
 import madkit.messages.KernelMessage;
 
@@ -23,7 +23,6 @@ import madkit.messages.KernelMessage;
  * Enum representing kernel actions. This especially could be used to
  * communicate with the kernel in order to trigger kernel's actions.
  * 
- * @author Fabien Michel
  * @since MaDKit 5.0.0.14
  * @version 6.0
  */
@@ -31,15 +30,15 @@ import madkit.messages.KernelMessage;
 public enum KernelAction {
 
 	/**
-	 * Close the kernel
+	 * Close MaDKit
 	 */
 	EXIT(VK_Q),
 	/**
-	 * Clone the kernel with its initial options
+	 * Clone the MaDKit session with its initial options
 	 */
 	COPY(VK_C),
 	/**
-	 * Restart the kernel with its initial options
+	 * Restart MaDKit with its initial options
 	 */
 	RESTART(VK_R),
 	/**
@@ -90,11 +89,7 @@ public enum KernelAction {
 	}
 
 	public Action newActionFor(Agent agent, Object... parameters) {
-
-		return new FXAction(actionInfo, ae -> {
-			request(agent, parameters);
-		});
-
+		return new FXAction(actionInfo, ae -> request(agent, parameters));
 	}
 
 	public void request(Agent requester, Object... parameters) {

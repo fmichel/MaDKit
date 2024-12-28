@@ -12,25 +12,31 @@ import java.util.List;
 import java.util.logging.Level;
 
 import madkit.action.SchedulingAction;
-import madkit.kernel.AbstractScheduler;
+import madkit.kernel.Scheduler;
 import madkit.messages.SchedulingMessage;
 import madkit.simulation.scheduler.TickBasedScheduler;
 
 /**
- * Main class for initializing a MaDKit simulation.
+ * Main class for launching a simulation. This class is responsible for
+ * initializing the simulation environment, simulation model, and scheduler. It
+ * also launches the simulation agents and viewers. This class is intended to be
+ * extended by the user to define the simulation engine. The user must define
+ * the simulation environment, model, and scheduler classes by overriding the
+ * {@link #onLaunchEnvironment()}, {@link #onLaunchModel()}, and
+ * {@link #onLaunchScheduler()} methods, respectively. The user can also define
+ * the simulation agents and viewers by overriding the
+ * {@link #launchSimulatedAgents()} and {@link #launchViewers()} methods,
+ * respectively. The user can also define the simulation startup behavior by
+ * overriding the {@link #onSimuStartup()} method. The user can also define the
+ * simulation shutdown behavior by overriding the {@link #onSimuEnd()} method.
+ *  
  * 
  * 
- * @author Fabien Michel
  *
  */
 @EngineAgents
 public class SimulationEngine extends SimuAgent {
 
-	/**
-	 * @author Fabien Michel
-	 * 
-	 *         since MaDKit 6.0
-	 */
 	enum ENGINE {
 		SCHEDULER, ENVIRONMENT, MODEL;
 	}
@@ -39,7 +45,7 @@ public class SimulationEngine extends SimuAgent {
 
 	private SimulationModel model;
 	private Environment environment;
-	private AbstractScheduler<? extends SimulationTimer<?>> scheduler;
+	private Scheduler<? extends SimulationTimer<?>> scheduler;
 	private List<SimuAgent> viewers;
 
 	/**
@@ -64,14 +70,11 @@ public class SimulationEngine extends SimuAgent {
 	}
 
 	/**
-	 * Launches the simulation engine and the simulated agents.
-	 *
-	 * <ul>
-	 * <li>1. launch //TODO
+	 * The main method of the simulation engine. It creates the simulation
+	 * environment, model, and scheduler. It also launches the simulation agents and
+	 * viewers. Finally, it starts the simulation if the start parameter is set to
+	 * true. 
 	 * 
-	 * 1. launch core agents : Environment -> Scheduler -> Simulation model 2.
-	 * launchConfigTurtles : launchXmlTurtles -> launch args turtles 3. launch
-	 * viewers 4. launch xml Agent tag
 	 */
 	private void createSimulationInstance() {
 		onLaunchModel();
@@ -108,7 +111,7 @@ public class SimulationEngine extends SimuAgent {
 		return launchAgent(getEngineClass(ENGINE.ENVIRONMENT), Integer.MAX_VALUE);
 	}
 
-	protected <S extends AbstractScheduler<?>> S onLaunchScheduler() {
+	protected <S extends Scheduler<?>> S onLaunchScheduler() {
 		return launchAgent(getEngineClass(ENGINE.SCHEDULER), Integer.MAX_VALUE);
 	}
 
@@ -124,7 +127,7 @@ public class SimulationEngine extends SimuAgent {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public <S extends AbstractScheduler<?>> S getScheduler() {
+	public <S extends Scheduler<?>> S getScheduler() {
 		return (S) scheduler;
 	}
 
@@ -249,10 +252,6 @@ public class SimulationEngine extends SimuAgent {
 		}
 	}
 
-	public static void main(String[] args) {
-		executeThisAgent();
-	}
-
 	/**
 	 * @return
 	 */
@@ -271,7 +270,7 @@ public class SimulationEngine extends SimuAgent {
 	/**
 	 * @param scheduler the scheduler to set
 	 */
-	void setScheduler(AbstractScheduler<? extends SimulationTimer<?>> scheduler) {
+	void setScheduler(Scheduler<? extends SimulationTimer<?>> scheduler) {
 		this.scheduler = scheduler;
 	}
 

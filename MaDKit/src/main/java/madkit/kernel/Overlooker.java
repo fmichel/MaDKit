@@ -153,7 +153,7 @@ abstract class Overlooker {
 	 *               once.
 	 */
 	void adding(final List<Agent> agents) {
-		agents.stream().forEach(this::onAdding);
+		agents.forEach(this::onAdding);
 	}
 
 	/**
@@ -184,7 +184,7 @@ abstract class Overlooker {
 	 * @param agents the list of agents which have been removed from this group/role
 	 */
 	void removing(final List<Agent> agents) {
-		agents.stream().forEach(this::onRemoving);
+		agents.forEach(this::onRemoving);
 	}
 
 	/**

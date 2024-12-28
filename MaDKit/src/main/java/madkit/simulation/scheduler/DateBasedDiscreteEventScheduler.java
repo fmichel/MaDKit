@@ -3,12 +3,12 @@ package madkit.simulation.scheduler;
 import java.time.LocalDateTime;
 import java.util.PriorityQueue;
 
-import madkit.kernel.AbstractScheduler;
+import madkit.kernel.Scheduler;
 import madkit.kernel.Activator;
 import madkit.simulation.DateBasedTimer;
 import madkit.simulation.activator.DateBasedDiscreteEventActivator;
 
-public class DateBasedDiscreteEventScheduler extends AbstractScheduler<DateBasedTimer> {
+public class DateBasedDiscreteEventScheduler extends Scheduler<DateBasedTimer> {
 
 	private PriorityQueue<DateBasedDiscreteEventActivator> activatorActivationList = new PriorityQueue<>();
 

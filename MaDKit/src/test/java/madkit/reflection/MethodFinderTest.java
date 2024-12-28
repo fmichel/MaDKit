@@ -11,6 +11,7 @@ import madkit.kernel.Activator;
 import madkit.kernel.Agent;
 import madkit.kernel.GenericTestAgent;
 import madkit.kernel.Message;
+import madkit.test.agents.EmptyAgent;
 
 /**
  * Has to be outside of madkit.kernel for really testing visibility
@@ -106,7 +107,7 @@ public class MethodFinderTest {
 
 	@Test(expectedExceptions = RuntimeException.class)
 	public void noSuchMethod() {
-		Agent a = new Agent();
+		Agent a = new EmptyAgent();
 		Activator activator = new Activator("test", "test") {
 			@Override
 			public void execute(Object... args) {

@@ -1,30 +1,53 @@
 package madkit.kernel;
 
+import static madkit.simulation.DefaultOrganization.ENGINE_GROUP;
+import static madkit.simulation.DefaultOrganization.*;
+
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import madkit.simulation.SimuAgent;
 
 /**
- * This class defines a generic watcher agent. It holds a collection of probes
- * to explore agents' internal properties.
+ * A Watcher is an agent that is designed to be part of a simulation engine to monitor 
+ * and explore agents' internal properties.
+  * <p>
+* 
+ * To this end, it holds a collection of {@link Probe} which are used to monitor agents 
+ * that play specific roles in specific groups. 
+ * <p>
  * 
- * @author Fabien Michel
- * @author Olivier Gutknecht
+ * The probes are added to the artificial organization of the simulation engine using 
+ * {@link #addProbe(Probe)} and removed using {@link #removeProbe(Probe)}.
+ * <p>
+ * 
+ * Moreover, by default, the Watcher agent is automatically granted the role
+ * {@link #WATCHER_ROLE} in the group {@link #ENGINE_GROUP} when it is activated.
+ * This can be changed by overriding the {@link #onActivation()} method.
+ * 
  * @since MaDKit 2.0
- * @version 5.0
+ * @version 6.0
  */
-public class Watcher extends SimuAgent {
+public abstract class Watcher extends SimuAgent {
 
 	private final Set<Probe> probes = new LinkedHashSet<>();
 
 	/**
+	 * This method is called when the agent is activated. By default, it requests the
+	 * role {@link #WATCHER_ROLE} in the group {@link #ENGINE_GROUP}. 
+	 */
+	@Override
+	protected void onActivation() {
+		requestRole(getCommunity(), ENGINE_GROUP, WATCHER_ROLE);
+	}
+
+	/**
 	 * Adds the probe to the artificial organization so that it starts to probe the
-	 * agents which are at the corresponding CGR location.
+	 * agents which belong to the group and play the role defined in the probe.
 	 * 
 	 * @param probe the probe to add
 	 */
-	public void addProbe(final Probe probe) {
+	public void addProbe(Probe probe) {
 		if (getOrganization().addOverlooker(this, probe))
 			probes.add(probe);
 		getLogger().fine(() -> "Probe added: " + probe);
@@ -36,34 +59,43 @@ public class Watcher extends SimuAgent {
 	 * 
 	 * @param probe the probe to remove
 	 */
-	public void removeProbe(final Probe probe) {
+	public void removeProbe(Probe probe) {
 		getOrganization().removeOverlooker(probe);
 		probes.remove(probe);
+		getLogger().fine(() -> "Probe removed: " + probe);
 	}
 
+	/**
+	 * Removes all probes when the agent is ending
+	 */
 	@Override
-	protected void onEnding() {
+	protected void onEnd() {
 		removeAllProbes();
-		super.onEnding();
+		super.onEnd();
 	}
 
 	/**
 	 * Remove all probes at once.
 	 */
 	public void removeAllProbes() {
-		probes.stream().forEach(p -> getOrganization().removeOverlooker(p));
+		probes.forEach(p -> getOrganization().removeOverlooker(p));
 		probes.clear();
+		getLogger().fine(() -> "All probes removed");
 	}
 
 	/**
-	 * Returns the probes which have been successfully added
+	 * Returns the probes which are currently added to the artificial organization.
 	 * 
-	 * @return all the added probes
+	 * @return the probes which are currently added to the artificial organization
 	 */
 	public Set<Probe> getProbes() {
 		return probes;
 	}
 
+	/**
+	 * Returns the watcher's name followed by
+	 * the list of probes it holds.
+	 */
 	@Override
 	public String toString() {
 		return getName() + " " + probes;

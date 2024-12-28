@@ -37,42 +37,97 @@ import static madkit.simulation.DefaultOrganization.ENGINE_GROUP;
 import static madkit.simulation.DefaultOrganization.SCHEDULER_ROLE;
 import static madkit.simulation.DefaultOrganization.VIEWER_ROLE;
 
+import javafx.scene.canvas.GraphicsContext;
 import madkit.action.SchedulingAction;
-import madkit.gui.fx.FXManager;
-import madkit.kernel.AbstractScheduler;
+import madkit.gui.FXManager;
+import madkit.kernel.Scheduler;
 import madkit.kernel.Watcher;
 import madkit.messages.SchedulingMessage;
 
 /**
- * An agent designed to be part of the default simulation engine as an observer,
- * that is an agent that has a GUI and probes to to explore agents' internal
- * properties.
+ * A Viewer is a {@link Watcher} that is designed to display simulation states
+ * on screen.
+ * <p>
+ * By default, a viewer agent is automatically granted the role
+ * {@link DefaultOrganization#VIEWER_ROLE} in the group
+ * {@link DefaultOrganization#ENGINE_GROUP} when it is activated. This can be
+ * changed by overriding the {@link #onActivation()} method.
  * 
- * @author Fabien Michel
+ * <p>
+ * To this end, it holds a {@link DefaultViewerGUI} which is used to render the
+ * simulation state through a predefined JavaFX stage. When the viewer agent wants
+ * to render the simulation state, it calls the {@link DefaultViewerGUI#requestRendering()}
+ * method which triggers the {@link #render()} in the JavaFX thread if needed, depending on the state
+ * of the GUI such as the synchronous painting mode. 
+ * <p>
  * 
- *         since MaDKit 6.0
+ * @see DefaultViewerGUI 
  */
-public abstract class AbstractObserver extends Watcher {
+public abstract class Viewer extends Watcher {
 
+	private DefaultViewerGUI gui;
+
+	/**
+	 * This method is called when the agent is activated. By default, it requests the
+	 * role {@link DefaultOrganization#VIEWER_ROLE} in the group
+	 * {@link DefaultOrganization#ENGINE_GROUP}.
+	 */
 	@Override
 	protected void onActivation() {
 		requestRole(getCommunity(), ENGINE_GROUP, VIEWER_ROLE);
-		FXManager.runAndWait(() -> setupGUI());
 	}
 
 	/**
-	 * Intended to be invoked by a scheduler's activator for triggering the
-	 * observation. When the observer is used with the default engine settings, it
-	 * is triggered each time the {@link AbstractScheduler#doSimulationStep()} is
-	 * called.
+	 * When using the default simulation engine setup, this method is automatically called by the
+	 * scheduler agent when it is time to render the simulation state.
 	 */
-	protected abstract void observe();
+	protected void display() {
+		gui.requestRendering();
+	}
 
+	/**
+	 * This method is called when the agent is ending. By default, it sends a
+	 * {@link SchedulingMessage} with the {@link SchedulingAction#SHUTDOWN} action to the
+	 * scheduler agent if no other viewer agent is present in the group
+	 * {@link DefaultOrganization#ENGINE_GROUP} with the role {@link DefaultOrganization
+	 * #VIEWER_ROLE}.
+	 */
 	@Override
-	protected void onEnding() {
+	protected void onEnd() {
 		if (getAgentsWithRole(getCommunity(), ENGINE_GROUP, VIEWER_ROLE).isEmpty()) {
 			send(new SchedulingMessage(SchedulingAction.SHUTDOWN), getCommunity(), ENGINE_GROUP, SCHEDULER_ROLE);
 		}
 	}
+	
+	@Override
+	public void onSimuStartup() {
+		super.onSimuStartup();
+		display();
+	}
 
+	/**
+	 * Renders the simulation state. This method is called by the GUI bounded to
+	 * this agent when it is time to render the simulation state. The rendering is
+	 * done in the JavaFX thread.
+	 */
+	public abstract void render();
+
+	/**
+	 * Returns the GUI of this viewer.
+	 * 
+	 * @return the GUI of this viewer
+	 */
+	@SuppressWarnings("unchecked")
+	public <G extends DefaultViewerGUI> G getGUI() {
+		return (G) gui;
+	}
+
+	/**
+	 * Sets the GUI of this viewer.
+	 * 
+	 * @param gui the GUI to set
+	 */
+	public void setGUI(DefaultViewerGUI gui) {
+		this.gui = gui;
+	}
 }

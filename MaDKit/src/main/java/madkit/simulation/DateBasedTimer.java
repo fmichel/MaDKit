@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
-import madkit.kernel.AbstractScheduler;
+import madkit.kernel.Scheduler;
 
 /**
  * This class encapsulates the time of the simulation. Its purpose is that it
@@ -13,7 +13,7 @@ import madkit.kernel.AbstractScheduler;
  *
  * @author Fabien Michel
  * @since MaDKit 5.3
- * @see AbstractScheduler LocalDateTime
+ * @see Scheduler LocalDateTime
  */
 public class DateBasedTimer extends SimulationTimer<LocalDateTime> {
 

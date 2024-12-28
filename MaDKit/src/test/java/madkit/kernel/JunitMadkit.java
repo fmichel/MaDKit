@@ -15,7 +15,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.function.Consumer;
-import java.util.logging.Level;
 
 import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.BeforeMethod;
@@ -23,7 +22,6 @@ import org.testng.annotations.BeforeMethod;
 import madkit.kernel.Agent.ReturnCode;
 import madkit.simulation.SimuAgent;
 import madkit.simulation.SimulationEngine;
-import madkit.test.agents.SimulatedAgent;
 import net.jodah.concurrentunit.ConcurrentTestCase;
 
 /**
@@ -150,7 +148,7 @@ public class JunitMadkit extends ConcurrentTestCase {
 	public void testThreadedBehavior(Consumer<Agent> behavior) {
 		launchTestedAgent(new Agent() {
 			@Override
-			protected void onLiving() {
+			protected void onLive() {
 				behavior.accept(this);
 			}
 		}, SUCCESS);

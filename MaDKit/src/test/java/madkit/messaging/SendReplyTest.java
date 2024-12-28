@@ -11,8 +11,8 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 import madkit.kernel.Agent;
-import madkit.kernel.JunitMadkit;
 import madkit.kernel.Agent.ReturnCode;
+import madkit.kernel.JunitMadkit;
 import madkit.kernel.Message;
 import madkit.test.agents.RequestRoleAgent;
 

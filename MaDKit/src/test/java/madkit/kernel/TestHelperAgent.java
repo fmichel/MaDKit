@@ -66,7 +66,7 @@ public class TestHelperAgent extends Agent {
 	}
 
 	@Override
-	protected void onEnding() {
+	protected void onEnd() {
 		goThroughEnd = true;
 	}
 

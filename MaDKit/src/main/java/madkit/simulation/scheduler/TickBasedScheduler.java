@@ -33,7 +33,7 @@
  *******************************************************************************/
 package madkit.simulation.scheduler;
 
-import madkit.kernel.AbstractScheduler;
+import madkit.kernel.Scheduler;
 import madkit.simulation.TickBasedTimer;
 
 /**
@@ -41,12 +41,11 @@ import madkit.simulation.TickBasedTimer;
  * 
  *         since MaDKit 6.0
  */
-public class TickBasedScheduler extends AbstractScheduler<TickBasedTimer> {
+public class TickBasedScheduler extends Scheduler<TickBasedTimer> {
 
 	@Override
 	public void doSimulationStep() {
-		// TODO Auto-generated method stub
-
+		getSimuTimer().addOneTimeUnit();
 	}
 
 }

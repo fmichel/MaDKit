@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.random.RandomGenerator;
 
-import madkit.kernel.AbstractScheduler;
+import madkit.kernel.Scheduler;
 import madkit.kernel.Agent;
 import madkit.simulation.activator.DateBasedDiscreteEventActivator;
 import madkit.simulation.activator.DiscreteEventAgentsActivator;
@@ -90,7 +90,7 @@ public class SimuAgent extends Agent {
 	 * @param <S> the type of the scheduler.
 	 * @return the scheduler instance.
 	 */
-	public <S extends AbstractScheduler<?>> S getScheduler() {
+	public <S extends Scheduler<?>> S getScheduler() {
 		return getSimuEngine().getScheduler();
 	}
 
@@ -192,7 +192,7 @@ public class SimuAgent extends Agent {
 	 * @throws NullPointerException if this agent is not part of a simulation
 	 */
 	@SuppressWarnings("unchecked")
-	public <T extends SimulationTimer<?>> T getSimuTimer() {// TODO move this in SimuParticipant
+	public <T extends SimulationTimer<?>> T getSimuTimer() {
 		return simuEngine != null ? (T) simuEngine.getScheduler().getSimuTimer() : null;
 	}
 

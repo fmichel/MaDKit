@@ -1,4 +1,4 @@
-package madkit.gui.fx;
+package madkit.gui;
 
 import java.util.logging.ErrorManager;
 import java.util.logging.Filter;
@@ -11,7 +11,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
-import madkit.gui.fx.menus.Menus;
 import madkit.kernel.Agent;
 import madkit.kernel.AgentLogger;
 import madkit.logging.TextAreaHandler;
@@ -37,7 +36,7 @@ public class FXOutputPane extends BorderPane {
 	 * 
 	 * @param agent
 	 */
-	public FXOutputPane(final Agent agent) {
+	public FXOutputPane(Agent agent) {
 		textArea = new TextArea();
 		textArea.setEditable(false);
 		textArea.setWrapText(true);

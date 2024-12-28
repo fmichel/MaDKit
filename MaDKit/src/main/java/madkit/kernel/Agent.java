@@ -13,7 +13,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
@@ -23,8 +22,8 @@ import it.unimi.dsi.fastutil.objects.Reference2BooleanArrayMap;
 import it.unimi.dsi.fastutil.objects.Reference2BooleanMap;
 import javafx.scene.Scene;
 import madkit.agr.DefaultMaDKitRoles;
-import madkit.gui.fx.FXManager;
-import madkit.gui.fx.FXOutputPane;
+import madkit.gui.FXManager;
+import madkit.gui.FXOutputPane;
 import madkit.messages.ConversationFilter;
 import madkit.messages.EnumMessage;
 import madkit.reflection.MethodFinder;
@@ -48,7 +47,7 @@ import madkit.reflection.ReflectionUtils;
  * code, so integration of different agents is quite easy, even when they are
  * coming from different developers or have heterogeneous models.
  * <p>
- * An Agent will be given its own thread if it overrides the {@link #onLiving()}
+ * An Agent will be given its own thread if it overrides the {@link #onLive()}
  * method
  * <p>
  * Agent-related methods (most of this API) is only effective after the agent
@@ -73,7 +72,7 @@ import madkit.reflection.ReflectionUtils;
  * @version 6.0
  * @since MaDKit 6.0
  */
-public class Agent {
+public abstract class Agent {
 
 	private static final Reference2BooleanMap<Class<?>> threadedClasses = new Reference2BooleanArrayMap<>();
 	private static final AtomicInteger agentCounter = new AtomicInteger(-1);
@@ -88,14 +87,20 @@ public class Agent {
 	AgentLogger logger;
 
 	/**
-	 * Constructs a new Agent instance and initializes its hash code.
+	 * Constructs a new Agent instance.
+	 * <p>
+	 * The agent's hashCode is set when the agent is created. This hashCode is
+	 * unique for each agent instance and is used to uniquely identify the agent within the
+	 * artificial society.
+	 * <p> 
+	 * It is important to note that the agent is not yet alive at this point.
 	 */
-	public Agent() {
+	protected Agent() {
 		hashCode = agentCounter.getAndIncrement();
 	}
 
 	/**
-	 * Called when the agent is activated. This method can be overridden to define
+	 * First method called when the agent is launched. This method should be overridden to define
 	 * custom activation behavior.
 	 */
 	protected void onActivation() {
@@ -105,14 +110,14 @@ public class Agent {
 	 * Called when the agent is alive. This method can be overridden to define
 	 * custom behavior while the agent is running.
 	 */
-	protected void onLiving() {
+	protected void onLive() {
 	}
 
 	/**
 	 * Called when the agent is ending. This method can be overridden to define
 	 * custom cleanup behavior.
 	 */
-	protected void onEnding() {
+	protected void onEnd() {
 	}
 
 	/**
@@ -125,7 +130,7 @@ public class Agent {
 		return threadedClasses.computeIfAbsent(getClass(), (Class<?> c) -> {
 			while (c != Agent.class) {
 				try {
-					c.getDeclaredMethod("onLiving");
+					c.getDeclaredMethod("onLive");
 					return true;
 				} catch (NoSuchMethodException | SecurityException e) {
 				}
@@ -181,7 +186,7 @@ public class Agent {
 	 * @param level       the logging level.
 	 * @param msgSupplier a supplier that provides the log message.
 	 */
-	private void logIfLoggerNotNull(Level level, Supplier<String> msgSupplier) {
+	void logIfLoggerNotNull(Level level, Supplier<String> msgSupplier) {
 		if (logger != null) {
 			logger.log(level, msgSupplier);
 		}
@@ -220,13 +225,13 @@ public class Agent {
 
 	/**
 	 * Executes the agent's living behavior. This method logs the living event and
-	 * calls the {@link #onLiving()} method. It also handles any exceptions that may
+	 * calls the {@link #onLive()} method. It also handles any exceptions that may
 	 * occur during execution.
 	 */
 	final void living() {
 		logIfLoggerNotNull(Level.FINER, () -> "ACTIVATE - - -> LIVE...");
 		try {
-			onLiving();
+			onLive();
 		} catch (Throwable e) {
 			handleException(e);
 		}
@@ -236,7 +241,7 @@ public class Agent {
 	/**
 	 * Handles the agent's termination process when it is killed. This method sets
 	 * the thread name and logs the killing event, then calls the
-	 * {@link #onEnding()} method.
+	 * {@link #onEnd()} method.
 	 */
 	final void killed() {
 		Thread.currentThread().setName(String.valueOf(hashCode()));
@@ -258,12 +263,12 @@ public class Agent {
 
 	/**
 	 * Handles the ending process of the agent. This method calls the
-	 * {@link #onEnding()} method and sets the agent's alive state to false. It also
+	 * {@link #onEnd()} method and sets the agent's alive state to false. It also
 	 * terminates the agent's life cycle.
 	 */
 	final void ending() {
 		try {
-			onEnding();
+			onEnd();
 		} catch (Throwable e) {
 			handleException(e);
 		}
@@ -331,7 +336,7 @@ public class Agent {
 	@SuppressWarnings("unchecked")
 	public <T extends Agent> T launchAgent(String agentClass, int timeOutSeconds) {
 		logIfLoggerNotNull(Level.FINEST, () -> Words.LAUNCH + " " + agentClass);
-		Agent a = MadkitClassLoader.getInstance(agentClass);
+		Agent a = MadkitClassLoader.getAgentInstance(agentClass);
 		if (ReturnCode.SUCCESS == launchAgent(a, timeOutSeconds)) {
 			return (T) a;
 		}
@@ -352,12 +357,12 @@ public class Agent {
 	 * Kills the specified agent with a specified timeout.
 	 * 
 	 * @param a        the agent to be killed.
-	 * @param maxValue the maximum time to wait for the agent to be killed.
+	 * @param timeOutSeconds the maximum time to wait for the agent to be killed.
 	 * @return the result of the kill operation.
 	 */
-	protected ReturnCode killAgent(Agent a, int maxValue) {
+	protected ReturnCode killAgent(Agent a, int timeOutSeconds) {
 		if (a.alive.compareAndSet(true, false)) {
-			return kernel.killAgent(a, maxValue);
+			return kernel.killAgent(a, timeOutSeconds);
 		}
 		return ReturnCode.NOT_YET_LAUNCHED;
 	}
@@ -371,19 +376,19 @@ public class Agent {
 	}
 
 	/**
-	 * @deprecated Use {@link #onLiving()} instead.
+	 * @deprecated Use {@link #onLive()} instead.
 	 */
 	@Deprecated(since = "6", forRemoval = true)
 	protected void live() {
-		onLiving();
+		onLive();
 	}
 
 	/**
-	 * @deprecated Use {@link #onEnding()} instead.
+	 * @deprecated Use {@link #onEnd()} instead.
 	 */
 	@Deprecated(since = "6", forRemoval = true)
 	protected void end() {
-		onEnding();
+		onEnd();
 	}
 
 	/**
@@ -711,10 +716,10 @@ public class Agent {
 	public void reload() {
 		try {
 			MadkitClassLoader.reloadClass(getClass().getName());
-			Agent a = getClass().getDeclaredConstructor().newInstance();
+			Agent a = MadkitClassLoader.getAgentInstance(getClass().getName());
+//			Agent a = getClass().getDeclaredConstructor().newInstance();
 			launchAgent(a, 0);
-		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-				| NoSuchMethodException | SecurityException | ClassNotFoundException e) {
+		} catch (IllegalArgumentException | SecurityException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 		killAgent(this, 1);
@@ -1245,7 +1250,7 @@ public class Agent {
 	 */
 	public void setupGUI() {
 		FXManager.runAndWait(() -> {
-			AgentFxStage stage = new AgentFxStage(this);
+			FxAgentStage stage = new FxAgentStage(this);
 			Scene scene = new Scene(new FXOutputPane(this));
 			stage.setScene(scene);
 			stage.show();

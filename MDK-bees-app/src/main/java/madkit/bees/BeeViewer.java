@@ -26,7 +26,7 @@ import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import madkit.gui.fx.FXManager;
+import madkit.gui.FXManager;
 import madkit.kernel.Agent;
 import madkit.simulation.Parameter;
 import madkit.simulation.ParametersSheetFactory;
@@ -39,10 +39,8 @@ import madkit.simulation.viewer.Viewer2D;
  */
 public class BeeViewer extends Viewer2D {
 
-//	private AbstractAction synchroPaint, artMode, randomMode, launch, trailModeAction, multicoreMode;
 	private PropertyProbe<BeeInformation> beeProbe;
 	protected int nbOfBeesToLaunch = 30000;
-	public static int nbOfBroadcast = 0;
 	BeeEnvironment env;
 
 	@Parameter(category = "engine", displayName = "trail mode")
@@ -88,40 +86,23 @@ public class BeeViewer extends Viewer2D {
 		addProbe(beeProbe);
 	}
 
-//	@Override
-//	protected void end() {
-//		removeProbe(beeProbe);
-////	sendMessage(COMMUNITY, SIMU_GROUP, LAUNCHER_ROLE, new KernelMessage(KernelAction.EXIT));
-////	sendMessage(COMMUNITY, SIMU_GROUP, SCHEDULER_ROLE, new SchedulingMessage(SchedulingAction.SHUTDOWN));// stopping the scheduler
-////	leaveRole(COMMUNITY, SIMU_GROUP, VIEWER_ROLE);
-//	}
-
-	@Override
-	protected Node createCentralNode() {
-		return newDefaultCanvas(env.getWidth(), env.getHeight());
-	}
-
-	protected void render() {
+	public void render() {
 		if (!artMode) {
 			getGraphics().setFill(javafx.scene.paint.Color.BLACK);
 			getGraphics().fillRect(0, 0, env.getWidth(), env.getHeight());
 		}
-		// gc.drawString("You are watching " + beeProbe.size() + " MaDKit agents", 10,
-		// 10);
 		Color lastColor = null;
-//    	final boolean trailMode = (Boolean) trailModeAction.getValue(Action.SELECTED_KEY);
 		List<Agent> currentAgentsList = beeProbe.getCurrentAgentsList();
-//		Collections.shuffle(currentAgentsList,prng());
-		for (final Agent arg0 : currentAgentsList) {
-			final BeeInformation b = beeProbe.getPropertyValue(arg0);
-			final Color c = b.getBeeColor();
+		for (Agent arg0 : currentAgentsList) {
+			BeeInformation b = beeProbe.getPropertyValue(arg0);
+			Color c = b.getBeeColor();
 			if (c != lastColor) {
 				lastColor = c;
 				getGraphics().setStroke(lastColor);
 			}
-			final Point p = b.getCurrentPosition();
+			Point p = b.getCurrentPosition();
 			if (trailMode) {
-				final Point p1 = b.getPreviousPosition();
+				Point p1 = b.getPreviousPosition();
 				getGraphics().strokeLine(p1.x, p1.y, p.x, p.y);
 			} else {
 				getGraphics().strokeLine(p.x, p.y, p.x, p.y);

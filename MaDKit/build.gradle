@@ -59,6 +59,7 @@ dependencies {
     testImplementation libs.testng
     testImplementation libs.concurrentunit
     testImplementation libs.slf4j
+    testImplementation libs.assertJ
 }
 //api files('libs/controlsfx-11.1.1-SNAPSHOT.jar')
 //	annotationProcessor 'info.picocli:picocli-codegen:4.7.6'

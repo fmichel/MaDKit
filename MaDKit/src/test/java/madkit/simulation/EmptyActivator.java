@@ -1,7 +1,7 @@
 package madkit.simulation;
 
-import madkit.kernel.Agent;
 import madkit.kernel.Activator;
+import madkit.kernel.Agent;
 
 /**
  * @author Fabien Michel

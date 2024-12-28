@@ -212,7 +212,12 @@ public class PropertyProbeTest extends JunitMadkit {
 					agent.publicPrimitiveField = i;
 				}
 				PropertyProbe<String> fp = new PropertyProbe<>(GROUP, ROLE, "publicPrimitiveField");
-				Watcher s = new Watcher();
+				Watcher s = new Watcher() {
+					@Override
+					protected void onActivation() {
+						super.onActivation();
+					}
+				};
 				threadAssertEquals(SUCCESS, launchAgent(s));
 				s.addProbe(fp);
 				threadAssertEquals(0d, fp.getMin());

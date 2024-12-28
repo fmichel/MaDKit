@@ -41,7 +41,7 @@ public class Madkit {
 		ch.setFormatter(AgentLogger.AGENT_FORMATTER);
 		ch.setLevel(Level.ALL);
 		MDK_ROOT_LOGGER.addHandler(ch);
-		MDK_ROOT_LOGGER.setLevel(Level.OFF);
+		MDK_ROOT_LOGGER.setLevel(Level.SEVERE);
 		MDK_ROOT_LOGGER.setUseParentHandlers(false);
 	}
 
@@ -81,6 +81,7 @@ public class Madkit {
 		initConfiguration(args);
 		if (parseCommanLine(args)) {
 			initLogging();
+			mdkLogger.finest(() -> MadkitClassLoader.getLoader().toString());
 			mdkLogger.finest(() -> "args: " + Arrays.deepToString(args));
 			addMixinToKernelConfig();
 			mdkLogger.finer(() -> getConfig().toString());
@@ -226,12 +227,13 @@ public class Madkit {
 	/**
 	 * Prints the welcome string for the MaDKit platform.
 	 */
-	private void printWelcomeString() {
+	private void printWelcomeString() {//NOSONAR
 		if (mdkLogger.getLevel() != Level.OFF) {
-			// NO-SONAR
-			System.out.println("\n\t---------------------------------------" + "\n\t                MaDKit"
+		
+			String welcome = "\n\t---------------------------------------" + "\n\t                MaDKit"
 					+ "\n\t             version: " + VERSION + "\n\t       MaDKit Team (c) 1997-"
-					+ Calendar.getInstance().get(Calendar.YEAR) + "\n\t---------------------------------------\n");
+					+ Calendar.getInstance().get(Calendar.YEAR) + "\n\t---------------------------------------\n";
+			System.out.println(welcome);
 		}
 	}
 

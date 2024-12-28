@@ -27,7 +27,6 @@ module madkit.base {
 	exports madkit.action;
 	exports madkit.agr;
 	exports madkit.gui;
-	exports madkit.gui.fx;
 	exports madkit.kernel;
 	exports madkit.logging;
 	exports madkit.messages;

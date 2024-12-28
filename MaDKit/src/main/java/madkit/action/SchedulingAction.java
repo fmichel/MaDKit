@@ -11,15 +11,14 @@ import java.util.Collection;
 
 import org.controlsfx.control.action.ActionGroup;
 
-import madkit.gui.fx.FXAction;
-import madkit.kernel.AbstractScheduler;
+import madkit.gui.FXAction;
+import madkit.kernel.Scheduler;
 import madkit.messages.SchedulingMessage;
 
 /**
- * Enum representing operations which could be done by a
- * {@link AbstractScheduler} agent. It could be used by an agent to interact
- * with the scheduler by creating actions using
- * {@link #getFxActionFrom(AbstractScheduler, Object...)}.
+ * Enum representing operations which could be done by a {@link Scheduler}
+ * agent. It could be used by an agent to interact with the scheduler by
+ * creating actions using {@link #getFxActionFrom(Scheduler, Object...)}.
  * 
  * @author Fabien Michel
  * @since MaDKit 5.0.0.14
@@ -28,7 +27,22 @@ import madkit.messages.SchedulingMessage;
  */
 public enum SchedulingAction {
 
-	RUN(VK_P), STEP(VK_U), SPEED_UP(VK_RIGHT), SPEED_DOWN(VK_LEFT), PAUSE(VK_DOLLAR), SHUTDOWN(VK_DOLLAR);
+	/**
+	 * Makes the scheduler run the simulation
+	 */
+	RUN(VK_P),
+	/**
+	 * Makes the scheduler do one step of the simulation
+	 */
+	STEP(VK_U),
+	/**
+	 * Makes the scheduler pause the simulation
+	 */
+	PAUSE(VK_DOLLAR),
+	/**
+	 * Makes the scheduler stop the simulation
+	 */
+	SHUTDOWN(VK_DOLLAR);
 
 	private ActionData actionData;
 	private final int keyEvent;
@@ -54,8 +68,7 @@ public enum SchedulingAction {
 	 * @param parameters the info
 	 * @return the new corresponding action
 	 */
-	public org.controlsfx.control.action.Action getFxActionFrom(final AbstractScheduler<?> agent,
-			final Object... parameters) {
+	public org.controlsfx.control.action.Action getFxActionFrom(Scheduler<?> agent, Object... parameters) {
 		return new FXAction(getActionData(), ae -> {
 			if (agent.isAlive()) {
 				agent.receiveMessage(new SchedulingMessage(SchedulingAction.this, parameters));
@@ -63,7 +76,7 @@ public enum SchedulingAction {
 		});
 	}
 
-	public static final ActionGroup createAgentFxActionGroup(final AbstractScheduler<?> agent) {
+	public static ActionGroup createAgentFxActionGroup(Scheduler<?> agent) {
 		Collection<org.controlsfx.control.action.Action> actions = new ArrayList<>();
 		actions.add(RUN.getFxActionFrom(agent));
 		actions.add(STEP.getFxActionFrom(agent));

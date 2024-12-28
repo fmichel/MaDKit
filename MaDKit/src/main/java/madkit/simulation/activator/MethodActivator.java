@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import madkit.kernel.AbstractScheduler;
+import madkit.kernel.Scheduler;
 import madkit.kernel.Activator;
 import madkit.kernel.Agent;
 import madkit.kernel.AgentInterruptedException;
@@ -19,7 +19,7 @@ import madkit.simulation.SimulationException;
  * encapsulates behavior invocation on MaDKit agents for scheduler agents. It
  * allows to call a particular Java method on agents regardless of their actual
  * class type as long as they extend {@link Agent}. This has to be used by
- * {@link AbstractScheduler} subclasses to create simulation applications.
+ * {@link Scheduler} subclasses to create simulation applications.
  *
  * @author Fabien Michel
  * @since MaDKit 5.0.0.1
@@ -48,8 +48,8 @@ public class MethodActivator extends Activator {
 	/**
 	 * Builds a new GenericBehaviorActivator on the given CGR location of the
 	 * artificial society. Once created, it has to be added by a
-	 * {@link AbstractScheduler} agent using the
-	 * {@link AbstractScheduler#addActivator(Activator)} method. Once added, it
+	 * {@link Scheduler} agent using the
+	 * {@link Scheduler#addActivator(Activator)} method. Once added, it
 	 * could be used to trigger the behavior on all the agents which are at this CGR
 	 * location, regardless of their class type as long as they extend
 	 * {@link Agent}.
@@ -76,7 +76,7 @@ public class MethodActivator extends Activator {
 	@Override
 	public void execute(Object... args) {
 		List<Agent> currentAgentsList = getCurrentAgentsList();
-		if (isMulticoreOn()) {
+		if (isParallelMode()) {
 			executeInParallel(currentAgentsList, args);
 		} else {
 			if (isShufflingMode()) {

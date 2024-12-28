@@ -4,12 +4,13 @@ import madkit.simulation.EngineAgents;
 import madkit.simulation.Parameter;
 import madkit.simulation.SimulationEngine;
 import madkit.simulation.environment.Environment2D;
+import madkit.simulation.viewer.RolesPopulationLineChartDrawer;
 
 @EngineAgents(
 		scheduler=MyScheduler.class,
 		environment = Environment2D.class,
 		model = MyModel.class,
-		viewers = {MyViewer.class}
+		viewers = {MyViewer.class,RolesPopulationLineChartDrawer.class}
 		)
 public class MyEngine extends SimulationEngine {
 	

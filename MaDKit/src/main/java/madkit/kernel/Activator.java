@@ -42,18 +42,15 @@ import madkit.simulation.activator.MethodActivator;
 
 /**
  * This class defines a tool for scheduling mechanism. An activator is
- * configured according to a community, a group and a role. It could be used to
- * activate a group of agents on a particular behavior (a method of the agent's
- * class) Subclasses should override {@link #execute(Object...)} for defining
- * how a sequential execution of a list of agents take place. By default, this
- * list corresponds to all the agents in a single core mode or to partial views
- * of the entire list when the multicore mode is used. The multicore mode is set
- * to <code>false</code> by default.
+ * configured according to a community, a group and a role.
+ * <p>
+ * Subclasses should override {@link #execute(Object...)} for defining how a
+ * sequential execution of a list of agents take place. By default, this list
+ * corresponds to all the agents having the group and role defined in the
+ * activator.
  *
- * @author Fabien Michel
- * @author Olivier Gutknecht
  * @since MaDKit 2.0
- * @see AbstractScheduler
+ * @see Scheduler
  * @see MethodActivator
  * @version 6.0
  */
@@ -61,14 +58,14 @@ public abstract class Activator extends Overlooker implements Comparable<Activat
 
 	private int priority = 0;
 
-	private boolean multicoreOn = false;
-
-	private AbstractScheduler<?> scheduler;
+	private Scheduler<?> scheduler;
+	
+	private boolean parallelMode = false;
 
 	/**
 	 * Builds a new Activator on the given CGR location of the artificial society.
-	 * Once created, it has to be added by a {@link AbstractScheduler} agent using
-	 * the {@link AbstractScheduler#addActivator(Activator)}.
+	 * Once created, it has to be added by a {@link Scheduler} agent using the
+	 * {@link Scheduler#addActivator(Activator)}.
 	 *
 	 * @param community the name of the community where the Activator will operate
 	 * @param group     the name of the group within the community
@@ -93,38 +90,22 @@ public abstract class Activator extends Overlooker implements Comparable<Activat
 		this(null, group, role);
 	}
 
+	/**
+	 * Implementing the {@link Comparable} interface for sorting activators
+	 * according to their priority.
+	 */
 	@Override
 	public int compareTo(Activator o) {
 		return Integer.compare(getPriority(), o.getPriority());
 	}
 
 	/**
-	 * @return <code>true</code> if the multicore mode is on, <i>i.e.</i> the
-	 *         activator triggers agents behaviors in parallel
-	 */
-	public boolean isMulticoreOn() {
-		return multicoreOn;
-	}
-
-	/**
-	 * Change the multicore use
-	 * 
-	 * @param multicoreOn the multicoreOn mode to set
-	 */
-	public void setMulticoreOn(boolean multicoreOn) {
-		this.multicoreOn = multicoreOn;
-	}
-
-	/**
 	 * The priority of this activator when conflicting with another Activator. A
-	 * lesser priority means that the activator will be triggered first. When the
-	 * activator's priority is not set, a default priority is defined using the
-	 * order in which the activators are added to the simulation engine using
-	 * {@link AbstractScheduler#addActivator(Activator)}, that is the first
-	 * activator has priority 0, the second has 1, and so on.
+	 * lesser priority means that the activator will be triggered first. Default
+	 * priority is 0. 
 	 *
 	 * By default, when two activators have the same priority, the order of
-	 * activation is undefined.
+	 * activation is not guaranteed.
 	 *
 	 * @return the priority of this activator.
 	 */
@@ -133,10 +114,11 @@ public abstract class Activator extends Overlooker implements Comparable<Activat
 	}
 
 	/**
-	 * @return the scheduler
+	 * Gets the scheduler that manages this activator.
+	 * @return the scheduler that manages this activator.
 	 */
 	@SuppressWarnings("unchecked")
-	public <S extends AbstractScheduler<?>> S getScheduler() {
+	public <S extends Scheduler<?>> S getScheduler() {
 		return (S) scheduler;
 	}
 
@@ -152,11 +134,11 @@ public abstract class Activator extends Overlooker implements Comparable<Activat
 
 	/**
 	 * Trigger the execution of this activator. For instance, subclasses can use the
-	 * {@link #getCurrentAgentsList()} to make all the agents do some when this
-	 * method is called.
+	 * {@link #getCurrentAgentsList()} to make all the agents do something. This
+	 * method should be called by the scheduler.
 	 * 
 	 * @param args arguments that could be passed by the scheduler
-	 * @see AbstractScheduler#doSimulationStep()
+	 * @see Scheduler#doSimulationStep()
 	 */
 	public abstract void execute(Object... args);
 
@@ -178,19 +160,6 @@ public abstract class Activator extends Overlooker implements Comparable<Activat
 		}
 	}
 
-//	/**
-//	 * This should define what has to be done on the agents for a simulation step.
-//	 * By default, this calls is automatically made using a list containing all the
-//	 * agents for this CGR, i.e. {@link #getCurrentAgentsList()} is used
-//	 * by default. When the multicore mode is on, the list is only a portion and
-//	 * this method will automatically be distributed over several threads. So, one
-//	 * has to take care about how the activator's fields are used here to avoid a
-//	 * {@link ConcurrentModificationException} for instance.
-//	 *
-//	 * @param agentsList
-//	 */
-//	public abstract void execute(List<A> agentsList, Object... args);
-
 	@Override
 	public String toString() {
 		return "A(" + getPriority() + ") " + super.toString();
@@ -206,10 +175,25 @@ public abstract class Activator extends Overlooker implements Comparable<Activat
 	}
 
 	/**
+	 * Set the scheduler that manages this activator.
 	 * @param scheduler the scheduler to set
 	 */
-	void setScheduler(AbstractScheduler<?> scheduler) {
+	void setScheduler(Scheduler<?> scheduler) {
 		this.scheduler = scheduler;
+	}
+
+	/**
+	 * @return the parallelMode
+	 */
+	public boolean isParallelMode() {
+		return parallelMode;
+	}
+
+	/**
+	 * @param parallelMode the parallelMode to set
+	 */
+	public void setParallelMode(boolean parallelMode) {
+		this.parallelMode = parallelMode;
 	}
 
 }

@@ -8,7 +8,7 @@ import static org.testng.Assert.fail;
 import org.testng.annotations.Test;
 
 import madkit.test.agents.BugInActivateAgent;
-import madkit.test.agents.ThreadedTestAgent;
+import madkit.test.agents.EmptyAgent;
 
 /**
  * @author Fabien Michel
@@ -18,7 +18,7 @@ public class AgentTest extends JunitMadkit {
 
 	@Test
 	void givenAgentClassWithoutLiveMethod_whenIsThreaded_thenFalseIsReturned() {
-		Agent a = new Agent();
+		Agent a = new EmptyAgent();
 		assertFalse(a.isThreaded());
 		a = new Agent() {
 			@Override
@@ -32,8 +32,8 @@ public class AgentTest extends JunitMadkit {
 	void givenAgentClassWithLiveMethod_whenIsThreaded_thenTrueIsReturned() {
 		Agent a = new Agent() {
 			@Override
-			protected void onLiving() {
-				super.onLiving();
+			protected void onLive() {
+				super.onLive();
 			}
 		};
 		assertTrue(a.isThreaded());
@@ -41,14 +41,14 @@ public class AgentTest extends JunitMadkit {
 
 	@Test(expectedExceptions = NullPointerException.class)
 	void givenAgentNotLaunched_whenNoKernel_thenThrowsNullPointerException() {
-		Agent a = new Agent();
+		Agent a = new EmptyAgent();
 		a.getKernelAddress();
 	}
 
 	@Test
 	void givenLaunchedAgentLaunched_whenLaunchAgentAgent_thenThrowsIllegalArgumentException() {
 		testBehavior(agent -> {
-			Agent a = new Agent();
+			Agent a = new EmptyAgent();
 			launchTestedAgent(a);
 			try {
 				launchTestedAgent(a);

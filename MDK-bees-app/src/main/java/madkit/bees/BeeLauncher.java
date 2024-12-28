@@ -29,6 +29,8 @@ import madkit.simulation.EngineAgents;
 import madkit.simulation.Environment;
 import madkit.simulation.Parameter;
 import madkit.simulation.SimulationEngine;
+import madkit.simulation.viewer.RolesPopulationLineChartDrawer;
+
 /**
  * The agent that launches the simulation
  * 
@@ -36,16 +38,11 @@ import madkit.simulation.SimulationEngine;
  * @author Fabien Michel
  */
 
-@EngineAgents(
-		scheduler=BeeScheduler.class,
-		environment = BeeEnvironment.class,
-		viewers= {BeeViewer.class}
-		)
+@EngineAgents(scheduler = BeeScheduler.class, environment = BeeEnvironment.class, viewers = { BeeViewer.class })
 public class BeeLauncher extends SimulationEngine {
 
 	@Parameter
 	private static int beesNumber = 200_000;
-
 
 	private ArrayList<Agent> queensList = new ArrayList<>();
 	private ArrayList<Agent> beesList = new ArrayList<>(beesNumber * 2);
@@ -57,7 +54,7 @@ public class BeeLauncher extends SimulationEngine {
 		launchBees(beesNumber);
 		launchQueens(1);
 	}
-	
+
 	/**
 	 * So that I can react to {@link BeeLauncherAction#RANDOM_MODE} message
 	 */
@@ -72,7 +69,7 @@ public class BeeLauncher extends SimulationEngine {
 	}
 
 	@Override
-	protected void onLiving() {
+	protected void onLive() {
 		while (isAlive() && getScheduler().isAlive()) {
 			Message m = waitNextMessage(prng().nextInt(500, 4500));
 			if (m != null) {
@@ -82,30 +79,32 @@ public class BeeLauncher extends SimulationEngine {
 				killBees(false, 150);
 				if (prng().nextDouble() < .8) {
 					if (prng().nextDouble() < .5) {
-						if (queensList.size() > 1)
-							if (queensList.size() > 7)
-								killBees(true, prng().nextInt(1,7));
-							else
-								killBees(true, prng().nextInt(1,2));
+						if (queensList.size() > 1) {
+							if (queensList.size() > 7) {
+								killBees(true, prng().nextInt(1, 7));
+							} else {
+								killBees(true, prng().nextInt(1, 2));
+							}
+						}
 					} else if (queensList.size() < 10)
-						launchQueens(prng().nextInt(1,2));
+						launchQueens(prng().nextInt(1, 2));
 				} else if (prng().nextDouble() < .3) {
 					if (beesList.size() < 200000 && Runtime.getRuntime().freeMemory() > 100000) {
-						launchBees(prng().nextInt(5000,15000));
+						launchBees(prng().nextInt(5000, 15000));
 					}
 				} else {
-					killBees(false, prng().nextInt(1,500));
+					killBees(false, prng().nextInt(1, 500));
 				}
 			}
 		}
 	}
 
 	@Override
-	protected void onEnding() {
+	protected void onEnd() {
 		queensList = null;
 		beesList = null;
 		getLogger().info("I am done. Bye !");
-		super.onEnding();
+		super.onEnd();
 	}
 
 	private void launchBees(int numberOfBees) {

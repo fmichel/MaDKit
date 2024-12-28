@@ -30,6 +30,11 @@ public class DefaultOrganization {
 	/**
 	 * The value of this constant is {@value}.
 	 */
+	public static final String WATCHER_ROLE = "WATCHER";
+
+	/**
+	 * The value of this constant is {@value}.
+	 */
 	public static final String ENVIRONMENT_ROLE = "ENV";
 
 	/**

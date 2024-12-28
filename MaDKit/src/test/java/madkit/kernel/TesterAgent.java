@@ -45,7 +45,7 @@ import madkit.action.KernelAction;
 public class TesterAgent extends Agent {
 
 	@Override
-	protected void onLiving() {
+	protected void onLive() {
 		getLogger().setLevel(Level.ALL);
 		getLogger().info("alive");
 		getLogger().info("alive-------------------------------------------");

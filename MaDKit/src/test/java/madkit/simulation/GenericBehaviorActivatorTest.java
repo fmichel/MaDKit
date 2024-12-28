@@ -3,8 +3,8 @@ package madkit.simulation;
 
 import org.testng.annotations.Test;
 
-import madkit.kernel.JunitMadkit;
 import madkit.kernel.Agent.ReturnCode;
+import madkit.kernel.JunitMadkit;
 import madkit.simulation.activator.MethodActivator;
 import madkit.simulation.scheduler.TickBasedScheduler;
 import madkit.test.agents.CGRAgent;

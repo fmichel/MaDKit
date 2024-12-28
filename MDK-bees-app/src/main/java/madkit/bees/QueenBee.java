@@ -67,7 +67,7 @@ public class QueenBee extends AbstractBee {
 	}
 
 	@Override
-	protected void onEnding() {
+	protected void onEnd() {
 		broadcast(new ObjectMessage<>(myInformation), getAgentsWithRole(getCommunity(), getModelGroup(), AbstractBee.FOLLOWER_ROLE));
 	}
 

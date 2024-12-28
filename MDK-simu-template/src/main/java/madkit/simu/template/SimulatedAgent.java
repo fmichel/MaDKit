@@ -15,7 +15,7 @@ public class SimulatedAgent extends SimuAgent{
 
     //GLOBAL
     @Parameter(category="simulation",displayName="initial date")
-    static private LocalDate startingDate = LocalDate.now();
+    private static LocalDate startingDate = LocalDate.now();
     
     @Parameter(displayName="fast mode")
     private static boolean fastMode = false;
@@ -43,7 +43,7 @@ public class SimulatedAgent extends SimuAgent{
 
 	private void doIt() {
 		moveRandomly();
-		getLogger().talk(x+"\n");
+//		getLogger().talk(x+"\n");
 	}
 
 	/**

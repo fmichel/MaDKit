@@ -37,7 +37,7 @@ public class GenericTestAgent extends Agent implements TestHelpAgent {
 	}
 
 	@Override
-	protected void onEnding() {
+	protected void onEnd() {
 		goThroughEnd = true;
 		orgInEnd();
 		behaviorInEnd();

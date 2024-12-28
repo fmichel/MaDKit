@@ -84,7 +84,7 @@ public class AgentLoggerTest extends JunitMadkit {
 		Agent a;
 		launchTestedAgent(a = new Agent() {
 			@Override
-			protected void onLiving() {
+			protected void onLive() {
 				getLogger().createLogFile();
 //				threadFail();//FIXME this should crash the test
 			}
@@ -100,14 +100,14 @@ public class AgentLoggerTest extends JunitMadkit {
 		Agent a;
 		launchTestedAgent(a = new Agent() {
 			@Override
-			protected void onLiving() {
+			protected void onLive() {
 				getLogger().createLogFile("test");
 			}
 		}, SUCCESS);
 		awaitTermination(a, 10000);
 		launchTestedAgent(a = new Agent() {
 			@Override
-			protected void onLiving() {
+			protected void onLive() {
 				getLogger().createLogFile("test", AgentLogger.DEFAULT_LOG_DIRECTORY, false);
 			}
 		}, SUCCESS);
@@ -122,14 +122,14 @@ public class AgentLoggerTest extends JunitMadkit {
 		Agent a;
 		launchTestedAgent(a = new Agent() {
 			@Override
-			protected void onLiving() {
+			protected void onLive() {
 				getLogger().createLogFile("test", AgentLogger.DEFAULT_LOG_DIRECTORY);
 			}
 		}, SUCCESS);
 		awaitTermination(a, 10000);
 		launchTestedAgent(a = new Agent() {
 			@Override
-			protected void onLiving() {
+			protected void onLive() {
 				getLogger().createLogFile("test", AgentLogger.DEFAULT_LOG_DIRECTORY, true);
 			}
 		}, SUCCESS);

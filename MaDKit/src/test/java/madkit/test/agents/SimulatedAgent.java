@@ -1,7 +1,9 @@
 package madkit.test.agents;
 
+import static madkit.kernel.JunitMadkit.GROUP;
+import static madkit.kernel.JunitMadkit.ROLE;
+
 import madkit.simulation.SimuAgent;
-import static madkit.kernel.JunitMadkit.*;
 
 /**
  * @author Fabien Michel

@@ -11,9 +11,9 @@ import org.testng.annotations.Test;
 
 import madkit.agr.DefaultMaDKitRoles;
 import madkit.kernel.Agent;
+import madkit.kernel.Agent.ReturnCode;
 import madkit.kernel.AgentAddress;
 import madkit.kernel.JunitMadkit;
-import madkit.kernel.Agent.ReturnCode;
 import madkit.kernel.Message;
 import madkit.test.agents.RequestRoleAgent;
 

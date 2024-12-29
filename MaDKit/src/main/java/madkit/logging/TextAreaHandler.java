@@ -4,6 +4,7 @@ import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 
 import javafx.scene.control.TextArea;
+import madkit.gui.FXManager;
 
 /**
  * This class extends the Handler class to provide a custom log handler that
@@ -41,7 +42,7 @@ public class TextAreaHandler extends Handler {
 		if (!isLoggable(log)) {
 			return;
 		}
-		area.appendText(getFormatter().format(log));
+		FXManager.runLater(() -> area.appendText(getFormatter().format(log)));
 	}
 
 	public void flush() {

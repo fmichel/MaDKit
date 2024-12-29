@@ -5,8 +5,6 @@ import java.net.URL;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-import javax.swing.ImageIcon;
-
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -19,22 +17,8 @@ import madkit.i18n.I18nUtilities;
  * and keyboard shortcuts. This class is used to manage and retrieve information
  * about actions in the application.
  * 
- * <p>
  * It provides methods to get the name, descriptions, icons, and keyboard
  * shortcuts for the action.
- * </p>
- * 
- * <p>
- * Example usage:
- * </p>
- * 
- * <pre>
- * {@code
- * ActionData actionData = new ActionData("JCONSOLE", KeyEvent.VK_J);
- * String name = actionData.getName();
- * ImageIcon icon = actionData.getBigIcon();
- * }
- * </pre>
  * 
  */
 public class ActionData {
@@ -52,10 +36,6 @@ public class ActionData {
 	/** The keyboard shortcut for the action. */
 	private final KeyCombination accelerator;
 
-	/** The large icon for the action. */
-	private ImageIcon bigIcon;
-	/** The small icon for the action. */
-	private ImageIcon smallIcon;
 	/** The name of the action. */
 	private String name;
 
@@ -147,39 +127,11 @@ public class ActionData {
 	}
 
 	/**
-	 * Returns the large icon for the action.
-	 *
-	 * @return the large icon for the action.
-	 */
-	public ImageIcon getBigIcon() {
-		if (bigIcon == null) {
-			bigIcon = new ImageIcon(iconURL);
-		}
-		return bigIcon;
-	}
-
-	/**
-	 * Returns the small icon for the action.
-	 *
-	 * @return the small icon for the action.
-	 */
-	public ImageIcon getSmallIcon() {
-		if (smallIcon == null) {
-			if (getBigIcon().getIconWidth() > 16) {
-				smallIcon = new ImageIcon(getBigIcon().getImage().getScaledInstance(16, 16, java.awt.Image.SCALE_SMOOTH));
-			} else {
-				smallIcon = getBigIcon();
-			}
-		}
-		return smallIcon;
-	}
-
-	/**
 	 * Returns the graphic node for the action.
 	 *
 	 * @return the graphic node for the action.
 	 */
-	public Node getGraphic() { // TODO should be fixed in controlsfx: should not bind to a single Node
+	public Node getGraphic() {
 		return new ImageView(getImage());
 	}
 

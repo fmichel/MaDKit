@@ -5,7 +5,7 @@ import java.util.Map;
 
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceArrayMap;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceMap;
-import madkit.simulation.probe.PropertyProbe;
+import madkit.simulation.PropertyProbe;
 
 /**
  * This class defines a watcher's generic probe. A probe is configured according

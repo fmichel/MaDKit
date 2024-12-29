@@ -9,6 +9,7 @@ import java.util.Arrays;
  * 
  * @author Fabien Michel
  * @version 5.0
+ * @param <E> the type of the enumeration used to tag the message content
  * @since MaDKit 5.0.0.14
  *
  */

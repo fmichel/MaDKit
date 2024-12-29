@@ -1,29 +1,31 @@
 package madkit.kernel;
 
-import static madkit.simulation.DefaultOrganization.ENGINE_GROUP;
-import static madkit.simulation.DefaultOrganization.*;
+import static madkit.simulation.SimuOrganization.ENGINE_GROUP;
+import static madkit.simulation.SimuOrganization.WATCHER_ROLE;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import madkit.simulation.SimuAgent;
+import madkit.simulation.SimuOrganization;
 
 /**
- * A Watcher is an agent that is designed to be part of a simulation engine to monitor 
- * and explore agents' internal properties.
-  * <p>
-* 
- * To this end, it holds a collection of {@link Probe} which are used to monitor agents 
- * that play specific roles in specific groups. 
+ * A Watcher is an agent that is designed to be part of a simulation engine to
+ * monitor and explore agents' internal properties.
  * <p>
  * 
- * The probes are added to the artificial organization of the simulation engine using 
- * {@link #addProbe(Probe)} and removed using {@link #removeProbe(Probe)}.
+ * To this end, it holds a collection of {@link Probe} which are used to monitor
+ * agents that play specific roles in specific groups.
+ * <p>
+ * 
+ * The probes are added to the artificial organization of the simulation engine
+ * using {@link #addProbe(Probe)} and removed using {@link #removeProbe(Probe)}.
  * <p>
  * 
  * Moreover, by default, the Watcher agent is automatically granted the role
- * {@link #WATCHER_ROLE} in the group {@link #ENGINE_GROUP} when it is activated.
- * This can be changed by overriding the {@link #onActivation()} method.
+ * {@link SimuOrganization#WATCHER_ROLE} in the group {@link SimuOrganization#ENGINE_GROUP} when it is
+ * activated. This can be changed by overriding the {@link #onActivation()}
+ * method.
  * 
  * @since MaDKit 2.0
  * @version 6.0
@@ -33,8 +35,8 @@ public abstract class Watcher extends SimuAgent {
 	private final Set<Probe> probes = new LinkedHashSet<>();
 
 	/**
-	 * This method is called when the agent is activated. By default, it requests the
-	 * role {@link #WATCHER_ROLE} in the group {@link #ENGINE_GROUP}. 
+	 * This method is called when the agent is activated. By default, it requests
+	 * the role {@link SimuOrganization#WATCHER_ROLE} in the group {@link SimuOrganization#ENGINE_GROUP}.
 	 */
 	@Override
 	protected void onActivation() {
@@ -93,12 +95,11 @@ public abstract class Watcher extends SimuAgent {
 	}
 
 	/**
-	 * Returns the watcher's name followed by
-	 * the list of probes it holds.
+	 * Returns the watcher's name followed by the list of probes it holds if any.
 	 */
 	@Override
 	public String toString() {
-		return getName() + " " + probes;
+		return getName() + (probes.isEmpty() ? "" : probes.toString());
 	}
 
 }

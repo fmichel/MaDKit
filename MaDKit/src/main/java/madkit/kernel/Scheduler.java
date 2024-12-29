@@ -3,9 +3,9 @@ package madkit.kernel;
 import static madkit.kernel.Scheduler.SimulationState.RUNNING;
 import static madkit.kernel.Scheduler.SimulationState.SHUTDOWN;
 import static madkit.kernel.Scheduler.SimulationState.STEP;
-import static madkit.simulation.DefaultOrganization.ENVIRONMENT_ROLE;
-import static madkit.simulation.DefaultOrganization.SCHEDULER_ROLE;
-import static madkit.simulation.DefaultOrganization.VIEWER_ROLE;
+import static madkit.simulation.SimuOrganization.ENVIRONMENT_ROLE;
+import static madkit.simulation.SimuOrganization.SCHEDULER_ROLE;
+import static madkit.simulation.SimuOrganization.VIEWER_ROLE;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
@@ -25,73 +25,84 @@ import org.controlsfx.control.action.ActionUtils.ActionTextBehavior;
 
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.ToolBar;
 import javafx.scene.input.ScrollEvent;
 import madkit.action.SchedulingAction;
 import madkit.messages.SchedulingMessage;
-import madkit.simulation.DateBasedTimer;
 import madkit.simulation.SimuAgent;
-import madkit.simulation.SimulationEngine;
-import madkit.simulation.SimulationTimer;
-import madkit.simulation.TickBasedTimer;
-import madkit.simulation.activator.MethodActivator;
+import madkit.simulation.SimuLauncher;
+import madkit.simulation.SimuOrganization;
+import madkit.simulation.Viewer;
+import madkit.simulation.scheduler.DateBasedTimer;
+import madkit.simulation.scheduler.MethodActivator;
+import madkit.simulation.scheduler.SimuTimer;
+import madkit.simulation.scheduler.TickBasedTimer;
 import net.jodah.typetools.TypeResolver;
 
 /**
  * <pre>
- * Scheduler is the core agent for defining multi-agent based simulations in MaDKit.
- * <p>
+ * Scheduler is the core agent for defining multi-agent based simulations in
+ * MaDKit.
+ * 
+ * <pre>
  * This class defines a generic threaded agent which is in charge of activating
  * the simulated agents using {@link Activator}. {@link Activator} are tool
- * objects which are able to trigger any available method belonging to 
- * agents having a role within a group.
- * <p>
+ * objects which are able to trigger any available method belonging to agents
+ * having a role within a group.
+ * 
+ * <pre>
  * The interest of this approach is twofold:
  * <ul>
- * <li> Firstly it allows the manipulation of agents regardless of their concrete Java classes.
- * <li> Secondly it allows to define complex scheduling policies by defining different activators.
+ * <li>Firstly it allows the manipulation of agents regardless of their concrete
+ * Java classes.
+ * <li>Secondly it allows to define complex scheduling policies by defining
+ * different activators.
  * </ul>
- *<p>
+ * 
+ * <pre>
  * So a scheduler holds a collection of activators that target specific groups
  * and roles and thus allow to define very complex scheduling policies if
  * required. A default behavior is implemented and corresponds to the triggering
  * of the activators according to the order in which they have been added to the
  * scheduler engine using {@link #addActivator(Activator)}.
- *<p>
+ * 
+ * <pre>
  * The default state of a scheduler is {@link SimulationState#PAUSED}.
- *<p>
+ * 
+ * <pre>
  * The default delay between two simulation steps is 0 milliseconds (max speed).
- * <p>
+ * 
+ * <pre>
  * Default GUI components are defined for this agent and they could be easily
  * integrated in any GUI.
  *
  * @param <T> the type of the simulation time. It should be a subclass of either
- *            a {@link DateBasedTimer} or a {@link TickBasedTimer}.
- * Two different temporal schemes could used:
- * <ul>
- * <li>tick-based: The time is represented as a {@link BigDecimal} which is
- * incremented at will. {@link BigDecimal} is used to avoid rounding errors that
- * may happen when working with double values. This is the preferred choice if
- * the simulation is based on simple loop following a discrete time
- * approach.</li>
+ *            a {@link DateBasedTimer} or a {@link TickBasedTimer}. Two
+ *            different temporal schemes could used:
+ *            <ul>
+ *            <li>tick-based: The time is represented as a {@link BigDecimal}
+ *            which is incremented at will. {@link BigDecimal} is used to avoid
+ *            rounding errors that may happen when working with double values.
+ *            This is the preferred choice if the simulation is based on simple
+ *            loop following a discrete time approach.</li>
  *
- * <li>date-based: The time is represented using {@link LocalDateTime}. This is
- * far more convenient when the model refers to a real-world case for which
- * representing usual temporal units such as hours or weeks is required (the
- * default used unit is {@link ChronoUnit#SECONDS}). This mode also allow to
- * handle agents that evolve considering different time scales or during
- * specific period of the day.</li>
- * </ul>
+ *            <li>date-based: The time is represented using
+ *            {@link LocalDateTime}. This is far more convenient when the model
+ *            refers to a real-world case for which representing usual temporal
+ *            units such as hours or weeks is required (the default used unit is
+ *            {@link ChronoUnit#SECONDS}). This mode also allow to handle agents
+ *            that evolve considering different time scales or during specific
+ *            period of the day.</li>
+ *            </ul>
  *
  * @version 6.0
  * @see Activator
  * @see BigDecimal
  * @see LocalDateTime
  */
-public abstract class Scheduler<T extends SimulationTimer<?>> extends SimuAgent {
+public abstract class Scheduler<T extends SimuTimer<?>> extends SimuAgent {
 
 	private final List<Activator> activators = new ArrayList<>();
 
@@ -124,15 +135,16 @@ public abstract class Scheduler<T extends SimulationTimer<?>> extends SimuAgent 
 	}
 
 	/**
-	 * On activation, by default the scheduler requests the role {@link DefaultOrganization#SCHEDULER_ROLE}
-	 *  in the group {@link DefaultOrganization#ENGINE_GROUP}.
+	 * On activation, by default the scheduler requests the role
+	 * {@link SimuOrganization#SCHEDULER_ROLE} in the group
+	 * {@link SimuOrganization#ENGINE_GROUP}.
 	 */
 	@Override
 	protected void onActivation() {
 		try {
-			Field f = SimulationEngine.class.getDeclaredField("scheduler");
+			Field f = SimuLauncher.class.getDeclaredField("scheduler");
 			f.setAccessible(true);// NOSONAR
-			f.set(getSimuEngine(), this);// NOSONAR
+			f.set(getLauncher(), this);// NOSONAR
 		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
@@ -141,12 +153,11 @@ public abstract class Scheduler<T extends SimulationTimer<?>> extends SimuAgent 
 
 	/**
 	 * The main loop of the scheduler agent. It is automatically called by the
-	 * MaDKit kernel once the agent is activated.
-	 * Firstly, the scheduler waits for the first message to start the simulation.
-	 * Then, it enters an infinite loop where it waits for messages, checks the
-	 * simulation state, and processes the simulation step accordingly. The loop is
-	 * interrupted when the simulation reaches the end time or when a SHUTDOWN
-	 * message is received. 
+	 * MaDKit kernel once the agent is activated. Firstly, the scheduler waits for
+	 * the first message to start the simulation. Then, it enters an infinite loop
+	 * where it waits for messages, checks the simulation state, and processes the
+	 * simulation step accordingly. The loop is interrupted when the simulation
+	 * reaches the end time or when a SHUTDOWN message is received.
 	 *
 	 */
 	@Override
@@ -183,22 +194,23 @@ public abstract class Scheduler<T extends SimulationTimer<?>> extends SimuAgent 
 		while (true) {
 			checkMail(waitNextMessage());
 			if (simulationState == RUNNING || simulationState == STEP || simulationState == SHUTDOWN) {
-				onStart();
+				onSimulationStart();
 				break;
 			}
 		}
 	}
 
 	/**
-	 * Called when the simulation starts. By default, it resets the simulation time and
-	 * calls the {@link #onStart()} method of the environment agent
+	 * Called when the simulation starts, or when the user clicks on the
+	 * onsimulationrestart button. By default, it resets the simulation time and
+	 * calls the {@link #onSimulationStart()} method of the environment agent
 	 * 
 	 */
-	protected void onStart() {
+	@Override
+	public void onSimulationStart() {
 		getLogger().fine("------- Starting simulation --------");
-		getLogger().finer(" -- reseting time");
 		getSimuTimer().reset();
-		getLogger().fine(() -> " -- Calling onStart on " + getEnvironment());
+		getLogger().finer("------- seting time to " + getSimuTimer());
 	}
 
 	/**
@@ -308,7 +320,8 @@ public abstract class Scheduler<T extends SimulationTimer<?>> extends SimuAgent 
 	}
 
 	/**
-	 * Gets a {@link Slider} that can manipulate the pause between two simulation steps.
+	 * Gets a {@link Slider} that can manipulate the pause between two simulation
+	 * steps.
 	 * 
 	 * @return a {@link Slider} to change the pause between two simulation steps
 	 */
@@ -385,9 +398,9 @@ public abstract class Scheduler<T extends SimulationTimer<?>> extends SimuAgent 
 	}
 
 	/**
-	 * Returns the {@link SimulationTimer} of the scheduler 
+	 * Returns the {@link SimuTimer} of the scheduler
 	 *
-	 * @return the {@link SimulationTimer} of the scheduler 
+	 * @return the {@link SimuTimer} of the scheduler
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -396,7 +409,8 @@ public abstract class Scheduler<T extends SimulationTimer<?>> extends SimuAgent 
 	}
 
 	/**
-	 * Gets the list of activators that are currently added to the simulation engine by this scheduler. 
+	 * Gets the list of activators that are currently added to the simulation engine
+	 * by this scheduler.
 	 * 
 	 * @return a list of activators.
 	 */
@@ -405,10 +419,10 @@ public abstract class Scheduler<T extends SimulationTimer<?>> extends SimuAgent 
 	}
 
 	/**
-	 * Adds the default activator for viewers and returns it.
-	 * The default activator for viewers is an activator that triggers the method
-	 * {@link #display()} of agents playing the role {@link DefaultOrganization#VIEWER_ROLE} in the group
-	 * {@link DefaultOrganization#ENGINE_GROUP}
+	 * Adds the default activator for viewers and returns it. The default activator
+	 * for viewers is an activator that triggers the method {@link Viewer#display()}
+	 * of agents playing the role {@link SimuOrganization#VIEWER_ROLE} in the group
+	 * {@link SimuOrganization#ENGINE_GROUP}
 	 * 
 	 * @return an activator that triggers viewers display method
 	 */
@@ -419,10 +433,10 @@ public abstract class Scheduler<T extends SimulationTimer<?>> extends SimuAgent 
 	}
 
 	/**
-	 * Adds the default activator for environment and returns it.
-	 * The default activator for environment is an activator that triggers the method
-	 * {@link Environment#update()} of agents playing the role {@link DefaultOrganization#ENVIRONMENT_ROLE} in the group
-	 * {@link DefaultOrganization#ENGINE_GROUP
+	 * Adds the default activator for environment and returns it. The default
+	 * activator for environment is an activator that triggers the method update of
+	 * agents playing the role {@link SimuOrganization#ENVIRONMENT_ROLE} in the
+	 * group {@link SimuOrganization#ENGINE_GROUP}
 	 * 
 	 * @return an activator that triggers the environment update method
 	 */
@@ -440,11 +454,10 @@ public abstract class Scheduler<T extends SimulationTimer<?>> extends SimuAgent 
 	}
 
 	/**
-	 * Adds an activator to the simulation engine. 
-	 * This has to be done before the simulation starts.
-	 * It is possible to add several activators to the simulation engine.
-	 * Once added, the activator can be triggered by the scheduler agent using the
-	 * {@link Activator#execute(Object...)} method. 
+	 * Adds an activator to the simulation engine. This has to be done before the
+	 * simulation starts. It is possible to add several activators to the simulation
+	 * engine. Once added, the activator can be triggered by the scheduler agent
+	 * using the {@link Activator#execute(Object...)} method.
 	 *
 	 * @param activator an activator to add to the simulation engine.
 	 */

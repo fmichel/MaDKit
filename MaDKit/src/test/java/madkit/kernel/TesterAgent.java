@@ -59,7 +59,7 @@ public class TesterAgent extends Agent {
 
 	@Override
 	protected void onActivation() {
-		setupGUI();
+		setupDefaultGUI();
 	}
 
 	/**

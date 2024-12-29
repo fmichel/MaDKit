@@ -1,8 +1,10 @@
 
 package madkit.kernel;
 
+import java.awt.GraphicsEnvironment;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.logging.ConsoleHandler;
@@ -31,7 +33,7 @@ import picocli.CommandLine.PropertiesDefaultProvider;
  * @version 6.0
  * @since MaDKit 1.0
  */
-@Command(name = "Madkit", mixinStandardHelpOptions = true, version = "6.0", description = "Lightweight OCMAS platform: Multi-Agent Systems as artificial organizations")
+@Command(name = "MaDKit", mixinStandardHelpOptions = true, description = "Lightweight OCMAS platform: Multi-Agent Systems as artificial organizations")
 public class Madkit {
 
 	static final Logger MDK_ROOT_LOGGER = Logger.getLogger("[MADKIT] ");
@@ -48,8 +50,16 @@ public class Madkit {
 	static final String LAUNCHER = "launcherClass";
 	static final String LAUNCHER_CLASS = "lc";
 
-	public static String BUILD_ID;
+	/**
+	 * The build ID for the MaDKit platform.
+	 */
+	/**
+	 * The URL for the MaDKit website.
+	 */
 	public static String WEB;
+	/**
+	 * The version of the MaDKit platform.
+	 */
 	public static String VERSION = "INIT";
 
 	static String oneFileLauncher;
@@ -62,7 +72,7 @@ public class Madkit {
 
 	private Logger mdkLogger;
 
-	private final String commandLine = "CMD_LINE";
+	private static final String CMD_LINE = "CMD_LINE";
 
 	final String[] startingArgs;
 
@@ -74,11 +84,15 @@ public class Madkit {
 	 * Constructs a `Madkit` instance with the specified command-line arguments.
 	 *
 	 * @param args the command-line arguments
+	 * 
 	 */
 	public Madkit(String... args) {
 		launcherClass = getClass();
 		startingArgs = args;
 		initConfiguration(args);
+		if (GraphicsEnvironment.isHeadless()) {
+			config.setProperty(MDKCommandLine.HEADLESS, true);
+		}
 		if (parseCommanLine(args)) {
 			initLogging();
 			mdkLogger.finest(() -> MadkitClassLoader.getLoader().toString());
@@ -87,6 +101,53 @@ public class Madkit {
 			mdkLogger.finer(() -> getConfig().toString());
 			start();
 		}
+	}
+
+	/**
+	 * Initializes the configuration for the MaDKit platform.
+	 *
+	 * @param args the command-line arguments
+	 */
+	private void initConfiguration(String[] args) {
+		Parameters params = new Parameters();
+		FileBasedConfigurationBuilder<KernelConfig> builder = new FileBasedConfigurationBuilder<>(KernelConfig.class)
+				.configure(params.properties().setURL(Madkit.class.getResource("madkit.properties")));
+		try {
+			config = builder.getConfiguration();
+		} catch (ConfigurationException e) {
+			e.printStackTrace();
+		}
+		config.addProperty(CMD_LINE, args);
+		VERSION = getVersionUsingJarFIleName("LOCAL-BUILD");
+		WEB = config.getString("madkit.web");
+	}
+
+	/**
+	 * Parses the command-line arguments.
+	 *
+	 * @param args the command-line arguments
+	 * @return <code>true</code> if the arguments were parsed successfully,
+	 *         <code>false</code> otherwise
+	 */
+	private boolean parseCommanLine(String[] args) {
+		CommandLine cmd = new CommandLine(this);
+		cmd.registerConverter(Level.class, Level::parse);
+		cmd.setDefaultValueProvider(new PropertiesDefaultProvider(ConfigurationConverter.getProperties(config)));
+		try {
+			ParseResult result = cmd.parseArgs(args);
+			if (result.isUsageHelpRequested()) {
+				// NO-SONAR
+				cmd.usage(System.out);// NOSONAR
+			} else if (result.isVersionHelpRequested()) {
+				cmd.printVersionHelp(System.out); // NOSONAR
+			} else {
+				return true;
+			}
+		} catch (ParameterException e) {
+			e.printStackTrace();
+			e.getCommandLine().usage(System.err); // NOSONAR
+		}
+		return false;
 	}
 
 	/**
@@ -142,79 +203,6 @@ public class Madkit {
 	}
 
 	/**
-	 * Initializes the configuration for the MaDKit platform.
-	 *
-	 * @param args the command-line arguments
-	 */
-	private void initConfiguration(String[] args) {
-		Parameters params = new Parameters();
-		FileBasedConfigurationBuilder<KernelConfig> builder = new FileBasedConfigurationBuilder<>(KernelConfig.class)
-				.configure(params.properties().setURL(Madkit.class.getResource("madkit.properties")));
-		try {
-			config = builder.getConfiguration();
-		} catch (ConfigurationException e) {
-			e.printStackTrace();
-		}
-		config.addProperty(commandLine, args);
-		VERSION = config.getString("madkit.version");
-		BUILD_ID = config.getString("build.id");
-		WEB = config.getString("madkit.web");
-	}
-
-	/**
-	 * Parses the command-line arguments.
-	 *
-	 * @param args the command-line arguments
-	 * @return <code>true</code> if the arguments were parsed successfully,
-	 *         <code>false</code> otherwise
-	 */
-	private boolean parseCommanLine(String[] args) {
-		CommandLine cmd = new CommandLine(this);
-		cmd.registerConverter(Level.class, Level::parse);
-		cmd.setDefaultValueProvider(new PropertiesDefaultProvider(ConfigurationConverter.getProperties(config)));
-		try {
-			ParseResult result = cmd.parseArgs(args);
-			if (result.isUsageHelpRequested()) {
-				// NO-SONAR
-				cmd.usage(System.out);
-			} else if (result.isVersionHelpRequested()) {
-				// NO-SONAR
-				cmd.printVersionHelp(System.out); // NOSONAR
-			} else {
-				return true;
-			}
-		} catch (ParameterException e) {
-			e.printStackTrace();
-			// NO-SONAR
-			e.getCommandLine().usage(System.err); // NOSONAR
-			// throw e;
-		}
-		return false;
-	}
-
-	/**
-	 * The main method for the MaDKit platform.
-	 *
-	 * @param args the command-line arguments
-	 */
-	public static void main(String[] args) {
-		if (args != null)
-			new Madkit(args);
-		else
-			new Madkit(new String[0]);
-		// try {
-		// List<Class<? extends Agent>> subclasses =
-		// ClassScanner.findSubclasses(Agent.class);
-		// for (Class<? extends Agent> subclass : subclasses) {
-		// System.out.println(subclass.getName());
-		// }
-		// } catch (IOException | ClassNotFoundException e) {
-		// e.printStackTrace();
-		// }
-
-	}
-
-	/**
 	 * Starts the MaDKit platform.
 	 */
 	private void start() {
@@ -227,13 +215,13 @@ public class Madkit {
 	/**
 	 * Prints the welcome string for the MaDKit platform.
 	 */
-	private void printWelcomeString() {//NOSONAR
+	private void printWelcomeString() {
 		if (mdkLogger.getLevel() != Level.OFF) {
-		
+
 			String welcome = "\n\t---------------------------------------" + "\n\t                MaDKit"
 					+ "\n\t             version: " + VERSION + "\n\t       MaDKit Team (c) 1997-"
 					+ Calendar.getInstance().get(Calendar.YEAR) + "\n\t---------------------------------------\n";
-			System.out.println(welcome);
+			System.out.println(welcome);// NOSONAR
 		}
 	}
 
@@ -260,8 +248,7 @@ public class Madkit {
 	String[] getLauncherArgs() {
 		if (oneFileLauncherArgs != null)
 			return oneFileLauncherArgs;
-		String[] strings = config.get(String[].class, "CMD_LINE");
-		return strings;
+		return config.get(String[].class, "CMD_LINE");
 	}
 
 	/**
@@ -273,4 +260,34 @@ public class Madkit {
 		return config;
 	}
 
+	/**
+	 * The main method for the MaDKit platform.
+	 *
+	 * @param args the command-line arguments
+	 */
+	public static void main(String[] args) {
+		if (args != null)
+			new Madkit(args);
+		else
+			new Madkit(new String[0]);
+	}
+
+	/**
+	 * Returns the version of the MaDKit platform using the JAR file name.
+	 * 
+	 * @param defaultValue the default value to return if the property is not found
+	 * @return the value of the property if found, otherwise the default value
+	 */
+	private static String getVersionUsingJarFIleName(String defaultValue) {
+		String classFile = Madkit.class.getName().replace('.', '/') + ".class";
+		URL classUrl = Madkit.class.getClassLoader().getResource(classFile);
+		if (classUrl != null) {
+			String url = classUrl.toString();
+			if (url.startsWith("jar:")) {
+				String jarPath = url.substring(4, url.indexOf("!"));
+				return jarPath.substring(jarPath.lastIndexOf("madkit-") + 7, jarPath.lastIndexOf('.'));
+			}
+		}
+		return defaultValue;
+	}
 }

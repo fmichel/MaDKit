@@ -37,24 +37,27 @@ import madkit.action.AgentAction;
 import madkit.kernel.Agent;
 
 /**
- * @author Fabien Michel
+ * Utilities for finding method references in Agent classes.
  * 
  * @since 6.0
  */
 public class ReflectionUtils {
+	private ReflectionUtils() {
+		throw new IllegalStateException("Utility class");
+	}
 
 	/**
 	 * Converts the name of an enum object to a Java standardized method name. For
 	 * instance, using this on {@link AgentAction#LAUNCH_AGENT} will return
 	 * <code>launchAgent</code>. This is especially used by
-	 * {@link Agent#proceedEnumMessage(madkit.message.EnumMessage)} to reflexively
+	 * {@link Agent#proceedEnumMessage(madkit.messages.EnumMessage)} to reflexively
 	 * call the method of an agent which corresponds to the code of such messages.
 	 * 
 	 * @param <E> enum type
 	 * @param e   the enum object to convert
 	 * @return a string having a Java standardized method name form.
 	 */
-	public static <E extends Enum<E>> String enumToMethodName(final E e) {
+	public static <E extends Enum<E>> String enumToMethodName(E e) {
 		final String[] tab = e.name().split("_");
 		StringBuilder methodName = new StringBuilder(tab[0].toLowerCase());
 		for (int i = 1; i < tab.length; i++) {
@@ -64,10 +67,18 @@ public class ReflectionUtils {
 		return methodName.toString();
 	}
 
-	public static String getSignature(final String methodName, Class<?>... types) {
+	/**
+	 * Converts a signature to its string representation. This is used by
+	 * {@link MethodFinder} to store the signature of methods in a map.
+	 * 
+	 * @param methodName the name of the method
+	 * @param types      the types of the arguments of the method
+	 * @return a string representation of the signature
+	 */
+	public static String getSignature(String methodName, Class<?>... types) {
 		if (types != null) {
 			MethodFinder.convertPrimitiveToObjectTypes(types);
-			final StringBuffer methodSignature = new StringBuffer(methodName);
+			StringBuilder methodSignature = new StringBuilder(methodName);
 			for (Class<?> c : types) {
 				methodSignature.append(c.getName());
 			}
@@ -76,8 +87,15 @@ public class ReflectionUtils {
 		return methodName.intern();
 	}
 
-	public static Class<?>[] convertArgToTypes(final Object[] parameters) {
-		final Class<?>[] paramClasses = new Class<?>[parameters.length];
+	/**
+	 * Converts the primitive types in the array to their corresponding wrapper
+	 * classes.
+	 * 
+	 * @param parameters the parameters to convert
+	 * @return the converted parameters array
+	 */
+	public static Class<?>[] convertArgToTypes(Object[] parameters) {
+		Class<?>[] paramClasses = new Class<?>[parameters.length];
 		for (int i = 0; i < paramClasses.length; i++) {
 			if (parameters[i] != null) {
 				paramClasses[i] = parameters[i].getClass();

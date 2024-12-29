@@ -19,70 +19,64 @@
 package madkit.bees;
 
 import java.awt.Point;
-import java.util.Collections;
 import java.util.List;
 
-import javafx.scene.Node;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import madkit.gui.FXManager;
+import madkit.gui.UIProperty;
 import madkit.kernel.Agent;
-import madkit.simulation.Parameter;
-import madkit.simulation.ParametersSheetFactory;
-import madkit.simulation.probe.PropertyProbe;
+import madkit.simulation.PropertyProbe;
 import madkit.simulation.viewer.Viewer2D;
 
 /**
- * @version 2.0.0.2
+ * @version 6.0
  * @author Fabien Michel
  */
 public class BeeViewer extends Viewer2D {
 
-	private PropertyProbe<BeeInformation> beeProbe;
+	private PropertyProbe<BeeData> beeProbe;
 	protected int nbOfBeesToLaunch = 30000;
 	BeeEnvironment env;
 
-	@Parameter(category = "engine", displayName = "trail mode")
-	private static boolean trailMode = false;
+	@UIProperty(category = "engine", displayName = "trail mode")
+	private boolean trailMode = false;
 
-	@Parameter(category = "engine", displayName = "art mode")
-	private static boolean artMode = false;
+	@UIProperty(category = "engine", displayName = "art mode")
+	private boolean artMode = false;
 
 	/**
 	 * @return the artMode
 	 */
-	public static boolean isArtMode() {
+	public boolean isArtMode() {
 		return artMode;
 	}
 
 	/**
 	 * @param artMode the artMode to set
 	 */
-	public static void setArtMode(boolean artMode) {
-		BeeViewer.artMode = artMode;
+	public void setArtMode(boolean artMode) {
+		this.artMode = artMode;
 	}
 
 	/**
 	 * @return the trailMode
 	 */
-	public static boolean isTrailMode() {
+	public boolean isTrailMode() {
 		return trailMode;
 	}
 
 	/**
 	 * @param trailMode the trailMode to set
 	 */
-	public static void setTrailMode(boolean trailMode) {
-		BeeViewer.trailMode = trailMode;
+	public void setTrailMode(boolean trailMode) {
+		this.trailMode = trailMode;
 	}
 
 	@Override
 	protected void onActivation() {
-		env = getSimuEngine().getEnvironment();
-		super.onActivation();
+		env = getLauncher().getEnvironment();
 //		getLogger().setLevel(Level.ALL);
-		beeProbe = new PropertyProbe<>(getModelGroup(), AbstractBee.BEE_ROLE, "myInformation");
+		super.onActivation();
+		beeProbe = new PropertyProbe<>(getModelGroup(), AbstractBee.BEE_ROLE, "data");
 		addProbe(beeProbe);
 	}
 
@@ -92,9 +86,9 @@ public class BeeViewer extends Viewer2D {
 			getGraphics().fillRect(0, 0, env.getWidth(), env.getHeight());
 		}
 		Color lastColor = null;
-		List<Agent> currentAgentsList = beeProbe.getCurrentAgentsList();
+		List<Agent> currentAgentsList = beeProbe.getAgents();
 		for (Agent arg0 : currentAgentsList) {
-			BeeInformation b = beeProbe.getPropertyValue(arg0);
+			BeeData b = beeProbe.getPropertyValue(arg0);
 			Color c = b.getBeeColor();
 			if (c != lastColor) {
 				lastColor = c;

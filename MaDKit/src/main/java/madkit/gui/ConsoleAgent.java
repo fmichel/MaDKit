@@ -43,7 +43,7 @@ import java.io.PrintStream;
 
 import javafx.scene.Scene;
 import madkit.kernel.Agent;
-import madkit.kernel.FxAgentStage;
+import madkit.kernel.FXAgentStage;
 
 /**
  * This agent displays standard out and err prints in its GUI. This agent is
@@ -61,15 +61,15 @@ class ConsoleAgent extends Agent {
 
 	@Override
 	protected void onActivation() {
-		setupGUI();
+		setupDefaultGUI();
 		getLogger().info("hello");
 		System.err.println("test");
 	}
 
 	@Override
-	public void setupGUI() {
+	public void setupDefaultGUI() {
 		FXManager.runAndWait(() -> {
-			FxAgentStage stage = new FxAgentStage(this);
+			FXAgentStage stage = new FXAgentStage(this);
 			FXOutputPane outP = new FXOutputPane(this);
 			Scene scene = new Scene(outP);
 			System.setOut(new PrintStream(new StreamCapturer(outP, systemOut)));
@@ -106,33 +106,33 @@ class StreamCapturer extends OutputStream {
 
 	@Override
 	public void write(int b) throws IOException {
-			capturedStream.write(b);
-			buffer.write(b);
-			if ((char) b == '\n') {
-				byte[] byteArray = buffer.toByteArray();
-				panel.writeToTextArea(new String(byteArray));
-				buffer.reset();
-			}
+		capturedStream.write(b);
+		buffer.write(b);
+		if ((char) b == '\n') {
+			byte[] byteArray = buffer.toByteArray();
+			panel.writeToTextArea(new String(byteArray));
+			buffer.reset();
+		}
 	}
 
 	@Override
-    public void write(byte[] b, int off, int len) throws IOException {
-        capturedStream.write(b, off, len);
-        buffer.write(b, off, len);
-        if (new String(b, off, len).contains("\n")) {
-            byte[] byteArray = buffer.toByteArray();
-            panel.writeToTextArea(new String(byteArray));
-            buffer.reset();
-        }
+	public void write(byte[] b, int off, int len) throws IOException {
+		capturedStream.write(b, off, len);
+		buffer.write(b, off, len);
+		if (new String(b, off, len).contains("\n")) {
+			byte[] byteArray = buffer.toByteArray();
+			panel.writeToTextArea(new String(byteArray));
+			buffer.reset();
+		}
 	}
 
 	@Override
 	public void flush() throws IOException {
-			capturedStream.flush();
+		capturedStream.flush();
 	}
 
 	@Override
 	public void close() throws IOException {
-			capturedStream.close();
+		capturedStream.close();
 	}
 }

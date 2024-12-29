@@ -1,6 +1,9 @@
 package madkit.simulation;
 
-public class DefaultOrganization {
+/**
+ * 
+ */
+public class SimuOrganization {
 
 	/**
 	 * The value of this constant is {@value}.

@@ -18,15 +18,7 @@ final class AgentThreadFactory extends Object implements ThreadFactory {
 
 	AgentThreadFactory(final KernelAddress kernelAddress, final boolean daemonThreadFactory) {
 		daemonThreads = daemonThreadFactory;
-		group = new ThreadGroup(daemonThreads ? "DAEMON" : "LIFE" + kernelAddress) {
-
-			@Override
-			public void uncaughtException(Thread t, Throwable e) {
-//				System.err.println("--------------internal BUG--------------------");
-//				System.err.println("\n-----------------uncaught exception on " + t);
-//				e.printStackTrace();
-			}
-		};
+		group = new ThreadGroup(daemonThreads ? "DAEMON" : "LIFE" + kernelAddress);
 		if (daemonThreadFactory) {
 			group.setMaxPriority(MKDA_PRIORITY);
 		} else {
@@ -49,7 +41,7 @@ final class AgentThreadFactory extends Object implements ThreadFactory {
 	Thread getAgentThread(Agent a) {
 		final Thread[] list = new Thread[group.activeCount()];
 		group.enumerate(list);
-		return Arrays.stream(list).filter(t -> t.getName().equals("" + a.hashCode())).findAny().orElse(null);
+		return Arrays.stream(list).filter(t -> t != null && t.getName().equals("" + a.hashCode())).findAny().orElse(null);
 	}
 
 	@Override

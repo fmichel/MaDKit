@@ -1,13 +1,13 @@
 
-package madkit.simulation;
+package madkit.simulation.scheduler;
 
 import java.math.BigDecimal;
 
 /**
  * A timer based on ticks for simulation purposes. This class extends the
- * SimulationTimer class and uses BigDecimal for tick values.
+ * SimuTimer class and uses BigDecimal for tick values.
  */
-public class TickBasedTimer extends SimulationTimer<BigDecimal> {
+public class TickBasedTimer extends SimuTimer<BigDecimal> {
 
 	/**
 	 * Constructs a TickBasedTimer with the specified initial and end tick values.

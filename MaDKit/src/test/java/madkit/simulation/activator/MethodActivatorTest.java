@@ -9,6 +9,7 @@ import org.testng.annotations.Test;
 import madkit.kernel.Agent;
 import madkit.kernel.GenericTestAgent;
 import madkit.kernel.JunitMadkit;
+import madkit.simulation.scheduler.MethodActivator;
 
 public class MethodActivatorTest extends JunitMadkit {
 

@@ -19,7 +19,6 @@
 package madkit.bees;
 
 import java.awt.Point;
-import java.util.Random;
 
 import javafx.scene.paint.Color;
 import madkit.simulation.SimuAgent;
@@ -30,24 +29,32 @@ import madkit.simulation.SimuAgent;
  */
 public abstract class AbstractBee extends SimuAgent {
 
-//	protected static final Random generator = new Random(System.currentTimeMillis());
-
 	protected int xVelocity;
 	protected int yVelocity;
 
-	protected BeeInformation myInformation;
+	private BeeData data;
 
+	/**
+	 * Default role for bees     
+	 */
 	public static final String BEE_ROLE = "bee";
 
+	
+	/**
+	 *  Role for queen bee
+	 */
 	public static final String QUEEN_ROLE = "queen";
 
+	/**
+	 * Role for follower bee 
+	 */
 	public static final String FOLLOWER_ROLE = "follower";
 
 	@Override
 	protected void onActivation() {
 		super.onActivation();
-		myInformation = new BeeInformation();
-		setEnvironment();
+		data = new BeeData();
+		initData();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -56,28 +63,26 @@ public abstract class AbstractBee extends SimuAgent {
 		return super.getEnvironment();
 	}
 
-	public void setEnvironment() {
-		final Point myLocation = myInformation.getCurrentPosition();
-		if (myLocation.x > getEnvironment().getWidth() || myLocation.y > getEnvironment().getHeight() || myLocation.x <= 0
-				|| myLocation.y <= 0) {
-			myLocation.setLocation(
+	/**
+	 * Initialize data 
+	 */
+	protected void initData() {
+		Point position = data.getCurrentPosition();
+		if (position.x > getEnvironment().getWidth() || position.y > getEnvironment().getHeight() || position.x <= 0
+				|| position.y <= 0) {
+			position.setLocation(
 					prng().nextInt((getEnvironment().getWidth() - 20)) + 10,
 					prng().nextInt((getEnvironment().getHeight() - 20)) + 10);
-			myInformation.getPreviousPosition().setLocation(myLocation);
+			data.getPreviousPosition().setLocation(position);
 		}
 		int beeMAcceleration = (int) getEnvironment().getBeeAcceleration();
 		xVelocity = randomFromRange(beeMAcceleration);
 		yVelocity = randomFromRange(beeMAcceleration);
 	}
 
-	@Override
-	public String toString() {
-		return getClass().getSimpleName() + " on " + getEnvironment() + " " + myInformation;
-	}
-
 	protected void buzz() {
-		final Point location = myInformation.getCurrentPosition();
-		myInformation.getPreviousPosition().setLocation(location);
+		Point location = data.getCurrentPosition();
+		data.getPreviousPosition().setLocation(location);
 
 		computeNewVelocities();
 		normalizeVelocities(getMaxVelocity());
@@ -107,19 +112,29 @@ public abstract class AbstractBee extends SimuAgent {
 	public int randomFromRange(int val) {
 		val /= 2;
 		return prng().nextInt(val * 2 + 1) - val;
-//		return generator.nextInt(val * 2 + 1) - val;
-//		return generator.nextInt(val /2, val + 1);
+	}
+
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + " on " + getEnvironment() + " " + data;
+	}
+
+	/**
+	 * @return the data
+	 */
+	public BeeData getData() {
+		return data;
 	}
 
 }
 
-class BeeInformation {
+class BeeData {
 
 	private final Point currentPosition;
 	private final Point  previousPosition;
 	private Color beeColor;
 
-	public BeeInformation() {
+	public BeeData() {
 		currentPosition = new Point();
 		previousPosition = new Point();
 		beeColor = Color.color(Math.random(), Math.random(), Math.random());

@@ -25,12 +25,13 @@ import madkit.kernel.AgentAddress;
 import madkit.messages.ObjectMessage;
 
 /**
+ * A bee that follows a leader
  * @version 2.3
  * @author Fabien Michel, Olivier Gutknecht
  */
 public class Bee extends AbstractBee {
 
-	BeeInformation leaderInfo = null;
+	BeeData leaderData = null;
 	AgentAddress leader = null;
 
 	@Override
@@ -48,13 +49,13 @@ public class Bee extends AbstractBee {
 	}
 
 	private void updateLeader() {
-		ObjectMessage<BeeInformation> m = nextMessage();
+		ObjectMessage<BeeData> m = nextMessage();
 		if (m == null) {
 			return;
 		}
 		if (m.getSender().equals(leader)) {// leader quitting
 			leader = null;
-			leaderInfo = null;
+			leaderData = null;
 		} else {
 			if (leader == null)
 				followNewLeader(m);
@@ -70,20 +71,20 @@ public class Bee extends AbstractBee {
 	/**
 	 * @param leaderMessage
 	 */
-	private void followNewLeader(ObjectMessage<BeeInformation> leaderMessage) {
+	private void followNewLeader(ObjectMessage<BeeData> leaderMessage) {
 		leader = leaderMessage.getSender();
-		leaderInfo = leaderMessage.getContent();
-		myInformation.setBeeColor(leaderInfo.getBeeColor());
+		leaderData = leaderMessage.getContent();
+		getData().setBeeColor(leaderData.getBeeColor());
 	}
 
 	@Override
 	protected void computeNewVelocities() {
-		final Point location = myInformation.getCurrentPosition();
+		Point location = getData().getCurrentPosition();
 		// distances from bee to queen
 		int dtx;
 		int dty;
-		if (leaderInfo != null) {
-			final Point leaderLocation = leaderInfo.getCurrentPosition();
+		if (leaderData != null) {
+			final Point leaderLocation = leaderData.getCurrentPosition();
 			dtx = leaderLocation.x - location.x;
 			dty = leaderLocation.y - location.y;
 		} else {
@@ -94,10 +95,7 @@ public class Bee extends AbstractBee {
 				dty = -dty;
 			}
 		}
-		int acc = 0;
-		if (getEnvironment() != null) {
-			acc = (int) getEnvironment().getBeeAcceleration();
-		}
+			int acc = (int) getEnvironment().getBeeAcceleration();
 		int dist = Math.abs(dtx) + Math.abs(dty);
 		if (dist == 0)
 			dist = 1; // avoid dividing by zero
@@ -109,9 +107,6 @@ public class Bee extends AbstractBee {
 
 	@Override
 	protected int getMaxVelocity() {
-		if (getEnvironment() != null) {
 			return (int) getEnvironment().getBeeVelocity();
-		}
-		return 0;
 	}
 }

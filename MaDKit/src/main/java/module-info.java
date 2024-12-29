@@ -31,12 +31,12 @@ module madkit.base {
 	exports madkit.logging;
 	exports madkit.messages;
 	exports madkit.simulation;
-	exports madkit.simulation.activator;
 	exports madkit.simulation.environment;
-	exports madkit.simulation.probe;
 	exports madkit.simulation.scheduler;
 	exports madkit.simulation.viewer;
+	exports madkit.reflection;
 
+	requires transitive java.desktop;
 	requires transitive java.logging;
 	requires transitive javafx.base;
 	requires transitive javafx.controls;
@@ -46,7 +46,6 @@ module madkit.base {
 
 	requires java.base;
 	requires java.sql;
-	requires java.desktop;
 	requires java.xml;
 	requires info.picocli;
 

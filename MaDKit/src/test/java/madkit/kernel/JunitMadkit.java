@@ -21,7 +21,6 @@ import org.testng.annotations.BeforeMethod;
 
 import madkit.kernel.Agent.ReturnCode;
 import madkit.simulation.SimuAgent;
-import madkit.simulation.SimulationEngine;
 import net.jodah.concurrentunit.ConcurrentTestCase;
 
 /**
@@ -119,12 +118,14 @@ public class JunitMadkit extends ConcurrentTestCase {
 	}
 
 	/**
-	 * @param a
+	 * @param agent         the agent to test
 	 * @param expected
 	 * @param gui
+	 * @param launchTimeOut
+	 * @param testTimeOut
 	 */
-	public void launchTestedAgent(Agent a, ReturnCode expected, boolean gui, int launchTimeOut, int testTimeOut) {
-		final ReturnCode returnCode = kernelAgent.launchAgent(a, launchTimeOut);
+	public void launchTestedAgent(Agent agent, ReturnCode expected, boolean gui, int launchTimeOut, int testTimeOut) {
+		final ReturnCode returnCode = kernelAgent.launchAgent(agent, launchTimeOut);
 		if (expected != null) {
 			threadAssertEquals(expected, returnCode);
 			resume();
@@ -173,14 +174,13 @@ public class JunitMadkit extends ConcurrentTestCase {
 
 	/**
 	 * @param a
-	 * @param expected
 	 */
 	public void launchTestedAgent(Agent a) {
 		launchTestedAgent(a, ReturnCode.SUCCESS, false, Integer.MAX_VALUE, Integer.MAX_VALUE);
 	}
 
 	public void launchSimuAgentTest(SimuAgent sa) {
-		launchTestedAgent(new SimulationEngine() {
+		launchTestedAgent(new EmptySimuLauncher() {
 			@Override
 			protected void onActivation() {
 				super.onActivation();

@@ -1,4 +1,4 @@
-package madkit.simulation.activator;
+package madkit.simulation.scheduler;
 
 import java.time.LocalDateTime;
 import java.util.PriorityQueue;
@@ -89,7 +89,7 @@ public class DiscreteEventAgentsActivator extends DateBasedDiscreteEventActivato
 		if (!activationList.isEmpty()) {
 			Agent a = activationList.poll();
 			executeBehaviorOf(a, getMethod(), args);
-			if (!activationList.contains(a) && getCurrentAgentsList().contains(a)) {
+			if (!activationList.contains(a) && getAgents().contains(a)) {
 				onAdding(a);
 			}
 		}

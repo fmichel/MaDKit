@@ -68,7 +68,7 @@ public class LocalCommunity {
 		/**
 		 * The value of this constant is {@value}.
 		 */
-		public static final String NETWORK = "network";
+		static final String NETWORK = "network";
 		/**
 		 * The value of this constant is {@value}.
 		 */
@@ -97,16 +97,16 @@ public class LocalCommunity {
 		/**
 		 * The value of this constant is {@value}.
 		 */
-		public static final String NET_AGENT = "net agent";
+		static final String NET_AGENT = "net agent";
 		/**
 		 * The value of this constant is {@value}.
 		 */
-		public static final String UPDATER = "updater";
+		static final String UPDATER = "updater";
 
 		/**
 		 * The value of this constant is {@value}.
 		 */
-		public static final String EMMITER = "emmiter";
+		static final String EMMITER = "emmiter";
 
 	}
 

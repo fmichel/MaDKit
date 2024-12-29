@@ -12,9 +12,9 @@ import java.net.InetAddress;
 
 import org.controlsfx.control.action.Action;
 
-import madkit.agr.DefaultMaDKitRoles;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
+import madkit.agr.SystemRoles;
 import madkit.gui.FXAction;
 import madkit.kernel.Agent;
 import madkit.messages.KernelMessage;
@@ -88,14 +88,29 @@ public enum KernelAction {
 		actionInfo = new ActionData(name(), keyEvent);
 	}
 
+	/**
+	 * Returns the action associated with this enum constant for the specified
+	 * agent, and with the specified parameters.
+	 * 
+	 * @param agent      the agent that will perform the action
+	 * @param parameters the parameters to be used by the action
+	 * @return an action that can be used to perform the action
+	 */
 	public Action newActionFor(Agent agent, Object... parameters) {
 		return new FXAction(actionInfo, ae -> request(agent, parameters));
 	}
 
+	/**
+	 * Sends a message to the kernel to perform the action associated with this enum
+	 * constant, with the specified parameters.
+	 * 
+	 * @param requester  the agent that will perform the action
+	 * @param parameters the parameters to be used by the action
+	 */
 	public void request(Agent requester, Object... parameters) {
 		if (requester.isAlive()) {
 			requester.send(new KernelMessage(KernelAction.this, parameters), LocalCommunity.NAME, Groups.SYSTEM,
-					DefaultMaDKitRoles.GROUP_MANAGER_ROLE);
+					SystemRoles.GROUP_MANAGER_ROLE);
 		}
 	}
 

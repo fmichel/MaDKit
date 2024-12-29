@@ -8,53 +8,57 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.random.RandomGenerator;
 
-import madkit.kernel.Scheduler;
 import madkit.kernel.Agent;
-import madkit.simulation.activator.DateBasedDiscreteEventActivator;
-import madkit.simulation.activator.DiscreteEventAgentsActivator;
+import madkit.kernel.Scheduler;
+import madkit.simulation.scheduler.DateBasedDiscreteEventActivator;
+import madkit.simulation.scheduler.DateBasedTimer;
+import madkit.simulation.scheduler.DiscreteEventAgentsActivator;
+import madkit.simulation.scheduler.SimuTimer;
 
 /**
  * Represents an agent in a simulation environment. This agent is linked to a
- * {@link SimulationEngine} and can manage simulation-related tasks such as
+ * {@link SimuLauncher} and can manage simulation-related tasks such as
  * launching other agents, accessing simulation models, and managing roles
  * within the simulation community.
  */
 public class SimuAgent extends Agent {
 
-	SimulationEngine simuEngine;
+	SimuLauncher simuLauncher;
 
 	/**
 	 * Retrieves the simulation engine associated with this agent.
 	 *
-	 * @return the {@link SimulationEngine} instance.
+	 * @return the {@link SimuLauncher} instance.
 	 * @throws IllegalStateException if the agent has not been launched or was not
 	 *                               launched by a {@link SimuAgent}.
 	 */
-	public SimulationEngine getSimuEngine() {
-		if (simuEngine == null) {
-			throw new IllegalStateException("Agent not yet launched, or not launched by a SimuAgent");
+	public SimuLauncher getLauncher() {
+		if (simuLauncher == null) {
+			throw new IllegalStateException(
+					"Agent not yet launched, or not launched by a Launcher, or an agent launched by a Launcher");
 		}
-		return simuEngine;
+		return simuLauncher;
 	}
 
 	/**
 	 * Launches a new agent. If the agent being launched is also a
 	 * {@link SimuAgent}, it will inherit the simulation engine from this agent.
 	 *
-	 * @param a       the agent to be launched.
+	 * @param agent   the agent to be launched.
 	 * @param timeout the maximum time to wait for the agent to launch.
-	 * @return the result of the launch operation as a {@link ReturnCode}.
+	 * @return the result of the launch operation as a
+	 *         {@link madkit.kernel.Agent.ReturnCode}.
 	 */
 	@Override
-	public ReturnCode launchAgent(Agent a, int timeout) {
+	public ReturnCode launchAgent(Agent agent, int timeout) {
 		/*
-		 * Any agent launched by an agent linked to a simuEngine becomes part of this
-		 * engine. The root one being a SimuEngine itself.
+		 * Any agent launched by an agent linked to a simuLauncher becomes part of this
+		 * engine. The root one being a SimuLauncher itself.
 		 */
-		if (simuEngine != null && a instanceof SimuAgent sa) {
-			sa.simuEngine = simuEngine;
+		if (simuLauncher != null && agent instanceof SimuAgent sa) {
+			sa.simuLauncher = simuLauncher;
 		}
-		return super.launchAgent(a, timeout);
+		return super.launchAgent(agent, timeout);
 	}
 
 	/**
@@ -63,7 +67,7 @@ public class SimuAgent extends Agent {
 	 * @return the name of the simulation community.
 	 */
 	public String getCommunity() {
-		return getSimuEngine().getCommunity();
+		return getLauncher().getCommunity();
 	}
 
 	/**
@@ -72,7 +76,7 @@ public class SimuAgent extends Agent {
 	 * @return the name of the engine group.
 	 */
 	public String getEngineGroup() {
-		return getSimuEngine().getEngineGroup();
+		return getLauncher().getEngineGroup();
 	}
 
 	/**
@@ -81,7 +85,7 @@ public class SimuAgent extends Agent {
 	 * @return the name of the model group.
 	 */
 	public String getModelGroup() {
-		return getSimuEngine().getModelGroup();
+		return getLauncher().getModelGroup();
 	}
 
 	/**
@@ -91,7 +95,7 @@ public class SimuAgent extends Agent {
 	 * @return the scheduler instance.
 	 */
 	public <S extends Scheduler<?>> S getScheduler() {
-		return getSimuEngine().getScheduler();
+		return getLauncher().getScheduler();
 	}
 
 	/**
@@ -100,8 +104,8 @@ public class SimuAgent extends Agent {
 	 * @param <M> the type of the simulation model.
 	 * @return the simulation model instance.
 	 */
-	public <M extends SimulationModel> M getModel() {
-		return getSimuEngine().getModel();
+	public <M extends SimuModel> M getModel() {
+		return getLauncher().getModel();
 	}
 
 	/**
@@ -110,8 +114,8 @@ public class SimuAgent extends Agent {
 	 * @param <E> the type of the environment.
 	 * @return the environment instance.
 	 */
-	public <E extends Environment> E getEnvironment() {
-		return getSimuEngine().getEnvironment();
+	public <E extends SimuEnvironment> E getEnvironment() {
+		return getLauncher().getEnvironment();
 	}
 
 	/**
@@ -129,14 +133,14 @@ public class SimuAgent extends Agent {
 	 * @return a list of {@link SimuAgent} viewers.
 	 */
 	public List<SimuAgent> getViewers() {
-		return getSimuEngine().getViewers();
+		return getLauncher().getViewers();
 	}
 
 	/**
 	 * Method to be called on simulation startup. This can be overridden by
 	 * subclasses to perform initialization tasks.
 	 */
-	public void onSimuStartup() {
+	public void onSimulationStart() {
 		// Override to implement startup behavior
 	}
 
@@ -145,7 +149,8 @@ public class SimuAgent extends Agent {
 	 *
 	 * @param group the group within which the role is requested.
 	 * @param role  the role to be requested.
-	 * @return the result of the role request as a {@link ReturnCode}.
+	 * @return the result of the role request as a
+	 *         {@link madkit.kernel.Agent.ReturnCode}.
 	 */
 	public ReturnCode requestSimuRole(String group, String role) {
 		return requestRole(getCommunity(), group, role);
@@ -183,7 +188,7 @@ public class SimuAgent extends Agent {
 	}
 
 	/**
-	 * Returns the {@link SimulationTimer} of the current simulation. This is
+	 * Returns the {@link SimuTimer} of the current simulation. This is
 	 * automatically initialized when the agent is associated with an activator for
 	 * the first time. So it stays <code>null</code> if the agent is not related to
 	 * a simulation
@@ -192,8 +197,8 @@ public class SimuAgent extends Agent {
 	 * @throws NullPointerException if this agent is not part of a simulation
 	 */
 	@SuppressWarnings("unchecked")
-	public <T extends SimulationTimer<?>> T getSimuTimer() {
-		return simuEngine != null ? (T) simuEngine.getScheduler().getSimuTimer() : null;
+	public <T extends SimuTimer<?>> T getSimuTimer() {
+		return simuLauncher != null ? (T) simuLauncher.getScheduler().getSimuTimer() : null;
 	}
 
 	/**

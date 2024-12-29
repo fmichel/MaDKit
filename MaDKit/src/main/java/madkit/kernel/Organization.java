@@ -19,7 +19,10 @@ import madkit.kernel.Agent.ReturnCode;
 import madkit.simulation.SimuAgent;
 
 /**
- * @author Fabien Michel
+ * This class is responsible for managing the organization of the artificial
+ * society. It is responsible for creating and removing communities, groups and
+ * roles.
+ * 
  *
  */
 public final class Organization {
@@ -56,12 +59,12 @@ public final class Organization {
 		logger.setUseParentHandlers(false);
 	}
 
-	ReturnCode createGroup(final Agent creator, final String communityName, final String group,
-			final Gatekeeper gatekeeper, final boolean isDistributed) {
+	ReturnCode createGroup(Agent creator, String communityName, String group, Gatekeeper gatekeeper,
+			boolean isDistributed) {
 		Objects.requireNonNull(group, ErrorMessages.G_NULL.toString());
 		// no need to remove org: never failed
 		// will throw null pointer if community is null
-		final Community community = communities.computeIfAbsent(communityName, c -> new Community(communityName, this));
+		Community community = communities.computeIfAbsent(communityName, c -> new Community(communityName, this));
 		synchronized (community) {
 			if (!community.addGroup(creator, group, gatekeeper, isDistributed)) {
 				return ALREADY_GROUP;
@@ -69,13 +72,13 @@ public final class Organization {
 //			try {// TODO bof...
 //				if (isDistributed) {
 //					sendNetworkMessageWithRole(new CGRSynchro(Code.CREATE_GROUP,
-//							getRole(community, group, madkit.agr.DefaultMaDKitRoles.GROUP_MANAGER_ROLE)
+//							getRole(community, group, madkit.agr.SystemRoles.GROUP_MANAGER_ROLE)
 //									.getAgentAddressOf(creator)),
 //							netUpdater);
 //				}
 //				if (hooks != null) {
 //					informHooks(AgentActionEvent.CREATE_GROUP,
-//							getRole(community, group, madkit.agr.DefaultMaDKitRoles.GROUP_MANAGER_ROLE)
+//							getRole(community, group, madkit.agr.SystemRoles.GROUP_MANAGER_ROLE)
 //									.getAgentAddressOf(creator));
 //				}
 //			} catch (CGRNotAvailable e) {
@@ -90,6 +93,14 @@ public final class Organization {
 		return getGroup(community, group).requestRole(requester, role, memberCard);
 	}
 
+	/**
+	 * Returns <code>true</code> if the group exists in the organization. A group
+	 * exists if it has at least one agent playing a role in it.
+	 * 
+	 * @param community the community name
+	 * @param group     the group name
+	 * @return <code>true</code> if the group exists
+	 */
 	public boolean isGroup(String community, String group) {
 		try {
 			getGroup(community, group);
@@ -99,7 +110,16 @@ public final class Organization {
 		}
 	}
 
-	public boolean isRole(final String community, String group, String role) {
+	/**
+	 * Returns <code>true</code> if the role exists in the organization. A role
+	 * exists if it has at least one agent playing it.
+	 * 
+	 * @param community the community name
+	 * @param group     the group name
+	 * @param role      the role name
+	 * @return <code>true</code> if the role exists
+	 */
+	public boolean isRole(String community, String group, String role) {
 		try {
 			getRole(community, group, role);
 			return true;
@@ -109,10 +129,12 @@ public final class Organization {
 	}
 
 	/**
-	 * @param community
-	 * @param group
-	 * @param role
-	 * @return
+	 * Returns the role object corresponding to the given community, group and role
+	 * 
+	 * @param community the community name
+	 * @param group     the group name
+	 * @param role      the role name
+	 * @return the role object
 	 * @throws CGRNotAvailable
 	 */
 	public Role getRole(String community, String group, String role) throws CGRNotAvailable {
@@ -126,14 +148,22 @@ public final class Organization {
 		return kernel;
 	}
 
-	final Community getCommunity(final String community) throws CGRNotAvailable {
+	final Community getCommunity(String community) throws CGRNotAvailable {
 		Community c = communities.get(community);
 		if (c == null)
 			throw new CGRNotAvailable(NOT_COMMUNITY);
 		return c;
 	}
 
-	public Group getGroup(final String community, final String group) throws CGRNotAvailable {
+	/**
+	 * Returns the group object corresponding to the given community and group names
+	 * 
+	 * @param community the community name
+	 * @param group     the group name
+	 * @return the group object corresponding to the given community and group names
+	 * @throws CGRNotAvailable
+	 */
+	public Group getGroup(String community, String group) throws CGRNotAvailable {
 		Group g = getCommunity(community).getGroup(group);
 		if (g == null)
 			throw new CGRNotAvailable(NOT_GROUP);
@@ -141,8 +171,11 @@ public final class Organization {
 	}
 
 	/**
-	 * @param community
-	 * @return
+	 * Returns <code>true</code> if the community exists in the organization. A
+	 * community exists if it has at least one agent playing a role in a group.
+	 * 
+	 * @param community the community name
+	 * @return <code>true</code> if the community exists
 	 */
 	public boolean isCommunity(String community) {
 		try {
@@ -167,6 +200,11 @@ public final class Organization {
 		communities.values().parallelStream().forEach(c -> c.removeAgent(agent));
 	}
 
+	/**
+	 * Returns a list of all the communities in the organization
+	 * 
+	 * @return the list of communities in the organization
+	 */
 	public List<Community> getCommunities() {
 		return List.copyOf(communities.values());
 	}
@@ -178,10 +216,10 @@ public final class Organization {
 	 * @param community the community name
 	 * @param group     the group name
 	 * @param role      the role name
-	 * @return an {@link List<AgentAddress>} corresponding to an agent handling this
-	 *         role or <code>null</code> if such an agent does not exist.
+	 * @return a list of agent addresses corresponding to agents having the given
+	 *         role
 	 */
-	public List<AgentAddress> getAgentsWithRole(final String community, final String group, final String role) {
+	public List<AgentAddress> getAgentsWithRole(String community, String group, String role) {
 		try {
 			return getRole(community, group, role).getAgentAddresses();
 		} catch (CGRNotAvailable e) {
@@ -211,7 +249,7 @@ public final class Organization {
 	 */
 
 	synchronized boolean removeOverlooker(Overlooker o) {
-		final Role r = o.getOverlookedRole();
+		Role r = o.getOverlookedRole();
 		if (r != null) {
 			r.removeOverlooker(o);
 		}

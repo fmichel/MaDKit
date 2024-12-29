@@ -46,21 +46,56 @@ import java.util.ResourceBundle;
  */
 public class I18nUtilities {
 
-	public static String i18nDirectory = "madkit/i18n/";
+	/**
+	 * The directory where the i18n files are stored. By default, it is
+	 * "madkit/i18n/" of the archive.
+	 */
+	public static final String I18N_DIRECTORY = "madkit/i18n/";
 
-	public static final ResourceBundle getResourceBundle(String baseName) {
-		return ResourceBundle.getBundle(i18nDirectory + baseName);
+	private I18nUtilities() {
+		throw new IllegalStateException(" Utility class ");
 	}
 
-	public static String getCGRString(final String community) {
+	/**
+	 * Returns the resource bundle for the given base name.
+	 * 
+	 * @param baseName the base name of the resource bundle file
+	 * @return the resource bundle for the given base name
+	 */
+	public static final ResourceBundle getResourceBundle(String baseName) {
+		return ResourceBundle.getBundle(I18N_DIRECTORY + baseName);
+	}
+
+	/**
+	 * Returns a string formatted according to the presentation of a CGR location.
+	 * 
+	 * @param community the community name
+	 * @return the formatted string for the CGR location
+	 */
+	public static String getCGRString(String community) {
 		return getCGRString(community, null, null);
 	}
 
-	public static String getCGRString(final String community, final String group) {
+	/**
+	 * Returns a string formatted according to the presentation of a CGR location.
+	 * 
+	 * @param community the community name
+	 * @param group     the group name
+	 * @return the formatted string for the CGR location
+	 */
+	public static String getCGRString(String community, String group) {
 		return getCGRString(community, group, null);
 	}
 
-	public static String getCGRString(final String community, final String group, final String role) {
+	/**
+	 * Returns a string formatted according to the presentation of a CGR location.
+	 * 
+	 * @param community the community name
+	 * @param group     the group name
+	 * @param role      the role name
+	 * @return the formatted string for the CGR location
+	 */
+	public static String getCGRString(String community, String group, String role) {
 		if (role != null)
 			return Words.ROLE + " <" + community + "," + group + "," + role + "> ";
 		if (group != null)
@@ -68,11 +103,4 @@ public class I18nUtilities {
 		return Words.COMMUNITY + " <" + community + "> ";
 	}
 
-	/**
-	 * @param i18nDirectory the i18nDirectory to set
-	 */
-	public static final void setI18nDirectory(String i18nDirectory) {
-		I18nUtilities.i18nDirectory = i18nDirectory;
-		ResourceBundle.clearCache();
-	}
 }

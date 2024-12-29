@@ -8,7 +8,6 @@ import org.testng.annotations.Test;
 
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Watcher;
-import madkit.simulation.probe.PropertyProbe;
 import madkit.test.agents.SimulatedAgent;
 import madkit.test.agents.SimulatedAgentBis;
 
@@ -148,7 +147,7 @@ public class PropertyProbeTest extends JunitMadkit {
 				try {
 					fp.setPropertyValue(agent, "a");
 					noExceptionFailure();
-				} catch (SimulationException e) {
+				} catch (SimuException e) {
 					e.printStackTrace();
 				}
 			}
@@ -171,9 +170,9 @@ public class PropertyProbeTest extends JunitMadkit {
 				PropertyProbe<String> fp = new PropertyProbe<>(GROUP, ROLE, "privatePrimitiveField");
 				addProbe(fp);
 				try {
-					System.err.println(fp.getPropertyValue(fp.getCurrentAgentsList().get(0)));
+					System.err.println(fp.getPropertyValue(fp.getAgents().get(0)));
 					noExceptionFailure();
-				} catch (SimulationException e) {
+				} catch (SimuException e) {
 					e.printStackTrace();
 				}
 			}

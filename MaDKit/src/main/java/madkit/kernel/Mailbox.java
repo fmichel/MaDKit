@@ -83,8 +83,8 @@ public final class Mailbox {
 	}
 
 	/**
-	 * Retrieves and removes all the messages of the mailbox that match the filter,
-	 * in the order they were received.
+	 * Retrieves all the messages of the mailbox, without taking those that match
+	 * the filter, Messages are listed in the order they were received.
 	 *
 	 * @param filter if <code>null</code> all the messages are returned and removed
 	 *               from the mailbox.
@@ -134,7 +134,8 @@ public final class Mailbox {
 	/**
 	 * Retrieves and removes all the messages from the message box.
 	 * 
-	 * @param <M> the type of the message to get
+	 * @param <M>    the type of the message to get
+	 * @param filter the filter to use to select the messages to remove
 	 * @return the list of messages in the order they were received
 	 */
 	public synchronized <M extends Message> List<M> getAll(Predicate<M> filter) {
@@ -284,6 +285,7 @@ public final class Mailbox {
 		try {
 			return (M) messageBox.take();
 		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 			throw new AgentInterruptedException();
 		}
 	}
@@ -306,6 +308,7 @@ public final class Mailbox {
 		try {
 			return (T) messageBox.poll(timeout, timeUnit);
 		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 			throw new AgentInterruptedException();
 		}
 	}
@@ -331,6 +334,7 @@ public final class Mailbox {
 				}
 			}
 		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 			throw new AgentInterruptedException();
 		} finally {
 			receptions.forEach(messageBox::offerFirst);

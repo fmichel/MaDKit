@@ -9,7 +9,7 @@ import static madkit.kernel.Agent.ReturnCode.SUCCESS;
 
 import org.testng.annotations.Test;
 
-import madkit.agr.DefaultMaDKitRoles;
+import madkit.agr.SystemRoles;
 
 /**
  * @author Fabien Michel
@@ -29,7 +29,7 @@ public class LeaveRoleTest extends JunitMadkit {
 				threadAssertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
 				threadAssertEquals(SUCCESS, leaveRole(COMMUNITY, GROUP, ROLE));
 				threadAssertTrue(getOrganization().isGroup(COMMUNITY, GROUP));
-				threadAssertEquals(SUCCESS, leaveRole(COMMUNITY, GROUP, DefaultMaDKitRoles.GROUP_MANAGER_ROLE));
+				threadAssertEquals(SUCCESS, leaveRole(COMMUNITY, GROUP, SystemRoles.GROUP_MANAGER_ROLE));
 				// leaveGroup by leaving roles
 				threadAssertFalse(getOrganization().isCommunity(COMMUNITY));
 				threadAssertFalse(getOrganization().isGroup(COMMUNITY, GROUP));

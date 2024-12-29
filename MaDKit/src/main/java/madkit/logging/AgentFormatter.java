@@ -29,7 +29,7 @@ public class AgentFormatter extends Formatter {
 	 * @return the formatted log record as a string
 	 */
 	@Override
-	public String format(LogRecord record) {//NOSONAR
+	public String format(LogRecord record) {// NOSONAR
 		final Level lvl = record.getLevel();
 		if (lvl.equals(AgentLogger.TALK)) {
 			return record.getMessage();
@@ -45,7 +45,7 @@ public class AgentFormatter extends Formatter {
 	 * @param record the log record for which the header is to be returned
 	 * @return a StringBuilder containing the logger name
 	 */
-	protected StringBuilder getHeader(final LogRecord record) {//NOSONAR
+	protected StringBuilder getHeader(final LogRecord record) {// NOSONAR
 		return new StringBuilder(record.getLoggerName());
 	}
 }

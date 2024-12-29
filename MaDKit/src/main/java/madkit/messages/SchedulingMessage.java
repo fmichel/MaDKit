@@ -24,6 +24,12 @@ public class SchedulingMessage extends EnumMessage<SchedulingAction> {
 	 */
 	private static final long serialVersionUID = -1433336977900865385L;
 
+	/**
+	 * Builds a message with the specified action
+	 * 
+	 * @param schedulerAction the action to be performed
+	 * @param info            additional information
+	 */
 	public SchedulingMessage(SchedulingAction schedulerAction, Object... info) {
 		super(schedulerAction, info);
 	}

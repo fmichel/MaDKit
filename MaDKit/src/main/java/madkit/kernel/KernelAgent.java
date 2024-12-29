@@ -63,10 +63,9 @@ import java.util.logging.Level;
 
 import javafx.application.Platform;
 import javafx.stage.Window;
-import madkit.agr.DefaultMaDKitRoles;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
-import madkit.agr.LocalCommunity.Roles;
+import madkit.agr.SystemRoles;
 import madkit.gui.FXManager;
 import madkit.i18n.ErrorMessages;
 import madkit.messages.KernelMessage;
@@ -156,15 +155,25 @@ class KernelAgent extends Agent implements DaemonAgent {
 	@Override
 	protected void onLive() {
 		while (!exitRequested) {
-			handleMessage(waitNextMessage(2000));
+			handleMessage(waitNextMessage(1000));
+			garbageDeadThreadedAgents();
 			if (threadedAgents.isEmpty() && FXManager.isStarted()
-					&& FxAgentStage.getAgentsWithStage(kernelAddress).isEmpty()) {
+					&& FXAgentStage.getAgentsWithStage(kernelAddress).isEmpty()) {
 				logIfLoggerNotNull(Level.FINE,
 						() -> "No more activity within kernel " + getKernelAddress() + " -> Quitting");
 				if (Window.getWindows().isEmpty())
 					Platform.exit();
 				return;
 			}
+		}
+	}
+
+	/**
+	 * 
+	 */
+	private void garbageDeadThreadedAgents() {
+		synchronized (threadedAgents) {
+			threadedAgents.removeIf(a -> a.kernel == deadKernel);
 		}
 	}
 
@@ -182,11 +191,11 @@ class KernelAgent extends Agent implements DaemonAgent {
 		});
 		createGroup(LocalCommunity.NAME, "kernels", true);
 
-		// building the network group
-		createGroup(LocalCommunity.NAME, Groups.NETWORK, false);
-		requestRole(LocalCommunity.NAME, Groups.NETWORK, Roles.KERNEL, null);
-		requestRole(LocalCommunity.NAME, Groups.NETWORK, Roles.UPDATER, null);
-		requestRole(LocalCommunity.NAME, Groups.NETWORK, Roles.EMMITER, null);
+//		// building the network group
+//		createGroup(LocalCommunity.NAME, Groups.NETWORK, false);
+//		requestRole(LocalCommunity.NAME, Groups.NETWORK, Roles.KERNEL, null);
+//		requestRole(LocalCommunity.NAME, Groups.NETWORK, Roles.UPDATER, null);
+//		requestRole(LocalCommunity.NAME, Groups.NETWORK, Roles.EMMITER, null);
 
 		launchConfigAgents();
 
@@ -220,17 +229,22 @@ class KernelAgent extends Agent implements DaemonAgent {
 		if (agent.kernel != null) {
 			throw new IllegalArgumentException(agent + " ALREADY_LAUNCHED");
 		}
-		agent.kernel = this;
-		CompletableFuture<ReturnCode> activationPromise = new CompletableFuture<>();
-		agent.startAgentLifeCycle(activationPromise);
-		try {
-			return activationPromise.get(timeOutSeconds, TimeUnit.SECONDS);
-		} catch (InterruptedException | ExecutionException e) {
-			e.printStackTrace();
-			return AGENT_CRASH;
-		} catch (TimeoutException e) {
-			return TIMEOUT;
+		if (! exitRequested) {
+			agent.kernel = this;
+			CompletableFuture<ReturnCode> activationPromise = new CompletableFuture<>();
+			agent.startAgentLifeCycle(activationPromise);
+			try {
+				return activationPromise.get(timeOutSeconds, TimeUnit.SECONDS);
+			} catch (ExecutionException e) {
+				return AGENT_CRASH;
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				throw new AgentInterruptedException();
+			} catch (TimeoutException e) {
+				return TIMEOUT;
+			} 
 		}
+		return AGENT_CRASH;
 	}
 
 	@Override
@@ -307,13 +321,13 @@ class KernelAgent extends Agent implements DaemonAgent {
 ////			try {// TODO bof...
 ////				if (isDistributed) {
 ////					sendNetworkMessageWithRole(new CGRSynchro(Code.CREATE_GROUP,
-////							getRole(community, group, madkit.agr.DefaultMaDKitRoles.GROUP_MANAGER_ROLE)
+////							getRole(community, group, madkit.agr.SystemRoles.GROUP_MANAGER_ROLE)
 ////									.getAgentAddressOf(creator)),
 ////							netUpdater);
 ////				}
 ////				if (hooks != null) {
 ////					informHooks(AgentActionEvent.CREATE_GROUP,
-////							getRole(community, group, madkit.agr.DefaultMaDKitRoles.GROUP_MANAGER_ROLE)
+////							getRole(community, group, madkit.agr.SystemRoles.GROUP_MANAGER_ROLE)
 ////									.getAgentAddressOf(creator));
 ////				}
 ////			} catch (CGRNotAvailable e) {
@@ -473,7 +487,7 @@ class KernelAgent extends Agent implements DaemonAgent {
 			// if still null : this SHOULD be a candidate's request to the manager or an
 			// error
 			if (senderAA == null) {
-				if (targetedRole.getName().equals(DefaultMaDKitRoles.GROUP_MANAGER_ROLE))
+				if (targetedRole.getName().equals(SystemRoles.GROUP_MANAGER_ROLE))
 					return new CandidateAgentAddress(sender, targetedRole, kernelAddress);
 				throw new CGRNotAvailable(NOT_IN_GROUP);
 			}
@@ -488,8 +502,8 @@ class KernelAgent extends Agent implements DaemonAgent {
 			senderAA = senderRoleObject.getAgentAddressOf(sender);
 		} catch (CGRNotAvailable e) {
 			// candidate's request to the manager or it is an error
-			if (senderRole.equals(DefaultMaDKitRoles.GROUP_CANDIDATE_ROLE)
-					&& targetedRole.getName().equals(DefaultMaDKitRoles.GROUP_MANAGER_ROLE))
+			if (senderRole.equals(SystemRoles.GROUP_CANDIDATE_ROLE)
+					&& targetedRole.getName().equals(SystemRoles.GROUP_MANAGER_ROLE))
 				return new CandidateAgentAddress(sender, targetedRole, kernelAddress);
 		}
 		if (senderAA == null) {// if still null :
@@ -572,10 +586,15 @@ class KernelAgent extends Agent implements DaemonAgent {
 
 	void exit() {
 		getLogger().fine(() -> "***** SHUTINGDOWN MADKIT ********\n");
-		threadedAgents.parallelStream().forEach(a -> killAgent(a, 2));
-		Collection<Agent> c = FxAgentStage.getAgentsWithStage(getKernelAddress());
-		c.forEach(a -> killAgent(a, 1));
 		exitRequested = true;
+		while (!threadedAgents.isEmpty()) {
+			synchronized (threadedAgents) {
+				threadedAgents.parallelStream().forEach(a -> killAgent(a, 1));
+				garbageDeadThreadedAgents();
+			} 
+		}
+		Collection<Agent> c = FXAgentStage.getAgentsWithStage(getKernelAddress());
+		c.forEach(a -> killAgent(a, 1));
 		kernerls.remove(this);
 		if (kernerls.isEmpty())
 			Platform.exit();

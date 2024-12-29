@@ -1,10 +1,4 @@
 /*
- * Copyright or © or Copr. Fabien Michel, Olivier Gutknecht, Jacques Ferber (1997)
-
-fmichel@lirmm.fr
-olg@no-distance.net
-ferber@lirmm.fr
-
 This software is a computer program whose purpose is to 
 provide a lightweight Java library for designing and simulating Multi-Agent Systems (MAS).
 
@@ -36,8 +30,37 @@ knowledge of the CeCILL-C license and that you accept its terms.
  */
 
 /**
- * Contains specialized Scheduler agents
  * 
+ * Contains {@link madkit.kernel.Scheduler} and {@link madkit.kernel.Activator}
+ * subclasses for simulation authoring.
+ * <p>
+ * Contains specialized Scheduler agents such as:
+ * <ul>
+ * <li>{@link madkit.simulation.scheduler.TickBasedScheduler}: A scheduler that
+ * manages agents based on a tick-based simulation scheme.
+ * <li>{@link madkit.simulation.scheduler.DateBasedDiscreteEventScheduler}: A scheduler that
+ * manages agents based on a date-based representation of time. It is especially
+ * useful for discrete-event simulation.
+ * </ul>
+ * <p>
+ * This package also includes various types of activators such as:
+ * </p>
+ * <ul>
+ * <li><code>MethodActivator</code>: Invokes a specific method on a group of
+ * agents.</li>
+ * <li><code>DateBasedDiscreteEventActivator</code>: Activates agents based on
+ * discrete-event simulation schemes.</li>
+ * <li><code>DiscreteEventAgentsActivator</code>: Manages agents using a
+ * priority queue based on their next event date.</li>
+ * </ul>
+ *
+ * These activators are used to control the behavior and scheduling of agents in
+ * a simulation.
+ *
+ * @see madkit.simulation.scheduler.MethodActivator
+ * @see madkit.simulation.scheduler.DateBasedDiscreteEventActivator
+ * @see madkit.simulation.scheduler.DiscreteEventAgentsActivator
+ *
  * @since MaDKit 5.3
  * @author Fabien Michel
  * @version 1.0

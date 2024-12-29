@@ -34,15 +34,16 @@
 package madkit.simulation.scheduler;
 
 import madkit.kernel.Scheduler;
-import madkit.simulation.TickBasedTimer;
 
 /**
- * @author Fabien Michel
+ * A scheduler that uses a {@link TickBasedTimer} to simulate the time.
  * 
- *         since MaDKit 6.0
  */
 public class TickBasedScheduler extends Scheduler<TickBasedTimer> {
 
+	/**
+	 * Adds one time unit to the current time
+	 */
 	@Override
 	public void doSimulationStep() {
 		getSimuTimer().addOneTimeUnit();

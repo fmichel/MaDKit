@@ -41,15 +41,15 @@ public class PerceptionAgent extends Watcher {
 			launchAgent(new EmptyAgent());
 			System.out.println("ici2");
 			if (Math.random() < 0.01) {
-				java.util.List<SAgent> l = agents2probe.getCurrentAgentsList();
+				java.util.List<SAgent> l = agents2probe.getAgents();
 				killAgent(l.get((int) (Math.random() * l.size())));
 			}
 		}
 
 		@SuppressWarnings("unused")
 		public void removing(SAgent a) {
-			for (Agent b : getCurrentAgentsList()) {
-				java.util.List<SAgent> l = agents2probe.getCurrentAgentsList();
+			for (Agent b : getAgents()) {
+				java.util.List<SAgent> l = agents2probe.getAgents();
 				killAgent(l.get((int) (Math.random() * l.size())));
 				if (Math.random() < 0.01) {
 					launchAgent(new EmptyAgent());

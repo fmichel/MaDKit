@@ -20,9 +20,10 @@ java {
 javadoc {
 	failOnError=false
 	options.links("https://docs.oracle.com/en/java/javase/21/docs/api")
-	options.links("https://openjfx.io/javadoc/17")
+	options.links("https://openjfx.io/javadoc/21")
 	options.links("https://controlsfx.github.io/javadoc/11.1.0")
 	options.links("https://commons.apache.org/proper/commons-configuration/apidocs")
+    options.addStringOption('Xdoclint:none', '-quiet')
 }
 
 

@@ -4,7 +4,6 @@ package madkit.kernel;
 import static madkit.i18n.I18nUtilities.getCGRString;
 import static madkit.kernel.Agent.ReturnCode.ACCESS_DENIED;
 import static madkit.kernel.Agent.ReturnCode.NOT_ROLE;
-import static madkit.kernel.Agent.ReturnCode.SUCCESS;
 
 import java.util.List;
 import java.util.Objects;
@@ -54,7 +53,7 @@ public final class Group {
 		logger = Logger.getLogger(getCGRString(community.getName(), group));
 		logger.setParent(community.getLogger());
 		logger.setLevel(null);
-		roles.put(madkit.agr.DefaultMaDKitRoles.GROUP_MANAGER_ROLE, new ManagerRole(this, creator, isSecured));
+		roles.put(madkit.agr.SystemRoles.GROUP_MANAGER_ROLE, new ManagerRole(this, creator, isSecured));
 	}
 
 	/**
@@ -76,6 +75,15 @@ public final class Group {
 	}
 
 	/**
+	 * Returns the agents of this group
+	 * 
+	 * @return the agents of this group
+	 */
+	List<Agent> getAgents() {
+		return roles.values().stream().flatMap(r -> r.getAgents().stream()).toList();
+	}
+
+	/**
 	 * for distant creation.
 	 *
 	 * @param group           the group
@@ -94,7 +102,7 @@ public final class Group {
 		}
 		gatekeeper = null;
 		name = group;
-		roles.put(madkit.agr.DefaultMaDKitRoles.GROUP_MANAGER_ROLE, new ManagerRole(this, manager));
+		roles.put(madkit.agr.SystemRoles.GROUP_MANAGER_ROLE, new ManagerRole(this, manager));
 	}
 
 	/**
@@ -128,10 +136,10 @@ public final class Group {
 //			if (gatekeeper == null) {
 //				final AgentAddress manager = myKernel.getAgentWithRole(
 //						communityName, groupName,
-//						madkit.agr.DefaultMaDKitRoles.GROUP_MANAGER_ROLE);
+//						madkit.agr.SystemRoles.GROUP_MANAGER_ROLE);
 //				final AgentAddress distantAgentWithRole = myKernel
 //						.getDistantAgentWithRole(requester, madkit.agr.LocalCommunity.NAME,
-//								"kernels", madkit.agr.DefaultMaDKitRoles.GROUP_MANAGER_ROLE,
+//								"kernels", madkit.agr.SystemRoles.GROUP_MANAGER_ROLE,
 //								manager.getKernelAddress());
 //				MicroAgent<Boolean> ma;
 //				myKernel.launchAgent(ma = new MicroAgent<Boolean>() {
@@ -208,7 +216,7 @@ public final class Group {
 	}
 
 	boolean leaveGroup(final Agent requester) {
-		if (roles.values().parallelStream().filter(r -> r.removeMember(requester) == SUCCESS).count() > 0) {
+		if (roles.values().parallelStream().filter(r -> r.removeMember(requester) == ReturnCode.SUCCESS).count() > 0) {
 			checkEmptyness();
 			return true;
 		}
@@ -218,7 +226,7 @@ public final class Group {
 	/**
 	 * <code>true</code> if the agent is in this group
 	 *
-	 * @param agent the agent
+	 * @param agent the agent to check
 	 * @return true, if successful
 	 */
 	public boolean contains(Agent agent) {
@@ -243,7 +251,7 @@ public final class Group {
 	/**
 	 * Gets the agent address of an agent in this group.
 	 *
-	 * @param agent the agent
+	 * @param agent the agent to get the address of
 	 * @return the agent address of the agent in this group
 	 */
 	AgentAddress getAgentAddressOf(Agent agent) {
@@ -252,26 +260,22 @@ public final class Group {
 	}
 
 	/**
-	 * Gets the roles.
+	 * Gets the list of the roles in this group.
 	 *
-	 * @return the roles
+	 * @return the roles in this group
 	 */
 	public List<Role> getRoles() {
 		return List.copyOf(roles.values());
 	}
 
 	/**
-	 * Gets the role names.
+	 * Gets the names of the roles in this group.
 	 *
-	 * @return the role names
+	 * @return a list of the names of the roles in this group
 	 */
 	public List<String> getRoleNames() {
 		return List.copyOf(roles.keySet());
 	}
-
-	// boolean empty(){
-	// return super.isEmpty() && manager.get() == null;
-	// }
 
 	/**
 	 * Checks if is distributed.
@@ -371,7 +375,7 @@ public final class Group {
 //							.iterator(); iterator.hasNext();) {
 //						Agent a = iterator.next();
 //						if (a != oldManager) {
-//							put(madkit.agr.DefaultMaDKitRoles.GROUP_MANAGER_ROLE,
+//							put(madkit.agr.SystemRoles.GROUP_MANAGER_ROLE,
 //									new ManagerRole(this, a, false));
 //							return;
 //						}
@@ -384,7 +388,7 @@ public final class Group {
 	/**
 	 * Roles of the agent in this group.
 	 *
-	 * @param a the agent
+	 * @param a the agent to get the roles of
 	 * @return the list of roles of the agent in this group
 	 */
 	public List<Role> rolesOf(Agent a) {
@@ -397,7 +401,7 @@ public final class Group {
 	}
 
 	/**
-	 * Gets the role.
+	 * Gets a role as an object from its name
 	 *
 	 * @param role the name of the role
 	 * @return the role as an object
@@ -420,7 +424,7 @@ public final class Group {
 	}
 
 	/**
-	 * Checks if the group exists.
+	 * Checks if the group actually exists.
 	 *
 	 * @return <code>true</code>, if the group exists
 	 */

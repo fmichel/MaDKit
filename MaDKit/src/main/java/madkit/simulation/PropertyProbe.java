@@ -1,4 +1,4 @@
-package madkit.simulation.probe;
+package madkit.simulation;
 
 import java.lang.reflect.Field;
 import java.util.Comparator;
@@ -8,7 +8,6 @@ import java.util.NoSuchElementException;
 
 import madkit.kernel.Agent;
 import madkit.kernel.Probe;
-import madkit.simulation.SimulationException;
 
 /**
  * This probe inspects a field of type T on a group of agents.
@@ -48,15 +47,14 @@ public class PropertyProbe<T> extends Probe {
 	 * @param agentClass
 	 */
 	private void updateCache(Agent agent) {
-		@SuppressWarnings("unchecked")
-		final Class<?> agentClass = agent.getClass();
+		Class<?> agentClass = agent.getClass();
 		if (agentClass != cachedClass) {
 			cachedClass = agentClass;
 			cachedField = fields.computeIfAbsent(cachedClass, f -> {
 				try {
 					return findFieldOn(agentClass, fieldName);
 				} catch (NoSuchFieldException e) {
-					throw new SimulationException(toString() + " on " + agent, e);
+					throw new SimuException(toString() + " on " + agent, e);
 				}
 			});
 		}
@@ -74,7 +72,7 @@ public class PropertyProbe<T> extends Probe {
 		try {
 			return (T) cachedField.get(agent);
 		} catch (IllegalAccessException e) {
-			throw new SimulationException(toString() + " on " + agent, e);
+			throw new SimuException(toString() + " on " + agent, e);
 		}
 	}
 
@@ -90,7 +88,7 @@ public class PropertyProbe<T> extends Probe {
 		try {
 			cachedField.set(agent, value);// NOSONAR
 		} catch (IllegalArgumentException | IllegalAccessException e) {
-			throw new SimulationException(toString() + " on " + agent, e);
+			throw new SimuException(toString() + " on " + agent, e);
 		}
 	}
 
@@ -110,9 +108,10 @@ public class PropertyProbe<T> extends Probe {
 	 * 
 	 * @param c the {@link Comparator} to use
 	 * @return the maximum value for this property
+	 * @throws NoSuchElementException if the probe is empty
 	 */
-	public T getMax(Comparator<T> c) {
-		return getCurrentAgentsList().stream().map(a -> getPropertyValue(a)).max(c).get();
+	public T getMax(Comparator<T> c) throws NoSuchElementException {
+		return getAgents().stream().map(a -> getPropertyValue(a)).max(c).get();// NOSONAR
 	}
 
 	/**
@@ -131,9 +130,10 @@ public class PropertyProbe<T> extends Probe {
 	 * 
 	 * @param c the {@link Comparator} to use
 	 * @return the maximum value for this property
+	 * @throws NoSuchElementException if the probe is empty
 	 */
-	public T getMin(Comparator<T> c) {
-		return getCurrentAgentsList().stream().map(a -> getPropertyValue(a)).min(c).get();
+	public T getMin(Comparator<T> c) throws NoSuchElementException {
+		return getAgents().stream().map(a -> getPropertyValue(a)).min(c).get();// NOSONAR
 	}
 
 	/**
@@ -144,7 +144,7 @@ public class PropertyProbe<T> extends Probe {
 	 * @return the maximum value for this property
 	 */
 	public double getAverage() {
-		return getCurrentAgentsList().stream().mapToDouble(a -> ((Number) getPropertyValue(a)).doubleValue()).average()
+		return getAgents().stream().mapToDouble(a -> ((Number) getPropertyValue(a)).doubleValue()).average()
 				.getAsDouble();
 	}
 

@@ -18,8 +18,11 @@
  */
 package madkit.marketorg;
 
+import java.util.Random;
 
-public interface MarketOrganization {
+public class MarketOrganization {
+	
+	public static final Random RANDOM = new Random();
 
 	public static final String	COMMUNITY	= "travel";
 

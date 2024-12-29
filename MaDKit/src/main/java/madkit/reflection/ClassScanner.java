@@ -11,7 +11,11 @@ import java.util.Set;
 
 import madkit.kernel.Agent;
 
-public class ClassScanner {
+/**
+ * This class is responsible for scanning the classpath and finding all the
+ * subclasses of a given class.
+ */
+class ClassScanner {
 
 	public static <T> List<Class<? extends T>> findSubclasses(Class<T> superClass)
 			throws IOException, ClassNotFoundException {

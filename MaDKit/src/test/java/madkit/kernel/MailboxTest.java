@@ -295,176 +295,177 @@ public class MailboxTest {
 		assertEquals(replies.get(1).getContent(), "reply2");
 		assertEquals(mb.size(), 0); // Ensure the messages were removed from the mailbox
 	}
-	
+
 	@Test
-	public void givenMailboxWithNoMatchingReplies_WhenWaitAnswersWithOriginAndTimeout_ThenReturnEmptyList() throws InterruptedException {
-	    Mailbox mb = new Mailbox();
-	    Message origin = new Message();
-	    mb.add(new Message());
+	public void givenMailboxWithNoMatchingReplies_WhenWaitAnswersWithOriginAndTimeout_ThenReturnEmptyList()
+			throws InterruptedException {
+		Mailbox mb = new Mailbox();
+		Message origin = new Message();
+		mb.add(new Message());
 
-	    // Wait for replies to the origin message
-	    List<StringMessage> replies = mb.waitAnswers(origin, 2, 5);
+		// Wait for replies to the origin message
+		List<StringMessage> replies = mb.waitAnswers(origin, 2, 5);
 
-	    assertNotNull(replies);
-	    assertTrue(replies.isEmpty());
-	    assertEquals(mb.size(), 1); // Ensure no messages were removed from the mailbox
+		assertNotNull(replies);
+		assertTrue(replies.isEmpty());
+		assertEquals(mb.size(), 1); // Ensure no messages were removed from the mailbox
 	}
 
 	@Test
 	public void givenMailboxWithMessages_WhenWaitNextIsCalled_ThenReturnCorrectMessage() throws InterruptedException {
-	    Mailbox mb = new Mailbox();
-	    mb.add(new StringMessage("first"));
-	    mb.add(new Message());
+		Mailbox mb = new Mailbox();
+		mb.add(new StringMessage("first"));
+		mb.add(new Message());
 
-	    // Wait for the next message
-	    StringMessage message = mb.waitNext();
+		// Wait for the next message
+		StringMessage message = mb.waitNext();
 
-	    assertNotNull(message);
-	    assertEquals(message.getContent(), "first");
-	    assertEquals(mb.size(), 1); // Ensure the message was removed from the mailbox
+		assertNotNull(message);
+		assertEquals(message.getContent(), "first");
+		assertEquals(mb.size(), 1); // Ensure the message was removed from the mailbox
 	}
 
 	@Test
 	public void givenEmptyMailbox_WhenWaitNextIsCalled_ThenBlockUntilMessageIsAdded() throws InterruptedException {
-	    Mailbox mb = new Mailbox();
-	    Thread.ofVirtual().start(() -> {
-	        try {
-	            Thread.sleep(50);
-	        } catch (InterruptedException e) {
-	            e.printStackTrace();
-	        }
-	        mb.add(new StringMessage("delayed"));
-	    });
+		Mailbox mb = new Mailbox();
+		Thread.ofVirtual().start(() -> {
+			try {
+				Thread.sleep(50);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			mb.add(new StringMessage("delayed"));
+		});
 
-	    // Wait for the next message
-	    StringMessage message = mb.waitNext();
+		// Wait for the next message
+		StringMessage message = mb.waitNext();
 
-	    assertNotNull(message);
-	    assertEquals(message.getContent(), "delayed");
-	    assertTrue(mb.isEmpty()); // Ensure the message was removed from the mailbox
+		assertNotNull(message);
+		assertEquals(message.getContent(), "delayed");
+		assertTrue(mb.isEmpty()); // Ensure the message was removed from the mailbox
 	}
 
+	@Test
+	public void givenMailboxWithMessages_WhenWaitNextWithTimeoutIsCalled_ThenReturnCorrectMessage()
+			throws InterruptedException {
+		Mailbox mb = new Mailbox();
+		mb.add(new StringMessage("first"));
+		mb.add(new Message());
 
-@Test
-public void givenMailboxWithMessages_WhenWaitNextWithTimeoutIsCalled_ThenReturnCorrectMessage() throws InterruptedException {
-    Mailbox mb = new Mailbox();
-    mb.add(new StringMessage("first"));
-    mb.add(new Message());
+		// Wait for the next message with timeout
+		StringMessage message = mb.waitNext(5000);
 
-    // Wait for the next message with timeout
-    StringMessage message = mb.waitNext(5000);
+		assertNotNull(message);
+		assertEquals(message.getContent(), "first");
+		assertEquals(mb.size(), 1); // Ensure the message was removed from the mailbox
+	}
 
-    assertNotNull(message);
-    assertEquals(message.getContent(), "first");
-    assertEquals(mb.size(), 1); // Ensure the message was removed from the mailbox
-}
+	@Test
+	public void givenEmptyMailbox_WhenWaitNextWithTimeoutIsCalled_ThenReturnNull() throws InterruptedException {
+		Mailbox mb = new Mailbox();
 
-@Test
-public void givenEmptyMailbox_WhenWaitNextWithTimeoutIsCalled_ThenReturnNull() throws InterruptedException {
-    Mailbox mb = new Mailbox();
+		// Wait for the next message with timeout
+		StringMessage message = mb.waitNext(50);
 
-    // Wait for the next message with timeout
-    StringMessage message = mb.waitNext(50);
+		assertNull(message);
+		assertTrue(mb.isEmpty()); // Ensure no message was added to the mailbox
+	}
 
-    assertNull(message);
-    assertTrue(mb.isEmpty()); // Ensure no message was added to the mailbox
-}
+	@Test
+	public void givenMailboxWithMessages_WhenPurgeWithFilter_ThenReturnCorrectMessage() {
+		Mailbox mb = new Mailbox();
+		mb.add(new Message());
+		mb.add(new StringMessage("first"));
+		mb.add(new StringMessage("second"));
 
-@Test
-public void givenMailboxWithMessages_WhenPurgeWithFilter_ThenReturnCorrectMessage() {
-    Mailbox mb = new Mailbox();
-    mb.add(new Message());
-    mb.add(new StringMessage("first"));
-    mb.add(new StringMessage("second"));
+		// Filter to get the newest StringMessage
+		StringMessage message = mb.purge(StringMessage.class::isInstance);
 
-    // Filter to get the newest StringMessage
-    StringMessage message = mb.purge(StringMessage.class::isInstance);
+		assertNotNull(message);
+		assertEquals(message.getContent(), "second");
+		assertTrue(mb.isEmpty()); // Ensure the mailbox is empty after purge
+	}
 
-    assertNotNull(message);
-    assertEquals(message.getContent(), "second");
-    assertTrue(mb.isEmpty()); // Ensure the mailbox is empty after purge
-}
+	@Test
+	public void givenMailboxWithNoMatchingMessages_WhenPurgeWithFilter_ThenReturnNull() {
+		Mailbox mb = new Mailbox();
+		mb.add(new Message());
+		mb.add(new StringMessage("first"));
 
-@Test
-public void givenMailboxWithNoMatchingMessages_WhenPurgeWithFilter_ThenReturnNull() {
-    Mailbox mb = new Mailbox();
-    mb.add(new Message());
-    mb.add(new StringMessage("first"));
+		// Filter to get a StringMessage with content "second"
+		StringMessage message = mb.purge(m -> m.getContent().equals("second"));
 
-    // Filter to get a StringMessage with content "second"
-    StringMessage message = mb.purge(m -> m.getContent().equals("second"));
+		assertNull(message);
+		assertTrue(mb.isEmpty()); // Ensure the mailbox is empty after purge
+	}
 
-    assertNull(message);
-    assertTrue(mb.isEmpty()); // Ensure the mailbox is empty after purge
-}
+	@Test
+	public void givenMailboxWithMessages_WhenPurgeWithFilterAndNoMatch_ThenReturnNull() {
+		Mailbox mb = new Mailbox();
+		mb.add(new Message());
+		mb.add(new StringMessage("first"));
 
-@Test
-public void givenMailboxWithMessages_WhenPurgeWithFilterAndNoMatch_ThenReturnNull() {
-    Mailbox mb = new Mailbox();
-    mb.add(new Message());
-    mb.add(new StringMessage("first"));
+		// Filter to get a Message instance
+		StringMessage message = mb.purge(m -> m.getContent().equals("second"));
 
-    // Filter to get a Message instance
-    StringMessage message = mb.purge(m -> m.getContent().equals("second"));
+		assertNull(message);
+		assertTrue(mb.isEmpty()); // Ensure the mailbox is empty after purge
+	}
 
-    assertNull(message);
-    assertTrue(mb.isEmpty()); // Ensure the mailbox is empty after purge
-}
+	@Test
+	public void givenMailboxWithMessages_WhenPurgeIsCalled_ThenReturnMostRecentMessage() {
+		Mailbox mb = new Mailbox();
+		mb.add(new Message());
+		mb.add(new StringMessage("first"));
+		mb.add(new StringMessage("second"));
 
-@Test
-public void givenMailboxWithMessages_WhenPurgeIsCalled_ThenReturnMostRecentMessage() {
-    Mailbox mb = new Mailbox();
-    mb.add(new Message());
-    mb.add(new StringMessage("first"));
-    mb.add(new StringMessage("second"));
+		// Purge the mailbox
+		StringMessage message = mb.purge();
 
-    // Purge the mailbox
-    StringMessage message = mb.purge();
+		assertNotNull(message);
+		assertEquals(message.getContent(), "second");
+		assertTrue(mb.isEmpty()); // Ensure the mailbox is empty after purge
+	}
 
-    assertNotNull(message);
-    assertEquals(message.getContent(), "second");
-    assertTrue(mb.isEmpty()); // Ensure the mailbox is empty after purge
-}
+	@Test
+	public void givenEmptyMailbox_WhenPurgeIsCalled_ThenReturnNull() {
+		Mailbox mb = new Mailbox();
 
-@Test
-public void givenEmptyMailbox_WhenPurgeIsCalled_ThenReturnNull() {
-    Mailbox mb = new Mailbox();
+		// Purge the mailbox
+		Message message = mb.purge();
 
-    // Purge the mailbox
-    Message message = mb.purge();
+		assertNull(message);
+		assertTrue(mb.isEmpty()); // Ensure the mailbox is empty
+	}
 
-    assertNull(message);
-    assertTrue(mb.isEmpty()); // Ensure the mailbox is empty
-}
+	@Test
+	public void givenMailboxWithReplies_WhenGetReplyIsCalled_ThenReturnCorrectReply() {
+		Mailbox mb = new Mailbox();
+		Message origin = new Message();
+		Message reply1 = new StringMessage("reply1");
+		reply1.setIDFrom(origin);
+		mb.add(new StringMessage("other"));
+		mb.add(reply1);
+		mb.add(new StringMessage("other"));
 
-@Test
-public void givenMailboxWithReplies_WhenGetReplyIsCalled_ThenReturnCorrectReply() {
-    Mailbox mb = new Mailbox();
-    Message origin = new Message();
-    Message reply1 = new StringMessage("reply1");
-    reply1.setIDFrom(origin);
-    mb.add(new StringMessage("other"));
-    mb.add(reply1);
-    mb.add(new StringMessage("other"));
+		// Get the reply to the origin message
+		StringMessage reply = mb.getReply(origin);
 
-    // Get the reply to the origin message
-    StringMessage reply = mb.getReply(origin);
+		assertNotNull(reply);
+		assertEquals(reply.getContent(), "reply1");
+		assertEquals(mb.size(), 2); // Ensure the reply was removed from the mailbox
+	}
 
-    assertNotNull(reply);
-    assertEquals(reply.getContent(), "reply1");
-    assertEquals(mb.size(), 2); // Ensure the reply was removed from the mailbox
-}
+	@Test
+	public void givenMailboxWithNoMatchingReplies_WhenGetReplyIsCalled_ThenReturnNull() {
+		Mailbox mb = new Mailbox();
+		Message origin = new Message();
+		mb.add(new StringMessage("other"));
 
-@Test
-public void givenMailboxWithNoMatchingReplies_WhenGetReplyIsCalled_ThenReturnNull() {
-    Mailbox mb = new Mailbox();
-    Message origin = new Message();
-    mb.add(new StringMessage("other"));
+		// Get the reply to the origin message
+		StringMessage reply = mb.getReply(origin);
 
-    // Get the reply to the origin message
-    StringMessage reply = mb.getReply(origin);
-
-    assertNull(reply);
-    assertEquals(mb.size(), 1); 
-}
+		assertNull(reply);
+		assertEquals(mb.size(), 1);
+	}
 }

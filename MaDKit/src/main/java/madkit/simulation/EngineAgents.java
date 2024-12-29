@@ -46,24 +46,24 @@ import madkit.simulation.scheduler.TickBasedScheduler;
  * 
  * Annotation to specify the engine agents of a simulation.
  * <p>
- * The annotation can be used on a class that extends {@link SimulationEngine}.
- * The annotation specifies the scheduler, environment, model, and viewers of the
+ * The annotation can be used on a class that extends {@link SimuLauncher}. The
+ * annotation specifies the scheduler, environment, model, and viewers of the
  * simulation. The annotation has the following attributes:
  * <ul>
  * <li>{@code scheduler} (optional): the scheduler class of the simulation. The
  * default value is {@link TickBasedScheduler}.
  * <li>{@code environment} (optional): the environment class of the simulation.
- * The default value is {@link Environment}.
+ * The default value is {@link SimuEnvironment}.
  * <li>{@code model} (optional): the model class of the simulation. The default
- * value is {@link SimulationModel}.
+ * value is {@link SimuModel}.
  * <li>{@code viewers} (optional): the viewer classes of the simulation. The
  * default value is an empty array.
  * </ul>
  * 
  * 
- * @see SimulationEngine
- * @see SimulationModel
- * @see Environment
+ * @see SimuLauncher
+ * @see SimuModel
+ * @see SimuEnvironment
  * @see Scheduler
  * 
  * @since MaDKit 6.0
@@ -85,15 +85,14 @@ public @interface EngineAgents {
 	 * 
 	 * @return the environment class.
 	 */
-	Class<? extends Environment> environment() default Environment.class;
-
+	Class<? extends SimuEnvironment> environment() default SimuEnvironment.class;
 
 	/**
 	 * The model class of the simulation.
 	 * 
 	 * @return the model class.
 	 */
-	Class<? extends SimulationModel> model() default SimulationModel.class;
+	Class<? extends SimuModel> model() default SimuModel.class;
 
 	/**
 	 * The viewers classes of the simulation.

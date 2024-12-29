@@ -18,33 +18,35 @@
  */
 package madkit.bees;
 
-import madkit.simulation.Parameter;
-import madkit.simulation.SliderAnnotation;
+import madkit.gui.SliderProperty;
+import madkit.gui.UIProperty;
 import madkit.simulation.environment.Environment2D;
 
 /**
  * Class representing the size of the environment and some modeling parameters.
  * 
- * @author Fabien Michel
  */
 public class BeeEnvironment extends Environment2D {
 
-	@SliderAnnotation(minValue = 0, maxValue = 20, scrollPrecision = 1)
-	@Parameter(category = "Pollinators", displayName = "queenAcceleration") // slider required
+	@SliderProperty(minValue = 0, maxValue = 20, scrollPrecision = 1)
+	@UIProperty(category = "Bees", displayName = "queenAcceleration") // slider required
 	private double queenAcceleration = 13.0;
 
-	@SliderAnnotation(minValue = 0, maxValue = 20, scrollPrecision = 1)
-	@Parameter(category = "Pollinators", displayName = "beeAcceleration") // slider required
+	@SliderProperty(minValue = 0, maxValue = 20, scrollPrecision = 1)
+	@UIProperty(category = "Bees", displayName = "beeAcceleration") // slider required
 	private double beeAcceleration = 4.0;
 
-	@SliderAnnotation(minValue = 0, maxValue = 20, scrollPrecision = 1)
-	@Parameter(category = "Pollinators", displayName = "queenbeeVelocity") // slider required
+	@SliderProperty(minValue = 0, maxValue = 20, scrollPrecision = 1)
+	@UIProperty(category = "Bees", displayName = "queenbeeVelocity") // slider required
 	private double queenVelocity = 13;
 
-	@SliderAnnotation(minValue = 0, maxValue = 20, scrollPrecision = 1)
-	@Parameter(category = "Pollinators", displayName = "beeVelocity") // slider required
+	@SliderProperty(minValue = 0, maxValue = 20, scrollPrecision = 1)
+	@UIProperty(category = "Bees", displayName = "beeVelocity") // slider required
 	private double beeVelocity = 19;
 
+	/**
+	 *   
+	 */
 	public BeeEnvironment() {
 		super(1600, 1000);
 	}

@@ -9,7 +9,6 @@ import org.testng.annotations.Test;
 import madkit.kernel.JunitMadkit;
 import madkit.kernel.Probe;
 import madkit.kernel.Watcher;
-import madkit.test.agents.CGRAgent;
 
 /**
  * @author Fabien Michel
@@ -20,7 +19,7 @@ import madkit.test.agents.CGRAgent;
 
 public class BasicWatcherTest extends JunitMadkit {
 
-	//TODO implement a default simulation engine setup
+	// TODO implement a default simulation engine setup
 //	@Test
 //	public void addingNullProbe() {
 //		launchTestedAgent(new CGRAgent() {

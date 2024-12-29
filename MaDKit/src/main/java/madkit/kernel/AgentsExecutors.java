@@ -57,9 +57,9 @@ final class AgentsExecutors {
 		threadFactory = new AgentThreadFactory(kernelAddress, false);
 		daemonThreadFactory = new AgentThreadFactory(kernelAddress, true);
 		daemonAgentsThreadPool = new ThreadPoolExecutor(2, Integer.MAX_VALUE, 10L, TimeUnit.SECONDS,
-				new SynchronousQueue<Runnable>(), daemonThreadFactory);
+				new SynchronousQueue<>(), daemonThreadFactory);
 		regularAgentsThreadPool = new ThreadPoolExecutor(2, Integer.MAX_VALUE, 2L, TimeUnit.SECONDS,
-				new SynchronousQueue<Runnable>(), threadFactory);
+				new SynchronousQueue<>(), threadFactory);
 		((ThreadPoolExecutor) regularAgentsThreadPool).allowCoreThreadTimeOut(true);
 	}
 

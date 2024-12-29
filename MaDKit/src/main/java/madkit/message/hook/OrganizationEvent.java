@@ -23,6 +23,10 @@ public class OrganizationEvent extends CGREvent {
 	private static final long serialVersionUID = -7030965928934873405L;
 	private final AgentAddress source;
 
+	/**
+	 * @param agentAction
+	 * @param source
+	 */
 	public OrganizationEvent(AgentActionEvent agentAction, AgentAddress source) {
 		super(agentAction);
 		this.source = source;

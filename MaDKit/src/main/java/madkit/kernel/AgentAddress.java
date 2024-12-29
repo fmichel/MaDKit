@@ -1,7 +1,7 @@
 
 package madkit.kernel;
 
-import madkit.agr.DefaultMaDKitRoles;
+import madkit.agr.SystemRoles;
 
 /**
  * Identifies an agent within the artificial society.
@@ -251,7 +251,7 @@ final class CandidateAgentAddress extends AgentAddress {
 	 */
 	@Override
 	public final String getRole() {
-		return DefaultMaDKitRoles.GROUP_CANDIDATE_ROLE;
+		return SystemRoles.GROUP_CANDIDATE_ROLE;
 	}
 
 }

@@ -42,13 +42,12 @@ import java.util.List;
 import java.util.Objects;
 
 import madkit.i18n.ErrorMessages;
-import madkit.simulation.SimulationException;
+import madkit.simulation.SimuException;
 
 /**
  * @author Fabien Michel
  * @since MaDKit 2.1
  * @version 5.0
- * @param <A> The agent most generic type for this Overlooker
  */
 @SuppressWarnings("unchecked")
 abstract class Overlooker {
@@ -78,8 +77,8 @@ abstract class Overlooker {
 		if (theRole != null)
 			try {
 				onInit();
-			} catch (Throwable e) {
-				throw new SimulationException("initialize problem on " + this, e);
+			} catch (Exception e) {
+				throw new SimuException("initialize problem on " + this, e);
 			}
 	}
 
@@ -129,7 +128,7 @@ abstract class Overlooker {
 	 * is: <code>adding(getCurrentAgentsList());</code>
 	 */
 	void onInit() {
-		adding(getCurrentAgentsList());
+		adding(getAgents());
 	}
 
 	/**
@@ -203,7 +202,7 @@ abstract class Overlooker {
 	 * @return the number of targeted agents
 	 */
 	public int size() {
-		return getCurrentAgentsList().size();
+		return getAgents().size();
 	}
 
 	/**
@@ -213,29 +212,21 @@ abstract class Overlooker {
 	 *         group/role couple (in proper sequence)
 	 * @since MaDKit 3.0
 	 */
-	public <A extends Agent> List<A> getCurrentAgentsList()// TODO log if not already added !
-	{
+	public <A extends Agent> List<A> getAgents() {
 		if (overlookedRole != null) {
-			return (List<A>) overlookedRole.getAgentsList();
+			return (List<A>) overlookedRole.getAgents();
 		}
 		return Collections.emptyList();
 	}
 
 	/**
-	 * Returns a ListIterator over the agents which is shuffled
-	 *
-	 * @return a ListIterator which has been previously shuffled
-	 * @since MaDKit 3.0
+	 * @deprecated use {@link #getAgents()} instead
+	 * 
+	 * @return a list of agents
 	 */
-	public <A extends Agent> List<A> getShuffledList() {
-		try {
-			List<A> l = getCurrentAgentsList();
-			Collections.shuffle(l);
-			return l;
-		} catch (NullPointerException e) {
-			e.printStackTrace();
-		}
-		return Collections.emptyList();
+	@Deprecated(since = "6", forRemoval = true)
+	private <A extends Agent> List<A> getCurrentAgentsList() {
+		return getAgents();
 	}
 
 	/**
@@ -275,7 +266,7 @@ abstract class Overlooker {
 	 */
 	public void killAgents() {
 		allAgentsLeaveRole();
-		getCurrentAgentsList().parallelStream().forEach(a -> a.killAgent(a, 0));
+		getAgents().parallelStream().forEach(a -> a.killAgent(a, 0));
 	}
 
 	/**
@@ -283,7 +274,7 @@ abstract class Overlooker {
 	 */
 	public void allAgentsLeaveRole() {
 		if (overlookedRole != null) {
-			overlookedRole.removeMembers(getCurrentAgentsList());
+			overlookedRole.removeMembers(getAgents());
 		}
 	}
 

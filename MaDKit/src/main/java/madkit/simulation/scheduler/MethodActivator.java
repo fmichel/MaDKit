@@ -1,4 +1,4 @@
-package madkit.simulation.activator;
+package madkit.simulation.scheduler;
 
 import java.lang.invoke.MethodHandle;
 import java.util.Collections;
@@ -6,13 +6,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import madkit.kernel.Scheduler;
 import madkit.kernel.Activator;
 import madkit.kernel.Agent;
 import madkit.kernel.AgentInterruptedException;
+import madkit.kernel.Scheduler;
 import madkit.reflection.MethodHandleFinder;
 import madkit.reflection.ReflectionUtils;
-import madkit.simulation.SimulationException;
+import madkit.simulation.SimuException;
 
 /**
  * An activator that invokes a single method on a group of agents. This class
@@ -44,14 +44,14 @@ public class MethodActivator extends Activator {
 	 * Indicates whether the activation list should be shuffled before execution.
 	 */
 	private boolean shufflingMode;
+	private boolean parallelMode = false;
 
 	/**
 	 * Builds a new GenericBehaviorActivator on the given CGR location of the
-	 * artificial society. Once created, it has to be added by a
-	 * {@link Scheduler} agent using the
-	 * {@link Scheduler#addActivator(Activator)} method. Once added, it
-	 * could be used to trigger the behavior on all the agents which are at this CGR
-	 * location, regardless of their class type as long as they extend
+	 * artificial society. Once created, it has to be added by a {@link Scheduler}
+	 * agent using the {@link Scheduler#addActivator(Activator)} method. Once added,
+	 * it could be used to trigger the behavior on all the agents which are at this
+	 * CGR location, regardless of their class type as long as they extend
 	 * {@link Agent}.
 	 *
 	 * @param group      the group of the agents
@@ -69,13 +69,15 @@ public class MethodActivator extends Activator {
 	}
 
 	/**
-	 * Executes the behavior on the current list of agents.
+	 * Executes the behavior on the agents.
+	 * <p>
+	 * If the
 	 *
 	 * @param args the arguments to pass to the behavior
 	 */
 	@Override
 	public void execute(Object... args) {
-		List<Agent> currentAgentsList = getCurrentAgentsList();
+		List<Agent> currentAgentsList = getAgents();
 		if (isParallelMode()) {
 			executeInParallel(currentAgentsList, args);
 		} else {
@@ -107,11 +109,10 @@ public class MethodActivator extends Activator {
 	 * @param e the exception thrown
 	 */
 	private void handleInbvokeException(Agent a, Throwable e) {
-		Throwable cause = e.getCause();
-		if (cause instanceof AgentInterruptedException aie) {
+		if (e instanceof AgentInterruptedException aie) {
 			throw aie;
 		}
-		throw new SimulationException(toString() + " on " + method + " " + a, cause);
+		throw new SimuException(toString() + " on " + method + " " + a, e);
 	}
 
 	/**
@@ -236,7 +237,7 @@ public class MethodActivator extends Activator {
 				}
 				return MethodHandleFinder.findMethodHandle(c, method, argTypes);
 			} catch (NoSuchMethodException e) {
-				throw new SimulationException(toString(), e);
+				throw new SimuException(toString(), e);
 			}
 		});
 	}
@@ -260,12 +261,33 @@ public class MethodActivator extends Activator {
 	}
 
 	/**
-	 * Sets whether the activation list should be shuffled before execution.
+	 * Sets whether the activation list should be shuffled before execution. The
+	 * shuffling mode is done using the PRNG defined by the Model agent. If the
+	 * parallel mode is enabled, the shuffling mode has no effect.
 	 *
 	 * @param shufflingMode true if the activation list should be shuffled, false
 	 *                      otherwise
 	 */
 	public void setShufflingMode(boolean shufflingMode) {
 		this.shufflingMode = shufflingMode;
+	}
+
+	/**
+	 * Returns whether the activator is in parallel mode.
+	 * 
+	 * @return <code>true</code> if the activator is in parallel mode,
+	 *         <code>false</code> otherwise
+	 */
+	public boolean isParallelMode() {
+		return parallelMode;
+	}
+
+	/**
+	 * Sets the activator in parallel mode.
+	 * 
+	 * @param parallelMode the parallelMode to set
+	 */
+	public void setParallelMode(boolean parallelMode) {
+		this.parallelMode = parallelMode;
 	}
 }

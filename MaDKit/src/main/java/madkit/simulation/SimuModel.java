@@ -1,18 +1,33 @@
 package madkit.simulation;
 
-import static madkit.simulation.DefaultOrganization.MODEL_ROLE;
+import static madkit.simulation.SimuOrganization.MODEL_ROLE;
 
 import java.util.Comparator;
 import java.util.random.RandomGenerator;
 import java.util.random.RandomGeneratorFactory;
 
+import madkit.kernel.Probe;
 import madkit.kernel.Watcher;
 
 /**
- * @author Fabien Michel
- *
+ * This class is an engine agent that is in charge of managing core parts of the
+ * simulation model.
+ * <p>
+ * Essentially, it defines the pseudo random number generator (PRNG) that has to
+ * be used by the simulation agents for ensuring the reproducibility of the
+ * simulation. The PRNG is initialized with a seed that can be set by the user.
+ * The seed is a long integer that can be changed using the
+ * {@link #setPRNGSeed(int)} method.
+ * <p>
+ * Moreover, it is a watcher agent and can thus use {@link Probe} to monitor the
+ * simulation agents. It can also implement the {@link #onSimulationStart()}
+ * method to perform actions when the simulation starts.
+ * <p>
+ * 
+ * @see Watcher
+ * @since MaDKit 6.0
  */
-public class SimulationModel extends Watcher {
+public class SimuModel extends Watcher {
 
 	private RandomGenerator randomGenerator;
 	/**
@@ -20,13 +35,21 @@ public class SimulationModel extends Watcher {
 	 */
 	private long initialSeed = 0xFEDCBA0987654321L;
 
-	public SimulationModel() {
+	/**
+	 * Constructs a simulation model with a default starting seed.
+	 */
+	public SimuModel() {
 		randomGenerator = getBest().create(initialSeed);
 	}
 
+	/**
+	 * This method is called when the agent is activated. It is used to request the
+	 * role {@link SimuOrganization#MODEL_ROLE} in the group
+	 * {@link SimuOrganization#ENGINE_GROUP}.
+	 */
 	@Override
 	protected void onActivation() {
-		getSimuEngine().setModel(this);
+		getLauncher().setModel(this);
 		requestSimuRole(getEngineGroup(), MODEL_ROLE);
 	}
 
@@ -55,7 +78,21 @@ public class SimulationModel extends Watcher {
 	}
 
 	/**
-	 * @return the randomGenerator
+	 * This method is called when the simulation starts. By default, it calls
+	 * {@link #setPRNGSeed(int)} with 0 as parameter. It can be overridden to
+	 * perform specific actions when the simulation starts.
+	 * 
+	 */
+	@Override
+	public void onSimulationStart() {
+		setPRNGSeed(0);
+	}
+
+	/**
+	 * Returns the pseudo random number generator that has to be used by the
+	 * simulation agents.
+	 * 
+	 * @return the pseudo random number generator of the simulation
 	 */
 	@Override
 	public RandomGenerator prng() {
@@ -63,15 +100,13 @@ public class SimulationModel extends Watcher {
 	}
 
 	/**
+	 * Sets the pseudo random number generator that has to be used by the
+	 * simulation.
+	 * 
 	 * @param randomGenerator the randomGenerator to set
 	 */
 	public void setRandomGnerator(RandomGenerator randomGenerator) {
 		this.randomGenerator = randomGenerator;
-	}
-
-	public static void main(String[] args) {
-		SimulationModel name = new SimulationModel();
-		RandomGeneratorFactory<RandomGenerator> best = name.getBest();
 	}
 
 }

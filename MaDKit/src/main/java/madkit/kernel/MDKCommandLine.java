@@ -18,6 +18,7 @@ class MDKCommandLine {
 
 	static final String AGENT_LOG_LEVEL = "agentLogLevel";
 	static final String CREATE_LOG_FILES = "createLogFiles";
+	static final String HEADLESS = "headless";
 
 	//////////////////// OPTIONS
 
@@ -64,13 +65,13 @@ class MDKCommandLine {
 	@Option(names = { "-v", "--viewers" }, arity = "1", description = "specifies the viewer classes in simulation mode")
 	List<String> viewers = Collections.emptyList();
 
-	@Option(names = "--environment", description = "specifies the class that should be used as Environment")
+	@Option(names = "--environment", description = "specifies the class that should be used as SimuEnvironment")
 	private String environment;
 
 	@Option(names = "--model", description = "specifies the class that should be used as Model")
 	private String model;
 
-	@Option(names = { "--headless" }, defaultValue = "false", description = "inhibit UI")
+	@Option(names = SWITCH + HEADLESS, defaultValue = "false", description = "inhibit UI")
 	private boolean headless;
 
 	@Option(names = "--start", description = "Automatically start the simulation")

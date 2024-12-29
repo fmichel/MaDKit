@@ -1,4 +1,4 @@
-package madkit.simulation;
+package madkit.gui;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Parameter {
+public @interface UIProperty {
 
 	/**
 	 * Specifies the category of the parameter.

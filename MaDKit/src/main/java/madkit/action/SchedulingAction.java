@@ -1,9 +1,7 @@
 package madkit.action;
 
 import static java.awt.event.KeyEvent.VK_DOLLAR;
-import static java.awt.event.KeyEvent.VK_LEFT;
 import static java.awt.event.KeyEvent.VK_P;
-import static java.awt.event.KeyEvent.VK_RIGHT;
 import static java.awt.event.KeyEvent.VK_U;
 
 import java.util.ArrayList;

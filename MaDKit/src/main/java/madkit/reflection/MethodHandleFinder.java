@@ -44,16 +44,27 @@ import it.unimi.dsi.fastutil.objects.Reference2ReferenceArrayMap;
 import madkit.kernel.Activator;
 
 /**
+ * 
+ * This class provides a way to find a {@link MethodHandle} from a given
+ * {@link Class} and a method name. It is especially useful when the method
+ * signature is unknown and the method is private or inherited. The
+ * {@link MethodHandle} is cached in order to avoid the cost of the reflection
+ * API.
+ * 
  * @author Fabien Michel
  * 
  * @since MaDKit 6.0
  */
 public class MethodHandleFinder {
 
-	private static Lookup lookup = MethodHandles.lookup();
-	private final static Map<Class<?>, Map<String, MethodHandle>> methodsTableAA = new ConcurrentHashMap<>();
+	private MethodHandleFinder() {
+		throw new IllegalStateException("Utility class");
+	}
 
-	static private Map<String, MethodHandle> getMethodTable(Class<?> type) {
+	private static Lookup lookup = MethodHandles.lookup();
+	private static final Map<Class<?>, Map<String, MethodHandle>> methodsTableAA = new ConcurrentHashMap<>();
+
+	private static Map<String, MethodHandle> getMethodTable(Class<?> type) {
 		return methodsTableAA.computeIfAbsent(type, table -> new Reference2ReferenceArrayMap<String, MethodHandle>());
 	}
 
@@ -72,7 +83,10 @@ public class MethodHandleFinder {
 	 * @param methodName the name of the method
 	 * @param args       a sample of the args which can be passed to the method
 	 * @return the found {@link MethodHandle}
-	 * @throws NoSuchMethodException if a matching method cannot be found
+	 * @throws NoSuchMethodException  if a matching method cannot be found
+	 * @throws IllegalAccessException if the method cannot be accessed, for instance
+	 *                                if targeted the module is not opened to the
+	 *                                MaDKit madkit.base module
 	 */
 	public static MethodHandle findMethodHandleFromArgs(Class<?> agentClass, String methodName, Object... args)
 			throws NoSuchMethodException, IllegalAccessException {
@@ -85,26 +99,39 @@ public class MethodHandleFinder {
 			} else {
 				m = MethodFinder.getMethodOn(agentClass, methodName, args);
 			}
-			m.setAccessible(true);
+			m.setAccessible(true);// NOSONAR
 			methodHandle = lookup.unreflect(m);
 			methodTable.put(methodName, methodHandle);
 		}
 		return methodHandle;
 	}
 
+	/**
+	 * Returns a {@link MethodHandle} according to a <code>methodName</code> and a
+	 * given agentClass. This method should be preferred the exact signature of the
+	 * searched method is known.
+	 * 
+	 * @param agentClass the class from which the search has to be done
+	 * @param methodName the name of the method
+	 * @param paramTypes the types of the arguments of the method as an array of
+	 *                   {@link Class}
+	 * @return the found {@link MethodHandle}
+	 * @throws NoSuchMethodException if a matching method cannot be found
+	 */
 	public static MethodHandle findMethodHandle(Class<?> agentClass, String methodName, Class<?>... paramTypes)
 			throws NoSuchMethodException {
 		MethodHandle methodHandle = getMethodTable(agentClass).computeIfAbsent(methodName, name -> {
 			try {
 				Method m = MethodFinder.getMethodFromTypes(agentClass, name, paramTypes);
-//				MethodHandles.Lookup targetLookup = MethodHandles.privateLookupIn(agentClass, lookup);
-				m.setAccessible(true);
+				m.setAccessible(true);// NOSONAR
 				return lookup.unreflect(m);
 			} catch (NoSuchMethodException | IllegalAccessException e) {
 				e.printStackTrace();
 				return null;
 			}
 		});
+		if (methodHandle == null)
+			throw new NoSuchMethodException("method " + methodName + " not found in " + agentClass);
 		return methodHandle;
 	}
 

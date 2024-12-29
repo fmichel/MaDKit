@@ -3,16 +3,16 @@ package madkit.message.hook;
 
 import madkit.messages.ObjectMessage;
 
+// TODO: Auto-generated Javadoc
 /**
  * This message could be used to request a kernel's hook on agent actions so
  * that the sender will be kept informed when an agent performed particular
  * action.
- * 
+ *
  * @author Fabien Michel
- * @since MaDKit 5.0.0.14
  * @version 0.91
  * @see AgentActionEvent
- * 
+ * @since MaDKit 5.0.0.14
  */
 public class HookMessage extends ObjectMessage<HookMessage.AgentActionEvent> {
 
@@ -58,7 +58,23 @@ public class HookMessage extends ObjectMessage<HookMessage.AgentActionEvent> {
 	 *
 	 */
 	public enum AgentActionEvent {
-		CREATE_GROUP, REQUEST_ROLE, LEAVE_GROUP, LEAVE_ROLE, SEND_MESSAGE, BROADCAST_MESSAGE, AGENT_STARTED,
+
+		/** The create group. */
+		CREATE_GROUP,
+		/** The request role. */
+		REQUEST_ROLE,
+		/** The leave group. */
+		LEAVE_GROUP,
+		/** The leave role. */
+		LEAVE_ROLE,
+		/** The send message. */
+		SEND_MESSAGE,
+		/** The broadcast message. */
+		BROADCAST_MESSAGE,
+		/** The agent started. */
+		AGENT_STARTED,
+
+		/** The agent terminated. */
 		AGENT_TERMINATED
 	}
 }

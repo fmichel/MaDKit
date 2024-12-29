@@ -14,7 +14,7 @@ import madkit.messages.ObjectMessage;
  * @since MaDKit 5.0
  *
  */
-public class CGRSynchro extends ObjectMessage<AgentAddress> {
+class CGRSynchro extends ObjectMessage<AgentAddress> {
 
 	private static final long serialVersionUID = 1125125814563126121L;
 

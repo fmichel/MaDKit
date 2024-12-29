@@ -18,7 +18,6 @@
  */
 package madkit.bees;
 
-
 import java.awt.Point;
 
 import madkit.kernel.Message;
@@ -32,60 +31,62 @@ import madkit.messages.ObjectMessage;
  */
 public class QueenBee extends AbstractBee {
 
-	private static final long serialVersionUID = -6999130646300839798L;
 	static int border = 20;
-
-	@Override
-	protected void buzz() {
-		Message m = nextMessage();
-		if (m != null) {
-			reply(new ObjectMessage<BeeInformation>(myInformation), m);
-		}
-
-		super.buzz();
-
-		if (getEnvironment() != null) {
-			// check to see if the queen hits the edge
-			final Point location = myInformation.getCurrentPosition();
-			if (location.x < border || location.x > (getEnvironment().getWidth() - border)) {
-				xVelocity = -xVelocity;
-				location.x += (xVelocity);
-			}
-			if (location.y < border || location.y > (getEnvironment().getHeight() - border)) {
-				yVelocity = -yVelocity;
-				location.y += (yVelocity);
-			}
-		}
-	}
 
 	@Override
 	protected void onActivation() {
 		super.onActivation();
-		requestRole(getCommunity(), getModelGroup(), AbstractBee.QUEEN_ROLE, null);
-		requestRole(getCommunity(), getModelGroup(), AbstractBee.BEE_ROLE, null);
-		broadcast(new ObjectMessage<>(myInformation), getAgentsWithRole(getCommunity(), getModelGroup(), AbstractBee.FOLLOWER_ROLE));
+		requestRole(getCommunity(), getModelGroup(), QUEEN_ROLE, null);
+		requestRole(getCommunity(), getModelGroup(), BEE_ROLE, null);
+		notifyFollowers();
+	}
+
+	/**
+	 * The "do it" method called by the activator
+	 */
+	@Override
+	protected void buzz() {
+		Message m = nextMessage();
+		if (m != null) {
+			reply(new ObjectMessage<BeeData>(getData()), m);
+		}
+
+		super.buzz();
+
+		// check to see if the queen hits the edge
+		Point location = getData().getCurrentPosition();
+		if (location.x < border || location.x > (getEnvironment().getWidth() - border)) {
+			xVelocity = -xVelocity;
+			location.x += (xVelocity);
+		}
+		if (location.y < border || location.y > (getEnvironment().getHeight() - border)) {
+			yVelocity = -yVelocity;
+			location.y += (yVelocity);
+		}
 	}
 
 	@Override
 	protected void onEnd() {
-		broadcast(new ObjectMessage<>(myInformation), getAgentsWithRole(getCommunity(), getModelGroup(), AbstractBee.FOLLOWER_ROLE));
+		notifyFollowers();
+	}
+
+	/**
+	 * 
+	 */
+	private void notifyFollowers() {
+		broadcast(new ObjectMessage<>(getData()), getAgentsWithRole(getCommunity(), getModelGroup(), FOLLOWER_ROLE));
 	}
 
 	@Override
 	protected int getMaxVelocity() {
-		if (getEnvironment() != null) {
 			return (int) getEnvironment().getQueenVelocity();
-		}
-		return 0;
 	}
 
 	@Override
 	protected void computeNewVelocities() {
-		if (getEnvironment() != null) {
-			int acc = (int) getEnvironment().getQueenAcceleration();
-			xVelocity += randomFromRange(acc);
-			yVelocity += randomFromRange(acc);
-		}
+		int acc = (int) getEnvironment().getQueenAcceleration();
+		xVelocity += randomFromRange(acc);
+		yVelocity += randomFromRange(acc);
 	}
 
 }

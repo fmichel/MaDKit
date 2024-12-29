@@ -3,27 +3,17 @@
  */
 package madkit.simulation.viewer;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
-import org.controlsfx.control.PropertySheet;
-import org.controlsfx.control.PropertySheet.Item;
-
-import javafx.application.Platform;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
-import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.chart.XYChart.Data;
 import madkit.gui.FXManager;
 import madkit.kernel.Probe;
 
 /**
- * A Viewer that displays the population of roles in the artificial organization 
+ * A Viewer that displays the population of roles in the artificial organization
  */
 public class RolesPopulationLineChartDrawer extends LineChartDrawer {
 
@@ -36,12 +26,11 @@ public class RolesPopulationLineChartDrawer extends LineChartDrawer {
 			serie.add(new XYChart.Data<>(getSimuTimer().toString(), entry.getKey().size()));
 		}
 	}
-	
+
 	@Override
 	protected void onActivation() {
 		super.onActivation();
 		series = new HashMap<>();
-		addRoleToMonitoring(getModelGroup(), "bee");
 	}
 
 	@Override
@@ -58,9 +47,9 @@ public class RolesPopulationLineChartDrawer extends LineChartDrawer {
 	protected String getxAxisLabel() {
 		return "Time";
 	}
-	
+
 	@Override
-	protected void display() {
+	public void display() {
 		for (Map.Entry<Probe, XYChart.Series<String, Number>> entry : series.entrySet()) {
 			ObservableList<Data<String, Number>> serie = entry.getValue().getData();
 			serie.add(new XYChart.Data<>(getSimuTimer().toString(), entry.getKey().size()));
@@ -68,6 +57,12 @@ public class RolesPopulationLineChartDrawer extends LineChartDrawer {
 		super.display();
 	}
 
+	/**
+	 * Adds a role to the monitoring
+	 * 
+	 * @param group the group to monitor
+	 * @param role  the role to monitor
+	 */
 	protected void addRoleToMonitoring(String group, String role) {
 		Probe probe = new Probe(getCommunity(), group, role);
 		addProbe(probe);

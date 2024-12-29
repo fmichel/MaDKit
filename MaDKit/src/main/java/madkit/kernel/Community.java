@@ -15,7 +15,7 @@ import java.util.logging.Logger;
  * 
  * @see madkit.kernel.Group
  * @since 1.0
- * @version 1.0
+ * @version 6.0
  * 
  * @author Fabien Michel
  */

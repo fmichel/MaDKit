@@ -5,13 +5,11 @@ import org.testng.annotations.Test;
 
 import madkit.kernel.Agent.ReturnCode;
 import madkit.kernel.JunitMadkit;
-import madkit.simulation.activator.MethodActivator;
+import madkit.simulation.scheduler.MethodActivator;
 import madkit.simulation.scheduler.TickBasedScheduler;
 import madkit.test.agents.CGRAgent;
 
 /**
- * <code>null</code> in the constructor is covered by
- * {@link BasicSchedulerTest#addingNullActivator()}
  * 
  * @author Fabien Michel
  * @since MaDKit 5.0.0.15
@@ -34,7 +32,7 @@ public class GenericBehaviorActivatorTest extends JunitMadkit {
 				try {
 					buggy.execute();
 					noExceptionFailure();
-				} catch (SimulationException e) {
+				} catch (SimuException e) {
 					throw e;
 				}
 			}
@@ -52,7 +50,7 @@ public class GenericBehaviorActivatorTest extends JunitMadkit {
 				try {
 					buggy.execute();
 					noExceptionFailure();
-				} catch (SimulationException e) {
+				} catch (SimuException e) {
 					throw e;
 				}
 			}

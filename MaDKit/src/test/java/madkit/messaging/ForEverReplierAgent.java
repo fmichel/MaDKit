@@ -16,6 +16,7 @@ public class ForEverReplierAgent extends ThreadedTestAgent implements ActivateCG
 	private Class<? extends Message> msgType;
 
 	/**
+	 * @param msgType the class of the message to reply to
 	 * 
 	 */
 	public ForEverReplierAgent(Class<? extends Message> msgType) {

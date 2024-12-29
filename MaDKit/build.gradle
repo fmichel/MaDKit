@@ -9,8 +9,8 @@ plugins {
    	id 'org.gradlex.java-module-testing'
 }
 
-group = 'io.github.fmichel'
 ext.moduleName = 'madkit.base'
+group = 'io.github.fmichel'
 
 application {
     mainClass = 'madkit.kernel.Madkit'
@@ -21,9 +21,16 @@ tasks.withType(JavaExec) {
     jvmArgs '--add-modules', 'ALL-MODULE-PATH'
 }
 
+javafx {
+	version = '21.0.5'
+	modules = ['javafx.base', 'javafx.controls', 'javafx.graphics']
+    configuration = 'implementation'
+}
+
 javaModuleTesting.whitebox(testing.suites.getByName("test")){
 	requires.add("org.testng")
 	opensTo.add("org.testng")
+	requires.add("org.assertj.core")
 }
 
 jacocoTestReport {
@@ -41,12 +48,6 @@ sonar {
   }
 }
 
-javafx {
-	version = '21.0.4'
-	modules = ['javafx.base', 'javafx.controls', 'javafx.graphics']
-    configuration = 'implementation'
-}
-
 dependencies {
     api libs.controlsfx
     api libs.commonsConfiguration2
@@ -61,12 +62,10 @@ dependencies {
     testImplementation libs.slf4j
     testImplementation libs.assertJ
 }
-//api files('libs/controlsfx-11.1.1-SNAPSHOT.jar')
-//	annotationProcessor 'info.picocli:picocli-codegen:4.7.6'
 
 jar {
     manifest {
-    	attributes 'Main-Class': 'madkit.kernel.Madkit'
+    	attributes("Main-Class": "madkit.kernel.Madkit")
 	}
 }
 
@@ -116,7 +115,6 @@ publishing {
             }
         }
     }
-    
 }
 
 signing {
@@ -124,10 +122,15 @@ signing {
   sign publishing.publications
 }
 
-////////////////////////////////////////// FOR TESTING
 tasks.named('test') {
     useTestNG()
     maxParallelForks = "9"
-    minHeapSize = "1024m"
+    minHeapSize = "2048m"
     maxHeapSize = "4096m"
+
+    testLogging {
+        events "passed", "skipped", "failed"
+        exceptionFormat "full"
+        showStandardStreams = true
+    }
 }

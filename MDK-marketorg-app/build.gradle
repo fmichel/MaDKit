@@ -7,12 +7,12 @@ plugins {
 ext.moduleName = 'madkit.marketorg'
 
 application {
-    mainClass = 'madkit.marrketorg.Client'
+    mainClass = 'madkit.marketorg.Client'
     mainModule = 'madkit.marketorg'
 }
 
 javafx {
-	version = '17'
+	version = '21'
 	modules = ['javafx.base', 'javafx.controls', 'javafx.graphics']
 }
 
@@ -23,5 +23,5 @@ tasks.withType(JavaExec) {
 
 
 dependencies {
-	api project(':madkit')
+	api project(':MaDKit')
 }

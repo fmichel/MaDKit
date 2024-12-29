@@ -37,8 +37,9 @@ import java.lang.reflect.Method;
 import java.util.logging.Level;
 
 import madkit.reflection.MethodFinder;
-import madkit.simulation.SimulationTimer;
-import madkit.simulation.activator.MethodActivator;
+import madkit.simulation.SimuException;
+import madkit.simulation.scheduler.MethodActivator;
+import madkit.simulation.scheduler.SimuTimer;
 
 /**
  * This class defines a tool for scheduling mechanism. An activator is
@@ -59,8 +60,6 @@ public abstract class Activator extends Overlooker implements Comparable<Activat
 	private int priority = 0;
 
 	private Scheduler<?> scheduler;
-	
-	private boolean parallelMode = false;
 
 	/**
 	 * Builds a new Activator on the given CGR location of the artificial society.
@@ -79,9 +78,9 @@ public abstract class Activator extends Overlooker implements Comparable<Activat
 	 * Builds a new Activator on the given CGR location of the artificial society,
 	 * without specifying the community. This constructor is used to simplify
 	 * declaration when used with the default implementation of a simulation engine
-	 * provided in the madkit.simulation package. with multicore mode set to
-	 * <code>false</code>. This has the same effect as
-	 * <code>Activator(community, group, role, false)</code>.
+	 * provided in the madkit.simulation package. Once created, it has to be added
+	 * by a {@link Scheduler} agent using the
+	 * {@link Scheduler#addActivator(Activator)}.
 	 *
 	 * @param group the name of the group within the community
 	 * @param role  the role assigned to the Activator within the group
@@ -100,9 +99,30 @@ public abstract class Activator extends Overlooker implements Comparable<Activat
 	}
 
 	/**
+	 * Two activators are equals if they have the same community, group, role and
+	 * priority.
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof Activator a) {
+			return a.getCommunity().equals(getCommunity()) && a.getGroup().equals(getGroup())
+					&& a.getRole().equals(getRole()) && a.getPriority() == getPriority();
+		}
+		return false;
+	}
+
+	/**
+	 * The hash code of an activator is based on its community, group and role.
+	 */
+	@Override
+	public int hashCode() {
+		return (getCommunity() + getGroup() + getRole()).hashCode();
+	}
+
+	/**
 	 * The priority of this activator when conflicting with another Activator. A
 	 * lesser priority means that the activator will be triggered first. Default
-	 * priority is 0. 
+	 * priority is 0.
 	 *
 	 * By default, when two activators have the same priority, the order of
 	 * activation is not guaranteed.
@@ -115,6 +135,7 @@ public abstract class Activator extends Overlooker implements Comparable<Activat
 
 	/**
 	 * Gets the scheduler that manages this activator.
+	 * 
 	 * @return the scheduler that manages this activator.
 	 */
 	@SuppressWarnings("unchecked")
@@ -134,8 +155,8 @@ public abstract class Activator extends Overlooker implements Comparable<Activat
 
 	/**
 	 * Trigger the execution of this activator. For instance, subclasses can use the
-	 * {@link #getCurrentAgentsList()} to make all the agents do something. This
-	 * method should be called by the scheduler.
+	 * {@link #getAgents()} to make all the agents do something. This method should
+	 * be called by the scheduler.
 	 * 
 	 * @param args arguments that could be passed by the scheduler
 	 * @see Scheduler#doSimulationStep()
@@ -154,9 +175,9 @@ public abstract class Activator extends Overlooker implements Comparable<Activat
 		try {
 			Method m = MethodFinder.getMethodOn(agent.getClass(), behaviorName, args);
 			m.invoke(agent, args);
-		} catch (Throwable e) {
+		} catch (Exception e) {
 			agent.getLogger().log(Level.SEVERE, e, () -> "Cannot execute behavior " + behaviorName);
-			throw new RuntimeException(e);
+			throw new SimuException("Cannot execute behavior " + behaviorName, e);
 		}
 	}
 
@@ -166,34 +187,21 @@ public abstract class Activator extends Overlooker implements Comparable<Activat
 	}
 
 	/**
-	 * Get the {@link SimulationTimer} associated with the simulation
+	 * Get the {@link SimuTimer} associated with the simulation
 	 *
 	 * @return the simulationTime associated with the simulation
 	 */
-	public SimulationTimer<?> getSimuTimer() {
+	public SimuTimer<?> getSimuTimer() {
 		return getScheduler().getSimuTimer();
 	}
 
 	/**
 	 * Set the scheduler that manages this activator.
+	 * 
 	 * @param scheduler the scheduler to set
 	 */
 	void setScheduler(Scheduler<?> scheduler) {
 		this.scheduler = scheduler;
-	}
-
-	/**
-	 * @return the parallelMode
-	 */
-	public boolean isParallelMode() {
-		return parallelMode;
-	}
-
-	/**
-	 * @param parallelMode the parallelMode to set
-	 */
-	public void setParallelMode(boolean parallelMode) {
-		this.parallelMode = parallelMode;
 	}
 
 }

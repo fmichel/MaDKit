@@ -8,14 +8,14 @@ import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import madkit.gui.FXManager;
+import madkit.simulation.SimuOrganization;
 import madkit.simulation.Viewer;
-import madkit.simulation.DefaultViewerGUI;
 
 /**
  * A Viewer agent specialized in line chart drawing.
  * 
  * <p>
- * The GUI associated with this agent is a {@link DefaultViewerGUI} that
+ * The GUI associated with this agent is a {@link ViewerDefaultGUI} that
  * displays a JavaFX stage with a {@link LineChart} as the central node. The
  * chart is initialized with a {@link CategoryAxis} for the x-axis and a
  * {@link NumberAxis} for the y-axis. The axes labels and the chart title are
@@ -29,8 +29,8 @@ public abstract class LineChartDrawer extends Viewer {
 
 	/**
 	 * This method is called when the agent is activated. By default, it requests
-	 * the role {@link DefaultOrganization#VIEWER_ROLE} in the group
-	 * {@link DefaultOrganization#ENGINE_GROUP.
+	 * the role {@link SimuOrganization#VIEWER_ROLE} in the group
+	 * {@link SimuOrganization#ENGINE_GROUP}.
 	 * 
 	 * 
 	 * <p>
@@ -39,9 +39,9 @@ public abstract class LineChartDrawer extends Viewer {
 	@Override
 	protected void onActivation() {
 		super.onActivation();
-		setGUI(new DefaultViewerGUI(this) {
+		setGUI(new ViewerDefaultGUI(this) {
 			@Override
-			protected Node createCentralNode() {
+			protected Node createCenterNode() {
 				CategoryAxis xAxis = new CategoryAxis();
 				NumberAxis yAxis = new NumberAxis();
 				xAxis.setLabel(getxAxisLabel());
@@ -55,7 +55,6 @@ public abstract class LineChartDrawer extends Viewer {
 				return lineChart;
 			}
 		});
-		pause(5000);
 		FXManager.runAndWait(() -> {
 			getGUI().getStage().show();
 			getGUI().getStage().setWidth(800);

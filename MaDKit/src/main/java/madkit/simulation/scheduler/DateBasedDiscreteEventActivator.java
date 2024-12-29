@@ -1,11 +1,10 @@
 
-package madkit.simulation.activator;
+package madkit.simulation.scheduler;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 
 import madkit.kernel.Activator;
-import madkit.simulation.scheduler.DateBasedDiscreteEventScheduler;
 
 /**
  * A behavior activator that is designed to work with a

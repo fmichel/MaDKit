@@ -1,12 +1,11 @@
 package madkit.kernel;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
-import madkit.agr.DefaultMaDKitRoles;
+import madkit.agr.SystemRoles;
 import madkit.kernel.Agent.ReturnCode;
-import madkit.simulation.activator.DateBasedDiscreteEventActivator;
-import madkit.simulation.activator.DiscreteEventAgentsActivator;
+import madkit.simulation.scheduler.DateBasedDiscreteEventActivator;
+import madkit.simulation.scheduler.DiscreteEventAgentsActivator;
 
 /**
  * 
@@ -90,15 +89,13 @@ public interface TestHelpAgent {
 	}
 
 	/**
-	 * @return
+	 * @return a new message
 	 */
 	public default <M extends Message> Message createNewMessage() {
 		return new Message();
 	}
 
 	//////////////////////////////////// AgentInterface
-	boolean isAlive();
-
 	/**
 	 * Gets the agent's name. Default is "<i>class name + internal ID</i>". This
 	 * name is used in logger info, GUI title and so on. This method could be
@@ -118,18 +115,7 @@ public interface TestHelpAgent {
 	 * @param community the community within which the group will be created. If
 	 *                  this community does not exist it will be created.
 	 * @param group     the name of the new group
-	 * @return
-	 *         <ul>
-	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the group has been
-	 *         successfully created.</li>
-	 *         <li><code>{@link ReturnCode#ALREADY_GROUP}</code>: If the operation
-	 *         failed because such a group already exists.</li>
-	 *         <li><code>
-	 *         {@link ReturnCode#IGNORED}</code>: If this method is used in activate
-	 *         and this agent has been launched using
-	 *         {@link Agent#launchAgentBucket(List, String...)} with non
-	 *         <code>null</code> roles</li>
-	 *         </ul>
+	 * @return code
 	 * @see Agent#createGroup(String, String, boolean, Gatekeeper)
 	 * @since MaDKit 5.0
 	 */
@@ -149,12 +135,8 @@ public interface TestHelpAgent {
 	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the group has been
 	 *         successfully created.</li>
 	 *         <li><code>{@link ReturnCode#ALREADY_GROUP}</code>: If the operation
-	 *         failed because such a group already exists.</li>
-	 *         <li><code>
-	 *         {@link ReturnCode#IGNORED}</code>: If this method is used in activate
-	 *         and this agent has been launched using
-	 *         {@link Agent#launchAgentBucket(List, String...)} with non
-	 *         <code>null</code> roles</li>
+	 *         failed because such a group already exists.</li> <code>null</code>
+	 *         roles</li>
 	 *         </ul>
 	 * @see Agent#createGroup(String, String, boolean, Gatekeeper)
 	 * @since MaDKit 5.0
@@ -167,16 +149,16 @@ public interface TestHelpAgent {
 	 * Creates a new Group within a community.
 	 * <p>
 	 * If this operation succeed, the agent will automatically handle the role
-	 * defined by {@link DefaultMaDKitRoles#GROUP_MANAGER_ROLE}, which value is <i>
-	 * {@value madkit.agr.DefaultMaDKitRoles#GROUP_MANAGER_ROLE}</i>, in this
-	 * created group. Especially, if the agent leaves the role of <i>
-	 * {@value madkit.agr.DefaultMaDKitRoles#GROUP_MANAGER_ROLE}</i>, it will also
+	 * defined by {@link SystemRoles#GROUP_MANAGER_ROLE}, which value is <i>
+	 * {@value madkit.agr.SystemRoles#GROUP_MANAGER_ROLE}</i>, in this created
+	 * group. Especially, if the agent leaves the role of <i>
+	 * {@value madkit.agr.SystemRoles#GROUP_MANAGER_ROLE}</i>, it will also
 	 * automatically leave the group and thus all the roles it has in this group.
 	 * <p>
 	 * Agents that want to enter the group may send messages to the <i>
-	 * {@value madkit.agr.DefaultMaDKitRoles#GROUP_MANAGER_ROLE}</i> using the role
-	 * defined by {@link DefaultMaDKitRoles#GROUP_CANDIDATE_ROLE}, which value is
-	 * <i> {@value madkit.agr.DefaultMaDKitRoles#GROUP_CANDIDATE_ROLE}</i>.
+	 * {@value madkit.agr.SystemRoles#GROUP_MANAGER_ROLE}</i> using the role defined
+	 * by {@link SystemRoles#GROUP_CANDIDATE_ROLE}, which value is <i>
+	 * {@value madkit.agr.SystemRoles#GROUP_CANDIDATE_ROLE}</i>.
 	 *
 	 * @param community     the community within which the group will be created. If
 	 *                      this community does not exist it will be created.
@@ -194,11 +176,6 @@ public interface TestHelpAgent {
 	 *         successfully created.</li>
 	 *         <li><code>
 	 *         {@link ReturnCode#ALREADY_GROUP}</code>: If the operation failed
-	 *         because such a group already exists.</li>
-	 *         <li><code>{@link ReturnCode#IGNORED}</code>: If the agent has been
-	 *         launched using a <code>launchAgentBucket</code> method such as
-	 *         {@link Agent#launchAgentBucket(List, String...)} with non
-	 *         <code>null</code> roles. This for optimization purposes.</li>
 	 *         </ul>
 	 * @see Gatekeeper
 	 * @see ReturnCode
@@ -215,6 +192,7 @@ public interface TestHelpAgent {
 	 * @param community the group's community.
 	 * @param group     the targeted group.
 	 * @param role      the desired role.
+	 * @return code
 	 * @see #requestRole(String, String, String, Object)
 	 * @since MaDKit 5.0
 	 */
@@ -268,8 +246,9 @@ public interface TestHelpAgent {
 	 * Sends a message, using an agent address, specifying explicitly the role used
 	 * to send it.
 	 * 
-	 * @param message  the message to send
-	 * @param receiver the targeted agent
+	 * @param message    the message to send
+	 * @param receiver   the targeted agent
+	 * @param senderRole the agent's role with which the message has to be sent
 	 *
 	 * @return
 	 *         <ul>
@@ -382,6 +361,8 @@ public interface TestHelpAgent {
 	/**
 	 * Checks if this agent address is still valid. I.e. the corresponding agent is
 	 * still playing this role.
+	 * 
+	 * @param agentAddress the agent address
 	 *
 	 * @return <code>true</code> if the address still exists in the organization.
 	 * @since MaDKit 5.0.4
@@ -467,7 +448,7 @@ public interface TestHelpAgent {
 	KernelAddress getKernelAddress();
 
 	/**
-	 * @return
+	 * @return the next message in the agent's mailbox
 	 */
 	<M extends Message> M nextMessage();
 

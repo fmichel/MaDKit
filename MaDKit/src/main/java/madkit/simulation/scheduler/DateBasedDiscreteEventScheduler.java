@@ -3,15 +3,22 @@ package madkit.simulation.scheduler;
 import java.time.LocalDateTime;
 import java.util.PriorityQueue;
 
-import madkit.kernel.Scheduler;
 import madkit.kernel.Activator;
-import madkit.simulation.DateBasedTimer;
-import madkit.simulation.activator.DateBasedDiscreteEventActivator;
+import madkit.kernel.Scheduler;
 
+/**
+ * This class defines a scheduler for discrete event simulation. It is based on
+ * the {@link DateBasedTimer} class which is used to manage the simulation time.
+ * The scheduler uses a priority queue to manage the activation list of the
+ * activators.
+ */
 public class DateBasedDiscreteEventScheduler extends Scheduler<DateBasedTimer> {
 
 	private PriorityQueue<DateBasedDiscreteEventActivator> activatorActivationList = new PriorityQueue<>();
 
+	/**
+	 * Constructs a new scheduler with a {@link DateBasedTimer} as simulation time.
+	 */
 	public DateBasedDiscreteEventScheduler() {
 		setSimulationTime(new DateBasedTimer());
 	}
@@ -24,10 +31,18 @@ public class DateBasedDiscreteEventScheduler extends Scheduler<DateBasedTimer> {
 		getActivationList().add(nextActivator);
 	}
 
+	/**
+	 * Returns the current simulation time.
+	 * 
+	 * @return the current simulation time
+	 */
 	public LocalDateTime getCurrentTime() {
 		return getSimuTimer().getCurrentTime();
 	}
 
+	/**
+	 * Logs the activation list.
+	 */
 	public void logActivationList() {
 		getLogger().fine(() -> {
 			StringBuilder s = new StringBuilder("\nActivation list ->\n");
@@ -41,8 +56,8 @@ public class DateBasedDiscreteEventScheduler extends Scheduler<DateBasedTimer> {
 	@Override
 	public void addActivator(Activator activator) {
 		super.addActivator(activator);
-		if (activator instanceof DateBasedDiscreteEventActivator && !getActivationList().contains(activator)) {
-			getActivationList().add((DateBasedDiscreteEventActivator) activator);
+		if (activator instanceof DateBasedDiscreteEventActivator dbdea && !getActivationList().contains(activator)) {
+			getActivationList().add(dbdea);
 		}
 	}
 
@@ -64,12 +79,11 @@ public class DateBasedDiscreteEventScheduler extends Scheduler<DateBasedTimer> {
 		getActivationList().remove(activator);
 	}
 
-//	@Override
-//	public void logActivationStep() {
-//		super.logActivationStep();
-//		getLogger().finest(() -> "Activation list -> " + getActivationList());
-//	}
-
+	/**
+	 * Returns the activation list.
+	 * 
+	 * @return the activation list
+	 */
 	public PriorityQueue<DateBasedDiscreteEventActivator> getActivationList() {
 		return activatorActivationList;
 	}

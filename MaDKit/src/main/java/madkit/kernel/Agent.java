@@ -21,7 +21,7 @@ import java.util.logging.Level;
 import it.unimi.dsi.fastutil.objects.Reference2BooleanArrayMap;
 import it.unimi.dsi.fastutil.objects.Reference2BooleanMap;
 import javafx.scene.Scene;
-import madkit.agr.DefaultMaDKitRoles;
+import madkit.agr.SystemRoles;
 import madkit.gui.FXManager;
 import madkit.gui.FXOutputPane;
 import madkit.messages.ConversationFilter;
@@ -31,7 +31,7 @@ import madkit.reflection.MethodHandleFinder;
 import madkit.reflection.ReflectionUtils;
 
 /**
- * The super class of all MaDKit agents, v 5. It provides support for
+ * The super class of all MaDKit agents. It provides support for
  * <ul>
  * <li>Agent's Life cycle, logging, and naming.
  * <li>Agent launching and killing.
@@ -90,9 +90,9 @@ public abstract class Agent {
 	 * Constructs a new Agent instance.
 	 * <p>
 	 * The agent's hashCode is set when the agent is created. This hashCode is
-	 * unique for each agent instance and is used to uniquely identify the agent within the
-	 * artificial society.
-	 * <p> 
+	 * unique for each agent instance and is used to uniquely identify the agent
+	 * within the artificial society.
+	 * <p>
 	 * It is important to note that the agent is not yet alive at this point.
 	 */
 	protected Agent() {
@@ -100,22 +100,28 @@ public abstract class Agent {
 	}
 
 	/**
-	 * First method called when the agent is launched. This method should be overridden to define
-	 * custom activation behavior.
+	 * First method called when the agent is launched. This method should be
+	 * overridden to define custom activation behavior.
 	 */
 	protected void onActivation() {
 	}
 
 	/**
-	 * Called when the agent is alive. This method can be overridden to define
-	 * custom behavior while the agent is running.
+	 * Defines the main behavior of the agent. This method should be overridden to
+	 * define custom behavior while the agent is alive. It is automatically called
+	 * when the onActivation method finishes.
+	 * 
+	 * If implemented, the agent will be given its own thread, thus making the agent
+	 * completely autonomous. The agent will be alive until this method returns or
+	 * it is killed.
 	 */
 	protected void onLive() {
 	}
 
 	/**
-	 * Called when the agent is ending. This method can be overridden to define
-	 * custom cleanup behavior.
+	 * This method is called when the agent finishes its life cycle. Either because
+	 * the agent was killed or because the onLive method returned. This method can
+	 * be overridden to define custom cleanup behavior.
 	 */
 	protected void onEnd() {
 	}
@@ -155,7 +161,8 @@ public abstract class Agent {
 	}
 
 	/**
-	 * Checks if the agent is alive.
+	 * Checks if the agent is alive. An agent is considered alive if it has been
+	 * launched and has not yet been killed.
 	 * 
 	 * @return {@code true} if the agent is alive, {@code false} otherwise.
 	 */
@@ -204,7 +211,7 @@ public abstract class Agent {
 		logIfLoggerNotNull(Level.FINER, () -> "- - -> ACTIVATE...");
 		try {
 			onActivation();
-		} catch (Throwable e) {
+		} catch (Exception e) {
 			handleException(e);
 			terminate();
 			lifeCycle.complete(ReturnCode.AGENT_CRASH);
@@ -214,7 +221,9 @@ public abstract class Agent {
 		lifeCycle.complete(ReturnCode.SUCCESS);
 		if (isThreaded()) {
 			if (!(this instanceof DaemonAgent)) {
-				kernel.threadedAgents.add(this);
+				synchronized (kernel.threadedAgents) {
+					kernel.threadedAgents.add(this);
+				}
 			}
 			living();
 			ending();
@@ -232,7 +241,7 @@ public abstract class Agent {
 		logIfLoggerNotNull(Level.FINER, () -> "ACTIVATE - - -> LIVE...");
 		try {
 			onLive();
-		} catch (Throwable e) {
+		} catch (Exception e) {
 			handleException(e);
 		}
 		logIfLoggerNotNull(Level.FINER, () -> "LIVE - - -> END...");
@@ -240,8 +249,8 @@ public abstract class Agent {
 
 	/**
 	 * Handles the agent's termination process when it is killed. This method sets
-	 * the thread name and logs the killing event, then calls the
-	 * {@link #onEnd()} method.
+	 * the thread name and logs the killing event, then calls the {@link #onEnd()}
+	 * method.
 	 */
 	final void killed() {
 		Thread.currentThread().setName(String.valueOf(hashCode()));
@@ -269,7 +278,7 @@ public abstract class Agent {
 	final void ending() {
 		try {
 			onEnd();
-		} catch (Throwable e) {
+		} catch (Exception e) {
 			handleException(e);
 		}
 		alive.set(false);
@@ -281,9 +290,9 @@ public abstract class Agent {
 	 * is an instance of {@link AgentInterruptedException}, a fine log message is
 	 * generated. Otherwise, a severe log message is created.
 	 * 
-	 * @param ex the throwable exception to handle.
+	 * @param ex the Exception exception to handle.
 	 */
-	private final void handleException(Throwable ex) {
+	private final void handleException(Exception ex) {
 		if (ex instanceof AgentInterruptedException) {
 			getLogger().fine(() -> "** INTERRUPTED **");
 		} else {
@@ -293,7 +302,9 @@ public abstract class Agent {
 
 	/**
 	 * Launches a new agent and waits until the launched agent has completed its
-	 * {@link Agent#onActivation()} method.
+	 * {@link Agent#onActivation()} method. This has the same effect as
+	 * {@link #launchAgent(Agent, int)} but with a default timeout of
+	 * {@link Integer#MAX_VALUE}.
 	 * 
 	 * @param a the agent to launch.
 	 * @return the result of the launch operation.
@@ -305,13 +316,16 @@ public abstract class Agent {
 	/**
 	 * Launches a new agent and waits until the launched agent has completed its
 	 * {@link Agent#onActivation()} method or until the timeout is elapsed.
+	 * <p>
+	 * The launch is logged at the {@link Level#FINER} level.
 	 * 
-	 * @param a       the agent to launch.
-	 * @param timeout the maximum time to wait for the agent to launch.
+	 * 
+	 * @param a              the agent to launch.
+	 * @param timeOutSeconds the maximum time to wait for the agent to launch.
 	 * @return the result of the launch operation.
 	 */
-	public ReturnCode launchAgent(Agent a, int timeout) {
-		return kernel.launchAgent(a, timeout);
+	public ReturnCode launchAgent(Agent a, int timeOutSeconds) {
+		return kernel.launchAgent(a, timeOutSeconds);
 	}
 
 	/**
@@ -356,13 +370,13 @@ public abstract class Agent {
 	/**
 	 * Kills the specified agent with a specified timeout.
 	 * 
-	 * @param a        the agent to be killed.
+	 * @param agent          the agent to be killed.
 	 * @param timeOutSeconds the maximum time to wait for the agent to be killed.
 	 * @return the result of the kill operation.
 	 */
-	protected ReturnCode killAgent(Agent a, int timeOutSeconds) {
-		if (a.alive.compareAndSet(true, false)) {
-			return kernel.killAgent(a, timeOutSeconds);
+	protected ReturnCode killAgent(Agent agent, int timeOutSeconds) {
+		if (agent.alive.compareAndSet(true, false)) {
+			return kernel.killAgent(agent, timeOutSeconds);
 		}
 		return ReturnCode.NOT_YET_LAUNCHED;
 	}
@@ -525,16 +539,16 @@ public abstract class Agent {
 	 * Creates a new Group within a community.
 	 * <p>
 	 * If this operation succeed, the agent will automatically handle the role
-	 * defined by {@link DefaultMaDKitRoles#GROUP_MANAGER_ROLE}, which value is <i>
-	 * {@value madkit.agr.DefaultMaDKitRoles#GROUP_MANAGER_ROLE}</i>, in this
-	 * created group. Especially, if the agent leaves the role of <i>
-	 * {@value madkit.agr.DefaultMaDKitRoles#GROUP_MANAGER_ROLE}</i>, it will also
+	 * defined by {@link SystemRoles#GROUP_MANAGER_ROLE}, which value is <i>
+	 * {@value madkit.agr.SystemRoles#GROUP_MANAGER_ROLE}</i>, in this created
+	 * group. Especially, if the agent leaves the role of <i>
+	 * {@value madkit.agr.SystemRoles#GROUP_MANAGER_ROLE}</i>, it will also
 	 * automatically leave the group and thus all the roles it has in this group.
 	 * <p>
 	 * Agents that want to enter the group may send messages to the <i>
-	 * {@value madkit.agr.DefaultMaDKitRoles#GROUP_MANAGER_ROLE}</i> using the role
-	 * defined by {@link DefaultMaDKitRoles#GROUP_CANDIDATE_ROLE}, which value is
-	 * <i> {@value madkit.agr.DefaultMaDKitRoles#GROUP_CANDIDATE_ROLE}</i>.
+	 * {@value madkit.agr.SystemRoles#GROUP_MANAGER_ROLE}</i> using the role defined
+	 * by {@link SystemRoles#GROUP_CANDIDATE_ROLE}, which value is <i>
+	 * {@value madkit.agr.SystemRoles#GROUP_CANDIDATE_ROLE}</i>.
 	 *
 	 * @param community     the community within which the group will be created. If
 	 *                      this community does not exist it will be created.
@@ -559,11 +573,6 @@ public abstract class Agent {
 	 * @since MaDKit 5.0
 	 */
 	public ReturnCode createGroup(String community, String group, boolean isDistributed, Gatekeeper keyMaster) {
-//		if (getState() == INITIALIZING) {
-//			handleWarning(Influence.CREATE_GROUP,
-//					() -> new OrganizationWarning(ReturnCode.IGNORED, community, group, null));
-//			return ReturnCode.IGNORED;
-//		}
 		return kernel.createGroup(this, community, group, keyMaster, isDistributed);
 	}
 
@@ -977,8 +986,9 @@ public abstract class Agent {
 	 * Broadcasts a message to every agent having a role in a group in a community
 	 * using a specific role for the sender. The sender is excluded from the search.
 	 *
-	 * @param message message to send
-	 * @param role    the agent's role with which the message should be sent
+	 * @param message   message to send
+	 * @param receivers list of agent addresses to send the message to
+	 * @param role      the agent's role with which the message should be sent
 	 * @return
 	 *         <ul>
 	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the send has
@@ -1036,6 +1046,15 @@ public abstract class Agent {
 //	    return null;
 //	}
 
+	/**
+	 * Returns a list of agent addresses corresponding to agents having this role in
+	 * the organization. The sender is excluded from this search.
+	 * 
+	 * @param community the community name
+	 * @param group     the group name
+	 * @param role      the role name
+	 * @return a list of agent addresses corresponding to agents handling this role
+	 */
 	public List<AgentAddress> getAgentsWithRole(String community, String group, String role) {
 		try {
 			Role targetedRole = getOrganization().getRole(community, group, role);
@@ -1228,16 +1247,21 @@ public abstract class Agent {
 	 * Agents, especially threaded agents. For instance when a GUI wants to discuss
 	 * with its linked agent: This allows to enqueue work to do in their life cycle
 	 *
-	 * @param m the message to send
+	 * @param message the message to send
 	 */
-	public void receiveMessage(Message m) {
-		getMailbox().add(m);
+	public void receiveMessage(Message message) {
+		getMailbox().add(message);
 	}
 
 	private KernelAgent getKernel() {
 		return kernel;
 	}
 
+	/**
+	 * Returns the agent's mailbox
+	 * 
+	 * @return the mailbox
+	 */
 	protected Mailbox getMailbox() {
 		if (mailbox == null) {
 			mailbox = new Mailbox();
@@ -1246,11 +1270,13 @@ public abstract class Agent {
 	}
 
 	/**
-	 * Creates a default frame for the agent
+	 * Creates a default frame for the agent. It is made of a {@link FXAgentStage}
+	 * containing a {@link FXOutputPane}
+	 * 
 	 */
-	public void setupGUI() {
+	public void setupDefaultGUI() {
 		FXManager.runAndWait(() -> {
-			FxAgentStage stage = new FxAgentStage(this);
+			FXAgentStage stage = new FXAgentStage(this);
 			Scene scene = new Scene(new FXOutputPane(this));
 			stage.setScene(scene);
 			stage.show();
@@ -1266,6 +1292,9 @@ public abstract class Agent {
 	 */
 	public enum ReturnCode {
 
+		/**
+		 * Indicates that the operation has succeeded
+		 */
 		SUCCESS,
 		/**
 		 * Indicates that a community does not exist
@@ -1485,23 +1514,22 @@ public abstract class Agent {
 		Method m = null;
 		try {
 			m = MethodFinder.getMethodOn(getClass(), ReflectionUtils.enumToMethodName(message.getCode()), parameters);
-//	    m = Activator.findMethodOnFromArgsSample(getClass(), ActionInfo.enumToMethodName(message.getCode()), parameters);
 			m.invoke(this, parameters);
 		} catch (NoSuchMethodException e) {
 			if (logger != null)
 				logger.warning(() -> "I do not know how to " + ReflectionUtils.enumToMethodName(message.getCode())
 						+ Arrays.deepToString(parameters));
-			logForSender(() -> "I have sent a message which has not been understood", message);// TODO i18n
+			logForSender(() -> "I have sent a message which has not been understood", message);
 		} catch (IllegalArgumentException e) {
 			if (logger != null)
 				logger.warning("Cannot proceed message : wrong argument " + m);
 			logForSender(() -> "I have sent an incorrect command message ", message);
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
-		} catch (InvocationTargetException e) {// TODO dirty : think about that
+		} catch (InvocationTargetException e) {
 			Throwable t = e.getCause();
 			t.printStackTrace();
-		} catch (Throwable e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

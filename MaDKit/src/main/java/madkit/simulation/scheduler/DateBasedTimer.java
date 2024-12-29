@@ -1,4 +1,4 @@
-package madkit.simulation;
+package madkit.simulation.scheduler;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -15,7 +15,7 @@ import madkit.kernel.Scheduler;
  * @since MaDKit 5.3
  * @see Scheduler LocalDateTime
  */
-public class DateBasedTimer extends SimulationTimer<LocalDateTime> {
+public class DateBasedTimer extends SimuTimer<LocalDateTime> {
 
 	private ChronoUnit defaultUnit;
 

@@ -13,8 +13,6 @@ MaDKit is an open source multiagent-based software written in Java.
 * An organizational infrastructure for communication between agents, structuring the application
 * High heterogeneity in agent architectures: No predefined agent model
 * Multi-Agent based simulation and simulator authoring tools
-[//]: * Multi-agent based distributed application authoring facilities
-
 
 ### Approach
 

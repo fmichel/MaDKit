@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021, MaDKit Team
+ * Copyright (c) 2021 2024, MaDKit Team
  *
  * This software is a computer program whose purpose is to
  * provide a lightweight Java API for developing and simulating 
@@ -31,7 +31,7 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C license and that you accept its terms.
  *******************************************************************************/
-package madkit.simulation;
+package madkit.simulation.scheduler;
 
 import java.util.Formatter;
 
@@ -45,11 +45,12 @@ import madkit.gui.FXManager;
  * Class representing time in a simulation.
  * 
  * @author Fabien Michel
- * @param <T> the type used for modeling the time since MaDKit 6.0
+ * @param <T> the type used for modeling the time
+ * @since MaDKit 6.0
  */
-public class SimulationTimer<T extends Comparable<? super T>> {
+public class SimuTimer<T extends Comparable<? super T>> {
 
-	private T initialTime;
+	private T startTime;
 	private T currentTime;
 	private T endTime;
 	private SimpleObjectProperty<T> dateProperty;
@@ -58,12 +59,12 @@ public class SimulationTimer<T extends Comparable<? super T>> {
 	/**
 	 * Creates a new timer.
 	 * 
-	 * @param initialTime time at which the simulation should start
-	 * @param endTime     time at which the simulation should end
+	 * @param startTime time at which the simulation should start
+	 * @param endTime   time at which the simulation should end
 	 */
-	public SimulationTimer(T initialTime, T endTime) {
-		this.initialTime = initialTime;
-		currentTime = initialTime;
+	public SimuTimer(T startTime, T endTime) {
+		this.startTime = startTime;
+		currentTime = startTime;
 		this.endTime = endTime;
 		dateProperty = new SimpleObjectProperty<>(currentTime);
 		asString = dateProperty.asString();
@@ -144,7 +145,25 @@ public class SimulationTimer<T extends Comparable<? super T>> {
 	 * Resets the timer to its initial time.
 	 */
 	public void reset() {
-		currentTime = initialTime;
+		setCurrentTime(startTime);
+	}
+
+	/**
+	 * Returns the starting time
+	 * 
+	 * @return the starting time
+	 */
+	public T getStartTime() {
+		return startTime;
+	}
+
+	/**
+	 * Sets the starting time
+	 * 
+	 * @param startTime the startTime to set
+	 */
+	public void setStartTime(T startTime) {
+		this.startTime = startTime;
 	}
 
 }

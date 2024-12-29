@@ -146,7 +146,6 @@ public class Role implements Serializable {
 	 * @param groupName
 	 * @param communityName
 	 * @param agent         the agent
-	 * @return
 	 * @return true, if the agent has been added.
 	 */
 	ReturnCode addMember(Agent requester) {
@@ -313,6 +312,13 @@ public class Role implements Serializable {
 		agentAddresses = null;
 	}
 
+	/**
+	 * Returns a list of agent addresses corresponding to agents having the given
+	 * role
+	 * 
+	 * @return the list of agent addresses corresponding to agents having the given
+	 *         role
+	 */
 	public final List<AgentAddress> getAgentAddresses() {
 		return List.copyOf(buildAndGetAddresses());
 	}
@@ -348,7 +354,7 @@ public class Role implements Serializable {
 	 * 
 	 * @return
 	 */
-	List<Agent> getAgentsList() {
+	List<Agent> getAgents() {
 		if (modified) {
 			synchronized (players) {
 				modified = false;
@@ -394,9 +400,15 @@ public class Role implements Serializable {
 
 	}
 
-	public AgentAddress getAgentAddressOf(Agent a) {
+	/**
+	 * Returns the agent address of the agent in this role
+	 * 
+	 * @param agent the agent to check
+	 * @return the agent address of the agent in this role
+	 */
+	public AgentAddress getAgentAddressOf(Agent agent) {
 		synchronized (players) {
-			return buildAndGetAddresses().stream().filter(aa -> aa.hashCode() == a.hashCode() && aa.getAgent() != null)
+			return buildAndGetAddresses().stream().filter(aa -> aa.hashCode() == agent.hashCode() && aa.getAgent() != null)
 					.findAny().orElse(null);
 		}
 	}
@@ -426,6 +438,12 @@ public class Role implements Serializable {
 		return null;
 	}
 
+	/**
+	 * Returns true if the agent is playing this role
+	 * 
+	 * @param agent the agent to check
+	 * @return <code>true</code> if the agent is playing this role
+	 */
 	public final boolean contains(Agent agent) {
 		return players.contains(agent);
 	}
@@ -440,10 +458,20 @@ public class Role implements Serializable {
 		return buildAndGetAddresses().parallelStream().filter(aa -> aa.equals(anAA)).findAny().orElse(null);
 	}
 
+	/**
+	 * Returns the number of agents playing this role
+	 * 
+	 * @return the number of agents playing this role
+	 */
 	public int size() {
 		return players.size();
 	}
 
+	/**
+	 * Returns <code>true</code> if the role is not empty
+	 * 
+	 * @return <code>true</code> if the role is not empty.
+	 */
 	public boolean exists() {
 		return !players.isEmpty();
 	}

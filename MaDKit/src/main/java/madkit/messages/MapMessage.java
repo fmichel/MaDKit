@@ -43,6 +43,8 @@ import java.util.Map;
  * @author Fabien Michel
  * @since MaDKit 5.1.2
  * @version 6.0
+ * @param <K> Type of the keys in the map
+ * @param <V> Type of the values in the map
  */
 public class MapMessage<K, V> extends ObjectMessage<Map<K, V>> {
 

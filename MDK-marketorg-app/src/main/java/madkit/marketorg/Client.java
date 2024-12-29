@@ -18,59 +18,71 @@
  */
 package madkit.marketorg;
 
+import static madkit.marketorg.MarketOrganization.BROKER_ROLE;
+import static madkit.marketorg.MarketOrganization.CLIENT_GROUP;
+import static madkit.marketorg.MarketOrganization.CLIENT_ROLE;
+import static madkit.marketorg.MarketOrganization.COMMUNITY;
+import static madkit.marketorg.MarketOrganization.PROVIDER_ROLE;
+import static madkit.marketorg.MarketOrganization.RANDOM;
+
 import madkit.kernel.Agent;
-import madkit.kernel.Madkit;
 import madkit.kernel.Message;
 import madkit.messages.StringMessage;
 
 /**
- * @author Fabien Michel, Olivier Gutknecht, Jacques Ferber
- * @version 5.1
+ * The client agent is responsible for looking for a product in the market
+ * organization.
+ * 
+ * @version 6.0
  */
 public class Client extends Agent {
 
-	static int nbOfClientsOnScreen = 0;
+	private String product;
 
-	private final String product = Provider.availableTransports
-			.get((int) (Math.random() * Provider.availableTransports.size()));
-
+	/**
+	 * On activation, the client creates the community and the group, requests the
+	 * client role, and launches its GUI.
+	 */
 	@Override
 	protected void onActivation() {
-		createGroup(MarketOrganization.COMMUNITY, MarketOrganization.CLIENT_GROUP, true, null);
-		requestRole(MarketOrganization.COMMUNITY, MarketOrganization.CLIENT_GROUP, MarketOrganization.CLIENT_ROLE,
-				null);
-		int pause = 1000 + (int) (Math.random() * 2000);
+		createGroup(COMMUNITY, CLIENT_GROUP, true, null);
+		requestRole(COMMUNITY, CLIENT_GROUP, CLIENT_ROLE, null);
+		product = Provider.availableTransports.get(RANDOM.nextInt(Provider.availableTransports.size()));
+		new MarketAgentGUI(this, 0);
+		int pause = RANDOM.nextInt(1000, 2000);
 		getLogger().info(() -> "I will be looking for a " + product + " in " + pause + " ms !");
 		pause(pause);
 	}
 
+	/**
+	 * On live, the client looks for a broker and buys a ticket.
+	 */
 	@Override
-	protected void onLiving() {
+	protected void onLive() {
 		boolean haveTicket = false;
 		while (!haveTicket) {
 			StringMessage brokerAnswer = null;
 			while (brokerAnswer == null) {
-				brokerAnswer = sendWithRoleWaitReply(
-						new StringMessage(product), 
-						MarketOrganization.COMMUNITY,
-						MarketOrganization.CLIENT_GROUP, 
-						MarketOrganization.BROKER_ROLE, 
-						MarketOrganization.CLIENT_ROLE,
-						4000);
-				getLogger().info(() -> "For now there is nothing for me :(");
-				pause(500);
+				brokerAnswer = sendWithRoleWaitReply(new StringMessage(product), COMMUNITY, CLIENT_GROUP, BROKER_ROLE,
+						CLIENT_ROLE, 4000);
+				if (brokerAnswer == null) {
+					getLogger().info(() -> "For now there is nothing for me :(");
+					pause(1000);
+				}
 			}
 			logFindBroker(brokerAnswer);// I found a broker and he has something for me
 			haveTicket = buyTicket(brokerAnswer);
 		}
 	}
 
+	/**
+	 * On end, the client quits and launches another one.
+	 */
 	@Override
-	protected void onEnding() {
+	protected void onEnd() {
 		getLogger().info(() -> "I will quit soon now, buit I will launch another one like me !");
-		pause((int) (Math.random() * 2000 + 500));
-		reload();
-//		launchAgent(new Client(), true, 4);
+		pause(RANDOM.nextInt(1000, 2500));
+		launchAgent(new Client(), 4);
 	}
 
 	private void logFindBroker(Message brokerAnswer) {
@@ -78,37 +90,37 @@ public class Client extends Agent {
 		pause(1000);
 	}
 
+	/**
+	 * Finalize the contract with the provider. Return true if the contract is
+	 * finalized.
+	 * 
+	 * @param brokerAnswer the broker answer containing the contract group
+	 * @return true if the contract is finalized
+	 */
 	private boolean buyTicket(StringMessage brokerAnswer) {
 		String contractGroupID = brokerAnswer.getContent();
-		requestRole(MarketOrganization.COMMUNITY, contractGroupID, MarketOrganization.CLIENT_ROLE);
-		Message ticket = sendWaitReply(
-				new StringMessage("money"),
-				MarketOrganization.COMMUNITY, 
-				contractGroupID,
-				MarketOrganization.PROVIDER_ROLE,
-				4000
-				);
+		requestRole(COMMUNITY, contractGroupID, CLIENT_ROLE);
+		Message ticket = sendWaitReply(new StringMessage("money"), COMMUNITY, contractGroupID, PROVIDER_ROLE, 4000);
 		if (ticket != null) {
 			getLogger().info("Yeeeaah: I have my ticket :) ");
-			leaveGroup(MarketOrganization.COMMUNITY, MarketOrganization.CLIENT_GROUP);
-			pause((int) (1000 + Math.random() * 2000));
+			leaveGroup(COMMUNITY, CLIENT_GROUP);
+			pause(RANDOM.nextInt(1000, 3000));
 			return true;
 		}
 		return false;
 	}
+
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		nbOfClientsOnScreen = 0;
-		Broker.nbOfBrokersOnScreen = 0;
-//		executeThisAgent();
-		new Madkit(
-				"-la",Broker.class.getName() + ",true,1"
-				,"-la",Client.class.getName() + ",true,1"
-				,"-la",Provider.class.getName() + ",false,20"
-				
-				);
-//		+ Client.class.getName()+ ",true,2;" + Provider.class.getName() + ",true,7");
+		executeThisAgent(
+//				"--noLog",
+				"--kernelLogLevel", "ALL",
+				"--agentLogLevel", "ALL",
+				"-la", Broker.class.getName() + ",2", "-la", Client.class.getName() + ",2", "-la",
+				Provider.class.getName() + ",10"
+
+		);
 	}
 }

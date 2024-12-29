@@ -1,25 +1,37 @@
 package madkit.gui;
+
 import static org.testng.Assert.assertTrue;
 
-import org.testng.annotations.AfterClass;
+import java.awt.GraphicsEnvironment;
+
+import org.testng.annotations.*;
+import org.testng.*;
 import org.testng.annotations.Test;
 
 import javafx.application.Platform;
 
 public class FXManagerTest {
 
-    @AfterClass
-    public void tearDown() {
-   	 Platform.exit();
-    }
+	
+	@BeforeMethod
+	protected void checkEnvironment() {
+	  if (GraphicsEnvironment.isHeadless()) {
+	    throw new SkipException("Skipping tests because the environment is headless");
+	  }
+	}
 
-    @Test
-    public void testStartFX() {
-        // When the FXManager is started
-        FXManager.startFX();
+	@AfterClass
+	public void tearDown() {
+		Platform.exit();
+	}
 
-        // Then the FXManager should be started
-        assertTrue(FXManager.isStarted());
-    }
+	@Test
+	public void testStartFX() {
+		// When the FXManager is started
+		FXManager.startFX();
+
+		// Then the FXManager should be started
+		assertTrue(FXManager.isStarted());
+	}
 
 }

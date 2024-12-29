@@ -1,9 +1,10 @@
 package madkit.kernel;
 
 import static madkit.kernel.Agent.ReturnCode.AGENT_CRASH;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.fail;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
-import static org.testng.Assert.fail;
 
 import org.testng.annotations.Test;
 
@@ -39,10 +40,10 @@ public class AgentTest extends JunitMadkit {
 		assertTrue(a.isThreaded());
 	}
 
-	@Test(expectedExceptions = NullPointerException.class)
+	@Test
 	void givenAgentNotLaunched_whenNoKernel_thenThrowsNullPointerException() {
 		Agent a = new EmptyAgent();
-		a.getKernelAddress();
+		assertThatThrownBy(a::getKernelAddress).isInstanceOf(NullPointerException.class);
 	}
 
 	@Test

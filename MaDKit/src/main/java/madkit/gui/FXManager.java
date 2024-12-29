@@ -113,7 +113,6 @@ public class FXManager extends Application {
 					futureTask.get();
 				}
 			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
 				throw new AgentInterruptedException();
 			} catch (Exception e) {
 				FX_ROOT_LOGGER.log(Level.WARNING, "FX problem...", e);

@@ -1,50 +1,118 @@
-/*******************************************************************************
- * Copyright (c) 1997, 2021, MaDKit Team
- *
- * This software is a computer program whose purpose is to
- * provide a lightweight Java API for developing and simulating 
- * Multi-Agent Systems (MAS) using an organizational perspective
- *
- * This software is governed by the CeCILL-C license under French law and
- * abiding by the rules of distribution of free software.  You can  use,
- * modify and/ or redistribute the software under the terms of the CeCILL-C
- * license as circulated by CEA, CNRS and INRIA at the following URL
- * "http://www.cecill.info".
- *
- * As a counterpart to the access to the source code and  rights to copy,
- * modify and redistribute granted by the license, users are provided only
- * with a limited warranty  and the software's author,  the holder of the
- * economic rights,  and the successive licensors  have only  limited
- * liability.
- *
- * In this respect, the user's attention is drawn to the risks associated
- * with loading,  using,  modifying and/or developing or reproducing the
- * software by the user in light of its specific status of free software,
- * that may mean  that it is complicated to manipulate,  and  that  also
- * therefore means  that it is reserved for developers  and  experienced
- * professionals having in-depth computer knowledge. Users are therefore
- * encouraged to load and test the software's suitability as regards their
- * requirements in conditions enabling the security of their systems and/or
- * data to be ensured and,  more generally, to use and operate it in the
- * same conditions as regards security.
- *
- * The fact that you are presently reading this means that you have had
- * knowledge of the CeCILL-C license and that you accept its terms.
- *******************************************************************************/
-
 package madkit.i18n;
 
 /**
- * Enum containing key for some useful words
- * 
- * @author Fabien Michel
- *
+ * Enum containing keys, for some useful words, that has to be used with the
+ * i18n mechanism.
  */
 public enum Words {
 
-	FAILED, COMMUNITY, GROUP, ROLE, LAUNCH, ENTERING, EXITING, TERMINATED, INITIAL_CONFIG, RELOAD, DIRECTORY, MAS, PAUSE,
-	NEW_MSG, ABOUT, HELP, TUTORIALS, LAST_AVAILABLE, CREATED, DISPLAY;
+	/**
+	 * Represents the keyword "FAILED".
+	 */
+	FAILED,
 
+	/**
+	 * Represents the keyword "COMMUNITY".
+	 */
+	COMMUNITY,
+
+	/**
+	 * Represents the keyword "GROUP".
+	 */
+	GROUP,
+
+	/**
+	 * Represents the keyword "ROLE".
+	 */
+	ROLE,
+
+	/**
+	 * Represents the keyword "LAUNCH".
+	 */
+	LAUNCH,
+
+	/**
+	 * Represents the keyword "ENTERING".
+	 */
+	ENTERING,
+
+	/**
+	 * Represents the keyword "EXITING".
+	 */
+	EXITING,
+
+	/**
+	 * Represents the keyword "TERMINATED".
+	 */
+	TERMINATED,
+
+	/**
+	 * Represents the keyword "INITIAL_CONFIG".
+	 */
+	INITIAL_CONFIG,
+
+	/**
+	 * Represents the keyword "RELOAD".
+	 */
+	RELOAD,
+
+	/**
+	 * Represents the keyword "DIRECTORY".
+	 */
+	DIRECTORY,
+
+	/**
+	 * Represents the keyword "MAS".
+	 */
+	MAS,
+
+	/**
+	 * Represents the keyword "PAUSE".
+	 */
+	PAUSE,
+
+	/**
+	 * Represents the keyword "NEW_MSG".
+	 */
+	NEW_MSG,
+
+	/**
+	 * Represents the keyword "ABOUT".
+	 */
+	ABOUT,
+
+	/**
+	 * Represents the keyword "HELP".
+	 */
+	HELP,
+
+	/**
+	 * Represents the keyword "TUTORIALS".
+	 */
+	TUTORIALS,
+
+	/**
+	 * Represents the keyword "LAST_AVAILABLE".
+	 */
+	LAST_AVAILABLE,
+
+	/**
+	 * Represents the keyword "CREATED".
+	 */
+	CREATED,
+
+	/**
+	 * Represents the keyword "DISPLAY".
+	 */
+	DISPLAY;
+
+	/**
+	 * Returns the name of this enum constant, as contained in the declaration. This
+	 * method may be overridden, though it typically isn't necessary or desirable.
+	 *
+	 * @return the name of this enum constant
+	 */
+	@Override
 	public String toString() {
 		return name();
 	}

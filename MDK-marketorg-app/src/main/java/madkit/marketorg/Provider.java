@@ -18,6 +18,12 @@
  */
 package madkit.marketorg;
 
+import static madkit.marketorg.MarketOrganization.BROKER_ROLE;
+import static madkit.marketorg.MarketOrganization.COMMUNITY;
+import static madkit.marketorg.MarketOrganization.PROVIDERS_GROUP;
+import static madkit.marketorg.MarketOrganization.PROVIDER_ROLE;
+import static madkit.marketorg.MarketOrganization.RANDOM;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,49 +33,59 @@ import madkit.messages.IntegerMessage;
 import madkit.messages.StringMessage;
 
 /**
- * @author Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ * The provider agent is responsible for selling a product in the market
+ * organization.
+ * 
  * @version 6.0
+ * 
  */
 public class Provider extends Agent {
 
 	public static List<String> availableTransports = Arrays.asList("train", "boat", "plane", "bus");
-
-//    static {
-//	for (String competence : availableTransports) {
-//	    icons.put(competence, new ImageIcon(Provider.class.getResource("images/" + competence + ".png")));
-//	}
-//    }
 
 	private static int nbOfProvidersOnScreen = 0;
 
 	private String competence;
 
 	public Provider() {
-		competence = Provider.availableTransports.get((int) (Math.random() * Provider.availableTransports.size()));
+		competence = getRandomTransport();
 	}
 
+	/**
+	 * On activation, the provider creates the community and the group, requests the
+	 * provider role, and launches its GUI
+	 */
 	public void onActivation() {
-		createGroup(MarketOrganization.COMMUNITY, MarketOrganization.PROVIDERS_GROUP, true, null);
-		requestRole(MarketOrganization.COMMUNITY, MarketOrganization.PROVIDERS_GROUP,
-				competence + "-" + MarketOrganization.PROVIDER_ROLE, null);
-		getLogger().info("Selling "+competence);
+		createGroup(COMMUNITY, PROVIDERS_GROUP, true, null);
+		requestRole(COMMUNITY, PROVIDERS_GROUP, competence + "-" + PROVIDER_ROLE, null);
+		new MarketAgentGUI(this, 800);
+		getLogger().info("Selling " + competence);
 	}
 
+	/**
+	 * On live, the provider waits for the broker call for bid and replies with a
+	 * bid. When the provider is selected, it finalizes the contract.
+	 */
 	@Override
-	public void onLiving() {
+	public void onLive() {
 		while (isAlive()) {
 			StringMessage m = waitNextMessage();
-			if (m.getSenderRole().equals(MarketOrganization.BROKER_ROLE))
+			if (m.getSenderRole().equals(BROKER_ROLE))
 				handleBrokerMessage(m);
 			else
 				finalizeContract(m);
 		}
 	}
 
+	/**
+	 * Handles the broker message.
+	 * 
+	 * @param m the message
+	 */
 	private void handleBrokerMessage(StringMessage m) {
 		if (m.getContent().equals("make-bid-please")) {
 			getLogger().info(() -> "I received a call for bid from " + m.getSender());
-			reply(new IntegerMessage((int) (Math.random() * 500)), m);
+			reply(new IntegerMessage(RANDOM.nextInt(100, 800)), m);
 		} else {
 			iHaveBeenSelected(m);
 		}
@@ -78,18 +94,27 @@ public class Provider extends Agent {
 	private void iHaveBeenSelected(StringMessage m) {
 		getLogger().info("I have been selected :)");
 		String contractGroup = m.getContent();
-		createGroup(MarketOrganization.COMMUNITY, contractGroup, true);
-		requestRole(MarketOrganization.COMMUNITY, contractGroup, MarketOrganization.PROVIDER_ROLE);
+		createGroup(COMMUNITY, contractGroup, true);
+		requestRole(COMMUNITY, contractGroup, PROVIDER_ROLE);
 		reply(new Message(), m); // just an acknowledgment
 	}
 
 	private void finalizeContract(StringMessage m) {
 		getLogger().info("I have sold something: That's great !");
 		reply(new StringMessage("ticket"), m);
-		pause((int) (Math.random() * 2000 + 1000));// let us celebrate !!
-		leaveGroup(MarketOrganization.COMMUNITY, m.getSender().getGroup());
+		pause(RANDOM.nextInt(1000, 3000));// let us celebrate !!
+		leaveGroup(COMMUNITY, m.getSender().getGroup());
 	}
-	
+
+	@Override
+	public String getName() {
+		return super.getName() + "-" + competence;
+	}
+
+	public static String getRandomTransport() {
+		return availableTransports.get(RANDOM.nextInt(availableTransports.size()));
+	}
+
 	public static void main(String[] args) {
 		executeThisAgent();
 	}

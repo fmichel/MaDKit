@@ -13,7 +13,7 @@ import static madkit.kernel.Agent.ReturnCode.SUCCESS;
 
 import org.testng.annotations.Test;
 
-import madkit.agr.DefaultMaDKitRoles;
+import madkit.agr.SystemRoles;
 import madkit.kernel.Agent;
 import madkit.kernel.AgentAddress;
 import madkit.kernel.JunitMadkit;
@@ -60,19 +60,19 @@ public class SendWithCGRTest extends JunitMadkit {
 				threadAssertEquals(SUCCESS, launchAgent(target));
 
 				// Without role
-				threadAssertEquals(SUCCESS, send(new Message(), COMMUNITY, GROUP, DefaultMaDKitRoles.GROUP_MANAGER_ROLE));
+				threadAssertEquals(SUCCESS, send(new Message(), COMMUNITY, GROUP, SystemRoles.GROUP_MANAGER_ROLE));
 				Message m = target.nextMessage();
 				threadAssertNotNull(m);
-				threadAssertEquals(DefaultMaDKitRoles.GROUP_MANAGER_ROLE, m.getReceiver().getRole());
-				threadAssertEquals(DefaultMaDKitRoles.GROUP_CANDIDATE_ROLE, m.getSender().getRole());
+				threadAssertEquals(SystemRoles.GROUP_MANAGER_ROLE, m.getReceiver().getRole());
+				threadAssertEquals(SystemRoles.GROUP_CANDIDATE_ROLE, m.getSender().getRole());
 
 				// With role
-				threadAssertEquals(SUCCESS, sendWithRole(new Message(), COMMUNITY, GROUP,
-						DefaultMaDKitRoles.GROUP_MANAGER_ROLE, DefaultMaDKitRoles.GROUP_CANDIDATE_ROLE));
+				threadAssertEquals(SUCCESS, sendWithRole(new Message(), COMMUNITY, GROUP, SystemRoles.GROUP_MANAGER_ROLE,
+						SystemRoles.GROUP_CANDIDATE_ROLE));
 				m = target.nextMessage();
 				threadAssertNotNull(m);
-				threadAssertEquals(DefaultMaDKitRoles.GROUP_MANAGER_ROLE, m.getReceiver().getRole());
-				threadAssertEquals(DefaultMaDKitRoles.GROUP_CANDIDATE_ROLE, m.getSender().getRole());
+				threadAssertEquals(SystemRoles.GROUP_MANAGER_ROLE, m.getReceiver().getRole());
+				threadAssertEquals(SystemRoles.GROUP_CANDIDATE_ROLE, m.getSender().getRole());
 			}
 		});
 	}

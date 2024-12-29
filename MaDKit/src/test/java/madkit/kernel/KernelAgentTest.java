@@ -69,21 +69,20 @@ public class KernelAgentTest {
 
 	@Test
 	public void givenAgentIsAlive_whenKillAgent_thenAgentShouldBeDead() {
-        // Given the KernelAgent and an Agent are initialized
-        KernelAgent kernelAgent = new KernelAgent(new Madkit());
-        Agent testAgent = new EmptyAgent();
-        kernelAgent.launchAgent(testAgent, 5);
-        assertTrue(testAgent.isAlive());
+		// Given the KernelAgent and an Agent are initialized
+		KernelAgent kernelAgent = new KernelAgent(new Madkit());
+		Agent testAgent = new EmptyAgent();
+		kernelAgent.launchAgent(testAgent, 5);
+		assertTrue(testAgent.isAlive());
 
-        // When the killAgent method is called
-        ReturnCode returnCode = kernelAgent.killAgent(testAgent);
+		// When the killAgent method is called
+		ReturnCode returnCode = kernelAgent.killAgent(testAgent);
 
-        // Then the agent should be dead and the return code should be SUCCESS
-        assertFalse(testAgent.isAlive());
-        assertEquals(returnCode, ReturnCode.SUCCESS);
-    }
+		// Then the agent should be dead and the return code should be SUCCESS
+		assertFalse(testAgent.isAlive());
+		assertEquals(returnCode, ReturnCode.SUCCESS);
+	}
 
-	
 	@Test
 	public void givenAkernelAgent_whenGetKernelConfig_thenShouldReturnMadkitConfig() {
 		// Given the KernelAgent is initialized with a Madkit instance

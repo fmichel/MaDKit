@@ -7,7 +7,7 @@ plugins {
 ext.moduleName = 'madkit.simu.template'
 
 application {
-    mainClass = 'madkit.simu.template.MyEngine'
+    mainClass = 'madkit.simu.template.MyLauncher'
     mainModule = 'madkit.simu.template'
 }
 
@@ -24,5 +24,4 @@ tasks.withType(JavaExec) {
 
 dependencies {
 	api project(':MaDKit')
-//	implementation files('libs/controlsfx-11.1.1-SNAPSHOT.jar')
 }

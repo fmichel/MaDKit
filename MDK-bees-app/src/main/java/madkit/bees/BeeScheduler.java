@@ -18,12 +18,9 @@
  */
 package madkit.bees;
 
-import static madkit.simulation.DefaultOrganization.VIEWER_ROLE;
-
 import madkit.kernel.Scheduler;
-import madkit.simulation.DateBasedTimer;
-import madkit.simulation.Parameter;
-import madkit.simulation.activator.MethodActivator;
+import madkit.simulation.scheduler.DateBasedTimer;
+import madkit.simulation.scheduler.MethodActivator;
 
 /**
  * @version 6

@@ -5,7 +5,7 @@ import org.testng.annotations.BeforeClass;
 import madkit.kernel.Agent;
 import madkit.kernel.AgentAddress;
 import madkit.kernel.JunitMadkit;
-import madkit.simulation.activator.MethodActivator;
+import madkit.simulation.scheduler.MethodActivator;
 
 //FIXME
 public class OverlookerTest extends JunitMadkit {

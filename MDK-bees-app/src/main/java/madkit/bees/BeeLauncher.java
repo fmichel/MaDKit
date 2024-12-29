@@ -23,59 +23,43 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.IntStream;
 
+import madkit.gui.UIProperty;
 import madkit.kernel.Agent;
-import madkit.kernel.Message;
 import madkit.simulation.EngineAgents;
-import madkit.simulation.Environment;
-import madkit.simulation.Parameter;
-import madkit.simulation.SimulationEngine;
-import madkit.simulation.viewer.RolesPopulationLineChartDrawer;
+import madkit.simulation.SimuLauncher;
 
 /**
- * The agent that launches the simulation
+ * The agent that launches the bees simulation. It launches bees and queens and
+ * kills them randomly. It uses a custom scheduler, environment and viewer by
+ * defining the EngineAgents annotation.
  * 
- * @version 2.0.0.3
- * @author Fabien Michel
+ * @version 6.0
  */
 
 @EngineAgents(scheduler = BeeScheduler.class, environment = BeeEnvironment.class, viewers = { BeeViewer.class })
-public class BeeLauncher extends SimulationEngine {
+public class BeeLauncher extends SimuLauncher {
 
-	@Parameter
-	private static int beesNumber = 200_000;
+	@UIProperty
+	private int beesNumber = 200_000;
+
+	@UIProperty
+	private boolean randomLaunching = true;
 
 	private ArrayList<Agent> queensList = new ArrayList<>();
 	private ArrayList<Agent> beesList = new ArrayList<>(beesNumber * 2);
-	private boolean randomMode = true;
 
 	@Override
-	protected void launchSimulatedAgents() {
+	protected void onLaunchSimulatedAgents() {
 		getLogger().info(() -> "Launching bees !");
 		launchBees(beesNumber);
 		launchQueens(1);
 	}
 
-	/**
-	 * So that I can react to {@link BeeLauncherAction#RANDOM_MODE} message
-	 */
-	@SuppressWarnings("unused")
-	private void randomMode(boolean on) {
-		randomMode = on;
-	}
-
-	enum BeeLauncherAction {
-
-		RANDOM_MODE, LAUNCH_BEES,
-	}
-
 	@Override
 	protected void onLive() {
 		while (isAlive() && getScheduler().isAlive()) {
-			Message m = waitNextMessage(prng().nextInt(500, 4500));
-			if (m != null) {
-//				proceedEnumMessage((EnumMessage<?>) m);
-			}
-			if (randomMode) {
+			pause(prng().nextInt(1000, 4500));
+			if (randomLaunching) {
 				killBees(false, 150);
 				if (prng().nextDouble() < .8) {
 					if (prng().nextDouble() < .5) {
@@ -101,8 +85,6 @@ public class BeeLauncher extends SimulationEngine {
 
 	@Override
 	protected void onEnd() {
-		queensList = null;
-		beesList = null;
 		getLogger().info("I am done. Bye !");
 		super.onEnd();
 	}
@@ -143,17 +125,30 @@ public class BeeLauncher extends SimulationEngine {
 		}
 	}
 
-	public static int getBeesNumber() {
+	public int getBeesNumber() {
 		return beesNumber;
 	}
 
-	public static void setBeesNumber(int beesNumber) {
-		BeeLauncher.beesNumber = beesNumber;
+	public void setBeesNumber(int beesNumber) {
+		this.beesNumber = beesNumber;
 	}
 
 	public static void main(String[] args) {
-//		executeThisAgent(1, "--noLog");
 		executeThisAgent();
+	}
+
+	/**
+	 * @return the randomLaunching
+	 */
+	public boolean isRandomLaunching() {
+		return randomLaunching;
+	}
+
+	/**
+	 * @param randomLaunching the randomLaunching to set
+	 */
+	public void setRandomLaunching(boolean randomLaunching) {
+		this.randomLaunching = randomLaunching;
 	}
 
 }

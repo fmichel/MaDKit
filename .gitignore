@@ -28,8 +28,9 @@ MDK-benchmark
 madkit/TIPS
 madkit/find-deps.sh
 madkit/trash/
+MDK-turtlekit
+MDK-tk-demos
+/Z-bees-app/
 
 #MaDKit build dirs
 Logs
-MDK-turtlekit
-MDK-tk-demos

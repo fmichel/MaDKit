@@ -73,10 +73,10 @@ public abstract class ViewerDefaultGUI extends AgentDefaultGUI {
 	 */
 	protected ViewerDefaultGUI(Viewer viewer) {
 		super(viewer);
-		javafx.geometry.Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-		getStage().setWidth(screenBounds.getWidth());
-		getStage().setHeight(screenBounds.getHeight());
 		FXManager.runAndWait(() -> {
+			javafx.geometry.Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+			getStage().setWidth(screenBounds.getWidth());
+			getStage().setHeight(screenBounds.getHeight());
 			ToolBar tb = (ToolBar) getMainPane().getBottom();
 			tb.getItems().get(8).requestFocus();
 		});
@@ -149,7 +149,7 @@ public abstract class ViewerDefaultGUI extends AgentDefaultGUI {
 	 * @return a VBox that will be used as the right node of the main pane
 	 */
 	@Override
-	protected VBox createRightNode() {
+	protected Node createRightNode() {
 		List<Object> l = new ArrayList<>();
 		l.addAll(List.of(getViewer().getLauncher(), getViewer().getModel(), getViewer().getEnvironment(),
 				getViewer().getScheduler(), getViewer()));
@@ -197,6 +197,23 @@ public abstract class ViewerDefaultGUI extends AgentDefaultGUI {
 		b.setTooltip(new Tooltip("trigger the OnSimulationStart method of " + getViewer().getLauncher()));
 		toolBar.getItems().add(b);
 		return toolBar;
+	}
+
+	/**
+	 * Requests the rendering of the simulation state. The rendering is done in the
+	 * JavaFX thread depending on the state of the GUI such as the synchronous
+	 * painting mode.
+	 * 
+	 */
+	public void requestRendering() {
+		if (synchroPainting.isSelected() && !renderingOff.isSelected()) {// && isAlive()) {
+			if (counter > renderingInterval) {
+				FXManager.runAndWait(getViewer()::render);
+				counter = 2;
+			} else {
+				counter++;
+			}
+		}
 	}
 
 	/**
@@ -249,23 +266,6 @@ public abstract class ViewerDefaultGUI extends AgentDefaultGUI {
 		// if ((int) comboBox.getSelectedItem() != renderingInterval) {
 		// comboBox.setSelectedItem(renderingInterval);
 		// }
-	}
-
-	/**
-	 * Requests the rendering of the simulation state. The rendering is done in the
-	 * JavaFX thread depending on the state of the GUI such as the synchronous
-	 * painting mode.
-	 * 
-	 */
-	public void requestRendering() {
-		if (synchroPainting.isSelected() && !renderingOff.isSelected()) {// && isAlive()) {
-			if (counter > renderingInterval) {
-				FXManager.runAndWait(getViewer()::render);
-				counter = 2;
-			} else {
-				counter++;
-			}
-		}
 	}
 
 	/**

@@ -237,7 +237,7 @@ abstract class Overlooker {
 	 */
 	@Override
 	public String toString() {
-		return getName() + " <" + community + "," + group + "," + role + "> A(" + size() + ")";
+		return getName() + " <" + group + "," + role + "> A(" + size() + ")";
 	}
 
 	public String getName() {

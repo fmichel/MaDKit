@@ -43,34 +43,6 @@ public class BeeViewer extends Viewer2D {
 	@UIProperty(category = "engine", displayName = "art mode")
 	private boolean artMode = false;
 
-	/**
-	 * @return the artMode
-	 */
-	public boolean isArtMode() {
-		return artMode;
-	}
-
-	/**
-	 * @param artMode the artMode to set
-	 */
-	public void setArtMode(boolean artMode) {
-		this.artMode = artMode;
-	}
-
-	/**
-	 * @return the trailMode
-	 */
-	public boolean isTrailMode() {
-		return trailMode;
-	}
-
-	/**
-	 * @param trailMode the trailMode to set
-	 */
-	public void setTrailMode(boolean trailMode) {
-		this.trailMode = trailMode;
-	}
-
 	@Override
 	protected void onActivation() {
 		env = getLauncher().getEnvironment();
@@ -102,6 +74,34 @@ public class BeeViewer extends Viewer2D {
 				getGraphics().strokeLine(p.x, p.y, p.x, p.y);
 			}
 		}
+	}
+
+	/**
+	 * @param artMode the artMode to set
+	 */
+	public void setArtMode(boolean artMode) {
+		this.artMode = artMode;
+	}
+
+	/**
+	 * @return the artMode
+	 */
+	public boolean isArtMode() {
+		return artMode;
+	}
+
+	/**
+	 * @return the trailMode
+	 */
+	public boolean isTrailMode() {
+		return trailMode;
+	}
+
+	/**
+	 * @param trailMode the trailMode to set
+	 */
+	public void setTrailMode(boolean trailMode) {
+		this.trailMode = trailMode;
 	}
 
 }

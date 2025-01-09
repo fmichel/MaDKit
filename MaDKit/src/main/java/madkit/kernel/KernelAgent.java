@@ -136,18 +136,46 @@ class KernelAgent extends Agent implements DaemonAgent {
 		return agentExecutors.getAgentExecutor(a);
 	}
 
-	private void handleMessage(Message message) {
-		if (message instanceof KernelMessage m) {
-			proceedEnumMessage(m);
-//		} else if (m instanceof HookMessage) {
-//			handleHookRequest((HookMessage) m);
-//		} else if (m instanceof RequestRoleSecure) {
-//			handleRequestRoleSecure((RequestRoleSecure) m);
-		} else {
-			if (message != null)
-				logger.warning(() -> "I received a message that I do not understand. Discarding " + message);
+	@Override
+		protected void onActivation() {
+			FXManager.setHeadlessMode(getKernelConfig().getBoolean("headless") || GraphicsEnvironment.isHeadless());
+			FXManager.startFX();
+			createGroup(LocalCommunity.NAME, Groups.SYSTEM, false, (_, _, _) -> {
+				return false;
+			});
+			createGroup(LocalCommunity.NAME, "kernels", true);
+	
+	//		// building the network group
+	//		createGroup(LocalCommunity.NAME, Groups.NETWORK, false);
+	//		requestRole(LocalCommunity.NAME, Groups.NETWORK, Roles.KERNEL, null);
+	//		requestRole(LocalCommunity.NAME, Groups.NETWORK, Roles.UPDATER, null);
+	//		requestRole(LocalCommunity.NAME, Groups.NETWORK, Roles.EMMITER, null);
+	
+			launchConfigAgents();
+	
+			// my AAs cache
+	//		netUpdater = getAgentAddressIn(LocalCommunity.NAME, Groups.NETWORK, Roles.UPDATER);
+	//		netEmmiter = getAgentAddressIn(LocalCommunity.NAME, Groups.NETWORK, Roles.EMMITER);
+	//		kernelRole = getAgentAddressIn(LocalCommunity.NAME, Groups.NETWORK, Roles.KERNEL);
+	
+	//		myThread.setPriority(Thread.NORM_PRIORITY + 1);
+	
+	//		if (loadLocalDemos.isActivated(getMadkitConfig())) {
+	//		    GlobalAction.LOAD_LOCAL_DEMOS.actionPerformed(null);
+	//		}
+	//
+	//		launchGuiManagerAgent();
+	//
+	//		if (console.isActivated(getMadkitConfig())) {
+	//		    launchAgent(new ConsoleAgent());
+	//		}
+	//		launchNetworkAgent();
+			// logCurrentOrganization(logger,Level.FINEST);
+	
+	//		javax.swing.Action b = GlobalAction.JCONSOLE.getSwingAction();
+	//		b.actionPerformed(null);
+	//		Object o = null;		o.toString();
 		}
-	}
 
 	/**
 	 * main loop of the kernel. As a daemon, a timeout is not required
@@ -177,50 +205,22 @@ class KernelAgent extends Agent implements DaemonAgent {
 		}
 	}
 
+	private void handleMessage(Message message) {
+			if (message instanceof KernelMessage m) {
+				proceedEnumMessage(m);
+	//		} else if (m instanceof HookMessage) {
+	//			handleHookRequest((HookMessage) m);
+	//		} else if (m instanceof RequestRoleSecure) {
+	//			handleRequestRoleSecure((RequestRoleSecure) m);
+			} else {
+				if (message != null)
+					logger.warning(() -> "I received a message that I do not understand. Discarding " + message);
+			}
+		}
+
 	@Override
 	protected void onEnd() {
 		kernerls.remove(this);
-	}
-
-	@Override
-	protected void onActivation() {
-		FXManager.setHeadlessMode(getKernelConfig().getBoolean("headless") || GraphicsEnvironment.isHeadless());
-		FXManager.startFX();
-		createGroup(LocalCommunity.NAME, Groups.SYSTEM, false, (req, ro, card) -> {
-			return false;
-		});
-		createGroup(LocalCommunity.NAME, "kernels", true);
-
-//		// building the network group
-//		createGroup(LocalCommunity.NAME, Groups.NETWORK, false);
-//		requestRole(LocalCommunity.NAME, Groups.NETWORK, Roles.KERNEL, null);
-//		requestRole(LocalCommunity.NAME, Groups.NETWORK, Roles.UPDATER, null);
-//		requestRole(LocalCommunity.NAME, Groups.NETWORK, Roles.EMMITER, null);
-
-		launchConfigAgents();
-
-		// my AAs cache
-//		netUpdater = getAgentAddressIn(LocalCommunity.NAME, Groups.NETWORK, Roles.UPDATER);
-//		netEmmiter = getAgentAddressIn(LocalCommunity.NAME, Groups.NETWORK, Roles.EMMITER);
-//		kernelRole = getAgentAddressIn(LocalCommunity.NAME, Groups.NETWORK, Roles.KERNEL);
-
-//		myThread.setPriority(Thread.NORM_PRIORITY + 1);
-
-//		if (loadLocalDemos.isActivated(getMadkitConfig())) {
-//		    GlobalAction.LOAD_LOCAL_DEMOS.actionPerformed(null);
-//		}
-//
-//		launchGuiManagerAgent();
-//
-//		if (console.isActivated(getMadkitConfig())) {
-//		    launchAgent(new ConsoleAgent());
-//		}
-//		launchNetworkAgent();
-		// logCurrentOrganization(logger,Level.FINEST);
-
-//		javax.swing.Action b = GlobalAction.JCONSOLE.getSwingAction();
-//		b.actionPerformed(null);
-//		Object o = null;		o.toString();
 	}
 
 	@Override
@@ -539,7 +539,9 @@ class KernelAgent extends Agent implements DaemonAgent {
 				Class<?> agentClass = MadkitClassLoader.getLoader().loadClass(className);
 				for (int i = 0; i < number; i++) {
 					// if (! shuttedDown) {
-					launchAgent((Agent) agentClass.getConstructor().newInstance(), 0);
+					Agent newInstance = (Agent) agentClass.getConstructor().newInstance();
+					launchAgent(newInstance, 0);
+					threadedAgents.add(newInstance);
 					// }
 				}
 			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException

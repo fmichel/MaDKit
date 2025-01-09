@@ -3,34 +3,17 @@
  */
 package madkit.simulation.viewer;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javafx.collections.ObservableList;
-import javafx.scene.chart.XYChart;
-import javafx.scene.chart.XYChart.Data;
-import madkit.gui.FXManager;
 import madkit.kernel.Probe;
 
 /**
  * A Viewer that displays the population of roles in the artificial organization
  */
-public class RolesPopulationLineChartDrawer extends LineChartDrawer {
+public class RolesPopulationLineChartDrawer extends LineChartDrawer<Probe> {
 
-	private Map<Probe, XYChart.Series<String, Number>> series;
-
-	@Override
-	public void render() {
-		for (Map.Entry<Probe, XYChart.Series<String, Number>> entry : series.entrySet()) {
-			ObservableList<Data<String, Number>> serie = entry.getValue().getData();
-			serie.add(new XYChart.Data<>(getSimuTimer().toString(), entry.getKey().size()));
-		}
-	}
 
 	@Override
 	protected void onActivation() {
 		super.onActivation();
-		series = new HashMap<>();
 	}
 
 	@Override
@@ -50,11 +33,9 @@ public class RolesPopulationLineChartDrawer extends LineChartDrawer {
 
 	@Override
 	public void display() {
-		for (Map.Entry<Probe, XYChart.Series<String, Number>> entry : series.entrySet()) {
-			ObservableList<Data<String, Number>> serie = entry.getValue().getData();
-			serie.add(new XYChart.Data<>(getSimuTimer().toString(), entry.getKey().size()));
-		}
-		super.display();
+		getProbes().forEach(probe -> {
+			addData(probe, getSimuTimer().toString(), probe.size());
+		});
 	}
 
 	/**
@@ -66,11 +47,10 @@ public class RolesPopulationLineChartDrawer extends LineChartDrawer {
 	protected void addRoleToMonitoring(String group, String role) {
 		Probe probe = new Probe(getCommunity(), group, role);
 		addProbe(probe);
-		XYChart.Series<String, Number> serie = new XYChart.Series<>();
-		FXManager.runLater(() -> {
-			getLineChart().getData().add(serie);
-			serie.setName(role);
-			series.put(probe, serie);
-		});
+		addSerie(probe, probe.getRole());
+	}
+
+	@Override
+	public void render() {
 	}
 }

@@ -59,7 +59,10 @@ public class MethodActivator extends Activator {
 	 * @param methodName the name of the Java method which will be invoked
 	 * @param argTypes   the class types of the method arguments
 	 */
-	public MethodActivator(final String group, final String role, final String methodName, Class<?>... argTypes) {
+	public MethodActivator(String group,
+			String role,
+			String methodName,
+			Class<?>... argTypes) {
 		super(group, role);
 		methods = new ConcurrentHashMap<>();
 		method = methodName;
@@ -121,7 +124,7 @@ public class MethodActivator extends Activator {
 	 * @param agents the list of agents
 	 */
 	private void executeBehaviors(List<? extends Agent> agents) {
-		for (final Agent a : agents) {
+		for (Agent a : agents) {
 			if (a.isAlive()) {
 				refreshCaches(a);
 				try {
@@ -195,7 +198,7 @@ public class MethodActivator extends Activator {
 	private void exexecuteBehaviorsWithArgs(List<? extends Agent> agents, Object... args) {
 		Object[] params = new Object[args.length + 1];
 		System.arraycopy(args, 0, params, 1, args.length);
-		for (final Agent a : agents) {
+		for (Agent a : agents) {
 			if (a.isAlive()) {
 				refreshCaches(a, args);
 				try {

@@ -6,6 +6,7 @@ import static javafx.scene.paint.Color.WHITE;
 
 import madkit.kernel.Agent;
 import madkit.simulation.PropertyProbe;
+import madkit.simulation.environment.Environment2D;
 import madkit.simulation.viewer.Viewer2D;
 
 /**
@@ -43,6 +44,12 @@ public class MyViewer extends Viewer2D {
 		addProbe(positionY);
 		// Call the superclass's onActivation method
 		super.onActivation();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Environment2D getEnvironment() {
+		return (Environment2D) super.getEnvironment();
 	}
 
 	/**

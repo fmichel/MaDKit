@@ -3,6 +3,7 @@ package madkit.gui;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.FutureTask;
+import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -52,6 +53,13 @@ public class FXManager extends Application {
 	}
 
 	/**
+	 * Constructs a new FXManager and sets the singleton instance.
+	 */
+	public FXManager() {
+		setFxApplicationInstance(this);
+	}
+
+	/**
 	 * Sets the singleton instance of the FXManager.
 	 *
 	 * @param fxa the FXManager instance
@@ -59,13 +67,6 @@ public class FXManager extends Application {
 	public static void setFxApplicationInstance(FXManager fxa) {
 		fxApplicationInstance = fxa;
 		latch.countDown();
-	}
-
-	/**
-	 * Constructs a new FXManager and sets the singleton instance.
-	 */
-	public FXManager() {
-		setFxApplicationInstance(this);
 	}
 
 	/**
@@ -84,15 +85,29 @@ public class FXManager extends Application {
 	 * headless mode.
 	 */
 	public static synchronized void startFX() {
+		FX_ROOT_LOGGER.setUseParentHandlers(false);
+		ConsoleHandler ch;
+		FX_ROOT_LOGGER.addHandler(ch = new ConsoleHandler());
+		ch.setLevel(Level.FINEST);
+		FX_ROOT_LOGGER.setLevel(Level.FINEST);
 		if (!(isStarted || headlessMode)) {
-			FX_ROOT_LOGGER.log(Level.FINEST, () -> "FX Started!");
-			Platform.setImplicitExit(false);
-			Thread thread = new Thread(() -> Application.launch(FXManager.class));
+//			Thread thread = new Thread(() -> Application.launch(FXManager.class));
+//			Platform.setImplicitExit(false);
+			Thread.ofVirtual().start(() -> Application.launch(FXManager.class));
+//			Platform.startup(() -> {
+//				FX_ROOT_LOGGER.log(Level.FINEST, () -> "FX Started!");
+//			});
 			isStarted = true;
-			thread.setDaemon(false);
-			thread.start();
+//			thread.setDaemon(false);
+//			thread.start();
 			FXManager.waitForFxInitialization();
+			FX_ROOT_LOGGER.log(Level.FINEST, () -> "FX Started! " + Platform.isImplicitExit());
 		}
+	}
+
+	@Override
+	public void stop() throws Exception {
+		super.stop();
 	}
 
 	/**
@@ -109,15 +124,31 @@ public class FXManager extends Application {
 					action.run();
 				} else {
 					FutureTask<Object> futureTask = new FutureTask<>(action, null);
+//					FX_ROOT_LOGGER.log(Level.FINEST,
+//							() -> "Running action not in FX thread " + Platform.isFxApplicationThread());
 					Platform.runLater(futureTask);
 					futureTask.get();
+//					futureTask.get(1, java.util.concurrent.TimeUnit.SECONDS);
+//					CountDownLatch latch = new CountDownLatch(1);
+//					Platform.runLater(() -> {
+//						try {
+//							action.run();
+//						} finally {
+//							latch.countDown();
+//						}
+//					});
+//					latch.await();
 				}
 			} catch (InterruptedException e) {
 				throw new AgentInterruptedException();
 			} catch (Exception e) {
 				FX_ROOT_LOGGER.log(Level.WARNING, "FX problem...", e);
 			}
+		} else {
+			FX_ROOT_LOGGER.log(Level.WARNING, "FX not started: cannot run action!");
+			throw new RuntimeException("FX not started: cannot run action!");
 		}
+
 	}
 
 	/**

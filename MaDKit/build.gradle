@@ -24,7 +24,7 @@ tasks.withType(JavaExec) {
 javafx {
 	version = '21.0.5'
 	modules = ['javafx.base', 'javafx.controls', 'javafx.graphics']
-    configuration = 'implementation'
+    configuration = 'api'
 }
 
 javaModuleTesting.whitebox(testing.suites.getByName("test")){

@@ -85,7 +85,9 @@ public abstract class Viewer extends Watcher {
 	 * the state of the GUI such as the synchronous painting mode.
 	 */
 	public void display() {
-		gui.requestRendering();
+		if (gui != null) {
+			gui.requestRendering();
+		}
 	}
 
 	/**

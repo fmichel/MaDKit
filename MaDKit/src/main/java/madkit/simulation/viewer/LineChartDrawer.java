@@ -3,11 +3,18 @@
  */
 package madkit.simulation.viewer;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 import javafx.scene.Node;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
+import javafx.scene.chart.XYChart.Series;
 import madkit.gui.FXManager;
+import madkit.gui.UIProperty;
 import madkit.simulation.SimuOrganization;
 import madkit.simulation.Viewer;
 
@@ -22,10 +29,16 @@ import madkit.simulation.Viewer;
  * set by the abstract methods {@link #getxAxisLabel()},
  * {@link #getyAxisLabel()} and {@link #getLineChartTitle()} respectively.
  * 
+ * @param <K> the type of the keys used to identify the series in the line chart
+ * 
+ * 
  */
-public abstract class LineChartDrawer extends Viewer {
+public abstract class LineChartDrawer<K> extends Viewer {
 
 	private LineChart<String, Number> lineChart;
+	private Map<K, XYChart.Series<String, Number>> series;
+	@UIProperty
+	private int maxXDataPoints = 500;
 
 	/**
 	 * This method is called when the agent is activated. By default, it requests
@@ -38,6 +51,7 @@ public abstract class LineChartDrawer extends Viewer {
 	 */
 	@Override
 	protected void onActivation() {
+		series = new HashMap<>();
 		super.onActivation();
 		setGUI(new ViewerDefaultGUI(this) {
 			@Override
@@ -57,8 +71,30 @@ public abstract class LineChartDrawer extends Viewer {
 		});
 		FXManager.runAndWait(() -> {
 			getGUI().getStage().show();
-			getGUI().getStage().setWidth(800);
-			getGUI().getStage().setHeight(800);
+			getGUI().getStage().setWidth(400);
+			getGUI().getStage().setHeight(400);
+			getGUI().getStage().setX(0);
+		});
+		getGUI().getSynchroPaintingAction().setSelected(false);
+	}
+
+	protected void addSerie(K key, String name) {
+		FXManager.runAndWait(() -> {
+			XYChart.Series<String, Number> serie = new XYChart.Series<>();
+			serie.setName(name);
+			series.put(key, serie);
+			lineChart.getData().add(serie);
+		});
+	}
+
+	public Series<String, Number> getSeries(K key) {
+		return series.get(key);
+	}
+
+	public void addData(K key, String x, Number y) {
+		FXManager.runAndWait(() -> {
+			checkSize();
+			series.get(key).getData().add(new XYChart.Data<>(x, y));
 		});
 	}
 
@@ -90,6 +126,38 @@ public abstract class LineChartDrawer extends Viewer {
 	 */
 	protected LineChart<String, Number> getLineChart() {
 		return lineChart;
+	}
+
+	/**
+	 * @return the series
+	 */
+	public Map<K, XYChart.Series<String, Number>> getSeries() {
+		return series;
+	}
+
+	private void checkSize() {
+		Collection<Series<String, Number>> values = series.values();
+		if (!values.isEmpty() && values.stream().findFirst().get().getData().size() > getMaxXDataPoints()) {
+			values.forEach(s -> s.getData().clear());
+		}
+	}
+
+	/**
+	 * Returns the maximum number of data points to display on the x-axis
+	 * 
+	 * @return the maxXDataPoints
+	 */
+	public int getMaxXDataPoints() {
+		return maxXDataPoints;
+	}
+
+	/**
+	 * Sets the maximum number of data points to display on the x-axis
+	 * 
+	 * @param maxXDataPoints the maxXDataPoints to set
+	 */
+	public void setMaxXDataPoints(int maxXDataPoints) {
+		this.maxXDataPoints = maxXDataPoints;
 	}
 
 }

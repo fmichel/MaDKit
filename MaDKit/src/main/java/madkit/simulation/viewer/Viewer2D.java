@@ -20,8 +20,11 @@ public abstract class Viewer2D extends Viewer {
 	protected void onActivation() {
 		super.onActivation();
 		CanvasDrawerGUI gui = new CanvasDrawerGUI(this);
-		gui.setCanvasSize(getEnvironment().getWidth(), getEnvironment().getHeight());
+		Environment2D env = getEnvironment();
+//		FXManager.runAndWait(() -> {
+			gui.setCanvasSize(env.getWidth(), env.getHeight());
 		graphics = gui.getGraphics();
+//		});
 		setGUI(gui);
 	}
 
@@ -32,15 +35,6 @@ public abstract class Viewer2D extends Viewer {
 	 */
 	protected GraphicsContext getGraphics() {
 		return graphics;
-	}
-
-	/**
-	 * Redefines to benefit from automatic casting.
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	public Environment2D getEnvironment() {
-		return super.getEnvironment();
 	}
 
 	/**

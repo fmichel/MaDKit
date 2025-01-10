@@ -82,7 +82,7 @@ public class AgentLogger extends Logger {
 
 	AgentLogger(Agent a) {
 		super("[" + a.getName() + "] ", null);
-		setParent(Madkit.MDK_ROOT_LOGGER);
+		setParent(Madkit.MDK_LOGGER);
 		if (a.kernel != null && a.kernel != KernelAgent.deadKernel) {
 			setLevel(a.getKernelConfig().getLevel(MDKCommandLine.AGENT_LOG_LEVEL));
 			if (a.getKernelConfig().getBoolean(MDKCommandLine.CREATE_LOG_FILES)) {
@@ -95,7 +95,7 @@ public class AgentLogger extends Logger {
 
 	AgentLogger(KernelAgent a) {
 		super("[" + a.getName() + "] ", null);
-		setParent(Madkit.MDK_ROOT_LOGGER);
+		setParent(Madkit.MDK_LOGGER);
 	}
 
 	AgentLogger() {

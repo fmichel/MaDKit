@@ -13,10 +13,9 @@ import madkit.action.ActionData;
  * 
  */
 public class FXAction extends Action {
-
-	static {
-		FXManager.startFX();
-	}
+//	static {
+//		FXExecutor.startFX();
+//	}
 
 	/**
 	 * Builds a new action using {@link ActionData} for the action information.}

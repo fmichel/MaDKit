@@ -68,7 +68,7 @@ class ConsoleAgent extends Agent {
 
 	@Override
 	public void setupDefaultGUI() {
-		FXManager.runAndWait(() -> {
+		FXExecutor.runAndWait(() -> {
 			FXAgentStage stage = new FXAgentStage(this);
 			FXOutputPane outP = new FXOutputPane(this);
 			Scene scene = new Scene(outP);

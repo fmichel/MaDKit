@@ -1,5 +1,5 @@
 variables:
-  VERSION: "6.0"
+  VERSION: "6.0.0"
 
 stages:
   - build
@@ -15,7 +15,7 @@ stages:
 default:
   tags:
     - balrogrunner8
-  image: eclipse-temurin:21.0.5_11-jdk-alpine
+  image: eclipse-temurin:23.0.1_11-jdk-alpine
   before_script:
     - *gradle_script
   cache: &global_cache

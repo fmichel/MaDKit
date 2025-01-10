@@ -21,7 +21,7 @@ public abstract class Viewer2D extends Viewer {
 		super.onActivation();
 		CanvasDrawerGUI gui = new CanvasDrawerGUI(this);
 		Environment2D env = getEnvironment();
-//		FXManager.runAndWait(() -> {
+//		FXExecutor.runAndWait(() -> {
 			gui.setCanvasSize(env.getWidth(), env.getHeight());
 		graphics = gui.getGraphics();
 //		});

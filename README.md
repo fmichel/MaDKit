@@ -35,18 +35,18 @@ Programming with MaDKit can be done by either :
 For instance, with Gradle:
 
 ```groovy
-implementation "io.github.fmichel:MaDKit:6.0"
+implementation "io.github.fmichel:MaDKit:6.0.0"
 ```
 
-JDK 21+ is required. 
+JDK 23+ is required. 
 
 ## More information
 
 * [Official Homepage](http://www.madkit.net)
-* [API Reference](https://madkit.net/javadoc/6.0/madkit.base/module-summary.html)
+* [API Reference](https://madkit.net/javadoc)
 * [Tutorials](http://www.madkit.net/madkit/tutorials) V.5
 * [Getting started](http://www.madkit.net/madkit/README.html) V.5
-* [Documentation](http://www.madkit.net/madkit/documents.php)
+* [Documentation](http://www.madkit.net/madkit/documents.php) V.5
 
 ## Contributing
 

@@ -65,9 +65,10 @@ import javafx.application.Platform;
 import javafx.stage.Window;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
+import madkit.gui.FXExecutor;
 import madkit.agr.SystemRoles;
-import madkit.gui.FXManager;
 import madkit.i18n.ErrorMessages;
+import madkit.internal.FXInstance;
 import madkit.messages.KernelMessage;
 
 /**
@@ -136,10 +137,42 @@ class KernelAgent extends Agent implements DaemonAgent {
 		return agentExecutors.getAgentExecutor(a);
 	}
 
+	/**
+	 * Starts the JavaFX application if it is not already started and not in
+	 * headless mode.
+	 * 
+	 * @param level the level at which to log
+	 */
+//	public static synchronized void startFX(Level level) {
+//		if (!(isStarted || headlessMode)) {
+//			FX_ROOT_LOGGER.setUseParentHandlers(false);
+//			ConsoleHandler ch = new ConsoleHandler();
+//			FX_ROOT_LOGGER.addHandler(ch);
+//			ch.setLevel(Level.ALL);
+//			FX_ROOT_LOGGER.setLevel(level);
+//			Platform.setImplicitExit(false);
+//			CountDownLatch latch = new CountDownLatch(1);
+//			Platform.startup(() -> {
+//				isStarted = true;
+//				latch.countDown();
+//				FX_ROOT_LOGGER.log(Level.INFO, () -> "FX Platform Started!");
+//			});
+//			try {
+//				latch.await();
+//			} catch (InterruptedException e) {
+//				FX_ROOT_LOGGER.log(Level.WARNING, "FX start interrupted!", e);
+//				Thread.currentThread().interrupt();
+//			}
+//		}
+//	}
+
 	@Override
 		protected void onActivation() {
-			FXManager.setHeadlessMode(getKernelConfig().getBoolean("headless") || GraphicsEnvironment.isHeadless());
-			FXManager.startFX();
+			if (GraphicsEnvironment.isHeadless()) {
+				getKernelConfig().setProperty(MDKCommandLine.HEADLESS, true);
+			}
+			FXInstance.setHeadlessMode(getKernelConfig().getBoolean(MDKCommandLine.HEADLESS));
+			FXInstance.startFX(getLogger());
 			createGroup(LocalCommunity.NAME, Groups.SYSTEM, false, (_, _, _) -> {
 				return false;
 			});
@@ -185,7 +218,7 @@ class KernelAgent extends Agent implements DaemonAgent {
 		while (!exitRequested) {
 			handleMessage(waitNextMessage(1000));
 			garbageDeadThreadedAgents();
-			if (threadedAgents.isEmpty() && FXManager.isStarted()
+			if (threadedAgents.isEmpty() && FXExecutor.isStarted()
 					&& FXAgentStage.getAgentsWithStage(kernelAddress).isEmpty()) {
 				logIfLoggerNotNull(Level.FINE,
 						() -> "No more activity within kernel " + getKernelAddress() + " -> Quitting");
@@ -589,14 +622,17 @@ class KernelAgent extends Agent implements DaemonAgent {
 	void exit() {
 		getLogger().fine(() -> "***** SHUTINGDOWN MADKIT ********\n");
 		exitRequested = true;
+		Collection<Agent> c = FXAgentStage.getAgentsWithStage(getKernelAddress());
+		getLogger().fine(() -> "***** KILLING agent with stages " + c);
+		c.forEach(a -> killAgent(a, 1));
+		garbageDeadThreadedAgents();
+		getLogger().fine(() -> "Killing agents -> " + threadedAgents);
 		while (!threadedAgents.isEmpty()) {
 			synchronized (threadedAgents) {
 				threadedAgents.parallelStream().forEach(a -> killAgent(a, 1));
 				garbageDeadThreadedAgents();
 			} 
 		}
-		Collection<Agent> c = FXAgentStage.getAgentsWithStage(getKernelAddress());
-		c.forEach(a -> killAgent(a, 1));
 		kernerls.remove(this);
 		if (kernerls.isEmpty())
 			Platform.exit();

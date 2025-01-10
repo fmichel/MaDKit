@@ -25,7 +25,7 @@ import madkit.action.ActionData;
 import madkit.action.Actions;
 import madkit.gui.AgentDefaultGUI;
 import madkit.gui.FXActionCheck;
-import madkit.gui.FXManager;
+import madkit.gui.FXExecutor;
 import madkit.gui.PropertySheetFactory;
 import madkit.gui.ToolBars;
 import madkit.kernel.Agent;
@@ -73,7 +73,7 @@ public abstract class ViewerDefaultGUI extends AgentDefaultGUI {
 	 */
 	protected ViewerDefaultGUI(Viewer viewer) {
 		super(viewer);
-		FXManager.runAndWait(() -> {
+		FXExecutor.runAndWait(() -> {
 			javafx.geometry.Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
 			getStage().setWidth(screenBounds.getWidth());
 			getStage().setHeight(screenBounds.getHeight());
@@ -96,7 +96,7 @@ public abstract class ViewerDefaultGUI extends AgentDefaultGUI {
 		renderingOff = new FXActionCheck(new ActionData("DISABLE", KeyEvent.VK_A), null);
 		renderingOff.setSelected(false);
 
-		synchroPainting = new FXActionCheck(new ActionData("SYNCHRO_PAINTING", KeyEvent.VK_Z), ae -> {
+		synchroPainting = new FXActionCheck(new ActionData("SYNCHRO_PAINTING", KeyEvent.VK_Z), _ -> {
 			if (synchroPainting.isSelected()) {
 				animationTimer.stop();
 			} else {
@@ -193,7 +193,7 @@ public abstract class ViewerDefaultGUI extends AgentDefaultGUI {
 			toolBar.getItems().add(ActionUtils.createButton(action, ActionTextBehavior.HIDE));
 		}
 		Button b = new Button("On Simulation Start");
-		b.setOnAction(e -> getViewer().getLauncher().onSimulationStart());
+		b.setOnAction(_ -> getViewer().getLauncher().onSimulationStart());
 		b.setTooltip(new Tooltip("trigger the OnSimulationStart method of " + getViewer().getLauncher()));
 		toolBar.getItems().add(b);
 		return toolBar;
@@ -208,7 +208,7 @@ public abstract class ViewerDefaultGUI extends AgentDefaultGUI {
 	public void requestRendering() {
 		if (synchroPainting.isSelected() && !renderingOff.isSelected()) {// && isAlive()) {
 			if (counter > renderingInterval) {
-				FXManager.runAndWait(getViewer()::render);
+				FXExecutor.runAndWait(getViewer()::render);
 				counter = 2;
 			} else {
 				counter++;

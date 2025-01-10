@@ -27,15 +27,11 @@ public class AgentDefaultGUI {
 	 */
 	public AgentDefaultGUI(Agent agent) {
 		this.agent = agent;
-		agent.getLogger().fine(() -> "Creating GUI for " + agent);
-		FXManager.runAndWait(() -> {
-			agent.getLogger().fine(() -> "Creating GUI for " + agent);
+		FXExecutor.runAndWait(() -> {
 			onInitialize();
 			stage = new FXAgentStage(agent);
 			mainPane = new BorderPane();
-			agent.getLogger().fine(() -> "Creating GUI for " + agent);
 			mainPane.setTop(createTopNode());
-			agent.getLogger().fine(() -> "Creating GUI for " + agent);
 			mainPane.setLeft(createLeftNode());
 			mainPane.setCenter(createCenterNode());
 			mainPane.setRight(createRightNode());

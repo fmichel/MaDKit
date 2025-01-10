@@ -1,15 +1,12 @@
 plugins {
 	id 'buildlogic.madkit-common-conventions'
-	id 'application'
 	id 'maven-publish'
    	id 'signing'
-	id 'org.openjfx.javafxplugin' version '0.1.0'
    	id 'jacoco'
    	id "org.sonarqube" version "6.0.1.5171"
    	id 'org.gradlex.java-module-testing'
 }
 
-ext.moduleName = 'madkit.base'
 group = 'io.github.fmichel'
 
 application {
@@ -21,33 +18,11 @@ tasks.withType(JavaExec) {
     jvmArgs '--add-modules', 'ALL-MODULE-PATH'
 }
 
-javafx {
-	version = '21.0.5'
-	modules = ['javafx.base', 'javafx.controls', 'javafx.graphics']
-    configuration = 'api'
-}
-
 javaModuleTesting.whitebox(testing.suites.getByName("test")){
 	requires.add("org.testng")
 	opensTo.add("org.testng")
 	requires.add("org.assertj.core")
 }
-
-jacocoTestReport {
-    reports {
-        xml.required = true
-    }
-}
-test.finalizedBy jacocoTestReport
-
-sonar {
-  properties {
-    property "sonar.projectKey", "michel_madkit-6_AZN4XF4qdA3gHXvO4xzd"
-    property "sonar.projectName", "MaDKit-6"
-    property "sonar.qualitygate.wait", true 
-  }
-}
-
 dependencies {
     api libs.controlsfx
     api libs.commonsConfiguration2
@@ -61,12 +36,6 @@ dependencies {
     testImplementation libs.concurrentunit
     testImplementation libs.slf4j
     testImplementation libs.assertJ
-}
-
-jar {
-    manifest {
-    	attributes("Main-Class": "madkit.kernel.Madkit")
-	}
 }
 
 ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
@@ -134,3 +103,25 @@ tasks.named('test') {
         showStandardStreams = true
     }
 }
+
+jar {
+    manifest {
+    	attributes("Main-Class": "madkit.kernel.Madkit")
+	}
+}
+
+jacocoTestReport {
+    reports {
+        xml.required = true
+    }
+}
+test.finalizedBy jacocoTestReport
+
+sonar {
+  properties {
+    property "sonar.projectKey", "michel_madkit-6_AZN4XF4qdA3gHXvO4xzd"
+    property "sonar.projectName", "MaDKit-6"
+    property "sonar.qualitygate.wait", true 
+  }
+}
+

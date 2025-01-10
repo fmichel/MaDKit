@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import madkit.gui.FXManager;
+import madkit.gui.FXExecutor;
 
 /**
  * The `FXAgentStage` class extends the JavaFX {@link Stage} class to provide a
@@ -50,17 +50,17 @@ public class FXAgentStage extends Stage {
 	public FXAgentStage(Agent agent,
 			boolean autoCloseOnAgentEnd) {
 		this.agent = agent;
-		agentsWithStage.computeIfAbsent(agent.getKernelAddress(), k -> new HashSet<>()).add(agent);
+		agentsWithStage.computeIfAbsent(agent.getKernelAddress(), _ -> new HashSet<>()).add(agent);
 		getIcons().add(MADKIT_LOGO);
 		setTitle(agent.getName());
-		setOnCloseRequest(ae -> agent.killAgent(agent, 2));
+		setOnCloseRequest(_ -> agent.killAgent(agent, 2));
 		if (autoCloseOnAgentEnd) {
 			Thread.ofVirtual().start(() -> {
 				try {
 					synchronized (agent.alive) {
-						agent.alive.wait();// NOSONAR
+						agent.alive.wait();
 					}
-					FXManager.runLater(this::close);
+					FXExecutor.runLater(this::close);
 				} catch (InterruptedException e) {
 					Thread.currentThread().interrupt();
 				}
@@ -85,7 +85,7 @@ public class FXAgentStage extends Stage {
 	 * @return the agentsWithStage
 	 */
 	static Collection<Agent> getAgentsWithStage(KernelAddress ka) {
-		return new HashSet<>(agentsWithStage.computeIfAbsent(ka, k -> new HashSet<>()));
+		return new HashSet<>(agentsWithStage.computeIfAbsent(ka, _ -> new HashSet<>()));
 	}
 
 }

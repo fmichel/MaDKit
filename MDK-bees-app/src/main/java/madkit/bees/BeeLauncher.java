@@ -27,7 +27,6 @@ import madkit.gui.UIProperty;
 import madkit.kernel.Agent;
 import madkit.simulation.EngineAgents;
 import madkit.simulation.SimuLauncher;
-import madkit.simulation.viewer.RolesPopulationLineChartDrawer;
 
 /**
  * The agent that launches the bees simulation. It launches bees and queens and
@@ -37,10 +36,7 @@ import madkit.simulation.viewer.RolesPopulationLineChartDrawer;
  * @version 6.0
  */
 
-@EngineAgents(scheduler = BeeScheduler.class, environment = BeeEnvironment.class, viewers = { BeeViewer.class,
-		RolesPopulationLineChartDrawer.class }
-
-)
+@EngineAgents(scheduler = BeeScheduler.class, environment = BeeEnvironment.class, viewers = { BeeViewer.class })
 public class BeeLauncher extends SimuLauncher {
 
 	@UIProperty

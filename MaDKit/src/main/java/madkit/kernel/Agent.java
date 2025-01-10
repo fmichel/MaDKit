@@ -22,7 +22,7 @@ import it.unimi.dsi.fastutil.objects.Reference2BooleanArrayMap;
 import it.unimi.dsi.fastutil.objects.Reference2BooleanMap;
 import javafx.scene.Scene;
 import madkit.agr.SystemRoles;
-import madkit.gui.FXManager;
+import madkit.gui.FXExecutor;
 import madkit.gui.FXOutputPane;
 import madkit.messages.ConversationFilter;
 import madkit.messages.EnumMessage;
@@ -1275,7 +1275,7 @@ public abstract class Agent {
 	 * 
 	 */
 	public void setupDefaultGUI() {
-		FXManager.runAndWait(() -> {
+		FXExecutor.runAndWait(() -> {
 			FXAgentStage stage = new FXAgentStage(this);
 			Scene scene = new Scene(new FXOutputPane(this));
 			stage.setScene(scene);

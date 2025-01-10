@@ -1,7 +1,6 @@
 
 package madkit.kernel;
 
-import java.awt.GraphicsEnvironment;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -36,15 +35,15 @@ import picocli.CommandLine.PropertiesDefaultProvider;
 @Command(name = "MaDKit", mixinStandardHelpOptions = true, description = "Lightweight OCMAS platform: Multi-Agent Systems as artificial organizations")
 public class Madkit {
 
-	static final Logger MDK_ROOT_LOGGER = Logger.getLogger("[MADKIT] ");
+	public static final Logger MDK_LOGGER = Logger.getLogger("[MADKIT] ");
 
 	static {
 		final ConsoleHandler ch = new ConsoleHandler();
 		ch.setFormatter(AgentLogger.AGENT_FORMATTER);
 		ch.setLevel(Level.ALL);
-		MDK_ROOT_LOGGER.addHandler(ch);
-		MDK_ROOT_LOGGER.setLevel(Level.SEVERE);
-		MDK_ROOT_LOGGER.setUseParentHandlers(false);
+		MDK_LOGGER.addHandler(ch);
+		MDK_LOGGER.setLevel(Level.SEVERE);
+		MDK_LOGGER.setUseParentHandlers(false);
 	}
 
 	static final String LAUNCHER = "launcherClass";
@@ -90,9 +89,6 @@ public class Madkit {
 		launcherClass = getClass();
 		startingArgs = args;
 		initConfiguration(args);
-		if (GraphicsEnvironment.isHeadless()) {
-			config.setProperty(MDKCommandLine.HEADLESS, true);
-		}
 		if (parseCommanLine(args)) {
 			initLogging();
 			mdkLogger.finest(() -> MadkitClassLoader.getLoader().toString());
@@ -198,7 +194,7 @@ public class Madkit {
 	 */
 	private void initLogging() {
 		mdkLogger = Logger.getLogger("[MDK] ");
-		mdkLogger.setParent(MDK_ROOT_LOGGER);
+		mdkLogger.setParent(MDK_LOGGER);
 		mdkLogger.setLevel(mdkOptions.madkitLogLevel);
 	}
 
@@ -212,24 +208,15 @@ public class Madkit {
 		mdkLogger.fine("** Kernel launched **");
 	}
 
-	/**
-	 * Prints the welcome string for the MaDKit platform.
-	 */
 	private void printWelcomeString() {
 		if (mdkLogger.getLevel() != Level.OFF) {
-
-			String welcome = "\n\t---------------------------------------" + "\n\t                MaDKit"
-					+ "\n\t             version: " + VERSION + "\n\t       MaDKit Team (c) 1997-"
-					+ Calendar.getInstance().get(Calendar.YEAR) + "\n\t---------------------------------------\n";
-			System.out.println(welcome);// NOSONAR
+			String welcome = "---------------------------------------" + "\n                MaDKit"
+					+ "\n             version: " + VERSION + "\n       MaDKit Team (c) 1997-"
+					+ Calendar.getInstance().get(Calendar.YEAR) + "\n---------------------------------------\n";
+			System.out.println(welcome.indent(8));// NOSONAR
 		}
 	}
 
-	/**
-	 * Returns the class of the one-file launcher.
-	 *
-	 * @return the class of the one-file launcher, or the launcher class if not set
-	 */
 	Class<?> getOneFileLauncherClass() {
 		if (oneFileLauncher != null)
 			try {
@@ -248,7 +235,7 @@ public class Madkit {
 	String[] getLauncherArgs() {
 		if (oneFileLauncherArgs != null)
 			return oneFileLauncherArgs;
-		return config.get(String[].class, "CMD_LINE");
+		return config.get(String[].class, CMD_LINE);
 	}
 
 	/**

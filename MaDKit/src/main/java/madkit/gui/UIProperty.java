@@ -6,9 +6,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation to mark a field as a parameter for simulation purposes. This
- * annotation can be used to specify metadata for the parameter, such as its
- * category and display name.
+ * Annotation to mark a field as a parameter in GUI built using predefined
+ * JavaFX agents GUI such as {@link AgentDefaultGUI}. This annotation can be
+ * used to specify metadata for the parameter, such as its category and display
+ * name.
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)

@@ -1,6 +1,6 @@
 plugins {
 	id 'buildlogic.java-common-conventions'
-    id("org.gradlex.extra-java-module-info")
+    id 'org.gradlex.extra-java-module-info'
 }
 
 extraJavaModuleInfo {
@@ -12,7 +12,6 @@ extraJavaModuleInfo {
     automaticModule("org.webjars:jquery", "org.webjars.jquery")
 
     automaticModule("commons-collections:commons-collections", "org.apache.commons.collections")
-//    automaticModule("info.picocli:picocli", "info.picocli")
   
     module("commons-beanutils:commons-beanutils", "org.apache.commons.beanutils") {
         requiresTransitive("org.apache.commons.logging")
@@ -35,41 +34,8 @@ extraJavaModuleInfo {
         exportAllPackages() 
     }
 
-//    module("commons-logging:commons-logging", "org.apache.commons.logging"){
-//        patchRealModule()
-//        requires ("org.slf4j")
-//        exportAllPackages() 
-//    }
-
-//    module("org.slf4j:slf4j-api", "org.slf4j"){     
-//        patchRealModule()
-//        exportAllPackages() 
-//    }
-
     module("org.apache.commons:commons-lang3", "org.apache.commons.lang3"){
         patchRealModule()
         exportAllPackages() 
-
-    }
-
-    // failOnMissingModuleInfo.set(false)
-}
-
-
-////hack for working with automatic modules
-eclipse {
-    classpath {
-        file {
-            whenMerged { classpath ->
-                def moduleDependencies = ['slf4j-api']
-                classpath.entries.each { entry ->
-                    moduleDependencies.each { String name ->
-                        if (entry.path.contains(name)) {
-                            entry.entryAttributes.put('module', 'true')
-                        }
-                    }
-                }
-            }
-        }
     }
 }

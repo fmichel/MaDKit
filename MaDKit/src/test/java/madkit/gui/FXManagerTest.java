@@ -4,13 +4,15 @@ import static org.testng.Assert.assertTrue;
 
 import java.awt.GraphicsEnvironment;
 
-import org.testng.annotations.*;
-import org.testng.*;
+import org.testng.SkipException;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import javafx.application.Platform;
+import madkit.kernel.JunitMadkit;
 
-public class FXManagerTest {
+public class FXManagerTest extends JunitMadkit {
 
 	
 	@BeforeMethod
@@ -27,11 +29,7 @@ public class FXManagerTest {
 
 	@Test
 	public void testStartFX() {
-		// When the FXManager is started
-		FXManager.startFX();
-
-		// Then the FXManager should be started
-		assertTrue(FXManager.isStarted());
+		assertTrue(FXExecutor.isStarted());
 	}
 
 }

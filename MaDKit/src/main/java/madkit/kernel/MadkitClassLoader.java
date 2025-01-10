@@ -42,7 +42,7 @@ public final class MadkitClassLoader extends URLClassLoader {
 	private static Set<String> mains;
 	private static Set<URL> scannedURLs;
 	private static MadkitClassLoader currentMCL;
-	private static Logger logger = madkit.kernel.Madkit.MDK_ROOT_LOGGER;
+	private static Logger logger = madkit.kernel.Madkit.MDK_LOGGER;
 
 	static {
 

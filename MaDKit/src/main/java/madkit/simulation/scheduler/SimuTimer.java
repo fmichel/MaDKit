@@ -38,7 +38,7 @@ import java.util.Formatter;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.Label;
-import madkit.gui.FXManager;
+import madkit.gui.FXExecutor;
 
 /**
  * 
@@ -115,7 +115,7 @@ public class SimuTimer<T extends Comparable<? super T>> {
 	 */
 	public void setCurrentTime(T currentTime) {
 		this.currentTime = currentTime;
-		FXManager.runLater(() -> dateProperty.set(currentTime));
+		FXExecutor.runLater(() -> dateProperty.set(currentTime));
 	}
 
 	/**

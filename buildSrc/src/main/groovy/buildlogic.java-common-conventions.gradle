@@ -1,29 +1,35 @@
 plugins {
+	id 'application'
 	id 'java-library'
 	id 'eclipse'
+	id 'org.openjfx.javafxplugin'
+}
+
+javafx {
+	version = '23.0.1'
+	modules = ['javafx.base', 'javafx.controls', 'javafx.graphics']
+    configuration = 'api'
 }
 
 repositories {
     mavenCentral()
 }
 
-// Apply a specific Java toolchain to ease working on different environments.
+ext.JAVA_VERSION = '23'
+
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(23)
+        languageVersion = JavaLanguageVersion.of(JAVA_VERSION)
     }
     withSourcesJar()
     withJavadocJar()
 }
 
-
 javadoc {
 	failOnError=false
-	options.links("https://docs.oracle.com/en/java/javase/21/docs/api")
-	options.links("https://openjfx.io/javadoc/21")
+	options.links("https://docs.oracle.com/en/java/javase/$JAVA_VERSION/docs/api")
+	options.links("https://openjfx.io/javadoc/$JAVA_VERSION")
 	options.links("https://controlsfx.github.io/javadoc/11.1.0")
 	options.links("https://commons.apache.org/proper/commons-configuration/apidocs")
     options.addStringOption('Xdoclint:none', '-quiet')
 }
-
-

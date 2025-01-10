@@ -1,21 +1,11 @@
 plugins {
 	id 'buildlogic.madkit-common-conventions'
-	id 'org.openjfx.javafxplugin' version '0.1.0'
-	id 'application'
 }
-
-ext.moduleName = 'madkit.bees'
 
 application {
     mainClass = 'madkit.bees.BeeLauncher'
     mainModule = 'madkit.bees'
 }
-
-javafx {
-	version = '21'
-	modules = ['javafx.base', 'javafx.controls', 'javafx.graphics']
-}
-
 
 tasks.withType(JavaExec) {
     jvmArgs '--add-modules', 'ALL-MODULE-PATH'

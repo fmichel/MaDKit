@@ -13,7 +13,7 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.chart.XYChart.Series;
-import madkit.gui.FXManager;
+import madkit.gui.FXExecutor;
 import madkit.gui.UIProperty;
 import madkit.simulation.SimuOrganization;
 import madkit.simulation.Viewer;
@@ -69,7 +69,7 @@ public abstract class LineChartDrawer<K> extends Viewer {
 				return lineChart;
 			}
 		});
-		FXManager.runAndWait(() -> {
+		FXExecutor.runAndWait(() -> {
 			getGUI().getStage().show();
 			getGUI().getStage().setWidth(400);
 			getGUI().getStage().setHeight(400);
@@ -79,7 +79,7 @@ public abstract class LineChartDrawer<K> extends Viewer {
 	}
 
 	protected void addSerie(K key, String name) {
-		FXManager.runAndWait(() -> {
+		FXExecutor.runAndWait(() -> {
 			XYChart.Series<String, Number> serie = new XYChart.Series<>();
 			serie.setName(name);
 			series.put(key, serie);
@@ -92,8 +92,8 @@ public abstract class LineChartDrawer<K> extends Viewer {
 	}
 
 	public void addData(K key, String x, Number y) {
-		FXManager.runAndWait(() -> {
-			checkSize();
+		FXExecutor.runAndWait(() -> {
+			checkDataSize();
 			series.get(key).getData().add(new XYChart.Data<>(x, y));
 		});
 	}
@@ -135,10 +135,13 @@ public abstract class LineChartDrawer<K> extends Viewer {
 		return series;
 	}
 
-	private void checkSize() {
+	private void checkDataSize() {
 		Collection<Series<String, Number>> values = series.values();
-		if (!values.isEmpty() && values.stream().findFirst().get().getData().size() > getMaxXDataPoints()) {
-			values.forEach(s -> s.getData().clear());
+		for (Series<String, Number> serie : values) {
+			if (serie.getData().size() > maxXDataPoints) {
+				values.forEach(s -> s.getData().clear());
+				break;
+			}
 		}
 	}
 

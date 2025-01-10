@@ -8,6 +8,7 @@ import java.util.logging.Level;
 
 import picocli.CommandLine.Option;
 
+//TODO make this public
 /**
  * @author Fabien Michel
  *

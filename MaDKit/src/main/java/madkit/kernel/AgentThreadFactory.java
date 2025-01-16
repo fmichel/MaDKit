@@ -39,9 +39,10 @@ final class AgentThreadFactory extends Object implements ThreadFactory {
 	 * @return
 	 */
 	Thread getAgentThread(Agent a) {
-		final Thread[] list = new Thread[group.activeCount()];
+		Thread[] list = new Thread[group.activeCount()];
 		group.enumerate(list);
-		return Arrays.stream(list).filter(t -> t != null && t.getName().equals("" + a.hashCode())).findAny().orElse(null);
+		return Arrays.stream(list).filter(t -> t != null && t.getName().equals(String.valueOf(a.hashCode()))).findAny()
+				.orElse(null);
 	}
 
 	@Override

@@ -13,6 +13,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
@@ -76,6 +78,8 @@ public abstract class Agent {
 
 	private static final Reference2BooleanMap<Class<?>> threadedClasses = new Reference2BooleanArrayMap<>();
 	private static final AtomicInteger agentCounter = new AtomicInteger(-1);
+
+	private static final ExecutorService virtualThreadsExecutor = Executors.newVirtualThreadPerTaskExecutor();
 
 	private final int hashCode;
 	final AtomicBoolean alive = new AtomicBoolean(); // default false
@@ -152,7 +156,8 @@ public abstract class Agent {
 	}
 
 	/**
-	 * Starts the agent life cycle asynchronously.
+	 * Starts the agent life cycle asynchronously. Not convince that virtual threads are the
+	 * best solution here.
 	 * 
 	 * @param activationPromise a CompletableFuture to complete upon activation.
 	 */
@@ -726,7 +731,6 @@ public abstract class Agent {
 		try {
 			MadkitClassLoader.reloadClass(getClass().getName());
 			Agent a = MadkitClassLoader.getAgentInstance(getClass().getName());
-//			Agent a = getClass().getDeclaredConstructor().newInstance();
 			launchAgent(a, 0);
 		} catch (IllegalArgumentException | SecurityException | ClassNotFoundException e) {
 			e.printStackTrace();

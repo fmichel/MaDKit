@@ -1,7 +1,8 @@
 package madkit.internal;
 
 import java.awt.GraphicsEnvironment;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,14 +33,26 @@ public class FXInstance {
 	public static synchronized void startFX(Logger logger) {
 		if (!(FXInstance.isStarted() || FXInstance.isHeadlessMode())) {
 			Platform.setImplicitExit(false);
-			CountDownLatch latch = new CountDownLatch(1);
-			Platform.startup(() -> {
-				FXInstance.setStarted(true);
-				latch.countDown();
-				logger.log(Level.INFO, () -> "FX Platform Started!");
+			CompletableFuture<Void> fxStart = CompletableFuture.runAsync(() -> {
+				try {
+					Platform.startup(() -> {
+						logger.log(Level.INFO, () -> "FX Platform Started!");
+					});
+				} catch (IllegalStateException e) {
+					if (e.getMessage().contains("Toolkit already initialized")) {
+						logger.log(Level.INFO, () -> "FX Platform already started!");
+					} else {
+						logger.log(Level.WARNING, "FX start error!", e);
+						throw e;
+					}
+				}
 			});
 			try {
-				latch.await();
+				fxStart.get();
+				FXInstance.setStarted(true);
+			} catch (ExecutionException e) {
+				logger.log(Level.WARNING, "FX start error!", e);
+				e.printStackTrace();
 			} catch (InterruptedException e) {
 				logger.log(Level.WARNING, "FX start interrupted!", e);
 				Thread.currentThread().interrupt();

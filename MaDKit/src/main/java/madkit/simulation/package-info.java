@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2024 MaDKit Team
+ * Copyright (c) 2024, 2025 MaDKit Team
  *
  * This software is a computer program whose purpose is to
  * provide a lightweight Java API for developing and simulating 
@@ -32,9 +32,16 @@
  * knowledge of the CeCILL-C license and that you accept its terms.
  *******************************************************************************/
 /**
- * Contains utilities related with simulation authoring.
+ * Contains utilities related with simulation authoring. This package provides classes to
+ * create simulations with MaDKit using a default simulation engine settings.
  * 
- * @author Fabien Michel
+ * One of the main classes is {@link madkit.simulation.SimuLauncher} which is a subclass
+ * of {@link madkit.kernel.Agent} that provides a way to launch a simulation with a custom
+ * scheduler, environment and viewer by defining the
+ * {@link madkit.simulation.EngineAgents} annotation, or with the default simulation
+ * engine settings.
+ * 
+ * 
  * @version 6.0
  *
  */

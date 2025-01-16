@@ -50,7 +50,7 @@ public class PropertyProbe<T> extends Probe {
 		Class<?> agentClass = agent.getClass();
 		if (agentClass != cachedClass) {
 			cachedClass = agentClass;
-			cachedField = fields.computeIfAbsent(cachedClass, f -> {
+			cachedField = fields.computeIfAbsent(cachedClass, _ -> {
 				try {
 					return findFieldOn(agentClass, fieldName);
 				} catch (NoSuchFieldException e) {

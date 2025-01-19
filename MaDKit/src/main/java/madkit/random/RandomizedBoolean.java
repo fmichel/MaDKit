@@ -1,4 +1,4 @@
-package madkit.utils;
+package madkit.random;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,9 +7,9 @@ import java.lang.annotation.Target;
 
 /**
  * This annotation is used to mark a field as a boolean that should be randomized when a
- * {@link FieldsValueRandomizer} is used.
+ * {@link Randomness#randomizeFields(Object, java.util.random.RandomGenerator)} is used.
  * 
- * @see FieldsValueRandomizer
+ * @see Randomness
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)

@@ -16,10 +16,24 @@ import madkit.simulation.scheduler.DiscreteEventAgentsActivator;
 import madkit.simulation.scheduler.SimuTimer;
 
 /**
- * Represents an agent in a simulation environment. This agent is linked to a
- * {@link SimuLauncher} and can manage simulation-related tasks such as
- * launching other agents, accessing simulation models, and managing roles
- * within the simulation community.
+ * An agent class designed to be used with the default simulation engine provided by this
+ * package. This class provides a number of convenience methods for interacting with the
+ * simulation engine and other agents within the simulation.
+ * 
+ * A SimuAgent has to be launched by a {@link SimuLauncher}, or transitively by another
+ * agent launched by a SimuLauncher. This is necessary for the SimuAgent to be linked to a
+ * {@link SimuLauncher}.
+ * 
+ * This ensures that the agent has access to the simulation model, environment, scheduler,
+ * and other simulation-specific components.
+ * 
+ * Essentially, this ensures that all the agents of one simulation instance share the same
+ * pseudo-random number generator and simulation time.
+ * 
+ * If the agent is not launched by a SimuLauncher, it will throw an
+ * {@link IllegalStateException} when attempting to access these components.
+ * 
+ * @see SimuLauncher
  */
 public class SimuAgent extends Agent {
 
@@ -35,7 +49,7 @@ public class SimuAgent extends Agent {
 	public SimuLauncher getLauncher() {
 		if (simuLauncher == null) {
 			throw new IllegalStateException(
-					"Agent not yet launched, or not launched by a Launcher, or an agent launched by a Launcher");
+					"SimuAgent not yet launched, or not launched by a SimuLauncher transitively. See Javadoc for details.");
 		}
 		return simuLauncher;
 	}
@@ -57,6 +71,7 @@ public class SimuAgent extends Agent {
 		 */
 		if (simuLauncher != null && agent instanceof SimuAgent sa) {
 			sa.simuLauncher = simuLauncher;
+
 		}
 		return super.launchAgent(agent, timeout);
 	}
@@ -123,8 +138,9 @@ public class SimuAgent extends Agent {
 	 *
 	 * @return the {@link RandomGenerator} instance.
 	 */
+	@Override
 	public RandomGenerator prng() {
-		return getModel().prng();
+		return getLauncher().prng();
 	}
 
 	/**

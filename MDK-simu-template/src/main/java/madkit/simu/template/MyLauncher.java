@@ -29,7 +29,12 @@ public class MyLauncher extends SimuLauncher {
 	@Override
 	public void onLaunchSimulatedAgents() {
 		for (int i = 0; i < nbOfAgents; i++) {
-			launchAgent(new SimulatedAgent());
+			SimulatedAgent agent;
+			if (prng().nextBoolean())
+				agent = new AnotherSImuAgent();
+			else
+				agent = new SimulatedAgent();
+			launchAgent(agent);
 		}
 	}
 

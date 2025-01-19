@@ -114,7 +114,12 @@ public class PropertySheetFactory {
 	private static ObservableList<Item> getAnnotatedProperties(Object o) {
 		ObservableList<Item> parameters = FXCollections.observableArrayList();
 		if (o instanceof Class<?> cl) {
-			populateProperties(o, parameters, cl.getSimpleName(), cl);
+			final Class<?> originType = cl;
+			Class<?> currentType = originType;
+			while (currentType != Object.class) {
+				populateProperties(o, parameters, currentType.getSimpleName(), currentType);
+				currentType = currentType.getSuperclass();
+			}
 		} else {
 			final Class<?> originType = o.getClass();
 			Class<?> currentType = originType;

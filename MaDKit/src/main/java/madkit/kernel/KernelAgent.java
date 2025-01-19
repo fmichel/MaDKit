@@ -53,6 +53,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -60,6 +61,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
+import java.util.random.RandomGenerator;
 
 import javafx.application.Platform;
 import javafx.stage.Window;
@@ -70,6 +72,7 @@ import madkit.gui.FXExecutor;
 import madkit.i18n.ErrorMessages;
 import madkit.internal.FXInstance;
 import madkit.messages.KernelMessage;
+import madkit.random.Randomness;
 
 /**
  * 
@@ -99,6 +102,8 @@ class KernelAgent extends Agent implements DaemonAgent {
 	private final AgentsExecutors agentExecutors;
 
 	private boolean exitRequested = false;
+
+	private RandomGenerator randomGenerator;
 
 	private static Set<KernelAgent> kernerls = new HashSet<>();
 
@@ -168,10 +173,12 @@ class KernelAgent extends Agent implements DaemonAgent {
 
 	@Override
 		protected void onActivation() {
+//			getLogger().setLevel(Level.ALL);
 			if (GraphicsEnvironment.isHeadless()) {
-				getKernelConfig().setProperty(MDKCommandLine.HEADLESS, true);
+				getKernelConfig().setProperty(MDKCommandLine.HEADLESS_MODE, true);
 			}
-			FXInstance.setHeadlessMode(getKernelConfig().getBoolean(MDKCommandLine.HEADLESS));
+			onCreateRandomGenerator();
+			FXInstance.setHeadlessMode(getKernelConfig().getBoolean(MDKCommandLine.HEADLESS_MODE));
 			FXInstance.startFX(getLogger());
 			createGroup(LocalCommunity.NAME, Groups.SYSTEM, false, (_, _, _) -> {
 				return false;
@@ -208,6 +215,15 @@ class KernelAgent extends Agent implements DaemonAgent {
 	//		javax.swing.Action b = GlobalAction.JCONSOLE.getSwingAction();
 	//		b.actionPerformed(null);
 	//		Object o = null;		o.toString();
+		}
+
+		void onCreateRandomGenerator() {
+			int seedIndex = getKernelConfig().getInt("seed");
+			seedIndex = seedIndex == Integer.MIN_VALUE ? new Random().nextInt(1_000) : seedIndex;
+			long seed = 0xFEDCBA0987654321L + seedIndex;
+			randomGenerator = Randomness.getBestRandomGeneratorFactory().create(seed);
+			getLogger()
+					.fine(" PRNG < " + randomGenerator.getClass().getSimpleName() + " ; seed index ->  " + seedIndex + " >");
 		}
 
 	/**
@@ -681,6 +697,10 @@ class KernelAgent extends Agent implements DaemonAgent {
 			e.printStackTrace();
 		}
 		exit();
+	}
+
+	public RandomGenerator getPRNG() {
+		return null;
 	}
 
 }

@@ -1,10 +1,4 @@
 /*
- * Copyright or © or Copr. Fabien Michel, Olivier Gutknecht, Jacques Ferber (1997)
-
-fmichel@lirmm.fr
-olg@no-distance.net
-ferber@lirmm.fr
-
 This software is a computer program whose purpose is to 
 provide a lightweight Java library for designing and simulating Multi-Agent Systems (MAS).
 

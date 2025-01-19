@@ -19,7 +19,7 @@ class MDKCommandLine {
 
 	public static final String AGENT_LOG_LEVEL = "agentLogLevel";
 	public static final String CREATE_LOG_FILES = "createLogFiles";
-	public static final String HEADLESS = "headless";
+	public static final String HEADLESS_MODE = "headless";
 	public static final String NO_RANDOM = "noRandomizedFields";
 
 	//////////////////// OPTIONS
@@ -76,11 +76,14 @@ class MDKCommandLine {
 	@Option(names = "--model", description = "specifies the class that should be used as Model")
 	private String model;
 
-	@Option(names = SWITCH + HEADLESS, defaultValue = "false", description = "inhibit UI")
+	@Option(names = SWITCH + HEADLESS_MODE, defaultValue = "false", description = "inhibit UI")
 	private boolean headless;
 
 	@Option(names = "--start", description = "Automatically start the simulation")
 	boolean start = false;
+
+	@Option(names = "--seed", description = "Provides the seed to be used by the kernel or a SimuLauncher. If not set, the kernel will used a random one and SimuLauncher agents 0 as value.")
+	int seed = Integer.MIN_VALUE;
 
 	@Option(names = "-D", fallbackValue = "") // allow -Dkey
 	void setProperty(Map<String, String> props) {

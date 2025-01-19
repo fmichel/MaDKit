@@ -8,6 +8,12 @@ import java.util.random.RandomGeneratorFactory;
 
 import org.testng.annotations.Test;
 
+import madkit.random.RandomizedBoolean;
+import madkit.random.RandomizedDouble;
+import madkit.random.RandomizedFloat;
+import madkit.random.RandomizedInteger;
+import madkit.random.Randomness;
+
 public class FieldsValueRandomizerTest {
 
 	// Given: an object with fields annotated for randomization
@@ -94,7 +100,7 @@ public class FieldsValueRandomizerTest {
 		RandomGenerator prng = RandomGeneratorFactory.of("L64X128MixRandom").create();
 
 		// When: randomizeFields is called
-		FieldsValueRandomizer.randomizeFields(testObject, prng);
+		Randomness.randomizeFields(testObject, prng);
 
 		// Then: the fields should be randomized
 		assertThat(testObject.getDoubleField()).isBetween(1.0, 10.0);
@@ -111,7 +117,7 @@ public class FieldsValueRandomizerTest {
 		RandomGenerator prng = RandomGeneratorFactory.of("L64X128MixRandom").create();
 
 		// When: randomizeFields is called
-		FieldsValueRandomizer.randomizeFields(testObject, prng);
+		Randomness.randomizeFields(testObject, prng);
 
 		// Then: the static fields should be randomized
 		assertThat(TestObject.getStaticDoubleField()).isBetween(1.0, 10.0);
@@ -128,7 +134,7 @@ public class FieldsValueRandomizerTest {
 		RandomGenerator prng = RandomGeneratorFactory.of("L64X128MixRandom").create();
 
 		// When: randomizeFields is called
-		FieldsValueRandomizer.randomizeFields(subTestObject, prng);
+		Randomness.randomizeFields(subTestObject, prng);
 
 		// Then: the inherited fields and subclass fields should be randomized
 		assertThat(subTestObject.getDoubleField()).isBetween(1.0, 10.0);

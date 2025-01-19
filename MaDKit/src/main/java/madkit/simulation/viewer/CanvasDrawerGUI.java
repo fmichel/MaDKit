@@ -3,6 +3,7 @@ package madkit.simulation.viewer;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 import madkit.simulation.Viewer;
 
 /**
@@ -13,6 +14,7 @@ import madkit.simulation.Viewer;
 public class CanvasDrawerGUI extends ViewerDefaultGUI {
 
 	Canvas canvas;
+	Color background = Color.BLACK;
 
 	/**
 	 * Creates a new CanvasDrawerGUI with the specified viewer.
@@ -42,6 +44,7 @@ public class CanvasDrawerGUI extends ViewerDefaultGUI {
 		return canvas;
 	}
 
+
 	/**
 	 * Gets the graphics context of the canvas.
 	 * 
@@ -61,6 +64,14 @@ public class CanvasDrawerGUI extends ViewerDefaultGUI {
 	}
 
 	/**
+	 * Clears the canvas by filling it with the background color.
+	 */
+	public void clearCanvas() {
+		getGraphics().setFill(getBackground());
+		getGraphics().fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+	}
+
+	/**
 	 * Sets the size of the canvas.
 	 * 
 	 * @param width  the width of the canvas.
@@ -69,6 +80,24 @@ public class CanvasDrawerGUI extends ViewerDefaultGUI {
 	public void setCanvasSize(int width, int height) {
 		canvas.setWidth(width);
 		canvas.setHeight(height);
+	}
+
+	/**
+	 * Sets the background color of the canvas.
+	 * 
+	 * @return the background color of the canvas.
+	 */
+	public Color getBackground() {
+		return background;
+	}
+
+	/**
+	 * Sets the background color of the canvas.
+	 * 
+	 * @param background the background to set
+	 */
+	public void setBackground(Color background) {
+		this.background = background;
 	}
 
 }

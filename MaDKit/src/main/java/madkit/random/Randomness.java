@@ -1,43 +1,63 @@
-package madkit.utils;
+package madkit.random;
 
 import java.lang.reflect.Field;
+import java.util.Comparator;
 import java.util.random.RandomGenerator;
+import java.util.random.RandomGeneratorFactory;
+
+import madkit.kernel.AgentRuntimeException;
 
 /**
- * This class provides a method to randomize the values of fields in an object. The fields
- * to be randomized are marked with the annotations {@link RandomizedDouble},
- * {@link RandomizedInteger}, and {@link RandomizedBoolean}. For Agent subclasses, the
- * {@link FieldsValueRandomizer} is automatically called by the kernel when the agent is
- * launched, unless MadkitOptions.randomizeFields is set to false.
+ * Provides various utility methods related to randomness with MaDKit.
+ * 
  */
-public class FieldsValueRandomizer {
+public class Randomness {
 
 	/**
 	 * Randomizes the values of the fields of the object. The fields to be randomized are
 	 * marked with the annotations {@link RandomizedDouble}, {@link RandomizedInteger}, and
-	 * {@link RandomizedBoolean}.
+	 * {@link RandomizedBoolean}. For Agent subclasses, the
+	 * {@link #randomizeFields(Object, RandomGenerator)} is automatically called by the kernel
+	 * just before the agent is launched, unless MadkitOptions.randomizeFields is set to
+	 * false.
 	 * 
 	 * @param object the object whose fields are to be randomized
 	 * @param prng   the pseudo-random number generator to be used
-	 * @throws IllegalAccessException if a field cannot be accessed
+	 * @throws AgentRuntimeException if a field cannot be accessed
 	 */
 	public static void randomizeFields(Object object, RandomGenerator prng)
-			throws IllegalAccessException {
+	{
 		final Class<?> originType = object.getClass();
 		Class<?> currentType = originType;
 		while (currentType != Object.class) {
 			for (Field field : currentType.getDeclaredFields()) {
-				randomizeDouble(object, field, prng);
-				randomizeInteger(object, field, prng);
-				randomizeBoolean(object, field, prng);
-				randomizeFloat(object, field, prng);
+				try {
+					Randomness.randomizeDouble(object, field, prng);
+					Randomness.randomizeInteger(object, field, prng);
+					Randomness.randomizeBoolean(object, field, prng);
+					Randomness.randomizeFloat(object, field, prng);
+				} catch (IllegalAccessException e) {
+					throw new AgentRuntimeException("Cannot access field " + field.getName());
+				}
 			}
 			currentType = currentType.getSuperclass();
 		}
 	}
 
-	private static void randomizeDouble(Object object, Field field, RandomGenerator prng)
-			throws IllegalAccessException {
+	/**
+	 * Returns the best random generator factory considering the capabilities of current
+	 * system and the highest number of state bits.
+	 * 
+	 * @return the best random generator factory
+	 */
+	public static RandomGeneratorFactory<RandomGenerator> getBestRandomGeneratorFactory() {
+		return RandomGeneratorFactory.all().filter(rgf -> !rgf.name().equals("SecureRandom")) // SecureRandom has
+																															// MAX_VALUE stateBits.
+				.sorted(Comparator.comparingInt(RandomGeneratorFactory<RandomGenerator>::stateBits).reversed()).findFirst()
+				.orElse(RandomGeneratorFactory.of("Random"));
+	}
+
+	private static void randomizeDouble(Object object, Field field, RandomGenerator prng) throws IllegalAccessException {
 		if (field.isAnnotationPresent(RandomizedDouble.class)) {
 			RandomizedDouble annotation = field.getAnnotation(RandomizedDouble.class);
 			double minValue = annotation.minValue();

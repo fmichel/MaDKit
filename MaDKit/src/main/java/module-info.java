@@ -35,7 +35,7 @@ module madkit.base {
 	exports madkit.simulation.environment;
 	exports madkit.simulation.scheduler;
 	exports madkit.simulation.viewer;
-	exports madkit.utils;
+	exports madkit.random;
 
 	requires transitive java.desktop;
 	requires transitive java.logging;

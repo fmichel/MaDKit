@@ -9,25 +9,26 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
+import java.util.random.RandomGenerator;
 
 import madkit.action.SchedulingAction;
 import madkit.kernel.Scheduler;
 import madkit.messages.SchedulingMessage;
+import madkit.random.Randomness;
 import madkit.simulation.scheduler.SimuTimer;
 import madkit.simulation.scheduler.TickBasedScheduler;
 
 /**
- * Main class for launching a simulation. This class is responsible for
- * initializing the simulation environment, simulation model, and scheduler. It
- * also launches the simulation agents and viewers. This class is intended to be
- * extended by the user to define the simulation engine. The user must define
- * the simulation environment, model, and scheduler classes by overriding the
+ * Main class for launching a simulation. This class is responsible for initializing the
+ * simulation environment, simulation model, and scheduler. It also launches the
+ * simulation agents and viewers. This class is intended to be extended by the user to
+ * define the simulation engine, if the default setup should customized. The user can
+ * define the simulation environment, model, and scheduler classes by overriding the
  * {@link #onLaunchEnvironment()}, {@link #onLaunchModel()}, and
- * {@link #onLaunchScheduler()} methods, respectively. The user can also define
- * the simulation agents and viewers by overriding the
- * {@link #onLaunchSimulatedAgents()} and {@link #onLaunchViewers()} methods,
- * respectively. The user can also define the simulation startup behavior by
- * overriding the {@link #onSimulationStart()} method.
+ * {@link #onLaunchScheduler()} methods, respectively. The user can also define the
+ * simulation agents and viewers by overriding the {@link #onLaunchSimulatedAgents()} and
+ * {@link #onLaunchViewers()} methods, respectively. The user can also define the
+ * simulation startup behavior by overriding the {@link #onSimulationStart()} method.
  *
  */
 @EngineAgents
@@ -45,6 +46,15 @@ public abstract class SimuLauncher extends SimuAgent {
 	private Scheduler<? extends SimuTimer<?>> scheduler;
 	private List<SimuAgent> viewers;
 
+	private RandomGenerator randomGenerator;
+	/**
+	 * Need a many seed bits, and then increment on it
+	 */
+	private static final long BASE_SEED = 0xFEDCBA0987654321L;
+	private long simulationSeed = BASE_SEED;
+
+	private int simulationIndex;
+
 	/**
 	 * Default constructor. It initializes the simulation community name to the
 	 * class name of the simulation engine.
@@ -56,19 +66,21 @@ public abstract class SimuLauncher extends SimuAgent {
 	}
 
 	/**
-	 * This method is called when the simulation engine is activated. It initializes
-	 * the simulation community, creates the engine and model groups, and requests
-	 * the role {@link SimuOrganization#LAUNCHER_ROLE} in the group
-	 * {@link SimuOrganization#ENGINE_GROUP}. Then, it initiates the simulation by
-	 * calling the {@link #onLaunchModel()}, {@link #onLaunchEnvironment()},
-	 * {@link #onLaunchScheduler()}, {@link #onLaunchViewers()}, and
-	 * {@link #onLaunchSimulatedAgents()} methods. Finally, it calls the
-	 * {@link #onSimulationStart()} method. If the start parameter is set to
-	 * <code>true</code>, it starts the simulation by calling the
-	 * {@link #startSimulation()}
+	 * This method is called when the simulation engine is activated. It initializes the
+	 * simulation community, creates the engine and model groups, and requests the role
+	 * {@link SimuOrganization#LAUNCHER_ROLE} in the group
+	 * {@link SimuOrganization#ENGINE_GROUP}. Then, it initiates the simulation by first
+	 * creating the pseudo random number generator by calling the
+	 * {@link #onCreateRandomGenerator()}. Then, it launches the simulation model,
+	 * environment, scheduler, and viewers by calling in order the {@link #onLaunchModel()},
+	 * {@link #onLaunchEnvironment()}, {@link #onLaunchScheduler()},
+	 * {@link #onLaunchViewers()}, and {@link #onLaunchSimulatedAgents()} methods. Finally, it
+	 * calls the {@link #onSimulationStart()} method. If the start parameter is set to
+	 * <code>true</code>, it starts the simulation by calling the {@link #startSimulation()}
 	 * <p>
 	 * By default the logger level is set to {@link Level#INFO}.
 	 */
+
 	@Override
 	protected void onActivation() {
 		getLogger().setLevel(Level.INFO);
@@ -76,8 +88,9 @@ public abstract class SimuLauncher extends SimuAgent {
 		createGroup(getCommunity(), getEngineGroup());
 		createGroup(getCommunity(), getModelGroup());
 		requestRole(getCommunity(), getEngineGroup(), LAUNCHER_ROLE);
-		getLogger().info(() -> " Starting simulation! Community's name is < " + simuCommunity + " >");
-
+		getLogger().info(() -> " Launching simulation! < " + simuCommunity + " >");
+		onInitializeSimulationSeedIndex();
+		onCreateRandomGenerator();
 		onLaunchModel();
 		onLaunchEnvironment();
 		onLaunchScheduler();
@@ -87,6 +100,69 @@ public abstract class SimuLauncher extends SimuAgent {
 		if (getKernelConfig().getBoolean("start")) {
 			startSimulation();
 		}
+	}
+
+
+	/**
+	 * Creates the pseudo random number generator that has to be used by the simulation. The
+	 * seed index is taken from the kernel configuration. If the seed index is not set, the
+	 * default value is 0.
+	 * 
+	 * @return the pseudo random number generator that will be used by the simulation
+	 */
+	public RandomGenerator onCreateRandomGenerator() {
+		randomGenerator = Randomness.getBestRandomGeneratorFactory().create(getPRNGSeed());
+		getLogger().info(
+				() -> " PRNG < " + randomGenerator.getClass().getSimpleName() + " ; seed index ->  " + getPRNGSeedIndex()
+						+ " >");
+		return randomGenerator;
+	}
+
+	/**
+	 * Sets the seed which is used to create a PRNG. The actual seed that will be used will be
+	 * computed by adding seedIndex to the built-in long (0xFEDCBA0987654321L), which is used
+	 * as initial seed. This is done so that the obtained long respects the many seed bits
+	 * characteristic. Moreover it is known that a good practice, considering how seeds should
+	 * be chosen, is to take them in sequence. See this blog: <a href=
+	 * "https://www.johndcook.com/blog/2016/01/29/random-number-generator-seed-mistakes">Random
+	 * number generator seed mistakes</a> So a simulation suite can be obtained by using this
+	 * method with a consecutive list of int: 1, 2, 3...
+	 * 
+	 * @param seedIndex the seed index to set. Privilege the use of sequence of integers such
+	 *                  as 0, 1, 2...
+	 */
+	public void setPRNGSeedIndex(int seedIndex) {
+		simulationIndex = seedIndex;
+		simulationSeed += BASE_SEED + seedIndex;
+	}
+
+	/**
+	 * Returns the seed used to create the PRNG.
+	 * 
+	 * @return the seed used to create the PRNG
+	 */
+	public long getPRNGSeedIndex() {
+		return simulationIndex;
+    }
+
+	/**
+	 * Returns the seed used to create the PRNG.
+	 * 
+	 * @return the seed used to create the PRNG
+	 */
+	private long getPRNGSeed() {
+		return simulationSeed;
+	}
+
+	/**
+	 * Initializes the simulation seed index. By default, the seed index is taken from the
+	 * kernel configuration, and if not set the seed index is set 0.
+	 */
+	public void onInitializeSimulationSeedIndex() {
+		int seed = getKernelConfig().getInt("seed");
+		seed = seed == Integer.MIN_VALUE ? 0 : seed;
+		setPRNGSeedIndex(seed);
+		getLogger().finer(() -> " < Simulation seed set to -> " + getPRNGSeedIndex() + " >");
 	}
 
 	/**
@@ -318,6 +394,26 @@ public abstract class SimuLauncher extends SimuAgent {
 	@Override
 	public List<SimuAgent> getViewers() {
 		return viewers;
+	}
+
+	/**
+	 * Returns the pseudo random number generator that has to be used by the simulation
+	 * agents.
+	 * 
+	 * @return the pseudo random number generator of the simulation
+	 */
+	@Override
+	public RandomGenerator prng() {
+		return randomGenerator;
+	}
+
+	/**
+	 * Sets the pseudo random number generator that has to be used by the simulation.
+	 * 
+	 * @param randomGenerator the randomGenerator to set
+	 */
+	public void setRandomGnerator(RandomGenerator randomGenerator) {
+		this.randomGenerator = randomGenerator;
 	}
 
 }

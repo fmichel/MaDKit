@@ -1,4 +1,4 @@
-package madkit.utils;
+package madkit.random;
 
 
 import java.lang.annotation.ElementType;
@@ -7,6 +7,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * This annotation is used to mark a field as a double that should be randomized when a
+ * {@link Randomness#randomizeFields(Object, java.util.random.RandomGenerator)} is used.
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)

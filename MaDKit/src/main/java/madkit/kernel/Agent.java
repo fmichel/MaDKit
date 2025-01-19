@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import java.util.logging.Level;
+import java.util.random.RandomGenerator;
 
 import it.unimi.dsi.fastutil.objects.Reference2BooleanArrayMap;
 import it.unimi.dsi.fastutil.objects.Reference2BooleanMap;
@@ -29,11 +30,11 @@ import madkit.gui.FXExecutor;
 import madkit.gui.FXOutputPane;
 import madkit.messages.ConversationFilter;
 import madkit.messages.EnumMessage;
+import madkit.random.Randomness;
 import madkit.reflection.MethodFinder;
 import madkit.reflection.MethodHandleFinder;
 import madkit.reflection.ReflectionUtils;
 import madkit.simulation.SimuAgent;
-import madkit.utils.FieldsValueRandomizer;
 
 /**
  * The super class of all MaDKit agents. It provides support for
@@ -215,7 +216,6 @@ public abstract class Agent {
 		Thread.currentThread().setName(String.valueOf(hashCode()));
 		logIfLoggerNotNull(Level.FINER, () -> "- - -> ACTIVATE...");
 		try {
-			randomizeFields();
 			onActivation();
 		} catch (Exception e) {
 			handleException(e);
@@ -244,11 +244,11 @@ public abstract class Agent {
 	 * 
 	 */
 	private void randomizeFields() throws IllegalArgumentException, IllegalAccessException {
-		if (getKernelConfig().getBoolean(MDKCommandLine.NO_RANDOM)) {
+		if (!getKernelConfig().getBoolean(MDKCommandLine.NO_RANDOM)) {
 			if (this instanceof SimuAgent sa) {
-				FieldsValueRandomizer.randomizeFields(this, sa.prng());
+				Randomness.randomizeFields(this, sa.prng());
 			} else {
-				FieldsValueRandomizer.randomizeFields(this, new Random());
+				Randomness.randomizeFields(this, new Random());
 			}
 		}
 	}
@@ -344,7 +344,12 @@ public abstract class Agent {
 	 * @return the result of the launch operation.
 	 */
 	public ReturnCode launchAgent(Agent a, int timeOutSeconds) {
+		Randomness.randomizeFields(a, prng());
 		return kernel.launchAgent(a, timeOutSeconds);
+	}
+
+	public RandomGenerator prng() {
+		return kernel.getPRNG();
 	}
 
 	/**

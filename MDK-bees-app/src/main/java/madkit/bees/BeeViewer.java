@@ -21,27 +21,25 @@ package madkit.bees;
 import java.awt.Point;
 import java.util.List;
 
-import javafx.scene.paint.Color;
 import madkit.gui.UIProperty;
 import madkit.kernel.Agent;
 import madkit.simulation.PropertyProbe;
+import madkit.simulation.viewer.CanvasDrawerGUI;
 import madkit.simulation.viewer.Viewer2D;
 
 /**
- * @version 6.0
- * @author Fabien Michel
+ * A viewer that displays the bees in a 2D environment. It extends the {@link Viewer2D}
+ * class that uses a {@link CanvasDrawerGUI} to draw the environment on a canvas.
+ * 
  */
 public class BeeViewer extends Viewer2D {
 
 	private PropertyProbe<BeeData> beeProbe;
-	protected int nbOfBeesToLaunch = 30000;
+	protected int nbOfBeesToLaunch = 200_000;
 	BeeEnvironment env;
 
-	@UIProperty(category = "engine", displayName = "trail mode")
+	@UIProperty(category = "Rendering", displayName = "Display trails")
 	private boolean trailMode = false;
-
-	@UIProperty(category = "engine", displayName = "art mode")
-	private boolean artMode = false;
 
 	@Override
 	protected void onActivation() {
@@ -53,19 +51,11 @@ public class BeeViewer extends Viewer2D {
 	}
 
 	public void render() {
-		if (!artMode) {
-			getGraphics().setFill(javafx.scene.paint.Color.BLACK);
-			getGraphics().fillRect(0, 0, env.getWidth(), env.getHeight());
-		}
-		Color lastColor = null;
+		super.render();
 		List<Agent> currentAgentsList = beeProbe.getAgents();
 		for (Agent arg0 : currentAgentsList) {
 			BeeData b = beeProbe.getPropertyValue(arg0);
-			Color c = b.getBeeColor();
-			if (c != lastColor) {
-				lastColor = c;
-				getGraphics().setStroke(lastColor);
-			}
+			getGraphics().setStroke(b.getBeeColor());
 			Point p = b.getCurrentPosition();
 			if (trailMode) {
 				Point p1 = b.getPreviousPosition();
@@ -74,20 +64,6 @@ public class BeeViewer extends Viewer2D {
 				getGraphics().strokeLine(p.x, p.y, p.x, p.y);
 			}
 		}
-	}
-
-	/**
-	 * @param artMode the artMode to set
-	 */
-	public void setArtMode(boolean artMode) {
-		this.artMode = artMode;
-	}
-
-	/**
-	 * @return the artMode
-	 */
-	public boolean isArtMode() {
-		return artMode;
 	}
 
 	/**

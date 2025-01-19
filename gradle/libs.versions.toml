@@ -10,8 +10,8 @@ fastutil = "8.5.15"
 typetools = "0.6.3"
 testng = "latest.release"
 concurrentunit = "0.4.6"
-slf4j = "latest.release"
-assertJ = "latest.release"
+slf4j = "2.1.0-alpha1"
+assertJ = "3.27.3"
 
 [libraries]
 controlsfx = { module = "org.controlsfx:controlsfx", version.ref = "controlsfx" }

@@ -43,7 +43,7 @@ public class JunitMadkit extends ConcurrentTestCase {
 	private Lock lock;
 	private Condition testDone;
 
-	KernelAgent kernelAgent;
+	protected KernelAgent kernelAgent;
 
 	protected static List<Madkit> helperInstances = new ArrayList<>();
 
@@ -81,6 +81,11 @@ public class JunitMadkit extends ConcurrentTestCase {
 		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public Agent launchAgent(Agent a) {
+		kernelAgent.launchAgent(a);
+		return a;
 	}
 
 	/**
@@ -139,6 +144,15 @@ public class JunitMadkit extends ConcurrentTestCase {
 
 	public void testBehavior(Consumer<Agent> behavior) {
 		launchTestedAgent(new Agent() {
+			@Override
+			protected void onActivation() {
+				behavior.accept(this);
+			}
+		}, SUCCESS);
+	}
+
+	public void testSimuAgentBehavior(Consumer<SimuAgent> behavior) {
+		launchTestedAgent(new SimuAgent() {
 			@Override
 			protected void onActivation() {
 				behavior.accept(this);

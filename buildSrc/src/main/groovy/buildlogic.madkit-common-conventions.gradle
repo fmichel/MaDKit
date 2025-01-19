@@ -34,8 +34,15 @@ extraJavaModuleInfo {
         exportAllPackages() 
     }
 
-    module("org.apache.commons:commons-lang3", "org.apache.commons.lang3"){
-        patchRealModule()
-        exportAllPackages() 
-    }
+//    module("commons-logging:commons-logging", "org.apache.commons.logging"){
+//        patchRealModule()
+//        requires ("org.slf4j")
+//        exportAllPackages() 
+//    }
+
+//    module("org.slf4j:slf4j-api", "org.slf4j"){     
+//        patchRealModule()
+//        exportAllPackages() 
+//    }
+
 }

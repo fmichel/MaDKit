@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -31,6 +32,8 @@ import madkit.messages.EnumMessage;
 import madkit.reflection.MethodFinder;
 import madkit.reflection.MethodHandleFinder;
 import madkit.reflection.ReflectionUtils;
+import madkit.simulation.SimuAgent;
+import madkit.utils.FieldsValueRandomizer;
 
 /**
  * The super class of all MaDKit agents. It provides support for
@@ -42,32 +45,30 @@ import madkit.reflection.ReflectionUtils;
  * <li>Minimal graphical interface management.
  * </ul>
  * <p>
- * The agent's behavior is <i>intentionally not defined</i>. It is up to the
- * agent developer to choose an agent model or to develop his specific agent
- * library on top of the facilities provided by the MaDKit API. However, all the
- * launched agents share the same organizational view, and the basic messaging
- * code, so integration of different agents is quite easy, even when they are
- * coming from different developers or have heterogeneous models.
+ * The agent's behavior is <i>intentionally not defined</i>. It is up to the agent
+ * developer to choose an agent model or to develop his specific agent library on top of
+ * the facilities provided by the MaDKit API. However, all the launched agents share the
+ * same organizational view, and the basic messaging code, so integration of different
+ * agents is quite easy, even when they are coming from different developers or have
+ * heterogeneous models.
  * <p>
- * An Agent will be given its own thread if it overrides the {@link #onLive()}
- * method
+ * An Agent will be given its own thread if it overrides the {@link #onLive()} method
  * <p>
- * Agent-related methods (most of this API) is only effective after the agent
- * has been launched and thus registered in the current MaDKit session.
- * Especially, that means that most of the API has no effect in the constructor
- * method of an Agent and will just fail if used.
+ * Agent-related methods (most of this API) is only effective after the agent has been
+ * launched and thus registered in the current MaDKit session. Especially, that means that
+ * most of the API has no effect in the constructor method of an Agent and will just fail
+ * if used.
  * <p>
- * Agents are identified and localized within the artificial society. An agent
- * is no longer
+ * Agents are identified and localized within the artificial society. An agent is no
+ * longer
  * <p>
- * A replying mechanism can be used to answer messages using
- * <code><i>SendReply</i></code> methods. It enables the agent with the
- * possibility of replying directly to a given message. Also, it is possible to
- * get the reply to a message, or to wait for a reply. See
- * {@link #reply(Message, Message)} for more details. <br>
+ * A replying mechanism can be used to answer messages using <code><i>SendReply</i></code>
+ * methods. It enables the agent with the possibility of replying directly to a given
+ * message. Also, it is possible to get the reply to a message, or to wait for a reply.
+ * See {@link #reply(Message, Message)} for more details. <br>
  * <p>
- * One of the most convenient part of the API is the logging mechanism which is
- * provided. See the {@link #getLogger()} method for more details.
+ * One of the most convenient part of the API is the logging mechanism which is provided.
+ * See the {@link #getLogger()} method for more details.
  *
  * @author Fabien Michel
  * @author Olivier Gutknecht
@@ -93,9 +94,9 @@ public abstract class Agent {
 	/**
 	 * Constructs a new Agent instance.
 	 * <p>
-	 * The agent's hashCode is set when the agent is created. This hashCode is
-	 * unique for each agent instance and is used to uniquely identify the agent
-	 * within the artificial society.
+	 * The agent's hashCode is set when the agent is created. This hashCode is unique for each
+	 * agent instance and is used to uniquely identify the agent within the artificial
+	 * society.
 	 * <p>
 	 * It is important to note that the agent is not yet alive at this point.
 	 */
@@ -104,35 +105,34 @@ public abstract class Agent {
 	}
 
 	/**
-	 * First method called when the agent is launched. This method should be
-	 * overridden to define custom activation behavior.
+	 * First method called when the agent is launched. This method should be overridden to
+	 * define custom activation behavior.
 	 */
 	protected void onActivation() {
 	}
 
 	/**
-	 * Defines the main behavior of the agent. This method should be overridden to
-	 * define custom behavior while the agent is alive. It is automatically called
-	 * when the onActivation method finishes.
+	 * Defines the main behavior of the agent. This method should be overridden to define
+	 * custom behavior while the agent is alive. It is automatically called when the
+	 * onActivation method finishes.
 	 * 
 	 * If implemented, the agent will be given its own thread, thus making the agent
-	 * completely autonomous. The agent will be alive until this method returns or
-	 * it is killed.
+	 * completely autonomous. The agent will be alive until this method returns or it is
+	 * killed.
 	 */
 	protected void onLive() {
 	}
 
 	/**
-	 * This method is called when the agent finishes its life cycle. Either because
-	 * the agent was killed or because the onLive method returned. This method can
-	 * be overridden to define custom cleanup behavior.
+	 * This method is called when the agent finishes its life cycle. Either because the agent
+	 * was killed or because the onLive method returned. This method can be overridden to
+	 * define custom cleanup behavior.
 	 */
 	protected void onEnd() {
 	}
 
 	/**
-	 * Checks if the agent class is threaded based on the presence of specific
-	 * methods.
+	 * Checks if the agent class is threaded based on the presence of specific methods.
 	 * 
 	 * @return true if the agent class is threaded, false otherwise.
 	 */
@@ -166,8 +166,8 @@ public abstract class Agent {
 	}
 
 	/**
-	 * Checks if the agent is alive. An agent is considered alive if it has been
-	 * launched and has not yet been killed.
+	 * Checks if the agent is alive. An agent is considered alive if it has been launched and
+	 * has not yet been killed.
 	 * 
 	 * @return {@code true} if the agent is alive, {@code false} otherwise.
 	 */
@@ -176,8 +176,8 @@ public abstract class Agent {
 	}
 
 	/**
-	 * Terminates the agent's life cycle. This method logs the termination event,
-	 * closes the logger if it exists, and removes the agent from the organization.
+	 * Terminates the agent's life cycle. This method logs the termination event, closes the
+	 * logger if it exists, and removes the agent from the organization.
 	 */
 	void terminate() {
 		logIfLoggerNotNull(Level.FINER, () -> "- - -> TERMINATED **");
@@ -192,8 +192,8 @@ public abstract class Agent {
 	}
 
 	/**
-	 * Logs a message if the logger is not null. This method is optimized for
-	 * built-in method log.
+	 * Logs a message if the logger is not null. This method is optimized for built-in method
+	 * log.
 	 * 
 	 * @param level       the logging level.
 	 * @param msgSupplier a supplier that provides the log message.
@@ -205,9 +205,9 @@ public abstract class Agent {
 	}
 
 	/**
-	 * Activates the agent asynchronously. This method sets the thread name, logs
-	 * the activation event, and calls the {@link #onActivation()} method. It also
-	 * manages the agent's lifecycle state and handles exceptions.
+	 * Activates the agent asynchronously. This method sets the thread name, logs the
+	 * activation event, and calls the {@link #onActivation()} method. It also manages the
+	 * agent's lifecycle state and handles exceptions.
 	 * 
 	 * @param lifeCycle a CompletableFuture to complete upon activation.
 	 */
@@ -215,6 +215,7 @@ public abstract class Agent {
 		Thread.currentThread().setName(String.valueOf(hashCode()));
 		logIfLoggerNotNull(Level.FINER, () -> "- - -> ACTIVATE...");
 		try {
+			randomizeFields();
 			onActivation();
 		} catch (Exception e) {
 			handleException(e);
@@ -238,9 +239,24 @@ public abstract class Agent {
 	}
 
 	/**
-	 * Executes the agent's living behavior. This method logs the living event and
-	 * calls the {@link #onLive()} method. It also handles any exceptions that may
-	 * occur during execution.
+	 * @throws IllegalAccessException
+	 * @throws IllegalArgumentException
+	 * 
+	 */
+	private void randomizeFields() throws IllegalArgumentException, IllegalAccessException {
+		if (getKernelConfig().getBoolean(MDKCommandLine.NO_RANDOM)) {
+			if (this instanceof SimuAgent sa) {
+				FieldsValueRandomizer.randomizeFields(this, sa.prng());
+			} else {
+				FieldsValueRandomizer.randomizeFields(this, new Random());
+			}
+		}
+	}
+
+	/**
+	 * Executes the agent's living behavior. This method logs the living event and calls the
+	 * {@link #onLive()} method. It also handles any exceptions that may occur during
+	 * execution.
 	 */
 	final void living() {
 		logIfLoggerNotNull(Level.FINER, () -> "ACTIVATE - - -> LIVE...");
@@ -253,9 +269,8 @@ public abstract class Agent {
 	}
 
 	/**
-	 * Handles the agent's termination process when it is killed. This method sets
-	 * the thread name and logs the killing event, then calls the {@link #onEnd()}
-	 * method.
+	 * Handles the agent's termination process when it is killed. This method sets the thread
+	 * name and logs the killing event, then calls the {@link #onEnd()} method.
 	 */
 	final void killed() {
 		Thread.currentThread().setName(String.valueOf(hashCode()));
@@ -264,8 +279,8 @@ public abstract class Agent {
 	}
 
 	/**
-	 * Checks if the current agent's thread has been interrupted, for instance, due
-	 * to a kill attempt. If it has, an {@link AgentInterruptedException} is thrown.
+	 * Checks if the current agent's thread has been interrupted, for instance, due to a kill
+	 * attempt. If it has, an {@link AgentInterruptedException} is thrown.
 	 * 
 	 * @throws AgentInterruptedException if the thread has been interrupted.
 	 */
@@ -276,9 +291,8 @@ public abstract class Agent {
 	}
 
 	/**
-	 * Handles the ending process of the agent. This method calls the
-	 * {@link #onEnd()} method and sets the agent's alive state to false. It also
-	 * terminates the agent's life cycle.
+	 * Handles the ending process of the agent. This method calls the {@link #onEnd()} method
+	 * and sets the agent's alive state to false. It also terminates the agent's life cycle.
 	 */
 	final void ending() {
 		try {
@@ -291,9 +305,9 @@ public abstract class Agent {
 	}
 
 	/**
-	 * Handles exceptions that occur during the agent's execution. If the exception
-	 * is an instance of {@link AgentInterruptedException}, a fine log message is
-	 * generated. Otherwise, a severe log message is created.
+	 * Handles exceptions that occur during the agent's execution. If the exception is an
+	 * instance of {@link AgentInterruptedException}, a fine log message is generated.
+	 * Otherwise, a severe log message is created.
 	 * 
 	 * @param ex the Exception exception to handle.
 	 */
@@ -334,23 +348,21 @@ public abstract class Agent {
 	}
 
 	/**
-	 * Launches a new agent using its full class name and returns when the launched
-	 * agent has completed its {@link Agent#onActivation()} method or when the
-	 * timeout is elapsed. This has the same effect as
-	 * {@link #launchAgent(Agent, int)} but allows launching an agent using a class
-	 * name found reflexively. The targeted agent class should have a default
-	 * constructor for this to work. Additionally, this method will launch the last
-	 * compiled bytecode of the corresponding class if it has been reloaded using
-	 * {@link MadkitClassLoader#reloadClass(String)}. Finally, if the launch
-	 * succeeds within the timeout, this method returns the instance of the created
-	 * agent.
+	 * Launches a new agent using its full class name and returns when the launched agent has
+	 * completed its {@link Agent#onActivation()} method or when the timeout is elapsed. This
+	 * has the same effect as {@link #launchAgent(Agent, int)} but allows launching an agent
+	 * using a class name found reflexively. The targeted agent class should have a default
+	 * constructor for this to work. Additionally, this method will launch the last compiled
+	 * bytecode of the corresponding class if it has been reloaded using
+	 * {@link MadkitClassLoader#reloadClass(String)}. Finally, if the launch succeeds within
+	 * the timeout, this method returns the instance of the created agent.
 	 *
 	 * @param <T>            the type of the agent to launch.
-	 * @param timeOutSeconds time to wait for the end of the agent's activation
-	 *                       until returning {@code null}.
+	 * @param timeOutSeconds time to wait for the end of the agent's activation until
+	 *                       returning {@code null}.
 	 * @param agentClass     the full class name of the agent to launch.
-	 * @return the instance of the launched agent or {@code null} if the operation
-	 *         times out or fails.
+	 * @return the instance of the launched agent or {@code null} if the operation times out
+	 *         or fails.
 	 */
 	@SuppressWarnings("unchecked")
 	public <T extends Agent> T launchAgent(String agentClass, int timeOutSeconds) {
@@ -420,9 +432,8 @@ public abstract class Agent {
 	}
 
 	/**
-	 * Returns the agent's logger. It should not be used before
-	 * {@link #onActivation()} to get the proper logging level, that is the one set
-	 * using "agentLogLevel".
+	 * Returns the agent's logger. It should not be used before {@link #onActivation()} to get
+	 * the proper logging level, that is the one set using "agentLogLevel".
 	 *
 	 * @return the agent's logger.
 	 * @see AgentLogger
@@ -439,8 +450,7 @@ public abstract class Agent {
 	/**
 	 * Stops the agent's process for a specified duration.
 	 * 
-	 * @param milliSeconds the number of milliseconds for which the agent should
-	 *                     pause.
+	 * @param milliSeconds the number of milliseconds for which the agent should pause.
 	 */
 	protected void pause(int milliSeconds) {
 		try {
@@ -451,9 +461,9 @@ public abstract class Agent {
 	}
 
 	/**
-	 * Gets the agent's name. The default name is "<i>class name + internal ID</i>".
-	 * This name is used in logger info, GUI title, and so on. This method can be
-	 * overridden to obtain a customized name.
+	 * Gets the agent's name. The default name is "<i>class name + internal ID</i>". This name
+	 * is used in logger info, GUI title, and so on. This method can be overridden to obtain a
+	 * customized name.
 	 *
 	 * @return the agent's name.
 	 */
@@ -462,9 +472,8 @@ public abstract class Agent {
 	}
 
 	/**
-	 * Gets the agent's hash code. This hash code is unique for each agent instance.
-	 * It is equal to the agent's internal ID, which is incremented for each agent
-	 * created.
+	 * Gets the agent's hash code. This hash code is unique for each agent instance. It is
+	 * equal to the agent's internal ID, which is incremented for each agent created.
 	 *
 	 * @return the agent's hash code.
 	 */
@@ -489,15 +498,15 @@ public abstract class Agent {
 	 * Creates a new Group within a community. This has the same effect as
 	 * <code>createGroup(community, group, false, null)</code>
 	 *
-	 * @param community the community within which the group will be created. If
-	 *                  this community does not exist it will be created.
+	 * @param community the community within which the group will be created. If this
+	 *                  community does not exist it will be created.
 	 * @param group     the name of the new group
 	 * @return
 	 *         <ul>
-	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the group has been
-	 *         successfully created.</li>
-	 *         <li><code>{@link ReturnCode#ALREADY_GROUP}</code>: If the operation
-	 *         failed because such a group already exists.</li>
+	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the group has been successfully
+	 *         created.</li>
+	 *         <li><code>{@link ReturnCode#ALREADY_GROUP}</code>: If the operation failed
+	 *         because such a group already exists.</li>
 	 *         </ul>
 	 * @see Agent#createGroup(String, String, boolean, Gatekeeper)
 	 * @since MaDKit 5.0
@@ -510,17 +519,17 @@ public abstract class Agent {
 	 * Creates a new Group within a community. This has the same effect as
 	 * <code>createGroup(community, group, isDistributed, null)</code>
 	 *
-	 * @param community     the community within which the group will be created. If
-	 *                      this community does not exist it will be created.
+	 * @param community     the community within which the group will be created. If this
+	 *                      community does not exist it will be created.
 	 * @param group         the name of the new group.
-	 * @param isDistributed if <code>true</code> the new group will be distributed
-	 *                      when multiple MaDKit kernels are connected.
+	 * @param isDistributed if <code>true</code> the new group will be distributed when
+	 *                      multiple MaDKit kernels are connected.
 	 * @return
 	 *         <ul>
-	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the group has been
-	 *         successfully created.</li>
-	 *         <li><code>{@link ReturnCode#ALREADY_GROUP}</code>: If the operation
-	 *         failed because such a group already exists.</li>
+	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the group has been successfully
+	 *         created.</li>
+	 *         <li><code>{@link ReturnCode#ALREADY_GROUP}</code>: If the operation failed
+	 *         because such a group already exists.</li>
 	 *         </ul>
 	 * @see Agent#createGroup(String, String, boolean, Gatekeeper)
 	 * @since MaDKit 5.0
@@ -530,9 +539,8 @@ public abstract class Agent {
 	}
 
 	/**
-	 * Gets the organization. This method should not be used before the agent has
-	 * been launched. The organization is the agent's view of the artificial
-	 * society.
+	 * Gets the organization. This method should not be used before the agent has been
+	 * launched. The organization is the agent's view of the artificial society.
 	 *
 	 * @return the organization to which the agent is attached.
 	 */
@@ -543,35 +551,34 @@ public abstract class Agent {
 	/**
 	 * Creates a new Group within a community.
 	 * <p>
-	 * If this operation succeed, the agent will automatically handle the role
-	 * defined by {@link SystemRoles#GROUP_MANAGER_ROLE}, which value is <i>
-	 * {@value madkit.agr.SystemRoles#GROUP_MANAGER_ROLE}</i>, in this created
-	 * group. Especially, if the agent leaves the role of <i>
-	 * {@value madkit.agr.SystemRoles#GROUP_MANAGER_ROLE}</i>, it will also
-	 * automatically leave the group and thus all the roles it has in this group.
+	 * If this operation succeed, the agent will automatically handle the role defined by
+	 * {@link SystemRoles#GROUP_MANAGER_ROLE}, which value is <i>
+	 * {@value madkit.agr.SystemRoles#GROUP_MANAGER_ROLE}</i>, in this created group.
+	 * Especially, if the agent leaves the role of <i>
+	 * {@value madkit.agr.SystemRoles#GROUP_MANAGER_ROLE}</i>, it will also automatically
+	 * leave the group and thus all the roles it has in this group.
 	 * <p>
 	 * Agents that want to enter the group may send messages to the <i>
-	 * {@value madkit.agr.SystemRoles#GROUP_MANAGER_ROLE}</i> using the role defined
-	 * by {@link SystemRoles#GROUP_CANDIDATE_ROLE}, which value is <i>
+	 * {@value madkit.agr.SystemRoles#GROUP_MANAGER_ROLE}</i> using the role defined by
+	 * {@link SystemRoles#GROUP_CANDIDATE_ROLE}, which value is <i>
 	 * {@value madkit.agr.SystemRoles#GROUP_CANDIDATE_ROLE}</i>.
 	 *
-	 * @param community     the community within which the group will be created. If
-	 *                      this community does not exist it will be created.
+	 * @param community     the community within which the group will be created. If this
+	 *                      community does not exist it will be created.
 	 * @param group         the name of the new group.
-	 * @param isDistributed if <code>true</code> the new group will be distributed
-	 *                      when multiple MaDKit kernels are connected.
-	 * @param keyMaster     any object that implements the {@link Gatekeeper}
-	 *                      interface. If not <code>null</code>, this object will be
-	 *                      used to check if an agent can be admitted in the group.
-	 *                      When this object is null, there is no group access
-	 *                      control.
+	 * @param isDistributed if <code>true</code> the new group will be distributed when
+	 *                      multiple MaDKit kernels are connected.
+	 * @param keyMaster     any object that implements the {@link Gatekeeper} interface. If
+	 *                      not <code>null</code>, this object will be used to check if an
+	 *                      agent can be admitted in the group. When this object is null,
+	 *                      there is no group access control.
 	 * @return
 	 *         <ul>
-	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the group has been
-	 *         successfully created.</li>
+	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the group has been successfully
+	 *         created.</li>
 	 *         <li><code>
-	 *         {@link ReturnCode#ALREADY_GROUP}</code>: If the operation failed
-	 *         because such a group already exists.</li>
+	 *         {@link ReturnCode#ALREADY_GROUP}</code>: If the operation failed because such a
+	 *         group already exists.</li>
 	 *         </ul>
 	 * @see Gatekeeper
 	 * @see ReturnCode
@@ -582,10 +589,9 @@ public abstract class Agent {
 	}
 
 	/**
-	 * Requests a role within a group of a particular community. This has the same
-	 * effect as <code>requestRole(community, group, role, null, false)</code>. So
-	 * the passKey is <code>null</code> and the group must not be secured for this
-	 * to succeed.
+	 * Requests a role within a group of a particular community. This has the same effect as
+	 * <code>requestRole(community, group, role, null, false)</code>. So the passKey is
+	 * <code>null</code> and the group must not be secured for this to succeed.
 	 *
 	 * @param community the group's community.
 	 * @param group     the targeted group.
@@ -604,24 +610,23 @@ public abstract class Agent {
 	 * @param community the group's community.
 	 * @param group     the targeted group.
 	 * @param role      the desired role.
-	 * @param passKey   the <code>passKey</code> to enter a secured group. It is
-	 *                  generally delivered by the group's <i>group manager</i>. It
-	 *                  could be <code>null</code>, which is sufficient to enter an
-	 *                  unsecured group. Especially,
-	 *                  {@link #requestRole(String, String, String)} uses a
+	 * @param passKey   the <code>passKey</code> to enter a secured group. It is generally
+	 *                  delivered by the group's <i>group manager</i>. It could be
+	 *                  <code>null</code>, which is sufficient to enter an unsecured group.
+	 *                  Especially, {@link #requestRole(String, String, String)} uses a
 	 *                  <code>null</code> <code>passKey</code>.
 	 * @return
 	 *         <ul>
 	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the operation has
 	 *         succeeded.</li>
-	 *         <li><code>{@link ReturnCode#NOT_COMMUNITY}</code>: If the community
-	 *         does not exist.</li>
+	 *         <li><code>{@link ReturnCode#NOT_COMMUNITY}</code>: If the community does not
+	 *         exist.</li>
 	 *         <li><code>{@link ReturnCode#NOT_GROUP}</code>: If the group does not
 	 *         exist.</li>
-	 *         <li><code>{@link ReturnCode#ROLE_ALREADY_HANDLED}</code>: If this
-	 *         role is already handled by this agent.</li>
-	 *         <li><code>{@link ReturnCode#ACCESS_DENIED}</code>: If the access
-	 *         denied by the manager of that secured group.</li>
+	 *         <li><code>{@link ReturnCode#ROLE_ALREADY_HANDLED}</code>: If this role is
+	 *         already handled by this agent.</li>
+	 *         <li><code>{@link ReturnCode#ACCESS_DENIED}</code>: If the access denied by the
+	 *         manager of that secured group.</li>
 	 *         </ul>
 	 * @see Agent.ReturnCode
 	 * @see Gatekeeper
@@ -640,12 +645,12 @@ public abstract class Agent {
 	 *         <ul>
 	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the operation has
 	 *         succeeded.</li>
-	 *         <li><code>{@link ReturnCode#NOT_COMMUNITY}</code>: If the community
-	 *         does not exist.</li>
+	 *         <li><code>{@link ReturnCode#NOT_COMMUNITY}</code>: If the community does not
+	 *         exist.</li>
 	 *         <li><code>{@link ReturnCode#NOT_GROUP}</code>: If the group does not
 	 *         exist.</li>
-	 *         <li><code>{@link ReturnCode#NOT_IN_GROUP}</code>: If this agent is
-	 *         not a member of this group.</li>
+	 *         <li><code>{@link ReturnCode#NOT_IN_GROUP}</code>: If this agent is not a member
+	 *         of this group.</li>
 	 *         </ul>
 	 * @since MaDKit 5.0
 	 * @see ReturnCode
@@ -664,12 +669,12 @@ public abstract class Agent {
 	 *         <ul>
 	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the operation has
 	 *         succeeded.</li>
-	 *         <li><code>{@link ReturnCode#NOT_COMMUNITY}</code>: If the community
-	 *         does not exist.</li>
+	 *         <li><code>{@link ReturnCode#NOT_COMMUNITY}</code>: If the community does not
+	 *         exist.</li>
 	 *         <li><code>{@link ReturnCode#NOT_GROUP}</code>: If the group does not
 	 *         exist.</li>
-	 *         <li><code>{@link ReturnCode#ROLE_NOT_HANDLED}</code>: If this role is
-	 *         not handled by this agent.</li>
+	 *         <li><code>{@link ReturnCode#ROLE_NOT_HANDLED}</code>: If this role is not
+	 *         handled by this agent.</li>
 	 *         </ul>
 	 * @see Agent.ReturnCode
 	 * @since MaDKit 5.0
@@ -679,14 +684,14 @@ public abstract class Agent {
 	}
 
 	/**
-	 * Returns an {@link AgentAddress} corresponding to an agent having this
-	 * position in the organization. The caller is excluded from the search.
+	 * Returns an {@link AgentAddress} corresponding to an agent having this position in the
+	 * organization. The caller is excluded from the search.
 	 *
 	 * @param community the community name
 	 * @param group     the group name
 	 * @param role      the role name
-	 * @return an {@link AgentAddress} corresponding to an agent handling this role
-	 *         or <code>null</code> if such an agent does not exist.
+	 * @return an {@link AgentAddress} corresponding to an agent handling this role or
+	 *         <code>null</code> if such an agent does not exist.
 	 */
 	public AgentAddress getAgentWithRole(String community, String group, String role) {
 		try {
@@ -697,8 +702,7 @@ public abstract class Agent {
 	}
 
 	/**
-	 * Returns a string representing a unique identifier for the agent over the
-	 * network.
+	 * Returns a string representing a unique identifier for the agent over the network.
 	 *
 	 * @return the agent's network identifier
 	 */
@@ -724,8 +728,8 @@ public abstract class Agent {
 	}
 
 	/**
-	 * Kills the caller and launches a new instance of this agent using the latest
-	 * byte code available for the corresponding class.
+	 * Kills the caller and launches a new instance of this agent using the latest byte code
+	 * available for the corresponding class.
 	 */
 	public void reload() {
 		try {
@@ -739,8 +743,8 @@ public abstract class Agent {
 	}
 
 	/**
-	 * Sends a message, using an agent address, specifying explicitly the role used
-	 * to send it.
+	 * Sends a message, using an agent address, specifying explicitly the role used to send
+	 * it.
 	 * 
 	 * @param message    the message to send
 	 * @param receiver   the targeted agent
@@ -748,16 +752,14 @@ public abstract class Agent {
 	 *
 	 * @return
 	 *         <ul>
-	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the send has
-	 *         succeeded.</li>
-	 *         <li><code>{@link ReturnCode#NOT_IN_GROUP}</code>: If this agent is
-	 *         not a member of the receiver's group.</li>
+	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the send has succeeded.</li>
+	 *         <li><code>{@link ReturnCode#NOT_IN_GROUP}</code>: If this agent is not a member
+	 *         of the receiver's group.</li>
 	 *         <li><code>{@link ReturnCode#ROLE_NOT_HANDLED}</code>: If
 	 *         <code>senderRole</code> is not handled by this agent.</li>
-	 *         <li><code>{@link ReturnCode#INVALID_AGENT_ADDRESS}</code>: If the
-	 *         receiver address is no longer valid. This is the case when the
-	 *         corresponding agent has leaved the role corresponding to the receiver
-	 *         agent address.</li>
+	 *         <li><code>{@link ReturnCode#INVALID_AGENT_ADDRESS}</code>: If the receiver
+	 *         address is no longer valid. This is the case when the corresponding agent has
+	 *         leaved the role corresponding to the receiver agent address.</li>
 	 *         </ul>
 	 * @see ReturnCode
 	 * @see AgentAddress
@@ -776,22 +778,20 @@ public abstract class Agent {
 	}
 
 	/**
-	 * Sends a message to an agent using an agent address. This has the same effect
-	 * as <code>sendWithRole(receiver, messageToSend, null)</code>.
+	 * Sends a message to an agent using an agent address. This has the same effect as
+	 * <code>sendWithRole(receiver, messageToSend, null)</code>.
 	 * 
 	 * @param message  the message to send
 	 * @param receiver the targeted agent
 	 *
 	 * @return
 	 *         <ul>
-	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the send has
-	 *         succeeded.</li>
-	 *         <li><code>{@link ReturnCode#NOT_IN_GROUP}</code>: If this agent is
-	 *         not a member of the receiver's group.</li>
-	 *         <li><code>{@link ReturnCode#INVALID_AGENT_ADDRESS}</code>: If the
-	 *         receiver address is no longer valid. This is the case when the
-	 *         corresponding agent has leaved the role corresponding to the receiver
-	 *         agent address.</li>
+	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the send has succeeded.</li>
+	 *         <li><code>{@link ReturnCode#NOT_IN_GROUP}</code>: If this agent is not a member
+	 *         of the receiver's group.</li>
+	 *         <li><code>{@link ReturnCode#INVALID_AGENT_ADDRESS}</code>: If the receiver
+	 *         address is no longer valid. This is the case when the corresponding agent has
+	 *         leaved the role corresponding to the receiver agent address.</li>
 	 *         </ul>
 	 * @see ReturnCode
 	 * @see AgentAddress
@@ -801,11 +801,10 @@ public abstract class Agent {
 	}
 
 	/**
-	 * Sends a message to an agent having this position in the organization,
-	 * specifying explicitly the role used to send it. This has the same effect as
-	 * sendMessageWithRole(community, group, role, messageToSend,null). If several
-	 * agents match, the target is chosen randomly. The sender is excluded from this
-	 * search.
+	 * Sends a message to an agent having this position in the organization, specifying
+	 * explicitly the role used to send it. This has the same effect as
+	 * sendMessageWithRole(community, group, role, messageToSend,null). If several agents
+	 * match, the target is chosen randomly. The sender is excluded from this search.
 	 * 
 	 * @param message   the message to send
 	 * @param community the community name
@@ -814,19 +813,16 @@ public abstract class Agent {
 	 *
 	 * @return
 	 *         <ul>
-	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the send has
-	 *         succeeded.</li>
-	 *         <li><code>{@link ReturnCode#NOT_COMMUNITY}</code>: If the community
-	 *         does not exist.</li>
+	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the send has succeeded.</li>
+	 *         <li><code>{@link ReturnCode#NOT_COMMUNITY}</code>: If the community does not
+	 *         exist.</li>
 	 *         <li><code>{@link ReturnCode#NOT_GROUP}</code>: If the group does not
 	 *         exist.</li>
-	 *         <li><code>{@link ReturnCode#NOT_ROLE}</code>: If the role does not
-	 *         exist.</li>
-	 *         <li><code>{@link ReturnCode#NOT_IN_GROUP}</code>: If this agent is
-	 *         not a member of the targeted group.</li>
-	 *         <li><code>{@link ReturnCode#NO_RECIPIENT_FOUND}</code>: If no agent
-	 *         was found as recipient, i.e. the sender was the only agent having
-	 *         this role.</li>
+	 *         <li><code>{@link ReturnCode#NOT_ROLE}</code>: If the role does not exist.</li>
+	 *         <li><code>{@link ReturnCode#NOT_IN_GROUP}</code>: If this agent is not a member
+	 *         of the targeted group.</li>
+	 *         <li><code>{@link ReturnCode#NO_RECIPIENT_FOUND}</code>: If no agent was found
+	 *         as recipient, i.e. the sender was the only agent having this role.</li>
 	 *         </ul>
 	 * @see ReturnCode
 	 */
@@ -835,11 +831,10 @@ public abstract class Agent {
 	}
 
 	/**
-	 * Sends a message to an agent having this position in the organization. This
-	 * has the same effect as
-	 * <code>sendMessageWithRole(community, group, role, messageToSend,null)</code>
-	 * . If several agents match, the target is chosen randomly. The sender is
-	 * excluded from this search.
+	 * Sends a message to an agent having this position in the organization. This has the same
+	 * effect as <code>sendMessageWithRole(community, group, role, messageToSend,null)</code>
+	 * . If several agents match, the target is chosen randomly. The sender is excluded from
+	 * this search.
 	 * 
 	 * @param message    the message to send
 	 * @param community  the community name
@@ -849,21 +844,18 @@ public abstract class Agent {
 	 *
 	 * @return
 	 *         <ul>
-	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the send has
-	 *         succeeded.</li>
-	 *         <li><code>{@link ReturnCode#NOT_COMMUNITY}</code>: If the community
-	 *         does not exist.</li>
+	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the send has succeeded.</li>
+	 *         <li><code>{@link ReturnCode#NOT_COMMUNITY}</code>: If the community does not
+	 *         exist.</li>
 	 *         <li><code>{@link ReturnCode#NOT_GROUP}</code>: If the group does not
 	 *         exist.</li>
-	 *         <li><code>{@link ReturnCode#NOT_ROLE}</code>: If the role does not
-	 *         exist.</li>
+	 *         <li><code>{@link ReturnCode#NOT_ROLE}</code>: If the role does not exist.</li>
 	 *         <li><code>{@link ReturnCode#ROLE_NOT_HANDLED}</code>: If
 	 *         <code>senderRole</code> is not handled by this agent.</li>
-	 *         <li><code>{@link ReturnCode#NOT_IN_GROUP}</code>: If this agent is
-	 *         not a member of the targeted group.</li>
-	 *         <li><code>{@link ReturnCode#NO_RECIPIENT_FOUND}</code>: If no agent
-	 *         was found as recipient, i.e. the sender was the only agent having
-	 *         this role.</li>
+	 *         <li><code>{@link ReturnCode#NOT_IN_GROUP}</code>: If this agent is not a member
+	 *         of the targeted group.</li>
+	 *         <li><code>{@link ReturnCode#NO_RECIPIENT_FOUND}</code>: If no agent was found
+	 *         as recipient, i.e. the sender was the only agent having this role.</li>
 	 *         </ul>
 	 * @see ReturnCode
 	 */
@@ -880,21 +872,20 @@ public abstract class Agent {
 	}
 
 	/**
-	 * Sends a message to an agent having this position in the organization and
-	 * waits for an answer to it. The targeted agent is selected randomly among
-	 * matched agents. The sender is excluded from this search.
+	 * Sends a message to an agent having this position in the organization and waits for an
+	 * answer to it. The targeted agent is selected randomly among matched agents. The sender
+	 * is excluded from this search.
 	 * 
 	 * @param community           the community name
 	 * @param group               the group name
 	 * @param role                the role name
 	 * @param messageToSend       the message to send.
 	 * @param senderRole          the role with which the sending is done.
-	 * @param timeOutMilliSeconds the maximum time to wait. If <code>null</code> the
-	 *                            agent will wait indefinitely.
+	 * @param timeOutMilliSeconds the maximum time to wait. If <code>null</code> the agent
+	 *                            will wait indefinitely.
 	 * @param <T>                 the type of the message to get
-	 * @return the reply received as soon as available, or <code>null</code> if the
-	 *         time out has elapsed or if there was an error when sending the
-	 *         message.
+	 * @return the reply received as soon as available, or <code>null</code> if the time out
+	 *         has elapsed or if there was an error when sending the message.
 	 * @since MaDKit 5
 	 */
 	protected <T extends Message> T sendWithRoleWaitReply(Message messageToSend, String community, String group,
@@ -909,19 +900,18 @@ public abstract class Agent {
 	}
 
 	/**
-	 * Sends a message and waits for an answer to it. Additionally, the sending is
-	 * done using a specific role for the sender.
+	 * Sends a message and waits for an answer to it. Additionally, the sending is done using
+	 * a specific role for the sender.
 	 * 
 	 * @param messageToSend       the message to send.
 	 * @param receiver            the targeted agent by the send.
 	 * @param senderRole          the role with which the sending is done.
-	 * @param timeOutMilliSeconds the maximum time to wait. If <code>null</code> the
-	 *                            agent will wait indefinitely.
+	 * @param timeOutMilliSeconds the maximum time to wait. If <code>null</code> the agent
+	 *                            will wait indefinitely.
 	 * @param <T>                 the type of the message to get
 	 * 
-	 * @return the reply received as soon as available, or <code>null</code> if the
-	 *         time out has elapsed or if there was an error when sending the
-	 *         message,
+	 * @return the reply received as soon as available, or <code>null</code> if the time out
+	 *         has elapsed or if there was an error when sending the message,
 	 * 
 	 * @since MaDKit 5
 	 */
@@ -937,20 +927,18 @@ public abstract class Agent {
 	}
 
 	/**
-	 * Sends a message to an agent having this position in the organization and
-	 * waits for an answer to it. The targeted agent is selected randomly among
-	 * matched agents. The sender is excluded from this search.
+	 * Sends a message to an agent having this position in the organization and waits for an
+	 * answer to it. The targeted agent is selected randomly among matched agents. The sender
+	 * is excluded from this search.
 	 * 
 	 * @param community           the community name
 	 * @param group               the group name
 	 * @param role                the role name
 	 * @param messageToSend       the message to send.
 	 * @param timeOutMilliSeconds the maximum time to wait. If <code>null</code> the
-	 * @param <T>                 the type of the message to get agent will wait
-	 *                            indefinitely.
-	 * @return the reply received as soon as available, or <code>null</code> if the
-	 *         time out has elapsed or if there was an error when sending the
-	 *         message.
+	 * @param <T>                 the type of the message to get agent will wait indefinitely.
+	 * @return the reply received as soon as available, or <code>null</code> if the time out
+	 *         has elapsed or if there was an error when sending the message.
 	 * @since MaDKit 5
 	 */
 	protected <T extends Message> T sendWaitReply(Message messageToSend, String community, String group, String role,
@@ -959,26 +947,23 @@ public abstract class Agent {
 	}
 
 	/**
-	 * Broadcasts a message to every agent having a role in a group in a community
-	 * using a specific role for the sender. The sender is excluded from the search.
+	 * Broadcasts a message to every agent having a role in a group in a community using a
+	 * specific role for the sender. The sender is excluded from the search.
 	 *
 	 * @param message   message to send
 	 * @param receivers list of agent addresses to send the message to
 	 * @return
 	 *         <ul>
-	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the send has
-	 *         succeeded.</li>
-	 *         <li><code>{@link ReturnCode#NOT_COMMUNITY}</code>: If the community
-	 *         does not exist.</li>
+	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the send has succeeded.</li>
+	 *         <li><code>{@link ReturnCode#NOT_COMMUNITY}</code>: If the community does not
+	 *         exist.</li>
 	 *         <li><code>{@link ReturnCode#NOT_GROUP}</code>: If the group does not
 	 *         exist.</li>
-	 *         <li><code>{@link ReturnCode#NOT_ROLE}</code>: If the role does not
-	 *         exist.</li>
-	 *         <li><code>{@link ReturnCode#NOT_IN_GROUP}</code>: If this agent is
-	 *         not a member of the targeted group.</li>
-	 *         <li><code>{@link ReturnCode#NO_RECIPIENT_FOUND}</code>: If no agent
-	 *         was found as recipient, i.e. the sender was the only agent having
-	 *         this role.</li>
+	 *         <li><code>{@link ReturnCode#NOT_ROLE}</code>: If the role does not exist.</li>
+	 *         <li><code>{@link ReturnCode#NOT_IN_GROUP}</code>: If this agent is not a member
+	 *         of the targeted group.</li>
+	 *         <li><code>{@link ReturnCode#NO_RECIPIENT_FOUND}</code>: If no agent was found
+	 *         as recipient, i.e. the sender was the only agent having this role.</li>
 	 *         </ul>
 	 * @see ReturnCode
 	 */
@@ -987,27 +972,24 @@ public abstract class Agent {
 	}
 
 	/**
-	 * Broadcasts a message to every agent having a role in a group in a community
-	 * using a specific role for the sender. The sender is excluded from the search.
+	 * Broadcasts a message to every agent having a role in a group in a community using a
+	 * specific role for the sender. The sender is excluded from the search.
 	 *
 	 * @param message   message to send
 	 * @param receivers list of agent addresses to send the message to
 	 * @param role      the agent's role with which the message should be sent
 	 * @return
 	 *         <ul>
-	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the send has
-	 *         succeeded.</li>
-	 *         <li><code>{@link ReturnCode#NOT_COMMUNITY}</code>: If the community
-	 *         does not exist.</li>
+	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the send has succeeded.</li>
+	 *         <li><code>{@link ReturnCode#NOT_COMMUNITY}</code>: If the community does not
+	 *         exist.</li>
 	 *         <li><code>{@link ReturnCode#NOT_GROUP}</code>: If the group does not
 	 *         exist.</li>
-	 *         <li><code>{@link ReturnCode#NOT_ROLE}</code>: If the role does not
-	 *         exist.</li>
-	 *         <li><code>{@link ReturnCode#NOT_IN_GROUP}</code>: If this agent is
-	 *         not a member of the targeted group.</li>
-	 *         <li><code>{@link ReturnCode#NO_RECIPIENT_FOUND}</code>: If no agent
-	 *         was found as recipient, i.e. the sender was the only agent having
-	 *         this role.</li>
+	 *         <li><code>{@link ReturnCode#NOT_ROLE}</code>: If the role does not exist.</li>
+	 *         <li><code>{@link ReturnCode#NOT_IN_GROUP}</code>: If this agent is not a member
+	 *         of the targeted group.</li>
+	 *         <li><code>{@link ReturnCode#NO_RECIPIENT_FOUND}</code>: If no agent was found
+	 *         as recipient, i.e. the sender was the only agent having this role.</li>
 	 *         </ul>
 	 * @see ReturnCode
 	 */
@@ -1026,8 +1008,8 @@ public abstract class Agent {
 	 * @param senderRole          the agent's role with which the message should be
 	 * @param timeOutMilliSeconds the maximum time to wait.
 	 * 
-	 * @return a list of messages which are answers to the <code>message</code>
-	 *         which has been broadcasted.
+	 * @return a list of messages which are answers to the <code>message</code> which has been
+	 *         broadcasted.
 	 */
 	protected <T extends Message> List<T> broadcastWithRoleWaitForReplies(Message message, List<AgentAddress> receivers,
 			String senderRole, Integer timeOutMilliSeconds) {
@@ -1051,8 +1033,8 @@ public abstract class Agent {
 //	}
 
 	/**
-	 * Returns a list of agent addresses corresponding to agents having this role in
-	 * the organization. The sender is excluded from this search.
+	 * Returns a list of agent addresses corresponding to agents having this role in the
+	 * organization. The sender is excluded from this search.
 	 * 
 	 * @param community the community name
 	 * @param group     the group name
@@ -1069,8 +1051,8 @@ public abstract class Agent {
 	}
 
 	/**
-	 * Checks if this agent address is still valid. <i>I.e.</i> the corresponding
-	 * agent is still playing this role.
+	 * Checks if this agent address is still valid. <i>I.e.</i> the corresponding agent is
+	 * still playing this role.
 	 *
 	 * @param agentAddress the agent address to check
 	 * @return <code>true</code> if the address still exists in the organization.
@@ -1110,26 +1092,23 @@ public abstract class Agent {
 //    }
 
 	/**
-	 * Sends a message by replying to a previously received message. The sender is
-	 * excluded from this search.
+	 * Sends a message by replying to a previously received message. The sender is excluded
+	 * from this search.
 	 * 
 	 * @param reply            the reply itself.
 	 * @param messageToReplyTo the previously received message.
-	 * @param senderRole       the agent's role with which the message should be
-	 *                         sent
+	 * @param senderRole       the agent's role with which the message should be sent
 	 *
 	 * @return
 	 *         <ul>
-	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the send has
-	 *         succeeded.</li>
-	 *         <li><code>{@link ReturnCode#NOT_IN_GROUP}</code>: If this agent is no
-	 *         longer a member of the corresponding group.</li>
+	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the send has succeeded.</li>
+	 *         <li><code>{@link ReturnCode#NOT_IN_GROUP}</code>: If this agent is no longer a
+	 *         member of the corresponding group.</li>
 	 *         <li><code>{@link ReturnCode#ROLE_NOT_HANDLED}</code>: If
 	 *         <code>senderRole</code> is not handled by this agent.</li>
-	 *         <li><code>{@link ReturnCode#INVALID_AGENT_ADDRESS}</code>: If the
-	 *         receiver address is no longer valid. This is the case when the
-	 *         corresponding agent has leaved the role corresponding to the receiver
-	 *         agent address.</li>
+	 *         <li><code>{@link ReturnCode#INVALID_AGENT_ADDRESS}</code>: If the receiver
+	 *         address is no longer valid. This is the case when the corresponding agent has
+	 *         leaved the role corresponding to the receiver agent address.</li>
 	 *         </ul>
 	 * @see ReturnCode
 	 */
@@ -1142,22 +1121,20 @@ public abstract class Agent {
 	}
 
 	/**
-	 * Sends a message by replying to a previously received message. This has the
-	 * same effect as <code>sendReplyWithRole(messageToReplyTo, reply, null)</code>.
+	 * Sends a message by replying to a previously received message. This has the same effect
+	 * as <code>sendReplyWithRole(messageToReplyTo, reply, null)</code>.
 	 * 
 	 * @param reply            the reply itself.
 	 * @param messageToReplyTo the previously received message.
 	 *
 	 * @return
 	 *         <ul>
-	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the reply has
-	 *         succeeded.</li>
-	 *         <li><code>{@link ReturnCode#NOT_IN_GROUP}</code>: If this agent is no
-	 *         longer a member of the corresponding group.</li>
-	 *         <li><code>{@link ReturnCode#INVALID_AGENT_ADDRESS}</code>: If the
-	 *         receiver address is no longer valid. This is the case when the
-	 *         corresponding agent has leaved the role corresponding to the receiver
-	 *         agent address.</li>
+	 *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the reply has succeeded.</li>
+	 *         <li><code>{@link ReturnCode#NOT_IN_GROUP}</code>: If this agent is no longer a
+	 *         member of the corresponding group.</li>
+	 *         <li><code>{@link ReturnCode#INVALID_AGENT_ADDRESS}</code>: If the receiver
+	 *         address is no longer valid. This is the case when the corresponding agent has
+	 *         leaved the role corresponding to the receiver agent address.</li>
 	 *         </ul>
 	 * @see Agent#replyWithRole(Message, Message, String)
 	 */
@@ -1170,8 +1147,8 @@ public abstract class Agent {
 	 *
 	 * @param <T>             the type of the message to get
 	 * @param originalMessage the message to which a reply is searched.
-	 * @return a reply to the <i>originalMessage</i> or <code>null</code> if no
-	 *         reply to this message has been received.
+	 * @return a reply to the <i>originalMessage</i> or <code>null</code> if no reply to this
+	 *         message has been received.
 	 */
 	@SuppressWarnings("unchecked")
 	public <T extends Message> T getReplyTo(Message originalMessage) {
@@ -1180,8 +1157,8 @@ public abstract class Agent {
 
 	//////////////////////////////////// WAIT
 	/**
-	 * This method is the blocking version of nextMessage(). If there is no message
-	 * in the mailbox, it suspends the agent life until a message is received
+	 * This method is the blocking version of nextMessage(). If there is no message in the
+	 * mailbox, it suspends the agent life until a message is received
 	 *
 	 * @param <T> the type of the message to get
 	 * @see #waitNextMessage(long)
@@ -1195,14 +1172,14 @@ public abstract class Agent {
 	}
 
 	/**
-	 * This method gets the next message of the mailbox or waits for a new incoming
-	 * message considering a certain delay.
+	 * This method gets the next message of the mailbox or waits for a new incoming message
+	 * considering a certain delay.
 	 * 
 	 * @param <T>                 the type of the message to get
 	 * @param timeOutMilliseconds the maximum time to wait, in milliseconds.
 	 * 
-	 * @return the first message in the mailbox, or <code>null</code> if no message
-	 *         has been received before the time out delay is elapsed
+	 * @return the first message in the mailbox, or <code>null</code> if no message has been
+	 *         received before the time out delay is elapsed
 	 */
 	@SuppressWarnings("unchecked")
 	protected <T extends Message> T waitNextMessage(long timeOutMilliseconds) {
@@ -1216,8 +1193,8 @@ public abstract class Agent {
 	}
 
 	/**
-	 * Retrieves and removes the next message that is a reply to the query message,
-	 * waiting for ever if necessary until a matching reply becomes available.
+	 * Retrieves and removes the next message that is a reply to the query message, waiting
+	 * for ever if necessary until a matching reply becomes available.
 	 * 
 	 * @param query the message for which a reply is waited for
 	 * @param <T>   the type of the message to get
@@ -1231,8 +1208,8 @@ public abstract class Agent {
 	}
 
 	/**
-	 * Retrieves and removes the next message that is a reply to the query message,
-	 * waiting for ever if necessary until a matching reply becomes available.
+	 * Retrieves and removes the next message that is a reply to the query message, waiting
+	 * for ever if necessary until a matching reply becomes available.
 	 * 
 	 * @param query               the message for which a reply is waited for
 	 * @param timeOutMilliSeconds the maximum time to wait, in milliseconds.
@@ -1247,9 +1224,9 @@ public abstract class Agent {
 	}
 
 	/**
-	 * This method offers a convenient way for regular object to send messages to
-	 * Agents, especially threaded agents. For instance when a GUI wants to discuss
-	 * with its linked agent: This allows to enqueue work to do in their life cycle
+	 * This method offers a convenient way for regular object to send messages to Agents,
+	 * especially threaded agents. For instance when a GUI wants to discuss with its linked
+	 * agent: This allows to enqueue work to do in their life cycle
 	 *
 	 * @param message the message to send
 	 */
@@ -1274,8 +1251,8 @@ public abstract class Agent {
 	}
 
 	/**
-	 * Creates a default frame for the agent. It is made of a {@link FXAgentStage}
-	 * containing a {@link FXOutputPane}
+	 * Creates a default frame for the agent. It is made of a {@link FXAgentStage} containing
+	 * a {@link FXOutputPane}
 	 * 
 	 */
 	public void setupDefaultGUI() {
@@ -1288,8 +1265,8 @@ public abstract class Agent {
 	}
 
 	/**
-	 * This class enumerates all the return codes which could be obtained with
-	 * essential methods of the {@link Agent} and {@link Agent} classes.
+	 * This class enumerates all the return codes which could be obtained with essential
+	 * methods of the {@link Agent} and {@link Agent} classes.
 	 *
 	 * @author Fabien Michel
 	 * @since MaDKit 5.0
@@ -1326,15 +1303,13 @@ public abstract class Agent {
 		 */
 		ACCESS_DENIED,
 		/**
-		 * Returned when the agent does not have a role that it is supposed to have
-		 * doing a particular action, e.g.
-		 * {@link Agent#sendWithRole(Message, AgentAddress, String)}
+		 * Returned when the agent does not have a role that it is supposed to have doing a
+		 * particular action, e.g. {@link Agent#sendWithRole(Message, AgentAddress, String)}
 		 */
 		ROLE_NOT_HANDLED,
 		/**
-		 * Returned when using
-		 * {@link Agent#createGroup(String, String, boolean, Gatekeeper)} and that a
-		 * group already exists
+		 * Returned when using {@link Agent#createGroup(String, String, boolean, Gatekeeper)} and
+		 * that a group already exists
 		 */
 		ALREADY_GROUP,
 		/**
@@ -1353,8 +1328,7 @@ public abstract class Agent {
 		AGENT_CRASH,
 		// NOT_AN_AGENT_CLASS,
 		/**
-		 * Returned by kill primitives when the targeted agent has not been launched
-		 * priorly
+		 * Returned by kill primitives when the targeted agent has not been launched priorly
 		 */
 		NOT_YET_LAUNCHED,
 		/**
@@ -1362,13 +1336,13 @@ public abstract class Agent {
 		 */
 		ALREADY_KILLED,
 		/**
-		 * Returned by send primitives when the targeted agent address does not exist
-		 * anymore, i.e. the related agent has leaved the corresponding role
+		 * Returned by send primitives when the targeted agent address does not exist anymore,
+		 * i.e. the related agent has leaved the corresponding role
 		 */
 		INVALID_AGENT_ADDRESS,
 		/**
-		 * Returned by send primitives when the targeted CGR location does not exist or
-		 * contain any agent
+		 * Returned by send primitives when the targeted CGR location does not exist or contain
+		 * any agent
 		 */
 		NO_RECIPIENT_FOUND,
 //		/**
@@ -1380,9 +1354,9 @@ public abstract class Agent {
 //		 */
 //		IGNORED,
 		/**
-		 * Returned when an agent tries to reply to a message which has not been
-		 * received from another agent, e.g. newly created or sent directly by an object
-		 * using {@link Agent#receiveMessage(Message)}.
+		 * Returned when an agent tries to reply to a message which has not been received from
+		 * another agent, e.g. newly created or sent directly by an object using
+		 * {@link Agent#receiveMessage(Message)}.
 		 */
 		CANT_REPLY,
 		/**
@@ -1410,8 +1384,7 @@ public abstract class Agent {
 	/**
 	 * The kernel's address on which this agent is running.
 	 *
-	 * @return the kernel address representing the MaDKit kernel on which the agent
-	 *         is running
+	 * @return the kernel address representing the MaDKit kernel on which the agent is running
 	 */
 	public KernelAddress getKernelAddress() {
 		return kernel.kernelAddress;
@@ -1421,9 +1394,9 @@ public abstract class Agent {
 	 * Retrieves the next message from the mailbox.
 	 *
 	 * <p>
-	 * It returns the next message of type {@code M} from the mailbox. The type
-	 * parameter {@code M} must extend the {@link Message} class, allowing for
-	 * flexibility in the types of messages that can be processed.
+	 * It returns the next message of type {@code M} from the mailbox. The type parameter
+	 * {@code M} must extend the {@link Message} class, allowing for flexibility in the types
+	 * of messages that can be processed.
 	 * </p>
 	 *
 	 * @param <M> the type of the message to get
@@ -1436,10 +1409,10 @@ public abstract class Agent {
 	//////////////////////////////////////////// LAUNCHING
 
 	/**
-	 * This offers a convenient way to create main a main method that launches the
-	 * agent class under development. The agent is launched in a new instance
-	 * MaDKit. This call only works in the main method of the agent's class. MaDKit.
-	 * Here is an example of use that will work in any subclass of {@link Agent}:
+	 * This offers a convenient way to create main a main method that launches the agent class
+	 * under development. The agent is launched in a new instance MaDKit. This call only works
+	 * in the main method of the agent's class. MaDKit. Here is an example of use that will
+	 * work in any subclass of {@link Agent}:
 	 *
 	 * To launch 10 instances of an agent, you can use:
 	 * 
@@ -1456,8 +1429,8 @@ public abstract class Agent {
 	 * @param nbOfInstances specify how many of this kind should be launched
 	 * @param args          MaDKit options.
 	 * 
-	 * @return the kernel instance that actually launches this agent, so that it is
-	 *         possible to do other actions after the launch
+	 * @return the kernel instance that actually launches this agent, so that it is possible
+	 *         to do other actions after the launch
 	 * @since MaDKit 5.0.0.14
 	 */
 	protected static Madkit executeThisAgent(int nbOfInstances, String... args) {
@@ -1477,15 +1450,13 @@ public abstract class Agent {
 	}
 
 	/**
-	 * This offers a convenient way to create a main method that launches the agent
-	 * class under development. This call only works in the main method of the
-	 * agent's class. This call is equivalent to
-	 * <code>executeThisAgent(1, true, args)</code>
+	 * This offers a convenient way to create a main method that launches the agent class
+	 * under development. This call only works in the main method of the agent's class. This
+	 * call is equivalent to <code>executeThisAgent(1, true, args)</code>
 	 *
 	 * @param args MaDKit options
-	 * @return the kernel instance that actually launches this agent, so that it is
-	 *         possible to do other actions after the launch using
-	 *         {@link Madkit#launchAgent(Agent)}
+	 * @return the kernel instance that actually launches this agent, so that it is possible
+	 *         to do other actions after the launch using {@link Madkit#launchAgent(Agent)}
 	 * @see #executeThisAgent(int, String...)
 	 * @since MaDKit 5.0.0.14
 	 */
@@ -1504,8 +1475,8 @@ public abstract class Agent {
 	}
 
 	/**
-	 * Proceeds an {@link EnumMessage} so that if it is correctly built, the agent
-	 * will trigger its corresponding behavior using the parameters of the message.
+	 * Proceeds an {@link EnumMessage} so that if it is correctly built, the agent will
+	 * trigger its corresponding behavior using the parameters of the message.
 	 *
 	 * @param message the message to proceed
 	 * @param <E>     the type of the enum used to build the message
@@ -1570,10 +1541,10 @@ enum Influence {
 	}
 
 	/**
-	 * This offers a convenient way to create main a main method that launches the
-	 * agent class under development. The agent is launched in a new instance
-	 * MaDKit. This call only works in the main method of the agent's class. MaDKit.
-	 * Here is an example of use that will work in any subclass of {@link Agent}:
+	 * This offers a convenient way to create main a main method that launches the agent class
+	 * under development. The agent is launched in a new instance MaDKit. This call only works
+	 * in the main method of the agent's class. MaDKit. Here is an example of use that will
+	 * work in any subclass of {@link Agent}:
 	 *
 	 * <pre>
 	 * <code>
@@ -1587,8 +1558,8 @@ enum Influence {
 	 *
 	 * @param nbOfInstances specify how many of this kind should be launched
 	 * @param createFrame
-	 * @param args          MaDKit options. For example, this will launch the agent
-	 *                      in desktop mode :
+	 * @param args          MaDKit options. For example, this will launch the agent in desktop
+	 *                      mode :
 	 *
 	 *                      <pre>
 	 *                      <code>
@@ -1596,8 +1567,8 @@ enum Influence {
 	 * 	executeThisAgent(BooleanOption.desktop.toString());
 	 * }
 	 * </code>
-	 * @return the kernel instance that actually launches this agent, so that it is
-	 *         possible to do other actions after the launch using
+	 * @return the kernel instance that actually launches this agent, so that it is possible
+	 *         to do other actions after the launch using
 	 *         {@link Madkit#doAction(madkit.action.KernelAction, Object...)}
 	 * @see Option BooleanOption LevelOption
 	 * @since MaDKit 5.0.0.14

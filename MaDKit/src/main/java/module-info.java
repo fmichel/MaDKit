@@ -26,15 +26,16 @@
 module madkit.base {
 	exports madkit.action;
 	exports madkit.agr;
-	exports madkit.gui;
 	exports madkit.kernel;
+	exports madkit.gui;
 	exports madkit.logging;
 	exports madkit.messages;
+	exports madkit.reflection;
 	exports madkit.simulation;
 	exports madkit.simulation.environment;
 	exports madkit.simulation.scheduler;
 	exports madkit.simulation.viewer;
-	exports madkit.reflection;
+	exports madkit.utils;
 
 	requires transitive java.desktop;
 	requires transitive java.logging;

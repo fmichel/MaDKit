@@ -17,9 +17,10 @@ class MDKCommandLine {
 
 	private static final String SWITCH = "--";
 
-	static final String AGENT_LOG_LEVEL = "agentLogLevel";
-	static final String CREATE_LOG_FILES = "createLogFiles";
-	static final String HEADLESS = "headless";
+	public static final String AGENT_LOG_LEVEL = "agentLogLevel";
+	public static final String CREATE_LOG_FILES = "createLogFiles";
+	public static final String HEADLESS = "headless";
+	public static final String NO_RANDOM = "noRandomizedFields";
 
 	//////////////////// OPTIONS
 
@@ -37,6 +38,9 @@ class MDKCommandLine {
 	 */
 	@Option(names = { "--noLog" }, description = "inhibit logging for optimizing simulations")
 	boolean noLog;
+
+	@Option(names = SWITCH + NO_RANDOM, description = "inhibit the randomization of annotated fields")
+	boolean noRandomizedFields = false;
 
 	@Option(names = { "-la",
 			"--agents" }, arity = "1", fallbackValue = "madkit.kernel.Madkit", description = "launch agents on startup")

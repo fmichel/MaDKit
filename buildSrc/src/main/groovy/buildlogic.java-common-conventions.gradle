@@ -6,7 +6,7 @@ plugins {
 }
 
 javafx {
-	version = '23.0.1'
+	version = '23.0.2'
 	modules = ['javafx.base', 'javafx.controls', 'javafx.graphics']
     configuration = 'api'
 }

@@ -53,7 +53,7 @@ public final class Group {
 		logger = Logger.getLogger(getCGRString(community.getName(), group));
 		logger.setParent(community.getLogger());
 		logger.setLevel(null);
-		roles.put(madkit.agr.SystemRoles.GROUP_MANAGER_ROLE, new ManagerRole(this, creator, isSecured));
+		roles.put(madkit.agr.SystemRoles.GROUP_MANAGER, new ManagerRole(this, creator, isSecured));
 	}
 
 	/**
@@ -102,7 +102,7 @@ public final class Group {
 		}
 		gatekeeper = null;
 		name = group;
-		roles.put(madkit.agr.SystemRoles.GROUP_MANAGER_ROLE, new ManagerRole(this, manager));
+		roles.put(madkit.agr.SystemRoles.GROUP_MANAGER, new ManagerRole(this, manager));
 	}
 
 	/**
@@ -136,10 +136,10 @@ public final class Group {
 //			if (gatekeeper == null) {
 //				final AgentAddress manager = myKernel.getAgentWithRole(
 //						communityName, groupName,
-//						madkit.agr.SystemRoles.GROUP_MANAGER_ROLE);
+//						madkit.agr.SystemRoles.GROUP_MANAGER);
 //				final AgentAddress distantAgentWithRole = myKernel
 //						.getDistantAgentWithRole(requester, madkit.agr.LocalCommunity.NAME,
-//								"kernels", madkit.agr.SystemRoles.GROUP_MANAGER_ROLE,
+//								"kernels", madkit.agr.SystemRoles.GROUP_MANAGER,
 //								manager.getKernelAddress());
 //				MicroAgent<Boolean> ma;
 //				myKernel.launchAgent(ma = new MicroAgent<Boolean>() {
@@ -375,7 +375,7 @@ public final class Group {
 //							.iterator(); iterator.hasNext();) {
 //						Agent a = iterator.next();
 //						if (a != oldManager) {
-//							put(madkit.agr.SystemRoles.GROUP_MANAGER_ROLE,
+//							put(madkit.agr.SystemRoles.GROUP_MANAGER,
 //									new ManagerRole(this, a, false));
 //							return;
 //						}

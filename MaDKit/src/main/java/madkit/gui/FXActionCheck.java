@@ -14,7 +14,7 @@ import madkit.action.ActionData;
  * performed.
  */
 @ActionCheck
-public class FXActionCheck extends FXAction {
+public class FXActionCheck extends ActionFromEnum {
 
 	/**
 	 * Builds a new action using {@link ActionData}.
@@ -23,7 +23,7 @@ public class FXActionCheck extends FXAction {
 	 * @param eventHandler the event handler to be executed when the action is
 	 *                     performed
 	 */
-	public FXActionCheck(final ActionData actionInfo, Consumer<ActionEvent> eventHandler) {
+	public FXActionCheck(ActionData actionInfo, Consumer<ActionEvent> eventHandler) {
 		super(actionInfo, eventHandler);
 	}
 

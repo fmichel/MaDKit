@@ -7,19 +7,18 @@ import static java.awt.event.KeyEvent.VK_U;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.controlsfx.control.action.Action;
 import org.controlsfx.control.action.ActionGroup;
 
-import madkit.gui.FXAction;
+import madkit.gui.ActionFromEnum;
 import madkit.kernel.Scheduler;
 import madkit.messages.SchedulingMessage;
 
 /**
  * Enum representing operations which could be done by a {@link Scheduler}
  * agent. It could be used by an agent to interact with the scheduler by
- * creating actions using {@link #getFxActionFrom(Scheduler, Object...)}.
+ * creating actions using {@link #getActionFrom(Scheduler, Object...)}.
  * 
- * @author Fabien Michel
- * @since MaDKit 5.0.0.14
  * @version 6
  * 
  */
@@ -66,8 +65,8 @@ public enum SchedulingAction {
 	 * @param parameters the info
 	 * @return the new corresponding action
 	 */
-	public org.controlsfx.control.action.Action getFxActionFrom(Scheduler<?> agent, Object... parameters) {
-		return new FXAction(getActionData(), ae -> {
+	public Action getActionFrom(Scheduler<?> agent, Object... parameters) {
+		return new ActionFromEnum(getActionData(), _ -> {
 			if (agent.isAlive()) {
 				agent.receiveMessage(new SchedulingMessage(SchedulingAction.this, parameters));
 			}
@@ -76,8 +75,8 @@ public enum SchedulingAction {
 
 	public static ActionGroup createAgentFxActionGroup(Scheduler<?> agent) {
 		Collection<org.controlsfx.control.action.Action> actions = new ArrayList<>();
-		actions.add(RUN.getFxActionFrom(agent));
-		actions.add(STEP.getFxActionFrom(agent));
+		actions.add(RUN.getActionFrom(agent));
+		actions.add(STEP.getActionFrom(agent));
 //		actions.add(SPEED_UP.getFxActionFor(agent));
 //		actions.add(SPEED_DOWN.getFxActionFor(agent));
 		return new ActionGroup("Scheduling", actions);

@@ -360,8 +360,8 @@ public abstract class Scheduler<T extends SimuTimer<?>> extends SimuAgent {
 	 */
 	public ActionGroup getShedulerActions() {
 		if (shedulingActions == null) {
-			run = SchedulingAction.RUN.getFxActionFrom(this);
-			step = SchedulingAction.STEP.getFxActionFrom(this);
+			run = SchedulingAction.RUN.getActionFrom(this);
+			step = SchedulingAction.STEP.getActionFrom(this);
 			Collection<Action> actions = new ArrayList<>();
 			actions.add(run);
 			actions.add(step);

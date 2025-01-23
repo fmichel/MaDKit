@@ -6,7 +6,6 @@ import static madkit.marketorg.MarketOrganization.CLIENT_ROLE;
 import static madkit.marketorg.MarketOrganization.COMMUNITY;
 import static madkit.marketorg.MarketOrganization.PROVIDERS_GROUP;
 import static madkit.marketorg.MarketOrganization.PROVIDER_ROLE;
-import static madkit.marketorg.MarketOrganization.RANDOM;
 
 import java.time.Instant;
 import java.util.List;
@@ -19,6 +18,7 @@ import madkit.kernel.Message;
 import madkit.messages.IntegerMessage;
 import madkit.messages.Messages;
 import madkit.messages.StringMessage;
+import madkit.random.RandomizedBoolean;
 
 /**
  * The broker agent is responsible for handling the client requests and managing
@@ -29,8 +29,15 @@ import madkit.messages.StringMessage;
  */
 public class Broker extends Agent {
 
+	/**
+	 * The broker's activity status. If the broker is on vacation, it will not handle the
+	 * client requests. The {@link UIProperty} annotation is used to make this property
+	 * visible in the GUI. The {@link RandomizedBoolean} annotation is used to make this
+	 * property randomized when the agent is launched.
+	 */
 	@UIProperty
-	private boolean active = true;
+	@RandomizedBoolean
+	private boolean onVacation = true;
 
 	/**
 	 * On activation, the broker creates the community and the groups, requests the
@@ -47,12 +54,12 @@ public class Broker extends Agent {
 	}
 
 	/**
-	 * On live, the broker waits for the client requests and handles them.
+	 * On living, the broker waits for the client requests and handles them.
 	 */
 	@Override
 	protected void onLive() {
 		while (isAlive()) {
-			if (active) {
+			if (isOnVacation()) {
 				Message m = getMailbox().purge();// to always treat the latest request
 				if (m == null) {
 					m = waitNextMessage();// waiting a request
@@ -114,23 +121,29 @@ public class Broker extends Agent {
 		if (ack != null) {// The provider has entered the contract group
 			getLogger().info(() -> "Provider is ready !\nSending the contract number to client");
 			reply(new StringMessage(contractGroupId), request); // send group's info to the client
-			pause(RANDOM.nextInt(1000, 2000));// let us celebrate and take vacation!!
+			pause(prng().nextInt(1000, 2000));// let us celebrate and take vacation!!
 		} else { // no answer from the provider...
 			getLogger().info(() -> "Provider disappears !!!!");
 		}
 	}
 
 	/**
-	 * @return the active
+	 * The java bean mutator to the broker's activity status. It is required for the
+	 * {@link UIProperty} annotation to work.
+	 * 
+	 * @return <code>true</code> if the broker is on vacation, <code>false</code> otherwise
 	 */
-	public boolean isActive() {
-		return active;
+	public boolean isOnVacation() {
+		return onVacation;
 	}
 
 	/**
-	 * @param active the active to set
+	 * The java bean mutator to the broker's activity status. It is required for the
+	 * {@link UIProperty} annotation to work.
+	 * 
+	 * @param onVacation the onVacation to set
 	 */
-	public void setActive(boolean active) {
-		this.active = active;
+	public void setOnVacation(boolean onVacation) {
+		this.onVacation = onVacation;
 	}
 }

@@ -19,12 +19,12 @@ public @interface RandomizedFloat {
 	 *
 	 * @return the minimum value
 	 */
-	float minValue() default Float.MIN_VALUE;
+	float min() default Float.MIN_VALUE;
 
 	/**
 	 * The maximum value of the float.
 	 *
 	 * @return the maximum value
 	 */
-	float maxValue() default Float.MAX_VALUE;
+	float max() default Float.MAX_VALUE;
 }

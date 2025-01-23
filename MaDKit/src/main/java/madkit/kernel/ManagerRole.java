@@ -22,7 +22,7 @@ final class ManagerRole extends Role {
 	private static final long serialVersionUID = 1919401829672949296L;
 
 	ManagerRole(final Group groupObject, Agent requester, boolean securedGroup) {
-		super(groupObject, SystemRoles.GROUP_MANAGER_ROLE);
+		super(groupObject, SystemRoles.GROUP_MANAGER);
 		synchronized (players) {
 			players.add(requester);
 			agentAddresses = new HashSet<>(1, 1);
@@ -32,7 +32,7 @@ final class ManagerRole extends Role {
 	}
 
 	ManagerRole(final Group groupObject, AgentAddress creator) {
-		super(groupObject, SystemRoles.GROUP_MANAGER_ROLE);
+		super(groupObject, SystemRoles.GROUP_MANAGER);
 		synchronized (players) {
 			agentAddresses = new HashSet<>(1, 1);
 			agentAddresses.add(creator);

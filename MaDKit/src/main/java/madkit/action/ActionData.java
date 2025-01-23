@@ -9,7 +9,7 @@ import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCombination;
-import madkit.gui.FXAction;
+import madkit.gui.ActionFromEnum;
 import madkit.i18n.I18nUtilities;
 
 /**
@@ -42,8 +42,8 @@ public class ActionData {
 	/** The URL of the icon for the action. */
 	private URL iconURL;
 
-	/** The FXAction associated with this action data. */
-	private FXAction fxAction;
+	/** The ActionFromEnum associated with this action data. */
+	private ActionFromEnum fxAction;
 
 	/** The image for the action. */
 	private Image image;
@@ -182,13 +182,13 @@ public class ActionData {
 	}
 
 	/**
-	 * Returns the FXAction associated with this action data.
+	 * Returns the ActionFromEnum associated with this action data.
 	 *
-	 * @return the FXAction associated with this action data.
+	 * @return the ActionFromEnum associated with this action data.
 	 */
-	public FXAction getFXAction() {
+	public ActionFromEnum getFXAction() {
 		if (fxAction == null) {
-			fxAction = new FXAction(this, e -> doAction());
+			fxAction = new ActionFromEnum(this, _ -> doAction());
 		}
 		return fxAction;
 	}

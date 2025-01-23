@@ -3,6 +3,7 @@ package madkit.gui;
 
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.ToolBar;
 import javafx.scene.layout.BorderPane;
 import madkit.kernel.Agent;
 import madkit.kernel.FXAgentStage;
@@ -18,6 +19,7 @@ public class AgentDefaultGUI {
 	private FXAgentStage stage;
 	private Scene scene;
 	private BorderPane mainPane;
+	private ToolBar toolbar;
 
 	/**
 	 * Constructs a default GUI for the specified agent. Override this constructor
@@ -35,6 +37,7 @@ public class AgentDefaultGUI {
 			mainPane.setLeft(createLeftNode());
 			mainPane.setCenter(createCenterNode());
 			mainPane.setRight(createRightNode());
+			toolbar = createToolBar();
 			mainPane.setBottom(createBottomNode());
 			scene = new Scene(mainPane);
 			stage.setScene(scene);
@@ -87,6 +90,16 @@ public class AgentDefaultGUI {
 	 * @return the bottom node
 	 */
 	protected Node createBottomNode() {
+		return getToolBar();
+	}
+
+	/**
+	 * Creates a toolbar. Override this method to customize the toolbar. By default it will be
+	 * used for creating the bottom node.
+	 * 
+	 * @return the toolbar
+	 */
+	protected ToolBar createToolBar() {
 		return ToolBars.createToolBarFor(getAgent());
 	}
 
@@ -134,5 +147,12 @@ public class AgentDefaultGUI {
 	 */
 	public Agent getAgent() {
 		return agent;
+	}
+
+	/**
+	 * @return the toolbar
+	 */
+	public ToolBar getToolBar() {
+		return toolbar;
 	}
 }

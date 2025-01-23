@@ -536,7 +536,7 @@ class KernelAgent extends Agent implements DaemonAgent {
 			// if still null : this SHOULD be a candidate's request to the manager or an
 			// error
 			if (senderAA == null) {
-				if (targetedRole.getName().equals(SystemRoles.GROUP_MANAGER_ROLE))
+				if (targetedRole.getName().equals(SystemRoles.GROUP_MANAGER))
 					return new CandidateAgentAddress(sender, targetedRole, kernelAddress);
 				throw new CGRNotAvailable(NOT_IN_GROUP);
 			}
@@ -551,8 +551,8 @@ class KernelAgent extends Agent implements DaemonAgent {
 			senderAA = senderRoleObject.getAgentAddressOf(sender);
 		} catch (CGRNotAvailable e) {
 			// candidate's request to the manager or it is an error
-			if (senderRole.equals(SystemRoles.GROUP_CANDIDATE_ROLE)
-					&& targetedRole.getName().equals(SystemRoles.GROUP_MANAGER_ROLE))
+			if (senderRole.equals(SystemRoles.GROUP_CANDIDATE)
+					&& targetedRole.getName().equals(SystemRoles.GROUP_MANAGER))
 				return new CandidateAgentAddress(sender, targetedRole, kernelAddress);
 		}
 		if (senderAA == null) {// if still null :
@@ -700,7 +700,7 @@ class KernelAgent extends Agent implements DaemonAgent {
 	}
 
 	public RandomGenerator getPRNG() {
-		return null;
+		return randomGenerator;
 	}
 
 }

@@ -16,7 +16,7 @@ public class MyModel extends SimuModel {
 	 * UI. The slider has a minimum value of 1, a maximum value of 50, and a scroll
 	 * precision of 1.
 	 */
-	@SliderProperty(minValue = 1, maxValue = 50, scrollPrecision = 1)
+	@SliderProperty(min = 1, max = 50, scrollPrecision = 1)
 	@UIProperty(displayName = "speed")
 	private double speed = 20.0;
 

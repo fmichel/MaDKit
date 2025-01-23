@@ -12,6 +12,7 @@ import org.controlsfx.control.action.ActionUtils;
 import org.controlsfx.control.action.ActionUtils.ActionTextBehavior;
 
 import javafx.animation.AnimationTimer;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Menu;
@@ -74,7 +75,7 @@ public abstract class ViewerDefaultGUI extends AgentDefaultGUI {
 	protected ViewerDefaultGUI(Viewer viewer) {
 		super(viewer);
 		FXExecutor.runAndWait(() -> {
-			javafx.geometry.Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+			Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
 			getStage().setWidth(screenBounds.getWidth());
 			getStage().setHeight(screenBounds.getHeight());
 			ToolBar tb = (ToolBar) getMainPane().getBottom();
@@ -121,7 +122,7 @@ public abstract class ViewerDefaultGUI extends AgentDefaultGUI {
 	
 	@Override
 	protected Node createBottomNode() {
-		ToolBar toolBar = createToolBar();
+		ToolBar toolBar = getToolBar();
 		toolBar.getItems().get(8).requestFocus();
 		return toolBar;
 	}
@@ -180,6 +181,7 @@ public abstract class ViewerDefaultGUI extends AgentDefaultGUI {
 	 *
 	 * @return a ToolBar with the viewer agent's actions
 	 */
+	@Override
 	protected ToolBar createToolBar() {
 		ToolBar toolBar = ToolBars.createToolBarFor(getViewer());
 		toolBar.getItems().add(ActionUtils.createToggleButton(renderingOff, ActionTextBehavior.HIDE));

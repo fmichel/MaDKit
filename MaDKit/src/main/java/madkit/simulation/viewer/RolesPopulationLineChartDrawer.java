@@ -3,7 +3,12 @@
  */
 package madkit.simulation.viewer;
 
+import java.util.List;
+
+import madkit.agr.SystemRoles;
 import madkit.kernel.Probe;
+import madkit.kernel.Role;
+import madkit.simulation.SimuOrganization;
 
 /**
  * A Viewer that displays the population of roles in the artificial organization
@@ -14,6 +19,13 @@ public class RolesPopulationLineChartDrawer extends LineChartDrawer<Probe> {
 	@Override
 	protected void onActivation() {
 		super.onActivation();
+		List<Role> roles = getOrganization().getGroup(getCommunity(), getModelGroup()).getRoles();
+		roles.stream().filter(role ->  ! (
+				role.getName().equals(SystemRoles.GROUP_MANAGER) ||
+						role.getName().equals(
+								SimuOrganization.ENVIRONMENT_ROLE))
+				)
+				.forEach(role -> addRoleToMonitoring(getModelGroup(), role.getName()));
 	}
 
 	@Override

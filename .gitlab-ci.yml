@@ -61,7 +61,7 @@ deploy-javadoc:
     - lftp -u $WEB_USER,$WEB_PASS -e "set ftp:ssl-allow 0; mkdir -p web/javadoc/$VERSION; mirror -R MaDKit/build/docs/javadoc web/javadoc/$VERSION; bye;" sftp://cwbq.ftp.infomaniak.com  
   environment: production
   rules:
-    - if: $CI_COMMIT_BRANCH == 'main'
+    - if: $CI_COMMIT_TAG
 
 .deploy_gpg_job: &deploy_gpg_job
   stage: deploy

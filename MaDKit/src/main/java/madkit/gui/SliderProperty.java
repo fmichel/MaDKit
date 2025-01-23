@@ -8,9 +8,12 @@ import java.lang.annotation.Target;
 import org.controlsfx.control.PropertySheet;
 
 /**
- * Annotation to specify which fields, among those annotated with
- * {@link UIProperty}, should be displayed as sliders when using
- * {@link PropertySheetFactory} methods to create a {@link PropertySheet}
+ * Annotation to specify which fields, among those annotated with {@link UIProperty},
+ * should be displayed as sliders when using {@link PropertySheetFactory} methods to
+ * create a {@link PropertySheet}
+ * 
+ * Sliders from JavaFX only work with double values, so the annotated field must be of
+ * type double.
  * 
  */
 @Target(ElementType.FIELD)
@@ -21,14 +24,14 @@ public @interface SliderProperty {
 	 * 
 	 * @return the minimum value
 	 */
-	public double minValue() default Double.MIN_VALUE;
+	public double min() default Double.MIN_VALUE;
 
 	/**
 	 * The maximum value of the slider
 	 * 
 	 * @return the maximum value
 	 */
-	public double maxValue() default Double.MAX_VALUE;
+	public double max() default Double.MAX_VALUE;
 
 	/**
 	 * The precision of the slider when using the mouse wheel. Default is 1 unit.

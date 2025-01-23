@@ -46,20 +46,15 @@ public class MyViewer extends Viewer2D {
 		super.onActivation();
 	}
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public Environment2D getEnvironment() {
-		return (Environment2D) super.getEnvironment();
-	}
-
 	/**
-	 * This method is called to render the simulation. It clears the screen and
-	 * draws the agents as black ovals at their respective positions.
+	 * This method is called to render the simulation. It clears the screen and draws the
+	 * agents as black ovals at their respective positions.
 	 */
 	@Override
 	public void render() {
+		Environment2D env = getEnvironment();
 		getGraphics().setFill(WHITE);
-		getGraphics().fillRect(0, 0, getEnvironment().getWidth(), getEnvironment().getHeight());
+		getGraphics().fillRect(0, 0, env.getWidth(), env.getHeight());
 		getGraphics().setFill(BLACK);
 		for (Agent a : positionX.getAgents()) {
 			getGraphics().fillOval(positionX.getPropertyValue(a), positionY.getPropertyValue(a), 10, 10);

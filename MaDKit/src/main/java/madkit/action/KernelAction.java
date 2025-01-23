@@ -15,7 +15,7 @@ import org.controlsfx.control.action.Action;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
 import madkit.agr.SystemRoles;
-import madkit.gui.FXAction;
+import madkit.gui.ActionFromEnum;
 import madkit.kernel.Agent;
 import madkit.messages.KernelMessage;
 
@@ -97,7 +97,7 @@ public enum KernelAction {
 	 * @return an action that can be used to perform the action
 	 */
 	public Action newActionFor(Agent agent, Object... parameters) {
-		return new FXAction(actionInfo, ae -> request(agent, parameters));
+		return new ActionFromEnum(actionInfo, _ -> request(agent, parameters));
 	}
 
 	/**
@@ -110,7 +110,7 @@ public enum KernelAction {
 	public void request(Agent requester, Object... parameters) {
 		if (requester.isAlive()) {
 			requester.send(new KernelMessage(KernelAction.this, parameters), LocalCommunity.NAME, Groups.SYSTEM,
-					SystemRoles.GROUP_MANAGER_ROLE);
+					SystemRoles.GROUP_MANAGER);
 		}
 	}
 

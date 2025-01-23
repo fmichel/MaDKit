@@ -30,8 +30,6 @@ import madkit.kernel.Agent;
  * should be displayed as sliders.
  * </p>
  * 
- * @author Fabien Michel
- * @since MaDKit 6.0
  */
 public class PropertySheetFactory {
 
@@ -170,7 +168,7 @@ public class PropertySheetFactory {
 	 * @param sliderAnnotation
 	 */
 	private static Slider createSlider(SliderProperty a) {
-		Slider s = new Slider(a.minValue(), a.maxValue(), a.minValue());
+		Slider s = new Slider(a.min(), a.max(), a.min());
 		s.setShowTickMarks(true);
 		s.setShowTickLabels(true);
 		s.setOnScroll((ScrollEvent event) -> s

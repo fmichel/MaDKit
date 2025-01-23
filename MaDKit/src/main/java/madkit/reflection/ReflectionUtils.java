@@ -33,6 +33,8 @@
  *******************************************************************************/
 package madkit.reflection;
 
+import org.controlsfx.control.action.Action;
+
 import madkit.action.AgentAction;
 import madkit.kernel.Agent;
 
@@ -47,11 +49,11 @@ public class ReflectionUtils {
 	}
 
 	/**
-	 * Converts the name of an enum object to a Java standardized method name. For
-	 * instance, using this on {@link AgentAction#LAUNCH_AGENT} will return
-	 * <code>launchAgent</code>. This is especially used by
-	 * {@link Agent#proceedEnumMessage(madkit.messages.EnumMessage)} to reflexively
-	 * call the method of an agent which corresponds to the code of such messages.
+	 * Converts the name of an enum object to a Java standardized method name. For instance,
+	 * using this on {@link AgentAction#LAUNCH_AGENT} will return <code>launchAgent</code>. It
+	 * is especially used by {@link AgentAction} to create {@link Action}s that reflexively
+	 * call the methods of an agent or send a message to it. See
+	 * {@link Agent#handleRequestActionMessage(madkit.action.RequestActionMessage)}
 	 * 
 	 * @param <E> enum type
 	 * @param e   the enum object to convert

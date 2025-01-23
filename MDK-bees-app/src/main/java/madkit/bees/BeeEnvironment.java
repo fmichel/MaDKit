@@ -1,21 +1,3 @@
-/*
- * Copyright 1997, 2012, 2024 Fabien Michel, Olivier Gutknecht, Jacques Ferber
- * 
- * This file is part of MaDKit_Demos.
- * 
- * MaDKit_Demos is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * MaDKit_Demos is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with MaDKit_Demos. If not, see <http://www.gnu.org/licenses/>.
- */
 package madkit.bees;
 
 import madkit.gui.SliderProperty;
@@ -28,19 +10,19 @@ import madkit.simulation.environment.Environment2D;
  */
 public class BeeEnvironment extends Environment2D {
 
-	@SliderProperty(minValue = 0, maxValue = 20, scrollPrecision = 1)
+	@SliderProperty(min = 0, max = 20, scrollPrecision = 1)
 	@UIProperty(category = "Bees", displayName = "queenAcceleration") // slider required
 	private double queenAcceleration = 13.0;
 
-	@SliderProperty(minValue = 0, maxValue = 20, scrollPrecision = 1)
+	@SliderProperty(min = 0, max = 20, scrollPrecision = 1)
 	@UIProperty(category = "Bees", displayName = "beeAcceleration") // slider required
 	private double beeAcceleration = 4.0;
 
-	@SliderProperty(minValue = 0, maxValue = 20, scrollPrecision = 1)
+	@SliderProperty(min = 0, max = 20, scrollPrecision = 1)
 	@UIProperty(category = "Bees", displayName = "queenbeeVelocity") // slider required
 	private double queenVelocity = 13;
 
-	@SliderProperty(minValue = 0, maxValue = 20, scrollPrecision = 1)
+	@SliderProperty(min = 0, max = 20, scrollPrecision = 1)
 	@UIProperty(category = "Bees", displayName = "beeVelocity") // slider required
 	private double beeVelocity = 19;
 

@@ -60,19 +60,19 @@ public class SendWithCGRTest extends JunitMadkit {
 				threadAssertEquals(SUCCESS, launchAgent(target));
 
 				// Without role
-				threadAssertEquals(SUCCESS, send(new Message(), COMMUNITY, GROUP, SystemRoles.GROUP_MANAGER_ROLE));
+				threadAssertEquals(SUCCESS, send(new Message(), COMMUNITY, GROUP, SystemRoles.GROUP_MANAGER));
 				Message m = target.nextMessage();
 				threadAssertNotNull(m);
-				threadAssertEquals(SystemRoles.GROUP_MANAGER_ROLE, m.getReceiver().getRole());
-				threadAssertEquals(SystemRoles.GROUP_CANDIDATE_ROLE, m.getSender().getRole());
+				threadAssertEquals(SystemRoles.GROUP_MANAGER, m.getReceiver().getRole());
+				threadAssertEquals(SystemRoles.GROUP_CANDIDATE, m.getSender().getRole());
 
 				// With role
-				threadAssertEquals(SUCCESS, sendWithRole(new Message(), COMMUNITY, GROUP, SystemRoles.GROUP_MANAGER_ROLE,
-						SystemRoles.GROUP_CANDIDATE_ROLE));
+				threadAssertEquals(SUCCESS, sendWithRole(new Message(), COMMUNITY, GROUP, SystemRoles.GROUP_MANAGER,
+						SystemRoles.GROUP_CANDIDATE));
 				m = target.nextMessage();
 				threadAssertNotNull(m);
-				threadAssertEquals(SystemRoles.GROUP_MANAGER_ROLE, m.getReceiver().getRole());
-				threadAssertEquals(SystemRoles.GROUP_CANDIDATE_ROLE, m.getSender().getRole());
+				threadAssertEquals(SystemRoles.GROUP_MANAGER, m.getReceiver().getRole());
+				threadAssertEquals(SystemRoles.GROUP_CANDIDATE, m.getSender().getRole());
 			}
 		});
 	}

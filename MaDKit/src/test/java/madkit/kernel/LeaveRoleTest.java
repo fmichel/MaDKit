@@ -29,7 +29,7 @@ public class LeaveRoleTest extends JunitMadkit {
 				threadAssertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
 				threadAssertEquals(SUCCESS, leaveRole(COMMUNITY, GROUP, ROLE));
 				threadAssertTrue(getOrganization().isGroup(COMMUNITY, GROUP));
-				threadAssertEquals(SUCCESS, leaveRole(COMMUNITY, GROUP, SystemRoles.GROUP_MANAGER_ROLE));
+				threadAssertEquals(SUCCESS, leaveRole(COMMUNITY, GROUP, SystemRoles.GROUP_MANAGER));
 				// leaveGroup by leaving roles
 				threadAssertFalse(getOrganization().isCommunity(COMMUNITY));
 				threadAssertFalse(getOrganization().isGroup(COMMUNITY, GROUP));

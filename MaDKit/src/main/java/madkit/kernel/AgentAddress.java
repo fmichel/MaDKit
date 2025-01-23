@@ -251,7 +251,7 @@ final class CandidateAgentAddress extends AgentAddress {
 	 */
 	@Override
 	public final String getRole() {
-		return SystemRoles.GROUP_CANDIDATE_ROLE;
+		return SystemRoles.GROUP_CANDIDATE;
 	}
 
 }

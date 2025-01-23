@@ -12,35 +12,42 @@ import madkit.random.RandomizedBoolean;
 import madkit.random.RandomizedDouble;
 import madkit.random.RandomizedFloat;
 import madkit.random.RandomizedInteger;
+import madkit.random.RandomizedString;
 import madkit.random.Randomness;
 
 public class FieldsValueRandomizerTest {
 
 	// Given: an object with fields annotated for randomization
 	public static class TestObject {
-		@RandomizedDouble(minValue = 1.0, maxValue = 10.0)
+		@RandomizedDouble(min = 1.0, max = 10.0)
 		private double doubleField = 100;
 
-		@RandomizedInteger(minValue = 1, maxValue = 10)
+		@RandomizedInteger(min = 1, max = 10)
 		private int intField = 100;
 
 		@RandomizedBoolean
 		private boolean booleanField;
 
-		@RandomizedFloat(minValue = 1.0f, maxValue = 10.0f)
+		@RandomizedFloat(min = 1.0f, max = 10.0f)
 		private float floatField = 100;
 
-		@RandomizedDouble(minValue = 1.0, maxValue = 10.0)
+		@RandomizedDouble(min = 1.0, max = 10.0)
 		private static double staticDoubleField = 100;
 
-		@RandomizedInteger(minValue = 1, maxValue = 10)
+		@RandomizedInteger(min = 1, max = 10)
 		private static int staticIntField = 100;
 
 		@RandomizedBoolean
 		private static boolean staticBooleanField;
 
-		@RandomizedFloat(minValue = 1.0f, maxValue = 10.0f)
+		@RandomizedFloat(min = 1.0f, max = 10.0f)
 		private static float staticFloatField = 100;
+
+		@RandomizedString(values = { "apple", "banana", "cherry" })
+		private String stringField;
+
+		@RandomizedString(values = { "apple", "banana", "cherry" })
+		private static String staticStringField;
 
 		public double getDoubleField() {
 			return doubleField;
@@ -73,14 +80,22 @@ public class FieldsValueRandomizerTest {
 		public static float getStaticFloatField() {
 			return staticFloatField;
 		}
+
+		public String getStringField() {
+			return stringField;
+		}
+
+		public static String getStaticStringField() {
+			return staticStringField;
+		}
 	}
 
 	// Given: a subclass that inherits fields annotated for randomization
 	public static class SubTestObject extends TestObject {
-		@RandomizedDouble(minValue = 1.0, maxValue = 20.0)
+		@RandomizedDouble(min = 1.0, max = 20.0)
 		private double subDoubleField = 200;
 
-		@RandomizedFloat(minValue = 1.0f, maxValue = 20.0f)
+		@RandomizedFloat(min = 1.0f, max = 20.0f)
 		private float subFloatField = 200;
 
 		public double getSubDoubleField() {
@@ -107,6 +122,7 @@ public class FieldsValueRandomizerTest {
 		assertThat(testObject.getIntField()).isBetween(1, 10);
 		assertThat(testObject.isBooleanField()).isNotNull();
 		assertThat(testObject.getFloatField()).isBetween(1.0f, 10.0f);
+		assertThat(testObject.getStringField()).isIn("apple", "banana", "cherry");
 	}
 
 	@Test
@@ -124,6 +140,7 @@ public class FieldsValueRandomizerTest {
 		assertThat(TestObject.getStaticIntField()).isBetween(1, 10);
 		assertThat(TestObject.isStaticBooleanField()).isNotNull();
 		assertThat(TestObject.getStaticFloatField()).isBetween(1.0f, 10.0f);
+		assertThat(TestObject.getStaticStringField()).isIn("apple", "banana", "cherry");
 	}
 
 	@Test
@@ -143,5 +160,6 @@ public class FieldsValueRandomizerTest {
 		assertThat(subTestObject.getFloatField()).isBetween(1.0f, 10.0f);
 		assertThat(subTestObject.getSubDoubleField()).isBetween(1.0, 20.0);
 		assertThat(subTestObject.getSubFloatField()).isBetween(1.0f, 20.0f);
+		assertThat(subTestObject.getStringField()).isIn("apple", "banana", "cherry");
 	}
 }

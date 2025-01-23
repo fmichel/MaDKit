@@ -1,13 +1,15 @@
-MultiAgent Development Kit - MaDKit - version 6
-================================================
+<h1 align="center">MaDKit: MultiAgent Development Kit </h1>
+&emsp;
 
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.fmichel/madkit.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/io.github.fmichel/madkit)
+[![JavaDoc](https://img.shields.io/badge/JavaDoc-API-green)](https://madkit.net/javadoc)
+[![Java Version](https://img.shields.io/badge/java-23+-green.svg)](https://www.oracle.com/java/technologies/javase-jdk23-downloads.html)
+[![Gradle](https://img.shields.io/badge/gradle-8.12+-green.svg)](https://gradle.org/)
+[![License](https://img.shields.io/badge/License-CeCILL--C-green)](http://www.cecill.info/index.en.html)
 
-**MaDKit is an open source multiagent-based software written in Java.**
+**MaDKit is a Multiagent-based software written in Java.**
 
 It is designed as a lightweight Java library for developing distributed applications and simulations using the multiagent paradigm.
-
-[JavaDoc API Reference](https://madkit.net/javadoc)
 
 ## Features
 
@@ -42,7 +44,7 @@ Using MaDKit can be done by [declaring it as a dependency using your favorite bu
 For instance, with Gradle:
 
 ```groovy
-implementation "io.github.fmichel:madkit:6.0.0"
+implementation "io.github.fmichel:madkit:6.0.1"
 ```
 
 ## Getting Started
@@ -54,7 +56,7 @@ This repo contains 3 sub projects that give an hint about what can be done with 
 
 
 ## More information
-
+* [JavaDoc API Reference](https://madkit.net/javadoc)
 * [Official Homepage](http://www.madkit.net) V.5
 * [Tutorials](http://www.madkit.net/madkit/tutorials) V.5
 * [Documentation](http://www.madkit.net/madkit/documents.php) V.5
@@ -66,3 +68,7 @@ This repo contains 3 sub projects that give an hint about what can be done with 
 3. Commit your changes (`git commit -am 'Added some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
+
+<div align="center">
+<img src=MaDKit/src/main/resources/madkit/images/madkit_logo.png width=9% />
+</div>

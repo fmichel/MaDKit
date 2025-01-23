@@ -11,9 +11,8 @@ import java.util.Collection;
 import org.controlsfx.control.action.Action;
 import org.controlsfx.control.action.ActionGroup;
 
-import madkit.gui.FXAction;
 import madkit.kernel.Agent;
-import madkit.messages.EnumMessage;
+import madkit.reflection.ReflectionUtils;
 
 /**
  * Enum representing agent actions. Each action is associated with a keyboard
@@ -34,7 +33,7 @@ import madkit.messages.EnumMessage;
  * @version 0.9
  * 
  * @see madkit.kernel.Agent
- * @see madkit.gui.FXAction
+ * @see madkit.gui.ActionFromEnum
  * @see madkit.messages.EnumMessage
  * 
  */
@@ -99,11 +98,9 @@ public enum AgentAction {
 	 * @return the new corresponding action
 	 */
 	public Action getActionFor(Agent agent, Object... parameters) {
-		return new FXAction(actionInfo, ae -> {
-			if (agent.isAlive()) {
-				agent.proceedEnumMessage(new EnumMessage<>(AgentAction.this, parameters));
-			}
-		});
+		AgentMethodAction action = new AgentMethodAction(agent, ReflectionUtils.enumToMethodName(this), parameters);
+		action.setActionData(actionInfo);
+		return action;
 	}
 
 	/**

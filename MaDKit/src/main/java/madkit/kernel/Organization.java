@@ -72,13 +72,13 @@ public final class Organization {
 //			try {// TODO bof...
 //				if (isDistributed) {
 //					sendNetworkMessageWithRole(new CGRSynchro(Code.CREATE_GROUP,
-//							getRole(community, group, madkit.agr.SystemRoles.GROUP_MANAGER_ROLE)
+//							getRole(community, group, madkit.agr.SystemRoles.GROUP_MANAGER)
 //									.getAgentAddressOf(creator)),
 //							netUpdater);
 //				}
 //				if (hooks != null) {
 //					informHooks(AgentActionEvent.CREATE_GROUP,
-//							getRole(community, group, madkit.agr.SystemRoles.GROUP_MANAGER_ROLE)
+//							getRole(community, group, madkit.agr.SystemRoles.GROUP_MANAGER)
 //									.getAgentAddressOf(creator));
 //				}
 //			} catch (CGRNotAvailable e) {

@@ -7,7 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * This annotation is used to mark a field as a double that should be randomized when a
+ * This annotation is used to mark a field as a double that should be randomized when
  * {@link Randomness#randomizeFields(Object, java.util.random.RandomGenerator)} is used.
  */
 @Target(ElementType.FIELD)
@@ -15,17 +15,17 @@ import java.lang.annotation.Target;
 public @interface RandomizedDouble {
 
 	/**
-	 * The minimum value of the slider
+	 * The minimum value for that double
 	 * 
 	 * @return the minimum value
 	 */
-	public double minValue() default Double.MIN_VALUE;
+	public double min() default Double.MIN_VALUE;
 
 	/**
-	 * The maximum value of the slider
+	 * The maximum value for that double
 	 * 
 	 * @return the maximum value
 	 */
-	public double maxValue() default Double.MAX_VALUE;
+	public double max() default Double.MAX_VALUE;
 
 }

@@ -1,21 +1,3 @@
-/*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
- * 
- * This file is part of MaDKit_Demos.
- * 
- * MaDKit_Demos is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * MaDKit_Demos is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with MaDKit_Demos. If not, see <http://www.gnu.org/licenses/>.
- */
 package madkit.marketorg;
 
 import static madkit.marketorg.MarketOrganization.BROKER_ROLE;
@@ -23,11 +5,11 @@ import static madkit.marketorg.MarketOrganization.CLIENT_GROUP;
 import static madkit.marketorg.MarketOrganization.CLIENT_ROLE;
 import static madkit.marketorg.MarketOrganization.COMMUNITY;
 import static madkit.marketorg.MarketOrganization.PROVIDER_ROLE;
-import static madkit.marketorg.MarketOrganization.RANDOM;
 
 import madkit.kernel.Agent;
 import madkit.kernel.Message;
 import madkit.messages.StringMessage;
+import madkit.random.RandomizedInteger;
 
 /**
  * The client agent is responsible for looking for a product in the market
@@ -40,6 +22,13 @@ public class Client extends Agent {
 	private String product;
 
 	/**
+	 * The base pause used to wait when required. It is randomized when the agent is launched
+	 * thanks to the {@link RandomizedInteger} annotation.
+	 */
+	@RandomizedInteger(min = 1000, max = 4000)
+	private int basePause = 1500;
+
+	/**
 	 * On activation, the client creates the community and the group, requests the
 	 * client role, and launches its GUI.
 	 */
@@ -47,11 +36,10 @@ public class Client extends Agent {
 	protected void onActivation() {
 		createGroup(COMMUNITY, CLIENT_GROUP, true, null);
 		requestRole(COMMUNITY, CLIENT_GROUP, CLIENT_ROLE, null);
-		product = Provider.availableTransports.get(RANDOM.nextInt(Provider.availableTransports.size()));
+		product = Provider.availableTransports.get(prng().nextInt(Provider.availableTransports.size()));
 		new MarketAgentGUI(this, 0);
-		int pause = RANDOM.nextInt(1000, 2000);
-		getLogger().info(() -> "I will be looking for a " + product + " in " + pause + " ms !");
-		pause(pause);
+		getLogger().info(() -> "I will be looking for a " + product + " in " + basePause + " ms !");
+		pause(basePause);
 	}
 
 	/**
@@ -67,7 +55,7 @@ public class Client extends Agent {
 						CLIENT_ROLE, 4000);
 				if (brokerAnswer == null) {
 					getLogger().info(() -> "For now there is nothing for me :(");
-					pause(1000);
+					pause(basePause);
 				}
 			}
 			logFindBroker(brokerAnswer);// I found a broker and he has something for me
@@ -81,7 +69,7 @@ public class Client extends Agent {
 	@Override
 	protected void onEnd() {
 		getLogger().info(() -> "I will quit soon now, buit I will launch another one like me !");
-		pause(RANDOM.nextInt(1000, 2500));
+		pause(prng().nextInt(1000, 2500));
 		launchAgent(new Client(), 4);
 	}
 
@@ -104,23 +92,43 @@ public class Client extends Agent {
 		if (ticket != null) {
 			getLogger().info("Yeeeaah: I have my ticket :) ");
 			leaveGroup(COMMUNITY, CLIENT_GROUP);
-			pause(RANDOM.nextInt(1000, 3000));
+			pause(prng().nextInt(1000, 3000));
 			return true;
 		}
 		return false;
 	}
 
 	/**
-	 * @param args
+	 * This creates the agents of the market organization.
+	 * 
+	 * @param args MaDKit arguments
 	 */
 	public static void main(String[] args) {
 		executeThisAgent(
 //				"--noLog",
-				"--kernelLogLevel", "ALL",
-				"--agentLogLevel", "ALL",
+//				"--kernelLogLevel", "ALL",
+//				"--agentLogLevel", "ALL",
 				"-la", Broker.class.getName() + ",2", "-la", Client.class.getName() + ",2", "-la",
 				Provider.class.getName() + ",10"
 
 		);
+	}
+
+	/**
+	 * This java bean mutator is required for the {@link RandomizedInteger} to work.
+	 * 
+	 * @return the basePause
+	 */
+	public int getBasePause() {
+		return basePause;
+	}
+
+	/**
+	 * This java bean mutator is required for the {@link RandomizedInteger} to work.
+	 * 
+	 * @param basePause the basePause to set
+	 */
+	public void setBasePause(int basePause) {
+		this.basePause = basePause;
 	}
 }

@@ -1,16 +1,22 @@
 package madkit.simu.template;
 
-import madkit.gui.UIProperty;
+import madkit.random.RandomizedBoolean;
 import madkit.simulation.SimuAgent;
 import madkit.simulation.environment.Environment2D;
 
-@SuppressWarnings("unchecked")
-public class SimulatedAgent extends SimuAgent{
-	
-	@UIProperty(displayName="random move")
-	public static boolean moveRandomly = true;
-	
+@SuppressWarnings("all") // remove irrelevant warnings
+public class SimulatedAgent extends SimuAgent {
+
+	@RandomizedBoolean
+	public boolean moveRandomly = true;
+
+	/**
+	 * Probed by the MyViewer class to display the agent's position.
+	 */
 	private double x;
+	/**
+	 * Probed by the MyViewer class to display the agent's position.
+	 */
 	private double y;
 
 	@Override
@@ -19,43 +25,40 @@ public class SimulatedAgent extends SimuAgent{
 		x = prng().nextInt(getEnvironment().getWidth());
 		y = prng().nextInt(getEnvironment().getHeight());
 	}
-	
-	@Override
-	public Environment2D getEnvironment() {
-		return super.getEnvironment();
-	}
-
-	private void doIt() {
-		moveRandomly();
-	}
 
 	/**
 	 * 
 	 */
 	private void moveRandomly() {
 		MyModel model = getModel();
-		x += prng().nextDouble(model.getSpeed())*(prng().nextBoolean() ? 1 : -1);
-		x %= getEnvironment().getWidth();
-		if(x<0)
-			x+=getEnvironment().getWidth();
-		y += prng().nextDouble(model.getSpeed())*(prng().nextBoolean() ? 1 : -1);
-		y %= getEnvironment().getHeight();
-		if(y<0)
-			y+=getEnvironment().getHeight();
+		if (moveRandomly) {
+			x += prng().nextDouble(model.getSpeed()) * (prng().nextBoolean() ? 1 : -1);
+			y += prng().nextDouble(model.getSpeed()) * (prng().nextBoolean() ? 1 : -1);
+		} else {
+			x += 1;
+			y += 1;
 		}
 
-	/**
-	 * @return the moveRandomly
-	 */
-	public static boolean isMoveRandomly() {
-		return moveRandomly;
+		// wrap around
+		x += getEnvironment().getWidth();
+		x %= getEnvironment().getWidth();
+		y += getEnvironment().getHeight();
+		y %= getEnvironment().getHeight();
 	}
 
 	/**
-	 * @param moveRandomly the moveRandomly to set
+	 * This method is called at each simulation step.
 	 */
-	public static void setMoveRandomly(boolean moveRandomly) {
-		SimulatedAgent.moveRandomly = moveRandomly;
+	private void doIt() {
+		moveRandomly();
 	}
 
+	/**
+	 * This override allows to automatically cast the result of this method to the type used
+	 * in the simulation model.
+	 */
+	@Override
+	public Environment2D getEnvironment() {
+		return super.getEnvironment();
+	}
 }

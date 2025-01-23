@@ -4,7 +4,6 @@ import madkit.gui.UIProperty;
 
 public class AnotherSImuAgent extends SimulatedAgent {
 	@UIProperty(displayName = "a property")
-
 	public static double valueS = 100;
 
 	/**

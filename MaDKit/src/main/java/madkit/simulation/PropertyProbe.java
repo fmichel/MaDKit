@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.stream.Stream;
 
 import madkit.kernel.Agent;
 import madkit.kernel.Probe;
@@ -14,9 +15,6 @@ import madkit.kernel.Probe;
  * 
  * @param <T> the type of the property, i.e. Integer (this works if the field is
  *            an int, i.e. a inspected primitive type should use its wrapper)
- * @author Fabien Michel
- * @since MaDKit 5.0.0.13
- * @version 6.0
  */
 public class PropertyProbe<T> extends Probe {
 
@@ -67,7 +65,7 @@ public class PropertyProbe<T> extends Probe {
 	 * @return the actual value of the agent's field
 	 */
 	@SuppressWarnings("unchecked")
-	public T getPropertyValue(final Agent agent) {
+	public T getPropertyValue(Agent agent) {
 		updateCache(agent);
 		try {
 			return (T) cachedField.get(agent);
@@ -83,7 +81,7 @@ public class PropertyProbe<T> extends Probe {
 	 * @param agent
 	 * @param value
 	 */
-	public void setPropertyValue(final Agent agent, final T value) {
+	public void setPropertyValue(Agent agent, T value) {
 		updateCache(agent);
 		try {
 			cachedField.set(agent, value);// NOSONAR
@@ -146,6 +144,15 @@ public class PropertyProbe<T> extends Probe {
 	public double getAverage() {
 		return getAgents().stream().mapToDouble(a -> ((Number) getPropertyValue(a)).doubleValue()).average()
 				.getAsDouble();
+	}
+
+	/**
+	 * Returns a stream of the values of the property for each agent
+	 * 
+	 * @return a stream of the values of the property for each agent
+	 */
+	public Stream<T> streamValues() {
+		return getAgents().stream().map(a -> getPropertyValue(a));
 	}
 
 	/**

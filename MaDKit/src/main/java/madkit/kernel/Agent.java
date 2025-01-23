@@ -25,6 +25,7 @@ import java.util.random.RandomGenerator;
 import it.unimi.dsi.fastutil.objects.Reference2BooleanArrayMap;
 import it.unimi.dsi.fastutil.objects.Reference2BooleanMap;
 import javafx.scene.Scene;
+import madkit.action.RequestActionMessage;
 import madkit.agr.SystemRoles;
 import madkit.gui.FXExecutor;
 import madkit.gui.FXOutputPane;
@@ -348,6 +349,11 @@ public abstract class Agent {
 		return kernel.launchAgent(a, timeOutSeconds);
 	}
 
+	/**
+	 * Returns the random generator used by the MaDKit kernel for this session.
+	 * 
+	 * @return the random generator.
+	 */
 	public RandomGenerator prng() {
 		return kernel.getPRNG();
 	}
@@ -557,16 +563,16 @@ public abstract class Agent {
 	 * Creates a new Group within a community.
 	 * <p>
 	 * If this operation succeed, the agent will automatically handle the role defined by
-	 * {@link SystemRoles#GROUP_MANAGER_ROLE}, which value is <i>
-	 * {@value madkit.agr.SystemRoles#GROUP_MANAGER_ROLE}</i>, in this created group.
+	 * {@link SystemRoles#GROUP_MANAGER}, which value is <i>
+	 * {@value madkit.agr.SystemRoles#GROUP_MANAGER}</i>, in this created group.
 	 * Especially, if the agent leaves the role of <i>
-	 * {@value madkit.agr.SystemRoles#GROUP_MANAGER_ROLE}</i>, it will also automatically
+	 * {@value madkit.agr.SystemRoles#GROUP_MANAGER}</i>, it will also automatically
 	 * leave the group and thus all the roles it has in this group.
 	 * <p>
 	 * Agents that want to enter the group may send messages to the <i>
-	 * {@value madkit.agr.SystemRoles#GROUP_MANAGER_ROLE}</i> using the role defined by
-	 * {@link SystemRoles#GROUP_CANDIDATE_ROLE}, which value is <i>
-	 * {@value madkit.agr.SystemRoles#GROUP_CANDIDATE_ROLE}</i>.
+	 * {@value madkit.agr.SystemRoles#GROUP_MANAGER}</i> using the role defined by
+	 * {@link SystemRoles#GROUP_CANDIDATE}, which value is <i>
+	 * {@value madkit.agr.SystemRoles#GROUP_CANDIDATE}</i>.
 	 *
 	 * @param community     the community within which the group will be created. If this
 	 *                      community does not exist it will be created.
@@ -1488,29 +1494,41 @@ public abstract class Agent {
 	 * @since MaDKit 5.0.0.14
 	 * @see EnumMessage
 	 */
-	public <E extends Enum<E>> void proceedEnumMessage(EnumMessage<E> message) {
+	<E extends Enum<E>> void proceedEnumMessage(EnumMessage<E> message) {
 		logIfLoggerNotNull(FINEST, () -> "proceeding command message " + message);
 		Object[] parameters = message.getContent();
-		Method m = null;
+		triggerBehavior(ReflectionUtils.enumToMethodName(message.getCode()), parameters);
+	}
+
+	/**
+	 * Handles a {@link RequestActionMessage} so that the agent will trigger the corresponding
+	 * method using the parameters of the message.
+	 * 
+	 * Such messages are usually sent by GUI buttons or other user interfaces to trigger
+	 * actions in the agent.
+	 * 
+	 * @param message the message to handle
+	 */
+	public void handleRequestActionMessage(RequestActionMessage message) {
+		logIfLoggerNotNull(FINEST, () -> "handling request message " + message);
+		String methodName = message.getContent();
+		Object[] parameters = message.getParameters();
+		triggerBehavior(methodName, parameters);
+	}
+
+	private void triggerBehavior(String methodName, Object... args) {
 		try {
-			m = MethodFinder.getMethodOn(getClass(), ReflectionUtils.enumToMethodName(message.getCode()), parameters);
-			m.invoke(this, parameters);
+			Method m = MethodFinder.getMethodOn(getClass(), methodName, args);
+			m.invoke(this, args);
 		} catch (NoSuchMethodException e) {
-			if (logger != null)
-				logger.warning(() -> "I do not know how to " + ReflectionUtils.enumToMethodName(message.getCode())
-						+ Arrays.deepToString(parameters));
-			logForSender(() -> "I have sent a message which has not been understood", message);
+			getLogger().warning(() -> "I do not know how to " + methodName + Arrays.deepToString(args));
 		} catch (IllegalArgumentException e) {
-			if (logger != null)
-				logger.warning("Cannot proceed message : wrong argument " + m);
-			logForSender(() -> "I have sent an incorrect command message ", message);
+			getLogger().warning(() -> "Cannot proceed message : wrong arguments " + Arrays.deepToString(args));
 		} catch (IllegalAccessException e) {
+			getLogger().warning(() -> "Please open your module to madkit.base for this to work");
 			e.printStackTrace();
 		} catch (InvocationTargetException e) {
-			Throwable t = e.getCause();
-			t.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
+			throw new AgentRuntimeException("Problem triggering " + methodName + " with " + Arrays.deepToString(args), e);
 		}
 	}
 

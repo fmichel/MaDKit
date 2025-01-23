@@ -17,4 +17,15 @@ public class AgentRuntimeException extends RuntimeException {
 	public AgentRuntimeException(String message) {
 		super(message);
 	}
+
+	/**
+	 * Constructs an {@link AgentRuntimeException} with the specified detail message and
+	 * cause.
+	 * 
+	 * @param message the detail
+	 * @param cause   the cause
+	 */
+	public AgentRuntimeException(String message, Throwable cause) {
+		super(message, cause);
+	}
 }

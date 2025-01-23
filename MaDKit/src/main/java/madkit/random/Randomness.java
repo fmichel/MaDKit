@@ -1,7 +1,10 @@
 package madkit.random;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.Comparator;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.random.RandomGenerator;
 import java.util.random.RandomGeneratorFactory;
 
@@ -12,6 +15,8 @@ import madkit.kernel.AgentRuntimeException;
  * 
  */
 public class Randomness {
+
+	private static final Map<Class<?>, Boolean> typeHasAnnotation = new ConcurrentHashMap<>();
 
 	/**
 	 * Randomizes the values of the fields of the object. The fields to be randomized are
@@ -25,8 +30,10 @@ public class Randomness {
 	 * @param prng   the pseudo-random number generator to be used
 	 * @throws AgentRuntimeException if a field cannot be accessed
 	 */
-	public static void randomizeFields(Object object, RandomGenerator prng)
-	{
+	public static void randomizeFields(Object object, RandomGenerator prng) {
+		if (!hasAnyAnnotationInUnderlyingType(object)) {
+			return;
+		}
 		final Class<?> originType = object.getClass();
 		Class<?> currentType = originType;
 		while (currentType != Object.class) {
@@ -36,11 +43,22 @@ public class Randomness {
 					Randomness.randomizeInteger(object, field, prng);
 					Randomness.randomizeBoolean(object, field, prng);
 					Randomness.randomizeFloat(object, field, prng);
+					Randomness.randomizeString(object, field, prng);
 				} catch (IllegalAccessException e) {
 					throw new AgentRuntimeException("Cannot access field " + field.getName());
 				}
 			}
 			currentType = currentType.getSuperclass();
+		}
+	}
+
+	private static void randomizeString(Object object, Field field, RandomGenerator prng) throws IllegalAccessException {
+		if (field.isAnnotationPresent(RandomizedString.class)) {
+			RandomizedString annotation = field.getAnnotation(RandomizedString.class);
+			String[] values = annotation.values();
+			String randomValue = values[prng.nextInt(values.length)];
+			field.setAccessible(true);
+			field.set(object, randomValue);
 		}
 	}
 
@@ -60,8 +78,8 @@ public class Randomness {
 	private static void randomizeDouble(Object object, Field field, RandomGenerator prng) throws IllegalAccessException {
 		if (field.isAnnotationPresent(RandomizedDouble.class)) {
 			RandomizedDouble annotation = field.getAnnotation(RandomizedDouble.class);
-			double minValue = annotation.minValue();
-			double maxValue = annotation.maxValue();
+			double minValue = annotation.min();
+			double maxValue = annotation.max();
 			double randomValue = prng.nextDouble(minValue, maxValue);
 
 			field.setAccessible(true);
@@ -73,8 +91,8 @@ public class Randomness {
 			throws IllegalAccessException {
 		if (field.isAnnotationPresent(RandomizedInteger.class)) {
 			RandomizedInteger annotation = field.getAnnotation(RandomizedInteger.class);
-			int minValue = annotation.minValue();
-			int maxValue = annotation.maxValue();
+			int minValue = annotation.min();
+			int maxValue = annotation.max();
 			int randomValue = prng.nextInt(minValue, maxValue);
 
 			field.setAccessible(true);
@@ -93,8 +111,8 @@ public class Randomness {
 	private static void randomizeFloat(Object object, Field field, RandomGenerator prng) throws IllegalAccessException {
 		if (field.isAnnotationPresent(RandomizedFloat.class)) {
 			RandomizedFloat annotation = field.getAnnotation(RandomizedFloat.class);
-			float minValue = annotation.minValue();
-			float maxValue = annotation.maxValue();
+			float minValue = annotation.min();
+			float maxValue = annotation.max();
 			float randomValue = prng.nextFloat(minValue, maxValue);
 
 			field.setAccessible(true);
@@ -102,4 +120,19 @@ public class Randomness {
 		}
 	}
 
+	private static boolean hasAnyAnnotationInUnderlyingType(Object o) {
+		return typeHasAnnotation.computeIfAbsent(o.getClass(), (Class<?> c) -> {
+			Class<?> currentType = c;
+			while (currentType != Object.class) {
+				for (Field field : currentType.getDeclaredFields()) {
+					Annotation[] annotations = field.getAnnotations();
+					if (annotations.length > 0) {
+						return true;
+					}
+				}
+				currentType = currentType.getSuperclass();
+			}
+			return false;
+		});
+	}
 }

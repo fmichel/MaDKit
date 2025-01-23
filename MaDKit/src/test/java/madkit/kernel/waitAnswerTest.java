@@ -158,20 +158,20 @@ public class waitAnswerTest extends JunitMadkit {
 //		threadAssertEquals(SUCCESS, launchAgent(target2));
 //
 //		// Without role
-//		AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, SystemRoles.GROUP_MANAGER_ROLE);
+//		AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, SystemRoles.GROUP_MANAGER);
 //		threadAssertNotNull(aa);
 //		Message m = sendAndWaitForReply(aa, new Message());
 //		threadAssertNotNull(m);
 //		threadAssertEquals("reply", ((StringMessage) m).getContent());
-//		threadAssertEquals(SystemRoles.GROUP_CANDIDATE_ROLE, m.getReceiver().getRole());
-//		threadAssertEquals(SystemRoles.GROUP_MANAGER_ROLE, m.getSender().getRole());
+//		threadAssertEquals(SystemRoles.GROUP_CANDIDATE, m.getReceiver().getRole());
+//		threadAssertEquals(SystemRoles.GROUP_MANAGER, m.getSender().getRole());
 //
 //		// With role
-//		m = sendWithRoleAndWaitForReply(aa, new Message(), SystemRoles.GROUP_CANDIDATE_ROLE);
+//		m = sendWithRoleAndWaitForReply(aa, new Message(), SystemRoles.GROUP_CANDIDATE);
 //		threadAssertNotNull(m);
 //		threadAssertEquals("reply2", ((StringMessage) m).getContent());
-//		threadAssertEquals(SystemRoles.GROUP_CANDIDATE_ROLE, m.getReceiver().getRole());
-//		threadAssertEquals(SystemRoles.GROUP_MANAGER_ROLE, m.getSender().getRole());
+//		threadAssertEquals(SystemRoles.GROUP_CANDIDATE, m.getReceiver().getRole());
+//		threadAssertEquals(SystemRoles.GROUP_MANAGER, m.getSender().getRole());
 //		cleanHelperAgents();
 //	    }
 //	});

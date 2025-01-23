@@ -47,14 +47,14 @@ public class RequestRoleTest extends JunitMadkit {
 
 	final Agent helper = new Agent() {
 		protected void onActivation() {
-			threadAssertEquals(ACCESS_DENIED, requestRole(COMMUNITY, GROUP, SystemRoles.GROUP_MANAGER_ROLE));
+			threadAssertEquals(ACCESS_DENIED, requestRole(COMMUNITY, GROUP, SystemRoles.GROUP_MANAGER));
 			threadAssertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
 		}
 	};
 
 	final Agent helper2 = new Agent() {
 		protected void onActivation() {
-			threadAssertEquals(ACCESS_DENIED, requestRole(COMMUNITY, GROUP, SystemRoles.GROUP_MANAGER_ROLE));
+			threadAssertEquals(ACCESS_DENIED, requestRole(COMMUNITY, GROUP, SystemRoles.GROUP_MANAGER));
 			threadAssertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
 		}
 	};
@@ -65,7 +65,7 @@ public class RequestRoleTest extends JunitMadkit {
 			protected void onActivation() {
 				threadAssertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
 				threadAssertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
-//		assertTrue(isRole(COMMUNITY, GROUP, SystemRoles.GROUP_MANAGER_ROLE));
+//		assertTrue(isRole(COMMUNITY, GROUP, SystemRoles.GROUP_MANAGER));
 //		assertTrue(isRole(COMMUNITY, GROUP, ROLE));
 			}
 		}, SUCCESS);
@@ -87,7 +87,7 @@ public class RequestRoleTest extends JunitMadkit {
 		launchTestedAgent(new Agent() {
 			protected void onActivation() {
 				threadAssertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
-				threadAssertEquals(ROLE_ALREADY_HANDLED, requestRole(COMMUNITY, GROUP, SystemRoles.GROUP_MANAGER_ROLE));
+				threadAssertEquals(ROLE_ALREADY_HANDLED, requestRole(COMMUNITY, GROUP, SystemRoles.GROUP_MANAGER));
 				threadAssertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
 				threadAssertEquals(ROLE_ALREADY_HANDLED, requestRole(COMMUNITY, GROUP, ROLE));
 			}
@@ -122,7 +122,7 @@ public class RequestRoleTest extends JunitMadkit {
 			protected void onActivation() {
 				threadAssertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
 				assertTrue(getOrganization().isGroup(COMMUNITY, GROUP));
-				assertTrue(getOrganization().isRole(COMMUNITY, GROUP, SystemRoles.GROUP_MANAGER_ROLE));
+				assertTrue(getOrganization().isRole(COMMUNITY, GROUP, SystemRoles.GROUP_MANAGER));
 //		threadAssertEquals(SUCCESS, leaveGroup(COMMUNITY, GROUP));
 //		assertFalse(isGroup(COMMUNITY, GROUP));
 			}
@@ -193,7 +193,7 @@ public class RequestRoleTest extends JunitMadkit {
 		launchTestedAgent(new Agent() {
 			protected void onActivation() {
 				threadAssertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
-				threadAssertEquals(ROLE_ALREADY_HANDLED, requestRole(COMMUNITY, GROUP, SystemRoles.GROUP_MANAGER_ROLE));
+				threadAssertEquals(ROLE_ALREADY_HANDLED, requestRole(COMMUNITY, GROUP, SystemRoles.GROUP_MANAGER));
 				threadAssertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
 				threadAssertEquals(SUCCESS, launchAgent(helper));
 				threadAssertEquals(SUCCESS, launchAgent(helper2));

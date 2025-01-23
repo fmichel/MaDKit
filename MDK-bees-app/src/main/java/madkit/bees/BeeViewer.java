@@ -1,28 +1,16 @@
-/*
- * Copyright 1997-2012 Fabien Michel, Olivier Gutknecht, Jacques Ferber
- * 
- * This file is part of MaDKit_Demos.
- * 
- * MaDKit_Demos is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * MaDKit_Demos is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with MaDKit_Demos. If not, see <http://www.gnu.org/licenses/>.
- */
 package madkit.bees;
 
 import java.awt.Point;
-import java.util.List;
+import java.util.Objects;
 
+import org.controlsfx.control.action.ActionUtils;
+
+import javafx.collections.ObservableList;
+import javafx.scene.Node;
+import madkit.action.AgentMethodAction;
+import madkit.gui.FXExecutor;
 import madkit.gui.UIProperty;
-import madkit.kernel.Agent;
+import madkit.kernel.Probe;
 import madkit.simulation.PropertyProbe;
 import madkit.simulation.viewer.CanvasDrawerGUI;
 import madkit.simulation.viewer.Viewer2D;
@@ -35,38 +23,59 @@ import madkit.simulation.viewer.Viewer2D;
 public class BeeViewer extends Viewer2D {
 
 	private PropertyProbe<BeeData> beeProbe;
-	protected int nbOfBeesToLaunch = 200_000;
-	BeeEnvironment env;
+	private Probe queenProbe;
 
 	@UIProperty(category = "Rendering", displayName = "Display trails")
-	private boolean trailMode = false;
+	private boolean trailMode = true;
 
 	@Override
 	protected void onActivation() {
-		env = getLauncher().getEnvironment();
-//		getLogger().setLevel(Level.ALL);
-		super.onActivation();
-		beeProbe = new PropertyProbe<>(getModelGroup(), AbstractBee.BEE_ROLE, "data");
+		beeProbe = new PropertyProbe<>(getModelGroup(), Bee.BEE_ROLE, "data");
 		addProbe(beeProbe);
+		queenProbe = new Probe(getModelGroup(), Bee.QUEEN);
+		addProbe(queenProbe);
+		super.onActivation();
+		FXExecutor.runLater(() -> {
+			ObservableList<Node> items = getGUI().getToolBar().getItems();
+			items.add(ActionUtils.createButton(new AgentMethodAction(this, "launchAQueen")));
+			items.add(ActionUtils.createButton(new AgentMethodAction(this, "killAQueen")));
+		});
 	}
 
+	@Override
 	public void render() {
 		super.render();
-		List<Agent> currentAgentsList = beeProbe.getAgents();
-		for (Agent arg0 : currentAgentsList) {
-			BeeData b = beeProbe.getPropertyValue(arg0);
-			getGraphics().setStroke(b.getBeeColor());
-			Point p = b.getCurrentPosition();
+		beeProbe.streamValues().filter(Objects::nonNull).forEach(data -> {
+			getGraphics().setStroke(data.getBeeColor());
+			Point p = data.getCurrentPosition();
 			if (trailMode) {
-				Point p1 = b.getPreviousPosition();
+				Point p1 = data.getPreviousPosition();
 				getGraphics().strokeLine(p1.x, p1.y, p.x, p.y);
 			} else {
 				getGraphics().strokeLine(p.x, p.y, p.x, p.y);
 			}
-		}
+		});
 	}
 
 	/**
+	 * Launches a queen bee.
+	 */
+	public void launchAQueen() {
+		getLogger().info("Launching a queen");
+		launchAgent(new QueenBee());
+	}
+
+	/**
+	 * Kills a queen bee.
+	 */
+	public void killAQueen() {
+		getLogger().info("Killing a queen");
+		queenProbe.getAgents().stream().findFirst().ifPresent(this::killAgent);
+	}
+
+	/**
+	 * If on, the viewer will display the trails of the bees.
+	 * 
 	 * @return the trailMode
 	 */
 	public boolean isTrailMode() {
@@ -74,6 +83,8 @@ public class BeeViewer extends Viewer2D {
 	}
 
 	/**
+	 * If set to true, the viewer will display the trails of the bees.
+	 * 
 	 * @param trailMode the trailMode to set
 	 */
 	public void setTrailMode(boolean trailMode) {

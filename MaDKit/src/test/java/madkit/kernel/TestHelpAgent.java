@@ -149,16 +149,16 @@ public interface TestHelpAgent {
 	 * Creates a new Group within a community.
 	 * <p>
 	 * If this operation succeed, the agent will automatically handle the role
-	 * defined by {@link SystemRoles#GROUP_MANAGER_ROLE}, which value is <i>
-	 * {@value madkit.agr.SystemRoles#GROUP_MANAGER_ROLE}</i>, in this created
+	 * defined by {@link SystemRoles#GROUP_MANAGER}, which value is <i>
+	 * {@value madkit.agr.SystemRoles#GROUP_MANAGER}</i>, in this created
 	 * group. Especially, if the agent leaves the role of <i>
-	 * {@value madkit.agr.SystemRoles#GROUP_MANAGER_ROLE}</i>, it will also
+	 * {@value madkit.agr.SystemRoles#GROUP_MANAGER}</i>, it will also
 	 * automatically leave the group and thus all the roles it has in this group.
 	 * <p>
 	 * Agents that want to enter the group may send messages to the <i>
-	 * {@value madkit.agr.SystemRoles#GROUP_MANAGER_ROLE}</i> using the role defined
-	 * by {@link SystemRoles#GROUP_CANDIDATE_ROLE}, which value is <i>
-	 * {@value madkit.agr.SystemRoles#GROUP_CANDIDATE_ROLE}</i>.
+	 * {@value madkit.agr.SystemRoles#GROUP_MANAGER}</i> using the role defined
+	 * by {@link SystemRoles#GROUP_CANDIDATE}, which value is <i>
+	 * {@value madkit.agr.SystemRoles#GROUP_CANDIDATE}</i>.
 	 *
 	 * @param community     the community within which the group will be created. If
 	 *                      this community does not exist it will be created.

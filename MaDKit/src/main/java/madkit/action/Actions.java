@@ -16,9 +16,6 @@ import madkit.kernel.Scheduler;
  * 
  * Utility class for creating actions for agents.
  * 
- * 
- * @author Fabien Michel
- *
  */
 public class Actions {
 
@@ -35,8 +32,8 @@ public class Actions {
 	 */
 	public static ActionGroup createSchedulerActionGroupFor(Scheduler<?> agent) {
 		Collection<Action> actions = new ArrayList<>();
-		actions.add(SchedulingAction.RUN.getFxActionFrom(agent));
-		actions.add(SchedulingAction.PAUSE.getFxActionFrom(agent));
+		actions.add(SchedulingAction.RUN.getActionFrom(agent));
+		actions.add(SchedulingAction.PAUSE.getActionFrom(agent));
 		return new ActionGroup("Simu", actions);
 	}
 
@@ -102,5 +99,6 @@ public class Actions {
 	public static ObservableList<Action> getMadkitActions(Agent agent) {
 		return createMadkitActionGroupFor(agent).getActions();
 	}
+
 
 }

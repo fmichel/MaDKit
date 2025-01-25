@@ -36,7 +36,6 @@
 package madkit.simulation.viewer;
 
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
 import madkit.gui.UIProperty;
 import madkit.simulation.Viewer;
 import madkit.simulation.environment.Environment2D;
@@ -52,9 +51,6 @@ public abstract class Viewer2D extends Viewer {
 
 	@UIProperty(category = "Rendering", displayName = "Paint over")
 	private boolean paintOver = false;
-
-	@UIProperty(category = "Rendering", displayName = "Background")
-	private Color background = Color.BLACK;
 
 	/**
 	 * On activation.
@@ -114,25 +110,6 @@ public abstract class Viewer2D extends Viewer {
 	 */
 	public boolean isPaintOver() {
 		return paintOver;
-	}
-
-	/**
-	 * @return the background
-	 */
-	public Color getBackground() {
-		return background;
-	}
-
-	/**
-	 * Sets the background color of the canvas.
-	 * 
-	 * @param background the background to set
-	 */
-	public void setBackground(Color background) {
-		this.background = background;
-		if (getGUI() != null) {
-			getGUI().setBackground(background);
-		}
 	}
 
 }

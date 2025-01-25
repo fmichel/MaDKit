@@ -146,15 +146,16 @@ public abstract class ViewerDefaultGUI extends DefaultAgentGUI {
 	}
 
 	/**
-	 * Creates the top node.
+	 * Creates the top node of the viewer agent. By default, it creates a menu bar with the
+	 * rendering actions and returns a VBox containing the menu bar.
 	 *
-	 * @return the node
+	 * @return a VBox containing the menu bar
 	 */
 	@Override
 	protected Node createTopNode() {
 		VBox vb = new VBox();
 		MenuBar menuBar = new MenuBar();
-		Menu menu = new Menu("rendering");
+		Menu menu = new Menu("Rendering");
 		menu.getItems().add(ActionUtils.createCheckMenuItem(synchroPainting));
 		menu.getItems().add(ActionUtils.createCheckMenuItem(renderingOff));
 		menuBar.getMenus().add(menu);
@@ -247,7 +248,7 @@ public abstract class ViewerDefaultGUI extends DefaultAgentGUI {
 		}
 		Button b = new Button("On Simulation Start");
 		b.setOnAction(_ -> getViewer().getLauncher().onSimulationStart());
-		b.setTooltip(new Tooltip("trigger the OnSimulationStart method of " + getViewer().getLauncher()));
+		b.setTooltip(new Tooltip("trigger the OnSimulationStart process"));
 		toolBar.getItems().add(b);
 		return toolBar;
 	}

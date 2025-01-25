@@ -13,7 +13,7 @@ import madkit.agr.SystemRoles;
 import madkit.kernel.Agent;
 import madkit.kernel.Agent.ReturnCode;
 import madkit.kernel.AgentAddress;
-import madkit.kernel.JunitMadkit;
+import madkit.kernel.MadkitUnitTestCase;
 import madkit.kernel.Message;
 import madkit.test.agents.RequestRoleAgent;
 
@@ -24,7 +24,7 @@ import madkit.test.agents.RequestRoleAgent;
  * 
  */
 
-public class SendMessageTest extends JunitMadkit {
+public class SendMessageTest extends MadkitUnitTestCase {
 
 	@Test
 	public void returnSuccess() {

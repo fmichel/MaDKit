@@ -4,11 +4,11 @@ import org.testng.annotations.BeforeClass;
 
 import madkit.kernel.Agent;
 import madkit.kernel.AgentAddress;
-import madkit.kernel.JunitMadkit;
+import madkit.kernel.MadkitUnitTestCase;
 import madkit.simulation.scheduler.MethodActivator;
 
 //FIXME
-public class OverlookerTest extends JunitMadkit {
+public class OverlookerTest extends MadkitUnitTestCase {
 
 	private static MethodActivator buggy;
 

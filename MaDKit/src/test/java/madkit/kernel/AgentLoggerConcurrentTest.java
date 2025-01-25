@@ -33,74 +33,36 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C license and that you accept its terms.
  *******************************************************************************/
-package madkit.gui;
+package madkit.kernel;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.controlsfx.control.PropertySheet.Item;
-import org.controlsfx.property.editor.AbstractPropertyEditor;
-import org.controlsfx.property.editor.PropertyEditor;
-
-import javafx.beans.value.ObservableValue;
-import javafx.scene.control.Slider;
-import javafx.scene.control.Tooltip;
-import madkit.kernel.Madkit;
+import org.testng.annotations.Test;
 
 /**
- * A property editor for editing double values using a {@link Slider}.
- * 
+ * The Class AgentLoggerConcurrentTest.
  */
-public class SliderEditor extends AbstractPropertyEditor<Double, Slider> implements PropertyEditor<Double> {
+public class AgentLoggerConcurrentTest extends MadkitConcurrentTestCase {
 
-	/**
-	 * A map of sliders for each property name
-	 */
-	final static Map<String, Slider> sliders = new HashMap<>();
-
-	/** The tooltip. */
-	Tooltip tooltip = new Tooltip();
-
-	/**
-	 * Constructs a new SliderEditor for the given item.
-	 * 
-	 * @param item the item to edit
-	 */
-	public SliderEditor(Item item) {
-		super(item, sliders.get(item.getName()));
-		getEditor().setTooltip(tooltip);
-		getEditor().valueProperty().addListener((_, _, newValue) -> {
-			setValue(newValue.doubleValue());
-			tooltip.setText("" + newValue);
+	@Test
+	public void givenNewAgent_whenStarted_thenLoggerIsNull() {
+		runTest(new Agent() {
+			@Override
+			protected void onActivation() {
+				threadAssertNull(this.logger);
+				resume();
+			}
 		});
-		try {
-			getEditor().setValue((double) item.getValue());
-		} catch (ClassCastException e) {
-			Madkit.MDK_LOGGER.severe("****************** " + SliderProperty.class
-					+ " only works on double! \nPlease change " + item.getName() + " type to double in your class");
-			e.printStackTrace();
-		}
 	}
 
-	/**
-	 * Gets the observable value.
-	 *
-	 * @return the observable value
-	 */
-	@Override
-	protected ObservableValue<Double> getObservableValue() {
-		return getEditor().valueProperty().asObject();
-	}
-
-	/**
-	 * Sets the value.
-	 *
-	 * @param value the new value
-	 */
-	@Override
-	public void setValue(Double value) {
-		getProperty().setValue(value);
-		tooltip.setText("" + value);
+	@Test
+	public void givenNewAgent_whenLoggerIsUsed_thenLoggerNotNull() {
+		runTest(new Agent() {
+			@Override
+			protected void onActivation() {
+				getLogger().info("testing");
+				threadAssertNotNull(this.logger);
+				resume();
+			}
+		});
 	}
 
 }

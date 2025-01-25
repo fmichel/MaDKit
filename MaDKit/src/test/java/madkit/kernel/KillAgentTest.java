@@ -38,7 +38,7 @@ import madkit.test.agents.ThreadedCGRForeverInEnd;
  * 
  */
 
-public class KillAgentTest extends JunitMadkit {
+public class KillAgentTest extends MadkitUnitTestCase {
 
 	@Test
 	public void killAgent() {

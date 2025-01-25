@@ -6,7 +6,7 @@ import static madkit.kernel.Agent.ReturnCode.SUCCESS;
 
 import org.testng.annotations.Test;
 
-import madkit.kernel.JunitMadkit;
+import madkit.kernel.MadkitUnitTestCase;
 import madkit.kernel.Probe;
 import madkit.kernel.Watcher;
 
@@ -17,7 +17,7 @@ import madkit.kernel.Watcher;
  * 
  */
 
-public class BasicWatcherTest extends JunitMadkit {
+public class BasicWatcherTest extends MadkitUnitTestCase {
 
 	// TODO implement a default simulation engine setup
 //	@Test

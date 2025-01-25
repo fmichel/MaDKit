@@ -16,7 +16,7 @@ import madkit.test.agents.CGRAgent;
  * 
  */
 @SuppressWarnings("all")
-public class waitAnswerTest extends JunitMadkit {
+public class waitAnswerTest extends MadkitUnitTestCase {
 
 	final Agent target = new Agent() {
 		AgentAddress aa;

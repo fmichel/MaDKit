@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.random.RandomGenerator;
 
 import madkit.kernel.Agent;
+import madkit.kernel.Probe;
 import madkit.kernel.Scheduler;
 import madkit.simulation.scheduler.DateBasedDiscreteEventActivator;
 import madkit.simulation.scheduler.DateBasedTimer;
@@ -186,6 +187,26 @@ public class SimuAgent extends Agent {
 	/**
 	 * Method to be called on simulation startup. This can be overridden by subclasses to
 	 * perform initialization tasks.
+	 * This method is the latest method called by the launcher on all the engine agents before
+	 * giving to the scheduler the control of the simulation. This provided that, at this
+	 * point of the launching process, the simulation is ready to start, i.e.: all the agents
+	 * participating in the simulation have been launched, and already have their
+	 * {@link SimuAgent#onActivation()} method called.
+	 * <p>
+	 * More precisely, this call is done on the engine agents, by the launcher, in the
+	 * following order: (1) the {@link Scheduler}, (2) the {@link SimuModel}, (3) the
+	 * {@link SimuEnvironment}, and (4) on all the Viewer agents.
+	 * <p>
+	 * It is worth noting that, by default, this method is not called on the simulated agents,
+	 * because the default implementation of {@link SimuLauncher} does not have access to
+	 * them. Still it is easy to specialize the launcher to achieve this, or by using a
+	 * {@link Probe} in any of the engine agents.
+	 * <p>
+	 * So, it can be overridden to perform any action that could be useful before the
+	 * simulation starts.
+	 * <p>
+	 * By default, this method does nothing, except for the {@link SimuLauncher} which will
+	 * start the simulation.
 	 */
 	public void onSimulationStart() {
 		// Override to implement startup behavior

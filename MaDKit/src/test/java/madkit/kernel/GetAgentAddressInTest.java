@@ -46,7 +46,7 @@ import madkit.test.agents.CGRAgent;
  * @version 0.9
  * 
  */
-public class GetAgentAddressInTest extends JunitMadkit {
+public class GetAgentAddressInTest extends MadkitUnitTestCase {
 
 	/**
 	 * Success.

@@ -19,7 +19,7 @@ import madkit.test.agents.CGRAgent;
  * 
  */
 
-public class ReplyWithRoleTest extends JunitMadkit {
+public class ReplyWithRoleTest extends MadkitUnitTestCase {
 
 	@Test
 	public void ROLE_NOT_HANDLED() {

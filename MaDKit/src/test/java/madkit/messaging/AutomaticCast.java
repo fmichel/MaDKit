@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-import madkit.kernel.JunitMadkit;
+import madkit.kernel.MadkitUnitTestCase;
 import madkit.kernel.Message;
 import madkit.messages.IntegerMessage;
 import madkit.messages.StringMessage;
@@ -16,7 +16,7 @@ import madkit.test.agents.CGRAgent;
  *
  *
  */
-public class AutomaticCast extends JunitMadkit {
+public class AutomaticCast extends MadkitUnitTestCase {
 
 	@Test
 	public void castSuccess() {

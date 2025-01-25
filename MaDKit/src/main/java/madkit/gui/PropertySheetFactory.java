@@ -52,6 +52,7 @@ import javafx.scene.control.TitledPane;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.VBox;
 import madkit.kernel.Agent;
+import madkit.kernel.Madkit;
 
 /**
  * 
@@ -171,59 +172,58 @@ public class PropertySheetFactory {
 	private static void populateProperties(Object o, ObservableList<Item> parameters, String defaultCategoryName,
 			Class<?> currentType) {
 		for (Field f : currentType.getDeclaredFields()) {
-			PropertyDescriptor propertyDescriptor = buildUIPropertyDescriptor(f, currentType);
-			if (propertyDescriptor != null) {
-				BeanProperty uiProperty = new BeanProperty(o, propertyDescriptor);
-				parameters.add(uiProperty);
-			}
-			propertyDescriptor = buildSliderPropertyDescriptor(f, currentType);
-			if (propertyDescriptor != null) {
-				BeanProperty sliderProperty = new BeanProperty(o, propertyDescriptor);
-				parameters.add(sliderProperty);
+			try {
+				PropertyDescriptor propertyDescriptor = buildUIPropertyDescriptor(f, currentType);
+				if (propertyDescriptor != null) {
+					BeanProperty uiProperty = new BeanProperty(o, propertyDescriptor);
+					parameters.add(uiProperty);
+				}
+				propertyDescriptor = buildSliderPropertyDescriptor(f, currentType);
+				if (propertyDescriptor != null) {
+					BeanProperty sliderProperty = new BeanProperty(o, propertyDescriptor);
+					parameters.add(sliderProperty);
+				}
+			} catch (IntrospectionException e) {
+				Madkit.MDK_LOGGER.severe("****************** Cannot create property descriptor for " + f.getName()
+						+ "\nFor annotations to work properly, please implement appropriate getter and setter for this field.***********");
+				e.printStackTrace();
 			}
 		}
 	}
 
-	static PropertyDescriptor buildUIPropertyDescriptor(Field f, Class<?> currentType) {
+	static PropertyDescriptor buildUIPropertyDescriptor(Field f, Class<?> currentType) throws IntrospectionException {
 		UIProperty uiAnnotation = f.getAnnotation(UIProperty.class);
 		if (uiAnnotation != null) {
-			try {
-				PropertyDescriptor propDescriptor = new PropertyDescriptor(f.getName(), currentType);
-				String displayName = uiAnnotation.displayName();
-				String category = uiAnnotation.category();
-				if (displayName.isBlank()) {
-					displayName = endUserPropertyName(f);
-				}
-				propDescriptor.setDisplayName(displayName);
-				propDescriptor.setValue(BeanProperty.CATEGORY_LABEL_KEY,
-						category.isBlank() ? currentType.getSimpleName() : category);
-				return propDescriptor;
-			} catch (IntrospectionException e) {
-				e.printStackTrace();
+			PropertyDescriptor propDescriptor = new PropertyDescriptor(f.getName(), currentType);
+			String displayName = uiAnnotation.displayName();
+			String category = uiAnnotation.category();
+			if (displayName.isBlank()) {
+				displayName = endUserPropertyName(f);
 			}
+			propDescriptor.setDisplayName(displayName);
+			propDescriptor.setValue(BeanProperty.CATEGORY_LABEL_KEY,
+					category.isBlank() ? currentType.getSimpleName() : category);
+			return propDescriptor;
 		}
 		return null;
 	}
 
-	static PropertyDescriptor buildSliderPropertyDescriptor(Field f, Class<?> currentType) {
+	private static PropertyDescriptor buildSliderPropertyDescriptor(Field f, Class<?> currentType)
+			throws IntrospectionException {
 		SliderProperty sliderAnnotation = f.getAnnotation(SliderProperty.class);
 		if (sliderAnnotation != null) {
-			try {
-				PropertyDescriptor propDescriptor = new PropertyDescriptor(f.getName(), currentType);
-				String displayName = sliderAnnotation.displayName();
-				String category = sliderAnnotation.category();
-				if (displayName.isBlank()) {
-					displayName = endUserPropertyName(f);
-				}
-				propDescriptor.setDisplayName(displayName);
-				propDescriptor.setValue(BeanProperty.CATEGORY_LABEL_KEY,
-						category.isBlank() ? currentType.getSimpleName() : category);
-				SliderEditor.sliders.put(displayName, createSlider(sliderAnnotation));
-				propDescriptor.setPropertyEditorClass(SliderEditor.class);
-				return propDescriptor;
-			} catch (IntrospectionException e) {
-				e.printStackTrace();
+			PropertyDescriptor propDescriptor = new PropertyDescriptor(f.getName(), currentType);
+			String displayName = sliderAnnotation.displayName();
+			String category = sliderAnnotation.category();
+			if (displayName.isBlank()) {
+				displayName = endUserPropertyName(f);
 			}
+			propDescriptor.setDisplayName(displayName);
+			propDescriptor.setValue(BeanProperty.CATEGORY_LABEL_KEY,
+					category.isBlank() ? currentType.getSimpleName() : category);
+			SliderEditor.sliders.put(displayName, createSlider(sliderAnnotation));
+			propDescriptor.setPropertyEditorClass(SliderEditor.class);
+			return propDescriptor;
 		}
 		return null;
 	}
@@ -235,8 +235,17 @@ public class PropertySheetFactory {
 		Slider s = new Slider(a.min(), a.max(), a.min());
 		s.setShowTickMarks(true);
 		s.setShowTickLabels(true);
-		s.setOnScroll((ScrollEvent event) -> s
-				.setValue(s.getValue() + (event.getDeltaY() > 0 ? a.scrollPrecision() : -a.scrollPrecision())));
+		int intervalSize = (int) (a.max() - a.min());
+		double scrollPrecision = a.scrollPrecision();
+		while (intervalSize / scrollPrecision > 2000) {
+			scrollPrecision++;
+		}
+		s.setSnapToTicks(true);
+		s.setMajorTickUnit(scrollPrecision);
+		final double scrolling = scrollPrecision;
+		s.setOnScroll((ScrollEvent event) -> {
+			s.setValue(s.getValue() + (event.getDeltaY() > 0 ? scrolling : -scrolling));
+		});
 		return s;
 	}
 

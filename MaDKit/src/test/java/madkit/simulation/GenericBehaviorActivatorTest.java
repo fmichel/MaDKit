@@ -4,7 +4,7 @@ package madkit.simulation;
 import org.testng.annotations.Test;
 
 import madkit.kernel.Agent.ReturnCode;
-import madkit.kernel.JunitMadkit;
+import madkit.kernel.MadkitUnitTestCase;
 import madkit.simulation.scheduler.MethodActivator;
 import madkit.simulation.scheduler.TickBasedScheduler;
 import madkit.test.agents.CGRAgent;
@@ -17,7 +17,7 @@ import madkit.test.agents.CGRAgent;
  * 
  */
 
-public class GenericBehaviorActivatorTest extends JunitMadkit {
+public class GenericBehaviorActivatorTest extends MadkitUnitTestCase {
 
 	private MethodActivator buggy;
 

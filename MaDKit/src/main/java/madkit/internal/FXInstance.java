@@ -44,6 +44,9 @@ import java.util.logging.Logger;
 import javafx.application.Platform;
 import madkit.gui.FXExecutor;
 
+/**
+ * The Class FXInstance.
+ */
 public class FXInstance {
 
 	static {
@@ -60,8 +63,7 @@ public class FXInstance {
 	}
 
 	/**
-	 * Starts the JavaFX application if it is not already started and not in
-	 * headless mode.
+	 * Starts the JavaFX application if it is not already started and not in headless mode.
 	 * 
 	 * @param logger the logger to use
 	 */
@@ -77,7 +79,7 @@ public class FXInstance {
 					if (e.getMessage().contains("Toolkit already initialized")) {
 						logger.log(Level.INFO, () -> "FX Platform already started!");
 					} else {
-						logger.log(Level.WARNING, "FX start error!", e);
+						logger.log(Level.WARNING, () -> "FX start error: ");
 						throw e;
 					}
 				}
@@ -86,21 +88,19 @@ public class FXInstance {
 				fxStart.get();
 				FXInstance.setStarted(true);
 			} catch (ExecutionException e) {
-				logger.log(Level.WARNING, "FX start error!", e);
-				e.printStackTrace();
+				logger.log(Level.WARNING, e, () -> "FX start error: " + e.getMessage());
 			} catch (InterruptedException e) {
-				logger.log(Level.WARNING, "FX start interrupted!", e);
+				logger.log(Level.WARNING, e, () -> "FX start interrupted: " + e.getMessage());
 				Thread.currentThread().interrupt();
 			}
 		}
 	}
 
 	/**
-	 * If set to {@code true}, the application will run in headless mode and will
-	 * not start the JavaFX application. It will inhibit the JavaFX initialization
-	 * and calls to {@link FXExecutor#runLater(Runnable)} and
-	 * {@link FXExecutor#runAndWait(Runnable)} This is useful for running the
-	 * application in environments that do not support JavaFX.
+	 * If set to {@code true}, the application will run in headless mode and will not start
+	 * the JavaFX application. It will inhibit the JavaFX initialization and calls to
+	 * {@link FXExecutor#runLater(Runnable)} and {@link FXExecutor#runAndWait(Runnable)} This
+	 * is useful for running the application in environments that do not support JavaFX.
 	 *
 	 * @param inhibit {@code true} to set headless mode
 	 */

@@ -3,16 +3,16 @@ package madkit.messaging;
 import static madkit.kernel.Agent.ReturnCode.INVALID_AGENT_ADDRESS;
 import static madkit.kernel.Agent.ReturnCode.NOT_IN_GROUP;
 import static madkit.kernel.Agent.ReturnCode.SUCCESS;
-import static madkit.kernel.JunitMadkit.COMMUNITY;
-import static madkit.kernel.JunitMadkit.GROUP;
-import static madkit.kernel.JunitMadkit.ROLE;
+import static madkit.kernel.MadkitUnitTestCase.COMMUNITY;
+import static madkit.kernel.MadkitUnitTestCase.GROUP;
+import static madkit.kernel.MadkitUnitTestCase.ROLE;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
 import madkit.kernel.Agent;
 import madkit.kernel.Agent.ReturnCode;
-import madkit.kernel.JunitMadkit;
+import madkit.kernel.MadkitUnitTestCase;
 import madkit.kernel.Message;
 import madkit.test.agents.RequestRoleAgent;
 
@@ -23,7 +23,7 @@ import madkit.test.agents.RequestRoleAgent;
  * 
  */
 
-public class SendReplyTest extends JunitMadkit {
+public class SendReplyTest extends MadkitUnitTestCase {
 
 	@Test
 	public void returnNotInGroup() {

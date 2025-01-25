@@ -12,7 +12,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import madkit.kernel.Agent;
-import madkit.kernel.JunitMadkit;
+import madkit.kernel.MadkitUnitTestCase;
 import madkit.kernel.Probe;
 import madkit.kernel.Watcher;
 import madkit.test.agents.SimulatedAgent;
@@ -25,7 +25,7 @@ import madkit.test.agents.SimulatedAgent;
  * @version 0.9
  */
 @SuppressWarnings("all")
-public class ProbeTest extends JunitMadkit {
+public class ProbeTest extends MadkitUnitTestCase {
 
 	Probe a;
 	TestAgent agt;

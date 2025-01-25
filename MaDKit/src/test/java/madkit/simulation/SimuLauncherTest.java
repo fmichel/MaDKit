@@ -4,10 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.testng.annotations.Test;
 
-import madkit.kernel.JunitMadkit;
+import madkit.kernel.MadkitUnitTestCase;
 import madkit.simulation.scheduler.TickBasedScheduler;
 
-public class SimuLauncherTest extends JunitMadkit {
+public class SimuLauncherTest extends MadkitUnitTestCase {
 
 	@Test
 	public void givenSimuLauncher_whenInitialized_thenDefaultValuesAreCorrect() {

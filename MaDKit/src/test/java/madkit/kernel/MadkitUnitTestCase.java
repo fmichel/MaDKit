@@ -1,7 +1,41 @@
+/*******************************************************************************
+ * MaDKit - Multi-agent systems Development Kit 
+ * 
+ * Copyright (c) 1998-2025 Fabien Michel, Olivier Gutknecht, Jacques Ferber...
+ * 
+ * This software is a computer program whose purpose is to
+ * provide a lightweight Java API for developing and simulating 
+ * Multi-Agent Systems (MAS) using an organizational perspective.
+ *
+ * This software is governed by the CeCILL-C license under French law and
+ * abiding by the rules of distribution of free software.You can use,
+ * modify and/ or redistribute the software under the terms of the CeCILL-C
+ * license as circulated by CEA, CNRS and INRIA at the following URL
+ * "http://www.cecill.info".
+ *
+ * As a counterpart to the access to the source code and rights to copy,
+ * modify and redistribute granted by the license, users are provided only
+ * with a limited warranty and the software's author, the holder of the
+ * economic rights, and the successive licensors have only limited
+ * liability.
+ *
+ * In this respect, the user's attention is drawn to the risks associated
+ * with loading, using, modifying and/or developing or reproducing the
+ * software by the user in light of its specific status of free software,
+ * that may mean that it is complicated to manipulate, and that also
+ * therefore means that it is reserved for developers and experienced
+ * professionals having in-depth computer knowledge. Users are therefore
+ * encouraged to load and test the software's suitability as regards their
+ * requirements in conditions enabling the security of their systems and/or
+ * data to be ensured and, more generally, to use and operate it in the
+ * same conditions as regards security.
+ *
+ * The fact that you are presently reading this means that you have had
+ * knowledge of the CeCILL-C license and that you accept its terms.
+ *******************************************************************************/
 
 package madkit.kernel;
 
-import static madkit.kernel.Agent.ReturnCode.SUCCESS;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.fail;
 
@@ -19,6 +53,8 @@ import java.util.function.Consumer;
 import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.BeforeMethod;
 
+import static madkit.kernel.Agent.ReturnCode.SUCCESS;
+
 import madkit.kernel.Agent.ReturnCode;
 import madkit.simulation.SimuAgent;
 import net.jodah.concurrentunit.ConcurrentTestCase;
@@ -29,22 +65,38 @@ import net.jodah.concurrentunit.ConcurrentTestCase;
  * @version 0.9
  * 
  */
-public class JunitMadkit extends ConcurrentTestCase {
+public class MadkitUnitTestCase extends ConcurrentTestCase {
 
+	/** The a string. */
 	public static String aString = "dontExist";
+
+	/** The Constant COMMUNITY. */
 	public static final String COMMUNITY = "Tcommunity";
+
+	/** The Constant COMMUNITY2. */
 	public static final String COMMUNITY2 = "Tcommunity2";
+
+	/** The Constant GROUP. */
 	public static final String GROUP = "Tgroup";
+
+	/** The Constant GROUP2. */
 	public static final String GROUP2 = "Tgroup2";
+
+	/** The Constant ROLE. */
 	public static final String ROLE = "Trole";
+
+	/** The Constant ROLE2. */
 	public static final String ROLE2 = "Trole2";
 
+	/** The madkit. */
 	protected Madkit madkit;
 	private Lock lock;
 	private Condition testDone;
 
+	/** The kernel agent. */
 	protected KernelAgent kernelAgent;
 
+	/** The helper instances. */
 	protected static List<Madkit> helperInstances = new ArrayList<>();
 
 	// static{
@@ -63,6 +115,8 @@ public class JunitMadkit extends ConcurrentTestCase {
 	}
 
 	private static AssertionError firstFailure;
+
+	/** The assertion errors. */
 	protected static Map<Agent, AssertionError> assertionErrors;
 
 	public static String cgrDontExist() {
@@ -142,15 +196,6 @@ public class JunitMadkit extends ConcurrentTestCase {
 		}
 	}
 
-	public void testBehavior(Consumer<Agent> behavior) {
-		launchTestedAgent(new Agent() {
-			@Override
-			protected void onActivation() {
-				behavior.accept(this);
-			}
-		}, SUCCESS);
-	}
-
 	public void testSimuAgentBehavior(Consumer<SimuAgent> behavior) {
 		launchTestedAgent(new SimuAgent() {
 			@Override
@@ -216,16 +261,21 @@ public class JunitMadkit extends ConcurrentTestCase {
 			if (testException != null) {
 				testException.printStackTrace();
 			}
-//			fail();
 		}
 	}
 
+	/**
+	 * Gets the bin test dir.
+	 *
+	 * @return the bin test dir
+	 */
 	public static String getBinTestDir() {
 		return "bin";
 	}
 
 	static long time;
 
+	/** The test failed. */
 	public static boolean testFailed = false;
 
 	private static Throwable testException = null;

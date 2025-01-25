@@ -185,6 +185,11 @@ public class MethodActivator extends Activator {
 		}
 	}
 
+	@Override
+	public String toString() {
+		return super.toString() + " Method(" + getMethod() + ")";
+	}
+
 	/**
 	 * Executes the behavior on the given list of agents in parallel with arguments.
 	 *

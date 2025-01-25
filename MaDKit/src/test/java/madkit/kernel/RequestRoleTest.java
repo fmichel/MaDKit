@@ -19,7 +19,7 @@ import madkit.agr.SystemRoles;
  * 
  */
 
-public class RequestRoleTest extends JunitMadkit {
+public class RequestRoleTest extends MadkitUnitTestCase {
 
 	final Gatekeeper alwaysDeny = new Gatekeeper() {
 		@Override

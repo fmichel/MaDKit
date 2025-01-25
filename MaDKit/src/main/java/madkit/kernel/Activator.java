@@ -44,13 +44,12 @@ import madkit.simulation.scheduler.MethodActivator;
 import madkit.simulation.scheduler.SimuTimer;
 
 /**
- * This class defines a tool for scheduling mechanism. An activator is
- * configured according to a community, a group and a role.
+ * This class defines a tool for scheduling mechanism. An activator is configured
+ * according to a community, a group and a role.
  * <p>
- * Subclasses should override {@link #execute(Object...)} for defining how a
- * sequential execution of a list of agents take place. By default, this list
- * corresponds to all the agents having the group and role defined in the
- * activator.
+ * Subclasses should override {@link #execute(Object...)} for defining how a sequential
+ * execution of a list of agents take place. By default, this list corresponds to all the
+ * agents having the group and role defined in the activator.
  *
  * @since MaDKit 2.0
  * @see Scheduler
@@ -64,8 +63,8 @@ public abstract class Activator extends Overlooker implements Comparable<Activat
 	private Scheduler<?> scheduler;
 
 	/**
-	 * Builds a new Activator on the given CGR location of the artificial society.
-	 * Once created, it has to be added by a {@link Scheduler} agent using the
+	 * Builds a new Activator on the given CGR location of the artificial society. Once
+	 * created, it has to be added by a {@link Scheduler} agent using the
 	 * {@link Scheduler#addActivator(Activator)}.
 	 *
 	 * @param community the name of the community where the Activator will operate
@@ -77,12 +76,11 @@ public abstract class Activator extends Overlooker implements Comparable<Activat
 	}
 
 	/**
-	 * Builds a new Activator on the given CGR location of the artificial society,
-	 * without specifying the community. This constructor is used to simplify
-	 * declaration when used with the default implementation of a simulation engine
-	 * provided in the madkit.simulation package. Once created, it has to be added
-	 * by a {@link Scheduler} agent using the
-	 * {@link Scheduler#addActivator(Activator)}.
+	 * Builds a new Activator on the given CGR location of the artificial society, without
+	 * specifying the community. This constructor is used to simplify declaration when used
+	 * with the default implementation of a simulation engine provided in the
+	 * madkit.simulation package. Once created, it has to be added by a {@link Scheduler}
+	 * agent using the {@link Scheduler#addActivator(Activator)}.
 	 *
 	 * @param group the name of the group within the community
 	 * @param role  the role assigned to the Activator within the group
@@ -92,8 +90,8 @@ public abstract class Activator extends Overlooker implements Comparable<Activat
 	}
 
 	/**
-	 * Implementing the {@link Comparable} interface for sorting activators
-	 * according to their priority.
+	 * Implementing the {@link Comparable} interface for sorting activators according to their
+	 * priority.
 	 */
 	@Override
 	public int compareTo(Activator o) {
@@ -101,33 +99,23 @@ public abstract class Activator extends Overlooker implements Comparable<Activat
 	}
 
 	/**
-	 * Two activators are equals if they have the same community, group, role and
-	 * priority.
+	 * Two activators are equals if they have the same community, group, role and priority.
 	 */
-	@Override
-	public boolean equals(Object obj) {
-		if (obj instanceof Activator a) {
-			return a.getCommunity().equals(getCommunity()) && a.getGroup().equals(getGroup())
-					&& a.getRole().equals(getRole()) && a.getPriority() == getPriority();
-		}
-		return false;
-	}
+//	@Override
+//	public boolean equals(Object obj) {
+//		if (obj instanceof Activator a) {
+//			return a.getCommunity().equals(getCommunity()) && a.getGroup().equals(getGroup())
+//					&& a.getRole().equals(getRole()) && a.getPriority() == getPriority();
+//		}
+//		return false;
+//	}
 
 	/**
-	 * The hash code of an activator is based on its community, group and role.
-	 */
-	@Override
-	public int hashCode() {
-		return (getCommunity() + getGroup() + getRole()).hashCode();
-	}
-
-	/**
-	 * The priority of this activator when conflicting with another Activator. A
-	 * lesser priority means that the activator will be triggered first. Default
-	 * priority is 0.
+	 * The priority of this activator when conflicting with another Activator. A lesser
+	 * priority means that the activator will be triggered first. Default priority is 0.
 	 *
-	 * By default, when two activators have the same priority, the order of
-	 * activation is not guaranteed.
+	 * By default, when two activators have the same priority, the order of activation is not
+	 * guaranteed.
 	 *
 	 * @return the priority of this activator.
 	 */
@@ -157,8 +145,8 @@ public abstract class Activator extends Overlooker implements Comparable<Activat
 
 	/**
 	 * Trigger the execution of this activator. For instance, subclasses can use the
-	 * {@link #getAgents()} to make all the agents do something. This method should
-	 * be called by the scheduler.
+	 * {@link #getAgents()} to make all the agents do something. This method should be called
+	 * by the scheduler.
 	 * 
 	 * @param args arguments that could be passed by the scheduler
 	 * @see Scheduler#doSimulationStep()
@@ -169,8 +157,8 @@ public abstract class Activator extends Overlooker implements Comparable<Activat
 	 * Executes a specific method on a targeted agent.
 	 *
 	 * @param agent        the targeted agent.
-	 * @param behaviorName the name of a method belonging to the agents (even
-	 *                     private or inherited ones)
+	 * @param behaviorName the name of a method belonging to the agents (even private or
+	 *                     inherited ones)
 	 * @param args         parameters to be passed for the invocation
 	 */
 	public static void executeBehaviorOf(Agent agent, String behaviorName, Object... args) {
@@ -185,7 +173,7 @@ public abstract class Activator extends Overlooker implements Comparable<Activat
 
 	@Override
 	public String toString() {
-		return "A(" + getPriority() + ") " + super.toString();
+		return super.toString() + " Priority(" + getPriority() + ")";
 	}
 
 	/**

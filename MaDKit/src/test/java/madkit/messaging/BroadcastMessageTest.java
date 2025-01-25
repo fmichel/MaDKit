@@ -12,7 +12,7 @@ import java.util.Collections;
 import org.testng.annotations.Test;
 
 import madkit.kernel.Agent;
-import madkit.kernel.JunitMadkit;
+import madkit.kernel.MadkitUnitTestCase;
 import madkit.kernel.Message;
 import madkit.messages.StringMessage;
 import madkit.test.agents.RequestRoleAgent;
@@ -24,7 +24,7 @@ import madkit.test.agents.RequestRoleAgent;
  * 
  */
 
-public class BroadcastMessageTest extends JunitMadkit {
+public class BroadcastMessageTest extends MadkitUnitTestCase {
 
 	@Test
 	public void returnSuccess() {

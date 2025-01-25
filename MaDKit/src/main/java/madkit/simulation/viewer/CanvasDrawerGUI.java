@@ -38,6 +38,11 @@ package madkit.simulation.viewer;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.ColorPicker;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import madkit.simulation.Viewer;
 
@@ -51,7 +56,7 @@ public class CanvasDrawerGUI extends ViewerDefaultGUI {
 	private Canvas canvas;
 
 	/** The background. */
-	private Color background = Color.BLACK;
+	private Color background = Color.WHITE;
 
 	/**
 	 * Creates a new CanvasDrawerGUI with the specified viewer.
@@ -60,6 +65,28 @@ public class CanvasDrawerGUI extends ViewerDefaultGUI {
 	 */
 	public CanvasDrawerGUI(Viewer viewer) {
 		super(viewer);
+	}
+
+	/**
+	 * Creates the top node of the GUI. It adds a color picker to the menu bar to allow the
+	 * user to select the background color of the canvas.
+	 */
+	@Override
+	protected Node createTopNode() {
+		VBox vb = (VBox) super.createTopNode();
+		MenuBar mb = (MenuBar) vb.getChildren().getFirst();
+		Menu menu = mb.getMenus().getFirst();
+		ColorPicker colorPicker = new ColorPicker();
+		colorPicker.setValue(background);
+		colorPicker.setOnAction(_ -> {
+			Color newColor = colorPicker.getValue();
+			setBackground(newColor);
+			clearCanvas();
+		});
+		MenuItem colorSelection = new MenuItem("Select Background Color");
+		colorSelection.setGraphic(colorPicker);
+		menu.getItems().add(colorSelection);
+		return vb;
 	}
 
 	/**

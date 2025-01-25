@@ -5,9 +5,9 @@ import static org.assertj.core.api.Assertions.fail;
 
 import org.testng.annotations.Test;
 
-import madkit.kernel.JunitMadkit;
+import madkit.kernel.MadkitUnitTestCase;
 
-public class SimuAgentTest extends JunitMadkit {
+public class SimuAgentTest extends MadkitUnitTestCase {
 
 	@Test
 	public void givenSimuAgent_whenNotLaunchedByLauncher_thenThrowIllegalStateException() {

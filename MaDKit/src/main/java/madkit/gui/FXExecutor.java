@@ -91,7 +91,12 @@ public class FXExecutor {
 				Thread.currentThread().interrupt();
 				throw new AgentInterruptedException();
 			} catch (Exception e) {
-				logger.log(Level.WARNING, "FX problem...", e);
+				logger.log(Level.SEVERE, "FXExecutor exception running ");
+				if (e.getCause() != null) {
+					throw new RuntimeException(e.getCause());
+				} else {
+					throw new RuntimeException(e);
+				}
 			}
 		} else {
 			logNotStartedException();

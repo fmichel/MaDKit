@@ -41,7 +41,7 @@ import java.util.NoSuchElementException;
 
 import org.testng.annotations.Test;
 
-import madkit.kernel.JunitMadkit;
+import madkit.kernel.MadkitUnitTestCase;
 import madkit.kernel.Watcher;
 import madkit.test.agents.SimulatedAgent;
 import madkit.test.agents.SimulatedAgentBis;
@@ -49,7 +49,7 @@ import madkit.test.agents.SimulatedAgentBis;
 /**
  * The Class PropertyProbeTest.
  */
-public class PropertyProbeTest extends JunitMadkit {
+public class PropertyProbeTest extends MadkitUnitTestCase {
 
 	/**
 	 * Primitive type probing.

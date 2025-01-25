@@ -19,7 +19,7 @@ import madkit.test.agents.CGRAgent;
  * 
  */
 
-public class LeaveGroupTest extends JunitMadkit {
+public class LeaveGroupTest extends MadkitUnitTestCase {
 
 	@Test
 	public void nullArgs() {

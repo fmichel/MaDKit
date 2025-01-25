@@ -36,6 +36,7 @@
 package madkit.bees;
 
 import madkit.gui.SliderProperty;
+import madkit.random.RandomizedInteger;
 import madkit.simulation.environment.Environment2D;
 
 /**
@@ -58,8 +59,12 @@ public class BeeEnvironment extends Environment2D {
 	@SliderProperty(category = "Bees", min = 0, max = 20, scrollPrecision = 1)
 	private double queenVelocity = 13;
 
-	@SliderProperty(category = "Bees", min = 0, max = 20, scrollPrecision = 1)
+	@SliderProperty(category = "Bees", min = 0, max = 20, scrollPrecision = 0.5)
 	private double beeVelocity = 19;
+
+	/** The margins used with respect to the environment size. */
+	@RandomizedInteger(min = 10, max = 20)
+	static int margins = 15;
 
 	/**
 	 * Constructs a BeeEnvironment with default dimensions (1600x1000).

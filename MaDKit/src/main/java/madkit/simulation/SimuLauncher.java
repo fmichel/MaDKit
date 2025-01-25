@@ -123,9 +123,7 @@ public abstract class SimuLauncher extends Watcher {
 			Field f = Probe.findFieldOn(SimuAgent.class, "simuLauncher");
 			f.setAccessible(true);// NOSONAR
 			f.set(this, this);// NOSONAR
-			f.setAccessible(false);
-		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-			e.printStackTrace();
+		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException _) {
 		}
 	}
 
@@ -163,6 +161,7 @@ public abstract class SimuLauncher extends Watcher {
 		onLaunchSimulatedAgents();
 		onLaunchViewers();
 		onSimulationStart();
+		getViewers().forEach(v -> ((Viewer) v).display());
 		if (getKernelConfig().getBoolean("start")) {
 			startSimulation();
 		}
@@ -230,8 +229,28 @@ public abstract class SimuLauncher extends Watcher {
 	}
 
 	/**
-	 * Launches the simulation model agent and logs the event.
 	 *
+	 * Called before the simulation starts. By default, it calls the
+	 * {@link Scheduler#onSimulationStart()}, {@link SimuModel#onSimulationStart()},
+	 * {@link SimuEnvironment#onSimulationStart()}, and {@link SimuAgent#onSimulationStart()}
+	 * methods for each viewer.
+	 * <p>
+	 * This method can be overridden by the user to define fine tuning of the simulation
+	 * initialization.
+	 */
+	@Override
+	public void onSimulationStart() {
+		getScheduler().onSimulationStart();
+		getModel().onSimulationStart();
+		getEnvironment().onSimulationStart();
+		for (SimuAgent viewer : getViewers()) {
+			viewer.onSimulationStart();
+		}
+	}
+
+	/**
+	 * Returns the seed used to create the PRNG.
+	 * 
 	 * @param <M> the type of the model
 	 * @return the model agent for this simulation
 	 */
@@ -281,19 +300,6 @@ public abstract class SimuLauncher extends Watcher {
 	 * Launches the simulation agents.
 	 */
 	protected abstract void onLaunchSimulatedAgents();
-
-	/**
-	 * On simulation start.
-	 */
-	@Override
-	public void onSimulationStart() {
-		getModel().onSimulationStart();
-		getEnvironment().onSimulationStart();
-		for (SimuAgent viewer : getViewers()) {
-			viewer.onSimulationStart();
-		}
-		getScheduler().onSimulationStart();
-	}
 
 	/**
 	 * Start simulation.
@@ -364,7 +370,7 @@ public abstract class SimuLauncher extends Watcher {
 	 * @param agentClass
 	 * @return the specified class or the one of fallbackmode
 	 */
-	private final String getEngineClass(ENGINE agentClass) {
+	private String getEngineClass(ENGINE agentClass) {
 		String engineRole = agentClass.name().toLowerCase();
 		String targetClass = getKernelConfig().getString(engineRole);
 		if (targetClass == null) {
@@ -376,13 +382,13 @@ public abstract class SimuLauncher extends Watcher {
 			try {
 				targetClass = getValueFromName(agentClass, annotation);
 			} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-				e.printStackTrace();
+				getLogger().severe(() -> "Cannot find or instantiate engine class: " + agentClass);
 			}
 		}
 		return targetClass;
 	}
 
-	private static final String getValueFromName(ENGINE agent, EngineAgents annotation)
+	private static String getValueFromName(ENGINE agent, EngineAgents annotation)
 			throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, SecurityException {
 		return ((Class<?>) annotation.getClass().getMethod(agent.name().toLowerCase()).invoke(annotation)).getName();
 	}

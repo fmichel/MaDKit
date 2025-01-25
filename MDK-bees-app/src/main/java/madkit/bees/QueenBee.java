@@ -36,8 +36,10 @@
 package madkit.bees;
 
 import java.awt.Point;
+import java.util.List;
 import java.util.logging.Level;
 
+import madkit.kernel.AgentAddress;
 import madkit.messages.ObjectMessage;
 
 /**
@@ -50,13 +52,15 @@ public class QueenBee extends Bee {
 	static int border = 20;
 
 	/**
-	 * On activation.
+	 * On activation, the queen plays the role queen and notifies the followers that she is
+	 * here.
 	 */
 	@Override
 	protected void onActivation() {
 		getLogger().setLevel(Level.ALL);
 		playRole(BeeOrganization.QUEEN);
 		super.onActivation();
+		playRole(BeeOrganization.QUEEN);
 		notifyFollowers();
 	}
 
@@ -68,11 +72,11 @@ public class QueenBee extends Bee {
 		super.buzz();
 		// check to see if the queen hits the edge
 		Point location = getData().getCurrentPosition();
-		if (location.x < border || location.x > (getEnvironment().getWidth() - border)) {
+		if (location.x < BeeEnvironment.margins || location.x > (getEnvironment().getWidth() - BeeEnvironment.margins)) {
 			xVelocity = -xVelocity;
 			location.x += (xVelocity);
 		}
-		if (location.y < border || location.y > (getEnvironment().getHeight() - border)) {
+		if (location.y < BeeEnvironment.margins || location.y > (getEnvironment().getHeight() - BeeEnvironment.margins)) {
 			yVelocity = -yVelocity;
 			location.y += (yVelocity);
 		}
@@ -114,8 +118,8 @@ public class QueenBee extends Bee {
 	 * Notify followers that the queen is either dead or a new one.
 	 */
 	private void notifyFollowers() {
-		broadcast(new ObjectMessage<>(getData()),
-				getAgentsWithRole(getCommunity(), getModelGroup(), BeeOrganization.FOLLOWER));
+		List<AgentAddress> followers = getAgentsWithRole(getCommunity(), getModelGroup(), BeeOrganization.FOLLOWER);
+		broadcast(new ObjectMessage<>(getData()), followers);
 	}
 
 }

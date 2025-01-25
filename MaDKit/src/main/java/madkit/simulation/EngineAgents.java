@@ -48,18 +48,18 @@ import madkit.simulation.scheduler.TickBasedScheduler;
  * 
  * Annotation to specify the engine agents of a simulation.
  * <p>
- * The annotation can be used on a class that extends {@link SimuLauncher}. The
- * annotation specifies the scheduler, environment, model, and viewers of the
- * simulation. The annotation has the following attributes:
+ * The annotation can be used on a class that extends {@link SimuLauncher}. The annotation
+ * specifies the scheduler, environment, model, and viewers of the simulation. The
+ * annotation has the following attributes:
  * <ul>
- * <li>{@code scheduler} (optional): the scheduler class of the simulation. The
- * default value is {@link TickBasedScheduler}.
- * <li>{@code environment} (optional): the environment class of the simulation.
- * The default value is {@link SimuEnvironment}.
- * <li>{@code model} (optional): the model class of the simulation. The default
- * value is {@link SimuModel}.
- * <li>{@code viewers} (optional): the viewer classes of the simulation. The
- * default value is an empty array.
+ * <li>{@code scheduler} (optional): the scheduler class of the simulation. The default
+ * value is {@link TickBasedScheduler}.
+ * <li>{@code environment} (optional): the environment class of the simulation. The
+ * default value is {@link SimuEnvironment}.
+ * <li>{@code model} (optional): the model class of the simulation. The default value is
+ * {@link SimuModel}.
+ * <li>{@code viewers} (optional): the viewer classes of the simulation. The default value
+ * is an empty array.
  * </ul>
  * 
  * 

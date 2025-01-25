@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
-import madkit.kernel.JunitMadkit;
+import madkit.kernel.MadkitUnitTestCase;
 import madkit.messages.IntegerMessage;
 import madkit.messages.Messages;
 import madkit.messages.StringMessage;
@@ -15,7 +15,7 @@ import madkit.test.agents.CGRAgent;
  *
  *
  */
-public class MessagesTest extends JunitMadkit {
+public class MessagesTest extends MadkitUnitTestCase {
 
 	@Test
 	public void groupingBy() {

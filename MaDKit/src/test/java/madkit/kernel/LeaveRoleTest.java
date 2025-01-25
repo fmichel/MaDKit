@@ -18,7 +18,7 @@ import madkit.agr.SystemRoles;
  * 
  */
 
-public class LeaveRoleTest extends JunitMadkit {
+public class LeaveRoleTest extends MadkitUnitTestCase {
 
 	@Test
 	public void returnSuccess() {

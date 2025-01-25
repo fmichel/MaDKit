@@ -35,72 +35,65 @@
  *******************************************************************************/
 package madkit.gui;
 
-import java.util.HashMap;
-import java.util.Map;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+import static org.testng.Assert.assertTrue;
 
-import org.controlsfx.control.PropertySheet.Item;
-import org.controlsfx.property.editor.AbstractPropertyEditor;
-import org.controlsfx.property.editor.PropertyEditor;
+import java.awt.GraphicsEnvironment;
 
-import javafx.beans.value.ObservableValue;
-import javafx.scene.control.Slider;
-import javafx.scene.control.Tooltip;
-import madkit.kernel.Madkit;
+import org.testng.SkipException;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+import javafx.application.Platform;
+import madkit.kernel.MadkitUnitTestCase;
 
 /**
- * A property editor for editing double values using a {@link Slider}.
- * 
+ * The Class FXExecutorTest.
  */
-public class SliderEditor extends AbstractPropertyEditor<Double, Slider> implements PropertyEditor<Double> {
+public class FXExecutorTest extends MadkitUnitTestCase {
 
-	/**
-	 * A map of sliders for each property name
-	 */
-	final static Map<String, Slider> sliders = new HashMap<>();
-
-	/** The tooltip. */
-	Tooltip tooltip = new Tooltip();
-
-	/**
-	 * Constructs a new SliderEditor for the given item.
-	 * 
-	 * @param item the item to edit
-	 */
-	public SliderEditor(Item item) {
-		super(item, sliders.get(item.getName()));
-		getEditor().setTooltip(tooltip);
-		getEditor().valueProperty().addListener((_, _, newValue) -> {
-			setValue(newValue.doubleValue());
-			tooltip.setText("" + newValue);
-		});
-		try {
-			getEditor().setValue((double) item.getValue());
-		} catch (ClassCastException e) {
-			Madkit.MDK_LOGGER.severe("****************** " + SliderProperty.class
-					+ " only works on double! \nPlease change " + item.getName() + " type to double in your class");
-			e.printStackTrace();
+	@BeforeMethod
+	protected void checkEnvironment() {
+		if (GraphicsEnvironment.isHeadless()) {
+			throw new SkipException("Skipping tests because the environment is headless");
 		}
 	}
 
-	/**
-	 * Gets the observable value.
-	 *
-	 * @return the observable value
-	 */
-	@Override
-	protected ObservableValue<Double> getObservableValue() {
-		return getEditor().valueProperty().asObject();
+	@AfterClass
+	public void tearDown() {
+		Platform.exit();
 	}
 
-	/**
-	 * Sets the value.
-	 *
-	 * @param value the new value
-	 */
-	@Override
-	public void setValue(Double value) {
-		getProperty().setValue(value);
-		tooltip.setText("" + value);
+	@Test
+	public void testStartFX() {
+		assertTrue(FXExecutor.isStarted());
+	}
+
+	@Test
+	public void testExceptionFX() {
+		try {
+			FXExecutor.runLater(() -> {
+				throw new NullPointerException();
+			});
+		} catch (RuntimeException e) {
+			assertThat(e).isExactlyInstanceOf(RuntimeException.class)
+					.hasCauseExactlyInstanceOf(NullPointerException.class);
+		}
+	}
+
+	@Test
+	public void testRunAndWaitExceptionFX() {
+		try {
+			FXExecutor.runAndWait(() -> {
+				throw new NullPointerException();
+			});
+			fail();
+		} catch (RuntimeException e) {
+			assertThat(e).isExactlyInstanceOf(RuntimeException.class)
+					.hasCauseExactlyInstanceOf(NullPointerException.class);
+		}
 	}
 
 }

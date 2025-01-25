@@ -16,7 +16,7 @@ import madkit.test.agents.ThreadedTestAgent;
  *
  *
  */
-public class LifeCycleTest extends JunitMadkit {
+public class LifeCycleTest extends MadkitUnitTestCase {
 	@Test
 	public void returnCrashOnBugInActivate() {
 		GenericTestAgent a;

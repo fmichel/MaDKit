@@ -38,6 +38,7 @@ package madkit.action;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 
+import madkit.kernel.Madkit;
 import madkit.kernel.MadkitClassLoader;
 
 /**
@@ -53,9 +54,8 @@ public class GlobalAction {
 	}
 
 	/**
-	 * An action that Launches the jconsole tool if available. It is set to
-	 * <code>null</code> if jconsole is unavailable: in environments not containing
-	 * the JDK.
+	 * An action that Launches the jconsole tool if available. It is set to <code>null</code>
+	 * if jconsole is unavailable: in environments not containing the JDK.
 	 */
 	public static final ActionData JCONSOLE;
 
@@ -70,8 +70,8 @@ public class GlobalAction {
 					final String pid = java.lang.management.ManagementFactory.getRuntimeMXBean().getName();
 					try {
 						new ProcessBuilder(jconsolePath, pid.substring(0, pid.indexOf('@'))).start();
-					} catch (IOException e1) {
-						e1.printStackTrace();
+					} catch (IOException e) {
+						Madkit.MDK_LOGGER.severe("Problem with jconsole command: " + e.getMessage());
 					}
 				}
 			};

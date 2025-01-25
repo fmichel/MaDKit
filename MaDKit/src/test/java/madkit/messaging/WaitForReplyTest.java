@@ -44,7 +44,7 @@ import java.util.function.Predicate;
 import org.testng.annotations.Test;
 
 import madkit.kernel.GenericTestAgent;
-import madkit.kernel.JunitMadkit;
+import madkit.kernel.MadkitUnitTestCase;
 import madkit.kernel.Message;
 import madkit.messages.StringMessage;
 import madkit.test.agents.CGRAgent;
@@ -56,7 +56,7 @@ import madkit.test.agents.CGRAgent;
  * 
  */
 @SuppressWarnings("all")
-public class WaitForReplyTest extends JunitMadkit {
+public class WaitForReplyTest extends MadkitUnitTestCase {
 
 	protected Predicate<Message> filter = new Predicate<Message>() {
 		public boolean test(Message t) {

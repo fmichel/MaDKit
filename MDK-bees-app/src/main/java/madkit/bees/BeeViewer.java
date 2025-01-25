@@ -36,6 +36,7 @@
 package madkit.bees;
 
 import java.awt.Point;
+import java.util.List;
 import java.util.Objects;
 
 import org.controlsfx.control.action.ActionUtils;
@@ -44,6 +45,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.paint.Color;
 import madkit.action.AgentMethodAction;
 import madkit.gui.FXExecutor;
 import madkit.gui.UIProperty;
@@ -78,6 +80,14 @@ public class BeeViewer extends Viewer2D {
 		queenProbe = new Probe(getModelGroup(), BeeOrganization.QUEEN);
 		addProbe(queenProbe);
 		super.onActivation();
+		customizeGUI();
+	}
+
+	/**
+	 * Customize the GUI with a black background, a button to launch a queen, a button to kill
+	 * a queen, a label displaying the number of bees.
+	 */
+	private void customizeGUI() {
 		FXExecutor.runLater(() -> {
 			ObservableList<Node> items = getGUI().getToolBar().getItems();
 			items.add(ActionUtils.createButton(new AgentMethodAction(this, "launchAQueen")));
@@ -85,6 +95,7 @@ public class BeeViewer extends Viewer2D {
 			Label label = new Label();
 			label.textProperty().bind(numberOfBees.asString("Number of bees: %d"));
 			items.add(label);
+			getGUI().setBackground(Color.BLACK);
 		});
 	}
 
@@ -105,6 +116,13 @@ public class BeeViewer extends Viewer2D {
 				getGraphics().strokeLine(p.x, p.y, p.x, p.y);
 			}
 		});
+	}
+
+	@Override
+	public void onSimulationStart() {
+		super.onSimulationStart();
+		List<Bee> bees = beeProbe.getAgents();
+		bees.forEach(Bee::randomLocation);
 	}
 
 	/**
@@ -139,6 +157,13 @@ public class BeeViewer extends Viewer2D {
 	 */
 	public void setTrailMode(boolean trailMode) {
 		this.trailMode = trailMode;
+	}
+
+	/** Redefined to benefit from automatic casting. */
+	@SuppressWarnings("unchecked")
+	@Override
+	public BeeEnvironment getEnvironment() {
+		return (BeeEnvironment) super.getEnvironment();
 	}
 
 }

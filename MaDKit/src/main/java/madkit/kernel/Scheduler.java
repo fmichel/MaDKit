@@ -488,15 +488,19 @@ public abstract class Scheduler<T extends SimuTimer<?>> extends SimuAgent {
 	 * {@link Activator#execute(Object...)} method.
 	 *
 	 * @param activator an activator to add to the simulation engine.
+	 * @return <code>true</code> if the activator has been added, <code>false</code> if it was
+	 *         already added
 	 */
-	public void addActivator(Activator activator) {
+	public boolean addActivator(Activator activator) {
 		activator.setScheduler(this);
 		if (getOrganization().addOverlooker(this, activator)) {
 			activators.add(activator);
 			updateActivatorsSchedule();
 			getLogger().fine(() -> activator + " added");
+			return true;
 		} else {
 			getLogger().warning(() -> activator + " already added");
+			return false;
 		}
 	}
 

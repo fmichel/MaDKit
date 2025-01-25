@@ -54,7 +54,7 @@ import madkit.simulation.SimuLauncher;
 public class BeeLauncher extends SimuLauncher {
 
 	@UIProperty
-	private int numberOfStartingFollowers = 100_000;
+	private int numberOfStartingFollowers = 150_000;
 
 	@UIProperty
 	private boolean randomLaunching = true;
@@ -97,7 +97,7 @@ public class BeeLauncher extends SimuLauncher {
 					} else if (queens.size() < 10) {
 						launchQueens(prng().nextInt(1, 2));
 					}
-				} else if (prng().nextDouble() < .4) {
+				} else if (prng().nextDouble() < .6) {
 					if (followers.size() < 200000 || Runtime.getRuntime().freeMemory() > 100000) {
 						launchBees(prng().nextInt(10000, 50000));
 					}

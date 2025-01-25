@@ -16,7 +16,7 @@ import org.testng.annotations.Test;
 import madkit.agr.SystemRoles;
 import madkit.kernel.Agent;
 import madkit.kernel.AgentAddress;
-import madkit.kernel.JunitMadkit;
+import madkit.kernel.MadkitUnitTestCase;
 import madkit.kernel.Message;
 import madkit.test.agents.RequestRoleAgent;
 
@@ -27,7 +27,7 @@ import madkit.test.agents.RequestRoleAgent;
  * 
  */
 
-public class SendWithCGRTest extends JunitMadkit {
+public class SendWithCGRTest extends MadkitUnitTestCase {
 
 	@Test
 	public void returnSuccess() {

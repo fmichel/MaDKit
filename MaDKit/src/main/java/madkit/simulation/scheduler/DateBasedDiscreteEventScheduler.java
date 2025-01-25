@@ -42,10 +42,9 @@ import madkit.kernel.Activator;
 import madkit.kernel.Scheduler;
 
 /**
- * This class defines a scheduler for discrete event simulation. It is based on
- * the {@link DateBasedTimer} class which is used to manage the simulation time.
- * The scheduler uses a priority queue to manage the activation list of the
- * activators.
+ * This class defines a scheduler for discrete event simulation. It is based on the
+ * {@link DateBasedTimer} class which is used to manage the simulation time. The scheduler
+ * uses a priority queue to manage the activation list of the activators.
  */
 public class DateBasedDiscreteEventScheduler extends Scheduler<DateBasedTimer> {
 
@@ -88,17 +87,24 @@ public class DateBasedDiscreteEventScheduler extends Scheduler<DateBasedTimer> {
 		});
 	}
 
+	/**
+	 * Adds an activator to the scheduler. If the activator is a
+	 * {@link DateBasedDiscreteEventActivator} it is also added to the activation list.
+	 */
 	@Override
-	public void addActivator(Activator activator) {
-		super.addActivator(activator);
-		if (activator instanceof DateBasedDiscreteEventActivator dbdea && !getActivationList().contains(activator)) {
-			getActivationList().add(dbdea);
+	public boolean addActivator(Activator activator) {
+		if (super.addActivator(activator)) {
+			if (activator instanceof DateBasedDiscreteEventActivator dbdea && !getActivationList().contains(activator)) {
+				getActivationList().add(dbdea);
+			}
+			return true;
 		}
+		return false;
 	}
 
 	/**
-	 * Should be used when an activator changes its next event date so that the new
-	 * one is earlier. So, this method triggers the reordering of this activator.
+	 * Should be used when an activator changes its next event date so that the new one is
+	 * earlier. So, this method triggers the reordering of this activator.
 	 * 
 	 * @param a
 	 */

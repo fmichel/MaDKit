@@ -66,14 +66,21 @@ public abstract class Bee extends SimuAgent {
 	 */
 	private void initData() {
 		data = new BeeData();
-		Point position = data.getCurrentPosition();
-		int x = prng().nextInt(getEnvironment().getWidth());
-		int y = prng().nextInt(getEnvironment().getHeight());
-		position.setLocation(x, y);
-		data.getPreviousPosition().setLocation(position);
 		int beeMAcceleration = (int) getEnvironment().getBeeAcceleration();
 		xVelocity = randomFromRange(beeMAcceleration);
 		yVelocity = randomFromRange(beeMAcceleration);
+		randomLocation();
+	}
+	
+	/**
+	 * Sets location to a random position.
+	 */
+	public void randomLocation() {
+		Point position = data.getCurrentPosition();
+		int x = prng().nextInt(BeeEnvironment.margins, getEnvironment().getWidth() - BeeEnvironment.margins);
+		int y = prng().nextInt(BeeEnvironment.margins, getEnvironment().getHeight() - BeeEnvironment.margins);
+		position.setLocation(x, y);
+		data.getPreviousPosition().setLocation(position);
 	}
 
 	/**

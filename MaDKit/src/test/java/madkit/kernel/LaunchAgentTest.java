@@ -19,7 +19,7 @@ import madkit.test.agents.ThreadedAgentBlockedInLive;
  * 
  */
 
-public class LaunchAgentTest extends JunitMadkit {
+public class LaunchAgentTest extends MadkitUnitTestCase {
 
 	@Test
 	public void returnSuccessOnLaunchNormalAgent() {

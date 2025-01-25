@@ -37,7 +37,6 @@
 package madkit.simu.template;
 
 import static javafx.scene.paint.Color.BLACK;
-import static javafx.scene.paint.Color.WHITE;
 
 import madkit.kernel.Agent;
 import madkit.simulation.PropertyProbe;
@@ -77,7 +76,6 @@ public class MyViewer extends Viewer2D {
 		addProbe(positionY);
 		// Call the superclass's onActivation method
 		super.onActivation();
-		setBackground(WHITE);
 	}
 
 	/**

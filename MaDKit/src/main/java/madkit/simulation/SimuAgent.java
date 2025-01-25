@@ -1,6 +1,38 @@
-/**
+/*******************************************************************************
+ * MaDKit - Multi-agent systems Development Kit 
  * 
- */
+ * Copyright (c) 1998-2025 Fabien Michel, Olivier Gutknecht, Jacques Ferber...
+ * 
+ * This software is a computer program whose purpose is to
+ * provide a lightweight Java API for developing and simulating 
+ * Multi-Agent Systems (MAS) using an organizational perspective.
+ *
+ * This software is governed by the CeCILL-C license under French law and
+ * abiding by the rules of distribution of free software.You can use,
+ * modify and/ or redistribute the software under the terms of the CeCILL-C
+ * license as circulated by CEA, CNRS and INRIA at the following URL
+ * "http://www.cecill.info".
+ *
+ * As a counterpart to the access to the source code and rights to copy,
+ * modify and redistribute granted by the license, users are provided only
+ * with a limited warranty and the software's author, the holder of the
+ * economic rights, and the successive licensors have only limited
+ * liability.
+ *
+ * In this respect, the user's attention is drawn to the risks associated
+ * with loading, using, modifying and/or developing or reproducing the
+ * software by the user in light of its specific status of free software,
+ * that may mean that it is complicated to manipulate, and that also
+ * therefore means that it is reserved for developers and experienced
+ * professionals having in-depth computer knowledge. Users are therefore
+ * encouraged to load and test the software's suitability as regards their
+ * requirements in conditions enabling the security of their systems and/or
+ * data to be ensured and, more generally, to use and operate it in the
+ * same conditions as regards security.
+ *
+ * The fact that you are presently reading this means that you have had
+ * knowledge of the CeCILL-C license and that you accept its terms.
+ *******************************************************************************/
 package madkit.simulation;
 
 import java.time.Duration;
@@ -43,8 +75,8 @@ public class SimuAgent extends Agent {
 	 * Retrieves the simulation engine associated with this agent.
 	 *
 	 * @return the {@link SimuLauncher} instance.
-	 * @throws IllegalStateException if the agent has not been launched or was not
-	 *                               launched by a {@link SimuAgent}.
+	 * @throws IllegalStateException if the agent has not been launched or was not launched by
+	 *                               a {@link SimuAgent}.
 	 */
 	public SimuLauncher getLauncher() {
 		if (simuLauncher == null) {
@@ -55,19 +87,18 @@ public class SimuAgent extends Agent {
 	}
 
 	/**
-	 * Launches a new agent. If the agent being launched is also a
-	 * {@link SimuAgent}, it will inherit the simulation engine from this agent.
+	 * Launches a new agent. If the agent being launched is also a {@link SimuAgent}, it will
+	 * inherit the simulation engine from this agent.
 	 *
 	 * @param agent   the agent to be launched.
 	 * @param timeout the maximum time to wait for the agent to launch.
-	 * @return the result of the launch operation as a
-	 *         {@link madkit.kernel.Agent.ReturnCode}.
+	 * @return the result of the launch operation as a {@link madkit.kernel.Agent.ReturnCode}.
 	 */
 	@Override
 	public ReturnCode launchAgent(Agent agent, int timeout) {
 		/*
-		 * Any agent launched by an agent linked to a simuLauncher becomes part of this
-		 * engine. The root one being a SimuLauncher itself.
+		 * Any agent launched by an agent linked to a simuLauncher becomes part of this engine.
+		 * The root one being a SimuLauncher itself.
 		 */
 		if (simuLauncher != null && agent instanceof SimuAgent sa) {
 			sa.simuLauncher = simuLauncher;
@@ -153,8 +184,8 @@ public class SimuAgent extends Agent {
 	}
 
 	/**
-	 * Method to be called on simulation startup. This can be overridden by
-	 * subclasses to perform initialization tasks.
+	 * Method to be called on simulation startup. This can be overridden by subclasses to
+	 * perform initialization tasks.
 	 */
 	public void onSimulationStart() {
 		// Override to implement startup behavior
@@ -162,52 +193,96 @@ public class SimuAgent extends Agent {
 
 	/**
 	 * Requests a role within the simulation community.
+	 * <p>
+	 * Deprecated since 6.0.1. It is considered as just overloading the API for no good
+	 * reason. Use {@link #requestRole(String, String, String)} or playRole(String)} instead.
 	 *
 	 * @param group the group within which the role is requested.
 	 * @param role  the role to be requested.
-	 * @return the result of the role request as a
-	 *         {@link madkit.kernel.Agent.ReturnCode}.
+	 * @return the result of the role request as a {@link madkit.kernel.Agent.ReturnCode}.
 	 */
+	@Deprecated(since = "6.0.1", forRemoval = true)
 	public ReturnCode requestSimuRole(String group, String role) {
 		return requestRole(getCommunity(), group, role);
 	}
 
 	/**
-	 * Creates a simulation group with the specified name.
+	 * Plays a role within the model group of the simulation.
+	 * <p>
+	 * This method is equivalent to calling
+	 * {@code requestRole(getCommunity(), getModelGroup(), role)}.
+	 * </p>
+	 * It is provided as a convenience method for agents that need to play roles within the
+	 * simulation model.
+	 *
+	 * @param role the role
+	 * @return the return code
+	 */
+	public ReturnCode playRole(String role) {
+		return requestRole(getCommunity(), getModelGroup(), role);
+	}
+
+	/**
+	 * Creates a simulation group with the specified name in the simulation community.
+	 * <p>
+	 * Deprecated since 6.0.1. It is considered as just overloading the API for no good
+	 * reason. Use {@link #createGroup(String, String)} instead.
 	 *
 	 * @param group the name of the group to be created
 	 * @return a ReturnCode indicating the result of the group creation
 	 */
+	@Deprecated(since = "6.0.1", forRemoval = true)
 	public ReturnCode createSimuGroup(String group) {
 		return createGroup(getCommunity(), group);
 	}
 
 	/**
 	 * Leaves a specified role in the given simulation group.
+	 * <p>
+	 * Deprecated since 6.0.1. It is considered as just overloading the API for no good
+	 * reason. Use {@link #leaveRole(String, String, String)} or {@link #leaveRole(String)}
+	 * instead.
 	 *
 	 * @param group the name of the group from which to leave the role
 	 * @param role  the name of the role to be left
 	 * @return a ReturnCode indicating the result of leaving the role
 	 */
+	@Deprecated(since = "6.0.1", forRemoval = true)
 	public ReturnCode leaveSimuRole(String group, String role) {
 		return leaveRole(getCommunity(), group, role);
 	}
 
 	/**
+	 * Leaves a specified role in the model group of the simulation.
+	 * <p>
+	 * This method is equivalent to calling {@code leaveRole(getCommunity(), getModelGroup(),
+	 * role)}.
+	 *
+	 * @param role the name of the role to be left
+	 * @return a ReturnCode indicating the result of leaving the role
+	 */
+	public ReturnCode leaveRole(String role) {
+		return leaveRole(getCommunity(), getModelGroup(), role);
+	}
+
+	/**
 	 * Leaves the specified simulation group.
+	 * <p>
+	 * Deprecated since 6.0.1. It is considered as just overloading the API for no good
+	 * reason. Use {@link #leaveGroup(String, String)} instead.
 	 *
 	 * @param group the name of the group to be left
 	 * @return a ReturnCode indicating the result of leaving the group
 	 */
+	@Deprecated(since = "6.0.1", forRemoval = true)
 	public ReturnCode leaveSimuGroup(String group) {
 		return leaveGroup(getCommunity(), group);
 	}
 
 	/**
-	 * Returns the {@link SimuTimer} of the current simulation. This is
-	 * automatically initialized when the agent is associated with an activator for
-	 * the first time. So it stays <code>null</code> if the agent is not related to
-	 * a simulation
+	 * Returns the {@link SimuTimer} of the current simulation. This is automatically
+	 * initialized when the agent is associated with an activator for the first time. So it
+	 * stays <code>null</code> if the agent is not related to a simulation
 	 *
 	 * @return the simulationTime of the simulation in which the agent participates
 	 * @throws NullPointerException if this agent is not part of a simulation
@@ -218,17 +293,17 @@ public class SimuAgent extends Agent {
 	}
 
 	/**
-	 * Method which is used by discrete-event simulation activators for doing
-	 * fine-grained simulations. By default, this method returns an event which is
-	 * one second ahead of the current date of the simulation. So, this method can
-	 * be overridden to fulfill the simulation requirement
+	 * Method which is used by discrete-event simulation activators for doing fine-grained
+	 * simulations. By default, this method returns an event which is one second ahead of the
+	 * current date of the simulation. So, this method can be overridden to fulfill the
+	 * simulation requirement
 	 *
 	 * @return the date of the next event for this agent.
 	 *
 	 * @see DiscreteEventAgentsActivator
 	 * @see DateBasedDiscreteEventActivator
-	 * @throws ClassCastException if the agent is not part a simulation whose
-	 *                            scheduling is based on a {@link DateBasedTimer}
+	 * @throws ClassCastException if the agent is not part a simulation whose scheduling is
+	 *                            based on a {@link DateBasedTimer}
 	 */
 	public LocalDateTime getNextEventDate() throws ClassCastException {
 		DateBasedTimer time = getSimuTimer();

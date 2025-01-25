@@ -39,7 +39,7 @@ package madkit.gui.menu;
 /**
  * Filter to be used with {@link LaunchAgentsMenu} It tests if a class should be used
  * 
- * @author Fabien Michel
+ *
  * @since MadKit 5.0.0.22
  * @version 0.9
  */

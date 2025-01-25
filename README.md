@@ -1,4 +1,4 @@
-<h1 align="center">MaDKit: MultiAgent Development Kit </h1>
+<h1 align="center">MaDKit: Multi-agent systems Development Kit</h1>
 &emsp;
 
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.fmichel/madkit.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/io.github.fmichel/madkit)
@@ -7,9 +7,9 @@
 [![Gradle](https://img.shields.io/badge/gradle-8.12+-green.svg)](https://gradle.org/)
 [![License](https://img.shields.io/badge/License-CeCILL--C-green)](http://www.cecill.info/index.en.html)
 
-**MaDKit is a Multiagent-based software written in Java.**
+**Open source Java API for developing and simulating Multi-Agent Systems** ([MAS](https://en.wikipedia.org/wiki/Multi-agent_system))
 
-It is designed as a lightweight Java library for developing distributed applications and simulations using the multiagent paradigm.
+MaDKit is designed as a lightweight Java library for developing distributed applications and simulations using the multiagent paradigm.
 
 ## Features
 

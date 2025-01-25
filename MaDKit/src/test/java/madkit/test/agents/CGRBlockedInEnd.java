@@ -5,7 +5,7 @@ import madkit.test.agents.behaviors.ActivateCGR;
 import madkit.test.agents.behaviors.BlockedEnd;
 
 /**
- * @author Fabien Michel
+ *
  *
  */
 public class CGRBlockedInEnd extends GenericTestAgent implements ActivateCGR, BlockedEnd {

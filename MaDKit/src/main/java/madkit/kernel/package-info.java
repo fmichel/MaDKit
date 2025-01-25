@@ -7,7 +7,7 @@
  * could be used where you need autonomy of execution.
  * 
  * @since MaDKit 1.0
- * @author Fabien Michel, Olivier Gutknecht, Jacques Ferber
+ *, Olivier Gutknecht, Jacques Ferber
  * @version 6.0
  * 
  */

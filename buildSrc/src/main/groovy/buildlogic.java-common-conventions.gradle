@@ -32,4 +32,5 @@ javadoc {
 	options.links("https://controlsfx.github.io/javadoc/11.1.0")
 	options.links("https://commons.apache.org/proper/commons-configuration/apidocs")
     options.addStringOption('Xdoclint:none', '-quiet')
+    options.addBooleanOption('html5', true)
 }

@@ -13,7 +13,7 @@ import madkit.messages.StringMessage;
 import madkit.test.agents.CGRAgent;
 
 /**
- * @author Fabien Michel
+ *
  *
  */
 public class AutomaticCast extends JunitMadkit {

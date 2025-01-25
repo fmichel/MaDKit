@@ -13,7 +13,7 @@ import madkit.test.agents.BugInLiveAndEndAgent;
 import madkit.test.agents.ThreadedTestAgent;
 
 /**
- * @author Fabien Michel
+ *
  *
  */
 public class LifeCycleTest extends JunitMadkit {

@@ -1,3 +1,38 @@
+/*******************************************************************************
+ * MaDKit - Multi-agent systems Development Kit 
+ * 
+ * Copyright (c) 1998-2025 Fabien Michel, Olivier Gutknecht, Jacques Ferber...
+ * 
+ * This software is a computer program whose purpose is to
+ * provide a lightweight Java API for developing and simulating 
+ * Multi-Agent Systems (MAS) using an organizational perspective.
+ *
+ * This software is governed by the CeCILL-C license under French law and
+ * abiding by the rules of distribution of free software.You can use,
+ * modify and/ or redistribute the software under the terms of the CeCILL-C
+ * license as circulated by CEA, CNRS and INRIA at the following URL
+ * "http://www.cecill.info".
+ *
+ * As a counterpart to the access to the source code and rights to copy,
+ * modify and redistribute granted by the license, users are provided only
+ * with a limited warranty and the software's author, the holder of the
+ * economic rights, and the successive licensors have only limited
+ * liability.
+ *
+ * In this respect, the user's attention is drawn to the risks associated
+ * with loading, using, modifying and/or developing or reproducing the
+ * software by the user in light of its specific status of free software,
+ * that may mean that it is complicated to manipulate, and that also
+ * therefore means that it is reserved for developers and experienced
+ * professionals having in-depth computer knowledge. Users are therefore
+ * encouraged to load and test the software's suitability as regards their
+ * requirements in conditions enabling the security of their systems and/or
+ * data to be ensured and, more generally, to use and operate it in the
+ * same conditions as regards security.
+ *
+ * The fact that you are presently reading this means that you have had
+ * knowledge of the CeCILL-C license and that you accept its terms.
+ *******************************************************************************/
 package madkit.kernel;
 
 import static madkit.kernel.Agent.ReturnCode.ALREADY_GROUP;
@@ -19,10 +54,8 @@ import madkit.kernel.Agent.ReturnCode;
 import madkit.simulation.SimuAgent;
 
 /**
- * This class is responsible for managing the organization of the artificial
- * society. It is responsible for creating and removing communities, groups and
- * roles.
- * 
+ * This class is responsible for managing the organization of the artificial society. It
+ * is responsible for creating and removing communities, groups and roles.
  *
  */
 public final class Organization {
@@ -59,6 +92,16 @@ public final class Organization {
 		logger.setUseParentHandlers(false);
 	}
 
+	/**
+	 * Creates the group.
+	 *
+	 * @param creator       the creator
+	 * @param communityName the community name
+	 * @param group         the group
+	 * @param gatekeeper    the gatekeeper
+	 * @param isDistributed the is distributed
+	 * @return the return code
+	 */
 	ReturnCode createGroup(Agent creator, String communityName, String group, Gatekeeper gatekeeper,
 			boolean isDistributed) {
 		Objects.requireNonNull(group, ErrorMessages.G_NULL.toString());
@@ -88,14 +131,25 @@ public final class Organization {
 		return SUCCESS;
 	}
 
+	/**
+	 * Request role.
+	 *
+	 * @param requester  the requester
+	 * @param community  the community
+	 * @param group      the group
+	 * @param role       the role
+	 * @param memberCard the member card
+	 * @return the return code
+	 * @throws CGRNotAvailable the CGR not available
+	 */
 	ReturnCode requestRole(Agent requester, String community, String group, String role, Object memberCard)
 			throws CGRNotAvailable {
 		return getGroup(community, group).requestRole(requester, role, memberCard);
 	}
 
 	/**
-	 * Returns <code>true</code> if the group exists in the organization. A group
-	 * exists if it has at least one agent playing a role in it.
+	 * Returns <code>true</code> if the group exists in the organization. A group exists if it
+	 * has at least one agent playing a role in it.
 	 * 
 	 * @param community the community name
 	 * @param group     the group name
@@ -111,8 +165,8 @@ public final class Organization {
 	}
 
 	/**
-	 * Returns <code>true</code> if the role exists in the organization. A role
-	 * exists if it has at least one agent playing it.
+	 * Returns <code>true</code> if the role exists in the organization. A role exists if it
+	 * has at least one agent playing it.
 	 * 
 	 * @param community the community name
 	 * @param group     the group name
@@ -148,10 +202,18 @@ public final class Organization {
 		return kernel;
 	}
 
+	/**
+	 * Gets the community.
+	 *
+	 * @param community the community
+	 * @return the community
+	 * @throws CGRNotAvailable the CGR not available
+	 */
 	final Community getCommunity(String community) throws CGRNotAvailable {
 		Community c = communities.get(community);
-		if (c == null)
+		if (c == null) {
 			throw new CGRNotAvailable(NOT_COMMUNITY);
+		}
 		return c;
 	}
 
@@ -165,14 +227,15 @@ public final class Organization {
 	 */
 	public Group getGroup(String community, String group) throws CGRNotAvailable {
 		Group g = getCommunity(community).getGroup(group);
-		if (g == null)
+		if (g == null) {
 			throw new CGRNotAvailable(NOT_GROUP);
+		}
 		return g;
 	}
 
 	/**
-	 * Returns <code>true</code> if the community exists in the organization. A
-	 * community exists if it has at least one agent playing a role in a group.
+	 * Returns <code>true</code> if the community exists in the organization. A community
+	 * exists if it has at least one agent playing a role in a group.
 	 * 
 	 * @param community the community name
 	 * @return <code>true</code> if the community exists
@@ -210,14 +273,13 @@ public final class Organization {
 	}
 
 	/**
-	 * Returns a {@link List} containing all other agents having this position in
-	 * the organization. The caller is excluded from the search.
+	 * Returns a {@link List} containing all other agents having this position in the
+	 * organization. The caller is excluded from the search.
 	 *
 	 * @param community the community name
 	 * @param group     the group name
 	 * @param role      the role name
-	 * @return a list of agent addresses corresponding to agents having the given
-	 *         role
+	 * @return a list of agent addresses corresponding to agents having the given role
 	 */
 	public List<AgentAddress> getAgentsWithRole(String community, String group, String role) {
 		try {
@@ -231,6 +293,13 @@ public final class Organization {
 	// //////////////////////// Simulation
 	// /////////////////////////////////////////////////////////////////////////
 
+	/**
+	 * Adds the overlooker.
+	 *
+	 * @param owner the owner
+	 * @param o     the overlooker
+	 * @return true, if successful
+	 */
 	synchronized boolean addOverlooker(SimuAgent owner, Overlooker o) {
 		o.setCommunity(owner.getCommunity());
 		if (registeredOverlookers.add(o)) {

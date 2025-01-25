@@ -8,7 +8,7 @@ import madkit.test.agents.behaviors.ActivateCGR;
 import madkit.test.agents.behaviors.LiveReplier;
 
 /**
- * @author Fabien Michel
+ *
  *
  */
 public class ForEverReplierAgent extends ThreadedTestAgent implements ActivateCGR, LiveReplier {

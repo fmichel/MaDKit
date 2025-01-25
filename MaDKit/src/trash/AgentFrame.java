@@ -61,7 +61,7 @@ import madkit.gui.swing.SwingUtil;
  * The default frame which is used for the agents in the GUI engine of MaDKit.
  * Subclasses could be defined to obtain customized frames.
  * 
- * @author Fabien Michel
+ *
  * @since MaDKit 5.0.0.9
  * @version 0.92
  */

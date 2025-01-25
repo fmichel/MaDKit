@@ -38,7 +38,7 @@ import java.util.logging.Level;
 import madkit.action.KernelAction;
 
 /**
- * @author Fabien Michel
+ *
  * 
  *         since MaDKit 6.0
  */

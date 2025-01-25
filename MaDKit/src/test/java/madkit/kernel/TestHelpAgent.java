@@ -10,7 +10,7 @@ import madkit.simulation.scheduler.DiscreteEventAgentsActivator;
 /**
  * 
  * 
- * @author Fabien Michel
+ *
  *
  */
 public interface TestHelpAgent {

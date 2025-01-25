@@ -1,7 +1,7 @@
 package madkit.test.agents;
 
 /**
- * @author Fabien Michel
+ *
  * @since MaDKit 5.0.0.13
  * @version 0.9
  * 

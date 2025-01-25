@@ -44,7 +44,7 @@ import madkit.kernel.GenericTestAgent;
 import madkit.kernel.Message;
 
 /**
- * @author Fabien Michel
+ *
  * 
  * @since 6.0
  */

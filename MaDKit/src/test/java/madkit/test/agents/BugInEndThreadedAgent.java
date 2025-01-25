@@ -76,7 +76,7 @@ package madkit.test.agents;
 import madkit.test.agents.behaviors.EndBug;
 
 /**
- * @author Fabien Michel
+ *
  *
  */
 public class BugInEndThreadedAgent extends ThreadedTestAgent implements EndBug {

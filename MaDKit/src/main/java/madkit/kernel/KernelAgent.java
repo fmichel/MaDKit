@@ -1,31 +1,33 @@
 /*******************************************************************************
- * Copyright (c) 1997, 2021, MaDKit Team
- *
+ * MaDKit - Multi-agent systems Development Kit 
+ * 
+ * Copyright (c) 1998-2025 Fabien Michel, Olivier Gutknecht, Jacques Ferber...
+ * 
  * This software is a computer program whose purpose is to
  * provide a lightweight Java API for developing and simulating 
  * Multi-Agent Systems (MAS) using an organizational perspective.
  *
  * This software is governed by the CeCILL-C license under French law and
- * abiding by the rules of distribution of free software.  You can  use,
+ * abiding by the rules of distribution of free software.You can use,
  * modify and/ or redistribute the software under the terms of the CeCILL-C
  * license as circulated by CEA, CNRS and INRIA at the following URL
  * "http://www.cecill.info".
  *
- * As a counterpart to the access to the source code and  rights to copy,
+ * As a counterpart to the access to the source code and rights to copy,
  * modify and redistribute granted by the license, users are provided only
- * with a limited warranty  and the software's author,  the holder of the
- * economic rights,  and the successive licensors  have only  limited
+ * with a limited warranty and the software's author, the holder of the
+ * economic rights, and the successive licensors have only limited
  * liability.
  *
  * In this respect, the user's attention is drawn to the risks associated
- * with loading,  using,  modifying and/or developing or reproducing the
+ * with loading, using, modifying and/or developing or reproducing the
  * software by the user in light of its specific status of free software,
- * that may mean  that it is complicated to manipulate,  and  that  also
- * therefore means  that it is reserved for developers  and  experienced
+ * that may mean that it is complicated to manipulate, and that also
+ * therefore means that it is reserved for developers and experienced
  * professionals having in-depth computer knowledge. Users are therefore
  * encouraged to load and test the software's suitability as regards their
  * requirements in conditions enabling the security of their systems and/or
- * data to be ensured and,  more generally, to use and operate it in the
+ * data to be ensured and, more generally, to use and operate it in the
  * same conditions as regards security.
  *
  * The fact that you are presently reading this means that you have had
@@ -45,6 +47,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -53,7 +56,6 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -75,17 +77,15 @@ import madkit.messages.KernelMessage;
 import madkit.random.Randomness;
 
 /**
- * 
- * 
- * @author Fabien Michel
  * @since MaDKit 6.0
- * @version 1.0
  *
  */
 class KernelAgent extends Agent implements DaemonAgent {
 
+	/** The kernel address. */
 	final KernelAddress kernelAddress;
 
+	/** The Constant deadKernel. */
 	static final DeadKernel deadKernel = new DeadKernel();
 
 	private AgentAddress netAgent;
@@ -129,6 +129,9 @@ class KernelAgent extends Agent implements DaemonAgent {
 		kernerls.add(this);
 	}
 
+	/**
+	 * Instantiates a new kernel agent.
+	 */
 	KernelAgent() {// for alternative kernels
 		kernelAddress = null;
 		agentExecutors = null;
@@ -138,93 +141,76 @@ class KernelAgent extends Agent implements DaemonAgent {
 		threadedAgents = null;
 	}
 
+	/**
+	 * Gets the agent executor.
+	 *
+	 * @param a the a
+	 * @return the agent executor
+	 */
 	Executor getAgentExecutor(Agent a) {
 		return agentExecutors.getAgentExecutor(a);
 	}
 
 	/**
-	 * Starts the JavaFX application if it is not already started and not in
-	 * headless mode.
-	 * 
-	 * @param level the level at which to log
+	 * On activation.
 	 */
-//	public static synchronized void startFX(Level level) {
-//		if (!(isStarted || headlessMode)) {
-//			FX_ROOT_LOGGER.setUseParentHandlers(false);
-//			ConsoleHandler ch = new ConsoleHandler();
-//			FX_ROOT_LOGGER.addHandler(ch);
-//			ch.setLevel(Level.ALL);
-//			FX_ROOT_LOGGER.setLevel(level);
-//			Platform.setImplicitExit(false);
-//			CountDownLatch latch = new CountDownLatch(1);
-//			Platform.startup(() -> {
-//				isStarted = true;
-//				latch.countDown();
-//				FX_ROOT_LOGGER.log(Level.INFO, () -> "FX Platform Started!");
-//			});
-//			try {
-//				latch.await();
-//			} catch (InterruptedException e) {
-//				FX_ROOT_LOGGER.log(Level.WARNING, "FX start interrupted!", e);
-//				Thread.currentThread().interrupt();
-//			}
-//		}
-//	}
-
 	@Override
-		protected void onActivation() {
+	protected void onActivation() {
 //			getLogger().setLevel(Level.ALL);
-			if (GraphicsEnvironment.isHeadless()) {
-				getKernelConfig().setProperty(MDKCommandLine.HEADLESS_MODE, true);
-			}
-			onCreateRandomGenerator();
-			FXInstance.setHeadlessMode(getKernelConfig().getBoolean(MDKCommandLine.HEADLESS_MODE));
-			FXInstance.startFX(getLogger());
-			createGroup(LocalCommunity.NAME, Groups.SYSTEM, false, (_, _, _) -> {
-				return false;
-			});
-			createGroup(LocalCommunity.NAME, "kernels", true);
-	
-	//		// building the network group
-	//		createGroup(LocalCommunity.NAME, Groups.NETWORK, false);
-	//		requestRole(LocalCommunity.NAME, Groups.NETWORK, Roles.KERNEL, null);
-	//		requestRole(LocalCommunity.NAME, Groups.NETWORK, Roles.UPDATER, null);
-	//		requestRole(LocalCommunity.NAME, Groups.NETWORK, Roles.EMMITER, null);
-	
-			launchConfigAgents();
-	
-			// my AAs cache
-	//		netUpdater = getAgentAddressIn(LocalCommunity.NAME, Groups.NETWORK, Roles.UPDATER);
-	//		netEmmiter = getAgentAddressIn(LocalCommunity.NAME, Groups.NETWORK, Roles.EMMITER);
-	//		kernelRole = getAgentAddressIn(LocalCommunity.NAME, Groups.NETWORK, Roles.KERNEL);
-	
-	//		myThread.setPriority(Thread.NORM_PRIORITY + 1);
-	
-	//		if (loadLocalDemos.isActivated(getMadkitConfig())) {
-	//		    GlobalAction.LOAD_LOCAL_DEMOS.actionPerformed(null);
-	//		}
-	//
-	//		launchGuiManagerAgent();
-	//
-	//		if (console.isActivated(getMadkitConfig())) {
-	//		    launchAgent(new ConsoleAgent());
-	//		}
-	//		launchNetworkAgent();
-			// logCurrentOrganization(logger,Level.FINEST);
-	
-	//		javax.swing.Action b = GlobalAction.JCONSOLE.getSwingAction();
-	//		b.actionPerformed(null);
-	//		Object o = null;		o.toString();
+		if (GraphicsEnvironment.isHeadless()) {
+			getKernelConfig().setProperty(MDKCommandLine.HEADLESS_MODE, true);
 		}
+		onCreateRandomGenerator();
+		FXInstance.setHeadlessMode(getKernelConfig().getBoolean(MDKCommandLine.HEADLESS_MODE));
+		FXInstance.startFX(getLogger());
+		createGroup(LocalCommunity.NAME, Groups.SYSTEM, false, (_, _, _) -> {
+			return false;
+		});
+		createGroup(LocalCommunity.NAME, "kernels", true);
 
-		void onCreateRandomGenerator() {
-			int seedIndex = getKernelConfig().getInt("seed");
-			seedIndex = seedIndex == Integer.MIN_VALUE ? new Random().nextInt(1_000) : seedIndex;
-			long seed = 0xFEDCBA0987654321L + seedIndex;
-			randomGenerator = Randomness.getBestRandomGeneratorFactory().create(seed);
-			getLogger()
-					.fine(" PRNG < " + randomGenerator.getClass().getSimpleName() + " ; seed index ->  " + seedIndex + " >");
-		}
+		// // building the network group
+		// createGroup(LocalCommunity.NAME, Groups.NETWORK, false);
+		// requestRole(LocalCommunity.NAME, Groups.NETWORK, Roles.KERNEL, null);
+		// requestRole(LocalCommunity.NAME, Groups.NETWORK, Roles.UPDATER, null);
+		// requestRole(LocalCommunity.NAME, Groups.NETWORK, Roles.EMMITER, null);
+
+		launchConfigAgents();
+
+		// my AAs cache
+		// netUpdater = getAgentAddressIn(LocalCommunity.NAME, Groups.NETWORK, Roles.UPDATER);
+		// netEmmiter = getAgentAddressIn(LocalCommunity.NAME, Groups.NETWORK, Roles.EMMITER);
+		// kernelRole = getAgentAddressIn(LocalCommunity.NAME, Groups.NETWORK, Roles.KERNEL);
+
+		// myThread.setPriority(Thread.NORM_PRIORITY + 1);
+
+		// if (loadLocalDemos.isActivated(getMadkitConfig())) {
+		// GlobalAction.LOAD_LOCAL_DEMOS.actionPerformed(null);
+		// }
+		//
+		// launchGuiManagerAgent();
+		//
+		// if (console.isActivated(getMadkitConfig())) {
+		// launchAgent(new ConsoleAgent());
+		// }
+		// launchNetworkAgent();
+		// logCurrentOrganization(logger,Level.FINEST);
+
+		// javax.swing.Action b = GlobalAction.JCONSOLE.getSwingAction();
+		// b.actionPerformed(null);
+		// Object o = null; o.toString();
+	}
+
+	/**
+	 * On create random generator.
+	 */
+	void onCreateRandomGenerator() {
+		int seedIndex = getKernelConfig().getInt("seed");
+		seedIndex = seedIndex == Integer.MIN_VALUE ? new SecureRandom().nextInt(1_000) : seedIndex;
+		long seed = 0xFEDCBA0987654321L + seedIndex;
+		randomGenerator = Randomness.getBestRandomGeneratorFactory().create(seed);
+		getLogger()
+				.fine(" PRNG < " + randomGenerator.getClass().getSimpleName() + " ; seed index ->  " + seedIndex + " >");
+	}
 
 	/**
 	 * main loop of the kernel. As a daemon, a timeout is not required
@@ -238,8 +224,9 @@ class KernelAgent extends Agent implements DaemonAgent {
 					&& FXAgentStage.getAgentsWithStage(kernelAddress).isEmpty()) {
 				logIfLoggerNotNull(Level.FINE,
 						() -> "No more activity within kernel " + getKernelAddress() + " -> Quitting");
-				if (Window.getWindows().isEmpty())
+				if (Window.getWindows().isEmpty()) {
 					Platform.exit();
+				}
 				return;
 			}
 		}
@@ -255,30 +242,41 @@ class KernelAgent extends Agent implements DaemonAgent {
 	}
 
 	private void handleMessage(Message message) {
-			if (message instanceof KernelMessage m) {
-				proceedEnumMessage(m);
-	//		} else if (m instanceof HookMessage) {
-	//			handleHookRequest((HookMessage) m);
-	//		} else if (m instanceof RequestRoleSecure) {
-	//			handleRequestRoleSecure((RequestRoleSecure) m);
-			} else {
-				if (message != null)
-					logger.warning(() -> "I received a message that I do not understand. Discarding " + message);
+		if (message instanceof KernelMessage m) {
+			proceedEnumMessage(m);
+			// } else if (m instanceof HookMessage) {
+			// handleHookRequest((HookMessage) m);
+			// } else if (m instanceof RequestRoleSecure) {
+			// handleRequestRoleSecure((RequestRoleSecure) m);
+		} else {
+			if (message != null) {
+				logger.warning(() -> "I received a message that I do not understand. Discarding " + message);
 			}
 		}
+	}
 
+	/**
+	 * On end.
+	 */
 	@Override
 	protected void onEnd() {
 		kernerls.remove(this);
 	}
 
+	/**
+	 * Launch agent.
+	 *
+	 * @param agent          the agent
+	 * @param timeOutSeconds the time out seconds
+	 * @return the return code
+	 */
 	@Override
 	public ReturnCode launchAgent(Agent agent, int timeOutSeconds) {
 		Objects.requireNonNull(agent);
 		if (agent.kernel != null) {
 			throw new IllegalArgumentException(agent + " ALREADY_LAUNCHED");
 		}
-		if (! exitRequested) {
+		if (!exitRequested) {
 			agent.kernel = this;
 			CompletableFuture<ReturnCode> activationPromise = new CompletableFuture<>();
 			agent.startAgentLifeCycle(activationPromise);
@@ -291,11 +289,18 @@ class KernelAgent extends Agent implements DaemonAgent {
 				throw new AgentInterruptedException();
 			} catch (TimeoutException e) {
 				return TIMEOUT;
-			} 
+			}
 		}
 		return AGENT_CRASH;
 	}
 
+	/**
+	 * Kill agent.
+	 *
+	 * @param a       the a
+	 * @param seconds the seconds
+	 * @return the return code
+	 */
 	@Override
 	protected ReturnCode killAgent(Agent a, int seconds) {
 		if (a.isThreaded()) {
@@ -305,7 +310,7 @@ class KernelAgent extends Agent implements DaemonAgent {
 			try {
 				killing.get(seconds, TimeUnit.SECONDS);
 			} catch (InterruptedException | ExecutionException e) {
-				e.printStackTrace();
+				logIfLoggerNotNull(Level.FINE, () -> a + " KILLED");
 			} catch (TimeoutException e) {
 				hardKillAgent(a, 1);
 			}
@@ -315,8 +320,9 @@ class KernelAgent extends Agent implements DaemonAgent {
 
 	private void hardKillAgent(Agent a, int seconds) {
 		Thread t = agentExecutors.getAgentThread(a);
-		if (t == null)
+		if (t == null) {
 			return;
+		}
 		try {
 			tryInterruption(a, seconds, t);
 			if (a.kernel != deadKernel) {
@@ -348,6 +354,11 @@ class KernelAgent extends Agent implements DaemonAgent {
 		}
 	}
 
+	/**
+	 * Gets the kernel config.
+	 *
+	 * @return the kernel config
+	 */
 	@Override
 	public KernelConfig getKernelConfig() {
 		return madkit.getConfig();
@@ -357,6 +368,16 @@ class KernelAgent extends Agent implements DaemonAgent {
 	// //////////////////////// Organization interface
 	// ////////////////////////////////////////////////////////////
 
+	/**
+	 * Creates the group.
+	 *
+	 * @param creator       the creator
+	 * @param community     the community
+	 * @param group         the group
+	 * @param gatekeeper    the gatekeeper
+	 * @param isDistributed the is distributed
+	 * @return the return code
+	 */
 	ReturnCode createGroup(Agent creator, String community, String group, Gatekeeper gatekeeper, boolean isDistributed) {
 		Objects.requireNonNull(group, ErrorMessages.G_NULL.toString());
 		return org.createGroup(creator, community, group, gatekeeper, isDistributed);
@@ -367,7 +388,7 @@ class KernelAgent extends Agent implements DaemonAgent {
 //			if (!organization.addGroup(creator, group, gatekeeper, isDistributed)) {
 //				return ALREADY_GROUP;
 //			}
-////			try {// TODO bof...
+		////			try {// TODO bof...
 ////				if (isDistributed) {
 ////					sendNetworkMessageWithRole(new CGRSynchro(Code.CREATE_GROUP,
 ////							getRole(community, group, madkit.agr.SystemRoles.GROUP_MANAGER_ROLE)
@@ -442,12 +463,22 @@ class KernelAgent extends Agent implements DaemonAgent {
 
 	// /////////////////////////////////////////////////////////////////////////
 	// //////////////////////// Organization access
+	/**
+	 * Gets the organization.
+	 *
+	 * @return the organization
+	 */
 	// /////////////////////////////////////////////////////////////////////////
 	@Override
 	public Organization getOrganization() {
 		return org;
 	}
 
+	/**
+	 * Gets the operating overlookers.
+	 *
+	 * @return the operating overlookers
+	 */
 	Set<Overlooker> getOperatingOverlookers() {
 		return operatingOverlookers;
 	}
@@ -456,6 +487,15 @@ class KernelAgent extends Agent implements DaemonAgent {
 	// //////////////////////// Messaging
 	// /////////////////////////////////////////////////////////////////////////
 
+	/**
+	 * Send message.
+	 *
+	 * @param requester  the requester
+	 * @param receiver   the receiver
+	 * @param message    the message
+	 * @param senderRole the sender role
+	 * @return the return code
+	 */
 	ReturnCode sendMessage(Agent requester, AgentAddress receiver, Message message, String senderRole) {
 		// check that the AA is valid : the targeted agent is still playing the
 		// corresponding role or it was a candidate request
@@ -471,6 +511,15 @@ class KernelAgent extends Agent implements DaemonAgent {
 		}
 	}
 
+	/**
+	 * Broadcast message with role.
+	 *
+	 * @param requester     the requester
+	 * @param receivers     the receivers
+	 * @param messageToSend the message to send
+	 * @param senderRole    the sender role
+	 * @return the return code
+	 */
 	ReturnCode broadcastMessageWithRole(Agent requester, List<AgentAddress> receivers, Message messageToSend,
 			String senderRole) {
 		try {
@@ -495,6 +544,14 @@ class KernelAgent extends Agent implements DaemonAgent {
 		});
 	}
 
+	/**
+	 * Builds the and send message.
+	 *
+	 * @param sender   the sender
+	 * @param receiver the receiver
+	 * @param m        the m
+	 * @return the return code
+	 */
 	ReturnCode buildAndSendMessage(AgentAddress sender, AgentAddress receiver, Message m) {
 		m.setSender(sender);
 		m.setReceiver(receiver);
@@ -514,6 +571,12 @@ class KernelAgent extends Agent implements DaemonAgent {
 		return SUCCESS;
 	}
 
+	/**
+	 * Gets the actual address.
+	 *
+	 * @param receiver the receiver
+	 * @return the actual address
+	 */
 	final AgentAddress getActualAddress(AgentAddress receiver) {
 		Role roleObject = receiver.getRoleObject();
 		if (roleObject != null) {
@@ -525,6 +588,15 @@ class KernelAgent extends Agent implements DaemonAgent {
 		return null;
 	}
 
+	/**
+	 * Gets the sender agent address.
+	 *
+	 * @param sender     the sender
+	 * @param receiver   the receiver
+	 * @param senderRole the sender role
+	 * @return the sender agent address
+	 * @throws CGRNotAvailable the CGR not available
+	 */
 	final AgentAddress getSenderAgentAddress(Agent sender, AgentAddress receiver, String senderRole)
 			throws CGRNotAvailable {
 		AgentAddress senderAA = null;
@@ -536,8 +608,9 @@ class KernelAgent extends Agent implements DaemonAgent {
 			// if still null : this SHOULD be a candidate's request to the manager or an
 			// error
 			if (senderAA == null) {
-				if (targetedRole.getName().equals(SystemRoles.GROUP_MANAGER))
+				if (targetedRole.getName().equals(SystemRoles.GROUP_MANAGER)) {
 					return new CandidateAgentAddress(sender, targetedRole, kernelAddress);
+				}
 				throw new CGRNotAvailable(NOT_IN_GROUP);
 			}
 			return senderAA;
@@ -552,12 +625,14 @@ class KernelAgent extends Agent implements DaemonAgent {
 		} catch (CGRNotAvailable e) {
 			// candidate's request to the manager or it is an error
 			if (senderRole.equals(SystemRoles.GROUP_CANDIDATE)
-					&& targetedRole.getName().equals(SystemRoles.GROUP_MANAGER))
+					&& targetedRole.getName().equals(SystemRoles.GROUP_MANAGER)) {
 				return new CandidateAgentAddress(sender, targetedRole, kernelAddress);
+			}
 		}
 		if (senderAA == null) {// if still null :
-			if (targetedRole.getAgentAddressInGroup(sender) == null)
+			if (targetedRole.getAgentAddressInGroup(sender) == null) {
 				throw new CGRNotAvailable(NOT_IN_GROUP);
+			}
 			throw new CGRNotAvailable(ROLE_NOT_HANDLED);
 		}
 		return senderAA;
@@ -569,8 +644,9 @@ class KernelAgent extends Agent implements DaemonAgent {
 
 	private void launchConfigAgents() {
 		for (String classNameAndOption : madkit.getConfig().getList(String.class, "agents")) {
-			if (classNameAndOption.equals("null"))
+			if (classNameAndOption.equals("null")) {
 				return;
+			}
 			String[] classAndOptions = classNameAndOption.split(",");
 			String className = classAndOptions[0].trim();// TODO should test if these classes exist
 			int number = 1;
@@ -582,8 +658,9 @@ class KernelAgent extends Agent implements DaemonAgent {
 //					ErrorMessages.OPTION_MISUSED.toString() + Option.launchAgents.toString() + " " + agentsTolaunch + " " + e.getClass().getName() + " !!!\n", null);
 				}
 			}
-			if (logger != null)
+			if (logger != null) {
 				logger.finer("Launching " + number + " instance(s) of " + className);
+			}
 			try {
 				Class<?> agentClass = MadkitClassLoader.getLoader().loadClass(className);
 				for (int i = 0; i < number; i++) {
@@ -605,6 +682,11 @@ class KernelAgent extends Agent implements DaemonAgent {
 	// //////////////////////// Internal functioning
 	// /////////////////////////////////////////////////////////////////////////
 
+	/**
+	 * Removes the community.
+	 *
+	 * @param community the community
+	 */
 	void removeCommunity(String community) {
 		org.removeCommunity(community);
 	}
@@ -635,6 +717,9 @@ class KernelAgent extends Agent implements DaemonAgent {
 //		launchAgent(ConsoleAgent.class.getName(), 0);
 //	}
 
+	/**
+	 * Exit.
+	 */
 	void exit() {
 		getLogger().fine(() -> "***** SHUTINGDOWN MADKIT ********\n");
 		exitRequested = true;
@@ -647,11 +732,12 @@ class KernelAgent extends Agent implements DaemonAgent {
 			synchronized (threadedAgents) {
 				threadedAgents.parallelStream().forEach(a -> killAgent(a, 1));
 				garbageDeadThreadedAgents();
-			} 
+			}
 		}
 		kernerls.remove(this);
-		if (kernerls.isEmpty())
+		if (kernerls.isEmpty()) {
 			Platform.exit();
+		}
 	}
 
 	private void copy() {
@@ -662,9 +748,10 @@ class KernelAgent extends Agent implements DaemonAgent {
 		String[] args = getMadkit().getLauncherArgs();
 		Class<?> launcherClass = getMadkit().getOneFileLauncherClass();
 
-		if (logger != null)
+		if (logger != null) {
 			logger.config(() -> "starting new MaDKit session with " + Arrays.deepToString(args));// +
-																																// Arrays.deepToString(getKernelConfiguration().get(String[].class,
+		}
+		// Arrays.deepToString(getKernelConfiguration().get(String[].class,
 		if (externalVM) {
 			try {
 				String command = System.getProperty("java.home") + File.separatorChar + "bin" + File.separatorChar
@@ -699,6 +786,11 @@ class KernelAgent extends Agent implements DaemonAgent {
 		exit();
 	}
 
+	/**
+	 * Gets the prng.
+	 *
+	 * @return the prng
+	 */
 	public RandomGenerator getPRNG() {
 		return randomGenerator;
 	}

@@ -43,7 +43,7 @@ import javax.swing.JMenu;
 /**
  * This class builds a {@link JMenu} containing all the agent classes containing a main method
  * 
- * @author Fabien Michel
+ *
  * @since MaDKit 5.0.1
  * @version 0.9
  */

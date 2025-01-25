@@ -1,3 +1,38 @@
+/*******************************************************************************
+ * MaDKit - Multi-agent systems Development Kit 
+ * 
+ * Copyright (c) 1998-2025 Fabien Michel, Olivier Gutknecht, Jacques Ferber...
+ * 
+ * This software is a computer program whose purpose is to
+ * provide a lightweight Java API for developing and simulating 
+ * Multi-Agent Systems (MAS) using an organizational perspective.
+ *
+ * This software is governed by the CeCILL-C license under French law and
+ * abiding by the rules of distribution of free software.You can use,
+ * modify and/ or redistribute the software under the terms of the CeCILL-C
+ * license as circulated by CEA, CNRS and INRIA at the following URL
+ * "http://www.cecill.info".
+ *
+ * As a counterpart to the access to the source code and rights to copy,
+ * modify and redistribute granted by the license, users are provided only
+ * with a limited warranty and the software's author, the holder of the
+ * economic rights, and the successive licensors have only limited
+ * liability.
+ *
+ * In this respect, the user's attention is drawn to the risks associated
+ * with loading, using, modifying and/or developing or reproducing the
+ * software by the user in light of its specific status of free software,
+ * that may mean that it is complicated to manipulate, and that also
+ * therefore means that it is reserved for developers and experienced
+ * professionals having in-depth computer knowledge. Users are therefore
+ * encouraged to load and test the software's suitability as regards their
+ * requirements in conditions enabling the security of their systems and/or
+ * data to be ensured and, more generally, to use and operate it in the
+ * same conditions as regards security.
+ *
+ * The fact that you are presently reading this means that you have had
+ * knowledge of the CeCILL-C license and that you accept its terms.
+ *******************************************************************************/
 
 package madkit.kernel;
 
@@ -20,21 +55,30 @@ import java.util.stream.Collectors;
 import madkit.kernel.Agent.ReturnCode;
 
 /**
- * Reifying the notion of Role in AGR
+ * Reifying the notion of Role in AGR. A Role is a set of agents playing a specific
+ * function in a group.
+ * <p>
+ * Especially, a role maintains a list of agents playing it, and the corresponding agent
+ * addresses.
  * 
- * @author Fabien Michel
- * @since MaDKit 3.0
- * @version 5.0
+ * @version 6.0.1
  */
 public class Role implements Serializable {
 
 	private static final long serialVersionUID = 4447153943733812916L;
 
+	/** The players. */
 	protected final transient Set<Agent> players;
 	private transient List<Agent> tmpReferenceableAgents;
+
+	/** The agent addresses. */
 	protected transient Set<AgentAddress> agentAddresses;
+
+	/** The modified. */
 	protected transient boolean modified = true;
 	private final transient Set<Overlooker> overlookers;
+
+	/** The my group. */
 	protected final transient Group myGroup;
 	private final transient Logger logger;
 	private final transient KernelAddress kernelAddress;
@@ -50,6 +94,12 @@ public class Role implements Serializable {
 		return kernelAddress;
 	}
 
+	/**
+	 * Instantiates a new role.
+	 *
+	 * @param groupObject the group object
+	 * @param roleName    the role name
+	 */
 	Role(Group groupObject, String roleName) {
 		players = new LinkedHashSet<>(50, 1f);
 		tmpReferenceableAgents = new ArrayList<>();// should not be necessary but ...
@@ -90,53 +140,129 @@ public class Role implements Serializable {
 	}
 
 	/**
-	 * @return the myGroup
+	 * Returns a list of agent addresses corresponding to agents having the given role
+	 * 
+	 * @return the list of agent addresses corresponding to agents having the given role
 	 */
-	public Group getGroup() {
-		return myGroup;
+	public final List<AgentAddress> getAgentAddresses() {
+		return List.copyOf(buildAndGetAddresses());
 	}
 
 	/**
-	 * @return the parentOrganization
+	 * Returns the agent address of the agent in this role
+	 * 
+	 * @param agent the agent to check
+	 * @return the agent address of the agent in this role, or <code>null</code> if the agent
+	 *         is not in this role
+	 */
+	public AgentAddress getAgentAddressOf(Agent agent) {
+		synchronized (players) {
+			return buildAndGetAddresses().stream().filter(aa -> aa.hashCode() == agent.hashCode() && aa.getAgent() != null)
+					.findAny().orElse(null);
+		}
+	}
+
+	/**
+	 * Returns the organization which this role belongs to.
+	 * 
+	 * @return the parent organization of this role
 	 */
 	public Organization getOrganization() {
 		return myGroup.getOrganization();
 	}
 
 	/**
-	 * @return the communityObject
+	 * Returns the community which this role belongs to.
+	 * 
+	 * @return the community which this role belongs to.
 	 */
 	public Community getCommunity() {
 		return myGroup.getCommunity();
 	}
 
 	/**
-	 * @return the communityName
+	 * Returns the group which this role belongs to.
+	 * 
+	 * @return the group which this role belongs to.
 	 */
-	final String getCommunityName() {
-		return communityName;
-	}
-
-	final void addOverlooker(Overlooker o) {
-		overlookers.add(o);
-		o.setOverlookedRole(this);
-	}
-
-	final void removeOverlooker(Overlooker o) {
-		overlookers.remove(o);
-		o.setOverlookedRole(null);
+	public Group getGroup() {
+		return myGroup;
 	}
 
 	/**
-	 * @return the roleName
+	 * Returns the number of agents playing this role
+	 * 
+	 * @return the number of agents playing this role
+	 */
+	public int size() {
+		return players.size();
+	}
+
+	/**
+	 * Returns <code>true</code> if the role is not empty
+	 * 
+	 * @return <code>true</code> if the role is not empty.
+	 */
+	public boolean exists() {
+		return !players.isEmpty();
+	}
+
+	/**
+	 * Returns true if the agent is playing this role
+	 * 
+	 * @param agent the agent to check
+	 * @return <code>true</code> if the agent is playing this role
+	 */
+	public final boolean contains(Agent agent) {
+		return players.contains(agent);
+	}
+
+	/**
+	 * Returns the role name.
+	 * 
+	 * @return the role name.
 	 */
 	public final String getName() {
 		return name;
 	}
 
+	/**
+	 * Returns a string representation that includes the community, group, and role names.
+	 *
+	 * @return the string representation of the role.
+	 */
 	@Override
 	public String toString() {
 		return getCGRString(communityName, groupName, name);
+	}
+
+	/**
+	 * Returns the community name.
+	 * 
+	 * @return the community name.
+	 */
+	final String getCommunityName() {
+		return communityName;
+	}
+
+	/**
+	 * Adds the overlooker.
+	 *
+	 * @param o the o
+	 */
+	final void addOverlooker(Overlooker o) {
+		overlookers.add(o);
+		o.setOverlookedRole(this);
+	}
+
+	/**
+	 * Removes the overlooker.
+	 *
+	 * @param o the o
+	 */
+	final void removeOverlooker(Overlooker o) {
+		overlookers.remove(o);
+		o.setOverlookedRole(null);
 	}
 
 	/**
@@ -169,6 +295,12 @@ public class Role implements Serializable {
 		return SUCCESS;
 	}
 
+	/**
+	 * Adds the members.
+	 *
+	 * @param bucket          the bucket
+	 * @param roleJustCreated the role just created
+	 */
 	final void addMembers(List<Agent> bucket, boolean roleJustCreated) {
 		synchronized (players) {
 			players.addAll(bucket);// is optimized wrt size
@@ -199,6 +331,12 @@ public class Role implements Serializable {
 		}
 	}
 
+	/**
+	 * Removes the member.
+	 *
+	 * @param requester the requester
+	 * @return the return code
+	 */
 	ReturnCode removeMember(Agent requester) {
 		synchronized (players) {
 			if (players.remove(requester)) {
@@ -225,6 +363,11 @@ public class Role implements Serializable {
 		}
 	}
 
+	/**
+	 * Removes the members.
+	 *
+	 * @param bucket the bucket
+	 */
 	final void removeMembers(List<Agent> bucket) {
 		synchronized (players) {
 			removeFromOverlookers(bucket);
@@ -255,6 +398,11 @@ public class Role implements Serializable {
 		}
 	}
 
+	/**
+	 * Builds the and get addresses.
+	 *
+	 * @return the sets the
+	 */
 	final Set<AgentAddress> buildAndGetAddresses() {
 		if (agentAddresses == null) {
 			synchronized (players) {
@@ -279,8 +427,9 @@ public class Role implements Serializable {
 	 */
 	void removeAgentsFromDistantKernel(KernelAddress kernelAddress2) {
 		if (agentAddresses != null) {
-			if (logger != null)
+			if (logger != null) {
 				logger.finest(() -> "Removing all agents from distant kernel " + kernelAddress2 + " in" + this);
+			}
 			synchronized (players) {
 				for (Iterator<AgentAddress> iterator = buildAndGetAddresses().iterator(); iterator.hasNext();) {
 					AgentAddress aa = iterator.next();
@@ -294,6 +443,9 @@ public class Role implements Serializable {
 		}
 	}
 
+	/**
+	 * Check emptyness.
+	 */
 	void checkEmptyness() {
 		if ((players == null || players.isEmpty()) && (agentAddresses == null || agentAddresses.isEmpty())) {
 			cleanAndRemove();
@@ -310,17 +462,6 @@ public class Role implements Serializable {
 		myGroup.removeRole(name);
 		tmpReferenceableAgents = null;
 		agentAddresses = null;
-	}
-
-	/**
-	 * Returns a list of agent addresses corresponding to agents having the given
-	 * role
-	 * 
-	 * @return the list of agent addresses corresponding to agents having the given
-	 *         role
-	 */
-	public final List<AgentAddress> getAgentAddresses() {
-		return List.copyOf(buildAndGetAddresses());
 	}
 
 	/**
@@ -343,14 +484,15 @@ public class Role implements Serializable {
 	 */
 	final AgentAddress getAgentAddressInGroup(Agent agent) {
 		AgentAddress aa = getAgentAddressOf(agent);
-		if (aa != null)
+		if (aa != null) {
 			return aa;
-		return myGroup.getAgentAddressOf(agent);
+		}
+		return myGroup.getAnyAgentAddressOf(agent);
 	}
 
 	/**
-	 * This cannot be done without a copy -> ensuring that the collection can be
-	 * modified during iteration
+	 * This cannot be done without a copy -> ensuring that the collection can be modified
+	 * during iteration
 	 * 
 	 * @return
 	 */
@@ -364,10 +506,20 @@ public class Role implements Serializable {
 		return tmpReferenceableAgents;
 	}
 
+	/**
+	 * Gets the agents set.
+	 *
+	 * @return the agents set
+	 */
 	Set<Agent> getAgentsSet() {
 		return Collections.unmodifiableSet(players);
 	}
 
+	/**
+	 * Adds the to overlookers.
+	 *
+	 * @param a the a
+	 */
 	final void addToOverlookers(Agent a) {
 		overlookers.parallelStream().forEach(o -> o.onAdding(a));
 	}
@@ -376,6 +528,11 @@ public class Role implements Serializable {
 		overlookers.parallelStream().forEach(o -> o.adding(l));
 	}
 
+	/**
+	 * Removes the from overlookers.
+	 *
+	 * @param a the a
+	 */
 	final void removeFromOverlookers(Agent a) {
 		overlookers.parallelStream().forEach(o -> o.onRemoving(a));
 	}
@@ -401,18 +558,11 @@ public class Role implements Serializable {
 	}
 
 	/**
-	 * Returns the agent address of the agent in this role
-	 * 
-	 * @param agent the agent to check
-	 * @return the agent address of the agent in this role
+	 * Gets the other role players.
+	 *
+	 * @param agent the agent
+	 * @return the other role players
 	 */
-	public AgentAddress getAgentAddressOf(Agent agent) {
-		synchronized (players) {
-			return buildAndGetAddresses().stream().filter(aa -> aa.hashCode() == agent.hashCode() && aa.getAgent() != null)
-					.findAny().orElse(null);
-		}
-	}
-
 	final List<AgentAddress> getOtherRolePlayers(Agent agent) {
 		AgentAddress agentAA = getAgentAddressOf(agent);
 		synchronized (players) {
@@ -422,30 +572,21 @@ public class Role implements Serializable {
 
 	/**
 	 * @param aa
-	 * @return the Agent corresponding to the aa agentAddress in this role, null if
-	 *         it does no longer play this role
+	 * @return the Agent corresponding to the aa agentAddress in this role, null if it does no
+	 *         longer play this role
 	 */
 	Agent getAgentWithAddress(AgentAddress aa) {
 		if (players != null) {
 			int hash = aa.hashCode();
 			synchronized (players) {
 				for (Agent agent : players) {
-					if (agent.hashCode() == hash)
+					if (agent.hashCode() == hash) {
 						return agent;
+					}
 				}
 			}
 		}
 		return null;
-	}
-
-	/**
-	 * Returns true if the agent is playing this role
-	 * 
-	 * @param agent the agent to check
-	 * @return <code>true</code> if the agent is playing this role
-	 */
-	public final boolean contains(Agent agent) {
-		return players.contains(agent);
 	}
 
 	/**
@@ -456,24 +597,6 @@ public class Role implements Serializable {
 	 */
 	final AgentAddress resolveDistantAddress(AgentAddress anAA) {
 		return buildAndGetAddresses().parallelStream().filter(aa -> aa.equals(anAA)).findAny().orElse(null);
-	}
-
-	/**
-	 * Returns the number of agents playing this role
-	 * 
-	 * @return the number of agents playing this role
-	 */
-	public int size() {
-		return players.size();
-	}
-
-	/**
-	 * Returns <code>true</code> if the role is not empty
-	 * 
-	 * @return <code>true</code> if the role is not empty.
-	 */
-	public boolean exists() {
-		return !players.isEmpty();
 	}
 
 	/**

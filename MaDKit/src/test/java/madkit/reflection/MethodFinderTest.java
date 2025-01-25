@@ -16,7 +16,7 @@ import madkit.test.agents.EmptyAgent;
 /**
  * Has to be outside of madkit.kernel for really testing visibility
  * 
- * @author Fabien Michel
+ *
  * @since MaDKit 5.0.0.13
  * @version 0.9
  * 

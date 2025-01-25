@@ -6,7 +6,7 @@ import static madkit.kernel.JunitMadkit.ROLE;
 import madkit.simulation.SimuAgent;
 
 /**
- * @author Fabien Michel
+ *
  * @since MaDKit 5.0.0.13
  * @version 0.9
  * 

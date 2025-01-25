@@ -47,7 +47,7 @@ import madkit.kernel.MadkitClassLoader;
  * The super class of MaDKit menu which have to be update when the class path is changed or updated with new classes or
  * files.
  * 
- * @author Fabien Michel
+ *
  * @since MadKit 5.0.2
  * @version 0.9
  */

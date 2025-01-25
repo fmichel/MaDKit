@@ -47,7 +47,7 @@ import madkit.kernel.Agent.ReturnCode;
 import madkit.test.agents.EmptyAgent;
 
 /**
- * @author Fabien Michel
+ *
  *
  */
 public class KernelAgentTest {

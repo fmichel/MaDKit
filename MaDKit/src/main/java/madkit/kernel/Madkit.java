@@ -1,3 +1,38 @@
+/*******************************************************************************
+ * MaDKit - Multi-agent systems Development Kit 
+ * 
+ * Copyright (c) 1998-2025 Fabien Michel, Olivier Gutknecht, Jacques Ferber...
+ * 
+ * This software is a computer program whose purpose is to
+ * provide a lightweight Java API for developing and simulating 
+ * Multi-Agent Systems (MAS) using an organizational perspective.
+ *
+ * This software is governed by the CeCILL-C license under French law and
+ * abiding by the rules of distribution of free software.You can use,
+ * modify and/ or redistribute the software under the terms of the CeCILL-C
+ * license as circulated by CEA, CNRS and INRIA at the following URL
+ * "http://www.cecill.info".
+ *
+ * As a counterpart to the access to the source code and rights to copy,
+ * modify and redistribute granted by the license, users are provided only
+ * with a limited warranty and the software's author, the holder of the
+ * economic rights, and the successive licensors have only limited
+ * liability.
+ *
+ * In this respect, the user's attention is drawn to the risks associated
+ * with loading, using, modifying and/or developing or reproducing the
+ * software by the user in light of its specific status of free software,
+ * that may mean that it is complicated to manipulate, and that also
+ * therefore means that it is reserved for developers and experienced
+ * professionals having in-depth computer knowledge. Users are therefore
+ * encouraged to load and test the software's suitability as regards their
+ * requirements in conditions enabling the security of their systems and/or
+ * data to be ensured and, more generally, to use and operate it in the
+ * same conditions as regards security.
+ *
+ * The fact that you are presently reading this means that you have had
+ * knowledge of the CeCILL-C license and that you accept its terms.
+ *******************************************************************************/
 
 package madkit.kernel;
 
@@ -23,8 +58,8 @@ import picocli.CommandLine.ParseResult;
 import picocli.CommandLine.PropertiesDefaultProvider;
 
 /**
- * The `Madkit` class is the main entry point for the MaDKit platform. It
- * initializes the configuration, logging, and starts the kernel agent.
+ * The `Madkit` class is the main entry point for the MaDKit platform. It initializes the
+ * configuration, logging, and starts the kernel agent.
  * <p>
  * This class uses the PicoCLI library for command-line parsing.
  * </p>
@@ -35,6 +70,7 @@ import picocli.CommandLine.PropertiesDefaultProvider;
 @Command(name = "MaDKit", mixinStandardHelpOptions = true, description = "Lightweight OCMAS platform: Multi-Agent Systems as artificial organizations")
 public class Madkit {
 
+	/** The Constant MDK_LOGGER. */
 	public static final Logger MDK_LOGGER = Logger.getLogger("[MADKIT] ");
 
 	static {
@@ -49,17 +85,12 @@ public class Madkit {
 	static final String LAUNCHER = "launcherClass";
 	static final String LAUNCHER_CLASS = "lc";
 
-	/**
-	 * The build ID for the MaDKit platform.
-	 */
-	/**
-	 * The URL for the MaDKit website.
-	 */
-	public static String WEB;
+	/** The web. */
+	static String WEB;
 	/**
 	 * The version of the MaDKit platform.
 	 */
-	public static String VERSION = "INIT";
+	static String version = "INIT";
 
 	static String oneFileLauncher;
 	static String[] oneFileLauncherArgs;
@@ -114,7 +145,7 @@ public class Madkit {
 			e.printStackTrace();
 		}
 		config.addProperty(CMD_LINE, args);
-		VERSION = getVersionUsingJarFIleName("LOCAL-BUILD");
+		version = getVersionUsingJarFIleName("LOCAL-BUILD");
 		WEB = config.getString("madkit.web");
 	}
 
@@ -122,8 +153,8 @@ public class Madkit {
 	 * Parses the command-line arguments.
 	 *
 	 * @param args the command-line arguments
-	 * @return <code>true</code> if the arguments were parsed successfully,
-	 *         <code>false</code> otherwise
+	 * @return <code>true</code> if the arguments were parsed successfully, <code>false</code>
+	 *         otherwise
 	 */
 	private boolean parseCommanLine(String[] args) {
 		CommandLine cmd = new CommandLine(this);
@@ -211,19 +242,20 @@ public class Madkit {
 	private void printWelcomeString() {
 		if (mdkLogger.getLevel() != Level.OFF) {
 			String welcome = "---------------------------------------" + "\n                MaDKit"
-					+ "\n             version: " + VERSION + "\n       MaDKit Team (c) 1997-"
+					+ "\n             version: " + version + "\n       MaDKit Team (c) 1997-"
 					+ Calendar.getInstance().get(Calendar.YEAR) + "\n---------------------------------------\n";
 			System.out.println(welcome.indent(8));// NOSONAR
 		}
 	}
 
 	Class<?> getOneFileLauncherClass() {
-		if (oneFileLauncher != null)
+		if (oneFileLauncher != null) {
 			try {
 				return Class.forName(oneFileLauncher);
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}
+		}
 		return launcherClass;
 	}
 
@@ -233,8 +265,9 @@ public class Madkit {
 	 * @return the arguments for the launcher
 	 */
 	String[] getLauncherArgs() {
-		if (oneFileLauncherArgs != null)
+		if (oneFileLauncherArgs != null) {
 			return oneFileLauncherArgs;
+		}
 		return config.get(String[].class, CMD_LINE);
 	}
 
@@ -253,10 +286,11 @@ public class Madkit {
 	 * @param args the command-line arguments
 	 */
 	public static void main(String[] args) {
-		if (args != null)
+		if (args != null) {
 			new Madkit(args);
-		else
+		} else {
 			new Madkit(new String[0]);
+		}
 	}
 
 	/**

@@ -5,6 +5,7 @@
 open module madkit.bees {
 	requires madkit.base;
 	requires java.desktop;
+	requires javafx.graphics;
 
 	exports madkit.bees;
 }

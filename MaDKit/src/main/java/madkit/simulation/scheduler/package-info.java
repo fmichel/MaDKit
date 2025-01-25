@@ -62,7 +62,7 @@ knowledge of the CeCILL-C license and that you accept its terms.
  * @see madkit.simulation.scheduler.DiscreteEventAgentsActivator
  *
  * @since MaDKit 5.3
- * @author Fabien Michel
+ *
  * @version 1.0
  * 
  */

@@ -77,7 +77,7 @@ import madkit.kernel.GenericTestAgent;
 import madkit.test.agents.behaviors.ActivateBug;
 
 /**
- * @author Fabien Michel
+ *
  *
  */
 public class BugInActivateAgent extends GenericTestAgent implements ActivateBug {

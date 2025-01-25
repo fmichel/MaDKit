@@ -1,3 +1,38 @@
+/*******************************************************************************
+ * MaDKit - Multi-agent systems Development Kit 
+ * 
+ * Copyright (c) 1998-2025 Fabien Michel, Olivier Gutknecht, Jacques Ferber...
+ * 
+ * This software is a computer program whose purpose is to
+ * provide a lightweight Java API for developing and simulating 
+ * Multi-Agent Systems (MAS) using an organizational perspective.
+ *
+ * This software is governed by the CeCILL-C license under French law and
+ * abiding by the rules of distribution of free software.You can use,
+ * modify and/ or redistribute the software under the terms of the CeCILL-C
+ * license as circulated by CEA, CNRS and INRIA at the following URL
+ * "http://www.cecill.info".
+ *
+ * As a counterpart to the access to the source code and rights to copy,
+ * modify and redistribute granted by the license, users are provided only
+ * with a limited warranty and the software's author, the holder of the
+ * economic rights, and the successive licensors have only limited
+ * liability.
+ *
+ * In this respect, the user's attention is drawn to the risks associated
+ * with loading, using, modifying and/or developing or reproducing the
+ * software by the user in light of its specific status of free software,
+ * that may mean that it is complicated to manipulate, and that also
+ * therefore means that it is reserved for developers and experienced
+ * professionals having in-depth computer knowledge. Users are therefore
+ * encouraged to load and test the software's suitability as regards their
+ * requirements in conditions enabling the security of their systems and/or
+ * data to be ensured and, more generally, to use and operate it in the
+ * same conditions as regards security.
+ *
+ * The fact that you are presently reading this means that you have had
+ * knowledge of the CeCILL-C license and that you accept its terms.
+ *******************************************************************************/
 package madkit.simulation.scheduler;
 
 import java.math.BigDecimal;
@@ -7,11 +42,10 @@ import java.time.temporal.ChronoUnit;
 import madkit.kernel.Scheduler;
 
 /**
- * This class encapsulates the time of the simulation. Its purpose is that it
- * can be passed across objects without problem. That is, {@link BigDecimal} is
- * immutable and therefore creates a new instance for each modification.
+ * This class encapsulates the time of the simulation. Its purpose is that it can be
+ * passed across objects without problem. That is, {@link BigDecimal} is immutable and
+ * therefore creates a new instance for each modification.
  *
- * @author Fabien Michel
  * @since MaDKit 5.3
  * @see Scheduler LocalDateTime
  */
@@ -20,8 +54,7 @@ public class DateBasedTimer extends SimuTimer<LocalDateTime> {
 	private ChronoUnit defaultUnit;
 
 	/**
-	 * Creates a date-based instance using a specific {@link LocalDateTime} as
-	 * starting point.
+	 * Creates a date-based instance using a specific {@link LocalDateTime} as starting point.
 	 *
 	 * @param initialDate a {@link LocalDateTime} to start with
 	 * @param endDate     a {@link LocalDateTime} to end with
@@ -34,8 +67,7 @@ public class DateBasedTimer extends SimuTimer<LocalDateTime> {
 	}
 
 	/**
-	 * Creates a date-based instance using a specific {@link LocalDateTime} as
-	 * starting point.
+	 * Creates a date-based instance using a specific {@link LocalDateTime} as starting point.
 	 *
 	 * @param initialDate a {@link LocalDateTime} to start with
 	 * @see LocalDateTime
@@ -45,8 +77,7 @@ public class DateBasedTimer extends SimuTimer<LocalDateTime> {
 	}
 
 	/**
-	 * Creates a date-based time which value is
-	 * <code>LocalDateTime.of(1, 1, 1, 0, 0)</code>;
+	 * Creates a date-based time which value is <code>LocalDateTime.of(1, 1, 1, 0, 0)</code>;
 	 */
 	public DateBasedTimer() {
 		this(LocalDateTime.of(1, 1, 1, 0, 0));

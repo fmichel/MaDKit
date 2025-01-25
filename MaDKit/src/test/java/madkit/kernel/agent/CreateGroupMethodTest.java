@@ -10,7 +10,7 @@ import org.testng.annotations.Test;
 import madkit.kernel.JunitMadkit;
 
 /**
- * @author Fabien Michel
+ *
  *
  */
 public class CreateGroupMethodTest extends JunitMadkit {

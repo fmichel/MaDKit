@@ -1,3 +1,38 @@
+/*******************************************************************************
+ * MaDKit - Multi-agent systems Development Kit 
+ * 
+ * Copyright (c) 1998-2025 Fabien Michel, Olivier Gutknecht, Jacques Ferber...
+ * 
+ * This software is a computer program whose purpose is to
+ * provide a lightweight Java API for developing and simulating 
+ * Multi-Agent Systems (MAS) using an organizational perspective.
+ *
+ * This software is governed by the CeCILL-C license under French law and
+ * abiding by the rules of distribution of free software.You can use,
+ * modify and/ or redistribute the software under the terms of the CeCILL-C
+ * license as circulated by CEA, CNRS and INRIA at the following URL
+ * "http://www.cecill.info".
+ *
+ * As a counterpart to the access to the source code and rights to copy,
+ * modify and redistribute granted by the license, users are provided only
+ * with a limited warranty and the software's author, the holder of the
+ * economic rights, and the successive licensors have only limited
+ * liability.
+ *
+ * In this respect, the user's attention is drawn to the risks associated
+ * with loading, using, modifying and/or developing or reproducing the
+ * software by the user in light of its specific status of free software,
+ * that may mean that it is complicated to manipulate, and that also
+ * therefore means that it is reserved for developers and experienced
+ * professionals having in-depth computer knowledge. Users are therefore
+ * encouraged to load and test the software's suitability as regards their
+ * requirements in conditions enabling the security of their systems and/or
+ * data to be ensured and, more generally, to use and operate it in the
+ * same conditions as regards security.
+ *
+ * The fact that you are presently reading this means that you have had
+ * knowledge of the CeCILL-C license and that you accept its terms.
+ *******************************************************************************/
 package madkit.gui;
 
 import java.beans.IntrospectionException;
@@ -22,12 +57,11 @@ import madkit.kernel.Agent;
  * 
  * This class is used to create a property sheet from an object's fields.
  * <p>
- * It uses the {@link UIProperty} annotation to specify which fields should be
- * displayed.
+ * It uses the {@link UIProperty} annotation to specify which fields should be displayed.
  * </p>
  * <p>
- * It also uses the {@link SliderProperty} annotation to specify which fields
- * should be displayed as sliders.
+ * It also uses the {@link SliderProperty} annotation to specify which fields should be
+ * displayed as sliders.
  * </p>
  * 
  */
@@ -41,8 +75,8 @@ public class PropertySheetFactory {
 	 * Get a parameters sheet made of the objects' properties annotated with
 	 * {@link UIProperty} or {@link SliderProperty} annotations.
 	 * 
-	 * @param objects the objects from which to take fields as properties to display
-	 *                in the sheet
+	 * @param objects the objects from which to take fields as properties to display in the
+	 *                sheet
 	 * @return the property sheet containing the objects properties
 	 */
 	public static PropertySheet getSheet(Object... objects) {
@@ -60,8 +94,8 @@ public class PropertySheetFactory {
 	 * @param title   the title of the titled pane
 	 * @param objects the objects from which to take fields as properties to display
 	 * 
-	 * @return a titled pane containing the objects' properties, or
-	 *         <code>null</code> if the property sheet is empty
+	 * @return a titled pane containing the objects' properties, or <code>null</code> if the
+	 *         property sheet is empty
 	 */
 	public static TitledPane getTitledPaneSheet(String title, Object... objects) {
 		PropertySheet sheet = PropertySheetFactory.getSheet(objects);
@@ -73,10 +107,9 @@ public class PropertySheetFactory {
 
 	/**
 	 * Returns a titled pane containing the object's properties annotated with
-	 * {@link UIProperty} or {@link SliderProperty} annotations. The title is
-	 * automatically set to the agent's name if the object is an agent, to the
-	 * class's simple name if the object is a class, or to the object's string
-	 * representation otherwise.
+	 * {@link UIProperty} or {@link SliderProperty} annotations. The title is automatically
+	 * set to the agent's name if the object is an agent, to the class's simple name if the
+	 * object is a class, or to the object's string representation otherwise.
 	 * 
 	 * @param object the object from which to take fields as properties to display
 	 * @return a titled pane containing the object's properties
@@ -91,11 +124,11 @@ public class PropertySheetFactory {
 	}
 
 	/**
-	 * Get a VBox containing the object's parameters annotated with
-	 * {@link UIProperty} or {@link SliderProperty} annotations.
+	 * Get a VBox containing the object's parameters annotated with {@link UIProperty} or
+	 * {@link SliderProperty} annotations.
 	 * 
-	 * @param objects the objects from which to take fields as properties to display
-	 *                in the VBox
+	 * @param objects the objects from which to take fields as properties to display in the
+	 *                VBox
 	 * @return a VBox containing the object's parameters
 	 */
 	public static VBox getVBoxProperties(Object... objects) {
@@ -135,33 +168,64 @@ public class PropertySheetFactory {
 	 * @param defaultCategoryName
 	 * @param currentType
 	 */
-	private static void populateProperties(Object o, ObservableList<Item> parameters, final String defaultCategoryName,
+	private static void populateProperties(Object o, ObservableList<Item> parameters, String defaultCategoryName,
 			Class<?> currentType) {
 		for (Field f : currentType.getDeclaredFields()) {
-			UIProperty annotation = f.getAnnotation(UIProperty.class);
-			if (annotation != null) {
-				try {
-					PropertyDescriptor propDescriptor = new PropertyDescriptor(f.getName(), currentType);
-					String displayName = annotation.displayName();
-					if (displayName.isBlank()) {
-						displayName = endUserPropertyName(f);
-					}
-					SliderProperty sliderAnnotation = f.getAnnotation(SliderProperty.class);
-					if (sliderAnnotation != null) {
-						propDescriptor.setPropertyEditorClass(SliderEditor.class);
-						SliderEditor.sliders.put(displayName, createSlider(sliderAnnotation));
-					}
-					propDescriptor.setDisplayName(displayName);
-					String category = annotation.category();
-					propDescriptor.setValue(BeanProperty.CATEGORY_LABEL_KEY,
-							category.isBlank() ? defaultCategoryName : category);
-					BeanProperty property = new BeanProperty(o, propDescriptor);
-					parameters.add(property);
-				} catch (IntrospectionException e) {
-					e.printStackTrace();
-				}
+			PropertyDescriptor propertyDescriptor = buildUIPropertyDescriptor(f, currentType);
+			if (propertyDescriptor != null) {
+				BeanProperty uiProperty = new BeanProperty(o, propertyDescriptor);
+				parameters.add(uiProperty);
+			}
+			propertyDescriptor = buildSliderPropertyDescriptor(f, currentType);
+			if (propertyDescriptor != null) {
+				BeanProperty sliderProperty = new BeanProperty(o, propertyDescriptor);
+				parameters.add(sliderProperty);
 			}
 		}
+	}
+
+	static PropertyDescriptor buildUIPropertyDescriptor(Field f, Class<?> currentType) {
+		UIProperty uiAnnotation = f.getAnnotation(UIProperty.class);
+		if (uiAnnotation != null) {
+			try {
+				PropertyDescriptor propDescriptor = new PropertyDescriptor(f.getName(), currentType);
+				String displayName = uiAnnotation.displayName();
+				String category = uiAnnotation.category();
+				if (displayName.isBlank()) {
+					displayName = endUserPropertyName(f);
+				}
+				propDescriptor.setDisplayName(displayName);
+				propDescriptor.setValue(BeanProperty.CATEGORY_LABEL_KEY,
+						category.isBlank() ? currentType.getSimpleName() : category);
+				return propDescriptor;
+			} catch (IntrospectionException e) {
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+
+	static PropertyDescriptor buildSliderPropertyDescriptor(Field f, Class<?> currentType) {
+		SliderProperty sliderAnnotation = f.getAnnotation(SliderProperty.class);
+		if (sliderAnnotation != null) {
+			try {
+				PropertyDescriptor propDescriptor = new PropertyDescriptor(f.getName(), currentType);
+				String displayName = sliderAnnotation.displayName();
+				String category = sliderAnnotation.category();
+				if (displayName.isBlank()) {
+					displayName = endUserPropertyName(f);
+				}
+				propDescriptor.setDisplayName(displayName);
+				propDescriptor.setValue(BeanProperty.CATEGORY_LABEL_KEY,
+						category.isBlank() ? currentType.getSimpleName() : category);
+				SliderEditor.sliders.put(displayName, createSlider(sliderAnnotation));
+				propDescriptor.setPropertyEditorClass(SliderEditor.class);
+				return propDescriptor;
+			} catch (IntrospectionException e) {
+				e.printStackTrace();
+			}
+		}
+		return null;
 	}
 
 	/**

@@ -45,10 +45,10 @@ module madkit.base {
 	requires transitive org.controlsfx.controls;
 	requires transitive org.apache.commons.configuration2;
 
+	requires info.picocli;
 	requires java.base;
 	requires java.sql;
 	requires java.xml;
-	requires info.picocli;
 
 	requires static java.management;// jconsole
 	requires static it.unimi.dsi.fastutil;
@@ -56,5 +56,4 @@ module madkit.base {
 
 	opens madkit.kernel;
 	opens madkit.simulation;
-
 }

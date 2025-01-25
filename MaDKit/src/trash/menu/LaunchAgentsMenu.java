@@ -54,7 +54,7 @@ import madkit.kernel.MadkitClassLoader;
  * This class builds a {@link JMenu} containing all the agents which are on the
  * class path, so that they can be individually launched.
  * 
- * @author Fabien Michel
+ *
  * @since MaDKit 5.0.0.14
  * @version 0.9
  */

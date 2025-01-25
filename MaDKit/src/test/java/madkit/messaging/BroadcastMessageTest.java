@@ -18,7 +18,7 @@ import madkit.messages.StringMessage;
 import madkit.test.agents.RequestRoleAgent;
 
 /**
- * @author Fabien Michel
+ *
  * @since MaDKit 5.0.0.7
  * @version 0.9
  * 

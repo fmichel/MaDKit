@@ -1,3 +1,38 @@
+/*******************************************************************************
+ * MaDKit - Multi-agent systems Development Kit 
+ * 
+ * Copyright (c) 1998-2025 Fabien Michel, Olivier Gutknecht, Jacques Ferber...
+ * 
+ * This software is a computer program whose purpose is to
+ * provide a lightweight Java API for developing and simulating 
+ * Multi-Agent Systems (MAS) using an organizational perspective.
+ *
+ * This software is governed by the CeCILL-C license under French law and
+ * abiding by the rules of distribution of free software.You can use,
+ * modify and/ or redistribute the software under the terms of the CeCILL-C
+ * license as circulated by CEA, CNRS and INRIA at the following URL
+ * "http://www.cecill.info".
+ *
+ * As a counterpart to the access to the source code and rights to copy,
+ * modify and redistribute granted by the license, users are provided only
+ * with a limited warranty and the software's author, the holder of the
+ * economic rights, and the successive licensors have only limited
+ * liability.
+ *
+ * In this respect, the user's attention is drawn to the risks associated
+ * with loading, using, modifying and/or developing or reproducing the
+ * software by the user in light of its specific status of free software,
+ * that may mean that it is complicated to manipulate, and that also
+ * therefore means that it is reserved for developers and experienced
+ * professionals having in-depth computer knowledge. Users are therefore
+ * encouraged to load and test the software's suitability as regards their
+ * requirements in conditions enabling the security of their systems and/or
+ * data to be ensured and, more generally, to use and operate it in the
+ * same conditions as regards security.
+ *
+ * The fact that you are presently reading this means that you have had
+ * knowledge of the CeCILL-C license and that you accept its terms.
+ *******************************************************************************/
 package madkit.kernel;
 
 import java.io.IOException;
@@ -23,13 +58,28 @@ import java.util.logging.Logger;
 import madkit.logging.AgentFormatter;
 
 /**
- * This class defines a logger specialized for MaDKit agents.
+ * This class defines a {@link Logger} specialized for MaDKit agents. Especially, it
+ * provides a specific {@link AgentFormatter} for agents. It also defines a special log
+ * level, {@link #TALK}, and its corresponding method {@link #talk(String)}, which are
+ * used to produce messages that will be rendered as they are, without any formatting work
+ * nor end-of-line character.
  * 
- * @author Fabien Michel
+ * <p>
+ * This class also provides a way to create log files easily. By default, the log files
+ * will be located in a directory named {@link #LOGS_DIRECTORY} and will be named using
+ * {@link Agent#getName()}.
+ * <p>
+ * An agent logger can be created by calling {@link Agent#getLogger()}.
+ *
  * @version 6
  * @since MaDKit 5.0.0.5
  */
 public class AgentLogger extends Logger {
+
+	/**
+	 * The name of the directory where the log files are stored.
+	 */
+	public static final String LOGS_DIRECTORY = "Logs";
 
 	private static final String LOGFILE_SESSION_SEPARATOR = "--------------------------------------------------------------------------\n";
 	private static final String LOGFILE_SESSION_END = " --\n" + LOGFILE_SESSION_SEPARATOR + "\n";
@@ -38,7 +88,8 @@ public class AgentLogger extends Logger {
 	static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME
 			.ofPattern("yyyy-MM-dd_HH:mm:ss ").withZone(ZoneId.systemDefault());
 
-	public static final Path DEFAULT_LOG_DIRECTORY = FileSystems.getDefault().getPath("Logs");
+	/** The Constant DEFAULT_LOG_DIRECTORY. */
+	public static final Path DEFAULT_LOG_DIRECTORY = FileSystems.getDefault().getPath(LOGS_DIRECTORY);
 
 	/**
 	 * Defines the default formatter as : [agent's name] LOG_LEVEL : message
@@ -107,68 +158,17 @@ public class AgentLogger extends Logger {
 		return getName() + ' ' + getLevel();
 	}
 
-//    /**
-//     * Prevents this logger to change its level when {@link #setAllLoggersAtLevelAll()}
-//     * or {@link #setAllLogLevels(Level)} are used.
-//     */
-//    public void doNotReactToDebugMode() {
-//	debugModeBlackList.add(this);
-//    }
-//
-//    /**
-//     * Tells if CGR warnings (Community, Group, Role) are enabled.
-//     * 
-//     * @see #enableCGRWarnings()
-//     * @return <code>true</code> if CGR warnings are enabled for this logger
-//     */
-//    public boolean isCGRWarningsOn() {
-//	return agentCGRWarningsOnAction != null && (boolean) agentCGRWarningsOnAction.getValue(Action.SELECTED_KEY);
-//    }
-//
-//    /**
-//     * Enables the logging of {@link Level#WARNING} messages related with failed queries over the artificial
-//     * society. For instance, if an agent tries to get agent addresses using
-//     * {@link Agent#getAgentsWithRole(String, String, String)} over a CGR location which does not exist then there
-//     * will be a warning about that. Since such results could be obtained by agents on purpose, this method provides a
-//     * convenient way of enabling these kind of traces as will.
-//     * 
-//     */
-//    public void enableCGRWarnings() {
-//	getEnableCGRWarningsAction().putValue(Action.SELECTED_KEY, true);
-//    }
-//
-//    /**
-//     * Disables the logging of {@link Level#WARNING} messages related with failed queries over the artificial
-//     * society.
-//     * @see #enableCGRWarnings()
-//     */
-//    public void disableCGRWarnings() {
-//	if (agentCGRWarningsOnAction != null) {
-//	    getEnableCGRWarningsAction().putValue(Action.SELECTED_KEY, false);
-//	}
-//    }
-//
-//    /**
-//     * @return an {@link Action} for building UI with this feature
-//     */
-//    public BooleanAction getEnableCGRWarningsAction() {
-//	if (agentCGRWarningsOnAction == null) {
-//	    agentCGRWarningsOnAction = (BooleanAction) LoggingAction.CGR_WARNINGS.getActionFor(myAgent);
-//	}
-//	return agentCGRWarningsOnAction;
-//    }
-
 	/**
 	 * Creates a log file for this logger.
 	 * 
-	 * @param fileName     May be {@code null}, in which case the creation date is
-	 *                     used in combination with {@link #getName()}
-	 * @param logDirectory the logDirectory to use. May be {@code null}, in which
-	 *                     case the file will be located in a directory named Logs
-	 * @param append       if <code>true</code>, then bytes will be written to the
-	 *                     end of the file rather than the beginning
-	 * @param comments     if <code>true</code>, includes comments displaying
-	 *                     creation and closing dates
+	 * @param fileName     May be {@code null}, in which case the creation date is used in
+	 *                     combination with {@link #getName()}
+	 * @param logDirectory the logDirectory to use. May be {@code null}, in which case the
+	 *                     file will be located in a directory named Logs
+	 * @param append       if <code>true</code>, then bytes will be written to the end of the
+	 *                     file rather than the beginning
+	 * @param comments     if <code>true</code>, includes comments displaying creation and
+	 *                     closing dates
 	 * 
 	 * @see FileHandler
 	 */
@@ -178,50 +178,46 @@ public class AgentLogger extends Logger {
 	}
 
 	/**
-	 * This has the same effect as
-	 * {@linkplain #createLogFile(String, Path, boolean, boolean)}
+	 * This has the same effect as {@linkplain #createLogFile(String, Path, boolean, boolean)}
 	 * {@code (logDirectory, fileName, append, true)}.
 	 * 
-	 * @param fileName     May be {@code null}, in which case the creation date is
-	 *                     used in combination with {@link #getName()}
-	 * @param logDirectory the logDirectory to use. May be {@code null}, in which
-	 *                     case the file will be located in a directory named Logs
-	 * @param append       if <code>true</code>, then bytes will be written to the
-	 *                     end of the file rather than the beginning
+	 * @param fileName     May be {@code null}, in which case the creation date is used in
+	 *                     combination with {@link #getName()}
+	 * @param logDirectory the logDirectory to use. May be {@code null}, in which case the
+	 *                     file will be located in a directory named Logs
+	 * @param append       if <code>true</code>, then bytes will be written to the end of the
+	 *                     file rather than the beginning
 	 */
 	public void createLogFile(String fileName, Path logDirectory, boolean append) {
 		createLogFile(fileName, logDirectory, append, true);
 	}
 
 	/**
-	 * This has the same effect as
-	 * {@linkplain #createLogFile(String, Path, boolean, boolean)}
+	 * This has the same effect as {@linkplain #createLogFile(String, Path, boolean, boolean)}
 	 * {@code (logDirectory, fileName, true, true)}.
 	 * 
-	 * @param fileName     May be {@code null}, in which case the creation date is
-	 *                     used in combination with {@link #getName()}
-	 * @param logDirectory the logDirectory to use. May be {@code null}, in which
-	 *                     case the file will be located in a directory named Logs
+	 * @param fileName     May be {@code null}, in which case the creation date is used in
+	 *                     combination with {@link #getName()}
+	 * @param logDirectory the logDirectory to use. May be {@code null}, in which case the
+	 *                     file will be located in a directory named Logs
 	 */
 	public void createLogFile(String fileName, Path logDirectory) {
 		createLogFile(fileName, logDirectory, true, true);
 	}
 
 	/**
-	 * This has the same effect as
-	 * {@linkplain #createLogFile(String, Path, boolean, boolean)}
+	 * This has the same effect as {@linkplain #createLogFile(String, Path, boolean, boolean)}
 	 * {@code (fileName, null, true, true)}.
 	 * 
-	 * @param fileName May be {@code null}, in which case the creation date is used
-	 *                 in combination with {@link #getName()}
+	 * @param fileName May be {@code null}, in which case the creation date is used in
+	 *                 combination with {@link #getName()}
 	 */
 	public void createLogFile(String fileName) {
 		createLogFile(fileName, null, true, true);
 	}
 
 	/**
-	 * This has the same effect as
-	 * {@linkplain #createLogFile(String, Path, boolean, boolean)}
+	 * This has the same effect as {@linkplain #createLogFile(String, Path, boolean, boolean)}
 	 * {@code (null, null, true, true)}.
 	 * 
 	 */
@@ -230,16 +226,16 @@ public class AgentLogger extends Logger {
 	}
 
 	/**
-	 * Adds a new {@link FileHandler} to this logger. This method provides an easy
-	 * way of creating a new file handler with an agent formatting and a
-	 * corresponding file located in a specified directory.
+	 * Adds a new {@link FileHandler} to this logger. This method provides an easy way of
+	 * creating a new file handler with an agent formatting and a corresponding file located
+	 * in a specified directory.
 	 * 
 	 * @param fileName the fileName
 	 * @param dir      the logDirectory to use
-	 * @param append   if <code>true</code>, then bytes will be written to the end
-	 *                 of the file rather than the beginning
-	 * @param comments if <code>true</code>, includes comments displaying creation
-	 *                 and closing dates
+	 * @param append   if <code>true</code>, then bytes will be written to the end of the file
+	 *                 rather than the beginning
+	 * @param comments if <code>true</code>, includes comments displaying creation and closing
+	 *                 dates
 	 * 
 	 * @see FileHandler
 	 */
@@ -283,23 +279,24 @@ public class AgentLogger extends Logger {
 	}
 
 	/**
-	 * Logs a {@link #TALK} message. This uses a special level which could be used
-	 * to produce messages that will be rendered as they are, without any formatting
-	 * work nor end-of-line character.
+	 * Logs a {@link #TALK} message. This uses a special level which could be used to produce
+	 * messages that will be rendered as they are, without any formatting work nor end-of-line
+	 * character.
 	 * <p>
-	 * If the logger's level is not {@link Level#OFF} then the given message is
-	 * forwarded to all the registered output Handler objects.
+	 * If the logger's level is not {@link Level#OFF} then the given message is forwarded to
+	 * all the registered output Handler objects.
 	 * <p>
-	 * If the logger's level is {@link Level#OFF} then the message is only printed
-	 * to {@link System#out}
+	 * If the logger's level is {@link Level#OFF} then the message is only printed to
+	 * {@link System#out}
 	 * 
 	 * @param msg the log message
 	 */
 	public void talk(String msg) {// NOSONAR
-		if (getLevel() == Level.OFF)
+		if (getLevel() == Level.OFF) {
 			System.out.print(msg);// NOSONAR
-		else
+		} else {
 			log(TALK, msg);
+		}
 	}
 
 	/**
@@ -343,9 +340,9 @@ public class AgentLogger extends Logger {
 //    }
 
 	/**
-	 * Check if a message of the given level would actually be logged by this
-	 * logger. This check is based on the Loggers effective level, which may be
-	 * inherited from its parent. Has been overridden for improving performances.
+	 * Check if a message of the given level would actually be logged by this logger. This
+	 * check is based on the Loggers effective level, which may be inherited from its parent.
+	 * Has been overridden for improving performances.
 	 *
 	 * @param level a message logging level
 	 * @return true if the given message level is currently being logged.

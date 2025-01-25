@@ -1,3 +1,38 @@
+/*******************************************************************************
+ * MaDKit - Multi-agent systems Development Kit 
+ * 
+ * Copyright (c) 1998-2025 Fabien Michel, Olivier Gutknecht, Jacques Ferber...
+ * 
+ * This software is a computer program whose purpose is to
+ * provide a lightweight Java API for developing and simulating 
+ * Multi-Agent Systems (MAS) using an organizational perspective.
+ *
+ * This software is governed by the CeCILL-C license under French law and
+ * abiding by the rules of distribution of free software.You can use,
+ * modify and/ or redistribute the software under the terms of the CeCILL-C
+ * license as circulated by CEA, CNRS and INRIA at the following URL
+ * "http://www.cecill.info".
+ *
+ * As a counterpart to the access to the source code and rights to copy,
+ * modify and redistribute granted by the license, users are provided only
+ * with a limited warranty and the software's author, the holder of the
+ * economic rights, and the successive licensors have only limited
+ * liability.
+ *
+ * In this respect, the user's attention is drawn to the risks associated
+ * with loading, using, modifying and/or developing or reproducing the
+ * software by the user in light of its specific status of free software,
+ * that may mean that it is complicated to manipulate, and that also
+ * therefore means that it is reserved for developers and experienced
+ * professionals having in-depth computer knowledge. Users are therefore
+ * encouraged to load and test the software's suitability as regards their
+ * requirements in conditions enabling the security of their systems and/or
+ * data to be ensured and, more generally, to use and operate it in the
+ * same conditions as regards security.
+ *
+ * The fact that you are presently reading this means that you have had
+ * knowledge of the CeCILL-C license and that you accept its terms.
+ *******************************************************************************/
 
 package madkit.simulation.scheduler;
 
@@ -8,12 +43,11 @@ import madkit.kernel.Activator;
 
 /**
  * A behavior activator that is designed to work with a
- * {@link DateBasedDiscreteEventScheduler}, that is following a discrete-event
- * simulation scheme. This activator activates all the agents of the
- * corresponding CGR for each specific date for which it is activated.
+ * {@link DateBasedDiscreteEventScheduler}, that is following a discrete-event simulation
+ * scheme. This activator activates all the agents of the corresponding CGR for each
+ * specific date for which it is activated.
  *
- * It encapsulates an activation date which is coded using a
- * {@link LocalDateTime} object.
+ * It encapsulates an activation date which is coded using a {@link LocalDateTime} object.
  *
  * @see DateBasedDiscreteEventScheduler
  * @see LocalDateTime
@@ -21,7 +55,6 @@ import madkit.kernel.Activator;
  * @see Duration
  * @see MethodActivator
  * 
- * @author Fabien Michel
  */
 public class DateBasedDiscreteEventActivator extends MethodActivator {
 
@@ -32,8 +65,8 @@ public class DateBasedDiscreteEventActivator extends MethodActivator {
 	private Duration defaultInterval = Duration.ofSeconds(1);
 
 	/**
-	 * Constructs a new DateBasedDiscreteEventActivator with the specified group,
-	 * role, and behavior to activate.
+	 * Constructs a new DateBasedDiscreteEventActivator with the specified group, role, and
+	 * behavior to activate.
 	 *
 	 * @param group                 the group of the agents
 	 * @param role                  the role of the agents
@@ -53,12 +86,12 @@ public class DateBasedDiscreteEventActivator extends MethodActivator {
 	}
 
 	/**
-	 * Defines an ordering so that the scheduler can classify activators according
-	 * to their date and priority.
+	 * Defines an ordering so that the scheduler can classify activators according to their
+	 * date and priority.
 	 *
 	 * @param o the activator to compare to
-	 * @return a negative integer, zero, or a positive integer as this activator is
-	 *         less than, equal to, or greater than the specified activator
+	 * @return a negative integer, zero, or a positive integer as this activator is less than,
+	 *         equal to, or greater than the specified activator
 	 */
 	@Override
 	public int compareTo(Activator o) {
@@ -76,6 +109,7 @@ public class DateBasedDiscreteEventActivator extends MethodActivator {
 	 *
 	 * @return the scheduler associated with this activator
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public DateBasedDiscreteEventScheduler getScheduler() {
 		return (DateBasedDiscreteEventScheduler) super.getScheduler();
@@ -93,8 +127,8 @@ public class DateBasedDiscreteEventActivator extends MethodActivator {
 	/**
 	 * Sets the next date at which the activator will be triggered.
 	 *
-	 * @param nextActivationDate a {@link LocalDateTime} which should be greater
-	 *                           than the current simulation time
+	 * @param nextActivationDate a {@link LocalDateTime} which should be greater than the
+	 *                           current simulation time
 	 */
 	public void setNextActivationDate(LocalDateTime nextActivationDate) {
 		this.nextActivationDate = nextActivationDate;
@@ -112,8 +146,7 @@ public class DateBasedDiscreteEventActivator extends MethodActivator {
 	}
 
 	/**
-	 * Returns a string representation of the activator, including the next
-	 * activation date.
+	 * Returns a string representation of the activator, including the next activation date.
 	 *
 	 * @return a string representation of the activator
 	 */

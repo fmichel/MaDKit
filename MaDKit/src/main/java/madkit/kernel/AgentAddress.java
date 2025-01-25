@@ -1,31 +1,62 @@
+/*******************************************************************************
+ * MaDKit - Multi-agent systems Development Kit 
+ * 
+ * Copyright (c) 1998-2025 Fabien Michel, Olivier Gutknecht, Jacques Ferber...
+ * 
+ * This software is a computer program whose purpose is to
+ * provide a lightweight Java API for developing and simulating 
+ * Multi-Agent Systems (MAS) using an organizational perspective.
+ *
+ * This software is governed by the CeCILL-C license under French law and
+ * abiding by the rules of distribution of free software.You can use,
+ * modify and/ or redistribute the software under the terms of the CeCILL-C
+ * license as circulated by CEA, CNRS and INRIA at the following URL
+ * "http://www.cecill.info".
+ *
+ * As a counterpart to the access to the source code and rights to copy,
+ * modify and redistribute granted by the license, users are provided only
+ * with a limited warranty and the software's author, the holder of the
+ * economic rights, and the successive licensors have only limited
+ * liability.
+ *
+ * In this respect, the user's attention is drawn to the risks associated
+ * with loading, using, modifying and/or developing or reproducing the
+ * software by the user in light of its specific status of free software,
+ * that may mean that it is complicated to manipulate, and that also
+ * therefore means that it is reserved for developers and experienced
+ * professionals having in-depth computer knowledge. Users are therefore
+ * encouraged to load and test the software's suitability as regards their
+ * requirements in conditions enabling the security of their systems and/or
+ * data to be ensured and, more generally, to use and operate it in the
+ * same conditions as regards security.
+ *
+ * The fact that you are presently reading this means that you have had
+ * knowledge of the CeCILL-C license and that you accept its terms.
+ *******************************************************************************/
 
 package madkit.kernel;
 
 import madkit.agr.SystemRoles;
 
 /**
- * Identifies an agent within the artificial society.
+ * This class represents an address an agent can have within the artificial society. It
+ * represents the agent's position in the artificial society.
  * <p>
- * How this class works is very different from the previous versions of MaDKit.
- * More precisely, it now corresponds to a CGR location (community;group;role)
- * where the agent is in. So, an agent may have several AgentAddress as it could
- * join many CGR locations.
+ * More precisely, it corresponds to a CGR location (community;group;role) where the agent
+ * is in. So, an agent may have several AgentAddress as it could join many CGR locations.
  * <p>
  * Moreover, if the related agent leaves the corresponding CGR location, then an
- * AgentAddress becomes invalid and no longer permits to reach this agent. For
- * instance, a message sent using {@link Agent#send(Message, AgentAddress)} will
- * not be delivered if the agent has leaved the related CGR location.
+ * AgentAddress becomes invalid and no longer permits to reach this agent. For instance, a
+ * message sent using {@link Agent#send(Message, AgentAddress)} will not be delivered if
+ * the agent has leaved the related CGR location.
  *
- * @author Olivier Gutknecht
- * @author Fabien Michel
  * @since MaDKit 1.0
- * @version 5.1
+ * @version 6.0.1
  */
 public class AgentAddress implements java.io.Serializable {
 
 	private static final long serialVersionUID = -5109274890965282440L;
 
-	// not transmitted
 	private transient Agent agent;
 
 	// these are the identifying parts over the net
@@ -33,22 +64,23 @@ public class AgentAddress implements java.io.Serializable {
 	private final int hashCode;
 	private Role roleObject;
 
-	private String cgr;// This is necessary to keep info in agent addresses that do not exist anymore
+	/**
+	 * This is necessary to keep info in agent addresses that do not exist anymore
+	 */
+	private String cgr;
 
 	/**
-	 * Constructs an AgentAddress with the specified agent, role, and kernel
-	 * address.
+	 * Constructs an AgentAddress with the specified agent, role, and kernel address.
 	 *
 	 * @param agt  the agent represented by this AgentAddress
 	 * @param role the role object to which this AgentAddress is bound
-	 * @param ka   the kernel address corresponding to the kernel in which this
-	 *             AgentAddress has been created
+	 * @param ka   the kernel address corresponding to the kernel in which this AgentAddress
+	 *             has been created
 	 */
-	AgentAddress(final Agent agt, final Role role, final KernelAddress ka) {
+	AgentAddress(Agent agt, Role role, KernelAddress ka) {
 		agent = agt;
 		roleObject = role;
-		kernelAddress = ka;// could have been computed from agent but this is serious optimization for mass
-		// launching//TODO unsure
+		kernelAddress = ka;// could be computed from agent but this is serious optimization for mass launching
 		hashCode = agt.hashCode();
 	}
 
@@ -122,9 +154,9 @@ public class AgentAddress implements java.io.Serializable {
 	}
 
 	/**
-	 * Returns a string representing this address. This string contains the ID of
-	 * the owner agent, the CGR location of this address and the
-	 * {@link KernelAddress} to which this address belongs.
+	 * Returns a string representing this address. This string contains the ID of the owner
+	 * agent, the CGR location of this address and the {@link KernelAddress} to which this
+	 * address belongs.
 	 *
 	 * @return a description of this address.
 	 */
@@ -134,40 +166,40 @@ public class AgentAddress implements java.io.Serializable {
 	}
 
 	/**
-	 * Tells if another address is the same. If <code>true</code>, this means that
-	 * both addresses refer to the same agent considering the same position in the
-	 * artificial society.
+	 * Tells if another address is the same. If <code>true</code>, this means that both
+	 * addresses refer to the same agent considering the same position in the artificial
+	 * society.
 	 *
 	 * @param agentAddress the address to compare.
-	 * @throws ClassCastException On purpose, if the address is compared to an
-	 *                            object with another type which is considered as a
-	 *                            programming error.
+	 * @throws ClassCastException On purpose, if the address is compared to an object with
+	 *                            another type which is considered as a programming error.
 	 */
 	@Override
-	public boolean equals(final Object agentAddress) throws ClassCastException {
-		if (this == agentAddress)
+	public boolean equals(Object agentAddress) throws ClassCastException {// NOSONAR
+		if (this == agentAddress) {
 			return true;
-		if (agentAddress == null || agentAddress.hashCode() != hashCode)
+		}
+		if (agentAddress == null || agentAddress.hashCode() != hashCode) {
 			return false;
-		final AgentAddress aa = (AgentAddress) agentAddress;
+		}
+		AgentAddress aa = (AgentAddress) agentAddress;
 		return kernelAddress.equals(aa.kernelAddress) && getRole().equals(aa.getRole())
 				&& getGroup().equals(aa.getGroup()) && getCommunity().equals(aa.getCommunity());
 	}
 
 	/**
-	 * Checks if this AgentAddress is valid. Returns <code>true</code> if the
-	 * corresponding agent is still playing the associated role.
+	 * Checks if this AgentAddress is valid. Returns <code>true</code> if the corresponding
+	 * agent is still playing the associated role.
 	 *
-	 * @return <code>true</code> if this AgentAddress is valid, <code>false</code>
-	 *         otherwise
+	 * @return <code>true</code> if this AgentAddress is valid, <code>false</code> otherwise
 	 */
 	public boolean isValid() {
 		return roleObject != null;
 	}
 
 	/**
-	 * The hash code of an agent address. It is the same as the underlying agent's.
-	 * See {@link Agent#hashCode()}
+	 * The hash code of an agent address. It is the same as the underlying agent's. See
+	 * {@link Agent#hashCode()}
 	 */
 	@Override
 	public final int hashCode() {
@@ -175,9 +207,9 @@ public class AgentAddress implements java.io.Serializable {
 	}
 
 	/**
-	 * Tells if the address is from a specific kernel. If <code>true</code>, This
-	 * means that the agent to which this address belongs to is located on the
-	 * tested kernel. So, it is just a shortcut for *
+	 * Tells if the address is from a specific kernel. If <code>true</code>, This means that
+	 * the agent to which this address belongs to is located on the tested kernel. So, it is
+	 * just a shortcut for *
 	 *
 	 * <pre>
 	 * return getKernelAddress().equals(kernel);
@@ -186,17 +218,15 @@ public class AgentAddress implements java.io.Serializable {
 	 * for which this address has been created was running on the local kernel.
 	 *
 	 * @param kernel the kernel address against which this address should be tested.
-	 * @return <code>true</code> if this address belongs to the corresponding
-	 *         kernel.
+	 * @return <code>true</code> if this address belongs to the corresponding kernel.
 	 * @since MaDKit 5.0.4
 	 */
-	public boolean isFrom(final KernelAddress kernel) {
+	boolean isFrom(final KernelAddress kernel) {
 		return kernelAddress.equals(kernel);
 	}
 
 	/**
-	 * Return a string representing a unique identifier of the binded agent over the
-	 * network.
+	 * Return a string representing a unique identifier of the binded agent over the network.
 	 *
 	 * @return the agent's network identifier
 	 */
@@ -205,9 +235,8 @@ public class AgentAddress implements java.io.Serializable {
 	}
 
 	/**
-	 * Return a string representing a shorter version of the unique identifier of
-	 * the binded agent over the network. As a simplified version, this string may
-	 * not be unique.
+	 * Return a string representing a shorter version of the unique identifier of the binded
+	 * agent over the network. As a simplified version, this string may not be unique.
 	 *
 	 * @return a simplified version of the binded agent's network identifier
 	 */
@@ -231,8 +260,7 @@ final class CandidateAgentAddress extends AgentAddress {
 	private static final long serialVersionUID = -4139216463718732678L;
 
 	/**
-	 * Constructs a CandidateAgentAddress with the specified agent, role, and kernel
-	 * address.
+	 * Constructs a CandidateAgentAddress with the specified agent, role, and kernel address.
 	 *
 	 * @param agt  the agent represented by this CandidateAgentAddress
 	 * @param role the role object to which this CandidateAgentAddress is bound
@@ -262,14 +290,13 @@ final class GroupManagerAddress extends AgentAddress {
 	private final boolean securedGroup;
 
 	/**
-	 * Constructs a GroupManagerAddress with the specified agent, role, kernel
-	 * address, and security status.
+	 * Constructs a GroupManagerAddress with the specified agent, role, kernel address, and
+	 * security status.
 	 *
 	 * @param agt          the agent represented by this GroupManagerAddress
-	 * @param role         the role object to which this GroupManagerAddress is
-	 *                     bound
-	 * @param ka           the kernel address corresponding to the kernel in which
-	 *                     this GroupManagerAddress has been created
+	 * @param role         the role object to which this GroupManagerAddress is bound
+	 * @param ka           the kernel address corresponding to the kernel in which this
+	 *                     GroupManagerAddress has been created
 	 * @param securedGroup the security status of the group
 	 */
 	GroupManagerAddress(Agent agt, Role role, KernelAddress ka, boolean securedGroup) {
@@ -280,8 +307,7 @@ final class GroupManagerAddress extends AgentAddress {
 	/**
 	 * Checks if the group is secured.
 	 *
-	 * @return <code>true</code> if the group is secured, <code>false</code>
-	 *         otherwise
+	 * @return <code>true</code> if the group is secured, <code>false</code> otherwise
 	 */
 	boolean isGroupSecured() {
 		return securedGroup;

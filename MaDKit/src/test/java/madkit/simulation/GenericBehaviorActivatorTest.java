@@ -11,7 +11,7 @@ import madkit.test.agents.CGRAgent;
 
 /**
  * 
- * @author Fabien Michel
+ *
  * @since MaDKit 5.0.0.15
  * @version 0.9
  * 

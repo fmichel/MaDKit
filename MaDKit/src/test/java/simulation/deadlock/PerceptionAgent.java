@@ -12,7 +12,7 @@ import madkit.kernel.Watcher;
 import madkit.test.agents.EmptyAgent;
 
 /**
- * @author Fabien Michel
+ *
  * @since MaDKit 5.0.0.15
  * @version 0.9
  * 

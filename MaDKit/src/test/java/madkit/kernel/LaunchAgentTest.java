@@ -13,7 +13,7 @@ import madkit.test.agents.ThreadedAgentBlockedInActivate;
 import madkit.test.agents.ThreadedAgentBlockedInLive;
 
 /**
- * @author Fabien Michel
+ *
  * @since MaDKit 6
  * @version 0.9
  * 

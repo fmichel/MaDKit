@@ -1,8 +1,42 @@
+/*******************************************************************************
+ * MaDKit - Multi-agent systems Development Kit 
+ * 
+ * Copyright (c) 1998-2025 Fabien Michel, Olivier Gutknecht, Jacques Ferber...
+ * 
+ * This software is a computer program whose purpose is to
+ * provide a lightweight Java API for developing and simulating 
+ * Multi-Agent Systems (MAS) using an organizational perspective.
+ *
+ * This software is governed by the CeCILL-C license under French law and
+ * abiding by the rules of distribution of free software.You can use,
+ * modify and/ or redistribute the software under the terms of the CeCILL-C
+ * license as circulated by CEA, CNRS and INRIA at the following URL
+ * "http://www.cecill.info".
+ *
+ * As a counterpart to the access to the source code and rights to copy,
+ * modify and redistribute granted by the license, users are provided only
+ * with a limited warranty and the software's author, the holder of the
+ * economic rights, and the successive licensors have only limited
+ * liability.
+ *
+ * In this respect, the user's attention is drawn to the risks associated
+ * with loading, using, modifying and/or developing or reproducing the
+ * software by the user in light of its specific status of free software,
+ * that may mean that it is complicated to manipulate, and that also
+ * therefore means that it is reserved for developers and experienced
+ * professionals having in-depth computer knowledge. Users are therefore
+ * encouraged to load and test the software's suitability as regards their
+ * requirements in conditions enabling the security of their systems and/or
+ * data to be ensured and, more generally, to use and operate it in the
+ * same conditions as regards security.
+ *
+ * The fact that you are presently reading this means that you have had
+ * knowledge of the CeCILL-C license and that you accept its terms.
+ *******************************************************************************/
 package madkit.kernel;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -24,11 +58,11 @@ import java.util.jar.JarFile;
 import java.util.logging.Logger;
 
 /**
- * The MadkitClassLoader is the class loader used by MaDKit. It enables some
- * specific features such as class hot reloading, jar loading, etc.
+ * The MadkitClassLoader is the class loader used by MaDKit. It enables some specific
+ * features such as class hot reloading, jar loading, etc.
  * 
- * @author Fabien Michel
- * @author Jacques Ferber
+ *
+ *
  * @since MaDKit 4.0
  * @version 6.0
  */
@@ -69,14 +103,14 @@ public final class MadkitClassLoader extends URLClassLoader {
 	 */
 	private MadkitClassLoader(URL[] urls, final ClassLoader parent, Collection<String> toReload) {
 		super(urls, parent);
-		if (toReload != null)
+		if (toReload != null) {
 			classesToReload = new HashSet<>(toReload);
+		}
 		currentMCL = this;
 	}
 
 	/**
-	 * Returns the last class loader, thus having all the loaded jars on the
-	 * classpath.
+	 * Returns the last class loader, thus having all the loaded jars on the classpath.
 	 * 
 	 * @return the last class loader.
 	 */
@@ -118,9 +152,11 @@ public final class MadkitClassLoader extends URLClassLoader {
 //	}
 //	
 
+	@Override
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
-		if (!classesToReload.contains(name))
+		if (!classesToReload.contains(name)) {
 			return super.loadClass(name);
+		}
 
 		try {
 			URL myUrl = getSystemResource(name.replace('.', '/') + ".class");
@@ -140,8 +176,6 @@ public final class MadkitClassLoader extends URLClassLoader {
 
 			return defineClass(name, classData, 0, classData.length);
 
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -150,25 +184,25 @@ public final class MadkitClassLoader extends URLClassLoader {
 	}
 
 	/**
-	 * Schedule the reloading of the byte code of a class for its next loading. So
-	 * new instances, created using {@link Class#newInstance()} on a class object
-	 * obtained with {@link #loadClass(String)}, will reflect compilation changes
-	 * during run time. In fact, using {@link #loadClass(String)} on the current MDK
-	 * class loader obtained with {@link #getLoader()} returns the class object
-	 * corresponding to the last compilation of the java code available on the class
-	 * path. Especially, this may return a different version than
-	 * {@link Class#forName(String)} because {@link Class#forName(String)} uses the
-	 * {@link ClassLoader} of the caller's current class which could be different
-	 * than the current one (i.e. the one obtained {@link #getLoader()}) if several
-	 * reloads have been done. Especially, {@link Agent#launchAgent(String, int)}
-	 * always uses the newest version of an agent class.
+	 * Schedule the reloading of the byte code of a class for its next loading. So new
+	 * instances, created using {@link Class#newInstance()} on a class object obtained with
+	 * {@link #loadClass(String)}, will reflect compilation changes during run time. In fact,
+	 * using {@link #loadClass(String)} on the current MDK class loader obtained with
+	 * {@link #getLoader()} returns the class object corresponding to the last compilation of
+	 * the java code available on the class path. Especially, this may return a different
+	 * version than {@link Class#forName(String)} because {@link Class#forName(String)} uses
+	 * the {@link ClassLoader} of the caller's current class which could be different than the
+	 * current one (i.e. the one obtained {@link #getLoader()}) if several reloads have been
+	 * done. Especially, {@link Agent#launchAgent(String, int)} always uses the newest version
+	 * of an agent class.
 	 * 
 	 * @param name The fully qualified class name of the class
 	 * @throws ClassNotFoundException if the class cannot be found on the class path
 	 */
 	public static void reloadClass(String name) throws ClassNotFoundException {
-		if (currentMCL.getResource(name.replace('.', '/') + ".class") == null)
+		if (currentMCL.getResource(name.replace('.', '/') + ".class") == null) {
 			throw new ClassNotFoundException(name);
+		}
 		if (currentMCL.classesToReload == null) {
 			currentMCL.classesToReload = new HashSet<>();
 		}
@@ -189,8 +223,9 @@ public final class MadkitClassLoader extends URLClassLoader {
 			for (final File f : demoDir.listFiles()) {
 				if (f.getName().endsWith(".jar")) {
 					try {
-						if (loadUrl(f.toURI().toURL()))
+						if (loadUrl(f.toURI().toURL())) {
 							hasLoadSomething = true;
+						}
 					} catch (MalformedURLException e) {
 						e.printStackTrace();
 					}
@@ -200,66 +235,15 @@ public final class MadkitClassLoader extends URLClassLoader {
 		return hasLoadSomething;
 	}
 
-//    public static boolean loadJar(final Path directoryOrFile) {
-//	boolean hasLoadSomething = false;
-//	if(Files.isDirectory(directoryOrFile)) {
-//	       try (DirectoryStream<Path> stream = Files.newDirectoryStream(directoryOrFile, "*.jar")) {
-//	           for (Path entry : stream) {
-//	               if (loadUrl(entry.toUri().toURL()))
-//	        	   hasLoadSomething = true;
-//	           }
-//	       } catch (IOException ex) {
-//	           ex.printStackTrace();
-//	       }
-//	}
-//	else
-//	    try {
-//		if (Files.isRegularFile(directoryOrFile) && directoryOrFile.toString().endsWith(".jar") && loadUrl(directoryOrFile.toUri().toURL()))
-//		   hasLoadSomething = true;
-//	    }
-//	    catch(MalformedURLException e) {
-//		e.printStackTrace();
-//	    }
-//	return hasLoadSomething;
-//    }
-
-	// /**
-	// * Loads all jar files from a directory
-	// *
-	// * @param directoryPath directory's path
-	// * @return <code>true</code> if at least one new jar has been loaded
-	// */
-	// public static boolean loadJarsFromDirectory(final Path directoryPath) {
-	// final File demoDir = new File(directoryPath);
-	// boolean hasLoadSomething = false;
-	// if (demoDir.isDirectory()) {
-	// for (final File f : demoDir.listFiles()){
-	// if (f.getName().endsWith(".jar")) {
-	// try {
-	// if(loadUrl(f.toURI().toURL()))
-	// hasLoadSomething = true;
-	// } catch (MalformedURLException e) {
-	// e.printStackTrace();
-	// }
-	// }
-	// }
-	// }
-	// return hasLoadSomething;
-	// }
-
-	// Class<? extends AbstractAgent> loadAgentClass(String name) throws
-	// ClassNotFoundException{
-	// return (Class<? extends AbstractAgent>) loadClass(name);
-	// }
-
 	/**
 	 * used to reload classes from the target's package, ensuring accessibility
 	 * 
 	 * @param name full class's name
 	 */
 	private void addUrlAndloadClasses(String name) {
-		if (name.startsWith("madkit.kernel."))
+		if (name.startsWith("madkit.kernel.")) {
 			return;
+		}
 		final URL url = this.getResource(name.replace('.', '/') + ".class");
 		if (url != null && url.getProtocol().equals("file")) {
 			String packageName = getClassPackageName(name);
@@ -283,9 +267,8 @@ public final class MadkitClassLoader extends URLClassLoader {
 	}
 
 	/**
-	 * Returns the package name for this class name. E.g.
-	 * <code>java.lang.Object</code> as input gives <code>java.lang</code> as
-	 * output.
+	 * Returns the package name for this class name. E.g. <code>java.lang.Object</code> as
+	 * input gives <code>java.lang</code> as output.
 	 * 
 	 * @param classFullName the full name of a class
 	 * @return the package name or <code>null</code> if no package is defined
@@ -296,8 +279,8 @@ public final class MadkitClassLoader extends URLClassLoader {
 	}
 
 	/**
-	 * Returns the simple name for a full class name. E.g.
-	 * <code>java.lang.Object</code> as input gives <code>Object</code> as output.
+	 * Returns the simple name for a full class name. E.g. <code>java.lang.Object</code> as
+	 * input gives <code>Object</code> as output.
 	 * 
 	 * @param classFullName the full name of a class
 	 * @return the simple name of a class name
@@ -317,8 +300,9 @@ public final class MadkitClassLoader extends URLClassLoader {
 			mains = new HashSet<>();
 		}
 		for (URL dir : getLoader().getURLs()) {
-			if (!scannedURLs.add(dir))
+			if (!scannedURLs.add(dir)) {
 				continue;
+			}
 			if (dir.getFile().endsWith(".jar")) {
 				try (JarFile jarFile = ((JarURLConnection) new URL("jar:" + dir + "!/").openConnection()).getJarFile()) {
 //					scanJarFileForLaunchConfig(jarFile);
@@ -450,15 +434,6 @@ public final class MadkitClassLoader extends URLClassLoader {
 //		}
 //	}
 
-	/**
-	 * @param args
-	 * @return <code>true</code> if <code>args</code> is not <code>null</code> and
-	 *         not empty
-	 */
-	private static boolean check(String args) {
-		return args != null && !args.trim().isEmpty();
-	}
-
 	private static void scanFolderForAgentClasses(File file, String pckName, String currentUrlPath) {
 		File[] files = file.listFiles();
 		if (files != null) {
@@ -484,7 +459,6 @@ public final class MadkitClassLoader extends URLClassLoader {
 //							}
 //						} catch (SAXException | IOException | ParserConfigurationException e) {
 //							// e.printStackTrace();
-//							// FIXME should be logged
 //						}
 					}
 				}
@@ -505,7 +479,7 @@ public final class MadkitClassLoader extends URLClassLoader {
 				return true;
 			}
 		} catch (VerifyError | ClassNotFoundException | NoClassDefFoundError | SecurityException
-				| NoSuchMethodException e) {// FIXME just a reminder
+				| NoSuchMethodException e) {
 		}
 		return false;
 	}
@@ -531,14 +505,16 @@ public final class MadkitClassLoader extends URLClassLoader {
 	 * 
 	 * @param <T>        the type of the agent
 	 * @param agentClass the name of the class
-	 * @return an instance of the class or <code>null</code> if the class cannot be
-	 *         found.
+	 * @return an instance of the class or <code>null</code> if the class cannot be found.
 	 */
+	@SuppressWarnings("unchecked")
 	public static <T extends Agent> T getAgentInstance(String agentClass) {
 		try {
-			Class<?> targetClass = getLoader().loadClass(agentClass);// NOSONAR
-			Constructor<T> c = (Constructor<T>) targetClass.getDeclaredConstructor();// mcl must not be closed
-			return c.newInstance();
+			Class<?> targetClass = getLoader().loadClass(agentClass);
+			if (targetClass != null) {
+				Constructor<T> c = (Constructor<T>) targetClass.getDeclaredConstructor();// mcl must not be closed
+				return c.newInstance();
+			}
 		} catch (InvocationTargetException | InstantiationException | IllegalAccessException | IllegalArgumentException
 				| NoSuchMethodException | SecurityException | ClassNotFoundException e) {
 			logger.severe(() -> "Cannot create agent instance " + agentClass);
@@ -550,45 +526,44 @@ public final class MadkitClassLoader extends URLClassLoader {
 	/**
 	 * Find a JDK/JRE program
 	 * 
-	 * @param executable the name of the Java program to look for. E.g. "jarsigner",
-	 *                   without file extension.
+	 * @param executable the name of the Java program to look for. E.g. "jarsigner", without
+	 *                   file extension.
 	 * @return the path to the executable or <code>null</code> if not found.
 	 */
 	public static String findJavaExecutable(String executable) {
 		File lookupDir = new File(System.getProperty("java.home"));
 		String exe = MadkitClassLoader.findJExecutable(lookupDir, executable);
-		if (exe != null)// was jdk dir
+		if (exe != null) { // was jdk dir
 			return exe;
+		}
 		lookupDir = lookupDir.getParentFile();
 		exe = MadkitClassLoader.findJExecutable(lookupDir, executable);
-		if (exe != null)// was jre dir in jdk
+		if (exe != null) { // was jre dir in jdk
 			return exe;
+		}
 		while (lookupDir != null) {
-//			Arrays.stream(lookupDir.listFiles(p -> p.isDirectory() && ))
-			for (File dir : lookupDir.listFiles(new FileFilter() {
-
-				@Override
-				public boolean accept(File pathname) {
-					if (pathname.isDirectory()) {
-						String dirName = pathname.getName();
-						return dirName.contains("jdk") || dirName.contains("java");
-					}
-					return false;
+			for (File dir : lookupDir.listFiles(pathname -> {
+				if (pathname.isDirectory()) {
+					String dirName = pathname.getName();
+					return dirName.contains("jdk") || dirName.contains("java");
 				}
+				return false;
 			})) {
 				exe = MadkitClassLoader.findJExecutable(dir, executable);
-				if (exe != null)
+				if (exe != null) {
 					return exe;
+				}
 			}
 			lookupDir = lookupDir.getParentFile();
 		}
 		return null;
+
 	}
 
 	/**
-	 * This is only used by ant scripts for building MDK jar files. This will create
-	 * a file in java.io.tmpdir named agents.classes containing the agent classes
-	 * which are on the class path and other information
+	 * This is only used by ant scripts for building MDK jar files. This will create a file in
+	 * java.io.tmpdir named agents.classes containing the agent classes which are on the class
+	 * path and other information
 	 * 
 	 * @param args the command line arguments
 	 * @throws FileNotFoundException if the file is not found

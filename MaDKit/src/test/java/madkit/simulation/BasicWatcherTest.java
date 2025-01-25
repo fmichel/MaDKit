@@ -11,7 +11,7 @@ import madkit.kernel.Probe;
 import madkit.kernel.Watcher;
 
 /**
- * @author Fabien Michel
+ *
  * @since MaDKit 5.0.0.2
  * @version 0.9
  * 

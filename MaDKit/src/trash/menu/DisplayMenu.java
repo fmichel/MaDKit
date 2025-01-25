@@ -47,7 +47,7 @@ import madkit.i18n.Words;
 /**
  * Class for building the display menu of MDK frames.
  * 
- * @author Fabien Michel
+ *
  * @since MaDKit 5.0.0.17
  * @version 0.91
  */

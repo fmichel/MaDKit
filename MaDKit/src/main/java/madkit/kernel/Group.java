@@ -1,3 +1,38 @@
+/*******************************************************************************
+ * MaDKit - Multi-agent systems Development Kit 
+ * 
+ * Copyright (c) 1998-2025 Fabien Michel, Olivier Gutknecht, Jacques Ferber...
+ * 
+ * This software is a computer program whose purpose is to
+ * provide a lightweight Java API for developing and simulating 
+ * Multi-Agent Systems (MAS) using an organizational perspective.
+ *
+ * This software is governed by the CeCILL-C license under French law and
+ * abiding by the rules of distribution of free software.You can use,
+ * modify and/ or redistribute the software under the terms of the CeCILL-C
+ * license as circulated by CEA, CNRS and INRIA at the following URL
+ * "http://www.cecill.info".
+ *
+ * As a counterpart to the access to the source code and rights to copy,
+ * modify and redistribute granted by the license, users are provided only
+ * with a limited warranty and the software's author, the holder of the
+ * economic rights, and the successive licensors have only limited
+ * liability.
+ *
+ * In this respect, the user's attention is drawn to the risks associated
+ * with loading, using, modifying and/or developing or reproducing the
+ * software by the user in light of its specific status of free software,
+ * that may mean that it is complicated to manipulate, and that also
+ * therefore means that it is reserved for developers and experienced
+ * professionals having in-depth computer knowledge. Users are therefore
+ * encouraged to load and test the software's suitability as regards their
+ * requirements in conditions enabling the security of their systems and/or
+ * data to be ensured and, more generally, to use and operate it in the
+ * same conditions as regards security.
+ *
+ * The fact that you are presently reading this means that you have had
+ * knowledge of the CeCILL-C license and that you accept its terms.
+ *******************************************************************************/
 
 package madkit.kernel;
 
@@ -16,13 +51,10 @@ import madkit.kernel.Agent.ReturnCode;
 
 /**
  * 
- * This class represents a group, containing roles played by agents. It is a
- * collection of roles. A group is always linked to a community.
+ * This class represents a group, containing roles played by agents. It is a collection of
+ * roles. A group is always linked to a community.
  * 
- * @author Oliver Gutknecht
- * @author Fabien Michel since v.3
- * @version 6.1
- * @since MaDKit 1.0
+ * @version 6.0.0
  * 
  */
 public final class Group {
@@ -57,7 +89,7 @@ public final class Group {
 	}
 
 	/**
-	 * Gets the organization.
+	 * Gets the organization of the community this group belongs to.
 	 *
 	 * @return the parentOrganization
 	 */
@@ -66,7 +98,7 @@ public final class Group {
 	}
 
 	/**
-	 * Gets the community.
+	 * Gets the community this group belongs to.
 	 *
 	 * @return the communityObject
 	 */
@@ -75,7 +107,31 @@ public final class Group {
 	}
 
 	/**
-	 * Returns the agents of this group
+	 * Gets the list of the roles in this group.
+	 *
+	 * @return the roles in this group
+	 */
+	public List<Role> getRoles() {
+		return List.copyOf(roles.values());
+	}
+
+	/**
+	 * Gets a role as an object from its name
+	 *
+	 * @param role the name of the role
+	 * @return the role as an object
+	 * @throws CGRNotAvailable the CGR not available
+	 */
+	public Role getRole(String role) throws CGRNotAvailable {
+		Role r = roles.get(role);
+		if (r == null) {
+			throw new CGRNotAvailable(NOT_ROLE);
+		}
+		return r;
+	}
+
+	/**
+	 * Returns the all the agents that are in this group.
 	 * 
 	 * @return the agents of this group
 	 */
@@ -114,6 +170,11 @@ public final class Group {
 		return isSecured;
 	}
 
+	/**
+	 * Gets the name
+	 *
+	 * @return the name
+	 */
 	String getName() {
 		return name;
 	}
@@ -172,7 +233,7 @@ public final class Group {
 //				}
 //		}
 		// TODO there is another RC : manager role is already handled
-		return roles.computeIfAbsent(roleName, r -> new Role(this, roleName)).addMember(requester);
+		return roles.computeIfAbsent(roleName, _ -> new Role(this, roleName)).addMember(requester);
 //		if(role.addMember(requester)) {
 //			
 //		}
@@ -204,8 +265,9 @@ public final class Group {
 	 */
 	void removeRole(String roleName) {
 		roles.remove(roleName);
-		if (logger != null)
+		if (logger != null) {
 			logger.finer(() -> "Removing" + I18nUtilities.getCGRString(community.getName(), name, roleName));
+		}
 		checkEmptyness();
 	}
 
@@ -215,6 +277,12 @@ public final class Group {
 		}
 	}
 
+	/**
+	 * Leave group.
+	 *
+	 * @param requester the requester
+	 * @return true, if successful
+	 */
 	boolean leaveGroup(final Agent requester) {
 		if (roles.values().parallelStream().filter(r -> r.removeMember(requester) == ReturnCode.SUCCESS).count() > 0) {
 			checkEmptyness();
@@ -224,10 +292,10 @@ public final class Group {
 	}
 
 	/**
-	 * <code>true</code> if the agent is in this group
+	 * Checks if the agent is in this group.
 	 *
 	 * @param agent the agent to check
-	 * @return true, if successful
+	 * @return <code>true</code>, if the agent is in this group
 	 */
 	public boolean contains(Agent agent) {
 		return roles.values().parallelStream().anyMatch(r -> r.contains(agent));
@@ -249,23 +317,16 @@ public final class Group {
 	// }
 
 	/**
-	 * Gets the agent address of an agent in this group.
+	 * Gets any agent address of an agent in this group.
+	 * 
 	 *
 	 * @param agent the agent to get the address of
-	 * @return the agent address of the agent in this group
+	 * @return the agent address of the agent in this group or <code>null</code> if the agent
+	 *         is not in
 	 */
-	AgentAddress getAgentAddressOf(Agent agent) {
+	AgentAddress getAnyAgentAddressOf(Agent agent) {
 		return roles.values().parallelStream().map(r -> r.getAgentAddressOf(agent)).filter(a -> a != null).findAny()
 				.orElse(null);
-	}
-
-	/**
-	 * Gets the list of the roles in this group.
-	 *
-	 * @return the roles in this group
-	 */
-	public List<Role> getRoles() {
-		return List.copyOf(roles.values());
 	}
 
 	/**
@@ -286,6 +347,11 @@ public final class Group {
 		return distributed;
 	}
 
+	/**
+	 * Gets the kernel.
+	 *
+	 * @return the kernel
+	 */
 	KernelAgent getKernel() {
 		return community.getKernel();
 	}
@@ -395,23 +461,15 @@ public final class Group {
 		return roles.values().stream().filter(r -> r.contains(a)).toList();
 	}
 
+	/**
+	 * Returns a string representation of the group. The string representation consists of the
+	 * community name, the group name, and the roles in the group.
+	 *
+	 * @return a string representation of the group
+	 */
 	@Override
 	public String toString() {
 		return I18nUtilities.getCGRString(community.getName(), name) + roles.values();
-	}
-
-	/**
-	 * Gets a role as an object from its name
-	 *
-	 * @param role the name of the role
-	 * @return the role as an object
-	 * @throws CGRNotAvailable the CGR not available
-	 */
-	public Role getRole(String role) throws CGRNotAvailable {
-		Role r = roles.get(role);
-		if (r == null)
-			throw new CGRNotAvailable(NOT_ROLE);
-		return r;
 	}
 
 	/**
@@ -431,12 +489,4 @@ public final class Group {
 	public boolean exists() {
 		return !roles.isEmpty();
 	}
-
-//	final void destroy() {
-//		for (Role r : values()) {
-//			r.destroy();
-//		}
-//		communityObject.removeGroup(groupName);
-//	}
-
 }

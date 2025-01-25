@@ -1,3 +1,38 @@
+/*******************************************************************************
+ * MaDKit - Multi-agent systems Development Kit 
+ * 
+ * Copyright (c) 1998-2025 Fabien Michel, Olivier Gutknecht, Jacques Ferber...
+ * 
+ * This software is a computer program whose purpose is to
+ * provide a lightweight Java API for developing and simulating 
+ * Multi-Agent Systems (MAS) using an organizational perspective.
+ *
+ * This software is governed by the CeCILL-C license under French law and
+ * abiding by the rules of distribution of free software.You can use,
+ * modify and/ or redistribute the software under the terms of the CeCILL-C
+ * license as circulated by CEA, CNRS and INRIA at the following URL
+ * "http://www.cecill.info".
+ *
+ * As a counterpart to the access to the source code and rights to copy,
+ * modify and redistribute granted by the license, users are provided only
+ * with a limited warranty and the software's author, the holder of the
+ * economic rights, and the successive licensors have only limited
+ * liability.
+ *
+ * In this respect, the user's attention is drawn to the risks associated
+ * with loading, using, modifying and/or developing or reproducing the
+ * software by the user in light of its specific status of free software,
+ * that may mean that it is complicated to manipulate, and that also
+ * therefore means that it is reserved for developers and experienced
+ * professionals having in-depth computer knowledge. Users are therefore
+ * encouraged to load and test the software's suitability as regards their
+ * requirements in conditions enabling the security of their systems and/or
+ * data to be ensured and, more generally, to use and operate it in the
+ * same conditions as regards security.
+ *
+ * The fact that you are presently reading this means that you have had
+ * knowledge of the CeCILL-C license and that you accept its terms.
+ *******************************************************************************/
 package madkit.simulation.viewer;
 
 import java.awt.event.KeyEvent;
@@ -24,7 +59,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import madkit.action.ActionData;
 import madkit.action.Actions;
-import madkit.gui.AgentDefaultGUI;
+import madkit.gui.DefaultAgentGUI;
 import madkit.gui.FXActionCheck;
 import madkit.gui.FXExecutor;
 import madkit.gui.PropertySheetFactory;
@@ -34,33 +69,32 @@ import madkit.kernel.Probe;
 import madkit.simulation.Viewer;
 
 /**
- * This class provides a default GUI for a viewer agent. It creates a JavaFX
- * stage with a menu bar, a toolbar, a central node and a right node.
+ * This class provides a default GUI for a viewer agent. It creates a JavaFX stage with a
+ * menu bar, a toolbar, a central node and a right node.
  * <p>
- * The central node is created by the {@link #createCenterNode()} method, which
- * has to be implemented by the subclass.
+ * The central node is created by the {@link #createCenterNode()} method, which has to be
+ * implemented by the subclass.
  * <p>
- * The right node is created by the {@link #createRightNode()} method, which can
- * be overridden to provide a custom right node. By default, it creates a VBox
- * containing the simulation properties using the {@link PropertySheetFactory}.
+ * The right node is created by the {@link #createRightNode()} method, which can be
+ * overridden to provide a custom right node. By default, it creates a VBox containing the
+ * simulation properties using the {@link PropertySheetFactory}.
  * <p>
- * The toolbar is created by the {@link #createToolBar()} method, which can be
- * overridden to provide a custom toolbar. By default, it creates a toolbar with
- * the viewer agent's actions and the scheduler's actions.
+ * The toolbar is created by the {@link #createToolBar()} method, which can be overridden
+ * to provide a custom toolbar. By default, it creates a toolbar with the viewer agent's
+ * actions and the scheduler's actions.
  * <p>
- * The rendering is managed by the {@link #requestRendering()} method, which is
- * called by the viewer agent when it wants to render the simulation state. This
- * method triggers the {@link Viewer#render()} in the JavaFX thread, depending
- * on the state of the GUI such as the synchronous painting mode.
+ * The rendering is managed by the {@link #requestRendering()} method, which is called by
+ * the viewer agent when it wants to render the simulation state. This method triggers the
+ * {@link Viewer#render()} in the JavaFX thread, depending on the state of the GUI such as
+ * the synchronous painting mode.
  * <p>
- * The synchronous painting mode can be activated or deactivated by the user.
- * When activated, the rendering is done for each simulation step and blocks the
- * simulation process. When deactivated, the rendering is done without blocking
- * the simulation process, at a rate corresponding to the complexity of the
- * rendering.
+ * The synchronous painting mode can be activated or deactivated by the user. When
+ * activated, the rendering is done for each simulation step and blocks the simulation
+ * process. When deactivated, the rendering is done without blocking the simulation
+ * process, at a rate corresponding to the complexity of the rendering.
  * 
  */
-public abstract class ViewerDefaultGUI extends AgentDefaultGUI {
+public abstract class ViewerDefaultGUI extends DefaultAgentGUI {
 
 	private FXActionCheck renderingOff;
 	private FXActionCheck synchroPainting;
@@ -82,7 +116,10 @@ public abstract class ViewerDefaultGUI extends AgentDefaultGUI {
 			tb.getItems().get(8).requestFocus();
 		});
 	}
-	
+
+	/**
+	 * Redefines to initialize the default rendering actions.
+	 */
 	@Override
 	protected void onInitialize() {
 		AnimationTimer animationTimer = new AnimationTimer() {
@@ -106,8 +143,13 @@ public abstract class ViewerDefaultGUI extends AgentDefaultGUI {
 		});
 
 		synchroPainting.setSelected(true);
-    }
-	
+	}
+
+	/**
+	 * Creates the top node.
+	 *
+	 * @return the node
+	 */
 	@Override
 	protected Node createTopNode() {
 		VBox vb = new VBox();
@@ -119,7 +161,12 @@ public abstract class ViewerDefaultGUI extends AgentDefaultGUI {
 		vb.getChildren().add(menuBar);
 		return vb;
 	}
-	
+
+	/**
+	 * Creates the bottom node.
+	 *
+	 * @return the node
+	 */
 	@Override
 	protected Node createBottomNode() {
 		ToolBar toolBar = getToolBar();
@@ -128,9 +175,9 @@ public abstract class ViewerDefaultGUI extends AgentDefaultGUI {
 	}
 
 	/**
-	 * Returns the {@link VBox} that will positioned on the right part of the main
-	 * pane, which is a {@link BorderPane}. By default, it creates a VBox containing
-	 * the simulation properties using the {@link PropertySheetFactory}.
+	 * Returns the {@link VBox} that will positioned on the right part of the main pane, which
+	 * is a {@link BorderPane}. By default, it creates a VBox containing the simulation
+	 * properties using the {@link PropertySheetFactory}.
 	 * <p>
 	 * This method can be overridden to provide a custom right node.
 	 * <p>
@@ -152,8 +199,11 @@ public abstract class ViewerDefaultGUI extends AgentDefaultGUI {
 	@Override
 	protected Node createRightNode() {
 		List<Object> l = new ArrayList<>();
-		l.addAll(List.of(getViewer().getLauncher(), getViewer().getModel(), getViewer().getEnvironment(),
-				getViewer().getScheduler(), getViewer()));
+		l.add(getViewer().getLauncher());
+		l.add(getViewer().getModel());
+		l.add(getViewer().getEnvironment());
+		l.add(getViewer().getScheduler());
+		l.add(getViewer());
 		l.addAll(getSimulatedAgentClasses());
 		return PropertySheetFactory.getVBoxProperties(l.toArray(new Object[0]));
 	}
@@ -169,11 +219,12 @@ public abstract class ViewerDefaultGUI extends AgentDefaultGUI {
 	}
 
 	/**
-	 * Creates the central node of the viewer agent. This method has to be
-	 * implemented by the subclass.
+	 * Creates the central node of the viewer agent. This method has to be implemented by the
+	 * subclass.
 	 * 
 	 * @return the central node of the main pane
 	 */
+	@Override
 	protected abstract Node createCenterNode();
 
 	/**
@@ -202,9 +253,8 @@ public abstract class ViewerDefaultGUI extends AgentDefaultGUI {
 	}
 
 	/**
-	 * Requests the rendering of the simulation state. The rendering is done in the
-	 * JavaFX thread depending on the state of the GUI such as the synchronous
-	 * painting mode.
+	 * Requests the rendering of the simulation state. The rendering is done in the JavaFX
+	 * thread depending on the state of the GUI such as the synchronous painting mode.
 	 * 
 	 */
 	public void requestRendering() {
@@ -263,6 +313,11 @@ public abstract class ViewerDefaultGUI extends AgentDefaultGUI {
 		synchroPainting.setSelected(activated);
 	}
 
+	/**
+	 * Sets the rendering interval.
+	 *
+	 * @param interval the new rendering interval
+	 */
 	void setRenderingInterval(int interval) {
 		renderingInterval = interval > 0 ? interval : 1;
 		// if ((int) comboBox.getSelectedItem() != renderingInterval) {

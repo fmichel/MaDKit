@@ -12,7 +12,7 @@ import org.testng.annotations.Test;
 import madkit.agr.SystemRoles;
 
 /**
- * @author Fabien Michel
+ *
  * @since MaDKit 5.0.0.6
  * @version 0.9
  * 

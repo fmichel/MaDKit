@@ -24,7 +24,7 @@ import madkit.simulation.SimuAgent;
 import net.jodah.concurrentunit.ConcurrentTestCase;
 
 /**
- * @author Fabien Michel
+ *
  * @since MaDKit 5.0.0.7
  * @version 0.9
  * 

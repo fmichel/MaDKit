@@ -5,7 +5,7 @@ import madkit.test.agents.behaviors.ActivateCGR;
 import madkit.test.agents.behaviors.BlockedActivate;
 
 /**
- * @author Fabien Michel
+ *
  *
  */
 public class CGRBlockedInActivate extends GenericTestAgent implements ActivateCGR, BlockedActivate {

@@ -24,7 +24,7 @@ import madkit.kernel.AgentLogger;
  * This component is the default panel which is used for the frames assigned to agents that do not define their own GUI
  * and which are launched using <code>true</code> for the <code>createFrame</code> parameter.
  * 
- * @author Fabien Michel
+ *
  * @since MaDKit 5.0.0.2
  * @version 1
  * @see Agent#setupGUI()

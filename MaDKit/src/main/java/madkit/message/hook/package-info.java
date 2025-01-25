@@ -4,7 +4,7 @@
  * life cycle events. See the {@link madkit.message.hook.HookMessage} as the
  * entry point for using this feature.
  * 
- * @author Fabien Michel
+ *
  * @since MaDKit 5.0.0.19
  * @version 0.9
  * 

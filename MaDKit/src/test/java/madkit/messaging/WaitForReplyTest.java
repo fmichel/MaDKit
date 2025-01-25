@@ -50,7 +50,7 @@ import madkit.messages.StringMessage;
 import madkit.test.agents.CGRAgent;
 
 /**
- * @author Fabien Michel
+ *
  * @since MaDKit 5.0.4
  * @version 0.9
  * 

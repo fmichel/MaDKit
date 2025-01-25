@@ -76,7 +76,7 @@ package madkit.test.agents;
 import madkit.test.agents.behaviors.BlockedEnd;
 
 /**
- * @author Fabien Michel
+ *
  *
  */
 public class ThreadedAgentBlockedInEnd extends ThreadedTestAgent implements BlockedEnd {

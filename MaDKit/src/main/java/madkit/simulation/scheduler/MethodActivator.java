@@ -1,3 +1,38 @@
+/*******************************************************************************
+ * MaDKit - Multi-agent systems Development Kit 
+ * 
+ * Copyright (c) 1998-2025 Fabien Michel, Olivier Gutknecht, Jacques Ferber...
+ * 
+ * This software is a computer program whose purpose is to
+ * provide a lightweight Java API for developing and simulating 
+ * Multi-Agent Systems (MAS) using an organizational perspective.
+ *
+ * This software is governed by the CeCILL-C license under French law and
+ * abiding by the rules of distribution of free software.You can use,
+ * modify and/ or redistribute the software under the terms of the CeCILL-C
+ * license as circulated by CEA, CNRS and INRIA at the following URL
+ * "http://www.cecill.info".
+ *
+ * As a counterpart to the access to the source code and rights to copy,
+ * modify and redistribute granted by the license, users are provided only
+ * with a limited warranty and the software's author, the holder of the
+ * economic rights, and the successive licensors have only limited
+ * liability.
+ *
+ * In this respect, the user's attention is drawn to the risks associated
+ * with loading, using, modifying and/or developing or reproducing the
+ * software by the user in light of its specific status of free software,
+ * that may mean that it is complicated to manipulate, and that also
+ * therefore means that it is reserved for developers and experienced
+ * professionals having in-depth computer knowledge. Users are therefore
+ * encouraged to load and test the software's suitability as regards their
+ * requirements in conditions enabling the security of their systems and/or
+ * data to be ensured and, more generally, to use and operate it in the
+ * same conditions as regards security.
+ *
+ * The fact that you are presently reading this means that you have had
+ * knowledge of the CeCILL-C license and that you accept its terms.
+ *******************************************************************************/
 package madkit.simulation.scheduler;
 
 import java.lang.invoke.MethodHandle;
@@ -15,21 +50,19 @@ import madkit.reflection.ReflectionUtils;
 import madkit.simulation.SimuException;
 
 /**
- * An activator that invokes a single method on a group of agents. This class
- * encapsulates behavior invocation on MaDKit agents for scheduler agents. It
- * allows to call a particular Java method on agents regardless of their actual
- * class type as long as they extend {@link Agent}. This has to be used by
- * {@link Scheduler} subclasses to create simulation applications.
+ * An activator that invokes a single method on a group of agents. This class encapsulates
+ * behavior invocation on MaDKit agents for scheduler agents. It allows to call a
+ * particular Java method on agents regardless of their actual class type as long as they
+ * extend {@link Agent}. This has to be used by {@link Scheduler} subclasses to create
+ * simulation applications.
  *
- * @author Fabien Michel
  * @since MaDKit 5.0.0.1
  * @version 6.0
  */
 public class MethodActivator extends Activator {
 
 	/**
-	 * Maps an agent class to its corresponding Method object for runtime
-	 * invocation.
+	 * Maps an agent class to its corresponding Method object for runtime invocation.
 	 */
 	private final Map<Class<?>, MethodHandle> methods;
 	/** The name of the method to be invoked on the agents. */
@@ -47,22 +80,18 @@ public class MethodActivator extends Activator {
 	private boolean parallelMode = false;
 
 	/**
-	 * Builds a new GenericBehaviorActivator on the given CGR location of the
-	 * artificial society. Once created, it has to be added by a {@link Scheduler}
-	 * agent using the {@link Scheduler#addActivator(Activator)} method. Once added,
-	 * it could be used to trigger the behavior on all the agents which are at this
-	 * CGR location, regardless of their class type as long as they extend
-	 * {@link Agent}.
+	 * Builds a new GenericBehaviorActivator on the given CGR location of the artificial
+	 * society. Once created, it has to be added by a {@link Scheduler} agent using the
+	 * {@link Scheduler#addActivator(Activator)} method. Once added, it could be used to
+	 * trigger the behavior on all the agents which are at this CGR location, regardless of
+	 * their class type as long as they extend {@link Agent}.
 	 *
 	 * @param group      the group of the agents
 	 * @param role       the role of the agents
 	 * @param methodName the name of the Java method which will be invoked
 	 * @param argTypes   the class types of the method arguments
 	 */
-	public MethodActivator(String group,
-			String role,
-			String methodName,
-			Class<?>... argTypes) {
+	public MethodActivator(String group, String role, String methodName, Class<?>... argTypes) {
 		super(group, role);
 		methods = new ConcurrentHashMap<>();
 		method = methodName;
@@ -176,8 +205,7 @@ public class MethodActivator extends Activator {
 	}
 
 	/**
-	 * Executes the behavior on the given agent without caching and without
-	 * arguments.
+	 * Executes the behavior on the given agent without caching and without arguments.
 	 *
 	 * @param a    the agent
 	 * @param args the arguments to pass to the behavior
@@ -264,12 +292,11 @@ public class MethodActivator extends Activator {
 	}
 
 	/**
-	 * Sets whether the activation list should be shuffled before execution. The
-	 * shuffling mode is done using the PRNG defined by the Model agent. If the
-	 * parallel mode is enabled, the shuffling mode has no effect.
+	 * Sets whether the activation list should be shuffled before execution. The shuffling
+	 * mode is done using the PRNG defined by the Model agent. If the parallel mode is
+	 * enabled, the shuffling mode has no effect.
 	 *
-	 * @param shufflingMode true if the activation list should be shuffled, false
-	 *                      otherwise
+	 * @param shufflingMode true if the activation list should be shuffled, false otherwise
 	 */
 	public void setShufflingMode(boolean shufflingMode) {
 		this.shufflingMode = shufflingMode;
@@ -278,8 +305,8 @@ public class MethodActivator extends Activator {
 	/**
 	 * Returns whether the activator is in parallel mode.
 	 * 
-	 * @return <code>true</code> if the activator is in parallel mode,
-	 *         <code>false</code> otherwise
+	 * @return <code>true</code> if the activator is in parallel mode, <code>false</code>
+	 *         otherwise
 	 */
 	public boolean isParallelMode() {
 		return parallelMode;

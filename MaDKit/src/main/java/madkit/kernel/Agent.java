@@ -1,3 +1,38 @@
+/*******************************************************************************
+ * MaDKit - Multi-agent systems Development Kit 
+ * 
+ * Copyright (c) 1998-2025 Fabien Michel, Olivier Gutknecht, Jacques Ferber...
+ * 
+ * This software is a computer program whose purpose is to
+ * provide a lightweight Java API for developing and simulating 
+ * Multi-Agent Systems (MAS) using an organizational perspective.
+ *
+ * This software is governed by the CeCILL-C license under French law and
+ * abiding by the rules of distribution of free software.You can use,
+ * modify and/ or redistribute the software under the terms of the CeCILL-C
+ * license as circulated by CEA, CNRS and INRIA at the following URL
+ * "http://www.cecill.info".
+ *
+ * As a counterpart to the access to the source code and rights to copy,
+ * modify and redistribute granted by the license, users are provided only
+ * with a limited warranty and the software's author, the holder of the
+ * economic rights, and the successive licensors have only limited
+ * liability.
+ *
+ * In this respect, the user's attention is drawn to the risks associated
+ * with loading, using, modifying and/or developing or reproducing the
+ * software by the user in light of its specific status of free software,
+ * that may mean that it is complicated to manipulate, and that also
+ * therefore means that it is reserved for developers and experienced
+ * professionals having in-depth computer knowledge. Users are therefore
+ * encouraged to load and test the software's suitability as regards their
+ * requirements in conditions enabling the security of their systems and/or
+ * data to be ensured and, more generally, to use and operate it in the
+ * same conditions as regards security.
+ *
+ * The fact that you are presently reading this means that you have had
+ * knowledge of the CeCILL-C license and that you accept its terms.
+ *******************************************************************************/
 package madkit.kernel;
 
 import static java.util.logging.Level.FINEST;
@@ -11,11 +46,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
@@ -35,7 +67,6 @@ import madkit.random.Randomness;
 import madkit.reflection.MethodFinder;
 import madkit.reflection.MethodHandleFinder;
 import madkit.reflection.ReflectionUtils;
-import madkit.simulation.SimuAgent;
 
 /**
  * The super class of all MaDKit agents. It provides support for
@@ -72,8 +103,7 @@ import madkit.simulation.SimuAgent;
  * One of the most convenient part of the API is the logging mechanism which is provided.
  * See the {@link #getLogger()} method for more details.
  *
- * @author Fabien Michel
- * @author Olivier Gutknecht
+ *
  * @version 6.0
  * @since MaDKit 6.0
  */
@@ -81,8 +111,6 @@ public abstract class Agent {
 
 	private static final Reference2BooleanMap<Class<?>> threadedClasses = new Reference2BooleanArrayMap<>();
 	private static final AtomicInteger agentCounter = new AtomicInteger(-1);
-
-	private static final ExecutorService virtualThreadsExecutor = Executors.newVirtualThreadPerTaskExecutor();
 
 	private final int hashCode;
 	final AtomicBoolean alive = new AtomicBoolean(); // default false
@@ -145,6 +173,7 @@ public abstract class Agent {
 					c.getDeclaredMethod("onLive");
 					return true;
 				} catch (NoSuchMethodException | SecurityException e) {
+					// try another method could be remove when live method is removed
 				}
 				try {
 					c.getDeclaredMethod("live");
@@ -240,23 +269,8 @@ public abstract class Agent {
 	}
 
 	/**
-	 * @throws IllegalAccessException
-	 * @throws IllegalArgumentException
-	 * 
-	 */
-	private void randomizeFields() throws IllegalArgumentException, IllegalAccessException {
-		if (!getKernelConfig().getBoolean(MDKCommandLine.NO_RANDOM)) {
-			if (this instanceof SimuAgent sa) {
-				Randomness.randomizeFields(this, sa.prng());
-			} else {
-				Randomness.randomizeFields(this, new Random());
-			}
-		}
-	}
-
-	/**
-	 * Executes the agent's living behavior. This method logs the living event and calls the
-	 * {@link #onLive()} method. It also handles any exceptions that may occur during
+	 * /** Executes the agent's living behavior. This method logs the living event and calls
+	 * the {@link #onLive()} method. It also handles any exceptions that may occur during
 	 * execution.
 	 */
 	final void living() {
@@ -564,10 +578,9 @@ public abstract class Agent {
 	 * <p>
 	 * If this operation succeed, the agent will automatically handle the role defined by
 	 * {@link SystemRoles#GROUP_MANAGER}, which value is <i>
-	 * {@value madkit.agr.SystemRoles#GROUP_MANAGER}</i>, in this created group.
-	 * Especially, if the agent leaves the role of <i>
-	 * {@value madkit.agr.SystemRoles#GROUP_MANAGER}</i>, it will also automatically
-	 * leave the group and thus all the roles it has in this group.
+	 * {@value madkit.agr.SystemRoles#GROUP_MANAGER}</i>, in this created group. Especially,
+	 * if the agent leaves the role of <i> {@value madkit.agr.SystemRoles#GROUP_MANAGER}</i>,
+	 * it will also automatically leave the group and thus all the roles it has in this group.
 	 * <p>
 	 * Agents that want to enter the group may send messages to the <i>
 	 * {@value madkit.agr.SystemRoles#GROUP_MANAGER}</i> using the role defined by
@@ -721,6 +734,11 @@ public abstract class Agent {
 		return hashCode + "@" + getKernelAddress().hashCode();
 	}
 
+	/**
+	 * To string.
+	 *
+	 * @return the string
+	 */
 	@Override
 	public String toString() {
 		return getName();
@@ -905,7 +923,7 @@ public abstract class Agent {
 //			logger.finest(() -> "sendWithRoleWaitReply : sending "+messageToSend+" to any "+I18nUtilities.getCGRString(community, group, role)+
 //					(timeOutMilliSeconds == null ? "":", and waiting reply for "+TimeUnit.MILLISECONDS.toSeconds(timeOutMilliSeconds)+" s..."));
 		if (sendWithRole(messageToSend, community, group, role, senderRole) != SUCCESS) {
-			return null;// TODO log
+			return null;
 		}
 		return waitAnswer(messageToSend, timeOutMilliSeconds);
 	}
@@ -1005,8 +1023,9 @@ public abstract class Agent {
 	 * @see ReturnCode
 	 */
 	public ReturnCode broadcastWithRole(Message message, List<AgentAddress> receivers, String role) {
-		if (receivers.isEmpty())
+		if (receivers.isEmpty()) {
 			return NO_RECIPIENT_FOUND;
+		}
 		return kernel.broadcastMessageWithRole(this, receivers, message, role);
 	}
 
@@ -1073,35 +1092,6 @@ public abstract class Agent {
 		return kernel.getActualAddress(agentAddress) != null;
 	}
 
-//    /**
-//     * Sends a message to an agent having this position in the organization, specifying explicitly the role used to send it.
-//     * This has the same effect as sendMessageWithRole(community, group, role, messageToSend,null). If several agents match,
-//     * the target is chosen randomly. The sender is excluded from this search.
-//     *
-//     * @param community
-//     *            the community name
-//     * @param group
-//     *            the group name
-//     * @param role
-//     *            the role name
-//     * @param message
-//     *            the message to send
-//     * @return
-//     *         <ul>
-//     *         <li><code>{@link ReturnCode#SUCCESS}</code>: If the send has succeeded.</li>
-//     *         <li><code>{@link ReturnCode#NOT_COMMUNITY}</code>: If the community does not exist.</li>
-//     *         <li><code>{@link ReturnCode#NOT_GROUP}</code>: If the group does not exist.</li>
-//     *         <li><code>{@link ReturnCode#NOT_ROLE}</code>: If the role does not exist.</li>
-//     *         <li><code>{@link ReturnCode#NOT_IN_GROUP}</code>: If this agent is not a member of the targeted group.</li>
-//     *         <li><code>{@link ReturnCode#NO_RECIPIENT_FOUND}</code>: If no agent was found as recipient, i.e. the sender
-//     *         was the only agent having this role.</li>
-//     *         </ul>
-//     * @see ReturnCode
-//     */
-//    public ReturnCode sendMessage(String community, String group, String role, Message message) {
-//	return sendWithRole(community, group, role, message, null);
-//    }
-
 	/**
 	 * Sends a message by replying to a previously received message. The sender is excluded
 	 * from this search.
@@ -1125,8 +1115,9 @@ public abstract class Agent {
 	 */
 	public ReturnCode replyWithRole(Message reply, Message messageToReplyTo, String senderRole) {
 		AgentAddress target = messageToReplyTo.getSender();
-		if (target == null)
+		if (target == null) {
 			return ReturnCode.CANT_REPLY;
+		}
 		reply.setIDFrom(messageToReplyTo);
 		return kernel.sendMessage(this, target, reply, senderRole);
 	}
@@ -1196,10 +1187,11 @@ public abstract class Agent {
 	protected <T extends Message> T waitNextMessage(long timeOutMilliseconds) {
 		getLogger().finest(() -> "Waiting next message during " + timeOutMilliseconds + " milliseconds...");
 		Message m = getMailbox().waitNext(timeOutMilliseconds);
-		if (m != null)
+		if (m != null) {
 			getLogger().finest(() -> "waitNextMessage->" + Words.NEW_MSG + ": " + m);
-		else
+		} else {
 			getLogger().finest(() -> "waitNextMessage time out !");
+		}
 		return (T) m;
 	}
 
@@ -1279,7 +1271,7 @@ public abstract class Agent {
 	 * This class enumerates all the return codes which could be obtained with essential
 	 * methods of the {@link Agent} and {@link Agent} classes.
 	 *
-	 * @author Fabien Michel
+	 *
 	 * @since MaDKit 5.0
 	 */
 	public enum ReturnCode {
@@ -1382,10 +1374,6 @@ public abstract class Agent {
 		// static ResourceBundle messages =
 		// I18nUtilities.getResourceBundle(ReturnCode.class);
 
-//	@Override
-//	public String toString() {
-//	    return messages.getString(name());
-//	}
 	}
 
 	final void logMethod(String lifeCycleMethod, boolean entering) {
@@ -1446,15 +1434,17 @@ public abstract class Agent {
 	 */
 	protected static Madkit executeThisAgent(int nbOfInstances, String... args) {
 		final List<String> arguments;
-		if (args == null)
+		if (args == null) {
 			arguments = new ArrayList<>();
-		else
+		} else {
 			arguments = new ArrayList<>(List.of(args));
+		}
 		StackTraceElement element = Arrays.stream(new Throwable().getStackTrace())
 				.filter(s -> s.getMethodName().equals("main")).findFirst().orElse(null);
-
+		if (element == null) {
+			throw new IllegalStateException("This method should be called from the main method of the agent class");
+		}
 		arguments.addAll(List.of("-la", element.getClassName() + "," + nbOfInstances));
-		// NOSONAR just cannot be null
 		Madkit.oneFileLauncher = element.getClassName();
 		Madkit.oneFileLauncherArgs = args;
 		return new Madkit(arguments.toArray(new String[arguments.size()]));
@@ -1562,56 +1552,5 @@ enum Influence {
 	String successString() {
 		return toString() + "success" + " : ";
 	}
-
-	/**
-	 * This offers a convenient way to create main a main method that launches the agent class
-	 * under development. The agent is launched in a new instance MaDKit. This call only works
-	 * in the main method of the agent's class. MaDKit. Here is an example of use that will
-	 * work in any subclass of {@link Agent}:
-	 *
-	 * <pre>
-	 * <code>
-	 * public static void main(String[] args) {
-	 * 	executeThisAgent(args);
-	 * }
-	 * </code>
-	 * </pre>
-	 *
-	 * Still, the agent must have a default constructor for that to work.
-	 *
-	 * @param nbOfInstances specify how many of this kind should be launched
-	 * @param createFrame
-	 * @param args          MaDKit options. For example, this will launch the agent in desktop
-	 *                      mode :
-	 *
-	 *                      <pre>
-	 *                      <code>
-	 * public static void main(String[] args) {
-	 * 	executeThisAgent(BooleanOption.desktop.toString());
-	 * }
-	 * </code>
-	 * @return the kernel instance that actually launches this agent, so that it is possible
-	 *         to do other actions after the launch using
-	 *         {@link Madkit#doAction(madkit.action.KernelAction, Object...)}
-	 * @see Option BooleanOption LevelOption
-	 * @since MaDKit 5.0.0.14
-	 */
-//	protected static Madkit executeThisAgent(int nbOfInstances, boolean createFrame, String... args) {
-//		
-//		StackTraceElement element = null;
-//		for (StackTraceElement stackTraceElement : new Throwable().getStackTrace()) {
-//			if (stackTraceElement.getMethodName().equals("main")) {
-//				element = stackTraceElement;
-//				break;
-//			}
-//		}
-//		@SuppressWarnings("null")
-//		final ArrayList<String> arguments = new ArrayList<>(Arrays.asList(Madkit.Option.launchAgents.toString(),
-//				element.getClassName() + "," + createFrame + "," + nbOfInstances));
-//		if (args != null) {
-//			arguments.addAll(Arrays.asList(args));
-//		}
-//		return new Madkit(arguments.toArray(new String[arguments.size()]));
-//	}
 
 }

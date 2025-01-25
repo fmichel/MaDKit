@@ -1,3 +1,38 @@
+/*******************************************************************************
+ * MaDKit - Multi-agent systems Development Kit 
+ * 
+ * Copyright (c) 1998-2025 Fabien Michel, Olivier Gutknecht, Jacques Ferber...
+ * 
+ * This software is a computer program whose purpose is to
+ * provide a lightweight Java API for developing and simulating 
+ * Multi-Agent Systems (MAS) using an organizational perspective.
+ *
+ * This software is governed by the CeCILL-C license under French law and
+ * abiding by the rules of distribution of free software.You can use,
+ * modify and/ or redistribute the software under the terms of the CeCILL-C
+ * license as circulated by CEA, CNRS and INRIA at the following URL
+ * "http://www.cecill.info".
+ *
+ * As a counterpart to the access to the source code and rights to copy,
+ * modify and redistribute granted by the license, users are provided only
+ * with a limited warranty and the software's author, the holder of the
+ * economic rights, and the successive licensors have only limited
+ * liability.
+ *
+ * In this respect, the user's attention is drawn to the risks associated
+ * with loading, using, modifying and/or developing or reproducing the
+ * software by the user in light of its specific status of free software,
+ * that may mean that it is complicated to manipulate, and that also
+ * therefore means that it is reserved for developers and experienced
+ * professionals having in-depth computer knowledge. Users are therefore
+ * encouraged to load and test the software's suitability as regards their
+ * requirements in conditions enabling the security of their systems and/or
+ * data to be ensured and, more generally, to use and operate it in the
+ * same conditions as regards security.
+ *
+ * The fact that you are presently reading this means that you have had
+ * knowledge of the CeCILL-C license and that you accept its terms.
+ *******************************************************************************/
 
 package madkit.kernel;
 
@@ -10,14 +45,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 /**
- * The `Community` class represents a community within the MaDKit kernel. It
- * manages groups and provides methods to interact with them.
+ * This class represents a community within the MaDKit kernel. It is meant to be a
+ * namespace for groups and roles, so that a specific AGR organization can be instantiated
+ * within a community, and thus isolated from others, avoiding conflicts.
+ * <p>
+ * It provides methods to query which groups and roles are available in the community,
  * 
  * @see madkit.kernel.Group
- * @since 1.0
- * @version 6.0
- * 
- * @author Fabien Michel
+ * @see madkit.kernel.Role
  */
 public class Community {
 	private final Map<String, Group> groups;
@@ -88,12 +123,14 @@ public class Community {
 		if (g == null) {// There was no such group
 			g = new Group(group, creator, gatekeeper, isDistributed, this);
 			groups.put(group, g);
-			if (logger != null)
+			if (logger != null) {
 				logger.fine(() -> getCGRString(name, group) + "created by " + creator.getName() + "\n");
+			}
 			return true;
 		}
-		if (logger != null)
+		if (logger != null) {
 			logger.finer(() -> getCGRString(name, group) + "already exists: Creation aborted" + "\n");
+		}
 		return false;
 	}
 
@@ -124,8 +161,9 @@ public class Community {
 	 */
 	public Group getGroup(final String name) throws CGRNotAvailable {
 		Group g = groups.get(name);
-		if (g == null)
+		if (g == null) {
 			throw new CGRNotAvailable(NOT_GROUP);
+		}
 		return g;
 	}
 
@@ -140,8 +178,7 @@ public class Community {
 	}
 
 	/**
-	 * Checks if the community is empty and removes it from the parent organization
-	 * if it is.
+	 * Checks if the community is empty and removes it from the parent organization if it is.
 	 */
 	private void checkEmptyness() {
 		if (groups.isEmpty()) {

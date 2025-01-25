@@ -38,7 +38,7 @@ import java.io.File;
 import org.testng.annotations.Test;
 
 /**
- * @author Fabien Michel
+ *
  * @since MaDKit 5.0.0.6
  * @version 0.9
  * 

@@ -46,7 +46,7 @@ import madkit.kernel.Agent;
 /**
  * An out of the box menu called <i>Agent</i> for MaDKit Agent GUI.
  * 
- * @author Fabien Michel
+ *
  * @since MaDKit 5.0.0.7
  * @version 0.9
  * 

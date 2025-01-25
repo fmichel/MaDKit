@@ -4,7 +4,7 @@ import madkit.kernel.Activator;
 import madkit.kernel.Agent;
 
 /**
- * @author Fabien Michel
+ *
  */
 public class EmptyActivator extends Activator {
 

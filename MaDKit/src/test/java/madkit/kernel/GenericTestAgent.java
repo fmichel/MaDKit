@@ -10,7 +10,7 @@ import static org.testng.Assert.assertFalse;
 import java.time.LocalDateTime;
 
 /**
- * @author Fabien Michel
+ *
  *
  */
 public class GenericTestAgent extends Agent implements TestHelpAgent {

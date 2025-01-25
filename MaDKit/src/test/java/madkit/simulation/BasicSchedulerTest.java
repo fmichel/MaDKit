@@ -13,7 +13,7 @@ import madkit.test.agents.CGRAgent;
 import madkit.test.agents.SimulatedAgent;
 
 /**
- * @author Fabien Michel
+ *
  * @since MaDKit 5.0.0.2
  * @version 0.9
  * 

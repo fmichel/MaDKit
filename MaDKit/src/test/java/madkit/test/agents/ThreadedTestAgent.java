@@ -3,7 +3,7 @@ package madkit.test.agents;
 import madkit.kernel.GenericTestAgent;
 
 /**
- * @author Fabien Michel
+ *
  *
  */
 public class ThreadedTestAgent extends GenericTestAgent {

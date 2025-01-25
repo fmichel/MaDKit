@@ -48,7 +48,7 @@ import madkit.kernel.Agent;
 /**
  * An out of the box menu for MaDKit applications
  * 
- * @author Fabien Michel
+ *
  * @since MaDKit 5.0.0.9
  * @version 0.9
  */

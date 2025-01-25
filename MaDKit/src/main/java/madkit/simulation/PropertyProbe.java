@@ -1,3 +1,38 @@
+/*******************************************************************************
+ * MaDKit - Multi-agent systems Development Kit 
+ * 
+ * Copyright (c) 1998-2025 Fabien Michel, Olivier Gutknecht, Jacques Ferber...
+ * 
+ * This software is a computer program whose purpose is to
+ * provide a lightweight Java API for developing and simulating 
+ * Multi-Agent Systems (MAS) using an organizational perspective.
+ *
+ * This software is governed by the CeCILL-C license under French law and
+ * abiding by the rules of distribution of free software.You can use,
+ * modify and/ or redistribute the software under the terms of the CeCILL-C
+ * license as circulated by CEA, CNRS and INRIA at the following URL
+ * "http://www.cecill.info".
+ *
+ * As a counterpart to the access to the source code and rights to copy,
+ * modify and redistribute granted by the license, users are provided only
+ * with a limited warranty and the software's author, the holder of the
+ * economic rights, and the successive licensors have only limited
+ * liability.
+ *
+ * In this respect, the user's attention is drawn to the risks associated
+ * with loading, using, modifying and/or developing or reproducing the
+ * software by the user in light of its specific status of free software,
+ * that may mean that it is complicated to manipulate, and that also
+ * therefore means that it is reserved for developers and experienced
+ * professionals having in-depth computer knowledge. Users are therefore
+ * encouraged to load and test the software's suitability as regards their
+ * requirements in conditions enabling the security of their systems and/or
+ * data to be ensured and, more generally, to use and operate it in the
+ * same conditions as regards security.
+ *
+ * The fact that you are presently reading this means that you have had
+ * knowledge of the CeCILL-C license and that you accept its terms.
+ *******************************************************************************/
 package madkit.simulation;
 
 import java.lang.reflect.Field;
@@ -13,8 +48,8 @@ import madkit.kernel.Probe;
 /**
  * This probe inspects a field of type T on a group of agents.
  * 
- * @param <T> the type of the property, i.e. Integer (this works if the field is
- *            an int, i.e. a inspected primitive type should use its wrapper)
+ * @param <T> the type of the property, i.e. Integer (this works if the field is an int,
+ *            i.e. a inspected primitive type should use its wrapper)
  */
 public class PropertyProbe<T> extends Probe {
 
@@ -27,11 +62,11 @@ public class PropertyProbe<T> extends Probe {
 	private Comparator<T> comparator;
 
 	/**
-	 * Builds a new PropertyProbe considering a CGR location and the name of the
-	 * class's field.
-	 * 
-	 * @param group
-	 * @param role
+	 * Builds a new PropertyProbe considering a CGR location and the name of the class's
+	 * field.
+	 *
+	 * @param group     the group
+	 * @param role      the role
 	 * @param fieldName the name of a field which is encapsulated in type T
 	 */
 	public PropertyProbe(String group, String role, String fieldName) {
@@ -59,8 +94,8 @@ public class PropertyProbe<T> extends Probe {
 	}
 
 	/**
-	 * Returns the current value of the agent's field
-	 * 
+	 * Returns the current value of the agent's field.
+	 *
 	 * @param agent the agent to probe
 	 * @return the actual value of the agent's field
 	 */
@@ -76,10 +111,10 @@ public class PropertyProbe<T> extends Probe {
 
 	/**
 	 * Should be used to work with primitive types or fields which are initially
-	 * <code>null</code>
-	 * 
-	 * @param agent
-	 * @param value
+	 * <code>null</code>.
+	 *
+	 * @param agent the agent
+	 * @param value the value
 	 */
 	public void setPropertyValue(Agent agent, T value) {
 		updateCache(agent);
@@ -91,9 +126,8 @@ public class PropertyProbe<T> extends Probe {
 	}
 
 	/**
-	 * Returns the maximum for the property over all the agents. T must be a
-	 * numerical type or {@link Comparable} for this to work,
-	 * {@link ClassCastException} is thrown otherwise.
+	 * Returns the maximum for the property over all the agents. T must be a numerical type or
+	 * {@link Comparable} for this to work, {@link ClassCastException} is thrown otherwise.
 	 * 
 	 * @return the maximum value for this property
 	 */
@@ -102,20 +136,21 @@ public class PropertyProbe<T> extends Probe {
 	}
 
 	/**
-	 * Returns the maximum for the property over all the agents.
+	 * Returns the maximum for the property over all the agents using the specified
+	 * {@link Comparator}. Moreover, the targeted group/role couple must not be empty,
+	 * otherwise a {@link NoSuchElementException} is thrown.
 	 * 
-	 * @param c the {@link Comparator} to use
+	 * @param comparator the {@link Comparator} to use
 	 * @return the maximum value for this property
 	 * @throws NoSuchElementException if the probe is empty
 	 */
-	public T getMax(Comparator<T> c) throws NoSuchElementException {
-		return getAgents().stream().map(a -> getPropertyValue(a)).max(c).get();// NOSONAR
+	public T getMax(Comparator<T> comparator) throws NoSuchElementException {
+		return streamValues().max(comparator).get();// NOSONAR
 	}
 
 	/**
-	 * Returns the maximum for the property over all the agents. T must be a
-	 * numerical type or {@link Comparable} for this to work,
-	 * {@link ClassCastException} is thrown otherwise.
+	 * Returns the maximum for the property over all the agents. T must be a numerical type or
+	 * {@link Comparable} for this to work, {@link ClassCastException} is thrown otherwise.
 	 * 
 	 * @return the maximum value for this property
 	 */
@@ -131,24 +166,23 @@ public class PropertyProbe<T> extends Probe {
 	 * @throws NoSuchElementException if the probe is empty
 	 */
 	public T getMin(Comparator<T> c) throws NoSuchElementException {
-		return getAgents().stream().map(a -> getPropertyValue(a)).min(c).get();// NOSONAR
+		return streamValues().min(c).get();// NOSONAR
 	}
 
 	/**
-	 * Returns the maximum for the property over all the agents. T must extends
-	 * {@link Number} for this to work, {@link NoSuchElementException} is thrown
-	 * otherwise.
+	 * Returns the average for the property over all the agents. T must extends {@link Number}
+	 * for this to work, Moreover, the targeted groupp/role couple must not be empty,
+	 * otherwise a {@link NoSuchElementException} is thrown.
 	 * 
 	 * @return the maximum value for this property
 	 */
 	public double getAverage() {
-		return getAgents().stream().mapToDouble(a -> ((Number) getPropertyValue(a)).doubleValue()).average()
-				.getAsDouble();
+		return streamValues().mapToDouble(v -> ((Number) v).doubleValue()).average().getAsDouble();
 	}
 
 	/**
-	 * Returns a stream of the values of the property for each agent
-	 * 
+	 * Returns a stream of the values of the property for each agent.
+	 *
 	 * @return a stream of the values of the property for each agent
 	 */
 	public Stream<T> streamValues() {

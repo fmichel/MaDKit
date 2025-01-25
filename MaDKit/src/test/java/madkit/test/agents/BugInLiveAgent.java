@@ -76,7 +76,7 @@ package madkit.test.agents;
 import madkit.test.agents.behaviors.LiveBug;
 
 /**
- * @author Fabien Michel
+ *
  *
  */
 public class BugInLiveAgent extends ThreadedTestAgent implements LiveBug {

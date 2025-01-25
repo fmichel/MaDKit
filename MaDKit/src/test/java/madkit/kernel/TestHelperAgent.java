@@ -10,7 +10,7 @@ import static org.testng.Assert.assertFalse;
 import java.util.logging.Level;
 
 /**
- * @author Fabien Michel
+ *
  *
  */
 public class TestHelperAgent extends Agent {

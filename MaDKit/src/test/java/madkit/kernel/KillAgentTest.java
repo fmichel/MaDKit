@@ -32,7 +32,7 @@ import madkit.test.agents.ThreadedCGRBlockedInEnd;
 import madkit.test.agents.ThreadedCGRForeverInEnd;
 
 /**
- * @author Fabien Michel
+ *
  * @since MaDKit 6
  * @version 0.9
  * 

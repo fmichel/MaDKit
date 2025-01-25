@@ -1,9 +1,45 @@
+/*******************************************************************************
+ * MaDKit - Multi-agent systems Development Kit 
+ * 
+ * Copyright (c) 1998-2025 Fabien Michel, Olivier Gutknecht, Jacques Ferber...
+ * 
+ * This software is a computer program whose purpose is to
+ * provide a lightweight Java API for developing and simulating 
+ * Multi-Agent Systems (MAS) using an organizational perspective.
+ *
+ * This software is governed by the CeCILL-C license under French law and
+ * abiding by the rules of distribution of free software.You can use,
+ * modify and/ or redistribute the software under the terms of the CeCILL-C
+ * license as circulated by CEA, CNRS and INRIA at the following URL
+ * "http://www.cecill.info".
+ *
+ * As a counterpart to the access to the source code and rights to copy,
+ * modify and redistribute granted by the license, users are provided only
+ * with a limited warranty and the software's author, the holder of the
+ * economic rights, and the successive licensors have only limited
+ * liability.
+ *
+ * In this respect, the user's attention is drawn to the risks associated
+ * with loading, using, modifying and/or developing or reproducing the
+ * software by the user in light of its specific status of free software,
+ * that may mean that it is complicated to manipulate, and that also
+ * therefore means that it is reserved for developers and experienced
+ * professionals having in-depth computer knowledge. Users are therefore
+ * encouraged to load and test the software's suitability as regards their
+ * requirements in conditions enabling the security of their systems and/or
+ * data to be ensured and, more generally, to use and operate it in the
+ * same conditions as regards security.
+ *
+ * The fact that you are presently reading this means that you have had
+ * knowledge of the CeCILL-C license and that you accept its terms.
+ *******************************************************************************/
 package madkit.simulation;
 
 import static madkit.simulation.SimuOrganization.ENGINE_GROUP;
 import static madkit.simulation.SimuOrganization.LAUNCHER_ROLE;
 import static madkit.simulation.SimuOrganization.MODEL_GROUP;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,7 +48,9 @@ import java.util.logging.Level;
 import java.util.random.RandomGenerator;
 
 import madkit.action.SchedulingAction;
+import madkit.kernel.Probe;
 import madkit.kernel.Scheduler;
+import madkit.kernel.Watcher;
 import madkit.messages.SchedulingMessage;
 import madkit.random.Randomness;
 import madkit.simulation.scheduler.SimuTimer;
@@ -21,21 +59,40 @@ import madkit.simulation.scheduler.TickBasedScheduler;
 /**
  * Main class for launching a simulation. This class is responsible for initializing the
  * simulation environment, simulation model, and scheduler. It also launches the
- * simulation agents and viewers. This class is intended to be extended by the user to
- * define the simulation engine, if the default setup should customized. The user can
- * define the simulation environment, model, and scheduler classes by overriding the
- * {@link #onLaunchEnvironment()}, {@link #onLaunchModel()}, and
- * {@link #onLaunchScheduler()} methods, respectively. The user can also define the
- * simulation agents and viewers by overriding the {@link #onLaunchSimulatedAgents()} and
- * {@link #onLaunchViewers()} methods, respectively. The user can also define the
- * simulation startup behavior by overriding the {@link #onSimulationStart()} method.
- *
+ * simulation agents and viewers.
+ * <p>
+ * This class is intended to be extended by the user to define the simulation engine, if
+ * the default setup should customized. The user can define the simulation environment,
+ * model, and scheduler classes by overriding the {@link #onLaunchEnvironment()},
+ * {@link #onLaunchModel()}, and {@link #onLaunchScheduler()} methods, respectively. The
+ * user can also define the simulation agents and viewers by overriding the
+ * {@link #onLaunchSimulatedAgents()} and {@link #onLaunchViewers()} methods,
+ * respectively. The user can also define the simulation startup behavior by overriding
+ * the {@link #onSimulationStart()} method.
+ * <p>
+ * Crucially, this class is also responsible for initializing the pseudo random number
+ * generator (PRNG) that has to be used by the simulation agents for ensuring the
+ * reproducibility of the simulation. The PRNG is initialized with a seed that can be set
+ * by the user. The seed is a long integer that can be set by the user by overriding the
+ * {@link #onInitializeSimulationSeedIndex()} method. By default, the seed index is 0.
+ * 
+ * See {@link #onInitializeSimulationSeedIndex()} method.
+ * 
  */
 @EngineAgents
-public abstract class SimuLauncher extends SimuAgent {
+public abstract class SimuLauncher extends Watcher {
 
+	/**
+	 * The Enum ENGINE.
+	 */
 	enum ENGINE {
-		SCHEDULER, ENVIRONMENT, MODEL;
+
+		/** The scheduler. */
+		SCHEDULER,
+		/** The environment. */
+		ENVIRONMENT,
+		/** The model. */
+		MODEL;
 	}
 
 	private static final String LAUNCHED = " launched";
@@ -44,7 +101,6 @@ public abstract class SimuLauncher extends SimuAgent {
 	private SimuModel model;
 	private SimuEnvironment environment;
 	private Scheduler<? extends SimuTimer<?>> scheduler;
-	private List<SimuAgent> viewers;
 
 	private RandomGenerator randomGenerator;
 	/**
@@ -55,14 +111,22 @@ public abstract class SimuLauncher extends SimuAgent {
 
 	private int simulationIndex;
 
+	private Probe viewersProbe;
+
 	/**
-	 * Default constructor. It initializes the simulation community name to the
-	 * class name of the simulation engine.
+	 * Default constructor. It initializes the simulation community name to the class name of
+	 * the simulation engine.
 	 */
 	protected SimuLauncher() {
 		simuCommunity = getClass().getSimpleName();
-		simuLauncher = this;
-		viewers = new ArrayList<>();
+		try {
+			Field f = Probe.findFieldOn(SimuAgent.class, "simuLauncher");
+			f.setAccessible(true);// NOSONAR
+			f.set(this, this);// NOSONAR
+			f.setAccessible(false);
+		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -88,6 +152,8 @@ public abstract class SimuLauncher extends SimuAgent {
 		createGroup(getCommunity(), getEngineGroup());
 		createGroup(getCommunity(), getModelGroup());
 		requestRole(getCommunity(), getEngineGroup(), LAUNCHER_ROLE);
+		viewersProbe = new Probe(getEngineGroup(), SimuOrganization.VIEWER_ROLE);
+		addProbe(viewersProbe);
 		getLogger().info(() -> " Launching simulation! < " + simuCommunity + " >");
 		onInitializeSimulationSeedIndex();
 		onCreateRandomGenerator();
@@ -102,7 +168,6 @@ public abstract class SimuLauncher extends SimuAgent {
 		}
 	}
 
-
 	/**
 	 * Creates the pseudo random number generator that has to be used by the simulation. The
 	 * seed index is taken from the kernel configuration. If the seed index is not set, the
@@ -112,9 +177,8 @@ public abstract class SimuLauncher extends SimuAgent {
 	 */
 	public RandomGenerator onCreateRandomGenerator() {
 		randomGenerator = Randomness.getBestRandomGeneratorFactory().create(getPRNGSeed());
-		getLogger().info(
-				() -> " PRNG < " + randomGenerator.getClass().getSimpleName() + " ; seed index ->  " + getPRNGSeedIndex()
-						+ " >");
+		getLogger().info(() -> " PRNG < " + randomGenerator.getClass().getSimpleName() + " ; seed index ->  "
+				+ getPRNGSeedIndex() + " >");
 		return randomGenerator;
 	}
 
@@ -143,7 +207,7 @@ public abstract class SimuLauncher extends SimuAgent {
 	 */
 	public long getPRNGSeedIndex() {
 		return simulationIndex;
-    }
+	}
 
 	/**
 	 * Returns the seed used to create the PRNG.
@@ -166,8 +230,8 @@ public abstract class SimuLauncher extends SimuAgent {
 	}
 
 	/**
-	 * Launches the simulation model agent and logs the event
-	 * 
+	 * Launches the simulation model agent and logs the event.
+	 *
 	 * @param <M> the type of the model
 	 * @return the model agent for this simulation
 	 */
@@ -178,8 +242,8 @@ public abstract class SimuLauncher extends SimuAgent {
 	}
 
 	/**
-	 * Launches the simulation environment agent and logs the event
-	 * 
+	 * Launches the simulation environment agent and logs the event.
+	 *
 	 * @param <E> the type of the environment
 	 * @return the environment agent for this simulation
 	 */
@@ -190,8 +254,8 @@ public abstract class SimuLauncher extends SimuAgent {
 	}
 
 	/**
-	 * Launches the simulation scheduler agent and logs the event
-	 * 
+	 * Launches the simulation scheduler agent and logs the event.
+	 *
 	 * @param <S> the type of the scheduler
 	 * @return the scheduler agent for this simulation
 	 */
@@ -202,23 +266,25 @@ public abstract class SimuLauncher extends SimuAgent {
 	}
 
 	/**
-	 * Launches the simulation viewers agents and logs their launch
+	 * Launches the simulation viewers agents and logs their launch.
 	 */
 	protected void onLaunchViewers() {
 		if (!getKernelConfig().getBoolean("headless")) {
 			for (String viewer : getViewerClasses()) {
 				SimuAgent v = launchAgent(viewer, Integer.MAX_VALUE);
 				getLogger().info(() -> v + LAUNCHED);
-				viewers.add(v);
 			}
 		}
 	}
 
 	/**
-	 * Launches the simulation agents
+	 * Launches the simulation agents.
 	 */
 	protected abstract void onLaunchSimulatedAgents();
 
+	/**
+	 * On simulation start.
+	 */
 	@Override
 	public void onSimulationStart() {
 		getModel().onSimulationStart();
@@ -229,11 +295,17 @@ public abstract class SimuLauncher extends SimuAgent {
 		getScheduler().onSimulationStart();
 	}
 
+	/**
+	 * Start simulation.
+	 */
 	protected void startSimulation() {
 		getScheduler().receiveMessage(new SchedulingMessage(SchedulingAction.RUN));
 	}
 
 	/**
+	 * Gets the scheduler.
+	 *
+	 * @param <S> the generic type
 	 * @return the scheduler
 	 */
 	@SuppressWarnings("unchecked")
@@ -242,12 +314,24 @@ public abstract class SimuLauncher extends SimuAgent {
 		return (S) scheduler;
 	}
 
+	/**
+	 * Gets the environment.
+	 *
+	 * @param <E> the element type
+	 * @return the environment
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public <E extends SimuEnvironment> E getEnvironment() {
 		return (E) environment;
 	}
 
+	/**
+	 * Gets the model.
+	 *
+	 * @param <M> the generic type
+	 * @return the model
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public <M extends SimuModel> M getModel() {
@@ -275,8 +359,7 @@ public abstract class SimuLauncher extends SimuAgent {
 	}
 
 	/**
-	 * use reflection to use the name of the annotation to find out the class to
-	 * launch
+	 * use reflection to use the name of the annotation to find out the class to launch
 	 * 
 	 * @param agentClass
 	 * @return the specified class or the one of fallbackmode
@@ -301,9 +384,19 @@ public abstract class SimuLauncher extends SimuAgent {
 
 	private static final String getValueFromName(ENGINE agent, EngineAgents annotation)
 			throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, SecurityException {
-			return ((Class<?>) annotation.getClass().getMethod(agent.name().toLowerCase()).invoke(annotation)).getName();
+		return ((Class<?>) annotation.getClass().getMethod(agent.name().toLowerCase()).invoke(annotation)).getName();
 	}
 
+	/**
+	 * Gets the engine agents args from.
+	 *
+	 * @param target the target
+	 * @return the engine agents args from
+	 * @throws IllegalAccessException    the illegal access exception
+	 * @throws InvocationTargetException the invocation target exception
+	 * @throws NoSuchMethodException     the no such method exception
+	 * @throws SecurityException         the security exception
+	 */
 	public static final List<String> getEngineAgentsArgsFrom(Class<?> target)
 			throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, SecurityException {
 		EngineAgents annotation = target.getAnnotation(EngineAgents.class);
@@ -329,6 +422,8 @@ public abstract class SimuLauncher extends SimuAgent {
 
 	/**
 	 * Returns the model group associated with the simulation.
+	 *
+	 * @return the model group
 	 */
 	@Override
 	public String getModelGroup() {
@@ -337,6 +432,8 @@ public abstract class SimuLauncher extends SimuAgent {
 
 	/**
 	 * Returns the name of the simulation community.
+	 *
+	 * @return the community
 	 */
 	@Override
 	public String getCommunity() {
@@ -344,10 +441,9 @@ public abstract class SimuLauncher extends SimuAgent {
 	}
 
 	/**
-	 * Initializes the name of the community which will be used for defining the
-	 * organization in which the simulation participants will operate. By default,
-	 * the class name of the SimuLauncher is used. It should be different for each
-	 * instantiated simuLauncher
+	 * Initializes the name of the community which will be used for defining the organization
+	 * in which the simulation participants will operate. By default, the class name of the
+	 * SimuLauncher is used. It should be different for each instantiated simuLauncher
 	 */
 	private void initCommunityName() {
 		int i = 1;
@@ -357,8 +453,8 @@ public abstract class SimuLauncher extends SimuAgent {
 	}
 
 	/**
-	 * Returns the engine group associated with the simulation
-	 * 
+	 * Returns the engine group associated with the simulation.
+	 *
 	 * @return the name of the engine group
 	 */
 	@Override
@@ -367,7 +463,8 @@ public abstract class SimuLauncher extends SimuAgent {
 	}
 
 	/**
-	 * 
+	 * Sets the environment.
+	 *
 	 * @param environment the environment to set
 	 */
 	void setEnvironment(SimuEnvironment environment) {
@@ -375,6 +472,8 @@ public abstract class SimuLauncher extends SimuAgent {
 	}
 
 	/**
+	 * Sets the scheduler.
+	 *
 	 * @param scheduler the scheduler to set
 	 */
 	void setScheduler(Scheduler<? extends SimuTimer<?>> scheduler) {
@@ -382,6 +481,8 @@ public abstract class SimuLauncher extends SimuAgent {
 	}
 
 	/**
+	 * Sets the model.
+	 *
 	 * @param model the model to set
 	 */
 	void setModel(SimuModel model) {
@@ -389,11 +490,13 @@ public abstract class SimuLauncher extends SimuAgent {
 	}
 
 	/**
-	 * @return the viewers launched by this launcher
+	 * Returns the the viewers that are actually running.
+	 *
+	 * @return the running viewers
 	 */
 	@Override
 	public List<SimuAgent> getViewers() {
-		return viewers;
+		return viewersProbe.getAgents();
 	}
 
 	/**

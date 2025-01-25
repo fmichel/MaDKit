@@ -77,7 +77,7 @@ import madkit.test.agents.behaviors.EndBug;
 import madkit.test.agents.behaviors.LiveBug;
 
 /**
- * @author Fabien Michel
+ *
  *
  */
 public class BugInLiveAndEndAgent extends ThreadedTestAgent implements LiveBug, EndBug {

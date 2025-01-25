@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 import madkit.test.agents.CGRAgent;
 
 /**
- * @author Fabien Michel
+ *
  * @since MaDKit 5.0.0.7
  * @version 0.9
  * 

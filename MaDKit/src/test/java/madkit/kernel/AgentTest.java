@@ -12,7 +12,7 @@ import madkit.test.agents.BugInActivateAgent;
 import madkit.test.agents.EmptyAgent;
 
 /**
- * @author Fabien Michel
+ *
  *
  */
 public class AgentTest extends JunitMadkit {

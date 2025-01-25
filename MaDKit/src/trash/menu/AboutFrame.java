@@ -66,7 +66,7 @@ import madkit.i18n.Words;
 import madkit.kernel.Madkit;
 
 /**
- * @author Fabien Michel
+ *
  * @since MaDKit 5.0.0.17
  * @version 0.91
  */

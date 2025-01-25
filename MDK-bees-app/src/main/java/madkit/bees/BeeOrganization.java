@@ -33,40 +33,24 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C license and that you accept its terms.
  *******************************************************************************/
-package madkit.gui;
-
-import java.util.Arrays;
-import java.util.Collection;
-
-import org.controlsfx.control.action.Action;
-import org.controlsfx.control.action.ActionUtils;
-
-import javafx.scene.control.MenuBar;
-import madkit.action.Actions;
-import madkit.kernel.Agent;
+package madkit.bees;
 
 /**
- * Utility class to create menus with default actions for a given agent.
- * 
- * @since MaDKit 6.0
- *
+ * The BeeOrganization defines the roles and groups used by the bees in the simulation.
  */
-public class Menus {
-
-	private Menus() {
-		throw new IllegalAccessError();
-	}
+public class BeeOrganization {
 
 	/**
-	 * Creates a menu bar for the given agent.
-	 * 
-	 * @param agent the agent for which to create the menu bar
-	 * @return a menu bar containing the default actions for the agent
+	 * Default role for all bees
 	 */
-	public static MenuBar createMenuBarFor(Agent agent) {
-		Collection<? extends Action> actions = Arrays.asList(Actions.createMadkitActionGroupFor(agent),
-				Actions.createAgentActionGroupFor(agent));
-		return ActionUtils.createMenuBar(actions);
-	}
+	public static final String BEE = "bee";
+	/**
+	 * Role for queen bee
+	 */
+	public static final String QUEEN = "queen";
+	/**
+	 * Role for follower bee
+	 */
+	public static final String FOLLOWER = "follower";
 
 }

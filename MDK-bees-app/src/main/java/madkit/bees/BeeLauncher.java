@@ -36,6 +36,7 @@
 package madkit.bees;
 
 import java.util.List;
+import java.util.logging.Level;
 
 import madkit.gui.UIProperty;
 import madkit.kernel.Agent;
@@ -53,14 +54,32 @@ import madkit.simulation.SimuLauncher;
 @EngineAgents(scheduler = BeeScheduler.class, environment = BeeEnvironment.class, viewers = { BeeViewer.class })
 public class BeeLauncher extends SimuLauncher {
 
+	/**
+	 * The static modifier is used so that its value is retained when the simulation is
+	 * restarted or copied.
+	 */
 	@UIProperty
-	private int numberOfStartingFollowers = 150_000;
+	private static int numberOfStartingFollowers = 100_000;
 
 	@UIProperty
 	private boolean randomLaunching = true;
 
 	private Probe followers;
 	private Probe queens;
+
+	/**
+	 * On activation, it sets the logger level to FINE and creates probes for followers and
+	 * queens for being able to count them and kill them.
+	 */
+	@Override
+	protected void onActivation() {
+		getLogger().setLevel(Level.FINE);
+		super.onActivation();
+		followers = new Probe(getModelGroup(), BeeOrganization.FOLLOWER);
+		addProbe(followers);
+		queens = new Probe(getModelGroup(), BeeOrganization.QUEEN);
+		addProbe(queens);
+	}
 
 	/**
 	 * On launch simulated agents.
@@ -77,34 +96,34 @@ public class BeeLauncher extends SimuLauncher {
 	 */
 	@Override
 	protected void onLive() {
-		followers = new Probe(getModelGroup(), BeeOrganization.FOLLOWER);
-		addProbe(followers);
-		queens = new Probe(getModelGroup(), BeeOrganization.QUEEN);
-		addProbe(queens);
 		while (isAlive() && getScheduler().isAlive()) {
-			pause(prng().nextInt(1000, 4500));
+			pause(prng().nextInt(3000, 6000));
 			if (randomLaunching) {
-				killBees(false, prng().nextInt(1000, 4500));
-				if (prng().nextDouble() < .8) {
-					if (prng().nextDouble() < .6) {
-						if (queens.size() > 1) {
-							if (queens.size() > 7) {
-								killBees(true, prng().nextInt(1, 7));
-							} else {
-								killBees(true, prng().nextInt(1, 2));
-							}
-						}
-					} else if (queens.size() < 10) {
-						launchQueens(prng().nextInt(1, 2));
-					}
-				} else if (prng().nextDouble() < .6) {
-					if (followers.size() < 200000 || Runtime.getRuntime().freeMemory() > 100000) {
-						launchBees(prng().nextInt(10000, 50000));
-					}
-				} else {
-					killBees(false, prng().nextInt(5000, 15000));
-				}
+				regulateBeePopulation();
+				regulateQueenPopulation();
 			}
+		}
+	}
+
+	private void regulateQueenPopulation() {
+		if (queens.size() > 1) {
+			if (queens.size() > 7) {
+				killBees(true, prng().nextInt(1, 7));
+			} else {
+				killBees(true, prng().nextInt(1, 2));
+			}
+		} else if (queens.size() < 10) {
+			launchQueens(prng().nextInt(1, 4));
+		}
+	}
+
+	private void regulateBeePopulation() {
+		if (prng().nextBoolean()) {
+			if (followers.size() > 50000) {
+				killBees(false, prng().nextInt(3000, 15000));
+			}
+		} else if (prng().nextDouble() < .6 && followers.size() < 200000 && Runtime.getRuntime().freeMemory() > 100000) {
+			launchBees(prng().nextInt(10000, 50000));
 		}
 	}
 
@@ -120,16 +139,14 @@ public class BeeLauncher extends SimuLauncher {
 	private void launchBees(int numberOfBees) {
 		getLogger().info(() -> "Launching " + numberOfBees + " followers");
 		for (int i = 0; i < numberOfBees; i++) {
-			Bee newBee = new Follower();
-			launchAgent(newBee);
+			launchAgent(new Follower());
 		}
 	}
 
 	private void launchQueens(int numberOfQueens) {
 		getLogger().info(() -> "Launching " + numberOfQueens + " queen bees");
 		for (int i = 0; i < numberOfQueens; i++) {
-			QueenBee newQueen = new QueenBee();
-			launchAgent(newQueen);
+			launchAgent(new QueenBee());
 		}
 	}
 
@@ -145,11 +162,20 @@ public class BeeLauncher extends SimuLauncher {
 	}
 
 	/**
+	 * The main entry point of this simulation application.
+	 *
+	 * @param args the arguments
+	 */
+	public static void main(String[] args) {
+		executeThisAgent();
+	}
+
+	/**
 	 * Gets the bees number to launch at the beginning of the simulation.
 	 *
 	 * @return the bees number to launch at the beginning of the simulation
 	 */
-	public int getNumberOfStartingFollowers() {
+	public static int getNumberOfStartingFollowers() {
 		return numberOfStartingFollowers;
 	}
 
@@ -158,17 +184,8 @@ public class BeeLauncher extends SimuLauncher {
 	 * 
 	 * @param n the number of bees to launch at the beginning of the simulation
 	 */
-	public void setNumberOfStartingFollowers(int n) {
-		this.numberOfStartingFollowers = n;
-	}
-
-	/**
-	 * The main entry point of this simulation application.
-	 *
-	 * @param args the arguments
-	 */
-	public static void main(String[] args) {
-		executeThisAgent();
+	public static void setNumberOfStartingFollowers(int n) {
+		numberOfStartingFollowers = n;
 	}
 
 	/**

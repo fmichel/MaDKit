@@ -212,8 +212,7 @@ public class FieldsValueRandomizerTest {
 	}
 
 	@Test
-	public void givenObjectWithAnnotatedFields_whenRandomizeFields_thenFieldsAreRandomized()
-			throws IllegalAccessException {
+	public void givenObjectWithAnnotatedFields_whenRandomizeFields_thenFieldsAreRandomized() {
 		// Given
 		TestObject testObject = new TestObject();
 		RandomGenerator prng = RandomGeneratorFactory.of("L64X128MixRandom").create();
@@ -230,8 +229,7 @@ public class FieldsValueRandomizerTest {
 	}
 
 	@Test
-	public void givenClassWithAnnotatedStaticFields_whenRandomizeFields_thenStaticFieldsAreRandomized()
-			throws IllegalAccessException {
+	public void givenClassWithAnnotatedStaticFields_whenRandomizeFields_thenStaticFieldsAreRandomized() {
 		// Given
 		TestObject testObject = new TestObject();
 		RandomGenerator prng = RandomGeneratorFactory.of("L64X128MixRandom").create();
@@ -248,8 +246,7 @@ public class FieldsValueRandomizerTest {
 	}
 
 	@Test
-	public void givenSubclassWithInheritedAnnotatedFields_whenRandomizeFields_thenInheritedFieldsAreRandomized()
-			throws IllegalAccessException {
+	public void givenSubclassWithInheritedAnnotatedFields_whenRandomizeFields_thenInheritedFieldsAreRandomized() {
 		// Given
 		SubTestObject subTestObject = new SubTestObject();
 		RandomGenerator prng = RandomGeneratorFactory.of("L64X128MixRandom").create();

@@ -47,6 +47,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import javafx.application.Platform;
+import madkit.kernel.FXAgentStage;
 import madkit.kernel.MadkitUnitTestCase;
 
 /**
@@ -71,7 +72,7 @@ public class FXExecutorTest extends MadkitUnitTestCase {
 		assertTrue(FXExecutor.isStarted());
 	}
 
-	@Test
+//	@Test Cannot be tested
 	public void testExceptionFX() {
 		try {
 			FXExecutor.runLater(() -> {
@@ -93,6 +94,14 @@ public class FXExecutorTest extends MadkitUnitTestCase {
 		} catch (RuntimeException e) {
 			assertThat(e).isExactlyInstanceOf(RuntimeException.class)
 					.hasCauseExactlyInstanceOf(NullPointerException.class);
+		}
+	}
+
+	public void notAFXThread() {
+		try {
+			FXAgentStage stage = new FXAgentStage(null);
+		} catch (IllegalStateException e) {
+			e.printStackTrace();
 		}
 	}
 

@@ -33,48 +33,65 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C license and that you accept its terms.
  *******************************************************************************/
-package madkit.simulation;
+
+package madkit.kernel;
 
 import org.testng.annotations.Test;
 
-import static madkit.kernel.Agent.ReturnCode.AGENT_CRASH;
-import static madkit.kernel.Agent.ReturnCode.SUCCESS;
-
-import madkit.kernel.Agent;
-import madkit.kernel.MadkitConcurrentTestCase;
+import madkit.test.agents.EmptyAgent;
+import madkit.test.agents.ThreadedAgentBlockedInActivate;
+import madkit.test.agents.ThreadedAgentBlockedInLive;
 
 /**
- * The Class SimuAgentTest.
+ *
+ * @since MaDKit 6
+ * @version 0.9
+ * 
  */
-public class SimuAgentTest extends MadkitConcurrentTestCase {
+
+public class LaunchAgentConcurrentTest extends MadkitConcurrentTestCase {
 
 	@Test
-	public void givenSimuAgent_whenNotLaunchedByLauncher_thenAgentCrashes() {
+	public void givenNormalAgent_whenLaunchAgent_thenReturnSuccess() {
 		runTest(new Agent() {
 			@Override
 			protected void onActivation() {
-				SimuAgent sa = new SimuAgent();
-				ReturnCode launchAgent = launchAgent(sa);
-				threadAssertEquals(AGENT_CRASH, launchAgent);
+				Agent a = new EmptyAgent();
+				threadAssertFalse(a.alive.get());
+				launchAgent(a);
+				threadAssertTrue(a.alive.get());
 				resume();
 			}
 		});
 	}
 
 	@Test
-	public void givenSimuAgentTransitivelyLaunched_whenLaunch_thenSuccess() {
-		runSimuTest(new SimuAgent() {
+	public void givenThreadedAgent_whenLaunchAgent_thenReturnSuccess() {
+		runTest(new Agent() {
 			@Override
 			protected void onActivation() {
-				SimuAgent sa = new SimuAgent();
-				try {
-					threadAssertEquals(SUCCESS, launchAgent(sa));
-				} catch (IllegalStateException e) {
-					e.printStackTrace();
-				}
+				Agent a = new ThreadedAgentBlockedInLive();
+				threadAssertFalse(a.alive.get());
+				launchAgent(a);
+				threadAssertTrue(a.alive.get());
 				resume();
 			}
 		});
 	}
 
+	@Test
+	public void givenThreadedAgentBlockedInActivate_whenLaunchAgent_thenReturnTimeOut() {
+		runTest(new Agent() {
+			@Override
+			protected void onActivation() {
+				Agent a = new ThreadedAgentBlockedInActivate();
+				threadAssertFalse(a.alive.get());
+				ReturnCode r = launchAgent(a, 1);
+				threadAssertFalse(a.alive.get());
+				threadAssertEquals(ReturnCode.TIMEOUT, r);
+				resume();
+			}
+		});
+
+	}
 }

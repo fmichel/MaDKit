@@ -33,48 +33,25 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C license and that you accept its terms.
  *******************************************************************************/
-package madkit.simulation;
+package madkit.gui;
 
-import org.testng.annotations.Test;
-
-import static madkit.kernel.Agent.ReturnCode.AGENT_CRASH;
-import static madkit.kernel.Agent.ReturnCode.SUCCESS;
-
+import javafx.scene.control.MenuBar;
+import javafx.scene.layout.VBox;
 import madkit.kernel.Agent;
-import madkit.kernel.MadkitConcurrentTestCase;
 
 /**
- * The Class SimuAgentTest.
+ * A JavaFX VBox that contains a default menu bar for an agent.
  */
-public class SimuAgentTest extends MadkitConcurrentTestCase {
+public class AgentMenubar extends VBox {
 
-	@Test
-	public void givenSimuAgent_whenNotLaunchedByLauncher_thenAgentCrashes() {
-		runTest(new Agent() {
-			@Override
-			protected void onActivation() {
-				SimuAgent sa = new SimuAgent();
-				ReturnCode launchAgent = launchAgent(sa);
-				threadAssertEquals(AGENT_CRASH, launchAgent);
-				resume();
-			}
-		});
+	/**
+	 * Instantiates a new agent menu toolBar using the {@link Menus#createMenuBarFor(Agent)}
+	 * method.}
+	 *
+	 * @param agent the agent for which to create the menu bar
+	 */
+	public AgentMenubar(Agent agent) {
+		MenuBar menuBar = Menus.createMenuBarFor(agent);
+		getChildren().add(menuBar);
 	}
-
-	@Test
-	public void givenSimuAgentTransitivelyLaunched_whenLaunch_thenSuccess() {
-		runSimuTest(new SimuAgent() {
-			@Override
-			protected void onActivation() {
-				SimuAgent sa = new SimuAgent();
-				try {
-					threadAssertEquals(SUCCESS, launchAgent(sa));
-				} catch (IllegalStateException e) {
-					e.printStackTrace();
-				}
-				resume();
-			}
-		});
-	}
-
 }

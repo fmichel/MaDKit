@@ -1,5 +1,5 @@
 /**
- * This package contains classes and interfaces for logging in Madkit. It
+ * This package contains classes and interfaces for logging in MaDKit. It
  * includes custom log handlers and formatters to manage and format log records.
  * 
  * @see java.util.logging.Handler

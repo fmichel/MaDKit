@@ -61,6 +61,7 @@ public class AgentLogArea extends TextArea {
 		handler = new TextAreaHandler(this);
 		handler.setFormatter(AgentLogger.AGENT_FILE_FORMATTER);
 		agent.getLogger().addHandler(handler);
+
 	}
 
 	/**

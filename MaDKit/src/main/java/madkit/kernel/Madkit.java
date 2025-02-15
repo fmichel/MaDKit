@@ -37,6 +37,7 @@
 package madkit.kernel;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.Arrays;
@@ -71,7 +72,7 @@ import picocli.CommandLine.PropertiesDefaultProvider;
 public class Madkit {
 
 	/** The Constant MDK_LOGGER. */
-	public static final Logger MDK_LOGGER = Logger.getLogger("[MADKIT] ");
+	static final Logger MDK_LOGGER = Logger.getLogger("[MADKIT] ");
 
 	static {
 		final ConsoleHandler ch = new ConsoleHandler();
@@ -123,10 +124,26 @@ public class Madkit {
 		if (parseCommanLine(args)) {
 			initLogging();
 			mdkLogger.finest(() -> MadkitClassLoader.getLoader().toString());
-			mdkLogger.finest(() -> "args: " + Arrays.deepToString(args));
+			mdkLogger.finer(() -> "args: " + Arrays.deepToString(args));
 			addMixinToKernelConfig();
-			mdkLogger.finer(() -> getConfig().toString());
+			mdkLogger.finest(() -> getConfig().toString());
 			start();
+		}
+	}
+
+	void startNewSession() {
+		MDK_LOGGER.config(() -> "Starting new MaDKit session with " + Arrays.deepToString(startingArgs));
+		try {
+			Thread.ofVirtual().start(() -> {
+				Method c = getLauncherClassMainMethod();
+				try {
+					c.invoke(null, (Object) startingArgs);
+				} catch (IllegalAccessException | InvocationTargetException e) {
+					MDK_LOGGER.severe(() -> "Cannot restart MaDKit: " + e);
+				}
+			}).join();
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 		}
 	}
 

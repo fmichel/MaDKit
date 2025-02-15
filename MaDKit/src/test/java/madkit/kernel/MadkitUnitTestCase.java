@@ -57,6 +57,7 @@ import static madkit.kernel.Agent.ReturnCode.SUCCESS;
 
 import madkit.kernel.Agent.ReturnCode;
 import madkit.simulation.SimuAgent;
+import madkit.test.utils.EmptySimuLauncher;
 import net.jodah.concurrentunit.ConcurrentTestCase;
 
 /**

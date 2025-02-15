@@ -33,48 +33,16 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C license and that you accept its terms.
  *******************************************************************************/
-package madkit.simulation;
-
-import org.testng.annotations.Test;
-
-import static madkit.kernel.Agent.ReturnCode.AGENT_CRASH;
-import static madkit.kernel.Agent.ReturnCode.SUCCESS;
+package madkit.test.agents;
 
 import madkit.kernel.Agent;
-import madkit.kernel.MadkitConcurrentTestCase;
 
 /**
- * The Class SimuAgentTest.
+ * The Class NoDefaultConstructorAgent.
  */
-public class SimuAgentTest extends MadkitConcurrentTestCase {
+public class NoDefaultConstructorAgent extends Agent {
 
-	@Test
-	public void givenSimuAgent_whenNotLaunchedByLauncher_thenAgentCrashes() {
-		runTest(new Agent() {
-			@Override
-			protected void onActivation() {
-				SimuAgent sa = new SimuAgent();
-				ReturnCode launchAgent = launchAgent(sa);
-				threadAssertEquals(AGENT_CRASH, launchAgent);
-				resume();
-			}
-		});
-	}
-
-	@Test
-	public void givenSimuAgentTransitivelyLaunched_whenLaunch_thenSuccess() {
-		runSimuTest(new SimuAgent() {
-			@Override
-			protected void onActivation() {
-				SimuAgent sa = new SimuAgent();
-				try {
-					threadAssertEquals(SUCCESS, launchAgent(sa));
-				} catch (IllegalStateException e) {
-					e.printStackTrace();
-				}
-				resume();
-			}
-		});
+	public NoDefaultConstructorAgent(int value) {
 	}
 
 }

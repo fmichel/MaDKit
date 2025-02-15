@@ -33,25 +33,64 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C license and that you accept its terms.
  *******************************************************************************/
-package madkit.gui;
 
-import javafx.scene.control.MenuBar;
-import javafx.scene.layout.VBox;
+package madkit.random;
+
+import org.testng.annotations.Test;
+
 import madkit.kernel.Agent;
+import madkit.kernel.MadkitConcurrentTestCase;
 
 /**
- * A JavaFX VBox that contains a default menu bar for an agent.
+ * The Class RandomnessTest.
  */
-public class AgentMenuToolbar extends VBox {
+public class RandomnessConcurrentTest extends MadkitConcurrentTestCase {
+
+	@Test
+	public void givenAgentWithRandomizedFields_whenRandomizeFields_thenFieldsAreRandomized() {
+		// Then
+		runTest(new RandomizedValuesAgent() {
+			@Override
+			protected void onActivation() {
+				threadAssertTrue(getRandomizedDouble() != 50);
+				threadAssertTrue(randomizedInteger != 50);
+				threadAssertTrue(randomizedFloat != 50);
+				threadAssertFalse(randomizedString.equals("Z"));
+				resume();
+			}
+		});
+	}
+}
+
+/**
+ * The Class RandomizedValuesAgent.
+ */
+class RandomizedValuesAgent extends Agent {
+
+	@RandomizedDouble(min = 0.0, max = 1.0)
+	private double randomizedDouble = 50;
+
+	@RandomizedInteger(min = 1, max = 10)
+	protected int randomizedInteger = 50;
+
+	@RandomizedFloat(min = 0.0f, max = 1.0f)
+	protected float randomizedFloat = 50;
+
+	@RandomizedString(values = { "A", "B", "C" })
+	protected String randomizedString = "Z";
 
 	/**
-	 * Instantiates a new agent menu toolBar using the {@link Menus#createMenuBarFor(Agent)}
-	 * method.}
-	 *
-	 * @param agent the agent for which to create the menu bar
+	 * @return the randomizedDouble
 	 */
-	public AgentMenuToolbar(Agent agent) {
-		MenuBar menuBar = Menus.createMenuBarFor(agent);
-		getChildren().add(menuBar);
+	public double getRandomizedDouble() {
+		return randomizedDouble;
 	}
+
+	/**
+	 * @param randomizedDouble the randomizedDouble to set
+	 */
+	public void setRandomizedDouble(double randomizedDouble) {
+		this.randomizedDouble = randomizedDouble;
+	}
+
 }

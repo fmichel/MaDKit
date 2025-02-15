@@ -38,6 +38,7 @@ package madkit.gui;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -52,7 +53,6 @@ import javafx.scene.control.TitledPane;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.VBox;
 import madkit.kernel.Agent;
-import madkit.kernel.Madkit;
 
 /**
  * 
@@ -184,8 +184,9 @@ public class PropertySheetFactory {
 					parameters.add(sliderProperty);
 				}
 			} catch (IntrospectionException e) {
-				Madkit.MDK_LOGGER.severe("****************** Cannot create property descriptor for " + f.getName()
-						+ "\nFor annotations to work properly, please implement appropriate getter and setter for this field.***********");
+				Logger.getLogger(PropertySheetFactory.class.getName())
+						.severe("****************** Cannot create property descriptor for " + f.getName()
+								+ "\nFor annotations to work properly, please implement appropriate getter and setter for this field.***********");
 				e.printStackTrace();
 			}
 		}

@@ -35,11 +35,6 @@
  *******************************************************************************/
 package madkit.kernel;
 
-import static madkit.kernel.Agent.ReturnCode.ALREADY_GROUP;
-import static madkit.kernel.Agent.ReturnCode.NOT_COMMUNITY;
-import static madkit.kernel.Agent.ReturnCode.NOT_GROUP;
-import static madkit.kernel.Agent.ReturnCode.SUCCESS;
-
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -48,6 +43,11 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
+
+import static madkit.kernel.Agent.ReturnCode.ALREADY_GROUP;
+import static madkit.kernel.Agent.ReturnCode.NOT_COMMUNITY;
+import static madkit.kernel.Agent.ReturnCode.NOT_GROUP;
+import static madkit.kernel.Agent.ReturnCode.SUCCESS;
 
 import madkit.i18n.ErrorMessages;
 import madkit.kernel.Agent.ReturnCode;
@@ -260,7 +260,7 @@ public final class Organization {
 	 * @param agent
 	 */
 	void removeAgent(Agent agent) {
-		communities.values().parallelStream().forEach(c -> c.removeAgent(agent));
+		communities.values().stream().forEach(c -> c.removeAgent(agent));
 	}
 
 	/**

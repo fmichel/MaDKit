@@ -36,7 +36,6 @@
 
 package madkit.kernel;
 
-import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.fail;
 
 import java.lang.reflect.Field;
@@ -50,6 +49,7 @@ import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.BeforeMethod;
 
 import madkit.simulation.SimuAgent;
+import madkit.test.utils.EmptySimuLauncher;
 import net.jodah.concurrentunit.ConcurrentTestCase;
 
 /**
@@ -139,7 +139,7 @@ public abstract class MadkitConcurrentTestCase extends ConcurrentTestCase {
 	public void runTest(Agent initialAgent) {
 		launchAgent(initialAgent);
 		try {
-			await(Integer.MAX_VALUE);
+			await(20000);
 		} catch (TimeoutException | InterruptedException e) {
 			fail("TimeoutException / InterruptedException", e);
 		}
@@ -175,7 +175,7 @@ public abstract class MadkitConcurrentTestCase extends ConcurrentTestCase {
 	}
 
 	public void checkTermination(Agent a) {
-		assertFalse(a.alive.get());
+		threadAssertFalse(a.alive.get());
 		threadAssertEquals(KernelAgent.deadKernel, a.kernel);
 	}
 

@@ -94,7 +94,7 @@ public class Broker extends Agent {
 	@Override
 	protected void onLive() {
 		while (isAlive()) {
-			if (isOnVacation()) {
+			if (!isOnVacation()) {
 				Message m = getMailbox().purge();// to always treat the latest request
 				if (m == null) {
 					m = waitNextMessage();// waiting a request

@@ -37,7 +37,6 @@ package madkit.bees;
 
 import java.awt.Point;
 import java.util.List;
-import java.util.logging.Level;
 
 import madkit.kernel.AgentAddress;
 import madkit.messages.ObjectMessage;
@@ -57,7 +56,6 @@ public class QueenBee extends Bee {
 	 */
 	@Override
 	protected void onActivation() {
-		getLogger().setLevel(Level.ALL);
 		playRole(BeeOrganization.QUEEN);
 		super.onActivation();
 		playRole(BeeOrganization.QUEEN);

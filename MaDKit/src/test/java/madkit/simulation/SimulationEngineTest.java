@@ -2,8 +2,8 @@ package madkit.simulation;
 
 import org.testng.annotations.Test;
 
-import madkit.kernel.EmptySimuLauncher;
 import madkit.kernel.MadkitUnitTestCase;
+import madkit.test.utils.EmptySimuLauncher;
 
 public class SimulationEngineTest extends MadkitUnitTestCase {
 

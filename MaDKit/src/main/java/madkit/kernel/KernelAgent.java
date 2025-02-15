@@ -35,21 +35,10 @@
  *******************************************************************************/
 package madkit.kernel;
 
-import static madkit.kernel.Agent.ReturnCode.AGENT_CRASH;
-import static madkit.kernel.Agent.ReturnCode.INVALID_AGENT_ADDRESS;
-import static madkit.kernel.Agent.ReturnCode.NOT_IN_GROUP;
-import static madkit.kernel.Agent.ReturnCode.ROLE_NOT_HANDLED;
-import static madkit.kernel.Agent.ReturnCode.SUCCESS;
-import static madkit.kernel.Agent.ReturnCode.TIMEOUT;
-
 import java.awt.GraphicsEnvironment;
-import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -64,6 +53,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.random.RandomGenerator;
+
+import static madkit.kernel.Agent.ReturnCode.AGENT_CRASH;
+import static madkit.kernel.Agent.ReturnCode.INVALID_AGENT_ADDRESS;
+import static madkit.kernel.Agent.ReturnCode.NOT_IN_GROUP;
+import static madkit.kernel.Agent.ReturnCode.ROLE_NOT_HANDLED;
+import static madkit.kernel.Agent.ReturnCode.SUCCESS;
+import static madkit.kernel.Agent.ReturnCode.TIMEOUT;
 
 import javafx.application.Platform;
 import javafx.stage.Window;
@@ -195,9 +191,6 @@ class KernelAgent extends Agent implements DaemonAgent {
 		// launchNetworkAgent();
 		// logCurrentOrganization(logger,Level.FINEST);
 
-		// javax.swing.Action b = GlobalAction.JCONSOLE.getSwingAction();
-		// b.actionPerformed(null);
-		// Object o = null; o.toString();
 	}
 
 	/**
@@ -210,26 +203,6 @@ class KernelAgent extends Agent implements DaemonAgent {
 		randomGenerator = Randomness.getBestRandomGeneratorFactory().create(seed);
 		getLogger()
 				.fine(" PRNG < " + randomGenerator.getClass().getSimpleName() + " ; seed index ->  " + seedIndex + " >");
-	}
-
-	/**
-	 * main loop of the kernel. As a daemon, a timeout is not required
-	 */
-	@Override
-	protected void onLive() {
-		while (!exitRequested) {
-			handleMessage(waitNextMessage(1000));
-			garbageDeadThreadedAgents();
-			if (threadedAgents.isEmpty() && FXExecutor.isStarted()
-					&& FXAgentStage.getAgentsWithStage(kernelAddress).isEmpty()) {
-				logIfLoggerNotNull(Level.FINE,
-						() -> "No more activity within kernel " + getKernelAddress() + " -> Quitting");
-				if (Window.getWindows().isEmpty()) {
-					Platform.exit();
-				}
-				return;
-			}
-		}
 	}
 
 	/**
@@ -255,12 +228,60 @@ class KernelAgent extends Agent implements DaemonAgent {
 		}
 	}
 
+	// @SuppressWarnings("unused")
+	// private void console() {
+	// launchAgent(ConsoleAgent.class.getName(), 0);
+	// }
+
+	/**
+	 * main loop of the kernel. As a daemon, a timeout is not required
+	 */
+	@Override
+	protected void onLive() {
+		while (!exitRequested) {
+			handleMessage(waitNextMessage(1000));
+			garbageDeadThreadedAgents();
+			if (threadedAgents.isEmpty() && FXExecutor.isStarted()
+					&& FXAgentStage.getAgentsWithStage(kernelAddress).isEmpty()) {
+				logIfLoggerNotNull(Level.FINE,
+						() -> "No more activity within kernel " + getKernelAddress() + " -> Quitting");
+				return;
+			}
+		}
+	}
+
+	/**
+	 * Exit.
+	 */
+	void exit() {
+		getLogger().fine(() -> "***** SHUTINGDOWN MADKIT ********\n");
+		exitRequested = true;
+		Collection<Agent> c = FXAgentStage.getAgentsWithStage(getKernelAddress());
+		getLogger().finer(() -> "***** KILLING agent with stages " + c);
+		c.forEach(a -> killAgent(a, 1));
+		garbageDeadThreadedAgents();
+		getLogger().finer(() -> "Killing agents -> " + threadedAgents);
+		while (!threadedAgents.isEmpty()) {
+			synchronized (threadedAgents) {
+				threadedAgents.parallelStream().forEach(a -> killAgent(a, 1));
+				garbageDeadThreadedAgents();
+			}
+		}
+		kernerls.remove(this);
+	}
+
 	/**
 	 * On end.
 	 */
 	@Override
 	protected void onEnd() {
 		kernerls.remove(this);
+		if (kernerls.isEmpty()) {
+			if (Window.getWindows().isEmpty()) {
+				getLogger().finer(() -> "Shutdown down JavaFX platform");
+				Platform.exit();
+			}
+		}
 	}
 
 	/**
@@ -537,7 +558,7 @@ class KernelAgent extends Agent implements DaemonAgent {
 	}
 
 	private void broadcasting(Collection<AgentAddress> receivers, Message m) {
-		receivers.parallelStream().forEach(agentAddress -> {
+		receivers.stream().forEach(agentAddress -> {
 			Message cm = m.clone();
 			cm.setReceiver(agentAddress);
 			deliverMessage(cm, agentAddress.getAgent());
@@ -717,72 +738,13 @@ class KernelAgent extends Agent implements DaemonAgent {
 //		launchAgent(ConsoleAgent.class.getName(), 0);
 //	}
 
-	/**
-	 * Exit.
-	 */
-	void exit() {
-		getLogger().fine(() -> "***** SHUTINGDOWN MADKIT ********\n");
-		exitRequested = true;
-		Collection<Agent> c = FXAgentStage.getAgentsWithStage(getKernelAddress());
-		getLogger().fine(() -> "***** KILLING agent with stages " + c);
-		c.forEach(a -> killAgent(a, 1));
-		garbageDeadThreadedAgents();
-		getLogger().fine(() -> "Killing agents -> " + threadedAgents);
-		while (!threadedAgents.isEmpty()) {
-			synchronized (threadedAgents) {
-				threadedAgents.parallelStream().forEach(a -> killAgent(a, 1));
-				garbageDeadThreadedAgents();
-			}
-		}
-		kernerls.remove(this);
-		if (kernerls.isEmpty()) {
-			Platform.exit();
-		}
-	}
-
 	private void copy() {
-		startSession(true);
-	}
-
-	private void startSession(boolean externalVM) {
-		String[] args = getMadkit().getLauncherArgs();
-		Class<?> launcherClass = getMadkit().getOneFileLauncherClass();
-
-		if (logger != null) {
-			logger.config(() -> "starting new MaDKit session with " + Arrays.deepToString(args));// +
-		}
-		// Arrays.deepToString(getKernelConfiguration().get(String[].class,
-		if (externalVM) {
-			try {
-				String command = System.getProperty("java.home") + File.separatorChar + "bin" + File.separatorChar
-						+ "java --add-modules ALL-MODULE-PATH -p " + System.getProperty("jdk.module.path") + " -m "
-						+ launcherClass.getModule().getName() + '/' + launcherClass.getName();
-				for (int i = 0; i < args.length; i++) {
-					command += " " + args[i];
-				}
-				Runtime.getRuntime().exec(command);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		} else {
-			try {
-				Method c = getMadkit().getLauncherClassMainMethod();
-				c.invoke(null, (Object) getMadkit().startingArgs);
-			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-				e.printStackTrace();
-			}
-		}
+		getMadkit().startNewSession();
 	}
 
 	@SuppressWarnings("unused")
 	private void restart() {
-		try {
-			Thread.ofVirtual().start(() -> {
-				startSession(false);
-			}).join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		copy();
 		exit();
 	}
 

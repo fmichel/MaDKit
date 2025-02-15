@@ -37,8 +37,6 @@
 package madkit.kernel;
 
 import static madkit.i18n.I18nUtilities.getCGRString;
-import static madkit.kernel.Agent.ReturnCode.ROLE_NOT_HANDLED;
-import static madkit.kernel.Agent.ReturnCode.SUCCESS;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -51,6 +49,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
+import static madkit.kernel.Agent.ReturnCode.ROLE_NOT_HANDLED;
+import static madkit.kernel.Agent.ReturnCode.SUCCESS;
 
 import madkit.kernel.Agent.ReturnCode;
 
@@ -406,7 +407,7 @@ public class Role implements Serializable {
 	final Set<AgentAddress> buildAndGetAddresses() {
 		if (agentAddresses == null) {
 			synchronized (players) {
-				agentAddresses = players.parallelStream().map(a -> new AgentAddress(a, this, kernelAddress))
+				agentAddresses = players.stream().map(a -> new AgentAddress(a, this, kernelAddress))
 						.collect(Collectors.toSet());
 			}
 		}
@@ -521,11 +522,11 @@ public class Role implements Serializable {
 	 * @param a the a
 	 */
 	final void addToOverlookers(Agent a) {
-		overlookers.parallelStream().forEach(o -> o.onAdding(a));
+		overlookers.stream().forEach(o -> o.onAdding(a));
 	}
 
 	private final void addToOverlookers(List<Agent> l) {
-		overlookers.parallelStream().forEach(o -> o.adding(l));
+		overlookers.stream().forEach(o -> o.adding(l));
 	}
 
 	/**
@@ -534,11 +535,11 @@ public class Role implements Serializable {
 	 * @param a the a
 	 */
 	final void removeFromOverlookers(Agent a) {
-		overlookers.parallelStream().forEach(o -> o.onRemoving(a));
+		overlookers.stream().forEach(o -> o.onRemoving(a));
 	}
 
 	private final void removeFromOverlookers(List<Agent> l) {
-		overlookers.parallelStream().forEach(o -> o.removing(l));
+		overlookers.stream().forEach(o -> o.removing(l));
 	}
 
 	/**
@@ -596,19 +597,21 @@ public class Role implements Serializable {
 	 * @return <code>null</code> if it is not contained in this role anymore
 	 */
 	final AgentAddress resolveDistantAddress(AgentAddress anAA) {
-		return buildAndGetAddresses().parallelStream().filter(aa -> aa.equals(anAA)).findAny().orElse(null);
+		return buildAndGetAddresses().stream().filter(aa -> aa.equals(anAA)).findAny().orElse(null);
 	}
 
 	/**
+	 * Returns a random agent address in this role, excluding the given agent
+	 * 
 	 * @param agent
 	 * @return
 	 */
 	AgentAddress getAnotherAddress(Agent agent) {
-		AgentAddress agentAA = getAgentAddressOf(agent);
-		if (agentAA != null) {
-			return buildAndGetAddresses().parallelStream().filter(aa -> !aa.equals(agentAA)).findAny().orElse(null);
+		List<AgentAddress> l = getOtherRolePlayers(agent);
+		if (!l.isEmpty()) {
+			return l.get(agent.prng().nextInt(l.size()));
 		}
-		return buildAndGetAddresses().parallelStream().findAny().orElse(null);
+		return null;
 	}
 
 }

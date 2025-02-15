@@ -36,9 +36,6 @@
 package madkit.kernel;
 
 import static java.util.logging.Level.FINEST;
-import static madkit.kernel.Agent.ReturnCode.INVALID_AGENT_ADDRESS;
-import static madkit.kernel.Agent.ReturnCode.NO_RECIPIENT_FOUND;
-import static madkit.kernel.Agent.ReturnCode.SUCCESS;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -53,6 +50,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.random.RandomGenerator;
+
+import static madkit.kernel.Agent.ReturnCode.INVALID_AGENT_ADDRESS;
+import static madkit.kernel.Agent.ReturnCode.NO_RECIPIENT_FOUND;
+import static madkit.kernel.Agent.ReturnCode.SUCCESS;
 
 import it.unimi.dsi.fastutil.objects.Reference2BooleanArrayMap;
 import it.unimi.dsi.fastutil.objects.Reference2BooleanMap;
@@ -246,6 +247,7 @@ public abstract class Agent {
 		Thread.currentThread().setName(String.valueOf(hashCode()));
 		logIfLoggerNotNull(Level.FINER, () -> "- - -> ACTIVATE...");
 		try {
+			Randomness.randomizeFields(this, prng());
 			onActivation();
 		} catch (Exception e) {
 			handleException(e);
@@ -330,6 +332,7 @@ public abstract class Agent {
 		if (ex instanceof AgentInterruptedException) {
 			getLogger().fine(() -> "** INTERRUPTED **");
 		} else {
+			getLogger().setLevel(Level.SEVERE);
 			getLogger().log(Level.SEVERE, ex, () -> "** CRASHED **");
 		}
 	}
@@ -359,7 +362,6 @@ public abstract class Agent {
 	 * @return the result of the launch operation.
 	 */
 	public ReturnCode launchAgent(Agent a, int timeOutSeconds) {
-		Randomness.randomizeFields(a, prng());
 		return kernel.launchAgent(a, timeOutSeconds);
 	}
 
@@ -503,8 +505,16 @@ public abstract class Agent {
 	 * @return the agent's hash code.
 	 */
 	@Override
-	public int hashCode() { // NOSONAR Super version of equals is perfect here
+	public final int hashCode() {
 		return hashCode;
+	}
+
+	/**
+	 * An Agent is unique and therefore equals to only itself.
+	 */
+	@Override
+	public final boolean equals(Object obj) {
+		return super.equals(obj);
 	}
 
 	/**
@@ -708,13 +718,14 @@ public abstract class Agent {
 	}
 
 	/**
-	 * Returns an {@link AgentAddress} corresponding to an agent having this position in the
-	 * organization. The caller is excluded from the search.
+	 * Returns an {@link AgentAddress} of a random agent having this position in the
+	 * organization. The caller is excluded from the search. The PRNG used is the one
+	 * associated with the caller.
 	 *
 	 * @param community the community name
 	 * @param group     the group name
 	 * @param role      the role name
-	 * @return an {@link AgentAddress} corresponding to an agent handling this role or
+	 * @return an {@link AgentAddress} corresponding to a random agent having this role, or
 	 *         <code>null</code> if such an agent does not exist.
 	 */
 	public AgentAddress getAgentWithRole(String community, String group, String role) {
@@ -955,6 +966,17 @@ public abstract class Agent {
 		return waitAnswer(messageToSend, timeOutMilliSeconds);
 	}
 
+	protected <T extends Message> T sendWaitReply(Message messageToSend, AgentAddress receiver,
+			Integer timeOutMilliSeconds) {
+		// no need to checkAliveness : this is done in noLogSendingMessage
+		logIfLoggerNotNull(FINEST,
+				() -> "sendWaitReply : sending " + messageToSend + " to " + receiver + ", and waiting reply...");
+		if (send(messageToSend, receiver) != SUCCESS) {
+			return null;
+		}
+		return waitAnswer(messageToSend, timeOutMilliSeconds);
+	}
+
 	/**
 	 * Sends a message to an agent having this position in the organization and waits for an
 	 * answer to it. The targeted agent is selected randomly among matched agents. The sender
@@ -1064,7 +1086,7 @@ public abstract class Agent {
 
 	/**
 	 * Returns a list of agent addresses corresponding to agents having this role in the
-	 * organization. The sender is excluded from this search.
+	 * organization. The caller is excluded from this search.
 	 * 
 	 * @param community the community name
 	 * @param group     the group name
@@ -1485,7 +1507,7 @@ public abstract class Agent {
 	 * @see EnumMessage
 	 */
 	<E extends Enum<E>> void proceedEnumMessage(EnumMessage<E> message) {
-		logIfLoggerNotNull(FINEST, () -> "proceeding command message " + message);
+		logIfLoggerNotNull(Level.FINER, () -> "proceeding command message " + message);
 		Object[] parameters = message.getContent();
 		triggerBehavior(ReflectionUtils.enumToMethodName(message.getCode()), parameters);
 	}

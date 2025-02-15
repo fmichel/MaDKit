@@ -1,4 +1,4 @@
-package madkit.kernel;
+package madkit.test.utils;
 
 import madkit.simulation.SimuLauncher;
 

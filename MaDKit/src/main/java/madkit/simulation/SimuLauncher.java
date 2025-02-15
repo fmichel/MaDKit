@@ -59,7 +59,8 @@ import madkit.simulation.scheduler.TickBasedScheduler;
 /**
  * Main class for launching a simulation. This class is responsible for initializing the
  * simulation environment, simulation model, and scheduler. It also launches the
- * simulation agents and viewers.
+ * simulation agents and viewers. See {@link #onActivation()} for a detailed description
+ * of the simulation initialization process.
  * <p>
  * This class is intended to be extended by the user to define the simulation engine, if
  * the default setup should customized. The user can define the simulation environment,
@@ -75,8 +76,10 @@ import madkit.simulation.scheduler.TickBasedScheduler;
  * reproducibility of the simulation. The PRNG is initialized with a seed that can be set
  * by the user. The seed is a long integer that can be set by the user by overriding the
  * {@link #onInitializeSimulationSeedIndex()} method. By default, the seed index is 0.
+ * <p>
  * 
- * See {@link #onInitializeSimulationSeedIndex()} method.
+ * By default its logger level is set to {@link Level#INFO}.
+ * 
  * 
  */
 @EngineAgents
@@ -96,6 +99,7 @@ public abstract class SimuLauncher extends Watcher {
 	}
 
 	private static final String LAUNCHED = " launched";
+	private static final String LAUNCHING = "Launching -> ";
 
 	private String simuCommunity;
 	private SimuModel model;
@@ -131,21 +135,32 @@ public abstract class SimuLauncher extends Watcher {
 	 * This method is called when the simulation engine is activated. It initializes the
 	 * simulation community, creates the engine and model groups, and requests the role
 	 * {@link SimuOrganization#LAUNCHER_ROLE} in the group
-	 * {@link SimuOrganization#ENGINE_GROUP}. Then, it initiates the simulation by first
-	 * creating the pseudo random number generator by calling the
-	 * {@link #onCreateRandomGenerator()}. Then, it launches the simulation model,
-	 * environment, scheduler, and viewers by calling in order the {@link #onLaunchModel()},
-	 * {@link #onLaunchEnvironment()}, {@link #onLaunchScheduler()},
-	 * {@link #onLaunchViewers()}, and {@link #onLaunchSimulatedAgents()} methods. Finally, it
-	 * calls the {@link #onSimulationStart()} method. If the start parameter is set to
-	 * <code>true</code>, it starts the simulation by calling the {@link #startSimulation()}
+	 * {@link SimuOrganization#ENGINE_GROUP}.
+	 * 
 	 * <p>
-	 * By default the logger level is set to {@link Level#INFO}.
+	 * Then, it initiates the simulation by first creating the pseudo random number generator
+	 * (prng) by calling the {@link #onCreateRandomGenerator()}.
+	 * <p>
+	 * Then, it launches the engine agents of the simulation in the following order:
+	 * <ul>
+	 * <li>the model agent by calling the {@link #onLaunchModel()} method
+	 * <li>the environment agent by calling the {@link #onLaunchEnvironment()} method
+	 * <li>the scheduler agent by calling the {@link #onLaunchScheduler()} method
+	 * <li>the viewers agents by calling the {@link #onLaunchViewers()} method
+	 * <li>the simulated agents by calling the {@link #onLaunchSimulatedAgents()} method
+	 * </ul>
+	 * <p>
+	 * Then, it calls the {@link #onSimulationStart()} method.
+	 * <p>
+	 * Finally, if the start switch is passed on the command line or through the arguments of
+	 * the main method, it automatically starts the simulation by calling the
+	 * {@link #startSimulation()}, which, by default, send the starting message to the
+	 * scheduler.
+	 * <p>
 	 */
 
 	@Override
 	protected void onActivation() {
-		getLogger().setLevel(Level.INFO);
 		initCommunityName();
 		createGroup(getCommunity(), getEngineGroup());
 		createGroup(getCommunity(), getModelGroup());
@@ -230,7 +245,7 @@ public abstract class SimuLauncher extends Watcher {
 
 	/**
 	 *
-	 * Called before the simulation starts. By default, it calls the
+	 * Called before the simulation starts. By default, it calls in the following order, the
 	 * {@link Scheduler#onSimulationStart()}, {@link SimuModel#onSimulationStart()},
 	 * {@link SimuEnvironment#onSimulationStart()}, and {@link SimuAgent#onSimulationStart()}
 	 * methods for each viewer.
@@ -255,8 +270,10 @@ public abstract class SimuLauncher extends Watcher {
 	 * @return the model agent for this simulation
 	 */
 	protected <M extends SimuModel> M onLaunchModel() {
-		M m = launchAgent(getEngineClass(ENGINE.MODEL), Integer.MAX_VALUE);
-		getLogger().info(() -> getModel() + LAUNCHED);
+		String modelClass = getEngineClass(ENGINE.MODEL);
+		getLogger().fine(() -> LAUNCHING + modelClass);
+		M m = launchAgent(modelClass, Integer.MAX_VALUE);
+		getLogger().fine(() -> getModel() + LAUNCHED);
 		return m;
 	}
 
@@ -267,8 +284,10 @@ public abstract class SimuLauncher extends Watcher {
 	 * @return the environment agent for this simulation
 	 */
 	protected <E extends SimuEnvironment> E onLaunchEnvironment() {
-		E e = launchAgent(getEngineClass(ENGINE.ENVIRONMENT), Integer.MAX_VALUE);
-		getLogger().info(() -> getEnvironment() + LAUNCHED);
+		String envClass = getEngineClass(ENGINE.ENVIRONMENT);
+		getLogger().fine(() -> LAUNCHING + envClass);
+		E e = launchAgent(envClass, Integer.MAX_VALUE);
+		getLogger().fine(() -> getEnvironment() + LAUNCHED);
 		return e;
 	}
 
@@ -279,8 +298,10 @@ public abstract class SimuLauncher extends Watcher {
 	 * @return the scheduler agent for this simulation
 	 */
 	protected <S extends Scheduler<?>> S onLaunchScheduler() {
-		S s = launchAgent(getEngineClass(ENGINE.SCHEDULER), Integer.MAX_VALUE);
-		getLogger().info(() -> getScheduler() + LAUNCHED);
+		String schedulerClass = getEngineClass(ENGINE.SCHEDULER);
+		getLogger().fine(() -> LAUNCHING + schedulerClass);
+		S s = launchAgent(schedulerClass, Integer.MAX_VALUE);
+		getLogger().fine(() -> getScheduler() + LAUNCHED);
 		return s;
 	}
 
@@ -290,8 +311,9 @@ public abstract class SimuLauncher extends Watcher {
 	protected void onLaunchViewers() {
 		if (!getKernelConfig().getBoolean("headless")) {
 			for (String viewer : getViewerClasses()) {
+				getLogger().fine(() -> LAUNCHING + viewer);
 				SimuAgent v = launchAgent(viewer, Integer.MAX_VALUE);
-				getLogger().info(() -> v + LAUNCHED);
+				getLogger().fine(() -> v + LAUNCHED);
 			}
 		}
 	}
@@ -299,7 +321,9 @@ public abstract class SimuLauncher extends Watcher {
 	/**
 	 * Launches the simulation agents.
 	 */
-	protected abstract void onLaunchSimulatedAgents();
+	protected void onLaunchSimulatedAgents() {
+		getLogger().fine(() -> "Launching simulated agents");
+	}
 
 	/**
 	 * Start simulation.

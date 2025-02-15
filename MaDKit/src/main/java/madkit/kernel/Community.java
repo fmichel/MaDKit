@@ -37,12 +37,13 @@
 package madkit.kernel;
 
 import static madkit.i18n.I18nUtilities.getCGRString;
-import static madkit.kernel.Agent.ReturnCode.NOT_GROUP;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
+
+import static madkit.kernel.Agent.ReturnCode.NOT_GROUP;
 
 /**
  * This class represents a community within the MaDKit kernel. It is meant to be a
@@ -201,7 +202,7 @@ public class Community {
 	 * @param agent the agent to remove
 	 */
 	public void removeAgent(Agent agent) {
-		groups.values().parallelStream().forEach(g -> g.leaveGroup(agent));
+		groups.values().stream().forEach(g -> g.leaveGroup(agent));
 	}
 
 	/**

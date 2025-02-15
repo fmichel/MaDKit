@@ -37,13 +37,14 @@
 package madkit.kernel;
 
 import static madkit.i18n.I18nUtilities.getCGRString;
-import static madkit.kernel.Agent.ReturnCode.ACCESS_DENIED;
-import static madkit.kernel.Agent.ReturnCode.NOT_ROLE;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
+
+import static madkit.kernel.Agent.ReturnCode.ACCESS_DENIED;
+import static madkit.kernel.Agent.ReturnCode.NOT_ROLE;
 
 import madkit.i18n.ErrorMessages;
 import madkit.i18n.I18nUtilities;
@@ -283,8 +284,8 @@ public final class Group {
 	 * @param requester the requester
 	 * @return true, if successful
 	 */
-	boolean leaveGroup(final Agent requester) {
-		if (roles.values().parallelStream().filter(r -> r.removeMember(requester) == ReturnCode.SUCCESS).count() > 0) {
+	boolean leaveGroup(Agent requester) {
+		if (roles.values().stream().filter(r -> r.removeMember(requester) == ReturnCode.SUCCESS).count() > 0) {
 			checkEmptyness();
 			return true;
 		}
@@ -325,8 +326,7 @@ public final class Group {
 	 *         is not in
 	 */
 	AgentAddress getAnyAgentAddressOf(Agent agent) {
-		return roles.values().parallelStream().map(r -> r.getAgentAddressOf(agent)).filter(a -> a != null).findAny()
-				.orElse(null);
+		return roles.values().stream().map(r -> r.getAgentAddressOf(agent)).filter(a -> a != null).findAny().orElse(null);
 	}
 
 	/**

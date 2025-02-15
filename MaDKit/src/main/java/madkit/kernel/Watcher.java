@@ -89,7 +89,7 @@ public abstract class Watcher extends SimuAgent {
 		if (getOrganization().addOverlooker(this, probe)) {
 			probes.add(probe);
 		}
-		getLogger().fine(() -> "Probe added: " + probe);
+		getLogger().finer(() -> "Probe added: " + probe);
 	}
 
 	/**
@@ -100,7 +100,7 @@ public abstract class Watcher extends SimuAgent {
 	public void removeProbe(Probe probe) {
 		getOrganization().removeOverlooker(probe);
 		probes.remove(probe);
-		getLogger().fine(() -> "Probe removed: " + probe);
+		getLogger().finer(() -> "Probe removed: " + probe);
 	}
 
 	/**

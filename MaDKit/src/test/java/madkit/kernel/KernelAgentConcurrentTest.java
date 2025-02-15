@@ -33,48 +33,39 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C license and that you accept its terms.
  *******************************************************************************/
-package madkit.simulation;
+package madkit.kernel;
+
+import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
-import static madkit.kernel.Agent.ReturnCode.AGENT_CRASH;
-import static madkit.kernel.Agent.ReturnCode.SUCCESS;
-
-import madkit.kernel.Agent;
-import madkit.kernel.MadkitConcurrentTestCase;
+import madkit.kernel.Agent.ReturnCode;
+import madkit.test.agents.BugInActivateAgent;
 
 /**
- * The Class SimuAgentTest.
+ * The Class KernelAgentConcurrentTest.
  */
-public class SimuAgentTest extends MadkitConcurrentTestCase {
+public class KernelAgentConcurrentTest extends MadkitConcurrentTestCase {
 
 	@Test
-	public void givenSimuAgent_whenNotLaunchedByLauncher_thenAgentCrashes() {
-		runTest(new Agent() {
-			@Override
-			protected void onActivation() {
-				SimuAgent sa = new SimuAgent();
-				ReturnCode launchAgent = launchAgent(sa);
-				threadAssertEquals(AGENT_CRASH, launchAgent);
-				resume();
-			}
-		});
+	public void givenWrongBuggyAgentClassInMadkitArgs_whenLaunched_thenKernelAgentDoesNotCrash() {
+		Madkit m = new Madkit(new String[] { "--agents", BugInActivateAgent.class.getName() });
+		KernelAgent kernelAgent = new KernelAgent(m);
+		// When the KernelAgent launches the Agent
+		ReturnCode returnCode = kernelAgent.launchAgent(kernelAgent);
+		// Then the Agent is alive
+		assertEquals(returnCode, ReturnCode.SUCCESS);
 	}
 
 	@Test
-	public void givenSimuAgentTransitivelyLaunched_whenLaunch_thenSuccess() {
-		runSimuTest(new SimuAgent() {
-			@Override
-			protected void onActivation() {
-				SimuAgent sa = new SimuAgent();
-				try {
-					threadAssertEquals(SUCCESS, launchAgent(sa));
-				} catch (IllegalStateException e) {
-					e.printStackTrace();
-				}
-				resume();
-			}
-		});
-	}
+	public void givenSimuAgentWhichIsNotASimuLauncherClassInMadkitArgs_whenLaunched_thenKernelAgentDoesNotCrash() {
+		Madkit m = new Madkit(
+				new String[] { "--agents", madkit.simulation.viewer.RolesPopulationLineChartDrawer.class.getName() });
+		KernelAgent kernelAgent = new KernelAgent(m);
+		// When the KernelAgent launches the Agent
+		ReturnCode returnCode = kernelAgent.launchAgent(kernelAgent);
+		// Then the Agent is alive
+		assertEquals(returnCode, ReturnCode.SUCCESS);
 
+	}
 }

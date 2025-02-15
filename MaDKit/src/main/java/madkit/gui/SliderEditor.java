@@ -37,6 +37,7 @@ package madkit.gui;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import org.controlsfx.control.PropertySheet.Item;
 import org.controlsfx.property.editor.AbstractPropertyEditor;
@@ -45,7 +46,6 @@ import org.controlsfx.property.editor.PropertyEditor;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Tooltip;
-import madkit.kernel.Madkit;
 
 /**
  * A property editor for editing double values using a {@link Slider}.
@@ -76,9 +76,8 @@ public class SliderEditor extends AbstractPropertyEditor<Double, Slider> impleme
 		try {
 			getEditor().setValue((double) item.getValue());
 		} catch (ClassCastException e) {
-			Madkit.MDK_LOGGER.severe("****************** " + SliderProperty.class
-					+ " only works on double! \nPlease change " + item.getName() + " type to double in your class");
-			e.printStackTrace();
+			Logger.getAnonymousLogger().severe("****************** " + SliderProperty.class
+					+ " only works on double! \nPlease change " + item.getName() + " type to double in your class ***\n\n");
 		}
 	}
 

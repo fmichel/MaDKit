@@ -177,7 +177,8 @@ public final class MadkitClassLoader extends URLClassLoader {
 			return defineClass(name, classData, 0, classData.length);
 
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.severe(
+					() -> "IO problem loading class**" + name + "** -> " + e.getClass().getName() + " " + e.getMessage());
 		}
 
 		return null;
@@ -517,8 +518,8 @@ public final class MadkitClassLoader extends URLClassLoader {
 			}
 		} catch (InvocationTargetException | InstantiationException | IllegalAccessException | IllegalArgumentException
 				| NoSuchMethodException | SecurityException | ClassNotFoundException e) {
-			logger.severe(() -> "Cannot create agent instance " + agentClass);
-			e.printStackTrace();
+			logger.severe(() -> "Cannot create agent instance **" + agentClass + "** -> " + e.getClass().getName() + " "
+					+ e.getMessage());
 		}
 		return null;
 	}

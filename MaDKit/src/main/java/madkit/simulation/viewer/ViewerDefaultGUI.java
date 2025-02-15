@@ -125,24 +125,36 @@ public abstract class ViewerDefaultGUI extends DefaultAgentGUI {
 		AnimationTimer animationTimer = new AnimationTimer() {
 			@Override
 			public void handle(long now) {
-				if (!renderingOff.isSelected() && getViewer().isAlive()) {
+				if (getViewer().isAlive()) {
 					getViewer().render();
 				}
 			}
 		};
 
-		renderingOff = new FXActionCheck(new ActionData("DISABLE", KeyEvent.VK_A), null);
+		renderingOff = new FXActionCheck(new ActionData("DISABLE", KeyEvent.VK_A), _ -> {
+			if (renderingOff.isSelected()) {
+				animationTimer.stop();
+			} else {
+				checkAnimationTimer(animationTimer);
+			}
+		});
 		renderingOff.setSelected(false);
 
 		synchroPainting = new FXActionCheck(new ActionData("SYNCHRO_PAINTING", KeyEvent.VK_Z), _ -> {
-			if (synchroPainting.isSelected()) {
-				animationTimer.stop();
-			} else {
-				animationTimer.start();
-			}
+			checkAnimationTimer(animationTimer);
 		});
-
 		synchroPainting.setSelected(true);
+	}
+
+	/**
+	 * @param animationTimer
+	 */
+	private void checkAnimationTimer(AnimationTimer animationTimer) {
+		if (synchroPainting.isSelected()) {
+			animationTimer.stop();
+		} else {
+			animationTimer.start();
+		}
 	}
 
 	/**

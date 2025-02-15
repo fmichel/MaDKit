@@ -33,103 +33,129 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C license and that you accept its terms.
  *******************************************************************************/
-package madkit.kernel;
+package madkit.messaging;
+
+import static madkit.kernel.MadkitUnitTestCase.COMMUNITY;
+import static madkit.kernel.MadkitUnitTestCase.GROUP;
+import static madkit.kernel.MadkitUnitTestCase.ROLE;
+import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
-import madkit.kernel.Agent.ReturnCode;
-import madkit.test.agents.CGRAgent;
+import static madkit.kernel.Agent.ReturnCode.INVALID_AGENT_ADDRESS;
+import static madkit.kernel.Agent.ReturnCode.NOT_IN_GROUP;
+import static madkit.kernel.Agent.ReturnCode.SUCCESS;
+
+import madkit.kernel.Agent;
+import madkit.kernel.MadkitConcurrentTestCase;
+import madkit.kernel.Message;
+import madkit.test.agents.RequestRoleAgent;
 
 /**
  *
- * @since MaDKit 5.0.0.15
- * @version 0.9
+ * @version 6.0.4
  * 
  */
-public class GetAgentAddressInTest extends MadkitUnitTestCase {
 
-	/**
-	 * Success.
-	 */
+public class SendReplyConcurrentTest extends MadkitConcurrentTestCase {
+
 	@Test
-	public void success() {
-		launchTestedAgent(new CGRAgent() {
+	public void givenAgent_whenNotInGroup_thenReturnNotInGroup() {
+		runTest(new Replier() {
+
 			@Override
 			protected void onActivation() {
 				super.onActivation();
-				threadAssertNotNull(getOrganization().getRole(COMMUNITY, GROUP, ROLE).getAgentAddressOf(this));
-			}
-		});
-	}
-
-	/**
-	 * Null after leave role.
-	 */
-	@Test
-	public void nullAfterLeaveRole() {
-		launchTestedAgent(new CGRAgent() {
-			@Override
-			protected void onActivation() {
-				super.onActivation();
-				AgentAddress aa = getOrganization().getRole(COMMUNITY, GROUP, ROLE).getAgentAddressOf(this);
-				threadAssertNotNull(aa);
-				threadAssertTrue(aa.isValid());
-				leaveRole(COMMUNITY, GROUP, ROLE);
-				threadAssertFalse(aa.isValid());
-				threadAssertFalse(getOrganization().isRole(COMMUNITY, GROUP, ROLE));
-			}
-		});
-	}
-
-	/**
-	 * Null after leave group.
-	 */
-	@Test
-	public void nullAfterLeaveGroup() {
-		launchTestedAgent(new CGRAgent() {
-			@Override
-			protected void onActivation() {
-				super.onActivation();
-				AgentAddress aa = getOrganization().getRole(COMMUNITY, GROUP, ROLE).getAgentAddressOf(this);
-				threadAssertNotNull(aa);
-				threadAssertTrue(aa.isValid());
-				leaveGroup(COMMUNITY, GROUP);
-				threadAssertFalse(aa.isValid());
-				threadAssertFalse(getOrganization().isGroup(COMMUNITY, GROUP));
+				threadAssertEquals(SUCCESS, leaveRole(COMMUNITY, GROUP, ROLE));
+				threadAssertEquals(NOT_IN_GROUP, reply(new Message(), nextMessage()));
+				resume();
 			}
 		});
 	}
 
 	@Test
-	public void nullCommunity() {
-		launchTestedAgent(new CGRAgent() {
+	public void givenAgent_whenInvalidAgentAddress_thenReturnInvalidAgentAddress() {
+		runTest(new Replier() {
+
 			@Override
 			protected void onActivation() {
 				super.onActivation();
+				target.leaveGroup(COMMUNITY, GROUP);
+				threadAssertEquals(INVALID_AGENT_ADDRESS, reply(new Message(), nextMessage()));
+				resume();
+			}
+		});
+	}
+
+	@Test
+	public void givenAgent_whenReply_thenReturnSuccess() {
+		runTest(new Replier() {
+
+			@Override
+			protected void onActivation() {
+				super.onActivation();
+				threadAssertEquals(SUCCESS, reply(new Message(), nextMessage()));
+				resume();
+			}
+		});
+	}
+
+	@Test
+	public void givenAgent_whenNullArg_thenHandleNullPointerException() {
+		runTest(new Replier() {
+
+			@Override
+			protected void onActivation() {
 				try {
-					AgentAddress aa = getOrganization().getGroup(null, GROUP).getAnyAgentAddressOf(this);
+					threadAssertEquals(SUCCESS, reply(null, nextMessage()));
 					noExceptionFailure();
 				} catch (NullPointerException e) {
-					throw e;
+					e.printStackTrace();
 				}
+				resume();
 			}
-		}, ReturnCode.AGENT_CRASH);
-	}
+		});
 
-	@Test
-	public void nullGroup() {
-		launchTestedAgent(new CGRAgent() {
+		runTest(new Replier() {
+
 			@Override
 			protected void onActivation() {
-				super.onActivation();
 				try {
-					threadAssertNotNull(getOrganization().getRole(COMMUNITY, null, ROLE).getAgentAddressOf(this));
+					threadAssertEquals(SUCCESS, reply(new Message(), null));
 					noExceptionFailure();
 				} catch (NullPointerException e) {
-					throw e;
+					e.printStackTrace();
 				}
+				resume();
 			}
-		}, ReturnCode.AGENT_CRASH);
+		});
+
+		runTest(new Replier() {
+
+			@Override
+			protected void onActivation() {
+				try {
+					threadAssertEquals(SUCCESS, reply(null, null));
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+				resume();
+			}
+		});
+	}
+
+}
+
+class Replier extends Agent {
+
+	protected Agent target;
+
+	@Override
+	protected void onActivation() {
+		assertEquals(SUCCESS, launchAgent(target = new RequestRoleAgent()));
+		assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
+		assertEquals(SUCCESS, target.send(new Message(), COMMUNITY, GROUP, ROLE));
 	}
 
 }

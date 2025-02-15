@@ -66,7 +66,8 @@ public class Menus {
 	public static MenuBar createMenuBarFor(Agent agent) {
 		Collection<? extends Action> actions = Arrays.asList(Actions.createMadkitActionGroupFor(agent),
 				Actions.createAgentActionGroupFor(agent));
-		return ActionUtils.createMenuBar(actions);
+		MenuBar menuBar = ActionUtils.createMenuBar(actions);
+		return menuBar;
 	}
 
 }

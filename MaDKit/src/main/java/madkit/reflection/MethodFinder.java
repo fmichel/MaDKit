@@ -92,7 +92,7 @@ public class MethodFinder {
 				ReflectionUtils.getSignature(methodName, parameterTypes),
 				m -> findAvailableMethod(agentClass, methodName, parameterTypes));
 		if (a == null) {
-			throw new NoSuchMethodException(methodName);
+			throw new NoSuchMethodException("Cannot find method **" + methodName + "** on " + agentClass);
 		}
 		return a;
 	}

@@ -37,8 +37,8 @@ package madkit.action;
 
 import java.awt.event.KeyEvent;
 import java.io.IOException;
+import java.util.logging.Logger;
 
-import madkit.kernel.Madkit;
 import madkit.kernel.MadkitClassLoader;
 
 /**
@@ -67,11 +67,12 @@ public class GlobalAction {
 			JCONSOLE = new ActionData("JCONSOLE", KeyEvent.VK_L) {
 				@Override
 				public void doAction() {
-					final String pid = java.lang.management.ManagementFactory.getRuntimeMXBean().getName();
+					String pid = java.lang.management.ManagementFactory.getRuntimeMXBean().getName();
 					try {
 						new ProcessBuilder(jconsolePath, pid.substring(0, pid.indexOf('@'))).start();
 					} catch (IOException e) {
-						Madkit.MDK_LOGGER.severe("Problem with jconsole command: " + e.getMessage());
+						Logger.getLogger(GlobalAction.class.getName())
+								.severe("Problem with jconsole command: " + e.getMessage());
 					}
 				}
 			};

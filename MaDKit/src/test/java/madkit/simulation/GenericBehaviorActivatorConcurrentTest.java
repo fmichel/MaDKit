@@ -33,46 +33,62 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C license and that you accept its terms.
  *******************************************************************************/
+
 package madkit.simulation;
+
+import java.util.logging.Level;
 
 import org.testng.annotations.Test;
 
-import static madkit.kernel.Agent.ReturnCode.AGENT_CRASH;
-import static madkit.kernel.Agent.ReturnCode.SUCCESS;
-
-import madkit.kernel.Agent;
 import madkit.kernel.MadkitConcurrentTestCase;
+import madkit.simulation.scheduler.MethodActivator;
+import madkit.simulation.scheduler.TickBasedScheduler;
+import madkit.test.agents.SimuCGRAgent;
 
 /**
- * The Class SimuAgentTest.
+ * 
+ *
+ * @since MaDKit 5.0.0.15
+ * @version 0.9
+ * 
  */
-public class SimuAgentTest extends MadkitConcurrentTestCase {
+
+public class GenericBehaviorActivatorConcurrentTest extends MadkitConcurrentTestCase {
 
 	@Test
-	public void givenSimuAgent_whenNotLaunchedByLauncher_thenAgentCrashes() {
-		runTest(new Agent() {
+	public void givenSimuAgent_whenNoSuchMethod__thenSimuExceptionIsThrown() {
+		runSimuTest(new TickBasedScheduler() {
 			@Override
 			protected void onActivation() {
-				SimuAgent sa = new SimuAgent();
-				ReturnCode launchAgent = launchAgent(sa);
-				threadAssertEquals(AGENT_CRASH, launchAgent);
-				resume();
+				launchAgent(new SimuCGRAgent());
+				MethodActivator buggy = new MethodActivator(getModelGroup(), ROLE, "doIt");
+				addActivator(buggy);
+				try {
+					buggy.execute();
+					noExceptionFailure();
+				} catch (SimuException e) {
+					resume();
+				}
 			}
 		});
 	}
 
 	@Test
-	public void givenSimuAgentTransitivelyLaunched_whenLaunch_thenSuccess() {
-		runSimuTest(new SimuAgent() {
+	public void givenBuggySimuAgent_whenInvocationException_thenSimuExceptionIsThrown() {
+		runSimuTest(new TickBasedScheduler() {
 			@Override
 			protected void onActivation() {
-				SimuAgent sa = new SimuAgent();
+				getLogger().setLevel(Level.ALL);
+				launchAgent(new SimuCGRAgent());
+				MethodActivator buggy = new MethodActivator(getModelGroup(), ROLE, "bug");
+				addActivator(buggy);
 				try {
-					threadAssertEquals(SUCCESS, launchAgent(sa));
-				} catch (IllegalStateException e) {
+					buggy.execute();
+					noExceptionFailure();
+				} catch (SimuException e) {
 					e.printStackTrace();
+					resume();
 				}
-				resume();
 			}
 		});
 	}

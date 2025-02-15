@@ -42,7 +42,6 @@ import java.util.logging.Logger;
 import javafx.application.Platform;
 import madkit.internal.FXInstance;
 import madkit.kernel.AgentInterruptedException;
-import madkit.kernel.Madkit;
 
 /**
  * Provides a wrapper around the JavaFX {@link Platform} class with additional
@@ -61,7 +60,7 @@ import madkit.kernel.Madkit;
 public class FXExecutor {
 
 	/** The logger for the FXExecutor. */
-	private static final Logger logger = Madkit.MDK_LOGGER;
+	private static final Logger logger = Logger.getLogger(FXExecutor.class.getName());
 
 	/**
 	 * Constructs a new FXExecutor and sets the singleton instance.

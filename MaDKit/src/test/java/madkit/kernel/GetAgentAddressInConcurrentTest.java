@@ -33,46 +33,93 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C license and that you accept its terms.
  *******************************************************************************/
-package madkit.simulation;
+package madkit.kernel;
 
 import org.testng.annotations.Test;
 
-import static madkit.kernel.Agent.ReturnCode.AGENT_CRASH;
-import static madkit.kernel.Agent.ReturnCode.SUCCESS;
-
-import madkit.kernel.Agent;
-import madkit.kernel.MadkitConcurrentTestCase;
+import madkit.test.agents.CGRAgent;
 
 /**
- * The Class SimuAgentTest.
+ *
+ * @version 6.0.2
+ * 
  */
-public class SimuAgentTest extends MadkitConcurrentTestCase {
+public class GetAgentAddressInConcurrentTest extends MadkitConcurrentTestCase {
 
 	@Test
-	public void givenSimuAgent_whenNotLaunchedByLauncher_thenAgentCrashes() {
-		runTest(new Agent() {
+	public void givenAgent_whenGetAgentAddress_thenSuccess() {
+		runTest(new CGRAgent() {
 			@Override
 			protected void onActivation() {
-				SimuAgent sa = new SimuAgent();
-				ReturnCode launchAgent = launchAgent(sa);
-				threadAssertEquals(AGENT_CRASH, launchAgent);
+				super.onActivation();
+				threadAssertNotNull(getOrganization().getRole(COMMUNITY, GROUP, ROLE).getAgentAddressOf(this));
 				resume();
 			}
 		});
 	}
 
 	@Test
-	public void givenSimuAgentTransitivelyLaunched_whenLaunch_thenSuccess() {
-		runSimuTest(new SimuAgent() {
+	public void givenAgent_whenLeaveRole_thenAgentAddressIsNull() {
+		runTest(new CGRAgent() {
 			@Override
 			protected void onActivation() {
-				SimuAgent sa = new SimuAgent();
-				try {
-					threadAssertEquals(SUCCESS, launchAgent(sa));
-				} catch (IllegalStateException e) {
-					e.printStackTrace();
-				}
+				super.onActivation();
+				AgentAddress aa = getOrganization().getRole(COMMUNITY, GROUP, ROLE).getAgentAddressOf(this);
+				threadAssertNotNull(aa);
+				threadAssertTrue(aa.isValid());
+				leaveRole(COMMUNITY, GROUP, ROLE);
+				threadAssertFalse(aa.isValid());
+				threadAssertFalse(getOrganization().isRole(COMMUNITY, GROUP, ROLE));
 				resume();
+			}
+		});
+	}
+
+	@Test
+	public void givenAgent_whenLeaveGroup_thenAgentAddressIsNull() {
+		runTest(new CGRAgent() {
+			@Override
+			protected void onActivation() {
+				super.onActivation();
+				AgentAddress aa = getOrganization().getRole(COMMUNITY, GROUP, ROLE).getAgentAddressOf(this);
+				threadAssertNotNull(aa);
+				threadAssertTrue(aa.isValid());
+				leaveGroup(COMMUNITY, GROUP);
+				threadAssertFalse(aa.isValid());
+				threadAssertFalse(getOrganization().isGroup(COMMUNITY, GROUP));
+				resume();
+			}
+		});
+	}
+
+	@Test
+	public void givenNullCommunity_whenGetAnyAgentAddress_thenThrowsNullPointerException() {
+		runTest(new CGRAgent() {
+			@Override
+			protected void onActivation() {
+				super.onActivation();
+				try {
+					getOrganization().getGroup(null, GROUP).getAnyAgentAddressOf(this);
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					resume();
+				}
+			}
+		});
+	}
+
+	@Test
+	public void givenNullGroup_whenGetAgentAddress_thenThrowsNullPointerException() {
+		runTest(new CGRAgent() {
+			@Override
+			protected void onActivation() {
+				super.onActivation();
+				try {
+					threadAssertNotNull(getOrganization().getRole(COMMUNITY, null, ROLE).getAgentAddressOf(this));
+					noExceptionFailure();
+				} catch (NullPointerException e) {
+					resume();
+				}
 			}
 		});
 	}

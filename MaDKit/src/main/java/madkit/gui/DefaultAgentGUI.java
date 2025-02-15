@@ -55,6 +55,11 @@ public class DefaultAgentGUI {
 	private Scene scene;
 	private BorderPane mainPane;
 	private ToolBar toolbar;
+	private Node topNode;
+	private Node leftNode;
+	private Node centerNode;
+	private Node rightNode;
+	private Node bottomNode;
 
 	/**
 	 * Constructs a default GUI for the specified agent. Override this constructor to
@@ -68,12 +73,17 @@ public class DefaultAgentGUI {
 			onInitialize();
 			stage = new FXAgentStage(agent);
 			mainPane = new BorderPane();
-			mainPane.setTop(createTopNode());
-			mainPane.setLeft(createLeftNode());
-			mainPane.setCenter(createCenterNode());
-			mainPane.setRight(createRightNode());
+			topNode = createTopNode();
+			mainPane.setTop(topNode);
+			leftNode = createLeftNode();
+			mainPane.setLeft(leftNode);
+			centerNode = createCenterNode();
+			mainPane.setCenter(centerNode);
+			rightNode = createRightNode();
+			mainPane.setRight(rightNode);
 			toolbar = createToolBar();
-			mainPane.setBottom(createBottomNode());
+			bottomNode = createBottomNode();
+			mainPane.setBottom(bottomNode);
 			scene = new Scene(mainPane);
 			stage.setScene(scene);
 			stage.show();
@@ -95,7 +105,7 @@ public class DefaultAgentGUI {
 	 * @return the top node
 	 */
 	protected Node createTopNode() {
-		return new AgentMenuToolbar(getAgent());
+		return new AgentMenubar(getAgent());
 	}
 
 	/**
@@ -191,5 +201,47 @@ public class DefaultAgentGUI {
 	 */
 	public ToolBar getToolBar() {
 		return toolbar;
+	}
+
+	/**
+	 * @return the toolbar
+	 */
+	public ToolBar getToolbar() {
+		return toolbar;
+	}
+
+	/**
+	 * @return the topNode
+	 */
+	public Node getTopNode() {
+		return topNode;
+	}
+
+	/**
+	 * @return the leftNode
+	 */
+	public Node getLeftNode() {
+		return leftNode;
+	}
+
+	/**
+	 * @return the centerNode
+	 */
+	public Node getCenterNode() {
+		return centerNode;
+	}
+
+	/**
+	 * @return the rightNode
+	 */
+	public Node getRightNode() {
+		return rightNode;
+	}
+
+	/**
+	 * @return the bottomNode
+	 */
+	public Node getBottomNode() {
+		return bottomNode;
 	}
 }

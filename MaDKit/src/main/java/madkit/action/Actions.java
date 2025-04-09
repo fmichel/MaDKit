@@ -78,8 +78,10 @@ public class Actions {
 	 */
 	public static ActionGroup createMadkitActionGroupFor(Agent agent) {
 		Collection<Action> actions = new ArrayList<>();
-		actions.add(GlobalAction.JCONSOLE.getFXAction());
-		actions.add(ActionUtils.ACTION_SEPARATOR);
+		if (GlobalAction.JCONSOLE != null) {
+			actions.add(GlobalAction.JCONSOLE.getFXAction());
+			actions.add(ActionUtils.ACTION_SEPARATOR);
+		}
 		actions.add(KernelAction.COPY.newActionFor(agent));
 		actions.add(KernelAction.RESTART.newActionFor(agent));
 		actions.add(KernelAction.EXIT.newActionFor(agent));
@@ -116,9 +118,14 @@ public class Actions {
 	 * @return a list of actions for the agent
 	 */
 	public static List<Action> createMDKActionsListFor(Agent agent) {
-		return List.of(GlobalAction.JCONSOLE.getFXAction(), ActionUtils.ACTION_SEPARATOR,
-				KernelAction.COPY.newActionFor(agent), KernelAction.RESTART.newActionFor(agent),
-				KernelAction.EXIT.newActionFor(agent));
+		List<Action> actions = new ArrayList<>();
+		if (GlobalAction.JCONSOLE != null) {
+			actions.add(GlobalAction.JCONSOLE.getFXAction());
+			actions.add(ActionUtils.ACTION_SEPARATOR);
+		}
+		actions.addAll(List.of(KernelAction.COPY.newActionFor(agent), KernelAction.RESTART.newActionFor(agent),
+				KernelAction.EXIT.newActionFor(agent)));
+		return actions;
 	}
 
 	/**

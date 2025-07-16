@@ -23,19 +23,20 @@ javaModuleTesting.whitebox(testing.suites.getByName("test")){
 	opensTo.add("org.testng")
 	requires.add("org.assertj.core")
 }
+
 dependencies {
-    api libs.controlsfx
-    api libs.commonsConfiguration2
-    api libs.commonsBeanutils
-    
+    implementation libs.commonsBeanutils
+    implementation libs.commonsCollections
     implementation libs.picocli
     implementation libs.fastutil
     implementation libs.typetools
+
+    api libs.commonsConfiguration2
+    api libs.controlsfx
     
-    testImplementation libs.testng
-    testImplementation libs.concurrentunit
-    testImplementation libs.slf4j
     testImplementation libs.assertJ
+    testImplementation libs.concurrentunit
+    testImplementation libs.testng
 }
 
 ext.isReleaseVersion = !version.endsWith("SNAPSHOT")

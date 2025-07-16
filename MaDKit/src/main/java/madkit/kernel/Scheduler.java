@@ -165,7 +165,8 @@ public abstract class Scheduler<T extends SimuTimer<?>> extends SimuAgent {
 
 	/**
 	 * On activation, by default the scheduler requests the role
-	 * {@link SimuOrganization#SCHEDULER_ROLE} in the group {@link SimuOrganization#ENGINE_GROUP}.
+	 * {@link SimuOrganization#SCHEDULER_ROLE} in the group
+	 * {@link SimuOrganization#ENGINE_GROUP}.
 	 */
 	@Override
 	protected void onActivation() {
@@ -193,8 +194,8 @@ public abstract class Scheduler<T extends SimuTimer<?>> extends SimuAgent {
 	protected void onLive() {
 		waitStartingMessage();
 		while (!Thread.currentThread().isInterrupted()) {
-			if (getSimuTimer().hasReachedEndTime()) {
-				getLogger().info(() -> "Simulation has reached end time -> " + getSimuTimer());
+			if (isSimulationFinished()) {
+				getLogger().info(() -> "Simulation end condition reached on timestep -> " + getSimuTimer());
 				return;
 			}
 			pause(pause.get());
@@ -217,6 +218,19 @@ public abstract class Scheduler<T extends SimuTimer<?>> extends SimuAgent {
 				getLogger().severe(() -> "state not handled " + simulationState);
 			}
 		}
+	}
+
+	/**
+	 * Checks if the simulation is finished. By default, the simulation is finished if the
+	 * {@link SimuTimer} has reached its end time. This method is automatically called by the
+	 * scheduler agent before each simulation step. So if it returns <code>true</code>, the
+	 * simulation will stop and the {@link #onEnd()} method will be called. Overrides this
+	 * method to change the condition for finishing the simulation.
+	 * 
+	 * @return <code>true</code> if the simulation is finished, <code>false</code> otherwise
+	 */
+	protected boolean isSimulationFinished() {
+		return getSimuTimer().hasReachedEndTime();
 	}
 
 	private void waitStartingMessage() {

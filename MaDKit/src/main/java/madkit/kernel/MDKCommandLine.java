@@ -52,9 +52,19 @@ class MDKCommandLine {
 
 	private static final String SWITCH = "--";
 
+	/** The Constant AGENT_LOG_LEVEL. */
 	public static final String AGENT_LOG_LEVEL = "agentLogLevel";
+
+	/** The Constant CREATE_LOG_FILES. */
 	public static final String CREATE_LOG_FILES = "createLogFiles";
+
+	/** The Constant HEADLESS_MODE. */
 	public static final String HEADLESS_MODE = "headless";
+
+	/** The Constant NETWORK. */
+	public static final String NETWORK = "network";
+
+	/** The Constant NO_RANDOM. */
 	public static final String NO_RANDOM = "noRandomizedFields";
 
 	//////////////////// OPTIONS
@@ -66,9 +76,8 @@ class MDKCommandLine {
 	boolean desktop;
 
 	/**
-	 * No log {@link #getLogger()} is not used, there is no memory footprint at all,
-	 * which could be crucial when working with thousands of abstract agents in
-	 * simulation mode.
+	 * No log {@link #getLogger()} is not used, there is no memory footprint at all, which
+	 * could be crucial when working with thousands of abstract agents in simulation mode.
 	 *
 	 */
 	@Option(names = { "--noLog" }, description = "inhibit logging for optimizing simulations")
@@ -113,6 +122,10 @@ class MDKCommandLine {
 
 	@Option(names = SWITCH + HEADLESS_MODE, defaultValue = "false", description = "inhibit UI")
 	private boolean headless;
+
+	@Option(names = SWITCH
+			+ NETWORK, defaultValue = "false", description = "activate the network mode (default: ${DEFAULT-VALUE})")
+	private boolean network = false;
 
 	@Option(names = "--start", description = "Automatically start the simulation")
 	boolean start = false;

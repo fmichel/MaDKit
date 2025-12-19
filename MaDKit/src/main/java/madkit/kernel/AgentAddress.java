@@ -105,6 +105,12 @@ public class AgentAddress implements java.io.Serializable {
 		roleObject = newRole;
 	}
 
+	final void buildCGRString() {
+		if (cgr == null && roleObject != null) {
+			cgr = roleObject.getCommunityName() + ";;" + roleObject.getGroupName() + ";;" + roleObject.getName();
+		}
+	}
+
 	/**
 	 * Returns the role object associated with this AgentAddress.
 	 *
@@ -140,7 +146,7 @@ public class AgentAddress implements java.io.Serializable {
 	 * @since MaDKit 5
 	 */
 	public String getGroup() {
-		return roleObject != null ? roleObject.getGroup().getName() : cgr.split(";;")[1];
+		return roleObject != null ? roleObject.getGroupName() : cgr.split(";;")[1];
 	}
 
 	/**
@@ -162,6 +168,9 @@ public class AgentAddress implements java.io.Serializable {
 	 */
 	@Override
 	public String toString() {
+//		if (cgr == null) {
+//			return "AgentAddres of " + hashCode + "@" + kernelAddress + "has to be rebuild";
+//		}
 		return hashCode + "@(" + getCommunity() + "," + getGroup() + "," + getRole() + ")" + kernelAddress;
 	}
 
@@ -221,7 +230,7 @@ public class AgentAddress implements java.io.Serializable {
 	 * @return <code>true</code> if this address belongs to the corresponding kernel.
 	 * @since MaDKit 5.0.4
 	 */
-	boolean isFrom(final KernelAddress kernel) {
+	public boolean isFrom(final KernelAddress kernel) {
 		return kernelAddress.equals(kernel);
 	}
 

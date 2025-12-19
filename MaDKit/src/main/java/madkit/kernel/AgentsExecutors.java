@@ -35,7 +35,6 @@
  *******************************************************************************/
 package madkit.kernel;
 
-import java.util.concurrent.Executor;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -43,11 +42,11 @@ import java.util.concurrent.TimeUnit;
 /**
  *
  * 
- *         since MaDKit 6.0
+ * since MaDKit 6.0
  */
 final class AgentsExecutors {
-	private final Executor daemonAgentsThreadPool;
-	private final Executor regularAgentsThreadPool;
+	private final ThreadPoolExecutor daemonAgentsThreadPool;
+	private final ThreadPoolExecutor regularAgentsThreadPool;
 
 	private final AgentThreadFactory threadFactory;
 	private final AgentThreadFactory daemonThreadFactory;
@@ -62,11 +61,16 @@ final class AgentsExecutors {
 				new SynchronousQueue<>(), daemonThreadFactory);
 		regularAgentsThreadPool = new ThreadPoolExecutor(2, Integer.MAX_VALUE, 2L, TimeUnit.SECONDS,
 				new SynchronousQueue<>(), threadFactory);
-		((ThreadPoolExecutor) regularAgentsThreadPool).allowCoreThreadTimeOut(true);
+		regularAgentsThreadPool.allowCoreThreadTimeOut(true);
 	}
 
-	Executor getAgentExecutor(Agent a) {
+	ThreadPoolExecutor getAgentExecutor(Agent a) {
 		return a instanceof DaemonAgent ? daemonAgentsThreadPool : regularAgentsThreadPool;
+	}
+
+	void shutdown() {
+		regularAgentsThreadPool.shutdown();
+		daemonAgentsThreadPool.shutdown();
 	}
 
 	Thread getAgentThread(Agent a) {
@@ -75,6 +79,5 @@ final class AgentsExecutors {
 		} else {
 			return threadFactory.getAgentThread(a);
 		}
-
 	}
 }

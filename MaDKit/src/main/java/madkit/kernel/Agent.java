@@ -140,6 +140,7 @@ public abstract class Agent {
 	 * define custom activation behavior.
 	 */
 	protected void onActivation() {
+		activate();
 	}
 
 	/**
@@ -152,6 +153,7 @@ public abstract class Agent {
 	 * killed.
 	 */
 	protected void onLive() {
+		live();
 	}
 
 	/**
@@ -160,6 +162,7 @@ public abstract class Agent {
 	 * define custom cleanup behavior.
 	 */
 	protected void onEnd() {
+		end();
 	}
 
 	/**
@@ -198,8 +201,10 @@ public abstract class Agent {
 	}
 
 	/**
-	 * Checks if the agent is alive. An agent is considered alive if it has been launched and
-	 * has not yet been killed.
+	 * Checks if the agent is alive. An agent is considered alive once its
+	 * {@link #onActivation()} method has been completely executed without throwing an
+	 * exception, and until its {@link #onEnd()} method has been completely executed. Also, an
+	 * agent is no longer alive once it has been killed.
 	 * 
 	 * @return {@code true} if the agent is alive, {@code false} otherwise.
 	 */
@@ -212,7 +217,7 @@ public abstract class Agent {
 	 * logger if it exists, and removes the agent from the organization.
 	 */
 	void terminate() {
-		logIfLoggerNotNull(Level.FINER, () -> "- - -> TERMINATED **");
+		logIfLoggerNotNull(Level.FINER, () -> "- - -> TERMINATE **");
 		if (logger != null) {
 			logger.close();
 		}
@@ -221,6 +226,7 @@ public abstract class Agent {
 			kernel = KernelAgent.deadKernel;
 			alive.notifyAll();
 		}
+		logIfLoggerNotNull(Level.FINER, () -> "- - -> TERMINATED **");
 	}
 
 	/**
@@ -430,7 +436,6 @@ public abstract class Agent {
 	 */
 	@Deprecated(since = "6", forRemoval = true)
 	protected void activate() {
-		onActivation();
 	}
 
 	/**
@@ -438,7 +443,6 @@ public abstract class Agent {
 	 */
 	@Deprecated(since = "6", forRemoval = true)
 	protected void live() {
-		onLive();
 	}
 
 	/**
@@ -446,7 +450,6 @@ public abstract class Agent {
 	 */
 	@Deprecated(since = "6", forRemoval = true)
 	protected void end() {
-		onEnd();
 	}
 
 	/**
@@ -1259,7 +1262,7 @@ public abstract class Agent {
 		getMailbox().add(message);
 	}
 
-	private KernelAgent getKernel() {
+	KernelAgent getKernel() {
 		return kernel;
 	}
 
@@ -1506,7 +1509,7 @@ public abstract class Agent {
 	 * @since MaDKit 5.0.0.14
 	 * @see EnumMessage
 	 */
-	<E extends Enum<E>> void proceedEnumMessage(EnumMessage<E> message) {
+	protected <E extends Enum<E>> void proceedEnumMessage(EnumMessage<E> message) {// FIXME remove protected
 		logIfLoggerNotNull(Level.FINER, () -> "proceeding command message " + message);
 		Object[] parameters = message.getContent();
 		triggerBehavior(ReflectionUtils.enumToMethodName(message.getCode()), parameters);

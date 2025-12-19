@@ -33,80 +33,83 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C license and that you accept its terms.
  *******************************************************************************/
-package madkit.agr;
+package madkit.network;
+
+import madkit.kernel.AgentAddress;
+import madkit.messages.ObjectMessage;
 
 /**
- * Implements Constants which are used for the primary CGR organization places.
- * 
- * @since MaDKit 5.0.0.10
- * @version 6.0.1
+ * @author Fabien Michel
+ * @version 0.9
+ * @since MaDKit 5.0
+ *
  */
-public class LocalCommunity {
-
-	/** The Constant LOCAL. */
-	public static final String LOCAL = "local";
+public class CGRSynchro extends ObjectMessage<AgentAddress> {
 
 	/**
-	 * Utility class
-	 */
-	private LocalCommunity() {
-	}
-
-	/**
-	 * MDK kernel core groups.
-	 */
-	public static final class Groups {
-
-		/**
-		 * Utility class
-		 */
-		private Groups() {
-			throw new IllegalStateException("Utility class");
-		}
-
-		/**
-		 * The value of this constant is {@value}.
-		 */
-		public static final String NETWORK = "network";
-		/**
-		 * The value of this constant is {@value}.
-		 */
-		public static final String SYSTEM = "system";
-	}
-
-	/**
-	 * MDK kernel core roles. Default roles within a MaDKit organization.
 	 * 
-	 * @since MaDKit 5.0.0.10
 	 */
-	public static final class Roles {
+	private static final long serialVersionUID = 1125125814563126121L;
 
-		/**
-		 * Utility class
-		 */
-		private Roles() {
-			throw new IllegalStateException("Utility class");
-		}
-
-		/**
-		 * The value of this constant is {@value}.
-		 */
-		public static final String KERNEL = "kernel";
-
-		/**
-		 * The value of this constant is {@value}.
-		 */
-		public static final String NET_AGENT = "net agent";
-		/**
-		 * The value of this constant is {@value}.
-		 */
-		public static final String UPDATER = "updater";
-
-		/**
-		 * The value of this constant is {@value}.
-		 */
-		public static final String EMMITER = "emmiter";
-
+	/**
+	 * The Enum Code.
+	 */
+	public enum Code {
+		CREATE_GROUP, REQUEST_ROLE, LEAVE_ROLE, LEAVE_GROUP
+//		LEAVE_ORG		
 	}
 
+	private final Code code;
+
+	/**
+	 * @param code
+	 * @param aa
+	 */
+	public CGRSynchro(final Code code, final AgentAddress aa) {
+		super(aa);
+		this.code = code;
+	}
+
+	/**
+	 * @return the code
+	 */
+	public Code getCode() {
+		return code;
+	}
+
+	@Override
+	public String toString() {
+		return super.toString() + "\n\t" + getCode() + " on " + getContent();
+	}
+
+}
+
+class RequestRoleSecure extends ObjectMessage<Object> {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1661974372588706717L;
+	private final AgentAddress requester;
+	private final String roleName;
+
+	public RequestRoleSecure(AgentAddress requester, String roleName, Object key) {
+		super(key);
+		this.requester = requester;
+		this.roleName = roleName;
+	}
+
+	/**
+	 * @return the requester
+	 */
+	AgentAddress getRequester() {
+		return requester;
+	}
+
+	/**
+	 * @return the roleName
+	 */
+	public String getRoleName() {
+		return roleName;
+	}
 }

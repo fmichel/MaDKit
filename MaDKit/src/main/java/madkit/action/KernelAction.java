@@ -39,6 +39,8 @@ import static java.awt.event.KeyEvent.VK_C;
 import static java.awt.event.KeyEvent.VK_DOLLAR;
 import static java.awt.event.KeyEvent.VK_Q;
 import static java.awt.event.KeyEvent.VK_R;
+import static java.awt.event.KeyEvent.VK_T;
+import static java.awt.event.KeyEvent.VK_W;
 
 import org.controlsfx.control.action.Action;
 
@@ -71,6 +73,14 @@ public enum KernelAction {
 	 * Restart MaDKit with its initial options
 	 */
 	RESTART(VK_R),
+	/**
+	 * Start the network
+	 */
+	LAUNCH_NETWORK(VK_W),
+	/**
+	 * Stop the network
+	 */
+	STOP_NETWORK(VK_T),
 
 	// //Actions that need parameters, i.e. not global
 	/**
@@ -109,7 +119,7 @@ public enum KernelAction {
 	 */
 	public void request(Agent requester, Object... parameters) {
 		if (requester.isAlive()) {
-			requester.send(new KernelMessage(KernelAction.this, parameters), LocalCommunity.NAME, Groups.SYSTEM,
+			requester.send(new KernelMessage(KernelAction.this, parameters), LocalCommunity.LOCAL, Groups.SYSTEM,
 					SystemRoles.GROUP_MANAGER);
 		}
 	}

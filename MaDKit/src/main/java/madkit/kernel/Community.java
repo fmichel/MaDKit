@@ -40,10 +40,14 @@ import static madkit.i18n.I18nUtilities.getCGRString;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 import static madkit.kernel.Agent.ReturnCode.NOT_GROUP;
+
+import madkit.agr.SystemRoles;
 
 /**
  * This class represents a community within the MaDKit kernel. It is meant to be a
@@ -119,9 +123,9 @@ public class Community {
 	 * @param isDistributed whether the group is distributed
 	 * @return true if the group has been created, false otherwise
 	 */
-	boolean addGroup(final Agent creator, String group, Gatekeeper gatekeeper, boolean isDistributed) {
+	boolean addGroup(Agent creator, String group, Gatekeeper gatekeeper, boolean isDistributed) {
 		Group g = groups.get(group);
-		if (g == null) {// There was no such group
+		if (g == null) {
 			g = new Group(group, creator, gatekeeper, isDistributed, this);
 			groups.put(group, g);
 			if (logger != null) {
@@ -133,6 +137,23 @@ public class Community {
 			logger.finer(() -> getCGRString(name, group) + "already exists: Creation aborted" + "\n");
 		}
 		return false;
+	}
+
+	Group addDistantGroup(AgentAddress creator, String group) {
+		return groups.computeIfAbsent(group, _ -> new Group(group, creator, this));
+//		Group g = groups.get(group);
+//		if (g == null) {
+//			g = new Group(group, creator, this);
+//			groups.put(group, g);
+//			if (logger != null) {
+//				logger.fine(() -> getCGRString(name, group) + "created by " + creator + "\n");
+//			}
+//			return true;
+//		}
+//		if (logger != null) {
+//			logger.finer(() -> getCGRString(name, group) + "already exists: Creation aborted" + "\n");
+//		}
+//		return false;
 	}
 
 	/**
@@ -221,6 +242,43 @@ public class Community {
 	 */
 	public boolean exists() {
 		return !groups.isEmpty();
+	}
+
+	void removeAgentsFromDistantKernel(KernelAddress ka) {
+		for (Group g : groups.values()) {
+			g.removeAgentsFromDistantKernel(ka);
+		}
+	}
+
+	/**
+	 * Imports a distant organization into the community.
+	 *
+	 * @param map a map containing the distant organization's groups and their members
+	 */
+	void importDistantCommunity(Map<String, Map<String, Set<AgentAddress>>> map) {
+		for (String groupName : map.keySet()) {
+			Group group = groups.get(groupName);
+			if (group == null) {
+				AgentAddress manager = null;
+				try {
+					manager = map.get(groupName).get(SystemRoles.GROUP_MANAGER).iterator().next();
+				} catch (NullPointerException e) {
+					manager = map.get(groupName).values().iterator().next().iterator().next();
+				}
+				group = addDistantGroup(manager, groupName);
+			}
+			group.importDistantOrg(map.get(groupName));
+		}
+	}
+
+	Map<String, Map<String, Set<AgentAddress>>> getOrgMap(boolean global) {
+		Map<String, Map<String, Set<AgentAddress>>> export = new TreeMap<>();
+		for (Map.Entry<String, Group> groupNames : groups.entrySet()) {
+			if (global || groupNames.getValue().isDistributed()) {
+				export.put(groupNames.getKey(), groupNames.getValue().getGroupMap());
+			}
+		}
+		return export;
 	}
 
 }

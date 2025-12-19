@@ -35,10 +35,11 @@
  *******************************************************************************/
 package madkit.kernel;
 
+import static madkit.network.CGRSynchro.Code.REQUEST_ROLE;
+
 import java.awt.GraphicsEnvironment;
 import java.lang.reflect.InvocationTargetException;
 import java.security.SecureRandom;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -58,18 +59,23 @@ import static madkit.kernel.Agent.ReturnCode.AGENT_CRASH;
 import static madkit.kernel.Agent.ReturnCode.INVALID_AGENT_ADDRESS;
 import static madkit.kernel.Agent.ReturnCode.NOT_IN_GROUP;
 import static madkit.kernel.Agent.ReturnCode.ROLE_NOT_HANDLED;
+import static madkit.kernel.Agent.ReturnCode.SEVERE;
 import static madkit.kernel.Agent.ReturnCode.SUCCESS;
 import static madkit.kernel.Agent.ReturnCode.TIMEOUT;
 
 import javafx.application.Platform;
 import javafx.stage.Window;
+import madkit.action.KernelAction;
 import madkit.agr.LocalCommunity;
 import madkit.agr.LocalCommunity.Groups;
+import madkit.agr.LocalCommunity.Roles;
 import madkit.agr.SystemRoles;
 import madkit.gui.FXExecutor;
 import madkit.i18n.ErrorMessages;
 import madkit.internal.FXInstance;
 import madkit.messages.KernelMessage;
+import madkit.messages.ObjectMessage;
+import madkit.network.CGRSynchro;
 import madkit.random.Randomness;
 
 /**
@@ -86,14 +92,17 @@ class KernelAgent extends Agent implements DaemonAgent {
 
 	private AgentAddress netAgent;
 	// my private addresses for optimizing the message building
-	private AgentAddress netUpdater, netEmmiter, kernelRole;
+	private AgentAddress netUpdater;
+	private AgentAddress netEmmiter;
+	private AgentAddress kernelRole;
 	/////////////////////////////////// CGR
 	private final Set<Overlooker> operatingOverlookers;
 	private final Organization org;
+//	private EnumMap<AgentActionEvent, Set<Agent>> hooks;
 
 	final Madkit madkit;
 
-	final List<Agent> threadedAgents;
+	final Set<Agent> threadedAgents;
 
 	private final AgentsExecutors agentExecutors;
 
@@ -121,7 +130,7 @@ class KernelAgent extends Agent implements DaemonAgent {
 		this.madkit = madkit;
 		logger = new AgentLogger(this);
 		logger.setLevel(getKernelConfig().getLevel("kernelLogLevel"));
-		threadedAgents = Collections.synchronizedList(new ArrayList<>());
+		threadedAgents = Collections.synchronizedSet(new HashSet<>());
 		kernerls.add(this);
 	}
 
@@ -152,30 +161,19 @@ class KernelAgent extends Agent implements DaemonAgent {
 	 */
 	@Override
 	protected void onActivation() {
-//			getLogger().setLevel(Level.ALL);
+		getLogger().setLevel(Level.INFO);
 		if (GraphicsEnvironment.isHeadless()) {
 			getKernelConfig().setProperty(MDKCommandLine.HEADLESS_MODE, true);
 		}
 		onCreateRandomGenerator();
 		FXInstance.setHeadlessMode(getKernelConfig().getBoolean(MDKCommandLine.HEADLESS_MODE));
 		FXInstance.startFX(getLogger());
-		createGroup(LocalCommunity.NAME, Groups.SYSTEM, false, (_, _, _) -> {
+		createGroup(LocalCommunity.LOCAL, Groups.SYSTEM, false, (_, _, _) -> {
 			return false;
 		});
-		createGroup(LocalCommunity.NAME, "kernels", true);
-
-		// // building the network group
-		// createGroup(LocalCommunity.NAME, Groups.NETWORK, false);
-		// requestRole(LocalCommunity.NAME, Groups.NETWORK, Roles.KERNEL, null);
-		// requestRole(LocalCommunity.NAME, Groups.NETWORK, Roles.UPDATER, null);
-		// requestRole(LocalCommunity.NAME, Groups.NETWORK, Roles.EMMITER, null);
+		initializeNetworkCGR();
 
 		launchConfigAgents();
-
-		// my AAs cache
-		// netUpdater = getAgentAddressIn(LocalCommunity.NAME, Groups.NETWORK, Roles.UPDATER);
-		// netEmmiter = getAgentAddressIn(LocalCommunity.NAME, Groups.NETWORK, Roles.EMMITER);
-		// kernelRole = getAgentAddressIn(LocalCommunity.NAME, Groups.NETWORK, Roles.KERNEL);
 
 		// myThread.setPriority(Thread.NORM_PRIORITY + 1);
 
@@ -188,9 +186,127 @@ class KernelAgent extends Agent implements DaemonAgent {
 		// if (console.isActivated(getMadkitConfig())) {
 		// launchAgent(new ConsoleAgent());
 		// }
-		// launchNetworkAgent();
+		if (getKernelConfig().getBoolean(MDKCommandLine.NETWORK)) {
+			launchNetwork();
+		}
 		// logCurrentOrganization(logger,Level.FINEST);
 
+	}
+
+	/**
+	 * 
+	 */
+	private void initializeNetworkCGR() {
+		createGroup(LocalCommunity.LOCAL, "kernels", true);
+
+		createGroup(LocalCommunity.LOCAL, Groups.NETWORK, false);
+		requestRole(LocalCommunity.LOCAL, Groups.NETWORK, Roles.KERNEL, null);
+		requestRole(LocalCommunity.LOCAL, Groups.NETWORK, Roles.UPDATER, null);
+		requestRole(LocalCommunity.LOCAL, Groups.NETWORK, Roles.EMMITER, null);
+		// my AAs cache
+		netUpdater = org.getAddressOfAgentAt(this, LocalCommunity.LOCAL, Groups.NETWORK, Roles.UPDATER);
+		netEmmiter = org.getAddressOfAgentAt(this, LocalCommunity.LOCAL, Groups.NETWORK, Roles.EMMITER);
+		kernelRole = org.getAddressOfAgentAt(this, LocalCommunity.LOCAL, Groups.NETWORK, Roles.KERNEL);
+	}
+
+	private void launchNetwork() {
+		updateNetworkAgent();
+		if (netAgent == null) {
+			final NetworkAgent na = new NetworkAgent();
+			final ReturnCode r = launchAgent(na);
+			threadedAgents.remove(na);
+			if (r == SUCCESS) {
+				if (logger != null) {
+					logger.fine(() -> "\n\t****** Network agent launched ******\n");
+				}
+			} else {
+				if (logger != null) {
+					logger.severe(() -> "\n\t****** Problem launching network agent ******\n");
+				}
+			}
+		} else {
+			if (sendNetworkMessageWithRole(new KernelMessage(KernelAction.LAUNCH_NETWORK), kernelRole) == SUCCESS) {
+				if (logger != null) {
+					logger.fine(() -> "\n\t****** Network agent up ******\n");
+				}
+			} else {
+				if (logger != null) {
+					logger.fine(() -> "\n\t****** Problem relaunching network ******\n");
+				}
+			}
+
+		}
+	}
+
+	/**
+	 * Stop network.
+	 */
+	@SuppressWarnings("unused")
+	private void stopNetwork() {
+		if (sendNetworkMessageWithRole(new KernelMessage(KernelAction.STOP_NETWORK), kernelRole) == SUCCESS) {
+			if (logger != null) {
+				logger.fine(() -> "\n\t****** Network stopped ******\n");
+			}
+		} else {
+			if (logger != null) {
+				logger.fine(() -> "\n\t****** Network already down ******\n");
+			}
+		}
+	}
+
+	final ReturnCode sendNetworkMessageWithRole(Message m, AgentAddress role) {
+		updateNetworkAgent();
+		if (netAgent != null) {
+			m.setSender(role);
+			m.setReceiver(netAgent);
+			netAgent.getAgent().receiveMessage(m);
+			return SUCCESS;
+		}
+		return SEVERE;
+	}
+
+	final void injectMessage(final ObjectMessage<Message> m) {
+		final Message toInject = m.getContent();
+		final AgentAddress receiver = toInject.getReceiver();
+		final AgentAddress sender = toInject.getSender();
+		try {
+			final Role receiverRole = org.getRole(receiver.getCommunity(), receiver.getGroup(), receiver.getRole());
+			receiver.setRoleObject(receiverRole);
+			final Agent target = receiverRole.getAgentWithAddress(receiver);
+			if (target != null) {
+				// updating sender address
+				receiver.setAgent(target);
+				try {
+					sender.setRoleObject(org.getRole(sender.getCommunity(), sender.getGroup(), sender.getRole()));
+				} catch (CGRNotAvailable e) {
+					sender.setRoleObject(null);
+				}
+				target.receiveMessage(toInject);
+//				if (hooks != null) {
+//					informHooks(AgentActionEvent.SEND_MESSAGE, toInject);
+//				}
+			} else {
+				if (logger != null) {
+					logger.finer(
+							() -> m + " received but the agent address is no longer valid !! Current distributed org is "
+									+ org.getOrganizationSnapShot(false));
+				}
+			}
+		} catch (CGRNotAvailable e) {
+			bugReport("Cannot inject " + m + "\n" + org.getOrganizationSnapShot(false), e);
+		}
+	}
+
+	private void bugReport(String m, Throwable e) {
+		getLogger().log(Level.SEVERE, "********************** KERNEL PROBLEM, please bug report " + m, e); // Kernel
+	}
+
+	private AgentAddress updateNetworkAgent() {
+		if (netAgent == null || !checkAgentAddress(netAgent)) {// Is it still playing the
+			// role ?
+			netAgent = getAgentWithRole(LocalCommunity.LOCAL, Groups.NETWORK, Roles.NET_AGENT);
+		}
+		return netAgent;
 	}
 
 	/**
@@ -243,7 +359,7 @@ class KernelAgent extends Agent implements DaemonAgent {
 			garbageDeadThreadedAgents();
 			if (threadedAgents.isEmpty() && FXExecutor.isStarted()
 					&& FXAgentStage.getAgentsWithStage(kernelAddress).isEmpty()) {
-				logIfLoggerNotNull(Level.FINE,
+				logIfLoggerNotNull(Level.INFO,
 						() -> "No more activity within kernel " + getKernelAddress() + " -> Quitting");
 				return;
 			}
@@ -254,13 +370,22 @@ class KernelAgent extends Agent implements DaemonAgent {
 	 * Exit.
 	 */
 	void exit() {
-		getLogger().fine(() -> "***** SHUTINGDOWN MADKIT ********\n");
 		exitRequested = true;
+		madkit.state = State.SHUTTING_DOWN;
+//		shutdown();
+	}
+
+	/**
+	 * 
+	 */
+	private void shutdown() {
+		getLogger().fine(() -> "***** SHUTINGDOWN MADKIT ********\n");
+		sendNetworkMessageWithRole(new KernelMessage(KernelAction.EXIT), kernelRole);
 		Collection<Agent> c = FXAgentStage.getAgentsWithStage(getKernelAddress());
-		getLogger().finer(() -> "***** KILLING agent with stages " + c);
+		getLogger().fine(() -> "***** KILLING agent with stages " + c);
 		c.forEach(a -> killAgent(a, 1));
 		garbageDeadThreadedAgents();
-		getLogger().finer(() -> "Killing agents -> " + threadedAgents);
+		getLogger().fine(() -> "Killing agents -> " + threadedAgents);
 		while (!threadedAgents.isEmpty()) {
 			synchronized (threadedAgents) {
 				threadedAgents.parallelStream().forEach(a -> killAgent(a, 1));
@@ -268,6 +393,7 @@ class KernelAgent extends Agent implements DaemonAgent {
 			}
 		}
 		kernerls.remove(this);
+//		agentExecutors.shutdown();
 	}
 
 	/**
@@ -275,6 +401,8 @@ class KernelAgent extends Agent implements DaemonAgent {
 	 */
 	@Override
 	protected void onEnd() {
+		shutdown();
+		getLogger().fine(() -> "***** KILLING agents done");
 		kernerls.remove(this);
 		if (kernerls.isEmpty()) {
 			if (Window.getWindows().isEmpty()) {
@@ -282,6 +410,10 @@ class KernelAgent extends Agent implements DaemonAgent {
 				Platform.exit();
 			}
 		}
+		getLogger().fine(() -> "***** ONEND done");
+//		synchronized (madkit.state) {
+//			madkit.state.notify();
+//		}
 	}
 
 	/**
@@ -324,6 +456,7 @@ class KernelAgent extends Agent implements DaemonAgent {
 	 */
 	@Override
 	protected ReturnCode killAgent(Agent a, int seconds) {
+		logIfLoggerNotNull(Level.FINEST, () -> "KILLING " + a);
 		if (a.isThreaded()) {
 			hardKillAgent(a, seconds);
 		} else {
@@ -332,7 +465,7 @@ class KernelAgent extends Agent implements DaemonAgent {
 				killing.get(seconds, TimeUnit.SECONDS);
 			} catch (InterruptedException | ExecutionException e) {
 				logIfLoggerNotNull(Level.FINE, () -> a + " KILLED");
-			} catch (TimeoutException e) {
+			} catch (TimeoutException _) {
 				hardKillAgent(a, 1);
 			}
 		}
@@ -439,19 +572,21 @@ class KernelAgent extends Agent implements DaemonAgent {
 
 	ReturnCode requestRole(Agent requester, String community, String group, String role, Object memberCard) {
 		try {
-			ReturnCode result = org.requestRole(requester, community, group, role, memberCard);
-//			System.err.println("\n"+result+"  "+requester+" "+community+","+group+","+role);
+			Group g = org.getGroup(community, group);
+			ReturnCode result = g.requestRole(requester, role, memberCard);
+			if (result == SUCCESS) {
+				if (g.isDistributed()) {
+					sendNetworkMessageWithRole(
+							new CGRSynchro(REQUEST_ROLE, new AgentAddress(requester, g.getRole(role), kernelAddress)),
+							netUpdater);
+				}
+//	    if (hooks != null)
+//		informHooks(AgentActionEvent.REQUEST_ROLE, new AgentAddress(requester, g.get(role), kernelAddress));
+			}
 			return result;
 		} catch (CGRNotAvailable e) {
 			return e.getCode();
 		}
-//	if (result == SUCCESS) {
-//	    if (g.isDistributed()) {
-//		sendNetworkMessageWithRole(new CGRSynchro(REQUEST_ROLE, new AgentAddress(requester, g.get(role), kernelAddress)), netUpdater);
-//	    }
-//	    if (hooks != null)
-//		informHooks(AgentActionEvent.REQUEST_ROLE, new AgentAddress(requester, g.get(role), kernelAddress));
-//	}
 	}
 
 	/**
@@ -585,8 +720,8 @@ class KernelAgent extends Agent implements DaemonAgent {
 
 	private ReturnCode deliverMessage(Message m, Agent target) {
 		if (target == null) {
-//			m.getConversationID().setOrigin(kernelAddress);
-//			return sendNetworkMessageWithRole(new ObjectMessage<>(m), netEmmiter);
+			m.getConversationID().setOrigin(kernelAddress);
+			return sendNetworkMessageWithRole(new ObjectMessage<>(m), netEmmiter);
 		}
 		target.receiveMessage(m);
 		return SUCCESS;

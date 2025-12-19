@@ -39,7 +39,11 @@ package madkit.kernel;
 import static madkit.i18n.I18nUtilities.getCGRString;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
@@ -87,6 +91,28 @@ public final class Group {
 		logger.setParent(community.getLogger());
 		logger.setLevel(null);
 		roles.put(madkit.agr.SystemRoles.GROUP_MANAGER, new ManagerRole(this, creator, isSecured));
+	}
+
+	/**
+	 * for distant creation.
+	 *
+	 * @param group           the group
+	 * @param manager         the manager
+	 * @param communityObject the community object
+	 */
+	Group(String group, AgentAddress manager, Community communityObject) {
+		// manager = creator;
+		distributed = true;
+		this.community = communityObject;
+		logger = communityObject.getLogger();
+		if (manager instanceof GroupManagerAddress m) {
+			isSecured = m.isGroupSecured();
+		} else {
+			isSecured = false;
+		}
+		gatekeeper = null;
+		name = group;
+		roles.put(madkit.agr.SystemRoles.GROUP_MANAGER, new ManagerRole(this, manager));
 	}
 
 	/**
@@ -141,28 +167,6 @@ public final class Group {
 	}
 
 	/**
-	 * for distant creation.
-	 *
-	 * @param group           the group
-	 * @param manager         the manager
-	 * @param communityObject the community object
-	 */
-	Group(String group, AgentAddress manager, Community communityObject) {
-		// manager = creator;
-		distributed = true;
-		this.community = communityObject;
-		logger = communityObject.getLogger();
-		if (manager instanceof GroupManagerAddress m) {
-			isSecured = m.isGroupSecured();
-		} else {
-			isSecured = false;
-		}
-		gatekeeper = null;
-		name = group;
-		roles.put(madkit.agr.SystemRoles.GROUP_MANAGER, new ManagerRole(this, manager));
-	}
-
-	/**
 	 * Checks if is secured.
 	 *
 	 * @return true, if is secured
@@ -200,7 +204,7 @@ public final class Group {
 //						communityName, groupName,
 //						madkit.agr.SystemRoles.GROUP_MANAGER);
 //				final AgentAddress distantAgentWithRole = myKernel
-//						.getDistantAgentWithRole(requester, madkit.agr.LocalCommunity.NAME,
+//						.getDistantAgentWithRole(requester, madkit.agr.LocalCommunity.LOCAL,
 //								"kernels", madkit.agr.SystemRoles.GROUP_MANAGER,
 //								manager.getKernelAddress());
 //				MicroAgent<Boolean> ma;
@@ -356,16 +360,16 @@ public final class Group {
 		return community.getKernel();
 	}
 
-//	/**
-//	 * @return
-//	 */
-//	SortedMap<String, Set<AgentAddress>> getGroupMap() {
-//		final TreeMap<String, Set<AgentAddress>> export = new TreeMap<>();
-//		for (final Map.Entry<String, Role> org : entrySet()) {
-//			export.put(org.getKey(), org.getValue().buildAndGetAddresses());
-//		}
-//		return export;
-//	}
+	/**
+	 * @return
+	 */
+	SortedMap<String, Set<AgentAddress>> getGroupMap() {
+		final TreeMap<String, Set<AgentAddress>> export = new TreeMap<>();
+		for (final Map.Entry<String, Role> roles : roles.entrySet()) {
+			export.put(roles.getKey(), roles.getValue().buildAndGetAddresses());
+		}
+		return export;
+	}
 
 //	/**
 //	 * @param hashMap
@@ -393,12 +397,6 @@ public final class Group {
 //		r.addDistantMember(content);
 //	}
 //	
-//	Role getOrCreateRole(final String roleName){
-//		Role r = get(roleName);
-//		if(r == null)
-//			return createRole(roleName);
-//		return r;
-//	}
 
 //	/**
 //	 * @param aa
@@ -489,4 +487,38 @@ public final class Group {
 	public boolean exists() {
 		return !roles.isEmpty();
 	}
+
+	void removeAgentsFromDistantKernel(KernelAddress ka) {
+		for (Role r : roles.values()) {
+			r.removeAgentsFromDistantKernel(ka);
+		}
+	}
+
+	/**
+	 * @param hashMap
+	 */
+	void importDistantOrg(final Map<String, Set<AgentAddress>> map) {
+		synchronized (this) {
+			for (final Map.Entry<String, Set<AgentAddress>> entry : map.entrySet()) {
+				getOrCreateRole(entry.getKey()).importDistantOrg(entry.getValue());
+			}
+		}
+	}
+
+	/**
+	 * @param content
+	 */
+	void addDistantMember(AgentAddress content) {
+		final String roleName = content.getRole();
+		final Role r;
+		synchronized (this) {
+			r = getOrCreateRole(roleName);
+		}
+		r.addDistantMember(content);
+	}
+
+	private Role getOrCreateRole(String roleName) {
+		return roles.computeIfAbsent(roleName, _ -> new Role(this, roleName));
+	}
+
 }

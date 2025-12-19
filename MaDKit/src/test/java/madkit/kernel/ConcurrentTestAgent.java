@@ -39,7 +39,6 @@ import static madkit.kernel.MadkitUnitTestCase.COMMUNITY;
 import static madkit.kernel.MadkitUnitTestCase.GROUP;
 import static madkit.kernel.MadkitUnitTestCase.ROLE;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
 
 import java.time.LocalDateTime;
 
@@ -49,15 +48,16 @@ import static madkit.kernel.Agent.ReturnCode.SUCCESS;
  *
  *
  */
-public class GenericTestAgent extends Agent implements TestHelpAgent {
+public class ConcurrentTestAgent extends GenericTestAgent {
 
 	private boolean goThroughEnd = false;
 	private boolean oneMethodHasBeenActivated = false;
+	private MadkitConcurrentTestCase madkitConcurrentTestCase;
 
 	/**
 	 * 
 	 */
-	public GenericTestAgent() {
+	public ConcurrentTestAgent() {
 //		getLogger().setLevel(Level.ALL);
 //		getLogger().info("********* INIT ***********");
 	}
@@ -69,24 +69,29 @@ public class GenericTestAgent extends Agent implements TestHelpAgent {
 
 	@Override
 	protected void onActivation() {
-		orgInActivate();
-		behaviorInActivate();
+		try {
+			orgInActivate();
+			behaviorInActivate();
+		} catch (Throwable e) {
+			madkitConcurrentTestCase.threadFail(e);
+		}
 	}
 
 	@Override
 	protected void onEnd() {
 		goThroughEnd = true;
-		orgInEnd();
-		behaviorInEnd();
+		try {
+			orgInEnd();
+			behaviorInEnd();
+			madkitConcurrentTestCase.resume();
+		} catch (Throwable e) {
+			madkitConcurrentTestCase.threadFail(e);
+		}
 	}
 
+	@Override
 	public boolean didPassThroughEnd() {
 		return goThroughEnd;
-	}
-
-	protected void checkTermination() {
-		assertFalse(alive.get());
-		assertEquals(kernel, KernelAgent.deadKernel);
 	}
 
 	@Override
@@ -101,6 +106,7 @@ public class GenericTestAgent extends Agent implements TestHelpAgent {
 		assertEquals(requestRole(COMMUNITY, GROUP, ROLE, null), SUCCESS);
 	}
 
+	@Override
 	protected void replyToLastReiceivedMessage() {
 		Message m = waitNextMessage();
 		reply(new Message(), m);
@@ -112,10 +118,12 @@ public class GenericTestAgent extends Agent implements TestHelpAgent {
 		setOneMethodHasBeenActivated(true);
 	}
 
+	@Override
 	protected void protectedMethod() {
 		System.out.println("protected method");
 	}
 
+	@Override
 	public void publicMethod() {
 		System.out.println("public method");
 	}
@@ -134,12 +142,14 @@ public class GenericTestAgent extends Agent implements TestHelpAgent {
 		setOneMethodHasBeenActivated(true);
 	}
 
+	@Override
 	public void publicMethodWithPrimitiveArgs(String s, int i) {
 		System.err.println(s);
 		System.err.println(this.toString() + i);
 		setOneMethodHasBeenActivated(true);
 	}
 
+	@Override
 	public void printMailbox() {
 		getLogger().info(getMailbox().toString());
 	}
@@ -147,6 +157,7 @@ public class GenericTestAgent extends Agent implements TestHelpAgent {
 	/**
 	 * @return the oneMethodHasBeenActivated
 	 */
+	@Override
 	public boolean isOneMethodHasBeenActivated() {
 		return oneMethodHasBeenActivated;
 	}
@@ -154,6 +165,7 @@ public class GenericTestAgent extends Agent implements TestHelpAgent {
 	/**
 	 * @param oneMethodHasBeenActivated the oneMethodHasBeenActivated to set
 	 */
+	@Override
 	public void setOneMethodHasBeenActivated(boolean oneMethodHasBeenActivated) {
 		this.oneMethodHasBeenActivated = oneMethodHasBeenActivated;
 	}
@@ -162,6 +174,10 @@ public class GenericTestAgent extends Agent implements TestHelpAgent {
 	public LocalDateTime getNextEventDate() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public void setMadkitConcurrentTestCase(MadkitConcurrentTestCase mdkitConcurrentTestCase) {
+		this.madkitConcurrentTestCase = mdkitConcurrentTestCase;
 	}
 
 }

@@ -614,4 +614,11 @@ public class Role implements Serializable {
 		return null;
 	}
 
+	/**
+	 * @return the groupName
+	 */
+	String getGroupName() {
+		return groupName;
+	}
+
 }

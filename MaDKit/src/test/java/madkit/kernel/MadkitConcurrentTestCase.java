@@ -45,7 +45,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
-import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.BeforeMethod;
 
 import madkit.simulation.SimuAgent;
@@ -54,7 +53,7 @@ import net.jodah.concurrentunit.ConcurrentTestCase;
 
 /**
  *
- * @version 6.0.2
+ * @version 6.0.3
  * 
  */
 public abstract class MadkitConcurrentTestCase extends ConcurrentTestCase {
@@ -84,19 +83,12 @@ public abstract class MadkitConcurrentTestCase extends ConcurrentTestCase {
 	protected Madkit madkit;
 
 	/** The kernel agent. */
-	protected KernelAgent kernelAgent;
+	protected Agent kernelAgent;
 
 	/** The helper instances. */
 	protected static List<Madkit> helperInstances = new ArrayList<>();
 
-	// static{
-	// Runtime.getRuntime().addShutdownHook(new Thread(){
-	// @Override
-	// public void run() {
-	// cleanHelperMDKs();
-	// }
-	// });
-	// }
+	private String[] madkitArgs = new String[] {};
 
 	@BeforeMethod
 	public void handleTestMethodName(Method method) {
@@ -109,9 +101,8 @@ public abstract class MadkitConcurrentTestCase extends ConcurrentTestCase {
 	}
 
 	@BeforeMethod
-	@BeforeGroups
 	public void initMDK() {
-		madkit = new Madkit();
+		madkit = new Madkit(getMadkitTestArgs());
 		Field f;
 		try {
 			f = madkit.getClass().getDeclaredField("kernelAgent");
@@ -120,6 +111,16 @@ public abstract class MadkitConcurrentTestCase extends ConcurrentTestCase {
 		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * Gets the madkit args for this testing session. Should be overridden by subclasses to
+	 * provide specific arguments.
+	 *
+	 * @return the madkit test args
+	 */
+	protected String[] getMadkitTestArgs() {
+		return madkitArgs;
 	}
 
 	/**
@@ -132,17 +133,53 @@ public abstract class MadkitConcurrentTestCase extends ConcurrentTestCase {
 	}
 
 	/**
-	 * Run test with a given agent
+	 * Run test with a given agent.
 	 * 
 	 * @param initialAgent the agent to run the test with
 	 */
 	public void runTest(Agent initialAgent) {
 		launchAgent(initialAgent);
 		try {
-			await(20000);
+			await(10000);
 		} catch (TimeoutException | InterruptedException e) {
 			fail("TimeoutException / InterruptedException", e);
 		}
+//		madkit.exit();
+//		MadkitTestInstance.cleanUpInstances();
+	}
+
+	public void runTest(ConcurrentTestAgent initialAgent) {
+		initialAgent.setMadkitConcurrentTestCase(this);
+		launchAgent(initialAgent);
+		try {
+			await(10000);
+		} catch (TimeoutException | InterruptedException e) {
+			fail("TimeoutException / InterruptedException", e);
+		}
+//		madkit.exit();
+//		MadkitTestInstance.cleanUpInstances();
+	}
+
+	public void noExceptionFailure() {
+		threadFail("Exception not thrown");
+	}
+
+	protected void assertAgentIsTerminated(Agent a) {
+		System.err.println(a);
+		threadAssertEquals(((KernelAgent) kernelAgent).deadKernel, a.kernel);
+	}
+
+	public void runNetworkTest(Runnable r) {
+		Thread.ofPlatform().start(r);
+		try {
+			await(10000);
+		} catch (TimeoutException | InterruptedException e) {
+			fail("TimeoutException / InterruptedException", e);
+		}
+	}
+
+	public void lineBreak() {
+		System.err.println("---------------------------------");
 	}
 
 	public void runSimuTest(SimuAgent sa) {
@@ -153,19 +190,6 @@ public abstract class MadkitConcurrentTestCase extends ConcurrentTestCase {
 				launchAgent(sa);
 			}
 		});
-	}
-
-	public void lineBreak() {
-		System.err.println("---------------------------------");
-	}
-
-	public void noExceptionFailure() {
-		threadFail("Exception not thrown");
-	}
-
-	protected void assertAgentIsTerminated(Agent a) {
-		System.err.println(a);
-		threadAssertEquals(kernelAgent.deadKernel, a.kernel);
 	}
 
 	static public void printMemoryUsage() {
@@ -197,6 +221,32 @@ public abstract class MadkitConcurrentTestCase extends ConcurrentTestCase {
 				System.err.println(ste);
 			}
 		}
+	}
+
+	/**
+	 * @return the defaultMadkitArgs
+	 */
+	protected String[] getDefaultMadkitArgs() {
+		return madkitArgs;
+	}
+
+	/**
+	 * @param madkitArgs the defaultMadkitArgs to set
+	 */
+	protected void setDefaultMadkitArgs(String... args) {
+		this.madkitArgs = args;
+	}
+
+	@Override
+	public void resume() {
+		super.resume();
+	}
+
+	protected void addToMadkitArgs(String... args) {
+		String[] newArgs = new String[madkitArgs.length + args.length];
+		System.arraycopy(madkitArgs, 0, newArgs, 0, madkitArgs.length);
+		System.arraycopy(args, 0, newArgs, madkitArgs.length, args.length);
+		madkitArgs = newArgs;
 	}
 
 }

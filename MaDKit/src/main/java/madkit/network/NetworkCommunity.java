@@ -33,80 +33,48 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C license and that you accept its terms.
  *******************************************************************************/
-package madkit.agr;
+package madkit.network;
 
 /**
- * Implements Constants which are used for the primary CGR organization places.
+ * Defines the default groups and roles used for networking.
  * 
- * @since MaDKit 5.0.0.10
- * @version 6.0.1
+ * @author Fabien Michel
+ * @since MaDKit 5.2
+ * @version 0.9
  */
-public class LocalCommunity {
+public class NetworkCommunity {
 
 	/** The Constant LOCAL. */
-	public static final String LOCAL = "local";
+	public static final String NAME = "NetworK";
 
-	/**
-	 * Utility class
-	 */
-	private LocalCommunity() {
+	private NetworkCommunity() {
 	}
 
 	/**
-	 * MDK kernel core groups.
+	 * Default groups in the Network community.
+	 * 
+	 * @since MaDKit 5.0.0.10
 	 */
 	public static final class Groups {
 
-		/**
-		 * Utility class
-		 */
-		private Groups() {
-			throw new IllegalStateException("Utility class");
-		}
+		/** The Constant NETWORK_AGENTS. */
+		public static final String NETWORK_AGENTS = "MDK_net";
 
-		/**
-		 * The value of this constant is {@value}.
-		 */
-		public static final String NETWORK = "network";
-		/**
-		 * The value of this constant is {@value}.
-		 */
-		public static final String SYSTEM = "system";
+		private Groups() {
+		}
 	}
 
 	/**
-	 * MDK kernel core roles. Default roles within a MaDKit organization.
+	 * Default roles in the Network community.
 	 * 
 	 * @since MaDKit 5.0.0.10
 	 */
 	public static final class Roles {
 
-		/**
-		 * Utility class
-		 */
+		/** The Constant NET_AGENT. */
+		public static final String NET_AGENT = "MDK net agent";
+
 		private Roles() {
-			throw new IllegalStateException("Utility class");
 		}
-
-		/**
-		 * The value of this constant is {@value}.
-		 */
-		public static final String KERNEL = "kernel";
-
-		/**
-		 * The value of this constant is {@value}.
-		 */
-		public static final String NET_AGENT = "net agent";
-		/**
-		 * The value of this constant is {@value}.
-		 */
-		public static final String UPDATER = "updater";
-
-		/**
-		 * The value of this constant is {@value}.
-		 */
-		public static final String EMMITER = "emmiter";
-
 	}
-
 }

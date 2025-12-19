@@ -33,80 +33,47 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C license and that you accept its terms.
  *******************************************************************************/
-package madkit.agr;
+package madkit.kernel;
+
+import madkit.messages.EnumMessage;
 
 /**
- * Implements Constants which are used for the primary CGR organization places.
+ * Communication about network status changes.
  * 
- * @since MaDKit 5.0.0.10
- * @version 6.0.1
+ * @author Fabien Michel
+ * @version 6.4
  */
-public class LocalCommunity {
-
-	/** The Constant LOCAL. */
-	public static final String LOCAL = "local";
+class NetworkStatusMessage extends EnumMessage<NetCode> {
 
 	/**
-	 * Utility class
-	 */
-	private LocalCommunity() {
-	}
-
-	/**
-	 * MDK kernel core groups.
-	 */
-	public static final class Groups {
-
-		/**
-		 * Utility class
-		 */
-		private Groups() {
-			throw new IllegalStateException("Utility class");
-		}
-
-		/**
-		 * The value of this constant is {@value}.
-		 */
-		public static final String NETWORK = "network";
-		/**
-		 * The value of this constant is {@value}.
-		 */
-		public static final String SYSTEM = "system";
-	}
-
-	/**
-	 * MDK kernel core roles. Default roles within a MaDKit organization.
 	 * 
-	 * @since MaDKit 5.0.0.10
 	 */
-	public static final class Roles {
+	private static final long serialVersionUID = -4557829864923968452L;
 
-		/**
-		 * Utility class
-		 */
-		private Roles() {
-			throw new IllegalStateException("Utility class");
-		}
-
-		/**
-		 * The value of this constant is {@value}.
-		 */
-		public static final String KERNEL = "kernel";
-
-		/**
-		 * The value of this constant is {@value}.
-		 */
-		public static final String NET_AGENT = "net agent";
-		/**
-		 * The value of this constant is {@value}.
-		 */
-		public static final String UPDATER = "updater";
-
-		/**
-		 * The value of this constant is {@value}.
-		 */
-		public static final String EMMITER = "emmiter";
-
+	NetworkStatusMessage(NetCode code, Object... codeMetadata) {
+		super(code, codeMetadata);
 	}
 
+}
+
+/**
+ * 
+ */
+enum NetCode {
+	/**
+	 * A new peer has been detected. this message is accompanied with a hello datagram packet
+	 */
+	NEW_PEER_DETECTED,
+
+	/**
+	 * A peer has disconnected. this message is accompanied with the KernelAddress of the
+	 * disconnected peer
+	 */
+	PEER_DECONNECTED,
+
+	/**
+	 * A new peer connection request has been received. this message is accompanied with the
+	 * accepted socket
+	 */
+	NEW_PEER_REQUEST;
 }

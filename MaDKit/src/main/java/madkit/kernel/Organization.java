@@ -51,6 +51,7 @@ import static madkit.kernel.Agent.ReturnCode.SUCCESS;
 
 import madkit.i18n.ErrorMessages;
 import madkit.kernel.Agent.ReturnCode;
+import madkit.network.CGRSynchro;
 import madkit.simulation.SimuAgent;
 
 /**
@@ -84,12 +85,15 @@ public final class Organization {
 	 * @param registeredOverlookers
 	 */
 	Organization(KernelAgent kernel) {
-		super();
 		this.kernel = kernel;
 		communities = new ConcurrentHashMap<>();
 		registeredOverlookers = new LinkedHashSet<>();
 		logger = Logger.getLogger("[ORG]");
 		logger.setUseParentHandlers(false);
+//		ConsoleHandler handler = new ConsoleHandler();
+//		logger.addHandler(handler);
+//		handler.setLevel(Level.ALL);
+//		logger.setLevel(Level.ALL);
 	}
 
 	/**
@@ -107,7 +111,7 @@ public final class Organization {
 		Objects.requireNonNull(group, ErrorMessages.G_NULL.toString());
 		// no need to remove org: never failed
 		// will throw null pointer if community is null
-		Community community = communities.computeIfAbsent(communityName, c -> new Community(communityName, this));
+		Community community = getOrCreateCommunity(communityName);
 		synchronized (community) {
 			if (!community.addGroup(creator, group, gatekeeper, isDistributed)) {
 				return ALREADY_GROUP;
@@ -132,20 +136,30 @@ public final class Organization {
 	}
 
 	/**
-	 * Request role.
-	 *
-	 * @param requester  the requester
-	 * @param community  the community
-	 * @param group      the group
-	 * @param role       the role
-	 * @param memberCard the member card
-	 * @return the return code
-	 * @throws CGRNotAvailable the CGR not available
+	 * Gets or creates a community object corresponding to the given community name.
+	 * 
+	 * @param communityName
+	 * @return the community object corresponding to the given community name
 	 */
-	ReturnCode requestRole(Agent requester, String community, String group, String role, Object memberCard)
-			throws CGRNotAvailable {
-		return getGroup(community, group).requestRole(requester, role, memberCard);
+	private Community getOrCreateCommunity(String communityName) {
+		return communities.computeIfAbsent(communityName, _ -> new Community(communityName, this));
 	}
+
+//	/**
+//	 * Request role.
+//	 *
+//	 * @param requester  the requester
+//	 * @param community  the community
+//	 * @param group      the group
+//	 * @param role       the role
+//	 * @param memberCard the member card
+//	 * @return the return code
+//	 * @throws CGRNotAvailable the CGR not available
+//	 */
+//	ReturnCode requestRole(Agent requester, String community, String group, String role, Object memberCard)
+//			throws CGRNotAvailable {
+//		return getGroup(community, group).requestRole(requester, role, memberCard);
+//	}
 
 	/**
 	 * Returns <code>true</code> if the group exists in the organization. A group exists if it
@@ -203,13 +217,12 @@ public final class Organization {
 	}
 
 	/**
-	 * Gets the community.
+	 * Gets the community object corresponding to the given community name.
 	 *
-	 * @param community the community
-	 * @return the community
-	 * @throws CGRNotAvailable the CGR not available
+	 * @param community the community name
+	 * @return the community object corresponding to the given community name
 	 */
-	final Community getCommunity(String community) throws CGRNotAvailable {
+	public Community getCommunity(String community) {
 		Community c = communities.get(community);
 		if (c == null) {
 			throw new CGRNotAvailable(NOT_COMMUNITY);
@@ -323,6 +336,111 @@ public final class Organization {
 			r.removeOverlooker(o);
 		}
 		return registeredOverlookers.remove(o);
+	}
+
+	final void injectOperation(CGRSynchro m) {
+		final AgentAddress agentAddress = m.getContent();
+		final String communityName = agentAddress.getCommunity();
+		final String groupName = agentAddress.getGroup();
+		final String roleName = agentAddress.getRole();
+		synchronized (this) {
+			switch (m.getCode()) {
+			case CREATE_GROUP:
+				Community community = getOrCreateCommunity(communityName);
+				synchronized (community) {
+					community.addDistantGroup(agentAddress, groupName);
+				}
+				break;
+			case REQUEST_ROLE:
+				try {
+					getGroup(communityName, groupName).addDistantMember(agentAddress);
+//					informHooks(AgentActionEvent.REQUEST_ROLE, agentAddress);
+				} catch (CGRNotAvailable e) {
+//					logInjectOperationFailure(m, agentAddress, e);
+				}
+				break;
+//			case LEAVE_ROLE:
+//				try {
+//					getRole(communityName, groupName, roleName).removeDistantMember(agentAddress);
+//					informHooks(AgentActionEvent.LEAVE_ROLE, agentAddress);
+//				} catch (CGRNotAvailable e) {
+//					logInjectOperationFailure(m, agentAddress, e);
+//				}
+//				break;
+//			case LEAVE_GROUP:
+//				try {
+//					getGroup(communityName, groupName).removeDistantMember(agentAddress);
+//					informHooks(AgentActionEvent.LEAVE_GROUP, agentAddress);
+//				} catch (CGRNotAvailable e) {
+//					logInjectOperationFailure(m, agentAddress, e);
+//				}
+//				break;
+			default:
+				break;
+			}
+		}
+	}
+
+	void removeAgentsFromDistantKernel(KernelAddress ka) {
+		synchronized (this) {
+			for (Community c : communities.values()) {
+				c.removeAgentsFromDistantKernel(ka);
+			}
+		}
+	}
+
+	/**
+	 * Imports a distant organization into this organization.
+	 *
+	 * @param distantOrg a snapshot of the distant organization's structure
+	 */
+	final void importDistantOrg(final OrganizationSnapshot distantOrg) {
+		if (logger != null) {
+			logger.finer(() -> "Importing org..." + distantOrg);
+		}
+		synchronized (this) {
+			for (final String communityName : distantOrg.keySet()) {
+				Community community = getOrCreateCommunity(communityName);
+				community.importDistantCommunity(distantOrg.get(communityName));
+			}
+		}
+	}
+
+	/**
+	 * Returns a snapshot of the current organization structure.
+	 * 
+	 * @param global include distant groups and roles if true
+	 * @return a snapshot of the current organization structure
+	 */
+	public final OrganizationSnapshot getOrganizationSnapShot(boolean global) {
+		OrganizationSnapshot export = new OrganizationSnapshot(kernel.getKernelAddress());
+		synchronized (this) {
+			for (Map.Entry<String, Community> org : communities.entrySet()) {
+				Map<String, Map<String, Set<AgentAddress>>> currentOrg = org.getValue().getOrgMap(global);
+				if (!currentOrg.isEmpty()) {
+					export.put(org.getKey(), org.getValue().getOrgMap(global));
+				}
+			}
+		}
+		return export;
+	}
+
+	/**
+	 * Returns the address of the given agent playing the given role in the given group
+	 * 
+	 * @param agent     the agent to look for
+	 * @param community the community name
+	 * @param group     the group name
+	 * @param role      the role name
+	 * @return the address of the agent playing the given role or <code>null</code> if the
+	 *         agent does not play this role
+	 */
+	public AgentAddress getAddressOfAgentAt(Agent agent, String community, String group, String role) {
+		try {
+			return getRole(community, group, role).getAgentAddressOf(agent);
+		} catch (CGRNotAvailable e) {
+			return null;
+		}
 	}
 
 }

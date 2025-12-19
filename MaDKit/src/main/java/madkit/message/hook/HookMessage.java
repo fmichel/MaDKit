@@ -62,7 +62,7 @@ public class HookMessage extends ObjectMessage<HookMessage.AgentActionEvent> {
 	 * <pre>
 	 * <code>
 	 * sendMessage(
-	 * 	LocalCommunity.NAME,
+	 * 	LocalCommunity.LOCAL,
 	 * 	LocalCommunity.Groups.SYSTEM, 
 	 * 	Organization.GROUP_MANAGER_ROLE,
 	 * 	new HookMessage(AgentActionEvent.REQUEST_ROLE));

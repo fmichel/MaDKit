@@ -33,80 +33,49 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C license and that you accept its terms.
  *******************************************************************************/
-package madkit.agr;
+
+package madkit.kernel;
+
+import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 /**
- * Implements Constants which are used for the primary CGR organization places.
+ * This class is just an alias for using the underlying data structure
  * 
- * @since MaDKit 5.0.0.10
- * @version 6.0.1
+ * @author Fabien Michel
+ * @since MaDKit 5.3.1
+ * @version 6.0
  */
-public class LocalCommunity {
+@SuppressWarnings("serial")
+public class OrganizationSnapshot extends TreeMap<String, Map<String, Map<String, Set<AgentAddress>>>> {
 
-	/** The Constant LOCAL. */
-	public static final String LOCAL = "local";
+	private KernelAddress sourceKernelAddress;
 
-	/**
-	 * Utility class
-	 */
-	private LocalCommunity() {
+	OrganizationSnapshot(KernelAddress sourceKernelAddress) {
+		this.sourceKernelAddress = sourceKernelAddress;
 	}
 
-	/**
-	 * MDK kernel core groups.
-	 */
-	public static final class Groups {
-
-		/**
-		 * Utility class
-		 */
-		private Groups() {
-			throw new IllegalStateException("Utility class");
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder("OrganizationSnapshot ").append(sourceKernelAddress).append('\n')
+				.append(LocalDateTime.now()).append('\n');
+		for (String community : keySet()) {
+			sb.append("\nCommunity: ").append(community).append('\n');
+			Map<String, Map<String, Set<AgentAddress>>> groups = get(community);
+			for (String group : groups.keySet()) {
+				sb.append("    Group: ").append(group).append('\n');
+				Map<String, Set<AgentAddress>> roles = groups.get(group);
+				for (String role : roles.keySet()) {
+					sb.append("     Role: ").append(role).append('\n');
+					Set<AgentAddress> agents = roles.get(role);
+					for (AgentAddress aa : agents) {
+						sb.append("      Agent: ").append(aa).append('\n');
+					}
+				}
+			}
 		}
-
-		/**
-		 * The value of this constant is {@value}.
-		 */
-		public static final String NETWORK = "network";
-		/**
-		 * The value of this constant is {@value}.
-		 */
-		public static final String SYSTEM = "system";
+		return sb.toString();
 	}
-
-	/**
-	 * MDK kernel core roles. Default roles within a MaDKit organization.
-	 * 
-	 * @since MaDKit 5.0.0.10
-	 */
-	public static final class Roles {
-
-		/**
-		 * Utility class
-		 */
-		private Roles() {
-			throw new IllegalStateException("Utility class");
-		}
-
-		/**
-		 * The value of this constant is {@value}.
-		 */
-		public static final String KERNEL = "kernel";
-
-		/**
-		 * The value of this constant is {@value}.
-		 */
-		public static final String NET_AGENT = "net agent";
-		/**
-		 * The value of this constant is {@value}.
-		 */
-		public static final String UPDATER = "updater";
-
-		/**
-		 * The value of this constant is {@value}.
-		 */
-		public static final String EMMITER = "emmiter";
-
-	}
-
 }

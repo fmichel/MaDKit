@@ -51,6 +51,8 @@ import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.builder.fluent.Parameters;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 
+import madkit.action.KernelAction;
+import madkit.messages.KernelMessage;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
@@ -67,6 +69,9 @@ import picocli.CommandLine.PropertiesDefaultProvider;
  * 
  * @version 6.0
  * @since MaDKit 1.0
+ */
+/**
+ * 
  */
 @Command(name = "MaDKit", mixinStandardHelpOptions = true, description = "Lightweight OCMAS platform: Multi-Agent Systems as artificial organizations")
 public class Madkit {
@@ -95,6 +100,8 @@ public class Madkit {
 
 	static String oneFileLauncher;
 	static String[] oneFileLauncherArgs;
+
+	State state = State.RUNNING;
 
 	@Mixin
 	private MDKCommandLine mdkOptions = new MDKCommandLine();
@@ -224,6 +231,72 @@ public class Madkit {
 	}
 
 	/**
+	 * Makes the kernel do the corresponding action. This is done by sending a message
+	 * directly to the kernel agent. This should not be used intensively since it is better to
+	 * control the execution flow of the application using the agents running in the kernel.
+	 * Still it provides a way to launch and manage a kernel from any java application as a
+	 * third party service.
+	 * 
+	 * <pre>
+	 * public void somewhereInYourCode() {
+	 * 				...
+	 * 				Madkit m = new Madkit(args);
+	 * 				...
+	 * 				m.doAction(KernelAction.LAUNCH_NETWORK); //start the network
+	 * 				...
+	 * 				m.doAction(KernelAction.LAUNCH_AGENT, new Agent(), true); //launch a new agent with a GUI
+	 * 				...
+	 * }
+	 * </pre>
+	 * 
+	 * @param action     the action to request
+	 * @param parameters the parameters of the request. To work properly, the actual class of
+	 *                   the parameters should match the class of the parameters of the
+	 *                   underlying targeted method. For instance, for launching an Agent, one
+	 *                   must use
+	 *                   <code>m.doAction(KernelAction.LAUNCH_AGENT, new Agent(),Boolean.TRUE);</code>
+	 *                   That is, in this case, using "true" does not work since it is a
+	 *                   String.
+	 */
+	public void doAction(KernelAction action, Object... parameters) {
+		if (kernelAgent.isAlive()) {
+			kernelAgent.receiveMessage(new KernelMessage(action, parameters));
+		} else {
+			mdkLogger.severe("my kernel is terminated...");
+		}
+	}
+
+	/**
+	 * Requests the kernel to exit. This will terminate all agents and then the kernel itself.
+	 * This returns only when the kernel has effectively terminated or after a timeout of 20
+	 * seconds.
+	 */
+	public void exit() {
+//		doAction(KernelAction.EXIT);
+//		while (kernelAgent != kernelAgent.deadKernel) {
+//			try {
+//				Thread.sleep(100);
+//			} catch (InterruptedException e) {
+//				e.printStackTrace();
+//			}
+//		}
+
+		if (state == State.RUNNING) {
+			state = State.SHUTTING_DOWN;
+			doAction(KernelAction.EXIT);
+			synchronized (state) {
+				try {
+					state.wait(20000);
+					mdkLogger.info(" -----------> My kernel is done " + kernelAgent.getKernelAddress());
+				} catch (InterruptedException e) {
+					mdkLogger.severe("Waiting for kernel to terminate has timed out.");
+				}
+			}
+			state = State.TERMINATED;
+		}
+	}
+
+	/**
 	 * Returns the main method of the launcher class.
 	 *
 	 * @return the main method of the launcher class, or null if not found
@@ -328,4 +401,8 @@ public class Madkit {
 		}
 		return defaultValue;
 	}
+}
+
+enum State {
+	RUNNING, SHUTTING_DOWN, TERMINATED
 }

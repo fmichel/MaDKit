@@ -44,9 +44,6 @@ import madkit.simulation.scheduler.DiscreteEventAgentsActivator;
 
 /**
  * 
- * 
- *
- *
  */
 public interface TestHelpAgent {
 
@@ -87,6 +84,8 @@ public interface TestHelpAgent {
 	public abstract AgentLogger getLogger();
 
 	public abstract void createDefaultCGR();
+
+	public abstract void createDefaultDistributedCGR();
 
 	public default void computeForEver() {
 		for (int i = 0; i < Integer.MAX_VALUE; i++) {

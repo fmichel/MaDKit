@@ -6,7 +6,7 @@ plugins {
 }
 
 javafx {
-	version = '23.0.2'
+	version = '25'
 	modules = ['javafx.base', 'javafx.controls', 'javafx.graphics']
     configuration = 'api'
 }
@@ -15,7 +15,7 @@ repositories {
     mavenCentral()
 }
 
-ext.JAVA_VERSION = '23'
+ext.JAVA_VERSION = '25'
 
 java {
     toolchain {

@@ -1,10 +1,10 @@
 package madkit.messaging;
 
-import static madkit.kernel.Agent.ReturnCode.SUCCESS;
-
 import java.util.List;
 
 import org.testng.annotations.Test;
+
+import static madkit.kernel.Agent.ReturnCode.SUCCESS;
 
 import madkit.kernel.MadkitUnitTestCase;
 import madkit.kernel.Message;
@@ -16,11 +16,12 @@ import madkit.test.agents.CGRAgent;
  *
  *
  */
-public class AutomaticCast extends MadkitUnitTestCase {
+public class AutomaticCast extends MadkitUnitTestCase {// TODO conversion to Concurrent test
 
 	@Test
 	public void castSuccess() {
 		launchTestedAgent(new CGRAgent() {
+			@Override
 			protected void onActivation() {
 				super.onActivation();
 				threadAssertEquals(SUCCESS, launchAgent(new ForEverReplierAgent(StringMessage.class)));
@@ -35,6 +36,7 @@ public class AutomaticCast extends MadkitUnitTestCase {
 	@Test
 	public void castFailure() {
 		launchTestedAgent(new CGRAgent() {
+			@Override
 			protected void onActivation() {
 				super.onActivation();
 				threadAssertEquals(SUCCESS, launchAgent(new ForEverReplierAgent(StringMessage.class)));
@@ -53,6 +55,7 @@ public class AutomaticCast extends MadkitUnitTestCase {
 	@Test
 	public void nextMatches() {
 		launchTestedAgent(new CGRAgent() {
+			@Override
 			protected void onActivation() {
 				super.onActivation();
 				receiveMessage(new StringMessage("a"));
@@ -68,6 +71,7 @@ public class AutomaticCast extends MadkitUnitTestCase {
 	@Test
 	public void nextMatchesFilterSuccess() {
 		launchTestedAgent(new CGRAgent() {
+			@Override
 			protected void onActivation() {
 				super.onActivation();
 				receiveMessage(new StringMessage("a"));

@@ -36,6 +36,9 @@
 
 package madkit.kernel;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import org.testng.annotations.Test;
 
 import static madkit.kernel.Agent.ReturnCode.INVALID_AGENT_ADDRESS;
@@ -43,6 +46,7 @@ import static madkit.kernel.Agent.ReturnCode.NOT_IN_GROUP;
 import static madkit.kernel.Agent.ReturnCode.ROLE_NOT_HANDLED;
 import static madkit.kernel.Agent.ReturnCode.SUCCESS;
 
+import madkit.kernel.Agent.ReturnCode;
 import madkit.messages.StringMessage;
 import madkit.messaging.ForEverReplierAgent;
 import madkit.test.agents.CGRAgent;
@@ -50,21 +54,22 @@ import madkit.test.agents.CGRAgent;
 /**
  * The Class ReplyWithRoleConcurrentTest.
  * 
- * @version 6.0.4
+ * @version 6.0.5
  */
-public class ReplyWithRoleConcurrentTest extends MadkitConcurrentTestCase {
+public class ReplyWithRoleTest extends MadkitConcurrentTestCase {
 
 	@Test
 	public void givenAgent_whenRoleNotHandled_thenReturnRoleNotHandled() {
 		runTest(new CGRAgent() {
 			@Override
-			protected void onActivation() {
-				super.onActivation();
-				threadAssertEquals(SUCCESS, launchAgent(new ForEverReplierAgent(StringMessage.class)));
+			public void behaviorInActivate() {
+				assertThat(launchAgent(new ForEverReplierAgent(StringMessage.class))).as("launchAgent return code")
+						.isEqualTo(SUCCESS);
 				send(new Message(), COMMUNITY, GROUP, ROLE);
 				Message waitNextMessage = waitNextMessage();
-				threadAssertEquals(SUCCESS, leaveRole(COMMUNITY, GROUP, ROLE));
-				threadAssertEquals(ROLE_NOT_HANDLED, replyWithRole(new Message(), waitNextMessage, ROLE));
+				assertThat(leaveRole(COMMUNITY, GROUP, ROLE)).as("leaveRole return code").isEqualTo(SUCCESS);
+				assertThat(replyWithRole(new Message(), waitNextMessage, ROLE)).as("replyWithRole when role not handled")
+						.isEqualTo(ROLE_NOT_HANDLED);
 				resume();
 			}
 		});
@@ -74,13 +79,14 @@ public class ReplyWithRoleConcurrentTest extends MadkitConcurrentTestCase {
 	public void givenAgent_whenNotInGroup_thenReturnNotInGroup() {
 		runTest(new CGRAgent() {
 			@Override
-			protected void onActivation() {
-				super.onActivation();
-				threadAssertEquals(SUCCESS, launchAgent(new ForEverReplierAgent(StringMessage.class)));
+			public void behaviorInActivate() {
+				assertThat(launchAgent(new ForEverReplierAgent(StringMessage.class))).as("launchAgent return code")
+						.isEqualTo(SUCCESS);
 				send(new Message(), COMMUNITY, GROUP, ROLE);
 				Message waitNextMessage = waitNextMessage();
-				threadAssertEquals(SUCCESS, leaveGroup(COMMUNITY, GROUP));
-				threadAssertEquals(NOT_IN_GROUP, replyWithRole(new Message(), waitNextMessage, ROLE));
+				assertThat(leaveGroup(COMMUNITY, GROUP)).as("leaveGroup return code").isEqualTo(SUCCESS);
+				assertThat(replyWithRole(new Message(), waitNextMessage, ROLE)).as("replyWithRole when not in group")
+						.isEqualTo(NOT_IN_GROUP);
 				resume();
 			}
 		});
@@ -90,14 +96,15 @@ public class ReplyWithRoleConcurrentTest extends MadkitConcurrentTestCase {
 	public void givenAgent_whenInvalidAgentAddress_thenReturnInvalidAgentAddress() {
 		runTest(new CGRAgent() {
 			@Override
-			protected void onActivation() {
-				super.onActivation();
+			public void behaviorInActivate() {
 				ForEverReplierAgent target;
-				threadAssertEquals(SUCCESS, launchAgent(target = new ForEverReplierAgent(StringMessage.class)));
+				assertThat(launchAgent(target = new ForEverReplierAgent(StringMessage.class))).as("launchAgent return code")
+						.isEqualTo(SUCCESS);
 				send(new Message(), COMMUNITY, GROUP, ROLE);
 				Message waitNextMessage = waitNextMessage();
 				target.leaveGroup(COMMUNITY, GROUP);
-				threadAssertEquals(INVALID_AGENT_ADDRESS, replyWithRole(new Message(), waitNextMessage, ROLE));
+				assertThat(replyWithRole(new Message(), waitNextMessage, ROLE))
+						.as("replyWithRole with invalid agent address").isEqualTo(INVALID_AGENT_ADDRESS);
 				resume();
 			}
 		});
@@ -107,11 +114,11 @@ public class ReplyWithRoleConcurrentTest extends MadkitConcurrentTestCase {
 	public void givenAgent_whenReplyWithRole_thenReturnSuccess() {
 		runTest(new CGRAgent() {
 			@Override
-			protected void onActivation() {
-				super.onActivation();
-				threadAssertEquals(SUCCESS, launchAgent(new ForEverReplierAgent()));
+			public void behaviorInActivate() {
+				assertThat(launchAgent(new ForEverReplierAgent())).as("launchAgent return code").isEqualTo(SUCCESS);
 				send(new Message(), COMMUNITY, GROUP, ROLE);
-				threadAssertEquals(SUCCESS, replyWithRole(new Message(), waitNextMessage(), ROLE));
+				assertThat(replyWithRole(new Message(), waitNextMessage(), ROLE)).as("replyWithRole should return SUCCESS")
+						.isEqualTo(SUCCESS);
 				resume();
 			}
 		});
@@ -121,9 +128,9 @@ public class ReplyWithRoleConcurrentTest extends MadkitConcurrentTestCase {
 	public void givenAgent_whenWrongArg_thenReturnCantReply() {
 		runTest(new CGRAgent() {
 			@Override
-			protected void onActivation() {
-				super.onActivation();
-				threadAssertEquals(ReturnCode.CANT_REPLY, replyWithRole(new Message(), new Message(), ROLE));
+			public void behaviorInActivate() {
+				assertThat(replyWithRole(new Message(), new Message(), ROLE)).as("replyWithRole with wrong args")
+						.isEqualTo(ReturnCode.CANT_REPLY);
 				resume();
 			}
 		});
@@ -133,10 +140,10 @@ public class ReplyWithRoleConcurrentTest extends MadkitConcurrentTestCase {
 	public void givenAgent_whenWrongArgFromMessageSentFromAnObject_thenReturnCantReply() {
 		runTest(new CGRAgent() {
 			@Override
-			protected void onActivation() {
-				super.onActivation();
+			public void behaviorInActivate() {
 				receiveMessage(new Message());
-				threadAssertEquals(ReturnCode.CANT_REPLY, replyWithRole(new Message(), nextMessage(), ROLE));
+				assertThat(replyWithRole(new Message(), nextMessage(), ROLE))
+						.as("replyWithRole with wrong args from object message").isEqualTo(ReturnCode.CANT_REPLY);
 				resume();
 			}
 		});
@@ -146,14 +153,10 @@ public class ReplyWithRoleConcurrentTest extends MadkitConcurrentTestCase {
 	public void givenAgent_whenNullArg_thenHandleNullPointerException() {
 		runTest(new CGRAgent() {
 			@Override
-			protected void onActivation() {
-				try {
-					threadAssertEquals(SUCCESS, replyWithRole(null, nextMessage(), ROLE));
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					e.printStackTrace();
-					resume();
-				}
+			public void behaviorInActivate() {
+				assertThatThrownBy(() -> replyWithRole(null, nextMessage(), ROLE))
+						.as("replyWithRole(null, nextMessage(), ROLE)").isInstanceOf(NullPointerException.class);
+				resume();
 			}
 		});
 
@@ -163,15 +166,10 @@ public class ReplyWithRoleConcurrentTest extends MadkitConcurrentTestCase {
 	public void givennAgent_whenNullArg_thenHandleNullPointerException() {
 		runTest(new CGRAgent() {
 			@Override
-			protected void onActivation() {
-				try {
-					threadAssertEquals(SUCCESS, replyWithRole(new Message(), null, ROLE));
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					e.printStackTrace();
-					;
-					resume();
-				}
+			public void behaviorInActivate() {
+				assertThatThrownBy(() -> replyWithRole(new Message(), null, ROLE))
+						.as("replyWithRole(new Message(), null, ROLE)").isInstanceOf(NullPointerException.class);
+				resume();
 			}
 		});
 	}

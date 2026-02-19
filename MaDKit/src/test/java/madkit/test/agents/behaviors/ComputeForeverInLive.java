@@ -1,12 +1,12 @@
 package madkit.test.agents.behaviors;
 
-import madkit.kernel.TestHelpAgent;
+import madkit.kernel.TestAgentSupport;
 
 /**
  *
  *
  */
-public interface LiveForever extends TestHelpAgent {
+public interface ComputeForeverInLive extends TestAgentSupport {
 
 	@Override
 	default void behaviorInLive() {

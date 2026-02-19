@@ -35,9 +35,10 @@
  *******************************************************************************/
 package madkit.messaging;
 
-import static madkit.kernel.MadkitUnitTestCase.COMMUNITY;
-import static madkit.kernel.MadkitUnitTestCase.GROUP;
-import static madkit.kernel.MadkitUnitTestCase.ROLE;
+import static madkit.kernel.MadkitConcurrentTestCase.COMMUNITY;
+import static madkit.kernel.MadkitConcurrentTestCase.GROUP;
+import static madkit.kernel.MadkitConcurrentTestCase.ROLE;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
@@ -47,9 +48,10 @@ import static madkit.kernel.Agent.ReturnCode.NOT_IN_GROUP;
 import static madkit.kernel.Agent.ReturnCode.SUCCESS;
 
 import madkit.kernel.Agent;
+import madkit.kernel.DefaultTestAgent;
 import madkit.kernel.MadkitConcurrentTestCase;
 import madkit.kernel.Message;
-import madkit.test.agents.RequestRoleAgent;
+import madkit.test.agents.CGRAgent;
 
 /**
  *
@@ -64,10 +66,9 @@ public class SendReplyConcurrentTest extends MadkitConcurrentTestCase {
 		runTest(new Replier() {
 
 			@Override
-			protected void onActivation() {
-				super.onActivation();
-				threadAssertEquals(SUCCESS, leaveRole(COMMUNITY, GROUP, ROLE));
-				threadAssertEquals(NOT_IN_GROUP, reply(new Message(), nextMessage()));
+			protected void doIt() {
+				assertThat(leaveRole(COMMUNITY, GROUP, ROLE)).as("leaveRole return code").isEqualTo(SUCCESS);
+				assertThat(reply(new Message(), nextMessage())).as("reply when not in group").isEqualTo(NOT_IN_GROUP);
 				resume();
 			}
 		});
@@ -78,10 +79,10 @@ public class SendReplyConcurrentTest extends MadkitConcurrentTestCase {
 		runTest(new Replier() {
 
 			@Override
-			protected void onActivation() {
-				super.onActivation();
+			protected void doIt() {
 				target.leaveGroup(COMMUNITY, GROUP);
-				threadAssertEquals(INVALID_AGENT_ADDRESS, reply(new Message(), nextMessage()));
+				assertThat(reply(new Message(), nextMessage())).as("reply with invalid agent address")
+						.isEqualTo(INVALID_AGENT_ADDRESS);
 				resume();
 			}
 		});
@@ -92,9 +93,8 @@ public class SendReplyConcurrentTest extends MadkitConcurrentTestCase {
 		runTest(new Replier() {
 
 			@Override
-			protected void onActivation() {
-				super.onActivation();
-				threadAssertEquals(SUCCESS, reply(new Message(), nextMessage()));
+			protected void doIt() {
+				assertThat(reply(new Message(), nextMessage())).as("reply returns success").isEqualTo(SUCCESS);
 				resume();
 			}
 		});
@@ -105,9 +105,9 @@ public class SendReplyConcurrentTest extends MadkitConcurrentTestCase {
 		runTest(new Replier() {
 
 			@Override
-			protected void onActivation() {
+			protected void doIt() {
 				try {
-					threadAssertEquals(SUCCESS, reply(null, nextMessage()));
+					assertThat(reply(null, nextMessage())).as("reply with null message").isEqualTo(SUCCESS);
 					noExceptionFailure();
 				} catch (NullPointerException e) {
 					e.printStackTrace();
@@ -119,9 +119,9 @@ public class SendReplyConcurrentTest extends MadkitConcurrentTestCase {
 		runTest(new Replier() {
 
 			@Override
-			protected void onActivation() {
+			protected void doIt() {
 				try {
-					threadAssertEquals(SUCCESS, reply(new Message(), null));
+					assertThat(reply(new Message(), null)).as("reply with null recipient").isEqualTo(SUCCESS);
 					noExceptionFailure();
 				} catch (NullPointerException e) {
 					e.printStackTrace();
@@ -133,9 +133,9 @@ public class SendReplyConcurrentTest extends MadkitConcurrentTestCase {
 		runTest(new Replier() {
 
 			@Override
-			protected void onActivation() {
+			protected void doIt() {
 				try {
-					threadAssertEquals(SUCCESS, reply(null, null));
+					assertThat(reply(null, null)).as("reply with null args").isEqualTo(SUCCESS);
 					noExceptionFailure();
 				} catch (NullPointerException e) {
 					e.printStackTrace();
@@ -147,15 +147,18 @@ public class SendReplyConcurrentTest extends MadkitConcurrentTestCase {
 
 }
 
-class Replier extends Agent {
+abstract class Replier extends DefaultTestAgent {
 
 	protected Agent target;
 
 	@Override
-	protected void onActivation() {
-		assertEquals(SUCCESS, launchAgent(target = new RequestRoleAgent()));
+	public void behaviorInActivate() {
+		assertEquals(SUCCESS, launchAgent(target = new CGRAgent()));
 		assertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
 		assertEquals(SUCCESS, target.send(new Message(), COMMUNITY, GROUP, ROLE));
+		doIt();
 	}
+
+	protected abstract void doIt();
 
 }

@@ -66,7 +66,6 @@ public class AgentTest extends MadkitConcurrentTestCase {
 		Agent a = new Agent() {
 			@Override
 			protected void onLive() {
-				super.onLive();
 			}
 		};
 		assertThat(a.isThreaded()).isTrue();

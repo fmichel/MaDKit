@@ -36,6 +36,8 @@
 
 package madkit.kernel;
 
+import static org.assertj.core.api.BDDAssertions.then;
+
 import org.testng.annotations.Test;
 
 import madkit.test.agents.EmptyAgent;
@@ -45,7 +47,7 @@ import madkit.test.agents.ThreadedAgentBlockedInLive;
 /**
  *
  * @since MaDKit 6
- * @version 0.9
+ * @version 6.0.5
  * 
  */
 
@@ -53,13 +55,13 @@ public class LaunchAgentConcurrentTest extends MadkitConcurrentTestCase {
 
 	@Test
 	public void givenNormalAgent_whenLaunchAgent_thenReturnSuccess() {
-		runTest(new Agent() {
+		runTest(new DefaultTestAgent() {
 			@Override
-			protected void onActivation() {
+			public void behaviorInActivate() {
 				Agent a = new EmptyAgent();
-				threadAssertFalse(a.alive.get());
+				then(a.alive.get()).as("agent should not be alive before launch").isFalse();
 				launchAgent(a);
-				threadAssertTrue(a.alive.get());
+				then(a.alive.get()).as("agent should be alive after launch").isTrue();
 				resume();
 			}
 		});
@@ -67,13 +69,13 @@ public class LaunchAgentConcurrentTest extends MadkitConcurrentTestCase {
 
 	@Test
 	public void givenThreadedAgent_whenLaunchAgent_thenReturnSuccess() {
-		runTest(new Agent() {
+		runTest(new DefaultTestAgent() {
 			@Override
-			protected void onActivation() {
+			public void behaviorInActivate() {
 				Agent a = new ThreadedAgentBlockedInLive();
-				threadAssertFalse(a.alive.get());
+				then(a.alive.get()).as("threaded agent should not be alive before launch").isFalse();
 				launchAgent(a);
-				threadAssertTrue(a.alive.get());
+				then(a.alive.get()).as("threaded agent should be alive after launch").isTrue();
 				resume();
 			}
 		});
@@ -81,14 +83,14 @@ public class LaunchAgentConcurrentTest extends MadkitConcurrentTestCase {
 
 	@Test
 	public void givenThreadedAgentBlockedInActivate_whenLaunchAgent_thenReturnTimeOut() {
-		runTest(new Agent() {
+		runTest(new DefaultTestAgent() {
 			@Override
-			protected void onActivation() {
+			public void behaviorInActivate() {
 				Agent a = new ThreadedAgentBlockedInActivate();
-				threadAssertFalse(a.alive.get());
+				then(a.alive.get()).as("agent should not be alive before launch").isFalse();
 				ReturnCode r = launchAgent(a, 1);
-				threadAssertFalse(a.alive.get());
-				threadAssertEquals(ReturnCode.TIMEOUT, r);
+				then(a.alive.get()).as("agent should remain not alive after timed out launch").isFalse();
+				then(r).as("launchAgent should return TIMEOUT when activate blocks").isEqualTo(ReturnCode.TIMEOUT);
 				resume();
 			}
 		});

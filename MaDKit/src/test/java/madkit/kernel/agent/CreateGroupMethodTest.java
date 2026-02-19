@@ -35,12 +35,14 @@
  *******************************************************************************/
 package madkit.kernel.agent;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.testng.annotations.Test;
 
 import static madkit.kernel.Agent.ReturnCode.ALREADY_GROUP;
 import static madkit.kernel.Agent.ReturnCode.SUCCESS;
 
-import madkit.kernel.Agent;
+import madkit.kernel.DefaultTestAgent;
 import madkit.kernel.MadkitConcurrentTestCase;
 
 /**
@@ -51,13 +53,13 @@ public class CreateGroupMethodTest extends MadkitConcurrentTestCase {
 
 	@Test
 	public void givenEmptyOrg_whenSuccess_thenIsGroupReturnsTrue() {
-		runTest(new Agent() {
+		runTest(new DefaultTestAgent() {
 			@Override
-			protected void onActivation() {
-				threadAssertFalse(getOrganization().isGroup(COMMUNITY, GROUP));
-				threadAssertEquals(createGroup(COMMUNITY, GROUP), SUCCESS);
-				threadAssertTrue(getOrganization().isCommunity(COMMUNITY));
-				threadAssertTrue(getOrganization().isGroup(COMMUNITY, GROUP));
+			public void behaviorInActivate() {
+				assertThat(getOrganization().isGroup(COMMUNITY, GROUP)).isFalse();
+				assertThat(createGroup(COMMUNITY, GROUP)).isEqualTo(SUCCESS);
+				assertThat(getOrganization().isCommunity(COMMUNITY)).isTrue();
+				assertThat(getOrganization().isGroup(COMMUNITY, GROUP)).isTrue();
 				resume();
 			}
 		});
@@ -65,11 +67,11 @@ public class CreateGroupMethodTest extends MadkitConcurrentTestCase {
 
 	@Test
 	public void givenGroupExists_whenCreateGroup_thenALREADY_GROUPisReturned() {
-		runTest(new Agent() {
+		runTest(new DefaultTestAgent() {
 			@Override
-			protected void onActivation() {
-				threadAssertEquals(createGroup(COMMUNITY, GROUP), SUCCESS);
-				threadAssertEquals(createGroup(COMMUNITY, GROUP), ALREADY_GROUP);
+			public void behaviorInActivate() {
+				assertThat(createGroup(COMMUNITY, GROUP)).isEqualTo(SUCCESS).as("First group creation should succeed");
+				assertThat(createGroup(COMMUNITY, GROUP)).isEqualTo(ALREADY_GROUP);
 				resume();
 			}
 		});

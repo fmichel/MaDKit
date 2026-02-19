@@ -35,6 +35,8 @@
  *******************************************************************************/
 package madkit.kernel;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.testng.annotations.Test;
 
 import madkit.test.agents.BugInActivateAgent;
@@ -43,21 +45,22 @@ import madkit.test.agents.BugInLiveAgent;
 import madkit.test.agents.BugInLiveAndEndAgent;
 import madkit.test.agents.ThreadedTestAgent;
 
-/**
- *
- *
- */
 public class AgentLifeCycleConcurrentTest extends MadkitConcurrentTestCase {
 
 	@Test
 	public void givenBugInActivateAgent_whenLaunchAgent_thenReturnCrash() {
-		runTest(new Agent() {
+		runTest(new DefaultTestAgent() {
 			@Override
-			protected void onActivation() {
-				GenericTestAgent a = new BugInActivateAgent();
-				threadAssertEquals(launchAgent(a), ReturnCode.AGENT_CRASH);
+			public void behaviorInActivate() {
+				DefaultTestAgent a = new BugInActivateAgent() {
+					@Override
+					protected void onActivation() {
+						behaviorInActivate();
+					}
+				};
+				assertThat(launchAgent(a)).as("launchAgent return code").isEqualTo(ReturnCode.AGENT_CRASH);
 				checkTermination(a);
-				threadAssertFalse(a.didPassThroughEnd());
+				assertThat(a.didPassThroughEnd()).as("agent did not pass through end").isFalse();
 				resume();
 			}
 		});
@@ -65,13 +68,13 @@ public class AgentLifeCycleConcurrentTest extends MadkitConcurrentTestCase {
 
 	@Test
 	public void givenBugInLiveAgent_whenLaunchAgent_thenTerminate() {
-		runTest(new Agent() {
+		runTest(new DefaultTestAgent() {
 			@Override
-			protected void onActivation() {
-				GenericTestAgent a = new BugInLiveAgent();
-				threadAssertEquals(launchAgent(a), ReturnCode.SUCCESS);
+			public void behaviorInActivate() {
+				DefaultTestAgent a = new BugInLiveAgent();
+				assertThat(launchAgent(a)).as("launchAgent return code").isEqualTo(ReturnCode.SUCCESS);
 				awaitTermination(a, 1000);
-				threadAssertTrue(a.didPassThroughEnd());
+				assertThat(a.didPassThroughEnd()).as("agent passed through end").isTrue();
 				resume();
 			}
 		});
@@ -79,13 +82,13 @@ public class AgentLifeCycleConcurrentTest extends MadkitConcurrentTestCase {
 
 	@Test
 	public void givenBugInLiveAndEndAgent_whenLaunchAgent_thenTerminate() {
-		runTest(new Agent() {
+		runTest(new DefaultTestAgent() {
 			@Override
-			protected void onActivation() {
-				GenericTestAgent a = new BugInLiveAndEndAgent();
-				threadAssertEquals(launchAgent(a), ReturnCode.SUCCESS);
+			public void behaviorInActivate() {
+				DefaultTestAgent a = new BugInLiveAndEndAgent();
+				assertThat(launchAgent(a)).as("launchAgent return code").isEqualTo(ReturnCode.SUCCESS);
 				awaitTermination(a, 1000);
-				threadAssertTrue(a.didPassThroughEnd());
+				assertThat(a.didPassThroughEnd()).as("agent passed through end").isTrue();
 				resume();
 			}
 		});
@@ -93,13 +96,13 @@ public class AgentLifeCycleConcurrentTest extends MadkitConcurrentTestCase {
 
 	@Test
 	public void givenBugInEndThreadedAgent_whenLaunchAgent_thenTerminate() {
-		runTest(new Agent() {
+		runTest(new DefaultTestAgent() {
 			@Override
-			protected void onActivation() {
-				GenericTestAgent a = new BugInEndThreadedAgent();
-				threadAssertEquals(launchAgent(a), ReturnCode.SUCCESS);
+			public void behaviorInActivate() {
+				DefaultTestAgent a = new BugInEndThreadedAgent();
+				assertThat(launchAgent(a)).as("launchAgent return code").isEqualTo(ReturnCode.SUCCESS);
 				awaitTermination(a, 1000);
-				threadAssertTrue(a.didPassThroughEnd());
+				assertThat(a.didPassThroughEnd()).as("agent passed through end").isTrue();
 				resume();
 			}
 		});
@@ -107,13 +110,13 @@ public class AgentLifeCycleConcurrentTest extends MadkitConcurrentTestCase {
 
 	@Test
 	public void givenThreadedTestAgent_whenLaunchAgent_thenTerminate() {
-		runTest(new Agent() {
+		runTest(new DefaultTestAgent() {
 			@Override
-			protected void onActivation() {
-				GenericTestAgent a = new ThreadedTestAgent();
-				threadAssertEquals(launchAgent(a), ReturnCode.SUCCESS);
+			public void behaviorInActivate() {
+				DefaultTestAgent a = new ThreadedTestAgent();
+				assertThat(launchAgent(a)).as("launchAgent return code").isEqualTo(ReturnCode.SUCCESS);
 				awaitTermination(a, 1000);
-				threadAssertTrue(a.didPassThroughEnd());
+				assertThat(a.didPassThroughEnd()).as("agent passed through end").isTrue();
 				resume();
 			}
 		});
@@ -121,13 +124,13 @@ public class AgentLifeCycleConcurrentTest extends MadkitConcurrentTestCase {
 
 	@Test
 	public void givenGenericTestAgent_whenLaunchAgent_thenNominal() {
-		runTest(new Agent() {
+		runTest(new DefaultTestAgent() {
 			@Override
-			protected void onActivation() {
-				GenericTestAgent a = new GenericTestAgent();
-				threadAssertEquals(launchAgent(a), ReturnCode.SUCCESS);
-				threadAssertFalse(a.didPassThroughEnd());
-				threadAssertTrue(a.alive.get());
+			public void behaviorInActivate() {
+				DefaultTestAgent a = new DefaultTestAgent();
+				assertThat(launchAgent(a)).as("launchAgent return code").isEqualTo(ReturnCode.SUCCESS);
+				assertThat(a.didPassThroughEnd()).as("agent did not pass through end").isFalse();
+				assertThat(a.alive.get()).as("agent is alive").isTrue();
 				resume();
 			}
 		});

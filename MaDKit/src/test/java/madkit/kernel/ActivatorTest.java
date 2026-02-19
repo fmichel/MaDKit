@@ -36,14 +36,14 @@ public class ActivatorTest {
 
 	@Test
 	public void givenGenericAgent_whenNoArgs_thenExecuteBehavior_shouldWorks() {
-		GenericTestAgent genericTestAgent = new GenericTestAgent();
+		DefaultTestAgent genericTestAgent = new DefaultTestAgent();
 		Activator.executeBehaviorOf(genericTestAgent, "privateMethod");
 		assertThat(genericTestAgent.isOneMethodHasBeenActivated()).isTrue();
 	}
 
 	@Test
 	public void givenGenericAgent_whenArgs_thenExecuteBehavior_shouldWorks() {
-		GenericTestAgent genericTestAgent = new GenericTestAgent();
+		DefaultTestAgent genericTestAgent = new DefaultTestAgent();
 		Activator.executeBehaviorOf(genericTestAgent, "privateMethodWithPrimitiveArgs", "hello", 1);
 		assertThat(genericTestAgent.isOneMethodHasBeenActivated()).isTrue();
 	}

@@ -1,10 +1,6 @@
 package madkit.test.agents;
 
-import madkit.test.agents.behaviors.LiveForever;
+import madkit.test.agents.behaviors.LiveForeverBehavior;
 
-/**
- *
- *
- */
-public class ThreadedAgentForeverInLive extends ThreadedTestAgent implements LiveForever {
+public class ThreadedAgentForeverInLive extends ThreadedTestAgent implements LiveForeverBehavior {
 }

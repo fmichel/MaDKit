@@ -4,22 +4,22 @@ import java.lang.reflect.InvocationTargetException;
 
 import madkit.kernel.Message;
 import madkit.test.agents.ThreadedTestAgent;
-import madkit.test.agents.behaviors.ActivateCGR;
-import madkit.test.agents.behaviors.LiveReplier;
+import madkit.test.agents.behaviors.ActivateCGRBehavior;
+import madkit.test.agents.behaviors.OnLiveReplierBehavior;
 
 /**
  *
  *
  */
-public class ForEverReplierAgent extends ThreadedTestAgent implements ActivateCGR, LiveReplier {
+public class ForEverReplierAgent extends ThreadedTestAgent implements ActivateCGRBehavior, OnLiveReplierBehavior {
 
-	private Class<? extends Message> msgType;
+	private Class<?> msgType;
 
 	/**
 	 * @param msgType the class of the message to reply to
 	 * 
 	 */
-	public ForEverReplierAgent(Class<? extends Message> msgType) {
+	public ForEverReplierAgent(Class<? extends madkit.kernel.Message> msgType) {
 		this.msgType = msgType;
 	}
 
@@ -27,18 +27,20 @@ public class ForEverReplierAgent extends ThreadedTestAgent implements ActivateCG
 	 * 
 	 */
 	public ForEverReplierAgent() {
-		this(Message.class);
+		this.msgType = madkit.kernel.Message.class;
 	}
 
 	@Override
-	public Message createNewMessage() {
+	public void waitMessageAndReply() {
+		Message waitNextMessage = waitNextMessage();
+		sleep(100);
 		try {
-			return msgType.getConstructor().newInstance();
+			Message reply = (Message) msgType.getConstructor().newInstance();
+			reply(reply, waitNextMessage);
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-				| NoSuchMethodException | SecurityException e) {
+				| NoSuchMethodException e) {
 			e.printStackTrace();
 		}
-		return null;
 	}
 
 }

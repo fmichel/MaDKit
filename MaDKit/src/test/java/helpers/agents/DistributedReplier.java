@@ -5,10 +5,11 @@ import java.util.logging.Level;
 
 import madkit.kernel.Message;
 import madkit.test.agents.ThreadedTestAgent;
-import madkit.test.agents.behaviors.ActivateDistributedCGR;
-import madkit.test.agents.behaviors.LiveReplier;
+import madkit.test.agents.behaviors.ActivateDistributedCGRBehavior;
+import madkit.test.agents.behaviors.OnLiveReplierBehavior;
 
-public class DistributedReplier extends ThreadedTestAgent implements ActivateDistributedCGR, LiveReplier {
+public class DistributedReplier extends ThreadedTestAgent
+		implements ActivateDistributedCGRBehavior, OnLiveReplierBehavior {
 
 	private Class<? extends Message> msgType;
 
@@ -24,11 +25,6 @@ public class DistributedReplier extends ThreadedTestAgent implements ActivateDis
 	protected void onActivation() {
 		super.onActivation();
 		getLogger().setLevel(Level.ALL);
-	}
-
-	@Override
-	protected void onEnd() {
-		super.onEnd();
 	}
 
 	/**

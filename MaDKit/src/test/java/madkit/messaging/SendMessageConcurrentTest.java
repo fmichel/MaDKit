@@ -35,6 +35,8 @@
  *******************************************************************************/
 package madkit.messaging;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.testng.annotations.Test;
 
 import static madkit.kernel.Agent.ReturnCode.INVALID_AGENT_ADDRESS;
@@ -44,11 +46,11 @@ import static madkit.kernel.Agent.ReturnCode.ROLE_NOT_HANDLED;
 import static madkit.kernel.Agent.ReturnCode.SUCCESS;
 
 import madkit.agr.SystemRoles;
-import madkit.kernel.Agent;
 import madkit.kernel.AgentAddress;
+import madkit.kernel.DefaultTestAgent;
 import madkit.kernel.MadkitConcurrentTestCase;
 import madkit.kernel.Message;
-import madkit.test.agents.RequestRoleAgent;
+import madkit.test.agents.CGRAgent;
 
 /**
  *
@@ -60,27 +62,27 @@ public class SendMessageConcurrentTest extends MadkitConcurrentTestCase {
 
 	@Test
 	public void givenAgent_whenReturnSuccess_thenSuccess() {
-		runTest(new Agent() {
+		runTest(new DefaultTestAgent() {
 			@Override
-			protected void onActivation() {
-				RequestRoleAgent target = new RequestRoleAgent();
-				threadAssertEquals(SUCCESS, launchAgent(target));
-				threadAssertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
+			public void behaviorInActivate() {
+				CGRAgent target = new CGRAgent();
+				assertThat(launchAgent(target)).as("launchAgent return code").isEqualTo(SUCCESS);
+				assertThat(requestRole(COMMUNITY, GROUP, ROLE)).as("requestRole return code").isEqualTo(SUCCESS);
 
 				AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, ROLE);
-				threadAssertNotNull(aa);
+				assertThat(aa).as("agent address").isNotNull();
 
 				// Without role
-				threadAssertEquals(SUCCESS, sendWithRole(new Message(), aa, null));
+				assertThat(sendWithRole(new Message(), aa, null)).as("sendWithRole without role").isEqualTo(SUCCESS);
 				Message m = target.nextMessage();
-				threadAssertNotNull(m);
-				threadAssertEquals(ROLE, m.getReceiver().getRole());
+				assertThat(m).as("received message").isNotNull();
+				assertThat(m.getReceiver().getRole()).as("receiver role").isEqualTo(ROLE);
 
 				// With role
-				threadAssertEquals(SUCCESS, sendWithRole(new Message(), aa, ROLE));
+				assertThat(sendWithRole(new Message(), aa, ROLE)).as("sendWithRole with role").isEqualTo(SUCCESS);
 				m = target.nextMessage();
-				threadAssertNotNull(m);
-				threadAssertEquals(ROLE, m.getReceiver().getRole());
+				assertThat(m).as("received message after with-role").isNotNull();
+				assertThat(m.getReceiver().getRole()).as("receiver role after with-role").isEqualTo(ROLE);
 				resume();
 			}
 		});
@@ -88,29 +90,31 @@ public class SendMessageConcurrentTest extends MadkitConcurrentTestCase {
 
 	@Test
 	public void givenAgent_whenReturnSuccessOnCandidateRole_thenSuccess() {
-		runTest(new Agent() {
+		runTest(new DefaultTestAgent() {
 			@Override
-			protected void onActivation() {
-				RequestRoleAgent target = new RequestRoleAgent();
-				threadAssertEquals(SUCCESS, launchAgent(target));
+			public void behaviorInActivate() {
+				CGRAgent target = new CGRAgent();
+				assertThat(launchAgent(target)).as("launchAgent return code").isEqualTo(SUCCESS);
 
 				// Without role
 				AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, SystemRoles.GROUP_MANAGER);
-				threadAssertNotNull(aa);
-				threadAssertEquals(SUCCESS, sendWithRole(new Message(), aa, null));
+				assertThat(aa).as("agent address for group manager").isNotNull();
+				assertThat(sendWithRole(new Message(), aa, null)).as("sendWithRole without role to manager")
+						.isEqualTo(SUCCESS);
 				Message m = target.nextMessage();
-				threadAssertNotNull(m);
-				threadAssertEquals(SystemRoles.GROUP_MANAGER, m.getReceiver().getRole());
-				threadAssertEquals(SystemRoles.GROUP_CANDIDATE, m.getSender().getRole());
+				assertThat(m).as("received message").isNotNull();
+				assertThat(m.getReceiver().getRole()).as("receiver role").isEqualTo(SystemRoles.GROUP_MANAGER);
+				assertThat(m.getSender().getRole()).as("sender role").isEqualTo(SystemRoles.GROUP_CANDIDATE);
 
 				// With role
 				aa = getAgentWithRole(COMMUNITY, GROUP, SystemRoles.GROUP_MANAGER);
-				threadAssertNotNull(aa);
-				threadAssertEquals(SUCCESS, sendWithRole(new Message(), aa, SystemRoles.GROUP_CANDIDATE));
+				assertThat(aa).as("agent address for group manager (2)").isNotNull();
+				assertThat(sendWithRole(new Message(), aa, SystemRoles.GROUP_CANDIDATE))
+						.as("sendWithRole with candidate role").isEqualTo(SUCCESS);
 				m = target.nextMessage();
-				threadAssertNotNull(m);
-				threadAssertEquals(SystemRoles.GROUP_MANAGER, m.getReceiver().getRole());
-				threadAssertEquals(SystemRoles.GROUP_CANDIDATE, m.getSender().getRole());
+				assertThat(m).as("received message after with-role").isNotNull();
+				assertThat(m.getReceiver().getRole()).as("receiver role").isEqualTo(SystemRoles.GROUP_MANAGER);
+				assertThat(m.getSender().getRole()).as("sender role").isEqualTo(SystemRoles.GROUP_CANDIDATE);
 				resume();
 			}
 		});
@@ -118,18 +122,19 @@ public class SendMessageConcurrentTest extends MadkitConcurrentTestCase {
 
 	@Test
 	public void givenAgent_whenReturnInvalidAA_thenInvalidAgentAddress() {
-		runTest(new Agent() {
+		runTest(new DefaultTestAgent() {
 			@Override
-			protected void onActivation() {
-				RequestRoleAgent target = new RequestRoleAgent();
-				threadAssertEquals(SUCCESS, launchAgent(target));
-				threadAssertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
+			public void behaviorInActivate() {
+				CGRAgent target = new CGRAgent();
+				assertThat(launchAgent(target)).as("launchAgent return code").isEqualTo(SUCCESS);
+				assertThat(requestRole(COMMUNITY, GROUP, ROLE)).as("requestRole return code").isEqualTo(SUCCESS);
 				AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, ROLE);
-				threadAssertEquals(SUCCESS, target.leaveRole(COMMUNITY, GROUP, ROLE));
-				threadAssertEquals(INVALID_AGENT_ADDRESS, send(new Message(), aa));
+				assertThat(target.leaveRole(COMMUNITY, GROUP, ROLE)).as("target leave role").isEqualTo(SUCCESS);
+				assertThat(send(new Message(), aa)).as("send to invalid aa").isEqualTo(INVALID_AGENT_ADDRESS);
 
 				// With role
-				threadAssertEquals(INVALID_AGENT_ADDRESS, sendWithRole(new Message(), aa, ROLE));
+				assertThat(sendWithRole(new Message(), aa, ROLE)).as("sendWithRole to invalid aa")
+						.isEqualTo(INVALID_AGENT_ADDRESS);
 				resume();
 			}
 		});
@@ -137,16 +142,18 @@ public class SendMessageConcurrentTest extends MadkitConcurrentTestCase {
 
 	@Test
 	public void givenAgent_whenReturnNotInGroup_thenNotInGroup() {
-		runTest(new Agent() {
+		runTest(new DefaultTestAgent() {
 			@Override
-			protected void onActivation() {
-				RequestRoleAgent target = new RequestRoleAgent();
-				threadAssertEquals(SUCCESS, launchAgent(target));
+			public void behaviorInActivate() {
+				CGRAgent target = new CGRAgent();
+				assertThat(launchAgent(target)).as("launchAgent return code").isEqualTo(SUCCESS);
 				AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, ROLE);
-				threadAssertEquals(NOT_IN_GROUP, sendWithRole(new Message(), aa, ROLE));
-				threadAssertEquals(SUCCESS, target.leaveRole(COMMUNITY, GROUP, ROLE));
-				threadAssertEquals(INVALID_AGENT_ADDRESS, send(new Message(), aa));
-				threadAssertEquals(NOT_ROLE, send(new Message(), COMMUNITY, GROUP, ROLE));
+				assertThat(sendWithRole(new Message(), aa, ROLE)).as("sendWithRole when not in group")
+						.isEqualTo(NOT_IN_GROUP);
+				assertThat(target.leaveRole(COMMUNITY, GROUP, ROLE)).as("target leave role").isEqualTo(SUCCESS);
+				assertThat(send(new Message(), aa)).as("send after leave role").isEqualTo(INVALID_AGENT_ADDRESS);
+				assertThat(send(new Message(), COMMUNITY, GROUP, ROLE)).as("send to role when not in group")
+						.isEqualTo(NOT_ROLE);
 				resume();
 
 				// With role
@@ -156,15 +163,16 @@ public class SendMessageConcurrentTest extends MadkitConcurrentTestCase {
 
 	@Test
 	public void givenAgent_whenReturnRoleNotHandled_thenRoleNotHandled() {
-		runTest(new Agent() {
+		runTest(new DefaultTestAgent() {
 			@Override
-			protected void onActivation() {
-				RequestRoleAgent target = new RequestRoleAgent();
-				threadAssertEquals(SUCCESS, launchAgent(target));
-				threadAssertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
+			public void behaviorInActivate() {
+				CGRAgent target = new CGRAgent();
+				assertThat(launchAgent(target)).as("launchAgent return code").isEqualTo(SUCCESS);
+				assertThat(requestRole(COMMUNITY, GROUP, ROLE)).as("requestRole return code").isEqualTo(SUCCESS);
 
 				AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, ROLE);
-				threadAssertEquals(ROLE_NOT_HANDLED, sendWithRole(new Message(), aa, cgrDontExist()));
+				assertThat(sendWithRole(new Message(), aa, cgrDontExist())).as("sendWithRole role not handled")
+						.isEqualTo(ROLE_NOT_HANDLED);
 				resume();
 
 			}
@@ -173,9 +181,9 @@ public class SendMessageConcurrentTest extends MadkitConcurrentTestCase {
 
 	@Test
 	public void givenAgent_whenNullArgs_thenHandleNullPointerException() {
-		runTest(new Agent() {
+		runTest(new DefaultTestAgent() {
 			@Override
-			protected void onActivation() {
+			public void behaviorInActivate() {
 				try {
 					send(null, null);
 					noExceptionFailure();
@@ -189,9 +197,9 @@ public class SendMessageConcurrentTest extends MadkitConcurrentTestCase {
 
 	@Test
 	public void givenAgent_whenNullAA_thenHandleNullPointerException() {
-		runTest(new Agent() {
+		runTest(new DefaultTestAgent() {
 			@Override
-			protected void onActivation() {
+			public void behaviorInActivate() {
 				try {
 					send(new Message(), null);
 					noExceptionFailure();
@@ -205,12 +213,12 @@ public class SendMessageConcurrentTest extends MadkitConcurrentTestCase {
 
 	@Test
 	public void givenAgent_whenNullMessage_thenHandleNullPointerException() {
-		runTest(new Agent() {
+		runTest(new DefaultTestAgent() {
 			@Override
-			protected void onActivation() {
-				RequestRoleAgent target = new RequestRoleAgent();
-				threadAssertEquals(SUCCESS, launchAgent(target));
-				threadAssertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
+			public void behaviorInActivate() {
+				CGRAgent target = new CGRAgent();
+				assertThat(launchAgent(target)).as("launchAgent return code").isEqualTo(SUCCESS);
+				assertThat(requestRole(COMMUNITY, GROUP, ROLE)).as("requestRole return code").isEqualTo(SUCCESS);
 				AgentAddress aa = getAgentWithRole(COMMUNITY, GROUP, ROLE);
 				try {
 					send(null, aa);

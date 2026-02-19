@@ -35,13 +35,15 @@
  *******************************************************************************/
 package madkit.simulation;
 
-import static madkit.kernel.Agent.ReturnCode.SUCCESS;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.NoSuchElementException;
 
 import org.testng.annotations.Test;
 
-import madkit.kernel.MadkitUnitTestCase;
+import static madkit.kernel.Agent.ReturnCode.SUCCESS;
+
+import madkit.kernel.MadkitConcurrentTestCase;
 import madkit.kernel.Watcher;
 import madkit.test.agents.SimulatedAgent;
 import madkit.test.agents.SimulatedAgentBis;
@@ -49,37 +51,38 @@ import madkit.test.agents.SimulatedAgentBis;
 /**
  * The Class PropertyProbeTest.
  */
-public class PropertyProbeTest extends MadkitUnitTestCase {
+public class PropertyProbeTest extends MadkitConcurrentTestCase {
 
 	/**
 	 * Primitive type probing.
 	 */
 	@Test
 	public void primitiveTypeProbing() {
-		launchSimuAgentTest(new Watcher() {
+		runSimuTest(new Watcher() {
 
 			@Override
 			protected void onActivation() {
 				SimulatedAgent agent;
-				threadAssertEquals(SUCCESS, launchAgent(agent = new SimulatedAgent()));
+				assertThat(launchAgent(agent = new SimulatedAgent())).as("launch agent").isEqualTo(SUCCESS);
 				PropertyProbe<Integer> fp = new PropertyProbe<>(GROUP, ROLE, "privatePrimitiveField");
 				addProbe(fp);
-				threadAssertTrue(1 == fp.getPropertyValue(agent));
+				assertThat(fp.getPropertyValue(agent)).as("privatePrimitiveField initial").isEqualTo(1);
 				PropertyProbe<Double> fp2 = new PropertyProbe<>(GROUP, ROLE, "publicPrimitiveField");
 				addProbe(fp2);
-				threadAssertTrue(2 == fp2.getPropertyValue(agent));
+				assertThat(fp2.getPropertyValue(agent)).as("publicPrimitiveField initial").isEqualTo(2);
 				agent.setPrivatePrimitiveField(10);
-				threadAssertTrue(10 == fp.getPropertyValue(agent));
-				threadAssertEquals(SUCCESS, launchAgent(agent = new SimulatedAgent() {
+				assertThat(fp.getPropertyValue(agent)).as("privatePrimitiveField after set").isEqualTo(10);
+				assertThat(launchAgent(agent = new SimulatedAgent() {
 
 					@Override
 					public void setPrivatePrimitiveField(int privatePrimitiveField) {
 						super.setPrivatePrimitiveField(100);
 					}
-				}));
+				})).as("launch agent override").isEqualTo(SUCCESS);
 				agent.setPrivatePrimitiveField(10);
-				threadAssertEquals(2, fp.size());
-				threadAssertTrue(100 == fp.getPropertyValue(agent));
+				assertThat(fp.size()).as("probe size").isEqualTo(2);
+				assertThat(fp.getPropertyValue(agent)).as("privatePrimitiveField overridden").isEqualTo(100);
+				resume();
 			}
 		});
 	}
@@ -89,7 +92,7 @@ public class PropertyProbeTest extends MadkitUnitTestCase {
 	 */
 	@Test
 	public void multiTypeProbing() {
-		launchSimuAgentTest(new Watcher() {
+		runSimuTest(new Watcher() {
 
 			@Override
 			protected void onActivation() {
@@ -99,16 +102,16 @@ public class PropertyProbeTest extends MadkitUnitTestCase {
 				launchAgent(agentBis = new SimulatedAgentBis());
 				PropertyProbe<Integer> fp = new PropertyProbe<>(GROUP, ROLE, "privatePrimitiveField");
 				addProbe(fp);
-				threadAssertTrue(1 == fp.getPropertyValue(agent));
-				threadAssertTrue(1 == fp.getPropertyValue(agentBis));
+				assertThat(fp.getPropertyValue(agent)).as("privatePrimitiveField agent").isEqualTo(1);
+				assertThat(fp.getPropertyValue(agentBis)).as("privatePrimitiveField agentBis").isEqualTo(1);
 				PropertyProbe<Double> fp2 = new PropertyProbe<>(GROUP, ROLE, "publicPrimitiveField");
 				addProbe(fp2);
 				double i = fp2.getPropertyValue(agent);
 				System.err.println(i);
-				threadAssertTrue(2 == fp2.getPropertyValue(agent));
+				assertThat(fp2.getPropertyValue(agent)).as("publicPrimitiveField").isEqualTo(2);
 				agent.setPrivatePrimitiveField(10);
-				threadAssertTrue(10 == fp.getPropertyValue(agent));
-				threadAssertEquals(SUCCESS, launchAgent(agent = new SimulatedAgent() {
+				assertThat(fp.getPropertyValue(agent)).as("privatePrimitiveField after set").isEqualTo(10);
+				assertThat(launchAgent(agent = new SimulatedAgent() {
 					@Override
 					protected void onActivation() {
 						super.onActivation();
@@ -119,10 +122,11 @@ public class PropertyProbeTest extends MadkitUnitTestCase {
 					public void setPrivatePrimitiveField(int privatePrimitiveField) {
 						super.setPrivatePrimitiveField(100);
 					}
-				}));
+				})).as("launch agent with override").isEqualTo(SUCCESS);
 				agent.setPrivatePrimitiveField(10);
-				threadAssertEquals(2, fp.size());
-				threadAssertTrue(100 == fp.getPropertyValue(agent));
+				assertThat(fp.size()).as("probe size").isEqualTo(2);
+				assertThat(fp.getPropertyValue(agent)).as("privatePrimitiveField overridden").isEqualTo(100);
+				resume();
 			}
 		});
 	}
@@ -132,12 +136,12 @@ public class PropertyProbeTest extends MadkitUnitTestCase {
 	 */
 	@Test
 	public void wrongTypeProbing() {
-		launchSimuAgentTest(new Watcher() {
+		runSimuTest(new Watcher() {
 
 			@Override
 			protected void onActivation() {
 				SimulatedAgent agent;
-				threadAssertEquals(SUCCESS, launchAgent(agent = new SimulatedAgent()));
+				assertThat(launchAgent(agent = new SimulatedAgent())).as("launch agent").isEqualTo(SUCCESS);
 				PropertyProbe<String> fp = new PropertyProbe<>(GROUP, ROLE, "privatePrimitiveField");
 				addProbe(fp);
 				try {
@@ -146,6 +150,7 @@ public class PropertyProbeTest extends MadkitUnitTestCase {
 				} catch (ClassCastException e) {
 					e.printStackTrace();
 				}
+				resume();
 			}
 		});
 	}
@@ -156,7 +161,7 @@ public class PropertyProbeTest extends MadkitUnitTestCase {
 	@SuppressWarnings("unused")
 	@Test
 	public void wrongSourceProbing() {
-		launchSimuAgentTest(new Watcher() {
+		runSimuTest(new Watcher() {
 
 			@Override
 			protected void onActivation() {
@@ -173,6 +178,7 @@ public class PropertyProbeTest extends MadkitUnitTestCase {
 				} catch (ClassCastException e) {
 					e.printStackTrace();
 				}
+				resume();
 			}
 		});
 	}
@@ -182,12 +188,12 @@ public class PropertyProbeTest extends MadkitUnitTestCase {
 	 */
 	@Test
 	public void wrongTypeSetting() {
-		launchSimuAgentTest(new Watcher() {
+		runSimuTest(new Watcher() {
 
 			@Override
 			protected void onActivation() {
 				SimulatedAgent agent;
-				threadAssertEquals(SUCCESS, launchAgent(agent = new SimulatedAgent()));
+				assertThat(launchAgent(agent = new SimulatedAgent())).as("launch agent").isEqualTo(SUCCESS);
 				PropertyProbe<Object> fp = new PropertyProbe<>(GROUP, ROLE, "privatePrimitiveField");
 				addProbe(fp);
 				try {
@@ -196,6 +202,7 @@ public class PropertyProbeTest extends MadkitUnitTestCase {
 				} catch (SimuException e) {
 					e.printStackTrace();
 				}
+				resume();
 			}
 		});
 	}
@@ -205,7 +212,7 @@ public class PropertyProbeTest extends MadkitUnitTestCase {
 	 */
 	@Test
 	public void noSuchFieldProbing() {
-		launchSimuAgentTest(new Watcher() {
+		runSimuTest(new Watcher() {
 			@Override
 			protected void onActivation() {
 				launchAgent(new SimuAgent() {
@@ -224,6 +231,7 @@ public class PropertyProbeTest extends MadkitUnitTestCase {
 				} catch (SimuException e) {
 					e.printStackTrace();
 				}
+				resume();
 			}
 		});
 	}
@@ -233,19 +241,20 @@ public class PropertyProbeTest extends MadkitUnitTestCase {
 	 */
 	@Test
 	public void testGetMax() {
-		launchSimuAgentTest(new Watcher() {
+		runSimuTest(new Watcher() {
 
 			@Override
 			protected void onActivation() {
 				for (int i = 0; i < 10; i++) {
 					// launchDefaultAgent(this);
 					SimulatedAgent agent;
-					threadAssertEquals(SUCCESS, launchAgent(agent = new SimulatedAgent()));
+					assertThat(launchAgent(agent = new SimulatedAgent())).as("launch agent").isEqualTo(SUCCESS);
 					agent.publicPrimitiveField = i;
 				}
-				PropertyProbe<String> fp = new PropertyProbe<>(GROUP, ROLE, "publicPrimitiveField");
+				PropertyProbe<Double> fp = new PropertyProbe<>(GROUP, ROLE, "publicPrimitiveField");
 				addProbe(fp);
-				threadAssertEquals(9d, fp.getMax());
+				assertThat(fp.getMax()).as("max value").isEqualTo(9d);
+				resume();
 			}
 		});
 	}
@@ -255,43 +264,39 @@ public class PropertyProbeTest extends MadkitUnitTestCase {
 	 */
 	@Test
 	public void testGetMin() {
-		launchSimuAgentTest(new Watcher() {
+		runSimuTest(new Watcher() {
 
 			@Override
 			protected void onActivation() {
 				for (int i = 0; i < 10; i++) {
 					// launchDefaultAgent(this);
 					SimulatedAgent agent;
-					threadAssertEquals(SUCCESS, launchAgent(agent = new SimulatedAgent()));
+					assertThat(launchAgent(agent = new SimulatedAgent())).as("launch agent").isEqualTo(SUCCESS);
 					agent.publicPrimitiveField = i;
 				}
-				PropertyProbe<String> fp = new PropertyProbe<>(GROUP, ROLE, "publicPrimitiveField");
+				PropertyProbe<Double> fp = new PropertyProbe<>(GROUP, ROLE, "publicPrimitiveField");
 				Watcher s = new Watcher() {
 					@Override
 					protected void onActivation() {
 						super.onActivation();
 					}
 				};
-				threadAssertEquals(SUCCESS, launchAgent(s));
+				assertThat(launchAgent(s)).as("launch watcher").isEqualTo(SUCCESS);
 				s.addProbe(fp);
-				threadAssertEquals(0d, fp.getMin());
+				assertThat(fp.getMin()).as("min value").isEqualTo(0d);
+				resume();
 			}
 		});
 	}
 
-	/**
-	 * Gets the average test.
-	 *
-	 * @return the average test
-	 */
 	@Test
 	public void getAverageTest() {
-		launchSimuAgentTest(new Watcher() {
+		runSimuTest(new Watcher() {
 			@Override
 			protected void onActivation() {
 				for (int i = 0; i < 12; i++) {
 					SimulatedAgent agent;
-					threadAssertEquals(SUCCESS, launchAgent(agent = new SimulatedAgent()));
+					assertThat(launchAgent(agent = new SimulatedAgent())).as("launch agent").isEqualTo(SUCCESS);
 					agent.publicPrimitiveField = i;
 					agent.setPrivatePrimitiveField(i * 2);
 				}
@@ -299,8 +304,9 @@ public class PropertyProbeTest extends MadkitUnitTestCase {
 				PropertyProbe<String> fpInt = new PropertyProbe<>(GROUP, ROLE, "privatePrimitiveField");
 				addProbe(fp);
 				addProbe(fpInt);
-				threadAssertEquals(5.5d, fp.getAverage());
-				threadAssertEquals(11d, fpInt.getAverage());
+				assertThat(fp.getAverage()).as("average public").isEqualTo(5.5d);
+				assertThat(fpInt.getAverage()).as("average private").isEqualTo(11d);
+				resume();
 			}
 		});
 	}
@@ -310,7 +316,7 @@ public class PropertyProbeTest extends MadkitUnitTestCase {
 	 */
 	@Test
 	public void givenEmptyProbe_whenGetAverage_thenThrowNoSuchElementException() {
-		launchSimuAgentTest(new Watcher() {
+		runSimuTest(new Watcher() {
 			@Override
 			protected void onActivation() {
 				PropertyProbe<String> fp = new PropertyProbe<>(GROUP, ROLE, "publicPrimitiveField");
@@ -321,6 +327,7 @@ public class PropertyProbeTest extends MadkitUnitTestCase {
 				} catch (NoSuchElementException e) {
 					e.printStackTrace();
 				}
+				resume();
 			}
 		});
 	}
@@ -330,7 +337,7 @@ public class PropertyProbeTest extends MadkitUnitTestCase {
 	 */
 	@Test
 	public void givenEmptyProbe_whenGetMax_thenThrowNoSuchElementException() {
-		launchSimuAgentTest(new Watcher() {
+		runSimuTest(new Watcher() {
 			@Override
 			protected void onActivation() {
 				PropertyProbe<String> fp = new PropertyProbe<>(GROUP, ROLE, "publicPrimitiveField");
@@ -341,6 +348,7 @@ public class PropertyProbeTest extends MadkitUnitTestCase {
 				} catch (NoSuchElementException e) {
 					e.printStackTrace();
 				}
+				resume();
 			}
 		});
 	}
@@ -350,7 +358,7 @@ public class PropertyProbeTest extends MadkitUnitTestCase {
 	 */
 	@Test
 	public void givenNonNumberType_whenGetAverage_thenThrowClassCastException() {
-		launchSimuAgentTest(new Watcher() {
+		runSimuTest(new Watcher() {
 			@Override
 			protected void onActivation() {
 				launchAgent(new SimulatedAgent());
@@ -366,6 +374,7 @@ public class PropertyProbeTest extends MadkitUnitTestCase {
 				} catch (ClassCastException e) {
 					e.printStackTrace();
 				}
+				resume();
 			}
 		});
 	}
@@ -376,12 +385,12 @@ public class PropertyProbeTest extends MadkitUnitTestCase {
 	 */
 	@Test
 	public void getMinAndGetMaxnotComparable() {
-		launchSimuAgentTest(new Watcher() {
+		runSimuTest(new Watcher() {
 
 			@Override
 			protected void onActivation() {
 				// launchDefaultAgent(this);
-				threadAssertEquals(SUCCESS, launchAgent(new SimulatedAgent()));
+				assertThat(launchAgent(new SimulatedAgent())).as("launch agent").isEqualTo(SUCCESS);
 				PropertyProbe<String> fp = new PropertyProbe<>(GROUP, ROLE, "objectField");
 				addProbe(fp);
 				try {
@@ -402,6 +411,7 @@ public class PropertyProbeTest extends MadkitUnitTestCase {
 				} catch (ClassCastException e) {
 					e.printStackTrace();
 				}
+				resume();
 			}
 		});
 	}

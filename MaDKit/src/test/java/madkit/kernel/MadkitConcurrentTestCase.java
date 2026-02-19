@@ -36,6 +36,7 @@
 
 package madkit.kernel;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.testng.Assert.fail;
 
 import java.lang.reflect.Field;
@@ -123,13 +124,12 @@ public abstract class MadkitConcurrentTestCase extends ConcurrentTestCase {
 		return madkitArgs;
 	}
 
-	/**
-	 * Launches an agent and return without timeout
-	 * 
-	 * @param a the agent
-	 */
 	public void launchAgent(Agent a) {
-		kernelAgent.launchAgent(a, 0);
+		kernelAgent.launchAgent(a);
+	}
+
+	public void launchAgent(Agent a, int timeout) {
+		kernelAgent.launchAgent(a, timeout);
 	}
 
 	/**
@@ -138,7 +138,17 @@ public abstract class MadkitConcurrentTestCase extends ConcurrentTestCase {
 	 * @param initialAgent the agent to run the test with
 	 */
 	public void runTest(Agent initialAgent) {
-		launchAgent(initialAgent);
+		launchAgent(initialAgent, 0);
+		try {
+			await(10000);
+		} catch (TimeoutException | InterruptedException e) {
+			fail("TimeoutException / InterruptedException", e);
+		}
+	}
+
+	public void runTest(DefaultTestAgent initialAgent) {
+		initialAgent.setMadkitConcurrentTestCase(this);
+		launchAgent(initialAgent, 0);
 		try {
 			await(10000);
 		} catch (TimeoutException | InterruptedException e) {
@@ -148,25 +158,26 @@ public abstract class MadkitConcurrentTestCase extends ConcurrentTestCase {
 //		MadkitTestInstance.cleanUpInstances();
 	}
 
-	public void runTest(ConcurrentTestAgent initialAgent) {
-		initialAgent.setMadkitConcurrentTestCase(this);
-		launchAgent(initialAgent);
-		try {
-			await(10000);
-		} catch (TimeoutException | InterruptedException e) {
-			fail("TimeoutException / InterruptedException", e);
-		}
-//		madkit.exit();
-//		MadkitTestInstance.cleanUpInstances();
+	public void runSimuTest(SimuAgent sa) {
+		runTest(new EmptySimuLauncher() {
+			@Override
+			protected void onActivation() {
+				super.onActivation();
+				launchAgent(sa);
+			}
+		});
 	}
 
 	public void noExceptionFailure() {
-		threadFail("Exception not thrown");
+//		threadFail("Exception not thrown");
+		fail("Exception not thrown");
+		assertThat(true).as("Exception not thrown").isFalse();
 	}
 
 	protected void assertAgentIsTerminated(Agent a) {
 		System.err.println(a);
-		threadAssertEquals(((KernelAgent) kernelAgent).deadKernel, a.kernel);
+//		threadAssertEquals(((KernelAgent) kernelAgent).deadKernel, a.kernel);
+		assertThat(a.kernel).isEqualTo(((KernelAgent) kernelAgent).deadKernel);
 	}
 
 	public void runNetworkTest(Runnable r) {
@@ -182,16 +193,6 @@ public abstract class MadkitConcurrentTestCase extends ConcurrentTestCase {
 		System.err.println("---------------------------------");
 	}
 
-	public void runSimuTest(SimuAgent sa) {
-		runTest(new EmptySimuLauncher() {
-			@Override
-			protected void onActivation() {
-				super.onActivation();
-				launchAgent(sa);
-			}
-		});
-	}
-
 	static public void printMemoryUsage() {
 		// System.gc();
 		Long mem = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory());
@@ -199,8 +200,8 @@ public abstract class MadkitConcurrentTestCase extends ConcurrentTestCase {
 	}
 
 	public void checkTermination(Agent a) {
-		threadAssertFalse(a.alive.get());
-		threadAssertEquals(KernelAgent.deadKernel, a.kernel);
+		assertThat(a.alive.get()).isFalse();
+		assertThat(a.kernel).isEqualTo(KernelAgent.deadKernel);
 	}
 
 	public void awaitTermination(Agent a, long timeout) {
@@ -249,4 +250,8 @@ public abstract class MadkitConcurrentTestCase extends ConcurrentTestCase {
 		madkitArgs = newArgs;
 	}
 
+	@Override
+	public String toString() {
+		return "MadkitConcurrentTestCase [madkitArgs=" + String.join(" ", madkitArgs) + "]";
+	}
 }

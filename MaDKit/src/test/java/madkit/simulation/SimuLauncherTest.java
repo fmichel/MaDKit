@@ -4,15 +4,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.testng.annotations.Test;
 
-import madkit.kernel.MadkitUnitTestCase;
+import madkit.kernel.MadkitConcurrentTestCase;
 import madkit.simulation.scheduler.TickBasedScheduler;
 
-public class SimuLauncherTest extends MadkitUnitTestCase {
+public class SimuLauncherTest extends MadkitConcurrentTestCase {
 
 	@Test
 	public void givenSimuLauncher_whenInitialized_thenDefaultValuesAreCorrect() {
 		// Given: a new SimuLauncher instance
 		SimuLauncher simuLauncher = new SimuLauncher() {
+			@Override
 			protected void onLaunchSimulatedAgents() {
 			};
 		};

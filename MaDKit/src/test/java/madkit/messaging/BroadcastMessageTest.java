@@ -1,21 +1,22 @@
-
 package madkit.messaging;
 
-import static madkit.kernel.Agent.ReturnCode.NOT_IN_GROUP;
-import static madkit.kernel.Agent.ReturnCode.NO_RECIPIENT_FOUND;
-import static madkit.kernel.Agent.ReturnCode.ROLE_NOT_HANDLED;
-import static madkit.kernel.Agent.ReturnCode.SUCCESS;
-import static org.testng.Assert.assertNotSame;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collections;
 
 import org.testng.annotations.Test;
 
+import static madkit.kernel.Agent.ReturnCode.NOT_IN_GROUP;
+import static madkit.kernel.Agent.ReturnCode.NO_RECIPIENT_FOUND;
+import static madkit.kernel.Agent.ReturnCode.ROLE_NOT_HANDLED;
+import static madkit.kernel.Agent.ReturnCode.SUCCESS;
+
 import madkit.kernel.Agent;
-import madkit.kernel.MadkitUnitTestCase;
+import madkit.kernel.DefaultTestAgent;
+import madkit.kernel.MadkitConcurrentTestCase;
 import madkit.kernel.Message;
 import madkit.messages.StringMessage;
-import madkit.test.agents.RequestRoleAgent;
+import madkit.test.agents.CGRAgent;
 
 /**
  *
@@ -24,140 +25,140 @@ import madkit.test.agents.RequestRoleAgent;
  * 
  */
 
-public class BroadcastMessageTest extends MadkitUnitTestCase {
+public class BroadcastMessageTest extends MadkitConcurrentTestCase {
 
 	@Test
 	public void returnSuccess() {
-		launchTestedAgent(new Agent() {
-			protected void onActivation() {
-				final Agent target = new RequestRoleAgent();
-				final Agent target2 = new Agent() {
-					protected void onActivation() {
-						threadAssertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
+		runTest(new DefaultTestAgent() {
+			@Override
+			public void behaviorInActivate() {
+				final Agent target = new CGRAgent();
+				final DefaultTestAgent target2 = new DefaultTestAgent() {
+					@Override
+					public void behaviorInActivate() {
+						assertThat(requestRole(COMMUNITY, GROUP, ROLE)).as("request role in target2").isEqualTo(SUCCESS);
+						resume();
 					}
 				};
-				threadAssertEquals(SUCCESS, launchAgent(target));
-				threadAssertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
+				assertThat(launchAgent(target)).as("launchAgent return code").isEqualTo(SUCCESS);
+				assertThat(requestRole(COMMUNITY, GROUP, ROLE)).as("requestRole return code").isEqualTo(SUCCESS);
 
 				// Without role
 				getAgentsWithRole(COMMUNITY, GROUP, ROLE);
-				threadAssertEquals(SUCCESS, broadcast(new Message(), getAgentsWithRole(COMMUNITY, GROUP, ROLE)));
+				assertThat(broadcast(new Message(), getAgentsWithRole(COMMUNITY, GROUP, ROLE)))
+						.as("broadcast without role return code").isEqualTo(SUCCESS);
 				Message m = target.nextMessage();
-				threadAssertEquals(SUCCESS,
-						broadcast(new StringMessage("test"), getAgentsWithRole(COMMUNITY, GROUP, ROLE)));
-				threadAssertNotNull(target.nextMessage());
-				threadAssertEquals(ROLE, m.getReceiver().getRole());
+				assertThat(broadcast(new StringMessage("test"), getAgentsWithRole(COMMUNITY, GROUP, ROLE)))
+						.as("broadcast string message return code").isEqualTo(SUCCESS);
+				assertThat((Message) target.nextMessage()).as("target received message").isNotNull();
+				assertThat(m.getReceiver().getRole()).as("message receiver role").isEqualTo(ROLE);
 
 				// With role
-				threadAssertEquals(SUCCESS,
-						broadcastWithRole(new Message(), getAgentsWithRole(COMMUNITY, GROUP, ROLE), ROLE));
+				assertThat(broadcastWithRole(new Message(), getAgentsWithRole(COMMUNITY, GROUP, ROLE), ROLE))
+						.as("broadcastWithRole return code").isEqualTo(SUCCESS);
 				m = target.nextMessage();
-				threadAssertNotNull(m);
-				threadAssertEquals(ROLE, m.getReceiver().getRole());
+				assertThat(m).as("message after broadcastWithRole").isNotNull();
+				assertThat(m.getReceiver().getRole()).as("message receiver role for with-role").isEqualTo(ROLE);
 
 				// verifying cloning
-				launchAgent(target2);
-				threadAssertEquals(SUCCESS,
-						broadcastWithRole(new Message(), getAgentsWithRole(COMMUNITY, GROUP, ROLE), ROLE));
+				assertThat(launchAgent(target2)).as("launchAgent target2 return code").isEqualTo(SUCCESS);
+				assertThat(broadcastWithRole(new Message(), getAgentsWithRole(COMMUNITY, GROUP, ROLE), ROLE))
+						.as("broadcastWithRole (cloning) return code").isEqualTo(SUCCESS);
 				m = target.nextMessage();
-				threadAssertNotNull(m);
+				assertThat(m).as("first cloned message").isNotNull();
 				Message m2 = target2.nextMessage();
-				threadAssertEquals(ROLE, m2.getReceiver().getRole());
-				threadAssertEquals(m.getConversationID(), m2.getConversationID());
-				assertNotSame(m2, m);
+				assertThat(m2.getReceiver().getRole()).as("second cloned message role").isEqualTo(ROLE);
+				assertThat(m2.getConversationID()).as("conversation id equality").isEqualTo(m.getConversationID());
+				assertThat(m2).isNotSameAs(m);
+				resume();
 			}
 		});
 	}
 
 	@Test
 	public void returnNotInGroup() {
-		launchTestedAgent(new Agent() {
-			protected void onActivation() {
-				final Agent target = new RequestRoleAgent();
-				threadAssertEquals(SUCCESS, launchAgent(target));
+		runTest(new DefaultTestAgent() {
+			@Override
+			public void behaviorInActivate() {
+				final CGRAgent target = new CGRAgent();
+				assertThat(launchAgent(target)).as("launchAgent return code").isEqualTo(SUCCESS);
 				// Without role
-				threadAssertEquals(NOT_IN_GROUP, broadcast(new Message(), getAgentsWithRole(COMMUNITY, GROUP, ROLE)));
+				assertThat(broadcast(new Message(), getAgentsWithRole(COMMUNITY, GROUP, ROLE)))
+						.as("broadcast without role when not in group").isEqualTo(NOT_IN_GROUP);
 
 				// With role
-				threadAssertEquals(NOT_IN_GROUP,
-						broadcastWithRole(new Message(), getAgentsWithRole(COMMUNITY, GROUP, ROLE), ROLE));
+				assertThat(broadcastWithRole(new Message(), getAgentsWithRole(COMMUNITY, GROUP, ROLE), ROLE))
+						.as("broadcastWithRole when not in group").isEqualTo(NOT_IN_GROUP);
+				resume();
 			}
 		});
 	}
 
 	@Test
 	public void returnNotCGR() {
-		launchTestedAgent(new Agent() {
-			protected void onActivation() {
-				final Agent target = new RequestRoleAgent();
-				threadAssertEquals(SUCCESS, launchAgent(target));
-				threadAssertEquals(Collections.EMPTY_LIST, getAgentsWithRole(cgrDontExist(), GROUP, ROLE));
-				threadAssertEquals(Collections.EMPTY_LIST, getAgentsWithRole(COMMUNITY, cgrDontExist(), ROLE));
-				threadAssertEquals(Collections.EMPTY_LIST, getAgentsWithRole(COMMUNITY, GROUP, cgrDontExist()));
-
+		runTest(new DefaultTestAgent() {
+			@Override
+			public void behaviorInActivate() {
+				final CGRAgent target = new CGRAgent();
+				assertThat(launchAgent(target)).as("launchAgent return code").isEqualTo(SUCCESS);
+				assertThat(getAgentsWithRole(cgrDontExist(), GROUP, ROLE)).as("agents list for non-existent community")
+						.isEqualTo(Collections.EMPTY_LIST);
+				assertThat(getAgentsWithRole(COMMUNITY, cgrDontExist(), ROLE)).as("agents list for non-existent group")
+						.isEqualTo(Collections.EMPTY_LIST);
+				assertThat(getAgentsWithRole(COMMUNITY, GROUP, cgrDontExist())).as("agents list for non-existent role")
+						.isEqualTo(Collections.EMPTY_LIST);
+				resume();
 			}
 		});
 	}
 
 	@Test
 	public void returnRoleNotHandled() {
-		launchTestedAgent(new Agent() {
-			protected void onActivation() {
-				final Agent target = new RequestRoleAgent();
-				threadAssertEquals(SUCCESS, launchAgent(target));
-				threadAssertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
-				threadAssertEquals(ROLE_NOT_HANDLED,
-						broadcastWithRole(new Message(), getAgentsWithRole(COMMUNITY, GROUP, ROLE), cgrDontExist()));
+		runTest(new DefaultTestAgent() {
+			@Override
+			public void behaviorInActivate() {
+				final CGRAgent target = new CGRAgent();
+				assertThat(launchAgent(target)).as("launchAgent return code").isEqualTo(SUCCESS);
+				assertThat(requestRole(COMMUNITY, GROUP, ROLE)).as("requestRole return code").isEqualTo(SUCCESS);
+				assertThat(broadcastWithRole(new Message(), getAgentsWithRole(COMMUNITY, GROUP, ROLE), cgrDontExist()))
+						.as("broadcastWithRole role not handled").isEqualTo(ROLE_NOT_HANDLED);
+				resume();
 			}
 		});
 	}
 
 	@Test
 	public void returnNoRecipientFound() {
-		launchTestedAgent(new Agent() {
-			protected void onActivation() {
-				final Agent target = new RequestRoleAgent();
-				threadAssertEquals(SUCCESS, launchAgent(target));
-				threadAssertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
-				threadAssertEquals(SUCCESS, target.leaveRole(COMMUNITY, GROUP, ROLE));
-				threadAssertEquals(NO_RECIPIENT_FOUND, broadcast(new Message(), getAgentsWithRole(COMMUNITY, GROUP, ROLE)));
-				threadAssertEquals(NO_RECIPIENT_FOUND,
-						broadcastWithRole(new Message(), getAgentsWithRole(COMMUNITY, GROUP, ROLE), ROLE));
+		runTest(new DefaultTestAgent() {
+			@Override
+			public void behaviorInActivate() {
+				final CGRAgent target = new CGRAgent();
+				assertThat(launchAgent(target)).as("launchAgent return code").isEqualTo(SUCCESS);
+				assertThat(requestRole(COMMUNITY, GROUP, ROLE)).as("requestRole return code").isEqualTo(SUCCESS);
+				assertThat(target.leaveRole(COMMUNITY, GROUP, ROLE)).as("target leave role").isEqualTo(SUCCESS);
+				assertThat(broadcast(new Message(), getAgentsWithRole(COMMUNITY, GROUP, ROLE))).as("broadcast no recipient")
+						.isEqualTo(NO_RECIPIENT_FOUND);
+				assertThat(broadcastWithRole(new Message(), getAgentsWithRole(COMMUNITY, GROUP, ROLE), ROLE))
+						.as("broadcastWithRole no recipient").isEqualTo(NO_RECIPIENT_FOUND);
+				resume();
 			}
 		});
 	}
 
 	@Test
 	public void nullArgs() {
-		launchTestedAgent(new Agent() {
-			protected void onActivation() {
-				final Agent target = new RequestRoleAgent();
-				threadAssertEquals(SUCCESS, launchAgent(target));
+		runTest(new DefaultTestAgent() {
+			@Override
+			public void behaviorInActivate() {
+				final CGRAgent target = new CGRAgent();
+				assertThat(launchAgent(target)).as("launchAgent return code").isEqualTo(SUCCESS);
 				try {
 					broadcast(null, null);
 					noExceptionFailure();
 				} catch (NullPointerException e) {
 					// e.printStackTrace();
 				}
-//				try {
-//					broadcast(COMMUNITY, GROUP, null, null);
-//					noExceptionFailure();
-//				} catch (NullPointerException e) {
-//					// e.printStackTrace();
-//				}
-//				try {
-//					threadAssertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
-//					broadcast(getAgentsWithRole(COMMUNITY, GROUP, ROLE), null);
-//					noExceptionFailure();
-//				} catch (NullPointerException e) {
-//					// e.printStackTrace();
-//				}
-//				try {
-//					broadcast(null, GROUP, ROLE, null);
-//					noExceptionFailure();
-//				} catch (NullPointerException e) {
-//					// e.printStackTrace();
-//				}
+				resume();
 			}
 		});
 	}

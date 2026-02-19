@@ -35,17 +35,20 @@
  *******************************************************************************/
 package networking;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.List;
 import java.util.logging.Level;
 
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.Test;
 
 import static madkit.kernel.Agent.ReturnCode.SUCCESS;
 
 import helpers.agents.DistributedReplier;
-import madkit.kernel.Agent;
 import madkit.kernel.AgentAddress;
-import madkit.kernel.MadkitConcurrentTestCase;
+import madkit.kernel.DefaultTestAgent;
+import madkit.kernel.MadkitNetworkConcurrentTestCase;
 import madkit.kernel.MadkitTestInstance;
 import madkit.kernel.Message;
 import madkit.kernel.Organization;
@@ -54,12 +57,11 @@ import madkit.test.agents.DistributedCGRAgent;
 
 /**
  * @author Fabien Michel
- * @since MaDKit 5.0.0.10
- * @version 0.9
+ * @version 6.0.5
  * 
  */
 
-public class OragnizationSharingTest extends MadkitConcurrentTestCase {
+public class OragnizationSharingTest extends MadkitNetworkConcurrentTestCase {
 
 	@Override
 	protected String[] getMadkitTestArgs() {
@@ -75,11 +77,11 @@ public class OragnizationSharingTest extends MadkitConcurrentTestCase {
 		}
 	}
 
-//	@Test
+	@Test
 	public void givenKernels_whenConnected_thenTheyShareNetworkOrganization() {
-		runTest(new Agent() {
+		runTest(new DistributedCGRAgent() {
 			@Override
-			protected void onActivation() {
+			public void behaviorInActivate() {
 				MadkitTestInstance otherMK = MadkitTestInstance.getNetworkInstance();
 				List<AgentAddress> l = getAgentsWithRole(NetworkCommunity.NAME, NetworkCommunity.Groups.NETWORK_AGENTS,
 						NetworkCommunity.Roles.NET_AGENT);
@@ -87,107 +89,91 @@ public class OragnizationSharingTest extends MadkitConcurrentTestCase {
 					System.err.println(agentAddress);
 				}
 				lineBreak();
-				threadAssertEquals(2, l.size());
+				assertThat(l.size()).as("expected number of network agents locally").isEqualTo(2);
 				Organization foreignNetworkOrg = otherMK.getOrganization();
 				l = foreignNetworkOrg.getAgentsWithRole(NetworkCommunity.NAME, NetworkCommunity.Groups.NETWORK_AGENTS,
 						NetworkCommunity.Roles.NET_AGENT);
-				threadAssertEquals(2, l.size());
+				assertThat(l.size()).as("expected number of network agents in foreign org").isEqualTo(2);
 
 				MadkitTestInstance anotherMK = MadkitTestInstance.getNetworkInstance();
 				l = getAgentsWithRole(NetworkCommunity.NAME, NetworkCommunity.Groups.NETWORK_AGENTS,
 						NetworkCommunity.Roles.NET_AGENT);
-				threadAssertEquals(3, l.size());
+				assertThat(l.size()).as("expected number of network agents locally after another instance").isEqualTo(3);
 				l = foreignNetworkOrg.getAgentsWithRole(NetworkCommunity.NAME, NetworkCommunity.Groups.NETWORK_AGENTS,
 						NetworkCommunity.Roles.NET_AGENT);
-				threadAssertEquals(3, l.size());
+				assertThat(l.size()).as("expected number of network agents in foreign org after another instance")
+						.isEqualTo(3);
 
 				Organization anotherNetworkOrg = anotherMK.getOrganization();
 				l = anotherNetworkOrg.getAgentsWithRole(NetworkCommunity.NAME, NetworkCommunity.Groups.NETWORK_AGENTS,
 						NetworkCommunity.Roles.NET_AGENT);
-				threadAssertEquals(3, l.size());
+				assertThat(l.size()).as("expected number of network agents in another network org").isEqualTo(3);
 				resume();
 			}
 		});
 	}
 
-//	@Test
-	public void testss() {
-		runTest(new Agent() {
-			@Override
-			protected void onActivation() {
-				MadkitTestInstance otherMK = MadkitTestInstance.getNetworkInstance("--agents",
-						DistributedReplier.class.getName());
-				otherMK = MadkitTestInstance.getNetworkInstance("--agents", DistributedReplier.class.getName());
-				otherMK = MadkitTestInstance.getNetworkInstance("--agents", DistributedReplier.class.getName());
-				resume();
-			}
-		});
-	}
-
-//	@Test
+	@Test
 	public void givenAgentInOrg_whenConnected_thenOtherKernelSeeThisAgent() {
 		runTest(new DistributedCGRAgent() {
 			@Override
-			protected void onActivation() {
-				super.onActivation();
+			public void behaviorInActivate() {
 				MadkitTestInstance otherMK = MadkitTestInstance.getNetworkInstance();
 				pause(1000);
 				lineBreak();
 				Organization foreignNetworkOrg = otherMK.getOrganization();
 				List<AgentAddress> l = foreignNetworkOrg.getAgentsWithRole(COMMUNITY, GROUP, ROLE);
 				getLogger().info("Agents in " + COMMUNITY + "/" + GROUP + "/" + ROLE + " from foreign org: " + l);
-				threadAssertEquals(1, l.size());
+				assertThat(l.size()).as("expected number of agents in foreign org").isEqualTo(1);
 				resume();
 			}
 		});
 	}
 
-//	@Test
+	@Test
 	public void givenAgentInOrg_whenConnected_thenCanSendMessageToForeignAgent() {
 		runTest(new DistributedCGRAgent() {
 			@Override
-			protected void onActivation() {
-				super.onActivation();
+			public void behaviorInActivate() {
 				MadkitTestInstance otherMK = MadkitTestInstance.getNetworkInstance("--agents",
 						DistributedReplier.class.getName());
 				Organization foreignNetworkOrg = otherMK.getOrganization();
 				System.err.println(foreignNetworkOrg.getOrganizationSnapShot(false));
 				List<AgentAddress> l = foreignNetworkOrg.getAgentsWithRole(COMMUNITY, GROUP, ROLE);
 				getLogger().info("Agents in " + COMMUNITY + "/" + GROUP + "/" + ROLE + " from foreign org: " + l);
-				threadAssertEquals(2, l.size());
+				assertThat(l.size()).as("expected number of agents in foreign org").isEqualTo(2);
 				AgentAddress foreignAgent = getAgentWithRole(COMMUNITY, GROUP, ROLE);
 				ReturnCode r = send(new Message(), foreignAgent);
-				threadAssertEquals(r, SUCCESS);
+				assertThat(r).as("send return code").isEqualTo(SUCCESS);
 				getLogger().setLevel(Level.ALL);
 				Message m = waitNextMessage(10000);
-				threadAssertNotNull(m);
+				assertThat(m).as("received message from foreign agent").isNotNull();
 				resume();
 			}
 		});
 	}
 
-//	@Test
+	@Test
 	public void givenAgentNotInOrgPriorly_whenRequestRole_thenDistantAgentCanReply() {
-		runTest(new Agent() {
+		runTest(new DefaultTestAgent() {
 			@Override
-			protected void onActivation() {
-				super.onActivation();
+			public void behaviorInActivate() {
 				MadkitTestInstance otherMK = MadkitTestInstance.getNetworkInstance("--agents",
 						DistributedReplier.class.getName());
 				Organization foreignNetworkOrg = otherMK.getOrganization();
 				System.err.println(foreignNetworkOrg.getOrganizationSnapShot(false));
 				List<AgentAddress> l = foreignNetworkOrg.getAgentsWithRole(COMMUNITY, GROUP, ROLE);
 				getLogger().info("Agents in " + COMMUNITY + "/" + GROUP + "/" + ROLE + " from foreign org: " + l);
-				threadAssertEquals(1, l.size());
+				assertThat(l.size()).as("expected number of agents in foreign org").isEqualTo(1);
 				requestRole(COMMUNITY, GROUP, ROLE);
 				pause(1000);
 				System.err.println(foreignNetworkOrg.getOrganizationSnapShot(false));
 				AgentAddress foreignAgent = getAgentWithRole(COMMUNITY, GROUP, ROLE);
 				ReturnCode r = send(new Message(), foreignAgent);
-				threadAssertEquals(r, SUCCESS);
+				assertThat(r).as("send return code").isEqualTo(SUCCESS);
 				getLogger().setLevel(Level.ALL);
 				Message m = waitNextMessage(10000);
-				threadAssertNotNull(m);
+				assertThat(m).as("received message from foreign agent").isNotNull();
 				resume();
 			}
 		});

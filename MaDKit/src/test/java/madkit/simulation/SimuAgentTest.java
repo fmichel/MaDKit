@@ -32,15 +32,17 @@
  *
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C license and that you accept its terms.
- *******************************************************************************/
+ ******************************************************************************/
 package madkit.simulation;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.testng.annotations.Test;
 
 import static madkit.kernel.Agent.ReturnCode.AGENT_CRASH;
 import static madkit.kernel.Agent.ReturnCode.SUCCESS;
 
-import madkit.kernel.Agent;
+import madkit.kernel.DefaultTestAgent;
 import madkit.kernel.MadkitConcurrentTestCase;
 
 /**
@@ -50,12 +52,12 @@ public class SimuAgentTest extends MadkitConcurrentTestCase {
 
 	@Test
 	public void givenSimuAgent_whenNotLaunchedByLauncher_thenAgentCrashes() {
-		runTest(new Agent() {
+		runTest(new DefaultTestAgent() {
 			@Override
-			protected void onActivation() {
+			public void behaviorInActivate() {
 				SimuAgent sa = new SimuAgent();
 				ReturnCode launchAgent = launchAgent(sa);
-				threadAssertEquals(AGENT_CRASH, launchAgent);
+				assertThat(launchAgent).as("launchAgent return code").isEqualTo(AGENT_CRASH);
 				resume();
 			}
 		});
@@ -68,7 +70,8 @@ public class SimuAgentTest extends MadkitConcurrentTestCase {
 			protected void onActivation() {
 				SimuAgent sa = new SimuAgent();
 				try {
-					threadAssertEquals(SUCCESS, launchAgent(sa));
+					// launchAgent is tested here: expect SUCCESS when launched by a SimuAgent
+					assertThat(launchAgent(sa)).as("launchAgent return code when launched by SimuAgent").isEqualTo(SUCCESS);
 				} catch (IllegalStateException e) {
 					e.printStackTrace();
 				}

@@ -15,7 +15,7 @@ public class NetworkAgentTest extends MadkitConcurrentTestCase {
 
 //	@Test
 	public void givenNetworkAgent_whenConnected_then() {
-		runTest(new ConcurrentTestAgent() {
+		runTest(new DefaultTestAgent() {
 			@Override
 			protected void onActivation() {
 				getLogger().setLevel(Level.ALL);
@@ -31,7 +31,7 @@ public class NetworkAgentTest extends MadkitConcurrentTestCase {
 
 	@Test
 	public void givenNetworkOn_whenStop_thenStatusOff() {
-		runTest(new ConcurrentTestAgent() {
+		runTest(new DefaultTestAgent() {
 			@Override
 			public void behaviorInActivate() {
 				getLogger().setLevel(Level.ALL);

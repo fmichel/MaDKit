@@ -35,12 +35,12 @@
  *******************************************************************************/
 package madkit.kernel;
 
-import static madkit.kernel.MadkitUnitTestCase.COMMUNITY;
-import static madkit.kernel.MadkitUnitTestCase.GROUP;
-import static madkit.kernel.MadkitUnitTestCase.ROLE;
+import static madkit.kernel.MadkitConcurrentTestCase.COMMUNITY;
+import static madkit.kernel.MadkitConcurrentTestCase.GROUP;
+import static madkit.kernel.MadkitConcurrentTestCase.ROLE;
 import static org.testng.Assert.assertEquals;
 
-import java.time.LocalDateTime;
+import java.util.logging.Level;
 
 import static madkit.kernel.Agent.ReturnCode.SUCCESS;
 
@@ -48,22 +48,26 @@ import static madkit.kernel.Agent.ReturnCode.SUCCESS;
  *
  *
  */
-public class ConcurrentTestAgent extends GenericTestAgent {
+public class DefaultTestAgent extends Agent implements TestAgentSupport {
 
 	private boolean goThroughEnd = false;
 	private boolean oneMethodHasBeenActivated = false;
 	private MadkitConcurrentTestCase madkitConcurrentTestCase;
 
-	/**
-	 * 
-	 */
-	public ConcurrentTestAgent() {
-//		getLogger().setLevel(Level.ALL);
-//		getLogger().info("********* INIT ***********");
+	public MadkitConcurrentTestCase getMadkitConcurrentTestCase() {
+		return madkitConcurrentTestCase;
+	}
+
+	public DefaultTestAgent() {
+	}
+
+	public DefaultTestAgent(Level level) {
+		getLogger().setLevel(level);
+		getLogger().info("********* INIT ***********");
 	}
 
 	@Override
-	public Agent getAgent() {
+	public DefaultTestAgent getAgent() {
 		return this;
 	}
 
@@ -73,7 +77,9 @@ public class ConcurrentTestAgent extends GenericTestAgent {
 			orgInActivate();
 			behaviorInActivate();
 		} catch (Throwable e) {
-			madkitConcurrentTestCase.threadFail(e);
+			if (madkitConcurrentTestCase != null) {
+				madkitConcurrentTestCase.threadFail(e);
+			}
 		}
 	}
 
@@ -83,33 +89,32 @@ public class ConcurrentTestAgent extends GenericTestAgent {
 		try {
 			orgInEnd();
 			behaviorInEnd();
-			madkitConcurrentTestCase.resume();
+			resume();
 		} catch (Throwable e) {
-			madkitConcurrentTestCase.threadFail(e);
+			if (madkitConcurrentTestCase != null) {
+				madkitConcurrentTestCase.threadFail(e);
+			}
 		}
 	}
 
-	@Override
+	public void resume() {
+		madkitConcurrentTestCase.resume();
+	}
+
 	public boolean didPassThroughEnd() {
 		return goThroughEnd;
 	}
 
 	@Override
-	public void createDefaultCGR() {
+	public void takeDefaultLocalCGR() {
 		createGroup(COMMUNITY, GROUP, false, null);
 		assertEquals(requestRole(COMMUNITY, GROUP, ROLE, null), SUCCESS);
 	}
 
 	@Override
-	public void createDefaultDistributedCGR() {
+	public void takeDefaultDistributedCGR() {
 		createGroup(COMMUNITY, GROUP, true, null);
 		assertEquals(requestRole(COMMUNITY, GROUP, ROLE, null), SUCCESS);
-	}
-
-	@Override
-	protected void replyToLastReiceivedMessage() {
-		Message m = waitNextMessage();
-		reply(new Message(), m);
 	}
 
 	@SuppressWarnings("unused")
@@ -118,12 +123,10 @@ public class ConcurrentTestAgent extends GenericTestAgent {
 		setOneMethodHasBeenActivated(true);
 	}
 
-	@Override
 	protected void protectedMethod() {
 		System.out.println("protected method");
 	}
 
-	@Override
 	public void publicMethod() {
 		System.out.println("public method");
 	}
@@ -142,14 +145,12 @@ public class ConcurrentTestAgent extends GenericTestAgent {
 		setOneMethodHasBeenActivated(true);
 	}
 
-	@Override
 	public void publicMethodWithPrimitiveArgs(String s, int i) {
 		System.err.println(s);
 		System.err.println(this.toString() + i);
 		setOneMethodHasBeenActivated(true);
 	}
 
-	@Override
 	public void printMailbox() {
 		getLogger().info(getMailbox().toString());
 	}
@@ -157,7 +158,6 @@ public class ConcurrentTestAgent extends GenericTestAgent {
 	/**
 	 * @return the oneMethodHasBeenActivated
 	 */
-	@Override
 	public boolean isOneMethodHasBeenActivated() {
 		return oneMethodHasBeenActivated;
 	}
@@ -165,16 +165,15 @@ public class ConcurrentTestAgent extends GenericTestAgent {
 	/**
 	 * @param oneMethodHasBeenActivated the oneMethodHasBeenActivated to set
 	 */
-	@Override
 	public void setOneMethodHasBeenActivated(boolean oneMethodHasBeenActivated) {
 		this.oneMethodHasBeenActivated = oneMethodHasBeenActivated;
 	}
 
-	@Override
-	public LocalDateTime getNextEventDate() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+//	@Override
+//	public LocalDateTime getNextEventDate() {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
 
 	public void setMadkitConcurrentTestCase(MadkitConcurrentTestCase mdkitConcurrentTestCase) {
 		this.madkitConcurrentTestCase = mdkitConcurrentTestCase;

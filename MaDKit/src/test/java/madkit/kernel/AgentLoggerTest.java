@@ -35,13 +35,16 @@
  *******************************************************************************/
 package madkit.kernel;
 
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import static madkit.kernel.Agent.ReturnCode.SUCCESS;
+
+import madkit.test.agents.ThreadedTestAgent;
 
 /**
  *
@@ -49,10 +52,12 @@ import static madkit.kernel.Agent.ReturnCode.SUCCESS;
  * @version 0.9
  * 
  */
-public class AgentLoggerTest extends MadkitUnitTestCase {
+public class AgentLoggerTest extends MadkitConcurrentTestCase {
 
+	@BeforeMethod
 	public void cleanUpLogDirectory() {
 		File f = AgentLogger.DEFAULT_LOG_DIRECTORY.toFile();
+		System.out.println("cleaning up log directory: " + f.getAbsolutePath());
 		String[] entries = f.list();
 		if (entries != null) {
 			for (String s : entries) {
@@ -65,62 +70,83 @@ public class AgentLoggerTest extends MadkitUnitTestCase {
 
 	@Test
 	public void givenNewAgent_whenCreateLogFile_thenLogFileNotNull() {
-		cleanUpLogDirectory();
-		Agent a;
-		launchTestedAgent(a = new Agent() {
+		runTest(new DefaultTestAgent() {
 			@Override
-			protected void onLive() {
-				getLogger().createLogFile();
-//				threadFail();//FIXME this should crash the test
+			public void behaviorInActivate() {
+				Agent a = new ThreadedTestAgent() {
+					@Override
+					protected void onActivation() {
+						getLogger().createLogFile();
+					}
+				};
+				assertThat(launchAgent(a)).as("launchAgent return code").isEqualTo(SUCCESS);
+				File[] files = AgentLogger.DEFAULT_LOG_DIRECTORY.toFile().listFiles(f -> !f.getName().endsWith(".lck"));
+				assertThat(files.length).as("log files count after createLogFile").isEqualTo(1);
+				resume();
 			}
-		}, SUCCESS);
-		awaitTermination(a, 10000);
-		File[] files = AgentLogger.DEFAULT_LOG_DIRECTORY.toFile().listFiles();
-		assertEquals(files.length, 1);
+		});
 	}
 
 	@Test
 	public void givenNewAgentLogFileWithSameName_whenCreateLogFileNoAppend_thenAutoFileLogName() {
-		cleanUpLogDirectory();
-		Agent a;
-		launchTestedAgent(a = new Agent() {
+		runTest(new DefaultTestAgent() {
 			@Override
-			protected void onLive() {
-				getLogger().createLogFile("test");
+			public void behaviorInActivate() {
+				Agent a1 = new ThreadedTestAgent() {
+					@Override
+					protected void onActivation() {
+						getLogger().createLogFile("test");
+					}
+				};
+				assertThat(launchAgent(a1)).as("launchAgent a1").isEqualTo(SUCCESS);
+
+				Agent a2 = new ThreadedTestAgent() {
+					@Override
+					protected void onActivation() {
+						getLogger().createLogFile("test", AgentLogger.DEFAULT_LOG_DIRECTORY, false);
+					}
+				};
+				assertThat(launchAgent(a2)).as("launchAgent a2").isEqualTo(SUCCESS);
+
+				File[] files = AgentLogger.DEFAULT_LOG_DIRECTORY.toFile().listFiles(f -> !f.getName().endsWith(".lck"));
+				assertThat(files.length).as("log files count when no append").isEqualTo(2);
+				resume();
 			}
-		}, SUCCESS);
-		awaitTermination(a, 10000);
-		launchTestedAgent(a = new Agent() {
-			@Override
-			protected void onLive() {
-				getLogger().createLogFile("test", AgentLogger.DEFAULT_LOG_DIRECTORY, false);
-			}
-		}, SUCCESS);
-		awaitTermination(a, 10000);
-		File[] files = AgentLogger.DEFAULT_LOG_DIRECTORY.toFile().listFiles();
-		assertEquals(files.length, 2);
+		});
 	}
 
 	@Test
 	public void givenNewAgentLogFileWithSameName_whenCreateLogFileWithAppend_thenAutoFileLogName() {
-		cleanUpLogDirectory();
-		Agent a;
-		launchTestedAgent(a = new Agent() {
+		runTest(new DefaultTestAgent() {
 			@Override
-			protected void onLive() {
-				getLogger().createLogFile("test", AgentLogger.DEFAULT_LOG_DIRECTORY);
+			public void behaviorInActivate() {
+				Agent a1 = new ThreadedTestAgent() {
+					@Override
+					protected void onActivation() {
+						getLogger().createLogFile("test", AgentLogger.DEFAULT_LOG_DIRECTORY);
+					}
+				};
+				assertThat(launchAgent(a1)).as("launchAgent a1").isEqualTo(SUCCESS);
+
+				File[] files = AgentLogger.DEFAULT_LOG_DIRECTORY.toFile().listFiles(f -> f.getName().endsWith(".lck"));
+				while (files.length > 0) {
+					pause(100);
+					files = AgentLogger.DEFAULT_LOG_DIRECTORY.toFile().listFiles(f -> f.getName().endsWith(".lck"));
+				}
+
+				Agent a2 = new ThreadedTestAgent() {
+					@Override
+					protected void onActivation() {
+						getLogger().createLogFile("test", AgentLogger.DEFAULT_LOG_DIRECTORY, true);
+					}
+				};
+				assertThat(launchAgent(a2)).as("launchAgent a2").isEqualTo(SUCCESS);
+
+				files = AgentLogger.DEFAULT_LOG_DIRECTORY.toFile().listFiles(f -> !f.getName().endsWith(".lck"));
+				assertThat(files.length).as("log files count when append").isEqualTo(1);
+				resume();
 			}
-		}, SUCCESS);
-		awaitTermination(a, 10000);
-		launchTestedAgent(a = new Agent() {
-			@Override
-			protected void onLive() {
-				getLogger().createLogFile("test", AgentLogger.DEFAULT_LOG_DIRECTORY, true);
-			}
-		}, SUCCESS);
-		awaitTermination(a, 10000);
-		File[] files = AgentLogger.DEFAULT_LOG_DIRECTORY.toFile().listFiles();
-		assertEquals(files.length, 1);
+		});
 	}
 
 }

@@ -47,13 +47,16 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import javafx.application.Platform;
-import madkit.kernel.FXAgentStage;
-import madkit.kernel.MadkitUnitTestCase;
+import madkit.kernel.MadkitConcurrentTestCase;
 
 /**
  * The Class FXExecutorTest.
+ * 
+ * Cannot test the exception in runLater because it is executed in another thread and not
+ * rethrown in the caller thread, so we cannot catch it. We can only check that the
+ * exception is logged, but it is not possible to do it in a test.
  */
-public class FXExecutorTest extends MadkitUnitTestCase {
+public class FXExecutorTest extends MadkitConcurrentTestCase {
 
 	@BeforeMethod
 	protected void checkEnvironment() {
@@ -72,18 +75,6 @@ public class FXExecutorTest extends MadkitUnitTestCase {
 		assertTrue(FXExecutor.isStarted());
 	}
 
-//	@Test Cannot be tested
-	public void testExceptionFX() {
-		try {
-			FXExecutor.runLater(() -> {
-				throw new NullPointerException();
-			});
-		} catch (RuntimeException e) {
-			assertThat(e).isExactlyInstanceOf(RuntimeException.class)
-					.hasCauseExactlyInstanceOf(NullPointerException.class);
-		}
-	}
-
 	@Test
 	public void testRunAndWaitExceptionFX() {
 		try {
@@ -94,14 +85,6 @@ public class FXExecutorTest extends MadkitUnitTestCase {
 		} catch (RuntimeException e) {
 			assertThat(e).isExactlyInstanceOf(RuntimeException.class)
 					.hasCauseExactlyInstanceOf(NullPointerException.class);
-		}
-	}
-
-	public void notAFXThread() {
-		try {
-			FXAgentStage stage = new FXAgentStage(null);
-		} catch (IllegalStateException e) {
-			e.printStackTrace();
 		}
 	}
 

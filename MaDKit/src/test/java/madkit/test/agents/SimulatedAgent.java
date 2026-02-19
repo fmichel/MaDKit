@@ -1,16 +1,10 @@
 package madkit.test.agents;
 
-import static madkit.kernel.MadkitUnitTestCase.GROUP;
-import static madkit.kernel.MadkitUnitTestCase.ROLE;
+import static madkit.kernel.MadkitConcurrentTestCase.GROUP;
+import static madkit.kernel.MadkitConcurrentTestCase.ROLE;
 
 import madkit.simulation.SimuAgent;
 
-/**
- *
- * @since MaDKit 5.0.0.13
- * @version 0.9
- * 
- */
 public class SimulatedAgent extends SimuAgent {
 
 	private int privatePrimitiveField = 1;

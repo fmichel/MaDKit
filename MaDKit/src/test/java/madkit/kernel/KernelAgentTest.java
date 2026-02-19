@@ -46,10 +46,6 @@ import org.testng.annotations.Test;
 import madkit.kernel.Agent.ReturnCode;
 import madkit.test.agents.EmptyAgent;
 
-/**
- *
- *
- */
 public class KernelAgentTest {
 
 	@Test

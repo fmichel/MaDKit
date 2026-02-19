@@ -35,6 +35,9 @@
  *******************************************************************************/
 package madkit.kernel;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import org.testng.annotations.Test;
 
 import static madkit.kernel.Agent.ReturnCode.NOT_COMMUNITY;
@@ -56,17 +59,21 @@ public class LeaveRoleConcurrentTest extends MadkitConcurrentTestCase {
 
 	@Test
 	public void givenGroupAndRole_whenLeaveRole_thenReturnsSuccess() {
-		runTest(new Agent() {
+		runTest(new DefaultTestAgent() {
 			@Override
-			protected void onActivation() {
-				threadAssertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
-				threadAssertEquals(SUCCESS, requestRole(COMMUNITY, GROUP, ROLE));
-				threadAssertEquals(SUCCESS, leaveRole(COMMUNITY, GROUP, ROLE));
-				threadAssertTrue(getOrganization().isGroup(COMMUNITY, GROUP));
-				threadAssertEquals(SUCCESS, leaveRole(COMMUNITY, GROUP, SystemRoles.GROUP_MANAGER));
+			public void behaviorInActivate() {
+				assertThat(createGroup(COMMUNITY, GROUP)).as("createGroup return code").isEqualTo(SUCCESS);
+				assertThat(requestRole(COMMUNITY, GROUP, ROLE)).as("requestRole return code").isEqualTo(SUCCESS);
+				assertThat(leaveRole(COMMUNITY, GROUP, ROLE)).as("leaveRole return code").isEqualTo(SUCCESS);
+				assertThat(getOrganization().isGroup(COMMUNITY, GROUP)).as("group should still exist after leaving a role")
+						.isTrue();
+				assertThat(leaveRole(COMMUNITY, GROUP, SystemRoles.GROUP_MANAGER)).as("leaveRole for GROUP_MANAGER")
+						.isEqualTo(SUCCESS);
 				// leaveGroup by leaving roles
-				threadAssertFalse(getOrganization().isCommunity(COMMUNITY));
-				threadAssertFalse(getOrganization().isGroup(COMMUNITY, GROUP));
+				assertThat(getOrganization().isCommunity(COMMUNITY))
+						.as("community should be removed after leaving all roles").isFalse();
+				assertThat(getOrganization().isGroup(COMMUNITY, GROUP))
+						.as("group should be removed after leaving all roles").isFalse();
 				resume();
 			}
 		});
@@ -74,22 +81,27 @@ public class LeaveRoleConcurrentTest extends MadkitConcurrentTestCase {
 
 	@Test
 	public void givenInvalidCommunityGroupRole_whenLeaveRole_thenReturnsNotCgr() {
-		runTest(new Agent() {
+		runTest(new DefaultTestAgent() {
 			@Override
-			protected void onActivation() {
-				threadAssertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
-				threadAssertEquals(NOT_COMMUNITY, leaveRole(cgrDontExist(), GROUP, ROLE));
-				threadAssertEquals(NOT_GROUP, leaveRole(COMMUNITY, cgrDontExist(), ROLE));
-				threadAssertEquals(NOT_ROLE, leaveRole(COMMUNITY, GROUP, cgrDontExist()));
-				threadAssertEquals(SUCCESS, launchAgent(new Agent() {
+			public void behaviorInActivate() {
+				assertThat(createGroup(COMMUNITY, GROUP)).as("createGroup return code").isEqualTo(SUCCESS);
+				assertThat(leaveRole(cgrDontExist(), GROUP, ROLE)).as("leaveRole with non-existent community")
+						.isEqualTo(NOT_COMMUNITY);
+				assertThat(leaveRole(COMMUNITY, cgrDontExist(), ROLE)).as("leaveRole with non-existent group")
+						.isEqualTo(NOT_GROUP);
+				assertThat(leaveRole(COMMUNITY, GROUP, cgrDontExist())).as("leaveRole with non-existent role")
+						.isEqualTo(NOT_ROLE);
+				assertThat(launchAgent(new DefaultTestAgent() {
 					@Override
-					protected void onActivation() {
+					public void behaviorInActivate() {
 						requestRole(COMMUNITY, GROUP, ROLE);
+						resume();
 					}
-				}));
-				threadAssertEquals(ROLE_NOT_HANDLED, leaveRole(COMMUNITY, GROUP, ROLE));
-				threadAssertEquals(SUCCESS, leaveGroup(COMMUNITY, GROUP));
-				threadAssertEquals(NOT_IN_GROUP, leaveRole(COMMUNITY, GROUP, ROLE));
+				})).as("launchAgent return code when launching helper agent").isEqualTo(SUCCESS);
+				assertThat(leaveRole(COMMUNITY, GROUP, ROLE)).as("leaveRole when role not handled by current agent")
+						.isEqualTo(ROLE_NOT_HANDLED);
+				assertThat(leaveGroup(COMMUNITY, GROUP)).as("leaveGroup return code").isEqualTo(SUCCESS);
+				assertThat(leaveRole(COMMUNITY, GROUP, ROLE)).as("leaveRole when not in group").isEqualTo(NOT_IN_GROUP);
 				resume();
 			}
 		});
@@ -97,46 +109,22 @@ public class LeaveRoleConcurrentTest extends MadkitConcurrentTestCase {
 
 	@Test
 	public void givenNullArgs_whenLeaveRole_thenThrowsNullPointerException() {
-		runTest(new Agent() {
+		runTest(new DefaultTestAgent() {
 			@Override
-			protected void onActivation() {
-				threadAssertEquals(SUCCESS, createGroup(COMMUNITY, GROUP));
-				try {
-					threadAssertEquals(NOT_COMMUNITY, leaveRole(null, null, null));
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					e.printStackTrace();
-				}
-				try {
-					threadAssertEquals(NOT_GROUP, leaveRole(COMMUNITY, null, null));
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					e.printStackTrace();
-				}
-				try {
-					threadAssertEquals(ROLE_NOT_HANDLED, leaveRole(COMMUNITY, GROUP, null));
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					e.printStackTrace();
-				}
-				try {
-					threadAssertEquals(NOT_COMMUNITY, leaveRole(null, GROUP, null));
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					e.printStackTrace();
-				}
-				try {
-					threadAssertEquals(NOT_COMMUNITY, leaveRole(null, GROUP, ROLE));
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					e.printStackTrace();
-				}
-				try {
-					threadAssertEquals(NOT_COMMUNITY, leaveRole(null, null, ROLE));
-					noExceptionFailure();
-				} catch (NullPointerException e) {
-					e.printStackTrace();
-				}
+			public void behaviorInActivate() {
+				assertThat(createGroup(COMMUNITY, GROUP)).as("createGroup return code").isEqualTo(SUCCESS);
+				assertThatThrownBy(() -> leaveRole(null, null, null)).as("leaveRole(null, null, null)")
+						.isInstanceOf(NullPointerException.class);
+				assertThatThrownBy(() -> leaveRole(COMMUNITY, null, null)).as("leaveRole(COMMUNITY, null, null)")
+						.isInstanceOf(NullPointerException.class);
+				assertThatThrownBy(() -> leaveRole(COMMUNITY, GROUP, null)).as("leaveRole(COMMUNITY, GROUP, null)")
+						.isInstanceOf(NullPointerException.class);
+				assertThatThrownBy(() -> leaveRole(null, GROUP, null)).as("leaveRole(null, GROUP, null)")
+						.isInstanceOf(NullPointerException.class);
+				assertThatThrownBy(() -> leaveRole(null, GROUP, ROLE)).as("leaveRole(null, GROUP, ROLE)")
+						.isInstanceOf(NullPointerException.class);
+				assertThatThrownBy(() -> leaveRole(null, null, ROLE)).as("leaveRole(null, null, ROLE)")
+						.isInstanceOf(NullPointerException.class);
 				resume();
 			}
 		});

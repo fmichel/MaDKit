@@ -38,50 +38,61 @@ package madkit.random;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.random.RandomGenerator;
-import java.util.random.RandomGeneratorFactory;
-
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import madkit.kernel.DefaultTestAgent;
+import madkit.kernel.MadkitConcurrentTestCase;
 
 /**
  * The Class RandomnessTest.
  */
-public class RandomnessTest {
-
-	private RandomGenerator prng;
-
-	@BeforeMethod
-	public void setUp() {
-		prng = RandomGeneratorFactory.of("Random").create();
-	}
+public class RandomnessTest extends MadkitConcurrentTestCase {
 
 	@Test
-	public void givenObjectWithRandomizedFields_whenRandomizeFields_thenFieldsAreRandomized() {
-		// Given
-		TestObject testObject = new TestObject();
-
-		// When
-		Randomness.randomizeFields(testObject, prng);
-
+	public void givenAgentWithRandomizedFields_whenRandomizeFields_thenFieldsAreRandomized() {
 		// Then
-		assertThat(testObject.randomizedDouble).isBetween(0.0, 1.0);
-		assertThat(testObject.randomizedInteger).isBetween(1, 10);
-		assertThat(testObject.randomizedFloat).isBetween(0.0f, 1.0f);
-		assertThat(testObject.randomizedString).isIn("A", "B", "C");
+		runTest(new RandomizedValuesAgent() {
+			@Override
+			public void behaviorInActivate() {
+				assertThat(getRandomizedDouble()).as("randomizedDouble should be changed").isNotEqualTo(50);
+				assertThat(randomizedInteger).as("randomizedInteger should be changed").isNotEqualTo(50);
+				assertThat(randomizedFloat).as("randomizedFloat should be changed").isNotEqualTo(50);
+				assertThat(randomizedString).as("randomizedString should be changed").isNotEqualTo("Z");
+				resume();
+			}
+		});
+	}
+}
+
+/**
+ * The Class RandomizedValuesAgent.
+ */
+class RandomizedValuesAgent extends DefaultTestAgent {
+
+	@RandomizedDouble(min = 0.0, max = 1.0)
+	private double randomizedDouble = 50;
+
+	@RandomizedInteger(min = 1, max = 10)
+	protected int randomizedInteger = 50;
+
+	@RandomizedFloat(min = 0.0f, max = 1.0f)
+	protected float randomizedFloat = 50;
+
+	@RandomizedString(values = { "A", "B", "C" })
+	protected String randomizedString = "Z";
+
+	/**
+	 * @return the randomizedDouble
+	 */
+	public double getRandomizedDouble() {
+		return randomizedDouble;
 	}
 
-	private static class TestObject {
-		@RandomizedDouble(min = 0.0, max = 1.0)
-		private double randomizedDouble = 50;
-
-		@RandomizedInteger(min = 1, max = 10)
-		private int randomizedInteger = 50;
-
-		@RandomizedFloat(min = 0.0f, max = 1.0f)
-		private float randomizedFloat = 50f;
-
-		@RandomizedString(values = { "A", "B", "C" })
-		private String randomizedString = "Z";
+	/**
+	 * @param randomizedDouble the randomizedDouble to set
+	 */
+	public void setRandomizedDouble(double randomizedDouble) {
+		this.randomizedDouble = randomizedDouble;
 	}
+
 }

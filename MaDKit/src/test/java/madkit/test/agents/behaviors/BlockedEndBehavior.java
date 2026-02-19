@@ -1,12 +1,12 @@
 package madkit.test.agents.behaviors;
 
-import madkit.kernel.TestHelpAgent;
+import madkit.kernel.TestAgentSupport;
 
 /**
  *
  *
  */
-public interface BlockedEnd extends TestHelpAgent {
+public interface BlockedEndBehavior extends TestAgentSupport {
 
 	@Override
 	default void behaviorInEnd() {

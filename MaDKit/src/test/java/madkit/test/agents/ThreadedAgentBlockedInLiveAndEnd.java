@@ -1,11 +1,8 @@
 package madkit.test.agents;
 
-import madkit.test.agents.behaviors.BlockedEnd;
-import madkit.test.agents.behaviors.BlockedLive;
+import madkit.test.agents.behaviors.BlockedEndBehavior;
+import madkit.test.agents.behaviors.BlockedLiveBehavior;
 
-/**
- *
- *
- */
-public class ThreadedAgentBlockedInLiveAndEnd extends ThreadedTestAgent implements BlockedLive, BlockedEnd {
+public class ThreadedAgentBlockedInLiveAndEnd extends ThreadedTestAgent
+		implements BlockedLiveBehavior, BlockedEndBehavior {
 }

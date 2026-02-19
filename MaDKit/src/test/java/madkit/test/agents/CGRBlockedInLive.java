@@ -1,12 +1,12 @@
 package madkit.test.agents;
 
-import madkit.kernel.GenericTestAgent;
-import madkit.test.agents.behaviors.ActivateCGR;
-import madkit.test.agents.behaviors.BlockedLive;
+import madkit.kernel.DefaultTestAgent;
+import madkit.test.agents.behaviors.ActivateCGRBehavior;
+import madkit.test.agents.behaviors.BlockedLiveBehavior;
 
 /**
  *
  *
  */
-public class CGRBlockedInLive extends GenericTestAgent implements ActivateCGR, BlockedLive {
+public class CGRBlockedInLive extends DefaultTestAgent implements ActivateCGRBehavior, BlockedLiveBehavior {
 }

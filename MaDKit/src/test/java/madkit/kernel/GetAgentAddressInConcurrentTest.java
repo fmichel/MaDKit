@@ -35,13 +35,15 @@
  *******************************************************************************/
 package madkit.kernel;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.testng.annotations.Test;
 
 import madkit.test.agents.CGRAgent;
 
 /**
  *
- * @version 6.0.2
+ * @version 6.0.5
  * 
  */
 public class GetAgentAddressInConcurrentTest extends MadkitConcurrentTestCase {
@@ -50,9 +52,9 @@ public class GetAgentAddressInConcurrentTest extends MadkitConcurrentTestCase {
 	public void givenAgent_whenGetAgentAddress_thenSuccess() {
 		runTest(new CGRAgent() {
 			@Override
-			protected void onActivation() {
-				super.onActivation();
-				threadAssertNotNull(getOrganization().getRole(COMMUNITY, GROUP, ROLE).getAgentAddressOf(this));
+			public void behaviorInActivate() {
+				assertThat(getOrganization().getRole(COMMUNITY, GROUP, ROLE).getAgentAddressOf(this))
+						.as("agent address should not be null").isNotNull();
 				resume();
 			}
 		});
@@ -62,14 +64,13 @@ public class GetAgentAddressInConcurrentTest extends MadkitConcurrentTestCase {
 	public void givenAgent_whenLeaveRole_thenAgentAddressIsNull() {
 		runTest(new CGRAgent() {
 			@Override
-			protected void onActivation() {
-				super.onActivation();
+			public void behaviorInActivate() {
 				AgentAddress aa = getOrganization().getRole(COMMUNITY, GROUP, ROLE).getAgentAddressOf(this);
-				threadAssertNotNull(aa);
-				threadAssertTrue(aa.isValid());
+				assertThat(aa).as("initial agent address").isNotNull();
+				assertThat(aa.isValid()).as("agent address should be valid after joining role").isTrue();
 				leaveRole(COMMUNITY, GROUP, ROLE);
-				threadAssertFalse(aa.isValid());
-				threadAssertFalse(getOrganization().isRole(COMMUNITY, GROUP, ROLE));
+				assertThat(aa.isValid()).as("agent address should be invalid after leaving role").isFalse();
+				assertThat(getOrganization().isRole(COMMUNITY, GROUP, ROLE)).as("role should no longer exist").isFalse();
 				resume();
 			}
 		});
@@ -79,14 +80,13 @@ public class GetAgentAddressInConcurrentTest extends MadkitConcurrentTestCase {
 	public void givenAgent_whenLeaveGroup_thenAgentAddressIsNull() {
 		runTest(new CGRAgent() {
 			@Override
-			protected void onActivation() {
-				super.onActivation();
+			public void behaviorInActivate() {
 				AgentAddress aa = getOrganization().getRole(COMMUNITY, GROUP, ROLE).getAgentAddressOf(this);
-				threadAssertNotNull(aa);
-				threadAssertTrue(aa.isValid());
+				assertThat(aa).as("initial agent address").isNotNull();
+				assertThat(aa.isValid()).as("agent address should be valid after joining group").isTrue();
 				leaveGroup(COMMUNITY, GROUP);
-				threadAssertFalse(aa.isValid());
-				threadAssertFalse(getOrganization().isGroup(COMMUNITY, GROUP));
+				assertThat(aa.isValid()).as("agent address should be invalid after leaving group").isFalse();
+				assertThat(getOrganization().isGroup(COMMUNITY, GROUP)).as("group should no longer exist").isFalse();
 				resume();
 			}
 		});
@@ -96,8 +96,7 @@ public class GetAgentAddressInConcurrentTest extends MadkitConcurrentTestCase {
 	public void givenNullCommunity_whenGetAnyAgentAddress_thenThrowsNullPointerException() {
 		runTest(new CGRAgent() {
 			@Override
-			protected void onActivation() {
-				super.onActivation();
+			public void behaviorInActivate() {
 				try {
 					getOrganization().getGroup(null, GROUP).getAnyAgentAddressOf(this);
 					noExceptionFailure();
@@ -112,10 +111,10 @@ public class GetAgentAddressInConcurrentTest extends MadkitConcurrentTestCase {
 	public void givenNullGroup_whenGetAgentAddress_thenThrowsNullPointerException() {
 		runTest(new CGRAgent() {
 			@Override
-			protected void onActivation() {
-				super.onActivation();
+			public void behaviorInActivate() {
 				try {
-					threadAssertNotNull(getOrganization().getRole(COMMUNITY, null, ROLE).getAgentAddressOf(this));
+					assertThat(getOrganization().getRole(COMMUNITY, null, ROLE).getAgentAddressOf(this))
+							.as("getAgentAddress with null group should throw").isNotNull();
 					noExceptionFailure();
 				} catch (NullPointerException e) {
 					resume();

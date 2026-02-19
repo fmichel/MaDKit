@@ -40,7 +40,7 @@ import java.lang.invoke.MethodHandle;
 import org.testng.annotations.Test;
 
 import madkit.kernel.Agent;
-import madkit.kernel.GenericTestAgent;
+import madkit.kernel.DefaultTestAgent;
 import madkit.kernel.Message;
 
 /**
@@ -51,18 +51,18 @@ import madkit.kernel.Message;
 public class MethodHandleFinderTest {
 
 	MethodHandle mh;
-	Agent agent = new GenericTestAgent();
+	Agent agent = new DefaultTestAgent();
 
 	@Test
 	void given_NoArgs_when_findMethodHandle_then_notNull() throws Throwable {
-		mh = MethodHandleFinder.findMethodHandle(GenericTestAgent.class, "privateMethod");
+		mh = MethodHandleFinder.findMethodHandle(DefaultTestAgent.class, "privateMethod");
 		assertNotNull(mh);
 		mh.invoke(agent);
 	}
 
 	@Test
 	void given_NoArgs_when_findMethodHandleFromParam_then_notNullIsReturned() throws Throwable {
-		mh = MethodHandleFinder.findMethodHandleFromArgs(GenericTestAgent.class, "privateMethod");
+		mh = MethodHandleFinder.findMethodHandleFromArgs(DefaultTestAgent.class, "privateMethod");
 		assertNotNull(mh);
 		mh.invoke(agent);
 	}
@@ -87,11 +87,11 @@ public class MethodHandleFinderTest {
 
 	@Test
 	public void getClassInheritedMethodOnPublicNoArg() throws Throwable {
-		mh = MethodHandleFinder.findMethodHandle(GenericTestAgent.class, "getLogger");// public
+		mh = MethodHandleFinder.findMethodHandle(DefaultTestAgent.class, "getLogger");// public
 		mh.invoke(agent);
-		mh = MethodHandleFinder.findMethodHandle(GenericTestAgent.class, "activate");// protected
+		mh = MethodHandleFinder.findMethodHandle(DefaultTestAgent.class, "activate");// protected
 		mh.invoke(agent);
-		mh = MethodHandleFinder.findMethodHandle(GenericTestAgent.class, "getKernel");// private
+		mh = MethodHandleFinder.findMethodHandle(DefaultTestAgent.class, "getKernel");// private
 		mh.invoke(agent);
 	}
 
@@ -99,54 +99,55 @@ public class MethodHandleFinderTest {
 	public void getMethodOnArg() throws Throwable {
 		mh = MethodHandleFinder.findMethodHandleFromArgs(Agent.class, "receiveMessage", new Message());
 		mh.invoke(agent, new Message());
-		mh = MethodHandleFinder.findMethodHandleFromArgs(GenericTestAgent.class, "privateMethod");// private
+		mh = MethodHandleFinder.findMethodHandleFromArgs(DefaultTestAgent.class, "privateMethod");// private
 		mh.invoke(agent);
-		mh = MethodHandleFinder.findMethodHandleFromArgs(GenericTestAgent.class, "privateMethodWithArgs", "test",
+		mh = MethodHandleFinder.findMethodHandleFromArgs(DefaultTestAgent.class, "privateMethodWithArgs", "test",
 				new Object());// private
 		mh.invoke(agent, "test", new Object());
-		mh = MethodHandleFinder.findMethodHandleFromArgs(GenericTestAgent.class, "privateMethodWithPrimitiveArgs", "test",
-				Integer.valueOf(1));// private
+		mh = MethodHandleFinder.findMethodHandleFromArgs(DefaultTestAgent.class, "privateMethodWithPrimitiveArgs",
+				"test", Integer.valueOf(1));// private
 		mh.invoke(agent, "test", 1);
 		mh.invoke(agent, "test", Integer.valueOf(1));
-		mh = MethodHandleFinder.findMethodHandleFromArgs(GenericTestAgent.class, "privateMethodWithPrimitiveArgs", "test",
-				1);// private
+		mh = MethodHandleFinder.findMethodHandleFromArgs(DefaultTestAgent.class, "privateMethodWithPrimitiveArgs",
+				"test", 1);// private
 		mh.invoke(agent, "test", 1);
 		mh.invoke(agent, "test", Integer.valueOf(1));
 	}
 
 	@Test
 	public void getMethodOnPrimitiveArg() throws Throwable {
-		mh = MethodHandleFinder.findMethodHandleFromArgs(GenericTestAgent.class, "privateMethodWithPrimitiveArgs", "test",
-				1);
+		mh = MethodHandleFinder.findMethodHandleFromArgs(DefaultTestAgent.class, "privateMethodWithPrimitiveArgs",
+				"test", 1);
 		mh.invoke(agent, "test", 1);
 		mh.invoke(agent, "test", Integer.valueOf(1));
 	}
 
 	@Test
 	public void getMethodFromTypesNoArg() throws Throwable {
-		mh = MethodHandleFinder.findMethodHandle(GenericTestAgent.class, "getLogger");// public
+		mh = MethodHandleFinder.findMethodHandle(DefaultTestAgent.class, "getLogger");// public
 		mh.invoke(agent);
-		mh = MethodHandleFinder.findMethodHandle(GenericTestAgent.class, "isThreaded");// protected
+		mh = MethodHandleFinder.findMethodHandle(DefaultTestAgent.class, "isThreaded");// protected
 		mh.invoke(agent);
-		mh = MethodHandleFinder.findMethodHandle(GenericTestAgent.class, "privateMethod");// private
+		mh = MethodHandleFinder.findMethodHandle(DefaultTestAgent.class, "privateMethod");// private
 		mh.invoke(agent);
 	}
 
 	@Test
 	public void getMethodFromTypesArg() throws Throwable {
-		mh = MethodHandleFinder.findMethodHandle(GenericTestAgent.class, "receiveMessage", Message.class);
+		mh = MethodHandleFinder.findMethodHandle(DefaultTestAgent.class, "receiveMessage", Message.class);
 		mh.invoke(agent, new Message());
-		mh = MethodHandleFinder.findMethodHandle(GenericTestAgent.class, "privateMethodWithArgs", String.class,
+		mh = MethodHandleFinder.findMethodHandle(DefaultTestAgent.class, "privateMethodWithArgs", String.class,
 				Object.class);
 		mh.invoke(agent, "test", new Object());
-		MethodHandleFinder.findMethodHandle(GenericTestAgent.class, "privateMethodWithArgs", String.class, Integer.class);
+		MethodHandleFinder.findMethodHandle(DefaultTestAgent.class, "privateMethodWithArgs", String.class,
+				Integer.class);
 		mh.invoke(agent, "test", 2);
 		mh.invoke(agent, "test", (Integer) 2);
 	}
 
 	@Test
 	public void getMethodFromPrimitiveTypesArg() throws Throwable {
-		MethodHandle mh = MethodHandleFinder.findMethodHandle(GenericTestAgent.class, "privateMethodWithArgs",
+		MethodHandle mh = MethodHandleFinder.findMethodHandle(DefaultTestAgent.class, "privateMethodWithArgs",
 				String.class, int.class);
 		assertNotNull(mh);
 	}

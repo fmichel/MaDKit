@@ -1,17 +1,16 @@
 package madkit.test.agents.behaviors;
 
-import madkit.kernel.TestHelpAgent;
+import madkit.kernel.TestAgentSupport;
 
 /**
  *
  *
  */
-public interface LiveReplier extends TestHelpAgent {
+public interface OnLiveReplierBehavior extends TestAgentSupport {
 
 	@Override
 	default void behaviorInLive() {
 		while (true) {
-			sleep(100);
 			waitMessageAndReply();
 		}
 	}

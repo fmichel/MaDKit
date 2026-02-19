@@ -1,13 +1,9 @@
 package madkit.test.agents;
 
-import madkit.kernel.GenericTestAgent;
-import madkit.test.agents.behaviors.ActivateCGR;
-import madkit.test.agents.behaviors.EndForever;
+import madkit.kernel.DefaultTestAgent;
+import madkit.test.agents.behaviors.ActivateCGRBehavior;
+import madkit.test.agents.behaviors.EndForeverBehavior;
 
-/**
- *
- *
- */
-public class CGRForeverInEnd extends GenericTestAgent implements ActivateCGR, EndForever {
+public class CGRForeverInEnd extends DefaultTestAgent implements ActivateCGRBehavior, EndForeverBehavior {
 
 }

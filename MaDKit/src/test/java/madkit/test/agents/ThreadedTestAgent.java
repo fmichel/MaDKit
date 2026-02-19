@@ -1,21 +1,21 @@
 package madkit.test.agents;
 
-import madkit.kernel.GenericTestAgent;
+import madkit.kernel.DefaultTestAgent;
 
-/**
- *
- *
- */
-public class ThreadedTestAgent extends GenericTestAgent {
+public class ThreadedTestAgent extends DefaultTestAgent {
+
+	public ThreadedTestAgent() {
+		super();
+	}
 
 	@Override
 	protected void onLive() {
-		orgInLive();
-		behaviorInLive();
-	}
-
-	public static void main(String[] args) {
-		executeThisAgent(1);
+		try {
+			orgInLive();
+			behaviorInLive();
+		} catch (Throwable e) {
+			getMadkitConcurrentTestCase().threadFail(e);
+		}
 	}
 
 }

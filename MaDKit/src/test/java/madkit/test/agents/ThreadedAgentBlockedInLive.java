@@ -1,10 +1,6 @@
 package madkit.test.agents;
 
-import madkit.test.agents.behaviors.BlockedLive;
+import madkit.test.agents.behaviors.BlockedLiveBehavior;
 
-/**
- *
- *
- */
-public class ThreadedAgentBlockedInLive extends ThreadedTestAgent implements BlockedLive {
+public class ThreadedAgentBlockedInLive extends ThreadedTestAgent implements BlockedLiveBehavior {
 }

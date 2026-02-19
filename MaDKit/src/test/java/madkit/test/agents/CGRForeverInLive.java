@@ -1,12 +1,8 @@
 package madkit.test.agents;
 
-import madkit.test.agents.behaviors.ActivateCGR;
-import madkit.test.agents.behaviors.LiveForever;
+import madkit.test.agents.behaviors.ActivateCGRBehavior;
+import madkit.test.agents.behaviors.LiveForeverBehavior;
 
-/**
- *
- *
- */
-public class CGRForeverInLive extends ThreadedTestAgent implements ActivateCGR, LiveForever {
+public class CGRForeverInLive extends ThreadedTestAgent implements ActivateCGRBehavior, LiveForeverBehavior {
 
 }

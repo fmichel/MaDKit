@@ -33,33 +33,50 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C license and that you accept its terms.
  *******************************************************************************/
-package madkit.test.agents;
 
-import madkit.kernel.Agent;
-import madkit.random.RandomizedDouble;
-import madkit.random.RandomizedFloat;
-import madkit.random.RandomizedInteger;
-import madkit.random.RandomizedString;
+package madkit.random;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.random.RandomGenerator;
+import java.util.random.RandomGeneratorFactory;
+
+import org.testng.annotations.Test;
 
 /**
- * The Class RandomizedValuesAgent.
+ * The Class RandomnessTest.
  */
-public class RandomizedValuesAgent extends Agent {
+public class RandomnessUnitTest {
 
-	@RandomizedDouble(min = 0.0, max = 1.0)
-	private double randomizedDouble = 50;
+	private RandomGenerator prng;
 
-	@RandomizedInteger(min = 1, max = 10)
-	private int randomizedInteger = 50;
+	@Test
+	public void givenObjectWithRandomizedFields_whenRandomizeFields_thenFieldsAreRandomized() {
+		// Given
+		prng = RandomGeneratorFactory.of("Random").create();
+		TestObject testObject = new TestObject();
 
-	@RandomizedFloat(min = 0.0f, max = 1.0f)
-	private float randomizedFloat = 50f;
+		// When
+		Randomness.randomizeFields(testObject, prng);
 
-	@RandomizedString(values = { "A", "B", "C" })
-	private String randomizedString = "Z";
+		// Then
+		assertThat(testObject.randomizedDouble).isBetween(0.0, 1.0);
+		assertThat(testObject.randomizedInteger).isBetween(1, 10);
+		assertThat(testObject.randomizedFloat).isBetween(0.0f, 1.0f);
+		assertThat(testObject.randomizedString).isIn("A", "B", "C");
+	}
 
-	@Override
-	protected void onActivation() {
-		super.onActivation();
+	private static class TestObject {
+		@RandomizedDouble(min = 0.0, max = 1.0)
+		private double randomizedDouble = 50;
+
+		@RandomizedInteger(min = 1, max = 10)
+		private int randomizedInteger = 50;
+
+		@RandomizedFloat(min = 0.0f, max = 1.0f)
+		private float randomizedFloat = 50f;
+
+		@RandomizedString(values = { "A", "B", "C" })
+		private String randomizedString = "Z";
 	}
 }

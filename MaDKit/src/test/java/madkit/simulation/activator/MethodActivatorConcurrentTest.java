@@ -35,12 +35,14 @@
  *******************************************************************************/
 package madkit.simulation.activator;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.List;
 
 import org.testng.annotations.Test;
 
 import madkit.kernel.Agent;
-import madkit.kernel.GenericTestAgent;
+import madkit.kernel.DefaultTestAgent;
 import madkit.kernel.MadkitConcurrentTestCase;
 import madkit.simulation.scheduler.MethodActivator;
 
@@ -54,7 +56,7 @@ public class MethodActivatorConcurrentTest extends MadkitConcurrentTestCase {
 		runTest(new Agent() {
 			@Override
 			protected void onActivation() {
-				List<GenericTestAgent> agents = getNewAgentsList(this);
+				List<DefaultTestAgent> agents = getNewAgentsList(this);
 				MethodActivator activator = new MethodActivator("test", "test", "privateMethod");
 				activator.execute(agents);
 				checkActivation(agents);
@@ -68,7 +70,7 @@ public class MethodActivatorConcurrentTest extends MadkitConcurrentTestCase {
 		runTest(new Agent() {
 			@Override
 			protected void onActivation() {
-				List<GenericTestAgent> agents = getNewAgentsList(this);
+				List<DefaultTestAgent> agents = getNewAgentsList(this);
 				MethodActivator activator = new MethodActivator("test", "test", "privateMethodWithPrimitiveArgs",
 						String.class, int.class);
 				activator.execute(agents, "hello", 1);
@@ -83,7 +85,7 @@ public class MethodActivatorConcurrentTest extends MadkitConcurrentTestCase {
 		runTest(new Agent() {
 			@Override
 			protected void onActivation() {
-				List<GenericTestAgent> agents = getNewAgentsList(this);
+				List<DefaultTestAgent> agents = getNewAgentsList(this);
 				MethodActivator activator = new MethodActivator("test", "test", "privateMethodWithPrimitiveArgs");
 				activator.execute(agents, "hello", 1);
 				checkActivation(agents);
@@ -97,7 +99,7 @@ public class MethodActivatorConcurrentTest extends MadkitConcurrentTestCase {
 		runTest(new Agent() {
 			@Override
 			protected void onActivation() {
-				List<GenericTestAgent> agents = getNewAgentsList(this);
+				List<DefaultTestAgent> agents = getNewAgentsList(this);
 				MethodActivator activator = new MethodActivator("test", "test", "privateMethod");
 				activator.executeInParallel(agents);
 				checkActivation(agents);
@@ -111,7 +113,7 @@ public class MethodActivatorConcurrentTest extends MadkitConcurrentTestCase {
 		runTest(new Agent() {
 			@Override
 			protected void onActivation() {
-				List<GenericTestAgent> agents = getNewAgentsList(this);
+				List<DefaultTestAgent> agents = getNewAgentsList(this);
 				MethodActivator activator = new MethodActivator("test", "test", "privateMethodWithPrimitiveArgs");
 				activator.executeInParallel(agents, "hello", 1);
 				checkActivation(agents);
@@ -120,15 +122,16 @@ public class MethodActivatorConcurrentTest extends MadkitConcurrentTestCase {
 		});
 	}
 
-	void checkActivation(List<GenericTestAgent> agents) {
-		for (GenericTestAgent agent : agents) {
-			threadAssertTrue(agent.isOneMethodHasBeenActivated());
+	void checkActivation(List<DefaultTestAgent> agents) {
+		for (DefaultTestAgent agent : agents) {
+			assertThat(agent.isOneMethodHasBeenActivated()).as("one method has been activated for agent " + agent)
+					.isTrue();
 		}
 	}
 
-	List<GenericTestAgent> getNewAgentsList(Agent creator) {
-		GenericTestAgent a1 = creator.launchAgent(GenericTestAgent.class.getName(), 1);
-		GenericTestAgent a2 = creator.launchAgent(GenericTestAgent.class.getName(), 1);
+	List<DefaultTestAgent> getNewAgentsList(Agent creator) {
+		DefaultTestAgent a1 = creator.launchAgent(DefaultTestAgent.class.getName(), 1);
+		DefaultTestAgent a2 = creator.launchAgent(DefaultTestAgent.class.getName(), 1);
 		return List.of(a1, a2);
 	}
 }

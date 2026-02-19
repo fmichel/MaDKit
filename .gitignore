@@ -36,3 +36,7 @@ Trash
 
 #MaDKit build dirs
 Logs
+
+#github
+.github/
+.serena

@@ -36,15 +36,16 @@ knowledge of the CeCILL-C license and that you accept its terms.
  */
 package madkit.messaging;
 
-import static madkit.kernel.Agent.ReturnCode.AGENT_CRASH;
-import static madkit.kernel.Agent.ReturnCode.SUCCESS;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.function.Predicate;
 
 import org.testng.annotations.Test;
 
-import madkit.kernel.GenericTestAgent;
-import madkit.kernel.MadkitUnitTestCase;
+import static madkit.kernel.Agent.ReturnCode.SUCCESS;
+
+import madkit.kernel.DefaultTestAgent;
+import madkit.kernel.MadkitConcurrentTestCase;
 import madkit.kernel.Message;
 import madkit.messages.StringMessage;
 import madkit.test.agents.CGRAgent;
@@ -56,68 +57,67 @@ import madkit.test.agents.CGRAgent;
  * 
  */
 @SuppressWarnings("all")
-public class WaitForReplyTest extends MadkitUnitTestCase {
+public class WaitForReplyTest extends MadkitConcurrentTestCase {
 
-	protected Predicate<Message> filter = new Predicate<Message>() {
-		public boolean test(Message t) {
-			return t instanceof StringMessage;
-		};
-	};
+	protected Predicate<Message> filter = m -> m instanceof StringMessage;
 
 	@Test
 	public void waitSuccess() {
-		launchTestedAgent(new CGRAgent() {
-			protected void onActivation() {
-				super.onActivation();
+		runTest(new CGRAgent() {
+			@Override
+			public void behaviorInActivate() {
 				receiveMessage(new Message());
 				receiveMessage(new Message());
-				threadAssertEquals(SUCCESS, launchAgent(new ForEverReplierAgent(StringMessage.class)));
+				assertThat(launchAgent(new ForEverReplierAgent(StringMessage.class))).as("launch replier")
+						.isEqualTo(SUCCESS);
 				getLogger().info("sending message " + getAgentWithRole(COMMUNITY, GROUP, ROLE));
 				send(new Message(), COMMUNITY, GROUP, ROLE);
 				pause(20);
 				receiveMessage(new Message());
 				getLogger().info(getMailbox().toString());
-				threadAssertNotNull(getMailbox().waitNext(filter));
+				assertThat(getMailbox().waitNext(filter)).as("waitNext(filter) result").isNotNull();
 				getLogger().info(getMailbox().toString());
-				threadAssertEquals(3, getMailbox().size());
+				assertThat(getMailbox().size()).as("mailbox size").isEqualTo(3);
 				getLogger().info(nextMessage().toString());
+				resume();
 			}
 		});
 	}
 
 	@Test
 	public void waitReturnNull() {
-		launchTestedAgent(new CGRAgent() {
-			protected void onActivation() {
-				super.onActivation();
+		runTest(new CGRAgent() {
+			@Override
+			public void behaviorInActivate() {
 				receiveMessage(new Message());
 				receiveMessage(new Message());
 				receiveMessage(new Message());
 				getLogger().info(getMailbox().toString());
-//				threadAssertEquals(SUCCESS, launchAgent(new ForEverReplierAgent(StringMessage.class)));
-//				send(new Message(), GROUP, ROLE, COMMUNITY);
-//				pause(20);
-				threadAssertNull(getMailbox().waitNext(1, filter));
+				launchAgent(new ForEverReplierAgent(StringMessage.class));
+				send(new Message(), GROUP, ROLE, COMMUNITY);
+				pause(20);
+				assertThat(getMailbox().waitNext(1, filter)).as("waitNext with timeout").isNull();
 				getLogger().info(getMailbox().toString());
-				threadAssertEquals(3, getMailbox().nextMatches(null).size());
+				assertThat(getMailbox().nextMatches(null).size()).as("nextMatches size").isEqualTo(3);
+				resume();
 			}
 		});
 	}
 
 	@Test
 	public void nullArg() {
-		launchTestedAgent(new GenericTestAgent() {
-			protected void onActivation() {
+		runTest(new DefaultTestAgent() {
+			@Override
+			public void behaviorInActivate() {
 				getMailbox().waitNext(1);// not fail when messagebox is empty
 				try {
 					receiveMessage(new Message());
 					getMailbox().waitNext(null);
 					noExceptionFailure();
 				} catch (NullPointerException e) {
-					throw e;
+					resume();
 				}
 			}
-		}, AGENT_CRASH);
+		});
 	}
-
 }

@@ -1,12 +1,12 @@
 package madkit.test.agents.behaviors;
 
-import madkit.kernel.TestHelpAgent;
+import madkit.kernel.TestAgentSupport;
 
 /**
  *
  *
  */
-public interface BlockedLive extends TestHelpAgent {
+public interface BlockedLiveBehavior extends TestAgentSupport {
 
 	@Override
 	default void behaviorInLive() {

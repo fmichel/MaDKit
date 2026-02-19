@@ -1,12 +1,12 @@
 package madkit.test.agents.behaviors;
 
-import madkit.kernel.TestHelpAgent;
+import madkit.kernel.TestAgentSupport;
 
 /**
  *
  *
  */
-public interface LiveBug extends TestHelpAgent {
+public interface EndBugBehavior extends TestAgentSupport {
 
 	@Override
 	default void behaviorInEnd() {

@@ -35,6 +35,8 @@
  *******************************************************************************/
 package madkit.kernel;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.testng.annotations.Test;
 
 import madkit.simulation.scheduler.MethodActivator;
@@ -50,10 +52,10 @@ public class SchedulerConcurrentTest extends MadkitConcurrentTestCase {
 			@Override
 			protected void onActivation() {
 				MethodActivator ea = new MethodActivator(GROUP, ROLE, "test");
-				threadAssertTrue(addActivator(ea));
+				assertThat(addActivator(ea)).as("first addActivator call").isTrue();
 				ea = new MethodActivator(GROUP, ROLE, "test");
-				threadAssertTrue(addActivator(ea));
-				threadAssertFalse(addActivator(ea));
+				assertThat(addActivator(ea)).as("second addActivator call").isTrue();
+				assertThat(addActivator(ea)).as("adding same activator third time should return false").isFalse();
 				resume();
 			}
 		});

@@ -1,11 +1,7 @@
 package madkit.test.agents;
 
-import madkit.test.agents.behaviors.ActivateCGR;
-import madkit.test.agents.behaviors.BlockedEnd;
+import madkit.test.agents.behaviors.ActivateCGRBehavior;
+import madkit.test.agents.behaviors.BlockedEndBehavior;
 
-/**
- *
- *
- */
-public class ThreadedCGRBlockedInEnd extends ThreadedTestAgent implements ActivateCGR, BlockedEnd {
+public class ThreadedCGRBlockedInEnd extends ThreadedTestAgent implements ActivateCGRBehavior, BlockedEndBehavior {
 }

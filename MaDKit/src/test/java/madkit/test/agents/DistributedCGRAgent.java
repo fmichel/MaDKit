@@ -1,11 +1,11 @@
 package madkit.test.agents;
 
-import madkit.kernel.ConcurrentTestAgent;
-import madkit.test.agents.behaviors.ActivateDistributedCGR;
+import madkit.kernel.DefaultTestAgent;
+import madkit.test.agents.behaviors.ActivateDistributedCGRBehavior;
 
 /**
  *
  *
  */
-public class DistributedCGRAgent extends ConcurrentTestAgent implements ActivateDistributedCGR {
+public class DistributedCGRAgent extends DefaultTestAgent implements ActivateDistributedCGRBehavior {
 }

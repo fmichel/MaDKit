@@ -35,14 +35,17 @@
  *******************************************************************************/
 package madkit.simulation;
 
-import static madkit.kernel.Agent.ReturnCode.ALREADY_GROUP;
-import static madkit.kernel.Agent.ReturnCode.SUCCESS;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.testng.annotations.Test;
 
+import static madkit.kernel.Agent.ReturnCode.ALREADY_GROUP;
+import static madkit.kernel.Agent.ReturnCode.SUCCESS;
+
 import madkit.kernel.Activator;
+import madkit.kernel.Agent;
 import madkit.kernel.Agent.ReturnCode;
-import madkit.kernel.MadkitUnitTestCase;
+import madkit.kernel.MadkitConcurrentTestCase;
 import madkit.simulation.scheduler.TickBasedScheduler;
 import madkit.test.agents.CGRAgent;
 import madkit.test.agents.SimulatedAgent;
@@ -54,124 +57,128 @@ import madkit.test.agents.SimulatedAgent;
  * 
  */
 
-public class BasicSchedulerTest extends MadkitUnitTestCase {
-
-	@Test
-	public void givenSimulationEngine_whenLaunchScheduler_works() {
-		TickBasedScheduler s = new TickBasedScheduler();
-		launchSimuAgentTest(s);
-	}
+public class BasicSchedulerTest extends MadkitConcurrentTestCase {
 
 	@Test
 	public void givenNewActivator_whenAddedBeforeAgentsJoin_thenSizeIsCorrect() {
-		launchSimuAgentTest(new TickBasedScheduler() {
+		runSimuTest(new TickBasedScheduler() {
 			@Override
 			protected void onActivation() {
-				super.onActivation();
 				EmptyActivator ea = new EmptyActivator(GROUP, ROLE);
 				addActivator(ea);
 				launchAgent(new SimulatedAgent());
-				threadAssertEquals(1, ea.size());
+				assertThat(ea.size()).as("activator size after agent join").isEqualTo(1);
+				resume();
 			}
 		});
 	}
 
 	@Test
 	public void givenNewActivator_whenAddedAfterAgentsJoined_thenSizeIsCorrect() {
-		launchSimuAgentTest(new TickBasedScheduler() {
+		runSimuTest(new TickBasedScheduler() {
 			@Override
 			protected void onActivation() {
-				super.onActivation();
 				launchAgent(new SimulatedAgent());
 				EmptyActivator ea = new EmptyActivator(GROUP, ROLE);
 				addActivator(ea);
-				threadAssertEquals(1, ea.size());
+				assertThat(ea.size()).as("activator size after adding activator").isEqualTo(1);
+				resume();
 			}
 		});
 	}
 
 	@Test
 	public void addingNullActivatorExceptionPrint() {
-		launchTestedAgent(new CGRAgent() {
+		runTest(new CGRAgent() {
 			@Override
-			protected void onActivation() {
-				Activator a = new EmptyActivator(null, null);
+			public void behaviorInActivate() {
+				// launching an agent that creates an activator with null args should crash
+				assertThat(launchAgent(new Agent() {
+					@Override
+					protected void onActivation() {
+						Activator a = new EmptyActivator(null, null);
+						resume();
+					}
+				})).as("launch agent creating null activator").isEqualTo(ReturnCode.AGENT_CRASH);
+				resume();
 			}
-		}, ReturnCode.AGENT_CRASH);
+		});
 	}
 
 	@Test
 	public void addingAndRemovingActivators() {
-		launchSimuAgentTest(new TickBasedScheduler() {
+		runSimuTest(new TickBasedScheduler() {
 			@Override
-			protected void onActivation() {
+			public void onActivation() {
 				// ///////////////////////// REQUEST ROLE ////////////////////////
 				Activator a = new EmptyActivator(GROUP, ROLE);
 				addActivator(a);
-				threadAssertEquals(0, a.size());
+				assertThat(a.size()).as("activator initial size").isEqualTo(0);
 
-				threadAssertEquals(SUCCESS, createSimuGroup(GROUP));
-				threadAssertEquals(ALREADY_GROUP, createSimuGroup(GROUP));
-				threadAssertEquals(SUCCESS, requestSimuRole(GROUP, ROLE));
+				assertThat(createSimuGroup(GROUP)).as("createSimuGroup first").isEqualTo(SUCCESS);
+				assertThat(createSimuGroup(GROUP)).as("createSimuGroup already").isEqualTo(ALREADY_GROUP);
+				assertThat(requestSimuRole(GROUP, ROLE)).as("requestSimuRole").isEqualTo(SUCCESS);
 
-				threadAssertEquals(1, a.size());
+				assertThat(a.size()).as("activator size after request").isEqualTo(1);
 
-				threadAssertEquals(SUCCESS, leaveSimuGroup(GROUP));
-				threadAssertEquals(0, a.size());
+				assertThat(leaveSimuGroup(GROUP)).as("leaveSimuGroup").isEqualTo(SUCCESS);
+				assertThat(a.size()).as("activator size after leave").isEqualTo(0);
 
 				// Adding and removing while group does not exist
 				removeActivator(a);
-				threadAssertEquals(0, a.size());
+				assertThat(a.size()).as("activator size after remove").isEqualTo(0);
 				addActivator(a);
-				threadAssertEquals(0, a.size());
+				assertThat(a.size()).as("activator size after add").isEqualTo(0);
 
-				threadAssertEquals(SUCCESS, createSimuGroup(GROUP));
-				threadAssertEquals(SUCCESS, requestSimuRole(GROUP, ROLE));
+				assertThat(createSimuGroup(GROUP)).as("createSimuGroup").isEqualTo(SUCCESS);
+				assertThat(requestSimuRole(GROUP, ROLE)).as("requestSimuRole second").isEqualTo(SUCCESS);
 				SimuAgent other = new SimuAgent() {
 					@Override
 					protected void onActivation() {
-						threadAssertEquals(SUCCESS, requestSimuRole(GROUP, ROLE));
+						assertThat(requestSimuRole(GROUP, ROLE)).as("other requestSimuRole").isEqualTo(SUCCESS);
 					}
 				};
-				threadAssertEquals(SUCCESS, launchAgent(other));
+				assertThat(launchAgent(other)).as("launch other simu agent").isEqualTo(SUCCESS);
 
-				threadAssertEquals(2, a.size());
+				assertThat(a.size()).as("activator size after two agents").isEqualTo(2);
 				removeActivator(a);
-				threadAssertEquals(0, a.size());
+				assertThat(a.size()).as("activator size after remove activator").isEqualTo(0);
 				addActivator(a);
-				threadAssertEquals(2, a.size());
+				assertThat(a.size()).as("activator size after add activator").isEqualTo(2);
 
-				threadAssertEquals(SUCCESS, leaveSimuGroup(GROUP));
-				threadAssertEquals(1, a.size());
-				threadAssertEquals(SUCCESS, other.leaveSimuGroup(GROUP));
-				threadAssertEquals(0, a.size());
+				assertThat(leaveSimuGroup(GROUP)).as("leaveSimuGroup").isEqualTo(SUCCESS);
+				assertThat(a.size()).as("activator size after leave").isEqualTo(1);
+				assertThat(other.leaveSimuGroup(GROUP)).as("other leave").isEqualTo(SUCCESS);
+				assertThat(a.size()).as("activator size after other leave").isEqualTo(0);
 
-				threadAssertEquals(SUCCESS, createSimuGroup(GROUP));
-				threadAssertEquals(SUCCESS, requestSimuRole(GROUP, ROLE));
-				threadAssertEquals(SUCCESS, other.requestSimuRole(GROUP, ROLE));
-				threadAssertEquals(2, a.size());
+				assertThat(createSimuGroup(GROUP)).as("createSimuGroup again").isEqualTo(SUCCESS);
+				assertThat(requestSimuRole(GROUP, ROLE)).as("requestSimuRole third").isEqualTo(SUCCESS);
+				assertThat(other.requestSimuRole(GROUP, ROLE)).as("other request simu role").isEqualTo(SUCCESS);
+				assertThat(a.size()).as("activator size after both request").isEqualTo(2);
 				killAgent(other);
-				threadAssertEquals(1, a.size());
+				assertThat(a.size()).as("activator size after kill other").isEqualTo(1);
+				resume();
 			}
 		});
 	}
 
 	@Test
 	public void addAfterRequestRole() {
-		launchSimuAgentTest(new TickBasedScheduler() {
+		runSimuTest(new TickBasedScheduler() {
 			@Override
-			protected void onActivation() {
-				threadAssertEquals(SUCCESS, createSimuGroup("system"));
-				threadAssertEquals(SUCCESS, requestSimuRole("system", "site"));
+			public void onActivation() {
+				assertThat(createSimuGroup("system")).as("create system group").isEqualTo(SUCCESS);
+				assertThat(requestSimuRole("system", "site")).as("request site role").isEqualTo(SUCCESS);
 				ReturnCode code;
 				// ///////////////////////// REQUEST ROLE ////////////////////////
 				Activator a = new EmptyActivator("system", "site");
 				addActivator(a);
-				threadAssertEquals(1, a.size());
+				assertThat(a.size()).as("activator size after add").isEqualTo(1);
 
 				code = leaveSimuRole("system", "site");
-				threadAssertEquals(SUCCESS, code);
-				threadAssertEquals(0, a.size());
+				assertThat(code).as("leaveSimuRole return code").isEqualTo(SUCCESS);
+				assertThat(a.size()).as("activator size after leave").isEqualTo(0);
+				resume();
 			}
 		});
 	}

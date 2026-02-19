@@ -33,7 +33,7 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C license and that you accept its terms.
  *******************************************************************************/
-package networking;
+package madkit.kernel;
 
 import static org.assertj.core.api.Assertions.fail;
 
@@ -41,17 +41,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 
 import madkit.action.KernelAction;
-import madkit.kernel.Madkit;
-import madkit.kernel.MadkitConcurrentTestCase;
 
 /**
  * The Class MadkitNetworkConcurrentTestCase.
  */
 public class MadkitNetworkConcurrentTestCase extends MadkitConcurrentTestCase {
 
-	private List<Madkit> networedInstances = new ArrayList<>();
+	private List<Madkit> networkedInstances = new ArrayList<>();
 
 	@Override
 	protected String[] getMadkitTestArgs() {
@@ -59,9 +58,10 @@ public class MadkitNetworkConcurrentTestCase extends MadkitConcurrentTestCase {
 	}
 
 	@Override
+	@BeforeMethod
 	public void initMDK() {
 		super.initMDK();
-		networedInstances.add(madkit);
+		networkedInstances.add(madkit);
 	}
 
 //	/**
@@ -87,12 +87,13 @@ public class MadkitNetworkConcurrentTestCase extends MadkitConcurrentTestCase {
 		}
 	}
 
-	public void closeNetworkConnections() {
-		for (Madkit m : networedInstances) {
+	public void closeNetworkConnections() throws InterruptedException {
+		for (Madkit m : networkedInstances) {
 			m.doAction(KernelAction.STOP_NETWORK);
 			m.doAction(KernelAction.EXIT);
 		}
-		networedInstances.clear();
+		Thread.sleep(1000); // Wait for network connections to close properly
+		networkedInstances.clear();
 		System.err.println("------------Cleaning help instances done ---------------------\n\n");
 	}
 

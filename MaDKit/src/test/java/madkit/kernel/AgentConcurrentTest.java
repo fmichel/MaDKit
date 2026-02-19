@@ -35,9 +35,11 @@
  *******************************************************************************/
 package madkit.kernel;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import org.testng.annotations.Test;
 
-import madkit.test.agents.BugInActivateAgent;
 import madkit.test.agents.EmptyAgent;
 
 /**
@@ -49,29 +51,29 @@ public class AgentConcurrentTest extends MadkitConcurrentTestCase {
 
 	@Test
 	void givenLaunchedAgentLaunched_whenLaunchAgentAgent_thenThrowsIllegalArgumentException() {
-		runTest(new Agent() {
+		runTest(new DefaultTestAgent() {
 			@Override
-			protected void onActivation() {
+			public void behaviorInActivate() {
 				Agent a = new EmptyAgent();
 				launchAgent(a);
-				try {
-					launchAgent(a);
-					threadFail();
-				} catch (IllegalArgumentException e) {
-					e.printStackTrace();
-					resume();
-				}
+				assertThatThrownBy(() -> launchAgent(a)).isInstanceOf(IllegalArgumentException.class);
+				resume();
 			}
 		});
 	}
 
 	@Test
 	public void givenBuggyAgent_whenLaunched_thenReturnsCrash() {
-		runTest(new Agent() {
+		runTest(new DefaultTestAgent() {
 			@Override
-			protected void onActivation() {
-				ReturnCode r = launchAgent(new BugInActivateAgent());
-				threadAssertEquals(r, ReturnCode.AGENT_CRASH);
+			public void behaviorInActivate() {
+				ReturnCode r = launchAgent(new Agent() {
+					@Override
+					protected void onActivation() {
+						bug();
+					}
+				});
+				assertThat(r).isEqualTo(ReturnCode.AGENT_CRASH);
 				resume();
 			}
 		});

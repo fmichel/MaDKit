@@ -33,64 +33,108 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C license and that you accept its terms.
  *******************************************************************************/
+package madkit.kernel;
 
-package madkit.random;
-
-import org.testng.annotations.Test;
-
-import madkit.kernel.Agent;
-import madkit.kernel.MadkitConcurrentTestCase;
+import madkit.kernel.Agent.ReturnCode;
 
 /**
- * The Class RandomnessTest.
+ * 
  */
-public class RandomnessConcurrentTest extends MadkitConcurrentTestCase {
+public interface TestAgentSupport {
 
-	@Test
-	public void givenAgentWithRandomizedFields_whenRandomizeFields_thenFieldsAreRandomized() {
-		// Then
-		runTest(new RandomizedValuesAgent() {
-			@Override
-			protected void onActivation() {
-				threadAssertTrue(getRandomizedDouble() != 50);
-				threadAssertTrue(randomizedInteger != 50);
-				threadAssertTrue(randomizedFloat != 50);
-				threadAssertFalse(randomizedString.equals("Z"));
-				resume();
+	/**
+	 * Gets the agent.
+	 *
+	 * @return the agent
+	 */
+	public abstract DefaultTestAgent getAgent();
+
+	public default void behaviorInActivate() {
+	}
+
+	public default void behaviorInLive() {
+	}
+
+	public default void behaviorInEnd() {
+	}
+
+	public default void orgInActivate() {
+	}
+
+	public default void orgInLive() {
+	}
+
+	public default void orgInEnd() {
+	}
+
+	public default void bug() {
+		throw new NullPointerException();
+	}
+
+	/**
+	 * Gets the logger.
+	 *
+	 * @return the logger
+	 */
+	public abstract AgentLogger getLogger();
+
+	public abstract void takeDefaultLocalCGR();
+
+	public abstract void takeDefaultDistributedCGR();
+
+	public default void computeForEver() {
+		for (int i = 0; i < Integer.MAX_VALUE; i++) {
+			getAgent().exitOnKill();
+			Math.cos(Math.random());
+			if (i % 1000000 == 0) {
+				getLogger().info("computing... step " + i);
+//				sleep(1);
 			}
-		});
-	}
-}
-
-/**
- * The Class RandomizedValuesAgent.
- */
-class RandomizedValuesAgent extends Agent {
-
-	@RandomizedDouble(min = 0.0, max = 1.0)
-	private double randomizedDouble = 50;
-
-	@RandomizedInteger(min = 1, max = 10)
-	protected int randomizedInteger = 50;
-
-	@RandomizedFloat(min = 0.0f, max = 1.0f)
-	protected float randomizedFloat = 50;
-
-	@RandomizedString(values = { "A", "B", "C" })
-	protected String randomizedString = "Z";
-
-	/**
-	 * @return the randomizedDouble
-	 */
-	public double getRandomizedDouble() {
-		return randomizedDouble;
+		}
 	}
 
 	/**
-	 * @param randomizedDouble the randomizedDouble to set
+	 * 
+	 * need to implement this for not affecting the visibility of the agent's one
+	 * 
+	 * @param milliSeconds
 	 */
-	public void setRandomizedDouble(double randomizedDouble) {
-		this.randomizedDouble = randomizedDouble;
+	public default void sleep(final int milliSeconds) {
+		try {
+			Thread.sleep(milliSeconds);
+		} catch (InterruptedException e) {
+			throw new AgentInterruptedException();
+		}
 	}
+
+	public default void blockForever() {
+		try {
+			Object o = new Object();
+			synchronized (o) {
+				getLogger().info(() -> "BLOCKING MYSELF ");
+				o.wait();
+			}
+		} catch (InterruptedException e) {
+			getLogger().info(() -> "INTERRUPTED ");
+			throw new AgentInterruptedException();
+		}
+	}
+
+	public default void waitMessageAndReply() {
+		Message waitNextMessage = getAgent().waitNextMessage();
+		sleep(100);
+		reply(createNewMessage(), waitNextMessage);
+	}
+
+	/**
+	 * @return a new message
+	 */
+	public default <M extends Message> Message createNewMessage() {
+		return new Message();
+	}
+
+	//////////////////////////////////// AgentInterface
+
+	ReturnCode reply(Message reply, Message messageToReplyTo);
 
 }

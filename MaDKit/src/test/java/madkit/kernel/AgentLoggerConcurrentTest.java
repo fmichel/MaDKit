@@ -35,6 +35,8 @@
  *******************************************************************************/
 package madkit.kernel;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.testng.annotations.Test;
 
 /**
@@ -44,10 +46,10 @@ public class AgentLoggerConcurrentTest extends MadkitConcurrentTestCase {
 
 	@Test
 	public void givenNewAgent_whenStarted_thenLoggerIsNull() {
-		runTest(new Agent() {
+		runTest(new DefaultTestAgent() {
 			@Override
-			protected void onActivation() {
-				threadAssertNull(this.logger);
+			public void behaviorInActivate() {
+				assertThat(this.logger).as("logger should be null before using getLogger").isNull();
 				resume();
 			}
 		});
@@ -55,11 +57,11 @@ public class AgentLoggerConcurrentTest extends MadkitConcurrentTestCase {
 
 	@Test
 	public void givenNewAgent_whenLoggerIsUsed_thenLoggerNotNull() {
-		runTest(new Agent() {
+		runTest(new DefaultTestAgent() {
 			@Override
-			protected void onActivation() {
+			public void behaviorInActivate() {
 				getLogger().info("testing");
-				threadAssertNotNull(this.logger);
+				assertThat(this.logger).as("logger should not be null after using getLogger").isNotNull();
 				resume();
 			}
 		});

@@ -1,12 +1,12 @@
 package madkit.test.agents.behaviors;
 
-import madkit.kernel.TestHelpAgent;
+import madkit.kernel.TestAgentSupport;
 
 /**
  *
  *
  */
-public interface EndForever extends TestHelpAgent {
+public interface EndForeverBehavior extends TestAgentSupport {
 
 	@Override
 	default void behaviorInEnd() {

@@ -1,12 +1,12 @@
 package madkit.test.agents.behaviors;
 
-import madkit.kernel.TestHelpAgent;
+import madkit.kernel.TestAgentSupport;
 
 /**
  *
  *
  */
-public interface ActivateBug extends TestHelpAgent {
+public interface ActivateBugBehavior extends TestAgentSupport {
 
 	@Override
 	default void behaviorInActivate() {

@@ -1,11 +1,11 @@
 package madkit.test.agents;
 
-import madkit.kernel.GenericTestAgent;
-import madkit.test.agents.behaviors.BlockedEnd;
+import madkit.kernel.DefaultTestAgent;
+import madkit.test.agents.behaviors.BlockedEndBehavior;
 
 /**
  *
  *
  */
-public class AgentBlockedInEnd extends GenericTestAgent implements BlockedEnd {
+public class AgentBlockedInEnd extends DefaultTestAgent implements BlockedEndBehavior {
 }

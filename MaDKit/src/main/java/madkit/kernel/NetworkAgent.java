@@ -87,7 +87,7 @@ final class NetworkAgent extends Agent {
 	/**
 	 * @return true if servers are launched
 	 */
-	private boolean launchNetwork() {
+	synchronized private boolean launchNetwork() {
 		if (ReturnCode.SUCCESS != createGroup(NetworkCommunity.NAME, NetworkCommunity.Groups.NETWORK_AGENTS, true)) {
 			return false;
 		}
@@ -104,6 +104,24 @@ final class NetworkAgent extends Agent {
 //		AgentStatusPanel.updateAll();
 		getLogger().info(() -> "----- " + getKernelAddress() + " network started on " + myServer + " ------\n");
 		return true;
+	}
+
+	/**
+	 * 
+	 */
+	private boolean startServers() {
+		try {
+			myServer = PeersConnectionServer.getNewServer(this);
+			myServer.activate();
+			getLogger().info(() -> "----- MaDKit server activated on " + myServer + " ------\n");
+			multicastListener = MultiCastListener.getNewMultiCastListener(myServer.getPort());
+			multicastListener.activate(this);
+			getLogger()
+					.finer(() -> "----- MaDKit MulticastListener activated on " + MultiCastListener.ipAddress + " ------\n");
+			return true;
+		} catch (IOException e) {
+			throw new RuntimeException(this + "\n\\t\\t\\t\\t---- Unable to start the Madkit kernel servers ------\\n", e);
+		}
 	}
 
 	/**
@@ -144,24 +162,6 @@ final class NetworkAgent extends Agent {
 		}
 	}
 
-	/**
-	 * 
-	 */
-	private boolean startServers() {
-		try {
-			myServer = PeersConnectionServer.getNewServer(this);
-			myServer.activate();
-			getLogger().info(() -> "----- MaDKit server activated on " + myServer + " ------\n");
-			multicastListener = MultiCastListener.getNewMultiCastListener(myServer.getPort());
-			multicastListener.activate(this);
-			getLogger()
-					.finer(() -> "----- MaDKit MulticastListener activated on " + MultiCastListener.ipAddress + " ------\n");
-			return true;
-		} catch (IOException e) {
-			throw new RuntimeException(this + "\n\\t\\t\\t\\t---- Unable to start the Madkit kernel servers ------\\n", e);
-		}
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -179,30 +179,42 @@ final class NetworkAgent extends Agent {
 		stopNetwork();
 	}
 
-	private void stopNetwork() {
+	synchronized private void stopNetwork() {
 		if (running) {
 			getLogger().info(() -> "----- Closing network " + getKernelAddress() + " ------\n");
 			getLogger().finer(() -> "Closing all connections : " + peers.values());
-			try {
-				Thread.ofPlatform().start(() -> {
-					for (Map.Entry<KernelAddress, PeerConnection> entry : peers.entrySet()) {
-						peerDeconnected(entry.getKey());
-						entry.getValue().closeConnection();
-					}
-					peers.clear();
-					getLogger().finer(() -> "Closing multicast listener and kernel server");
-					if (multicastListener != null) {
-						multicastListener.stop();
-					}
-					if (myServer != null) {
-						myServer.stop();
-						myServer = null;
-					}
-				}).join();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+//			try {
+//				Thread.ofPlatform().start(() -> {
+//					for (Map.Entry<KernelAddress, PeerConnection> entry : peers.entrySet()) {
+//						peerDeconnected(entry.getKey());
+//						entry.getValue().closeConnection();
+//					}
+//					peers.clear();
+//					getLogger().finer(() -> "Closing multicast listener and kernel server");
+//					if (multicastListener != null) {
+//						multicastListener.stop();
+//					}
+//					if (myServer != null) {
+//						myServer.stop();
+//						myServer = null;
+//					}
+//				}).join();
+//			} catch (InterruptedException e) {
+//				e.printStackTrace();
+//			}
+			for (Map.Entry<KernelAddress, PeerConnection> entry : peers.entrySet()) {
+				peerDeconnected(entry.getKey());
+				entry.getValue().closeConnection();
 			}
-			;
+			peers.clear();
+			getLogger().finer(() -> "Closing multicast listener and kernel server");
+			if (multicastListener != null) {
+				multicastListener.stop();
+			}
+			if (myServer != null) {
+				myServer.stop();
+				myServer = null;
+			}
 			leaveGroup(NetworkCommunity.NAME, NetworkCommunity.Groups.NETWORK_AGENTS);
 			running = false;
 			// AgentStatusPanel.updateAll();

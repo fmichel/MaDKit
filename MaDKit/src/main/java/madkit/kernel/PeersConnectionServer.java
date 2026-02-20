@@ -43,7 +43,8 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.SocketException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
 
@@ -64,28 +65,18 @@ final class PeersConnectionServer {
 
 	private NetworkAgent myAgent;
 
-	private boolean running = false;
+	private volatile boolean running = false;
 
-	private static final String EXTERNAL_IP;
+	private Thread socketAcceptThread;
 
-	static {
-		String s = null;
-		try {
-			BufferedReader in = new BufferedReader(
-					new InputStreamReader(new URL("https://www.madkit.net/madkit/whatismyip.php").openStream()));
-			s = in.readLine();
-			in.close();
-		} catch (IOException e) {
-		}
-		EXTERNAL_IP = s == null ? "" : " -- WAN : " + s;
-	}
+	private static String EXTERNAL_IP;
 
 	/**
-	 * @param serverSocket2
+	 * @param serverSocket
 	 */
-	private PeersConnectionServer(ServerSocket serverSocket2, NetworkAgent agent) {
+	private PeersConnectionServer(ServerSocket serverSocket, NetworkAgent agent) {
 		myAgent = agent;
-		mySocket = serverSocket2;
+		mySocket = serverSocket;
 	}
 
 	static final PeersConnectionServer getNewServer(NetworkAgent na) throws SocketException, UnknownHostException {
@@ -98,6 +89,7 @@ final class PeersConnectionServer {
 		while (serverSocket == null) {
 			try {
 				serverSocket = new ServerSocket(port, 50, ip);
+				serverSocket.setReuseAddress(true);
 			} catch (IOException e) {
 				port++;
 			}
@@ -106,7 +98,7 @@ final class PeersConnectionServer {
 	}
 
 	void activate() {
-		final Thread t = new Thread(() -> {
+		socketAcceptThread = new Thread(() -> {
 			running = true;
 			while (running) {
 				try {
@@ -116,14 +108,16 @@ final class PeersConnectionServer {
 				}
 			}
 		}, "MK Server " + myAgent.getName());
-		t.start();
+		socketAcceptThread.start();
 	}
 
 	void stop() {
 		running = false;
 		try {
 			mySocket.close();
-		} catch (IOException e) {
+			socketAcceptThread.interrupt();
+			socketAcceptThread.join(1000);
+		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		}
 	}
@@ -139,9 +133,27 @@ final class PeersConnectionServer {
 		return mySocket.getInetAddress();
 	}
 
+	ServerSocket getMySocket() {
+		return mySocket;
+	}
+
 	@Override
 	public String toString() {
-		return getIp() + ":" + getPort() + EXTERNAL_IP;
+		return getIp() + ":" + getPort() + getExternalIp();
+	}
+
+	String getExternalIp() {
+		if (EXTERNAL_IP == null) {
+			String s = null;
+			try (BufferedReader in = new BufferedReader(
+					new InputStreamReader(new URI("https://www.madkit.net/madkit/whatismyip.php").toURL().openStream()))) {
+				s = in.readLine();
+			} catch (IOException | URISyntaxException e) {
+				myAgent.getLogger().warning("Unable to retrieve external IP address " + e);
+			}
+			EXTERNAL_IP = s == null ? "" : " -- WAN : " + s;
+		}
+		return EXTERNAL_IP;
 	}
 
 	private static InetAddress findInetAddress() throws SocketException {

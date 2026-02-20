@@ -63,7 +63,9 @@ class MultiCastListener {
 
 	private MulticastSocket multicastSocket;
 	private DatagramSocket datagramSocket;
-	private boolean running = true;
+	private volatile boolean running = true;
+
+	private Thread multicastThread;
 
 	/**
 	 */
@@ -99,7 +101,7 @@ class MultiCastListener {
 		dos.close();
 		byte[] data = bos.toByteArray();
 		datagramSocket.send(new DatagramPacket(data, 8, ipAddress, 2009));
-		Thread t = new Thread(() -> {
+		multicastThread = new Thread(() -> {
 			while (running) {
 				try {
 					DatagramPacket peerRequest = new DatagramPacket(data, 8);
@@ -117,14 +119,20 @@ class MultiCastListener {
 			}
 			stop();
 		});
-		t.setName("Multicast Listener @ " + networkAgent.getName());
-		t.start();
+		multicastThread.setName("Multicast Listener @ " + networkAgent.getName());
+		multicastThread.start();
 	}
 
 	void stop() {
 		running = false;
 		multicastSocket.close();
 		datagramSocket.close();
+		multicastThread.interrupt();
+		try {
+			multicastThread.join(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

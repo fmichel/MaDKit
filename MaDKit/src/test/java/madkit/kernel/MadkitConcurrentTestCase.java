@@ -49,6 +49,7 @@ import java.util.concurrent.TimeoutException;
 import org.testng.annotations.BeforeMethod;
 
 import madkit.simulation.SimuAgent;
+import madkit.test.support.DefaultSimuAgentTest;
 import madkit.test.utils.EmptySimuLauncher;
 import net.jodah.concurrentunit.ConcurrentTestCase;
 
@@ -158,12 +159,27 @@ public abstract class MadkitConcurrentTestCase extends ConcurrentTestCase {
 //		MadkitTestInstance.cleanUpInstances();
 	}
 
+	public void runSimuTest(DefaultSimuAgentTest sa) {
+		runTest(new EmptySimuLauncher() {
+			@Override
+			protected void onActivation() {
+				setMadkitConcurrentTestCase(MadkitConcurrentTestCase.this);
+				super.onActivation();
+				sa.setMadkitConcurrentTestCase(MadkitConcurrentTestCase.this);
+				launchAgent(sa);
+				resume();
+			}
+		});
+	}
+
 	public void runSimuTest(SimuAgent sa) {
 		runTest(new EmptySimuLauncher() {
 			@Override
 			protected void onActivation() {
+				setMadkitConcurrentTestCase(MadkitConcurrentTestCase.this);
 				super.onActivation();
 				launchAgent(sa);
+				resume();
 			}
 		});
 	}

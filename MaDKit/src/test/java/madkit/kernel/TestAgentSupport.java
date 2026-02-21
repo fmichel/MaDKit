@@ -35,6 +35,13 @@
  *******************************************************************************/
 package madkit.kernel;
 
+import static madkit.kernel.MadkitConcurrentTestCase.COMMUNITY;
+import static madkit.kernel.MadkitConcurrentTestCase.GROUP;
+import static madkit.kernel.MadkitConcurrentTestCase.ROLE;
+import static org.testng.Assert.assertEquals;
+
+import static madkit.kernel.Agent.ReturnCode.SUCCESS;
+
 import madkit.kernel.Agent.ReturnCode;
 
 /**
@@ -47,7 +54,7 @@ public interface TestAgentSupport {
 	 *
 	 * @return the agent
 	 */
-	public abstract DefaultTestAgent getAgent();
+	public abstract Agent getAgent();
 
 	public default void behaviorInActivate() {
 	}
@@ -78,9 +85,19 @@ public interface TestAgentSupport {
 	 */
 	public abstract AgentLogger getLogger();
 
-	public abstract void takeDefaultLocalCGR();
+	public default void takeDefaultLocalCGR() {
+		getAgent().createGroup(COMMUNITY, GROUP, false, null);
+		assertEquals(getAgent().requestRole(COMMUNITY, GROUP, ROLE, null), SUCCESS);
+	}
 
-	public abstract void takeDefaultDistributedCGR();
+	public default void takeDefaultDistributedCGR() {
+		getAgent().createGroup(COMMUNITY, GROUP, true, null);
+		assertEquals(getAgent().requestRole(COMMUNITY, GROUP, ROLE, null), SUCCESS);
+	}
+
+//	public abstract void takeDefaultLocalCGR();
+//
+//	public abstract void takeDefaultDistributedCGR();
 
 	public default void computeForEver() {
 		for (int i = 0; i < Integer.MAX_VALUE; i++) {
@@ -132,6 +149,10 @@ public interface TestAgentSupport {
 	public default <M extends Message> Message createNewMessage() {
 		return new Message();
 	}
+
+	public void setMadkitConcurrentTestCase(MadkitConcurrentTestCase mdkitConcurrentTestCase);
+
+	public MadkitConcurrentTestCase getMadkitConcurrentTestCase();
 
 	//////////////////////////////////// AgentInterface
 

@@ -44,6 +44,7 @@ import static madkit.kernel.Agent.ReturnCode.SUCCESS;
 
 import madkit.kernel.DefaultTestAgent;
 import madkit.kernel.MadkitConcurrentTestCase;
+import madkit.test.support.DefaultSimuAgentTest;
 
 /**
  * The Class SimuAgentTest.
@@ -65,7 +66,7 @@ public class SimuAgentTest extends MadkitConcurrentTestCase {
 
 	@Test
 	public void givenSimuAgentTransitivelyLaunched_whenLaunch_thenSuccess() {
-		runSimuTest(new SimuAgent() {
+		runSimuTest(new DefaultSimuAgentTest() {
 			@Override
 			protected void onActivation() {
 				SimuAgent sa = new SimuAgent();

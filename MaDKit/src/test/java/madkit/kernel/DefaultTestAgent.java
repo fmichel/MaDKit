@@ -35,14 +35,7 @@
  *******************************************************************************/
 package madkit.kernel;
 
-import static madkit.kernel.MadkitConcurrentTestCase.COMMUNITY;
-import static madkit.kernel.MadkitConcurrentTestCase.GROUP;
-import static madkit.kernel.MadkitConcurrentTestCase.ROLE;
-import static org.testng.Assert.assertEquals;
-
 import java.util.logging.Level;
-
-import static madkit.kernel.Agent.ReturnCode.SUCCESS;
 
 /**
  *
@@ -53,10 +46,6 @@ public class DefaultTestAgent extends Agent implements TestAgentSupport {
 	private boolean goThroughEnd = false;
 	private boolean oneMethodHasBeenActivated = false;
 	private MadkitConcurrentTestCase madkitConcurrentTestCase;
-
-	public MadkitConcurrentTestCase getMadkitConcurrentTestCase() {
-		return madkitConcurrentTestCase;
-	}
 
 	public DefaultTestAgent() {
 	}
@@ -103,18 +92,6 @@ public class DefaultTestAgent extends Agent implements TestAgentSupport {
 
 	public boolean didPassThroughEnd() {
 		return goThroughEnd;
-	}
-
-	@Override
-	public void takeDefaultLocalCGR() {
-		createGroup(COMMUNITY, GROUP, false, null);
-		assertEquals(requestRole(COMMUNITY, GROUP, ROLE, null), SUCCESS);
-	}
-
-	@Override
-	public void takeDefaultDistributedCGR() {
-		createGroup(COMMUNITY, GROUP, true, null);
-		assertEquals(requestRole(COMMUNITY, GROUP, ROLE, null), SUCCESS);
 	}
 
 	@SuppressWarnings("unused")
@@ -175,6 +152,12 @@ public class DefaultTestAgent extends Agent implements TestAgentSupport {
 //		return null;
 //	}
 
+	@Override
+	public MadkitConcurrentTestCase getMadkitConcurrentTestCase() {
+		return madkitConcurrentTestCase;
+	}
+
+	@Override
 	public void setMadkitConcurrentTestCase(MadkitConcurrentTestCase mdkitConcurrentTestCase) {
 		this.madkitConcurrentTestCase = mdkitConcurrentTestCase;
 	}

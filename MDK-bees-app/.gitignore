@@ -1,0 +1,5 @@
+# Runtime-generated Grafana infrastructure (extracted from classpath at startup)
+grafana-workdir/
+
+# Runtime-generated metrics data
+simulation-metrics.csv

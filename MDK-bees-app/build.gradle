@@ -13,4 +13,5 @@ tasks.withType(JavaExec) {
 
 dependencies {
 	api project(':MaDKit')
+	implementation project(':MDK-grafana')
 }

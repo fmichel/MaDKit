@@ -35,9 +35,15 @@
  *******************************************************************************/
 package madkit.bees;
 
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.logging.Level;
 
+import madkit.grafana.dashboard.GrafanaConnection;
+import madkit.grafana.dashboard.GrafanaDashboard;
+import madkit.grafana.docker.GrafanaInfrastructure;
+import madkit.grafana.metrics.SimuMetrics;
 import madkit.gui.UIProperty;
 import madkit.kernel.Agent;
 import madkit.kernel.Probe;
@@ -67,13 +73,20 @@ public class BeeLauncher extends SimuLauncher {
 	private Probe followers;
 	private Probe queens;
 
+	private SimuMetrics metrics;
+	private GrafanaConnection grafanaConnection;
+
 	/**
-	 * On activation, it sets the logger level to FINE and creates probes for followers and
-	 * queens for being able to count them and kill them.
+	 * On activation, it sets the logger level to FINE, starts the Grafana infrastructure,
+	 * initializes metrics, and creates probes for followers and queens for being able to
+	 * count them and kill them.
 	 */
 	@Override
 	protected void onActivation() {
 		getLogger().setLevel(Level.FINE);
+		GrafanaInfrastructure infrastructure = GrafanaInfrastructure.startDefault();
+		grafanaConnection = GrafanaInfrastructure.createDefaultConnection();
+		metrics = GrafanaInfrastructure.createMetrics(infrastructure);
 		super.onActivation();
 		followers = new Probe(getModelGroup(), BeeOrganization.FOLLOWER);
 		addProbe(followers);
@@ -89,6 +102,15 @@ public class BeeLauncher extends SimuLauncher {
 		getLogger().info(() -> "Launching bees !");
 		launchBees(numberOfStartingFollowers);
 		launchQueens(1);
+	}
+
+	/**
+	 * On simulation start, provisions the Grafana dashboard for real-time visualization.
+	 */
+	@Override
+	public void onSimulationStart() {
+		super.onSimulationStart();
+		provisionGrafanaDashboard();
 	}
 
 	/**
@@ -132,6 +154,7 @@ public class BeeLauncher extends SimuLauncher {
 	 */
 	@Override
 	protected void onEnd() {
+		closeMetrics();
 		getLogger().info("Scheduler done. Quitting!");
 		super.onEnd();
 	}
@@ -204,6 +227,86 @@ public class BeeLauncher extends SimuLauncher {
 	 */
 	public void setRandomLaunching(boolean randomLaunching) {
 		this.randomLaunching = randomLaunching;
+	}
+
+	// --- Grafana metrics accessors ---
+
+	/**
+	 * Exposes metrics to engine agents (e.g. the scheduler).
+	 *
+	 * @return the metrics instance (never {@code null} — may be a no-op instance)
+	 */
+	public SimuMetrics getMetrics() {
+		return metrics;
+	}
+
+	/**
+	 * Returns the followers probe for population monitoring.
+	 *
+	 * @return the followers probe
+	 */
+	public Probe getFollowersProbe() {
+		return followers;
+	}
+
+	/**
+	 * Returns the queens probe for population monitoring.
+	 *
+	 * @return the queens probe
+	 */
+	public Probe getQueensProbe() {
+		return queens;
+	}
+
+	// --- Private SRP methods for Grafana lifecycle ---
+
+	/**
+	 * Provisions the Grafana dashboard by loading the panel layout from the
+	 * {@code bee-dashboard.json} resource file. This keeps the dashboard definition in a
+	 * single, declarative JSON file rather than duplicating it in code. On failure, logs a
+	 * warning — simulation continues without a dashboard.
+	 */
+	private void provisionGrafanaDashboard() {
+		if (grafanaConnection == null) {
+			return;
+		}
+		try (InputStream is = getClass().getResourceAsStream("/bee-dashboard.json")) {
+			if (is == null) {
+				getLogger().warning("bee-dashboard.json resource not found");
+				return;
+			}
+			String json = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+			String url = grafanaConnection.postDashboard(json);
+			if (url != null) {
+				getLogger().fine(() -> "Dashboard provisioned: " + url);
+			}
+
+		} catch (Exception e) {
+			getLogger().warning(() -> "Dashboard provisioning failed: " + e.getMessage());
+		}
+	}
+
+	private void createGrafanaDashboard() {
+		try {
+			var dashboard = new GrafanaDashboard("Bee Simulation2", grafanaConnection);
+			dashboard.addTimeSeriesPanel("Followers Over Time", "population", "value");
+			dashboard.addTimeSeriesPanel("Queens Over Time", "queens", "value");
+			dashboard.addTimeSeriesPanel("rendered bees", "bees", "value");
+			dashboard.addStatPanel("Current Followers", "population", "value");
+			dashboard.save();
+			dashboard.openInBrowser();
+		} catch (Exception e) {
+			getLogger().warning(() -> "Dashboard provisioning failed: " + e.getMessage());
+		}
+	}
+
+	/**
+	 * Flushes and closes the metrics subsystem.
+	 */
+	private void closeMetrics() {
+		if (metrics != null) {
+			metrics.close();
+		}
 	}
 
 }

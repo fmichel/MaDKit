@@ -1,0 +1,16 @@
+apiVersion: 1
+
+datasources:
+  - name: InfluxDB-MaDKit
+    type: influxdb
+    access: proxy
+    url: http://influxdb:8086
+    uid: influxdb-madkit
+    jsonData:
+      version: Flux
+      organization: madkit
+      defaultBucket: madkit
+    secureJsonData:
+      token: madkit-dev-token
+    isDefault: true
+    editable: true

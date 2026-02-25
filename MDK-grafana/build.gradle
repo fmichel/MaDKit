@@ -1,0 +1,43 @@
+plugins {
+	id 'buildlogic.madkit-common-conventions'
+	id 'org.gradlex.java-module-testing'
+}
+
+tasks.withType(JavaExec) {
+    jvmArgs '--add-modules', 'ALL-MODULE-PATH'
+}
+
+javaModuleTesting.whitebox(testing.suites.getByName("test")){
+	requires.add("org.testng")
+	opensTo.add("org.testng")
+	requires.add("org.assertj.core")
+}
+
+dependencies {
+	api project(':MaDKit')
+    testImplementation libs.assertJ
+    testImplementation libs.concurrentunit
+    testImplementation libs.testng
+}
+
+tasks.named('test') {
+    useTestNG {
+        excludeGroups 'integration'
+    }
+    testLogging {
+        events "passed", "skipped", "failed"
+        exceptionFormat "full"
+        showStandardStreams = true
+    }
+}
+
+tasks.register('integrationTest', Test) {
+    useTestNG {
+        includeGroups 'integration'
+    }
+    testLogging {
+        events "passed", "skipped", "failed"
+        exceptionFormat "full"
+        showStandardStreams = true
+    }
+}

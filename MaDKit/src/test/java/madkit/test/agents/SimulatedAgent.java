@@ -1,7 +1,7 @@
 package madkit.test.agents;
 
-import static madkit.kernel.MadkitConcurrentTestCase.GROUP;
-import static madkit.kernel.MadkitConcurrentTestCase.ROLE;
+import static madkit.kernel.MadkitTestConstants.GROUP;
+import static madkit.kernel.MadkitTestConstants.ROLE;
 
 import madkit.simulation.SimuAgent;
 

@@ -35,9 +35,9 @@
  *******************************************************************************/
 package madkit.messaging;
 
-import static madkit.kernel.MadkitConcurrentTestCase.COMMUNITY;
-import static madkit.kernel.MadkitConcurrentTestCase.GROUP;
-import static madkit.kernel.MadkitConcurrentTestCase.ROLE;
+import static madkit.kernel.MadkitTestConstants.COMMUNITY;
+import static madkit.kernel.MadkitTestConstants.GROUP;
+import static madkit.kernel.MadkitTestConstants.ROLE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.testng.Assert.assertEquals;
 

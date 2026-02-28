@@ -58,28 +58,10 @@ import net.jodah.concurrentunit.ConcurrentTestCase;
  * @version 6.0.3
  * 
  */
-public abstract class MadkitConcurrentTestCase extends ConcurrentTestCase {
+public abstract class MadkitConcurrentTestCase extends ConcurrentTestCase implements MadkitTestConstants {
 
 	/** The a string. */
 	public static String aString = "dontExist";
-
-	/** The Constant COMMUNITY. */
-	public static final String COMMUNITY = "Tcommunity";
-
-	/** The Constant COMMUNITY2. */
-	public static final String COMMUNITY2 = "Tcommunity2";
-
-	/** The Constant GROUP. */
-	public static final String GROUP = "Tgroup";
-
-	/** The Constant GROUP2. */
-	public static final String GROUP2 = "Tgroup2";
-
-	/** The Constant ROLE. */
-	public static final String ROLE = "Trole";
-
-	/** The Constant ROLE2. */
-	public static final String ROLE2 = "Trole2";
 
 	/** The madkit. */
 	protected Madkit madkit;

@@ -1,6 +1,6 @@
 package madkit.test.agents;
 
-import madkit.kernel.MadkitConcurrentTestCase;
+import madkit.kernel.MadkitTestConstants;
 import madkit.simulation.SimuAgent;
 
 /**
@@ -10,7 +10,7 @@ public class SimuCGRAgent extends SimuAgent {
 
 	@Override
 	protected void onActivation() {
-		playRole(MadkitConcurrentTestCase.ROLE);
+		playRole(MadkitTestConstants.ROLE);
 	}
 
 	private void bug() {

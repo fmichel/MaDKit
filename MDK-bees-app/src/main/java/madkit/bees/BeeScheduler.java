@@ -35,9 +35,6 @@
  *******************************************************************************/
 package madkit.bees;
 
-import java.util.Map;
-
-import madkit.grafana.metrics.SimuMetrics;
 import madkit.kernel.Scheduler;
 import madkit.simulation.scheduler.DateBasedTimer;
 import madkit.simulation.scheduler.MethodActivator;
@@ -48,8 +45,6 @@ import madkit.simulation.scheduler.MethodActivator;
 public class BeeScheduler extends Scheduler<DateBasedTimer> {
 
 	private MethodActivator bees;
-	private BeeLauncher launcher;
-	private SimuMetrics metrics;
 
 	/**
 	 * On activation.
@@ -60,8 +55,6 @@ public class BeeScheduler extends Scheduler<DateBasedTimer> {
 		bees = new MethodActivator(getModelGroup(), BeeOrganization.BEE, "buzz");
 		addActivator(bees);
 		addViewersActivator();
-		launcher = (BeeLauncher) getLauncher();
-		metrics = launcher.getMetrics();
 	}
 
 	/**
@@ -73,17 +66,6 @@ public class BeeScheduler extends Scheduler<DateBasedTimer> {
 		logCurrrentTime();
 		getActivators().forEach(a -> a.execute());
 		getSimuTimer().addOneTimeUnit();
-		recordPopulationMetrics();
-	}
-
-	/**
-	 * Records the current population counts as metrics for Grafana visualization. Population
-	 * probes are owned by the {@link BeeLauncher} (which extends {@code Watcher}), so they
-	 * are accessed via {@link #getLauncher()}.
-	 */
-	private void recordPopulationMetrics() {
-		metrics.record("population", bees.size(), Map.of("role", "follower"));
-		metrics.record("queens", launcher.getQueensProbe().size(), Map.of("role", "queen"));
 	}
 
 }

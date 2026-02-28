@@ -1,0 +1,7 @@
+plugins {
+	id 'buildlogic.madkit-common-conventions'
+}
+
+dependencies {
+	api project(':MaDKit')
+}

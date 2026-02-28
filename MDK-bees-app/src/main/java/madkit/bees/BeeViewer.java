@@ -47,7 +47,6 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.paint.Color;
 import madkit.action.AgentMethodAction;
-import madkit.grafana.metrics.SimuMetrics;
 import madkit.gui.FXExecutor;
 import madkit.gui.UIProperty;
 import madkit.kernel.Probe;
@@ -71,9 +70,6 @@ public class BeeViewer extends Viewer2D {
 	/** The number of bees. */
 	SimpleIntegerProperty numberOfBees = new SimpleIntegerProperty(0);
 
-	private SimuMetrics metrics;
-	private double tick = 0;
-
 	/**
 	 * On activation.
 	 */
@@ -85,8 +81,6 @@ public class BeeViewer extends Viewer2D {
 		addProbe(queenProbe);
 		super.onActivation();
 		customizeGUI();
-		BeeLauncher launcher = (BeeLauncher) getLauncher();
-		metrics = launcher.getMetrics();
 
 	}
 
@@ -111,7 +105,6 @@ public class BeeViewer extends Viewer2D {
 	 */
 	@Override
 	public void render() {
-		metrics.record("bees", beeProbe.size(), tick++);
 		super.render();
 		numberOfBees.set(beeProbe.size());
 		beeProbe.streamValues().filter(Objects::nonNull).forEach(data -> {

@@ -1,0 +1,36 @@
+plugins {
+	id 'buildlogic.madkit-common-conventions'
+	id 'org.gradlex.java-module-testing'
+}
+
+extraJavaModuleInfo {
+	// Transitive deps of chart-fx that lack module descriptors
+	automaticModule("ar.com.hjg:pngj", "ar.com.hjg.pngj")
+	automaticModule("org.hdrhistogram:HdrHistogram", "org.hdrhistogram.HdrHistogram")
+	automaticModule("com.github.wendykierp:JTransforms", "com.github.wendykierp.JTransforms")
+	automaticModule("pl.edu.icm:JLargeArrays", "pl.edu.icm.JLargeArrays")
+	automaticModule("org.apache.commons:commons-math3", "org.apache.commons.math3")
+}
+
+javaModuleTesting.whitebox(testing.suites.getByName("test")) {
+	requires.add("org.testng")
+	opensTo.add("org.testng")
+	requires.add("org.assertj.core")
+}
+
+dependencies {
+	api project(':MaDKit')
+	api libs.chartfx
+	testImplementation libs.assertJ
+	testImplementation libs.concurrentunit
+	testImplementation libs.testng
+}
+
+tasks.named('test') {
+	useTestNG()
+	testLogging {
+		events "passed", "skipped", "failed"
+		exceptionFormat "full"
+		showStandardStreams = true
+	}
+}

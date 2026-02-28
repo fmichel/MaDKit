@@ -70,10 +70,10 @@ Once started, Grafana is available at **http://localhost:3000** (default credent
 
 | Panel Type      | Description                                              | Code Example                                                               |
 |-----------------|----------------------------------------------------------|----------------------------------------------------------------------------|
-| **Time Series** | Line chart over wall-clock time                          | `dashboard.addTimeSeriesPanel("CPU", "cpu", "value");`                     |
-| **Stat**        | Single-value display (latest / average)                  | `dashboard.addStatPanel("Current CPU", "cpu", "value");`                   |
-| **Table**       | Raw tabular data                                         | `dashboard.addTablePanel("Raw Data", "cpu");`                              |
-| **XY Chart**    | Scatter / line plot with custom X/Y fields (Grafana 10+) | `dashboard.addXYChartPanel("X vs Y", "data", "xField", "yField");`        |
+| Time Series     | Line chart over wall-clock time                            | `dashboard.addTimeSeriesPanel("CPU", "cpu", "value");`                     |
+| Stat            | Single-value display (latest / average)                      | `dashboard.addStatPanel("Current CPU", "cpu", "value");`                   |
+| Table           | Raw tabular data                                         | `dashboard.addTablePanel("Raw Data", "cpu");`                              |
+| XY Chart        | Scatter / line plot with custom X/Y fields (Grafana 10+)      | `dashboard.addXYChartPanel("X vs Y", "data", "xField", "yField");`        |
 
 ## Creating a Dashboard
 

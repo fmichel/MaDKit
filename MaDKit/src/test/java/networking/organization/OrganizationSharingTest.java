@@ -7,10 +7,10 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import madkit.kernel.AgentAddress;
-import madkit.kernel.MadkitNetworkConcurrentTestCase;
 import madkit.kernel.MadkitTestInstance;
 import madkit.kernel.Organization;
-import madkit.test.agents.DistributedCGRAgent;
+import madkit.network.MadkitNetworkConcurrentTestCase;
+import madkit.testing.agents.DistributedCGRAgent;
 
 public class OrganizationSharingTest extends MadkitNetworkConcurrentTestCase {
 	@Test

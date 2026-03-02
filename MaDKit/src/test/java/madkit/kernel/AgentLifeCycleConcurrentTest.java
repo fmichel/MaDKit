@@ -39,11 +39,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.testng.annotations.Test;
 
-import madkit.test.agents.BugInActivateAgent;
-import madkit.test.agents.BugInEndThreadedAgent;
-import madkit.test.agents.BugInLiveAgent;
-import madkit.test.agents.BugInLiveAndEndAgent;
-import madkit.test.agents.ThreadedTestAgent;
+import madkit.testing.agents.BugInActivateAgent;
+import madkit.testing.agents.BugInEndThreadedAgent;
+import madkit.testing.agents.BugInLiveAgent;
+import madkit.testing.agents.BugInLiveAndEndAgent;
+import madkit.testing.agents.ThreadedTestAgent;
 
 public class AgentLifeCycleConcurrentTest extends MadkitConcurrentTestCase {
 
@@ -130,7 +130,7 @@ public class AgentLifeCycleConcurrentTest extends MadkitConcurrentTestCase {
 				DefaultTestAgent a = new DefaultTestAgent();
 				assertThat(launchAgent(a)).as("launchAgent return code").isEqualTo(ReturnCode.SUCCESS);
 				assertThat(a.didPassThroughEnd()).as("agent did not pass through end").isFalse();
-				assertThat(a.alive.get()).as("agent is alive").isTrue();
+				assertThat(((Agent) a).alive.get()).as("agent is alive").isTrue();
 				resume();
 			}
 		});

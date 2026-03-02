@@ -5,6 +5,16 @@ plugins {
    	id 'jacoco'
    	id "org.sonarqube" version "6.0.1.5171"
    	id 'org.gradlex.java-module-testing'
+    id 'java-test-fixtures'
+}
+
+// The test-fixtures JAR contains split packages with madkit.base (madkit.kernel).
+// At test time, the testFixtures classes are patched into madkit.base via --patch-module.
+// The JAR must NOT appear on the module path as a separate module.
+// We tell extraJavaModuleInfo not to fail on unknown JARs, and we remove the
+// test-fixtures JAR from the test task classpath at execution time.
+extraJavaModuleInfo {
+    failOnMissingModuleInfo = false
 }
 
 group = 'io.github.fmichel'
@@ -22,6 +32,74 @@ javaModuleTesting.whitebox(testing.suites.getByName("test")){
 	requires.add("org.testng")
 	opensTo.add("org.testng")
 	requires.add("org.assertj.core")
+	requires.add("net.jodah.concurrentunit")
+}
+
+// Open testFixtures packages patched into madkit.base to TestNG for reflective access.
+// The whitebox plugin only auto-opens packages from src/test/java — testFixtures
+// packages (madkit.testing, etc.) must be opened explicitly.
+tasks.named('test') {
+    jvmArgs '--add-opens', 'madkit.base/madkit.testing=org.testng',
+            '--add-opens', 'madkit.base/madkit.testing.agents=org.testng',
+            '--add-opens', 'madkit.base/madkit.testing.agents.behaviors=org.testng'
+}
+
+// Patch testFixtures classes into the madkit.base module so that test code
+// (which is also patched into madkit.base by java-module-testing) can access them.
+// The java-test-fixtures plugin places testFixtures on the classpath, but since test
+// code is in the named module madkit.base, it cannot read the unnamed module.
+// Solution: append testFixtures classes dir to the --patch-module arg.
+afterEvaluate {
+    tasks.named('compileTestJava').configure {
+        def testFixturesDir = project.layout.buildDirectory.dir("classes/java/testFixtures").get().asFile.path
+        doFirst {
+            // Extract args from the WhiteboxTestCompileArgumentProvider, modify --patch-module,
+            // then replace the provider with direct compilerArgs
+            def providers = options.compilerArgumentProviders
+            def allProviderArgs = []
+            def toRemove = []
+            providers.each { provider ->
+                def providerArgs = new ArrayList(provider.asArguments())
+                for (int i = 0; i < providerArgs.size(); i++) {
+                    if (providerArgs[i] == '--patch-module' && i + 1 < providerArgs.size() && providerArgs[i + 1].startsWith('madkit.base=')) {
+                        providerArgs[i + 1] = providerArgs[i + 1] + File.pathSeparator + testFixturesDir
+                    }
+                }
+                allProviderArgs.addAll(providerArgs)
+                toRemove.add(provider)
+            }
+            toRemove.each { providers.remove(it) }
+            options.compilerArgs.addAll(allProviderArgs)
+        }
+    }
+    tasks.named('test').configure {
+        def testFixturesDir = project.layout.buildDirectory.dir("classes/java/testFixtures").get().asFile.path
+        doFirst {
+            // The java-module-testing whitebox plugin adds a --patch-module arg for madkit.base.
+            // We need to append the testFixtures classes dir to that same arg.
+            // jvmArgs contains explicitly set args; the whitebox plugin uses
+            // jvmArgumentProviders. We need to intercept all providers, extract their args,
+            // modify --patch-module, and re-add them as direct jvmArgs.
+            def providers = jvmArgumentProviders.collect()
+            def allProviderArgs = []
+            providers.each { provider ->
+                def providerArgs = new ArrayList(provider.asArguments())
+                for (int i = 0; i < providerArgs.size(); i++) {
+                    if (providerArgs[i] == '--patch-module' && i + 1 < providerArgs.size() && providerArgs[i + 1].startsWith('madkit.base=')) {
+                        providerArgs[i + 1] = providerArgs[i + 1] + File.pathSeparator + testFixturesDir
+                    }
+                }
+                allProviderArgs.addAll(providerArgs)
+            }
+            jvmArgumentProviders.clear()
+            jvmArgs(allProviderArgs)
+
+            // Remove the test-fixtures JAR from the classpath — its classes are already
+            // patched into madkit.base via --patch-module. Leaving the JAR on the module
+            // path causes a split-package error (madkit.kernel in both modules).
+            classpath = classpath.filter { !it.name.contains('test-fixtures') }
+        }
+    }
 }
 
 dependencies {
@@ -37,6 +115,10 @@ dependencies {
     testImplementation libs.assertJ
     testImplementation libs.concurrentunit
     testImplementation libs.testng
+
+    testFixturesImplementation libs.assertJ
+    testFixturesImplementation libs.concurrentunit
+    testFixturesImplementation libs.testng
 }
 
 ext.isReleaseVersion = !version.endsWith("SNAPSHOT")

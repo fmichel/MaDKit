@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.testng.annotations.Test;
 
-import madkit.test.agents.CGRAgent;
+import madkit.testing.agents.CGRAgent;
 
 /**
  *

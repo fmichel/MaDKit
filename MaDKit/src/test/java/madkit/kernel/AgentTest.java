@@ -41,7 +41,7 @@ import static org.testng.Assert.assertFalse;
 
 import org.testng.annotations.Test;
 
-import madkit.test.agents.EmptyAgent;
+import madkit.testing.agents.EmptyAgent;
 
 /**
  *

@@ -45,8 +45,8 @@ import static madkit.kernel.Agent.ReturnCode.SUCCESS;
 
 import madkit.kernel.MadkitConcurrentTestCase;
 import madkit.kernel.Watcher;
-import madkit.test.agents.SimulatedAgent;
-import madkit.test.agents.SimulatedAgentBis;
+import madkit.testing.agents.SimulatedAgent;
+import madkit.testing.agents.SimulatedAgentBis;
 
 /**
  * The Class PropertyProbeTest.

@@ -16,7 +16,7 @@ import madkit.kernel.DefaultTestAgent;
 import madkit.kernel.MadkitConcurrentTestCase;
 import madkit.kernel.Message;
 import madkit.messages.StringMessage;
-import madkit.test.agents.CGRAgent;
+import madkit.testing.agents.CGRAgent;
 
 /**
  *

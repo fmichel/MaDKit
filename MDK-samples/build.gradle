@@ -1,7 +1,26 @@
 plugins {
 	id 'buildlogic.madkit-common-conventions'
+	id 'org.gradlex.java-module-testing'
+}
+
+// The MaDKit test-fixtures JAR has no module-info (it is patched into madkit.base).
+// Prevent extraJavaModuleInfo from failing on it.
+extraJavaModuleInfo {
+	failOnMissingModuleInfo = false
+}
+
+javaModuleTesting.whitebox(testing.suites.getByName("test")) {
+	requires.add("org.testng")
+	opensTo.add("org.testng")
+	requires.add("org.assertj.core")
+	requires.add("net.jodah.concurrentunit")
 }
 
 dependencies {
 	api project(':MaDKit')
+
+	testImplementation testFixtures(project(':MaDKit'))
+	testImplementation libs.testng
+	testImplementation libs.assertJ
+	testImplementation libs.concurrentunit
 }

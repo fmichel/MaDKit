@@ -44,7 +44,6 @@ import static madkit.kernel.Agent.ReturnCode.SUCCESS;
 
 import madkit.kernel.DefaultTestAgent;
 import madkit.kernel.MadkitConcurrentTestCase;
-import madkit.test.support.DefaultSimuAgentTest;
 
 /**
  * The Class SimuAgentTest.

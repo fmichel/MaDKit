@@ -4,7 +4,6 @@
  */
 open module madkit.bees {
 	requires madkit.base;
-	requires madkit.grafana;
 	requires java.desktop;
 	requires javafx.graphics;
 

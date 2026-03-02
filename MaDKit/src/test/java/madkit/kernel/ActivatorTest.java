@@ -6,7 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 
 import org.testng.annotations.Test;
 
-import madkit.test.agents.EmptyAgent;
+import madkit.testing.agents.EmptyAgent;
 
 /**
  * Tests for Activator

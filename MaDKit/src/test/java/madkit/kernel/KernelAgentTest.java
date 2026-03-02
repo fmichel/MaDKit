@@ -44,7 +44,7 @@ import static org.testng.Assert.assertTrue;
 import org.testng.annotations.Test;
 
 import madkit.kernel.Agent.ReturnCode;
-import madkit.test.agents.EmptyAgent;
+import madkit.testing.agents.EmptyAgent;
 
 public class KernelAgentTest {
 

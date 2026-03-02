@@ -13,7 +13,7 @@ import javafx.scene.chart.XYChart;
 import madkit.kernel.Agent;
 import madkit.kernel.MadkitConcurrentTestCase;
 import madkit.kernel.Probe;
-import madkit.test.support.DefaultSimuAgentTest;
+import madkit.simulation.DefaultSimuAgentTest;
 
 /**
  * Integration test for {@link RolesPopulationLineChartDrawer}.

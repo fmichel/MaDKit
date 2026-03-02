@@ -49,7 +49,7 @@ import static madkit.kernel.Agent.ReturnCode.SUCCESS;
 import madkit.kernel.Agent.ReturnCode;
 import madkit.messages.StringMessage;
 import madkit.messaging.ForEverReplierAgent;
-import madkit.test.agents.CGRAgent;
+import madkit.testing.agents.CGRAgent;
 
 /**
  * The Class ReplyWithRoleConcurrentTest.

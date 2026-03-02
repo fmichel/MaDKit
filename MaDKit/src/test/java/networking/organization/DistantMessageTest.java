@@ -11,11 +11,11 @@ import static madkit.kernel.Agent.ReturnCode.SUCCESS;
 
 import helpers.agents.DistributedReplier;
 import madkit.kernel.AgentAddress;
-import madkit.kernel.MadkitNetworkConcurrentTestCase;
 import madkit.kernel.MadkitTestInstance;
 import madkit.kernel.Message;
 import madkit.kernel.Organization;
-import madkit.test.agents.DistributedCGRAgent;
+import madkit.network.MadkitNetworkConcurrentTestCase;
+import madkit.testing.agents.DistributedCGRAgent;
 
 public class DistantMessageTest extends MadkitNetworkConcurrentTestCase {
 

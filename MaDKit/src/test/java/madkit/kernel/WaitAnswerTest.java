@@ -6,7 +6,7 @@ import org.testng.annotations.Test;
 import static madkit.kernel.Agent.ReturnCode.SUCCESS;
 
 import madkit.messaging.ForEverReplierAgent;
-import madkit.test.agents.CGRAgent;
+import madkit.testing.agents.CGRAgent;
 
 /**
  *

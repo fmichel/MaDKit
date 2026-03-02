@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.testng.annotations.Test;
 
-import madkit.test.agents.EmptyAgent;
+import madkit.testing.agents.EmptyAgent;
 
 /**
  * Test for the Agent class and its subclasses and inner classes (if any) that are meant

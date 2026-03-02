@@ -47,8 +47,8 @@ import madkit.kernel.Agent;
 import madkit.kernel.Agent.ReturnCode;
 import madkit.kernel.MadkitConcurrentTestCase;
 import madkit.simulation.scheduler.TickBasedScheduler;
-import madkit.test.agents.CGRAgent;
-import madkit.test.agents.SimulatedAgent;
+import madkit.testing.agents.CGRAgent;
+import madkit.testing.agents.SimulatedAgent;
 
 /**
  *

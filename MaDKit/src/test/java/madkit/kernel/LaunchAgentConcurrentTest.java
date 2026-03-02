@@ -40,9 +40,9 @@ import static org.assertj.core.api.BDDAssertions.then;
 
 import org.testng.annotations.Test;
 
-import madkit.test.agents.EmptyAgent;
-import madkit.test.agents.ThreadedAgentBlockedInActivate;
-import madkit.test.agents.ThreadedAgentBlockedInLive;
+import madkit.testing.agents.EmptyAgent;
+import madkit.testing.agents.ThreadedAgentBlockedInActivate;
+import madkit.testing.agents.ThreadedAgentBlockedInLive;
 
 /**
  *

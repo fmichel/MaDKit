@@ -44,7 +44,7 @@ import org.testng.annotations.Test;
 
 import static madkit.kernel.Agent.ReturnCode.SUCCESS;
 
-import madkit.test.agents.ThreadedTestAgent;
+import madkit.testing.agents.ThreadedTestAgent;
 
 /**
  *

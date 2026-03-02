@@ -12,10 +12,10 @@ import static madkit.kernel.Agent.ReturnCode.SUCCESS;
 import helpers.agents.DistributedReplier;
 import madkit.kernel.AgentAddress;
 import madkit.kernel.DefaultTestAgent;
-import madkit.kernel.MadkitNetworkConcurrentTestCase;
 import madkit.kernel.MadkitTestInstance;
 import madkit.kernel.Message;
 import madkit.kernel.Organization;
+import madkit.network.MadkitNetworkConcurrentTestCase;
 
 public class DistantReplyTest extends MadkitNetworkConcurrentTestCase {
 

@@ -41,8 +41,8 @@ import static org.testng.Assert.assertNull;
 
 import org.testng.annotations.Test;
 
-import madkit.test.agents.CGRAgent;
-import madkit.test.agents.EmptyAgent;
+import madkit.testing.agents.CGRAgent;
+import madkit.testing.agents.EmptyAgent;
 
 /**
  * The Class MadkitClassLoaderTest.
@@ -51,7 +51,7 @@ public class MadkitClassLoaderTest {
 	@Test
 	public void givenValidAgentClassName_whenGetAgentInstance_thenReturnAgentInstance() {
 		// Given
-		String agentClassName = "madkit.test.agents.CGRAgent";
+		String agentClassName = "madkit.testing.agents.CGRAgent";
 
 		// When
 		Agent agentInstance = MadkitClassLoader.getAgentInstance(agentClassName);
@@ -77,7 +77,7 @@ public class MadkitClassLoaderTest {
 	@Test
 	public void givenNoDefaultConstructorAgent_whenGetAgentInstance_thenReturnNull() {
 		// Given
-		String agentClassName = "madkit.test.agents.NoDefaultConstructorAgent";
+		String agentClassName = "madkit.testing.agents.NoDefaultConstructorAgent";
 
 		// When
 		Agent agentInstance = MadkitClassLoader.getAgentInstance(agentClassName);

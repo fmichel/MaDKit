@@ -40,7 +40,7 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 import madkit.kernel.Agent.ReturnCode;
-import madkit.test.agents.BugInActivateAgent;
+import madkit.testing.agents.BugInActivateAgent;
 
 /**
  * The Class KernelAgentConcurrentTest.

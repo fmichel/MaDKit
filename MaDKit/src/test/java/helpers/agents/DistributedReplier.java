@@ -4,9 +4,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.logging.Level;
 
 import madkit.kernel.Message;
-import madkit.test.agents.ThreadedTestAgent;
-import madkit.test.agents.behaviors.ActivateDistributedCGRBehavior;
-import madkit.test.agents.behaviors.OnLiveReplierBehavior;
+import madkit.testing.agents.ThreadedTestAgent;
+import madkit.testing.agents.behaviors.ActivateDistributedCGRBehavior;
+import madkit.testing.agents.behaviors.OnLiveReplierBehavior;
 
 public class DistributedReplier extends ThreadedTestAgent
 		implements ActivateDistributedCGRBehavior, OnLiveReplierBehavior {

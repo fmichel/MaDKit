@@ -3,9 +3,9 @@ package madkit.messaging;
 import java.lang.reflect.InvocationTargetException;
 
 import madkit.kernel.Message;
-import madkit.test.agents.ThreadedTestAgent;
-import madkit.test.agents.behaviors.ActivateCGRBehavior;
-import madkit.test.agents.behaviors.OnLiveReplierBehavior;
+import madkit.testing.agents.ThreadedTestAgent;
+import madkit.testing.agents.behaviors.ActivateCGRBehavior;
+import madkit.testing.agents.behaviors.OnLiveReplierBehavior;
 
 /**
  *

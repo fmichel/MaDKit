@@ -48,7 +48,7 @@ import static madkit.kernel.Agent.ReturnCode.ROLE_ALREADY_HANDLED;
 import static madkit.kernel.Agent.ReturnCode.SUCCESS;
 
 import madkit.agr.SystemRoles;
-import madkit.test.agents.ThreadedTestAgent;
+import madkit.testing.agents.ThreadedTestAgent;
 
 /**
  *

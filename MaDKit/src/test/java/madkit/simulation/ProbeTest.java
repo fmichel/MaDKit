@@ -14,7 +14,7 @@ import madkit.kernel.Agent;
 import madkit.kernel.MadkitConcurrentTestCase;
 import madkit.kernel.Probe;
 import madkit.kernel.Watcher;
-import madkit.test.agents.SimulatedAgent;
+import madkit.testing.agents.SimulatedAgent;
 
 /**
  * Has to be outside of madkit.kernel for really testing visibility

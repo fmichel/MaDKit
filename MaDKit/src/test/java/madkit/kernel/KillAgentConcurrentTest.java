@@ -44,25 +44,25 @@ import static madkit.kernel.Agent.ReturnCode.NOT_YET_LAUNCHED;
 import static madkit.kernel.Agent.ReturnCode.SUCCESS;
 import static madkit.kernel.Agent.ReturnCode.TIMEOUT;
 
-import madkit.test.agents.AgentBlockedInEnd;
-import madkit.test.agents.AgentForeverInEnd;
-import madkit.test.agents.CGRAgent;
-import madkit.test.agents.CGRBlockedInEnd;
-import madkit.test.agents.CGRBlockedInLive;
-import madkit.test.agents.CGRBlockedInLiveAndEnd;
-import madkit.test.agents.CGRForeverInEnd;
-import madkit.test.agents.CGRForeverInLive;
-import madkit.test.agents.CGRForeverInLiveAndEnd;
-import madkit.test.agents.ThreadedAgentBlockedInActivate;
-import madkit.test.agents.ThreadedAgentBlockedInEnd;
-import madkit.test.agents.ThreadedAgentBlockedInLive;
-import madkit.test.agents.ThreadedAgentBlockedInLiveAndEnd;
-import madkit.test.agents.ThreadedAgentForeverInEnd;
-import madkit.test.agents.ThreadedAgentForeverInLive;
-import madkit.test.agents.ThreadedAgentForeverInLiveAndEnd;
-import madkit.test.agents.ThreadedAgentPausedInLive;
-import madkit.test.agents.ThreadedCGRBlockedInEnd;
-import madkit.test.agents.ThreadedCGRForeverInEnd;
+import madkit.testing.agents.AgentBlockedInEnd;
+import madkit.testing.agents.AgentForeverInEnd;
+import madkit.testing.agents.CGRAgent;
+import madkit.testing.agents.CGRBlockedInEnd;
+import madkit.testing.agents.CGRBlockedInLive;
+import madkit.testing.agents.CGRBlockedInLiveAndEnd;
+import madkit.testing.agents.CGRForeverInEnd;
+import madkit.testing.agents.CGRForeverInLive;
+import madkit.testing.agents.CGRForeverInLiveAndEnd;
+import madkit.testing.agents.ThreadedAgentBlockedInActivate;
+import madkit.testing.agents.ThreadedAgentBlockedInEnd;
+import madkit.testing.agents.ThreadedAgentBlockedInLive;
+import madkit.testing.agents.ThreadedAgentBlockedInLiveAndEnd;
+import madkit.testing.agents.ThreadedAgentForeverInEnd;
+import madkit.testing.agents.ThreadedAgentForeverInLive;
+import madkit.testing.agents.ThreadedAgentForeverInLiveAndEnd;
+import madkit.testing.agents.ThreadedAgentPausedInLive;
+import madkit.testing.agents.ThreadedCGRBlockedInEnd;
+import madkit.testing.agents.ThreadedCGRForeverInEnd;
 
 /**
  *
@@ -80,7 +80,7 @@ public class KillAgentConcurrentTest extends MadkitConcurrentTestCase {
 			public void behaviorInActivate() {
 				DefaultTestAgent a = new DefaultTestAgent();
 				assertThat(launchAgent(a)).as("launchAgent return code").isEqualTo(SUCCESS);
-				assertThat(a.alive.get()).as("agent alive").isTrue();
+				assertThat(((Agent) a).alive.get()).as("agent alive").isTrue();
 				assertThat(killAgent(a)).as("killAgent return code").isEqualTo(SUCCESS);
 				assertThat(a.didPassThroughEnd()).as("agent passed through end").isTrue();
 				checkTermination(a);
@@ -96,7 +96,7 @@ public class KillAgentConcurrentTest extends MadkitConcurrentTestCase {
 			public void behaviorInActivate() {
 				DefaultTestAgent a = new ThreadedAgentPausedInLive();
 				assertThat(launchAgent(a)).as("launchAgent return code").isEqualTo(SUCCESS);
-				assertThat(a.alive.get()).as("agent alive").isTrue();
+				assertThat(((Agent) a).alive.get()).as("agent alive").isTrue();
 				assertThat(killAgent(a)).as("killAgent return code").isEqualTo(SUCCESS);
 				assertThat(a.didPassThroughEnd()).as("agent passed through end").isTrue();
 				checkTermination(a);
@@ -112,7 +112,7 @@ public class KillAgentConcurrentTest extends MadkitConcurrentTestCase {
 			public void behaviorInActivate() {
 				DefaultTestAgent a = new AgentBlockedInEnd();
 				assertThat(launchAgent(a)).as("launchAgent return code").isEqualTo(SUCCESS);
-				assertThat(a.alive.get()).as("agent alive").isTrue();
+				assertThat(((Agent) a).alive.get()).as("agent alive").isTrue();
 				assertThat(killAgent(a, 3)).as("killAgent with timeout return code").isEqualTo(SUCCESS);
 				checkTermination(a);
 				resume();
@@ -127,7 +127,7 @@ public class KillAgentConcurrentTest extends MadkitConcurrentTestCase {
 			public void behaviorInActivate() {
 				DefaultTestAgent a = new ThreadedAgentBlockedInLive();
 				assertThat(launchAgent(a)).as("launchAgent return code").isEqualTo(SUCCESS);
-				assertThat(a.alive.get()).as("agent alive").isTrue();
+				assertThat(((Agent) a).alive.get()).as("agent alive").isTrue();
 				assertThat(killAgent(a, 1)).as("killAgent with timeout return code").isEqualTo(SUCCESS);
 				checkTermination(a);
 				resume();
@@ -142,7 +142,7 @@ public class KillAgentConcurrentTest extends MadkitConcurrentTestCase {
 			public void behaviorInActivate() {
 				DefaultTestAgent a = new ThreadedAgentBlockedInEnd();
 				assertThat(launchAgent(a)).as("launchAgent return code").isEqualTo(SUCCESS);
-				assertThat(a.alive.get()).as("agent alive").isTrue();
+				assertThat(((Agent) a).alive.get()).as("agent alive").isTrue();
 				assertThat(killAgent(a, 1)).as("killAgent with timeout return code").isEqualTo(SUCCESS);
 				checkTermination(a);
 				resume();
@@ -157,7 +157,7 @@ public class KillAgentConcurrentTest extends MadkitConcurrentTestCase {
 			public void behaviorInActivate() {
 				DefaultTestAgent a = new ThreadedAgentBlockedInLiveAndEnd();
 				assertThat(launchAgent(a)).as("launchAgent return code").isEqualTo(SUCCESS);
-				assertThat(a.alive.get()).as("agent alive").isTrue();
+				assertThat(((Agent) a).alive.get()).as("agent alive").isTrue();
 				assertThat(killAgent(a, 2)).as("killAgent with timeout return code").isEqualTo(SUCCESS);
 				checkTermination(a);
 				resume();
@@ -172,7 +172,7 @@ public class KillAgentConcurrentTest extends MadkitConcurrentTestCase {
 			public void behaviorInActivate() {
 				DefaultTestAgent a = new AgentForeverInEnd();
 				assertThat(launchAgent(a)).as("launchAgent return code").isEqualTo(SUCCESS);
-				assertThat(a.alive.get()).as("agent alive").isTrue();
+				assertThat(((Agent) a).alive.get()).as("agent alive").isTrue();
 				assertThat(killAgent(a, 1)).as("killAgent with timeout return code").isEqualTo(SUCCESS);
 				checkTermination(a);
 				resume();
@@ -187,7 +187,7 @@ public class KillAgentConcurrentTest extends MadkitConcurrentTestCase {
 			public void behaviorInActivate() {
 				DefaultTestAgent a = new ThreadedAgentForeverInEnd();
 				assertThat(launchAgent(a)).as("launchAgent return code").isEqualTo(SUCCESS);
-				assertThat(a.alive.get()).as("agent alive").isTrue();
+				assertThat(((Agent) a).alive.get()).as("agent alive").isTrue();
 				assertThat(killAgent(a, 1)).as("killAgent with timeout return code").isEqualTo(SUCCESS);
 				checkTermination(a);
 				resume();
@@ -202,7 +202,7 @@ public class KillAgentConcurrentTest extends MadkitConcurrentTestCase {
 			public void behaviorInActivate() {
 				DefaultTestAgent a = new ThreadedAgentForeverInLive();
 				assertThat(launchAgent(a)).as("launchAgent return code").isEqualTo(SUCCESS);
-				assertThat(a.alive.get()).as("agent alive").isTrue();
+				assertThat(((Agent) a).alive.get()).as("agent alive").isTrue();
 				assertThat(killAgent(a, 1)).as("killAgent with timeout return code").isEqualTo(SUCCESS);
 				checkTermination(a);
 				resume();
@@ -217,7 +217,7 @@ public class KillAgentConcurrentTest extends MadkitConcurrentTestCase {
 			public void behaviorInActivate() {
 				DefaultTestAgent a = new ThreadedAgentForeverInLiveAndEnd();
 				assertThat(launchAgent(a)).as("launchAgent return code").isEqualTo(SUCCESS);
-				assertThat(a.alive.get()).as("agent alive").isTrue();
+				assertThat(((Agent) a).alive.get()).as("agent alive").isTrue();
 				assertThat(killAgent(a, 1)).as("killAgent with timeout return code").isEqualTo(SUCCESS);
 				checkTermination(a);
 				resume();

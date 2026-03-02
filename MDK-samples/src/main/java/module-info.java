@@ -1,6 +1,6 @@
 /**
- * MaDKit sample agents demonstrating various features of the MaDKit framework.
- * Each package illustrates a specific topic (lifecycle, messaging, GUI, etc.).
+ * MaDKit sample agents demonstrating various features of the MaDKit framework. Each
+ * package illustrates a specific topic (lifecycle, messaging, GUI, etc.).
  */
 open module madkit.samples {
 	requires madkit.base;

@@ -49,7 +49,7 @@ public class AgentLoggerConcurrentTest extends MadkitConcurrentTestCase {
 		runTest(new DefaultTestAgent() {
 			@Override
 			public void behaviorInActivate() {
-				assertThat(this.logger).as("logger should be null before using getLogger").isNull();
+				assertThat(((Agent) this).logger).as("logger should be null before using getLogger").isNull();
 				resume();
 			}
 		});
@@ -61,7 +61,7 @@ public class AgentLoggerConcurrentTest extends MadkitConcurrentTestCase {
 			@Override
 			public void behaviorInActivate() {
 				getLogger().info("testing");
-				assertThat(this.logger).as("logger should not be null after using getLogger").isNotNull();
+				assertThat(((Agent) this).logger).as("logger should not be null after using getLogger").isNotNull();
 				resume();
 			}
 		});

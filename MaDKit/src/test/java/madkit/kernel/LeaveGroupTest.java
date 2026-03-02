@@ -46,8 +46,8 @@ import static madkit.kernel.Agent.ReturnCode.NOT_GROUP;
 import static madkit.kernel.Agent.ReturnCode.NOT_IN_GROUP;
 import static madkit.kernel.Agent.ReturnCode.SUCCESS;
 
-import madkit.test.agents.CGRAgent;
-import madkit.test.agents.ThreadedTestAgent;
+import madkit.testing.agents.CGRAgent;
+import madkit.testing.agents.ThreadedTestAgent;
 
 /**
  *

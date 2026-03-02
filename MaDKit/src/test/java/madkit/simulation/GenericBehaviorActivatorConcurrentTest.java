@@ -43,7 +43,7 @@ import org.testng.annotations.Test;
 import madkit.kernel.MadkitConcurrentTestCase;
 import madkit.simulation.scheduler.MethodActivator;
 import madkit.simulation.scheduler.TickBasedScheduler;
-import madkit.test.agents.SimuCGRAgent;
+import madkit.testing.agents.SimuCGRAgent;
 
 /**
  * 

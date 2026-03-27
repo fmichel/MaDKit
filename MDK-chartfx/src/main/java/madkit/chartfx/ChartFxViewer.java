@@ -52,16 +52,18 @@ import madkit.simulation.viewer.ViewerDefaultGUI;
  * Abstract base class for embedding a chart-fx {@link Chart} inside a MaDKit
  * {@link Viewer}.
  *
- * <p>This class handles the lifecycle wiring between MaDKit's viewer mechanism
- * and chart-fx's own rendering pipeline. Subclasses only need to implement
+ * <p>
+ * This class handles the lifecycle wiring between MaDKit's viewer mechanism and
+ * chart-fx's own rendering pipeline. Subclasses only need to implement
  * {@link #createChart()} to supply the concrete {@link Chart} instance; default
- * interactive plugins (zoom, tooltip, axis editing) are installed automatically
- * and can be customised via {@link #getDefaultPlugins()}.
+ * interactive plugins (zoom, tooltip, axis editing) are installed automatically and can
+ * be customised via {@link #getDefaultPlugins()}.
  *
- * <p>Because chart-fx manages its own {@link javafx.animation.AnimationTimer},
- * the {@link #render()} method is a no-op by default — there is no need for
- * synchronous painting. Subclasses may override {@link #render()} if they need
- * to perform additional drawing on top of the chart.
+ * <p>
+ * Because chart-fx manages its own {@link javafx.animation.AnimationTimer}, the
+ * {@link #render()} method is a no-op by default — there is no need for synchronous
+ * painting. Subclasses may override {@link #render()} if they need to perform additional
+ * drawing on top of the chart.
  *
  * @see XYChartViewer
  * @see Viewer
@@ -74,9 +76,10 @@ public abstract class ChartFxViewer extends Viewer {
 	/**
 	 * Creates the chart-fx {@link Chart} instance to be displayed in this viewer.
 	 *
-	 * <p>This method is called once during {@link #onActivation()}, on the JavaFX
-	 * Application Thread (inside the {@link ViewerDefaultGUI} constructor).
-	 * Subclasses must return a fully-configured, non-null chart instance.
+	 * <p>
+	 * This method is called once during {@link #onActivation()}, on the JavaFX Application
+	 * Thread (inside the {@link ViewerDefaultGUI} constructor). Subclasses must return a
+	 * fully-configured, non-null chart instance.
 	 *
 	 * @return the chart-fx chart, never {@code null}
 	 */
@@ -85,9 +88,10 @@ public abstract class ChartFxViewer extends Viewer {
 	/**
 	 * Returns the list of chart-fx plugins to install on the chart after creation.
 	 *
-	 * <p>The default implementation returns a list containing a {@link Zoomer},
-	 * a {@link DataPointTooltip}, and an {@link EditAxis}. Subclasses may override
-	 * this method to customise or extend the default set of plugins.
+	 * <p>
+	 * The default implementation returns a list containing a {@link Zoomer}, a
+	 * {@link DataPointTooltip}, and an {@link EditAxis}. Subclasses may override this method
+	 * to customise or extend the default set of plugins.
 	 *
 	 * @return a list of {@link ChartPlugin} instances, never {@code null}
 	 * @see Chart#getPlugins()
@@ -99,9 +103,9 @@ public abstract class ChartFxViewer extends Viewer {
 	/**
 	 * Returns the chart-fx {@link Chart} instance managed by this viewer.
 	 *
-	 * <p>This method returns {@code null} before {@link #onActivation()} has
-	 * completed. After activation, it returns the chart created by
-	 * {@link #createChart()}.
+	 * <p>
+	 * This method returns {@code null} before {@link #onActivation()} has completed. After
+	 * activation, it returns the chart created by {@link #createChart()}.
 	 *
 	 * @return the chart-fx chart, or {@code null} if not yet activated
 	 */
@@ -112,16 +116,16 @@ public abstract class ChartFxViewer extends Viewer {
 	/**
 	 * Activates this viewer agent, creating the chart and its GUI.
 	 *
-	 * <p>The activation flow is:
+	 * <p>
+	 * The activation flow is:
 	 * <ol>
-	 *   <li>Call {@code super.onActivation()} — requests the
-	 *       {@link SimuOrganization#VIEWER_ROLE}</li>
-	 *   <li>Create the {@link ViewerDefaultGUI} whose
-	 *       {@link ViewerDefaultGUI#createCenterNode() createCenterNode()} invokes
-	 *       {@link #createChart()} and installs {@link #getDefaultPlugins()
-	 *       default plugins}</li>
-	 *   <li>Show the stage</li>
-	 *   <li>Disable synchronous painting (chart-fx self-renders)</li>
+	 * <li>Call {@code super.onActivation()} — requests the
+	 * {@link SimuOrganization#VIEWER_ROLE}</li>
+	 * <li>Create the {@link ViewerDefaultGUI} whose
+	 * {@link ViewerDefaultGUI#createCenterNode() createCenterNode()} invokes
+	 * {@link #createChart()} and installs {@link #getDefaultPlugins() default plugins}</li>
+	 * <li>Show the stage</li>
+	 * <li>Disable synchronous painting (chart-fx self-renders)</li>
 	 * </ol>
 	 */
 	@Override
@@ -138,15 +142,16 @@ public abstract class ChartFxViewer extends Viewer {
 		FXExecutor.runAndWait(() -> {
 			getGUI().getStage().show();
 		});
-		getGUI().getSynchroPaintingAction().setSelected(false);
+//		getGUI().getSynchroPaintingAction().setSelected(false);
 	}
 
 	/**
 	 * No-op by default — chart-fx manages its own rendering cycle via an internal
 	 * {@link javafx.animation.AnimationTimer}.
 	 *
-	 * <p>Subclasses may override this method to perform additional custom drawing
-	 * on top of the chart during each simulation display cycle.
+	 * <p>
+	 * Subclasses may override this method to perform additional custom drawing on top of the
+	 * chart during each simulation display cycle.
 	 */
 	@Override
 	public void render() {

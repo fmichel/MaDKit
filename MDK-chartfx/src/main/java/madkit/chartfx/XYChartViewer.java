@@ -45,43 +45,49 @@ import madkit.gui.FXExecutor;
 import madkit.gui.UIProperty;
 
 /**
- * A convenience {@link ChartFxViewer} subclass for XY line and scatter charts,
- * backed by chart-fx's {@link XYChart} and {@link DoubleDataSet}.
+ * A convenience {@link ChartFxViewer} subclass for XY line and scatter charts, backed by
+ * chart-fx's {@link XYChart} and {@link DoubleDataSet}.
  *
- * <p>This class manages a map of named {@link DoubleDataSet} instances keyed by
- * a user-defined type {@code K}. Data is appended via the non-blocking
+ * <p>
+ * This class manages a map of named {@link DoubleDataSet} instances keyed by a
+ * user-defined type {@code K}. Data is appended via the non-blocking
  * {@link #addData(Object, double, double)} method, which does <b>not</b> use
- * {@link FXExecutor#runAndWait(Runnable)} — chart-fx's dataset is lock-free and
- * the chart picks up new data on its next rendering pulse automatically.
+ * {@link FXExecutor#runAndWait(Runnable)} — chart-fx's dataset is lock-free and the chart
+ * picks up new data on its next rendering pulse automatically.
  *
- * <p>A sliding-window eviction strategy removes the oldest data points when
- * a dataset exceeds {@link #getMaxDataPoints() maxDataPoints}, providing smooth
- * visual continuity instead of the clear-all approach used by
+ * <p>
+ * A sliding-window eviction strategy removes the oldest data points when a dataset
+ * exceeds {@link #getMaxDataPoints() maxDataPoints}, providing smooth visual continuity
+ * instead of the clear-all approach used by
  * {@link madkit.simulation.viewer.LineChartDrawer}.
  *
  * <h2>Usage example</h2>
- * <pre>{@code
- * public class TemperatureViewer extends XYChartViewer<String> {
+ * 
+ * <pre>
+ * {
+ * 	&#64;code
+ * 	public class TemperatureViewer extends XYChartViewer<String> {
  *
- *     @Override
- *     protected void onActivation() {
- *         super.onActivation();
- *         addDataSet("indoor", "Indoor Temperature");
- *         addDataSet("outdoor", "Outdoor Temperature");
- *     }
+ * 		&#64;Override
+ * 		protected void onActivation() {
+ * 			super.onActivation();
+ * 			addDataSet("indoor", "Indoor Temperature");
+ * 			addDataSet("outdoor", "Outdoor Temperature");
+ * 		}
  *
- *     @Override
- *     public void display() {
- *         double tick = getSimuTimer().doubleValue();
- *         addData("indoor", tick, readIndoorTemp());
- *         addData("outdoor", tick, readOutdoorTemp());
- *         super.display();
- *     }
+ * 		@Override
+ * 		public void display() {
+ * 			double tick = ((Number) getSimuTimer().getCurrentTime()).doubleValue();
+ * 			addData("indoor", tick, readIndoorTemp());
+ * 			addData("outdoor", tick, readOutdoorTemp());
+ * 			super.display();
+ * 		}
+ * 	}
  * }
- * }</pre>
+ * </pre>
  *
- * @param <K> the type of keys used to identify datasets (e.g., {@link String},
- *            an enum, or a {@link madkit.kernel.Probe})
+ * @param <K> the type of keys used to identify datasets (e.g., {@link String}, an enum,
+ *            or a {@link madkit.kernel.Probe})
  *
  * @see ChartFxViewer
  * @see DoubleDataSet
@@ -98,13 +104,13 @@ public abstract class XYChartViewer<K> extends ChartFxViewer {
 	private int maxDataPoints = DEFAULT_MAX_DATA_POINTS;
 
 	/**
-	 * Creates an {@link XYChart} with two {@link DefaultNumericAxis} instances
-	 * (both auto-ranging) and an {@link ErrorDataSetRenderer}.
+	 * Creates an {@link XYChart} with two {@link DefaultNumericAxis} instances (both
+	 * auto-ranging) and an {@link ErrorDataSetRenderer}.
 	 *
-	 * <p>The chart title and axis labels are obtained from
-	 * {@link #getChartTitle()}, {@link #getXAxisLabel()}, and
-	 * {@link #getYAxisLabel()} respectively. The chart has animations disabled
-	 * for real-time simulation use.
+	 * <p>
+	 * The chart title and axis labels are obtained from {@link #getChartTitle()},
+	 * {@link #getXAxisLabel()}, and {@link #getYAxisLabel()} respectively. The chart has
+	 * animations disabled for real-time simulation use.
 	 *
 	 * @return a fully-configured {@link XYChart}, never {@code null}
 	 */
@@ -122,12 +128,13 @@ public abstract class XYChartViewer<K> extends ChartFxViewer {
 	}
 
 	/**
-	 * Creates and registers a new {@link DoubleDataSet} identified by the given
-	 * key, and adds it to the chart's renderer.
+	 * Creates and registers a new {@link DoubleDataSet} identified by the given key, and adds
+	 * it to the chart's renderer.
 	 *
-	 * <p>This method should be called during {@link #onActivation()} (after
-	 * {@code super.onActivation()}) to set up the datasets before the simulation
-	 * starts producing data.
+	 * <p>
+	 * This method should be called during {@link #onActivation()} (after
+	 * {@code super.onActivation()}) to set up the datasets before the simulation starts
+	 * producing data.
 	 *
 	 * @param key  the key used to identify the dataset in subsequent
 	 *             {@link #addData(Object, double, double)} calls
@@ -136,20 +143,22 @@ public abstract class XYChartViewer<K> extends ChartFxViewer {
 	 * @throws IllegalArgumentException if a dataset with the same key already exists
 	 * @see #addData(Object, double, double)
 	 */
-	protected DoubleDataSet addDataSet(K key, String name) {
-		DoubleDataSet ds = dataSetManager.addDataSet(key, name);
-		getXYChart().getDatasets().add(ds);
-		return ds;
+	protected void addDataSet(K key, String name) {
+		FXExecutor.runAndWait(() -> {
+			DoubleDataSet ds = dataSetManager.addDataSet(key, name);
+			getXYChart().getDatasets().add(ds);
+		});
 	}
 
 	/**
 	 * Appends a data point to the dataset identified by {@code key}.
 	 *
-	 * <p><b>Thread safety:</b> This method is safe to call from the simulation
-	 * thread (or any non-FX thread). It does <b>not</b> block on the JavaFX
-	 * Application Thread. The chart-fx library will pick up the new data on its
-	 * next rendering pulse. No {@link FXExecutor#runAndWait(Runnable)} call is
-	 * involved — this is the critical performance difference with
+	 * <p>
+	 * <b>Thread safety:</b> This method is safe to call from the simulation thread (or any
+	 * non-FX thread). It does <b>not</b> block on the JavaFX Application Thread. The chart-fx
+	 * library will pick up the new data on its next rendering pulse. No
+	 * {@link FXExecutor#runAndWait(Runnable)} call is involved — this is the critical
+	 * performance difference with
 	 * {@link madkit.simulation.viewer.LineChartDrawer#addData(Object, String, Number)
 	 * LineChartDrawer.addData()}.
 	 *
@@ -175,8 +184,9 @@ public abstract class XYChartViewer<K> extends ChartFxViewer {
 	/**
 	 * Returns the chart-fx {@link XYChart} managed by this viewer.
 	 *
-	 * <p>This is a typed convenience method equivalent to casting
-	 * {@link #getChart()} to {@link XYChart}.
+	 * <p>
+	 * This is a typed convenience method equivalent to casting {@link #getChart()} to
+	 * {@link XYChart}.
 	 *
 	 * @return the {@link XYChart}, or {@code null} if not yet activated
 	 */
@@ -187,7 +197,8 @@ public abstract class XYChartViewer<K> extends ChartFxViewer {
 	/**
 	 * Returns the label for the X axis. The default is {@code "Time"}.
 	 *
-	 * <p>Override this method to provide a custom X-axis label.
+	 * <p>
+	 * Override this method to provide a custom X-axis label.
 	 *
 	 * @return the X-axis label, never {@code null}
 	 */
@@ -198,7 +209,8 @@ public abstract class XYChartViewer<K> extends ChartFxViewer {
 	/**
 	 * Returns the label for the Y axis. The default is an empty string.
 	 *
-	 * <p>Override this method to provide a custom Y-axis label.
+	 * <p>
+	 * Override this method to provide a custom Y-axis label.
 	 *
 	 * @return the Y-axis label, never {@code null}
 	 */
@@ -209,7 +221,8 @@ public abstract class XYChartViewer<K> extends ChartFxViewer {
 	/**
 	 * Returns the chart title. The default is the simple name of this class.
 	 *
-	 * <p>Override this method to provide a custom chart title.
+	 * <p>
+	 * Override this method to provide a custom chart title.
 	 *
 	 * @return the chart title, never {@code null}
 	 */
@@ -218,8 +231,8 @@ public abstract class XYChartViewer<K> extends ChartFxViewer {
 	}
 
 	/**
-	 * Returns the maximum number of data points per dataset before the
-	 * sliding-window eviction removes the oldest points.
+	 * Returns the maximum number of data points per dataset before the sliding-window
+	 * eviction removes the oldest points.
 	 *
 	 * @return the current maximum data points threshold
 	 * @see #setMaxDataPoints(int)

@@ -338,7 +338,6 @@ public abstract class Agent {
 		if (ex instanceof AgentInterruptedException) {
 			getLogger().fine(() -> "** INTERRUPTED **");
 		} else {
-			getLogger().setLevel(Level.SEVERE);
 			getLogger().log(Level.SEVERE, ex, () -> "** CRASHED **");
 		}
 	}

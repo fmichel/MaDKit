@@ -1,7 +1,7 @@
 /*******************************************************************************
  * MaDKit - Multi-agent systems Development Kit 
  * 
- * Copyright (c) 1998-2025 Fabien Michel, Olivier Gutknecht, Jacques Ferber...
+ * Copyright (c) 1998-2026 Fabien Michel, Olivier Gutknecht, Jacques Ferber...
  * 
  * This software is a computer program whose purpose is to
  * provide a lightweight Java API for developing and simulating 
@@ -35,6 +35,9 @@
  *******************************************************************************/
 package madkit.sample.agent.management;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import madkit.kernel.Agent;
 
 /**
@@ -54,6 +57,9 @@ public class AgentLauncher extends Agent {
 	/** The number of worker agents to launch. */
 	private static final int WORKER_COUNT = 3;
 
+	// Store references to launched workers
+	private final List<WorkerAgent> workers = new ArrayList<>();
+
 	/**
 	 * Launches {@value #WORKER_COUNT} {@link WorkerAgent} instances, logs each return code,
 	 * and pauses 3 seconds to let them work.
@@ -64,10 +70,25 @@ public class AgentLauncher extends Agent {
 			final int index = i;
 			WorkerAgent worker = new WorkerAgent();
 			ReturnCode rc = launchAgent(worker);
+			if (rc == ReturnCode.SUCCESS) {
+				workers.add(worker);
+			}
 			getLogger().info(() -> "Worker " + index + " launch result: " + rc);
 		}
 		getLogger().info(() -> WORKER_COUNT + " workers launched successfully");
 		pause(3000);
+	}
+
+	/**
+	 * Kills all launched worker agents when this launcher agent ends.
+	 */
+	@Override
+	protected void onEnd() {
+		getLogger().info(() -> "Killing all worker agents...");
+		for (WorkerAgent worker : workers) {
+			killAgent(worker);
+		}
+		getLogger().info(() -> "All worker agents killed.");
 	}
 
 	/**

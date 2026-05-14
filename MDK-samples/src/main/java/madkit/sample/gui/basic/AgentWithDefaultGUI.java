@@ -1,7 +1,7 @@
 /*******************************************************************************
  * MaDKit - Multi-agent systems Development Kit 
  * 
- * Copyright (c) 1998-2025 Fabien Michel, Olivier Gutknecht, Jacques Ferber...
+ * Copyright (c) 1998-2026 Fabien Michel, Olivier Gutknecht, Jacques Ferber...
  * 
  * This software is a computer program whose purpose is to
  * provide a lightweight Java API for developing and simulating 
@@ -63,6 +63,7 @@ public class AgentWithDefaultGUI extends Agent {
 		setupDefaultGUI();
 		getLogger().info(() -> "Default GUI created! This message appears in the GUI log area.");
 		getLogger().info(() -> "The default GUI shows an output pane bound to the agent's logger.");
+		pause(2000);
 	}
 
 	/**

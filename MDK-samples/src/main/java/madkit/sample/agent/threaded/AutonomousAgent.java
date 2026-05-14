@@ -1,7 +1,7 @@
 /*******************************************************************************
  * MaDKit - Multi-agent systems Development Kit 
  * 
- * Copyright (c) 1998-2025 Fabien Michel, Olivier Gutknecht, Jacques Ferber...
+ * Copyright (c) 1998-2026 Fabien Michel, Olivier Gutknecht, Jacques Ferber...
  * 
  * This software is a computer program whose purpose is to
  * provide a lightweight Java API for developing and simulating 
@@ -41,8 +41,8 @@ import madkit.kernel.Agent;
  * Demonstrates a long-running autonomous agent with graceful termination.
  * <p>
  * This agent runs an infinite loop, logging a counter every second. It uses
- * {@link #exitOnKill()} to check whether the agent's thread has been interrupted
- * (e.g. by a kill request). When interrupted, an {@link madkit.kernel.AgentInterruptedException}
+ * {@link #exitOnKill()} to check whether the agent's thread has been interrupted (e.g. by
+ * a kill request). When interrupted, an {@link madkit.kernel.AgentInterruptedException}
  * is thrown, which MaDKit catches to trigger the {@link #onEnd()} cleanup method.
  * <p>
  * This pattern — {@code while(true) { work; pause; exitOnKill(); }} — is the idiomatic
@@ -55,8 +55,7 @@ import madkit.kernel.Agent;
 public class AutonomousAgent extends Agent {
 
 	/**
-	 * Called when the agent is launched.
-	 * Logs that the autonomous agent has been activated.
+	 * Called when the agent is launched. Logs that the autonomous agent has been activated.
 	 */
 	@Override
 	protected void onActivation() {
@@ -64,23 +63,21 @@ public class AutonomousAgent extends Agent {
 	}
 
 	/**
-	 * Runs an infinite loop, logging a counter and pausing 1 second between iterations.
-	 * Calls {@link #exitOnKill()} each iteration to allow graceful termination.
+	 * Runs an infinite loop, logging a counter and pausing 1 second between iterations. Calls
+	 * {@link #exitOnKill()} each iteration to allow graceful termination.
 	 */
 	@Override
 	protected void onLive() {
 		int counter = 0;
 		while (true) {
-			final int current = ++counter;
-			getLogger().info(() -> "Working... step " + current);
+			getLogger().info("Working... step " + (++counter));
 			pause(1000);
 			exitOnKill();
 		}
 	}
 
 	/**
-	 * Called when the agent is killed or finishes.
-	 * Logs a graceful shutdown message.
+	 * Called when the agent is killed or finishes. Logs a graceful shutdown message.
 	 */
 	@Override
 	protected void onEnd() {

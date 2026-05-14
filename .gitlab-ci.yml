@@ -1,5 +1,5 @@
 variables:
-  VERSION: "6.0.4"
+  VERSION: "6.0.5"
 
 stages:
   - build
@@ -15,7 +15,7 @@ stages:
 default:
   tags:
     - balrogrunner8
-  image: eclipse-temurin:23.0.1_11-jdk-alpine
+  image: eclipse-temurin:25-alpine
   before_script:
     - *gradle_script
   cache: &global_cache
@@ -69,6 +69,7 @@ deploy-javadoc:
     <<: *global_cache
     policy: pull
   before_script:
+    - apk add --no-cache gnupg
     - *gradle_script
     - cat "$GPG_SECRET_KEY" | base64 --decode | gpg --pinentry-mode loopback --passphrase $GPG_signing --import
     - echo "test" | gpg --clearsign --batch --pinentry-mode loopback --passphrase $GPG_signing

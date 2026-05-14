@@ -46,6 +46,8 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.Enumeration;
 
+import org.testng.SkipException;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import madkit.action.KernelAction;
@@ -57,13 +59,17 @@ import madkit.messaging.ForEverReplierAgent;
 /**
  * The Class MadkitNetworkTest.
  */
-@Test(enabled = false)
 public class MadkitNetworkTest extends MadkitConcurrentTestCase {
 
 	private static final int MADKIT_PORT = 4444;
 	private static final int TIMEOUT = 1000;
 
-//	@Test
+	@BeforeClass
+	public void skipAll() {
+		throw new SkipException("Network tests are disabled");
+	}
+
+	@Test
 	public void givenMadkitWhenNetworkOptionActivatedThenNetworkAgentIsLaunched() throws InterruptedException {
 		MadkitTestInstance m = MadkitTestInstance.getNetworkInstance();
 		m.assertNetworkStatus(true);
@@ -71,7 +77,7 @@ public class MadkitNetworkTest extends MadkitConcurrentTestCase {
 		m.assertNetworkStatus(false);
 	}
 
-//	@Test
+	@Test
 	public void givenNetworkRunning_whenStopped_thenPortClosed() throws Exception {
 		runNetworkTest(() -> {
 			// Given: a MaDKit network instance is running
@@ -98,7 +104,7 @@ public class MadkitNetworkTest extends MadkitConcurrentTestCase {
 		});
 	}
 
-//	@Test
+	@Test
 	public void givenMadkitWhenNetworkOptionActivatedThenPortShouldBeListing() throws IOException {
 		// Given: MaDKit kernel with network enabled
 		MadkitTestInstance m = MadkitTestInstance.getNetworkInstance();
@@ -116,7 +122,7 @@ public class MadkitNetworkTest extends MadkitConcurrentTestCase {
 		MadkitTestInstance.cleanUpInstances();
 	}
 
-//	@Test
+	@Test
 	public void givenForeignInstance_whenClose_thenQuit() {
 		runTest(new Agent() {
 			@Override

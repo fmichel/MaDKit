@@ -1,7 +1,7 @@
 /*******************************************************************************
  * MaDKit - Multi-agent systems Development Kit 
  * 
- * Copyright (c) 1998-2025 Fabien Michel, Olivier Gutknecht, Jacques Ferber...
+ * Copyright (c) 1998-2026 Fabien Michel, Olivier Gutknecht, Jacques Ferber...
  * 
  * This software is a computer program whose purpose is to
  * provide a lightweight Java API for developing and simulating 
@@ -46,8 +46,8 @@ import madkit.kernel.DaemonAgent;
  * kernel terminates and this agent is automatically stopped — even if its
  * {@link #onLive()} loop is still running.
  * <p>
- * This agent has no {@code main()} method because it is designed to be launched by another
- * agent (see {@link DaemonDemo}).
+ * This agent has no {@code main()} method because it is designed to be launched by
+ * another agent (see {@link DaemonDemo}).
  *
  * @see DaemonAgent
  * @see DaemonDemo
@@ -73,7 +73,7 @@ public class BackgroundService extends Agent implements DaemonAgent {
 			final int current = ++tick;
 			getLogger().info(() -> "Background heartbeat #" + current);
 			pause(1000);
-			exitOnKill();
+			exitOnKill(); // Check for termination signal to allow graceful shutdown
 		}
 	}
 

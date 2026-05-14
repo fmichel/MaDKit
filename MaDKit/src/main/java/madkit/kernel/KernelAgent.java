@@ -542,21 +542,13 @@ class KernelAgent extends Agent implements DaemonAgent {
 //			if (!organization.addGroup(creator, group, gatekeeper, isDistributed)) {
 //				return ALREADY_GROUP;
 //			}
-		////			try {// TODO bof...
-////				if (isDistributed) {
-////					sendNetworkMessageWithRole(new CGRSynchro(Code.CREATE_GROUP,
-////							getRole(community, group, madkit.agr.SystemRoles.GROUP_MANAGER_ROLE)
-////									.getAgentAddressOf(creator)),
-////							netUpdater);
-////				}
-////				if (hooks != null) {
-////					informHooks(AgentActionEvent.CREATE_GROUP,
-////							getRole(community, group, madkit.agr.SystemRoles.GROUP_MANAGER_ROLE)
-////									.getAgentAddressOf(creator));
-////				}
-////			} catch (CGRNotAvailable e) {
-////				getLogger().severeLog("Please bug report", e);
-////			}
+		//// try {// TODO bof... / if (isDistributed) { / sendNetworkMessageWithRole(new
+		/// CGRSynchro(Code.CREATE_GROUP, / getRole(community, group,
+		/// madkit.agr.SystemRoles.GROUP_MANAGER_ROLE) / .getAgentAddressOf(creator)), /
+		/// netUpdater); / } / if (hooks != null) { / informHooks(AgentActionEvent.CREATE_GROUP, /
+		/// getRole(community, group, madkit.agr.SystemRoles.GROUP_MANAGER_ROLE) /
+		/// .getAgentAddressOf(creator)); / } / } catch (CGRNotAvailable e) { /
+		/// getLogger().severeLog("Please bug report", e); / }
 //		}
 //		return SUCCESS;
 	}

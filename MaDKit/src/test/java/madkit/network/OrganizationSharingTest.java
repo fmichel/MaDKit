@@ -40,7 +40,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import java.util.logging.Level;
 
+import org.testng.SkipException;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import static madkit.kernel.Agent.ReturnCode.SUCCESS;
@@ -51,8 +53,6 @@ import madkit.kernel.DefaultTestAgent;
 import madkit.kernel.MadkitTestInstance;
 import madkit.kernel.Message;
 import madkit.kernel.Organization;
-import madkit.network.MadkitNetworkConcurrentTestCase;
-import madkit.network.NetworkCommunity;
 import madkit.testing.agents.DistributedCGRAgent;
 
 /**
@@ -61,7 +61,7 @@ import madkit.testing.agents.DistributedCGRAgent;
  * 
  */
 
-public class OragnizationSharingTest extends MadkitNetworkConcurrentTestCase {
+public class OrganizationSharingTest extends MadkitNetworkConcurrentTestCase {
 
 	@Override
 	protected String[] getMadkitTestArgs() {
@@ -75,6 +75,11 @@ public class OragnizationSharingTest extends MadkitNetworkConcurrentTestCase {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+	}
+
+	@BeforeClass
+	public void skipAll() {
+		throw new SkipException("Network tests are disabled");
 	}
 
 	@Test

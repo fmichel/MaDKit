@@ -3,7 +3,7 @@ plugins {
 	id 'maven-publish'
    	id 'signing'
    	id 'jacoco'
-   	id "org.sonarqube" version "6.0.1.5171"
+   	id "org.sonarqube" version "7.3.0.8198"
    	id 'org.gradlex.java-module-testing'
     id 'java-test-fixtures'
 }
@@ -127,9 +127,9 @@ publishing {
     repositories {
         maven {
             def releaseRepo = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-            def snapshotRepo = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+            def snapshotRepo = "https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/"
             
-            name = "OSSRH"
+            name = "ossrh-staging-api"
             url = isReleaseVersion ? releaseRepo : snapshotRepo
             credentials {
                 username = findProperty("ORG_GRADLE_PROJECT_sonatypeUsername") ?: System.getenv("ORG_GRADLE_PROJECT_sonatypeUsername")

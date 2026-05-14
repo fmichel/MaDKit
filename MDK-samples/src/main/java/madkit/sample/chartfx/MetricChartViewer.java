@@ -1,7 +1,7 @@
 /*******************************************************************************
  * MaDKit - Multi-agent systems Development Kit 
  * 
- * Copyright (c) 1998-2025 Fabien Michel, Olivier Gutknecht, Jacques Ferber...
+ * Copyright (c) 1998-2026 Fabien Michel, Olivier Gutknecht, Jacques Ferber...
  * 
  * This software is a computer program whose purpose is to
  * provide a lightweight Java API for developing and simulating 

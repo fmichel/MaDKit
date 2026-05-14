@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import java.util.logging.Level;
 
+import org.testng.SkipException;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import static madkit.kernel.Agent.ReturnCode.SUCCESS;
@@ -18,6 +20,11 @@ import madkit.kernel.Organization;
 import madkit.network.MadkitNetworkConcurrentTestCase;
 
 public class DistantReplyTest extends MadkitNetworkConcurrentTestCase {
+
+	@BeforeClass
+	public void skipAll() {
+		throw new SkipException("Network tests are disabled");
+	}
 
 	@Test
 	public void givenAgentNotInOrgPriorly_whenRequestRole_thenDistantAgentCanReply() {

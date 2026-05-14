@@ -1,7 +1,7 @@
 /*******************************************************************************
  * MaDKit - Multi-agent systems Development Kit 
  * 
- * Copyright (c) 1998-2025 Fabien Michel, Olivier Gutknecht, Jacques Ferber...
+ * Copyright (c) 1998-2026 Fabien Michel, Olivier Gutknecht, Jacques Ferber...
  * 
  * This software is a computer program whose purpose is to
  * provide a lightweight Java API for developing and simulating 
@@ -52,8 +52,7 @@ import madkit.kernel.Agent;
 public class WorkerAgent extends Agent {
 
 	/**
-	 * Called when the worker agent is launched.
-	 * Logs that the worker has been activated.
+	 * Called when the worker agent is launched. Logs that the worker has been activated.
 	 */
 	@Override
 	protected void onActivation() {
@@ -61,23 +60,22 @@ public class WorkerAgent extends Agent {
 	}
 
 	/**
-	 * Runs an infinite work loop, logging a counter every second.
-	 * Calls {@link #exitOnKill()} each iteration to support graceful termination.
+	 * Runs an infinite work loop, logging a counter every second. Calls {@link #exitOnKill()}
+	 * each iteration to support graceful termination.
 	 */
 	@Override
 	protected void onLive() {
 		int counter = 0;
 		while (true) {
-			final int current = ++counter;
-			getLogger().info(() -> "Working... step " + current);
+			getLogger().info("Working... step " + (++counter));
 			pause(1000);
 			exitOnKill();
 		}
 	}
 
 	/**
-	 * Called when the worker agent is killed or finishes.
-	 * Logs that the worker has been terminated.
+	 * Called when the worker agent is killed or finishes. Logs that the worker has been
+	 * terminated.
 	 */
 	@Override
 	protected void onEnd() {

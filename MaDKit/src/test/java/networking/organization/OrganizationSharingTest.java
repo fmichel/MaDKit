@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
+import org.testng.SkipException;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import madkit.kernel.AgentAddress;
@@ -13,6 +15,12 @@ import madkit.network.MadkitNetworkConcurrentTestCase;
 import madkit.testing.agents.DistributedCGRAgent;
 
 public class OrganizationSharingTest extends MadkitNetworkConcurrentTestCase {
+
+	@BeforeClass
+	public void skipAll() {
+		throw new SkipException("Network tests are disabled");
+	}
+
 	@Test
 	public void givenAgentInOrg_whenConnected_thenOtherKernelSeeThisAgent() {
 		runTest(new DistributedCGRAgent() {

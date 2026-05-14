@@ -25,3 +25,7 @@ dependencies {
 	testImplementation libs.assertJ
 	testImplementation libs.concurrentunit
 }
+
+tasks.named('test') {
+	useTestNG()
+}

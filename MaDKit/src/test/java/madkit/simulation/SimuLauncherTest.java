@@ -23,7 +23,7 @@ public class SimuLauncherTest extends MadkitConcurrentTestCase {
 		assertThat(simuLauncher.getCommunity()).isEqualTo(simuLauncher.getClass().getSimpleName());
 		assertThat(simuLauncher.getModelGroup()).isEqualTo(SimuOrganization.MODEL_GROUP);
 		assertThat(simuLauncher.getEngineGroup()).isEqualTo(SimuOrganization.ENGINE_GROUP);
-		assertThat(simuLauncher.getPRNGSeedIndex()).isEqualTo(0);
+		assertThat(simuLauncher.getPrngSeedIndex()).isEqualTo(0);
 		assertThat(simuLauncher.getScheduler().getClass()).isEqualTo(TickBasedScheduler.class);
 		assertThat(simuLauncher.prng()).isNotNull();
 		assertThat(simuLauncher.getViewers()).isEmpty();

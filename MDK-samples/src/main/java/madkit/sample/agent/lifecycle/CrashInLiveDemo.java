@@ -1,7 +1,7 @@
 /*******************************************************************************
  * MaDKit - Multi-agent systems Development Kit 
  * 
- * Copyright (c) 1998-2025 Fabien Michel, Olivier Gutknecht, Jacques Ferber...
+ * Copyright (c) 1998-2026 Fabien Michel, Olivier Gutknecht, Jacques Ferber...
  * 
  * This software is a computer program whose purpose is to
  * provide a lightweight Java API for developing and simulating 
@@ -71,8 +71,8 @@ public class CrashInLiveDemo extends Agent {
 	}
 
 	/**
-	 * Called after the crash in {@link #onLive()}.
-	 * Demonstrates that cleanup is guaranteed for agents that were alive.
+	 * Called after the crash in {@link #onLive()}. Demonstrates that cleanup is guaranteed
+	 * for agents that were alive.
 	 */
 	@Override
 	protected void onEnd() {
@@ -80,8 +80,8 @@ public class CrashInLiveDemo extends Agent {
 	}
 
 	/**
-	 * Launches a single instance of {@link CrashInLiveDemo}.
-	 * The kernel will log the crash and then call {@code onEnd()}.
+	 * Launches a single instance of {@link CrashInLiveDemo}. The kernel will log the crash
+	 * and then call {@code onEnd()}.
 	 *
 	 * @param args MaDKit command-line options
 	 */

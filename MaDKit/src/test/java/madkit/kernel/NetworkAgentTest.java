@@ -2,6 +2,8 @@ package madkit.kernel;
 
 import java.util.logging.Level;
 
+import org.testng.SkipException;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import madkit.action.KernelAction;
@@ -13,7 +15,12 @@ public class NetworkAgentTest extends MadkitConcurrentTestCase {
 		return new String[] { "--network" };
 	}
 
-//	@Test
+	@BeforeClass
+	public void skipAll() {
+		throw new SkipException("Network tests are disabled");
+	}
+
+	@Test
 	public void givenNetworkAgent_whenConnected_then() {
 		runTest(new DefaultTestAgent() {
 			@Override

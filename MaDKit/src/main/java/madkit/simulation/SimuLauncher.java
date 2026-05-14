@@ -48,6 +48,7 @@ import java.util.logging.Level;
 import java.util.random.RandomGenerator;
 
 import madkit.action.SchedulingAction;
+import madkit.gui.UIProperty;
 import madkit.kernel.Probe;
 import madkit.kernel.Scheduler;
 import madkit.kernel.Watcher;
@@ -111,9 +112,9 @@ public abstract class SimuLauncher extends Watcher {
 	 * Need a many seed bits, and then increment on it
 	 */
 	private static final long BASE_SEED = 0xFEDCBA0987654321L;
-	private long simulationSeed = BASE_SEED;
 
-	private int simulationIndex;
+	@UIProperty(category = "Initialization", displayName = "Random generator seed Index")
+	private int prngSeedIndex;
 
 	private Probe viewersProbe;
 
@@ -184,15 +185,15 @@ public abstract class SimuLauncher extends Watcher {
 
 	/**
 	 * Creates the pseudo random number generator that has to be used by the simulation. The
-	 * seed index is taken from the kernel configuration. If the seed index is not set, the
-	 * default value is 0.
+	 * seed index is taken using {@link #getSeedIndex()} from the kernel configuration. If the
+	 * seed index is not set, the default value is 0.
 	 * 
 	 * @return the pseudo random number generator that will be used by the simulation
 	 */
-	public RandomGenerator onCreateRandomGenerator() {
-		randomGenerator = Randomness.getBestRandomGeneratorFactory().create(getPRNGSeed());
-		getLogger().info(() -> " PRNG < " + randomGenerator.getClass().getSimpleName() + " ; seed index ->  "
-				+ getPRNGSeedIndex() + " >");
+	protected RandomGenerator onCreateRandomGenerator() {
+		randomGenerator = Randomness.getBestRandomGeneratorFactory().create(computePRNGSeed());
+		getLogger().info(() -> " PRNG < Algo -> " + randomGenerator.getClass().getSimpleName() + " ; seed index ->  "
+				+ getPrngSeedIndex() + " >");
 		return randomGenerator;
 	}
 
@@ -209,38 +210,44 @@ public abstract class SimuLauncher extends Watcher {
 	 * @param seedIndex the seed index to set. Privilege the use of sequence of integers such
 	 *                  as 0, 1, 2...
 	 */
-	public void setPRNGSeedIndex(int seedIndex) {
-		simulationIndex = seedIndex;
-		simulationSeed += BASE_SEED + seedIndex;
+	public void setPrngSeedIndex(int seedIndex) {
+		this.prngSeedIndex = seedIndex;
 	}
 
 	/**
-	 * Returns the seed used to create the PRNG.
+	 * Returns the index used to create the PRNG seed.
 	 * 
-	 * @return the seed used to create the PRNG
+	 * @return the index used to create the PRNG seed
 	 */
-	public long getPRNGSeedIndex() {
-		return simulationIndex;
+	public int getPrngSeedIndex() {
+		return prngSeedIndex;
 	}
 
 	/**
-	 * Returns the seed used to create the PRNG.
+	 * computes the seed that will be used to create the PRNG by adding the seed index to the
+	 * built-in long (0xFEDCBA0987654321L). This is done so that the obtained long respects
+	 * the many seed bits characteristic. see #setPRNGSeedIndex(int) for more details and
+	 * references about the choice of the seed index.
 	 * 
-	 * @return the seed used to create the PRNG
 	 */
-	private long getPRNGSeed() {
-		return simulationSeed;
+	private long computePRNGSeed() {
+		return BASE_SEED + prngSeedIndex;
 	}
 
 	/**
 	 * Initializes the simulation seed index. By default, the seed index is taken from the
-	 * kernel configuration, and if not set the seed index is set 0.
+	 * kernel configuration, and if not set the seed index is set 0, which means that the seed
+	 * used to create the PRNG will be the built-in long (0xFEDCBA0987654321L) plus 0, and
+	 * thus the same for all simulations. This allows to have a reproducible simulation when
+	 * the seed index is not set, and to have different simulations by using different seed
+	 * indices, for example by using a sequence of integers such as 0, 1, 2... This method can
+	 * be overridden by the user to define a custom seed index initialization.
 	 */
-	public void onInitializeSimulationSeedIndex() {
+	protected void onInitializeSimulationSeedIndex() {
 		int seed = getKernelConfig().getInt("seed");
 		seed = seed == Integer.MIN_VALUE ? 0 : seed;
-		setPRNGSeedIndex(seed);
-		getLogger().finer(() -> " < Simulation seed set to -> " + getPRNGSeedIndex() + " >");
+		setPrngSeedIndex(seed);
+		getLogger().finer(() -> " < Simulation seed index set to -> " + getPrngSeedIndex() + " >");
 	}
 
 	/**
@@ -264,7 +271,12 @@ public abstract class SimuLauncher extends Watcher {
 	}
 
 	/**
-	 * Returns the seed used to create the PRNG.
+	 * Launches the simulation model agent and logs the event. Defaultly, the model class is
+	 * taken from the annotation {@link EngineAgents} if it is defined on the class, or from
+	 * the kernel configuration. If none of these sources provide a model class, the fallback
+	 * mode is used, which means that the model class is set to {@link SimuModel}. This method
+	 * could be overridden by the user to define a custom model class or to customize the
+	 * launch process of the model agent.
 	 * 
 	 * @param <M> the type of the model
 	 * @return the model agent for this simulation
@@ -278,7 +290,12 @@ public abstract class SimuLauncher extends Watcher {
 	}
 
 	/**
-	 * Launches the simulation environment agent and logs the event.
+	 * Launches the simulation environment agent and logs the event. Defaultly, the
+	 * environment class is taken from the annotation {@link EngineAgents} if it is defined on
+	 * the class, or from the kernel configuration. If none of these sources provide an
+	 * environment class, the fallback mode is used, which means that the environment class is
+	 * set to {@link SimuEnvironment}. This method could be overridden by the user to define a
+	 * custom environment class or to customize the launch process of the environment agent.
 	 *
 	 * @param <E> the type of the environment
 	 * @return the environment agent for this simulation
@@ -287,12 +304,18 @@ public abstract class SimuLauncher extends Watcher {
 		String envClass = getEngineClass(ENGINE.ENVIRONMENT);
 		getLogger().fine(() -> LAUNCHING + envClass);
 		E e = launchAgent(envClass, Integer.MAX_VALUE);
-		getLogger().fine(() -> getEnvironment() + LAUNCHED);
+		getLogger().fine(() -> e + LAUNCHED);
 		return e;
 	}
 
 	/**
-	 * Launches the simulation scheduler agent and logs the event.
+	 * Launches the simulation scheduler agent and logs the event. Defaultly, the scheduler
+	 * class is taken from the annotation {@link EngineAgents} if it is defined on the class,
+	 * or from the kernel configuration. If none of these sources provide a scheduler class,
+	 * the fallback mode is used, which means that the scheduler class is set to
+	 * {@link TickBasedScheduler}. This method could be overridden by the user to define a
+	 * custom scheduler class or to customize the launch process of the scheduler agent.
+	 * 
 	 *
 	 * @param <S> the type of the scheduler
 	 * @return the scheduler agent for this simulation
@@ -306,7 +329,12 @@ public abstract class SimuLauncher extends Watcher {
 	}
 
 	/**
-	 * Launches the simulation viewers agents and logs their launch.
+	 * Launches the simulation viewers agents and logs their launch. Defaultly, the viewers
+	 * classes are taken from the annotation {@link EngineAgents} if it is defined on the
+	 * class, or from the kernel configuration. If none of these sources provide viewers
+	 * classes, the fallback mode is used, which means that no viewer is launched. This method
+	 * could be overridden by the user to define custom viewers classes or to customize the
+	 * launch process of the viewers agents.
 	 */
 	protected void onLaunchViewers() {
 		if (!getKernelConfig().getBoolean("headless")) {
@@ -319,7 +347,9 @@ public abstract class SimuLauncher extends Watcher {
 	}
 
 	/**
-	 * Launches the simulation agents.
+	 * Launches the simulation agents. Defaultly, no simulated agent is launched. This method
+	 * could be overridden by the user to define custom simulated agents or to customize the
+	 * launch process of the simulated agents.
 	 */
 	protected void onLaunchSimulatedAgents() {
 		getLogger().fine(() -> "Launching simulated agents");

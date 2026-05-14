@@ -78,6 +78,7 @@ public class SliderEditor extends AbstractPropertyEditor<Double, Slider> impleme
 		} catch (ClassCastException e) {
 			Logger.getAnonymousLogger().severe("****************** " + SliderProperty.class
 					+ " only works on double! \nPlease change " + item.getName() + " type to double in your class ***\n\n");
+			e.printStackTrace();
 		}
 	}
 

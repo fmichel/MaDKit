@@ -1,7 +1,7 @@
 /*******************************************************************************
  * MaDKit - Multi-agent systems Development Kit 
  * 
- * Copyright (c) 1998-2025 Fabien Michel, Olivier Gutknecht, Jacques Ferber...
+ * Copyright (c) 1998-2026 Fabien Michel, Olivier Gutknecht, Jacques Ferber...
  * 
  * This software is a computer program whose purpose is to
  * provide a lightweight Java API for developing and simulating 
@@ -40,9 +40,16 @@ import madkit.kernel.Agent;
 /**
  * A minimal agent that only overrides {@link #onActivation()}.
  * <p>
- * This sample shows how every agent has a unique {@link #getName() name} (class name + internal ID)
- * and a unique {@link #hashCode() hashCode}. Because {@code onLive()} is not overridden, the agent
- * does not get its own thread — it activates and then terminates.
+ * This sample shows how every agent has a unique {@link #getName() name} (class name +
+ * internal ID) and a unique {@link #hashCode() hashCode}. Because {@code onLive()} is not
+ * overridden, the agent does not get its own thread — it activates and terminates when
+ * killed.
+ * <p>
+ * Such an agent, without a thread, is useful for creating an agent having a GUI that
+ * should be launched at the start of the application, but does not need to perform any
+ * ongoing behavior. In that case, you can simply override {@code onActivation()} to set
+ * up the GUI and then let the agent react to user's inputs.
+ * 
  * <p>
  * Run this class to see the agent's identity printed in the log output.
  *
@@ -52,8 +59,7 @@ import madkit.kernel.Agent;
 public class SimpleAgent extends Agent {
 
 	/**
-	 * Called when the agent is launched.
-	 * Logs the agent's unique name and hash code.
+	 * Called when the agent is launched. Logs the agent's unique name and hash code.
 	 */
 	@Override
 	protected void onActivation() {

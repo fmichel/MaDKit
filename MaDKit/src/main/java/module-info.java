@@ -33,6 +33,7 @@ module madkit.base {
 	exports madkit.simulation.environment;
 	exports madkit.simulation.scheduler;
 	exports madkit.simulation.viewer;
+	exports madkit.simulation.viewer.chartfx;
 	exports madkit.random;
 
 	requires transitive java.desktop;
@@ -41,6 +42,8 @@ module madkit.base {
 	requires transitive javafx.controls;
 	requires transitive javafx.graphics;
 	requires transitive org.controlsfx.controls;
+	requires transitive io.fair_acc.chartfx;
+	requires transitive io.fair_acc.dataset;
 	requires transitive org.apache.commons.configuration2;
 
 	requires info.picocli;

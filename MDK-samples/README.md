@@ -24,7 +24,7 @@ Demonstration agents and simulations showcasing various features of the MaDKit f
 
 ## Chart-fx Demos (`madkit.sample.chartfx`)
 
-Two sample simulations demonstrate chart-fx based live plotting:
+Two sample simulations demonstrate chart-fx based live plotting. The viewer API is provided directly by MaDKit's `madkit.base` module in `madkit.simulation.viewer.chartfx`; no separate ChartFX integration artifact is required:
 
 ### Demo A — Role Population Chart
 

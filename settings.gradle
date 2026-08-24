@@ -13,4 +13,4 @@ plugins {
 
 
 rootProject.name = 'MaDKit-6'
-include('MaDKit','MDK-simu-template', 'MDK-bees-app', 'MDK-marketorg-app', 'MDK-samples', 'MDK-chartfx', 'MDK-grafana')
+include('MaDKit','MDK-simu-template', 'MDK-bees-app', 'MDK-marketorg-app', 'MDK-samples', 'MDK-grafana')

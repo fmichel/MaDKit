@@ -4,7 +4,6 @@
  */
 open module madkit.samples {
 	requires madkit.base;
-	requires madkit.chartfx;
 
 	exports madkit.samples;
 	exports madkit.sample.launching;

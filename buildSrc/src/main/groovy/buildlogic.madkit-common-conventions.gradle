@@ -15,4 +15,12 @@ extraJavaModuleInfo {
 	    //TestNG's dependencies
     automaticModule("org.jcommander:jcommander", "jcommander")
     automaticModule("org.webjars:jquery", "org.webjars.jquery")
+    
+    // chart-fx transitive dependencies without module descriptors.
+    automaticModule("ar.com.hjg:pngj", "ar.com.hjg.pngj")
+    automaticModule("org.hdrhistogram:HdrHistogram", "org.hdrhistogram.HdrHistogram")
+    automaticModule("com.github.wendykierp:JTransforms", "com.github.wendykierp.JTransforms")
+    automaticModule("pl.edu.icm:JLargeArrays", "pl.edu.icm.JLargeArrays")
+    automaticModule("org.apache.commons:commons-math3", "org.apache.commons.math3")
+
 }

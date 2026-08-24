@@ -35,7 +35,7 @@
  *******************************************************************************/
 package madkit.sample.chartfx;
 
-import madkit.chartfx.XYChartViewer;
+import madkit.simulation.viewer.chartfx.XYChartViewer;
 import madkit.simulation.PropertyProbe;
 
 /**

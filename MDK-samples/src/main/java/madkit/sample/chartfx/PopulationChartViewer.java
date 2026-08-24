@@ -35,7 +35,7 @@
  *******************************************************************************/
 package madkit.sample.chartfx;
 
-import madkit.chartfx.ProbeXYChartViewer;
+import madkit.simulation.viewer.chartfx.ProbeXYChartViewer;
 
 /**
  * A chart-fx viewer that plots the population of organizational roles over simulation

@@ -38,12 +38,12 @@
  * Chart-fx live-plotting demonstrations for MaDKit simulations.
  *
  * <p>This package contains sample simulations that showcase the
- * {@link madkit.chartfx} wrapper layer for high-performance chart-fx
+ * {@link madkit.simulation.viewer.chartfx} wrapper layer for high-performance chart-fx
  * based live plotting. Each demo uses a paced scheduler so plot evolution
  * is observable in real time.
  *
  * <h2>Demo A — Role Population Chart</h2>
- * <p>Demonstrates {@link madkit.chartfx.ProbeXYChartViewer} by monitoring
+ * <p>Demonstrates {@link madkit.simulation.viewer.chartfx.ProbeXYChartViewer} by monitoring
  * organizational role populations over simulation time. This is the chart-fx
  * counterpart of
  * {@link madkit.simulation.viewer.RolesPopulationLineChartDrawer}.
@@ -59,7 +59,7 @@
  * </ul>
  *
  * <h2>Demo B — Agent Metric Chart</h2>
- * <p>Demonstrates {@link madkit.chartfx.XYChartViewer} with multi-series
+ * <p>Demonstrates {@link madkit.simulation.viewer.chartfx.XYChartViewer} with multi-series
  * custom agent metrics plotted live over simulation time.
  * <ul>
  *   <li>{@link madkit.sample.chartfx.MetricAgent} — simulated agent with
@@ -73,8 +73,8 @@
  * <p>All demo classes are implemented as <b>separate top-level classes</b>.
  * No inner classes are used for agents, viewers, or launchers.
  *
- * @see madkit.chartfx
- * @see madkit.chartfx.ProbeXYChartViewer
- * @see madkit.chartfx.XYChartViewer
+ * @see madkit.simulation.viewer.chartfx
+ * @see madkit.simulation.viewer.chartfx.ProbeXYChartViewer
+ * @see madkit.simulation.viewer.chartfx.XYChartViewer
  */
 package madkit.sample.chartfx;

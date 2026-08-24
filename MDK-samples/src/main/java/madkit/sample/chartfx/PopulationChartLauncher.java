@@ -41,7 +41,7 @@ import madkit.simulation.SimuLauncher;
 /**
  * Launcher for the chart-fx role population demo.
  *
- * <p>This simulation demonstrates {@link madkit.chartfx.ProbeXYChartViewer}
+ * <p>This simulation demonstrates {@link madkit.simulation.viewer.chartfx.ProbeXYChartViewer}
  * by monitoring how organizational role populations evolve over time. It
  * launches {@value #NB_AGENTS} {@link PopulationAgent} instances that
  * randomly switch between "worker" and "manager" roles. A

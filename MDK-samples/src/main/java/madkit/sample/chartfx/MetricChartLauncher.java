@@ -43,7 +43,7 @@ import madkit.simulation.SimuLauncher;
  *
  * <p>
  * This simulation demonstrates multi-series live plotting with
- * {@link madkit.chartfx.XYChartViewer}. It launches {@value #NB_AGENTS}
+ * {@link madkit.simulation.viewer.chartfx.XYChartViewer}. It launches {@value #NB_AGENTS}
  * {@link MetricAgent} instances (randomly assigned "producer" or "consumer" roles) whose
  * average energy is plotted by a {@link MetricChartViewer}.
  *

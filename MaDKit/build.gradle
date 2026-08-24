@@ -111,6 +111,7 @@ dependencies {
 
     api libs.commonsConfiguration2
     api libs.controlsfx
+    api libs.chartfx
     
     testImplementation libs.assertJ
     testImplementation libs.concurrentunit
@@ -176,6 +177,8 @@ signing {
 
 tasks.named('test') {
     useTestNG()
+    // Bound the complete suite without changing MaDKit API timeout semantics.
+    timeout = java.time.Duration.ofMinutes(2)
     maxParallelForks = "9"
     minHeapSize = "2048m"
     maxHeapSize = "4096m"

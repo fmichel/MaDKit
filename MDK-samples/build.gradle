@@ -18,7 +18,6 @@ javaModuleTesting.whitebox(testing.suites.getByName("test")) {
 
 dependencies {
 	api project(':MaDKit')
-	implementation project(':MDK-chartfx')
 
 	testImplementation testFixtures(project(':MaDKit'))
 	testImplementation libs.testng

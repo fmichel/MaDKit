@@ -2,6 +2,7 @@ package madkit.gl3d.viewer;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import madkit.gl3d.GLInputHandler;
 import madkit.gl3d.GLWindow;
 import madkit.simulation.Viewer;
 
@@ -20,7 +21,11 @@ public abstract class GLViewer3D extends Viewer {
     }
 
     protected GLViewer3D(String title, int width, int height, boolean visible) {
-        window = new GLWindow(title, width, height, visible, this::renderFrame);
+        this(title, width, height, visible, new GLInputHandler() { });
+    }
+
+    protected GLViewer3D(String title, int width, int height, boolean visible, GLInputHandler inputHandler) {
+        window = new GLWindow(title, width, height, visible, this::renderFrame, inputHandler, this::onGlCleanup);
     }
 
     @Override
@@ -50,6 +55,11 @@ public abstract class GLViewer3D extends Viewer {
         return window;
     }
 
+    /** Called on the OpenGL thread immediately before the context is destroyed. */
+    protected void onGlCleanup() {
+        // Extension point for concrete viewers.
+    }
+
     @Override
     protected void onEnd() {
         try {
@@ -57,5 +67,9 @@ public abstract class GLViewer3D extends Viewer {
         } finally {
             super.onEnd();
         }
+    }
+
+    protected final void setInputHandler(GLInputHandler inputHandler) {
+        window.setInputHandler(inputHandler);
     }
 }

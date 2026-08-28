@@ -39,7 +39,7 @@ dependencies {
 
 application {
     mainModule = 'madkit.gl3d'
-    mainClass = 'madkit.gl3d.demo.GLTriangleDemo'
+    mainClass = 'madkit.gl3d.bees.GL3dBeeLauncher'
 }
 
 tasks.withType(JavaExec).configureEach {
@@ -48,4 +48,14 @@ tasks.withType(JavaExec).configureEach {
 
 tasks.named('test') {
     useTestNG()
+}
+
+tasks.register('beePerformanceBenchmark', JavaExec) {
+    group = 'verification'
+    description = 'Measures CPU tick and immutable snapshot costs for 1k, 10k, and 100k bees.'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'madkit.gl3d.bees.BeePerformanceBenchmark'
+    args providers.gradleProperty('warmupTicks').orElse('5').get(),
+            providers.gradleProperty('measuredTicks').orElse('20').get()
+    jvmArgs '--add-modules', 'ALL-MODULE-PATH'
 }

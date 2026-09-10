@@ -67,8 +67,8 @@ public class MetricScheduler extends TickBasedScheduler {
 	 * Activates this scheduler and sets up the activators for agents and viewers.
 	 *
 	 * <p>
-	 * Two agent activators target the model group: one for {@value PopulationAgent#WORKER}
-	 * agents and one for {@value PopulationAgent#MANAGER} agents, both invoking their
+	 * Two agent activators target the model group: one for {@value MetricAgent#PRODUCER}
+	 * agents and one for {@value MetricAgent#CONSUMER} agents, both invoking their
 	 * {@code doIt()} method. The viewer activator uses the standard
 	 * {@link #addViewersActivator()} helper.
 	 */

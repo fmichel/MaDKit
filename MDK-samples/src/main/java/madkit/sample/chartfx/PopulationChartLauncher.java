@@ -44,7 +44,7 @@ import madkit.simulation.SimuLauncher;
  * <p>This simulation demonstrates {@link madkit.simulation.viewer.chartfx.ProbeXYChartViewer}
  * by monitoring how organizational role populations evolve over time. It
  * launches {@value #NB_AGENTS} {@link PopulationAgent} instances that
- * randomly switch between "worker" and "manager" roles. A
+	 * randomly switch between "worker" and "master" roles. A
  * {@link PopulationChartViewer} plots the population of each role live
  * using chart-fx.
  *
@@ -81,7 +81,7 @@ public class PopulationChartLauncher extends SimuLauncher {
 
 	/**
 	 * Launches the simulated agents. Each agent is a
-	 * {@link PopulationAgent} that randomly takes a "worker" or "manager"
+	 * {@link PopulationAgent} that randomly takes a "worker" or "master"
 	 * role.
 	 */
 	@Override

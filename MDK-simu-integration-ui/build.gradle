@@ -1,0 +1,37 @@
+plugins {
+	id 'buildlogic.madkit-common-conventions'
+	id 'org.gradlex.java-module-testing'
+	id 'org.openjfx.javafxplugin'
+}
+
+application {
+	mainClass = 'madkit.simu.integration.ui.UiIntegrationLauncher'
+	mainModule = 'madkit.simu.integration.ui'
+}
+
+javafx {
+	version = '23.0.1'
+	modules = ['javafx.base', 'javafx.controls', 'javafx.graphics']
+}
+
+tasks.withType(JavaExec) {
+	jvmArgs '--add-modules', 'ALL-MODULE-PATH'
+}
+
+javaModuleTesting.whitebox(testing.suites.getByName('test')) {
+	requires.add('org.testng')
+	opensTo.add('org.testng')
+	requires.add('org.assertj.core')
+}
+
+dependencies {
+	implementation project(':MDK-simu-integration-common')
+	testImplementation project(':MDK-simu-integration-common')
+	testImplementation libs.testng
+	testImplementation libs.assertJ
+	testImplementation libs.concurrentunit
+}
+
+tasks.named('test') {
+	useTestNG()
+}

@@ -44,7 +44,7 @@ import madkit.simulation.viewer.chartfx.ProbeXYChartViewer;
  * <p>
  * This is the chart-fx counterpart of
  * {@link madkit.simulation.viewer.RolesPopulationLineChartDrawer}. It uses
- * {@link ProbeXYChartViewer} to automatically monitor the "worker" and "manager" role
+ * {@link ProbeXYChartViewer} to automatically monitor the "worker" and "master" role
  * populations through probes, plotting their sizes as the simulation evolves.
  *
  * <p>
@@ -58,7 +58,7 @@ import madkit.simulation.viewer.chartfx.ProbeXYChartViewer;
 public class PopulationChartViewer extends ProbeXYChartViewer {
 
 	/**
-	 * Activates this viewer and registers probes for the "worker" and "manager" roles.
+	 * Activates this viewer and registers probes for the "worker" and "master" roles.
 	 *
 	 * <p>
 	 * After calling {@code super.onActivation()}, this method adds probe datasets for each

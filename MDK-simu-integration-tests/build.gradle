@@ -3,32 +3,38 @@ plugins {
 	id 'org.gradlex.java-module-testing'
 }
 
-// The MaDKit test-fixtures JAR has no module-info (it is patched into madkit.base).
-// Prevent extraJavaModuleInfo from failing on it.
+application {
+	mainClass = 'madkit.simu.integration.IntegrationLauncher'
+	mainModule = 'madkit.simu.integration.tests'
+}
+
 extraJavaModuleInfo {
 	failOnMissingModuleInfo = false
+}
+
+tasks.withType(JavaExec) {
+	jvmArgs '--add-modules', 'ALL-MODULE-PATH'
 }
 
 javaModuleTesting.whitebox(testing.suites.getByName("test")) {
 	requires.add("org.testng")
 	opensTo.add("org.testng")
+	opensTo.add("madkit.base")
 	requires.add("org.assertj.core")
 	requires.add("net.jodah.concurrentunit")
 }
 
 dependencies {
+	api project(':MDK-simu-integration-common')
 	api project(':MaDKit')
-
 	testImplementation testFixtures(project(':MaDKit'))
 	testImplementation libs.testng
 	testImplementation libs.assertJ
 	testImplementation libs.concurrentunit
 }
 
-// testFixtures classes live in madkit.kernel, a package owned by madkit.base.
-// The whitebox plugin patches only the sample test sources into madkit.samples;
-// patch the fixture output into madkit.base as well so fixture imports resolve
-// without weakening the production module boundary or creating a split module.
+// The MaDKit fixture classes share madkit.base packages and must be patched into
+// that module for consumer-level tests, rather than placed on the module path.
 afterEvaluate {
 	tasks.named('compileTestJava').configure {
 		def testFixturesDir = project(':MaDKit').layout.buildDirectory.dir("classes/java/testFixtures").get().asFile.path

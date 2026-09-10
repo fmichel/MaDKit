@@ -58,7 +58,7 @@ public class PopulationAgent extends SimuAgent {
 	/** Role name for worker agents. */
 	static final String WORKER = "worker";
 
-	/** Role name for manager agents. */
+	/** Role name for master agents. */
 	static final String MASTER = "master";
 
 	/** Probability of switching roles at each simulation step. */

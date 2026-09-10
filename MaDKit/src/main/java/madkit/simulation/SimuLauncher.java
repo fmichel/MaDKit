@@ -341,6 +341,9 @@ public abstract class SimuLauncher extends Watcher {
 			for (String viewer : getViewerClasses()) {
 				getLogger().fine(() -> LAUNCHING + viewer);
 				SimuAgent v = launchAgent(viewer, Integer.MAX_VALUE);
+				if (v == null) {
+					throw new IllegalStateException("Could not launch viewer: " + viewer);
+				}
 				getLogger().fine(() -> v + LAUNCHED);
 			}
 		}

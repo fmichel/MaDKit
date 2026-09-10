@@ -60,7 +60,7 @@ import madkit.simulation.scheduler.TickBasedScheduler;
 public class PopulationScheduler extends TickBasedScheduler {
 
 	private MethodActivator workers;
-	private MethodActivator managers;
+	private MethodActivator masters;
 	private MethodActivator viewers;
 
 	/**
@@ -68,7 +68,7 @@ public class PopulationScheduler extends TickBasedScheduler {
 	 *
 	 * <p>
 	 * Two agent activators target the model group: one for {@value PopulationAgent#WORKER}
-	 * agents and one for {@value PopulationAgent#MANAGER} agents, both invoking their
+	 * agents and one for {@value PopulationAgent#MASTER} agents, both invoking their
 	 * {@code doIt()} method. The viewer activator uses the standard
 	 * {@link #addViewersActivator()} helper.
 	 */
@@ -78,8 +78,8 @@ public class PopulationScheduler extends TickBasedScheduler {
 		getLogger().setLevel(Level.ALL);
 		workers = new MethodActivator(getModelGroup(), PopulationAgent.WORKER, "doIt");
 		addActivator(workers);
-		managers = new MethodActivator(getModelGroup(), PopulationAgent.MASTER, "doIt");
-		addActivator(managers);
+		masters = new MethodActivator(getModelGroup(), PopulationAgent.MASTER, "doIt");
+		addActivator(masters);
 		viewers = addViewersActivator();
 	}
 
@@ -90,7 +90,7 @@ public class PopulationScheduler extends TickBasedScheduler {
 	@Override
 	public void doSimulationStep() {
 		workers.execute();
-		managers.execute();
+		masters.execute();
 		viewers.execute();
 		super.doSimulationStep();
 	}

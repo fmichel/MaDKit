@@ -34,8 +34,8 @@ test:
   script: ./gradlew --build-cache check
   artifacts:
     when: on_failure
-    reports:
-      junit: MaDKit/build/test-results/test/**/TEST-*.xml
+    paths:
+      - MDK-simu-integration-tests/build/reports/tests/test/*
 
 sonarqube-check:
   stage: check

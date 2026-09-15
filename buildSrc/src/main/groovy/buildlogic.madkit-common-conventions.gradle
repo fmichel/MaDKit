@@ -5,7 +5,7 @@ plugins {
 
 extraJavaModuleInfo {
 
-	// not uptodate beanutils's dependency... beanutils being required by commonsConfiguration2
+	// commons-collections 3.2.2 is still required by commons-beanutils 1.11.0
     automaticModule("commons-collections:commons-collections", "commons.collections")
 
 

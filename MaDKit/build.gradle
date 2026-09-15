@@ -3,7 +3,7 @@ plugins {
 	id 'maven-publish'
    	id 'signing'
    	id 'jacoco'
-   	id "org.sonarqube" version "7.3.0.8198"
+   	id "org.sonarqube" version "7.5.0.8588"
    	id 'org.gradlex.java-module-testing'
     id 'java-test-fixtures'
 }
@@ -185,7 +185,7 @@ tasks.named('test') {
 
     testLogging {
         events "passed", "skipped", "failed"
-        exceptionFormat "full"
+        //exceptionFormat = "full"
         showStandardStreams = true
     }
 }

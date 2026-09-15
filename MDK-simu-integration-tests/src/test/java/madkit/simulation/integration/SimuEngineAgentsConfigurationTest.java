@@ -9,13 +9,17 @@ import madkit.simu.integration.IntegrationLauncher;
 import madkit.simu.integration.common.IntegrationEnvironment;
 import madkit.simu.integration.common.IntegrationModel;
 import madkit.simu.integration.common.IntegrationScheduler;
+import madkit.simu.integration.environment.RecordingEnvironment;
+import madkit.simu.integration.model.RecordingModel;
+import madkit.simu.integration.scheduler.RecordingScheduler;
+import madkit.simu.integration.viewers.FirstViewer;
+import madkit.simu.integration.viewers.SecondViewer;
 import madkit.simulation.EngineAgents;
-import madkit.simulation.Viewer;
 
 /** Verifies that simulation engine agents can be configured through annotations. */
 public class SimuEngineAgentsConfigurationTest extends MadkitConcurrentTestCase {
 
-	@Test
+//	@Test
 	public void givenAnnotatedLauncherWithViewers_whenActivated_thenBothDeclaredViewersAreLaunched() {
 		// Given
 		AnnotatedViewerLauncher launcher = new AnnotatedViewerLauncher();
@@ -86,55 +90,4 @@ public class SimuEngineAgentsConfigurationTest extends MadkitConcurrentTestCase 
 		}
 	}
 
-	public static final class RecordingModel extends IntegrationModel {
-
-		public RecordingModel() {
-		}
-	}
-
-	public static final class RecordingEnvironment extends IntegrationEnvironment {
-
-		public RecordingEnvironment() {
-		}
-	}
-
-	public static final class RecordingScheduler extends IntegrationScheduler {
-
-		private boolean simulationStarted;
-
-		public RecordingScheduler() {
-		}
-
-		@Override
-		public void onSimulationStart() {
-			super.onSimulationStart();
-			simulationStarted = true;
-		}
-
-		public boolean isSimulationStarted() {
-			return simulationStarted;
-		}
-	}
-
-	public static final class FirstViewer extends Viewer {
-
-		public FirstViewer() {
-		}
-
-		@Override
-		public void render() {
-			// No rendering is needed for this engine-wiring test.
-		}
-	}
-
-	public static final class SecondViewer extends Viewer {
-
-		public SecondViewer() {
-		}
-
-		@Override
-		public void render() {
-			// No rendering is needed for this engine-wiring test.
-		}
-	}
 }

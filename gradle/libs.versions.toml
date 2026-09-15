@@ -2,23 +2,23 @@
 # https://docs.gradle.org/current/userguide/platforms.html#sub::toml-dependencies-format
 
 [versions]
-commonsBeanutils = "1.10.1"
-commonsCollections = "3.2.2"
-commonsConfiguration2 = "2.12.0"
-controlsfx = "11.2.1"
+commonsBeanutils = "1.11.0"
+commonsCollections = "4.6.0"
+commonsConfiguration2 = "2.15.1"
+controlsfx = "11.2.5"
 chartfx = "11.3.1"
-fastutil = "8.5.16"
+fastutil = "8.5.19"
 picocli = "4.7.7"
 typetools = "0.6.3"
 
 # TESTING
-assertJ = "3.27.3"
+assertJ = "3.27.7"
 concurrentunit = "0.4.6"
-testng = "7.11.0"
+testng = "7.12.0"
 
 [libraries]
 commonsBeanutils = { module = "commons-beanutils:commons-beanutils", version.ref = "commonsBeanutils" }
-commonsCollections = { module = "commons-collections:commons-collections", version.ref = "commonsCollections" }
+commonsCollections = { module = "org.apache.commons:commons-collections4", version.ref = "commonsCollections" }
 commonsConfiguration2 = { module = "org.apache.commons:commons-configuration2", version.ref = "commonsConfiguration2" }
 controlsfx = { module = "org.controlsfx:controlsfx", version.ref = "controlsfx" }
 chartfx = { module = "io.fair-acc:chartfx", version.ref = "chartfx" }

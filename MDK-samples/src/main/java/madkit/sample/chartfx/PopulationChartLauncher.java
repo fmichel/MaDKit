@@ -51,7 +51,7 @@ import madkit.simulation.SimuLauncher;
  * <h2>Pacing</h2>
  * <p>The scheduler pause is set to {@value #SCHEDULER_PAUSE_MS} ms so
  * the chart evolves slowly enough to be observed by a human. This pacing
- * is configured in {@link #onSimulationStart()} using
+ * is configured in {@link #onSetupSimulation()} using
  * {@link madkit.kernel.Scheduler#setPause(int)}.
  *
  * <h2>Running the demo</h2>
@@ -98,8 +98,8 @@ public class PopulationChartLauncher extends SimuLauncher {
 	 * the chart-fx viewer can display observable live-plotting behavior.
 	 */
 	@Override
-	public void onSimulationStart() {
-		super.onSimulationStart();
+	public void onSetupSimulation() {
+		super.onSetupSimulation();
 		getScheduler().setPause(SCHEDULER_PAUSE_MS);
 	}
 

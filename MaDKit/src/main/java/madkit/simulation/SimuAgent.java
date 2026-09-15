@@ -185,13 +185,12 @@ public class SimuAgent extends Agent {
 	}
 
 	/**
-	 * Method to be called on simulation startup. This can be overridden by subclasses to
-	 * perform initialization tasks.
-	 * This method is the latest method called by the launcher on all the engine agents before
-	 * giving to the scheduler the control of the simulation. This provided that, at this
-	 * point of the launching process, the simulation is ready to start, i.e.: all the agents
-	 * participating in the simulation have been launched, and already have their
-	 * {@link SimuAgent#onActivation()} method called.
+	 * Method to be called on simulation setup. This can be overridden by subclasses to
+	 * perform setup tasks. This method is the latest method called by the launcher on all the
+	 * engine agents before giving to the scheduler the control of the simulation. This
+	 * provided that, at this point of the launching process, the simulation is ready to
+	 * start, i.e.: all the agents participating in the simulation have been launched, and
+	 * already have their {@link SimuAgent#onActivation()} method called.
 	 * <p>
 	 * More precisely, this call is done on the engine agents, by the launcher, in the
 	 * following order: (1) the {@link Scheduler}, (2) the {@link SimuModel}, (3) the
@@ -205,11 +204,10 @@ public class SimuAgent extends Agent {
 	 * So, it can be overridden to perform any action that could be useful before the
 	 * simulation starts.
 	 * <p>
-	 * By default, this method does nothing, except for the {@link SimuLauncher} which will
-	 * start the simulation.
+	 * By default, this method does nothing.
 	 */
-	public void onSimulationStart() {
-		// Override to implement startup behavior
+	public void onSetupSimulation() {
+//		 Override to implement setup behavior
 	}
 
 	/**

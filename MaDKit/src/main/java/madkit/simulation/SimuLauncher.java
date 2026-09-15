@@ -70,7 +70,7 @@ import madkit.simulation.scheduler.TickBasedScheduler;
  * user can also define the simulation agents and viewers by overriding the
  * {@link #onLaunchSimulatedAgents()} and {@link #onLaunchViewers()} methods,
  * respectively. The user can also define the simulation startup behavior by overriding
- * the {@link #onSimulationStart()} method.
+ * the {@link #onSetupSimulation()} method.
  * <p>
  * Crucially, this class is also responsible for initializing the pseudo random number
  * generator (PRNG) that has to be used by the simulation agents for ensuring the
@@ -151,7 +151,7 @@ public abstract class SimuLauncher extends Watcher {
 	 * <li>the simulated agents by calling the {@link #onLaunchSimulatedAgents()} method
 	 * </ul>
 	 * <p>
-	 * Then, it calls the {@link #onSimulationStart()} method.
+	 * Then, it calls the {@link #onSetupSimulation()} method.
 	 * <p>
 	 * Finally, if the start switch is passed on the command line or through the arguments of
 	 * the main method, it automatically starts the simulation by calling the
@@ -176,7 +176,7 @@ public abstract class SimuLauncher extends Watcher {
 		onLaunchScheduler();
 		onLaunchSimulatedAgents();
 		onLaunchViewers();
-		onSimulationStart();
+		onSetupSimulation();
 		getViewers().forEach(v -> ((Viewer) v).display());
 		if (getKernelConfig().getBoolean("start")) {
 			startSimulation();
@@ -252,23 +252,85 @@ public abstract class SimuLauncher extends Watcher {
 
 	/**
 	 *
-	 * Called before the simulation starts. By default, it calls in the following order, the
-	 * {@link Scheduler#onSimulationStart()}, {@link SimuModel#onSimulationStart()},
-	 * {@link SimuEnvironment#onSimulationStart()}, and {@link SimuAgent#onSimulationStart()}
+	 * Called just before the simulation starts. By default, it calls in the following order,
+	 * the {@link SimuModel#onSetupSimulation()}, {@link SimuEnvironment#onSetupSimulation()},
+	 * {@link Scheduler#onSetupSimulation()}, and {@link SimuAgent#onSetupSimulation()}
 	 * methods for each viewer.
 	 * <p>
 	 * This method can be overridden by the user to define fine tuning of the simulation
 	 * initialization.
+	 * 
+	 * <p>
+	 * It is worth noting that this method is the latest method called by the launcher on all
+	 * the engine agents before giving to the scheduler the control of the simulation. This
+	 * provided that, at this point of the launching process, the simulation is ready to
+	 * start, i.e.: all the agents participating in the simulation have been launched, and
+	 * already have their {@link SimuAgent#onActivation()} method called.
+	 * 
+	 * <p>
+	 * By default, this method is not called on the simulated agents, which are not considered
+	 * as engine agents, and thus not known by the launcher. However, the simulated agents
+	 * have already been launched and have already had their {@link SimuAgent#onActivation()}
+	 * method called, so they are ready to start the simulation as well.
+	 * 
+	 * <p>
+	 * So, it is possible to override this method to call the
+	 * {@link SimuAgent#onSetupSimulation()} method on the simulated agents as well, if
+	 * needed.
+	 * 
+	 * <p>
+	 * Beware that calling this method programmatically or using the GUI after the simulation
+	 * has started will break reproducibility of the simulation. This facility is provided for
+	 * testing purposes, and should be used with caution. The only way to reproduce a
+	 * simulation is to relaunch it from scratch with the same seed index.
+	 * 
 	 */
 	@Override
-	public void onSimulationStart() {
-		getScheduler().onSimulationStart();
-		getModel().onSimulationStart();
-		getEnvironment().onSimulationStart();
+	public void onSetupSimulation() {
+		getModel().onSetupSimulation();
+		getEnvironment().onSetupSimulation();
+		getScheduler().onSetupSimulation();
 		for (SimuAgent viewer : getViewers()) {
-			viewer.onSimulationStart();
+			viewer.onSetupSimulation();
 		}
 	}
+
+	/**
+	 * Called when the simulation ends, as the launcher is killed by the scheduler. By
+	 * default, the launcher then kills the model, environment, and viewers, so that their
+	 * onEnd() methods are called.
+	 * <p>
+	 * This method can be overridden by the user to define fine tuning of the simulation
+	 * ending process.
+	 * <p>
+	 */
+	@Override
+	protected void onEnd() {
+		getLogger().info(() -> " Ending simulation! < " + simuCommunity + " >");
+		killAgent(getModel());
+		killAgent(getEnvironment());
+		for (SimuAgent viewer : getViewers()) {
+			killAgent(viewer);
+		}
+	}
+
+//	/**
+//	 * Called before the simulation starts. By default, it calls in the following order, the
+//	 * {@link Scheduler#onSimulationSetup()}, {@link SimuModel#onSimulationSetup()},
+//	 * {@link SimuEnvironment#onSimulationSetup()}, and {@link SimuAgent#onSimulationSetup()}
+//	 * methods for each viewer.
+//	 * <p>
+//	 * This method can be overridden by the user to define fine tuning of the simulation
+//	 * initialization.
+//	 */
+//	protected void onSimulationSetup() {
+//		getScheduler().onSimulationSetup();
+//		getModel().onSimulationSetup();
+//		getEnvironment().onSimulationSetup();
+//		for (SimuAgent viewer : getViewers()) {
+//			viewer.onSimulationSetup();
+//		}
+//	}
 
 	/**
 	 * Launches the simulation model agent and logs the event. Defaultly, the model class is

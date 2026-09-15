@@ -46,7 +46,7 @@ import madkit.kernel.Watcher;
  * 
  * <p>
  * Moreover, it is a {@link Watcher} agent and can thus use {@link Probe} to monitor the
- * simulation agents. It can also implement the {@link #onSimulationStart()} method to
+ * simulation agents. It can also implement the {@link #onSetupSimulation()} method to
  * perform actions when the simulation starts.
  * <p>
  * 

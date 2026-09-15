@@ -88,8 +88,8 @@ public class MetricChartLauncher extends SimuLauncher {
 	 * Configures simulation pacing after all agents and viewers are ready.
 	 */
 	@Override
-	public void onSimulationStart() {
-		super.onSimulationStart();
+	public void onSetupSimulation() {
+		super.onSetupSimulation();
 		getScheduler().setPause(SCHEDULER_PAUSE_MS);
 	}
 

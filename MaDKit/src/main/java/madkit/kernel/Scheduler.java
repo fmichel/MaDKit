@@ -237,7 +237,7 @@ public abstract class Scheduler<T extends SimuTimer<?>> extends SimuAgent {
 		while (true) {
 			checkMail(waitNextMessage());
 			if (simulationState == RUNNING || simulationState == STEP || simulationState == SHUTDOWN) {
-				onSimulationStart();
+				onSetupSimulation();
 				break;
 			}
 		}
@@ -246,11 +246,11 @@ public abstract class Scheduler<T extends SimuTimer<?>> extends SimuAgent {
 	/**
 	 * Called when the simulation starts, or when the user clicks on the onsimulationrestart
 	 * button. By default, it resets the simulation time and calls the
-	 * {@link #onSimulationStart()} method of the environment agent
+	 * {@link #onSetupSimulation()} method of the environment agent
 	 * 
 	 */
 	@Override
-	public void onSimulationStart() {
+	public void onSetupSimulation() {
 		getLogger().fine("------- Starting simulation --------");
 		getSimuTimer().reset();
 		getLogger().finer("------- seting time to " + getSimuTimer());
@@ -266,6 +266,8 @@ public abstract class Scheduler<T extends SimuTimer<?>> extends SimuAgent {
 		getLogger().finest("removing all activators");
 		removeAllActivators();
 		super.onEnd();
+		killAgent(getLauncher());
+//		getLauncher().onSimulationEnd();
 	}
 
 	/**

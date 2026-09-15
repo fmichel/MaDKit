@@ -8,8 +8,8 @@ public class IntegrationEnvironment extends SimuEnvironment {
 	private int simulationStarts;
 
 	@Override
-	public void onSimulationStart() {
-		super.onSimulationStart();
+	public void onSetupSimulation() {
+		super.onSetupSimulation();
 		simulationStarts++;
 	}
 

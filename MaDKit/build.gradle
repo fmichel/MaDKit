@@ -1,6 +1,7 @@
 plugins {
 	id 'buildlogic.madkit-common-conventions'
-	id 'maven-publish'
+//	id 'maven-publish'
+	id 'com.vanniktech.maven.publish' version '0.34.0'
    	id 'signing'
    	id 'jacoco'
    	id "org.sonarqube" version "7.5.0.8588"
@@ -124,55 +125,50 @@ dependencies {
 
 ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
 
-publishing {
-    repositories {
-        maven {
-            def releaseRepo = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-            def snapshotRepo = "https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/"
-            
-            name = "ossrh-staging-api"
-            url = isReleaseVersion ? releaseRepo : snapshotRepo
-            credentials {
-                username = findProperty("ORG_GRADLE_PROJECT_sonatypeUsername") ?: System.getenv("ORG_GRADLE_PROJECT_sonatypeUsername")
-                password = findProperty("ORG_GRADLE_PROJECT_sonatypePassword") ?: System.getenv("ORG_GRADLE_PROJECT_sonatypePassword")
+mavenPublishing {
+	coordinates(
+		"io.github.fmichel",
+		"madkit",
+		project.version.toString()
+	)
+
+	publishToMavenCentral()
+	signAllPublications()
+
+	pom {
+		name = "MaDKit"
+		description = "Java library for designing and simulating Multi-Agent Systems"
+		url = "https://www.madkit.net/madkit/"
+
+		licenses {
+			license {
+				name = "CeCILL-C"
+				url = "https://cecill.info/licences/Licence_CeCILL-C_V1-en.html"
 			}
 		}
+
+		developers {
+			developer {
+				id = "fmichel"
+				name = "Fabien Michel"
+				email = "fmichel@lirmm.fr"
+			}
+		}
+
+		scm {
+			connection = "scm:git:git://github.com/fmichel/MaDKit.git"
+			developerConnection = "scm:git:ssh://github.com:fmichel/MaDKit.git"
+			url = "https://github.com/fmichel/MaDKit"
+		}
 	}
-    publications {
-        mavenJava(MavenPublication) {
-                 artifactId = 'madkit'
-               from(components.java)
-            pom {
-                name = 'MaDKit'
-                description = 'Java library for designing and simulating Multi-Agent Systems'
-                url = 'http://www.madkit.net'
-                licenses {
-                    license {
-                        name = 'CeCILL-C'
-                        url = 'https://cecill.info/licences/Licence_CeCILL-C_V1-en.html'
-                    }
-                }
-                developers {
-                    developer {
-                        id = 'fmichel'
-                        name = 'Fabien Michel'
-                        email = 'fmichel@lirmm.fr'
-                    }
-                }
-                scm {
-                    connection = 'scm:git:git://github.com/fmichel/MaDKit.git'
-                    developerConnection = 'scm:git:ssh://github.com:fmichel/MaDKit.git'
-                    url = 'https://www.madkit.net/madkit/'
-                }
-                
-            }
-        }
-    }
 }
 
-signing {
-  useGpgCmd()
-  sign publishing.publications
+afterEvaluate {
+	components.java.withVariantsFromConfiguration(
+		configurations.javadocElements
+	) {
+		skip()
+	}
 }
 
 tasks.named('test') {

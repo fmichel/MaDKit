@@ -258,9 +258,9 @@ public abstract class ViewerDefaultGUI extends DefaultAgentGUI {
 		for (Action action : ag.getActions()) {
 			toolBar.getItems().add(ActionUtils.createButton(action, ActionTextBehavior.HIDE));
 		}
-		Button b = new Button("On Simulation Start");
-		b.setOnAction(_ -> getViewer().getLauncher().onSimulationStart());
-		b.setTooltip(new Tooltip("trigger the OnSimulationStart process"));
+		Button b = new Button("Setup simulation");
+		b.setOnAction(_ -> getViewer().getLauncher().onSetupSimulation());
+		b.setTooltip(new Tooltip("trigger the onSimulationSetup() method of the launcher"));
 		toolBar.getItems().add(b);
 		return toolBar;
 	}

@@ -195,8 +195,8 @@ public class SimuStartupFailureTest extends MadkitConcurrentTestCase {
 		}
 
 		@Override
-		public void onSimulationStart() {
-			super.onSimulationStart();
+		public void onSetupSimulation() {
+			super.onSetupSimulation();
 			throw new IllegalStateException("simulation-start failure");
 		}
 	}

@@ -109,6 +109,7 @@ public abstract class Watcher extends SimuAgent {
 	@Override
 	protected void onEnd() {
 		removeAllProbes();
+		getLogger().info("I am ending.");
 		super.onEnd();
 	}
 

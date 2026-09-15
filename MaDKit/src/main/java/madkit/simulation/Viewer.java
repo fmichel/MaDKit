@@ -108,7 +108,7 @@ public abstract class Viewer extends Watcher {
 	 * On simulation start.
 	 */
 	@Override
-	public void onSimulationStart() {
+	public void onSetupSimulation() {
 		display();
 	}
 

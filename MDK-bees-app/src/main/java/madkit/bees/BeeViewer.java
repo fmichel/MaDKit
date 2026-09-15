@@ -120,10 +120,10 @@ public class BeeViewer extends Viewer2D {
 	}
 
 	@Override
-	public void onSimulationStart() {
-		super.onSimulationStart();
+	public void onSetupSimulation() {
 		List<Bee> bees = beeProbe.getAgents();
 		bees.forEach(Bee::randomLocation);
+		super.onSetupSimulation();
 	}
 
 	/**

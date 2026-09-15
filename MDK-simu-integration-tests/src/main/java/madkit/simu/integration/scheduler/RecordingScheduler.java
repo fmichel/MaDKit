@@ -10,8 +10,8 @@ public final class RecordingScheduler extends IntegrationScheduler {
 	}
 
 	@Override
-	public void onSimulationStart() {
-		super.onSimulationStart();
+	public void onSetupSimulation() {
+		super.onSetupSimulation();
 		simulationStarted = true;
 	}
 

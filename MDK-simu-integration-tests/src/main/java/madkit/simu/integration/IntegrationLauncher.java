@@ -76,8 +76,8 @@ public class IntegrationLauncher extends SimuLauncher {
 	}
 
 	@Override
-	public void onSimulationStart() {
-		super.onSimulationStart();
+	public void onSetupSimulation() {
+		super.onSetupSimulation();
 		events.add("simulation-start");
 	}
 

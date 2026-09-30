@@ -2,6 +2,24 @@
 
 Demonstration agents and simulations showcasing various features of the MaDKit framework.
 
+## Samples browser
+
+`MDK-samples` includes a JavaFX browser that displays the documentation for each
+sample family and provides launch buttons for the registered examples. The
+catalog is intentionally explicit, so helper classes are not launched by
+accident. The displayed documentation is packaged from the corresponding
+package-level `README.md` resources.
+
+From the repository root, launch it with:
+
+```sh
+./gradlew :MDK-samples:run --no-daemon --console=plain
+```
+
+The browser and GUI/chart samples require a graphical display. MaDKit examples
+are started in background threads so the browser remains responsive; each
+example keeps its normal MaDKit lifecycle and can be stopped from its own UI.
+
 ## Sample Packages
 
 | Package | Topic |

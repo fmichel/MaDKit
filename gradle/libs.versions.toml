@@ -10,6 +10,7 @@ chartfx = "11.3.1"
 fastutil = "8.5.19"
 picocli = "4.7.7"
 typetools = "0.6.3"
+commonmark = "0.22.0"
 
 # TESTING
 assertJ = "3.27.7"
@@ -25,6 +26,7 @@ chartfx = { module = "io.fair-acc:chartfx", version.ref = "chartfx" }
 fastutil = { module = "it.unimi.dsi:fastutil", version.ref = "fastutil" }
 picocli = { module = "info.picocli:picocli", version.ref = "picocli" }
 typetools = { module = "net.jodah:typetools", version.ref = "typetools" }
+commonmark = { module = "org.commonmark:commonmark", version.ref = "commonmark" }
 
 # TESTING
 testng = { module = "org.testng:testng", version.ref = "testng" }

@@ -77,7 +77,7 @@ public class FXInstance {
 					});
 				} catch (IllegalStateException e) {
 					if (e.getMessage().contains("Toolkit already initialized")) {
-						logger.log(Level.INFO, () -> "FX Platform already started!");
+						logger.log(Level.FINER, () -> "FX Platform already started!");
 					} else {
 						logger.log(Level.WARNING, () -> "FX start error: ");
 						throw e;

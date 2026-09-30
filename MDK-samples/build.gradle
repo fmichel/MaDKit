@@ -3,6 +3,19 @@ plugins {
 	id 'org.gradlex.java-module-testing'
 }
 
+javafx {
+	modules = ['javafx.base', 'javafx.controls', 'javafx.graphics', 'javafx.web']
+}
+
+application {
+	mainClass = 'madkit.samples.SamplesLauncher'
+	mainModule = 'madkit.samples'
+}
+
+tasks.withType(JavaExec) {
+	jvmArgs '--add-modules', 'ALL-MODULE-PATH'
+}
+
 // The MaDKit test-fixtures JAR has no module-info (it is patched into madkit.base).
 // Prevent extraJavaModuleInfo from failing on it.
 extraJavaModuleInfo {
@@ -18,6 +31,7 @@ javaModuleTesting.whitebox(testing.suites.getByName("test")) {
 
 dependencies {
 	api project(':MaDKit')
+	implementation libs.commonmark
 
 	testImplementation testFixtures(project(':MaDKit'))
 	testImplementation libs.testng

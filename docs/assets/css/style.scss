@@ -1,0 +1,45 @@
+---
+---
+
+:root {
+  --mdk-ink: #18212f;
+  --mdk-muted: #5b6878;
+  --mdk-accent: #087f8c;
+  --mdk-accent-dark: #075b65;
+  --mdk-surface: #f4f8f8;
+  --mdk-border: #d9e5e5;
+}
+
+body { color: var(--mdk-ink); }
+.site-header { border-top: 4px solid var(--mdk-accent); }
+.site-title, h1, h2, h3 { color: var(--mdk-ink); }
+a,
+a:link { color: var(--mdk-accent-dark); }
+a:visited { color: #6b3f88; }
+a:hover { color: var(--mdk-accent); }
+a:focus-visible { outline: 3px solid #f0b429; outline-offset: 3px; }
+
+.hero {
+  padding: 3.5rem 0 2.5rem;
+  max-width: 48rem;
+}
+.eyebrow {
+  color: var(--mdk-accent-dark);
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .14em;
+}
+.hero h1 { font-size: clamp(2.8rem, 8vw, 5rem); line-height: 1; margin-bottom: .75rem; }
+.hero-subtitle { color: var(--mdk-muted); font-size: 1.35rem; max-width: 36rem; }
+.hero-content { margin-top: 2rem; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin: 1.5rem 0 3rem; }
+.button { border: 1px solid var(--mdk-border); border-radius: .45rem; display: inline-block; padding: .7rem 1rem; text-decoration: none; }
+.button-primary { background: var(--mdk-accent); border-color: var(--mdk-accent); color: white; }
+.button-primary:hover { background: var(--mdk-accent-dark); color: white; }
+.callout { background: var(--mdk-surface); border-left: 4px solid var(--mdk-accent); margin: 2rem 0; padding: 1rem 1.25rem; }
+
+@media (max-width: 600px) {
+  .hero { padding-top: 2rem; }
+  .hero h1 { font-size: 3rem; }
+  .hero-subtitle { font-size: 1.15rem; }
+}

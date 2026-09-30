@@ -1,0 +1,22 @@
+title: MaDKit
+subtitle: Multi-agent systems Development Kit
+description: A lightweight Java library for developing and simulating Multi-Agent Systems.
+url: ""
+baseurl: ""
+repository: fmichel/MaDKit
+lang: en
+theme: minima
+markdown: kramdown
+header_pages:
+  - getting-started.md
+  - concepts.md
+  - samples.md
+  - modules.md
+  - releases.md
+plugins:
+  - jekyll-seo-tag
+exclude:
+  - README.md
+  - vendor/
+  - Gemfile
+  - Gemfile.lock

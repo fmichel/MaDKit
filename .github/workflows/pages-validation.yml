@@ -1,0 +1,45 @@
+name: Validate documentation site
+
+on:
+  pull_request:
+    paths:
+      - 'docs/**'
+      - 'scripts/assemble-pages-site.sh'
+      - 'MaDKit/src/**'
+      - 'MaDKit/build.gradle'
+      - 'buildSrc/**'
+      - 'gradle/**'
+      - 'gradlew'
+      - 'gradle.properties'
+      - '.github/workflows/pages-validation.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build-site:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: gradle
+
+      - name: Assemble authored pages and Javadoc
+        run: bash scripts/assemble-pages-site.sh
+
+      - name: Build Jekyll site
+        uses: actions/jekyll-build-pages@v1
+        with:
+          source: build/pages-source
+          destination: build/pages-site
+
+      - name: Verify generated site
+        run: |
+          test -f build/pages-site/index.html
+          test -f build/pages-site/api/latest/index.html

@@ -44,7 +44,7 @@ Using MaDKit can be done by [declaring it as a dependency using your favorite bu
 For instance, with Gradle:
 
 ```groovy
-implementation "io.github.fmichel:madkit:6.0.1"
+implementation "io.github.fmichel:madkit:6.0.5"
 ```
 
 ## Getting Started

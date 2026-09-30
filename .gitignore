@@ -39,8 +39,13 @@ Logs
 
 #github
 .github/
+.github/agents
+!.github/
+!.github/workflows/
+!.github/workflows/**
 .serena
 
 # work in progress
 MDK-gl3d/
 MDK-grafana/
+/PROGRESS.md

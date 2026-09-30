@@ -48,11 +48,50 @@ implementation "io.github.fmichel:madkit:6.0.5"
 ```
 
 ## Getting Started
-This repo contains 3 sub projects that give an hint about what can be done with MaDKit:
 
-* MDK-simu-template: A simple example of a simulation using default classes and settings
-* MDK-marketorg-app: A classic bid/offer multi-agent application
-* MDK-bees-app: A complete simulation example 
+JDK 23 or newer and a graphical desktop are required to run the JavaFX-based sample
+browser and GUI examples. The repository includes the Gradle wrapper, so no separate
+Gradle installation is needed.
+
+### Run and discover the samples
+
+The easiest way to explore MaDKit is the `MDK-samples` browser. From this repository's
+root directory, run:
+
+```sh
+./gradlew :MDK-samples:run --no-daemon --console=plain
+```
+
+The browser lists sample families such as **Launching**, **Agents**, **Organization**,
+**Messaging**, **GUI**, **Logging and randomization**, and **ChartFX**. Select a family
+to read its packaged Markdown documentation, then use the **Launch** buttons to start
+the registered examples. The catalog is explicit: only examples listed by the launcher
+are runnable from the browser, so helper classes are not started accidentally.
+
+For the complete package/class catalog, manual smoke-test notes, and chart examples, see
+[`MDK-samples/README.md`](MDK-samples/README.md). Each sample family also has a package-level
+`README.md` under `MDK-samples/src/main/java`, which is the documentation displayed by
+the browser.
+
+The browser and GUI/ChartFX samples need an active graphical display. Samples launched
+from the browser run in background threads; stop a running example using its own UI or
+close the application when finished.
+
+Useful commands, run from the repository root:
+
+```sh
+# Compile the samples
+./gradlew :MDK-samples:compileJava
+
+# Run the headless TestNG/AssertJ sample tests
+./gradlew :MDK-samples:test --no-daemon --console=plain
+```
+
+The repository also contains larger application examples:
+
+* `MDK-simu-template`: A simple simulation using default classes and settings
+* `MDK-marketorg-app`: A classic bid/offer multi-agent application
+* `MDK-bees-app`: A complete organization-based simulation
 
 
 ## More information

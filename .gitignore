@@ -40,3 +40,7 @@ Logs
 #github
 .github/
 .serena
+
+# work in progress
+MDK-gl3d/
+MDK-grafana/

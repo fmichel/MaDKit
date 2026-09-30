@@ -38,6 +38,7 @@ package madkit.kernel;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Level;
 
 import org.apache.commons.configuration2.PropertiesConfiguration;
@@ -60,6 +61,80 @@ public class KernelConfig extends PropertiesConfiguration {
 	 */
 	public Level getLevel(String key) {
 		return get(Level.class, key);
+	}
+
+	public Level getAgentLogLevel() {
+		return getLevel(MDKCommandLine.AGENT_LOG_LEVEL);
+	}
+
+	public Level getKernelLogLevel() {
+		return getLevel(MDKCommandLine.KERNEL_LOG_LEVEL);
+	}
+
+	public Level getMadkitLogLevel() {
+		return getLevel(MDKCommandLine.MADKIT_LOG_LEVEL);
+	}
+
+	public boolean isDebug() {
+		return getBoolean(MDKCommandLine.DEBUG, false);
+	}
+
+	public boolean isDesktop() {
+		return getBoolean(MDKCommandLine.DESKTOP, false);
+	}
+
+	public boolean isHeadless() {
+		return getBoolean(MDKCommandLine.HEADLESS_MODE, false);
+	}
+
+	public boolean isNetworkEnabled() {
+		return getBoolean(MDKCommandLine.NETWORK, false);
+	}
+
+	public boolean isNoLog() {
+		return getBoolean(MDKCommandLine.NO_LOG, false);
+	}
+
+	public boolean isNoRandomizedFields() {
+		return getBoolean(MDKCommandLine.NO_RANDOM, false);
+	}
+
+	public boolean isCreateLogFiles() {
+		return getBoolean(MDKCommandLine.CREATE_LOG_FILES, false);
+	}
+
+	public boolean isAutoStart() {
+		return getBoolean(MDKCommandLine.START, false);
+	}
+
+	public int getSeed() {
+		return getInt(MDKCommandLine.SEED, Integer.MIN_VALUE);
+	}
+
+	public String getLogDirectory() {
+		return getString(MDKCommandLine.LOG_DIRECTORY);
+	}
+
+	public List<String> getAgents() {
+		List<String> values = getList(String.class, MDKCommandLine.AGENTS);
+		return values == null ? List.of() : values;
+	}
+
+	public List<String> getViewers() {
+		List<String> values = getList(String.class, MDKCommandLine.VIEWERS);
+		return values == null ? List.of() : values;
+	}
+
+	public String getScheduler() {
+		return getString(MDKCommandLine.SCHEDULER);
+	}
+
+	public String getEnvironment() {
+		return getString(MDKCommandLine.ENVIRONMENT);
+	}
+
+	public String getModel() {
+		return getString(MDKCommandLine.MODEL);
 	}
 
 	/**

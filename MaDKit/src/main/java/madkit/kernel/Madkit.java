@@ -138,6 +138,28 @@ public class Madkit {
 		}
 	}
 
+	/**
+	 * Creates a fluent programmatic configuration for MaDKit.
+	 *
+	 * @return a new builder with MaDKit's standard defaults
+	 */
+	public static MadkitBuilder builder() {
+		return new MadkitBuilder();
+	}
+
+	Madkit(MadkitBuilder builder) {
+		launcherClass = getClass();
+		startingArgs = new String[0];
+		config = builder.toKernelConfig();
+		mdkOptions.applyConfiguration(config);
+		config.addProperty(CMD_LINE, startingArgs);
+		version = getVersionUsingJarFIleName("LOCAL-BUILD");
+		WEB = config.getString("madkit.web");
+		initLogging();
+		mdkLogger.finest(() -> getConfig().toString());
+		start();
+	}
+
 	void startNewSession() {
 		MDK_LOGGER.config(() -> "Starting new MaDKit session with " + Arrays.deepToString(startingArgs));
 		try {

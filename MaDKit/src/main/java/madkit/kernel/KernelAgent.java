@@ -791,7 +791,7 @@ class KernelAgent extends Agent implements DaemonAgent {
 	// /////////////////////////////////////////////////////////////////////////
 
 	private void launchConfigAgents() {
-		for (String classNameAndOption : madkit.getConfig().getList(String.class, "agents")) {
+		for (String classNameAndOption : madkit.getConfig().getAgents()) {
 			if (classNameAndOption.equals("null")) {
 				return;
 			}

@@ -43,17 +43,19 @@ import java.util.logging.Level;
 
 import picocli.CommandLine.Option;
 
-//TODO make this public
 /**
  *
  *
  */
-class MDKCommandLine {
+public class MDKCommandLine {
 
 	private static final String SWITCH = "--";
 
 	/** The Constant AGENT_LOG_LEVEL. */
 	public static final String AGENT_LOG_LEVEL = "agentLogLevel";
+
+	/** The Constant AGENTS. */
+	public static final String AGENTS = "agents";
 
 	/** The Constant CREATE_LOG_FILES. */
 	public static final String CREATE_LOG_FILES = "createLogFiles";
@@ -63,6 +65,42 @@ class MDKCommandLine {
 
 	/** The Constant NETWORK. */
 	public static final String NETWORK = "network";
+
+	/** The Constant DEBUG. */
+	public static final String DEBUG = "debug";
+
+	/** The Constant DESKTOP. */
+	public static final String DESKTOP = "desktop";
+
+	/** The Constant NO_LOG. */
+	public static final String NO_LOG = "noLog";
+
+	/** The Constant KERNEL_LOG_LEVEL. */
+	public static final String KERNEL_LOG_LEVEL = "kernelLogLevel";
+
+	/** The Constant MADKIT_LOG_LEVEL. */
+	public static final String MADKIT_LOG_LEVEL = "madkitLogLevel";
+
+	/** The Constant LOG_DIRECTORY. */
+	public static final String LOG_DIRECTORY = "logDirectory";
+
+	/** The Constant SCHEDULER. */
+	public static final String SCHEDULER = "scheduler";
+
+	/** The Constant VIEWERS. */
+	public static final String VIEWERS = "viewers";
+
+	/** The Constant ENVIRONMENT. */
+	public static final String ENVIRONMENT = "environment";
+
+	/** The Constant MODEL. */
+	public static final String MODEL = "model";
+
+	/** The Constant START. */
+	public static final String START = "start";
+
+	/** The Constant SEED. */
+	public static final String SEED = "seed";
 
 	/** The Constant NO_RANDOM. */
 	public static final String NO_RANDOM = "noRandomizedFields";
@@ -146,6 +184,27 @@ class MDKCommandLine {
 				e.printStackTrace();
 			}
 		});
+	}
+
+	void applyConfiguration(KernelConfig config) {
+		debug = config.isDebug();
+		desktop = config.isDesktop();
+		noLog = config.isNoLog();
+		noRandomizedFields = config.isNoRandomizedFields();
+		agents = config.getAgents();
+		agentLogLevel = config.getAgentLogLevel();
+		kernelLogLevel = config.getKernelLogLevel();
+		madkitLogLevel = config.getMadkitLogLevel();
+		createLogFiles = config.isCreateLogFiles();
+		logDirectory = config.getLogDirectory();
+		scheduler = config.getScheduler();
+		viewers = config.getViewers();
+		environment = config.getEnvironment();
+		model = config.getModel();
+		headless = config.isHeadless();
+		network = config.isNetworkEnabled();
+		start = config.isAutoStart();
+		seed = config.getSeed();
 	}
 
 }

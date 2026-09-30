@@ -29,7 +29,7 @@ smoke checks remain display-dependent and are not represented as automated valid
 
 | Package | Topic | Main sample classes | Automated test files | Manual smoke requirement |
 |---|---|---|---|---|
-| `madkit.sample.launching` | Starting MaDKit and launching agents | `HelloMaDKit`, `MultipleLaunching`, `CommandLineOptions` | `HelloMaDKitTest`, `HelloMaDKitRuntimeTest`, `MultipleLaunchingTest`, `CommandLineOptionsTest` | Optional: run each class's `main` method to inspect startup and command-line behavior. |
+| `madkit.sample.launching` | Starting MaDKit and launching agents | `HelloMaDKit`, `MultipleLaunching`, `CommandLineOptions`, `MadkitBuilderDemo`, `MadkitBuilderOptionsDemo` | `HelloMaDKitTest`, `HelloMaDKitRuntimeTest`, `MultipleLaunchingTest`, `CommandLineOptionsTest` | Optional: run each class's `main` method to inspect startup, command-line, and builder configuration behavior. |
 | `madkit.sample.agent.basic` | Minimal agent examples | `SimpleAgent`, `AgentWithParameters` | `SimpleAgentTest` | Optional: run each launchable class and inspect its log output. |
 | `madkit.sample.agent.threaded` | Threaded agents with autonomous behavior | `ThreadedAgent`, `AutonomousAgent` | `ThreadedAgentTest` | Optional: run `ThreadedAgent`; run `AutonomousAgent` only when prepared to stop it. |
 | `madkit.sample.agent.lifecycle` | Agent lifecycle (activate, live, end) | `LifecycleAgent`, `LifecycleLauncher`, `CrashInActivateDemo`, `CrashInLiveDemo` | `LifecycleAgentTest`, `LifecycleAgentRuntimeTest`, `LifecycleLauncherTest`, `CrashInActivateDemoTest`, `CrashInLiveDemoTest` | Optional: run the lifecycle and crash demonstrations and inspect the documented lifecycle logs. |
@@ -83,6 +83,18 @@ Plots average agent energy metrics (per-role) using `PropertyProbe` and multi-se
 ## Validation approach
 
 The automated suite uses TestNG and AssertJ for headless checks. GUI construction and rendering remain display-dependent manual checks; the suite does not start a JavaFX toolkit or assert pixels, windows, or timing.
+
+## Builder launch demos
+
+The builder demos show programmatic configuration without constructing command-line strings:
+
+| Class | Demonstrates |
+|---|---|
+| `MadkitBuilderDemo` | Headless mode, a typed log level, and launching an agent with `Class<? extends Agent>` |
+| `MadkitBuilderOptionsDemo` | Fluent option composition, deterministic seed/randomization settings, and both typed and string-based agent registration |
+
+Run either class from an application launch configuration. Both examples start a MaDKit kernel
+and leave it running so additional agents can be managed through the normal MaDKit lifecycle.
 
 ## GUI and chart-fx validation matrix
 

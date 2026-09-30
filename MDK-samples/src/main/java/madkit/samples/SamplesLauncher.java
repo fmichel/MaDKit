@@ -25,53 +25,56 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import javafx.scene.web.WebView;
+import javafx.stage.Stage;
 
 /**
  * A small browser for the runnable examples contained in this module.
  *
- * <p>The catalog is deliberately explicit: README files describe the package and
- * only classes listed in that package's catalog can be launched. This avoids
- * accidentally executing helper or support classes discovered by reflection.
+ * <p>
+ * The catalog is deliberately explicit: README files describe the package and only
+ * classes listed in that package's catalog can be launched. This avoids accidentally
+ * executing helper or support classes discovered by reflection.
  */
 public final class SamplesLauncher extends Application {
 
 	private static final List<SamplePackage> PACKAGES = List.of(
-			new SamplePackage("Launching", "/madkit/sample/launching/README.md", List.of(
-					new Sample("Hello MaDKit", "madkit.sample.launching.HelloMaDKit"),
-					new Sample("Multiple launching", "madkit.sample.launching.MultipleLaunching"),
-					new Sample("Command-line options", "madkit.sample.launching.CommandLineOptions"),
-					new Sample("Builder demo", "madkit.sample.launching.MadkitBuilderDemo"),
-					new Sample("Builder options demo", "madkit.sample.launching.MadkitBuilderOptionsDemo"))),
-			new SamplePackage("Agents", "/madkit/sample/agent/basic/README.md", List.of(
-					new Sample("Simple agent", "madkit.sample.agent.basic.SimpleAgent"),
-					new Sample("Agent parameters", "madkit.sample.agent.basic.AgentWithParameters"),
-					new Sample("Threaded agent", "madkit.sample.agent.threaded.ThreadedAgent"),
-					new Sample("Lifecycle launcher", "madkit.sample.agent.lifecycle.LifecycleLauncher"),
-					new Sample("Daemon demo", "madkit.sample.agent.daemon.DaemonDemo"))),
-			new SamplePackage("Organization", "/madkit/sample/organization/README.md", List.of(
-					new Sample("Group and role demo", "madkit.sample.organization.GroupAndRoleDemo"),
-					new Sample("Organization explorer", "madkit.sample.organization.OrganizationExplorer"),
-					new Sample("Secured group demo", "madkit.sample.organization.secured.SecuredGroupDemo"))),
-			new SamplePackage("Messaging", "/madkit/sample/messaging/README.md", List.of(
-					new Sample("Messaging launcher", "madkit.sample.messaging.MessagingLauncher"),
-					new Sample("Request/reply demo", "madkit.sample.messaging.RequestReplyDemo"),
-					new Sample("Broadcast demo", "madkit.sample.messaging.BroadcastDemo"),
-					new Sample("Enum dispatch demo", "madkit.sample.messaging.enumdispatch.EnumDispatchDemo"))),
-			new SamplePackage("GUI", "/madkit/sample/gui/basic/README.md", List.of(
-					new Sample("Default GUI agent", "madkit.sample.gui.basic.AgentWithDefaultGUI"),
-					new Sample("Threaded GUI agent", "madkit.sample.gui.basic.ThreadedAgentWithGUI"),
-					new Sample("Custom GUI agent", "madkit.sample.gui.custom.CustomGUIAgent"),
-					new Sample("Property GUI agent", "madkit.sample.gui.properties.PropertyAgent"))),
-			new SamplePackage("Logging and randomization", "/madkit/sample/logging/README.md", List.of(
-					new Sample("Verbose agent", "madkit.sample.logging.VerboseAgent"),
-					new Sample("Log file agent", "madkit.sample.logging.LogFileAgent"),
-					new Sample("No-log agent", "madkit.sample.logging.NoLogAgent"),
-					new Sample("Randomization demo", "madkit.sample.randomization.RandomizationDemo"))),
-			new SamplePackage("ChartFX", "/madkit/sample/chartfx/README.md", List.of(
-					new Sample("Population chart", "madkit.sample.chartfx.PopulationChartLauncher", "--start"),
-					new Sample("Metric chart", "madkit.sample.chartfx.MetricChartLauncher", "--start"))));
+			new SamplePackage("Launching", "/madkit/sample/launching/README.md",
+					List.of(new Sample("Hello MaDKit", "madkit.sample.launching.HelloMaDKit"),
+							new Sample("Multiple launching", "madkit.sample.launching.MultipleLaunching"),
+							new Sample("Command-line options", "madkit.sample.launching.CommandLineOptions"),
+							new Sample("Builder demo", "madkit.sample.launching.MadkitBuilderDemo"),
+							new Sample("Builder options demo", "madkit.sample.launching.MadkitBuilderOptionsDemo"))),
+			new SamplePackage("Agents", "/madkit/sample/agent/basic/README.md",
+					List.of(new Sample("Simple agent", "madkit.sample.agent.basic.SimpleAgent"),
+							new Sample("Agent parameters", "madkit.sample.agent.basic.AgentWithParameters"),
+							new Sample("Threaded agent", "madkit.sample.agent.threaded.ThreadedAgent"),
+							new Sample("Lifecycle launcher", "madkit.sample.agent.lifecycle.LifecycleLauncher"),
+							new Sample("Daemon demo", "madkit.sample.agent.daemon.DaemonDemo"))),
+			new SamplePackage("Organization", "/madkit/sample/organization/README.md",
+					List.of(new Sample("Group and role demo", "madkit.sample.organization.GroupAndRoleDemo"),
+							new Sample("Organization explorer", "madkit.sample.organization.OrganizationExplorer"),
+							new Sample("Secured group demo", "madkit.sample.organization.secured.SecuredGroupDemo"))),
+			new SamplePackage("Messaging", "/madkit/sample/messaging/README.md",
+					List.of(new Sample("Messaging launcher", "madkit.sample.messaging.MessagingLauncher"),
+							new Sample("Simple request/reply demo", "madkit.sample.messaging.RequestReplyDemo"),
+							new Sample("Request/reply timeout demo", "madkit.sample.messaging.RequestReplyTimeoutDemo"),
+							new Sample("Broadcast demo", "madkit.sample.messaging.BroadcastDemo"),
+							new Sample("Enum dispatch demo", "madkit.sample.messaging.enumdispatch.EnumDispatchDemo"))),
+			new SamplePackage("GUI", "/madkit/sample/gui/basic/README.md",
+					List.of(new Sample("Default GUI agent", "madkit.sample.gui.basic.AgentWithDefaultGUI"),
+							new Sample("Threaded GUI agent", "madkit.sample.gui.basic.ThreadedAgentWithGUI"),
+							new Sample("Custom GUI agent", "madkit.sample.gui.custom.CustomGUIAgent"),
+							new Sample("Property GUI agent", "madkit.sample.gui.properties.PropertyAgent"))),
+			new SamplePackage("Logging", "/madkit/sample/logging/README.md",
+					List.of(new Sample("Verbose agent", "madkit.sample.logging.VerboseAgent"),
+							new Sample("Log file agent", "madkit.sample.logging.LogFileAgent"),
+							new Sample("No-log agent", "madkit.sample.logging.NoLogAgent"))),
+			new SamplePackage("Randomization", "/madkit/sample/randomization/README.md",
+					List.of(new Sample("Randomization demo", "madkit.sample.randomization.RandomizationDemo"))),
+			new SamplePackage("ChartFX", "/madkit/sample/chartfx/README.md",
+					List.of(new Sample("Population chart", "madkit.sample.chartfx.PopulationChartLauncher", "--start"),
+							new Sample("Metric chart", "madkit.sample.chartfx.MetricChartLauncher", "--start"))));
 
 	private final ExecutorService launcherExecutor = Executors.newCachedThreadPool(r -> {
 		Thread thread = new Thread(r, "madkit-sample-launcher");
@@ -86,14 +89,15 @@ public final class SamplesLauncher extends Application {
 	@Override
 	public void start(Stage stage) {
 		ListView<SamplePackage> packageList = new ListView<>(FXCollections.observableArrayList(PACKAGES));
-		packageList.setCellFactory(view -> new ListCell<>() {
+		packageList.setCellFactory(_ -> new ListCell<>() {
 			@Override
 			protected void updateItem(SamplePackage item, boolean empty) {
 				super.updateItem(item, empty);
 				setText(empty || item == null ? null : item.name());
 			}
 		});
-		packageList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, selected) -> showPackage(selected));
+		packageList.getSelectionModel().selectedItemProperty().addListener((_, _, selected) -> showPackage(selected));
+		packageList.setMaxWidth(400);
 		documentation.setContextMenuEnabled(false);
 
 		BorderPane right = new BorderPane(documentation);
@@ -106,11 +110,11 @@ public final class SamplesLauncher extends Application {
 		BorderPane.setMargin(sampleButtons, new Insets(8, 0, 0, 0));
 
 		SplitPane content = new SplitPane(packageList, right);
-		content.setDividerPositions(0.25);
+		content.setDividerPositions(0.15);
 		Scene scene = new Scene(content, 1100, 700);
 		stage.setTitle("MaDKit Samples");
 		stage.setScene(scene);
-		stage.setOnCloseRequest(event -> System.exit(0));
+		stage.setOnCloseRequest(_ -> System.exit(0));
 		stage.show();
 		packageList.getSelectionModel().selectFirst();
 	}
@@ -124,7 +128,7 @@ public final class SamplesLauncher extends Application {
 		for (Sample sample : samplePackage.samples()) {
 			Button button = new Button("Launch " + sample.name());
 			button.setMaxWidth(Double.MAX_VALUE);
-			button.setOnAction(event -> launch(sample));
+			button.setOnAction(_ -> launch(sample));
 			sampleButtons.getChildren().add(button);
 		}
 	}
@@ -134,9 +138,11 @@ public final class SamplesLauncher extends Application {
 			try {
 				Method main = Class.forName(sample.className()).getMethod("main", String[].class);
 				main.invoke(null, (Object) sample.arguments());
-			} catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException exception) {
-				Throwable cause = exception instanceof InvocationTargetException invocation
-						&& invocation.getCause() != null ? invocation.getCause() : exception;
+			} catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+					| InvocationTargetException exception) {
+				Throwable cause = exception instanceof InvocationTargetException invocation && invocation.getCause() != null
+						? invocation.getCause()
+						: exception;
 				Platform.runLater(() -> showError(sample.name(), cause));
 			}
 		});

@@ -6,3 +6,5 @@ both authorized and rejected access.
 
 Launchable classes: `GroupAndRoleDemo`, `OrganizationExplorer`, and
 `SecuredGroupDemo`.
+
+[View the source code on GitHub](https://github.com/fmichel/MaDKit/tree/main/MDK-samples/src/main/java/madkit/sample/organization)

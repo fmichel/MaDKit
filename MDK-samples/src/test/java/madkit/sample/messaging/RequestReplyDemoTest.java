@@ -10,11 +10,14 @@ public class RequestReplyDemoTest {
 
     @Test
     public void givenRequestReplyDemo_whenInspectingClass_thenActivationLiveAndMainArePresent() throws Exception {
+        // Given
         Method activation = RequestReplyDemo.class.getDeclaredMethod("onActivation");
         Method live = RequestReplyDemo.class.getDeclaredMethod("onLive");
         Method main = RequestReplyDemo.class.getMethod("main", String[].class);
-        assertThat(activation).isNotNull();
-        assertThat(live).isNotNull();
-        assertThat(main).isNotNull();
+        // When
+        boolean methodsPresent = activation != null && live != null && main != null;
+
+        // Then
+        assertThat(methodsPresent).isTrue();
     }
 }

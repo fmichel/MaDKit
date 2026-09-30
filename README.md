@@ -37,7 +37,7 @@ It also provides default simulation settings that can be used and extended to qu
 Its conceptual approach to multi-agent based simulation mainly relies on this [research paper](http://www.lirmm.fr/~fmichel/publi/pdfs/michel09mas_and_ms.pdf).
 
 ## Programming with MaDKit
-JDK 23+ is required. 
+ JDK 25+ is required.
 
 Using MaDKit can be done by [declaring it as a dependency using your favorite build tool](https://mvnrepository.com/artifact/io.github.fmichel/madkit).
 

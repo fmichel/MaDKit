@@ -4,6 +4,7 @@
  */
 open module madkit.samples {
 	requires madkit.base;
+	requires java.desktop;
 	requires javafx.controls;
 	requires javafx.web;
 	requires org.commonmark;

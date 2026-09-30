@@ -6,3 +6,5 @@ show typed and fluent configuration without assembling command-line strings.
 
 Launchable classes: `HelloMaDKit`, `MultipleLaunching`, `CommandLineOptions`,
 `MadkitBuilderDemo`, and `MadkitBuilderOptionsDemo`.
+
+[View the source code on GitHub](https://github.com/fmichel/MaDKit/tree/main/MDK-samples/src/main/java/madkit/sample/launching)

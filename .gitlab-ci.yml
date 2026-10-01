@@ -77,6 +77,10 @@ deploy-javadoc:
 
 deploy-production:
   extends: .deploy_gpg_job
+  variables:
+    SIGNING_KEY_ID: "$SIGNING_KEY_ID"
+    SIGNING_KEY_PASSWORD: "$SIGNING_KEY_PASSWORD"
+    SIGNING_KEY_BASE64: "$SIGNING_KEY_BASE64"
   script: 
      - ./gradlew -Pversion="$CI_COMMIT_TAG" -PmavenCentralPassword="$mavenCentralPassword" -PmavenCentralUsername="$mavenCentralUsername" MaDKit:publishToMavenCentral
   rules:
@@ -88,3 +92,12 @@ deploy-staging:
      - ./gradlew -Pversion="$VERSION-SNAPSHOT" -PmavenCentralPassword="$mavenCentralPassword" -PmavenCentralUsername="$mavenCentralUsername" MaDKit:publishToMavenCentral
   rules:
     - if: $CI_COMMIT_BRANCH == 'main'
+
+check-signing-key:
+  stage: verify
+  script:
+    - test -n "$SIGNING_KEY_BASE64"
+    - echo "$SIGNING_KEY_BASE64" | base64 -d > signing-subkey.asc
+    - test "$(head -n 1 signing-subkey.asc)" = "-----BEGIN PGP PRIVATE KEY BLOCK-----"
+    - test "$(tail -n 1 signing-subkey.asc)" = "-----END PGP PRIVATE KEY BLOCK-----"
+    - echo "Signing key format is valid"
